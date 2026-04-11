@@ -31,8 +31,8 @@ module.exports = {
     },
     {
       name: "hal-frontend",
-      // Next.js standalone: workspace root = repo root → server.js frontend/ altında
-      script: ".next/standalone/frontend/server.js",
+      // Next.js standalone server.js — deploy scripti doğru path'e symlink kurar
+      script: "standalone-server.js",
       cwd: "./frontend",
       interpreter: "node",
       instances: 1,
