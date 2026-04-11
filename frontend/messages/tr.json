@@ -1,0 +1,81 @@
+{
+  "common": {
+    "loading": "Yükleniyor...",
+    "error": "Bir hata oluştu",
+    "noData": "Veri bulunamadı",
+    "search": "Ara...",
+    "filter": "Filtrele",
+    "all": "Tümü",
+    "back": "Geri",
+    "seeAll": "Tümünü Gör",
+    "currency": "₺",
+    "unit": "kg",
+    "perKg": "/ kg"
+  },
+  "nav": {
+    "home": "Ana Sayfa",
+    "prices": "Hal Fiyatları",
+    "compare": "Karşılaştır",
+    "about": "Hakkımızda",
+    "contact": "İletişim"
+  },
+  "home": {
+    "hero": {
+      "title": "Türkiye Hal Fiyatları",
+      "subtitle": "Günlük, gerçek zamanlı sebze ve meyve hal fiyatları",
+      "lastUpdate": "Son güncelleme",
+      "searchPlaceholder": "Ürün veya hal ara..."
+    },
+    "stats": {
+      "products": "Ürün",
+      "markets": "Hal",
+      "cities": "Şehir",
+      "updates": "Günlük Güncelleme"
+    },
+    "trending": "Trend Ürünler",
+    "risingPrices": "Yükselen Fiyatlar",
+    "fallingPrices": "Düşen Fiyatlar"
+  },
+  "prices": {
+    "title": "Hal Fiyatları",
+    "filterByCity": "Şehir Filtrele",
+    "filterByCategory": "Kategori",
+    "sortBy": "Sırala",
+    "priceAsc": "Fiyat (Düşük→Yüksek)",
+    "priceDesc": "Fiyat (Yüksek→Düşük)",
+    "nameAsc": "İsim (A→Z)",
+    "priceChange": "Değişim",
+    "minPrice": "Min. Fiyat",
+    "maxPrice": "Maks. Fiyat",
+    "avgPrice": "Ort. Fiyat",
+    "date": "Tarih",
+    "market": "Hal",
+    "city": "Şehir",
+    "product": "Ürün"
+  },
+  "market": {
+    "title": "Hal Bilgisi",
+    "priceHistory": "Fiyat Geçmişi",
+    "topProducts": "En Çok İşlem Gören"
+  },
+  "product": {
+    "title": "Ürün Fiyat Takibi",
+    "chart7d": "7 Günlük",
+    "chart30d": "30 Günlük",
+    "chart90d": "90 Günlük",
+    "allMarkets": "Tüm Hallerde Fiyat"
+  },
+  "alert": {
+    "title": "Fiyat Alarmı Kur",
+    "description": "Seçtiğin ürün belirlediğin fiyata gelince seni bildirelim",
+    "targetPrice": "Hedef Fiyat",
+    "subscribe": "Alarm Kur",
+    "success": "Alarm kuruldu!"
+  },
+  "footer": {
+    "description": "Türkiye'nin hal fiyatları platformu. Günlük sebze ve meyve fiyatlarını takip et.",
+    "links": "Bağlantılar",
+    "legal": "Yasal",
+    "copyright": "© 2025 HalDeFiyat. Tüm hakları saklıdır."
+  }
+}

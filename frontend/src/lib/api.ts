@@ -1,0 +1,190 @@
+/**
+ * Server-side fetch helpers (RSC).
+ *
+ * NEDEN: api-client.ts client-side, JWT'li ve credentials: include kullanir.
+ * RSC'lerde fetch() Next.js cache katmanini kullanmali (revalidate). Bu yuzden
+ * iki ayri katman: api.ts (server) + api-client.ts (browser).
+ */
+
+const API: string = process.env.NEXT_PUBLIC_API_URL
+  ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")}/api/v1`
+  : "/api/v1";
+
+// ── Tipler ──────────────────────────────────────────────────────────────────
+
+export interface PriceRow {
+  id: number;
+  minPrice: string | null;
+  maxPrice: string | null;
+  avgPrice: string;
+  currency: string;
+  unit: string;
+  recordedDate: string;
+  sourceApi: string;
+  productSlug: string;
+  productName: string;
+  categorySlug: string;
+  marketSlug: string;
+  marketName: string;
+  cityName: string;
+}
+
+export interface Product {
+  id: number;
+  slug: string;
+  nameTr: string;
+  categorySlug: string;
+  unit: string;
+}
+
+export interface Market {
+  id: number;
+  slug: string;
+  name: string;
+  cityName: string;
+  regionSlug: string | null;
+  sourceKey: string | null;
+}
+
+export interface TrendingItem {
+  productId: number;
+  marketId: number;
+  changePct: number;
+  latest: number;
+  previous: number;
+  product?: { id: number; slug: string; nameTr: string; categorySlug: string };
+  market?: { id: number; slug: string; name: string; cityName: string };
+}
+
+export interface PriceHistoryRow {
+  recordedDate: string;
+  minPrice: string | null;
+  maxPrice: string | null;
+  avgPrice: string;
+  marketSlug: string;
+  marketName: string;
+  cityName: string;
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+type QueryValue = string | number | undefined | null;
+type QueryRecord = Record<string, QueryValue>;
+
+function buildQuery(params: QueryRecord): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null || value === "") continue;
+    search.append(key, String(value));
+  }
+  const qs = search.toString();
+  return qs ? `?${qs}` : "";
+}
+
+interface ApiEnvelope<T> {
+  success?: boolean;
+  data?: T;
+}
+
+async function safeFetch<T>(
+  path: string,
+  revalidate: number,
+  fallback: T,
+): Promise<T> {
+  try {
+    const res = await fetch(`${API}${path}`, {
+      next: { revalidate },
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) {
+      console.error(`[api] ${path} → ${res.status} ${res.statusText}`);
+      return fallback;
+    }
+    const json = (await res.json()) as unknown;
+    return unwrapPayload<T>(json, fallback);
+  } catch (err) {
+    console.error(`[api] ${path} → fetch error`, err);
+    return fallback;
+  }
+}
+
+/**
+ * Backend cevabini fallback tipine indirger.
+ *
+ * NEDEN: Hal Fiyatlari backend'i `{ items: [...] }` zarfi kullaniyor; bazi
+ * endpoint'ler ise dogrudan dizi/object dondurebilir. Tek noktada normalize
+ * ederiz, fetcher fonksiyonlari saf kalir.
+ */
+function unwrapPayload<T>(json: unknown, fallback: T): T {
+  if (json == null) return fallback;
+  if (Array.isArray(fallback)) {
+    if (Array.isArray(json)) return json as T;
+    if (typeof json === "object") {
+      const obj = json as Record<string, unknown>;
+      if (Array.isArray(obj.items)) return obj.items as T;
+      if (Array.isArray(obj.data)) return obj.data as T;
+    }
+    return fallback;
+  }
+  if (typeof json === "object" && json !== null) {
+    const obj = json as Record<string, unknown>;
+    if ("data" in obj && obj.data != null) return obj.data as T;
+  }
+  return (json as T) ?? fallback;
+}
+
+// ── Public fetchers ─────────────────────────────────────────────────────────
+
+export interface FetchPricesParams {
+  product?: string;
+  city?: string;
+  market?: string;
+  category?: string;
+  range?: string;
+  limit?: number;
+}
+
+export async function fetchPrices(
+  params: FetchPricesParams = {},
+): Promise<PriceRow[]> {
+  const qs = buildQuery({
+    product: params.product,
+    city: params.city,
+    market: params.market,
+    category: params.category,
+    range: params.range,
+    limit: params.limit,
+  });
+  return safeFetch<PriceRow[]>(`/prices${qs}`, 300, []);
+}
+
+export async function fetchProducts(
+  q?: string,
+  category?: string,
+): Promise<Product[]> {
+  const qs = buildQuery({ q, category });
+  return safeFetch<Product[]>(`/prices/products${qs}`, 300, []);
+}
+
+export async function fetchMarkets(city?: string): Promise<Market[]> {
+  const qs = buildQuery({ city });
+  return safeFetch<Market[]>(`/markets${qs}`, 300, []);
+}
+
+export async function fetchTrending(limit?: number): Promise<TrendingItem[]> {
+  const qs = buildQuery({ limit });
+  return safeFetch<TrendingItem[]>(`/prices/trending${qs}`, 60, []);
+}
+
+export async function fetchPriceHistory(
+  productSlug: string,
+  marketSlug?: string,
+  range?: string,
+): Promise<PriceHistoryRow[]> {
+  const qs = buildQuery({ market: marketSlug, range });
+  return safeFetch<PriceHistoryRow[]>(
+    `/prices/history/${encodeURIComponent(productSlug)}${qs}`,
+    300,
+    [],
+  );
+}

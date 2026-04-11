@@ -1,0 +1,20 @@
+{
+  "name": "@agro/shared-ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./admin/ui/*": "./admin/components/ui/*.tsx",
+    "./admin/data-table/*": "./admin/components/data-table/*.tsx",
+    "./admin/stores/*": "./admin/stores/*/*.ts",
+    "./admin/lib/*": "./admin/lib/*.ts",
+    "./public/seo/*": "./public/components/seo/*.tsx",
+    "./public/lib/*": "./public/lib/*.ts"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.0.0"
+  }
+}

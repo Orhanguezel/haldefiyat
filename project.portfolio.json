@@ -1,0 +1,52 @@
+{
+  "title": "Hal Fiyatlari",
+  "slug": "hal-fiyatlari",
+  "summary": "Günlük hal ve piyasa fiyatlarını toplayan, çiftçiye ve sektör oyuncularına anlık fiyat takibi sunan tarım veri platformu. Ürün ve şehir bazlı filtreleme, geçmiş fiyat karşılaştırma ve trend analizi.",
+  "category": "AGRICULTURE DATA",
+  "services": [
+    "Full Stack Development",
+    "Backend Development",
+    "Frontend Development",
+    "API Design",
+    "Data Modeling"
+  ],
+  "techs": [
+    "TypeScript",
+    "Next.js",
+    "React",
+    "Fastify",
+    "Drizzle ORM",
+    "MySQL",
+    "Bun",
+    "Zod",
+    "Tailwind CSS"
+  ],
+  "features": [
+    "Günlük hal fiyatları listeleme",
+    "Ürün ve şehir/hal bazlı filtreleme",
+    "Geçmiş fiyat karşılaştırma ve trend analizi",
+    "Otomatik veri toplama (cron)",
+    "Ekosistem paylaşımlı auth (shared-backend)",
+    "REST API — ekosistem modüllerine fiyat servisi",
+    "Admin paneli — manuel fiyat girişi"
+  ],
+  "designHighlights": [
+    "hf_ prefix ile şema ayrımı",
+    "Tarım Dijital Ekosistemi'nin merkezi fiyat veri servisi"
+  ],
+  "featured": false,
+  "displayOrder": 25,
+  "clientName": "Own Project — Tarım Dijital Ekosistemi",
+  "status": "live",
+  "startDate": "2026-04-01",
+  "completeDate": null,
+  "completionTimeLabel": "Aktif geliştirme",
+  "repoUrl": null,
+  "websiteUrl": "https://haldefiyat.com",
+  "demoUrl": null,
+  "featuredImage": null,
+  "featuredImageAlt": "Hal Fiyatlari",
+  "resumeTitle": "Hal Fiyatlari",
+  "resumeSubtitle": "Günlük Hal ve Piyasa Fiyat Platformu",
+  "excludeFromPortfolio": false
+}

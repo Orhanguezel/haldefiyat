@@ -1,0 +1,197 @@
+@import "tailwindcss";
+@import "../../../../../packages/shared-config/tailwind-tokens.css";
+@plugin "@tailwindcss/typography";
+@source "../**/*.{js,ts,jsx,tsx,mdx}";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  /* Brand — Lime/Neon Yesil (Fiyat Platformu Aksani) */
+  --color-brand:        hsl(102 85% 57%);
+  --color-brand-dark:   hsl(102 85% 45%);
+  --color-brand-light:  hsl(102 85% 15%);
+  --color-brand-xlight: hsl(102 85% 8%);
+
+  /* Slate — Koyu arkaplan */
+  --color-navy:         hsl(225 30% 6%);
+  --color-navy-mid:     hsl(225 28% 9%);
+  --color-navy-soft:    hsl(225 26% 12%);
+
+  /* Semantic */
+  --color-success:      hsl(142 76% 36%);
+  --color-success-bg:   hsl(142 76% 10%);
+  --color-warning:      hsl(38 92% 50%);
+  --color-warning-bg:   hsl(38 92% 10%);
+  --color-danger:       hsl(0 84% 60%);
+  --color-danger-bg:    hsl(0 84% 10%);
+  --color-info:         hsl(213 94% 67%);
+  --color-info-bg:      hsl(213 94% 10%);
+
+  /* Neutral — Dark mode defaults */
+  --color-foreground:   hsl(225 30% 95%);
+  --color-muted:        hsl(225 20% 55%);
+  --color-faint:        hsl(225 16% 40%);
+  --color-border:       hsl(225 20% 18%);
+  --color-border-soft:  hsl(225 20% 14%);
+  --color-surface:      hsl(225 28% 9%);
+  --color-background:   hsl(225 30% 6%);
+  --color-bg-alt:       hsl(225 26% 11%);
+
+  /* Font stacks */
+  --font-display: "Outfit", system-ui, sans-serif;
+  --font-sans:    "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono:    "IBM Plex Mono", "JetBrains Mono", monospace;
+
+  /* Border radius */
+  --radius-sm:   0.25rem;
+  --radius:      0.5rem;
+  --radius-md:   0.5rem;
+  --radius-lg:   0.75rem;
+  --radius-xl:   1rem;
+  --radius-2xl:  1.5rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-brand: 0 4px 20px hsl(102 85% 57% / 0.20);
+  --shadow-card:  0 1px 3px hsl(225 30% 4% / 0.5);
+
+  /* Animations */
+  --animate-fade-in:  fade-in  200ms ease forwards;
+  --animate-scale-in: scale-in 150ms ease forwards;
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes orb-float {
+    0%, 100% { transform: translate(0, 0); }
+    33%       { transform: translate(30px, -40px); }
+    66%       { transform: translate(-20px, 30px); }
+  }
+  @keyframes price-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.6; }
+  }
+}
+
+/* Base — Platform her zaman dark tema kullanir */
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Ambient arkaplan efekti */
+.ambient-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  opacity: 0.4;
+  animation: orb-float 20s ease-in-out infinite;
+}
+
+/* Fiyat degisim renkleri */
+.price-up   { color: hsl(142 76% 45%); }
+.price-down { color: hsl(0 84% 60%); }
+.price-flat { color: hsl(225 20% 55%); }
+
+/* Tablo stilleri */
+.price-table tr:hover td {
+  background-color: hsl(225 26% 12%);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-background); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+/* ── Ambient orb'lar (HalDeFiyat hero arkaplani) ── */
+.ambient-orb-1 {
+  position: absolute;
+  width: 600px; height: 600px;
+  top: -200px; right: -100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(132, 240, 76, 0.08), transparent 70%);
+  filter: blur(120px);
+  opacity: 0.4;
+  animation: orb-float 20s ease-in-out infinite;
+}
+.ambient-orb-2 {
+  position: absolute;
+  width: 500px; height: 500px;
+  bottom: 20%; left: -150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.06), transparent 70%);
+  filter: blur(120px);
+  opacity: 0.4;
+  animation: orb-float 25s ease-in-out infinite reverse;
+}
+.ambient-orb-3 {
+  position: absolute;
+  width: 400px; height: 400px;
+  top: 60%; right: 10%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.05), transparent 70%);
+  filter: blur(120px);
+  opacity: 0.4;
+  animation: orb-float 18s ease-in-out infinite 5s;
+}
+
+/* ── Live data pulse dot ── */
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: hsl(102 85% 57%);
+  box-shadow: 0 0 0 0 hsl(102 85% 57% / 0.6);
+  animation: live-pulse 2s ease-out infinite;
+}
+@keyframes live-pulse {
+  0%   { box-shadow: 0 0 0 0 hsl(102 85% 57% / 0.6); }
+  70%  { box-shadow: 0 0 0 8px hsl(102 85% 57% / 0); }
+  100% { box-shadow: 0 0 0 0 hsl(102 85% 57% / 0); }
+}
+
+/* ── Ticker scroll (PriceTicker) ── */
+@keyframes ticker-move {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-track {
+  animation: ticker-move 50s linear infinite;
+}
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+.ticker-mask {
+  mask-image: linear-gradient(90deg, transparent, #000 40px, #000 calc(100% - 40px), transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 40px, #000 calc(100% - 40px), transparent);
+}
+
+/* ── Live dot small (Hero chip) ── */
+.live-dot-sm {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: hsl(102 85% 57%);
+  box-shadow: 0 0 6px hsl(102 85% 57%);
+  animation: live-pulse 2s ease-out infinite;
+}

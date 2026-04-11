@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HalDeFiyat — Türkiye Hal Fiyatları Platformu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --slate-950: #0a0e1a;
+  --slate-900: #0f1424;
+  --slate-850: #131a2e;
+  --slate-800: #1a2138;
+  --slate-750: #1e2742;
+  --slate-700: #253050;
+  --slate-600: #3a4670;
+  --slate-500: #5a6890;
+  --slate-400: #8290b0;
+  --slate-300: #a8b4d0;
+  --slate-200: #c8d0e8;
+  --slate-100: #e4e8f4;
+
+  --lime-500: #84f04c;
+  --lime-400: #a0ff6e;
+  --lime-300: #c0ffaa;
+  --lime-glow: rgba(132,240,76,0.15);
+
+  --green-500: #22c55e;
+  --green-400: #4ade80;
+  --green-bg: rgba(34,197,94,0.1);
+
+  --red-500: #ef4444;
+  --red-400: #f87171;
+  --red-bg: rgba(239,68,68,0.1);
+
+  --amber-500: #f59e0b;
+  --amber-bg: rgba(245,158,11,0.1);
+
+  --blue-500: #3b82f6;
+  --blue-bg: rgba(59,130,246,0.1);
+
+  --bg: var(--slate-950);
+  --bg-card: var(--slate-900);
+  --bg-card-hover: var(--slate-850);
+  --bg-elevated: var(--slate-800);
+  --border: rgba(255,255,255,0.06);
+  --border-hover: rgba(255,255,255,0.12);
+  --text: #f0f2f8;
+  --text-secondary: var(--slate-400);
+  --text-muted: var(--slate-500);
+
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── AMBIENT BACKGROUND ── */
+.ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.4;
+}
+.ambient-orb.o1 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(132,240,76,0.08), transparent 70%);
+  top: -200px; right: -100px;
+  animation: orbFloat 20s ease-in-out infinite;
+}
+.ambient-orb.o2 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(59,130,246,0.06), transparent 70%);
+  bottom: 20%; left: -150px;
+  animation: orbFloat 25s ease-in-out infinite reverse;
+}
+.ambient-orb.o3 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(245,158,11,0.05), transparent 70%);
+  top: 60%; right: 10%;
+  animation: orbFloat 18s ease-in-out infinite 5s;
+}
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(30px, -40px); }
+  66% { transform: translate(-20px, 30px); }
+}
+
+/* Grid pattern */
+.grid-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.03;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  background: rgba(15,20,36,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+  position: relative;
+  z-index: 100;
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.topbar-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--lime-500);
+  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.topbar-live .dot {
+  width: 6px; height: 6px;
+  background: var(--lime-500);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 8px var(--lime-500);
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.topbar-stats {
+  display: flex;
+  gap: 16px;
+}
+.topbar-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.topbar-stat .val { color: var(--slate-300); font-family: var(--font-mono); font-weight: 500; }
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+/* ── HEADER ── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  background: rgba(10,14,26,0.88);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 32px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--text);
+}
+.logo-mark {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--lime-500), var(--green-500));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--slate-950);
+  font-family: var(--font-display);
+  box-shadow: 0 0 20px rgba(132,240,76,0.2);
+}
+.logo-wordmark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.03em;
+}
+.logo-wordmark span { color: var(--lime-500); }
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+nav a {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+nav a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+nav a.active {
+  color: var(--lime-400);
+  background: var(--lime-glow);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 14px;
+  width: 240px;
+  transition: all 0.3s;
+}
+.search-bar:focus-within { border-color: var(--lime-500); background: rgba(132,240,76,0.04); box-shadow: 0 0 0 3px rgba(132,240,76,0.08); }
+.search-bar input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  width: 100%;
+}
+.search-bar input::placeholder { color: var(--slate-600); }
+.search-bar .kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--slate-600);
+  background: rgba(255,255,255,0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.btn-outline {
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-outline:hover { border-color: var(--border-hover); color: var(--text); background: rgba(255,255,255,0.03); }
+.btn-primary {
+  padding: 8px 20px;
+  background: var(--lime-500);
+  color: var(--slate-950);
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 0 16px rgba(132,240,76,0.2);
+}
+.btn-primary:hover { background: var(--lime-400); transform: translateY(-1px); box-shadow: 0 0 24px rgba(132,240,76,0.3); }
+
+.mobile-toggle { display: none; background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  z-index: 1;
+  padding: 100px 32px 80px;
+  text-align: center;
+}
+.hero-inner {
+  max-width: 860px;
+  margin: 0 auto;
+}
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--lime-glow);
+  border: 1px solid rgba(132,240,76,0.2);
+  color: var(--lime-400);
+  padding: 6px 18px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 32px;
+  animation: fadeInDown 0.6s ease;
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin-bottom: 24px;
+  animation: fadeInUp 0.7s ease;
+}
+.hero h1 .gradient-text {
+  background: linear-gradient(135deg, var(--lime-500), var(--green-400), var(--lime-300));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: 19px;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+  animation: fadeInUp 0.7s ease 0.1s both;
+}
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 64px;
+  animation: fadeInUp 0.7s ease 0.2s both;
+}
+.hero-btn-lg {
+  padding: 16px 36px;
+  background: var(--lime-500);
+  color: var(--slate-950);
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 0 30px rgba(132,240,76,0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hero-btn-lg:hover { background: var(--lime-400); transform: translateY(-2px); box-shadow: 0 0 40px rgba(132,240,76,0.35); }
+.hero-btn-ghost {
+  padding: 16px 28px;
+  background: rgba(255,255,255,0.04);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.hero-btn-ghost:hover { background: rgba(255,255,255,0.08); color: var(--text); border-color: var(--border-hover); }
+
+/* Hero Features Row */
+.hero-features {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  animation: fadeInUp 0.7s ease 0.35s both;
+}
+.hero-feat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.hero-feat-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── LIVE TICKER ── */
+.ticker-section {
+  position: relative;
+  z-index: 1;
+  padding: 0 32px 80px;
+}
+.ticker-bar {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 20px 28px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  overflow: hidden;
+}
+.ticker-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--lime-500);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.ticker-scroll-area {
+  overflow: hidden;
+  flex: 1;
+  mask-image: linear-gradient(90deg, transparent, #000 40px, #000 calc(100% - 40px), transparent);
+}
+.ticker-items {
+  display: flex;
+  gap: 32px;
+  animation: tickerMove 50s linear infinite;
+  width: max-content;
+}
+.ticker-items:hover { animation-play-state: paused; }
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.ticker-item .emoji { font-size: 18px; }
+.ticker-item .name { font-weight: 600; font-size: 13px; color: var(--slate-200); }
+.ticker-item .price { font-family: var(--font-mono); font-weight: 600; font-size: 13px; color: var(--text); }
+.ticker-item .change { font-family: var(--font-mono); font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+.ticker-item .change.up { background: var(--green-bg); color: var(--green-400); }
+.ticker-item .change.down { background: var(--red-bg); color: var(--red-400); }
+.ticker-sep { width: 1px; height: 16px; background: var(--border); flex-shrink: 0; }
+
+@keyframes tickerMove {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── SECTION COMMONS ── */
+section.content { position: relative; z-index: 1; padding: 80px 32px; }
+.section-inner { max-width: 1400px; margin: 0 auto; }
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+.section-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--lime-500);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.section-head .view-all {
+  font-size: 13px;
+  color: var(--lime-400);
+  text-decoration: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: gap 0.2s;
+}
+.section-head .view-all:hover { gap: 8px; }
+
+/* ── PRICE DASHBOARD ── */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.price-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.price-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  padding: 1px;
+  background: linear-gradient(135deg, transparent 40%, rgba(132,240,76,0.15));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.price-card:hover::before { opacity: 1; }
+.price-card:hover { background: var(--bg-card-hover); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+
+.pc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.pc-product {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pc-emoji { font-size: 28px; }
+.pc-name { font-weight: 700; font-size: 15px; }
+.pc-location { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.pc-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.pc-badge.up { background: var(--green-bg); color: var(--green-400); }
+.pc-badge.down { background: var(--red-bg); color: var(--red-400); }
+.pc-badge.stable { background: var(--blue-bg); color: var(--blue-500); }
+
+.pc-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.pc-price {
+  font-family: var(--font-mono);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.pc-unit { font-size: 13px; color: var(--text-muted); font-family: var(--font-mono); }
+
+.pc-change {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.pc-change.up { color: var(--green-400); }
+.pc-change.down { color: var(--red-400); }
+
+/* Mini sparkline chart */
+.pc-chart {
+  height: 40px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.02);
+}
+.pc-chart svg { width: 100%; height: 100%; }
+.pc-chart .line { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pc-chart .area { opacity: 0.15; }
+.pc-chart.up .line { stroke: var(--green-400); }
+.pc-chart.up .area { fill: var(--green-400); }
+.pc-chart.down .line { stroke: var(--red-400); }
+.pc-chart.down .area { fill: var(--red-400); }
+
+.pc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ── CITY SELECTOR ── */
+.cities-section { padding: 0 32px 80px; position: relative; z-index: 1; }
+.cities-inner { max-width: 1400px; margin: 0 auto; }
+.cities-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+.city-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.city-card:hover { background: var(--bg-card-hover); border-color: var(--border-hover); transform: translateY(-3px); }
+.city-card.featured {
+  border-color: rgba(132,240,76,0.2);
+  background: rgba(132,240,76,0.03);
+}
+.city-card.featured:hover { border-color: rgba(132,240,76,0.4); }
+.city-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+.city-count { font-size: 12px; color: var(--text-muted); }
+.city-hot {
+  position: absolute;
+  top: 8px; right: 8px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--lime-400);
+  background: var(--lime-glow);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+}
+
+/* ── FEATURES ── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.feat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 40px 32px;
+  transition: all 0.35s;
+  position: relative;
+}
+.feat-card:hover { background: var(--bg-card-hover); transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.25); }
+.feat-icon {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin-bottom: 24px;
+}
+.feat-icon.g { background: var(--lime-glow); border: 1px solid rgba(132,240,76,0.15); }
+.feat-icon.b { background: var(--blue-bg); border: 1px solid rgba(59,130,246,0.15); }
+.feat-icon.a { background: var(--amber-bg); border: 1px solid rgba(245,158,11,0.15); }
+.feat-icon.r { background: var(--red-bg); border: 1px solid rgba(239,68,68,0.12); }
+.feat-icon.p { background: rgba(168,130,255,0.1); border: 1px solid rgba(168,130,255,0.12); }
+.feat-icon.t { background: rgba(20,184,166,0.1); border: 1px solid rgba(20,184,166,0.12); }
+.feat-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
+}
+.feat-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* ── STATS BAR ── */
+.stats-section {
+  position: relative;
+  z-index: 1;
+  padding: 0 32px 80px;
+}
+.stats-bar {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, var(--slate-850), var(--slate-800));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 48px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.stat-item { text-align: center; }
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 42px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+  background: linear-gradient(135deg, var(--lime-500), var(--lime-300));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ── HOW IT WORKS ── */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  counter-reset: step;
+}
+.step-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 36px 28px;
+  position: relative;
+  transition: all 0.3s;
+  counter-increment: step;
+}
+.step-card:hover { background: var(--bg-card-hover); transform: translateY(-4px); }
+.step-num {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--slate-800);
+  position: absolute;
+  top: 16px; right: 20px;
+  line-height: 1;
+}
+.step-icon { font-size: 32px; margin-bottom: 20px; display: block; }
+.step-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.step-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* ── CTA ── */
+.cta-section {
+  position: relative;
+  z-index: 1;
+  padding: 100px 32px;
+}
+.cta-card {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, rgba(132,240,76,0.06), rgba(59,130,246,0.04));
+  border: 1px solid rgba(132,240,76,0.15);
+  border-radius: 28px;
+  padding: 80px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-card::before {
+  content: '';
+  position: absolute;
+  top: -100px; left: 50%;
+  transform: translateX(-50%);
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(132,240,76,0.08), transparent 70%);
+  pointer-events: none;
+}
+.cta-card h2 {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 2;
+}
+.cta-card p {
+  color: var(--text-secondary);
+  font-size: 17px;
+  max-width: 480px;
+  margin: 0 auto 36px;
+  position: relative;
+  z-index: 2;
+}
+.cta-form {
+  display: flex;
+  gap: 12px;
+  max-width: 480px;
+  margin: 0 auto 32px;
+  position: relative;
+  z-index: 2;
+}
+.cta-input {
+  flex: 1;
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  outline: none;
+  transition: all 0.3s;
+}
+.cta-input::placeholder { color: var(--text-muted); }
+.cta-input:focus { border-color: var(--lime-500); box-shadow: 0 0 0 3px rgba(132,240,76,0.1); }
+.cta-submit {
+  padding: 16px 32px;
+  background: var(--lime-500);
+  color: var(--slate-950);
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+.cta-submit:hover { background: var(--lime-400); transform: translateY(-2px); }
+.cta-channels {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  font-size: 14px;
+  color: var(--text-muted);
+  position: relative;
+  z-index: 2;
+}
+.cta-channels a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cta-channels a:hover { color: var(--lime-400); }
+
+/* ── FOOTER ── */
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 64px 32px 32px;
+  background: rgba(10,14,26,0.6);
+}
+.footer-inner { max-width: 1400px; margin: 0 auto; }
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+}
+.footer-brand p {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.7;
+  margin-top: 16px;
+  max-width: 320px;
+}
+.footer-col h4 {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+  margin-bottom: 18px;
+}
+.footer-col a {
+  display: block;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 13px;
+  padding: 4px 0;
+  transition: color 0.2s;
+}
+.footer-col a:hover { color: var(--lime-400); }
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.footer-bottom a { color: var(--text-muted); text-decoration: none; }
+.footer-bottom a:hover { color: var(--lime-400); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+  .cities-grid { grid-template-columns: repeat(3, 1fr); }
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .steps-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .topbar { display: none; }
+  nav { display: none; }
+  .mobile-toggle { display: block; }
+  .search-bar { display: none; }
+  .hero h1 { font-size: 38px; }
+  .hero-features { flex-direction: column; gap: 16px; }
+  .hero-actions { flex-direction: column; width: 100%; }
+  .hero-btn-lg, .hero-btn-ghost { width: 100%; justify-content: center; }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .cities-grid { grid-template-columns: repeat(2, 1fr); }
+  .features-grid { grid-template-columns: 1fr; }
+  .stats-bar { grid-template-columns: 1fr 1fr; padding: 32px; }
+  .stat-value { font-size: 32px; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .section-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .cta-card { padding: 48px 24px; }
+  .cta-card h2 { font-size: 30px; }
+  .cta-form { flex-direction: column; }
+  .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+  .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+  section.content { padding: 60px 20px; }
+  .ticker-bar { border-radius: var(--radius); padding: 14px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient">
+  <div class="ambient-orb o1"></div>
+  <div class="ambient-orb o2"></div>
+  <div class="ambient-orb o3"></div>
+</div>
+<div class="grid-bg"></div>
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-live"><span class="dot"></span> Canlı Veri</span>
+    <div class="topbar-stats">
+      <div class="topbar-stat">İzlenen: <span class="val">&nbsp;2,480 ürün</span></div>
+      <div class="topbar-stat">Son güncelleme: <span class="val">&nbsp;14:32</span></div>
+      <div class="topbar-stat">Ortalama: <span class="val">&nbsp;▲ +2.4%</span></div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span>11 Nisan 2026 · Cumartesi</span>
+  </div>
+</div>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <div class="logo-mark">H</div>
+      <div class="logo-wordmark">Halde<span>Fiyat</span></div>
+    </a>
+    <nav>
+      <a href="#" class="active">Panel</a>
+      <a href="#fiyatlar">Fiyatlar</a>
+      <a href="#sehirler">Şehirler</a>
+      <a href="#grafikler">Grafikler</a>
+      <a href="#uyarilar">Uyarılar</a>
+      <a href="#hakkinda">Hakkımızda</a>
+    </nav>
+    <div class="header-right">
+      <div class="search-bar">
+        <span style="color:var(--text-muted)">🔍</span>
+        <input type="text" placeholder="Ürün veya şehir ara...">
+        <span class="kbd">⌘K</span>
+      </div>
+      <button class="btn-outline">Giriş Yap</button>
+      <button class="btn-primary">Ücretsiz Başla</button>
+    </div>
+    <button class="mobile-toggle">☰</button>
+  </div>
+</header>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-chip">
+      <span class="dot" style="width:6px;height:6px;background:var(--lime-500);border-radius:50%;animation:pulse 2s infinite;box-shadow:0 0 6px var(--lime-500)"></span>
+      Canlı Veri Akışı · 81 İl
+    </div>
+    <h1>Türkiye Hal Fiyatları<br><span class="gradient-text">Tek Ekranda</span></h1>
+    <p class="hero-sub">İstanbul, Ankara, İzmir ve tüm illerden günlük sebze-meyve hal fiyatlarını anlık takip edin. Fiyat grafikleri, trend analizleri ve akıllı uyarılar.</p>
+    <div class="hero-actions">
+      <button class="hero-btn-lg">📊 Fiyatları Keşfet</button>
+      <button class="hero-btn-ghost">Nasıl Çalışır?</button>
+    </div>
+    <div class="hero-features">
+      <div class="hero-feat">
+        <div class="hero-feat-icon">📊</div>
+        <span>Günlük Fiyat Verileri</span>
+      </div>
+      <div class="hero-feat">
+        <div class="hero-feat-icon">🏪</div>
+        <span>81 İl Hal Bilgisi</span>
+      </div>
+      <div class="hero-feat">
+        <div class="hero-feat-icon">📈</div>
+        <span>Fiyat Grafikleri</span>
+      </div>
+      <div class="hero-feat">
+        <div class="hero-feat-icon">🔔</div>
+        <span>Fiyat Uyarıları</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LIVE TICKER ── -->
+<div class="ticker-section">
+  <div class="ticker-bar">
+    <div class="ticker-label"><span class="dot" style="width:6px;height:6px;background:var(--lime-500);border-radius:50%;animation:pulse 2s infinite"></span> CANLI</div>
+    <div class="ticker-scroll-area">
+      <div class="ticker-items" id="tickerItems">
+        <!-- JS fills -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PRICE DASHBOARD ── -->
+<section class="content" id="fiyatlar">
+  <div class="section-inner">
+    <div class="section-head">
+      <div>
+        <div class="section-tag">Anlık Fiyatlar</div>
+        <h2 class="section-title">Bugünkü Hal Fiyatları</h2>
+      </div>
+      <a href="#" class="view-all">Tüm ürünleri gör →</a>
+    </div>
+    <div class="dashboard-grid" id="dashboardGrid">
+      <!-- JS fills -->
+    </div>
+  </div>
+</section>
+
+<!-- ── CITIES ── -->
+<div class="cities-section" id="sehirler">
+  <div class="cities-inner">
+    <div class="section-head">
+      <div>
+        <div class="section-tag">81 İl</div>
+        <h2 class="section-title">Şehir Seçin</h2>
+      </div>
+      <a href="#" class="view-all">Tüm iller →</a>
+    </div>
+    <div class="cities-grid">
+      <div class="city-card featured">
+        <div class="city-hot">Popüler</div>
+        <div class="city-name">İstanbul</div>
+        <div class="city-count">342 ürün</div>
+      </div>
+      <div class="city-card featured">
+        <div class="city-hot">Popüler</div>
+        <div class="city-name">Ankara</div>
+        <div class="city-count">298 ürün</div>
+      </div>
+      <div class="city-card featured">
+        <div class="city-hot">Popüler</div>
+        <div class="city-name">İzmir</div>
+        <div class="city-count">276 ürün</div>
+      </div>
+      <div class="city-card">
+        <div class="city-name">Antalya</div>
+        <div class="city-count">245 ürün</div>
+      </div>
+      <div class="city-card">
+        <div class="city-name">Bursa</div>
+        <div class="city-count">210 ürün</div>
+      </div>
+      <div class="city-card">
+        <div class="city-name">Adana</div>
+        <div class="city-count">198 ürün</div>
+      </div>
+      <div class="city-card">
+        <div class="city-name">Konya</div>
+        <div class="city-count">187 ürün</div>
+      </div>
+      <div class="city-card">
+        <div class="city-name">Mersin</div>
+        <div class="city-count">176 ürün</div>
+      </div>
+      <div class="city-card">
+        <div class="city-name">Gaziantep</div>
+        <div class="city-count">165 ürün</div>
+      </div>
+      <div class="city-card">
+        <div class="city-name">Trabzon</div>
+        <div class="city-count">143 ürün</div>
+      </div>
+      <div class="city-card">
+        <div class="city-name">Kayseri</div>
+        <div class="city-count">132 ürün</div>
+      </div>
+      <div class="city-card">
+        <div class="city-name">Samsun</div>
+        <div class="city-count">128 ürün</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── STATS ── -->
+<div class="stats-section">
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-value">81</div>
+      <div class="stat-label">İl Hal Verisi</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">2,480+</div>
+      <div class="stat-label">Günlük İzlenen Ürün</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">2x</div>
+      <div class="stat-label">Günlük Güncelleme</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">%100</div>
+      <div class="stat-label">Ücretsiz Kullanım</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FEATURES ── -->
+<section class="content" id="hakkinda">
+  <div class="section-inner">
+    <div class="section-head">
+      <div>
+        <div class="section-tag">Platform Özellikleri</div>
+        <h2 class="section-title">Neden HalDeFiyat?</h2>
+      </div>
+    </div>
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon g">📊</div>
+        <h3 class="feat-title">Anlık Fiyat Verileri</h3>
+        <p class="feat-desc">Tüm büyük hallerden günde iki kez güncellenen canlı sebze ve meyve fiyatları. Min, max ve ortalama değerler.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon b">📈</div>
+        <h3 class="feat-title">Trend Grafikleri</h3>
+        <p class="feat-desc">Haftalık, aylık ve yıllık fiyat grafikleri ile piyasa trendlerini analiz edin. Karşılaştırmalı görünüm.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon a">🔔</div>
+        <h3 class="feat-title">Akıllı Fiyat Uyarıları</h3>
+        <p class="feat-desc">Hedef fiyat belirleyin, ürün istediğiniz fiyata düştüğünde veya çıktığında anında bildirim alın.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon r">🏪</div>
+        <h3 class="feat-title">81 İl Kapsamı</h3>
+        <p class="feat-desc">Türkiye'nin her ilinden hal verilerine erişin. Bölgesel fiyat farklılıklarını tek tıkla karşılaştırın.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon p">📱</div>
+        <h3 class="feat-title">Mobil Uyumlu</h3>
+        <p class="feat-desc">Tarlada, hallde veya masabaşında — her cihazdan kesintisiz erişim. PWA desteği ile offline kullanım.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon t">🌿</div>
+        <h3 class="feat-title">Tamamen Ücretsiz</h3>
+        <p class="feat-desc">Hiçbir ücret veya gizli maliyet yok. Çiftçiden tüketiciye herkese açık, bağımsız fiyat platformu.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STEPS ── -->
+<section class="content">
+  <div class="section-inner">
+    <div class="section-head">
+      <div>
+        <div class="section-tag">Başlangıç Rehberi</div>
+        <h2 class="section-title">Nasıl Çalışır?</h2>
+      </div>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <span class="step-num">01</span>
+        <span class="step-icon">🔍</span>
+        <h3 class="step-title">Şehir veya Ürün Seçin</h3>
+        <p class="step-desc">81 il arasından halinizi veya takip etmek istediğiniz ürünü bulun.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-num">02</span>
+        <span class="step-icon">📊</span>
+        <h3 class="step-title">Fiyatları İnceleyin</h3>
+        <p class="step-desc">Güncel hal fiyatlarını, geçmiş trendleri ve bölgesel karşılaştırmaları görün.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-num">03</span>
+        <span class="step-icon">🔔</span>
+        <h3 class="step-title">Uyarı Oluşturun</h3>
+        <p class="step-desc">Hedef fiyatınızı belirleyin, fiyat değiştiğinde anında bildirim alın.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-num">04</span>
+        <span class="step-icon">💡</span>
+        <h3 class="step-title">Kararınızı Verin</h3>
+        <p class="step-desc">Veriye dayalı kararlar alın — en uygun alış-satış zamanını yakalayın.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <div class="cta-card">
+    <h2>Erken Erişim İçin<br><span class="gradient-text">Kayıt Olun</span></h2>
+    <p>Yayına geçtiğimizde ilk siz haberdar olun. Haftalık fiyat bülteni ve platform güncellemeleri.</p>
+    <div class="cta-form">
+      <input type="email" class="cta-input" placeholder="E-posta adresiniz">
+      <button class="cta-submit">Kayıt Ol</button>
+    </div>
+    <div class="cta-channels">
+      <a href="#">📱 Mobil Uygulama</a>
+      <a href="#">✈️ Telegram</a>
+      <a href="#">📡 API Erişimi</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="logo-mark" style="width:32px;height:32px;font-size:14px;border-radius:8px;">H</div>
+          <div class="logo-wordmark" style="font-size:18px;">Halde<span>Fiyat</span></div>
+        </div>
+        <p>Türkiye'nin en kapsamlı hal fiyatları platformu. Çiftçiden market sahibine, toptancıdan tüketiciye — herkes için şeffaf fiyat bilgisi.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a href="#">Hal Fiyatları</a>
+        <a href="#">Fiyat Grafikleri</a>
+        <a href="#">Fiyat Uyarıları</a>
+        <a href="#">İl Bazlı Veriler</a>
+        <a href="#">API</a>
+      </div>
+      <div class="footer-col">
+        <h4>Kaynaklar</h4>
+        <a href="#">Nasıl Çalışır?</a>
+        <a href="#">SSS</a>
+        <a href="#">Blog</a>
+        <a href="#">Veri Kaynakları</a>
+        <a href="#">Geliştirici Docs</a>
+      </div>
+      <div class="footer-col">
+        <h4>Hakkımızda</h4>
+        <a href="#">Biz Kimiz?</a>
+        <a href="#">İletişim</a>
+        <a href="#">Gizlilik</a>
+        <a href="#">Kullanım Koşulları</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 haldefiyat.com — Tüm hakları saklıdır.</span>
+      <div style="display:flex;gap:16px;">
+        <span>Tarım Dijital Ekosistemi:</span>
+        <a href="https://tarvista.com">tarvista.com</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── DATA ──
+const products = [
+  { emoji: '🍅', name: 'Domates', city: 'İstanbul Hali', price: 12.50, change: +0.75, pct: 6.4, trend: 'up', data: [9,10,9.5,11,10.5,11.8,12.5] },
+  { emoji: '🌶️', name: 'Biber', city: 'Ankara Hali', price: 8.20, change: -0.30, pct: -3.5, trend: 'down', data: [9,8.8,9.2,8.5,8.7,8.5,8.2] },
+  { emoji: '🍊', name: 'Portakal', city: 'Antalya Hali', price: 6.80, change: +0.25, pct: 3.8, trend: 'up', data: [5.5,5.8,6,6.2,6.1,6.5,6.8] },
+  { emoji: '🥒', name: 'Salatalık', city: 'İzmir Hali', price: 5.40, change: -0.50, pct: -8.5, trend: 'down', data: [6.5,6.2,5.8,5.9,5.7,5.6,5.4] },
+  { emoji: '🍆', name: 'Patlıcan', city: 'Adana Hali', price: 9.10, change: +1.20, pct: 15.2, trend: 'up', data: [7,7.5,7.8,8,8.3,8.6,9.1] },
+  { emoji: '🥔', name: 'Patates', city: 'Konya Hali', price: 4.50, change: -0.15, pct: -3.2, trend: 'down', data: [5,4.9,4.8,4.7,4.6,4.55,4.5] },
+  { emoji: '🧅', name: 'Soğan', city: 'Bursa Hali', price: 7.30, change: +0.40, pct: 5.8, trend: 'up', data: [6,6.3,6.5,6.8,7,7.1,7.3] },
+  { emoji: '🍋', name: 'Limon', city: 'Mersin Hali', price: 10.20, change: +0.90, pct: 9.7, trend: 'up', data: [8,8.5,8.8,9.2,9.5,9.8,10.2] },
+];
+
+// ── SPARKLINE SVG ──
+function sparkline(data, trend) {
+  const w = 200, h = 40, pad = 2;
+  const min = Math.min(...data), max = Math.max(...data);
+  const range = max - min || 1;
+  const pts = data.map((v, i) => {
+    const x = pad + (i / (data.length - 1)) * (w - pad * 2);
+    const y = h - pad - ((v - min) / range) * (h - pad * 2);
+    return `${x},${y}`;
+  });
+  const linePath = `M${pts.join(' L')}`;
+  const areaPath = `${linePath} L${pad + ((data.length - 1) / (data.length - 1)) * (w - pad * 2)},${h} L${pad},${h} Z`;
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+    <path class="area" d="${areaPath}"/>
+    <path class="line" d="${linePath}"/>
+  </svg>`;
+}
+
+// ── RENDER DASHBOARD ──
+const grid = document.getElementById('dashboardGrid');
+products.forEach((p, i) => {
+  const changeSign = p.change > 0 ? '+' : '';
+  const trendClass = p.trend;
+  const badgeText = p.trend === 'up' ? '▲ Yükseliş' : '▼ Düşüş';
+  const time = ['2 saat', '3 saat', '1 saat', '4 saat', '2 saat', '3 saat', '1 saat', '2 saat'][i];
+
+  grid.innerHTML += `
+    <div class="price-card" style="animation: fadeInUp 0.5s ease ${i * 0.07}s both;">
+      <div class="pc-top">
+        <div class="pc-product">
+          <span class="pc-emoji">${p.emoji}</span>
+          <div>
+            <div class="pc-name">${p.name}</div>
+            <div class="pc-location">${p.city}</div>
+          </div>
+        </div>
+        <span class="pc-badge ${trendClass}">${badgeText}</span>
+      </div>
+      <div class="pc-price-row">
+        <span class="pc-price">${p.price.toFixed(2)}</span>
+        <span class="pc-unit">₺/kg</span>
+      </div>
+      <div class="pc-change ${trendClass}">${changeSign}${p.change.toFixed(2)} ₺ (${changeSign}${p.pct}%)</div>
+      <div class="pc-chart ${trendClass}">${sparkline(p.data, p.trend)}</div>
+      <div class="pc-footer">
+        <span>${time} önce</span>
+        <span>7 günlük trend</span>
+      </div>
+    </div>
+  `;
+});
+
+// ── RENDER TICKER ──
+const tickerEl = document.getElementById('tickerItems');
+const tickerData = [...products, ...products]; // duplicate for scroll
+tickerData.forEach(p => {
+  const sign = p.change > 0 ? '+' : '';
+  const cls = p.trend;
+  const arrow = p.trend === 'up' ? '▲' : '▼';
+  tickerEl.innerHTML += `
+    <div class="ticker-item">
+      <span class="emoji">${p.emoji}</span>
+      <span class="name">${p.name}</span>
+      <span class="price">${p.price.toFixed(2)} ₺</span>
+      <span class="change ${cls}">${arrow} ${sign}${p.change.toFixed(2)}</span>
+    </div>
+  `;
+});
+
+// ── SCROLL REVEAL ──
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.city-card, .feat-card, .step-card, .stat-item').forEach((el, i) => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = `opacity 0.5s ease ${i * 0.05}s, transform 0.5s ease ${i * 0.05}s`;
+  obs.observe(el);
+});
+</script>
+</body>
+</html>

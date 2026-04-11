@@ -1,0 +1,175 @@
+import Link from "next/link";
+import type { PriceRow } from "@/lib/api";
+import { getEmoji } from "@/lib/emoji";
+import FavoriteButton from "@/components/ui/FavoriteButton";
+
+interface PriceCardProps {
+  row: PriceRow;
+  changePct?: number;
+}
+
+type Trend = "up" | "down" | "stable";
+
+function trendOf(changePct: number | undefined): Trend {
+  if (changePct === undefined || changePct === 0 || Number.isNaN(changePct)) {
+    return "stable";
+  }
+  return changePct > 0 ? "up" : "down";
+}
+
+function fmt(value: string | null | undefined): string {
+  if (value == null || value === "") return "—";
+  const n = parseFloat(value);
+  if (!Number.isFinite(n)) return "—";
+  return n.toLocaleString("tr-TR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+const BADGE_CLASS: Record<Trend, string> = {
+  up:     "bg-green-500/10 text-green-400",
+  down:   "bg-red-500/10 text-red-400",
+  stable: "bg-blue-500/10 text-blue-400",
+};
+
+const BADGE_LABEL: Record<Trend, string> = {
+  up:     "▲ Yükseliş",
+  down:   "▼ Düşüş",
+  stable: "■ Sabit",
+};
+
+const CHANGE_CLASS: Record<Trend, string> = {
+  up:     "text-green-400",
+  down:   "text-red-400",
+  stable: "text-(--color-muted)",
+};
+
+const SPARK_STROKE: Record<Trend, string> = {
+  up:     "#4ade80",
+  down:   "#f87171",
+  stable: "#60a5fa",
+};
+
+/**
+ * Statik placeholder sparkline. Gercek price history sonraki sprintte
+ * fetchPriceHistory ile beslenecek.
+ */
+function PlaceholderSpark({ trend }: { trend: Trend }) {
+  const linePath =
+    trend === "up"
+      ? "M2 32 L18 28 L34 30 L50 22 L66 18 L82 12 L98 8"
+      : trend === "down"
+      ? "M2 8 L18 14 L34 12 L50 20 L66 24 L82 30 L98 34"
+      : "M2 20 L18 22 L34 18 L50 22 L66 19 L82 21 L98 20";
+  const areaPath = `${linePath} L98 40 L2 40 Z`;
+  const stroke = SPARK_STROKE[trend];
+  return (
+    <svg
+      viewBox="0 0 100 40"
+      preserveAspectRatio="none"
+      className="h-10 w-full"
+      aria-hidden
+    >
+      <path d={areaPath} fill={stroke} opacity={0.15} />
+      <path
+        d={linePath}
+        fill="none"
+        stroke={stroke}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export default function PriceCard({ row, changePct }: PriceCardProps) {
+  const trend = trendOf(changePct);
+  const emoji = getEmoji(row.productSlug);
+  const sign = changePct !== undefined && changePct > 0 ? "+" : "";
+
+  return (
+    <div className="group relative overflow-hidden rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6 transition-all duration-300 hover:-translate-y-1 hover:border-(--color-brand)/30 hover:shadow-[0_12px_40px_rgba(0,0,0,0.3)]">
+      <Link
+        href={`/urun/${row.productSlug}`}
+        aria-label={row.productName}
+        className="absolute inset-0 z-10"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-[16px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{
+          background:
+            "linear-gradient(135deg, transparent 40%, rgba(132,240,76,0.08))",
+        }}
+      />
+      <div className="relative">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="text-[28px]" aria-hidden>
+              {emoji}
+            </span>
+            <div>
+              <div className="text-[15px] font-bold text-(--color-foreground)">
+                {row.productName}
+              </div>
+              <div className="mt-px text-[11px] text-(--color-muted)">
+                {row.marketName} · {row.cityName}
+              </div>
+            </div>
+          </div>
+          <span
+            className={
+              "rounded-[5px] px-2 py-0.5 font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.05em] " +
+              BADGE_CLASS[trend]
+            }
+          >
+            {BADGE_LABEL[trend]}
+          </span>
+        </div>
+
+        <div className="mb-1.5 flex items-baseline gap-2">
+          <span className="font-(family-name:--font-mono) text-[30px] font-bold tracking-[-0.02em] text-(--color-foreground)">
+            ₺{fmt(row.avgPrice)}
+          </span>
+          <span className="font-(family-name:--font-mono) text-[13px] text-(--color-muted)">
+            /{row.unit || "kg"}
+          </span>
+        </div>
+
+        {changePct !== undefined && changePct !== 0 ? (
+          <div
+            className={
+              "mb-4 font-(family-name:--font-mono) text-[13px] font-semibold " +
+              CHANGE_CLASS[trend]
+            }
+          >
+            {trend === "up" ? "▲ " : "▼ "}
+            {sign}
+            {changePct.toFixed(2)}%
+          </div>
+        ) : (
+          <div className="mb-4 h-[19px]" aria-hidden />
+        )}
+
+        <div className="overflow-hidden rounded-md bg-white/[0.02]">
+          <PlaceholderSpark trend={trend} />
+        </div>
+
+        <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-(--color-muted)">
+          <span className="truncate">
+            min ₺{fmt(row.minPrice)} · max ₺{fmt(row.maxPrice)}
+          </span>
+          <div className="relative z-20 shrink-0">
+            <FavoriteButton
+              slug={row.productSlug}
+              productName={row.productName}
+              variant="icon"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

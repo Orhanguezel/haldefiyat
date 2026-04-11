@@ -1,0 +1,12 @@
+{
+  "name": "@agro/shared-config",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tarim Dijital Ekosistem - Ortak Yapilandirma (TS, Tailwind, ESLint)",
+  "type": "module",
+  "exports": {
+    "./tsconfig.base": "./tsconfig.base.json",
+    "./tailwind-tokens": "./tailwind-tokens.css",
+    "./theme-css-vars": "./theme-css-vars.ts"
+  }
+}
