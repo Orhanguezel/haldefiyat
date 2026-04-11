@@ -25,4 +25,7 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'default_locale',    '*', '"tr"'),
 (UUID(), 'available_locales', '*', '["tr"]'),
 (UUID(), 'footer_copyright',  '*', '"© 2026 Hal Fiyatlari"'),
-(UUID(), 'storage_driver',    '*', '"local"');
+(UUID(), 'storage_driver',    '*', '"local"'),
+(UUID(), 'site_logo',         '*', '"/uploads/brand/logo.png"'),
+(UUID(), 'site_favicon',      '*', '"/uploads/brand/favicon.png"'),
+(UUID(), 'site_apple_touch',  '*', '"/uploads/brand/apple-touch-icon.png"');
