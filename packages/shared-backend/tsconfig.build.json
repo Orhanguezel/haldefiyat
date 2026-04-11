@@ -15,5 +15,11 @@
     "baseUrl": "."
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "dist", "modules/wallet/iyzico.ts", "modules/wallet/helpers/iyzico.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "modules/wallet",
+    "modules/payments",
+    "modules/dealerFinance"
+  ]
 }
