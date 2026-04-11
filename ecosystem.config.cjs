@@ -42,6 +42,9 @@ module.exports = {
         NODE_ENV: "production",
         PORT: 3033,
         HOSTNAME: "0.0.0.0",
+        // BACKEND_URL: server component'lar için internal backend adresi
+        // NEXT_PUBLIC_ olmadığı için build'e baked olmaz — runtime'da okunur
+        BACKEND_URL: "http://127.0.0.1:8091",
       },
       env_file: "./frontend/.env.local",
       error_file: "../logs/hal-frontend-error.log",

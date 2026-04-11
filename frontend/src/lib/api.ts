@@ -6,9 +6,14 @@
  * iki ayri katman: api.ts (server) + api-client.ts (browser).
  */
 
-const API: string = process.env.NEXT_PUBLIC_API_URL
-  ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")}/api/v1`
-  : "/api/v1";
+// BACKEND_URL: server-only (NEXT_PUBLIC_ değil → build'e baked olmaz, runtime'da okunur)
+// VPS'te ecosystem.config.cjs: env.BACKEND_URL = "http://127.0.0.1:<backend_port>"
+// Lokal: .env.local'da BACKEND_URL yoksa NEXT_PUBLIC_API_URL'ye düşer
+const API: string = (
+  process.env.BACKEND_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  "http://localhost:8088"
+).replace(/\/$/, "") + "/api/v1";
 
 // ── Tipler ──────────────────────────────────────────────────────────────────
 
