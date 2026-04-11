@@ -3,7 +3,13 @@
  * Kullanim: Header, Footer, Layout gibi yerlerde branding bilgisi icin.
  */
 
-export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "");
+// BACKEND_URL: server-only, runtime'da okunur (build'e baked olmaz)
+// NEXT_PUBLIC_API_URL: client-side fallback (baked olur — lokal geliştirme için yeterli)
+export const API_URL = (
+  process.env.BACKEND_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  "http://localhost:8088"
+).replace(/\/$/, "");
 const API_V1 = `${API_URL}/api/v1`;
 
 export interface SiteSettings {
@@ -29,12 +35,12 @@ export interface SiteSettings {
   whatsapp_number: string;
 }
 
+// DB'deki gerçek key isimleri (seed 004_site_settings_schema.sql ile eşleşmeli)
 const BRANDING_KEYS = [
-  "site_name",
-  "site_title",
+  "brand_name",
   "site_logo",
-  "site_site_logo", // The complex JSON key
-  "site_theme_config", // The new theme config key
+  "site_favicon",
+  "site_apple_touch",
   "site_description",
   "contact_email",
   "contact_phone",
@@ -92,8 +98,7 @@ export async function fetchSiteSettings(locale = "tr"): Promise<SiteSettings> {
   };
 
   try {
-    // We fetch with site__ prefix as expected by the backend settings module
-    const keys = BRANDING_KEYS.map(k => `site__${k.replace('site_', '')}`).join(",");
+    const keys = BRANDING_KEYS.join(",");
     const res = await fetch(
       `${API_V1}/site_settings?key_in=${keys}&locale=${locale}`,
       { next: { revalidate: 300 } },
@@ -104,36 +109,13 @@ export async function fetchSiteSettings(locale = "tr"): Promise<SiteSettings> {
 
     const result = { ...defaults };
     for (const row of rows) {
-      const dbKey = row.key; // e.g. "site__site_logo"
+      const dbKey = row.key as keyof SiteSettings;
       const val = parseValue(row.value);
-      
-      if (dbKey === "site__site_logo") {
-        if (typeof val === "object" && val !== null) {
-          if (val.url) result.site_logo = val.url;
-          if (val.urlDark) result.site_logo_dark = val.urlDark;
-          if (val.favicon) result.site_favicon = val.favicon;
-          if (val.appleTouchIcon) result.site_apple_touch = val.appleTouchIcon;
-        }
-      } else if (dbKey === "site__theme_config") {
-        if (typeof val === "object" && val !== null) {
-          if (val.fontSizeBase) result.theme_font_size = val.fontSizeBase;
-          if (val.fontSizeScale) result.theme_font_scale = val.fontSizeScale;
-        }
-      } else if (dbKey === "site__site_name" || dbKey === "site__site_title") {
-        result.site_name = typeof val === "string" ? val : (val?.value || result.site_name);
-      } else {
-        // Map site__contact_email -> contact_email
-        const mappedKey = dbKey.replace("site__", "contact_").replace("contact_description", "site_description") as keyof SiteSettings;
-        // Search for direct mapping if simple
-        const simpleKey = dbKey.replace("site__", "") as keyof SiteSettings;
-        if (simpleKey in result) (result as any)[simpleKey] = typeof val === "string" ? val : (val?.value || "");
-        else if (mappedKey in result) (result as any)[mappedKey] = typeof val === "string" ? val : (val?.value || "");
-        
-        // Social mapping fix
-        if (dbKey.startsWith("site__social_")) {
-           const sKey = dbKey.replace("site__", "") as keyof SiteSettings;
-           if (sKey in result) (result as any)[sKey] = typeof val === "string" ? val : (val?.value || "");
-        }
+      // brand_name → site_name
+      if (row.key === "brand_name") {
+        result.site_name = typeof val === "string" ? val : result.site_name;
+      } else if (dbKey in result) {
+        (result as any)[dbKey] = typeof val === "string" ? val : (val?.value ?? "");
       }
     }
 
