@@ -13,7 +13,7 @@ module.exports = {
       name: "hal-backend",
       script: "dist/index.js",
       cwd: "./backend",
-      interpreter: "node",
+      interpreter: "bun",
       instances: 1,
       exec_mode: "fork",
       watch: false,
@@ -31,7 +31,10 @@ module.exports = {
     },
     {
       name: "hal-frontend",
-      script: ".next/standalone/server.js",
+      // Monorepo standalone çıktısı iç içe dizin oluşturur.
+      // VPS'te düz clone varsa: .next/standalone/server.js
+      // Monorepo clone ise: .next/standalone/projects/hal-fiyatlari/frontend/server.js
+      script: ".next/standalone/projects/hal-fiyatlari/frontend/server.js",
       cwd: "./frontend",
       interpreter: "node",
       instances: 1,
