@@ -19,7 +19,7 @@ module.exports = {
       watch: false,
       env: {
         NODE_ENV: "production",
-        PORT: 8088,
+        PORT: 8091,
       },
       env_file: "./backend/.env",
       error_file: "../logs/hal-backend-error.log",
@@ -31,10 +31,8 @@ module.exports = {
     },
     {
       name: "hal-frontend",
-      // Monorepo standalone çıktısı iç içe dizin oluşturur.
-      // VPS'te düz clone varsa: .next/standalone/server.js
-      // Monorepo clone ise: .next/standalone/projects/hal-fiyatlari/frontend/server.js
-      script: ".next/standalone/projects/hal-fiyatlari/frontend/server.js",
+      // Next.js standalone: workspace root = repo root → server.js frontend/ altında
+      script: ".next/standalone/frontend/server.js",
       cwd: "./frontend",
       interpreter: "node",
       instances: 1,
