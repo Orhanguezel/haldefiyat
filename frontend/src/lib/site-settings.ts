@@ -76,9 +76,9 @@ function parseValue(raw: unknown): any {
 export async function fetchSiteSettings(locale = "tr"): Promise<SiteSettings> {
   const defaults: SiteSettings = {
     site_name: process.env.NEXT_PUBLIC_SITE_NAME ?? "HalDeFiyat",
-    site_logo: "/assets/logo/logo.jpeg",
-    site_logo_dark: "/assets/logo/logo.jpeg",
-    site_favicon: "/favicon.ico",
+    site_logo: "/brand-logo.png",
+    site_logo_dark: "/brand-logo.png",
+    site_favicon: "/favicon.png",
     site_apple_touch: "/apple-touch-icon.png",
     site_description: "",
     theme_font_size: "16px",

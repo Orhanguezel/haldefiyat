@@ -67,9 +67,9 @@ export async function generateMetadata(): Promise<Metadata> {
     keywords,
     metadataBase: new URL(SITE_URL),
     icons: {
-      icon: branding.site_favicon || "/favicon.ico",
-      shortcut: branding.site_favicon || "/favicon.ico",
-      apple: branding.site_apple_touch || branding.site_logo || "/favicon.ico",
+      icon: branding.site_favicon || "/favicon.png",
+      shortcut: branding.site_favicon || "/favicon.png",
+      apple: branding.site_apple_touch || branding.site_logo || "/apple-touch-icon.png",
     },
     openGraph: {
       siteName,
