@@ -93,6 +93,44 @@ Port     : Frontend 3033, Backend 8088
 - [x] Haber portali entegrasyonu: `GET /api/v1/prices/weekly-summary` (JSON ozet)
 - [x] Widget embed kodu: `GET /api/v1/prices/widget?limit=6` (CORS: *, 5 dk cache)
 
+### Rakip Analiz Notlari — Agrimetre.com (12 Nisan 2026)
+
+**Agrimetre nedir:** Türkiye'nin lider tarımsal veri zekası platformu (B2B odaklı).
+900+ ürün, 200+ ülke, 15 yıl geçmiş veri. USDA/FAO/TÜİK kaynaklı makro veri.
+Abonelik: 449 TL/ay (Standard) → 4.259 TL/ay (Premium). Hal verisi premium arkasında.
+
+**Stratejik Fark:**
+- Agrimetre: makro tarım datası, B2B, kurumsal, ücretli
+- HaldeFiyat: hal fiyatları, B2C + küçük üretici/esnaf, ücretsiz, gerçek zamanlı
+- Rakip değil — konumlanma farkı büyük. Agrimetre'nin hal verisi 4.259 TL/ay arkasında,
+  bizimki ücretsiz + daha iyi UX → güçlü farklılaşma.
+
+**Agrimetre'den Alınacak İlham:**
+
+| Öncelik | Özellik | Açıklama | Durum |
+|---------|---------|----------|-------|
+| P1 | Geçen hafta / geçen yıl karşılaştırması | Fiyat kartlarında `+%18 geçen yıla göre` etiketi | [ ] |
+| P1 | Haftalık e-bülten | "Bu hafta en çok değişen 10 ürün" otomatik mail | [ ] |
+| P1 | Sezonluk rehber | "Şu an mevsimi olan ürünler" anasayfa bölümü | [ ] |
+| P2 | Türkiye interaktif haritası | İl bazında fiyat haritası, SVG, renk skalası | [ ] |
+| P2 | ÜFE/TÜFE entegrasyonu | Fiyat artışını enflasyona karşı göster | [ ] |
+| P2 | İl bazında üretim notu | `/urun/[slug]` → "Bu ürün en çok Antalya'da yetişir" | [ ] |
+| P2 | CSV export | Ücretsiz indirme — agrimetre bunu ücretli yapıyor | [x] `GET /api/v1/prices/export` |
+| P3 | Ücretsiz Geliştirici API | Açık API dokümantasyonu — agrimetre kapalı tutuyor | [ ] |
+| P3 | Pro üyelik | Daha fazla geçmiş veri, API key, öncelikli destek — 99 TL/ay | [ ] |
+| P3 | Telegram botu | Sabah 09:30 otomatik hal bülteni kanalı | [ ] |
+| P3 | Mobil uygulama | Agri Wise benzeri ama hal odaklı | [ ] |
+| P3 | Kurumsal raporlar | Zincir marketler / ihracatçılar için özel rapor | [ ] |
+
+**HaldeFiyat'ın üstün olduğu alanlar:**
+1. Hız — Next.js standalone vs. ağır WordPress tabanlı Agrimetre
+2. Ücretsiz hal verisi — Agrimetre 4.259 TL/ay premium arkasında saklıyor
+3. Günlük güncelleme — Agrimetre raporları haftalık/aylık
+4. UX — modern dark theme, mobil-first, anlık arama
+5. PWA — offline çalışma, anasayfaya ekle desteği
+
+---
+
 ### P2 — Orta Vade (Ay 3-6)
 - [ ] Ekosistem auth entegrasyonu (SSO) — `registerAuth` shared-backend'de hazir, `hf_user_favorites` tablosu seed'e eklenince aktif edilecek (`src/modules/favorites/README.md`)
 - [x] Kullanici favori urunleri — localStorage MVP (`src/lib/favorites.ts` + `/favoriler` sayfasi + FavoriteButton PriceCard'da)
