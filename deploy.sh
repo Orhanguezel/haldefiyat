@@ -36,8 +36,9 @@ echo "==> [3/4] .next/static + public standalone'a kopyalanıyor"
 mkdir -p "$FRONTEND/.next/standalone/projects/hal-fiyatlari/frontend/.next/static"
 cp -r "$FRONTEND/.next/static/." "$FRONTEND/.next/standalone/projects/hal-fiyatlari/frontend/.next/static/"
 cp -r "$FRONTEND/.next/static/." "$FRONTEND/.next/standalone/frontend/.next/static/" 2>/dev/null || true
-mkdir -p "$FRONTEND/.next/standalone/public"
+mkdir -p "$FRONTEND/.next/standalone/projects/hal-fiyatlari/frontend/public"
 cp -r "$FRONTEND/public/." "$FRONTEND/.next/standalone/projects/hal-fiyatlari/frontend/public/" 2>/dev/null || true
+cp -r "$FRONTEND/public/." "$FRONTEND/.next/standalone/public/" 2>/dev/null || true
 
 mkdir -p "$LOGS"
 
