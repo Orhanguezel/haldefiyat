@@ -51,3 +51,6 @@ frontend/.next/cache/
 
 # Bun
 bun.lock
+
+# Özel strateji ve iş notları — GitHub'a gönderilmez
+docs/
