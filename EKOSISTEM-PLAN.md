@@ -40,7 +40,7 @@ Hal Fiyatlari (BU PROJE)
 | **Bereketfide** | -> yonlendirir | Link | Urun ismine tiklaninca fide sayfasina git |
 | **VistaSeed** | -> yonlendirir | Link | Urun ismine tiklaninca tohum sayfasina git |
 | **Tarim Ansiklopedisi** | -> yonlendirir | Link | Urun ismine tiklaninca ansiklopedi sayfasina git |
-| **Hava Durumu** | <- veri alir | REST API | Hava -> fiyat korelasyonu analizi |
+| **Tarımİklim** (tarimiklim.com) | <- veri alir | REST API (ekosistem içi) | Hava → fiyat korelasyonu, don/dolu uyarısı → fiyat tahmini |
 
 ## Yapilacak Isler
 
