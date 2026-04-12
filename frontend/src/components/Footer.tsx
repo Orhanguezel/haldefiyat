@@ -66,33 +66,21 @@ export default function Footer({
         <div className="mb-7 grid grid-cols-1 gap-12 border-b border-(--color-border) pb-12 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           {/* Sutun 1 — Brand */}
           <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-3">
+            <Link href="/" className="inline-flex">
               {logoUrl ? (
                 <Image
                   src={logoUrl}
                   alt={displayName}
-                  width={32}
-                  height={32}
-                  className="h-8 w-8 rounded-[8px] object-contain"
+                  width={180}
+                  height={68}
+                  className="h-13 w-auto object-contain"
                   unoptimized
                 />
               ) : (
-                <span
-                  className="flex h-8 w-8 items-center justify-center rounded-[8px] font-(family-name:--font-display) text-base font-bold text-(--color-navy)"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, hsl(102 85% 57%), hsl(102 85% 45%))",
-                    boxShadow: "0 4px 14px hsl(102 85% 57% / 0.3)",
-                  }}
-                  aria-hidden
-                >
-                  H
+                <span className="font-(family-name:--font-display) text-[20px] font-bold tracking-tight text-(--color-foreground)">
+                  Halde<span className="text-(--color-brand)">Fiyat</span>
                 </span>
               )}
-              <span className="font-(family-name:--font-display) text-[16px] font-bold tracking-tight text-(--color-foreground)">
-                Halde
-                <span className="text-(--color-brand)">Fiyat</span>
-              </span>
             </Link>
             <p className="max-w-[320px] text-[14px] leading-relaxed text-(--color-muted)">
               Türkiye&apos;nin hal fiyatları platformu. Günlük sebze ve meyve
