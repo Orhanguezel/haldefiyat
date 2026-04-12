@@ -38,7 +38,7 @@ export default function Header({ siteName, logoUrl }: HeaderProps) {
       <div className="relative bg-[rgba(10,14,26,0.85)] backdrop-blur-xl border-b border-(--color-border-soft)">
         <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group shrink-0">
+          <Link href="/" className="flex items-center gap-3 group shrink-0">
             {logoUrl ? (
               <Image
                 src={logoUrl}
@@ -61,6 +61,10 @@ export default function Header({ siteName, logoUrl }: HeaderProps) {
                 H
               </span>
             )}
+            <span className="font-display font-bold text-[18px] tracking-tight text-(--color-foreground)">
+              Halde
+              <span className="text-(--color-brand)">Fiyat</span>
+            </span>
           </Link>
 
           {/* Client island: nav + search + CTA + mobile drawer */}
