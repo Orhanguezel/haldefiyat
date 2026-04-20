@@ -147,18 +147,21 @@ export interface FetchPricesParams {
   category?: string;
   range?: string;
   limit?: number;
+  /** true → (product, market) başına sadece en güncel satır (tablo görünümü) */
+  latestOnly?: boolean;
 }
 
 export async function fetchPrices(
   params: FetchPricesParams = {},
 ): Promise<PriceRow[]> {
   const qs = buildQuery({
-    product: params.product,
-    city: params.city,
-    market: params.market,
-    category: params.category,
-    range: params.range,
-    limit: params.limit,
+    product:    params.product,
+    city:       params.city,
+    market:     params.market,
+    category:   params.category,
+    range:      params.range,
+    limit:      params.limit,
+    latestOnly: params.latestOnly == null ? undefined : String(params.latestOnly),
   });
   return safeFetch<PriceRow[]>(`/prices${qs}`, 300, []);
 }

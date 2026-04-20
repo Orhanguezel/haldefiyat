@@ -28,9 +28,9 @@ function fmt(value: string | null | undefined): string {
 }
 
 const BADGE_CLASS: Record<Trend, string> = {
-  up:     "bg-green-500/10 text-green-400",
-  down:   "bg-red-500/10 text-red-400",
-  stable: "bg-blue-500/10 text-blue-400",
+  up:     "bg-(--color-success-bg) text-(--color-success)",
+  down:   "bg-(--color-danger-bg) text-(--color-danger)",
+  stable: "bg-(--color-info-bg) text-(--color-info)",
 };
 
 const BADGE_LABEL: Record<Trend, string> = {
@@ -40,15 +40,15 @@ const BADGE_LABEL: Record<Trend, string> = {
 };
 
 const CHANGE_CLASS: Record<Trend, string> = {
-  up:     "text-green-400",
-  down:   "text-red-400",
+  up:     "text-(--color-success)",
+  down:   "text-(--color-danger)",
   stable: "text-(--color-muted)",
 };
 
 const SPARK_STROKE: Record<Trend, string> = {
-  up:     "#4ade80",
-  down:   "#f87171",
-  stable: "#60a5fa",
+  up:     "var(--success)",
+  down:   "var(--danger)",
+  stable: "var(--info)",
 };
 
 /**
@@ -90,7 +90,7 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
   const sign = changePct !== undefined && changePct > 0 ? "+" : "";
 
   return (
-    <div className="group relative overflow-hidden rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6 transition-all duration-300 hover:-translate-y-1 hover:border-(--color-brand)/30 hover:shadow-[0_12px_40px_rgba(0,0,0,0.3)]">
+    <div className="group relative overflow-hidden rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6 transition-all duration-300 hover:-translate-y-1 hover:border-(--color-brand)/30 shadow-(--shadow-card)">
       <Link
         href={`/urun/${row.productSlug}`}
         aria-label={row.productName}
@@ -101,7 +101,7 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
         className="pointer-events-none absolute inset-0 rounded-[16px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
           background:
-            "linear-gradient(135deg, transparent 40%, rgba(132,240,76,0.08))",
+            "linear-gradient(135deg, transparent 40%, var(--brand-light))",
         }}
       />
       <div className="relative">
@@ -153,7 +153,7 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
           <div className="mb-4 h-[19px]" aria-hidden />
         )}
 
-        <div className="overflow-hidden rounded-md bg-white/[0.02]">
+        <div className="overflow-hidden rounded-md bg-(--color-bg-alt)">
           <PlaceholderSpark trend={trend} />
         </div>
 

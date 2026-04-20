@@ -61,7 +61,7 @@ function ChartTooltip({ active, payload }: TooltipProps<number, string>) {
   const hasForecast = typeof point.predicted === "number";
 
   return (
-    <div className="rounded-[10px] border border-(--color-brand) bg-(--color-navy)/95 px-3 py-2 backdrop-blur-md">
+    <div className="rounded-[10px] border border-(--color-brand) bg-(--color-header) px-3 py-2 backdrop-blur-md">
       <div className="mb-1 font-(family-name:--font-mono) text-[10px] uppercase tracking-[0.1em] text-(--color-brand)">
         {formatLongDate(point.rawDate)} {point.isForecast ? "· Tahmin" : ""}
       </div>
@@ -153,7 +153,7 @@ export default function PriceChart({ history, productName }: PriceChartProps) {
                 onClick={() => setRange(r.key)}
                 className={
                   "rounded-[7px] px-3 py-1.5 font-(family-name:--font-mono) text-[12px] font-semibold transition-colors " +
-                  (active ? "bg-(--color-brand) text-(--color-navy)" : "text-(--color-muted) hover:text-(--color-foreground)")
+                  (active ? "bg-(--color-brand) text-(--color-brand-fg)" : "text-(--color-muted) hover:text-(--color-foreground)")
                 }
               >
                 {r.label}
@@ -173,17 +173,17 @@ export default function PriceChart({ history, productName }: PriceChartProps) {
             <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="halBrandFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(102 85% 57%)" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="hsl(102 85% 57%)" stopOpacity={0.02} />
+                  <stop offset="0%" stopColor="var(--brand)" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="var(--brand)" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="date" stroke="rgba(255,255,255,0.4)" tick={{ fontSize: 11, fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} />
-              <YAxis stroke="rgba(255,255,255,0.4)" tick={{ fontSize: 11, fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} tickFormatter={(value: number) => `₺${value}`} width={50} />
-              <Tooltip content={<ChartTooltip />} cursor={{ stroke: "hsl(102 85% 57%)", strokeWidth: 1, strokeDasharray: "3 3" }} />
-              <Area type="monotone" dataKey="avg" stroke="hsl(102 85% 57%)" strokeWidth={2.5} fill="url(#halBrandFill)" connectNulls />
+              <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="date" stroke="var(--muted)" tick={{ fontSize: 11, fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} />
+              <YAxis stroke="var(--muted)" tick={{ fontSize: 11, fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} tickFormatter={(value: number) => `₺${value}`} width={50} />
+              <Tooltip content={<ChartTooltip />} cursor={{ stroke: "var(--brand)", strokeWidth: 1, strokeDasharray: "3 3" }} />
+              <Area type="monotone" dataKey="avg" stroke="var(--brand)" strokeWidth={2.5} fill="url(#halBrandFill)" connectNulls />
               {hasForecast ? (
-                <Line type="monotone" dataKey="predicted" stroke="hsl(102 85% 57% / 0.45)" strokeWidth={2} strokeDasharray="4 4" dot={false} connectNulls isAnimationActive={false} />
+                <Line type="monotone" dataKey="predicted" stroke="var(--brand)" strokeWidth={2} strokeDasharray="4 4" dot={false} connectNulls isAnimationActive={false} opacity={0.6} />
               ) : null}
             </ComposedChart>
           </ResponsiveContainer>

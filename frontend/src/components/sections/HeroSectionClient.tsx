@@ -46,7 +46,7 @@ export default function HeroSectionClient() {
           className="bg-clip-text text-transparent"
           style={{
             backgroundImage:
-              "linear-gradient(135deg, #84f04c, #4ade80, #c0ffaa)",
+              "linear-gradient(135deg, var(--brand), #4ade80, var(--brand-light))",
           }}
         >
           Tek Ekranda
@@ -74,13 +74,13 @@ export default function HeroSectionClient() {
       >
         <Link
           href="/fiyatlar"
-          className="inline-flex items-center justify-center gap-2 rounded-[14px] bg-(--color-brand) px-9 py-4 font-(family-name:--font-display) text-[16px] font-bold text-(--color-navy) shadow-[0_0_30px_rgba(132,240,76,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-(--color-brand-dark) hover:shadow-[0_0_40px_rgba(132,240,76,0.35)]"
+          className="inline-flex items-center justify-center gap-2 rounded-[14px] bg-(--color-brand) px-9 py-4 font-(family-name:--font-display) text-[16px] font-bold text-(--color-brand-fg) shadow-[0_0_30px_rgba(132,240,76,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-(--color-brand-dark) hover:shadow-[0_0_40px_rgba(132,240,76,0.35)]"
         >
           📊 Fiyatları Keşfet
         </Link>
         <a
           href="#nasil-calisir"
-          className="inline-flex items-center justify-center gap-2 rounded-[14px] border border-(--color-border) bg-white/[0.04] px-7 py-4 font-(family-name:--font-display) text-[16px] font-semibold text-(--color-muted) transition-all duration-300 hover:border-(--color-muted) hover:bg-white/[0.08] hover:text-(--color-foreground)"
+          className="inline-flex items-center justify-center gap-2 rounded-[14px] border border-(--color-border) bg-(--color-bg-alt) px-7 py-4 font-(family-name:--font-display) text-[16px] font-semibold text-(--color-muted) transition-all duration-300 hover:border-(--color-muted) hover:bg-(--color-surface) hover:text-(--color-foreground)"
         >
           Nasıl Çalışır?
         </a>
@@ -98,7 +98,7 @@ export default function HeroSectionClient() {
             key={feat.label}
             className="flex items-center gap-2.5 text-[14px] text-(--color-muted)"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-(--color-border) bg-white/[0.04] text-base">
+            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-(--color-border) bg-(--color-bg-alt) text-base">
               {feat.icon}
             </div>
             <span>{feat.label}</span>

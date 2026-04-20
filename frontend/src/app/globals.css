@@ -5,42 +5,114 @@
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-@theme {
+:root {
   /* Brand — Lime/Neon Yesil (Fiyat Platformu Aksani) */
-  --color-brand:        hsl(102 85% 57%);
-  --color-brand-dark:   hsl(102 85% 45%);
-  --color-brand-light:  hsl(102 85% 15%);
-  --color-brand-xlight: hsl(102 85% 8%);
-
-  /* Slate — Koyu arkaplan */
-  --color-navy:         hsl(225 30% 6%);
-  --color-navy-mid:     hsl(225 28% 9%);
-  --color-navy-soft:    hsl(225 26% 12%);
+  --brand:        hsl(102 85% 40%);
+  --brand-dark:   hsl(102 85% 30%);
+  --brand-light:  hsl(102 85% 94%);
+  --brand-xlight: hsl(102 85% 97%);
 
   /* Semantic */
-  --color-success:      hsl(142 76% 36%);
-  --color-success-bg:   hsl(142 76% 10%);
-  --color-warning:      hsl(38 92% 50%);
-  --color-warning-bg:   hsl(38 92% 10%);
-  --color-danger:       hsl(0 84% 60%);
-  --color-danger-bg:    hsl(0 84% 10%);
-  --color-info:         hsl(213 94% 67%);
-  --color-info-bg:      hsl(213 94% 10%);
+  --success:      hsl(142 76% 36%);
+  --success-bg:   hsl(142 76% 95%);
+  --warning:      hsl(38 92% 50%);
+  --warning-bg:   hsl(38 92% 95%);
+  --danger:       hsl(0 84% 60%);
+  --danger-bg:    hsl(0 84% 95%);
+  --info:         hsl(213 94% 50%);
+  --info-bg:      hsl(213 94% 95%);
+
+  /* Neutral — Light mode defaults */
+  --foreground:   hsl(225 30% 10%);
+  --muted:        hsl(225 15% 45%);
+  --faint:        hsl(225 10% 70%);
+  --border:       hsl(225 15% 90%);
+  --border-soft:  hsl(225 15% 94%);
+  --surface:      hsl(0 0% 100%);
+  --background:   hsl(225 20% 98%);
+  --bg-alt:       hsl(225 15% 95%);
+  
+  /* Layout specific */
+  --header-bg:    rgba(255, 255, 255, 0.85);
+  --header-top:   rgba(248, 250, 252, 0.85);
+  --card-bg:      hsl(0 0% 100%);
+  --card-shadow:  0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --orb-opacity:  0.15;
+  --brand-fg:     hsl(225 30% 10%);
+}
+
+[data-theme='dark'] {
+  /* Brand — Lime/Neon Yesil (Fiyat Platformu Aksani) */
+  --brand:        hsl(102 85% 57%);
+  --brand-dark:   hsl(102 85% 45%);
+  --brand-light:  hsl(102 85% 15%);
+  --brand-xlight: hsl(102 85% 8%);
+
+  /* Semantic */
+  --success:      hsl(142 76% 36%);
+  --success-bg:   hsl(142 76% 10%);
+  --warning:      hsl(38 92% 50%);
+  --warning-bg:   hsl(38 92% 10%);
+  --danger:       hsl(0 84% 60%);
+  --danger-bg:    hsl(0 84% 10%);
+  --info:         hsl(213 94% 67%);
+  --info-bg:      hsl(213 94% 10%);
 
   /* Neutral — Dark mode defaults */
-  --color-foreground:   hsl(225 30% 95%);
-  --color-muted:        hsl(225 20% 55%);
-  --color-faint:        hsl(225 16% 40%);
-  --color-border:       hsl(225 20% 18%);
-  --color-border-soft:  hsl(225 20% 14%);
-  --color-surface:      hsl(225 28% 9%);
-  --color-background:   hsl(225 30% 6%);
-  --color-bg-alt:       hsl(225 26% 11%);
+  --foreground:   hsl(225 30% 95%);
+  --muted:        hsl(225 20% 55%);
+  --faint:        hsl(225 16% 40%);
+  --border:       hsl(225 20% 18%);
+  --border-soft:  hsl(225 20% 14%);
+  --surface:      hsl(225 28% 9%);
+  --background:   hsl(225 30% 6%);
+  --bg-alt:       hsl(225 26% 11%);
+
+  /* Layout specific */
+  --header-bg:    rgba(10, 14, 26, 0.85);
+  --header-top:   rgba(15, 20, 36, 0.85);
+  --card-bg:      hsl(225 30% 9%);
+  --card-shadow:  0 1px 3px hsl(225 30% 4% / 0.5);
+  --orb-opacity:  0.4;
+  --brand-fg:     hsl(225 30% 6%);
+}
+
+@theme {
+  --color-brand:        var(--brand);
+  --color-brand-dark:   var(--brand-dark);
+  --color-brand-light:  var(--brand-light);
+  --color-brand-xlight: var(--brand-xlight);
+
+  --color-success:      var(--success);
+  --color-success-bg:   var(--success-bg);
+  --color-warning:      var(--warning);
+  --color-warning-bg:   var(--warning-bg);
+  --color-danger:       var(--danger);
+  --color-danger-bg:    var(--danger-bg);
+  --color-info:         var(--info);
+  --color-info-bg:      var(--info-bg);
+
+  --color-foreground:   var(--foreground);
+  --color-muted:        var(--muted);
+  --color-faint:        var(--faint);
+  --color-border:       var(--border);
+  --color-border-soft:  var(--border-soft);
+  --color-surface:      var(--surface);
+  --color-background:   var(--background);
+  --color-bg-alt:       var(--bg-alt);
+  
+  --color-header:       var(--header-bg);
+  --color-header-top:   var(--header-top);
+  --color-brand-fg:    var(--brand-fg);
 
   /* Font stacks */
   --font-display: "Outfit", system-ui, sans-serif;
   --font-sans:    "IBM Plex Sans", system-ui, sans-serif;
   --font-mono:    "IBM Plex Mono", "JetBrains Mono", monospace;
+
+  /* Shadows */
+  --shadow-brand: 0 4px 20px hsl(102 85% 57% / 0.20);
+  --shadow-card:  var(--card-shadow);
 
   /* Border radius */
   --radius-sm:   0.25rem;
@@ -50,10 +122,6 @@
   --radius-xl:   1rem;
   --radius-2xl:  1.5rem;
   --radius-full: 9999px;
-
-  /* Shadows */
-  --shadow-brand: 0 4px 20px hsl(102 85% 57% / 0.20);
-  --shadow-card:  0 1px 3px hsl(225 30% 4% / 0.5);
 
   /* Animations */
   --animate-fade-in:  fade-in  200ms ease forwards;
@@ -72,21 +140,17 @@
     33%       { transform: translate(30px, -40px); }
     66%       { transform: translate(-20px, 30px); }
   }
-  @keyframes price-pulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.6; }
-  }
 }
 
-/* Base — Platform her zaman dark tema kullanir */
+/* Base */
 html {
-  color-scheme: dark;
   scroll-behavior: smooth;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+  background-color: var(--background);
+  color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
@@ -98,40 +162,40 @@ body {
   border-radius: 50%;
   filter: blur(120px);
   pointer-events: none;
-  opacity: 0.4;
+  opacity: var(--orb-opacity);
   animation: orb-float 20s ease-in-out infinite;
 }
 
-/* Fiyat degisim renkleri */
-.price-up   { color: hsl(142 76% 45%); }
-.price-down { color: hsl(0 84% 60%); }
-.price-flat { color: hsl(225 20% 55%); }
+/* Fiyat degisim renkleri — Semantic tokens kullanilmali */
+.price-up   { color: var(--success); }
+.price-down { color: var(--danger); }
+.price-flat { color: var(--muted); }
 
 /* Tablo stilleri */
 .price-table tr:hover td {
-  background-color: hsl(225 26% 12%);
+  background-color: var(--bg-alt);
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--color-background); }
+::-webkit-scrollbar-track { background: var(--background); }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: var(--border);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-muted);
+  background: var(--muted);
 }
 
-/* ── Ambient orb'lar (HalDeFiyat hero arkaplani) ── */
+/* ── Ambient orb'lar ── */
 .ambient-orb-1 {
   position: absolute;
   width: 600px; height: 600px;
   top: -200px; right: -100px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(132, 240, 76, 0.08), transparent 70%);
+  background: radial-gradient(circle, var(--brand), transparent 70%);
   filter: blur(120px);
-  opacity: 0.4;
+  opacity: var(--orb-opacity);
   animation: orb-float 20s ease-in-out infinite;
 }
 .ambient-orb-2 {
@@ -139,9 +203,9 @@ body {
   width: 500px; height: 500px;
   bottom: 20%; left: -150px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.06), transparent 70%);
+  background: radial-gradient(circle, var(--info), transparent 70%);
   filter: blur(120px);
-  opacity: 0.4;
+  opacity: var(--orb-opacity);
   animation: orb-float 25s ease-in-out infinite reverse;
 }
 .ambient-orb-3 {
@@ -149,9 +213,9 @@ body {
   width: 400px; height: 400px;
   top: 60%; right: 10%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.05), transparent 70%);
+  background: radial-gradient(circle, var(--warning), transparent 70%);
   filter: blur(120px);
-  opacity: 0.4;
+  opacity: var(--orb-opacity);
   animation: orb-float 18s ease-in-out infinite 5s;
 }
 
@@ -160,17 +224,24 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: hsl(102 85% 57%);
-  box-shadow: 0 0 0 0 hsl(102 85% 57% / 0.6);
+  background-color: var(--brand);
+  box-shadow: 0 0 0 0 var(--brand);
   animation: live-pulse 2s ease-out infinite;
 }
 @keyframes live-pulse {
-  0%   { box-shadow: 0 0 0 0 hsl(102 85% 57% / 0.6); }
-  70%  { box-shadow: 0 0 0 8px hsl(102 85% 57% / 0); }
-  100% { box-shadow: 0 0 0 0 hsl(102 85% 57% / 0); }
+  0%   { box-shadow: 0 0 0 0 var(--brand); opacity: 0.8; }
+  70%  { box-shadow: 0 0 0 8px transparent; opacity: 0; }
+  100% { box-shadow: 0 0 0 0 transparent; opacity: 0; }
 }
 
-/* ── Ticker scroll (PriceTicker) ── */
+/* Ambient arkaplan grid */
+.dot-grid {
+  background-image: linear-gradient(var(--foreground) 1px, transparent 1px), 
+                    linear-gradient(90deg, var(--foreground) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ── Ticker scroll ── */
 @keyframes ticker-move {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -186,12 +257,13 @@ body {
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 40px, #000 calc(100% - 40px), transparent);
 }
 
-/* ── Live dot small (Hero chip) ── */
+/* ── Live dot small ── */
 .live-dot-sm {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: hsl(102 85% 57%);
-  box-shadow: 0 0 6px hsl(102 85% 57%);
+  background-color: var(--brand);
+  box-shadow: 0 0 6px var(--brand);
   animation: live-pulse 2s ease-out infinite;
 }
+

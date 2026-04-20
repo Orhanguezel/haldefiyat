@@ -82,9 +82,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+
 export const viewport: Viewport = {
   themeColor: "#84f04c",
-  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
 };
@@ -99,7 +100,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html
       lang="tr"
       data-brand="hal-fiyatlari"
-      data-theme="dark"
       suppressHydrationWarning
       className={`${outfit.variable} ${ibmPlexSans.variable} font-sans`}
     >
@@ -108,9 +108,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body suppressHydrationWarning>
         {analytics.gtmId && <GtmNoscript gtmId={analytics.gtmId} />}
-        <NextIntlClientProvider>
-          {children}
-        </NextIntlClientProvider>
+        <ThemeProvider>
+          <NextIntlClientProvider>
+            {children}
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

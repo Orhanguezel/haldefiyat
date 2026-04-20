@@ -1,1 +1,0 @@
-export { registerSellers } from './router';

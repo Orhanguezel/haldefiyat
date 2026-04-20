@@ -61,7 +61,7 @@ export default function Footer({
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-(--color-border) bg-[rgba(10,14,26,0.6)] px-8 py-16">
+    <footer className="border-t border-(--color-border) bg-(--color-header) px-8 py-16">
       <div className="mx-auto max-w-[1400px]">
         <div className="mb-7 grid grid-cols-1 gap-12 border-b border-(--color-border) pb-12 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           {/* Sutun 1 — Brand */}
@@ -99,7 +99,7 @@ export default function Footer({
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-[13px] text-(--color-muted) transition-colors hover:text-lime-400"
+                      className="text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)"
                     >
                       {link.label}
                     </Link>
@@ -119,7 +119,7 @@ export default function Footer({
             href="https://tarim-dijital-ekosistem.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-(--color-muted) transition-colors hover:text-lime-400"
+            className="text-(--color-muted) transition-colors hover:text-(--color-brand)"
           >
             Tarim Dijital Ekosistem
           </a>

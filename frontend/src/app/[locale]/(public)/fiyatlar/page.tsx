@@ -27,7 +27,10 @@ export default async function FiyatlarPage({ params }: Props) {
   setRequestLocale(locale);
 
   const [prices, markets] = await Promise.all([
-    fetchPrices({ range: "7d", limit: 200 }),
+    // latestOnly: her (ürün, market) çifti için sadece en güncel kayıt.
+    // Böylece İzmir balık gibi 1 gün geriden gelen kaynaklar limit'e kurban
+    // gitmez; tablo ETL biriktikçe sabit boyutta kalır.
+    fetchPrices({ range: "7d", limit: 1000, latestOnly: true }),
     fetchMarkets(),
   ]);
 

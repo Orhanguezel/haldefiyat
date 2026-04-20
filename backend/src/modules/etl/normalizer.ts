@@ -2,10 +2,12 @@ import { db } from "@/db/client";
 import { hfProducts } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-// Türkçe karakter normalizasyonu: Havuç → havuc, Üzüm → uzum
+// Türkçe karakter normalizasyonu: Havuç → havuc, ÜZÜM → uzum, DİĞER → diger.
+// toLocaleLowerCase('tr-TR') şart: default toLowerCase() "İ"yi combining dot
+// ile "i̇" yaparak slug'ı "di-ger" gibi kırık çıkarır.
 export function turkishToAscii(str: string): string {
   return str
-    .toLowerCase()
+    .toLocaleLowerCase("tr-TR")
     .replace(/ğ/g, "g")
     .replace(/ü/g, "u")
     .replace(/ş/g, "s")

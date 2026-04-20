@@ -28,14 +28,14 @@ export default function Header({ siteName, logoUrl }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full">
       {/* Layer 1 — Topbar */}
-      <div className="bg-[rgba(15,20,36,0.85)] backdrop-blur-xl border-b border-(--color-border-soft)">
+      <div className="bg-(--color-header-top) backdrop-blur-xl border-b border-(--color-border-soft)">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <TopbarClient />
         </div>
       </div>
 
       {/* Layer 2 — Main header */}
-      <div className="relative bg-[rgba(10,14,26,0.85)] backdrop-blur-xl border-b border-(--color-border-soft)">
+      <div className="relative bg-(--color-header) backdrop-blur-xl border-b border-(--color-border-soft)">
         <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           {/* Logo */}
           <Link href="/" className="flex items-center shrink-0">

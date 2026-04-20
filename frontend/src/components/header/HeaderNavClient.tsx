@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
 import SearchModalTrigger from "@/components/ui/SearchModalTrigger";
+import { ThemeToggle } from "./ThemeToggle";
 
 export interface NavLink {
   key: string;
@@ -89,9 +90,9 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
           ⌘K
         </kbd>
       </div>
-
       {/* CTA buttons */}
       <div className="hidden lg:flex items-center gap-2">
+        <ThemeToggle />
         <Link
           href="/giris"
           className="h-9 px-4 inline-flex items-center rounded-lg border border-(--color-border) text-[13px] font-medium text-(--color-foreground) hover:bg-(--color-bg-alt) transition-colors"
@@ -100,7 +101,7 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
         </Link>
         <Link
           href="/kayit"
-          className="h-9 px-4 inline-flex items-center rounded-lg bg-(--color-brand) text-(--color-navy) text-[13px] font-semibold hover:bg-(--color-brand-dark) transition-colors shadow-(--shadow-brand)"
+          className="h-9 px-4 inline-flex items-center rounded-lg bg-(--color-brand) text-(--color-brand-fg) text-[13px] font-semibold hover:bg-(--color-brand-dark) transition-colors shadow-(--shadow-brand)"
         >
           Ücretsiz Başla
         </Link>
@@ -142,6 +143,7 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
               </Link>
             ))}
             <div className="mt-2 flex items-center gap-2 border-t border-(--color-border) pt-3">
+              <ThemeToggle />
               <Link
                 href="/giris"
                 className="flex-1 h-10 inline-flex items-center justify-center rounded-lg border border-(--color-border) text-sm font-medium"
@@ -150,7 +152,7 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
               </Link>
               <Link
                 href="/kayit"
-                className="flex-1 h-10 inline-flex items-center justify-center rounded-lg bg-(--color-brand) text-(--color-navy) text-sm font-semibold"
+                className="flex-1 h-10 inline-flex items-center justify-center rounded-lg bg-(--color-brand) text-(--color-brand-fg) text-sm font-semibold"
               >
                 Ücretsiz Başla
               </Link>

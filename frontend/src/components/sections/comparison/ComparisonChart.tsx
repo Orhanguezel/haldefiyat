@@ -29,7 +29,7 @@ function ChartTooltip({ active, payload, label }: TooltipProps<number, string>) 
   const point = payload[0]?.payload as ChartPoint | undefined;
   const raw = point?.rawDate ?? String(label ?? "");
   return (
-    <div className="rounded-[10px] border border-(--color-brand) bg-(--color-navy)/95 px-3 py-2 backdrop-blur-md">
+    <div className="rounded-[10px] border border-(--color-brand) bg-(--color-header) px-3 py-2 backdrop-blur-md">
       <div className="mb-1.5 font-(family-name:--font-mono) text-[10px] uppercase tracking-[0.1em] text-(--color-brand)">
         {formatLongDate(raw)}
       </div>
@@ -81,16 +81,16 @@ export default function ComparisonChart({ data, selectedProducts }: ComparisonCh
     <div className="h-[360px] w-full rounded-2xl border border-(--color-border) bg-(--color-surface) p-4">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-          <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" vertical={false} />
+          <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="date"
-            stroke="rgba(255,255,255,0.4)"
+            stroke="var(--muted)"
             tick={{ fontSize: 11, fontFamily: "var(--font-mono)" }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            stroke="rgba(255,255,255,0.4)"
+            stroke="var(--muted)"
             tick={{ fontSize: 11, fontFamily: "var(--font-mono)" }}
             axisLine={false}
             tickLine={false}
@@ -99,7 +99,7 @@ export default function ComparisonChart({ data, selectedProducts }: ComparisonCh
           />
           <Tooltip
             content={<ChartTooltip />}
-            cursor={{ stroke: "hsl(102 85% 57%)", strokeWidth: 1, strokeDasharray: "3 3" }}
+            cursor={{ stroke: "var(--brand)", strokeWidth: 1, strokeDasharray: "3 3" }}
           />
           <Legend
             wrapperStyle={{ fontSize: 12, fontFamily: "var(--font-mono)" }}

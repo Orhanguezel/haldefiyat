@@ -96,66 +96,28 @@ CREATE TABLE IF NOT EXISTS `hf_etl_runs` (
   KEY `hf_etl_runs_source_date` (`source_api`, `run_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ─── Seed: Pazarlar ───────────────────────────────────────────────────────────
-INSERT INTO `hf_markets` (`slug`, `name`, `city_name`, `region_slug`, `source_key`, `display_order`) VALUES
-('istanbul-hal',   'İstanbul Toptancı Hali',  'İstanbul', 'marmara', 'ibb',      1),
-('izmir-hal',      'İzmir Toptancı Hali',     'İzmir',    'ege',     'izmir',    2),
-('antalya-hal',    'Antalya Toptancı Hali',   'Antalya',  'akdeniz', 'manual',   3),
-('ankara-hal',     'Ankara Toptancı Hali',    'Ankara',   'ic-anadolu', 'manual', 4),
-('bursa-hal',      'Bursa Toptancı Hali',     'Bursa',    'marmara', 'bursa',    5),
-('balikesir-hal',  'Balıkesir Toptancı Hali', 'Balıkesir','ege',     'balikesir',6),
-('konya-hal',      'Konya Toptancı Hali',     'Konya',    'ic-anadolu', 'manual', 7),
-('adana-hal',      'Adana Toptancı Hali',     'Adana',    'akdeniz', 'manual',   8)
-ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `source_key` = VALUES(`source_key`);
+-- ─── Pazar kataloğu (ETL kaynakları için FK referansı) ─────────────────────
+-- Sadece config/etl-sources.ts'teki aktif kaynakların market referansı burada
+-- tutulur. Placeholder "gelecekte bir gün" hal'leri yer almaz — yeni kaynak
+-- aktifleştirilirken config + bu seed beraber güncellenir.
+--   izmir-hal                : izmir_sebzemeyve + izmir_balik
+--   antalya-hal-merkez       : antalya_merkez_antkomder
+--   antalya-hal-serik        : antalya_serik_antkomder (dernek fiyat açınca aktif)
+--   antalya-hal-kumluca      : antalya_kumluca_antkomder (dernek fiyat açınca aktif)
+INSERT INTO `hf_markets` (`slug`, `name`, `city_name`, `region_slug`, `source_key`, `display_order`, `is_active`) VALUES
+('izmir-hal',           'İzmir Toptancı Hali',            'İzmir',    'ege',        'izmir_sebzemeyve',         1, 1),
+('konya-hal',           'Konya Toptancı Hali',            'Konya',    'ic-anadolu', 'konya_resmi',              2, 1),
+('kayseri-hal',         'Kayseri Toptancı Hali',          'Kayseri',  'ic-anadolu', 'kayseri_resmi',            3, 1),
+('eskisehir-hal',       'Eskişehir Toptancı Hali',        'Eskişehir','ic-anadolu', 'eskisehir_resmi',          4, 1),
+('denizli-hal',         'Denizli Toptancı Hali',          'Denizli',  'ege',        'denizli_resmi',            5, 1),
+('antalya-hal-merkez',  'Antalya Toptancı Hali (Merkez)', 'Antalya',  'akdeniz',    'antalya_merkez_antkomder', 6, 1),
+('antalya-hal-serik',   'Antalya Serik Hali',             'Antalya',  'akdeniz',    'antalya_serik_antkomder',  7, 1),
+('antalya-hal-kumluca', 'Antalya Kumluca Hali',           'Antalya',  'akdeniz',    'antalya_kumluca_antkomder',8, 1)
+ON DUPLICATE KEY UPDATE
+  `name`       = VALUES(`name`),
+  `source_key` = VALUES(`source_key`),
+  `is_active`  = VALUES(`is_active`);
 
--- ─── Seed: Ürünler ────────────────────────────────────────────────────────────
--- aliases: IBB API'den gelen varyant isimler (normalizasyon için)
-INSERT INTO `hf_products` (`slug`, `name_tr`, `category_slug`, `unit`, `aliases`, `display_order`) VALUES
--- Sebzeler
-('domates',       'Domates',          'sebze', 'kg', '["domates","Domates","DOMATES"]',              1),
-('biber',         'Sivri Biber',      'sebze', 'kg', '["biber","sivri biber","Sivri Biber","Biber"]',2),
-('patates',       'Patates',          'sebze', 'kg', '["patates","Patates","PATATES"]',               3),
-('sogan',         'Soğan',            'sebze', 'kg', '["sogan","soğan","Soğan","Sogan"]',             4),
-('havuc',         'Havuç',            'sebze', 'kg', '["havuc","havuç","Havuç","Havuc"]',             5),
-('kabak',         'Kabak',            'sebze', 'kg', '["kabak","Kabak","KABAK"]',                     6),
-('patlican',      'Patlıcan',         'sebze', 'kg', '["patlican","patlıcan","Patlıcan"]',            7),
-('ispanak',       'Ispanak',          'sebze', 'kg', '["ıspanak","ispanak","Ispanak"]',               8),
-('marul',         'Marul',            'sebze', 'kg', '["marul","Marul"]',                            9),
-('salatalik',     'Salatalık',        'sebze', 'kg', '["salatalik","salatalık","Salatalık"]',        10),
--- Meyveler
-('elma',          'Elma',             'meyve', 'kg', '["elma","Elma","ELMA"]',                       20),
-('armut',         'Armut',            'meyve', 'kg', '["armut","Armut"]',                            21),
-('uzum',          'Üzüm',             'meyve', 'kg', '["uzum","üzüm","Üzüm"]',                       22),
-('nar',           'Nar',              'meyve', 'kg', '["nar","Nar"]',                                23),
-('portakal',      'Portakal',         'meyve', 'kg', '["portakal","Portakal"]',                      24),
-('mandalina',     'Mandalina',        'meyve', 'kg', '["mandalina","Mandalina"]',                    25),
-('limon',         'Limon',            'meyve', 'kg', '["limon","Limon"]',                            26),
-('cilek',         'Çilek',            'meyve', 'kg', '["cilek","çilek","Çilek"]',                    27),
-('kayisi',        'Kayısı',           'meyve', 'kg', '["kayisi","kayısı","Kayısı"]',                 28),
-('seftali',       'Şeftali',          'meyve', 'kg', '["seftali","şeftali","Şeftali"]',              29),
--- Bakliyat
-('kuru-fasulye',  'Kuru Fasulye',     'bakliyat', 'kg', '["kuru fasulye","Kuru Fasulye"]',           40),
-('nohut',         'Nohut',            'bakliyat', 'kg', '["nohut","Nohut"]',                         41),
-('mercimek',      'Kırmızı Mercimek', 'bakliyat', 'kg', '["mercimek","kırmızı mercimek","Mercimek"]',42)
-ON DUPLICATE KEY UPDATE `name_tr` = VALUES(`name_tr`), `aliases` = VALUES(`aliases`), `category_slug` = VALUES(`category_slug`);
-
--- ─── Seed: Örnek fiyat verisi (7 günlük) ─────────────────────────────────────
-INSERT IGNORE INTO `hf_price_history`
-  (`product_id`, `market_id`, `min_price`, `max_price`, `avg_price`, `currency`, `unit`, `recorded_date`, `source_api`)
-SELECT
-  p.id,
-  m.id,
-  ROUND(35.00 + (p.id * 2.5) + (m.id * 0.3) + (d.day_offset * 0.2) - 5, 2)  AS min_price,
-  ROUND(35.00 + (p.id * 2.5) + (m.id * 0.3) + (d.day_offset * 0.2) + 8, 2)  AS max_price,
-  ROUND(35.00 + (p.id * 2.5) + (m.id * 0.3) + (d.day_offset * 0.2) + 1.5, 2) AS avg_price,
-  'TRY',
-  'kg',
-  DATE_SUB(CURDATE(), INTERVAL d.day_offset DAY),
-  'seed'
-FROM `hf_products` p
-CROSS JOIN `hf_markets` m
-CROSS JOIN (
-  SELECT 0 AS day_offset UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4
-  UNION SELECT 5 UNION SELECT 6
-) d
-WHERE p.is_active = 1 AND m.is_active = 1;
+-- Ürün kataloğu ETL ilk çalıştığında kaynaklardan otomatik doldurulur
+-- (ETL_AUTO_REGISTER_PRODUCTS=true). Bu nedenle seed'de hiçbir ürün
+-- tanımlanmaz — tüm katalog gerçek veriden inşa edilir.

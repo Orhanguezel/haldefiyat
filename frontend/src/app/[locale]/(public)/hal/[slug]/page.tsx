@@ -3,6 +3,8 @@ import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import { fetchPrices, fetchMarkets } from "@/lib/api";
 import PriceTable from "@/components/ui/PriceTable";
+import WeatherWidget from "@/components/sections/WeatherWidget";
+import { cityToWeatherSlug } from "@/lib/weather";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -75,6 +77,8 @@ export default async function HalPage({ params }: Props) {
     );
   }
 
+  const weatherSlug = cityToWeatherSlug(market.cityName);
+
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <div className="mb-8">
@@ -89,6 +93,14 @@ export default async function HalPage({ params }: Props) {
           Kaynak: {market.sourceKey ?? "manuel"} · Bugünkü fiyatlar
         </p>
       </div>
+
+      {/* Hava durumu — sadece eslesen sehirler icin */}
+      {weatherSlug && (
+        <div className="mb-8">
+          <WeatherWidget citySlug={weatherSlug} cityName={market.cityName} />
+        </div>
+      )}
+
       <PriceTable initialPrices={prices} markets={markets} />
     </main>
   );

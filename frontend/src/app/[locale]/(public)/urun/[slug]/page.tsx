@@ -8,6 +8,7 @@ import {
 import JsonLd from "@/components/seo/JsonLd";
 import PriceChart from "@/components/sections/PriceChart";
 import SeasonCompare from "@/components/sections/SeasonCompare";
+import FrostRiskBanner from "@/components/sections/FrostRiskBanner";
 import PriceTable from "@/components/ui/PriceTable";
 import FavoriteButton from "@/components/ui/FavoriteButton";
 import ExportButton from "@/components/ui/ExportButton";
@@ -92,6 +93,9 @@ export default async function UrunPage({ params }: Props) {
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <JsonLd type="Product" data={productSchema} />
+
+      {/* Don uyarisi — donla hassas urun + aktif risk varsa gosterilir */}
+      <FrostRiskBanner />
 
       {/* Baslik */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">

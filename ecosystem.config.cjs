@@ -45,6 +45,8 @@ module.exports = {
         // BACKEND_URL: server component'lar için internal backend adresi
         // NEXT_PUBLIC_ olmadığı için build'e baked olmaz — runtime'da okunur
         BACKEND_URL: "http://127.0.0.1:8091",
+        // Tarimiklim — ekosistem-ici hava durumu servisi (tarimiklim.com backend)
+        TARIMIKLIM_API_URL: "http://127.0.0.1:8088",
       },
       env_file: "./frontend/.env.local",
       error_file: "../logs/hal-frontend-error.log",

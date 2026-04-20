@@ -61,9 +61,9 @@ function toNumber(value: string | null | undefined): number {
 }
 
 function colorForIndex(index: number, totalYears: number): string {
-  if (index === totalYears - 1) return "hsl(102 85% 57%)";
-  if (index === totalYears - 2) return "rgb(148 163 184)";
-  return "rgb(71 85 105)";
+  if (index === totalYears - 1) return "var(--brand)";
+  if (index === totalYears - 2) return "var(--muted)";
+  return "var(--faint)";
 }
 
 function formatDoyTick(doy: number): string {
@@ -77,7 +77,7 @@ function SeasonTooltip({ active, payload, label }: TooltipProps<number, string>)
   const date = new Date(2024, 0, doy);
   const pretty = date.toLocaleDateString("tr-TR", { day: "2-digit", month: "long" });
   return (
-    <div className="rounded-[10px] border border-(--color-brand) bg-(--color-navy)/95 px-3 py-2 backdrop-blur-md">
+    <div className="rounded-[10px] border border-(--color-brand) bg-(--color-header) px-3 py-2 backdrop-blur-md">
       <div className="mb-1 font-(family-name:--font-mono) text-[10px] uppercase tracking-[0.1em] text-(--color-brand)">
         {pretty}
       </div>
@@ -138,27 +138,27 @@ export default function SeasonCompareChart({ history, productName }: SeasonCompa
     <div className="h-[320px] w-full" aria-label={`${productName} yıllık sezon karşılaştırması`}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" vertical={false} />
+          <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="doy"
             type="number"
             domain={[1, 366]}
             ticks={MONTH_STARTS.map((m) => m.doy)}
             tickFormatter={(d: number) => formatDoyTick(d)}
-            stroke="rgba(255,255,255,0.4)"
+            stroke="var(--muted)"
             tick={{ fontSize: 11, fontFamily: "var(--font-mono)" }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            stroke="rgba(255,255,255,0.4)"
+            stroke="var(--muted)"
             tick={{ fontSize: 11, fontFamily: "var(--font-mono)" }}
             axisLine={false}
             tickLine={false}
             tickFormatter={(v: number) => `₺${v}`}
             width={50}
           />
-          <Tooltip content={<SeasonTooltip />} cursor={{ stroke: "hsl(102 85% 57%)", strokeWidth: 1, strokeDasharray: "3 3" }} />
+          <Tooltip content={<SeasonTooltip />} cursor={{ stroke: "var(--brand)", strokeWidth: 1, strokeDasharray: "3 3" }} />
           <Legend wrapperStyle={{ fontFamily: "var(--font-mono)", fontSize: 11 }} />
           {years.map((g) => (
             <Line

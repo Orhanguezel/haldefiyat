@@ -1,5 +1,5 @@
 import type { SQL } from "drizzle-orm";
-import { and, desc, eq, gte, sql, or, like, inArray } from "drizzle-orm";
+import { and, desc, eq, gte, lte, sql, or, like, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfMarkets, hfPriceHistory, hfProducts } from "@/db/schema";
 
@@ -8,6 +8,20 @@ export function parseRangeToDays(range?: string): number {
   const m = /^(\d+)d$/.exec(range.trim());
   if (m) return Math.min(365, Math.max(1, parseInt(m[1], 10)));
   return 7;
+}
+
+/**
+ * En son fiyat kaydının tarihi. DB boşsa null.
+ * Frontend'in "son veri X gün öncesine ait" mesajı için de kullanılır.
+ */
+export async function latestRecordedDate(): Promise<string | null> {
+  const rows = await db
+    .select({ d: sql<string | Date | null>`MAX(${hfPriceHistory.recordedDate})` })
+    .from(hfPriceHistory);
+  const raw: unknown = rows[0]?.d;
+  if (!raw) return null;
+  if (raw instanceof Date) return raw.toISOString().slice(0, 10);
+  return String(raw).slice(0, 10);
 }
 
 function likeSafe(raw: string): string {
@@ -21,20 +35,87 @@ export async function listPriceRows(params: {
   category?: string;
   range?: string;
   limit?: number;
+  /**
+   * true ise her (product_id, market_id) çifti için yalnızca en güncel
+   * tarihteki satır döner. /fiyatlar gibi "güncel tablo" görünümleri için
+   * varsayılan. false → tüm range içindeki geçmiş satırlar (grafik vb.).
+   */
+  latestOnly?: boolean;
 }) {
   const days = parseRangeToDays(params.range);
-  const limit = Math.min(500, Math.max(1, params.limit ?? 100));
+  const limit = Math.min(2000, Math.max(1, params.limit ?? 500));
+  const latestOnly = params.latestOnly !== false;
 
-  const conds: SQL[] = [
-    gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)`),
+  // Pencereyi CURDATE()'ten değil "DB'deki en son kayıt tarihinden" geriye al.
+  // Böylece ETL bir-iki gün kaçsa bile liste boşalmaz; kullanıcı her zaman
+  // mevcut en güncel veriyi görür.
+  const anchor = await latestRecordedDate();
+  const anchorSql = anchor
+    ? sql`${anchor}`
+    : sql`CURDATE()`;
+
+  const windowConds: SQL[] = [
+    gte(hfPriceHistory.recordedDate, sql`DATE_SUB(${anchorSql}, INTERVAL ${sql.raw(String(days))} DAY)`),
+    lte(hfPriceHistory.recordedDate, anchorSql),
   ];
 
-  if (params.product) conds.push(eq(hfProducts.slug, params.product));
-  if (params.market)  conds.push(eq(hfMarkets.slug, params.market));
+  const conds: SQL[] = [...windowConds];
+  if (params.product)  conds.push(eq(hfProducts.slug, params.product));
+  if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
   if (params.city) {
     const c = likeSafe(params.city.trim());
     if (c) conds.push(or(like(hfMarkets.cityName, `%${c}%`), like(hfMarkets.slug, `%${c}%`))!);
+  }
+
+  if (latestOnly) {
+    // (product_id, market_id) başına en yeni recorded_date'i subquery ile
+    // bulup ana tabloya inner join yap. Böylece aynı çift için tek satır
+    // döner, tablo ETL biriktikçe şişmez.
+    const latest = db.$with("latest_pair_dates").as(
+      db
+        .select({
+          productId: hfPriceHistory.productId,
+          marketId:  hfPriceHistory.marketId,
+          rd:        sql<string>`MAX(${hfPriceHistory.recordedDate})`.as("rd"),
+        })
+        .from(hfPriceHistory)
+        .where(and(...windowConds))
+        .groupBy(hfPriceHistory.productId, hfPriceHistory.marketId),
+    );
+
+    return db
+      .with(latest)
+      .select({
+        id:           hfPriceHistory.id,
+        minPrice:     hfPriceHistory.minPrice,
+        maxPrice:     hfPriceHistory.maxPrice,
+        avgPrice:     hfPriceHistory.avgPrice,
+        currency:     hfPriceHistory.currency,
+        unit:         hfPriceHistory.unit,
+        recordedDate: hfPriceHistory.recordedDate,
+        sourceApi:    hfPriceHistory.sourceApi,
+        productSlug:  hfProducts.slug,
+        productName:  hfProducts.nameTr,
+        categorySlug: hfProducts.categorySlug,
+        marketSlug:   hfMarkets.slug,
+        marketName:   hfMarkets.name,
+        cityName:     hfMarkets.cityName,
+      })
+      .from(hfPriceHistory)
+      .innerJoin(
+        latest,
+        and(
+          eq(latest.productId, hfPriceHistory.productId),
+          eq(latest.marketId, hfPriceHistory.marketId),
+          eq(latest.rd, hfPriceHistory.recordedDate),
+        ),
+      )
+      .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+      .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+      .where(and(...conds))
+      .orderBy(desc(hfPriceHistory.recordedDate), hfProducts.displayOrder)
+      .limit(limit);
   }
 
   return db

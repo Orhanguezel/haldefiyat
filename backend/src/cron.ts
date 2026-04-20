@@ -2,30 +2,21 @@ import * as cron from "node-cron";
 import type { FastifyInstance } from "fastify";
 import { runDailyEtl } from "@/modules/etl";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
+import { env } from "@/core/env";
 
 /**
- * Cron zamanlamalari (UTC):
- *   - ETL:     "15 3 * * *"   → 06:15 Istanbul (UTC+3)
- *   - Alerts:  "30 3 * * *"   → 06:30 Istanbul, ETL sonrasi guvenli bekleme
- *
- * node-cron kutuphanesi UTC timezone kullanmak icin 'UTC' stringi ister.
- * Istanbul yaz/kis saati olmadigi icin UTC+3 sabittir — UTC kullanmak en basit cozum.
+ * Cron zamanlaması env'den gelir:
+ *   ETL_CRON_SCHEDULE     → varsayılan "15 3 * * *"
+ *   ALERTS_CRON_SCHEDULE  → varsayılan "30 3 * * *"
+ *   ETL_CRON_TIMEZONE     → varsayılan "UTC" (UTC+3 sabit olduğu için UTC en basit)
  */
 
 type CronTask = { name: string; schedule: string; handler: () => Promise<void> };
 
 export function startCron(app: FastifyInstance): void {
   const tasks: CronTask[] = [
-    {
-      name:     "etl-daily",
-      schedule: "15 3 * * *",
-      handler:  () => runEtlJob(app),
-    },
-    {
-      name:     "alerts-check",
-      schedule: "30 3 * * *",
-      handler:  () => runAlertsJob(app),
-    },
+    { name: "etl-daily",    schedule: env.ETL.cronSchedule,    handler: () => runEtlJob(app) },
+    { name: "alerts-check", schedule: env.ETL.alertsSchedule,  handler: () => runAlertsJob(app) },
   ];
 
   for (const t of tasks) {
@@ -41,10 +32,10 @@ export function startCron(app: FastifyInstance): void {
           app.log.error({ task: t.name, err }, "[cron] gorev hatasi");
         });
       },
-      { timezone: "UTC" },
+      { timezone: env.ETL.cronTimezone },
     );
 
-    app.log.info({ task: t.name, schedule: t.schedule, tz: "UTC" }, "[cron] kayit edildi");
+    app.log.info({ task: t.name, schedule: t.schedule, tz: env.ETL.cronTimezone }, "[cron] kayit edildi");
   }
 }
 
@@ -60,7 +51,7 @@ async function runEtlJob(app: FastifyInstance): Promise<void> {
       "[cron:etl] tamamlandi",
     );
 
-    // ETL tamamlaninca anlik kontrol et — 15 dakikalik zamanli cron yedek amacli
+    // ETL tamamlaninca anlik alert kontrolu — sabah veri gelir gelmez kullanicilar uyarilsin
     await runAlertsJob(app);
   } catch (err) {
     app.log.error({ err }, "[cron:etl] hata");

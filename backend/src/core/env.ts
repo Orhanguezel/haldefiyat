@@ -66,4 +66,13 @@ export const env = {
   SMTP_USER: process.env.SMTP_USER || "",
   SMTP_PASS: process.env.SMTP_PASS || "",
   SMTP_FROM: process.env.SMTP_FROM || "noreply@haldefiyat.com",
+
+  ETL: {
+    cronSchedule: process.env.ETL_CRON_SCHEDULE || "15 3 * * *",
+    cronTimezone: process.env.ETL_CRON_TIMEZONE || "UTC",
+    alertsSchedule: process.env.ALERTS_CRON_SCHEDULE || "30 3 * * *",
+    maxDateFallbackDays: parseEnvInt(process.env.ETL_MAX_DATE_FALLBACK_DAYS, 7),
+    autoRegisterProducts: (process.env.ETL_AUTO_REGISTER_PRODUCTS ?? "true").toLowerCase() === "true",
+    requestTimeoutMs: parseEnvInt(process.env.ETL_REQUEST_TIMEOUT_MS, 30_000),
+  },
 };

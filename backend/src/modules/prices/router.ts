@@ -7,18 +7,30 @@ import {
   productPriceHistory,
   parseRangeToDays,
   trendingChanges,
+  latestRecordedDate,
 } from "./repository";
 import { resolveWeekRange } from "./iso-week";
 import { weeklyPriceSummary } from "./weekly";
 import { toCsvPayload, csvFilename } from "./csv";
 
+const boolish = z.preprocess((v) => {
+  if (typeof v === "boolean") return v;
+  if (typeof v === "string") {
+    const s = v.trim().toLowerCase();
+    if (s === "true" || s === "1" || s === "yes") return true;
+    if (s === "false" || s === "0" || s === "no") return false;
+  }
+  return v;
+}, z.boolean().optional());
+
 const qList = z.object({
-  product:  z.string().optional(),
-  city:     z.string().optional(),
-  market:   z.string().optional(),
-  category: z.string().optional(),
-  range:    z.string().optional(),
-  limit:    z.coerce.number().optional(),
+  product:    z.string().optional(),
+  city:       z.string().optional(),
+  market:     z.string().optional(),
+  category:   z.string().optional(),
+  range:      z.string().optional(),
+  limit:      z.coerce.number().optional(),
+  latestOnly: boolish,
 });
 
 const qExport = qList.extend({
@@ -166,14 +178,24 @@ export async function registerPrices(app: FastifyInstance) {
     const parsed = qList.safeParse(req.query);
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz sorgu parametreleri" });
     const p = parsed.data;
-    const items = await listPriceRows({
-      product:  p.product,
-      city:     p.city,
-      market:   p.market,
-      category: p.category,
-      range:    p.range,
-      limit:    p.limit,
+    const [items, latestDate] = await Promise.all([
+      listPriceRows({
+        product:    p.product,
+        city:       p.city,
+        market:     p.market,
+        category:   p.category,
+        range:      p.range,
+        limit:      p.limit,
+        latestOnly: p.latestOnly,
+      }),
+      latestRecordedDate(),
+    ]);
+    return reply.send({
+      items,
+      meta: {
+        rangeDays: parseRangeToDays(p.range),
+        latestRecordedDate: latestDate,
+      },
     });
-    return reply.send({ items, meta: { rangeDays: parseRangeToDays(p.range) } });
   });
 }

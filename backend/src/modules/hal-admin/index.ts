@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { upsertPriceRow } from "@/modules/prices/repository";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
+import { loadEtlSources } from "@/config/etl-sources";
 import { db } from "@/db/client";
 import { hfEtlRuns } from "@/db/schema";
 import { desc } from "drizzle-orm";
@@ -16,8 +17,10 @@ const obsBody = z.object({
   sourceApi:    z.string().max(64).optional(),
 });
 
+// source: kayıtlı kaynaklardan biri veya "all". Kaynak listesi runtime'da
+// config/etl-sources.ts'ten gelir — hard-coded enum yok.
 const etlBody = z.object({
-  source: z.enum(["ibb", "izmir", "all"]).optional().default("all"),
+  source: z.string().min(1).max(64).optional().default("all"),
   date:   z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 });
 
@@ -43,9 +46,17 @@ export async function registerHalAdmin(app: FastifyInstance) {
   });
 
   /**
+   * GET /api/v1/admin/hal/etl/sources
+   * Kayıtlı ETL kaynakları (config/etl-sources.ts + env override'ları)
+   */
+  app.get("/hal/etl/sources", async (_req, reply) => {
+    return reply.send({ sources: loadEtlSources() });
+  });
+
+  /**
    * POST /api/v1/admin/hal/etl/run
-   * ETL tetikleme (belirli kaynak veya hepsini çalıştır)
-   * Body: { source: "ibb" | "izmir" | "all", date?: "YYYY-MM-DD" }
+   * Body: { source?: "<kaynak-anahtari>" | "all", date?: "YYYY-MM-DD" }
+   * source atlanırsa/'all' ise tüm enabled kaynaklar çalıştırılır.
    */
   app.post("/hal/etl/run", async (req, reply) => {
     const parsed = etlBody.safeParse(req.body);
@@ -57,8 +68,13 @@ export async function registerHalAdmin(app: FastifyInstance) {
       return reply.send({ ok: true, results });
     }
 
-    const result = await runSingleSource(source, date);
-    return reply.send({ ok: true, source, result });
+    try {
+      const result = await runSingleSource(source, date);
+      return reply.send({ ok: true, source, result });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return reply.status(400).send({ ok: false, source, error: msg });
+    }
   });
 
   /**
