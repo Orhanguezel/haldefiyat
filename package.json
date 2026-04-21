@@ -2,15 +2,15 @@
   "name": "haldefiyat",
   "private": true,
   "workspaces": [
-    "packages/shared-backend",
-    "packages/shared-types",
-    "packages/shared-config",
-    "packages/shared-ui",
+    "../../packages/shared-backend",
+    "../../packages/shared-types",
+    "../../packages/shared-config",
+    "../../packages/shared-ui",
     "backend",
     "frontend"
   ],
   "scripts": {
-    "build:shared": "cd packages/shared-backend && bun x tsc -p tsconfig.build.json",
+    "build:shared": "cd ../../packages/shared-backend && bun x tsc -p tsconfig.build.json",
     "build:backend": "cd backend && bun run build",
     "build:frontend": "cd frontend && bun run build",
     "build": "bun run build:shared && bun run build:backend && bun run build:frontend",

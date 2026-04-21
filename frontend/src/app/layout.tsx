@@ -4,6 +4,8 @@ import { NextIntlClientProvider } from "next-intl";
 import { defaultLocale } from "@/i18n/routing";
 import { fetchSiteSettings, fetchAnalyticsConfig } from "@/lib/site-settings";
 import Analytics, { GtmNoscript } from "@/components/seo/Analytics";
+import { AuthSessionProvider } from "@/components/providers/AuthSessionProvider";
+import { OneSignalProvider } from "@/components/providers/OneSignalProvider";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -110,7 +112,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {analytics.gtmId && <GtmNoscript gtmId={analytics.gtmId} />}
         <ThemeProvider>
           <NextIntlClientProvider>
-            {children}
+            <AuthSessionProvider>
+              <OneSignalProvider />
+              {children}
+            </AuthSessionProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 import createNextIntlPlugin from "next-intl/plugin";
 
 function apiRemotePattern() {
@@ -26,6 +27,9 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
+  turbopack: {
+    root: path.resolve(process.cwd(), "../../.."),
+  },
   images: {
     unoptimized: true,
     remotePatterns: [

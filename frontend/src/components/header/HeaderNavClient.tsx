@@ -5,6 +5,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
 import SearchModalTrigger from "@/components/ui/SearchModalTrigger";
+import { useAuthSession } from "@/components/providers/AuthSessionProvider";
+import { getLocaleFromPathname } from "@/i18n/routing";
+import { localePath } from "@/lib/locale-path";
 import { ThemeToggle } from "./ThemeToggle";
 
 export interface NavLink {
@@ -23,7 +26,10 @@ interface HeaderNavClientProps {
  */
 export default function HeaderNavClient({ links }: HeaderNavClientProps) {
   const pathname = usePathname() ?? "/";
+  const locale = getLocaleFromPathname(pathname);
   const [open, setOpen] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
+  const { user, loading, logout } = useAuthSession();
 
   useEffect(() => {
     setOpen(false);
@@ -93,18 +99,43 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
       {/* CTA buttons */}
       <div className="hidden lg:flex items-center gap-2">
         <ThemeToggle />
-        <Link
-          href="/giris"
-          className="h-9 px-4 inline-flex items-center rounded-lg border border-(--color-border) text-[13px] font-medium text-(--color-foreground) hover:bg-(--color-bg-alt) transition-colors"
-        >
-          Giriş Yap
-        </Link>
-        <Link
-          href="/kayit"
-          className="h-9 px-4 inline-flex items-center rounded-lg bg-(--color-brand) text-(--color-brand-fg) text-[13px] font-semibold hover:bg-(--color-brand-dark) transition-colors shadow-(--shadow-brand)"
-        >
-          Ücretsiz Başla
-        </Link>
+        {user ? (
+          <>
+            <span className="inline-flex h-9 items-center rounded-lg border border-(--color-border) px-4 text-[13px] font-medium text-(--color-foreground)">
+              {user.full_name?.split(" ")[0] ?? user.email ?? "Hesabım"}
+            </span>
+            <button
+              type="button"
+              disabled={logoutLoading}
+              onClick={async () => {
+                setLogoutLoading(true);
+                try {
+                  await logout();
+                } finally {
+                  setLogoutLoading(false);
+                }
+              }}
+              className="h-9 px-4 inline-flex items-center rounded-lg border border-(--color-border) text-[13px] font-medium text-(--color-foreground) hover:bg-(--color-bg-alt) transition-colors disabled:opacity-60"
+            >
+              Çıkış Yap
+            </button>
+          </>
+        ) : (
+          <>
+            <Link
+              href={localePath(locale, "/giris")}
+              className="h-9 px-4 inline-flex items-center rounded-lg border border-(--color-border) text-[13px] font-medium text-(--color-foreground) hover:bg-(--color-bg-alt) transition-colors"
+            >
+              {loading ? "Yükleniyor..." : "Giriş Yap"}
+            </Link>
+            <Link
+              href={localePath(locale, "/kayit")}
+              className="h-9 px-4 inline-flex items-center rounded-lg bg-(--color-brand) text-(--color-brand-fg) text-[13px] font-semibold hover:bg-(--color-brand-dark) transition-colors shadow-(--shadow-brand)"
+            >
+              Ücretsiz Başla
+            </Link>
+          </>
+        )}
       </div>
 
       {/* Mobile toggle */}
@@ -144,18 +175,38 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
             ))}
             <div className="mt-2 flex items-center gap-2 border-t border-(--color-border) pt-3">
               <ThemeToggle />
-              <Link
-                href="/giris"
-                className="flex-1 h-10 inline-flex items-center justify-center rounded-lg border border-(--color-border) text-sm font-medium"
-              >
-                Giriş Yap
-              </Link>
-              <Link
-                href="/kayit"
-                className="flex-1 h-10 inline-flex items-center justify-center rounded-lg bg-(--color-brand) text-(--color-brand-fg) text-sm font-semibold"
-              >
-                Ücretsiz Başla
-              </Link>
+              {user ? (
+                <button
+                  type="button"
+                  disabled={logoutLoading}
+                  onClick={async () => {
+                    setLogoutLoading(true);
+                    try {
+                      await logout();
+                    } finally {
+                      setLogoutLoading(false);
+                    }
+                  }}
+                  className="flex-1 h-10 inline-flex items-center justify-center rounded-lg border border-(--color-border) text-sm font-medium disabled:opacity-60"
+                >
+                  Çıkış Yap
+                </button>
+              ) : (
+                <>
+                  <Link
+                    href={localePath(locale, "/giris")}
+                    className="flex-1 h-10 inline-flex items-center justify-center rounded-lg border border-(--color-border) text-sm font-medium"
+                  >
+                    Giriş Yap
+                  </Link>
+                  <Link
+                    href={localePath(locale, "/kayit")}
+                    className="flex-1 h-10 inline-flex items-center justify-center rounded-lg bg-(--color-brand) text-(--color-brand-fg) text-sm font-semibold"
+                  >
+                    Ücretsiz Başla
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </div>

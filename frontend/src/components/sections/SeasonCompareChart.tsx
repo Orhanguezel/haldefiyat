@@ -80,10 +80,35 @@ function toNumber(value: string | null | undefined): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/**
+ * Her yıl için ayırt edilebilir renk. Tonlar 500-600 serisi, hem dark
+ * hem light arka planda yeterli kontrast verir (WCAG AA tasarımı).
+ * En yeni yıl brand rengiyle ayrıca vurgulanır.
+ */
+const YEAR_PALETTE: ReadonlyArray<string> = [
+  "#3b82f6", // blue-500
+  "#ef4444", // red-500
+  "#a855f7", // purple-500
+  "#f97316", // orange-500
+  "#06b6d4", // cyan-500
+  "#ec4899", // pink-500
+  "#eab308", // yellow-500
+  "#14b8a6", // teal-500
+  "#8b5cf6", // violet-500
+  "#f43f5e", // rose-500
+] as const;
+
 function colorForIndex(index: number, totalYears: number): string {
-  if (index === totalYears - 1) return "var(--brand)";
-  if (index === totalYears - 2) return "var(--muted)";
-  return "var(--faint)";
+  // En yeni yıl: brand (marka rengi — dikkat çeker)
+  if (index === totalYears - 1) return "var(--color-brand, #22c55e)";
+  // Geçmiş yıllar: sabit palette, en eskiden başlar — aynı yıl her zaman
+  // aynı renkle gelsin (kullanıcı alışkanlığı için)
+  return YEAR_PALETTE[index % YEAR_PALETTE.length]!;
+}
+
+/** En yeni yıl çizgisi daha kalın — gözün ilk odaklandığı hat */
+function strokeWidthForIndex(index: number, totalYears: number): number {
+  return index === totalYears - 1 ? 3 : 1.8;
 }
 
 function formatDoyTick(doy: number): string {
@@ -196,13 +221,13 @@ export default function SeasonCompareChart({ history, productName }: SeasonCompa
           />
           <Tooltip content={<SeasonTooltip />} cursor={{ stroke: "var(--brand)", strokeWidth: 1, strokeDasharray: "3 3" }} />
           <Legend wrapperStyle={{ fontFamily: "var(--font-mono)", fontSize: 11 }} />
-          {years.map((g) => (
+          {years.map((g, idx) => (
             <Line
               key={g.year}
               type="monotone"
               dataKey={String(g.year)}
               stroke={g.color}
-              strokeWidth={2.5}
+              strokeWidth={strokeWidthForIndex(idx, years.length)}
               dot={false}
               connectNulls
             />

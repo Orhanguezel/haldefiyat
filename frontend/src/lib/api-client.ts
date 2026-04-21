@@ -1,6 +1,6 @@
 import { getStoredAccessToken, setStoredAccessToken } from "@/lib/auth-token";
 
-const BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "");
+const BASE_URL = `${(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "")}/api/v1`;
 
 class ApiError extends Error {
   constructor(

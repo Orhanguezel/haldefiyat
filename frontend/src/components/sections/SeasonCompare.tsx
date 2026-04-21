@@ -4,6 +4,17 @@ import { useMemo } from "react";
 import dynamic from "next/dynamic";
 import type { PriceHistoryRow } from "@/lib/api";
 
+/** Chart ile eşleşen palette — legend dot'ları aynı renkte olsun */
+const YEAR_PALETTE: ReadonlyArray<string> = [
+  "#3b82f6", "#ef4444", "#a855f7", "#f97316", "#06b6d4",
+  "#ec4899", "#eab308", "#14b8a6", "#8b5cf6", "#f43f5e",
+];
+
+function colorForYearIndex(index: number, total: number): string {
+  if (index === total - 1) return "var(--color-brand, #22c55e)";
+  return YEAR_PALETTE[index % YEAR_PALETTE.length]!;
+}
+
 interface SeasonCompareProps {
   history: PriceHistoryRow[];
   productName: string;
@@ -52,17 +63,18 @@ export default function SeasonCompare({ history, productName }: SeasonComparePro
         {hasMultipleYears && (
           <div className="flex flex-wrap items-center gap-3 font-(family-name:--font-mono) text-[11px] text-(--color-muted)">
             {uniqueYears.map((year, idx) => {
+              const color = colorForYearIndex(idx, uniqueYears.length);
               const isCurrent = idx === uniqueYears.length - 1;
-              const isPrev = idx === uniqueYears.length - 2;
-              const dotClass = isCurrent
-                ? "bg-(--color-brand)"
-                : isPrev
-                  ? "bg-slate-400"
-                  : "bg-slate-600";
               return (
                 <span key={year} className="inline-flex items-center gap-1.5">
-                  <span className={`h-2 w-2 rounded-full ${dotClass}`} aria-hidden />
-                  {year}
+                  <span
+                    aria-hidden
+                    className={`rounded-full ${isCurrent ? "h-2.5 w-2.5 ring-2 ring-current/30" : "h-2 w-2"}`}
+                    style={{ backgroundColor: color }}
+                  />
+                  <span className={isCurrent ? "font-semibold text-(--color-foreground)" : ""}>
+                    {year}
+                  </span>
                 </span>
               );
             })}
