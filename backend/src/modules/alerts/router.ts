@@ -5,8 +5,8 @@ import { db } from "@/db/client";
 import { hfAlerts, hfMarkets, hfProducts } from "@/db/schema";
 
 const createSchema = z.object({
-  productId:       z.number().int().positive(),
-  marketId:        z.number().int().positive().optional(),
+  productSlug:     z.string().min(1),
+  marketSlug:      z.string().optional(),
   thresholdPrice:  z.number().positive(),
   direction:       z.enum(["above", "below"]),
   contactEmail:    z.string().email().optional(),
@@ -35,9 +35,20 @@ export async function registerAlerts(app: FastifyInstance) {
     }
     const d = parsed.data;
 
+    // Slug'lari ID'ye cevir
+    const [product] = await db.select({ id: hfProducts.id }).from(hfProducts).where(eq(hfProducts.slug, d.productSlug)).limit(1);
+    if (!product) return reply.status(404).send({ error: "Urun bulunamadi" });
+
+    let marketId: number | null = null;
+    if (d.marketSlug) {
+      const [market] = await db.select({ id: hfMarkets.id }).from(hfMarkets).where(eq(hfMarkets.slug, d.marketSlug)).limit(1);
+      if (!market) return reply.status(404).send({ error: "Hal bulunamadi" });
+      marketId = market.id;
+    }
+
     const result = await db.insert(hfAlerts).values({
-      productId:       d.productId,
-      marketId:        d.marketId ?? null,
+      productId:       product.id,
+      marketId:        marketId,
       thresholdPrice:  d.thresholdPrice.toFixed(2),
       direction:       d.direction,
       contactEmail:    d.contactEmail ?? null,
