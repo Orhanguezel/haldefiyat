@@ -102,6 +102,42 @@ export async function fetchFrostRisk(
   }
 }
 
+/**
+ * Tarimiklim API'si OWM pass-through alan isimleriyle (`temp`,
+ * `forecastDate`) döndürüyor; widget `tempCelsius` ve `date` bekliyor.
+ * Burada normalize ediyoruz — widget tarimiklim iç şemasına bağımlı olmasın.
+ */
+interface RawWidgetResponse {
+  location: WeatherWidgetData["location"];
+  current: {
+    temp:       number | string;
+    feelsLike:  number | string;
+    humidity:   number;
+    windSpeed:  number | string;
+    condition:  string;
+    icon:       string;
+    pressure?:  number;
+  };
+  forecast: Array<{
+    forecastDate:  string;
+    tempMin:       string | number;
+    tempMax:       string | number;
+    tempAvg:       string | number;
+    humidity:      number;
+    windSpeed:     string | number;
+    condition:     string;
+    icon:          string;
+    frostRisk:     number;
+    precipitation: string | number;
+  }>;
+}
+
+function toNumber(v: unknown, fallback = 0): number {
+  if (v == null) return fallback;
+  const n = typeof v === "number" ? v : parseFloat(String(v));
+  return Number.isFinite(n) ? n : fallback;
+}
+
 export async function fetchWeatherWidget(
   locationSlug: string,
 ): Promise<WeatherWidgetData | null> {
@@ -112,8 +148,33 @@ export async function fetchWeatherWidget(
       next: { revalidate: 1800 },
     });
     if (!res.ok) return null;
-    const json = (await res.json()) as { success: boolean; data?: WeatherWidgetData };
-    return json.success && json.data ? json.data : null;
+    const json = (await res.json()) as { success: boolean; data?: RawWidgetResponse };
+    const raw = json.success ? json.data : undefined;
+    if (!raw) return null;
+    return {
+      location: raw.location,
+      current: {
+        tempCelsius: toNumber(raw.current.temp),
+        feelsLike:   toNumber(raw.current.feelsLike),
+        humidity:    raw.current.humidity,
+        windSpeed:   toNumber(raw.current.windSpeed),
+        condition:   raw.current.condition,
+        icon:        raw.current.icon,
+        pressure:    raw.current.pressure,
+      },
+      forecast: (raw.forecast ?? []).map((f) => ({
+        date:          f.forecastDate,
+        tempMin:       f.tempMin,
+        tempMax:       f.tempMax,
+        tempAvg:       f.tempAvg,
+        humidity:      f.humidity,
+        windSpeed:     f.windSpeed,
+        condition:     f.condition,
+        icon:          f.icon,
+        frostRisk:     f.frostRisk,
+        precipitation: f.precipitation,
+      })),
+    };
   } catch {
     return null;
   }

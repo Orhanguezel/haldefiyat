@@ -11,6 +11,20 @@ echo "==> [1/4] git pull"
 cd "$REPO_ROOT"
 git pull origin main
 
+# packages/shared-backend monorepo workspace'ine taşındı ama VPS'te backend
+# @agro/shared-backend'i import etmeye devam ediyor. git pull / reset --hard
+# bu dizini siler — VPS-yerel backup'tan restore edelim.
+SHARED_BACKUP="/root/haldefiyat-shared/packages"
+if [ -d "$SHARED_BACKUP/shared-backend/core" ]; then
+  if [ ! -d "$REPO_ROOT/packages/shared-backend/core" ]; then
+    echo "    packages/shared-backend eksik → $SHARED_BACKUP'tan kopyalanıyor"
+    mkdir -p "$REPO_ROOT/packages"
+    cp -ar "$SHARED_BACKUP/." "$REPO_ROOT/packages/"
+  fi
+else
+  echo "    uyari: $SHARED_BACKUP yok — ilk kurulum lazim (cp -ar packages /root/haldefiyat-shared/)"
+fi
+
 echo "==> [2/4] standalone server.js symlink kuruluyor"
 # Next.js standalone server.js local monorepo build'den geldiğinde deep path'te,
 # VPS native build'de frontend/ altında olabilir — ikisini de dene.
