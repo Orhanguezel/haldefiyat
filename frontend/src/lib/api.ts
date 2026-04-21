@@ -137,7 +137,7 @@ function unwrapPayload<T>(json: unknown, fallback: T): T {
   }
   if (typeof json === "object" && json !== null) {
     const obj = json as Record<string, unknown>;
-    if ("data" in obj && obj.data != null) return obj.data as T;
+    if ("data" in obj) return (obj.data ?? fallback) as T;
   }
   return (json as T) ?? fallback;
 }
