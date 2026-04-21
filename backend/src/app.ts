@@ -22,7 +22,7 @@ export async function createApp() {
   const { default: buildFastify } =
     (await import("fastify")) as unknown as { default: typeof import("fastify").default };
 
-  const app = buildFastify({ logger: loggerConfig }) as FastifyInstance;
+  const app = buildFastify({ logger: loggerConfig, bodyLimit: 10 * 1024 * 1024 }) as FastifyInstance;
 
   await app.register(cors, {
     origin: parseCorsOrigins(env.CORS_ORIGIN),
