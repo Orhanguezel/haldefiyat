@@ -3,6 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { runDailyEtl } from "@/modules/etl";
 import { runAllProductionSources } from "@/modules/etl/production-fetcher";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
+import { runWeeklyDigest } from "@/modules/notifications/weekly-digest";
 import { env } from "@/core/env";
 
 /**
@@ -16,9 +17,10 @@ type CronTask = { name: string; schedule: string; handler: () => Promise<void> }
 
 export function startCron(app: FastifyInstance): void {
   const tasks: CronTask[] = [
-    { name: "etl-daily",       schedule: env.ETL.cronSchedule,       handler: () => runEtlJob(app) },
-    { name: "alerts-check",    schedule: env.ETL.alertsSchedule,     handler: () => runAlertsJob(app) },
-    { name: "production-etl",  schedule: env.ETL.productionSchedule, handler: () => runProductionJob(app) },
+    { name: "etl-daily",       schedule: env.ETL.cronSchedule,         handler: () => runEtlJob(app) },
+    { name: "alerts-check",    schedule: env.ETL.alertsSchedule,       handler: () => runAlertsJob(app) },
+    { name: "production-etl",  schedule: env.ETL.productionSchedule,   handler: () => runProductionJob(app) },
+    { name: "weekly-digest",   schedule: env.ETL.weeklyDigestSchedule, handler: () => runWeeklyDigestJob(app) },
   ];
 
   for (const t of tasks) {
@@ -72,6 +74,17 @@ async function runProductionJob(app: FastifyInstance): Promise<void> {
     );
   } catch (err) {
     app.log.error({ err }, "[cron:production] hata");
+  }
+}
+
+async function runWeeklyDigestJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:weekly-digest] haftalik bulten baslatiliyor");
+  try {
+    const result = await runWeeklyDigest();
+    app.log.info({ ...result, durationMs: Date.now() - t0 }, "[cron:weekly-digest] tamamlandi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:weekly-digest] hata");
   }
 }
 

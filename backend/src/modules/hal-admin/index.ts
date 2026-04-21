@@ -8,6 +8,11 @@ import {
 } from "@/modules/etl/production-fetcher";
 import { loadEtlSources } from "@/config/etl-sources";
 import { loadProductionSources } from "@/config/production-sources";
+import {
+  sendBroadcast,
+  sendToExternalIds,
+  isOneSignalConfigured,
+} from "@/modules/notifications/onesignal";
 import { db } from "@/db/client";
 import { hfEtlRuns, hfAnnualEtlRuns } from "@/db/schema";
 import { desc } from "drizzle-orm";
@@ -127,5 +132,29 @@ export async function registerHalAdmin(app: FastifyInstance) {
       .orderBy(desc(hfAnnualEtlRuns.runAt))
       .limit(50);
     return reply.send({ logs });
+  });
+
+  // ── OneSignal push test ──────────────────────────────────────────────────
+
+  const pushBody = z.object({
+    title:       z.string().min(1).max(100),
+    message:     z.string().min(1).max(500),
+    url:         z.string().url().optional(),
+    /** Boş → broadcast, dolu → sadece bu external_id'lere (user.id) */
+    externalIds: z.array(z.string().min(1)).optional(),
+  });
+
+  app.post("/hal/notifications/test", async (req, reply) => {
+    if (!isOneSignalConfigured()) {
+      return reply.status(503).send({ error: "OneSignal yapılandırılmamış (env eksik)" });
+    }
+    const parsed = pushBody.safeParse(req.body);
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz govde", details: parsed.error.flatten() });
+    const { title, message, url, externalIds } = parsed.data;
+    const response =
+      externalIds && externalIds.length > 0
+        ? await sendToExternalIds(externalIds, { title, message, url })
+        : await sendBroadcast({ title, message, url });
+    return reply.send({ ok: true, mode: externalIds?.length ? "targeted" : "broadcast", response });
   });
 }

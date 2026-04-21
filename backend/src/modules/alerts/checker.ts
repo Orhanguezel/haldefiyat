@@ -3,6 +3,8 @@ import { db } from "@/db/client";
 import { hfAlerts, hfMarkets, hfPriceHistory, hfProducts } from "@/db/schema";
 import { sendTelegramAlert } from "./telegram";
 import { sendEmailAlert, buildAlertEmailHtml } from "./email";
+import { sendToExternalIds, isOneSignalConfigured } from "@/modules/notifications/onesignal";
+import { repoGetUserByEmail } from "@agro/shared-backend/modules/auth/repository";
 
 const RETRIGGER_COOLDOWN_HOURS = 24;
 
@@ -137,6 +139,26 @@ async function notifyAlert(a: ActiveAlert, latest: LatestPriceRow, lp: number, t
       recordedDate,
     });
     await sendEmailAlert(a.contactEmail, subject, html);
+
+    // Push: alert'in e-postasına sahip kullanıcı OneSignal'e login olduysa
+    // (frontend OneSignalProvider user.id ile) external_id eşleşmesi ile
+    // bildirim gider. Kullanıcı push'u açmamışsa OneSignal sessizce skip.
+    if (isOneSignalConfigured()) {
+      try {
+        const user = await repoGetUserByEmail(a.contactEmail);
+        if (user?.id) {
+          const dirLabel = direction === "above" ? "üstüne çıktı" : "altına indi";
+          const marketLine = latest.marketName ? ` · ${latest.marketName}` : "";
+          await sendToExternalIds([user.id], {
+            title:   `${latest.productName} ${dirLabel}`,
+            message: `Güncel ${lp.toFixed(2)} TL/kg, eşik ${tp.toFixed(2)} TL${marketLine}`,
+            url:     `https://haldefiyat.com/urun/${encodeURIComponent(
+              latest.productName.toLocaleLowerCase("tr-TR").replace(/[^a-z0-9]+/g, "-"),
+            )}`,
+          });
+        }
+      } catch { /* push hatası alerts'i durdurmasın */ }
+    }
   }
 }
 
