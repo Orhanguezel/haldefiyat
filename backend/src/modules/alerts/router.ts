@@ -66,8 +66,11 @@ export async function registerAlerts(app: FastifyInstance) {
    * Telegram botundan gelen mesajlari karsilar
    */
   app.post("/telegram-webhook", async (req, reply) => {
-    const { message } = req.body as any;
-    if (message?.text?.startsWith("/start")) {
+    const body = req.body as any;
+    console.log(`[telegram-webhook] Incoming update:`, JSON.stringify(body));
+
+    const message = body.message || body.edited_message;
+    if (message?.text?.startsWith("/start") || message?.text?.toLowerCase() === "baslat") {
       const chatId = message.chat.id;
       const { sendTelegramAlert } = await import("./telegram");
       const text =
@@ -76,6 +79,7 @@ export async function registerAlerts(app: FastifyInstance) {
         `Bu numarayı kopyalayıp sitemizdeki <b>"Telegram"</b> alanına yapıştırarak fiyat uyarısı oluşturabilirsiniz.\n\n` +
         `🌐 <a href="https://haldefiyat.com/uyarilar">Uyarıları Yönet</a>`;
       
+      console.log(`[telegram-webhook] Sending start message to ${chatId}`);
       await sendTelegramAlert(String(chatId), text);
     }
     return reply.send({ ok: true });
