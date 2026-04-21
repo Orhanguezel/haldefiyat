@@ -11,9 +11,10 @@ const createSchema = z.object({
   direction:       z.enum(["above", "below"]),
   contactEmail:    z.string().email().optional(),
   contactTelegram: z.string().min(3).max(128).optional(),
+  contactPush:     z.string().optional(),
 }).refine(
-  (d) => Boolean(d.contactEmail || d.contactTelegram),
-  { message: "contactEmail veya contactTelegram zorunlu", path: ["contactEmail"] },
+  (d) => Boolean(d.contactEmail || d.contactTelegram || d.contactPush),
+  { message: "En az bir bildirim kanalı zorunlu", path: ["contactEmail"] },
 );
 
 const listQuerySchema = z.object({
@@ -58,6 +59,26 @@ export async function registerAlerts(app: FastifyInstance) {
 
     const id = Number((result as unknown as Array<{ insertId?: number }>)[0]?.insertId ?? 0);
     return reply.send({ ok: true, id });
+  });
+
+  /**
+   * POST /api/v1/alerts/telegram-webhook
+   * Telegram botundan gelen mesajlari karsilar
+   */
+  app.post("/telegram-webhook", async (req, reply) => {
+    const { message } = req.body as any;
+    if (message?.text?.startsWith("/start")) {
+      const chatId = message.chat.id;
+      const { sendTelegramAlert } = await import("./telegram");
+      const text =
+        `🍅 <b>HaldeFiyat'a Hoşgeldiniz!</b>\n\n` +
+        `Sayısal ID'niz: <code>${chatId}</code>\n\n` +
+        `Bu numarayı kopyalayıp sitemizdeki <b>"Telegram"</b> alanına yapıştırarak fiyat uyarısı oluşturabilirsiniz.\n\n` +
+        `🌐 <a href="https://haldefiyat.com/uyarilar">Uyarıları Yönet</a>`;
+      
+      await sendTelegramAlert(String(chatId), text);
+    }
+    return reply.send({ ok: true });
   });
 
   /**

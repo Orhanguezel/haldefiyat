@@ -135,7 +135,7 @@ export default function AlertModalForm({
               required
               value={form.contactTelegram}
               onChange={(e) => onChange("contactTelegram", e.target.value)}
-              placeholder="Sayısal Chat ID (Örn: 7044964180)"
+              placeholder="Sayısal Chat ID (Örn: 123456789)"
               className={INPUT_CLASS}
             />
             <div className="flex flex-col gap-1.5 px-1 text-[11px] leading-relaxed text-(--color-muted)">
