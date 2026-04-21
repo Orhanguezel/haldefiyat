@@ -68,9 +68,9 @@ export const env = {
   SMTP_FROM: process.env.SMTP_FROM || "noreply@haldefiyat.com",
 
   ETL: {
-    cronSchedule: process.env.ETL_CRON_SCHEDULE || "15 3 * * *",
+    cronSchedule: process.env.ETL_CRON_SCHEDULE || "30 7 * * *",
     cronTimezone: process.env.ETL_CRON_TIMEZONE || "UTC",
-    alertsSchedule: process.env.ALERTS_CRON_SCHEDULE || "30 3 * * *",
+    alertsSchedule: process.env.ALERTS_CRON_SCHEDULE || "45 7 * * *",
     // Yıllık üretim XLSX ETL — her ayın 5'inde 04:00 UTC (aylık)
     productionSchedule: process.env.PRODUCTION_CRON_SCHEDULE || "0 4 5 * *",
     // Haftalık bülten push — pazartesi 05:00 UTC (08:00 Istanbul)
