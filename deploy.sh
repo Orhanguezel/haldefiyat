@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # deploy.sh — VPS deploy scripti
-# Kullanım: bash deploy.sh
+# Kullanım:
+#   bash deploy.sh           → git pull + build + PM2 reload (DB'ye dokunmaz)
+#   bash deploy.sh --seed    → yukarıdakiler + db:seed (DROP öncesi otomatik backup alır)
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -55,3 +57,12 @@ pm2 save
 echo ""
 echo "✓ Deploy tamamlandı"
 pm2 list
+
+# ── Opsiyonel seed ───────────────────────────────────────────────────────────
+if [[ "${1:-}" == "--seed" ]]; then
+  echo ""
+  echo "==> [5/5] DB seed (DROP öncesi otomatik backup alınacak)..."
+  cd "$REPO_ROOT/backend"
+  ALLOW_DROP=true bun run db:seed
+  echo "✓ Seed tamamlandı — backup: /tmp/hal-db-backups/"
+fi

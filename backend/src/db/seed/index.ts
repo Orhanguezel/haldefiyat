@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { execSync } from "child_process";
 import mysql from "mysql2/promise";
 import bcrypt from "bcryptjs";
 import { env } from "@/core/env";
@@ -35,8 +36,34 @@ function assertSafeToDrop(dbName: string) {
   if (isProd && !allowDrop) throw new Error("Prod ortamda DROP icin ALLOW_DROP=true bekleniyor.");
 }
 
+function takeBackup(dbName: string) {
+  const backupDir = process.env.DB_BACKUP_DIR || "/tmp/hal-db-backups";
+  fs.mkdirSync(backupDir, { recursive: true });
+
+  const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  const file = path.join(backupDir, `${dbName}_${ts}.sql.gz`);
+
+  const rootUser = process.env.DB_ROOT_USER || "root";
+  const rootPass = process.env.DB_ROOT_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || env.DB.password;
+  const passArg = rootPass ? `-p${rootPass}` : "";
+
+  try {
+    execSync(
+      `mysqldump --no-defaults -u${rootUser} ${passArg} --single-transaction --quick ${dbName} | gzip > ${file}`,
+      { stdio: "pipe" },
+    );
+    logStep(`💾 Backup alındı: ${file}`);
+
+    // 7 günden eski backup'ları sil
+    execSync(`find ${backupDir} -name "*.sql.gz" -mtime +7 -delete`, { stdio: "pipe" });
+  } catch {
+    logStep(`⚠️  Backup alınamadı (DB henüz yoksa normaldir), devam ediliyor.`);
+  }
+}
+
 async function dropAndCreate(root: mysql.Connection) {
   assertSafeToDrop(env.DB.name);
+  takeBackup(env.DB.name);
   await root.query(`DROP DATABASE IF EXISTS \`${env.DB.name}\`;`);
   await root.query(
     `CREATE DATABASE \`${env.DB.name}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`,
