@@ -9,6 +9,7 @@ import { registerCategoriesAdmin } from "@agro/shared-backend/modules/categories
 import { registerTheme, registerThemeAdmin } from "@agro/shared-backend/modules/theme";
 import { registerNewsletterAdmin } from "@agro/shared-backend/modules/newsletter/admin.routes";
 import { registerCustomPages } from "@agro/shared-backend/modules/customPages";
+import { registerContacts, registerContactsAdmin } from "@agro/shared-backend/modules/contact";
 
 export async function registerSharedPublic(api: FastifyInstance) {
   await registerAuth(api);
@@ -19,6 +20,7 @@ export async function registerSharedPublic(api: FastifyInstance) {
   await registerTheme(api);
   await registerProfiles(api);
   await registerCustomPages(api);
+  await registerContacts(api);
 }
 
 export async function registerSharedAdmin(adminApi: FastifyInstance) {
@@ -28,4 +30,5 @@ export async function registerSharedAdmin(adminApi: FastifyInstance) {
   await registerCategoriesAdmin(adminApi);
   await registerThemeAdmin(adminApi);
   await registerNewsletterAdmin(adminApi);
+  await registerContactsAdmin(adminApi);
 }

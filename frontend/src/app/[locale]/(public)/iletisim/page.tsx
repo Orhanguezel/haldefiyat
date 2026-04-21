@@ -1,6 +1,7 @@
-export const dynamic = "force-dynamic";
-
 import { setRequestLocale } from "next-intl/server";
+import { ContactForm } from "@/components/sections/ContactForm";
+import { AmbientBackground } from "@/components/ui/AmbientBackground";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -9,13 +10,28 @@ export default async function ContactPage({ params }: Props) {
   setRequestLocale(locale);
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="font-display text-4xl font-bold text-(--color-foreground)">
-        İletişim
-      </h1>
-      <p className="mt-4 text-lg text-(--color-muted)">
-        Sorularınız ve işbirliği talepleri için bize ulaşın.
-      </p>
+    <main className="relative min-h-screen overflow-hidden pt-24 pb-20">
+      <AmbientBackground />
+      
+      <div className="container relative z-10 mx-auto px-4">
+        <ScrollReveal>
+          <div className="max-w-6xl mx-auto">
+            {/* Header Bölümü */}
+            <header className="mb-16 text-center max-w-3xl mx-auto">
+              <h1 className="text-4xl sm:text-5xl font-black text-foreground mb-6 tracking-tight">
+                Size Nasıl <span className="text-brand">Yardımcı</span> Olabiliriz?
+              </h1>
+              <p className="text-lg sm:text-xl text-muted leading-relaxed">
+                Her türlü soru, görüş ve önerileriniz için yanınızdayız. 
+                Mesajınızı iletin, en kısa sürede size dönüş yapalım.
+              </p>
+            </header>
+
+            {/* İletişim Formu ve Bilgiler */}
+            <ContactForm />
+          </div>
+        </ScrollReveal>
+      </div>
     </main>
   );
 }

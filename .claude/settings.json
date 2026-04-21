@@ -50,7 +50,8 @@
       "Bash(rsync -az /home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/ vps-vistainsaat:/root/haldefiyat-src/frontend/src/)",
       "Bash(rsync -az /home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/.env.production.local vps-vistainsaat:/root/haldefiyat-src/frontend/)",
       "Bash(cd /home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend grep -rlE \"localhost:8088\" .next/standalone .next/static)",
-      "Bash(xargs -I {} basename {})"
+      "Bash(xargs -I {} basename {})",
+      "Bash(]+)"
     ],
     "additionalDirectories": [
       "/home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/(public)"
