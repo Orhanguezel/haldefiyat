@@ -1,0 +1,105 @@
+{
+  "list": {
+    "title": "Kullanıcılar",
+    "description": "Kullanıcıları görüntüleyin, düzenleyin ve rollerini yönetin.",
+    "filters": {
+      "title": "Filtreler",
+      "description": "Arama ve filtreleme ayarları.",
+      "searchLabel": "Arama",
+      "searchPlaceholder": "Ad, telefon, email...",
+      "roleLabel": "Rol",
+      "rolePlaceholder": "Tümü",
+      "onlyActive": "Sadece aktif",
+      "searchButton": "Ara",
+      "resetButton": "Sıfırla",
+      "refreshButton": "Yenile"
+    },
+    "table": {
+      "title": "Kullanıcı Listesi",
+      "loading": "Yükleniyor…",
+      "totalRecords": "Toplam: {count} kayıt (sayfa)",
+      "loadError": "Liste yüklenemedi.",
+      "retryButton": "Yeniden dene",
+      "noRecords": "Kayıt bulunamadı.",
+      "fullName": "Ad Soyad",
+      "email": "E-posta",
+      "phone": "Telefon",
+      "status": "Durum",
+      "role": "Rol",
+      "actions": "İşlem",
+      "viewButton": "Detay",
+      "statusActive": "Aktif",
+      "statusInactive": "Pasif",
+      "unknownUser": "İsimsiz Kullanıcı",
+      "emptyValue": "—"
+    },
+    "pagination": {
+      "offset": "Offset: {offset}",
+      "limit": "Limit: {limit}",
+      "previous": "Önceki",
+      "next": "Sonraki"
+    }
+  },
+  "detail": {
+    "title": "Kullanıcı Detay",
+    "unknownUser": "İsimsiz Kullanıcı",
+    "backButton": "Geri",
+    "loadError": "Kullanıcı yüklenemedi.",
+    "loading": "Yükleniyor…",
+    "retryButton": "Yeniden dene",
+    "statusActive": "Aktif",
+    "statusInactive": "Pasif",
+    "profile": {
+      "title": "Temel Bilgiler",
+      "description": "Ad, telefon ve gerekirse e-posta alanlarını güncelleyin.",
+      "emailLabel": "E-posta",
+      "fullNameLabel": "Ad Soyad",
+      "phoneLabel": "Telefon",
+      "saveButton": "Kaydet",
+      "saved": "Kullanıcı bilgileri güncellendi."
+    },
+    "status": {
+      "title": "Kullanıcı Durumu",
+      "description": "Aktif/pasif durumunu değiştirin.",
+      "active": "Aktif",
+      "inactive": "Pasif",
+      "activated": "Kullanıcı aktif edildi.",
+      "deactivated": "Kullanıcı pasif edildi."
+    },
+    "roles": {
+      "title": "Rol Yönetimi",
+      "description": "Rol tekil tutulur; seçim \"set\" olarak kaydedilir.",
+      "currentRole": "Seçili rol:",
+      "saveButton": "Rolü Kaydet",
+      "saved": "Roller güncellendi.",
+      "admin": "Admin",
+      "moderator": "Moderatör",
+      "seller": "Satıcı",
+      "user": "Kullanıcı"
+    },
+    "password": {
+      "title": "Şifre Güncelle",
+      "description": "Güvenlik amacıyla yeni bir şifre belirleyin.",
+      "label": "Yeni Şifre",
+      "placeholder": "En az 8 karakter",
+      "updateButton": "Şifreyi Güncelle",
+      "minLengthError": "Şifre en az 8 karakter olmalıdır.",
+      "updated": "Şifre güncellendi."
+    },
+    "delete": {
+      "title": "Tehlikeli İşlem",
+      "description": "Kullanıcıyı kalıcı olarak siler.",
+      "button": "Kullanıcıyı Sil",
+      "confirm": "Bu kullanıcı silinecek. Devam edilsin mi?",
+      "deleted": "Kullanıcı silindi."
+    },
+    "errorFallback": "İşlem başarısız. Lütfen tekrar deneyin."
+  },
+  "roles": {
+    "all": "Tümü",
+    "admin": "Admin",
+    "moderator": "Moderatör",
+    "seller": "Satıcı",
+    "user": "Kullanıcı"
+  }
+}

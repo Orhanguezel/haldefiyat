@@ -1,0 +1,72 @@
+{
+  "header": {
+    "title": "Sayfalar",
+    "description": "CMS sayfalarını listeleyin, düzenleyin ve yönetin."
+  },
+  "tabs": {
+    "list": "Liste",
+    "content": "İçerik",
+    "images": "Görseller",
+    "seo": "SEO"
+  },
+  "filters": {
+    "searchPlaceholder": "Sayfa adı veya slug ile ara...",
+    "locale": "Dil",
+    "onlyPublished": "Sadece yayında"
+  },
+  "actions": {
+    "create": "Yeni Sayfa",
+    "edit": "Düzenle",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "refresh": "Yenile",
+    "back": "Listeye Dön"
+  },
+  "form": {
+    "title": "Sayfa Başlığı",
+    "titlePlaceholder": "Sayfa başlığını girin",
+    "slug": "Slug",
+    "slugPlaceholder": "sayfa-slug",
+    "content": "İçerik",
+    "contentPlaceholder": "Sayfa içeriğini girin...",
+    "summary": "Özet",
+    "summaryPlaceholder": "Kısa özet",
+    "displayOrder": "Sıralama",
+    "isPublished": "Yayında",
+    "metaTitle": "Meta Başlık",
+    "metaTitlePlaceholder": "SEO başlık",
+    "metaDescription": "Meta Açıklama",
+    "metaDescriptionPlaceholder": "SEO açıklaması"
+  },
+  "detail": {
+    "newTitle": "Yeni Sayfa",
+    "editTitle": "Sayfa Düzenle",
+    "contentTitle": "Sayfa İçeriği",
+    "imagesTitle": "Sayfa Görselleri",
+    "seoTitle": "SEO Ayarları"
+  },
+  "table": {
+    "order": "Sıra",
+    "image": "Görsel",
+    "title": "Başlık",
+    "slug": "Slug",
+    "published": "Yayında",
+    "actions": "İşlemler"
+  },
+  "messages": {
+    "created": "Sayfa oluşturuldu.",
+    "updated": "Sayfa güncellendi.",
+    "deleted": "Sayfa silindi.",
+    "deleteError": "Silme hatası",
+    "errorPrefix": "Hata",
+    "confirmDelete": "'{title}' sayfasını silmek istediğinize emin misiniz?",
+    "requiredError": "Sayfa başlığı ve slug zorunludur.",
+    "unknownError": "Bilinmeyen hata."
+  },
+  "list": {
+    "refreshing": "Yenileniyor...",
+    "loading": "Sayfalar yükleniyor...",
+    "empty": "Sayfa bulunamadı."
+  }
+}

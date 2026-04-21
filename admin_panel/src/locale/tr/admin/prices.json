@@ -1,0 +1,20 @@
+{
+  "header": {
+    "title": "Fiyat Yonetimi",
+    "description": "Urun, hal ve tarihe gore fiyat kayitlarini yonetin."
+  },
+  "tabs": {
+    "list": "Liste"
+  },
+  "actions": {
+    "new": "Yeni Fiyat",
+    "back": "Geri",
+    "save": "Kaydet"
+  },
+  "messages": {
+    "created": "Fiyat kaydi olusturuldu.",
+    "updated": "Fiyat kaydi guncellendi.",
+    "requiredError": "Urun, hal, tarih ve fiyat zorunludur.",
+    "unknownError": "Bilinmeyen hata"
+  }
+}

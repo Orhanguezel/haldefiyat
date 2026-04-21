@@ -8,6 +8,8 @@ import { fetchSiteSettings, fetchAnalyticsConfig } from "@/lib/site-settings";
 import Analytics, { GtmNoscript } from "@/components/seo/Analytics";
 import { AuthSessionProvider } from "@/components/providers/AuthSessionProvider";
 import { OneSignalProvider } from "@/components/providers/OneSignalProvider";
+import { FavoriteSyncManager } from "@/components/providers/FavoriteSyncManager";
+import { ToastProvider } from "@/components/providers/ToastProvider";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -115,8 +117,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ThemeProvider>
           <NextIntlClientProvider>
             <AuthSessionProvider>
-              <OneSignalProvider />
-              {children}
+              <ToastProvider>
+                <OneSignalProvider />
+                <FavoriteSyncManager />
+                {children}
+              </ToastProvider>
             </AuthSessionProvider>
           </NextIntlClientProvider>
         </ThemeProvider>

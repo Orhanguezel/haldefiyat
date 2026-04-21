@@ -12,6 +12,7 @@ import StatsBar from "@/components/sections/StatsBar";
 import FeaturesGrid from "@/components/sections/FeaturesGrid";
 import HowItWorks from "@/components/sections/HowItWorks";
 import CtaNewsletter from "@/components/sections/CtaNewsletter";
+import IndexCta from "@/components/sections/IndexCta";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -60,6 +61,7 @@ export default async function HomePage({ params }: Props) {
       <PriceDashboard />
       <CitySelector locale={locale} />
       <StatsBar />
+      <IndexCta />
       <FeaturesGrid />
       <HowItWorks />
       <CtaNewsletter />

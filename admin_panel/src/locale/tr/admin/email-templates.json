@@ -1,0 +1,115 @@
+{
+  "list": {
+    "title": "E-posta Şablonları",
+    "description": "E-posta şablonlarını yönetin. Her şablon farklı dillerde içerik içerebilir.",
+    "addButton": "Yeni Ekle",
+    "filters": {
+      "searchLabel": "Ara",
+      "searchPlaceholder": "Şablon anahtarı, ad, konu...",
+      "statusLabel": "Durum",
+      "statusOptions": {
+        "all": "Tümü",
+        "active": "Aktif",
+        "inactive": "Pasif"
+      }
+    },
+    "totalRecords": "Toplam {count} kayıt",
+    "refreshButton": "Yenile",
+    "fetching": "Yükleniyor...",
+    "loading": "Yükleniyor...",
+    "empty": "Kayıt bulunamadı.",
+    "table": {
+      "headers": {
+        "templateKey": "Şablon Anahtarı",
+        "nameSubject": "Ad & Konu",
+        "variables": "Değişkenler",
+        "active": "Aktif",
+        "locale": "Dil",
+        "date": "Tarih",
+        "actions": "İşlemler"
+      },
+      "updatedLabel": "Güncelleme"
+    },
+    "actions": {
+      "edit": "Düzenle",
+      "delete": "Sil"
+    },
+    "mobile": {
+      "activeLabel": "Aktif",
+      "variablesLabel": "Değişkenler",
+      "createdLabel": "Oluşturma",
+      "updatedLabel": "Güncelleme"
+    },
+    "toast": {
+      "activated": "Aktif yapıldı.",
+      "deactivated": "Pasif yapıldı.",
+      "deleted": "Kayıt silindi."
+    },
+    "dialog": {
+      "title": "Silmek istediğinizden emin misiniz?",
+      "description": "{template} silinecek. Bu işlem geri alınamaz.",
+      "templateFallback": "Bu şablon",
+      "cancel": "İptal",
+      "delete": "Sil"
+    }
+  },
+  "detail": {
+    "loadError": "Kayıt yüklenemedi",
+    "backToList": "Listeye Dön",
+    "titleCreate": "Yeni E-posta Şablonu",
+    "titleEdit": "E-posta Şablonu Düzenle",
+    "descriptionCreate": "Yeni bir e-posta şablonu oluşturun",
+    "descriptionEdit": "Mevcut e-posta şablonunu düzenleyin",
+    "sections": {
+      "generalInfo": "Genel Bilgiler",
+      "templateInfo": "Şablon Bilgileri",
+      "content": "E-posta İçeriği",
+      "contentDescription": "HTML içerik. Değişkenler için {{variable}} formatını kullanın.",
+      "variables": "Değişkenler",
+      "variablesDescription": "E-posta içeriğinde kullanılan değişkenleri tanımlayın (opsiyonel)"
+    },
+    "fields": {
+      "statusLabel": "Durum",
+      "templateKeyLabel": "Şablon Anahtarı",
+      "templateKeyPlaceholder": "welcome_email",
+      "templateKeyHelp": "Benzersiz anahtar (değiştirilemez). Örn: welcome_email, password_reset",
+      "templateNameLabel": "Şablon Adı",
+      "templateNamePlaceholder": "Hoş Geldiniz E-postası",
+      "subjectLabel": "Konu",
+      "subjectPlaceholder": "Hoş Geldiniz {{name}}!",
+      "subjectHelp": "E-posta konusu. Değişkenler için {{variable}} kullanın.",
+      "contentLabel": "HTML İçerik",
+      "contentPlaceholder": "<html><body><h1>Merhaba {{name}}!</h1><p>Hoş geldiniz...</p></body></html>",
+      "variablesLabel": "Değişkenler",
+      "variablesPlaceholder": "name, email, url veya [\"name\", \"email\", \"url\"]",
+      "variablesHelp": "Virgülle ayrılmış (name, email, url) veya JSON array formatında ([\"name\", \"email\"]).",
+      "detectedVariablesLabel": "İçerikte Tespit Edilen Değişkenler"
+    },
+    "validation": {
+      "templateKeyRequired": "Şablon anahtarı gerekli.",
+      "templateNameRequired": "Şablon adı gerekli.",
+      "subjectRequired": "Konu gerekli.",
+      "contentRequired": "İçerik gerekli."
+    },
+    "actions": {
+      "back": "Geri",
+      "delete": "Sil",
+      "deleting": "Siliniyor...",
+      "cancel": "İptal",
+      "save": "Kaydet",
+      "saving": "Kaydediliyor..."
+    },
+    "toast": {
+      "created": "Şablon oluşturuldu.",
+      "updated": "Şablon güncellendi.",
+      "deleted": "Şablon silindi."
+    },
+    "dialog": {
+      "title": "Silmek istediğinizden emin misiniz?",
+      "description": "{template} silinecek. Bu işlem geri alınamaz.",
+      "templateFallback": "Bu şablon",
+      "cancel": "İptal",
+      "delete": "Sil"
+    }
+  }
+}

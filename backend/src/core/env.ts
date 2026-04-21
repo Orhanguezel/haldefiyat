@@ -10,15 +10,26 @@ function parseEnvList(v: string | undefined): string[] {
   return v.split(",").map((s) => s.trim()).filter(Boolean);
 }
 
+const NODE_ENV = process.env.NODE_ENV ?? "development";
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3033";
+const DEV_LOCAL_CORS_ORIGINS = [
+  "http://localhost:3031",
+  "http://127.0.0.1:3031",
+  "http://localhost:3033",
+  "http://127.0.0.1:3033",
+];
 const CORS_LIST = parseEnvList(process.env.CORS_ORIGIN);
-const CORS_ORIGIN = CORS_LIST.length ? CORS_LIST : [FRONTEND_URL];
+const CORS_ORIGIN = CORS_LIST.length
+  ? CORS_LIST
+  : NODE_ENV === "production"
+    ? [FRONTEND_URL]
+    : Array.from(new Set([FRONTEND_URL, ...DEV_LOCAL_CORS_ORIGINS]));
 
 const RAW_STORAGE = (process.env.STORAGE_DRIVER || "local").toLowerCase();
 const STORAGE_DRIVER = (RAW_STORAGE === "cloudinary" ? "cloudinary" : "local") as "local" | "cloudinary";
 
 export const env = {
-  NODE_ENV: process.env.NODE_ENV ?? "development",
+  NODE_ENV,
   PORT: parseEnvInt(process.env.PORT, 8088),
   SENTRY_DSN: process.env.SENTRY_DSN || "",
 
@@ -75,6 +86,8 @@ export const env = {
     productionSchedule: process.env.PRODUCTION_CRON_SCHEDULE || "0 4 5 * *",
     // Haftalık bülten push — pazartesi 05:00 UTC (08:00 Istanbul)
     weeklyDigestSchedule: process.env.WEEKLY_DIGEST_CRON_SCHEDULE || "0 5 * * 1",
+    // Haftalık endeks hesaplama — pazartesi 06:00 UTC (ETL bittikten sonra)
+    indexSchedule: process.env.INDEX_CRON_SCHEDULE || "0 6 * * 1",
     maxDateFallbackDays: parseEnvInt(process.env.ETL_MAX_DATE_FALLBACK_DAYS, 7),
     autoRegisterProducts: (process.env.ETL_AUTO_REGISTER_PRODUCTS ?? "true").toLowerCase() === "true",
     requestTimeoutMs: parseEnvInt(process.env.ETL_REQUEST_TIMEOUT_MS, 30_000),

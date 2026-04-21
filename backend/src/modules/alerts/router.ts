@@ -3,6 +3,8 @@ import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db/client";
 import { hfAlerts, hfMarkets, hfProducts } from "@/db/schema";
+import { requireAuth } from "@agro/shared-backend/middleware/auth";
+import type { FastifyRequest } from "fastify";
 
 const createSchema = z.object({
   productSlug:     z.string().min(1),
@@ -47,7 +49,10 @@ export async function registerAlerts(app: FastifyInstance) {
       marketId = market.id;
     }
 
+    const userId = (req as FastifyRequest & { user?: { id: string } }).user?.id ?? null;
+
     const result = await db.insert(hfAlerts).values({
+      userId:          userId,
       productId:       product.id,
       marketId:        marketId,
       thresholdPrice:  d.thresholdPrice.toFixed(2),
@@ -133,4 +138,95 @@ export async function registerAlerts(app: FastifyInstance) {
     await db.update(hfAlerts).set({ isActive: 0 }).where(eq(hfAlerts.id, id));
     return reply.send({ ok: true });
   });
+
+  // ── Üye uyarıları (auth zorunlu) ──────────────────────────────────────────
+
+  const alertSelectFields = {
+    id:              hfAlerts.id,
+    productId:       hfAlerts.productId,
+    marketId:        hfAlerts.marketId,
+    thresholdPrice:  hfAlerts.thresholdPrice,
+    direction:       hfAlerts.direction,
+    contactEmail:    hfAlerts.contactEmail,
+    contactTelegram: hfAlerts.contactTelegram,
+    lastTriggered:   hfAlerts.lastTriggered,
+    createdAt:       hfAlerts.createdAt,
+    productSlug:     hfProducts.slug,
+    productName:     hfProducts.nameTr,
+    marketSlug:      hfMarkets.slug,
+    marketName:      hfMarkets.name,
+  };
+
+  /**
+   * GET /api/v1/user/alerts
+   * Giriş yapmış kullanıcının tüm aktif uyarıları
+   */
+  app.get("/user/alerts", { onRequest: [requireAuth] }, async (req, reply) => {
+    const userId = (req as FastifyRequest & { user?: { id: string } }).user!.id;
+    const rows = await db
+      .select(alertSelectFields)
+      .from(hfAlerts)
+      .innerJoin(hfProducts, eq(hfProducts.id, hfAlerts.productId))
+      .leftJoin(hfMarkets, eq(hfMarkets.id, hfAlerts.marketId))
+      .where(and(eq(hfAlerts.isActive, 1), eq(hfAlerts.userId, userId)))
+      .orderBy(desc(hfAlerts.createdAt));
+    return reply.send({ items: rows });
+  });
+
+  /**
+   * PATCH /api/v1/user/alerts/:id
+   * Uyarı eşik/yön güncelle — sahiplik zorunlu
+   */
+  app.patch<{ Params: { id: string } }>(
+    "/user/alerts/:id",
+    { onRequest: [requireAuth] },
+    async (req, reply) => {
+      const id = parseInt(req.params.id, 10);
+      if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz id" });
+
+      const userId = (req as FastifyRequest & { user?: { id: string } }).user!.id;
+      const [alert] = await db.select({ id: hfAlerts.id }).from(hfAlerts)
+        .where(and(eq(hfAlerts.id, id), eq(hfAlerts.userId, userId), eq(hfAlerts.isActive, 1)))
+        .limit(1);
+      if (!alert) return reply.status(404).send({ error: "Uyari bulunamadi veya erisim yetkiniz yok" });
+
+      const patchSchema = z.object({
+        thresholdPrice: z.number().positive().optional(),
+        direction:      z.enum(["above", "below"]).optional(),
+      });
+      const parsed = patchSchema.safeParse(req.body);
+      if (!parsed.success) return reply.status(400).send({ error: "Gecersiz veri" });
+
+      const updates: Record<string, unknown> = {};
+      if (parsed.data.thresholdPrice !== undefined) updates.thresholdPrice = parsed.data.thresholdPrice.toFixed(2);
+      if (parsed.data.direction !== undefined) updates.direction = parsed.data.direction;
+
+      if (Object.keys(updates).length > 0) {
+        await db.update(hfAlerts).set(updates).where(eq(hfAlerts.id, id));
+      }
+      return reply.send({ ok: true });
+    },
+  );
+
+  /**
+   * DELETE /api/v1/user/alerts/:id
+   * Soft-delete — sahiplik kontrolü ile
+   */
+  app.delete<{ Params: { id: string } }>(
+    "/user/alerts/:id",
+    { onRequest: [requireAuth] },
+    async (req, reply) => {
+      const id = parseInt(req.params.id, 10);
+      if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz id" });
+
+      const userId = (req as FastifyRequest & { user?: { id: string } }).user!.id;
+      const [alert] = await db.select({ id: hfAlerts.id }).from(hfAlerts)
+        .where(and(eq(hfAlerts.id, id), eq(hfAlerts.userId, userId)))
+        .limit(1);
+      if (!alert) return reply.status(404).send({ error: "Uyari bulunamadi veya erisim yetkiniz yok" });
+
+      await db.update(hfAlerts).set({ isActive: 0 }).where(eq(hfAlerts.id, id));
+      return reply.send({ ok: true });
+    },
+  );
 }

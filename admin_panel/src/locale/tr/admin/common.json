@@ -1,0 +1,144 @@
+{
+  "refresh": "Yenile",
+  "search": "Ara",
+  "yes": "Evet",
+  "no": "Hayır",
+  "actions": "İşlemler",
+  "edit": "Düzenle",
+  "delete": "Sil",
+  "cancel": "İptal",
+  "save": "Kaydet",
+  "saving": "Kaydediliyor…",
+  "loading": "Yükleniyor…",
+  "error": "Bir hata oluştu",
+  "noData": "Veri bulunamadı",
+  "locale": "Dil",
+  "localePlaceholder": "Dil seçin",
+  "localeOptionsMissing": "Dil seçenekleri bulunamadı.",
+  "imageUpload": {
+    "label": "Görsel",
+    "loading": "Yükleniyor…",
+    "actions": {
+      "copy": "Kopyala",
+      "setCover": "Kapak yap",
+      "delete": "Sil",
+      "clear": "Temizle",
+      "addSelected": "Seçilenleri Ekle"
+    },
+    "messages": {
+      "urlCopied": "URL kopyalandı.",
+      "copyError": "Kopyalanamadı.",
+      "imageAdded": "Görsel eklendi.",
+      "imageSelected": "Görsel seçildi.",
+      "imageUploaded": "Görsel yüklendi.",
+      "multipleImagesUploaded": "{count} görsel yüklendi.",
+      "uploadError": "Görsel yüklenirken hata oluştu.",
+      "bulkUploadError": "Bazı görseller yüklenirken hata oluştu.",
+      "urlMissing": "Görsel URL'i alınamadı.",
+      "cannotRemoveCover": "Kapak görseli silinemez. Önce başka bir kapak seç.",
+      "cannotRemoveCoverShort": "Kapak silinemez"
+    },
+    "empty": {
+      "single": "Henüz görsel seçilmedi.",
+      "gallery": "Henüz galeri görseli yok."
+    },
+    "preview": {
+      "title": "Önizleme",
+      "svgAria": "SVG önizleme",
+      "svgOpenError": "SVG önizleme açılamadı.",
+      "imageAlt": "Görsel",
+      "imageLoadError": "Görsel yüklenemedi",
+      "urlLabel": "URL:"
+    },
+    "gallery": {
+      "title": "Galeri",
+      "cover": "Kapak",
+      "svgImageAria": "SVG görsel {index}",
+      "svgLoadError": "SVG yüklenemedi.",
+      "imageAlt": "görsel-{index}",
+      "imageTitle": "Görsel {index}",
+      "noMultipleNotePrefix": "Not:",
+      "noMultipleNoteSuffix": "verilmediği için galeri parent tarafından yönetilmiyor."
+    },
+    "upload": {
+      "srLabel": "Yükleme",
+      "singleButton": "Görsel Yükle",
+      "multipleButton": "Görseller Yükle",
+      "selectTitle": "Görsel seçin",
+      "singleHelp": "Tek bir görsel yükleyebilirsiniz.",
+      "multipleHelp": "Birden fazla görsel yükleyebilirsiniz.",
+      "selectFile": "Dosya Seç"
+    },
+    "dialog": {
+      "description": "Bilgisayarınızdan yükleyin veya kütüphaneden seçin."
+    },
+    "tabs": {
+      "upload": "Yükle",
+      "library": "Kütüphane"
+    },
+    "library": {
+      "loadErrorTitle": "Kütüphane yüklenemedi",
+      "loadErrorDescription": "Storage listesi alınırken bir hata oluştu.",
+      "emptyTitle": "Kütüphane boş",
+      "emptyDescription": "Henüz yüklenmiş görsel yok. \"Yükle\" sekmesinden görsel yükleyebilirsiniz.",
+      "selected": "Seçildi",
+      "alreadyAdded": "Eklendi",
+      "selectedCount": "görsel seçildi"
+    }
+  },
+  "ai": {
+    "full": "Tam İçerik Oluştur",
+    "enhance": "İçeriği Geliştir",
+    "translate": "Çevir",
+    "generateMeta": "SEO Meta Oluştur",
+    "working": "AI çalışıyor..."
+  },
+  "imagesGallery": {
+    "coverLabel": "Kapak Görseli",
+    "galleryLabel": "Galeri",
+    "cover": "Kapak"
+  },
+  "richContentEditor": {
+    "label": "İçerik",
+    "badges": {
+      "livePreview": "Canlı önizleme"
+    },
+    "tabs": {
+      "visual": "Görsel editör",
+      "source": "Kaynak (HTML)"
+    },
+    "toolbar": {
+      "bold": "Kalın",
+      "italic": "İtalik",
+      "underline": "Altı çizili",
+      "paragraph": "Paragraf",
+      "heading2": "Başlık (H2)",
+      "heading3": "Alt başlık (H3)",
+      "bulletedList": "Madde işaretli liste",
+      "numberedList": "Numaralı liste",
+      "insertTable": "Tablo ekle",
+      "uploadAndInsertImage": "Resim yükle ve ekle",
+      "insertImageByUrl": "Resim URL'si ile ekle",
+      "clearFormatting": "Biçimlendirmeyi temizle"
+    },
+    "source": {
+      "title": "HTML kaynak",
+      "placeholder": "<p>HTML içeriği buraya yaz...</p>"
+    },
+    "preview": {
+      "title": "Önizleme",
+      "empty": "Henüz içerik yok. Yazdıkça burada anlık olarak gözükecek.",
+      "notePrefix": "Not: Görsel editör",
+      "noteSuffix": "tabanlıdır; tarayıcı davranışları farklılık gösterebilir."
+    },
+    "prompts": {
+      "imageUrl": "Resim URL'si girin:"
+    },
+    "sample": {
+      "tableHeader1": "Başlık 1",
+      "tableHeader2": "Başlık 2",
+      "tableCell1": "Hücre 1",
+      "tableCell2": "Hücre 2"
+    }
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "search": "Ara",
+  "searchShortcut": "⌘J",
+  "searchPlaceholder": "Modul veya sayfa ara...",
+  "noResults": "Sonuc bulunamadi.",
+  "quickCreate": "Hizli Olustur",
+  "inbox": "Bildirimler",
+  "comingSoon": "Yakinda",
+  "user": {
+    "account": "Hesap",
+    "billing": "Faturalama",
+    "notifications": "Bildirimler",
+    "logout": "Cikis Yap"
+  },
+  "theme": {
+    "light": "Acik",
+    "dark": "Koyu"
+  },
+  "preferences": {
+    "title": "Tercihler",
+    "description": "Panel gorunum tercihlerini ozellestirin.",
+    "cookieNote": "Tercihler tarayici depolamasinda saklanir.",
+    "themePreset": "Tema On Ayari",
+    "themePresetPlaceholder": "On ayar sec",
+    "fonts": "Yazi Tipleri",
+    "fontsPlaceholder": "Yazi tipi sec",
+    "themeMode": "Tema Modu",
+    "pageLayout": "Sayfa Duzeni",
+    "navbarBehavior": "Navbar Davranisi",
+    "sidebarStyle": "Sidebar Stili",
+    "sidebarCollapseMode": "Sidebar Daraltma Modu",
+    "restoreDefaults": "Varsayilanlara Don",
+    "layout": {
+      "centered": "Ortalanmis",
+      "fullWidth": "Tam Genislik"
+    },
+    "navbar": {
+      "sticky": "Sabit",
+      "scroll": "Kaydir"
+    },
+    "sidebarVariant": {
+      "inset": "Iceriden",
+      "sidebar": "Kenar Cubugu",
+      "floating": "Yuzen"
+    },
+    "sidebarCollapsible": {
+      "icon": "Ikon",
+      "offcanvas": "Offcanvas"
+    },
+    "aria": {
+      "themeLight": "Acik tema modunu sec",
+      "themeDark": "Koyu tema modunu sec",
+      "layoutCentered": "Ortalanmis sayfa duzenini sec",
+      "layoutFullWidth": "Tam genislik sayfa duzenini sec",
+      "navbarSticky": "Sabit navbar davranisini sec",
+      "navbarScroll": "Kaydirma navbar davranisini sec",
+      "sidebarInset": "Iceriden sidebar stilini sec",
+      "sidebarStandard": "Standart sidebar stilini sec",
+      "sidebarFloating": "Yuzen sidebar stilini sec",
+      "collapseIcon": "Ikon daraltma modunu sec",
+      "collapseOffcanvas": "Offcanvas daraltma modunu sec"
+    },
+    "language": "Arayuz Dili",
+    "languagePlaceholder": "Dil secin"
+  },
+  "groups": {
+    "general": "Genel",
+    "price_data": "Fiyat Verileri",
+    "alerts_group": "Uyarilar",
+    "production_data": "Uretim Verileri",
+    "content": "Icerik",
+    "system": "Sistem"
+  },
+  "items": {
+    "dashboard": "Dashboard",
+    "prices": "Fiyatlar",
+    "quick_entry": "Hizli Giris",
+    "hf_products": "Urunler",
+    "markets": "Haller",
+    "etl_logs": "ETL Loglari",
+    "alerts": "Uyari Listesi",
+    "production": "Yillik Uretim",
+    "custom_pages": "Ozel Sayfalar",
+    "email_templates": "E-posta Sablonlari",
+    "support": "Destek Talepleri",
+    "users": "Kullanicilar",
+    "site_settings": "Site Ayarlari",
+    "storage": "Depolama",
+    "telegram": "Telegram",
+    "audit": "Audit Log"
+  }
+}

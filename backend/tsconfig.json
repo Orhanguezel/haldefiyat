@@ -9,9 +9,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@agro/shared-backend/*": ["../../packages/shared-backend/dist/*"],
+      "@agro/shared-backend/*": ["../../packages/shared-backend/*"],
       "@agro/shared-types": ["../../packages/shared-types/index.ts"],
-      "@agro/shared-types/*": ["../../packages/shared-types/*"]
+      "@agro/shared-types/*": ["../../packages/shared-types/*"],
+      "drizzle-orm": ["../../node_modules/drizzle-orm"],
+      "drizzle-orm/*": ["../../node_modules/drizzle-orm/*"]
     },
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,

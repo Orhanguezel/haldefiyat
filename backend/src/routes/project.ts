@@ -5,6 +5,8 @@ import { registerAlerts } from "@/modules/alerts";
 import { registerFavorites } from "@/modules/favorites";
 import { registerProduction } from "@/modules/production";
 import { registerHalAdmin } from "@/modules/hal-admin";
+import { registerUser } from "@/modules/user/router";
+import { registerIndex } from "@/modules/index";
 
 export async function registerProjectPublic(api: FastifyInstance) {
   await registerMarkets(api);
@@ -12,6 +14,8 @@ export async function registerProjectPublic(api: FastifyInstance) {
   await registerAlerts(api);
   await registerFavorites(api);
   await registerProduction(api);
+  await registerUser(api);
+  await registerIndex(api);
 
   // P2: SSO entegrasyonu icin frontend'in auth durumunu dogrulayabilecegi stub endpoint.
   // Gercek /auth endpoint'leri shared-backend auth modulunde zaten kayitli (registerAuth).

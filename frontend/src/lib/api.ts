@@ -277,6 +277,25 @@ export interface CustomPageData {
   is_published: number;
 }
 
+export type IndexSnapshot = {
+  indexWeek:     string;
+  indexValue:    string;
+  baseWeek:      string;
+  basketAvg:     string;
+  productsCount: number;
+  weekStart:     string;
+  weekEnd:       string;
+  createdAt?:    string | null;
+};
+
+export async function fetchIndexLatest(): Promise<IndexSnapshot | null> {
+  return safeFetch<IndexSnapshot | null>("/index/latest", 300, null);
+}
+
+export async function fetchIndexHistory(weeks = 26): Promise<IndexSnapshot[]> {
+  return safeFetch<IndexSnapshot[]>(`/index/history?weeks=${weeks}`, 300, []);
+}
+
 export async function fetchCustomPageBySlug(
   slug: string,
   locale = 'tr',

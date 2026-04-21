@@ -4,6 +4,7 @@ import { runDailyEtl } from "@/modules/etl";
 import { runAllProductionSources } from "@/modules/etl/production-fetcher";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
 import { runWeeklyDigest } from "@/modules/notifications/weekly-digest";
+import { calculateWeeklyIndex } from "@/modules/index";
 import { env } from "@/core/env";
 
 /**
@@ -21,6 +22,7 @@ export function startCron(app: FastifyInstance): void {
     { name: "alerts-check",    schedule: env.ETL.alertsSchedule,       handler: () => runAlertsJob(app) },
     { name: "production-etl",  schedule: env.ETL.productionSchedule,   handler: () => runProductionJob(app) },
     { name: "weekly-digest",   schedule: env.ETL.weeklyDigestSchedule, handler: () => runWeeklyDigestJob(app) },
+    { name: "index-weekly",    schedule: env.ETL.indexSchedule,        handler: () => runIndexJob(app) },
   ];
 
   for (const t of tasks) {
@@ -85,6 +87,24 @@ async function runWeeklyDigestJob(app: FastifyInstance): Promise<void> {
     app.log.info({ ...result, durationMs: Date.now() - t0 }, "[cron:weekly-digest] tamamlandi");
   } catch (err) {
     app.log.error({ err }, "[cron:weekly-digest] hata");
+  }
+}
+
+async function runIndexJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:index] haftalik endeks hesaplaniyor");
+  try {
+    const result = await calculateWeeklyIndex();
+    if (result) {
+      app.log.info(
+        { week: result.indexWeek, value: result.indexValue, products: result.productsCount, durationMs: Date.now() - t0 },
+        "[cron:index] tamamlandi",
+      );
+    } else {
+      app.log.warn({ durationMs: Date.now() - t0 }, "[cron:index] bu hafta icin yeterli veri yok");
+    }
+  } catch (err) {
+    app.log.error({ err }, "[cron:index] hata");
   }
 }
 

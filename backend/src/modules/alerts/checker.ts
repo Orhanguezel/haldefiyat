@@ -5,11 +5,13 @@ import { sendTelegramAlert } from "./telegram";
 import { sendEmailAlert, buildAlertEmailHtml } from "./email";
 import { sendToExternalIds, isOneSignalConfigured } from "@/modules/notifications/onesignal";
 import { repoGetUserByEmail } from "@agro/shared-backend/modules/auth/repository";
+import { createUserNotification } from "@agro/shared-backend/modules/notifications/service";
 
 const RETRIGGER_COOLDOWN_HOURS = 24;
 
 type ActiveAlert = {
   id:               number;
+  userId:           string | null;
   productId:        number;
   marketId:         number | null;
   thresholdPrice:   string | null;
@@ -30,6 +32,7 @@ async function fetchActiveAlerts(): Promise<ActiveAlert[]> {
   const rows = await db
     .select({
       id:              hfAlerts.id,
+      userId:          hfAlerts.userId,
       productId:       hfAlerts.productId,
       marketId:        hfAlerts.marketId,
       thresholdPrice:  hfAlerts.thresholdPrice,
@@ -105,6 +108,7 @@ export async function checkAndNotifyAlerts(): Promise<CheckAlertsResult> {
     if (!shouldTrigger(lp, tp, a.direction))          { skipped++; continue; }
 
     await notifyAlert(a, latest, lp, tp);
+    await createAlertNotification(a, latest, lp, tp);
     await markTriggered(a.id);
     triggered++;
   }
@@ -167,4 +171,23 @@ async function markTriggered(alertId: number): Promise<void> {
     .update(hfAlerts)
     .set({ lastTriggered: sql`CURRENT_TIMESTAMP(3)` })
     .where(eq(hfAlerts.id, alertId));
+}
+
+async function createAlertNotification(
+  a: ActiveAlert,
+  latest: LatestPriceRow,
+  lp: number,
+  tp: number,
+): Promise<void> {
+  if (!a.userId) return;
+  const dirLabel = a.direction === "above" ? "üstüne çıktı" : "altına indi";
+  const marketSuffix = latest.marketName ? ` · ${latest.marketName}` : "";
+  try {
+    await createUserNotification({
+      userId:  a.userId,
+      title:   `${latest.productName} fiyat uyarısı`,
+      message: `${latest.productName} ${dirLabel}. Güncel: ${lp.toFixed(2)} ₺/kg, eşik: ${tp.toFixed(2)} ₺/kg${marketSuffix}`,
+      type:    "custom",
+    });
+  } catch { /* bildirim hatası akışı durdurmasın */ }
 }

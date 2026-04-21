@@ -62,8 +62,10 @@ CREATE TABLE IF NOT EXISTS `hf_price_history` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ─── Fiyat Alarmları ──────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS `hf_alerts` (
+DROP TABLE IF EXISTS `hf_alerts`;
+CREATE TABLE `hf_alerts` (
   `id`              INT UNSIGNED     NOT NULL AUTO_INCREMENT,
+  `user_id`         VARCHAR(36)      DEFAULT NULL COMMENT 'users.id FK — null ise anonim uyarı',
   `product_id`      INT UNSIGNED     NOT NULL,
   `market_id`       INT UNSIGNED     DEFAULT NULL,
   `threshold_price` DECIMAL(12,2)    DEFAULT NULL,
@@ -75,8 +77,21 @@ CREATE TABLE IF NOT EXISTS `hf_alerts` (
   `created_at`      DATETIME(3)      DEFAULT CURRENT_TIMESTAMP(3),
   PRIMARY KEY (`id`),
   KEY `hf_alerts_product_idx` (`product_id`),
+  KEY `hf_alerts_user_idx` (`user_id`),
   CONSTRAINT `fk_hf_alerts_product` FOREIGN KEY (`product_id`) REFERENCES `hf_products` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_hf_alerts_market`  FOREIGN KEY (`market_id`)  REFERENCES `hf_markets`  (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ─── Kullanıcı Favorileri ─────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `hf_user_favorites` (
+  `id`         INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+  `user_id`    VARCHAR(36)   NOT NULL COMMENT 'users.id FK',
+  `product_id` INT UNSIGNED  NOT NULL,
+  `created_at` DATETIME(3)   DEFAULT CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `hf_uf_user_product_uq` (`user_id`, `product_id`),
+  KEY `hf_uf_user_idx` (`user_id`),
+  CONSTRAINT `fk_hf_uf_product` FOREIGN KEY (`product_id`) REFERENCES `hf_products` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ─── ETL Çalıştırma Logu ──────────────────────────────────────────────────────
@@ -114,11 +129,32 @@ INSERT INTO `hf_markets` (`slug`, `name`, `city_name`, `region_slug`, `source_ke
 ('denizli-hal',         'Denizli Toptancı Hali',          'Denizli',  'ege',        'denizli_resmi',            7, 1),
 ('antalya-hal-merkez',  'Antalya Toptancı Hali (Merkez)', 'Antalya',  'akdeniz',    'antalya_merkez_antkomder', 8, 1),
 ('antalya-hal-serik',   'Antalya Serik Hali',             'Antalya',  'akdeniz',    'antalya_serik_antkomder',  9, 1),
-('antalya-hal-kumluca', 'Antalya Kumluca Hali',           'Antalya',  'akdeniz',    'antalya_kumluca_antkomder',10, 1)
+('antalya-hal-kumluca', 'Antalya Kumluca Hali',           'Antalya',  'akdeniz',    'antalya_kumluca_antkomder',10, 1),
+('gaziantep-hal',          'Gaziantep Toptancı Hali',             'Gaziantep', 'guneydogu',  'gaziantep_resmi',          11, 1),
+('bursa-hal',              'Bursa Toptancı Hali',                 'Bursa',     'marmara',    'bursa_resmi',              12, 1),
+('kocaeli-hal-merkez',     'Kocaeli Merkez Sebze Meyve Hali',    'Kocaeli',   'marmara',    'kocaeli_merkez',           13, 1)
 ON DUPLICATE KEY UPDATE
   `name`       = VALUES(`name`),
   `source_key` = VALUES(`source_key`),
   `is_active`  = VALUES(`is_active`);
+
+-- ─── HaldeFiyat Endeksi Anlık Görüntüleri ────────────────────────────────────
+-- Haftalık hesaplanan sepet endeks değerleri. index_value = 100 → baz hafta.
+-- basket_avg: seçili ürünlerin haftalık ulusal ortalama fiyatı (TRY/kg)
+CREATE TABLE IF NOT EXISTS `hf_index_snapshots` (
+  `id`             INT UNSIGNED     NOT NULL AUTO_INCREMENT,
+  `index_week`     CHAR(8)          NOT NULL COMMENT 'YYYY-WW — baz: ISO hafta numarası',
+  `index_value`    DECIMAL(10,4)    NOT NULL COMMENT '100 = baz hafta',
+  `base_week`      CHAR(8)          NOT NULL COMMENT 'Hesaplamada referans alınan hafta',
+  `basket_avg`     DECIMAL(10,4)    NOT NULL COMMENT 'Sepet ürünlerin ağırlıksız ortalaması (TRY/kg)',
+  `products_count` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Hesaplamaya katılan ürün sayısı',
+  `week_start`     DATE             NOT NULL,
+  `week_end`       DATE             NOT NULL,
+  `created_at`     DATETIME(3)      DEFAULT CURRENT_TIMESTAMP(3),
+  `updated_at`     DATETIME(3)      DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `hf_idx_week_uq` (`index_week`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Ürün kataloğu ETL ilk çalıştığında kaynaklardan otomatik doldurulur
 -- (ETL_AUTO_REGISTER_PRODUCTS=true). Bu nedenle seed'de hiçbir ürün

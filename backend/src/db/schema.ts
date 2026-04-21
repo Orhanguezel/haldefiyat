@@ -80,6 +80,7 @@ export const hfAlerts = mysqlTable(
   "hf_alerts",
   {
     id:               int("id").autoincrement().primaryKey(),
+    userId:           varchar("user_id", { length: 36 }),
     productId:        int("product_id").notNull(),
     marketId:         int("market_id"),
     thresholdPrice:   decimal("threshold_price", { precision: 12, scale: 2 }),
@@ -90,7 +91,24 @@ export const hfAlerts = mysqlTable(
     lastTriggered:    datetime("last_triggered", { fsp: 3 }),
     createdAt:        datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
   },
-  (t) => [index("hf_alerts_product_idx").on(t.productId)],
+  (t) => [
+    index("hf_alerts_product_idx").on(t.productId),
+    index("hf_alerts_user_idx").on(t.userId),
+  ],
+);
+
+export const hfUserFavorites = mysqlTable(
+  "hf_user_favorites",
+  {
+    id:        int("id").autoincrement().primaryKey(),
+    userId:    varchar("user_id", { length: 36 }).notNull(),
+    productId: int("product_id").notNull(),
+    createdAt: datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    uniqueIndex("hf_uf_user_product_uq").on(t.userId, t.productId),
+    index("hf_uf_user_idx").on(t.userId),
+  ],
 );
 
 export const hfEtlRuns = mysqlTable(
@@ -132,6 +150,23 @@ export const hfAnnualProduction = mysqlTable(
     index("hf_prod_region_idx").on(t.regionSlug),
     index("hf_prod_source_idx").on(t.sourceApi),
   ],
+);
+
+export const hfIndexSnapshots = mysqlTable(
+  "hf_index_snapshots",
+  {
+    id:            int("id").autoincrement().primaryKey(),
+    indexWeek:     varchar("index_week", { length: 8 }).notNull(),
+    indexValue:    decimal("index_value", { precision: 10, scale: 4 }).notNull(),
+    baseWeek:      varchar("base_week", { length: 8 }).notNull(),
+    basketAvg:     decimal("basket_avg", { precision: 10, scale: 4 }).notNull(),
+    productsCount: int("products_count").notNull().default(0),
+    weekStart:     date("week_start").notNull(),
+    weekEnd:       date("week_end").notNull(),
+    createdAt:     datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:     datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [uniqueIndex("hf_idx_week_uq").on(t.indexWeek)],
 );
 
 export const hfAnnualEtlRuns = mysqlTable(

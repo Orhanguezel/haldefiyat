@@ -1,0 +1,34 @@
+{
+  "title": "Hal Fiyatlari Yonetim Paneli",
+  "subtitle": "Fiyat verileri, uyarilar, ETL akislar ve icerik modullerini yonetin.",
+  "modules": {
+    "title": "Hizli Erisim",
+    "prices": "Guncel fiyat kayitlarini filtreleyin ve duzenleyin",
+    "hf_products": "Urun sozlugunu ve kategori alanlarini yonetin",
+    "markets": "Hal ve sehir bilgilerini guncelleyin",
+    "alerts": "Alarm kayitlarini inceleyin ve pasiflestirin",
+    "production": "Yillik uretim kayitlarini yonetin",
+    "users": "Yonetici hesaplari ve rolleri",
+    "site_settings": "Genel panel ayarlari"
+  },
+  "items": {
+    "dashboard": "Dashboard",
+    "prices": "Fiyatlar",
+    "hf_products": "Urunler",
+    "markets": "Haller",
+    "alerts": "Uyarilar",
+    "production": "Uretim",
+    "users": "Kullanicilar",
+    "site_settings": "Site Ayarlari",
+    "storage": "Depolama",
+    "email_templates": "E-posta Sablonlari",
+    "audit": "Audit Log",
+    "custom_pages": "Ozel Sayfalar",
+    "telegram": "Telegram"
+  },
+  "stats": {},
+  "addSection": "Bolum ekle",
+  "detailView": "Detay gorunumu",
+  "columns": {},
+  "type": {}
+}

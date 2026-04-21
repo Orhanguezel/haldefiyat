@@ -10,12 +10,12 @@ type HeaderProps = {
 };
 
 const NAV_LINKS: ReadonlyArray<NavLink> = [
-  { key: "panel", label: "Panel", href: "/" },
-  { key: "prices", label: "Fiyatlar", href: "/fiyatlar" },
-  { key: "cities", label: "Şehirler", href: "/hal" },
+  { key: "prices",    label: "Fiyatlar",    href: "/fiyatlar" },
+  { key: "cities",    label: "Şehirler",    href: "/hal" },
+  { key: "index",     label: "Endeks",      href: "/endeks" },
   { key: "favorites", label: "Favorilerim", href: "/favoriler" },
-  { key: "alerts", label: "Uyarılar", href: "/uyarilar" },
-  { key: "about", label: "Hakkımızda", href: "/hakkimizda" },
+  { key: "alerts",    label: "Uyarılar",    href: "/uyarilar" },
+  { key: "about",     label: "Hakkımızda",  href: "/hakkimizda" },
 ] as const;
 
 /**

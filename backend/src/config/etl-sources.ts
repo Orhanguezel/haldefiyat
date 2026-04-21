@@ -24,7 +24,10 @@ type ResponseShape =
   | "konya_html"
   | "kayseri_html"
   | "eskisehir_html"
-  | "denizli_html";
+  | "denizli_html"
+  | "gaziantep_html"
+  | "bursa_html"
+  | "kocaeli_html";
 
 export interface EtlSourceConfig {
   key:              string;          // DB'de source_api olarak yazılır
@@ -181,6 +184,45 @@ const RAW_SOURCES: RawSource[] = [
     defaultBaseUrl:    "https://www.denizli.bel.tr",
     defaultEndpoint:   "/Default.aspx?k=halfiyatlari",
     responseShape:     "denizli_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // Bursa Büyükşehir — SSR HTML, 9 tablo, hepsi: Ürün | BR | FİYAT.
+  // FİYAT: "100,00 - 400,00 TL" (min-max). Sayfa tarih parametresi almaz.
+  {
+    key:               "bursa_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "bursa-hal",
+    defaultBaseUrl:    "https://www.bursa.bel.tr",
+    defaultEndpoint:   "/hal_fiyatlari",
+    responseShape:     "bursa_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // Gaziantep Büyükşehir — SSR HTML, tek tablo. Kolonlar: Ürün Adı | Az. Fiyat |
+  // As. Fiyat | Birim | Tarih. Az.=asgari(min) As.=azami(max). Tarih her satırda.
+  // Sayfa tarih parametresi almaz; daima güncel fiyatı döndürür.
+  {
+    key:               "gaziantep_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "gaziantep-hal",
+    defaultBaseUrl:    "https://www.gaziantep.bel.tr",
+    defaultEndpoint:   "/tr/hal-rayic",
+    responseShape:     "gaziantep_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // Kocaeli Büyükşehir — POST form, SSR HTML. Form: date=YYYY-MM-DD & hal=<ID>.
+  // endpointTemplate = hal ID'si (1=Merkez, 2=Gebze). Fetcher POST'u üretir.
+  // Kolon sırası: Ürün Adı | Kategori | Birim | En az | En çok.
+  // Tarih parametresi destekler → backfill mümkün.
+  {
+    key:               "kocaeli_merkez",
+    defaultEnabled:    true,
+    defaultMarketSlug: "kocaeli-hal-merkez",
+    defaultBaseUrl:    "https://www.kocaeli.bel.tr",
+    defaultEndpoint:   "1",
+    responseShape:     "kocaeli_html",
     defaultUnit:       "kg",
     defaultCategory:   "sebze-meyve",
   },

@@ -1,0 +1,114 @@
+{
+  "header": {
+    "title": "Denetim Kayıtları",
+    "description": "İstek logları, kimlik doğrulama olayları, metrikler ve coğrafi dağılım."
+  },
+  "refresh": "Yenile",
+  "refreshed": "Veriler yenilendi.",
+  "error": "Veriler yüklenirken hata oluştu.",
+  "clear": {
+    "button": "Logları Temizle",
+    "dialogTitle": "Tüm loglar silinsin mi?",
+    "dialogDescription": "Mevcut sekmedeki tüm denetim kayıtları kalıcı olarak silinecektir. Bu işlem geri alınamaz.",
+    "cancel": "İptal",
+    "confirm": "Kalıcı olarak sil",
+    "success": "{count} kayıt silindi."
+  },
+  "tabs": {
+    "requests": "İstekler",
+    "auth": "Kimlik Doğrulama",
+    "metrics": "Metrikler",
+    "map": "Harita"
+  },
+  "requests": {
+    "filtersTitle": "Filtreler",
+    "filtersDescription": "İstek loglarını kriterlere göre filtreleyin.",
+    "search": "Ara (URL/Yol)",
+    "method": "Metod",
+    "status": "Durum Kodu",
+    "placeholders": {
+      "search": "/api/orders",
+      "method": "GET",
+      "status": "200",
+      "ip": "192.168.1.1"
+    },
+    "sort": "Sıralama",
+    "sortDate": "Tarih",
+    "sortResponseTime": "Yanıt Süresi",
+    "sortStatusCode": "Durum Kodu",
+    "logsTitle": "İstek Logları"
+  },
+  "auth": {
+    "filtersTitle": "Filtreler",
+    "filtersDescription": "Kimlik doğrulama olaylarını filtreleyin.",
+    "event": "Olay",
+    "email": "E-posta",
+    "eventsTitle": "Kimlik Doğrulama Olayları"
+  },
+  "metrics": {
+    "title": "Günlük Metrikler",
+    "description": "Günlük istek istatistikleri ve trendler.",
+    "days": "Dönem",
+    "nDays": "{n} Gün",
+    "pathPrefix": "Yol Ön Eki",
+    "placeholders": {
+      "pathPrefix": "/api"
+    },
+    "chartTitle": "Günlük Grafik",
+    "lastNDays": "Son {n} gün"
+  },
+  "map": {
+    "title": "Coğrafi Dağılım",
+    "description": "Son {days} günün konuma göre istek dağılımı."
+  },
+  "common": {
+    "from": "Başlangıç",
+    "to": "Bitiş",
+    "userId": "Kullanıcı ID",
+    "ip": "IP Adresi",
+    "desc": "Azalan",
+    "asc": "Artan",
+    "onlyAdmin": "Sadece Admin",
+    "adminRequests": "Admin istekleri",
+    "apply": "Uygula",
+    "reset": "Sıfırla",
+    "all": "Tümü",
+    "loading": "Yükleniyor...",
+    "noRecords": "Kayıt bulunamadı.",
+    "totalRecords": "Toplam: {count} kayıt",
+    "recordCount": "{count} kayıt",
+    "prev": "Önceki",
+    "next": "Sonraki",
+    "anon": "Anonim"
+  },
+  "columns": {
+    "date": "Tarih",
+    "request": "İstek",
+    "status": "Durum",
+    "ipUser": "IP / Kullanıcı",
+    "location": "Konum",
+    "userAgent": "User Agent",
+    "user": "Kullanıcı"
+  },
+  "chart": {
+    "summary": "Son {days} gün: {requests} bar{uniqueSuffix}{errorsSuffix}",
+    "summaryUniqueSuffix": ", unique",
+    "summaryErrorsSuffix": ", errors",
+    "labels": {
+      "requests": "requests",
+      "unique": "unique",
+      "uniqueIps": "Unique IP",
+      "errors": "errors"
+    },
+    "loading": "Yükleniyor...",
+    "empty": "Grafik verisi boş. (Backend response shape / date format uyumsuz olabilir.)",
+    "ariaLabel": "Audit günlük metrik grafiği"
+  },
+  "geoMap": {
+    "loading": "Yükleniyor...",
+    "empty": "Konum verisi yok.",
+    "requestsLabel": "İstek",
+    "distributionTitle": "Ülke Dağılımı ({total} toplam istek)",
+    "topCountries": "Top Ülkeler"
+  }
+}

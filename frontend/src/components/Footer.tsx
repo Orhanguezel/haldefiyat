@@ -38,6 +38,7 @@ const COLUMNS: ReadonlyArray<FooterColumn> = [
     links: [
       { label: "Hakkımızda", href: "/hakkimizda" },
       { label: "İletişim", href: "/iletisim" },
+      { label: "API Docs", href: "/api-docs" },
     ],
   },
   {
@@ -120,7 +121,7 @@ export default function Footer({
             &copy; {year} {displayName}. Tüm hakları saklıdır.
           </p>
           <a
-            href="https://guzelwebdesign.com"
+            href="https://guezelwebdesign.com"
             target="_blank"
             rel="noopener noreferrer"
             className="text-(--color-muted) transition-colors hover:text-(--color-brand)"

@@ -1,0 +1,9 @@
+{
+  "badge": "Yakında",
+  "description": "{module} modülü planlandı ancak henüz geliştirme aşamasında. Bir sonraki fazlarda bu ekran aktif hale getirilecek.",
+  "modules": {
+    "default": "Bu modül",
+    "emailTemplates": "E-posta Şablonları",
+    "reports": "Raporlar"
+  }
+}

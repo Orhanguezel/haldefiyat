@@ -58,8 +58,11 @@ function parseResponse(
     case "konya_html":     return parseKonyaHtml(String(raw));
     case "kayseri_html":   return parseKayseriHtml(String(raw));
     case "eskisehir_html": return parseEskisehirHtml(String(raw));
-    case "denizli_html":   return parseDenizliHtml(String(raw));
-    default:               return [];
+    case "denizli_html":     return parseDenizliHtml(String(raw));
+    case "gaziantep_html":   return parseGaziantepHtml(String(raw));
+    case "bursa_html":       return parseBursaHtml(String(raw));
+    case "kocaeli_html":     return parseKocaeliHtml(String(raw));
+    default:                 return [];
   }
 }
 
@@ -459,6 +462,102 @@ function parseDenizliHtml(html: string): NormalizedRow[] {
 }
 
 /**
+ * Gaziantep Büyükşehir — https://www.gaziantep.bel.tr/tr/hal-rayic
+ * SSR HTML, tek tablo. Kolonlar: Ürün Adı | Az. Fiyat | As. Fiyat | Birim | Tarih
+ * Az. = Asgari (min), As. = Azami (max). Tarih her satırda "DD.MM.YYYY" formatında.
+ * Sayfa tarih parametresi kabul etmez — her zaman güncel fiyatı döndürür.
+ */
+function parseGaziantepHtml(html: string): NormalizedRow[] {
+  const out: NormalizedRow[] = [];
+  const tables = extractTables(html);
+  if (tables.length === 0) return out;
+  for (const row of tables[0]!) {
+    if (row.length < 3) continue;
+    const name = row[0]!.trim();
+    if (!name || /^(ürün adı|ürün)$/i.test(name)) continue;
+    const min = parsePriceTry(row[1] ?? "");
+    const max = parsePriceTry(row[2] ?? "");
+    if (min == null && max == null) continue;
+    const avg = min != null && max != null ? (min + max) / 2 : (min ?? max);
+    const recordedDate = row[4] ? parseTrDate(row[4]) : undefined;
+    out.push({
+      name,
+      category: null,
+      unit:     normalizeUnit(row[3] ?? ""),
+      avg: avg!,
+      min,
+      max,
+      ...(recordedDate ? { recordedDate } : {}),
+    });
+  }
+  return out;
+}
+
+/**
+ * Bursa Büyükşehir — https://www.bursa.bel.tr/hal_fiyatlari
+ * 9 tablo, hepsi aynı şema: Ürün | BR | FİYAT.
+ * FİYAT formatı: "100,00 - 400,00 TL" (min - max) veya tekli fiyat.
+ * Sayfa tarih parametresi almaz, daima güncel fiyatı döndürür.
+ */
+function parseBursaHtml(html: string): NormalizedRow[] {
+  const out: NormalizedRow[] = [];
+  const tables = extractTables(html);
+  for (const table of tables) {
+    for (const row of table) {
+      if (row.length < 3) continue;
+      const name = row[0]!.trim();
+      if (!name || /^(ürün|br|fiyat)$/i.test(name)) continue;
+      const unit = normalizeUnit(row[1] ?? "");
+      // FİYAT: "100,00 - 400,00 TL" veya "150 TL"
+      const priceRaw = (row[2] ?? "").replace(/&#8378;|TL|₺/gi, "").trim();
+      const dashMatch = /^(.+?)\s*[-–]\s*(.+)$/.exec(priceRaw);
+      let min: number | null = null;
+      let max: number | null = null;
+      if (dashMatch) {
+        min = parsePriceTry(dashMatch[1] ?? "");
+        max = parsePriceTry(dashMatch[2] ?? "");
+      } else {
+        const single = parsePriceTry(priceRaw);
+        min = single; max = single;
+      }
+      if (min == null && max == null) continue;
+      const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
+      out.push({ name, category: null, unit, avg, min, max });
+    }
+  }
+  return out;
+}
+
+/**
+ * Kocaeli Büyükşehir — POST form, SSR HTML.
+ * Kolonlar: [Ürün Adı, Kategori, Birim, En az, En çok].
+ * Kategori HTML'de Türkçe olarak gelir (Meyve/Sebze/Balık).
+ */
+function parseKocaeliHtml(html: string): NormalizedRow[] {
+  if (/henüz bir veri yayınlanmamıştır/i.test(html)) return [];
+  const out: NormalizedRow[] = [];
+  const tables = extractTables(html);
+  if (tables.length === 0) return out;
+  for (const row of tables[0]!) {
+    if (row.length < 5) continue;
+    const name = row[0]!.trim();
+    if (!name || /^(ürün adı|ürün)$/i.test(name)) continue;
+    const rawCat = (row[1] ?? "").trim().toLowerCase();
+    const category =
+      rawCat.includes("meyve") ? "meyve" :
+      rawCat.includes("sebze") ? "sebze" :
+      rawCat.includes("balık") ? "balik" : null;
+    const unit = normalizeUnit(row[2] ?? "");
+    const min = parsePriceTry(row[3] ?? "");
+    const max = parsePriceTry(row[4] ?? "");
+    if (min == null && max == null) continue;
+    const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
+    out.push({ name, category, unit, avg, min, max });
+  }
+  return out;
+}
+
+/**
  * Kayseri Büyükşehir — https://www.kayseri.bel.tr/hal-fiyatlari
  * Tek tablo, kolonlar: [CİNSİ, BİRİMİ, EN YÜKSEK, EN DÜŞÜK].
  * DİKKAT: Kayseri kolon sırası ters — önce MAX, sonra MIN.
@@ -503,6 +602,9 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "kayseri_html",
   "eskisehir_html",
   "denizli_html",
+  "gaziantep_html",
+  "bursa_html",
+  "kocaeli_html",
 ]);
 
 async function fetchDated(
@@ -516,6 +618,9 @@ async function fetchDated(
   if (source.responseShape === "mersin_html") {
     return fetchMersinDated(source, date, isBackfill);
   }
+  if (source.responseShape === "kocaeli_html") {
+    return fetchKocaeliDated(source, date);
+  }
 
   // Geriye dönük çağrıda backfillEndpoint tercih edilir (Konya gibi: default
   // sayfa bugünü, ?tarih=YYYY-MM-DD arşivi döndürür).
@@ -528,6 +633,8 @@ async function fetchDated(
       "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
     },
     signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+    // @ts-expect-error Bun-specific TLS option — ignored by Node
+    tls: { rejectUnauthorized: false },
   });
 
   if (res.status === 204) return { rows: [], dateUsed: date, httpStatus: 204 };
@@ -619,6 +726,32 @@ async function fetchMersinDated(
 
   const rows = parseResponse(source.responseShape, pages, source);
   return { rows, dateUsed: date, httpStatus: lastStatus };
+}
+
+// Kocaeli Büyükşehir — POST form. endpointTemplate = hal ID'si (örn. "1").
+async function fetchKocaeliDated(
+  source: EtlSourceConfig,
+  date: string,
+): Promise<FetchOutcome | null> {
+  const url = source.baseUrl + "/hal-fiyatlari/";
+  const body = new URLSearchParams({ date, hal: source.endpointTemplate });
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Accept: "text/html,application/xhtml+xml",
+      "Content-Type": "application/x-www-form-urlencoded",
+      "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
+    },
+    body,
+    signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+    // @ts-expect-error Bun-specific TLS option
+    tls: { rejectUnauthorized: false },
+  });
+
+  if (!res.ok) throw new Error(`HTTP ${res.status} @ ${url} [hal=${source.endpointTemplate}]`);
+  const html = await decodeResponseBody(res);
+  const rows = parseKocaeliHtml(html);
+  return { rows, dateUsed: date, httpStatus: res.status };
 }
 
 /**

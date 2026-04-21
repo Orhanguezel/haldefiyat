@@ -10,6 +10,11 @@ import { registerTheme, registerThemeAdmin } from "@agro/shared-backend/modules/
 import { registerNewsletterAdmin } from "@agro/shared-backend/modules/newsletter/admin.routes";
 import { registerCustomPages } from "@agro/shared-backend/modules/customPages";
 import { registerContacts, registerContactsAdmin } from "@agro/shared-backend/modules/contact";
+import { registerNotifications } from "@agro/shared-backend/modules/notifications";
+import { registerSupport, registerSupportAdmin } from "@agro/shared-backend/modules/support";
+import { registerCustomPagesAdmin } from "@agro/shared-backend/modules/customPages";
+import { registerEmailTemplatesAdmin } from "@agro/shared-backend/modules/emailTemplates/admin.routes";
+import { registerAuditAdmin } from "@agro/shared-backend/modules/audit";
 
 export async function registerSharedPublic(api: FastifyInstance) {
   await registerAuth(api);
@@ -21,6 +26,8 @@ export async function registerSharedPublic(api: FastifyInstance) {
   await registerProfiles(api);
   await registerCustomPages(api);
   await registerContacts(api);
+  await registerNotifications(api);
+  await registerSupport(api);
 }
 
 export async function registerSharedAdmin(adminApi: FastifyInstance) {
@@ -31,4 +38,8 @@ export async function registerSharedAdmin(adminApi: FastifyInstance) {
   await registerThemeAdmin(adminApi);
   await registerNewsletterAdmin(adminApi);
   await registerContactsAdmin(adminApi);
+  await registerCustomPagesAdmin(adminApi);
+  await registerSupportAdmin(adminApi);
+  await registerEmailTemplatesAdmin(adminApi);
+  await registerAuditAdmin(adminApi);
 }

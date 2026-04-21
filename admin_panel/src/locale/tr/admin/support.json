@@ -1,0 +1,111 @@
+{
+  "header": {
+    "title": "SSS ve Destek",
+    "description": "Sıkça sorulan soruları ve destek taleplerini yönetin."
+  },
+  "tabs": {
+    "faqs": "SSS",
+    "tickets": "Talepler"
+  },
+  "actions": {
+    "back": "Listeye Dön",
+    "save": "Kaydet"
+  },
+  "faqCategories": {
+    "genel": "Genel",
+    "urunler": "Ürünler",
+    "hesap": "Hesap",
+    "teknik": "Teknik"
+  },
+  "ticketStatuses": {
+    "open": "Açık",
+    "in_progress": "İşleniyor",
+    "resolved": "Çözüldü",
+    "closed": "Kapandı"
+  },
+  "ticketPriorities": {
+    "low": "Düşük",
+    "normal": "Normal",
+    "high": "Yüksek",
+    "urgent": "Acil"
+  },
+  "faqs": {
+    "add": "Yeni Soru",
+    "create": "Oluştur",
+    "edit": "Düzenle",
+    "save": "Kaydet",
+    "locale": "Dil",
+    "delete": "Sil",
+    "refresh": "Yenile",
+    "loading": "SSS kayıtları yükleniyor...",
+    "question": "Soru",
+    "questionPlaceholder": "Soruyu girin",
+    "questionSeoHint": "Soruyu arama niyetine uygun, açık ve doğrudan yazın.",
+    "answer": "Cevap",
+    "answerPlaceholder": "Cevabı girin",
+    "answerSeoHint": "Cevabı kısa paragraf yapısında, net ve bilgi odaklı tutun.",
+    "category": "Kategori",
+    "displayOrder": "Sıralama",
+    "isPublished": "Yayında",
+    "publishHint": "Yayında olmayan kayıtlar public SSS alanında gösterilmez.",
+    "empty": "Henüz SSS eklenmedi.",
+    "confirmDelete": "Bu soruyu silmek istediğinize emin misiniz?",
+    "created": "Soru oluşturuldu.",
+    "updated": "Soru güncellendi.",
+    "deleted": "Soru silindi."
+  },
+  "detail": {
+    "newTitle": "Yeni SSS Kaydı",
+    "editTitle": "SSS Kaydını Düzenle",
+    "contentTitle": "İçerik",
+    "seoTitle": "SEO ve Schema",
+    "seoChecklistTitle": "SEO Kontrol Listesi",
+    "seoChecklistQuestion": "Soru başlığı kullanıcının gerçek arama niyetini açıkça anlatmalı.",
+    "seoChecklistAnswer": "Cevap ilk paragrafta net sonuca ulaşmalı, gereksiz girişlerden kaçının.",
+    "seoChecklistLocale": "Her aktif dil için yerel anlatıma uygun ayrı içerik kaydedin.",
+    "seoPreviewTitle": "Arama ve İçerik Önizlemesi",
+    "seoQuestionFallback": "SSS sorusu henüz girilmedi.",
+    "seoAnswerFallback": "SSS cevabı henüz girilmedi.",
+    "schemaTitle": "FAQPage Schema Önizlemesi",
+    "jsonTitle": "JSON Önizlemesi",
+    "tabs": {
+      "content": "İçerik",
+      "seo": "SEO",
+      "json": "JSON"
+    }
+  },
+  "tickets": {
+    "searchPlaceholder": "Konu veya e-posta ile ara...",
+    "loading": "Destek talepleri yükleniyor...",
+    "refresh": "Yenile",
+    "delete": "Sil",
+    "status": "Durum",
+    "priority": "Öncelik",
+    "subject": "Konu",
+    "name": "Ad",
+    "email": "E-posta",
+    "message": "Mesaj",
+    "adminNote": "Admin Notu",
+    "adminNotePlaceholder": "Notunuzu girin...",
+    "empty": "Henüz destek talebi yok.",
+    "confirmDelete": "Bu talebi silmek istediğinize emin misiniz?",
+    "updated": "Talep güncellendi.",
+    "deleted": "Talep silindi.",
+    "actions": "İşlemler",
+    "view": "Görüntüle"
+  },
+  "table": {
+    "order": "Sıra",
+    "question": "Soru",
+    "category": "Kategori",
+    "published": "Yayında",
+    "actions": "İşlemler"
+  },
+  "messages": {
+    "errorPrefix": "Hata",
+    "deleteError": "Silme hatası",
+    "refreshing": "Yenileniyor...",
+    "requiredError": "Zorunlu alanları doldurun.",
+    "unknownError": "Bilinmeyen bir hata oluştu."
+  }
+}

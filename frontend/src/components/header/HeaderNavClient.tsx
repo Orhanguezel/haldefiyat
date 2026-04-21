@@ -9,6 +9,7 @@ import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { getLocaleFromPathname } from "@/i18n/routing";
 import { localePath } from "@/lib/locale-path";
 import { ThemeToggle } from "./ThemeToggle";
+import { NotificationBell } from "@/components/dashboard/notifications/NotificationBell";
 
 export interface NavLink {
   key: string;
@@ -101,9 +102,13 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
         <ThemeToggle />
         {user ? (
           <>
-            <span className="inline-flex h-10 items-center rounded-xl border border-(--color-border) px-4 text-[13px] font-medium text-(--color-foreground) bg-(--color-bg-alt)/50">
+            <NotificationBell locale={locale} />
+            <Link
+              href={localePath(locale, "/hesabim")}
+              className="inline-flex h-10 items-center rounded-xl border border-border px-4 text-[13px] font-medium text-foreground bg-bg-alt/50 hover:border-brand/40 transition-colors"
+            >
               {user.full_name?.split(" ")[0] ?? user.email ?? "Hesabım"}
-            </span>
+            </Link>
             <button
               type="button"
               disabled={logoutLoading}
@@ -173,6 +178,19 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
                 {link.label}
               </Link>
             ))}
+            {user && (
+              <Link
+                href={localePath(locale, "/hesabim")}
+                className={clsx(
+                  "px-3 py-3 rounded-md text-sm font-medium",
+                  isActive("/hesabim")
+                    ? "text-(--color-brand) bg-(--color-brand-light)"
+                    : "text-(--color-foreground) hover:bg-(--color-bg-alt)",
+                )}
+              >
+                Hesabım
+              </Link>
+            )}
             <div className="mt-2 flex items-center gap-2 border-t border-(--color-border) pt-3">
               <ThemeToggle />
               {user ? (

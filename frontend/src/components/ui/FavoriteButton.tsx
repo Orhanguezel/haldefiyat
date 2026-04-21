@@ -6,6 +6,8 @@ import {
   toggleFavorite,
   subscribeFavorites,
 } from "@/lib/favorites";
+import { apiPost, apiDelete } from "@/lib/api-client";
+import { getStoredAccessToken } from "@/lib/auth-token";
 
 interface FavoriteButtonProps {
   slug: string;
@@ -39,10 +41,25 @@ export default function FavoriteButton({
     return unsub;
   }, [slug]);
 
-  const onClick = useCallback(() => {
-    const next = toggleFavorite(slug);
-    setActive(next);
-  }, [slug]);
+  const onClick = useCallback(async () => {
+    const loggedIn = Boolean(getStoredAccessToken());
+    if (loggedIn) {
+      const currently = active;
+      setActive(!currently);
+      try {
+        if (currently) {
+          await apiDelete(`/favorites/${slug}`);
+        } else {
+          await apiPost("/favorites", { productSlug: slug });
+        }
+      } catch {
+        setActive(currently); // geri al
+      }
+    } else {
+      const next = toggleFavorite(slug);
+      setActive(next);
+    }
+  }, [slug, active]);
 
   const label = active ? "Favorilerden çıkar" : "Favorilere ekle";
   const aria = productName ? `${productName}: ${label}` : label;
@@ -56,7 +73,7 @@ export default function FavoriteButton({
   const onButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     event.preventDefault();
-    onClick();
+    void onClick();
   };
 
   return (

@@ -1,0 +1,38 @@
+// =============================================================
+// FILE: src/integrations/shared/locales.ts
+// FINAL — app_locales value model + parser
+// =============================================================
+
+import type { JsonLike } from '@/integrations/shared/common';
+import { isObject } from '@/integrations/shared/common';
+
+export type AppLocale = {
+  code: string; // 'tr' | 'en' | ...
+  label: string; // 'Türkçe' | 'English' | ...
+  is_default?: boolean;
+  is_active?: boolean;
+};
+
+export function parseAppLocales(value: JsonLike | unknown): AppLocale[] {
+  const v = value as unknown;
+
+  if (!Array.isArray(v)) return [];
+
+  const out: AppLocale[] = [];
+  for (const item of v) {
+    if (!isObject(item)) continue;
+
+    const code = String(item.code ?? '').trim();
+    const label = String(item.label ?? '').trim();
+    if (!code || !label) continue;
+
+    out.push({
+      code,
+      label,
+      is_default: Boolean(item.is_default),
+      is_active: item.is_active === undefined ? true : Boolean(item.is_active),
+    });
+  }
+
+  return out;
+}
