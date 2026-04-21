@@ -27,7 +27,7 @@ function TickerEntry({ item, index }: { item: TrendingItem; index: number }) {
     <>
       <div className="flex shrink-0 items-center gap-2.5 whitespace-nowrap">
         <span className="text-[18px]" aria-hidden>
-          {getEmoji(slug)}
+          {getEmoji(slug, item.product?.categorySlug)}
         </span>
         <span className="text-[13px] font-semibold text-(--color-foreground)">
           {name}

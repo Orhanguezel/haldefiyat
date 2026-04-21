@@ -62,7 +62,7 @@ export default async function UrunPage({ params }: Props) {
   ]);
 
   const product = products.find((p) => p.slug === slug);
-  const emoji = getEmoji(slug);
+  const emoji = getEmoji(slug, product?.categorySlug);
 
   if (!product) {
     return (

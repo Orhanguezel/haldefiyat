@@ -26,7 +26,7 @@ export default function ComparisonChips({ selectedProducts, onRemove }: Comparis
               style={{ backgroundColor: color }}
               aria-hidden
             />
-            <span className="text-base">{getEmoji(p.slug)}</span>
+            <span className="text-base">{getEmoji(p.slug, p.categorySlug)}</span>
             <span className="text-[13px] font-medium text-(--color-foreground)">
               {p.nameTr}
             </span>

@@ -51,7 +51,7 @@ export default function SearchModalResults({
               onMouseEnter={() => setActiveIdx(i)}
               onClick={() => onNavigate({ kind: "product", item: p })}
             >
-              <span className="text-xl">{getEmoji(p.slug)}</span>
+              <span className="text-xl">{getEmoji(p.slug, p.categorySlug)}</span>
               <span className="flex-1 truncate text-[14px] font-medium text-(--color-foreground)">
                 {p.nameTr}
               </span>

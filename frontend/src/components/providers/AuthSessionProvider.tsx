@@ -48,7 +48,6 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 
     const handleAuthChanged = () => {
       setUser(getStoredAuthUser());
-      void refresh();
     };
 
     window.addEventListener(AUTH_CHANGED_EVENT, handleAuthChanged);

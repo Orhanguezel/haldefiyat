@@ -86,7 +86,7 @@ function PlaceholderSpark({ trend }: { trend: Trend }) {
 
 export default function PriceCard({ row, changePct }: PriceCardProps) {
   const trend = trendOf(changePct);
-  const emoji = getEmoji(row.productSlug);
+  const emoji = getEmoji(row.productSlug, row.categorySlug);
   const sign = changePct !== undefined && changePct > 0 ? "+" : "";
 
   return (

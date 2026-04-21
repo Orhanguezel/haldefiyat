@@ -98,7 +98,15 @@
       "Bash(git -C /home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari status --short)",
       "Bash(git -C /home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari log --oneline -3)",
       "Bash(git -C /home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari add .)",
-      "Bash(git -C /home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari commit -m ' *)"
+      "Bash(git -C /home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari commit -m ' *)",
+      "Bash(ssh -o ConnectTimeout=15 vps-vistainsaat \"ls /root/ | grep hal\")",
+      "Bash(git -C /home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari add admin_panel/next.config.mjs)",
+      "Bash(python3 -c 'import json,sys; p=json.load\\(sys.stdin\\); deps={**p.get\\(\"dependencies\",{}\\), **p.get\\(\"devDependencies\",{}\\)}; [print\\(k,v\\) for k,v in deps.items\\(\\) if \"radix\" in k.lower\\(\\)]')",
+      "Bash(git -C /home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari add admin_panel/package.json)",
+      "Bash(git -C /home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari commit -m 'fix\\(admin\\): add @agro/shared-types workspace dep to admin_panel *)",
+      "Bash(git -C /home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari add deploy.sh admin_panel/package.json)",
+      "Bash(jobs)",
+      "Bash(ssh -i ~/.ssh/id_ed25519_vistainsaat root@187.124.166.65 \"cd /root/haldefiyat-src && mysql -u root -e \\\\\"SELECT source_api, COUNT\\(*\\) as cnt, MIN\\(recorded_date\\) as min_date, MAX\\(recorded_date\\) as max_date FROM hf_fiyatlari.hf_price_history GROUP BY source_api ORDER BY cnt DESC;\\\\\"\")"
     ],
     "additionalDirectories": [
       "/home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/(public)"

@@ -110,7 +110,7 @@ export default function ComparisonChart({ data, selectedProducts }: ComparisonCh
               key={p.slug}
               type="monotone"
               dataKey={p.slug}
-              name={`${getEmoji(p.slug)} ${p.nameTr}`}
+              name={`${getEmoji(p.slug, p.categorySlug)} ${p.nameTr}`}
               stroke={PRODUCT_COLORS[i % PRODUCT_COLORS.length]}
               strokeWidth={2.5}
               dot={false}

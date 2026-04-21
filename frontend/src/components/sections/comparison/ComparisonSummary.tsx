@@ -41,7 +41,7 @@ export default function ComparisonSummary({ summary }: ComparisonSummaryProps) {
                       style={{ backgroundColor: row.color }}
                       aria-hidden
                     />
-                    <span className="text-xl">{getEmoji(row.product.slug)}</span>
+                    <span className="text-xl">{getEmoji(row.product.slug, row.product.categorySlug)}</span>
                     <span className="font-medium text-(--color-foreground)">
                       {row.product.nameTr}
                     </span>

@@ -100,7 +100,7 @@ function FavoriteCard({
   row: PriceRow | null;
   onRemove: (slug: string) => void;
 }) {
-  const emoji = getEmoji(slug);
+  const emoji = getEmoji(slug, row?.categorySlug);
   const name = row?.productName ?? humanize(slug);
 
   return (
