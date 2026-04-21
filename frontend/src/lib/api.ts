@@ -97,9 +97,13 @@ async function safeFetch<T>(
   fallback: T,
 ): Promise<T> {
   try {
+    // Build-time (next build) sırasında backend ulaşılamazsa Next.js worker
+    // 60s sonra sayfayı zorla kill ediyor. 15s AbortSignal timeout ile erken
+    // bail-out; catch'e düşer, fallback döner, sayfa yine prerender olur.
     const res = await fetch(`${API}${path}`, {
       next: { revalidate },
       headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
     });
     if (!res.ok) {
       console.error(`[api] ${path} → ${res.status} ${res.statusText}`);

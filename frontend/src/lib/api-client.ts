@@ -1,6 +1,25 @@
 import { getStoredAccessToken, setStoredAccessToken } from "@/lib/auth-token";
 
-const BASE_URL = `${(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "")}/api/v1`;
+/**
+ * Browser-side API base URL resolution:
+ *   - Build'e NEXT_PUBLIC_API_URL baked edilmişse o kullanılır (dev override)
+ *   - Değilse browser'da `window.location.origin` (prod: haldefiyat.com,
+ *     nginx /api → backend proxy yapıyor)
+ *   - SSR/build ortamında fallback localhost:8088 (dev server default)
+ *
+ * Özellikle `NEXT_PUBLIC_API_URL=http://localhost:*` build'de baked kalmışsa
+ * bunu canlı tarayıcıda kullanmayız — guard window.origin'e düşer.
+ */
+function resolveApiBase(): string {
+  const override = process.env.NEXT_PUBLIC_API_URL?.trim() ?? "";
+  if (typeof window !== "undefined") {
+    const isLocalhostBaked = /^https?:\/\/(localhost|127\.0\.0\.1)/i.test(override);
+    if (override && !isLocalhostBaked) return override;
+    return window.location.origin;
+  }
+  return override || "http://localhost:8088";
+}
+const BASE_URL = `${resolveApiBase().replace(/\/$/, "")}/api/v1`;
 
 class ApiError extends Error {
   constructor(

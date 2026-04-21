@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata, Viewport } from "next";
 import { Outfit, IBM_Plex_Sans } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";

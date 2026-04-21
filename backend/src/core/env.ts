@@ -73,8 +73,17 @@ export const env = {
     alertsSchedule: process.env.ALERTS_CRON_SCHEDULE || "30 3 * * *",
     // Yıllık üretim XLSX ETL — her ayın 5'inde 04:00 UTC (aylık)
     productionSchedule: process.env.PRODUCTION_CRON_SCHEDULE || "0 4 5 * *",
+    // Haftalık bülten push — pazartesi 05:00 UTC (08:00 Istanbul)
+    weeklyDigestSchedule: process.env.WEEKLY_DIGEST_CRON_SCHEDULE || "0 5 * * 1",
     maxDateFallbackDays: parseEnvInt(process.env.ETL_MAX_DATE_FALLBACK_DAYS, 7),
     autoRegisterProducts: (process.env.ETL_AUTO_REGISTER_PRODUCTS ?? "true").toLowerCase() === "true",
     requestTimeoutMs: parseEnvInt(process.env.ETL_REQUEST_TIMEOUT_MS, 30_000),
+  },
+
+  ONESIGNAL: {
+    appId:      process.env.ONESIGNAL_APP_ID ?? "",
+    restApiKey: process.env.ONESIGNAL_REST_API_KEY ?? "",
+    // Web push launch URL — bildirim tıklanınca açılacak kök
+    launchUrl:  process.env.ONESIGNAL_LAUNCH_URL || "https://haldefiyat.com",
   },
 };

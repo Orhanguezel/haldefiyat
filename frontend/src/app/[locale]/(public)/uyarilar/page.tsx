@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import AlertsClient from "@/components/sections/AlertsClient";

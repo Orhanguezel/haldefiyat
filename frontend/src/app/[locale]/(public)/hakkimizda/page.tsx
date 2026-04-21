@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { setRequestLocale } from "next-intl/server";
 
 type Props = { params: Promise<{ locale: string }> };
