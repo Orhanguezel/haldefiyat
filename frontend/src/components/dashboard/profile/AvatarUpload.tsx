@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef, useState } from "react";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
