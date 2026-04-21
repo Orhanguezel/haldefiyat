@@ -5,9 +5,28 @@ import { INDEX_BASKET_LABELS } from "@/lib/index-basket";
 
 type Props = { params: Promise<{ locale: string }> };
 
-// DB date/datetime sütunları bazen ISO string olarak dönebilir — sadece YYYY-MM-DD al
+const TR_MONTHS = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+
 function toDateStr(d: string): string {
-  return String(d).slice(0, 10);
+  const raw = String(d);
+  // ISO: 2026-04-20 veya 2026-04-20T...
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) {
+    const day = parseInt(iso[3]!, 10);
+    const mon = parseInt(iso[2]!, 10) - 1;
+    return `${day} ${TR_MONTHS[mon]}`;
+  }
+  // "Mon Apr 20 2026" veya "Mon Apr 20" gibi JS Date string
+  const parts = raw.split(" ").filter(Boolean);
+  const monthMap: Record<string, number> = {
+    Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11,
+  };
+  const monIdx = parts.findIndex((p) => p in monthMap);
+  if (monIdx >= 0) {
+    const day = parseInt(parts[monIdx + 1] ?? "0", 10);
+    return `${day} ${TR_MONTHS[monthMap[parts[monIdx]!]!]}`;
+  }
+  return raw.slice(0, 10);
 }
 
 export function generateMetadata(): Metadata {
@@ -161,7 +180,7 @@ export default async function EndeksPage({ params }: Props) {
                       </td>
                       <td className="px-5 py-3 text-(--color-muted)">{parseFloat(s.basketAvg).toFixed(2)} ₺/kg</td>
                       <td className="px-5 py-3 text-(--color-muted)">{s.productsCount}</td>
-                      <td className="px-5 py-3 text-(--color-muted) text-[12px]">{toDateStr(s.weekStart)} / {toDateStr(s.weekEnd)}</td>
+                      <td className="px-5 py-3 text-(--color-muted) text-[12px]">{toDateStr(s.weekStart)} — {toDateStr(s.weekEnd)}</td>
                     </tr>
                   );
                 })}
