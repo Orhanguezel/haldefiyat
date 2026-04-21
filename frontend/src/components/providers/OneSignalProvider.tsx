@@ -11,16 +11,25 @@ declare global {
 }
 
 const ONE_SIGNAL_APP_ID = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID?.trim() ?? "";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+
+/**
+ * OneSignal app ID'si spesifik bir domain'e kayıtlı (OneSignal dashboard
+ * "Can only be used on..." kısıtı). Lokal dev'de veya preview'da SDK'yı
+ * yüklediğimizde "Can only be used on ..." hatası console'a düşüyor.
+ *
+ * Build-time env üzerinden koru: NEXT_PUBLIC_SITE_URL haldefiyat domain'i
+ * değilse Script hiç eklenmez, useEffect erken döner. Bu sunucu ve client
+ * render'ı aynı sonucu ürettiği için hydration mismatch riski yok.
+ */
+const ONESIGNAL_ACTIVE =
+  !!ONE_SIGNAL_APP_ID && /https?:\/\/(www\.)?haldefiyat\.com/i.test(SITE_URL);
 
 export function OneSignalProvider() {
   const { user } = useAuthSession();
 
   useEffect(() => {
-    if (!ONE_SIGNAL_APP_ID || typeof window === "undefined") return;
-
-    const host = window.location.hostname;
-    const isProdHost = host === "www.haldefiyat.com" || host === "haldefiyat.com";
-    if (!isProdHost) return;
+    if (!ONESIGNAL_ACTIVE || typeof window === "undefined") return;
 
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push(async (OneSignal) => {
@@ -28,7 +37,7 @@ export function OneSignalProvider() {
         appId: ONE_SIGNAL_APP_ID,
         serviceWorkerPath: "/OneSignalSDKWorker.js",
         notifyButton: { enable: false },
-        allowLocalhostAsSecureOrigin: window.location.hostname === "localhost",
+        allowLocalhostAsSecureOrigin: false,
       });
 
       if (user?.id) {
@@ -40,7 +49,7 @@ export function OneSignalProvider() {
     });
   }, [user?.id]);
 
-  if (!ONE_SIGNAL_APP_ID) return null;
+  if (!ONESIGNAL_ACTIVE) return null;
 
   return (
     <Script
