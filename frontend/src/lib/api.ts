@@ -196,3 +196,65 @@ export async function fetchPriceHistory(
     [],
   );
 }
+
+// ── Yıllık üretim ───────────────────────────────────────────────────────────
+
+export interface ProductionRow {
+  id:            number;
+  year:          number;
+  species:       string;
+  speciesSlug:   string;
+  categorySlug:  string;
+  regionSlug:    string;
+  productionTon: string;
+  sourceApi:     string;
+  note:          string | null;
+}
+
+export interface ProductionSpeciesRow {
+  speciesSlug:  string;
+  species:      string;
+  categorySlug: string;
+  firstYear:    number;
+  lastYear:     number;
+  entries:      number;
+}
+
+export interface ProductionSeriesRow {
+  year:          number;
+  species:       string;
+  regionSlug:    string;
+  productionTon: string;
+}
+
+export async function fetchProduction(params: {
+  species?:  string;
+  region?:   string;
+  category?: string;
+  yearFrom?: number;
+  yearTo?:   number;
+  limit?:    number;
+} = {}): Promise<ProductionRow[]> {
+  const qs = buildQuery({
+    species:  params.species,
+    region:   params.region,
+    category: params.category,
+    yearFrom: params.yearFrom,
+    yearTo:   params.yearTo,
+    limit:    params.limit,
+  });
+  return safeFetch<ProductionRow[]>(`/production${qs}`, 3600, []);
+}
+
+export async function fetchProductionSpecies(region?: string): Promise<ProductionSpeciesRow[]> {
+  const qs = buildQuery({ region });
+  return safeFetch<ProductionSpeciesRow[]>(`/production/species${qs}`, 3600, []);
+}
+
+export async function fetchProductionSeries(
+  species: string,
+  region?: string,
+): Promise<ProductionSeriesRow[]> {
+  const qs = buildQuery({ species, region });
+  return safeFetch<ProductionSeriesRow[]>(`/production/series${qs}`, 3600, []);
+}

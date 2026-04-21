@@ -2,9 +2,14 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { upsertPriceRow } from "@/modules/prices/repository";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
+import {
+  runAllProductionSources,
+  runSingleProductionSource,
+} from "@/modules/etl/production-fetcher";
 import { loadEtlSources } from "@/config/etl-sources";
+import { loadProductionSources } from "@/config/production-sources";
 import { db } from "@/db/client";
-import { hfEtlRuns } from "@/db/schema";
+import { hfEtlRuns, hfAnnualEtlRuns } from "@/db/schema";
 import { desc } from "drizzle-orm";
 
 const obsBody = z.object({
@@ -86,6 +91,40 @@ export async function registerHalAdmin(app: FastifyInstance) {
       .select()
       .from(hfEtlRuns)
       .orderBy(desc(hfEtlRuns.createdAt))
+      .limit(50);
+    return reply.send({ logs });
+  });
+
+  // ── Yıllık üretim (XLSX) ETL ─────────────────────────────────────────────
+
+  app.get("/hal/production/sources", async (_req, reply) => {
+    return reply.send({ sources: loadProductionSources() });
+  });
+
+  app.post("/hal/production/run", async (req, reply) => {
+    const body = z
+      .object({ source: z.string().min(1).max(64).optional().default("all") })
+      .safeParse(req.body);
+    if (!body.success) return reply.status(400).send({ error: "Gecersiz govde" });
+    const { source } = body.data;
+    if (source === "all") {
+      const results = await runAllProductionSources();
+      return reply.send({ ok: true, results });
+    }
+    try {
+      const result = await runSingleProductionSource(source);
+      return reply.send({ ok: true, source, result });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return reply.status(400).send({ ok: false, source, error: msg });
+    }
+  });
+
+  app.get("/hal/production/logs", async (_req, reply) => {
+    const logs = await db
+      .select()
+      .from(hfAnnualEtlRuns)
+      .orderBy(desc(hfAnnualEtlRuns.runAt))
       .limit(50);
     return reply.send({ logs });
   });

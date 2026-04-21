@@ -13,6 +13,7 @@ const NAV_LINKS: ReadonlyArray<NavLink> = [
   { key: "panel", label: "Panel", href: "/" },
   { key: "prices", label: "Fiyatlar", href: "/fiyatlar" },
   { key: "cities", label: "Şehirler", href: "/hal" },
+  { key: "production", label: "Yıllık Üretim", href: "/yillik-uretim" },
   { key: "favorites", label: "Favorilerim", href: "/favoriler" },
   { key: "alerts", label: "Uyarılar", href: "/uyarilar" },
   { key: "about", label: "Hakkımızda", href: "/hakkimizda" },

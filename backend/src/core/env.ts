@@ -71,6 +71,8 @@ export const env = {
     cronSchedule: process.env.ETL_CRON_SCHEDULE || "15 3 * * *",
     cronTimezone: process.env.ETL_CRON_TIMEZONE || "UTC",
     alertsSchedule: process.env.ALERTS_CRON_SCHEDULE || "30 3 * * *",
+    // Yıllık üretim XLSX ETL — her ayın 5'inde 04:00 UTC (aylık)
+    productionSchedule: process.env.PRODUCTION_CRON_SCHEDULE || "0 4 5 * *",
     maxDateFallbackDays: parseEnvInt(process.env.ETL_MAX_DATE_FALLBACK_DAYS, 7),
     autoRegisterProducts: (process.env.ETL_AUTO_REGISTER_PRODUCTS ?? "true").toLowerCase() === "true",
     requestTimeoutMs: parseEnvInt(process.env.ETL_REQUEST_TIMEOUT_MS, 30_000),

@@ -1,6 +1,7 @@
 import * as cron from "node-cron";
 import type { FastifyInstance } from "fastify";
 import { runDailyEtl } from "@/modules/etl";
+import { runAllProductionSources } from "@/modules/etl/production-fetcher";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
 import { env } from "@/core/env";
 
@@ -15,8 +16,9 @@ type CronTask = { name: string; schedule: string; handler: () => Promise<void> }
 
 export function startCron(app: FastifyInstance): void {
   const tasks: CronTask[] = [
-    { name: "etl-daily",    schedule: env.ETL.cronSchedule,    handler: () => runEtlJob(app) },
-    { name: "alerts-check", schedule: env.ETL.alertsSchedule,  handler: () => runAlertsJob(app) },
+    { name: "etl-daily",       schedule: env.ETL.cronSchedule,       handler: () => runEtlJob(app) },
+    { name: "alerts-check",    schedule: env.ETL.alertsSchedule,     handler: () => runAlertsJob(app) },
+    { name: "production-etl",  schedule: env.ETL.productionSchedule, handler: () => runProductionJob(app) },
   ];
 
   for (const t of tasks) {
@@ -55,6 +57,21 @@ async function runEtlJob(app: FastifyInstance): Promise<void> {
     await runAlertsJob(app);
   } catch (err) {
     app.log.error({ err }, "[cron:etl] hata");
+  }
+}
+
+async function runProductionJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:production] yillik uretim ETL baslatiliyor");
+  try {
+    const results = await runAllProductionSources();
+    const inserted = results.reduce((s, r) => s + r.inserted, 0);
+    app.log.info(
+      { inserted, durationMs: Date.now() - t0, sources: results.map((r) => r.source) },
+      "[cron:production] tamamlandi",
+    );
+  } catch (err) {
+    app.log.error({ err }, "[cron:production] hata");
   }
 }
 

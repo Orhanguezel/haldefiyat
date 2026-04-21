@@ -109,3 +109,43 @@ export const hfEtlRuns = mysqlTable(
   },
   (t) => [index("hf_etl_runs_source_date").on(t.sourceApi, t.runDate)],
 );
+
+export const hfAnnualProduction = mysqlTable(
+  "hf_annual_production",
+  {
+    id:            int("id").autoincrement().primaryKey(),
+    year:          int("year").notNull(),
+    species:       varchar("species", { length: 255 }).notNull(),
+    speciesSlug:   varchar("species_slug", { length: 128 }).notNull(),
+    categorySlug:  varchar("category_slug", { length: 64 }).notNull().default("diger"),
+    regionSlug:    varchar("region_slug", { length: 64 }).notNull().default("tr"),
+    productionTon: decimal("production_ton", { precision: 14, scale: 2 }).notNull(),
+    sourceApi:     varchar("source_api", { length: 64 }).notNull(),
+    note:          varchar("note", { length: 255 }),
+    createdAt:     datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:     datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    uniqueIndex("hf_prod_year_species_region_uq").on(t.year, t.speciesSlug, t.regionSlug),
+    index("hf_prod_year_idx").on(t.year),
+    index("hf_prod_category_idx").on(t.categorySlug),
+    index("hf_prod_region_idx").on(t.regionSlug),
+    index("hf_prod_source_idx").on(t.sourceApi),
+  ],
+);
+
+export const hfAnnualEtlRuns = mysqlTable(
+  "hf_annual_etl_runs",
+  {
+    id:           int("id").autoincrement().primaryKey(),
+    sourceApi:    varchar("source_api", { length: 64 }).notNull(),
+    runAt:        datetime("run_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    rowsFetched:  int("rows_fetched").notNull().default(0),
+    rowsInserted: int("rows_inserted").notNull().default(0),
+    rowsSkipped:  int("rows_skipped").notNull().default(0),
+    durationMs:   int("duration_ms"),
+    status:       mysqlEnum("status", ["ok", "partial", "error"]).notNull().default("ok"),
+    errorMsg:     text("error_msg"),
+  },
+  (t) => [index("hf_aer_source_time").on(t.sourceApi, t.runAt)],
+);

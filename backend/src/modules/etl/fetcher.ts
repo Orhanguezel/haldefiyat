@@ -43,10 +43,14 @@ interface NormalizedRow {
 
 // ── Response parsers ────────────────────────────────────────────────────────
 
-function parseResponse(shape: EtlSourceConfig["responseShape"], raw: unknown): NormalizedRow[] {
+function parseResponse(
+  shape: EtlSourceConfig["responseShape"],
+  raw: unknown,
+  source: EtlSourceConfig,
+): NormalizedRow[] {
   if (raw == null) return [];
   switch (shape) {
-    case "izmir":          return parseIzmir(raw);
+    case "izmir":          return parseIzmir(raw, source);
     case "ibb":            return parseIbb(raw);
     case "antkomder_html": return parseAntkomderHtml(String(raw));
     case "konya_html":     return parseKonyaHtml(String(raw));
@@ -61,18 +65,30 @@ function parseResponse(shape: EtlSourceConfig["responseShape"], raw: unknown): N
  * İzmir Büyükşehir Belediyesi formatı:
  * { BultenTarihi, HalFiyatListesi: [{ MalAdi, OrtalamaUcret, AsgariUcret,
  *   AzamiUcret, Birim, MalTipAdi }] }
+ *
+ * Balık kaynağında (izmir_balik) MalTipAdi tek başına yetersiz — "BALIK"
+ * altında hem taze deniz balığı hem donuk balık karışık geliyor. İsim
+ * patern'ine (DONUK vb.) göre alt kategori türetiyoruz:
+ *   MalTipAdi=BALIK + isim "DONUK"   → balik-donuk
+ *   MalTipAdi=BALIK                   → balik-deniz
+ *   MalTipAdi=TATLI SU                → balik-tatlisu
+ *   MalTipAdi=KÜLTÜR                  → balik-kultur
+ *   MalTipAdi=İTHAL (DONUK) vb.       → balik-ithal
  */
-function parseIzmir(raw: unknown): NormalizedRow[] {
+function parseIzmir(raw: unknown, source: EtlSourceConfig): NormalizedRow[] {
   const obj = raw as { HalFiyatListesi?: unknown };
   const list = Array.isArray(obj?.HalFiyatListesi) ? obj.HalFiyatListesi : [];
   const rows: NormalizedRow[] = [];
+  const isFishSource = source.key === "izmir_balik";
   for (const item of list) {
     const r = item as Record<string, unknown>;
     const name = typeof r.MalAdi === "string" ? r.MalAdi.trim() : "";
     if (!name) continue;
+    const tipRaw = typeof r.MalTipAdi === "string" ? r.MalTipAdi.trim() : null;
+    const category = isFishSource ? subCategorizeFish(tipRaw, name) : tipRaw;
     rows.push({
       name,
-      category: typeof r.MalTipAdi === "string" ? String(r.MalTipAdi).trim() : null,
+      category,
       unit:     typeof r.Birim === "string" ? String(r.Birim).trim() : null,
       avg:      toNum(r.OrtalamaUcret),
       min:      toNum(r.AsgariUcret),
@@ -80,6 +96,17 @@ function parseIzmir(raw: unknown): NormalizedRow[] {
     });
   }
   return rows;
+}
+
+function subCategorizeFish(malTipAdi: string | null, malAdi: string): string {
+  const tip = (malTipAdi ?? "").toLocaleUpperCase("tr-TR");
+  const nameUp = malAdi.toLocaleUpperCase("tr-TR");
+  if (tip.includes("TATLI")) return "balik-tatlisu";
+  if (tip.includes("KÜLTÜR") || tip.includes("KULTUR")) return "balik-kultur";
+  if (tip.includes("İTHAL") || tip.includes("ITHAL")) return "balik-ithal";
+  // MalTipAdi=BALIK: donuk olanı ayır
+  if (/\bDONUK\b/.test(nameUp)) return "balik-donuk";
+  return "balik-deniz";
 }
 
 /**
@@ -387,14 +414,14 @@ async function fetchDated(source: EtlSourceConfig, date: string): Promise<FetchO
   if (!text.trim()) return { rows: [], dateUsed: date, httpStatus: res.status };
 
   if (isHtml) {
-    return { rows: parseResponse(source.responseShape, text), dateUsed: date, httpStatus: res.status };
+    return { rows: parseResponse(source.responseShape, text, source), dateUsed: date, httpStatus: res.status };
   }
 
   let json: unknown;
   try { json = JSON.parse(text); }
   catch { throw new Error(`Invalid JSON response from ${url}`); }
 
-  return { rows: parseResponse(source.responseShape, json), dateUsed: date, httpStatus: res.status };
+  return { rows: parseResponse(source.responseShape, json, source), dateUsed: date, httpStatus: res.status };
 }
 
 /**
