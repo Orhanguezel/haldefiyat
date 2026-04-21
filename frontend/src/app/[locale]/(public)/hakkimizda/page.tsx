@@ -2,7 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { BarChart3, ShieldCheck, Zap, Globe2, LineChart, Cpu } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { fetchCustomPageBySlug } from "@/lib/api";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -34,6 +34,9 @@ export default async function AboutPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
+  // Veritabanından sayfayı çek
+  const page = await fetchCustomPageBySlug("hakkimizda", locale);
+
   return (
     <main className="relative min-h-screen overflow-hidden pt-24 pb-20">
       <AmbientBackground />
@@ -49,11 +52,10 @@ export default async function AboutPage({ params }: Props) {
                 Dijital Tarım Ekosistemi
               </div>
               <h1 className="text-4xl sm:text-6xl font-black text-foreground mb-8 tracking-tight leading-[1.1]">
-                Tarımda Bilgiye <span className="text-brand">Erişimi</span> <br className="hidden sm:block" /> Demokratikleştiriyoruz
+                {page?.title || "Tarımda Bilgiye Erişimi Demokratikleştiriyoruz"}
               </h1>
               <p className="text-xl text-muted leading-relaxed max-w-3xl mx-auto">
-                HaldeFiyat, Türkiye'nin dijital tarım dönüşümüne katkı sağlamak amacıyla kurulan, 
-                üretici ile tüketici arasındaki bilgi boşluğunu verinin gücüyle kapatan bağımsız bir platformdur.
+                {page?.summary || "HaldeFiyat, Türkiye'nin dijital tarım dönüşümüne katkı sağlamak amacıyla kurulan bağımsız bir platformdur."}
               </p>
             </section>
 
@@ -68,22 +70,19 @@ export default async function AboutPage({ params }: Props) {
               ))}
             </section>
 
-            {/* Hikayemiz ve Vizyon */}
+            {/* İçerik Bölümü (Hakkımızda Metni) */}
             <section className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div className="space-y-8">
                 <h2 className="text-3xl font-bold text-foreground">Verinin Gücüyle Geleceği Şekillendiriyoruz</h2>
                 <div className="space-y-6 text-muted leading-relaxed">
-                  <p>
-                    Geleneksel tarım ticaretinde fiyat bilgisine erişim her zaman kısıtlı ve dağınıktı. 
-                    HaldeFiyat olarak, her sabah gün doğumunda Türkiye'nin dört bir yanındaki hallerden 
-                    akan binlerce satırlık veriyi topluyor, tasnif ediyor ve herkesin anlayabileceği 
-                    stratejik bir bilgiye dönüştürüyoruz.
-                  </p>
-                  <p>
-                    Vizyonumuz, sadece fiyat takip edilen bir site değil; üreticinin ürününü hangi 
-                    pazara sunacağına karar verdiği, tüccarın piyasa dengelerini izlediği ve 
-                    tüketicinin tabağındaki gıdanın değerini bildiği kapsamlı bir dijital ekosistem olmaktır.
-                  </p>
+                  {page?.content ? (
+                    <div dangerouslySetInnerHTML={{ __html: page.content }} />
+                  ) : (
+                    <>
+                      <p>Geleneksel tarım ticaretinde fiyat bilgisine erişim her zaman kısıtlı ve dağınıktı...</p>
+                      <p>Vizyonumuz, sadece fiyat takip edilen bir site değil; kapsamlı bir dijital ekosistem olmaktır.</p>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="relative">

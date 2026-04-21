@@ -43,13 +43,15 @@ CREATE TABLE `custom_pages_i18n` (
 SET @gizlilik_id     = '11111111-0001-0001-0001-000000000001';
 SET @kullanim_id     = '11111111-0002-0002-0002-000000000002';
 SET @kvkk_id         = '11111111-0003-0003-0003-000000000003';
+SET @hakkimizda_id   = '11111111-0004-0004-0004-000000000004';
 
 INSERT INTO `custom_pages`
   (`id`, `module_key`, `is_published`, `display_order`)
 VALUES
   (@gizlilik_id, 'yasal', 1, 10),
   (@kullanim_id, 'yasal', 1, 20),
-  (@kvkk_id,     'yasal', 1, 30);
+  (@kvkk_id,     'yasal', 1, 30),
+  (@hakkimizda_id, 'kurumsal', 1, 5);
 
 INSERT INTO `custom_pages_i18n`
   (`page_id`, `locale`, `title`, `slug`, `meta_title`, `meta_description`, `content`)
@@ -191,4 +193,12 @@ VALUES
 
 <h3>7. Başvuru</h3>
 <p>Haklarınızı kullanmak için <a href="/iletisim">İletişim</a> sayfasından yazılı başvuruda bulunabilirsiniz. Başvurunuz en geç 30 gün içinde yanıtlanır.</p>'
+),
+(
+  @hakkimizda_id, 'tr', 
+  'Hakkımızda', 
+  'hakkimizda',
+  'Hakkımızda — HaldeFiyat', 
+  'Türkiye''nin en kapsamlı dijital hal fiyatları platformu olan HaldeFiyat hakkında detaylı bilgi edinin.',
+  'HaldeFiyat, Türkiye''nin dijital tarım dönüşümüne katkı sağlamak amacıyla kurulan, üretici ile tüketici arasındaki bilgi boşluğunu verinin gücüyle kapatan bağımsız bir platformdur. Geleneksel tarım ticaretinde fiyat bilgisine erişim her zaman kısıtlı ve dağınıktı. HaldeFiyat olarak, her sabah gün doğumunda Türkiye''nin dört bir yanındaki hallerden akan binlerce satırlık veriyi topluyor, tasnif ediyor ve herkesin anlayabileceği stratejik bir bilgiye dönüştürüyoruz.'
 );
