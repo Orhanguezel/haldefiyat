@@ -6,6 +6,7 @@ const nextConfig = {
   experimental: {},
   compiler: { removeConsole: process.env.NODE_ENV === 'production' },
   output: 'standalone',
+  basePath: '/admin',
 
   // ✅ Image optimization config
   images: {
