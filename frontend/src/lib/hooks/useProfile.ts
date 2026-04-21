@@ -24,8 +24,8 @@ export function useProfile() {
   const fetch = useCallback(async () => {
     setState((s) => ({ ...s, loading: true, error: null }));
     try {
-      const res = await apiGet<{ profile: UserProfile }>("/profiles/me");
-      setState({ data: res.profile, loading: false, error: null });
+      const res = await apiGet<UserProfile | null>("/profiles/me");
+      setState({ data: res ?? null, loading: false, error: null });
     } catch {
       setState({ data: null, loading: false, error: "Profil yüklenemedi." });
     }
@@ -34,9 +34,9 @@ export function useProfile() {
   useEffect(() => { void fetch(); }, [fetch]);
 
   const update = useCallback(async (patch: Partial<UserProfile>) => {
-    const res = await apiPatch<{ profile: UserProfile }>("/profiles/me", patch);
-    setState((s) => ({ ...s, data: res.profile }));
-    return res.profile;
+    const res = await apiPatch<UserProfile>("/profiles/me", patch);
+    setState((s) => ({ ...s, data: res }));
+    return res;
   }, []);
 
   return { ...state, refetch: fetch, update };
