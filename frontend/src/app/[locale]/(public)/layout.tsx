@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { JsonLd } from "@agro/shared-ui/public/seo/JsonLd";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";

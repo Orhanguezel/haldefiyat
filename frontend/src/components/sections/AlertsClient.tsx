@@ -37,8 +37,21 @@ export default function AlertsClient() {
         thresholdPrice: parseFloat(form.thresholdPrice),
       };
       if (form.marketSlug) body.marketSlug = form.marketSlug;
-      if (form.channel === "email") body.contactEmail = form.contactEmail;
-      else body.contactTelegram = form.contactTelegram;
+      
+      if (form.channel === "email") {
+        body.contactEmail = form.contactEmail;
+      } else if (form.channel === "telegram") {
+        body.contactTelegram = form.contactTelegram;
+      } else if (form.channel === "push") {
+        // OneSignal SDK üzerinden PlayerID alınıp gönderilir
+        const OneSignal = (window as any).OneSignal;
+        if (OneSignal?.User?.PushSubscription?.id) {
+          body.contactPush = OneSignal.User.PushSubscription.id;
+        } else {
+          setState({ error: "Web bildirimi için tarayıcı onayı alınamadı. Lütfen bildirimlere izin verin." });
+          return;
+        }
+      }
 
       const res = await fetch(`${API_BASE}/alerts`, {
         method: "POST",
@@ -82,7 +95,7 @@ export default function AlertsClient() {
               <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--color-brand)/15 text-[11px] font-bold text-(--color-brand)">
                 3
               </span>
-              E-posta veya Telegram tercihini seçin. Her sabah hal verileri güncellenirken uyarılar kontrol edilir.
+              E-posta, Telegram veya Web Push tercihini seçin. Her sabah hal verileri güncellenirken uyarılar kontrol edilir.
             </li>
           </ol>
         </div>

@@ -105,13 +105,18 @@ export default function AlertModalForm({
         <div className="mb-2 inline-flex w-full items-center gap-1 rounded-lg bg-(--color-bg-alt) p-1">
           <ChannelTab
             active={form.channel === "email"}
-            onClick={() => onChange("channel", "email" as AlertChannel)}
+            onClick={() => onChange("channel", "email")}
             label="E-posta"
           />
           <ChannelTab
             active={form.channel === "telegram"}
-            onClick={() => onChange("channel", "telegram" as AlertChannel)}
+            onClick={() => onChange("channel", "telegram")}
             label="Telegram"
+          />
+          <ChannelTab
+            active={form.channel === "push"}
+            onClick={() => onChange("channel", "push")}
+            label="Web (Push)"
           />
         </div>
         {form.channel === "email" ? (
@@ -123,15 +128,47 @@ export default function AlertModalForm({
             placeholder="ornek@mail.com"
             className={INPUT_CLASS}
           />
+        ) : form.channel === "telegram" ? (
+          <div className="space-y-2">
+            <input
+              type="text"
+              required
+              value={form.contactTelegram}
+              onChange={(e) => onChange("contactTelegram", e.target.value)}
+              placeholder="Sayısal Chat ID (Örn: 7044964180)"
+              className={INPUT_CLASS}
+            />
+            <div className="flex flex-col gap-1.5 px-1 text-[11px] leading-relaxed text-(--color-muted)">
+              <p>
+                1. Önce{" "}
+                <a
+                  href="https://t.me/haldefiyat_fiyat_bot"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-(--color-brand) underline"
+                >
+                  @haldefiyat_fiyat_bot
+                </a>{" "}
+                botunu başlatın.
+              </p>
+              <p>
+                2. Sayısal ID'nizi{" "}
+                <a
+                  href="https://t.me/userinfobot"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-(--color-foreground) underline"
+                >
+                  @userinfobot
+                </a>{" "}
+                aracılığıyla öğrenip buraya yazın.
+              </p>
+            </div>
+          </div>
         ) : (
-          <input
-            type="text"
-            required
-            value={form.contactTelegram}
-            onChange={(e) => onChange("contactTelegram", e.target.value)}
-            placeholder="@kullaniciadi"
-            className={INPUT_CLASS}
-          />
+          <div className="rounded-lg border border-(--color-border) bg-(--color-bg-alt)/50 p-3 text-[12px] text-(--color-muted)">
+            Tarayıcı bildirimleri, bu cihaz üzerinden OneSignal altyapısı ile anlık olarak iletilecektir.
+          </div>
         )}
       </div>
     </div>

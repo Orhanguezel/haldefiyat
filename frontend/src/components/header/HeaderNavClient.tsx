@@ -64,7 +64,7 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
       </nav>
 
       {/* Search bar */}
-      <div className="hidden lg:flex items-center w-[240px] h-10 px-3 rounded-lg bg-(--color-bg-alt) border border-(--color-border-soft) hover:border-(--color-border) transition-colors group">
+      <div className="hidden lg:flex items-center w-full max-w-[240px] min-w-[140px] h-10 px-3 rounded-xl bg-(--color-bg-alt) border border-(--color-border-soft) hover:border-(--color-brand)/30 hover:bg-(--color-background) transition-all group">
         <svg
           width="14"
           height="14"
@@ -72,7 +72,7 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
-          className="text-(--color-muted) shrink-0"
+          className="text-(--color-muted) group-hover:text-(--color-brand) transition-colors shrink-0"
           aria-hidden
         >
           <circle cx="9" cy="9" r="6" />
@@ -81,7 +81,7 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
         <input
           type="search"
           readOnly
-          placeholder="Ürün veya şehir ara..."
+          placeholder="Ara..."
           aria-label="Ürün veya şehir ara"
           onClick={() => document.dispatchEvent(new Event("open-search"))}
           onKeyDown={(e) => {
@@ -97,11 +97,11 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
         </kbd>
       </div>
       {/* CTA buttons */}
-      <div className="hidden lg:flex items-center gap-2">
+      <div className="hidden lg:flex items-center gap-4 shrink-0 px-2">
         <ThemeToggle />
         {user ? (
           <>
-            <span className="inline-flex h-9 items-center rounded-lg border border-(--color-border) px-4 text-[13px] font-medium text-(--color-foreground)">
+            <span className="inline-flex h-10 items-center rounded-xl border border-(--color-border) px-4 text-[13px] font-medium text-(--color-foreground) bg-(--color-bg-alt)/50">
               {user.full_name?.split(" ")[0] ?? user.email ?? "Hesabım"}
             </span>
             <button
@@ -115,7 +115,7 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
                   setLogoutLoading(false);
                 }
               }}
-              className="h-9 px-4 inline-flex items-center rounded-lg border border-(--color-border) text-[13px] font-medium text-(--color-foreground) hover:bg-(--color-bg-alt) transition-colors disabled:opacity-60"
+              className="h-10 px-4 inline-flex items-center justify-center rounded-xl border border-(--color-border) text-[13px] font-medium text-(--color-foreground) hover:bg-(--color-bg-alt) hover:border-(--color-border) transition-all active:scale-95 disabled:opacity-60 whitespace-nowrap"
             >
               Çıkış Yap
             </button>
@@ -124,13 +124,13 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
           <>
             <Link
               href={localePath(locale, "/giris")}
-              className="h-9 px-4 inline-flex items-center rounded-lg border border-(--color-border) text-[13px] font-medium text-(--color-foreground) hover:bg-(--color-bg-alt) transition-colors"
+              className="h-10 px-5 inline-flex items-center justify-center rounded-xl border border-(--color-border) text-[13px] font-semibold text-(--color-foreground) hover:bg-(--color-bg-alt) hover:text-(--color-brand) transition-all active:scale-95 whitespace-nowrap"
             >
               {loading ? "Yükleniyor..." : "Giriş Yap"}
             </Link>
             <Link
               href={localePath(locale, "/kayit")}
-              className="h-9 px-4 inline-flex items-center rounded-lg bg-(--color-brand) text-(--color-brand-fg) text-[13px] font-semibold hover:bg-(--color-brand-dark) transition-colors shadow-(--shadow-brand)"
+              className="h-10 px-5 inline-flex items-center justify-center rounded-xl bg-(--color-brand) text-(--color-brand-fg) text-[13px] font-bold hover:bg-(--color-brand-dark) hover:scale-[1.02] transition-all active:scale-95 shadow-lg shadow-(--color-brand)/20 whitespace-nowrap"
             >
               Ücretsiz Başla
             </Link>
@@ -195,13 +195,13 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
                 <>
                   <Link
                     href={localePath(locale, "/giris")}
-                    className="flex-1 h-10 inline-flex items-center justify-center rounded-lg border border-(--color-border) text-sm font-medium"
+                    className="flex-1 h-11 inline-flex items-center justify-center rounded-xl border border-(--color-border) text-sm font-semibold hover:bg-(--color-bg-alt) transition-all active:scale-95"
                   >
                     Giriş Yap
                   </Link>
                   <Link
                     href={localePath(locale, "/kayit")}
-                    className="flex-1 h-10 inline-flex items-center justify-center rounded-lg bg-(--color-brand) text-(--color-brand-fg) text-sm font-semibold"
+                    className="flex-1 h-11 inline-flex items-center justify-center rounded-xl bg-(--color-brand) text-(--color-brand-fg) text-sm font-bold shadow-md shadow-(--color-brand)/10 active:scale-95 transition-all"
                   >
                     Ücretsiz Başla
                   </Link>

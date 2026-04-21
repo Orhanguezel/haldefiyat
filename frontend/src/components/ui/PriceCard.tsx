@@ -91,11 +91,7 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
 
   return (
     <div className="group relative overflow-hidden rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6 transition-all duration-300 hover:-translate-y-1 hover:border-(--color-brand)/30 shadow-(--shadow-card)">
-      <Link
-        href={`/urun/${row.productSlug}`}
-        aria-label={row.productName}
-        className="absolute inset-0 z-10"
-      />
+
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-[16px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -107,15 +103,19 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
       <div className="relative">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="text-[28px]" aria-hidden>
+            <span className="text-[28px] shrink-0" aria-hidden>
               {emoji}
             </span>
-            <div>
-              <div className="text-[15px] font-bold text-(--color-foreground)">
+            <div className="min-w-0">
+              <Link href={`/urun/${row.productSlug}`} className="block truncate text-[15px] font-bold text-(--color-foreground) hover:text-(--color-brand) transition-colors">
                 {row.productName}
-              </div>
-              <div className="mt-px text-[11px] text-(--color-muted)">
-                {row.marketName} · {row.cityName}
+              </Link>
+              <div className="mt-px truncate text-[11px] text-(--color-muted)">
+                <Link href={`/hal/${row.marketSlug}`} className="hover:text-(--color-brand) transition-colors font-medium">
+                  {row.marketName}
+                </Link>
+                <span className="mx-1">·</span>
+                <span className="font-semibold text-(--color-brand)/80">{row.cityName}</span>
               </div>
             </div>
           </div>

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { fetchTrending } from "@/lib/api";
@@ -56,7 +58,7 @@ export default async function HomePage({ params }: Props) {
       <HeroSection />
       <PriceTicker items={trending} />
       <PriceDashboard />
-      <CitySelector />
+      <CitySelector locale={locale} />
       <StatsBar />
       <FeaturesGrid />
       <HowItWorks />

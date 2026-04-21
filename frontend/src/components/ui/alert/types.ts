@@ -1,5 +1,5 @@
 export type AlertDirection = "below" | "above";
-export type AlertChannel = "email" | "telegram";
+export type AlertChannel = "email" | "telegram" | "push";
 
 export interface AlertFormState {
   productSlug: string;
@@ -9,6 +9,7 @@ export interface AlertFormState {
   channel: AlertChannel;
   contactEmail: string;
   contactTelegram: string;
+  contactPush?: string;
 }
 
 export const INITIAL_FORM: AlertFormState = {
@@ -19,6 +20,7 @@ export const INITIAL_FORM: AlertFormState = {
   channel: "email",
   contactEmail: "",
   contactTelegram: "",
+  contactPush: "",
 };
 
 export interface OpenAlertDetail {

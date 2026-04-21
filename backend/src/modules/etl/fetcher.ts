@@ -53,6 +53,8 @@ function parseResponse(
     case "izmir":          return parseIzmir(raw, source);
     case "ibb":            return parseIbb(raw);
     case "antkomder_html": return parseAntkomderHtml(String(raw));
+    case "ankara_html":    return parseAnkaraHtml(raw);
+    case "mersin_html":    return parseMersinHtml(raw);
     case "konya_html":     return parseKonyaHtml(String(raw));
     case "kayseri_html":   return parseKayseriHtml(String(raw));
     case "eskisehir_html": return parseEskisehirHtml(String(raw));
@@ -217,9 +219,114 @@ function parsePriceTry(raw: string): number | null {
   const cleaned = raw.replace(/₺/g, "").replace(/\s+/g, " ").trim();
   if (!cleaned) return null;
   if (/bekleniyor|mevcut de[ğg]il|veri yok|^-+$/i.test(cleaned)) return null;
-  // "80.00" veya "80,00"
-  const n = parseFloat(cleaned.replace(",", "."));
+  // "80.00", "80,00", "2.700,00", "1,000.50"
+  const normalized =
+    cleaned.includes(".") && cleaned.includes(",")
+      ? cleaned.lastIndexOf(",") > cleaned.lastIndexOf(".")
+        ? cleaned.replace(/\./g, "").replace(",", ".")
+        : cleaned.replace(/,/g, "")
+      : cleaned.includes(",")
+        ? cleaned.replace(",", ".")
+        : cleaned;
+  const n = parseFloat(normalized);
   return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function parseAnkaraHtml(raw: unknown): NormalizedRow[] {
+  const pages = Array.isArray(raw) ? raw : [raw];
+  const out: NormalizedRow[] = [];
+  for (const page of pages) {
+    const payload = page as { html?: unknown; type?: unknown };
+    const html = typeof payload?.html === "string" ? payload.html : "";
+    const type = typeof payload?.type === "string" ? payload.type : "";
+    if (!html) continue;
+
+    const category =
+      type === "vegetable" ? "sebze" :
+      type === "fruit" ? "meyve" :
+      type === "fish" ? "balik" :
+      type === "imported" ? "ithal" :
+      null;
+
+    const tables = extractTables(html);
+    if (tables.length === 0) continue;
+    for (const row of tables[0]!) {
+      if (row.length < 6) continue;
+      const name = row[0]!.trim();
+      if (!name || /^(ürün adı|ürün|birim|en düşük fiyat|en yüksek fiyat|tarih)$/i.test(name)) continue;
+      const min = parsePriceTry(row[3] ?? "");
+      const max = parsePriceTry(row[4] ?? "");
+      const recordedDate = parseTrDate(row[5] ?? "");
+      if (min == null && max == null) continue;
+      out.push({
+        name,
+        category,
+        unit: normalizeUnit(row[2] ?? ""),
+        avg: min != null && max != null ? (min + max) / 2 : (min ?? max),
+        min,
+        max,
+        recordedDate,
+      });
+    }
+  }
+  return out;
+}
+
+function parseMersinHtml(raw: unknown): NormalizedRow[] {
+  const pages = Array.isArray(raw) ? raw : [raw];
+  const out: NormalizedRow[] = [];
+  for (const page of pages) {
+    const payload = page as { html?: unknown; category?: unknown };
+    const html = typeof payload?.html === "string" ? payload.html : "";
+    const category = payload?.category === "3"
+      ? "meyve"
+      : payload?.category === "4"
+        ? "sebze"
+        : null;
+    if (!html) continue;
+    const tables = extractTables(html);
+    if (tables.length === 0) continue;
+
+    for (const row of tables[0]!) {
+      if (row.length < 8) continue;
+      const marketName = row[0]!.trim();
+      const product = row[1]!.trim();
+      const kind = row[2]!.trim();
+      if (!product || /^(şube|ürün|cinsi|türü|min\. fiyat|mak\. fiyat|ort\. fiyat|birim)$/i.test(product)) {
+        continue;
+      }
+      const min = parsePriceTry(row[4] ?? "");
+      const max = parsePriceTry(row[5] ?? "");
+      const avg = parsePriceTry(row[6] ?? "");
+      if (min == null && max == null && avg == null) continue;
+
+      const displayName = kind && kind.toLocaleLowerCase("tr-TR") !== product.toLocaleLowerCase("tr-TR")
+        ? `${product} (${kind})`
+        : product;
+
+      out.push({
+        name: displayName,
+        category,
+        unit: normalizeUnit(row[7] ?? ""),
+        avg: avg ?? (min != null && max != null ? (min + max) / 2 : (min ?? max)),
+        min,
+        max,
+        // Şube kolonu şu an tek pazar içinde varyant değil; kaynak market seviyesinde tutuluyor.
+      });
+      void marketName;
+    }
+  }
+  return out;
+}
+
+function parseTrDate(raw: string): string | undefined {
+  const m = /(\d{2})\.(\d{2})\.(\d{4})/.exec(raw.trim());
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : undefined;
+}
+
+function formatDateTr(iso: string): string {
+  const [year, month, day] = iso.split("-");
+  return `${day}.${month}.${year}`;
 }
 
 /**
@@ -390,6 +497,8 @@ interface FetchOutcome {
 
 const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "antkomder_html",
+  "ankara_html",
+  "mersin_html",
   "konya_html",
   "kayseri_html",
   "eskisehir_html",
@@ -401,6 +510,13 @@ async function fetchDated(
   date: string,
   isBackfill = false,
 ): Promise<FetchOutcome | null> {
+  if (source.responseShape === "ankara_html") {
+    return fetchAnkaraDated(source, date, isBackfill);
+  }
+  if (source.responseShape === "mersin_html") {
+    return fetchMersinDated(source, date, isBackfill);
+  }
+
   // Geriye dönük çağrıda backfillEndpoint tercih edilir (Konya gibi: default
   // sayfa bugünü, ?tarih=YYYY-MM-DD arşivi döndürür).
   const template = isBackfill ? source.backfillEndpoint : source.endpointTemplate;
@@ -429,6 +545,80 @@ async function fetchDated(
   catch { throw new Error(`Invalid JSON response from ${url}`); }
 
   return { rows: parseResponse(source.responseShape, json, source), dateUsed: date, httpStatus: res.status };
+}
+
+async function fetchAnkaraDated(
+  source: EtlSourceConfig,
+  date: string,
+  isBackfill = false,
+): Promise<FetchOutcome | null> {
+  const template = isBackfill ? source.backfillEndpoint : source.endpointTemplate;
+  const url = source.baseUrl + template.replace("{date}", date);
+  const requestDate = formatDateTr(date);
+  const categories = ["vegetable", "fruit", "fish", "imported"] as const;
+  const pages: Array<{ html: string; type: string }> = [];
+  let lastStatus = 200;
+
+  for (const type of categories) {
+    const body = new URLSearchParams({ date: requestDate, type });
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Accept: "text/html,application/xhtml+xml",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
+      },
+      body,
+      signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+    });
+
+    lastStatus = res.status;
+    if (res.status === 204) continue;
+    if (!res.ok) throw new Error(`HTTP ${res.status} @ ${url} [type=${type}]`);
+
+    const html = await decodeResponseBody(res);
+    if (html.trim()) pages.push({ html, type });
+  }
+
+  const rows = parseResponse(source.responseShape, pages, source);
+  return { rows, dateUsed: date, httpStatus: lastStatus };
+}
+
+async function fetchMersinDated(
+  source: EtlSourceConfig,
+  date: string,
+  isBackfill = false,
+): Promise<FetchOutcome | null> {
+  const template = isBackfill ? source.backfillEndpoint : source.endpointTemplate;
+  const url = source.baseUrl + template.replace("{date}", date);
+  const categories = ["3", "4"] as const;
+  const pages: Array<{ html: string; category: string }> = [];
+  let lastStatus = 200;
+
+  for (const category of categories) {
+    const body = new URLSearchParams({ published: date, product_category: category });
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Accept: "text/html,application/xhtml+xml",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      body,
+      signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+    });
+
+    lastStatus = res.status;
+    if (res.status === 204) continue;
+    if (!res.ok) throw new Error(`HTTP ${res.status} @ ${url} [category=${category}]`);
+
+    const html = await decodeResponseBody(res);
+    if (html.trim()) pages.push({ html, category });
+  }
+
+  const rows = parseResponse(source.responseShape, pages, source);
+  return { rows, dateUsed: date, httpStatus: lastStatus };
 }
 
 /**

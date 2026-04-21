@@ -19,6 +19,8 @@ type ResponseShape =
   | "izmir"
   | "ibb"
   | "antkomder_html"
+  | "ankara_html"
+  | "mersin_html"
   | "konya_html"
   | "kayseri_html"
   | "eskisehir_html"
@@ -113,6 +115,26 @@ const RAW_SOURCES: RawSource[] = [
   // Konya Büyükşehir — SSR HTML, 2 tablo (sebze + meyve). Parser kategoriyi
   // tablo sırasından çıkarır, her satırda birim sütunu da var (Kg/Adet/Bağ).
   // Tarih parametresi opsiyonel, default'ta sayfa bugünün verisini döndürür.
+  {
+    key:               "ankara_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "ankara-hal",
+    defaultBaseUrl:    "https://www.ankara.bel.tr",
+    defaultEndpoint:   "/hal-fiyatlari",
+    responseShape:     "ankara_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  {
+    key:               "mersin_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "mersin-hal",
+    defaultBaseUrl:    "https://www.mersin.bel.tr",
+    defaultEndpoint:   "/hal-fiyatlari-day",
+    responseShape:     "mersin_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
   {
     key:               "konya_resmi",
     defaultEnabled:    true,

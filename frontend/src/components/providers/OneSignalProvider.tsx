@@ -14,16 +14,20 @@ const ONE_SIGNAL_APP_ID = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID?.trim() ?? ""
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
 /**
- * OneSignal app ID'si spesifik bir domain'e kayıtlı (OneSignal dashboard
- * "Can only be used on..." kısıtı). Lokal dev'de veya preview'da SDK'yı
- * yüklediğimizde "Can only be used on ..." hatası console'a düşüyor.
- *
- * Build-time env üzerinden koru: NEXT_PUBLIC_SITE_URL haldefiyat domain'i
- * değilse Script hiç eklenmez, useEffect erken döner. Bu sunucu ve client
- * render'ı aynı sonucu ürettiği için hydration mismatch riski yok.
+ * OneSignal app ID'si spesifik bir domain'e kayıtlı. Build-time env ile
+ * koru: NEXT_PUBLIC_SITE_URL haldefiyat domain'i değilse Script eklenmez,
+ * useEffect erken döner (hydration-safe).
  */
 const ONESIGNAL_ACTIVE =
   !!ONE_SIGNAL_APP_ID && /https?:\/\/(www\.)?haldefiyat\.com/i.test(SITE_URL);
+
+/**
+ * Module-level guard: SDK init sadece bir kez çalıştırılır. React StrictMode
+ * double-mount ve user state değişimlerinde useEffect tekrar çalışsa da init
+ * ikinci defa tetiklenmez — aksi halde OneSignal "SDK already initialized"
+ * hatasını sonsuz retry ederek tarayıcıyı boğar.
+ */
+let __oneSignalInitStarted = false;
 
 export function OneSignalProvider() {
   const { user } = useAuthSession();
@@ -32,20 +36,34 @@ export function OneSignalProvider() {
     if (!ONESIGNAL_ACTIVE || typeof window === "undefined") return;
 
     window.OneSignalDeferred = window.OneSignalDeferred || [];
-    window.OneSignalDeferred.push(async (OneSignal) => {
-      await OneSignal.init({
-        appId: ONE_SIGNAL_APP_ID,
-        serviceWorkerPath: "/OneSignalSDKWorker.js",
-        notifyButton: { enable: false },
-        allowLocalhostAsSecureOrigin: false,
+
+    // Init'i yalnız ilk çağrıda yap — ikinci push "already initialized" atar
+    if (!__oneSignalInitStarted) {
+      __oneSignalInitStarted = true;
+      window.OneSignalDeferred.push(async (OneSignal) => {
+        try {
+          await OneSignal.init({
+            appId: ONE_SIGNAL_APP_ID,
+            serviceWorkerPath: "/OneSignalSDKWorker.js",
+            notifyButton: { enable: false },
+            allowLocalhostAsSecureOrigin: false,
+          });
+        } catch (err) {
+          // Zaten init edilmişse sessizce geç; retry döngüsüne girmez
+          console.debug("[onesignal] init skipped", err);
+        }
       });
+    }
 
-      if (user?.id) {
-        await OneSignal.login(user.id);
-        return;
+    // Login/logout her user değişikliğinde çalışır — init'ten ayrı
+    const targetUserId = user?.id ?? null;
+    window.OneSignalDeferred.push(async (OneSignal) => {
+      try {
+        if (targetUserId) await OneSignal.login(targetUserId);
+        else await OneSignal.logout();
+      } catch (err) {
+        console.debug("[onesignal] identity sync skipped", err);
       }
-
-      await OneSignal.logout();
     });
   }, [user?.id]);
 

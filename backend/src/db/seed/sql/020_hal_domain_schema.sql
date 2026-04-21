@@ -106,13 +106,15 @@ CREATE TABLE IF NOT EXISTS `hf_etl_runs` (
 --   antalya-hal-kumluca      : antalya_kumluca_antkomder (dernek fiyat açınca aktif)
 INSERT INTO `hf_markets` (`slug`, `name`, `city_name`, `region_slug`, `source_key`, `display_order`, `is_active`) VALUES
 ('izmir-hal',           'İzmir Toptancı Hali',            'İzmir',    'ege',        'izmir_sebzemeyve',         1, 1),
-('konya-hal',           'Konya Toptancı Hali',            'Konya',    'ic-anadolu', 'konya_resmi',              2, 1),
-('kayseri-hal',         'Kayseri Toptancı Hali',          'Kayseri',  'ic-anadolu', 'kayseri_resmi',            3, 1),
-('eskisehir-hal',       'Eskişehir Toptancı Hali',        'Eskişehir','ic-anadolu', 'eskisehir_resmi',          4, 1),
-('denizli-hal',         'Denizli Toptancı Hali',          'Denizli',  'ege',        'denizli_resmi',            5, 1),
-('antalya-hal-merkez',  'Antalya Toptancı Hali (Merkez)', 'Antalya',  'akdeniz',    'antalya_merkez_antkomder', 6, 1),
-('antalya-hal-serik',   'Antalya Serik Hali',             'Antalya',  'akdeniz',    'antalya_serik_antkomder',  7, 1),
-('antalya-hal-kumluca', 'Antalya Kumluca Hali',           'Antalya',  'akdeniz',    'antalya_kumluca_antkomder',8, 1)
+('ankara-hal',          'Ankara Toptancı Hali',           'Ankara',   'ic-anadolu', 'ankara_resmi',             2, 1),
+('mersin-hal',          'Mersin Toptancı Hali',           'Mersin',   'akdeniz',    'mersin_resmi',             3, 1),
+('konya-hal',           'Konya Toptancı Hali',            'Konya',    'ic-anadolu', 'konya_resmi',              4, 1),
+('kayseri-hal',         'Kayseri Toptancı Hali',          'Kayseri',  'ic-anadolu', 'kayseri_resmi',            5, 1),
+('eskisehir-hal',       'Eskişehir Toptancı Hali',        'Eskişehir','ic-anadolu', 'eskisehir_resmi',          6, 1),
+('denizli-hal',         'Denizli Toptancı Hali',          'Denizli',  'ege',        'denizli_resmi',            7, 1),
+('antalya-hal-merkez',  'Antalya Toptancı Hali (Merkez)', 'Antalya',  'akdeniz',    'antalya_merkez_antkomder', 8, 1),
+('antalya-hal-serik',   'Antalya Serik Hali',             'Antalya',  'akdeniz',    'antalya_serik_antkomder',  9, 1),
+('antalya-hal-kumluca', 'Antalya Kumluca Hali',           'Antalya',  'akdeniz',    'antalya_kumluca_antkomder',10, 1)
 ON DUPLICATE KEY UPDATE
   `name`       = VALUES(`name`),
   `source_key` = VALUES(`source_key`),
