@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
+import { useProfile } from "@/lib/hooks/useProfile";
 
 const NAV = [
   { href: "hesabim",             label: "Genel Bakış",   icon: GridIcon },
@@ -21,14 +22,23 @@ interface Props {
 export function DashboardSidebar({ locale }: Props) {
   const pathname = usePathname();
   const { user, logout } = useAuthSession();
+  const { data: profile } = useProfile();
 
   return (
     <aside className="flex flex-col overflow-hidden rounded-2xl border border-(--color-border-soft) bg-(--color-surface) shadow-sm">
       {/* Profil özeti */}
       <div className="border-b border-(--color-border-soft) px-5 py-5 bg-(--color-border)/5">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand font-display text-[16px] font-bold text-white shadow-lg shadow-brand/20">
-          {user?.full_name?.charAt(0)?.toUpperCase() ?? user?.email?.charAt(0)?.toUpperCase() ?? "?"}
-        </div>
+        {profile?.avatar_url ? (
+          <img
+            src={profile.avatar_url}
+            alt=""
+            className="h-12 w-12 rounded-xl object-cover shadow-lg"
+          />
+        ) : (
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand font-display text-[16px] font-bold text-white shadow-lg shadow-brand/20">
+            {user?.full_name?.charAt(0)?.toUpperCase() ?? user?.email?.charAt(0)?.toUpperCase() ?? "?"}
+          </div>
+        )}
         <p className="mt-3 truncate text-[14px] font-bold text-(--color-foreground)">
           {user?.full_name ?? "Üye"}
         </p>

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import clsx from "clsx";
 import SearchModalTrigger from "@/components/ui/SearchModalTrigger";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
+import { useProfile } from "@/lib/hooks/useProfile";
 import { getLocaleFromPathname } from "@/i18n/routing";
 import { localePath } from "@/lib/locale-path";
 import { ThemeToggle } from "./ThemeToggle";
@@ -31,6 +32,7 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
   const [open, setOpen] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const { user, loading, logout } = useAuthSession();
+  const { data: profile } = useProfile();
 
   useEffect(() => {
     setOpen(false);
@@ -105,8 +107,19 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
             <NotificationBell locale={locale} />
             <Link
               href={localePath(locale, "/hesabim")}
-              className="inline-flex h-10 items-center rounded-xl border border-border px-4 text-[13px] font-medium text-foreground bg-bg-alt/50 hover:border-brand/40 transition-colors"
+              className="inline-flex h-10 items-center gap-2 rounded-xl border border-border px-3 text-[13px] font-medium text-foreground bg-bg-alt/50 hover:border-brand/40 transition-colors"
             >
+              {profile?.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt=""
+                  className="h-7 w-7 rounded-full object-cover shrink-0"
+                />
+              ) : (
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand/10 text-[11px] font-bold text-brand shrink-0">
+                  {(user.full_name ?? user.email ?? "?").charAt(0).toUpperCase()}
+                </span>
+              )}
               {user.full_name?.split(" ")[0] ?? user.email ?? "Hesabım"}
             </Link>
             <button
