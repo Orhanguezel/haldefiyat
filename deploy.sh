@@ -26,19 +26,9 @@ else
 fi
 
 echo "==> [2/4] standalone server.js symlink kuruluyor"
-# Next.js standalone server.js local monorepo build'den geldiğinde deep path'te,
-# VPS native build'de frontend/ altında olabilir — ikisini de dene.
-SERVER_DEEP="$FRONTEND/.next/standalone/projects/hal-fiyatlari/frontend/server.js"
-SERVER_FLAT="$FRONTEND/.next/standalone/frontend/server.js"
-SERVER_ROOT="$FRONTEND/.next/standalone/server.js"
-
-if [ -f "$SERVER_DEEP" ]; then
-  TARGET="$SERVER_DEEP"
-elif [ -f "$SERVER_FLAT" ]; then
-  TARGET="$SERVER_FLAT"
-elif [ -f "$SERVER_ROOT" ]; then
-  TARGET="$SERVER_ROOT"
-else
+# Next.js standalone server.js — build ortamına göre path değişir; find ile bul.
+TARGET="$(find "$FRONTEND/.next/standalone" -name "server.js" | head -1)"
+if [ -z "$TARGET" ]; then
   echo "HATA: server.js bulunamadı!" && exit 1
 fi
 
@@ -46,13 +36,14 @@ ln -sf "$TARGET" "$FRONTEND/standalone-server.js"
 echo "    symlink: $FRONTEND/standalone-server.js → $TARGET"
 
 echo "==> [3/4] .next/static + public standalone'a kopyalanıyor"
-# Next.js standalone kendi static dosyalarını içermez — manuel kopyalanmalı
-mkdir -p "$FRONTEND/.next/standalone/projects/hal-fiyatlari/frontend/.next/static"
-cp -r "$FRONTEND/.next/static/." "$FRONTEND/.next/standalone/projects/hal-fiyatlari/frontend/.next/static/"
-cp -r "$FRONTEND/.next/static/." "$FRONTEND/.next/standalone/frontend/.next/static/" 2>/dev/null || true
-mkdir -p "$FRONTEND/.next/standalone/projects/hal-fiyatlari/frontend/public"
-cp -r "$FRONTEND/public/." "$FRONTEND/.next/standalone/projects/hal-fiyatlari/frontend/public/" 2>/dev/null || true
-cp -r "$FRONTEND/public/." "$FRONTEND/.next/standalone/public/" 2>/dev/null || true
+# server.js'nin bulunduğu dizine göre static ve public kopyala.
+SERVER_DIR="$(dirname "$TARGET")"
+mkdir -p "$SERVER_DIR/.next/static"
+cp -r "$FRONTEND/.next/static/." "$SERVER_DIR/.next/static/"
+mkdir -p "$SERVER_DIR/public"
+cp -r "$FRONTEND/public/." "$SERVER_DIR/public/"
+echo "    static → $SERVER_DIR/.next/static"
+echo "    public → $SERVER_DIR/public"
 
 mkdir -p "$LOGS"
 
