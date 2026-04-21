@@ -396,8 +396,15 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "denizli_html",
 ]);
 
-async function fetchDated(source: EtlSourceConfig, date: string): Promise<FetchOutcome | null> {
-  const url = source.baseUrl + source.endpointTemplate.replace("{date}", date);
+async function fetchDated(
+  source: EtlSourceConfig,
+  date: string,
+  isBackfill = false,
+): Promise<FetchOutcome | null> {
+  // Geriye dönük çağrıda backfillEndpoint tercih edilir (Konya gibi: default
+  // sayfa bugünü, ?tarih=YYYY-MM-DD arşivi döndürür).
+  const template = isBackfill ? source.backfillEndpoint : source.endpointTemplate;
+  const url = source.baseUrl + template.replace("{date}", date);
   const isHtml = HTML_SHAPES.has(source.responseShape);
   const res = await fetch(url, {
     headers: {
@@ -472,8 +479,21 @@ function decodeIso8859_9(buf: ArrayBuffer): string {
 /**
  * Hedef tarihte veri yoksa (204 / boş) N gün geriye gider.
  * İlk dolu yanıtı döndürür.
+ *
+ * Backfill modunda (explicit tarih) URL şablonu farklı + fallback pencere
+ * 0 olur (sadece o günü dener, boşsa boş döner — tarih iterasyonu üst
+ * katmandadır).
  */
-async function fetchWithFallback(source: EtlSourceConfig, startDate: string): Promise<FetchOutcome> {
+async function fetchWithFallback(
+  source: EtlSourceConfig,
+  startDate: string,
+  isBackfill = false,
+): Promise<FetchOutcome> {
+  if (isBackfill) {
+    const outcome = await fetchDated(source, startDate, true);
+    return outcome ?? { rows: [], dateUsed: startDate, httpStatus: 0 };
+  }
+
   const maxFallback = Math.max(0, env.ETL.maxDateFallbackDays);
   let lastOutcome: FetchOutcome | null = null;
 
@@ -584,8 +604,10 @@ async function logEtlRun(params: {
 export async function runSourceFetch(
   source: EtlSourceConfig,
   targetDate?: string,
+  options: { backfill?: boolean } = {},
 ): Promise<EtlRunResult> {
   const startDate = targetDate ?? new Date().toISOString().slice(0, 10);
+  const isBackfill = options.backfill === true;
   const t0 = Date.now();
   let inserted = 0;
   let skipped  = 0;
@@ -610,7 +632,7 @@ export async function runSourceFetch(
   // Fetch + fallback
   let outcome: FetchOutcome;
   try {
-    outcome = await fetchWithFallback(source, startDate);
+    outcome = await fetchWithFallback(source, startDate, isBackfill);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     await logEtlRun({

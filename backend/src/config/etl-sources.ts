@@ -29,7 +29,13 @@ export interface EtlSourceConfig {
   enabled:          boolean;
   marketSlug:       string;          // hf_markets.slug — FK referansı
   baseUrl:          string;
-  endpointTemplate: string;          // {date} placeholder'ı değiştirilir
+  endpointTemplate: string;          // {date} placeholder'ı değiştirilir (günlük)
+  /**
+   * Geçmiş tarih için farklı bir URL şablonu. Örn. Konya SSR: default
+   * /hal-fiyatlari (bugün) vs backfill /hal-fiyatlari?tarih={date}.
+   * Boş ise `endpointTemplate` backfill için de kullanılır.
+   */
+  backfillEndpoint: string;
   responseShape:    ResponseShape;   // yanıtın nasıl parse edileceği
   defaultUnit:      string;          // kaynak birim vermiyorsa (örn. HTML scrape)
   defaultCategory:  string;          // kaynak kategori vermiyorsa auto-register fallback
@@ -41,6 +47,7 @@ interface RawSource {
   defaultMarketSlug: string;
   defaultBaseUrl:    string;
   defaultEndpoint:   string;
+  defaultBackfill?:  string;        // opsiyonel — boşsa endpoint ile aynı
   responseShape:     ResponseShape;
   defaultUnit:       string;
   defaultCategory:   string;
@@ -112,6 +119,9 @@ const RAW_SOURCES: RawSource[] = [
     defaultMarketSlug: "konya-hal",
     defaultBaseUrl:    "https://www.konya.bel.tr",
     defaultEndpoint:   "/hal-fiyatlari",
+    // Geçmiş tarih için: ?tarih=YYYY-MM-DD ile option listesindeki herhangi
+    // bir günün arşiv sayfasına erişim (2004'ten beri ~2020 gün).
+    defaultBackfill:   "/hal-fiyatlari?tarih={date}",
     responseShape:     "konya_html",
     defaultUnit:       "kg",
     defaultCategory:   "diger",
@@ -175,6 +185,10 @@ export function loadEtlSources(): EtlSourceConfig[] {
     marketSlug:       envStr(process.env[envKey(s.key, "MARKET_SLUG")], s.defaultMarketSlug),
     baseUrl:          envStr(process.env[envKey(s.key, "BASE_URL")], s.defaultBaseUrl).replace(/\/$/, ""),
     endpointTemplate: envStr(process.env[envKey(s.key, "ENDPOINT")], s.defaultEndpoint),
+    backfillEndpoint: envStr(
+      process.env[envKey(s.key, "BACKFILL_ENDPOINT")],
+      s.defaultBackfill ?? s.defaultEndpoint,
+    ),
     responseShape:    s.responseShape,
     defaultUnit:      envStr(process.env[envKey(s.key, "DEFAULT_UNIT")], s.defaultUnit),
     defaultCategory:  envStr(process.env[envKey(s.key, "DEFAULT_CATEGORY")], s.defaultCategory),
