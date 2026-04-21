@@ -95,9 +95,11 @@ async function computeBasketAvg(
   weekStart: string,
   weekEnd: string,
 ): Promise<{ avg: number; count: number } | null> {
+  // Pazar bazında fiyat al — her (ürün, pazar) çifti için haftalık ortalama
   const rows = await db
     .select({
       productId: hfPriceHistory.productId,
+      marketId:  hfPriceHistory.marketId,
       avg:       avg(hfPriceHistory.avgPrice).as("avg"),
     })
     .from(hfPriceHistory)
@@ -107,15 +109,41 @@ async function computeBasketAvg(
         between(hfPriceHistory.recordedDate, sql`${weekStart}`, sql`${weekEnd}`),
       ),
     )
-    .groupBy(hfPriceHistory.productId);
+    .groupBy(hfPriceHistory.productId, hfPriceHistory.marketId);
 
-  const prices = rows
-    .map((r) => parseFloat(String(r.avg)))
-    .filter((p) => Number.isFinite(p) && p > 0);
+  // Ürün başına pazar fiyatlarını topla
+  const byProduct = new Map<number, number[]>();
+  for (const r of rows) {
+    const p = parseFloat(String(r.avg));
+    if (!Number.isFinite(p) || p <= 0) continue;
+    if (!byProduct.has(r.productId)) byProduct.set(r.productId, []);
+    byProduct.get(r.productId)!.push(p);
+  }
 
-  if (!prices.length) return null;
-  const mean = prices.reduce((s, p) => s + p, 0) / prices.length;
-  return { avg: mean, count: prices.length };
+  // Her ürün için outlier pazarları çıkar, ardından ortalama al
+  const productAvgs: number[] = [];
+  for (const prices of byProduct.values()) {
+    const filtered = iqrFilter(prices);
+    if (filtered.length > 0) {
+      productAvgs.push(filtered.reduce((s, p) => s + p, 0) / filtered.length);
+    }
+  }
+
+  if (!productAvgs.length) return null;
+  const mean = productAvgs.reduce((s, p) => s + p, 0) / productAvgs.length;
+  return { avg: mean, count: productAvgs.length };
+}
+
+/** IQR yöntemiyle aşırı uç değerleri filtreler (az veri varsa dokunmaz). */
+function iqrFilter(prices: number[]): number[] {
+  if (prices.length < 4) return prices;
+  const s = [...prices].sort((a, b) => a - b);
+  const q1 = s[Math.floor(s.length * 0.25)]!;
+  const q3 = s[Math.floor(s.length * 0.75)]!;
+  const iqr = q3 - q1;
+  const lo = q1 - 1.5 * iqr;
+  const hi = q3 + 1.5 * iqr;
+  return prices.filter((p) => p >= lo && p <= hi);
 }
 
 async function getOrSetBaseWeek(
