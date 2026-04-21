@@ -11,6 +11,9 @@ export async function sendTelegramAlert(chatId: string, text: string): Promise<v
     return;
   }
 
+  const maskedToken = token.split(":")[0] + ":*****";
+  console.log(`[alerts:telegram] Sending to ${chatId} using ${maskedToken}`);
+
   if (!chatId || !text) return;
 
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
@@ -27,9 +30,11 @@ export async function sendTelegramAlert(chatId: string, text: string): Promise<v
       }),
     });
 
+    const resBody = await res.text().catch(() => "");
     if (!res.ok) {
-      const body = await res.text().catch(() => "");
-      console.warn(`[alerts:telegram] HTTP ${res.status} — ${body.slice(0, 200)}`);
+      console.warn(`[alerts:telegram] HTTP ${res.status} — ${resBody.slice(0, 200)}`);
+    } else {
+      console.log(`[alerts:telegram] Success: ${resBody.slice(0, 100)}`);
     }
   } catch (err) {
     console.warn("[alerts:telegram] gonderim hatasi:", err instanceof Error ? err.message : String(err));
