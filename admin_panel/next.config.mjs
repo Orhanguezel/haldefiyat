@@ -6,7 +6,9 @@ const nextConfig = {
   experimental: {},
   compiler: { removeConsole: process.env.NODE_ENV === 'production' },
   output: 'standalone',
-  basePath: '/admin',
+  turbopack: {
+    root: '../../../',
+  },
 
   // ✅ Image optimization config
   images: {
