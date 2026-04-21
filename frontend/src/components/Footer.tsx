@@ -42,7 +42,11 @@ const COLUMNS: ReadonlyArray<FooterColumn> = [
   },
   {
     title: "YASAL",
-    links: [{ label: "Gizlilik Politikası", href: "/gizlilik-politikasi" }],
+    links: [
+      { label: "Gizlilik Politikası", href: "/gizlilik-politikasi" },
+      { label: "Kullanım Koşulları", href: "/kullanim-kosullari" },
+      { label: "KVKK Aydınlatma", href: "/kvkk" },
+    ],
   },
 ] as const;
 
@@ -116,12 +120,12 @@ export default function Footer({
             &copy; {year} {displayName}. Tüm hakları saklıdır.
           </p>
           <a
-            href="https://tarim-dijital-ekosistem.com"
+            href="https://guzelwebdesign.com"
             target="_blank"
             rel="noopener noreferrer"
             className="text-(--color-muted) transition-colors hover:text-(--color-brand)"
           >
-            Tarim Dijital Ekosistem
+            Tasarım Dizayn GWD
           </a>
         </div>
       </div>

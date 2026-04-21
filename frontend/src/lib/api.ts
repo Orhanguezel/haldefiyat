@@ -262,3 +262,29 @@ export async function fetchProductionSeries(
   const qs = buildQuery({ species, region });
   return safeFetch<ProductionSeriesRow[]>(`/production/series${qs}`, 3600, []);
 }
+
+// ── Custom pages ─────────────────────────────────────────────────────────────
+
+export interface CustomPageData {
+  id: string;
+  title: string;
+  slug: string;
+  content: string | null;
+  summary: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  module_key: string;
+  is_published: number;
+}
+
+export async function fetchCustomPageBySlug(
+  slug: string,
+  locale = 'tr',
+): Promise<CustomPageData | null> {
+  const qs = buildQuery({ locale });
+  return safeFetch<CustomPageData | null>(
+    `/custom-pages/by-slug/${encodeURIComponent(slug)}${qs}`,
+    3600,
+    null,
+  );
+}

@@ -3,7 +3,14 @@ export const dynamic = "force-dynamic";
 import type { MetadataRoute } from "next";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033").replace(/\/$/, "");
-const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "");
+// SSR'da BACKEND_URL (internal) kullan; yoksa NEXT_PUBLIC_API_URL'ye düş
+const API_URL = (
+  process.env.BACKEND_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  "http://localhost:8088"
+).replace(/\/$/, "");
+
+const FETCH_TIMEOUT = 10_000;
 
 interface PriceSitemapItem {
   slug: string;
@@ -14,6 +21,7 @@ async function fetchActiveProducts(): Promise<PriceSitemapItem[]> {
   try {
     const res = await fetch(`${API_URL}/api/v1/prices/products?limit=500`, {
       next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });
     if (!res.ok) return [];
     const data = await res.json();
@@ -30,6 +38,7 @@ async function fetchMarkets(): Promise<PriceSitemapItem[]> {
   try {
     const res = await fetch(`${API_URL}/api/v1/markets?limit=500`, {
       next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });
     if (!res.ok) return [];
     const data = await res.json();
@@ -53,6 +62,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/hakkimizda`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/iletisim`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/gizlilik-politikasi`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${SITE_URL}/kullanim-kosullari`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${SITE_URL}/kvkk`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
   ];
 
   const productPages: MetadataRoute.Sitemap = products.map((p) => ({
