@@ -70,6 +70,33 @@ if [ ! -L "$REPO_ROOT/node_modules/@agro/shared-types" ]; then
   echo "    @agro symlink'leri yenilendi"
 fi
 
+# packages/shared-backend/node_modules içindeki bozuk relative symlink'leri onar
+# Bun bazen ../../../root/haldefiyat-src/... şeklinde yanlış path üretiyor.
+BUN_STORE="$REPO_ROOT/node_modules/.bun"
+SHARED_NM="$REPO_ROOT/packages/shared-backend/node_modules"
+if [ -d "$SHARED_NM" ] && [ -d "$BUN_STORE" ]; then
+  _fix_bun_symlink() {
+    local link="$1"
+    local target
+    target=$(readlink "$link" 2>/dev/null) || return
+    if [[ "$target" == *"/root/haldefiyat-src/node_modules/.bun/"* ]]; then
+      local suffix="${target##*/root/haldefiyat-src/node_modules/.bun/}"
+      local abs="$BUN_STORE/$suffix"
+      [ -e "$abs" ] && rm "$link" && ln -sfn "$abs" "$link"
+    fi
+  }
+  for entry in "$SHARED_NM"/*; do
+    if [ -L "$entry" ]; then
+      _fix_bun_symlink "$entry"
+    elif [ -d "$entry" ]; then
+      for scoped in "$entry"/*; do
+        [ -L "$scoped" ] && _fix_bun_symlink "$scoped"
+      done
+    fi
+  done
+  echo "    shared-backend symlink'leri kontrol edildi"
+fi
+
 echo "==> [5/5] PM2 yeniden başlatılıyor"
 cd "$REPO_ROOT"
 pm2 reload ecosystem.config.cjs || pm2 start ecosystem.config.cjs
