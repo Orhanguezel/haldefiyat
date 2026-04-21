@@ -11,6 +11,7 @@
   --brand-dark:   hsl(102 85% 30%);
   --brand-light:  hsl(102 85% 94%);
   --brand-xlight: hsl(102 85% 97%);
+  --brand-rgb:    111, 189, 15;
 
   /* Semantic */
   --success:      hsl(142 76% 36%);
@@ -47,6 +48,7 @@
   --brand-dark:   hsl(102 85% 45%);
   --brand-light:  hsl(102 85% 15%);
   --brand-xlight: hsl(102 85% 8%);
+  --brand-rgb:    158, 237, 54;
 
   /* Semantic */
   --success:      hsl(142 76% 36%);
