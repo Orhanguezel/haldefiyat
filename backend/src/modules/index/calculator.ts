@@ -130,8 +130,14 @@ async function computeBasketAvg(
   }
 
   if (!productAvgs.length) return null;
-  const mean = productAvgs.reduce((s, p) => s + p, 0) / productAvgs.length;
-  return { avg: mean, count: productAvgs.length };
+
+  // Sepet genelinde de outlier ürün ortalamalarını çıkar
+  // (örn: yanlış birim girilen tek-pazar verisi)
+  const cleanAvgs = iqrFilter(productAvgs);
+  const finalAvgs = cleanAvgs.length >= 3 ? cleanAvgs : productAvgs;
+
+  const mean = finalAvgs.reduce((s, p) => s + p, 0) / finalAvgs.length;
+  return { avg: mean, count: finalAvgs.length };
 }
 
 /** IQR yöntemiyle aşırı uç değerleri filtreler (az veri varsa dokunmaz). */
