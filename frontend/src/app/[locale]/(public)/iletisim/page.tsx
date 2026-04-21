@@ -1,7 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { ContactForm } from "@/components/sections/ContactForm";
-import { AmbientBackground } from "@/components/ui/AmbientBackground";
-import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import AmbientBackground from "@/components/ui/AmbientBackground";
+import ScrollReveal from "@/components/ui/ScrollReveal";
 
 type Props = { params: Promise<{ locale: string }> };
 
