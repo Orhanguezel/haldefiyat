@@ -22,7 +22,27 @@ interface SeasonCompareChartProps {
 interface YearGroup {
   year: number;
   color: string;
+  /** Gün → (o gün için tüm market ortalamalarının tek ortalaması) */
   data: Map<number, number>;
+}
+
+/** 7 günlük hareketli ortalama ile gürültüyü azalt. Giriş: doy → value */
+function smoothDaily(raw: Map<number, number>, window = 7): Map<number, number> {
+  if (raw.size === 0) return raw;
+  const entries = [...raw.entries()].sort(([a], [b]) => a - b);
+  const half = Math.floor(window / 2);
+  const out = new Map<number, number>();
+  for (let i = 0; i < entries.length; i++) {
+    const center = entries[i]![0];
+    let sum = 0;
+    let count = 0;
+    for (let j = Math.max(0, i - half); j <= Math.min(entries.length - 1, i + half); j++) {
+      sum += entries[j]![1];
+      count++;
+    }
+    out.set(center, sum / count);
+  }
+  return out;
 }
 
 interface ChartRow {
@@ -97,18 +117,34 @@ function SeasonTooltip({ active, payload, label }: TooltipProps<number, string>)
 
 export default function SeasonCompareChart({ history, productName }: SeasonCompareChartProps) {
   const { chartData, years } = useMemo(() => {
-    const groups = new Map<number, YearGroup>();
+    // 1) Yıl + gün başına — tüm marketlerin değerlerini topla (son değerle
+    //    overwrite etmek yerine ortalama al). Farklı haller farklı günde
+    //    veri açıkladığı için gün bazlı ortalama "diş tarağı" gürültüsünü yok eder.
+    const buckets = new Map<number, Map<number, number[]>>();
     for (const row of history) {
       const d = new Date(row.recordedDate);
       if (!Number.isFinite(d.getTime())) continue;
       const year = d.getFullYear();
       const doy = dayOfYear(row.recordedDate);
       if (doy <= 0) continue;
-      if (!groups.has(year)) {
-        groups.set(year, { year, color: "", data: new Map<number, number>() });
-      }
-      groups.get(year)!.data.set(doy, toNumber(row.avgPrice));
+      const val = toNumber(row.avgPrice);
+      if (val <= 0) continue;
+      if (!buckets.has(year)) buckets.set(year, new Map<number, number[]>());
+      const yearMap = buckets.get(year)!;
+      if (!yearMap.has(doy)) yearMap.set(doy, []);
+      yearMap.get(doy)!.push(val);
     }
+
+    // 2) Her (yıl, gün) için ortalama + 7 günlük hareketli ortalama smoothing
+    const groups = new Map<number, YearGroup>();
+    for (const [year, yearMap] of buckets) {
+      const dailyMean = new Map<number, number>();
+      for (const [doy, values] of yearMap) {
+        dailyMean.set(doy, values.reduce((s, v) => s + v, 0) / values.length);
+      }
+      groups.set(year, { year, color: "", data: smoothDaily(dailyMean, 7) });
+    }
+
     const sortedYears = [...groups.values()].sort((a, b) => a.year - b.year);
     sortedYears.forEach((g, idx) => {
       g.color = colorForIndex(idx, sortedYears.length);
@@ -119,7 +155,7 @@ export default function SeasonCompareChart({ history, productName }: SeasonCompa
       const row: ChartRow = { doy, label: formatDoyTick(doy) };
       for (const g of sortedYears) {
         const val = g.data.get(doy);
-        if (val != null) row[String(g.year)] = val;
+        if (val != null) row[String(g.year)] = Math.round(val * 100) / 100;
       }
       rows.push(row);
     }
