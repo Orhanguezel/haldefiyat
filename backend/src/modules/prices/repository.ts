@@ -6,7 +6,8 @@ import { hfMarkets, hfPriceHistory, hfProducts } from "@/db/schema";
 export function parseRangeToDays(range?: string): number {
   if (!range) return 7;
   const m = /^(\d+)d$/.exec(range.trim());
-  if (m) return Math.min(365, Math.max(1, parseInt(m[1], 10)));
+  // Max 10 yıl: yıllık sezon karşılaştırması için çoklu yıl geçmişi lazım.
+  if (m) return Math.min(3650, Math.max(1, parseInt(m[1], 10)));
   return 7;
 }
 

@@ -52,7 +52,9 @@ export default async function UrunPage({ params }: Props) {
   setRequestLocale(locale);
 
   const [history, todayPrices, products] = await Promise.all([
-    fetchPriceHistory(slug, undefined, "90d"),
+    // 5 yıl history — PriceChart kendi içinde 7G/30G/90G filtreler;
+    // SeasonCompare aynı veriden yıl grupları çıkarır (en az 2 yıl lazım).
+    fetchPriceHistory(slug, undefined, "1825d"),
     fetchPrices({ product: slug, range: "1d", limit: 20 }),
     fetchProducts(),
   ]);
