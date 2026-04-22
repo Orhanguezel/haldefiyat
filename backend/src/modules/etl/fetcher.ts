@@ -670,6 +670,9 @@ async function fetchDated(
   date: string,
   isBackfill = false,
 ): Promise<FetchOutcome | null> {
+  if (source.responseShape === "antkomder_html") {
+    return fetchAntkomderDated(source, date);
+  }
   if (source.responseShape === "ankara_html") {
     return fetchAnkaraDated(source, date, isBackfill);
   }
@@ -787,6 +790,35 @@ async function fetchMersinDated(
 
   const rows = parseResponse(source.responseShape, pages, source);
   return { rows, dateUsed: date, httpStatus: lastStatus };
+}
+
+/**
+ * ANTKOMDER (Antalya) — POST /hal-fiyatlari/{id} ile belirli tarih istenir.
+ * Form parametresi: daily=YYYY-MM-DD. GET sadece bugünü döndürür; POST ile geçmiş
+ * tarihler de erişilebilir. Parser GET ve POST için aynı çalışır (tarih başlıktan okunur).
+ */
+async function fetchAntkomderDated(
+  source: EtlSourceConfig,
+  date: string,
+): Promise<FetchOutcome | null> {
+  const url = source.baseUrl + source.endpointTemplate;
+  const body = new URLSearchParams({ daily: date });
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
+      "Accept": "text/html,application/xhtml+xml",
+    },
+    body,
+    signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+    // @ts-expect-error Bun-specific TLS option
+    tls: { rejectUnauthorized: false },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status} @ ${url}`);
+  const html = await decodeResponseBody(res);
+  const rows = parseAntkomderHtml(html);
+  return { rows, dateUsed: date, httpStatus: res.status };
 }
 
 /**
