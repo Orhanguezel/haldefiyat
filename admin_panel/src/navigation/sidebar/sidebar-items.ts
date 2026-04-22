@@ -6,6 +6,7 @@
 import {
   Bell,
   Building2,
+  Contact2,
   Database,
   FileText,
   Factory,
@@ -60,6 +61,7 @@ export type AdminNavGroupKey =
   | 'alerts_group'
   | 'production_data'
   | 'content'
+  | 'communication'
   | 'system';
 
 export type AdminNavConfigItem = {
@@ -114,12 +116,19 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
     key: 'content',
     items: [
       { key: 'custom_pages', url: '/admin/custom-pages', icon: FileText },
-      { key: 'email_templates', url: '/admin/email-templates', icon: Mail },
       { key: 'support', url: '/admin/support', icon: HelpCircle },
     ],
   },
   {
     id: 6,
+    key: 'communication',
+    items: [
+      { key: 'contacts', url: '/admin/contacts', icon: Contact2 },
+      { key: 'email_templates', url: '/admin/email-templates', icon: Mail },
+    ],
+  },
+  {
+    id: 7,
     key: 'system',
     items: [
       { key: 'users', url: '/admin/users', icon: Users },
@@ -146,6 +155,7 @@ const FALLBACK_GROUP_LABELS: Record<AdminNavGroupKey, string> = {
   alerts_group: 'Uyarilar',
   production_data: 'Uretim Verileri',
   content: 'İçerik',
+  communication: 'İletişim',
   system: 'Sistem',
 };
 
@@ -161,6 +171,7 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   custom_pages: 'Sayfalar',
   support: 'SSS / Destek',
   email_templates: 'E-posta Sablonlari',
+  contacts: 'İletişim Mesajları',
   users: 'Kullanicilar',
   site_settings: 'Site Ayarlari',
   storage: 'Depolama',

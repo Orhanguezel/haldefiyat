@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { useToast } from "@/components/providers/ToastProvider";
@@ -14,6 +15,7 @@ type FormState = {
 };
 
 export function ProfileForm() {
+  const t = useTranslations("dashboard.profile");
   const { data, loading, update } = useProfile();
   const toast = useToast();
   const [form, setForm] = useState<FormState>({
@@ -38,9 +40,9 @@ export function ProfileForm() {
     setSaving(true);
     try {
       await update(form);
-      toast.success("Profiliniz başarıyla kaydedildi.");
+      toast.success(t("saveSuccess"));
     } catch {
-      toast.error("Profil kaydedilirken bir hata oluştu.");
+      toast.error(t("saveError"));
     } finally {
       setSaving(false);
     }
@@ -65,60 +67,60 @@ export function ProfileForm() {
     <form onSubmit={handleSubmit} className="overflow-hidden rounded-2xl border border-(--color-border-soft) bg-(--color-surface) shadow-sm transition-all hover:shadow-md">
       <div className="border-b border-(--color-border-soft) bg-(--color-bg-alt)/30 px-8 py-5">
         <h2 className="text-lg font-bold text-(--color-foreground)">
-          Kişisel Bilgiler
+          {t("title")}
         </h2>
-        <p className="mt-1 text-[13px] text-(--color-muted)">Hesap bilgilerini buradan yönetebilirsiniz.</p>
+        <p className="mt-1 text-[13px] text-(--color-muted)">{t("subtitle")}</p>
       </div>
 
       <div className="space-y-6 p-8">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <Field label="Ad Soyad">
+          <Field label={t("fullName")}>
             <input
               type="text"
               value={form.full_name}
               onChange={(e) => setForm((s) => ({ ...s, full_name: e.target.value }))}
-              placeholder="Adınız ve soyadınız"
+              placeholder={t("fullNamePlaceholder")}
               className={inputCls}
             />
           </Field>
 
-          <Field label="Telefon">
+          <Field label={t("phone")}>
             <input
               type="tel"
               value={form.phone}
               onChange={(e) => setForm((s) => ({ ...s, phone: e.target.value }))}
-              placeholder="+90 5xx xxx xx xx"
+              placeholder={t("phonePlaceholder")}
               className={inputCls}
             />
           </Field>
 
-          <Field label="Şehir">
+          <Field label={t("city")}>
             <input
               type="text"
               value={form.city}
               onChange={(e) => setForm((s) => ({ ...s, city: e.target.value }))}
-              placeholder="İstanbul"
+              placeholder={t("cityPlaceholder")}
               className={inputCls}
             />
           </Field>
 
-          <Field label="Adres">
+          <Field label={t("address")}>
             <input
               type="text"
               value={form.address_line1}
               onChange={(e) => setForm((s) => ({ ...s, address_line1: e.target.value }))}
-              placeholder="Sokak / Mahalle"
+              placeholder={t("addressPlaceholder")}
               className={inputCls}
             />
           </Field>
         </div>
 
-        <Field label="Hakkımda">
+        <Field label={t("bio")}>
           <textarea
             value={form.bio}
             onChange={(e) => setForm((s) => ({ ...s, bio: e.target.value }))}
             rows={4}
-            placeholder="Kısa bir tanıtım..."
+            placeholder={t("bioPlaceholder")}
             className={`${inputCls} resize-none`}
           />
         </Field>
@@ -132,7 +134,7 @@ export function ProfileForm() {
             {saving ? (
                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : null}
-            <span>{saving ? "Kaydediliyor..." : "Profilimi Güncelle"}</span>
+            <span>{saving ? t("saving") : t("updateButton")}</span>
           </button>
         </div>
       </div>

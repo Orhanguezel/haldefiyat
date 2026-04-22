@@ -1,0 +1,71 @@
+{
+  "header": {
+    "title": "İletişim Mesajları",
+    "subtitle": "İletişim formu mesajlarını yönet."
+  },
+  "filters": {
+    "title": "Filtreler",
+    "description": "Arama, durum ve sıralama seçenekleri.",
+    "searchPlaceholder": "İsim, e-posta veya konu ile ara...",
+    "statusLabel": "Durum",
+    "statusAll": "Tümü",
+    "statusNew": "Yeni",
+    "statusInProgress": "İşlemde",
+    "statusClosed": "Kapalı",
+    "orderByLabel": "Sıralama",
+    "orderByCreated": "Oluşturulma",
+    "orderByUpdated": "Güncelleme",
+    "orderByStatus": "Durum",
+    "orderByName": "İsim",
+    "orderLabel": "Yön",
+    "orderDesc": "Azalan",
+    "orderAsc": "Artan",
+    "onlyUnresolved": "Sadece çözülmemiş"
+  },
+  "list": {
+    "title": "Liste",
+    "description": "İletişim mesajlarını görüntüle ve yönet.",
+    "loading": "Mesajlar yükleniyor...",
+    "empty": "İletişim mesajı bulunamadı."
+  },
+  "columns": {
+    "name": "İsim",
+    "email": "E-posta",
+    "subject": "Konu",
+    "status": "Durum",
+    "createdAt": "Oluşturulma"
+  },
+  "status": {
+    "new": "Yeni",
+    "inProgress": "İşlemde",
+    "closed": "Kapalı"
+  },
+  "details": {
+    "title": "Detaylar",
+    "name": "İsim",
+    "email": "E-posta",
+    "phone": "Telefon",
+    "subject": "Konu",
+    "message": "Mesaj",
+    "emptyMessage": "-",
+    "createdAt": "Oluşturulma",
+    "updatedAt": "Güncelleme",
+    "id": "ID"
+  },
+  "editDialog": {
+    "title": "Mesajı düzenle",
+    "description": "Durum, çözüldü bilgisi ve admin notunu güncelle.",
+    "statusLabel": "Durum",
+    "resolvedLabel": "Çözüldü",
+    "adminNoteLabel": "Admin notu",
+    "adminNotePlaceholder": "Ekip için dahili not..."
+  },
+  "messages": {
+    "saved": "Kaydedildi.",
+    "saveError": "Değişiklikler kaydedilemedi.",
+    "deleted": "Silindi.",
+    "deleteError": "Mesaj silinemedi.",
+    "loadError": "İletişim mesajları yüklenemedi."
+  },
+  "confirmDelete": "Bu iletişim mesajını silmek üzeresin.\n\nİsim: {name}\nE-posta: {email}\nKonu: {subject}\nID: {id}\n\nDevam etmek istiyor musun?"
+}

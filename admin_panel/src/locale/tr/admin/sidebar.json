@@ -69,6 +69,7 @@
     "alerts_group": "Uyarilar",
     "production_data": "Uretim Verileri",
     "content": "Icerik",
+    "communication": "Iletisim",
     "system": "Sistem"
   },
   "items": {
@@ -80,6 +81,7 @@
     "etl_logs": "ETL Loglari",
     "alerts": "Uyari Listesi",
     "production": "Yillik Uretim",
+    "contacts": "Iletisim Mesajlari",
     "custom_pages": "Ozel Sayfalar",
     "email_templates": "E-posta Sablonlari",
     "support": "Destek Talepleri",

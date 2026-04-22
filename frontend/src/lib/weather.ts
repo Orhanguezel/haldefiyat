@@ -29,16 +29,33 @@ const CITY_SLUG_MAP: Record<string, string> = {
   adana: "adana",
   konya: "konya",
   samsun: "samsun",
+  mersin: "mersin",
+  kayseri: "kayseri",
+  eskisehir: "eskisehir",
+  "eski̇şehi̇r": "eskisehir",
+  denizli: "denizli",
+  gaziantep: "gaziantep",
+  kocaeli: "kocaeli",
+  diyarbakir: "diyarbakir",
+  "diyarbakir": "diyarbakir",
+  trabzon: "trabzon",
+  erzurum: "erzurum",
 };
 
 export function cityToWeatherSlug(cityName: string): string | null {
-  const key = cityName
+  if (!cityName) return null;
+  const lower = cityName.toLowerCase();
+  if (CITY_SLUG_MAP[lower]) return CITY_SLUG_MAP[lower];
+
+  const normalized = cityName
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace("i\u0307", "i") // dotted I fix
+    .replace(/[^a-z0-9]/g, "")
     .trim();
-  return CITY_SLUG_MAP[key] ?? CITY_SLUG_MAP[cityName.toLowerCase()] ?? null;
+
+  return CITY_SLUG_MAP[normalized] ?? (normalized || null);
 }
 
 // ── Types ────────────────────────────────────────────────────────────────────

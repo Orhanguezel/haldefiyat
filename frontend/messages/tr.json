@@ -84,6 +84,7 @@
     },
     "overview": {
       "greeting":          "Hoş geldiniz!",
+      "greetingWithUser":  "Merhaba, {name}!",
       "subtitle":          "Hesabınızın genel durumu aşağıda özetlenmiştir.",
       "activeAlerts":      "Aktif Uyarı",
       "favoriteProducts":  "Favori Ürün",
@@ -95,18 +96,28 @@
       "viewPrices":        "Fiyatlara Bak",
       "viewPricesDesc":    "Güncel hal fiyatlarını incele",
       "compare":           "Ürün Karşılaştır",
-      "compareDesc":       "Birden fazla ürünü yan yana gör"
+      "compareDesc":       "Birden fazla ürünü yan yana gör",
+      "logout":            "Çıkış Yap",
+      "guest":             "Üye",
+      "inbox":             "Gelen Kutusu"
     },
     "profile": {
       "title":        "Kişisel Bilgiler",
+      "subtitle":     "Hesap bilgilerinizi buradan yönetebilirsiniz.",
       "fullName":     "Ad Soyad",
+      "fullNamePlaceholder": "Adınız ve soyadınız",
       "phone":        "Telefon",
+      "phonePlaceholder": "+90 5xx xxx xx xx",
       "city":         "Şehir",
+      "cityPlaceholder": "İstanbul",
       "address":      "Adres",
+      "addressPlaceholder": "Sokak / Mahalle",
       "bio":          "Hakkımda",
+      "bioPlaceholder": "Kısa bir tanıtım...",
       "save":         "Kaydet",
+      "updateButton": "Profilimi Güncelle",
       "saving":       "Kaydediliyor...",
-      "saveSuccess":  "Profiliniz kaydedildi.",
+      "saveSuccess":  "Profiliniz başarıyla kaydedildi.",
       "saveError":    "Kaydedilemedi. Lütfen tekrar deneyin."
     },
     "alerts": {

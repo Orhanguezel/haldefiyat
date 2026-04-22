@@ -1,18 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { useProfile } from "@/lib/hooks/useProfile";
 
-const NAV = [
-  { href: "hesabim",             label: "Genel Bakış",   icon: GridIcon },
-  { href: "hesabim/profil",      label: "Profil",        icon: UserIcon },
-  { href: "hesabim/uyarilar",    label: "Uyarılarım",    icon: BellIcon },
-  { href: "hesabim/favoriler",   label: "Favorilerim",   icon: StarIcon },
-  { href: "hesabim/bildirimler", label: "Bildirimler",   icon: InboxIcon },
-  { href: "hesabim/destek",      label: "Destek",        icon: HelpIcon },
-  { href: "hesabim/guvenlik",    label: "Güvenlik",      icon: LockIcon },
+const NAV_ITEMS = [
+  { href: "hesabim",             key: "overview",      icon: GridIcon },
+  { href: "hesabim/profil",      key: "profile",       icon: UserIcon },
+  { href: "hesabim/uyarilar",    key: "alerts",        icon: BellIcon },
+  { href: "hesabim/favoriler",   key: "favorites",     icon: StarIcon },
+  { href: "hesabim/bildirimler", key: "notifications", icon: InboxIcon },
+  { href: "hesabim/destek",      key: "support",       icon: HelpIcon },
+  { href: "hesabim/guvenlik",    key: "security",      icon: LockIcon },
 ];
 
 interface Props {
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function DashboardSidebar({ locale }: Props) {
+  const t = useTranslations("dashboard");
   const pathname = usePathname();
   const { user, logout } = useAuthSession();
   const { data: profile } = useProfile();
@@ -40,14 +42,14 @@ export function DashboardSidebar({ locale }: Props) {
           </div>
         )}
         <p className="mt-3 truncate text-[14px] font-bold text-(--color-foreground)">
-          {user?.full_name ?? "Üye"}
+          {user?.full_name ?? t("overview.guest")}
         </p>
         <p className="truncate text-[12px] text-(--color-muted)">{user?.email}</p>
       </div>
 
       {/* Navigasyon */}
       <nav className="flex-1 space-y-1 px-3 py-5">
-        {NAV.map(({ href, label, icon: Icon }) => {
+        {NAV_ITEMS.map(({ href, key, icon: Icon }) => {
           const full = `/${locale}/${href}`;
           const active = pathname === full || pathname.startsWith(`${full}/`);
           return (
@@ -61,7 +63,7 @@ export function DashboardSidebar({ locale }: Props) {
               }`}
             >
               <Icon size={17} />
-              {label}
+              {t(`nav.${key}`)}
             </Link>
           );
         })}
@@ -74,7 +76,7 @@ export function DashboardSidebar({ locale }: Props) {
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-medium text-(--color-danger) hover:bg-(--color-danger)/5 transition-colors"
         >
           <LogoutIcon size={17} />
-          Çıkış Yap
+          {t("overview.logout")}
         </button>
       </div>
     </aside>

@@ -128,26 +128,34 @@ export function AppSidebar({
   return (
     <Sidebar {...props} variant={variant} collapsible={collapsible}>
       <SidebarHeader>
-        <Link prefetch={false} href="/admin/dashboard" className="flex items-center gap-3 px-3 py-4 hover:bg-sidebar-accent/50 transition-colors">
+        <Link 
+          prefetch={false} 
+          href="/admin/dashboard" 
+          className="group flex flex-col gap-4 px-5 py-6 transition-all hover:bg-sidebar-accent/50"
+        >
           {logoUrl ? (
-            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border bg-background px-1">
+            <div className="flex h-12 w-full items-center justify-start overflow-hidden group-data-[collapsible=icon]:justify-center">
               <Image
                 src={logoUrl}
                 alt={logoAlt}
-                width={40}
-                height={40}
+                width={180}
+                height={48}
                 unoptimized
-                className="h-8 w-auto object-contain"
+                className="h-full w-auto object-contain transition-transform group-hover:scale-105"
               />
             </div>
           ) : (
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <LayoutDashboard className="size-5" />
+            <div className="flex aspect-square size-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+              <LayoutDashboard className="size-6" />
             </div>
           )}
-          <div className="flex flex-col gap-0.5 leading-none">
-            <span className="font-bold text-lg tracking-tight">{panelLabel || 'Admin Panel'}</span>
-            <span className="text-[10px] font-medium tracking-widest text-muted-foreground uppercase">{panelSub}</span>
+          <div className="flex flex-col gap-1 leading-tight group-data-[collapsible=icon]:hidden">
+            <span className="text-lg font-bold tracking-tight text-foreground transition-colors group-hover:text-primary">
+              {baseName || 'Hal Fiyatları'}
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/70">
+              {panelSub}
+            </span>
           </div>
         </Link>
       </SidebarHeader>

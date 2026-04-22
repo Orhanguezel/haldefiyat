@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { apiGet } from "@/lib/api-client";
@@ -13,6 +13,7 @@ type Summary = {
 };
 
 export function DashboardOverview() {
+  const t = useTranslations("dashboard.overview");
   const { user } = useAuthSession();
   const [summary, setSummary] = useState<Summary | null>(null);
 
@@ -30,8 +31,8 @@ export function DashboardOverview() {
   }, []);
 
   const greeting = user?.full_name
-    ? `Merhaba, ${user.full_name.split(" ")[0]}!`
-    : "Hoş geldiniz!";
+    ? t("greetingWithUser", { name: user.full_name.split(" ")[0] })
+    : t("greeting");
 
   return (
     <div className="space-y-8">
@@ -41,33 +42,33 @@ export function DashboardOverview() {
           {greeting}
         </h1>
         <p className="mt-1 text-[13px] text-(--color-muted)">
-          Hesabınızın genel durumu aşağıda özetlenmiştir.
+          {t("subtitle")}
         </p>
       </div>
 
       {/* Özet kartlar */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Aktif Uyarı"
+          label={t("activeAlerts")}
           value={summary?.alertCount}
           href="hesabim/uyarilar"
           icon="🔔"
         />
         <StatCard
-          label="Favori Ürün"
+          label={t("favoriteProducts")}
           value={summary?.favoriteCount}
           href="hesabim/favoriler"
           icon="⭐"
         />
         <StatCard
-          label="Okunmamış Bildirim"
+          label={t("unreadNotifications")}
           value={summary?.unreadNotifications}
           href="hesabim/bildirimler"
           icon="📥"
           highlight={Boolean(summary?.unreadNotifications)}
         />
         <StatCard
-          label="Açık Destek Talebi"
+          label={t("openTickets")}
           value={summary?.openTickets}
           href="hesabim/destek"
           icon="🎫"
@@ -77,25 +78,25 @@ export function DashboardOverview() {
       {/* Hızlı eylemler */}
       <div>
         <h2 className="mb-4 font-(family-name:--font-display) text-base font-semibold text-(--color-foreground)">
-          Hızlı Eylemler
+          {t("quickActions")}
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <QuickAction
             href="uyarilar"
-            label="Yeni Uyarı Ekle"
-            desc="Fiyat hedefi belirle, bildirim al"
+            label={t("addAlert")}
+            desc={t("addAlertDesc")}
             icon="🔔"
           />
           <QuickAction
             href="fiyatlar"
-            label="Fiyatlara Bak"
-            desc="Güncel hal fiyatlarını incele"
+            label={t("viewPrices")}
+            desc={t("viewPricesDesc")}
             icon="📊"
           />
           <QuickAction
             href="karsilastirma"
-            label="Ürün Karşılaştır"
-            desc="Birden fazla ürünü yan yana gör"
+            label={t("compare")}
+            desc={t("compareDesc")}
             icon="⚖️"
           />
         </div>

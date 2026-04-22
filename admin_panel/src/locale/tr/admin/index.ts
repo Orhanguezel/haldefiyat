@@ -3,6 +3,7 @@ import audit from "./audit.json";
 import auth from "./auth.json";
 import comingSoon from "./coming-soon.json";
 import common from "./common.json";
+import contacts from "./contacts.json";
 import customPages from "./custom-pages.json";
 import dashboard from "./dashboard.json";
 import emailTemplates from "./email-templates.json";
@@ -22,6 +23,7 @@ const adminMessages = {
   alerts: alerts,
   comingSoon: comingSoon,
   common: common,
+  contacts: contacts,
   "custom-pages": customPages,
   dashboard: dashboard,
   emailTemplates: emailTemplates,

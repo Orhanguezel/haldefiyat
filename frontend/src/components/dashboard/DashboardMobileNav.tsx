@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 
-const NAV = [
-  { href: "hesabim",             label: "Ana Sayfa", icon: GridIcon },
-  { href: "hesabim/uyarilar",    label: "Uyarılar",  icon: BellIcon },
-  { href: "hesabim/favoriler",   label: "Favoriler", icon: StarIcon },
-  { href: "hesabim/profil",      label: "Profil",    icon: UserIcon },
-  { href: "hesabim/bildirimler", label: "Gelen Kutusu", icon: InboxIcon },
+const NAV_ITEMS = [
+  { href: "hesabim",             key: "overview",      icon: GridIcon },
+  { href: "hesabim/uyarilar",    key: "alerts",        icon: BellIcon },
+  { href: "hesabim/favoriler",   key: "favorites",     icon: StarIcon },
+  { href: "hesabim/profil",      key: "profile",       icon: UserIcon },
+  { href: "hesabim/bildirimler", key: "notifications", icon: InboxIcon },
 ];
 
 interface Props {
@@ -16,11 +17,12 @@ interface Props {
 }
 
 export function DashboardMobileNav({ locale }: Props) {
+  const t = useTranslations("dashboard");
   const pathname = usePathname();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-16 border-t border-(--color-border-soft) bg-(--color-surface)/80 backdrop-blur-xl md:hidden">
-      {NAV.map(({ href, label, icon: Icon }) => {
+      {NAV_ITEMS.map(({ href, key, icon: Icon }) => {
         const full = `/${locale}/${href}`;
         const active = pathname === full || pathname.startsWith(`${full}/`);
         return (
@@ -36,7 +38,7 @@ export function DashboardMobileNav({ locale }: Props) {
             <div className={`p-1.5 rounded-xl transition-colors ${active ? "bg-brand/10" : ""}`}>
               <Icon size={20} />
             </div>
-            <span className="text-[9px] font-bold uppercase tracking-wider">{label}</span>
+            <span className="text-[9px] font-bold uppercase tracking-wider">{t(`nav.${key}`)}</span>
           </Link>
         );
       })}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import Link from "next/link";
 import { useFavorites } from "@/lib/hooks/useFavorites";
@@ -8,6 +9,8 @@ import { Skeleton } from "@/components/ui/Skeleton";
 interface Props { locale: string }
 
 export function FavoritesList({ locale }: Props) {
+  const t = useTranslations("dashboard.favorites");
+  const commonT = useTranslations("dashboard.overview");
   const { remoteItems, loadingRemote, toggle, refetch } = useFavorites();
 
   useEffect(() => { void refetch(); }, [refetch]);
@@ -23,12 +26,12 @@ export function FavoritesList({ locale }: Props) {
   if (remoteItems.length === 0) {
     return (
       <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-8 text-center">
-        <p className="text-[13px] text-(--color-muted)">Henüz favori ürün eklemediniz.</p>
+        <p className="text-[13px] text-(--color-muted)">{t("empty")}</p>
         <Link
           href={`/${locale}/fiyatlar`}
           className="mt-3 inline-block rounded-lg bg-(--color-brand) px-4 py-2 text-[13px] font-semibold text-(--color-navy)"
         >
-          Ürünleri Keşfet
+          {commonT("viewPrices")}
         </Link>
       </div>
     );
@@ -56,7 +59,7 @@ export function FavoritesList({ locale }: Props) {
             onClick={() => toggle(product.slug)}
             className="shrink-0 rounded-lg border border-(--color-danger)/30 px-3 py-1.5 text-[12px] font-medium text-(--color-danger) hover:bg-(--color-danger)/10 transition-colors"
           >
-            Kaldır
+            {t("remove")}
           </button>
         </div>
       ))}

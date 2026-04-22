@@ -7,6 +7,7 @@ export type AdminPermissionKey =
   | 'admin.markets'
   | 'admin.etl_logs'
   | 'admin.alerts'
+  | 'admin.contacts'
   | 'admin.production'
   | 'admin.custom_pages'
   | 'admin.support'
@@ -25,6 +26,7 @@ export type AdminNavKey =
   | 'markets'
   | 'etl_logs'
   | 'alerts'
+  | 'contacts'
   | 'production'
   | 'custom_pages'
   | 'support'
@@ -44,6 +46,7 @@ const ADMIN_PERMISSION_ROLE_MAP: Record<AdminPermissionKey, PanelRole[]> = {
   'admin.markets': ADMIN_ONLY,
   'admin.etl_logs': ADMIN_ONLY,
   'admin.alerts': ADMIN_ONLY,
+  'admin.contacts': ADMIN_ONLY,
   'admin.production': ADMIN_ONLY,
   'admin.custom_pages': ADMIN_ONLY,
   'admin.support': ADMIN_ONLY,
@@ -67,6 +70,7 @@ const ADMIN_NAV_PERMISSION_MAP: Partial<Record<AdminNavKey, AdminPermissionKey>>
   markets: 'admin.markets',
   etl_logs: 'admin.etl_logs',
   alerts: 'admin.alerts',
+  contacts: 'admin.contacts',
   production: 'admin.production',
   custom_pages: 'admin.custom_pages',
   support: 'admin.support',
@@ -91,6 +95,7 @@ const ADMIN_PERMISSION_PATHS: Record<AdminPermissionKey, string[]> = {
   'admin.markets': ['/admin/markets'],
   'admin.etl_logs': ['/admin/etl-logs'],
   'admin.alerts': ['/admin/alerts'],
+  'admin.contacts': ['/admin/contacts'],
   'admin.production': ['/admin/production'],
   'admin.custom_pages': ['/admin/custom-pages'],
   'admin.support': ['/admin/support'],

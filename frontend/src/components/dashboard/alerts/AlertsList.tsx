@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import Link from "next/link";
 import { useUserAlerts, type UserAlert } from "@/lib/hooks/useUserAlerts";
@@ -9,6 +10,8 @@ import { Skeleton } from "@/components/ui/Skeleton";
 interface Props { locale: string }
 
 export function AlertsList({ locale }: Props) {
+  const t = useTranslations("dashboard.alerts");
+  const commonT = useTranslations("dashboard.overview");
   const { items, loading, error, remove } = useUserAlerts();
   const [editing, setEditing] = useState<UserAlert | null>(null);
 
@@ -27,12 +30,12 @@ export function AlertsList({ locale }: Props) {
   if (items.length === 0) {
     return (
       <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-8 text-center">
-        <p className="text-[13px] text-(--color-muted)">Henüz uyarı oluşturmadınız.</p>
+        <p className="text-[13px] text-(--color-muted)">{t("empty")}</p>
         <Link
           href={`/${locale}/uyarilar`}
           className="mt-3 inline-block rounded-lg bg-(--color-brand) px-4 py-2 text-[13px] font-semibold text-(--color-navy)"
         >
-          Yeni Uyarı Ekle
+          {commonT("addAlert")}
         </Link>
       </div>
     );
@@ -51,7 +54,7 @@ export function AlertsList({ locale }: Props) {
                 {alert.productName}
               </p>
               <p className="mt-0.5 text-[12px] text-(--color-muted)">
-                {alert.direction === "above" ? "↑ üstüne çıkınca" : "↓ altına düşünce"}{" "}
+                {alert.direction === "above" ? t("above") : t("below")}{" "}
                 <span className="font-medium text-(--color-brand)">
                   {parseFloat(alert.thresholdPrice).toLocaleString("tr-TR")} ₺
                 </span>
@@ -62,7 +65,7 @@ export function AlertsList({ locale }: Props) {
                 {alert.contactTelegram && <ChannelBadge label="Telegram" />}
                 {alert.lastTriggered && (
                   <span className="text-[11px] text-(--color-muted)">
-                    Son: {new Date(alert.lastTriggered).toLocaleDateString("tr-TR")}
+                    {t("lastTriggered")}: {new Date(alert.lastTriggered).toLocaleDateString("tr-TR")}
                   </span>
                 )}
               </div>
@@ -73,13 +76,13 @@ export function AlertsList({ locale }: Props) {
                 onClick={() => setEditing(alert)}
                 className="rounded-lg border border-(--color-border) px-3 py-1.5 text-[12px] font-medium text-(--color-foreground) hover:bg-(--color-border)/50 transition-colors"
               >
-                Düzenle
+                {t("edit")}
               </button>
               <button
                 onClick={() => remove(alert.id)}
                 className="rounded-lg border border-(--color-danger)/30 px-3 py-1.5 text-[12px] font-medium text-(--color-danger) hover:bg-(--color-danger)/10 transition-colors"
               >
-                Sil
+                {t("delete")}
               </button>
             </div>
           </div>
