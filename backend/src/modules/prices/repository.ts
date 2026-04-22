@@ -47,10 +47,21 @@ export async function listPriceRows(params: {
   const limit = Math.min(2000, Math.max(1, params.limit ?? 500));
   const latestOnly = params.latestOnly !== false;
 
-  // Pencereyi CURDATE()'ten değil "DB'deki en son kayıt tarihinden" geriye al.
-  // Böylece ETL bir-iki gün kaçsa bile liste boşalmaz; kullanıcı her zaman
-  // mevcut en güncel veriyi görür.
-  const anchor = await latestRecordedDate();
+  // Market bazlı anchor: belirli bir hal seçiliyse o halin son tarihi kullanılır.
+  // Global anchor kullansaydık, en yeni güncellenen hal tüm pencerenin referansı
+  // olurdu — güncel olmayan haller boş görünürdü.
+  let anchor: string | null;
+  if (params.market) {
+    const mRows = await db
+      .select({ d: sql<string | null>`MAX(${hfPriceHistory.recordedDate})` })
+      .from(hfPriceHistory)
+      .innerJoin(hfMarkets, eq(hfPriceHistory.marketId, hfMarkets.id))
+      .where(eq(hfMarkets.slug, params.market));
+    const raw: unknown = mRows[0]?.d;
+    anchor = raw ? (raw instanceof Date ? (raw as Date).toISOString().slice(0, 10) : String(raw).slice(0, 10)) : null;
+  } else {
+    anchor = await latestRecordedDate();
+  }
   const anchorSql = anchor
     ? sql`${anchor}`
     : sql`CURDATE()`;

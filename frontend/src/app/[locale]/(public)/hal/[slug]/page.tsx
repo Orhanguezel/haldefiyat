@@ -40,11 +40,14 @@ export default async function HalPage({ params }: Props) {
   setRequestLocale(locale);
 
   const [prices, markets] = await Promise.all([
-    fetchPrices({ market: slug, range: "1d", limit: 100 }),
+    fetchPrices({ market: slug, range: "7d", limit: 100 }),
     fetchMarkets(),
   ]);
 
   const market = markets.find((m) => m.slug === slug);
+  const latestDate = prices.length > 0
+    ? prices.reduce((max, p) => (p.recordedDate > max ? p.recordedDate : max), prices[0]!.recordedDate)
+    : null;
 
   if (!market) {
     return (
@@ -92,7 +95,8 @@ export default async function HalPage({ params }: Props) {
           {market.name}
         </h1>
         <p className="mt-1 text-sm text-(--color-muted)">
-          Kaynak: {market.sourceKey ?? "manuel"} · Bugünkü fiyatlar
+          Kaynak: {market.sourceKey ?? "manuel"}
+          {latestDate ? ` · ${new Date(latestDate + "T12:00:00Z").toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })} fiyatları` : ""}
         </p>
       </div>
 
