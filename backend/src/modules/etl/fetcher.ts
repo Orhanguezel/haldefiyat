@@ -811,15 +811,16 @@ async function fetchBalikesirDated(
   });
   if (!pageRes.ok) throw new Error(`Balıkesir session HTTP ${pageRes.status}`);
 
-  const sessionCookies = (pageRes.headers.get("set-cookie") ?? "")
-    .split(/,(?=[^ ])/)
-    .map((c) => c.split(";")[0]?.trim())
-    .filter(Boolean)
-    .join("; ");
+  const rawSetCookie = pageRes.headers.get("set-cookie") ?? "";
+  const sessionId = /ASP\.NET_SessionId=[^;]+/.exec(rawSetCookie)?.[0] ?? "";
+  const csrfCookie = /__RequestVerificationToken=[^;]+/.exec(rawSetCookie)?.[0] ?? "";
+  const cookieHeader = [sessionId, csrfCookie].filter(Boolean).join("; ");
 
   const pageHtml = await pageRes.text();
-  const tokenMatch = /__RequestVerificationToken["'][^>]*value=["']([^"']+)["']|value=["']([^"']+)["'][^>]*name=["']__RequestVerificationToken["']/.exec(pageHtml);
-  const csrfToken = tokenMatch?.[1] ?? tokenMatch?.[2] ?? "";
+  const tokenMatch =
+    /name="__RequestVerificationToken"[^>]*value="([^"]+)"/.exec(pageHtml) ??
+    /value="([^"]+)"[^>]*name="__RequestVerificationToken"/.exec(pageHtml);
+  const csrfToken = tokenMatch?.[1] ?? "";
 
   // Adım 2 — veri POST
   const body = new URLSearchParams({ BasT: trDate, BitT: trDate, UrunAd: "", HalAd: "", TurAd: "1" });
@@ -829,7 +830,7 @@ async function fetchBalikesirDated(
       "X-Requested-With": "XMLHttpRequest",
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
       "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
-      ...(sessionCookies ? { Cookie: sessionCookies } : {}),
+      ...(cookieHeader ? { Cookie: cookieHeader } : {}),
       ...(csrfToken ? { "__RequestVerificationToken": csrfToken } : {}),
     },
     body,
