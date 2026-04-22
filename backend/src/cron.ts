@@ -1,6 +1,6 @@
 import * as cron from "node-cron";
 import type { FastifyInstance } from "fastify";
-import { runDailyEtl } from "@/modules/etl";
+import { runDailyEtl, runSingleSource } from "@/modules/etl";
 import { runAllProductionSources } from "@/modules/etl/production-fetcher";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
 import { runWeeklyDigest } from "@/modules/notifications/weekly-digest";
@@ -18,11 +18,13 @@ type CronTask = { name: string; schedule: string; handler: () => Promise<void> }
 
 export function startCron(app: FastifyInstance): void {
   const tasks: CronTask[] = [
-    { name: "etl-daily",       schedule: env.ETL.cronSchedule,         handler: () => runEtlJob(app) },
-    { name: "alerts-check",    schedule: env.ETL.alertsSchedule,       handler: () => runAlertsJob(app) },
-    { name: "production-etl",  schedule: env.ETL.productionSchedule,   handler: () => runProductionJob(app) },
-    { name: "weekly-digest",   schedule: env.ETL.weeklyDigestSchedule, handler: () => runWeeklyDigestJob(app) },
-    { name: "index-weekly",    schedule: env.ETL.indexSchedule,        handler: () => runIndexJob(app) },
+    { name: "etl-daily",        schedule: env.ETL.cronSchedule,          handler: () => runEtlJob(app) },
+    { name: "alerts-check",     schedule: env.ETL.alertsSchedule,        handler: () => runAlertsJob(app) },
+    { name: "production-etl",   schedule: env.ETL.productionSchedule,    handler: () => runProductionJob(app) },
+    { name: "weekly-digest",    schedule: env.ETL.weeklyDigestSchedule,  handler: () => runWeeklyDigestJob(app) },
+    { name: "index-weekly",     schedule: env.ETL.indexSchedule,         handler: () => runIndexJob(app) },
+    // ANTKOMDER fiyatları öğleden sonra yayınlandığı için ikinci çalıştırma
+    { name: "etl-antkomder-pm", schedule: env.ETL.antkomderSchedule,     handler: () => runAntkomderJob(app) },
   ];
 
   for (const t of tasks) {
@@ -119,5 +121,19 @@ async function runAlertsJob(app: FastifyInstance): Promise<void> {
     );
   } catch (err) {
     app.log.error({ err }, "[cron:alerts] hata");
+  }
+}
+
+async function runAntkomderJob(app: FastifyInstance): Promise<void> {
+  const sources = ["antalya_merkez_antkomder", "antalya_serik_antkomder", "antalya_kumluca_antkomder"];
+  app.log.info({ sources }, "[cron:antkomder] ogleden sonra calistiriliyor");
+  for (const key of sources) {
+    const t0 = Date.now();
+    try {
+      const r = await runSingleSource(key);
+      app.log.info({ key, inserted: r.inserted, skipped: r.skipped, durationMs: Date.now() - t0 }, "[cron:antkomder] tamamlandi");
+    } catch (err) {
+      app.log.error({ key, err }, "[cron:antkomder] hata");
+    }
   }
 }

@@ -159,33 +159,41 @@ function toNum(v: unknown): number | null {
  */
 function parseAntkomderHtml(html: string): NormalizedRow[] {
   const out: NormalizedRow[] = [];
-  const tableMatch = /<table[^>]*>([\s\S]*?)<\/table>/i.exec(html);
-  if (!tableMatch) return out;
-  const body = tableMatch[1] ?? "";
+  const tables = extractTables(html);
+  if (tables.length === 0) return out;
 
-  // Başlık satırından DD-MM-YYYY formatındaki tarihleri topla
-  const headerRow = /<tr[^>]*>([\s\S]*?)<\/tr>/i.exec(body);
-  if (!headerRow) return out;
-  const headerCells = [...headerRow[1]!.matchAll(/<t[hd][^>]*>([\s\S]*?)<\/t[hd]>/gi)]
-    .map((m) => stripTags(m[1] ?? ""));
+  // Antalya fiyat tablosunda genellikle tek tablo olur; dates thead içindedir.
+  // extractTables thead/tbody ayırmaz, tüm tr'leri döner. İlk satırı başlık sayarız.
+  const rows = tables[0]!;
+  if (rows.length < 2) return out;
+
+  const header = rows[0]!;
   const dateColumns: { colIndex: number; isoDate: string }[] = [];
-  for (let i = 0; i < headerCells.length; i++) {
-    const m = /(\d{2})-(\d{2})-(\d{4})/.exec(headerCells[i] ?? "");
-    if (m) dateColumns.push({ colIndex: i, isoDate: `${m[3]}-${m[2]}-${m[1]}` });
+
+  for (let i = 0; i < header.length; i++) {
+    const text = header[i] ?? "";
+    const m = /(\d{2})-(\d{2})-(\d{4})/.exec(text);
+    if (m) {
+      dateColumns.push({ colIndex: i, isoDate: `${m[3]}-${m[2]}-${m[1]}` });
+    }
   }
+
   if (dateColumns.length === 0) return out;
 
-  // Veri satırları
-  const trMatches = [...body.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/gi)];
-  for (let r = 1; r < trMatches.length; r++) {
-    const cells = [...trMatches[r]![1]!.matchAll(/<t[hd][^>]*>([\s\S]*?)<\/t[hd]>/gi)]
-      .map((m) => stripTags(m[1] ?? ""));
+  // Veri satırları (ilk satır başlık olduğu için r=1'den başlar)
+  for (let r = 1; r < rows.length; r++) {
+    const cells = rows[r]!;
+    if (cells.length < 2) continue;
+
     const name = (cells[1] ?? "").trim();
-    if (!name) continue;
+    if (!name || /^(#|ürünler|ürün)$/i.test(name)) continue;
 
     for (const col of dateColumns) {
-      const avg = parsePriceTry(cells[col.colIndex] ?? "");
+      if (col.colIndex >= cells.length) continue;
+      const priceRaw = cells[col.colIndex] ?? "";
+      const avg = parsePriceTry(priceRaw);
       if (avg == null) continue;
+
       out.push({
         name,
         category:     null,
