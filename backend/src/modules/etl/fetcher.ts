@@ -62,6 +62,7 @@ function parseResponse(
     case "gaziantep_html":   return parseGaziantepHtml(String(raw));
     case "bursa_html":       return parseBursaHtml(String(raw));
     case "kocaeli_html":     return parseKocaeliHtml(String(raw));
+    case "balikesir_html":   return parseBalikesirHtml(String(raw));
     default:                 return [];
   }
 }
@@ -537,6 +538,54 @@ function parseBursaHtml(html: string): NormalizedRow[] {
 }
 
 /**
+ * Balıkesir Büyükşehir — POST /Home/Listele, SSR HTML.
+ * Kolonlar: [Ürün/Tür, Birimi, Hal/Pazar, En Düşük, En Yüksek, BaşTarih, BitTarih]
+ * Birden fazla hal aynı ürünü listeleyebilir → ürün+tarih bazında min/max birleştirilir.
+ * Tarih formatı: "DD.MM.YYYY".
+ */
+function parseBalikesirHtml(html: string): NormalizedRow[] {
+  const tables = extractTables(html);
+  if (tables.length === 0) return [];
+
+  type Agg = { name: string; unit: string | null; min: number; max: number; date: string | undefined };
+  const agg = new Map<string, Agg>();
+
+  for (const row of tables[0]!) {
+    if (row.length < 5) continue;
+    const name = row[0]!.trim();
+    if (!name || /^(ürün|ürün\/tür|birimi|hal\/pazar|en düşük|en yüksek|başlangıç)$/i.test(name)) continue;
+    const min = parsePriceTry(row[3] ?? "");
+    const max = parsePriceTry(row[4] ?? "");
+    if (min == null && max == null) continue;
+    const recordedDate = parseTrDate(row[5] ?? "");
+    const key = `${name}|${recordedDate ?? ""}`;
+    const ex = agg.get(key);
+    if (ex) {
+      if (min != null) ex.min = Math.min(ex.min, min);
+      if (max != null) ex.max = Math.max(ex.max, max);
+    } else {
+      agg.set(key, {
+        name,
+        unit:  normalizeUnit(row[1] ?? ""),
+        min:   min ?? max!,
+        max:   max ?? min!,
+        date:  recordedDate,
+      });
+    }
+  }
+
+  return Array.from(agg.values()).map(({ name, unit, min, max, date }) => ({
+    name,
+    category:     null,
+    unit,
+    avg:          (min + max) / 2,
+    min,
+    max,
+    recordedDate: date,
+  }));
+}
+
+/**
  * Kocaeli Büyükşehir — POST form, SSR HTML.
  * Kolonlar: [Ürün Adı, Kategori, Birim, En az, En çok].
  * Kategori HTML'de Türkçe olarak gelir (Meyve/Sebze/Balık).
@@ -613,6 +662,7 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "gaziantep_html",
   "bursa_html",
   "kocaeli_html",
+  "balikesir_html",
 ]);
 
 async function fetchDated(
@@ -625,6 +675,9 @@ async function fetchDated(
   }
   if (source.responseShape === "mersin_html") {
     return fetchMersinDated(source, date, isBackfill);
+  }
+  if (source.responseShape === "balikesir_html") {
+    return fetchBalikesirDated(source, date);
   }
   if (source.responseShape === "kocaeli_html") {
     return fetchKocaeliDated(source, date);
@@ -734,6 +787,33 @@ async function fetchMersinDated(
 
   const rows = parseResponse(source.responseShape, pages, source);
   return { rows, dateUsed: date, httpStatus: lastStatus };
+}
+
+// Balıkesir — POST /Home/Listele. Tarih formatlama: YYYY-MM-DD → DD.MM.YYYY
+async function fetchBalikesirDated(
+  source: EtlSourceConfig,
+  date: string,
+): Promise<FetchOutcome | null> {
+  const url = source.baseUrl + source.endpointTemplate;
+  const [y, m, d] = date.split("-");
+  const trDate = `${d}.${m}.${y}`;
+  const body = new URLSearchParams({ BasT: trDate, BitT: trDate, UrunAd: "", HalAd: "", TurAd: "1" });
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
+    },
+    body,
+    signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+    // @ts-expect-error Bun-specific TLS option
+    tls: { rejectUnauthorized: false },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status} @ ${url}`);
+  const html = await decodeResponseBody(res);
+  const rows = parseBalikesirHtml(html);
+  return { rows, dateUsed: date, httpStatus: res.status };
 }
 
 // Kocaeli Büyükşehir — POST form. endpointTemplate = hal ID'si (örn. "1").

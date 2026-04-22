@@ -27,7 +27,8 @@ type ResponseShape =
   | "denizli_html"
   | "gaziantep_html"
   | "bursa_html"
-  | "kocaeli_html";
+  | "kocaeli_html"
+  | "balikesir_html";
 
 export interface EtlSourceConfig {
   key:              string;          // DB'de source_api olarak yazılır
@@ -209,6 +210,20 @@ const RAW_SOURCES: RawSource[] = [
     defaultBaseUrl:    "https://www.gaziantep.bel.tr",
     defaultEndpoint:   "/tr/hal-rayic",
     responseShape:     "gaziantep_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // Balıkesir Büyükşehir — POST /Home/Listele, SSR HTML.
+  // Kolon sırası: Ürün/Tür | Birimi | Hal/Pazar | En Düşük | En Yüksek | BaşTarih | BitTarih.
+  // Birden fazla hal (Altıeylül, Bandırma vb.) aynı sayfada — parser ürün bazında birleştirir.
+  // Tarih parametresi: BasT=DD.MM.YYYY & BitT=DD.MM.YYYY → backfill mümkün.
+  {
+    key:               "balikesir_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "balikesir-hal",
+    defaultBaseUrl:    "https://halvepazarfiyatlari.balikesir.bel.tr",
+    defaultEndpoint:   "/Home/Listele",
+    responseShape:     "balikesir_html",
     defaultUnit:       "kg",
     defaultCategory:   "sebze-meyve",
   },
