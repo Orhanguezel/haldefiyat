@@ -789,31 +789,58 @@ async function fetchMersinDated(
   return { rows, dateUsed: date, httpStatus: lastStatus };
 }
 
-// Balıkesir — POST /Home/Listele. Tarih formatlama: YYYY-MM-DD → DD.MM.YYYY
+/**
+ * Balıkesir — 2 adım: önce sayfa GET ile ASP.NET session + CSRF token alınır,
+ * sonra /Home/Listele'ye POST. Session olmadan 500 döner.
+ */
 async function fetchBalikesirDated(
   source: EtlSourceConfig,
   date: string,
 ): Promise<FetchOutcome | null> {
-  const url = source.baseUrl + source.endpointTemplate;
+  const baseUrl = source.baseUrl;
+  const postUrl = baseUrl + source.endpointTemplate;
   const [y, m, d] = date.split("-");
   const trDate = `${d}.${m}.${y}`;
+
+  // Adım 1 — session cookie + CSRF token
+  const pageRes = await fetch(`${baseUrl}/SebzeMeyveHal`, {
+    headers: { "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)" },
+    signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+    // @ts-expect-error Bun-specific TLS option
+    tls: { rejectUnauthorized: false },
+  });
+  if (!pageRes.ok) throw new Error(`Balıkesir session HTTP ${pageRes.status}`);
+
+  const sessionCookies = (pageRes.headers.get("set-cookie") ?? "")
+    .split(/,(?=[^ ])/)
+    .map((c) => c.split(";")[0]?.trim())
+    .filter(Boolean)
+    .join("; ");
+
+  const pageHtml = await pageRes.text();
+  const tokenMatch = /__RequestVerificationToken["'][^>]*value=["']([^"']+)["']|value=["']([^"']+)["'][^>]*name=["']__RequestVerificationToken["']/.exec(pageHtml);
+  const csrfToken = tokenMatch?.[1] ?? tokenMatch?.[2] ?? "";
+
+  // Adım 2 — veri POST
   const body = new URLSearchParams({ BasT: trDate, BitT: trDate, UrunAd: "", HalAd: "", TurAd: "1" });
-  const res = await fetch(url, {
+  const postRes = await fetch(postUrl, {
     method: "POST",
     headers: {
       "X-Requested-With": "XMLHttpRequest",
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
       "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
+      ...(sessionCookies ? { Cookie: sessionCookies } : {}),
+      ...(csrfToken ? { "__RequestVerificationToken": csrfToken } : {}),
     },
     body,
     signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
     // @ts-expect-error Bun-specific TLS option
     tls: { rejectUnauthorized: false },
   });
-  if (!res.ok) throw new Error(`HTTP ${res.status} @ ${url}`);
-  const html = await decodeResponseBody(res);
+  if (!postRes.ok) throw new Error(`HTTP ${postRes.status} @ ${postUrl}`);
+  const html = await decodeResponseBody(postRes);
   const rows = parseBalikesirHtml(html);
-  return { rows, dateUsed: date, httpStatus: res.status };
+  return { rows, dateUsed: date, httpStatus: postRes.status };
 }
 
 // Kocaeli Büyükşehir — POST form. endpointTemplate = hal ID'si (örn. "1").
