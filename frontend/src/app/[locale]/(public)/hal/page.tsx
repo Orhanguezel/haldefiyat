@@ -50,6 +50,7 @@ function groupByRegion(markets: Market[]): RegionGroup[] {
   const groups = new Map<string, RegionGroup>();
   for (const market of markets) {
     const key = (market.regionSlug ?? "diger").trim() || "diger";
+    if (key === "ulusal") continue;
     const label = REGION_LABELS[key] ?? toTitle(key);
     if (!groups.has(key)) {
       groups.set(key, { key, label, markets: [] });
@@ -64,8 +65,10 @@ export default async function HalIndexPage({ params }: Props) {
   setRequestLocale(locale);
 
   const markets = await fetchMarkets();
+  const cityMarkets = markets.filter((m) => m.regionSlug !== "ulusal");
+  const ulusalMarkets = markets.filter((m) => m.regionSlug === "ulusal");
   const groups = groupByRegion(markets);
-  const cityCount = new Set(markets.map((m) => m.cityName)).size;
+  const cityCount = new Set(cityMarkets.map((m) => m.cityName)).size;
 
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
@@ -77,9 +80,53 @@ export default async function HalIndexPage({ params }: Props) {
           Tüm Haller
         </h1>
         <p className="mt-2 font-(family-name:--font-mono) text-[12px] text-(--color-muted)">
-          {markets.length} hal · {cityCount} şehir
+          {cityMarkets.length} hal · {cityCount} şehir
         </p>
       </header>
+
+      {ulusalMarkets.length > 0 && (
+        <div className="mb-10 rounded-[14px] border border-(--color-brand)/20 bg-(--color-brand)/5 p-5">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
+              Ulusal Referans Verisi
+            </span>
+            <span className="rounded-full bg-(--color-brand)/15 px-2 py-0.5 font-(family-name:--font-mono) text-[10px] text-(--color-brand)">
+              hal.gov.tr
+            </span>
+          </div>
+          <p className="mb-4 text-[13px] text-(--color-muted)">
+            Türkiye geneli ulusal ortalama fiyatlar — şehir bazlı hal fiyatlarının referans noktası.
+            Veriler 1 gün gecikmeli güncellenir.
+          </p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {ulusalMarkets.map((market) => (
+              <Link
+                key={market.id}
+                href={`/hal/${market.slug}`}
+                className="group flex flex-col gap-2 rounded-[12px] border border-(--color-brand)/25 bg-(--color-surface) p-5 transition-all duration-300 hover:-translate-y-[2px] hover:border-(--color-brand)/50 hover:bg-(--color-bg-alt)"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className="font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.1em] text-(--color-brand)">
+                    Türkiye Geneli
+                  </span>
+                  <span
+                    aria-hidden
+                    className="font-(family-name:--font-mono) text-[14px] text-(--color-muted) transition-transform group-hover:translate-x-0.5 group-hover:text-(--color-brand)"
+                  >
+                    →
+                  </span>
+                </div>
+                <div className="font-(family-name:--font-display) text-[17px] font-bold text-(--color-foreground)">
+                  {market.name}
+                </div>
+                <div className="mt-auto font-(family-name:--font-mono) text-[11px] text-(--color-muted)">
+                  Ulusal Ortalama Fiyatlar
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {markets.length === 0 ? (
         <div className="rounded-[16px] border border-dashed border-(--color-border-soft) bg-(--color-bg-alt) p-10 text-center text-[13px] text-(--color-muted)">

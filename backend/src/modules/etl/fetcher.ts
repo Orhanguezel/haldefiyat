@@ -63,6 +63,7 @@ function parseResponse(
     case "bursa_html":       return parseBursaHtml(String(raw));
     case "kocaeli_html":     return parseKocaeliHtml(String(raw));
     case "balikesir_html":   return parseBalikesirHtml(String(raw));
+    case "hal_gov_tr_html":  return parseHalGovTrHtml(String(raw));
     default:                 return [];
   }
 }
@@ -663,6 +664,7 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "bursa_html",
   "kocaeli_html",
   "balikesir_html",
+  "hal_gov_tr_html",
 ]);
 
 async function fetchDated(
@@ -684,6 +686,9 @@ async function fetchDated(
   }
   if (source.responseShape === "kocaeli_html") {
     return fetchKocaeliDated(source, date);
+  }
+  if (source.responseShape === "hal_gov_tr_html") {
+    return fetchHalGovTrDated(source, date);
   }
 
   // Geriye dönük çağrıda backfillEndpoint tercih edilir (Konya gibi: default
@@ -900,6 +905,200 @@ async function fetchKocaeliDated(
   const html = await decodeResponseBody(res);
   const rows = parseKocaeliHtml(html);
   return { rows, dateUsed: date, httpStatus: res.status };
+}
+
+/**
+ * hal.gov.tr Fiyat İstatistikleri — ASP.NET ViewState + paginated GridView.
+ *
+ * 1. GET → __VIEWSTATE, __EVENTVALIDATION, form field adları alınır.
+ * 2. POST tarih + btnGet → ilk sayfa HTML + yeni ViewState.
+ * 3. GridView pager linkleri (Page$N) keşfedilir; her sayfa ayrı POST ile çekilir.
+ * 4. Tüm sayfalar birleştirilip parse edilir.
+ *
+ * Sütun sırası: Ürün Adı | Ürün Cinsi | Ürün Türü | Ortalama Fiyat | İşlem Hacmi | Birim Adı
+ * Tarih formatı: DD.MM.YYYY (iç format YYYY-MM-DD → dönüşüm burada yapılır).
+ * Not: sayfa "T" tarihini gösterse de (T-1) günün verisi gelir; ETL'de normaldir.
+ */
+async function fetchHalGovTrDated(
+  source: EtlSourceConfig,
+  date: string,
+): Promise<FetchOutcome | null> {
+  const baseUrl = source.baseUrl;
+  const path    = source.endpointTemplate;
+  const pageUrl = baseUrl + path;
+  const UA      = "HaldeFiyatBot/1.0 (+https://haldefiyat.com)";
+  const fetchOpts = {
+    headers: { Accept: "text/html,application/xhtml+xml", "User-Agent": UA },
+    signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+    tls: { rejectUnauthorized: false },
+  };
+
+  // ─ Yardımcılar ─────────────────────────────────────────────────────────────
+  const re = (pat: RegExp, html: string) => pat.exec(html)?.[1] ?? "";
+
+  function extractFields(html: string) {
+    return {
+      vs:       re(/id="__VIEWSTATE"[^>]*value="([^"]*)"/, html),
+      ev:       re(/id="__EVENTVALIDATION"[^>]*value="([^"]*)"/, html),
+      vsg:      re(/id="__VIEWSTATEGENERATOR"[^>]*value="([^"]*)"/, html),
+      dateName: re(/name="(ctl[^"]*dateControlDate)"/, html),
+      btnName:  re(/name="(ctl[^"]*btnGet)"/, html),
+      excelRb:  re(/name="(ctl[^"]*rblExcelOptions)"/, html),
+      gvId:     re(/id="(ctl[^"]*gvFiyatlar)"/, html),
+      gvEt:     (() => {
+        // EventTarget: tüm '_' → '$' DEĞİL — GUID'deki '_' korunur.
+        // __doPostBack referansından direkt okunur.
+        const m = /__doPostBack\('([^']*gvFiyatlar[^']*)','Page\$/.exec(html)
+               ?? /doPostBack\(&#39;([^&]*gvFiyatlar[^&]*)&#39;,&#39;Page\$/.exec(html);
+        return m ? m[1] : "";
+      })(),
+    };
+  }
+
+  function pageNums(html: string): number[] {
+    return [...new Set(
+      [...html.matchAll(/Page\$(\d+)/g)].map((m) => parseInt(m[1], 10)),
+    )];
+  }
+
+  function buildPost(
+    fields: ReturnType<typeof extractFields>,
+    dateDDMMYYYY: string,
+    eventTarget = "",
+    eventArg    = "",
+  ): URLSearchParams {
+    const p = new URLSearchParams({
+      __EVENTTARGET:       eventTarget,
+      __EVENTARGUMENT:     eventArg,
+      __VIEWSTATE:         fields.vs,
+      __VIEWSTATEGENERATOR: fields.vsg,
+      __EVENTVALIDATION:   fields.ev,
+      [fields.dateName]:   dateDDMMYYYY,
+      [fields.excelRb]:    "1",
+    });
+    if (!eventTarget) p.set(fields.btnName, "Fiyat Bul");
+    return p;
+  }
+
+  // YYYY-MM-DD → DD.MM.YYYY
+  const [y, m, d] = date.split("-");
+  const dateTR = `${d}.${m}.${y}`;
+
+  // ─ Adım 1: GET ─────────────────────────────────────────────────────────────
+  const getRes = await fetch(pageUrl, fetchOpts);
+  if (!getRes.ok) throw new Error(`hal.gov.tr GET HTTP ${getRes.status}`);
+  let fields = extractFields(await getRes.text());
+
+  // ─ Adım 2: POST tarih + btnGet ─────────────────────────────────────────────
+  const postRes = await fetch(pageUrl, {
+    ...fetchOpts,
+    method: "POST",
+    headers: { ...fetchOpts.headers, "Content-Type": "application/x-www-form-urlencoded", Referer: pageUrl },
+    body: buildPost(fields, dateTR),
+  });
+  if (!postRes.ok) throw new Error(`hal.gov.tr POST HTTP ${postRes.status}`);
+  const firstHtml = await postRes.text();
+  fields = extractFields(firstHtml);
+
+  const rows: NormalizedRow[] = parseHalGovTrPage(firstHtml, fields.gvId);
+  const visited = new Set([1]);
+  const knownPages = new Set(pageNums(firstHtml));
+
+  // ─ Adım 3: Pagination ──────────────────────────────────────────────────────
+  while (true) {
+    const next = [...knownPages].find((n) => !visited.has(n));
+    if (next == null) break;
+
+    const pgRes = await fetch(pageUrl, {
+      ...fetchOpts,
+      method: "POST",
+      headers: { ...fetchOpts.headers, "Content-Type": "application/x-www-form-urlencoded", Referer: pageUrl },
+      body: buildPost(fields, dateTR, fields.gvEt, `Page$${next}`),
+    });
+    if (!pgRes.ok) break;
+    const pgHtml = await pgRes.text();
+    fields = extractFields(pgHtml);
+    rows.push(...parseHalGovTrPage(pgHtml, fields.gvId));
+    visited.add(next);
+    pageNums(pgHtml).forEach((n) => knownPages.add(n));
+  }
+
+  return { rows, dateUsed: date, httpStatus: postRes.status };
+}
+
+/**
+ * hal.gov.tr tek sayfa parse — GridView tablosundan NormalizedRow dizisi üretir.
+ * Ürün Adı | Ürün Cinsi | Ürün Türü | Ortalama Fiyat | İşlem Hacmi | Birim Adı
+ */
+function parseHalGovTrPage(html: string, gvId: string): NormalizedRow[] {
+  const start = html.indexOf(`id="${gvId}"`);
+  if (start === -1) return [];
+  const chunk = html.slice(start, start + 500_000);
+  const trPat  = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
+  const tdPat  = /<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi;
+  const tagPat = /<[^>]+>/g;
+
+  const rows: NormalizedRow[] = [];
+  let trM: RegExpExecArray | null;
+  while ((trM = trPat.exec(chunk))) {
+    const cells: string[] = [];
+    let tdM: RegExpExecArray | null;
+    tdPat.lastIndex = 0;
+    while ((tdM = tdPat.exec(trM[1]))) {
+      const txt = tdM[1].replace(tagPat, "").replace(/\s+/g, " ").trim();
+      cells.push(decodeHtmlEntities(txt));
+    }
+    if (cells.length < 4) continue;
+    const [urunAdi, urunCinsi, , fiyatRaw, , birimRaw] = cells;
+    // Pager satırları: ilk hücre sayı veya "..."
+    if (!urunAdi || /^[\d\.]+$|^\.\.\.$/.test(urunAdi)) continue;
+    // Başlık satırı
+    if (urunAdi.includes("Ürün Adı") || urunAdi.includes("rün Ad")) continue;
+
+    // Cinsi ürün adından farklıysa ismi zenginleştir
+    const name = (urunCinsi && urunCinsi !== urunAdi)
+      ? `${urunAdi} ${urunCinsi}`.trim()
+      : urunAdi.trim();
+
+    const avg = parseTrPrice(fiyatRaw ?? "");
+    if (avg == null) continue;
+
+    rows.push({
+      name,
+      category: "sebze-meyve",
+      unit: (birimRaw ?? "kg").toLowerCase() || "kg",
+      avg,
+      min: null,
+      max: null,
+    });
+  }
+  return rows;
+}
+
+/**
+ * hal.gov.tr — tam HTML parse (tüm sayfalar birleştirilmiş veri yoksa fallback).
+ * Normalde `fetchHalGovTrDated` kullanır; bu fonksiyon parseResponse switch'i için.
+ */
+function parseHalGovTrHtml(html: string): NormalizedRow[] {
+  const gvId = /id="(ctl[^"]*gvFiyatlar)"/.exec(html)?.[1] ?? "";
+  return gvId ? parseHalGovTrPage(html, gvId) : [];
+}
+
+function parseTrPrice(raw: string): number | null {
+  // "190,22" → 190.22 | "1.500,00" → 1500.00
+  const cleaned = raw.replace(/\./g, "").replace(",", ".");
+  const n = parseFloat(cleaned);
+  return Number.isFinite(n) ? n : null;
+}
+
+function decodeHtmlEntities(s: string): string {
+  return s
+    .replace(/&amp;/g,  "&")
+    .replace(/&lt;/g,   "<")
+    .replace(/&gt;/g,   ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#(\d+);/g, (_, c) => String.fromCharCode(parseInt(c, 10)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, c) => String.fromCharCode(parseInt(c, 16)));
 }
 
 /**

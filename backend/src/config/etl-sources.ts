@@ -28,7 +28,8 @@ type ResponseShape =
   | "gaziantep_html"
   | "bursa_html"
   | "kocaeli_html"
-  | "balikesir_html";
+  | "balikesir_html"
+  | "hal_gov_tr_html";
 
 export interface EtlSourceConfig {
   key:              string;          // DB'de source_api olarak yazılır
@@ -238,6 +239,21 @@ const RAW_SOURCES: RawSource[] = [
     defaultBaseUrl:    "https://www.kocaeli.bel.tr",
     defaultEndpoint:   "1",
     responseShape:     "kocaeli_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // hal.gov.tr Fiyat İstatistikleri — ASP.NET ViewState + paginasyonlu GridView.
+  // Ulusal ortalama fiyatlar (tüm Türkiye haf fiyatı agregasyonu).
+  // Kolonlar: Ürün Adı | Ürün Cinsi | Ürün Türü | Ortalama Fiyat | İşlem Hacmi | Birim.
+  // Fetcher: GET → ViewState al → POST tarih + btnGet → tüm sayfaları dön.
+  // Not: sayfa "bugün" gösterse de bir önceki günün verisi gelir (1 gün gecikme).
+  {
+    key:               "hal_gov_tr_ulusal",
+    defaultEnabled:    true,
+    defaultMarketSlug: "ulusal-hal-gov-tr",
+    defaultBaseUrl:    "https://www.hal.gov.tr",
+    defaultEndpoint:   "/Sayfalar/FiyatDetaylari.aspx",
+    responseShape:     "hal_gov_tr_html",
     defaultUnit:       "kg",
     defaultCategory:   "sebze-meyve",
   },

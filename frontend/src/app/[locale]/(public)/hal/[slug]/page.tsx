@@ -82,7 +82,44 @@ export default async function HalPage({ params }: Props) {
     );
   }
 
-  const weatherSlug = cityToWeatherSlug(market.cityName);
+  const isNational = market.regionSlug === "ulusal";
+  const weatherSlug = isNational ? null : cityToWeatherSlug(market.cityName);
+
+  if (isNational) {
+    return (
+      <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+        <div className="mb-8">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
+              Ulusal Referans
+            </span>
+            <span className="rounded-full border border-(--color-brand)/30 bg-(--color-brand)/10 px-2 py-0.5 font-(family-name:--font-mono) text-[10px] font-semibold text-(--color-brand)">
+              hal.gov.tr
+            </span>
+          </div>
+          <h1 className="mt-2 font-(family-name:--font-display) text-3xl font-bold text-(--color-foreground)">
+            {market.name}
+          </h1>
+          <p className="mt-1 text-sm text-(--color-muted)">
+            {latestDate
+              ? `${new Date(latestDate + "T12:00:00Z").toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })} fiyatları`
+              : "Veri bekleniyor"}
+          </p>
+        </div>
+
+        <div className="mb-8 rounded-[14px] border border-(--color-border) bg-(--color-surface) p-5 text-[13px] text-(--color-muted) space-y-1.5">
+          <p>
+            <span className="font-semibold text-(--color-foreground)">Ulusal ortalama fiyatlar</span>{" "}
+            — Türkiye genelindeki toptancı hallerden derlenen ağırlıklı ortalama.
+            Şehir bazlı hal fiyatları için bölgesel sayfaları inceleyin.
+          </p>
+          <p>Veriler 1 gün gecikmeli güncellenir. Min/maks aralığı bu kaynakta mevcut değildir.</p>
+        </div>
+
+        <PriceTable initialPrices={prices} markets={markets} />
+      </main>
+    );
+  }
 
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">

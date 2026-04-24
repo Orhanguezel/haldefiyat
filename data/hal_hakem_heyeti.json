@@ -1,0 +1,655 @@
+{
+  "source": "https://www.hal.gov.tr/Sayfalar/HalHakemListesi.aspx",
+  "scraped_at": "2026-04-24",
+  "count": 81,
+  "data": [
+    {
+      "il": "ADANA",
+      "heyet_adi": "ADANA MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ADANA",
+      "adres": "",
+      "telefon": "",
+      "faks": ""
+    },
+    {
+      "il": "ADIYAMAN",
+      "heyet_adi": "ADIYAMAN MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ADIYAMAN",
+      "adres": "ATATÜRK CADDESİ 302. SOKAK KAT:1 NO:1 TALAT TANKUT İŞHANI MERKEZ/ADIYAMAN",
+      "telefon": "4162138943",
+      "faks": "4162138942"
+    },
+    {
+      "il": "AFYONKARAHİSAR",
+      "heyet_adi": "AFYONKARAHİSAR MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "AFYONKARAHİSAR",
+      "adres": "HÜKÜMET KONAĞI BODRUM KAT/AFYONKARAHİSAR",
+      "telefon": "2722137056",
+      "faks": "2722137055"
+    },
+    {
+      "il": "AĞRI",
+      "heyet_adi": "AĞRI MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "AĞRI",
+      "adres": "FIRAT MAH. ERZURUM CAD. VALİLİK HİZMET BİNASI KAT: 4 AĞRI",
+      "telefon": "4722158434",
+      "faks": "4722158435"
+    },
+    {
+      "il": "AMASYA",
+      "heyet_adi": "AMASYA MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "AMASYA",
+      "adres": "KEMAL ILICAK CAD.NO:4 KAT:4 AMASYA",
+      "telefon": "3582181332",
+      "faks": "3582184059"
+    },
+    {
+      "il": "ANKARA",
+      "heyet_adi": "ANKARA MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ANKARA",
+      "adres": "DOĞANBEY MAH. İSTANBUL CADDESİ NO:24 KAT: 1-2-3 ULUS 06060 ALTINDAĞ / ANKARA",
+      "telefon": "3123112265",
+      "faks": "3123112261"
+    },
+    {
+      "il": "ANTALYA",
+      "heyet_adi": "ANTALYA MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ANTALYA",
+      "adres": "ATATÜRK CADDESİ 1252 SOKAK NO:2 RAŞİT BERBEROĞLU İŞHANI KAT:5-6 MURATPAŞA / ANTALYA",
+      "telefon": "2422438812",
+      "faks": "2422438815"
+    },
+    {
+      "il": "ARTVİN",
+      "heyet_adi": "ARTVİN MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ARTVİN",
+      "adres": "ÇARŞI MAHALLESİ KARADUMAN İŞHANI KAT:4 08000/ARTVİN",
+      "telefon": "4662121764",
+      "faks": "4662121701"
+    },
+    {
+      "il": "AYDIN",
+      "heyet_adi": "AYDIN MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "AYDIN",
+      "adres": "HASAN EFENDİ MAHALLESİ GENÇLİK CADDESİ 1904 SOKAK NO:2 KAT:5-6 (ESKİ TEKEL BİNASI) /AYDIN",
+      "telefon": "2562139697",
+      "faks": "2562139646"
+    },
+    {
+      "il": "BALIKESİR",
+      "heyet_adi": "BALIKESİR MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "BALIKESİR",
+      "adres": "BALIKESİR VALİLİĞİ HİZMET BİNASI 2. KAT 10100 / BALIKESİR",
+      "telefon": "2662490341",
+      "faks": "2662437325"
+    },
+    {
+      "il": "BİLECİK",
+      "heyet_adi": "BİLECİK MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "BİLECİK",
+      "adres": "VALİLİK BİNASI CUMHURİYET MAH. CUMHURİYET CAD. NO:25 11100 MERKEZ/BİLECİK",
+      "telefon": "2282100229",
+      "faks": "2282100231"
+    },
+    {
+      "il": "BİNGÖL",
+      "heyet_adi": "BİNGÖL MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "BİNGÖL",
+      "adres": "YENİŞEHİR MAH. HÜKÜMET KONAĞI KAT:3 MERKEZ/BİNGÖL",
+      "telefon": "4262131093",
+      "faks": "4262131098"
+    },
+    {
+      "il": "BİTLİS",
+      "heyet_adi": "BİTLİS MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "BİTLİS",
+      "adres": "TAŞ MAHALLESİ HÜKÜMET KONAĞI KAT:3 BİTLİS",
+      "telefon": "4342262030",
+      "faks": "4342266567"
+    },
+    {
+      "il": "BOLU",
+      "heyet_adi": "BOLU MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "BOLU",
+      "adres": "AKTAŞ MAH. TAŞHANCILAR CAD. NO:10 KAT:2 MERKEZ/BOLU",
+      "telefon": "3742201919",
+      "faks": "3742201920"
+    },
+    {
+      "il": "BURDUR",
+      "heyet_adi": "BURDUR MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "BURDUR",
+      "adres": "BURÇ MAH. İSTASYON CAD. NO:27/A BURDUR",
+      "telefon": "2482122260",
+      "faks": "2482344088"
+    },
+    {
+      "il": "BURSA",
+      "heyet_adi": "BURSA MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "BURSA",
+      "adres": "FEVZİ ÇAKMAK CADDESİ FOMARA İŞ HANI NO :73 ZEMİN ÜST KAT OSMANGAZİ/BURSA",
+      "telefon": "2242710045",
+      "faks": "2242710024"
+    },
+    {
+      "il": "ÇANAKKALE",
+      "heyet_adi": "ÇANAKKALE MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ÇANAKKALE",
+      "adres": "KEMALPAŞA MAH. YALI CAD. VAKIF İŞHANI NO: 16 KAT:1 MERKEZ/ÇANAKKALE",
+      "telefon": "2862136842",
+      "faks": "2862136825"
+    },
+    {
+      "il": "ÇANKIRI",
+      "heyet_adi": "ÇANKIRI MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ÇANKIRI",
+      "adres": "CUMHURİYET MAH. KUYUMCULAR SOK. KAT:3 NO:7 ÇANKIRI",
+      "telefon": "3762122250",
+      "faks": "3762122350"
+    },
+    {
+      "il": "ÇORUM",
+      "heyet_adi": "ÇORUM MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ÇORUM",
+      "adres": "HÜKÜMET KONAĞI B BLOK KAT:9 ÇORUM",
+      "telefon": "3646661900",
+      "faks": "3646661903"
+    },
+    {
+      "il": "DENİZLİ",
+      "heyet_adi": "DENİZLİ MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "DENİZLİ",
+      "adres": "ENVER PAŞA CADDESİ BAYRAMYERİ MEYDAN ÖZEL İDARE İŞHANI 5. KAT MERKEZ/DENİZLİ",
+      "telefon": "2582618898",
+      "faks": "2582618891"
+    },
+    {
+      "il": "DİYARBAKIR",
+      "heyet_adi": "DİYARBAKIR MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "DİYARBAKIR",
+      "adres": "VALİLİK EK BİNASI KAT:3 YENİŞEHİR 21100/ DİYARBAKIR",
+      "telefon": "4122247172",
+      "faks": "4122247174"
+    },
+    {
+      "il": "EDİRNE",
+      "heyet_adi": "EDİRNE MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "EDİRNE",
+      "adres": "HÜKÜMET CAD. VİLAYET BİNASI KAT 3 MERKEZ / EDİRNE",
+      "telefon": "2842124122",
+      "faks": "2842124222"
+    },
+    {
+      "il": "ELAZIĞ",
+      "heyet_adi": "ELAZIĞ MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ELAZIĞ",
+      "adres": "ZÜBEYDE HANIM CADDESİ HÜKÜMET KONAĞI KAT:4 ELAZIĞ",
+      "telefon": "4242341100",
+      "faks": "4242341101"
+    },
+    {
+      "il": "ERZİNCAN",
+      "heyet_adi": "ERZİNCAN MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ERZİNCAN",
+      "adres": "DEFTERDARLIK BİNASI KAT:1 ERZİNCAN",
+      "telefon": "4462244942",
+      "faks": "4462244962"
+    },
+    {
+      "il": "ERZURUM",
+      "heyet_adi": "ERZURUM MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ERZURUM",
+      "adres": "ATALAR MAH. YÖNETİM CAD. VALİLİK BİNASI KAT:5- YAKUTİYE/ERZURUM",
+      "telefon": "4422374277",
+      "faks": "4422374276"
+    },
+    {
+      "il": "ESKİŞEHİR",
+      "heyet_adi": "ESKİŞEHİR MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ESKİŞEHİR",
+      "adres": "",
+      "telefon": "",
+      "faks": ""
+    },
+    {
+      "il": "GAZİANTEP",
+      "heyet_adi": "GAZİANTEP MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "GAZİANTEP",
+      "adres": "YENİ VALİLİK BİNASI K:4 İNCİLİPINAR MAH. MUAMMER AKSOY BULV. NO:3 27090 ŞEHİTKAMİL/GAZİANTEP",
+      "telefon": "3422209700",
+      "faks": "3422209702"
+    },
+    {
+      "il": "GİRESUN",
+      "heyet_adi": "GİRESUN MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "GİRESUN",
+      "adres": "ÇITLAKKALE MAH. HÜKÜMET KONAĞI C BLOK KAT:1/GİRESUN",
+      "telefon": "4542600027",
+      "faks": "4542600047"
+    },
+    {
+      "il": "GÜMÜŞHANE",
+      "heyet_adi": "GÜMÜŞHANE MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "GÜMÜŞHANE",
+      "adres": "KARAER MAHALLESİ HÜKÜMET BİNASI KAT : 4 MERKEZ / GÜMÜŞHANE",
+      "telefon": "4562134041",
+      "faks": "4562133529"
+    },
+    {
+      "il": "HAKKARİ",
+      "heyet_adi": "HAKKARİ MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "HAKKARİ",
+      "adres": "BULAK MAH. KONAK CAD. VALİLİK HİZMET BİNASI ZEMİN KAT/ HAKKARİ",
+      "telefon": "4382112107",
+      "faks": "4382112169"
+    },
+    {
+      "il": "HATAY",
+      "heyet_adi": "HATAY MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "HATAY",
+      "adres": "KIŞLASARAY MAH. VALİLİK BİNASI B BLOK ZEMİN KAT 31070 ANTAKYA/HATAY",
+      "telefon": "3262135300",
+      "faks": "3262155454"
+    },
+    {
+      "il": "ISPARTA",
+      "heyet_adi": "ISPARTA MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ISPARTA",
+      "adres": "EĞİRDİR YOLU ÜZERİ İL ÖZEL İDARE YANI MERKEZ/ISPARTA",
+      "telefon": "2465005025",
+      "faks": "2465005027"
+    },
+    {
+      "il": "MERSİN",
+      "heyet_adi": "MERSİN(İÇEL) MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "MERSİN",
+      "adres": "KUVAYIMİLLİYE CAD. MER-İN İŞ MERKEZİ C BLOK 3. KAT AKDENİZ / MERSİN",
+      "telefon": "3243361795",
+      "faks": "3243368551"
+    },
+    {
+      "il": "İSTANBUL",
+      "heyet_adi": "İSTANBUL MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "İSTANBUL",
+      "adres": "Hobyar Mahallesi, Büyük Postane Caddesi, Postane Yanı Sokak No:1 Sirkeci-Fatih/İSTANBUL",
+      "telefon": "2125141213",
+      "faks": "2125112141"
+    },
+    {
+      "il": "İZMİR",
+      "heyet_adi": "İZMİR MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "İZMİR",
+      "adres": "İZMİR CUMHURİYET BULVARI NO : 120 KAT : 6 PASAPORT,KONAK / İZMİR",
+      "telefon": "2324452706",
+      "faks": "2324897479"
+    },
+    {
+      "il": "KARS",
+      "heyet_adi": "KARS MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "KARS",
+      "adres": "CUMHURİYET MAH. ARİF TAŞÇI CAD. BORSA SOKAK ÖZBARIŞ APARTMANI KAT:1 MERKEZ/KARS",
+      "telefon": "4742127556",
+      "faks": "4742127560"
+    },
+    {
+      "il": "KASTAMONU",
+      "heyet_adi": "KASTAMONU MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "KASTAMONU",
+      "adres": "CEBRAİL MAHALLESİ PLEVNE CAD. İHSAN KESKİNBIÇAK İŞ MERKEZİ NO:48 KAT:4 D:11-12 KASTAMONU",
+      "telefon": "3662200437",
+      "faks": "3662200439"
+    },
+    {
+      "il": "KAYSERİ",
+      "heyet_adi": "KAYSERİ MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "KAYSERİ",
+      "adres": "GÜLÜK MAH. YUNUS EMRE CAD. DÜVENÖNÜ İŞ MERKEZİ 10/L MELİKGAZİ / KAYSERİ",
+      "telefon": "3522201202",
+      "faks": "3522201205"
+    },
+    {
+      "il": "KIRKLARELİ",
+      "heyet_adi": "KIRKLARELİ MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "KIRKLARELİ",
+      "adres": "MERKEZ KARACAİBRAHİM MAH. CUMHURİYET CAD. 2. ÇIKMAZI SOK. NO:7 KAT 2 MERKEZ / KIRKLARELİ",
+      "telefon": "2882126031",
+      "faks": "2882126051"
+    },
+    {
+      "il": "KIRŞEHİR",
+      "heyet_adi": "KIRŞEHİR MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "KIRŞEHİR",
+      "adres": "YENİCE MAHALLESİ 177. SOKAK NO:11 MERKEZ/KIRŞEHİR",
+      "telefon": "3862131106",
+      "faks": "3862131104"
+    },
+    {
+      "il": "KOCAELİ",
+      "heyet_adi": "KOCAELİ MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "KOCAELİ",
+      "adres": "ÖMERAĞA MAH. ANKARA KARAYOLU CAD. NO:61 41040- İZMİT / KOCAELİ",
+      "telefon": "2623247707",
+      "faks": "2623247708"
+    },
+    {
+      "il": "KAHRAMANMARAŞ",
+      "heyet_adi": "KAHRAMANMARAŞ MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "KAHRAMANMARAŞ",
+      "adres": "TRABZON CAD. ÖZEL İDARE İŞ MERKEZİ KAT .7/ KAHRAMANMARAŞ",
+      "telefon": "3442233600",
+      "faks": "3442236603"
+    },
+    {
+      "il": "KONYA",
+      "heyet_adi": "KONYA MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "KONYA",
+      "adres": "B. İHSANİYE MAH. ALAY CAD. NO: 32 KAT: 4 – 5 SELÇUKLU/KONYA",
+      "telefon": "3323204900",
+      "faks": "3323204910"
+    },
+    {
+      "il": "KÜTAHYA",
+      "heyet_adi": "KÜTAHYA MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "KÜTAHYA",
+      "adres": "",
+      "telefon": "",
+      "faks": ""
+    },
+    {
+      "il": "MALATYA",
+      "heyet_adi": "MALATYA MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "MALATYA",
+      "adres": "İNÖNÜ CADDESİ SITMAPINARI POLİSEVİ KARŞISI HALK EĞİTİM BİNASI KAT:1/ MALATYA",
+      "telefon": "4223211198",
+      "faks": "4223259799"
+    },
+    {
+      "il": "MANİSA",
+      "heyet_adi": "MANİSA MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "MANİSA",
+      "adres": "ANAFARTALAR MAH. MUSTAFA KEMALPAŞA BULVARI VAKIF İŞ HANI KAT:2 / MANİSA",
+      "telefon": "2362505001",
+      "faks": "2362505002"
+    },
+    {
+      "il": "MARDİN",
+      "heyet_adi": "MARDİN MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "MARDİN",
+      "adres": "MARDİN HÜKÜMET KONAĞI KAT:3 YENİŞEHİR/MARDİN",
+      "telefon": "4822126303",
+      "faks": "4822126302"
+    },
+    {
+      "il": "MUĞLA",
+      "heyet_adi": "MUĞLA MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "MUĞLA",
+      "adres": "ŞEYH MAHALLESİ İNÖNÜ CADDESİ MAHMUTOĞLU APARTMANI KAT:2 NO: 11/C MERKEZ/MUĞLA",
+      "telefon": "2522121244",
+      "faks": "2522121243"
+    },
+    {
+      "il": "MUŞ",
+      "heyet_adi": "MUŞ MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "MUŞ",
+      "adres": "KÜLTÜR MAHALLESİ İSTASYON CADDESİ HÜKÜMET KONAĞI ZEMİN KAT İSTASYON/ MUŞ",
+      "telefon": "4362128085",
+      "faks": "4362128083"
+    },
+    {
+      "il": "NEVŞEHİR",
+      "heyet_adi": "NEVŞEHİR MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "NEVŞEHİR",
+      "adres": "HÜKÜMET KONAĞI D BLOK KAT:4 NEVŞEHİR",
+      "telefon": "3842132506",
+      "faks": "3842132505"
+    },
+    {
+      "il": "NİĞDE",
+      "heyet_adi": "NİĞDE MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "NİĞDE",
+      "adres": "VALİLİK EK BİNASI 1. KAT/NİĞDE",
+      "telefon": "3882320060",
+      "faks": "3882320097"
+    },
+    {
+      "il": "ORDU",
+      "heyet_adi": "ORDU MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ORDU",
+      "adres": "SARAY MAH. ULU KONAK CAD. NO:1/A KAT:4 /ORDU",
+      "telefon": "4522253295",
+      "faks": "4522234916"
+    },
+    {
+      "il": "RİZE",
+      "heyet_adi": "RİZE MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "RİZE",
+      "adres": "EMİNETTİN MAH. MENDERES BULVARI YAVUZ PLAZA K:3 D:203 MERKEZ/ RİZE",
+      "telefon": "4642179062",
+      "faks": "4642179082"
+    },
+    {
+      "il": "SAKARYA",
+      "heyet_adi": "SAKARYA MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "SAKARYA",
+      "adres": "CAMİLİ 2 MAHALLESİ RESMİ DAİRELER KAMPÜSÜ ADAPAZARI/SAKARYA",
+      "telefon": "2642513640",
+      "faks": "2642513637"
+    },
+    {
+      "il": "SAMSUN",
+      "heyet_adi": "SAMSUN MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "SAMSUN",
+      "adres": "ZAFER MAH. FUAR CAD. VALİLİK HİZMET BİNASI B BLOK KAT: 4 55062 İLKADIM/SAMSUN",
+      "telefon": "3624200670",
+      "faks": "3624200673"
+    },
+    {
+      "il": "SİİRT",
+      "heyet_adi": "SİİRT MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "SİİRT",
+      "adres": "BATI MAHALLESİ MİTHAT ÖKTÜREN CADDESİ NO:3 ÖZBEL İŞHANI KAT:4 / SİİRT",
+      "telefon": "4842242684",
+      "faks": "4842242686"
+    },
+    {
+      "il": "SİNOP",
+      "heyet_adi": "SİNOP MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "SİNOP",
+      "adres": "ÖZAKMAN İŞHANI KAT:4/ SİNOP",
+      "telefon": "3682614844",
+      "faks": "3682614808"
+    },
+    {
+      "il": "SİVAS",
+      "heyet_adi": "SİVAS MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "SİVAS",
+      "adres": "ESKİ KALE MAH. OSMAN PAŞA CAD. ARI SİTESİ KAT:3 NO:11 / SİVAS",
+      "telefon": "3462248811",
+      "faks": "3462211291"
+    },
+    {
+      "il": "TEKİRDAĞ",
+      "heyet_adi": "TEKİRDAĞ MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "TEKİRDAĞ",
+      "adres": "100.YIL MAHALLESİ İTFAİYE SOKAK MARMARA YAŞAM EVLERİ KONUT SİTESİ B/BLOK NO:13/4 TEKİRDAĞ",
+      "telefon": "2822629666",
+      "faks": "2822629664"
+    },
+    {
+      "il": "TOKAT",
+      "heyet_adi": "TOKAT MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "TOKAT",
+      "adres": "ALİPAŞA MH. VALİLİK BİNASI KAT:3 TOKAT",
+      "telefon": "3562126000",
+      "faks": "3562126000"
+    },
+    {
+      "il": "TRABZON",
+      "heyet_adi": "TRABZON MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "TRABZON",
+      "adres": "ÇARŞI MAHALLESİ CUMHURİYET CADDESİ NO:3/A ESNAF SARAYI KAT:2-5 61100 TRABZON",
+      "telefon": "4623210129",
+      "faks": "4623216158"
+    },
+    {
+      "il": "TUNCELİ",
+      "heyet_adi": "TUNCELİ MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "TUNCELİ",
+      "adres": "ATATÜRK MAH. HÜKÜMET KONAĞI KAT:3 MERKEZ/TUNCELİ",
+      "telefon": "4282133354",
+      "faks": "4282133354"
+    },
+    {
+      "il": "ŞANLIURFA",
+      "heyet_adi": "ŞANLIURFA MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ŞANLIURFA",
+      "adres": "VALİLİK BİNASI A BLOK KAT:2 / ŞANLIURFA",
+      "telefon": "4143138522",
+      "faks": "4143125633"
+    },
+    {
+      "il": "UŞAK",
+      "heyet_adi": "UŞAK MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "UŞAK",
+      "adres": "KURTULUŞ MAHALLESİ HÜKÜMET KONAĞI KAT:3 MERKEZ / UŞAK",
+      "telefon": "2762276425",
+      "faks": "2762274564"
+    },
+    {
+      "il": "VAN",
+      "heyet_adi": "VAN MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "VAN",
+      "adres": "VAN VALİLİĞİ C BLOK KAT:1 BEŞYOL/VAN",
+      "telefon": "4322166575",
+      "faks": "4322166576"
+    },
+    {
+      "il": "YOZGAT",
+      "heyet_adi": "YOZGAT MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "YOZGAT",
+      "adres": "AŞAĞI NOHUTLU MH. VALİLİK HİZMET BİNASI 3.KAT YOZGAT",
+      "telefon": "3542122830",
+      "faks": "3542122829"
+    },
+    {
+      "il": "ZONGULDAK",
+      "heyet_adi": "ZONGULDAK MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ZONGULDAK",
+      "adres": "HÜKÜMET KONAĞI 4. KAT TİCARET İL MÜDÜRLÜĞÜ/ZONGULDAK",
+      "telefon": "3722221100",
+      "faks": "3722221103"
+    },
+    {
+      "il": "AKSARAY",
+      "heyet_adi": "AKSARAY MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "AKSARAY",
+      "adres": "SANAYİ MAHALLESİ E-90 KARAYOLU ÜZERİ VALİLİK 3 NOLU EK BİNA KAT:2 AKSARAY",
+      "telefon": "3825050089",
+      "faks": "3825050088"
+    },
+    {
+      "il": "BAYBURT",
+      "heyet_adi": "BAYBURT MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "BAYBURT",
+      "adres": "ŞEYHHAYRAN MAH. DEDE KORKUT CAD. NO:46/4 BAYBURT",
+      "telefon": "4582101051",
+      "faks": "4582101053"
+    },
+    {
+      "il": "KARAMAN",
+      "heyet_adi": "KARAMAN MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "KARAMAN",
+      "adres": "HAMİDİYE MAH. FEVZİPAŞA CAD. NO:3 KARAMAN",
+      "telefon": "3382129600",
+      "faks": "3382129601"
+    },
+    {
+      "il": "KIRIKKALE",
+      "heyet_adi": "KIRIKKALE MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "KIRIKKALE",
+      "adres": "YAYLACIK MAHALLESİ 11.SOKAK 54/A MERKEZ/ KIRIKKALE",
+      "telefon": "3182255959",
+      "faks": "3182255859"
+    },
+    {
+      "il": "BATMAN",
+      "heyet_adi": "BATMAN MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "BATMAN",
+      "adres": "KÜLTÜR MAHALLESİ ADALET SOKAK HÜKÜMET KONAĞI B BLOK KAT:1 BATMAN",
+      "telefon": "4882152818",
+      "faks": "4882152816"
+    },
+    {
+      "il": "ŞIRNAK",
+      "heyet_adi": "ŞIRNAK MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ŞIRNAK",
+      "adres": "YENİ MAH. CİZRE CAD. TARIM GIDA VE HAYVANCILIK İL MÜDÜRLÜĞÜ HİZMET BİNASI/ ŞIRNAK",
+      "telefon": "4862161671",
+      "faks": "4862161675"
+    },
+    {
+      "il": "BARTIN",
+      "heyet_adi": "BARTIN MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "BARTIN",
+      "adres": "VALİLİK BİNASI KAT:1 BARTIN",
+      "telefon": "3782286605",
+      "faks": "3782286505"
+    },
+    {
+      "il": "ARDAHAN",
+      "heyet_adi": "ARDAHAN MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "ARDAHAN",
+      "adres": "KOCA MUSTAFA BEY CAD. ESNAF VE SANATKARLAR ODALAR BİRLİĞİ BAŞKANLIĞI HİZMET BİNASI KAT:2 NO:36 ARDAHAN",
+      "telefon": "4782114280",
+      "faks": "4782114279"
+    },
+    {
+      "il": "IĞDIR",
+      "heyet_adi": "IĞDIR MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "IĞDIR",
+      "adres": "SÖĞÜTLÜ MAHALLESİ IĞDIR KÜLTÜR MERKEZİ KAT: 2 NO: 39 IĞDIR",
+      "telefon": "4762262585",
+      "faks": ""
+    },
+    {
+      "il": "YALOVA",
+      "heyet_adi": "YALOVA MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "YALOVA",
+      "adres": "ŞEHİT ÖMER FAYDALI CAD. 135/2 MERKEZ/YALOVA",
+      "telefon": "2268140182",
+      "faks": "2268138205"
+    },
+    {
+      "il": "KARABÜK",
+      "heyet_adi": "KARABÜK MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "KARABÜK",
+      "adres": "VALİLİK BİNASI GİRİŞ KAT KARABÜK",
+      "telefon": "3704152008",
+      "faks": "3704152011"
+    },
+    {
+      "il": "KİLİS",
+      "heyet_adi": "KİLİS MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "KİLİS",
+      "adres": "CUMHURİYET CADDESİ KESTANLIOĞLU İŞ MERKEZİ 2.KAT NO:36 MERKEZ / KİLİS",
+      "telefon": "3488142132",
+      "faks": "3488142133"
+    },
+    {
+      "il": "OSMANİYE",
+      "heyet_adi": "OSMANİYE MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "OSMANİYE",
+      "adres": "ADNAN MENDERES MH. MUHSİN YAZICIOĞLU CD. AYDIN GÜRHAN İŞ MERKEZİ KAT:3-4 NO:4-5-6 OSMANİYE",
+      "telefon": "3288257888",
+      "faks": "3288257856"
+    },
+    {
+      "il": "DÜZCE",
+      "heyet_adi": "DÜZCE MERKEZ İl Hal Hakem Heyeti",
+      "heyet_il": "DÜZCE",
+      "adres": "VALİLİK BİNASI F BLOK KAT:1 MERKEZ/DÜZCE",
+      "telefon": "3805121995",
+      "faks": "3805121929"
+    }
+  ]
+}

@@ -54,6 +54,7 @@ const SOURCE_FAMILY_BADGE: Record<string, string> = {
   denizli:   "bg-pink-500/15 text-pink-300 border-pink-500/30",
   antalya:   "bg-orange-500/15 text-orange-300 border-orange-500/30",
   ibb:       "bg-blue-500/15 text-blue-300 border-blue-500/30",
+  hal:       "bg-teal-500/15 text-teal-300 border-teal-500/30",
   manual:    "bg-white/10 text-(--color-muted) border-white/10",
 };
 
