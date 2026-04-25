@@ -301,6 +301,68 @@ export async function productPriceHistory(productSlug: string, marketSlug?: stri
     .orderBy(hfPriceHistory.recordedDate, hfMarkets.displayOrder);
 }
 
+/**
+ * Widget endpoint icin urun bazi en guncel fiyat + haftalik degisim yuzdesi.
+ * Pazar ortalamalari alinir; changePct = null ise onceki veri yoktur.
+ */
+export async function widgetPrices(slugs?: string[], category?: string, limit = 12) {
+  const productConds: SQL[] = [eq(hfProducts.isActive, 1)];
+  if (slugs?.length) productConds.push(inArray(hfProducts.slug, slugs));
+  if (category) productConds.push(eq(hfProducts.categorySlug, category));
+
+  const latestRows = await db
+    .select({
+      productSlug:  hfProducts.slug,
+      productName:  hfProducts.nameTr,
+      categorySlug: hfProducts.categorySlug,
+      unit:         hfProducts.unit,
+      avgPrice:     sql<string>`AVG(${hfPriceHistory.avgPrice})`,
+    })
+    .from(hfPriceHistory)
+    .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+    .where(and(
+      gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 3 DAY)`),
+      ...productConds,
+    ))
+    .groupBy(hfProducts.id, hfProducts.slug, hfProducts.nameTr, hfProducts.categorySlug, hfProducts.unit)
+    .orderBy(hfProducts.displayOrder)
+    .limit(limit);
+
+  if (!latestRows.length) return [];
+
+  const latestSlugs = latestRows.map((r) => r.productSlug);
+
+  const prevRows = await db
+    .select({
+      productSlug: hfProducts.slug,
+      avgPrice:    sql<string>`AVG(${hfPriceHistory.avgPrice})`,
+    })
+    .from(hfPriceHistory)
+    .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+    .where(and(
+      gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 14 DAY)`),
+      lte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 7 DAY)`),
+      inArray(hfProducts.slug, latestSlugs),
+    ))
+    .groupBy(hfProducts.slug);
+
+  const prevMap = new Map(prevRows.map((r) => [r.productSlug, Number(r.avgPrice)]));
+
+  return latestRows.map((r) => {
+    const latest = Number(r.avgPrice);
+    const prev = prevMap.get(r.productSlug);
+    const changePct = prev ? Math.round((10000 * (latest - prev)) / prev) / 100 : null;
+    return {
+      productSlug:  r.productSlug,
+      productName:  r.productName,
+      categorySlug: r.categorySlug,
+      avgPrice:     latest,
+      unit:         r.unit ?? "kg",
+      changePct,
+    };
+  });
+}
+
 // ETL: tek satır upsert (DUPLICATE KEY UPDATE)
 export async function upsertPriceRow(input: {
   productId:   number;

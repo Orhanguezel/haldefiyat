@@ -8,6 +8,7 @@ import {
   parseRangeToDays,
   trendingChanges,
   latestRecordedDate,
+  widgetPrices,
 } from "./repository";
 import { resolveWeekRange } from "./iso-week";
 import { weeklyPriceSummary } from "./weekly";
@@ -54,6 +55,7 @@ const qWeekly = z.object({
 const qWidget = z.object({
   limit:    z.coerce.number().optional(),
   category: z.string().optional(),
+  slugs:    z.string().optional(),
 });
 
 function setPublicWidgetHeaders(reply: FastifyReply) {
@@ -131,20 +133,13 @@ export async function registerPrices(app: FastifyInstance) {
   app.get("/prices/widget", async (req, reply) => {
     setPublicWidgetHeaders(reply);
     const q = qWidget.safeParse(req.query);
-    const limit = Math.min(24, Math.max(1, q.success ? (q.data.limit ?? 6) : 6));
+    const limit = Math.min(24, Math.max(1, q.success ? (q.data.limit ?? 12) : 12));
     const category = q.success ? q.data.category : undefined;
+    const slugsRaw = q.success ? q.data.slugs : undefined;
+    const slugs = slugsRaw ? slugsRaw.split(",").map((s) => s.trim()).filter(Boolean) : undefined;
 
-    const items = await listPriceRows({ category, range: "3d", limit });
-    const minimal = items.map((r) => ({
-      productSlug:  r.productSlug,
-      productName:  r.productName,
-      categorySlug: r.categorySlug,
-      avgPrice:     Number(r.avgPrice),
-      unit:         r.unit,
-      marketName:   r.marketName,
-      recordedDate: r.recordedDate,
-    }));
-    return reply.send({ items: minimal, meta: { limit, category: category ?? null } });
+    const items = await widgetPrices(slugs, category, limit);
+    return reply.send({ items, meta: { limit, category: category ?? null, slugs: slugs ?? null } });
   });
 
   /**
