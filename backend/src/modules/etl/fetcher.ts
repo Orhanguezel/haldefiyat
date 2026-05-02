@@ -706,6 +706,10 @@ async function tryFetchViaScraper(
   if (!shouldUseScraperFor(source.key)) return null;
   if (!HTML_SHAPES.has(source.responseShape)) return null;
 
+  // hal.gov.tr: kendi dispatcher'i fetchHalGovTrDated icinden Scrapling'e yonelir.
+  // Bu helper'da bypass et, fetchDated dispatch'inde fetchHalGovTrDated cagirilir.
+  if (source.responseShape === "hal_gov_tr_html") return null;
+
   // Multi-step source'lar (Mersin: 4 paralel POST/kategori) icin ozel handler.
   if (source.key === "mersin_resmi") {
     return tryFetchMersinViaScraper(source, date);
@@ -1016,6 +1020,123 @@ async function fetchKocaeliDated(
   return { rows, dateUsed: date, httpStatus: res.status };
 }
 
+// ─ hal.gov.tr ASP.NET helpers (module-level: hem legacy fetchHalGovTrDated hem ─
+// ─ Scrapling-tabanli fetchHalGovTrViaScraper tarafindan kullanilir) ─────────
+const _halGovTrRe = (pat: RegExp, html: string) => pat.exec(html)?.[1] ?? "";
+
+function halGovTrExtractFields(html: string) {
+  return {
+    vs:       _halGovTrRe(/id="__VIEWSTATE"[^>]*value="([^"]*)"/, html),
+    ev:       _halGovTrRe(/id="__EVENTVALIDATION"[^>]*value="([^"]*)"/, html),
+    vsg:      _halGovTrRe(/id="__VIEWSTATEGENERATOR"[^>]*value="([^"]*)"/, html),
+    dateName: _halGovTrRe(/name="(ctl[^"]*dateControlDate)"/, html),
+    btnName:  _halGovTrRe(/name="(ctl[^"]*btnGet)"/, html),
+    excelRb:  _halGovTrRe(/name="(ctl[^"]*rblExcelOptions)"/, html),
+    gvId:     _halGovTrRe(/id="(ctl[^"]*gvFiyatlar)"/, html),
+    gvEt:     (() => {
+      const m = /__doPostBack\('([^']*gvFiyatlar[^']*)','Page\$/.exec(html)
+             ?? /doPostBack\(&#39;([^&]*gvFiyatlar[^&]*)&#39;,&#39;Page\$/.exec(html);
+      return m ? m[1] : "";
+    })(),
+  };
+}
+
+function halGovTrPageNums(html: string): number[] {
+  return [...new Set(
+    [...html.matchAll(/Page\$(\d+)/g)].map((m) => parseInt(m[1], 10)),
+  )];
+}
+
+function halGovTrBuildPost(
+  fields: ReturnType<typeof halGovTrExtractFields>,
+  dateDDMMYYYY: string,
+  eventTarget = "",
+  eventArg    = "",
+): URLSearchParams {
+  const p = new URLSearchParams({
+    __EVENTTARGET:       eventTarget,
+    __EVENTARGUMENT:     eventArg,
+    __VIEWSTATE:         fields.vs,
+    __VIEWSTATEGENERATOR: fields.vsg,
+    __EVENTVALIDATION:   fields.ev,
+    [fields.dateName]:   dateDDMMYYYY,
+    [fields.excelRb]:    "1",
+  });
+  if (!eventTarget) p.set(fields.btnName, "Fiyat Bul");
+  return p;
+}
+
+/**
+ * hal.gov.tr Scrapling tabanli akis (Asama 3).
+ *
+ * Mevcut fetchHalGovTrDated'in birebir kopyasi ama tum HTTP'ler scraper-service
+ * uzerinden (fast mode + curl-cffi TLS impersonation + cookies forward).
+ * Bun.fetch'in operation-timeout sorunu cozulur. Cookies multi-step session'i korur.
+ */
+async function fetchHalGovTrViaScraper(
+  source: EtlSourceConfig,
+  date: string,
+): Promise<FetchOutcome | null> {
+  const baseUrl = source.baseUrl;
+  const pageUrl = baseUrl + source.endpointTemplate;
+  const referer = pageUrl;
+
+  const [y, m, d] = date.split("-");
+  const dateTR = `${d}.${m}.${y}`;
+
+  // Adim 1: GET (Scrapling fast mode + cookies)
+  const step1 = await fetchViaScraper(pageUrl, {
+    mode: "fast",
+    timeoutSeconds: 30,
+    returnCookies: true,
+  });
+  if (!step1.ok || !step1.html) return null;
+  let fields = halGovTrExtractFields(step1.html);
+  let cookies = step1.cookies ?? {};
+
+  // Adim 2: POST tarih + btnGet
+  const step2 = await fetchViaScraper(pageUrl, {
+    mode: "fast",
+    method: "POST",
+    formData: Object.fromEntries(halGovTrBuildPost(fields, dateTR)),
+    cookies,
+    returnCookies: true,
+    extraHeaders: { Referer: referer },
+    timeoutSeconds: 30,
+  });
+  if (!step2.ok || !step2.html) return null;
+  fields = halGovTrExtractFields(step2.html);
+  cookies = step2.cookies ?? cookies;
+
+  const rows: NormalizedRow[] = parseHalGovTrPage(step2.html, fields.gvId);
+  const visited = new Set([1]);
+  const knownPages = new Set(halGovTrPageNums(step2.html));
+
+  // Adim 3: Pagination
+  while (true) {
+    const next = [...knownPages].find((n) => !visited.has(n));
+    if (next == null) break;
+
+    const stepN = await fetchViaScraper(pageUrl, {
+      mode: "fast",
+      method: "POST",
+      formData: Object.fromEntries(halGovTrBuildPost(fields, dateTR, fields.gvEt, `Page$${next}`)),
+      cookies,
+      returnCookies: true,
+      extraHeaders: { Referer: referer },
+      timeoutSeconds: 30,
+    });
+    if (!stepN.ok || !stepN.html) break;
+    fields = halGovTrExtractFields(stepN.html);
+    cookies = stepN.cookies ?? cookies;
+    rows.push(...parseHalGovTrPage(stepN.html, fields.gvId));
+    visited.add(next);
+    halGovTrPageNums(stepN.html).forEach((n) => knownPages.add(n));
+  }
+
+  return { rows, dateUsed: date, httpStatus: 200 };
+}
+
 /**
  * hal.gov.tr Fiyat İstatistikleri — ASP.NET ViewState + paginated GridView.
  *
@@ -1032,6 +1153,13 @@ async function fetchHalGovTrDated(
   source: EtlSourceConfig,
   date: string,
 ): Promise<FetchOutcome | null> {
+  // Asama 3: HF_SCRAPER_SOURCES'a hal_gov_tr_ulusal eklendiyse Scrapling tabanli akis.
+  if (shouldUseScraperFor(source.key)) {
+    const viaScraper = await fetchHalGovTrViaScraper(source, date);
+    if (viaScraper !== null) return viaScraper;
+    // Scraper fail olursa legacy akis devam eder (asagisi).
+  }
+
   const baseUrl = source.baseUrl;
   const path    = source.endpointTemplate;
   const pageUrl = baseUrl + path;
@@ -1042,53 +1170,6 @@ async function fetchHalGovTrDated(
     tls: { rejectUnauthorized: false },
   };
 
-  // ─ Yardımcılar ─────────────────────────────────────────────────────────────
-  const re = (pat: RegExp, html: string) => pat.exec(html)?.[1] ?? "";
-
-  function extractFields(html: string) {
-    return {
-      vs:       re(/id="__VIEWSTATE"[^>]*value="([^"]*)"/, html),
-      ev:       re(/id="__EVENTVALIDATION"[^>]*value="([^"]*)"/, html),
-      vsg:      re(/id="__VIEWSTATEGENERATOR"[^>]*value="([^"]*)"/, html),
-      dateName: re(/name="(ctl[^"]*dateControlDate)"/, html),
-      btnName:  re(/name="(ctl[^"]*btnGet)"/, html),
-      excelRb:  re(/name="(ctl[^"]*rblExcelOptions)"/, html),
-      gvId:     re(/id="(ctl[^"]*gvFiyatlar)"/, html),
-      gvEt:     (() => {
-        // EventTarget: tüm '_' → '$' DEĞİL — GUID'deki '_' korunur.
-        // __doPostBack referansından direkt okunur.
-        const m = /__doPostBack\('([^']*gvFiyatlar[^']*)','Page\$/.exec(html)
-               ?? /doPostBack\(&#39;([^&]*gvFiyatlar[^&]*)&#39;,&#39;Page\$/.exec(html);
-        return m ? m[1] : "";
-      })(),
-    };
-  }
-
-  function pageNums(html: string): number[] {
-    return [...new Set(
-      [...html.matchAll(/Page\$(\d+)/g)].map((m) => parseInt(m[1], 10)),
-    )];
-  }
-
-  function buildPost(
-    fields: ReturnType<typeof extractFields>,
-    dateDDMMYYYY: string,
-    eventTarget = "",
-    eventArg    = "",
-  ): URLSearchParams {
-    const p = new URLSearchParams({
-      __EVENTTARGET:       eventTarget,
-      __EVENTARGUMENT:     eventArg,
-      __VIEWSTATE:         fields.vs,
-      __VIEWSTATEGENERATOR: fields.vsg,
-      __EVENTVALIDATION:   fields.ev,
-      [fields.dateName]:   dateDDMMYYYY,
-      [fields.excelRb]:    "1",
-    });
-    if (!eventTarget) p.set(fields.btnName, "Fiyat Bul");
-    return p;
-  }
-
   // YYYY-MM-DD → DD.MM.YYYY
   const [y, m, d] = date.split("-");
   const dateTR = `${d}.${m}.${y}`;
@@ -1096,22 +1177,22 @@ async function fetchHalGovTrDated(
   // ─ Adım 1: GET ─────────────────────────────────────────────────────────────
   const getRes = await fetch(pageUrl, fetchOpts);
   if (!getRes.ok) throw new Error(`hal.gov.tr GET HTTP ${getRes.status}`);
-  let fields = extractFields(await getRes.text());
+  let fields = halGovTrExtractFields(await getRes.text());
 
   // ─ Adım 2: POST tarih + btnGet ─────────────────────────────────────────────
   const postRes = await fetch(pageUrl, {
     ...fetchOpts,
     method: "POST",
     headers: { ...fetchOpts.headers, "Content-Type": "application/x-www-form-urlencoded", Referer: pageUrl },
-    body: buildPost(fields, dateTR),
+    body: halGovTrBuildPost(fields, dateTR),
   });
   if (!postRes.ok) throw new Error(`hal.gov.tr POST HTTP ${postRes.status}`);
   const firstHtml = await postRes.text();
-  fields = extractFields(firstHtml);
+  fields = halGovTrExtractFields(firstHtml);
 
   const rows: NormalizedRow[] = parseHalGovTrPage(firstHtml, fields.gvId);
   const visited = new Set([1]);
-  const knownPages = new Set(pageNums(firstHtml));
+  const knownPages = new Set(halGovTrPageNums(firstHtml));
 
   // ─ Adım 3: Pagination ──────────────────────────────────────────────────────
   while (true) {
@@ -1122,14 +1203,14 @@ async function fetchHalGovTrDated(
       ...fetchOpts,
       method: "POST",
       headers: { ...fetchOpts.headers, "Content-Type": "application/x-www-form-urlencoded", Referer: pageUrl },
-      body: buildPost(fields, dateTR, fields.gvEt, `Page$${next}`),
+      body: halGovTrBuildPost(fields, dateTR, fields.gvEt, `Page$${next}`),
     });
     if (!pgRes.ok) break;
     const pgHtml = await pgRes.text();
-    fields = extractFields(pgHtml);
+    fields = halGovTrExtractFields(pgHtml);
     rows.push(...parseHalGovTrPage(pgHtml, fields.gvId));
     visited.add(next);
-    pageNums(pgHtml).forEach((n) => knownPages.add(n));
+    halGovTrPageNums(pgHtml).forEach((n) => knownPages.add(n));
   }
 
   return { rows, dateUsed: date, httpStatus: postRes.status };

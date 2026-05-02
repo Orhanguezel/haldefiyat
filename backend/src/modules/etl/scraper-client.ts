@@ -40,6 +40,10 @@ export interface ScrapeOptions {
   formData?: Record<string, string>;
   /** Extra HTTP headers (UA disinda). */
   extraHeaders?: Record<string, string>;
+  /** Request'e forward edilecek cookies (multi-step istekler icin). */
+  cookies?: Record<string, string>;
+  /** Response'ta cookies geri donsun mu (multi-step icin gerekir). */
+  returnCookies?: boolean;
 }
 
 export interface ScraperResult {
@@ -47,6 +51,7 @@ export interface ScraperResult {
   status: number | null;
   html: string | null;
   durationMs: number | null;
+  cookies?: Record<string, string> | null;
   error?: string;
 }
 
@@ -96,6 +101,8 @@ export async function fetchViaScraper(
       if (options.formData) payload.form_data = options.formData;
     }
     if (options.extraHeaders) payload.extra_headers = options.extraHeaders;
+    if (options.cookies) payload.cookies = options.cookies;
+    if (options.returnCookies) payload.return_cookies = true;
 
     const res = await fetch(`${baseUrl}/api/v1/scrape`, {
       method: "POST",
@@ -112,12 +119,13 @@ export async function fetchViaScraper(
       status_code: number | null;
       duration_ms: number | null;
       html: string | null;
+      cookies?: Record<string, string> | null;
       error?: string | null;
     };
     if (!data.success || data.html == null) {
-      return { ok: false, status: data.status_code, html: null, durationMs: data.duration_ms, error: data.error ?? "scraper_no_html" };
+      return { ok: false, status: data.status_code, html: null, durationMs: data.duration_ms, cookies: data.cookies ?? null, error: data.error ?? "scraper_no_html" };
     }
-    return { ok: true, status: data.status_code, html: data.html, durationMs: data.duration_ms };
+    return { ok: true, status: data.status_code, html: data.html, durationMs: data.duration_ms, cookies: data.cookies ?? null };
   } catch (err: unknown) {
     return {
       ok: false,
