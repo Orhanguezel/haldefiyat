@@ -34,6 +34,12 @@ export interface ScrapeOptions {
   waitFor?: string;
   /** Cloudflare Turnstile cozumu. Default false. */
   solveCloudflare?: boolean;
+  /** HTTP method. Default "GET". POST sadece "fast" mode'da. */
+  method?: "GET" | "POST";
+  /** application/x-www-form-urlencoded body (POST icin). */
+  formData?: Record<string, string>;
+  /** Extra HTTP headers (UA disinda). */
+  extraHeaders?: Record<string, string>;
 }
 
 export interface ScraperResult {
@@ -73,21 +79,28 @@ export async function fetchViaScraper(
   const httpTimeout = setTimeout(() => controller.abort(), (timeoutSeconds + 30) * 1000);
 
   try {
+    const payload: Record<string, unknown> = {
+      url,
+      mode: options.mode ?? "stealthy",
+      options: {
+        headless: true,
+        network_idle: true,
+        timeout: timeoutSeconds,
+        solve_cloudflare: options.solveCloudflare ?? false,
+        ...(options.waitFor ? { wait_for: options.waitFor } : {}),
+      },
+      return_html: true,
+    };
+    if (options.method === "POST") {
+      payload.method = "POST";
+      if (options.formData) payload.form_data = options.formData;
+    }
+    if (options.extraHeaders) payload.extra_headers = options.extraHeaders;
+
     const res = await fetch(`${baseUrl}/api/v1/scrape`, {
       method: "POST",
       headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        url,
-        mode: options.mode ?? "stealthy",
-        options: {
-          headless: true,
-          network_idle: true,
-          timeout: timeoutSeconds,
-          solve_cloudflare: options.solveCloudflare ?? false,
-          ...(options.waitFor ? { wait_for: options.waitFor } : {}),
-        },
-        return_html: true,
-      }),
+      body: JSON.stringify(payload),
       signal: controller.signal,
     });
 

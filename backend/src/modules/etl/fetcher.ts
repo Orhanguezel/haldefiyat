@@ -669,13 +669,34 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
 ]);
 
 /**
- * Merkezi Scrapling servisi araciligiyla anti-bot bypass'li GET HTML cek.
+ * Source-bazli Scrapling POST body builder map.
  *
- * Sadece HF_SCRAPER_SOURCES env listesindeki kaynaklar icin aktif. Backfill
- * (gecmis tarih) destegi yok — POST formlu kaynaklar icin daily=date param
- * gonderemediginden bugunden farkli tarih isteyenler legacy fetch'e dusler.
+ * Anahtar: source.key. Deger: (source, date) => formData. Sadece bu map'te
+ * yer alan source'lar Scrapling uzerinden POST yapilabilir. GET-only
+ * source'lar bu map'te olmaz, tryFetchViaScraper default GET kullanir.
+ */
+const SCRAPER_POST_BUILDERS: Record<
+  string,
+  (source: EtlSourceConfig, date: string) => { url?: string; formData: Record<string, string> }
+> = {
+  antalya_merkez_antkomder:  (s, d) => ({ formData: { daily: d } }),
+  antalya_serik_antkomder:   (s, d) => ({ formData: { daily: d } }),
+  antalya_kumluca_antkomder: (s, d) => ({ formData: { daily: d } }),
+  kocaeli_merkez:            (s, d) => ({
+    url: `${s.baseUrl}/hal-fiyatlari/`,
+    formData: { date: d, hal: s.endpointTemplate },
+  }),
+};
+
+/**
+ * Merkezi Scrapling servisi araciligiyla anti-bot bypass'li HTML cek.
  *
+ * Sadece HF_SCRAPER_SOURCES env listesindeki kaynaklar icin aktif. Source
+ * SCRAPER_POST_BUILDERS map'inde varsa POST + form_data ile, yoksa GET ile.
  * Hata durumunda null doner; cagiran fonksiyon mevcut akisina devam eder.
+ *
+ * NOT: Backfill GET-only source'larda atlanir (URL'de date placeholder yoksa
+ * bugunun varsayilan verisi gelir). POST builder'li source'lar backfill destekler.
  */
 async function tryFetchViaScraper(
   source: EtlSourceConfig,
@@ -683,14 +704,28 @@ async function tryFetchViaScraper(
   isBackfill: boolean,
 ): Promise<FetchOutcome | null> {
   if (!shouldUseScraperFor(source.key)) return null;
-  if (isBackfill) return null;
   if (!HTML_SHAPES.has(source.responseShape)) return null;
 
-  const url = source.baseUrl + source.endpointTemplate.replace("{date}", date);
-  const result = await fetchViaScraper(url, {
+  const builder = SCRAPER_POST_BUILDERS[source.key];
+  let url: string;
+  const scrapeOpts: Parameters<typeof fetchViaScraper>[1] = {
     mode: shouldUseDynamicFor(source.key) ? "dynamic" : "stealthy",
     timeoutSeconds: 60,
-  });
+  };
+
+  if (builder) {
+    const built = builder(source, date);
+    url = built.url ?? source.baseUrl + source.endpointTemplate.replace("{date}", date);
+    // POST formlu source'lar fast mode'da curl-cffi impersonation ile cekilir.
+    scrapeOpts.mode = "fast";
+    scrapeOpts.method = "POST";
+    scrapeOpts.formData = built.formData;
+  } else {
+    if (isBackfill) return null;
+    url = source.baseUrl + source.endpointTemplate.replace("{date}", date);
+  }
+
+  const result = await fetchViaScraper(url, scrapeOpts);
   if (!result.ok || !result.html) return null;
 
   const rows = parseResponse(source.responseShape, result.html, source);
