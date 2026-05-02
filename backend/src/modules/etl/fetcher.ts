@@ -22,6 +22,7 @@ import { upsertPriceRow } from "@/modules/prices/repository";
 import { resolveProductSlug, turkishToAscii, invalidateAliasCache } from "./normalizer";
 import type { EtlSourceConfig } from "@/config/etl-sources";
 import { env } from "@/core/env";
+import { fetchViaScraper, shouldUseScraperFor, shouldUseDynamicFor } from "./scraper-client";
 
 export interface EtlRunResult {
   inserted: number;
@@ -667,11 +668,46 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "hal_gov_tr_html",
 ]);
 
+/**
+ * Merkezi Scrapling servisi araciligiyla anti-bot bypass'li GET HTML cek.
+ *
+ * Sadece HF_SCRAPER_SOURCES env listesindeki kaynaklar icin aktif. Backfill
+ * (gecmis tarih) destegi yok — POST formlu kaynaklar icin daily=date param
+ * gonderemediginden bugunden farkli tarih isteyenler legacy fetch'e dusler.
+ *
+ * Hata durumunda null doner; cagiran fonksiyon mevcut akisina devam eder.
+ */
+async function tryFetchViaScraper(
+  source: EtlSourceConfig,
+  date: string,
+  isBackfill: boolean,
+): Promise<FetchOutcome | null> {
+  if (!shouldUseScraperFor(source.key)) return null;
+  if (isBackfill) return null;
+  if (!HTML_SHAPES.has(source.responseShape)) return null;
+
+  const url = source.baseUrl + source.endpointTemplate.replace("{date}", date);
+  const result = await fetchViaScraper(url, {
+    mode: shouldUseDynamicFor(source.key) ? "dynamic" : "stealthy",
+    timeoutSeconds: 60,
+  });
+  if (!result.ok || !result.html) return null;
+
+  const rows = parseResponse(source.responseShape, result.html, source);
+  return { rows, dateUsed: date, httpStatus: result.status ?? 200 };
+}
+
 async function fetchDated(
   source: EtlSourceConfig,
   date: string,
   isBackfill = false,
 ): Promise<FetchOutcome | null> {
+  // Merkezi Scrapling servisi: HF_SCRAPER_SOURCES listesindeki kaynaklar
+  // anti-bot bypass icin scraper.guezelwebdesign.com uzerinden cekilir.
+  // Backfill (gecmis tarih) destegi yok — null donerse mevcut akis devam eder.
+  const scraperOutcome = await tryFetchViaScraper(source, date, isBackfill);
+  if (scraperOutcome !== null) return scraperOutcome;
+
   if (source.responseShape === "antkomder_html") {
     return fetchAntkomderDated(source, date);
   }
