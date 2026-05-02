@@ -87,6 +87,12 @@ hal-fiyatlari tarafi:
 - `kocaeli_merkez` (✅ Asama 2: 162 error → 112 inserted, POST 1835ms)
 - `hal_gov_tr_ulusal` (✅ Asama 3: hep timeout → **434 inserted**, multi-step Scrapling 66s)
 
+### Yeni Eklenen Source (Asama 4 — direct curl, Scrapling kullanmiyor)
+- `istanbul_ibb` (Anadolu Yakasi) (✅ Asama 4: 97 satir/gun, 1.1s, 3 paralel kategori AJAX endpoint)
+  - URL: `tarim.ibb.istanbul/inc/halfiyatlari/gunluk_fiyatlar.asp`
+  - Auth: tUsr/tPas/tVal hardcoded inline JS'ten
+  - T-1 gun verisi (bugun gece dolar)
+
 ### Disabled (kaynak veya parser sorunu — Asama 3+ icin)
 - `antalya_serik_antkomder`, `antalya_kumluca_antkomder` — config'de `defaultEnabled: false` (sayt fiyat yayinlamiyor)
 - `mersin_resmi` — kaynak siteye baglanti yok (`fetch failed`/timeout) — site genel sorun, Scrapling de cevap alamiyor
@@ -94,7 +100,7 @@ hal-fiyatlari tarafi:
 - `gaziantep_resmi` — div-based veri, parser yenileme gerek
 - `balikesir_resmi` — 2-step CSRF + POST, scraper-service'e session/cookie API gerekli
 - ~~`hal_gov_tr_ulusal`~~ — ✅ Asama 3 ile cozuldu (cookies forward + multi-step POST)
-- `istanbul_ibb_*` — AJAX dropdown + GUID seçim, kompleks reverse engineering gerek (yeni kaynak ekleme)
+- ~~`istanbul_ibb_*`~~ — ✅ Asama 4 ile eklendi (AJAX endpoint reverse engineering: `gunluk_fiyatlar.asp`, 3 kategori paralel, 97 satir/gun, direct curl yeter)
 
 ### Acil Bypass / Geri Donme
 | Sorun | Komut |
