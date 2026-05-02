@@ -706,6 +706,11 @@ async function tryFetchViaScraper(
   if (!shouldUseScraperFor(source.key)) return null;
   if (!HTML_SHAPES.has(source.responseShape)) return null;
 
+  // Multi-step source'lar (Mersin: 4 paralel POST/kategori) icin ozel handler.
+  if (source.key === "mersin_resmi") {
+    return tryFetchMersinViaScraper(source, date);
+  }
+
   const builder = SCRAPER_POST_BUILDERS[source.key];
   let url: string;
   const scrapeOpts: Parameters<typeof fetchViaScraper>[1] = {
@@ -730,6 +735,39 @@ async function tryFetchViaScraper(
 
   const rows = parseResponse(source.responseShape, result.html, source);
   return { rows, dateUsed: date, httpStatus: result.status ?? 200 };
+}
+
+/**
+ * Mersin: 4 kategori (vegetable/fruit/fish/imported) icin paralel POST.
+ * parseMersinHtml `pages: Array<{html, type}>` formatinda input bekler.
+ * Tum POST'lar fail olursa null doner; en az bir basari varsa pages liste
+ * birlestirilip parse edilir.
+ */
+async function tryFetchMersinViaScraper(
+  source: EtlSourceConfig,
+  date: string,
+): Promise<FetchOutcome | null> {
+  const url = source.baseUrl + source.endpointTemplate;
+  const requestDate = formatDateTr(date);
+  const categories = ["vegetable", "fruit", "fish", "imported"] as const;
+
+  const settled = await Promise.all(
+    categories.map(async (type) => {
+      const r = await fetchViaScraper(url, {
+        mode: "fast",
+        method: "POST",
+        formData: { date: requestDate, type },
+        timeoutSeconds: 30,
+      });
+      return r.ok && r.html ? { html: r.html, type: type as string } : null;
+    }),
+  );
+
+  const pages = settled.filter((p): p is { html: string; type: string } => p !== null);
+  if (pages.length === 0) return null;
+
+  const rows = parseResponse(source.responseShape, pages, source);
+  return { rows, dateUsed: date, httpStatus: 200 };
 }
 
 async function fetchDated(
