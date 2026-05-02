@@ -29,7 +29,8 @@ type ResponseShape =
   | "bursa_html"
   | "kocaeli_html"
   | "balikesir_html"
-  | "hal_gov_tr_html";
+  | "hal_gov_tr_html"
+  | "istanbul_ibb_html";
 
 export interface EtlSourceConfig {
   key:              string;          // DB'de source_api olarak yazılır
@@ -254,6 +255,20 @@ const RAW_SOURCES: RawSource[] = [
     defaultBaseUrl:    "https://www.hal.gov.tr",
     defaultEndpoint:   "/Sayfalar/FiyatDetaylari.aspx",
     responseShape:     "hal_gov_tr_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // İstanbul İBB (Tarımsal Hizmetler) — gunluk_fiyatlar.asp AJAX endpoint.
+  // 3 kategori paralel cekilir: 5 (Meyve), 6 (Sebze), 7 (Ithal Urunler).
+  // T-1 gun verisi (bugun icin gece sonrasi dolar). Direct fetch yeter, anti-bot yok.
+  // Auth params hardcoded inline JS'ten alindi (tUsr/tPas/tVal).
+  {
+    key:               "istanbul_ibb",
+    defaultEnabled:    true,
+    defaultMarketSlug: "istanbul-hal-ibb",
+    defaultBaseUrl:    "https://tarim.ibb.istanbul",
+    defaultEndpoint:   "/inc/halfiyatlari/gunluk_fiyatlar.asp",
+    responseShape:     "istanbul_ibb_html",
     defaultUnit:       "kg",
     defaultCategory:   "sebze-meyve",
   },

@@ -65,6 +65,7 @@ function parseResponse(
     case "kocaeli_html":     return parseKocaeliHtml(String(raw));
     case "balikesir_html":   return parseBalikesirHtml(String(raw));
     case "hal_gov_tr_html":  return parseHalGovTrHtml(String(raw));
+    case "istanbul_ibb_html": return parseIstanbulIbbHtml(raw as Array<{ html: string; category: string }>);
     default:                 return [];
   }
 }
@@ -666,6 +667,7 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "kocaeli_html",
   "balikesir_html",
   "hal_gov_tr_html",
+  "istanbul_ibb_html",
 ]);
 
 /**
@@ -802,6 +804,9 @@ async function fetchDated(
   }
   if (source.responseShape === "hal_gov_tr_html") {
     return fetchHalGovTrDated(source, date);
+  }
+  if (source.responseShape === "istanbul_ibb_html") {
+    return fetchIstanbulIbbDated(source, date);
   }
 
   // Geriye dönük çağrıda backfillEndpoint tercih edilir (Konya gibi: default
@@ -992,6 +997,110 @@ async function fetchBalikesirDated(
   const html = await decodeResponseBody(postRes);
   const rows = parseBalikesirHtml(html);
   return { rows, dateUsed: date, httpStatus: postRes.status };
+}
+
+/**
+ * İstanbul İBB Tarımsal Hizmetler — gunluk_fiyatlar.asp AJAX endpoint.
+ *
+ * 3 kategori paralel cekilir: 5 (Meyve), 6 (Sebze), 7 (Ithal).
+ * tUsr/tPas/tVal sayfaya inline embedded auth — kaynaktan alindi.
+ * HalTurId=2 hem Anadolu hem Avrupa sayfasinda kullaniliyor (site ayrim yapmiyor).
+ * T-1 gun verisi (bugun gece dolar — endpoint bugun icin bos doner).
+ */
+const ISTANBUL_IBB_AUTH = {
+  tUsr: "M3yV353bZe",
+  tPas: "LA74sBcXERpdBaz",
+  tVal: "881f3dc3-7d08-40db-b45a-1275c0245685",
+  HalTurId: "2",
+} as const;
+
+const ISTANBUL_IBB_KATEGORI: Record<string, "meyve" | "sebze" | "ithal"> = {
+  "5": "meyve",
+  "6": "sebze",
+  "7": "ithal",
+};
+
+async function fetchIstanbulIbbDated(
+  source: EtlSourceConfig,
+  date: string,
+): Promise<FetchOutcome | null> {
+  // YYYY-MM-DD → DD.MM.YYYY (ASP endpoint Turkce format kabul ediyor; T-1 onerilir)
+  const [y, m, d] = date.split("-");
+  const dateTR = `${d}.${m}.${y}`;
+
+  const settled = await Promise.all(
+    Object.entries(ISTANBUL_IBB_KATEGORI).map(async ([kategoriId, label]) => {
+      const url = new URL(source.baseUrl + source.endpointTemplate);
+      url.searchParams.set("tarih", dateTR);
+      url.searchParams.set("kategori", kategoriId);
+      url.searchParams.set("tUsr", ISTANBUL_IBB_AUTH.tUsr);
+      url.searchParams.set("tPas", ISTANBUL_IBB_AUTH.tPas);
+      url.searchParams.set("tVal", ISTANBUL_IBB_AUTH.tVal);
+      url.searchParams.set("HalTurId", ISTANBUL_IBB_AUTH.HalTurId);
+
+      try {
+        const res = await fetch(url.toString(), {
+          headers: {
+            Accept: "text/html,application/xhtml+xml",
+            "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
+            Referer: `${source.baseUrl}/tr/istatistik/124/hal-fiyatlari.html`,
+            "X-Requested-With": "XMLHttpRequest",
+          },
+          signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+        });
+        if (!res.ok) return null;
+        const html = await decodeResponseBody(res);
+        return html.trim() ? { html, category: label as string } : null;
+      } catch {
+        return null;
+      }
+    }),
+  );
+
+  const pages = settled.filter((p): p is { html: string; category: string } => p !== null);
+  if (pages.length === 0) return { rows: [], dateUsed: date, httpStatus: 204 };
+
+  const rows = parseResponse(source.responseShape, pages, source);
+  return { rows, dateUsed: date, httpStatus: 200 };
+}
+
+/**
+ * İBB gunluk_fiyatlar.asp parser.
+ *
+ * Format:
+ *   <table border="1" cellpadding="1" class="tableClass">
+ *     <tr><th>Urun Adı</th><th>Birim</th><th>En Düşük Fiyat</th><th>En Yüksek Fiyat</th></tr>
+ *     <tr><td>Bakla</td><td>Kilogram</td><td>70,00<span> TL</span></td><td>90,00<span> TL</span></td></tr>
+ *   </table>
+ *
+ * Her sayfa bir kategoriye karsilik gelir; product category bilgisi page meta'sindan alinir.
+ * Birim "Kilogram" → kg, "Adet" → adet, "Demet" → demet (normalizeUnit).
+ */
+function parseIstanbulIbbHtml(pages: Array<{ html: string; category: string }>): NormalizedRow[] {
+  const out: NormalizedRow[] = [];
+  for (const page of pages) {
+    const tables = extractTables(page.html);
+    if (tables.length === 0) continue;
+    for (const row of tables[0]!) {
+      if (row.length < 4) continue;
+      const name = row[0]!.trim();
+      if (!name || /^urun\s*ad/i.test(name)) continue;
+      const unitRaw = (row[1] ?? "").trim();
+      const min = parsePriceTry((row[2] ?? "").replace(/\s*TL\s*/gi, "").trim());
+      const max = parsePriceTry((row[3] ?? "").replace(/\s*TL\s*/gi, "").trim());
+      if (min == null && max == null) continue;
+      const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
+      out.push({
+        name,
+        category: page.category,
+        unit: normalizeUnit(unitRaw),
+        avg,
+        min,
+        max,
+      });
+    }
+  }
+  return out;
 }
 
 // Kocaeli Büyükşehir — POST form. endpointTemplate = hal ID'si (örn. "1").
