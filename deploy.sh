@@ -9,7 +9,7 @@ REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 FRONTEND="$REPO_ROOT/frontend"
 LOGS="$REPO_ROOT/logs"
 
-echo "==> [1/4] git pull"
+echo "==> [1/5] git pull"
 cd "$REPO_ROOT"
 git pull origin main
 
@@ -27,23 +27,17 @@ else
   echo "    uyari: $SHARED_BACKUP yok — ilk kurulum lazim (cp -ar packages /root/haldefiyat-shared/)"
 fi
 
-echo "==> [2/5] standalone server.js symlink kuruluyor (frontend)"
-# Next.js standalone server.js — build ortamına göre path değişir; find ile bul.
+echo "==> [2/5] frontend production build (next build + standalone static sync)"
+if ! (cd "$FRONTEND" && bun run build); then
+  echo "HATA: frontend build başarısız!" && exit 1
+fi
+
+echo "==> [3/5] standalone server.js symlink doğrulaması"
 TARGET="$(find "$FRONTEND/.next/standalone" -name "server.js" | head -1)"
 if [ -z "$TARGET" ]; then
   echo "HATA: frontend server.js bulunamadı!" && exit 1
 fi
-ln -sf "$TARGET" "$FRONTEND/standalone-server.js"
-echo "    symlink: $FRONTEND/standalone-server.js → $TARGET"
-
-echo "==> [3/5] .next/static + public standalone'a kopyalanıyor (frontend)"
-SERVER_DIR="$(dirname "$TARGET")"
-mkdir -p "$SERVER_DIR/.next/static"
-cp -r "$FRONTEND/.next/static/." "$SERVER_DIR/.next/static/"
-mkdir -p "$SERVER_DIR/public"
-cp -r "$FRONTEND/public/." "$SERVER_DIR/public/"
-echo "    static → $SERVER_DIR/.next/static"
-echo "    public → $SERVER_DIR/public"
+echo "    symlink hedefi: $FRONTEND/standalone-server.js → $(readlink -f "$FRONTEND/standalone-server.js" 2>/dev/null || echo "$TARGET")"
 
 echo "==> [4/5] admin panel standalone kurulumu"
 ADMIN="$REPO_ROOT/admin_panel"

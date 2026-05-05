@@ -3,9 +3,8 @@ import type { MetadataRoute } from "next";
 /**
  * PWA manifest.
  *
- * NEDEN static TS: Runtime fetch gerektirmez, Next.js build sirasinda
- * /manifest.webmanifest olarak yayinlar. Ikon dosyalari public/icons/'ta
- * bulunmali; bunlar icin ayri generate script'i var.
+ * İkonlar `src/app/icon.tsx` (ImageResponse) ile `/icon` üzerinden üretilir;
+ * eksik public PNG yüzünden 404 oluşmaz.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -19,10 +18,10 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#84f04c",
     orientation: "portrait-primary",
     icons: [
-      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      { src: "/icon", sizes: "192x192", type: "image/png" },
+      { src: "/icon", sizes: "512x512", type: "image/png" },
       {
-        src: "/icons/icon-512.png",
+        src: "/icon",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
