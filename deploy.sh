@@ -33,7 +33,7 @@ if ! (cd "$FRONTEND" && bun run build); then
 fi
 
 echo "==> [3/5] standalone server.js symlink doğrulaması"
-TARGET="$(find "$FRONTEND/.next/standalone" -name "server.js" | head -1)"
+TARGET="$(find "$FRONTEND/.next/standalone" \( -path "*/node_modules/*" -o -path "*/.bun/*" \) -prune -o -name "server.js" -print | head -1)"
 if [ -z "$TARGET" ]; then
   echo "HATA: frontend server.js bulunamadı!" && exit 1
 fi
@@ -41,7 +41,7 @@ echo "    symlink hedefi: $FRONTEND/standalone-server.js → $(readlink -f "$FRO
 
 echo "==> [4/5] admin panel standalone kurulumu"
 ADMIN="$REPO_ROOT/admin_panel"
-ADMIN_TARGET="$(find "$ADMIN/.next/standalone" -name "server.js" | head -1)"
+ADMIN_TARGET="$(find "$ADMIN/.next/standalone" \( -path "*/node_modules/*" -o -path "*/.bun/*" \) -prune -o -name "server.js" -print | head -1)"
 if [ -n "$ADMIN_TARGET" ]; then
   ln -sf "$ADMIN_TARGET" "$ADMIN/standalone-server.js"
   ADMIN_SERVER_DIR="$(dirname "$ADMIN_TARGET")"

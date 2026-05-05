@@ -22,9 +22,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const FRONTEND = join(__dirname, "..");
 const STANDALONE_ROOT = join(FRONTEND, ".next", "standalone");
 
+const SKIP_DIRS = new Set(["node_modules", ".bun", ".git"]);
+
 function findServerJs(dir, depth = 0) {
   if (depth > 24 || !existsSync(dir)) return null;
   for (const name of readdirSync(dir)) {
+    if (SKIP_DIRS.has(name)) continue;
     const p = join(dir, name);
     let st;
     try {
