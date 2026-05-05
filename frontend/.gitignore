@@ -1,5 +1,7 @@
 node_modules/
 .next/
+# deploy/sync script symlink — VPS path içinde server.js’e işaret eder
+standalone-server.js
 .env
 .env.local
 .env.production
