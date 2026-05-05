@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db } from "@/db/client";
 import { hfAlerts, hfMarkets, hfProducts } from "@/db/schema";
 import { requireAuth } from "@agro/shared-backend/middleware/auth";
+import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 import type { FastifyRequest } from "fastify";
 
 const createSchema = z.object({
@@ -49,7 +50,9 @@ export async function registerAlerts(app: FastifyInstance) {
       marketId = market.id;
     }
 
-    const userId = (req as FastifyRequest & { user?: { id: string } }).user?.id ?? null;
+    const jwtUser = (req as FastifyRequest & { user?: { sub?: string; id?: string } }).user;
+    const rawId = jwtUser?.sub ?? jwtUser?.id;
+    const userId = rawId != null ? String(rawId) : null;
 
     const result = await db.insert(hfAlerts).values({
       userId:          userId,
@@ -162,7 +165,7 @@ export async function registerAlerts(app: FastifyInstance) {
    * Giriş yapmış kullanıcının tüm aktif uyarıları
    */
   app.get("/user/alerts", { onRequest: [requireAuth] }, async (req, reply) => {
-    const userId = (req as FastifyRequest & { user?: { id: string } }).user!.id;
+    const userId = getAuthUserId(req);
     const rows = await db
       .select(alertSelectFields)
       .from(hfAlerts)
@@ -184,7 +187,7 @@ export async function registerAlerts(app: FastifyInstance) {
       const id = parseInt(req.params.id, 10);
       if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz id" });
 
-      const userId = (req as FastifyRequest & { user?: { id: string } }).user!.id;
+      const userId = getAuthUserId(req);
       const [alert] = await db.select({ id: hfAlerts.id }).from(hfAlerts)
         .where(and(eq(hfAlerts.id, id), eq(hfAlerts.userId, userId), eq(hfAlerts.isActive, 1)))
         .limit(1);
@@ -219,7 +222,7 @@ export async function registerAlerts(app: FastifyInstance) {
       const id = parseInt(req.params.id, 10);
       if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz id" });
 
-      const userId = (req as FastifyRequest & { user?: { id: string } }).user!.id;
+      const userId = getAuthUserId(req);
       const [alert] = await db.select({ id: hfAlerts.id }).from(hfAlerts)
         .where(and(eq(hfAlerts.id, id), eq(hfAlerts.userId, userId)))
         .limit(1);

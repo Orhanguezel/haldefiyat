@@ -1,11 +1,11 @@
-import type { FastifyInstance, FastifyRequest } from "fastify";
+import type { FastifyInstance } from "fastify";
 import type { RowDataPacket } from "mysql2";
 import { z } from "zod";
 import { pool } from "@/db/client";
 import { requireAuth } from "@agro/shared-backend/middleware/auth";
+import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 import bcrypt from "bcryptjs";
 
-type AuthReq = FastifyRequest & { user?: { id: string } };
 type UserPasswordRow = RowDataPacket & { id: string; password_hash: string };
 
 export async function registerUser(app: FastifyInstance) {
@@ -19,7 +19,7 @@ export async function registerUser(app: FastifyInstance) {
     }).safeParse(req.body);
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz veri" });
 
-    const userId = (req as AuthReq).user!.id;
+    const userId = getAuthUserId(req);
     const [rows] = await pool.query<UserPasswordRow[]>(
       "SELECT id, password_hash FROM users WHERE id = ? LIMIT 1",
       [userId],

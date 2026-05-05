@@ -1,11 +1,10 @@
-import type { FastifyInstance, FastifyRequest } from "fastify";
+import type { FastifyInstance } from "fastify";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db/client";
 import { hfUserFavorites, hfProducts } from "@/db/schema";
 import { requireAuth } from "@agro/shared-backend/middleware/auth";
-
-type AuthReq = FastifyRequest & { user?: { id: string } };
+import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 
 export async function registerFavorites(app: FastifyInstance) {
   /**
@@ -13,7 +12,7 @@ export async function registerFavorites(app: FastifyInstance) {
    * Kullanıcının favori ürün listesini döner.
    */
   app.get("/favorites", { onRequest: [requireAuth] }, async (req, reply) => {
-    const userId = (req as AuthReq).user!.id;
+    const userId = getAuthUserId(req);
     const rows = await db
       .select({
         productId:   hfUserFavorites.productId,
@@ -34,7 +33,7 @@ export async function registerFavorites(app: FastifyInstance) {
    * Body: { productSlug: string }
    */
   app.post("/favorites", { onRequest: [requireAuth] }, async (req, reply) => {
-    const userId = (req as AuthReq).user!.id;
+    const userId = getAuthUserId(req);
     const parsed = z.object({ productSlug: z.string().min(1) }).safeParse(req.body);
     if (!parsed.success) return reply.status(400).send({ error: "productSlug zorunlu" });
 
@@ -53,7 +52,7 @@ export async function registerFavorites(app: FastifyInstance) {
    * Body: { slugs: string[] } — login sonrası localStorage → DB toplu aktarım
    */
   app.post("/favorites/sync", { onRequest: [requireAuth] }, async (req, reply) => {
-    const userId = (req as AuthReq).user!.id;
+    const userId = getAuthUserId(req);
     const parsed = z.object({ slugs: z.array(z.string()).max(200) }).safeParse(req.body);
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz slugs listesi" });
 
@@ -82,7 +81,7 @@ export async function registerFavorites(app: FastifyInstance) {
     "/favorites/:slug",
     { onRequest: [requireAuth] },
     async (req, reply) => {
-      const userId = (req as AuthReq).user!.id;
+      const userId = getAuthUserId(req);
       const [product] = await db.select({ id: hfProducts.id })
         .from(hfProducts).where(eq(hfProducts.slug, req.params.slug)).limit(1);
       if (!product) return reply.status(404).send({ error: "Urun bulunamadi" });
