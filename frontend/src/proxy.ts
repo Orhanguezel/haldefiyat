@@ -19,5 +19,6 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/(tr)/:path*", "/((?!api|_next|_vercel|.*\\..*).*)"],
+  // `icon` / `apple-icon` / metadata route'lari i18n'e sokma — aksi halde /icon → /tr/icon olur, 404
+  matcher: ["/", "/(tr)/:path*", "/((?!api|_next|_vercel|icon|apple-icon|.*\\..*).*)"],
 };
