@@ -39,7 +39,8 @@ type ResponseShape =
   | "yalova_html"
   | "tekirdag_html"
   | "trabzon_html"
-  | "batiakdeniz_html";
+  | "batiakdeniz_html"
+  | "bolu_html";
 
 export interface EtlSourceConfig {
   key:              string;          // DB'de source_api olarak yazılır
@@ -438,6 +439,20 @@ const RAW_SOURCES: RawSource[] = [
     defaultBaseUrl:    "https://www.batiakdeniztv.com",
     defaultEndpoint:   "/finike-hal-fiyatlari",
     responseShape:     "batiakdeniz_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // Bolu Belediyesi — WordPress tabanlı, haftalık güncelleme (Perşembe/Cuma).
+  // Anasayfadan ({DD-MM-YYYY}-toptanci-hal-fiyat-listesi) en güncel URL alınır.
+  // Tablo: 12 sütun — Sebze Adı|Birim|Asgari|kr|Azami|kr|Meyve Adı|Birim|Asgari|kr|Azami|kr.
+  // Her satır 2 ürün (sebze + meyve) üretir. Fiyat formatı "75,00 TL".
+  {
+    key:               "bolu_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "bolu-hal",
+    defaultBaseUrl:    "https://www.bolu.bel.tr",
+    defaultEndpoint:   "/",
+    responseShape:     "bolu_html",
     defaultUnit:       "kg",
     defaultCategory:   "sebze-meyve",
   },

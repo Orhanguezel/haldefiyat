@@ -119,7 +119,7 @@ const productionBody = z.object({
 
 const etlBody = z.object({
   source: z.string().min(1).max(64).optional().default("all"),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  date: z.string().regex(/^(\d{4}-\d{2}-\d{2}|id:\d+)$/).optional(),
 });
 
 const pushBody = z.object({

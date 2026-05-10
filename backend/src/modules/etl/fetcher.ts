@@ -75,6 +75,7 @@ function parseResponse(
     case "tekirdag_html":     return parseTekirdag_html(String(raw));
     case "trabzon_html":      return parseTrabzonHtml(String(raw));
     case "batiakdeniz_html":  return parseBatiakdenizHtml(String(raw));
+    case "bolu_html":         return parseBoluHtml(String(raw));
     default:                 return [];
   }
 }
@@ -740,6 +741,7 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "tekirdag_html",
   "trabzon_html",
   "batiakdeniz_html",
+  "bolu_html",
 ]);
 
 /**
@@ -885,6 +887,9 @@ async function fetchDated(
   }
   if (source.responseShape === "tekirdag_html") {
     return fetchTekirdagDated(source, date);
+  }
+  if (source.responseShape === "bolu_html") {
+    return fetchBoluDated(source, date);
   }
 
   // Geriye dönük çağrıda backfillEndpoint tercih edilir (Konya gibi: default
@@ -1465,6 +1470,83 @@ function parseTekirdag_html(html: string): NormalizedRow[] {
 }
 
 /**
+ * Bolu Belediyesi — WordPress tabanlı, haftalık.
+ * Tablo: 12 sütun. Her satır 2 ürün: Sebze(0-5) + Meyve(6-11).
+ * Sütun düzeni: Ad|Birim|AsgariTL|AsgariKr|AzamiTL|AzamiKr × 2.
+ * Fiyat formatı "75,00 TL" — parsePriceTry parseFloat ile TL'yi yoksayar.
+ */
+function parseBoluHtml(html: string): NormalizedRow[] {
+  const out: NormalizedRow[] = [];
+  const tables = extractTables(html);
+  if (tables.length === 0) return out;
+  const dataTable = tables[tables.length - 1]!;
+  const SKIP = /^(sebze cinsi|meyve cinsi|toptan satışlar?|toptan sati[sş]lar?|asgari|azami|lira|kr\.?|birim|tarih|t\.c\.|bolu|haftalık)/i;
+  for (const row of dataTable) {
+    if (row.length < 8) continue;
+    const sebzeAd = (row[0] ?? "").trim();
+    const meyveAd = (row[6] ?? "").trim();
+    if (!sebzeAd && !meyveAd) continue;
+    if (SKIP.test(sebzeAd) || SKIP.test(meyveAd)) continue;
+    if (sebzeAd && sebzeAd.length > 1) {
+      const min = parsePriceTry(row[2] ?? "");
+      const max = parsePriceTry(row[4] ?? "");
+      if (min != null || max != null) {
+        const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
+        out.push({ name: sebzeAd, category: "sebze", unit: normalizeUnit(row[1] ?? "") || "kg", avg, min, max });
+      }
+    }
+    if (meyveAd && meyveAd.length > 1) {
+      const min = parsePriceTry(row[8] ?? "");
+      const max = parsePriceTry(row[10] ?? "");
+      if (min != null || max != null) {
+        const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
+        out.push({ name: meyveAd, category: "meyve", unit: normalizeUnit(row[7] ?? "") || "kg", avg, min, max });
+      }
+    }
+  }
+  return out;
+}
+
+// Bolu — 2-adımlı fetch: anasayfadan güncel URL bul, sonra fiyat sayfasını çek.
+async function fetchBoluDated(
+  source: EtlSourceConfig,
+  date: string,
+): Promise<FetchOutcome | null> {
+  const homeRes = await fetch(source.baseUrl + "/", {
+    headers: { Accept: "text/html", "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)" },
+    signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+    // @ts-expect-error Bun-specific
+    tls: { rejectUnauthorized: false },
+  });
+  if (!homeRes.ok) throw new Error(`Bolu anasayfa HTTP ${homeRes.status}`);
+  const homeHtml = await decodeResponseBody(homeRes);
+
+  const pattern = /href="(https?:\/\/www\.bolu\.bel\.tr\/(\d{2})-(\d{2})-(\d{4})-toptanci-hal-fiyat-listesi\/?)"[^>]*>/gi;
+  const matches = [...homeHtml.matchAll(pattern)];
+  if (matches.length === 0) throw new Error("Bolu: listing URL anasayfada bulunamadı");
+
+  // En güncel tarihi seç
+  const best = matches.reduce<{ url: string; iso: string }>(
+    (prev, m) => {
+      const iso = `${m[4]}-${m[3]}-${m[2]}`;
+      return iso > prev.iso ? { url: m[1]!, iso } : prev;
+    },
+    { url: matches[0]![1]!, iso: "" },
+  );
+
+  const priceRes = await fetch(best.url, {
+    headers: { Accept: "text/html", "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)" },
+    signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+    // @ts-expect-error Bun-specific
+    tls: { rejectUnauthorized: false },
+  });
+  if (!priceRes.ok) throw new Error(`Bolu fiyat sayfası HTTP ${priceRes.status}`);
+  const priceHtml = await decodeResponseBody(priceRes);
+  const rows = parseBoluHtml(priceHtml);
+  return { rows, dateUsed: best.iso, httpStatus: 200 };
+}
+
+/**
  * BatıAkdeniz TV — https://www.batiakdeniztv.com/{city}-hal-fiyatlari
  * 2-sütunlu tablolar: Ürünler | Fiyat (₺/kg). "**" → fiyat yok → atla.
  * Birden fazla tablo olabilir; hepsi taranır. Header satırı isim ile atlanır.
@@ -1494,18 +1576,24 @@ async function fetchTekirdagDated(
   source: EtlSourceConfig,
   date: string,
 ): Promise<FetchOutcome | null> {
-  const listingUrl = source.baseUrl + source.endpointTemplate;
-  const listingResult = await fetchViaScraper(listingUrl, { mode: "stealthy" });
-  if (!listingResult.ok || !listingResult.html) {
-    throw new Error(`Tekirdağ listing sayfası boş döndü: ${listingUrl}`);
+  let targetId: number | null = null;
+
+  // Backfill mod: date = "id:1234" → doğrudan o ID'yi çek (listing atlanır)
+  if (date.startsWith("id:")) {
+    targetId = parseInt(date.slice(3), 10);
+  } else {
+    const listingUrl = source.baseUrl + source.endpointTemplate;
+    const listingResult = await fetchViaScraper(listingUrl, { mode: "stealthy" });
+    if (!listingResult.ok || !listingResult.html) {
+      throw new Error(`Tekirdağ listing sayfası boş döndü: ${listingUrl}`);
+    }
+    const ids = [...listingResult.html.matchAll(/hal_fiyat_liste_detay\/(\d+)/g)]
+      .map(m => parseInt(m[1]!));
+    if (ids.length === 0) throw new Error("Tekirdağ listing'de ID bulunamadı");
+    targetId = Math.max(...ids);
   }
 
-  const ids = [...listingResult.html.matchAll(/hal_fiyat_liste_detay\/(\d+)/g)]
-    .map(m => parseInt(m[1]!));
-  if (ids.length === 0) throw new Error("Tekirdağ listing'de ID bulunamadı");
-  const latestId = Math.max(...ids);
-
-  const detailUrl = `${source.baseUrl}/hal_fiyat_liste_detay/${latestId}`;
+  const detailUrl = `${source.baseUrl}/hal_fiyat_liste_detay/${targetId}`;
   const detailResult = await fetchViaScraper(detailUrl, { mode: "stealthy" });
   if (!detailResult.ok || !detailResult.html) {
     throw new Error(`Tekirdağ detail sayfası boş: ${detailUrl}`);
@@ -1874,6 +1962,12 @@ async function fetchWithFallback(
   startDate: string,
   isBackfill = false,
 ): Promise<FetchOutcome> {
+  // "id:NNN" → backfill mod: doğrudan ID'ye git, fallback döngüsü atla
+  if (startDate.startsWith("id:")) {
+    const outcome = await fetchDated(source, startDate);
+    return outcome ?? { rows: [], dateUsed: new Date().toISOString().slice(0, 10), httpStatus: 0 };
+  }
+
   if (isBackfill) {
     const outcome = await fetchDated(source, startDate, true);
     return outcome ?? { rows: [], dateUsed: startDate, httpStatus: 0 };

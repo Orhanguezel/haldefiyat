@@ -1,6 +1,6 @@
 # Belediye Hal Fiyatı Siteleri — Tarama Notları
 
-Son güncelleme: 2026-05-10
+Son güncelleme: 2026-05-10 (akşam)
 
 ---
 
@@ -14,20 +14,22 @@ Son güncelleme: 2026-05-10
 | **Kahramanmaraş** | https://kahramanmaras.bel.tr/sebze-meyve-fiyatlari | Scrapling (`stealthy`) | ~37 | JS-rendered, 2 hal (KM + Elbistan), 2. tablo veri tablosu |
 | **Çanakkale** | https://www.canakkale.bel.tr/tr/sayfa/1481-hal-fiyat-listesi | Scrapling (`stealthy`) | ~85 | TLS korumalı, kategori header satırlarından çıkarılır |
 | **Yalova** | https://ebelediye.yalova.bel.tr/BilgiEdinme/FiyatListesi/ | Direct fetch | ~100 | Her satırda tarih sütunu var — 30 gün staleness filtresi |
-| **Tekirdağ** | https://www.tekirdag.bel.tr/hal_fiyat_liste_detay/2151 | 2-adımlı Scrapling | ~33 | Listing: `/hal_fiyat_gunluk` → max ID → detail. Hafta sonu güncelleme yok. Sayfa tarihi HTML'den çıkarılır |
+| **Tekirdağ** | https://www.tekirdag.bel.tr/hal_fiyat_gunluk | 2-adımlı Scrapling | ~33 | Listing → max ID → detail; sayfa tarihi HTML'den çıkarılır; hafta sonu güncelleme yok |
+| **Trabzon** | https://kurumsal.trabzon.bel.tr/halurunfiyatlari | Scrapling (`dynamic`) | ~68 | JS widget (`halfiyat.css`), Playwright render gerekti; div kart yapısı; ürün görselleri de indirildi |
+| **Serik** | https://www.batiakdeniztv.com/serik-hal-fiyatlari | Direct fetch | ~12 | BatıAkdeniz TV, 2-sütunlu tablo `Ürünler\|₺/kg`; `**` = fiyat yok → atla |
+| **Kumluca** | https://www.batiakdeniztv.com/kumluca-hal-fiyatlari | Direct fetch | ~22 | BatıAkdeniz TV, aynı parser |
+| **Gazipaşa** | https://www.batiakdeniztv.com/gazipasa-hal-fiyatlari | Direct fetch | ~20 | BatıAkdeniz TV, yeni market: `gazipasa-hal` |
+| **Alanya** | https://www.batiakdeniztv.com/alanya-hal-fiyatlari | Direct fetch | ~8 | BatıAkdeniz TV, yeni market: `alanya-hal`; seyrek veri |
+| **Demre** | https://www.batiakdeniztv.com/demre-hal-fiyatlari | Direct fetch | ~23 | BatıAkdeniz TV, yeni market: `demre-hal` |
+| **Finike** | https://www.batiakdeniztv.com/finike-hal-fiyatlari | Direct fetch | ~22 | BatıAkdeniz TV, yeni market: `finike-hal` |
+| **Bolu** | https://www.bolu.bel.tr (anasayfa) | Direct fetch (2-adım) | ~50 | WordPress SSR; anasayfadan en güncel `/{DD-MM-YYYY}-toptanci-hal-fiyat-listesi/` URL'i çek; 12 sütunlu tablo, her satır 2 ürün |
+| **Tekirdağ (arşiv)** | https://www.tekirdag.bel.tr/hal_fiyat_gunluk | 2-adımlı Scrapling | ~212 gün | `id:NNN` backfill modu eklendi; ID 1940–2151 toplu insert (~8000+ satır); ID sayısından tarih çıkarılır |
 
 ---
 
 ## ⏳ Bekleyen — İmplementable
 
-| Hal | URL | Engel | Çözüm Planı |
-|-----|-----|-------|-------------|
-| **Amasya** | https://amasya.bel.tr/hal-fiyatlari/02052026-hal-fiyat-listesi | Haftalık (Cumartesi), URL slug `/{DDMMYYYY}-hal-fiyat-listesi` | Listing sayfası `/hal-fiyatlari`'ndan son linki çek; ya da tarihe göre slug üret |
-| **Muğla** | https://www.mugla.bel.tr/halfiyatlari/07-mayis-2026-tarihli-toptanci-halleri-urun-fiyatlari | Tarih-specific URL (Türkçe ay adı), çoklu bölge tablosu | Türkçe ay adı map'i → slug üret; tablo multi-region |
-| **Bolu** | https://www.bolu.bel.tr/01-05-2026-haftalik-fiyat-listesi/ | Haftalık fiyat listesi, URL slug tarih-based | Listing sayfasından son linki çek |
-| **Tekirdağ (arşiv)** | https://www.tekirdag.bel.tr/hal_fiyat_gunluk | Hafta sonu güncelleme yok | Mevcut 2-adımlı fetch sayfa tarihini doğru okur, UNIQUE constraint çakışma yok |
-| **Hatay** | https://hatay.bel.tr/hal-fiyatlari | Tarih listesi sayfası, her gün ayrı URL | Listing sayfasından bugünkü linki çek |
-| **Adana** | https://www.adana.bel.tr/tr/hal-detay/2577 | Ardışık ID (Tekirdağ benzeri pattern) | Listing sayfasını bul, max ID stratejisi |
+Şu an tüm implement edilebilir kaynaklar tamamlandı. Yeni kaynak bulununca buraya ekle.
 
 ---
 
@@ -35,11 +37,14 @@ Son güncelleme: 2026-05-10
 
 | Hal | URL | Engel | Açıklama |
 |-----|-----|-------|----------|
-| **Trabzon** | https://kurumsal.trabzon.bel.tr/halurunfiyatlari | Özel `halfiyat.css` JS widget | Scrapling `dynamic` mode bile veri döndürmüyor — sayfa özel JS bileşeni kullanıyor |
-| **Afyon** | https://www.afyon.bel.tr/idet/864/1039/mayis-ayi-gunluk-sebze-ve-meyve-toptan-fiyat-listesi | Latin-1 encoding, belgeler PDF | PDF parse gerekiyor |
-| **Isparta** | https://www.isparta.bel.tr/hal-meyve-ve-sebze-fiyatlari | JS-rendered, tablo yok | Dynamic mode denendi, tbody içi boş geliyor |
-| **Sivas** | https://www.sivas.bel.tr/sayfa/toptan-sebze-ve-meyve-fiyatlari | JS dynamic, 0 tablo | Dynamic mode bile tablo üretmiyor |
-| **Samsun** | https://samsun.bel.tr/icerik/2026-yili-hal-fiyatlari | JS dynamic, 0 tablo | Dynamic mode sonucu da boş |
+| **Amasya** | https://amasya.bel.tr/hal-fiyatlari | Listing HTML, içerik PDF | Listing sayfasından URL çekilebilir (`/hal-fiyatlari/{DDMMYYYY}-hal-fiyat-listesi`), ama tıklayınca `.pdf` dosyası geliyor — PDF parse gerekiyor |
+| **Muğla** | https://www.mugla.bel.tr/halfiyatlari | Scrapling da boş döndü | Direct fetch + Scrapling `stealthy` her ikisi de 0 byte; redirect loop var; muhtemelen CloudFlare veya CDN engeli |
+| **Hatay** | https://hatay.bel.tr/hal-fiyatlari | JS-rendered, Scrapling boş | `stealthy` + `dynamic` her ikisi de 0 byte/0 tablo döndü; güçlü bot koruması |
+| **Adana** | https://www.adana.bel.tr/tr/hal-detay/2577 | Site erişilemiyor | HTTP timeout (`000`); domain yanıt vermiyor |
+| **Afyon** | https://www.afyon.bel.tr/idet/864/1039 | PDF format | Belgeler PDF olarak yükleniyor; HTML tablo yok |
+| **Isparta** | https://www.isparta.bel.tr/hal-meyve-ve-sebze-fiyatlari | JS-rendered, `dynamic` boş | Playwright ile render edilse de tbody içeriği gelmiyor |
+| **Sivas** | https://www.sivas.bel.tr/sayfa/toptan-sebze-ve-meyve-fiyatlari | JS-rendered, `dynamic` boş | Her iki Scrapling mode'u da 0 satır döndü |
+| **Samsun** | https://samsun.bel.tr/icerik/2026-yili-hal-fiyatlari | JS-rendered, `dynamic` boş | Dynamic mode test edildi; HTML içeriği boş geliyor |
 
 ---
 

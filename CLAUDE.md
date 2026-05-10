@@ -34,9 +34,9 @@ ssh vps-vistainsaat '/root/haldefiyat-src/backend/scripts/etl-health.sh 24'
 
 - Repo: `github.com/Orhanguezel/haldefiyat` (push: main)
 - VPS: vps-vistainsaat (root@srv1493379), path: `/root/haldefiyat-src/`
-- PM2: `hal-backend` (id 19, port 8086), `hal-frontend` (id 20), `hal-admin` (id 23)
+- PM2: `hal-backend` (id 18, **port 8091**), `hal-frontend` (id 19), `hal-admin` (id 23)
 - DB: `hal_fiyatlari` MySQL, user `haldefiyat`
-- 16 ETL kaynak (resmi belediye + antkomder + hal.gov.tr + izmir API)
+- 22+ ETL kaynak (resmi belediye + antkomder + hal.gov.tr + izmir API + batiakdeniztv + bolu)
 
 ## Aktif Hatirlatmalar (TARIH ILE KONTROL ET)
 
@@ -80,7 +80,9 @@ hal-fiyatlari tarafi:
 - `backend/src/modules/etl/scraper-client.ts` — TS HTTP wrapper
 - `backend/src/modules/etl/fetcher.ts` — `fetchDated` dispatcher'inda `tryFetchViaScraper` on-check
 - Source HF_SCRAPER_SOURCES listesindeyse Scrapling'e yonelir, fail olursa legacy davraniseina sessizce dusler
-- Backfill (gecmis tarih) destegi YOK — bugunden farkli tarih icin legacy fetch path
+- **Backfill modu**: `date = "id:NNN"` formatıyla belirli ID'yi doğrudan çek (listing sayfası atlanır)
+  - Kullanım: `POST /api/v1/admin/hal/etl/run` body `{"source":"tekirdag_resmi","date":"id:2150"}`
+  - `fetchWithFallback` bu formatı tanır, `shiftDate` döngüsünü atlar
 
 ### Aktif Source'lar (HF_SCRAPER_SOURCES)
 - `antalya_merkez_antkomder` (✅ Asama 1+2: 1102 error → 24 inserted, POST 939ms)
@@ -104,6 +106,8 @@ hal-fiyatlari tarafi:
 - `kutahya_resmi` (✅ Asama 5: direct fetch, **76 inserted**)
 - `manisa_resmi` (✅ Asama 5: direct fetch, **97 inserted**)
 - `yalova_resmi` (✅ Asama 5: direct fetch, **103 inserted**, 30-gun stale filter)
+- `serik_batiakdeniz`, `kumluca_batiakdeniz`, `gazipasa_batiakdeniz`, `alanya_batiakdeniz`, `demre_batiakdeniz`, `finike_batiakdeniz` (✅ Oturum 4: batiakdeniztv.com, `parseBatiakdenizHtml`, 2 sütunlu tablo)
+- `bolu_resmi` (✅ Oturum 4: 2-adım anasayfa → `/{DD-MM-YYYY}-toptanci-hal-fiyat-listesi/`, **50 inserted**, haftalık güncelleme)
 
 ### Disabled (kaynak veya parser sorunu — Asama 3+ icin)
 - `antalya_serik_antkomder`, `antalya_kumluca_antkomder` — config'de `defaultEnabled: false` (sayt fiyat yayinlamiyor)
@@ -139,23 +143,39 @@ hal-fiyatlari tarafi:
 
 ## Onemli Dosya Yollari
 
-- ETL config: `backend/src/config/etl-sources.ts` (16 kaynak)
-- ETL fetcher: `backend/src/modules/etl/fetcher.ts` (1399 satir, parsing dahil)
+- ETL config: `backend/src/config/etl-sources.ts` (22+ kaynak)
+- ETL fetcher: `backend/src/modules/etl/fetcher.ts` (parsing + custom fetchXxxDated fonksiyonları)
 - ETL orchestrator: `backend/src/modules/etl/index.ts` (`runDailyEtl`, `runSingleSource`)
 - Scrapler client: `backend/src/modules/etl/scraper-client.ts`
-- Cron: `backend/src/cron.ts` (varsayilan: `15 3 * * *` UTC)
-- ETL trigger admin endpoint: `POST /api/admin/hal/etl/run` body `{source: "key"|"all", date?}`
+- Cron: `backend/src/cron.ts` (varsayilan: `30 7 * * *` UTC)
+- ETL trigger admin endpoint: `POST /api/v1/admin/hal/etl/run` body `{source: "key"|"all", date?: "YYYY-MM-DD"|"id:NNN"}`
+  - `"id:NNN"` formatı: Tekirdağ gibi ID-bazlı sayfalarda backfill için
 
 ## VPS Manuel ETL Tetikleme
 
+**Not:** Standalone Node.js script çalışmaz (yanlış DB user). Admin API endpoint kullan:
+
 ```bash
-ssh vps-vistainsaat 'cd /root/haldefiyat-src/backend && cat > /tmp/etl-test.mjs <<"EOF"
-import { runSingleSource } from "/root/haldefiyat-src/backend/dist/modules/etl/index.js";
-const r = await runSingleSource("KAYNAK_KEY");
-console.log(JSON.stringify(r));
-process.exit(0);
-EOF
-node --experimental-specifier-resolution=node /tmp/etl-test.mjs'
+# JWT üret (VPS'te Python ile)
+JWT=$(ssh vps-vistainsaat 'python3 -c "
+import hmac, hashlib, base64, json, time
+def b64url(d):
+    if isinstance(d,str): d=d.encode()
+    return base64.urlsafe_b64encode(d).rstrip(b\"=\"\").decode()
+h=b64url(json.dumps({\"alg\":\"HS256\",\"typ\":\"JWT\"}))
+p=b64url(json.dumps({\"sub\":\"4f618a8d-6fdb-498c-898a-395d368b2193\",\"role\":\"admin\",\"iat\":int(time.time()),\"exp\":int(time.time())+3600}))
+s=hmac.new(\"3af77dee968934d4882ed2c0f1a5571871cec02e15b6ed75e8b8cc5e17379956\".encode(),\"{}.{}\".format(h,p).encode(),hashlib.sha256).digest()
+print(\"{}.{}.{}\".format(h,p,b64url(s)))
+"')
+
+# ETL çalıştır
+ssh vps-vistainsaat "curl -s -X POST http://localhost:8091/api/v1/admin/hal/etl/run \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer \$JWT' \
+  -d '{\"source\":\"KAYNAK_KEY\"}'"
+
+# Belirli ID ile backfill (Tekirdağ için)
+# -d '{"source":"tekirdag_resmi","date":"id:2150"}'
 ```
 
 ## Cross-References
