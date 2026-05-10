@@ -17,6 +17,7 @@ import FavoriteButton from "@/components/ui/FavoriteButton";
 import ExportButton from "@/components/ui/ExportButton";
 import { getEmoji } from "@/lib/emoji";
 import { getPageMetadata } from "@/lib/seo";
+import ProductImage from "@/components/ui/ProductImage";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -70,7 +71,6 @@ export default async function UrunPage({ params }: Props) {
   ]);
 
   const product = products.find((p) => p.slug === slug);
-  const emoji = getEmoji(slug, product?.categorySlug);
 
   if (!product) {
     return (
@@ -117,9 +117,12 @@ export default async function UrunPage({ params }: Props) {
       {/* Baslik */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <span className="text-5xl" aria-hidden>
-            {emoji}
-          </span>
+          <ProductImage
+            slug={slug}
+            name={product.nameTr}
+            categorySlug={product.categorySlug}
+            size={80}
+          />
           <div>
             <h1 className="font-(family-name:--font-display) text-3xl font-bold text-(--color-foreground)">
               {product.nameTr}
