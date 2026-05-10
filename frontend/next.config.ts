@@ -21,6 +21,12 @@ function apiRemotePattern() {
 }
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // Router cache (client-side) TTL for force-dynamic pages.
+    // Default is 30s — prefetched empty payloads would be served for 30s.
+    // Setting to 0 ensures every navigation makes a fresh server request.
+    staleTimes: { dynamic: 0 },
+  },
   transpilePackages: ["@agro/shared-ui"],
   typescript: { ignoreBuildErrors: true },
   output: "standalone",

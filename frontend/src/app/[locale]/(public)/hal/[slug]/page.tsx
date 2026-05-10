@@ -153,6 +153,7 @@ export default async function HalPage({ params }: Props) {
         </div>
 
         <PriceTable
+          key={slug}
           initialPrices={prices}
           markets={markets}
           requestParams={{ market: slug, range: MARKET_PRICE_RANGE }}
@@ -206,6 +207,7 @@ export default async function HalPage({ params }: Props) {
       )}
 
       <PriceTable
+        key={slug}
         initialPrices={prices}
         markets={markets}
         requestParams={{ market: slug, range: MARKET_PRICE_RANGE }}

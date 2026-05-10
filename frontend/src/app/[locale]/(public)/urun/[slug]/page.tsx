@@ -170,7 +170,7 @@ export default async function UrunPage({ params }: Props) {
         </h2>
         <ExportButton params={{ product: product.slug, range: "7d" }} />
       </div>
-      <PriceTable initialPrices={todayPrices} markets={[]} />
+      <PriceTable key={slug} initialPrices={todayPrices} markets={[]} />
     </main>
   );
 }
