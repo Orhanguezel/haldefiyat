@@ -72,6 +72,7 @@ function parseResponse(
     case "kahramanmaras_html": return parseKahramanmarasHtml(String(raw));
     case "canakkale_html":    return parseCanakkaleHtml(String(raw));
     case "yalova_html":       return parseYalovaHtml(String(raw));
+    case "tekirdag_html":     return parseTekirdag_html(String(raw));
     default:                 return [];
   }
 }
@@ -734,6 +735,7 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "kahramanmaras_html",
   "canakkale_html",
   "yalova_html",
+  "tekirdag_html",
 ]);
 
 /**
@@ -876,6 +878,9 @@ async function fetchDated(
   }
   if (source.responseShape === "istanbul_ibb_html") {
     return fetchIstanbulIbbDated(source, date);
+  }
+  if (source.responseShape === "tekirdag_html") {
+    return fetchTekirdagDated(source, date);
   }
 
   // Geriye dönük çağrıda backfillEndpoint tercih edilir (Konya gibi: default
@@ -1398,6 +1403,64 @@ function parseYalovaHtml(html: string): NormalizedRow[] {
     });
   }
   return out;
+}
+
+// Tekirdağ Büyükşehir — SSR HTML, ardışık ID.
+// Tablo kolonları: Ürün Adı | Ürün Türü | Birim | Tip | Maksimum | Minimum.
+// Ürün adı "ANANAS (ANANAS)" biçiminde çiftlenmiş — tekrar kaldırılır.
+function parseTekirdag_html(html: string): NormalizedRow[] {
+  const out: NormalizedRow[] = [];
+  const tables = extractTables(html);
+  if (tables.length === 0) return out;
+  for (const row of tables[0]!) {
+    if (row.length < 5) continue;
+    let name = (row[0] ?? "").trim();
+    if (!name || /^(ürün adı|ürün türü|birim|tip|maksimum|minimum)$/i.test(name)) continue;
+    // "ANANAS (ANANAS)" → "ANANAS"; "BİBER SALÇALIK (KAPYA) (BİBER SALÇALIK (KAPYA))" → "BİBER SALÇALIK (KAPYA)"
+    const dedupeMatch = name.match(/^(.+) \(\1\)$/);
+    if (dedupeMatch) name = dedupeMatch[1]!;
+    const tipRaw  = (row[3] ?? "").trim().toLocaleLowerCase("tr-TR");
+    const max = parsePriceTry(row[4] ?? "");
+    const min = parsePriceTry(row[5] ?? "");
+    if (min == null && max == null) continue;
+    const category = tipRaw === "meyve" ? "meyve" : tipRaw === "sebze" ? "sebze" : null;
+    const unit = normalizeUnit(row[2] ?? "");
+    const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
+    out.push({ name, category, unit, avg, min, max });
+  }
+  return out;
+}
+
+// Tekirdağ — 2-adımlı Scrapling fetch.
+// Adım 1: listing sayfasından (/hal_fiyat_gunluk) en yüksek ardışık ID bulunur.
+// Adım 2: /hal_fiyat_liste_detay/{ID} detail sayfası çekilir.
+async function fetchTekirdagDated(
+  source: EtlSourceConfig,
+  date: string,
+): Promise<FetchOutcome | null> {
+  const listingUrl = source.baseUrl + source.endpointTemplate;
+  const listingResult = await fetchViaScraper(listingUrl, { mode: "stealthy" });
+  if (!listingResult.ok || !listingResult.html) {
+    throw new Error(`Tekirdağ listing sayfası boş döndü: ${listingUrl}`);
+  }
+
+  const ids = [...listingResult.html.matchAll(/hal_fiyat_liste_detay\/(\d+)/g)]
+    .map(m => parseInt(m[1]!));
+  if (ids.length === 0) throw new Error("Tekirdağ listing'de ID bulunamadı");
+  const latestId = Math.max(...ids);
+
+  const detailUrl = `${source.baseUrl}/hal_fiyat_liste_detay/${latestId}`;
+  const detailResult = await fetchViaScraper(detailUrl, { mode: "stealthy" });
+  if (!detailResult.ok || !detailResult.html) {
+    throw new Error(`Tekirdağ detail sayfası boş: ${detailUrl}`);
+  }
+
+  const rows = parseTekirdag_html(detailResult.html);
+  // Sayfadaki gerçek tarihi kullan (DD.MM.YYYY) → UNIQUE constraint çakışmasını önler
+  const pageDate = parseTrDate(
+    detailResult.html.match(/(\d{2}\.\d{2}\.\d{4})/)?.[1] ?? "",
+  ) ?? date;
+  return { rows, dateUsed: pageDate, httpStatus: 200 };
 }
 
 // Kocaeli Büyükşehir — POST form. endpointTemplate = hal ID'si (örn. "1").

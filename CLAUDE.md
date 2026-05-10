@@ -90,6 +90,9 @@ hal-fiyatlari tarafi:
 - `canakkale_resmi` (✅ Asama 5: timeout direkt, Scrapling, **85 inserted**)
 - `kahramanmaras_resmi` (✅ Asama 5: JS-rendered, Scrapling, **37 inserted**, 2 hal)
 
+### 2-Adımlı Scrapling (listing → detail)
+- `tekirdag_resmi` (✅ Oturum 3: /hal_fiyat_gunluk → max ID → /hal_fiyat_liste_detay/{ID}, **33 inserted**, sayfa tarihi çıkarılır)
+
 ### Direct Fetch Source'lar (Scrapling kullanmiyor)
 - `istanbul_ibb` (Anadolu Yakasi) (✅ Asama 4: 97 satir/gun, 1.1s, 3 paralel kategori AJAX endpoint)
   - URL: `tarim.ibb.istanbul/inc/halfiyatlari/gunluk_fiyatlar.asp`

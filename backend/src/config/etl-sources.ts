@@ -36,7 +36,8 @@ type ResponseShape =
   | "manisa_html"
   | "kahramanmaras_html"
   | "canakkale_html"
-  | "yalova_html";
+  | "yalova_html"
+  | "tekirdag_html";
 
 export interface EtlSourceConfig {
   key:              string;          // DB'de source_api olarak yazılır
@@ -357,6 +358,21 @@ const RAW_SOURCES: RawSource[] = [
     defaultBaseUrl:    "https://ebelediye.yalova.bel.tr",
     defaultEndpoint:   "/BilgiEdinme/FiyatListesi/",
     responseShape:     "yalova_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // Tekirdağ Büyükşehir — 2 adımlı: önce listing sayfasından en yüksek ardışık
+  // ID bulunur (/hal_fiyat_gunluk), sonra /hal_fiyat_liste_detay/{ID} çekilir.
+  // Tablo kolonları: Ürün Adı | Ürün Türü | Birim | Tip(Meyve/Sebze) | Max | Min.
+  // Ürün adı "ANANAS (ANANAS)" şeklinde çift yazılı — parser tekrarı temizler.
+  // Fiyat formatı "140 TL". Scrapling gerekiyor (TLS korumalı).
+  {
+    key:               "tekirdag_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "tekirdag-hal",
+    defaultBaseUrl:    "https://www.tekirdag.bel.tr",
+    defaultEndpoint:   "/hal_fiyat_gunluk",
+    responseShape:     "tekirdag_html",
     defaultUnit:       "kg",
     defaultCategory:   "sebze-meyve",
   },
