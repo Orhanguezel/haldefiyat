@@ -38,7 +38,8 @@ type ResponseShape =
   | "canakkale_html"
   | "yalova_html"
   | "tekirdag_html"
-  | "trabzon_html";
+  | "trabzon_html"
+  | "batiakdeniz_html";
 
 export interface EtlSourceConfig {
   key:              string;          // DB'de source_api olarak yazılır
@@ -373,6 +374,70 @@ const RAW_SOURCES: RawSource[] = [
     defaultBaseUrl:    "https://kurumsal.trabzon.bel.tr",
     defaultEndpoint:   "/halurunfiyatlari",
     responseShape:     "trabzon_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // BatıAkdeniz TV — https://www.batiakdeniztv.com/{city}-hal-fiyatlari
+  // Antalya ilçe halları için bölgesel haber sitesi. 2-sütunlu tablo: Ürünler | Fiyat (₺/kg).
+  // "**" → fiyat yok, satır atlanır. Tek fiyat → avg olarak kullanılır, min/max null.
+  // Aynı parser tüm halleri karşılar; source key farklı → market slug farklı.
+  {
+    key:               "serik_batiakdeniz",
+    defaultEnabled:    true,
+    defaultMarketSlug: "antalya-hal-serik",
+    defaultBaseUrl:    "https://www.batiakdeniztv.com",
+    defaultEndpoint:   "/serik-hal-fiyatlari",
+    responseShape:     "batiakdeniz_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  {
+    key:               "kumluca_batiakdeniz",
+    defaultEnabled:    true,
+    defaultMarketSlug: "antalya-hal-kumluca",
+    defaultBaseUrl:    "https://www.batiakdeniztv.com",
+    defaultEndpoint:   "/kumluca-hal-fiyatlari",
+    responseShape:     "batiakdeniz_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  {
+    key:               "gazipasa_batiakdeniz",
+    defaultEnabled:    true,
+    defaultMarketSlug: "gazipasa-hal",
+    defaultBaseUrl:    "https://www.batiakdeniztv.com",
+    defaultEndpoint:   "/gazipasa-hal-fiyatlari",
+    responseShape:     "batiakdeniz_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  {
+    key:               "alanya_batiakdeniz",
+    defaultEnabled:    true,
+    defaultMarketSlug: "alanya-hal",
+    defaultBaseUrl:    "https://www.batiakdeniztv.com",
+    defaultEndpoint:   "/alanya-hal-fiyatlari",
+    responseShape:     "batiakdeniz_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  {
+    key:               "demre_batiakdeniz",
+    defaultEnabled:    true,
+    defaultMarketSlug: "demre-hal",
+    defaultBaseUrl:    "https://www.batiakdeniztv.com",
+    defaultEndpoint:   "/demre-hal-fiyatlari",
+    responseShape:     "batiakdeniz_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  {
+    key:               "finike_batiakdeniz",
+    defaultEnabled:    true,
+    defaultMarketSlug: "finike-hal",
+    defaultBaseUrl:    "https://www.batiakdeniztv.com",
+    defaultEndpoint:   "/finike-hal-fiyatlari",
+    responseShape:     "batiakdeniz_html",
     defaultUnit:       "kg",
     defaultCategory:   "sebze-meyve",
   },

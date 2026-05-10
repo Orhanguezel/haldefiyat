@@ -74,6 +74,7 @@ function parseResponse(
     case "yalova_html":       return parseYalovaHtml(String(raw));
     case "tekirdag_html":     return parseTekirdag_html(String(raw));
     case "trabzon_html":      return parseTrabzonHtml(String(raw));
+    case "batiakdeniz_html":  return parseBatiakdenizHtml(String(raw));
     default:                 return [];
   }
 }
@@ -738,6 +739,7 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "yalova_html",
   "tekirdag_html",
   "trabzon_html",
+  "batiakdeniz_html",
 ]);
 
 /**
@@ -1458,6 +1460,29 @@ function parseTekirdag_html(html: string): NormalizedRow[] {
     const unit = normalizeUnit(row[2] ?? "");
     const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
     out.push({ name, category, unit, avg, min, max });
+  }
+  return out;
+}
+
+/**
+ * BatıAkdeniz TV — https://www.batiakdeniztv.com/{city}-hal-fiyatlari
+ * 2-sütunlu tablolar: Ürünler | Fiyat (₺/kg). "**" → fiyat yok → atla.
+ * Birden fazla tablo olabilir; hepsi taranır. Header satırı isim ile atlanır.
+ */
+function parseBatiakdenizHtml(html: string): NormalizedRow[] {
+  const out: NormalizedRow[] = [];
+  const tables = extractTables(html);
+  for (const table of tables) {
+    for (const row of table) {
+      if (row.length < 2) continue;
+      const name = (row[0] ?? "").trim();
+      const priceRaw = (row[1] ?? "").trim();
+      if (!name || /^(ürünler|ürün|fiyat|₺|kg)$/i.test(name)) continue;
+      if (priceRaw === "**" || !priceRaw) continue;
+      const avg = parsePriceTry(priceRaw);
+      if (avg == null) continue;
+      out.push({ name, category: null, unit: "kg", avg, min: null, max: null });
+    }
   }
   return out;
 }
