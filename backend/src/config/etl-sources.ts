@@ -37,7 +37,8 @@ type ResponseShape =
   | "kahramanmaras_html"
   | "canakkale_html"
   | "yalova_html"
-  | "tekirdag_html";
+  | "tekirdag_html"
+  | "trabzon_html";
 
 export interface EtlSourceConfig {
   key:              string;          // DB'de source_api olarak yazılır
@@ -358,6 +359,20 @@ const RAW_SOURCES: RawSource[] = [
     defaultBaseUrl:    "https://ebelediye.yalova.bel.tr",
     defaultEndpoint:   "/BilgiEdinme/FiyatListesi/",
     responseShape:     "yalova_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // Trabzon Büyükşehir — JS-rendered kart yapısı (no table).
+  // Her ürün: resim + ad + min fiyat + max fiyat. Dynamic mode gerekli (halfiyat.css widget).
+  // Kategori sütunu yok — normalizer'dan gelir. Fiyat formatı "140,00₺".
+  // HF_SCRAPER_DYNAMIC listesinde olması gerekir.
+  {
+    key:               "trabzon_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "trabzon-hal",
+    defaultBaseUrl:    "https://kurumsal.trabzon.bel.tr",
+    defaultEndpoint:   "/halurunfiyatlari",
+    responseShape:     "trabzon_html",
     defaultUnit:       "kg",
     defaultCategory:   "sebze-meyve",
   },

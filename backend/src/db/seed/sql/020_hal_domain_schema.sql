@@ -142,7 +142,8 @@ INSERT INTO `hf_markets` (`slug`, `name`, `city_name`, `region_slug`, `source_ke
 ('kahramanmaras-hal',      'Kahramanmaraş Toptancı Hali',          'Kahramanmaraş', 'guneydogu', 'kahramanmaras_resmi',   19, 1),
 ('canakkale-hal',          'Çanakkale Toptancı Hali',              'Çanakkale', 'marmara',    'canakkale_resmi',          20, 1),
 ('yalova-hal',             'Yalova Toptancı Hali',                 'Yalova',    'marmara',    'yalova_resmi',             21, 1),
-('tekirdag-hal',           'Tekirdağ Toptancı Hali',               'Tekirdağ',  'marmara',    'tekirdag_resmi',           22, 1)
+('tekirdag-hal',           'Tekirdağ Toptancı Hali',               'Tekirdağ',  'marmara',    'tekirdag_resmi',           22, 1),
+('trabzon-hal',            'Trabzon Toptancı Hali',                'Trabzon',   'karadeniz',  'trabzon_resmi',            23, 1)
 ON DUPLICATE KEY UPDATE
   `name`       = VALUES(`name`),
   `source_key` = VALUES(`source_key`),

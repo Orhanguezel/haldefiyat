@@ -73,6 +73,7 @@ function parseResponse(
     case "canakkale_html":    return parseCanakkaleHtml(String(raw));
     case "yalova_html":       return parseYalovaHtml(String(raw));
     case "tekirdag_html":     return parseTekirdag_html(String(raw));
+    case "trabzon_html":      return parseTrabzonHtml(String(raw));
     default:                 return [];
   }
 }
@@ -736,6 +737,7 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "canakkale_html",
   "yalova_html",
   "tekirdag_html",
+  "trabzon_html",
 ]);
 
 /**
@@ -1371,6 +1373,35 @@ function parseCanakkaleHtml(html: string): NormalizedRow[] {
  * Her satırda kendi tarihi var. Fiyat formatı "150,00 ₺".
  * 30 günden eski tarihli satırlar atlanır (stale veri filtresi).
  */
+// Trabzon Büyükşehir — JS-rendered kart yapısı (tablo yok).
+// Her ürün bloğu: resim src + ürün adı + min₺ + max₺ formatında çıkarılır.
+// URL: /Upload/HalUrun/{id}/{filename} — kart sırası sabit değil.
+function parseTrabzonHtml(html: string): NormalizedRow[] {
+  const out: NormalizedRow[] = [];
+  const items = [
+    ...html.matchAll(
+      /Upload\/HalUrun\/\d+\/[^"']+["'][^>]*>(.*?)(?=Upload\/HalUrun\/|$)/gs,
+    ),
+  ];
+  for (const m of items) {
+    const block = m[1] ?? "";
+    const text  = block.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const prices = [...text.matchAll(/([\d,.]+)\s*₺/g)].map(p =>
+      parsePriceTry(p[1]! + "₺"),
+    );
+    if (prices.length < 1) continue;
+    const nameMatch = text.match(/^([^0-9₺]+)/);
+    if (!nameMatch) continue;
+    const name = nameMatch[1]!.trim().replace(/\s+/g, " ");
+    if (!name || name.length < 2) continue;
+    const min = prices[0] ?? null;
+    const max = prices[1] ?? prices[0] ?? null;
+    const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
+    out.push({ name, category: null, unit: "kg", avg, min, max });
+  }
+  return out;
+}
+
 function parseYalovaHtml(html: string): NormalizedRow[] {
   const out: NormalizedRow[] = [];
   const tables = extractTables(html);

@@ -93,6 +93,9 @@ hal-fiyatlari tarafi:
 ### 2-Adımlı Scrapling (listing → detail)
 - `tekirdag_resmi` (✅ Oturum 3: /hal_fiyat_gunluk → max ID → /hal_fiyat_liste_detay/{ID}, **33 inserted**, sayfa tarihi çıkarılır)
 
+### Dynamic Mode Scrapling (JS-rendered kart yapısı)
+- `trabzon_resmi` (✅ Oturum 3: HF_SCRAPER_DYNAMIC, div kart yapısı tablo yok, **68 inserted**, resimler /public/images/urunler/ indirildi)
+
 ### Direct Fetch Source'lar (Scrapling kullanmiyor)
 - `istanbul_ibb` (Anadolu Yakasi) (✅ Asama 4: 97 satir/gun, 1.1s, 3 paralel kategori AJAX endpoint)
   - URL: `tarim.ibb.istanbul/inc/halfiyatlari/gunluk_fiyatlar.asp`
