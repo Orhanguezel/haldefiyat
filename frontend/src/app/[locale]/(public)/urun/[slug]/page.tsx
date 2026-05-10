@@ -8,6 +8,7 @@ import {
   fetchProducts,
 } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
+import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceChart from "@/components/sections/PriceChart";
 import SeasonCompare from "@/components/sections/SeasonCompare";
 import FrostRiskBanner from "@/components/sections/FrostRiskBanner";
@@ -15,6 +16,7 @@ import PriceTable from "@/components/ui/PriceTable";
 import FavoriteButton from "@/components/ui/FavoriteButton";
 import ExportButton from "@/components/ui/ExportButton";
 import { getEmoji } from "@/lib/emoji";
+import { getPageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -25,7 +27,7 @@ function toNumberSafe(value: string | null | undefined): number {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const products = await fetchProducts();
   const product = products.find((p) => p.slug === slug);
 
@@ -36,7 +38,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  return {
+  return getPageMetadata("urun", {
+    locale,
+    pathname: `/urun/${slug}`,
+    vars: {
+      name: product.nameTr,
+      category: product.categorySlug ?? "",
+      slug,
+    },
     title: `${product.nameTr} Hal Fiyatı`,
     description: `Türkiye genelinde ${product.nameTr} hal fiyatları, trend grafikleri ve güncel karşılaştırma.`,
     openGraph: {
@@ -45,8 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "article",
       locale: "tr_TR",
     },
-    alternates: { canonical: `/urun/${slug}` },
-  };
+  });
 }
 
 export default async function UrunPage({ params }: Props) {
@@ -97,6 +105,11 @@ export default async function UrunPage({ params }: Props) {
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <JsonLd type="Product" data={productSchema} />
+      <Breadcrumb items={[
+        { name: "Anasayfa", href: "/" },
+        { name: "Fiyatlar", href: "/fiyatlar" },
+        { name: product.nameTr, href: `/urun/${slug}` },
+      ]} />
 
       {/* Don uyarisi — donla hassas urun + aktif risk varsa gosterilir */}
       <FrostRiskBanner />
@@ -126,6 +139,26 @@ export default async function UrunPage({ params }: Props) {
 
       {/* Sezon karsilastirma */}
       <SeasonCompare history={history} productName={product.nameTr} />
+
+      {/* Editoryal içerik — AI alıntılanabilirlik + E-E-A-T */}
+      <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-3">
+        <h2 className="text-base font-semibold text-foreground">
+          {product.nameTr} Hakkında
+        </h2>
+        <p>
+          <strong className="text-foreground">{product.nameTr}</strong>, Türkiye genelinde toptancı hallerde işlem gören temel tarım ürünlerinden biridir.
+          Fiyatlar; hasat dönemine, hava koşullarına, nakliye maliyetlerine ve arz-talep dengesine göre günlük değişim gösterir.
+        </p>
+        <p>
+          Bu sayfada gösterilen fiyatlar, Türkiye'nin 81 ilindeki resmi hal müdürlüklerinden günlük olarak derlenmektedir.
+          Minimum, maksimum ve ortalama fiyat değerleri; güncel piyasa koşullarını yansıtır.
+        </p>
+        <p>
+          <strong className="text-foreground">Veri kaynağı:</strong> Belediye hal müdürlükleri ve{" "}
+          <a href="https://hal.gov.tr" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">hal.gov.tr</a>{" "}
+          ulusal ortalamaları. Veriler her gün TSİ 06:15'te güncellenir.
+        </p>
+      </div>
 
       {/* Bugunku fiyat tablosu */}
       <div className="mb-4 mt-8 flex items-end justify-between gap-4">

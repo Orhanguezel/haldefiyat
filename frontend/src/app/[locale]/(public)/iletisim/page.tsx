@@ -2,8 +2,19 @@ import { setRequestLocale } from "next-intl/server";
 import { ContactForm } from "@/components/sections/ContactForm";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import { getPageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: Props) {
+  const { locale } = await params;
+  return getPageMetadata("iletisim", {
+    locale,
+    pathname: "/iletisim",
+    title: "İletişim | HaldeFiyat",
+    description: "HaldeFiyat ekibiyle iletişime geçin; soru, öneri ve destek taleplerinizi gönderin.",
+  });
+}
 
 export default async function ContactPage({ params }: Props) {
   const { locale } = await params;

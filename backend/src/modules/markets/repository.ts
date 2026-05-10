@@ -10,6 +10,7 @@ export async function listMarkets() {
       name: hfMarkets.name,
       cityName: hfMarkets.cityName,
       regionSlug: hfMarkets.regionSlug,
+      sourceKey: hfMarkets.sourceKey,
     })
     .from(hfMarkets)
     .where(eq(hfMarkets.isActive, 1))

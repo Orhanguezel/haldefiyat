@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { fetchIndexLatest, fetchIndexHistory, type IndexSnapshot } from "@/lib/api";
 import { INDEX_BASKET_LABELS } from "@/lib/index-basket";
+import { getPageMetadata } from "@/lib/seo";
+import JsonLd from "@/components/seo/JsonLd";
+import Breadcrumb from "@/components/seo/Breadcrumb";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -29,17 +31,15 @@ function toDateStr(d: string): string {
   return raw.slice(0, 10);
 }
 
-export function generateMetadata(): Metadata {
-  return {
+export async function generateMetadata({ params }: Props) {
+  const { locale } = await params;
+  return getPageMetadata("endeks", {
+    locale,
+    pathname: "/endeks",
     title: "HaldeFiyat Endeksi",
     description:
       "Türkiye hal fiyatlarının haftalık sepet endeksi. Baz haftaya göre değişimi izleyin.",
-    openGraph: {
-      title: "HaldeFiyat Endeksi | Haftalık Fiyat Endeksi",
-      description: "15 temel tarım ürününden oluşan ağırlıksız hal fiyatları endeksi.",
-      type: "website",
-    },
-  };
+  });
 }
 
 export default async function EndeksPage({ params }: Props) {
@@ -58,8 +58,26 @@ export default async function EndeksPage({ params }: Props) {
     ? Math.round((currentValue - prevValue) * 100) / 100
     : null;
 
+  const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
+  const endeksDataset = {
+    name: "HalDeFiyat Tarımsal Fiyat Endeksi",
+    description: "15 temel tarım ürününden oluşan haftalık sepet endeksi. Türkiye hal fiyatlarının baz haftaya göre değişimini izler.",
+    url: `${SITE_URL}/endeks`,
+    creator: { "@type": "Organization", name: "HalDeFiyat" },
+    license: "https://creativecommons.org/licenses/by/4.0/",
+    temporalCoverage: "2025/..",
+    spatialCoverage: { "@type": "Place", name: "Türkiye" },
+    variableMeasured: "Fiyat Endeksi",
+    isAccessibleForFree: true,
+  } satisfies Record<string, unknown>;
+
   return (
     <div className="mx-auto max-w-350 px-8 py-12 space-y-10">
+      <JsonLd type="Dataset" data={endeksDataset} />
+      <Breadcrumb items={[
+        { name: "Anasayfa", href: "/" },
+        { name: "HalDeFiyat Endeksi", href: "/endeks" },
+      ]} />
       {/* Başlık */}
       <div>
         <h1 className="font-(family-name:--font-display) text-3xl font-bold text-(--color-foreground)">

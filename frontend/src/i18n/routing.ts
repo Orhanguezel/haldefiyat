@@ -15,6 +15,7 @@ export const routing = defineRouting({
     "/urun/[slug]": "/urun/[slug]",
     "/karsilastirma": "/karsilastirma",
     "/hakkimizda": "/hakkimizda",
+    "/metodoloji": "/metodoloji",
     "/iletisim": "/iletisim",
     "/gizlilik-politikasi": "/gizlilik-politikasi",
   },
@@ -35,6 +36,11 @@ export function getLocaleFromPathname(pathname: string): AppLocale {
 export function toLocalizedPath(pathname: string, locale: string): string {
   const safeLocale = isAppLocale(locale) ? locale : defaultLocale;
   const normalizedPathname = pathname.startsWith("/") ? pathname : `/${pathname}`;
+
+  // localePrefix: "as-needed" — default locale için prefix yok
+  if (safeLocale === defaultLocale) {
+    return normalizedPathname === "/" ? "/" : normalizedPathname;
+  }
 
   if (normalizedPathname === "/") {
     return `/${safeLocale}`;

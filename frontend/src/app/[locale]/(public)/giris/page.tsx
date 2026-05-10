@@ -1,18 +1,20 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { AuthPanel } from "@/components/auth/AuthPanel";
+import { getPageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
 
-export function generateMetadata(): Metadata {
-  return {
+export async function generateMetadata({ params }: Props) {
+  const { locale } = await params;
+  return getPageMetadata("giris", {
+    locale,
+    pathname: "/giris",
     title: "Giriş Yap | HaldeFiyat",
     description: "HaldeFiyat hesabınıza giriş yapın.",
-    alternates: { canonical: "/giris" },
     robots: { index: false, follow: false },
-  };
+  });
 }
 
 export default async function GirisPage({ params }: Props) {

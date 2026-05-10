@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS `contact_messages` (
+  `id` char(36) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(64) NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `status` varchar(32) NOT NULL DEFAULT 'new',
+  `is_resolved` tinyint(1) NOT NULL DEFAULT 0,
+  `admin_note` varchar(2000) DEFAULT NULL,
+  `ip` varchar(64) DEFAULT NULL,
+  `user_agent` varchar(512) DEFAULT NULL,
+  `website` varchar(255) DEFAULT NULL,
+  `created_at` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updated_at` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`),
+  KEY `idx_contact_created_at` (`created_at`),
+  KEY `idx_contact_status` (`status`),
+  KEY `idx_contact_resolved` (`is_resolved`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

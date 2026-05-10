@@ -1,12 +1,19 @@
 "use client";
 
-import { useMemo, useState, useDeferredValue } from "react";
+import { useEffect, useMemo, useState, useDeferredValue } from "react";
 import Link from "next/link";
-import type { PriceRow, Market } from "@/lib/api";
+import { apiGet } from "@/lib/api-client";
+import type { PriceRow, Market, PriceListResponse, PriceListMeta, FetchPricesParams } from "@/lib/api";
+import Pagination from "@/components/ui/Pagination";
 
 interface PriceTableProps {
-  initialPrices: PriceRow[];
+  initialPrices?: PriceRow[];
+  initialPricePage?: PriceListResponse;
   markets: Market[];
+  requestParams?: Pick<FetchPricesParams, "range" | "latestOnly" | "product" | "market" | "sort">;
+  initialCategory?: string;
+  initialCity?: string;
+  initialQuery?: string;
 }
 
 type SortKey = "avg-desc" | "avg-asc" | "name-asc" | "date-desc";
@@ -32,6 +39,16 @@ const CATEGORY_LABEL: Record<string, string> = {
   bakliyat: "Bakliyat",
   diger: "Diğer",
 };
+
+// /fiyatlar sayfasında tüm geçmiş kayıtlar sayfalandırılırken yalnızca fiyat
+// geçmişinde gerçekten veri olan ana kategorileri gösteriyoruz.
+const PRICE_TABLE_CATEGORY_SLUGS = [
+  "sebze-meyve",
+  "sebze",
+  "meyve",
+  "balik",
+  "ithal",
+] as const;
 
 const CATEGORY_DOT: Record<string, string> = {
   sebze: "bg-green-400",
@@ -130,15 +147,85 @@ function sortRows(rows: PriceRow[], key: SortKey): PriceRow[] {
  * veriden türetilir (yeni kaynak eklendiğinde otomatik listeye girer). Arama
  * ürün adında çalışır, Türkçe karakter duyarsızdır.
  */
-export default function PriceTable({ initialPrices, markets }: PriceTableProps) {
-  const safePrices = Array.isArray(initialPrices) ? initialPrices : [];
+export default function PriceTable({
+  initialPrices,
+  initialPricePage,
+  markets,
+  requestParams,
+  initialCategory,
+  initialCity,
+  initialQuery,
+}: PriceTableProps) {
+  const initialMeta = initialPricePage?.meta;
+  const serverPagination = Boolean(initialPricePage);
+  const initialSort = requestParams?.sort ?? "avg-desc";
+  const [prices, setPrices] = useState<PriceRow[]>(
+    initialPricePage?.items ?? (Array.isArray(initialPrices) ? initialPrices : []),
+  );
+  const [meta, setMeta] = useState<PriceListMeta | null>(initialMeta ?? null);
+  const [page, setPage] = useState<number>(initialMeta?.page ?? 1);
+  const [pageSize, setPageSize] = useState<number>(initialMeta?.limit ?? 100);
+  const [loading, setLoading] = useState(false);
+  const safePrices = Array.isArray(prices) ? prices : [];
   const safeMarkets = Array.isArray(markets) ? markets : [];
 
-  const [city, setCity] = useState<string>("all");
-  const [category, setCategory] = useState<string>("all");
-  const [sort, setSort] = useState<SortKey>("avg-desc");
-  const [query, setQuery] = useState<string>("");
+  const [city, setCity] = useState<string>(initialCity || "all");
+  const [category, setCategory] = useState<string>(initialCategory || "all");
+  const [sort, setSort] = useState<SortKey>(initialSort);
+  const [query, setQuery] = useState<string>(initialQuery || "");
   const deferredQuery = useDeferredValue(query);
+
+  useEffect(() => {
+    if (!serverPagination) return;
+    setPage(1);
+  }, [serverPagination, city, category, sort, deferredQuery, pageSize]);
+
+  useEffect(() => {
+    if (!serverPagination) return;
+    let cancelled = false;
+    const params = {
+      range: requestParams?.range ?? "7d",
+      latestOnly: requestParams?.latestOnly ?? true,
+      product: requestParams?.product,
+      market: requestParams?.market,
+      page,
+      limit: pageSize,
+      sort,
+      city: city === "all" ? undefined : city,
+      category: category === "all" ? undefined : category,
+      q: deferredQuery.trim() || undefined,
+    };
+
+    setLoading(true);
+    apiGet<PriceListResponse>("/prices", params)
+      .then((result) => {
+        if (cancelled) return;
+        setPrices(Array.isArray(result.items) ? result.items : []);
+        setMeta(result.meta ?? null);
+      })
+      .catch((err) => {
+        if (!cancelled) console.error("[PriceTable] fiyatlar yüklenemedi", err);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    serverPagination,
+    page,
+    pageSize,
+    city,
+    category,
+    sort,
+    deferredQuery,
+    requestParams?.range,
+    requestParams?.latestOnly,
+    requestParams?.product,
+    requestParams?.market,
+  ]);
 
   const cityOptions = useMemo(() => {
     const seen = new Set<string>();
@@ -163,16 +250,20 @@ export default function PriceTable({ initialPrices, markets }: PriceTableProps) 
       const key = p.categorySlug || "diger";
       counts.set(key, (counts.get(key) ?? 0) + 1);
     }
-    const list = [...counts.entries()]
-      .map(([slug, count]) => ({ slug, label: humanizeSlug(slug), count }))
-      .sort((a, b) => (b.count - a.count) || a.label.localeCompare(b.label, "tr"));
+    const categorySlugs = serverPagination
+      ? [...PRICE_TABLE_CATEGORY_SLUGS]
+      : [...counts.keys()];
+    const list = categorySlugs
+      .map((slug) => ({ slug, label: humanizeSlug(slug), count: counts.get(slug) ?? 0 }))
+      .sort((a, b) => a.label.localeCompare(b.label, "tr"));
     return [
-      { slug: "all", label: "Tümü", count: safePrices.length },
+      { slug: "all", label: "Tümü", count: meta?.total ?? safePrices.length },
       ...list,
     ];
-  }, [safePrices]);
+  }, [safePrices, serverPagination, meta?.total]);
 
   const filtered = useMemo(() => {
+    if (serverPagination) return safePrices;
     const nq = deferredQuery.trim() ? normalize(deferredQuery.trim()) : "";
     const rows = safePrices.filter((row) => {
       if (city !== "all" && row.cityName?.toLowerCase() !== city) return false;
@@ -181,17 +272,33 @@ export default function PriceTable({ initialPrices, markets }: PriceTableProps) 
       return true;
     });
     return sortRows(rows, sort);
-  }, [safePrices, city, category, sort, deferredQuery]);
+  }, [safePrices, city, category, sort, deferredQuery, serverPagination]);
 
   const resetFilters = () => {
     setCity("all");
     setCategory("all");
     setQuery("");
-    setSort("avg-desc");
+    setSort(initialSort);
   };
 
   const hasActiveFilter =
-    city !== "all" || category !== "all" || query.trim() !== "" || sort !== "avg-desc";
+    city !== "all" || category !== "all" || query.trim() !== "" || sort !== initialSort;
+  const total = meta?.total ?? safePrices.length;
+  const totalPages = meta?.totalPages ?? 1;
+  const currentPage = meta?.page ?? page;
+  const showingStart = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const showingEnd = Math.min(total, (currentPage - 1) * pageSize + filtered.length);
+
+  const categoryHref = (slug: string) => {
+    const params = new URLSearchParams();
+    if (slug !== "all") params.set("category", slug);
+    if (city !== "all") params.set("city", city);
+    if (query.trim()) params.set("q", query.trim());
+    if (sort !== initialSort) params.set("sort", sort);
+    if (pageSize !== 100) params.set("limit", String(pageSize));
+    const qs = params.toString();
+    return qs ? `/fiyatlar?${qs}` : "/fiyatlar";
+  };
 
   return (
     <div className="space-y-5">
@@ -268,9 +375,9 @@ export default function PriceTable({ initialPrices, markets }: PriceTableProps) 
               const active = category === c.slug;
               const dot = c.slug !== "all" ? CATEGORY_DOT[c.slug] : null;
               return (
-                <button
+                <Link
                   key={c.slug}
-                  type="button"
+                  href={serverPagination ? categoryHref(c.slug) : "#"}
                   onClick={() => setCategory(c.slug)}
                   className={
                     "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors " +
@@ -287,15 +394,17 @@ export default function PriceTable({ initialPrices, markets }: PriceTableProps) 
                     />
                   )}
                   <span>{c.label}</span>
-                  <span
-                    className={
-                      "font-(family-name:--font-mono) text-[10px] " +
-                      (active ? "text-(--color-navy)/70" : "opacity-60")
-                    }
-                  >
-                    {c.count}
-                  </span>
-                </button>
+                  {(!serverPagination || c.slug === "all") && (
+                    <span
+                      className={
+                        "font-(family-name:--font-mono) text-[10px] " +
+                        (active ? "text-(--color-navy)/70" : "opacity-60")
+                      }
+                    >
+                      {c.count}
+                    </span>
+                  )}
+                </Link>
               );
             })}
           </div>
@@ -313,7 +422,12 @@ export default function PriceTable({ initialPrices, markets }: PriceTableProps) 
       </div>
 
       {/* Tablo */}
-      <div className="overflow-x-auto rounded-[14px] border border-(--color-border) bg-(--color-surface)">
+      <div className="relative overflow-x-auto rounded-[14px] border border-(--color-border) bg-(--color-surface)">
+        {loading && (
+          <div className="absolute inset-x-0 top-0 z-10 h-0.5 overflow-hidden bg-(--color-border)">
+            <div className="h-full w-1/3 animate-pulse bg-(--color-brand)" />
+          </div>
+        )}
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-(--color-border) text-left">
@@ -423,16 +537,30 @@ export default function PriceTable({ initialPrices, markets }: PriceTableProps) 
         </table>
       </div>
 
-      <div className="flex items-center justify-between font-(family-name:--font-mono) text-[11px] uppercase tracking-[0.1em] text-(--color-muted)">
-        <span>
-          {filtered.length} / {safePrices.length} kayıt
-        </span>
-        {deferredQuery.trim() && (
-          <span className="text-(--color-foreground)">
-            &ldquo;{deferredQuery.trim()}&rdquo; için sonuçlar
+      {serverPagination ? (
+        <Pagination
+          page={currentPage}
+          totalPages={totalPages}
+          total={total}
+          pageSize={pageSize}
+          showingStart={showingStart}
+          showingEnd={showingEnd}
+          loading={loading}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+        />
+      ) : (
+        <div className="flex items-center justify-between font-(family-name:--font-mono) text-[11px] uppercase tracking-[0.1em] text-(--color-muted)">
+          <span>
+            {filtered.length} / {safePrices.length} kayıt
           </span>
-        )}
-      </div>
+          {deferredQuery.trim() && (
+            <span className="text-(--color-foreground)">
+              &ldquo;{deferredQuery.trim()}&rdquo; için sonuçlar
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

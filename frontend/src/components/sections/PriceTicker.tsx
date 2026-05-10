@@ -7,6 +7,17 @@ interface Props {
   items: TrendingItem[];
 }
 
+const TICKER_MAX_PRICE = 500;
+const TICKER_MAX_CHANGE = 200;
+
+function isTickerItem(item: TrendingItem): boolean {
+  const category = item.product?.categorySlug ?? "";
+  if (category.startsWith("balik") || category.startsWith("balık")) return false;
+  if (!Number.isFinite(item.latest) || item.latest <= 0 || item.latest > TICKER_MAX_PRICE) return false;
+  if (!Number.isFinite(item.changePct) || Math.abs(item.changePct) > TICKER_MAX_CHANGE) return false;
+  return true;
+}
+
 function formatPrice(value: number): string {
   return value.toLocaleString("tr-TR", {
     minimumFractionDigits: 2,
@@ -60,12 +71,14 @@ function TickerEntry({ item, index }: { item: TrendingItem; index: number }) {
 }
 
 export default function PriceTicker({ items }: Props) {
-  if (!items || items.length === 0) {
+  const visibleItems = items.filter(isTickerItem).slice(0, 12);
+
+  if (visibleItems.length === 0) {
     return null;
   }
 
   // Sonsuz scroll icin items 2x cogaltilir — translateX(-50%) ile seamless loop
-  const doubled = [...items, ...items];
+  const doubled = [...visibleItems, ...visibleItems];
 
   return (
     <section

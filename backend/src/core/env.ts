@@ -93,6 +93,12 @@ export const env = {
     maxDateFallbackDays: parseEnvInt(process.env.ETL_MAX_DATE_FALLBACK_DAYS, 7),
     autoRegisterProducts: (process.env.ETL_AUTO_REGISTER_PRODUCTS ?? "true").toLowerCase() === "true",
     requestTimeoutMs: parseEnvInt(process.env.ETL_REQUEST_TIMEOUT_MS, 30_000),
+    healthSchedule: process.env.ETL_HEALTH_CRON_SCHEDULE || "0 8 * * *",
+    healthStaleHours: parseEnvInt(process.env.ETL_HEALTH_STALE_HOURS, 30),
+    healthEmptyRunThreshold: parseEnvInt(process.env.ETL_HEALTH_EMPTY_RUN_THRESHOLD, 3),
+    healthNotifyEmails: parseEnvList(process.env.ETL_HEALTH_NOTIFY_EMAILS || process.env.ADMIN_EMAIL),
+    healthTelegramChatIds: parseEnvList(process.env.ETL_HEALTH_TELEGRAM_CHAT_IDS || process.env.TELEGRAM_CHAT_ID),
+    healthIgnoreEmptySources: parseEnvList(process.env.ETL_HEALTH_IGNORE_EMPTY_SOURCES),
   },
 
   ONESIGNAL: {

@@ -45,7 +45,11 @@ function getServerApiUrl(): string {
 
 function getServerOrigin(apiBase: string): string {
   try {
-    return new URL(apiBase).origin;
+    const origin = new URL(apiBase).origin;
+    if (/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?$/i.test(origin)) {
+      return (process.env.NEXT_PUBLIC_SITE_URL || 'https://haldefiyat.com').replace(/\/+$/, '');
+    }
+    return origin;
   } catch {
     return '';
   }

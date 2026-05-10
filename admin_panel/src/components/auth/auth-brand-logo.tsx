@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useAdminSettings } from '@/app/(main)/admin/_components/admin-settings-provider';
 import { useSiteLogo } from '@/lib/use-site-logo';
 
-const FALLBACK_URL = '/logo.png';
+const FALLBACK_URL = '/admin/logo.png';
 const FALLBACK_ALT = 'Hal Fiyatlari';
 
 export function AuthBrandLogo({

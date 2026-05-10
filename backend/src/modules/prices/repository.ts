@@ -1,5 +1,5 @@
 import type { SQL } from "drizzle-orm";
-import { and, desc, eq, gte, lte, sql, or, like, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte, sql, or, like, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfMarkets, hfPriceHistory, hfProducts } from "@/db/schema";
 
@@ -31,6 +31,7 @@ function likeSafe(raw: string): string {
 
 export async function listPriceRows(params: {
   product?: string;
+  q?: string;
   city?: string;
   market?: string;
   category?: string;
@@ -75,6 +76,10 @@ export async function listPriceRows(params: {
   if (params.product)  conds.push(eq(hfProducts.slug, params.product));
   if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
+  if (params.q?.trim()) {
+    const q = likeSafe(params.q.trim());
+    if (q) conds.push(or(like(hfProducts.nameTr, `%${q}%`), like(hfProducts.slug, `%${q}%`))!);
+  }
   if (params.city) {
     const c = likeSafe(params.city.trim());
     if (c) conds.push(or(like(hfMarkets.cityName, `%${c}%`), like(hfMarkets.slug, `%${c}%`))!);
@@ -155,6 +160,175 @@ export async function listPriceRows(params: {
     .limit(limit);
 }
 
+type PriceSortKey = "avg-desc" | "avg-asc" | "name-asc" | "date-desc";
+
+function priceOrder(sort?: PriceSortKey) {
+  switch (sort) {
+    case "avg-asc":
+      return [asc(hfPriceHistory.avgPrice), hfProducts.displayOrder, hfProducts.nameTr] as const;
+    case "avg-desc":
+      return [desc(hfPriceHistory.avgPrice), hfProducts.displayOrder, hfProducts.nameTr] as const;
+    case "name-asc":
+      return [hfProducts.nameTr, hfMarkets.name] as const;
+    case "date-desc":
+    default:
+      return [desc(hfPriceHistory.recordedDate), hfProducts.displayOrder] as const;
+  }
+}
+
+async function priceQueryContext(params: {
+  product?: string;
+  q?: string;
+  city?: string;
+  market?: string;
+  category?: string;
+  range?: string;
+}) {
+  const days = parseRangeToDays(params.range);
+
+  let anchor: string | null;
+  if (params.market) {
+    const mRows = await db
+      .select({ d: sql<string | null>`MAX(${hfPriceHistory.recordedDate})` })
+      .from(hfPriceHistory)
+      .innerJoin(hfMarkets, eq(hfPriceHistory.marketId, hfMarkets.id))
+      .where(eq(hfMarkets.slug, params.market));
+    const raw: unknown = mRows[0]?.d;
+    anchor = raw ? (raw instanceof Date ? raw.toISOString().slice(0, 10) : String(raw).slice(0, 10)) : null;
+  } else {
+    anchor = await latestRecordedDate();
+  }
+
+  const anchorSql = anchor ? sql`${anchor}` : sql`CURDATE()`;
+  const windowConds: SQL[] = [
+    gte(hfPriceHistory.recordedDate, sql`DATE_SUB(${anchorSql}, INTERVAL ${sql.raw(String(days))} DAY)`),
+    lte(hfPriceHistory.recordedDate, anchorSql),
+  ];
+  const conds: SQL[] = [...windowConds];
+  if (params.product)  conds.push(eq(hfProducts.slug, params.product));
+  if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
+  if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
+  if (params.q?.trim()) {
+    const q = likeSafe(params.q.trim());
+    if (q) conds.push(or(like(hfProducts.nameTr, `%${q}%`), like(hfProducts.slug, `%${q}%`))!);
+  }
+  if (params.city) {
+    const c = likeSafe(params.city.trim());
+    if (c) conds.push(or(like(hfMarkets.cityName, `%${c}%`), like(hfMarkets.slug, `%${c}%`))!);
+  }
+
+  return { days, windowConds, conds };
+}
+
+const priceColumns = {
+  id:           hfPriceHistory.id,
+  minPrice:     hfPriceHistory.minPrice,
+  maxPrice:     hfPriceHistory.maxPrice,
+  avgPrice:     hfPriceHistory.avgPrice,
+  currency:     hfPriceHistory.currency,
+  unit:         hfPriceHistory.unit,
+  recordedDate: hfPriceHistory.recordedDate,
+  sourceApi:    hfPriceHistory.sourceApi,
+  productSlug:  hfProducts.slug,
+  productName:  hfProducts.nameTr,
+  categorySlug: hfProducts.categorySlug,
+  marketSlug:   hfMarkets.slug,
+  marketName:   hfMarkets.name,
+  cityName:     hfMarkets.cityName,
+};
+
+export async function listPriceRowsPage(params: {
+  product?: string;
+  q?: string;
+  city?: string;
+  market?: string;
+  category?: string;
+  range?: string;
+  limit?: number;
+  page?: number;
+  latestOnly?: boolean;
+  sort?: PriceSortKey;
+}) {
+  const limit = Math.min(250, Math.max(1, params.limit ?? 100));
+  const page = Math.max(1, params.page ?? 1);
+  const offset = (page - 1) * limit;
+  const latestOnly = params.latestOnly !== false;
+  const { windowConds, conds } = await priceQueryContext(params);
+  const order = priceOrder(params.sort);
+
+  if (latestOnly) {
+    const latest = db.$with("latest_pair_dates").as(
+      db
+        .select({
+          productId: hfPriceHistory.productId,
+          marketId:  hfPriceHistory.marketId,
+          rd:        sql<string>`MAX(${hfPriceHistory.recordedDate})`.as("rd"),
+        })
+        .from(hfPriceHistory)
+        .where(and(...windowConds))
+        .groupBy(hfPriceHistory.productId, hfPriceHistory.marketId),
+    );
+
+    const totalRows = await db
+      .with(latest)
+      .select({ total: sql<number>`COUNT(*)` })
+      .from(hfPriceHistory)
+      .innerJoin(
+        latest,
+        and(
+          eq(latest.productId, hfPriceHistory.productId),
+          eq(latest.marketId, hfPriceHistory.marketId),
+          eq(latest.rd, hfPriceHistory.recordedDate),
+        ),
+      )
+      .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+      .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+      .where(and(...conds));
+
+    const items = await db
+      .with(latest)
+      .select(priceColumns)
+      .from(hfPriceHistory)
+      .innerJoin(
+        latest,
+        and(
+          eq(latest.productId, hfPriceHistory.productId),
+          eq(latest.marketId, hfPriceHistory.marketId),
+          eq(latest.rd, hfPriceHistory.recordedDate),
+        ),
+      )
+      .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+      .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+      .where(and(...conds))
+      .orderBy(...order)
+      .limit(limit)
+      .offset(offset);
+
+    const total = Number(totalRows[0]?.total ?? 0);
+    return { items, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
+  }
+
+  const totalRows = await db
+    .select({ total: sql<number>`COUNT(*)` })
+    .from(hfPriceHistory)
+    .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+    .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+    .where(and(...conds));
+
+  const items = await db
+    .select(priceColumns)
+    .from(hfPriceHistory)
+    .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+    .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+    .where(and(...conds))
+    .orderBy(...order)
+    .limit(limit)
+    .offset(offset);
+
+  const total = Number(totalRows[0]?.total ?? 0);
+  return { items, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
+}
+
 export async function listProducts(q?: string, category?: string) {
   const conds: SQL[] = [eq(hfProducts.isActive, 1)];
   if (category?.trim()) conds.push(eq(hfProducts.categorySlug, category));
@@ -206,6 +380,7 @@ export async function listMarkets(city?: string) {
 
 // Son 7 günde en çok değişen ürün/hal çiftleri
 type Obs = { productId: number; marketId: number; avgPrice: string; recordedDate: string };
+const TREND_MAX_ABS_CHANGE_PCT = 300;
 
 export async function trendingChanges(limit = 10) {
   const rows = await db
@@ -238,19 +413,31 @@ export async function trendingChanges(limit = 10) {
   for (const [, list] of byKey) {
     list.sort((a, b) => (a.recordedDate < b.recordedDate ? 1 : -1));
     if (list.length < 2) continue;
+
     const latest = list[0]!;
-    const anchor = new Date(`${latest.recordedDate}T12:00:00`);
-    anchor.setDate(anchor.getDate() - 7);
-    const target = anchor.toISOString().slice(0, 10);
-    const prev = list.find((x) => x.recordedDate <= target) ?? list[list.length - 1]!;
-    if (prev.recordedDate === latest.recordedDate) continue;
-    const lp = parseFloat(latest.avgPrice);
-    const pp = parseFloat(prev.avgPrice);
-    if (!pp) continue;
+    const latestDate = new Date(`${latest.recordedDate}T12:00:00`);
+    const latestWindowStart = shiftIsoDate(latest.recordedDate, -2);
+    const prevWindowStart = shiftIsoDate(latest.recordedDate, -14);
+    const prevWindowEnd = shiftIsoDate(latest.recordedDate, -7);
+
+    const latestWindow = list.filter((x) => x.recordedDate >= latestWindowStart && x.recordedDate <= latest.recordedDate);
+    const prevWindow = list.filter((x) => x.recordedDate >= prevWindowStart && x.recordedDate <= prevWindowEnd);
+    const fallbackPrev = list.filter((x) => {
+      const d = new Date(`${x.recordedDate}T12:00:00`);
+      return d.getTime() < latestDate.getTime();
+    }).slice(0, 3);
+
+    const lp = avgObs(latestWindow);
+    const pp = avgObs(prevWindow.length > 0 ? prevWindow : fallbackPrev);
+    if (lp == null || pp == null || pp <= 0) continue;
+
+    const changePct = Math.round((10000 * (lp - pp)) / pp) / 100;
+    if (Math.abs(changePct) > TREND_MAX_ABS_CHANGE_PCT) continue;
+
     scored.push({
       productId: latest.productId,
       marketId:  latest.marketId,
-      changePct: Math.round((10000 * (lp - pp)) / pp) / 100,
+      changePct,
       latest:    lp,
       previous:  pp,
     });
@@ -274,6 +461,18 @@ export async function trendingChanges(limit = 10) {
   const mMap = new Map(markets.map((m) => [m.id, m]));
 
   return top.map((t) => ({ ...t, product: pMap.get(t.productId), market: mMap.get(t.marketId) }));
+}
+
+function shiftIsoDate(iso: string, deltaDays: number): string {
+  const d = new Date(`${iso}T12:00:00`);
+  d.setDate(d.getDate() + deltaDays);
+  return d.toISOString().slice(0, 10);
+}
+
+function avgObs(rows: Obs[]): number | null {
+  const nums = rows.map((r) => parseFloat(r.avgPrice)).filter((n) => Number.isFinite(n) && n > 0);
+  if (nums.length === 0) return null;
+  return nums.reduce((sum, n) => sum + n, 0) / nums.length;
 }
 
 // Tek ürünün belirli hal'deki fiyat geçmişi

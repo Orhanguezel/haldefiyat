@@ -65,7 +65,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const ogImages = seo?.open_graph?.images?.length
     ? seo.open_graph.images.map((img: string) => img.startsWith("/") ? `${SITE_URL}${img}` : img)
-    : branding.site_logo ? [branding.site_logo] : [];
+    : branding.site_logo
+      ? [branding.site_logo]
+      : [`${SITE_URL}/brand-logo.png`];
 
   return {
     title: { default: titleDefault, template: titleTemplate },

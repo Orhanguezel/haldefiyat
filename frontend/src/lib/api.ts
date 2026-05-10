@@ -71,6 +71,20 @@ export interface PriceHistoryRow {
   cityName: string;
 }
 
+export interface PriceListMeta {
+  rangeDays: number;
+  latestRecordedDate: string | null;
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PriceListResponse {
+  items: PriceRow[];
+  meta: PriceListMeta;
+}
+
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 type QueryValue = string | number | undefined | null;
@@ -117,6 +131,28 @@ async function safeFetch<T>(
   }
 }
 
+async function safeFetchRaw<T>(
+  path: string,
+  revalidate: number,
+  fallback: T,
+): Promise<T> {
+  try {
+    const res = await fetch(`${API}${path}`, {
+      next: { revalidate },
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!res.ok) {
+      console.error(`[api] ${path} → ${res.status} ${res.statusText}`);
+      return fallback;
+    }
+    return (await res.json()) as T;
+  } catch (err) {
+    console.error(`[api] ${path} → fetch error`, err);
+    return fallback;
+  }
+}
+
 /**
  * Backend cevabini fallback tipine indirger.
  *
@@ -146,28 +182,59 @@ function unwrapPayload<T>(json: unknown, fallback: T): T {
 
 export interface FetchPricesParams {
   product?: string;
+  q?: string;
   city?: string;
   market?: string;
   category?: string;
   range?: string;
   limit?: number;
+  page?: number;
+  sort?: "avg-desc" | "avg-asc" | "name-asc" | "date-desc";
   /** true → (product, market) başına sadece en güncel satır (tablo görünümü) */
   latestOnly?: boolean;
 }
 
-export async function fetchPrices(
+function fallbackPriceList(limit = 100, page = 1): PriceListResponse {
+  return {
+    items: [],
+    meta: {
+      rangeDays: 7,
+      latestRecordedDate: null,
+      total: 0,
+      page,
+      limit,
+      totalPages: 1,
+    },
+  };
+}
+
+export async function fetchPricesPage(
   params: FetchPricesParams = {},
-): Promise<PriceRow[]> {
+): Promise<PriceListResponse> {
   const qs = buildQuery({
     product:    params.product,
+    q:          params.q,
     city:       params.city,
     market:     params.market,
     category:   params.category,
     range:      params.range,
     limit:      params.limit,
+    page:       params.page,
+    sort:       params.sort,
     latestOnly: params.latestOnly == null ? undefined : String(params.latestOnly),
   });
-  return safeFetch<PriceRow[]>(`/prices${qs}`, 300, []);
+  return safeFetchRaw<PriceListResponse>(
+    `/prices${qs}`,
+    300,
+    fallbackPriceList(params.limit, params.page),
+  );
+}
+
+export async function fetchPrices(
+  params: FetchPricesParams = {},
+): Promise<PriceRow[]> {
+  const result = await fetchPricesPage(params);
+  return result.items;
 }
 
 export async function fetchProducts(
@@ -180,7 +247,7 @@ export async function fetchProducts(
 
 export async function fetchMarkets(city?: string): Promise<Market[]> {
   const qs = buildQuery({ city });
-  return safeFetch<Market[]>(`/markets${qs}`, 300, []);
+  return safeFetch<Market[]>(`/prices/markets${qs}`, 300, []);
 }
 
 export async function fetchTrending(limit?: number): Promise<TrendingItem[]> {

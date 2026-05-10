@@ -6,7 +6,8 @@ type JsonLdType =
   | "Product"
   | "BreadcrumbList"
   | "FAQPage"
-  | "Dataset";
+  | "Dataset"
+  | "Place";
 
 interface JsonLdProps {
   type: JsonLdType;

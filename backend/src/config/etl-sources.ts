@@ -30,7 +30,13 @@ type ResponseShape =
   | "kocaeli_html"
   | "balikesir_html"
   | "hal_gov_tr_html"
-  | "istanbul_ibb_html";
+  | "istanbul_ibb_html"
+  | "corum_html"
+  | "kutahya_html"
+  | "manisa_html"
+  | "kahramanmaras_html"
+  | "canakkale_html"
+  | "yalova_html";
 
 export interface EtlSourceConfig {
   key:              string;          // DB'de source_api olarak yazılır
@@ -98,9 +104,9 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "antalya_serik_antkomder",
-    // Dernek sitesi şu an Serik için fiyat yayınlamıyor — veri görünce
-    // env ile açılacak (HF_SOURCE_ANTALYA_SERIK_ANTKOMDER_ENABLED=true).
-    defaultEnabled:    false,
+    // Dernek sayfası yayında; fiyat yayınlanmayan günlerde ETL 0 satırla
+    // başarılı kapanır, market pasife alınmaz.
+    defaultEnabled:    true,
     defaultMarketSlug: "antalya-hal-serik",
     defaultBaseUrl:    "https://antalyakomisyonculardernegi.com",
     defaultEndpoint:   "/hal-fiyatlari/3",
@@ -110,7 +116,9 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "antalya_kumluca_antkomder",
-    defaultEnabled:    false,
+    // Dernek sayfası yayında; fiyat yayınlanmayan günlerde ETL 0 satırla
+    // başarılı kapanır, market pasife alınmaz.
+    defaultEnabled:    true,
     defaultMarketSlug: "antalya-hal-kumluca",
     defaultBaseUrl:    "https://antalyakomisyonculardernegi.com",
     defaultEndpoint:   "/hal-fiyatlari/4",
@@ -269,6 +277,86 @@ const RAW_SOURCES: RawSource[] = [
     defaultBaseUrl:    "https://tarim.ibb.istanbul",
     defaultEndpoint:   "/inc/halfiyatlari/gunluk_fiyatlar.asp",
     responseShape:     "istanbul_ibb_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // Çorum Belediyesi — SSR HTML, tek tablo.
+  // Kolonlar: Ürün | En Düşük Fiyat | En Yüksek Fiyat | Birim | Değişim(ikon).
+  // Fiyat formatı "160,00 ₺". Sayfa tarih parametresi almaz.
+  {
+    key:               "corum_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "corum-hal",
+    defaultBaseUrl:    "https://www.corum.bel.tr",
+    defaultEndpoint:   "/hal-fiyatlari",
+    responseShape:     "corum_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // Kütahya Belediyesi — SSR HTML, tek tablo.
+  // Kolonlar: Ürün Adı | Ürün Cinsi | Minimum | Maksimum | Ortalama.
+  // Fiyat formatı "110 ₺". Sayfa tarih parametresi almaz.
+  {
+    key:               "kutahya_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "kutahya-hal",
+    defaultBaseUrl:    "https://www.kutahya.bel.tr",
+    defaultEndpoint:   "/hal.asp",
+    responseShape:     "kutahya_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // Manisa Büyükşehir — SSR HTML, tek tablo.
+  // Kolonlar: Tip(MEYVE/SEBZE) | Adı | Birim | En Az | En Çok.
+  // Fiyat formatı "110,00 TL". Sayfa tarih parametresi almaz (daima güncel).
+  {
+    key:               "manisa_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "manisa-hal",
+    defaultBaseUrl:    "https://www.manisa.bel.tr",
+    defaultEndpoint:   "/apps/sebzemeyvehali/",
+    responseShape:     "manisa_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // Kahramanmaraş Büyükşehir — SSR HTML, 2. tablo veri tablosu.
+  // Kolonlar: Hal | Ürün Türü | Ürün Adı | Birim | 1.Kalite | 2.Kalite | Rayiç | Tarih.
+  // 2 hal: KAHRAMANMARAŞ HALİ + ELBİSTAN HALİ. Fiyatlar ondalıksız tam sayı.
+  {
+    key:               "kahramanmaras_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "kahramanmaras-hal",
+    defaultBaseUrl:    "https://kahramanmaras.bel.tr",
+    defaultEndpoint:   "/sebze-meyve-fiyatlari",
+    responseShape:     "kahramanmaras_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // Çanakkale Belediyesi — SSR HTML, tek tablo.
+  // Tablo: başlık satırı (tarih) + kategori satırları (SEBZE/MEYVE) + ürün satırları.
+  // Kolonlar: MALZEMENİN ADI | BİRİM | ASGARİ SATIŞ FİYATI | AZAMİ SATIŞ FİYATI.
+  // Fiyat formatı "55,00TL". URL statik (/tr/sayfa/1481-hal-fiyat-listesi).
+  {
+    key:               "canakkale_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "canakkale-hal",
+    defaultBaseUrl:    "https://www.canakkale.bel.tr",
+    defaultEndpoint:   "/tr/sayfa/1481-hal-fiyat-listesi",
+    responseShape:     "canakkale_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // Yalova Belediyesi — SSR HTML, tek tablo.
+  // Kolonlar: Urun Adı | Urun Turu | Asgari Fiyat | Azami Fiyat | Fiyat Tarihi.
+  // Her satırda kendi tarihi var (bazı ürünler eski tarihli olabilir).
+  // Fiyat formatı "150,00 ₺". Sayfa tarih parametresi almaz.
+  {
+    key:               "yalova_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "yalova-hal",
+    defaultBaseUrl:    "https://ebelediye.yalova.bel.tr",
+    defaultEndpoint:   "/BilgiEdinme/FiyatListesi/",
+    responseShape:     "yalova_html",
     defaultUnit:       "kg",
     defaultCategory:   "sebze-meyve",
   },

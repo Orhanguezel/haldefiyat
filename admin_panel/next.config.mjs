@@ -71,6 +71,18 @@ const nextConfig = {
 
     return [
       {
+        source: '/admin/logo.png',
+        destination: '/logo.png',
+      },
+      {
+        source: '/admin/favicon.png',
+        destination: '/favicon.png',
+      },
+      {
+        source: '/admin/apple-touch-icon.png',
+        destination: '/apple-touch-icon.png',
+      },
+      {
         source: '/api/:path*',
         destination: `${base}/api/:path*`,
       },

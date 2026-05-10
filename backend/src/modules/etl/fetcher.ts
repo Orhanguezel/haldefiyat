@@ -66,6 +66,12 @@ function parseResponse(
     case "balikesir_html":   return parseBalikesirHtml(String(raw));
     case "hal_gov_tr_html":  return parseHalGovTrHtml(String(raw));
     case "istanbul_ibb_html": return parseIstanbulIbbHtml(raw as Array<{ html: string; category: string }>);
+    case "corum_html":        return parseCorumHtml(String(raw));
+    case "kutahya_html":      return parseKutahyaHtml(String(raw));
+    case "manisa_html":       return parseManisaHtml(String(raw));
+    case "kahramanmaras_html": return parseKahramanmarasHtml(String(raw));
+    case "canakkale_html":    return parseCanakkaleHtml(String(raw));
+    case "yalova_html":       return parseYalovaHtml(String(raw));
     default:                 return [];
   }
 }
@@ -234,6 +240,16 @@ function parsePriceTry(raw: string): number | null {
   const cleaned = raw.replace(/₺/g, "").replace(/\s+/g, " ").trim();
   if (!cleaned) return null;
   if (/bekleniyor|mevcut de[ğg]il|veri yok|^-+$/i.test(cleaned)) return null;
+  // Bazı belediye HTML'lerinde maske/format kaybıyla "80,00" değeri "8000"
+  // olarak gelebiliyor. Ayırıcı içermeyen 4-5 haneli değerleri kuruş kabul et.
+  if (/^\d{4,5}$/.test(cleaned)) {
+    const cents = parseInt(cleaned, 10) / 100;
+    return Number.isFinite(cents) && cents > 0 ? cents : null;
+  }
+  if (/^\d{6}$/.test(cleaned)) {
+    const cents = parseInt(cleaned, 10) / 1000;
+    return Number.isFinite(cents) && cents > 0 ? cents : null;
+  }
   // "80.00", "80,00", "2.700,00", "1,000.50"
   const normalized =
     cleaned.includes(".") && cleaned.includes(",")
@@ -269,14 +285,15 @@ function parseAnkaraHtml(raw: unknown): NormalizedRow[] {
       if (row.length < 6) continue;
       const name = row[0]!.trim();
       if (!name || /^(ürün adı|ürün|birim|en düşük fiyat|en yüksek fiyat|tarih)$/i.test(name)) continue;
-      const min = parsePriceTry(row[3] ?? "");
-      const max = parsePriceTry(row[4] ?? "");
+      const divisor = packageDivisor(row[2] ?? "");
+      const min = scaleByPackage(parsePriceTry(row[3] ?? ""), divisor);
+      const max = scaleByPackage(parsePriceTry(row[4] ?? ""), divisor);
       const recordedDate = parseTrDate(row[5] ?? "");
       if (min == null && max == null) continue;
       out.push({
         name,
         category,
-        unit: normalizeUnit(row[2] ?? ""),
+        unit: divisor > 1 ? "kg" : normalizeUnit(row[2] ?? ""),
         avg: min != null && max != null ? (min + max) / 2 : (min ?? max),
         min,
         max,
@@ -310,9 +327,10 @@ function parseMersinHtml(raw: unknown): NormalizedRow[] {
       if (!product || /^(şube|ürün|cinsi|türü|min\. fiyat|mak\. fiyat|ort\. fiyat|birim)$/i.test(product)) {
         continue;
       }
-      const min = parsePriceTry(row[4] ?? "");
-      const max = parsePriceTry(row[5] ?? "");
-      const avg = parsePriceTry(row[6] ?? "");
+      const divisor = packageDivisor(row[7] ?? "");
+      const min = scaleByPackage(parsePriceTry(row[4] ?? ""), divisor);
+      const max = scaleByPackage(parsePriceTry(row[5] ?? ""), divisor);
+      const avg = scaleByPackage(parsePriceTry(row[6] ?? ""), divisor);
       if (min == null && max == null && avg == null) continue;
 
       const displayName = kind && kind.toLocaleLowerCase("tr-TR") !== product.toLocaleLowerCase("tr-TR")
@@ -322,7 +340,7 @@ function parseMersinHtml(raw: unknown): NormalizedRow[] {
       out.push({
         name: displayName,
         category,
-        unit: normalizeUnit(row[7] ?? ""),
+        unit: divisor > 1 ? "kg" : normalizeUnit(row[7] ?? ""),
         avg: avg ?? (min != null && max != null ? (min + max) / 2 : (min ?? max)),
         min,
         max,
@@ -375,6 +393,44 @@ function normalizeUnit(raw: string | null | undefined): string | null {
     .replace(/ı/g, "i").replace(/ö/g, "o").replace(/ç/g, "c");
 }
 
+function packageDivisor(rawUnit: string | null | undefined): number {
+  const unit = normalizeUnit(rawUnit) ?? "";
+  const m = /\((\d+(?:[.,]\d+)?)\s*k(?:g|g|ğ)\)/i.exec(unit);
+  const kg = m ? parseFloat(m[1]!.replace(",", ".")) : NaN;
+  return Number.isFinite(kg) && kg > 1 ? kg : 1;
+}
+
+function scaleByPackage(price: number | null, divisor: number): number | null {
+  if (price == null) return null;
+  return divisor > 1 ? Math.round((price / divisor) * 100) / 100 : price;
+}
+
+const CENT_SCALED_SOURCES = new Set([
+  "balikesir_resmi",
+  "bursa_resmi",
+  "hal_gov_tr_ulusal",
+  "istanbul_ibb",
+  "kayseri_resmi",
+  "mersin_resmi",
+]);
+
+function scaleSuspiciousCents(price: number | null, source: EtlSourceConfig): number | null {
+  if (price == null) return null;
+  if (!CENT_SCALED_SOURCES.has(source.key)) return price;
+  if (price < 1000) return price;
+  return Math.round((price / 100) * 100) / 100;
+}
+
+function normalizePriceRow(row: NormalizedRow, source: EtlSourceConfig): NormalizedRow {
+  if (!CENT_SCALED_SOURCES.has(source.key)) return row;
+  return {
+    ...row,
+    avg: scaleSuspiciousCents(row.avg, source),
+    min: scaleSuspiciousCents(row.min, source),
+    max: scaleSuspiciousCents(row.max, source),
+  };
+}
+
 /**
  * Konya Büyükşehir — https://www.konya.bel.tr/hal-fiyatlari
  * 2 ayrı tablo: SEBZE + MEYVE. Her satır: [Ürün, Birim, En Düşük, En Yüksek].
@@ -392,14 +448,15 @@ function parseKonyaHtml(html: string): NormalizedRow[] {
       const name = row[0]!.trim();
       // Başlık ve başlık-benzeri satırları atla
       if (!name || /^(ürün|cinsi|ürün adı|fiyatları)$/i.test(name)) continue;
-      const min = parsePriceTry(row[2] ?? "");
-      const max = parsePriceTry(row[3] ?? "");
+      const divisor = packageDivisor(row[1] ?? "");
+      const min = scaleByPackage(parsePriceTry(row[2] ?? ""), divisor);
+      const max = scaleByPackage(parsePriceTry(row[3] ?? ""), divisor);
       if (min == null && max == null) continue;
       const avg = min != null && max != null ? (min + max) / 2 : (min ?? max);
       out.push({
         name,
         category: categories[i]!,
-        unit:     normalizeUnit(row[1] ?? ""),
+        unit:     divisor > 1 ? "kg" : normalizeUnit(row[1] ?? ""),
         avg,
         min,
         max,
@@ -477,7 +534,7 @@ function parseDenizliHtml(html: string): NormalizedRow[] {
  * Gaziantep Büyükşehir — https://www.gaziantep.bel.tr/tr/hal-rayic
  * SSR HTML, tek tablo. Kolonlar: Ürün Adı | Az. Fiyat | As. Fiyat | Birim | Tarih
  * Az. = Asgari (min), As. = Azami (max). Tarih her satırda "DD.MM.YYYY" formatında.
- * Sayfa tarih parametresi kabul etmez — her zaman güncel fiyatı döndürür.
+ * Sayfa `date=YYYY-MM-DD` parametresiyle seçili günü döndürür.
  */
 function parseGaziantepHtml(html: string): NormalizedRow[] {
   const out: NormalizedRow[] = [];
@@ -519,17 +576,18 @@ function parseBursaHtml(html: string): NormalizedRow[] {
       if (row.length < 3) continue;
       const name = row[0]!.trim();
       if (!name || /^(ürün|br|fiyat)$/i.test(name)) continue;
-      const unit = normalizeUnit(row[1] ?? "");
+      const divisor = packageDivisor(row[1] ?? "");
+      const unit = divisor > 1 ? "kg" : normalizeUnit(row[1] ?? "");
       // FİYAT: "100,00 - 400,00 TL" veya "150 TL"
       const priceRaw = (row[2] ?? "").replace(/&#8378;|TL|₺/gi, "").trim();
       const dashMatch = /^(.+?)\s*[-–]\s*(.+)$/.exec(priceRaw);
       let min: number | null = null;
       let max: number | null = null;
       if (dashMatch) {
-        min = parsePriceTry(dashMatch[1] ?? "");
-        max = parsePriceTry(dashMatch[2] ?? "");
+        min = scaleByPackage(parsePriceTry(dashMatch[1] ?? ""), divisor);
+        max = scaleByPackage(parsePriceTry(dashMatch[2] ?? ""), divisor);
       } else {
-        const single = parsePriceTry(priceRaw);
+        const single = scaleByPackage(parsePriceTry(priceRaw), divisor);
         min = single; max = single;
       }
       if (min == null && max == null) continue;
@@ -557,8 +615,9 @@ function parseBalikesirHtml(html: string): NormalizedRow[] {
     if (row.length < 5) continue;
     const name = row[0]!.trim();
     if (!name || /^(ürün|ürün\/tür|birimi|hal\/pazar|en düşük|en yüksek|başlangıç)$/i.test(name)) continue;
-    const min = parsePriceTry(row[3] ?? "");
-    const max = parsePriceTry(row[4] ?? "");
+    const divisor = packageDivisor(row[1] ?? "");
+    const min = scaleByPackage(parsePriceTry(row[3] ?? ""), divisor);
+    const max = scaleByPackage(parsePriceTry(row[4] ?? ""), divisor);
     if (min == null && max == null) continue;
     const recordedDate = parseTrDate(row[5] ?? "");
     const key = `${name}|${recordedDate ?? ""}`;
@@ -569,7 +628,7 @@ function parseBalikesirHtml(html: string): NormalizedRow[] {
     } else {
       agg.set(key, {
         name,
-        unit:  normalizeUnit(row[1] ?? ""),
+        unit:  divisor > 1 ? "kg" : normalizeUnit(row[1] ?? ""),
         min:   min ?? max!,
         max:   max ?? min!,
         date:  recordedDate,
@@ -630,14 +689,15 @@ function parseKayseriHtml(html: string): NormalizedRow[] {
     if (row.length < 4) continue;
     const name = row[0]!.trim();
     if (!name || /^(cinsi|ürün|ürün adı)$/i.test(name)) continue;
-    const max = parsePriceTry(row[2] ?? "");
-    const min = parsePriceTry(row[3] ?? "");
+    const divisor = packageDivisor(row[1] ?? "");
+    const max = scaleByPackage(parsePriceTry(row[2] ?? ""), divisor);
+    const min = scaleByPackage(parsePriceTry(row[3] ?? ""), divisor);
     if (min == null && max == null) continue;
     const avg = min != null && max != null ? (min + max) / 2 : (max ?? min);
     out.push({
       name,
       category: null,   // Kayseri kategori vermiyor — config.defaultCategory
-      unit:     normalizeUnit(row[1] ?? ""),
+      unit:     divisor > 1 ? "kg" : normalizeUnit(row[1] ?? ""),
       avg,
       min,
       max,
@@ -668,6 +728,12 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "balikesir_html",
   "hal_gov_tr_html",
   "istanbul_ibb_html",
+  "corum_html",
+  "kutahya_html",
+  "manisa_html",
+  "kahramanmaras_html",
+  "canakkale_html",
+  "yalova_html",
 ]);
 
 /**
@@ -798,6 +864,9 @@ async function fetchDated(
   }
   if (source.responseShape === "balikesir_html") {
     return fetchBalikesirDated(source, date);
+  }
+  if (source.responseShape === "gaziantep_html") {
+    return fetchGaziantepDated(source, date);
   }
   if (source.responseShape === "kocaeli_html") {
     return fetchKocaeliDated(source, date);
@@ -999,6 +1068,26 @@ async function fetchBalikesirDated(
   return { rows, dateUsed: date, httpStatus: postRes.status };
 }
 
+async function fetchGaziantepDated(
+  source: EtlSourceConfig,
+  date: string,
+): Promise<FetchOutcome | null> {
+  const url = `${source.baseUrl}${source.endpointTemplate}?date=${encodeURIComponent(date)}`;
+  const res = await fetch(url, {
+    headers: {
+      Accept: "text/html,application/xhtml+xml",
+      "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
+    },
+    signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+    // @ts-expect-error Bun-specific TLS option
+    tls: { rejectUnauthorized: false },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status} @ ${url}`);
+  const html = await decodeResponseBody(res);
+  const rows = parseGaziantepHtml(html);
+  return { rows, dateUsed: date, httpStatus: res.status };
+}
+
 /**
  * İstanbul İBB Tarımsal Hizmetler — gunluk_fiyatlar.asp AJAX endpoint.
  *
@@ -1099,6 +1188,214 @@ function parseIstanbulIbbHtml(pages: Array<{ html: string; category: string }>):
         max,
       });
     }
+  }
+  return out;
+}
+
+/**
+ * Çorum Belediyesi — https://www.corum.bel.tr/hal-fiyatlari
+ * Tek tablo, kolonlar: Ürün | En Düşük Fiyat | En Yüksek Fiyat | Birim | Değişim(ikon).
+ * Fiyat formatı "160,00 ₺". Sayfa tarih parametresi almaz.
+ */
+function parseCorumHtml(html: string): NormalizedRow[] {
+  const out: NormalizedRow[] = [];
+  const tables = extractTables(html);
+  if (tables.length === 0) return out;
+  for (const row of tables[0]!) {
+    if (row.length < 3) continue;
+    const name = row[0]!.trim();
+    if (!name || /^(ürün|ürün adı|en düşük|en yüksek|birim|değişim)$/i.test(name)) continue;
+    const min = parsePriceTry(row[1] ?? "");
+    const max = parsePriceTry(row[2] ?? "");
+    if (min == null && max == null) continue;
+    const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
+    out.push({
+      name,
+      category: null,
+      unit: normalizeUnit(row[3] ?? ""),
+      avg,
+      min,
+      max,
+    });
+  }
+  return out;
+}
+
+/**
+ * Kütahya Belediyesi — https://www.kutahya.bel.tr/hal.asp
+ * Tek tablo, kolonlar: Ürün Adı | Ürün Cinsi | Minimum Fiyat | Maksimum Fiyat | Ortalama.
+ * Fiyat formatı "110 ₺". Sayfa tarih parametresi almaz.
+ * "Ürün Adı" + "Ürün Cinsi" farklıysa birleştirilir.
+ */
+function parseKutahyaHtml(html: string): NormalizedRow[] {
+  const out: NormalizedRow[] = [];
+  const tables = extractTables(html);
+  if (tables.length === 0) return out;
+  for (const row of tables[0]!) {
+    if (row.length < 3) continue;
+    const name  = row[0]!.trim();
+    const cinsi = (row[1] ?? "").trim();
+    if (!name || /^(ürün adı|ürün|cinsi|minimum|maksimum|ortalama)$/i.test(name)) continue;
+    const min = parsePriceTry(row[2] ?? "");
+    const max = parsePriceTry(row[3] ?? "");
+    const avg = parsePriceTry(row[4] ?? "");
+    if (min == null && max == null && avg == null) continue;
+    const displayName = cinsi && cinsi.toLocaleLowerCase("tr-TR") !== name.toLocaleLowerCase("tr-TR")
+      ? `${name} (${cinsi})`
+      : name;
+    out.push({
+      name: displayName,
+      category: null,
+      unit: null,
+      avg: avg ?? (min != null && max != null ? (min + max) / 2 : (min ?? max))!,
+      min,
+      max,
+    });
+  }
+  return out;
+}
+
+/**
+ * Manisa Büyükşehir — https://www.manisa.bel.tr/apps/sebzemeyvehali/
+ * Tek tablo, kolonlar: Tip(MEYVE/SEBZE) | Adı | Birim | En Az | En Çok.
+ * Fiyat formatı "110,00 TL". Sayfa tarih parametresi almaz (daima güncel).
+ */
+function parseManisaHtml(html: string): NormalizedRow[] {
+  const out: NormalizedRow[] = [];
+  const tables = extractTables(html);
+  if (tables.length === 0) return out;
+  for (const row of tables[0]!) {
+    if (row.length < 4) continue;
+    const tipRaw = (row[0] ?? "").trim().toLocaleLowerCase("tr-TR");
+    const name   = (row[1] ?? "").trim();
+    if (!name || /^(tip|adı|birim|en az|en çok)$/i.test(name)) continue;
+    const category = tipRaw === "meyve" ? "meyve" : tipRaw === "sebze" ? "sebze" : null;
+    const divisor  = packageDivisor(row[2] ?? "");
+    const min = scaleByPackage(parsePriceTry(row[3] ?? ""), divisor);
+    const max = scaleByPackage(parsePriceTry(row[4] ?? ""), divisor);
+    if (min == null && max == null) continue;
+    const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
+    out.push({
+      name,
+      category,
+      unit: divisor > 1 ? "kg" : normalizeUnit(row[2] ?? ""),
+      avg,
+      min,
+      max,
+    });
+  }
+  return out;
+}
+
+/**
+ * Kahramanmaraş Büyükşehir — https://kahramanmaras.bel.tr/sebze-meyve-fiyatlari
+ * İkinci tablo veri tablosu.
+ * Kolonlar: Hal | Ürün Türü | Ürün Adı | Birim | 1.Kalite | 2.Kalite | Rayiç | Tarih.
+ * 1.Kalite = max, 2.Kalite = min, Rayiç = avg. Tarih "DD.MM.YYYY" formatında.
+ */
+function parseKahramanmarasHtml(html: string): NormalizedRow[] {
+  const out: NormalizedRow[] = [];
+  const tables = extractTables(html);
+  const dataTable = tables[1] ?? tables[0];
+  if (!dataTable) return out;
+  for (const row of dataTable) {
+    if (row.length < 6) continue;
+    const name    = (row[2] ?? "").trim();
+    const tipRaw  = (row[1] ?? "").trim().toLocaleLowerCase("tr-TR");
+    if (!name || /^(ürün adı|ürün|hal|ürün türü|birim|kalite|rayiç|tarih)$/i.test(name)) continue;
+    const category = tipRaw === "meyve" ? "meyve" : tipRaw === "sebze" ? "sebze" : null;
+    const max = parsePriceTry(row[4] ?? "");
+    const min = parsePriceTry(row[5] ?? "");
+    const avg = parsePriceTry(row[6] ?? "");
+    if (min == null && max == null && avg == null) continue;
+    const recordedDate = row[7] ? parseTrDate(row[7]) : undefined;
+    out.push({
+      name,
+      category,
+      unit: normalizeUnit(row[3] ?? ""),
+      avg: avg ?? (min != null && max != null ? (min + max) / 2 : (min ?? max))!,
+      min,
+      max,
+      ...(recordedDate ? { recordedDate } : {}),
+    });
+  }
+  return out;
+}
+
+/**
+ * Çanakkale Belediyesi — https://www.canakkale.bel.tr/tr/sayfa/1481-hal-fiyat-listesi
+ * Tek tablo, başlık satırı (tarih), kategori satırları, ürün satırları.
+ * Kolonlar ürün satırlarında: MALZEMENİN ADI | BİRİM | ASGARİ SATIŞ FİYATI | AZAMİ SATIŞ FİYATI.
+ * Fiyat formatı "55,00TL". Kategori (SEBZE/MEYVE) başlık satırından belirlenir.
+ */
+function parseCanakkaleHtml(html: string): NormalizedRow[] {
+  const out: NormalizedRow[] = [];
+  const tables = extractTables(html);
+  if (tables.length === 0) return out;
+  let currentCategory: string | null = null;
+  for (const row of tables[0]!) {
+    if (row.length < 2) continue;
+    const first = (row[0] ?? "").trim();
+    // Kategori satırı: sadece "SEBZE" veya "MEYVE" içeren tek hücreli satır
+    if (/^(sebze|meyve)$/i.test(first) && row.length <= 2) {
+      currentCategory = first.toLocaleLowerCase("tr-TR");
+      continue;
+    }
+    // Başlık ve boş satırları atla
+    if (!first || /^(malzemenin adı|birim|asgari|azami|toptanci hali|tarih|fiyat listesi)/i.test(first)) continue;
+    if (row.length < 3) continue;
+    const min = parsePriceTry((row[2] ?? "").replace(/TL/gi, "").trim());
+    const max = parsePriceTry((row[3] ?? "").replace(/TL/gi, "").trim());
+    if (min == null && max == null) continue;
+    const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
+    out.push({
+      name: first,
+      category: currentCategory,
+      unit: normalizeUnit(row[1] ?? ""),
+      avg,
+      min,
+      max,
+    });
+  }
+  return out;
+}
+
+/**
+ * Yalova Belediyesi — https://ebelediye.yalova.bel.tr/BilgiEdinme/FiyatListesi/
+ * Tek tablo, kolonlar: Urun Adı | Urun Turu | Asgari Fiyat | Azami Fiyat | Fiyat Tarihi.
+ * Her satırda kendi tarihi var. Fiyat formatı "150,00 ₺".
+ * 30 günden eski tarihli satırlar atlanır (stale veri filtresi).
+ */
+function parseYalovaHtml(html: string): NormalizedRow[] {
+  const out: NormalizedRow[] = [];
+  const tables = extractTables(html);
+  if (tables.length === 0) return out;
+  const cutoffMs = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  for (const row of tables[0]!) {
+    if (row.length < 4) continue;
+    const name   = (row[0] ?? "").trim();
+    const tipRaw = (row[1] ?? "").trim().toLocaleLowerCase("tr-TR");
+    if (!name || /^(urun adı|urun|turu|asgari|azami|fiyat tarihi)$/i.test(name)) continue;
+    const recordedDate = row[4] ? parseTrDate(row[4]) : undefined;
+    // Eski tarihleri atla
+    if (recordedDate) {
+      const rowMs = new Date(recordedDate).getTime();
+      if (rowMs < cutoffMs) continue;
+    }
+    const min = parsePriceTry(row[2] ?? "");
+    const max = parsePriceTry(row[3] ?? "");
+    if (min == null && max == null) continue;
+    const category = tipRaw === "meyve" ? "meyve" : tipRaw === "sebze" ? "sebze" : null;
+    const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
+    out.push({
+      name,
+      category,
+      unit: null,
+      avg,
+      min,
+      max,
+      ...(recordedDate ? { recordedDate } : {}),
+    });
   }
   return out;
 }
@@ -1613,7 +1910,8 @@ export async function runSourceFetch(
   }
 
   // Upsert satırları
-  for (const row of outcome.rows) {
+  for (const rawRow of outcome.rows) {
+    const row = normalizePriceRow(rawRow, source);
     const avg = row.avg ?? (row.min != null && row.max != null ? (row.min + row.max) / 2 : null);
     if (avg == null || !Number.isFinite(avg) || avg <= 0) { skipped++; continue; }
 
@@ -1645,16 +1943,16 @@ export async function runSourceFetch(
 
   await logEtlRun({
     sourceKey:    source.key,
-    runDate:      outcome.dateUsed,
+    runDate:      outcome.rows.length === 0 ? startDate : outcome.dateUsed,
     rowsFetched:  outcome.rows.length,
     rowsInserted: inserted,
     rowsSkipped:  skipped,
     durationMs:   Date.now() - t0,
-    status:       errors.length > 0 ? "partial" : outcome.rows.length === 0 ? "error" : "ok",
+    status:       errors.length > 0 ? "partial" : "ok",
     errorMsg:     errors.length > 0
       ? errors.slice(0, 5).join("; ")
       : outcome.rows.length === 0
-        ? `Kaynak boş yanıt döndürdü (HTTP ${outcome.httpStatus}, ${startDate} ve ${env.ETL.maxDateFallbackDays} gün geriye kadar)`
+        ? `Kaynak veri yayinlamadi (HTTP ${outcome.httpStatus}, ${startDate} ve ${env.ETL.maxDateFallbackDays} gun geriye kadar)`
         : null,
   });
 

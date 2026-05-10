@@ -1,43 +1,86 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
-import { fetchPrices, fetchMarkets } from "@/lib/api";
+import { fetchPricesPage, fetchMarkets } from "@/lib/api";
+import { getPageMetadata } from "@/lib/seo";
+import JsonLd from "@/components/seo/JsonLd";
+import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceTable from "@/components/ui/PriceTable";
 import ExportButton from "@/components/ui/ExportButton";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = {
+  params: Promise<{ locale: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
 
-export function generateMetadata(): Metadata {
-  return {
+export async function generateMetadata({ params }: Props) {
+  const { locale } = await params;
+  return getPageMetadata("fiyatlar", {
+    locale,
+    pathname: "/fiyatlar",
     title: "Güncel Hal Fiyatları",
     description:
       "Tüm Türkiye hal fiyatlarını filtreleyin: şehir, kategori, tarih aralığı.",
-    openGraph: {
-      title: "Güncel Hal Fiyatları | HaldeFiyat",
-      description:
-        "Türkiye'nin 81 ilindeki hal fiyatlarını tek tabloda filtreleyin.",
-      type: "website",
-      locale: "tr_TR",
-    },
-    alternates: { canonical: "/fiyatlar" },
-  };
+  });
 }
 
-export default async function FiyatlarPage({ params }: Props) {
+const SORT_KEYS = new Set(["avg-desc", "avg-asc", "name-asc", "date-desc"]);
+const PRICE_CATEGORY_KEYS = new Set(["sebze-meyve", "sebze", "meyve", "balik", "ithal"]);
+
+function single(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function FiyatlarPage({ params, searchParams }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const query = await searchParams;
+  const categoryParam = single(query?.category);
+  const category = PRICE_CATEGORY_KEYS.has(categoryParam ?? "") ? categoryParam : undefined;
+  const city = single(query?.city);
+  const q = single(query?.q);
+  const sortParam = single(query?.sort);
+  const sort = SORT_KEYS.has(sortParam ?? "") ? sortParam as "avg-desc" | "avg-asc" | "name-asc" | "date-desc" : "date-desc";
+  const page = Math.max(1, Number(single(query?.page)) || 1);
+  const limit = Math.min(250, Math.max(50, Number(single(query?.limit)) || 100));
 
-  const [prices, markets] = await Promise.all([
-    // latestOnly: her (ürün, market) çifti için sadece en güncel kayıt.
-    // Böylece İzmir balık gibi 1 gün geriden gelen kaynaklar limit'e kurban
-    // gitmez; tablo ETL biriktikçe sabit boyutta kalır.
-    fetchPrices({ range: "7d", limit: 1000, latestOnly: true }),
+  const [pricePage, markets] = await Promise.all([
+    // Tüm geçmiş fiyat kayıtları sayfalanarak gezilir. Tek seferde tüm tabloyu
+    // indirmek yerine API meta.total/meta.totalPages ile sayfa sayfa ilerleriz.
+    fetchPricesPage({
+      range: "3650d",
+      limit,
+      page,
+      sort,
+      latestOnly: false,
+      category,
+      city,
+      q,
+    }),
     fetchMarkets(),
   ]);
 
+  const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
+  const fiyatlarDataset = {
+    name: "Türkiye Güncel Hal Fiyatları",
+    description: "Türkiye genelinde 81 ilden sebze, meyve ve bakliyat ürünlerinin günlük hal fiyatları.",
+    url: `${SITE_URL}/fiyatlar`,
+    creator: { "@type": "Organization", name: "HalDeFiyat" },
+    license: "https://creativecommons.org/licenses/by/4.0/",
+    temporalCoverage: "2025/..",
+    spatialCoverage: { "@type": "Place", name: "Türkiye" },
+    variableMeasured: ["MinFiyat", "MaxFiyat", "OrtalamaFiyat"],
+    isAccessibleForFree: true,
+    encodingFormat: "text/html",
+  } satisfies Record<string, unknown>;
+
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+      <JsonLd type="Dataset" data={fiyatlarDataset} />
+      <Breadcrumb items={[
+        { name: "Anasayfa", href: "/" },
+        { name: "Güncel Hal Fiyatları", href: "/fiyatlar" },
+      ]} />
       <div className="mb-8 flex items-end justify-between gap-4">
         <div>
           <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
@@ -49,7 +92,14 @@ export default async function FiyatlarPage({ params }: Props) {
         </div>
         <ExportButton params={{ range: "7d" }} />
       </div>
-      <PriceTable initialPrices={prices} markets={markets} />
+      <PriceTable
+        initialPricePage={pricePage}
+        markets={markets}
+        requestParams={{ range: "3650d", latestOnly: false, sort }}
+        initialCategory={category}
+        initialCity={city}
+        initialQuery={q}
+      />
     </main>
   );
 }

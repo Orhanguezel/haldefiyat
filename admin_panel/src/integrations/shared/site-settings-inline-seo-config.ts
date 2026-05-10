@@ -3,20 +3,25 @@ import { ensureLeadingSlash } from '@/integrations/shared/network';
 
 export const SITE_SETTINGS_INLINE_SEO_PAGES = [
   { key: 'home', path: '/' },
-  { key: 'urunler', path: '/urunler' },
-  { key: 'hizmetler', path: '/hizmetler' },
-  { key: 'haberler', path: '/haberler' },
-  { key: 'blog', path: '/blog' },
+  { key: 'fiyatlar', path: '/fiyatlar' },
+  { key: 'hal', path: '/hal' },
+  { key: 'urun', path: '/urun' },
+  { key: 'endeks', path: '/endeks' },
+  { key: 'karsilastirma', path: '/karsilastirma' },
+  { key: 'uyarilar', path: '/uyarilar' },
   { key: 'hakkimizda', path: '/hakkimizda' },
   { key: 'iletisim', path: '/iletisim' },
-  { key: 'teklif', path: '/teklif' },
-  { key: 'kataloglar', path: '/kataloglar' },
-  { key: 'legal_privacy', path: '/legal/privacy' },
-  { key: 'legal_terms', path: '/legal/terms' },
+  { key: 'giris', path: '/giris' },
+  { key: 'kayit', path: '/kayit' },
+  { key: 'favoriler', path: '/favoriler' },
+  { key: 'api_docs', path: '/api-docs' },
+  { key: 'gizlilik_politikasi', path: '/gizlilik-politikasi' },
+  { key: 'kullanim_kosullari', path: '/kullanim-kosullari' },
+  { key: 'kvkk', path: '/kvkk' },
 ] as const;
 
 export const SITE_SETTINGS_INLINE_SEO_DEFAULT_EXPANDED_KEYS = ['home'] as const;
-export const SITE_SETTINGS_INLINE_SEO_PREVIEW_HOST = 'vistaseeds.com.tr';
+export const SITE_SETTINGS_INLINE_SEO_PREVIEW_HOST = 'haldefiyat.com';
 export const SITE_SETTINGS_INLINE_SEO_PREVIEW_HOST_WWW = `www.${SITE_SETTINGS_INLINE_SEO_PREVIEW_HOST}`;
 
 export type SiteSettingsInlineSeoPageKey = (typeof SITE_SETTINGS_INLINE_SEO_PAGES)[number]['key'];

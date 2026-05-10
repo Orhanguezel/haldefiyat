@@ -44,7 +44,10 @@ export function resolveBaseUrl(): string {
   const apiBase = (process.env.NEXT_PUBLIC_API_BASE || '').trim();
   const isDev = process.env.NODE_ENV !== 'production';
 
-  if (apiUrl && isAbsoluteUrl(apiUrl)) return trimSlash(apiUrl);
+  if (apiUrl) {
+    if (isAbsoluteUrl(apiUrl)) return trimSlash(apiUrl);
+    return ensureLeadingSlash(trimSlash(apiUrl));
+  }
   if (apiOrigin && apiBase) return joinOriginAndBase(apiOrigin, apiBase);
 
   if (apiBase) {

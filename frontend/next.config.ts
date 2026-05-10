@@ -53,6 +53,22 @@ const nextConfig: NextConfig = {
       }
     ];
   },
+  async headers() {
+    return [
+      {
+        source: "/:authPage(giris|kayit)",
+        headers: [
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+        ],
+      },
+      {
+        source: "/:locale/:authPage(giris|kayit)",
+        headers: [
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+        ],
+      },
+    ];
+  },
 };
 
 const withNextIntl = createNextIntlPlugin({

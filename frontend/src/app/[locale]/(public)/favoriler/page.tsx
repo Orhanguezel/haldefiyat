@@ -1,19 +1,21 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import FavoritesClient from "@/components/sections/FavoritesClient";
+import { getPageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
 
-export function generateMetadata(): Metadata {
-  return {
+export async function generateMetadata({ params }: Props) {
+  const { locale } = await params;
+  return getPageMetadata("favoriler", {
+    locale,
+    pathname: "/favoriler",
     title: "Favori Ürünlerim",
     description:
       "Favori ürünleriniz için güncel hal fiyatlarını tek ekranda takip edin.",
-    alternates: { canonical: "/favoriler" },
     robots: { index: false, follow: true },
-  };
+  });
 }
 
 export default async function FavorilerPage({ params }: Props) {

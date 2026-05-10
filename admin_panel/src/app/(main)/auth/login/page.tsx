@@ -63,7 +63,7 @@ export default function Login() {
               {t('admin.auth.login.noAccess')}{' '}
               <Link
                 prefetch={false}
-                href="/auth/login"
+                href="/admin/auth/login"
                 className="text-primary underline-offset-4 hover:underline"
               >
                 {t('admin.auth.login.contactAdmin')}

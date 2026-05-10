@@ -454,22 +454,27 @@
       "noindexBadge": "noindex",
       "googlePreview": "Google Önizlemesi",
       "socialPreview": "Sosyal Medya Önizlemesi",
-      "siteName": "vistaseeds",
+      "siteName": "HaldeFiyat",
       "noDescription": "Bu sayfa için henüz açıklama girilmedi.",
       "noOgImage": "Henüz OG görseli yok"
     },
     "pageLabels": {
       "home": "Anasayfa",
-      "urunler": "İlanlar",
-      "hizmetler": "Hizmetler",
-      "haberler": "Haberler",
-      "blog": "Blog",
+      "fiyatlar": "Güncel Fiyatlar",
+      "hal": "Haller",
+      "urun": "Ürün Detayları",
+      "endeks": "Endeks",
+      "karsilastirma": "Karşılaştırma",
+      "uyarilar": "Fiyat Uyarıları",
       "hakkimizda": "Hakkımızda",
       "iletisim": "İletişim",
-      "teklif": "Teklif",
-      "kataloglar": "Kataloglar",
-      "legal_privacy": "Gizlilik Politikası",
-      "legal_terms": "Kullanım Koşulları"
+      "giris": "Giriş",
+      "kayit": "Kayıt",
+      "favoriler": "Favoriler",
+      "api_docs": "API Dokümantasyonu",
+      "gizlilik_politikasi": "Gizlilik Politikası",
+      "kullanim_kosullari": "Kullanım Koşulları",
+      "kvkk": "KVKK"
     }
   },
   "structured": {
@@ -603,10 +608,10 @@
         "ogImage": "OG Image URL"
       },
       "placeholders": {
-        "siteTitle": "vistaseeds | Güvenli Taşıma ve Teslimat",
-        "siteDescription": "vistaseeds ile taşıma, rezervasyon ve lojistik süreçlerini hızlıca yönetin.",
-        "keywords": "lojistik, taşıma, rezervasyon, kurye, paket",
-        "ogImage": "/logo/png/vistaseeds_logo_512.png"
+        "siteTitle": "HaldeFiyat | Türkiye Hal Fiyatları",
+        "siteDescription": "HaldeFiyat ile Türkiye genelindeki hal fiyatlarını günlük takip edin.",
+        "keywords": "hal fiyatları, sebze fiyatları, meyve fiyatları, günlük hal fiyatları",
+        "ogImage": "/admin/logo.png"
       },
       "options": {
         "ogType": {
@@ -629,7 +634,7 @@
         "noIndex": "noindex (arama motorlarından gizle)"
       },
       "placeholders": {
-        "titleTemplate": "%s | vistaseeds"
+        "titleTemplate": "%s | HaldeFiyat"
       },
       "options": {
         "ogType": {

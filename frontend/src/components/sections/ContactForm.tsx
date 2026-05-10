@@ -4,16 +4,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
-import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, MapPin, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const CONTACT_INFO = [
-  {
-    icon: Phone,
-    label: "Telefon",
-    value: "+90 (555) 000 00 00",
-    href: "tel:+905550000000",
-  },
   {
     icon: Mail,
     label: "E-posta",

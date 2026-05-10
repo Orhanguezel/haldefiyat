@@ -1,7 +1,9 @@
 import * as cron from "node-cron";
 import type { FastifyInstance } from "fastify";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
+import { checkAndNotifyEtlHealth } from "@/modules/etl/health";
 import { runAllProductionSources } from "@/modules/etl/production-fetcher";
+import { getSourceByKey } from "@/config/etl-sources";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
 import { runWeeklyDigest } from "@/modules/notifications/weekly-digest";
 import { calculateWeeklyIndex } from "@/modules/index";
@@ -19,6 +21,7 @@ type CronTask = { name: string; schedule: string; handler: () => Promise<void> }
 export function startCron(app: FastifyInstance): void {
   const tasks: CronTask[] = [
     { name: "etl-daily",        schedule: env.ETL.cronSchedule,          handler: () => runEtlJob(app) },
+    { name: "etl-health",       schedule: env.ETL.healthSchedule,        handler: () => runEtlHealthJob(app) },
     { name: "alerts-check",     schedule: env.ETL.alertsSchedule,        handler: () => runAlertsJob(app) },
     { name: "production-etl",   schedule: env.ETL.productionSchedule,    handler: () => runProductionJob(app) },
     { name: "weekly-digest",    schedule: env.ETL.weeklyDigestSchedule,  handler: () => runWeeklyDigestJob(app) },
@@ -61,8 +64,20 @@ async function runEtlJob(app: FastifyInstance): Promise<void> {
 
     // ETL tamamlaninca anlik alert kontrolu — sabah veri gelir gelmez kullanicilar uyarilsin
     await runAlertsJob(app);
+    await runEtlHealthJob(app);
   } catch (err) {
     app.log.error({ err }, "[cron:etl] hata");
+  }
+}
+
+async function runEtlHealthJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:etl-health] kontrol baslatiliyor");
+  try {
+    const result = await checkAndNotifyEtlHealth();
+    app.log.info({ ...result, durationMs: Date.now() - t0 }, "[cron:etl-health] tamamlandi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:etl-health] hata");
   }
 }
 
@@ -129,6 +144,11 @@ async function runAntkomderJob(app: FastifyInstance): Promise<void> {
   app.log.info({ sources }, "[cron:antkomder] ogleden sonra calistiriliyor");
   for (const key of sources) {
     const t0 = Date.now();
+    const source = getSourceByKey(key);
+    if (!source?.enabled) {
+      app.log.info({ key }, "[cron:antkomder] kaynak devre disi, atlandi");
+      continue;
+    }
     try {
       const r = await runSingleSource(key);
       app.log.info({ key, inserted: r.inserted, skipped: r.skipped, durationMs: Date.now() - t0 }, "[cron:antkomder] tamamlandi");
@@ -136,4 +156,5 @@ async function runAntkomderJob(app: FastifyInstance): Promise<void> {
       app.log.error({ key, err }, "[cron:antkomder] hata");
     }
   }
+  await runEtlHealthJob(app);
 }

@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyReply } from "fastify";
 import { z } from "zod";
 import {
   listPriceRows,
+  listPriceRowsPage,
   listProducts,
   listMarkets,
   productPriceHistory,
@@ -26,11 +27,14 @@ const boolish = z.preprocess((v) => {
 
 const qList = z.object({
   product:    z.string().optional(),
+  q:          z.string().optional(),
   city:       z.string().optional(),
   market:     z.string().optional(),
   category:   z.string().optional(),
   range:      z.string().optional(),
   limit:      z.coerce.number().optional(),
+  page:       z.coerce.number().optional(),
+  sort:       z.enum(["avg-desc", "avg-asc", "name-asc", "date-desc"]).optional(),
   latestOnly: boolish,
 });
 
@@ -152,11 +156,13 @@ export async function registerPrices(app: FastifyInstance) {
     const p = parsed.data;
     const rows = await listPriceRows({
       product:  p.product,
+      q:        p.q,
       city:     p.city,
       market:   p.market,
       category: p.category,
       range:    p.range,
       limit:    Math.min(2000, p.limit ?? 2000),
+      latestOnly: p.latestOnly,
     });
     reply.header("Content-Type", "text/csv; charset=utf-8");
     reply.header("Content-Disposition", `attachment; filename="${csvFilename()}"`);
@@ -173,23 +179,30 @@ export async function registerPrices(app: FastifyInstance) {
     const parsed = qList.safeParse(req.query);
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz sorgu parametreleri" });
     const p = parsed.data;
-    const [items, latestDate] = await Promise.all([
-      listPriceRows({
+    const [result, latestDate] = await Promise.all([
+      listPriceRowsPage({
         product:    p.product,
+        q:          p.q,
         city:       p.city,
         market:     p.market,
         category:   p.category,
         range:      p.range,
         limit:      p.limit,
+        page:       p.page,
+        sort:       p.sort,
         latestOnly: p.latestOnly,
       }),
       latestRecordedDate(),
     ]);
     return reply.send({
-      items,
+      items: result.items,
       meta: {
         rangeDays: parseRangeToDays(p.range),
         latestRecordedDate: latestDate,
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
       },
     });
   });

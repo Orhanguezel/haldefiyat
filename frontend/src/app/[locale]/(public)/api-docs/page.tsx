@@ -1,14 +1,17 @@
-import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
+import { getPageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
 
-export function generateMetadata(): Metadata {
-  return {
+export async function generateMetadata({ params }: Props) {
+  const { locale } = await params;
+  return getPageMetadata("api_docs", {
+    locale,
+    pathname: "/api-docs",
     title: "API Dokümantasyonu",
     description: "HaldeFiyat açık API — fiyat verileri, hal listesi, haftalık endeks ve daha fazlası.",
     robots: { index: false },
-  };
+  });
 }
 
 const BASE = "https://haldefiyat.com/api/v1";

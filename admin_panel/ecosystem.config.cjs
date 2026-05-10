@@ -10,9 +10,8 @@ module.exports = {
     {
       name: appName,
       cwd: path.resolve(appRoot),
-      script: 'bun',
-      args: `run start -- -p ${port} -H ${bindHost}`,
-      interpreter: 'none',
+      script: 'server.js',
+      interpreter: 'node',
       exec_mode: 'fork',
       instances: 1,
       watch: false,

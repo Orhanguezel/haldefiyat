@@ -86,12 +86,18 @@ hal-fiyatlari tarafi:
 - `antalya_merkez_antkomder` (✅ Asama 1+2: 1102 error → 24 inserted, POST 939ms)
 - `kocaeli_merkez` (✅ Asama 2: 162 error → 112 inserted, POST 1835ms)
 - `hal_gov_tr_ulusal` (✅ Asama 3: hep timeout → **434 inserted**, multi-step Scrapling 66s)
+- `corum_resmi` (✅ Asama 5: JS-rendered, Scrapling, **60 inserted**)
+- `canakkale_resmi` (✅ Asama 5: timeout direkt, Scrapling, **85 inserted**)
+- `kahramanmaras_resmi` (✅ Asama 5: JS-rendered, Scrapling, **37 inserted**, 2 hal)
 
-### Yeni Eklenen Source (Asama 4 — direct curl, Scrapling kullanmiyor)
+### Direct Fetch Source'lar (Scrapling kullanmiyor)
 - `istanbul_ibb` (Anadolu Yakasi) (✅ Asama 4: 97 satir/gun, 1.1s, 3 paralel kategori AJAX endpoint)
   - URL: `tarim.ibb.istanbul/inc/halfiyatlari/gunluk_fiyatlar.asp`
   - Auth: tUsr/tPas/tVal hardcoded inline JS'ten
   - T-1 gun verisi (bugun gece dolar)
+- `kutahya_resmi` (✅ Asama 5: direct fetch, **76 inserted**)
+- `manisa_resmi` (✅ Asama 5: direct fetch, **97 inserted**)
+- `yalova_resmi` (✅ Asama 5: direct fetch, **103 inserted**, 30-gun stale filter)
 
 ### Disabled (kaynak veya parser sorunu — Asama 3+ icin)
 - `antalya_serik_antkomder`, `antalya_kumluca_antkomder` — config'de `defaultEnabled: false` (sayt fiyat yayinlamiyor)

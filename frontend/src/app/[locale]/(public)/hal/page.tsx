@@ -1,26 +1,21 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import { fetchMarkets, type Market } from "@/lib/api";
+import { getPageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
 
-export function generateMetadata(): Metadata {
-  return {
+export async function generateMetadata({ params }: Props) {
+  const { locale } = await params;
+  return getPageMetadata("hal", {
+    locale,
+    pathname: "/hal",
     title: "Tüm Haller",
     description:
       "Türkiye genelindeki hal ve pazarlar bölgelere göre gruplandırılmış liste. Fiyat sayfasına doğrudan erişin.",
-    openGraph: {
-      title: "Tüm Haller | HaldeFiyat",
-      description:
-        "Türkiye'deki hal ve pazarların bölgesel listesi — tek tıkla güncel fiyatlar.",
-      type: "website",
-      locale: "tr_TR",
-    },
-    alternates: { canonical: "/hal" },
-  };
+  });
 }
 
 interface RegionGroup {

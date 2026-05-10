@@ -1,6 +1,6 @@
 export const ACCESS_TOKEN_STORAGE_KEY = 'mh_access_token';
 export const REFRESH_TOKEN_STORAGE_KEY = 'mh_refresh_token';
-export const AUTH_LOGIN_PATH = '/auth/login';
+export const AUTH_LOGIN_PATH = '/admin/auth/login';
 
 export const AUTH_SKIP_REAUTH_PATHS = [
   '/auth/token',
