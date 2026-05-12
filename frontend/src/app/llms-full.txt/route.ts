@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
-const API_URL = (
+// Public API URL for documentation links (not internal BACKEND_URL)
+const PUBLIC_API_URL = (process.env.NEXT_PUBLIC_API_URL ?? SITE_URL).replace(/\/$/, "") + "/api/v1";
+// Internal URL for server-side data fetching
+const INTERNAL_API_URL = (
   process.env.BACKEND_URL ??
   process.env.NEXT_PUBLIC_API_URL ??
   "http://localhost:8088"
@@ -14,7 +17,7 @@ interface Market { slug: string; name: string; cityName: string; regionSlug: str
 
 async function fetchList<T>(path: string): Promise<T[]> {
   try {
-    const res = await fetch(`${API_URL}${path}`, { next: { revalidate: 3600 } });
+    const res = await fetch(`${INTERNAL_API_URL}${path}`, { next: { revalidate: 3600 } });
     if (!res.ok) return [];
     const json = await res.json() as { data?: T[]; items?: T[] } | T[];
     if (Array.isArray(json)) return json;
@@ -53,11 +56,11 @@ export async function GET() {
 
 ## Açık Veri API
 
-- Tüm fiyatlar: ${API_URL}/prices
-- Ürün fiyat geçmişi: ${API_URL}/prices/history/{slug}
-- Hal listesi: ${API_URL}/markets
-- Ürün listesi: ${API_URL}/products
-- Fiyat endeksi: ${API_URL}/index/latest
+- Tüm fiyatlar: ${PUBLIC_API_URL}/prices
+- Ürün fiyat geçmişi: ${PUBLIC_API_URL}/prices/history/{slug}
+- Hal listesi: ${PUBLIC_API_URL}/markets
+- Ürün listesi: ${PUBLIC_API_URL}/products
+- Fiyat endeksi: ${PUBLIC_API_URL}/index/latest
 
 ## Ana Sayfalar
 
