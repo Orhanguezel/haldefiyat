@@ -30,7 +30,7 @@
 | # | Görev | Durum |
 |---|-------|-------|
 | 10 | ~~8 statik URL~~ → dinamik sitemap (hal + ürün sayfaları) | ✅ Giderildi |
-| 11 | **Sitemap'te `<image:image>` eklentisi** — ürün görselleri Google Images'a | [ ] |
+| 11 | ~~Sitemap `<image:image>` eklentisi~~ — 489 görsel girişi eklendi | ✅ Giderildi |
 | 12 | **IndexNow** entegrasyonu — yeni fiyat verisi gelince arama motorlarına anlık bildir | [ ] |
 
 ### Güven / E-E-A-T
@@ -50,7 +50,7 @@
 |---|-------|-------|
 | 15 | **og:image dinamik üretim** — hal ve ürün sayfalarına sayfa özgü OG görseli | [ ] |
 | 16 | **Twitter Card** `og:image` — tüm dynamic sayfalarda resim URL'i doldur | [ ] |
-| 17 | **Meta description şablon** — hal sayfaları: `{şehir} Hal Müdürlüğü günlük {ürün} fiyatları. Min {X} TL, Ort {Y} TL, Maks {Z} TL.` | [ ] |
+| 17 | ~~Meta description şablon~~ — hal: şehir+müdürlük+resmi veri; urun: 81 il+5 yıl+resmi veri | ✅ Giderildi |
 
 ### İçerik & E-E-A-T — Mevcut Skor: 25/100
 
@@ -60,7 +60,7 @@
 | 19 | ~~llms-full.txt~~ — dinamik ürün + hal listesi, makine okunabilir format | ✅ Giderildi |
 | 20 | **Ürün sayfaları editoryal içerik** — her `/urun/[slug]` için 200–300 kelime: ne zaman çıkar, fiyatı neyi etkiler, beslenme değeri | [ ] |
 | 21 | **Hal sayfaları editoryal içerik** — her `/tr/hal/[slug]` için 150–200 kelime: hal hakkında, kapsama alanı, hangi ilçelere hizmet eder | [ ] |
-| 22 | **Hakkımızda sayfasını genişlet** — 550 kelime → min. 1.000 kelime; metodoloji, kaynak şeffaflığı, ekip | [ ] |
+| 22 | ~~Hakkımızda sayfasını genişlet~~ — ~1100 kelime: veri kalitesi, API docs, misyon bölümleri eklendi | ✅ Giderildi |
 | 23 | ~~SSS bölümü~~ — anasayfa ✅ + ürün sayfaları ✅ FAQPage schema + görünür içerik eklendi | ✅ Giderildi |
 
 ### Canonical & Teknik
@@ -161,6 +161,7 @@
 
 - **Yapılan (08.05 sonrası):** JSON-LD anasayfa/fiyatlar/hal/urun/endeks/metodoloji ✅ | Sitemap dinamik ✅ | Metodoloji sayfası ✅ | GA4 entegrasyonu ✅ | Hava widget `/hava/widget` ✅
 - **Yapılan (12.05 oturum 2):** PriceSpecification (#5) ✅ | DataCatalog /fiyatlar (#8) ✅ | CCBot Allow (#25) ✅ | İletişim bilgileri DB (#13/#14) ✅ | FAQPage /urun/[slug] (#6/#23) ✅ | llms-full.txt dinamik (#19) ✅
+- **Yapılan (12.05 oturum 3):** Sitemap image entries 489 adet (#11) ✅ | Meta description hal/urun (#17) ✅ | Hakkımızda ~1100 kelime (#22) ✅ | Canonical audit temiz (#24) ✅
 - **CCBot kararı:** Common Crawl verisi AI modellerinin eğitiminde kullanılır. Allow edilirse gelecekte AI sistemlerinin haldefiyat.com verisini öğrenme ihtimali artar. Düşük risk, yüksek uzun vadeli etki.
 - **Sosyal medya önceliği:** Marka otoritesi 12/100 — en düşük ikinci skor. Hesap açmak ücretsiz, etki yüksek.
 - **PriceSpecification:** Schema.org'da fiyat veri platformları için en kritik schema. Google'ın özellikle önerdiği; eklenince "Yapılandırılmış Veri" skoru 2/100'den 25+/100'e çıkabilir.

@@ -9,6 +9,7 @@
 import { activeSources, getSourceByKey } from "@/config/etl-sources";
 import { runSourceFetch, type EtlRunResult } from "./fetcher";
 import { invalidateAliasCache } from "./normalizer";
+import { submitIndexNow } from "./indexnow";
 
 export interface EtlResult extends EtlRunResult {
   source:     string;
@@ -33,6 +34,11 @@ export async function runDailyEtl(targetDate?: string): Promise<EtlResult[]> {
         durationMs: Date.now() - t0,
       });
     }
+  }
+
+  const totalInserted = results.reduce((sum, r) => sum + r.inserted, 0);
+  if (totalInserted > 0) {
+    submitIndexNow().catch(() => {});
   }
 
   return results;
