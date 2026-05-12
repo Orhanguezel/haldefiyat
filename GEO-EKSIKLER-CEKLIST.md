@@ -31,7 +31,7 @@
 |---|-------|-------|
 | 10 | ~~8 statik URL~~ → dinamik sitemap (hal + ürün sayfaları) | ✅ Giderildi |
 | 11 | ~~Sitemap `<image:image>` eklentisi~~ — 489 görsel girişi eklendi | ✅ Giderildi |
-| 12 | **IndexNow** entegrasyonu — yeni fiyat verisi gelince arama motorlarına anlık bildir | [ ] |
+| 12 | ~~IndexNow~~ — key dosyası + ETL sonrası otomatik POST (`/75e8...txt`) | ✅ Giderildi |
 
 ### Güven / E-E-A-T
 
@@ -48,8 +48,8 @@
 
 | # | Görev | Durum |
 |---|-------|-------|
-| 15 | **og:image dinamik üretim** — hal ve ürün sayfalarına sayfa özgü OG görseli | [ ] |
-| 16 | **Twitter Card** `og:image` — tüm dynamic sayfalarda resim URL'i doldur | [ ] |
+| 15 | ~~og:image~~ — ürün sayfaları için ürün fotoğrafı (68 ürün), diğerleri logo fallback | ✅ Giderildi |
+| 16 | ~~Twitter Card~~ `og:image` — `summary_large_image` + product photo on urun pages | ✅ Giderildi |
 | 17 | ~~Meta description şablon~~ — hal: şehir+müdürlük+resmi veri; urun: 81 il+5 yıl+resmi veri | ✅ Giderildi |
 
 ### İçerik & E-E-A-T — Mevcut Skor: 25/100
@@ -136,9 +136,9 @@
 | Marka Otoritesi Sinyalleri | 12/100 | 12 | 40/100 |
 | İçerik Kalitesi & E-E-A-T | 25/100 | ~30 | 55/100 |
 | Teknik Altyapı | 38/100 | ~45 | 65/100 |
-| Yapılandırılmış Veri | 2/100 | ~35 | 70/100 |
-| Platform Optimizasyonu | 15/100 | 15 | 45/100 |
-| **GENEL** | **22/100** | **~38** | **55/100** |
+| Yapılandırılmış Veri | 2/100 | ~50 | 70/100 |
+| Platform Optimizasyonu | 15/100 | ~25 | 45/100 |
+| **GENEL** | **22/100** | **~48** | **55/100** |
 
 ### Hızlı Kazanım Sıralaması (Efor / Etki)
 
@@ -161,7 +161,7 @@
 
 - **Yapılan (08.05 sonrası):** JSON-LD anasayfa/fiyatlar/hal/urun/endeks/metodoloji ✅ | Sitemap dinamik ✅ | Metodoloji sayfası ✅ | GA4 entegrasyonu ✅ | Hava widget `/hava/widget` ✅
 - **Yapılan (12.05 oturum 2):** PriceSpecification (#5) ✅ | DataCatalog /fiyatlar (#8) ✅ | CCBot Allow (#25) ✅ | İletişim bilgileri DB (#13/#14) ✅ | FAQPage /urun/[slug] (#6/#23) ✅ | llms-full.txt dinamik (#19) ✅
-- **Yapılan (12.05 oturum 3):** Sitemap image entries 489 adet (#11) ✅ | Meta description hal/urun (#17) ✅ | Hakkımızda ~1100 kelime (#22) ✅ | Canonical audit temiz (#24) ✅
+- **Yapılan (12.05 oturum 3):** Sitemap image entries 489 adet (#11) ✅ | Meta description hal/urun (#17) ✅ | Hakkımızda ~1100 kelime (#22) ✅ | Canonical audit temiz (#24) ✅ | IndexNow (#12) ✅ | og:image + Twitter Card urun sayfaları (#15/#16) ✅
 - **CCBot kararı:** Common Crawl verisi AI modellerinin eğitiminde kullanılır. Allow edilirse gelecekte AI sistemlerinin haldefiyat.com verisini öğrenme ihtimali artar. Düşük risk, yüksek uzun vadeli etki.
 - **Sosyal medya önceliği:** Marka otoritesi 12/100 — en düşük ikinci skor. Hesap açmak ücretsiz, etki yüksek.
 - **PriceSpecification:** Schema.org'da fiyat veri platformları için en kritik schema. Google'ın özellikle önerdiği; eklenince "Yapılandırılmış Veri" skoru 2/100'den 25+/100'e çıkabilir.
