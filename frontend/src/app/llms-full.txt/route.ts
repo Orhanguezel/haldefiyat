@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
-// Public API URL for documentation links (not internal BACKEND_URL)
-const PUBLIC_API_URL = (process.env.NEXT_PUBLIC_API_URL ?? SITE_URL).replace(/\/$/, "") + "/api/v1";
+// Public API URL for documentation links: always use SITE_URL so it's a real external URL
+const PUBLIC_API_URL = `${SITE_URL}/api/v1`;
 // Internal URL for server-side data fetching
 const INTERNAL_API_URL = (
   process.env.BACKEND_URL ??
