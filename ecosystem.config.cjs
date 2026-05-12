@@ -11,9 +11,11 @@ module.exports = {
   apps: [
     {
       name: "hal-backend",
-      script: "dist/index.js",
-      cwd: "./backend",
-      interpreter: "bun",
+      // Shell script launcher: ensures bun runs as its own process (not via PM2's
+      // ProcessContainerForkBun.js require() shim) so bun workspace resolution works.
+      script: "backend/start.sh",
+      cwd: ".",
+      interpreter: "/bin/bash",
       instances: 1,
       exec_mode: "fork",
       watch: false,
@@ -22,8 +24,8 @@ module.exports = {
         PORT: 8091,
       },
       env_file: "./backend/.env",
-      error_file: "../logs/hal-backend-error.log",
-      out_file: "../logs/hal-backend-out.log",
+      error_file: "./logs/hal-backend-error.log",
+      out_file: "./logs/hal-backend-out.log",
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
       restart_delay: 3000,
       max_restarts: 10,
