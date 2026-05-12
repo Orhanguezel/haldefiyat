@@ -29,7 +29,7 @@ async function fetchList<T>(path: string): Promise<T[]> {
 
 export async function GET() {
   const [products, markets] = await Promise.all([
-    fetchList<Product>("/products"),
+    fetchList<Product>("/prices/products"),
     fetchList<Market>("/markets"),
   ]);
 
