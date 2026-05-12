@@ -10,6 +10,7 @@ import PriceTable from "@/components/ui/PriceTable";
 import WeatherWidget from "@/components/sections/WeatherWidget";
 import { cityToWeatherSlug } from "@/lib/weather";
 import { getPageMetadata } from "@/lib/seo";
+import { getMarketEditorial } from "@/lib/market-content";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -214,25 +215,25 @@ export default async function HalPage({ params }: Props) {
       />
 
       {/* Editoryal içerik — AI alıntılanabilirlik + E-E-A-T */}
-      <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-3">
-        <h2 className="text-base font-semibold text-foreground">
-          {market.name} Hakkında
-        </h2>
-        <p>
-          <strong className="text-foreground">{market.name}</strong>, {market.cityName} iline bağlı resmi toptancı hal müdürlüğünden derlenen günlük fiyat verilerini içermektedir.
-          Fiyatlar; sebze, meyve ve bakliyat kategorilerinde minimum, maksimum ve ortalama değerler olarak sunulmaktadır.
-        </p>
-        <p>
-          Veriler, belediye hal müdürlüğünün resmi sistemi ve{" "}
-          <a href="https://hal.gov.tr" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">hal.gov.tr</a>{" "}
-          üzerinden otomatik olarak çekilmekte; her gün TSİ 06:15'te güncellenmektedir.
-        </p>
-        <p>
-          Diğer illerdeki hal fiyatlarıyla karşılaştırma yapmak için{" "}
-          <a href="/karsilastirma" className="text-brand hover:underline">fiyat karşılaştırma</a>{" "}
-          aracını kullanabilirsiniz.
-        </p>
-      </div>
+      {(() => {
+        const editorial = getMarketEditorial({ slug, name: market.name, cityName: market.cityName, regionSlug: market.regionSlug });
+        return (
+          <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-3">
+            <h2 className="text-base font-semibold text-foreground">{market.name} Hakkında</h2>
+            <p>{editorial.description}</p>
+            <p><strong className="text-foreground">Kapsama alanı:</strong> {editorial.coverage}</p>
+            <p><strong className="text-foreground">Öne çıkan ürünler:</strong> {editorial.specialties}</p>
+            <p>
+              Veriler, belediye hal müdürlüğünün resmi sistemi ve{" "}
+              <a href="https://hal.gov.tr" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">hal.gov.tr</a>{" "}
+              üzerinden otomatik çekilmekte; her gün TSİ 06:15'te güncellenmektedir.
+              Diğer illerle kıyaslamak için{" "}
+              <a href="/karsilastirma" className="text-brand hover:underline">fiyat karşılaştırma</a>{" "}
+              aracını kullanabilirsiniz.
+            </p>
+          </div>
+        );
+      })()}
     </main>
   );
 }

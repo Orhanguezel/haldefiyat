@@ -19,6 +19,7 @@ import { getEmoji } from "@/lib/emoji";
 import { getPageMetadata } from "@/lib/seo";
 import ProductImage from "@/components/ui/ProductImage";
 import { getProductImage } from "@/lib/product-images";
+import { getProductEditorial } from "@/lib/product-content";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -171,24 +172,27 @@ export default async function UrunPage({ params }: Props) {
       <SeasonCompare history={history} productName={product.nameTr} />
 
       {/* Editoryal içerik — AI alıntılanabilirlik + E-E-A-T */}
-      <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-3">
-        <h2 className="text-base font-semibold text-foreground">
-          {product.nameTr} Hakkında
-        </h2>
-        <p>
-          <strong className="text-foreground">{product.nameTr}</strong>, Türkiye genelinde toptancı hallerde işlem gören temel tarım ürünlerinden biridir.
-          Fiyatlar; hasat dönemine, hava koşullarına, nakliye maliyetlerine ve arz-talep dengesine göre günlük değişim gösterir.
-        </p>
-        <p>
-          Bu sayfada gösterilen fiyatlar, Türkiye'nin 81 ilindeki resmi hal müdürlüklerinden günlük olarak derlenmektedir.
-          Minimum, maksimum ve ortalama fiyat değerleri; güncel piyasa koşullarını yansıtır.
-        </p>
-        <p>
-          <strong className="text-foreground">Veri kaynağı:</strong> Belediye hal müdürlükleri ve{" "}
-          <a href="https://hal.gov.tr" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">hal.gov.tr</a>{" "}
-          ulusal ortalamaları. Veriler her gün TSİ 06:15'te güncellenir.
-        </p>
-      </div>
+      {(() => {
+        const editorial = getProductEditorial({ slug, nameTr: product.nameTr, categorySlug: product.categorySlug });
+        return (
+          <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-3">
+            <h2 className="text-base font-semibold text-foreground">
+              {product.nameTr} Hakkında
+            </h2>
+            <p>{editorial.about}</p>
+            <p><strong className="text-foreground">Fiyatı etkileyen faktörler:</strong> {editorial.priceFactors}</p>
+            <p><strong className="text-foreground">Hasat/sezon takvimi:</strong> {editorial.season}</p>
+            <p>
+              Bu sayfada gösterilen fiyatlar, Türkiye'nin 81 ilindeki resmi hal müdürlüklerinden günlük olarak derlenmektedir.
+              Minimum, maksimum ve ortalama fiyat değerleri güncel piyasa koşullarını yansıtır.{" "}
+              <strong className="text-foreground">Veri kaynağı:</strong>{" "}
+              Belediye hal müdürlükleri ve{" "}
+              <a href="https://hal.gov.tr" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">hal.gov.tr</a>{" "}
+              ulusal ortalamaları. Her gün TSİ 06:15'te güncellenir.
+            </p>
+          </div>
+        );
+      })()}
 
       {/* FAQ bölümü — AI alıntılanabilirlik + FAQPage schema */}
       {(() => {
