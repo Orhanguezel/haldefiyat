@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props) {
     locale,
     pathname: "/hakkimizda",
     title: "Hakkımızda | HaldeFiyat",
-    description: "HaldeFiyat'ın Türkiye hal fiyatları verisini nasıl topladığını ve sunduğunu keşfedin.",
+    description: "HalDeFiyat, Türkiye'nin 81 ilindeki resmi hal müdürlüklerinden günlük fiyat verisi derleyen bağımsız bir açık veri platformudur. Metodoloji, veri kalitesi ve misyonumuz hakkında.",
   });
 }
 
@@ -207,6 +207,108 @@ export default async function AboutPage({ params }: Props) {
                 Tam metodoloji belgesi →
               </Link>
             </div>
+          </section>
+
+          {/* Veri Kalitesi ve Güvenilirlik */}
+          <section className="space-y-6">
+            <h2 className="font-display text-2xl font-bold text-foreground">
+              Veri Kalitesi ve Güvenilirlik
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-[15px] text-muted leading-relaxed">
+              <div className="space-y-4">
+                <p>
+                  HalDeFiyat'ta her fiyat kaydı, kaynağını ve tarihini taşır. Hangi belediyeden,
+                  hangi günkü veriden geldiği kayıt altındadır. Bu şeffaflık sayesinde kullanıcılar
+                  veriyi bağımsız olarak doğrulayabilir.
+                </p>
+                <p>
+                  Veri kalitesini korumak için birkaç katmanlı filtre kullanılır: Aynı ürün için
+                  aynı günde yüzde 90'ı aşan fiyat sıçramaları "anomali" olarak işaretlenir; sıfır
+                  veya negatif değerler sistem tarafından otomatik olarak ayıklanır; eksik birim
+                  bilgileri merkezi ürün sözlüğünden tamamlanır.
+                </p>
+                <p>
+                  Ulusal ortalama veriler hal.gov.tr (T.C. Tarım ve Orman Bakanlığı'na bağlı Hal
+                  Bilgi Sistemi) üzerinden alınır. Bölgesel veriler ise ilgili büyükşehir ve il
+                  belediyelerinin resmi sistemlerinden çekilir.
+                </p>
+              </div>
+              <div className="space-y-4">
+                <p>
+                  ETL (Veri Çekme, Dönüştürme, Yükleme) süreci her gece TSİ 03:15'te başlar ve
+                  tüm kaynakları sırayla tarar. Bir kaynakta hata oluşursa sistem bir sonraki
+                  denemeye kadar önceki günün verisini saklı tutar; böylece kullanıcı hiçbir zaman
+                  boş sayfa görmez.
+                </p>
+                <p>
+                  Tüm ETL çalışmaları kayıt altına alınır. Hangi kaynağın kaç satır veri
+                  eklediği, kaç hata ürettiği ve ne kadar sürede tamamlandığı admin
+                  panelinden izlenebilir. Bu izlenebilirlik, olası veri sorunlarını hızla tespit
+                  etmeyi sağlar.
+                </p>
+                <p>
+                  <Link href="/metodoloji" className="text-brand font-semibold hover:underline">
+                    Tam metodoloji belgesini incelemek →
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Geliştirici API */}
+          <section className="rounded-2xl border border-brand/20 bg-brand/5 p-8 space-y-4">
+            <h2 className="font-display text-2xl font-bold text-foreground">
+              Açık Veri API — Geliştiriciler İçin
+            </h2>
+            <p className="text-[15px] text-muted leading-relaxed max-w-3xl">
+              HalDeFiyat verilerine REST API üzerinden programatik erişim ücretsizdir. Araştırma
+              projelerinizde, mobil uygulamalarınızda veya iş zekası tablolarınızda günlük hal
+              fiyatı verisini kullanabilirsiniz.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-muted">
+              <div className="rounded-xl border border-border bg-surface/60 p-4 space-y-1">
+                <p className="font-mono text-xs text-brand font-semibold">GET /api/v1/prices</p>
+                <p>Tüm ürünlerin güncel hal fiyatları; şehir, kategori ve tarih aralığı filtreleri desteklenir.</p>
+              </div>
+              <div className="rounded-xl border border-border bg-surface/60 p-4 space-y-1">
+                <p className="font-mono text-xs text-brand font-semibold">GET /api/v1/prices/history/{"{slug}"}</p>
+                <p>Belirli bir ürünün 5 yıla kadar günlük fiyat geçmişi; sezonsal analiz ve trend hesaplamaları için.</p>
+              </div>
+              <div className="rounded-xl border border-border bg-surface/60 p-4 space-y-1">
+                <p className="font-mono text-xs text-brand font-semibold">GET /api/v1/index/latest</p>
+                <p>15 temel ürünün ağırlıklı ortalamasından oluşan HalDeFiyat Endeksi'nin son değeri.</p>
+              </div>
+            </div>
+            <div className="pt-2">
+              <Link href="/api-docs" className="text-sm font-semibold text-brand hover:underline">
+                API dokümantasyonuna git →
+              </Link>
+            </div>
+          </section>
+
+          {/* Misyon */}
+          <section className="space-y-4 text-[15px] text-muted leading-relaxed">
+            <h2 className="font-display text-2xl font-bold text-foreground">
+              Misyonumuz
+            </h2>
+            <p>
+              Türkiye'de tarım ürünü fiyatlarına erişim; dijitalleşmeden önce çoğunlukla ağızdan
+              ağza, komisyoncu aracılığıyla veya gecikmeli gazete ilanlarıyla gerçekleşirdi. Bu
+              bilgi asimetrisi, üreticinin ürününün gerçek değerini bilmeden satmasına, tüketicinin
+              ise piyasa fiyatını sorgulamadan kabullanmasına yol açıyordu.
+            </p>
+            <p>
+              HalDeFiyat, bu asimetriyi kırmak için kurulmuştur. Resmi kaynaklardan derlenen
+              günlük fiyat verisi, herkesin özgürce erişebileceği açık bir platformda sunulduğunda
+              denge değişir: Üretici nereye satacağını, alıcı ne kadar ödeyeceğini bağımsız
+              olarak değerlendirebilir.
+            </p>
+            <p>
+              Uzun vadede HalDeFiyat'ı; tarım ekonomisi araştırmacılarının, belediye
+              politika yapıcılarının ve sektör gazetecilerinin başvurduğu güvenilir referans
+              veri kaynağı hâline getirmeyi hedefliyoruz. Bunun için veri kalitesi, şeffaflık
+              ve erişilebilirlik her kararımızın merkezindedir.
+            </p>
           </section>
 
           {/* CTA */}

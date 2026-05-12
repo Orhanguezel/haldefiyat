@@ -36,10 +36,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       slug,
     },
     title: `${market.name} Hal Fiyatları`,
-    description: `${market.name}, ${market.cityName} — güncel hal fiyatları ve ürün listesi.`,
+    description: `${market.cityName} ${market.name} günlük sebze, meyve ve bakliyat fiyatları. Belediye hal müdürlüğü resmi verileri, her gün TSİ 06:15 güncellenir. Min/ort/maks fiyat karşılaştırması.`,
     openGraph: {
-      title: `${market.name} | HaldeFiyat`,
-      description: `${market.name} (${market.cityName}) haline ait güncel sebze, meyve ve bakliyat fiyatları.`,
+      title: `${market.name} Güncel Hal Fiyatları | HaldeFiyat`,
+      description: `${market.cityName} ${market.name} günlük sebze, meyve ve bakliyat fiyatları. Resmi belediye verileri — her gün güncellenir.`,
       type: "article",
       locale: "tr_TR",
     },

@@ -48,10 +48,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       slug,
     },
     title: `${product.nameTr} Hal Fiyatı`,
-    description: `Türkiye genelinde ${product.nameTr} hal fiyatları, trend grafikleri ve güncel karşılaştırma.`,
+    description: `${product.nameTr} hal fiyatı: Türkiye 81 ilde günlük min/ort/maks fiyat karşılaştırması, 5 yıllık sezon geçmişi ve şehir bazlı analiz. Resmi belediye verileri.`,
     openGraph: {
-      title: `${product.nameTr} Hal Fiyatı | HaldeFiyat`,
-      description: `${product.nameTr} için günlük hal fiyatları, yıllık sezon karşılaştırması ve şehir bazlı veriler.`,
+      title: `${product.nameTr} Güncel Hal Fiyatı | HaldeFiyat`,
+      description: `${product.nameTr} fiyatları — 81 ilde günlük hal verileri, sezon karşılaştırması ve 5 yıllık trend grafikleri.`,
       type: "article",
       locale: "tr_TR",
     },
