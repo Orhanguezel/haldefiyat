@@ -13,6 +13,7 @@ import FeaturesGrid from "@/components/sections/FeaturesGrid";
 import HowItWorks from "@/components/sections/HowItWorks";
 import CtaNewsletter from "@/components/sections/CtaNewsletter";
 import IndexCta from "@/components/sections/IndexCta";
+import SeasonalGuide from "@/components/sections/SeasonalGuide";
 import HomeFaq from "@/components/sections/HomeFaq";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -88,6 +89,7 @@ export default async function HomePage({ params }: Props) {
       <CitySelector locale={locale} />
       <StatsBar />
       <IndexCta />
+      <SeasonalGuide />
       <FeaturesGrid />
       <HowItWorks />
       <HomeFaq />
