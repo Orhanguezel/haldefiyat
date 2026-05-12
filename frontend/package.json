@@ -11,7 +11,6 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@agro/ecosystem-weather-widget": "workspace:*",
     "@agro/shared-config": "workspace:*",
     "@agro/shared-types": "workspace:*",
     "@agro/shared-ui": "workspace:*",
