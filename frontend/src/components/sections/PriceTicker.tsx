@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { TrendingItem } from "@/lib/api";
 import { getEmoji } from "@/lib/emoji";
 
@@ -8,15 +9,20 @@ interface Props {
 }
 
 const TICKER_MAX_PRICE = 500;
-// 120% cap: removes extreme first-day outliers (>%120 genellikle tek veri noktası).
-// Mevsim geçiş dönemlerinde %80-120 aralığı meşru (kiraz, çilek sezon açılışı).
+// 120% cap: removes extreme first-day outliers (>%120).
+// Mevsim geçiş dönemlerinde %80-120 meşru (kiraz, çilek sezon açılışı).
 const TICKER_MAX_CHANGE = 120;
+// Önceki ortalama fiyat 500₺ üzerindeyse fiyat normalizasyonu sonrası
+// drop aldatıcı görünür (örn. Bluberry prev=975 → latest=10.75 = -%98.96).
+const TICKER_MAX_PREV = 500;
 
 function isTickerItem(item: TrendingItem): boolean {
   const category = item.product?.categorySlug ?? "";
   if (category.startsWith("balik") || category.startsWith("balık")) return false;
   if (!Number.isFinite(item.latest) || item.latest <= 0 || item.latest > TICKER_MAX_PRICE) return false;
   if (!Number.isFinite(item.changePct) || Math.abs(item.changePct) > TICKER_MAX_CHANGE) return false;
+  // Önceki ortalama çok yüksekse (sorunlu veri) filtrele
+  if (Number.isFinite(item.previous) && item.previous > TICKER_MAX_PREV) return false;
   return true;
 }
 
@@ -38,7 +44,11 @@ function TickerEntry({ item, index }: { item: TrendingItem; index: number }) {
 
   return (
     <>
-      <div className="flex shrink-0 items-center gap-2.5 whitespace-nowrap">
+      <Link
+        href={slug ? `/urun/${slug}` : "/fiyatlar"}
+        className="flex shrink-0 items-center gap-2.5 whitespace-nowrap transition-opacity hover:opacity-80"
+        tabIndex={-1}
+      >
         <span className="text-[18px]" aria-hidden>
           {getEmoji(slug, item.product?.categorySlug)}
         </span>
@@ -58,10 +68,9 @@ function TickerEntry({ item, index }: { item: TrendingItem; index: number }) {
               : "bg-blue-500/10 text-blue-400")
           }
         >
-          {arrow} {sign}
-          {change.toFixed(2)}%
+          {arrow} {sign}{change.toFixed(2)}%
         </span>
-      </div>
+      </Link>
       {index < 999 && (
         <span
           aria-hidden
@@ -86,7 +95,7 @@ export default function PriceTicker({ items }: Props) {
     <section
       id="canli-fiyat-akisi"
       className="relative z-10 px-8 pb-20"
-      aria-label="Canli fiyat akisi"
+      aria-label="Canlı fiyat akışı"
     >
       <div className="mx-auto flex max-w-[1400px] items-center gap-6 overflow-hidden rounded-[20px] border border-(--color-border) bg-(--color-surface) px-7 py-5">
         <div className="flex shrink-0 items-center gap-1.5 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.1em] whitespace-nowrap text-(--color-brand)">
