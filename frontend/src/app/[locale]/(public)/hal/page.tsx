@@ -4,6 +4,7 @@ import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import { fetchMarkets, type Market } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
+import HalViewToggle from "@/components/sections/HalViewToggle";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -128,47 +129,49 @@ export default async function HalIndexPage({ params }: Props) {
           Henüz kayıtlı hal bulunmuyor.
         </div>
       ) : (
-        <div className="space-y-12">
-          {groups.map((group) => (
-            <section key={group.key}>
-              <div className="mb-4 flex items-baseline justify-between gap-3 border-b border-(--color-border-soft) pb-3">
-                <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
-                  {group.label}
-                </h2>
-                <span className="font-(family-name:--font-mono) text-[11px] text-(--color-muted)">
-                  {group.markets.length} hal
-                </span>
-              </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {group.markets.map((market) => (
-                  <Link
-                    key={market.id}
-                    href={`/hal/${market.slug}`}
-                    className="group flex flex-col gap-2 rounded-[14px] border border-(--color-border) bg-(--color-surface) p-5 transition-all duration-300 hover:-translate-y-[2px] hover:border-(--color-brand)/40 hover:bg-(--color-bg-alt)"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <span className="font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.1em] text-(--color-brand)">
-                        {market.cityName}
-                      </span>
-                      <span
-                        aria-hidden
-                        className="font-(family-name:--font-mono) text-[14px] text-(--color-muted) transition-transform group-hover:translate-x-0.5 group-hover:text-(--color-brand)"
-                      >
-                        →
-                      </span>
-                    </div>
-                    <div className="font-(family-name:--font-display) text-[17px] font-bold text-(--color-foreground)">
-                      {market.name}
-                    </div>
-                    <div className="mt-auto font-(family-name:--font-mono) text-[11px] text-(--color-muted)">
-                      Fiyatları Gör
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
+        <HalViewToggle markets={markets}>
+          <div className="space-y-12">
+            {groups.map((group) => (
+              <section key={group.key}>
+                <div className="mb-4 flex items-baseline justify-between gap-3 border-b border-(--color-border-soft) pb-3">
+                  <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
+                    {group.label}
+                  </h2>
+                  <span className="font-(family-name:--font-mono) text-[11px] text-(--color-muted)">
+                    {group.markets.length} hal
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {group.markets.map((market) => (
+                    <Link
+                      key={market.id}
+                      href={`/hal/${market.slug}`}
+                      className="group flex flex-col gap-2 rounded-[14px] border border-(--color-border) bg-(--color-surface) p-5 transition-all duration-300 hover:-translate-y-[2px] hover:border-(--color-brand)/40 hover:bg-(--color-bg-alt)"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <span className="font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.1em] text-(--color-brand)">
+                          {market.cityName}
+                        </span>
+                        <span
+                          aria-hidden
+                          className="font-(family-name:--font-mono) text-[14px] text-(--color-muted) transition-transform group-hover:translate-x-0.5 group-hover:text-(--color-brand)"
+                        >
+                          →
+                        </span>
+                      </div>
+                      <div className="font-(family-name:--font-display) text-[17px] font-bold text-(--color-foreground)">
+                        {market.name}
+                      </div>
+                      <div className="mt-auto font-(family-name:--font-mono) text-[11px] text-(--color-muted)">
+                        Fiyatları Gör
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        </HalViewToggle>
       )}
     </main>
   );

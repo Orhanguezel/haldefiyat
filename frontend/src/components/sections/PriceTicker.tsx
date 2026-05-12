@@ -8,9 +8,9 @@ interface Props {
 }
 
 const TICKER_MAX_PRICE = 500;
-// 80% cap: removes first-day outliers (mevsim girişi tek veri noktası).
-// Legitimate large moves (kavun sezon açılışı ~%60-70) still pass.
-const TICKER_MAX_CHANGE = 80;
+// 120% cap: removes extreme first-day outliers (>%120 genellikle tek veri noktası).
+// Mevsim geçiş dönemlerinde %80-120 aralığı meşru (kiraz, çilek sezon açılışı).
+const TICKER_MAX_CHANGE = 120;
 
 function isTickerItem(item: TrendingItem): boolean {
   const category = item.product?.categorySlug ?? "";
