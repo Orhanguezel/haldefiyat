@@ -90,6 +90,8 @@ export const env = {
     indexSchedule: process.env.INDEX_CRON_SCHEDULE || "0 6 * * 1",
     // ANTKOMDER (Antalya) fiyatları öğleden sonra yayınlanıyor — 10:30 UTC = 13:30 TRT
     antkomderSchedule: process.env.ANTKOMDER_CRON_SCHEDULE || "30 10 * * *",
+    // Rakip izleme — her pazartesi 07:00 UTC (ETL sona erdikten sonra)
+    competitorSchedule: process.env.COMPETITOR_CRON_SCHEDULE || "0 7 * * 1",
     maxDateFallbackDays: parseEnvInt(process.env.ETL_MAX_DATE_FALLBACK_DAYS, 7),
     autoRegisterProducts: (process.env.ETL_AUTO_REGISTER_PRODUCTS ?? "true").toLowerCase() === "true",
     requestTimeoutMs: parseEnvInt(process.env.ETL_REQUEST_TIMEOUT_MS, 30_000),

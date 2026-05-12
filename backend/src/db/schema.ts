@@ -184,3 +184,38 @@ export const hfAnnualEtlRuns = mysqlTable(
   },
   (t) => [index("hf_aer_source_time").on(t.sourceApi, t.runAt)],
 );
+
+export const hfCompetitorSites = mysqlTable(
+  "hf_competitor_sites",
+  {
+    id:                 int("id").autoincrement().primaryKey(),
+    siteKey:            varchar("site_key", { length: 64 }).notNull(),
+    name:               varchar("name", { length: 255 }).notNull(),
+    url:                varchar("url", { length: 512 }).notNull(),
+    checkIntervalHours: int("check_interval_hours").notNull().default(168),
+    isActive:           tinyint("is_active").notNull().default(1),
+    lastCheckedAt:      datetime("last_checked_at", { fsp: 3 }),
+    createdAt:          datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [uniqueIndex("uq_site_key").on(t.siteKey)],
+);
+
+export const hfCompetitorSnapshots = mysqlTable(
+  "hf_competitor_snapshots",
+  {
+    id:                int("id").autoincrement().primaryKey(),
+    siteKey:           varchar("site_key", { length: 64 }).notNull(),
+    checkedAt:         datetime("checked_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    productCount:      int("product_count"),
+    marketCount:       int("market_count"),
+    detectedFeatures:  json("detected_features").$type<string[]>(),
+    rawMetrics:        json("raw_metrics").$type<Record<string, unknown>>(),
+    diffSummary:       text("diff_summary"),
+    scrapeOk:          tinyint("scrape_ok").notNull().default(1),
+    errorMsg:          varchar("error_msg", { length: 512 }),
+  },
+  (t) => [
+    index("idx_site_key").on(t.siteKey),
+    index("idx_checked_at").on(t.checkedAt),
+  ],
+);

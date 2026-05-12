@@ -5,6 +5,7 @@ import { registerAlerts } from "@/modules/alerts";
 import { registerFavorites } from "@/modules/favorites";
 import { registerProduction } from "@/modules/production";
 import { registerHalAdmin } from "@/modules/hal-admin";
+import { registerCompetitorMonitor } from "@/modules/competitor-monitor";
 import { registerUser } from "@/modules/user/router";
 import { registerIndex } from "@/modules/index";
 
@@ -29,4 +30,5 @@ export async function registerProjectPublic(api: FastifyInstance) {
 
 export async function registerProjectAdmin(adminApi: FastifyInstance) {
   await registerHalAdmin(adminApi);
+  await registerCompetitorMonitor(adminApi);
 }

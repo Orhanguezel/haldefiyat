@@ -2,6 +2,7 @@ import * as cron from "node-cron";
 import type { FastifyInstance } from "fastify";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
 import { checkAndNotifyEtlHealth } from "@/modules/etl/health";
+import { runCompetitorCheck } from "@/modules/competitor-monitor";
 import { runAllProductionSources } from "@/modules/etl/production-fetcher";
 import { getSourceByKey } from "@/config/etl-sources";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
@@ -27,7 +28,9 @@ export function startCron(app: FastifyInstance): void {
     { name: "weekly-digest",    schedule: env.ETL.weeklyDigestSchedule,  handler: () => runWeeklyDigestJob(app) },
     { name: "index-weekly",     schedule: env.ETL.indexSchedule,         handler: () => runIndexJob(app) },
     // ANTKOMDER fiyatları öğleden sonra yayınlandığı için ikinci çalıştırma
-    { name: "etl-antkomder-pm", schedule: env.ETL.antkomderSchedule,     handler: () => runAntkomderJob(app) },
+    { name: "etl-antkomder-pm",   schedule: env.ETL.antkomderSchedule,   handler: () => runAntkomderJob(app) },
+    // Rakip izleme — haftalık
+    { name: "competitor-monitor", schedule: env.ETL.competitorSchedule,  handler: () => runCompetitorJob(app) },
   ];
 
   for (const t of tasks) {
@@ -157,4 +160,19 @@ async function runAntkomderJob(app: FastifyInstance): Promise<void> {
     }
   }
   await runEtlHealthJob(app);
+}
+
+async function runCompetitorJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:competitor] rakip izleme baslatiliyor");
+  try {
+    const results = await runCompetitorCheck();
+    const ok = results.filter((r) => r.ok).length;
+    app.log.info(
+      { total: results.length, ok, durationMs: Date.now() - t0 },
+      "[cron:competitor] tamamlandi",
+    );
+  } catch (err) {
+    app.log.error({ err }, "[cron:competitor] hata");
+  }
 }
