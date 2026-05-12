@@ -203,6 +203,7 @@ export default async function UrunPage({ params }: Props) {
             <p>{editorial.about}</p>
             <p><strong className="text-foreground">Fiyatı etkileyen faktörler:</strong> {editorial.priceFactors}</p>
             <p><strong className="text-foreground">Hasat/sezon takvimi:</strong> {editorial.season}</p>
+            <p><strong className="text-foreground">Başlıca üretim bölgesi:</strong> {editorial.productionRegion}</p>
             <p>
               Bu sayfada gösterilen fiyatlar, Türkiye'nin 81 ilindeki resmi hal müdürlüklerinden günlük olarak derlenmektedir.
               Minimum, maksimum ve ortalama fiyat değerleri güncel piyasa koşullarını yansıtır.{" "}
