@@ -8,7 +8,9 @@ interface Props {
 }
 
 const TICKER_MAX_PRICE = 500;
-const TICKER_MAX_CHANGE = 200;
+// 80% cap: removes first-day outliers (mevsim girişi tek veri noktası).
+// Legitimate large moves (kavun sezon açılışı ~%60-70) still pass.
+const TICKER_MAX_CHANGE = 80;
 
 function isTickerItem(item: TrendingItem): boolean {
   const category = item.product?.categorySlug ?? "";

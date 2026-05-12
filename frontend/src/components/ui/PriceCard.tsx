@@ -158,9 +158,13 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
         </div>
 
         <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-(--color-muted)">
-          <span className="truncate">
-            min ₺{fmt(row.minPrice)} · max ₺{fmt(row.maxPrice)}
-          </span>
+          {(fmt(row.minPrice) !== "—" || fmt(row.maxPrice) !== "—") ? (
+            <span className="truncate">
+              min ₺{fmt(row.minPrice)} · max ₺{fmt(row.maxPrice)}
+            </span>
+          ) : (
+            <span className="truncate text-(--color-muted)/40">yalnızca ort. fiyat mevcut</span>
+          )}
           <div className="relative z-20 shrink-0">
             <FavoriteButton
               slug={row.productSlug}

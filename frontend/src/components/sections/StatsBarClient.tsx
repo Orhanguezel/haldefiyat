@@ -44,12 +44,16 @@ const COUNT_DURATION_MS = 1600;
  * jank'siz. Library bagimliligi yok.
  */
 function useCountUp(target: number, active: boolean): number {
-  const [value, setValue] = useState(0);
+  // Initialize with target so SSR + initial render show the correct value.
+  // The animation resets to 0 only when inView fires — at that point the
+  // Framer fade-in is running (opacity 0→1), so the reset is invisible.
+  const [value, setValue] = useState(target);
   const startedRef = useRef(false);
 
   useEffect(() => {
     if (!active || startedRef.current) return;
     startedRef.current = true;
+    setValue(0);
 
     let frame = 0;
     const start = performance.now();
@@ -57,7 +61,6 @@ function useCountUp(target: number, active: boolean): number {
     const tick = (now: number) => {
       const elapsed = now - start;
       const progress = Math.min(elapsed / COUNT_DURATION_MS, 1);
-      // ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       setValue(Math.round(target * eased));
       if (progress < 1) frame = requestAnimationFrame(tick);
