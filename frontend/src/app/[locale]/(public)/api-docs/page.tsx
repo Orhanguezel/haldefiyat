@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { getPageMetadata } from "@/lib/seo";
+import JsonLd from "@/components/seo/JsonLd";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -9,8 +10,7 @@ export async function generateMetadata({ params }: Props) {
     locale,
     pathname: "/api-docs",
     title: "API Dokümantasyonu",
-    description: "HaldeFiyat açık API — fiyat verileri, hal listesi, haftalık endeks ve daha fazlası.",
-    robots: { index: false },
+    description: "HaldeFiyat açık REST API — Türkiye hal fiyatları, 81 il, JSON + CSV, ücretsiz erişim. Endpoint referansı ve curl örnekleri.",
   });
 }
 
@@ -299,6 +299,34 @@ const GROUPS: Group[] = [
   },
 ];
 
+const dataFeedSchema = {
+  name: "HaldeFiyat Fiyat Verileri API",
+  description: "Türkiye'nin 81 ilindeki resmi toptancı hal fiyatları — REST API, JSON + CSV, ücretsiz.",
+  url: BASE,
+  license: "https://creativecommons.org/licenses/by/4.0/",
+  creator: { "@type": "Organization", name: "HaldeFiyat", url: "https://haldefiyat.com" },
+  distribution: [
+    {
+      "@type": "DataDownload",
+      encodingFormat: "application/json",
+      contentUrl: `${BASE}/prices`,
+      name: "Günlük Hal Fiyatları (JSON)",
+    },
+    {
+      "@type": "DataDownload",
+      encodingFormat: "text/csv",
+      contentUrl: `${BASE}/prices/export`,
+      name: "Fiyat Verisi CSV Dışa Aktarım",
+    },
+    {
+      "@type": "DataDownload",
+      encodingFormat: "application/json",
+      contentUrl: `${BASE}/index/latest`,
+      name: "HaldeFiyat Endeksi (JSON)",
+    },
+  ],
+} satisfies Record<string, unknown>;
+
 const METHOD_COLORS: Record<Method, string> = {
   GET:    "bg-brand/15 text-brand border-brand/25",
   POST:   "bg-blue-500/10 text-blue-400 border-blue-500/20",
@@ -312,6 +340,7 @@ export default async function ApiDocsPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-350 px-8 py-12">
+      <JsonLd type="DataFeed" data={dataFeedSchema} />
       {/* Başlık */}
       <div className="mb-12 max-w-2xl">
         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-brand/25 bg-brand/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-brand">
