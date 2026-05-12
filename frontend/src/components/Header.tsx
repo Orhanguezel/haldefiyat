@@ -15,6 +15,7 @@ const NAV_LINKS: ReadonlyArray<NavLink> = [
   { key: "index",     label: "Endeks",      href: "/endeks" },
   { key: "favorites", label: "Favorilerim", href: "/favoriler" },
   { key: "alerts",    label: "Uyarılar",    href: "/uyarilar" },
+  { key: "analiz",   label: "Analiz",      href: "/analiz" },
   { key: "about",     label: "Hakkımızda",  href: "/hakkimizda" },
 ] as const;
 
