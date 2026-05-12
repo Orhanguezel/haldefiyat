@@ -14,6 +14,7 @@ interface PriceTableProps {
   initialCategory?: string;
   initialCity?: string;
   initialQuery?: string;
+  yoyByMarket?: Record<string, number>;
 }
 
 type SortKey = "avg-desc" | "avg-asc" | "name-asc" | "date-desc";
@@ -155,6 +156,7 @@ export default function PriceTable({
   initialCategory,
   initialCity,
   initialQuery,
+  yoyByMarket,
 }: PriceTableProps) {
   const initialMeta = initialPricePage?.meta;
   const serverPagination = Boolean(initialPricePage);
@@ -477,6 +479,12 @@ export default function PriceTable({
                 const sourceClass =
                   SOURCE_FAMILY_BADGE[family] ??
                   "bg-white/10 text-(--color-muted) border-white/10";
+                const yearAgoAvg = yoyByMarket?.[row.marketSlug];
+                const currentAvg = parseFloat(row.avgPrice);
+                const yoyPct =
+                  yearAgoAvg && yearAgoAvg > 0 && Number.isFinite(currentAvg)
+                    ? ((currentAvg - yearAgoAvg) / yearAgoAvg) * 100
+                    : null;
                 return (
                   <tr
                     key={row.id}
@@ -509,8 +517,24 @@ export default function PriceTable({
                     <td className="px-4 py-3.5 text-right font-(family-name:--font-mono) text-[13px] text-(--color-muted)">
                       ₺{fmt(row.minPrice)}
                     </td>
-                    <td className="px-4 py-3.5 text-right font-(family-name:--font-mono) text-[15px] font-bold text-(--color-foreground)">
-                      ₺{fmt(row.avgPrice)}
+                    <td className="px-4 py-3.5 text-right">
+                      <div className="flex flex-col items-end gap-0.5">
+                        <span className="font-(family-name:--font-mono) text-[15px] font-bold text-(--color-foreground)">
+                          ₺{fmt(row.avgPrice)}
+                        </span>
+                        {yoyPct !== null && (
+                          <span
+                            title={`Geçen yıl aynı dönem: ₺${yearAgoAvg!.toFixed(2)}`}
+                            className={
+                              "font-(family-name:--font-mono) text-[10px] font-semibold " +
+                              (yoyPct > 0 ? "text-red-400" : "text-green-400")
+                            }
+                          >
+                            {yoyPct > 0 ? "+" : ""}
+                            {yoyPct.toFixed(1)}% geçen yıla
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3.5 text-right font-(family-name:--font-mono) text-[13px] text-(--color-muted)">
                       ₺{fmt(row.maxPrice)}

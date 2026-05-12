@@ -108,6 +108,27 @@ export default async function UrunPage({ params }: Props) {
     ? Math.round(avgs.reduce((a, b) => a + b, 0) / avgs.length * 100) / 100
     : 0;
 
+  const now = Date.now();
+  const yoyByMarket: Record<string, number> = (() => {
+    const buckets: Record<string, { sum: number; count: number }> = {};
+    for (const h of history) {
+      const daysAgo = Math.round(
+        (now - new Date(h.recordedDate + "T12:00:00Z").getTime()) / 86_400_000,
+      );
+      if (daysAgo < 335 || daysAgo > 395) continue;
+      const n = parseFloat(h.avgPrice);
+      if (!Number.isFinite(n) || n <= 0) continue;
+      if (!buckets[h.marketSlug]) buckets[h.marketSlug] = { sum: 0, count: 0 };
+      buckets[h.marketSlug].sum += n;
+      buckets[h.marketSlug].count += 1;
+    }
+    const result: Record<string, number> = {};
+    for (const [slug, { sum, count }] of Object.entries(buckets)) {
+      result[slug] = Math.round((sum / count) * 100) / 100;
+    }
+    return result;
+  })();
+
   const productSchema = {
     name: product.nameTr,
     description: `${product.nameTr} için güncel hal fiyatları. Türkiye genelinde günlük min/ort/maks fiyat verisi.`,
@@ -251,7 +272,7 @@ export default async function UrunPage({ params }: Props) {
         </h2>
         <ExportButton params={{ product: product.slug, range: "7d" }} />
       </div>
-      <PriceTable key={slug} initialPrices={todayPrices} markets={[]} />
+      <PriceTable key={slug} initialPrices={todayPrices} markets={[]} yoyByMarket={yoyByMarket} />
     </main>
   );
 }
