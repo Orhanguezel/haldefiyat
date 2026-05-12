@@ -161,7 +161,11 @@ export function buildMetadata(
     ...restOverrides
   } = overrides ?? {};
 
-  const ogImages = seoOgImages?.length ? seoOgImages : (overrideOpenGraph as { images?: unknown })?.images as string[] | undefined;
+  // Override images take precedence (page-specific); seo DB images are the fallback
+  const overrideImages = (overrideOpenGraph as { images?: unknown })?.images;
+  const ogImages = (overrideImages && (Array.isArray(overrideImages) ? overrideImages.length > 0 : true))
+    ? overrideImages as string[]
+    : seoOgImages;
 
   const meta: Metadata = {
     ...restOverrides,
