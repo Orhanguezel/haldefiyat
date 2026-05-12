@@ -28,4 +28,6 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'storage_driver',    '*', '"local"'),
 (UUID(), 'site_logo',         '*', '"/uploads/brand/logo.png"'),
 (UUID(), 'site_favicon',      '*', '"/uploads/brand/favicon.png"'),
-(UUID(), 'site_apple_touch',  '*', '"/uploads/brand/apple-touch-icon.png"');
+(UUID(), 'site_apple_touch',  '*', '"/uploads/brand/apple-touch-icon.png"'),
+(UUID(), 'ga4_measurement_id', '*', '"G-FJ8MX7VNEP"'),
+(UUID(), 'gtm_container_id',   '*', '""');
