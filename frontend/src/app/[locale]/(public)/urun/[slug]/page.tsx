@@ -178,6 +178,56 @@ export default async function UrunPage({ params }: Props) {
         </p>
       </div>
 
+      {/* FAQ bölümü — AI alıntılanabilirlik + FAQPage schema */}
+      {(() => {
+        const faqItems = [
+          {
+            question: `${product.nameTr} fiyatı neden değişir?`,
+            answer: `${product.nameTr} fiyatları; hasat dönemi, hava koşulları, nakliye maliyetleri ve arz-talep dengesine göre günlük değişim gösterir. Sezon dışı dönemlerde fiyatlar belirgin biçimde yükselebilir.`,
+          },
+          {
+            question: `${product.nameTr} fiyatı hangi hallerde en ucuz?`,
+            answer: `Üretim bölgelerine yakın hallerde (özellikle Antalya, İzmir ve Adana gibi tarım merkezleri) ${product.nameTr} fiyatları genellikle daha düşük seyreder. HalDeFiyat karşılaştırma aracıyla şehir bazlı fiyatları kolayca kıyaslayabilirsiniz.`,
+          },
+          {
+            question: `${product.nameTr} için geçmiş fiyat verilerine nasıl ulaşabilirim?`,
+            answer: `Bu sayfadaki grafik, son 5 yıla ait ${product.nameTr} fiyat geçmişini göstermektedir. Grafik üzerinde 7 gün, 30 gün veya 90 günlük dönemler arasında geçiş yapabilirsiniz. Ham veri için API endpoint'i (/api/v1/prices/history/${slug}) ücretsiz olarak erişilebilir.`,
+          },
+          {
+            question: "Hal fiyatları ne kadar güncel?",
+            answer: "Veriler her gün TSİ 06:15'te otomatik olarak güncellenir. Türkiye genelindeki resmi belediye hal müdürlüklerinden ve hal.gov.tr'den ETL işlemiyle çekilir.",
+          },
+        ];
+
+        const faqSchema = {
+          mainEntity: faqItems.map((item) => ({
+            "@type": "Question",
+            name: item.question,
+            acceptedAnswer: { "@type": "Answer", text: item.answer },
+          })),
+        };
+
+        return (
+          <>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", ...faqSchema }) }}
+            />
+            <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-3">
+              <h2 className="text-base font-semibold text-foreground">Sık Sorulan Sorular</h2>
+              <dl className="space-y-4">
+                {faqItems.map((item, i) => (
+                  <div key={i}>
+                    <dt className="font-semibold text-foreground">{item.question}</dt>
+                    <dd className="mt-1">{item.answer}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </>
+        );
+      })()}
+
       {/* Bugunku fiyat tablosu */}
       <div className="mb-4 mt-8 flex items-end justify-between gap-4">
         <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
