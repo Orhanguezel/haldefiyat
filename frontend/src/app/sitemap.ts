@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import type { MetadataRoute } from "next";
+import { getProductImage } from "@/lib/product-images";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033").replace(/\/$/, "");
 // SSR'da BACKEND_URL (internal) kullan; yoksa NEXT_PUBLIC_API_URL'ye düş
@@ -14,6 +15,7 @@ const FETCH_TIMEOUT = 10_000;
 
 interface PriceSitemapItem {
   slug: string;
+  nameTr?: string;
   updated_at?: string;
 }
 
@@ -25,8 +27,10 @@ async function fetchActiveProducts(): Promise<PriceSitemapItem[]> {
     });
     if (!res.ok) return [];
     const data = await res.json();
-    return (Array.isArray(data) ? data : data.data ?? []).map((p: PriceSitemapItem) => ({
+    const items = (Array.isArray(data) ? data : data.items ?? data.data ?? []) as PriceSitemapItem[];
+    return items.map((p) => ({
       slug: p.slug,
+      nameTr: p.nameTr,
       updated_at: p.updated_at,
     }));
   } catch {
@@ -70,12 +74,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/kvkk`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
   ];
 
-  const productPages: MetadataRoute.Sitemap = products.map((p) => ({
-    url: `${SITE_URL}/urun/${p.slug}`,
-    lastModified: p.updated_at ? new Date(p.updated_at) : now,
-    changeFrequency: "daily" as const,
-    priority: 0.8,
-  }));
+  const productPages: MetadataRoute.Sitemap = products.map((p) => {
+    const imgPath = getProductImage(p.slug);
+    return {
+      url: `${SITE_URL}/urun/${p.slug}`,
+      lastModified: p.updated_at ? new Date(p.updated_at) : now,
+      changeFrequency: "daily" as const,
+      priority: 0.8,
+      ...(imgPath && {
+        images: [`${SITE_URL}${imgPath}`],
+      }),
+    };
+  });
 
   const marketPages: MetadataRoute.Sitemap = markets.map((m) => ({
     url: `${SITE_URL}/hal/${m.slug}`,
