@@ -86,19 +86,34 @@ export default async function UrunPage({ params }: Props) {
   const maxes = history
     .map((h) => toNumberSafe(h.maxPrice))
     .filter((n) => n > 0);
-  const lowPrice = mins.length > 0 ? Math.min(...mins) : 0;
+  const avgs = history
+    .map((h) => toNumberSafe(h.avgPrice))
+    .filter((n) => n > 0);
+  const lowPrice  = mins.length > 0 ? Math.min(...mins) : 0;
   const highPrice = maxes.length > 0 ? Math.max(...maxes) : 0;
+  const avgPrice  = avgs.length > 0
+    ? Math.round(avgs.reduce((a, b) => a + b, 0) / avgs.length * 100) / 100
+    : 0;
 
   const productSchema = {
     name: product.nameTr,
-    description: `${product.nameTr} için güncel hal fiyatları`,
+    description: `${product.nameTr} için güncel hal fiyatları. Türkiye genelinde günlük min/ort/maks fiyat verisi.`,
     category: product.categorySlug,
     offers: {
       "@type": "AggregateOffer",
       priceCurrency: "TRY",
-      lowPrice: String(lowPrice),
+      lowPrice:  String(lowPrice),
       highPrice: String(highPrice),
       offerCount: String(history.length),
+      ...(avgPrice > 0 && {
+        priceSpecification: {
+          "@type": "PriceSpecification",
+          price: String(avgPrice),
+          priceCurrency: "TRY",
+          unitCode: "KGM",
+          unitText: "kg",
+        },
+      }),
     },
   } satisfies Record<string, unknown>;
 

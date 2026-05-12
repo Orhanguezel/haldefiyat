@@ -74,9 +74,37 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
     encodingFormat: "text/html",
   } satisfies Record<string, unknown>;
 
+  const dataCatalogSchema = {
+    "@context": "https://schema.org",
+    "@type": "DataCatalog",
+    name: "HalDeFiyat Veri Kataloğu",
+    description: "Türkiye'nin 81 ilindeki hal müdürlüklerinden derlenen günlük fiyat veri seti kataloğu.",
+    url: `${SITE_URL}/fiyatlar`,
+    publisher: { "@type": "Organization", name: "HalDeFiyat", url: SITE_URL },
+    dataset: [
+      {
+        "@type": "Dataset",
+        name: "Günlük Hal Fiyatları",
+        description: "81 il, 250+ ürün, günlük min/ort/maks fiyat verisi.",
+        url: `${SITE_URL}/fiyatlar`,
+        temporalCoverage: "2025/..",
+        isAccessibleForFree: true,
+      },
+      {
+        "@type": "Dataset",
+        name: "HalDeFiyat Endeksi",
+        description: "Türkiye haftalık hal fiyatları bileşik endeksi.",
+        url: `${SITE_URL}/endeks`,
+        temporalCoverage: "2025/..",
+        isAccessibleForFree: true,
+      },
+    ],
+  };
+
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <JsonLd type="Dataset" data={fiyatlarDataset} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(dataCatalogSchema) }} />
       <Breadcrumb items={[
         { name: "Anasayfa", href: "/" },
         { name: "Güncel Hal Fiyatları", href: "/fiyatlar" },

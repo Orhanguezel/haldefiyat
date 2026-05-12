@@ -16,8 +16,13 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/_next/"],
       },
       {
-        userAgent: ["Bytespider", "CCBot"],
+        userAgent: "Bytespider",
         disallow: "/",
+      },
+      {
+        userAgent: "CCBot",
+        allow: "/",
+        disallow: ["/api/", "/_next/"],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,

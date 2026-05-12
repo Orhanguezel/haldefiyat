@@ -30,4 +30,6 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'site_favicon',      '*', '"/uploads/brand/favicon.png"'),
 (UUID(), 'site_apple_touch',  '*', '"/uploads/brand/apple-touch-icon.png"'),
 (UUID(), 'ga4_measurement_id', '*', '"G-FJ8MX7VNEP"'),
-(UUID(), 'gtm_container_id',   '*', '""');
+(UUID(), 'gtm_container_id',   '*', '""'),
+(UUID(), 'contact_phone',      '*', '"+90 530 048 41 83"'),
+(UUID(), 'contact_email',      '*', '"atakan07sahin@gmail.com"');
