@@ -18,6 +18,7 @@ import ExportButton from "@/components/ui/ExportButton";
 import { getEmoji } from "@/lib/emoji";
 import { getPageMetadata } from "@/lib/seo";
 import ProductImage from "@/components/ui/ProductImage";
+import { getProductImage } from "@/lib/product-images";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -26,6 +27,8 @@ function toNumberSafe(value: string | null | undefined): number {
   const n = parseFloat(value);
   return Number.isFinite(n) ? n : 0;
 }
+
+const SITE_URL_META = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -38,6 +41,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: "Türkiye hal fiyatları. İlgili ürün için güncel veriler.",
     };
   }
+
+  const imgPath = getProductImage(slug);
+  const ogImages = imgPath
+    ? [{ url: `${SITE_URL_META}${imgPath}`, width: 800, height: 600, alt: `${product.nameTr} hal fiyatı` }]
+    : undefined;
 
   return getPageMetadata("urun", {
     locale,
@@ -54,6 +62,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: `${product.nameTr} fiyatları — 81 ilde günlük hal verileri, sezon karşılaştırması ve 5 yıllık trend grafikleri.`,
       type: "article",
       locale: "tr_TR",
+      ...(ogImages && { images: ogImages }),
+    },
+    twitter: {
+      card: "summary_large_image",
     },
   });
 }

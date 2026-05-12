@@ -142,7 +142,7 @@ export function buildMetadata(
     ? { index: false, follow: seo.robots.follow ?? true }
     : overrides?.robots;
 
-  const ogImages = seo?.open_graph?.images?.map((img) =>
+  const seoOgImages = seo?.open_graph?.images?.map((img) =>
     img.startsWith("/") ? `${SITE_URL}${img}` : img,
   );
   const alternates = locale && pathname ? buildLocaleAlternates(locale, pathname) : overrides?.alternates;
@@ -154,12 +154,14 @@ export function buildMetadata(
     title: _title,
     description: _description,
     keywords: _keywords,
-    openGraph: _openGraph,
-    twitter: _twitter,
+    openGraph: overrideOpenGraph,
+    twitter: overrideTwitter,
     robots: _robots,
     alternates: _alternates,
     ...restOverrides
   } = overrides ?? {};
+
+  const ogImages = seoOgImages?.length ? seoOgImages : (overrideOpenGraph as { images?: unknown })?.images as string[] | undefined;
 
   const meta: Metadata = {
     ...restOverrides,
@@ -168,16 +170,18 @@ export function buildMetadata(
     ...(keywords && { keywords }),
     ...(robots && { robots }),
     openGraph: {
+      ...(overrideOpenGraph as object),
       ...(title && { title }),
       ...(description && { description }),
       ...(seo?.open_graph?.type && { type: seo.open_graph.type as "website" }),
-      ...(ogImages?.length && { images: ogImages }),
+      ...(ogImages && { images: ogImages }),
       siteName: siteName,
     },
     twitter: {
-      card: (seo?.twitter?.card as "summary_large_image") ?? "summary_large_image",
+      card: (seo?.twitter?.card as "summary_large_image") ?? overrideTwitter?.card as "summary_large_image" ?? "summary_large_image",
       ...(seo?.twitter?.site && { site: seo.twitter.site }),
       ...(seo?.twitter?.creator && { creator: seo.twitter.creator }),
+      ...(overrideTwitter as object),
     },
     ...(alternates && { alternates }),
   };
