@@ -17,7 +17,11 @@ import { loadProductionSources } from "@/config/production-sources";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
 import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import { checkWaybackAndNotify } from "@/modules/wayback-monitor";
-import { runWeeklyMailDigest } from "@/modules/notifications/weekly-mail-digest";
+import {
+  runWeeklyMailDigest,
+  buildWeeklyMailPreview,
+  sendWeeklyMailTest,
+} from "@/modules/notifications/weekly-mail-digest";
 import {
   runAllProductionSources,
   runSingleProductionSource,
@@ -587,6 +591,20 @@ export async function registerHalAdmin(app: FastifyInstance) {
     } catch (err) {
       return reply.status(500).send({ ok: false, error: err instanceof Error ? err.message : String(err) });
     }
+  });
+
+  app.get("/hal/newsletter/weekly-mail/preview", async (_req, reply) => {
+    const preview = await buildWeeklyMailPreview();
+    if (!preview) return reply.status(404).send({ ok: false, reason: "no-movers" });
+    reply.header("Content-Type", "text/html; charset=utf-8");
+    return reply.send(preview.html);
+  });
+
+  app.post("/hal/newsletter/weekly-mail/test", async (req, reply) => {
+    const body = z.object({ to: z.string().email() }).safeParse(req.body);
+    if (!body.success) return reply.status(400).send({ ok: false, error: "to (email) gerekli" });
+    const result = await sendWeeklyMailTest(body.data.to);
+    return reply.send({ ok: result.sent, ...result });
   });
 
   app.post("/hal/wayback/check", async (_req, reply) => {

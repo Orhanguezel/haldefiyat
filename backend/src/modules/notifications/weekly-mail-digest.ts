@@ -130,6 +130,24 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
   return { html, subject, movers: movers.length };
 }
 
+/** HTML preview için — mail göndermeden sadece şablonu üretir */
+export async function buildWeeklyMailPreview(): Promise<{ html: string; subject: string } | null> {
+  const content = await buildHtml();
+  return content ? { html: content.html, subject: content.subject } : null;
+}
+
+/** Tek bir adrese test maili gönderir (admin panel test akışı için) */
+export async function sendWeeklyMailTest(to: string): Promise<{ sent: boolean; reason?: string }> {
+  const content = await buildHtml();
+  if (!content) return { sent: false, reason: "no-movers" };
+  try {
+    await sendBereketMail({ to, subject: `[TEST] ${content.subject}`, html: content.html });
+    return { sent: true };
+  } catch (err) {
+    return { sent: false, reason: err instanceof Error ? err.message : String(err) };
+  }
+}
+
 async function sendToOne(to: string, subject: string, html: string): Promise<boolean> {
   try {
     await sendBereketMail({ to, subject, html });
