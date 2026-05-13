@@ -1,6 +1,6 @@
 import { env } from "@/core/env";
 import { trendingChanges } from "@/modules/prices/repository";
-import { getEmojiByCategorySlug } from "./emoji-map";
+import { getProductEmoji } from "./emoji-map";
 
 const SITE_URL = "https://haldefiyat.com";
 
@@ -15,6 +15,7 @@ function fmtPct(n: number): string {
 
 function fmtDate(d: Date): string {
   return d.toLocaleDateString("tr-TR", {
+    weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -49,8 +50,30 @@ async function postToChannel(text: string): Promise<void> {
   }
 }
 
+function formatItem(
+  i: number,
+  item: {
+    latest: number;
+    changePct: number;
+    product?: { nameTr?: string; categorySlug?: string } | null;
+    market?: { cityName?: string } | null;
+  },
+): string {
+  const emoji = getProductEmoji(item.product?.nameTr ?? "", item.product?.categorySlug ?? "");
+  const name = item.product?.nameTr ?? "—";
+  const city = item.market?.cityName ?? "";
+  const prev = item.latest / (1 + item.changePct / 100);
+  return (
+    `${i}. ${emoji} <b>${name}</b>\n` +
+    `   ₺${fmtPrice(item.latest)} <i>(önceki: ₺${fmtPrice(prev)})</i>` +
+    ` · <code>${fmtPct(item.changePct)}</code>` +
+    (city ? `\n   📍 ${city}` : "")
+  );
+}
+
 export async function publishDailyReport(): Promise<void> {
-  const trending = await trendingChanges(20);
+  // trendingChanges(10) → 5 artan + 5 düşen döner
+  const trending = await trendingChanges(10);
   if (!trending.length) {
     console.warn("[channel-publisher] Trending veri yok, paylaşım atlandı");
     return;
@@ -62,37 +85,27 @@ export async function publishDailyReport(): Promise<void> {
   const today = fmtDate(new Date());
 
   const lines: string[] = [
-    `📊 <b>HaldeFiyat Günlük Rapor</b>`,
+    `📊 <b>HaldeFiyat — Günlük Fiyat Raporu</b>`,
     `📅 ${today}`,
-    ``,
+    `─────────────────────────`,
   ];
 
   if (risers.length) {
-    lines.push(`🔺 <b>En Çok Artan Fiyatlar</b>`);
-    for (const [i, t] of risers.entries()) {
-      const emoji = getEmojiByCategorySlug(t.product?.categorySlug ?? "");
-      const name = t.product?.nameTr ?? "—";
-      const city = t.market?.cityName ?? "";
-      lines.push(
-        `${i + 1}. ${emoji} <b>${name}</b> — ₺${fmtPrice(t.latest)} <code>(${fmtPct(t.changePct)})</code>${city ? ` · ${city}` : ""}`,
-      );
-    }
-    lines.push(``);
+    lines.push(`\n🔺 <b>En Çok Artan Fiyatlar</b>`);
+    risers.forEach((t, i) => lines.push(formatItem(i + 1, t)));
   }
 
   if (fallers.length) {
-    lines.push(`🔻 <b>En Çok Düşen Fiyatlar</b>`);
-    for (const [i, t] of fallers.entries()) {
-      const emoji = getEmojiByCategorySlug(t.product?.categorySlug ?? "");
-      const name = t.product?.nameTr ?? "—";
-      const city = t.market?.cityName ?? "";
-      lines.push(
-        `${i + 1}. ${emoji} <b>${name}</b> — ₺${fmtPrice(t.latest)} <code>(${fmtPct(t.changePct)})</code>${city ? ` · ${city}` : ""}`,
-      );
-    }
-    lines.push(``);
+    lines.push(`\n🔻 <b>En Çok Düşen Fiyatlar</b>`);
+    fallers.forEach((t, i) => lines.push(formatItem(i + 1, t)));
   }
 
+  if (!fallers.length && risers.length) {
+    lines.push(`\n🔻 <b>En Çok Düşen Fiyatlar</b>`);
+    lines.push(`<i>Bugün belirgin bir fiyat düşüşü tespit edilmedi.</i>`);
+  }
+
+  lines.push(`\n─────────────────────────`);
   lines.push(`🌐 <a href="${SITE_URL}/fiyatlar">Tüm hal fiyatları → haldefiyat.com</a>`);
 
   await postToChannel(lines.join("\n"));
@@ -104,29 +117,36 @@ export async function publishWeeklySummary(
   week: string,
 ): Promise<void> {
   const lines: string[] = [
-    `📈 <b>HaldeFiyat Haftalık Özet</b>`,
+    `📈 <b>HaldeFiyat — Haftalık Özet</b>`,
     `🗓 ${week} haftası`,
-    ``,
+    `─────────────────────────`,
   ];
 
   if (risers.length) {
-    lines.push(`🔺 <b>Haftanın En Çok Artanları</b>`);
+    lines.push(`\n🔺 <b>Haftanın En Çok Artanları</b>`);
     for (const [i, r] of risers.entries()) {
-      const emoji = getEmojiByCategorySlug(r.categorySlug);
-      lines.push(`${i + 1}. ${emoji} <b>${r.name}</b> — ₺${fmtPrice(r.latestAvg)} <code>(${fmtPct(r.changePct)})</code>${r.city ? ` · ${r.city}` : ""}`);
+      const emoji = getProductEmoji(r.name, r.categorySlug);
+      lines.push(
+        `${i + 1}. ${emoji} <b>${r.name}</b>\n` +
+        `   ₺${fmtPrice(r.latestAvg)} · <code>${fmtPct(r.changePct)}</code>` +
+        (r.city ? `\n   📍 ${r.city}` : ""),
+      );
     }
-    lines.push(``);
   }
 
   if (fallers.length) {
-    lines.push(`🔻 <b>Haftanın En Çok Düşenleri</b>`);
+    lines.push(`\n🔻 <b>Haftanın En Çok Düşenleri</b>`);
     for (const [i, f] of fallers.entries()) {
-      const emoji = getEmojiByCategorySlug(f.categorySlug);
-      lines.push(`${i + 1}. ${emoji} <b>${f.name}</b> — ₺${fmtPrice(f.latestAvg)} <code>(${fmtPct(f.changePct)})</code>${f.city ? ` · ${f.city}` : ""}`);
+      const emoji = getProductEmoji(f.name, f.categorySlug);
+      lines.push(
+        `${i + 1}. ${emoji} <b>${f.name}</b>\n` +
+        `   ₺${fmtPrice(f.latestAvg)} · <code>${fmtPct(f.changePct)}</code>` +
+        (f.city ? `\n   📍 ${f.city}` : ""),
+      );
     }
-    lines.push(``);
   }
 
+  lines.push(`\n─────────────────────────`);
   lines.push(`🌐 <a href="${SITE_URL}/fiyatlar">Detaylı analiz → haldefiyat.com</a>`);
 
   await postToChannel(lines.join("\n"));

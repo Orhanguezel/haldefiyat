@@ -422,13 +422,23 @@ export async function trendingChanges(limit = 10) {
 
   const scored: { productId: number; marketId: number; changePct: number; latest: number; previous: number }[] = [];
 
+  // Güncel analiz tarihi — "son 5 günde verisi olmayan kaynak" hesaba katılmaz
+  const todayMs = Date.now();
+  const FRESHNESS_MS = 5 * 24 * 60 * 60 * 1000;
+
   for (const [, list] of byKey) {
     list.sort((a, b) => (a.recordedDate < b.recordedDate ? 1 : -1));
     if (list.length < 2) continue;
 
     const latest = list[0]!;
+
+    // Stale data filtresi: son verisi 5+ gün önceyse trending'e dahil etme
+    const latestMs = new Date(`${latest.recordedDate}T12:00:00`).getTime();
+    if (todayMs - latestMs > FRESHNESS_MS) continue;
+
     const latestDate = new Date(`${latest.recordedDate}T12:00:00`);
-    const latestWindowStart = shiftIsoDate(latest.recordedDate, -2);
+    // 4 günlük pencere: her 2-3 günde güncelleyen kaynaklar için yeterli veri noktası sağlar
+    const latestWindowStart = shiftIsoDate(latest.recordedDate, -3);
     const prevWindowStart = shiftIsoDate(latest.recordedDate, -14);
     const prevWindowEnd = shiftIsoDate(latest.recordedDate, -7);
 
@@ -458,8 +468,11 @@ export async function trendingChanges(limit = 10) {
     });
   }
 
-  scored.sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct));
-  const top = scored.slice(0, limit);
+  // En çok artan top N/2 + en çok düşen top N/2 → her zaman her iki yönden veri döner
+  const half = Math.ceil(limit / 2);
+  const risers = scored.filter((s) => s.changePct > 0).sort((a, b) => b.changePct - a.changePct).slice(0, half);
+  const fallers = scored.filter((s) => s.changePct < 0).sort((a, b) => a.changePct - b.changePct).slice(0, half);
+  const top = [...risers, ...fallers];
   if (!top.length) return [];
 
   const prodIds = [...new Set(top.map((t) => t.productId))];
