@@ -65,12 +65,22 @@ async function scrapePageHtml(page: number): Promise<string | null> {
 
 export async function resolveMigrosProductId(nameRaw: string): Promise<number | null> {
   const aliasMap = await getAliasMap();
-  // Migros ürün adları bazen " Kg" veya birim ifadesi içerir — temizle
-  const cleaned = nameRaw
-    .replace(/\s+Kg\s*/i, "")
-    .replace(/\s+Adet\s*/i, "")
-    .replace(/\s+\d+\s*g\s*/i, "")
-    .trim();
+  // Migros ürün adları bazen birim/paket ifadesi içerir; sondan temizle.
+  // Sıralama önemli: önce gram/sayı, sonra etiketler (sırasıyla peelinmeli)
+  let cleaned = nameRaw.trim();
+  for (let i = 0; i < 4; i++) {
+    cleaned = cleaned
+      .replace(/\s+Kg\s*$/i, "")
+      .replace(/\s+Adet\s*$/i, "")
+      .replace(/\s+\d+(?:\.\d+)?\s*[Gg]\s*$/i, "")
+      .replace(/\s+Paket\s*$/i, "")
+      .replace(/\s+Demet\s*$/i, "")
+      .replace(/\s+File\s*$/i, "")
+      .replace(/\s+\d+'?l[uü]\s*$/i, "")
+      .replace(/[()]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
 
   const slug = aliasMap.get(turkishToAscii(cleaned));
   if (!slug) return null;
@@ -127,6 +137,13 @@ export async function runMigrosEtl(targetDate?: string): Promise<MigrosEtlResult
   }
 
   for (const p of deduped.values()) {
+    // Sadece Kg-bazli fiyatlar dahil edilir; "Adet", "125 G Paket" gibi paket
+    // fiyatlari hal toptan ile kiyaslanamaz (yaniltici karsilastirma riski)
+    if (!/\s+Kg\s*$/i.test(p.nameRaw.trim())) {
+      result.skipped++;
+      continue;
+    }
+
     const productId = await resolveMigrosProductId(p.nameRaw);
     if (productId === null) {
       result.unmatched++;
