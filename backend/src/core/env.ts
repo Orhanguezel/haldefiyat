@@ -72,6 +72,8 @@ export const env = {
   BULLMQ_CONNECTION: process.env.BULLMQ_CONNECTION || "",
 
   TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || "",
+  // Kamuya açık Telegram kanalı — günlük fiyat paylaşımları buraya gönderilir
+  TELEGRAM_CHANNEL_ID: process.env.TELEGRAM_CHANNEL_ID || "",
   SMTP_HOST: process.env.SMTP_HOST || "",
   SMTP_PORT: parseEnvInt(process.env.SMTP_PORT, 587),
   SMTP_USER: process.env.SMTP_USER || "",
@@ -92,6 +94,8 @@ export const env = {
     antkomderSchedule: process.env.ANTKOMDER_CRON_SCHEDULE || "30 10 * * *",
     // Rakip izleme — her pazartesi 07:00 UTC (ETL sona erdikten sonra)
     competitorSchedule: process.env.COMPETITOR_CRON_SCHEDULE || "0 7 * * 1",
+    // Telegram kanal günlük paylaşımı — her gün 08:00 UTC = 11:00 TRT (ETL bittikten sonra)
+    channelPublishSchedule: process.env.CHANNEL_PUBLISH_CRON_SCHEDULE || "0 8 * * *",
     maxDateFallbackDays: parseEnvInt(process.env.ETL_MAX_DATE_FALLBACK_DAYS, 7),
     autoRegisterProducts: (process.env.ETL_AUTO_REGISTER_PRODUCTS ?? "true").toLowerCase() === "true",
     requestTimeoutMs: parseEnvInt(process.env.ETL_REQUEST_TIMEOUT_MS, 30_000),

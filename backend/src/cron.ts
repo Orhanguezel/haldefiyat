@@ -3,6 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
 import { checkAndNotifyEtlHealth } from "@/modules/etl/health";
 import { runCompetitorCheck } from "@/modules/competitor-monitor";
+import { publishDailyReport } from "@/modules/telegram-channel/publisher";
 import { runAllProductionSources } from "@/modules/etl/production-fetcher";
 import { getSourceByKey } from "@/config/etl-sources";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
@@ -31,6 +32,8 @@ export function startCron(app: FastifyInstance): void {
     { name: "etl-antkomder-pm",   schedule: env.ETL.antkomderSchedule,   handler: () => runAntkomderJob(app) },
     // Rakip izleme — haftalık
     { name: "competitor-monitor", schedule: env.ETL.competitorSchedule,  handler: () => runCompetitorJob(app) },
+    // Telegram kanal günlük paylaşımı — 08:00 UTC = 11:00 TRT
+    { name: "channel-publish",    schedule: env.ETL.channelPublishSchedule, handler: () => runChannelPublishJob(app) },
   ];
 
   for (const t of tasks) {
@@ -160,6 +163,16 @@ async function runAntkomderJob(app: FastifyInstance): Promise<void> {
     }
   }
   await runEtlHealthJob(app);
+}
+
+async function runChannelPublishJob(app: FastifyInstance): Promise<void> {
+  app.log.info("[cron:channel-publish] Telegram kanal paylaşımı başlatılıyor");
+  try {
+    await publishDailyReport();
+    app.log.info("[cron:channel-publish] tamamlandı");
+  } catch (err) {
+    app.log.error({ err }, "[cron:channel-publish] hata");
+  }
 }
 
 async function runCompetitorJob(app: FastifyInstance): Promise<void> {
