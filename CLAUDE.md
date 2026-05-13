@@ -34,9 +34,15 @@ ssh vps-vistainsaat '/root/haldefiyat-src/backend/scripts/etl-health.sh 24'
 
 - Repo: `github.com/Orhanguezel/haldefiyat` (push: main)
 - VPS: vps-vistainsaat (root@srv1493379), path: `/root/haldefiyat-src/`
-- PM2: `hal-backend` (id 18, **port 8091**), `hal-frontend` (id 19), `hal-admin` (id 23)
+- PM2: `hal-backend` (port 8091), `hal-frontend` (port 3033), `hal-admin` (port 3036)
+  — ID'ler PM2 restart sonrasi degisir, isimle calistir (`pm2 restart hal-backend`)
+- PM2 prosesleri runtime env ile baslatildi: `BACKEND_URL=http://127.0.0.1:8091`,
+  `NEXT_PUBLIC_API_URL=https://haldefiyat.com` (PM2 restart sonrasi `--update-env` gerek)
 - DB: `hal_fiyatlari` MySQL, user `haldefiyat`
 - 22+ ETL kaynak (resmi belediye + antkomder + hal.gov.tr + izmir API + batiakdeniztv + bolu)
+- 2026-05-13 pilot deploy (`/var/www/releases/hal-fiyatlari-20260513-161720`)
+  SUPERSEDED — rollback yapildi, klasor referans icin korunuyor. Detay:
+  `tarim-dijital-ekosistem/PILOT_DEPLOY_HAL_FIYATLARI_2026-05-13.md`
 
 ## Aktif Hatirlatmalar (TARIH ILE KONTROL ET)
 
