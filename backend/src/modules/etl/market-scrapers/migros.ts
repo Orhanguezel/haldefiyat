@@ -15,7 +15,7 @@ import { db } from "@/db/client";
 import { hfProducts, hfRetailPrices } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { fetchViaScraper } from "../scraper-client";
-import { turkishToAscii, getAliasMap } from "../normalizer";
+import { turkishToAscii, getAliasMap, invalidateAliasCache } from "../normalizer";
 
 const MIGROS_BASE = "https://www.migros.com.tr/sebze-meyve-c-2";
 const CHAIN_SLUG = "migros";
@@ -93,6 +93,9 @@ export interface MigrosEtlResult {
 }
 
 export async function runMigrosEtl(targetDate?: string): Promise<MigrosEtlResult> {
+  // hf_products alias degisiklikleri hemen yansisin (5dk TTL cache'ini bypass et)
+  invalidateAliasCache();
+
   const recordedDate = targetDate ?? new Date().toISOString().slice(0, 10);
   const result: MigrosEtlResult = { inserted: 0, skipped: 0, unmatched: 0, unmatchedNames: [], errors: [] };
 
