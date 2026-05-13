@@ -82,7 +82,16 @@ function TickerEntry({ item, index }: { item: TrendingItem; index: number }) {
 }
 
 export default function PriceTicker({ items }: Props) {
-  const visibleItems = items.filter(isTickerItem).slice(0, 12);
+  const filtered = items.filter(isTickerItem);
+  const risers = filtered.filter((i) => i.changePct > 0).slice(0, 6);
+  const fallers = filtered.filter((i) => i.changePct < 0).slice(0, 6);
+  // interleave: riser, faller, riser, faller...
+  const visibleItems: TrendingItem[] = [];
+  const maxLen = Math.max(risers.length, fallers.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (i < risers.length) visibleItems.push(risers[i]!);
+    if (i < fallers.length) visibleItems.push(fallers[i]!);
+  }
 
   if (visibleItems.length === 0) {
     return null;
