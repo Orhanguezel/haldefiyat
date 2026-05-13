@@ -16,6 +16,7 @@ import { loadEtlSources } from "@/config/etl-sources";
 import { loadProductionSources } from "@/config/production-sources";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
 import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
+import { checkWaybackAndNotify } from "@/modules/wayback-monitor";
 import {
   runAllProductionSources,
   runSingleProductionSource,
@@ -575,6 +576,15 @@ export async function registerHalAdmin(app: FastifyInstance) {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       return reply.status(400).send({ ok: false, source, error: msg });
+    }
+  });
+
+  app.post("/hal/wayback/check", async (_req, reply) => {
+    try {
+      const result = await checkWaybackAndNotify();
+      return reply.send({ ok: true, ...result });
+    } catch (err) {
+      return reply.status(500).send({ ok: false, error: err instanceof Error ? err.message : String(err) });
     }
   });
 
