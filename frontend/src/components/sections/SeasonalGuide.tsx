@@ -87,6 +87,13 @@ export default async function SeasonalGuide() {
                     </span>
                   </div>
                 )}
+                {w?.yoyChangePct != null && (
+                  <div className="mt-1 text-[10px] text-(--color-muted)">
+                    Geçen yıl: <span className="font-semibold text-(--color-foreground)">
+                      {w.yoyChangePct > 0 ? "+" : ""}{w.yoyChangePct.toFixed(0)}%
+                    </span>
+                  </div>
+                )}
               </div>
             </Link>
           );

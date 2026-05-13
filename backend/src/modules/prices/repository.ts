@@ -589,6 +589,7 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
 
   const latestSlugs = latestRows.map((r) => r.productSlug);
 
+  // Gecen hafta (7-14 gun once) ortalama — 7g changePct icin
   const prevRows = await db
     .select({
       productSlug: hfProducts.slug,
@@ -603,13 +604,34 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
     ))
     .groupBy(hfProducts.slug);
 
+  // Gecen yil ayni hafta (-365 ±7 gun) ortalama — yoyChangePct icin
+  // Genis pencere: 335-395 gun, sezon kaymasini absorbe etmek icin 30 gun radius
+  const yoyRows = await db
+    .select({
+      productSlug: hfProducts.slug,
+      avgPrice:    sql<string>`AVG(${hfPriceHistory.avgPrice})`,
+    })
+    .from(hfPriceHistory)
+    .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+    .where(and(
+      gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 395 DAY)`),
+      lte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 335 DAY)`),
+      inArray(hfProducts.slug, latestSlugs),
+    ))
+    .groupBy(hfProducts.slug);
+
   const prevMap = new Map(prevRows.map((r) => [r.productSlug, Number(r.avgPrice)]));
+  const yoyMap = new Map(yoyRows.map((r) => [r.productSlug, Number(r.avgPrice)]));
 
   return latestRows.map((r) => {
     const latest = Number(r.avgPrice);
     const prev = prevMap.get(r.productSlug);
+    const yoy = yoyMap.get(r.productSlug);
     const rawPct = prev && prev > 0 ? Math.round((10000 * (latest - prev)) / prev) / 100 : null;
     const changePct = rawPct !== null && Math.abs(rawPct) <= WIDGET_MAX_ABS_CHANGE_PCT ? rawPct : null;
+    // YoY icin daha genis tolerans — sezon kaymalari ve enflasyon nedeniyle 300% gorulebilir
+    const rawYoy = yoy && yoy > 0 ? Math.round((10000 * (latest - yoy)) / yoy) / 100 : null;
+    const yoyChangePct = rawYoy !== null && Math.abs(rawYoy) <= 400 ? rawYoy : null;
     return {
       productSlug:  r.productSlug,
       productName:  r.productName,
@@ -617,6 +639,7 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
       avgPrice:     latest,
       unit:         r.unit ?? "kg",
       changePct,
+      yoyChangePct,
     };
   });
 }

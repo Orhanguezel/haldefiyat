@@ -290,6 +290,7 @@ export interface WidgetPrice {
   avgPrice: number;
   unit: string;
   changePct: number | null;
+  yoyChangePct: number | null;
 }
 
 export async function fetchWidget(params: { slugs?: string[]; category?: string; limit?: number }): Promise<WidgetPrice[]> {
