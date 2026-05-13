@@ -453,8 +453,8 @@ export async function trendingChanges(limit = 10) {
     const pp = avgObs(prevWindow.length > 0 ? prevWindow : fallbackPrev);
     if (lp == null || pp == null || pp <= 0) continue;
 
-    // Veri düzeltme olaylarını filtrele: fiyat 8x+ değişmişse gerçek piyasa hareketi değil
-    if (lp / pp > 8 || pp / lp > 8) continue;
+    // Veri düzeltme olaylarını filtrele: fiyat 5x+ değişmişse gerçek piyasa hareketi değil
+    if (lp / pp > 5 || pp / lp > 5) continue;
 
     const changePct = Math.round((10000 * (lp - pp)) / pp) / 100;
     if (Math.abs(changePct) > TREND_MAX_ABS_CHANGE_PCT) continue;
@@ -468,10 +468,26 @@ export async function trendingChanges(limit = 10) {
     });
   }
 
+  // Cross-market median doğrulama: aynı ürün birden fazla markette varsa,
+  // prev veya latest değeri diğer marketlerin median'ından 5x+ sapıyorsa veri hatasıdır
+  const latestsByProduct = new Map<number, number[]>();
+  for (const s of scored) {
+    if (!latestsByProduct.has(s.productId)) latestsByProduct.set(s.productId, []);
+    latestsByProduct.get(s.productId)!.push(s.latest);
+  }
+  const validated = scored.filter((s) => {
+    const latests = latestsByProduct.get(s.productId)!;
+    if (latests.length < 2) return true; // tek kaynak, cross-market doğrulama yok
+    const sorted = [...latests].sort((a, b) => a - b);
+    const median = sorted[Math.floor(sorted.length / 2)]!;
+    if (median <= 0) return true;
+    return s.previous >= median / 5 && s.previous <= median * 5;
+  });
+
   // En çok artan top N/2 + en çok düşen top N/2 → her zaman her iki yönden veri döner
   const half = Math.ceil(limit / 2);
-  const risers = scored.filter((s) => s.changePct > 0).sort((a, b) => b.changePct - a.changePct).slice(0, half);
-  const fallers = scored.filter((s) => s.changePct < 0).sort((a, b) => a.changePct - b.changePct).slice(0, half);
+  const risers = validated.filter((s) => s.changePct > 0).sort((a, b) => b.changePct - a.changePct).slice(0, half);
+  const fallers = validated.filter((s) => s.changePct < 0).sort((a, b) => a.changePct - b.changePct).slice(0, half);
   const top = [...risers, ...fallers];
   if (!top.length) return [];
 
