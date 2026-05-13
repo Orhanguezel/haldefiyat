@@ -1507,23 +1507,26 @@ function parseBoluHtml(html: string): NormalizedRow[] {
   return out;
 }
 
-// Bolu — 2-adımlı fetch: anasayfadan güncel URL bul, sonra fiyat sayfasını çek.
+// Bolu — 2-adımlı fetch: /category/halfiyatlari/'dan en güncel URL bul,
+// sonra fiyat sayfasını çek. 2026-05-13: anasayfa yerine kategori sayfası
+// (eski pattern: anasayfada direkt link vardı; yeni: kategori altında listed).
+// 2 URL formatı destekleniyor: -toptanci-hal-fiyat-listesi/ + -haftalik-fiyat-listesi/
 async function fetchBoluDated(
   source: EtlSourceConfig,
   date: string,
 ): Promise<FetchOutcome | null> {
-  const homeRes = await fetch(source.baseUrl + "/", {
+  const homeRes = await fetch(source.baseUrl + "/category/halfiyatlari/", {
     headers: { Accept: "text/html", "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)" },
     signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
     // @ts-expect-error Bun-specific
     tls: { rejectUnauthorized: false },
   });
-  if (!homeRes.ok) throw new Error(`Bolu anasayfa HTTP ${homeRes.status}`);
+  if (!homeRes.ok) throw new Error(`Bolu kategori HTTP ${homeRes.status}`);
   const homeHtml = await decodeResponseBody(homeRes);
 
-  const pattern = /href="(https?:\/\/www\.bolu\.bel\.tr\/(\d{2})-(\d{2})-(\d{4})-toptanci-hal-fiyat-listesi\/?)"[^>]*>/gi;
+  const pattern = /href="(https?:\/\/www\.bolu\.bel\.tr\/(\d{2})-(\d{2})-(\d{4})-(?:toptanci-hal-fiyat-listesi|haftalik-fiyat-listesi)\/?)"[^>]*>/gi;
   const matches = [...homeHtml.matchAll(pattern)];
-  if (matches.length === 0) throw new Error("Bolu: listing URL anasayfada bulunamadı");
+  if (matches.length === 0) throw new Error("Bolu: listing URL kategori sayfasinda bulunamadı");
 
   // En güncel tarihi seç
   const best = matches.reduce<{ url: string; iso: string }>(
