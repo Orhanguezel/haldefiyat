@@ -100,6 +100,8 @@ export const env = {
     migrosSchedule: process.env.MIGROS_CRON_SCHEDULE || "0 9 * * *",
     // Wayback Machine probe — 6 saatte bir; online olunca tek seferlik Telegram bildirimi
     waybackMonitorSchedule: process.env.WAYBACK_MONITOR_CRON_SCHEDULE || "5 */6 * * *",
+    // Haftalik mail bulten — pazartesi 06:00 UTC (push 05:00 sonrasi, 09:00 TRT)
+    weeklyMailSchedule: process.env.WEEKLY_MAIL_CRON_SCHEDULE || "0 6 * * 1",
     maxDateFallbackDays: parseEnvInt(process.env.ETL_MAX_DATE_FALLBACK_DAYS, 7),
     autoRegisterProducts: (process.env.ETL_AUTO_REGISTER_PRODUCTS ?? "true").toLowerCase() === "true",
     requestTimeoutMs: parseEnvInt(process.env.ETL_REQUEST_TIMEOUT_MS, 30_000),

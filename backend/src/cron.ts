@@ -10,6 +10,7 @@ import { runAllProductionSources } from "@/modules/etl/production-fetcher";
 import { getSourceByKey } from "@/config/etl-sources";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
 import { runWeeklyDigest } from "@/modules/notifications/weekly-digest";
+import { runWeeklyMailDigest } from "@/modules/notifications/weekly-mail-digest";
 import { calculateWeeklyIndex } from "@/modules/index";
 import { env } from "@/core/env";
 
@@ -40,6 +41,8 @@ export function startCron(app: FastifyInstance): void {
     { name: "migros-daily",       schedule: env.ETL.migrosSchedule,        handler: () => runMigrosJob(app) },
     // Wayback Machine probe — 6 saatte bir; online dönünce tek Telegram bildirimi
     { name: "wayback-monitor",    schedule: env.ETL.waybackMonitorSchedule, handler: () => runWaybackMonitorJob(app) },
+    // Haftalik mail bulten — pazartesi 06:00 UTC = 09:00 TRT
+    { name: "weekly-mail",        schedule: env.ETL.weeklyMailSchedule,    handler: () => runWeeklyMailJob(app) },
   ];
 
   for (const t of tasks) {
@@ -192,6 +195,20 @@ async function runMigrosJob(app: FastifyInstance): Promise<void> {
     );
   } catch (err) {
     app.log.error({ err }, "[cron:migros] hata");
+  }
+}
+
+async function runWeeklyMailJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:weekly-mail] haftalik mail bulten baslatiliyor");
+  try {
+    const result = await runWeeklyMailDigest();
+    app.log.info(
+      { ...result, durationMs: Date.now() - t0 },
+      "[cron:weekly-mail] tamamlandi",
+    );
+  } catch (err) {
+    app.log.error({ err }, "[cron:weekly-mail] hata");
   }
 }
 
