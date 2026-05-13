@@ -1,7 +1,7 @@
 # HalDeFiyat — GEO & Ekosistem Eksikler Çeklistesi
 
 **Kaynak:** GEO Raporu 08.05.2026 (22/100) + Peer review 12.05.2026 + devam-not-13mayis.md + EKOSISTEM-PLAN.md  
-**Son güncelleme:** 2026-05-13 (oturum 6)  
+**Son güncelleme:** 2026-05-13 (oturum 7)  
 **Hedef skor:** 65+/100
 
 > Tamamlananlar ✅, açık olanlar `[ ]` ile işaretli.  
@@ -20,7 +20,7 @@
 | 50 | ~~min/max boş değerler~~ — PriceCard'da ikisi de null ise "yalnızca ort. fiyat mevcut" gösteriliyor | "Eksik veri çekiyor" izlenimi | ✅ Giderildi |
 | 51 | ~~StatsBar counter SSR hydration~~ — `useState(target)` ile başlatıldı, crawler artık 81/2480 görüyor | SEO + ilk izlenim kötü | ✅ Giderildi |
 | 52 | **Marquee DOM duplication** — iki kopya CSS infinite scroll için intentional (translateX -50%) | Gerçek bug değil, doğru pattern | ✅ Zaten doğru |
-| 59 | **PriceTable 502 hatası** — `/api/v1/prices?range=3650d&latestOnly=false` 502 döndürüyor. `[PriceTable] fiyatlar yüklenemedi ApiError: 502 request_failed`. Muhtemelen DB query timeout (10 yıllık veri + filtreleme yük). | Fiyat tablosu sayfaları kırık — kritik UX kaybı | Sorgu optimizasyonu: index ekle / pagination zorunlu kıl / range limitini backend'de kısıtla | [ ] |
+| 59 | ~~PriceTable 502 hatası~~ — nginx `/api/` `proxy_read_timeout 180s` eklendi (60s default'tan yukseltildi). Tum buyuk range query'leri 200-400ms (ce750fe). | Fiyat tablosu sayfalari acildi | nginx config + CLAUDE.md notu | ✅ |
 | 60 | **Fiyat artış/azalış % hesabı doğrulama** — "artı/azalı yüzde tam belli değil, hatalı olabilir". Dış sitelere de bu veri veriliyor (API üzerinden). Hesaplama bug'ı dış platformlara yanlış veri yayıyor. | Veri güvenilirliği — marka itibarı riski | `/api/v1/prices/trending` ve `changePct` hesaplama mantığını denetle; referans noktası, sıfır/null koruması, yuvarlama | [ ] |
 
 ---
@@ -88,11 +88,11 @@
 
 | # | Görev | Detay | Durum |
 |---|-------|-------|-------|
-| 26 | **Twitter/X hesabı aç** `@haldefiyat` | Günlük otomatik tweet: "en çok değişen 5 ürün" — gazeteciler için ücretsiz PR kaynağı | [ ] |
-| 27 | **Instagram hesabı aç** | Görsel fiyat kartları, sezonluk ürün infografikleri | [ ] |
-| 28 | **Footer + İletişim sayfasına sosyal medya linkleri** | | [ ] |
-| 29 | **Telegram kanalı + bot** | Kanal: günlük hal bülteni (backend cron). Bot: kullanıcı `/domates` yazar → o günün min/ort/maks fiyatı döner. Viral potansiyeli yüksek. | [ ] |
-| 30 | **sameAs** property | Organization schema'ya sosyal profil URL'leri | [ ] |
+| 26 | ~~Twitter/X hesabi~~ `@haldefiyat` — Hesap acildi, paylasimlar baslamis. Gunluk otomatik tweet ileride (cron). | ✅ |
+| 27 | ~~Instagram hesabi~~ `@haldefiyat` — Hesap acildi, gorsel paylasimlar baslamis. | ✅ |
+| 28 | ~~Footer sosyal medya linkleri~~ — DB `site_settings` `social_twitter`+`social_instagram` eklendi. Footer ikonlari canli (Twitter/X + Instagram). Iletisim sayfasinda kontrol gerek. | ✅ Footer / [ ] Iletisim |
+| 29 | **Telegram kanalı + bot** | Kanal: günlük hal bülteni (backend cron). Bot: kullanıcı `/domates` yazar → o günün min/ort/maks fiyatı döner. Viral potansiyeli yüksek. | [ ] kanal cron'u var, bot yok |
+| 30 | ~~sameAs property~~ — `(public)/layout.tsx` Organization schema'da `sameAs` array'i DB social_* keys'ten doluyor. | ✅ |
 
 ---
 
@@ -103,7 +103,7 @@
 | # | Özellik | Öncelik | Durum |
 |---|---------|---------|-------|
 | 31 | ~~Geçen yıl karşılaştırması~~ — /urun/[slug] fiyat tablosunda `+%X geçen yıla` badge | P1 | ✅ |
-| 32 | **Haftalık e-bülten** — "Bu hafta en çok değişen 10 ürün" otomatik e-posta | P1 | [ ] |
+| 32 | ~~Haftalik e-bulten~~ — HTML mail digest modulu + cron (pazartesi 09:00 TRT) + preview/test endpoint'leri. SMTP credentials + ilk abone bekleme. (7f02ef7, 3512cc3) | P1 | ✅ kod / 🚧 SMTP+abone bekleme |
 | 33 | ~~Sezonluk rehber bölümü~~ — anasayfada "Şu an mevsimi olan ürünler" kartları | P1 | ✅ |
 | 34 | **Türkiye interaktif haritası** — il bazında fiyat haritası, SVG + renk skalası | P2 | [ ] |
 | 35 | **ÜFE/TÜFE entegrasyonu** — fiyat artışını enflasyona karşı göster | P2 | [ ] |
@@ -146,7 +146,7 @@
 | # | Görev | Durum |
 |---|-------|-------|
 | 42 | **Ekosistem auth SSO** — `hf_user_favorites` seed'e ekle, `registerAuth` aktif et | [ ] |
-| 43 | **Haftalık e-bülten backend** — subscriber tablosu + şablon + cron | [ ] |
+| 43 | ~~Haftalik e-bulten backend~~ — `weekly-mail-digest.ts`, cron, admin endpoint'leri. SMTP+abone canliya gecince calisir. | ✅ kod |
 | 44 | **Ziraat Haber Portali entegrasyonu** — `/api/v1/prices/weekly-summary` otomatik haber? | [ ] kontrol et |
 
 ### Rakip İzleme (Competitor Monitor)
@@ -260,6 +260,20 @@
 - **Peer review (12.05 oturum 5):** 4 teknik hata eklendi (#49-52) | /analiz stratejisi eklendi (#53-55) | API monetization planı eklendi (#56-58) | Skor tahmini ~48 → ~52 revize edildi
 - **Yapılan (12.05 oturum 5):** StatsBar SSR 0 sorunu (#51) ✅ | Marquee outlier cap 80% (#49) ✅ | PriceCard min/max null gizlendi (#50) ✅ | #52 incelendi — intentional CSS pattern
 - **Yapılan (13.05 oturum 6):** Competitor-monitor backend (#61) ✅ — DB tabloları, checker, cron, API endpoint'leri. PM2 bash launcher fix (bun workspace resolution). devam-not-13mayis.md stratejik analiz → çekliste eklendi (#59-60, #62-76).
+- **Yapılan (13.05 oturum 7):**
+  - **Migros perakende karsilastirma** (#68 kismi) ✅ — `hf_retail_prices` tablo, `runMigrosEtl` (scraper-service DynamicFetcher + JSON-LD), RetailComparison karti /urun/[slug]'de, 46 urun canlida, cron 09:00 UTC (bc04b21, df5a275, 23721d9).
+  - **Migros unmatched alias temizlik** — 53 → 1 unmatched (regex'i guclendir, hf_products alias'lar, Kg-only filter).
+  - **/karsilastirma 0,00 bug fix** — useEffect race + .env.production.local fix (25225cf).
+  - **PriceTable 502 fix** (#59) ✅ — nginx proxy_read_timeout 180s (ce750fe).
+  - **Geçen yil karsilastirmasi anasayfada** (#31 genisletildi) — SeasonalGuide kartlarinda "Gecen yil: +%X" rozeti, widget endpoint'inde `yoyChangePct` field (42b9846).
+  - **Haftalik e-bulten** (#32, #43) ✅ kod hazir — HTML mail + cron + preview/test endpoint'leri (7f02ef7, 3512cc3). SMTP+abone bekleme.
+  - **Sezonluk rehber canli fiyat** (#33 genisletildi) — anasayfa kartlarinda guncel fiyat + 7g degisim (76a6f49).
+  - **Sosyal medya** (#26, #27, #28, #30) ✅ — Twitter/X + Instagram hesaplari acildi, footer'da ikonlar (DB `site_settings` `social_twitter`+`social_instagram` keys), sameAs schema otomatik dolduruluyor.
+  - **/analiz layout fix** — `max-w-4xl + px-4` → `max-w-[1400px] + px-8` + 3 sutun grid (33883d3).
+  - **Bolu ETL fix** — kategori sayfasi + `haftalik-fiyat-listesi` pattern, 50 urun (519f6f4).
+  - **Kocaeli site DOWN** — gecici disable, CLAUDE.md notu (b941d4f).
+  - **Wayback monitor + Telegram** — 6 saatte bir probe, online'a gectiginde tek Telegram bildirimi (3d58cbb). Backfill scripti `wayback-migros-backfill.ts` hazir.
+  - **Pilot deploy** — 1. release SUPERSEDED + rollback, 2. release `/var/www/releases/hal-fiyatlari-20260513-222637` AKTIF.
 - **Google News yolu:** /analiz path'inde 5+ yayın → Publisher Center başvurusu. Site şu hâliyle haber sitesi değil; editoryal içerik olmadan News'e giremez.
 - **Marquee outlier kararı:** `changePct > 80` VE `dataPointCount < 3` ise marquee'den çıkar. Sadece cap koymak yeterli değil — gerçek veri varsa +%100 doğru olabilir (kavun sezon açılışı).
 - **Monetization stratejisi:** Ücretsiz API devam eder, Pro tier = API key + 30+ gün geçmiş + CSV export. Rakip Agrimetre API'yi ücretli tutuyor — ücretsiz API güçlü farklılaşma olmaya devam eder.

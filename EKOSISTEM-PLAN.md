@@ -109,13 +109,14 @@ Abonelik: 449 TL/ay (Standard) → 4.259 TL/ay (Premium). Hal verisi premium ark
 
 | Öncelik | Özellik | Açıklama | Durum |
 |---------|---------|----------|-------|
-| P1 | Geçen hafta / geçen yıl karşılaştırması | Fiyat kartlarında `+%18 geçen yıla göre` etiketi | [ ] |
-| P1 | Haftalık e-bülten | "Bu hafta en çok değişen 10 ürün" otomatik mail | [ ] |
-| P1 | Sezonluk rehber | "Şu an mevsimi olan ürünler" anasayfa bölümü | [ ] |
+| P1 | Geçen hafta / geçen yıl karşılaştırması | Fiyat kartlarında `+%18 geçen yıla göre` etiketi | [x] /urun/[slug] PriceTable + SeasonalGuide kartlari (42b9846) |
+| P1 | Haftalık e-bülten | "Bu hafta en çok değişen 10 ürün" otomatik mail | [x] Kod hazir (7f02ef7, 3512cc3) — SMTP credentials + abone bekleme |
+| P1 | Sezonluk rehber | "Şu an mevsimi olan ürünler" anasayfa bölümü | [x] Anasayfa SeasonalGuide canli fiyat + 7g + YoY (76a6f49, 42b9846) |
 | P2 | Türkiye interaktif haritası | İl bazında fiyat haritası, SVG, renk skalası | [ ] |
 | P2 | ÜFE/TÜFE entegrasyonu | Fiyat artışını enflasyona karşı göster | [ ] |
-| P2 | İl bazında üretim notu | `/urun/[slug]` → "Bu ürün en çok Antalya'da yetişir" | [ ] |
+| P2 | İl bazında üretim notu | `/urun/[slug]` → "Bu ürün en çok Antalya'da yetişir" | [x] 27 urunde editoryal "Baslica uretim bolgesi" alani |
 | P2 | CSV export | Ücretsiz indirme — agrimetre bunu ücretli yapıyor | [x] `GET /api/v1/prices/export` |
+| P2 | Migros perakende karsilastirmasi | `/urun/[slug]` RetailComparison karti, Migros vs Hal | [x] 46 urun canlida, gunluk cron 09:00 UTC (bc04b21, 23721d9) |
 | P3 | Ücretsiz Geliştirici API | Açık API dokümantasyonu — agrimetre kapalı tutuyor | [ ] |
 | P3 | Pro üyelik | Daha fazla geçmiş veri, API key, öncelikli destek — 99 TL/ay | [ ] |
 | P3 | Telegram botu | Sabah 09:30 otomatik hal bülteni kanalı | [ ] |
