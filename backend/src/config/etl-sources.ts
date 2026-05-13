@@ -247,7 +247,10 @@ const RAW_SOURCES: RawSource[] = [
   // Tarih parametresi destekler → backfill mümkün.
   {
     key:               "kocaeli_merkez",
-    defaultEnabled:    true,
+    // 2026-05-13: Kocaeli Belediyesi sitesi sunucu sorunu (timeout VPS+lokal).
+    // DNS resolve OK (195.142.243.21) ama hicbir URL yanit vermiyor. Cron her
+    // seferinde 120s harcamasin diye disable. Site geri gelince true cevir.
+    defaultEnabled:    false,
     defaultMarketSlug: "kocaeli-hal-merkez",
     defaultBaseUrl:    "https://www.kocaeli.bel.tr",
     defaultEndpoint:   "1",

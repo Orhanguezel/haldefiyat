@@ -164,7 +164,8 @@ hal-fiyatlari tarafi:
 | antalya_kumluca_antkomder | HTTP 200 bos | ✅ Scrapling (kanitsiz, URL pattern ayni) |
 | kayseri_resmi | HTTP 200 bos | ⚠️ Scrapling cevap aldi ama parser 0 row, debug bekliyor |
 | gaziantep_resmi | HTTP 200 bos | ⏸️ Scrapling html geliyor (258KB) ama tablo yok — parser yenilemeli |
-| kocaeli_merkez | HTTP 200 bos / POST formlu | 🔜 Asama 2: scraper-service POST destegi gelince |
+| kocaeli_merkez | Site sunucu DOWN (timeout) | 🚫 defaultEnabled: false (2026-05-13). DNS OK (195.142.243.21) ama hic yanit yok. Site geri gelince true yap |
+| bolu_resmi | URL pattern degisti | ✅ 2026-05-13 fix: kategori sayfasi + haftalik-fiyat-listesi pattern destek |
 | mersin_resmi | socket closed | 🔜 Asama 2 |
 | balikesir_resmi | socket closed | 🔜 Asama 2: 2-step CSRF + POST |
 | hal_gov_tr_ulusal | timeout / multi-step ASP.NET | 🔜 Asama 2: hibrit (GET Scrapling + POST local) |

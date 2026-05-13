@@ -9,11 +9,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@agro/shared-backend/*": ["../../packages/shared-backend/*"],
-      "@agro/shared-types": ["../../packages/shared-types/index.ts"],
-      "@agro/shared-types/*": ["../../packages/shared-types/*"],
-      "drizzle-orm": ["../../node_modules/drizzle-orm"],
-      "drizzle-orm/*": ["../../node_modules/drizzle-orm/*"]
+      "@agro/shared-backend/*": ["../../../packages/shared-backend/dist/*"],
+      "@agro/shared-types": ["../../../packages/shared-types/index.ts"],
+      "@agro/shared-types/*": ["../../../packages/shared-types/*"],
+      "drizzle-orm": ["../../../node_modules/drizzle-orm"],
+      "drizzle-orm/*": ["../../../node_modules/drizzle-orm/*"]
     },
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -25,8 +25,7 @@
     "noEmitOnError": true,
     "verbatimModuleSyntax": true,
     "types": ["node"],
-    "typeRoots": ["./node_modules/@types"],
-    "ignoreDeprecations": "5.0"
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/types/**/*.d.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
