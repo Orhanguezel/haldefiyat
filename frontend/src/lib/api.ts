@@ -283,6 +283,24 @@ export async function fetchRetailPrices(productSlug: string): Promise<RetailPric
   );
 }
 
+export interface WidgetPrice {
+  productSlug: string;
+  productName: string;
+  categorySlug: string;
+  avgPrice: number;
+  unit: string;
+  changePct: number | null;
+}
+
+export async function fetchWidget(params: { slugs?: string[]; category?: string; limit?: number }): Promise<WidgetPrice[]> {
+  const qs = buildQuery({
+    slugs: params.slugs?.join(","),
+    category: params.category,
+    limit: params.limit,
+  });
+  return safeFetch<WidgetPrice[]>(`/prices/widget${qs}`, 300, []);
+}
+
 // ── Yıllık üretim ───────────────────────────────────────────────────────────
 
 export interface ProductionRow {
