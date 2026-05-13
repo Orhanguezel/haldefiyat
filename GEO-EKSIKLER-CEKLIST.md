@@ -1,7 +1,7 @@
 # HalDeFiyat — GEO & Ekosistem Eksikler Çeklistesi
 
-**Kaynak:** GEO Raporu 08.05.2026 (22/100) + Peer review 12.05.2026 + EKOSISTEM-PLAN.md  
-**Son güncelleme:** 2026-05-12 (oturum 5)  
+**Kaynak:** GEO Raporu 08.05.2026 (22/100) + Peer review 12.05.2026 + devam-not-13mayis.md + EKOSISTEM-PLAN.md  
+**Son güncelleme:** 2026-05-13 (oturum 6)  
 **Hedef skor:** 65+/100
 
 > Tamamlananlar ✅, açık olanlar `[ ]` ile işaretli.  
@@ -20,6 +20,8 @@
 | 50 | ~~min/max boş değerler~~ — PriceCard'da ikisi de null ise "yalnızca ort. fiyat mevcut" gösteriliyor | "Eksik veri çekiyor" izlenimi | ✅ Giderildi |
 | 51 | ~~StatsBar counter SSR hydration~~ — `useState(target)` ile başlatıldı, crawler artık 81/2480 görüyor | SEO + ilk izlenim kötü | ✅ Giderildi |
 | 52 | **Marquee DOM duplication** — iki kopya CSS infinite scroll için intentional (translateX -50%) | Gerçek bug değil, doğru pattern | ✅ Zaten doğru |
+| 59 | **PriceTable 502 hatası** — `/api/v1/prices?range=3650d&latestOnly=false` 502 döndürüyor. `[PriceTable] fiyatlar yüklenemedi ApiError: 502 request_failed`. Muhtemelen DB query timeout (10 yıllık veri + filtreleme yük). | Fiyat tablosu sayfaları kırık — kritik UX kaybı | Sorgu optimizasyonu: index ekle / pagination zorunlu kıl / range limitini backend'de kısıtla | [ ] |
+| 60 | **Fiyat artış/azalış % hesabı doğrulama** — "artı/azalı yüzde tam belli değil, hatalı olabilir". Dış sitelere de bu veri veriliyor (API üzerinden). Hesaplama bug'ı dış platformlara yanlış veri yayıyor. | Veri güvenilirliği — marka itibarı riski | `/api/v1/prices/trending` ve `changePct` hesaplama mantığını denetle; referans noktası, sıfır/null koruması, yuvarlama | [ ] |
 
 ---
 
@@ -147,6 +149,13 @@
 | 43 | **Haftalık e-bülten backend** — subscriber tablosu + şablon + cron | [ ] |
 | 44 | **Ziraat Haber Portali entegrasyonu** — `/api/v1/prices/weekly-summary` otomatik haber? | [ ] kontrol et |
 
+### Rakip İzleme (Competitor Monitor)
+
+| # | Görev | Detay | Durum |
+|---|-------|-------|-------|
+| 61 | ~~Competitor-monitor backend~~ — DB tabloları, checker, router, cron (her Pazartesi 07:00 UTC) | tarimpiyasa, guncelfiyatlari, halfiyat.vercel.app izleniyor | ✅ |
+| 62 | **Competitor-monitor admin panel sayfası** — sites listesi + son snapshot + manuel run butonu | `admin_panel/src/app/.../competitor-monitor/page.tsx` — `/api/v1/admin/competitor-monitor/sites` endpoint'i hazır | [ ] |
+
 ---
 
 ## 🟢 DÜŞÜK — Yıl İçi
@@ -157,6 +166,59 @@
 | 46 | **Pro üyelik** — 99 TL/ay (#58 altyapısı hazır olunca) | [ ] |
 | 47 | **Mobil uygulama** — PWA hazır, native adım | [ ] |
 | 48 | **Kurumsal raporlar** — market zincirleri / ihracatçılar | [ ] |
+
+---
+
+## 🔵 STRATEJİK — Tedarik Zinciri Şeffaflık Platformu
+
+> **Vizyon (13.05.2026):** "Hal fiyatları takibi" → "Türkiye'nin gıda tedarik zinciri şeffaflık platformu"  
+> Hedef: Çiftçi → Hal → Manav/Pazar → Market → Tüketici zincirini tek platformda görselleştirmek.  
+> Örnek çıktı: *"Domates: Hal ₺25 → Pazar ₺45 → Migros ₺72 → CarrefourSA ₺68 → BİM ₺55"*  
+> **Önce hal pipeline'ını mükemmelleştir (#59, #60), sonra market, en son pazar.**
+
+### Altyapı
+
+| # | Görev | Detay | Durum |
+|---|-------|-------|-------|
+| 63 | **DB `source_type` kolonu** — `hf_prices` tablosuna `source_type ENUM('hal','market_chain','pazar','market_online')` ekle | Mevcut veriler `hal`, yeni market verisi kendi tipini alır; seed SQL'e ekle | [ ] |
+
+### Market Zinciri Fiyatları (Kolay → Zor)
+
+| # | Görev | Detay | Zorluk | Durum |
+|---|-------|-------|--------|-------|
+| 64 | **BİM haftalık broşür PDF scraper** — `bim.com.tr/Categories/643/aktuel-urunler.aspx` | PDF indirme + `pdfplumber`/`pdf-parse` ile ürün-fiyat parse; scraper-service'e entegre | 🟢 Kolay | [ ] |
+| 65 | **A101 haftalık broşür PDF scraper** — `a101.com.tr/aktuel-urunler` | BİM ile aynı yaklaşım; PDF regex veya LLM ile çıkarım | 🟢 Kolay | [ ] |
+| 66 | **CarrefourSA online fiyat scraper** — `carrefoursa.com` | Playwright; lokasyon bazlı fiyatlandırma; Rate limit: 1 req/sn max, gece tarama | 🟡 Orta | [ ] |
+| 67 | **ŞOK / A101 online fiyat scraper** — `sokmarket.com.tr`, `a101.com.tr` | Playwright veya cheerio; PDF'ye ek olarak güncel raf fiyatı | 🟡 Orta | [ ] |
+| 68 | **Migros Sanal Market scraper** — `sanalmarket.migros.com.tr` | JS-heavy + Cloudflare anti-bot; scraper-service `dynamic: true` gerekebilir | 🔴 Zor | [ ] |
+
+### Market UI
+
+| # | Görev | Detay | Durum |
+|---|-------|-------|-------|
+| 69 | **"Hal vs Market" karşılaştırma sayfası** — `/karsilastir` | Aynı ürün için hal, BİM, Migros, CarrefourSA yan yana; zincir marjını görselleştir | [ ] |
+| 70 | **Fiyat zinciri şelale grafiği** — "Domates: Hal → Pazar → Market" waterfall chart | Gazetecilerin alıntılayacağı, paylaşılacak görsel; recharts/D3 | [ ] |
+
+### Pazar Fiyatları
+
+| # | Görev | Detay | Durum |
+|---|-------|-------|-------|
+| 71 | **Belediye pazar fiyat verileri scraping** — İBB, ABB, İzBB haftalık pazar fiyat raporları | Düzensiz yayın; scraper + normalize; coverage düşük ama başlangıç için yeterli | [ ] |
+| 72 | **Crowd-sourcing — pazar fiyat katkı sistemi** — mobile-first fiyat ekleme akışı | GPS + ürün adı + fiyat formu; 3+ kullanıcı girişi → "doğrulanmış"; gamification (puan/badge) | [ ] |
+| 73 | **Pazar OCR yardımı** — fiyat tabelası fotoğrafından otomatik fiyat çıkarımı | Tesseract Türkçe veya Claude API; crowd-sourcing formuna entegre | [ ] |
+
+### Fiş OCR
+
+| # | Görev | Detay | Durum |
+|---|-------|-------|-------|
+| 74 | **Receipt/Fiş OCR** — kullanıcı market veya pazar fişi yükler | Google Vision API veya Claude API; ürün-fiyat + tarih + lokasyon damgası çıkar; ~₺0.05/fiş maliyet | [ ] |
+
+### Partnership & Regülatör
+
+| # | Görev | Detay | Durum |
+|---|-------|-------|-------|
+| 75 | **İBB / Ankara BB / İzmir BB partnership yazısı** — belediyeye açık veri + dashboard teklifi | Karşılık: zabıtadan veri girişi + "Resmi Veri Partneri" rozeti + PR desteği | [ ] |
+| 76 | **Ticaret Bakanlığı açık veri partnership başvurusu** — "kamu yararına şeffaflık platformu" olarak tanıt | Haksız Fiyat Değerlendirme Kurulu bu veriyi resmi kullanabilir; yazılı başvuru yap | [ ] |
 
 ---
 
@@ -197,6 +259,9 @@
 - **Yapılan (12.05 oturum 4):** YoY badge /urun/[slug] (#31) ✅ | Sezonluk rehber (#33) ✅ | Üretim bölgesi notu (#36) ✅ | API docs DataFeed schema (#40) ✅
 - **Peer review (12.05 oturum 5):** 4 teknik hata eklendi (#49-52) | /analiz stratejisi eklendi (#53-55) | API monetization planı eklendi (#56-58) | Skor tahmini ~48 → ~52 revize edildi
 - **Yapılan (12.05 oturum 5):** StatsBar SSR 0 sorunu (#51) ✅ | Marquee outlier cap 80% (#49) ✅ | PriceCard min/max null gizlendi (#50) ✅ | #52 incelendi — intentional CSS pattern
+- **Yapılan (13.05 oturum 6):** Competitor-monitor backend (#61) ✅ — DB tabloları, checker, cron, API endpoint'leri. PM2 bash launcher fix (bun workspace resolution). devam-not-13mayis.md stratejik analiz → çekliste eklendi (#59-60, #62-76).
 - **Google News yolu:** /analiz path'inde 5+ yayın → Publisher Center başvurusu. Site şu hâliyle haber sitesi değil; editoryal içerik olmadan News'e giremez.
 - **Marquee outlier kararı:** `changePct > 80` VE `dataPointCount < 3` ise marquee'den çıkar. Sadece cap koymak yeterli değil — gerçek veri varsa +%100 doğru olabilir (kavun sezon açılışı).
 - **Monetization stratejisi:** Ücretsiz API devam eder, Pro tier = API key + 30+ gün geçmiş + CSV export. Rakip Agrimetre API'yi ücretli tutuyor — ücretsiz API güçlü farklılaşma olmaya devam eder.
+- **Tedarik zinciri öncelik sırası:** Önce #59 (502 fix) + #60 (% bug) → sonra #64-65 (BIM/A101 PDF, kolay) → sonra #66-67 (online market) → en son #71-74 (pazar/crowd). Scope creep riskine dikkat: hal tarafı sağlam olmadan yeni katman ekleme.
+- **Market scraping yasal çerçeve:** robots.txt'e uy, 1 req/sn max, gece tara. User-Agent: `HalDeFiyatBot/1.0 (+https://haldefiyat.com/bot)`. Sadece public listing fiyatları — kullanıcı verisi, kampanya kodu yok. Türkiye'de fiyat verisi public bilgi, telif altında değil.
