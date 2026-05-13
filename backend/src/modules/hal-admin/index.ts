@@ -19,6 +19,7 @@ import {
   runAllProductionSources,
   runSingleProductionSource,
 } from "@/modules/etl/production-fetcher";
+import { publishDailyReport } from "@/modules/telegram-channel/publisher";
 import {
   latestRecordedDate,
   listPriceRows,
@@ -661,6 +662,16 @@ export async function registerHalAdmin(app: FastifyInstance) {
       .orderBy(desc(hfAnnualEtlRuns.runAt))
       .limit(50);
     return reply.send({ logs });
+  });
+
+  app.post("/hal/channel/publish", async (_req, reply) => {
+    try {
+      await publishDailyReport();
+      return reply.send({ ok: true });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return reply.status(500).send({ ok: false, error: msg });
+    }
   });
 
   app.post("/hal/notifications/test", async (req, reply) => {
