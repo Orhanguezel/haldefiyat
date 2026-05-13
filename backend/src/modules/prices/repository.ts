@@ -443,6 +443,9 @@ export async function trendingChanges(limit = 10) {
     const pp = avgObs(prevWindow.length > 0 ? prevWindow : fallbackPrev);
     if (lp == null || pp == null || pp <= 0) continue;
 
+    // Veri düzeltme olaylarını filtrele: fiyat 8x+ değişmişse gerçek piyasa hareketi değil
+    if (lp / pp > 8 || pp / lp > 8) continue;
+
     const changePct = Math.round((10000 * (lp - pp)) / pp) / 100;
     if (Math.abs(changePct) > TREND_MAX_ABS_CHANGE_PCT) continue;
 
@@ -484,7 +487,13 @@ function shiftIsoDate(iso: string, deltaDays: number): string {
 function avgObs(rows: Obs[]): number | null {
   const nums = rows.map((r) => parseFloat(r.avgPrice)).filter((n) => Number.isFinite(n) && n > 0);
   if (nums.length === 0) return null;
-  return nums.reduce((sum, n) => sum + n, 0) / nums.length;
+  if (nums.length === 1) return nums[0]!;
+  // Pencere içi outlier temizliği: medyandan 5x+ sapan değerleri çıkar (ETL düzeltme kayıtları)
+  const sorted = [...nums].sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)]!;
+  const filtered = nums.filter((n) => n >= median / 5 && n <= median * 5);
+  const use = filtered.length > 0 ? filtered : nums;
+  return use.reduce((sum, n) => sum + n, 0) / use.length;
 }
 
 // Tek ürünün belirli hal'deki fiyat geçmişi
