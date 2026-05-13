@@ -11,6 +11,11 @@ export function parseRangeToDays(range?: string): number {
   return 7;
 }
 
+function capRange(range: string | undefined, maxDays: number): string {
+  const days = parseRangeToDays(range);
+  return `${Math.min(days, maxDays)}d`;
+}
+
 /**
  * En son fiyat kaydının tarihi. DB boşsa null.
  * Frontend'in "son veri X gün öncesine ait" mesajı için de kullanılır.
@@ -253,7 +258,11 @@ export async function listPriceRowsPage(params: {
   const page = Math.max(1, params.page ?? 1);
   const offset = (page - 1) * limit;
   const latestOnly = params.latestOnly !== false;
-  const { windowConds, conds } = await priceQueryContext(params);
+  // latestOnly=false fetches all historical rows — cap at 365d to prevent full-table timeout.
+  const cappedParams = !latestOnly
+    ? { ...params, range: capRange(params.range, 365) }
+    : params;
+  const { windowConds, conds } = await priceQueryContext(cappedParams);
   const order = priceOrder(params.sort);
 
   if (latestOnly) {
@@ -380,7 +389,10 @@ export async function listMarkets(city?: string) {
 
 // Son 7 günde en çok değişen ürün/hal çiftleri
 type Obs = { productId: number; marketId: number; avgPrice: string; recordedDate: string };
-const TREND_MAX_ABS_CHANGE_PCT = 300;
+// Outlier guard: ETL parse hatası veya mevsim verisi ilk günde %300+ sapma üretebilir.
+// Widget dışa verdiğimiz için daha sıkı tutuyoruz (150%).
+const TREND_MAX_ABS_CHANGE_PCT = 150;
+const WIDGET_MAX_ABS_CHANGE_PCT = 150;
 
 export async function trendingChanges(limit = 10) {
   const rows = await db
@@ -550,7 +562,8 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
   return latestRows.map((r) => {
     const latest = Number(r.avgPrice);
     const prev = prevMap.get(r.productSlug);
-    const changePct = prev ? Math.round((10000 * (latest - prev)) / prev) / 100 : null;
+    const rawPct = prev && prev > 0 ? Math.round((10000 * (latest - prev)) / prev) / 100 : null;
+    const changePct = rawPct !== null && Math.abs(rawPct) <= WIDGET_MAX_ABS_CHANGE_PCT ? rawPct : null;
     return {
       productSlug:  r.productSlug,
       productName:  r.productName,

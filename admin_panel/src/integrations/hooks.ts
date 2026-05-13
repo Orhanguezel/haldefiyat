@@ -96,6 +96,13 @@ export {
 export { useListEtlLogsAdminQuery } from "@/integrations/endpoints/etl-logs-admin-endpoints";
 
 export {
+  useListCompetitorSitesAdminQuery,
+  useGetCompetitorHistoryAdminQuery,
+  useRunCompetitorCheckAdminMutation,
+  useToggleCompetitorSiteAdminMutation,
+} from "@/integrations/endpoints/competitor-monitor-admin-endpoints";
+
+export {
   useListProductionAdminQuery,
   useGetProductionAdminQuery,
   useCreateProductionAdminMutation,

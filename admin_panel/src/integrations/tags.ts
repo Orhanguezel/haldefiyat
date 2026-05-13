@@ -210,6 +210,8 @@ export const tags = [
   'Alerts',
   'EtlLogs',
   'Production',
+  'CompetitorSites',
+  'CompetitorSnapshots',
 ] as const;
 
 export type tag = typeof tags[number];

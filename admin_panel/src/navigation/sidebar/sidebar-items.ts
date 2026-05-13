@@ -18,6 +18,7 @@ import {
   Package,
   Send,
   Settings,
+  TrendingUp,
   Users,
   type LucideIcon,
 } from 'lucide-react';
@@ -95,6 +96,7 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
       { key: 'hf_products', url: '/admin/hf-products', icon: FileText },
       { key: 'markets', url: '/admin/markets', icon: Building2 },
       { key: 'etl_logs', url: '/admin/etl-logs', icon: Database },
+      { key: 'competitor_monitor', url: '/admin/competitor-monitor', icon: TrendingUp },
     ],
   },
   {
@@ -166,6 +168,7 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   hf_products: 'Urunler',
   markets: 'Haller',
   etl_logs: 'ETL Loglari',
+  competitor_monitor: 'Rakip İzleme',
   alerts: 'Uyari Listesi',
   production: 'Yillik Uretim',
   custom_pages: 'Sayfalar',
