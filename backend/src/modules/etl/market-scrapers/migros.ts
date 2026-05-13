@@ -88,12 +88,13 @@ export interface MigrosEtlResult {
   inserted: number;
   skipped: number;
   unmatched: number;
+  unmatchedNames: string[];
   errors: string[];
 }
 
 export async function runMigrosEtl(targetDate?: string): Promise<MigrosEtlResult> {
   const recordedDate = targetDate ?? new Date().toISOString().slice(0, 10);
-  const result: MigrosEtlResult = { inserted: 0, skipped: 0, unmatched: 0, errors: [] };
+  const result: MigrosEtlResult = { inserted: 0, skipped: 0, unmatched: 0, unmatchedNames: [], errors: [] };
 
   // Collect all products across pages
   const allProducts: MigrosProduct[] = [];
@@ -126,6 +127,7 @@ export async function runMigrosEtl(targetDate?: string): Promise<MigrosEtlResult
     const productId = await resolveMigrosProductId(p.nameRaw);
     if (productId === null) {
       result.unmatched++;
+      result.unmatchedNames.push(p.nameRaw);
       continue;
     }
 
