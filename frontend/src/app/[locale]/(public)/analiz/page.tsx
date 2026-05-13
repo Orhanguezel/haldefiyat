@@ -50,27 +50,27 @@ export default async function AnalizPage({ params }: Props) {
   } satisfies Record<string, unknown>;
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-16 space-y-10">
+    <main className="mx-auto max-w-[1400px] px-8 py-12 space-y-10">
       <JsonLd type="Dataset" data={itemListSchema} />
       <Breadcrumb items={[
         { name: "Anasayfa", href: "/" },
         { name: "Analiz", href: "/analiz" },
       ]} />
 
-      <header>
+      <header className="max-w-3xl">
         <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-brand mb-2">
           Haftalık Raporlar & Trend Analizleri
         </p>
         <h1 className="font-display text-4xl font-bold text-foreground mb-4">
           Hal Fiyatı Analizleri
         </h1>
-        <p className="text-lg text-muted leading-relaxed max-w-2xl">
+        <p className="text-lg text-muted leading-relaxed">
           Türkiye'nin 28+ toptancı halinden derlenen verilere dayalı haftalık fiyat raporları,
           mevsimsel trend analizleri ve HaldeFiyat Endeksi yorumları.
         </p>
       </header>
 
-      <ul className="space-y-6" role="list">
+      <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
         {makaleler.map((m) => (
           <li key={m.slug}>
             <Link
