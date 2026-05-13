@@ -21,13 +21,13 @@ const MIGROS_BASE = "https://www.migros.com.tr/sebze-meyve-c-2";
 const CHAIN_SLUG = "migros";
 const MAX_PAGES = 10; // 300 ürün üst sınır
 
-interface MigrosProduct {
+export interface MigrosProduct {
   nameRaw: string;
   price: number;
   url: string;
 }
 
-function parseJsonLd(html: string): MigrosProduct[] {
+export function parseMigrosJsonLd(html: string): MigrosProduct[] {
   const results: MigrosProduct[] = [];
   const re = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
   let m: RegExpExecArray | null;
@@ -63,7 +63,7 @@ async function scrapePageHtml(page: number): Promise<string | null> {
   return result.html;
 }
 
-async function resolveProductId(nameRaw: string): Promise<number | null> {
+export async function resolveMigrosProductId(nameRaw: string): Promise<number | null> {
   const aliasMap = await getAliasMap();
   // Migros ürün adları bazen " Kg" veya birim ifadesi içerir — temizle
   const cleaned = nameRaw
@@ -103,7 +103,7 @@ export async function runMigrosEtl(targetDate?: string): Promise<MigrosEtlResult
       if (page === 1) result.errors.push("Sayfa 1 alınamadı — scraper yanıt vermedi");
       break;
     }
-    const found = parseJsonLd(html);
+    const found = parseMigrosJsonLd(html);
     if (found.length === 0) break; // boş sayfa = son sayfa
     allProducts.push(...found);
     if (found.length < 30) break; // son sayfa kısa geldi
@@ -123,7 +123,7 @@ export async function runMigrosEtl(targetDate?: string): Promise<MigrosEtlResult
   }
 
   for (const p of deduped.values()) {
-    const productId = await resolveProductId(p.nameRaw);
+    const productId = await resolveMigrosProductId(p.nameRaw);
     if (productId === null) {
       result.unmatched++;
       continue;
