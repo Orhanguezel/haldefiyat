@@ -2,6 +2,12 @@
 
 Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif Hatirlatmalar bolumunde `Today's date` ile karsilastir, vakti gelmis maddeleri kullaniciya proaktif olarak hatirlat.
 
+> **➡️ Sonraki oturumda yapilacak isler:** [`KALAN-ISLER.md`](./KALAN-ISLER.md)
+>
+> Hizli baslangic siralamasi: #60 (changePct dogrulama) → #62 (competitor admin
+> UI) → #34 (Turkiye haritasi) → #41 (embed widget). Diger acik isler ve
+> beklemeler bu dosyada kategorize.
+
 ---
 
 ## ⚡ ÖNCE BUNU ÇALIŞTIR (her oturum başında)
