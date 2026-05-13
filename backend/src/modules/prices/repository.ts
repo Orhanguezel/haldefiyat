@@ -394,6 +394,9 @@ type Obs = { productId: number; marketId: number; avgPrice: string; recordedDate
 const TREND_MAX_ABS_CHANGE_PCT = 150;
 const WIDGET_MAX_ABS_CHANGE_PCT = 150;
 
+// Ulusal/aggregate kaynaklar trending'e dahil edilmez — gün içi varyans çok yüksek
+const TRENDING_EXCLUDE_SLUGS = new Set(["ulusal-hal-gov-tr"]);
+
 export async function trendingChanges(limit = 10) {
   const rows = await db
     .select({
@@ -401,12 +404,17 @@ export async function trendingChanges(limit = 10) {
       marketId:     hfPriceHistory.marketId,
       avgPrice:     hfPriceHistory.avgPrice,
       recordedDate: hfPriceHistory.recordedDate,
+      marketSlug:   hfMarkets.slug,
     })
     .from(hfPriceHistory)
+    .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
     .where(gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 14 DAY)`));
 
   const byKey = new Map<string, Obs[]>();
   for (const r of rows) {
+    // Çok gürültülü aggregate kaynakları trending hesabından çıkar
+    if (TRENDING_EXCLUDE_SLUGS.has(r.marketSlug)) continue;
+
     const k = `${r.productId}:${r.marketId}`;
     if (!byKey.has(k)) byKey.set(k, []);
     const rd = r.recordedDate instanceof Date
