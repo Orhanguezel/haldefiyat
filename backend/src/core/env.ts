@@ -96,6 +96,8 @@ export const env = {
     competitorSchedule: process.env.COMPETITOR_CRON_SCHEDULE || "0 7 * * 1",
     // Telegram kanal günlük paylaşımı — her gün 08:00 UTC = 11:00 TRT (ETL bittikten sonra)
     channelPublishSchedule: process.env.CHANNEL_PUBLISH_CRON_SCHEDULE || "0 8 * * *",
+    // Migros perakende fiyat ETL — her gün 09:00 UTC = 12:00 TRT (hal ETL sonrası, kanal paylaşımı sonrası)
+    migrosSchedule: process.env.MIGROS_CRON_SCHEDULE || "0 9 * * *",
     maxDateFallbackDays: parseEnvInt(process.env.ETL_MAX_DATE_FALLBACK_DAYS, 7),
     autoRegisterProducts: (process.env.ETL_AUTO_REGISTER_PRODUCTS ?? "true").toLowerCase() === "true",
     requestTimeoutMs: parseEnvInt(process.env.ETL_REQUEST_TIMEOUT_MS, 30_000),

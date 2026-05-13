@@ -1,6 +1,7 @@
 import * as cron from "node-cron";
 import type { FastifyInstance } from "fastify";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
+import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import { checkAndNotifyEtlHealth } from "@/modules/etl/health";
 import { runCompetitorCheck } from "@/modules/competitor-monitor";
 import { publishDailyReport } from "@/modules/telegram-channel/publisher";
@@ -34,6 +35,8 @@ export function startCron(app: FastifyInstance): void {
     { name: "competitor-monitor", schedule: env.ETL.competitorSchedule,  handler: () => runCompetitorJob(app) },
     // Telegram kanal günlük paylaşımı — 08:00 UTC = 11:00 TRT
     { name: "channel-publish",    schedule: env.ETL.channelPublishSchedule, handler: () => runChannelPublishJob(app) },
+    // Migros perakende ETL — 09:00 UTC = 12:00 TRT
+    { name: "migros-daily",       schedule: env.ETL.migrosSchedule,        handler: () => runMigrosJob(app) },
   ];
 
   for (const t of tasks) {
@@ -172,6 +175,20 @@ async function runChannelPublishJob(app: FastifyInstance): Promise<void> {
     app.log.info("[cron:channel-publish] tamamlandı");
   } catch (err) {
     app.log.error({ err }, "[cron:channel-publish] hata");
+  }
+}
+
+async function runMigrosJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:migros] perakende ETL baslatiliyor");
+  try {
+    const result = await runMigrosEtl();
+    app.log.info(
+      { ...result, durationMs: Date.now() - t0 },
+      "[cron:migros] tamamlandi",
+    );
+  } catch (err) {
+    app.log.error({ err }, "[cron:migros] hata");
   }
 }
 
