@@ -11,6 +11,7 @@ import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceChart from "@/components/sections/PriceChart";
 import SeasonCompare from "@/components/sections/SeasonCompare";
+import RetailComparison from "@/components/sections/RetailComparison";
 import FrostRiskBanner from "@/components/sections/FrostRiskBanner";
 import PriceTable from "@/components/ui/PriceTable";
 import FavoriteButton from "@/components/ui/FavoriteButton";
@@ -191,6 +192,13 @@ export default async function UrunPage({ params }: Props) {
 
       {/* Sezon karsilastirma */}
       <SeasonCompare history={history} productName={product.nameTr} />
+
+      {/* Hal vs Market — perakende zincir karşılaştırması (varsa) */}
+      <RetailComparison
+        productSlug={slug}
+        productName={product.nameTr}
+        halAvgPrice={avgPrice}
+      />
 
       {/* Editoryal içerik — AI alıntılanabilirlik + E-E-A-T */}
       {(() => {

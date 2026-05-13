@@ -10,6 +10,7 @@ import {
   trendingChanges,
   latestRecordedDate,
   widgetPrices,
+  retailPricesByProduct,
 } from "./repository";
 import { resolveWeekRange } from "./iso-week";
 import { weeklyPriceSummary } from "./weekly";
@@ -113,6 +114,20 @@ export async function registerPrices(app: FastifyInstance) {
       const days = parseRangeToDays(q.success ? q.data.range : undefined);
       const items = await productPriceHistory(req.params.productSlug, q.success ? q.data.market : undefined, days);
       return reply.send({ items, meta: { productSlug: req.params.productSlug, rangeDays: days } });
+    },
+  );
+
+  /**
+   * GET /api/v1/prices/retail/:productSlug
+   * Ürünün son 3 gündeki perakende zincir fiyatları (Migros, A101, ...).
+   * "Tahmini perakende ~₺XX" karşılaştırması için kullanılır.
+   */
+  app.get<{ Params: { productSlug: string } }>(
+    "/prices/retail/:productSlug",
+    async (req, reply) => {
+      const items = await retailPricesByProduct(req.params.productSlug);
+      reply.header("Cache-Control", "public, max-age=600");
+      return reply.send({ items, meta: { productSlug: req.params.productSlug } });
     },
   );
 

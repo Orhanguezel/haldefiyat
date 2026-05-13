@@ -1,7 +1,7 @@
 import type { SQL } from "drizzle-orm";
 import { and, asc, desc, eq, gte, lte, sql, or, like, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
-import { hfMarkets, hfPriceHistory, hfProducts } from "@/db/schema";
+import { hfMarkets, hfPriceHistory, hfProducts, hfRetailPrices } from "@/db/schema";
 
 export function parseRangeToDays(range?: string): number {
   if (!range) return 7;
@@ -619,6 +619,34 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
       changePct,
     };
   });
+}
+
+/**
+ * Ürün slug için son 3 gündeki perakende zincir fiyatları.
+ * Bir zincirde birden fazla kayıt varsa ortalama alınır.
+ */
+export async function retailPricesByProduct(productSlug: string) {
+  const product = await db
+    .select({ id: hfProducts.id })
+    .from(hfProducts)
+    .where(and(eq(hfProducts.slug, productSlug), eq(hfProducts.isActive, 1)))
+    .limit(1);
+
+  if (!product[0]) return [];
+
+  return db
+    .select({
+      chainSlug:    hfRetailPrices.chainSlug,
+      price:        sql<string>`AVG(${hfRetailPrices.price})`,
+      unit:         hfRetailPrices.unit,
+      recordedDate: sql<string>`MAX(${hfRetailPrices.recordedDate})`,
+    })
+    .from(hfRetailPrices)
+    .where(and(
+      eq(hfRetailPrices.productId, product[0].id),
+      gte(hfRetailPrices.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 3 DAY)`),
+    ))
+    .groupBy(hfRetailPrices.chainSlug, hfRetailPrices.unit);
 }
 
 // ETL: tek satır upsert (DUPLICATE KEY UPDATE)

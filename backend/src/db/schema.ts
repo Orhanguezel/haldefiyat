@@ -185,6 +185,27 @@ export const hfAnnualEtlRuns = mysqlTable(
   (t) => [index("hf_aer_source_time").on(t.sourceApi, t.runAt)],
 );
 
+export const hfRetailPrices = mysqlTable(
+  "hf_retail_prices",
+  {
+    id:             int("id").autoincrement().primaryKey(),
+    productId:      int("product_id"),
+    chainSlug:      varchar("chain_slug", { length: 64 }).notNull(),
+    price:          decimal("price", { precision: 12, scale: 2 }).notNull(),
+    currency:       varchar("currency", { length: 8 }).notNull().default("TRY"),
+    unit:           varchar("unit", { length: 32 }).notNull().default("kg"),
+    productNameRaw: varchar("product_name_raw", { length: 255 }),
+    productUrl:     varchar("product_url", { length: 512 }),
+    recordedDate:   date("recorded_date").notNull(),
+    createdAt:      datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    uniqueIndex("hf_rp_product_chain_date_uq").on(t.productId, t.chainSlug, t.recordedDate),
+    index("hf_rp_chain_date_idx").on(t.chainSlug, t.recordedDate),
+    index("hf_rp_product_idx").on(t.productId),
+  ],
+);
+
 export const hfCompetitorSites = mysqlTable(
   "hf_competitor_sites",
   {

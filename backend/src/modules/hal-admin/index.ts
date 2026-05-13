@@ -15,6 +15,7 @@ import {
 import { loadEtlSources } from "@/config/etl-sources";
 import { loadProductionSources } from "@/config/production-sources";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
+import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import {
   runAllProductionSources,
   runSingleProductionSource,
@@ -555,6 +556,17 @@ export async function registerHalAdmin(app: FastifyInstance) {
     if (source === "all") {
       const results = await runDailyEtl(date);
       return reply.send({ ok: true, results });
+    }
+
+    if (source === "migros") {
+      const isoDate = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : undefined;
+      try {
+        const result = await runMigrosEtl(isoDate);
+        return reply.send({ ok: true, source, result });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        return reply.status(400).send({ ok: false, source, error: msg });
+      }
     }
 
     try {

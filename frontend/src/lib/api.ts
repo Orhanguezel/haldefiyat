@@ -268,6 +268,21 @@ export async function fetchPriceHistory(
   );
 }
 
+export interface RetailPriceRow {
+  chainSlug: string;
+  price: string;
+  unit: string;
+  recordedDate: string;
+}
+
+export async function fetchRetailPrices(productSlug: string): Promise<RetailPriceRow[]> {
+  return safeFetch<RetailPriceRow[]>(
+    `/prices/retail/${encodeURIComponent(productSlug)}`,
+    600,
+    [],
+  );
+}
+
 // ── Yıllık üretim ───────────────────────────────────────────────────────────
 
 export interface ProductionRow {
