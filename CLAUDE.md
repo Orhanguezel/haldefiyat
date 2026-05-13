@@ -43,6 +43,10 @@ ssh vps-vistainsaat '/root/haldefiyat-src/backend/scripts/etl-health.sh 24'
 - 2026-05-13 pilot deploy (`/var/www/releases/hal-fiyatlari-20260513-161720`)
   SUPERSEDED — rollback yapildi, klasor referans icin korunuyor. Detay:
   `tarim-dijital-ekosistem/PILOT_DEPLOY_HAL_FIYATLARI_2026-05-13.md`
+- Nginx `/etc/nginx/sites-available/haldefiyat` `/api/` location bloğunda
+  `proxy_read_timeout 180s` ayari var (5+ yil tarihce query'leri icin sigorta).
+  Backup: `/root/nginx-backups/haldefiyat.nginx.bak-20260513-185900`. Bu config
+  repo'da degil — VPS-only. Reload icin: `nginx -s reload`.
 
 ## Aktif Hatirlatmalar (TARIH ILE KONTROL ET)
 
