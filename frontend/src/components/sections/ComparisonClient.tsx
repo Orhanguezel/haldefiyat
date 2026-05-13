@@ -36,7 +36,6 @@ export default function ComparisonClient({ products, markets }: ComparisonClient
   const [selectedMarket, setSelectedMarket] = useState<string | null>(null);
   const [range, setRange] = useState<RangeKey>("30d");
   const [historiesMap, setHistoriesMap] = useState<Map<string, PriceHistoryRow[]>>(new Map());
-  const [loadingSlugs, setLoadingSlugs] = useState<Set<string>>(new Set());
 
   const productsBySlug = useMemo(
     () => new Map(products.map((p) => [p.slug, p])),
@@ -51,27 +50,24 @@ export default function ComparisonClient({ products, markets }: ComparisonClient
     [selectedSlugs, productsBySlug],
   );
 
-  // Fetch 90d history for newly selected products
+  // Fetch 90d history for newly selected products.
+  // `historiesMap`'i dependency'e koymayız: kendi içinde güncellediğimiz için
+  // effect re-trigger → cleanup → ctrl.abort() yarış durumu yaratıyor (StrictMode
+  // çift-mount). selectedSlugs tek source-of-truth; eksik slug'ları stale closure
+  // ile değil setHistoriesMap callback'inde anlık olarak filtreliyoruz.
   useEffect(() => {
-    const missing = selectedSlugs.filter(
-      (slug) => !historiesMap.has(slug) && !loadingSlugs.has(slug),
-    );
-    if (missing.length === 0) return;
+    if (selectedSlugs.length === 0) return;
 
-    setLoadingSlugs((prev) => {
-      const next = new Set(prev);
-      missing.forEach((s) => next.add(s));
-      return next;
-    });
-
-    const ctrl = new AbortController();
+    let cancelled = false;
     (async () => {
+      const slugsToFetch = selectedSlugs.filter((s) => !historiesMap.has(s));
+      if (slugsToFetch.length === 0) return;
+
       const results = await Promise.all(
-        missing.map(async (slug) => {
+        slugsToFetch.map(async (slug) => {
           try {
             const res = await fetch(
               `${API_BASE}/prices/history/${encodeURIComponent(slug)}?range=90d`,
-              { signal: ctrl.signal },
             );
             const json: unknown = await res.json();
             return [slug, unwrapHistoryArray(json)] as const;
@@ -80,19 +76,27 @@ export default function ComparisonClient({ products, markets }: ComparisonClient
           }
         }),
       );
+
+      if (cancelled) return;
       setHistoriesMap((prev) => {
         const next = new Map(prev);
-        for (const [slug, rows] of results) next.set(slug, rows);
-        return next;
-      });
-      setLoadingSlugs((prev) => {
-        const next = new Set(prev);
-        missing.forEach((s) => next.delete(s));
+        for (const [slug, rows] of results) {
+          if (!next.has(slug)) next.set(slug, rows);
+        }
         return next;
       });
     })();
-    return () => ctrl.abort();
-  }, [selectedSlugs, historiesMap, loadingSlugs]);
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSlugs]);
+
+  const loadingSlugs = useMemo(
+    () => selectedSlugs.filter((s) => !historiesMap.has(s)),
+    [selectedSlugs, historiesMap],
+  );
 
   const rangeDays = RANGES.find((r) => r.key === range)?.days ?? 30;
 
@@ -118,7 +122,7 @@ export default function ComparisonClient({ products, markets }: ComparisonClient
 
   const handleClearAll = () => setSelectedSlugs([]);
 
-  const isLoading = loadingSlugs.size > 0;
+  const isLoading = loadingSlugs.length > 0;
 
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-6 py-10 md:px-8 md:py-14">
