@@ -4,7 +4,7 @@ SET time_zone = '+00:00';
 DROP TABLE IF EXISTS `site_settings`;
 
 CREATE TABLE `site_settings` (
-  `id` CHAR(36) NOT NULL,
+  `id` VARCHAR(64) NOT NULL,
   `key` VARCHAR(100) NOT NULL,
   `locale` VARCHAR(8) NOT NULL DEFAULT '*',
   `value` MEDIUMTEXT NOT NULL,

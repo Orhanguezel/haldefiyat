@@ -4,6 +4,10 @@
 
 Çiftçiye, tüccara ve sektör oyuncularına günlük hal ve piyasa fiyatı takibi sunan tarım veri platformu. Tarım Dijital Ekosistemi'nin merkezi fiyat veri servisi olarak diğer ekosistem projelerine REST API ile fiyat bilgisi sağlar.
 
+## Canlı Erişim Notu
+
+Canlı servis `vps-vistainsaat` sunucusundadır. SSH erişimi key ile yapılır: `ssh vps-vistainsaat`.
+
 ## Tech Stack
 
 - **Backend:** Fastify 5 · TypeScript · Drizzle ORM · MySQL · Bun (port 8088)
@@ -53,7 +57,7 @@ bun run dev
 cd projects/hal-fiyatlari/frontend && bun run dev
 ```
 
-## Deploy (VPS: 187.124.166.65)
+## Deploy (`vps-vistainsaat`)
 
 ```
 Backend:   PM2 haldefiyat-backend  → bun dist/index.js (port 8088)

@@ -56,26 +56,6 @@ ssh vps-vistainsaat '/root/haldefiyat-src/backend/scripts/etl-health.sh 24'
 
 ## Aktif Hatirlatmalar (TARIH ILE KONTROL ET)
 
-### 🔔 2026-05-13+ — Wayback Machine geri gelince Migros tarihçesi çek
-**Durum:** Internet Archive cyberattack sonrası geçici offline (2026-05-13).
-
-**Yapilacak (Wayback geri gelince):**
-```bash
-ssh vps-vistainsaat 'cd /root/haldefiyat-src/backend && bun scripts/wayback-migros-backfill.ts --dry-run'
-# Çıktı OK ise:
-ssh vps-vistainsaat 'cd /root/haldefiyat-src/backend && bun scripts/wayback-migros-backfill.ts'
-# Özel aralık:
-# bun scripts/wayback-migros-backfill.ts --from 2024-01-01 --to 2025-12-31
-```
-
-**Test edilebilir mi diye periyodik kontrol:**
-```bash
-curl -s -o /dev/null -w "%{http_code}\n" "https://web.archive.org/cdx/search/cdx?url=migros.com.tr&limit=1"
-# 200 dönerse online, başka bir şey dönerse hala offline
-```
-
-Snapshot başına ~30 ürün beklentisi (Migros sebze-meyve sayfası tek pagination), ayda 1-3 snapshot tipik. Idempotent — istediğin kadar çalıştırabilirsin.
-
 ### 🔔 2026-05-09 civari — Scrapling entegrasyon ilk hafta gozlem
 **Yapilacak:** hf_etl_runs tablosunda Scrapling source'larin (antkomder x3, kayseri) basari oranini izle:
 ```bash

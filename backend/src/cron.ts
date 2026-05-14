@@ -2,6 +2,7 @@ import * as cron from "node-cron";
 import type { FastifyInstance } from "fastify";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
 import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
+import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
 import { checkWaybackAndNotify } from "@/modules/wayback-monitor";
 import { checkAndNotifyEtlHealth } from "@/modules/etl/health";
 import { runCompetitorCheck } from "@/modules/competitor-monitor";
@@ -39,6 +40,8 @@ export function startCron(app: FastifyInstance): void {
     { name: "channel-publish",    schedule: env.ETL.channelPublishSchedule, handler: () => runChannelPublishJob(app) },
     // Migros perakende ETL — 09:00 UTC = 12:00 TRT
     { name: "migros-daily",       schedule: env.ETL.migrosSchedule,        handler: () => runMigrosJob(app) },
+    // marketfiyati.org.tr çoklu zincir ETL — 09:30 UTC = 12:30 TRT
+    { name: "marketfiyati-daily", schedule: env.ETL.marketfiyatiSchedule,  handler: () => runMarketfiyatiJob(app) },
     // Wayback Machine probe — 6 saatte bir; online dönünce tek Telegram bildirimi
     { name: "wayback-monitor",    schedule: env.ETL.waybackMonitorSchedule, handler: () => runWaybackMonitorJob(app) },
     // Haftalik mail bulten — pazartesi 06:00 UTC = 09:00 TRT
@@ -195,6 +198,20 @@ async function runMigrosJob(app: FastifyInstance): Promise<void> {
     );
   } catch (err) {
     app.log.error({ err }, "[cron:migros] hata");
+  }
+}
+
+async function runMarketfiyatiJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:marketfiyati] coklu zincir ETL baslatiliyor");
+  try {
+    const result = await runMarketfiyatiEtl();
+    app.log.info(
+      { ...result, durationMs: Date.now() - t0 },
+      "[cron:marketfiyati] tamamlandi",
+    );
+  } catch (err) {
+    app.log.error({ err }, "[cron:marketfiyati] hata");
   }
 }
 
