@@ -51,6 +51,26 @@ export interface Market {
   sourceKey: string | null;
 }
 
+export interface CityPriceMapItem {
+  cityName: string;
+  avgPrice: number;
+  minPrice: number;
+  maxPrice: number;
+  marketCount: number;
+  productCount: number;
+  observationCount: number;
+  latestRecordedDate: string;
+}
+
+export interface CityPriceMapResponse {
+  items: CityPriceMapItem[];
+  meta: {
+    rangeDays: number;
+    product: string | null;
+    category: string | null;
+  };
+}
+
 export interface TrendingItem {
   productId: number;
   marketId: number;
@@ -250,6 +270,28 @@ export async function fetchMarkets(city?: string): Promise<Market[]> {
   return safeFetch<Market[]>(`/prices/markets${qs}`, 300, []);
 }
 
+export async function fetchCityPriceMap(params: {
+  product?: string;
+  category?: string;
+  range?: string;
+} = {}): Promise<CityPriceMapResponse> {
+  const qs = buildQuery({
+    product: params.product,
+    category: params.category,
+    range: params.range,
+  });
+  return safeFetchRaw<CityPriceMapResponse>(
+    `/prices/city-map${qs}`,
+    300,
+    { items: [], meta: { rangeDays: Math.min(30, parseRangeToDaysFallback(params.range)), product: params.product ?? null, category: params.category ?? null } },
+  );
+}
+
+function parseRangeToDaysFallback(range?: string): number {
+  const m = /^(\d+)d$/.exec(range ?? "");
+  return m ? Math.max(1, Number(m[1])) : 7;
+}
+
 export async function fetchTrending(limit?: number): Promise<TrendingItem[]> {
   const qs = buildQuery({ limit });
   return safeFetch<TrendingItem[]>(`/prices/trending${qs}`, 60, []);
@@ -293,6 +335,20 @@ export interface WidgetPrice {
   yoyChangePct: number | null;
 }
 
+export interface AutoWeeklyReport {
+  slug: string;
+  baslik: string;
+  ozet: string;
+  icerik: string;
+  yazar: string;
+  tarih: string;
+  etiketler: string[];
+  hafta?: string;
+  weekStart: string;
+  weekEnd: string;
+  totalRecords: number;
+}
+
 export async function fetchWidget(params: { slugs?: string[]; category?: string; limit?: number }): Promise<WidgetPrice[]> {
   const qs = buildQuery({
     slugs: params.slugs?.join(","),
@@ -300,6 +356,19 @@ export async function fetchWidget(params: { slugs?: string[]; category?: string;
     limit: params.limit,
   });
   return safeFetch<WidgetPrice[]>(`/prices/widget${qs}`, 300, []);
+}
+
+export async function fetchAutoWeeklyReports(limit = 8): Promise<AutoWeeklyReport[]> {
+  const qs = buildQuery({ limit });
+  return safeFetch<AutoWeeklyReport[]>(`/analysis/weekly-reports${qs}`, 300, []);
+}
+
+export async function fetchAutoWeeklyReport(slug: string): Promise<AutoWeeklyReport | null> {
+  return safeFetch<AutoWeeklyReport | null>(
+    `/analysis/weekly-reports/${encodeURIComponent(slug)}`,
+    300,
+    null,
+  );
 }
 
 // ── Yıllık üretim ───────────────────────────────────────────────────────────

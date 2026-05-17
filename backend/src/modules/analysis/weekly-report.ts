@@ -1,0 +1,445 @@
+import type { FastifyInstance } from "fastify";
+import { and, desc, eq } from "drizzle-orm";
+import { z } from "zod";
+import { db } from "@/db/client";
+import { hfAnalysisReports } from "@/db/schema";
+import { repoGetSnapshotHistory } from "@/modules/index/repository";
+import { resolveWeekRange } from "@/modules/prices/iso-week";
+import { weeklyPriceSummary, type WeeklySummary } from "@/modules/prices/weekly";
+
+export type AutoWeeklyReport = {
+  slug: string;
+  baslik: string;
+  ozet: string;
+  icerik: string;
+  yazar: string;
+  tarih: string;
+  etiketler: string[];
+  hafta: string;
+  weekStart: string;
+  weekEnd: string;
+  totalRecords: number;
+};
+
+type AnalysisReportStatus = "draft" | "published" | "archived";
+
+const qList = z.object({
+  limit: z.coerce.number().optional(),
+});
+
+const qAdminList = z.object({
+  status: z.enum(["draft", "published", "archived", "all"]).optional(),
+  limit: z.coerce.number().optional(),
+});
+
+const bodyGenerate = z.object({
+  week: z.string().regex(/^\d{4}-\d{2}$/).optional(),
+});
+
+const bodyPatch = z.object({
+  title: z.string().trim().min(3).max(500).optional(),
+  summary: z.string().trim().min(10).optional(),
+  content: z.string().trim().min(20).optional(),
+  tags: z.array(z.string().trim().min(1).max(80)).max(12).optional(),
+  status: z.enum(["draft", "published", "archived"]).optional(),
+});
+
+const MONTH_SLUGS = [
+  "ocak",
+  "subat",
+  "mart",
+  "nisan",
+  "mayis",
+  "haziran",
+  "temmuz",
+  "agustos",
+  "eylul",
+  "ekim",
+  "kasim",
+  "aralik",
+];
+
+const MONTH_LABELS = [
+  "Ocak",
+  "Şubat",
+  "Mart",
+  "Nisan",
+  "Mayıs",
+  "Haziran",
+  "Temmuz",
+  "Ağustos",
+  "Eylül",
+  "Ekim",
+  "Kasım",
+  "Aralık",
+];
+
+export async function registerAnalysis(app: FastifyInstance) {
+  app.get("/analysis/weekly-reports", async (req, reply) => {
+    const parsed = qList.safeParse(req.query);
+    const limit = Math.min(12, Math.max(1, parsed.success ? (parsed.data.limit ?? 8) : 8));
+    const items = await listPublishedWeeklyReports(limit);
+    reply.header("Cache-Control", "public, max-age=300, s-maxage=300");
+    return reply.send({ items });
+  });
+
+  app.get<{ Params: { slug: string } }>("/analysis/weekly-reports/:slug", async (req, reply) => {
+    const report = await getPublishedWeeklyReport(req.params.slug);
+    if (!report) return reply.status(404).send({ error: "Rapor bulunamadi" });
+    reply.header("Cache-Control", "public, max-age=300, s-maxage=300");
+    return reply.send({ data: report });
+  });
+}
+
+export async function registerAnalysisAdmin(app: FastifyInstance) {
+  app.get("/analysis/reports", async (req, reply) => {
+    const parsed = qAdminList.safeParse(req.query);
+    const status = parsed.success ? parsed.data.status : undefined;
+    const limit = Math.min(100, Math.max(1, parsed.success ? (parsed.data.limit ?? 40) : 40));
+    const rows = await listAdminReports(status, limit);
+    return reply.send({ items: rows.map(reportRowToAdmin) });
+  });
+
+  app.post("/analysis/reports/generate", async (req, reply) => {
+    const parsed = bodyGenerate.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz hafta formati" });
+    const report = await persistWeeklyReport(parsed.data.week);
+    if (!report) return reply.status(422).send({ error: "Bu hafta icin yeterli fiyat kaydi yok" });
+    return reply.send({ data: reportRowToAdmin(report) });
+  });
+
+  app.get<{ Params: { id: string } }>("/analysis/reports/:id", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return reply.status(400).send({ error: "Gecersiz id" });
+    const [row] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.id, id)).limit(1);
+    if (!row) return reply.status(404).send({ error: "Rapor bulunamadi" });
+    return reply.send({ data: reportRowToAdmin(row) });
+  });
+
+  app.patch<{ Params: { id: string } }>("/analysis/reports/:id", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return reply.status(400).send({ error: "Gecersiz id" });
+    const parsed = bodyPatch.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz rapor alani" });
+
+    const next = parsed.data;
+    const patch: Partial<typeof hfAnalysisReports.$inferInsert> = {};
+    if (next.title !== undefined) patch.title = next.title;
+    if (next.summary !== undefined) patch.summary = next.summary;
+    if (next.content !== undefined) patch.content = next.content;
+    if (next.tags !== undefined) patch.tags = next.tags;
+    if (next.status !== undefined) {
+      patch.status = next.status;
+      patch.publishedAt = next.status === "published" ? new Date() : null;
+    }
+
+    if (Object.keys(patch).length === 0) return reply.status(400).send({ error: "Guncellenecek alan yok" });
+    await db.update(hfAnalysisReports).set(patch).where(eq(hfAnalysisReports.id, id));
+
+    const [row] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.id, id)).limit(1);
+    if (!row) return reply.status(404).send({ error: "Rapor bulunamadi" });
+    return reply.send({ data: reportRowToAdmin(row) });
+  });
+
+  app.post<{ Params: { id: string } }>("/analysis/reports/:id/publish", async (req, reply) => {
+    const row = await setReportStatus(req.params.id, "published");
+    if (!row) return reply.status(404).send({ error: "Rapor bulunamadi" });
+    return reply.send({ data: reportRowToAdmin(row) });
+  });
+
+  app.post<{ Params: { id: string } }>("/analysis/reports/:id/archive", async (req, reply) => {
+    const row = await setReportStatus(req.params.id, "archived");
+    if (!row) return reply.status(404).send({ error: "Rapor bulunamadi" });
+    return reply.send({ data: reportRowToAdmin(row) });
+  });
+
+  app.post<{ Params: { id: string } }>("/analysis/reports/:id/draft", async (req, reply) => {
+    const row = await setReportStatus(req.params.id, "draft");
+    if (!row) return reply.status(404).send({ error: "Rapor bulunamadi" });
+    return reply.send({ data: reportRowToAdmin(row) });
+  });
+}
+
+export async function generateLatestWeeklyAnalysisReport(): Promise<AutoWeeklyReport | null> {
+  const row = await persistWeeklyReport();
+  return row ? reportRowToPublic(row) : null;
+}
+
+async function listPublishedWeeklyReports(limit: number): Promise<AutoWeeklyReport[]> {
+  const rows = await db
+    .select()
+    .from(hfAnalysisReports)
+    .where(eq(hfAnalysisReports.status, "published"))
+    .orderBy(desc(hfAnalysisReports.reportDate))
+    .limit(limit);
+  return rows.map(reportRowToPublic);
+}
+
+async function getPublishedWeeklyReport(slug: string): Promise<AutoWeeklyReport | null> {
+  const [row] = await db
+    .select()
+    .from(hfAnalysisReports)
+    .where(and(eq(hfAnalysisReports.slug, slug), eq(hfAnalysisReports.status, "published")))
+    .limit(1);
+  return row ? reportRowToPublic(row) : null;
+}
+
+async function listAdminReports(status: "draft" | "published" | "archived" | "all" | undefined, limit: number) {
+  const query = db.select().from(hfAnalysisReports);
+  if (status && status !== "all") {
+    return query.where(eq(hfAnalysisReports.status, status)).orderBy(desc(hfAnalysisReports.reportDate)).limit(limit);
+  }
+  return query.orderBy(desc(hfAnalysisReports.reportDate)).limit(limit);
+}
+
+async function persistWeeklyReport(week?: string) {
+  const { isoWeek } = resolveWeekRange(week);
+  const generated = await generateWeeklyReport(isoWeek);
+  if (!generated) return null;
+
+  const [existing] = await db
+    .select()
+    .from(hfAnalysisReports)
+    .where(eq(hfAnalysisReports.slug, generated.slug))
+    .limit(1);
+
+  if (existing?.status === "published") return existing;
+
+  const values = {
+    slug: generated.slug,
+    title: generated.baslik,
+    summary: generated.ozet,
+    content: generated.icerik,
+    author: generated.yazar,
+    tags: generated.etiketler,
+    isoWeek: generated.hafta,
+    weekStart: dateFromIso(generated.weekStart),
+    weekEnd: dateFromIso(generated.weekEnd),
+    reportDate: dateFromIso(generated.tarih),
+    source: "auto" as const,
+    status: "draft" as const,
+    totalRecords: generated.totalRecords,
+    publishedAt: null,
+  };
+
+  if (existing) {
+    await db.update(hfAnalysisReports).set(values).where(eq(hfAnalysisReports.id, existing.id));
+    const [updated] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.id, existing.id)).limit(1);
+    return updated ?? existing;
+  }
+
+  await db.insert(hfAnalysisReports).values(values);
+  const [created] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.slug, generated.slug)).limit(1);
+  return created ?? null;
+}
+
+async function generateWeeklyReport(week: string): Promise<AutoWeeklyReport | null> {
+  const { weekStart, weekEnd, isoWeek } = resolveWeekRange(week);
+  const summary = await weeklyPriceSummary(weekStart, weekEnd);
+  if (summary.totalRecords < 10) return null;
+
+  const indexHistory = await repoGetSnapshotHistory(26);
+  const index = indexHistory.find((row) => row.indexWeek === isoWeek);
+  const prevIndex = index
+    ? indexHistory.slice(0, indexHistory.findIndex((row) => row.indexWeek === isoWeek)).at(-1)
+    : null;
+
+  const date = weekEnd;
+  const slug = slugForWeek(weekStart);
+  const titleProduct = summary.topFallers[0]?.productName || summary.topRisers[0]?.productName || "Hal Fiyatları";
+  const movement = summary.topFallers[0] ?? summary.topRisers[0] ?? null;
+  const movementText = movement
+    ? `${titleProduct} ${movement.changePct < 0 ? "fiyatlarında düşüş" : "fiyatlarında artış"}`
+    : "hal fiyatlarında haftalık görünüm";
+
+  return {
+    slug,
+    baslik: `${monthLabel(weekStart)} ${weekOfMonthLabel(weekStart)} Hafta Hal Raporu: ${capitalizeSentence(movementText)}`,
+    ozet: buildSummary(summary, index, prevIndex),
+    icerik: buildContent(summary, index, prevIndex),
+    yazar: "HaldeFiyat Veri Ekibi",
+    tarih: date,
+    hafta: isoWeek,
+    weekStart,
+    weekEnd,
+    totalRecords: summary.totalRecords,
+    etiketler: buildTags(summary),
+  };
+}
+
+async function setReportStatus(idRaw: string, status: AnalysisReportStatus) {
+  const id = Number(idRaw);
+  if (!Number.isFinite(id)) return null;
+  await db
+    .update(hfAnalysisReports)
+    .set({ status, publishedAt: status === "published" ? new Date() : null })
+    .where(eq(hfAnalysisReports.id, id));
+  const [row] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.id, id)).limit(1);
+  return row ?? null;
+}
+
+function reportRowToPublic(row: typeof hfAnalysisReports.$inferSelect): AutoWeeklyReport {
+  return {
+    slug: row.slug,
+    baslik: row.title,
+    ozet: row.summary,
+    icerik: row.content,
+    yazar: row.author,
+    tarih: toDateOnly(row.reportDate),
+    etiketler: Array.isArray(row.tags) ? row.tags : [],
+    hafta: row.isoWeek,
+    weekStart: toDateOnly(row.weekStart),
+    weekEnd: toDateOnly(row.weekEnd),
+    totalRecords: row.totalRecords,
+  };
+}
+
+function reportRowToAdmin(row: typeof hfAnalysisReports.$inferSelect) {
+  return {
+    id: row.id,
+    ...reportRowToPublic(row),
+    source: row.source,
+    status: row.status,
+    publishedAt: row.publishedAt ? row.publishedAt.toISOString() : null,
+    createdAt: row.createdAt ? row.createdAt.toISOString() : null,
+    updatedAt: row.updatedAt ? row.updatedAt.toISOString() : null,
+  };
+}
+
+function dateFromIso(value: string): Date {
+  return new Date(`${value}T12:00:00Z`);
+}
+
+function toDateOnly(value: Date | string): string {
+  if (typeof value === "string") return value.slice(0, 10);
+  return value.toISOString().slice(0, 10);
+}
+
+function buildSummary(summary: WeeklySummary, index: any, prevIndex: any): string {
+  const riser = summary.topRisers[0];
+  const faller = summary.topFallers[0];
+  const indexText = index
+    ? `HaldeFiyat Endeksi haftayı ${Number(index.indexValue).toFixed(2)} puanda kapattı.`
+    : "HaldeFiyat Endeksi için bu haftaya ait hesap bekleniyor.";
+  const fallerText = faller ? `${faller.productName} ${fmtPct(faller.changePct)} geriledi` : "düşüş tarafında belirgin veri oluşmadı";
+  const riserText = riser ? `${riser.productName} ${fmtPct(riser.changePct)} yükseldi` : "artış tarafında belirgin veri oluşmadı";
+  void prevIndex;
+  return `${summary.weekStart} - ${summary.weekEnd} haftasında ${fallerText}; ${riserText}. ${indexText}`;
+}
+
+function buildContent(summary: WeeklySummary, index: any, prevIndex: any): string {
+  const risers = summary.topRisers.slice(0, 3);
+  const fallers = summary.topFallers.slice(0, 3);
+  const categoryRows = Object.entries(summary.avgByCategory)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4);
+
+  const indexParagraph = index
+    ? `HaldeFiyat Endeksi bu haftayı ${Number(index.indexValue).toFixed(2)} puanda tamamladı.${prevIndex ? ` Bir önceki hesaplanan hafta ${Number(prevIndex.indexValue).toFixed(2)} puandaydı.` : ""} Sepet ortalaması ${Number(index.basketAvg).toFixed(2)} TL/kg olarak ölçüldü.`
+    : "Bu hafta için endeks hesaplaması henüz oluşmadı; fiyat hareketleri ürün ve hal bazlı kayıtlar üzerinden yorumlandı.";
+
+  const fallerParagraph = fallers.length
+    ? fallers.map((m) => `${m.productName} (${m.marketName}) ${fmtPrice(m.previousAvg)} seviyesinden ${fmtPrice(m.latestAvg)} seviyesine indi; haftalık değişim ${fmtPct(m.changePct)}.`).join(" ")
+    : "Düşüş tarafında istatistiksel olarak öne çıkan güçlü bir ürün/hal çifti oluşmadı.";
+
+  const riserParagraph = risers.length
+    ? risers.map((m) => `${m.productName} (${m.marketName}) ${fmtPrice(m.previousAvg)} seviyesinden ${fmtPrice(m.latestAvg)} seviyesine çıktı; haftalık değişim ${fmtPct(m.changePct)}.`).join(" ")
+    : "Artış tarafında istatistiksel olarak öne çıkan güçlü bir ürün/hal çifti oluşmadı.";
+
+  const categoryParagraph = categoryRows.length
+    ? categoryRows.map(([cat, avg]) => `${cat}: ${fmtPrice(avg)}`).join(", ")
+    : "Kategori bazlı ortalama üretmek için yeterli veri oluşmadı.";
+
+  return `Türkiye genelindeki aktif hal kayıtlarından derlenen ${summary.weekStart} - ${summary.weekEnd} haftası verileri, ürün bazlı fiyat hareketlerinin farklı yönlere ayrıldığını gösteriyor. Bu raporda ${summary.totalRecords} fiyat kaydı üzerinden haftalık hareketler, kategori ortalamaları ve endeks görünümü özetlenmiştir.
+
+**Haftanın Endeks Görünümü**
+
+${indexParagraph}
+
+**Fiyatı Düşen Ürünler**
+
+${fallerParagraph}
+
+**Fiyatı Yükselen Ürünler**
+
+${riserParagraph}
+
+**Kategori Ortalamaları**
+
+Bu haftanın kategori bazlı ortalama fiyat görünümü şöyle: ${categoryParagraph}. Bu değerler farklı ürün ve hallerin ağırlıksız ortalamasıdır; tek bir ürün fiyatı gibi yorumlanmamalıdır.
+
+**Önümüzdeki Hafta İçin Takip Başlıkları**
+
+Önümüzdeki hafta özellikle hızlı değişim gösteren ürünlerde yeni arz girişleri, hava koşulları ve büyük tüketim merkezleri ile üretim bölgeleri arasındaki fiyat farkı izlenmelidir. Günlük min, max ve ortalama fiyatlar için HaldeFiyat fiyat tablosu ve ürün detay grafikleri kullanılabilir.`;
+}
+
+function buildTags(summary: WeeklySummary): string[] {
+  const tags = ["haftalık rapor", "hal fiyatları", "endeks"];
+  for (const item of [...summary.topFallers, ...summary.topRisers].slice(0, 4)) {
+    if (item.productName) tags.push(item.productName.toLocaleLowerCase("tr-TR"));
+  }
+  return [...new Set(tags)].slice(0, 8);
+}
+
+function parseWeekFromSlug(slug: string): string | null {
+  const match = /^([a-z]+)-(\d+)-hafta-(\d{4})-hal-raporu$/.exec(slug);
+  if (!match) return null;
+  const monthIdx = MONTH_SLUGS.indexOf(match[1]!);
+  const weekOfMonth = Number(match[2]);
+  const year = Number(match[3]);
+  if (monthIdx < 0 || weekOfMonth < 1 || weekOfMonth > 6 || !Number.isFinite(year)) return null;
+
+  const first = new Date(Date.UTC(year, monthIdx, 1, 12));
+  const firstDow = (first.getUTCDay() + 6) % 7;
+  const firstMonday = new Date(first);
+  firstMonday.setUTCDate(first.getUTCDate() - firstDow);
+
+  const monday = new Date(firstMonday);
+  monday.setUTCDate(firstMonday.getUTCDate() + (weekOfMonth - 1) * 7);
+  if (monday.getUTCMonth() !== monthIdx) monday.setUTCDate(monday.getUTCDate() + 7);
+  return isoWeekFromMonday(monday);
+}
+
+function slugForWeek(weekStart: string): string {
+  const d = new Date(`${weekStart}T12:00:00Z`);
+  return `${MONTH_SLUGS[d.getUTCMonth()]}-${weekOfMonth(d)}-hafta-${d.getUTCFullYear()}-hal-raporu`;
+}
+
+function weekOfMonthLabel(weekStart: string): string {
+  return `${weekOfMonth(new Date(`${weekStart}T12:00:00Z`))}.`;
+}
+
+function weekOfMonth(d: Date): number {
+  const first = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1, 12));
+  const firstDow = (first.getUTCDay() + 6) % 7;
+  return Math.floor((d.getUTCDate() + firstDow - 1) / 7) + 1;
+}
+
+function monthLabel(weekStart: string): string {
+  const d = new Date(`${weekStart}T12:00:00Z`);
+  return MONTH_LABELS[d.getUTCMonth()]!;
+}
+
+function isoWeekFromMonday(monday: Date): string {
+  const d = new Date(Date.UTC(monday.getUTCFullYear(), monday.getUTCMonth(), monday.getUTCDate()));
+  const dayNum = (d.getUTCDay() + 6) % 7;
+  d.setUTCDate(d.getUTCDate() - dayNum + 3);
+  const firstThursday = new Date(Date.UTC(d.getUTCFullYear(), 0, 4));
+  const week = 1 + Math.round(
+    ((d.getTime() - firstThursday.getTime()) / 86400000 - 3 + ((firstThursday.getUTCDay() + 6) % 7)) / 7,
+  );
+  return `${d.getUTCFullYear()}-${String(week).padStart(2, "0")}`;
+}
+
+function fmtPct(value: number): string {
+  return `%${Math.abs(value).toFixed(1)}`;
+}
+
+function fmtPrice(value: number): string {
+  return `${value.toFixed(2)} TL/kg`;
+}
+
+function capitalizeSentence(value: string): string {
+  if (!value) return value;
+  return value.charAt(0).toLocaleUpperCase("tr-TR") + value.slice(1);
+}

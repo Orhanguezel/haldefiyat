@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS hf_analysis_reports (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  slug VARCHAR(180) NOT NULL,
+  title VARCHAR(500) NOT NULL,
+  summary TEXT NOT NULL,
+  content TEXT NOT NULL,
+  author VARCHAR(128) NOT NULL DEFAULT 'HaldeFiyat Veri Ekibi',
+  tags JSON NULL,
+  iso_week VARCHAR(8) NOT NULL,
+  week_start DATE NOT NULL,
+  week_end DATE NOT NULL,
+  report_date DATE NOT NULL,
+  source ENUM('auto','manual') NOT NULL DEFAULT 'auto',
+  status ENUM('draft','published','archived') NOT NULL DEFAULT 'draft',
+  total_records INT NOT NULL DEFAULT 0,
+  published_at DATETIME(3) NULL,
+  created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  UNIQUE KEY hf_analysis_reports_slug_uq (slug),
+  KEY hf_analysis_reports_status_date_idx (status, report_date),
+  KEY hf_analysis_reports_week_idx (iso_week)
+);

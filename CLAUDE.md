@@ -15,7 +15,7 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 Bu projeye baktığında **ilk iş** ETL sağlık raporunu kontrol et:
 
 ```bash
-ssh vps-vistainsaat '/root/haldefiyat-src/backend/scripts/etl-health.sh 24'
+ssh vps-vistainsaat '/var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/backend/scripts/etl-health.sh 24'
 ```
 
 Çıktıda şunlara bak:
@@ -38,21 +38,22 @@ ssh vps-vistainsaat '/root/haldefiyat-src/backend/scripts/etl-health.sh 24'
 
 ## Repo Niteligi
 
-- Repo: `github.com/Orhanguezel/haldefiyat` (push: main)
-- VPS: vps-vistainsaat (root@srv1493379), path: `/root/haldefiyat-src/`
+- Repo: `github.com/Orhanguezel/haldefiyat` (push: main) — local git repo. **VPS git repo DEGIL** (direct dosya).
+- VPS: vps-vistainsaat (root@srv1493379), path: `/var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/` (monorepo standardi, 2026-05-14)
+- node_modules: monorepo root `/var/www/tarim-dijital-ekosistem/node_modules` (bun workspace install)
 - PM2: `hal-backend` (port 8091), `hal-frontend` (port 3033), `hal-admin` (port 3036)
   — ID'ler PM2 restart sonrasi degisir, isimle calistir (`pm2 restart hal-backend`)
 - PM2 prosesleri runtime env ile baslatildi: `BACKEND_URL=http://127.0.0.1:8091`,
   `NEXT_PUBLIC_API_URL=https://haldefiyat.com` (PM2 restart sonrasi `--update-env` gerek)
 - DB: `hal_fiyatlari` MySQL, user `haldefiyat`
 - 22+ ETL kaynak (resmi belediye + antkomder + hal.gov.tr + izmir API + batiakdeniztv + bolu)
-- 2026-05-13 pilot deploy (`/var/www/releases/hal-fiyatlari-20260513-161720`)
-  SUPERSEDED — rollback yapildi, klasor referans icin korunuyor. Detay:
-  `tarim-dijital-ekosistem/PILOT_DEPLOY_HAL_FIYATLARI_2026-05-13.md`
+- Marketfiyati ETL (2026-05-14): a101+bim+carrefour+migros+tarim_kredi via TUBITAK BILGEM API, `hf_retail_prices` tablosu
+- **Deploy akisi:** local'de duzelt → `scp` ile VPS path'ine → `cd backend && bun run build` → `pm2 reload hal-backend --update-env`
+- **Frontend sayfa genisligi standardi (2026-05-14):** Tum public sayfalar `<PageContainer>` component'ini kullanir (`frontend/src/components/layout/PageContainer.tsx`). Genislik **1400px** (`max-w-[1400px]`), padding `px-4 sm:px-6 lg:px-8`, dikey `py-12`. Tek yerden tayin: degisiklik gerekirse SADECE `PageContainer.tsx`'i duzenle. Mevcut sayfalar buna gore migrate edildi (pro, metodoloji, embed, rapor/yillik, analiz, analiz/[slug]). Yeni sayfada `<main className="...">` yerine `<PageContainer>` kullan.
+- **Codex paralel cakisma riski (2026-05-14):** Codex AI ayni codebase'te paralel calisirken benim deploy'larimi override edebilir. Ornegin /analiz PageContainer migrasyonu Codex'in lib/analiz.ts + lib/api.ts guncellemesini deploy etmesi sirasinda silindi. Onerilen: dosya degistirdikten sonra VPS'te `grep` ile dogrula, gerekirse zorla SCP tekrarla.
 - Nginx `/etc/nginx/sites-available/haldefiyat` `/api/` location bloğunda
   `proxy_read_timeout 180s` ayari var (5+ yil tarihce query'leri icin sigorta).
-  Backup: `/root/nginx-backups/haldefiyat.nginx.bak-20260513-185900`. Bu config
-  repo'da degil — VPS-only. Reload icin: `nginx -s reload`.
+  Bu config repo'da degil — VPS-only. Reload icin: `nginx -s reload`.
 
 ## Aktif Hatirlatmalar (TARIH ILE KONTROL ET)
 

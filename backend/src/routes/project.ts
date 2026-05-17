@@ -6,8 +6,15 @@ import { registerFavorites } from "@/modules/favorites";
 import { registerProduction } from "@/modules/production";
 import { registerHalAdmin } from "@/modules/hal-admin";
 import { registerCompetitorMonitor } from "@/modules/competitor-monitor";
+import { registerTelegramBotPublic, registerTelegramBotAdmin } from "@/modules/telegram-bot";
 import { registerUser } from "@/modules/user/router";
 import { registerIndex } from "@/modules/index";
+import { registerAnalysis, registerAnalysisAdmin } from "@/modules/analysis";
+import { registerInflationPublic, registerInflationAdmin } from "@/modules/inflation";
+import { registerPressPrAdmin } from "@/modules/press-pr";
+import { registerApiKeysPublic, registerApiKeysAdmin } from "@/modules/api-keys";
+import { registerFeeds } from "@/modules/feeds";
+import { registerAnnualReport } from "@/modules/annual-report";
 
 export async function registerProjectPublic(api: FastifyInstance) {
   await registerMarkets(api);
@@ -17,6 +24,12 @@ export async function registerProjectPublic(api: FastifyInstance) {
   await registerProduction(api);
   await registerUser(api);
   await registerIndex(api);
+  await registerAnalysis(api);
+  await registerInflationPublic(api);
+  await registerApiKeysPublic(api);
+  await registerFeeds(api);
+  await registerAnnualReport(api);
+  await registerTelegramBotPublic(api);
 
   // P2: SSO entegrasyonu icin frontend'in auth durumunu dogrulayabilecegi stub endpoint.
   // Gercek /auth endpoint'leri shared-backend auth modulunde zaten kayitli (registerAuth).
@@ -31,4 +44,9 @@ export async function registerProjectPublic(api: FastifyInstance) {
 export async function registerProjectAdmin(adminApi: FastifyInstance) {
   await registerHalAdmin(adminApi);
   await registerCompetitorMonitor(adminApi);
+  await registerAnalysisAdmin(adminApi);
+  await registerPressPrAdmin(adminApi);
+  await registerTelegramBotAdmin(adminApi);
+  await registerInflationAdmin(adminApi);
+  await registerApiKeysAdmin(adminApi);
 }

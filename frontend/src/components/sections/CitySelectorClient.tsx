@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
 import { LayoutGrid, Map } from "lucide-react";
-import type { Market } from "@/lib/api";
+import type { CityPriceMapItem, Market } from "@/lib/api";
 
 const TurkeyMapClient = dynamic(
   () => import("@/components/sections/TurkeyMapClient"),
@@ -20,13 +20,14 @@ const TurkeyMapClient = dynamic(
 
 interface Props {
   markets: Market[];
+  cityPrices?: CityPriceMapItem[];
   locale: string;
   majorCities: string[];
 }
 
 const SKELETON_COUNT = 6;
 
-export default function CitySelectorClient({ markets, locale, majorCities }: Props) {
+export default function CitySelectorClient({ markets, cityPrices, locale, majorCities }: Props) {
   const [view, setView] = useState<"list" | "map">("list");
 
   return (
@@ -63,7 +64,7 @@ export default function CitySelectorClient({ markets, locale, majorCities }: Pro
 
       {view === "map" ? (
         <div className="h-[500px] sm:h-[600px]">
-          <TurkeyMapClient markets={markets} />
+          <TurkeyMapClient markets={markets} cityPrices={cityPrices} />
         </div>
       ) : markets.length === 0 ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">

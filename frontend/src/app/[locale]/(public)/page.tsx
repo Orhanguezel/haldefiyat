@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { setRequestLocale } from "next-intl/server";
 import { getPageMetadata } from "@/lib/seo";
-import { fetchTrending } from "@/lib/api";
+import { fetchWidget, type TrendingItem } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
 import HeroSection from "@/components/sections/HeroSection";
 import PriceTicker from "@/components/sections/PriceTicker";
@@ -76,7 +76,28 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const trending = await fetchTrending(50);
+  // Ticker: trending (uç değişimler) yerine widget verisi (popüler ürünler,
+  // makul haftalık değişim). previous = avgPrice / (1 + changePct/100).
+  const widget = await fetchWidget({ limit: 30 });
+  const trending: TrendingItem[] = widget
+    .filter((w) => w.changePct !== null && Number.isFinite(w.avgPrice) && w.avgPrice > 0)
+    .map((w, i) => {
+      const pct = w.changePct as number;
+      const previous = pct !== 0 ? w.avgPrice / (1 + pct / 100) : w.avgPrice;
+      return {
+        productId: i + 1,
+        marketId: 0,
+        changePct: pct,
+        latest: w.avgPrice,
+        previous,
+        product: {
+          id: i + 1,
+          slug: w.productSlug,
+          nameTr: w.productName,
+          categorySlug: w.categorySlug,
+        },
+      };
+    });
 
   return (
     <>

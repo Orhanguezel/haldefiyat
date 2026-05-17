@@ -9,6 +9,15 @@ export interface AnalizMakale {
   hafta?: string; // ISO week "2026-19"
 }
 
+export function isHaftalikRapor(makale: AnalizMakale): boolean {
+  return Boolean(makale.hafta) || makale.etiketler.some((tag) => tag.toLocaleLowerCase("tr-TR").includes("haftalık"));
+}
+
+export function readingTimeMinutes(icerik: string): number {
+  const words = icerik.trim().split(/\s+/g).filter(Boolean).length;
+  return Math.max(1, Math.ceil(words / 180));
+}
+
 export const MAKALELER: AnalizMakale[] = [
   {
     slug: "mayis-2-hafta-2026-hal-raporu",
@@ -153,5 +162,11 @@ export function getMakale(slug: string): AnalizMakale | undefined {
 export function getSonMakaleler(limit = 10): AnalizMakale[] {
   return [...MAKALELER]
     .sort((a, b) => b.tarih.localeCompare(a.tarih))
+    .slice(0, limit);
+}
+
+export function getHaftalikRaporlar(limit = 10): AnalizMakale[] {
+  return getSonMakaleler(MAKALELER.length)
+    .filter(isHaftalikRapor)
     .slice(0, limit);
 }

@@ -4,6 +4,8 @@ import { getPageMetadata } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import { getSonMakaleler } from "@/lib/analiz";
+import { fetchAutoWeeklyReports } from "@/lib/api";
+import PageContainer from "@/components/layout/PageContainer";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +36,19 @@ export default async function AnalizPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const makaleler = getSonMakaleler(20);
+  const [autoReports] = await Promise.all([
+    fetchAutoWeeklyReports(8),
+  ]);
+  const staticMakaleler = getSonMakaleler(20);
+  const seen = new Set<string>();
+  const makaleler = [...autoReports, ...staticMakaleler]
+    .filter((m) => {
+      if (seen.has(m.slug)) return false;
+      seen.add(m.slug);
+      return true;
+    })
+    .sort((a, b) => b.tarih.localeCompare(a.tarih))
+    .slice(0, 20);
 
   const itemListSchema = {
     name: "HalDeFiyat Analiz ve Raporlar",
@@ -50,7 +64,7 @@ export default async function AnalizPage({ params }: Props) {
   } satisfies Record<string, unknown>;
 
   return (
-    <main className="mx-auto max-w-[1400px] px-8 py-12 space-y-10">
+    <PageContainer className="space-y-10">
       <JsonLd type="Dataset" data={itemListSchema} />
       <Breadcrumb items={[
         { name: "Anasayfa", href: "/" },
@@ -101,6 +115,6 @@ export default async function AnalizPage({ params }: Props) {
           </li>
         ))}
       </ul>
-    </main>
+    </PageContainer>
   );
 }

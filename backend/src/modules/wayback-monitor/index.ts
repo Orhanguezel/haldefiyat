@@ -12,7 +12,7 @@
  * Env:
  *   TELEGRAM_BOT_TOKEN
  *   TELEGRAM_CHAT_ID (veya ETL_HEALTH_TELEGRAM_CHAT_IDS — virgüllü)
- *   WAYBACK_STATE_FILE (default: /root/haldefiyat-src/.wayback-state)
+ *   WAYBACK_STATE_FILE (default: /var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/.wayback-state)
  */
 
 import { readFile, writeFile } from "node:fs/promises";
@@ -20,7 +20,9 @@ import { env } from "@/core/env";
 import { sendTelegramAlert } from "@/modules/alerts/telegram";
 
 const PROBE_URL = "https://web.archive.org/cdx/search/cdx?url=migros.com.tr&limit=1&output=json";
-const STATE_FILE = process.env.WAYBACK_STATE_FILE || "/root/haldefiyat-src/.wayback-state";
+const STATE_FILE =
+  process.env.WAYBACK_STATE_FILE ||
+  "/var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/.wayback-state";
 const PROBE_TIMEOUT_MS = 15_000;
 
 export interface WaybackProbeResult {
@@ -73,7 +75,7 @@ function buildMessage(): string {
     "",
     "Migros geçmiş veri backfill scripti çalışmaya hazır:",
     "",
-    "<code>ssh vps-vistainsaat 'cd /root/haldefiyat-src/backend &amp;&amp; bun scripts/wayback-migros-backfill.ts --dry-run'</code>",
+    "<code>ssh vps-vistainsaat 'cd /var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/backend &amp;&amp; bun scripts/wayback-migros-backfill.ts --dry-run'</code>",
     "",
     "Çıktı OK ise <code>--dry-run</code> kaldır ve gerçek backfill çalıştır.",
     "",

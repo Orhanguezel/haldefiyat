@@ -16,8 +16,9 @@ set -euo pipefail
 
 WINDOW_HOURS="${1:-24}"
 
-# DB credentials .env'den (VPS path)
-ENV_FILE="/root/haldefiyat-src/backend/.env"
+# DB credentials .env'den.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="${HALDEFIYAT_ENV_FILE:-$(cd "$SCRIPT_DIR/.." && pwd)/.env}"
 if [ ! -f "$ENV_FILE" ]; then
   echo "ERROR: $ENV_FILE bulunamadi. VPS'te misin?"
   exit 1

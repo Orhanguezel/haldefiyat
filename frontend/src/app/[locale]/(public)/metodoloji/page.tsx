@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { getPageMetadata } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
+import PageContainer from "@/components/layout/PageContainer";
 import { Database, Clock, ShieldCheck, RefreshCw, Globe2, FileText } from "lucide-react";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -43,7 +44,7 @@ export default async function MetodolojiPage({ params }: Props) {
   setRequestLocale(locale);
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-16 space-y-12">
+    <PageContainer py="lg" className="space-y-12">
       <JsonLd type="Article" data={articleSchema} />
       <Breadcrumb items={[
         { name: "Anasayfa", href: "/" },
@@ -182,6 +183,6 @@ export default async function MetodolojiPage({ params }: Props) {
           </p>
         </div>
       </section>
-    </main>
+    </PageContainer>
   );
 }

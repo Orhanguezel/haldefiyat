@@ -9,9 +9,10 @@ interface Props {
 }
 
 const TICKER_MAX_PRICE = 500;
-// 120% cap: removes extreme first-day outliers (>%120).
-// Mevsim geçiş dönemlerinde %80-120 meşru (kiraz, çilek sezon açılışı).
-const TICKER_MAX_CHANGE = 120;
+// 35% cap: ticker "güven veren" bir akış olmalı. 7 günde %35+ değişim
+// genelde ETL gürültüsü / kaynak karışması (gerçek piyasa nadiren %35 üstü).
+// Daha uç gerçek hareketler /trending ve /analiz sayfalarında görünür.
+const TICKER_MAX_CHANGE = 35;
 // Önceki ortalama fiyat 500₺ üzerindeyse fiyat normalizasyonu sonrası
 // drop aldatıcı görünür (örn. Bluberry prev=975 → latest=10.75 = -%98.96).
 const TICKER_MAX_PREV = 500;
@@ -41,13 +42,19 @@ function TickerEntry({ item, index }: { item: TrendingItem; index: number }) {
   const isDown = change < 0;
   const arrow = isUp ? "▲" : isDown ? "▼" : "■";
   const sign = isUp ? "+" : "";
+  const hasPrev = Number.isFinite(item.previous) && item.previous > 0;
 
   return (
     <>
       <Link
         href={slug ? `/urun/${slug}` : "/fiyatlar"}
-        className="flex shrink-0 items-center gap-2.5 whitespace-nowrap transition-opacity hover:opacity-80"
+        className="flex shrink-0 items-center gap-2 whitespace-nowrap transition-opacity hover:opacity-80"
         tabIndex={-1}
+        title={
+          hasPrev
+            ? `${name}: ₺${formatPrice(item.previous)} → ₺${formatPrice(item.latest)} (son 7 gün ${sign}${change.toFixed(1)}%)`
+            : `${name}: ₺${formatPrice(item.latest)}`
+        }
       >
         <span className="text-[18px]" aria-hidden>
           {getEmoji(slug, item.product?.categorySlug)}
@@ -55,7 +62,17 @@ function TickerEntry({ item, index }: { item: TrendingItem; index: number }) {
         <span className="text-[13px] font-semibold text-(--color-foreground)">
           {name}
         </span>
-        <span className="font-(family-name:--font-mono) text-[13px] font-semibold text-(--color-foreground)">
+        {hasPrev && (
+          <>
+            <span className="font-(family-name:--font-mono) text-[12px] text-(--color-muted)">
+              ₺{formatPrice(item.previous)}
+            </span>
+            <span className="text-[12px] text-(--color-muted)" aria-hidden>
+              →
+            </span>
+          </>
+        )}
+        <span className="font-(family-name:--font-mono) text-[13px] font-bold text-(--color-foreground)">
           ₺{formatPrice(item.latest)}
         </span>
         <span

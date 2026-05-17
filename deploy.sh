@@ -13,20 +13,6 @@ echo "==> [1/5] git pull"
 cd "$REPO_ROOT"
 git pull origin main
 
-# packages/shared-backend monorepo workspace'ine taşındı ama VPS'te backend
-# @agro/shared-backend'i import etmeye devam ediyor. git pull / reset --hard
-# bu dizini siler — VPS-yerel backup'tan restore edelim.
-SHARED_BACKUP="/root/haldefiyat-shared/packages"
-if [ -d "$SHARED_BACKUP/shared-backend/core" ]; then
-  if [ ! -d "$REPO_ROOT/packages/shared-backend/core" ]; then
-    echo "    packages/shared-backend eksik → $SHARED_BACKUP'tan kopyalanıyor"
-    mkdir -p "$REPO_ROOT/packages"
-    cp -ar "$SHARED_BACKUP/." "$REPO_ROOT/packages/"
-  fi
-else
-  echo "    uyari: $SHARED_BACKUP yok — ilk kurulum lazim (cp -ar packages /root/haldefiyat-shared/)"
-fi
-
 echo "==> [2/5] frontend production build (next build + standalone static sync)"
 if ! (cd "$FRONTEND" && bun run build); then
   echo "HATA: frontend build başarısız!" && exit 1
@@ -64,8 +50,8 @@ if [ ! -L "$REPO_ROOT/node_modules/@agro/shared-types" ]; then
   echo "    @agro symlink'leri yenilendi"
 fi
 
-# packages/shared-backend/node_modules içindeki bozuk relative symlink'leri onar
-# Bun bazen ../../../root/haldefiyat-src/... şeklinde yanlış path üretiyor.
+# packages/shared-backend/node_modules icindeki bozuk relative symlink'leri onar.
+# Bun bazen eski calisma dizinine gore relative path uretebilir.
 BUN_STORE="$REPO_ROOT/node_modules/.bun"
 SHARED_NM="$REPO_ROOT/packages/shared-backend/node_modules"
 if [ -d "$SHARED_NM" ] && [ -d "$BUN_STORE" ]; then
@@ -73,8 +59,8 @@ if [ -d "$SHARED_NM" ] && [ -d "$BUN_STORE" ]; then
     local link="$1"
     local target
     target=$(readlink "$link" 2>/dev/null) || return
-    if [[ "$target" == *"/root/haldefiyat-src/node_modules/.bun/"* ]]; then
-      local suffix="${target##*/root/haldefiyat-src/node_modules/.bun/}"
+    if [[ "$target" == */node_modules/.bun/* ]]; then
+      local suffix="${target##*/node_modules/.bun/}"
       local abs="$BUN_STORE/$suffix"
       [ -e "$abs" ] && rm "$link" && ln -sfn "$abs" "$link"
     fi

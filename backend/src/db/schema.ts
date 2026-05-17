@@ -169,6 +169,100 @@ export const hfIndexSnapshots = mysqlTable(
   (t) => [uniqueIndex("hf_idx_week_uq").on(t.indexWeek)],
 );
 
+export const hfAnalysisReports = mysqlTable(
+  "hf_analysis_reports",
+  {
+    id:           int("id").autoincrement().primaryKey(),
+    slug:         varchar("slug", { length: 180 }).notNull(),
+    title:        varchar("title", { length: 500 }).notNull(),
+    summary:      text("summary").notNull(),
+    content:      text("content").notNull(),
+    author:       varchar("author", { length: 128 }).notNull().default("HaldeFiyat Veri Ekibi"),
+    tags:         json("tags").$type<string[]>(),
+    isoWeek:      varchar("iso_week", { length: 8 }).notNull(),
+    weekStart:    date("week_start").notNull(),
+    weekEnd:      date("week_end").notNull(),
+    reportDate:   date("report_date").notNull(),
+    source:       mysqlEnum("source", ["auto", "manual"]).notNull().default("auto"),
+    status:       mysqlEnum("status", ["draft", "published", "archived"]).notNull().default("draft"),
+    totalRecords: int("total_records").notNull().default(0),
+    publishedAt:  datetime("published_at", { fsp: 3 }),
+    createdAt:    datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:    datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    uniqueIndex("hf_analysis_reports_slug_uq").on(t.slug),
+    index("hf_analysis_reports_status_date_idx").on(t.status, t.reportDate),
+    index("hf_analysis_reports_week_idx").on(t.isoWeek),
+  ],
+);
+
+export const hfPressContacts = mysqlTable(
+  "hf_press_contacts",
+  {
+    id:              int("id").autoincrement().primaryKey(),
+    organization:    varchar("organization", { length: 255 }).notNull(),
+    publicationType: mysqlEnum("publication_type", ["newspaper", "website", "association", "chamber", "agency", "other"]).notNull().default("website"),
+    contactName:     varchar("contact_name", { length: 255 }),
+    email:           varchar("email", { length: 255 }).notNull(),
+    phone:           varchar("phone", { length: 64 }),
+    city:            varchar("city", { length: 128 }),
+    tags:            json("tags").$type<string[]>(),
+    status:          mysqlEnum("status", ["target", "contacted", "replied", "published", "blocked"]).notNull().default("target"),
+    notes:           text("notes"),
+    lastContactedAt: datetime("last_contacted_at", { fsp: 3 }),
+    createdAt:       datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:       datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    uniqueIndex("hf_press_contacts_email_uq").on(t.email),
+    index("hf_press_contacts_status_idx").on(t.status),
+    index("hf_press_contacts_type_city_idx").on(t.publicationType, t.city),
+  ],
+);
+
+export const hfPressCampaigns = mysqlTable(
+  "hf_press_campaigns",
+  {
+    id:          int("id").autoincrement().primaryKey(),
+    slug:        varchar("slug", { length: 160 }).notNull(),
+    name:        varchar("name", { length: 255 }).notNull(),
+    subject:     varchar("subject", { length: 255 }).notNull(),
+    pitch:       text("pitch").notNull(),
+    templateKey: varchar("template_key", { length: 128 }),
+    segmentTags: json("segment_tags").$type<string[]>(),
+    status:      mysqlEnum("status", ["draft", "active", "completed", "archived"]).notNull().default("draft"),
+    scheduledAt: datetime("scheduled_at", { fsp: 3 }),
+    sentAt:      datetime("sent_at", { fsp: 3 }),
+    createdAt:   datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:   datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    uniqueIndex("hf_press_campaigns_slug_uq").on(t.slug),
+    index("hf_press_campaigns_status_idx").on(t.status),
+  ],
+);
+
+export const hfPressOutreachLogs = mysqlTable(
+  "hf_press_outreach_logs",
+  {
+    id:           int("id").autoincrement().primaryKey(),
+    campaignId:   int("campaign_id").notNull(),
+    contactId:    int("contact_id").notNull(),
+    channel:      mysqlEnum("channel", ["email", "phone", "social", "other"]).notNull().default("email"),
+    status:       mysqlEnum("status", ["planned", "sent", "replied", "published", "bounced", "rejected"]).notNull().default("planned"),
+    note:         text("note"),
+    publishedUrl: varchar("published_url", { length: 512 }),
+    contactedAt:  datetime("contacted_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    createdAt:    datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    index("hf_press_logs_campaign_idx").on(t.campaignId),
+    index("hf_press_logs_contact_idx").on(t.contactId),
+    index("hf_press_logs_status_idx").on(t.status),
+  ],
+);
+
 export const hfAnnualEtlRuns = mysqlTable(
   "hf_annual_etl_runs",
   {
@@ -238,5 +332,49 @@ export const hfCompetitorSnapshots = mysqlTable(
   (t) => [
     index("idx_site_key").on(t.siteKey),
     index("idx_checked_at").on(t.checkedAt),
+  ],
+);
+
+// TCMB EVDS aylik enflasyon gostergeleri (TUFE, TUFE-gida, Yi-UFE)
+export const hfInflationMonthly = mysqlTable(
+  "hf_inflation_monthly",
+  {
+    id:            int("id").autoincrement().primaryKey(),
+    periodYear:    int("period_year").notNull(),
+    periodMonth:   int("period_month").notNull(),
+    indicator:     varchar("indicator", { length: 64 }).notNull(),
+    indexValue:    decimal("index_value", { precision: 12, scale: 4 }),
+    yoyChangePct:  decimal("yoy_change_pct", { precision: 8, scale: 4 }),
+    momChangePct:  decimal("mom_change_pct", { precision: 8, scale: 4 }),
+    sourceApi:     varchar("source_api", { length: 64 }).notNull().default("tcmb_evds"),
+    createdAt:     datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    uniqueIndex("uq_period_indicator").on(t.periodYear, t.periodMonth, t.indicator),
+    index("idx_indicator_period").on(t.indicator, t.periodYear, t.periodMonth),
+  ],
+);
+
+// Pro Tier API anahtarlari (X-API-Key header ile gelen istekler tier bazli rate-limit alir)
+export const hfApiKeys = mysqlTable(
+  "hf_api_keys",
+  {
+    id:                int("id").autoincrement().primaryKey(),
+    userId:            varchar("user_id", { length: 36 }).notNull(),
+    keyHash:           varchar("key_hash", { length: 64 }).notNull(),
+    keyPrefix:         varchar("key_prefix", { length: 16 }).notNull(),
+    name:              varchar("name", { length: 128 }).notNull().default("My API Key"),
+    tier:              mysqlEnum("tier", ["free", "pro"]).notNull().default("free"),
+    dailyLimit:        int("daily_limit").notNull().default(100),
+    usedToday:         int("used_today").notNull().default(0),
+    usageWindowStart:  date("usage_window_start", { mode: "string" }).notNull(),
+    lastUsedAt:        datetime("last_used_at", { fsp: 3 }),
+    revokedAt:         datetime("revoked_at", { fsp: 3 }),
+    createdAt:         datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    uniqueIndex("uq_key_hash").on(t.keyHash),
+    index("idx_user_id").on(t.userId),
+    index("idx_tier_revoked").on(t.tier, t.revokedAt),
   ],
 );

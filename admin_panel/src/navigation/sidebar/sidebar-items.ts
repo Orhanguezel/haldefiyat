@@ -118,6 +118,8 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
     key: 'content',
     items: [
       { key: 'custom_pages', url: '/admin/custom-pages', icon: FileText },
+      { key: 'analysis_reports', url: '/admin/analysis-reports', icon: FileText },
+      { key: 'press', url: '/admin/press', icon: Mail },
       { key: 'support', url: '/admin/support', icon: HelpCircle },
     ],
   },
@@ -172,6 +174,8 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   alerts: 'Uyari Listesi',
   production: 'Yillik Uretim',
   custom_pages: 'Sayfalar',
+  analysis_reports: 'Analiz Yazilari',
+  press: 'Basın CRM',
   support: 'SSS / Destek',
   email_templates: 'E-posta Sablonlari',
   contacts: 'İletişim Mesajları',

@@ -12,6 +12,7 @@ type HeaderProps = {
 const NAV_LINKS: ReadonlyArray<NavLink> = [
   { key: "prices",    label: "Fiyatlar",    href: "/fiyatlar" },
   { key: "cities",    label: "Şehirler",    href: "/hal" },
+  { key: "map",       label: "Harita",      href: "/harita" },
   { key: "index",     label: "Endeks",      href: "/endeks" },
   { key: "favorites", label: "Favorilerim", href: "/favoriler" },
   { key: "alerts",    label: "Uyarılar",    href: "/uyarilar" },

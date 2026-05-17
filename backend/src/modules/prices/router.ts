@@ -11,6 +11,7 @@ import {
   latestRecordedDate,
   widgetPrices,
   retailPricesByProduct,
+  cityPriceMap,
 } from "./repository";
 import { resolveWeekRange } from "./iso-week";
 import { weeklyPriceSummary } from "./weekly";
@@ -63,6 +64,12 @@ const qWidget = z.object({
   slugs:    z.string().optional(),
 });
 
+const qCityMap = z.object({
+  product:  z.string().optional(),
+  category: z.string().optional(),
+  range:    z.string().optional(),
+});
+
 function setPublicWidgetHeaders(reply: FastifyReply) {
   reply.header("Access-Control-Allow-Origin", "*");
   reply.header("Access-Control-Allow-Methods", "GET, OPTIONS");
@@ -100,6 +107,26 @@ export async function registerPrices(app: FastifyInstance) {
     const city = (req.query as { city?: string })?.city;
     const items = await listMarkets(city);
     return reply.send({ items });
+  });
+
+  /**
+   * GET /api/v1/prices/city-map
+   * İl bazlı son fiyat ortalaması. Türkiye SVG fiyat haritası için kullanılır.
+   * ?product=domates&category=sebze&range=7d
+   */
+  app.get("/prices/city-map", async (req, reply) => {
+    const q = qCityMap.safeParse(req.query);
+    if (!q.success) return reply.status(400).send({ error: "Gecersiz parametre" });
+    const items = await cityPriceMap(q.data);
+    reply.header("Cache-Control", "public, max-age=300, s-maxage=300");
+    return reply.send({
+      items,
+      meta: {
+        rangeDays: Math.min(30, parseRangeToDays(q.data.range)),
+        product: q.data.product ?? null,
+        category: q.data.category ?? null,
+      },
+    });
   });
 
   /**

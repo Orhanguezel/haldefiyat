@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import type { Market } from "@/lib/api";
+import type { CityPriceMapItem, Market } from "@/lib/api";
 import { LayoutGrid, Map } from "lucide-react";
 
 const TurkeyMapClient = dynamic(
@@ -19,10 +19,11 @@ const TurkeyMapClient = dynamic(
 
 interface Props {
   markets: Market[];
+  cityPrices?: CityPriceMapItem[];
   children: React.ReactNode;
 }
 
-export default function HalViewToggle({ markets, children }: Props) {
+export default function HalViewToggle({ markets, cityPrices, children }: Props) {
   const [view, setView] = useState<"list" | "map">("list");
 
   return (
@@ -61,7 +62,7 @@ export default function HalViewToggle({ markets, children }: Props) {
         <>{children}</>
       ) : (
         <div className="h-[540px] sm:h-[620px]">
-          <TurkeyMapClient markets={markets} />
+          <TurkeyMapClient markets={markets} cityPrices={cityPrices} />
         </div>
       )}
     </div>

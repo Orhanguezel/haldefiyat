@@ -5,6 +5,9 @@
 export const routes = {
   home: "/",
   prices: "/fiyatlar",
+  map: "/harita",
+  embed: "/embed",
+  press: "/basin",
   market: (slug: string) => `/hal/${slug}`,
   product: (slug: string) => `/urun/${slug}`,
   compare: "/karsilastirma",
@@ -25,6 +28,9 @@ export const ROUTES = {
   },
   static: {
     compare: "/karsilastirma",
+    map: "/harita",
+    embed: "/embed",
+    press: "/basin",
     about: "/hakkimizda",
     contact: "/iletisim",
     privacy: "/gizlilik-politikasi",

@@ -7,12 +7,15 @@ import { checkWaybackAndNotify } from "@/modules/wayback-monitor";
 import { checkAndNotifyEtlHealth } from "@/modules/etl/health";
 import { runCompetitorCheck } from "@/modules/competitor-monitor";
 import { publishDailyReport } from "@/modules/telegram-channel/publisher";
+import { publishDailyTweet } from "@/modules/twitter-channel/publisher";
 import { runAllProductionSources } from "@/modules/etl/production-fetcher";
 import { getSourceByKey } from "@/config/etl-sources";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
 import { runWeeklyDigest } from "@/modules/notifications/weekly-digest";
 import { runWeeklyMailDigest } from "@/modules/notifications/weekly-mail-digest";
 import { calculateWeeklyIndex } from "@/modules/index";
+import { generateLatestWeeklyAnalysisReport } from "@/modules/analysis";
+import { syncInflation } from "@/modules/inflation";
 import { env } from "@/core/env";
 
 /**
@@ -32,6 +35,7 @@ export function startCron(app: FastifyInstance): void {
     { name: "production-etl",   schedule: env.ETL.productionSchedule,    handler: () => runProductionJob(app) },
     { name: "weekly-digest",    schedule: env.ETL.weeklyDigestSchedule,  handler: () => runWeeklyDigestJob(app) },
     { name: "index-weekly",     schedule: env.ETL.indexSchedule,         handler: () => runIndexJob(app) },
+    { name: "weekly-analysis",  schedule: env.ETL.weeklyAnalysisSchedule, handler: () => runWeeklyAnalysisJob(app) },
     // ANTKOMDER fiyatları öğleden sonra yayınlandığı için ikinci çalıştırma
     { name: "etl-antkomder-pm",   schedule: env.ETL.antkomderSchedule,   handler: () => runAntkomderJob(app) },
     // Rakip izleme — haftalık
@@ -46,6 +50,10 @@ export function startCron(app: FastifyInstance): void {
     { name: "wayback-monitor",    schedule: env.ETL.waybackMonitorSchedule, handler: () => runWaybackMonitorJob(app) },
     // Haftalik mail bulten — pazartesi 06:00 UTC = 09:00 TRT
     { name: "weekly-mail",        schedule: env.ETL.weeklyMailSchedule,    handler: () => runWeeklyMailJob(app) },
+    // Aylik enflasyon (TCMB EVDS) — ayin 5'i 10:00 UTC
+    { name: "inflation-monthly",  schedule: env.ETL.inflationSchedule,     handler: () => runInflationJob(app) },
+    // Twitter/X gunluk trending tweet — 08:30 UTC = 11:30 TRT
+    { name: "twitter-daily",      schedule: env.ETL.twitterSchedule,       handler: () => runTwitterJob(app) },
   ];
 
   for (const t of tasks) {
@@ -143,6 +151,29 @@ async function runIndexJob(app: FastifyInstance): Promise<void> {
   }
 }
 
+async function runWeeklyAnalysisJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:weekly-analysis] haftalik analiz yazisi uretiliyor");
+  try {
+    const report = await generateLatestWeeklyAnalysisReport();
+    if (!report) {
+      app.log.warn({ durationMs: Date.now() - t0 }, "[cron:weekly-analysis] yeterli veri yok");
+      return;
+    }
+    app.log.info(
+      {
+        slug: report.slug,
+        week: report.hafta,
+        records: report.totalRecords,
+        durationMs: Date.now() - t0,
+      },
+      "[cron:weekly-analysis] tamamlandi",
+    );
+  } catch (err) {
+    app.log.error({ err }, "[cron:weekly-analysis] hata");
+  }
+}
+
 async function runAlertsJob(app: FastifyInstance): Promise<void> {
   const t0 = Date.now();
   app.log.info("[cron:alerts] kontrol baslatiliyor");
@@ -226,6 +257,28 @@ async function runWeeklyMailJob(app: FastifyInstance): Promise<void> {
     );
   } catch (err) {
     app.log.error({ err }, "[cron:weekly-mail] hata");
+  }
+}
+
+async function runInflationJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:inflation] TCMB EVDS aylik enflasyon sync baslatiliyor");
+  try {
+    const results = await syncInflation();
+    app.log.info({ results, durationMs: Date.now() - t0 }, "[cron:inflation] tamamlandi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:inflation] hata");
+  }
+}
+
+async function runTwitterJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:twitter] gunluk trending tweet baslatiliyor");
+  try {
+    const result = await publishDailyTweet();
+    app.log.info({ ...result, durationMs: Date.now() - t0 }, "[cron:twitter] tamamlandi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:twitter] hata");
   }
 }
 

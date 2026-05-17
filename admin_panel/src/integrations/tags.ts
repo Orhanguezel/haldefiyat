@@ -212,6 +212,11 @@ export const tags = [
   'Production',
   'CompetitorSites',
   'CompetitorSnapshots',
+  'AnalysisReports',
+  'PressContacts',
+  'PressCampaigns',
+  'PressLogs',
+  'PressSummary',
 ] as const;
 
 export type tag = typeof tags[number];

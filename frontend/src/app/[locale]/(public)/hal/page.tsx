@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
-import { fetchMarkets, type Market } from "@/lib/api";
+import { fetchCityPriceMap, fetchMarkets, type Market } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
 import HalViewToggle from "@/components/sections/HalViewToggle";
 
@@ -60,7 +60,10 @@ export default async function HalIndexPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const markets = await fetchMarkets();
+  const [markets, cityPriceMap] = await Promise.all([
+    fetchMarkets(),
+    fetchCityPriceMap({ range: "7d" }),
+  ]);
   const cityMarkets = markets.filter((m) => m.regionSlug !== "ulusal");
   const ulusalMarkets = markets.filter((m) => m.regionSlug === "ulusal");
   const groups = groupByRegion(markets);
@@ -129,7 +132,7 @@ export default async function HalIndexPage({ params }: Props) {
           Henüz kayıtlı hal bulunmuyor.
         </div>
       ) : (
-        <HalViewToggle markets={markets}>
+        <HalViewToggle markets={markets} cityPrices={cityPriceMap.items}>
           <div className="space-y-12">
             {groups.map((group) => (
               <section key={group.key}>

@@ -387,12 +387,91 @@ export async function listMarkets(city?: string) {
     .orderBy(hfMarkets.displayOrder);
 }
 
+export async function cityPriceMap(params: {
+  product?: string;
+  category?: string;
+  range?: string;
+} = {}) {
+  const days = Math.min(30, parseRangeToDays(params.range));
+  const anchor = await latestRecordedDate();
+  const anchorSql = anchor ? sql`${anchor}` : sql`CURDATE()`;
+  const windowConds: SQL[] = [
+    gte(hfPriceHistory.recordedDate, sql`DATE_SUB(${anchorSql}, INTERVAL ${sql.raw(String(days))} DAY)`),
+    lte(hfPriceHistory.recordedDate, anchorSql),
+  ];
+
+  const conds: SQL[] = [
+    eq(hfMarkets.isActive, 1),
+    eq(hfProducts.isActive, 1),
+    sql`(${hfMarkets.regionSlug} IS NULL OR ${hfMarkets.regionSlug} <> 'ulusal')`,
+  ];
+  if (params.product?.trim()) conds.push(eq(hfProducts.slug, params.product.trim()));
+  if (params.category?.trim()) conds.push(eq(hfProducts.categorySlug, params.category.trim()));
+
+  const latest = db.$with("city_map_latest_pair_dates").as(
+    db
+      .select({
+        productId: hfPriceHistory.productId,
+        marketId:  hfPriceHistory.marketId,
+        rd:        sql<string>`MAX(${hfPriceHistory.recordedDate})`.as("rd"),
+      })
+      .from(hfPriceHistory)
+      .where(and(...windowConds))
+      .groupBy(hfPriceHistory.productId, hfPriceHistory.marketId),
+  );
+
+  const rows = await db
+    .with(latest)
+    .select({
+      cityName:           hfMarkets.cityName,
+      avgPrice:           sql<string>`AVG(${hfPriceHistory.avgPrice})`,
+      minPrice:           sql<string>`MIN(${hfPriceHistory.avgPrice})`,
+      maxPrice:           sql<string>`MAX(${hfPriceHistory.avgPrice})`,
+      marketCount:        sql<number>`COUNT(DISTINCT ${hfMarkets.id})`,
+      productCount:       sql<number>`COUNT(DISTINCT ${hfProducts.id})`,
+      observationCount:   sql<number>`COUNT(*)`,
+      latestRecordedDate: sql<string>`MAX(${hfPriceHistory.recordedDate})`,
+    })
+    .from(hfPriceHistory)
+    .innerJoin(
+      latest,
+      and(
+        eq(latest.productId, hfPriceHistory.productId),
+        eq(latest.marketId, hfPriceHistory.marketId),
+        eq(latest.rd, hfPriceHistory.recordedDate),
+      ),
+    )
+    .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+    .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+    .where(and(...conds))
+    .groupBy(hfMarkets.cityName)
+    .orderBy(hfMarkets.cityName);
+
+  return rows.map((r) => {
+    const latestRecordedDate = r.latestRecordedDate as unknown;
+    return {
+      cityName:           r.cityName,
+      avgPrice:           Math.round(Number(r.avgPrice) * 100) / 100,
+      minPrice:           Math.round(Number(r.minPrice) * 100) / 100,
+      maxPrice:           Math.round(Number(r.maxPrice) * 100) / 100,
+      marketCount:        Number(r.marketCount ?? 0),
+      productCount:       Number(r.productCount ?? 0),
+      observationCount:   Number(r.observationCount ?? 0),
+      latestRecordedDate: latestRecordedDate instanceof Date
+        ? latestRecordedDate.toISOString().slice(0, 10)
+        : String(latestRecordedDate).slice(0, 10),
+    };
+  });
+}
+
 // Son 7 günde en çok değişen ürün/hal çiftleri
 type Obs = { productId: number; marketId: number; avgPrice: string; recordedDate: string };
 // Outlier guard: ETL parse hatası veya mevsim verisi ilk günde %300+ sapma üretebilir.
-// Widget dışa verdiğimiz için daha sıkı tutuyoruz (150%).
-const TREND_MAX_ABS_CHANGE_PCT = 150;
-const WIDGET_MAX_ABS_CHANGE_PCT = 150;
+// Gerçek piyasa hareketleri nadiren %50-70 üstüdür; eşikler dış yayın için sıkı tutulur.
+// (2026-05-14 denetimi: brokoli +143%, biber-kaliforniya +141% gibi ETL placeholder
+// veri sıçramaları %150 cap altında geçiyordu — eşikler düşürüldü.)
+const TREND_MAX_ABS_CHANGE_PCT = 80;
+const WIDGET_MAX_ABS_CHANGE_PCT = 100;
 
 // Ulusal/aggregate kaynaklar trending'e dahil edilmez — gün içi varyans çok yüksek
 const TRENDING_EXCLUDE_SLUGS = new Set(["ulusal-hal-gov-tr"]);
@@ -461,8 +540,9 @@ export async function trendingChanges(limit = 10) {
     const pp = avgObs(prevWindow.length > 0 ? prevWindow : fallbackPrev);
     if (lp == null || pp == null || pp <= 0) continue;
 
-    // Veri düzeltme olaylarını filtrele: fiyat 5x+ değişmişse gerçek piyasa hareketi değil
-    if (lp / pp > 5 || pp / lp > 5) continue;
+    // Veri düzeltme olaylarını filtrele: fiyat 3x+ değişmişse gerçek piyasa hareketi değil,
+    // büyük olasılıkla ETL parse hatası veya placeholder data sıçraması (40→125 gibi)
+    if (lp / pp > 3 || pp / lp > 3) continue;
 
     const changePct = Math.round((10000 * (lp - pp)) / pp) / 100;
     if (Math.abs(changePct) > TREND_MAX_ABS_CHANGE_PCT) continue;
@@ -477,7 +557,8 @@ export async function trendingChanges(limit = 10) {
   }
 
   // Cross-market median doğrulama: aynı ürün birden fazla markette varsa,
-  // prev veya latest değeri diğer marketlerin median'ından 5x+ sapıyorsa veri hatasıdır
+  // prev veya latest değeri diğer marketlerin median'ından 2x+ sapıyorsa veri hatasıdır.
+  // (2x: brokoli eskisehir prev=40 vs cross-market median=70 → filtrelenir; 5x toleransla geçiyordu)
   const latestsByProduct = new Map<number, number[]>();
   for (const s of scored) {
     if (!latestsByProduct.has(s.productId)) latestsByProduct.set(s.productId, []);
@@ -489,7 +570,7 @@ export async function trendingChanges(limit = 10) {
     const sorted = [...latests].sort((a, b) => a - b);
     const median = sorted[Math.floor(sorted.length / 2)]!;
     if (median <= 0) return true;
-    return s.previous >= median / 5 && s.previous <= median * 5;
+    return s.previous >= median / 2 && s.previous <= median * 2;
   });
 
   // En çok artan top N/2 + en çok düşen top N/2 → her zaman her iki yönden veri döner

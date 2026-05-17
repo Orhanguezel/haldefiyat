@@ -26,7 +26,7 @@ export default async function ContactPage({ params }: Props) {
       
       <div className="container relative z-10 mx-auto px-4">
         <ScrollReveal>
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-350 mx-auto">
             {/* Header Bölümü */}
             <header className="mb-16 text-center max-w-3xl mx-auto">
               <h1 className="text-4xl sm:text-5xl font-black text-foreground mb-6 tracking-tight">

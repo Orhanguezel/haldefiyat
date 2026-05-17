@@ -458,13 +458,15 @@ export default async function ApiDocsPage({ params }: Props) {
 
       {/* Widget embed notu */}
       <section id="widget" className="mt-16 rounded-2xl border border-border bg-surface p-6 space-y-4">
-        <h2 className="font-display text-xl font-bold text-foreground">Endeks Widget</h2>
+        <h2 className="font-display text-xl font-bold text-foreground">Embed Widget'lar</h2>
         <p className="text-[14px] text-muted">
-          HaldeFiyat Endeksi'ni kendi sitenize iframe olarak ekleyebilirsiniz.
-          Koyu ve açık tema desteği mevcuttur.
+          Güncel fiyat listesi ve HaldeFiyat Endeksi'ni kendi sitenize iframe olarak ekleyebilirsiniz.
+          Koyu/açık tema, kategori, ürün slug listesi ve limit parametreleri desteklenir.
         </p>
         <div className="space-y-2">
           {[
+            { label: "Güncel fiyat widget", code: `<iframe src="https://haldefiyat.com/fiyatlar/widget?limit=6" width="420" height="430" style="border:none;border-radius:16px;max-width:100%;" title="HaldeFiyat Güncel Hal Fiyatları"></iframe>` },
+            { label: "Özel ürün listesi", code: `<iframe src="https://haldefiyat.com/fiyatlar/widget?slugs=domates,biber,salatalik&theme=light&limit=3" width="420" height="260" style="border:none;border-radius:16px;max-width:100%;" title="HaldeFiyat Özel Fiyat Widget"></iframe>` },
             { label: "Koyu tema", code: `<iframe src="https://haldefiyat.com/endeks/widget" width="320" height="168" style="border:none;border-radius:14px;" title="HaldeFiyat Endeksi"></iframe>` },
             { label: "Açık tema", code: `<iframe src="https://haldefiyat.com/endeks/widget?theme=light" width="320" height="168" style="border:none;border-radius:14px;" title="HaldeFiyat Endeksi"></iframe>` },
           ].map((item) => (
@@ -476,6 +478,9 @@ export default async function ApiDocsPage({ params }: Props) {
             </div>
           ))}
         </div>
+        <p className="text-[13px] text-muted">
+          Tüm embed örnekleri için <a href="/embed" className="text-brand underline underline-offset-2">/embed</a> sayfasını kullanın.
+        </p>
       </section>
 
       {/* Notlar */}

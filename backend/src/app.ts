@@ -99,6 +99,11 @@ export async function createApp() {
   );
 
   await app.register(requestLoggerPlugin);
+
+  // X-API-Key header bazli rate limit (tier'a gore daily). Header yoksa default IP-rate-limit gecerli.
+  const { apiKeyAuthHook } = await import("@/modules/api-keys/plugin");
+  app.addHook("onRequest", apiKeyAuthHook);
+
   await registerAllRoutes(app);
   registerErrorHandlers(app);
 

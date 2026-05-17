@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { fetchMarkets, type Market } from "@/lib/api";
+import { fetchCityPriceMap, fetchMarkets, type Market } from "@/lib/api";
 import { localePath } from "@/lib/locale-path";
 import CitySelectorClient from "@/components/sections/CitySelectorClient";
 
@@ -10,7 +10,10 @@ interface CitySelectorProps {
 }
 
 export default async function CitySelector({ locale }: CitySelectorProps) {
-  const allMarkets = await fetchMarkets();
+  const [allMarkets, cityPriceMap] = await Promise.all([
+    fetchMarkets(),
+    fetchCityPriceMap({ range: "7d" }),
+  ]);
 
   const sortedMarkets = [...allMarkets].sort((a, b) => {
     const aIsMajor = MAJOR_CITIES.includes(a.slug);
@@ -60,7 +63,12 @@ export default async function CitySelector({ locale }: CitySelectorProps) {
           </Link>
         </header>
 
-        <CitySelectorClient markets={sortedMarkets} locale={locale} majorCities={MAJOR_CITIES} />
+        <CitySelectorClient
+          markets={sortedMarkets}
+          cityPrices={cityPriceMap.items}
+          locale={locale}
+          majorCities={MAJOR_CITIES}
+        />
       </div>
     </section>
   );

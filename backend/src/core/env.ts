@@ -74,6 +74,24 @@ export const env = {
   TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || "",
   // Kamuya açık Telegram kanalı — günlük fiyat paylaşımları buraya gönderilir
   TELEGRAM_CHANNEL_ID: process.env.TELEGRAM_CHANNEL_ID || "",
+  // Inbound bot webhook için Telegram secret_token (header X-Telegram-Bot-Api-Secret-Token)
+  TELEGRAM_WEBHOOK_SECRET: process.env.TELEGRAM_WEBHOOK_SECRET || "",
+  // setWebhook çağrısında kullanılır (varsayılan webhook URL'sinin tabanı)
+  PUBLIC_BASE_URL: process.env.PUBLIC_BASE_URL || "",
+  // TCMB EVDS API key — aylık TÜFE/Yİ-ÜFE çekimi için (https://evds2.tcmb.gov.tr)
+  EVDS_API_KEY: process.env.EVDS_API_KEY || "",
+  // API anahtar tier limitleri (gunluk istek sayisi)
+  API_KEY_FREE_DAILY_LIMIT: parseEnvInt(process.env.API_KEY_FREE_DAILY_LIMIT, 100),
+  API_KEY_PRO_DAILY_LIMIT: parseEnvInt(process.env.API_KEY_PRO_DAILY_LIMIT, 10_000),
+  // Pro tier aylik ucret (frontend /pro sayfasinda gosterilir)
+  PRO_PRICE_MONTHLY_TL: parseEnvInt(process.env.PRO_PRICE_MONTHLY_TL, 99),
+  // Twitter/X OAuth 1.0a — @haldefiyat hesabi otomatik tweet
+  TWITTER: {
+    apiKey:            process.env.TWITTER_API_KEY || "",
+    apiSecret:         process.env.TWITTER_API_SECRET || "",
+    accessToken:       process.env.TWITTER_ACCESS_TOKEN || "",
+    accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET || "",
+  },
   SMTP_HOST: process.env.SMTP_HOST || "",
   SMTP_PORT: parseEnvInt(process.env.SMTP_PORT, 587),
   SMTP_USER: process.env.SMTP_USER || "",
@@ -90,6 +108,8 @@ export const env = {
     weeklyDigestSchedule: process.env.WEEKLY_DIGEST_CRON_SCHEDULE || "0 5 * * 1",
     // Haftalık endeks hesaplama — pazartesi 06:00 UTC (ETL bittikten sonra)
     indexSchedule: process.env.INDEX_CRON_SCHEDULE || "0 6 * * 1",
+    // Haftalık analiz yazısı — pazartesi 06:20 UTC (endeks hesaplaması sonrası)
+    weeklyAnalysisSchedule: process.env.WEEKLY_ANALYSIS_CRON_SCHEDULE || "20 6 * * 1",
     // ANTKOMDER (Antalya) fiyatları öğleden sonra yayınlanıyor — 10:30 UTC = 13:30 TRT
     antkomderSchedule: process.env.ANTKOMDER_CRON_SCHEDULE || "30 10 * * *",
     // Rakip izleme — her pazartesi 07:00 UTC (ETL sona erdikten sonra)
@@ -104,6 +124,10 @@ export const env = {
     waybackMonitorSchedule: process.env.WAYBACK_MONITOR_CRON_SCHEDULE || "5 */6 * * *",
     // Haftalik mail bulten — pazartesi 06:00 UTC (push 05:00 sonrasi, 09:00 TRT)
     weeklyMailSchedule: process.env.WEEKLY_MAIL_CRON_SCHEDULE || "0 6 * * 1",
+    // Aylik enflasyon (TCMB EVDS) — ayin 5'i 10:00 UTC (TCMB ayin 3'unde yayinlar, marj birakilir)
+    inflationSchedule: process.env.INFLATION_CRON_SCHEDULE || "0 10 5 * *",
+    // Twitter/X gunluk trending tweet — 08:30 UTC = 11:30 TRT (Telegram'dan 30 dk sonra)
+    twitterSchedule: process.env.TWITTER_CRON_SCHEDULE || "30 8 * * *",
     maxDateFallbackDays: parseEnvInt(process.env.ETL_MAX_DATE_FALLBACK_DAYS, 7),
     autoRegisterProducts: (process.env.ETL_AUTO_REGISTER_PRODUCTS ?? "true").toLowerCase() === "true",
     requestTimeoutMs: parseEnvInt(process.env.ETL_REQUEST_TIMEOUT_MS, 30_000),

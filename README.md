@@ -10,7 +10,7 @@ Canlı servis `vps-vistainsaat` sunucusundadır. SSH erişimi key ile yapılır:
 
 ## Tech Stack
 
-- **Backend:** Fastify 5 · TypeScript · Drizzle ORM · MySQL · Bun (port 8088)
+- **Backend:** Fastify 5 · TypeScript · Drizzle ORM · MySQL · Bun (canli port 8091)
 - **Frontend:** Next.js · React · Tailwind CSS (port 3033)
 - **DB:** `hal_fiyatlari` (MySQL 8), şema prefix: `hf_`
 - **Ortak:** `@agro/shared-backend` (auth, site ayarları, newsletter admin vb.)
@@ -19,7 +19,7 @@ Canlı servis `vps-vistainsaat` sunucusundadır. SSH erişimi key ile yapılır:
 
 ```
 hal-fiyatlari/
-├── backend/                # Fastify API (port 8088)
+├── backend/                # Fastify API (canli port 8091)
 │   ├── src/
 │   │   ├── modules/
 │   │   │   ├── prices/     # Fiyat listeleme ve trend
@@ -60,9 +60,10 @@ cd projects/hal-fiyatlari/frontend && bun run dev
 ## Deploy (`vps-vistainsaat`)
 
 ```
-Backend:   PM2 haldefiyat-backend  → bun dist/index.js (port 8088)
-Frontend:  PM2 haldefiyat-frontend → next start (port 3033)
-Nginx:     haldefiyat.com → /api/* → :8088 | / → :3033
+Backend:   PM2 hal-backend  → bun dist/index.js (port 8091)
+Frontend:  PM2 hal-frontend → next start (port 3033)
+Admin:     PM2 hal-admin    → next start (port 3036)
+Nginx:     haldefiyat.com → /api/* → :8091 | / → :3033
 DB:        hal_fiyatlari @ MySQL
 ```
 
