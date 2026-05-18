@@ -11,8 +11,82 @@ import {
   isHaftalikRapor,
   readingTimeMinutes,
 } from "@/lib/analiz";
-import { fetchAutoWeeklyReport, fetchAutoWeeklyReports, type AutoWeeklyReport } from "@/lib/api";
+import {
+  fetchAutoWeeklyReport,
+  fetchAutoWeeklyReports,
+  fetchPrices,
+  fetchPriceHistory,
+  fetchCityPriceMap,
+  type AutoWeeklyReport,
+} from "@/lib/api";
 import PageContainer from "@/components/layout/PageContainer";
+import AnalizElmaCharts, { type ElmaChartData } from "@/components/sections/AnalizElmaCharts";
+
+const ELMA_CHART_TOKEN = "[[CHART:elma]]";
+
+const ELMA_CESITLERI: { slug: string; ad: string }[] = [
+  { slug: "elma-diger", ad: "Diğer" },
+  { slug: "elma-golden", ad: "Golden" },
+  { slug: "elma-starking", ad: "Starking" },
+  { slug: "elma-granny-smith", ad: "Granny" },
+  { slug: "elma-arjantin", ad: "Arjantin" },
+];
+
+function avgOf(values: number[]): number {
+  const v = values.filter((n) => n > 0);
+  return v.length ? Math.round((v.reduce((a, b) => a + b, 0) / v.length) * 100) / 100 : 0;
+}
+
+async function buildElmaChartData(): Promise<ElmaChartData> {
+  const [cesitRows, history, cityMap] = await Promise.all([
+    Promise.all(
+      ELMA_CESITLERI.map(async (c) => ({
+        ad: c.ad,
+        fiyat: avgOf(
+          (await fetchPrices({ product: c.slug, range: "1d", limit: 60 })).map((r) =>
+            Number(r.avgPrice),
+          ),
+        ),
+      })),
+    ),
+    fetchPriceHistory("elma-golden", undefined, "30d"),
+    fetchCityPriceMap({ product: "elma-golden", range: "1d" }),
+  ]);
+
+  const byDate = new Map<string, number[]>();
+  for (const r of history) {
+    const d = r.recordedDate.slice(0, 10);
+    if (!byDate.has(d)) byDate.set(d, []);
+    byDate.get(d)!.push(Number(r.avgPrice));
+  }
+  const trend = [...byDate.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([d, vals]) => ({
+      tarih: new Date(d + "T12:00:00Z").toLocaleDateString("tr-TR", {
+        day: "2-digit",
+        month: "short",
+      }),
+      fiyat: avgOf(vals),
+    }));
+
+  const cities = [...cityMap.items]
+    .filter((c) => c.avgPrice > 0)
+    .sort((a, b) => b.avgPrice - a.avgPrice);
+  const bolgesel = [...cities.slice(0, 5), ...cities.slice(-5)]
+    .filter((c, i, arr) => arr.findIndex((x) => x.cityName === c.cityName) === i)
+    .map((c) => ({ sehir: c.cityName, fiyat: Math.round(c.avgPrice * 100) / 100 }));
+
+  return {
+    cesitler: cesitRows.filter((c) => c.fiyat > 0),
+    trend,
+    bolgesel,
+    zincir: [
+      { asama: "Üretici (tarla)", fiyat: 18.75 },
+      { asama: "Hal ortalaması", fiyat: 63 },
+      { asama: "Market rafı", fiyat: 92.58 },
+    ],
+  };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -56,10 +130,15 @@ function formatDate(iso: string): string {
   });
 }
 
-function renderContent(icerik: string) {
+function renderContent(icerik: string, chartNode?: React.ReactNode) {
   return icerik.split("\n\n").map((para, i) => {
     const trimmed = para.trim();
     if (!trimmed) return null;
+
+    // Analiz grafik token'ı — server tarafında üretilen chart node'u buraya gömülür
+    if (trimmed === ELMA_CHART_TOKEN) {
+      return chartNode ? <div key={i}>{chartNode}</div> : null;
+    }
 
     // Bold heading lines like "**Başlık**"
     if (trimmed.startsWith("**") && trimmed.endsWith("**")) {
@@ -104,6 +183,11 @@ export default async function AnalizMakalePage({ params }: Props) {
   const weeklyReports = mergeUniqueArticles(autoReports, getHaftalikRaporlar(6)).filter((m) => m.slug !== slug).slice(0, 4);
   const readingTime = readingTimeMinutes(makale.icerik);
   const isWeekly = isHaftalikRapor(makale);
+
+  // İçerikte [[CHART:elma]] varsa canlı veriyi çek, token yerine grafik göm
+  const chartNode = makale.icerik.includes(ELMA_CHART_TOKEN)
+    ? <AnalizElmaCharts data={await buildElmaChartData()} />
+    : undefined;
 
   const newsArticleSchema = {
     headline: makale.baslik,
@@ -192,7 +276,7 @@ export default async function AnalizMakalePage({ params }: Props) {
           </p>
 
           <div className="mt-8 space-y-5">
-            {renderContent(makale.icerik)}
+            {renderContent(makale.icerik, chartNode)}
           </div>
         </article>
 
