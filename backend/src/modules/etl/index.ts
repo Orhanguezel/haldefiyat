@@ -16,6 +16,27 @@ export interface EtlResult extends EtlRunResult {
   durationMs: number;
 }
 
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? process.env.FRONTEND_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
+
+function buildIndexNowUrls(results: EtlResult[]): string[] {
+  const productSlugs = new Set<string>();
+  const marketSlugs = new Set<string>();
+
+  for (const result of results) {
+    for (const slug of result.touchedProductSlugs ?? []) {
+      productSlugs.add(slug);
+    }
+    if (result.touchedMarketSlug && result.inserted > 0) {
+      marketSlugs.add(result.touchedMarketSlug);
+    }
+  }
+
+  return [
+    ...[...productSlugs].map((slug) => `${SITE_URL}/urun/${slug}`),
+    ...[...marketSlugs].map((slug) => `${SITE_URL}/hal/${slug}`),
+  ];
+}
+
 export async function runDailyEtl(targetDate?: string): Promise<EtlResult[]> {
   invalidateAliasCache();
   const results: EtlResult[] = [];
@@ -38,7 +59,7 @@ export async function runDailyEtl(targetDate?: string): Promise<EtlResult[]> {
 
   const totalInserted = results.reduce((sum, r) => sum + r.inserted, 0);
   if (totalInserted > 0) {
-    submitIndexNow().catch(() => {});
+    submitIndexNow(buildIndexNowUrls(results)).catch(() => {});
   }
 
   return results;

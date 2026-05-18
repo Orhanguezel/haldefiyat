@@ -166,6 +166,7 @@ export function buildMetadata(
   const ogImages = (overrideImages && (Array.isArray(overrideImages) ? overrideImages.length > 0 : true))
     ? overrideImages as string[]
     : seoOgImages;
+  const overrideTwitterData = overrideTwitter as { card?: "summary" | "summary_large_image"; site?: string; creator?: string } | undefined;
 
   const meta: Metadata = {
     ...restOverrides,
@@ -182,10 +183,10 @@ export function buildMetadata(
       siteName: siteName,
     },
     twitter: {
-      card: (seo?.twitter?.card as "summary_large_image") ?? overrideTwitter?.card as "summary_large_image" ?? "summary_large_image",
+      card: (seo?.twitter?.card as "summary_large_image") ?? overrideTwitterData?.card ?? "summary_large_image",
       ...(seo?.twitter?.site && { site: seo.twitter.site }),
       ...(seo?.twitter?.creator && { creator: seo.twitter.creator }),
-      ...(overrideTwitter as object),
+      ...(overrideTwitterData as object),
     },
     ...(alternates && { alternates }),
   };

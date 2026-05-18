@@ -63,7 +63,7 @@ export function ContactForm() {
         <p className="text-muted max-w-md mx-auto mb-8">
           Bize ulaştığınız için teşekkür ederiz. Ekibimiz en kısa sürede size geri dönüş yapacaktır.
         </p>
-        <Button onClick={() => setStatus("idle")} variant="outline">
+        <Button onClick={() => setStatus("idle")} variant="secondary">
           Yeni Mesaj Gönder
         </Button>
       </div>

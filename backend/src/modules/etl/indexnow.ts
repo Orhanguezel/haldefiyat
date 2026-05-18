@@ -1,4 +1,4 @@
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? process.env.FRONTEND_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 const INDEXNOW_KEY = process.env.INDEXNOW_KEY ?? "75e8d89807d0a6e3229797e46e260279";
 
 const CORE_URLS = [

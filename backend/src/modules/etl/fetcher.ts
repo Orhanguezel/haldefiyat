@@ -28,6 +28,8 @@ export interface EtlRunResult {
   inserted: number;
   skipped:  number;
   errors:   string[];
+  touchedProductSlugs?: string[];
+  touchedMarketSlug?:   string;
 }
 
 interface NormalizedRow {
@@ -2016,14 +2018,14 @@ function normalizeCategory(raw: string | null, fallback: string): string {
   return slug;
 }
 
-async function findOrCreateProductId(raw: NormalizedRow, source: EtlSourceConfig): Promise<number | null> {
+async function findOrCreateProduct(raw: NormalizedRow, source: EtlSourceConfig): Promise<{ id: number; slug: string } | null> {
   const slug = await resolveProductSlug(raw.name);
   if (slug) {
     const rows = await db.select({ id: hfProducts.id })
       .from(hfProducts)
       .where(eq(hfProducts.slug, slug))
       .limit(1);
-    if (rows[0]) return rows[0].id;
+    if (rows[0]) return { id: rows[0].id, slug };
   }
   if (!env.ETL.autoRegisterProducts) return null;
 
@@ -2054,7 +2056,7 @@ async function findOrCreateProductId(raw: NormalizedRow, source: EtlSourceConfig
     .from(hfProducts)
     .where(eq(hfProducts.slug, newSlug))
     .limit(1);
-  return rows[0]?.id ?? null;
+  return rows[0] ? { id: rows[0].id, slug: newSlug } : null;
 }
 
 // ── Orchestration ───────────────────────────────────────────────────────────
@@ -2094,6 +2096,7 @@ export async function runSourceFetch(
   let inserted = 0;
   let skipped  = 0;
   const errors: string[] = [];
+  const touchedProductSlugs = new Set<string>();
 
   // Market referansı
   const marketRows = await db.select({ id: hfMarkets.id })
@@ -2131,19 +2134,19 @@ export async function runSourceFetch(
     const avg = row.avg ?? (row.min != null && row.max != null ? (row.min + row.max) / 2 : null);
     if (avg == null || !Number.isFinite(avg) || avg <= 0) { skipped++; continue; }
 
-    let productId: number | null = null;
+    let product: { id: number; slug: string } | null = null;
     try {
-      productId = await findOrCreateProductId(row, source);
+      product = await findOrCreateProduct(row, source);
     } catch (err) {
       errors.push(`${row.name}: ${err instanceof Error ? err.message : String(err)}`);
       skipped++;
       continue;
     }
-    if (!productId) { skipped++; continue; }
+    if (!product) { skipped++; continue; }
 
     try {
       await upsertPriceRow({
-        productId,
+        productId: product.id,
         marketId,
         minPrice:     row.min != null ? String(row.min) : null,
         maxPrice:     row.max != null ? String(row.max) : null,
@@ -2151,6 +2154,7 @@ export async function runSourceFetch(
         recordedDate: row.recordedDate ?? outcome.dateUsed,
         sourceApi:    source.key,
       });
+      touchedProductSlugs.add(product.slug);
       inserted++;
     } catch (err) {
       errors.push(`${row.name}: ${err instanceof Error ? err.message : String(err)}`);
@@ -2172,5 +2176,11 @@ export async function runSourceFetch(
         : null,
   });
 
-  return { inserted, skipped, errors };
+  return {
+    inserted,
+    skipped,
+    errors,
+    touchedProductSlugs: [...touchedProductSlugs],
+    touchedMarketSlug: source.marketSlug,
+  };
 }

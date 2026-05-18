@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { setRequestLocale } from "next-intl/server";
 import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
+import JsonLd from "@/components/seo/JsonLd";
 import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -41,6 +42,29 @@ const INDEX_WIDGET = `<iframe
   title="HaldeFiyat Endeksi"
 ></iframe>`;
 
+const widgetDataFeedSchema = {
+  name: "HaldeFiyat Embed Widget Veri Akışı",
+  description:
+    "Güncel hal fiyatları ve HaldeFiyat Endeksi için iframe ile kullanılabilen, 5 dakika önbelleklenen açık veri widget'ları.",
+  url: `${SITE_URL}/embed`,
+  creator: { "@type": "Organization", name: "HaldeFiyat", url: SITE_URL },
+  license: "https://creativecommons.org/licenses/by/4.0/",
+  distribution: [
+    {
+      "@type": "DataDownload",
+      encodingFormat: "text/html",
+      contentUrl: `${SITE_URL}/fiyatlar/widget?limit=6`,
+      name: "Güncel Hal Fiyatları Widget",
+    },
+    {
+      "@type": "DataDownload",
+      encodingFormat: "text/html",
+      contentUrl: `${SITE_URL}/endeks/widget`,
+      name: "HaldeFiyat Endeksi Widget",
+    },
+  ],
+} satisfies Record<string, unknown>;
+
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   return getPageMetadata("embed", {
@@ -58,6 +82,7 @@ export default async function EmbedPage({ params }: Props) {
 
   return (
     <PageContainer>
+      <JsonLd type="DataFeed" data={widgetDataFeedSchema} />
       <Breadcrumb items={[
         { name: "Anasayfa", href: "/" },
         { name: "Embed Widget", href: "/embed" },
