@@ -46,7 +46,8 @@ async function fetchMarkets(): Promise<PriceSitemapItem[]> {
     });
     if (!res.ok) return [];
     const data = await res.json();
-    return (Array.isArray(data) ? data : data.data ?? []).map((m: PriceSitemapItem) => ({
+    const items = (Array.isArray(data) ? data : data.items ?? data.data ?? []) as PriceSitemapItem[];
+    return items.map((m) => ({
       slug: m.slug,
       updated_at: m.updated_at,
     }));
