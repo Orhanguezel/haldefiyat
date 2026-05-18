@@ -171,7 +171,15 @@
       "Bash(grep -oE 'canli-fiyat-akisi.{0,1200}')",
       "Bash(curl -s \"https://haldefiyat.com/api/v1/prices/trending?limit=40\")",
       "Bash(curl -s \"https://haldefiyat.com/api/v1/prices/widget?limit=30\")",
-      "Bash(scp '/home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/\\(public\\)/page.tsx' 'vps-vistainsaat:/var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/\\(public\\)/page.tsx')"
+      "Bash(scp '/home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/\\(public\\)/page.tsx' 'vps-vistainsaat:/var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/\\(public\\)/page.tsx')",
+      "Bash(scp -q /tmp/hal_seo_seed.sql vps-vistainsaat:/tmp/hal_seo_seed.sql)",
+      "Bash(scp -q 026_analysis_reports_schema.sql 027_press_pr_schema.sql 028_press_email_templates.sql vps-vistainsaat:/tmp/)",
+      "Bash(sed -n '245,265p' backend/src/config/etl-sources.ts)",
+      "Bash(sed -n '357,378p' backend/src/config/etl-sources.ts)",
+      "Bash(scp -q frontend/src/app/sitemap.ts vps-vistainsaat:/var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/sitemap.ts)",
+      "Bash(sed -n '60,100p' frontend/src/lib/seo.ts)",
+      "Bash(sed -n '140,200p' frontend/src/lib/seo.ts)",
+      "Bash(git check-ignore *)"
     ],
     "additionalDirectories": [
       "/home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/(public)"

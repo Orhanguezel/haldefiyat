@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Route handler /api/og/urun/[slug] — proxy matcher'da bypass.
   const ogImages = [
     {
-      url: `${SITE_URL_META}/api/og/urun/${slug}`,
+      url: `${SITE_URL_META}/og/urun/${slug}`,
       width: 1200,
       height: 630,
       alt: `${product.nameTr} hal fiyatı`,

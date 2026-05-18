@@ -24,9 +24,13 @@ export const config = {
   // dinamik OG route'lari `[locale]` altinda nested URL uretir (orn.
   // /urun/domates/opengraph-image) — path-basi alternatifi yakalamaz; nokta
   // deseni (`.*\..*`) gibi "her yerde" eslesen `.*opengraph-image.*` gerekir.
+  // `og/` = i18n-bağımsız dinamik OG route handler'ları (/og/urun/[slug] vb.)
+  // — nginx `/api/`yi backend'e yolladığı için OG namespace'i `/og/`; bunlar
+  // i18n'e sokulmamalı (aksi halde 307). `og/` (slash'lı) → /oguz gibi gerçek
+  // sayfaları yanlışlıkla dışlamaz.
   matcher: [
     "/",
     "/(tr)/:path*",
-    "/((?!api|_next|_vercel|icon|apple-icon|.*opengraph-image.*|.*twitter-image.*|.*\\..*).*)",
+    "/((?!api|_next|_vercel|icon|apple-icon|og/|.*opengraph-image.*|.*twitter-image.*|.*\\..*).*)",
   ],
 };

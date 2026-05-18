@@ -3,9 +3,10 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 // KANONİK DİNAMİK OG REFERANSI (route handler — i18n bağımsız).
-// /api/og/urun/[slug] → /api/ proxy matcher'da bypass; file-convention
-// opengraph-image.tsx [locale]/as-needed altında 307 döngüsüne girdiği
-// için route handler'a çevrildi. Codex bu pattern'i hal/analiz'e replike eder.
+// URL: /og/urun/[slug]. `/api/` nginx'te Fastify backend'e gittiği için OG
+// namespace'i `/og/`; proxy matcher `og/` ile bypass eder. file-convention
+// opengraph-image.tsx [locale]/as-needed altında 307 döngüsüne girdiği için
+// route handler'a çevrildi. Codex bu pattern'i hal/analiz'e replike eder.
 
 export const revalidate = 3600;
 const size = { width: 1200, height: 630 };
