@@ -2,13 +2,13 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
-// KANONİK DİNAMİK OG REFERANSI — Codex bu pattern'i hal/[slug] ve
-// analiz/[slug] segmentlerine birebir replike eder. Marka şablonu
-// (renk/oran/tipografi) Antigravity checklist'iyle senkron tutulur.
+// KANONİK DİNAMİK OG REFERANSI (route handler — i18n bağımsız).
+// /api/og/urun/[slug] → /api/ proxy matcher'da bypass; file-convention
+// opengraph-image.tsx [locale]/as-needed altında 307 döngüsüne girdiği
+// için route handler'a çevrildi. Codex bu pattern'i hal/analiz'e replike eder.
 
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
-export const alt = "HalDeFiyat — Güncel Hal Fiyatı";
+export const revalidate = 3600;
+const size = { width: 1200, height: 630 };
 
 const API: string =
   process.env.BACKEND_URL ??
@@ -18,7 +18,7 @@ const API: string =
 const BRAND = "#6FBD0F"; // --brand rgb(111,189,15)
 const INK = "#0A0E1A";
 
-type Props = { params: Promise<{ slug: string; locale: string }> };
+type Props = { params: Promise<{ slug: string }> };
 
 async function loadFont(): Promise<ArrayBuffer | null> {
   // Bundled Outfit-800 (Antigravity teslimi) — ağ bağımsız, Türkçe (Latin Ext)
@@ -47,7 +47,7 @@ async function fetchProduct(slug: string) {
   }
 }
 
-export default async function OgImage({ params }: Props) {
+export async function GET(_req: Request, { params }: Props) {
   const { slug } = await params;
   const [product, font] = await Promise.all([fetchProduct(slug), loadFont()]);
   const name: string = product?.nameTr ?? "Hal Fiyatı";

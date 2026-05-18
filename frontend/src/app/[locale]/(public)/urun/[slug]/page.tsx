@@ -19,7 +19,6 @@ import ExportButton from "@/components/ui/ExportButton";
 import { getEmoji } from "@/lib/emoji";
 import { getPageMetadata } from "@/lib/seo";
 import ProductImage from "@/components/ui/ProductImage";
-import { getProductImage } from "@/lib/product-images";
 import { getProductEditorial } from "@/lib/product-content";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -44,10 +43,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const imgPath = getProductImage(slug);
-  const ogImages = imgPath
-    ? [{ url: `${SITE_URL_META}${imgPath}`, width: 800, height: 600, alt: `${product.nameTr} hal fiyatı` }]
-    : undefined;
+  // Her ürün için i18n-bağımsız dinamik OG (ürün adı render edilir).
+  // Route handler /api/og/urun/[slug] — proxy matcher'da bypass.
+  const ogImages = [
+    {
+      url: `${SITE_URL_META}/api/og/urun/${slug}`,
+      width: 1200,
+      height: 630,
+      alt: `${product.nameTr} hal fiyatı`,
+    },
+  ];
 
   return getPageMetadata("urun", {
     locale,
