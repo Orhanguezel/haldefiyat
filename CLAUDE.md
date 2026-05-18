@@ -103,7 +103,8 @@ hal-fiyatlari tarafi:
 
 ### Aktif Source'lar (HF_SCRAPER_SOURCES)
 - `antalya_merkez_antkomder` (✅ Asama 1+2: 1102 error → 24 inserted, POST 939ms)
-- `kocaeli_merkez` (✅ Asama 2: 162 error → 112 inserted, POST 1835ms)
+- ~~`kocaeli_merkez`~~ — 2026-05-18: HF_SCRAPER_SOURCES'tan ÇIKARILDI. Site 5+ gündür down (timeout), Scrapling de çözemiyor. Site geri gelince tekrar ekle.
+- `yalova_resmi` (✅ 2026-05-18: direct fetch `socket closed` vermeye başladı → HF_SCRAPER_SOURCES'a eklendi, Scrapling ile **66 inserted**)
 - `hal_gov_tr_ulusal` (✅ Asama 3: hep timeout → **434 inserted**, multi-step Scrapling 66s)
 - `corum_resmi` (✅ Asama 5: JS-rendered, Scrapling, **60 inserted**)
 - `canakkale_resmi` (✅ Asama 5: timeout direkt, Scrapling, **85 inserted**)
@@ -151,7 +152,8 @@ hal-fiyatlari tarafi:
 | antalya_kumluca_antkomder | HTTP 200 bos | ✅ Scrapling (kanitsiz, URL pattern ayni) |
 | kayseri_resmi | HTTP 200 bos | ⚠️ Scrapling cevap aldi ama parser 0 row, debug bekliyor |
 | gaziantep_resmi | HTTP 200 bos | ⏸️ Scrapling html geliyor (258KB) ama tablo yok — parser yenilemeli |
-| kocaeli_merkez | Site sunucu DOWN (timeout) | 🚫 defaultEnabled: false (2026-05-13). DNS OK (195.142.243.21) ama hic yanit yok. Site geri gelince true yap |
+| kocaeli_merkez | Site sunucu DOWN (timeout) | 🚫 defaultEnabled: false (2026-05-13) + HF_SCRAPER_SOURCES'tan da çıkarıldı (2026-05-18). 5+ gün down. Site geri gelince ikisini de geri al |
+| yalova_resmi | socket closed (2026-05-18) | ✅ HF_SCRAPER_SOURCES'a eklendi, Scrapling ile 66 inserted. (.env'de ETL_HEALTH_IGNORE_EMPTY_SOURCES=antalya_serik_antkomder,antalya_kumluca_antkomder — by-design 0 satır uyarısı susturuldu) |
 | bolu_resmi | URL pattern degisti | ✅ 2026-05-13 fix: kategori sayfasi + haftalik-fiyat-listesi pattern destek |
 | mersin_resmi | socket closed | 🔜 Asama 2 |
 | balikesir_resmi | socket closed | 🔜 Asama 2: 2-step CSRF + POST |

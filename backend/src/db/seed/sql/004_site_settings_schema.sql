@@ -33,3 +33,12 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'gtm_container_id',   '*', '""'),
 (UUID(), 'contact_phone',      '*', '"+90 530 048 41 83"'),
 (UUID(), 'contact_email',      '*', '"atakan07sahin@gmail.com"');
+
+-- Global SEO defaults — frontend layout.tsx fetchGlobalSeo bunlari ister;
+-- yoksa her sayfa render'inda 404 dongusu + SEO meta uretilmemesi olusur.
+-- seoSchemaStrict + siteMetaDefaultSchemaStrict ile uyumlu.
+-- site_seo: '*' global; site_meta_default: per-locale ('*' yasak, tr zorunlu).
+INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
+(UUID(), 'site_seo', '*', '{"site_name":"HalDeFiyat","title_default":"HalDeFiyat | Türkiye Güncel Hal Fiyatları","title_template":"%s | HalDeFiyat","description":"Türkiye geneli hallerden günlük güncel sebze ve meyve fiyatları. 22+ kaynaktan toptan ve market fiyat takibi.","open_graph":{"type":"website","images":["/brand-logo.png"]},"twitter":{"card":"summary_large_image","site":"","creator":""},"robots":{"noindex":false,"index":true,"follow":true}}'),
+(UUID(), 'site_meta_default', 'tr', '{"title":"HalDeFiyat | Türkiye Güncel Hal Fiyatları","description":"Türkiye geneli hallerden günlük güncel sebze ve meyve fiyatları. Toptan ve market fiyatları karşılaştırması, fiyat geçmişi ve analiz.","keywords":"hal fiyatları, sebze fiyatları, meyve fiyatları, günlük hal fiyatları, toptan fiyat, market fiyatları, fiyat karşılaştırma"}')
+ON DUPLICATE KEY UPDATE `value` = VALUES(`value`);
