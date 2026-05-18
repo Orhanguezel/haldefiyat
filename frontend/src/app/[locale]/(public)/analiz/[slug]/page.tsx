@@ -16,7 +16,6 @@ import {
   fetchAutoWeeklyReports,
   fetchPrices,
   fetchPriceHistory,
-  fetchCityPriceMap,
   type AutoWeeklyReport,
 } from "@/lib/api";
 import PageContainer from "@/components/layout/PageContainer";
@@ -38,7 +37,7 @@ function avgOf(values: number[]): number {
 }
 
 async function buildElmaChartData(): Promise<ElmaChartData> {
-  const [cesitRows, history, cityMap] = await Promise.all([
+  const [cesitRows, history, goldenRows] = await Promise.all([
     Promise.all(
       ELMA_CESITLERI.map(async (c) => ({
         ad: c.ad,
@@ -50,7 +49,7 @@ async function buildElmaChartData(): Promise<ElmaChartData> {
       })),
     ),
     fetchPriceHistory("elma-golden", undefined, "30d"),
-    fetchCityPriceMap({ product: "elma-golden", range: "1d" }),
+    fetchPrices({ product: "elma-golden", range: "7d", limit: 400 }),
   ]);
 
   const byDate = new Map<string, number[]>();
@@ -69,12 +68,22 @@ async function buildElmaChartData(): Promise<ElmaChartData> {
       fiyat: avgOf(vals),
     }));
 
-  const cities = [...cityMap.items]
-    .filter((c) => c.avgPrice > 0)
-    .sort((a, b) => b.avgPrice - a.avgPrice);
-  const bolgesel = [...cities.slice(0, 5), ...cities.slice(-5)]
-    .filter((c, i, arr) => arr.findIndex((x) => x.cityName === c.cityName) === i)
-    .map((c) => ({ sehir: c.cityName, fiyat: Math.round(c.avgPrice * 100) / 100 }));
+  // Şehir bazlı ortalama — /prices satırlarını cityName ile grupla
+  const cityAgg = new Map<string, number[]>();
+  for (const r of goldenRows) {
+    const city = r.cityName?.trim();
+    const v = Number(r.avgPrice);
+    if (!city || !(v > 0)) continue;
+    if (!cityAgg.has(city)) cityAgg.set(city, []);
+    cityAgg.get(city)!.push(v);
+  }
+  const cities = [...cityAgg.entries()]
+    .map(([sehir, vals]) => ({ sehir, fiyat: avgOf(vals) }))
+    .filter((c) => c.fiyat > 0)
+    .sort((a, b) => b.fiyat - a.fiyat);
+  const bolgesel = [...cities.slice(0, 5), ...cities.slice(-5)].filter(
+    (c, i, arr) => arr.findIndex((x) => x.sehir === c.sehir) === i,
+  );
 
   return {
     cesitler: cesitRows.filter((c) => c.fiyat > 0),
