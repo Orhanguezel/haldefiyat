@@ -11,90 +11,13 @@ import {
   isHaftalikRapor,
   readingTimeMinutes,
 } from "@/lib/analiz";
-import {
-  fetchAutoWeeklyReport,
-  fetchAutoWeeklyReports,
-  fetchPrices,
-  fetchPriceHistory,
-  type AutoWeeklyReport,
-} from "@/lib/api";
+import { fetchAutoWeeklyReport, fetchAutoWeeklyReports, type AutoWeeklyReport } from "@/lib/api";
 import PageContainer from "@/components/layout/PageContainer";
-import AnalizElmaCharts, { type ElmaChartData } from "@/components/sections/AnalizElmaCharts";
 
-const ELMA_CHART_TOKEN = "[[CHART:elma]]";
-
-const ELMA_CESITLERI: { slug: string; ad: string }[] = [
-  { slug: "elma-diger", ad: "Diğer" },
-  { slug: "elma-golden", ad: "Golden" },
-  { slug: "elma-starking", ad: "Starking" },
-  { slug: "elma-granny-smith", ad: "Granny" },
-  { slug: "elma-arjantin", ad: "Arjantin" },
-];
-
-function avgOf(values: number[]): number {
-  const v = values.filter((n) => n > 0);
-  return v.length ? Math.round((v.reduce((a, b) => a + b, 0) / v.length) * 100) / 100 : 0;
-}
-
-async function buildElmaChartData(): Promise<ElmaChartData> {
-  const [cesitRows, history, goldenRows] = await Promise.all([
-    Promise.all(
-      ELMA_CESITLERI.map(async (c) => ({
-        ad: c.ad,
-        fiyat: avgOf(
-          (await fetchPrices({ product: c.slug, range: "1d", limit: 60 })).map((r) =>
-            Number(r.avgPrice),
-          ),
-        ),
-      })),
-    ),
-    fetchPriceHistory("elma-golden", undefined, "30d"),
-    fetchPrices({ product: "elma-golden", range: "7d", limit: 400 }),
-  ]);
-
-  const byDate = new Map<string, number[]>();
-  for (const r of history) {
-    const d = r.recordedDate.slice(0, 10);
-    if (!byDate.has(d)) byDate.set(d, []);
-    byDate.get(d)!.push(Number(r.avgPrice));
-  }
-  const trend = [...byDate.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([d, vals]) => ({
-      tarih: new Date(d + "T12:00:00Z").toLocaleDateString("tr-TR", {
-        day: "2-digit",
-        month: "short",
-      }),
-      fiyat: avgOf(vals),
-    }));
-
-  // Şehir bazlı ortalama — /prices satırlarını cityName ile grupla
-  const cityAgg = new Map<string, number[]>();
-  for (const r of goldenRows) {
-    const city = r.cityName?.trim();
-    const v = Number(r.avgPrice);
-    if (!city || !(v > 0)) continue;
-    if (!cityAgg.has(city)) cityAgg.set(city, []);
-    cityAgg.get(city)!.push(v);
-  }
-  const cities = [...cityAgg.entries()]
-    .map(([sehir, vals]) => ({ sehir, fiyat: avgOf(vals) }))
-    .filter((c) => c.fiyat > 0)
-    .sort((a, b) => b.fiyat - a.fiyat);
-  const bolgesel = [...cities.slice(0, 5), ...cities.slice(-5)].filter(
-    (c, i, arr) => arr.findIndex((x) => x.sehir === c.sehir) === i,
-  );
-
-  return {
-    cesitler: cesitRows.filter((c) => c.fiyat > 0),
-    trend,
-    bolgesel,
-    zincir: [
-      { asama: "Üretici (tarla)", fiyat: 18.75 },
-      { asama: "Hal ortalaması", fiyat: 63 },
-      { asama: "Market rafı", fiyat: 92.58 },
-    ],
-  };
+// İçerik HTML ile başlıyorsa zengin rapor (kendi <style> + inline SVG) olarak
+// render edilir; aksi halde markdown-benzeri paragraf render'ı kullanılır.
+function isHtmlContent(icerik: string): boolean {
+  return icerik.trimStart().startsWith("<");
 }
 
 export const dynamic = "force-dynamic";
@@ -139,15 +62,10 @@ function formatDate(iso: string): string {
   });
 }
 
-function renderContent(icerik: string, chartNode?: React.ReactNode) {
+function renderContent(icerik: string) {
   return icerik.split("\n\n").map((para, i) => {
     const trimmed = para.trim();
     if (!trimmed) return null;
-
-    // Analiz grafik token'ı — server tarafında üretilen chart node'u buraya gömülür
-    if (trimmed === ELMA_CHART_TOKEN) {
-      return chartNode ? <div key={i}>{chartNode}</div> : null;
-    }
 
     // Bold heading lines like "**Başlık**"
     if (trimmed.startsWith("**") && trimmed.endsWith("**")) {
@@ -192,11 +110,7 @@ export default async function AnalizMakalePage({ params }: Props) {
   const weeklyReports = mergeUniqueArticles(autoReports, getHaftalikRaporlar(6)).filter((m) => m.slug !== slug).slice(0, 4);
   const readingTime = readingTimeMinutes(makale.icerik);
   const isWeekly = isHaftalikRapor(makale);
-
-  // İçerikte [[CHART:elma]] varsa canlı veriyi çek, token yerine grafik göm
-  const chartNode = makale.icerik.includes(ELMA_CHART_TOKEN)
-    ? <AnalizElmaCharts data={await buildElmaChartData()} />
-    : undefined;
+  const isHtml = isHtmlContent(makale.icerik);
 
   const newsArticleSchema = {
     headline: makale.baslik,
@@ -284,9 +198,14 @@ export default async function AnalizMakalePage({ params }: Props) {
             {makale.ozet}
           </p>
 
-          <div className="mt-8 space-y-5">
-            {renderContent(makale.icerik, chartNode)}
-          </div>
+          {isHtml ? (
+            <div
+              className="mt-8"
+              dangerouslySetInnerHTML={{ __html: makale.icerik }}
+            />
+          ) : (
+            <div className="mt-8 space-y-5">{renderContent(makale.icerik)}</div>
+          )}
         </article>
 
         <aside className="space-y-5 lg:sticky lg:top-28 lg:self-start">

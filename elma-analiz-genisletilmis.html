@@ -1,27 +1,13 @@
-SET NAMES utf8mb4;
-SET time_zone = '+00:00';
-
--- Manuel analiz: Elma Fiyat Analizi — Mayıs 2026 (GENİŞLETİLMİŞ HTML sürüm).
--- content tam HTML (scoped <style> .hdf-* + inline SVG, JS yok). Tema
--- token'larina baglidir. analiz/[slug] isHtmlContent() ile HTML render eder.
-
-INSERT INTO hf_analysis_reports
-  (slug, title, summary, content, author, tags, iso_week, week_start, week_end,
-   report_date, source, status, total_records, published_at)
-VALUES (
-  'elma-fiyat-analizi-mayis-2026',
-  'Elma Fiyat Analizi — Mayıs 2026: Don Şoku, Rekor Makas ve Bölgesel Parçalanma',
-  'Don kaynaklı arz şoku ile talep yıkımı aynı anda yaşanıyor: elma, Nisan TZOB raporunda %393,7 ile tüm yaş meyve-sebzede en geniş üretici–market makasına sahip ürün oldu. Mayıs sonunda kaliteli stok eridikçe Golden yukarı dönerken ulusal ortalama gerçeği gizliyor; asıl tablo bölgesel parçalanmada.',
-  '<!-- =========================================================================
+<!-- =========================================================================
   HaldeFiyat — Elma Fiyat Analizi (Mayıs 2026) — GENİŞLETİLMİŞ SÜRÜM
   Tek parça, JS bağımlılığı YOK. Tüm grafikler inline <svg>.
   Site temasına uyum: renkler :root CSS değişkenlerinden okunur,
-  istersen kendi tasarım token''larınla override edebilirsin.
-  Gömme: <article> bloğunu CMS içeriğine, <style>''ı head''e taşıyabilirsin.
+  istersen kendi tasarım token'larınla override edebilirsin.
+  Gömme: <article> bloğunu CMS içeriğine, <style>'ı head'e taşıyabilirsin.
 ========================================================================= -->
 <style>
   .hdf-report{
-    /* Site tema token''larina baglanir — light/dark otomatik uyum */
+    /* Site tema token'larina baglanir — light/dark otomatik uyum */
     --hdf-ink:var(--color-foreground,#1a1a17);
     --hdf-muted:var(--color-muted,#6b6b63);
     --hdf-line:var(--color-border,#e3e1d8);
@@ -32,7 +18,7 @@ VALUES (
     --hdf-chain1:var(--color-success,#1d9e75);
     --hdf-chain2:#ba7517;
     --hdf-chain3:var(--color-danger,#d85a30);
-    --hdf-serif:var(--font-display,Georgia,''Times New Roman'',serif);
+    --hdf-serif:var(--font-display,Georgia,'Times New Roman',serif);
     --hdf-sans:inherit;
     color:var(--hdf-ink);
     font-family:var(--hdf-sans);
@@ -117,7 +103,7 @@ VALUES (
   </div>
 
   <p class="hdf-lead">
-    Türkiye elma piyasası Mayıs 2026''da görünürde çelişkili bir tablo veriyor:
+    Türkiye elma piyasası Mayıs 2026'da görünürde çelişkili bir tablo veriyor:
     arz nesnel olarak kıt, ama ulusal ortalama fiyat sakin. Bu paradoksu çözmek
     için dört kuvveti birlikte okumak gerekiyor — don kaynaklı arz şoku, yüksek
     enflasyonun yarattığı talep yıkımı, fiyat zincirindeki yapısal makas ve
@@ -129,7 +115,7 @@ VALUES (
     <div class="hdf-kpi"><small>Isparta rekolte kaybı</small><strong>~%40</strong><span>1,25M → ~0,8M ton</span></div>
     <div class="hdf-kpi"><small>Karaman don hasarı</small><strong>~%90</strong><span>üretim 50–100 bin ton</span></div>
     <div class="hdf-kpi"><small>Üretici–market makası</small><strong>%393,7</strong><span>tüm üründe en geniş</span></div>
-    <div class="hdf-kpi"><small>İhracat statüsü</small><strong style="font-size:19px">Kayda bağlı</strong><span>Mart 2026''dan beri</span></div>
+    <div class="hdf-kpi"><small>İhracat statüsü</small><strong style="font-size:19px">Kayda bağlı</strong><span>Mart 2026'dan beri</span></div>
   </div>
 
   <!-- ================= ÖZET BULGULAR ================= -->
@@ -139,9 +125,9 @@ VALUES (
     mahsulünü ~%40 kırdı, ama tüketici talebi enflasyonla çöktüğü için ulusal
     ortalama fiyat yatay kaldı. <b>(2)</b> Şişkinlik tarlada değil zincirde:
     tarlada ₺18,75 olan elma, hal ortalaması ~₺62,76 üzerinden market rafında
-    ₺92,58''e çıkıyor — yaklaşık 5 kat. <b>(3)</b> "Ulusal ortalama" bir
-    yanılsama; aynı gün Mersin''de ₺45,94 olan Golden, Yalova''da ₺110 —
-    <b>2,4 kat fark</b>. <b>(4)</b> Mart 2026''da elma ihracatının kayda
+    ₺92,58'e çıkıyor — yaklaşık 5 kat. <b>(3)</b> "Ulusal ortalama" bir
+    yanılsama; aynı gün Mersin'de ₺45,94 olan Golden, Yalova'da ₺110 —
+    <b>2,4 kat fark</b>. <b>(4)</b> Mart 2026'da elma ihracatının kayda
     bağlanması, kıt arz yılında üretici fiyatını yukarı çekebilecek tek güçlü
     talep kanalını sınırladı. <b>(5)</b> Eriyen ~50 bin tonluk depo + yeni don
     riski, yaz boyunca (Eylül hasadına dek) yukarı yönlü baskı anlamına geliyor.
@@ -155,7 +141,7 @@ VALUES (
     fiyatı yukarı gidiyor (+%5,3 / 7 gün), buna karşılık elden çıkarılan düşük
     kaliteli "diğer" elmalar geriliyor (−%6,3). İthal <b>Arjantin</b> elması
     (₺86,55) ile yerli Golden (₺62,76) arasındaki fark, ithalat maliyeti ve kur
-    etkisini gösteriyor. Bu, Nisan tablosuyla birebir tutarlı: TZOB''un "talep
+    etkisini gösteriyor. Bu, Nisan tablosuyla birebir tutarlı: TZOB'un "talep
     düşüşü üretici fiyatını çekti" tespiti ile şimdiki "kaliteli stok azalınca
     Golden yükseliyor" sinyali aynı sezonun iki ayrı evresi.
   </p>
@@ -213,15 +199,15 @@ VALUES (
   <!-- ================= GRAFİK 2: 30 GÜN TREND ================= -->
   <h2><span class="n">03</span>Golden elma: son 30 günde yön yukarı</h2>
   <p>
-    Golden''ın ulusal ortalaması son bir ayda dalgalı ama net bir yukarı eğilimde.
+    Golden'ın ulusal ortalaması son bir ayda dalgalı ama net bir yukarı eğilimde.
     Nisan ortasındaki talep zayıflığı fiyatı ~₺58 seviyesine kadar bastırdıktan
-    sonra, Mayıs''la birlikte soğuk hava deposundaki kaliteli stok inceldikçe
+    sonra, Mayıs'la birlikte soğuk hava deposundaki kaliteli stok inceldikçe
     fiyat yeniden ₺63–66 bandına tırmandı. Bu, "bol arz" değil "azalan kaliteli
     arz" kaynaklı bir yükseliş — talep güçlü olduğu için değil.
   </p>
 
   <figure class="hdf-fig">
-    <svg viewBox="0 0 760 300" role="img" aria-label="Golden elma son 30 gün ulusal ortalama fiyat eğrisi: nisan ortası yaklaşık 58 TL''den mayıs ortasında yaklaşık 66 TL''ye yükseliş.">
+    <svg viewBox="0 0 760 300" role="img" aria-label="Golden elma son 30 gün ulusal ortalama fiyat eğrisi: nisan ortası yaklaşık 58 TL'den mayıs ortasında yaklaşık 66 TL'ye yükseliş.">
       <g stroke="var(--hdf-line)" stroke-width="1">
         <line x1="60" y1="40"  x2="730" y2="40"/>
         <line x1="60" y1="100" x2="730" y2="100"/>
@@ -264,8 +250,8 @@ VALUES (
   <p>
     TZOB Genel Başkanı Şemsi Bayraktar, üretici ile market arasındaki fiyat
     farkının %393,7 ile en fazla elmada gerçekleştiğini bildirdi. Üreticide
-    ₺18,75 olan elma markette ₺92,58''e — yaklaşık 5 katına — yükseldi. Kritik
-    nokta: Nisan''da makas, çiftçi kazandığı için değil, market fiyatı yapışkan
+    ₺18,75 olan elma markette ₺92,58'e — yaklaşık 5 katına — yükseldi. Kritik
+    nokta: Nisan'da makas, çiftçi kazandığı için değil, market fiyatı yapışkan
     biçimde yüksek kalırken talep düşüşü üretici fiyatını aşağı çektiği için
     rekor kırdı. Aradaki hal ortalaması (~₺62,76) zincirin orta halkasını
     oluşturuyor; şişkinliğin büyük kısmı hal sonrası halkalarda — komisyon,
@@ -319,7 +305,7 @@ VALUES (
   <p>
     Asıl hikâyeyi "ulusal ortalama" gizliyor. Golden ortalaması yıllık bazda
     +%2 ile neredeyse yatay görünse de, altında sert sıçramalar ve düşüşler yan
-    yana duruyor. Karaman''ın mahsulü ~%90 silindiği için ona yakın <b>Konya
+    yana duruyor. Karaman'ın mahsulü ~%90 silindiği için ona yakın <b>Konya
     hali +%135</b>, <b>Mersin +%112</b>, <b>İzmir +%67</b> ile patlarken; büyük
     ithal ve çok kaynaklı haller hâlâ gevşek: <b>İstanbul −%12</b>,
     <b>Denizli −%28</b>. 18 Mayıs günü çıplak fiyatla bakınca tablo daha da net:
@@ -403,18 +389,18 @@ VALUES (
   <!-- ================= DON ŞOKU ================= -->
   <h2><span class="n">06</span>Don şoku: arz nesnel olarak kıt</h2>
   <p>
-    <b>2025-26 sezonu</b>, Nisan 2025''te yaşanan zirai donla vuruldu. Isparta''da
+    <b>2025-26 sezonu</b>, Nisan 2025'te yaşanan zirai donla vuruldu. Isparta'da
     rekolte beklentisi yaklaşık %40 azalarak 1,25 milyon tondan ~800 bin tona
     düştü; Türkiye elmasının dörtte birini Isparta üretiyor ve ülkenin soğuk
-    hava depo zincirinde birinci sırada (~500 bin ton kapasite). Karaman''da don
-    hasarı %90''a varırken üretim, 800 bin ton beklentisinden 50–100 bin ton
-    seviyesine indi. 13 Mayıs 2026 itibarıyla Isparta''da geçen sezondan kalan
+    hava depo zincirinde birinci sırada (~500 bin ton kapasite). Karaman'da don
+    hasarı %90'a varırken üretim, 800 bin ton beklentisinden 50–100 bin ton
+    seviyesine indi. 13 Mayıs 2026 itibarıyla Isparta'da geçen sezondan kalan
     yaklaşık 50 bin ton elma soğuk hava depolarında alıcı bekliyor; Isparta
     Ziraat Odası, "100 bin ton" iddialarının gerçeği yansıtmadığını, depolarda
     ~50 bin ton bulunduğunu açıkladı.
   </p>
   <p>
-    Risk geçmiş değil: Tarım ve Orman Bakanlığı, 7–11 Nisan 2026 için Isparta''da
+    Risk geçmiş değil: Tarım ve Orman Bakanlığı, 7–11 Nisan 2026 için Isparta'da
     elma ve gül bahçelerinde <b>yeni bir zirai don riski</b> uyarısı yaptı —
     yani <b>2026-27 sezonu</b> da baskı altında. İki sezonu birbirine
     karıştırmamak önemli: <i>Nisan 2025 donu → 2025-26 mahsulünü</i> kırdı;
@@ -424,11 +410,11 @@ VALUES (
   <!-- ================= YENİ: İHRACAT PAZARLARI ================= -->
   <h2><span class="n">07</span>İhracat boyutu: kayda bağlamanın asıl etkisi</h2>
   <p>
-    Mart 2026''da Ticaret Bakanlığı, beyaz et, yumurta, nohut ve kuru fasulye
+    Mart 2026'da Ticaret Bakanlığı, beyaz et, yumurta, nohut ve kuru fasulye
     ihracatını sınırlandırırken <b>elma ve limonu Kayda Bağlı Mallar
-    Listesi''ne</b> aldı; gerekçe, fiyat hareketlerinin iç piyasa dengesini
+    Listesi'ne</b> aldı; gerekçe, fiyat hareketlerinin iç piyasa dengesini
     zorlaması. Bu, daha geniş bir gıda paketinin parçası — aynı dönemde limon
-    gümrük vergisi 31 Temmuz 2026''ya dek geçici olarak %10''a çekildi. Bakanlık,
+    gümrük vergisi 31 Temmuz 2026'ya dek geçici olarak %10'a çekildi. Bakanlık,
     gerekirse ihracat düzenlemelerinin yanı sıra ithalat enstrümanlarının da
     devreye alınabileceğini vurguladı.
   </p>
@@ -440,7 +426,7 @@ VALUES (
     kanalı zayıflattığında tarla fiyatı baskılanıyor, ama tüketici fiyatı
     düşmüyor — çünkü şişkinlik tarlada değil, zincirin alt halkalarında. Net
     sonuç bir <b>kıskaç</b>: don üreticinin <i>hacmini</i> kesiyor, ihracat
-    tedbiri üreticinin <i>fiyatını</i> sınırlıyor, tüketici ise hâlâ ₺92''lik
+    tedbiri üreticinin <i>fiyatını</i> sınırlıyor, tüketici ise hâlâ ₺92'lik
     rafa bakıyor. Devletin "stokçuluğa geçit yok" çerçevesi siyaseten güçlü
     olsa da veri, sorunun ağırlıkla yapısal makas + don + politika üçgeninden
     kaynaklandığını gösteriyor.
@@ -449,9 +435,9 @@ VALUES (
   <!-- ================= YENİ: SENARYOLAR ================= -->
   <h2><span class="n">08</span>İleriye dönük: üç senaryo</h2>
   <p>
-    Eriyen ~50 bin tonluk depo, Mayıs''ta Golden''ın yukarı dönmesi (+%5,3 / 7
+    Eriyen ~50 bin tonluk depo, Mayıs'ta Golden'ın yukarı dönmesi (+%5,3 / 7
     gün) ve 2026 don riskinin yeni sezonu da tehdit etmesi birlikte
-    değerlendirildiğinde, yaz boyunca (yeni hasat Eylül''e dek) ana eğilim yukarı
+    değerlendirildiğinde, yaz boyunca (yeni hasat Eylül'e dek) ana eğilim yukarı
     yönlü. Olası üç patika:
   </p>
   <table class="hdf-table">
@@ -498,12 +484,12 @@ VALUES (
     Referans gün: 18 Mayıs 2026.</p>
     <p style="margin:6px 0"><b>Fiyat zinciri (tarla → market):</b> TZOB Türkiye
     Ziraat Odaları Birliği Nisan 2026 üretici–market fiyat farkı raporu;
-    aylık resmi referanstır, Mayıs verisi ~1 Haziran 2026''da kesinleşir.</p>
+    aylık resmi referanstır, Mayıs verisi ~1 Haziran 2026'da kesinleşir.</p>
     <p style="margin:6px 0"><b>Arz verileri:</b> Isparta ve Karaman Ziraat
     Odası başkanlarının basına açıklamaları (rekolte, don hasarı, depo stoğu;
     Eylül 2025 – 13 Mayıs 2026).</p>
     <p style="margin:6px 0"><b>Politika:</b> T.C. Ticaret Bakanlığı açıklaması
-    ve Resmî Gazete''de yayımlanan İhracı Kayda Bağlı Mallara İlişkin Tebliğ
+    ve Resmî Gazete'de yayımlanan İhracı Kayda Bağlı Mallara İlişkin Tebliğ
     değişikliği (Mart 2026); yeni don riski uyarısı: Tarım ve Orman Bakanlığı
     (7–11 Nisan 2026).</p>
     <p style="margin:6px 0"><b>Not:</b> Üretici/market değerleri aylık, hal
@@ -517,27 +503,4 @@ VALUES (
     Güncel hal fiyatları ve canlı grafikler için ürün sayfalarını ziyaret edin.
   </div>
 
-</article>',
-  'HaldeFiyat Veri Ekibi',
-  JSON_ARRAY('elma', 'analiz', 'don', 'fiyat makası', 'ihracat', 'mevsim', 'TZOB'),
-  '2026-W21',
-  '2026-05-18',
-  '2026-05-24',
-  '2026-05-18',
-  'manual',
-  'published',
-  0,
-  NOW(3)
-)
-ON DUPLICATE KEY UPDATE
-  title = VALUES(title),
-  summary = VALUES(summary),
-  content = VALUES(content),
-  tags = VALUES(tags),
-  iso_week = VALUES(iso_week),
-  week_start = VALUES(week_start),
-  week_end = VALUES(week_end),
-  report_date = VALUES(report_date),
-  status = VALUES(status),
-  published_at = VALUES(published_at),
-  updated_at = CURRENT_TIMESTAMP(3);
+</article>
