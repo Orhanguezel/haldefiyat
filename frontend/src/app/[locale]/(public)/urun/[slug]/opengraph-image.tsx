@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 // KANONİK DİNAMİK OG REFERANSI — Codex bu pattern'i hal/[slug] ve
@@ -19,15 +21,13 @@ const INK = "#0A0E1A";
 type Props = { params: Promise<{ slug: string; locale: string }> };
 
 async function loadFont(): Promise<ArrayBuffer | null> {
-  // Outfit (site başlık fontu) — Türkçe karakter güvenli (Latin Ext).
+  // Bundled Outfit-800 (Antigravity teslimi) — ağ bağımsız, Türkçe (Latin Ext)
+  // glyph güvenli. Standalone build'de public/ server dizinine sync edilir.
   try {
-    const css = await fetch(
-      "https://fonts.googleapis.com/css2?family=Outfit:wght@700;800&display=swap",
-      { headers: { "User-Agent": "Mozilla/5.0" } },
-    ).then((r) => r.text());
-    const url = css.match(/src:\s*url\(([^)]+)\)\s*format\('(?:woff2|truetype)'\)/)?.[1];
-    if (!url) return null;
-    return await fetch(url).then((r) => r.arrayBuffer());
+    const buf = await readFile(
+      join(process.cwd(), "public", "fonts", "Outfit-800.ttf"),
+    );
+    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
   } catch {
     return null;
   }

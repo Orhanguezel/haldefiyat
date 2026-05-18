@@ -19,6 +19,14 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // `icon` / `apple-icon` / metadata route'lari i18n'e sokma — aksi halde /icon → /tr/icon olur, 404
-  matcher: ["/", "/(tr)/:path*", "/((?!api|_next|_vercel|icon|apple-icon|.*\\..*).*)"],
+  // metadata route'larini i18n'e sokma — aksi halde 404 / 307 yonlendirme dongusu.
+  // `icon`/`apple-icon`: kok seviye (path basi). `opengraph-image`/`twitter-image`:
+  // dinamik OG route'lari `[locale]` altinda nested URL uretir (orn.
+  // /urun/domates/opengraph-image) — path-basi alternatifi yakalamaz; nokta
+  // deseni (`.*\..*`) gibi "her yerde" eslesen `.*opengraph-image.*` gerekir.
+  matcher: [
+    "/",
+    "/(tr)/:path*",
+    "/((?!api|_next|_vercel|icon|apple-icon|.*opengraph-image.*|.*twitter-image.*|.*\\..*).*)",
+  ],
 };
