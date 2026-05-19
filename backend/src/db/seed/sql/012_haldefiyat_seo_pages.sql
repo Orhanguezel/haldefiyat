@@ -15,7 +15,7 @@ VALUES (
   '{
     "home": {
       "title": "Türkiye Hal Fiyatları — Günlük, Gerçek Zamanlı",
-      "description": "81 ilin hal ve pazar fiyatları tek ekranda. Sebze, meyve ve bakliyat fiyatlarını şehir ve kategori bazında karşılaştırın.",
+      "description": "Türkiye geneli hal ve pazar fiyatları tek ekranda. Sebze, meyve ve bakliyat fiyatlarını şehir ve kategori bazında karşılaştırın.",
       "og_image": "/uploads/og/home.png",
       "no_index": false
     },
