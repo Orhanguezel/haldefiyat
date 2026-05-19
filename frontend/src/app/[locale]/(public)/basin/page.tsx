@@ -3,12 +3,12 @@ import Link from "next/link";
 import { BarChart3, Code2, FileText, Mail, Newspaper, ShieldCheck } from "lucide-react";
 
 import Breadcrumb from "@/components/seo/Breadcrumb";
+import { getCoverage } from "@/lib/coverage";
 import { getPageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
 
-const FACTS = [
-  { label: "Kapsam", value: "81 il", desc: "Türkiye geneli resmi hal fiyat verisi" },
+const FACTS_STATIC = [
   { label: "Güncelleme", value: "Günlük", desc: "ETL kaynaklarından otomatik veri akışı" },
   { label: "İçerik", value: "/analiz", desc: "Haftalık fiyat yorumları ve endeks raporları" },
   { label: "Erişim", value: "Ücretsiz", desc: "Kamuya açık fiyat tablosu, grafik ve API dokümantasyonu" },
@@ -48,6 +48,19 @@ export async function generateMetadata({ params }: Props) {
 export default async function PressPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  const cov = await getCoverage();
+  const FACTS = [
+    {
+      label: "Kapsam",
+      value: cov.markets > 0 ? `${cov.markets} hal` : "Türkiye geneli",
+      desc:
+        cov.cities > 0
+          ? `${cov.cities} ilde resmi toptancı hal fiyat verisi`
+          : "Resmi toptancı hal fiyat verisi",
+    },
+    ...FACTS_STATIC,
+  ];
 
   return (
     <main className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
@@ -113,7 +126,7 @@ export default async function PressPage({ params }: Props) {
             <h2 className="font-bold text-foreground text-xl">Basın Bülteni Özeti</h2>
           </div>
           <p className="mt-4 text-muted leading-relaxed">
-            HaldeFiyat, Türkiye'nin 81 ilindeki resmi hal fiyatlarını tek ekranda izlenebilir hale getiren
+            HaldeFiyat, Türkiye genelindeki resmi hal fiyatlarını tek ekranda izlenebilir hale getiren
             ücretsiz bir platformdur. Günlük fiyat verileri, haftalık analiz yazıları ve endeks görünümüyle
             tarım piyasasında şeffaf fiyat takibini destekler.
           </p>

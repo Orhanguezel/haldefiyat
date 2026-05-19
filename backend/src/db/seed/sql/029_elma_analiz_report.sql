@@ -1,18 +1,10 @@
 SET NAMES utf8mb4;
 SET time_zone = '+00:00';
 
--- Manuel analiz: Elma Fiyat Analizi — Mayıs 2026 (GENİŞLETİLMİŞ HTML sürüm).
--- content tam HTML (scoped <style> .hdf-* + inline SVG, JS yok). Tema
--- token'larina baglidir. analiz/[slug] isHtmlContent() ile HTML render eder.
-
 INSERT INTO hf_analysis_reports
   (slug, title, summary, content, author, tags, iso_week, week_start, week_end,
    report_date, source, status, total_records, published_at)
-VALUES (
-  'elma-fiyat-analizi-mayis-2026',
-  'Elma Fiyat Analizi — Mayıs 2026: Don Şoku, Rekor Makas ve Bölgesel Parçalanma',
-  'Don kaynaklı arz şoku ile talep yıkımı aynı anda yaşanıyor: elma, Nisan TZOB raporunda %393,7 ile tüm yaş meyve-sebzede en geniş üretici–market makasına sahip ürün oldu. Mayıs sonunda kaliteli stok eridikçe Golden yukarı dönerken ulusal ortalama gerçeği gizliyor; asıl tablo bölgesel parçalanmada.',
-  '<!-- =========================================================================
+VALUES ('elma-fiyat-analizi-mayis-2026','Elma Fiyat Analizi — Mayıs 2026: Don Şoku, Rekor Makas ve Bölgesel Parçalanma','Don kaynaklı arz şoku ile talep yıkımı aynı anda yaşanıyor: elma, Nisan TZOB raporunda %393,7 ile tüm yaş meyve-sebzede en geniş üretici–market makasına sahip ürün oldu. Mayıs sonunda kaliteli stok eridikçe Golden yukarı dönerken ulusal ortalama gerçeği gizliyor; asıl tablo bölgesel parçalanmada.','<!-- =========================================================================
   HaldeFiyat — Elma Fiyat Analizi (Mayıs 2026) — GENİŞLETİLMİŞ SÜRÜM
   Tek parça, JS bağımlılığı YOK. Tüm grafikler inline <svg>.
   Site temasına uyum: renkler :root CSS değişkenlerinden okunur,
@@ -112,7 +104,7 @@ VALUES (
     <div>Yayıncı<b>HaldeFiyat Veri Ekibi</b></div>
     <div>Rapor tarihi<b>18 Mayıs 2026</b></div>
     <div>ISO hafta<b>2026-W21</b></div>
-    <div>Veri kapsamı<b>81 il · günlük ETL</b></div>
+    <div>Veri kapsamı<b>Türkiye geneli · günlük ETL</b></div>
     <div>Okuma süresi<b>~8 dk</b></div>
   </div>
 
@@ -493,7 +485,7 @@ VALUES (
   <h2><span class="n">09</span>Kaynaklar ve metodoloji</h2>
   <div class="hdf-src">
     <p style="margin:6px 0"><b>Fiyat verileri:</b> Çeşit, trend ve bölgesel
-    grafikler HaldeFiyat canlı hal verisinden (81 il, günlük ETL; ana kaynaklar
+    grafikler HaldeFiyat canlı hal verisinden (Türkiye geneli, günlük ETL; ana kaynaklar
     belediye hal müdürlükleri ve hal.gov.tr ulusal ortalamaları) türetilmiştir.
     Referans gün: 18 Mayıs 2026.</p>
     <p style="margin:6px 0"><b>Fiyat zinciri (tarla → market):</b> TZOB Türkiye
@@ -517,27 +509,10 @@ VALUES (
     Güncel hal fiyatları ve canlı grafikler için ürün sayfalarını ziyaret edin.
   </div>
 
-</article>',
-  'HaldeFiyat Veri Ekibi',
-  JSON_ARRAY('elma', 'analiz', 'don', 'fiyat makası', 'ihracat', 'mevsim', 'TZOB'),
-  '2026-W21',
-  '2026-05-18',
-  '2026-05-24',
-  '2026-05-18',
-  'manual',
-  'published',
-  0,
-  NOW(3)
-)
-ON DUPLICATE KEY UPDATE
-  title = VALUES(title),
-  summary = VALUES(summary),
-  content = VALUES(content),
-  tags = VALUES(tags),
-  iso_week = VALUES(iso_week),
-  week_start = VALUES(week_start),
-  week_end = VALUES(week_end),
-  report_date = VALUES(report_date),
-  status = VALUES(status),
-  published_at = VALUES(published_at),
-  updated_at = CURRENT_TIMESTAMP(3);
+</article>','HaldeFiyat Veri Ekibi',
+  JSON_ARRAY('elma','analiz','don','fiyat makası','ihracat','mevsim','TZOB'),'2026-W21','2026-05-18','2026-05-24','2026-05-18','manual','published',0,NOW(3))
+ON DUPLICATE KEY UPDATE title=VALUES(title),summary=VALUES(summary),
+  content=VALUES(content),tags=VALUES(tags),iso_week=VALUES(iso_week),
+  week_start=VALUES(week_start),week_end=VALUES(week_end),
+  report_date=VALUES(report_date),status=VALUES(status),
+  published_at=VALUES(published_at),updated_at=CURRENT_TIMESTAMP(3);

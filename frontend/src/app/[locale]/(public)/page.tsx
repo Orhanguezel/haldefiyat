@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props) {
     pathname: "/",
     title: "Türkiye Hal Fiyatları — Günlük, Gerçek Zamanlı",
     description:
-      "81 ilin hal ve pazar fiyatları tek ekranda. Sebze, meyve ve bakliyat fiyatlarını şehir ve kategori bazında karşılaştırın.",
+      "Türkiye geneli hal ve pazar fiyatları tek ekranda. Sebze, meyve ve bakliyat fiyatlarını şehir ve kategori bazında karşılaştırın.",
   });
 }
 
@@ -35,7 +35,7 @@ const organizationSchema = {
   name: "HalDeFiyat",
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
-  description: "Türkiye'nin 81 ilindeki hal ve toptancı pazar fiyatlarını günlük olarak izleyen bağımsız veri platformu.",
+  description: "Türkiye genelindeki hal ve toptancı pazar fiyatlarını günlük olarak izleyen bağımsız veri platformu.",
   contactPoint: {
     "@type": "ContactPoint",
     email: "iletisim@haldefiyat.com",
@@ -47,7 +47,7 @@ const organizationSchema = {
 const webSiteSchema = {
   name: "HalDeFiyat",
   url: SITE_URL,
-  description: "Türkiye hal fiyatları — 81 il, 250+ ürün, günlük güncelleme.",
+  description: "Türkiye hal fiyatları — toplam 250+ ürün, günlük güncelleme.",
   inLanguage: "tr-TR",
   potentialAction: {
     "@type": "SearchAction",
@@ -62,7 +62,7 @@ const webSiteSchema = {
 const datasetSchema = {
   name: "Türkiye Hal Fiyatları",
   description:
-    "Türkiye'nin 81 ilindeki hal ve pazar fiyat verileri. Günlük güncellenir.",
+    "Türkiye genelindeki hal ve pazar fiyat verileri. Günlük güncellenir.",
   url: SITE_URL,
   creator: { "@type": "Organization", name: "HalDeFiyat" },
   license: "https://creativecommons.org/licenses/by/4.0/",

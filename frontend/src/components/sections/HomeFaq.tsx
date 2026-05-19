@@ -14,7 +14,7 @@ const FAQ_ITEMS = [
   {
     question: "Hangi iller ve haller kapsanıyor?",
     answer:
-      "Türkiye'nin 81 ilinden 16 resmi ETL kaynağı izlenmektedir: İstanbul, Ankara, İzmir, Antalya, Bursa, Adana, Kocaeli, Gaziantep, Mersin, Balıkesir, Kayseri ve hal.gov.tr ulusal ortalamaları.",
+      "Türkiye genelinden 16 resmi ETL kaynağı izlenmektedir: İstanbul, Ankara, İzmir, Antalya, Bursa, Adana, Kocaeli, Gaziantep, Mersin, Balıkesir, Kayseri ve hal.gov.tr ulusal ortalamaları.",
   },
   {
     question: "Fiyatlar resmi mi, güvenilir mi?",

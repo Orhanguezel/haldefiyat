@@ -108,7 +108,7 @@ export async function GET(_req: Request, { params }: Props) {
             {name}
           </div>
           <div style={{ fontSize: 28, color: "#9fb0c8", display: "flex" }}>
-            {`${category} · 81 ilde günlük fiyat · ${today}`}
+            {`${category} · Türkiye genelinde günlük fiyat · ${today}`}
           </div>
         </div>
 

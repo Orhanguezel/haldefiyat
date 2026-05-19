@@ -190,7 +190,7 @@ export default async function AnalizMakalePage({ params }: Props) {
 
           <section className="mt-6 grid gap-3 sm:grid-cols-3">
             <Metric label="Rapor tarihi" value={formatDate(makale.tarih)} />
-            <Metric label="Kapsam" value="28+ aktif hal" />
+            <Metric label="Kapsam" value="aktif haller" />
             <Metric label="Veri tipi" value="Haftalık fiyat raporu" />
           </section>
 

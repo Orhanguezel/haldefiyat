@@ -63,10 +63,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       slug,
     },
     title: `${product.nameTr} Hal Fiyatı`,
-    description: `${product.nameTr} hal fiyatı: Türkiye 81 ilde günlük min/ort/maks fiyat karşılaştırması, 5 yıllık sezon geçmişi ve şehir bazlı analiz. Resmi belediye verileri.`,
+    description: `${product.nameTr} hal fiyatı: Türkiye genelinde günlük min/ort/maks fiyat karşılaştırması, 5 yıllık sezon geçmişi ve şehir bazlı analiz. Resmi belediye verileri.`,
     openGraph: {
       title: `${product.nameTr} Güncel Hal Fiyatı | HaldeFiyat`,
-      description: `${product.nameTr} fiyatları — 81 ilde günlük hal verileri, sezon karşılaştırması ve 5 yıllık trend grafikleri.`,
+      description: `${product.nameTr} fiyatları — Türkiye genelinde günlük hal verileri, sezon karşılaştırması ve 5 yıllık trend grafikleri.`,
       type: "article",
       locale: "tr_TR",
       ...(ogImages && { images: ogImages }),
@@ -218,7 +218,7 @@ export default async function UrunPage({ params }: Props) {
             <p><strong className="text-foreground">Hasat/sezon takvimi:</strong> {editorial.season}</p>
             <p><strong className="text-foreground">Başlıca üretim bölgesi:</strong> {editorial.productionRegion}</p>
             <p>
-              Bu sayfada gösterilen fiyatlar, Türkiye'nin 81 ilindeki resmi hal müdürlüklerinden günlük olarak derlenmektedir.
+              Bu sayfada gösterilen fiyatlar, Türkiye genelindeki resmi hal müdürlüklerinden günlük olarak derlenmektedir.
               Minimum, maksimum ve ortalama fiyat değerleri güncel piyasa koşullarını yansıtır.{" "}
               <strong className="text-foreground">Veri kaynağı:</strong>{" "}
               Belediye hal müdürlükleri ve{" "}

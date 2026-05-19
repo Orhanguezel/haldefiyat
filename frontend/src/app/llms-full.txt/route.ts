@@ -49,7 +49,7 @@ export async function GET() {
 
 ## Platform Kapsamı
 
-- 81 il — Türkiye'nin tüm coğrafi bölgeleri
+- Türkiye genelindeki aktif toptancı halleri (çoklu il ve bölge)
 - 250+ ürün — sebze, meyve, bakliyat, ithal ürünler
 - Veri geçmişi: 2025'ten itibaren
 - Güncelleme: Günlük otomatik (ETL)

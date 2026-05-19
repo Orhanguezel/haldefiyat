@@ -7,11 +7,11 @@ export const revalidate = 3600;
 
 export async function GET() {
   const content = `# HalDeFiyat
-> Türkiye'nin 81 ilindeki hal ve toptancı pazar fiyatlarını günlük olarak izleyen bağımsız veri platformu. Sebze, meyve ve bakliyat için resmi belediye hal müdürlüklerinden otomatik olarak derlenen veriler.
+> Türkiye genelindeki hal ve toptancı pazar fiyatlarını günlük olarak izleyen bağımsız veri platformu. Sebze, meyve ve bakliyat için resmi belediye hal müdürlüklerinden otomatik olarak derlenen veriler.
 
 ## Platformun Kapsamı
 
-- 81 il — Türkiye'nin tüm coğrafi bölgeleri
+- Türkiye genelindeki aktif toptancı halleri (çoklu il ve bölge)
 - 250+ ürün — sebze, meyve, bakliyat, ithal ürünler
 - 16 resmi ETL kaynağı — belediye hal müdürlükleri + hal.gov.tr
 - Güncelleme sıklığı: Her gün TSİ 06:15 (gece ETL çalışır)

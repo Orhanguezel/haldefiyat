@@ -11,7 +11,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "HaldeFiyat — Türkiye Hal Fiyatları",
     short_name: "HaldeFiyat",
     description:
-      "Türkiye'nin 81 ilindeki hal fiyatlarını anlık takip edin.",
+      "Türkiye genelindeki hal fiyatlarını anlık takip edin.",
     start_url: "/",
     display: "standalone",
     background_color: "#0a0e1a",

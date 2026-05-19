@@ -28,7 +28,7 @@ export function generateMetadata(): Metadata {
       template: "%s | HaldeFiyat",
     },
     description:
-      "Türkiye'nin 81 ilindeki hal fiyatlarını anlık takip edin. İstanbul, Ankara, İzmir ve daha fazlası.",
+      "Türkiye genelindeki hal fiyatlarını anlık takip edin. İstanbul, Ankara, İzmir ve daha fazlası.",
     keywords: [
       "hal fiyatları",
       "sebze fiyatları",
@@ -42,14 +42,14 @@ export function generateMetadata(): Metadata {
       siteName: "HaldeFiyat",
       title: "HaldeFiyat — Türkiye Hal Fiyatları",
       description:
-        "Türkiye'nin 81 ilindeki hal fiyatlarını anlık takip edin. Şehir, kategori ve tarih aralığı bazında filtreleyin.",
+        "Türkiye genelindeki hal fiyatlarını anlık takip edin. Şehir, kategori ve tarih aralığı bazında filtreleyin.",
       url: SITE_URL,
     },
     twitter: {
       card: "summary_large_image",
       title: "HaldeFiyat — Türkiye Hal Fiyatları",
       description:
-        "Türkiye'nin 81 ilindeki hal fiyatlarını anlık takip edin.",
+        "Türkiye genelindeki hal fiyatlarını anlık takip edin.",
     },
   };
 }

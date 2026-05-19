@@ -152,7 +152,7 @@ const MARKET_CONTENT: Record<string, MarketContent> = {
   },
   "ulusal-hal-gov-tr": {
     description: "Türkiye Ulusal Ortalama, T.C. Tarım ve Orman Bakanlığı'na bağlı Hal Bilgi Sistemi (hal.gov.tr) tarafından yayınlanan ülke geneli toptancı fiyatlarının ağırlıklı ortalamasını temsil eder. Belirli bir şehrin değil, tüm Türkiye toptancı hallerinin sentezlenmiş fiyat bilgisidir.",
-    coverage: "Türkiye'nin 81 ili (verilerin mevcut olduğu haller dahil).",
+    coverage: "Verilerin mevcut olduğu Türkiye genelindeki toptancı halleri.",
     specialties: "Tüm ürün kategorilerinde ulusal ağırlıklı ortalama; bölgesel fiyat karşılaştırması için temel referans noktası.",
   },
 };

@@ -1,19 +1,10 @@
 SET NAMES utf8mb4;
 SET time_zone = '+00:00';
 
--- Manuel haftalik rapor: Mayis 3. Hafta 2026 (GENISLETILMIS HTML).
--- content tam HTML (scoped .hdf-* tema-token + inline SVG, JS yok).
--- analiz/[slug] isHtmlContent() ile HTML render eder. Mayis 1/2 statik
--- markdown raporlarinin gelistirilmis surumu (gercek API verisi).
-
 INSERT INTO hf_analysis_reports
   (slug, title, summary, content, author, tags, iso_week, week_start, week_end,
    report_date, source, status, total_records, published_at)
-VALUES (
-  'mayis-3-hafta-2026-hal-raporu',
-  'Mayıs 3. Hafta Hal Raporu: Endeks Toparladı, Kiraz ve Çilekte Bant Çok Geniş',
-  'HaldeFiyat Endeksi 2026-20 haftasında 184,3''e yükselerek bir önceki haftadan +%7,3 toparladı. Kiraz (₺247) ve çilekte (₺136, bant ₺58–₺418) sezon açıldı ama kalite/bölge farkı fiyat bandını rekor seviyede genişletti; domates ₺81,5 ile mevsim üstü, patates/soğan sakin.',
-  '<!-- =========================================================================
+VALUES ('mayis-3-hafta-2026-hal-raporu','Mayıs 3. Hafta Hal Raporu: Endeks Toparladı, Kiraz ve Çilekte Bant Çok Geniş','HaldeFiyat Endeksi 2026-20 haftasında 184,3''''e yükselerek bir önceki haftadan +%7,3 toparladı. Kiraz (₺247) ve çilekte (₺136, bant ₺58–₺418) sezon açıldı ama kalite/bölge farkı fiyat bandını rekor seviyede genişletti; domates ₺81,5 ile mevsim üstü, patates/soğan sakin.','<!-- =========================================================================
   HaldeFiyat — Mayıs 3. Hafta Hal Raporu (2026) — GENİŞLETİLMİŞ SÜRÜM
   Tek parça, JS bağımlılığı YOK. Grafikler inline <svg>. Tema token''larına
   bağlı (light/dark otomatik uyum). analiz/[slug] isHtmlContent() ile render.
@@ -107,7 +98,7 @@ VALUES (
     <div>Yayıncı<b>HaldeFiyat Veri Ekibi</b></div>
     <div>Rapor tarihi<b>19 Mayıs 2026</b></div>
     <div>Hafta<b>2026-20 (11–17 May)</b></div>
-    <div>Veri kapsamı<b>28+ hal · 12 ürün sepeti</b></div>
+    <div>Veri kapsamı<b>Aktif haller · 12 ürün sepeti</b></div>
     <div>Okuma süresi<b>~7 dk</b></div>
   </div>
 
@@ -306,7 +297,7 @@ VALUES (
   <!-- ===== 07 TABLO ===== -->
   <h2><span class="n">07</span>Bu hafta hal fiyat tablosu</h2>
   <p>
-    28+ aktif halden derlenen ortalama ve bant. Geniş bant (min–max farkı
+    Aktif hallerden derlenen ortalama ve bant. Geniş bant (min–max farkı
     yüksek) o kalemde kalite/bölge ayrışmasının güçlü olduğunu gösterir —
     "ortalamaya değil banda bak" uyarısı en çok kiraz, çilek ve limon için
     geçerli.
@@ -356,7 +347,7 @@ VALUES (
   <!-- ===== 09 KAYNAKLAR ===== -->
   <h2><span class="n">09</span>Kaynaklar ve metodoloji</h2>
   <div class="hdf-src">
-    <p style="margin:6px 0"><b>Fiyat verileri:</b> 28+ aktif belediye hal
+    <p style="margin:6px 0"><b>Fiyat verileri:</b> Aktif belediye hal
     müdürlüğü ve hal.gov.tr ulusal ortalamalarından günlük ETL ile derlenmiştir.
     Referans gün: 18–19 Mayıs 2026. Ortalama ve bant, o gün tüm hallerin
     kayıtlarından hesaplanır.</p>
@@ -374,21 +365,10 @@ VALUES (
     Güncel hal fiyatları ve canlı grafikler için ürün sayfalarını ziyaret edin.
   </div>
 
-</article>',
-  'HaldeFiyat Veri Ekibi',
-  JSON_ARRAY('kiraz', 'çilek', 'domates', 'endeks', 'haftalık rapor'),
-  '2026-W20',
-  '2026-05-11',
-  '2026-05-17',
-  '2026-05-19',
-  'manual',
-  'published',
-  0,
-  NOW(3)
-)
-ON DUPLICATE KEY UPDATE
-  title = VALUES(title), summary = VALUES(summary), content = VALUES(content),
-  tags = VALUES(tags), iso_week = VALUES(iso_week), week_start = VALUES(week_start),
-  week_end = VALUES(week_end), report_date = VALUES(report_date),
-  status = VALUES(status), published_at = VALUES(published_at),
-  updated_at = CURRENT_TIMESTAMP(3);
+</article>','HaldeFiyat Veri Ekibi',
+  JSON_ARRAY('kiraz','çilek','domates','endeks','haftalık rapor'),'2026-W20','2026-05-11','2026-05-17','2026-05-19','manual','published',0,NOW(3))
+ON DUPLICATE KEY UPDATE title=VALUES(title),summary=VALUES(summary),
+  content=VALUES(content),tags=VALUES(tags),iso_week=VALUES(iso_week),
+  week_start=VALUES(week_start),week_end=VALUES(week_end),
+  report_date=VALUES(report_date),status=VALUES(status),
+  published_at=VALUES(published_at),updated_at=CURRENT_TIMESTAMP(3);

@@ -63,7 +63,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
   const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
   const fiyatlarDataset = {
     name: "Türkiye Güncel Hal Fiyatları",
-    description: "Türkiye genelinde 81 ilden sebze, meyve ve bakliyat ürünlerinin günlük hal fiyatları.",
+    description: "Türkiye genelinde Türkiye genelinden sebze, meyve ve bakliyat ürünlerinin günlük hal fiyatları.",
     url: `${SITE_URL}/fiyatlar`,
     creator: { "@type": "Organization", name: "HalDeFiyat" },
     license: "https://creativecommons.org/licenses/by/4.0/",
@@ -78,14 +78,14 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
     "@context": "https://schema.org",
     "@type": "DataCatalog",
     name: "HalDeFiyat Veri Kataloğu",
-    description: "Türkiye'nin 81 ilindeki hal müdürlüklerinden derlenen günlük fiyat veri seti kataloğu.",
+    description: "Türkiye genelindeki hal müdürlüklerinden derlenen günlük fiyat veri seti kataloğu.",
     url: `${SITE_URL}/fiyatlar`,
     publisher: { "@type": "Organization", name: "HalDeFiyat", url: SITE_URL },
     dataset: [
       {
         "@type": "Dataset",
         name: "Günlük Hal Fiyatları",
-        description: "81 il, 250+ ürün, günlük min/ort/maks fiyat verisi.",
+        description: "toplam 250+ ürün, günlük min/ort/maks fiyat verisi.",
         url: `${SITE_URL}/fiyatlar`,
         temporalCoverage: "2025/..",
         isAccessibleForFree: true,

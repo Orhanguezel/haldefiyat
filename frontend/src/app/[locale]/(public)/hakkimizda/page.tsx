@@ -3,6 +3,7 @@ import Link from "next/link";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { BarChart3, ShieldCheck, Zap, Globe2, LineChart, Cpu, Users, BookOpen, TrendingUp, Leaf } from "lucide-react";
 import { fetchCustomPageBySlug } from "@/lib/api";
+import { getCoverage } from "@/lib/coverage";
 import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 
@@ -14,12 +15,11 @@ export async function generateMetadata({ params }: Props) {
     locale,
     pathname: "/hakkimizda",
     title: "Hakkımızda | HaldeFiyat",
-    description: "HalDeFiyat, Türkiye'nin 81 ilindeki resmi hal müdürlüklerinden günlük fiyat verisi derleyen bağımsız bir açık veri platformudur. Metodoloji, veri kalitesi ve misyonumuz hakkında.",
+    description: "HalDeFiyat, Türkiye genelindeki resmi hal müdürlüklerinden günlük fiyat verisi derleyen bağımsız bir açık veri platformudur. Metodoloji, veri kalitesi ve misyonumuz hakkında.",
   });
 }
 
-const STATS = [
-  { label: "İl", value: "81", desc: "Tüm Türkiye Kapsamı" },
+const STATS_STATIC = [
   { label: "Ürün", value: "250+", desc: "Sebze, Meyve, Bakliyat" },
   { label: "Günlük Kayıt", value: "10K+", desc: "Her Gün Güncellenir" },
   { label: "ETL Kaynağı", value: "16", desc: "Resmi Belediye Sistemi" },
@@ -54,7 +54,15 @@ export default async function AboutPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const page = await fetchCustomPageBySlug("hakkimizda", locale);
+  const [page, cov] = await Promise.all([
+    fetchCustomPageBySlug("hakkimizda", locale),
+    getCoverage(),
+  ]);
+  const STATS = [
+    { label: "İl", value: cov.cities > 0 ? String(cov.cities) : "—", desc: "Veri alınan il sayısı" },
+    { label: "Hal", value: cov.markets > 0 ? String(cov.markets) : "—", desc: "Aktif toptancı hali" },
+    ...STATS_STATIC,
+  ];
 
   return (
     <div className="mx-auto max-w-350 px-8 py-12">
@@ -75,7 +83,7 @@ export default async function AboutPage({ params }: Props) {
               {page?.title ?? "Tarımda Bilgiye Erişimi Demokratikleştiriyoruz"}
             </h1>
             <p className="text-xl text-muted leading-relaxed max-w-3xl mx-auto">
-              {page?.summary ?? "HalDeFiyat, Türkiye'nin 81 ilindeki toptancı hal fiyatlarını günlük olarak derleyip şeffaf biçimde sunan bağımsız bir veri platformudur."}
+              {page?.summary ?? "HalDeFiyat, Türkiye genelindeki toptancı hal fiyatlarını günlük olarak derleyip şeffaf biçimde sunan bağımsız bir veri platformudur."}
             </p>
           </section>
 
@@ -110,7 +118,7 @@ export default async function AboutPage({ params }: Props) {
                   </p>
                   <p>
                     HalDeFiyat bu sorunu çözmek için kuruldu. 2025 yılında yayına giren platform, Türkiye'nin
-                    81 ilindeki resmi hal müdürlüklerinden günlük olarak otomatik veri derliyor; sebze, meyve
+                    Türkiye genelindeki resmi hal müdürlüklerinden günlük olarak otomatik veri derliyor; sebze, meyve
                     ve bakliyat fiyatlarını herkesin anlayabileceği sade bir arayüzde sunuyor.
                   </p>
                   <p>

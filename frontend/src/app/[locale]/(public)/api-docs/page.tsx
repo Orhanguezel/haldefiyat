@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: Props) {
     locale,
     pathname: "/api-docs",
     title: "API Dokümantasyonu",
-    description: "HaldeFiyat açık REST API — Türkiye hal fiyatları, 81 il, JSON + CSV, ücretsiz erişim. Endpoint referansı ve curl örnekleri.",
+    description: "HaldeFiyat açık REST API — Türkiye hal fiyatları, toplam JSON + CSV, ücretsiz erişim. Endpoint referansı ve curl örnekleri.",
   });
 }
 
@@ -301,7 +301,7 @@ const GROUPS: Group[] = [
 
 const dataFeedSchema = {
   name: "HaldeFiyat Fiyat Verileri API",
-  description: "Türkiye'nin 81 ilindeki resmi toptancı hal fiyatları — REST API, JSON + CSV, ücretsiz.",
+  description: "Türkiye genelindeki resmi toptancı hal fiyatları — REST API, JSON + CSV, ücretsiz.",
   url: BASE,
   license: "https://creativecommons.org/licenses/by/4.0/",
   creator: { "@type": "Organization", name: "HaldeFiyat", url: "https://haldefiyat.com" },

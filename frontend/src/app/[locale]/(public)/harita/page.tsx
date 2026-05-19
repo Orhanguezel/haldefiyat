@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props) {
     pathname: "/harita",
     title: "Türkiye İnteraktif Hal Fiyat Haritası",
     description:
-      "81 ilde hal fiyat ortalamalarını renk skalasıyla karşılaştırın. Ucuzdan pahalıya Türkiye fiyat haritası.",
+      "Türkiye genelinde hal fiyat ortalamalarını renk skalasıyla karşılaştırın. Ucuzdan pahalıya Türkiye fiyat haritası.",
   });
 }
 
@@ -44,7 +44,7 @@ export default async function HaritaPage({ params }: Props) {
             Türkiye Hal Fiyat Haritası
           </h1>
           <p className="mt-3 text-[14px] leading-6 text-(--color-muted)">
-            81 ili SVG üzerinde görüntüleyin; verisi olan şehirleri son fiyat ortalamasına göre
+            Türkiye geneli SVG üzerinde görüntüleyin; verisi olan şehirleri son fiyat ortalamasına göre
             ucuzdan pahalıya yeşil-kırmızı skalada karşılaştırın. Bir ile tıklayarak o ildeki
             hal sayısını, ürün kapsamını ve fiyat ortalamasını inceleyebilirsiniz.
           </p>
