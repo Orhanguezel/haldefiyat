@@ -29,8 +29,12 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'site_logo',         '*', '"/uploads/brand/logo.png"'),
 (UUID(), 'site_favicon',      '*', '"/uploads/brand/favicon.png"'),
 (UUID(), 'site_apple_touch',  '*', '"/uploads/brand/apple-touch-icon.png"'),
-(UUID(), 'ga4_measurement_id', '*', '"G-FJ8MX7VNEP"'),
-(UUID(), 'gtm_container_id',   '*', '""'),
+(UUID(), 'ga4_measurement_id', '*', '"G-YHLL9WK7ML"'),
+(UUID(), 'gtm_container_id',   '*', '"GTM-K3WDGHX5"'),
+-- Referans (frontend tuketmiyor; admin/raporlama icin tenant kaydi tam olsun)
+(UUID(), 'ga4_property_id',    '*', '"538279658"'),
+(UUID(), 'google_ads_id',      '*', '"941-057-6390"'),
+(UUID(), 'search_console_property', '*', '"haldefiyat.com"'),
 (UUID(), 'contact_phone',      '*', '"+90 530 048 41 83"'),
 (UUID(), 'contact_email',      '*', '"atakan07sahin@gmail.com"');
 
