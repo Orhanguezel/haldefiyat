@@ -44,9 +44,10 @@ export default async function HaritaPage({ params }: Props) {
             Türkiye Hal Fiyat Haritası
           </h1>
           <p className="mt-3 text-[14px] leading-6 text-(--color-muted)">
-            Türkiye geneli SVG üzerinde görüntüleyin; verisi olan şehirleri son fiyat ortalamasına göre
-            ucuzdan pahalıya yeşil-kırmızı skalada karşılaştırın. Bir ile tıklayarak o ildeki
-            hal sayısını, ürün kapsamını ve fiyat ortalamasını inceleyebilirsiniz.
+            İller, 15 ürünlük sabit sepetle normalize edilmiş <strong className="text-(--color-foreground)">fiyat endeksine</strong> göre
+            karşılaştırılır (Türkiye ortalaması = 1.00). Böylece farklı ürün karışımı raporlayan iller
+            adil biçimde kıyaslanır — ham ortalama yanıltıcıdır. Bir ile tıklayarak hal sayısı, ürün
+            kapsamı ve endeksini inceleyebilirsiniz.
           </p>
         </div>
       </header>

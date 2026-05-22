@@ -39,6 +39,21 @@ function formatPrice(value: number | null | undefined) {
   }).format(value as number);
 }
 
+// priceIndex: 1.00 = Türkiye sepet ortalaması. İndeks olarak göster.
+function formatIndex(idx: number | null | undefined): string {
+  if (!Number.isFinite(idx ?? NaN)) return "-";
+  return `${(idx as number).toFixed(2)}×`;
+}
+
+function indexLabel(idx: number | null | undefined): string {
+  if (!Number.isFinite(idx ?? NaN)) return "veri yok";
+  const pct = Math.round(((idx as number) - 1) * 100);
+  if (pct === 0) return "Türkiye ortalamasında";
+  return pct > 0
+    ? `Türkiye ortalamasının %${pct} üzerinde`
+    : `Türkiye ortalamasının %${Math.abs(pct)} altında`;
+}
+
 // Ucuz (yeşil) → pahalı (kırmızı). Verisi olmayan il nötr gri.
 function colorFor(value: number | null | undefined, min: number, max: number) {
   if (!Number.isFinite(value ?? NaN)) return "var(--color-bg-alt)";
@@ -74,16 +89,21 @@ function buildRows(markets: Market[], prices: CityPriceMapItem[]): ProvinceRow[]
 
 export default function TurkeyMapClient({ markets, cityPrices = [] }: Props) {
   const rows = useMemo(() => buildRows(markets, cityPrices), [markets, cityPrices]);
-  const priced = rows.filter((r) => r.price && Number.isFinite(r.price.avgPrice));
-  const minPrice = priced.length ? Math.min(...priced.map((r) => r.price!.avgPrice)) : 0;
-  const maxPrice = priced.length ? Math.max(...priced.map((r) => r.price!.avgPrice)) : 0;
+  // Karşılaştırılabilir metrik: priceIndex (sepet-normalize). Ham avgPrice
+  // iller farklı ürün karışımı raporladığı için kıyas dışıdır.
+  const priced = rows.filter(
+    (r) => r.price && Number.isFinite(r.price.priceIndex ?? NaN),
+  );
+  const idxOf = (r: ProvinceRow) => r.price!.priceIndex as number;
+  const minIdx = priced.length ? Math.min(...priced.map(idxOf)) : 0;
+  const maxIdx = priced.length ? Math.max(...priced.map(idxOf)) : 0;
 
   const [activeName, setActiveName] = useState<string>(
     () => priced[0]?.name ?? "İstanbul",
   );
   const active = rows.find((r) => r.name === activeName) ?? rows[0] ?? null;
-  const cheapest = [...priced].sort((a, b) => a.price!.avgPrice - b.price!.avgPrice).slice(0, 3);
-  const expensive = [...priced].sort((a, b) => b.price!.avgPrice - a.price!.avgPrice).slice(0, 3);
+  const cheapest = [...priced].sort((a, b) => idxOf(a) - idxOf(b)).slice(0, 3);
+  const expensive = [...priced].sort((a, b) => idxOf(b) - idxOf(a)).slice(0, 3);
 
   return (
     <div className="grid h-full min-h-[620px] gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -105,17 +125,18 @@ export default function TurkeyMapClient({ markets, cityPrices = [] }: Props) {
         >
           {rows.map((p) => {
             const isActive = active?.name === p.name;
+            const idx = p.price?.priceIndex ?? null;
             return (
               <path
                 key={p.code}
                 d={p.d}
-                fill={colorFor(p.price?.avgPrice, minPrice, maxPrice)}
-                fillOpacity={p.price ? 0.95 : 0.5}
+                fill={colorFor(idx, minIdx, maxIdx)}
+                fillOpacity={idx != null ? 0.95 : 0.5}
                 stroke={isActive ? "var(--color-foreground)" : "var(--color-surface)"}
                 strokeWidth={isActive ? 2.2 : 0.6}
                 role="button"
                 tabIndex={0}
-                aria-label={`${p.name}${p.price ? ` ${formatPrice(p.price.avgPrice)}` : " (veri yok)"}`}
+                aria-label={`${p.name}${idx != null ? ` fiyat endeksi ${formatIndex(idx)}` : " (veri yok)"}`}
                 onClick={() => setActiveName(p.name)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") setActiveName(p.name);
@@ -124,7 +145,9 @@ export default function TurkeyMapClient({ markets, cityPrices = [] }: Props) {
               >
                 <title>
                   {p.name}
-                  {p.price ? ` — ${formatPrice(p.price.avgPrice)}` : " — veri yok"}
+                  {idx != null
+                    ? ` — endeks ${formatIndex(idx)} (${indexLabel(idx)})`
+                    : " — veri yok"}
                 </title>
               </path>
             );
@@ -134,13 +157,14 @@ export default function TurkeyMapClient({ markets, cityPrices = [] }: Props) {
         <div className="absolute bottom-4 left-4 right-4 rounded-[12px] border border-(--color-border) bg-(--color-bg)/92 p-3 backdrop-blur">
           <div className="mb-2 flex items-center justify-between gap-3 text-[11px] text-(--color-muted)">
             <span>Ucuz</span>
+            <span>Fiyat Endeksi · 1.00 = Türkiye ort.</span>
             <span>Pahalı</span>
           </div>
           <div className="h-2 rounded-full bg-[linear-gradient(90deg,hsl(132_70%_46%),hsl(68_70%_46%),hsl(4_70%_46%))]" />
           <div className="mt-2 flex items-center justify-between gap-3 font-(family-name:--font-mono) text-[10px] text-(--color-muted)">
-            <span>{formatPrice(priced.length ? minPrice : null)}</span>
+            <span>{priced.length ? formatIndex(minIdx) : "-"}</span>
             <span>Veri yok: gri</span>
-            <span>{formatPrice(priced.length ? maxPrice : null)}</span>
+            <span>{priced.length ? formatIndex(maxIdx) : "-"}</span>
           </div>
         </div>
       </div>
@@ -155,11 +179,26 @@ export default function TurkeyMapClient({ markets, cityPrices = [] }: Props) {
               {active.name}
             </h3>
             {active.price ? (
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <Metric label="Ortalama" value={formatPrice(active.price.avgPrice)} strong />
-                <Metric label="Aralık" value={`${formatPrice(active.price.minPrice)} - ${formatPrice(active.price.maxPrice)}`} />
-                <Metric label="Hal" value={`${active.price.marketCount}`} />
-                <Metric label="Ürün" value={`${active.price.productCount}`} />
+              <div className="mt-4 space-y-3">
+                {active.price.priceIndex != null && (
+                  <div className="rounded-[12px] border border-(--color-brand)/30 bg-(--color-brand)/10 p-3">
+                    <div className="font-(family-name:--font-mono) text-[10px] uppercase tracking-[0.08em] text-(--color-muted)">
+                      Fiyat Endeksi · {active.price.basketProductCount} ürünlük sepet
+                    </div>
+                    <div className="mt-1 text-[22px] font-bold text-(--color-foreground)">
+                      {formatIndex(active.price.priceIndex)}
+                    </div>
+                    <div className="text-[12px] text-(--color-muted)">
+                      {indexLabel(active.price.priceIndex)}
+                    </div>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-3">
+                  <Metric label="Sepet ortalaması" value={formatPrice(active.price.basketAvg)} strong />
+                  <Metric label="Aralık (tüm ürün)" value={`${formatPrice(active.price.minPrice)} - ${formatPrice(active.price.maxPrice)}`} />
+                  <Metric label="Hal" value={`${active.price.marketCount}`} />
+                  <Metric label="Ürün" value={`${active.price.productCount}`} />
+                </div>
               </div>
             ) : (
               <p className="mt-4 rounded-[12px] border border-dashed border-(--color-border) p-4 text-[13px] text-(--color-muted)">
@@ -241,7 +280,7 @@ function RankCard({
               {index + 1}. {p.name}
             </span>
             <span className={`font-(family-name:--font-mono) text-[12px] font-semibold ${color}`}>
-              {formatPrice(p.price?.avgPrice)}
+              {formatIndex(p.price?.priceIndex)}
             </span>
           </button>
         ))}

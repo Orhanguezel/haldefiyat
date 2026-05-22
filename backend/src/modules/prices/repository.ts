@@ -2,6 +2,7 @@ import type { SQL } from "drizzle-orm";
 import { and, asc, desc, eq, gte, lte, sql, or, like, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfMarkets, hfPriceHistory, hfProducts, hfRetailPrices } from "@/db/schema";
+import { INDEX_BASKET_SLUGS } from "@/modules/index/calculator";
 
 export function parseRangeToDays(range?: string): number {
   if (!range) return 7;
@@ -396,15 +397,21 @@ export async function cityPriceMap(params: {
   const anchor = await latestRecordedDate();
   const anchorExpr = anchor ? sql`${anchor}` : sql`CURDATE()`;
   const productCond = params.product?.trim()
-    ? sql` AND p.slug = ${params.product.trim()}`
+    ? sql` AND o.slug = ${params.product.trim()}`
     : sql``;
   const categoryCond = params.category?.trim()
-    ? sql` AND p.category_slug = ${params.category.trim()}`
+    ? sql` AND o.category_slug = ${params.category.trim()}`
     : sql``;
+  const basketList = sql.join(
+    INDEX_BASKET_SLUGS.map((s) => sql`${s}`),
+    sql`, `,
+  );
 
-  // NEDEN raw SQL: "her ürün/hal çiftinin son kayıt tarihindeki fiyatı" CTE +
-  // self-join ile bulunur. Drizzle query-builder CTE'deki sql-alias kolonu
-  // (rd) join'de doğru çözümleyemiyor → 0 satır. Ham sorgu kanıtlı çalışır.
+  // NEDEN raw SQL: CTE + self-join (Drizzle builder CTE sql-alias kolonu yanlış
+  // çözümlüyor). Ayrıca priceIndex: iller farklı ürün karışımı raporladığı için
+  // ham ortalama karşılaştırılamaz. Çözüm — sabit endeks sepetiyle (15 ürün)
+  // normalize: her ilin sepet ürünleri ulusal ortalamaya oranlanır, ortalaması
+  // alınır. priceIndex 1.00 = Türkiye sepet ortalaması, <1 ucuz, >1 pahalı.
   const query = sql`
     WITH latest AS (
       SELECT product_id, market_id, MAX(recorded_date) AS rd
@@ -412,28 +419,55 @@ export async function cityPriceMap(params: {
       WHERE recorded_date >= DATE_SUB(${anchorExpr}, INTERVAL ${sql.raw(String(days))} DAY)
         AND recorded_date <= ${anchorExpr}
       GROUP BY product_id, market_id
+    ),
+    obs AS (
+      SELECT m.id AS market_id, m.city_name, p.id AS product_id,
+             p.slug, p.category_slug, ph.avg_price, ph.recorded_date
+      FROM hf_price_history ph
+      INNER JOIN latest l
+        ON l.product_id = ph.product_id
+       AND l.market_id  = ph.market_id
+       AND l.rd         = ph.recorded_date
+      INNER JOIN hf_products p ON p.id = ph.product_id AND p.is_active = 1
+      INNER JOIN hf_markets  m ON m.id = ph.market_id  AND m.is_active = 1
+      WHERE (m.region_slug IS NULL OR m.region_slug <> 'ulusal')
+    ),
+    city_prod AS (
+      SELECT city_name, product_id, AVG(avg_price) AS p
+      FROM obs WHERE slug IN (${basketList})
+      GROUP BY city_name, product_id
+    ),
+    nat AS (
+      SELECT product_id, AVG(p) AS np FROM city_prod GROUP BY product_id
+    ),
+    idx AS (
+      SELECT cp.city_name,
+             AVG(cp.p)              AS basketAvg,
+             AVG(cp.p / nat.np)     AS priceIndex,
+             COUNT(*)               AS basketCount
+      FROM city_prod cp
+      INNER JOIN nat ON nat.product_id = cp.product_id
+      GROUP BY cp.city_name
     )
     SELECT
-      m.city_name           AS cityName,
-      AVG(ph.avg_price)     AS avgPrice,
-      MIN(ph.avg_price)     AS minPrice,
-      MAX(ph.avg_price)     AS maxPrice,
-      COUNT(DISTINCT m.id)  AS marketCount,
-      COUNT(DISTINCT p.id)  AS productCount,
-      COUNT(*)              AS observationCount,
-      MAX(ph.recorded_date) AS latestRecordedDate
-    FROM hf_price_history ph
-    INNER JOIN latest l
-      ON l.product_id = ph.product_id
-     AND l.market_id  = ph.market_id
-     AND l.rd         = ph.recorded_date
-    INNER JOIN hf_products p ON p.id = ph.product_id AND p.is_active = 1
-    INNER JOIN hf_markets  m ON m.id = ph.market_id  AND m.is_active = 1
-    WHERE (m.region_slug IS NULL OR m.region_slug <> 'ulusal')
+      o.city_name              AS cityName,
+      AVG(o.avg_price)         AS avgPrice,
+      MIN(o.avg_price)         AS minPrice,
+      MAX(o.avg_price)         AS maxPrice,
+      COUNT(DISTINCT o.market_id)  AS marketCount,
+      COUNT(DISTINCT o.product_id) AS productCount,
+      COUNT(*)                 AS observationCount,
+      MAX(o.recorded_date)     AS latestRecordedDate,
+      idx.basketAvg            AS basketAvg,
+      idx.priceIndex           AS priceIndex,
+      idx.basketCount          AS basketCount
+    FROM obs o
+    LEFT JOIN idx ON idx.city_name = o.city_name
+    WHERE 1 = 1
       ${productCond}
       ${categoryCond}
-    GROUP BY m.city_name
-    ORDER BY m.city_name
+    GROUP BY o.city_name, idx.basketAvg, idx.priceIndex, idx.basketCount
+    ORDER BY o.city_name
   `;
 
   const result = (await db.execute(query)) as unknown;
@@ -446,21 +480,30 @@ export async function cityPriceMap(params: {
     productCount: string | number;
     observationCount: string | number;
     latestRecordedDate: unknown;
+    basketAvg: string | number | null;
+    priceIndex: string | number | null;
+    basketCount: string | number | null;
   }>;
 
+  const round2 = (v: unknown) => Math.round(Number(v) * 100) / 100;
   return rows.map((r) => {
     const latestRecordedDate = r.latestRecordedDate as unknown;
+    const idxRaw = r.priceIndex;
     return {
       cityName:           r.cityName,
-      avgPrice:           Math.round(Number(r.avgPrice) * 100) / 100,
-      minPrice:           Math.round(Number(r.minPrice) * 100) / 100,
-      maxPrice:           Math.round(Number(r.maxPrice) * 100) / 100,
+      avgPrice:           round2(r.avgPrice),
+      minPrice:           round2(r.minPrice),
+      maxPrice:           round2(r.maxPrice),
       marketCount:        Number(r.marketCount ?? 0),
       productCount:       Number(r.productCount ?? 0),
       observationCount:   Number(r.observationCount ?? 0),
       latestRecordedDate: latestRecordedDate instanceof Date
         ? latestRecordedDate.toISOString().slice(0, 10)
         : String(latestRecordedDate).slice(0, 10),
+      // Karşılaştırılabilir metrikler — sabit endeks sepetiyle normalize
+      basketAvg:          r.basketAvg == null ? null : round2(r.basketAvg),
+      priceIndex:         idxRaw == null ? null : Math.round(Number(idxRaw) * 1000) / 1000,
+      basketProductCount: Number(r.basketCount ?? 0),
     };
   });
 }

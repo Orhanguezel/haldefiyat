@@ -60,6 +60,11 @@ export interface CityPriceMapItem {
   productCount: number;
   observationCount: number;
   latestRecordedDate: string;
+  // Karşılaştırılabilir metrikler — 15 ürünlük endeks sepetiyle normalize.
+  // priceIndex: 1.00 = Türkiye sepet ortalaması (<1 ucuz, >1 pahalı).
+  basketAvg: number | null;
+  priceIndex: number | null;
+  basketProductCount: number;
 }
 
 export interface CityPriceMapResponse {
