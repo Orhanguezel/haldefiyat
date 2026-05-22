@@ -32,6 +32,7 @@ export interface SiteSettings {
   social_twitter: string;
   social_linkedin: string;
   social_youtube: string;
+  social_telegram: string;
   whatsapp_number: string;
 }
 
@@ -53,6 +54,7 @@ const BRANDING_KEYS = [
   "social_twitter",
   "social_linkedin",
   "social_youtube",
+  "social_telegram",
   "whatsapp_number",
 ];
 
@@ -94,6 +96,7 @@ export async function fetchSiteSettings(locale = "tr"): Promise<SiteSettings> {
     social_twitter: "",
     social_linkedin: "",
     social_youtube: "",
+    social_telegram: "",
     whatsapp_number: "",
   };
 
@@ -265,8 +268,10 @@ export interface AnalyticsConfig {
   gtmId: string | null;
 }
 
+const DEFAULT_GA4_ID = "G-YHLL9WK7ML";
+
 export async function fetchAnalyticsConfig(): Promise<AnalyticsConfig> {
-  const result: AnalyticsConfig = { ga4Id: null, gtmId: null };
+  const result: AnalyticsConfig = { ga4Id: DEFAULT_GA4_ID, gtmId: null };
   try {
     const [ga4Res, gtmRes] = await Promise.all([
       fetch(`${API_V1}/site_settings/ga4_measurement_id`, { next: { revalidate: 300 } }),

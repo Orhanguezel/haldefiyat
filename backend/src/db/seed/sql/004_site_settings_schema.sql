@@ -36,7 +36,8 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'google_ads_id',      '*', '"941-057-6390"'),
 (UUID(), 'search_console_property', '*', '"haldefiyat.com"'),
 (UUID(), 'contact_phone',      '*', '"+90 530 048 41 83"'),
-(UUID(), 'contact_email',      '*', '"atakan07sahin@gmail.com"');
+(UUID(), 'contact_email',      '*', '"atakan07sahin@gmail.com"'),
+(UUID(), 'social_telegram',    '*', '"https://t.me/haldefiyat"');
 
 -- Global SEO defaults — frontend layout.tsx fetchGlobalSeo bunlari ister;
 -- yoksa her sayfa render'inda 404 dongusu + SEO meta uretilmemesi olusur.

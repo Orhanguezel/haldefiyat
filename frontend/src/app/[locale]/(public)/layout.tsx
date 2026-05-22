@@ -82,6 +82,7 @@ export default async function PublicLayout({
         socialTwitter={settings.social_twitter}
         socialLinkedin={settings.social_linkedin}
         socialYoutube={settings.social_youtube}
+        socialTelegram={settings.social_telegram}
       />
 
       <AlertModalProvider />
