@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
 
 type SubmitState =
@@ -138,19 +139,28 @@ export default function CtaNewsletter() {
           </div>
         )}
 
+        <p className="relative z-[2] mb-3 text-[13px] text-(--color-muted)">
+          Ürün bazlı hedef-fiyat uyarısı için kanal seç:
+        </p>
         <div className="relative z-[2] flex flex-wrap items-center justify-center gap-6 text-[14px] text-(--color-muted)">
-          <a
-            href="#"
+          <Link
+            href="/uyarilar?channel=telegram"
             className="flex items-center gap-1.5 transition-colors duration-200 hover:text-(--color-brand)"
           >
             <span aria-hidden>📱</span> Telegram
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            href="/uyarilar?channel=email"
             className="flex items-center gap-1.5 transition-colors duration-200 hover:text-(--color-brand)"
           >
             <span aria-hidden>📧</span> E-posta
-          </a>
+          </Link>
+          <Link
+            href="/uyarilar?channel=push"
+            className="flex items-center gap-1.5 transition-colors duration-200 hover:text-(--color-brand)"
+          >
+            <span aria-hidden>🔔</span> Web Push
+          </Link>
         </div>
       </div>
     </section>

@@ -1,9 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { fetchMarkets, fetchProducts, type Market, type Product } from "@/lib/api";
 import AlertModalForm from "@/components/ui/alert/AlertModalForm";
-import { INITIAL_FORM, type AlertFormState } from "@/components/ui/alert/types";
+import { INITIAL_FORM, type AlertChannel, type AlertFormState } from "@/components/ui/alert/types";
+
+const VALID_CHANNELS: readonly AlertChannel[] = ["email", "telegram", "push"];
 
 const API_BASE =
   (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "") + "/api/v1";
@@ -11,9 +14,16 @@ const API_BASE =
 type SubmitState = "idle" | "loading" | "success" | { error: string };
 
 export default function AlertsClient() {
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [markets, setMarkets] = useState<Market[]>([]);
-  const [form, setForm] = useState<AlertFormState>(INITIAL_FORM);
+  const [form, setForm] = useState<AlertFormState>(() => {
+    // CtaNewsletter linki ?channel=telegram|email|push ile kanal ön-seçer
+    const ch = searchParams.get("channel");
+    return ch && (VALID_CHANNELS as readonly string[]).includes(ch)
+      ? { ...INITIAL_FORM, channel: ch as AlertChannel }
+      : INITIAL_FORM;
+  });
   const [state, setState] = useState<SubmitState>("idle");
 
   useEffect(() => {
