@@ -394,58 +394,59 @@ export async function cityPriceMap(params: {
 } = {}) {
   const days = Math.min(30, parseRangeToDays(params.range));
   const anchor = await latestRecordedDate();
-  const anchorSql = anchor ? sql`${anchor}` : sql`CURDATE()`;
-  const windowConds: SQL[] = [
-    gte(hfPriceHistory.recordedDate, sql`DATE_SUB(${anchorSql}, INTERVAL ${sql.raw(String(days))} DAY)`),
-    lte(hfPriceHistory.recordedDate, anchorSql),
-  ];
+  const anchorExpr = anchor ? sql`${anchor}` : sql`CURDATE()`;
+  const productCond = params.product?.trim()
+    ? sql` AND p.slug = ${params.product.trim()}`
+    : sql``;
+  const categoryCond = params.category?.trim()
+    ? sql` AND p.category_slug = ${params.category.trim()}`
+    : sql``;
 
-  const conds: SQL[] = [
-    eq(hfMarkets.isActive, 1),
-    eq(hfProducts.isActive, 1),
-    sql`(${hfMarkets.regionSlug} IS NULL OR ${hfMarkets.regionSlug} <> 'ulusal')`,
-  ];
-  if (params.product?.trim()) conds.push(eq(hfProducts.slug, params.product.trim()));
-  if (params.category?.trim()) conds.push(eq(hfProducts.categorySlug, params.category.trim()));
-
-  const latest = db.$with("city_map_latest_pair_dates").as(
-    db
-      .select({
-        productId: hfPriceHistory.productId,
-        marketId:  hfPriceHistory.marketId,
-        rd:        sql<string>`MAX(${hfPriceHistory.recordedDate})`.as("rd"),
-      })
-      .from(hfPriceHistory)
-      .where(and(...windowConds))
-      .groupBy(hfPriceHistory.productId, hfPriceHistory.marketId),
-  );
-
-  const rows = await db
-    .with(latest)
-    .select({
-      cityName:           hfMarkets.cityName,
-      avgPrice:           sql<string>`AVG(${hfPriceHistory.avgPrice})`,
-      minPrice:           sql<string>`MIN(${hfPriceHistory.avgPrice})`,
-      maxPrice:           sql<string>`MAX(${hfPriceHistory.avgPrice})`,
-      marketCount:        sql<number>`COUNT(DISTINCT ${hfMarkets.id})`,
-      productCount:       sql<number>`COUNT(DISTINCT ${hfProducts.id})`,
-      observationCount:   sql<number>`COUNT(*)`,
-      latestRecordedDate: sql<string>`MAX(${hfPriceHistory.recordedDate})`,
-    })
-    .from(hfPriceHistory)
-    .innerJoin(
-      latest,
-      and(
-        eq(latest.productId, hfPriceHistory.productId),
-        eq(latest.marketId, hfPriceHistory.marketId),
-        eq(latest.rd, hfPriceHistory.recordedDate),
-      ),
+  // NEDEN raw SQL: "her ürün/hal çiftinin son kayıt tarihindeki fiyatı" CTE +
+  // self-join ile bulunur. Drizzle query-builder CTE'deki sql-alias kolonu
+  // (rd) join'de doğru çözümleyemiyor → 0 satır. Ham sorgu kanıtlı çalışır.
+  const query = sql`
+    WITH latest AS (
+      SELECT product_id, market_id, MAX(recorded_date) AS rd
+      FROM hf_price_history
+      WHERE recorded_date >= DATE_SUB(${anchorExpr}, INTERVAL ${sql.raw(String(days))} DAY)
+        AND recorded_date <= ${anchorExpr}
+      GROUP BY product_id, market_id
     )
-    .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
-    .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
-    .where(and(...conds))
-    .groupBy(hfMarkets.cityName)
-    .orderBy(hfMarkets.cityName);
+    SELECT
+      m.city_name           AS cityName,
+      AVG(ph.avg_price)     AS avgPrice,
+      MIN(ph.avg_price)     AS minPrice,
+      MAX(ph.avg_price)     AS maxPrice,
+      COUNT(DISTINCT m.id)  AS marketCount,
+      COUNT(DISTINCT p.id)  AS productCount,
+      COUNT(*)              AS observationCount,
+      MAX(ph.recorded_date) AS latestRecordedDate
+    FROM hf_price_history ph
+    INNER JOIN latest l
+      ON l.product_id = ph.product_id
+     AND l.market_id  = ph.market_id
+     AND l.rd         = ph.recorded_date
+    INNER JOIN hf_products p ON p.id = ph.product_id AND p.is_active = 1
+    INNER JOIN hf_markets  m ON m.id = ph.market_id  AND m.is_active = 1
+    WHERE (m.region_slug IS NULL OR m.region_slug <> 'ulusal')
+      ${productCond}
+      ${categoryCond}
+    GROUP BY m.city_name
+    ORDER BY m.city_name
+  `;
+
+  const result = (await db.execute(query)) as unknown;
+  const rows = (Array.isArray(result) ? result[0] : result) as Array<{
+    cityName: string;
+    avgPrice: string | number;
+    minPrice: string | number;
+    maxPrice: string | number;
+    marketCount: string | number;
+    productCount: string | number;
+    observationCount: string | number;
+    latestRecordedDate: unknown;
+  }>;
 
   return rows.map((r) => {
     const latestRecordedDate = r.latestRecordedDate as unknown;
