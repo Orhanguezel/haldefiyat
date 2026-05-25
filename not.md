@@ -1,1 +1,0 @@
-tüketici güven endexi, issizlik orani, enflasyon, tüfe, is gücüne katilim orani, dolar euro paritesi, altin fiyatlar, asgari ucret, 

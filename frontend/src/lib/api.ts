@@ -40,6 +40,24 @@ export interface Product {
   nameTr: string;
   categorySlug: string;
   unit: string;
+  displayName?: string | null;
+  canonicalSlug?: string | null;
+  seoIndex?: number | boolean;
+  dataQuality?: number;
+  searchVolume?: number;
+}
+
+export interface VariantPriceRow {
+  slug: string;
+  displayName: string;
+  categorySlug: string;
+  unit: string;
+  avgPrice: number;
+  yoyPct: number | null;
+  marketCount: number;
+  observationCount: number;
+  latestRecordedDate: string;
+  url: string;
 }
 
 export interface Market {
@@ -49,6 +67,8 @@ export interface Market {
   cityName: string;
   regionSlug: string | null;
   sourceKey: string | null;
+  seoIndex?: number | boolean;
+  updatedAt?: string;
 }
 
 export interface CityPriceMapItem {
@@ -265,9 +285,15 @@ export async function fetchPrices(
 export async function fetchProducts(
   q?: string,
   category?: string,
+  options: { seoIndex?: boolean } = {},
 ): Promise<Product[]> {
-  const qs = buildQuery({ q, category });
+  const qs = buildQuery({ q, category, seoIndex: options.seoIndex == null ? undefined : String(options.seoIndex) });
   return safeFetch<Product[]>(`/prices/products${qs}`, 300, []);
+}
+
+export async function fetchVariantPrices(masterSlug: string, range = "7d"): Promise<VariantPriceRow[]> {
+  const qs = buildQuery({ range });
+  return safeFetch<VariantPriceRow[]>(`/prices/variants/${encodeURIComponent(masterSlug)}${qs}`, 3600, []);
 }
 
 export async function fetchMarkets(city?: string): Promise<Market[]> {

@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import { fetchPrices, fetchMarkets } from "@/lib/api";
@@ -22,10 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const market = markets.find((m) => m.slug === slug);
 
   if (!market) {
-    return {
-      title: "Hal Bulunamadı",
-      description: "Aradığınız hal kaydı bulunamadı.",
-    };
+    notFound();
   }
 
   return getPageMetadata("hal", {
@@ -67,36 +65,7 @@ export default async function HalPage({ params }: Props) {
     : null;
 
   if (!market) {
-    return (
-      <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-20">
-        <div className="mx-auto max-w-xl rounded-[16px] border border-(--color-border) bg-(--color-surface) p-10 text-center">
-          <div className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
-            404 — Hal Kaydı
-          </div>
-          <h1 className="mt-3 font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">
-            Bu hal bulunamadı
-          </h1>
-          <p className="mt-2 text-[13px] text-(--color-muted)">
-            Aradığınız hal kaldırılmış veya slug hatalı olabilir. Tüm haller
-            listesinden seçim yapabilirsiniz.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/hal"
-              className="rounded-[10px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-navy) transition-opacity hover:opacity-90"
-            >
-              Tüm Haller
-            </Link>
-            <Link
-              href="/fiyatlar"
-              className="rounded-[10px] border border-(--color-border) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-foreground) transition-colors hover:border-(--color-brand)"
-            >
-              Güncel Fiyatlar
-            </Link>
-          </div>
-        </div>
-      </main>
-    );
+    notFound();
   }
 
   const isNational = market.regionSlug === "ulusal";

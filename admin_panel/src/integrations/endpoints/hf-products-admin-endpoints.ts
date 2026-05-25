@@ -8,6 +8,11 @@ export type HfProductItem = {
   categorySlug: string;
   unit: string;
   aliases: string[] | null;
+  seoIndex: number | boolean;
+  displayName: string | null;
+  canonicalSlug: string | null;
+  dataQuality: number;
+  searchVolume: number;
   displayOrder: number;
   isActive: number | boolean;
 };
@@ -18,6 +23,11 @@ export type HfProductPayload = {
   categorySlug: string;
   unit: string;
   aliases?: string[];
+  seoIndex?: boolean;
+  displayName?: string | null;
+  canonicalSlug?: string | null;
+  dataQuality?: number;
+  searchVolume?: number;
   displayOrder?: number;
   isActive?: boolean;
 };

@@ -1,0 +1,27 @@
+slug,display_name,canonical_slug,seo_index,is_active,notes
+# === 1. dalga onaylari (2026-05-25) ===
+a-marul,Aysberg Marul,,1,1,S2 - A.MARUL=Aysberg
+k-bahar,Karnabahar,,1,1,S4 - K.BAHAR=Karnabahar
+k-sogan,,sogan-kuru,0,1,2026-05-25 düzeltme - sogan-kuru master mevcut, k-sogan canonical oraya yönelt (önceki: 'Kuru Soğan kendi master' yanlış idi)
+s-kabak,Sakız Kabağı,,1,1,S4
+t-patates,Taze Patates,,1,1,S4
+t-sarimsak,Taze Sarımsak,,1,1,S4
+y-dereotu,Yeşil Dereotu,,1,1,S3
+y-maydonoz,Yeşil Maydanoz,,1,1,S3
+y-nane,Yeşil Nane,,1,1,S3
+y-reyhan,Yeşil Reyhan,,1,1,S3
+y-roka,Yeşil Roka,,1,1,S3
+y-tere,Yeşil Tere,,1,1,S3
+# === 2. dalga onaylari (2026-05-25) ===
+kir-pancar,Kırmızı Pancar,,1,1,S5 - kir-=Kırmızı
+kir-sogan,Kırmızı Soğan,,1,1,S5
+kiv-marul,Kıvırcık Marul,,1,1,S5 - kiv-=Kıvırcık
+salk-domates,Salkım Domates,,1,1,S5 - salk-=Salkım
+y-sogan,,sogan-taze,0,1,S6 - canonical sogan-taze (master mevcut)
+marul-a,,marul,0,1,S7 - belirsiz A.; master 'marul'a canonical
+marul-g,,marul,0,1,S7 - belirsiz G.; master 'marul'a canonical
+marul-k,,marul,0,1,S7 - belirsiz K.; master 'marul'a canonical
+# === is_active=0 (master bulunamadi, frontend'den gizle) ===
+e-kulak,,,0,0,S7 - E.KULAK belirsiz, master 'kulak' yok -> gizle
+ucburun-koy-b,,,0,0,S7 - *-B suffix belirsiz, master 'ucburun-koy' yok -> gizle
+yesil-dolma-b,,,0,0,S7 - *-B suffix belirsiz, master 'yesil-dolma' yok -> gizle

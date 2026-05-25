@@ -4,6 +4,7 @@ import {
   listPriceRows,
   listPriceRowsPage,
   listProducts,
+  listSeoEligibleProducts,
   listMarkets,
   productPriceHistory,
   parseRangeToDays,
@@ -12,6 +13,7 @@ import {
   widgetPrices,
   retailPricesByProduct,
   cityPriceMap,
+  variantPricesByMaster,
 } from "./repository";
 import { resolveWeekRange } from "./iso-week";
 import { weeklyPriceSummary } from "./weekly";
@@ -47,11 +49,25 @@ const qExport = qList.extend({
 const qProducts = z.object({
   q:        z.string().optional(),
   category: z.string().optional(),
+  seoIndex: boolish,
+});
+
+const qMarkets = z.object({
+  city: z.string().optional(),
+  seoIndex: boolish,
+});
+
+const qSeoEligibleProducts = z.object({
+  since: z.string().regex(/^\d+d$/).optional(),
 });
 
 const qHistory = z.object({
   market: z.string().optional(),
   range:  z.string().optional(),
+});
+
+const qVariants = z.object({
+  range: z.string().regex(/^\d+d$/).optional(),
 });
 
 const qWeekly = z.object({
@@ -95,17 +111,47 @@ export async function registerPrices(app: FastifyInstance) {
   app.get("/prices/products", async (req, reply) => {
     const q = qProducts.safeParse(req.query);
     if (!q.success) return reply.status(400).send({ error: "Gecersiz parametre" });
-    const items = await listProducts(q.data.q, q.data.category);
+    const items = await listProducts(q.data.q, q.data.category, q.data.seoIndex);
     return reply.send({ items });
   });
+
+  /**
+   * GET /api/v1/prices/products/seo-eligible?since=30d
+   * Gecici sitemap filtresi: yakin zamanda fiyat verisi olan ve ham ETL ismi
+   * arama sayfasi kalitesini dusurmeyen urunler.
+   */
+  app.get("/prices/products/seo-eligible", async (req, reply) => {
+    const q = qSeoEligibleProducts.safeParse(req.query);
+    if (!q.success) return reply.status(400).send({ error: "Gecersiz parametre" });
+    const days = parseRangeToDays(q.data.since ?? "30d");
+    const items = await listSeoEligibleProducts(days);
+    reply.header("Cache-Control", "public, max-age=3600, s-maxage=3600");
+    return reply.send({ items });
+  });
+
+  /**
+   * GET /api/v1/prices/variants/:masterSlug?range=7d
+   * Master urune canonical olan variant'larin yakin donem fiyat ozeti.
+   */
+  app.get<{ Params: { masterSlug: string } }>(
+    "/prices/variants/:masterSlug",
+    async (req, reply) => {
+      const q = qVariants.safeParse(req.query);
+      if (!q.success) return reply.status(400).send({ error: "Gecersiz parametre" });
+      const items = await variantPricesByMaster(req.params.masterSlug, q.data.range ?? "7d");
+      reply.header("Cache-Control", "public, max-age=3600, s-maxage=3600");
+      return reply.send({ items });
+    },
+  );
 
   /**
    * GET /api/v1/prices/markets
    * Hal listesi (sehir filtresi)
    */
   app.get("/prices/markets", async (req, reply) => {
-    const city = (req.query as { city?: string })?.city;
-    const items = await listMarkets(city);
+    const q = qMarkets.safeParse(req.query);
+    if (!q.success) return reply.status(400).send({ error: "Gecersiz parametre" });
+    const items = await listMarkets(q.data.city, q.data.seoIndex);
     return reply.send({ items });
   });
 

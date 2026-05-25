@@ -16,13 +16,14 @@ const FETCH_TIMEOUT = 10_000;
 interface PriceSitemapItem {
   slug: string;
   nameTr?: string;
+  updatedAt?: string;
   updated_at?: string;
 }
 
 async function fetchActiveProducts(): Promise<PriceSitemapItem[]> {
   try {
-    const res = await fetch(`${API_URL}/api/v1/prices/products?limit=500`, {
-      next: { revalidate: 3600 },
+    const res = await fetch(`${API_URL}/api/v1/prices/products?seoIndex=true`, {
+      cache: "no-store",
       signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });
     if (!res.ok) return [];
@@ -31,6 +32,7 @@ async function fetchActiveProducts(): Promise<PriceSitemapItem[]> {
     return items.map((p) => ({
       slug: p.slug,
       nameTr: p.nameTr,
+      updatedAt: p.updatedAt,
       updated_at: p.updated_at,
     }));
   } catch {
@@ -40,8 +42,8 @@ async function fetchActiveProducts(): Promise<PriceSitemapItem[]> {
 
 async function fetchMarkets(): Promise<PriceSitemapItem[]> {
   try {
-    const res = await fetch(`${API_URL}/api/v1/markets?limit=500`, {
-      next: { revalidate: 3600 },
+    const res = await fetch(`${API_URL}/api/v1/prices/markets?seoIndex=true`, {
+      cache: "no-store",
       signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });
     if (!res.ok) return [];
@@ -49,6 +51,7 @@ async function fetchMarkets(): Promise<PriceSitemapItem[]> {
     const items = (Array.isArray(data) ? data : data.items ?? data.data ?? []) as PriceSitemapItem[];
     return items.map((m) => ({
       slug: m.slug,
+      updatedAt: m.updatedAt,
       updated_at: m.updated_at,
     }));
   } catch {
@@ -82,7 +85,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const imgPath = getProductImage(p.slug);
     return {
       url: `${SITE_URL}/urun/${p.slug}`,
-      lastModified: p.updated_at ? new Date(p.updated_at) : now,
+      lastModified: (p.updatedAt ?? p.updated_at) ? new Date(p.updatedAt ?? p.updated_at!) : now,
       changeFrequency: "daily" as const,
       priority: 0.8,
       ...(imgPath && {
@@ -93,7 +96,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const marketPages: MetadataRoute.Sitemap = markets.map((m) => ({
     url: `${SITE_URL}/hal/${m.slug}`,
-    lastModified: m.updated_at ? new Date(m.updated_at) : now,
+    lastModified: (m.updatedAt ?? m.updated_at) ? new Date(m.updatedAt ?? m.updated_at!) : now,
     changeFrequency: "daily" as const,
     priority: 0.7,
   }));

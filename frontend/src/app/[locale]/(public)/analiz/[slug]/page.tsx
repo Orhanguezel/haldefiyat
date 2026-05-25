@@ -29,7 +29,7 @@ const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const makale = await getMakaleForSlug(slug);
-  if (!makale) return {};
+  if (!makale) notFound();
 
   return {
     title: `${makale.baslik} | HalDeFiyat Analiz`,

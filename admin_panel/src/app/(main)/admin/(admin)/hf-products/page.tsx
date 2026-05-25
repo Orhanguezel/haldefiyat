@@ -18,15 +18,17 @@ export default function Page() {
       </CardHeader>
       <CardContent>
         <Table>
-          <TableHeader><TableRow><TableHead>Ad</TableHead><TableHead>Slug</TableHead><TableHead>Kategori</TableHead><TableHead>Birim</TableHead></TableRow></TableHeader>
+          <TableHeader><TableRow><TableHead>Ad</TableHead><TableHead>Slug</TableHead><TableHead>Kategori</TableHead><TableHead>Birim</TableHead><TableHead>Kalite</TableHead><TableHead>SEO</TableHead></TableRow></TableHeader>
           <TableBody>
-            {isLoading && <TableRow><TableCell colSpan={4}>Yukleniyor...</TableCell></TableRow>}
+            {isLoading && <TableRow><TableCell colSpan={6}>Yukleniyor...</TableCell></TableRow>}
             {(data?.items || []).map((item) => (
               <TableRow key={item.id}>
-                <TableCell><Link className="text-primary" href={`/admin/hf-products/${item.id}`}>{item.nameTr}</Link></TableCell>
+                <TableCell><Link className="text-primary" href={`/admin/hf-products/${item.id}`}>{item.displayName || item.nameTr}</Link></TableCell>
                 <TableCell>{item.slug}</TableCell>
                 <TableCell>{item.categorySlug}</TableCell>
                 <TableCell>{item.unit}</TableCell>
+                <TableCell>{item.dataQuality ?? 0}</TableCell>
+                <TableCell>{item.seoIndex ? 'Index' : 'Noindex'}</TableCell>
               </TableRow>
             ))}
           </TableBody>

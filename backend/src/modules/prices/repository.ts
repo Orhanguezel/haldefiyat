@@ -339,9 +339,10 @@ export async function listPriceRowsPage(params: {
   return { items, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
 }
 
-export async function listProducts(q?: string, category?: string) {
+export async function listProducts(q?: string, category?: string, seoIndex?: boolean) {
   const conds: SQL[] = [eq(hfProducts.isActive, 1)];
   if (category?.trim()) conds.push(eq(hfProducts.categorySlug, category));
+  if (seoIndex != null) conds.push(eq(hfProducts.seoIndex, seoIndex ? 1 : 0));
   if (q?.trim()) {
     const s = likeSafe(q.trim());
     if (s) conds.push(or(like(hfProducts.nameTr, `%${s}%`), like(hfProducts.slug, `%${s}%`))!);
@@ -353,10 +354,125 @@ export async function listProducts(q?: string, category?: string) {
       nameTr:       hfProducts.nameTr,
       categorySlug: hfProducts.categorySlug,
       unit:         hfProducts.unit,
+      displayName:  hfProducts.displayName,
+      canonicalSlug: hfProducts.canonicalSlug,
+      seoIndex:     hfProducts.seoIndex,
+      dataQuality:  hfProducts.dataQuality,
+      searchVolume: hfProducts.searchVolume,
     })
     .from(hfProducts)
     .where(and(...conds))
     .orderBy(hfProducts.displayOrder, hfProducts.nameTr);
+}
+
+export async function variantPricesByMaster(masterSlug: string, range = "7d") {
+  const days = Math.min(30, parseRangeToDays(range));
+  const result = await db.execute(sql`
+    SELECT
+      p.slug AS slug,
+      COALESCE(NULLIF(p.display_name, ''), p.name_tr) AS displayName,
+      p.category_slug AS categorySlug,
+      p.unit AS unit,
+      AVG(ph.avg_price) AS avgPrice,
+      COUNT(DISTINCT ph.market_id) AS marketCount,
+      COUNT(*) AS observationCount,
+      MAX(ph.recorded_date) AS latestRecordedDate,
+      (
+        SELECT AVG(ph2.avg_price)
+        FROM hf_price_history ph2
+        WHERE ph2.product_id = p.id
+          AND ph2.recorded_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 372 DAY)
+                                    AND DATE_SUB(CURDATE(), INTERVAL 358 DAY)
+      ) AS avgYoy
+    FROM hf_products p
+    INNER JOIN hf_price_history ph ON ph.product_id = p.id
+    WHERE p.is_active = 1
+      AND p.canonical_slug = ${masterSlug}
+      AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)
+    GROUP BY p.id, p.slug, p.display_name, p.name_tr, p.category_slug, p.unit
+    ORDER BY avgPrice DESC, displayName ASC
+    LIMIT 80
+  `);
+  const rows = (Array.isArray(result) ? result[0] : result) as unknown as Array<{
+    slug: string;
+    displayName: string;
+    categorySlug: string;
+    unit: string;
+    avgPrice: string | number;
+    marketCount: string | number;
+    observationCount: string | number;
+    latestRecordedDate: string | Date;
+    avgYoy: string | number | null;
+  }>;
+
+  return rows.map((row) => {
+    const avgPrice = Number(row.avgPrice ?? 0);
+    const avgYoy = row.avgYoy == null ? null : Number(row.avgYoy);
+    return {
+      slug: row.slug,
+      displayName: row.displayName,
+      categorySlug: row.categorySlug,
+      unit: row.unit,
+      avgPrice,
+      yoyPct: avgYoy && avgYoy > 0
+        ? Math.round(((avgPrice - avgYoy) / avgYoy) * 10_000) / 100
+        : null,
+      marketCount: Number(row.marketCount ?? 0),
+      observationCount: Number(row.observationCount ?? 0),
+      latestRecordedDate: row.latestRecordedDate instanceof Date
+        ? row.latestRecordedDate.toISOString().slice(0, 10)
+        : String(row.latestRecordedDate).slice(0, 10),
+      url: `/urun/${row.slug}`,
+    };
+  });
+}
+
+function isSeoEligibleProductName(name: string): boolean {
+  const trimmed = name.trim();
+  if (!trimmed || /[().]/.test(trimmed)) return false;
+  return trimmed !== trimmed.toLocaleUpperCase("tr");
+}
+
+export async function listSeoEligibleProducts(days: number) {
+  const safeDays = Math.min(365, Math.max(1, Math.floor(days)));
+  const rows = await db
+    .select({
+      id:           hfProducts.id,
+      slug:         hfProducts.slug,
+      nameTr:       hfProducts.nameTr,
+      categorySlug: hfProducts.categorySlug,
+      unit:         hfProducts.unit,
+      updatedAt:    sql<string | Date>`MAX(${hfPriceHistory.recordedDate})`,
+      marketCount:  sql<number>`COUNT(DISTINCT ${hfPriceHistory.marketId})`,
+    })
+    .from(hfProducts)
+    .innerJoin(hfPriceHistory, eq(hfPriceHistory.productId, hfProducts.id))
+    .where(and(
+      eq(hfProducts.isActive, 1),
+      gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(safeDays))} DAY)`),
+    ))
+    .groupBy(
+      hfProducts.id,
+      hfProducts.slug,
+      hfProducts.nameTr,
+      hfProducts.categorySlug,
+      hfProducts.unit,
+      hfProducts.displayOrder,
+    )
+    .orderBy(hfProducts.displayOrder, hfProducts.nameTr);
+
+  return rows
+    .filter((row) => Number(row.marketCount) >= 3 && isSeoEligibleProductName(row.nameTr))
+    .map((row) => ({
+      id:           row.id,
+      slug:         row.slug,
+      nameTr:       row.nameTr,
+      categorySlug: row.categorySlug,
+      unit:         row.unit,
+      updatedAt: row.updatedAt instanceof Date
+        ? row.updatedAt.toISOString().slice(0, 10)
+        : String(row.updatedAt).slice(0, 10),
+    }));
 }
 
 export async function getProductBySlug(slug: string) {
@@ -368,8 +484,9 @@ export async function getProductBySlug(slug: string) {
   return rows[0] ?? null;
 }
 
-export async function listMarkets(city?: string) {
+export async function listMarkets(city?: string, seoIndex?: boolean) {
   const conds: SQL[] = [eq(hfMarkets.isActive, 1)];
+  if (seoIndex != null) conds.push(eq(hfMarkets.seoIndex, seoIndex ? 1 : 0));
   if (city?.trim()) {
     const c = likeSafe(city.trim());
     if (c) conds.push(or(like(hfMarkets.cityName, `%${c}%`))!);
@@ -382,6 +499,8 @@ export async function listMarkets(city?: string) {
       cityName:    hfMarkets.cityName,
       regionSlug:  hfMarkets.regionSlug,
       sourceKey:   hfMarkets.sourceKey,
+      seoIndex:    hfMarkets.seoIndex,
+      updatedAt:   hfMarkets.updatedAt,
     })
     .from(hfMarkets)
     .where(and(...conds))
@@ -422,7 +541,8 @@ export async function cityPriceMap(params: {
     ),
     obs AS (
       SELECT m.id AS market_id, m.city_name, p.id AS product_id,
-             p.slug, p.category_slug, ph.avg_price, ph.recorded_date
+             p.slug, p.category_slug, ph.avg_price, ph.recorded_date,
+             SUBSTRING_INDEX(p.slug, '-', 1) AS base
       FROM hf_price_history ph
       INNER JOIN latest l
         ON l.product_id = ph.product_id
@@ -433,12 +553,14 @@ export async function cityPriceMap(params: {
       WHERE (m.region_slug IS NULL OR m.region_slug <> 'ulusal')
     ),
     city_prod AS (
-      SELECT city_name, product_id, AVG(avg_price) AS p
-      FROM obs WHERE slug IN (${basketList})
-      GROUP BY city_name, product_id
+      -- base = slug'ın ilk segmenti: "elma-golden","elma-starking" → "elma".
+      -- Çeşitler tek baz ürüne toplanır → sepet kapsamı yüksek olur.
+      SELECT city_name, base, AVG(avg_price) AS p
+      FROM obs WHERE base IN (${basketList})
+      GROUP BY city_name, base
     ),
     nat AS (
-      SELECT product_id, AVG(p) AS np FROM city_prod GROUP BY product_id
+      SELECT base, AVG(p) AS np FROM city_prod GROUP BY base
     ),
     idx AS (
       SELECT cp.city_name,
@@ -446,7 +568,7 @@ export async function cityPriceMap(params: {
              AVG(cp.p / nat.np)     AS priceIndex,
              COUNT(*)               AS basketCount
       FROM city_prod cp
-      INNER JOIN nat ON nat.product_id = cp.product_id
+      INNER JOIN nat ON nat.base = cp.base
       GROUP BY cp.city_name
     )
     SELECT

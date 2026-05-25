@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound, permanentRedirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import {
   fetchPrices,
@@ -12,6 +14,7 @@ import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceChart from "@/components/sections/PriceChart";
 import SeasonCompare from "@/components/sections/SeasonCompare";
 import RetailComparison from "@/components/sections/RetailComparison";
+import VariantPriceTable from "@/components/sections/VariantPriceTable";
 import FrostRiskBanner from "@/components/sections/FrostRiskBanner";
 import PriceTable from "@/components/ui/PriceTable";
 import FavoriteButton from "@/components/ui/FavoriteButton";
@@ -31,17 +34,28 @@ function toNumberSafe(value: string | null | undefined): number {
 
 const SITE_URL_META = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
+function getDisplayName(product: { displayName?: string | null; nameTr: string }) {
+  return product.displayName?.trim() || product.nameTr;
+}
+
+function isSeoIndexed(product: { seoIndex?: number | boolean }) {
+  return product.seoIndex === true || product.seoIndex === 1;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   const products = await fetchProducts();
   const product = products.find((p) => p.slug === slug);
 
   if (!product) {
-    return {
-      title: "Ürün Fiyatları",
-      description: "Türkiye hal fiyatları. İlgili ürün için güncel veriler.",
-    };
+    notFound();
   }
+
+  if (product.canonicalSlug && product.canonicalSlug !== slug) {
+    permanentRedirect(`/urun/${product.canonicalSlug}`);
+  }
+
+  const displayName = getDisplayName(product);
 
   // Her ürün için i18n-bağımsız dinamik OG (ürün adı render edilir).
   // Route handler /api/og/urun/[slug] — proxy matcher'da bypass.
@@ -50,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `${SITE_URL_META}/og/urun/${slug}`,
       width: 1200,
       height: 630,
-      alt: `${product.nameTr} hal fiyatı`,
+      alt: `${displayName} hal fiyatı`,
     },
   ];
 
@@ -58,15 +72,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     locale,
     pathname: `/urun/${slug}`,
     vars: {
-      name: product.nameTr,
+      name: displayName,
       category: product.categorySlug ?? "",
       slug,
     },
-    title: `${product.nameTr} Hal Fiyatı`,
-    description: `${product.nameTr} hal fiyatı: Türkiye genelinde günlük min/ort/maks fiyat karşılaştırması, 5 yıllık sezon geçmişi ve şehir bazlı analiz. Resmi belediye verileri.`,
+    title: `${displayName} Hal Fiyatı`,
+    description: `${displayName} hal fiyatı: Türkiye genelinde günlük min/ort/maks fiyat karşılaştırması, 5 yıllık sezon geçmişi ve şehir bazlı analiz. Resmi belediye verileri.`,
+    robots: isSeoIndexed(product)
+      ? { index: true, follow: true }
+      : { index: false, follow: true },
     openGraph: {
-      title: `${product.nameTr} Güncel Hal Fiyatı | HaldeFiyat`,
-      description: `${product.nameTr} fiyatları — Türkiye genelinde günlük hal verileri, sezon karşılaştırması ve 5 yıllık trend grafikleri.`,
+      title: `${displayName} Güncel Hal Fiyatı | HaldeFiyat`,
+      description: `${displayName} fiyatları — Türkiye genelinde günlük hal verileri, sezon karşılaştırması ve 5 yıllık trend grafikleri.`,
       type: "article",
       locale: "tr_TR",
       ...(ogImages && { images: ogImages }),
@@ -81,23 +98,35 @@ export default async function UrunPage({ params }: Props) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const [history, todayPrices, products] = await Promise.all([
+  const products = await fetchProducts();
+  const product = products.find((p) => p.slug === slug);
+
+  if (!product) {
+    notFound();
+  }
+
+  if (product.canonicalSlug && product.canonicalSlug !== slug) {
+    permanentRedirect(`/urun/${product.canonicalSlug}`);
+  }
+
+  const displayName = getDisplayName(product);
+  const variants = products
+    .filter((p) => p.canonicalSlug === slug && p.slug !== slug)
+    .map((p) => ({
+      slug: p.slug,
+      displayName: getDisplayName(p),
+      categorySlug: p.categorySlug,
+      unit: p.unit,
+    }))
+    .sort((a, b) => a.displayName.localeCompare(b.displayName, "tr"));
+  const isClusterMaster = variants.length >= 5;
+
+  const [history, todayPrices] = await Promise.all([
     // 5 yıl history — PriceChart kendi içinde 7G/30G/90G filtreler;
     // SeasonCompare aynı veriden yıl grupları çıkarır (en az 2 yıl lazım).
     fetchPriceHistory(slug, undefined, "1825d"),
     fetchPrices({ product: slug, range: "1d", limit: 20 }),
-    fetchProducts(),
   ]);
-
-  const product = products.find((p) => p.slug === slug);
-
-  if (!product) {
-    return (
-      <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12 text-(--color-muted)">
-        Ürün bulunamadı.
-      </main>
-    );
-  }
 
   const mins = history
     .map((h) => toNumberSafe(h.minPrice))
@@ -136,8 +165,8 @@ export default async function UrunPage({ params }: Props) {
   })();
 
   const productSchema = {
-    name: product.nameTr,
-    description: `${product.nameTr} için güncel hal fiyatları. Türkiye genelinde günlük min/ort/maks fiyat verisi.`,
+    name: displayName,
+    description: `${displayName} için güncel hal fiyatları. Türkiye genelinde günlük min/ort/maks fiyat verisi.`,
     category: product.categorySlug,
     offers: {
       "@type": "AggregateOffer",
@@ -163,7 +192,7 @@ export default async function UrunPage({ params }: Props) {
       <Breadcrumb items={[
         { name: "Anasayfa", href: "/" },
         { name: "Fiyatlar", href: "/fiyatlar" },
-        { name: product.nameTr, href: `/urun/${slug}` },
+        { name: displayName, href: `/urun/${slug}` },
       ]} />
 
       {/* Don uyarisi — donla hassas urun + aktif risk varsa gosterilir */}
@@ -174,44 +203,60 @@ export default async function UrunPage({ params }: Props) {
         <div className="flex items-center gap-4">
           <ProductImage
             slug={slug}
-            name={product.nameTr}
+            name={displayName}
             categorySlug={product.categorySlug}
             size={80}
           />
           <div>
             <h1 className="font-(family-name:--font-display) text-3xl font-bold text-(--color-foreground)">
-              {product.nameTr}
+              {displayName}
             </h1>
             <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-muted)">
               {product.categorySlug}
             </span>
+            {isClusterMaster && (
+              <div className="mt-1 text-sm text-muted">
+                {variants.length} farklı {displayName.toLocaleLowerCase("tr-TR")} çeşidi izleniyor.{" "}
+                <Link href="#variants" className="font-medium text-brand hover:underline">
+                  Tümünü gör
+                </Link>
+              </div>
+            )}
           </div>
         </div>
-        <FavoriteButton slug={product.slug} productName={product.nameTr} />
+        <FavoriteButton slug={product.slug} productName={displayName} />
       </div>
 
       {/* Grafik */}
       <div className="rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6">
-        <PriceChart history={history} productName={product.nameTr} />
+        <PriceChart history={history} productName={displayName} />
       </div>
 
       {/* Sezon karsilastirma */}
-      <SeasonCompare history={history} productName={product.nameTr} />
+      <SeasonCompare history={history} productName={displayName} />
+
+      {isClusterMaster && (
+        <VariantPriceTable
+          masterSlug={slug}
+          productName={displayName}
+          variantCount={variants.length}
+        />
+      )}
 
       {/* Hal vs Market — perakende zincir karşılaştırması (varsa) */}
       <RetailComparison
         productSlug={slug}
-        productName={product.nameTr}
+        productName={displayName}
         halAvgPrice={avgPrice}
       />
 
       {/* Editoryal içerik — AI alıntılanabilirlik + E-E-A-T */}
       {(() => {
-        const editorial = getProductEditorial({ slug, nameTr: product.nameTr, categorySlug: product.categorySlug });
+        const editorial = getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug });
         return (
           <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-3">
             <h2 className="text-base font-semibold text-foreground">
-              {product.nameTr} Hakkında
+              {displayName} Hakkında
             </h2>
             <p>{editorial.about}</p>
             <p><strong className="text-foreground">Fiyatı etkileyen faktörler:</strong> {editorial.priceFactors}</p>
@@ -234,15 +279,15 @@ export default async function UrunPage({ params }: Props) {
         const faqItems = [
           {
             question: `${product.nameTr} fiyatı neden değişir?`,
-            answer: `${product.nameTr} fiyatları; hasat dönemi, hava koşulları, nakliye maliyetleri ve arz-talep dengesine göre günlük değişim gösterir. Sezon dışı dönemlerde fiyatlar belirgin biçimde yükselebilir.`,
+            answer: `${displayName} fiyatları; hasat dönemi, hava koşulları, nakliye maliyetleri ve arz-talep dengesine göre günlük değişim gösterir. Sezon dışı dönemlerde fiyatlar belirgin biçimde yükselebilir.`,
           },
           {
-            question: `${product.nameTr} fiyatı hangi hallerde en ucuz?`,
-            answer: `Üretim bölgelerine yakın hallerde (özellikle Antalya, İzmir ve Adana gibi tarım merkezleri) ${product.nameTr} fiyatları genellikle daha düşük seyreder. HalDeFiyat karşılaştırma aracıyla şehir bazlı fiyatları kolayca kıyaslayabilirsiniz.`,
+            question: `${displayName} fiyatı hangi hallerde en ucuz?`,
+            answer: `Üretim bölgelerine yakın hallerde (özellikle Antalya, İzmir ve Adana gibi tarım merkezleri) ${displayName} fiyatları genellikle daha düşük seyreder. HalDeFiyat karşılaştırma aracıyla şehir bazlı fiyatları kolayca kıyaslayabilirsiniz.`,
           },
           {
-            question: `${product.nameTr} için geçmiş fiyat verilerine nasıl ulaşabilirim?`,
-            answer: `Bu sayfadaki grafik, son 5 yıla ait ${product.nameTr} fiyat geçmişini göstermektedir. Grafik üzerinde 7 gün, 30 gün veya 90 günlük dönemler arasında geçiş yapabilirsiniz. Ham veri için API endpoint'i (/api/v1/prices/history/${slug}) ücretsiz olarak erişilebilir.`,
+            question: `${displayName} için geçmiş fiyat verilerine nasıl ulaşabilirim?`,
+            answer: `Bu sayfadaki grafik, son 5 yıla ait ${displayName} fiyat geçmişini göstermektedir. Grafik üzerinde 7 gün, 30 gün veya 90 günlük dönemler arasında geçiş yapabilirsiniz. Ham veri için API endpoint'i (/api/v1/prices/history/${slug}) ücretsiz olarak erişilebilir.`,
           },
           {
             question: "Hal fiyatları ne kadar güncel?",
@@ -278,6 +323,26 @@ export default async function UrunPage({ params }: Props) {
           </>
         );
       })()}
+
+      {variants.length > 0 && (
+        <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5">
+          <h2 className="text-base font-semibold text-foreground">Bu ürünün varyantları</h2>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {variants.map((variant) => (
+              <Link
+                key={variant.slug}
+                href={`/urun/${variant.slug}`}
+                className="rounded-lg border border-border-soft bg-background/40 px-3 py-2 text-sm transition-colors hover:border-brand/40"
+              >
+                <span className="font-medium text-foreground">{variant.displayName}</span>
+                <span className="mt-0.5 block text-xs text-muted">
+                  {variant.categorySlug} · {variant.unit}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Bugunku fiyat tablosu */}
       <div className="mb-4 mt-8 flex items-end justify-between gap-4">

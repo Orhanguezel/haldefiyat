@@ -192,7 +192,7 @@ async function listAdminReports(status: "draft" | "published" | "archived" | "al
   return query.orderBy(desc(hfAnalysisReports.reportDate)).limit(limit);
 }
 
-async function persistWeeklyReport(week?: string) {
+export async function persistWeeklyReport(week?: string) {
   const { isoWeek } = resolveWeekRange(week);
   const generated = await generateWeeklyReport(isoWeek);
   if (!generated) return null;

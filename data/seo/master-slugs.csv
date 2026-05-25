@@ -1,0 +1,23 @@
+cluster,master_slug,display_name,category_slug,action,search_volume,notes
+# action: use_existing (DB'de var, sadece UPDATE) | insert_new (DB'ye yeni satır INSERT)
+biber,biber,Biber,sebze-meyve,insert_new,6000,Orhan onayı 2026-05-25 - 'biber' base slug DB'de yok, yeni master
+domates,domates,Domates,sebze-meyve,use_existing,8000,
+elma,elma,Elma,sebze-meyve,use_existing,7000,
+sogan,sogan-kuru,Soğan,sebze-meyve,use_existing,6500,Orhan onayı 2026-05-25 - 'sogan-kuru' master (en yaygın). k-sogan canonical='sogan-kuru'
+marul,marul,Marul,sebze-meyve,use_existing,2000,
+uzum,uzum,Üzüm,sebze-meyve,use_existing,5000,
+erik,erik,Erik,sebze-meyve,use_existing,2000,
+fasulye,fasulye,Fasulye,sebze-meyve,use_existing,2200,
+limon,limon,Limon,sebze-meyve,use_existing,4500,
+portakal,portakal,Portakal,sebze-meyve,use_existing,5000,
+patates,patates,Patates,sebze-meyve,use_existing,8500,
+salatalik,salatalik,Salatalık,sebze-meyve,use_existing,4000,
+armut,armut,Armut,sebze-meyve,use_existing,2500,
+kabak,kabak,Kabak,sebze-meyve,use_existing,2500,
+mandalina,mandalina,Mandalina,sebze-meyve,use_existing,3500,
+patlican,patlican,Patlıcan,sebze-meyve,use_existing,3500,
+havuc,havuc,Havuç,sebze-meyve,use_existing,3000,
+turp,turp,Turp,sebze-meyve,use_existing,1500,
+# === Yeni eklenenler (Codex'in atladığı eksikler) ===
+lahana,lahana,Lahana,sebze-meyve,insert_new,2500,2026-05-25 - 12 variant cluster, base slug DB'de yok
+sarimsak,sarimsak,Sarımsak,sebze-meyve,insert_new,4500,2026-05-25 - 8 variant cluster, base slug DB'de yok

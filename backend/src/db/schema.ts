@@ -24,6 +24,7 @@ export const hfMarkets = mysqlTable(
     regionSlug:   varchar("region_slug", { length: 64 }),
     sourceKey:    varchar("source_key", { length: 64 }),
     displayOrder: int("display_order").notNull().default(0),
+    seoIndex:     tinyint("seo_index").notNull().default(1),
     isActive:     tinyint("is_active").notNull().default(1),
     createdAt:    datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
     updatedAt:    datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
@@ -31,6 +32,7 @@ export const hfMarkets = mysqlTable(
   (t) => [
     uniqueIndex("hf_markets_slug_uq").on(t.slug),
     index("hf_markets_city_idx").on(t.cityName),
+    index("hf_markets_seo_idx").on(t.seoIndex, t.displayOrder),
   ],
 );
 
@@ -43,6 +45,11 @@ export const hfProducts = mysqlTable(
     categorySlug: varchar("category_slug", { length: 64 }).notNull().default("diger"),
     unit:         varchar("unit", { length: 32 }).notNull().default("kg"),
     aliases:      json("aliases").$type<string[]>(),
+    displayName:  varchar("display_name", { length: 160 }),
+    canonicalSlug: varchar("canonical_slug", { length: 128 }),
+    seoIndex:     tinyint("seo_index").notNull().default(0),
+    dataQuality:  tinyint("data_quality").notNull().default(0),
+    searchVolume: int("search_volume").notNull().default(0),
     displayOrder: int("display_order").notNull().default(0),
     isActive:     tinyint("is_active").notNull().default(1),
     createdAt:    datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
@@ -51,6 +58,8 @@ export const hfProducts = mysqlTable(
   (t) => [
     uniqueIndex("hf_products_slug_uq").on(t.slug),
     index("hf_products_category_idx").on(t.categorySlug),
+    index("hf_products_canonical_idx").on(t.canonicalSlug),
+    index("hf_products_seo_idx").on(t.seoIndex, t.displayOrder),
   ],
 );
 
@@ -194,6 +203,54 @@ export const hfAnalysisReports = mysqlTable(
     uniqueIndex("hf_analysis_reports_slug_uq").on(t.slug),
     index("hf_analysis_reports_status_date_idx").on(t.status, t.reportDate),
     index("hf_analysis_reports_week_idx").on(t.isoWeek),
+  ],
+);
+
+export const hfProductEditorial = mysqlTable(
+  "hf_product_editorial",
+  {
+    id:                  int("id").autoincrement().primaryKey(),
+    productSlug:         varchar("product_slug", { length: 128 }).notNull(),
+    aboutMd:             text("about_md").notNull(),
+    priceFactorsMd:      text("price_factors_md").notNull(),
+    seasonMd:            text("season_md").notNull(),
+    productionRegionMd:  text("production_region_md").notNull(),
+    qualityIndicatorsMd: text("quality_indicators_md"),
+    culinaryUsesMd:      text("culinary_uses_md"),
+    relatedSlugs:        json("related_slugs").$type<string[]>(),
+    source:              mysqlEnum("source", ["manual", "ai_draft", "ai_reviewed"]).notNull().default("manual"),
+    reviewedBy:          varchar("reviewed_by", { length: 36 }),
+    reviewedAt:          datetime("reviewed_at", { fsp: 3 }),
+    publishedAt:         datetime("published_at", { fsp: 3 }),
+    createdAt:           datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:           datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    uniqueIndex("hf_pe_slug_uq").on(t.productSlug),
+    index("hf_pe_published_idx").on(t.publishedAt),
+  ],
+);
+
+export const hfSeoSnapshots = mysqlTable(
+  "hf_seo_snapshots",
+  {
+    id:              int("id").autoincrement().primaryKey(),
+    snapshotDate:    date("snapshot_date").notNull(),
+    url:             varchar("url", { length: 512 }).notNull(),
+    coverageState:   varchar("coverage_state", { length: 64 }),
+    lastCrawled:     datetime("last_crawled", { fsp: 3 }),
+    googleCanonical: varchar("google_canonical", { length: 512 }),
+    userCanonical:   varchar("user_canonical", { length: 512 }),
+    clicks28d:       int("clicks_28d").notNull().default(0),
+    impressions28d:  int("impressions_28d").notNull().default(0),
+    positionAvg:     decimal("position_avg", { precision: 5, scale: 2 }),
+    ctrPct:          decimal("ctr_pct", { precision: 5, scale: 2 }),
+    createdAt:       datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:       datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    uniqueIndex("hf_seo_snapshots_uq").on(t.snapshotDate, t.url),
+    index("hf_seo_snapshots_date_idx").on(t.snapshotDate),
   ],
 );
 
