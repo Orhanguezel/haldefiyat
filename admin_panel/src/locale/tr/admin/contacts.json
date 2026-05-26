@@ -65,7 +65,26 @@
     "saveError": "Değişiklikler kaydedilemedi.",
     "deleted": "Silindi.",
     "deleteError": "Mesaj silinemedi.",
-    "loadError": "İletişim mesajları yüklenemedi."
+    "loadError": "İletişim mesajları yüklenemedi.",
+    "replied": "Cevap gönderildi.",
+    "replyError": "Cevap gönderilemedi."
+  },
+  "reply": {
+    "title": "Cevap yaz",
+    "description": "E-posta gönderildikten sonra mesajın durumu \"İşlemde\" olarak güncellenir. Kullanıcı cevabı yanıtladığında \"Reply-To\" adresine gider.",
+    "subjectLabel": "Konu",
+    "subjectPlaceholder": "Re: ...",
+    "messageLabel": "Mesaj",
+    "messagePlaceholder": "Sayın {name}, ...",
+    "replyToLabel": "Reply-To (kullanıcı yanıtlarsa bu adrese gider)",
+    "replyToPlaceholder": "info@vistaseeds.com.tr",
+    "sendButton": "Cevabı gönder",
+    "sending": "Gönderiliyor...",
+    "subjectRequired": "Konu boş bırakılamaz.",
+    "messageRequired": "Mesaj en az 10 karakter olmalı."
+  },
+  "actions": {
+    "reply": "Cevapla"
   },
   "confirmDelete": "Bu iletişim mesajını silmek üzeresin.\n\nİsim: {name}\nE-posta: {email}\nKonu: {subject}\nID: {id}\n\nDevam etmek istiyor musun?"
 }

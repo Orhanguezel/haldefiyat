@@ -139,6 +139,7 @@ export {
   useGetContactAdminQuery,
   useUpdateContactAdminMutation,
   useDeleteContactAdminMutation,
+  useReplyContactAdminMutation,
 } from "@/integrations/endpoints/admin/contacts-admin-endpoints";
 
 export {

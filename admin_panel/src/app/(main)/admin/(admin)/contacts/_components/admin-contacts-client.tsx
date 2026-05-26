@@ -7,7 +7,7 @@
 
 import * as React from 'react';
 import { toast } from 'sonner';
-import { RefreshCcw, Search, Trash2, Pencil } from 'lucide-react';
+import { RefreshCcw, Search, Trash2, Pencil, Send } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -64,7 +64,10 @@ import {
   useListContactsAdminQuery,
   useUpdateContactAdminMutation,
   useDeleteContactAdminMutation,
+  useReplyContactAdminMutation,
 } from '@/integrations/hooks';
+
+const DEFAULT_REPLY_TO = 'info@vistaseeds.com.tr';
 
 export default function AdminContactsClient() {
   const t = useAdminT('admin.contacts');
@@ -86,17 +89,25 @@ export default function AdminContactsClient() {
 
   const [updateContact, updateState] = useUpdateContactAdminMutation();
   const [removeContact, removeState] = useDeleteContactAdminMutation();
+  const [replyContact, replyState] = useReplyContactAdminMutation();
 
   const listBusy = listQ.isLoading || listQ.isFetching;
-  const busy = listBusy || updateState.isLoading || removeState.isLoading;
+  const busy = listBusy || updateState.isLoading || removeState.isLoading || replyState.isLoading;
 
   const [editOpen, setEditOpen] = React.useState(false);
   const [editState, setEditState] = React.useState<AdminContactsEditState | null>(null);
   const [selected, setSelected] = React.useState<ContactView | null>(null);
 
+  const [replySubject, setReplySubject] = React.useState('');
+  const [replyMessage, setReplyMessage] = React.useState('');
+  const [replyTo, setReplyTo] = React.useState(DEFAULT_REPLY_TO);
+
   function openEdit(item: ContactView) {
     setEditState(createAdminContactEditState(item));
     setSelected(item);
+    setReplySubject(item.subject ? `Re: ${item.subject}` : 'Re: ');
+    setReplyMessage('');
+    setReplyTo(DEFAULT_REPLY_TO);
     setEditOpen(true);
   }
 
@@ -105,6 +116,37 @@ export default function AdminContactsClient() {
     setEditOpen(false);
     setEditState(null);
     setSelected(null);
+    setReplySubject('');
+    setReplyMessage('');
+  }
+
+  async function onSendReply() {
+    if (!selected) return;
+    const subj = replySubject.trim();
+    const msg = replyMessage.trim();
+    if (!subj) {
+      toast.error(t('reply.subjectRequired'));
+      return;
+    }
+    if (msg.length < 10) {
+      toast.error(t('reply.messageRequired'));
+      return;
+    }
+    try {
+      await replyContact({
+        id: selected.id,
+        payload: {
+          subject: subj,
+          message: msg,
+          replyTo: replyTo.trim() || null,
+        },
+      }).unwrap();
+      toast.success(t('messages.replied'));
+      setReplyMessage('');
+      listQ.refetch();
+    } catch (err: any) {
+      toast.error(err?.data?.error?.message || err?.message || t('messages.replyError'));
+    }
   }
 
   async function onSaveEdit() {
@@ -352,7 +394,7 @@ export default function AdminContactsClient() {
       </Card>
 
       <Dialog open={editOpen} onOpenChange={(v) => (v ? null : closeEdit())}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t('editDialog.title')}</DialogTitle>
             <DialogDescription>{t('editDialog.description')}</DialogDescription>
@@ -443,6 +485,57 @@ export default function AdminContactsClient() {
                   rows={4}
                 />
               </div>
+
+              {selected ? (
+                <div className="rounded-lg border bg-card p-3 space-y-3">
+                  <div className="space-y-1">
+                    <div className="text-sm font-semibold">{t('reply.title')}</div>
+                    <p className="text-xs text-muted-foreground">{t('reply.description')}</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>{t('reply.subjectLabel')}</Label>
+                    <Input
+                      value={replySubject}
+                      onChange={(e) => setReplySubject(e.target.value)}
+                      placeholder={t('reply.subjectPlaceholder')}
+                      disabled={busy}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>{t('reply.messageLabel')}</Label>
+                    <Textarea
+                      value={replyMessage}
+                      onChange={(e) => setReplyMessage(e.target.value)}
+                      placeholder={t('reply.messagePlaceholder', { name: selected.name })}
+                      rows={8}
+                      disabled={busy}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>{t('reply.replyToLabel')}</Label>
+                    <Input
+                      type="email"
+                      value={replyTo}
+                      onChange={(e) => setReplyTo(e.target.value)}
+                      placeholder={t('reply.replyToPlaceholder')}
+                      disabled={busy}
+                    />
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={onSendReply}
+                    disabled={busy || !replySubject.trim() || replyMessage.trim().length < 10}
+                    className="w-full sm:w-auto"
+                  >
+                    <Send className="mr-2 size-4" />
+                    {replyState.isLoading ? t('reply.sending') : t('reply.sendButton')}
+                  </Button>
+                </div>
+              ) : null}
             </div>
           )}
 

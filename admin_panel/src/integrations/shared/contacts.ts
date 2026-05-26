@@ -115,5 +115,22 @@ export interface ContactUpdatePayload {
   admin_note?: string | null;
 }
 
+/**
+ * ADMIN reply payload – ContactReplySchema ile uyumlu
+ * Iletisim mesajina e-posta cevabi gondermek icin.
+ */
+export interface ContactReplyPayload {
+  subject: string;
+  message: string;
+  /** Reply-To header — kullanici cevap yazarsa buraya gider */
+  replyTo?: string | null;
+}
+
+export interface ContactReplyResponse {
+  ok: boolean;
+  message?: string;
+  contact?: ContactDto;
+}
+
 // Type alias for compatibility
 export type ContactView = ContactDto;

@@ -4,6 +4,8 @@ export {
   type ContactCreatePayload,
   type ContactDto,
   type ContactListQueryParams,
+  type ContactReplyPayload,
+  type ContactReplyResponse,
   type ContactStatus,
   type ContactUpdatePayload,
   type ContactView,

@@ -6,6 +6,8 @@ import { baseApi } from '@/integrations/base-api';
 import type {
   ContactDto,
   ContactListQueryParams,
+  ContactReplyPayload,
+  ContactReplyResponse,
   ContactUpdatePayload,
 } from '@/integrations/shared';
 import { CONTACTS_ADMIN_BASE } from '@/integrations/shared';
@@ -76,6 +78,22 @@ export const contactsAdminApi = baseApi.injectEndpoints({
         { type: 'Contacts' as const, id: 'LIST' },
       ],
     }),
+
+    /**
+     * REPLY (admin) – POST /contacts/:id/reply
+     * Iletisim mesajina e-posta cevabi gonderir, status -> in_progress
+     */
+    replyContactAdmin: build.mutation<ContactReplyResponse, { id: string; payload: ContactReplyPayload }>({
+      query: ({ id, payload }) => ({
+        url: `${CONTACTS_ADMIN_BASE}/${id}/reply`,
+        method: 'POST',
+        body: payload,
+      }),
+      invalidatesTags: (result, error, arg) => [
+        { type: 'Contacts' as const, id: arg.id },
+        { type: 'Contacts' as const, id: 'LIST' },
+      ],
+    }),
   }),
   overrideExisting: false,
 });
@@ -85,4 +103,5 @@ export const {
   useGetContactAdminQuery,
   useUpdateContactAdminMutation,
   useDeleteContactAdminMutation,
+  useReplyContactAdminMutation,
 } = contactsAdminApi;
