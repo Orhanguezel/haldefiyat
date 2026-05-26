@@ -15,6 +15,13 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 > kalintilari (G-YHLL9WK7ML, GT-WFMPZCJ3) temizlenecek, haldefiyat icin ayri GA4
 > property acilacak, social.tarvista.com'da haldefiyat baglantilari guncellenecek.
 
+> **📱 Sosyal medya hesap acma + API otomasyon:** [`SOCIAL-API-SETUP-CHECKLIST.md`](./SOCIAL-API-SETUP-CHECKLIST.md)
+>
+> Facebook + Instagram + YouTube hesaplari (tuzel kisi, info@vistaseeds.com.tr).
+> Meta Business Manager, Domain Verification, Business Verification, App Review,
+> System User Token, Google Cloud OAuth, YouTube Data API v3, backend modullerini
+> tasarimı. Tahmini 4 hafta yogun + 6-8 hafta takvim (bekleyisler dahil).
+
 ---
 
 ## ⚡ ÖNCE BUNU ÇALIŞTIR (her oturum başında)
