@@ -40,6 +40,10 @@
   --card-shadow:  0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --orb-opacity:  0.15;
   --brand-fg:     hsl(225 30% 10%);
+
+  /* Map (Turkey choropleth) — kontrast ayarlari */
+  --map-empty-fill: hsl(225 15% 88%);  /* veri olmayan il dolgusu */
+  --map-stroke:     hsl(225 15% 70%);  /* il sinirlari (inactive) */
 }
 
 [data-theme='dark'] {
@@ -77,6 +81,11 @@
   --card-shadow:  0 1px 3px hsl(225 30% 4% / 0.5);
   --orb-opacity:  0.4;
   --brand-fg:     hsl(225 30% 6%);
+
+  /* Map (Turkey choropleth) — dark mode kontrast tonlari */
+  /* surface=9%, bg-alt=11%, border=18% → empty-fill 24% ile ayrisir; stroke 42% ile koyu zeminde belirgin */
+  --map-empty-fill: hsl(225 14% 24%);
+  --map-stroke:     hsl(225 14% 42%);
 }
 
 @theme {

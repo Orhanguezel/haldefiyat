@@ -55,8 +55,9 @@ function indexLabel(idx: number | null | undefined): string {
 }
 
 // Ucuz (yeşil) → pahalı (kırmızı). Verisi olmayan il nötr gri.
+// var(--map-empty-fill) light/dark icin globals.css'de tanimli — dark mode'da surface ile karismayan ton.
 function colorFor(value: number | null | undefined, min: number, max: number) {
-  if (!Number.isFinite(value ?? NaN)) return "var(--color-bg-alt)";
+  if (!Number.isFinite(value ?? NaN)) return "var(--map-empty-fill)";
   if (max <= min) return "hsl(48 90% 52%)";
   const ratio = Math.min(1, Math.max(0, ((value as number) - min) / (max - min)));
   return `hsl(${132 - ratio * 128} 70% 46%)`;
@@ -131,9 +132,9 @@ export default function TurkeyMapClient({ markets, cityPrices = [] }: Props) {
                 key={p.code}
                 d={p.d}
                 fill={colorFor(idx, minIdx, maxIdx)}
-                fillOpacity={idx != null ? 0.95 : 0.5}
-                stroke={isActive ? "var(--color-foreground)" : "var(--color-border)"}
-                strokeWidth={isActive ? 2.2 : 0.6}
+                fillOpacity={idx != null ? 0.95 : 1}
+                stroke={isActive ? "var(--color-foreground)" : "var(--map-stroke)"}
+                strokeWidth={isActive ? 2.4 : 0.8}
                 role="button"
                 tabIndex={0}
                 aria-label={`${p.name}${idx != null ? ` fiyat endeksi ${formatIndex(idx)}` : " (veri yok)"}`}
