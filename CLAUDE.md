@@ -45,7 +45,7 @@ ssh vps-vistainsaat '/var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/bac
 
 ## Repo Niteligi
 
-- Repo: `github.com/Orhanguezel/haldefiyat` (push: main) — local git repo. **VPS git repo DEGIL** (direct dosya).
+- Repo: `github.com/Orhanguezel/haldefiyat` (push: main) — local git repo. **VPS de ayni git repo** (2026-05-26 dogrulandi). Yeni deploy akisi: local commit + push → VPS `git pull --ff-only origin main` → `cd frontend && bun run build` → `pm2 reload hal-frontend --update-env`. Acil scp yine yapilir ama tercih edilen yol git.
 - VPS: vps-vistainsaat (root@srv1493379), path: `/var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/` (monorepo standardi, 2026-05-14)
 - node_modules: monorepo root `/var/www/tarim-dijital-ekosistem/node_modules` (bun workspace install)
 - PM2: `hal-backend` (port 8091), `hal-frontend` (port 3033), `hal-admin` (port 3036)
