@@ -32,17 +32,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!makale) notFound();
 
   return {
-    title: `${makale.baslik} | HalDeFiyat Analiz`,
-    description: makale.ozet,
+    title: makale.metaTitle || `${makale.baslik} | HalDeFiyat Analiz`,
+    description: makale.metaDescription || makale.ozet,
     openGraph: {
       type: "article",
-      title: makale.baslik,
-      description: makale.ozet,
+      title: makale.metaTitle || makale.baslik,
+      description: makale.metaDescription || makale.ozet,
       url: `${SITE_URL}/analiz/${slug}`,
       publishedTime: makale.tarih,
       authors: [makale.yazar],
       tags: makale.etiketler,
       section: isHaftalikRapor(makale) ? "Haftalık Hal Raporu" : "Hal Fiyatı Analizi",
+      ...(makale.ogImage ? { images: [makale.ogImage] } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: makale.metaTitle || makale.baslik,
+      description: makale.metaDescription || makale.ozet,
+      ...(makale.ogImage ? { images: [makale.ogImage] } : {}),
     },
     alternates: {
       canonical: `${SITE_URL}/analiz/${slug}`,
@@ -135,6 +142,7 @@ export default async function AnalizMakalePage({ params }: Props) {
     url: `${SITE_URL}/analiz/${makale.slug}`,
     inLanguage: "tr-TR",
     keywords: makale.etiketler.join(", "),
+    ...(makale.ogImage ? { image: makale.ogImage } : {}),
     articleSection: isWeekly ? "Haftalık Hal Raporu" : "Hal Fiyatı Analizi",
     isAccessibleForFree: true,
     wordCount: makale.icerik.trim().split(/\s+/g).filter(Boolean).length,

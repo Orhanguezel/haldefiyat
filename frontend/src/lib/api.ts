@@ -176,6 +176,28 @@ async function safeFetch<T>(
   }
 }
 
+async function safeFetchNoStore<T>(
+  path: string,
+  fallback: T,
+): Promise<T> {
+  try {
+    const res = await fetch(`${API}${path}`, {
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!res.ok) {
+      console.error(`[api] ${path} → ${res.status} ${res.statusText}`);
+      return fallback;
+    }
+    const json = (await res.json()) as unknown;
+    return unwrapPayload<T>(json, fallback);
+  } catch (err) {
+    console.error(`[api] ${path} → fetch error`, err);
+    return fallback;
+  }
+}
+
 async function safeFetchRaw<T>(
   path: string,
   revalidate: number,
@@ -378,6 +400,10 @@ export interface AutoWeeklyReport {
   weekStart: string;
   weekEnd: string;
   totalRecords: number;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  ogImage?: string | null;
+  imageAlt?: string | null;
 }
 
 export async function fetchWidget(params: { slugs?: string[]; category?: string; limit?: number }): Promise<WidgetPrice[]> {
@@ -395,9 +421,8 @@ export async function fetchAutoWeeklyReports(limit = 8): Promise<AutoWeeklyRepor
 }
 
 export async function fetchAutoWeeklyReport(slug: string): Promise<AutoWeeklyReport | null> {
-  return safeFetch<AutoWeeklyReport | null>(
+  return safeFetchNoStore<AutoWeeklyReport | null>(
     `/analysis/weekly-reports/${encodeURIComponent(slug)}`,
-    300,
     null,
   );
 }

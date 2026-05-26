@@ -42,4 +42,7 @@ export async function registerSharedAdmin(adminApi: FastifyInstance) {
   await registerSupportAdmin(adminApi);
   await registerEmailTemplatesAdmin(adminApi);
   await registerAuditAdmin(adminApi);
+
+  const { aiContentAssist } = await import("@agro/shared-backend/modules/ai/content");
+  adminApi.post("/ai/content", aiContentAssist);
 }

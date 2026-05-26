@@ -15,6 +15,10 @@ export interface AnalysisReportAdmin {
   weekStart: string;
   weekEnd: string;
   totalRecords: number;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  ogImage: string | null;
+  imageAlt: string | null;
   source: 'auto' | 'manual';
   status: AnalysisReportStatus;
   publishedAt: string | null;
@@ -27,6 +31,10 @@ export interface AnalysisReportPatch {
   summary?: string;
   content?: string;
   tags?: string[];
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  ogImage?: string | null;
+  imageAlt?: string | null;
   status?: AnalysisReportStatus;
 }
 

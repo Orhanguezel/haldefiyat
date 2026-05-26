@@ -19,6 +19,10 @@ export type AutoWeeklyReport = {
   weekStart: string;
   weekEnd: string;
   totalRecords: number;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  ogImage?: string | null;
+  imageAlt?: string | null;
 };
 
 type AnalysisReportStatus = "draft" | "published" | "archived";
@@ -41,6 +45,10 @@ const bodyPatch = z.object({
   summary: z.string().trim().min(10).optional(),
   content: z.string().trim().min(20).optional(),
   tags: z.array(z.string().trim().min(1).max(80)).max(12).optional(),
+  metaTitle: z.string().trim().max(255).nullable().optional(),
+  metaDescription: z.string().trim().nullable().optional(),
+  ogImage: z.string().trim().max(500).nullable().optional(),
+  imageAlt: z.string().trim().max(255).nullable().optional(),
   status: z.enum(["draft", "published", "archived"]).optional(),
 });
 
@@ -128,6 +136,10 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
     if (next.summary !== undefined) patch.summary = next.summary;
     if (next.content !== undefined) patch.content = next.content;
     if (next.tags !== undefined) patch.tags = next.tags;
+    if (next.metaTitle !== undefined) patch.metaTitle = next.metaTitle || null;
+    if (next.metaDescription !== undefined) patch.metaDescription = next.metaDescription || null;
+    if (next.ogImage !== undefined) patch.ogImage = next.ogImage || null;
+    if (next.imageAlt !== undefined) patch.imageAlt = next.imageAlt || null;
     if (next.status !== undefined) {
       patch.status = next.status;
       patch.publishedAt = next.status === "published" ? new Date() : null;
@@ -209,6 +221,10 @@ export async function persistWeeklyReport(week?: string) {
     slug: generated.slug,
     title: generated.baslik,
     summary: generated.ozet,
+    metaTitle: buildMetaTitle(generated.baslik),
+    metaDescription: buildMetaDescription(generated.ozet),
+    ogImage: "/og-default.png",
+    imageAlt: generated.baslik,
     content: generated.icerik,
     author: generated.yazar,
     tags: generated.etiketler,
@@ -291,6 +307,10 @@ function reportRowToPublic(row: typeof hfAnalysisReports.$inferSelect): AutoWeek
     weekStart: toDateOnly(row.weekStart),
     weekEnd: toDateOnly(row.weekEnd),
     totalRecords: row.totalRecords,
+    metaTitle: row.metaTitle ?? null,
+    metaDescription: row.metaDescription ?? null,
+    ogImage: row.ogImage ?? null,
+    imageAlt: row.imageAlt ?? null,
   };
 }
 
@@ -379,6 +399,23 @@ function buildTags(summary: WeeklySummary): string[] {
     if (item.productName) tags.push(item.productName.toLocaleLowerCase("tr-TR"));
   }
   return [...new Set(tags)].slice(0, 8);
+}
+
+function buildMetaTitle(title: string): string {
+  const clean = title.replace(/\s+/g, " ").trim();
+  return truncateAtWord(clean, 47);
+}
+
+function buildMetaDescription(summary: string): string {
+  return truncateAtWord(summary, 155);
+}
+
+function truncateAtWord(value: string, max: number): string {
+  const clean = value.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const sliced = clean.slice(0, max - 1).trimEnd();
+  const lastSpace = sliced.lastIndexOf(" ");
+  return `${(lastSpace > 40 ? sliced.slice(0, lastSpace) : sliced).trimEnd()}…`;
 }
 
 function parseWeekFromSlug(slug: string): string | null {

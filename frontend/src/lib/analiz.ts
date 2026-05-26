@@ -7,6 +7,10 @@ export interface AnalizMakale {
   tarih: string; // ISO YYYY-MM-DD
   etiketler: string[];
   hafta?: string; // ISO week "2026-19"
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  ogImage?: string | null;
+  imageAlt?: string | null;
 }
 
 export function isHaftalikRapor(makale: AnalizMakale): boolean {
