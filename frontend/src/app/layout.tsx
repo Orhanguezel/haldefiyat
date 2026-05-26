@@ -110,7 +110,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       className={`${outfit.variable} ${ibmPlexSans.variable} font-sans`}
     >
       <head>
-        <Analytics ga4Id={analytics.ga4Id} gtmId={analytics.gtmId} />
+        <Analytics ga4Id={analytics.ga4Id} gtmId={analytics.gtmId} adsConversionId={analytics.adsConversionId} />
       </head>
       <body suppressHydrationWarning>
         {analytics.gtmId && <GtmNoscript gtmId={analytics.gtmId} />}

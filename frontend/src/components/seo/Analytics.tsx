@@ -3,6 +3,7 @@ import Script from "next/script";
 interface AnalyticsProps {
   ga4Id?: string | null;
   gtmId?: string | null;
+  adsConversionId?: string | null;
 }
 
 export function GoogleAnalytics({ ga4Id }: { ga4Id: string }) {
@@ -27,6 +28,20 @@ export function GoogleTagManager({ gtmId }: { gtmId: string }) {
   );
 }
 
+export function GoogleAdsConversion({ id }: { id: string }) {
+  return (
+    <>
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${id}`}
+        strategy="afterInteractive"
+      />
+      <Script id="google-ads-init" strategy="afterInteractive">
+        {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${id}');`}
+      </Script>
+    </>
+  );
+}
+
 export function GtmNoscript({ gtmId }: { gtmId: string }) {
   return (
     <noscript>
@@ -40,12 +55,13 @@ export function GtmNoscript({ gtmId }: { gtmId: string }) {
   );
 }
 
-export default function Analytics({ ga4Id, gtmId }: AnalyticsProps) {
-  if (!ga4Id && !gtmId) return null;
+export default function Analytics({ ga4Id, gtmId, adsConversionId }: AnalyticsProps) {
+  if (!ga4Id && !gtmId && !adsConversionId) return null;
 
   return (
     <>
       {gtmId ? <GoogleTagManager gtmId={gtmId} /> : ga4Id ? <GoogleAnalytics ga4Id={ga4Id} /> : null}
+      {adsConversionId ? <GoogleAdsConversion id={adsConversionId} /> : null}
     </>
   );
 }

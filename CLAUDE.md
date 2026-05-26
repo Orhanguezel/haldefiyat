@@ -8,6 +8,13 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 > UI) → #34 (Turkiye haritasi) → #41 (embed widget). Diger acik isler ve
 > beklemeler bu dosyada kategorize.
 
+> **🎯 Google Ads kurulum kalan isler:** [`ADS-SETUP-CHECKLIST.md`](./ADS-SETUP-CHECKLIST.md)
+>
+> 2026-05-26'da Vista Seeds Ads altinda "Haldefiyat - Arama - Trafik" kampanyasi
+> yayina cikti. Conversion tag (AW-18007572524) yuklenecek, Bereketfide GA4 tag
+> kalintilari (G-YHLL9WK7ML, GT-WFMPZCJ3) temizlenecek, haldefiyat icin ayri GA4
+> property acilacak, social.tarvista.com'da haldefiyat baglantilari guncellenecek.
+
 ---
 
 ## ⚡ ÖNCE BUNU ÇALIŞTIR (her oturum başında)
