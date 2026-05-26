@@ -24,6 +24,28 @@
 
 ## 🔴 KRITIK — Hemen Yapılacak
 
+### 0. SMTP mail teslimi — Resend.com setup ✅ TAMAMLANDI 2026-05-26
+
+Eski Gmail relay (info@vistaseeds.com.tr) DKIM/SPF uyumsuzluğu sebebiyle Gmail spam'e atıyordu — mail gönderilse bile alıcılar göremiyordu (newsletter, fiyat alarmı sessizce kaybolurdu).
+
+**Çözüm:** Resend.com kuruldu, haldefiyat.com için DNS authentication tamam:
+- [x] Resend hesabı + domain ekle (region: sa-east-1)
+- [x] Turhost DNS zone editor: 4 kayıt eklendi
+  - TXT `resend._domainkey` → DKIM
+  - MX `send` → feedback-smtp.sa-east-1.amazonses.com (priority 10)
+  - TXT `send` → SPF (v=spf1 include:amazonses.com ~all)
+  - TXT `_dmarc` → DMARC (v=DMARC1; p=none;)
+- [x] DNS propagation doğrulandı (dig 8.8.8.8 ile)
+- [x] Resend domain "Verified" badge
+- [x] API key alındı (`re_VB5SYZgW_...`)
+- [x] VPS `backend/.env` güncellendi (SMTP_HOST=smtp.resend.com)
+- [x] VPS DB `site_settings` SMTP kayıtları güncellendi (7 key)
+- [x] `pm2 reload hal-backend --update-env`
+- [x] Test mail gönderildi (admin endpoint + env-based), **ikisi de Gmail Inbox'a düştü** (Spam değil)
+
+**Sender:** `HaldeFiyat <noreply@haldefiyat.com>`
+**Borç:** Resend region sa-east-1 → eu-west-1 değiştirilebilir (latency); şu an mail için kritik değil.
+
 ### 1. Conversion Tag'i haldefiyat.com'a yükle ✅ TAMAMLANDI 2026-05-26
 - [x] `frontend/src/components/seo/Analytics.tsx`'e `GoogleAdsConversion` component eklendi
 - [x] `frontend/src/lib/site-settings.ts` `AnalyticsConfig`'e `adsConversionId` alanı eklendi
