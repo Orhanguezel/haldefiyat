@@ -30,7 +30,7 @@ export default function Header({ siteName, logoUrl }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full">
       {/* Layer 1 — Topbar */}
-      <div className="bg-(--color-header-top) backdrop-blur-xl border-b border-(--color-border-soft)">
+      <div className="hidden md:block bg-(--color-header-top) backdrop-blur-xl border-b border-(--color-border-soft)">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <TopbarClient />
         </div>

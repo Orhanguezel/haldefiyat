@@ -28,8 +28,22 @@ export interface AnalysisReportAdmin {
 
 export interface AnalysisReportPatch {
   title?: string;
+  slug?: string;
   summary?: string;
   content?: string;
+  tags?: string[];
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  ogImage?: string | null;
+  imageAlt?: string | null;
+  status?: AnalysisReportStatus;
+}
+
+export interface AnalysisReportCreate {
+  title: string;
+  slug?: string;
+  summary: string;
+  content: string;
   tags?: string[];
   metaTitle?: string | null;
   metaDescription?: string | null;
@@ -52,6 +66,15 @@ export const analysisReportsAdminApi = baseApi.injectEndpoints({
         return { url: `/admin/analysis/reports${qs ? `?${qs}` : ''}` };
       },
       providesTags: [{ type: 'AnalysisReports' as const, id: 'LIST' }],
+    }),
+    getAnalysisReportAdmin: builder.query<AnalysisReportAdmin, { id: number | string }>({
+      query: ({ id }) => ({ url: `/admin/analysis/reports/${id}` }),
+      transformResponse: (response: { data: AnalysisReportAdmin }) => response.data,
+      providesTags: (_res, _err, { id }) => [{ type: 'AnalysisReports' as const, id }],
+    }),
+    createAnalysisReportAdmin: builder.mutation<{ data: AnalysisReportAdmin }, AnalysisReportCreate>({
+      query: (body) => ({ url: '/admin/analysis/reports', method: 'POST', body }),
+      invalidatesTags: [{ type: 'AnalysisReports' as const, id: 'LIST' }],
     }),
     generateAnalysisReportAdmin: builder.mutation<
       { data: AnalysisReportAdmin },
@@ -88,6 +111,8 @@ export const analysisReportsAdminApi = baseApi.injectEndpoints({
 
 export const {
   useListAnalysisReportsAdminQuery,
+  useGetAnalysisReportAdminQuery,
+  useCreateAnalysisReportAdminMutation,
   useGenerateAnalysisReportAdminMutation,
   useUpdateAnalysisReportAdminMutation,
   usePublishAnalysisReportAdminMutation,

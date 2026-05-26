@@ -162,13 +162,13 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
         onClick={() => setOpen((v) => !v)}
         aria-label="Menüyü aç/kapat"
         aria-expanded={open}
-        className="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-md text-(--color-foreground) hover:bg-(--color-bg-alt)"
+        className="lg:hidden inline-flex h-9 w-9 items-center justify-center rounded-[8px] bg-(--color-brand) text-white shadow-sm transition-transform active:scale-95"
       >
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5">
           {open ? (
             <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round" />
           ) : (
-            <path d="M3 6h14M3 10h14M3 14h14" strokeLinecap="round" />
+            <path d="M4 6h12M4 10h12M4 14h12" strokeLinecap="round" />
           )}
         </svg>
       </button>

@@ -40,8 +40,22 @@ const bodyGenerate = z.object({
   week: z.string().regex(/^\d{4}-\d{2}$/).optional(),
 });
 
+const bodyCreate = z.object({
+  title: z.string().trim().min(3).max(500),
+  slug: z.string().trim().max(180).optional(),
+  summary: z.string().trim().min(10),
+  content: z.string().trim().min(20),
+  tags: z.array(z.string().trim().min(1).max(80)).max(12).optional(),
+  metaTitle: z.string().trim().max(255).nullable().optional(),
+  metaDescription: z.string().trim().nullable().optional(),
+  ogImage: z.string().trim().max(500).nullable().optional(),
+  imageAlt: z.string().trim().max(255).nullable().optional(),
+  status: z.enum(["draft", "published", "archived"]).optional(),
+});
+
 const bodyPatch = z.object({
   title: z.string().trim().min(3).max(500).optional(),
+  slug: z.string().trim().max(180).optional(),
   summary: z.string().trim().min(10).optional(),
   content: z.string().trim().min(20).optional(),
   tags: z.array(z.string().trim().min(1).max(80)).max(12).optional(),
@@ -116,6 +130,42 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
     return reply.send({ data: reportRowToAdmin(report) });
   });
 
+  app.post("/analysis/reports", async (req, reply) => {
+    const parsed = bodyCreate.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz rapor alani" });
+
+    const next = parsed.data;
+    const now = new Date();
+    const slug = await ensureUniqueReportSlug(next.slug || next.title);
+    const status = next.status ?? "draft";
+    const reportDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12));
+    const isoWeek = isoWeekForDate(reportDate);
+
+    await db.insert(hfAnalysisReports).values({
+      slug,
+      title: next.title,
+      summary: next.summary,
+      metaTitle: next.metaTitle || buildMetaTitle(next.title),
+      metaDescription: next.metaDescription || buildMetaDescription(next.summary),
+      ogImage: next.ogImage || "/og-default.png",
+      imageAlt: next.imageAlt || next.title,
+      content: next.content,
+      author: "HaldeFiyat Veri Ekibi",
+      tags: next.tags ?? [],
+      isoWeek,
+      weekStart: reportDate,
+      weekEnd: reportDate,
+      reportDate,
+      source: "manual",
+      status,
+      totalRecords: 0,
+      publishedAt: status === "published" ? new Date() : null,
+    });
+
+    const [row] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.slug, slug)).limit(1);
+    return reply.status(201).send({ data: row ? reportRowToAdmin(row) : null });
+  });
+
   app.get<{ Params: { id: string } }>("/analysis/reports/:id", async (req, reply) => {
     const id = Number(req.params.id);
     if (!Number.isFinite(id)) return reply.status(400).send({ error: "Gecersiz id" });
@@ -133,6 +183,12 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
     const next = parsed.data;
     const patch: Partial<typeof hfAnalysisReports.$inferInsert> = {};
     if (next.title !== undefined) patch.title = next.title;
+    if (next.slug !== undefined) {
+      const slug = slugifyReport(next.slug || next.title || "");
+      const [existing] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.slug, slug)).limit(1);
+      if (existing && existing.id !== id) return reply.status(409).send({ error: "Bu slug baska bir analizde kullaniliyor" });
+      patch.slug = slug;
+    }
     if (next.summary !== undefined) patch.summary = next.summary;
     if (next.content !== undefined) patch.content = next.content;
     if (next.tags !== undefined) patch.tags = next.tags;
@@ -324,6 +380,42 @@ function reportRowToAdmin(row: typeof hfAnalysisReports.$inferSelect) {
     createdAt: row.createdAt ? row.createdAt.toISOString() : null,
     updatedAt: row.updatedAt ? row.updatedAt.toISOString() : null,
   };
+}
+
+async function ensureUniqueReportSlug(value: string): Promise<string> {
+  const base = slugifyReport(value) || `analiz-${Date.now()}`;
+  let candidate = base;
+  for (let index = 2; index < 100; index += 1) {
+    const [existing] = await db.select({ id: hfAnalysisReports.id }).from(hfAnalysisReports).where(eq(hfAnalysisReports.slug, candidate)).limit(1);
+    if (!existing) return candidate;
+    candidate = `${base}-${index}`;
+  }
+  return `${base}-${Date.now()}`;
+}
+
+function slugifyReport(value: string): string {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ı/g, "i")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 180);
+}
+
+function isoWeekForDate(value: Date): string {
+  const date = new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()));
+  const day = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  const week = Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  return `${date.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
 }
 
 function dateFromIso(value: string): Date {

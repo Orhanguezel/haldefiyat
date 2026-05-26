@@ -104,6 +104,8 @@ export {
 
 export {
   useListAnalysisReportsAdminQuery,
+  useGetAnalysisReportAdminQuery,
+  useCreateAnalysisReportAdminMutation,
   useGenerateAnalysisReportAdminMutation,
   useUpdateAnalysisReportAdminMutation,
   usePublishAnalysisReportAdminMutation,
