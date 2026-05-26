@@ -28,7 +28,7 @@ interface Props {
 const SKELETON_COUNT = 6;
 
 export default function CitySelectorClient({ markets, cityPrices, locale, majorCities }: Props) {
-  const [view, setView] = useState<"list" | "map">("list");
+  const [view, setView] = useState<"list" | "map">("map");
 
   return (
     <div>

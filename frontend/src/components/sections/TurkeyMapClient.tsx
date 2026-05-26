@@ -132,7 +132,7 @@ export default function TurkeyMapClient({ markets, cityPrices = [] }: Props) {
                 d={p.d}
                 fill={colorFor(idx, minIdx, maxIdx)}
                 fillOpacity={idx != null ? 0.95 : 0.5}
-                stroke={isActive ? "var(--color-foreground)" : "var(--color-surface)"}
+                stroke={isActive ? "var(--color-foreground)" : "var(--color-border)"}
                 strokeWidth={isActive ? 2.2 : 0.6}
                 role="button"
                 tabIndex={0}
