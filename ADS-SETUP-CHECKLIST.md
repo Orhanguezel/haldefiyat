@@ -85,26 +85,48 @@ Eski Gmail relay (info@vistaseeds.com.tr) DKIM/SPF uyumsuzluğu sebebiyle Gmail 
 
 ## 🟡 ÖNEMLİ — 1 Hafta İçinde
 
-### 5. social.tarvista.com'da haldefiyat bağlantılarını güncelle
-**Sorun:** Ekosistem sosyal medya yönetim panelinde haldefiyat'ın bağlantıları eski / yanlış olabilir.
+### 5. social.tarvista.com (ekosistem-sosyal-medya) HalDeFiyat tenant kaydı 🟡 KISMEN TAMAMLANDI 2026-05-27
 
-**Yapılacak:**
-- [ ] `social.tarvista.com` admin paneline gir
-- [ ] Haldefiyat bölümünü aç, **mevcut bağlantıları listele**:
-  - Website URL
-  - Twitter/X
-  - Instagram
-  - Facebook
-  - LinkedIn
-  - YouTube
-- [ ] Aşağıdaki **olması gereken** bağlantılarla karşılaştır (haldefiyat.com'daki footer ve siteSettings'ten doğrulanacak):
+**Repo (`ekosistem-sosyal-medya`):**
+- [x] `backend/src/db/seed/sql/205_social_projects.seed.sql` HalDeFiyat tenant kaydı temizlendi (commit `f7482e8`)
+  - `gtm_container_id`: `GTM-K3WDGHX5` → `NULL` (Bereketfide kalıntısı silindi)
+  - `ga4_measurement_id`: `G-YHLL9WK7ML` → `NULL` (yeni GA4 property açılınca eklenecek)
+  - `ga4_property_id`: `538279658` → `NULL`
+  - `google_ads_customer_id`: `941-057-6390` (yarım kurulu hesap) → `702-033-4476` (Vista Seeds Ads — kampanya gerçekte burada yayında)
+- [x] GitHub push: `ec07987..f7482e8 main → main`
+- [ ] **VPS sync** (sosial.tarvista.com): SSH key sorunu nedeniyle ertelendi. Yapılacak:
+  ```bash
+  ssh-add ~/.ssh/id_ed25519
+  ssh guezelwebdesign
+  cd /var/www/sosial.tarvista.com
+  git pull origin main
+  bun run db:seed        # ON DUPLICATE KEY UPDATE ile haldefiyat kaydını günceller
+  pm2 reload ekosistem-backend
+  ```
 
-  **Olması gereken kanonik bağlantılar:**
-  - Website: `https://haldefiyat.com`
-  - (Sosyal medya hesapları varsa repo'daki `frontend/src/components/layout/Footer.tsx` veya `siteSettings`'ten al)
+**Sosyal medya hesap bağlantıları (footer/siteSettings sync):**
+- [ ] HalDeFiyat footer'da FB/IG bağlantılarını ekle (FB Page + IG hesabı açıldı, link'ler eklenmeli):
+  - Facebook: `https://facebook.com/haldefiyat` (Page ID 61590611212775)
+  - Instagram: `https://instagram.com/hal.de.fiyat`
+  - YouTube: (henüz açılmadı)
+- [ ] `frontend/src/components/layout/Footer.tsx` veya DB `site_settings.social_*` güncelle
+- [ ] Open Graph tag'lerinde de bu bağlantıların doğru olduğundan emin ol (`layout.tsx` metadata)
 
-- [ ] Eksik / yanlış olanları güncelle
-- [ ] Open Graph tag'lerinde de aynı bağlantıların geçerli olduğundan emin ol (`layout.tsx` metadata)
+### 5b. Sosyal medya hesap kurulumları + Meta API otomasyon
+
+Bu konunun detaylı checklist'i: **[`SOCIAL-API-SETUP-CHECKLIST.md`](./SOCIAL-API-SETUP-CHECKLIST.md)**
+
+**Bugünkü durum (2026-05-27):**
+- [x] Facebook Page açıldı — `Haldefiyat`, kategori "Haber ve medya sitesi", Hakkında bölümü dolu, kapak banner ve profil resmi yüklü
+- [x] Instagram Business hesabı açıldı — `hal.de.fiyat`, Professional/Business modu, ilk post atıldı (Tarımda Doğru Karar banner)
+- [ ] IG ↔ FB Page bağlantısı — Meta rate limit ("hesap kısıtlandı") nedeniyle ertelendi, yarın taze IP/session ile
+- [ ] Meta Business Manager — "Bereket Fide" BM mevcut ama Atakan kontrolünde; yeni BM ("Tarım Ekosistemi" veya HalDeFiyat'a özel) açılacak yarın
+- [ ] Domain Verification (haldefiyat.com TXT, Turhost)
+- [ ] Business Verification başvuru (vergi levhası + ticaret sicil + imza sirküleri)
+- [ ] Meta Developer App ("Ekosistem Sosyal Otomasyon") + App Review
+- [ ] System User Token üret → ekosistem-sosyal-medya `social_accounts` tablosuna yaz
+- [ ] YouTube Brand Channel (Meta'dan ayrı, paralel açılabilir)
+- [ ] Test post (sosial.tarvista.com'dan Haldefiyat FB Page'e otomatik)
 
 ### 6. Kampanyayı izle ve optimize et (2026-06-02 civarı)
 
