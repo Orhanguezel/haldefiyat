@@ -152,6 +152,6 @@ export const config = {
   matcher: [
     "/",
     "/(tr)/:path*",
-    "/((?!api|_next|_vercel|icon|apple-icon|offline|og/|.*opengraph-image.*|.*twitter-image.*|.*\\..*).*)",
+    "/((?!api/|_next|_vercel|icon|apple-icon|offline|og/|.*opengraph-image.*|.*twitter-image.*|.*\\..*).*)",
   ],
 };

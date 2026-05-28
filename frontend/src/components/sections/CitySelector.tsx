@@ -22,6 +22,12 @@ export default async function CitySelector({ locale }: CitySelectorProps) {
     if (!aIsMajor && bIsMajor) return 1;
     return a.cityName.localeCompare(b.cityName, "tr");
   });
+  const activeCityCount = new Set(
+    allMarkets
+      .filter((market) => market.regionSlug !== "ulusal")
+      .map((market) => market.cityName?.trim())
+      .filter(Boolean),
+  ).size;
 
   return (
     <section id="sehirler" className="relative z-10 px-6 py-20 lg:px-8">
@@ -33,7 +39,7 @@ export default async function CitySelector({ locale }: CitySelectorProps) {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-(--color-brand) opacity-75"></span>
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-(--color-brand)"></span>
               </span>
-              81 İl aktif
+              {activeCityCount || allMarkets.length} İl aktif
             </div>
             <h2 className="font-(family-name:--font-display) text-3xl font-extrabold tracking-tight text-(--color-foreground) sm:text-4xl">
               Şehir & Hal Seçin

@@ -131,12 +131,12 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
       },
     });
     window.google.accounts.id.renderButton(googleButtonRef.current, {
-      theme: "outline",
+      theme: "filled_black",
       size: "large",
       type: "standard",
-      shape: "pill",
+      shape: "rectangular",
       text: mode === "login" ? "signin_with" : "signup_with",
-      width: 340,
+      width: 352,
       logo_alignment: "left",
     });
   }, [googleConfig.clientId, locale, mode, router, scriptReady]);
@@ -267,7 +267,10 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
               {googleConfig.enabled && googleConfig.clientId ? (
                 <div
                   ref={googleButtonRef}
-                  className={googleLoading ? "pointer-events-none opacity-70" : ""}
+                  className={
+                    "flex w-full max-w-[352px] justify-center overflow-hidden rounded-xl transition-opacity [&>div]:!w-full [&_iframe]:!block [&_iframe]:!w-full " +
+                    (googleLoading ? "pointer-events-none opacity-70" : "")
+                  }
                 />
               ) : (
                 <button

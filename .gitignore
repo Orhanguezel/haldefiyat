@@ -69,3 +69,6 @@ venv*/
 /logohaldefiyat_light.png
 /logohaldefiyat_dark.png
 /logohaldefiyat_dark_theme.png
+
+# TS build cache (commit edilmez)
+*.tsbuildinfo
