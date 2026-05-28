@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { trackConversion } from "@/lib/analytics";
 
 type SubmitState =
   | { kind: "idle" }
@@ -53,6 +54,7 @@ export default function CtaNewsletter() {
       }
 
       setState({ kind: "success" });
+      trackConversion("newsletter_signup", { method: "newsletter_cta" }, { email: trimmed });
       setEmail("");
     } catch (err) {
       const message =

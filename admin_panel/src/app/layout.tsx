@@ -21,6 +21,8 @@ import { LocaleProvider } from '@/i18n/locale-provider';
 
 import './globals.css';
 
+type TwitterCard = 'summary' | 'summary_large_image' | 'app' | 'player';
+
 export async function generateMetadata(): Promise<Metadata> {
   const branding = await fetchBrandingConfig();
   const iconUrl = branding.media.site_favicon || '/favicon.png';
@@ -43,7 +45,7 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [{ url: ogImageUrl, alt: branding.media.site_og_default_image_alt || branding.app_name }],
     },
     twitter: {
-      card: branding.meta.twitter_card || 'summary_large_image',
+      card: (branding.meta.twitter_card || 'summary_large_image') as TwitterCard,
       title: branding.meta.og_title,
       description: branding.meta.og_description,
       images: [ogImageUrl],

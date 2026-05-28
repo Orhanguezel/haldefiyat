@@ -67,6 +67,8 @@ export default async function PublicLayout({
         siteName={settings.site_name || "HalDeFiyat"}
         siteSubtitle={settings.site_description}
         logoUrl={settings.site_logo}
+        logoDarkUrl={settings.site_logo_dark}
+        logoLightUrl={settings.site_logo_light}
       />
 
       <main className="relative z-10 grow">{children}</main>
@@ -74,6 +76,8 @@ export default async function PublicLayout({
       <Footer
         siteName={settings.site_name || "HalDeFiyat"}
         logoUrl={settings.site_logo}
+        logoDarkUrl={settings.site_logo_dark}
+        logoLightUrl={settings.site_logo_light}
         locale={currentLocale}
         contactEmail={settings.contact_email}
         contactPhone={settings.contact_phone}

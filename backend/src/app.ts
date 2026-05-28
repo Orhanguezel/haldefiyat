@@ -13,8 +13,8 @@ import swaggerPlugin from "@/plugins/swagger";
 import { env } from "@/core/env";
 import { registerErrorHandlers } from "@agro/shared-backend/core/error";
 import { loggerConfig } from "@agro/shared-backend/core/logger";
-import { requestLoggerPlugin } from "@agro/shared-backend/modules/audit/requestLogger.plugin";
 import { getStorageSettings } from "@agro/shared-backend/modules/siteSettings";
+import { auditRequestLoggerPlugin } from "@/plugins/auditRequestLogger";
 import { registerAllRoutes } from "./routes";
 import { parseCorsOrigins, pickUploadsRoot, pickUploadsPrefix } from "./app.helpers";
 
@@ -98,7 +98,7 @@ export async function createApp() {
     },
   );
 
-  await app.register(requestLoggerPlugin);
+  await app.register(auditRequestLoggerPlugin);
 
   // X-API-Key header bazli rate limit (tier'a gore daily). Header yoksa default IP-rate-limit gecerli.
   const { apiKeyAuthHook } = await import("@/modules/api-keys/plugin");

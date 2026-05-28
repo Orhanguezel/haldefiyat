@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { setRequestLocale } from "next-intl/server";
 import { getPageMetadata } from "@/lib/seo";
-import { fetchWidget, type TrendingItem } from "@/lib/api";
+import { fetchMarkets, fetchProducts, fetchWidget, type TrendingItem } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
 import HeroSection from "@/components/sections/HeroSection";
 import PriceTicker from "@/components/sections/PriceTicker";
@@ -15,6 +15,7 @@ import CtaNewsletter from "@/components/sections/CtaNewsletter";
 import IndexCta from "@/components/sections/IndexCta";
 import SeasonalGuide from "@/components/sections/SeasonalGuide";
 import HomeFaq from "@/components/sections/HomeFaq";
+import MobileHomeHero from "@/components/sections/MobileHomeHero";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -78,7 +79,11 @@ export default async function HomePage({ params }: Props) {
 
   // Ticker: trending (uç değişimler) yerine widget verisi (popüler ürünler,
   // makul haftalık değişim). previous = avgPrice / (1 + changePct/100).
-  const widget = await fetchWidget({ limit: 30 });
+  const [widget, markets, products] = await Promise.all([
+    fetchWidget({ limit: 30 }),
+    fetchMarkets(),
+    fetchProducts(undefined, undefined, { seoIndex: true }),
+  ]);
   const trending: TrendingItem[] = widget
     .filter((w) => w.changePct !== null && Number.isFinite(w.avgPrice) && w.avgPrice > 0)
     .map((w, i) => {
@@ -104,17 +109,20 @@ export default async function HomePage({ params }: Props) {
       <JsonLd type="Organization" data={organizationSchema} />
       <JsonLd type="WebSite" data={webSiteSchema} />
       <JsonLd type="Dataset" data={datasetSchema} />
-      <HeroSection />
-      <PriceTicker items={trending} />
-      <PriceDashboard />
-      <CitySelector locale={locale} />
-      <StatsBar />
-      <IndexCta />
-      <SeasonalGuide />
-      <FeaturesGrid />
-      <HowItWorks />
-      <HomeFaq />
-      <CtaNewsletter />
+      <MobileHomeHero locale={locale} products={products.length} markets={markets} widget={widget} />
+      <div className="hidden md:block">
+        <HeroSection />
+        <PriceTicker items={trending} />
+        <PriceDashboard />
+        <CitySelector locale={locale} />
+        <StatsBar />
+        <IndexCta />
+        <SeasonalGuide />
+        <FeaturesGrid />
+        <HowItWorks />
+        <HomeFaq />
+        <CtaNewsletter />
+      </div>
     </>
   );
 }

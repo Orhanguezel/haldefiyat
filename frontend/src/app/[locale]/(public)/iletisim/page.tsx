@@ -4,7 +4,10 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { getPageMetadata } from "@/lib/seo";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = {
+  params: Promise<{ locale: string }>;
+  searchParams?: Promise<{ subject?: string }>;
+};
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
@@ -16,8 +19,10 @@ export async function generateMetadata({ params }: Props) {
   });
 }
 
-export default async function ContactPage({ params }: Props) {
+export default async function ContactPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const subject = (await searchParams)?.subject ?? "";
+  const isProInquiry = subject.toLocaleLowerCase("tr-TR").includes("pro");
   setRequestLocale(locale);
 
   return (
@@ -39,7 +44,11 @@ export default async function ContactPage({ params }: Props) {
             </header>
 
             {/* İletişim Formu ve Bilgiler */}
-            <ContactForm />
+            <ContactForm
+              defaultSubject={subject}
+              conversionEventName={isProInquiry ? "pro_upgrade" : undefined}
+              conversionParams={isProInquiry ? { source_page: "pro", value: 99 } : undefined}
+            />
           </div>
         </ScrollReveal>
       </div>

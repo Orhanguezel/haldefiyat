@@ -114,6 +114,14 @@ export {
 } from "@/integrations/endpoints/analysis-reports-admin-endpoints";
 
 export {
+  useGetAnalyticsOverviewAdminQuery,
+  useGetAnalyticsAdsAttributionAdminQuery,
+  useGetAnalyticsFunnelAdminQuery,
+  useGetAnalyticsRetentionAdminQuery,
+  useGetAnalyticsHeatmapAdminQuery,
+} from "@/integrations/endpoints/analytics-admin-endpoints";
+
+export {
   useListPressContactsAdminQuery,
   useCreatePressContactAdminMutation,
   useImportPressContactsAdminMutation,
@@ -143,6 +151,14 @@ export {
   useDeleteContactAdminMutation,
   useReplyContactAdminMutation,
 } from "@/integrations/endpoints/admin/contacts-admin-endpoints";
+
+export {
+  useListNewsletterAdminQuery,
+  useDeleteNewsletterAdminMutation,
+  usePreviewWeeklyMailAdminQuery,
+  useSendWeeklyMailTestAdminMutation,
+  useSendWeeklyMailAdminMutation,
+} from "@/integrations/endpoints/admin/newsletter-admin-endpoints";
 
 export {
   useGetThemeAdminQuery,

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
 import { Mail, MapPin, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { type ConversionEventName, trackConversion } from "@/lib/analytics";
 
 const CONTACT_INFO = [
   {
@@ -22,7 +23,17 @@ const CONTACT_INFO = [
   },
 ];
 
-export function ContactForm() {
+interface ContactFormProps {
+  defaultSubject?: string;
+  conversionEventName?: Extract<ConversionEventName, "embed_inquiry" | "pro_upgrade">;
+  conversionParams?: Record<string, string | number | boolean | null | undefined>;
+}
+
+export function ContactForm({
+  defaultSubject = "",
+  conversionEventName,
+  conversionParams,
+}: ContactFormProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -47,6 +58,9 @@ export function ContactForm() {
       }
 
       setStatus("success");
+      if (conversionEventName) {
+        trackConversion(conversionEventName, conversionParams);
+      }
     } catch (err) {
       setStatus("error");
       setErrorMessage(err instanceof Error ? err.message : "Mesaj gönderilemedi");
@@ -156,6 +170,7 @@ export function ContactForm() {
               name="subject"
               label="Konu"
               placeholder="Mesaj konusu"
+              defaultValue={defaultSubject}
               required
               disabled={status === "loading"}
             />

@@ -35,7 +35,7 @@ function statusVariant(status: AnalysisReportStatus): 'default' | 'secondary' | 
 }
 
 export default function Page() {
-  const { data, isLoading, refetch } = useListAnalysisReportsAdminQuery({ status: 'all', limit: 100 });
+  const { data, isLoading, refetch } = useListAnalysisReportsAdminQuery({ status: 'all', limit: 500 });
   const [generateReport, { isLoading: isGenerating }] = useGenerateAnalysisReportAdminMutation();
   const [publishReport] = usePublishAnalysisReportAdminMutation();
   const [draftReport] = useDraftAnalysisReportAdminMutation();

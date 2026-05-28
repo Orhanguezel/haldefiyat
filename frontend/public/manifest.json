@@ -1,0 +1,32 @@
+{
+  "name": "HaldeFiyat — Türkiye Hal Toptan Fiyatları",
+  "short_name": "HaldeFiyat",
+  "description": "Türkiye 22+ halinde toptan sebze-meyve fiyatları, canlı veri ve haftalık bülten.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#10b981",
+  "categories": ["business", "shopping", "food"],
+  "lang": "tr",
+  "dir": "ltr",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Fiyatlar",
+      "url": "/fiyatlar",
+      "icons": [{ "src": "/icons/shortcut-prices.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Uyarılar",
+      "url": "/uyarilar",
+      "icons": [{ "src": "/icons/shortcut-alerts.png", "sizes": "96x96", "type": "image/png" }]
+    }
+  ]
+}

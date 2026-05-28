@@ -1,0 +1,50 @@
+{
+  "header": {
+    "title": "Bülten Aboneleri",
+    "subtitle": "Haftalık hal fiyat bülteni abonelerini yönet."
+  },
+  "stats": {
+    "total": "Toplam abone",
+    "active": "Aktif",
+    "unsubscribed": "İptal etti"
+  },
+  "search": {
+    "placeholder": "E-posta ile ara..."
+  },
+  "status": {
+    "active": "Aktif",
+    "unsubscribed": "İptal"
+  },
+  "table": {
+    "email": "E-posta",
+    "status": "Durum",
+    "locale": "Dil",
+    "created": "Kayıt",
+    "actions": "İşlem",
+    "empty": "Henüz abone yok."
+  },
+  "actions": {
+    "delete": "Sil",
+    "deleteConfirm": "Bu aboneyi kalıcı olarak silmek istediğine emin misin?",
+    "refresh": "Yenile"
+  },
+  "digest": {
+    "title": "Haftalık Bülten",
+    "description": "Önizle, test gönder veya tüm aktif abonelere yolla.",
+    "preview": "Önizleme",
+    "previewLoading": "Önizleme yükleniyor...",
+    "previewEmpty": "Bülten için yeterli veri yok (no-movers).",
+    "test": "Test gönder",
+    "testPlaceholder": "test@adres.com",
+    "send": "Tüm abonelere gönder",
+    "sendConfirm": "Bülten tüm aktif abonelere gönderilecek. Onaylıyor musun?"
+  },
+  "toast": {
+    "deleted": "Abone silindi.",
+    "testSent": "Test maili gönderildi.",
+    "testFailed": "Test maili gönderilemedi.",
+    "sent": "Bülten gönderildi: {count} alıcı.",
+    "sendFailed": "Bülten gönderilemedi.",
+    "error": "Bir hata oluştu."
+  }
+}

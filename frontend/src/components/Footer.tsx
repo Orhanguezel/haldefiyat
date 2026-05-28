@@ -4,6 +4,8 @@ import Image from "next/image";
 type FooterProps = {
   siteName?: string | null;
   logoUrl?: string | null;
+  logoDarkUrl?: string | null;
+  logoLightUrl?: string | null;
   locale?: string;
   contactEmail?: string | null;
   contactPhone?: string | null;
@@ -63,6 +65,8 @@ const COLUMNS: ReadonlyArray<FooterColumn> = [
 export default function Footer({
   siteName,
   logoUrl,
+  logoDarkUrl,
+  logoLightUrl,
   socialInstagram,
   socialTwitter,
   socialYoutube,
@@ -70,23 +74,41 @@ export default function Footer({
 }: FooterProps) {
   const displayName = siteName || "HaldeFiyat";
   const year = new Date().getFullYear();
+  const lightThemeLogo = logoLightUrl || logoUrl;
+  const darkThemeLogo = logoDarkUrl || logoUrl || lightThemeLogo;
+  const hasThemeLogos = Boolean(lightThemeLogo || darkThemeLogo);
+  const logoClassName = "h-auto max-h-[72px] w-[min(260px,78vw)] object-contain sm:w-[280px] lg:w-[220px]";
 
   return (
-    <footer className="border-t border-(--color-border) bg-(--color-header) px-8 py-16">
+    <footer className="border-t border-(--color-border) bg-(--color-header) px-5 py-12 sm:px-8 sm:py-16">
       <div className="mx-auto max-w-[1400px]">
         <div className="mb-7 grid grid-cols-1 gap-12 border-b border-(--color-border) pb-12 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           {/* Sutun 1 — Brand */}
           <div className="space-y-4">
-            <Link href="/" className="inline-flex">
-              {logoUrl ? (
-                <Image
-                  src={logoUrl}
-                  alt={displayName}
-                  width={180}
-                  height={68}
-                  className="h-13 w-auto object-contain"
-                  unoptimized
-                />
+            <Link href="/" className="inline-flex max-w-full">
+              {hasThemeLogos ? (
+                <>
+                  {lightThemeLogo && (
+                    <Image
+                      src={lightThemeLogo}
+                      alt={displayName}
+                      width={280}
+                      height={105}
+                      className={`${logoClassName} dark:hidden`}
+                      unoptimized
+                    />
+                  )}
+                  {darkThemeLogo && (
+                    <Image
+                      src={darkThemeLogo}
+                      alt={displayName}
+                      width={280}
+                      height={105}
+                      className={`hidden ${logoClassName} dark:block`}
+                      unoptimized
+                    />
+                  )}
+                </>
               ) : (
                 <span className="font-(family-name:--font-display) text-[20px] font-bold tracking-tight text-(--color-foreground)">
                   Halde<span className="text-(--color-brand)">Fiyat</span>

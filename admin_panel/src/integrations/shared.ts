@@ -230,6 +230,21 @@ export {
 } from "@/integrations/shared/contacts/index";
 
 export {
+  NEWSLETTER_ADMIN_BASE,
+  NEWSLETTER_DIGEST_BASE,
+  type NewsletterSubscriber,
+  type NewsletterListQueryParams,
+  type NewsletterStatus,
+  type NewsletterStats,
+  type WeeklyMailSendResult,
+  computeNewsletterStats,
+  formatNewsletterDate,
+  getNewsletterStatus,
+  getNewsletterStatusKey,
+  getNewsletterStatusVariant,
+} from "@/integrations/shared/newsletter";
+
+export {
   type EmailRow,
   type EmailView,
   toView,

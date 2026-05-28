@@ -16,6 +16,7 @@ export interface SiteSettings {
   site_name: string;
   site_logo: string;
   site_logo_dark: string;
+  site_logo_light: string;
   site_favicon: string;
   site_apple_touch: string;
   site_description: string;
@@ -40,6 +41,8 @@ export interface SiteSettings {
 const BRANDING_KEYS = [
   "brand_name",
   "site_logo",
+  "site_logo_dark",
+  "site_logo_light",
   "site_favicon",
   "site_apple_touch",
   "site_description",
@@ -78,8 +81,9 @@ function parseValue(raw: unknown): any {
 export async function fetchSiteSettings(locale = "tr"): Promise<SiteSettings> {
   const defaults: SiteSettings = {
     site_name: process.env.NEXT_PUBLIC_SITE_NAME ?? "HalDeFiyat",
-    site_logo: "/brand-logo.png",
-    site_logo_dark: "/brand-logo.png",
+    site_logo: "/logohaldefiyat_light.png",
+    site_logo_dark: "/logohaldefiyat_dark_theme.png",
+    site_logo_light: "/logohaldefiyat_light.png",
     site_favicon: "/favicon.png",
     site_apple_touch: "/apple-touch-icon.png",
     site_description: "",
@@ -118,7 +122,7 @@ export async function fetchSiteSettings(locale = "tr"): Promise<SiteSettings> {
       if (row.key === "brand_name") {
         result.site_name = typeof val === "string" ? val : result.site_name;
       } else if (dbKey in result) {
-        (result as any)[dbKey] = typeof val === "string" ? val : (val?.value ?? "");
+        (result as any)[dbKey] = typeof val === "string" ? val : (val?.value ?? val?.url ?? "");
       }
     }
 

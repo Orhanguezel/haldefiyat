@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { Market, Product } from "@/lib/api";
 import AlertModalForm from "./alert/AlertModalForm";
 import { INITIAL_FORM, type AlertFormState } from "./alert/types";
+import { trackConversion } from "@/lib/analytics";
 
 export { openAlertModal } from "./alert/types";
 
@@ -109,6 +110,17 @@ export default function AlertModal({
         throw new Error(`${res.status}`);
       }
       setStatus({ kind: "success" });
+      trackConversion(
+        "price_alert_created",
+        {
+          product_slug: product.slug,
+          market_slug: market?.slug ?? null,
+          channel: form.channel,
+          direction: form.direction,
+          value: threshold,
+        },
+        { email: form.contactEmail || null },
+      );
       setTimeout(() => onClose(), 2000);
     } catch {
       setStatus({

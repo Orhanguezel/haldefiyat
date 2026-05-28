@@ -20,6 +20,14 @@ export function GoogleAnalytics({ ga4Id }: { ga4Id: string }) {
   );
 }
 
+export function GoogleConsentMode() {
+  return (
+    <Script id="google-consent-mode" strategy="beforeInteractive">
+      {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}try{var c=localStorage.getItem('hf_cookie_consent');var v=c==='accepted'?'granted':'denied';gtag('consent','default',{ad_storage:v,analytics_storage:v,ad_user_data:v,ad_personalization:v,wait_for_update:500});}catch(e){gtag('consent','default',{ad_storage:'denied',analytics_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',wait_for_update:500});}`}
+    </Script>
+  );
+}
+
 export function GoogleTagManager({ gtmId }: { gtmId: string }) {
   return (
     <Script id="gtm-init" strategy="afterInteractive">
@@ -36,7 +44,7 @@ export function GoogleAdsConversion({ id }: { id: string }) {
         strategy="afterInteractive"
       />
       <Script id="google-ads-init" strategy="afterInteractive">
-        {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${id}');`}
+        {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${id}',{allow_enhanced_conversions:true});`}
       </Script>
     </>
   );
@@ -60,6 +68,7 @@ export default function Analytics({ ga4Id, gtmId, adsConversionId }: AnalyticsPr
 
   return (
     <>
+      <GoogleConsentMode />
       {gtmId ? <GoogleTagManager gtmId={gtmId} /> : ga4Id ? <GoogleAnalytics ga4Id={ga4Id} /> : null}
       {adsConversionId ? <GoogleAdsConversion id={adsConversionId} /> : null}
     </>

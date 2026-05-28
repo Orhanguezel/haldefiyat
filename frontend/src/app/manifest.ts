@@ -1,45 +1,36 @@
 import type { MetadataRoute } from "next";
 
-/**
- * PWA manifest.
- *
- * İkonlar `src/app/icon.tsx` (ImageResponse) ile `/icon` üzerinden üretilir;
- * eksik public PNG yüzünden 404 oluşmaz.
- */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "HaldeFiyat — Türkiye Hal Fiyatları",
+    name: "HaldeFiyat — Türkiye Hal Toptan Fiyatları",
     short_name: "HaldeFiyat",
     description:
-      "Türkiye genelindeki hal fiyatlarını anlık takip edin.",
+      "Türkiye 22+ halinde toptan sebze-meyve fiyatları, canlı veri ve haftalık bülten.",
     start_url: "/",
+    scope: "/",
     display: "standalone",
-    background_color: "#0a0e1a",
-    theme_color: "#84f04c",
+    background_color: "#ffffff",
+    theme_color: "#10b981",
     orientation: "portrait-primary",
     icons: [
-      { src: "/icon", sizes: "192x192", type: "image/png" },
-      { src: "/icon", sizes: "512x512", type: "image/png" },
-      {
-        src: "/icon",
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "maskable",
-      },
+      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icons/maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
+      { src: "/icons/maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
       {
-        name: "Güncel Fiyatlar",
+        name: "Fiyatlar",
         url: "/fiyatlar",
-        description: "Tüm hal fiyatlarına bak",
+        icons: [{ src: "/icons/shortcut-prices.png", sizes: "96x96", type: "image/png" }],
       },
       {
-        name: "Favorilerim",
-        url: "/favoriler",
-        description: "Favori ürünlerimi gör",
+        name: "Uyarılar",
+        url: "/uyarilar",
+        icons: [{ src: "/icons/shortcut-alerts.png", sizes: "96x96", type: "image/png" }],
       },
     ],
-    categories: ["food", "utilities"],
+    categories: ["business", "shopping", "food"],
     lang: "tr",
     dir: "ltr",
   };

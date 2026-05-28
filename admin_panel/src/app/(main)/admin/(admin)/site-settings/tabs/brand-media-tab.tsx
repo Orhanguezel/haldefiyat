@@ -13,8 +13,8 @@ import { useAdminTranslations } from '@/i18n';
 import { usePreferencesStore } from '@/stores/preferences/preferences-provider';
 
 import {
-  useBulkUpsertSiteSettingsAdminMutation,
   useListSiteSettingsAdminQuery,
+  useUpdateSiteSettingAdminMutation,
 } from '@/integrations/hooks';
 import {
   SITE_SETTINGS_BRAND_MEDIA_ITEMS,
@@ -53,7 +53,7 @@ export const BrandMediaTab: React.FC<BrandMediaTabProps> = () => {
     { refetchOnMountOrArgChange: true },
   );
 
-  const [bulkUpsert, { isLoading: isSaving }] = useBulkUpsertSiteSettingsAdminMutation();
+  const [updateSetting, { isLoading: isSaving }] = useUpdateSiteSettingAdminMutation();
 
   const serverMap = React.useMemo<SiteSettingsBrandMediaMap>(
     () => mapSiteSettingsListToBrandMediaMap(listQ.data),
@@ -100,7 +100,15 @@ export const BrandMediaTab: React.FC<BrandMediaTabProps> = () => {
         .map((key) => ({ key, value: localMap[key] }));
 
       if (!items.length) return;
-      await bulkUpsert({ items }).unwrap();
+      await Promise.all(
+        items.map((item) =>
+          updateSetting({
+            key: item.key,
+            value: item.value,
+            locale: '*',
+          }).unwrap(),
+        ),
+      );
       toast.success(t('admin.siteSettings.brandMedia.inline.saved'));
       await listQ.refetch();
     } catch (err) {

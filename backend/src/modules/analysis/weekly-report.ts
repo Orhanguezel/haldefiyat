@@ -117,7 +117,7 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
   app.get("/analysis/reports", async (req, reply) => {
     const parsed = qAdminList.safeParse(req.query);
     const status = parsed.success ? parsed.data.status : undefined;
-    const limit = Math.min(100, Math.max(1, parsed.success ? (parsed.data.limit ?? 40) : 40));
+    const limit = Math.min(500, Math.max(1, parsed.success ? (parsed.data.limit ?? 100) : 100));
     const rows = await listAdminReports(status, limit);
     return reply.send({ items: rows.map(reportRowToAdmin) });
   });

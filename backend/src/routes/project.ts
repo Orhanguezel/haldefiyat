@@ -15,6 +15,9 @@ import { registerPressPrAdmin } from "@/modules/press-pr";
 import { registerApiKeysPublic, registerApiKeysAdmin } from "@/modules/api-keys";
 import { registerFeeds } from "@/modules/feeds";
 import { registerAnnualReport } from "@/modules/annual-report";
+import { registerAnalyticsAdmin } from "@/modules/analytics";
+import { registerHalNewsletter } from "@/modules/newsletter/router";
+import { registerTracking } from "@/modules/tracking/router";
 
 export async function registerProjectPublic(api: FastifyInstance) {
   await registerMarkets(api);
@@ -30,6 +33,8 @@ export async function registerProjectPublic(api: FastifyInstance) {
   await registerFeeds(api);
   await registerAnnualReport(api);
   await registerTelegramBotPublic(api);
+  await registerHalNewsletter(api);
+  await registerTracking(api);
 
   // P2: SSO entegrasyonu icin frontend'in auth durumunu dogrulayabilecegi stub endpoint.
   // Gercek /auth endpoint'leri shared-backend auth modulunde zaten kayitli (registerAuth).
@@ -49,4 +54,5 @@ export async function registerProjectAdmin(adminApi: FastifyInstance) {
   await registerTelegramBotAdmin(adminApi);
   await registerInflationAdmin(adminApi);
   await registerApiKeysAdmin(adminApi);
+  await registerAnalyticsAdmin(adminApi);
 }

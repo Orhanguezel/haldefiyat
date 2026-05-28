@@ -8,6 +8,7 @@ import customPages from "./custom-pages.json";
 import dashboard from "./dashboard.json";
 import emailTemplates from "./email-templates.json";
 import markets from "./markets.json";
+import newsletter from "./newsletter.json";
 import prices from "./prices.json";
 import production from "./production.json";
 import sidebar from "./sidebar.json";
@@ -28,6 +29,7 @@ const adminMessages = {
   dashboard: dashboard,
   emailTemplates: emailTemplates,
   markets: markets,
+  newsletter: newsletter,
   prices: prices,
   production: production,
   sidebar: sidebar,

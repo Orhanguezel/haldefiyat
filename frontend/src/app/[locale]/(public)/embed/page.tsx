@@ -5,6 +5,7 @@ import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
 import PageContainer from "@/components/layout/PageContainer";
+import { ContactForm } from "@/components/sections/ContactForm";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -141,6 +142,25 @@ export default async function EmbedPage({ params }: Props) {
             </div>
           </div>
         </aside>
+      </section>
+
+      <section className="mt-12 rounded-2xl border border-(--color-border) bg-(--color-surface) p-5 sm:p-8">
+        <div className="mb-8 max-w-2xl">
+          <div className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
+            Yayıncı Talebi
+          </div>
+          <h2 className="mt-2 font-(family-name:--font-display) text-2xl font-bold tracking-[-0.02em] text-(--color-foreground)">
+            Widget veya veri entegrasyonu için yazın
+          </h2>
+          <p className="mt-2 text-[14px] leading-6 text-(--color-muted)">
+            Embed kullanımı, özel ürün listesi veya yüksek trafikli yayınlar için teknik destek talebinizi iletin.
+          </p>
+        </div>
+        <ContactForm
+          defaultSubject="Embed Widget Talebi"
+          conversionEventName="embed_inquiry"
+          conversionParams={{ source_page: "embed" }}
+        />
       </section>
     </PageContainer>
   );

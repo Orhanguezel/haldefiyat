@@ -2,18 +2,43 @@
 
 Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif Hatirlatmalar bolumunde `Today's date` ile karsilastir, vakti gelmis maddeleri kullaniciya proaktif olarak hatirlat.
 
+> ## 🚫 KESIN KURAL — DEPLOY SADECE GIT İLE (rsync/scp YASAK)
+>
+> **Bir daha ASLA rsync veya scp ile VPS'e deploy etme.** Repo GitHub ile takip
+> ediliyor. Deploy akisi TEK yol:
+> 1. Local: `git add . && git commit && git push origin main`
+> 2. VPS: `git fetch origin && git reset --hard origin/main` (temiz, divergence yok)
+> 3. VPS: `bun run build` (gereken: backend/frontend/admin) + `pm2 reload`
+>
+> **Neden:** rsync ile deploy edince local ve server git'ten ayrisip "anlamsiz
+> coplige" donuyor (commit edilmemis dosyalar, drift, takip edilemez degisiklik).
+> Her sey once git'e gider, sonra serverdan cekilir. Dosya dosya git kontrolu
+> yapma — `git add .` ile topluca commit et.
+>
+> **İSTİSNA — GitHub'a atilmayan kod:** Bu kural sadece git-takipli repolar
+> icindir (`hal-fiyatlari` = `github.com/Orhanguezel/haldefiyat`). GitHub'a
+> atilmayan kod (orn. `packages/shared-backend` — monorepo root ayri git repo
+> degil) git-pull ile gelmez; o kod icin ayri cozum gerekir (idealde o da bir
+> GitHub repo'suna alinmali). Bu istisna disindaki HER sey git ile.
+
 > **➡️ Sonraki oturumda yapilacak isler:** [`KALAN-ISLER.md`](./KALAN-ISLER.md)
 >
 > Hizli baslangic siralamasi: #60 (changePct dogrulama) → #62 (competitor admin
 > UI) → #34 (Turkiye haritasi) → #41 (embed widget). Diger acik isler ve
 > beklemeler bu dosyada kategorize.
 
-> **🎯 Google Ads kurulum kalan isler:** [`ADS-SETUP-CHECKLIST.md`](./ADS-SETUP-CHECKLIST.md)
+> **🎯 Google Ads kurulum + 2-gun analiz optimizasyon:** [`ADS-SETUP-CHECKLIST.md`](./ADS-SETUP-CHECKLIST.md)
 >
 > 2026-05-26'da Vista Seeds Ads altinda "Haldefiyat - Arama - Trafik" kampanyasi
-> yayina cikti. Conversion tag (AW-18007572524) yuklenecek, Bereketfide GA4 tag
-> kalintilari (G-YHLL9WK7ML, GT-WFMPZCJ3) temizlenecek, haldefiyat icin ayri GA4
-> property acilacak, social.tarvista.com'da haldefiyat baglantilari guncellenecek.
+> yayina cikti (150 TL/gun). Conversion tag (AW-18007572524) yuklendi ✅,
+> Bereketfide GA4 kalintilari temizlendi ✅. 2026-05-28 itibariyle 2-gun analiz
+> tamamlandi: insan trafigi 2.5x artti, %78 mobil. **Strateji: brand awareness
+> fazi** (Atakan karari) — mobil tuketici trafigi DAHIL, B2B daraltma YOK.
+> Operasyon Orhan'da, Atakan async. **Aktif iş — Madde 11:** 11.1 audit log fix
+> → 11.2 conversion event'ler → 11.3 gclid/UTM cookie capture → 11.4
+> /canli-hal-fiyatlari landing (newsletter signup #1 CTA) → 11.5 admin
+> analytics (retention/cohort agirlikli) → 11.6 UTM template + remarketing
+> tag → 11.8 6 custom audience (Faz 2 ön hazirlik). Doğrulama 2026-06-04.
 
 > **📱 Sosyal medya hesap acma + API otomasyon:** [`SOCIAL-API-SETUP-CHECKLIST.md`](./SOCIAL-API-SETUP-CHECKLIST.md)
 >
@@ -21,6 +46,34 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 > Meta Business Manager, Domain Verification, Business Verification, App Review,
 > System User Token, Google Cloud OAuth, YouTube Data API v3, backend modullerini
 > tasarimı. Tahmini 4 hafta yogun + 6-8 hafta takvim (bekleyisler dahil).
+
+> **💰 Monetizasyon & mukemmellestirme plani (BEKLEMEDE):** [`MONETIZASYON-CHECKLIST.md`](./MONETIZASYON-CHECKLIST.md)
+>
+> 2026-05-28 karari: Atakan = sahip + sektor agi (250+ ziraat muhendisi, hal muduru
+> baglantisi), yazilimci = teknik yurutme. AdSense + bireysel premium + API geliri
+> yazilimciya. Su an monetizasyon KAPALI, mukemmellestirme fazi. Adim 0 (yazili
+> mutabakat) -> Adim 1 (icerik motoru) -> ... -> Adim 6 (sessiz altyapi). Aktivasyon
+> tetigi: 10K DAU + 50 makale + 2K newsletter -> Premium acilir.
+
+> **📨 Newsletter aktivasyonu (MİMARİ HAZIR — Codex implement edecek):** [`docs/codex-briefs/newsletter-activation.md`](./docs/codex-briefs/newsletter-activation.md)
+>
+> 2026-05-28: brand-awareness funnel'ının son halkası. **KRİTİK BUG:** `POST
+> /api/v1/newsletter/subscribe` → 404 (public route register edilmemiş, formlar
+> boşluğa POST atıyor, 0 abone). **KARAR: single opt-in** (Orhan onaylı) — mobil
+> Ads %78, double opt-in friction'ı funnel'ı baltalar. **İzolasyon:** shared
+> subscribe'a DOKUNMA (Bereketfide/VistaSeed etkilenmesin), hal-fiyatlari LOCAL
+> newsletter modülü yazılır. Unsubscribe stateless HMAC token (schema değişikliği
+> yok). 5 görev spec'lendi (local modül + route register + digest filter + /abonelik
+> sayfası + opsiyonel List-Unsubscribe). Digest+cron+Resend hazır.
+
+> **📱 Mobil web + PWA checklist (DETAYLANDIRILDI 2026-05-28):** [`MOBIL-WEB-PWA-CHECKLIST.md`](./MOBIL-WEB-PWA-CHECKLIST.md)
+>
+> Ads kampanyasi trafiginin %78'i mobil — mobil deneyim acil. 10 bolum, her
+> bolumde Claude tasarim / Codex implement / Orhan operasyonel rol ayrimi.
+> Codex'e checklist'in tamami verilmez (wireframe + cache strateji + ikon
+> tasarimi Claude/Orhan kararlari). Onerilen sira: 1.audit → 2.anasayfa
+> mobil → 3.nav (bottom nav karari Orhan'da) → 4.manifest → 5.service worker
+> → 7.performans → 9.deploy.
 
 ---
 

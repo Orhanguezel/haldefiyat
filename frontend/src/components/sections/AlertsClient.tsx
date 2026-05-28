@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { fetchMarkets, fetchProducts, type Market, type Product } from "@/lib/api";
 import AlertModalForm from "@/components/ui/alert/AlertModalForm";
 import { INITIAL_FORM, type AlertChannel, type AlertFormState } from "@/components/ui/alert/types";
+import { trackConversion } from "@/lib/analytics";
 
 const VALID_CHANNELS: readonly AlertChannel[] = ["email", "telegram", "push"];
 
@@ -74,6 +75,17 @@ export default function AlertsClient() {
         return;
       }
       setState("success");
+      trackConversion(
+        "price_alert_created",
+        {
+          product_slug: form.productSlug,
+          market_slug: form.marketSlug || null,
+          channel: form.channel,
+          direction: form.direction,
+          value: Number.parseFloat(form.thresholdPrice),
+        },
+        { email: form.contactEmail || null },
+      );
       setForm(INITIAL_FORM);
     } catch {
       setState({ error: "Sunucuya ulaşılamadı. Lütfen tekrar deneyin." });

@@ -55,3 +55,17 @@ bun.lock
 # Özel strateji ve iş notları — GitHub'a gönderilmez
 docs/
 sosialmedia/
+
+# Python venv'leri (commit edilmez — buyuk binary)
+venv-banner/
+venv-rembg/
+venv*/
+
+# Kok dizin scratch/junk (canli icin gereksiz)
+/aaa.md
+/cevap.md
+/hal.md
+/WhatsApp Image*.jpeg
+/logohaldefiyat_light.png
+/logohaldefiyat_dark.png
+/logohaldefiyat_dark_theme.png

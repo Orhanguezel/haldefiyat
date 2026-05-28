@@ -14,12 +14,13 @@
  * SMTP yapilandirilmamissa veya hic abone yoksa silently skip.
  */
 
-import { sql, and, isNull, eq } from "drizzle-orm";
+import { sql, isNull } from "drizzle-orm";
 import { mysqlTable, varchar, datetime, tinyint, text } from "drizzle-orm/mysql-core";
 
 import { db } from "@/db/client";
 import { sendBereketMail } from "@agro/shared-backend/core/mail";
 import { trendingChanges, widgetPrices } from "@/modules/prices/repository";
+import { unsubUrl, unsubHeaders } from "@/modules/newsletter/token";
 
 // Newsletter aboneleri tablosu (shared-backend schemasi yerine local proxy)
 const newsletterSubscribers = mysqlTable("newsletter_subscribers", {
@@ -121,7 +122,7 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
       </div>
     </div>
     <div style="padding:16px 24px;background:#f9fafb;border-top:1px solid #e5e7eb;font-size:11px;color:#6b7280;text-align:center;">
-      Bu bulteni almak istemiyorsaniz <a href="${SITE_URL}/abonelik?action=unsubscribe" style="color:#6b7280;">abonelikten cikabilirsiniz</a>.
+      Bu bulteni almak istemiyorsaniz <a href="{{UNSUB_URL}}" style="color:#6b7280;">abonelikten cikabilirsiniz</a>.
     </div>
   </div>
 </body>
@@ -133,7 +134,10 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
 /** HTML preview için — mail göndermeden sadece şablonu üretir */
 export async function buildWeeklyMailPreview(): Promise<{ html: string; subject: string } | null> {
   const content = await buildHtml();
-  return content ? { html: content.html, subject: content.subject } : null;
+  if (!content) return null;
+  // Önizlemede token yok — genel sayfaya işaret et.
+  const html = content.html.replace(/\{\{UNSUB_URL\}\}/g, `${SITE_URL}/abonelik`);
+  return { html, subject: content.subject };
 }
 
 /** Tek bir adrese test maili gönderir (admin panel test akışı için) */
@@ -141,7 +145,8 @@ export async function sendWeeklyMailTest(to: string): Promise<{ sent: boolean; r
   const content = await buildHtml();
   if (!content) return { sent: false, reason: "no-movers" };
   try {
-    await sendBereketMail({ to, subject: `[TEST] ${content.subject}`, html: content.html });
+    const html = content.html.replace(/\{\{UNSUB_URL\}\}/g, unsubUrl(to));
+    await sendBereketMail({ to, subject: `[TEST] ${content.subject}`, html });
     return { sent: true };
   } catch (err) {
     return { sent: false, reason: err instanceof Error ? err.message : String(err) };
@@ -150,7 +155,8 @@ export async function sendWeeklyMailTest(to: string): Promise<{ sent: boolean; r
 
 async function sendToOne(to: string, subject: string, html: string): Promise<boolean> {
   try {
-    await sendBereketMail({ to, subject, html });
+    const personalized = html.replace(/\{\{UNSUB_URL\}\}/g, unsubUrl(to));
+    await sendBereketMail({ to, subject, html: personalized, headers: unsubHeaders(to) });
     return true;
   } catch (err) {
     console.warn(`[weekly-mail] ${to} hata:`, err instanceof Error ? err.message : err);
@@ -171,13 +177,12 @@ export async function runWeeklyMailDigest(): Promise<WeeklyMailResult> {
   }
 
   // 2) Aboneler
+  // Single opt-in: explicit form girişi = açık rıza. is_verified şartı yok,
+  // sadece unsubscribe etmemiş aboneler. (Bkz. newsletter-activation.md)
   const subs = await db
     .select({ email: newsletterSubscribers.email })
     .from(newsletterSubscribers)
-    .where(and(
-      eq(newsletterSubscribers.isVerified, 1),
-      isNull(newsletterSubscribers.unsubscribedAt),
-    ));
+    .where(isNull(newsletterSubscribers.unsubscribedAt));
 
   if (subs.length === 0) {
     return { sent: false, reason: "no-active-subscribers" };

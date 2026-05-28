@@ -4,6 +4,7 @@
 // =============================================================
 
 import {
+  BarChart3,
   Bell,
   Building2,
   Contact2,
@@ -96,6 +97,7 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
       { key: 'hf_products', url: '/admin/hf-products', icon: FileText },
       { key: 'markets', url: '/admin/markets', icon: Building2 },
       { key: 'etl_logs', url: '/admin/etl-logs', icon: Database },
+      { key: 'analytics', url: '/admin/analytics', icon: BarChart3 },
       { key: 'competitor_monitor', url: '/admin/competitor-monitor', icon: TrendingUp },
     ],
   },
@@ -129,6 +131,7 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
     items: [
       { key: 'contacts', url: '/admin/contacts', icon: Contact2 },
       { key: 'email_templates', url: '/admin/email-templates', icon: Mail },
+      { key: 'newsletter', url: '/admin/newsletter', icon: Mail },
     ],
   },
   {
@@ -149,8 +152,8 @@ export const ADMIN_NAV_LEGACY_TITLE_KEY_PREFIX = 'admin.dashboard.items';
 export const ADMIN_NAV_GROUP_LABEL_KEY_PREFIX = 'admin.sidebar.groups';
 
 export type AdminNavCopy = {
-  labels: Record<AdminNavGroupKey, string>;
-  items: Record<AdminNavItemKey, string>;
+  labels: Partial<Record<AdminNavGroupKey, string>> & Record<string, string>;
+  items: Partial<Record<AdminNavItemKey, string>> & Record<string, string>;
 };
 
 const FALLBACK_GROUP_LABELS: Record<AdminNavGroupKey, string> = {
@@ -170,6 +173,7 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   hf_products: 'Urunler',
   markets: 'Haller',
   etl_logs: 'ETL Loglari',
+  analytics: 'Analytics',
   competitor_monitor: 'Rakip İzleme',
   alerts: 'Uyari Listesi',
   production: 'Yillik Uretim',
@@ -179,6 +183,7 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   support: 'SSS / Destek',
   email_templates: 'E-posta Sablonlari',
   contacts: 'İletişim Mesajları',
+  newsletter: 'Bülten',
   users: 'Kullanicilar',
   site_settings: 'Site Ayarlari',
   storage: 'Depolama',

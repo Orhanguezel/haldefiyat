@@ -1,6 +1,7 @@
 "use client";
 
 import Script from "next/script";
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 
@@ -31,9 +32,11 @@ let __oneSignalInitStarted = false;
 
 export function OneSignalProvider() {
   const { user } = useAuthSession();
+  const pathname = usePathname();
+  const deferForLanding = pathname?.endsWith("/canli-hal-fiyatlari") || pathname === "/canli-hal-fiyatlari";
 
   useEffect(() => {
-    if (!ONESIGNAL_ACTIVE || typeof window === "undefined") return;
+    if (!ONESIGNAL_ACTIVE || deferForLanding || typeof window === "undefined") return;
 
     window.OneSignalDeferred = window.OneSignalDeferred || [];
 
@@ -65,15 +68,15 @@ export function OneSignalProvider() {
         console.debug("[onesignal] identity sync skipped", err);
       }
     });
-  }, [user?.id]);
+  }, [deferForLanding, user?.id]);
 
-  if (!ONESIGNAL_ACTIVE) return null;
+  if (!ONESIGNAL_ACTIVE || deferForLanding) return null;
 
   return (
     <Script
       id="onesignal-sdk"
       src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
-      strategy="afterInteractive"
+      strategy="lazyOnload"
     />
   );
 }

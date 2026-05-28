@@ -10,6 +10,10 @@ import { AuthSessionProvider } from "@/components/providers/AuthSessionProvider"
 import { OneSignalProvider } from "@/components/providers/OneSignalProvider";
 import { FavoriteSyncManager } from "@/components/providers/FavoriteSyncManager";
 import { ToastProvider } from "@/components/providers/ToastProvider";
+import { AttributionProvider } from "@/components/providers/AttributionProvider";
+import { CookieConsentBanner } from "@/components/providers/CookieConsentBanner";
+import { ServiceWorkerProvider } from "@/components/providers/ServiceWorkerProvider";
+import { PageviewTracker } from "@/components/providers/PageviewTracker";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -91,9 +95,13 @@ export async function generateMetadata(): Promise<Metadata> {
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 export const viewport: Viewport = {
-  themeColor: "#84f04c",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#10b981" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c5e3a" },
+  ],
   width: "device-width",
   initialScale: 1,
+  maximumScale: 5,
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -110,6 +118,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       className={`${outfit.variable} ${ibmPlexSans.variable} font-sans`}
     >
       <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#10b981" />
+        <meta name="theme-color" content="#10b981" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0c5e3a" media="(prefers-color-scheme: dark)" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="HaldeFiyat" />
         <Analytics ga4Id={analytics.ga4Id} gtmId={analytics.gtmId} adsConversionId={analytics.adsConversionId} />
       </head>
       <body suppressHydrationWarning>
@@ -119,8 +135,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <AuthSessionProvider>
               <ToastProvider>
                 <OneSignalProvider />
+                <AttributionProvider />
                 <FavoriteSyncManager />
+                <ServiceWorkerProvider />
+                <PageviewTracker />
                 {children}
+                <CookieConsentBanner />
               </ToastProvider>
             </AuthSessionProvider>
           </NextIntlClientProvider>

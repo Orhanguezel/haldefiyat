@@ -61,11 +61,14 @@ export function siteSettingsFormToBranding(
   form: SiteSettingsBrandingForm,
 ): AdminBrandingConfig {
   return {
+    ...DEFAULT_BRANDING,
     app_name: trimStr(form.app_name),
     app_copyright: trimStr(form.app_copyright),
     html_lang: trimStr(form.html_lang),
     theme_color: trimStr(form.theme_color),
+    media: DEFAULT_BRANDING.media,
     meta: {
+      ...DEFAULT_BRANDING.meta,
       title: trimStr(form.meta_title),
       description: trimStr(form.meta_description),
       og_url: trimStr(form.og_url),

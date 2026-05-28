@@ -10,10 +10,12 @@ export type AdminPermissionKey =
   | 'admin.contacts'
   | 'admin.production'
   | 'admin.analysis_reports'
+  | 'admin.analytics'
   | 'admin.press'
   | 'admin.custom_pages'
   | 'admin.support'
   | 'admin.email_templates'
+  | 'admin.newsletter'
   | 'admin.users'
   | 'admin.site_settings'
   | 'admin.storage'
@@ -32,10 +34,12 @@ export type AdminNavKey =
   | 'contacts'
   | 'production'
   | 'analysis_reports'
+  | 'analytics'
   | 'press'
   | 'custom_pages'
   | 'support'
   | 'email_templates'
+  | 'newsletter'
   | 'users'
   | 'site_settings'
   | 'storage'
@@ -55,10 +59,12 @@ const ADMIN_PERMISSION_ROLE_MAP: Record<AdminPermissionKey, PanelRole[]> = {
   'admin.contacts': ADMIN_ONLY,
   'admin.production': ADMIN_ONLY,
   'admin.analysis_reports': ADMIN_ONLY,
+  'admin.analytics': ADMIN_ONLY,
   'admin.press': ADMIN_ONLY,
   'admin.custom_pages': ADMIN_ONLY,
   'admin.support': ADMIN_ONLY,
   'admin.email_templates': ADMIN_ONLY,
+  'admin.newsletter': ADMIN_ONLY,
   'admin.users': ADMIN_ONLY,
   'admin.site_settings': ADMIN_ONLY,
   'admin.storage': ADMIN_ONLY,
@@ -82,10 +88,12 @@ const ADMIN_NAV_PERMISSION_MAP: Partial<Record<AdminNavKey, AdminPermissionKey>>
   contacts: 'admin.contacts',
   production: 'admin.production',
   analysis_reports: 'admin.analysis_reports',
+  analytics: 'admin.analytics',
   press: 'admin.press',
   custom_pages: 'admin.custom_pages',
   support: 'admin.support',
   email_templates: 'admin.email_templates',
+  newsletter: 'admin.newsletter',
   users: 'admin.users',
   site_settings: 'admin.site_settings',
   storage: 'admin.storage',
@@ -110,10 +118,12 @@ const ADMIN_PERMISSION_PATHS: Record<AdminPermissionKey, string[]> = {
   'admin.contacts': ['/admin/contacts'],
   'admin.production': ['/admin/production'],
   'admin.analysis_reports': ['/admin/analysis-reports'],
+  'admin.analytics': ['/admin/analytics'],
   'admin.press': ['/admin/press'],
   'admin.custom_pages': ['/admin/custom-pages'],
   'admin.support': ['/admin/support'],
   'admin.email_templates': ['/admin/email-templates'],
+  'admin.newsletter': ['/admin/newsletter'],
   'admin.users': ['/admin/users'],
   'admin.site_settings': ['/admin/site-settings'],
   'admin.storage': ['/admin/storage'],

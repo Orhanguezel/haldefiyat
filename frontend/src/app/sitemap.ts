@@ -65,6 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const publicPages: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, lastModified: now, changeFrequency: "daily", priority: 1 },
+    { url: `${SITE_URL}/canli-hal-fiyatlari`, lastModified: now, changeFrequency: "daily", priority: 0.98 },
     { url: `${SITE_URL}/fiyatlar`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
     { url: `${SITE_URL}/harita`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${SITE_URL}/endeks`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },

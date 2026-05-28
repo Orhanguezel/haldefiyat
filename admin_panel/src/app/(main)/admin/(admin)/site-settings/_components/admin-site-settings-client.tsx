@@ -450,7 +450,7 @@ export default function AdminSiteSettingsClient() {
                 {tab === 'smtp' ? <SmtpSettingsTab locale={locale} /> : null}
                 {tab === 'cloudinary' ? <CloudinarySettingsTab locale={locale} /> : null}
                 {tab === 'brand_media' ? <BrandMediaTab locale={locale} /> : null}
-                {tab === 'branding' ? <BrandingSettingsTab /> : null}
+                {tab === 'branding' ? <BrandingSettingsTab locale="*" /> : null}
                 {tab === 'api' ? <ApiSettingsTab locale={locale} /> : null}
                 {tab === 'locales' ? <LocalesSettingsTab settingPrefix={brandPrefix} /> : null}
               </div>
