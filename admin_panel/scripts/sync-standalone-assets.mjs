@@ -80,16 +80,22 @@ function main() {
     cpSync(publicSrc, publicDest, { recursive: true });
   }
 
+  console.info(`sync-standalone-assets: static + public kopyalandı → ${staticDest} (${staticSrc})`);
+
+  // standalone-server.js symlink (admin pm2 dogrudan server.js kullaniyor; symlink opsiyonel).
+  // Broken symlink / EEXIST durumunda build'i KIRMA — kritik kopyalama zaten bitti.
   const linkPath = join(FRONTEND, "standalone-server.js");
   try {
-    if (existsSync(linkPath)) unlinkSync(linkPath);
-  } catch {
-    /* ignore */
+    try {
+      unlinkSync(linkPath);
+    } catch {
+      /* yoksa sorun değil */
+    }
+    symlinkSync(target, linkPath);
+    console.info(`pm2 script symlink: ${linkPath} → ${target}`);
+  } catch (err) {
+    console.warn(`sync-standalone-assets: symlink atlandı (kritik değil): ${err?.message ?? err}`);
   }
-  symlinkSync(target, linkPath);
-  console.info(
-    `sync-standalone-assets: OK → ${staticDest} (${staticSrc})\npm2 script: ${linkPath} → ${target}`,
-  );
 }
 
 main();
