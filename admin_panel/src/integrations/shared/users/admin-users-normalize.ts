@@ -1,11 +1,18 @@
 // src/integrations/shared/users/admin-users-normalize.ts
 import type { AdminUserRaw, AdminUserView, UserRoleName } from './users';
 
+const KNOWN_ROLES: ReadonlySet<UserRoleName> = new Set<UserRoleName>([
+  'admin',
+  'editor',
+  'carrier',
+  'customer',
+  'dealer',
+  'seller',
+]);
+
 const asRole = (v: unknown): UserRoleName | null => {
   const s = String(v ?? '').toLowerCase();
-  return s === 'admin' || s === 'moderator' || s === 'seller' || s === 'user'
-    ? (s as UserRoleName)
-    : null;
+  return KNOWN_ROLES.has(s as UserRoleName) ? (s as UserRoleName) : null;
 };
 
 const toBool = (v: unknown): boolean => (typeof v === 'boolean' ? v : Number(v ?? 0) === 1);

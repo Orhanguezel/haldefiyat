@@ -73,7 +73,7 @@ export default function UserDetailClient({ id }: { id: string }) {
     setEmail(u.email ?? '');
     setActiveLocal(!!u.is_active);
 
-    setRolesLocal(u.roles.length > 0 ? u.roles : ['user']);
+    setRolesLocal(u.roles.length > 0 ? u.roles : ['customer']);
   }, [u, id]);
 
   const busy =
@@ -86,10 +86,12 @@ export default function UserDetailClient({ id }: { id: string }) {
 
   async function onSaveProfile() {
     try {
+      // Backend adminUpdateUserBody .strict() + z.string().optional(): null KABUL ETMEZ.
+      // Bos alanlar gonderilmez (undefined), aksi halde "validation error" doner.
       await updateUser({
         id,
-        full_name: fullName.trim() || null,
-        phone: phone.trim() || null,
+        full_name: fullName.trim() || undefined,
+        phone: phone.trim() || undefined,
         email: email.trim() || undefined,
       }).unwrap();
 

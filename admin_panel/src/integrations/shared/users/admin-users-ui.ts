@@ -1,14 +1,23 @@
 import type { AdminUserView, AdminUsersListParams, UserRoleName } from './users';
 import { toNonNegativeInt } from '@/integrations/shared/common';
 
-export const ADMIN_USERS_ALL_ROLES: UserRoleName[] = ['admin', 'moderator', 'seller', 'user'];
+export const ADMIN_USERS_ALL_ROLES: UserRoleName[] = [
+  'admin',
+  'editor',
+  'carrier',
+  'customer',
+  'dealer',
+];
 export const ADMIN_USERS_DEFAULT_LIMIT = 20;
 
-export function getAdminUserRoleLocaleKey(role: UserRoleName): 'admin' | 'moderator' | 'seller' | 'user' {
+type RoleLocaleKey = 'admin' | 'editor' | 'carrier' | 'customer' | 'dealer';
+
+export function getAdminUserRoleLocaleKey(role: UserRoleName): RoleLocaleKey {
   if (role === 'admin') return 'admin';
-  if (role === 'moderator') return 'moderator';
-  if (role === 'seller') return 'seller';
-  return 'user';
+  if (role === 'editor') return 'editor';
+  if (role === 'carrier') return 'carrier';
+  if (role === 'dealer') return 'dealer';
+  return 'customer';
 }
 
 export function parseAdminUsersBoolParam(value: string | null): boolean | undefined {
@@ -73,7 +82,7 @@ export function isAdminUserView(user: AdminUserView): boolean {
 }
 
 export function getAdminUserPrimaryRole(user: Pick<AdminUserView, 'roles'>): UserRoleName {
-  return (user.roles[0] ?? 'user') as UserRoleName;
+  return (user.roles[0] ?? 'customer') as UserRoleName;
 }
 
 export function getAdminUsersNextOffset(offset: number, limit: number): number {

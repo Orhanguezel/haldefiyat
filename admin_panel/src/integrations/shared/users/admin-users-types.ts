@@ -8,9 +8,8 @@ import type { UserRoleName } from '@/integrations/shared/users/users';
 export const ADMIN_USERS_BASE = '/admin/users';
 
 /**
- * Backend rolleri:
- *   "admin" | "moderator" | "seller" | "user"
- * Zaten UserRoleName ile uyumlu.
+ * Backend rolleri (shared-backend auth Role enum):
+ *   "admin" | "editor" | "carrier" | "customer" | "dealer"
  */
 export type AdminUserRoleName = UserRoleName;
 

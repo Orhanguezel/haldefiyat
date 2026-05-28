@@ -98,11 +98,11 @@ export interface PasswordResetConfirmBody {
   password: string;
 }
 
-const roleList: UserRoleName[] = ['admin', 'moderator', 'seller', 'user'];
+const roleList: UserRoleName[] = ['admin', 'editor', 'carrier', 'customer', 'dealer', 'seller'];
 
 const coerceRole = (v: unknown): UserRoleName => {
   const s = String(v ?? '').trim().toLowerCase();
-  return (roleList as string[]).includes(s) ? (s as UserRoleName) : 'user';
+  return (roleList as string[]).includes(s) ? (s as UserRoleName) : 'customer';
 };
 
 export function normalizeMeFromStatus(res?: AuthStatusResponse | null): AuthMeNormalized | null {

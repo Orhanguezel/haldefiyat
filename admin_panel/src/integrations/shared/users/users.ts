@@ -2,7 +2,16 @@
 
 import type { BoolLike } from '@/integrations/shared/common';
 
-export type UserRoleName = 'admin' | 'moderator' | 'seller' | 'user';
+// hal-fiyatlari backend roller (shared-backend auth Role enum ile birebir):
+//   admin | editor | carrier | customer | dealer
+// 'seller' yalnizca legacy vistaseeds seller-panel auth yolu icin korunuyor.
+export type UserRoleName =
+  | 'admin'
+  | 'editor'
+  | 'carrier'
+  | 'customer'
+  | 'dealer'
+  | 'seller';
 
 export type ProfileRow = {
   id: string;

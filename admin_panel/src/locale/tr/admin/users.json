@@ -73,9 +73,10 @@
       "saveButton": "Rolü Kaydet",
       "saved": "Roller güncellendi.",
       "admin": "Admin",
-      "moderator": "Moderatör",
-      "seller": "Satıcı",
-      "user": "Kullanıcı"
+      "editor": "Editör",
+      "carrier": "Taşıyıcı",
+      "customer": "Müşteri",
+      "dealer": "Bayi"
     },
     "password": {
       "title": "Şifre Güncelle",
@@ -98,8 +99,9 @@
   "roles": {
     "all": "Tümü",
     "admin": "Admin",
-    "moderator": "Moderatör",
-    "seller": "Satıcı",
-    "user": "Kullanıcı"
+    "editor": "Editör",
+    "carrier": "Taşıyıcı",
+    "customer": "Müşteri",
+    "dealer": "Bayi"
   }
 }
