@@ -156,7 +156,7 @@ export async function sendWeeklyMailTest(to: string): Promise<{ sent: boolean; r
 async function sendToOne(to: string, subject: string, html: string): Promise<boolean> {
   try {
     const personalized = html.replace(/\{\{UNSUB_URL\}\}/g, unsubUrl(to));
-    await sendBereketMail({ to, subject, html: personalized, headers: unsubHeaders(to) });
+    await sendBereketMail({ to, subject, html: personalized, headers: unsubHeaders(to) } as Parameters<typeof sendBereketMail>[0]);
     return true;
   } catch (err) {
     console.warn(`[weekly-mail] ${to} hata:`, err instanceof Error ? err.message : err);

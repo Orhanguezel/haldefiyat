@@ -11,12 +11,15 @@ import { db } from "@/db/client";
 import { hfApiKeys } from "@/db/schema";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { env } from "@/core/env";
+import { users } from "@agro/shared-backend/modules/auth/schema";
 
 const KEY_PREFIX = "hf_";
 
 export interface ApiKeyRecord {
   id: number;
   userId: string;
+  userEmail?: string | null;
+  userFullName?: string | null;
   keyPrefix: string;
   name: string;
   tier: "free" | "pro";
@@ -60,6 +63,16 @@ function toRecord(row: typeof hfApiKeys.$inferSelect): ApiKeyRecord {
     lastUsedAt:  row.lastUsedAt instanceof Date ? row.lastUsedAt.toISOString() : row.lastUsedAt,
     createdAt:   row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
     revoked:     row.revokedAt != null,
+  };
+}
+
+function toAdminRecord(
+  row: typeof hfApiKeys.$inferSelect & { userEmail?: string | null; userFullName?: string | null },
+): ApiKeyRecord {
+  return {
+    ...toRecord(row),
+    userEmail:    row.userEmail ?? null,
+    userFullName: row.userFullName ?? null,
   };
 }
 
@@ -164,6 +177,25 @@ export async function upgradeTier(keyId: number, tier: "free" | "pro"): Promise<
 }
 
 export async function listAllKeysAdmin(limit = 100): Promise<ApiKeyRecord[]> {
-  const rows = await db.select().from(hfApiKeys).limit(limit);
-  return rows.map(toRecord);
+  const rows = await db
+    .select({
+      id:               hfApiKeys.id,
+      userId:           hfApiKeys.userId,
+      keyHash:          hfApiKeys.keyHash,
+      keyPrefix:        hfApiKeys.keyPrefix,
+      name:             hfApiKeys.name,
+      tier:             hfApiKeys.tier,
+      dailyLimit:       hfApiKeys.dailyLimit,
+      usedToday:        hfApiKeys.usedToday,
+      usageWindowStart: hfApiKeys.usageWindowStart,
+      lastUsedAt:       hfApiKeys.lastUsedAt,
+      createdAt:        hfApiKeys.createdAt,
+      revokedAt:        hfApiKeys.revokedAt,
+      userEmail:        users.email,
+      userFullName:     users.full_name,
+    })
+    .from(hfApiKeys)
+    .leftJoin(users, eq(hfApiKeys.userId, users.id))
+    .limit(limit);
+  return rows.map(toAdminRecord);
 }

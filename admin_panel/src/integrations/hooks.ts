@@ -65,6 +65,11 @@ export {
 export { useGetDashboardSummaryAdminQuery } from "@/integrations/endpoints/admin/dashboard-admin-endpoints";
 
 export {
+  useAdminListApiKeysQuery,
+  useAdminSetApiKeyTierMutation,
+} from "@/integrations/endpoints/admin/api-keys-admin-endpoints";
+
+export {
   useListPricesAdminQuery,
   useGetPriceAdminQuery,
   useCreatePriceAdminMutation,
@@ -116,6 +121,8 @@ export {
 export {
   useGetAnalyticsOverviewAdminQuery,
   useGetAnalyticsAdsAttributionAdminQuery,
+  useGetAnalyticsAdsDailyAdminQuery,
+  useGetAnalyticsDeviceDailyAdminQuery,
   useGetAnalyticsFunnelAdminQuery,
   useGetAnalyticsRetentionAdminQuery,
   useGetAnalyticsHeatmapAdminQuery,
@@ -173,6 +180,12 @@ export {
   useGetAuditGeoStatsAdminQuery,
   useClearAuditLogsAdminMutation,
 } from "@/integrations/endpoints/admin/audit-admin-endpoints";
+
+export {
+  useGetAuditDataPullersAdminQuery,
+  useGetAuditGeoCitiesAdminQuery,
+  useGetAuditWidgetEmbeddersAdminQuery,
+} from "@/integrations/endpoints/admin/audit-consumers-admin-endpoints";
 
 export {
   useListSiteSettingsAdminQuery,

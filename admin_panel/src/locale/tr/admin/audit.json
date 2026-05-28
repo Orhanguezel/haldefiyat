@@ -15,10 +15,15 @@
     "success": "{count} kayıt silindi."
   },
   "tabs": {
+    "general": "Genel",
     "requests": "İstekler",
     "auth": "Kimlik Doğrulama",
+    "daily": "Günlük",
     "metrics": "Metrikler",
-    "map": "Harita"
+    "ads": "Ads",
+    "device": "Cihaz",
+    "map": "Harita",
+    "consumers": "Tüketiciler"
   },
   "requests": {
     "filtersTitle": "Filtreler",

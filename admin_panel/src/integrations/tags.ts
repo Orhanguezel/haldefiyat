@@ -217,6 +217,8 @@ export const tags = [
   'PressCampaigns',
   'PressLogs',
   'PressSummary',
+  'ApiKey',
+  'ApiKeys',
 ] as const;
 
 export type tag = typeof tags[number];

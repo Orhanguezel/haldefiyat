@@ -49,6 +49,24 @@ interface AdsAttributionRow extends RowDataPacket {
   uniqueIps: number | string;
 }
 
+interface AdsDailyRow extends RowDataPacket {
+  date: string;
+  campaign: string | null;
+  source: string | null;
+  medium: string | null;
+  pageviews: number | string;
+  uniqueIps: number | string;
+}
+
+interface DeviceDailyRow extends RowDataPacket {
+  date: string;
+  device: string;
+  requests: number | string;
+  uniqueIps: number | string;
+  adsRequests: number | string;
+  adsUniqueIps: number | string;
+}
+
 interface RetentionCohortRow extends RowDataPacket {
   date: string;
   visitors: number | string;
@@ -335,6 +353,89 @@ export async function registerAnalyticsAdmin(adminApi: FastifyInstance) {
         medium: row.medium ?? "unknown",
         pageviews: n(row.pageviews),
         uniqueIps: n(row.uniqueIps),
+      })),
+    }));
+  });
+
+  adminApi.get("/analytics/ads-daily", async (req, reply) => {
+    const { days, key } = parseRange((req.query as { range?: string }).range);
+    if (!(await hasAuditAttributionColumns(adminApi))) {
+      return reply.send({ range: key, items: [] });
+    }
+    const cacheKey = `ads-daily:${key}`;
+    const cached = getCached(cacheKey);
+    if (cached) return reply.send(cached);
+
+    const rows = await many<AdsDailyRow>(
+      adminApi,
+      `SELECT
+        DATE(created_at) AS date,
+        COALESCE(NULLIF(utm_campaign, ''), 'unknown') AS campaign,
+        COALESCE(NULLIF(utm_source, ''), 'unknown') AS source,
+        COALESCE(NULLIF(utm_medium, ''), 'unknown') AS medium,
+        COUNT(*) AS pageviews,
+        COUNT(DISTINCT ip) AS uniqueIps
+       FROM audit_request_logs
+       WHERE ${since(days)} AND gclid IS NOT NULL AND gclid <> ''
+       GROUP BY DATE(created_at), campaign, source, medium
+       ORDER BY DATE(created_at) DESC, pageviews DESC
+       LIMIT 200`,
+    );
+
+    return reply.send(setCached(cacheKey, {
+      range: key,
+      items: rows.map((row) => ({
+        date: row.date,
+        campaign: row.campaign ?? "unknown",
+        source: row.source ?? "unknown",
+        medium: row.medium ?? "unknown",
+        pageviews: n(row.pageviews),
+        uniqueIps: n(row.uniqueIps),
+      })),
+    }));
+  });
+
+  adminApi.get("/analytics/device-daily", async (req, reply) => {
+    const { days, key } = parseRange((req.query as { range?: string }).range);
+    const hasAttributionColumns = await hasAuditAttributionColumns(adminApi);
+    const adsRequestsSql = hasAttributionColumns
+      ? "SUM(CASE WHEN gclid IS NOT NULL AND gclid <> '' THEN 1 ELSE 0 END) AS adsRequests"
+      : "0 AS adsRequests";
+    const adsUniqueIpsSql = hasAttributionColumns
+      ? "COUNT(DISTINCT CASE WHEN gclid IS NOT NULL AND gclid <> '' THEN ip END) AS adsUniqueIps"
+      : "0 AS adsUniqueIps";
+    const cacheKey = `device-daily:${key}:${hasAttributionColumns ? "attr" : "base"}`;
+    const cached = getCached(cacheKey);
+    if (cached) return reply.send(cached);
+
+    const rows = await many<DeviceDailyRow>(
+      adminApi,
+      `SELECT
+        DATE(created_at) AS date,
+        CASE
+          WHEN LOWER(COALESCE(user_agent, '')) REGEXP 'mobile|android|iphone|ipod' THEN 'mobile'
+          WHEN LOWER(COALESCE(user_agent, '')) REGEXP 'ipad|tablet' THEN 'tablet'
+          ELSE 'desktop'
+        END AS device,
+        COUNT(*) AS requests,
+        COUNT(DISTINCT ip) AS uniqueIps,
+        ${adsRequestsSql},
+        ${adsUniqueIpsSql}
+       FROM audit_request_logs
+       WHERE ${since(days)} AND path NOT LIKE '/api/%' AND NOT (${BOT_UA_SQL})
+       GROUP BY DATE(created_at), device
+       ORDER BY DATE(created_at) DESC, device ASC`,
+    );
+
+    return reply.send(setCached(cacheKey, {
+      range: key,
+      items: rows.map((row) => ({
+        date: row.date,
+        device: row.device,
+        requests: n(row.requests),
+        uniqueIps: n(row.uniqueIps),
+        adsRequests: n(row.adsRequests),
+        adsUniqueIps: n(row.adsUniqueIps),
       })),
     }));
   });

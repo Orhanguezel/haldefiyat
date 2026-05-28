@@ -68,19 +68,19 @@
 ## 1. Komuta Merkezi İskeleti 🏗️
 
 ### 1.1 Sekme altyapısı (🧠 Claude → 🤖 Codex)
-- [ ] `admin-audit-client.tsx` `normalizeAdminAuditTab`'a yeni tablar ekle: `general`, `daily`, `ads`, `device` (mevcut: requests, auth, metrics→`daily` ile birleştir, map).
-- [ ] URL state korunur (`?tab=ads` vb.), her sekme kendi query'sini `skip` ile lazy çeker (mevcut pattern).
-- [ ] `range` (7d/30d/90d) ortak filtre — analytics `AnalyticsRange` ile audit `days` paramını tek kontrole indir.
+- [x] `admin-audit-client.tsx` `normalizeAdminAuditTab`'a yeni tablar eklendi: `general`, `daily`, `ads`, `device`, `consumers`; eski `metrics` URL'i `daily`'ye aliaslandı. (Codex, 2026-05-28)
+- [x] URL state korunuyor (`?tab=ads` vb.), yeni sekmeler kendi query'sini `skip` ile lazy çekiyor. (Codex, 2026-05-28)
+- [x] `range` (7d/30d) analytics sekmelerinde ortak filtre olarak bağlandı; 90d backend `AnalyticsRange` kontratında olmadığı için eklenmedi. (Codex, 2026-05-28)
 
 ### 1.2 Analytics endpoint'lerini audit'e bağla (🤖 Codex)
-- [ ] Mevcut `analytics-admin-endpoints.ts` hook'ları (`useGetAnalyticsOverviewAdminQuery` vb.) audit client'ta kullanılabilir — RTK Query zaten paylaşımlı. **Yeni endpoint yazma**, mevcutları çağır.
+- [x] Mevcut `analytics-admin-endpoints.ts` hook'ları audit client'a bağlandı: overview, ads-attribution, funnel, heatmap. **Yeni endpoint yazılmadı.** (Codex, 2026-05-28)
 
 ---
 
 ## 2. "İstekler" Sekmesi — ham log (mevcut, cila) 🔧
-- [ ] `referer` ayrı sortable kolon + "sadece dış referer" filtresi (kendi domaini hariç).
-- [ ] Bot rozeti: UA regex `bot|crawl|spider|python|curl|wget|http|axios|go-http`.
-- [ ] `path_prefix` filtresi (şu an sadece metrics'te) + presetler: "Widget", "Fiyat API", "Export".
+- [ ] `referer` ayrı sortable kolon + "sadece dış referer" filtresi (kendi domaini hariç). UI'da referer ayrı kolona alındı ve iç/dış badge eklendi; sortable/filter için shared audit backend kontratı genişletilmeli. (Codex notu, 2026-05-28)
+- [x] Bot rozeti: UA regex `bot|crawl|spider|python|curl|wget|http|axios|go-http`. (Codex, 2026-05-28)
+- [x] `path_prefix` filtresi (şu an sadece metrics'te) + presetler: "Widget", "Fiyat API", "Export". Mevcut `q` filtresi üzerinden path presetleri eklendi. (Codex, 2026-05-28)
 
 ---
 
@@ -95,27 +95,27 @@
 
 ## 4. "Ads" Sekmesi — kampanya takibi 📣
 > En çok istenen: "Ads kampanyalarını burdan kontrol/takip etmeliyim."
-- [ ] (🤖 Codex) Mevcut `ads-attribution` (kampanya/source/medium toplam) kartı.
-- [ ] **YENİ (4.2):** `GET /admin/analytics/ads-daily?range=` — gün gün, kampanya bazlı pageview + unique IP. SQL: `WHERE gclid<>'' GROUP BY DATE(created_at), utm_campaign`.
+- [x] (🤖 Codex) Mevcut `ads-attribution` (kampanya/source/medium toplam) tablosu audit `Ads` sekmesine taşındı. (Codex, 2026-05-28)
+- [x] **YENİ (4.2):** `GET /admin/analytics/ads-daily?range=` — gün gün, kampanya bazlı pageview + unique IP eklendi ve audit `Ads` sekmesinde tabloya bağlandı. (Codex, 2026-05-28)
 - [ ] gclid taşıyan ham istekleri "İstekler" sekmesine derin link (filtre: `utm_campaign=X`).
-- [ ] Ads→Newsletter dönüşüm funnel'ı (mevcut `analytics/funnel` + `summary.newsletterAdsCapturePct`).
+- [x] Ads→Newsletter dönüşüm funnel'ı mevcut `analytics/funnel` ile audit `Ads` sekmesine bağlandı. (Codex, 2026-05-28)
 - [ ] Aktif kampanya özeti: bugün/dün/7g Ads IP, maliyet notu (Orhan manuel girer — Ads API Faz 2).
 
 ---
 
 ## 5. "Cihaz" Sekmesi — mobil/masaüstü oranı 📱
 > "Mobil masaüstü girenlerin yüzdesini göreyim."
-- [ ] (🤖 Codex) Mevcut `overview.devices[]` → mobil/tablet/masaüstü pasta/bar + yüzde.
-- [ ] **YENİ (5.2):** Cihaz gün gün trend — `GROUP BY DATE(created_at), device` (UA regex mevcut: `mobile|android|iphone|ipod` / `ipad|tablet` / else desktop).
-- [ ] Saatlik heatmap (mevcut `analytics/heatmap`) bu sekmeye taşınır.
-- [ ] Ads trafiği cihaz kırılımı (gclid + device) — "Ads %78 mobil" doğrulaması canlı görünür.
+- [x] (🤖 Codex) Mevcut `overview.devices[]` → mobil/tablet/masaüstü dağılım kartı olarak audit `Cihaz` sekmesine bağlandı. (Codex, 2026-05-28)
+- [x] **YENİ (5.2):** Cihaz gün gün trend — `GROUP BY DATE(created_at), device` endpoint'i `GET /admin/analytics/device-daily?range=` olarak eklendi ve audit `Cihaz` sekmesine bağlandı. (Codex, 2026-05-28)
+- [x] Saatlik heatmap (mevcut `analytics/heatmap`) audit `Cihaz` sekmesine taşındı. (Codex, 2026-05-28)
+- [x] Ads trafiği cihaz kırılımı (gclid + device) `device-daily` response'una `adsRequests` / `adsUniqueIps` olarak eklendi; audit `Cihaz` sekmesinde görünür. (Codex, 2026-05-28)
 
 ---
 
 ## 6. "Harita" Sekmesi — geo genişletme 🌍
-- [ ] Mevcut `AuditGeoMap` + altına **ülke/şehir tablosu** (top 50, istek sayısı, unique IP).
-- [ ] Şehir bazlı kırılım (TR içi iller) — `geo-stats` `city` kolonu zaten var.
-- [ ] "Sadece insan / sadece bot" toggle (UA regex).
+- [x] Mevcut `AuditGeoMap` + altına **ülke/şehir tablosu** (top 50, istek sayısı, unique IP) eklendi. (Codex, 2026-05-28)
+- [x] Şehir bazlı kırılım (TR içi iller dahil) `GET /admin/audit/geo-cities?days=&traffic=` endpoint'iyle bağlandı. (Codex, 2026-05-28)
+- [x] "Sadece insan / sadece bot" toggle UA regex ile eklendi. (Codex, 2026-05-28)
 
 ---
 
@@ -123,12 +123,12 @@
 
 ### 7.1 Kanal A — API key sahipleri
 > Backend `GET /admin/api-keys` + tier endpoint **zaten var** (`backend/src/modules/api-keys/index.ts`). UI yok.
-- [ ] RTK Query: `adminListApiKeys`, `adminSetApiKeyTier` (`endpoints/admin/api-keys-admin-endpoints.ts`).
-- [ ] Tablo: kullanıcı (email), key_prefix, tier badge, `used_today/daily_limit`, last_used_at, revoked.
-- [ ] Tier free↔pro değiştir. (Revoke endpoint yoksa Bölüm 9.)
+- [x] RTK Query: `adminListApiKeys`, `adminSetApiKeyTier` (`endpoints/admin/api-keys-admin-endpoints.ts`). (Codex, 2026-05-28)
+- [x] Tablo altyapısı: kullanıcı (`email/full_name`, fallback `userId`), key_prefix, tier badge, `used_today/daily_limit`, last_used_at, revoked. Audit `Tüketiciler` sekmesine bağlandı. (Codex, 2026-05-28)
+- [x] Tier free↔pro değiştir. Audit `Tüketiciler` sekmesinden çalışıyor. Revoke admin endpoint yok; Bölüm 9'a not eklendi. (Codex, 2026-05-28)
 
 ### 7.2 Kanal B — widget gömen siteler
-- [ ] **YENİ:** `GET /admin/audit/widget-embedders?days=30`. SQL:
+- [x] **YENİ:** `GET /admin/audit/widget-embedders?days=30`. Endpoint eklendi ve audit `Tüketiciler` sekmesinde widget gömen host tablosuna bağlandı. (Codex, 2026-05-28) SQL:
   ```sql
   SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(referer,'/',3),'//',-1) AS host,
          COUNT(*) hits, COUNT(DISTINCT ip) unique_ips, MAX(created_at) last_seen
@@ -136,11 +136,11 @@
   WHERE path='/api/v1/prices/widget' AND referer<>'' AND created_at>=NOW()-INTERVAL ? DAY
   GROUP BY host ORDER BY hits DESC LIMIT 100;
   ```
-- [ ] Kendi domainleri (haldefiyat/bereketfide/vistaseeds) "iç" işaretle.
+- [x] Kendi domainleri (haldefiyat/bereketfide/vistaseed/vistaseeds) "iç" işaretleniyor. (Codex, 2026-05-28)
 
 ### 7.3 Kanal C — anonim scraper / yoğun veri çeken
-- [ ] Eşik kararı (🧠 öner → 👤 Orhan onay): örn. 7g'de >500 fiyat-endpoint isteği VEYA bot-UA.
-- [ ] **YENİ:** `GET /admin/audit/data-pullers?days=7&min_hits=500`. SQL: `WHERE path LIKE '/api/v1/prices%' GROUP BY ip,user_agent HAVING hits>=? ` + bot flag + `/prices/export` sayacı + geo.
+- [ ] Eşik kararı (🧠 öner → 👤 Orhan onay): UI/endpoint şimdilik parametreli `min_hits=500` varsayılanıyla çalışıyor; nihai eşik operasyon kararı bekliyor.
+- [x] **YENİ:** `GET /admin/audit/data-pullers?days=7&min_hits=500`. SQL: `WHERE path LIKE '/api/v1/prices%' GROUP BY ip,user_agent HAVING hits>=? ` + bot flag + `/prices/export` sayacı + geo eklendi ve audit `Tüketiciler` sekmesine bağlandı. (Codex, 2026-05-28)
 
 ---
 
@@ -157,6 +157,7 @@
 ## 9. Opsiyonel — Derin Korelasyon (Faz 2) 🔬
 - [ ] `audit_request_logs`'a `api_key_id` kolonu (**ALTER YASAK** — seed CREATE TABLE'a ekle + `db:seed:fresh`). `apiKeyAuthHook` key id'sini `req`'e koyuyor.
 - [ ] API key revoke endpoint'i.
+- [x] Admin API key cevabına kullanıcı e-postası/full_name eklendi (`user_id -> users.email/full_name` join). (Codex, 2026-05-28)
 - [ ] Per-key günlük kullanım grafiği (Tüketiciler sekmesi).
 
 ---

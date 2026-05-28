@@ -16,6 +16,7 @@ import { registerApiKeysPublic, registerApiKeysAdmin } from "@/modules/api-keys"
 import { registerFeeds } from "@/modules/feeds";
 import { registerAnnualReport } from "@/modules/annual-report";
 import { registerAnalyticsAdmin } from "@/modules/analytics";
+import { registerAuditConsumersAdmin } from "@/modules/audit-consumers";
 import { registerHalNewsletter } from "@/modules/newsletter/router";
 import { registerTracking } from "@/modules/tracking/router";
 
@@ -55,4 +56,5 @@ export async function registerProjectAdmin(adminApi: FastifyInstance) {
   await registerInflationAdmin(adminApi);
   await registerApiKeysAdmin(adminApi);
   await registerAnalyticsAdmin(adminApi);
+  await registerAuditConsumersAdmin(adminApi);
 }

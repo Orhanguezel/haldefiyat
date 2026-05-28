@@ -41,6 +41,30 @@ export interface AdsAttributionResponse {
   }>;
 }
 
+export interface AdsDailyResponse {
+  range: AnalyticsRange;
+  items: Array<{
+    date: string;
+    campaign: string;
+    source: string;
+    medium: string;
+    pageviews: number;
+    uniqueIps: number;
+  }>;
+}
+
+export interface DeviceDailyResponse {
+  range: AnalyticsRange;
+  items: Array<{
+    date: string;
+    device: string;
+    requests: number;
+    uniqueIps: number;
+    adsRequests: number;
+    adsUniqueIps: number;
+  }>;
+}
+
 export interface AnalyticsFunnelResponse {
   range: AnalyticsRange;
   items: Array<{ name: string; count: number }>;
@@ -80,6 +104,14 @@ export const analyticsAdminApi = baseApi.injectEndpoints({
       query: (params) => ({ url: `/admin/analytics/ads-attribution?range=${params?.range ?? '7d'}` }),
       providesTags: [{ type: 'AuditMetric' as const, id: 'ADS_ATTRIBUTION' }],
     }),
+    getAnalyticsAdsDailyAdmin: builder.query<AdsDailyResponse, { range?: AnalyticsRange } | undefined>({
+      query: (params) => ({ url: `/admin/analytics/ads-daily?range=${params?.range ?? '7d'}` }),
+      providesTags: [{ type: 'AuditMetric' as const, id: 'ADS_DAILY' }],
+    }),
+    getAnalyticsDeviceDailyAdmin: builder.query<DeviceDailyResponse, { range?: AnalyticsRange } | undefined>({
+      query: (params) => ({ url: `/admin/analytics/device-daily?range=${params?.range ?? '7d'}` }),
+      providesTags: [{ type: 'AuditMetric' as const, id: 'DEVICE_DAILY' }],
+    }),
     getAnalyticsFunnelAdmin: builder.query<AnalyticsFunnelResponse, { range?: AnalyticsRange } | undefined>({
       query: (params) => ({ url: `/admin/analytics/funnel?range=${params?.range ?? '7d'}` }),
       providesTags: [{ type: 'AuditMetric' as const, id: 'ANALYTICS_FUNNEL' }],
@@ -99,6 +131,8 @@ export const analyticsAdminApi = baseApi.injectEndpoints({
 export const {
   useGetAnalyticsOverviewAdminQuery,
   useGetAnalyticsAdsAttributionAdminQuery,
+  useGetAnalyticsAdsDailyAdminQuery,
+  useGetAnalyticsDeviceDailyAdminQuery,
   useGetAnalyticsFunnelAdminQuery,
   useGetAnalyticsRetentionAdminQuery,
   useGetAnalyticsHeatmapAdminQuery,

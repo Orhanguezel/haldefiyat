@@ -61,7 +61,7 @@ async function subscribe(req: FastifyRequest, reply: FastifyReply) {
   // Welcome mail (best-effort — hata subscribe'i bozmaz).
   try {
     const { subject, html } = buildWelcomeEmail(clean);
-    await sendBereketMail({ to: clean, subject, html, headers: unsubHeaders(clean) });
+    await sendBereketMail({ to: clean, subject, html, headers: unsubHeaders(clean) } as Parameters<typeof sendBereketMail>[0]);
   } catch (err) {
     req.log.warn({ err }, "newsletter_welcome_mail_failed");
   }
