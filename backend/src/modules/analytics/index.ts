@@ -27,8 +27,10 @@ interface DailyRow extends RowDataPacket {
   date: string;
   requests: number | string;
   humans: number | string;
+  bots: number | string;
   ads: number | string;
   uniqueIps: number | string;
+  errors: number | string;
 }
 
 interface NameCountRow extends RowDataPacket {
@@ -232,8 +234,10 @@ export async function registerAnalyticsAdmin(adminApi: FastifyInstance) {
           DATE(created_at) AS date,
           COUNT(*) AS requests,
           SUM(CASE WHEN NOT (${BOT_UA_SQL}) THEN 1 ELSE 0 END) AS humans,
+          SUM(CASE WHEN ${BOT_UA_SQL} THEN 1 ELSE 0 END) AS bots,
           ${dailyAdsSql},
-          COUNT(DISTINCT ip) AS uniqueIps
+          COUNT(DISTINCT ip) AS uniqueIps,
+          SUM(CASE WHEN status_code >= 400 THEN 1 ELSE 0 END) AS errors
          FROM audit_request_logs
          WHERE ${since(days)}
          GROUP BY DATE(created_at)
@@ -311,8 +315,10 @@ export async function registerAnalyticsAdmin(adminApi: FastifyInstance) {
         date: row.date,
         requests: n(row.requests),
         humans: n(row.humans),
+        bots: n(row.bots),
         ads: n(row.ads),
         uniqueIps: n(row.uniqueIps),
+        errors: n(row.errors),
       })),
       topLandingPages: topLandingPages.map((row) => ({ name: row.name ?? "—", count: n(row.count) })),
       topReferrers: topReferrers.map((row) => ({ name: row.name ?? "Direct", count: n(row.count) })),

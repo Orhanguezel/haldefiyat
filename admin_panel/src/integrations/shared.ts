@@ -168,13 +168,18 @@ export {
   API_KEYS_ADMIN_BASE,
   API_KEY_TIERS,
   type AdminApiKeyDto,
+  type AdminApiKeyDailyUsageDto,
+  type AdminApiKeyDailyUsageResponse,
   type AdminApiKeysResponse,
+  type AdminRevokeApiKeyInput,
+  type AdminRevokeApiKeyResponse,
   type AdminSetApiKeyTierInput,
   type AdminSetApiKeyTierResponse,
   type ApiKeyTier,
   formatApiKeyDate,
   formatApiKeyUsage,
   normalizeAdminApiKey,
+  normalizeAdminApiKeyDailyUsageResponse,
   normalizeAdminApiKeysResponse,
 } from "@/integrations/shared/api-keys";
 

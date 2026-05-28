@@ -120,6 +120,13 @@ export async function revokeKey(userId: string, keyId: number): Promise<void> {
     .where(and(eq(hfApiKeys.userId, userId), eq(hfApiKeys.id, keyId), isNull(hfApiKeys.revokedAt)));
 }
 
+export async function revokeKeyAdmin(keyId: number): Promise<void> {
+  await db
+    .update(hfApiKeys)
+    .set({ revokedAt: new Date() })
+    .where(and(eq(hfApiKeys.id, keyId), isNull(hfApiKeys.revokedAt)));
+}
+
 export interface KeyValidation {
   ok: boolean;
   reason?: "not_found" | "revoked" | "limit_exceeded";

@@ -4,7 +4,6 @@
 // =============================================================
 
 import {
-  BarChart3,
   Bell,
   Building2,
   Contact2,
@@ -97,7 +96,6 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
       { key: 'hf_products', url: '/admin/hf-products', icon: FileText },
       { key: 'markets', url: '/admin/markets', icon: Building2 },
       { key: 'etl_logs', url: '/admin/etl-logs', icon: Database },
-      { key: 'analytics', url: '/admin/analytics', icon: BarChart3 },
       { key: 'competitor_monitor', url: '/admin/competitor-monitor', icon: TrendingUp },
     ],
   },
@@ -173,7 +171,6 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   hf_products: 'Urunler',
   markets: 'Haller',
   etl_logs: 'ETL Loglari',
-  analytics: 'Analytics',
   competitor_monitor: 'Rakip İzleme',
   alerts: 'Uyari Listesi',
   production: 'Yillik Uretim',
@@ -188,7 +185,7 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   site_settings: 'Site Ayarlari',
   storage: 'Depolama',
   telegram: 'Telegram',
-  audit: 'Denetim',
+  audit: 'Komuta Merkezi',
 };
 
 export const ADMIN_NAV_ROUTE_MAP: Record<AdminNavItemKey, string> = adminNavConfig

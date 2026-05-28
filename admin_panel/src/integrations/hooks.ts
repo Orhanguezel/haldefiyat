@@ -65,7 +65,9 @@ export {
 export { useGetDashboardSummaryAdminQuery } from "@/integrations/endpoints/admin/dashboard-admin-endpoints";
 
 export {
+  useAdminGetApiKeyDailyUsageQuery,
   useAdminListApiKeysQuery,
+  useAdminRevokeApiKeyMutation,
   useAdminSetApiKeyTierMutation,
 } from "@/integrations/endpoints/admin/api-keys-admin-endpoints";
 

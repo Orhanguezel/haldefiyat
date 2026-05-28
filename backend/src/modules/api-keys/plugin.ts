@@ -45,6 +45,8 @@ export async function apiKeyAuthHook(req: FastifyRequest, reply: FastifyReply): 
     }) as unknown as void;
   }
 
+  (req as FastifyRequest & { auditApiKeyId?: number }).auditApiKeyId = result.record!.id;
+
   // Basarili: header'larla bilgi don, limit muafiyetini isaretle
   reply.header("X-RateLimit-Tier", result.record!.tier);
   reply.header("X-RateLimit-Limit", String(result.record!.dailyLimit));

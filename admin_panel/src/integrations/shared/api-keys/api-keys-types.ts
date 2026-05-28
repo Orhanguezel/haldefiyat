@@ -33,6 +33,27 @@ export type AdminSetApiKeyTierResponse = {
   ok: boolean;
 };
 
+export type AdminRevokeApiKeyInput = {
+  id: number;
+};
+
+export type AdminRevokeApiKeyResponse = {
+  ok: boolean;
+};
+
+export type AdminApiKeyDailyUsageDto = {
+  keyId: number;
+  keyPrefix: string;
+  date: string;
+  requests: number;
+  uniqueIps: number;
+};
+
+export type AdminApiKeyDailyUsageResponse = {
+  days: number;
+  items: AdminApiKeyDailyUsageDto[];
+};
+
 function normalizeTier(value: unknown): ApiKeyTier {
   return value === 'pro' ? 'pro' : 'free';
 }
@@ -58,6 +79,23 @@ export function normalizeAdminApiKey(raw: unknown): AdminApiKeyDto {
 export function normalizeAdminApiKeysResponse(raw: unknown): AdminApiKeysResponse {
   return {
     items: extractArray(raw).map(normalizeAdminApiKey),
+  };
+}
+
+export function normalizeAdminApiKeyDailyUsageResponse(raw: unknown): AdminApiKeyDailyUsageResponse {
+  const row = (raw ?? {}) as Record<string, unknown>;
+  return {
+    days: toInt(row.days),
+    items: extractArray(row.items).map((item) => {
+      const usage = (item ?? {}) as Record<string, unknown>;
+      return {
+        keyId: toInt(usage.keyId ?? usage.key_id),
+        keyPrefix: toStr(usage.keyPrefix ?? usage.key_prefix),
+        date: toStr(usage.date),
+        requests: toInt(usage.requests),
+        uniqueIps: toInt(usage.uniqueIps ?? usage.unique_ips),
+      };
+    }),
   };
 }
 

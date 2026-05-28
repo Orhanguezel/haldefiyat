@@ -7,6 +7,7 @@ type RequestWithUser = FastifyRequest & {
   user?: unknown;
   auth?: { user?: unknown };
   requestContext?: { get?: (key: string) => unknown };
+  auditApiKeyId?: number;
   auditError?: { message?: string; code?: string };
   auditPageview?: { url: string; path: string; referer: string | null };
 };
@@ -16,6 +17,7 @@ type UserRecord = Record<string, unknown>;
 const requestStarts = new WeakMap<FastifyRequest, bigint>();
 const ATTRIBUTION_COLUMNS = ["gclid", "utm_source", "utm_medium", "utm_campaign", "utm_content"] as const;
 let hasAttributionColumnsCache: boolean | null = null;
+let hasApiKeyIdColumnCache: boolean | null = null;
 
 interface AuditColumnRow extends RowDataPacket {
   Field: string;
@@ -153,6 +155,21 @@ async function auditAttributionColumnsExist(app: FastifyInstance): Promise<boole
   }
 }
 
+async function auditApiKeyIdColumnExists(app: FastifyInstance): Promise<boolean> {
+  if (hasApiKeyIdColumnCache !== null) return hasApiKeyIdColumnCache;
+
+  try {
+    const [rows] = await app.db.query<AuditColumnRow[]>(
+      "SHOW COLUMNS FROM audit_request_logs WHERE Field = 'api_key_id'",
+    );
+    hasApiKeyIdColumnCache = rows.length > 0;
+    return hasApiKeyIdColumnCache;
+  } catch {
+    hasApiKeyIdColumnCache = false;
+    return false;
+  }
+}
+
 function responseTimeMs(req: FastifyRequest): number {
   const start = requestStarts.get(req);
   if (!start) return 0;
@@ -237,7 +254,22 @@ export const auditRequestLoggerPlugin: FastifyPluginAsync = fp(async (app) => {
           attr(searchParams, "utm_content"),
       ];
 
-      if (await auditAttributionColumnsExist(app)) {
+      const hasAttributionColumns = await auditAttributionColumnsExist(app);
+      const hasApiKeyIdColumn = await auditApiKeyIdColumnExists(app);
+
+      if (hasAttributionColumns && hasApiKeyIdColumn) {
+        await app.db.query(
+          `INSERT INTO audit_request_logs
+            (req_id, method, url, path, status_code, response_time_ms, ip, user_agent, referer,
+             user_id, is_admin, country, city, error_message, error_code, request_body,
+             api_key_id, gclid, utm_source, utm_medium, utm_campaign, utm_content)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [...baseValues, (req as RequestWithUser).auditApiKeyId ?? null, ...attributionValues],
+        );
+        return;
+      }
+
+      if (hasAttributionColumns) {
         await app.db.query(
           `INSERT INTO audit_request_logs
             (req_id, method, url, path, status_code, response_time_ms, ip, user_agent, referer,
@@ -245,6 +277,17 @@ export const auditRequestLoggerPlugin: FastifyPluginAsync = fp(async (app) => {
              gclid, utm_source, utm_medium, utm_campaign, utm_content)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [...baseValues, ...attributionValues],
+        );
+        return;
+      }
+
+      if (hasApiKeyIdColumn) {
+        await app.db.query(
+          `INSERT INTO audit_request_logs
+            (req_id, method, url, path, status_code, response_time_ms, ip, user_agent, referer,
+             user_id, is_admin, country, city, error_message, error_code, request_body, api_key_id)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [...baseValues, (req as RequestWithUser).auditApiKeyId ?? null],
         );
         return;
       }

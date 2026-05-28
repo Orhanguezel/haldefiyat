@@ -87,14 +87,14 @@
 ## 3. "Günlük" Sekmesi — gün gün tüm loglar 📅
 > **✅ MÜKERRER KARARI (🧠 Claude, 28 May):** İki endpoint tam kopya DEĞİL, tamamlayıcı:
 > - `audit/metrics/daily` → `date, requests, unique_ips, **errors**(status>=400)` + `path_prefix` filtresi
-> - `overview.daily` → `date, requests, **humans**, **ads**(gclid), uniqueIps` (errors/path filtresi yok)
+> - `overview.daily` → `date, requests, **humans**, **bots**, **ads**(gclid), uniqueIps, **errors**(status>=400)` (path filtresi yok)
 >
-> **Karar:** `overview.daily` **tek kaynak**. Eksik tek alan `errors` → `overview.daily` SQL'ine eklenir (tek satır: `SUM(CASE WHEN status_code>=400 THEN 1 ELSE 0 END) AS errors`). Günlük sekmesi SADECE `overview.daily` çağırır. `audit/metrics/daily` KALIR ama yalnızca `path_prefix`-filtreli drill-down (Bölüm 2) için; Günlük sekmesi onu ÇAĞIRMAZ. Başka tüketicisi yoksa Bölüm 8'de emekliye ayrılır.
+> **Karar:** `overview.daily` **tek kaynak**. `errors` ve `bots` alanları `overview.daily` SQL'ine eklendi. Günlük sekmesi SADECE `overview.daily` çağırır. `audit/metrics/daily` KALIR ama yalnızca `path_prefix`-filtreli drill-down (Bölüm 2) için; Günlük sekmesi onu ÇAĞIRMAZ. Başka tüketicisi yoksa Bölüm 8'de emekliye ayrılır.
 
-- [ ] (🤖 Codex) `analytics/index.ts` daily query'sine `errors` kolonu ekle (yukarıdaki SQL) + `overview` response tipine `errors` alanı.
-- [ ] (🤖 Codex) Günlük sekmesi tablo kolonları: tarih, request, insan, bot (=request−insan), ads, unique IP, hata. **Kaynak: sadece `overview.daily`.**
-- [ ] (🤖 Codex) Grafik `AuditDailyChart` genişletilir (insan + ads + uniqueIP + hata çizgileri), `overview.daily`'den beslenir.
-- [ ] (🤖 Codex) Günlük sekmesinde `useGetAuditMetricsDailyAdminQuery` çağrısı varsa kaldır (mükerrer).
+- [x] (🤖 Codex) `analytics/index.ts` daily query'sine `errors` kolonu ekle (yukarıdaki SQL) + `overview` response tipine `errors` alanı. Ayrıca `bots` alanı eklendi. (Codex, 2026-05-28)
+- [x] (🤖 Codex) Günlük sekmesi tablo kolonları: tarih, request, insan, bot, ads, unique IP, hata. **Kaynak: sadece `overview.daily`.** (Codex, 2026-05-28)
+- [x] (🤖 Codex) Grafik `AuditDailyChart` genişletilir (insan + ads + uniqueIP + hata çizgileri), `overview.daily`'den beslenir. (Codex, 2026-05-28)
+- [x] (🤖 Codex) Günlük sekmesinde `useGetAuditMetricsDailyAdminQuery` çağrısı varsa kaldır (mükerrer). (Codex, 2026-05-28)
 
 ---
 
@@ -151,19 +151,19 @@
 
 ## 8. Analytics Sayfası Kaldırma + Temizlik 🧹
 > Tüm içerik audit sekmelerine taşındıktan SONRA.
-- [ ] `/admin/analytics/page.tsx` sil.
-- [ ] Sidebar'dan "Analytics" item kaldır; "Audit" → "Audit & Analytics" (veya "Komuta Merkezi") olarak yeniden adlandır.
-- [ ] `permissions.ts` + locale temizliği (admin_panel/CLAUDE.md §11 — nav/permission senkron).
-- [ ] Backend analytics endpoint'leri KALIR (audit sekmeleri onları kullanıyor) — sadece frontend sayfa kalkar.
-- [ ] Dashboard'da analytics linki varsa audit'e yönlendir.
+- [x] `/admin/analytics/page.tsx` silindi; eski sayfadaki retention/cohort tablosu audit Genel sekmesine taşındı. (Codex, 2026-05-29)
+- [x] Sidebar'dan "Analytics" item kaldırıldı; "Audit" → "Komuta Merkezi" olarak yeniden adlandırıldı. (Codex, 2026-05-29)
+- [x] `permissions.ts` + locale temizliği yapıldı; nav/permission senkronundan `analytics` çıkarıldı. (Codex, 2026-05-29)
+- [x] Backend analytics endpoint'leri KALIR (audit sekmeleri onları kullanıyor) — sadece frontend sayfa kalkar. (Codex, 2026-05-29)
+- [x] Dashboard'da analytics linki arandı; doğrudan `/admin/analytics` linki kalmadı. (Codex, 2026-05-29)
 
 ---
 
 ## 9. Opsiyonel — Derin Korelasyon (Faz 2) 🔬
-- [ ] `audit_request_logs`'a `api_key_id` kolonu (**ALTER YASAK** — seed CREATE TABLE'a ekle + `db:seed:fresh`). `apiKeyAuthHook` key id'sini `req`'e koyuyor.
-- [ ] API key revoke endpoint'i.
+- [x] `audit_request_logs`'a `api_key_id` kolonu seed CREATE TABLE'a eklendi (**ALTER yapılmadı**). `apiKeyAuthHook` key id'sini `req.auditApiKeyId` olarak koyuyor; audit logger kolon varsa dolduruyor. (Codex, 2026-05-29)
+- [x] API key revoke endpoint'i eklendi: `POST /api/v1/admin/api-keys/:id/revoke` + Audit/Tüketiciler UI aksiyonu. (Codex, 2026-05-29)
 - [x] Admin API key cevabına kullanıcı e-postası/full_name eklendi (`user_id -> users.email/full_name` join). (Codex, 2026-05-28)
-- [ ] Per-key günlük kullanım grafiği (Tüketiciler sekmesi).
+- [x] Per-key günlük kullanım grafiği eklendi: `GET /api/v1/admin/api-keys/daily-usage?days=` audit log `api_key_id` üzerinden beslenir. (Codex, 2026-05-29)
 
 ---
 

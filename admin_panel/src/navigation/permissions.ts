@@ -10,7 +10,6 @@ export type AdminPermissionKey =
   | 'admin.contacts'
   | 'admin.production'
   | 'admin.analysis_reports'
-  | 'admin.analytics'
   | 'admin.press'
   | 'admin.custom_pages'
   | 'admin.support'
@@ -34,7 +33,6 @@ export type AdminNavKey =
   | 'contacts'
   | 'production'
   | 'analysis_reports'
-  | 'analytics'
   | 'press'
   | 'custom_pages'
   | 'support'
@@ -59,7 +57,6 @@ const ADMIN_PERMISSION_ROLE_MAP: Record<AdminPermissionKey, PanelRole[]> = {
   'admin.contacts': ADMIN_ONLY,
   'admin.production': ADMIN_ONLY,
   'admin.analysis_reports': ADMIN_ONLY,
-  'admin.analytics': ADMIN_ONLY,
   'admin.press': ADMIN_ONLY,
   'admin.custom_pages': ADMIN_ONLY,
   'admin.support': ADMIN_ONLY,
@@ -88,7 +85,6 @@ const ADMIN_NAV_PERMISSION_MAP: Partial<Record<AdminNavKey, AdminPermissionKey>>
   contacts: 'admin.contacts',
   production: 'admin.production',
   analysis_reports: 'admin.analysis_reports',
-  analytics: 'admin.analytics',
   press: 'admin.press',
   custom_pages: 'admin.custom_pages',
   support: 'admin.support',
@@ -118,7 +114,6 @@ const ADMIN_PERMISSION_PATHS: Record<AdminPermissionKey, string[]> = {
   'admin.contacts': ['/admin/contacts'],
   'admin.production': ['/admin/production'],
   'admin.analysis_reports': ['/admin/analysis-reports'],
-  'admin.analytics': ['/admin/analytics'],
   'admin.press': ['/admin/press'],
   'admin.custom_pages': ['/admin/custom-pages'],
   'admin.support': ['/admin/support'],

@@ -18,6 +18,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
+import type { RowDataPacket } from "mysql2";
 import { requireAuth } from "@agro/shared-backend/middleware/auth";
 import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 import { env } from "@/core/env";
@@ -25,9 +26,35 @@ import {
   issueKey,
   listUserKeys,
   revokeKey,
+  revokeKeyAdmin,
   upgradeTier,
   listAllKeysAdmin,
 } from "./repository";
+
+interface ApiKeyUsageRow extends RowDataPacket {
+  keyId: number | string;
+  keyPrefix: string | null;
+  date: string | Date;
+  requests: number | string;
+  uniqueIps: number | string;
+}
+
+interface ApiKeyColumnRow extends RowDataPacket {
+  Field: string;
+}
+
+function parseUsageDays(value: unknown): number {
+  const raw = Number(value ?? 14);
+  if (!Number.isFinite(raw)) return 14;
+  return Math.min(90, Math.max(1, Math.trunc(raw)));
+}
+
+async function auditApiKeyIdColumnExists(api: FastifyInstance): Promise<boolean> {
+  const [rows] = await api.db.query<ApiKeyColumnRow[]>(
+    "SHOW COLUMNS FROM audit_request_logs WHERE Field = 'api_key_id'",
+  );
+  return rows.length > 0;
+}
 
 export async function registerApiKeysPublic(api: FastifyInstance) {
   // Plan/fiyatlandirma bilgisi — frontend /pro sayfasi icin (auth-free)
@@ -119,4 +146,45 @@ export async function registerApiKeysAdmin(adminApi: FastifyInstance) {
       return reply.send({ ok: true });
     },
   );
+
+  adminApi.post<{ Params: { id: string } }>("/api-keys/:id/revoke", async (req, reply) => {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return reply.status(400).send({ error: "invalid_id" });
+    await revokeKeyAdmin(id);
+    return reply.send({ ok: true });
+  });
+
+  adminApi.get<{ Querystring: { days?: string | number } }>("/api-keys/daily-usage", async (req, reply) => {
+    const days = parseUsageDays(req.query?.days);
+    if (!(await auditApiKeyIdColumnExists(adminApi))) {
+      return reply.send({ days, items: [] });
+    }
+
+    const [rows] = await adminApi.db.query<ApiKeyUsageRow[]>(
+      `SELECT
+         l.api_key_id AS keyId,
+         k.key_prefix AS keyPrefix,
+         DATE(l.created_at) AS date,
+         COUNT(*) AS requests,
+         COUNT(DISTINCT l.ip) AS uniqueIps
+       FROM audit_request_logs l
+       LEFT JOIN hf_api_keys k ON k.id = l.api_key_id
+       WHERE l.api_key_id IS NOT NULL
+         AND l.created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+       GROUP BY l.api_key_id, k.key_prefix, DATE(l.created_at)
+       ORDER BY date DESC, requests DESC`,
+      [days - 1],
+    );
+
+    return reply.send({
+      days,
+      items: rows.map((row) => ({
+        keyId: Number(row.keyId),
+        keyPrefix: row.keyPrefix ?? "",
+        date: row.date instanceof Date ? row.date.toISOString().slice(0, 10) : String(row.date).slice(0, 10),
+        requests: Number(row.requests ?? 0),
+        uniqueIps: Number(row.uniqueIps ?? 0),
+      })),
+    });
+  });
 }

@@ -17,7 +17,6 @@ import {
   UserCheck,
   RefreshCcw,
   Search,
-  Calendar,
   Filter,
   Loader2,
   Globe,
@@ -61,7 +60,6 @@ import type {
   AuditAuthEventDto,
   AuditRequestLogDto,
   AuditListResponse,
-  AuditMetricsDailyResponseDto,
   AuditGeoStatsResponseDto,
 } from '@/integrations/shared';
 import {
@@ -84,7 +82,6 @@ import {
 import {
   useListAuditRequestLogsAdminQuery,
   useListAuditAuthEventsAdminQuery,
-  useGetAuditMetricsDailyAdminQuery,
   useGetAuditGeoStatsAdminQuery,
   useClearAuditLogsAdminMutation,
   useGetAnalyticsOverviewAdminQuery,
@@ -93,7 +90,10 @@ import {
   useGetAnalyticsDeviceDailyAdminQuery,
   useGetAnalyticsFunnelAdminQuery,
   useGetAnalyticsHeatmapAdminQuery,
+  useGetAnalyticsRetentionAdminQuery,
+  useAdminGetApiKeyDailyUsageQuery,
   useAdminListApiKeysQuery,
+  useAdminRevokeApiKeyMutation,
   useAdminSetApiKeyTierMutation,
   useGetAuditDataPullersAdminQuery,
   useGetAuditGeoCitiesAdminQuery,
@@ -103,6 +103,7 @@ import {
   API_KEY_TIERS,
   formatApiKeyDate,
   formatApiKeyUsage,
+  type AdminApiKeyDailyUsageDto,
   type AdminApiKeyDto,
   type ApiKeyTier,
 } from '@/integrations/shared';
@@ -183,7 +184,6 @@ export default function AdminAuditClient() {
   const ip = sp.get('ip') ?? '';
 
   const days = String(toNonNegativeInt(sp.get('days'), 14) || 14);
-  const path_prefix = sp.get('path_prefix') ?? '';
   const range = (sp.get('range') === '30d' ? '30d' : '7d') as AnalyticsRange;
   const geoTraffic = (['human', 'bot'].includes(sp.get('traffic') ?? '') ? sp.get('traffic') : 'all') as AuditGeoTrafficKind;
 
@@ -213,10 +213,6 @@ export default function AdminAuditClient() {
   const [userIdText, setUserIdText] = React.useState(user_id);
   const [ipText, setIpText] = React.useState(ip);
 
-  // local state for metrics
-  const [daysText, setDaysText] = React.useState(days);
-  const [pathPrefixText, setPathPrefixText] = React.useState(path_prefix);
-
   React.useEffect(() => setQText(q), [q]);
   React.useEffect(() => setMethodText(method), [method]);
   React.useEffect(() => setStatusText(status), [status]);
@@ -232,9 +228,6 @@ export default function AdminAuditClient() {
   React.useEffect(() => setEmailText(email), [email]);
   React.useEffect(() => setUserIdText(user_id), [user_id]);
   React.useEffect(() => setIpText(ip), [ip]);
-
-  React.useEffect(() => setDaysText(days), [days]);
-  React.useEffect(() => setPathPrefixText(path_prefix), [path_prefix]);
 
   function apply(next: Partial<Record<string, any>>) {
     const merged = {
@@ -254,7 +247,6 @@ export default function AdminAuditClient() {
       user_id,
       ip,
       days,
-      path_prefix,
       range,
       traffic: geoTraffic,
       limit,
@@ -281,7 +273,6 @@ export default function AdminAuditClient() {
       user_id: merged.user_id || undefined,
       ip: merged.ip || undefined,
       days: merged.days || undefined,
-      path_prefix: merged.path_prefix || undefined,
       range: merged.range || undefined,
       traffic: merged.traffic !== 'all' ? merged.traffic : undefined,
       limit: merged.limit || undefined,
@@ -373,30 +364,6 @@ export default function AdminAuditClient() {
     });
   }
 
-  function onSubmitMetrics(e: React.FormEvent) {
-    e.preventDefault();
-    const d = String(toNonNegativeInt(daysText, 14) || 14);
-    setDaysText(d);
-    apply({
-      tab: 'daily',
-      days: d,
-      path_prefix: pathPrefixText.trim(),
-      only_admin: onlyAdminFlag ? '1' : '',
-    });
-  }
-
-  function onResetMetrics() {
-    setDaysText('14');
-    setPathPrefixText('');
-    setOnlyAdminFlag(false);
-    apply({
-      tab: 'daily',
-      days: '14',
-      path_prefix: '',
-      only_admin: '',
-    });
-  }
-
   /* ----------------------------- queries ----------------------------- */
 
   const reqParams = React.useMemo(() => {
@@ -433,15 +400,6 @@ export default function AdminAuditClient() {
     };
   }, [event, email, user_id, ip, from, to, limit, offset]);
 
-  const metricsParams = React.useMemo(() => {
-    const d = toNonNegativeInt(days, 14) || 14;
-    return {
-      days: d,
-      only_admin: onlyAdmin ? 1 : undefined,
-      path_prefix: path_prefix || undefined,
-    };
-  }, [days, onlyAdmin, path_prefix]);
-
   const reqQ = useListAuditRequestLogsAdminQuery(
     tab === 'requests' ? (reqParams as any) : (undefined as any),
     { skip: tab !== 'requests', refetchOnFocus: true } as any,
@@ -450,11 +408,6 @@ export default function AdminAuditClient() {
   const authQ = useListAuditAuthEventsAdminQuery(
     tab === 'auth' ? (authParams as any) : (undefined as any),
     { skip: tab !== 'auth', refetchOnFocus: true } as any,
-  ) as any;
-
-  const metricsQ = useGetAuditMetricsDailyAdminQuery(
-    tab === 'daily' ? (metricsParams as any) : (undefined as any),
-    { skip: tab !== 'daily', refetchOnFocus: true } as any,
   ) as any;
 
   const geoParams = React.useMemo(() => {
@@ -479,6 +432,11 @@ export default function AdminAuditClient() {
   const analyticsOverviewQ = useGetAnalyticsOverviewAdminQuery(
     ['general', 'daily', 'device'].includes(tab) ? { range } : undefined,
     { skip: !['general', 'daily', 'device'].includes(tab), refetchOnFocus: true } as any,
+  ) as any;
+
+  const retentionQ = useGetAnalyticsRetentionAdminQuery(
+    tab === 'general' ? { range } : undefined,
+    { skip: tab !== 'general', refetchOnFocus: true } as any,
   ) as any;
 
   const adsQ = useGetAnalyticsAdsAttributionAdminQuery(
@@ -510,6 +468,10 @@ export default function AdminAuditClient() {
     skip: tab !== 'consumers',
     refetchOnFocus: true,
   } as any) as any;
+  const apiKeyDailyUsageQ = useAdminGetApiKeyDailyUsageQuery(
+    tab === 'consumers' ? { days: range === '30d' ? 30 : 14 } : undefined,
+    { skip: tab !== 'consumers', refetchOnFocus: true } as any,
+  ) as any;
   const widgetEmbeddersQ = useGetAuditWidgetEmbeddersAdminQuery(
     tab === 'consumers' ? { days: range === '30d' ? 30 : 7 } : undefined,
     { skip: tab !== 'consumers', refetchOnFocus: true } as any,
@@ -519,6 +481,7 @@ export default function AdminAuditClient() {
     { skip: tab !== 'consumers', refetchOnFocus: true } as any,
   ) as any;
   const [setApiKeyTier, apiKeyTierState] = useAdminSetApiKeyTierMutation();
+  const [revokeApiKey, revokeApiKeyState] = useAdminRevokeApiKeyMutation();
 
   const reqData = (reqQ.data as AuditListResponse<AuditRequestLogDto> | undefined) ?? {
     items: [],
@@ -528,27 +491,27 @@ export default function AdminAuditClient() {
     items: [],
     total: 0,
   };
-  const metricsData = (metricsQ.data as AuditMetricsDailyResponseDto | undefined) ?? { days: [] };
   const geoData = (geoQ.data as AuditGeoStatsResponseDto | undefined) ?? { items: [] };
   const geoCitiesData = geoCitiesQ.data?.items ?? [];
   const overviewData = analyticsOverviewQ.data;
   const adsData = adsQ.data;
   const adsDailyData = adsDailyQ.data;
   const funnelData = funnelQ.data;
+  const retentionData = retentionQ.data;
   const deviceDailyData = deviceDailyQ.data;
   const heatmapData = heatmapQ.data;
   const apiKeysData = apiKeysQ.data?.items ?? [];
+  const apiKeyDailyUsageData = apiKeyDailyUsageQ.data?.items ?? [];
   const widgetEmbeddersData = widgetEmbeddersQ.data?.items ?? [];
   const dataPullersData = dataPullersQ.data?.items ?? [];
 
   const reqLoading = reqQ.isLoading || reqQ.isFetching;
   const authLoading = authQ.isLoading || authQ.isFetching;
-  const metricsLoading = metricsQ.isLoading || metricsQ.isFetching;
   const geoLoading = geoQ.isLoading || geoQ.isFetching || geoCitiesQ.isLoading || geoCitiesQ.isFetching;
-  const overviewLoading = analyticsOverviewQ.isLoading || analyticsOverviewQ.isFetching;
+  const overviewLoading = analyticsOverviewQ.isLoading || analyticsOverviewQ.isFetching || retentionQ.isLoading || retentionQ.isFetching;
   const adsLoading = adsQ.isLoading || adsQ.isFetching || adsDailyQ.isLoading || adsDailyQ.isFetching || funnelQ.isLoading || funnelQ.isFetching;
   const deviceLoading = analyticsOverviewQ.isLoading || analyticsOverviewQ.isFetching || deviceDailyQ.isLoading || deviceDailyQ.isFetching || heatmapQ.isLoading || heatmapQ.isFetching;
-  const consumersLoading = apiKeysQ.isLoading || apiKeysQ.isFetching || widgetEmbeddersQ.isLoading || widgetEmbeddersQ.isFetching || dataPullersQ.isLoading || dataPullersQ.isFetching || apiKeyTierState.isLoading;
+  const consumersLoading = apiKeysQ.isLoading || apiKeysQ.isFetching || apiKeyDailyUsageQ.isLoading || apiKeyDailyUsageQ.isFetching || widgetEmbeddersQ.isLoading || widgetEmbeddersQ.isFetching || dataPullersQ.isLoading || dataPullersQ.isFetching || apiKeyTierState.isLoading || revokeApiKeyState.isLoading;
 
   const reqTotal = reqData.total ?? 0;
   const authTotal = authData.total ?? 0;
@@ -561,13 +524,13 @@ export default function AdminAuditClient() {
 
   async function onRefresh() {
     try {
-      if (tab === 'general') await analyticsOverviewQ.refetch();
+      if (tab === 'general') {
+        await analyticsOverviewQ.refetch();
+        await retentionQ.refetch();
+      }
       if (tab === 'requests') await reqQ.refetch();
       if (tab === 'auth') await authQ.refetch();
-      if (tab === 'daily') {
-        await metricsQ.refetch();
-        await analyticsOverviewQ.refetch();
-      }
+      if (tab === 'daily') await analyticsOverviewQ.refetch();
       if (tab === 'ads') {
         await adsQ.refetch();
         await adsDailyQ.refetch();
@@ -584,6 +547,7 @@ export default function AdminAuditClient() {
       }
       if (tab === 'consumers') {
         await apiKeysQ.refetch();
+        await apiKeyDailyUsageQ.refetch();
         await widgetEmbeddersQ.refetch();
         await dataPullersQ.refetch();
       }
@@ -605,7 +569,7 @@ export default function AdminAuditClient() {
     }
   }
 
-  const anyLoading = reqLoading || authLoading || metricsLoading || geoLoading || overviewLoading || adsLoading || deviceLoading || consumersLoading || isClearing;
+  const anyLoading = reqLoading || authLoading || geoLoading || overviewLoading || adsLoading || deviceLoading || consumersLoading || isClearing;
 
   async function onSetApiKeyTier(key: AdminApiKeyDto, tier: ApiKeyTier) {
     if (key.tier === tier) return;
@@ -616,6 +580,30 @@ export default function AdminAuditClient() {
       toast.error(getErrorMessage(err, t('error')));
     }
   }
+
+  async function onRevokeApiKey(key: AdminApiKeyDto) {
+    if (key.revoked) return;
+    if (!window.confirm(`${key.keyPrefix} API key iptal edilsin mi?`)) return;
+    try {
+      await revokeApiKey({ id: key.id }).unwrap();
+      toast.success(`${key.keyPrefix} iptal edildi.`);
+    } catch (err) {
+      toast.error(getErrorMessage(err, t('error')));
+    }
+  }
+
+  const apiKeyUsageByKey = React.useMemo(() => {
+    const map = new Map<number, AdminApiKeyDailyUsageDto[]>();
+    for (const row of apiKeyDailyUsageData as AdminApiKeyDailyUsageDto[]) {
+      const list = map.get(row.keyId) ?? [];
+      list.push(row);
+      map.set(row.keyId, list);
+    }
+    for (const list of map.values()) {
+      list.sort((a, b) => a.date.localeCompare(b.date));
+    }
+    return map;
+  }, [apiKeyDailyUsageData]);
 
   return (
     <div className="space-y-6">
@@ -680,6 +668,47 @@ export default function AdminAuditClient() {
             <SimpleRowsCard title="Top Referrer" rows={overviewData?.topReferrers ?? []} loading={overviewLoading} />
             <SimpleRowsCard title="Cihaz Dağılımı" rows={(overviewData?.devices ?? []).map((row: any) => ({ name: deviceLabel(row.device), count: row.count }))} loading={overviewLoading} />
           </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Cohort Retention</CardTitle>
+              <CardDescription>İlk kez gelen IP'lerin sonraki günlerde tekrar görünme oranı.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>İlk Gün</TableHead>
+                    <TableHead className="text-right">Yeni IP</TableHead>
+                    <TableHead className="text-right">D+1</TableHead>
+                    <TableHead className="text-right">D+3</TableHead>
+                    <TableHead className="text-right">D+7</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(retentionData?.cohorts ?? []).map((row: any) => (
+                    <TableRow key={row.date}>
+                      <TableCell>{row.date}</TableCell>
+                      <TableCell className="text-right">{fmtNumber(row.visitors)}</TableCell>
+                      <TableCell className="text-right">
+                        {fmtNumber(row.d1)} <span className="text-muted-foreground">({fmtPct(row.d1Pct)})</span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {fmtNumber(row.d3)} <span className="text-muted-foreground">({fmtPct(row.d3Pct)})</span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {fmtNumber(row.d7)} <span className="text-muted-foreground">({fmtPct(row.d7Pct)})</span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {!overviewLoading && (retentionData?.cohorts?.length ?? 0) === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5}>{t('common.noRecords')}</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ==================== REQUESTS TAB ==================== */}
@@ -1098,8 +1127,10 @@ export default function AdminAuditClient() {
                     <TableHead>Tarih</TableHead>
                     <TableHead className="text-right">Request</TableHead>
                     <TableHead className="text-right">İnsan</TableHead>
+                    <TableHead className="text-right">Bot</TableHead>
                     <TableHead className="text-right">Ads</TableHead>
                     <TableHead className="text-right">Unique IP</TableHead>
+                    <TableHead className="text-right">Hata</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1108,13 +1139,15 @@ export default function AdminAuditClient() {
                       <TableCell>{row.date}</TableCell>
                       <TableCell className="text-right">{fmtNumber(row.requests)}</TableCell>
                       <TableCell className="text-right">{fmtNumber(row.humans)}</TableCell>
+                      <TableCell className="text-right">{fmtNumber(row.bots)}</TableCell>
                       <TableCell className="text-right">{fmtNumber(row.ads)}</TableCell>
                       <TableCell className="text-right">{fmtNumber(row.uniqueIps)}</TableCell>
+                      <TableCell className="text-right">{fmtNumber(row.errors)}</TableCell>
                     </TableRow>
                   ))}
                   {!overviewLoading && (overviewData?.daily?.length ?? 0) === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5}>{t('common.noRecords')}</TableCell>
+                      <TableCell colSpan={7}>{t('common.noRecords')}</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
@@ -1123,64 +1156,12 @@ export default function AdminAuditClient() {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Calendar className="h-4 w-4" /> {t('metrics.title')}
-              </CardTitle>
-              <CardDescription>{t('metrics.description')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={onSubmitMetrics} className="grid gap-4 md:grid-cols-3">
-                <div className="space-y-2">
-                  <Label>{t('metrics.days')}</Label>
-                  <Select value={daysText} onValueChange={setDaysText}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="7">{t('metrics.nDays', { n: '7' })}</SelectItem>
-                      <SelectItem value="14">{t('metrics.nDays', { n: '14' })}</SelectItem>
-                      <SelectItem value="30">{t('metrics.nDays', { n: '30' })}</SelectItem>
-                      <SelectItem value="60">{t('metrics.nDays', { n: '60' })}</SelectItem>
-                      <SelectItem value="90">{t('metrics.nDays', { n: '90' })}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('metrics.pathPrefix')}</Label>
-                  <Input
-                    value={pathPrefixText}
-                    onChange={(e) => setPathPrefixText(e.target.value)}
-                    placeholder={t('metrics.placeholders.pathPrefix')}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('common.onlyAdmin')}</Label>
-                  <div className="flex items-center gap-2">
-                    <Switch checked={onlyAdminFlag} onCheckedChange={setOnlyAdminFlag} />
-                    <span className="text-sm text-muted-foreground">{t('common.adminRequests')}</span>
-                  </div>
-                </div>
-
-                <div className="md:col-span-3 flex flex-wrap items-center gap-2">
-                  <Button type="submit">
-                    <Filter className="mr-2 h-4 w-4" /> {t('common.apply')}
-                  </Button>
-                  <Button type="button" variant="secondary" onClick={onResetMetrics}>
-                    {t('common.reset')}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <CardTitle className="text-base">{t('metrics.chartTitle')}</CardTitle>
-                  <CardDescription>{t('metrics.lastNDays', { n: String(metricsData.days?.length ?? 0) })}</CardDescription>
+                  <CardDescription>{t('metrics.lastNDays', { n: String(overviewData?.daily?.length ?? 0) })}</CardDescription>
                 </div>
-                {metricsLoading && (
+                {overviewLoading && (
                   <Badge variant="outline" className="flex items-center gap-2">
                     <Loader2 className="h-3 w-3 animate-spin" /> {t('common.loading')}
                   </Badge>
@@ -1188,12 +1169,7 @@ export default function AdminAuditClient() {
               </div>
             </CardHeader>
             <CardContent>
-              {metricsQ.error && (
-                <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm">
-                  {getErrorMessage(metricsQ.error, t('error'))}
-                </div>
-              )}
-              <AuditDailyChart rows={metricsData.days ?? []} loading={metricsLoading} />
+              <AuditDailyChart rows={(overviewData?.daily ?? []) as any} loading={overviewLoading} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -1380,7 +1356,7 @@ export default function AdminAuditClient() {
               <CardTitle className="flex items-center gap-2 text-base">
                 <KeyRound className="h-4 w-4" /> API Key Sahipleri
               </CardTitle>
-              <CardDescription>Backend şimdilik kullanıcı e-postası yerine user_id döndürüyor.</CardDescription>
+              <CardDescription>Kullanıcı, tier, günlük limit ve revoke yönetimi.</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -1425,6 +1401,14 @@ export default function AdminAuditClient() {
                               {tier === 'pro' ? 'Pro yap' : 'Free yap'}
                             </Button>
                           ))}
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            disabled={consumersLoading || key.revoked}
+                            onClick={() => onRevokeApiKey(key)}
+                          >
+                            Revoke
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -1432,6 +1416,60 @@ export default function AdminAuditClient() {
                   {!consumersLoading && apiKeysData.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={7}>{t('common.noRecords')}</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Per-key Günlük Kullanım</CardTitle>
+              <CardDescription>Audit loglarında `api_key_id` dolu olan isteklerin gün bazlı grafiği.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Key</TableHead>
+                    <TableHead>Günlük Grafik</TableHead>
+                    <TableHead className="text-right">Toplam</TableHead>
+                    <TableHead className="text-right">Unique IP</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {apiKeysData.map((key: AdminApiKeyDto) => {
+                    const rows = apiKeyUsageByKey.get(key.id) ?? [];
+                    const max = Math.max(...rows.map((row) => row.requests), 0);
+                    const total = rows.reduce((sum, row) => sum + row.requests, 0);
+                    const uniqueIps = rows.reduce((sum, row) => sum + row.uniqueIps, 0);
+                    return (
+                      <TableRow key={`usage-${key.id}`}>
+                        <TableCell className="font-mono">{key.keyPrefix}</TableCell>
+                        <TableCell>
+                          <div className="flex h-10 items-end gap-1">
+                            {rows.length === 0 ? (
+                              <span className="text-sm text-muted-foreground">Veri yok</span>
+                            ) : (
+                              rows.map((row) => (
+                                <div
+                                  key={`${key.id}-${row.date}`}
+                                  className="w-3 rounded-t bg-primary"
+                                  title={`${row.date}: ${fmtNumber(row.requests)} istek, ${fmtNumber(row.uniqueIps)} IP`}
+                                  style={{ height: `${Math.max(10, Math.round((row.requests / Math.max(max, 1)) * 40))}px` }}
+                                />
+                              ))
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">{fmtNumber(total)}</TableCell>
+                        <TableCell className="text-right">{fmtNumber(uniqueIps)}</TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {!consumersLoading && apiKeysData.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={4}>{t('common.noRecords')}</TableCell>
                     </TableRow>
                   )}
                 </TableBody>

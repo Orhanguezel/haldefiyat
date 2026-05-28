@@ -101,6 +101,8 @@
     "summaryErrorsSuffix": ", errors",
     "labels": {
       "requests": "requests",
+      "humans": "İnsan",
+      "ads": "Ads",
       "unique": "unique",
       "uniqueIps": "Unique IP",
       "errors": "errors"

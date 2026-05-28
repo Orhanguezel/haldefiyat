@@ -52,6 +52,8 @@ function fmtIsoNice(isoOrDate: string) {
 
 export const AuditDailyChart: React.FC<Props> = ({ rows, loading, height = 220 }) => {
   const t = useAdminT('admin.audit.chart');
+  const [showHumans, setShowHumans] = useState(true);
+  const [showAds, setShowAds] = useState(true);
   const [showUnique, setShowUnique] = useState(true);
   const [showErrors, setShowErrors] = useState(true);
 
@@ -72,7 +74,9 @@ export const AuditDailyChart: React.FC<Props> = ({ rows, loading, height = 220 }
           date,
           label: fmtDayLabel(date),
           requests: n((r as any).requests ?? (r as any).count ?? (r as any).total_requests),
-          unique_ips: n((r as any).unique_ips ?? (r as any).unique ?? (r as any).uniq_ips),
+          humans: n((r as any).humans ?? (r as any).humanRequests),
+          ads: n((r as any).ads ?? (r as any).adsPageviews),
+          unique_ips: n((r as any).unique_ips ?? (r as any).uniqueIps ?? (r as any).unique ?? (r as any).uniq_ips),
           errors: n((r as any).errors ?? (r as any).error_count ?? (r as any).fails),
         };
       })
@@ -108,6 +112,14 @@ export const AuditDailyChart: React.FC<Props> = ({ rows, loading, height = 220 }
   const barW = Math.max(8, Math.floor((chartW - barGap * (barCount - 1)) / barCount));
 
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const linePoints = (key: 'humans' | 'ads' | 'unique_ips' | 'errors') =>
+    data
+      .map((r, idx) => {
+        const x = padL + idx * (barW + barGap) + barW / 2;
+        const y = padT + chartH - (Math.min(maxRequests, r[key]) / maxRequests) * chartH;
+        return `${x},${y}`;
+      })
+      .join(' ');
 
   return (
     <div>
@@ -122,6 +134,24 @@ export const AuditDailyChart: React.FC<Props> = ({ rows, loading, height = 220 }
         </div>
 
         <div className="ml-auto flex items-center gap-3">
+          <label className="mb-0 flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={showHumans}
+              onChange={(e) => setShowHumans(e.target.checked)}
+            />
+            {t('labels.humans')}
+          </label>
+
+          <label className="mb-0 flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={showAds}
+              onChange={(e) => setShowAds(e.target.checked)}
+            />
+            {t('labels.ads')}
+          </label>
+
           <label className="mb-0 flex items-center gap-2 text-sm">
             <input
               type="checkbox"
@@ -208,13 +238,26 @@ export const AuditDailyChart: React.FC<Props> = ({ rows, loading, height = 220 }
             );
           })}
 
+          {showHumans && data.length > 1 && (
+            <polyline fill="none" stroke="#16a34a" strokeWidth="3" points={linePoints('humans')} />
+          )}
+          {showAds && data.length > 1 && (
+            <polyline fill="none" stroke="#f59e0b" strokeWidth="3" points={linePoints('ads')} />
+          )}
+          {showUnique && data.length > 1 && (
+            <polyline fill="none" stroke="#7c3aed" strokeWidth="2.5" points={linePoints('unique_ips')} />
+          )}
+          {showErrors && data.length > 1 && (
+            <polyline fill="none" stroke="#dc2626" strokeWidth="2.5" points={linePoints('errors')} />
+          )}
+
           {hoverIdx !== null &&
             data[hoverIdx] &&
             (() => {
               const r = data[hoverIdx];
               const xBar = padL + hoverIdx * (barW + barGap);
               const boxW = 220;
-              const boxH = showUnique || showErrors ? 76 : 56;
+              const boxH = 100;
 
               const px = xBar + barW + 10 + boxW <= W - padR ? xBar + barW + 10 : xBar - boxW - 10;
               const py = padT + 10;
@@ -236,21 +279,16 @@ export const AuditDailyChart: React.FC<Props> = ({ rows, loading, height = 220 }
                   <text x={px + 12} y={py + 40} fontSize="12" fill="#212529">
                     {t('labels.requests')}: <tspan fontWeight="600">{r.requests}</tspan>
                   </text>
-                  {(showUnique || showErrors) && (
-                    <text x={px + 12} y={py + 58} fontSize="12" fill="#212529">
-                      {showUnique ? (
-                        <>
-                          {t('labels.unique')}: <tspan fontWeight="600">{r.unique_ips}</tspan>
-                        </>
-                      ) : null}
-                      {showUnique && showErrors ? <tspan> · </tspan> : null}
-                      {showErrors ? (
-                        <>
-                          {t('labels.errors')}: <tspan fontWeight="600">{r.errors}</tspan>
-                        </>
-                      ) : null}
-                    </text>
-                  )}
+                  <text x={px + 12} y={py + 58} fontSize="12" fill="#212529">
+                    {t('labels.humans')}: <tspan fontWeight="600">{r.humans}</tspan>
+                    <tspan> · </tspan>
+                    {t('labels.ads')}: <tspan fontWeight="600">{r.ads}</tspan>
+                  </text>
+                  <text x={px + 12} y={py + 76} fontSize="12" fill="#212529">
+                    {t('labels.unique')}: <tspan fontWeight="600">{r.unique_ips}</tspan>
+                    <tspan> · </tspan>
+                    {t('labels.errors')}: <tspan fontWeight="600">{r.errors}</tspan>
+                  </text>
                 </g>
               );
             })()}
@@ -273,6 +311,18 @@ export const AuditDailyChart: React.FC<Props> = ({ rows, loading, height = 220 }
                 {t('labels.requests')}:{' '}
                 <strong className="text-foreground">{data[data.length - 1]?.requests ?? 0}</strong>
               </span>
+              {showHumans && (
+                <span>
+                  {t('labels.humans')}:{' '}
+                  <strong className="text-foreground">{data[data.length - 1]?.humans ?? 0}</strong>
+                </span>
+              )}
+              {showAds && (
+                <span>
+                  {t('labels.ads')}:{' '}
+                  <strong className="text-foreground">{data[data.length - 1]?.ads ?? 0}</strong>
+                </span>
+              )}
               {showUnique && (
                 <span>
                   {t('labels.unique')}:{' '}

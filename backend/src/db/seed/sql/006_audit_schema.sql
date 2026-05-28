@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS `audit_request_logs` (
   `referer`          LONGTEXT     DEFAULT NULL,
 
   `user_id`          VARCHAR(64)  DEFAULT NULL,
+  `api_key_id`       INT UNSIGNED  DEFAULT NULL,
   `is_admin`         INT          NOT NULL DEFAULT 0,
 
   `country`          VARCHAR(8)   DEFAULT NULL,
@@ -50,6 +51,7 @@ CREATE TABLE IF NOT EXISTS `audit_request_logs` (
 
   KEY `audit_request_logs_created_idx` (`created_at`),
   KEY `audit_request_logs_user_idx` (`user_id`),
+  KEY `audit_request_logs_api_key_idx` (`api_key_id`),
   KEY `audit_request_logs_path_idx` (`path`),
   KEY `audit_request_logs_ip_idx` (`ip`),
   KEY `audit_request_logs_status_idx` (`status_code`),

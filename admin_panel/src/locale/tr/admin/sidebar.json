@@ -79,7 +79,6 @@
     "hf_products": "Urunler",
     "markets": "Haller",
     "etl_logs": "ETL Loglari",
-    "analytics": "Analytics",
     "competitor_monitor": "Rakip Izleme",
     "alerts": "Uyari Listesi",
     "production": "Yillik Uretim",
@@ -94,6 +93,6 @@
     "site_settings": "Site Ayarlari",
     "storage": "Depolama",
     "telegram": "Telegram",
-    "audit": "Audit Log"
+    "audit": "Komuta Merkezi"
   }
 }

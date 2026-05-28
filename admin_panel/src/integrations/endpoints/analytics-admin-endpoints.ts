@@ -23,7 +23,15 @@ export interface AnalyticsSummary {
 export interface AnalyticsOverview {
   range: AnalyticsRange;
   summary: AnalyticsSummary;
-  daily: Array<{ date: string; requests: number; humans: number; ads: number; uniqueIps: number }>;
+  daily: Array<{
+    date: string;
+    requests: number;
+    humans: number;
+    bots: number;
+    ads: number;
+    uniqueIps: number;
+    errors: number;
+  }>;
   topLandingPages: Array<{ name: string; count: number }>;
   topReferrers: Array<{ name: string; count: number }>;
   devices: Array<{ device: string; count: number }>;
