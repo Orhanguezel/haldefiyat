@@ -85,11 +85,16 @@
 ---
 
 ## 3. "Günlük" Sekmesi — gün gün tüm loglar 📅
-> Mevcut `metrics` tab + `overview.daily` birleşir.
-- [ ] **Mükerrer çöz:** `overview.daily` ana kaynak; `audit/metrics/daily`'yi ya genişlet ya emekliye ayır (Claude kararı, tek sorgu kalsın).
-- [ ] Gün gün tablo kolonları: tarih, toplam request, insan, bot, ads, unique IP, hata (4xx/5xx) sayısı.
-- [ ] (🤖 Codex) Günlük status dağılımı kolonu için `getStatusDistributionAdmin` zaten var — güne göre kıran varyant gerekiyorsa Bölüm 3'e SQL ekle.
-- [ ] Grafik: mevcut `AuditDailyChart` genişletilir (insan + ads + uniqueIP + hata çizgileri).
+> **✅ MÜKERRER KARARI (🧠 Claude, 28 May):** İki endpoint tam kopya DEĞİL, tamamlayıcı:
+> - `audit/metrics/daily` → `date, requests, unique_ips, **errors**(status>=400)` + `path_prefix` filtresi
+> - `overview.daily` → `date, requests, **humans**, **ads**(gclid), uniqueIps` (errors/path filtresi yok)
+>
+> **Karar:** `overview.daily` **tek kaynak**. Eksik tek alan `errors` → `overview.daily` SQL'ine eklenir (tek satır: `SUM(CASE WHEN status_code>=400 THEN 1 ELSE 0 END) AS errors`). Günlük sekmesi SADECE `overview.daily` çağırır. `audit/metrics/daily` KALIR ama yalnızca `path_prefix`-filtreli drill-down (Bölüm 2) için; Günlük sekmesi onu ÇAĞIRMAZ. Başka tüketicisi yoksa Bölüm 8'de emekliye ayrılır.
+
+- [ ] (🤖 Codex) `analytics/index.ts` daily query'sine `errors` kolonu ekle (yukarıdaki SQL) + `overview` response tipine `errors` alanı.
+- [ ] (🤖 Codex) Günlük sekmesi tablo kolonları: tarih, request, insan, bot (=request−insan), ads, unique IP, hata. **Kaynak: sadece `overview.daily`.**
+- [ ] (🤖 Codex) Grafik `AuditDailyChart` genişletilir (insan + ads + uniqueIP + hata çizgileri), `overview.daily`'den beslenir.
+- [ ] (🤖 Codex) Günlük sekmesinde `useGetAuditMetricsDailyAdminQuery` çağrısı varsa kaldır (mükerrer).
 
 ---
 
@@ -97,7 +102,7 @@
 > En çok istenen: "Ads kampanyalarını burdan kontrol/takip etmeliyim."
 - [x] (🤖 Codex) Mevcut `ads-attribution` (kampanya/source/medium toplam) tablosu audit `Ads` sekmesine taşındı. (Codex, 2026-05-28)
 - [x] **YENİ (4.2):** `GET /admin/analytics/ads-daily?range=` — gün gün, kampanya bazlı pageview + unique IP eklendi ve audit `Ads` sekmesinde tabloya bağlandı. (Codex, 2026-05-28)
-- [ ] gclid taşıyan ham istekleri "İstekler" sekmesine derin link (filtre: `utm_campaign=X`).
+- [x] gclid taşıyan ham istekleri "İstekler" sekmesine derin link (filtre: `utm_campaign=X`, fallback `gclid=`) eklendi. (Codex, 2026-05-28)
 - [x] Ads→Newsletter dönüşüm funnel'ı mevcut `analytics/funnel` ile audit `Ads` sekmesine bağlandı. (Codex, 2026-05-28)
 - [ ] Aktif kampanya özeti: bugün/dün/7g Ads IP, maliyet notu (Orhan manuel girer — Ads API Faz 2).
 

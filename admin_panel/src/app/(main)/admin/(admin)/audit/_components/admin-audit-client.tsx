@@ -1215,6 +1215,7 @@ export default function AdminAuditClient() {
                       <TableHead>Source / Medium</TableHead>
                       <TableHead className="text-right">Pageview</TableHead>
                       <TableHead className="text-right">Unique IP</TableHead>
+                      <TableHead className="text-right">İstekler</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1224,11 +1225,20 @@ export default function AdminAuditClient() {
                         <TableCell className="text-muted-foreground text-sm">{row.source || '-'} / {row.medium || '-'}</TableCell>
                         <TableCell className="text-right">{fmtNumber(row.pageviews)}</TableCell>
                         <TableCell className="text-right">{fmtNumber(row.uniqueIps)}</TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => apply({ tab: 'requests', q: row.campaign && row.campaign !== 'unknown' ? row.campaign : 'gclid=', offset: 0 })}
+                          >
+                            Aç
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                     {!adsLoading && (adsData?.items?.length ?? 0) === 0 && (
                       <TableRow>
-                        <TableCell colSpan={4}>{t('common.noRecords')}</TableCell>
+                        <TableCell colSpan={5}>{t('common.noRecords')}</TableCell>
                       </TableRow>
                     )}
                   </TableBody>
@@ -1245,15 +1255,16 @@ export default function AdminAuditClient() {
             <CardContent>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Tarih</TableHead>
-                    <TableHead>Kampanya</TableHead>
-                    <TableHead>Source / Medium</TableHead>
-                    <TableHead className="text-right">Pageview</TableHead>
-                    <TableHead className="text-right">Unique IP</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                    <TableRow>
+                      <TableHead>Tarih</TableHead>
+                      <TableHead>Kampanya</TableHead>
+                      <TableHead>Source / Medium</TableHead>
+                      <TableHead className="text-right">Pageview</TableHead>
+                      <TableHead className="text-right">Unique IP</TableHead>
+                      <TableHead className="text-right">İstekler</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                   {(adsDailyData?.items ?? []).map((row: any) => (
                     <TableRow key={`${row.date}-${row.campaign}-${row.source}-${row.medium}`}>
                       <TableCell>{row.date}</TableCell>
@@ -1261,11 +1272,20 @@ export default function AdminAuditClient() {
                       <TableCell className="text-muted-foreground text-sm">{row.source || '-'} / {row.medium || '-'}</TableCell>
                       <TableCell className="text-right">{fmtNumber(row.pageviews)}</TableCell>
                       <TableCell className="text-right">{fmtNumber(row.uniqueIps)}</TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => apply({ tab: 'requests', q: row.campaign && row.campaign !== 'unknown' ? row.campaign : 'gclid=', offset: 0 })}
+                        >
+                          Aç
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                   {!adsLoading && (adsDailyData?.items?.length ?? 0) === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5}>{t('common.noRecords')}</TableCell>
+                      <TableCell colSpan={6}>{t('common.noRecords')}</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
