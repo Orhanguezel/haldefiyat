@@ -117,6 +117,11 @@ export default function AdminAuditClient() {
   const limit = toNonNegativeInt(sp.get('limit'), 50) || 50;
   const offset = toNonNegativeInt(sp.get('offset'), 0);
 
+  // NOT: useMemo factory'leri (authParams) render sirasinda calisir; bu sabit
+  // onlardan ONCE tanimlanmali, aksi halde TDZ -> "Cannot access 'ALL' before
+  // initialization" ile tum sayfa cokar (tablar gezilemez).
+  const ALL = ADMIN_AUDIT_ALL_VALUE;
+
   // local state for request filters
   const [qText, setQText] = React.useState(q);
   const [methodText, setMethodText] = React.useState(method);
@@ -411,8 +416,6 @@ export default function AdminAuditClient() {
   const canPrev = offset > 0;
   const canNextReq = offset + limit < reqTotal;
   const canNextAuth = offset + limit < authTotal;
-
-  const ALL = ADMIN_AUDIT_ALL_VALUE;
 
   const [clearAuditLogs, { isLoading: isClearing }] = useClearAuditLogsAdminMutation();
 
