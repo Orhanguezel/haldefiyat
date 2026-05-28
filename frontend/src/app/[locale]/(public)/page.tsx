@@ -16,6 +16,7 @@ import IndexCta from "@/components/sections/IndexCta";
 import SeasonalGuide from "@/components/sections/SeasonalGuide";
 import HomeFaq from "@/components/sections/HomeFaq";
 import MobileHomeHero from "@/components/sections/MobileHomeHero";
+import type { Stat } from "@/components/sections/StatsBarClient";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -73,6 +74,16 @@ const datasetSchema = {
   isAccessibleForFree: true,
 } satisfies Record<string, unknown>;
 
+function formatUpdatedAt(value: string | undefined): string {
+  if (!value) return "Bugün";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Bugün";
+  return new Intl.DateTimeFormat("tr-TR", {
+    day: "2-digit",
+    month: "short",
+  }).format(date);
+}
+
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -103,6 +114,38 @@ export default async function HomePage({ params }: Props) {
         },
       };
     });
+  const cityCount = new Set(
+    markets
+      .filter((market) => market.regionSlug !== "ulusal")
+      .map((market) => market.cityName?.trim())
+      .filter(Boolean),
+  ).size;
+  const latestMarketUpdate = markets
+    .map((market) => market.updatedAt)
+    .filter((date): date is string => Boolean(date))
+    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
+  const stats: Stat[] = [
+    {
+      kind: "number",
+      value: cityCount || markets.length,
+      label: "İl Kapsamı",
+    },
+    {
+      kind: "number",
+      value: markets.length,
+      label: "Aktif Hal",
+    },
+    {
+      kind: "number",
+      value: products.length,
+      label: "İzlenen Ürün",
+    },
+    {
+      kind: "static",
+      display: formatUpdatedAt(latestMarketUpdate),
+      label: "Son Güncelleme",
+    },
+  ];
 
   return (
     <>
@@ -115,7 +158,7 @@ export default async function HomePage({ params }: Props) {
         <PriceTicker items={trending} />
         <PriceDashboard />
         <CitySelector locale={locale} />
-        <StatsBar />
+        <StatsBar stats={stats} />
         <IndexCta />
         <SeasonalGuide />
         <FeaturesGrid />

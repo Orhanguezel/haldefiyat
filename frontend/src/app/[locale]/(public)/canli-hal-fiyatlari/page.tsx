@@ -82,10 +82,7 @@ export default async function LiveMarketPricesPage({ params }: Props) {
       <JsonLd type="BreadcrumbList" data={breadcrumbSchema} />
 
       <section className="border-b border-(--color-border) bg-(--color-surface)">
-        <div
-          className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-14"
-          style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
-        >
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-14">
           <div className="flex min-w-0 flex-col justify-center">
             <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-(--color-brand)/35 bg-(--color-brand)/10 px-3 py-1 text-[12px] font-semibold text-(--color-brand)">
               <Clock3 className="h-3.5 w-3.5" />
@@ -93,6 +90,7 @@ export default async function LiveMarketPricesPage({ params }: Props) {
             </div>
             <h1
               className="max-w-3xl text-[34px] font-black leading-[1.05] tracking-normal text-(--color-foreground) sm:text-[48px] lg:text-[58px]"
+              style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
             >
               Türkiye 22+ hal toptan sebze-meyve fiyatları
             </h1>

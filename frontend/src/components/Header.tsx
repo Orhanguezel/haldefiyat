@@ -59,13 +59,13 @@ export default function Header({ siteName, logoUrl, logoDarkUrl, logoLightUrl }:
                     unoptimized
                   />
                 )}
-                {darkThemeLogo && (
+                {lightThemeLogo && (
                   <Image
-                    src={darkThemeLogo}
+                    src={lightThemeLogo}
                     alt={displayName}
                     width={250}
                     height={94}
-                    className={`hidden ${logoClassName} dark:block`}
+                    className={`hidden ${logoClassName} dark:block dark:brightness-0 dark:invert`}
                     unoptimized
                   />
                 )}

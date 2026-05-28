@@ -98,13 +98,13 @@ export default function Footer({
                       unoptimized
                     />
                   )}
-                  {darkThemeLogo && (
+                  {lightThemeLogo && (
                     <Image
-                      src={darkThemeLogo}
+                      src={lightThemeLogo}
                       alt={displayName}
                       width={280}
                       height={105}
-                      className={`hidden ${logoClassName} dark:block`}
+                      className={`hidden ${logoClassName} dark:block dark:brightness-0 dark:invert`}
                       unoptimized
                     />
                   )}

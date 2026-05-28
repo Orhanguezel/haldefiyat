@@ -404,6 +404,7 @@ Mobile-specific değişiklikler minimum. Mevcut meta + structured data zaten iyi
 ### 7.3 Kabul kriteri
 
 - [ ] Hedef metrikler karşılanıyor
+  - 2026-05-28 Codex notu: `/canli-hal-fiyatlari` local mobile Lighthouse Performance 90, LCP 3.5s, TBT 120ms, CLS 0; desktop Performance 98, LCP 1.1s. 95+ için daha yapısal bundle/analytics ayrıştırması gerekiyor.
 - [ ] Lighthouse rapor PDF'i `docs/lighthouse-mobile-2026-XX-XX.pdf` olarak kayıtta
 
 ---

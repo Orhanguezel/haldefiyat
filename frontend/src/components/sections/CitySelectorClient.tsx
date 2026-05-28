@@ -63,7 +63,7 @@ export default function CitySelectorClient({ markets, cityPrices, locale, majorC
       </div>
 
       {view === "map" ? (
-        <div className="h-[500px] sm:h-[600px]">
+        <div className="min-h-[620px]">
           <TurkeyMapClient markets={markets} cityPrices={cityPrices} />
         </div>
       ) : markets.length === 0 ? (

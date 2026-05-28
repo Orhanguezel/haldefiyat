@@ -8,18 +8,27 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 > ediliyor. Deploy akisi TEK yol:
 > 1. Local: `git add . && git commit && git push origin main`
 > 2. VPS: `git fetch origin && git reset --hard origin/main` (temiz, divergence yok)
-> 3. VPS: `bun run build` (gereken: backend/frontend/admin) + `pm2 reload`
+> 3. VPS: `bun run build` (gereken: backend/frontend/admin)
+> 4. VPS reload: backend → `pm2 reload hal-backend`. **Frontend/admin → `pm2 RESTART`
+>    (reload DEĞİL!)** — Next standalone'da `pm2 reload` yeni build'i almaz, eski
+>    process silinmiş chunk'lara işaret eden eski HTML serve eder → `/_next/static`
+>    500 / ChunkLoadError. `pm2 restart hal-frontend hal-admin --update-env` şart.
 >
 > **Neden:** rsync ile deploy edince local ve server git'ten ayrisip "anlamsiz
 > coplige" donuyor (commit edilmemis dosyalar, drift, takip edilemez degisiklik).
 > Her sey once git'e gider, sonra serverdan cekilir. Dosya dosya git kontrolu
 > yapma — `git add .` ile topluca commit et.
 >
-> **İSTİSNA — GitHub'a atilmayan kod:** Bu kural sadece git-takipli repolar
-> icindir (`hal-fiyatlari` = `github.com/Orhanguezel/haldefiyat`). GitHub'a
-> atilmayan kod (orn. `packages/shared-backend` — monorepo root ayri git repo
-> degil) git-pull ile gelmez; o kod icin ayri cozum gerekir (idealde o da bir
-> GitHub repo'suna alinmali). Bu istisna disindaki HER sey git ile.
+> **İKİ AYRI GIT REPO — ikisi de git ile:**
+> - `projects/hal-fiyatlari/` → `github.com/Orhanguezel/haldefiyat` (bu proje)
+> - `packages/` (shared-backend dahil) → `github.com/Orhanguezel/shared-ecosystem-packages`
+>
+> shared-backend değişikliği yaptıysan: `packages/` dizininde commit + push →
+> VPS `packages/` dizininde `git reset --hard origin/main` + `bun run build:shared`.
+> Yani shared-backend de git ile, rsync YOK.
+>
+> **GERÇEK İSTİSNA — git'te OLMAYAN:** `/home/orhan/Documents/Projeler/wiribude`
+> GitHub'da takip edilmiyor. Sadece bu tür repolar git akışı dışında.
 
 > **➡️ Sonraki oturumda yapilacak isler:** [`KALAN-ISLER.md`](./KALAN-ISLER.md)
 >

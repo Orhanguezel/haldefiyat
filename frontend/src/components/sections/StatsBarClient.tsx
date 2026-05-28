@@ -3,37 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 
-interface NumericStat {
+export interface NumericStat {
   kind: "number";
   value: number;
-  format: (n: number) => string;
+  suffix?: string;
   label: string;
 }
 
-interface StaticStat {
+export interface StaticStat {
   kind: "static";
   display: string;
   label: string;
 }
 
-type Stat = NumericStat | StaticStat;
-
-const STATS: ReadonlyArray<Stat> = [
-  {
-    kind: "number",
-    value: 81,
-    format: (n) => n.toString(),
-    label: "İl Hal Verisi",
-  },
-  {
-    kind: "number",
-    value: 2480,
-    format: (n) => `${n.toLocaleString("tr-TR")}+`,
-    label: "Günlük İzlenen Ürün",
-  },
-  { kind: "static", display: "2x", label: "Günlük Güncelleme" },
-  { kind: "static", display: "%100", label: "Ücretsiz Kullanım" },
-];
+export type Stat = NumericStat | StaticStat;
 
 const COUNT_DURATION_MS = 1600;
 
@@ -84,7 +67,9 @@ function StatItem({ stat, active, delay }: StatItemProps) {
   const counted = useCountUp(numericTarget, active && stat.kind === "number");
 
   const display =
-    stat.kind === "number" ? stat.format(counted) : stat.display;
+    stat.kind === "number"
+      ? `${counted.toLocaleString("tr-TR")}${stat.suffix ?? ""}`
+      : stat.display;
 
   return (
     <motion.div
@@ -103,20 +88,20 @@ function StatItem({ stat, active, delay }: StatItemProps) {
   );
 }
 
-export default function StatsBarClient() {
+export default function StatsBarClient({ stats }: { stats: Stat[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px 0px" });
 
   return (
     <div
       ref={ref}
-      className="mx-auto grid max-w-[1400px] grid-cols-1 gap-6 rounded-[20px] border border-(--color-border) p-8 sm:grid-cols-2 sm:p-12 2xl:grid-cols-4"
+      className="mx-auto grid max-w-7xl grid-cols-1 gap-6 rounded-[20px] border border-(--color-border) p-8 sm:grid-cols-2 sm:p-12 2xl:grid-cols-4"
       style={{
         background:
           "linear-gradient(135deg, var(--color-bg-alt), var(--color-surface))",
       }}
     >
-      {STATS.map((stat, idx) => (
+      {stats.map((stat, idx) => (
         <StatItem
           key={stat.label}
           stat={stat}

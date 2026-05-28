@@ -1,15 +1,20 @@
 import StatsBarClient from "./StatsBarClient";
+import type { Stat } from "./StatsBarClient";
 
 /**
  * Stats bar — server wrapper.
  *
- * NEDEN: Statik veri server'da kalir, sadece counter animasyonu icin
+ * NEDEN: Dinamik veri server'da hesaplanir, sadece counter animasyonu icin
  * client component'e bolunur. Bundle minimize.
  */
-export default function StatsBar() {
+interface StatsBarProps {
+  stats: Stat[];
+}
+
+export default function StatsBar({ stats }: StatsBarProps) {
   return (
-    <section className="relative z-10 px-8 pb-20">
-      <StatsBarClient />
+    <section className="relative z-0 clear-both px-6 py-20 lg:px-8">
+      <StatsBarClient stats={stats} />
     </section>
   );
 }
