@@ -28,7 +28,8 @@ const NAV_LINKS: ReadonlyArray<NavLink> = [
  */
 export default function Header({ siteName, logoUrl, logoDarkUrl, logoLightUrl }: HeaderProps) {
   const displayName = siteName || "HalDeFiyat";
-  const lightThemeLogo = logoLightUrl || logoUrl || logoDarkUrl;
+  const lightThemeLogo = logoLightUrl || logoUrl;
+  const darkThemeLogo = logoDarkUrl || lightThemeLogo;
   const logoClassName = "h-auto max-h-[64px] w-[min(238px,calc(100vw-92px))] object-contain sm:w-[250px] md:max-h-[60px] md:w-[210px] lg:w-[160px] xl:w-[178px]";
 
   return (
@@ -46,14 +47,24 @@ export default function Header({ siteName, logoUrl, logoDarkUrl, logoLightUrl }:
           {/* Logo */}
           <Link href="/" className="flex min-w-0 flex-1 items-center lg:flex-none">
             {lightThemeLogo ? (
-              <Image
-                src={lightThemeLogo}
-                alt={displayName}
-                width={250}
-                height={94}
-                className={logoClassName}
-                unoptimized
-              />
+              <>
+                <Image
+                  src={lightThemeLogo}
+                  alt={displayName}
+                  width={250}
+                  height={94}
+                  className={`${logoClassName} dark:hidden`}
+                  unoptimized
+                />
+                <Image
+                  src={darkThemeLogo}
+                  alt={displayName}
+                  width={250}
+                  height={94}
+                  className={`hidden ${logoClassName} dark:block`}
+                  unoptimized
+                />
+              </>
             ) : (
               <span className="font-display font-bold text-[18px] tracking-tight text-(--color-foreground)">
                 Halde<span className="text-(--color-brand)">Fiyat</span>

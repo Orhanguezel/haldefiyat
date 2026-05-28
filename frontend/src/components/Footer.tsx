@@ -74,7 +74,8 @@ export default function Footer({
 }: FooterProps) {
   const displayName = siteName || "HaldeFiyat";
   const year = new Date().getFullYear();
-  const lightThemeLogo = logoLightUrl || logoUrl || logoDarkUrl;
+  const lightThemeLogo = logoLightUrl || logoUrl;
+  const darkThemeLogo = logoDarkUrl || lightThemeLogo;
   const logoClassName = "h-auto max-h-[72px] w-[min(260px,78vw)] object-contain sm:w-[280px] lg:w-[220px]";
 
   return (
@@ -85,14 +86,24 @@ export default function Footer({
           <div className="space-y-4">
             <Link href="/" className="inline-flex max-w-full">
               {lightThemeLogo ? (
-                <Image
-                  src={lightThemeLogo}
-                  alt={displayName}
-                  width={280}
-                  height={105}
-                  className={logoClassName}
-                  unoptimized
-                />
+                <>
+                  <Image
+                    src={lightThemeLogo}
+                    alt={displayName}
+                    width={280}
+                    height={105}
+                    className={`${logoClassName} dark:hidden`}
+                    unoptimized
+                  />
+                  <Image
+                    src={darkThemeLogo}
+                    alt={displayName}
+                    width={280}
+                    height={105}
+                    className={`hidden ${logoClassName} dark:block`}
+                    unoptimized
+                  />
+                </>
               ) : (
                 <span className="font-(family-name:--font-display) text-[20px] font-bold tracking-tight text-(--color-foreground)">
                   Halde<span className="text-(--color-brand)">Fiyat</span>
