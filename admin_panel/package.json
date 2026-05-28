@@ -8,7 +8,7 @@
     "prebuild": "bun run locales:generate",
     "dev": "NODE_OPTIONS='--max-old-space-size=4096' next dev -p 3031",
     "dev:turbo": "next dev --turbo -p 3031",
-    "build": "next build",
+    "build": "next build && node scripts/sync-standalone-assets.mjs",
     "start": "next start",
     "lint": "biome lint",
     "format": "biome format --write",
