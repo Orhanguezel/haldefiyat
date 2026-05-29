@@ -51,13 +51,16 @@ function wordCount(text: string | null | undefined) {
 }
 
 function validateCandidate(row: EditorialCandidate): string[] {
+  // Esikler generator'in kendi validateDraft tabaniyla (min ~30 kelime) hizali.
+  // Daha kati bir gate, kaliteli ama kisa-tutulmus (Anthropic) icerigi bloklar;
+  // urun sayfasi zaten 6 editoryel alan + FAQ + grafik + tablo + schema iceriyor.
   const fields: Array<[keyof EditorialCandidate, number]> = [
-    ["aboutMd", 60],
-    ["priceFactorsMd", 40],
-    ["seasonMd", 30],
-    ["productionRegionMd", 40],
-    ["qualityIndicatorsMd", 30],
-    ["culinaryUsesMd", 30],
+    ["aboutMd", 30],
+    ["priceFactorsMd", 30],
+    ["seasonMd", 20],
+    ["productionRegionMd", 25],
+    ["qualityIndicatorsMd", 25],
+    ["culinaryUsesMd", 25],
   ];
   const errors: string[] = [];
   for (const [field, minWords] of fields) {
