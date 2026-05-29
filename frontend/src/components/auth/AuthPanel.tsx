@@ -1,40 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import Script from "next/script";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
   fetchGoogleAuthConfig,
   isApiError,
   loginWithEmail,
-  loginWithGoogle,
   signupWithEmail,
 } from "@/lib/auth";
 import { localePath } from "@/lib/locale-path";
-
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize: (options: {
-            client_id: string;
-            callback: (response: { credential?: string }) => void;
-            auto_select?: boolean;
-            ux_mode?: "popup" | "redirect";
-          }) => void;
-          renderButton: (
-            parent: HTMLElement,
-            options: Record<string, string | number | boolean>,
-          ) => void;
-        };
-      };
-    };
-  }
-}
 
 const ERROR_LABELS: Record<string, string> = {
   user_exists: "Bu e-posta ile zaten bir hesap var.",
@@ -45,6 +22,10 @@ const ERROR_LABELS: Record<string, string> = {
   google_oauth_not_configured: "Google ile giriş şu anda yapılandırılmadı.",
   google_email_missing: "Google hesabından e-posta bilgisi alınamadı.",
   google_email_not_verified: "Google hesabının e-posta doğrulaması gerekli.",
+  google_denied: "Google ile giriş iptal edildi.",
+  google_state_mismatch: "Oturum doğrulaması başarısız. Lütfen tekrar deneyin.",
+  google_no_code: "Google yanıtı eksik. Lütfen tekrar deneyin.",
+  google: "Google ile giriş tamamlanamadı. Lütfen tekrar deneyin.",
   request_failed: "İşlem tamamlanamadı. Lütfen tekrar deneyin.",
   invalid_body: "Form alanlarını kontrol edin.",
 };
@@ -54,16 +35,22 @@ type AuthPanelProps = {
   mode: "login" | "register";
 };
 
-type GoogleConfigState = {
-  enabled: boolean;
-  clientId: string | null;
-};
-
 function resolveErrorMessage(error: unknown) {
   if (isApiError(error)) {
     return ERROR_LABELS[error.code] ?? ERROR_LABELS.request_failed;
   }
   return error instanceof Error ? error.message : ERROR_LABELS.request_failed;
+}
+
+/** API origin'i (nginx /api -> backend). api-client ile ayni mantik. */
+function resolveApiOrigin(): string {
+  const override = process.env.NEXT_PUBLIC_API_URL?.trim() ?? "";
+  if (typeof window !== "undefined") {
+    const isLocalhostBaked = /^https?:\/\/(localhost|127\.0\.0\.1)/i.test(override);
+    if (override && !isLocalhostBaked) return override.replace(/\/$/, "");
+    return window.location.origin;
+  }
+  return override.replace(/\/$/, "");
 }
 
 function GoogleLogo() {
@@ -91,12 +78,8 @@ function GoogleLogo() {
 
 export function AuthPanel({ locale, mode }: AuthPanelProps) {
   const router = useRouter();
-  const googleButtonRef = useRef<HTMLDivElement | null>(null);
-  const [scriptReady, setScriptReady] = useState(false);
-  const [googleConfig, setGoogleConfig] = useState<GoogleConfigState>({
-    enabled: false,
-    clientId: null,
-  });
+  const searchParams = useSearchParams();
+  const [googleEnabled, setGoogleEnabled] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
@@ -105,86 +88,36 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const nextParam = searchParams.get("next");
+  const safeNext = nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/";
+
+  // Redirect-login sonrasi backend ?error=... ile geri dondurebilir.
+  useEffect(() => {
+    const errorCode = searchParams.get("error");
+    if (errorCode) {
+      setError(ERROR_LABELS[errorCode] ?? ERROR_LABELS.request_failed);
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     let active = true;
-
     void fetchGoogleAuthConfig()
       .then((response) => {
-        if (!active) return;
-        setGoogleConfig({
-          enabled: response.enabled,
-          clientId: response.client_id,
-        });
+        if (active) setGoogleEnabled(Boolean(response.enabled && response.client_id));
       })
       .catch(() => {
-        if (!active) return;
-        setGoogleConfig({ enabled: false, clientId: null });
+        if (active) setGoogleEnabled(false);
       });
-
     return () => {
       active = false;
     };
   }, []);
 
-  // GSI script <link rel=preload> ile onceden yuklenebilir; bu durumda Next <Script onLoad>
-  // tetiklenmeyebilir. window.google hazirsa (veya kisa sure icinde gelirse) scriptReady'i set et.
-  useEffect(() => {
-    if (scriptReady) return;
-    if (window.google?.accounts?.id) {
-      setScriptReady(true);
-      return;
-    }
-    const interval = setInterval(() => {
-      if (window.google?.accounts?.id) {
-        setScriptReady(true);
-        clearInterval(interval);
-      }
-    }, 200);
-    const timeout = setTimeout(() => clearInterval(interval), 10000);
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [scriptReady]);
-
-  useEffect(() => {
-    if (!scriptReady || !googleConfig.clientId || !googleButtonRef.current || !window.google) {
-      return;
-    }
-
-    googleButtonRef.current.innerHTML = "";
-    window.google.accounts.id.initialize({
-      client_id: googleConfig.clientId,
-      ux_mode: "popup",
-      callback: async (response) => {
-        if (!response.credential) {
-          setError(ERROR_LABELS.invalid_google_token);
-          return;
-        }
-
-        setGoogleLoading(true);
-        setError("");
-        try {
-          await loginWithGoogle(response.credential);
-          router.push(localePath(locale, "/"));
-          router.refresh();
-        } catch (err) {
-          setError(resolveErrorMessage(err));
-        } finally {
-          setGoogleLoading(false);
-        }
-      },
-    });
-    window.google.accounts.id.renderButton(googleButtonRef.current, {
-      theme: "outline",
-      size: "large",
-      type: "standard",
-      shape: "rectangular",
-      text: mode === "login" ? "signin_with" : "signup_with",
-      width: 352,
-      logo_alignment: "left",
-    });
-  }, [googleConfig.clientId, locale, mode, router, scriptReady]);
+  function startGoogleRedirect() {
+    setGoogleLoading(true);
+    const url = `${resolveApiOrigin()}/api/v1/auth/google/start?next=${encodeURIComponent(safeNext)}`;
+    window.location.href = url;
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -202,7 +135,7 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
           role: signupRole,
         });
       }
-      router.push(localePath(locale, "/"));
+      router.push(localePath(locale, safeNext));
       router.refresh();
     } catch (err) {
       setError(resolveErrorMessage(err));
@@ -220,163 +153,147 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
   const alternateLabel = mode === "login" ? "Hesabın yok mu? Kayıt ol" : "Zaten hesabın var mı? Giriş yap";
 
   return (
-    <>
-      <Script
-        src="https://accounts.google.com/gsi/client"
-        strategy="afterInteractive"
-        onLoad={() => setScriptReady(true)}
-        onReady={() => setScriptReady(true)}
-      />
+    <main className="relative z-10 mx-auto flex min-h-[70vh] max-w-5xl items-center px-4 py-14 sm:px-6 lg:px-8">
+      <div className="grid w-full overflow-hidden rounded-[32px] border border-(--color-border) bg-(--color-surface)/95 shadow-[0_32px_80px_rgba(6,18,10,0.18)] backdrop-blur xl:grid-cols-[1.1fr_0.9fr]">
+        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(132,240,76,0.24),transparent_42%),linear-gradient(160deg,rgba(12,26,16,0.94),rgba(18,40,22,0.92))] px-8 py-10 text-white sm:px-10 lg:px-12">
+          <div className="absolute inset-y-0 right-0 w-px bg-white/10" />
+          <span className="inline-flex rounded-full border border-white/15 bg-white/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
+            HaldeFiyat Hesabı
+          </span>
+          <h1 className="mt-5 max-w-md font-(family-name:--font-display) text-3xl font-bold leading-tight sm:text-4xl">
+            {title}
+          </h1>
+          <p className="mt-4 max-w-md text-sm leading-7 text-white/74">
+            {subtitle}
+          </p>
 
-      <main className="relative z-10 mx-auto flex min-h-[70vh] max-w-5xl items-center px-4 py-14 sm:px-6 lg:px-8">
-        <div className="grid w-full overflow-hidden rounded-[32px] border border-(--color-border) bg-(--color-surface)/95 shadow-[0_32px_80px_rgba(6,18,10,0.18)] backdrop-blur xl:grid-cols-[1.1fr_0.9fr]">
-          <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(132,240,76,0.24),transparent_42%),linear-gradient(160deg,rgba(12,26,16,0.94),rgba(18,40,22,0.92))] px-8 py-10 text-white sm:px-10 lg:px-12">
-            <div className="absolute inset-y-0 right-0 w-px bg-white/10" />
-            <span className="inline-flex rounded-full border border-white/15 bg-white/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
-              HaldeFiyat Hesabı
-            </span>
-            <h1 className="mt-5 max-w-md font-(family-name:--font-display) text-3xl font-bold leading-tight sm:text-4xl">
-              {title}
-            </h1>
-            <p className="mt-4 max-w-md text-sm leading-7 text-white/74">
-              {subtitle}
-            </p>
-
-            <div className="mt-10 grid gap-4">
-              <div className="rounded-2xl border border-white/12 bg-white/7 p-4">
-                <p className="text-xs uppercase tracking-[0.16em] text-white/55">Avantajlar</p>
-                <p className="mt-2 text-sm text-white/84">
-                  Favori ürünlerini senkronize et, fiyat alarmı kur, Google ile tek tıkla giriş yap.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-white/12 bg-white/7 p-4">
-                <p className="text-xs uppercase tracking-[0.16em] text-white/55">Bildirim</p>
-                <p className="mt-2 text-sm text-white/84">
-                  OneSignal entegrasyonu aktif olduğunda tarayıcı bildirimleri hesabına otomatik bağlanır.
-                </p>
-              </div>
+          <div className="mt-10 grid gap-4">
+            <div className="rounded-2xl border border-white/12 bg-white/7 p-4">
+              <p className="text-xs uppercase tracking-[0.16em] text-white/55">Avantajlar</p>
+              <p className="mt-2 text-sm text-white/84">
+                Favori ürünlerini senkronize et, fiyat alarmı kur, Google ile tek tıkla giriş yap.
+              </p>
             </div>
-          </section>
+            <div className="rounded-2xl border border-white/12 bg-white/7 p-4">
+              <p className="text-xs uppercase tracking-[0.16em] text-white/55">Bildirim</p>
+              <p className="mt-2 text-sm text-white/84">
+                OneSignal entegrasyonu aktif olduğunda tarayıcı bildirimleri hesabına otomatik bağlanır.
+              </p>
+            </div>
+          </div>
+        </section>
 
-          <section className="px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
-            {error ? (
-              <div className="mb-5 rounded-2xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-700">
-                {error}
-              </div>
+        <section className="px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
+          {error ? (
+            <div className="mb-5 rounded-2xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          ) : null}
+
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            {mode === "register" ? (
+              <>
+                <Input
+                  label="Ad Soyad"
+                  placeholder="Ör. Ahmet Yılmaz"
+                  value={fullName}
+                  onChange={(event) => setFullName(event.target.value)}
+                  autoComplete="name"
+                />
+                <div className="space-y-2">
+                  <div className="text-[13px] font-semibold text-(--color-foreground)">Hesap tipi</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { value: "customer", label: "Kullanıcı" },
+                      { value: "komisyoncu", label: "Komisyoncu" },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setSignupRole(option.value as "customer" | "komisyoncu")}
+                        className={[
+                          "h-11 rounded-xl border px-3 text-[13px] font-semibold transition-colors",
+                          signupRole === option.value
+                            ? "border-(--color-brand) bg-(--color-brand)/10 text-(--color-brand)"
+                            : "border-(--color-border) bg-(--color-bg-alt) text-(--color-foreground) hover:border-(--color-brand)/40",
+                        ].join(" ")}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
             ) : null}
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              {mode === "register" ? (
-                <>
-                  <Input
-                    label="Ad Soyad"
-                    placeholder="Ör. Ahmet Yılmaz"
-                    value={fullName}
-                    onChange={(event) => setFullName(event.target.value)}
-                    autoComplete="name"
-                  />
-                  <div className="space-y-2">
-                    <div className="text-[13px] font-semibold text-(--color-foreground)">Hesap tipi</div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { value: "customer", label: "Kullanıcı" },
-                        { value: "komisyoncu", label: "Komisyoncu" },
-                      ].map((option) => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() => setSignupRole(option.value as "customer" | "komisyoncu")}
-                          className={[
-                            "h-11 rounded-xl border px-3 text-[13px] font-semibold transition-colors",
-                            signupRole === option.value
-                              ? "border-(--color-brand) bg-(--color-brand)/10 text-(--color-brand)"
-                              : "border-(--color-border) bg-(--color-bg-alt) text-(--color-foreground) hover:border-(--color-brand)/40",
-                          ].join(" ")}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              ) : null}
+            <Input
+              type="email"
+              label="E-posta"
+              placeholder="ornek@eposta.com"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              autoComplete="email"
+              required
+            />
 
-              <Input
-                type="email"
-                label="E-posta"
-                placeholder="ornek@eposta.com"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                autoComplete="email"
-                required
-              />
+            <Input
+              type="password"
+              label="Parola"
+              placeholder="En az 6 karakter"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
+              required
+              hint={mode === "register" ? "Hesabın oluşturulması için koşulları kabul etmiş sayılırsın." : undefined}
+            />
 
-              <Input
-                type="password"
-                label="Parola"
-                placeholder="En az 6 karakter"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                autoComplete={mode === "login" ? "current-password" : "new-password"}
-                required
-                hint={mode === "register" ? "Hesabın oluşturulması için koşulları kabul etmiş sayılırsın." : undefined}
-              />
+            <Button type="submit" className="w-full justify-center" loading={formLoading}>
+              {submitLabel}
+            </Button>
+          </form>
 
-              <Button type="submit" className="w-full justify-center" loading={formLoading}>
-                {submitLabel}
-              </Button>
-            </form>
+          {googleEnabled ? (
+            <>
+              <div className="my-6 flex items-center gap-3">
+                <span className="h-px flex-1 bg-(--color-border)" />
+                <span className="text-xs font-medium uppercase tracking-[0.18em] text-(--color-muted)">
+                  veya
+                </span>
+                <span className="h-px flex-1 bg-(--color-border)" />
+              </div>
 
-            <div className="my-6 flex items-center gap-3">
-              <span className="h-px flex-1 bg-(--color-border)" />
-              <span className="text-xs font-medium uppercase tracking-[0.18em] text-(--color-muted)">
-                veya
-              </span>
-              <span className="h-px flex-1 bg-(--color-border)" />
-            </div>
+              <button
+                type="button"
+                onClick={startGoogleRedirect}
+                disabled={googleLoading}
+                className={
+                  "flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-(--color-border) bg-white px-4 text-[14px] font-semibold text-[#1f2328] shadow-sm transition-all dark:border-white/10 dark:bg-white/95 " +
+                  (googleLoading
+                    ? "cursor-wait opacity-70"
+                    : "hover:border-(--color-brand)/50 hover:shadow-md active:scale-[0.99]")
+                }
+              >
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-white">
+                  <GoogleLogo />
+                </span>
+                <span>
+                  {googleLoading
+                    ? "Google'a yönlendiriliyor…"
+                    : mode === "login"
+                      ? "Google ile devam et"
+                      : "Google ile kaydol"}
+                </span>
+              </button>
+            </>
+          ) : null}
 
-            <div className="flex min-h-11 items-center justify-center">
-              {googleConfig.enabled && googleConfig.clientId ? (
-                <div className="relative w-full max-w-[352px]">
-                  <div
-                    aria-hidden="true"
-                    className={
-                      "flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-(--color-border) bg-white px-4 text-[14px] font-semibold text-[#1f2328] shadow-sm transition-all dark:border-white/10 dark:bg-white/95 " +
-                      (googleLoading ? "opacity-70" : "hover:border-(--color-brand)/50 hover:shadow-md active:scale-[0.99]")
-                    }
-                  >
-                    <span className="grid h-6 w-6 place-items-center rounded-full bg-white">
-                      <GoogleLogo />
-                    </span>
-                    <span>{mode === "login" ? "Google ile devam et" : "Google ile kaydol"}</span>
-                  </div>
-                  <div
-                    ref={googleButtonRef}
-                    className={
-                      "absolute inset-0 z-10 h-11 w-full cursor-pointer opacity-0 [&>div]:!h-11 [&>div]:!w-full [&_iframe]:!block [&_iframe]:!h-11 [&_iframe]:!w-full " +
-                      (googleLoading ? "pointer-events-none" : "")
-                    }
-                  />
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  disabled
-                  className="inline-flex h-11 w-full items-center justify-center rounded-full border border-(--color-border) bg-(--color-background) px-4 text-sm font-semibold text-(--color-muted)"
-                >
-                  Google ile giriş yapılandırılmadı
-                </button>
-              )}
-            </div>
-
-            <p className="mt-6 text-center text-sm text-(--color-muted)">
-              <Link href={localePath(locale, alternateHref)} className="font-semibold text-(--color-brand)">
-                {alternateLabel}
-              </Link>
-            </p>
-          </section>
-        </div>
-      </main>
-    </>
+          <p className="mt-6 text-center text-sm text-(--color-muted)">
+            <Link href={localePath(locale, alternateHref)} className="font-semibold text-(--color-brand)">
+              {alternateLabel}
+            </Link>
+          </p>
+        </section>
+      </div>
+    </main>
   );
 }

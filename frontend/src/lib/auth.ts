@@ -107,6 +107,12 @@ export async function fetchGoogleAuthConfig() {
   return apiGet<GoogleConfigResponse>("/auth/google/config");
 }
 
+/** Redirect-login sonrasi: httpOnly cookie oturumunu okuyup localStorage'a tasir. */
+export async function bootstrapGoogleSession() {
+  const response = await apiGet<AuthResponse>("/auth/session/bootstrap");
+  return persistAuth(response);
+}
+
 export async function fetchCurrentUser() {
   const response = await apiGet<{ user: AuthUser }>("/auth/user");
   const currentToken = getStoredAccessToken();
