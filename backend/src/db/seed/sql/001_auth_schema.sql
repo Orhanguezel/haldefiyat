@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS user_roles (
   id          CHAR(36)     NOT NULL,
   user_id     CHAR(36)     NOT NULL,
-  role        ENUM('admin','editor','carrier','customer','dealer') NOT NULL DEFAULT 'customer',
+  role        ENUM('admin','editor','carrier','customer','dealer','komisyoncu') NOT NULL DEFAULT 'customer',
   created_at  DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   PRIMARY KEY (id),
   UNIQUE KEY user_roles_user_id_role_unique (user_id, role),
