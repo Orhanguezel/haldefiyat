@@ -126,6 +126,27 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
     };
   }, []);
 
+  // GSI script <link rel=preload> ile onceden yuklenebilir; bu durumda Next <Script onLoad>
+  // tetiklenmeyebilir. window.google hazirsa (veya kisa sure icinde gelirse) scriptReady'i set et.
+  useEffect(() => {
+    if (scriptReady) return;
+    if (window.google?.accounts?.id) {
+      setScriptReady(true);
+      return;
+    }
+    const interval = setInterval(() => {
+      if (window.google?.accounts?.id) {
+        setScriptReady(true);
+        clearInterval(interval);
+      }
+    }, 200);
+    const timeout = setTimeout(() => clearInterval(interval), 10000);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [scriptReady]);
+
   useEffect(() => {
     if (!scriptReady || !googleConfig.clientId || !googleButtonRef.current || !window.google) {
       return;
@@ -204,6 +225,7 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
         src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
         onLoad={() => setScriptReady(true)}
+        onReady={() => setScriptReady(true)}
       />
 
       <main className="relative z-10 mx-auto flex min-h-[70vh] max-w-5xl items-center px-4 py-14 sm:px-6 lg:px-8">
