@@ -15,6 +15,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { db, pool } from "../src/db/client";
 import { hfProductEditorial, hfProducts } from "../src/db/schema";
+import { STATIC_EDITORIAL_SLUGS } from "../src/config/static-editorial-slugs";
 
 type ProductRow = {
   slug: string;
@@ -134,35 +135,7 @@ function isTrashVariant(slug: string): boolean {
   return /(^|-)(muhtelif|diger|ikinci|ii|iii|iyi-tarim|kg|adet|1-sinif|2-sinif|sinif-1|sinif-2|sofralik|normal|standart)(-|$)/u.test(slug);
 }
 
-const STATIC_EDITORIAL_SLUGS = new Set([
-  "armut",
-  "biber",
-  "biber-dolma",
-  "biber-sivri",
-  "brokoli",
-  "cilek",
-  "domates",
-  "elma",
-  "havuc",
-  "ispanak",
-  "kabak-dolmalik",
-  "karnabahar",
-  "karpuz",
-  "kavun",
-  "kiraz",
-  "kivi",
-  "limon",
-  "mandalina",
-  "muz",
-  "patates",
-  "patlican",
-  "portakal",
-  "salatalik",
-  "sarimsak",
-  "seftali",
-  "sogan-kuru",
-  "uzum",
-]);
+// STATIC_EDITORIAL_SLUGS artık src/config/static-editorial-slugs.ts'ten (tek kaynak).
 
 function hasIndexableEditorial(slug: string, publishedEditorialSlugs: Set<string>) {
   return publishedEditorialSlugs.has(slug) || STATIC_EDITORIAL_SLUGS.has(slug);

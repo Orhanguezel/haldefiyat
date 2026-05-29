@@ -1,6 +1,7 @@
 import { and, desc, eq, like, or, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfRedirects } from "@/db/schema";
+import { STATIC_EDITORIAL_SLUGS } from "@/config/static-editorial-slugs";
 
 const APP_LOCALES = new Set(["tr", "en"]);
 
@@ -213,7 +214,8 @@ export async function auditProducts(filter: "all" | "issues" = "issues") {
   const annotated = rows.map((r) => {
     const seoIndex = Number(r.seoIndex);
     const indexed = seoIndex === 1;
-    const hasEd = Number(r.hasEditorial) === 1;
+    // DB yayınlı editoryel YA DA frontend statik içerik → editoryeli var sayılır.
+    const hasEd = Number(r.hasEditorial) === 1 || STATIC_EDITORIAL_SLUGS.has(r.slug);
     const isMaster = !r.canonicalSlug;
     const dataQuality = Number(r.dataQuality ?? 0);
     const priceRows30d = Number(r.priceRows30d);
