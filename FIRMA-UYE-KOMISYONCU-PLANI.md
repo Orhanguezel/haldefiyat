@@ -74,8 +74,8 @@
 4. **Faz D — Frontend:** Firmanı Ekle + form + komisyoncu kayıt + dashboard + firma sayfası genişletme.
 5. **Faz E — Admin:** moderasyon + rol yönetimi.
 
-## 9. Açık Kararlar (Orhan)
-- User-eklenen firma **otomatik mi yayında, yoksa admin onayı mı**? (Öneri: onay = spam koruması)
-- Claim doğrulaması: şimdilik sadece admin onayı mı, yoksa telefon/e-posta doğrulama da mı?
-- Ürün listesi: serbest metin mi, yoksa hf_products katalogundan seçim mi (ya da ikisi)?
-- Komisyoncu sayfası halka açık mı (SEO) yoksa sadece giriş yapınca mı? (Öneri: açık + SEO)
+## 9. Kararlar (Orhan 2026-05-29 — KESİN)
+- ✅ **Moderasyon:** user-eklenen firma `status=pending` → **admin onayı** sonrası yayında (spam koruması).
+- ✅ **Claim doğrulama:** şimdilik **sadece admin onayı** (telefon/e-posta doğrulama sonraki faz — SMS altyapısı gerekince).
+- ✅ **Ürün listesi:** **ikisi de** — hf_products katalogundan seçim (product_slug) + serbest metin (product_name). hf_firm_products her ikisini destekler.
+- ✅ **Komisyoncu sayfası:** **halka açık + SEO** (sitemap + indexlenebilir), yalnızca `status=approved` olanlar. Interlock: pending/rejected noindex.
