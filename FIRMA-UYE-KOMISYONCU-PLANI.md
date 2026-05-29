@@ -83,8 +83,14 @@
   additive ALTER (hf_firms 5 kolon + index) + hf_firm_products CREATE uygulandı. Doğrulandı.
 - [x] **Faz A kalan:** signup rol seçimi (Kullanıcı/Komisyoncu, admin/editor asla) + proje rol
   görünürlüğü (Taşıyıcı/Bayi gizle) — *Codex (auth controller + UI)*.
-- [x] **Faz C/D/E (LOKAL HAZIR):** firma ekle/claim/ürün API + Firmanı Ekle/kayıt/dashboard + admin moderasyon.
-  `bun run typecheck` (backend), `bun x tsc --noEmit` (frontend/admin) temiz. Canlıya migration + build/deploy bekliyor.
+- [x] **Faz C/D/E (CANLI + DOĞRULANDI 2026-05-30, Codex e81dc49 + shared c273ee7):** firma ekle/claim/ürün
+  API + Firmanı Ekle/kayıt/dashboard + admin moderasyon + firma detayda vision ocr_contacts.
+  VPS senkronlandı (drift giderildi), 3 app build+restart. **Claude uçtan uca review/smoke:**
+  signup→komisyoncu rolü atanıyor; firma ekle (auth) → source=user/status=pending/owner=me;
+  claim+admin 401 (guard); /firmalar, /firmalar/ekle, /admin/firmalar 200; vision iletişimleri render.
+
+### ✅ ÖZET: Üye/komisyoncu firma yönetimi CANLI ve doğrulandı (2026-05-30).
+Kalan opsiyonel: Anthropic kredisi → kalan ~1099 firma vision telefon re-run.
 
 ## 9. Kararlar (Orhan 2026-05-29 — KESİN)
 - ✅ **Moderasyon:** user-eklenen firma `status=pending` → **admin onayı** sonrası yayında (spam koruması).
