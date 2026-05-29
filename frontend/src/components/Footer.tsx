@@ -75,7 +75,7 @@ export default function Footer({
   const displayName = siteName || "HaldeFiyat";
   const year = new Date().getFullYear();
   const lightThemeLogo = logoLightUrl || logoUrl;
-  const darkThemeLogo = logoDarkUrl || lightThemeLogo;
+  const darkThemeLogo = logoDarkUrl || lightThemeLogo || "";
   const logoClassName = "h-auto max-h-[72px] w-[min(260px,78vw)] object-contain sm:w-[280px] lg:w-[220px]";
 
   return (

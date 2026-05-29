@@ -26,6 +26,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     notFound();
   }
 
+  // Index: seoIndex açık VE özgün (elle yazılmış) editoryel içerik var.
+  // Kategori-şablon fallback'e düşen hal (thin/duplicate) noindex kalır.
+  const editorial = getMarketEditorial({
+    slug,
+    name: market.name,
+    cityName: market.cityName,
+    regionSlug: market.regionSlug,
+  });
+  const isMarketSeoIndexed = market.seoIndex === true || market.seoIndex === 1;
+  const shouldIndex = isMarketSeoIndexed && editorial.source !== "template";
+
   return getPageMetadata("hal", {
     locale,
     pathname: `/hal/${slug}`,
@@ -36,6 +47,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     title: `${market.name} Hal Fiyatları`,
     description: `${market.cityName} ${market.name} günlük sebze, meyve ve bakliyat fiyatları. Belediye hal müdürlüğü resmi verileri, her gün TSİ 06:15 güncellenir. Min/ort/maks fiyat karşılaştırması.`,
+    robots: shouldIndex
+      ? { index: true, follow: true }
+      : { index: false, follow: true },
     openGraph: {
       title: `${market.name} Güncel Hal Fiyatları | HaldeFiyat`,
       description: `${market.cityName} ${market.name} günlük sebze, meyve ve bakliyat fiyatları. Resmi belediye verileri — her gün güncellenir.`,

@@ -164,14 +164,17 @@ export interface MarketEditorialProps {
   regionSlug?: string | null;
 }
 
-export function getMarketEditorial(props: MarketEditorialProps): MarketContent {
+export function getMarketEditorial(
+  props: MarketEditorialProps,
+): MarketContent & { source: "static" | "template" } {
   const { slug, name, cityName } = props;
 
-  if (MARKET_CONTENT[slug]) return MARKET_CONTENT[slug]!;
+  if (MARKET_CONTENT[slug]) return { ...MARKET_CONTENT[slug]!, source: "static" };
 
   return {
     description: `${name}, ${cityName} iline bağlı resmi toptancı hal müdürlüğüdür. Bölgedeki çiftçi ve üreticilerden gelen günlük ürünler, komisyoncular aracılığıyla işlem görür ve yerel market zincirleri ile esnaf toptanını besler.`,
     coverage: `${cityName} merkez ve ilçeleri.`,
     specialties: `${cityName} bölgesinin mevsimsel sebze ve meyve çeşitleri başta olmak üzere geniş bir ürün yelpazesi işlem görür.`,
+    source: "template",
   };
 }

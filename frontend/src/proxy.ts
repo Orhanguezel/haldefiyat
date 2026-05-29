@@ -120,6 +120,10 @@ export default async function proxy(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const parts = pathname.split("/");
+
+  const canonicalRedirect = await productCanonicalRedirectResponse(request);
+  if (canonicalRedirect) return canonicalRedirect;
+
   if (parts[1] && isAppLocale(parts[1])) {
     const withoutLocale = `/${parts.slice(2).join("/")}`.replace(/\/$/, "") || "/";
     return redirectWithPath(request, withoutLocale, 308);
@@ -127,9 +131,6 @@ export default async function proxy(request: NextRequest) {
 
   const notFoundResponse = await slugNotFoundResponse(request);
   if (notFoundResponse) return notFoundResponse;
-
-  const canonicalRedirect = await productCanonicalRedirectResponse(request);
-  if (canonicalRedirect) return canonicalRedirect;
 
   const res = await Promise.resolve(intlMiddleware(request));
   const first = pathname.split("/").filter(Boolean)[0];

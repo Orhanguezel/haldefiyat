@@ -10,11 +10,11 @@
  *   manual-name-mapping.csv: slug,display_name,canonical_slug,seo_index,notes
  */
 import "dotenv/config";
-import { eq } from "drizzle-orm";
+import { eq, isNotNull } from "drizzle-orm";
 import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { db, pool } from "../src/db/client";
-import { hfProducts } from "../src/db/schema";
+import { hfProductEditorial, hfProducts } from "../src/db/schema";
 
 type ProductRow = {
   slug: string;
@@ -94,7 +94,7 @@ function parseCsvLine(line: string): string[] {
 }
 
 function readCsv(path: string): Array<Record<string, string>> {
-  const absolute = resolve(process.cwd(), path);
+  const absolute = resolveExistingPath(path);
   if (!existsSync(absolute)) return [];
   const lines = readFileSync(absolute, "utf8")
     .split(/\r?\n/)
@@ -106,6 +106,15 @@ function readCsv(path: string): Array<Record<string, string>> {
     const cells = parseCsvLine(line);
     return Object.fromEntries(header.map((key, i) => [key, cells[i] ?? ""]));
   });
+}
+
+function resolveExistingPath(path: string): string {
+  const candidates = [
+    resolve(process.cwd(), path),
+    resolve(process.cwd(), "..", path),
+    resolve(dirname(new URL(import.meta.url).pathname), "..", "..", "..", path),
+  ];
+  return candidates.find((candidate) => existsSync(candidate)) ?? candidates[0]!;
 }
 
 function titleCaseTr(input: string): string {
@@ -123,6 +132,40 @@ function clusterOf(slug: string): string {
 
 function isTrashVariant(slug: string): boolean {
   return /(^|-)(muhtelif|diger|ikinci|ii|iii|iyi-tarim|kg|adet|1-sinif|2-sinif|sinif-1|sinif-2|sofralik|normal|standart)(-|$)/u.test(slug);
+}
+
+const STATIC_EDITORIAL_SLUGS = new Set([
+  "armut",
+  "biber",
+  "biber-dolma",
+  "biber-sivri",
+  "brokoli",
+  "cilek",
+  "domates",
+  "elma",
+  "havuc",
+  "ispanak",
+  "kabak-dolmalik",
+  "karnabahar",
+  "karpuz",
+  "kavun",
+  "kiraz",
+  "kivi",
+  "limon",
+  "mandalina",
+  "muz",
+  "patates",
+  "patlican",
+  "portakal",
+  "salatalik",
+  "sarimsak",
+  "seftali",
+  "sogan-kuru",
+  "uzum",
+]);
+
+function hasIndexableEditorial(slug: string, publishedEditorialSlugs: Set<string>) {
+  return publishedEditorialSlugs.has(slug) || STATIC_EDITORIAL_SLUGS.has(slug);
 }
 
 function loadMasterDecisions(path: string): Map<string, MasterDecision> {
@@ -159,18 +202,23 @@ function buildUpdate(
   product: ProductRow,
   masters: Map<string, MasterDecision>,
   mappings: Map<string, MappingDecision>,
+  publishedEditorialSlugs: Set<string>,
 ): UpdateDecision | null {
   const mapped = mappings.get(product.slug);
   const cluster = clusterOf(product.slug);
   const master = masters.get(cluster);
   const isMaster = master?.masterSlug === product.slug;
+  const hasEditorial = hasIndexableEditorial(product.slug, publishedEditorialSlugs);
 
   if (mapped) {
+    const mappedSeoIndex = mapped.seoIndex === 1 && !hasEditorial
+      ? 0
+      : mapped.seoIndex;
     return {
       slug: product.slug,
       displayName: mapped.displayName,
       canonicalSlug: mapped.canonicalSlug,
-      seoIndex: mapped.seoIndex,
+      seoIndex: mappedSeoIndex,
       isActive: mapped.isActive,
     };
   }
@@ -181,7 +229,7 @@ function buildUpdate(
       slug: product.slug,
       displayName,
       canonicalSlug: null,
-      seoIndex: product.dataQuality >= 70 && displayName ? 1 : 0,
+      seoIndex: product.dataQuality >= 70 && displayName && hasEditorial ? 1 : 0,
       searchVolume: master.searchVolume,
     };
   }
@@ -190,6 +238,13 @@ function buildUpdate(
     return {
       slug: product.slug,
       canonicalSlug: master.masterSlug,
+      seoIndex: 0,
+    };
+  }
+
+  if (product.seoIndex === 1 && !hasEditorial) {
+    return {
+      slug: product.slug,
       seoIndex: 0,
     };
   }
@@ -214,8 +269,14 @@ async function main() {
     .from(hfProducts)
     .where(eq(hfProducts.isActive, 1));
 
+  const publishedEditorialRows = await db
+    .select({ slug: hfProductEditorial.productSlug })
+    .from(hfProductEditorial)
+    .where(isNotNull(hfProductEditorial.publishedAt));
+  const publishedEditorialSlugs = new Set(publishedEditorialRows.map((row) => row.slug));
+
   const updates = rows
-    .map((row) => buildUpdate(row, masters, mappings))
+    .map((row) => buildUpdate(row, masters, mappings, publishedEditorialSlugs))
     .filter((row): row is UpdateDecision => row !== null);
 
   const existingSlugs = new Set(rows.map((row) => row.slug));
@@ -233,6 +294,7 @@ async function main() {
   console.log(`[seo-master] products=${rows.length}`);
   console.log(`[seo-master] masters=${masters.size}`);
   console.log(`[seo-master] mappings=${mappings.size}`);
+  console.log(`[seo-master] published_editorials=${publishedEditorialSlugs.size}`);
   console.log(`[seo-master] updates=${updates.length}`);
   console.log(`[seo-master] applicable_updates=${applicableUpdates.length}`);
   console.log(`[seo-master] skipped_missing_canonical=${skippedMissingCanonical.length}`);

@@ -29,7 +29,7 @@ const NAV_LINKS: ReadonlyArray<NavLink> = [
 export default function Header({ siteName, logoUrl, logoDarkUrl, logoLightUrl }: HeaderProps) {
   const displayName = siteName || "HalDeFiyat";
   const lightThemeLogo = logoLightUrl || logoUrl;
-  const darkThemeLogo = logoDarkUrl || lightThemeLogo;
+  const darkThemeLogo = logoDarkUrl || lightThemeLogo || "";
   const logoClassName = "h-auto max-h-[64px] w-[min(238px,calc(100vw-92px))] object-contain sm:w-[250px] md:max-h-[60px] md:w-[210px] lg:w-[160px] xl:w-[178px]";
 
   return (

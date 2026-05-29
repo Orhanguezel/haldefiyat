@@ -56,6 +56,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const displayName = getDisplayName(product);
+  const editorial = await getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug });
+  // Index: seoIndex açık VE özgün içerik var (DB editoryel veya elle yazılmış statik).
+  // Yalnızca kategori-şablon fallback (thin/duplicate) noindex kalır.
+  const shouldIndex = isSeoIndexed(product) && editorial.source !== "template";
 
   // Her ürün için i18n-bağımsız dinamik OG (ürün adı render edilir).
   // Route handler /api/og/urun/[slug] — proxy matcher'da bypass.
@@ -78,7 +82,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     title: `${displayName} Hal Fiyatı`,
     description: `${displayName} hal fiyatı: Türkiye genelinde günlük min/ort/maks fiyat karşılaştırması, 5 yıllık sezon geçmişi ve şehir bazlı analiz. Resmi belediye verileri.`,
-    robots: isSeoIndexed(product)
+    robots: shouldIndex
       ? { index: true, follow: true }
       : { index: false, follow: true },
     openGraph: {
@@ -121,11 +125,12 @@ export default async function UrunPage({ params }: Props) {
     .sort((a, b) => a.displayName.localeCompare(b.displayName, "tr"));
   const isClusterMaster = variants.length >= 5;
 
-  const [history, todayPrices] = await Promise.all([
+  const [history, todayPrices, editorial] = await Promise.all([
     // 5 yıl history — PriceChart kendi içinde 7G/30G/90G filtreler;
     // SeasonCompare aynı veriden yıl grupları çıkarır (en az 2 yıl lazım).
     fetchPriceHistory(slug, undefined, "1825d"),
     fetchPrices({ product: slug, range: "1d", limit: 20 }),
+    getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug }),
   ]);
 
   const mins = history
@@ -251,28 +256,29 @@ export default async function UrunPage({ params }: Props) {
       />
 
       {/* Editoryal içerik — AI alıntılanabilirlik + E-E-A-T */}
-      {(() => {
-        const editorial = getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug });
-        return (
-          <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-3">
-            <h2 className="text-base font-semibold text-foreground">
-              {displayName} Hakkında
-            </h2>
-            <p>{editorial.about}</p>
-            <p><strong className="text-foreground">Fiyatı etkileyen faktörler:</strong> {editorial.priceFactors}</p>
-            <p><strong className="text-foreground">Hasat/sezon takvimi:</strong> {editorial.season}</p>
-            <p><strong className="text-foreground">Başlıca üretim bölgesi:</strong> {editorial.productionRegion}</p>
-            <p>
-              Bu sayfada gösterilen fiyatlar, Türkiye genelindeki resmi hal müdürlüklerinden günlük olarak derlenmektedir.
-              Minimum, maksimum ve ortalama fiyat değerleri güncel piyasa koşullarını yansıtır.{" "}
-              <strong className="text-foreground">Veri kaynağı:</strong>{" "}
-              Belediye hal müdürlükleri ve{" "}
-              <a href="https://hal.gov.tr" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">hal.gov.tr</a>{" "}
-              ulusal ortalamaları. Her gün TSİ 06:15'te güncellenir.
-            </p>
-          </div>
-        );
-      })()}
+      <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-3">
+        <h2 className="text-base font-semibold text-foreground">
+          {displayName} Hakkında
+        </h2>
+        <p>{editorial.about}</p>
+        <p><strong className="text-foreground">Fiyatı etkileyen faktörler:</strong> {editorial.priceFactors}</p>
+        <p><strong className="text-foreground">Hasat/sezon takvimi:</strong> {editorial.season}</p>
+        <p><strong className="text-foreground">Başlıca üretim bölgesi:</strong> {editorial.productionRegion}</p>
+        {editorial.qualityIndicators && (
+          <p><strong className="text-foreground">Kalite göstergeleri:</strong> {editorial.qualityIndicators}</p>
+        )}
+        {editorial.culinaryUses && (
+          <p><strong className="text-foreground">Kullanım alanları:</strong> {editorial.culinaryUses}</p>
+        )}
+        <p>
+          Bu sayfada gösterilen fiyatlar, Türkiye genelindeki resmi hal müdürlüklerinden günlük olarak derlenmektedir.
+          Minimum, maksimum ve ortalama fiyat değerleri güncel piyasa koşullarını yansıtır.{" "}
+          <strong className="text-foreground">Veri kaynağı:</strong>{" "}
+          Belediye hal müdürlükleri ve{" "}
+          <a href="https://hal.gov.tr" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">hal.gov.tr</a>{" "}
+          ulusal ortalamaları. Her gün TSİ 06:15'te güncellenir.
+        </p>
+      </div>
 
       {/* FAQ bölümü — AI alıntılanabilirlik + FAQPage schema */}
       {(() => {

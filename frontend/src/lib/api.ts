@@ -47,6 +47,18 @@ export interface Product {
   searchVolume?: number;
 }
 
+export interface ProductEditorial {
+  productSlug: string;
+  about: string;
+  priceFactors: string;
+  season: string;
+  productionRegion: string;
+  qualityIndicators: string | null;
+  culinaryUses: string | null;
+  relatedSlugs: string[];
+  publishedAt: string;
+}
+
 export interface VariantPriceRow {
   slug: string;
   displayName: string;
@@ -148,6 +160,10 @@ function buildQuery(params: QueryRecord): string {
 interface ApiEnvelope<T> {
   success?: boolean;
   data?: T;
+}
+
+interface ItemEnvelope<T> {
+  item?: T;
 }
 
 async function safeFetch<T>(
@@ -311,6 +327,27 @@ export async function fetchProducts(
 ): Promise<Product[]> {
   const qs = buildQuery({ q, category, seoIndex: options.seoIndex == null ? undefined : String(options.seoIndex) });
   return safeFetch<Product[]>(`/prices/products${qs}`, 300, []);
+}
+
+export async function fetchProductEditorial(slug: string): Promise<ProductEditorial | null> {
+  const path = `/prices/editorial/${encodeURIComponent(slug)}`;
+  try {
+    const res = await fetch(`${API}${path}`, {
+      next: { revalidate: 300 },
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) {
+      console.error(`[api] ${path} → ${res.status} ${res.statusText}`);
+      return null;
+    }
+    const json = (await res.json()) as ItemEnvelope<ProductEditorial>;
+    return json.item ?? null;
+  } catch (err) {
+    console.error(`[api] ${path} → fetch error`, err);
+    return null;
+  }
 }
 
 export async function fetchVariantPrices(masterSlug: string, range = "7d"): Promise<VariantPriceRow[]> {

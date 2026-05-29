@@ -1,7 +1,7 @@
 import type { SQL } from "drizzle-orm";
-import { and, asc, desc, eq, gte, lte, sql, or, like, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte, sql, or, like, inArray, isNotNull } from "drizzle-orm";
 import { db } from "@/db/client";
-import { hfMarkets, hfPriceHistory, hfProducts, hfRetailPrices } from "@/db/schema";
+import { hfMarkets, hfPriceHistory, hfProductEditorial, hfProducts, hfRetailPrices } from "@/db/schema";
 import { INDEX_BASKET_SLUGS } from "@/modules/index/calculator";
 
 export function parseRangeToDays(range?: string): number {
@@ -363,6 +363,35 @@ export async function listProducts(q?: string, category?: string, seoIndex?: boo
     .from(hfProducts)
     .where(and(...conds))
     .orderBy(hfProducts.displayOrder, hfProducts.nameTr);
+}
+
+export async function getPublishedProductEditorial(slug: string) {
+  const rows = await db
+    .select({
+      productSlug: hfProductEditorial.productSlug,
+      about: hfProductEditorial.aboutMd,
+      priceFactors: hfProductEditorial.priceFactorsMd,
+      season: hfProductEditorial.seasonMd,
+      productionRegion: hfProductEditorial.productionRegionMd,
+      qualityIndicators: hfProductEditorial.qualityIndicatorsMd,
+      culinaryUses: hfProductEditorial.culinaryUsesMd,
+      relatedSlugs: hfProductEditorial.relatedSlugs,
+      publishedAt: hfProductEditorial.publishedAt,
+    })
+    .from(hfProductEditorial)
+    .where(and(
+      eq(hfProductEditorial.productSlug, slug),
+      isNotNull(hfProductEditorial.publishedAt),
+    ))
+    .limit(1);
+
+  const row = rows[0];
+  if (!row) return null;
+  return {
+    ...row,
+    relatedSlugs: Array.isArray(row.relatedSlugs) ? row.relatedSlugs : [],
+    publishedAt: row.publishedAt instanceof Date ? row.publishedAt.toISOString() : String(row.publishedAt),
+  };
 }
 
 export async function variantPricesByMaster(masterSlug: string, range = "7d") {

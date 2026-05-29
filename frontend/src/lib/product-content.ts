@@ -1,8 +1,13 @@
+import { fetchProductEditorial } from "@/lib/api";
+
 interface ProductContent {
   about: string;
   priceFactors: string;
   season: string;
   productionRegion: string;
+  qualityIndicators?: string | null;
+  culinaryUses?: string | null;
+  relatedSlugs?: string[];
 }
 
 const PRODUCT_CONTENT: Record<string, ProductContent> = {
@@ -176,22 +181,29 @@ interface ProductEditorialProps {
   categorySlug?: string;
 }
 
-export function getProductEditorial(props: ProductEditorialProps): {
+export async function getProductEditorial(props: ProductEditorialProps): Promise<{
   about: string;
   priceFactors: string;
   season: string;
   productionRegion: string;
-} {
+  qualityIndicators: string | null;
+  culinaryUses: string | null;
+  relatedSlugs: string[];
+  source: "db" | "static" | "template";
+}> {
   const { slug, nameTr, categorySlug } = props;
 
+  const dbEditorial = await fetchProductEditorial(slug);
+  if (dbEditorial) return { ...dbEditorial, source: "db" };
+
   // Exact match
-  if (PRODUCT_CONTENT[slug]) return PRODUCT_CONTENT[slug]!;
+  if (PRODUCT_CONTENT[slug]) return normalizeContent(PRODUCT_CONTENT[slug]!, "static");
 
   // Prefix match (e.g. "domates-beef" → "domates")
   const parts = slug.split("-");
   for (let i = parts.length - 1; i >= 1; i--) {
     const prefix = parts.slice(0, i).join("-");
-    if (PRODUCT_CONTENT[prefix]) return PRODUCT_CONTENT[prefix]!;
+    if (PRODUCT_CONTENT[prefix]) return normalizeContent(PRODUCT_CONTENT[prefix]!, "static");
   }
 
   // Category-based fallback
@@ -208,10 +220,20 @@ export function getProductEditorial(props: ProductEditorialProps): {
   };
   const catLabel = categoryLabel[categorySlug ?? ""] ?? "tarım ürünü";
 
-  return {
+  return normalizeContent({
     about: `${nameTr}, Türkiye genelinde toptancı hallerde işlem gören önemli ${catLabel}lerden biridir. Fiyatlar; üretim bölgesine, hasat dönemine, iklim koşullarına ve arz-talep dengesine göre günlük değişim gösterir.`,
     priceFactors: `${nameTr} fiyatlarını etkileyen başlıca faktörler; hasat dönemi ve verimi, nakliye maliyetleri, ihracat-ithalat dengesi ve tüketici talebidir. Sezon içinde bollaşan arz fiyatları baskılarken, sezon dışında piyasa fiyatı yükselir.`,
     season: "Sezon bilgisi ürüne ve üretim bölgesine göre farklılık gösterir. Güncel fiyat tablosundan mevsimsel eğilimi izleyebilirsiniz.",
     productionRegion: "Türkiye'nin çeşitli tarım bölgelerinde yetiştirilir. Üretim yoğunluğu iklim ve toprak koşullarına göre iller arasında farklılık gösterir.",
+  }, "template");
+}
+
+function normalizeContent(content: ProductContent, source: "static" | "template") {
+  return {
+    ...content,
+    qualityIndicators: content.qualityIndicators ?? null,
+    culinaryUses: content.culinaryUses ?? null,
+    relatedSlugs: content.relatedSlugs ?? [],
+    source,
   };
 }

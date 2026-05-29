@@ -19,17 +19,8 @@ interface DataPullerRow extends RowDataPacket {
   lastSeen: string | Date | null;
 }
 
-interface GeoCityRow extends RowDataPacket {
-  country: string | null;
-  city: string | null;
-  hits: number | string;
-  uniqueIps: number | string;
-  botHits: number | string;
-}
-
 const INTERNAL_HOST_RE = /(haldefiyat|bereketfide|vistaseed|vistaseeds)/i;
 const BOT_UA_RE = /bot|crawl|spider|python|curl|wget|http|axios|go-http/i;
-const BOT_UA_SQL = "LOWER(COALESCE(user_agent, '')) REGEXP 'bot|crawl|spider|python|curl|wget|http|axios|go-http'";
 
 function parseDays(value: unknown): number {
   const raw = Number(value ?? 30);
@@ -45,10 +36,6 @@ function parseMinHits(value: unknown): number {
   const raw = Number(value ?? 500);
   if (!Number.isFinite(raw)) return 500;
   return Math.min(100000, Math.max(1, Math.trunc(raw)));
-}
-
-function parseTrafficKind(value: unknown): "all" | "human" | "bot" {
-  return value === "human" || value === "bot" ? value : "all";
 }
 
 function toIso(value: string | Date | null): string | null {
@@ -136,40 +123,4 @@ export async function registerAuditConsumersAdmin(adminApi: FastifyInstance) {
     });
   });
 
-  adminApi.get("/audit/geo-cities", async (req, reply) => {
-    const query = req.query as { days?: string | number; traffic?: string };
-    const days = parseDays(query.days ?? 30);
-    const traffic = parseTrafficKind(query.traffic);
-    const trafficSql =
-      traffic === "bot" ? `AND ${BOT_UA_SQL}` : traffic === "human" ? `AND NOT (${BOT_UA_SQL})` : "";
-    const [rows] = await adminApi.db.query<GeoCityRow[]>(
-      `SELECT
-         COALESCE(NULLIF(country, ''), 'UNKNOWN') AS country,
-         COALESCE(NULLIF(city, ''), 'UNKNOWN') AS city,
-         COUNT(*) AS hits,
-         COUNT(DISTINCT ip) AS uniqueIps,
-         SUM(CASE WHEN ${BOT_UA_SQL} THEN 1 ELSE 0 END) AS botHits
-       FROM audit_request_logs
-       WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-         AND country IS NOT NULL
-         AND country <> ''
-         ${trafficSql}
-       GROUP BY country, city
-       ORDER BY hits DESC
-       LIMIT 50`,
-      [days],
-    );
-
-    return reply.send({
-      days,
-      traffic,
-      items: rows.map((row) => ({
-        country: row.country || "UNKNOWN",
-        city: row.city || "UNKNOWN",
-        hits: n(row.hits),
-        uniqueIps: n(row.uniqueIps),
-        botHits: n(row.botHits),
-      })),
-    });
-  });
 }

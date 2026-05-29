@@ -4,16 +4,18 @@
  * Usage:
  *   bun scripts/seo/generate-editorial-drafts.ts --dry-run --limit=1
  *   bun scripts/seo/generate-editorial-drafts.ts --apply --priority=cluster --provider=groq
+ *   bun scripts/seo/generate-editorial-drafts.ts --apply --priority=all --provider=alternate
  */
 import "dotenv/config";
 import { eq, inArray } from "drizzle-orm";
 import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { db, pool } from "../../src/db/client";
 import { hfProductEditorial, hfProducts } from "../../src/db/schema";
 
 type Priority = "cluster" | "singleton" | "all";
-type Provider = "groq" | "openai" | "anthropic";
+type Provider = "groq" | "openai" | "anthropic" | "alternate";
+type ConcreteProvider = Exclude<Provider, "alternate">;
 type EditorialDraft = {
   about: string;
   priceFactors: string;
@@ -46,16 +48,18 @@ const priorityPath = readArg("--priority-csv=", "../data/seo/editorial-priority.
 const limit = Number(readArg("--limit=", "5"));
 const force = rawArgs.includes("--force");
 const delayMs = Number(readArg("--delay-ms=", "5000"));
+const retries = Math.min(3, Math.max(1, Number(readArg("--retries=", "2")) || 2));
 
 if (rawArgs.includes("--help") || rawArgs.includes("-h")) {
   console.log(`Usage:
   bun scripts/seo/generate-editorial-drafts.ts [--dry-run] [--apply]
-    --provider=groq|openai|anthropic
+    --provider=groq|openai|anthropic|alternate
     --priority=cluster|singleton|all
     --priority-csv=../data/seo/editorial-priority.csv
     --limit=5
     --force
     --delay-ms=5000
+    --retries=2
 `);
   process.exit(0);
 }
@@ -92,7 +96,7 @@ function parseCsvLine(line: string): string[] {
 }
 
 function readPriorityRows(path: string): PriorityRow[] {
-  const absolute = resolve(process.cwd(), path);
+  const absolute = resolveExistingPath(path);
   if (!existsSync(absolute)) throw new Error(`Priority CSV bulunamadi: ${absolute}`);
   const lines = readFileSync(absolute, "utf8")
     .split(/\r?\n/)
@@ -112,6 +116,15 @@ function readPriorityRows(path: string): PriorityRow[] {
     } satisfies PriorityRow;
   });
   return rows.sort((a, b) => a.priority - b.priority);
+}
+
+function resolveExistingPath(path: string): string {
+  const candidates = [
+    resolve(process.cwd(), path),
+    resolve(process.cwd(), "..", path),
+    resolve(dirname(new URL(import.meta.url).pathname), "..", "..", "..", "..", path),
+  ];
+  return candidates.find((candidate) => existsSync(candidate)) ?? candidates[0]!;
 }
 
 function promptFor(product: ProductRow, meta: PriorityRow, relatedSlugs: string[]) {
@@ -211,7 +224,13 @@ function parseDraft(content: string): EditorialDraft {
   return parsed as EditorialDraft;
 }
 
-async function callOpenAiCompatible(url: string, apiKey: string, model: string, userPrompt: string) {
+async function callOpenAiCompatible(
+  selectedProvider: ConcreteProvider,
+  url: string,
+  apiKey: string,
+  model: string,
+  userPrompt: string,
+) {
   const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -229,7 +248,7 @@ async function callOpenAiCompatible(url: string, apiKey: string, model: string, 
     }),
     signal: AbortSignal.timeout(90_000),
   });
-  if (!res.ok) throw new Error(`${provider} API ${res.status}: ${await res.text()}`);
+  if (!res.ok) throw new Error(`${selectedProvider} API ${res.status}: ${await res.text()}`);
   const json = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
   return json.choices?.[0]?.message?.content ?? "";
 }
@@ -256,19 +275,27 @@ async function callAnthropic(apiKey: string, userPrompt: string) {
   return json.content?.find((part) => part.type === "text")?.text ?? "";
 }
 
-async function generateDraft(userPrompt: string): Promise<EditorialDraft> {
-  const content = provider === "groq"
+function providerForIndex(index: number): ConcreteProvider {
+  return provider === "alternate"
+    ? index % 2 === 0 ? "openai" : "anthropic"
+    : provider;
+}
+
+async function generateDraft(userPrompt: string, selectedProvider: ConcreteProvider): Promise<EditorialDraft> {
+  const content = selectedProvider === "groq"
     ? await callOpenAiCompatible(
+      selectedProvider,
       "https://api.groq.com/openai/v1/chat/completions",
       requiredEnv("GROQ_API_KEY"),
       process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile",
       userPrompt,
     )
-    : provider === "openai"
+    : selectedProvider === "openai"
       ? await callOpenAiCompatible(
+        selectedProvider,
         "https://api.openai.com/v1/chat/completions",
         requiredEnv("OPENAI_API_KEY"),
-        process.env.OPENAI_MODEL ?? "gpt-4o-mini",
+        process.env.OPENAI_MODEL ?? "gpt-4o",
         userPrompt,
       )
       : await callAnthropic(requiredEnv("ANTHROPIC_API_KEY"), userPrompt);
@@ -317,8 +344,8 @@ async function main() {
   if (!["cluster", "singleton", "all"].includes(priority)) {
     throw new Error("--priority cluster|singleton|all olmali");
   }
-  if (!["groq", "openai", "anthropic"].includes(provider)) {
-    throw new Error("--provider groq|openai|anthropic olmali");
+  if (!["groq", "openai", "anthropic", "alternate"].includes(provider)) {
+    throw new Error("--provider groq|openai|anthropic|alternate olmali");
   }
 
   const allPriorityRows = readPriorityRows(priorityPath);
@@ -342,8 +369,9 @@ async function main() {
 
   console.log(`[editorial] provider=${provider} priority=${priority} limit=${priorityRows.length} apply=${shouldApply}`);
 
-  for (const row of priorityRows) {
+  for (const [index, row] of priorityRows.entries()) {
     const product = productMap.get(row.masterSlug);
+    const selectedProvider = providerForIndex(index);
     if (!product) {
       console.warn(`[editorial] skip missing product=${row.masterSlug}`);
       continue;
@@ -360,19 +388,34 @@ async function main() {
     const userPrompt = promptFor(product, row, relatedSlugs);
 
     if (!shouldApply) {
-      console.log(`[editorial] dry-run prompt product=${product.slug}`);
+      console.log(`[editorial] dry-run prompt product=${product.slug} provider=${selectedProvider}`);
       console.log(userPrompt.slice(0, 1200));
       continue;
     }
 
-    const draft = await generateDraft(userPrompt);
+    let draft: EditorialDraft | null = null;
+    let lastError: unknown = null;
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        draft = await generateDraft(userPrompt, selectedProvider);
+        break;
+      } catch (err) {
+        lastError = err;
+        console.warn(`[editorial] retryable error product=${product.slug} provider=${selectedProvider} attempt=${attempt}/${retries}: ${err instanceof Error ? err.message : String(err)}`);
+        if (attempt < retries && delayMs > 0) await sleep(delayMs);
+      }
+    }
+    if (!draft) {
+      console.error(`[editorial] skip failed product=${product.slug}: ${lastError instanceof Error ? lastError.message : String(lastError)}`);
+      continue;
+    }
     const warnings = validateDraft(draft);
     if (warnings.length) {
       console.warn(`[editorial] validation warnings product=${product.slug}`);
       for (const warning of warnings) console.warn(`  - ${warning}`);
     }
     await upsertDraft(product, draft, relatedSlugs);
-    console.log(`[editorial] upserted ai_draft product=${product.slug} warnings=${warnings.length}`);
+    console.log(`[editorial] upserted ai_draft product=${product.slug} provider=${selectedProvider} warnings=${warnings.length}`);
     if (delayMs > 0) await sleep(delayMs);
   }
 }

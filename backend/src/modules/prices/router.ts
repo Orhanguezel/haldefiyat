@@ -14,6 +14,7 @@ import {
   retailPricesByProduct,
   cityPriceMap,
   variantPricesByMaster,
+  getPublishedProductEditorial,
 } from "./repository";
 import { resolveWeekRange } from "./iso-week";
 import { weeklyPriceSummary } from "./weekly";
@@ -114,6 +115,20 @@ export async function registerPrices(app: FastifyInstance) {
     const items = await listProducts(q.data.q, q.data.category, q.data.seoIndex);
     return reply.send({ items });
   });
+
+  /**
+   * GET /api/v1/prices/editorial/:slug
+   * Yayınlanmış ürün editoryeli. Draft içerikler SEO yüzeyine çıkmaz.
+   */
+  app.get<{ Params: { slug: string } }>(
+    "/prices/editorial/:slug",
+    async (req, reply) => {
+      const item = await getPublishedProductEditorial(req.params.slug);
+      if (!item) return reply.status(404).send({ error: "Editoryel icerik bulunamadi" });
+      reply.header("Cache-Control", "public, max-age=300, s-maxage=300");
+      return reply.send({ item });
+    },
+  );
 
   /**
    * GET /api/v1/prices/products/seo-eligible?since=30d

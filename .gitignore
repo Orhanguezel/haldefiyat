@@ -75,3 +75,6 @@ venv*/
 
 # Claude Code runtime locks
 .claude/scheduled_tasks.lock
+
+# GSC coverage exports (one-off, repoya girmesin)
+haldefiyat.com-Coverage-*.zip
