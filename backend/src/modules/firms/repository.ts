@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, like, or, sql } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
 import { db } from "@/db/client";
-import { hfFirmDeals, hfFirms, hfFirmSponsorships } from "@/db/schema";
+import { hfFirmClaims, hfFirmDeals, hfFirmProducts, hfFirms, hfFirmSponsorships } from "@/db/schema";
 import type { FetchedFirm, FirmListFilters } from "./types";
 
 export async function upsertFirm(firm: FetchedFirm): Promise<"inserted" | "updated"> {
@@ -70,6 +71,11 @@ export async function listFirms(filters: FirmListFilters = {}) {
       sourceUrl: hfFirms.sourceUrl,
       firmType: hfFirms.firmType,
       categories: hfFirms.categories,
+      ownerUserId: hfFirms.ownerUserId,
+      source: hfFirms.source,
+      status: hfFirms.status,
+      description: hfFirms.description,
+      claimStatus: hfFirms.claimStatus,
       isActive: hfFirms.isActive,
       lastSeenAt: hfFirms.lastSeenAt,
       sponsorshipTier: hfFirmSponsorships.tier,
@@ -100,9 +106,12 @@ export async function getFirmBySlug(slug: string) {
   const rows = await db
     .select()
     .from(hfFirms)
-    .where(and(eq(hfFirms.slug, slug), eq(hfFirms.isActive, 1)))
+    .where(and(eq(hfFirms.slug, slug), eq(hfFirms.isActive, 1), eq(hfFirms.status, "approved")))
     .limit(1);
-  return rows[0] ?? null;
+  const firm = rows[0] ?? null;
+  if (!firm) return null;
+  const products = await listFirmProducts(firm.id);
+  return { ...firm, products, ocrContacts: extractOcrContacts(firm.raw) };
 }
 
 export async function getFirmById(id: number) {
@@ -112,6 +121,200 @@ export async function getFirmById(id: number) {
     .where(eq(hfFirms.id, id))
     .limit(1);
   return rows[0] ?? null;
+}
+
+export async function getMyFirm(userId: string) {
+  const [firm] = await db
+    .select()
+    .from(hfFirms)
+    .where(eq(hfFirms.ownerUserId, userId))
+    .orderBy(desc(hfFirms.updatedAt))
+    .limit(1);
+  if (!firm) return null;
+  return { ...firm, products: await listFirmProducts(firm.id), ocrContacts: extractOcrContacts(firm.raw) };
+}
+
+export async function createUserFirm(input: {
+  ownerUserId: string;
+  name: string;
+  contactPerson?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  citySlug?: string | null;
+  districtSlug?: string | null;
+  description?: string | null;
+  categories?: string[];
+}) {
+  const slug = await ensureUniqueFirmSlug(input.name);
+  const result = await db.insert(hfFirms).values({
+    externalId: `user-${randomUUID().slice(0, 24)}`,
+    slug,
+    name: input.name,
+    contactPerson: input.contactPerson ?? null,
+    phone: input.phone ?? null,
+    address: input.address ?? null,
+    citySlug: input.citySlug ?? null,
+    districtSlug: input.districtSlug ?? null,
+    sourceUrl: `/firma/${slug}`,
+    firmType: "komisyoncu",
+    categories: input.categories ?? [],
+    ownerUserId: input.ownerUserId,
+    source: "user",
+    status: "pending",
+    description: input.description ?? null,
+    claimStatus: "verified",
+    isActive: 1,
+    raw: { source: "user" },
+  });
+  const id = Number(result[0]?.insertId ?? 0);
+  return id ? await getFirmById(id) : null;
+}
+
+export async function updateFirmByOwner(id: number, userId: string, input: FirmPatchInput) {
+  const firm = await getFirmById(id);
+  if (!firm || firm.ownerUserId !== userId) return null;
+  await updateFirmFields(id, input);
+  return getFirmById(id);
+}
+
+export async function adminUpdateFirm(id: number, input: FirmPatchInput & {
+  status?: "pending" | "approved" | "rejected";
+  claimStatus?: "unclaimed" | "pending" | "verified";
+  ownerUserId?: string | null;
+}) {
+  await updateFirmFields(id, input);
+  return getFirmById(id);
+}
+
+type FirmPatchInput = {
+  name?: string;
+  contactPerson?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  citySlug?: string | null;
+  districtSlug?: string | null;
+  description?: string | null;
+  categories?: string[];
+};
+
+async function updateFirmFields(id: number, input: FirmPatchInput & {
+  status?: "pending" | "approved" | "rejected";
+  claimStatus?: "unclaimed" | "pending" | "verified";
+  ownerUserId?: string | null;
+}) {
+  await db.update(hfFirms).set({
+    ...(input.name !== undefined ? { name: input.name } : {}),
+    ...(input.contactPerson !== undefined ? { contactPerson: input.contactPerson } : {}),
+    ...(input.phone !== undefined ? { phone: input.phone } : {}),
+    ...(input.address !== undefined ? { address: input.address } : {}),
+    ...(input.citySlug !== undefined ? { citySlug: input.citySlug } : {}),
+    ...(input.districtSlug !== undefined ? { districtSlug: input.districtSlug } : {}),
+    ...(input.description !== undefined ? { description: input.description } : {}),
+    ...(input.categories !== undefined ? { categories: input.categories } : {}),
+    ...(input.status !== undefined ? { status: input.status } : {}),
+    ...(input.claimStatus !== undefined ? { claimStatus: input.claimStatus } : {}),
+    ...(input.ownerUserId !== undefined ? { ownerUserId: input.ownerUserId } : {}),
+  }).where(eq(hfFirms.id, id));
+}
+
+export async function listFirmProducts(firmId: number) {
+  return db
+    .select()
+    .from(hfFirmProducts)
+    .where(eq(hfFirmProducts.firmId, firmId))
+    .orderBy(asc(hfFirmProducts.displayOrder), asc(hfFirmProducts.productName));
+}
+
+export async function createFirmProduct(input: {
+  firmId: number;
+  productSlug?: string | null;
+  productName: string;
+  note?: string | null;
+  price?: string | null;
+  displayOrder?: number;
+}) {
+  const result = await db.insert(hfFirmProducts).values({
+    firmId: input.firmId,
+    productSlug: input.productSlug ?? null,
+    productName: input.productName,
+    note: input.note ?? null,
+    price: input.price ?? null,
+    displayOrder: input.displayOrder ?? 100,
+  });
+  return Number(result[0]?.insertId ?? 0);
+}
+
+export async function updateFirmProduct(id: number, input: {
+  firmId?: number;
+  productSlug?: string | null;
+  productName?: string;
+  note?: string | null;
+  price?: string | null;
+  displayOrder?: number;
+}) {
+  const result = await db.update(hfFirmProducts).set({
+    ...(input.productSlug !== undefined ? { productSlug: input.productSlug } : {}),
+    ...(input.productName !== undefined ? { productName: input.productName } : {}),
+    ...(input.note !== undefined ? { note: input.note } : {}),
+    ...(input.price !== undefined ? { price: input.price } : {}),
+    ...(input.displayOrder !== undefined ? { displayOrder: input.displayOrder } : {}),
+  }).where(input.firmId ? and(eq(hfFirmProducts.id, id), eq(hfFirmProducts.firmId, input.firmId)) : eq(hfFirmProducts.id, id));
+  return Number(result[0]?.affectedRows ?? 0);
+}
+
+export async function deleteFirmProduct(id: number, firmId?: number) {
+  const result = await db.delete(hfFirmProducts).where(firmId ? and(eq(hfFirmProducts.id, id), eq(hfFirmProducts.firmId, firmId)) : eq(hfFirmProducts.id, id));
+  return Number(result[0]?.affectedRows ?? 0);
+}
+
+export async function createFirmClaim(input: { firmId: number; userId: string; evidence?: string | null }) {
+  const firm = await getFirmById(input.firmId);
+  if (!firm) return null;
+  await db.update(hfFirms).set({ claimStatus: "pending" }).where(eq(hfFirms.id, input.firmId));
+  const result = await db.insert(hfFirmClaims).values({
+    firmId: input.firmId,
+    userId: input.userId,
+    evidence: input.evidence ?? null,
+    status: "pending",
+  });
+  return Number(result[0]?.insertId ?? 0);
+}
+
+export async function listFirmClaims(status?: "pending" | "approved" | "rejected" | "all") {
+  return db
+    .select({
+      id: hfFirmClaims.id,
+      firmId: hfFirmClaims.firmId,
+      userId: hfFirmClaims.userId,
+      evidence: hfFirmClaims.evidence,
+      status: hfFirmClaims.status,
+      reviewedBy: hfFirmClaims.reviewedBy,
+      reviewedAt: hfFirmClaims.reviewedAt,
+      createdAt: hfFirmClaims.createdAt,
+      firmName: hfFirms.name,
+      firmSlug: hfFirms.slug,
+    })
+    .from(hfFirmClaims)
+    .leftJoin(hfFirms, eq(hfFirms.id, hfFirmClaims.firmId))
+    .where(status && status !== "all" ? eq(hfFirmClaims.status, status) : undefined)
+    .orderBy(desc(hfFirmClaims.createdAt))
+    .limit(500);
+}
+
+export async function moderateFirmClaim(id: number, status: "approved" | "rejected", reviewedBy?: string | null) {
+  const [claim] = await db.select().from(hfFirmClaims).where(eq(hfFirmClaims.id, id)).limit(1);
+  if (!claim) return null;
+  await db.update(hfFirmClaims).set({ status, reviewedBy: reviewedBy ?? null, reviewedAt: new Date() }).where(eq(hfFirmClaims.id, id));
+  if (status === "approved") {
+    await db.update(hfFirms).set({
+      ownerUserId: claim.userId,
+      claimStatus: "verified",
+      status: "approved",
+    }).where(eq(hfFirms.id, claim.firmId));
+  } else {
+    await db.update(hfFirms).set({ claimStatus: "unclaimed" }).where(eq(hfFirms.id, claim.firmId));
+  }
+  return { ...claim, status };
 }
 
 export async function markStaleFirms(cutoff: Date): Promise<number> {
@@ -292,6 +495,8 @@ export async function firmDashboardSummary() {
 function buildFirmWhere(filters: FirmListFilters) {
   const clauses = [];
   if (filters.activeOnly !== false) clauses.push(eq(hfFirms.isActive, 1));
+  if (filters.status && filters.status !== "all") clauses.push(eq(hfFirms.status, filters.status));
+  if (!filters.status && filters.activeOnly !== false) clauses.push(eq(hfFirms.status, "approved"));
   if (filters.city) clauses.push(eq(hfFirms.citySlug, filters.city));
   if (filters.district) clauses.push(eq(hfFirms.districtSlug, filters.district));
   if (filters.type) clauses.push(eq(hfFirms.firmType, filters.type));
@@ -300,4 +505,37 @@ function buildFirmWhere(filters: FirmListFilters) {
     clauses.push(or(like(hfFirms.name, q), like(hfFirms.address, q), like(hfFirms.phone, q)));
   }
   return clauses.length ? and(...clauses) : undefined;
+}
+
+async function ensureUniqueFirmSlug(name: string) {
+  const base = slugifyFirm(name) || `firma-${Date.now()}`;
+  let candidate = base;
+  for (let index = 2; index < 100; index += 1) {
+    const [existing] = await db.select({ id: hfFirms.id }).from(hfFirms).where(eq(hfFirms.slug, candidate)).limit(1);
+    if (!existing) return candidate;
+    candidate = `${base}-${index}`;
+  }
+  return `${base}-${Date.now()}`;
+}
+
+function slugifyFirm(value: string): string {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ı/g, "i")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 180);
+}
+
+function extractOcrContacts(raw: unknown): unknown[] {
+  if (!raw || typeof raw !== "object") return [];
+  const contacts = (raw as { ocr_contacts?: unknown }).ocr_contacts;
+  return Array.isArray(contacts) ? contacts : [];
 }

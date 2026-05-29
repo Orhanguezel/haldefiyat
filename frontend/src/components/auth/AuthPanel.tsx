@@ -101,6 +101,7 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
   const [fullName, setFullName] = useState("");
+  const [signupRole, setSignupRole] = useState<"customer" | "komisyoncu">("customer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -177,6 +178,7 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
           email,
           password,
           fullName,
+          role: signupRole,
         });
       }
       router.push(localePath(locale, "/"));
@@ -243,13 +245,38 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
 
             <form className="space-y-4" onSubmit={handleSubmit}>
               {mode === "register" ? (
-                <Input
-                  label="Ad Soyad"
-                  placeholder="Ör. Ahmet Yılmaz"
-                  value={fullName}
-                  onChange={(event) => setFullName(event.target.value)}
-                  autoComplete="name"
-                />
+                <>
+                  <Input
+                    label="Ad Soyad"
+                    placeholder="Ör. Ahmet Yılmaz"
+                    value={fullName}
+                    onChange={(event) => setFullName(event.target.value)}
+                    autoComplete="name"
+                  />
+                  <div className="space-y-2">
+                    <div className="text-[13px] font-semibold text-(--color-foreground)">Hesap tipi</div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { value: "customer", label: "Kullanıcı" },
+                        { value: "komisyoncu", label: "Komisyoncu" },
+                      ].map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setSignupRole(option.value as "customer" | "komisyoncu")}
+                          className={[
+                            "h-11 rounded-xl border px-3 text-[13px] font-semibold transition-colors",
+                            signupRole === option.value
+                              ? "border-(--color-brand) bg-(--color-brand)/10 text-(--color-brand)"
+                              : "border-(--color-border) bg-(--color-bg-alt) text-(--color-foreground) hover:border-(--color-brand)/40",
+                          ].join(" ")}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
               ) : null}
 
               <Input

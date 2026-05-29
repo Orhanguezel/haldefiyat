@@ -4,19 +4,19 @@ import { toNonNegativeInt } from '@/integrations/shared/common';
 export const ADMIN_USERS_ALL_ROLES: UserRoleName[] = [
   'admin',
   'editor',
-  'carrier',
   'customer',
-  'dealer',
+  'komisyoncu',
 ];
 export const ADMIN_USERS_DEFAULT_LIMIT = 20;
 
-type RoleLocaleKey = 'admin' | 'editor' | 'carrier' | 'customer' | 'dealer';
+type RoleLocaleKey = 'admin' | 'editor' | 'carrier' | 'customer' | 'dealer' | 'komisyoncu';
 
 export function getAdminUserRoleLocaleKey(role: UserRoleName): RoleLocaleKey {
   if (role === 'admin') return 'admin';
   if (role === 'editor') return 'editor';
   if (role === 'carrier') return 'carrier';
   if (role === 'dealer') return 'dealer';
+  if (role === 'komisyoncu') return 'komisyoncu';
   return 'customer';
 }
 

@@ -96,6 +96,9 @@ export {
 
 export {
   useListFirmsAdminQuery,
+  useUpdateFirmAdminMutation,
+  useListFirmClaimsAdminQuery,
+  useModerateFirmClaimAdminMutation,
   useListStaleFirmsAdminQuery,
   useRunFirmsEtlAdminMutation,
   useListFirmDealsAdminQuery,

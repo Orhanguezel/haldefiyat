@@ -84,11 +84,13 @@ export async function signupWithEmail(input: {
   email: string;
   password: string;
   fullName?: string;
+  role?: "customer" | "komisyoncu";
 }) {
   const response = await apiPost<AuthResponse>("/auth/signup", {
     email: input.email.trim().toLowerCase(),
     password: input.password,
     full_name: input.fullName?.trim() || undefined,
+    role: input.role ?? "customer",
     rules_accepted: true,
   });
   return persistAuth(response);

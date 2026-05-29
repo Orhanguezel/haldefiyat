@@ -6,6 +6,7 @@ export type FirmAdminItem = {
   externalId: string;
   slug: string;
   name: string;
+  ownerUserId?: string | null;
   contactPerson: string | null;
   phone: string | null;
   address: string | null;
@@ -13,11 +14,35 @@ export type FirmAdminItem = {
   districtSlug: string | null;
   photoUrl: string | null;
   sourceUrl: string;
+  source?: 'halkatalogu' | 'user';
+  status?: 'pending' | 'approved' | 'rejected';
+  description?: string | null;
+  claimStatus?: 'unclaimed' | 'pending' | 'verified';
   firmType: 'komisyoncu' | 'soguk_hava' | 'nakliye' | 'zirai_ilac';
   categories: string[] | null;
   isActive: number | boolean;
   lastSeenAt: string | null;
   sponsorshipTier?: string | null;
+};
+
+export type FirmClaimAdminItem = {
+  id: number;
+  firmId: number;
+  userId: string;
+  evidence: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  reviewedBy: string | null;
+  reviewedAt: string | null;
+  createdAt: string | null;
+  firmName?: string | null;
+  firmSlug?: string | null;
+};
+
+export type FirmAdminPatchPayload = {
+  status?: FirmAdminItem['status'];
+  claimStatus?: FirmAdminItem['claimStatus'];
+  ownerUserId?: string | null;
+  description?: string | null;
 };
 
 export type FirmSummary = {
@@ -107,12 +132,27 @@ export type FirmSponsorshipPayload = {
 
 export const firmsAdminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    listFirmsAdmin: builder.query<FirmsAdminResponse, { q?: string; city?: string; type?: string; limit?: number; offset?: number } | void>({
+    listFirmsAdmin: builder.query<FirmsAdminResponse, { q?: string; city?: string; type?: string; status?: string; limit?: number; offset?: number } | void>({
       query: (params) => ({
         url: '/admin/firms',
         params: cleanParams(params as Record<string, unknown> | undefined),
       }),
       providesTags: [{ type: 'Firms' as const, id: 'LIST' }],
+    }),
+    updateFirmAdmin: builder.mutation<{ item: FirmAdminItem }, { firmId: number; body: FirmAdminPatchPayload }>({
+      query: ({ firmId, body }) => ({ url: `/admin/firms/${firmId}`, method: 'PATCH', body }),
+      invalidatesTags: [{ type: 'Firms' as const, id: 'LIST' }],
+    }),
+    listFirmClaimsAdmin: builder.query<{ items: FirmClaimAdminItem[] }, { status?: string } | void>({
+      query: (params) => ({
+        url: '/admin/firms/claims',
+        params: cleanParams(params as Record<string, unknown> | undefined),
+      }),
+      providesTags: [{ type: 'Firms' as const, id: 'CLAIMS' }],
+    }),
+    moderateFirmClaimAdmin: builder.mutation<{ item: FirmClaimAdminItem }, { claimId: number; status: 'approved' | 'rejected' }>({
+      query: ({ claimId, status }) => ({ url: `/admin/firms/claims/${claimId}/moderate`, method: 'POST', body: { status } }),
+      invalidatesTags: [{ type: 'Firms' as const, id: 'CLAIMS' }, { type: 'Firms' as const, id: 'LIST' }],
     }),
     listStaleFirmsAdmin: builder.query<{ items: FirmAdminItem[] }, { days?: number } | void>({
       query: (params) => ({
@@ -163,6 +203,9 @@ export const firmsAdminApi = baseApi.injectEndpoints({
 
 export const {
   useListFirmsAdminQuery,
+  useUpdateFirmAdminMutation,
+  useListFirmClaimsAdminQuery,
+  useModerateFirmClaimAdminMutation,
   useListStaleFirmsAdminQuery,
   useRunFirmsEtlAdminMutation,
   useListFirmDealsAdminQuery,

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
   { href: "hesabim",             key: "overview",      icon: GridIcon },
+  { href: "hesabim/firmam",      key: "myFirm",        icon: BriefcaseIcon },
   { href: "hesabim/uyarilar",    key: "alerts",        icon: BellIcon },
   { href: "hesabim/favoriler",   key: "favorites",     icon: StarIcon },
   { href: "hesabim/profil",      key: "profile",       icon: UserIcon },
@@ -59,6 +60,13 @@ function BellIcon({ size }: { size: number }) {
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
       <path d="M10 2.5a5.5 5.5 0 0 1 5.5 5.5v3l1.5 2H3l1.5-2V8A5.5 5.5 0 0 1 10 2.5z" />
       <path d="M8 16.5a2 2 0 0 0 4 0" strokeLinecap="round" />
+    </svg>
+  );
+}
+function BriefcaseIcon({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
+      <rect x="3" y="7" width="14" height="10" rx="2" /><path d="M7 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" /><path d="M3 11h14" />
     </svg>
   );
 }

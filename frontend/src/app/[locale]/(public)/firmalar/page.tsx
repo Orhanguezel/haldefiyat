@@ -112,16 +112,24 @@ export default async function FirmsPage({ params, searchParams }: Props) {
         { name: "Firmalar", href: "/firmalar" },
       ]} />
 
-      <header className="mb-8">
-        <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
-          B2B Firma Rehberi
-        </span>
-        <h1 className="mt-1 font-(family-name:--font-display) text-3xl font-bold text-(--color-foreground) sm:text-4xl">
-          Hal Firmaları
-        </h1>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-(--color-muted)">
-          Hal komisyoncuları, soğuk hava depoları, nakliyeciler ve zirai ilaç firmalarını şehir ve hizmet türüne göre inceleyin.
-        </p>
+      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
+            B2B Firma Rehberi
+          </span>
+          <h1 className="mt-1 font-(family-name:--font-display) text-3xl font-bold text-(--color-foreground) sm:text-4xl">
+            Hal Firmaları
+          </h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-(--color-muted)">
+            Hal komisyoncuları, soğuk hava depoları, nakliyeciler ve zirai ilaç firmalarını şehir ve hizmet türüne göre inceleyin.
+          </p>
+        </div>
+        <Link
+          href="/firmalar/ekle"
+          className="rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-white"
+        >
+          Firmamı ekle
+        </Link>
       </header>
 
       <form className="mb-8 grid gap-3 rounded-[8px] border border-(--color-border) bg-(--color-surface) p-4 md:grid-cols-[1.5fr_1fr_1fr_auto]">

@@ -7,20 +7,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
 import {
   useCreateFirmDealAdminMutation,
   useCreateFirmSponsorshipAdminMutation,
   useDeleteFirmDealAdminMutation,
   useDeleteFirmSponsorshipAdminMutation,
+  useListFirmClaimsAdminQuery,
   useListFirmDealsAdminQuery,
   useListFirmsAdminQuery,
   useListFirmSponsorshipsAdminQuery,
   useListStaleFirmsAdminQuery,
+  useModerateFirmClaimAdminMutation,
   useRunFirmsEtlAdminMutation,
+  useUpdateFirmAdminMutation,
   useUpdateFirmDealAdminMutation,
   useUpdateFirmSponsorshipAdminMutation,
 } from '@/integrations/hooks';
-import type { FirmAdminItem, FirmDeal, FirmSponsorship } from '@/integrations/endpoints/firms-admin-endpoints';
+import type { FirmAdminItem, FirmClaimAdminItem, FirmDeal, FirmSponsorship } from '@/integrations/endpoints/firms-admin-endpoints';
 
 const TYPE_LABELS: Record<string, string> = {
   komisyoncu: 'Komisyoncu',
@@ -37,10 +41,19 @@ const STATUS_LABELS: Record<string, string> = {
   lost: 'Kaybedildi',
 };
 
+const FIRM_STATUS_LABELS: Record<string, string> = {
+  all: 'Tümü',
+  pending: 'Bekleyen',
+  approved: 'Onaylı',
+  rejected: 'Reddedilen',
+};
+
 export default function FirmsAdminPage() {
   const [q, setQ] = useState('');
   const [city, setCity] = useState('');
   const [type, setType] = useState('all');
+  const [status, setStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [claimStatus, setClaimStatus] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending');
   const [lastRun, setLastRun] = useState<string>('');
   const [selectedFirm, setSelectedFirm] = useState<FirmAdminItem | null>(null);
 
@@ -48,12 +61,16 @@ export default function FirmsAdminPage() {
     q: q || undefined,
     city: city || undefined,
     type: type === 'all' ? undefined : type,
+    status,
     limit: 100,
-  }), [q, city, type]);
+  }), [q, city, type, status]);
 
   const { data, isLoading, refetch } = useListFirmsAdminQuery(filters);
   const { data: staleData } = useListStaleFirmsAdminQuery({ days: 45 });
+  const { data: claimsData } = useListFirmClaimsAdminQuery({ status: claimStatus });
   const [runEtl, { isLoading: isRunning }] = useRunFirmsEtlAdminMutation();
+  const [updateFirm, { isLoading: isUpdatingFirm }] = useUpdateFirmAdminMutation();
+  const [moderateClaim, { isLoading: isModeratingClaim }] = useModerateFirmClaimAdminMutation();
 
   async function handleDryRun() {
     const result = await runEtl({
@@ -80,6 +97,18 @@ export default function FirmsAdminPage() {
   }
 
   const summary = data?.summary;
+  const pendingCount = data?.items.filter((item) => item.status === 'pending').length ?? 0;
+
+  async function setFirmStatus(item: FirmAdminItem, nextStatus: 'approved' | 'rejected' | 'pending') {
+    await updateFirm({
+      firmId: item.id,
+      body: {
+        status: nextStatus,
+        claimStatus: nextStatus === 'approved' ? (item.claimStatus === 'pending' ? 'verified' : item.claimStatus) : item.claimStatus,
+      },
+    }).unwrap();
+    if (selectedFirm?.id === item.id) setSelectedFirm({ ...item, status: nextStatus });
+  }
 
   return (
     <div className="space-y-4">
@@ -87,7 +116,7 @@ export default function FirmsAdminPage() {
         <Metric title="Toplam" value={summary?.total ?? 0} />
         <Metric title="Aktif" value={summary?.active ?? 0} />
         <Metric title="Stale" value={summary?.stale ?? staleData?.items?.length ?? 0} />
-        <Metric title="Pipeline TL" value={summary?.pipelineValue ?? 0} />
+        <Metric title="Bekleyen" value={pendingCount} />
       </div>
 
       <Card>
@@ -103,6 +132,19 @@ export default function FirmsAdminPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            {(['all', 'pending', 'approved', 'rejected'] as const).map((item) => (
+              <Button
+                key={item}
+                size="sm"
+                variant={status === item ? 'default' : 'outline'}
+                onClick={() => setStatus(item)}
+              >
+                {FIRM_STATUS_LABELS[item]}
+              </Button>
+            ))}
+          </div>
+
           <div className="grid gap-3 md:grid-cols-[1fr_180px_180px]">
             <Input value={q} onChange={(event) => setQ(event.target.value)} placeholder="Firma adı, adres, telefon" />
             <Input value={city} onChange={(event) => setCity(event.target.value)} placeholder="İl slug (adana)" />
@@ -128,14 +170,15 @@ export default function FirmsAdminPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Firma</TableHead>
+                <TableHead>Durum</TableHead>
                 <TableHead>Tür</TableHead>
                 <TableHead>İl / İlçe</TableHead>
                 <TableHead>Telefon</TableHead>
-                <TableHead>Son Görülme</TableHead>
+                <TableHead>İşlem</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading && <TableRow><TableCell colSpan={5}>Yükleniyor...</TableCell></TableRow>}
+              {isLoading && <TableRow><TableCell colSpan={6}>Yükleniyor...</TableCell></TableRow>}
               {(data?.items || []).map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>
@@ -143,15 +186,69 @@ export default function FirmsAdminPage() {
                     <button className="text-xs text-primary" type="button" onClick={() => setSelectedFirm(item)}>
                       {item.slug}
                     </button>
+                    {item.source === 'user' && <div className="text-xs text-muted-foreground">Üye kaydı</div>}
+                  </TableCell>
+                  <TableCell>
+                    <span className="rounded-md border px-2 py-1 text-xs">{FIRM_STATUS_LABELS[item.status ?? 'approved'] ?? item.status}</span>
+                    {item.claimStatus === 'pending' && <div className="mt-1 text-xs text-amber-600">Sahiplenme bekliyor</div>}
                   </TableCell>
                   <TableCell>{TYPE_LABELS[item.firmType] ?? item.firmType}</TableCell>
                   <TableCell>{item.citySlug || '-'}{item.districtSlug ? ` / ${item.districtSlug}` : ''}</TableCell>
                   <TableCell>{item.phone || '-'}</TableCell>
-                  <TableCell>{item.lastSeenAt ? new Date(item.lastSeenAt).toLocaleDateString('tr-TR') : '-'}</TableCell>
+                  <TableCell className="space-x-2">
+                    {item.status !== 'approved' && (
+                      <Button size="sm" onClick={() => setFirmStatus(item, 'approved')} disabled={isUpdatingFirm}>Onayla</Button>
+                    )}
+                    {item.status !== 'rejected' && (
+                      <Button size="sm" variant="outline" onClick={() => setFirmStatus(item, 'rejected')} disabled={isUpdatingFirm}>Reddet</Button>
+                    )}
+                    <Button size="sm" variant="outline" onClick={() => setSelectedFirm(item)}>Detay</Button>
+                  </TableCell>
                 </TableRow>
               ))}
               {!isLoading && (data?.items || []).length === 0 && (
-                <TableRow><TableCell colSpan={5}>Kayıt bulunamadı.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6}>Kayıt bulunamadı.</TableCell></TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-3">
+          <CardTitle className="text-base">Sahiplenme Talepleri</CardTitle>
+          <Select value={claimStatus} onValueChange={(value) => setClaimStatus(value as typeof claimStatus)}>
+            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="pending">Bekleyen</SelectItem>
+              <SelectItem value="approved">Onaylı</SelectItem>
+              <SelectItem value="rejected">Reddedilen</SelectItem>
+              <SelectItem value="all">Tümü</SelectItem>
+            </SelectContent>
+          </Select>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Firma</TableHead>
+                <TableHead>Kullanıcı</TableHead>
+                <TableHead>Kanıt/Not</TableHead>
+                <TableHead>Durum</TableHead>
+                <TableHead>İşlem</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(claimsData?.items || []).map((claim) => (
+                <ClaimRow
+                  key={claim.id}
+                  claim={claim}
+                  disabled={isModeratingClaim}
+                  onModerate={(nextStatus) => moderateClaim({ claimId: claim.id, status: nextStatus })}
+                />
+              ))}
+              {(claimsData?.items || []).length === 0 && (
+                <TableRow><TableCell colSpan={5}>Talep yok.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
@@ -203,6 +300,7 @@ function FirmCrmPanel({ firm, onClose }: { firm: FirmAdminItem; onClose: () => v
   const [createSponsor, { isLoading: isCreatingSponsor }] = useCreateFirmSponsorshipAdminMutation();
   const [updateSponsor] = useUpdateFirmSponsorshipAdminMutation();
   const [deleteSponsor] = useDeleteFirmSponsorshipAdminMutation();
+  const [updateFirm, { isLoading: isUpdatingFirm }] = useUpdateFirmAdminMutation();
 
   const [dealStatus, setDealStatus] = useState<FirmDeal['status']>('lead');
   const [dealType, setDealType] = useState<FirmDeal['dealType']>('reklam');
@@ -213,6 +311,7 @@ function FirmCrmPanel({ firm, onClose }: { firm: FirmAdminItem; onClose: () => v
   const [placement, setPlacement] = useState<FirmSponsorship['placement']>('il');
   const [placementSlug, setPlacementSlug] = useState(firm.citySlug || '');
   const [days, setDays] = useState('30');
+  const [description, setDescription] = useState(firm.description || '');
 
   async function submitDeal() {
     await createDeal({
@@ -255,6 +354,18 @@ function FirmCrmPanel({ firm, onClose }: { firm: FirmAdminItem; onClose: () => v
         <Button variant="outline" size="sm" onClick={onClose}>Kapat</Button>
       </CardHeader>
       <CardContent className="grid gap-6 xl:grid-cols-2">
+        <section className="space-y-3 xl:col-span-2">
+          <h3 className="text-sm font-semibold">Moderasyon</h3>
+          <div className="grid gap-2 md:grid-cols-[1fr_auto_auto]">
+            <Textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Firma açıklaması" rows={3} />
+            <Button size="sm" onClick={() => updateFirm({ firmId: firm.id, body: { description, status: 'approved' } })} disabled={isUpdatingFirm}>
+              Onayla ve kaydet
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => updateFirm({ firmId: firm.id, body: { status: 'rejected' } })} disabled={isUpdatingFirm}>
+              Reddet
+            </Button>
+          </div>
+        </section>
         <section className="space-y-3">
           <h3 className="text-sm font-semibold">Deal Paneli</h3>
           <div className="grid gap-2 md:grid-cols-2">
@@ -339,6 +450,36 @@ function FirmCrmPanel({ firm, onClose }: { firm: FirmAdminItem; onClose: () => v
         </section>
       </CardContent>
     </Card>
+  );
+}
+
+function ClaimRow({
+  claim,
+  disabled,
+  onModerate,
+}: {
+  claim: FirmClaimAdminItem;
+  disabled: boolean;
+  onModerate: (status: 'approved' | 'rejected') => void;
+}) {
+  return (
+    <TableRow>
+      <TableCell>
+        <div className="font-medium">{claim.firmName || `#${claim.firmId}`}</div>
+        <div className="text-xs text-muted-foreground">{claim.firmSlug || '-'}</div>
+      </TableCell>
+      <TableCell className="font-mono text-xs">{claim.userId}</TableCell>
+      <TableCell className="max-w-[360px] whitespace-pre-wrap text-sm text-muted-foreground">{claim.evidence || '-'}</TableCell>
+      <TableCell>{claim.status}</TableCell>
+      <TableCell className="space-x-2">
+        {claim.status === 'pending' ? (
+          <>
+            <Button size="sm" onClick={() => onModerate('approved')} disabled={disabled}>Onayla</Button>
+            <Button size="sm" variant="outline" onClick={() => onModerate('rejected')} disabled={disabled}>Reddet</Button>
+          </>
+        ) : '-'}
+      </TableCell>
+    </TableRow>
   );
 }
 

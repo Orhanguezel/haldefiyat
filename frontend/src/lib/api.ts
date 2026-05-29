@@ -88,6 +88,7 @@ export interface Firm {
   externalId: string;
   slug: string;
   name: string;
+  ownerUserId?: string | null;
   contactPerson: string | null;
   phone: string | null;
   address: string | null;
@@ -95,12 +96,33 @@ export interface Firm {
   districtSlug: string | null;
   photoUrl: string | null;
   sourceUrl: string;
+  source?: "halkatalogu" | "user";
+  status?: "pending" | "approved" | "rejected";
+  description?: string | null;
+  claimStatus?: "unclaimed" | "pending" | "verified";
   firmType: "komisyoncu" | "soguk_hava" | "nakliye" | "zirai_ilac";
   categories: string[] | null;
+  products?: FirmProduct[];
+  ocrContacts?: FirmOcrContact[];
   isActive?: number | boolean;
   lastSeenAt?: string | null;
   sponsorshipTier?: string | null;
   sponsorshipPlacement?: string | null;
+}
+
+export interface FirmOcrContact {
+  name?: string | null;
+  phones?: string[];
+}
+
+export interface FirmProduct {
+  id: number;
+  firmId: number;
+  productSlug: string | null;
+  productName: string;
+  note: string | null;
+  price: string | null;
+  displayOrder: number;
 }
 
 export interface FirmListResponse {

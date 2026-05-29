@@ -75,6 +75,7 @@
   "dashboard": {
     "nav": {
       "overview":      "Genel Bakış",
+      "myFirm":        "Firmam",
       "profile":       "Profilim",
       "alerts":        "Uyarılarım",
       "favorites":     "Favorilerim",

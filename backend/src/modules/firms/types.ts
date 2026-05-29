@@ -25,6 +25,7 @@ export type FirmListFilters = {
   type?: FirmType;
   q?: string;
   activeOnly?: boolean;
+  status?: "pending" | "approved" | "rejected" | "all";
   limit?: number;
   offset?: number;
 };

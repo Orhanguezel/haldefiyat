@@ -76,7 +76,8 @@
       "editor": "Editör",
       "carrier": "Taşıyıcı",
       "customer": "Müşteri",
-      "dealer": "Bayi"
+      "dealer": "Bayi",
+      "komisyoncu": "Komisyoncu"
     },
     "password": {
       "title": "Şifre Güncelle",
@@ -102,6 +103,7 @@
     "editor": "Editör",
     "carrier": "Taşıyıcı",
     "customer": "Müşteri",
-    "dealer": "Bayi"
+    "dealer": "Bayi",
+    "komisyoncu": "Komisyoncu"
   }
 }

@@ -8,6 +8,7 @@ import { useProfile } from "@/lib/hooks/useProfile";
 
 const NAV_ITEMS = [
   { href: "hesabim",             key: "overview",      icon: GridIcon },
+  { href: "hesabim/firmam",      key: "myFirm",        icon: BriefcaseIcon },
   { href: "hesabim/profil",      key: "profile",       icon: UserIcon },
   { href: "hesabim/uyarilar",    key: "alerts",        icon: BellIcon },
   { href: "hesabim/favoriler",   key: "favorites",     icon: StarIcon },
@@ -97,6 +98,13 @@ function UserIcon({ size }: { size: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
       <circle cx="10" cy="7" r="3.5" /><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6" strokeLinecap="round" />
+    </svg>
+  );
+}
+function BriefcaseIcon({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
+      <rect x="3" y="7" width="14" height="10" rx="2" /><path d="M7 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" /><path d="M3 11h14" />
     </svg>
   );
 }

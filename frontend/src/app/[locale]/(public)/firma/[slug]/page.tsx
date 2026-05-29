@@ -9,6 +9,7 @@ import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
 import FirmCard from "@/components/firms/FirmCard";
+import { FirmClaimButton } from "@/components/firms/FirmClaimButton";
 import FirmLeadForm from "@/components/firms/FirmLeadForm";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -127,6 +128,32 @@ export default async function FirmDetailPage({ params }: Props) {
             {firm.address && <Info label="Adres" value={firm.address} wide />}
           </dl>
 
+          {firm.description && (
+            <div className="mt-6 rounded-[8px] border border-(--color-border) bg-(--color-surface) p-4 text-sm leading-6 text-(--color-muted)">
+              {firm.description}
+            </div>
+          )}
+
+          {(firm.ocrContacts ?? []).length > 0 && (
+            <div className="mt-6 rounded-[8px] border border-(--color-border) bg-(--color-surface) p-4">
+              <h2 className="font-(family-name:--font-display) text-lg font-bold text-(--color-foreground)">
+                Komisyoncu İletişimleri
+              </h2>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {(firm.ocrContacts ?? []).map((contact, index) => (
+                  <div key={`${contact.name ?? "komisyoncu"}-${index}`} className="rounded-[6px] border border-(--color-border-soft) p-3">
+                    <p className="font-semibold text-(--color-foreground)">{contact.name || "Komisyoncu"}</p>
+                    {(contact.phones ?? []).map((phone) => (
+                      <a key={phone} href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="mt-1 block font-(family-name:--font-mono) text-[12px] text-(--color-brand)">
+                        {phone}
+                      </a>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {isPremium && (
             <div className="mt-6 rounded-[8px] border border-(--color-brand)/25 bg-(--color-brand)/8 p-4 text-sm leading-6 text-(--color-muted)">
               <strong className="text-(--color-foreground)">Premium firma profili.</strong>{" "}
@@ -150,12 +177,37 @@ export default async function FirmDetailPage({ params }: Props) {
             >
               Şehirdeki firmalar
             </Link>
+            <FirmClaimButton firmId={firm.id} claimStatus={firm.claimStatus} />
           </div>
         </div>
       </section>
 
       <section className="mt-10 grid gap-6 lg:grid-cols-[1fr_320px]">
-        <FirmLeadForm firmSlug={firm.slug} />
+        <div className="space-y-6">
+          {(firm.products ?? []).length > 0 && (
+            <section className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-5">
+              <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
+                Firma Ürünleri
+              </h2>
+              <div className="mt-4 divide-y divide-(--color-border-soft) rounded-[8px] border border-(--color-border-soft)">
+                {(firm.products ?? []).map((product) => (
+                  <div key={product.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+                    <div>
+                      <p className="font-semibold text-(--color-foreground)">{product.productName}</p>
+                      {product.note && <p className="text-sm text-(--color-muted)">{product.note}</p>}
+                    </div>
+                    {product.price && (
+                      <span className="rounded-full border border-(--color-brand)/25 px-3 py-1 font-(family-name:--font-mono) text-[11px] font-semibold text-(--color-brand)">
+                        {product.price}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+          <FirmLeadForm firmSlug={firm.slug} />
+        </div>
         <aside className="rounded-[8px] border border-dashed border-(--color-border) bg-(--color-bg-alt) p-5">
           <div className="font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.1em] text-(--color-brand)">
             Reklam Alanı

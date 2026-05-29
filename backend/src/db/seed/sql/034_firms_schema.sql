@@ -12,6 +12,11 @@ CREATE TABLE IF NOT EXISTS hf_firms (
   source_url VARCHAR(512) NOT NULL,
   firm_type ENUM('komisyoncu', 'soguk_hava', 'nakliye', 'zirai_ilac') NOT NULL DEFAULT 'komisyoncu',
   categories JSON NULL,
+  owner_user_id VARCHAR(36) NULL,
+  source ENUM('halkatalogu','user') NOT NULL DEFAULT 'halkatalogu',
+  status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'approved',
+  description TEXT NULL,
+  claim_status ENUM('unclaimed','pending','verified') NOT NULL DEFAULT 'unclaimed',
   is_active TINYINT NOT NULL DEFAULT 1,
   first_seen_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
   last_seen_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
@@ -22,7 +27,41 @@ CREATE TABLE IF NOT EXISTS hf_firms (
   UNIQUE KEY hf_firms_slug_uq (slug),
   KEY hf_firms_city_idx (city_slug, district_slug),
   KEY hf_firms_type_idx (firm_type, is_active),
+  KEY hf_firms_owner_idx (owner_user_id),
+  KEY hf_firms_status_idx (status, source),
+  KEY hf_firms_claim_status_idx (claim_status),
   KEY hf_firms_seen_idx (last_seen_at)
+);
+
+CREATE TABLE IF NOT EXISTS hf_firm_products (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  firm_id INT NOT NULL,
+  product_slug VARCHAR(128) NULL,
+  product_name VARCHAR(255) NOT NULL,
+  note VARCHAR(500) NULL,
+  price VARCHAR(128) NULL,
+  display_order INT NOT NULL DEFAULT 100,
+  created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  CONSTRAINT hf_firm_products_firm_fk FOREIGN KEY (firm_id) REFERENCES hf_firms(id) ON DELETE CASCADE,
+  KEY hf_firm_products_firm_idx (firm_id),
+  KEY hf_firm_products_product_idx (product_slug)
+);
+
+CREATE TABLE IF NOT EXISTS hf_firm_claims (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  firm_id INT NOT NULL,
+  user_id VARCHAR(36) NOT NULL,
+  status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  evidence TEXT NULL,
+  reviewed_by VARCHAR(36) NULL,
+  reviewed_at DATETIME(3) NULL,
+  created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  CONSTRAINT hf_firm_claims_firm_fk FOREIGN KEY (firm_id) REFERENCES hf_firms(id) ON DELETE CASCADE,
+  KEY hf_firm_claims_firm_idx (firm_id),
+  KEY hf_firm_claims_user_idx (user_id),
+  KEY hf_firm_claims_status_idx (status, created_at)
 );
 
 CREATE TABLE IF NOT EXISTS hf_firm_deals (

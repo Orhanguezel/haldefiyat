@@ -300,6 +300,11 @@ export const hfFirms = mysqlTable(
     sourceUrl:     varchar("source_url", { length: 512 }).notNull(),
     firmType:      mysqlEnum("firm_type", ["komisyoncu", "soguk_hava", "nakliye", "zirai_ilac"]).notNull().default("komisyoncu"),
     categories:    json("categories").$type<string[]>(),
+    ownerUserId:   varchar("owner_user_id", { length: 36 }),
+    source:        mysqlEnum("source", ["halkatalogu", "user"]).notNull().default("halkatalogu"),
+    status:        mysqlEnum("status", ["pending", "approved", "rejected"]).notNull().default("approved"),
+    description:   text("description"),
+    claimStatus:   mysqlEnum("claim_status", ["unclaimed", "pending", "verified"]).notNull().default("unclaimed"),
     isActive:      tinyint("is_active").notNull().default(1),
     firstSeenAt:   datetime("first_seen_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
     lastSeenAt:    datetime("last_seen_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
@@ -312,7 +317,49 @@ export const hfFirms = mysqlTable(
     uniqueIndex("hf_firms_slug_uq").on(t.slug),
     index("hf_firms_city_idx").on(t.citySlug, t.districtSlug),
     index("hf_firms_type_idx").on(t.firmType, t.isActive),
+    index("hf_firms_owner_idx").on(t.ownerUserId),
+    index("hf_firms_status_idx").on(t.status, t.source),
+    index("hf_firms_claim_status_idx").on(t.claimStatus),
     index("hf_firms_seen_idx").on(t.lastSeenAt),
+  ],
+);
+
+export const hfFirmProducts = mysqlTable(
+  "hf_firm_products",
+  {
+    id:           int("id").autoincrement().primaryKey(),
+    firmId:       int("firm_id").notNull(),
+    productSlug:  varchar("product_slug", { length: 128 }),
+    productName:  varchar("product_name", { length: 255 }).notNull(),
+    note:         varchar("note", { length: 500 }),
+    price:        varchar("price", { length: 128 }),
+    displayOrder: int("display_order").notNull().default(100),
+    createdAt:    datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:    datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    index("hf_firm_products_firm_idx").on(t.firmId),
+    index("hf_firm_products_product_idx").on(t.productSlug),
+  ],
+);
+
+export const hfFirmClaims = mysqlTable(
+  "hf_firm_claims",
+  {
+    id:         int("id").autoincrement().primaryKey(),
+    firmId:     int("firm_id").notNull(),
+    userId:     varchar("user_id", { length: 36 }).notNull(),
+    status:     mysqlEnum("status", ["pending", "approved", "rejected"]).notNull().default("pending"),
+    evidence:   text("evidence"),
+    reviewedBy: varchar("reviewed_by", { length: 36 }),
+    reviewedAt: datetime("reviewed_at", { fsp: 3 }),
+    createdAt:  datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:  datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    index("hf_firm_claims_firm_idx").on(t.firmId),
+    index("hf_firm_claims_user_idx").on(t.userId),
+    index("hf_firm_claims_status_idx").on(t.status, t.createdAt),
   ],
 );
 

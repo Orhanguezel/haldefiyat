@@ -1,20 +1,32 @@
 import type { FastifyInstance } from "fastify";
+import { requireAuth } from "@agro/shared-backend/middleware/auth";
+import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 import { z } from "zod";
 import { discoverFirmLinks } from "./fetcher";
 import {
   countFirms,
   createFirmDeal,
+  createFirmClaim,
+  createFirmProduct,
+  createUserFirm,
   createFirmSponsorship,
   deleteFirmDeal,
+  deleteFirmProduct,
   deleteFirmSponsorship,
   firmDashboardSummary,
   getFirmById,
+  getMyFirm,
+  adminUpdateFirm,
   getFirmBySlug,
+  listFirmClaims,
   listFirmDeals,
   listFirms,
   listFirmSponsorships,
   listStaleFirms,
+  moderateFirmClaim,
+  updateFirmByOwner,
   updateFirmDeal,
+  updateFirmProduct,
   updateFirmSponsorship,
 } from "./repository";
 import { runFirmDirectoryEtl } from "./service";
@@ -28,6 +40,7 @@ const listQuerySchema = z.object({
   q: z.string().min(1).max(128).optional(),
   limit: z.coerce.number().int().min(1).max(200).optional(),
   offset: z.coerce.number().int().min(0).optional(),
+  status: z.enum(["pending", "approved", "rejected", "all"]).optional(),
 });
 
 const etlBodySchema = z.object({
@@ -72,6 +85,44 @@ const publicLeadBodySchema = z.object({
   message: z.string().min(5).max(1000),
 });
 
+const firmWriteBodySchema = z.object({
+  name: z.string().trim().min(2).max(255),
+  contactPerson: z.string().trim().max(255).nullable().optional(),
+  phone: z.string().trim().max(128).nullable().optional(),
+  address: z.string().trim().max(5000).nullable().optional(),
+  citySlug: z.string().trim().max(96).nullable().optional(),
+  districtSlug: z.string().trim().max(128).nullable().optional(),
+  description: z.string().trim().max(5000).nullable().optional(),
+  categories: z.array(z.string().trim().min(1).max(80)).max(30).optional(),
+});
+
+const firmPatchBodySchema = firmWriteBodySchema.partial();
+
+const firmProductBodySchema = z.object({
+  productSlug: z.string().trim().max(128).nullable().optional(),
+  productName: z.string().trim().min(1).max(255),
+  note: z.string().trim().max(500).nullable().optional(),
+  price: z.string().trim().max(128).nullable().optional(),
+  displayOrder: z.coerce.number().int().optional(),
+});
+
+const firmProductPatchBodySchema = firmProductBodySchema.partial();
+
+const claimBodySchema = z.object({
+  evidence: z.string().trim().max(2000).nullable().optional(),
+});
+
+const moderateFirmBodySchema = z.object({
+  status: z.enum(["pending", "approved", "rejected"]).optional(),
+  claimStatus: z.enum(["unclaimed", "pending", "verified"]).optional(),
+  ownerUserId: z.string().trim().max(36).nullable().optional(),
+  description: z.string().trim().max(5000).nullable().optional(),
+});
+
+const moderateClaimBodySchema = z.object({
+  status: z.enum(["approved", "rejected"]),
+});
+
 function parseOptionalDate(value: string | null | undefined): Date | null | undefined {
   if (value === undefined || value === null) return value;
   return new Date(value);
@@ -112,10 +163,84 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     return reply.send({ items, meta: { total, limit: parsed.data.limit ?? 50, offset: parsed.data.offset ?? 0 } });
   });
 
+  app.get("/firms/me", { onRequest: [requireAuth] }, async (req, reply) => {
+    const userId = getAuthUserId(req);
+    const firm = await getMyFirm(userId);
+    return reply.send({ item: firm });
+  });
+
   app.get<{ Params: { slug: string } }>("/firms/:slug", async (req, reply) => {
     const firm = await getFirmBySlug(req.params.slug);
     if (!firm) return reply.status(404).send({ error: "Firma bulunamadi" });
     return reply.send({ item: firm });
+  });
+
+  app.post("/firms", { onRequest: [requireAuth] }, async (req, reply) => {
+    const userId = getAuthUserId(req);
+    const parsed = firmWriteBodySchema.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz firma bilgileri", issues: parsed.error.issues });
+    const firm = await createUserFirm({ ...parsed.data, ownerUserId: userId });
+    return reply.status(201).send({ item: firm });
+  });
+
+  app.patch<{ Params: { id: string } }>("/firms/:id", { onRequest: [requireAuth] }, async (req, reply) => {
+    const userId = getAuthUserId(req);
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const parsed = firmPatchBodySchema.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz firma bilgileri", issues: parsed.error.issues });
+    const firm = await updateFirmByOwner(id, userId, parsed.data);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    return reply.send({ item: firm });
+  });
+
+  app.post<{ Params: { id: string } }>("/firms/:id/products", { onRequest: [requireAuth] }, async (req, reply) => {
+    const userId = getAuthUserId(req);
+    const firmId = Number(req.params.id);
+    if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const firm = await getFirmById(firmId);
+    if (!firm || firm.ownerUserId !== userId) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const parsed = firmProductBodySchema.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz urun bilgileri", issues: parsed.error.issues });
+    const id = await createFirmProduct({ ...parsed.data, firmId });
+    return reply.status(201).send({ id });
+  });
+
+  app.patch<{ Params: { id: string; productId: string } }>("/firms/:id/products/:productId", { onRequest: [requireAuth] }, async (req, reply) => {
+    const userId = getAuthUserId(req);
+    const firmId = Number(req.params.id);
+    const productId = Number(req.params.productId);
+    if (!Number.isFinite(firmId) || !Number.isFinite(productId)) return reply.status(400).send({ error: "Gecersiz id" });
+    const firm = await getFirmById(firmId);
+    if (!firm || firm.ownerUserId !== userId) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const parsed = firmProductPatchBodySchema.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz urun bilgileri", issues: parsed.error.issues });
+    const affected = await updateFirmProduct(productId, { ...parsed.data, firmId });
+    if (!affected) return reply.status(404).send({ error: "Urun bulunamadi" });
+    return reply.send({ ok: true });
+  });
+
+  app.delete<{ Params: { id: string; productId: string } }>("/firms/:id/products/:productId", { onRequest: [requireAuth] }, async (req, reply) => {
+    const userId = getAuthUserId(req);
+    const firmId = Number(req.params.id);
+    const productId = Number(req.params.productId);
+    if (!Number.isFinite(firmId) || !Number.isFinite(productId)) return reply.status(400).send({ error: "Gecersiz id" });
+    const firm = await getFirmById(firmId);
+    if (!firm || firm.ownerUserId !== userId) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const affected = await deleteFirmProduct(productId, firmId);
+    if (!affected) return reply.status(404).send({ error: "Urun bulunamadi" });
+    return reply.send({ ok: true });
+  });
+
+  app.post<{ Params: { id: string } }>("/firms/:id/claim", { onRequest: [requireAuth] }, async (req, reply) => {
+    const userId = getAuthUserId(req);
+    const firmId = Number(req.params.id);
+    if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const parsed = claimBodySchema.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz claim bilgisi", issues: parsed.error.issues });
+    const id = await createFirmClaim({ firmId, userId, evidence: parsed.data.evidence });
+    if (!id) return reply.status(404).send({ error: "Firma bulunamadi" });
+    return reply.status(201).send({ id });
   });
 
   app.post<{ Params: { slug: string } }>("/firms/:slug/leads", async (req, reply) => {
@@ -157,6 +282,32 @@ export async function registerFirmsAdmin(app: FastifyInstance) {
   app.get("/firms/stale", async (req, reply) => {
     const days = Number((req.query as Record<string, unknown>).days ?? 45);
     return reply.send({ items: await listStaleFirms(Number.isFinite(days) ? days : 45) });
+  });
+
+  app.patch<{ Params: { id: string } }>("/firms/:id", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const parsed = moderateFirmBodySchema.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz firma alanlari", issues: parsed.error.issues });
+    const firm = await adminUpdateFirm(id, parsed.data);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi" });
+    return reply.send({ item: firm });
+  });
+
+  app.get("/firms/claims", async (req, reply) => {
+    const status = ((req.query as Record<string, string | undefined>).status ?? "pending") as "pending" | "approved" | "rejected" | "all";
+    return reply.send({ items: await listFirmClaims(status) });
+  });
+
+  app.post<{ Params: { id: string } }>("/firms/claims/:id/moderate", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz claim id" });
+    const parsed = moderateClaimBodySchema.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz moderasyon karari", issues: parsed.error.issues });
+    const reviewedBy = getAuthUserId(req);
+    const row = await moderateFirmClaim(id, parsed.data.status, reviewedBy);
+    if (!row) return reply.status(404).send({ error: "Claim bulunamadi" });
+    return reply.send({ item: row });
   });
 
   app.post("/firms/etl/run", async (req, reply) => {
