@@ -74,6 +74,18 @@
 4. **Faz D — Frontend:** Firmanı Ekle + form + komisyoncu kayıt + dashboard + firma sayfası genişletme.
 5. **Faz E — Admin:** moderasyon + rol yönetimi.
 
+### Uygulama Durumu (2026-05-29)
+- [x] **Faz A — Roller (CANLI):** komisyoncu rolü ortak pakete eklendi (Role/RoleName/ENUM/validation,
+  build:shared OK, shared repo 0fc8a40) + hal-fiyatlari seed ENUM (9abf759). **Canlı DB:** user_roles
+  ENUM'a komisyoncu eklendi (additive ALTER), shared dist VPS'te build edildi, backend reload.
+- [x] **Faz B — DB şema (CANLI):** Codex `034_firms_schema.sql` + drizzle'a üyelik kolonları
+  (owner_user_id/source/status/description/claim_status) + hf_firm_products yazdı. **Canlı DB:**
+  additive ALTER (hf_firms 5 kolon + index) + hf_firm_products CREATE uygulandı. Doğrulandı.
+- [ ] **Faz A kalan:** signup rol seçimi (Kullanıcı/Komisyoncu, admin/editor asla) + proje rol
+  görünürlüğü (Taşıyıcı/Bayi gizle) — *Codex (auth controller + UI)*.
+- [ ] **Faz C/D/E:** Codex (firma ekle/claim/ürün API + Firmanı Ekle/kayıt/dashboard + admin moderasyon).
+  Brief: `docs/codex-briefs/uye-komisyoncu-impl.md`. Foundation (rol+şema) hazır → C başlayabilir.
+
 ## 9. Kararlar (Orhan 2026-05-29 — KESİN)
 - ✅ **Moderasyon:** user-eklenen firma `status=pending` → **admin onayı** sonrası yayında (spam koruması).
 - ✅ **Claim doğrulama:** şimdilik **sadece admin onayı** (telefon/e-posta doğrulama sonraki faz — SMS altyapısı gerekince).
