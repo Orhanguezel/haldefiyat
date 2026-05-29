@@ -125,7 +125,6 @@ export default async function FirmDetailPage({ params }: Props) {
             {firm.contactPerson && <Info label="Yetkili" value={firm.contactPerson} />}
             {firm.phone && <Info label="Telefon" value={firm.phone} />}
             {firm.address && <Info label="Adres" value={firm.address} wide />}
-            <Info label="Kaynak" value="Halkatalogu kamu firma dizini" />
           </dl>
 
           {isPremium && (
@@ -145,14 +144,6 @@ export default async function FirmDetailPage({ params }: Props) {
                 Telefonla ara
               </a>
             )}
-            <a
-              href={firm.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              className="rounded-[6px] border border-(--color-border) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-foreground)"
-            >
-              Kaynak profili
-            </a>
             <Link
               href={`/firmalar?city=${encodeURIComponent(firm.citySlug ?? "")}`}
               className="rounded-[6px] border border-(--color-border) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-foreground)"
