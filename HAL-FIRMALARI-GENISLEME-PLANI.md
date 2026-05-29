@@ -76,6 +76,8 @@ yeni public bölüm, admin_panel'de CRM. Fiyat ETL pattern'i birebir.
 - [x] Frontend typecheck temiz: `bun x tsc --noEmit`.
 - [x] FAZ 3 başlangıç admin paneli eklendi: `/admin/firmalar` liste, filtre, ETL dry-run/il tetik, stale raporu.
 - [x] Admin panel typecheck temiz: `bun x tsc --noEmit`.
+- [x] Canlı deploy yapıldı: yeni DB tabloları oluşturuldu, backend/frontend/admin build alındı ve `hal-backend`, `hal-frontend`, `hal-admin` restart edildi.
+- [x] Canlı smoke: Adana limit=5 ETL başarılı (`inserted=5`), `/api/v1/firms?city=adana` veri döndü, `/firmalar` 200, örnek `/firma/3063-adana-hal-adana-sebze-hali` 200, `/admin/firmalar` 200, sitemap firma URL içeriyor.
 
 ### FAZ 0 — Keşif & Doğrulama *(önce bu; planın temelini kesinleştirir)*
 - [ ] **[Claude]** Gerçek pagination/load-more mekanizmasını çöz: il sayfasının JS'inde AJAX endpoint var mı? `?page=`/`?p=`/`offset=` çalışıyor mu? Yoksa kapsama yalnızca ilçe+kategori union'ı ile mi tam olur?
