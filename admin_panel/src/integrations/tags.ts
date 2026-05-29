@@ -109,6 +109,7 @@ export const tags = [
   'MediaFolder',
   'Redirects',
   'Redirect',
+  'SeoAudit',
   'StorageAssets',
   'StorageAsset',
   'StorageFolders',

@@ -16,6 +16,7 @@ import {
   Mail,
   MessageSquare,
   Package,
+  Route,
   Send,
   Settings,
   TrendingUp,
@@ -141,6 +142,7 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
       { key: 'storage', url: '/admin/storage', icon: HardDrive },
       { key: 'telegram', url: '/admin/telegram', icon: Send },
       { key: 'audit', url: '/admin/audit', icon: MessageSquare },
+      { key: 'redirects', url: '/admin/redirects', icon: Route },
     ],
   },
 ];
@@ -186,6 +188,7 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   storage: 'Depolama',
   telegram: 'Telegram',
   audit: 'Komuta Merkezi',
+  redirects: 'SEO / Yönlendirme',
 };
 
 export const ADMIN_NAV_ROUTE_MAP: Record<AdminNavItemKey, string> = adminNavConfig

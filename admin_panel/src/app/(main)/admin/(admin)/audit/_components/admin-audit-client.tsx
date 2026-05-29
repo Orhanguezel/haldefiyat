@@ -1613,15 +1613,16 @@ export default function AdminAuditClient() {
               ))}
             </div>
           </div>
+          {/* Primary: Türkiye il bazında choropleth (ülke değil, şehir bazlı) */}
           <Card>
             <CardHeader>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <CardTitle className="flex items-center gap-2 text-base">
-                    <Globe className="h-4 w-4" /> {t('map.title')}
+                    <Globe className="h-4 w-4" /> Türkiye Haritası — İl Bazında
                   </CardTitle>
                   <CardDescription>
-                    {t('map.description', { days: String(geoParams.days) })}
+                    Ziyaretçilerin geldiği iller (geoip şehir → il). LOCAL/sunucu-içi trafik hariç.
                   </CardDescription>
                 </div>
                 {geoLoading && (
@@ -1637,18 +1638,21 @@ export default function AdminAuditClient() {
                   {getErrorMessage(geoQ.error, t('error'))}
                 </div>
               )}
-              <AuditGeoMap items={geoItemsVisible} loading={geoLoading} />
+              <AuditTurkeyMap cities={geoCitiesTR} loading={geoLoading} />
             </CardContent>
           </Card>
+          {/* Secondary: ülke kırılımı (yurtdışı trafik referansı) */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <Globe className="h-4 w-4" /> Türkiye Haritası
+                <Globe className="h-4 w-4" /> Ülke Kırılımı
               </CardTitle>
-              <CardDescription>Ziyaretçilerin geldiği iller (geoip şehir → il). LOCAL/sunucu-içi trafik hariç.</CardDescription>
+              <CardDescription>
+                {t('map.description', { days: String(geoParams.days) })}
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <AuditTurkeyMap cities={geoCitiesTR} loading={geoLoading} />
+              <AuditGeoMap items={geoItemsVisible} loading={geoLoading} />
             </CardContent>
           </Card>
           <Card>

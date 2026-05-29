@@ -290,3 +290,11 @@ export {
   useLazyExportUiSettingsAdminQuery,
   useBootstrapUiSettingsAdminMutation,
 } from "@/integrations/endpoints/admin/db-admin-endpoints";
+
+export {
+  useListRedirectsAdminQuery,
+  useUpsertRedirectsAdminMutation,
+  useUpdateRedirectAdminMutation,
+  useDeleteRedirectAdminMutation,
+  useGetSeoAuditAdminQuery,
+} from "@/integrations/endpoints/admin/redirects-admin-endpoints";

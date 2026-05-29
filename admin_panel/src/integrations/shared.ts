@@ -1071,3 +1071,18 @@ export {
   buildPopupToastMessage,
   parseTargetPaths,
 } from "@/integrations/shared/popups/index";
+
+export {
+  REDIRECTS_ADMIN_BASE,
+  SEO_AUDIT_ADMIN_BASE,
+  SEO_AUDIT_ISSUE_LABELS,
+  type RedirectType,
+  type RedirectRowDto,
+  type RedirectsListResponseDto,
+  type RedirectsListQueryParams,
+  type RedirectInputDto,
+  type RedirectUpsertResponseDto,
+  type SeoAuditIssue,
+  type SeoAuditItemDto,
+  type SeoAuditResponseDto,
+} from "@/integrations/shared/redirects";

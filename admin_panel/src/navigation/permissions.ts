@@ -20,7 +20,8 @@ export type AdminPermissionKey =
   | 'admin.storage'
   | 'admin.telegram'
   | 'admin.audit'
-  | 'admin.competitor_monitor';
+  | 'admin.competitor_monitor'
+  | 'admin.redirects';
 
 export type AdminNavKey =
   | 'dashboard'
@@ -43,7 +44,8 @@ export type AdminNavKey =
   | 'storage'
   | 'telegram'
   | 'audit'
-  | 'competitor_monitor';
+  | 'competitor_monitor'
+  | 'redirects';
 
 const ADMIN_ONLY: PanelRole[] = ['admin'];
 
@@ -68,6 +70,7 @@ const ADMIN_PERMISSION_ROLE_MAP: Record<AdminPermissionKey, PanelRole[]> = {
   'admin.telegram': ADMIN_ONLY,
   'admin.audit': ADMIN_ONLY,
   'admin.competitor_monitor': ADMIN_ONLY,
+  'admin.redirects': ADMIN_ONLY,
 };
 
 export function canAccessAdminPermission(role: PanelRole, key: AdminPermissionKey): boolean {
@@ -96,6 +99,7 @@ const ADMIN_NAV_PERMISSION_MAP: Partial<Record<AdminNavKey, AdminPermissionKey>>
   telegram: 'admin.telegram',
   audit: 'admin.audit',
   competitor_monitor: 'admin.competitor_monitor',
+  redirects: 'admin.redirects',
 };
 
 export function getAdminNavRoles(key: AdminNavKey): PanelRole[] {
@@ -125,6 +129,7 @@ const ADMIN_PERMISSION_PATHS: Record<AdminPermissionKey, string[]> = {
   'admin.telegram': ['/admin/telegram'],
   'admin.audit': ['/admin/audit'],
   'admin.competitor_monitor': ['/admin/competitor-monitor'],
+  'admin.redirects': ['/admin/redirects'],
 };
 
 function stripQueryAndHash(pathname: string): string {
