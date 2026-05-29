@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: makale.metaDescription || makale.ozet,
       url: `${SITE_URL}/analiz/${slug}`,
       publishedTime: makale.tarih,
-      authors: [makale.yazar],
+      authors: [makale.authorProfile?.fullName ?? makale.yazar],
       tags: makale.etiketler,
       section: isHaftalikRapor(makale) ? "Haftalık Hal Raporu" : "Hal Fiyatı Analizi",
       ...(makale.ogImage ? { images: [makale.ogImage] } : {}),
@@ -118,6 +118,10 @@ export default async function AnalizMakalePage({ params }: Props) {
   const readingTime = readingTimeMinutes(makale.icerik);
   const isWeekly = isHaftalikRapor(makale);
   const isHtml = isHtmlContent(makale.icerik);
+  const authorProfile = makale.authorProfile;
+  const authorName = authorProfile?.fullName ?? makale.yazar;
+  const authorTitle = authorProfile?.title ?? null;
+  const authorUrl = authorProfile ? `${SITE_URL}/yazar/${authorProfile.slug}` : null;
 
   const newsArticleSchema = {
     headline: makale.baslik,
@@ -125,7 +129,14 @@ export default async function AnalizMakalePage({ params }: Props) {
     datePublished: makale.tarih,
     dateModified: makale.tarih,
     mainEntityOfPage: `${SITE_URL}/analiz/${makale.slug}`,
-    author: {
+    author: authorProfile ? {
+      "@type": "Person",
+      name: authorProfile.fullName,
+      jobTitle: authorProfile.title ?? undefined,
+      url: authorUrl,
+      ...(authorProfile.avatarUrl ? { image: authorProfile.avatarUrl } : {}),
+      ...(authorProfile.credentials ? { description: authorProfile.credentials } : {}),
+    } : {
       "@type": "Organization",
       name: makale.yazar,
       url: SITE_URL,
@@ -182,7 +193,13 @@ export default async function AnalizMakalePage({ params }: Props) {
               {makale.baslik}
             </h1>
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] text-(--color-muted)">
-              <span className="font-medium text-(--color-foreground)">{makale.yazar}</span>
+              {authorProfile ? (
+                <Link href={`/yazar/${authorProfile.slug}`} className="font-medium text-(--color-foreground) hover:text-(--color-brand)">
+                  {authorName}{authorTitle ? `, ${authorTitle}` : ''}
+                </Link>
+              ) : (
+                <span className="font-medium text-(--color-foreground)">{authorName}</span>
+              )}
               <span aria-hidden>·</span>
               <time dateTime={makale.tarih}>{formatDate(makale.tarih)}</time>
               {makale.hafta && (
@@ -222,7 +239,7 @@ export default async function AnalizMakalePage({ params }: Props) {
               Rapor Özeti
             </h2>
             <dl className="mt-4 space-y-3 text-[13px]">
-              <SummaryItem label="Yayıncı" value={makale.yazar} />
+              <SummaryItem label="Yayıncı" value={authorName} />
               <SummaryItem label="Yayın tarihi" value={formatDate(makale.tarih)} />
               {makale.hafta && <SummaryItem label="ISO hafta" value={makale.hafta} />}
               <SummaryItem label="Kategori" value={isWeekly ? "Haftalık rapor" : "Analiz"} />
@@ -345,7 +362,9 @@ function SummaryItem({ label, value }: { label: string; value: string }) {
   );
 }
 
-function mergeUniqueArticles<T extends AutoWeeklyReport | ReturnType<typeof getSonMakaleler>[number]>(...groups: T[][]): T[] {
+type ArticleSummary = AutoWeeklyReport | ReturnType<typeof getSonMakaleler>[number];
+
+function mergeUniqueArticles(...groups: ArticleSummary[][]): ArticleSummary[] {
   const seen = new Set<string>();
   return groups
     .flat()

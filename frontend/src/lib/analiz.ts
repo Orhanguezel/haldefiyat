@@ -1,3 +1,5 @@
+import type { PublicAuthor } from "@/lib/api";
+
 export interface AnalizMakale {
   slug: string;
   baslik: string;
@@ -11,6 +13,8 @@ export interface AnalizMakale {
   metaDescription?: string | null;
   ogImage?: string | null;
   imageAlt?: string | null;
+  authorId?: number | null;
+  authorProfile?: PublicAuthor | null;
 }
 
 export function isHaftalikRapor(makale: AnalizMakale): boolean {

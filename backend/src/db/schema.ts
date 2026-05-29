@@ -191,6 +191,7 @@ export const hfAnalysisReports = mysqlTable(
     imageAlt:     varchar("image_alt", { length: 255 }),
     content:      text("content").notNull(),
     author:       varchar("author", { length: 128 }).notNull().default("HaldeFiyat Veri Ekibi"),
+    authorId:     int("author_id"),
     tags:         json("tags").$type<string[]>(),
     isoWeek:      varchar("iso_week", { length: 8 }).notNull(),
     weekStart:    date("week_start").notNull(),
@@ -207,6 +208,31 @@ export const hfAnalysisReports = mysqlTable(
     uniqueIndex("hf_analysis_reports_slug_uq").on(t.slug),
     index("hf_analysis_reports_status_date_idx").on(t.status, t.reportDate),
     index("hf_analysis_reports_week_idx").on(t.isoWeek),
+    index("hf_analysis_reports_author_idx").on(t.authorId),
+  ],
+);
+
+export const hfAuthors = mysqlTable(
+  "hf_authors",
+  {
+    id:           int("id").autoincrement().primaryKey(),
+    slug:         varchar("slug", { length: 120 }).notNull(),
+    fullName:     varchar("full_name", { length: 160 }).notNull(),
+    title:        varchar("title", { length: 200 }),
+    bio:          text("bio"),
+    expertise:    json("expertise").$type<string[]>(),
+    avatarUrl:    varchar("avatar_url", { length: 500 }),
+    credentials:  varchar("credentials", { length: 300 }),
+    socialLinks:  json("social_links").$type<Record<string, string>>(),
+    email:        varchar("email", { length: 255 }),
+    isActive:     tinyint("is_active").notNull().default(1),
+    displayOrder: int("display_order").notNull().default(100),
+    createdAt:    datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:    datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    uniqueIndex("hf_authors_slug_uq").on(t.slug),
+    index("hf_authors_active_idx").on(t.isActive, t.displayOrder),
   ],
 );
 

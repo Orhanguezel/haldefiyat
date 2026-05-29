@@ -19,6 +19,7 @@ export interface AnalysisReportAdmin {
   metaDescription: string | null;
   ogImage: string | null;
   imageAlt: string | null;
+  authorId: number | null;
   source: 'auto' | 'manual';
   status: AnalysisReportStatus;
   publishedAt: string | null;
@@ -36,6 +37,7 @@ export interface AnalysisReportPatch {
   metaDescription?: string | null;
   ogImage?: string | null;
   imageAlt?: string | null;
+  authorId?: number | null;
   status?: AnalysisReportStatus;
 }
 
@@ -49,6 +51,7 @@ export interface AnalysisReportCreate {
   metaDescription?: string | null;
   ogImage?: string | null;
   imageAlt?: string | null;
+  authorId?: number | null;
   status?: AnalysisReportStatus;
 }
 

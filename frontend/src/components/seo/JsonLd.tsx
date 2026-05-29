@@ -10,7 +10,9 @@ type JsonLdType =
   | "BreadcrumbList"
   | "FAQPage"
   | "Dataset"
-  | "Place";
+  | "Place"
+  | "Person"
+  | "ProfilePage";
 
 interface JsonLdProps {
   type: JsonLdType;

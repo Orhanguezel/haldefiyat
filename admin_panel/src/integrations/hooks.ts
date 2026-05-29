@@ -124,6 +124,12 @@ export {
 } from "@/integrations/endpoints/competitor-monitor-admin-endpoints";
 
 export {
+  useListAuthorsAdminQuery,
+  useCreateAuthorAdminMutation,
+  useUpdateAuthorAdminMutation,
+} from "@/integrations/endpoints/authors-admin-endpoints";
+
+export {
   useListAnalysisReportsAdminQuery,
   useGetAnalysisReportAdminQuery,
   useCreateAnalysisReportAdminMutation,

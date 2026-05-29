@@ -514,6 +514,32 @@ export interface AutoWeeklyReport {
   metaDescription?: string | null;
   ogImage?: string | null;
   imageAlt?: string | null;
+  authorId?: number | null;
+  authorProfile?: PublicAuthor | null;
+}
+
+export interface PublicAuthor {
+  id: number;
+  slug: string;
+  fullName: string;
+  title: string | null;
+  bio: string | null;
+  expertise: string[];
+  avatarUrl: string | null;
+  credentials: string | null;
+  socialLinks?: Record<string, string>;
+}
+
+export interface AuthorArticle {
+  slug: string;
+  baslik: string;
+  ozet: string;
+  tarih: string;
+  etiketler: string[];
+}
+
+export interface PublicAuthorDetail extends PublicAuthor {
+  articles: AuthorArticle[];
 }
 
 export async function fetchWidget(params: { slugs?: string[]; category?: string; limit?: number }): Promise<WidgetPrice[]> {
@@ -533,6 +559,13 @@ export async function fetchAutoWeeklyReports(limit = 8): Promise<AutoWeeklyRepor
 export async function fetchAutoWeeklyReport(slug: string): Promise<AutoWeeklyReport | null> {
   return safeFetchNoStore<AutoWeeklyReport | null>(
     `/analysis/weekly-reports/${encodeURIComponent(slug)}`,
+    null,
+  );
+}
+
+export async function fetchAuthor(slug: string): Promise<PublicAuthorDetail | null> {
+  return safeFetchNoStore<PublicAuthorDetail | null>(
+    `/authors/${encodeURIComponent(slug)}`,
     null,
   );
 }

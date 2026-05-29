@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db/client";
-import { hfAnalysisReports } from "@/db/schema";
+import { hfAnalysisReports, hfAuthors } from "@/db/schema";
 import { repoGetSnapshotHistory } from "@/modules/index/repository";
 import { resolveWeekRange } from "@/modules/prices/iso-week";
 import { weeklyPriceSummary, type WeeklySummary } from "@/modules/prices/weekly";
@@ -23,6 +23,19 @@ export type AutoWeeklyReport = {
   metaDescription?: string | null;
   ogImage?: string | null;
   imageAlt?: string | null;
+  authorId?: number | null;
+  authorProfile?: PublicAuthorProfile | null;
+};
+
+type PublicAuthorProfile = {
+  id: number;
+  slug: string;
+  fullName: string;
+  title: string | null;
+  bio: string | null;
+  expertise: string[];
+  avatarUrl: string | null;
+  credentials: string | null;
 };
 
 type AnalysisReportStatus = "draft" | "published" | "archived";
@@ -50,6 +63,7 @@ const bodyCreate = z.object({
   metaDescription: z.string().trim().nullable().optional(),
   ogImage: z.string().trim().max(500).nullable().optional(),
   imageAlt: z.string().trim().max(255).nullable().optional(),
+  authorId: z.coerce.number().int().positive().nullable().optional(),
   status: z.enum(["draft", "published", "archived"]).optional(),
 });
 
@@ -63,6 +77,7 @@ const bodyPatch = z.object({
   metaDescription: z.string().trim().nullable().optional(),
   ogImage: z.string().trim().max(500).nullable().optional(),
   imageAlt: z.string().trim().max(255).nullable().optional(),
+  authorId: z.coerce.number().int().positive().nullable().optional(),
   status: z.enum(["draft", "published", "archived"]).optional(),
 });
 
@@ -138,6 +153,7 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
     const now = new Date();
     const slug = await ensureUniqueReportSlug(next.slug || next.title);
     const status = next.status ?? "draft";
+    const author = await resolveAuthorForWrite(next.authorId);
     const reportDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12));
     const isoWeek = isoWeekForDate(reportDate);
 
@@ -150,7 +166,8 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
       ogImage: next.ogImage || "/og-default.png",
       imageAlt: next.imageAlt || next.title,
       content: next.content,
-      author: "HaldeFiyat Veri Ekibi",
+      author: author?.fullName ?? "HaldeFiyat Veri Ekibi",
+      authorId: author?.id ?? null,
       tags: next.tags ?? [],
       isoWeek,
       weekStart: reportDate,
@@ -196,6 +213,11 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
     if (next.metaDescription !== undefined) patch.metaDescription = next.metaDescription || null;
     if (next.ogImage !== undefined) patch.ogImage = next.ogImage || null;
     if (next.imageAlt !== undefined) patch.imageAlt = next.imageAlt || null;
+    if (next.authorId !== undefined) {
+      const author = await resolveAuthorForWrite(next.authorId);
+      patch.authorId = author?.id ?? null;
+      patch.author = author?.fullName ?? "HaldeFiyat Veri Ekibi";
+    }
     if (next.status !== undefined) {
       patch.status = next.status;
       patch.publishedAt = next.status === "published" ? new Date() : null;
@@ -235,21 +257,23 @@ export async function generateLatestWeeklyAnalysisReport(): Promise<AutoWeeklyRe
 
 async function listPublishedWeeklyReports(limit: number): Promise<AutoWeeklyReport[]> {
   const rows = await db
-    .select()
+    .select({ report: hfAnalysisReports, author: hfAuthors })
     .from(hfAnalysisReports)
+    .leftJoin(hfAuthors, eq(hfAuthors.id, hfAnalysisReports.authorId))
     .where(eq(hfAnalysisReports.status, "published"))
     .orderBy(desc(hfAnalysisReports.reportDate))
     .limit(limit);
-  return rows.map(reportRowToPublic);
+  return rows.map(({ report, author }) => reportRowToPublic(report, author));
 }
 
 async function getPublishedWeeklyReport(slug: string): Promise<AutoWeeklyReport | null> {
   const [row] = await db
-    .select()
+    .select({ report: hfAnalysisReports, author: hfAuthors })
     .from(hfAnalysisReports)
+    .leftJoin(hfAuthors, eq(hfAuthors.id, hfAnalysisReports.authorId))
     .where(and(eq(hfAnalysisReports.slug, slug), eq(hfAnalysisReports.status, "published")))
     .limit(1);
-  return row ? reportRowToPublic(row) : null;
+  return row ? reportRowToPublic(row.report, row.author) : null;
 }
 
 async function listAdminReports(status: "draft" | "published" | "archived" | "all" | undefined, limit: number) {
@@ -350,7 +374,7 @@ async function setReportStatus(idRaw: string, status: AnalysisReportStatus) {
   return row ?? null;
 }
 
-function reportRowToPublic(row: typeof hfAnalysisReports.$inferSelect): AutoWeeklyReport {
+function reportRowToPublic(row: typeof hfAnalysisReports.$inferSelect, author?: typeof hfAuthors.$inferSelect | null): AutoWeeklyReport {
   return {
     slug: row.slug,
     baslik: row.title,
@@ -367,6 +391,17 @@ function reportRowToPublic(row: typeof hfAnalysisReports.$inferSelect): AutoWeek
     metaDescription: row.metaDescription ?? null,
     ogImage: row.ogImage ?? null,
     imageAlt: row.imageAlt ?? null,
+    authorId: row.authorId ?? null,
+    authorProfile: author && author.isActive ? {
+      id: author.id,
+      slug: author.slug,
+      fullName: author.fullName,
+      title: author.title ?? null,
+      bio: author.bio ?? null,
+      expertise: Array.isArray(author.expertise) ? author.expertise : [],
+      avatarUrl: author.avatarUrl ?? null,
+      credentials: author.credentials ?? null,
+    } : null,
   };
 }
 
@@ -391,6 +426,16 @@ async function ensureUniqueReportSlug(value: string): Promise<string> {
     candidate = `${base}-${index}`;
   }
   return `${base}-${Date.now()}`;
+}
+
+async function resolveAuthorForWrite(authorId: number | null | undefined) {
+  if (!authorId) return null;
+  const [author] = await db
+    .select()
+    .from(hfAuthors)
+    .where(eq(hfAuthors.id, authorId))
+    .limit(1);
+  return author ?? null;
 }
 
 function slugifyReport(value: string): string {

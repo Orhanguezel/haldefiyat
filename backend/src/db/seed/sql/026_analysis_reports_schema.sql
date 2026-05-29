@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS hf_analysis_reports (
   image_alt VARCHAR(255) NULL,
   content TEXT NOT NULL,
   author VARCHAR(128) NOT NULL DEFAULT 'HaldeFiyat Veri Ekibi',
+  author_id INT UNSIGNED NULL,
   tags JSON NULL,
   iso_week VARCHAR(8) NOT NULL,
   week_start DATE NOT NULL,
@@ -22,5 +23,6 @@ CREATE TABLE IF NOT EXISTS hf_analysis_reports (
   updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
   UNIQUE KEY hf_analysis_reports_slug_uq (slug),
   KEY hf_analysis_reports_status_date_idx (status, report_date),
-  KEY hf_analysis_reports_week_idx (iso_week)
+  KEY hf_analysis_reports_week_idx (iso_week),
+  KEY hf_analysis_reports_author_idx (author_id)
 );

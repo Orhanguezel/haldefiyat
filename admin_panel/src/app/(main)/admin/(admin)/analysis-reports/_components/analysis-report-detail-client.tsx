@@ -14,12 +14,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import type { AnalysisReportAdmin, AnalysisReportStatus } from '@/integrations/endpoints/analysis-reports-admin-endpoints';
 import {
   useCreateAnalysisReportAdminMutation,
   useGetAnalysisReportAdminQuery,
+  useListAuthorsAdminQuery,
   useUpdateAnalysisReportAdminMutation,
 } from '@/integrations/hooks';
 import { resolveMediaUrl } from '@/lib/media-url';
@@ -34,6 +36,7 @@ type EditorState = {
   metaDescription: string;
   ogImage: string;
   imageAlt: string;
+  authorId: string;
 };
 
 const statusLabel: Record<AnalysisReportStatus, string> = {
@@ -53,6 +56,7 @@ function emptyEditor(): EditorState {
     metaDescription: '',
     ogImage: '/og-default.png',
     imageAlt: '',
+    authorId: '',
   };
 }
 
@@ -81,6 +85,7 @@ function toEditor(report: AnalysisReportAdmin): EditorState {
     metaDescription,
     ogImage: report.ogImage || '',
     imageAlt: report.imageAlt || report.baslik,
+    authorId: report.authorId ? String(report.authorId) : '',
   };
 }
 
@@ -155,6 +160,7 @@ export function AnalysisReportDetailClient({ id }: Props) {
   const router = useRouter();
   const isNew = id === 'new';
   const { data: report, isFetching, refetch } = useGetAnalysisReportAdminQuery({ id }, { skip: isNew });
+  const { data: authorsData } = useListAuthorsAdminQuery({ active: '1', limit: 100 });
   const [createReport, { isLoading: isCreating }] = useCreateAnalysisReportAdminMutation();
   const [updateReport, { isLoading: isUpdating }] = useUpdateAnalysisReportAdminMutation();
   const { assist: aiAssist, loading: aiLoading } = useAIContentAssist();
@@ -181,6 +187,7 @@ export function AnalysisReportDetailClient({ id }: Props) {
   const status = report?.status ?? 'draft';
   const previewUrl = editor.slug ? `https://haldefiyat.com/analiz/${editor.slug}` : '';
   const tags = splitTags(editor.tags);
+  const authors = authorsData?.items ?? [];
 
   async function handleSave(nextStatus?: AnalysisReportStatus) {
     if (!editor.title.trim() || !editor.summary.trim() || !editor.content.trim()) {
@@ -198,6 +205,7 @@ export function AnalysisReportDetailClient({ id }: Props) {
       metaDescription: editor.metaDescription || null,
       ogImage: editor.ogImage || null,
       imageAlt: editor.imageAlt || editor.title,
+      authorId: editor.authorId ? Number(editor.authorId) : null,
       ...(nextStatus ? { status: nextStatus } : {}),
     };
 
@@ -315,6 +323,25 @@ export function AnalysisReportDetailClient({ id }: Props) {
                   placeholder={slugify(editor.title)}
                   onChange={(event) => setEditor((prev) => ({ ...prev, slug: slugify(event.target.value) }))}
                 />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="analysis-author">Yazar</Label>
+                <Select
+                  value={editor.authorId || 'none'}
+                  onValueChange={(value) => setEditor((prev) => ({ ...prev, authorId: value === 'none' ? '' : value }))}
+                >
+                  <SelectTrigger id="analysis-author">
+                    <SelectValue placeholder="HaldeFiyat Veri Ekibi" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">HaldeFiyat Veri Ekibi</SelectItem>
+                    {authors.map((author) => (
+                      <SelectItem key={author.id} value={String(author.id)}>
+                        {author.fullName}{author.title ? ` — ${author.title}` : ''}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center justify-between">
