@@ -1,6 +1,6 @@
-import { and, desc, eq, like, or, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, like, or, sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import { hfRedirects } from "@/db/schema";
+import { hfProducts, hfRedirects } from "@/db/schema";
 import { STATIC_EDITORIAL_SLUGS } from "@/config/static-editorial-slugs";
 
 const APP_LOCALES = new Set(["tr", "en"]);
@@ -267,4 +267,35 @@ export async function auditProducts(filter: "all" | "issues" = "issues") {
 
   const items = filter === "issues" ? annotated.filter((r) => r.issue) : annotated;
   return { summary, items };
+}
+
+export async function applySeoAuditAction(opts: {
+  action: "set-index" | "set-noindex";
+  slugs?: string[];
+  issue?: "thin_indexed" | "variant_indexed" | "lowquality_indexed" | "ready_not_indexed";
+}) {
+  const audit = await auditProducts("all");
+  const requested = new Set((opts.slugs ?? []).filter(Boolean));
+  const candidates = audit.items.filter((item) => {
+    if (requested.size > 0 && !requested.has(item.slug)) return false;
+    if (opts.issue && item.issue !== opts.issue) return false;
+    if (opts.action === "set-index") {
+      // Güvenli index açma: yalnızca içerikli, master ve kalite >=70 ürünler.
+      return !item.indexed && item.hasEditorial && !item.canonicalSlug && item.dataQuality >= 70;
+    }
+    return item.indexed;
+  });
+  const slugs = candidates.map((item) => item.slug);
+  if (slugs.length === 0) return { updated: 0, skipped: 0, slugs: [] };
+
+  const result = await db
+    .update(hfProducts)
+    .set({ seoIndex: opts.action === "set-index" ? 1 : 0 })
+    .where(inArray(hfProducts.slug, slugs));
+
+  return {
+    updated: Number(result[0]?.affectedRows ?? 0),
+    skipped: Math.max(0, (requested.size || (opts.issue ? audit.items.filter((i) => i.issue === opts.issue).length : slugs.length)) - slugs.length),
+    slugs,
+  };
 }

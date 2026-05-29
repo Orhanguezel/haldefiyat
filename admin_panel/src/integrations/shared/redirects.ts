@@ -100,6 +100,19 @@ export interface SeoAuditResponseDto {
   items: SeoAuditItemDto[];
 }
 
+export interface SeoAuditActionRequestDto {
+  action: 'set-index' | 'set-noindex';
+  slugs?: string[];
+  issue?: Exclude<SeoAuditIssue, null>;
+}
+
+export interface SeoAuditActionResponseDto {
+  ok: boolean;
+  updated: number;
+  skipped: number;
+  slugs: string[];
+}
+
 export const SEO_AUDIT_ISSUE_LABELS: Record<Exclude<SeoAuditIssue, null>, string> = {
   thin_indexed: 'İndexli ama içerik yok',
   variant_indexed: 'İndexli ama varyant (canonical dolu)',

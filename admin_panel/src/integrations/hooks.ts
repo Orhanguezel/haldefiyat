@@ -311,4 +311,5 @@ export {
   useUpdateRedirectAdminMutation,
   useDeleteRedirectAdminMutation,
   useGetSeoAuditAdminQuery,
+  useRunSeoAuditActionAdminMutation,
 } from "@/integrations/endpoints/admin/redirects-admin-endpoints";

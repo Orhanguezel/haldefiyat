@@ -1087,4 +1087,6 @@ export {
   type SeoAuditMissing,
   type SeoAuditItemDto,
   type SeoAuditResponseDto,
+  type SeoAuditActionRequestDto,
+  type SeoAuditActionResponseDto,
 } from "@/integrations/shared/redirects";

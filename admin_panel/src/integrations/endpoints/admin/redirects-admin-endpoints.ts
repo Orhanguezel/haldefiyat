@@ -13,6 +13,8 @@ import type {
   RedirectUpsertResponseDto,
   RedirectsListQueryParams,
   RedirectsListResponseDto,
+  SeoAuditActionRequestDto,
+  SeoAuditActionResponseDto,
   SeoAuditResponseDto,
 } from '@/integrations/shared';
 
@@ -68,6 +70,15 @@ export const redirectsAdminApi = baseApi.injectEndpoints({
       }),
       providesTags: [{ type: 'SeoAudit' as const, id: 'LIST' }],
     }),
+
+    runSeoAuditActionAdmin: build.mutation<SeoAuditActionResponseDto, SeoAuditActionRequestDto>({
+      query: (body) => ({
+        url: `${SEO_AUDIT_ADMIN_BASE}/actions`,
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: [{ type: 'SeoAudit' as const, id: 'LIST' }],
+    }),
   }),
 });
 
@@ -77,4 +88,5 @@ export const {
   useUpdateRedirectAdminMutation,
   useDeleteRedirectAdminMutation,
   useGetSeoAuditAdminQuery,
+  useRunSeoAuditActionAdminMutation,
 } = redirectsAdminApi;

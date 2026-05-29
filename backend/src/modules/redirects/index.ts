@@ -24,6 +24,7 @@ import {
   updateRedirect,
   upsertRedirects,
   type RedirectInput,
+  applySeoAuditAction,
 } from "./repository";
 
 export async function registerRedirectsPublic(api: FastifyInstance) {
@@ -90,5 +91,24 @@ export async function registerSeoOpsAdmin(adminApi: FastifyInstance) {
     const filter = req.query.filter === "all" ? "all" : "issues";
     const result = await auditProducts(filter);
     return reply.send(result);
+  });
+
+  adminApi.post<{
+    Body: {
+      action?: "set-index" | "set-noindex";
+      slugs?: string[];
+      issue?: "thin_indexed" | "variant_indexed" | "lowquality_indexed" | "ready_not_indexed";
+    };
+  }>("/seo-audit/actions", async (req, reply) => {
+    const action = req.body?.action;
+    if (action !== "set-index" && action !== "set-noindex") {
+      return reply.status(400).send({ error: "Gecersiz action" });
+    }
+    const result = await applySeoAuditAction({
+      action,
+      slugs: Array.isArray(req.body?.slugs) ? req.body.slugs : undefined,
+      issue: req.body?.issue,
+    });
+    return reply.send({ ok: true, ...result });
   });
 }
