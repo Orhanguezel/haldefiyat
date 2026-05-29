@@ -42,6 +42,7 @@ export default async function AuthorPage({ params }: Props) {
 
   const profileUrl = `${SITE_URL}/yazar/${author.slug}`;
   const imageUrl = author.avatarUrl ? toAbsoluteUrl(author.avatarUrl) : null;
+  const socialEntries = Object.entries(author.socialLinks ?? {}).filter(([, url]) => Boolean(url));
   const personSchema = {
     "@type": "Person",
     name: author.fullName,
@@ -51,6 +52,7 @@ export default async function AuthorPage({ params }: Props) {
     knowsAbout: author.expertise,
     ...(imageUrl ? { image: imageUrl } : {}),
     ...(author.credentials ? { hasCredential: author.credentials } : {}),
+    ...(socialEntries.length ? { sameAs: socialEntries.map(([, url]) => url) } : {}),
   };
   const profilePageSchema = {
     "@type": "ProfilePage",
@@ -88,6 +90,21 @@ export default async function AuthorPage({ params }: Props) {
               <p className="mt-4 rounded-[12px] border border-(--color-border-soft) bg-(--color-bg-alt) p-3 text-[13px] leading-5 text-(--color-muted)">
                 {author.credentials}
               </p>
+            )}
+            {socialEntries.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {socialEntries.map(([key, url]) => (
+                  <a
+                    key={key}
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border border-(--color-border) px-3 py-1 text-[12px] font-semibold text-(--color-foreground) transition-colors hover:border-(--color-brand)/40 hover:text-(--color-brand)"
+                  >
+                    {socialLabel(key)}
+                  </a>
+                ))}
+              </div>
             )}
           </div>
         </aside>
@@ -162,4 +179,16 @@ function formatDate(iso: string): string {
     month: "long",
     year: "numeric",
   });
+}
+
+function socialLabel(key: string): string {
+  const labels: Record<string, string> = {
+    website: "Web",
+    linkedin: "LinkedIn",
+    instagram: "Instagram",
+    x: "X",
+    youtube: "YouTube",
+    facebook: "Facebook",
+  };
+  return labels[key] ?? key;
 }

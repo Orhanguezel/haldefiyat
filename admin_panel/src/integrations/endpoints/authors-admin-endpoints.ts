@@ -45,6 +45,11 @@ export const authorsAdminApi = baseApi.injectEndpoints({
       },
       providesTags: [{ type: 'Authors' as const, id: 'LIST' }],
     }),
+    getAuthorAdmin: builder.query<AuthorAdmin, { id: number | string }>({
+      query: ({ id }) => ({ url: `/admin/authors/${id}` }),
+      transformResponse: (response: { data: AuthorAdmin }) => response.data,
+      providesTags: (_res, _err, { id }) => [{ type: 'Authors' as const, id }],
+    }),
     createAuthorAdmin: builder.mutation<{ data: AuthorAdmin }, AuthorCreate>({
       query: (body) => ({ url: '/admin/authors', method: 'POST', body }),
       invalidatesTags: [{ type: 'Authors' as const, id: 'LIST' }],
@@ -62,6 +67,7 @@ export const authorsAdminApi = baseApi.injectEndpoints({
 
 export const {
   useListAuthorsAdminQuery,
+  useGetAuthorAdminQuery,
   useCreateAuthorAdminMutation,
   useUpdateAuthorAdminMutation,
 } = authorsAdminApi;

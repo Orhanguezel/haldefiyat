@@ -125,6 +125,7 @@ export {
 
 export {
   useListAuthorsAdminQuery,
+  useGetAuthorAdminQuery,
   useCreateAuthorAdminMutation,
   useUpdateAuthorAdminMutation,
 } from "@/integrations/endpoints/authors-admin-endpoints";

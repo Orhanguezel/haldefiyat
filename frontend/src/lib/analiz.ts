@@ -1,5 +1,17 @@
 import type { PublicAuthor } from "@/lib/api";
 
+const ORHAN_AUTHOR_PROFILE: PublicAuthor = {
+  id: 0,
+  slug: "orhan-guzel",
+  fullName: "Orhan Güzel",
+  title: "Veri ve Piyasa Analisti",
+  bio: "Orhan Güzel, HaldeFiyat üzerinde Türkiye toptancı hal fiyatlarını, ürün bazlı fiyat hareketlerini ve piyasa trendlerini veri odaklı analiz eder.",
+  expertise: ["hal fiyatları", "veri analizi", "piyasa analizi", "tarım ekonomisi"],
+  avatarUrl: "https://lh3.googleusercontent.com/a/ACg8ocJRYNVtjOyld6L1_zH6Y36Wfx2Jud4kOlMKJswEicA1fXU7KxMF8w=s96-c",
+  credentials: "HaldeFiyat kurucu ekibi; veri, SEO ve piyasa analiz operasyonu",
+  socialLinks: {},
+};
+
 export interface AnalizMakale {
   slug: string;
   baslik: string;
@@ -164,11 +176,13 @@ Domates fiyatları için en güvenli alım dönemi Temmuz-Ağustos, en riskli d�
 ];
 
 export function getMakale(slug: string): AnalizMakale | undefined {
-  return MAKALELER.find((m) => m.slug === slug);
+  const item = MAKALELER.find((m) => m.slug === slug);
+  return item ? withOrhanAuthor(item) : undefined;
 }
 
 export function getSonMakaleler(limit = 10): AnalizMakale[] {
   return [...MAKALELER]
+    .map(withOrhanAuthor)
     .sort((a, b) => b.tarih.localeCompare(a.tarih))
     .slice(0, limit);
 }
@@ -177,4 +191,12 @@ export function getHaftalikRaporlar(limit = 10): AnalizMakale[] {
   return getSonMakaleler(MAKALELER.length)
     .filter(isHaftalikRapor)
     .slice(0, limit);
+}
+
+function withOrhanAuthor(makale: AnalizMakale): AnalizMakale {
+  return {
+    ...makale,
+    yazar: "Orhan Güzel",
+    authorProfile: ORHAN_AUTHOR_PROFILE,
+  };
 }
