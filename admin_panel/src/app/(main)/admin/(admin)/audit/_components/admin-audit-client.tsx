@@ -164,7 +164,14 @@ export default function AdminAuditClient() {
   const sp = useSearchParams();
   const t = useAdminT('admin.audit');
 
-  const tab = normalizeAdminAuditTab(sp.get('tab'));
+  // Tab = client-side state (URL'den türetilir ama tıklamada anında değişir).
+  // Eskiden doğrudan sp.get('tab')'dan okunuyordu; her tab tıklaması router.push
+  // → RSC round-trip → "takılma" yapıyordu. Artık tab anlık, URL history ile senkron.
+  const urlTab = normalizeAdminAuditTab(sp.get('tab'));
+  const [tab, setTab] = React.useState(urlTab);
+  React.useEffect(() => {
+    setTab(urlTab);
+  }, [urlTab]);
 
   const q = sp.get('q') ?? '';
   const method = sp.get('method') ?? '';
@@ -229,7 +236,7 @@ export default function AdminAuditClient() {
   React.useEffect(() => setUserIdText(user_id), [user_id]);
   React.useEffect(() => setIpText(ip), [ip]);
 
-  function apply(next: Partial<Record<string, any>>) {
+  function buildAuditUrl(next: Partial<Record<string, any>>) {
     const merged = {
       tab,
       q,
@@ -279,11 +286,23 @@ export default function AdminAuditClient() {
       offset: merged.offset || undefined,
     });
 
-    router.push(`/admin/audit${qs}`);
+    return `/admin/audit${qs}`;
   }
 
+  function apply(next: Partial<Record<string, any>>) {
+    router.push(buildAuditUrl(next));
+  }
+
+  // Tab geçişi anlık (client-side); RSC navigasyonu yapmaz. URL'yi history ile
+  // senkron tutar → paylaşılabilir link + tarayıcı geri/ileri çalışır, takılma yok.
   function onTabChange(next: string) {
-    apply({ tab: next, offset: 0 });
+    const nextTab = normalizeAdminAuditTab(next);
+    setTab(nextTab);
+    window.history.replaceState(
+      window.history.state,
+      '',
+      buildAuditUrl({ tab: nextTab, offset: 0 }),
+    );
   }
 
   function onSubmitRequests(e: React.FormEvent) {
