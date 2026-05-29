@@ -6,6 +6,8 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 :root {
+  /* Native kontrollerin (select/option/scrollbar) acik temada acik render olmasi */
+  color-scheme: light;
   /* Brand — Lime/Neon Yesil (Fiyat Platformu Aksani) */
   --brand:        hsl(102 85% 40%);
   --brand-dark:   hsl(102 85% 30%);
@@ -47,6 +49,8 @@
 }
 
 [data-theme='dark'] {
+  /* Native kontrollerin (select acilir listesi vb.) koyu temada koyu render olmasi */
+  color-scheme: dark;
   /* Brand — Lime/Neon Yesil (Fiyat Platformu Aksani) */
   --brand:        hsl(102 85% 57%);
   --brand-dark:   hsl(102 85% 45%);
