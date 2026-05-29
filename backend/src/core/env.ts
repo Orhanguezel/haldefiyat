@@ -110,6 +110,8 @@ export const env = {
     indexSchedule: process.env.INDEX_CRON_SCHEDULE || "0 6 * * 1",
     // Haftalık analiz yazısı — pazartesi 06:20 UTC (endeks hesaplaması sonrası)
     weeklyAnalysisSchedule: process.env.WEEKLY_ANALYSIS_CRON_SCHEDULE || "20 6 * * 1",
+    // Haftalık SEO auto-recovery (dataQuality recalc + seoIndex flip/demote) — pazartesi 06:40 UTC
+    seoMaintenanceSchedule: process.env.SEO_MAINTENANCE_CRON_SCHEDULE || "40 6 * * 1",
     // ANTKOMDER (Antalya) fiyatları öğleden sonra yayınlanıyor — 10:30 UTC = 13:30 TRT
     antkomderSchedule: process.env.ANTKOMDER_CRON_SCHEDULE || "30 10 * * *",
     // Rakip izleme — her pazartesi 07:00 UTC (ETL sona erdikten sonra)

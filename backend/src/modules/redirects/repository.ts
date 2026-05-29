@@ -299,3 +299,47 @@ export async function applySeoAuditAction(opts: {
     slugs,
   };
 }
+
+/**
+ * Haftalik SEO auto-recovery: dataQuality'yi yeniden hesapla, sonra sezonsal
+ * ürünleri otomatik index'e al / çıkar. Verisi dönen (örn. Eylül'de av yasağı
+ * biten balık, yaz meyveleri) ürünler editoryeli + veri≥70 ise indexlenir;
+ * verisi 30g kuruyan indexli ürünler noindex'e çekilir (fiyatsız sayfa thin).
+ * dataQuality formülü calculate-product-data-quality.ts ile birebir aynı.
+ */
+export async function runSeoIndexMaintenance() {
+  await db.execute(sql`
+    UPDATE hf_products p
+    LEFT JOIN (
+      SELECT product_id, COUNT(*) pr, COUNT(DISTINCT market_id) mc
+      FROM hf_price_history WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY product_id
+    ) s ON s.product_id = p.id
+    LEFT JOIN hf_product_editorial ed ON ed.product_slug = p.slug
+    SET p.data_quality = LEAST(100,
+      (COALESCE(s.pr,0) >= 1) * 40 +
+      (COALESCE(s.mc,0) >= 3) * 25 +
+      (COALESCE(NULLIF(p.display_name,''), p.name_tr) NOT LIKE '%.%'
+        AND COALESCE(NULLIF(p.display_name,''), p.name_tr) NOT REGEXP '^[[:alpha:]]([.]|[[:space:]])') * 15 +
+      (COALESCE(JSON_LENGTH(p.aliases),0) >= 1) * 10 +
+      (ed.published_at IS NOT NULL) * 10)
+    WHERE p.is_active = 1
+  `);
+
+  const up = await db.execute(sql`
+    UPDATE hf_products p
+    JOIN hf_product_editorial e ON e.product_slug = p.slug AND e.published_at IS NOT NULL
+    JOIN (SELECT product_id, COUNT(*) pr FROM hf_price_history WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY product_id) s ON s.product_id = p.id
+    SET p.seo_index = 1
+    WHERE p.canonical_slug IS NULL AND p.data_quality >= 70 AND s.pr > 0 AND p.seo_index = 0
+  `);
+
+  const down = await db.execute(sql`
+    UPDATE hf_products p
+    LEFT JOIN (SELECT product_id, COUNT(*) pr FROM hf_price_history WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY product_id) s ON s.product_id = p.id
+    SET p.seo_index = 0
+    WHERE p.seo_index = 1 AND p.canonical_slug IS NULL AND COALESCE(s.pr,0) = 0
+  `);
+
+  const affected = (r: unknown) => Number((Array.isArray(r) ? (r[0] as { affectedRows?: number }) : null)?.affectedRows ?? 0);
+  return { flippedUp: affected(up), demoted: affected(down) };
+}

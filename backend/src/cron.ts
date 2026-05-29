@@ -18,6 +18,7 @@ import { generateLatestWeeklyAnalysisReport } from "@/modules/analysis";
 import { syncInflation } from "@/modules/inflation";
 import { env } from "@/core/env";
 import { runFirmDirectoryEtl } from "@/modules/firms/service";
+import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
 
 /**
  * Cron zamanlaması env'den gelir:
@@ -37,6 +38,8 @@ export function startCron(app: FastifyInstance): void {
     { name: "weekly-digest",    schedule: env.ETL.weeklyDigestSchedule,  handler: () => runWeeklyDigestJob(app) },
     { name: "index-weekly",     schedule: env.ETL.indexSchedule,         handler: () => runIndexJob(app) },
     { name: "weekly-analysis",  schedule: env.ETL.weeklyAnalysisSchedule, handler: () => runWeeklyAnalysisJob(app) },
+    // Haftalık SEO auto-recovery — sezonsal ürünler verisi dönünce otomatik index/çıkış
+    { name: "seo-maintenance",  schedule: env.ETL.seoMaintenanceSchedule, handler: () => runSeoMaintenanceJob(app) },
     // ANTKOMDER fiyatları öğleden sonra yayınlandığı için ikinci çalıştırma
     { name: "etl-antkomder-pm",   schedule: env.ETL.antkomderSchedule,   handler: () => runAntkomderJob(app) },
     // Rakip izleme — haftalık
@@ -175,6 +178,20 @@ async function runWeeklyAnalysisJob(app: FastifyInstance): Promise<void> {
     );
   } catch (err) {
     app.log.error({ err }, "[cron:weekly-analysis] hata");
+  }
+}
+
+async function runSeoMaintenanceJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:seo-maintenance] dataQuality recalc + seoIndex flip/demote");
+  try {
+    const r = await runSeoIndexMaintenance();
+    app.log.info(
+      { flippedUp: r.flippedUp, demoted: r.demoted, durationMs: Date.now() - t0 },
+      "[cron:seo-maintenance] tamamlandi",
+    );
+  } catch (err) {
+    app.log.error({ err }, "[cron:seo-maintenance] hata");
   }
 }
 
