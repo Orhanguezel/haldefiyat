@@ -78,6 +78,8 @@ yeni public bölüm, admin_panel'de CRM. Fiyat ETL pattern'i birebir.
 - [x] Admin panel typecheck temiz: `bun x tsc --noEmit`.
 - [x] Canlı deploy yapıldı: yeni DB tabloları oluşturuldu, backend/frontend/admin build alındı ve `hal-backend`, `hal-frontend`, `hal-admin` restart edildi.
 - [x] Canlı smoke: Adana limit=5 ETL başarılı (`inserted=5`), `/api/v1/firms?city=adana` veri döndü, `/firmalar` 200, örnek `/firma/3063-adana-hal-adana-sebze-hali` 200, `/admin/firmalar` 200, sitemap firma URL içeriyor.
+- [x] FAZ 3 CRM tamamlandı: deal list/create/update/delete, funnel/pipeline özetleri ve admin seçili firma deal paneli.
+- [x] FAZ 4 monetizasyon temeli tamamlandı: sponsorluk CRUD, sponsorlu sıralama/rozet, premium profil sinyali, reklam alanı ve public lead capture formu.
 
 ### FAZ 0 — Keşif & Doğrulama *(önce bu; planın temelini kesinleştirir)*
 - [ ] **[Claude]** Gerçek pagination/load-more mekanizmasını çöz: il sayfasının JS'inde AJAX endpoint var mı? `?page=`/`?p=`/`offset=` çalışıyor mu? Yoksa kapsama yalnızca ilçe+kategori union'ı ile mi tam olur?
@@ -108,15 +110,15 @@ yeni public bölüm, admin_panel'de CRM. Fiyat ETL pattern'i birebir.
 ### FAZ 3 — CRM / İş Geliştirme *(admin_panel)*
 > ⚠️ admin_panel Codex'in aktif alanı — yeni route'lar AYRI dosyalarda
 - [x] **[Codex]** Admin `/admin/firmalar` liste + filtre + ETL tetik + stale raporu
-- [ ] **[Codex]** Firma → deal paneli (status funnel: lead→contacted→negotiating→won/lost, deal_type, value, notes, next_action)
-- [ ] **[Codex]** CRM API (deal CRUD) + dashboard (funnel + aktif gelir) — ilk create/list deal endpoint'leri ve özet sayaçları backend'de hazır; admin UI detay paneli eksik.
+- [x] **[Codex]** Firma → deal paneli (status funnel: lead→contacted→negotiating→won/lost, deal_type, value, notes, next_action)
+- [x] **[Codex]** CRM API (deal CRUD) + dashboard (funnel + aktif gelir)
 - [ ] **[Orhan]** İlk outreach listesi (görüşülen firmalar) + deal kayıtları
 
 ### FAZ 4 — Monetizasyon
-- [ ] **[Codex]** Sponsorluk yönetimi (öne çıkarma: il/kategori/global, süre)
-- [ ] **[Codex]** Sponsorlu kart sıralaması + rozet (dizinde üst sıra)
-- [ ] **[Codex]** Premium profil (genişletilmiş bilgi/galeri) + reklam alanı slotları
-- [ ] **[Codex]** "İletişime geç" lead capture formu (firma → bize, veya kullanıcı → firma)
+- [x] **[Codex]** Sponsorluk yönetimi (öne çıkarma: il/kategori/global, süre)
+- [x] **[Codex]** Sponsorlu kart sıralaması + rozet (dizinde üst sıra)
+- [x] **[Codex]** Premium profil (genişletilmiş bilgi/galeri) + reklam alanı slotları
+- [x] **[Codex]** "İletişime geç" lead capture formu (firma → bize, veya kullanıcı → firma)
 - [ ] **[Orhan]** Fiyatlandırma paketleri (reklam/sponsorluk/premium) + sözleşme şablonu
 
 ### FAZ 5 — Launch & Büyütme

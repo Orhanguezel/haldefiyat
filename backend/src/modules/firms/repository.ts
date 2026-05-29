@@ -105,6 +105,15 @@ export async function getFirmBySlug(slug: string) {
   return rows[0] ?? null;
 }
 
+export async function getFirmById(id: number) {
+  const rows = await db
+    .select()
+    .from(hfFirms)
+    .where(eq(hfFirms.id, id))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
 export async function markStaleFirms(cutoff: Date): Promise<number> {
   const result = await db
     .update(hfFirms)
@@ -163,8 +172,95 @@ export async function createFirmDeal(input: {
   return result[0]?.insertId ?? null;
 }
 
+export async function updateFirmDeal(id: number, input: {
+  status?: "lead" | "contacted" | "negotiating" | "won" | "lost";
+  dealType?: "reklam" | "sponsorluk" | "premium" | "diger";
+  value?: string | null;
+  currency?: string;
+  owner?: string | null;
+  notes?: string | null;
+  contactedAt?: Date | null;
+  nextActionAt?: Date | null;
+}) {
+  const result = await db
+    .update(hfFirmDeals)
+    .set({
+      ...(input.status !== undefined ? { status: input.status } : {}),
+      ...(input.dealType !== undefined ? { dealType: input.dealType } : {}),
+      ...(input.value !== undefined ? { value: input.value } : {}),
+      ...(input.currency !== undefined ? { currency: input.currency } : {}),
+      ...(input.owner !== undefined ? { owner: input.owner } : {}),
+      ...(input.notes !== undefined ? { notes: input.notes } : {}),
+      ...(input.contactedAt !== undefined ? { contactedAt: input.contactedAt } : {}),
+      ...(input.nextActionAt !== undefined ? { nextActionAt: input.nextActionAt } : {}),
+    })
+    .where(eq(hfFirmDeals.id, id));
+  return Number(result[0]?.affectedRows ?? 0);
+}
+
+export async function deleteFirmDeal(id: number) {
+  const result = await db.delete(hfFirmDeals).where(eq(hfFirmDeals.id, id));
+  return Number(result[0]?.affectedRows ?? 0);
+}
+
+export async function listFirmSponsorships(firmId?: number) {
+  return db
+    .select()
+    .from(hfFirmSponsorships)
+    .where(firmId ? eq(hfFirmSponsorships.firmId, firmId) : undefined)
+    .orderBy(desc(hfFirmSponsorships.isActive), desc(hfFirmSponsorships.endsAt));
+}
+
+export async function createFirmSponsorship(input: {
+  firmId: number;
+  tier?: string;
+  placement?: "il" | "kategori" | "global";
+  placementSlug?: string | null;
+  startsAt: Date;
+  endsAt: Date;
+  isActive?: boolean;
+}) {
+  const result = await db.insert(hfFirmSponsorships).values({
+    firmId: input.firmId,
+    tier: input.tier ?? "standard",
+    placement: input.placement ?? "il",
+    placementSlug: input.placementSlug ?? null,
+    startsAt: input.startsAt,
+    endsAt: input.endsAt,
+    isActive: input.isActive === false ? 0 : 1,
+  });
+  return result[0]?.insertId ?? null;
+}
+
+export async function updateFirmSponsorship(id: number, input: {
+  tier?: string;
+  placement?: "il" | "kategori" | "global";
+  placementSlug?: string | null;
+  startsAt?: Date;
+  endsAt?: Date;
+  isActive?: boolean;
+}) {
+  const result = await db
+    .update(hfFirmSponsorships)
+    .set({
+      ...(input.tier !== undefined ? { tier: input.tier } : {}),
+      ...(input.placement !== undefined ? { placement: input.placement } : {}),
+      ...(input.placementSlug !== undefined ? { placementSlug: input.placementSlug } : {}),
+      ...(input.startsAt !== undefined ? { startsAt: input.startsAt } : {}),
+      ...(input.endsAt !== undefined ? { endsAt: input.endsAt } : {}),
+      ...(input.isActive !== undefined ? { isActive: input.isActive ? 1 : 0 } : {}),
+    })
+    .where(eq(hfFirmSponsorships.id, id));
+  return Number(result[0]?.affectedRows ?? 0);
+}
+
+export async function deleteFirmSponsorship(id: number) {
+  const result = await db.delete(hfFirmSponsorships).where(eq(hfFirmSponsorships.id, id));
+  return Number(result[0]?.affectedRows ?? 0);
+}
+
 export async function firmDashboardSummary() {
-  const [total, active, stale, deals, sponsorships] = await Promise.all([
+  const [total, active, stale, deals, sponsorships, dealValue] = await Promise.all([
     db.select({ count: sql<number>`count(*)` }).from(hfFirms),
     db.select({ count: sql<number>`count(*)` }).from(hfFirms).where(eq(hfFirms.isActive, 1)),
     db.select({ count: sql<number>`count(*)` }).from(hfFirms).where(sql`${hfFirms.lastSeenAt} < DATE_SUB(CURRENT_TIMESTAMP(3), INTERVAL 45 DAY)`),
@@ -174,6 +270,12 @@ export async function firmDashboardSummary() {
       sql`${hfFirmSponsorships.startsAt} <= CURRENT_TIMESTAMP(3)`,
       sql`${hfFirmSponsorships.endsAt} >= CURRENT_TIMESTAMP(3)`,
     )),
+    db
+      .select({
+        won: sql<string>`COALESCE(SUM(CASE WHEN ${hfFirmDeals.status} = 'won' THEN ${hfFirmDeals.value} ELSE 0 END), 0)`,
+        pipeline: sql<string>`COALESCE(SUM(CASE WHEN ${hfFirmDeals.status} IN ('lead','contacted','negotiating') THEN ${hfFirmDeals.value} ELSE 0 END), 0)`,
+      })
+      .from(hfFirmDeals),
   ]);
 
   return {
@@ -181,6 +283,8 @@ export async function firmDashboardSummary() {
     active: Number(active[0]?.count ?? 0),
     stale: Number(stale[0]?.count ?? 0),
     activeSponsorships: Number(sponsorships[0]?.count ?? 0),
+    wonValue: Number(dealValue[0]?.won ?? 0),
+    pipelineValue: Number(dealValue[0]?.pipeline ?? 0),
     dealsByStatus: Object.fromEntries(deals.map((row) => [row.status, Number(row.count ?? 0)])),
   };
 }

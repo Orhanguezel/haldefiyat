@@ -98,6 +98,14 @@ export {
   useListFirmsAdminQuery,
   useListStaleFirmsAdminQuery,
   useRunFirmsEtlAdminMutation,
+  useListFirmDealsAdminQuery,
+  useCreateFirmDealAdminMutation,
+  useUpdateFirmDealAdminMutation,
+  useDeleteFirmDealAdminMutation,
+  useListFirmSponsorshipsAdminQuery,
+  useCreateFirmSponsorshipAdminMutation,
+  useUpdateFirmSponsorshipAdminMutation,
+  useDeleteFirmSponsorshipAdminMutation,
 } from "@/integrations/endpoints/firms-admin-endpoints";
 
 export {

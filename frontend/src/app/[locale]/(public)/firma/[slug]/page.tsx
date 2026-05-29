@@ -9,6 +9,7 @@ import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
 import FirmCard from "@/components/firms/FirmCard";
+import FirmLeadForm from "@/components/firms/FirmLeadForm";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -64,6 +65,7 @@ export default async function FirmDetailPage({ params }: Props) {
   const city = titleCaseSlug(firm.citySlug);
   const district = titleCaseSlug(firm.districtSlug);
   const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
+  const isPremium = Boolean(firm.sponsorshipTier && ["premium", "gold", "featured"].includes(firm.sponsorshipTier));
 
   const localBusinessSchema = {
     name: firm.name,
@@ -107,7 +109,7 @@ export default async function FirmDetailPage({ params }: Props) {
             </span>
             {firm.sponsorshipTier && (
               <span className="rounded-full bg-(--color-brand)/12 px-2 py-0.5 font-(family-name:--font-mono) text-[10px] font-semibold text-(--color-brand)">
-                Sponsorlu
+                {isPremium ? "Premium Profil" : "Sponsorlu"}
               </span>
             )}
           </div>
@@ -125,6 +127,14 @@ export default async function FirmDetailPage({ params }: Props) {
             {firm.address && <Info label="Adres" value={firm.address} wide />}
             <Info label="Kaynak" value="Halkatalogu kamu firma dizini" />
           </dl>
+
+          {isPremium && (
+            <div className="mt-6 rounded-[8px] border border-(--color-brand)/25 bg-(--color-brand)/8 p-4 text-sm leading-6 text-(--color-muted)">
+              <strong className="text-(--color-foreground)">Premium firma profili.</strong>{" "}
+              Bu firma, HalDeFiyat firma rehberinde öne çıkarılmış profil olarak listelenir.
+              Görüşme, reklam ve iş ortaklığı talepleri aşağıdaki formdan ekibimize iletilebilir.
+            </div>
+          )}
 
           <div className="mt-8 flex flex-wrap gap-3">
             {firm.phone && (
@@ -151,6 +161,24 @@ export default async function FirmDetailPage({ params }: Props) {
             </Link>
           </div>
         </div>
+      </section>
+
+      <section className="mt-10 grid gap-6 lg:grid-cols-[1fr_320px]">
+        <FirmLeadForm firmSlug={firm.slug} />
+        <aside className="rounded-[8px] border border-dashed border-(--color-border) bg-(--color-bg-alt) p-5">
+          <div className="font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.1em] text-(--color-brand)">
+            Reklam Alanı
+          </div>
+          <h2 className="mt-2 font-(family-name:--font-display) text-lg font-bold text-(--color-foreground)">
+            Bu bölgede öne çıkın
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-(--color-muted)">
+            İl, kategori veya global sponsorlu firma yerleşimi için HalDeFiyat ekibiyle görüşebilirsiniz.
+          </p>
+          <Link href="/iletisim?subject=Firma%20Rehberi%20Sponsorluk" className="mt-4 inline-flex rounded-[6px] border border-(--color-border) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-foreground)">
+            Sponsorluk talebi
+          </Link>
+        </aside>
       </section>
 
       {relatedItems.length > 0 && (
