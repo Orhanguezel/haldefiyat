@@ -53,6 +53,7 @@ import {
 
 import { AuditDailyChart } from './audit-daily-chart';
 import { AuditGeoMap } from './audit-geo-map';
+import { AuditTurkeyMap } from './audit-turkey-map';
 import { useAdminT } from '@/app/(main)/admin/_components/common/use-admin-t';
 
 import type {
@@ -512,6 +513,15 @@ export default function AdminAuditClient() {
   };
   const geoData = (geoQ.data as AuditGeoStatsResponseDto | undefined) ?? { items: [] };
   const geoCitiesData = geoCitiesQ.data?.items ?? [];
+  // LOCAL = localhost/sunucu-içi trafik (SSR fetch, health check, ETL) — gerçek
+  // ziyaretçi değil, analizden çıkarılır. Boş ülke de gösterilmez.
+  const geoItemsVisible = (geoData.items ?? []).filter(
+    (i: any) => i.country && i.country !== 'LOCAL',
+  );
+  const geoCitiesVisible = geoCitiesData.filter(
+    (r: any) => r.country && r.country !== 'LOCAL',
+  );
+  const geoCitiesTR = geoCitiesData.filter((r: any) => r.country === 'TR');
   const overviewData = analyticsOverviewQ.data;
   const adsData = adsQ.data;
   const adsDailyData = adsDailyQ.data;
@@ -1627,13 +1637,24 @@ export default function AdminAuditClient() {
                   {getErrorMessage(geoQ.error, t('error'))}
                 </div>
               )}
-              <AuditGeoMap items={geoData.items ?? []} loading={geoLoading} />
+              <AuditGeoMap items={geoItemsVisible} loading={geoLoading} />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Globe className="h-4 w-4" /> Türkiye Haritası
+              </CardTitle>
+              <CardDescription>Ziyaretçilerin geldiği iller (geoip şehir → il). LOCAL/sunucu-içi trafik hariç.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AuditTurkeyMap cities={geoCitiesTR} loading={geoLoading} />
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Şehir / Ülke Kırılımı</CardTitle>
-              <CardDescription>Top 50 lokasyon; istek sayısı, unique IP ve bot request kırılımı.</CardDescription>
+              <CardDescription>Top lokasyon; istek sayısı, unique IP ve bot request kırılımı (LOCAL hariç).</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -1647,7 +1668,7 @@ export default function AdminAuditClient() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {geoCitiesData.map((row: any) => (
+                  {geoCitiesVisible.map((row: any) => (
                     <TableRow key={`${row.country}-${row.city}`}>
                       <TableCell className="font-medium">{row.city || '-'}</TableCell>
                       <TableCell>{row.country || '-'}</TableCell>
@@ -1656,7 +1677,7 @@ export default function AdminAuditClient() {
                       <TableCell className="text-right">{fmtNumber(row.botHits)}</TableCell>
                     </TableRow>
                   ))}
-                  {!geoLoading && geoCitiesData.length === 0 && (
+                  {!geoLoading && geoCitiesVisible.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={5}>{t('common.noRecords')}</TableCell>
                     </TableRow>
