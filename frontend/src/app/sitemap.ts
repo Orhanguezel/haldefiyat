@@ -20,6 +20,17 @@ interface PriceSitemapItem {
   updated_at?: string;
 }
 
+interface FirmSitemapItem {
+  slug: string;
+  updatedAt?: string;
+  lastSeenAt?: string;
+  name?: string;
+  citySlug?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  contactPerson?: string | null;
+}
+
 async function fetchActiveProducts(): Promise<PriceSitemapItem[]> {
   try {
     const res = await fetch(`${API_URL}/api/v1/prices/products?seoIndex=true`, {
@@ -59,8 +70,23 @@ async function fetchMarkets(): Promise<PriceSitemapItem[]> {
   }
 }
 
+async function fetchFirms(): Promise<FirmSitemapItem[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/firms?limit=200`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const items = (Array.isArray(data) ? data : data.items ?? data.data ?? []) as FirmSitemapItem[];
+    return items.filter((firm) => firm.slug && firm.name && firm.citySlug && (firm.address || firm.phone || firm.contactPerson));
+  } catch {
+    return [];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, markets] = await Promise.all([fetchActiveProducts(), fetchMarkets()]);
+  const [products, markets, firms] = await Promise.all([fetchActiveProducts(), fetchMarkets(), fetchFirms()]);
   const now = new Date().toISOString().split("T")[0];
 
   const publicPages: MetadataRoute.Sitemap = [
@@ -72,6 +98,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/embed`, lastModified: now, changeFrequency: "monthly", priority: 0.75 },
     { url: `${SITE_URL}/basin`, lastModified: now, changeFrequency: "monthly", priority: 0.65 },
     { url: `${SITE_URL}/hal`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
+    { url: `${SITE_URL}/firmalar`, lastModified: now, changeFrequency: "weekly", priority: 0.78 },
     { url: `${SITE_URL}/karsilastirma`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE_URL}/metodoloji`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${SITE_URL}/hakkimizda`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
@@ -102,5 +129,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...publicPages, ...productPages, ...marketPages];
+  const firmPages: MetadataRoute.Sitemap = firms.map((firm) => ({
+    url: `${SITE_URL}/firma/${firm.slug}`,
+    lastModified: firm.updatedAt || firm.lastSeenAt ? new Date(firm.updatedAt ?? firm.lastSeenAt!) : now,
+    changeFrequency: "monthly" as const,
+    priority: 0.55,
+  }));
+
+  return [...publicPages, ...productPages, ...marketPages, ...firmPages];
 }

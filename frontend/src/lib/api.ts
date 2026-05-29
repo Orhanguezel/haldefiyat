@@ -83,6 +83,35 @@ export interface Market {
   updatedAt?: string;
 }
 
+export interface Firm {
+  id: number;
+  externalId: string;
+  slug: string;
+  name: string;
+  contactPerson: string | null;
+  phone: string | null;
+  address: string | null;
+  citySlug: string | null;
+  districtSlug: string | null;
+  photoUrl: string | null;
+  sourceUrl: string;
+  firmType: "komisyoncu" | "soguk_hava" | "nakliye" | "zirai_ilac";
+  categories: string[] | null;
+  isActive?: number | boolean;
+  lastSeenAt?: string | null;
+  sponsorshipTier?: string | null;
+  sponsorshipPlacement?: string | null;
+}
+
+export interface FirmListResponse {
+  items: Firm[];
+  meta: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
+}
+
 export interface CityPriceMapItem {
   cityName: string;
   avgPrice: number;
@@ -358,6 +387,50 @@ export async function fetchVariantPrices(masterSlug: string, range = "7d"): Prom
 export async function fetchMarkets(city?: string): Promise<Market[]> {
   const qs = buildQuery({ city });
   return safeFetch<Market[]>(`/prices/markets${qs}`, 300, []);
+}
+
+export async function fetchFirms(params: {
+  city?: string;
+  district?: string;
+  type?: Firm["firmType"];
+  q?: string;
+  limit?: number;
+  offset?: number;
+} = {}): Promise<FirmListResponse> {
+  const qs = buildQuery({
+    city: params.city,
+    district: params.district,
+    type: params.type,
+    q: params.q,
+    limit: params.limit,
+    offset: params.offset,
+  });
+  return safeFetchRaw<FirmListResponse>(
+    `/firms${qs}`,
+    300,
+    { items: [], meta: { total: 0, limit: params.limit ?? 50, offset: params.offset ?? 0 } },
+  );
+}
+
+export async function fetchFirm(slug: string): Promise<Firm | null> {
+  const path = `/firms/${encodeURIComponent(slug)}`;
+  try {
+    const res = await fetch(`${API}${path}`, {
+      next: { revalidate: 300 },
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) {
+      console.error(`[api] ${path} → ${res.status} ${res.statusText}`);
+      return null;
+    }
+    const json = (await res.json()) as ItemEnvelope<Firm>;
+    return json.item ?? null;
+  } catch (err) {
+    console.error(`[api] ${path} → fetch error`, err);
+    return null;
+  }
 }
 
 export async function fetchCityPriceMap(params: {

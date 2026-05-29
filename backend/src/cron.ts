@@ -17,6 +17,7 @@ import { calculateWeeklyIndex } from "@/modules/index";
 import { generateLatestWeeklyAnalysisReport } from "@/modules/analysis";
 import { syncInflation } from "@/modules/inflation";
 import { env } from "@/core/env";
+import { runFirmDirectoryEtl } from "@/modules/firms/service";
 
 /**
  * Cron zamanlaması env'den gelir:
@@ -54,6 +55,9 @@ export function startCron(app: FastifyInstance): void {
     { name: "inflation-monthly",  schedule: env.ETL.inflationSchedule,     handler: () => runInflationJob(app) },
     // Twitter/X gunluk trending tweet — 08:30 UTC = 11:30 TRT
     { name: "twitter-daily",      schedule: env.ETL.twitterSchedule,       handler: () => runTwitterJob(app) },
+    // Halkatalogu firma rehberi — haftalik delta + aylik tam tarama
+    { name: "firms-weekly",       schedule: env.ETL.firmsWeeklySchedule,    handler: () => runFirmsJob(app, false) },
+    { name: "firms-monthly",      schedule: env.ETL.firmsMonthlySchedule,   handler: () => runFirmsJob(app, true) },
   ];
 
   for (const t of tasks) {
@@ -307,5 +311,20 @@ async function runCompetitorJob(app: FastifyInstance): Promise<void> {
     );
   } catch (err) {
     app.log.error({ err }, "[cron:competitor] hata");
+  }
+}
+
+async function runFirmsJob(app: FastifyInstance, full: boolean): Promise<void> {
+  const t0 = Date.now();
+  app.log.info({ full }, "[cron:firms] firma rehberi ETL baslatiliyor");
+  try {
+    const result = await runFirmDirectoryEtl({
+      type: full ? "all" : "komisyoncu",
+      all: full,
+      delayMs: 750,
+    });
+    app.log.info({ ...result, durationMs: Date.now() - t0 }, "[cron:firms] tamamlandi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:firms] hata");
   }
 }

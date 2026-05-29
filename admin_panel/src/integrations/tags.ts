@@ -208,6 +208,7 @@ export const tags = [
   'Prices',
   'HfProducts',
   'Markets',
+  'Firms',
   'Alerts',
   'EtlLogs',
   'Production',

@@ -1,0 +1,60 @@
+CREATE TABLE IF NOT EXISTS hf_firms (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  external_id VARCHAR(32) NOT NULL,
+  slug VARCHAR(180) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  contact_person VARCHAR(255) NULL,
+  phone VARCHAR(128) NULL,
+  address TEXT NULL,
+  city_slug VARCHAR(96) NULL,
+  district_slug VARCHAR(128) NULL,
+  photo_url VARCHAR(512) NULL,
+  source_url VARCHAR(512) NOT NULL,
+  firm_type ENUM('komisyoncu', 'soguk_hava', 'nakliye', 'zirai_ilac') NOT NULL DEFAULT 'komisyoncu',
+  categories JSON NULL,
+  is_active TINYINT NOT NULL DEFAULT 1,
+  first_seen_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+  last_seen_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+  raw JSON NULL,
+  created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  UNIQUE KEY hf_firms_external_uq (external_id),
+  UNIQUE KEY hf_firms_slug_uq (slug),
+  KEY hf_firms_city_idx (city_slug, district_slug),
+  KEY hf_firms_type_idx (firm_type, is_active),
+  KEY hf_firms_seen_idx (last_seen_at)
+);
+
+CREATE TABLE IF NOT EXISTS hf_firm_deals (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  firm_id INT NOT NULL,
+  status ENUM('lead', 'contacted', 'negotiating', 'won', 'lost') NOT NULL DEFAULT 'lead',
+  deal_type ENUM('reklam', 'sponsorluk', 'premium', 'diger') NOT NULL DEFAULT 'reklam',
+  value DECIMAL(12,2) NULL,
+  currency VARCHAR(8) NOT NULL DEFAULT 'TRY',
+  owner VARCHAR(128) NULL,
+  notes TEXT NULL,
+  contacted_at DATETIME(3) NULL,
+  next_action_at DATETIME(3) NULL,
+  created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  CONSTRAINT hf_firm_deals_firm_fk FOREIGN KEY (firm_id) REFERENCES hf_firms(id) ON DELETE CASCADE,
+  KEY hf_firm_deals_firm_idx (firm_id),
+  KEY hf_firm_deals_status_idx (status, next_action_at)
+);
+
+CREATE TABLE IF NOT EXISTS hf_firm_sponsorships (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  firm_id INT NOT NULL,
+  tier VARCHAR(32) NOT NULL DEFAULT 'standard',
+  placement ENUM('il', 'kategori', 'global') NOT NULL DEFAULT 'il',
+  placement_slug VARCHAR(128) NULL,
+  starts_at DATETIME(3) NOT NULL,
+  ends_at DATETIME(3) NOT NULL,
+  is_active TINYINT NOT NULL DEFAULT 1,
+  created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  CONSTRAINT hf_firm_sponsorships_firm_fk FOREIGN KEY (firm_id) REFERENCES hf_firms(id) ON DELETE CASCADE,
+  KEY hf_firm_sponsorships_firm_idx (firm_id),
+  KEY hf_firm_sponsorships_active_idx (is_active, placement, placement_slug, starts_at, ends_at)
+);

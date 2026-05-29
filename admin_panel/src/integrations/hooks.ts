@@ -95,6 +95,12 @@ export {
 } from "@/integrations/endpoints/markets-admin-endpoints";
 
 export {
+  useListFirmsAdminQuery,
+  useListStaleFirmsAdminQuery,
+  useRunFirmsEtlAdminMutation,
+} from "@/integrations/endpoints/firms-admin-endpoints";
+
+export {
   useListAlertsAdminQuery,
   useUpdateAlertAdminMutation,
   useDeleteAlertAdminMutation,

@@ -128,6 +128,9 @@ export const env = {
     inflationSchedule: process.env.INFLATION_CRON_SCHEDULE || "0 10 5 * *",
     // Twitter/X gunluk trending tweet — 08:30 UTC = 11:30 TRT (Telegram'dan 30 dk sonra)
     twitterSchedule: process.env.TWITTER_CRON_SCHEDULE || "30 8 * * *",
+    // Halkatalogu firma rehberi — haftalik delta ve aylik tam tarama
+    firmsWeeklySchedule: process.env.FIRMS_WEEKLY_CRON_SCHEDULE || "0 2 * * 0",
+    firmsMonthlySchedule: process.env.FIRMS_MONTHLY_CRON_SCHEDULE || "20 2 1 * *",
     maxDateFallbackDays: parseEnvInt(process.env.ETL_MAX_DATE_FALLBACK_DAYS, 7),
     autoRegisterProducts: (process.env.ETL_AUTO_REGISTER_PRODUCTS ?? "true").toLowerCase() === "true",
     requestTimeoutMs: parseEnvInt(process.env.ETL_REQUEST_TIMEOUT_MS, 30_000),

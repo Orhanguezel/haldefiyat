@@ -5,6 +5,7 @@ export type AdminPermissionKey =
   | 'admin.prices'
   | 'admin.hf_products'
   | 'admin.markets'
+  | 'admin.firms'
   | 'admin.etl_logs'
   | 'admin.alerts'
   | 'admin.contacts'
@@ -29,6 +30,7 @@ export type AdminNavKey =
   | 'quick_entry'
   | 'hf_products'
   | 'markets'
+  | 'firms'
   | 'etl_logs'
   | 'alerts'
   | 'contacts'
@@ -54,6 +56,7 @@ const ADMIN_PERMISSION_ROLE_MAP: Record<AdminPermissionKey, PanelRole[]> = {
   'admin.prices': ADMIN_ONLY,
   'admin.hf_products': ADMIN_ONLY,
   'admin.markets': ADMIN_ONLY,
+  'admin.firms': ADMIN_ONLY,
   'admin.etl_logs': ADMIN_ONLY,
   'admin.alerts': ADMIN_ONLY,
   'admin.contacts': ADMIN_ONLY,
@@ -83,6 +86,7 @@ const ADMIN_NAV_PERMISSION_MAP: Partial<Record<AdminNavKey, AdminPermissionKey>>
   prices: 'admin.prices',
   hf_products: 'admin.hf_products',
   markets: 'admin.markets',
+  firms: 'admin.firms',
   etl_logs: 'admin.etl_logs',
   alerts: 'admin.alerts',
   contacts: 'admin.contacts',
@@ -113,6 +117,7 @@ const ADMIN_PERMISSION_PATHS: Record<AdminPermissionKey, string[]> = {
   'admin.prices': ['/admin/prices', '/admin/prices/quick-entry'],
   'admin.hf_products': ['/admin/hf-products'],
   'admin.markets': ['/admin/markets'],
+  'admin.firms': ['/admin/firmalar'],
   'admin.etl_logs': ['/admin/etl-logs'],
   'admin.alerts': ['/admin/alerts'],
   'admin.contacts': ['/admin/contacts'],

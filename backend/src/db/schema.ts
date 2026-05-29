@@ -258,6 +258,80 @@ export const hfSeoSnapshots = mysqlTable(
   ],
 );
 
+export const hfFirms = mysqlTable(
+  "hf_firms",
+  {
+    id:            int("id").autoincrement().primaryKey(),
+    externalId:    varchar("external_id", { length: 32 }).notNull(),
+    slug:          varchar("slug", { length: 180 }).notNull(),
+    name:          varchar("name", { length: 255 }).notNull(),
+    contactPerson: varchar("contact_person", { length: 255 }),
+    phone:         varchar("phone", { length: 128 }),
+    address:       text("address"),
+    citySlug:      varchar("city_slug", { length: 96 }),
+    districtSlug:  varchar("district_slug", { length: 128 }),
+    photoUrl:      varchar("photo_url", { length: 512 }),
+    sourceUrl:     varchar("source_url", { length: 512 }).notNull(),
+    firmType:      mysqlEnum("firm_type", ["komisyoncu", "soguk_hava", "nakliye", "zirai_ilac"]).notNull().default("komisyoncu"),
+    categories:    json("categories").$type<string[]>(),
+    isActive:      tinyint("is_active").notNull().default(1),
+    firstSeenAt:   datetime("first_seen_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    lastSeenAt:    datetime("last_seen_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    raw:           json("raw").$type<Record<string, unknown>>(),
+    createdAt:     datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:     datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    uniqueIndex("hf_firms_external_uq").on(t.externalId),
+    uniqueIndex("hf_firms_slug_uq").on(t.slug),
+    index("hf_firms_city_idx").on(t.citySlug, t.districtSlug),
+    index("hf_firms_type_idx").on(t.firmType, t.isActive),
+    index("hf_firms_seen_idx").on(t.lastSeenAt),
+  ],
+);
+
+export const hfFirmDeals = mysqlTable(
+  "hf_firm_deals",
+  {
+    id:           int("id").autoincrement().primaryKey(),
+    firmId:       int("firm_id").notNull(),
+    status:       mysqlEnum("status", ["lead", "contacted", "negotiating", "won", "lost"]).notNull().default("lead"),
+    dealType:     mysqlEnum("deal_type", ["reklam", "sponsorluk", "premium", "diger"]).notNull().default("reklam"),
+    value:        decimal("value", { precision: 12, scale: 2 }),
+    currency:     varchar("currency", { length: 8 }).notNull().default("TRY"),
+    owner:        varchar("owner", { length: 128 }),
+    notes:        text("notes"),
+    contactedAt:  datetime("contacted_at", { fsp: 3 }),
+    nextActionAt: datetime("next_action_at", { fsp: 3 }),
+    createdAt:    datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:    datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    index("hf_firm_deals_firm_idx").on(t.firmId),
+    index("hf_firm_deals_status_idx").on(t.status, t.nextActionAt),
+  ],
+);
+
+export const hfFirmSponsorships = mysqlTable(
+  "hf_firm_sponsorships",
+  {
+    id:            int("id").autoincrement().primaryKey(),
+    firmId:        int("firm_id").notNull(),
+    tier:          varchar("tier", { length: 32 }).notNull().default("standard"),
+    placement:     mysqlEnum("placement", ["il", "kategori", "global"]).notNull().default("il"),
+    placementSlug: varchar("placement_slug", { length: 128 }),
+    startsAt:      datetime("starts_at", { fsp: 3 }).notNull(),
+    endsAt:        datetime("ends_at", { fsp: 3 }).notNull(),
+    isActive:      tinyint("is_active").notNull().default(1),
+    createdAt:     datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:     datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    index("hf_firm_sponsorships_firm_idx").on(t.firmId),
+    index("hf_firm_sponsorships_active_idx").on(t.isActive, t.placement, t.placementSlug, t.startsAt, t.endsAt),
+  ],
+);
+
 export const hfPressContacts = mysqlTable(
   "hf_press_contacts",
   {

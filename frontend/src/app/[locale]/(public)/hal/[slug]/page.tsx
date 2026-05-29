@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
-import { fetchPrices, fetchMarkets } from "@/lib/api";
+import { fetchPrices, fetchMarkets, fetchFirms } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceTable from "@/components/ui/PriceTable";
@@ -12,10 +12,24 @@ import WeatherWidget from "@/components/sections/WeatherWidget";
 import { cityToWeatherSlug } from "@/lib/weather";
 import { getPageMetadata } from "@/lib/seo";
 import { getMarketEditorial } from "@/lib/market-content";
+import FirmCard from "@/components/firms/FirmCard";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
 const MARKET_PRICE_RANGE = "3650d";
+
+function citySlug(value: string): string {
+  return value
+    .toLocaleLowerCase("tr")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ı/g, "i")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -85,6 +99,9 @@ export default async function HalPage({ params }: Props) {
   const isNational = market.regionSlug === "ulusal";
   const weatherSlug = isNational ? null : cityToWeatherSlug(market.cityName);
   const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
+  const marketFirms = isNational
+    ? { items: [] }
+    : await fetchFirms({ city: citySlug(market.cityName), type: "komisyoncu", limit: 6 });
 
   const placeSchema = {
     name: market.name,
@@ -196,6 +213,24 @@ export default async function HalPage({ params }: Props) {
         markets={markets}
         requestParams={{ market: slug, range: MARKET_PRICE_RANGE }}
       />
+
+      {marketFirms.items.length > 0 && (
+        <section className="mt-8">
+          <div className="mb-4 flex items-baseline justify-between gap-3 border-b border-(--color-border-soft) pb-3">
+            <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
+              Bu Haldeki Firmalar
+            </h2>
+            <Link href={`/firmalar?city=${encodeURIComponent(citySlug(market.cityName))}`} className="font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand)">
+              Tüm firmalar
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {marketFirms.items.map((firm) => (
+              <FirmCard key={firm.id} firm={firm} compact />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Editoryal içerik — AI alıntılanabilirlik + E-E-A-T */}
       {(() => {

@@ -62,6 +62,21 @@ yeni public bölüm, admin_panel'de CRM. Fiyat ETL pattern'i birebir.
 
 ## 4. FAZLAR + ÇEKLİST
 
+### Uygulama Durumu (Codex, 2026-05-29)
+
+- [x] FAZ 1 veri modeli eklendi: `hf_firms`, `hf_firm_deals`, `hf_firm_sponsorships`.
+- [x] FAZ 1 backend modülü eklendi: `backend/src/modules/firms/`.
+- [x] Halkatalogu liste parser dry-run doğrulandı: Adana ana sayfasından firma linkleri çıkarılıyor.
+- [x] Halkatalogu detay parser dry-run doğrulandı: ad, yetkili, adres, şehir/ilçe ve foto alanları çıkarılıyor.
+- [x] Public API eklendi: `GET /api/v1/firms`, `GET /api/v1/firms/:slug`.
+- [x] Admin API eklendi: `POST /api/v1/admin/firms/etl/run`, stale raporu, temel deal kayıt uçları.
+- [x] Cron eklendi: haftalık delta + aylık tam firma rehberi taraması.
+- [x] Backend typecheck temiz: `bun run typecheck`.
+- [x] FAZ 2 public frontend eklendi: `/firmalar`, `/firma/{slug}`, `FirmaKarti`, nav, sitemap ve `/hal/{market}` firma bölümü.
+- [x] Frontend typecheck temiz: `bun x tsc --noEmit`.
+- [x] FAZ 3 başlangıç admin paneli eklendi: `/admin/firmalar` liste, filtre, ETL dry-run/il tetik, stale raporu.
+- [x] Admin panel typecheck temiz: `bun x tsc --noEmit`.
+
 ### FAZ 0 — Keşif & Doğrulama *(önce bu; planın temelini kesinleştirir)*
 - [ ] **[Claude]** Gerçek pagination/load-more mekanizmasını çöz: il sayfasının JS'inde AJAX endpoint var mı? `?page=`/`?p=`/`offset=` çalışıyor mu? Yoksa kapsama yalnızca ilçe+kategori union'ı ile mi tam olur?
 - [ ] **[Claude]** İlçe + kategori alt-link setini bir il için çıkar → union firma sayısı ana sayfadan fazla mı (kapsama testi)
@@ -71,28 +86,28 @@ yeni public bölüm, admin_panel'de CRM. Fiyat ETL pattern'i birebir.
 - [ ] **[Claude]** Bu plana göre Codex implementasyon brief'i (FAZ 1-2) yaz
 
 ### FAZ 1 — Veri Modeli + ETL *(backend)*
-- [ ] **[Codex]** Seed SQL: `hf_firms` + `hf_firm_deals` + `hf_firm_sponsorships` (CREATE TABLE)
-- [ ] **[Codex]** schema.ts drizzle tabloları
-- [ ] **[Codex]** `modules/firms/fetcher.ts` — il+ilçe+kategori tarama, external_id dedup, nazik rate-limit (~500ms), gzip, retry, UA
-- [ ] **[Codex]** `repository.ts` — external_id upsert (idempotent), last_seen_at, stale tespiti
-- [ ] **[Codex]** Admin ETL endpoint `POST /admin/firms/etl/run` (il bazlı + all)
-- [ ] **[Codex]** `cron.ts` — aylık tam tarama + haftalık delta
+- [x] **[Codex]** Seed SQL: `hf_firms` + `hf_firm_deals` + `hf_firm_sponsorships` (CREATE TABLE)
+- [x] **[Codex]** schema.ts drizzle tabloları
+- [x] **[Codex]** `modules/firms/fetcher.ts` — il+ilçe+kategori tarama, external_id dedup, nazik rate-limit (~500ms), gzip, retry, UA
+- [x] **[Codex]** `repository.ts` — external_id upsert (idempotent), last_seen_at, stale tespiti
+- [x] **[Codex]** Admin ETL endpoint `POST /admin/firms/etl/run` (il bazlı + all)
+- [x] **[Codex]** `cron.ts` — aylık tam tarama + haftalık delta
 - [ ] **[Claude]** ETL çıktısını review (kapsama, dedup, alan kalitesi)
 
 ### FAZ 2 — Public Frontend *(dizin + kart)*
-- [ ] **[Codex]** `/firmalar` dizin sayfası (il/ilçe/kategori filtre, arama, sayfalama, harita opsiyonel)
-- [ ] **[Codex]** `FirmaKarti` component (logo, ad, il/kategori, iletişim CTA, sponsorlu rozeti)
-- [ ] **[Codex]** `/firma/{slug}` profil sayfası + `LocalBusiness`/`Organization` JSON-LD
-- [ ] **[Codex]** `/hal/{market}` sayfasına "Bu haldeki firmalar" bölümü
-- [ ] **[Codex]** Nav'a "Firmalar" başlığı + PageContainer standardı
-- [ ] **[Codex]** Sitemap'e firma URL'leri (interlock: boş/eksik firma noindex — thin guard)
+- [x] **[Codex]** `/firmalar` dizin sayfası (il/ilçe/kategori filtre, arama, sayfalama, harita opsiyonel)
+- [x] **[Codex]** `FirmaKarti` component (logo, ad, il/kategori, iletişim CTA, sponsorlu rozeti)
+- [x] **[Codex]** `/firma/{slug}` profil sayfası + `LocalBusiness`/`Organization` JSON-LD
+- [x] **[Codex]** `/hal/{market}` sayfasına "Bu haldeki firmalar" bölümü
+- [x] **[Codex]** Nav'a "Firmalar" başlığı + PageContainer standardı
+- [x] **[Codex]** Sitemap'e firma URL'leri (interlock: boş/eksik firma noindex — thin guard)
 - [ ] **[Claude]** SEO/altitude review (başlık/şema/iç link)
 
 ### FAZ 3 — CRM / İş Geliştirme *(admin_panel)*
 > ⚠️ admin_panel Codex'in aktif alanı — yeni route'lar AYRI dosyalarda
-- [ ] **[Codex]** Admin `/admin/firmalar` liste + filtre + ETL tetik + stale raporu
+- [x] **[Codex]** Admin `/admin/firmalar` liste + filtre + ETL tetik + stale raporu
 - [ ] **[Codex]** Firma → deal paneli (status funnel: lead→contacted→negotiating→won/lost, deal_type, value, notes, next_action)
-- [ ] **[Codex]** CRM API (deal CRUD) + dashboard (funnel + aktif gelir)
+- [ ] **[Codex]** CRM API (deal CRUD) + dashboard (funnel + aktif gelir) — ilk create/list deal endpoint'leri ve özet sayaçları backend'de hazır; admin UI detay paneli eksik.
 - [ ] **[Orhan]** İlk outreach listesi (görüşülen firmalar) + deal kayıtları
 
 ### FAZ 4 — Monetizasyon
