@@ -51,7 +51,7 @@ indexler (formül zaten 30g pencereyle çalışıyor) — ekstra iş yok.
 ## Faz Planı
 | Faz | İş | Etki | Sahip |
 |---|---|---|---|
-| **A** | Format varyantlarını canonical-merge (CSV + apply) | ~40-50 "veri-yok master" eriyip master'a katlanır | Claude/Codex |
+| **A** ✅ | Format varyantlarını canonical-merge | **TAMAM 2026-05-29: 48 varyant merge edildi, veri-yok master 120→72** | Claude |
 | **B1** | Balık kaynağı keşfi (IBB balık + hal.gov.tr + 2 il) | Kaynak var/yok kararı | Claude + Orhan |
 | **B2** | Kaynak bulunursa: yeni ETL source + parser | ~44 balık ürünü veri kazanır → indexlenebilir | Codex |
 | **C** | Nadir/egzotik noindex bırak; sezonluk otomatik | — | — |
