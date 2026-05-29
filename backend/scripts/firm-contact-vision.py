@@ -97,7 +97,9 @@ def main():
     conn = pymysql.connect(host="127.0.0.1", user="haldefiyat", password="Hal2026!secure",
                            database="hal_fiyatlari", charset="utf8mb4")
     cur = conn.cursor()
-    where = "photo_url IS NOT NULL" + ("" if ALL else " AND phone IS NULL")
+    # Resumable + maliyet-verimli: zaten ocr_contacts'i olan firmalari atla (kredi bitse de bastan baslamaz).
+    where = ("photo_url IS NOT NULL AND COALESCE(JSON_LENGTH(raw->'$.ocr_contacts'),0)=0"
+             + ("" if ALL else " AND phone IS NULL"))
     cur.execute(f"SELECT id, photo_url, phone, contact_person, raw FROM hf_firms WHERE {where} ORDER BY id"
                 + (f" LIMIT {LIMIT}" if LIMIT else ""))
     rows = cur.fetchall()
