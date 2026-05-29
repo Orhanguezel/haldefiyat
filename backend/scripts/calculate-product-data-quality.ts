@@ -21,16 +21,21 @@ Default mode is --dry-run. --apply updates hf_products.data_quality.
   process.exit(0);
 }
 
+// data_quality 0-100 = veri kapsamı (baskın) + tamamlanabilir içerik alanları.
+// VERİ ÇEKİRDEĞİ = fiyat(40) + hal(25) = 65 → fiyatsız ürün 70'i geçemez (index-gating korunur).
+// İçerik puanı = isim(15, displayName-farkında) + alias(10) + yayınlı editoryel(10).
+// İsim kontrolü name_tr yerine displayName varsa onu kullanır → temiz displayName atamak +15 kazandırır.
 const scoreSql = `
   LEAST(100,
     CASE WHEN COALESCE(stats.price_rows_30d, 0) >= 1 THEN 40 ELSE 0 END +
-    CASE WHEN COALESCE(stats.market_count_30d, 0) >= 3 THEN 30 ELSE 0 END +
+    CASE WHEN COALESCE(stats.market_count_30d, 0) >= 3 THEN 25 ELSE 0 END +
     CASE
-      WHEN p.name_tr NOT LIKE '%.%'
-       AND p.name_tr NOT REGEXP '^[[:alpha:]]([.]|[[:space:]])'
-      THEN 20 ELSE 0
+      WHEN COALESCE(NULLIF(p.display_name, ''), p.name_tr) NOT LIKE '%.%'
+       AND COALESCE(NULLIF(p.display_name, ''), p.name_tr) NOT REGEXP '^[[:alpha:]]([.]|[[:space:]])'
+      THEN 15 ELSE 0
     END +
-    CASE WHEN COALESCE(JSON_LENGTH(p.aliases), 0) >= 1 THEN 10 ELSE 0 END
+    CASE WHEN COALESCE(JSON_LENGTH(p.aliases), 0) >= 1 THEN 10 ELSE 0 END +
+    CASE WHEN ed.published_at IS NOT NULL THEN 10 ELSE 0 END
   )
 `;
 
@@ -44,6 +49,7 @@ const statsJoin = `
     WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
     GROUP BY product_id
   ) stats ON stats.product_id = p.id
+  LEFT JOIN hf_product_editorial ed ON ed.product_slug = p.slug
 `;
 
 async function printSummary(label: string) {

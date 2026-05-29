@@ -1,6 +1,6 @@
 import { and, desc, eq, like, or, sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import { hfRedirects, hfProducts, hfProductEditorial } from "@/db/schema";
+import { hfRedirects } from "@/db/schema";
 
 const APP_LOCALES = new Set(["tr", "en"]);
 
@@ -166,31 +166,91 @@ export async function incrementHit(id: number) {
  *  - lowquality_indexed : seoIndex=1 ama dataQuality<70
  *  - ready_not_indexed : yayinli editoryel + dataQuality>=70 + master, ama seoIndex=0 (acilabilir)
  */
+type AuditRawRow = {
+  slug: string;
+  displayName: string | null;
+  nameTr: string;
+  seoIndex: number;
+  dataQuality: number;
+  canonicalSlug: string | null;
+  hasEditorial: number;
+  priceRows30d: number | string;
+  marketCount30d: number | string;
+  nameClean: number;
+  aliasCount: number | string;
+};
+
 export async function auditProducts(filter: "all" | "issues" = "issues") {
-  const rows = await db
-    .select({
-      slug: hfProducts.slug,
-      displayName: hfProducts.displayName,
-      nameTr: hfProducts.nameTr,
-      seoIndex: hfProducts.seoIndex,
-      dataQuality: hfProducts.dataQuality,
-      canonicalSlug: hfProducts.canonicalSlug,
-      hasEditorial: sql<number>`MAX(CASE WHEN ${hfProductEditorial.publishedAt} IS NOT NULL THEN 1 ELSE 0 END)`,
-    })
-    .from(hfProducts)
-    .leftJoin(hfProductEditorial, eq(hfProductEditorial.productSlug, hfProducts.slug))
-    .groupBy(hfProducts.slug);
+  const result = await db.execute(sql`
+    SELECT
+      p.slug AS slug,
+      p.display_name AS displayName,
+      p.name_tr AS nameTr,
+      p.seo_index AS seoIndex,
+      p.data_quality AS dataQuality,
+      p.canonical_slug AS canonicalSlug,
+      CASE WHEN ed.published_at IS NOT NULL THEN 1 ELSE 0 END AS hasEditorial,
+      COALESCE(s.price_rows_30d, 0) AS priceRows30d,
+      COALESCE(s.market_count_30d, 0) AS marketCount30d,
+      CASE
+        WHEN COALESCE(NULLIF(p.display_name, ''), p.name_tr) NOT LIKE '%.%'
+         AND COALESCE(NULLIF(p.display_name, ''), p.name_tr) NOT REGEXP '^[[:alpha:]]([.]|[[:space:]])'
+        THEN 1 ELSE 0
+      END AS nameClean,
+      COALESCE(JSON_LENGTH(p.aliases), 0) AS aliasCount
+    FROM hf_products p
+    LEFT JOIN hf_product_editorial ed ON ed.product_slug = p.slug
+    LEFT JOIN (
+      SELECT product_id, COUNT(*) AS price_rows_30d, COUNT(DISTINCT market_id) AS market_count_30d
+      FROM hf_price_history
+      WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+      GROUP BY product_id
+    ) s ON s.product_id = p.id
+    WHERE p.is_active = 1
+  `);
+  const rows = (Array.isArray(result) ? result[0] : result) as unknown as AuditRawRow[];
 
   const annotated = rows.map((r) => {
-    const indexed = r.seoIndex === 1;
+    const seoIndex = Number(r.seoIndex);
+    const indexed = seoIndex === 1;
     const hasEd = Number(r.hasEditorial) === 1;
     const isMaster = !r.canonicalSlug;
+    const dataQuality = Number(r.dataQuality ?? 0);
+    const priceRows30d = Number(r.priceRows30d);
+    const marketCount30d = Number(r.marketCount30d);
+    const nameClean = Number(r.nameClean) === 1;
+    const aliasCount = Number(r.aliasCount);
+
+    // Eksik bileşenler (dataQuality formülüyle birebir) — kullanıcı bunları tamamlar.
+    const missing: string[] = [];
+    if (priceRows30d === 0) missing.push("no_price_data");
+    if (marketCount30d < 3) missing.push("few_markets");
+    if (!nameClean) missing.push("messy_name");
+    if (aliasCount === 0) missing.push("no_alias");
+    if (!hasEd) missing.push("no_editorial");
+
     let issue: string | null = null;
     if (indexed && !hasEd) issue = "thin_indexed";
     else if (indexed && !isMaster) issue = "variant_indexed";
-    else if (indexed && (r.dataQuality ?? 0) < 70) issue = "lowquality_indexed";
-    else if (!indexed && hasEd && isMaster && (r.dataQuality ?? 0) >= 70) issue = "ready_not_indexed";
-    return { ...r, hasEditorial: hasEd, indexed, issue };
+    else if (indexed && dataQuality < 70) issue = "lowquality_indexed";
+    else if (!indexed && hasEd && isMaster && dataQuality >= 70) issue = "ready_not_indexed";
+
+    return {
+      slug: r.slug,
+      displayName: r.displayName,
+      nameTr: r.nameTr,
+      seoIndex,
+      dataQuality,
+      canonicalSlug: r.canonicalSlug,
+      hasEditorial: hasEd,
+      indexed,
+      issue,
+      priceRows30d,
+      marketCount30d,
+      nameClean,
+      aliasCount,
+      missing,
+    };
   });
 
   const summary = {

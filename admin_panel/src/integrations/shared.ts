@@ -1076,6 +1076,7 @@ export {
   REDIRECTS_ADMIN_BASE,
   SEO_AUDIT_ADMIN_BASE,
   SEO_AUDIT_ISSUE_LABELS,
+  SEO_AUDIT_MISSING_LABELS,
   type RedirectType,
   type RedirectRowDto,
   type RedirectsListResponseDto,
@@ -1083,6 +1084,7 @@ export {
   type RedirectInputDto,
   type RedirectUpsertResponseDto,
   type SeoAuditIssue,
+  type SeoAuditMissing,
   type SeoAuditItemDto,
   type SeoAuditResponseDto,
 } from "@/integrations/shared/redirects";

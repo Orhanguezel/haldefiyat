@@ -36,7 +36,7 @@ import {
   useDeleteRedirectAdminMutation,
   useGetSeoAuditAdminQuery,
 } from '@/integrations/hooks';
-import { SEO_AUDIT_ISSUE_LABELS, type RedirectType } from '@/integrations/shared';
+import { SEO_AUDIT_ISSUE_LABELS, SEO_AUDIT_MISSING_LABELS, type RedirectType } from '@/integrations/shared';
 
 export default function RedirectsPage() {
   const [typeFilter, setTypeFilter] = React.useState<'all' | RedirectType>('all');
@@ -231,7 +231,8 @@ export default function RedirectsPage() {
                     <TableHead>seoIndex</TableHead>
                     <TableHead>Editoryel</TableHead>
                     <TableHead className="text-right">Veri kalitesi</TableHead>
-                    <TableHead>Canonical</TableHead>
+                    <TableHead className="text-right">30g hal/kayıt</TableHead>
+                    <TableHead>Eksik bileşenler (tamamla)</TableHead>
                     <TableHead>Sorun</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -242,14 +243,23 @@ export default function RedirectsPage() {
                       <TableCell>{it.indexed ? <Badge>index</Badge> : <Badge variant="outline">noindex</Badge>}</TableCell>
                       <TableCell>{it.hasEditorial ? '✓' : '—'}</TableCell>
                       <TableCell className="text-right">{it.dataQuality}</TableCell>
-                      <TableCell className="text-muted-foreground">{it.canonicalSlug ?? '—'}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{it.marketCount30d}/{it.priceRows30d}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {it.missing.length === 0
+                            ? <span className="text-muted-foreground">—</span>
+                            : it.missing.map((m) => (
+                                <Badge key={m} variant="outline" className="text-[11px]">{SEO_AUDIT_MISSING_LABELS[m]}</Badge>
+                              ))}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         {it.issue ? <Badge variant="destructive">{SEO_AUDIT_ISSUE_LABELS[it.issue]}</Badge> : '—'}
                       </TableCell>
                     </TableRow>
                   ))}
                   {!auditQ.isFetching && (audit?.items?.length ?? 0) === 0 && (
-                    <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">Sorun bulunamadı</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground">Sorun bulunamadı</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>

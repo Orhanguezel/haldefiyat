@@ -54,6 +54,13 @@ export type SeoAuditIssue =
   | 'ready_not_indexed'
   | null;
 
+export type SeoAuditMissing =
+  | 'no_price_data'
+  | 'few_markets'
+  | 'messy_name'
+  | 'no_alias'
+  | 'no_editorial';
+
 export interface SeoAuditItemDto {
   slug: string;
   displayName: string | null;
@@ -64,7 +71,21 @@ export interface SeoAuditItemDto {
   hasEditorial: boolean;
   indexed: boolean;
   issue: SeoAuditIssue;
+  priceRows30d: number;
+  marketCount30d: number;
+  nameClean: boolean;
+  aliasCount: number;
+  missing: SeoAuditMissing[];
 }
+
+// dataQuality bileşenleri (puan) — kullanıcı "elle tamamla" tarafı için.
+export const SEO_AUDIT_MISSING_LABELS: Record<SeoAuditMissing, string> = {
+  no_price_data: 'Fiyat verisi yok (−40)',
+  few_markets: '3’ten az hal (−25)',
+  messy_name: 'İsim kirli (−15) · displayName ata',
+  no_alias: 'Alias yok (−10)',
+  no_editorial: 'Editoryel yok (−10)',
+};
 
 export interface SeoAuditResponseDto {
   summary: {
