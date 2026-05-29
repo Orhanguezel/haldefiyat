@@ -439,3 +439,23 @@ export const hfApiKeys = mysqlTable(
     index("idx_tier_revoked").on(t.tier, t.revokedAt),
   ],
 );
+
+export const hfRedirects = mysqlTable(
+  "hf_redirects",
+  {
+    id:          int("id").autoincrement().primaryKey(),
+    sourcePath:  varchar("source_path", { length: 512 }).notNull(),
+    type:        mysqlEnum("type", ["301", "410"]).notNull().default("301"),
+    targetUrl:   varchar("target_url", { length: 512 }),
+    note:        varchar("note", { length: 255 }),
+    hits:        int("hits").notNull().default(0),
+    lastHitAt:   datetime("last_hit_at", { fsp: 3 }),
+    isActive:    tinyint("is_active").notNull().default(1),
+    createdAt:   datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:   datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    uniqueIndex("hf_redirects_source_uq").on(t.sourcePath),
+    index("hf_redirects_active_idx").on(t.isActive, t.type),
+  ],
+);

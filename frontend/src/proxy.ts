@@ -113,10 +113,69 @@ async function slugNotFoundResponse(request: NextRequest) {
     : new NextResponse("Not Found", { status: 404 });
 }
 
+const APP_LOCALES_SET = new Set(["tr", "en"]);
+
+/** Backend normalizePath ile birebir: locale prefix + sondaki slash atılır. */
+function normalizeRedirectPath(pathname: string): string {
+  const parts = pathname.split("/");
+  if (parts[1] && APP_LOCALES_SET.has(parts[1])) parts.splice(1, 1);
+  let path = parts.join("/") || "/";
+  if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
+  return path;
+}
+
+type ManagedRedirect = { type: "301" | "410"; targetUrl: string | null; id: number };
+let redirectCache: { at: number; map: Map<string, ManagedRedirect> } | null = null;
+const REDIRECT_TTL_MS = 60_000;
+
+async function getRedirectMap(): Promise<Map<string, ManagedRedirect>> {
+  const now = Date.now();
+  if (redirectCache && now - redirectCache.at < REDIRECT_TTL_MS) return redirectCache.map;
+  const items = await fetchItems("/api/v1/redirects");
+  const map = new Map<string, ManagedRedirect>();
+  for (const r of items) {
+    const src = typeof r.sourcePath === "string" ? normalizeRedirectPath(r.sourcePath) : null;
+    if (src) map.set(src, { type: r.type as "301" | "410", targetUrl: (r.targetUrl as string) ?? null, id: Number(r.id) });
+  }
+  redirectCache = { at: now, map };
+  return map;
+}
+
+const GONE_HTML = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>410 — İçerik kaldırıldı</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:system-ui,sans-serif;max-width:640px;margin:12vh auto;padding:0 24px;color:#1e293b;text-align:center}a{color:#16a34a}</style></head><body><h1>410 — İçerik kalıcı olarak kaldırıldı</h1><p>Bu sayfa artık mevcut değil ve geri gelmeyecek.</p><p><a href="/">Ana sayfaya dön</a></p></body></html>`;
+
+async function managedRedirectResponse(request: NextRequest): Promise<NextResponse | null> {
+  const source = normalizeRedirectPath(request.nextUrl.pathname);
+  if (source === "/" || source.length < 2) return null;
+  const map = await getRedirectMap();
+  const hit = map.get(source);
+  if (!hit) return null;
+
+  void fetch(`${API_URL}/api/v1/redirects/hit`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: hit.id }),
+  }).catch(() => {});
+
+  if (hit.type === "301" && hit.targetUrl) {
+    const target = hit.targetUrl.startsWith("http")
+      ? hit.targetUrl
+      : new URL(hit.targetUrl, request.nextUrl.origin).toString();
+    return NextResponse.redirect(target, 301);
+  }
+  return new NextResponse(GONE_HTML, {
+    status: 410,
+    headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex" },
+  });
+}
+
 /** Next.js 16+: `proxy.ts` varsayılan dışa aktarımı kullanmalı; aksi halde i18n middleware hiç çalışmaz. */
 export default async function proxy(request: NextRequest) {
   const lowerRedirect = lowercaseSlugRedirect(request);
   if (lowerRedirect) return lowerRedirect;
+
+  // Admin tanimli 301/410 yonlendirmeleri en yuksek oncelik (acik editoryel niyet).
+  const managed = await managedRedirectResponse(request);
+  if (managed) return managed;
 
   const pathname = request.nextUrl.pathname;
   const parts = pathname.split("/");
