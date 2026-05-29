@@ -58,7 +58,7 @@ indexler (formül zaten 30g pencereyle çalışıyor) — ekstra iş yok.
 | **A** ✅ | Format varyantlarını canonical-merge | **TAMAM 2026-05-29: 48 varyant merge edildi, veri-yok master 120→72** | Claude |
 | **B1** ✅ | Balık kaynağı keşfi | **TAMAM: kaynak GEREKMİYOR — mevsimsel (av yasağı). İzmir 142 balık taşıyor** | Claude |
 | **B2** ~~| ~~yeni ETL source~~ | **İPTAL — gereksiz** | — |
-| **B3** | Auto-recovery cron (haftalık recalc+flip) → sezonsal ürünler otomatik indexlenir | ~25 balık Eylül'de + yaz meyveleri otomatik | Codex/Claude |
+| **B3** ✅ | Auto-recovery cron (haftalık recalc+flip/demote) | **TAMAM 2026-05-29: `runSeoIndexMaintenance` + cron pzt 06:40 UTC, runtime doğrulandı (idempotent)** | Claude |
 | **C** | Nadir/egzotik (~18 balık + ~28 diğer) noindex bırak; sezonluk otomatik | — | — |
 
 ## Sıra
