@@ -80,6 +80,7 @@ yeni public bölüm, admin_panel'de CRM. Fiyat ETL pattern'i birebir.
 - [x] Canlı smoke: Adana limit=5 ETL başarılı (`inserted=5`), `/api/v1/firms?city=adana` veri döndü, `/firmalar` 200, örnek `/firma/3063-adana-hal-adana-sebze-hali` 200, `/admin/firmalar` 200, sitemap firma URL içeriyor.
 - [x] FAZ 3 CRM tamamlandı: deal list/create/update/delete, funnel/pipeline özetleri ve admin seçili firma deal paneli.
 - [x] FAZ 4 monetizasyon temeli tamamlandı: sponsorluk CRUD, sponsorlu sıralama/rozet, premium profil sinyali, reklam alanı ve public lead capture formu.
+- [x] Canlı ikinci smoke: backend health 200, örnek firma profili 200, `/admin/firmalar` 200, public lead endpoint 201, firma profilinde lead formu render ediliyor.
 
 ### FAZ 0 — Keşif & Doğrulama *(önce bu; planın temelini kesinleştirir)*
 - [ ] **[Claude]** Gerçek pagination/load-more mekanizmasını çöz: il sayfasının JS'inde AJAX endpoint var mı? `?page=`/`?p=`/`offset=` çalışıyor mu? Yoksa kapsama yalnızca ilçe+kategori union'ı ile mi tam olur?
