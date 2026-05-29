@@ -54,7 +54,8 @@ export default async function FirmsPage({ params, searchParams }: Props) {
   const typeRaw = single(query?.type);
   const type = FIRM_TYPES.some((item) => item.value === typeRaw) ? typeRaw as Firm["firmType"] : undefined;
   const page = Math.max(1, Number(single(query?.page)) || 1);
-  const limit = 48;
+  const view = single(query?.view) === "list" ? "list" : "card";
+  const limit = view === "list" ? 60 : 48;
   const offset = (page - 1) * limit;
 
   const firmPage = await fetchFirms({ q, city, district, type, limit, offset });
@@ -80,6 +81,7 @@ export default async function FirmsPage({ params, searchParams }: Props) {
       </header>
 
       <form className="mb-8 grid gap-3 rounded-[8px] border border-(--color-border) bg-(--color-surface) p-4 md:grid-cols-[1.5fr_1fr_1fr_auto]">
+        {view === "list" && <input type="hidden" name="view" value="list" />}
         <input
           name="q"
           defaultValue={q}
@@ -107,20 +109,78 @@ export default async function FirmsPage({ params, searchParams }: Props) {
         </button>
       </form>
 
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="font-(family-name:--font-mono) text-[12px] text-(--color-muted)">
           {firmPage.meta.total} firma
         </p>
-        {(q || city || district || type) && (
-          <Link href="/firmalar" className="font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand)">
-            Filtreleri temizle
-          </Link>
-        )}
+        <div className="flex items-center gap-3">
+          {(q || city || district || type) && (
+            <Link href="/firmalar" className="font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand)">
+              Filtreleri temizle
+            </Link>
+          )}
+          <div className="flex rounded-[6px] border border-(--color-border) p-0.5">
+            {([["card", "Kart"], ["list", "Liste"]] as const).map(([value, label]) => (
+              <Link
+                key={value}
+                href={toPageUrl({ q, city, district, type, view: value })}
+                className={`rounded-[4px] px-3 py-1 font-(family-name:--font-mono) text-[11px] font-semibold ${
+                  view === value
+                    ? "bg-(--color-brand) text-white"
+                    : "text-(--color-muted) hover:text-(--color-foreground)"
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
 
       {firmPage.items.length === 0 ? (
         <div className="rounded-[8px] border border-dashed border-(--color-border-soft) bg-(--color-bg-alt) p-10 text-center text-sm text-(--color-muted)">
           Bu filtrelerle firma bulunamadı.
+        </div>
+      ) : view === "list" ? (
+        <div className="overflow-hidden rounded-[8px] border border-(--color-border)">
+          {firmPage.items.map((firm, i) => (
+            <Link
+              key={firm.id}
+              href={`/firma/${firm.slug}`}
+              className={`flex items-center gap-4 px-4 py-3 transition-colors hover:bg-(--color-bg-alt) ${
+                i > 0 ? "border-t border-(--color-border-soft)" : ""
+              }`}
+            >
+              <div className="h-11 w-11 shrink-0 overflow-hidden rounded-[6px] border border-(--color-border-soft) bg-(--color-bg-alt)">
+                {firm.photoUrl ? (
+                  <img src={firm.photoUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center font-(family-name:--font-display) text-base font-bold text-(--color-brand)">
+                    {firm.name.charAt(0).toLocaleUpperCase("tr")}
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-(family-name:--font-display) text-[15px] font-semibold text-(--color-foreground)">
+                  {firm.name}
+                  {firm.sponsorshipTier && (
+                    <span className="ml-2 rounded-full bg-(--color-brand)/12 px-2 py-0.5 align-middle font-(family-name:--font-mono) text-[9px] font-semibold text-(--color-brand)">
+                      Sponsorlu
+                    </span>
+                  )}
+                </p>
+                {firm.address && (
+                  <p className="truncate text-[12px] text-(--color-muted)">{firm.address}</p>
+                )}
+              </div>
+              <span className="hidden shrink-0 rounded-full border border-(--color-brand)/25 px-2 py-0.5 font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.08em] text-(--color-brand) sm:inline">
+                {FIRM_TYPES.find((t) => t.value === firm.firmType)?.label ?? firm.firmType}
+              </span>
+              <span className="hidden w-28 shrink-0 truncate text-right font-(family-name:--font-mono) text-[11px] text-(--color-muted) md:inline">
+                {firm.citySlug ?? "—"}{firm.districtSlug ? ` / ${firm.districtSlug}` : ""}
+              </span>
+            </Link>
+          ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -134,7 +194,7 @@ export default async function FirmsPage({ params, searchParams }: Props) {
         <nav className="mt-8 flex items-center justify-center gap-3">
           {page > 1 && (
             <Link
-              href={toPageUrl({ q, city, district, type, page: page - 1 })}
+              href={toPageUrl({ q, city, district, type, view: view === "list" ? "list" : undefined, page: page - 1 })}
               className="rounded-[6px] border border-(--color-border) px-4 py-2 font-(family-name:--font-mono) text-[12px] text-(--color-foreground)"
             >
               Önceki
@@ -145,7 +205,7 @@ export default async function FirmsPage({ params, searchParams }: Props) {
           </span>
           {page < totalPages && (
             <Link
-              href={toPageUrl({ q, city, district, type, page: page + 1 })}
+              href={toPageUrl({ q, city, district, type, view: view === "list" ? "list" : undefined, page: page + 1 })}
               className="rounded-[6px] border border-(--color-border) px-4 py-2 font-(family-name:--font-mono) text-[12px] text-(--color-foreground)"
             >
               Sonraki
