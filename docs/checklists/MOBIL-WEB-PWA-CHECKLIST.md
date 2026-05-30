@@ -396,8 +396,8 @@ Mobile-specific değişiklikler minimum. Mevcut meta + structured data zaten iyi
 
 - [ ] LCP element neyse onu öncele (anasayfa hero, ürün sayfası price chart)
 - [ ] `next/image` ile responsive görsel — `sizes` prop'u doğru
-- [ ] Recharts gibi heavy lib'ler `dynamic(() => import(...))` ile lazy
-- [ ] Font preload + subset (sadece Latin)
+- [x] Recharts gibi heavy lib'ler `dynamic(() => import(...))` ile lazy — **2026-05-30 (Claude, canlı):** ürün sayfası `PriceChart` statik import idi → `PriceChartLazy` (ssr:false) on-demand chunk; recharts ürün sayfası ilk bundle'ından çıktı. SeasonCompare/Comparison zaten lazy. Fiyat+schema SSR korundu.
+- [x] Font preload + subset — `next/font/google` (Outfit + IBM Plex Sans), `subsets:["latin"]`, `display:swap`, self-hosted — **zaten optimal** (doğrulandı 2026-05-30).
 - [ ] `next-intl` mesaj dosyalarını route bazlı bölme (i18n payload azaltma)
 - [ ] Unused CSS purge — Tailwind v4 zaten yapıyor ama doğrula
 
