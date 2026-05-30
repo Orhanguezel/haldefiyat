@@ -10,6 +10,7 @@ import {
   parseRangeToDays,
   trendingChanges,
   latestRecordedDate,
+  overviewStats,
   widgetPrices,
   retailPricesByProduct,
   cityPriceMap,
@@ -247,6 +248,13 @@ export async function registerPrices(app: FastifyInstance) {
 
     const items = await widgetPrices(slugs, category, limit);
     return reply.send({ items, meta: { limit, category: category ?? null, slugs: slugs ?? null } });
+  });
+
+  /** GET /api/v1/prices/overview — topbar gerçek özeti (izlenen ürün + son veri tarihi) */
+  app.get("/prices/overview", async (_req, reply) => {
+    setPublicWidgetHeaders(reply);
+    const stats = await overviewStats();
+    return reply.send(stats);
   });
 
   /**

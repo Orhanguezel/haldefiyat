@@ -2,30 +2,35 @@
 
 import { useEffect, useState } from "react";
 
+type Props = {
+  trackedProducts?: number;
+  latestRecordedDate?: string | null;
+};
+
 /**
- * NEDEN: SSR'da `new Date()` server saatini gosterir, hydration mismatch yaratir.
- * Bu yuzden saat/tarih sadece client'ta render edilir; SSR'da placeholder gider.
+ * "İzlenen ürün" + "Son veri" GERÇEK veriden (server prop) gelir — hard-code yok, saat de değil.
+ * Sağdaki güncel tarih client'ta render edilir (hydration mismatch'i önlemek için).
  */
-export default function TopbarClient() {
-  const [now, setNow] = useState<Date | null>(null);
+export default function TopbarClient({ trackedProducts, latestRecordedDate }: Props) {
+  const [today, setToday] = useState<string>("");
 
   useEffect(() => {
-    setNow(new Date());
-    const id = window.setInterval(() => setNow(new Date()), 60_000);
-    return () => window.clearInterval(id);
+    setToday(
+      new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" }),
+    );
   }, []);
 
-  const time = now
-    ? now.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })
-    : "--:--";
+  const trackedLabel =
+    typeof trackedProducts === "number" && trackedProducts > 0
+      ? `${trackedProducts.toLocaleString("tr-TR")} ürün`
+      : "—";
 
-  const date = now
-    ? now.toLocaleDateString("tr-TR", {
+  const lastUpdateLabel = latestRecordedDate
+    ? new Date(latestRecordedDate + "T12:00:00").toLocaleDateString("tr-TR", {
         day: "numeric",
         month: "long",
-        year: "numeric",
       })
-    : "";
+    : "—";
 
   return (
     <div className="hidden md:flex h-12 items-center justify-between text-[12px] text-(--color-muted)">
@@ -36,16 +41,16 @@ export default function TopbarClient() {
         </span>
         <span className="text-(--color-faint)">|</span>
         <span>
-          İzlenen: <span className="text-(--color-foreground)">2,480 ürün</span>
+          İzlenen: <span className="text-(--color-foreground)">{trackedLabel}</span>
         </span>
         <span className="text-(--color-faint)">|</span>
         <span>
-          Son güncelleme:{" "}
-          <span className="font-mono text-(--color-foreground)">{time}</span>
+          Son veri:{" "}
+          <span className="font-mono text-(--color-foreground)">{lastUpdateLabel}</span>
         </span>
       </div>
       <div className="font-mono text-(--color-foreground)" suppressHydrationWarning>
-        {date}
+        {today}
       </div>
     </div>
   );

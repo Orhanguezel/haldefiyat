@@ -302,6 +302,7 @@ export type FirmPriceInput = {
 };
 
 export async function upsertFirmPrice(input: FirmPriceInput) {
+  const isSuspicious = await detectSuspiciousFirmPrice(input);
   const result = await db.insert(hfFirmPrices).values({
     firmId: input.firmId,
     productSlug: input.productSlug ?? null,
@@ -311,6 +312,7 @@ export async function upsertFirmPrice(input: FirmPriceInput) {
     maxPrice: input.maxPrice ?? null,
     avgPrice: input.avgPrice,
     recordedDate: input.recordedDate,
+    isSuspicious,
     createdBy: input.createdBy ?? null,
   }).onDuplicateKeyUpdate({
     set: {
@@ -319,6 +321,7 @@ export async function upsertFirmPrice(input: FirmPriceInput) {
       minPrice: input.minPrice ?? null,
       maxPrice: input.maxPrice ?? null,
       avgPrice: input.avgPrice,
+      isSuspicious,
       createdBy: input.createdBy ?? null,
       updatedAt: sql`CURRENT_TIMESTAMP(3)`,
     },
@@ -328,9 +331,13 @@ export async function upsertFirmPrice(input: FirmPriceInput) {
 
 export async function bulkUpsertFirmPrices(firmId: number, prices: Omit<FirmPriceInput, "firmId">[]) {
   if (prices.length === 0) return 0;
+  const enriched = await Promise.all(prices.map(async (price) => ({
+    ...price,
+    isSuspicious: await detectSuspiciousFirmPrice(price),
+  })));
   return db.transaction(async (tx) => {
     let affected = 0;
-    for (const price of prices) {
+    for (const price of enriched) {
       const result = await tx.insert(hfFirmPrices).values({
         ...price,
         firmId,
@@ -345,6 +352,7 @@ export async function bulkUpsertFirmPrices(firmId: number, prices: Omit<FirmPric
           minPrice: price.minPrice ?? null,
           maxPrice: price.maxPrice ?? null,
           avgPrice: price.avgPrice,
+          isSuspicious: price.isSuspicious,
           createdBy: price.createdBy ?? null,
           updatedAt: sql`CURRENT_TIMESTAMP(3)`,
         },
@@ -356,6 +364,24 @@ export async function bulkUpsertFirmPrices(firmId: number, prices: Omit<FirmPric
 }
 
 export async function updateFirmPrice(id: number, firmId: number, input: Partial<Omit<FirmPriceInput, "firmId">>) {
+  const [current] = await db
+    .select()
+    .from(hfFirmPrices)
+    .where(and(eq(hfFirmPrices.id, id), eq(hfFirmPrices.firmId, firmId)))
+    .limit(1);
+  if (!current) return 0;
+  const next = {
+    firmId,
+    productSlug: input.productSlug !== undefined ? input.productSlug : current.productSlug,
+    productName: input.productName ?? current.productName,
+    unit: input.unit ?? current.unit,
+    minPrice: input.minPrice !== undefined ? input.minPrice : current.minPrice,
+    maxPrice: input.maxPrice !== undefined ? input.maxPrice : current.maxPrice,
+    avgPrice: input.avgPrice ?? current.avgPrice,
+    recordedDate: input.recordedDate ?? current.recordedDate,
+    createdBy: input.createdBy !== undefined ? input.createdBy : current.createdBy,
+  } as FirmPriceInput;
+  const isSuspicious = await detectSuspiciousFirmPrice(next);
   const result = await db.update(hfFirmPrices).set({
     ...(input.productSlug !== undefined ? { productSlug: input.productSlug } : {}),
     ...(input.productName !== undefined ? { productName: input.productName } : {}),
@@ -364,6 +390,7 @@ export async function updateFirmPrice(id: number, firmId: number, input: Partial
     ...(input.maxPrice !== undefined ? { maxPrice: input.maxPrice } : {}),
     ...(input.avgPrice !== undefined ? { avgPrice: input.avgPrice } : {}),
     ...(input.recordedDate !== undefined ? { recordedDate: input.recordedDate } : {}),
+    isSuspicious,
     updatedAt: sql`CURRENT_TIMESTAMP(3)`,
   }).where(and(eq(hfFirmPrices.id, id), eq(hfFirmPrices.firmId, firmId)));
   return Number(result[0]?.affectedRows ?? 0);
@@ -390,6 +417,25 @@ export async function getLatestFirmPrices(firmId: number) {
   if (!latest?.recordedDate) return { date: null, items: [] };
   const date = String(latest.recordedDate);
   return { date, items: await getFirmPricesByDate(firmId, date) };
+}
+
+async function detectSuspiciousFirmPrice(input: Pick<FirmPriceInput, "productSlug" | "avgPrice" | "recordedDate">): Promise<number> {
+  if (!input.productSlug) return 0;
+  const avg = Number(input.avgPrice);
+  if (!Number.isFinite(avg) || avg <= 0) return 0;
+  const thresholdPct = Number(process.env.FIRM_PRICE_DEVIATION_PCT ?? "60");
+  const threshold = Number.isFinite(thresholdPct) && thresholdPct > 0 ? thresholdPct / 100 : 0.6;
+  const result = await db.execute(sql`
+    SELECT AVG(ph.avg_price) AS referenceAvg
+    FROM hf_price_history ph
+    INNER JOIN hf_products p ON p.id = ph.product_id
+    WHERE p.slug = ${input.productSlug}
+      AND ph.recorded_date BETWEEN DATE_SUB(${input.recordedDate}, INTERVAL 7 DAY) AND ${input.recordedDate}
+  `);
+  const rows = (Array.isArray(result) ? result[0] : result) as unknown as Array<{ referenceAvg: string | number | null }>;
+  const reference = Number(rows[0]?.referenceAvg ?? 0);
+  if (!Number.isFinite(reference) || reference <= 0) return 0;
+  return avg < reference * (1 - threshold) || avg > reference * (1 + threshold) ? 1 : 0;
 }
 
 export async function createFirmClaim(input: { firmId: number; userId: string; evidence?: string | null }) {

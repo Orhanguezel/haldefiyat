@@ -9,6 +9,8 @@ type HeaderProps = {
   logoUrl?: string | null;
   logoDarkUrl?: string | null;
   logoLightUrl?: string | null;
+  trackedProducts?: number;
+  latestRecordedDate?: string | null;
 };
 
 const NAV_ENTRIES: ReadonlyArray<NavEntry> = [
@@ -39,7 +41,7 @@ const NAV_ENTRIES: ReadonlyArray<NavEntry> = [
  * Iki katmanli sticky header.
  * Sunucu render — JS sadece TopbarClient (saat) + HeaderNavClient (active state, drawer).
  */
-export default function Header({ siteName, logoUrl, logoDarkUrl, logoLightUrl }: HeaderProps) {
+export default function Header({ siteName, logoUrl, logoDarkUrl, logoLightUrl, trackedProducts, latestRecordedDate }: HeaderProps) {
   const displayName = siteName || "HalDeFiyat";
   const lightThemeLogo = logoLightUrl || logoUrl;
   const darkThemeLogo = logoDarkUrl || lightThemeLogo || "";
@@ -50,7 +52,7 @@ export default function Header({ siteName, logoUrl, logoDarkUrl, logoLightUrl }:
       {/* Layer 1 — Topbar */}
       <div className="hidden md:block bg-(--color-header-top) backdrop-blur-xl border-b border-(--color-border-soft)">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <TopbarClient />
+          <TopbarClient trackedProducts={trackedProducts} latestRecordedDate={latestRecordedDate} />
         </div>
       </div>
 

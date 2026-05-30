@@ -37,6 +37,7 @@ import {
   upsertFirmPrice,
 } from "./repository";
 import { runFirmDirectoryEtl } from "./service";
+import { runFirmDailyPriceReminders } from "./reminders";
 import { isValidCitySlug, isValidDistrictSlug } from "@/data/turkey-city-slugs";
 
 const firmTypeSchema = z.enum(["komisyoncu", "soguk_hava", "nakliye", "zirai_ilac"]);
@@ -178,6 +179,11 @@ const moderateFirmBodySchema = z.object({
 
 const moderateClaimBodySchema = z.object({
   status: z.enum(["approved", "rejected"]),
+});
+
+const dailyPriceReminderBodySchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  dryRun: z.boolean().optional(),
 });
 
 function parseOptionalDate(value: string | null | undefined): Date | null | undefined {
@@ -518,6 +524,13 @@ export async function registerFirmsAdmin(app: FastifyInstance) {
     }
 
     const result = await runFirmDirectoryEtl(parsed.data);
+    return reply.send(result);
+  });
+
+  app.post("/firms/daily-price-reminders", async (req, reply) => {
+    const parsed = dailyPriceReminderBodySchema.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz hatirlatma parametreleri", issues: parsed.error.issues });
+    const result = await runFirmDailyPriceReminders(parsed.data);
     return reply.send(result);
   });
 

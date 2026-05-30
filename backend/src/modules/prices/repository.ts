@@ -31,6 +31,13 @@ export async function latestRecordedDate(): Promise<string | null> {
   return String(raw).slice(0, 10);
 }
 
+/** Topbar/anasayfa için gerçek özet: izlenen ürün sayısı + son veri tarihi (hard-code yerine). */
+export async function overviewStats(): Promise<{ trackedProducts: number; latestRecordedDate: string | null }> {
+  const [row] = await db.select({ c: sql<number>`COUNT(*)` }).from(hfProducts);
+  const latest = await latestRecordedDate();
+  return { trackedProducts: Number(row?.c ?? 0), latestRecordedDate: latest };
+}
+
 function likeSafe(raw: string): string {
   return raw.replace(/[%_\\]/g, "");
 }

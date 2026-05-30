@@ -1,11 +1,15 @@
 import { defaultLocale, isAppLocale, type AppLocale } from "@/i18n/routing";
 
-/** `/panel/...` gibi yolları `/${locale}/panel/...` yapar; zaten locale varsa dokunmaz. */
+/**
+ * localePrefix: "as-needed" — default locale (tr) prefix ALMAZ (`/giris`), diğerleri prefixli
+ * (`/en/giris`). Tek-locale sitede tüm linkler prefixsiz kalır; canonical ile tutarlı.
+ */
 export function localePath(locale: string, path: string): string {
   if (!path.startsWith("/")) return path;
   const first = path.split("/").filter(Boolean)[0];
   if (first && isAppLocale(first)) return path;
   const loc = isAppLocale(locale) ? locale : defaultLocale;
+  if (loc === defaultLocale) return path;
   if (path === "/") return `/${loc}`;
   return `/${loc}${path}`;
 }

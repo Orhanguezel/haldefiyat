@@ -138,6 +138,7 @@ export interface FirmPrice {
   maxPrice: string | null;
   avgPrice: string;
   recordedDate: string;
+  isSuspicious?: number | boolean;
   createdBy: string | null;
 }
 
@@ -425,6 +426,18 @@ export async function fetchVariantPrices(masterSlug: string, range = "7d"): Prom
 export async function fetchMarkets(city?: string): Promise<Market[]> {
   const qs = buildQuery({ city });
   return safeFetch<Market[]>(`/prices/markets${qs}`, 300, []);
+}
+
+export interface PricesOverview {
+  trackedProducts: number;
+  latestRecordedDate: string | null;
+}
+
+export async function fetchPricesOverview(): Promise<PricesOverview> {
+  return safeFetch<PricesOverview>("/prices/overview", 300, {
+    trackedProducts: 0,
+    latestRecordedDate: null,
+  });
 }
 
 export async function fetchFirms(params: {

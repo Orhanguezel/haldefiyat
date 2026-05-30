@@ -112,10 +112,10 @@
 - [x] (K1 önerisi gereği) bu veri resmi ürün/hal sayfalarına **karışmaz**; yalnız firma profilinde.
 
 ## FAZ 6 — Opsiyonel / sonraki `[Claude+Codex, sonra]`
-- [ ] Günlük hatırlatma: komisyoncuya "bugünkü fiyatları gir" Telegram/e-posta nudge (mevcut telegram/mail modülü).
-- [ ] Moderasyon/şüpheli fiyat işareti (resmi ortalamadan çok sapan değer uyarısı).
-- [ ] (İleride, K1 alternatifi) ürün sayfasında ayrı "Komisyoncu fiyatları" sekmesi + kaynak etiketi.
-- [ ] hf_firm_products → fiyatsız "sattığı ürünler" etiketine indir veya kaldır (K2).
+- [x] Günlük hatırlatma: komisyoncuya "bugünkü fiyatları gir" e-posta/push nudge (mevcut mail/push modülü; cron env ile kapalı/açık).
+- [x] Moderasyon/şüpheli fiyat işareti (resmi ortalamadan çok sapan değer uyarısı).
+- [ ] (İleride, K1 alternatifi) ürün sayfasında ayrı "Komisyoncu fiyatları" sekmesi + kaynak etiketi. **K1 kesin kararı nedeniyle bu turda uygulanmadı.**
+- [x] hf_firm_products → fiyatsız "sattığı ürünler" etiketine indir veya kaldır (K2).
 
 ---
 

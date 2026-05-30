@@ -133,6 +133,8 @@ export const env = {
     // Halkatalogu firma rehberi — haftalik delta ve aylik tam tarama
     firmsWeeklySchedule: process.env.FIRMS_WEEKLY_CRON_SCHEDULE || "0 2 * * 0",
     firmsMonthlySchedule: process.env.FIRMS_MONTHLY_CRON_SCHEDULE || "20 2 1 * *",
+    // Komisyoncu günlük fiyat hatırlatma — boşsa kapalı; örn. "0 12 * * *"
+    firmPriceReminderSchedule: process.env.FIRM_PRICE_REMINDER_CRON_SCHEDULE || "",
     maxDateFallbackDays: parseEnvInt(process.env.ETL_MAX_DATE_FALLBACK_DAYS, 7),
     autoRegisterProducts: (process.env.ETL_AUTO_REGISTER_PRODUCTS ?? "true").toLowerCase() === "true",
     requestTimeoutMs: parseEnvInt(process.env.ETL_REQUEST_TIMEOUT_MS, 30_000),

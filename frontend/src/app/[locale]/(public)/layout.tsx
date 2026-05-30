@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import AlertModalProvider from "@/components/ui/AlertModalProvider";
 import { fetchSiteSettings } from "@/lib/site-settings";
+import { fetchPricesOverview } from "@/lib/api";
 import type { AppLocale } from "@/i18n/routing";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033";
@@ -19,7 +20,10 @@ export default async function PublicLayout({
 }) {
   const { locale } = await params;
   const currentLocale = locale as AppLocale;
-  const settings = await fetchSiteSettings(currentLocale);
+  const [settings, overview] = await Promise.all([
+    fetchSiteSettings(currentLocale),
+    fetchPricesOverview(),
+  ]);
 
   const sameAs = [
     settings.social_facebook,
@@ -69,6 +73,8 @@ export default async function PublicLayout({
         logoUrl={settings.site_logo}
         logoDarkUrl={settings.site_logo_dark}
         logoLightUrl={settings.site_logo_light}
+        trackedProducts={overview.trackedProducts}
+        latestRecordedDate={overview.latestRecordedDate}
       />
 
       <main className="relative z-10 grow">{children}</main>

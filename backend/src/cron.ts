@@ -18,6 +18,7 @@ import { generateLatestWeeklyAnalysisReport } from "@/modules/analysis";
 import { syncInflation } from "@/modules/inflation";
 import { env } from "@/core/env";
 import { runFirmDirectoryEtl } from "@/modules/firms/service";
+import { runFirmDailyPriceReminders } from "@/modules/firms/reminders";
 import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
 
 /**
@@ -62,6 +63,13 @@ export function startCron(app: FastifyInstance): void {
     { name: "firms-weekly",       schedule: env.ETL.firmsWeeklySchedule,    handler: () => runFirmsJob(app, false) },
     { name: "firms-monthly",      schedule: env.ETL.firmsMonthlySchedule,   handler: () => runFirmsJob(app, true) },
   ];
+  if (env.ETL.firmPriceReminderSchedule) {
+    tasks.push({
+      name: "firm-price-reminder",
+      schedule: env.ETL.firmPriceReminderSchedule,
+      handler: () => runFirmPriceReminderJob(app),
+    });
+  }
 
   for (const t of tasks) {
     if (!cron.validate(t.schedule)) {
@@ -300,6 +308,17 @@ async function runTwitterJob(app: FastifyInstance): Promise<void> {
     app.log.info({ ...result, durationMs: Date.now() - t0 }, "[cron:twitter] tamamlandi");
   } catch (err) {
     app.log.error({ err }, "[cron:twitter] hata");
+  }
+}
+
+async function runFirmPriceReminderJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:firm-price-reminder] komisyoncu fiyat hatirlatma baslatiliyor");
+  try {
+    const result = await runFirmDailyPriceReminders();
+    app.log.info({ ...result, durationMs: Date.now() - t0 }, "[cron:firm-price-reminder] tamamlandi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:firm-price-reminder] hata");
   }
 }
 
