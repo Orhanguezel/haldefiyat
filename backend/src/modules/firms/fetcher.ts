@@ -24,6 +24,15 @@ const DIRECTORY_PATHS: Record<Exclude<FirmType, "komisyoncu">, string> = {
   zirai_ilac: "/zirai-ilac",
 };
 
+// Firma detay link path segmenti firma tipine gore degisir (komisyoncu=/hal/, kategoriler kendi dizinleri).
+// idPrefix: kategori ID'leri /hal/ ID'leriyle ayri namespace (cakisma onleme); komisyoncu prefix'siz kalir.
+const LISTING_SEGMENTS: Record<FirmType, { segment: string; idPrefix: string }> = {
+  komisyoncu: { segment: "hal", idPrefix: "" },
+  soguk_hava: { segment: "soguk-hava-depolari", idPrefix: "sh-" },
+  nakliye: { segment: "nakliyeciler", idPrefix: "nk-" },
+  zirai_ilac: { segment: "zirai-ilac", idPrefix: "zi-" },
+};
+
 type ListingFirm = FirmContext & {
   externalId: string;
   slug: string;
@@ -149,11 +158,12 @@ async function collectListingPath(path: string, context: FirmContext, items: Map
 export function parseListing(html: string, context: FirmContext): ListingFirm[] {
   const results: ListingFirm[] = [];
   const listHtml = extractRaw(html, /<div[^>]+class=["'][^"']*\bhalalt\b[^"']*["'][^>]*>([\s\S]*?)<\/div>\s*<\/div>/i) || html;
-  const re = /<a\s+[^>]*href=["']([^"']*\/hal\/(\d+)-([^"']+))["'][^>]*>([\s\S]*?)<\/a>/gi;
+  const { segment, idPrefix } = LISTING_SEGMENTS[context.firmType] ?? LISTING_SEGMENTS.komisyoncu;
+  const re = new RegExp(`<a\\s+[^>]*href=["']([^"']*\\/${segment}\\/(\\d+)-([^"']+))["'][^>]*>([\\s\\S]*?)<\\/a>`, "gi");
   let m: RegExpExecArray | null;
   while ((m = re.exec(listHtml)) !== null) {
     const href = normalizePath(m[1]!);
-    const externalId = m[2]!;
+    const externalId = `${idPrefix}${m[2]!}`;
     const slug = m[3]!;
     const body = m[4]!;
     const name = cleanupText(extractFirst(body, /<span[^>]*>([\s\S]*?)<\/span>/i) || slug.replace(/-/g, " "));
