@@ -11,7 +11,7 @@ import {
 } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
-import PriceChart from "@/components/sections/PriceChart";
+import PriceChart from "@/components/sections/PriceChartLazy";
 import SeasonCompare from "@/components/sections/SeasonCompare";
 import RetailComparison from "@/components/sections/RetailComparison";
 import VariantPriceTable from "@/components/sections/VariantPriceTable";
