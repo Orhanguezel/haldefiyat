@@ -72,17 +72,27 @@ async function fetchMarkets(): Promise<PriceSitemapItem[]> {
 }
 
 async function fetchFirms(): Promise<FirmSitemapItem[]> {
+  // Public /firms limit tavanı 200 → tüm firmaları kapsamak için sayfalayarak çek.
+  const PAGE = 200;
+  const MAX_PAGES = 30; // güvenlik: en fazla 6000 firma
+  const all: FirmSitemapItem[] = [];
   try {
-    const res = await fetch(`${API_URL}/api/v1/firms?limit=200`, {
-      cache: "no-store",
-      signal: AbortSignal.timeout(FETCH_TIMEOUT),
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    const items = (Array.isArray(data) ? data : data.items ?? data.data ?? []) as FirmSitemapItem[];
-    return items.filter((firm) => firm.slug && firm.name && firm.citySlug && (firm.address || firm.phone || firm.contactPerson));
+    for (let page = 0; page < MAX_PAGES; page++) {
+      const offset = page * PAGE;
+      const res = await fetch(`${API_URL}/api/v1/firms?limit=${PAGE}&offset=${offset}`, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(FETCH_TIMEOUT),
+      });
+      if (!res.ok) break;
+      const data = await res.json();
+      const items = (Array.isArray(data) ? data : data.items ?? data.data ?? []) as FirmSitemapItem[];
+      all.push(...items);
+      const total: number | undefined = data?.meta?.total;
+      if (items.length < PAGE || (typeof total === "number" && offset + items.length >= total)) break;
+    }
+    return all.filter((firm) => firm.slug && firm.name && firm.citySlug && (firm.address || firm.phone || firm.contactPerson));
   } catch {
-    return [];
+    return all.filter((firm) => firm.slug && firm.name && firm.citySlug && (firm.address || firm.phone || firm.contactPerson));
   }
 }
 
