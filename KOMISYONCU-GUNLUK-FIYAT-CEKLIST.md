@@ -53,6 +53,7 @@
     max_price     DECIMAL(12,2) NULL,
     avg_price     DECIMAL(12,2) NOT NULL,        -- ana fiyat
     recorded_date DATE NOT NULL,
+    is_suspicious TINYINT(1) NOT NULL DEFAULT 0,  -- FAZ 6.A: piyasadan sapan deger (şimdi 0, ileride doldurulur)
     created_by    VARCHAR(36) NULL,
     created_at    DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     updated_at    DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
@@ -115,6 +116,45 @@
 - [ ] Moderasyon/şüpheli fiyat işareti (resmi ortalamadan çok sapan değer uyarısı).
 - [ ] (İleride, K1 alternatifi) ürün sayfasında ayrı "Komisyoncu fiyatları" sekmesi + kaynak etiketi.
 - [ ] hf_firm_products → fiyatsız "sattığı ürünler" etiketine indir veya kaldır (K2).
+
+---
+
+## 🏗️ Geçiş Stratejisi — Codex'in az önce yaptığı koddan ne olacak `[Claude tasarım]`
+> Codex `hf_firm_products` + Excel import + `FirmProductsTable` + `firm-product-validation` + bulk
+> products endpoint'i **yeni yaptı**. Bu özellik onun ÜZERİNE inşa edilir, **silinmez** (veri/route kalır).
+
+| Mevcut (products) | Yeni (prices) | Aksiyon |
+|---|---|---|
+| `hf_firm_products` tablo + route'lar | `hf_firm_prices` (yeni) | **Korunur** (drop yok); prices **additive** yeni tablo |
+| `FirmProductsTable.tsx` | `FirmPricesTable.tsx` | Yeni bileşen; ürün tablosu deseni **referans alınır** |
+| `firm-product-validation.ts` | `firm-price-validation.ts` | Yeni; aynı `validateRow`/`validateRows` + preview deseni |
+| Excel import (ad/fiyat-not/açıklama) | Excel import (ad/birim/min/ort/maks/tarih) | Lazy `xlsx` + önizleme **altyapısı aynen**, sadece kolon şeması değişir |
+| bulk products endpoint | bulk **prices** endpoint (upsert) | Aynı guard/rate-limit deseni; insert→**upsert** olur |
+| Form "Ürünler" bölümü | Form "Günlük Fiyatlar" bölümü | products bölümü **kaldırılır/gizlenir**, yerine prices |
+
+- **Karar:** `hf_firm_products` fiyat amacıyla emekli (K2) ama **kod/tablo bırakılır** — ileride fiyatsız
+  "sattığı ürünler" etiketi olarak kullanılabilir. Owner formundan products giriş akışı **kaldırılır**;
+  bunun yerine prices akışı gelir. Public profilde products bölümü prices ile değiştirilir.
+
+## 🛡️ FAZ 6.A — Şüpheli Fiyat Tasarımı (gelecek feed güvenliği) `[Claude tasarım]`
+Amaç: komisyoncu yanlış/uçuk fiyat girince **bloklamadan uyar**; ileride merkezi feed'e geçişte filtre olsun.
+- **Karşılaştırma kaynağı:** ürün katalog-eşleşmişse (`product_slug` dolu), o ürünün **son 7 günlük
+  ulusal ortalaması** (`hf_price_history.avg_price`, tüm marketler). Eşleşmemiş (serbest) ürün → kontrol yok.
+- **Eşik:** girilen `avg_price`, referansın **±%60'ı dışındaysa** → `is_suspicious=true` (kolon, default 0)
+  + form'da **yumuşak uyarı** ("Bu fiyat piyasa ortalamasından çok farklı, emin misiniz?"). Kaydı engelleme.
+- **Konfig:** eşik `.env`/siteSettings (`FIRM_PRICE_DEVIATION_PCT=60`), hard-code yok.
+- **Kullanım:** UI uyarısı + admin'de şüpheli filtre + (ileride) promotion job şüphelileri atlar.
+
+## 🔁 FAZ 6.B — Promotion Job Spec (merkezi listeye besleme — K3, GELECEK) `[Claude tasarım]`
+> **Şimdi YAZILMAZ**, sadece şema/iz hazır. İleride aktive edilince:
+- **Tetik:** admin'in `is_trusted=true` işaretlediği firmalar (yeni `hf_firms.is_trusted` flag) + `is_suspicious=false` satırlar.
+- **Kaynak kimliği:** her trusted firma için synthetic `hf_markets` satırı (`source_key='komisyoncu-{firmSlug}'`,
+  `is_active` ayrı bayrak). `firm_id → market_id` eşlemesi.
+- **Ürün:** `product_slug → hf_products.id`; slug boşsa **atla** (sadece katalog-eşli satırlar terfi eder).
+- **Yazım:** `INSERT INTO hf_price_history (...) SELECT ... ON DUPLICATE KEY UPDATE` (idempotent,
+  UNIQUE `product_id+market_id+recorded_date`). Kaynak ayrımı için `hf_price_history`'ye opsiyonel
+  `source ENUM('etl','komisyoncu')` eklenebilir (o zaman additive).
+- **Sonuç:** komisyoncu verisi resmi listeye **denetimli** akar; bugünkü izolasyon korunur.
 
 ---
 
