@@ -36,7 +36,7 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 > UI) → #34 (Turkiye haritasi) → #41 (embed widget). Diger acik isler ve
 > beklemeler bu dosyada kategorize.
 
-> **🎯 Google Ads kurulum + 2-gun analiz optimizasyon:** [`ADS-SETUP-CHECKLIST.md`](./ADS-SETUP-CHECKLIST.md)
+> **🎯 Google Ads kurulum + 2-gun analiz optimizasyon:** [`ADS-SETUP-CHECKLIST.md`](./docs/checklists/ADS-SETUP-CHECKLIST.md)
 >
 > 2026-05-26'da Vista Seeds Ads altinda "Haldefiyat - Arama - Trafik" kampanyasi
 > yayina cikti (150 TL/gun). Conversion tag (AW-18007572524) yuklendi ✅,
@@ -49,14 +49,14 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 > analytics (retention/cohort agirlikli) → 11.6 UTM template + remarketing
 > tag → 11.8 6 custom audience (Faz 2 ön hazirlik). Doğrulama 2026-06-04.
 
-> **📱 Sosyal medya hesap acma + API otomasyon:** [`SOCIAL-API-SETUP-CHECKLIST.md`](./SOCIAL-API-SETUP-CHECKLIST.md)
+> **📱 Sosyal medya hesap acma + API otomasyon:** [`SOCIAL-API-SETUP-CHECKLIST.md`](./docs/checklists/SOCIAL-API-SETUP-CHECKLIST.md)
 >
 > Facebook + Instagram + YouTube hesaplari (tuzel kisi, info@vistaseeds.com.tr).
 > Meta Business Manager, Domain Verification, Business Verification, App Review,
 > System User Token, Google Cloud OAuth, YouTube Data API v3, backend modullerini
 > tasarimı. Tahmini 4 hafta yogun + 6-8 hafta takvim (bekleyisler dahil).
 
-> **💰 Monetizasyon & mukemmellestirme plani (BEKLEMEDE):** [`MONETIZASYON-CHECKLIST.md`](./MONETIZASYON-CHECKLIST.md)
+> **💰 Monetizasyon & mukemmellestirme plani (BEKLEMEDE):** [`MONETIZASYON-CHECKLIST.md`](./docs/checklists/MONETIZASYON-CHECKLIST.md)
 >
 > 2026-05-28 karari: Atakan = sahip + sektor agi (250+ ziraat muhendisi, hal muduru
 > baglantisi), yazilimci = teknik yurutme. AdSense + bireysel premium + API geliri
@@ -75,7 +75,7 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 > yok). 5 görev spec'lendi (local modül + route register + digest filter + /abonelik
 > sayfası + opsiyonel List-Unsubscribe). Digest+cron+Resend hazır.
 
-> **📱 Mobil web + PWA checklist (DETAYLANDIRILDI 2026-05-28):** [`MOBIL-WEB-PWA-CHECKLIST.md`](./MOBIL-WEB-PWA-CHECKLIST.md)
+> **📱 Mobil web + PWA checklist (DETAYLANDIRILDI 2026-05-28):** [`MOBIL-WEB-PWA-CHECKLIST.md`](./docs/checklists/MOBIL-WEB-PWA-CHECKLIST.md)
 >
 > Ads kampanyasi trafiginin %78'i mobil — mobil deneyim acil. 10 bolum, her
 > bolumde Claude tasarim / Codex implement / Orhan operasyonel rol ayrimi.
