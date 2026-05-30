@@ -82,13 +82,13 @@ yeni public bölüm, admin_panel'de CRM. Fiyat ETL pattern'i birebir.
 - [x] FAZ 4 monetizasyon temeli tamamlandı: sponsorluk CRUD, sponsorlu sıralama/rozet, premium profil sinyali, reklam alanı ve public lead capture formu.
 - [x] Canlı ikinci smoke: backend health 200, örnek firma profili 200, `/admin/firmalar` 200, public lead endpoint 201, firma profilinde lead formu render ediliyor.
 
-### FAZ 0 — Keşif & Doğrulama *(önce bu; planın temelini kesinleştirir)*
-- [ ] **[Claude]** Gerçek pagination/load-more mekanizmasını çöz: il sayfasının JS'inde AJAX endpoint var mı? `?page=`/`?p=`/`offset=` çalışıyor mu? Yoksa kapsama yalnızca ilçe+kategori union'ı ile mi tam olur?
-- [ ] **[Claude]** İlçe + kategori alt-link setini bir il için çıkar → union firma sayısı ana sayfadan fazla mı (kapsama testi)
-- [ ] **[Claude]** Firma detay alan haritası (HTML selector'leri: ad/yetkili/adres/telefon/foto/kategori) — parser spec
-- [ ] **[Claude]** Tüm 81 il slug + 3 ek dizin (`soguk-hava/nakliye/zirai-ilac`) enumerasyon listesi
+### FAZ 0 — Keşif & Doğrulama *(implementasyonla çözüldü — 2026-05-30 review)*
+- [x] **[Claude]** ~~Gerçek pagination/load-more~~ → **Çözüldü:** halkatalogu `?sayfa` pagination'ı sahte; kapsama ilçe+kategori union ile tam (memory: firma-rehberi-genisleme). ETL canlı.
+- [x] **[Claude]** ~~İlçe+kategori union kapsama testi~~ → **Doğrulandı:** 1318 firma / 63 ilde veri toplandı (kalan illerde kaynak firma yok).
+- [x] **[Claude]** ~~Firma detay alan haritası / parser spec~~ → **Uygulandı:** `fetcher.ts` selector'leri çalışıyor; alan kalitesi yüksek (tel %95.7, adres %86.7, yetkili %92.8, kategori/foto %100).
+- [x] **[Claude]** ~~81 il + 3 ek dizin enumerasyon~~ → ETL tüm illeri taradı; firma olan 63 il dolu.
 - [ ] **[Orhan]** ToS/hukuki: kamuya açık dizin ama 3. taraf içeriği — toplu çekim + ticari yayın + atıf kararı. Marka konumlandırma ("HalDeFiyat Firma Rehberi" başlığı)
-- [ ] **[Claude]** Bu plana göre Codex implementasyon brief'i (FAZ 1-2) yaz
+- [x] **[Claude]** ~~Codex implementasyon brief'i (FAZ 1-2)~~ → Yazıldı + Codex uyguladı (FAZ 1-4 canlı, aşağıda `[x]`).
 
 ### FAZ 1 — Veri Modeli + ETL *(backend)*
 - [x] **[Codex]** Seed SQL: `hf_firms` + `hf_firm_deals` + `hf_firm_sponsorships` (CREATE TABLE)
@@ -97,7 +97,7 @@ yeni public bölüm, admin_panel'de CRM. Fiyat ETL pattern'i birebir.
 - [x] **[Codex]** `repository.ts` — external_id upsert (idempotent), last_seen_at, stale tespiti
 - [x] **[Codex]** Admin ETL endpoint `POST /admin/firms/etl/run` (il bazlı + all)
 - [x] **[Codex]** `cron.ts` — aylık tam tarama + haftalık delta
-- [ ] **[Claude]** ETL çıktısını review (kapsama, dedup, alan kalitesi)
+- [x] **[Claude]** ETL çıktısı review (2026-05-30) — **PASS:** 1318 firma, 63 il; **0 dup external_id, 0 dup slug** (dedup temiz); alan kalitesi tel %95.7 / adres %86.7 / yetkili %92.8 / kategori-foto %100; hepsi approved.
 
 ### FAZ 2 — Public Frontend *(dizin + kart)*
 - [x] **[Codex]** `/firmalar` dizin sayfası (il/ilçe/kategori filtre, arama, sayfalama, harita opsiyonel)
@@ -106,7 +106,7 @@ yeni public bölüm, admin_panel'de CRM. Fiyat ETL pattern'i birebir.
 - [x] **[Codex]** `/hal/{market}` sayfasına "Bu haldeki firmalar" bölümü
 - [x] **[Codex]** Nav'a "Firmalar" başlığı + PageContainer standardı
 - [x] **[Codex]** Sitemap'e firma URL'leri (interlock: boş/eksik firma noindex — thin guard)
-- [ ] **[Claude]** SEO/altitude review (başlık/şema/iç link)
+- [x] **[Claude]** SEO review (2026-05-30) — **PASS:** firmaya özel başlık, doğru canonical, robots interlock çalışıyor (içerikli=index), zengin JSON-LD (LocalBusiness+PostalAddress+BreadcrumbList+Organization), iç linkler + telefon/adres SSR render. **Minör:** bazı firma adları küçük harf kalmış (veri-casing) → display'de title-case önerilir.
 
 ### FAZ 3 — CRM / İş Geliştirme *(admin_panel)*
 > ⚠️ admin_panel Codex'in aktif alanı — yeni route'lar AYRI dosyalarda
