@@ -7,6 +7,7 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import AlertModalProvider from "@/components/ui/AlertModalProvider";
 import { fetchSiteSettings } from "@/lib/site-settings";
 import { fetchPricesOverview } from "@/lib/api";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import type { AppLocale } from "@/i18n/routing";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033";
@@ -77,7 +78,7 @@ export default async function PublicLayout({
         latestRecordedDate={overview.latestRecordedDate}
       />
 
-      <main className="relative z-10 grow">{children}</main>
+      <main className="relative z-10 grow pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">{children}</main>
 
       <Footer
         siteName={settings.site_name || "HalDeFiyat"}
@@ -96,6 +97,7 @@ export default async function PublicLayout({
       />
 
       <AlertModalProvider />
+      <MobileBottomNav locale={currentLocale} />
     </div>
   );
 }
