@@ -11,6 +11,7 @@ import { getLocaleFromPathname } from "@/i18n/routing";
 import { localePath } from "@/lib/locale-path";
 import { ThemeToggle } from "./ThemeToggle";
 import { NotificationBell } from "@/components/dashboard/notifications/NotificationBell";
+import { HeaderNavDropdown } from "./HeaderNavDropdown";
 
 export interface NavLink {
   key: string;
@@ -18,15 +19,27 @@ export interface NavLink {
   href: string;
 }
 
+export interface NavGroup {
+  key: string;
+  label: string;
+  items: ReadonlyArray<NavLink>;
+}
+
+export type NavEntry = NavLink | NavGroup;
+
+export function isNavGroup(entry: NavEntry): entry is NavGroup {
+  return "items" in entry;
+}
+
 interface HeaderNavClientProps {
-  links: ReadonlyArray<NavLink>;
+  entries: ReadonlyArray<NavEntry>;
 }
 
 /**
  * Active state ve mobile drawer state icin client island.
  * Search input + buttons da burada tutulur (kucuk JS yuku).
  */
-export default function HeaderNavClient({ links }: HeaderNavClientProps) {
+export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
   const pathname = usePathname() ?? "/";
   const locale = getLocaleFromPathname(pathname);
   const [open, setOpen] = useState(false);
@@ -47,23 +60,24 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
     <>
       {/* Desktop nav */}
       <nav className="hidden lg:flex items-center gap-1">
-        {links.map((link) => {
-          const active = isActive(link.href);
-          return (
+        {entries.map((entry) =>
+          isNavGroup(entry) ? (
+            <HeaderNavDropdown key={entry.key} group={entry} isActive={isActive} />
+          ) : (
             <Link
-              key={link.key}
-              href={link.href}
+              key={entry.key}
+              href={entry.href}
               className={clsx(
                 "px-3 py-2 rounded-md text-[13px] font-medium transition-colors",
-                active
+                isActive(entry.href)
                   ? "text-(--color-brand) bg-(--color-brand-light)"
                   : "text-(--color-muted) hover:text-(--color-foreground) hover:bg-(--color-bg-alt)",
               )}
             >
-              {link.label}
+              {entry.label}
             </Link>
-          );
-        })}
+          ),
+        )}
       </nav>
 
       {/* Search bar */}
@@ -177,20 +191,42 @@ export default function HeaderNavClient({ links }: HeaderNavClientProps) {
       {open && (
         <div className="lg:hidden absolute left-0 right-0 top-full border-t border-(--color-border) bg-(--color-surface)/95 backdrop-blur-lg">
           <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3">
-            {links.map((link) => (
-              <Link
-                key={link.key}
-                href={link.href}
-                className={clsx(
-                  "px-3 py-3 rounded-md text-sm font-medium",
-                  isActive(link.href)
-                    ? "text-(--color-brand) bg-(--color-brand-light)"
-                    : "text-(--color-foreground) hover:bg-(--color-bg-alt)",
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {entries.map((entry) =>
+              isNavGroup(entry) ? (
+                <div key={entry.key} className="py-1">
+                  <div className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-(--color-muted)">
+                    {entry.label}
+                  </div>
+                  {entry.items.map((item) => (
+                    <Link
+                      key={item.key}
+                      href={item.href}
+                      className={clsx(
+                        "block px-3 py-3 rounded-md text-sm font-medium",
+                        isActive(item.href)
+                          ? "text-(--color-brand) bg-(--color-brand-light)"
+                          : "text-(--color-foreground) hover:bg-(--color-bg-alt)",
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <Link
+                  key={entry.key}
+                  href={entry.href}
+                  className={clsx(
+                    "px-3 py-3 rounded-md text-sm font-medium",
+                    isActive(entry.href)
+                      ? "text-(--color-brand) bg-(--color-brand-light)"
+                      : "text-(--color-foreground) hover:bg-(--color-bg-alt)",
+                  )}
+                >
+                  {entry.label}
+                </Link>
+              ),
+            )}
             {user && (
               <Link
                 href={localePath(locale, "/hesabim")}

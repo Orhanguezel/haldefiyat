@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import TopbarClient from "@/components/header/TopbarClient";
-import HeaderNavClient, { type NavLink } from "@/components/header/HeaderNavClient";
+import HeaderNavClient, { type NavEntry } from "@/components/header/HeaderNavClient";
 
 type HeaderProps = {
   siteName?: string | null;
@@ -11,16 +11,28 @@ type HeaderProps = {
   logoLightUrl?: string | null;
 };
 
-const NAV_LINKS: ReadonlyArray<NavLink> = [
-  { key: "prices",    label: "Fiyatlar",    href: "/fiyatlar" },
-  { key: "cities",    label: "Şehirler",    href: "/hal" },
-  { key: "firms",     label: "Firmalar",    href: "/firmalar" },
-  { key: "map",       label: "Harita",      href: "/harita" },
-  { key: "index",     label: "Endeks",      href: "/endeks" },
-  { key: "favorites", label: "Favorilerim", href: "/favoriler" },
-  { key: "alerts",    label: "Uyarılar",    href: "/uyarilar" },
-  { key: "analiz",   label: "Analiz",      href: "/analiz" },
-  { key: "about",     label: "Hakkımızda",  href: "/hakkimizda" },
+const NAV_ENTRIES: ReadonlyArray<NavEntry> = [
+  {
+    key: "prices-group",
+    label: "Fiyatlar",
+    items: [
+      { key: "prices", label: "Günlük Fiyatlar", href: "/fiyatlar" },
+      { key: "cities", label: "Şehirler / Haller", href: "/hal" },
+      { key: "map", label: "Harita", href: "/harita" },
+      { key: "index", label: "Endeks", href: "/endeks" },
+      { key: "analiz", label: "Analiz", href: "/analiz" },
+    ],
+  },
+  { key: "firms", label: "Firmalar", href: "/firmalar" },
+  {
+    key: "follow-group",
+    label: "Takibim",
+    items: [
+      { key: "favorites", label: "Favorilerim", href: "/favoriler" },
+      { key: "alerts", label: "Uyarılar", href: "/uyarilar" },
+    ],
+  },
+  { key: "about", label: "Hakkımızda", href: "/hakkimizda" },
 ] as const;
 
 /**
@@ -74,7 +86,7 @@ export default function Header({ siteName, logoUrl, logoDarkUrl, logoLightUrl }:
           </Link>
 
           {/* Client island: nav + search + CTA + mobile drawer */}
-          <HeaderNavClient links={NAV_LINKS} />
+          <HeaderNavClient entries={NAV_ENTRIES} />
         </div>
       </div>
     </header>

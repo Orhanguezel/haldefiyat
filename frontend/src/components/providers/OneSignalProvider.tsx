@@ -29,6 +29,10 @@ const ONESIGNAL_ACTIVE =
  * hatasını sonsuz retry ederek tarayıcıyı boğar.
  */
 let __oneSignalInitStarted = false;
+// Init basarili mi? OneSignal dashboard'i farkli host'a kayitliysa (or. www) init
+// throw eder; ardindan login/logout cekirdek init olmadigi icin "Cannot read
+// properties of undefined" zincir hatasi atar. Bu flag o zinciri keser.
+let __oneSignalReady = false;
 
 export function OneSignalProvider() {
   const { user } = useAuthSession();
@@ -45,22 +49,29 @@ export function OneSignalProvider() {
       __oneSignalInitStarted = true;
       window.OneSignalDeferred.push(async (OneSignal) => {
         try {
+          OneSignal?.Debug?.setLogLevel?.("none");
+        } catch {
+          /* setLogLevel yoksa sorun degil */
+        }
+        try {
           await OneSignal.init({
             appId: ONE_SIGNAL_APP_ID,
             serviceWorkerPath: "/OneSignalSDKWorker.js",
             notifyButton: { enable: false },
             allowLocalhostAsSecureOrigin: false,
           });
+          __oneSignalReady = true;
         } catch (err) {
-          // Zaten init edilmişse sessizce geç; retry döngüsüne girmez
+          // Origin uyusmazligi / zaten init — sessizce gec, retry dongusune girmez
           console.debug("[onesignal] init skipped", err);
         }
       });
     }
 
-    // Login/logout her user değişikliğinde çalışır — init'ten ayrı
+    // Login/logout her user değişikliğinde çalışır — init başarılıysa
     const targetUserId = user?.id ?? null;
     window.OneSignalDeferred.push(async (OneSignal) => {
+      if (!__oneSignalReady) return; // init başarısızsa zincir hatayı önle
       try {
         if (targetUserId) await OneSignal.login(targetUserId);
         else await OneSignal.logout();
