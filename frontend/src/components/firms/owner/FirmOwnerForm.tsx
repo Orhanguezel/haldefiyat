@@ -358,22 +358,23 @@ export function FirmOwnerForm({ mode, locale }: Props) {
               </button>
             </div>
           </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-[minmax(180px,1fr)_minmax(160px,1fr)_120px_120px_120px_120px_140px_auto]">
-            <Combobox
-              options={productOptions}
-              value={priceDraft.productSlug}
-              onChange={selectProduct}
-              placeholder="Katalog ürünü"
-              emptyText="Ürün bulunamadı"
-            />
-            <input value={priceDraft.productName} onChange={(event) => setPriceDraft((prev) => ({ ...prev, productName: event.target.value }))} placeholder="Ürün adı" className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
-            <select value={priceDraft.unit} onChange={(event) => setPriceDraft((prev) => ({ ...prev, unit: event.target.value as FirmPriceUnit }))} className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm">
+          {/* Tekil komisyoncu TEK fiyat girer (min/max aggregate listeler için). flex-wrap → taşma yok. */}
+          <div className="mt-4 flex flex-wrap gap-3">
+            <div className="min-w-[170px] flex-1">
+              <Combobox
+                options={productOptions}
+                value={priceDraft.productSlug}
+                onChange={selectProduct}
+                placeholder="Katalog ürünü"
+                emptyText="Ürün bulunamadı"
+              />
+            </div>
+            <input value={priceDraft.productName} onChange={(event) => setPriceDraft((prev) => ({ ...prev, productName: event.target.value }))} placeholder="Ürün adı" className="min-h-11 min-w-[150px] flex-1 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
+            <select value={priceDraft.unit} onChange={(event) => setPriceDraft((prev) => ({ ...prev, unit: event.target.value as FirmPriceUnit }))} className="min-h-11 w-[96px] rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm">
               {FIRM_PRICE_UNITS.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
             </select>
-            <input value={priceDraft.minPrice ?? ""} onChange={(event) => setPriceDraft((prev) => ({ ...prev, minPrice: event.target.value }))} inputMode="decimal" placeholder="En düşük" className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
-            <input value={priceDraft.avgPrice} onChange={(event) => setPriceDraft((prev) => ({ ...prev, avgPrice: event.target.value }))} inputMode="decimal" placeholder="Ortalama" className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
-            <input value={priceDraft.maxPrice ?? ""} onChange={(event) => setPriceDraft((prev) => ({ ...prev, maxPrice: event.target.value }))} inputMode="decimal" placeholder="En yüksek" className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
-            <input type="date" value={priceDraft.recordedDate} max={todayDateString()} onChange={(event) => setPriceDraft((prev) => ({ ...prev, recordedDate: event.target.value }))} className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
+            <input value={priceDraft.avgPrice} onChange={(event) => setPriceDraft((prev) => ({ ...prev, avgPrice: event.target.value }))} inputMode="decimal" placeholder="Fiyat" className="min-h-11 w-[120px] rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
+            <input type="date" value={priceDraft.recordedDate} max={todayDateString()} onChange={(event) => setPriceDraft((prev) => ({ ...prev, recordedDate: event.target.value }))} className="min-h-11 w-[150px] rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
             <button type="button" onClick={savePrice} disabled={saving || !priceDraft.productName.trim() || !priceDraft.avgPrice.trim()} className="min-h-11 rounded-[6px] border border-(--color-border) px-4 font-(family-name:--font-mono) text-[12px] font-semibold disabled:opacity-60">
               {editingPriceId || editingDraftIndex !== null ? "Güncelle" : "Ekle"}
             </button>
@@ -513,7 +514,7 @@ function normalizeHeader(value: string): "name" | "unit" | "minPrice" | "avgPric
   if (["urunadi", "urun", "name", "productname"].includes(key)) return "name";
   if (["birim", "unit"].includes(key)) return "unit";
   if (["endusuk", "min", "minprice", "minimum"].includes(key)) return "minPrice";
-  if (["ortalama", "ort", "avg", "avgprice", "average"].includes(key)) return "avgPrice";
+  if (["fiyat", "price", "ortalama", "ort", "avg", "avgprice", "average"].includes(key)) return "avgPrice";
   if (["enyuksek", "max", "maxprice", "maximum"].includes(key)) return "maxPrice";
   if (["tarih", "date", "recordeddate"].includes(key)) return "recordedDate";
   if (["katalogslug", "productslug", "slug"].includes(key)) return "productSlug";

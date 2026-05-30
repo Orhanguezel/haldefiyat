@@ -197,14 +197,12 @@ export default async function FirmDetailPage({ params }: Props) {
                 )}
               </div>
               <div className="mt-4 overflow-x-auto rounded-[8px] border border-(--color-border-soft)">
-                <table className="min-w-[640px] w-full text-left text-sm">
+                <table className="min-w-[420px] w-full text-left text-sm">
                   <thead className="bg-(--color-bg-alt) font-(family-name:--font-mono) text-[11px] uppercase tracking-[0.08em] text-(--color-muted)">
                     <tr>
                       <th className="px-4 py-3">Ürün</th>
                       <th className="px-4 py-3">Birim</th>
-                      <th className="px-4 py-3">En düşük</th>
-                      <th className="px-4 py-3">Ortalama</th>
-                      <th className="px-4 py-3">En yüksek</th>
+                      <th className="px-4 py-3">Fiyat</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-(--color-border-soft)">
@@ -212,9 +210,7 @@ export default async function FirmDetailPage({ params }: Props) {
                       <tr key={price.id}>
                         <td className="px-4 py-3 font-semibold text-(--color-foreground)">{price.productName}</td>
                         <td className="px-4 py-3 text-(--color-muted)">{price.unit}</td>
-                        <td className="px-4 py-3 text-(--color-muted)">{formatPrice(price.minPrice)}</td>
                         <td className="px-4 py-3 font-semibold text-(--color-foreground)">{formatPrice(price.avgPrice)}</td>
-                        <td className="px-4 py-3 text-(--color-muted)">{formatPrice(price.maxPrice)}</td>
                       </tr>
                     ))}
                   </tbody>
