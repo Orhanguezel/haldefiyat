@@ -36,8 +36,9 @@ export async function upsertFirm(firm: FetchedFirm): Promise<"inserted" | "updat
       set: {
         slug: values.slug,
         name: values.name,
-        contactPerson: values.contactPerson,
-        phone: values.phone,
+        // OCR ile doldurulmus iletisim/isim re-scrape'te EZILMEZ: mevcut deger varsa korunur.
+        contactPerson: sql`COALESCE(${hfFirms.contactPerson}, ${values.contactPerson})`,
+        phone: sql`COALESCE(${hfFirms.phone}, ${values.phone})`,
         address: values.address,
         citySlug: values.citySlug,
         districtSlug: values.districtSlug,
@@ -47,7 +48,8 @@ export async function upsertFirm(firm: FetchedFirm): Promise<"inserted" | "updat
         categories: values.categories,
         isActive: 1,
         lastSeenAt: sql`CURRENT_TIMESTAMP(3)`,
-        raw: values.raw,
+        // raw MERGE: mevcut ocr_contacts/ocr_phones korunur, scrape alanlari (breadcrumb/detailFields) guncellenir.
+        raw: sql`JSON_MERGE_PATCH(COALESCE(${hfFirms.raw}, JSON_OBJECT()), CAST(${JSON.stringify(firm.raw ?? {})} AS JSON))`,
       },
     });
 
