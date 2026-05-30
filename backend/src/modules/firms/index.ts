@@ -8,6 +8,7 @@ import {
   createFirmDeal,
   createFirmClaim,
   createFirmProduct,
+  createFirmProductsBulk,
   createUserFirm,
   createFirmSponsorship,
   deleteFirmDeal,
@@ -30,6 +31,7 @@ import {
   updateFirmSponsorship,
 } from "./repository";
 import { runFirmDirectoryEtl } from "./service";
+import { isValidCitySlug, isValidDistrictSlug } from "@/data/turkey-city-slugs";
 
 const firmTypeSchema = z.enum(["komisyoncu", "soguk_hava", "nakliye", "zirai_ilac"]);
 
@@ -85,7 +87,7 @@ const publicLeadBodySchema = z.object({
   message: z.string().min(5).max(1000),
 });
 
-const firmWriteBodySchema = z.object({
+const firmWriteFieldsSchema = z.object({
   name: z.string().trim().min(2).max(255),
   contactPerson: z.string().trim().max(255).nullable().optional(),
   phone: z.string().trim().max(128).nullable().optional(),
@@ -96,7 +98,17 @@ const firmWriteBodySchema = z.object({
   categories: z.array(z.string().trim().min(1).max(80)).max(30).optional(),
 });
 
-const firmPatchBodySchema = firmWriteBodySchema.partial();
+function refineFirmLocation(data: { citySlug?: string | null; districtSlug?: string | null }, ctx: z.RefinementCtx) {
+  if (data.citySlug && !isValidCitySlug(data.citySlug)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["citySlug"], message: "invalid_city" });
+  }
+  if (data.districtSlug && !isValidDistrictSlug(data.citySlug, data.districtSlug)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["districtSlug"], message: "invalid_district" });
+  }
+}
+
+const firmWriteBodySchema = firmWriteFieldsSchema.superRefine(refineFirmLocation);
+const firmPatchBodySchema = firmWriteFieldsSchema.partial().superRefine(refineFirmLocation);
 
 const firmProductBodySchema = z.object({
   productSlug: z.string().trim().max(128).nullable().optional(),
@@ -107,6 +119,10 @@ const firmProductBodySchema = z.object({
 });
 
 const firmProductPatchBodySchema = firmProductBodySchema.partial();
+
+const firmProductsBulkBodySchema = z.object({
+  products: z.array(firmProductBodySchema).max(500),
+});
 
 const claimBodySchema = z.object({
   evidence: z.string().trim().max(2000).nullable().optional(),
@@ -179,6 +195,9 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     const userId = getAuthUserId(req);
     const parsed = firmWriteBodySchema.safeParse(req.body ?? {});
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz firma bilgileri", issues: parsed.error.issues });
+    if (!parsed.data.citySlug) {
+      return reply.status(400).send({ error: "Gecersiz firma bilgileri", issues: [{ path: ["citySlug"], message: "required_city" }] });
+    }
     const firm = await createUserFirm({ ...parsed.data, ownerUserId: userId });
     return reply.status(201).send({ item: firm });
   });
@@ -204,6 +223,30 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz urun bilgileri", issues: parsed.error.issues });
     const id = await createFirmProduct({ ...parsed.data, firmId });
     return reply.status(201).send({ id });
+  });
+
+  app.post<{ Params: { id: string } }>("/firms/:id/products/bulk", { onRequest: [requireAuth] }, async (req, reply) => {
+    const userId = getAuthUserId(req);
+    const firmId = Number(req.params.id);
+    if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const firm = await getFirmById(firmId);
+    if (!firm || firm.ownerUserId !== userId) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const bulkParsed = firmProductsBulkBodySchema.safeParse(req.body ?? {});
+    const incoming = Array.isArray((req.body as { products?: unknown[] } | undefined)?.products)
+      ? ((req.body as { products?: unknown[] }).products ?? []).slice(0, 500)
+      : [];
+    if (!bulkParsed.success && incoming.length === 0) {
+      return reply.status(400).send({ error: "Gecersiz toplu urun bilgileri", issues: bulkParsed.error.issues });
+    }
+    const valid = [];
+    let skipped = 0;
+    for (const product of incoming) {
+      const parsed = firmProductBodySchema.safeParse(product);
+      if (parsed.success) valid.push(parsed.data);
+      else skipped += 1;
+    }
+    const inserted = await createFirmProductsBulk(firmId, valid);
+    return reply.status(201).send({ inserted, skipped });
   });
 
   app.patch<{ Params: { id: string; productId: string } }>("/firms/:id/products/:productId", { onRequest: [requireAuth] }, async (req, reply) => {

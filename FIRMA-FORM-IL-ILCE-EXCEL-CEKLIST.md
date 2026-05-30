@@ -28,13 +28,13 @@ Mevcut alan gerçekleri (değiştirme, bunlara uy):
 ## FAZ 1 — İl/İlçe Aramalı Dropdown (cascading combobox)
 
 ### 1.1 Dataset'i hal-fiyatlari'ya taşı `[Codex]`
-- [ ] `frontend/src/data/turkey-cities.ts` oluştur — kamanilan'daki `TURKEY_CITIES` (81 il + ilçe) **birebir kopyala**.
+- [x] `frontend/src/data/turkey-cities.ts` oluştur — kamanilan'daki `TURKEY_CITIES` (81 il + ilçe) **birebir kopyala**.
   Tip: `export interface TurkeyCity { value: string; label: string; districts: string[]; }`
-- [ ] Türkçe-duyarlı slug üretici ekle: `frontend/src/lib/tr-slug.ts` → `slugifyTr(s: string): string`.
+- [x] Türkçe-duyarlı slug üretici ekle: `frontend/src/lib/tr-slug.ts` → `slugifyTr(s: string): string`.
   Kurallar: `İ/ı→i, ş→s, ç→c, ğ→g, ü→u, ö→o`, lowercase (`toLocaleLowerCase("tr")`), boşluk→`-`,
   alfanümerik dışını sil, çoklu `-` tek `-`. **Mevcut `FirmOwnerForm.slugifyNullable`'ı bununla değiştir**
   (kod tekrarını önle — tek slug fonksiyonu).
-- [ ] Yardımcılar: `provinceBySlug(slug)`, `districtsOfProvinceSlug(slug)`, `findProvinceByDistrictSlug(...)`
+- [x] Yardımcılar: `provinceBySlug(slug)`, `districtsOfProvinceSlug(slug)`, `findProvinceByDistrictSlug(...)`
   (manage modunda slug→display geri eşleme için).
 
 > **Slug uyumu (kritik):** `slugifyTr(label)` çıktısı mevcut DB slug'larıyla örtüşmeli
@@ -44,79 +44,83 @@ Mevcut alan gerçekleri (değiştirme, bunlara uy):
 > `{ "afyon": "afyonkarahisar" }` gibi manuel override map ekle (filtreler bozulmasın).
 
 ### 1.2 Aramalı combobox bileşeni `[Codex]`
-- [ ] `frontend/src/components/ui/Combobox.tsx` — **bağımlılık eklemeden** (yeni npm yok) hafif combobox:
+- [x] `frontend/src/components/ui/Combobox.tsx` — **bağımlılık eklemeden** (yeni npm yok) hafif combobox:
   - Props: `options: {value,label}[]`, `value`, `onChange`, `placeholder`, `disabled`, `emptyText`.
   - Yazınca filtreler (label üzerinde TR-insensitive arama), klavye (↑↓ Enter Esc), dışarı tıkla kapat.
   - Erişilebilir (`role="combobox"`, `aria-expanded`, `aria-activedescendant`), tema token'ları,
     mobil dokunmatik uyumlu. `HeaderNavDropdown` desenindeki dışarı-tıkla/Escape mantığını referans al.
-- [ ] `frontend/src/components/firms/owner/CityDistrictSelect.tsx`:
+- [x] `frontend/src/components/firms/owner/CityDistrictSelect.tsx`:
   - İki bağlı Combobox: **İl** (81 seçenek) → seçilince **İlçe** aktifleşir (o ilin ilçeleri).
   - İl değişince ilçe sıfırlanır. Props: `citySlug`, `districtSlug`, `onChange({citySlug, districtSlug})`.
   - Görünen: display label; dışarı veren: **slug** (`slugifyTr`).
 
 ### 1.3 Forma entegre et `[Codex]`
-- [ ] `FirmOwnerForm.tsx`: "İl slug" + "İlçe slug" serbest `Field`'lerini **kaldır**, yerine `CityDistrictSelect`.
-- [ ] **create** modu: il **zorunlu** (submit guard + görsel `*`), ilçe opsiyonel.
-- [ ] **manage** modu: mevcut `firm.citySlug/districtSlug`'dan il/ilçe'yi **önseç** (slug→display).
+- [x] `FirmOwnerForm.tsx`: "İl slug" + "İlçe slug" serbest `Field`'lerini **kaldır**, yerine `CityDistrictSelect`.
+- [x] **create** modu: il **zorunlu** (submit guard + görsel `*`), ilçe opsiyonel.
+- [x] **manage** modu: mevcut `firm.citySlug/districtSlug`'dan il/ilçe'yi **önseç** (slug→display).
   Slug listede yoksa: ilk açılışta uyarı göster, kullanıcı yeniden seçsin (eski serbest veri için).
-- [ ] Submit'te `citySlug`/`districtSlug` zaten slug → `normalizeFirmPayload`'daki ekstra slugify gereksiz, sadeleştir.
+- [x] Submit'te `citySlug`/`districtSlug` zaten slug → `normalizeFirmPayload`'daki ekstra slugify gereksiz, sadeleştir.
 
 ### 1.4 Backend doğrulama (sunucu tarafı allowlist) `[Codex]`
-- [ ] `backend/src/data/turkey-city-slugs.ts` — il→ilçe **slug seti** (frontend dataset'ten türetilmiş;
+- [x] `backend/src/data/turkey-city-slugs.ts` — il→ilçe **slug seti** (frontend dataset'ten türetilmiş;
   build script veya elle senkron). Tek kaynak ideal; pratikte mirror + kısa not.
-- [ ] `firmWriteBodySchema`'ya `.superRefine`: `citySlug` doluysa geçerli il slug'ı olmalı; `districtSlug`
+- [x] `firmWriteBodySchema`'ya `.superRefine`: `citySlug` doluysa geçerli il slug'ı olmalı; `districtSlug`
   doluysa o ilin ilçesi olmalı. Geçersizse `invalid_city` / `invalid_district` döndür.
-- [ ] (Opsiyonel) create'te `citySlug` zorunlu kuralını backend'de de uygula (frontend ile paralel).
+- [x] (Opsiyonel) create'te `citySlug` zorunlu kuralını backend'de de uygula (frontend ile paralel).
 
 ---
 
 ## FAZ 2 — Excel/CSV ile Ürün İçe Aktarma + Tablo + Doğrulama
 
 ### 2.1 Ürünleri gerçek **tablo** olarak göster `[Codex]`
-- [ ] Mevcut `divide-y` liste yerine `<table>`: kolonlar **Ürün Adı · Fiyat/Not · Açıklama · İşlem(Sil)**.
+- [x] Mevcut `divide-y` liste yerine `<table>`: kolonlar **Ürün Adı · Fiyat/Not · Açıklama · İşlem(Sil)**.
   Hem **create** (draftProducts) hem **manage** (products) için aynı tablo bileşeni:
   `frontend/src/components/firms/owner/FirmProductsTable.tsx`.
 - [ ] Boş durum: "Henüz ürün eklenmedi." satırı korunur. Responsive (mobilde yatay scroll veya stack).
 
 ### 2.2 İçe aktarma UI `[Codex]`
-- [ ] Ürünler bölümüne **"Excel/CSV ile içe aktar"** butonu + gizli `<input type="file" accept=".xlsx,.xls,.csv">`.
-- [ ] **Şablon indir** linki: başlıklı örnek dosya (`Ürün Adı, Fiyat/Not, Açıklama, Katalog Slug(ops.)`).
+- [x] Ürünler bölümüne **"Excel/CSV ile içe aktar"** butonu + gizli `<input type="file" accept=".xlsx,.xls,.csv">`.
+- [x] **Şablon indir** linki: başlıklı örnek dosya (`Ürün Adı, Fiyat/Not, Açıklama, Katalog Slug(ops.)`).
   `public/templates/firma-urun-sablonu.csv` (ve istenirse .xlsx). Buton bu dosyaya link verir.
-- [ ] Parse **client-side, lazy**: `const XLSX = await import("xlsx")` (yalnız butona basınca yüklensin —
+- [x] Parse **client-side, lazy**: `const XLSX = await import("xlsx")` (yalnız butona basınca yüklensin —
   initial bundle'ı şişirmesin). `xlsx` (SheetJS) bağımlılığı eklenir; .xlsx/.xls/.csv hepsini okur.
   > Alternatif (Codex tercih ederse): multipart upload → backend parse. Ama client-side + lazy import
   > daha basit (storage/multipart yok, anında önizleme). Client-side seçildi.
-- [ ] Başlık eşleme toleransı: TR + EN başlıklar (`Ürün Adı|Urun Adi|name`, `Fiyat|Fiyat/Not|price`,
+- [x] Başlık eşleme toleransı: TR + EN başlıklar (`Ürün Adı|Urun Adi|name`, `Fiyat|Fiyat/Not|price`,
   `Açıklama|Aciklama|note`, `Katalog Slug|product_slug`). Trim, boş satır atla.
 
 ### 2.3 Önizleme + doğrulama tablosu `[Codex]`
-- [ ] Parse sonrası **önizleme tablosu** (modal veya bölüm): her satır + **durum** (✓ geçerli / ✗ hata).
-- [ ] Satır doğrulama (frontend, 2.5'teki ortak limitlerle):
+- [x] Parse sonrası **önizleme tablosu** (modal veya bölüm): her satır + **durum** (✓ geçerli / ✗ hata).
+- [x] Satır doğrulama (frontend, 2.5'teki ortak limitlerle):
   - `productName` zorunlu, 1–255; `price` ≤128; `note` ≤500; `productSlug` ≤128.
   - Aynı dosyada **yinelenen ürün adı** → uyar (atla veya işaretle).
   - Hatalı satırlar kırmızı; **sadece geçerli satırlar** içe aktarılır.
-- [ ] Özet: "X geçerli, Y hatalı satır" + **"Geçerli satırları ekle"** onay butonu.
+- [x] Özet: "X geçerli, Y hatalı satır" + **"Geçerli satırları ekle"** onay butonu.
 
 ### 2.4 Toplu ekleme endpoint'i `[Codex]`
-- [ ] **Yeni:** `POST /firms/:id/products/bulk` (owner-only, mevcut ürün route'larıyla aynı guard).
+- [x] **Yeni:** `POST /firms/:id/products/bulk` (owner-only, mevcut ürün route'larıyla aynı guard).
   Body: `{ products: FirmProductBody[] }` (max 500). Her öğe `firmProductBodySchema` ile doğrulanır;
   geçersizler atlanır. Repository'de **tek transaction / batch insert** (`createFirmProductsBulk`).
   Dönen: `{ inserted: number, skipped: number }`. Rate-limit (ör. 5/dk).
-- [ ] **create** akışı: firma oluşunca draft ürünleri **tek bulk çağrısıyla** ekle (mevcut for-loop yerine).
-- [ ] **manage** akışı: import onayı → bulk endpoint → listeyi `/firms/me` ile tazele.
+- [x] **create** akışı: firma oluşunca draft ürünleri **tek bulk çağrısıyla** ekle (mevcut for-loop yerine).
+- [x] **manage** akışı: import onayı → bulk endpoint → listeyi `/firms/me` ile tazele.
 
 ### 2.5 Doğrulama standardı (tek kaynak) `[Codex]`
-- [ ] `frontend/src/lib/firm-product-validation.ts` — limitler + `validateProductRow(row)` (tekil ekleme,
+- [x] `frontend/src/lib/firm-product-validation.ts` — limitler + `validateProductRow(row)` (tekil ekleme,
   Excel import, tablo edit hepsi bunu kullansın). Limitler backend `firmProductBodySchema` ile **birebir**.
-- [ ] Tekil "Ekle" ve Excel import aynı doğrulamadan geçsin (kod tekrarı yok).
+- [x] Tekil "Ekle" ve Excel import aynı doğrulamadan geçsin (kod tekrarı yok).
 
 ---
 
 ## FAZ 3 — Genel Doğrulama & Cila `[Codex]`
-- [ ] Telefon: opsiyonel TR normalize (sadece rakam + format) — zorlama yok, boş bırakılabilir.
-- [ ] Firma adı `min 2`, il zorunlu; tüm alanlarda trim + boşsa `null`.
-- [ ] Kullanıcıya dönük TR hata mesajları (backend `issues` → okunur mesaj eşleme).
-- [ ] KVKK/onay notu mevcut akışta korunur.
+- [x] Telefon: opsiyonel TR normalize (sadece rakam + format) — zorlama yok, boş bırakılabilir.
+- [x] Firma adı `min 2`, il zorunlu; tüm alanlarda trim + boşsa `null`.
+- [x] Kullanıcıya dönük TR hata mesajları (backend `issues` → okunur mesaj eşleme).
+- [x] KVKK/onay notu mevcut akışta korunur.
+
+### Uygulama Notu (Codex, 2026-05-30)
+- [x] Canlı DB slug doğrulaması yapıldı: 145 distinct il/ilçe çifti kontrol edildi. İl slug'ları dataset ile uyumlu; 58 sapma eski scraped `district_slug` değerlerinde (`sevkiyat`, `karpuz`, `merkez`, belde/hal alt alanı vb.). Yeni form resmi ilçe slug'ı üretir; manage modunda eski ilçe listede yoksa kullanıcıya uyarı gösterilir.
+- [x] Doğrulama: backend `bun run typecheck`, frontend `bun x tsc --noEmit`, backend build, frontend build temiz.
 
 ---
 

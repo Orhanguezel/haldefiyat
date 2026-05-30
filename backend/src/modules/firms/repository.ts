@@ -244,6 +244,25 @@ export async function createFirmProduct(input: {
   return Number(result[0]?.insertId ?? 0);
 }
 
+export async function createFirmProductsBulk(firmId: number, products: Array<{
+  productSlug?: string | null;
+  productName: string;
+  note?: string | null;
+  price?: string | null;
+  displayOrder?: number;
+}>) {
+  if (products.length === 0) return 0;
+  const result = await db.insert(hfFirmProducts).values(products.map((product, index) => ({
+    firmId,
+    productSlug: product.productSlug ?? null,
+    productName: product.productName,
+    note: product.note ?? null,
+    price: product.price ?? null,
+    displayOrder: product.displayOrder ?? 100 + index,
+  })));
+  return Number(result[0]?.affectedRows ?? products.length);
+}
+
 export async function updateFirmProduct(id: number, input: {
   firmId?: number;
   productSlug?: string | null;
