@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import type { MetadataRoute } from "next";
 import { getProductImage } from "@/lib/product-images";
+import { getSonMakaleler } from "@/lib/analiz";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033").replace(/\/$/, "");
 // SSR'da BACKEND_URL (internal) kullan; yoksa NEXT_PUBLIC_API_URL'ye düş
@@ -100,6 +101,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/hal`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
     { url: `${SITE_URL}/firmalar`, lastModified: now, changeFrequency: "weekly", priority: 0.78 },
     { url: `${SITE_URL}/karsilastirma`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${SITE_URL}/analiz`, lastModified: now, changeFrequency: "weekly", priority: 0.75 },
     { url: `${SITE_URL}/metodoloji`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${SITE_URL}/hakkimizda`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/iletisim`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
@@ -136,5 +138,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.55,
   }));
 
-  return [...publicPages, ...productPages, ...marketPages, ...firmPages];
+  const analizPages: MetadataRoute.Sitemap = getSonMakaleler(100).map((m) => ({
+    url: `${SITE_URL}/analiz/${m.slug}`,
+    lastModified: m.tarih ? new Date(m.tarih) : now,
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
+  }));
+
+  return [...publicPages, ...productPages, ...marketPages, ...firmPages, ...analizPages];
 }
