@@ -93,6 +93,7 @@
     "site_settings": "Site Ayarlari",
     "storage": "Depolama",
     "telegram": "Telegram",
-    "audit": "Komuta Merkezi"
+    "audit": "Komuta Merkezi",
+    "analytics": "Analytics"
   }
 }

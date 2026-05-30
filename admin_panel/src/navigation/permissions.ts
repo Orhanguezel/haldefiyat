@@ -22,6 +22,7 @@ export type AdminPermissionKey =
   | 'admin.storage'
   | 'admin.telegram'
   | 'admin.audit'
+  | 'admin.analytics'
   | 'admin.competitor_monitor'
   | 'admin.redirects';
 
@@ -48,6 +49,7 @@ export type AdminNavKey =
   | 'storage'
   | 'telegram'
   | 'audit'
+  | 'analytics'
   | 'competitor_monitor'
   | 'redirects';
 
@@ -75,6 +77,7 @@ const ADMIN_PERMISSION_ROLE_MAP: Record<AdminPermissionKey, PanelRole[]> = {
   'admin.storage': ADMIN_ONLY,
   'admin.telegram': ADMIN_ONLY,
   'admin.audit': ADMIN_ONLY,
+  'admin.analytics': ADMIN_ONLY,
   'admin.competitor_monitor': ADMIN_ONLY,
   'admin.redirects': ADMIN_ONLY,
 };
@@ -106,6 +109,7 @@ const ADMIN_NAV_PERMISSION_MAP: Partial<Record<AdminNavKey, AdminPermissionKey>>
   storage: 'admin.storage',
   telegram: 'admin.telegram',
   audit: 'admin.audit',
+  analytics: 'admin.analytics',
   competitor_monitor: 'admin.competitor_monitor',
   redirects: 'admin.redirects',
 };
@@ -138,6 +142,7 @@ const ADMIN_PERMISSION_PATHS: Record<AdminPermissionKey, string[]> = {
   'admin.storage': ['/admin/storage'],
   'admin.telegram': ['/admin/telegram'],
   'admin.audit': ['/admin/audit'],
+  'admin.analytics': ['/admin/analytics'],
   'admin.competitor_monitor': ['/admin/competitor-monitor'],
   'admin.redirects': ['/admin/redirects'],
 };
