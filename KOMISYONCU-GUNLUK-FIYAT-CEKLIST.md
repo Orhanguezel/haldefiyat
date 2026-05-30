@@ -41,7 +41,7 @@
 ---
 
 ## FAZ 1 — DB: `hf_firm_prices` (dated, hal formatı) `[Codex]`
-- [ ] `backend/src/db/seed/sql/034_firms_schema.sql` **CREATE TABLE'a ekle** (ALTER YOK — seed'e ekle, fresh seed):
+- [x] `backend/src/db/seed/sql/034_firms_schema.sql` **CREATE TABLE'a ekle** (ALTER YOK — seed'e ekle, fresh seed):
   ```sql
   CREATE TABLE IF NOT EXISTS hf_firm_prices (
     id            INT AUTO_INCREMENT PRIMARY KEY,
@@ -64,52 +64,52 @@
   );
   ```
   > UNIQUE `(firm_id, product_name, recorded_date)` → aynı ürün+gün tekrar atılınca **upsert** (tarih güncellenir).
-- [ ] `backend/src/db/schema.ts` drizzle tanımı + tipler.
-- [ ] **Canlı DB:** tablo populated → seed fresh veri kaybı riskli; bu tablo **yeni/boş** olduğundan
+- [x] `backend/src/db/schema.ts` drizzle tanımı + tipler.
+- [x] **Canlı DB:** tablo populated → seed fresh veri kaybı riskli; bu tablo **yeni/boş** olduğundan
   `CREATE TABLE` additive uygulanabilir (mevcut kuralla tutarlı, sadece yeni tablo).
 
 ## FAZ 2 — Backend endpoint'leri `[Codex]`
-- [ ] Zod: `firmPriceBodySchema` → `productName(1-255)`, `productSlug?(≤128)`, `unit(enum allowlist)`,
+- [x] Zod: `firmPriceBodySchema` → `productName(1-255)`, `productSlug?(≤128)`, `unit(enum allowlist)`,
   `avgPrice(>0)`, `minPrice?(≥0)`, `maxPrice?(≥0)`, `recordedDate(YYYY-MM-DD, gelecek tarih YASAK)`.
   Kural: min ≤ avg ≤ max (verilmişse). Birim allowlist: `kg, kasa, adet, demet, bağ, çuval, kg/kasa`.
-- [ ] **Owner-only** route'lar (mevcut ürün guard deseni):
+- [x] **Owner-only** route'lar (mevcut ürün guard deseni):
   - `POST   /firms/:id/prices`            → tek satır **upsert** (firm_id+product_name+recorded_date)
   - `POST   /firms/:id/prices/bulk`       → toplu upsert `{ prices: [...] }` (max 500, transaction)
   - `PATCH  /firms/:id/prices/:priceId`   → düzenle
   - `DELETE /firms/:id/prices/:priceId`   → sil
-  - `GET    /firms/:id/prices?date=`      → owner; tarih filtreli (default bugün), gün listesi
-- [ ] **Public:** `GET /firms/:slug/prices` → o firmanın **en güncel tarihteki** fiyatları (firma profili için).
+  - `GET    /firms/:id/daily-prices?date=` → owner; tarih filtreli (default bugün), gün listesi
+- [x] **Public:** `GET /firms/:slug/prices` → o firmanın **en güncel tarihteki** fiyatları (firma profili için).
   `getFirmBySlug` cevabına `latestPrices` + `latestPriceDate` ekle.
-- [ ] Repository: `upsertFirmPrice`, `bulkUpsertFirmPrices`, `updateFirmPrice`, `deleteFirmPrice`,
+- [x] Repository: `upsertFirmPrice`, `bulkUpsertFirmPrices`, `updateFirmPrice`, `deleteFirmPrice`,
   `getFirmPricesByDate`, `getLatestFirmPrices`. Upsert = `INSERT ... ON DUPLICATE KEY UPDATE` (avg/min/max/unit/updated_at).
-- [ ] Rate-limit (bulk 5/dk, tekil 60/dk).
+- [x] Rate-limit (bulk 5/dk, tekil 60/dk).
 
 ## FAZ 3 — Form: Günlük fiyat girişi `[Codex]`
-- [ ] `FirmOwnerForm.tsx` "Ürünler" bölümü → **"Günlük Fiyatlar"**. Giriş satırı **hal formatı**:
+- [x] `FirmOwnerForm.tsx` "Ürünler" bölümü → **"Günlük Fiyatlar"**. Giriş satırı **hal formatı**:
   **Ürün** (katalog combobox `hf_products` + serbest metin) · **Birim** (select, default kg) ·
   **En düşük** · **Ortalama*** · **En yüksek** · **Tarih** (default **bugün**, date picker).
   (`*` = avg zorunlu; min/max opsiyonel.)
-- [ ] **Düzenle + Sil** her satırda (manage modunda PATCH/DELETE; create modunda yerel draft düzenle/sil).
-- [ ] "Bugünün fiyatlarını gir" akışı: tarih default bugün; aynı ürünü tekrar girersen **uyar + üzerine yaz** (upsert).
-- [ ] Tablo (`FirmPricesTable.tsx`, mevcut `FirmProductsTable` yerine/yanına): kolonlar
+- [x] **Düzenle + Sil** her satırda (manage modunda PATCH/DELETE; create modunda yerel draft düzenle/sil).
+- [x] "Bugünün fiyatlarını gir" akışı: tarih default bugün; aynı ürünü tekrar girersen **uyar + üzerine yaz** (upsert).
+- [x] Tablo (`FirmPricesTable.tsx`, mevcut `FirmProductsTable` yerine/yanına): kolonlar
   **Ürün · Birim · Min · Ort · Maks · Tarih · İşlem(Düzenle/Sil)**. Boş durum + responsive korunur.
-- [ ] Doğrulama: `firm-product-validation`'ı **fiyat alanlarına** genişlet (`firm-price-validation.ts`):
+- [x] Doğrulama: `firm-product-validation`'ı **fiyat alanlarına** genişlet (`firm-price-validation.ts`):
   sayısal avg>0, min≤avg≤max, tarih ≤ bugün, birim allowlist. Backend zod ile **birebir**.
 
 ## FAZ 4 — Excel/CSV import (hal formatına uyarla) `[Codex]`
-- [ ] Mevcut lazy `xlsx` + önizleme + "X geçerli / Y hatalı" altyapısını **yeniden kullan**; kolonları değiştir:
+- [x] Mevcut lazy `xlsx` + önizleme + "X geçerli / Y hatalı" altyapısını **yeniden kullan**; kolonları değiştir:
   **Ürün Adı · Birim · En Düşük · Ortalama · En Yüksek · Tarih** (+ ops. Katalog Slug).
-- [ ] Şablon güncelle: `public/templates/firma-urun-sablonu.csv` → yeni kolon başlıkları + örnek satır
+- [x] Şablon güncelle: `public/templates/firma-urun-sablonu.csv` → yeni kolon başlıkları + örnek satır
   (`Domates, kg, 18, 22, 26, 2026-05-30`).
-- [ ] Başlık eşleme toleransı (TR/EN): `Ürün/name`, `Birim/unit`, `En Düşük/min`, `Ortalama/avg`,
+- [x] Başlık eşleme toleransı (TR/EN): `Ürün/name`, `Birim/unit`, `En Düşük/min`, `Ortalama/avg`,
   `En Yüksek/max`, `Tarih/date`. Tarih boşsa **bugün** varsay. Önizlemede sayısal/tarih doğrulaması.
-- [ ] Onay → `POST /firms/:id/prices/bulk` (upsert).
+- [x] Onay → `POST /firms/:id/prices/bulk` (upsert).
 
 ## FAZ 5 — Public firma profili gösterimi `[Codex]`
-- [ ] `firma/[slug]/page.tsx`: "Firma Ürünleri" yerine/yanına **"Günlük Hal Fiyatları"** bölümü —
+- [x] `firma/[slug]/page.tsx`: "Firma Ürünleri" yerine/yanına **"Günlük Hal Fiyatları"** bölümü —
   `latestPrices` tablosu (Ürün · Birim · Min · Ort · Maks) + **"Veri tarihi: {latestPriceDate}"** rozeti.
-- [ ] Fiyat yoksa bölüm gizli. Tasarım resmi fiyat tablolarıyla görsel tutarlı.
-- [ ] (K1 önerisi gereği) bu veri resmi ürün/hal sayfalarına **karışmaz**; yalnız firma profilinde.
+- [x] Fiyat yoksa bölüm gizli. Tasarım resmi fiyat tablolarıyla görsel tutarlı.
+- [x] (K1 önerisi gereği) bu veri resmi ürün/hal sayfalarına **karışmaz**; yalnız firma profilinde.
 
 ## FAZ 6 — Opsiyonel / sonraki `[Claude+Codex, sonra]`
 - [ ] Günlük hatırlatma: komisyoncuya "bugünkü fiyatları gir" Telegram/e-posta nudge (mevcut telegram/mail modülü).

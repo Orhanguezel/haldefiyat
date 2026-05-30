@@ -9,14 +9,18 @@ import {
   createFirmClaim,
   createFirmProduct,
   createFirmProductsBulk,
+  bulkUpsertFirmPrices,
   createUserFirm,
   createFirmSponsorship,
   deleteFirmDeal,
+  deleteFirmPrice,
   deleteFirmProduct,
   deleteFirmSponsorship,
   firmDashboardSummary,
   getFirmById,
   getMyFirm,
+  getFirmPricesByDate,
+  getLatestFirmPrices,
   adminUpdateFirm,
   getFirmBySlug,
   listFirmClaims,
@@ -27,8 +31,10 @@ import {
   moderateFirmClaim,
   updateFirmByOwner,
   updateFirmDeal,
+  updateFirmPrice,
   updateFirmProduct,
   updateFirmSponsorship,
+  upsertFirmPrice,
 } from "./repository";
 import { runFirmDirectoryEtl } from "./service";
 import { isValidCitySlug, isValidDistrictSlug } from "@/data/turkey-city-slugs";
@@ -124,6 +130,41 @@ const firmProductsBulkBodySchema = z.object({
   products: z.array(firmProductBodySchema).max(500),
 });
 
+const firmPriceUnitSchema = z.enum(["kg", "kasa", "adet", "demet", "bağ", "çuval", "kg/kasa"]);
+const dateOnlySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((value) => value <= new Date().toISOString().slice(0, 10), "future_date");
+const nullablePriceSchema = z.coerce.number().nonnegative().optional().nullable();
+
+const firmPriceFieldsSchema = z.object({
+  productSlug: z.string().trim().max(128).nullable().optional(),
+  productName: z.string().trim().min(1).max(255),
+  unit: firmPriceUnitSchema.default("kg"),
+  minPrice: nullablePriceSchema,
+  maxPrice: nullablePriceSchema,
+  avgPrice: z.coerce.number().positive(),
+  recordedDate: dateOnlySchema,
+});
+
+function refineFirmPrice(data: {
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  avgPrice?: number;
+}, ctx: z.RefinementCtx) {
+  if (data.avgPrice == null) return;
+  if (data.minPrice != null && data.minPrice > data.avgPrice) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["minPrice"], message: "min_gt_avg" });
+  }
+  if (data.maxPrice != null && data.maxPrice < data.avgPrice) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["maxPrice"], message: "max_lt_avg" });
+  }
+  if (data.minPrice != null && data.maxPrice != null && data.minPrice > data.maxPrice) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["minPrice"], message: "min_gt_max" });
+  }
+}
+
+const firmPriceBodySchema = firmPriceFieldsSchema.superRefine(refineFirmPrice);
+const firmPricePatchBodySchema = firmPriceFieldsSchema.partial().superRefine(refineFirmPrice);
+const firmPricesBulkBodySchema = z.object({ prices: z.array(firmPriceBodySchema).max(500) });
+
 const claimBodySchema = z.object({
   evidence: z.string().trim().max(2000).nullable().optional(),
 });
@@ -168,6 +209,25 @@ function toDealInput(data: z.infer<typeof dealBodySchema>, firmId: number): {
   };
 }
 
+function toFirmPriceInput(data: z.infer<typeof firmPriceBodySchema>, firmId: number, userId?: string | null) {
+  return {
+    firmId,
+    productSlug: data.productSlug ?? null,
+    productName: data.productName,
+    unit: data.unit,
+    minPrice: data.minPrice == null ? null : data.minPrice.toFixed(2),
+    maxPrice: data.maxPrice == null ? null : data.maxPrice.toFixed(2),
+    avgPrice: data.avgPrice.toFixed(2),
+    recordedDate: data.recordedDate,
+    createdBy: userId ?? null,
+  };
+}
+
+async function requireOwnedFirm(firmId: number, userId: string) {
+  const firm = await getFirmById(firmId);
+  return firm && firm.ownerUserId === userId ? firm : null;
+}
+
 export async function registerFirmsPublic(app: FastifyInstance) {
   app.get("/firms", async (req, reply) => {
     const parsed = listQuerySchema.safeParse(req.query);
@@ -189,6 +249,13 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     const firm = await getFirmBySlug(req.params.slug);
     if (!firm) return reply.status(404).send({ error: "Firma bulunamadi" });
     return reply.send({ item: firm });
+  });
+
+  app.get<{ Params: { slug: string } }>("/firms/:slug/prices", async (req, reply) => {
+    const firm = await getFirmBySlug(req.params.slug);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi" });
+    const latest = await getLatestFirmPrices(firm.id);
+    return reply.send({ items: latest.items, date: latest.date });
   });
 
   app.post("/firms", { onRequest: [requireAuth] }, async (req, reply) => {
@@ -250,6 +317,87 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     }
     const inserted = await createFirmProductsBulk(firmId, valid);
     return reply.status(201).send({ inserted, skipped });
+  });
+
+  app.get<{ Params: { id: string }; Querystring: { date?: string } }>("/firms/:id/daily-prices", { onRequest: [requireAuth] }, async (req, reply) => {
+    const userId = getAuthUserId(req);
+    const firmId = Number(req.params.id);
+    if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const firm = await requireOwnedFirm(firmId, userId);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const date = req.query.date && /^\d{4}-\d{2}-\d{2}$/.test(req.query.date) ? req.query.date : new Date().toISOString().slice(0, 10);
+    return reply.send({ items: await getFirmPricesByDate(firmId, date), date });
+  });
+
+  app.post<{ Params: { id: string } }>("/firms/:id/prices", {
+    onRequest: [requireAuth],
+    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
+  }, async (req, reply) => {
+    const userId = getAuthUserId(req);
+    const firmId = Number(req.params.id);
+    if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const firm = await requireOwnedFirm(firmId, userId);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const parsed = firmPriceBodySchema.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz fiyat bilgileri", issues: parsed.error.issues });
+    const id = await upsertFirmPrice(toFirmPriceInput(parsed.data, firmId, userId));
+    return reply.status(201).send({ id });
+  });
+
+  app.post<{ Params: { id: string } }>("/firms/:id/prices/bulk", {
+    onRequest: [requireAuth],
+    config: { rateLimit: { max: 5, timeWindow: "1 minute" } },
+  }, async (req, reply) => {
+    const userId = getAuthUserId(req);
+    const firmId = Number(req.params.id);
+    if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const firm = await requireOwnedFirm(firmId, userId);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const body = req.body as { prices?: unknown[] } | undefined;
+    const bulkParsed = firmPricesBulkBodySchema.safeParse(req.body ?? {});
+    const incoming = Array.isArray(body?.prices) ? body.prices.slice(0, 500) : [];
+    if (!bulkParsed.success && incoming.length === 0) {
+      return reply.status(400).send({ error: "Gecersiz toplu fiyat bilgileri", issues: bulkParsed.error.issues });
+    }
+    const valid = [];
+    let skipped = 0;
+    for (const price of incoming) {
+      const parsed = firmPriceBodySchema.safeParse(price);
+      if (parsed.success) valid.push(toFirmPriceInput(parsed.data, firmId, userId));
+      else skipped += 1;
+    }
+    const inserted = await bulkUpsertFirmPrices(firmId, valid);
+    return reply.status(201).send({ inserted, skipped });
+  });
+
+  app.patch<{ Params: { id: string; priceId: string } }>("/firms/:id/prices/:priceId", { onRequest: [requireAuth] }, async (req, reply) => {
+    const userId = getAuthUserId(req);
+    const firmId = Number(req.params.id);
+    const priceId = Number(req.params.priceId);
+    if (!Number.isFinite(firmId) || !Number.isFinite(priceId)) return reply.status(400).send({ error: "Gecersiz id" });
+    const firm = await requireOwnedFirm(firmId, userId);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const parsed = firmPricePatchBodySchema.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz fiyat bilgileri", issues: parsed.error.issues });
+    const input = Object.fromEntries(Object.entries(parsed.data).map(([key, value]) => {
+      if (["minPrice", "maxPrice", "avgPrice"].includes(key) && typeof value === "number") return [key, value.toFixed(2)];
+      return [key, value];
+    }));
+    const affected = await updateFirmPrice(priceId, firmId, input as Parameters<typeof updateFirmPrice>[2]);
+    if (!affected) return reply.status(404).send({ error: "Fiyat bulunamadi" });
+    return reply.send({ ok: true });
+  });
+
+  app.delete<{ Params: { id: string; priceId: string } }>("/firms/:id/prices/:priceId", { onRequest: [requireAuth] }, async (req, reply) => {
+    const userId = getAuthUserId(req);
+    const firmId = Number(req.params.id);
+    const priceId = Number(req.params.priceId);
+    if (!Number.isFinite(firmId) || !Number.isFinite(priceId)) return reply.status(400).send({ error: "Gecersiz id" });
+    const firm = await requireOwnedFirm(firmId, userId);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const affected = await deleteFirmPrice(priceId, firmId);
+    if (!affected) return reply.status(404).send({ error: "Fiyat bulunamadi" });
+    return reply.send({ ok: true });
   });
 
   app.patch<{ Params: { id: string; productId: string } }>("/firms/:id/products/:productId", { onRequest: [requireAuth] }, async (req, reply) => {

@@ -343,6 +343,30 @@ export const hfFirmProducts = mysqlTable(
   ],
 );
 
+export const hfFirmPrices = mysqlTable(
+  "hf_firm_prices",
+  {
+    id:           int("id").autoincrement().primaryKey(),
+    firmId:       int("firm_id").notNull(),
+    productSlug:  varchar("product_slug", { length: 128 }),
+    productName:  varchar("product_name", { length: 255 }).notNull(),
+    unit:         varchar("unit", { length: 32 }).notNull().default("kg"),
+    minPrice:     decimal("min_price", { precision: 12, scale: 2 }),
+    maxPrice:     decimal("max_price", { precision: 12, scale: 2 }),
+    avgPrice:     decimal("avg_price", { precision: 12, scale: 2 }).notNull(),
+    recordedDate: date("recorded_date", { mode: "string" }).notNull(),
+    isSuspicious: tinyint("is_suspicious").notNull().default(0),
+    createdBy:    varchar("created_by", { length: 36 }),
+    createdAt:    datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:    datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    uniqueIndex("hf_firm_prices_uq").on(t.firmId, t.productName, t.recordedDate),
+    index("hf_firm_prices_firm_date_idx").on(t.firmId, t.recordedDate),
+    index("hf_firm_prices_product_idx").on(t.productSlug),
+  ],
+);
+
 export const hfFirmClaims = mysqlTable(
   "hf_firm_claims",
   {

@@ -103,6 +103,9 @@ export interface Firm {
   firmType: "komisyoncu" | "soguk_hava" | "nakliye" | "zirai_ilac";
   categories: string[] | null;
   products?: FirmProduct[];
+  prices?: FirmPrice[];
+  latestPrices?: FirmPrice[];
+  latestPriceDate?: string | null;
   ocrContacts?: FirmOcrContact[];
   isActive?: number | boolean;
   lastSeenAt?: string | null;
@@ -123,6 +126,19 @@ export interface FirmProduct {
   note: string | null;
   price: string | null;
   displayOrder: number;
+}
+
+export interface FirmPrice {
+  id: number;
+  firmId: number;
+  productSlug: string | null;
+  productName: string;
+  unit: string;
+  minPrice: string | null;
+  maxPrice: string | null;
+  avgPrice: string;
+  recordedDate: string;
+  createdBy: string | null;
 }
 
 export interface FirmListResponse {

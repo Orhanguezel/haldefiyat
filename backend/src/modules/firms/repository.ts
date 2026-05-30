@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, like, or, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { db } from "@/db/client";
-import { hfFirmClaims, hfFirmDeals, hfFirmProducts, hfFirms, hfFirmSponsorships } from "@/db/schema";
+import { hfFirmClaims, hfFirmDeals, hfFirmPrices, hfFirmProducts, hfFirms, hfFirmSponsorships } from "@/db/schema";
 import type { FetchedFirm, FirmListFilters } from "./types";
 
 export async function upsertFirm(firm: FetchedFirm): Promise<"inserted" | "updated"> {
@@ -111,7 +111,8 @@ export async function getFirmBySlug(slug: string) {
   const firm = rows[0] ?? null;
   if (!firm) return null;
   const products = await listFirmProducts(firm.id);
-  return { ...firm, products, ocrContacts: extractOcrContacts(firm.raw) };
+  const latest = await getLatestFirmPrices(firm.id);
+  return { ...firm, products, ocrContacts: extractOcrContacts(firm.raw), latestPrices: latest.items, latestPriceDate: latest.date };
 }
 
 export async function getFirmById(id: number) {
@@ -131,7 +132,7 @@ export async function getMyFirm(userId: string) {
     .orderBy(desc(hfFirms.updatedAt))
     .limit(1);
   if (!firm) return null;
-  return { ...firm, products: await listFirmProducts(firm.id), ocrContacts: extractOcrContacts(firm.raw) };
+  return { ...firm, products: await listFirmProducts(firm.id), prices: await getFirmPricesByDate(firm.id, todayDateString()), ocrContacts: extractOcrContacts(firm.raw) };
 }
 
 export async function createUserFirm(input: {
@@ -286,6 +287,109 @@ export async function updateFirmProduct(id: number, input: {
 export async function deleteFirmProduct(id: number, firmId?: number) {
   const result = await db.delete(hfFirmProducts).where(firmId ? and(eq(hfFirmProducts.id, id), eq(hfFirmProducts.firmId, firmId)) : eq(hfFirmProducts.id, id));
   return Number(result[0]?.affectedRows ?? 0);
+}
+
+export type FirmPriceInput = {
+  firmId: number;
+  productSlug?: string | null;
+  productName: string;
+  unit: "kg" | "kasa" | "adet" | "demet" | "bağ" | "çuval" | "kg/kasa";
+  minPrice?: string | null;
+  maxPrice?: string | null;
+  avgPrice: string;
+  recordedDate: string;
+  createdBy?: string | null;
+};
+
+export async function upsertFirmPrice(input: FirmPriceInput) {
+  const result = await db.insert(hfFirmPrices).values({
+    firmId: input.firmId,
+    productSlug: input.productSlug ?? null,
+    productName: input.productName,
+    unit: input.unit,
+    minPrice: input.minPrice ?? null,
+    maxPrice: input.maxPrice ?? null,
+    avgPrice: input.avgPrice,
+    recordedDate: input.recordedDate,
+    createdBy: input.createdBy ?? null,
+  }).onDuplicateKeyUpdate({
+    set: {
+      productSlug: input.productSlug ?? null,
+      unit: input.unit,
+      minPrice: input.minPrice ?? null,
+      maxPrice: input.maxPrice ?? null,
+      avgPrice: input.avgPrice,
+      createdBy: input.createdBy ?? null,
+      updatedAt: sql`CURRENT_TIMESTAMP(3)`,
+    },
+  });
+  return Number(result[0]?.insertId ?? 0);
+}
+
+export async function bulkUpsertFirmPrices(firmId: number, prices: Omit<FirmPriceInput, "firmId">[]) {
+  if (prices.length === 0) return 0;
+  return db.transaction(async (tx) => {
+    let affected = 0;
+    for (const price of prices) {
+      const result = await tx.insert(hfFirmPrices).values({
+        ...price,
+        firmId,
+        productSlug: price.productSlug ?? null,
+        minPrice: price.minPrice ?? null,
+        maxPrice: price.maxPrice ?? null,
+        createdBy: price.createdBy ?? null,
+      }).onDuplicateKeyUpdate({
+        set: {
+          productSlug: price.productSlug ?? null,
+          unit: price.unit,
+          minPrice: price.minPrice ?? null,
+          maxPrice: price.maxPrice ?? null,
+          avgPrice: price.avgPrice,
+          createdBy: price.createdBy ?? null,
+          updatedAt: sql`CURRENT_TIMESTAMP(3)`,
+        },
+      });
+      affected += Number(result[0]?.affectedRows ?? 1);
+    }
+    return affected;
+  });
+}
+
+export async function updateFirmPrice(id: number, firmId: number, input: Partial<Omit<FirmPriceInput, "firmId">>) {
+  const result = await db.update(hfFirmPrices).set({
+    ...(input.productSlug !== undefined ? { productSlug: input.productSlug } : {}),
+    ...(input.productName !== undefined ? { productName: input.productName } : {}),
+    ...(input.unit !== undefined ? { unit: input.unit } : {}),
+    ...(input.minPrice !== undefined ? { minPrice: input.minPrice } : {}),
+    ...(input.maxPrice !== undefined ? { maxPrice: input.maxPrice } : {}),
+    ...(input.avgPrice !== undefined ? { avgPrice: input.avgPrice } : {}),
+    ...(input.recordedDate !== undefined ? { recordedDate: input.recordedDate } : {}),
+    updatedAt: sql`CURRENT_TIMESTAMP(3)`,
+  }).where(and(eq(hfFirmPrices.id, id), eq(hfFirmPrices.firmId, firmId)));
+  return Number(result[0]?.affectedRows ?? 0);
+}
+
+export async function deleteFirmPrice(id: number, firmId: number) {
+  const result = await db.delete(hfFirmPrices).where(and(eq(hfFirmPrices.id, id), eq(hfFirmPrices.firmId, firmId)));
+  return Number(result[0]?.affectedRows ?? 0);
+}
+
+export async function getFirmPricesByDate(firmId: number, recordedDate = todayDateString()) {
+  return db.select().from(hfFirmPrices)
+    .where(and(eq(hfFirmPrices.firmId, firmId), eq(hfFirmPrices.recordedDate, recordedDate)))
+    .orderBy(asc(hfFirmPrices.productName));
+}
+
+export async function getLatestFirmPrices(firmId: number) {
+  const [latest] = await db
+    .select({ recordedDate: hfFirmPrices.recordedDate })
+    .from(hfFirmPrices)
+    .where(eq(hfFirmPrices.firmId, firmId))
+    .orderBy(desc(hfFirmPrices.recordedDate))
+    .limit(1);
+  if (!latest?.recordedDate) return { date: null, items: [] };
+  const date = String(latest.recordedDate);
+  return { date, items: await getFirmPricesByDate(firmId, date) };
 }
 
 export async function createFirmClaim(input: { firmId: number; userId: string; evidence?: string | null }) {
@@ -553,6 +657,10 @@ function slugifyFirm(value: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 180);
+}
+
+function todayDateString(): string {
+  return new Date().toISOString().slice(0, 10);
 }
 
 function extractOcrContacts(raw: unknown): unknown[] {

@@ -4,10 +4,19 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api-client";
-import type { Firm, FirmProduct } from "@/lib/api";
+import type { Firm, FirmPrice, Product } from "@/lib/api";
 import { CityDistrictSelect } from "@/components/firms/owner/CityDistrictSelect";
-import { FirmProductsTable } from "@/components/firms/owner/FirmProductsTable";
-import { validateProductRow, validateProductRows, type FirmProductInput, type ProductValidationResult } from "@/lib/firm-product-validation";
+import { FirmPricesTable } from "@/components/firms/owner/FirmPricesTable";
+import { Combobox } from "@/components/ui/Combobox";
+import {
+  FIRM_PRICE_UNITS,
+  todayDateString,
+  validateFirmPriceRow,
+  validateFirmPriceRows,
+  type FirmPriceInput,
+  type FirmPriceUnit,
+  type PriceValidationResult,
+} from "@/lib/firm-price-validation";
 
 type FirmPayload = {
   name: string;
@@ -20,7 +29,8 @@ type FirmPayload = {
   categories?: string[];
 };
 
-type ProductDraft = FirmProductInput;
+type PriceDraft = FirmPriceInput;
+type ProductOption = { value: string; label: string; unit?: string };
 
 type Props = {
   mode: "create" | "manage";
@@ -38,20 +48,52 @@ const emptyFirm: FirmPayload = {
   categories: [],
 };
 
+function emptyPriceDraft(): PriceDraft {
+  return {
+    productSlug: null,
+    productName: "",
+    unit: "kg",
+    minPrice: "",
+    avgPrice: "",
+    maxPrice: "",
+    recordedDate: todayDateString(),
+  };
+}
+
 export function FirmOwnerForm({ mode, locale }: Props) {
   const router = useRouter();
   const [firm, setFirm] = useState<Firm | null>(null);
   const [form, setForm] = useState<FirmPayload>(emptyFirm);
   const [categoryText, setCategoryText] = useState("");
-  const [products, setProducts] = useState<FirmProduct[]>([]);
-  const [draftProducts, setDraftProducts] = useState<ProductDraft[]>([]);
-  const [productDraft, setProductDraft] = useState<ProductDraft>({ productName: "", price: "", note: "", productSlug: "" });
-  const [previewRows, setPreviewRows] = useState<ProductValidationResult[] | null>(null);
+  const [prices, setPrices] = useState<FirmPrice[]>([]);
+  const [draftPrices, setDraftPrices] = useState<PriceDraft[]>([]);
+  const [priceDraft, setPriceDraft] = useState<PriceDraft>(emptyPriceDraft());
+  const [editingPriceId, setEditingPriceId] = useState<number | null>(null);
+  const [editingDraftIndex, setEditingDraftIndex] = useState<number | null>(null);
+  const [previewRows, setPreviewRows] = useState<PriceValidationResult[] | null>(null);
+  const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(mode === "manage");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    apiGet<{ items: Product[] }>("/prices/products", { seoIndex: true })
+      .then((res) => {
+        if (!alive) return;
+        setProductOptions((res.items ?? []).map((product) => ({
+          value: product.slug,
+          label: product.displayName || product.nameTr,
+          unit: product.unit,
+        })));
+      })
+      .catch(() => {
+        if (alive) setProductOptions([]);
+      });
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => {
     if (mode !== "manage") return;
@@ -63,7 +105,7 @@ export function FirmOwnerForm({ mode, locale }: Props) {
           setFirm(res.item);
           setForm(fromFirm(res.item));
           setCategoryText((res.item.categories ?? []).join(", "));
-          setProducts(res.item.products ?? []);
+          setPrices(res.item.prices ?? []);
         }
       })
       .catch(() => {
@@ -93,9 +135,9 @@ export function FirmOwnerForm({ mode, locale }: Props) {
     try {
       if (mode === "create") {
         const res = await apiPost<{ item: Firm }>("/firms", body);
-        const validProducts = draftProducts.map((product) => validateProductRow(product)).filter((row) => row.ok).map((row) => row.value);
-        if (validProducts.length > 0) {
-          await apiPost<{ inserted: number; skipped: number }>(`/firms/${res.item.id}/products/bulk`, { products: validProducts });
+        const validPrices = draftPrices.map((price) => validateFirmPriceRow(price)).filter((row) => row.ok).map((row) => row.value);
+        if (validPrices.length > 0) {
+          await apiPost<{ inserted: number; skipped: number }>(`/firms/${res.item.id}/prices/bulk`, { prices: validPrices });
         }
         router.push(`/${locale}/hesabim/firmam`);
         if (res.item?.slug) router.refresh();
@@ -106,7 +148,6 @@ export function FirmOwnerForm({ mode, locale }: Props) {
       setFirm(res.item);
       setForm(fromFirm(res.item));
       setCategoryText((res.item.categories ?? []).join(", "));
-      setProducts(res.item.products ?? products);
       setMessage("Firma bilgileriniz güncellendi.");
     } catch {
       setError("İşlem tamamlanamadı. Lütfen bilgileri kontrol edip tekrar deneyin.");
@@ -115,27 +156,38 @@ export function FirmOwnerForm({ mode, locale }: Props) {
     }
   }
 
-  async function addProduct() {
-    const validation = validateProductRow(productDraft);
+  async function savePrice() {
+    const validation = validateFirmPriceRow(priceDraft);
     if (!validation.ok) {
       setError(validation.errors.join(" "));
       return;
     }
+    setError(null);
+    setMessage(null);
     if (mode === "create") {
-      setDraftProducts((items) => [...items, validation.value]);
-      setProductDraft({ productName: "", price: "", note: "", productSlug: "" });
+      const duplicate = editingDraftIndex === null && draftPrices.some((item) => priceKey(item) === priceKey(validation.value));
+      setDraftPrices((items) => upsertDraftPrice(items, validation.value, editingDraftIndex));
+      setEditingDraftIndex(null);
+      setPriceDraft(emptyPriceDraft());
+      if (duplicate) setMessage("Aynı ürün ve tarih bulundu; mevcut satır güncellendi.");
       return;
     }
     if (!firm) return;
     setSaving(true);
-    setError(null);
     try {
-      await apiPost<{ id: number }>(`/firms/${firm.id}/products`, validation.value);
+      const duplicate = !editingPriceId && prices.some((item) => priceKey(item) === priceKey(validation.value));
+      if (editingPriceId) {
+        await apiPatch<{ ok: boolean }>(`/firms/${firm.id}/prices/${editingPriceId}`, validation.value);
+      } else {
+        await apiPost<{ id: number }>(`/firms/${firm.id}/prices`, validation.value);
+      }
       const res = await apiGet<{ item: Firm | null }>("/firms/me");
-      setProducts(res.item?.products ?? []);
-      setProductDraft({ productName: "", price: "", note: "", productSlug: "" });
+      setPrices(res.item?.prices ?? []);
+      setEditingPriceId(null);
+      setPriceDraft(emptyPriceDraft());
+      setMessage(duplicate ? "Aynı ürün ve tarih bulundu; mevcut satır güncellendi." : "Günlük fiyat kaydedildi.");
     } catch {
-      setError("Ürün eklenemedi.");
+      setError("Günlük fiyat kaydedilemedi.");
     } finally {
       setSaving(false);
     }
@@ -146,8 +198,8 @@ export function FirmOwnerForm({ mode, locale }: Props) {
     setError(null);
     setMessage(null);
     try {
-      const rows = await parseProductFile(file);
-      const validated = validateProductRows(rows);
+      const rows = await parsePriceFile(file);
+      const validated = validateFirmPriceRows(rows);
       setPreviewRows(validated);
     } catch {
       setError("Dosya okunamadı. CSV, XLS veya XLSX formatı kullanın.");
@@ -161,7 +213,7 @@ export function FirmOwnerForm({ mode, locale }: Props) {
     const valid = previewRows.filter((row) => row.ok).map((row) => row.value);
     if (valid.length === 0) return;
     if (mode === "create") {
-      setDraftProducts((items) => [...items, ...valid]);
+      setDraftPrices((items) => valid.reduce((acc, row) => upsertDraftPrice(acc, row), items));
       setPreviewRows(null);
       return;
     }
@@ -169,30 +221,61 @@ export function FirmOwnerForm({ mode, locale }: Props) {
     setSaving(true);
     setError(null);
     try {
-      const result = await apiPost<{ inserted: number; skipped: number }>(`/firms/${firm.id}/products/bulk`, { products: valid });
+      const result = await apiPost<{ inserted: number; skipped: number }>(`/firms/${firm.id}/prices/bulk`, { prices: valid });
       const res = await apiGet<{ item: Firm | null }>("/firms/me");
-      setProducts(res.item?.products ?? []);
+      setPrices(res.item?.prices ?? []);
       setPreviewRows(null);
-      setMessage(`${result.inserted} ürün eklendi${result.skipped ? `, ${result.skipped} satır atlandı` : ""}.`);
+      setMessage(`${result.inserted} fiyat satırı işlendi${result.skipped ? `, ${result.skipped} satır atlandı` : ""}.`);
     } catch {
-      setError("Ürünler içe aktarılamadı.");
+      setError("Fiyatlar içe aktarılamadı.");
     } finally {
       setSaving(false);
     }
   }
 
-  async function deleteProduct(productId: number) {
+  function editPrice(price: FirmPrice | FirmPriceInput, index: number) {
+    setPriceDraft({
+      productSlug: price.productSlug ?? null,
+      productName: price.productName,
+      unit: asFirmPriceUnit(price.unit),
+      minPrice: price.minPrice ?? "",
+      avgPrice: price.avgPrice,
+      maxPrice: price.maxPrice ?? "",
+      recordedDate: price.recordedDate,
+    });
+    if (mode === "create") {
+      setEditingDraftIndex(index);
+    } else {
+      setEditingPriceId("id" in price ? price.id : null);
+    }
+  }
+
+  async function deletePrice(priceId: number) {
     if (!firm) return;
     setSaving(true);
     setError(null);
     try {
-      await apiDelete<{ ok: boolean }>(`/firms/${firm.id}/products/${productId}`);
-      setProducts((items) => items.filter((item) => item.id !== productId));
+      await apiDelete<{ ok: boolean }>(`/firms/${firm.id}/prices/${priceId}`);
+      setPrices((items) => items.filter((item) => item.id !== priceId));
+      if (editingPriceId === priceId) {
+        setEditingPriceId(null);
+        setPriceDraft(emptyPriceDraft());
+      }
     } catch {
-      setError("Ürün silinemedi.");
+      setError("Fiyat silinemedi.");
     } finally {
       setSaving(false);
     }
+  }
+
+  function selectProduct(slug: string | null) {
+    const option = productOptions.find((item) => item.value === slug);
+    setPriceDraft((prev) => ({
+      ...prev,
+      productSlug: slug,
+      productName: option?.label ?? prev.productName,
+      unit: asFirmPriceUnit(option?.unit ?? prev.unit),
+    }));
   }
 
   if (loading) {
@@ -258,7 +341,7 @@ export function FirmOwnerForm({ mode, locale }: Props) {
       {(mode === "create" || firm) && (
         <section className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">Ürünler</h2>
+            <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">Günlük Fiyatlar</h2>
             <div className="flex flex-wrap gap-2">
               <input
                 ref={fileRef}
@@ -275,16 +358,36 @@ export function FirmOwnerForm({ mode, locale }: Props) {
               </button>
             </div>
           </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-[1fr_160px_1fr_auto]">
-            <input value={productDraft.productName} onChange={(event) => setProductDraft((prev) => ({ ...prev, productName: event.target.value }))} placeholder="Ürün adı" className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
-            <input value={productDraft.price ?? ""} onChange={(event) => setProductDraft((prev) => ({ ...prev, price: event.target.value }))} placeholder="Fiyat/not" className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
-            <input value={productDraft.note ?? ""} onChange={(event) => setProductDraft((prev) => ({ ...prev, note: event.target.value }))} placeholder="Açıklama" className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
-            <button type="button" onClick={addProduct} disabled={saving || !productDraft.productName.trim()} className="min-h-11 rounded-[6px] border border-(--color-border) px-4 font-(family-name:--font-mono) text-[12px] font-semibold disabled:opacity-60">Ekle</button>
+          <div className="mt-4 grid gap-3 md:grid-cols-[minmax(180px,1fr)_minmax(160px,1fr)_120px_120px_120px_120px_140px_auto]">
+            <Combobox
+              options={productOptions}
+              value={priceDraft.productSlug}
+              onChange={selectProduct}
+              placeholder="Katalog ürünü"
+              emptyText="Ürün bulunamadı"
+            />
+            <input value={priceDraft.productName} onChange={(event) => setPriceDraft((prev) => ({ ...prev, productName: event.target.value }))} placeholder="Ürün adı" className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
+            <select value={priceDraft.unit} onChange={(event) => setPriceDraft((prev) => ({ ...prev, unit: event.target.value as FirmPriceUnit }))} className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm">
+              {FIRM_PRICE_UNITS.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
+            </select>
+            <input value={priceDraft.minPrice ?? ""} onChange={(event) => setPriceDraft((prev) => ({ ...prev, minPrice: event.target.value }))} inputMode="decimal" placeholder="En düşük" className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
+            <input value={priceDraft.avgPrice} onChange={(event) => setPriceDraft((prev) => ({ ...prev, avgPrice: event.target.value }))} inputMode="decimal" placeholder="Ortalama" className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
+            <input value={priceDraft.maxPrice ?? ""} onChange={(event) => setPriceDraft((prev) => ({ ...prev, maxPrice: event.target.value }))} inputMode="decimal" placeholder="En yüksek" className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
+            <input type="date" value={priceDraft.recordedDate} max={todayDateString()} onChange={(event) => setPriceDraft((prev) => ({ ...prev, recordedDate: event.target.value }))} className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm" />
+            <button type="button" onClick={savePrice} disabled={saving || !priceDraft.productName.trim() || !priceDraft.avgPrice.trim()} className="min-h-11 rounded-[6px] border border-(--color-border) px-4 font-(family-name:--font-mono) text-[12px] font-semibold disabled:opacity-60">
+              {editingPriceId || editingDraftIndex !== null ? "Güncelle" : "Ekle"}
+            </button>
           </div>
-          <FirmProductsTable
-            products={mode === "create" ? draftProducts : products}
+          {(editingPriceId || editingDraftIndex !== null) && (
+            <button type="button" onClick={() => { setEditingPriceId(null); setEditingDraftIndex(null); setPriceDraft(emptyPriceDraft()); }} className="mt-3 rounded-[6px] border border-(--color-border) px-3 py-2 text-xs text-(--color-muted)">
+              Düzenlemeyi iptal et
+            </button>
+          )}
+          <FirmPricesTable
+            prices={mode === "create" ? draftPrices : prices}
             deleteBy={mode === "create" ? "index" : "id"}
-            onDelete={mode === "create" ? (index) => setDraftProducts((items) => items.filter((_, itemIndex) => itemIndex !== index)) : deleteProduct}
+            onEdit={editPrice}
+            onDelete={mode === "create" ? (index) => setDraftPrices((items) => items.filter((_, itemIndex) => itemIndex !== index)) : deletePrice}
           />
           {previewRows && (
             <div className="mt-6 rounded-[8px] border border-(--color-border) p-4">
@@ -296,7 +399,7 @@ export function FirmOwnerForm({ mode, locale }: Props) {
                   Geçerli satırları ekle
                 </button>
               </div>
-              <FirmProductsTable products={previewRows.map((row) => row.value)} previewRows={previewRows} />
+              <FirmPricesTable prices={previewRows.map((row) => row.value)} previewRows={previewRows} />
             </div>
           )}
         </section>
@@ -353,7 +456,24 @@ function statusLabel(status: Firm["status"]): string {
   return "Onay bekliyor";
 }
 
-async function parseProductFile(file: File): Promise<Array<Partial<FirmProductInput>>> {
+function asFirmPriceUnit(value?: string | null): FirmPriceUnit {
+  return FIRM_PRICE_UNITS.includes(value as FirmPriceUnit) ? value as FirmPriceUnit : "kg";
+}
+
+function priceKey(price: Pick<FirmPriceInput, "productName" | "recordedDate">): string {
+  return `${price.productName.trim().toLocaleLowerCase("tr")}::${price.recordedDate}`;
+}
+
+function upsertDraftPrice(items: PriceDraft[], price: PriceDraft, editingIndex: number | null = null): PriceDraft[] {
+  if (editingIndex !== null) {
+    const next = items.filter((_, index) => index !== editingIndex && priceKey(_) !== priceKey(price));
+    next.splice(editingIndex, 0, price);
+    return next;
+  }
+  return [...items.filter((item) => priceKey(item) !== priceKey(price)), price];
+}
+
+async function parsePriceFile(file: File): Promise<Array<Partial<FirmPriceInput>>> {
   const XLSX = await import("xlsx");
   const isCsv = file.name.toLocaleLowerCase("tr").endsWith(".csv");
   const workbook = isCsv
@@ -361,22 +481,25 @@ async function parseProductFile(file: File): Promise<Array<Partial<FirmProductIn
     : XLSX.read(await file.arrayBuffer(), { type: "array" });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
-  return rows.map((row) => normalizeImportedRow(row)).filter((row) => Object.values(row).some(Boolean));
+  return rows.map((row) => normalizeImportedPriceRow(row)).filter((row) => Object.values(row).some(Boolean));
 }
 
-function normalizeImportedRow(row: Record<string, unknown>): Partial<FirmProductInput> {
+function normalizeImportedPriceRow(row: Record<string, unknown>): Partial<FirmPriceInput> {
   const normalized = Object.fromEntries(
     Object.entries(row).map(([key, value]) => [normalizeHeader(key), String(value ?? "").trim()]),
   );
   return {
     productName: normalized.name,
-    price: normalized.price,
-    note: normalized.note,
+    unit: asFirmPriceUnit(normalized.unit),
+    minPrice: normalized.minPrice,
+    avgPrice: normalized.avgPrice,
+    maxPrice: normalized.maxPrice,
+    recordedDate: normalized.recordedDate || todayDateString(),
     productSlug: normalized.productSlug,
   };
 }
 
-function normalizeHeader(value: string): "name" | "price" | "note" | "productSlug" | string {
+function normalizeHeader(value: string): "name" | "unit" | "minPrice" | "avgPrice" | "maxPrice" | "recordedDate" | "productSlug" | string {
   const key = value
     .trim()
     .toLocaleLowerCase("tr")
@@ -388,8 +511,11 @@ function normalizeHeader(value: string): "name" | "price" | "note" | "productSlu
     .replace(/ç/g, "c")
     .replace(/[^a-z0-9]+/g, "");
   if (["urunadi", "urun", "name", "productname"].includes(key)) return "name";
-  if (["fiyat", "fiyatnot", "price"].includes(key)) return "price";
-  if (["aciklama", "not", "note", "description"].includes(key)) return "note";
+  if (["birim", "unit"].includes(key)) return "unit";
+  if (["endusuk", "min", "minprice", "minimum"].includes(key)) return "minPrice";
+  if (["ortalama", "ort", "avg", "avgprice", "average"].includes(key)) return "avgPrice";
+  if (["enyuksek", "max", "maxprice", "maximum"].includes(key)) return "maxPrice";
+  if (["tarih", "date", "recordeddate"].includes(key)) return "recordedDate";
   if (["katalogslug", "productslug", "slug"].includes(key)) return "productSlug";
   return key;
 }

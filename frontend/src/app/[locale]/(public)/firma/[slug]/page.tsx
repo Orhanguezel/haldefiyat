@@ -184,25 +184,41 @@ export default async function FirmDetailPage({ params }: Props) {
 
       <section className="mt-10 grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
-          {(firm.products ?? []).length > 0 && (
+          {(firm.latestPrices ?? []).length > 0 && (
             <section className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-5">
-              <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
-                Firma Ürünleri
-              </h2>
-              <div className="mt-4 divide-y divide-(--color-border-soft) rounded-[8px] border border-(--color-border-soft)">
-                {(firm.products ?? []).map((product) => (
-                  <div key={product.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-                    <div>
-                      <p className="font-semibold text-(--color-foreground)">{product.productName}</p>
-                      {product.note && <p className="text-sm text-(--color-muted)">{product.note}</p>}
-                    </div>
-                    {product.price && (
-                      <span className="rounded-full border border-(--color-brand)/25 px-3 py-1 font-(family-name:--font-mono) text-[11px] font-semibold text-(--color-brand)">
-                        {product.price}
-                      </span>
-                    )}
-                  </div>
-                ))}
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
+                  Günlük Hal Fiyatları
+                </h2>
+                {firm.latestPriceDate && (
+                  <span className="rounded-full border border-(--color-brand)/25 px-3 py-1 font-(family-name:--font-mono) text-[11px] font-semibold text-(--color-brand)">
+                    Veri tarihi: {firm.latestPriceDate}
+                  </span>
+                )}
+              </div>
+              <div className="mt-4 overflow-x-auto rounded-[8px] border border-(--color-border-soft)">
+                <table className="min-w-[640px] w-full text-left text-sm">
+                  <thead className="bg-(--color-bg-alt) font-(family-name:--font-mono) text-[11px] uppercase tracking-[0.08em] text-(--color-muted)">
+                    <tr>
+                      <th className="px-4 py-3">Ürün</th>
+                      <th className="px-4 py-3">Birim</th>
+                      <th className="px-4 py-3">En düşük</th>
+                      <th className="px-4 py-3">Ortalama</th>
+                      <th className="px-4 py-3">En yüksek</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-(--color-border-soft)">
+                    {(firm.latestPrices ?? []).map((price) => (
+                      <tr key={price.id}>
+                        <td className="px-4 py-3 font-semibold text-(--color-foreground)">{price.productName}</td>
+                        <td className="px-4 py-3 text-(--color-muted)">{price.unit}</td>
+                        <td className="px-4 py-3 text-(--color-muted)">{formatPrice(price.minPrice)}</td>
+                        <td className="px-4 py-3 font-semibold text-(--color-foreground)">{formatPrice(price.avgPrice)}</td>
+                        <td className="px-4 py-3 text-(--color-muted)">{formatPrice(price.maxPrice)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </section>
           )}
@@ -254,4 +270,9 @@ function Info({ label, value, wide = false }: { label: string; value: string; wi
       <dd className="mt-1 text-sm leading-6 text-(--color-foreground)">{value}</dd>
     </div>
   );
+}
+
+function formatPrice(value?: string | null): string {
+  if (!value) return "-";
+  return `${Number(value).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TL`;
 }
