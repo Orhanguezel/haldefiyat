@@ -76,8 +76,11 @@ Denetimin "kritik SSR" uyarısı yanlış alarmdı.
 ## Tamamlanma durumu (2026-05-30, Claude)
 - ✅ **B1** — `/tr/` prefix temizliği (canlı, doğrulandı).
 - ✅ **B2** — topbar gerçek veri: 1.144 ürün + "Son veri: 29 Mayıs" (hard-code/saat kaldırıldı, canlı).
-- 🟡 **B3** — içerik derinliği: **kod altyapısı hazır** (editorial + SEO interlock); kalan iş **içerik
-  yazımı** (editöryel, süregelen). Strateji/örnek paragraf istenirse Claude üretebilir.
-  Not: ürün sayfası DB editorial yerine statik `product-content.ts` okuyor (ayrı plan:
-  `seo-index-expansion-plan`) — B3'ün ön koşulu o bağlantının kurulması.
+- ✅ **B3** — içerik derinliği (2026-05-30, Claude): **incelendi + büyük ölçüde zaten DONE.**
+  - Ürün sayfaları: **397 ürün DB editorial yayında** (memory'deki "DB kopuk" notu yanlışmış —
+    `getProductEditorial` DB'yi önce okuyor). Editorial'siz kalanlar "...DİĞER" artık kovaları (seo_index=0).
+  - Hal sayfaları: **29/29 statik editorial** (description/coverage/specialties) — tamam.
+  - **Gerçek boşluk = uzun-kuyruk rehber/blog.** Eklendi: 3 evergreen makale (hal-fiyati-nasil-belirlenir,
+    sehirden-sehire-fark, sera-mi-tarla-mi) — canlı 200, ana sitemap'e bağlandı (önceden /analiz hiç yoktu).
+  - Kalan (süregelen editöryel): periyodik yeni rehber/analiz makaleleri (Orhan/editör + Claude üretebilir).
 - ⛔ **B4** — GSC operasyonel: **Orhan** yapmalı (Search Console giriş gerektirir, Claude erişemez).
