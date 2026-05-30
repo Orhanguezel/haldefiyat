@@ -17,14 +17,26 @@
 - Firma endpoint guard'ı: owner-only (`onRequest:[requireAuth]` + `firm.ownerUserId === userId`).
 - İl/ilçe dropdown + `firm-product-validation` + lazy `xlsx` import altyapısı **mevcut** (yeniden kullan).
 
-## 🔑 KARAR GEREKİR (Orhan onayı) — varsayılan öneri işaretli
-- **K1. Komisyoncu fiyatları nerede görünür?**
-  - ✅ **ÖNERİ:** YALNIZ firma profilinde ayrı "Günlük Fiyatlarım" bölümü. Resmi ürün/hal
-    sayfalarındaki **agregalı veriye KARIŞTIRILMAZ** (veri bütünlüğü + güven; resmi ETL ayrı kalır).
-  - Alternatif (sonraki faz): moderasyon + "komisyoncu kaynağı" etiketiyle ürün sayfasına ayrı sekme.
-- **K2. hf_firm_products ne olacak?** ✅ **ÖNERİ:** Fiyat amacıyla **emekliye ayrılır**; yeni
-  `hf_firm_prices` birincil olur. İstenirse "sattığı ürünler" etiket listesi olarak fiyatsız kalabilir
-  (opsiyonel). Excel import + tablo yeni fiyat yapısına taşınır.
+## 🔑 Kararlar (Orhan 2026-05-30 — KESİN)
+- **K1. Komisyoncu fiyatları YALNIZ firma profilinde** görünür ("Günlük Hal Fiyatları" bölümü).
+  Resmi ürün/hal sayfalarındaki **agregalı veriye KARIŞMAZ** (veri bütünlüğü). ✅ KESİN.
+- **K2. hf_firm_products** fiyat amacıyla **emekliye ayrılır**; `hf_firm_prices` birincil olur.
+  (İstenirse fiyatsız "sattığı ürünler" etiketi kalabilir — opsiyonel.)
+- **K3. Format "merkezi kaynak"a hazır olmalı** — şimdi karışmasa da, ileride komisyoncu verisi
+  merkezi ürün listesine **kaynak** yapılabilsin diye `hf_firm_prices` resmi `hf_price_history` ile
+  **alan-alan hizalı** olur (aşağıda "Kaynak Olma Hazırlığı"). ✅ KESİN.
+
+## 🎯 Kaynak Olma Hazırlığı (gelecek merkezi-liste beslemesi için — şimdi sadece TASARIM uyumu)
+`hf_firm_prices` → `hf_price_history` eşlemesi sorunsuz olsun diye:
+- **Sayısal + tarih tipleri birebir:** `min/max/avg DECIMAL(12,2)` (VARCHAR değil!), `recorded_date DATE`,
+  `unit VARCHAR(32)`. (Resmi tabloyla aynı tipler → ileride doğrudan INSERT...SELECT ile taşınabilir.)
+- **Ürün eşleşmesi:** ürün girişinde **önce `hf_products` katalog combobox** (product_slug doldurulsun);
+  serbest metin fallback. Slug dolu satırlar ileride doğrudan `product_id`'ye çözülür.
+- **Firma = kaynak kimliği:** ileride her firma bir "komisyoncu market"i gibi davranır →
+  promotion job `firm_id → hf_markets`(synthetic, `source_key=firm-slug`) eşler, `product_slug→product_id`
+  çözer, `hf_price_history`'ye `source='komisyoncu'` etiketiyle yazar. **Şimdi yapılmaz**, ama şema
+  bu eşlemeyi engellemeyecek (yukarıdaki tip/slug hizası yeterli).
+- Bu fazda **hiçbir şey resmi tabloya yazılmaz**; sadece format/iz uyumu garanti edilir.
 
 ---
 
