@@ -187,14 +187,14 @@ Codex audit'i (`docs/mobile-audit-2026-05-28.md`) üzerinden kategorize edildi.
 
 ### 3.2 Implementation (🤖 Codex — Orhan karar verince)
 
-**Bottom nav (Seçenek B onayı varsa):**
+**Bottom nav (Seçenek B onayı varsa):** ✅ TAMAMLANDI 2026-05-30 (Claude, canlı)
 
-- [ ] `frontend/src/components/layout/MobileBottomNav.tsx` — yeni bileşen
-- [ ] Sadece `md:hidden` — desktop'ta görünmesin
-- [ ] Aktif tab vurgusu (renk + ikon doluluk)
-- [ ] Safe area inset (iPhone home indicator için padding-bottom)
-- [ ] `position: fixed; bottom: 0; z-index: 50`
-- [ ] Layout'ta `<MobileBottomNav />` mount + `padding-bottom: 64px` body içeriği için
+- [x] `frontend/src/components/layout/MobileBottomNav.tsx` — yeni bileşen (4 tab: Anasayfa/Fiyatlar/Harita/Uyarılar)
+- [x] `lg:hidden` — desktop'ta görünmesin (header lg'de switch ettiği için md değil lg)
+- [x] Aktif tab vurgusu (renk + bg-brand/10 ikon kutusu)
+- [x] Safe area inset (`pb-[env(safe-area-inset-bottom)]`)
+- [x] `fixed inset-x-0 bottom-0 z-50`
+- [x] Layout'ta `<MobileBottomNav locale={currentLocale} />` mount + `<main>` pb (4rem+safe-area), `lg:pb-0`
 
 **Hamburger menü sadeleştirme:**
 
@@ -205,11 +205,11 @@ Codex audit'i (`docs/mobile-audit-2026-05-28.md`) üzerinden kategorize edildi.
 
 ### 3.3 Kabul kriteri
 
-- [ ] Bottom nav her sayfada görünür (mobile)
-- [ ] Aktif sayfa tab'ı vurgulanmış
-- [ ] iPhone home indicator ile çakışmıyor (safe area)
-- [ ] Hamburger sade — ana feature'lar bottom nav'da
-- [ ] Dark/light tema değişiminde logo doğru
+- [x] Bottom nav her sayfada görünür (mobile) — public layout'a mount edildi, canlı
+- [x] Aktif sayfa tab'ı vurgulanmış (isActive)
+- [x] iPhone home indicator ile çakışmıyor (safe-area inset)
+- [ ] Hamburger sade — ana feature'lar bottom nav'da *(opsiyonel: header hamburger hâlâ tam menü; bottom nav ile redundant ama kırık değil — istenirse sadeleştirilir)*
+- [ ] Dark/light tema değişiminde logo doğru *(Orhan manuel test)*
 
 ---
 
@@ -288,7 +288,7 @@ Orhan hazırlayacak (veya tasarımcıya verecek):
 
 ### 4.4 Kabul kriteri
 
-- [ ] `curl https://haldefiyat.com/manifest.json` → 200, geçerli JSON
+- [x] `curl https://haldefiyat.com/manifest.json` → **200** (canlı doğrulandı 2026-05-30; `.webmanifest` + ikonlar da 200)
 - [x] Local `curl http://127.0.0.1:3034/manifest.json` → 200, geçerli JSON (`Content-Type: application/json`)
 - [x] Local `curl http://127.0.0.1:3034/manifest.webmanifest` → 200 (`Content-Type: application/manifest+json`)
 - [x] Local icon URL'leri → 200 (`/icons/icon-192.png`, `/icons/maskable-512.png`)
@@ -340,7 +340,7 @@ Orhan hazırlayacak (veya tasarımcıya verecek):
 
 ### 5.3 Kabul kriteri
 
-- [ ] `https://haldefiyat.com/sw.js` erişilebilir
+- [x] `https://haldefiyat.com/sw.js` erişilebilir — **200** (canlı doğrulandı 2026-05-30)
 - [x] Local `http://127.0.0.1:3034/sw.js` → 200 (`Content-Type: application/javascript`)
 - [x] Local `http://127.0.0.1:3034/offline` → 200
 - [x] Headless Chrome local SW check → scope `/`, active `/sw.js`, state `activated`
