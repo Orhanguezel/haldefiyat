@@ -225,7 +225,10 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     return reply.status(201).send({ id });
   });
 
-  app.post<{ Params: { id: string } }>("/firms/:id/products/bulk", { onRequest: [requireAuth] }, async (req, reply) => {
+  app.post<{ Params: { id: string } }>("/firms/:id/products/bulk", {
+    onRequest: [requireAuth],
+    config: { rateLimit: { max: 5, timeWindow: "1 minute" } },
+  }, async (req, reply) => {
     const userId = getAuthUserId(req);
     const firmId = Number(req.params.id);
     if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });

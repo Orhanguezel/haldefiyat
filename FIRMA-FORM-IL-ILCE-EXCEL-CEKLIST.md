@@ -76,7 +76,7 @@ Mevcut alan gerçekleri (değiştirme, bunlara uy):
 - [x] Mevcut `divide-y` liste yerine `<table>`: kolonlar **Ürün Adı · Fiyat/Not · Açıklama · İşlem(Sil)**.
   Hem **create** (draftProducts) hem **manage** (products) için aynı tablo bileşeni:
   `frontend/src/components/firms/owner/FirmProductsTable.tsx`.
-- [ ] Boş durum: "Henüz ürün eklenmedi." satırı korunur. Responsive (mobilde yatay scroll veya stack).
+- [x] Boş durum: "Henüz ürün eklenmedi." satırı korunur. Responsive (mobilde yatay scroll veya stack).
 
 ### 2.2 İçe aktarma UI `[Codex]`
 - [x] Ürünler bölümüne **"Excel/CSV ile içe aktar"** butonu + gizli `<input type="file" accept=".xlsx,.xls,.csv">`.
@@ -120,6 +120,7 @@ Mevcut alan gerçekleri (değiştirme, bunlara uy):
 
 ### Uygulama Notu (Codex, 2026-05-30)
 - [x] Canlı DB slug doğrulaması yapıldı: 145 distinct il/ilçe çifti kontrol edildi. İl slug'ları dataset ile uyumlu; 58 sapma eski scraped `district_slug` değerlerinde (`sevkiyat`, `karpuz`, `merkez`, belde/hal alt alanı vb.). Yeni form resmi ilçe slug'ı üretir; manage modunda eski ilçe listede yoksa kullanıcıya uyarı gösterilir.
+- [x] Bulk ürün endpoint'i route-level `5/dk` rate limit aldı; batch insert transaction içinde çalışır.
 - [x] Doğrulama: backend `bun run typecheck`, frontend `bun x tsc --noEmit`, backend build, frontend build temiz.
 
 ---

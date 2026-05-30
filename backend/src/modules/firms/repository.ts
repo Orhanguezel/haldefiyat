@@ -252,15 +252,17 @@ export async function createFirmProductsBulk(firmId: number, products: Array<{
   displayOrder?: number;
 }>) {
   if (products.length === 0) return 0;
-  const result = await db.insert(hfFirmProducts).values(products.map((product, index) => ({
-    firmId,
-    productSlug: product.productSlug ?? null,
-    productName: product.productName,
-    note: product.note ?? null,
-    price: product.price ?? null,
-    displayOrder: product.displayOrder ?? 100 + index,
-  })));
-  return Number(result[0]?.affectedRows ?? products.length);
+  return db.transaction(async (tx) => {
+    const result = await tx.insert(hfFirmProducts).values(products.map((product, index) => ({
+      firmId,
+      productSlug: product.productSlug ?? null,
+      productName: product.productName,
+      note: product.note ?? null,
+      price: product.price ?? null,
+      displayOrder: product.displayOrder ?? 100 + index,
+    })));
+    return Number(result[0]?.affectedRows ?? products.length);
+  });
 }
 
 export async function updateFirmProduct(id: number, input: {
