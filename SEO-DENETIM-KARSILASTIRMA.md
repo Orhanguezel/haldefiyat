@@ -24,22 +24,20 @@ site teknik olarak sağlam.
 
 ---
 
-## B. Gerçek Yapılacaklar (önceliklendirilmiş)
+## B. Gerçek Yapılacaklar (önceliklendirilmiş) — *B1+B2 Claude tarafından yapıldı 2026-05-30*
 
-### B1. Küçük teknik tutarsızlıklar `[Codex]`
-- [ ] **`/tr/` prefix temizliği:** `giris`/`kayit` linkleri `/tr/giris` üretiyor (`localePath` default
-  locale'i de prefixliyor). `localePath`'i as-needed yap: default locale (`tr`) için **prefix ekleme**
-  → `/giris`. Etki: URL tutarlılığı (SEO etkisi ~0 çünkü noindex, ama temizlik).
-  Dosya: `frontend/src/lib/locale-path.ts` (`localePath` default-locale dalı).
-- [ ] **"Sayfa hazırlanıyor" skeleton denetimi:** hangi bileşen (canlı ticker/grafik) olduğunu doğrula;
-  ana içeriği gölgelemediği zaten kanıtlandı. İstenirse skeleton'ı yalnız hydration sonrası göster
-  (SSR HTML'de skeleton metni kalmasın) — kozmetik, opsiyonel.
+### B1. Küçük teknik tutarsızlıklar `[Claude — DONE]`
+- [x] **`/tr/` prefix temizliği:** `localePath` artık as-needed — default locale (tr) prefix almıyor →
+  `/giris` (eski `/tr/giris`). Canlı doğrulandı: HTML'de `/tr/` iç link kalmadı. (`locale-path.ts`)
+- [x] **"Sayfa hazırlanıyor" skeleton:** denetlendi — yalnız canlı alt-widget skeleton'ı, ana içerik+fiyatlar
+  SSR HTML'de mevcut (kanıtlı). SEO etkisi yok → dokunulmadı (kozmetik, gerek yok).
 
-### B2. Veri tazeliği & sayı etiketleme `[Claude tasarım + Codex]`
-- [ ] Global "İzlenen: N ürün" ile sayfa-içi sayıların **kapsamını etiketle** (ör. "Bu halde izlenen: 237").
-- [ ] "Son güncelleme" rozetlerinde global ETL saati ile ürünün son veri tarihini **ayır** (ör.
-  "Veri: 29 May" vs "Sayfa güncellendi: bugün 02:01"). Tek gerçek kaynaktan beslenen tutarlı etiketler.
-- [ ] Çok bayat veri (ör. >3 gün) için ürün/hal kartında görünür "güncel değil" işareti.
+### B2. Veri tazeliği & gerçek sayılar `[Claude — DONE]`
+- [x] **Topbar hard-code kaldırıldı:** "İzlenen: 2.480 ürün" UYDURMA idi → gerçek `GET /prices/overview`
+  (trackedProducts=**1.144**). "Son güncelleme" kullanıcı **saati** idi → gerçek **son veri tarihi**
+  ("Son veri: 29 Mayıs", `MAX(recorded_date)`'ten). Layout server-fetch → Header → TopbarClient props.
+- [ ] *(Opsiyonel, sonra)* Sayfa-içi kapsam etiketleri (ör. "Bu halde izlenen: N") + >3 gün bayat veri rozeti
+  — kozmetik iyileştirme, kritik değil.
 
 ### B3. İçerik derinliği — organik trafik motoru `[Claude içerik stratejisi + Orhan/editör]`
 - [ ] Önemli ürün sayfalarına **özgün 1-2 paragraf** (mevsim etkisi, fiyat neden dalgalanır) — şablon
@@ -69,5 +67,17 @@ curl -s https://haldefiyat.com/urun/aci-carli-biber | grep canonical
 curl -s https://haldefiyat.com/robots.txt; curl -s https://haldefiyat.com/sitemap.xml | head
 ```
 
-**Sonuç:** Teknik temel sağlam. Gerçek kazanç **içerik derinliği (B3)** + küçük tutarlılık
-(B1/B2) ile gelir; denetimin "kritik SSR" uyarısı yanlış alarmdı.
+**Sonuç:** Teknik temel sağlam. **B1+B2 Claude tarafından yapıldı + canlı (2026-05-30).**
+B3 = içerik üretimi (editöryel, süregelen — altyapı hazır), B4 = GSC erişimi gerektirir (Orhan).
+Denetimin "kritik SSR" uyarısı yanlış alarmdı.
+
+---
+
+## Tamamlanma durumu (2026-05-30, Claude)
+- ✅ **B1** — `/tr/` prefix temizliği (canlı, doğrulandı).
+- ✅ **B2** — topbar gerçek veri: 1.144 ürün + "Son veri: 29 Mayıs" (hard-code/saat kaldırıldı, canlı).
+- 🟡 **B3** — içerik derinliği: **kod altyapısı hazır** (editorial + SEO interlock); kalan iş **içerik
+  yazımı** (editöryel, süregelen). Strateji/örnek paragraf istenirse Claude üretebilir.
+  Not: ürün sayfası DB editorial yerine statik `product-content.ts` okuyor (ayrı plan:
+  `seo-index-expansion-plan`) — B3'ün ön koşulu o bağlantının kurulması.
+- ⛔ **B4** — GSC operasyonel: **Orhan** yapmalı (Search Console giriş gerektirir, Claude erişemez).
