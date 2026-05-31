@@ -77,7 +77,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `Son listede ${summary.count} ürün (${dateTr}). `
     : "";
 
-  const title = `${market.name} Fiyatları ${yearTr} — Bugünkü Güncel Liste`;
+  const title = `${market.name} Fiyatları ${yearTr} — Güncel Toptan Liste`;
   // market.name zaten şehri içerir ("Antalya Toptancı Hali ...") → cityName tekrarı yok.
   const description = `${market.name} güncel hal fiyatları. ${liveLine}Sebze, meyve ve bakliyat için min/ort/maks toptan fiyat. Resmi belediye hal müdürlüğü verileri, her gün TSİ 06:15 güncellenir.`;
 
