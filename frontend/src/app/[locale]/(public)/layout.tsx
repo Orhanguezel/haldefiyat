@@ -34,10 +34,17 @@ export default async function PublicLayout({
     settings.social_youtube,
   ].filter(Boolean);
 
+  // Kanonik @id capalari: tum sayfalardaki schema'lar (Dataset.creator,
+  // Article.publisher vb.) bu tek Organization/WebSite varligina referans verir.
+  // Boylece marka kimligi tek kaynaktan gelir, isim tekrari/cakismasi olmaz.
+  const orgId = `${SITE_URL}/#organization`;
+  const siteId = `${SITE_URL}/#website`;
+
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: settings.site_name || "HalDeFiyat",
+    "@id": orgId,
+    name: settings.site_name,
     url: SITE_URL,
     ...(settings.site_logo && {
       logo: settings.site_logo.startsWith("http")
@@ -52,8 +59,10 @@ export default async function PublicLayout({
   const webSiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: settings.site_name || "HalDeFiyat",
+    "@id": siteId,
+    name: settings.site_name,
     url: SITE_URL,
+    publisher: { "@id": orgId },
     potentialAction: {
       "@type": "SearchAction",
       target: `${SITE_URL}/fiyatlar?q={search_term_string}`,

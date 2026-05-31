@@ -10,6 +10,15 @@ const API_V1 = /\/api\/v1$/i.test(BASE_URL) ? BASE_URL : `${BASE_URL}/api/v1`;
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033").replace(/\/$/, "");
 const SITE_SETTINGS_BRAND = (process.env.NEXT_PUBLIC_SITE_BRAND || "hal-fiyatlari").trim();
 
+/**
+ * Kanonik Organization @id — marka kimligi TEK varlikta (public/layout.tsx)
+ * uretilir ve DB site_settings'ten beslenir. Diger sayfalardaki schema'lar
+ * (Dataset.creator, Article.publisher vb.) marka adini hardcode etmek yerine
+ * bu @id'ye referans verir → tek kaynak, isim/logo cakismasi olmaz.
+ */
+export const ORG_ID = `${SITE_URL}/#organization`;
+export const ORG_REF = { "@id": ORG_ID } as const;
+
 export interface PageSeoData {
   pageKey: string;
   title?: string;

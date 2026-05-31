@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { setRequestLocale } from "next-intl/server";
-import { getPageMetadata } from "@/lib/seo";
+import { getPageMetadata, ORG_REF } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
 import PageContainer from "@/components/layout/PageContainer";
@@ -48,7 +48,7 @@ const widgetDataFeedSchema = {
   description:
     "Güncel hal fiyatları ve HaldeFiyat Endeksi için iframe ile kullanılabilen, 5 dakika önbelleklenen açık veri widget'ları.",
   url: `${SITE_URL}/embed`,
-  creator: { "@type": "Organization", name: "HaldeFiyat", url: SITE_URL },
+  creator: ORG_REF,
   license: "https://creativecommons.org/licenses/by/4.0/",
   distribution: [
     {

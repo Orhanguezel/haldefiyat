@@ -1,5 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
-import { getPageMetadata } from "@/lib/seo";
+import { getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -304,7 +304,7 @@ const dataFeedSchema = {
   description: "Türkiye genelindeki resmi toptancı hal fiyatları — REST API, JSON + CSV, ücretsiz.",
   url: BASE,
   license: "https://creativecommons.org/licenses/by/4.0/",
-  creator: { "@type": "Organization", name: "HaldeFiyat", url: "https://haldefiyat.com" },
+  creator: ORG_REF,
   distribution: [
     {
       "@type": "DataDownload",

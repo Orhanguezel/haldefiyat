@@ -2,7 +2,7 @@ import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import { Bell, Clock3, MapPin, Newspaper, TrendingDown, TrendingUp } from "lucide-react";
 import { fetchMarkets, fetchProducts, fetchWidget } from "@/lib/api";
-import { getPageMetadata } from "@/lib/seo";
+import { getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import LivePriceNewsletter from "@/components/sections/LivePriceNewsletter";
 
@@ -61,7 +61,7 @@ export default async function LiveMarketPricesPage({ params }: Props) {
     name: "Canlı Türkiye Hal Fiyatları",
     description: "Türkiye toptancı halleri için günlük sebze ve meyve fiyat verisi.",
     url: `${SITE_URL}/canli-hal-fiyatlari`,
-    creator: { "@type": "Organization", name: "HalDeFiyat", url: SITE_URL },
+    creator: ORG_REF,
     temporalCoverage: "2025/..",
     spatialCoverage: { "@type": "Country", name: "Türkiye" },
     variableMeasured: ["Ortalama fiyat", "Günlük değişim", "Hal", "Ürün"],

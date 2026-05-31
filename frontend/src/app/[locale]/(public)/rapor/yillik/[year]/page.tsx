@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
-import { getPageMetadata } from "@/lib/seo";
+import { getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import PrintButton from "@/components/PrintButton";
 import PageContainer from "@/components/layout/PageContainer";
@@ -123,12 +123,8 @@ export default async function YearlyReportPage({ params }: Props) {
           headline: `Türkiye Hal Fiyatları ${year} Yıllık Raporu`,
           description: `${year} yılı toptan hal fiyat analizi: en çok artan/düşen ürünler, sezon, şehir karşılaştırması.`,
           datePublished: `${year + 1}-01-01`,
-          author: { "@type": "Organization", name: "HaldeFiyat" },
-          publisher: {
-            "@type": "Organization",
-            name: "HaldeFiyat",
-            url: "https://haldefiyat.com",
-          },
+          author: ORG_REF,
+          publisher: ORG_REF,
         }}
       />
 

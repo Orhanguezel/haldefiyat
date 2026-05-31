@@ -4,6 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
+import { ORG_REF } from "@/lib/seo";
 import {
   getHaftalikRaporlar,
   getMakale,
@@ -141,15 +142,7 @@ export default async function AnalizMakalePage({ params }: Props) {
       name: makale.yazar,
       url: SITE_URL,
     },
-    publisher: {
-      "@type": "Organization",
-      name: "HalDeFiyat",
-      url: SITE_URL,
-      logo: {
-        "@type": "ImageObject",
-        url: `${SITE_URL}/logo.png`,
-      },
-    },
+    publisher: ORG_REF,
     url: `${SITE_URL}/analiz/${makale.slug}`,
     inLanguage: "tr-TR",
     keywords: makale.etiketler.join(", "),

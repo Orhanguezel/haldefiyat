@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { setRequestLocale } from "next-intl/server";
-import { getPageMetadata } from "@/lib/seo";
+import { getPageMetadata, ORG_REF } from "@/lib/seo";
 import { fetchMarkets, fetchProducts, fetchWidget, type TrendingItem } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
 import HeroSection from "@/components/sections/HeroSection";
@@ -33,40 +33,16 @@ export async function generateMetadata({ params }: Props) {
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
-const organizationSchema = {
-  name: "HalDeFiyat",
-  url: SITE_URL,
-  logo: `${SITE_URL}/logo.png`,
-  description: "Türkiye genelindeki hal ve toptancı pazar fiyatlarını günlük olarak izleyen bağımsız veri platformu.",
-  contactPoint: {
-    "@type": "ContactPoint",
-    email: "iletisim@haldefiyat.com",
-    contactType: "customer support",
-    availableLanguage: "Turkish",
-  },
-} satisfies Record<string, unknown>;
-
-const webSiteSchema = {
-  name: "HalDeFiyat",
-  url: SITE_URL,
-  description: "Türkiye hal fiyatları — toplam 250+ ürün, günlük güncelleme.",
-  inLanguage: "tr-TR",
-  potentialAction: {
-    "@type": "SearchAction",
-    target: {
-      "@type": "EntryPoint",
-      urlTemplate: `${SITE_URL}/fiyatlar?q={search_term_string}`,
-    },
-    "query-input": "required name=search_term_string",
-  },
-} satisfies Record<string, unknown>;
-
+// Organization + WebSite schema TEK kaynakta (public/layout.tsx) uretilir ve
+// DB site_settings'ten beslenir. Burada tekrar uretmek marka kimligini cakistirir
+// (rapor: CRITICAL duplicate schema). Dataset.creator kanonik Organization'a @id
+// ile referans verir — isim hardcode edilmez.
 const datasetSchema = {
   name: "Türkiye Hal Fiyatları",
   description:
     "Türkiye genelindeki hal ve pazar fiyat verileri. Günlük güncellenir.",
   url: SITE_URL,
-  creator: { "@type": "Organization", name: "HalDeFiyat" },
+  creator: ORG_REF,
   license: "https://creativecommons.org/licenses/by/4.0/",
   temporalCoverage: "2025/..",
   spatialCoverage: { "@type": "Place", name: "Türkiye" },
@@ -149,8 +125,6 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <>
-      <JsonLd type="Organization" data={organizationSchema} />
-      <JsonLd type="WebSite" data={webSiteSchema} />
       <JsonLd type="Dataset" data={datasetSchema} />
       <MobileHomeHero locale={locale} products={products.length} markets={markets} widget={widget} />
       <div className="hidden md:block">

@@ -17,14 +17,14 @@ CREATE TABLE `site_settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
-(UUID(), 'brand_name',        '*', '"Hal Fiyatlari"'),
+(UUID(), 'brand_name',        '*', '"HalDeFiyat"'),
 (UUID(), 'brand_subtitle',    '*', '"Gunluk piyasa ve hal fiyatlari"'),
 (UUID(), 'brand_short_name',  '*', '"HalFiyat"'),
 (UUID(), 'app_name',          '*', '"Hal Fiyatlari API"'),
 (UUID(), 'app_version',       '*', '"0.1.0"'),
 (UUID(), 'default_locale',    '*', '"tr"'),
 (UUID(), 'available_locales', '*', '["tr"]'),
-(UUID(), 'footer_copyright',  '*', '"© 2026 Hal Fiyatlari"'),
+(UUID(), 'footer_copyright',  '*', '"© 2026 HalDeFiyat"'),
 (UUID(), 'storage_driver',    '*', '"local"'),
 (UUID(), 'site_logo',         '*', '"/uploads/brand/logo.png"'),
 (UUID(), 'site_favicon',      '*', '"/uploads/brand/favicon.png"'),
@@ -36,7 +36,7 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'google_ads_id',      '*', '"941-057-6390"'),
 (UUID(), 'search_console_property', '*', '"haldefiyat.com"'),
 (UUID(), 'contact_phone',      '*', '"+90 530 048 41 83"'),
-(UUID(), 'contact_email',      '*', '"atakan07sahin@gmail.com"'),
+(UUID(), 'contact_email',      '*', '"iletisim@haldefiyat.com"'),
 (UUID(), 'social_telegram',    '*', '"https://t.me/haldefiyat"');
 
 -- Global SEO defaults — frontend layout.tsx fetchGlobalSeo bunlari ister;

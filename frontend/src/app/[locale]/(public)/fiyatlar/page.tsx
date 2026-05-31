@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { setRequestLocale } from "next-intl/server";
 import { fetchPricesPage, fetchMarkets } from "@/lib/api";
-import { getPageMetadata } from "@/lib/seo";
+import { getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceTable from "@/components/ui/PriceTable";
@@ -65,7 +65,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
     name: "Türkiye Güncel Hal Fiyatları",
     description: "Türkiye genelinde Türkiye genelinden sebze, meyve ve bakliyat ürünlerinin günlük hal fiyatları.",
     url: `${SITE_URL}/fiyatlar`,
-    creator: { "@type": "Organization", name: "HalDeFiyat" },
+    creator: ORG_REF,
     license: "https://creativecommons.org/licenses/by/4.0/",
     temporalCoverage: "2025/..",
     spatialCoverage: { "@type": "Place", name: "Türkiye" },
@@ -80,14 +80,14 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
     name: "HalDeFiyat Veri Kataloğu",
     description: "Türkiye genelindeki hal müdürlüklerinden derlenen günlük fiyat veri seti kataloğu.",
     url: `${SITE_URL}/fiyatlar`,
-    publisher: { "@type": "Organization", name: "HalDeFiyat", url: SITE_URL },
+    publisher: ORG_REF,
     dataset: [
       {
         "@type": "Dataset",
         name: "Günlük Hal Fiyatları",
         description: "Türkiye genelindeki hal müdürlüklerinden toplanan 250+ sebze, meyve ve bakliyat ürününün günlük en düşük, ortalama ve en yüksek toptan fiyat verisi.",
         url: `${SITE_URL}/fiyatlar`,
-        creator: { "@type": "Organization", name: "HalDeFiyat" },
+        creator: ORG_REF,
         license: "https://creativecommons.org/licenses/by/4.0/",
         temporalCoverage: "2025/..",
         isAccessibleForFree: true,
@@ -97,7 +97,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
         name: "HalDeFiyat Endeksi",
         description: "15 temel tarım ürününden oluşan haftalık sepet endeksi; Türkiye hal fiyatlarının baz haftaya göre bileşik değişimini izleyen fiyat endeksi verisi.",
         url: `${SITE_URL}/endeks`,
-        creator: { "@type": "Organization", name: "HalDeFiyat" },
+        creator: ORG_REF,
         license: "https://creativecommons.org/licenses/by/4.0/",
         temporalCoverage: "2025/..",
         isAccessibleForFree: true,

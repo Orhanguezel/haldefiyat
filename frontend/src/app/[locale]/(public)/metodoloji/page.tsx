@@ -1,5 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
-import { getPageMetadata } from "@/lib/seo";
+import { getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PageContainer from "@/components/layout/PageContainer";
@@ -32,8 +32,8 @@ const articleSchema = {
   headline: "HalDeFiyat Veri Metodolojisi",
   description:
     "Türkiye hal fiyatı verilerinin nasıl toplandığı, doğrulandığı ve sunulduğuna dair kapsamlı açıklama.",
-  author: { "@type": "Organization", name: "HalDeFiyat" },
-  publisher: { "@type": "Organization", name: "HalDeFiyat" },
+  author: ORG_REF,
+  publisher: ORG_REF,
   dateModified: new Date().toISOString().split("T")[0],
   inLanguage: "tr-TR",
   about: { "@type": "Thing", name: "Hal Fiyatları Veri Metodolojisi" },
