@@ -18,6 +18,17 @@ type Props = { params: Promise<{ locale: string; slug: string }> };
 
 const MARKET_PRICE_RANGE = "3650d";
 
+// Bugünkü listede kaç ayrı ürün var — meta açıklamasında canlı veri için.
+// Hata/timeout durumunda 0 döner; açıklama sessizce statik kalır.
+async function fetchTodayPriceCount(slug: string): Promise<number> {
+  try {
+    const prices = await fetchPrices({ market: slug, range: "1d", limit: 500 });
+    return new Set(prices.map((p) => p.productSlug)).size;
+  } catch {
+    return 0;
+  }
+}
+
 function citySlug(value: string): string {
   return value
     .toLocaleLowerCase("tr")
@@ -51,7 +62,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isMarketSeoIndexed = market.seoIndex === true || market.seoIndex === 1;
   const shouldIndex = isMarketSeoIndexed && editorial.source !== "template";
 
-  return getPageMetadata("hal", {
+  // Bugünkü fiyat özeti — SERP açıklamasında canlı veri = yüksek CTR.
+  const todayCount = await fetchTodayPriceCount(slug);
+  const today = new Date();
+  const dateTr = today.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+  const yearTr = String(today.getFullYear());
+
+  const liveLine = todayCount > 0
+    ? `Bugün ${todayCount} ürün listelendi (${dateTr}). `
+    : "";
+
+  const title = `${market.name} Fiyatları ${yearTr} — Bugünkü Güncel Liste`;
+  const description = `${market.cityName} ${market.name} güncel hal fiyatları. ${liveLine}Sebze, meyve ve bakliyat için min/ort/maks toptan fiyat. Resmi belediye hal müdürlüğü verileri, her gün TSİ 06:15 güncellenir.`;
+
+  // page key "hal_detay": DB seo_pages'teki liste-sayfası "hal" (Tüm Haller)
+  // template'i detay sayfalarını ezmesin diye ayrı anahtar kullanılır.
+  return getPageMetadata("hal_detay", {
     locale,
     pathname: `/hal/${slug}`,
     vars: {
@@ -59,14 +85,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       city: market.cityName,
       slug,
     },
-    title: `${market.name} Hal Fiyatları`,
-    description: `${market.cityName} ${market.name} günlük sebze, meyve ve bakliyat fiyatları. Belediye hal müdürlüğü resmi verileri, her gün TSİ 06:15 güncellenir. Min/ort/maks fiyat karşılaştırması.`,
+    title,
+    description,
     robots: shouldIndex
       ? { index: true, follow: true }
       : { index: false, follow: true },
     openGraph: {
       title: `${market.name} Güncel Hal Fiyatları | HaldeFiyat`,
-      description: `${market.cityName} ${market.name} günlük sebze, meyve ve bakliyat fiyatları. Resmi belediye verileri — her gün güncellenir.`,
+      description,
       type: "article",
       locale: "tr_TR",
     },
