@@ -3,6 +3,7 @@ import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import { getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
+import Breadcrumb from "@/components/seo/Breadcrumb";
 import PrintButton from "@/components/PrintButton";
 import PageContainer from "@/components/layout/PageContainer";
 
@@ -115,6 +116,7 @@ export default async function YearlyReportPage({ params }: Props) {
 
   return (
     <PageContainer className="print:py-0">
+      <Breadcrumb items={[{ name: "Ana Sayfa", href: "/" }, { name: "Yıllık Rapor", href: "/rapor/yillik/" + year }, { name: `${year}`, href: "/rapor/yillik/" + year }]} />
       <JsonLd
         type="Article"
         data={{

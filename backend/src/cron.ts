@@ -20,6 +20,7 @@ import { env } from "@/core/env";
 import { runFirmDirectoryEtl } from "@/modules/firms/service";
 import { runFirmDailyPriceReminders } from "@/modules/firms/reminders";
 import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
+import { submitToIndexNow } from "@/modules/indexnow";
 
 /**
  * Cron zamanlaması env'den gelir:
@@ -198,6 +199,14 @@ async function runSeoMaintenanceJob(app: FastifyInstance): Promise<void> {
       { flippedUp: r.flippedUp, demoted: r.demoted, durationMs: Date.now() - t0 },
       "[cron:seo-maintenance] tamamlandi",
     );
+
+    // IndexNow — gunluk guncellenen hub sayfalarini Bing/Copilot'a bildir (env-gated)
+    try {
+      const idx = await submitToIndexNow();
+      if (idx) app.log.info(idx, "[cron:seo-maintenance] indexnow ping");
+    } catch (err) {
+      app.log.warn({ err }, "[cron:seo-maintenance] indexnow ping hata");
+    }
   } catch (err) {
     app.log.error({ err }, "[cron:seo-maintenance] hata");
   }

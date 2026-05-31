@@ -4,6 +4,7 @@ import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import { fetchCityPriceMap, fetchMarkets, type Market } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
+import Breadcrumb from "@/components/seo/Breadcrumb";
 import HalViewToggle from "@/components/sections/HalViewToggle";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -71,6 +72,7 @@ export default async function HalIndexPage({ params }: Props) {
 
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+      <Breadcrumb items={[{ name: "Ana Sayfa", href: "/" }, { name: "Tüm Haller", href: "/hal" }]} />
       <header className="mb-10">
         <div className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
           Bölgesel Piyasa Analizi
