@@ -18,14 +18,18 @@ type Props = { params: Promise<{ locale: string; slug: string }> };
 
 const MARKET_PRICE_RANGE = "3650d";
 
-// Bugünkü listede kaç ayrı ürün var — meta açıklamasında canlı veri için.
-// Hata/timeout durumunda 0 döner; açıklama sessizce statik kalır.
-async function fetchTodayPriceCount(slug: string): Promise<number> {
+// En güncel listede kaç ayrı ürün var + verinin gerçek tarihi — meta açıklamasında
+// canlı veri için. ETL T-1 yayınlayabilir, tarih recordedDate'ten alınır.
+// Hata/timeout durumunda boş döner; açıklama sessizce statik kalır.
+async function fetchLatestPriceSummary(slug: string): Promise<{ count: number; date: string }> {
   try {
     const prices = await fetchPrices({ market: slug, range: "1d", limit: 500 });
-    return new Set(prices.map((p) => p.productSlug)).size;
+    if (prices.length === 0) return { count: 0, date: "" };
+    const latestDate = prices.reduce((max, p) => (p.recordedDate > max ? p.recordedDate : max), "");
+    const dayRows = prices.filter((p) => p.recordedDate === latestDate);
+    return { count: new Set(dayRows.map((p) => p.productSlug)).size, date: latestDate };
   } catch {
-    return 0;
+    return { count: 0, date: "" };
   }
 }
 
@@ -62,14 +66,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isMarketSeoIndexed = market.seoIndex === true || market.seoIndex === 1;
   const shouldIndex = isMarketSeoIndexed && editorial.source !== "template";
 
-  // Bugünkü fiyat özeti — SERP açıklamasında canlı veri = yüksek CTR.
-  const todayCount = await fetchTodayPriceCount(slug);
-  const today = new Date();
-  const dateTr = today.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
-  const yearTr = String(today.getFullYear());
+  // Güncel fiyat özeti — SERP açıklamasında canlı veri = yüksek CTR.
+  const summary = await fetchLatestPriceSummary(slug);
+  const yearTr = String(new Date().getFullYear());
+  const dateTr = summary.date
+    ? new Date(`${summary.date.slice(0, 10)}T12:00:00Z`).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })
+    : "";
 
-  const liveLine = todayCount > 0
-    ? `Bugün ${todayCount} ürün listelendi (${dateTr}). `
+  const liveLine = summary.count > 0 && dateTr
+    ? `Son listede ${summary.count} ürün (${dateTr}). `
     : "";
 
   const title = `${market.name} Fiyatları ${yearTr} — Bugünkü Güncel Liste`;

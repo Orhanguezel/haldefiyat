@@ -38,20 +38,32 @@ function getDisplayName(product: { displayName?: string | null; nameTr: string }
   return product.displayName?.trim() || product.nameTr;
 }
 
-// Bugünkü ortalama fiyat satırı — SERP açıklamasında canlı veri = yüksek CTR.
-// Veri yoksa "" döner; {{priceLine}} token'ı boşa interpolate edilir.
+// En güncel ortalama fiyat satırı — SERP açıklamasında canlı veri = yüksek CTR.
+// Tarih verinin gerçek recordedDate'inden alınır (ETL T-1 yayınlayabilir,
+// "Bugün" demek yanıltıcı olur). Veri yoksa "" → {{priceLine}} boşa interpolate.
+function formatDateTr(isoDate: string): string {
+  const d = new Date(`${isoDate.slice(0, 10)}T12:00:00Z`);
+  return Number.isNaN(d.getTime())
+    ? ""
+    : d.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+}
+
 async function fetchTodayPriceLine(slug: string, fallbackUnit: string): Promise<string> {
   try {
     const prices = await fetchPrices({ product: slug, range: "1d", limit: 50 });
-    const avgs = prices
+    if (prices.length === 0) return "";
+    const latestDate = prices.reduce((max, p) => (p.recordedDate > max ? p.recordedDate : max), "");
+    const dayRows = prices.filter((p) => p.recordedDate === latestDate);
+    const avgs = dayRows
       .map((p) => parseFloat(p.avgPrice))
       .filter((n) => Number.isFinite(n) && n > 0);
     if (avgs.length === 0) return "";
     const avg = avgs.reduce((a, b) => a + b, 0) / avgs.length;
     const avgTr = avg.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const unit = prices.find((p) => p.unit)?.unit ?? fallbackUnit;
-    const dateTr = new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
-    return `Bugün ortalama ${avgTr} TL/${unit} (${dateTr}). `;
+    const unit = dayRows.find((p) => p.unit)?.unit ?? fallbackUnit;
+    const dateTr = formatDateTr(latestDate);
+    const dateSuffix = dateTr ? ` (${dateTr})` : "";
+    return `Ortalama ${avgTr} TL/${unit}${dateSuffix}. `;
   } catch {
     return "";
   }
