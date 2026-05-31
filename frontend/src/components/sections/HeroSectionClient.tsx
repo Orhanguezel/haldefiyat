@@ -33,7 +33,9 @@ export default function HeroSectionClient() {
         Canlı Veri Akışı · 81 İl
       </motion.div>
 
-      <motion.h1
+      {/* Masaüstü hero görseli h2: tek birincil H1 mobil hero'da (Google
+          mobile-first indeksleme + trafiğin %78 mobil). Çift H1 kaldırıldı. */}
+      <motion.h2
         variants={fadeUp}
         initial="hidden"
         animate="show"
@@ -51,7 +53,7 @@ export default function HeroSectionClient() {
         >
           Tek Ekranda
         </span>
-      </motion.h1>
+      </motion.h2>
 
       <motion.p
         variants={fadeUp}
