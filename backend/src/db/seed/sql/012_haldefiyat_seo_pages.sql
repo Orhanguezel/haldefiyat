@@ -32,8 +32,8 @@ VALUES (
       "no_index": false
     },
     "urun": {
-      "title": "{{name}} Hal Fiyatı",
-      "description": "Türkiye genelinde {{name}} hal fiyatları, trend grafikleri ve güncel karşılaştırma.",
+      "title": "{{name}} Hal Fiyatı {{year}}",
+      "description": "Türkiye genelinde {{name}} hal fiyatları. {{priceLine}}Trend grafikleri, 5 yıllık geçmiş ve şehir bazlı güncel karşılaştırma.",
       "og_image": "/uploads/og/urun.png",
       "no_index": false
     },

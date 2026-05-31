@@ -38,6 +38,25 @@ function getDisplayName(product: { displayName?: string | null; nameTr: string }
   return product.displayName?.trim() || product.nameTr;
 }
 
+// Bugünkü ortalama fiyat satırı — SERP açıklamasında canlı veri = yüksek CTR.
+// Veri yoksa "" döner; {{priceLine}} token'ı boşa interpolate edilir.
+async function fetchTodayPriceLine(slug: string, fallbackUnit: string): Promise<string> {
+  try {
+    const prices = await fetchPrices({ product: slug, range: "1d", limit: 50 });
+    const avgs = prices
+      .map((p) => parseFloat(p.avgPrice))
+      .filter((n) => Number.isFinite(n) && n > 0);
+    if (avgs.length === 0) return "";
+    const avg = avgs.reduce((a, b) => a + b, 0) / avgs.length;
+    const avgTr = avg.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const unit = prices.find((p) => p.unit)?.unit ?? fallbackUnit;
+    const dateTr = new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+    return `Bugün ortalama ${avgTr} TL/${unit} (${dateTr}). `;
+  } catch {
+    return "";
+  }
+}
+
 function isSeoIndexed(product: { seoIndex?: number | boolean }) {
   return product.seoIndex === true || product.seoIndex === 1;
 }
@@ -56,10 +75,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const displayName = getDisplayName(product);
-  const editorial = await getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug });
+  const [editorial, priceLine] = await Promise.all([
+    getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug }),
+    fetchTodayPriceLine(slug, product.unit),
+  ]);
   // Index: seoIndex açık VE özgün içerik var (DB editoryel veya elle yazılmış statik).
   // Yalnızca kategori-şablon fallback (thin/duplicate) noindex kalır.
   const shouldIndex = isSeoIndexed(product) && editorial.source !== "template";
+  const year = String(new Date().getFullYear());
 
   // Her ürün için i18n-bağımsız dinamik OG (ürün adı render edilir).
   // Route handler /api/og/urun/[slug] — proxy matcher'da bypass.
@@ -79,9 +102,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       name: displayName,
       category: product.categorySlug ?? "",
       slug,
+      year,
+      priceLine,
     },
-    title: `${displayName} Hal Fiyatı`,
-    description: `${displayName} hal fiyatı: Türkiye genelinde günlük min/ort/maks fiyat karşılaştırması, 5 yıllık sezon geçmişi ve şehir bazlı analiz. Resmi belediye verileri.`,
+    title: `${displayName} Hal Fiyatı ${year}`,
+    description: `Türkiye genelinde ${displayName} hal fiyatları. ${priceLine}Trend grafikleri, 5 yıllık geçmiş ve şehir bazlı güncel karşılaştırma.`,
     robots: shouldIndex
       ? { index: true, follow: true }
       : { index: false, follow: true },
