@@ -73,7 +73,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : "";
 
   const title = `${market.name} Fiyatları ${yearTr} — Bugünkü Güncel Liste`;
-  const description = `${market.cityName} ${market.name} güncel hal fiyatları. ${liveLine}Sebze, meyve ve bakliyat için min/ort/maks toptan fiyat. Resmi belediye hal müdürlüğü verileri, her gün TSİ 06:15 güncellenir.`;
+  // market.name zaten şehri içerir ("Antalya Toptancı Hali ...") → cityName tekrarı yok.
+  const description = `${market.name} güncel hal fiyatları. ${liveLine}Sebze, meyve ve bakliyat için min/ort/maks toptan fiyat. Resmi belediye hal müdürlüğü verileri, her gün TSİ 06:15 güncellenir.`;
 
   // page key "hal_detay": DB seo_pages'teki liste-sayfası "hal" (Tüm Haller)
   // template'i detay sayfalarını ezmesin diye ayrı anahtar kullanılır.
