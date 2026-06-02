@@ -14,6 +14,39 @@
 | [oneri-ve-sprint-plani-2026-04-21.md](docs/oneri-ve-sprint-plani-2026-04-21.md) | 30 |
 | [strateji-ve-gelir-modeli.md](docs/strateji-ve-gelir-modeli.md) | 14 |
 | [yeni-teklifler-gelistirme-checklist-2026-04-24.md](docs/yeni-teklifler-gelistirme-checklist-2026-04-24.md) | 266 |
+| **TRAFIK-ANALIZ-BULGULAR-2026-06-01** — bu dosyada, aşağıda | 0 (bağlam) |
+
+---
+
+## TRAFIK-ANALIZ-BULGULAR-2026-06-01 (Claude — durum değerlendirmesi)
+
+> **Aksiyonlar:** `KALAN-ISLER.md › 🔴 AKTİF ÖNCELİK — Trafik & Ölçüm Analizi Aksiyonları`.
+> **Rapor:** `reports/analiz-26-31-mayis-2026.pdf`. **Veri kaynağı:** VPS `/var/log/nginx/haldefiyat.access.log` (26-31 May) + GSC Performance export (20 Nis-29 May) + canlı sağlık kontrolü (2026-06-01).
+
+### Site durumu — 3 katman
+
+**Katman 1 — Altyapı (Teknik): 🟢 YEŞİL.** Sunucu 6× yük altında stabil (%92 HTTP 200, 5xx %0,09). Site ayakta (anasayfa 200/0,77s). ETL veri akıyor (ulusal kaynak hal_gov_tr 396 satır). SEO indexlenme tırmanıyor (GSC gösterim Nisan ~30 → Mayıs ~350/gün).
+
+**Katman 2 — Trafik Edinme: 🟡 SARI — gerçek ama kırılgan.** Ads 6× büyüme getirdi (pre-Ads 18-25 May 3.220 → post-Ads 27-31 May 19.248 insan/gün; son 4 gün 28-31: 21.683/gün ≈ 6,7×). Ama **kiralık** — 150 TL/gün durunca biter. Organik (sahip olunan varlık) hâlâ küçük: GSC ~10 tıklama/gün, ort. pozisyon ~14 (Google 2. sayfa). Mobil oran %29 → %52 (31 May %70) = büyüme Ads kaynaklı mobil tüketici.
+
+**Katman 3 — Dönüşüm/Hasat: 🔴→🟡 yeni açıldı, kanıtsız.** Newsletter capture dün 404'tü, **bugün 201** (Codex brief uygulanmış). `/canli-hal-fiyatlari` landing 200. Ama **GA4 ayrılmadı** (VistaSeeds property'sine akıyor) → kiralık trafiğin sahip olunan kitleye dönüşüp dönüşmediği **görünmüyor**. En büyük kör nokta.
+
+### Asıl risk (teşhis)
+Günde 150 TL ödenip funnel'ın **tepesi** dolduruluyor; **ortası (ölçüm)** ve **dibi (e-posta yakalama)** yeni kuruldu, uçtan uca çalıştığı kanıtlanmadı. Delikli kovaya su taşınıyor olabilir. → Ads'i ölçeklemenin değil, funnel'ı **kanıtlamanın** zamanı.
+
+### Önemli kesişim bulguları
+- **gclid sızıntısı:** Reklam tıklamalarının çoğu `/` anasayfaya (639), `/fiyatlar`a değil (25) → landing yönlendirme şart (aksiyon P0-C).
+- **İstanbul talep-veri açığı:** İnsanlar "istanbul toptancı hali" arıyor (GSC), ama `istanbul_ibb` ETL'i 7 gündür 0 satır → kaçan trafik (aksiyon P1-A).
+- **SEO kazanan format:** Şehir-hal sorguları ("balıkesir hal fiyatları" poz 5,4 = 1. sayfa). Kazanana yığ (aksiyon P1-B).
+- **AI crawler patlaması:** GPTBot 3.666 + ClaudeBot 1.977 + OAI 138 = Googlebot'un (870) ~6 katı → IndexNow/GEO etkisi (olumlu, aksiyon gerekmez).
+
+### Veri kısıtlamaları (kararları bunları bilerek ver)
+- **nginx = istek, ziyaretçi değil.** 1 sayfa açılışı = HTML + onlarca /api çağrısı + asset. Bot tespiti UA-heuristik (±%5).
+- **uniq IP, ziyaretçiyi düşük gösterir:** mobil operatör CGNAT IP havuzu → istek 6× artarken uniq IP sadece 1,65× (gerçek ziyaretçi düşüşü değil, IP sıkışması).
+- **GA4 ayrılmadı** → oturum/bounce/retention/conversion **görünmüyor** (en büyük kör nokta; aksiyon P0-A).
+- **GSC ≠ nginx:** GSC sadece Google organik dilim (~10/gün), Ads dahil değil, tıklama=ziyaret; nginx tüm kaynaklar + her istek. Çelişki değil, kapsam farkı. (Detay: memory `gsc-vs-nginx-traffic`.) GSC 1-3 gün gecikmeli.
+- **Conversion tracking fiilen çalıştığı henüz doğrulanmadı** (aksiyon P0-A/B).
+- **Baseline kıyası geçerli:** Aynı dedike logdan üretildi, 18-25 May birebir eşleşti; tek sapma 26 May yarım gün (kıyas dışı bırakıldı). (Detay: memory `baseline-report-wrong-logsource`.)
 
 ---
 

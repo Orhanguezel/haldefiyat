@@ -78,6 +78,7 @@
     "quick_entry": "Hizli Giris",
     "hf_products": "Urunler",
     "markets": "Haller",
+    "firms": "Firmalar",
     "etl_logs": "ETL Loglari",
     "competitor_monitor": "Rakip Izleme",
     "alerts": "Uyari Listesi",
@@ -85,6 +86,7 @@
     "contacts": "Iletisim Mesajlari",
     "custom_pages": "Ozel Sayfalar",
     "analysis_reports": "Analiz Yazilari",
+    "authors": "Yazarlar",
     "press": "Basin CRM",
     "email_templates": "E-posta Sablonlari",
     "newsletter": "Bülten",
@@ -94,6 +96,7 @@
     "storage": "Depolama",
     "telegram": "Telegram",
     "audit": "Komuta Merkezi",
-    "analytics": "Analytics"
+    "analytics": "Analytics",
+    "redirects": "SEO / Yönlendirme"
   }
 }

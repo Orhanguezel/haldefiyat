@@ -18,6 +18,69 @@
 | [ADS-SETUP-CHECKLIST](docs/checklists/ADS-SETUP-CHECKLIST.md) | 91 |
 | [MONETIZASYON-CHECKLIST](docs/checklists/MONETIZASYON-CHECKLIST.md) | 52 |
 | [SOCIAL-API-SETUP-CHECKLIST](docs/checklists/SOCIAL-API-SETUP-CHECKLIST.md) | 222 |
+| **🔴 Trafik & Ölçüm Aksiyonları (2026-06-01)** — bu dosyada, aşağıda | 27 |
+
+---
+
+## 🔴 AKTİF ÖNCELİK — Trafik & Ölçüm Analizi Aksiyonları (2026-06-01)
+
+> **Kaynak analiz:** `reports/analiz-26-31-mayis-2026.pdf` + bulgular/durum değerlendirmesi `KALAN-ISLER-DOCS.md › TRAFIK-ANALIZ-BULGULAR-2026-06-01`.
+> **Teşhis (tek cümle):** Ads trafiği ~6× büyüttü (3.220 → 19.248 insan/gün) ama bu **kiralık** trafik; funnel'ın ortası (ölçüm) ve dibi (e-posta yakalama) yeni kuruldu, uçtan uca **kanıtlanmadı**. Ölçeklemeden önce funnel'ın dönüştürdüğünü kanıtla.
+> **▶ P0-A/B/C için çalıştırılabilir ortak oturum brief'i (Claude + Codex):** [`OTURUM-BRIEF-OLCUM-FUNNEL.md`](OTURUM-BRIEF-OLCUM-FUNNEL.md) — sonraki oturumda bununla başla.
+> **Not — örtüşme:** Bazı maddeler mevcut `ADS-SETUP-CHECKLIST` (11.2/11.4/#3/#4) ve `SEO-DENETIM-KARSILASTIRMA` (B3) ile bağlantılı; burada **yeniden önceliklendirildi** + yeni işler eklendi. Tekrar değil, üst-öncelik.
+
+### P0-A — Ölçüm gerçeği: ayrı GA4 + conversion doğrulama 🔴 BLOKE EDİCİ
+> Bunsuz "Ads parası kitleye dönüyor mu" sorusu körlemesine. En yüksek kaldıraç. (Bağlantılı: ADS #3, #4, 11.2.)
+- [ ] 👤 **Orhan:** hal-fiyatlari için **ayrı GA4 property** aç (şu an veri VistaSeeds property'sine akıyor — ADS #3'ü tamamla)
+- [ ] 🤖 **Codex:** haldefiyat.com'a yalnızca yeni GA4 measurement ID'yi yükle, eski/yabancı tag'leri kaldır (tek kanonik tag)
+- [ ] 🤖 **Codex:** `newsletter_signup` conversion event'i form submit'te gerçekten `gtag`'e düşüyor mu — DevTools Network'te doğrula (ADS 11.2 ile aynı, ama önce bu doğrulanmadan diğerleri başlamasın)
+- [ ] 👤 **Orhan:** GA4 DebugView'de `newsletter_signup` + `gclid` + `utm_*` parametrelerinin geldiğini gör
+- [ ] 👤 **Orhan:** Google Ads → Dönüşümler → AW-18007572524 ile eşleştir, "Doğrulandı" durumunu bekle (24-48h)
+- [ ] **Kabul:** Admin/GA4'ten "dün Ads'ten kaç tıklama → kaç abone" sorusu sayıyla cevaplanabiliyor
+
+### P0-B — Newsletter funnel'ı uçtan uca doğrula 🔴
+> `POST /api/v1/newsletter/subscribe` artık **201 dönüyor** (28 May'deki 404 düzeldi) — ama "201" ≠ "çalışıyor". Uçtan uca kanıtla.
+- [ ] 🧠 **Claude + 👤 Orhan:** Gerçek e-posta ile abone ol → **DB'ye kayıt düştü mü** (`hf_newsletter_*` veya local tablo) doğrula
+- [ ] 👤 **Orhan:** Abonelik sonrası **doğrulama/hoşgeldin maili** geliyor mu (single opt-in kararı — Resend üzerinden, Inbox'a mı düşüyor spam'e mi)
+- [ ] 👤 **Orhan:** **Unsubscribe** linki (stateless HMAC token) çalışıyor mu — bir tıkla çıkış
+- [ ] 🤖 **Codex:** Haftalık digest cron'u gerçekten gönderiyor mu + sadece hal-fiyatlari abonelerine gidiyor mu (Bereketfide/VistaSeed izolasyonu korunuyor mu)
+- [ ] 👤 **Orhan:** `/abonelik` sayfası + signup form'ları (anasayfa, /canli-hal-fiyatlari, footer) gerçekten POST atıyor mu (boşluğa değil)
+- [ ] **Kabul:** Test e-postası → DB kaydı + hoşgeldin maili + unsubscribe = 3'ü de çalışıyor
+
+### P0-C — Ads landing'i `/canli-hal-fiyatlari`'ya yönlendir 🔴
+> gclid verisi sızıntıyı kanıtlıyor: reklam tıklamalarının çoğu `/` anasayfaya düşüyor (639), `/fiyatlar`a değil (25). Niyet boşa gidiyor. (Bağlantılı: ADS 11.4/11.6 — landing 200 dönüyor, kalan sadece yönlendirme + ölçüm.)
+- [ ] 👤 **Orhan:** Google Ads → kampanya → final URL `/` → **`/canli-hal-fiyatlari`** (ADS 11.6 final URL maddesi)
+- [ ] 🤖 **Codex / 👤 Orhan:** Landing'de newsletter signup'ın **#1 CTA** olduğunu doğrula (above-the-fold)
+- [ ] **Kabul:** 1 hafta sonra gclid landing dağılımında `/canli-hal-fiyatlari` baskın + newsletter signup oranı ölçülebiliyor (≥%3 hedef, ADS 11.4)
+
+### P1-A — İstanbul ETL kuru (7 gün, 0 satır) — var olan SEO talebini kaçırıyoruz 🟡
+> GSC kanıtı: insanlar "istanbul toptancı hali", "ibb hal fiyatları" arıyor (gösterim var, sayfa indexli). Ama `istanbul_ibb` ETL'i 7 gündür 0 satır ("Kaynak veri yayinlamadi, HTTP 200"). Talep var, veri yok = kaçan trafik.
+- [ ] 🧠 **Claude + 🤖 Codex:** `istanbul_ibb` neden boş döndüğünü teşhis et — `gunluk_fiyatlar.asp` AJAX endpoint hâlâ çalışıyor mu, tUsr/tPas/tVal auth değişmiş mi (CLAUDE.md Asama 4 referansı)
+- [ ] 🤖 **Codex:** İstanbul IBB Avrupa Yakası kaynağını da değerlendir (ayrı hal müdürlüğü URL'i — CLAUDE.md'de "YENI EKLENECEK" notu)
+- [ ] 👤 **Orhan:** Düzeltme sonrası `/hal/istanbul-hal-ibb` + `/fiyatlar?city=istanbul-hal` sayfalarında güncel veri görünüyor mu
+- [ ] **Kabul:** İstanbul son 7 gün veri akışı var, etl-health'te "Veri Akışı Yok" listesinden çıktı
+
+### P1-B — SEO: şehir-hal sayfalarını Google 2. sayfadan 1.'ye taşı 🟡
+> Kazanan format belli: "balıkesir hal fiyatları" zaten poz **5,4** (1. sayfa!), gösterim Nisan 30 → Mayıs 350/gün tırmanıyor ama ort. pozisyon ~14 (çoğu 2. sayfa) → CTR düşük. Kazanana yığ. (Bağlantılı: SEO-DENETIM B3.)
+- [ ] 🧠 **Claude içerik stratejisi:** En çok gösterim alan şehir-hal sorgularını (balıkesir, kahramanmaraş, çanakkale, kütahya, denizli, ibb) sayfa-içi metinle güçlendir ("X hal fiyatları nasıl belirlenir", güncelleme sıklığı, kapsam)
+- [ ] 🤖 **Codex / 👤 editör:** Şehir/hal sayfalarına kısa özgün açıklama paragrafı (SEO-DENETIM B3 ile aynı — şehir bazlı önceliklendir)
+- [ ] 👤 **Orhan:** GSC URL Inspection → bu şehir sayfalarının render edilmiş halinde fiyatların göründüğünü teyit, "Request indexing"
+- [ ] **Kabul:** 14 gün sonra hedef şehir sorgularının ort. pozisyonu < 10 (1. sayfa), CTR artışı GSC'de görünür
+
+### P1-C — Kuru/hatalı ETL kaynaklarını onar 🟡
+> 31 May etl-health: çanakkale (timeout), kütahya (socket closed), manisa (socket closed), mersin (socket closed), tekirdağ (boş listing). Ulusal kaynak (hal_gov_tr 396 satır) açığı kapatıyor ama şehir kapsamı için bunlar lazım. (Bağlantılı: CLAUDE.md "Sorunlu Kaynaklar" tablosu.)
+- [ ] 🧠 **Claude + 🤖 Codex:** çanakkale (daha önce Scrapling 85 satır veriyordu) timeout regresyonunu incele — Scrapling retry/timeout artışı
+- [ ] 🤖 **Codex:** kütahya/manisa/mersin "socket closed" → HF_SCRAPER_SOURCES'a ekle (CLAUDE.md aksiyon kılavuzu: socket closed = Scrapling TLS impersonation çözer)
+- [ ] 🤖 **Codex:** tekirdağ listing sayfası boş → URL pattern değişmiş mi kontrol (id:NNN backfill formatı hâlâ geçerli mi)
+- [ ] 👤 **Orhan:** Onarım sonrası `etl-health.sh 24` ile "Sorunlu Kaynaklar" bölümünün boşaldığını doğrula
+- [ ] **Kabul:** 5 kaynaktan en az 3'ü tekrar veri üretiyor
+
+### P2 — Baseline & raporlama hijyeni (bir defalık) 🟢
+> Bu oturumda kanıtlandı: baseline raporu doğru logdan üretilmiş, tek sapma 26 May'in yarım gün olması. Gelecekteki kıyaslar için hijyen kuralları. (Detay: memory `baseline-report-wrong-logsource`.)
+- [ ] 🧠 **Claude:** Resmi "öncesi/sonrası" karşılaştırma tablosunu PDF'e işle (yapıldı — `reports/analiz-26-31-mayis-2026.pdf` sayfa 1) ✅ referans
+- [ ] 👤 **Orhan / 🤖 Codex:** Trafik raporu üretirken **DEDİKE** `haldefiyat.access.log*` kullanılsın (plain `access.log` değil — o başka vhost, Cloudflare IP), ve **günü tam bitmeden çekme** (26 May partial-day tuzağı)
+- [ ] 🤖 **Codex (opsiyonel):** Haftalık trafik rapor scriptini repo'ya al (`backend/scripts/` veya `scripts/`) — `/tmp` yerine kalıcı, dedike log + bot heuristic + gclid + öncesi/sonrası ile
+- [ ] **Karar (👤 Orhan + Atakan):** GA4+conversion canlı olunca **abone başı maliyet** ölç → yakalama yoksa 150 TL/gün Ads bütçesini gözden geçir (ADS 11.7 brand-awareness uzatma kararıyla birlikte)
 
 ---
 
