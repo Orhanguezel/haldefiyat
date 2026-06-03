@@ -197,10 +197,14 @@
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(t['path'], t.get\\('size',''\\)\\) for t in d.get\\('tree',[]\\) if t['type']=='blob']\")",
       "Bash(scp -q frontend/src/lib/api.ts vps-vistainsaat:__TRACKED_VAR__/frontend/src/lib/api.ts)",
       "Bash(scp -q frontend/src/components/sections/TurkeyMapClient.tsx vps-vistainsaat:__TRACKED_VAR__/frontend/src/components/sections/TurkeyMapClient.tsx)",
-      "Bash(scp -q 'frontend/src/app/[locale]/\\(public\\)/harita/page.tsx' 'vps-vistainsaat:__TRACKED_VAR__/frontend/src/app/[locale]/\\(public\\)/harita/page.tsx')"
+      "Bash(scp -q 'frontend/src/app/[locale]/\\(public\\)/harita/page.tsx' 'vps-vistainsaat:__TRACKED_VAR__/frontend/src/app/[locale]/\\(public\\)/harita/page.tsx')",
+      "Bash(echo \"exit: $?\")"
     ],
     "additionalDirectories": [
-      "/home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/(public)"
+      "/home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/(public)",
+      "/home/orhan/Documents/Projeler/ekosistem-sosyal-medya/backend/src/modules/platforms",
+      "/home/orhan/Documents/Projeler/ekosistem-sosyal-medya/backend/src/modules/ai/style",
+      "/home/orhan/Documents/Projeler/ekosistem-sosyal-medya"
     ]
   }
 }
