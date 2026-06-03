@@ -428,13 +428,40 @@ function scaleSuspiciousCents(price: number | null, source: EtlSourceConfig): nu
 }
 
 function normalizePriceRow(row: NormalizedRow, source: EtlSourceConfig): NormalizedRow {
-  if (!CENT_SCALED_SOURCES.has(source.key)) return row;
-  return {
-    ...row,
-    avg: scaleSuspiciousCents(row.avg, source),
-    min: scaleSuspiciousCents(row.min, source),
-    max: scaleSuspiciousCents(row.max, source),
-  };
+  let next = CENT_SCALED_SOURCES.has(source.key)
+    ? {
+        ...row,
+        avg: scaleSuspiciousCents(row.avg, source),
+        min: scaleSuspiciousCents(row.min, source),
+        max: scaleSuspiciousCents(row.max, source),
+      }
+    : row;
+
+  // Kolonlar ters girilmişse (min > max) düzelt — yaygın parser hatası
+  // (ör. Bursa Kefal: min 150 / max 130). avg genelde doğru olduğu için
+  // satırı atmak yerine min/max'i yer değiştir; gerçek bozukları sanity eler.
+  if (next.min != null && next.max != null && next.min > next.max) {
+    next = { ...next, min: next.max, max: next.min };
+  }
+  return next;
+}
+
+/**
+ * Fiyat sıhhat kontrolü — DB'ye yazmadan önce matematiksel olarak bozuk ya da
+ * absürd satırları yakalar (örn. Muz Yalova 2350 TL/kg, max < min, avg aralık dışı).
+ * Sorun varsa açıklama döner; temizse null. Bunlar tweet/bültene sızmadan elenir.
+ */
+function priceSanityIssue(row: NormalizedRow, avg: number): string | null {
+  // Deniz ürünleri (istakoz, premium balık) gerçekten pahalı — ayrı tavan.
+  const isSeafood = (row.category ?? "").toLowerCase().includes("balik");
+  const max = isSeafood ? env.ETL.priceSanityMaxSeafood : env.ETL.priceSanityMaxProduce;
+  const vals = [avg, row.min, row.max].filter((v): v is number => v != null && Number.isFinite(v));
+  if (vals.some((v) => v <= 0)) return "fiyat <= 0";
+  if (vals.some((v) => v > max)) return `absürd fiyat > ${max} TL`;
+  if (row.min != null && row.max != null && row.min > row.max) return `min (${row.min}) > max (${row.max})`;
+  if (row.min != null && avg < row.min) return `avg (${avg}) < min (${row.min})`;
+  if (row.max != null && avg > row.max) return `avg (${avg}) > max (${row.max})`;
+  return null;
 }
 
 /**
@@ -2133,6 +2160,13 @@ export async function runSourceFetch(
     const row = normalizePriceRow(rawRow, source);
     const avg = row.avg ?? (row.min != null && row.max != null ? (row.min + row.max) / 2 : null);
     if (avg == null || !Number.isFinite(avg) || avg <= 0) { skipped++; continue; }
+
+    const sanityIssue = priceSanityIssue(row, avg);
+    if (sanityIssue) {
+      errors.push(`${row.name}: sıhhat reddi (${sanityIssue})`);
+      skipped++;
+      continue;
+    }
 
     let product: { id: number; slug: string } | null = null;
     try {

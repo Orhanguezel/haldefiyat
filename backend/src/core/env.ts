@@ -86,7 +86,11 @@ export const env = {
   // Pro tier aylik ucret (frontend /pro sayfasinda gosterilir)
   PRO_PRICE_MONTHLY_TL: parseEnvInt(process.env.PRO_PRICE_MONTHLY_TL, 99),
   // Twitter/X OAuth 1.0a — @haldefiyat hesabi otomatik tweet
+  // 2026-06-03: @haldefiyat'a tek X kaynagi ekosistem-sosyal-medya paneli olsun
+  // diye varsayilan KAPALI. Bu cron tekrar acilirsa cift-tweet riski olusur.
+  // Acmak icin VPS .env: TWITTER_ENABLED=true
   TWITTER: {
+    enabled:           process.env.TWITTER_ENABLED === "true",
     apiKey:            process.env.TWITTER_API_KEY || "",
     apiSecret:         process.env.TWITTER_API_SECRET || "",
     accessToken:       process.env.TWITTER_ACCESS_TOKEN || "",
@@ -138,6 +142,11 @@ export const env = {
     maxDateFallbackDays: parseEnvInt(process.env.ETL_MAX_DATE_FALLBACK_DAYS, 7),
     autoRegisterProducts: (process.env.ETL_AUTO_REGISTER_PRODUCTS ?? "true").toLowerCase() === "true",
     requestTimeoutMs: parseEnvInt(process.env.ETL_REQUEST_TIMEOUT_MS, 30_000),
+    // Fiyat sıhhat sınırları — bozuk/outlier satırları DB'ye yazmadan ele.
+    // Muz Çanakkale 2650, üzüm 2875 gibi sebze/meyve kaynak hatalarını yakalar.
+    // Deniz ürünü (istakoz ~7000, premium balık ~2100) gerçekten pahalı → ayrı tavan.
+    priceSanityMaxProduce: parseEnvInt(process.env.ETL_PRICE_SANITY_MAX, 1500),
+    priceSanityMaxSeafood: parseEnvInt(process.env.ETL_PRICE_SANITY_MAX_SEAFOOD, 12000),
     healthSchedule: process.env.ETL_HEALTH_CRON_SCHEDULE || "0 8 * * *",
     healthStaleHours: parseEnvInt(process.env.ETL_HEALTH_STALE_HOURS, 30),
     healthEmptyRunThreshold: parseEnvInt(process.env.ETL_HEALTH_EMPTY_RUN_THRESHOLD, 3),

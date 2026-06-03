@@ -58,8 +58,6 @@ export function startCron(app: FastifyInstance): void {
     { name: "weekly-mail",        schedule: env.ETL.weeklyMailSchedule,    handler: () => runWeeklyMailJob(app) },
     // Aylik enflasyon (TCMB EVDS) — ayin 5'i 10:00 UTC
     { name: "inflation-monthly",  schedule: env.ETL.inflationSchedule,     handler: () => runInflationJob(app) },
-    // Twitter/X gunluk trending tweet — 08:30 UTC = 11:30 TRT
-    { name: "twitter-daily",      schedule: env.ETL.twitterSchedule,       handler: () => runTwitterJob(app) },
     // Halkatalogu firma rehberi — haftalik delta + aylik tam tarama
     { name: "firms-weekly",       schedule: env.ETL.firmsWeeklySchedule,    handler: () => runFirmsJob(app, false) },
     { name: "firms-monthly",      schedule: env.ETL.firmsMonthlySchedule,   handler: () => runFirmsJob(app, true) },
@@ -69,6 +67,16 @@ export function startCron(app: FastifyInstance): void {
       name: "firm-price-reminder",
       schedule: env.ETL.firmPriceReminderSchedule,
       handler: () => runFirmPriceReminderJob(app),
+    });
+  }
+  // Twitter/X gunluk trending tweet — 08:30 UTC = 11:30 TRT.
+  // Varsayilan KAPALI: @haldefiyat'a tek X kaynagi ekosistem-sosyal-medya paneli.
+  // Tekrar acmak icin VPS .env: TWITTER_ENABLED=true
+  if (env.TWITTER.enabled) {
+    tasks.push({
+      name: "twitter-daily",
+      schedule: env.ETL.twitterSchedule,
+      handler: () => runTwitterJob(app),
     });
   }
 
