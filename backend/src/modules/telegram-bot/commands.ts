@@ -4,6 +4,7 @@ import { hfMarkets, hfPriceHistory, hfProducts } from "@/db/schema";
 import { and, desc, eq, gte, sql } from "drizzle-orm";
 import { resolveProductSlug } from "@/modules/etl/normalizer";
 import { trendingChanges } from "@/modules/prices/repository";
+import { parseTelegramListing } from "@/modules/listings/telegram";
 
 const SITE_URL = "https://haldefiyat.com";
 
@@ -207,6 +208,18 @@ export async function handleTelegramUpdate(update: TelegramUpdate): Promise<void
     const text = await formatTrending();
     await sendMessage(chatId, text);
     return;
+  }
+
+  if (!cmd) {
+    const listing = await parseTelegramListing({ text: msg.text, chatId, from: msg.from });
+    if (listing.ok) {
+      await sendMessage(chatId, "✅ İlan taslağın alındı. Moderasyon sonrası yayına alınacak.");
+      return;
+    }
+    if (listing.reason === "missing_product_or_city") {
+      await sendMessage(chatId, "İlan için ürün ve il yazın. Örn: Antalya 10 ton karpuz satıyorum 8 TL");
+      return;
+    }
   }
 
   // 3) /<urun-adi> veya serbest metin → alias map'ten slug bul

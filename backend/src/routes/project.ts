@@ -22,6 +22,7 @@ import { registerHalNewsletter } from "@/modules/newsletter/router";
 import { registerTracking } from "@/modules/tracking/router";
 import { registerFirmsAdmin, registerFirmsPublic } from "@/modules/firms";
 import { registerAuthorsAdmin, registerAuthorsPublic } from "@/modules/authors";
+import { registerListingsAdmin, registerListingsPublic } from "@/modules/listings";
 
 export async function registerProjectPublic(api: FastifyInstance) {
   await registerMarkets(api);
@@ -41,6 +42,7 @@ export async function registerProjectPublic(api: FastifyInstance) {
   await registerTracking(api);
   await registerRedirectsPublic(api);
   await registerFirmsPublic(api);
+  await registerListingsPublic(api);
   await registerAuthorsPublic(api);
 
   // P2: SSO entegrasyonu icin frontend'in auth durumunu dogrulayabilecegi stub endpoint.
@@ -65,5 +67,6 @@ export async function registerProjectAdmin(adminApi: FastifyInstance) {
   await registerAuditConsumersAdmin(adminApi);
   await registerSeoOpsAdmin(adminApi);
   await registerFirmsAdmin(adminApi);
+  await registerListingsAdmin(adminApi);
   await registerAuthorsAdmin(adminApi);
 }

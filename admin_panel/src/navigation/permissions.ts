@@ -6,6 +6,7 @@ export type AdminPermissionKey =
   | 'admin.hf_products'
   | 'admin.markets'
   | 'admin.firms'
+  | 'admin.listings'
   | 'admin.etl_logs'
   | 'admin.alerts'
   | 'admin.contacts'
@@ -33,6 +34,7 @@ export type AdminNavKey =
   | 'hf_products'
   | 'markets'
   | 'firms'
+  | 'listings'
   | 'etl_logs'
   | 'alerts'
   | 'contacts'
@@ -61,6 +63,7 @@ const ADMIN_PERMISSION_ROLE_MAP: Record<AdminPermissionKey, PanelRole[]> = {
   'admin.hf_products': ADMIN_ONLY,
   'admin.markets': ADMIN_ONLY,
   'admin.firms': ADMIN_ONLY,
+  'admin.listings': ADMIN_ONLY,
   'admin.etl_logs': ADMIN_ONLY,
   'admin.alerts': ADMIN_ONLY,
   'admin.contacts': ADMIN_ONLY,
@@ -93,6 +96,7 @@ const ADMIN_NAV_PERMISSION_MAP: Partial<Record<AdminNavKey, AdminPermissionKey>>
   hf_products: 'admin.hf_products',
   markets: 'admin.markets',
   firms: 'admin.firms',
+  listings: 'admin.listings',
   etl_logs: 'admin.etl_logs',
   alerts: 'admin.alerts',
   contacts: 'admin.contacts',

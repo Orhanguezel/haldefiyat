@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { setRequestLocale } from "next-intl/server";
 import { getPageMetadata, ORG_REF } from "@/lib/seo";
-import { fetchMarkets, fetchProducts, fetchWidget, type TrendingItem } from "@/lib/api";
+import { fetchListings, fetchMarkets, fetchProducts, fetchWidget, type TrendingItem } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
 import HeroSection from "@/components/sections/HeroSection";
 import PriceTicker from "@/components/sections/PriceTicker";
@@ -17,6 +17,7 @@ import SeasonalGuide from "@/components/sections/SeasonalGuide";
 import HomeFaq from "@/components/sections/HomeFaq";
 import MobileHomeHero from "@/components/sections/MobileHomeHero";
 import type { Stat } from "@/components/sections/StatsBarClient";
+import { ListingCard } from "@/components/listings/ListingCard";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -66,10 +67,11 @@ export default async function HomePage({ params }: Props) {
 
   // Ticker: trending (uç değişimler) yerine widget verisi (popüler ürünler,
   // makul haftalık değişim). previous = avgPrice / (1 + changePct/100).
-  const [widget, markets, products] = await Promise.all([
+  const [widget, markets, products, listings] = await Promise.all([
     fetchWidget({ limit: 30 }),
     fetchMarkets(),
     fetchProducts(undefined, undefined, { seoIndex: true }),
+    fetchListings({ limit: 3 }),
   ]);
   const trending: TrendingItem[] = widget
     .filter((w) => w.changePct !== null && Number.isFinite(w.avgPrice) && w.avgPrice > 0)
@@ -134,6 +136,20 @@ export default async function HomePage({ params }: Props) {
         <CitySelector locale={locale} />
         <StatsBar stats={stats} />
         <IndexCta />
+        {listings.items.length ? (
+          <section className="mx-auto max-w-7xl px-6 py-10">
+            <div className="mb-5 flex items-end justify-between gap-4">
+              <div>
+                <h2 className="font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">İlan vitrini</h2>
+                <p className="mt-1 text-sm text-(--color-muted)">Üretici, komisyoncu ve alıcı ilanlarından güncel fırsatlar.</p>
+              </div>
+              <a href="/ilanlar" className="text-sm font-semibold text-(--color-brand)">Tümü</a>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              {listings.items.map((item) => <ListingCard key={item.id} item={item} compact />)}
+            </div>
+          </section>
+        ) : null}
         <SeasonalGuide />
         <FeaturesGrid />
         <HowItWorks />

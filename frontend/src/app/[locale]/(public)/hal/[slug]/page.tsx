@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
-import { fetchPrices, fetchMarkets, fetchFirms } from "@/lib/api";
+import { fetchPrices, fetchMarkets, fetchFirms, fetchListings } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceTable from "@/components/ui/PriceTable";
@@ -13,6 +13,7 @@ import { cityToWeatherSlug } from "@/lib/weather";
 import { getPageMetadata } from "@/lib/seo";
 import { getMarketEditorial } from "@/lib/market-content";
 import FirmCard from "@/components/firms/FirmCard";
+import { ListingCard } from "@/components/listings/ListingCard";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -134,6 +135,9 @@ export default async function HalPage({ params }: Props) {
   const marketFirms = isNational
     ? { items: [] }
     : await fetchFirms({ city: citySlug(market.cityName), type: "komisyoncu", limit: 6 });
+  const marketListings = isNational
+    ? { items: [] }
+    : await fetchListings({ city: citySlug(market.cityName), limit: 6 });
 
   const placeSchema = {
     name: market.name,
@@ -259,6 +263,27 @@ export default async function HalPage({ params }: Props) {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {marketFirms.items.map((firm) => (
               <FirmCard key={firm.id} firm={firm} compact />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {marketListings.items.length > 0 && (
+        <section className="mt-8">
+          <div className="mb-4 flex items-baseline justify-between gap-3 border-b border-(--color-border-soft) pb-3">
+            <div>
+              <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
+                Bu Bölgedeki İlanlar
+              </h2>
+              <p className="mt-1 text-xs text-(--color-muted)">Resmi hal fiyatından ayrı ilan/teklif katmanı.</p>
+            </div>
+            <Link href={`/ilanlar?city=${encodeURIComponent(citySlug(market.cityName))}`} className="font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand)">
+              Tüm ilanlar
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {marketListings.items.map((item) => (
+              <ListingCard key={item.id} item={item} compact />
             ))}
           </div>
         </section>

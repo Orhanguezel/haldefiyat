@@ -151,6 +151,63 @@ export interface FirmListResponse {
   };
 }
 
+export interface Listing {
+  id: number;
+  slug: string;
+  listingType: "satis" | "alim";
+  partyRole: "uretici" | "komisyoncu" | "alici" | "diger";
+  productSlug: string | null;
+  productName: string;
+  categorySlug: string;
+  title: string;
+  description: string | null;
+  quantity: string | null;
+  quantityUnit: string;
+  priceType: "sabit" | "pazarlik" | "hal_endeksli";
+  priceMin: string | null;
+  priceMax: string | null;
+  priceUnit: string;
+  citySlug: string | null;
+  districtSlug: string | null;
+  contactName: string | null;
+  contactPhone: string | null;
+  hidePhone: number | boolean;
+  validUntil: string;
+  status: "pending" | "approved" | "rejected" | "expired" | "closed";
+  isSuspicious: number | boolean;
+  isFeatured: number | boolean;
+  featuredUntil: string | null;
+  viewCount: number;
+  createdAt: string | null;
+}
+
+export interface ListingListResponse {
+  items: Listing[];
+  meta: { total: number; limit: number; page: number };
+}
+
+export interface ListingBoardItem {
+  id: number;
+  slug: string;
+  title: string;
+  price: number;
+}
+
+export interface ListingBoardSide {
+  count: number;
+  median: number | null;
+  top3: ListingBoardItem[];
+}
+
+export interface ListingBoard {
+  product: { slug: string; name: string } | null;
+  city: string | null;
+  sell: ListingBoardSide;
+  buy: ListingBoardSide;
+  spread: number | null;
+  updatedAt?: string;
+}
+
 export interface CityPriceMapItem {
   cityName: string;
   avgPrice: number;
@@ -461,6 +518,48 @@ export async function fetchFirms(params: {
     300,
     { items: [], meta: { total: 0, limit: params.limit ?? 50, offset: params.offset ?? 0 } },
   );
+}
+
+export async function fetchListings(params: {
+  type?: "satis" | "alim";
+  product?: string;
+  city?: string;
+  district?: string;
+  page?: number;
+  limit?: number;
+} = {}): Promise<ListingListResponse> {
+  const qs = buildQuery(params);
+  return safeFetchRaw<ListingListResponse>(
+    `/listings${qs}`,
+    120,
+    { items: [], meta: { total: 0, limit: params.limit ?? 20, page: params.page ?? 1 } },
+  );
+}
+
+export async function fetchListing(slug: string): Promise<Listing | null> {
+  const path = `/listings/${encodeURIComponent(slug)}`;
+  try {
+    const res = await fetch(`${API}${path}`, {
+      next: { revalidate: 60 },
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) return null;
+    const json = (await res.json()) as ItemEnvelope<Listing>;
+    return json.item ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchListingBoard(params: {
+  product?: string | null;
+  city?: string | null;
+}): Promise<ListingBoard | null> {
+  if (!params.product || !params.city) return null;
+  const qs = buildQuery({ product: params.product, city: params.city });
+  return safeFetchRaw<ListingBoard | null>(`/listings/board${qs}`, 120, null);
 }
 
 export async function fetchFirm(slug: string): Promise<Firm | null> {

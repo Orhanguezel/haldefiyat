@@ -101,6 +101,27 @@ export const env = {
   SMTP_USER: process.env.SMTP_USER || "",
   SMTP_PASS: process.env.SMTP_PASS || "",
   SMTP_FROM: process.env.SMTP_FROM || "noreply@haldefiyat.com",
+  SMS: {
+    provider: (process.env.SMS_PROVIDER || "none").toLowerCase() as "none" | "netgsm" | "iletimerkezi" | string,
+    apiKey: process.env.SMS_API_KEY || "",
+    sender: process.env.SMS_SENDER || "",
+    // Netgsm (shopo deseni) — usercode/password/msgheader Netgsm panelinden alinir.
+    // Bos birakilirsa SMS gonderilmez, dev'de kod log'lanir.
+    netgsm: {
+      usercode: process.env.NETGSM_USERCODE || "",
+      password: process.env.NETGSM_PASSWORD || "",
+      msgheader: process.env.NETGSM_MSGHEADER || "",
+      endpoint: process.env.NETGSM_ENDPOINT || "https://api.netgsm.com.tr/sms/send/get",
+    },
+  },
+  // Iyzico — ilan one cikarma odemesi (paketteki shared payments modulu ile).
+  // Kredansiyel kullanici tarafindan sonra girilecek; flag false iken endpoint kapali (503).
+  FEATURE_IYZICO_PAYMENT: process.env.FEATURE_IYZICO_PAYMENT === "true",
+  IYZICO: {
+    apiKey: process.env.IYZICO_API_KEY || "",
+    secretKey: process.env.IYZICO_SECRET_KEY || "",
+    baseUrl: process.env.IYZICO_BASE_URL || "https://sandbox-api.iyzipay.com",
+  },
 
   ETL: {
     cronSchedule: process.env.ETL_CRON_SCHEDULE || "30 7 * * *",

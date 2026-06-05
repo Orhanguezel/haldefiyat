@@ -19,6 +19,7 @@ import { syncInflation } from "@/modules/inflation";
 import { env } from "@/core/env";
 import { runFirmDirectoryEtl } from "@/modules/firms/service";
 import { runFirmDailyPriceReminders } from "@/modules/firms/reminders";
+import { expireListings } from "@/modules/listings";
 import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
 import { submitToIndexNow } from "@/modules/indexnow";
 
@@ -115,8 +116,20 @@ async function runEtlJob(app: FastifyInstance): Promise<void> {
     // ETL tamamlaninca anlik alert kontrolu — sabah veri gelir gelmez kullanicilar uyarilsin
     await runAlertsJob(app);
     await runEtlHealthJob(app);
+    await runListingsExpireJob(app);
   } catch (err) {
     app.log.error({ err }, "[cron:etl] hata");
+  }
+}
+
+async function runListingsExpireJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:listings-expire] suresi gecen ilanlar kapatiliyor");
+  try {
+    const expired = await expireListings();
+    app.log.info({ expired, durationMs: Date.now() - t0 }, "[cron:listings-expire] tamamlandi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:listings-expire] hata");
   }
 }
 
