@@ -27,6 +27,14 @@ const NAV_ENTRIES: ReadonlyArray<NavEntry> = [
   },
   { key: "firms", label: "Firmalar", href: "/firmalar" },
   {
+    key: "listings-group",
+    label: "İlanlar",
+    items: [
+      { key: "listings", label: "Tüm İlanlar", href: "/ilanlar" },
+      { key: "listing-create", label: "İlan Ver", href: "/ilan-ver" },
+    ],
+  },
+  {
     key: "follow-group",
     label: "Takibim",
     items: [

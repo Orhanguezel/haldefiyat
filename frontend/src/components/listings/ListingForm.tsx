@@ -1,15 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { Product } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { CityDistrictSelect } from "@/components/firms/owner/CityDistrictSelect";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "") + "/api/v1";
 
+// Native select'in acilan option listesi dark'ta bozulmasin diye option renkleri token'a sabitlenir.
+const SELECT_CLASS =
+  "min-h-11 rounded-lg border border-(--color-border) bg-(--color-bg) px-3 text-sm text-(--color-foreground) [&_option]:bg-(--color-surface) [&_option]:text-(--color-foreground)";
+
 export function ListingForm({ products }: { products: Product[] }) {
+  const productOptions = useMemo(
+    () => products.map((product) => ({ value: product.slug, label: product.nameTr })),
+    [products],
+  );
+  const [productSlug, setProductSlug] = useState("");
+  const [productName, setProductName] = useState("");
   const [citySlug, setCitySlug] = useState<string | null>(null);
   const [districtSlug, setDistrictSlug] = useState<string | null>(null);
   const [status, setStatus] = useState("");
@@ -54,7 +65,7 @@ export function ListingForm({ products }: { products: Product[] }) {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...body, citySlug, districtSlug, otpToken, hidePhone: body.hidePhone === "on" }),
+      body: JSON.stringify({ ...body, productName, productSlug: productSlug || undefined, citySlug, districtSlug, otpToken, hidePhone: body.hidePhone === "on" }),
     });
     setLoading(false);
     setStatus(res.ok ? "İlan moderasyon için alındı." : "İlan kaydedilemedi. Oturumunuzu kontrol edin.");
@@ -62,22 +73,29 @@ export function ListingForm({ products }: { products: Product[] }) {
 
   return (
     <form action={submit} className="grid gap-4 rounded-[8px] border border-(--color-border) bg-(--color-surface) p-4 md:grid-cols-2">
-      <select name="listingType" className="min-h-11 rounded-lg border border-(--color-border) bg-(--color-bg) px-3 text-sm">
+      <select name="listingType" className={SELECT_CLASS}>
         <option value="satis">Satış ilanı</option>
         <option value="alim">Alım talebi</option>
       </select>
-      <select name="partyRole" className="min-h-11 rounded-lg border border-(--color-border) bg-(--color-bg) px-3 text-sm">
+      <select name="partyRole" className={SELECT_CLASS}>
         <option value="uretici">Üretici</option>
         <option value="komisyoncu">Komisyoncu</option>
         <option value="alici">Alıcı</option>
         <option value="diger">Diğer</option>
       </select>
       <Input name="title" label="Başlık" required minLength={4} className="md:col-span-2" />
-      <Input name="productName" label="Ürün adı" list="listing-products" required />
-      <Input name="productSlug" label="Ürün slug" placeholder="domates" />
-      <datalist id="listing-products">
-        {products.map((product) => <option key={product.slug} value={product.nameTr} />)}
-      </datalist>
+      <div className="md:col-span-2">
+        <SearchableSelect
+          label="Ürün"
+          placeholder="Ürün ara (ör. domates)…"
+          options={productOptions}
+          value={productSlug}
+          onChange={(value) => {
+            setProductSlug(value);
+            setProductName(productOptions.find((option) => option.value === value)?.label ?? "");
+          }}
+        />
+      </div>
       <CityDistrictSelect citySlug={citySlug} districtSlug={districtSlug} required onChange={(v) => {
         setCitySlug(v.citySlug);
         setDistrictSlug(v.districtSlug);
@@ -85,7 +103,7 @@ export function ListingForm({ products }: { products: Product[] }) {
       <Input name="validUntil" label="Geçerlilik tarihi" type="date" required />
       <Input name="quantity" label="Miktar" type="number" step="0.01" />
       <Input name="quantityUnit" label="Miktar birimi" defaultValue="kg" />
-      <select name="priceType" className="min-h-11 rounded-lg border border-(--color-border) bg-(--color-bg) px-3 text-sm">
+      <select name="priceType" className={SELECT_CLASS}>
         <option value="sabit">Sabit fiyat</option>
         <option value="pazarlik">Pazarlık</option>
         <option value="hal_endeksli">Hal endeksli</option>
