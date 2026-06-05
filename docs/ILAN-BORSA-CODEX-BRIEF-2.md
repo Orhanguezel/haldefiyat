@@ -1,6 +1,6 @@
 # Codex Brief #2 — İlan + Borsa Modülü (Faz 1 + Faz 2)
 
-> Çeklist: [`ILAN-BORSA-MODULU-PLAN.md`](./ILAN-BORSA-MODULU-PLAN.md) · Faz 0 brief: [`ILAN-BORSA-CODEX-BRIEF.md`](./ILAN-BORSA-CODEX-BRIEF.md)
+> Çeklist: [`ILAN-BORSA-MODULU-PLAN.md`](../ILAN-BORSA-MODULU-PLAN.md) · Faz 0 brief: [`ILAN-BORSA-CODEX-BRIEF.md`](./ILAN-BORSA-CODEX-BRIEF.md)
 > Faz 0 bitti ve review geçti. Bu brief kalan **Faz 1 + Faz 2** implementasyonudur.
 > Tüm 🟣 tasarım kararları verildi (aşağıda). Faz 3 (işlem komisyonu) DONDURULMUŞ — dokunma.
 

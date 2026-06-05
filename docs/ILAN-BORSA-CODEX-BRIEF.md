@@ -1,6 +1,6 @@
 # Codex Brief — İlan + Canlı Borsa Modülü (Faz 0)
 
-> Çeklist: [`ILAN-BORSA-MODULU-PLAN.md`](./ILAN-BORSA-MODULU-PLAN.md)
+> Çeklist: [`ILAN-BORSA-MODULU-PLAN.md`](../ILAN-BORSA-MODULU-PLAN.md)
 > Şema (yazıldı, dokunma): `backend/src/db/seed/sql/035_listings_schema.sql`
 >
 > **Bu brief Faz 0 kapsamıdır.** OTP, Telegram parse, canlı borsa = Faz 1-2 (kapsam dışı).

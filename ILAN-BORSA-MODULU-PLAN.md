@@ -2,7 +2,7 @@
 
 > **Durum:** Tasarım onaylandı (2026-06-05). Veri modeli yazıldı
 > (`backend/src/db/seed/sql/035_listings_schema.sql`).
-> Codex brief: Faz 0 → [`ILAN-BORSA-CODEX-BRIEF.md`](./ILAN-BORSA-CODEX-BRIEF.md) · Faz 1-2 → [`ILAN-BORSA-CODEX-BRIEF-2.md`](./ILAN-BORSA-CODEX-BRIEF-2.md)
+> Codex brief: Faz 0 → [`docs/ILAN-BORSA-CODEX-BRIEF.md`](./docs/ILAN-BORSA-CODEX-BRIEF.md) · Faz 1-2 → [`docs/ILAN-BORSA-CODEX-BRIEF-2.md`](./docs/ILAN-BORSA-CODEX-BRIEF-2.md)
 >
 > **Rol etiketleri:** 🟣 **Claude** (mimari/karar/review) · 🟢 **Codex** (implementasyon) ·
 > 🔵 **Orhan/Atakan** (operasyon, seed, saha ağı, sağlayıcı kararı)
