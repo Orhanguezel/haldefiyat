@@ -28,6 +28,7 @@ import {
 import { readFeaturedPricing } from "./settings";
 import { verifyOtpToken } from "./otp";
 import { notifyMatches, notifyAdminNewListing } from "./matching";
+import { env } from "@/core/env";
 
 function idParam(req: FastifyRequest<{ Params: { id: string } }>) {
   const id = Number(req.params.id);
@@ -88,6 +89,10 @@ export async function createOwnerListing(req: FastifyRequest, reply: FastifyRepl
     const userId = getAuthUserId(req);
     const parsed = listingCreateSchema.parse(req.body ?? {});
     const otpPhone = verifyOtpToken((req.body as { otpToken?: string } | undefined)?.otpToken);
+    // Telefon OTP zorunlulugu config'den (varsayilan kapali). Acilirsa dogrulanmamis telefon reddedilir.
+    if (env.LISTING_REQUIRE_PHONE_OTP && !otpPhone) {
+      return reply.status(400).send({ error: { message: "Telefon doğrulaması gerekli. Lütfen SMS kodunu doğrulayın." } });
+    }
     const item = await createListing({ ...parsed, contactPhone: otpPhone ?? parsed.contactPhone }, userId, {
       source: "user",
       phoneVerified: otpPhone ? 1 : 0,

@@ -116,6 +116,9 @@ export const env = {
       endpoint: process.env.NETGSM_ENDPOINT || "https://api.netgsm.com.tr/sms/send/get",
     },
   },
+  // Ilan vermek icin telefon OTP dogrulamasi zorunlu mu?
+  // Varsayilan false: telefon alinir ama dogrulanmaz (Netgsm canliyken true yapilabilir).
+  LISTING_REQUIRE_PHONE_OTP: process.env.LISTING_REQUIRE_PHONE_OTP === "true",
   // Iyzico — ilan one cikarma odemesi (paketteki shared payments modulu ile).
   // Kredansiyel kullanici tarafindan sonra girilecek; flag false iken endpoint kapali (503).
   FEATURE_IYZICO_PAYMENT: process.env.FEATURE_IYZICO_PAYMENT === "true",
