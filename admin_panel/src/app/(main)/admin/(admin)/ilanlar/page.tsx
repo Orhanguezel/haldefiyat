@@ -18,6 +18,8 @@ type Inquiry = { id: number; listingId: number; name: string | null; phone: stri
 type ListingResponse = { items: Listing[]; summary?: { active: number; pending: number; rejected: number } };
 type Pricing = Record<'daily' | 'weekly' | 'monthly', { days: number; price: number }>;
 const PKG_LABEL: Record<'daily' | 'weekly' | 'monthly', string> = { daily: 'Günlük', weekly: 'Haftalık', monthly: 'Aylık' };
+const STATUS_LABEL: Record<string, string> = { pending: 'Bekleyen', approved: 'Onaylı', rejected: 'Reddedilen', expired: 'Süresi doldu', closed: 'Kapalı', all: 'Tümü' };
+const TYPE_LABEL: Record<string, string> = { satis: 'Satış ilanı', alim: 'Alım talebi' };
 
 async function api(path: string, init: RequestInit = {}) {
   const token = tokenStore.get();
@@ -103,7 +105,7 @@ export default function ListingsAdminPage() {
           <div className="flex flex-wrap gap-2">
             {(['pending', 'approved', 'rejected', 'all'] as const).map((item) => (
               <Button key={item} size="sm" variant={status === item ? 'default' : 'outline'} onClick={() => setStatus(item)}>
-                {item}
+                {STATUS_LABEL[item]}
               </Button>
             ))}
           </div>
@@ -124,8 +126,8 @@ export default function ListingsAdminPage() {
                       {item.productName} · {item.citySlug ?? 'TR'} {item.isSuspicious ? '· şüpheli fiyat' : ''} {item.isFeatured ? '· öne çıkan' : ''}
                     </div>
                   </TableCell>
-                  <TableCell>{item.listingType}</TableCell>
-                  <TableCell>{item.status}</TableCell>
+                  <TableCell>{TYPE_LABEL[item.listingType] ?? item.listingType}</TableCell>
+                  <TableCell>{STATUS_LABEL[item.status] ?? item.status}</TableCell>
                   <TableCell>{item.validUntil}</TableCell>
                   <TableCell>{item.contactPhone ?? '—'}</TableCell>
                   <TableCell className="space-x-1">
