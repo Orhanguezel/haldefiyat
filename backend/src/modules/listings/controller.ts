@@ -27,7 +27,7 @@ import {
 } from "./validation";
 import { readFeaturedPricing } from "./settings";
 import { verifyOtpToken } from "./otp";
-import { notifyMatches } from "./matching";
+import { notifyMatches, notifyAdminNewListing } from "./matching";
 
 function idParam(req: FastifyRequest<{ Params: { id: string } }>) {
   const id = Number(req.params.id);
@@ -92,6 +92,7 @@ export async function createOwnerListing(req: FastifyRequest, reply: FastifyRepl
       source: "user",
       phoneVerified: otpPhone ? 1 : 0,
     });
+    if (item) void notifyAdminNewListing(item);
     return reply.status(201).send({ item });
   } catch (err) {
     return handleRouteError(reply, req, err, "create_owner_listing");

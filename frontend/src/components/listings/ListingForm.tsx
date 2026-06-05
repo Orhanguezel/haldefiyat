@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { Product } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { CityDistrictSelect } from "@/components/firms/owner/CityDistrictSelect";
+import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "") + "/api/v1";
 
@@ -15,6 +17,7 @@ const SELECT_CLASS =
   "min-h-11 rounded-lg border border-(--color-border) bg-(--color-bg) px-3 text-sm text-(--color-foreground) [&_option]:bg-(--color-surface) [&_option]:text-(--color-foreground)";
 
 export function ListingForm({ products }: { products: Product[] }) {
+  const { user, loading: authLoading } = useAuthSession();
   const productOptions = useMemo(
     () => products.map((product) => ({ value: product.slug, label: product.nameTr })),
     [products],
@@ -71,6 +74,22 @@ export function ListingForm({ products }: { products: Product[] }) {
     setStatus(res.ok ? "İlan moderasyon için alındı." : "İlan kaydedilemedi. Oturumunuzu kontrol edin.");
   }
 
+  if (authLoading) {
+    return <p className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-6 text-sm text-(--color-muted)">Yükleniyor…</p>;
+  }
+  if (!user) {
+    return (
+      <div className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-8 text-center">
+        <h2 className="mb-2 text-lg font-semibold text-(--color-foreground)">İlan vermek için üye girişi gerekli</h2>
+        <p className="mb-5 text-sm text-(--color-muted)">İlanların yönetimi ve iletişim için ücretsiz bir hesap yeterli. Bilgilerin formda otomatik dolar.</p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link href="/giris?next=/ilan-ver"><Button>Giriş Yap</Button></Link>
+          <Link href="/kayit?next=/ilan-ver"><Button variant="secondary">Ücretsiz Üye Ol</Button></Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <form action={submit} className="grid gap-4 rounded-[8px] border border-(--color-border) bg-(--color-surface) p-4 md:grid-cols-2">
       <select name="listingType" className={SELECT_CLASS}>
@@ -110,8 +129,8 @@ export function ListingForm({ products }: { products: Product[] }) {
       </select>
       <Input name="priceMin" label="Fiyat" type="number" step="0.01" />
       <Input name="priceUnit" label="Fiyat birimi" defaultValue="kg" />
-      <Input name="contactName" label="İletişim adı" />
-      <Input name="contactPhone" label="Telefon" />
+      <Input name="contactName" label="İletişim adı" defaultValue={user.full_name ?? ""} />
+      <Input name="contactPhone" label="Telefon" defaultValue={user.phone ?? ""} required />
       <div className="grid gap-2">
         <Input value={otpCode} onChange={(event) => setOtpCode(event.target.value)} label="SMS kodu" inputMode="numeric" maxLength={6} />
         <div className="flex gap-2">

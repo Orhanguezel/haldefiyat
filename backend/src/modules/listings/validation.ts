@@ -68,6 +68,10 @@ export const listingCreateSchema = listingFields.superRefine((data, ctx) => {
   validateLocation(data, ctx);
   validateDates(data, ctx);
   validatePrice(data, ctx);
+  // Web formundan ilan vermek icin telefon zorunlu (Telegram kanali bu semadan gecmez).
+  if (!data.contactPhone || data.contactPhone.trim().length < 7) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["contactPhone"], message: "phone_required" });
+  }
 });
 
 export const listingPatchSchema = listingFields.partial().superRefine((data, ctx) => {

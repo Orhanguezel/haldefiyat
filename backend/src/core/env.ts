@@ -74,6 +74,8 @@ export const env = {
   TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || "",
   // Kamuya açık Telegram kanalı — günlük fiyat paylaşımları buraya gönderilir
   TELEGRAM_CHANNEL_ID: process.env.TELEGRAM_CHANNEL_ID || "",
+  // Admin bildirim chat'i — yeni ilan moderasyon uyarisi buraya gider (bos ise atlanir)
+  TELEGRAM_ADMIN_CHAT_ID: process.env.TELEGRAM_ADMIN_CHAT_ID || "",
   // Inbound bot webhook için Telegram secret_token (header X-Telegram-Bot-Api-Secret-Token)
   TELEGRAM_WEBHOOK_SECRET: process.env.TELEGRAM_WEBHOOK_SECRET || "",
   // setWebhook çağrısında kullanılır (varsayılan webhook URL'sinin tabanı)

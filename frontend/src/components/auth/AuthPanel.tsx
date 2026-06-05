@@ -84,6 +84,7 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [signupRole, setSignupRole] = useState<"customer" | "komisyoncu">("customer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -132,6 +133,7 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
           email,
           password,
           fullName,
+          phone,
           role: signupRole,
         });
       }
@@ -199,6 +201,16 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
                   value={fullName}
                   onChange={(event) => setFullName(event.target.value)}
                   autoComplete="name"
+                  required
+                />
+                <Input
+                  label="Telefon"
+                  type="tel"
+                  placeholder="05XX XXX XX XX"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  autoComplete="tel"
+                  required
                 />
                 <div className="space-y-2">
                   <div className="text-[13px] font-semibold text-(--color-foreground)">Hesap tipi</div>

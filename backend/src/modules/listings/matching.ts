@@ -3,8 +3,21 @@ import { mysqlTable, varchar, tinyint, datetime } from "drizzle-orm/mysql-core";
 import { sendBereketMail } from "@agro/shared-backend/core/mail";
 import { users } from "@agro/shared-backend/modules/auth/schema";
 import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
+import { env } from "@/core/env";
 import { db } from "@/db/client";
 import { hfListings } from "./schema";
+
+// Yeni ilan olusunca admin'e moderasyon uyarisi (env'de admin chat tanimliysa).
+export async function notifyAdminNewListing(listing: typeof hfListings.$inferSelect) {
+  const adminChat = env.TELEGRAM_ADMIN_CHAT_ID;
+  if (!adminChat) return;
+  const type = listing.listingType === "alim" ? "Alım talebi" : "Satış ilanı";
+  const text =
+    `🆕 Yeni ilan (moderasyon bekliyor)\n${type}: ${listing.title}\n` +
+    `Ürün: ${listing.productName} · İl: ${listing.citySlug ?? "-"}\n` +
+    `Tel: ${listing.contactPhone ?? "-"}`;
+  await telegramSendRaw({ chatId: adminChat, text }).catch(() => {});
+}
 
 const daily = new Map<string, { day: string; count: number }>();
 const subscribers = mysqlTable("newsletter_subscribers", {
