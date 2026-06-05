@@ -7,17 +7,19 @@ interface Props extends InputHTMLAttributes<HTMLInputElement> {
   hint?: string;
 }
 
-export function Input({ label, error, hint, className, id, ...rest }: Props) {
+export function Input({ label, error, hint, className, id, required, ...rest }: Props) {
   const inputId = id ?? label?.toLowerCase().replace(/\s+/g, "-");
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
         <label htmlFor={inputId} className="text-xs font-medium text-foreground">
           {label}
+          {required ? <span className="text-danger"> *</span> : null}
         </label>
       )}
       <input
         id={inputId}
+        required={required}
         {...rest}
         className={cn(
           "w-full px-4 py-2.5 rounded-lg border bg-background text-foreground text-sm outline-none transition-all",

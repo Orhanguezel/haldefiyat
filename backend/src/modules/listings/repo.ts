@@ -1,9 +1,22 @@
 import { randomUUID } from "node:crypto";
-import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfPriceHistory, hfProducts } from "@/db/schema";
 import { buildListingSlug } from "./slug";
-import { hfListingInquiries, hfListings } from "./schema";
+import { hfListingImages, hfListingInquiries, hfListings } from "./schema";
+
+async function imagesByListing(ids: number[]): Promise<Map<number, string[]>> {
+  const map = new Map<number, string[]>();
+  if (!ids.length) return map;
+  const rows = await db.select({ listingId: hfListingImages.listingId, url: hfListingImages.url })
+    .from(hfListingImages).where(inArray(hfListingImages.listingId, ids)).orderBy(hfListingImages.displayOrder);
+  for (const row of rows) {
+    const arr = map.get(row.listingId) ?? [];
+    arr.push(row.url);
+    map.set(row.listingId, arr);
+  }
+  return map;
+}
 import type { ListingCreateInput, ListingPatchInput } from "./validation";
 
 type Status = "pending" | "approved" | "rejected" | "expired" | "closed";
@@ -97,10 +110,12 @@ function whereFor(filters: ListingFilters) {
 
 export async function listListings(filters: ListingFilters) {
   const where = whereFor(filters);
-  return db.select().from(hfListings).where(where).orderBy(
+  const rows = await db.select().from(hfListings).where(where).orderBy(
     desc(sql`${hfListings.isFeatured} = 1 AND ${hfListings.featuredUntil} > CURRENT_TIMESTAMP(3)`),
     desc(hfListings.createdAt),
   ).limit(Math.min(filters.limit ?? 20, 100)).offset(filters.offset ?? 0);
+  const imgs = await imagesByListing(rows.map((row) => row.id));
+  return rows.map((row) => ({ ...row, images: imgs.get(row.id) ?? [] }));
 }
 
 export async function countListings(filters: ListingFilters) {
@@ -112,7 +127,9 @@ export async function getListingBySlug(slug: string, publicOnly = true) {
   const clauses = [eq(hfListings.slug, slug)];
   if (publicOnly) clauses.push(eq(hfListings.status, "approved"), gte(hfListings.validUntil, sql`CURRENT_DATE()`));
   const [row] = await db.select().from(hfListings).where(and(...clauses)).limit(1);
-  return row ?? null;
+  if (!row) return null;
+  const images = (await imagesByListing([row.id])).get(row.id) ?? [];
+  return { ...row, images };
 }
 
 export async function createListing(input: ListingCreateInput, userId: string | null, opts: { source: "user" | "assisted" | "telegram"; createdBy?: string | null; status?: Status; phoneVerified?: number; raw?: Record<string, unknown> }) {
@@ -132,6 +149,11 @@ export async function createListing(input: ListingCreateInput, userId: string | 
   const id = Number(result[0]?.insertId ?? 0);
   if (!id) return null;
   await db.update(hfListings).set({ slug: buildListingSlug({ id, productSlug: values.productSlug, title: input.title, citySlug: input.citySlug }) }).where(eq(hfListings.id, id));
+  if (input.images?.length) {
+    await db.insert(hfListingImages).values(
+      input.images.slice(0, 6).map((url, index) => ({ listingId: id, url, displayOrder: index })),
+    );
+  }
   return getListingById(id);
 }
 

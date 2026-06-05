@@ -179,6 +179,7 @@ export interface Listing {
   featuredUntil: string | null;
   viewCount: number;
   createdAt: string | null;
+  images?: string[];
 }
 
 export interface ListingListResponse {

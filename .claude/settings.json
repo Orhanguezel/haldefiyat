@@ -198,7 +198,10 @@
       "Bash(scp -q frontend/src/lib/api.ts vps-vistainsaat:__TRACKED_VAR__/frontend/src/lib/api.ts)",
       "Bash(scp -q frontend/src/components/sections/TurkeyMapClient.tsx vps-vistainsaat:__TRACKED_VAR__/frontend/src/components/sections/TurkeyMapClient.tsx)",
       "Bash(scp -q 'frontend/src/app/[locale]/\\(public\\)/harita/page.tsx' 'vps-vistainsaat:__TRACKED_VAR__/frontend/src/app/[locale]/\\(public\\)/harita/page.tsx')",
-      "Bash(echo \"exit: $?\")"
+      "Bash(echo \"exit: $?\")",
+      "Bash(grep -E \"\\\\.\\(tsx?|jsx?\\)$\")",
+      "Bash(grep -E \"\\\\.\\(ts|js\\)$\")",
+      "Bash(exit)"
     ],
     "additionalDirectories": [
       "/home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/(public)",

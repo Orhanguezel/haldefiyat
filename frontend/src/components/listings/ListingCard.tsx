@@ -26,6 +26,12 @@ export function ListingCard({ item, compact = false }: { item: Listing; compact?
           </span>
         ) : null}
       </div>
+      {item.images?.[0] ? (
+        <Link href={`/ilan/${item.slug}`} className="mt-3 block overflow-hidden rounded-[6px] border border-(--color-border)">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={item.images[0]} alt={item.title} className="h-40 w-full object-cover" />
+        </Link>
+      ) : null}
       <Link href={`/ilan/${item.slug}`} className="mt-3 block">
         <h2 className="line-clamp-2 text-lg font-bold text-(--color-foreground)">{item.title}</h2>
       </Link>

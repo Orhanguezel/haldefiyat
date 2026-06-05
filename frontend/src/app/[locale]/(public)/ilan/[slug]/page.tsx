@@ -58,6 +58,14 @@ export default async function ListingDetailPage({ params }: Props) {
           </div>
           <h1 className="font-(family-name:--font-display) text-3xl font-bold text-(--color-foreground)">{listing.title}</h1>
           <p className="mt-2 text-sm text-(--color-muted)">{listing.productName} · {listing.citySlug ?? "Türkiye"}</p>
+          {listing.images?.length ? (
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {listing.images.map((url) => (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img key={url} src={url} alt={listing.title} className="h-40 w-full rounded-[8px] border border-(--color-border) object-cover" />
+              ))}
+            </div>
+          ) : null}
           <dl className="mt-6 grid gap-4 rounded-[8px] border border-(--color-border) bg-(--color-surface) p-4 sm:grid-cols-3">
             <div><dt className="text-xs text-(--color-faint)">Miktar</dt><dd className="font-semibold">{listing.quantity ? `${listing.quantity} ${listing.quantityUnit}` : "Belirtilmedi"}</dd></div>
             <div><dt className="text-xs text-(--color-faint)">Fiyat</dt><dd className="font-semibold">{price(listing)}</dd></div>

@@ -53,6 +53,7 @@ const listingFields = z.object({
   contactName: z.string().trim().max(255).optional().nullable(),
   contactPhone: z.string().trim().max(128).optional().nullable(),
   hidePhone: z.coerce.boolean().default(false),
+  images: z.array(z.string().trim().min(1).max(512)).max(6).optional(),
   validUntil: dateOnly,
 });
 
