@@ -256,8 +256,8 @@ export default async function HalPage({ params }: Props) {
             <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
               Bu Haldeki Firmalar
             </h2>
-            <Link href={`/firmalar?city=${encodeURIComponent(citySlug(market.cityName))}`} className="font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand)">
-              Tüm firmalar
+            <Link href={`/firmalar/${citySlug(market.cityName)}`} className="font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand)">
+              Bu ilin komisyoncuları
             </Link>
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">

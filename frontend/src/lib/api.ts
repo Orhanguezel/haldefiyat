@@ -102,6 +102,7 @@ export interface Firm {
   status?: "pending" | "approved" | "rejected";
   description?: string | null;
   claimStatus?: "unclaimed" | "pending" | "verified";
+  seoIndex?: number | boolean;
   firmType: "komisyoncu" | "soguk_hava" | "nakliye" | "zirai_ilac";
   categories: string[] | null;
   products?: FirmProduct[];
@@ -151,6 +152,18 @@ export interface FirmListResponse {
     limit: number;
     offset: number;
   };
+}
+
+export interface FirmCityAggregate {
+  citySlug: string;
+  cityName: string;
+  total: number;
+  byType: Record<Firm["firmType"], number>;
+}
+
+export interface FirmTypeAggregate {
+  firmType: Firm["firmType"];
+  total: number;
 }
 
 export interface Listing {
@@ -528,6 +541,16 @@ export async function fetchFirms(params: {
     300,
     { items: [], meta: { total: 0, limit: params.limit ?? 50, offset: params.offset ?? 0 } },
   );
+}
+
+export async function fetchFirmCities(): Promise<FirmCityAggregate[]> {
+  const data = await safeFetchRaw<{ items: FirmCityAggregate[] }>("/firms/cities", 300, { items: [] });
+  return data.items;
+}
+
+export async function fetchFirmTypes(): Promise<FirmTypeAggregate[]> {
+  const data = await safeFetchRaw<{ items: FirmTypeAggregate[] }>("/firms/types", 300, { items: [] });
+  return data.items;
 }
 
 export async function fetchListings(params: {

@@ -30,6 +30,17 @@ interface FirmSitemapItem {
   address?: string | null;
   phone?: string | null;
   contactPerson?: string | null;
+  seoIndex?: number | boolean;
+}
+
+interface FirmCitySitemapItem {
+  citySlug: string;
+  total: number;
+}
+
+interface FirmTypeSitemapItem {
+  firmType: "komisyoncu" | "soguk_hava" | "nakliye" | "zirai_ilac";
+  total: number;
 }
 
 async function fetchActiveProducts(): Promise<PriceSitemapItem[]> {
@@ -90,14 +101,49 @@ async function fetchFirms(): Promise<FirmSitemapItem[]> {
       const total: number | undefined = data?.meta?.total;
       if (items.length < PAGE || (typeof total === "number" && offset + items.length >= total)) break;
     }
-    return all.filter((firm) => firm.slug && firm.name && firm.citySlug && (firm.address || firm.phone || firm.contactPerson));
+    // Firmalar seo_index=1 olana dek sitemap disi; kesif hub'lardan.
+    return all.filter((firm) => firm.slug && (firm.seoIndex === true || firm.seoIndex === 1));
   } catch {
-    return all.filter((firm) => firm.slug && firm.name && firm.citySlug && (firm.address || firm.phone || firm.contactPerson));
+    return all.filter((firm) => firm.slug && (firm.seoIndex === true || firm.seoIndex === 1));
+  }
+}
+
+async function fetchFirmCities(): Promise<FirmCitySitemapItem[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/firms/cities`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.items ?? data.data ?? []) as FirmCitySitemapItem[];
+  } catch {
+    return [];
+  }
+}
+
+async function fetchFirmTypes(): Promise<FirmTypeSitemapItem[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/firms/types`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.items ?? data.data ?? []) as FirmTypeSitemapItem[];
+  } catch {
+    return [];
   }
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, markets, firms] = await Promise.all([fetchActiveProducts(), fetchMarkets(), fetchFirms()]);
+  const [products, markets, firms, firmCities, firmTypes] = await Promise.all([
+    fetchActiveProducts(),
+    fetchMarkets(),
+    fetchFirms(),
+    fetchFirmCities(),
+    fetchFirmTypes(),
+  ]);
   const now = new Date().toISOString().split("T")[0];
 
   const publicPages: MetadataRoute.Sitemap = [
@@ -148,6 +194,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.55,
   }));
 
+  const firmCityHubs: MetadataRoute.Sitemap = firmCities
+    .filter((city) => city.citySlug && city.total >= 5)
+    .map((city) => ({
+      url: `${SITE_URL}/firmalar/${city.citySlug}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.72,
+    }));
+
+  const typeSlug: Record<FirmTypeSitemapItem["firmType"], string> = {
+    komisyoncu: "komisyoncu",
+    soguk_hava: "soguk-hava",
+    nakliye: "nakliye",
+    zirai_ilac: "zirai-ilac",
+  };
+  const firmTypeHubs: MetadataRoute.Sitemap = firmTypes
+    .filter((type) => type.total > 0)
+    .map((type) => ({
+      url: `${SITE_URL}/firmalar/${typeSlug[type.firmType]}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: type.firmType === "komisyoncu" ? 0.74 : 0.68,
+    }));
+
   const analizPages: MetadataRoute.Sitemap = getSonMakaleler(100).map((m) => ({
     url: `${SITE_URL}/analiz/${m.slug}`,
     lastModified: m.tarih ? new Date(m.tarih) : now,
@@ -155,5 +225,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...publicPages, ...productPages, ...marketPages, ...firmPages, ...analizPages];
+  return [...publicPages, ...productPages, ...marketPages, ...firmCityHubs, ...firmTypeHubs, ...firmPages, ...analizPages];
 }

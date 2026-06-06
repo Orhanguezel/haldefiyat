@@ -23,9 +23,11 @@ import {
   getLatestFirmPrices,
   adminUpdateFirm,
   getFirmBySlug,
+  listFirmCityAggregates,
   listFirmClaims,
   listFirmDeals,
   listFirms,
+  listFirmTypeAggregates,
   listFirmSponsorships,
   listStaleFirms,
   moderateFirmClaim,
@@ -243,6 +245,14 @@ export async function registerFirmsPublic(app: FastifyInstance) {
       countFirms(parsed.data),
     ]);
     return reply.send({ items, meta: { total, limit: parsed.data.limit ?? 50, offset: parsed.data.offset ?? 0 } });
+  });
+
+  app.get("/firms/cities", async () => {
+    return { items: await listFirmCityAggregates() };
+  });
+
+  app.get("/firms/types", async () => {
+    return { items: await listFirmTypeAggregates() };
   });
 
   app.get("/firms/me", { onRequest: [requireAuth] }, async (req, reply) => {

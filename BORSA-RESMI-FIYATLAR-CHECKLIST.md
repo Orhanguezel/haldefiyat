@@ -27,13 +27,13 @@
 
 ---
 
-## ⚠️ DURUM (2026-06-06) — KOD YAZILDI, DOĞRULANMADI / DEPLOY EDİLMEDİ
+## ✅ DURUM (2026-06-06) — FAZ A DOĞRULANDI / DEPLOY EDİLDİ
 
-Codex Faz A kodunu yazdı (seed/şema/parser/MCP/frontend — §3-§9 ☑). **AMA henüz:**
-- ❌ `bun run build && bun run db:seed:hal:fresh` **lokal çalıştırılmadı** — seed gerçekten kuruyor mu doğrulanmadı.
-- ❌ `/urun/bugday|arpa|misir|aycicegi|pamuk` **404→200 doğrulanmadı** (seed + deploy gerek).
-- ❌ Canlı PDF (TMO bülten) / JS (Polatlı) extraction gerçek veriyle test edilmedi — parser var, doğrulama yok.
-- ❌ **Deploy yapılmadı.**
+Codex Faz A kodunu yazdı (seed/şema/parser/MCP/frontend — §3-§9 ☑) ve doğrulama kapısını geçti:
+- ✅ `backend bun run build`, `db:seed:hal:fresh`, `frontend bun run build` temiz. **☑ Codex 2026-06-06**
+- ✅ `/urun/bugday|arpa|misir|aycicegi|pamuk` lokal 200; TMO resmi alım ve borsa serbest fiyat bölümleri ayrı etiketli. **☑ Codex 2026-06-06**
+- ✅ Git deploy yapıldı: local commit/push → VPS `git fetch + reset --hard origin/main` → backend build + `pm2 reload hal-backend` → frontend/admin build + `pm2 restart hal-frontend hal-admin --update-env`. **☑ Codex 2026-06-06**
+- ⚠️ Canlı PDF (TMO bülten) / JS (Polatlı) extraction gerçek veriyle test edilmedi — kaynaklar şimdilik `defaultEnabled:false`.
 
 > **🚧 DOĞRULAMA KAPISI (deploy ÖNCESİ ŞART):** `db:seed:hal:fresh` temiz çalışsın →
 > `bun run build` temiz → `/urun/bugday` **200** + TMO alım/borsa **ayrı etiketli** → SONRA git deploy
@@ -42,7 +42,7 @@ Codex Faz A kodunu yazdı (seed/şema/parser/MCP/frontend — §3-§9 ☑). **AM
 > Orhan §2 teyidi + canlı doğrulama sonrası açılır.
 
 **Sıradaki paket:** Firma SEO Faz A → [`docs/codex-briefs/firma-seo.md`](docs/codex-briefs/firma-seo.md)
-(il hub'ları "{il} komisyoncu" + tekil firma noindex). Borsa doğrulama+deploy bitince alınır.
+(il hub'ları "{il} komisyoncu" + tekil firma noindex). **☑ Codex 2026-06-06:** F1-F3 implement edildi; build + fresh seed doğrulaması geçti.
 
 ---
 
@@ -183,7 +183,7 @@ ve agent/dev erişimi sağlar.
 - [ ] **C6.** Fiyat-tipi doğruluk kurallarını (§3) UI kabul kriteri olarak netleştir (QA checklist).
 
 ### 🛠️ Codex (implement — C4 brief'i sonrası)
-- [x] **X1.** Seed: `hf_markets.market_type` kolonu (CREATE TABLE) + market kayıtları + yeni kategoriler + MVP 5 ürün (seo_index=1, is_active=1). `db:seed:*:fresh` ile doğrula. **☑ Codex 2026-06-06:** seed/schema hazır; lokal DB seed doğrulaması çalıştırılmadı.
+- [x] **X1.** Seed: `hf_markets.market_type` kolonu (CREATE TABLE) + market kayıtları + yeni kategoriler + MVP 5 ürün (seo_index=1, is_active=1). `db:seed:*:fresh` ile doğrula. **☑ Codex 2026-06-06:** fresh seed doğrulandı; 5 market + MVP 5 ürün `is_active=1`.
 - [x] **X2.** Ortak borsa parser modülü `modules/etl/sources/borsa/` — TMO alım (statik/yıllık) parser. **☑ Codex 2026-06-06**
 - [ ] **X3.** `tmo_piyasa_bulteni` PDF parser (`responseShape: tmo_pdf_bulten`) — ürün×borsa×min/max/ort/birim, TL/ton→TL/kg normalize. **Codex notu 2026-06-06:** responseShape + text parser var; canlı PDF text extraction doğrulaması açık.
 - [ ] **X4.** Polatlı borsa (Scrapling dynamic) + İzmir pamuk parser. **Codex notu 2026-06-06:** kaynak/parser kayıtları var; canlı JS/PDF doğrulaması açık.
@@ -198,6 +198,17 @@ ve agent/dev erişimi sağlar.
 - [ ] **O1.** §2 kaynak URL + format + robots/ToS teyidi (önce MVP 5 ürün).
 - [ ] **O2.** Atakan ile borsa/TMO **resmi veri ortaklığı/feed** görüşmesi (scrape alternatifi).
 - [ ] **O3.** TMO alım fiyatı yıllık değerleri doğrula (hasat dönemi güncellenince).
+
+---
+
+## 9.1 Firma SEO Faz A — docs/codex-briefs/firma-seo.md
+
+- [x] **F1.** `hf_firms.seo_index` seed CREATE TABLE + Drizzle schema eklendi; default 0, `hf_firms_seo_idx` var. Tekil firma robots artık `firm.seoIndex===1`; firmalar sitemap'te yalnız `seoIndex=1`. **☑ Codex 2026-06-06:** fresh seed ile kolon/default doğrulandı; canlı eski şemada kırılmaması için API kolon yoksa güvenli `0` döner.
+- [x] **F2.** Hub backend endpoint'leri eklendi: `/api/v1/firms/cities`, `/api/v1/firms/types`. Frontend `/firmalar/{sehir}` ve `/firmalar/{tip}` route'u eklendi; tip slug çakışması sabit setle çözülüyor. **☑ Codex 2026-06-06:** `/firmalar/mersin`, `/firmalar/antalya`, `/firmalar/komisyoncu` lokal 200.
+- [x] **F2.d.** Şehir hub SEO niyeti uygulandı: title `{İl} Hal Komisyoncuları 2026 — {N} Firma, İletişim & Adres`, H1 `{İl} Hal Komisyoncuları ve Firmaları`, özgün giriş + `{il} hali` fiyat linki. `/hal/{il-hali}` → `/firmalar/{il}` çapraz link eklendi. **☑ Codex 2026-06-06**
+- [x] **F3.** Sitemap hub URL'lerini üretir: `/firmalar/{sehir}` cities endpoint'inden (`total>=5`) + `/firmalar/{tip}` types endpoint'inden; tekil firma URL'leri `seoIndex=1` olana dek dışarıda. **☑ Codex 2026-06-06**
+- [x] **F5 kalite kuralı kodda.** `listFirmSeoCandidates()` gerçek ürün/uzun açıklama/verified claim barajını kodlar; toplu AI açıklaması üretilmedi. **☑ Codex 2026-06-06**
+- [x] **Firma SEO doğrulama.** `backend bun run build`, `frontend bun run build`, `db:seed:hal:fresh` temiz; `hf_firms.seo_index` default 0 doğrulandı. **☑ Codex 2026-06-06**
 
 ---
 

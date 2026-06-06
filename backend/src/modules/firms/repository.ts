@@ -2,7 +2,70 @@ import { and, asc, desc, eq, like, or, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { db } from "@/db/client";
 import { hfFirmClaims, hfFirmDeals, hfFirmPrices, hfFirmProducts, hfFirms, hfFirmSponsorships } from "@/db/schema";
+import { slugifyTr, TURKEY_CITIES } from "@/data/turkey-city-slugs";
 import type { FetchedFirm, FirmListFilters } from "./types";
+
+type FirmType = "komisyoncu" | "soguk_hava" | "nakliye" | "zirai_ilac";
+
+let firmSeoIndexColumnExists: boolean | null = null;
+
+async function hasFirmSeoIndexColumn(): Promise<boolean> {
+  if (firmSeoIndexColumnExists !== null) return firmSeoIndexColumnExists;
+  const result = await db.execute(sql`
+    SELECT COUNT(*) AS count
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'hf_firms'
+      AND COLUMN_NAME = 'seo_index'
+  `);
+  const rows = (Array.isArray(result) ? result[0] : result) as unknown as Array<{ count: number | string }>;
+  firmSeoIndexColumnExists = Number(rows[0]?.count ?? 0) > 0;
+  return firmSeoIndexColumnExists;
+}
+
+function firmSelectColumns(includeSeoIndex: boolean) {
+  return {
+    id: hfFirms.id,
+    externalId: hfFirms.externalId,
+    slug: hfFirms.slug,
+    name: hfFirms.name,
+    contactPerson: hfFirms.contactPerson,
+    phone: hfFirms.phone,
+    address: hfFirms.address,
+    citySlug: hfFirms.citySlug,
+    districtSlug: hfFirms.districtSlug,
+    photoUrl: hfFirms.photoUrl,
+    sourceUrl: hfFirms.sourceUrl,
+    firmType: hfFirms.firmType,
+    categories: hfFirms.categories,
+    ownerUserId: hfFirms.ownerUserId,
+    source: hfFirms.source,
+    status: hfFirms.status,
+    description: hfFirms.description,
+    claimStatus: hfFirms.claimStatus,
+    isActive: hfFirms.isActive,
+    seoIndex: includeSeoIndex ? hfFirms.seoIndex : sql<number>`0`,
+    firstSeenAt: hfFirms.firstSeenAt,
+    lastSeenAt: hfFirms.lastSeenAt,
+    raw: hfFirms.raw,
+    createdAt: hfFirms.createdAt,
+    updatedAt: hfFirms.updatedAt,
+  };
+}
+
+function cityNameForSlug(citySlug: string): string {
+  const city = TURKEY_CITIES.find((item) => slugifyTr(item.label) === citySlug);
+  if (city) return city.label;
+  return titleCaseSlug(citySlug);
+}
+
+function titleCaseSlug(value: string): string {
+  return value
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toLocaleUpperCase("tr") + part.slice(1))
+    .join(" ");
+}
 
 export async function upsertFirm(firm: FetchedFirm): Promise<"inserted" | "updated"> {
   const existing = await db
@@ -58,28 +121,10 @@ export async function upsertFirm(firm: FetchedFirm): Promise<"inserted" | "updat
 
 export async function listFirms(filters: FirmListFilters = {}) {
   const where = buildFirmWhere(filters);
+  const includeSeoIndex = await hasFirmSeoIndexColumn();
   return db
     .select({
-      id: hfFirms.id,
-      externalId: hfFirms.externalId,
-      slug: hfFirms.slug,
-      name: hfFirms.name,
-      contactPerson: hfFirms.contactPerson,
-      phone: hfFirms.phone,
-      address: hfFirms.address,
-      citySlug: hfFirms.citySlug,
-      districtSlug: hfFirms.districtSlug,
-      photoUrl: hfFirms.photoUrl,
-      sourceUrl: hfFirms.sourceUrl,
-      firmType: hfFirms.firmType,
-      categories: hfFirms.categories,
-      ownerUserId: hfFirms.ownerUserId,
-      source: hfFirms.source,
-      status: hfFirms.status,
-      description: hfFirms.description,
-      claimStatus: hfFirms.claimStatus,
-      isActive: hfFirms.isActive,
-      lastSeenAt: hfFirms.lastSeenAt,
+      ...firmSelectColumns(includeSeoIndex),
       sponsorshipTier: hfFirmSponsorships.tier,
       sponsorshipPlacement: hfFirmSponsorships.placement,
     })
@@ -104,9 +149,88 @@ export async function countFirms(filters: FirmListFilters = {}) {
   return Number(row?.count ?? 0);
 }
 
-export async function getFirmBySlug(slug: string) {
+export async function listFirmCityAggregates() {
   const rows = await db
-    .select()
+    .select({
+      citySlug: hfFirms.citySlug,
+      firmType: hfFirms.firmType,
+      total: sql<number>`count(*)`,
+    })
+    .from(hfFirms)
+    .where(and(
+      eq(hfFirms.isActive, 1),
+      eq(hfFirms.status, "approved"),
+      sql`${hfFirms.citySlug} IS NOT NULL`,
+      sql`${hfFirms.citySlug} <> ''`,
+    ))
+    .groupBy(hfFirms.citySlug, hfFirms.firmType)
+    .orderBy(asc(hfFirms.citySlug));
+
+  const byCity = new Map<string, {
+    citySlug: string;
+    cityName: string;
+    total: number;
+    byType: Record<FirmType, number>;
+  }>();
+
+  for (const row of rows) {
+    if (!row.citySlug) continue;
+    const city = byCity.get(row.citySlug) ?? {
+      citySlug: row.citySlug,
+      cityName: cityNameForSlug(row.citySlug),
+      total: 0,
+      byType: { komisyoncu: 0, soguk_hava: 0, nakliye: 0, zirai_ilac: 0 },
+    };
+    const count = Number(row.total ?? 0);
+    city.total += count;
+    city.byType[row.firmType as FirmType] = count;
+    byCity.set(row.citySlug, city);
+  }
+
+  return [...byCity.values()].sort((a, b) => b.total - a.total || a.cityName.localeCompare(b.cityName, "tr"));
+}
+
+export async function listFirmTypeAggregates() {
+  return db
+    .select({
+      firmType: hfFirms.firmType,
+      total: sql<number>`count(*)`,
+    })
+    .from(hfFirms)
+    .where(and(eq(hfFirms.isActive, 1), eq(hfFirms.status, "approved")))
+    .groupBy(hfFirms.firmType)
+    .orderBy(desc(sql<number>`count(*)`));
+}
+
+export async function listFirmSeoCandidates(limit = 500) {
+  return db
+    .select({
+      id: hfFirms.id,
+      slug: hfFirms.slug,
+      name: hfFirms.name,
+      citySlug: hfFirms.citySlug,
+      productCount: sql<number>`COUNT(${hfFirmProducts.id})`,
+      hasLongDescription: sql<number>`CASE WHEN CHAR_LENGTH(COALESCE(${hfFirms.description}, '')) >= 120 THEN 1 ELSE 0 END`,
+      isClaimVerified: sql<number>`CASE WHEN ${hfFirms.claimStatus} = 'verified' THEN 1 ELSE 0 END`,
+    })
+    .from(hfFirms)
+    .leftJoin(hfFirmProducts, eq(hfFirmProducts.firmId, hfFirms.id))
+    .where(and(
+      eq(hfFirms.isActive, 1),
+      eq(hfFirms.status, "approved"),
+      sql`${hfFirms.citySlug} IS NOT NULL`,
+      sql`${hfFirms.citySlug} <> ''`,
+    ))
+    .groupBy(hfFirms.id)
+    .having(sql`COUNT(${hfFirmProducts.id}) >= 3 OR CHAR_LENGTH(COALESCE(${hfFirms.description}, '')) >= 120 OR ${hfFirms.claimStatus} = 'verified'`)
+    .orderBy(desc(sql`COUNT(${hfFirmProducts.id})`), asc(hfFirms.name))
+    .limit(Math.min(limit, 1000));
+}
+
+export async function getFirmBySlug(slug: string) {
+  const includeSeoIndex = await hasFirmSeoIndexColumn();
+  const rows = await db
+    .select(firmSelectColumns(includeSeoIndex))
     .from(hfFirms)
     .where(and(eq(hfFirms.slug, slug), eq(hfFirms.isActive, 1), eq(hfFirms.status, "approved")))
     .limit(1);
@@ -118,8 +242,9 @@ export async function getFirmBySlug(slug: string) {
 }
 
 export async function getFirmById(id: number) {
+  const includeSeoIndex = await hasFirmSeoIndexColumn();
   const rows = await db
-    .select()
+    .select(firmSelectColumns(includeSeoIndex))
     .from(hfFirms)
     .where(eq(hfFirms.id, id))
     .limit(1);
@@ -127,8 +252,9 @@ export async function getFirmById(id: number) {
 }
 
 export async function getMyFirm(userId: string) {
+  const includeSeoIndex = await hasFirmSeoIndexColumn();
   const [firm] = await db
-    .select()
+    .select(firmSelectColumns(includeSeoIndex))
     .from(hfFirms)
     .where(eq(hfFirms.ownerUserId, userId))
     .orderBy(desc(hfFirms.updatedAt))

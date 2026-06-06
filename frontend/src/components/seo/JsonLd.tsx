@@ -9,6 +9,8 @@ type JsonLdType =
   | "Product"
   | "BreadcrumbList"
   | "FAQPage"
+  | "ItemList"
+  | "CollectionPage"
   | "Dataset"
   | "Place"
   | "Person"

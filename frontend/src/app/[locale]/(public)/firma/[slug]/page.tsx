@@ -32,7 +32,7 @@ function titleCaseSlug(value?: string | null): string {
 
 function hasIndexableContent(firm: Awaited<ReturnType<typeof fetchFirm>>): boolean {
   if (!firm) return false;
-  return Boolean(firm.name && (firm.address || firm.phone || firm.contactPerson) && firm.citySlug);
+  return firm.seoIndex === true || firm.seoIndex === 1;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -172,7 +172,7 @@ export default async function FirmDetailPage({ params }: Props) {
               </a>
             )}
             <Link
-              href={`/firmalar?city=${encodeURIComponent(firm.citySlug ?? "")}`}
+              href={firm.citySlug ? `/firmalar/${firm.citySlug}` : "/firmalar"}
               className="rounded-[6px] border border-(--color-border) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-foreground)"
             >
               Şehirdeki firmalar
@@ -242,7 +242,7 @@ export default async function FirmDetailPage({ params }: Props) {
             <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
               Aynı Bölgedeki Firmalar
             </h2>
-            <Link href={`/firmalar?city=${encodeURIComponent(firm.citySlug ?? "")}`} className="font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand)">
+            <Link href={firm.citySlug ? `/firmalar/${firm.citySlug}` : "/firmalar"} className="font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand)">
               Tümünü gör
             </Link>
           </div>
