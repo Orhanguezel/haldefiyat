@@ -387,7 +387,7 @@ export default async function UrunPage({ params }: Props) {
             <h2 className="text-xl font-bold text-foreground">TMO resmi alım fiyatı</h2>
             <p className="mt-1 text-sm text-muted">Taban/devlet alımı niteliğindedir; borsa serbest piyasa fiyatıyla karıştırılmamalıdır.</p>
             <div className="mt-4">
-              <PriceTable initialPrices={resmiPrices} markets={[]} />
+              <PriceTable initialPrices={resmiPrices} markets={[]} hideProductColumn />
             </div>
           </div>
           <div>
@@ -398,6 +398,7 @@ export default async function UrunPage({ params }: Props) {
                 initialPricePage={borsaPricePage}
                 markets={[]}
                 requestParams={{ product: slug, marketType: "borsa", range: "1825d", latestOnly: false, sort: "date-desc" }}
+                hideProductColumn
               />
             </div>
           </div>

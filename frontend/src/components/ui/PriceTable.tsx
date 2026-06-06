@@ -15,6 +15,7 @@ interface PriceTableProps {
   initialCity?: string;
   initialQuery?: string;
   yoyByMarket?: Record<string, number>;
+  hideProductColumn?: boolean;
 }
 
 type SortKey = "avg-desc" | "avg-asc" | "name-asc" | "date-desc";
@@ -166,6 +167,7 @@ export default function PriceTable({
   initialCity,
   initialQuery,
   yoyByMarket,
+  hideProductColumn = false,
 }: PriceTableProps) {
   const initialMeta = initialPricePage?.meta;
   const serverPagination = Boolean(initialPricePage);
@@ -444,9 +446,11 @@ export default function PriceTable({
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-(--color-border) text-left">
-              <th className="px-4 py-3 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.1em] text-(--color-muted)">
-                Ürün
-              </th>
+              {!hideProductColumn && (
+                <th className="px-4 py-3 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.1em] text-(--color-muted)">
+                  Ürün
+                </th>
+              )}
               <th className="px-4 py-3 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.1em] text-(--color-muted)">
                 Hal
               </th>
@@ -474,7 +478,7 @@ export default function PriceTable({
             {filtered.length === 0 ? (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={hideProductColumn ? 7 : 8}
                   className="px-4 py-12 text-center text-[13px] text-(--color-muted)"
                 >
                   {safePrices.length === 0
@@ -501,19 +505,21 @@ export default function PriceTable({
                     key={row.id}
                     className="border-b border-(--color-border)/50 transition-colors last:border-b-0 hover:bg-(--color-bg-alt)"
                   >
-                    <td className="px-4 py-3.5">
-                      <Link
-                        href={`/urun/${row.productSlug}`}
-                        className="flex items-center gap-2 text-[14px] font-semibold text-(--color-foreground) hover:text-(--color-brand)"
-                      >
-                        <span
-                          aria-hidden
-                          title={humanizeSlug(categoryKey)}
-                          className={`h-2 w-2 rounded-full ${dotClass}`}
-                        />
-                        {row.productName}
-                      </Link>
-                    </td>
+                    {!hideProductColumn && (
+                      <td className="px-4 py-3.5">
+                        <Link
+                          href={`/urun/${row.productSlug}`}
+                          className="flex items-center gap-2 text-[14px] font-semibold text-(--color-foreground) hover:text-(--color-brand)"
+                        >
+                          <span
+                            aria-hidden
+                            title={humanizeSlug(categoryKey)}
+                            className={`h-2 w-2 rounded-full ${dotClass}`}
+                          />
+                          {row.productName}
+                        </Link>
+                      </td>
+                    )}
                     <td className="px-4 py-3.5">
                       <Link
                         href={`/hal/${row.marketSlug}`}
