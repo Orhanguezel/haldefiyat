@@ -120,6 +120,31 @@ hepsi indeksleniyor; indeksleme motoru çalışıyor.** Sorun indekssiz 591'in d
 
 ---
 
+## EK A — Bucket denetimi & hub uygulama notları (Claude, 2026-06-06)
+
+> Codex kod tarafını işlerken yapılan denetim. Gizli kayıp YOK; ama hub uygulaması için 2 kritik kısıt çıktı.
+
+### A.1 Küçük bucket'lar temiz (gizli kayıp yok)
+- **Yönlendirme 87 / Alternatif 41:** 280 üründe `canonical_slug` var (varyant→master, by-design). **Kırık hedef = 0** (orphan fix sağlam). **1 canonical zinciri** bulundu (`avakado-muhtelif→avakado→avokado`) → **düzleştirildi** (`avakado-muhtelif→avokado` direkt). Artık 0 zincir.
+- **Robots 5 / Tarandı-indekslenmedi 18:** benign (`?_rsc=` prefetch + ince varyant). Aksiyon yok.
+- **404 (3):** is_active + canonical fix ile çözüldü, re-crawl'da düşecek.
+
+### A.2 ⚠️ Hub çapraz-link KISITI (Codex F4 için kritik)
+İl hub'ının "canlı hal fiyatı" bloğu **her ilde çalışmaz.** 56 hub-ilden:
+- **~16 il TAM** (hal + güncel fiyat): antalya, konya, istanbul, bursa, izmir, ankara, kayseri, eskisehir, denizli, gaziantep, kahramanmaras, trabzon, yalova, kutahya, canakkale, bolu.
+- **~3 il hal VAR ama fiyat YOK** (link ver, fiyat bloğu boş): **mersin (240 firma!)**, manisa, kocaeli — ETL gap.
+- **~36 il hal YOK** (fiyat bloğu GÖSTERME): **adana (89 firma, 3.)**, hatay, samsun, aydin, van, sanliurfa, diyarbakir, ordu, mardin, malatya, erzurum, kars, mugla, sakarya…
+
+**Tasarım kararı (Codex'e):** Hub'ın asıl değeri **firma dizini** (56 ilde de çalışır, "{il} komisyoncu" niyeti). **Canlı-fiyat bloğu KOŞULLU bonus** — yalnız hal+fiyat olan ilde göster, yoksa atla (hub fiyatsız da zengin: gerçek işletme listesi + özgün giriş). **Hub'ı hal fiyatına bağımlı yapma.**
+
+### A.3 ⚠️ Türkçe slug eşleme uyarısı (Codex F4)
+Firma `city_slug` ASCII ("balikesir","canakkale") ↔ `hf_markets.city_name` Türkçe ("Balıkesir","Çanakkale"). Naive eşitlik ı/ş/ç/ğ/ö/ü'de patlar (örn. `balikesir` hal'i NULL göründü ama VAR). **Codex:** çapraz-linkte iki tarafı da Türkçe-normalize et (ı→i, ş→s, ç→c, ğ→g, ö→o, ü→u, İ→i) veya `hf_markets`'e ascii `city_slug` ekle.
+
+### A.4 Yan bulgu — ETL gap (ayrı konu)
+**mersin-hal, manisa-hal, kocaeli-hal'de 0 güncel fiyat** (hal kaydı var, son 7g veri yok). Mersin 240 firmayla en büyük il — hal fiyatı da olsa çok değerli. ETL kaynaklarını kontrol et (CLAUDE.md "Sorunlu Kaynaklar"). SEO işinden bağımsız, ama not edildi.
+
+---
+
 ## 7. Özet karar
 **Ürün/hal indekslemesi sağlıklı, dokunma.** Tek iş firma katmanı: **(1) ince firma
 sayfalarını noindex + sitemap'ten çıkar, (2) zengin şehir/tip hub'ları kur, (3) firma
