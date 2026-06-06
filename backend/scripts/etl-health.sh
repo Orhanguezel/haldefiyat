@@ -82,6 +82,25 @@ ORDER BY son_basarili IS NULL DESC, son_basarili ASC;
 " 2>&1 | grep -v "Using a password"
 
 echo
+echo "── Borsa/Resmi Kaynaklar ──"
+mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" --table -e "
+SELECT
+  m.source_key,
+  m.name,
+  m.market_type,
+  MAX(ph.recorded_date) AS son_fiyat_tarihi,
+  COUNT(ph.id) AS fiyat_satiri,
+  MAX(r.created_at) AS son_etl_run,
+  SUBSTRING_INDEX(GROUP_CONCAT(r.status ORDER BY r.created_at DESC), ',', 1) AS son_etl_status
+FROM hf_markets m
+LEFT JOIN hf_price_history ph ON ph.market_id = m.id
+LEFT JOIN hf_etl_runs r ON r.source_api = m.source_key
+WHERE m.market_type IN ('borsa','resmi')
+GROUP BY m.source_key, m.name, m.market_type
+ORDER BY FIELD(m.market_type, 'resmi', 'borsa'), m.name;
+" 2>&1 | grep -v "Using a password"
+
+echo
 echo "── scraper-service docker container ──"
 docker ps --filter name=scraper-service --format "table {{.Names}}\t{{.Status}}" 2>/dev/null || echo "(scraper-service vps-vistainsaat'ta degil — vps-guezelwebdesign'da)"
 

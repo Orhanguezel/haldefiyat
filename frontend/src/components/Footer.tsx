@@ -32,6 +32,7 @@ const COLUMNS: ReadonlyArray<FooterColumn> = [
     title: "PLATFORM",
     links: [
       { label: "Hal Fiyatları", href: "/fiyatlar" },
+      { label: "Borsa / Resmi Fiyatlar", href: "/borsa" },
       { label: "İlanlar", href: "/ilanlar" },
       { label: "İlan Ver", href: "/ilan-ver" },
       { label: "Karşılaştır", href: "/karsilastirma" },

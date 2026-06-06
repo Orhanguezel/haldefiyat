@@ -19,6 +19,7 @@ const NAV_ENTRIES: ReadonlyArray<NavEntry> = [
     label: "Fiyatlar",
     items: [
       { key: "prices", label: "Günlük Fiyatlar", href: "/fiyatlar" },
+      { key: "borsa", label: "Borsa / Resmi", href: "/borsa" },
       { key: "cities", label: "Şehirler / Haller", href: "/hal" },
       { key: "map", label: "Harita", href: "/harita" },
       { key: "index", label: "Endeks", href: "/endeks" },

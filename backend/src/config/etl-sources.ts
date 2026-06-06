@@ -40,7 +40,11 @@ type ResponseShape =
   | "tekirdag_html"
   | "trabzon_html"
   | "batiakdeniz_html"
-  | "bolu_html";
+  | "bolu_html"
+  | "tmo_alim_resmi"
+  | "tmo_pdf_bulten"
+  | "borsa_html"
+  | "borsa_pdf";
 
 export interface EtlSourceConfig {
   key:              string;          // DB'de source_api olarak yazılır
@@ -473,6 +477,46 @@ const RAW_SOURCES: RawSource[] = [
     responseShape:     "tekirdag_html",
     defaultUnit:       "kg",
     defaultCategory:   "sebze-meyve",
+  },
+  {
+    key:               "tmo_alim_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "tmo-resmi-alim",
+    defaultBaseUrl:    "https://www.tmo.gov.tr",
+    defaultEndpoint:   "/",
+    responseShape:     "tmo_alim_resmi",
+    defaultUnit:       "kg",
+    defaultCategory:   "hububat",
+  },
+  {
+    key:               "tmo_piyasa_bulteni",
+    defaultEnabled:    false,
+    defaultMarketSlug: "tmo-piyasa-bulteni",
+    defaultBaseUrl:    "https://www.tmo.gov.tr",
+    defaultEndpoint:   "/Upload/Document/piyasabulteni/piyasabulteni_tr.pdf",
+    responseShape:     "tmo_pdf_bulten",
+    defaultUnit:       "kg",
+    defaultCategory:   "hububat",
+  },
+  {
+    key:               "polatli_borsa",
+    defaultEnabled:    false,
+    defaultMarketSlug: "polatli-ticaret-borsasi",
+    defaultBaseUrl:    "https://bulten.polatliborsa.org.tr",
+    defaultEndpoint:   "/gunluk-bulten.html",
+    responseShape:     "borsa_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "hububat",
+  },
+  {
+    key:               "izmir_borsa_pamuk",
+    defaultEnabled:    false,
+    defaultMarketSlug: "izmir-ticaret-borsasi",
+    defaultBaseUrl:    "https://itb.org.tr",
+    defaultEndpoint:   "/GunlukBultenler/2-pamuk-bulteni",
+    responseShape:     "borsa_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sanayi-bitkisi",
   },
 ];
 

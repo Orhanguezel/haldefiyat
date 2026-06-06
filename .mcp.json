@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "hal-borsa-mcp": {
+      "command": "bun",
+      "args": ["x", "tsx", "mcp/hal-borsa-mcp/src/server.ts"]
+    }
+  }
+}
+

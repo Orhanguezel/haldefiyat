@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `hf_markets` (
   `city_name`     VARCHAR(128)     NOT NULL,
   `region_slug`   VARCHAR(64)      DEFAULT NULL,
   `source_key`    VARCHAR(64)      DEFAULT NULL COMMENT 'api kaynak tanımlayıcısı: ibb, izmir, manual...',
+  `market_type`   ENUM('hal','borsa','resmi','kooperatif') NOT NULL DEFAULT 'hal',
   `display_order` INT              NOT NULL DEFAULT 0,
   `seo_index`     TINYINT(1)       NOT NULL DEFAULT 1 COMMENT 'Sitemap ve index havuzuna dahil mi',
   `is_active`     TINYINT(1)       NOT NULL DEFAULT 1,
@@ -17,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `hf_markets` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `hf_markets_slug_uq` (`slug`),
   KEY `hf_markets_city_idx` (`city_name`),
+  KEY `hf_markets_type_idx` (`market_type`, `is_active`),
   KEY `hf_markets_seo_idx` (`seo_index`, `display_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -128,39 +130,45 @@ CREATE TABLE IF NOT EXISTS `hf_etl_runs` (
 --   antalya-hal-merkez       : antalya_merkez_antkomder
 --   antalya-hal-serik        : antalya_serik_antkomder (dernek fiyat açınca aktif)
 --   antalya-hal-kumluca      : antalya_kumluca_antkomder (dernek fiyat açınca aktif)
-INSERT INTO `hf_markets` (`slug`, `name`, `city_name`, `region_slug`, `source_key`, `display_order`, `is_active`) VALUES
-('izmir-hal',           'İzmir Toptancı Hali',            'İzmir',    'ege',        'izmir_sebzemeyve',         1, 1),
-('ankara-hal',          'Ankara Toptancı Hali',           'Ankara',   'ic-anadolu', 'ankara_resmi',             2, 1),
-('mersin-hal',          'Mersin Toptancı Hali',           'Mersin',   'akdeniz',    'mersin_resmi',             3, 1),
-('konya-hal',           'Konya Toptancı Hali',            'Konya',    'ic-anadolu', 'konya_resmi',              4, 1),
-('kayseri-hal',         'Kayseri Toptancı Hali',          'Kayseri',  'ic-anadolu', 'kayseri_resmi',            5, 1),
-('eskisehir-hal',       'Eskişehir Toptancı Hali',        'Eskişehir','ic-anadolu', 'eskisehir_resmi',          6, 1),
-('denizli-hal',         'Denizli Toptancı Hali',          'Denizli',  'ege',        'denizli_resmi',            7, 1),
-('antalya-hal-merkez',  'Antalya Toptancı Hali (Merkez)', 'Antalya',  'akdeniz',    'antalya_merkez_antkomder', 8, 1),
-('antalya-hal-serik',   'Antalya Serik Hali',             'Antalya',  'akdeniz',    'antalya_serik_antkomder',  9, 1),
-('antalya-hal-kumluca', 'Antalya Kumluca Hali',           'Antalya',  'akdeniz',    'antalya_kumluca_antkomder',10, 1),
-('gaziantep-hal',          'Gaziantep Toptancı Hali',             'Gaziantep', 'guneydogu',  'gaziantep_resmi',          11, 1),
-('bursa-hal',              'Bursa Toptancı Hali',                 'Bursa',     'marmara',    'bursa_resmi',              12, 1),
-('kocaeli-hal-merkez',     'Kocaeli Merkez Sebze Meyve Hali',    'Kocaeli',   'marmara',    'kocaeli_merkez',           13, 1),
-('balikesir-hal',          'Balıkesir Toptancı Hali',            'Balıkesir', 'marmara',    'balikesir_resmi',          14, 1),
-('ulusal-hal-gov-tr',      'Türkiye Ulusal Ortalama (hal.gov.tr)', 'Türkiye',   'ulusal',     'hal_gov_tr_ulusal',        99, 1),
-('istanbul-hal-ibb',       'İstanbul Toptancı Hali (İBB)',         'İstanbul',  'marmara',    'istanbul_ibb',             15, 1),
-('corum-hal',              'Çorum Toptancı Hali',                  'Çorum',     'karadeniz',  'corum_resmi',              16, 1),
-('kutahya-hal',            'Kütahya Toptancı Hali',                'Kütahya',   'ege',        'kutahya_resmi',            17, 1),
-('manisa-hal',             'Manisa Toptancı Hali',                 'Manisa',    'ege',        'manisa_resmi',             18, 1),
-('kahramanmaras-hal',      'Kahramanmaraş Toptancı Hali',          'Kahramanmaraş', 'guneydogu', 'kahramanmaras_resmi',   19, 1),
-('canakkale-hal',          'Çanakkale Toptancı Hali',              'Çanakkale', 'marmara',    'canakkale_resmi',          20, 1),
-('yalova-hal',             'Yalova Toptancı Hali',                 'Yalova',    'marmara',    'yalova_resmi',             21, 1),
-('tekirdag-hal',           'Tekirdağ Toptancı Hali',               'Tekirdağ',  'marmara',    'tekirdag_resmi',           22, 1),
-('trabzon-hal',            'Trabzon Toptancı Hali',                'Trabzon',   'karadeniz',  'trabzon_resmi',            23, 1),
-('gazipasa-hal',           'Gazipaşa Toptancı Hali',               'Antalya',   'akdeniz',    'gazipasa_batiakdeniz',     24, 1),
-('alanya-hal',             'Alanya Toptancı Hali',                 'Antalya',   'akdeniz',    'alanya_batiakdeniz',       25, 1),
-('demre-hal',              'Demre Toptancı Hali',                  'Antalya',   'akdeniz',    'demre_batiakdeniz',        26, 1),
-('finike-hal',             'Finike Toptancı Hali',                 'Antalya',   'akdeniz',    'finike_batiakdeniz',       27, 1),
-('bolu-hal',               'Bolu Toptancı Hali',                   'Bolu',      'karadeniz',  'bolu_resmi',               28, 1)
+INSERT INTO `hf_markets` (`slug`, `name`, `city_name`, `region_slug`, `source_key`, `market_type`, `display_order`, `is_active`) VALUES
+('izmir-hal',           'İzmir Toptancı Hali',            'İzmir',    'ege',        'izmir_sebzemeyve',         'hal', 1, 1),
+('ankara-hal',          'Ankara Toptancı Hali',           'Ankara',   'ic-anadolu', 'ankara_resmi',             'hal', 2, 1),
+('mersin-hal',          'Mersin Toptancı Hali',           'Mersin',   'akdeniz',    'mersin_resmi',             'hal', 3, 1),
+('konya-hal',           'Konya Toptancı Hali',            'Konya',    'ic-anadolu', 'konya_resmi',              'hal', 4, 1),
+('kayseri-hal',         'Kayseri Toptancı Hali',          'Kayseri',  'ic-anadolu', 'kayseri_resmi',            'hal', 5, 1),
+('eskisehir-hal',       'Eskişehir Toptancı Hali',        'Eskişehir','ic-anadolu', 'eskisehir_resmi',          'hal', 6, 1),
+('denizli-hal',         'Denizli Toptancı Hali',          'Denizli',  'ege',        'denizli_resmi',            'hal', 7, 1),
+('antalya-hal-merkez',  'Antalya Toptancı Hali (Merkez)', 'Antalya',  'akdeniz',    'antalya_merkez_antkomder', 'hal', 8, 1),
+('antalya-hal-serik',   'Antalya Serik Hali',             'Antalya',  'akdeniz',    'antalya_serik_antkomder',  'hal', 9, 1),
+('antalya-hal-kumluca', 'Antalya Kumluca Hali',           'Antalya',  'akdeniz',    'antalya_kumluca_antkomder','hal',10, 1),
+('gaziantep-hal',          'Gaziantep Toptancı Hali',             'Gaziantep', 'guneydogu',  'gaziantep_resmi',          'hal', 11, 1),
+('bursa-hal',              'Bursa Toptancı Hali',                 'Bursa',     'marmara',    'bursa_resmi',              'hal', 12, 1),
+('kocaeli-hal-merkez',     'Kocaeli Merkez Sebze Meyve Hali',    'Kocaeli',   'marmara',    'kocaeli_merkez',           'hal', 13, 1),
+('balikesir-hal',          'Balıkesir Toptancı Hali',            'Balıkesir', 'marmara',    'balikesir_resmi',          'hal', 14, 1),
+('ulusal-hal-gov-tr',      'Türkiye Ulusal Ortalama (hal.gov.tr)', 'Türkiye',   'ulusal',     'hal_gov_tr_ulusal',        'hal', 99, 1),
+('istanbul-hal-ibb',       'İstanbul Toptancı Hali (İBB)',         'İstanbul',  'marmara',    'istanbul_ibb',             'hal', 15, 1),
+('corum-hal',              'Çorum Toptancı Hali',                  'Çorum',     'karadeniz',  'corum_resmi',              'hal', 16, 1),
+('kutahya-hal',            'Kütahya Toptancı Hali',                'Kütahya',   'ege',        'kutahya_resmi',            'hal', 17, 1),
+('manisa-hal',             'Manisa Toptancı Hali',                 'Manisa',    'ege',        'manisa_resmi',             'hal', 18, 1),
+('kahramanmaras-hal',      'Kahramanmaraş Toptancı Hali',          'Kahramanmaraş', 'guneydogu', 'kahramanmaras_resmi',   'hal', 19, 1),
+('canakkale-hal',          'Çanakkale Toptancı Hali',              'Çanakkale', 'marmara',    'canakkale_resmi',          'hal', 20, 1),
+('yalova-hal',             'Yalova Toptancı Hali',                 'Yalova',    'marmara',    'yalova_resmi',             'hal', 21, 1),
+('tekirdag-hal',           'Tekirdağ Toptancı Hali',               'Tekirdağ',  'marmara',    'tekirdag_resmi',           'hal', 22, 1),
+('trabzon-hal',            'Trabzon Toptancı Hali',                'Trabzon',   'karadeniz',  'trabzon_resmi',            'hal', 23, 1),
+('gazipasa-hal',           'Gazipaşa Toptancı Hali',               'Antalya',   'akdeniz',    'gazipasa_batiakdeniz',     'hal', 24, 1),
+('alanya-hal',             'Alanya Toptancı Hali',                 'Antalya',   'akdeniz',    'alanya_batiakdeniz',       'hal', 25, 1),
+('demre-hal',              'Demre Toptancı Hali',                  'Antalya',   'akdeniz',    'demre_batiakdeniz',        'hal', 26, 1),
+('finike-hal',             'Finike Toptancı Hali',                 'Antalya',   'akdeniz',    'finike_batiakdeniz',       'hal', 27, 1),
+('bolu-hal',               'Bolu Toptancı Hali',                   'Bolu',      'karadeniz',  'bolu_resmi',               'hal', 28, 1),
+('tmo-resmi-alim',         'TMO Resmi Alım',                       'Türkiye',   'ulusal',     'tmo_alim_resmi',           'resmi', 101, 1),
+('tmo-piyasa-bulteni',     'TMO Piyasa Bülteni',                   'Türkiye',   'ulusal',     'tmo_piyasa_bulteni',       'borsa', 102, 1),
+('polatli-ticaret-borsasi','Polatlı Ticaret Borsası',              'Ankara',    'ic-anadolu', 'polatli_borsa',           'borsa', 103, 1),
+('izmir-ticaret-borsasi',  'İzmir Ticaret Borsası',                'İzmir',     'ege',        'izmir_borsa_pamuk',        'borsa', 104, 1),
+('bakanlik-destekleme',    'Bakanlık Destekleme',                  'Türkiye',   'ulusal',     'bakanlik_destekleme',      'resmi', 105, 1)
 ON DUPLICATE KEY UPDATE
   `name`       = VALUES(`name`),
   `source_key` = VALUES(`source_key`),
+  `market_type` = VALUES(`market_type`),
   `is_active`  = VALUES(`is_active`);
 
 -- ─── HaldeFiyat Endeksi Anlık Görüntüleri ────────────────────────────────────
@@ -181,6 +189,24 @@ CREATE TABLE IF NOT EXISTS `hf_index_snapshots` (
   UNIQUE KEY `hf_idx_week_uq` (`index_week`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Ürün kataloğu ETL ilk çalıştığında kaynaklardan otomatik doldurulur
--- (ETL_AUTO_REGISTER_PRODUCTS=true). Bu nedenle seed'de hiçbir ürün
--- tanımlanmaz — tüm katalog gerçek veriden inşa edilir.
+-- Borsa/resmi fiyat dikeyi için MVP ürünleri seed edilir; hal ürünleri
+-- ETL_AUTO_REGISTER_PRODUCTS=true akışıyla gerçek kaynaklardan büyümeye devam eder.
+INSERT INTO `hf_products`
+  (`slug`, `name_tr`, `category_slug`, `unit`, `aliases`, `display_name`, `seo_index`, `data_quality`, `search_volume`, `display_order`, `is_active`)
+VALUES
+  ('bugday',   'Buğday',   'hububat',        'kg', JSON_ARRAY('bugday','buğday','ekmeklik buğday','makarnalık buğday','wheat'),       'Buğday',   1, 70, 9000, 101, 1),
+  ('arpa',     'Arpa',     'hububat',        'kg', JSON_ARRAY('arpa','barley','yemlik arpa'),                                      'Arpa',     1, 70, 6500, 102, 1),
+  ('misir',    'Mısır',    'hububat',        'kg', JSON_ARRAY('mısır','misir','dane mısır','corn'),                                'Mısır',    1, 70, 8000, 103, 1),
+  ('aycicegi', 'Ayçiçeği', 'yagli-tohum',    'kg', JSON_ARRAY('ayçiçeği','aycicegi','yağlık ayçiçeği','sunflower'),                'Ayçiçeği', 1, 70, 5400, 104, 1),
+  ('pamuk',    'Pamuk',    'sanayi-bitkisi', 'kg', JSON_ARRAY('pamuk','kütlü pamuk','kutlu pamuk','lif pamuk','cotton'),            'Pamuk',    1, 70, 7200, 105, 1)
+ON DUPLICATE KEY UPDATE
+  `name_tr` = VALUES(`name_tr`),
+  `category_slug` = VALUES(`category_slug`),
+  `unit` = VALUES(`unit`),
+  `aliases` = VALUES(`aliases`),
+  `display_name` = VALUES(`display_name`),
+  `seo_index` = VALUES(`seo_index`),
+  `data_quality` = GREATEST(`data_quality`, VALUES(`data_quality`)),
+  `search_volume` = VALUES(`search_volume`),
+  `display_order` = VALUES(`display_order`),
+  `is_active` = VALUES(`is_active`);

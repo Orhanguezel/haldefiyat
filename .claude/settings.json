@@ -201,7 +201,15 @@
       "Bash(echo \"exit: $?\")",
       "Bash(grep -E \"\\\\.\\(tsx?|jsx?\\)$\")",
       "Bash(grep -E \"\\\\.\\(ts|js\\)$\")",
-      "Bash(exit)"
+      "Bash(exit)",
+      "Bash(python3 -c \"import matplotlib; print\\('matplotlib', matplotlib.__version__\\)\")",
+      "Bash(python3 -c \"import reportlab; print\\('reportlab', reportlab.__version__\\)\")",
+      "Bash(python3 -c \"import json;d=json.load\\(open\\('/tmp/hf_data.json'\\)\\);print\\('OK keys:',list\\(d.keys\\(\\)\\)\\);print\\('total',d['total_lines']\\)\")",
+      "Bash(sed -i 's/🎯 Gerçek JS/★ Gerçek JS/g' /tmp/hf_pdf.py)",
+      "Bash(python3 /tmp/hf_pdf.py)",
+      "Bash(sed -n '449,520p' src/lib/api.ts)",
+      "Bash(sed -n '485,505p' src/components/ui/PriceTable.tsx)",
+      "WebFetch(domain:bulten.polatliborsa.org.tr)"
     ],
     "additionalDirectories": [
       "/home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/(public)",

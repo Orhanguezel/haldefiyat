@@ -11,6 +11,51 @@ interface ProductContent {
 }
 
 const PRODUCT_CONTENT: Record<string, ProductContent> = {
+  bugday: {
+    about: "Buğday, Türkiye tarım piyasasının en temel hububat ürünüdür. Ekmeklik ve makarnalık kalite sınıfları ayrı fiyatlanır; TMO alım fiyatı, ticaret borsası işlemleri ve ithalat-ihracat dengesi piyasanın ana referanslarını oluşturur.",
+    priceFactors: "Buğday fiyatlarını rekolte beklentisi, protein oranı, süne zararı, yağış rejimi, dünya hububat fiyatları ve TMO alım/satım politikası etkiler. Borsa fiyatı günlük arz-talep koşullarını, TMO alım fiyatı ise sezon taban referansını gösterir.",
+    season: "Ana hasat Güneydoğu ve Çukurova'da Mayıs-Haziran, İç Anadolu'da Haziran-Temmuz, Trakya'da Haziran sonu-Temmuz dönemidir.",
+    productionRegion: "Konya, Ankara, Şanlıurfa, Diyarbakır, Tekirdağ ve Edirne başlıca üretim bölgeleridir. Makarnalık buğdayda Güneydoğu Anadolu öne çıkar.",
+    qualityIndicators: "Protein, hektolitre, rutubet, süne-kımıl zararı ve yabancı madde oranı fiyat farkını belirleyen ana kalite göstergeleridir.",
+    culinaryUses: "Ekmeklik un, makarna, bulgur, irmik ve yem sanayisinde kullanılır.",
+    relatedSlugs: ["arpa", "misir"],
+  },
+  arpa: {
+    about: "Arpa, Türkiye'de özellikle yem sanayisi ve hayvancılık için kritik bir hububat ürünüdür. Yemlik arpa fiyatları TMO alım politikası, iç piyasa arzı ve yem hammaddesi maliyetleriyle birlikte izlenir.",
+    priceFactors: "Arpa fiyatını hasat miktarı, yem talebi, ithalat maliyeti, TMO stok ve satış politikası ile kuraklık beklentisi etkiler. Saman ve yem piyasasındaki sıkışma arpa talebini doğrudan yükseltebilir.",
+    season: "Hasat çoğunlukla Mayıs sonu-Haziran döneminde başlar; İç Anadolu ve yüksek rakımlı bölgelerde Temmuz'a uzar.",
+    productionRegion: "Konya, Ankara, Eskişehir, Şanlıurfa, Yozgat ve Kırşehir önemli üretim alanlarıdır.",
+    qualityIndicators: "Rutubet, hektolitre, kırık tane ve yabancı madde oranı yemlik kalite fiyatlamasında öne çıkar.",
+    culinaryUses: "Büyük ölçüde yem sanayisinde, ayrıca maltlık kalite sınıflarında içecek ve gıda sanayisinde kullanılır.",
+    relatedSlugs: ["bugday", "misir"],
+  },
+  misir: {
+    about: "Mısır, yem sanayisi, nişasta, yağ ve gıda endüstrisi için yüksek hacimli bir tarla ürünüdür. Dane mısır fiyatları bölgesel borsa işlemleriyle ve TMO piyasa duyurularıyla yakından takip edilir.",
+    priceFactors: "Mısır fiyatlarını sulama maliyeti, ikinci ürün ekim alanı, yem sanayisi talebi, dünya mısır fiyatları ve döviz kuru etkiler. Hasat döneminde nem oranı ve kurutma maliyeti fiyat üzerinde belirleyicidir.",
+    season: "Birinci ürün hasadı Ağustos-Eylül, ikinci ürün hasadı Eylül-Kasım döneminde yoğunlaşır.",
+    productionRegion: "Adana, Mersin, Şanlıurfa, Konya, Sakarya ve Manisa başlıca üretim bölgeleridir.",
+    qualityIndicators: "Nem, kırık tane, yabancı madde ve aflatoksin riski fiyatlamada kritik kalite başlıklarıdır.",
+    culinaryUses: "Yem, nişasta, glikoz, mısır yağı, unlu mamul ve endüstriyel gıda üretiminde kullanılır.",
+    relatedSlugs: ["bugday", "arpa"],
+  },
+  aycicegi: {
+    about: "Ayçiçeği, Türkiye'nin bitkisel yağ arzı için en önemli yağlı tohum ürünlerinden biridir. Yağlık ayçiçeği fiyatı iç rekolte, ithal tohum/ham yağ maliyeti ve destekleme politikalarıyla birlikte oluşur.",
+    priceFactors: "Ayçiçeği fiyatlarını yağ oranı, Trakya ve İç Anadolu rekoltesi, ham ayçiçek yağı ithalat fiyatı, döviz kuru ve destekleme primi beklentisi etkiler. Destekleme primi fiyat değil, üreticiye yapılan ek ödemedir.",
+    season: "Hasat Trakya'da çoğunlukla Ağustos-Eylül, İç Anadolu'da Eylül döneminde yoğunlaşır.",
+    productionRegion: "Tekirdağ, Edirne, Kırklareli, Konya, Adana ve Eskişehir önemli üretim merkezleridir.",
+    qualityIndicators: "Yağ oranı, rutubet, yabancı madde ve tane dolgunluğu alım fiyatında ana kalite göstergeleridir.",
+    culinaryUses: "Bitkisel yağ, küspe ve yem sanayisinde kullanılır.",
+    relatedSlugs: ["pamuk", "misir"],
+  },
+  pamuk: {
+    about: "Pamuk, tekstil sanayisinin ana hammaddesi olan stratejik bir sanayi bitkisidir. Kütlü pamuk, çırçır sonrası lif pamuğa dönüşür; fiyat izlerken kütlü, lif ve uluslararası USD/lb referansları ayrı değerlendirilmelidir.",
+    priceFactors: "Pamuk fiyatını lif kalitesi, randıman, dünya pamuk borsaları, döviz kuru, tekstil talebi ve destekleme primi beklentisi etkiler. Destekleme primi üretici gelirine katkıdır; borsa fiyatıyla aynı şey değildir.",
+    season: "Hasat Ege ve Çukurova'da Eylül-Ekim, Güneydoğu Anadolu'da Eylül-Kasım döneminde yoğunlaşır.",
+    productionRegion: "Şanlıurfa, Diyarbakır, Aydın, İzmir, Adana ve Hatay başlıca pamuk üretim bölgeleridir.",
+    qualityIndicators: "Lif uzunluğu, incelik, mukavemet, renk, çepel oranı ve randıman fiyat farkını belirler.",
+    culinaryUses: "Tekstil lifi, pamuk yağı ve küspe üretiminde kullanılır.",
+    relatedSlugs: ["aycicegi"],
+  },
   domates: {
     about: "Domates, Türkiye'nin en fazla tüketilen ve en çok yetiştirilen sebzelerinden biridir. Dünya domates üretiminde ilk 5 ülke arasında yer alan Türkiye, yılda yaklaşık 12-13 milyon ton üretim gerçekleştirir. Başta Antalya, Bursa, İzmir ve Çanakkale olmak üzere pek çok ilde yoğun olarak yetiştirilir.",
     priceFactors: "Domates fiyatlarını etkileyen başlıca faktörler; hava koşulları (özellikle don riski ve aşırı sıcaklar), sera ya da açık alan üretim dengesi, nakliye maliyetleri ve mevsimsel arz değişimleridir. Yaz ortasında açık alan ürünlerinin hasat zamanında fiyatlar genellikle düşer; kış aylarında sera domatesi daha yüksek fiyatla işlem görür.",

@@ -31,6 +31,7 @@ export interface PriceRow {
   categorySlug: string;
   marketSlug: string;
   marketName: string;
+  marketType?: "hal" | "borsa" | "resmi" | "kooperatif";
   cityName: string;
 }
 
@@ -79,6 +80,7 @@ export interface Market {
   cityName: string;
   regionSlug: string | null;
   sourceKey: string | null;
+  marketType?: "hal" | "borsa" | "resmi" | "kooperatif";
   seoIndex?: number | boolean;
   updatedAt?: string;
 }
@@ -394,6 +396,7 @@ export interface FetchPricesParams {
   q?: string;
   city?: string;
   market?: string;
+  marketType?: "hal" | "borsa" | "resmi" | "kooperatif";
   category?: string;
   range?: string;
   limit?: number;
@@ -425,6 +428,7 @@ export async function fetchPricesPage(
     q:          params.q,
     city:       params.city,
     market:     params.market,
+    marketType: params.marketType,
     category:   params.category,
     range:      params.range,
     limit:      params.limit,
@@ -449,9 +453,14 @@ export async function fetchPrices(
 export async function fetchProducts(
   q?: string,
   category?: string,
-  options: { seoIndex?: boolean } = {},
+  options: { seoIndex?: boolean; marketType?: "hal" | "borsa" | "resmi" | "kooperatif" } = {},
 ): Promise<Product[]> {
-  const qs = buildQuery({ q, category, seoIndex: options.seoIndex == null ? undefined : String(options.seoIndex) });
+  const qs = buildQuery({
+    q,
+    category,
+    marketType: options.marketType,
+    seoIndex: options.seoIndex == null ? undefined : String(options.seoIndex),
+  });
   return safeFetch<Product[]>(`/prices/products${qs}`, 300, []);
 }
 

@@ -23,6 +23,7 @@ export const hfMarkets = mysqlTable(
     cityName:     varchar("city_name", { length: 128 }).notNull(),
     regionSlug:   varchar("region_slug", { length: 64 }),
     sourceKey:    varchar("source_key", { length: 64 }),
+    marketType:   mysqlEnum("market_type", ["hal", "borsa", "resmi", "kooperatif"]).notNull().default("hal"),
     displayOrder: int("display_order").notNull().default(0),
     seoIndex:     tinyint("seo_index").notNull().default(1),
     isActive:     tinyint("is_active").notNull().default(1),
@@ -32,6 +33,7 @@ export const hfMarkets = mysqlTable(
   (t) => [
     uniqueIndex("hf_markets_slug_uq").on(t.slug),
     index("hf_markets_city_idx").on(t.cityName),
+    index("hf_markets_type_idx").on(t.marketType, t.isActive),
     index("hf_markets_seo_idx").on(t.seoIndex, t.displayOrder),
   ],
 );

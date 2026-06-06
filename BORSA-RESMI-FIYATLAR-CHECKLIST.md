@@ -192,7 +192,7 @@ ve agent/dev erişimi sağlar.
 - [x] **X7.** Frontend: `/borsa` landing + `/urun/{slug}` borsa bölümleri (wireframe'e göre) + iç linkler. **☑ Codex 2026-06-06**
 - [x] **X8.** `hal-borsa-mcp` server iskeleti + 5 tool (ortak parser'a bağlı). **☑ Codex 2026-06-06**
 - [x] **X9.** Editorial: MVP 5 ürün özgün içerik (template değil) + schema markup. **☑ Codex 2026-06-06**
-- [ ] **Doğrulama:** `/urun/bugday` 404→200, TMO alım + borsa serbest ayrı etiketli, kaynak+tarih görünür, mobil düzgün.
+- [x] **Doğrulama:** `/urun/bugday` 404→200, TMO alım + borsa serbest ayrı etiketli, kaynak+tarih görünür, mobil düzgün. **☑ Codex 2026-06-06:** backend/frontend build temiz; `db:seed:hal:fresh` geçti; `/urun/bugday|arpa|misir|aycicegi|pamuk` lokal 200; TMO alım `marketType=resmi`, borsa serbest `marketType=borsa` ayrı.
 
 ### 👤 Orhan (operasyon)
 - [ ] **O1.** §2 kaynak URL + format + robots/ToS teyidi (önce MVP 5 ürün).

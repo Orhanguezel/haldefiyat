@@ -8,6 +8,7 @@ import {
   fetchPrices,
   fetchPriceHistory,
   fetchProducts,
+  type Product,
 } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
@@ -33,6 +34,22 @@ function toNumberSafe(value: string | null | undefined): number {
 }
 
 const SITE_URL_META = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
+
+const BORSA_FALLBACK_PRODUCTS: Product[] = [
+  { id: -101, slug: "bugday", nameTr: "Buğday", displayName: "Buğday", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -102, slug: "arpa", nameTr: "Arpa", displayName: "Arpa", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -103, slug: "misir", nameTr: "Mısır", displayName: "Mısır", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -104, slug: "aycicegi", nameTr: "Ayçiçeği", displayName: "Ayçiçeği", categorySlug: "yagli-tohum", unit: "kg", seoIndex: 1 },
+  { id: -105, slug: "pamuk", nameTr: "Pamuk", displayName: "Pamuk", categorySlug: "sanayi-bitkisi", unit: "kg", seoIndex: 1 },
+];
+
+function withBorsaFallbackProducts(products: Product[]): Product[] {
+  const seen = new Set(products.map((p) => p.slug));
+  return [
+    ...products,
+    ...BORSA_FALLBACK_PRODUCTS.filter((p) => !seen.has(p.slug)),
+  ];
+}
 
 function getDisplayName(product: { displayName?: string | null; nameTr: string }) {
   return product.displayName?.trim() || product.nameTr;
@@ -73,9 +90,13 @@ function isSeoIndexed(product: { seoIndex?: number | boolean }) {
   return product.seoIndex === true || product.seoIndex === 1;
 }
 
+function isBorsaProduct(product: { categorySlug?: string }) {
+  return ["hububat", "yagli-tohum", "sanayi-bitkisi", "bakliyat-kuru"].includes(product.categorySlug ?? "");
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
-  const products = await fetchProducts();
+  const products = withBorsaFallbackProducts(await fetchProducts());
   const product = products.find((p) => p.slug === slug);
 
   if (!product) {
@@ -87,6 +108,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const displayName = getDisplayName(product);
+  const borsaProduct = isBorsaProduct(product);
   const [editorial, priceLine] = await Promise.all([
     getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug }),
     fetchTodayPriceLine(slug, product.unit),
@@ -117,14 +139,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       year,
       priceLine,
     },
-    title: `${displayName} Hal Fiyatı ${year}`,
-    description: `Türkiye genelinde ${displayName} hal fiyatları. ${priceLine}Trend grafikleri, 5 yıllık geçmiş ve şehir bazlı güncel karşılaştırma.`,
+    title: borsaProduct
+      ? `${displayName} Fiyatları ${year} — Güncel TMO Alım & Borsa Fiyatı`
+      : `${displayName} Hal Fiyatı ${year}`,
+    description: borsaProduct
+      ? `${displayName} için TMO resmi alım fiyatı ve ticaret borsası serbest piyasa fiyatları. ${priceLine}Kaynak, fiyat tipi ve tarih ayrı gösterilir.`
+      : `Türkiye genelinde ${displayName} hal fiyatları. ${priceLine}Trend grafikleri, 5 yıllık geçmiş ve şehir bazlı güncel karşılaştırma.`,
     robots: shouldIndex
       ? { index: true, follow: true }
       : { index: false, follow: true },
     openGraph: {
-      title: `${displayName} Güncel Hal Fiyatı | HaldeFiyat`,
-      description: `${displayName} fiyatları — Türkiye genelinde günlük hal verileri, sezon karşılaştırması ve 5 yıllık trend grafikleri.`,
+      title: borsaProduct ? `${displayName} Güncel TMO ve Borsa Fiyatı | HaldeFiyat` : `${displayName} Güncel Hal Fiyatı | HaldeFiyat`,
+      description: borsaProduct
+        ? `${displayName} fiyatları — TMO resmi alım ve ticaret borsası serbest piyasa verileri.`
+        : `${displayName} fiyatları — Türkiye genelinde günlük hal verileri, sezon karşılaştırması ve 5 yıllık trend grafikleri.`,
       type: "article",
       locale: "tr_TR",
       ...(ogImages && { images: ogImages }),
@@ -139,7 +167,7 @@ export default async function UrunPage({ params }: Props) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const products = await fetchProducts();
+  const products = withBorsaFallbackProducts(await fetchProducts());
   const product = products.find((p) => p.slug === slug);
 
   if (!product) {
@@ -151,6 +179,7 @@ export default async function UrunPage({ params }: Props) {
   }
 
   const displayName = getDisplayName(product);
+  const borsaProduct = isBorsaProduct(product);
   const variants = products
     .filter((p) => p.canonicalSlug === slug && p.slug !== slug)
     .map((p) => ({
@@ -162,12 +191,14 @@ export default async function UrunPage({ params }: Props) {
     .sort((a, b) => a.displayName.localeCompare(b.displayName, "tr"));
   const isClusterMaster = variants.length >= 5;
 
-  const [history, todayPrices, editorial] = await Promise.all([
+  const [history, todayPrices, editorial, borsaPrices, resmiPrices] = await Promise.all([
     // 5 yıl history — PriceChart kendi içinde 7G/30G/90G filtreler;
     // SeasonCompare aynı veriden yıl grupları çıkarır (en az 2 yıl lazım).
     fetchPriceHistory(slug, undefined, "1825d"),
-    fetchPrices({ product: slug, range: "1d", limit: 20 }),
+    fetchPrices({ product: slug, marketType: borsaProduct ? undefined : "hal", range: "1d", limit: 20 }),
     getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug }),
+    borsaProduct ? fetchPrices({ product: slug, marketType: "borsa", range: "45d", limit: 30 }) : Promise.resolve([]),
+    borsaProduct ? fetchPrices({ product: slug, marketType: "resmi", range: "365d", limit: 20 }) : Promise.resolve([]),
   ]);
 
   const mins = history
@@ -208,7 +239,9 @@ export default async function UrunPage({ params }: Props) {
 
   const productSchema = {
     name: displayName,
-    description: `${displayName} için güncel hal fiyatları. Türkiye genelinde günlük min/ort/maks fiyat verisi.`,
+    description: borsaProduct
+      ? `${displayName} için güncel TMO resmi alım ve ticaret borsası fiyatları.`
+      : `${displayName} için güncel hal fiyatları. Türkiye genelinde günlük min/ort/maks fiyat verisi.`,
     category: product.categorySlug,
     offers: {
       "@type": "AggregateOffer",
@@ -308,14 +341,38 @@ export default async function UrunPage({ params }: Props) {
           <p><strong className="text-foreground">Kullanım alanları:</strong> {editorial.culinaryUses}</p>
         )}
         <p>
-          Bu sayfada gösterilen fiyatlar, Türkiye genelindeki resmi hal müdürlüklerinden günlük olarak derlenmektedir.
-          Minimum, maksimum ve ortalama fiyat değerleri güncel piyasa koşullarını yansıtır.{" "}
+          {borsaProduct
+            ? "Bu sayfada gösterilen değerler TMO resmi alım fiyatı, ticaret borsası serbest piyasa fiyatı ve varsa destekleme primi gibi farklı tiplerden gelebilir; her değer kaynak, tip ve tarih etiketiyle ayrı değerlendirilmelidir."
+            : "Bu sayfada gösterilen fiyatlar, Türkiye genelindeki resmi hal müdürlüklerinden günlük olarak derlenmektedir. Minimum, maksimum ve ortalama fiyat değerleri güncel piyasa koşullarını yansıtır."}{" "}
           <strong className="text-foreground">Veri kaynağı:</strong>{" "}
-          Belediye hal müdürlükleri ve{" "}
+          {borsaProduct ? "TMO, ticaret borsaları ve ilgili resmi kurum duyuruları." : "Belediye hal müdürlükleri ve "}
+          {!borsaProduct && (
+            <>
           <a href="https://hal.gov.tr" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">hal.gov.tr</a>{" "}
           ulusal ortalamaları. Her gün TSİ 06:15'te güncellenir.
+            </>
+          )}
         </p>
       </div>
+
+      {borsaProduct && (
+        <section className="mt-8 grid gap-8 xl:grid-cols-2">
+          <div>
+            <h2 className="text-xl font-bold text-foreground">TMO resmi alım fiyatı</h2>
+            <p className="mt-1 text-sm text-muted">Taban/devlet alımı niteliğindedir; borsa serbest piyasa fiyatıyla karıştırılmamalıdır.</p>
+            <div className="mt-4">
+              <PriceTable initialPrices={resmiPrices} markets={[]} />
+            </div>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-foreground">Borsa günlük fiyatı</h2>
+            <p className="mt-1 text-sm text-muted">Ticaret borsası veya TMO piyasa bülteni kaynaklı serbest piyasa gözlemleri.</p>
+            <div className="mt-4">
+              <PriceTable initialPrices={borsaPrices} markets={[]} />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* FAQ bölümü — AI alıntılanabilirlik + FAQPage schema */}
       {(() => {
@@ -390,7 +447,7 @@ export default async function UrunPage({ params }: Props) {
       {/* Bugunku fiyat tablosu */}
       <div className="mb-4 mt-8 flex items-end justify-between gap-4">
         <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
-          Tüm Hallerde Bugünkü Fiyat
+          {borsaProduct ? "Hal Kaynaklı Günlük Fiyat" : "Tüm Hallerde Bugünkü Fiyat"}
         </h2>
         <ExportButton params={{ product: product.slug, range: "7d" }} />
       </div>

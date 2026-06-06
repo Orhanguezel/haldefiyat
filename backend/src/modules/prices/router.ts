@@ -36,6 +36,7 @@ const qList = z.object({
   q:          z.string().optional(),
   city:       z.string().optional(),
   market:     z.string().optional(),
+  marketType: z.enum(["hal", "borsa", "resmi", "kooperatif"]).optional(),
   category:   z.string().optional(),
   range:      z.string().optional(),
   limit:      z.coerce.number().optional(),
@@ -51,6 +52,7 @@ const qExport = qList.extend({
 const qProducts = z.object({
   q:        z.string().optional(),
   category: z.string().optional(),
+  marketType: z.enum(["hal", "borsa", "resmi", "kooperatif"]).optional(),
   seoIndex: boolish,
 });
 
@@ -113,7 +115,7 @@ export async function registerPrices(app: FastifyInstance) {
   app.get("/prices/products", async (req, reply) => {
     const q = qProducts.safeParse(req.query);
     if (!q.success) return reply.status(400).send({ error: "Gecersiz parametre" });
-    const items = await listProducts(q.data.q, q.data.category, q.data.seoIndex);
+    const items = await listProducts(q.data.q, q.data.category, q.data.seoIndex, q.data.marketType);
     return reply.send({ items });
   });
 
@@ -270,6 +272,7 @@ export async function registerPrices(app: FastifyInstance) {
       q:        p.q,
       city:     p.city,
       market:   p.market,
+      marketType: p.marketType,
       category: p.category,
       range:    p.range,
       limit:    Math.min(2000, p.limit ?? 2000),
@@ -296,6 +299,7 @@ export async function registerPrices(app: FastifyInstance) {
         q:          p.q,
         city:       p.city,
         market:     p.market,
+        marketType: p.marketType,
         category:   p.category,
         range:      p.range,
         limit:      p.limit,

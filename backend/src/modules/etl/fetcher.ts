@@ -23,6 +23,8 @@ import { resolveProductSlug, turkishToAscii, invalidateAliasCache } from "./norm
 import type { EtlSourceConfig } from "@/config/etl-sources";
 import { env } from "@/core/env";
 import { fetchViaScraper, shouldUseScraperFor, shouldUseDynamicFor } from "./scraper-client";
+import { parseTmoAlimResmi } from "./sources/borsa/tmo-alim";
+import { parseBorsaHtml, parseBorsaText } from "./sources/borsa/text-parsers";
 
 export interface EtlRunResult {
   inserted: number;
@@ -51,6 +53,7 @@ function parseResponse(
   raw: unknown,
   source: EtlSourceConfig,
 ): NormalizedRow[] {
+  if (shape === "tmo_alim_resmi") return parseTmoAlimResmi();
   if (raw == null) return [];
   switch (shape) {
     case "izmir":          return parseIzmir(raw, source);
@@ -78,6 +81,9 @@ function parseResponse(
     case "trabzon_html":      return parseTrabzonHtml(String(raw));
     case "batiakdeniz_html":  return parseBatiakdenizHtml(String(raw));
     case "bolu_html":         return parseBoluHtml(String(raw));
+    case "tmo_pdf_bulten":    return parseBorsaText(String(raw));
+    case "borsa_html":        return parseBorsaHtml(String(raw));
+    case "borsa_pdf":         return parseBorsaText(String(raw));
     default:                 return [];
   }
 }
@@ -771,6 +777,12 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "trabzon_html",
   "batiakdeniz_html",
   "bolu_html",
+  "borsa_html",
+]);
+
+const TEXT_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
+  "tmo_pdf_bulten",
+  "borsa_pdf",
 ]);
 
 /**
@@ -920,15 +932,19 @@ async function fetchDated(
   if (source.responseShape === "bolu_html") {
     return fetchBoluDated(source, date);
   }
+  if (source.responseShape === "tmo_alim_resmi") {
+    return { rows: parseResponse(source.responseShape, null, source), dateUsed: date, httpStatus: 200 };
+  }
 
   // Geriye dönük çağrıda backfillEndpoint tercih edilir (Konya gibi: default
   // sayfa bugünü, ?tarih=YYYY-MM-DD arşivi döndürür).
   const template = isBackfill ? source.backfillEndpoint : source.endpointTemplate;
   const url = source.baseUrl + template.replace("{date}", date);
   const isHtml = HTML_SHAPES.has(source.responseShape);
+  const isText = TEXT_SHAPES.has(source.responseShape);
   const res = await fetch(url, {
     headers: {
-      Accept:      isHtml ? "text/html,application/xhtml+xml" : "application/json",
+      Accept:      isHtml || isText ? "text/plain,text/html,application/pdf,*/*" : "application/json",
       "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
     },
     signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
@@ -942,7 +958,7 @@ async function fetchDated(
   const text = await decodeResponseBody(res);
   if (!text.trim()) return { rows: [], dateUsed: date, httpStatus: res.status };
 
-  if (isHtml) {
+  if (isHtml || isText) {
     return { rows: parseResponse(source.responseShape, text, source), dateUsed: date, httpStatus: res.status };
   }
 

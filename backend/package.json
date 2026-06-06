@@ -10,6 +10,7 @@
     "start:bun": "bun dist/index.js",
     "typecheck": "bun x tsc --noEmit",
     "db:seed": "bun src/db/seed/index.ts",
+    "db:seed:hal:fresh": "ALLOW_DROP=true bun src/db/seed/index.ts",
     "db:seed:nodrop": "bun src/db/seed/index.ts --no-drop",
     "db:seed:only": "bun src/db/seed/index.ts --only="
   },

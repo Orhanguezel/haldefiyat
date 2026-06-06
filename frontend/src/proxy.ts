@@ -10,6 +10,7 @@ const intlMiddleware = createMiddleware({
 });
 
 const LOWERCASE_SLUG_SECTIONS = new Set(["urun", "hal", "analiz"]);
+const BORSA_PRODUCT_SLUGS = new Set(["bugday", "arpa", "misir", "aycicegi", "pamuk"]);
 const API_URL = (
   process.env.BACKEND_URL ??
   process.env.NEXT_PUBLIC_API_URL ??
@@ -64,6 +65,7 @@ async function fetchProductBySlug(slug: string): Promise<Record<string, unknown>
 
 async function slugExists(section: string, slug: string): Promise<boolean> {
   if (section === "urun") {
+    if (BORSA_PRODUCT_SLUGS.has(slug)) return true;
     return Boolean(await fetchProductBySlug(slug));
   }
 

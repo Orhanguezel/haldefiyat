@@ -42,11 +42,14 @@ function likeSafe(raw: string): string {
   return raw.replace(/[%_\\]/g, "");
 }
 
+type MarketType = "hal" | "borsa" | "resmi" | "kooperatif";
+
 export async function listPriceRows(params: {
   product?: string;
   q?: string;
   city?: string;
   market?: string;
+  marketType?: MarketType;
   category?: string;
   range?: string;
   limit?: number;
@@ -65,12 +68,15 @@ export async function listPriceRows(params: {
   // Global anchor kullansaydık, en yeni güncellenen hal tüm pencerenin referansı
   // olurdu — güncel olmayan haller boş görünürdü.
   let anchor: string | null;
-  if (params.market) {
+  if (params.market || params.marketType) {
+    const marketConds: SQL[] = [];
+    if (params.market) marketConds.push(eq(hfMarkets.slug, params.market));
+    if (params.marketType) marketConds.push(eq(hfMarkets.marketType, params.marketType));
     const mRows = await db
       .select({ d: sql<string | null>`MAX(${hfPriceHistory.recordedDate})` })
       .from(hfPriceHistory)
       .innerJoin(hfMarkets, eq(hfPriceHistory.marketId, hfMarkets.id))
-      .where(eq(hfMarkets.slug, params.market));
+      .where(and(...marketConds));
     const raw: unknown = mRows[0]?.d;
     anchor = raw ? (raw instanceof Date ? (raw as Date).toISOString().slice(0, 10) : String(raw).slice(0, 10)) : null;
   } else {
@@ -93,6 +99,7 @@ export async function listPriceRows(params: {
   conds.push(eq(hfProducts.isActive, 1));
   if (params.product)  conds.push(eq(hfProducts.slug, params.product));
   if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
+  if (params.marketType) conds.push(eq(hfMarkets.marketType, params.marketType));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
   if (params.q?.trim()) {
     const q = likeSafe(params.q.trim());
@@ -135,6 +142,7 @@ export async function listPriceRows(params: {
         categorySlug: hfProducts.categorySlug,
         marketSlug:   hfMarkets.slug,
         marketName:   hfMarkets.name,
+        marketType:   hfMarkets.marketType,
         cityName:     hfMarkets.cityName,
       })
       .from(hfPriceHistory)
@@ -168,6 +176,7 @@ export async function listPriceRows(params: {
       categorySlug: hfProducts.categorySlug,
       marketSlug:   hfMarkets.slug,
       marketName:   hfMarkets.name,
+      marketType:   hfMarkets.marketType,
       cityName:     hfMarkets.cityName,
     })
     .from(hfPriceHistory)
@@ -199,18 +208,22 @@ async function priceQueryContext(params: {
   q?: string;
   city?: string;
   market?: string;
+  marketType?: MarketType;
   category?: string;
   range?: string;
 }) {
   const days = parseRangeToDays(params.range);
 
   let anchor: string | null;
-  if (params.market) {
+  if (params.market || params.marketType) {
+    const marketConds: SQL[] = [];
+    if (params.market) marketConds.push(eq(hfMarkets.slug, params.market));
+    if (params.marketType) marketConds.push(eq(hfMarkets.marketType, params.marketType));
     const mRows = await db
       .select({ d: sql<string | null>`MAX(${hfPriceHistory.recordedDate})` })
       .from(hfPriceHistory)
       .innerJoin(hfMarkets, eq(hfPriceHistory.marketId, hfMarkets.id))
-      .where(eq(hfMarkets.slug, params.market));
+      .where(and(...marketConds));
     const raw: unknown = mRows[0]?.d;
     anchor = raw ? (raw instanceof Date ? raw.toISOString().slice(0, 10) : String(raw).slice(0, 10)) : null;
   } else {
@@ -230,6 +243,7 @@ async function priceQueryContext(params: {
   conds.push(eq(hfProducts.isActive, 1));
   if (params.product)  conds.push(eq(hfProducts.slug, params.product));
   if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
+  if (params.marketType) conds.push(eq(hfMarkets.marketType, params.marketType));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
   if (params.q?.trim()) {
     const q = likeSafe(params.q.trim());
@@ -257,6 +271,7 @@ const priceColumns = {
   categorySlug: hfProducts.categorySlug,
   marketSlug:   hfMarkets.slug,
   marketName:   hfMarkets.name,
+  marketType:   hfMarkets.marketType,
   cityName:     hfMarkets.cityName,
 };
 
@@ -265,6 +280,7 @@ export async function listPriceRowsPage(params: {
   q?: string;
   city?: string;
   market?: string;
+  marketType?: MarketType;
   category?: string;
   range?: string;
   limit?: number;
@@ -356,10 +372,20 @@ export async function listPriceRowsPage(params: {
   return { items, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
 }
 
-export async function listProducts(q?: string, category?: string, seoIndex?: boolean) {
+export async function listProducts(q?: string, category?: string, seoIndex?: boolean, marketType?: MarketType) {
   const conds: SQL[] = [eq(hfProducts.isActive, 1)];
   if (category?.trim()) conds.push(eq(hfProducts.categorySlug, category));
   if (seoIndex != null) conds.push(eq(hfProducts.seoIndex, seoIndex ? 1 : 0));
+  if (marketType) {
+    conds.push(sql`EXISTS (
+      SELECT 1
+      FROM hf_price_history ph
+      INNER JOIN hf_markets m ON m.id = ph.market_id
+      WHERE ph.product_id = ${hfProducts.id}
+        AND m.is_active = 1
+        AND m.market_type = ${marketType}
+    )`);
+  }
   if (q?.trim()) {
     const s = likeSafe(q.trim());
     if (s) conds.push(or(like(hfProducts.nameTr, `%${s}%`), like(hfProducts.slug, `%${s}%`))!);
@@ -545,6 +571,7 @@ export async function listMarkets(city?: string, seoIndex?: boolean) {
       cityName:    hfMarkets.cityName,
       regionSlug:  hfMarkets.regionSlug,
       sourceKey:   hfMarkets.sourceKey,
+      marketType:   hfMarkets.marketType,
       seoIndex:    hfMarkets.seoIndex,
       updatedAt:   hfMarkets.updatedAt,
     })
