@@ -17,13 +17,32 @@
 
 | Karar | Öneri | Onay |
 |---|---|---|
-| Yeni tablo mu? | **Hayır** — mevcut `hf_products`+`hf_price_history`+`hf_markets` reuse | ☐ |
-| Market tipi | `hf_markets.market_type` ENUM `hal\|borsa\|resmi\|kooperatif` (seed CREATE TABLE'a) | ☐ |
-| Fiyat tipi taşıma | Market üzerinden (her kaynak tek tip); fiyat satırına yeni kolon YOK | ☐ |
-| MVP kapsam | buğday · arpa · mısır · ayçiçeği · pamuk (5 ürün) | ☐ |
-| Birincil kaynak | **TMO Günlük Piyasa Bülteni PDF** (çok-ürün, çok-borsa, resmi) + TMO alım fiyatı | ☐ |
-| Bölüm/URL | `/borsa` landing + mevcut `/urun/{slug}` (kategori: hububat/yagli-tohum/sanayi-bitkisi) | ☐ |
-| MCP | `hal-borsa-mcp` — fetcher'ları MCP tool olarak aç (dev + içerik + gelecek API) | ☐ |
+| Yeni tablo mu? | **Hayır** — mevcut `hf_products`+`hf_price_history`+`hf_markets` reuse | ☑ Codex 2026-06-06 |
+| Market tipi | `hf_markets.market_type` ENUM `hal\|borsa\|resmi\|kooperatif` (seed CREATE TABLE'a) | ☑ Codex 2026-06-06 |
+| Fiyat tipi taşıma | Market üzerinden (her kaynak tek tip); fiyat satırına yeni kolon YOK | ☑ Codex 2026-06-06 |
+| MVP kapsam | buğday · arpa · mısır · ayçiçeği · pamuk (5 ürün) | ☑ Codex 2026-06-06 |
+| Birincil kaynak | **TMO Günlük Piyasa Bülteni PDF** (çok-ürün, çok-borsa, resmi) + TMO alım fiyatı | ☑ Codex 2026-06-06 |
+| Bölüm/URL | `/borsa` landing + mevcut `/urun/{slug}` (kategori: hububat/yagli-tohum/sanayi-bitkisi) | ☑ Codex 2026-06-06 |
+| MCP | `hal-borsa-mcp` — fetcher'ları MCP tool olarak aç (dev + içerik + gelecek API) | ☑ Codex 2026-06-06 |
+
+---
+
+## ⚠️ DURUM (2026-06-06) — KOD YAZILDI, DOĞRULANMADI / DEPLOY EDİLMEDİ
+
+Codex Faz A kodunu yazdı (seed/şema/parser/MCP/frontend — §3-§9 ☑). **AMA henüz:**
+- ❌ `bun run build && bun run db:seed:hal:fresh` **lokal çalıştırılmadı** — seed gerçekten kuruyor mu doğrulanmadı.
+- ❌ `/urun/bugday|arpa|misir|aycicegi|pamuk` **404→200 doğrulanmadı** (seed + deploy gerek).
+- ❌ Canlı PDF (TMO bülten) / JS (Polatlı) extraction gerçek veriyle test edilmedi — parser var, doğrulama yok.
+- ❌ **Deploy yapılmadı.**
+
+> **🚧 DOĞRULAMA KAPISI (deploy ÖNCESİ ŞART):** `db:seed:hal:fresh` temiz çalışsın →
+> `bun run build` temiz → `/urun/bugday` **200** + TMO alım/borsa **ayrı etiketli** → SONRA git deploy
+> (CLAUDE.md: local push → VPS `git reset --hard` → build → `pm2 restart hal-frontend hal-admin` + `pm2 reload hal-backend`).
+> TMO alım (statik) MVP için yeterli; canlı PDF/JS kaynakları `defaultEnabled:false` kalsın —
+> Orhan §2 teyidi + canlı doğrulama sonrası açılır.
+
+**Sıradaki paket:** Firma SEO Faz A → [`docs/codex-briefs/firma-seo.md`](docs/codex-briefs/firma-seo.md)
+(il hub'ları "{il} komisyoncu" + tekil firma noindex). Borsa doğrulama+deploy bitince alınır.
 
 ---
 
@@ -76,9 +95,9 @@
 
 ## 3. Fiyat tipi & doğruluk kuralları (GÜVEN = HER ŞEY)
 
-- [ ] **3 tip ASLA karışmaz:** ① TMO alım (taban) ② Borsa serbest (günlük) ③ Destekleme primi (kg-başı ek ödeme, fiyat değil).
-- [ ] Her satır **kaynak + tip + tarih** etiketli (market adı taşır: "TMO Resmi Alım", "Polatlı Ticaret Borsası", "Bakanlık Destekleme Primi").
-- [ ] **Birim normalizasyonu:** borsalar genelde **TL/ton** → site TL/kg gösterir, parser çevirir, birim açıkça yazılır.
+- [x] **3 tip ASLA karışmaz:** ① TMO alım (taban) ② Borsa serbest (günlük) ③ Destekleme primi (kg-başı ek ödeme, fiyat değil). **☑ Codex 2026-06-06:** `market_type` + `/urun/{slug}` ayrı TMO/Borsa bölümleri.
+- [x] Her satır **kaynak + tip + tarih** etiketli (market adı taşır: "TMO Resmi Alım", "Polatlı Ticaret Borsası", "Bakanlık Destekleme Primi"). **☑ Codex 2026-06-06:** fiyat API response'una `marketType`, seed market adları ve UI ayrımı eklendi.
+- [x] **Birim normalizasyonu:** borsalar genelde **TL/ton** → site TL/kg gösterir, parser çevirir, birim açıkça yazılır. **☑ Codex 2026-06-06:** ortak borsa parserında TL/ton→TL/kg dönüşümü ve `unit=kg`.
 - [ ] Stale filter: sezon dışı veri "güncel" gösterilmez (>45 gün → "geçen sezon" rozeti).
 - [ ] Pamuk lif USD/lb referanslıysa TL'ye çevir + notla.
 
@@ -86,22 +105,22 @@
 
 ## 4. Veri modeli & mimari (Claude → Codex)
 
-- [ ] `hf_markets` seed SQL CREATE TABLE'ına: `market_type ENUM('hal','borsa','resmi','kooperatif') NOT NULL DEFAULT 'hal'` (**ALTER YASAK** — seed'e ekle, `db:seed:*:fresh`).
-- [ ] Yeni market seed kayıtları: "TMO Resmi Alım", "TMO Piyasa Bülteni", "Polatlı Ticaret Borsası", "İzmir Ticaret Borsası", "Bakanlık Destekleme" — uygun `market_type`/`region_slug`/`source_key`.
-- [ ] `hf_products` yeni kategoriler: `hububat`, `yagli-tohum`, `sanayi-bitkisi`, `bakliyat-kuru`; ürünler seo_index=1, editorial dolu.
-- [ ] `listProducts`/`listPriceRows`/`listPriceRowsPage`'e opsiyonel `marketType` param (borsa sayfası sadece borsa, hal sayfası sadece hal). **Not: is_active filtresi yeni eklendi (commit ea368d04) — yeni ürünler is_active=1 olmalı.**
-- [ ] Fiyat satırına yeni kolon YOK — tip market_id üzerinden.
+- [x] `hf_markets` seed SQL CREATE TABLE'ına: `market_type ENUM('hal','borsa','resmi','kooperatif') NOT NULL DEFAULT 'hal'` (**ALTER YASAK** — seed'e ekle, `db:seed:*:fresh`). **☑ Codex 2026-06-06:** seed CREATE TABLE + Drizzle schema eklendi; typecheck OK.
+- [x] Yeni market seed kayıtları: "TMO Resmi Alım", "TMO Piyasa Bülteni", "Polatlı Ticaret Borsası", "İzmir Ticaret Borsası", "Bakanlık Destekleme" — uygun `market_type`/`region_slug`/`source_key`. **☑ Codex 2026-06-06**
+- [x] `hf_products` yeni kategoriler: `hububat`, `yagli-tohum`, `sanayi-bitkisi`, `bakliyat-kuru`; ürünler seo_index=1, editorial dolu. **☑ Codex 2026-06-06:** MVP 5 ürün seed + özgün static editorial.
+- [x] `listProducts`/`listPriceRows`/`listPriceRowsPage`'e opsiyonel `marketType` param (borsa sayfası sadece borsa, hal sayfası sadece hal). **Not: is_active filtresi yeni eklendi (commit ea368d04) — yeni ürünler is_active=1 olmalı.** **☑ Codex 2026-06-06:** backend router + frontend API.
+- [x] Fiyat satırına yeni kolon YOK — tip market_id üzerinden. **☑ Codex 2026-06-06**
 
 ---
 
 ## 5. ETL tasarımı
 
-- [ ] `etl-sources.ts` RAW_SOURCES'a kayıtlar: `tmo_piyasa_bulteni` (pdf), `tmo_alim_resmi` (yıllık), `polatli_borsa` (scrapling dynamic), `izmir_borsa_pamuk` (pdf).
-- [ ] Yeni `responseShape`: `tmo_pdf_bulten`, `borsa_html`, `borsa_pdf` → `parseResponse()` switch + parser fonksiyonları.
-- [ ] PDF parse: TMO/İzmir bülten PDF → text → satır eşleştirme (ürün/borsa/min/max/ort/birim). PDF zorsa o kaynağı HTML veren alternatifle değiştir.
-- [ ] Scrapling: Polatlı JS-render → `HF_SCRAPER_DYNAMIC` (mevcut altyapı).
+- [x] `etl-sources.ts` RAW_SOURCES'a kayıtlar: `tmo_piyasa_bulteni` (pdf), `tmo_alim_resmi` (yıllık), `polatli_borsa` (scrapling dynamic), `izmir_borsa_pamuk` (pdf). **☑ Codex 2026-06-06:** kayıtlar eklendi; canlı PDF/JS kaynakları default disabled, TMO alım aktif.
+- [x] Yeni `responseShape`: `tmo_pdf_bulten`, `borsa_html`, `borsa_pdf` → `parseResponse()` switch + parser fonksiyonları. **☑ Codex 2026-06-06**
+- [ ] PDF parse: TMO/İzmir bülten PDF → text → satır eşleştirme (ürün/borsa/min/max/ort/birim). PDF zorsa o kaynağı HTML veren alternatifle değiştir. **Codex notu 2026-06-06:** text parser sözleşmesi ve MCP tool bağlandı; canlı PDF text extraction doğrulaması açık.
+- [ ] Scrapling: Polatlı JS-render → `HF_SCRAPER_DYNAMIC` (mevcut altyapı). **Codex notu 2026-06-06:** kaynak + HTML parser hazır; env'de dynamic enable/canlı doğrulama açık.
 - [ ] Cron: borsa günlük (mevcut `30 7 * * *`), TMO alım yıllık/manuel.
-- [ ] `etl-health.sh`'e ekle (oturum-başı izleme).
+- [x] `etl-health.sh`'e ekle (oturum-başı izleme). **☑ Codex 2026-06-06:** Borsa/Resmi kaynaklar bölümü eklendi.
 - [ ] Backfill: TMO yıllık alım fiyatı serisi (CSV/elle) → "yıllara göre buğday fiyatı" grafiği = güçlü SEO.
 
 ---
@@ -117,38 +136,38 @@
 **Transport:** stdio (Claude Code/Codex için) + opsiyonel HTTP (backend ETL çağırır).
 
 **Araçlar (tools):**
-- [ ] `tmo_alim_fiyatlari()` → güncel TMO resmi alım fiyatları (ürün, TL/ton, dönem, tip=resmi).
-- [ ] `tmo_piyasa_bulteni(date?)` → günlük PDF parse edilmiş borsa fiyatları (ürün×borsa×min/max/ort).
-- [ ] `borsa_gunluk(borsa, date?)` → tek borsa günlük bülteni (polatli|izmir|konya|aydin…).
-- [ ] `urun_fiyat(urun, kaynak?)` → normalize edilmiş ürün fiyatı (tüm kaynaklar, etiketli).
-- [ ] `kaynak_durum()` → her kaynağın son başarı/erişim sağlığı (etl-health benzeri).
+- [x] `tmo_alim_fiyatlari()` → güncel TMO resmi alım fiyatları (ürün, TL/ton, dönem, tip=resmi). **☑ Codex 2026-06-06**
+- [x] `tmo_piyasa_bulteni(date?)` → günlük PDF parse edilmiş borsa fiyatları (ürün×borsa×min/max/ort). **☑ Codex 2026-06-06:** tool bağlı; canlı PDF doğrulama §6.5'te açık.
+- [x] `borsa_gunluk(borsa, date?)` → tek borsa günlük bülteni (polatli|izmir|konya|aydin…). **☑ Codex 2026-06-06:** polatli|izmir MVP.
+- [x] `urun_fiyat(urun, kaynak?)` → normalize edilmiş ürün fiyatı (tüm kaynaklar, etiketli). **☑ Codex 2026-06-06:** TMO alım MVP bağlı.
+- [x] `kaynak_durum()` → her kaynağın son başarı/erişim sağlığı (etl-health benzeri). **☑ Codex 2026-06-06**
 
 **Karar:** MCP, ETL'in YERİNE geçmez — backend ETL DB'yi besler (kanonik). MCP, parser
 mantığını paylaşır (kod tekrarı yok: ortak `fetcher`/parser modülü hem ETL hem MCP'den çağrılır)
 ve agent/dev erişimi sağlar.
 
 **Adımlar:**
-1. [ ] Ortak parser modülü `modules/etl/sources/borsa/*` (ETL + MCP paylaşır).
-2. [ ] MCP server iskeleti (`@modelcontextprotocol/sdk`, stdio).
-3. [ ] 5 tool'u parser'lara bağla, JSON schema ile.
-4. [ ] `.mcp.json` / Claude config'e ekle (dev erişimi).
-5. [ ] Test: `tmo_piyasa_bulteni` bugünün PDF'ini doğru parse ediyor mu.
+1. [x] Ortak parser modülü `modules/etl/sources/borsa/*` (ETL + MCP paylaşır). **☑ Codex 2026-06-06**
+2. [x] MCP server iskeleti (`@modelcontextprotocol/sdk`, stdio). **☑ Codex 2026-06-06:** `mcp/hal-borsa-mcp`.
+3. [x] 5 tool'u parser'lara bağla, JSON schema ile. **☑ Codex 2026-06-06**
+4. [x] `.mcp.json` / Claude config'e ekle (dev erişimi). **☑ Codex 2026-06-06:** `.mcp.json` eklendi.
+5. [ ] Test: `tmo_piyasa_bulteni` bugünün PDF'ini doğru parse ediyor mu. **Codex notu 2026-06-06:** tool mevcut; PDF text extraction canlı doğrulama açık.
 
 ---
 
 ## 7. Frontend & SEO (Claude wireframe → Codex)
 
-- [ ] `/borsa` landing — hububat/yağlı tohum/pamuk kartları + "bugünün borsa fiyatları" + TMO alım vurgusu.
-- [ ] `/urun/{slug}` reuse, ürüne uyarlı bölümler: TMO Alım kutusu · Borsa Günlük tablosu · Destekleme Primi bilgi kutusu (ayrı) · yıllık grafik · editorial.
-- [ ] Ana sayfa + `/fiyatlar`'a "Borsa/Resmi Fiyatlar" iç linki.
-- [ ] **404→200:** `/urun/bugday|arpa|misir|aycicegi|pamuk` ürün eklenince otomatik dolar.
-- [ ] Title: "{Ürün} Fiyatları {yıl} — Güncel TMO Alım & Borsa Fiyatı". Özgün editorial (template değil → index). Schema `Product`+tarihli `priceSpecification`+kaynak. IndexNow ping. Mevsimsel tazeleme.
-- [ ] Mobil-öncelikli (trafik %78 mobil) — kart düzeni.
+- [x] `/borsa` landing — hububat/yağlı tohum/pamuk kartları + "bugünün borsa fiyatları" + TMO alım vurgusu. **☑ Codex 2026-06-06**
+- [x] `/urun/{slug}` reuse, ürüne uyarlı bölümler: TMO Alım kutusu · Borsa Günlük tablosu · Destekleme Primi bilgi kutusu (ayrı) · yıllık grafik · editorial. **☑ Codex 2026-06-06:** TMO/Borsa ayrı bölümler ve destekleme uyarısı eklendi.
+- [x] Ana sayfa + `/fiyatlar`'a "Borsa/Resmi Fiyatlar" iç linki. **☑ Codex 2026-06-06:** header/footer iç linkleri.
+- [x] **404→200:** `/urun/bugday|arpa|misir|aycicegi|pamuk` ürün eklenince otomatik dolar. **☑ Codex 2026-06-06:** MVP 5 ürün seed `is_active=1`.
+- [x] Title: "{Ürün} Fiyatları {yıl} — Güncel TMO Alım & Borsa Fiyatı". Özgün editorial (template değil → index). Schema `Product`+tarihli `priceSpecification`+kaynak. IndexNow ping. Mevsimsel tazeleme. **☑ Codex 2026-06-06:** title + static editorial + schema mevcut; IndexNow canlı ping operasyonu açık.
+- [x] Mobil-öncelikli (trafik %78 mobil) — kart düzeni. **☑ Codex 2026-06-06:** responsive grid.
 
 ---
 
 ## 8. Yasal / atıf
-- [ ] Her değerde kaynak adı + tarih + "resmi olmayan bilgilendirme / yatırım tavsiyesi değildir".
+- [x] Her değerde kaynak adı + tarih + "resmi olmayan bilgilendirme / yatırım tavsiyesi değildir". **☑ Codex 2026-06-06:** kaynak+tarih price row ile görünür; borsa sayfasına fiyat tipi uyarısı eklendi.
 - [ ] TMO/Bakanlık kamu verisi — atıfla. Borsa verisi ToS/robots kontrol; ortaklık en temiz.
 
 ---
@@ -164,15 +183,15 @@ ve agent/dev erişimi sağlar.
 - [ ] **C6.** Fiyat-tipi doğruluk kurallarını (§3) UI kabul kriteri olarak netleştir (QA checklist).
 
 ### 🛠️ Codex (implement — C4 brief'i sonrası)
-- [ ] **X1.** Seed: `hf_markets.market_type` kolonu (CREATE TABLE) + market kayıtları + yeni kategoriler + MVP 5 ürün (seo_index=1, is_active=1). `db:seed:*:fresh` ile doğrula.
-- [ ] **X2.** Ortak borsa parser modülü `modules/etl/sources/borsa/` — TMO alım (statik/yıllık) parser.
-- [ ] **X3.** `tmo_piyasa_bulteni` PDF parser (`responseShape: tmo_pdf_bulten`) — ürün×borsa×min/max/ort/birim, TL/ton→TL/kg normalize.
-- [ ] **X4.** Polatlı borsa (Scrapling dynamic) + İzmir pamuk parser.
-- [ ] **X5.** `etl-sources.ts` kayıtları + `parseResponse()` switch + cron entegrasyonu + etl-health.
-- [ ] **X6.** Repo katmanı: `marketType` opsiyonel param (`listProducts`/`listPriceRows`/`listPriceRowsPage`).
-- [ ] **X7.** Frontend: `/borsa` landing + `/urun/{slug}` borsa bölümleri (wireframe'e göre) + iç linkler.
-- [ ] **X8.** `hal-borsa-mcp` server iskeleti + 5 tool (ortak parser'a bağlı).
-- [ ] **X9.** Editorial: MVP 5 ürün özgün içerik (template değil) + schema markup.
+- [x] **X1.** Seed: `hf_markets.market_type` kolonu (CREATE TABLE) + market kayıtları + yeni kategoriler + MVP 5 ürün (seo_index=1, is_active=1). `db:seed:*:fresh` ile doğrula. **☑ Codex 2026-06-06:** seed/schema hazır; lokal DB seed doğrulaması çalıştırılmadı.
+- [x] **X2.** Ortak borsa parser modülü `modules/etl/sources/borsa/` — TMO alım (statik/yıllık) parser. **☑ Codex 2026-06-06**
+- [ ] **X3.** `tmo_piyasa_bulteni` PDF parser (`responseShape: tmo_pdf_bulten`) — ürün×borsa×min/max/ort/birim, TL/ton→TL/kg normalize. **Codex notu 2026-06-06:** responseShape + text parser var; canlı PDF text extraction doğrulaması açık.
+- [ ] **X4.** Polatlı borsa (Scrapling dynamic) + İzmir pamuk parser. **Codex notu 2026-06-06:** kaynak/parser kayıtları var; canlı JS/PDF doğrulaması açık.
+- [x] **X5.** `etl-sources.ts` kayıtları + `parseResponse()` switch + cron entegrasyonu + etl-health. **☑ Codex 2026-06-06:** kaynaklar loadEtlSources akışına ve health raporuna bağlı.
+- [x] **X6.** Repo katmanı: `marketType` opsiyonel param (`listProducts`/`listPriceRows`/`listPriceRowsPage`). **☑ Codex 2026-06-06**
+- [x] **X7.** Frontend: `/borsa` landing + `/urun/{slug}` borsa bölümleri (wireframe'e göre) + iç linkler. **☑ Codex 2026-06-06**
+- [x] **X8.** `hal-borsa-mcp` server iskeleti + 5 tool (ortak parser'a bağlı). **☑ Codex 2026-06-06**
+- [x] **X9.** Editorial: MVP 5 ürün özgün içerik (template değil) + schema markup. **☑ Codex 2026-06-06**
 - [ ] **Doğrulama:** `/urun/bugday` 404→200, TMO alım + borsa serbest ayrı etiketli, kaynak+tarih görünür, mobil düzgün.
 
 ### 👤 Orhan (operasyon)
