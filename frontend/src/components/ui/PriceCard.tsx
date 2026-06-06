@@ -17,9 +17,9 @@ function trendOf(changePct: number | undefined): Trend {
   return changePct > 0 ? "up" : "down";
 }
 
-function fmt(value: string | null | undefined): string {
+function fmt(value: string | number | null | undefined): string {
   if (value == null || value === "") return "—";
-  const n = parseFloat(value);
+  const n = typeof value === "number" ? value : parseFloat(value);
   if (!Number.isFinite(n)) return "—";
   return n.toLocaleString("tr-TR", {
     minimumFractionDigits: 2,

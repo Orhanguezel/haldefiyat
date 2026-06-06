@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import { fetchFirm, fetchFirms } from "@/lib/api";
+import { fetchFirm, fetchFirms, fetchMarkets, fetchPrices, type PriceRow } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
@@ -28,6 +28,37 @@ function titleCaseSlug(value?: string | null): string {
     .filter(Boolean)
     .map((part) => part.charAt(0).toLocaleUpperCase("tr") + part.slice(1))
     .join(" ");
+}
+
+function normalizeTrSlug(value?: string | null): string {
+  if (!value) return "";
+  return value
+    .trim()
+    .toLocaleLowerCase("tr")
+    .replace(/İ/g, "i")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ı/g, "i")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+async function findFirmCityMarket(citySlug?: string | null) {
+  if (!citySlug) return null;
+  const target = normalizeTrSlug(citySlug);
+  const markets = await fetchMarkets();
+  return markets.find((market) => (
+    market.marketType !== "borsa" &&
+    market.marketType !== "resmi" &&
+    market.regionSlug !== "ulusal" &&
+    normalizeTrSlug(market.cityName) === target
+  )) ?? null;
 }
 
 function hasIndexableContent(firm: Awaited<ReturnType<typeof fetchFirm>>): boolean {
@@ -59,20 +90,28 @@ export default async function FirmDetailPage({ params }: Props) {
   const firm = await fetchFirm(slug);
   if (!firm) notFound();
 
-  const related = firm.citySlug
-    ? await fetchFirms({ city: firm.citySlug, type: firm.firmType, limit: 4 })
-    : { items: [], meta: { total: 0, limit: 4, offset: 0 } };
+  const [related, cityMarket] = await Promise.all([
+    firm.citySlug
+      ? fetchFirms({ city: firm.citySlug, type: firm.firmType, limit: 4 })
+      : Promise.resolve({ items: [], meta: { total: 0, limit: 4, offset: 0 } }),
+    findFirmCityMarket(firm.citySlug),
+  ]);
+  const cityPrices = cityMarket ? await fetchPrices({ market: cityMarket.slug, range: "7d", limit: 6 }) : [];
   const relatedItems = related.items.filter((item) => item.slug !== firm.slug).slice(0, 3);
   const city = titleCaseSlug(firm.citySlug);
   const district = titleCaseSlug(firm.districtSlug);
   const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
   const isPremium = Boolean(firm.sponsorshipTier && ["premium", "gold", "featured"].includes(firm.sponsorshipTier));
+  const mapQuery = buildMapQuery(firm.name, firm.address, district, city);
+  const mapUrl = mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : null;
+  const firmProducts = (firm.products ?? []).filter((product) => product.productName || product.productSlug);
 
   const localBusinessSchema = {
     name: firm.name,
     url: `${SITE_URL}/firma/${firm.slug}`,
     image: firm.photoUrl || undefined,
     telephone: firm.phone || undefined,
+    hasMap: mapUrl || undefined,
     address: {
       "@type": "PostalAddress",
       streetAddress: firm.address || undefined,
@@ -177,6 +216,16 @@ export default async function FirmDetailPage({ params }: Props) {
             >
               Şehirdeki firmalar
             </Link>
+            {mapUrl && (
+              <a
+                href={mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-[6px] border border-(--color-border) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-foreground)"
+              >
+                Haritada aç
+              </a>
+            )}
             <FirmClaimButton firmId={firm.id} claimStatus={firm.claimStatus} />
           </div>
         </div>
@@ -218,6 +267,45 @@ export default async function FirmDetailPage({ params }: Props) {
               </div>
             </section>
           )}
+
+          {cityMarket && (
+            <CityMarketPricesBlock
+              city={city}
+              marketSlug={cityMarket.slug}
+              marketName={cityMarket.name}
+              prices={cityPrices}
+            />
+          )}
+
+          {firmProducts.length > 0 && (
+            <section className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-5">
+              <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
+                Çalıştığı Ürünler
+              </h2>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {firmProducts.map((product) => {
+                  const label = product.productName || product.productSlug || "Ürün";
+                  return product.productSlug ? (
+                    <Link
+                      key={product.id}
+                      href={`/urun/${product.productSlug}`}
+                      className="rounded-[6px] border border-(--color-border-soft) px-3 py-2 text-[12px] font-semibold text-(--color-foreground) hover:border-(--color-brand)/45"
+                    >
+                      {label}
+                    </Link>
+                  ) : (
+                    <span
+                      key={product.id}
+                      className="rounded-[6px] border border-(--color-border-soft) px-3 py-2 text-[12px] font-semibold text-(--color-muted)"
+                    >
+                      {label}
+                    </span>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
           <FirmLeadForm firmSlug={firm.slug} />
         </div>
         <aside className="rounded-[8px] border border-dashed border-(--color-border) bg-(--color-bg-alt) p-5">
@@ -257,6 +345,64 @@ export default async function FirmDetailPage({ params }: Props) {
   );
 }
 
+function CityMarketPricesBlock({
+  city,
+  marketSlug,
+  marketName,
+  prices,
+}: {
+  city: string;
+  marketSlug: string;
+  marketName: string;
+  prices: PriceRow[];
+}) {
+  const priceDate = prices[0]?.recordedDate;
+  return (
+    <section className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
+            {city} Hali Güncel Fiyatları
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-(--color-muted)">
+            Firma görüşmesi öncesinde {marketName} için yayınlanan ürün fiyatlarını kontrol edebilirsiniz.
+          </p>
+        </div>
+        <Link href={`/hal/${marketSlug}`} className="rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-white">
+          Hal fiyatları
+        </Link>
+      </div>
+
+      {prices.length > 0 ? (
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          {prices.slice(0, 6).map((price) => (
+            <Link
+              key={`${price.productSlug}-${price.marketSlug}-${price.recordedDate}`}
+              href={`/urun/${price.productSlug}`}
+              className="rounded-[6px] border border-(--color-border-soft) p-3 hover:border-(--color-brand)/45"
+            >
+              <span className="block text-sm font-semibold text-(--color-foreground)">{price.productName}</span>
+              <span className="mt-1 block font-(family-name:--font-mono) text-[12px] text-(--color-muted)">
+                Ort. {formatPrice(price.avgPrice)}{price.recordedDate ? ` · ${price.recordedDate}` : ""}
+              </span>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-4 rounded-[6px] border border-dashed border-(--color-border-soft) bg-(--color-bg-alt) p-4 text-sm leading-6 text-(--color-muted)">
+          {city} hali için güncel fiyat satırı bekleniyor. Hal sayfası yayında; ETL verisi geldiğinde ürün fiyatları burada da görünecek.
+        </div>
+      )}
+
+      {priceDate && (
+        <p className="mt-3 font-(family-name:--font-mono) text-[11px] text-(--color-muted)">
+          Son fiyat tarihi: {priceDate}
+        </p>
+      )}
+    </section>
+  );
+}
+
 function Info({ label, value, wide = false }: { label: string; value: string; wide?: boolean }) {
   return (
     <div className={`rounded-[8px] border border-(--color-border) bg-(--color-surface) p-4 ${wide ? "sm:col-span-2" : ""}`}>
@@ -268,7 +414,12 @@ function Info({ label, value, wide = false }: { label: string; value: string; wi
   );
 }
 
-function formatPrice(value?: string | null): string {
+function buildMapQuery(...parts: Array<string | null | undefined>): string | null {
+  const query = parts.filter(Boolean).join(", ");
+  return query || null;
+}
+
+function formatPrice(value?: string | number | null): string {
   if (!value) return "-";
   return `${Number(value).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TL`;
 }

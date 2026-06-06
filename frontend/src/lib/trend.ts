@@ -13,7 +13,7 @@ export interface TrendPoint {
 
 interface HistoryInput {
   recordedDate: string | Date;
-  avgPrice: string | null | undefined;
+  avgPrice: string | number | null | undefined;
 }
 
 interface Pair {
@@ -28,9 +28,9 @@ function toIsoDate(value: string | Date): string {
   return String(value).slice(0, 10);
 }
 
-function parsePrice(value: string | null | undefined): number {
+function parsePrice(value: string | number | null | undefined): number {
   if (value == null) return NaN;
-  const n = parseFloat(value);
+  const n = typeof value === "number" ? value : parseFloat(value);
   return Number.isFinite(n) ? n : NaN;
 }
 

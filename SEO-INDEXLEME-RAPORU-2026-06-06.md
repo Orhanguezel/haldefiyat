@@ -58,24 +58,24 @@ hepsi indeksleniyor; indeksleme motoru çalışıyor.** Sorun indekssiz 591'in d
 ### Çözüm stratejisi (3 katman)
 
 **🥇 Katman 1 — Kanamayı durdur (HIZLI, yüksek etki)**
-- [ ] `hf_firms`'e `seo_index TINYINT DEFAULT 0` kolonu ekle (seed CREATE TABLE — ALTER yasak).
-- [ ] Bireysel `/firma/{slug}` sayfalarını **şimdilik noindex** + **sitemap'ten çıkar**.
-- [ ] Sitemap firma yerine **hub sayfalarını** içersin.
+- [x] `hf_firms`'e `seo_index TINYINT DEFAULT 0` kolonu ekle (seed CREATE TABLE — ALTER yasak). **Codex 2026-06-06**
+- [x] Bireysel `/firma/{slug}` sayfalarını **şimdilik noindex** + **sitemap'ten çıkar**. **Codex 2026-06-06**
+- [x] Sitemap firma yerine **hub sayfalarını** içersin. **Codex 2026-06-06**
 - **Etki:** 1.322 ince sayfa crawl bütçesini yemez, site kalite sinyali yükselir, ürün/hal indekslenmesi hızlanır. "Keşfedildi-indekslenmedi" eriyip düşer.
 
 **🥈 Katman 2 — Zengin HUB sayfaları kur (en yüksek SEO ROI)**
 Şehir yoğunluğu hub için ideal: Mersin 240, Antalya 161, Adana 89, Konya 56, İstanbul 55, Hatay 47, Samsun 37, Aydın 36.
-- [ ] `/firmalar/{sehir}` — "Mersin Hal Komisyoncuları (240 firma)" — liste + giriş içeriği + ilgili hal fiyat linki. ~30-40 zengin sayfa.
-- [ ] `/firmalar/{tip}` — komisyoncu / soğuk hava deposu / nakliye / zirai ilaç (4 sayfa).
+- [x] `/firmalar/{sehir}` — "Mersin Hal Komisyoncuları (240 firma)" — liste + giriş içeriği + ilgili hal fiyat linki. ~30-40 zengin sayfa. **Codex 2026-06-06**
+- [x] `/firmalar/{tip}` — komisyoncu / soğuk hava deposu / nakliye / zirai ilaç (4 sayfa). **Codex 2026-06-06**
 - [ ] `/firmalar/{sehir}/{tip}` — "Antalya komisyoncuları" (yüksek aramalı kombinasyonlar).
 - Bu hub'lar gerçek işletme listesi = içerik-zengin, kolay indexlenir, bireysel firmaya link equity taşır. **"mersin hal komisyoncu" gerçek bir arama.**
 
 **🥉 Katman 3 — Firma sayfasını zenginleştir → kademeli geri-index**
-- [ ] Her firma sayfasına **benzersiz değer** ekle:
+- [x] Her firma sayfasına **benzersiz değer** ekle: **Codex 2026-06-06**
   - Firmanın bağlı olduğu **hal'in canlı fiyatları** ("X komisyoncusu — Antalya Hali güncel sebze/meyve fiyatları") → sitenin ÇEKİRDEK varlığını (canlı fiyat) firmaya bağla.
   - Kategorilerine göre ilgili ürün fiyat linkleri.
   - Harita (adres → koordinat), ilçe, firma tipi açıklaması.
-  - AI ile üretilmiş özgün `description` (ekosistem `ai` modülü) — şablon değil.
+  - AI ile üretilmiş özgün `description` (ekosistem `ai` modülü) — şablon değil. **Beklemede: gerçek ürün/claim/ek veri olmadan toplu üretim yapılmayacak.**
 - [ ] Kalite barajını geçen firmaları (telefon+adres+canlı fiyat bağlamı) batch'ler halinde `seo_index=1` yap, sitemap'e ekle, IndexNow ping.
 
 ---
@@ -108,11 +108,11 @@ hepsi indeksleniyor; indeksleme motoru çalışıyor.** Sorun indekssiz 591'in d
 > Karar: seo_index DB-driven (ürün deseni gibi), default 0; hub'lar keşfi taşır.
 
 ### 🛠️ Codex (implement)
-- [ ] **F1.** `hf_firms.seo_index` kolonu (seed) + bireysel firma sayfası noindex + sitemap'ten çıkar.
-- [ ] **F2.** Hub sayfaları `/firmalar/{sehir}` + `/firmalar/{tip}` (+ opsiyonel `{sehir}/{tip}`) — liste + içerik + iç link.
-- [ ] **F3.** Hub'ları sitemap'e ekle; firma sitemap'ini hub-only yap.
-- [ ] **F4.** Firma sayfası zenginleştirme: hal canlı fiyat bloğu + harita + ürün linkleri.
-- [ ] **F5.** AI description üretimi (ai modülü) + kalite barajı geçen firmaları seo_index=1 batch.
+- [x] **F1.** `hf_firms.seo_index` kolonu (seed) + bireysel firma sayfası noindex + sitemap'ten çıkar. **Codex 2026-06-06**
+- [x] **F2.** Hub sayfaları `/firmalar/{sehir}` + `/firmalar/{tip}` (+ opsiyonel `{sehir}/{tip}` Faz B) — liste + içerik + iç link. **Codex 2026-06-06**
+- [x] **F3.** Hub'ları sitemap'e ekle; firma sitemap'ini hub-only yap. **Codex 2026-06-06**
+- [x] **F4.** Firma sayfası zenginleştirme: hal canlı fiyat bloğu + harita + ürün linkleri. **Codex 2026-06-06**
+- [ ] **F5.** AI description üretimi (ai modülü) + kalite barajı geçen firmaları seo_index=1 batch. **Codex notu 2026-06-06:** gerçek ürün/claim/ek veri olmayan 1.331 firmaya toplu AI açıklaması üretilmedi; kalite barajı kodda, batch indexleme gerçek zengin veri geldikten sonra.
 
 ### 👤 Orhan (operasyon)
 - [ ] **O1.** Search Console: sitemap güncellenince yeniden gönder; hub URL'lerini "URL denetimi → index iste".

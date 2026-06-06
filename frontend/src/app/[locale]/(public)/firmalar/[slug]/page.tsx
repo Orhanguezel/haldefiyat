@@ -341,7 +341,7 @@ function districtSummary(firms: Firm[]): string[] {
     .map(([slug]) => titleCaseSlug(slug));
 }
 
-function formatPrice(value?: string | null): string {
+function formatPrice(value?: string | number | null): string {
   if (!value) return "-";
   return `${Number(value).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TL`;
 }

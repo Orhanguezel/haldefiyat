@@ -39,9 +39,9 @@ export interface SummaryRow {
   color: string;
 }
 
-export function toNumber(v: string | null | undefined): number {
+export function toNumber(v: string | number | null | undefined): number {
   if (v == null) return 0;
-  const n = parseFloat(v);
+  const n = typeof v === "number" ? v : parseFloat(v);
   return Number.isFinite(n) ? n : 0;
 }
 

@@ -30,9 +30,9 @@ const RANGES: ReadonlyArray<RangeOption> = [
 
 interface ChartPoint { date: string; rawDate: string; avg?: number; min?: number; max?: number; predicted?: number; isForecast?: boolean; }
 
-function toNumber(value: string | null | undefined): number {
+function toNumber(value: string | number | null | undefined): number {
   if (value == null) return 0;
-  const n = parseFloat(value);
+  const n = typeof value === "number" ? value : parseFloat(value);
   return Number.isFinite(n) ? n : 0;
 }
 

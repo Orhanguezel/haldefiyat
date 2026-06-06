@@ -36,9 +36,9 @@ async function fetchFavoriteRow(slug: string): Promise<PriceRow | null> {
   }
 }
 
-function fmt(value: string | null | undefined): string {
+function fmt(value: string | number | null | undefined): string {
   if (value == null || value === "") return "—";
-  const n = parseFloat(value);
+  const n = typeof value === "number" ? value : parseFloat(value);
   if (!Number.isFinite(n)) return "—";
   return n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
