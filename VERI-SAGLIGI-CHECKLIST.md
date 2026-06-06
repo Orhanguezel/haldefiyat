@@ -35,7 +35,7 @@
 | A1 | `mersin_resmi` (18g bayat) | **TT Altosec WAF, 403, datacenter IP bloku** | **Residential TR proxy** şart (belediye doğrudan); ya da A5 ile dolaylı | 🔴 P0 (proxy bekliyor) |
 | A2 | `manisa_resmi` | aynı WAF deseni (muhtemel) | Residential proxy ile test; ya da A5 | 🟠 P1 |
 | A3 | `kutahya_resmi` | aynı WAF (Scrapling'de bile 000) | Residential proxy; ya da A5 | 🟡 P2 |
-| A4 | `canakkale_resmi` | **SITE-side timeout** (local scraper'la bile timeout → scraper değil, site yavaş/down) | Fetcher Scrapling timeout'u artır (30s→90s) + dynamic mode; site geri gelince düzelir | 🟡 P2 |
+| A4 | `canakkale_resmi` | ✅ **ELE ALINDI 2026-06-06** | Dynamic browser ile bile **130s'de cevap YOK = site DOWN/hanging** (slow değil). Timeout cözmez → **`defaultEnabled:false`** (cron'u hang'lemesin; site gelince true). + generic Scrapling timeout **60→90s** (yavaş-ama-erişilebilir kaynak robustness). Deploy `5b1fcbd3`. | ✅ |
 | A6 | `tekirdag_resmi` | listing boş (yapı değişti) | Parser fix; Wayback ile eski yapı kıyas | 🟡 P2 |
 | A7 | `denizli/bursa/balikesir/yalova` | **partial** (veri GİRİYOR) | Düşük: filtre çalışıyor; parser kolon-hizası bak | ⚪ P3 |
 | A8 | `corum/kahramanmaras/trabzon` | ok ama 0 satır (kaynak yayınlamıyor) | İzle: mevsimsel mi | ⚪ P3 |
