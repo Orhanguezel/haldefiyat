@@ -349,8 +349,10 @@ const RAW_SOURCES: RawSource[] = [
   // Kolonlar: MALZEMENİN ADI | BİRİM | ASGARİ SATIŞ FİYATI | AZAMİ SATIŞ FİYATI.
   // Fiyat formatı "55,00TL". URL statik (/tr/sayfa/1481-hal-fiyat-listesi).
   {
+    // 2026-06-06: site DOWN/hanging — dynamic browser bile 130s'de cevap alamadi (timeout
+    // artisi cozmez, sadece cron'u yavaslatir). Site geri gelince true yap. (kocaeli precedent)
     key:               "canakkale_resmi",
-    defaultEnabled:    true,
+    defaultEnabled:    false,
     defaultMarketSlug: "canakkale-hal",
     defaultBaseUrl:    "https://www.canakkale.bel.tr",
     defaultEndpoint:   "/tr/sayfa/1481-hal-fiyat-listesi",

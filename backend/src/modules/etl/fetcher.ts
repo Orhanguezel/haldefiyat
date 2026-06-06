@@ -837,7 +837,9 @@ async function tryFetchViaScraper(
   let url: string;
   const scrapeOpts: Parameters<typeof fetchViaScraper>[1] = {
     mode: shouldUseDynamicFor(source.key) ? "dynamic" : "stealthy",
-    timeoutSeconds: 60,
+    // Yavas-ama-erisilebilir kaynaklar icin 90s (scraper-client +30s abort = 120s tavan).
+    // Tamamen down/hanging siteler (canakkale gibi) timeout artisindan faydalanmaz → disable edilir.
+    timeoutSeconds: 90,
   };
 
   if (builder) {
