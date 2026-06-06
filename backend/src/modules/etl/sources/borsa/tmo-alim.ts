@@ -6,6 +6,7 @@ const TMO_2026_ALIM: Array<{ name: string; category: string; ton: number }> = [
 ];
 
 export function parseTmoAlimResmi(): BorsaPriceRow[] {
+  const recordedDate = new Date().toISOString().slice(0, 10);
   return TMO_2026_ALIM.map((row) => ({
     name: row.name,
     category: row.category,
@@ -13,7 +14,6 @@ export function parseTmoAlimResmi(): BorsaPriceRow[] {
     avg: row.ton / 1000,
     min: row.ton / 1000,
     max: row.ton / 1000,
-    recordedDate: "2026-06-01",
+    recordedDate,
   }));
 }
-
