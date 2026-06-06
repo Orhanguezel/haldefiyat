@@ -85,7 +85,12 @@ export async function listPriceRows(params: {
     lte(hfPriceHistory.recordedDate, anchorSql),
   ];
 
+  // Pasif urunler (is_active=0) public fiyat sorgularindan gizlenir: aksi halde
+  // /fiyatlar linki uretir ama /urun/[slug] (listProducts is_active=1 filtreli)
+  // urunu bulamaz -> 404. windowConds CTE'sinde hfProducts join'i olmadigi icin
+  // filtre yalnizca conds'a eklenir.
   const conds: SQL[] = [...windowConds];
+  conds.push(eq(hfProducts.isActive, 1));
   if (params.product)  conds.push(eq(hfProducts.slug, params.product));
   if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
@@ -217,7 +222,12 @@ async function priceQueryContext(params: {
     gte(hfPriceHistory.recordedDate, sql`DATE_SUB(${anchorSql}, INTERVAL ${sql.raw(String(days))} DAY)`),
     lte(hfPriceHistory.recordedDate, anchorSql),
   ];
+  // Pasif urunler (is_active=0) public fiyat sorgularindan gizlenir: aksi halde
+  // /fiyatlar linki uretir ama /urun/[slug] (listProducts is_active=1 filtreli)
+  // urunu bulamaz -> 404. windowConds CTE'sinde hfProducts join'i olmadigi icin
+  // filtre yalnizca conds'a eklenir.
   const conds: SQL[] = [...windowConds];
+  conds.push(eq(hfProducts.isActive, 1));
   if (params.product)  conds.push(eq(hfProducts.slug, params.product));
   if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
