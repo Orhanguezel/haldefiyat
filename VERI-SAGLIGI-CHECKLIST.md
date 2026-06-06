@@ -19,24 +19,33 @@
 
 ## A. ETL Sağlık — Çöken Kaynaklar
 
-> Teşhis: Mersin/Manisa VPS'ten **HTTP 000** (TLS reset/IP-block?). kütahya zaten
-> Scrapling'de ama hâlâ 000 → bu belediyeler **VPS IP'sini bloklamış olabilir**
-> (Scrapling/curl-cffi bile geçemez). Önce ulusal kaynağı (A5) dene.
+> **🔬 KÖK NEDEN DOĞRULANDI (2026-06-06, local scraper testleriyle):**
+> - **mersin/manisa/kütahya:** belediye siteleri **Türk Telekom "Altosec" ulusal WAF** arkasında.
+>   curl-cffi → connection reset; **gerçek Chromium (dynamic) → 403 Access Denied** ("Source ip: ...datacenter").
+>   = **datacenter IP bloku.** Ne TLS-taklit ne gerçek tarayıcı çözer. **Scraper'ı vps-vistainsaat'a
+>   taşımak çözmedi** (o da datacenter IP). **TEK ÇÖZÜM: Türk residential proxy.**
+> - **hal.gov.tr (ulusal HKS):** **WAF YOK, proxy YOK** — local scraper **dynamic mode 6s'de 200 + 67KB**.
+>   ✅ Erişim sağlam. Veri için multi-step ASP.NET form (il+ürün seç → "Göster" POST) gerekiyor;
+>   mevcut fetcher curl-cffi **fast mode**'da timeout. **= en yüksek öncelikli proxy'siz "kenarından dolaşma".**
+> - Local scraper: vps-vistainsaat:8201 (proje `hal-scraper`), WAF'sız kaynaklarda doğrulandı (antalya 12 satır).
 
-| # | Kaynak | Durum | Kök neden | Aksiyon | Öncelik |
-|---|---|---|---|---|---|
-| A1 | `mersin_resmi` | error, 0 satır, **18g bayat** | socket closed (legacy) | HF_SCRAPER_SOURCES'a ekle → test; 000 sürerse IP-block → A5/alternatif | 🔴 P0 |
-| A2 | `manisa_resmi` | error, 0 satır | socket closed (legacy) | HF_SCRAPER_SOURCES'a ekle → test | 🟠 P1 |
-| A3 | `kutahya_resmi` | error, 0 satır | socket closed (**zaten Scrapling**) | Scrapling bile ulaşmıyor → site down/IP-block; bekle + alternatif kaynak | 🟡 P2 |
-| A4 | `canakkale_resmi` | error, 0 satır | timeout (zaten Scrapling, **regresyon**) | Scrapling timeout artır / retry; site yavaş mı kontrol | 🟡 P2 |
-| A5 | `hal_gov_tr_ulusal` | error, 0 satır | timeout (Aşama 3'te çözülmüştü, **regresyon**) | **Multi-step ASP.NET ViewState yeniden; çözülürse çok il kapsar** | 🔴 P0 |
-| A6 | `tekirdag_resmi` | error, 0 satır | listing sayfası boş (yapı değişti) | Parser fix: yeni `/hal_fiyat_gunluk` yapısı; Wayback ile eski yapı kıyas | 🟡 P2 |
-| A7 | `denizli/bursa/balikesir/yalova` | **partial** (veri GİRİYOR) | sıhhat filtresi birkaç ürünü reddediyor | Düşük: filtre işini yapıyor; tekrar eden üründe parser kolon-hizası bak | ⚪ P3 |
-| A8 | `corum/kahramanmaras/trabzon` | ok ama 0 satır | kaynak yayınlamıyor (HTTP 200, 7g boş) | İzle: mevsimsel mi, kaynak durdu mu | ⚪ P3 |
+| # | Kaynak | Kök neden (DOĞRULANDI) | Aksiyon | Öncelik |
+|---|---|---|---|---|
+| A5 | `hal_gov_tr_ulusal` | **WAF yok**, erişilebilir; multi-step form curl-cffi fast'te timeout | **Multi-step'i dynamic browser (form action) veya ViewState POST ile onar → Mersin dahil çok il PROXY'SİZ** | 🔴 **P0 (kenarından dolaşma)** |
+| A1 | `mersin_resmi` (18g bayat) | **TT Altosec WAF, 403, datacenter IP bloku** | **Residential TR proxy** şart (belediye doğrudan); ya da A5 ile dolaylı | 🔴 P0 (proxy bekliyor) |
+| A2 | `manisa_resmi` | aynı WAF deseni (muhtemel) | Residential proxy ile test; ya da A5 | 🟠 P1 |
+| A3 | `kutahya_resmi` | aynı WAF (Scrapling'de bile 000) | Residential proxy; ya da A5 | 🟡 P2 |
+| A4 | `canakkale_resmi` | timeout (Scrapling regresyon) | dynamic mode + timeout artır; WAF mı kontrol | 🟡 P2 |
+| A6 | `tekirdag_resmi` | listing boş (yapı değişti) | Parser fix; Wayback ile eski yapı kıyas | 🟡 P2 |
+| A7 | `denizli/bursa/balikesir/yalova` | **partial** (veri GİRİYOR) | Düşük: filtre çalışıyor; parser kolon-hizası bak | ⚪ P3 |
+| A8 | `corum/kahramanmaras/trabzon` | ok ama 0 satır (kaynak yayınlamıyor) | İzle: mevsimsel mi | ⚪ P3 |
 
-**A genel notu (Orhan/Claude kararı):** Tek tek belediye scrape kırılgan. Atakan ağı
-+ ulusal HKS (A5) ile **resmi feed/ortaklık** uzun vadede en sağlam çözüm (bkz. borsa
-checklist Atakan maddesi). VPS IP-block hipotezi doğrulanırsa: farklı egress IP / proxy.
+**A genel strateji (DOĞRULANDI):**
+1. **🥇 hal.gov.tr (A5) onar — proxy'siz, çok il, WAF'sız.** Önce bunu çöz (kenarından dolaşma).
+2. **🥈 Residential TR proxy** — TT-WAF'lı belediyeler (mersin/manisa/kütahya) için TEK yol.
+   *Bekliyor:* provider + credential + "API kodu" + **fayda netleşmesi** (kaç kaynak açılır, maliyet/değer).
+   Scraper main branch'inde residential proxy desteği VAR (`PROXY_URL` env boş).
+3. **🥉 Atakan ağı** — resmi HKS/borsa feed ortaklığı (uzun vade, scrape'siz).
 
 ---
 
