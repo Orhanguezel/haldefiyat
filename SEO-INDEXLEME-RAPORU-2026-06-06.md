@@ -97,11 +97,15 @@ hepsi indeksleniyor; indeksleme motoru çalışıyor.** Sorun indekssiz 591'in d
 
 ## 6. Aksiyon planı & roller
 
-### 🧠 Claude (tasarım)
-- [ ] **S1.** `hf_firms.seo_index` seed şeması + hub route mimarisi (`/firmalar/{sehir}`, `/firmalar/{tip}`).
-- [ ] **S2.** Hub + zengin firma sayfası wireframe (canlı-fiyat bağlama mantığı, fiyat-tipi etiketleme).
-- [ ] **S3.** Firma kalite barajı kuralı (hangi firma seo_index=1 olur) + AI description prompt'u.
-- [ ] **S4.** Codex brief: `docs/codex-briefs/firma-seo.md`.
+### 🧠 Claude (tasarım) — ✅ TAMAMLANDI (2026-06-06)
+- [x] **S1.** Seed: `hf_firms.seo_index TINYINT DEFAULT 0` (034 + schema.ts). Hub route: `/firmalar/{sehir}` (birincil, ~40 şehir), `/firmalar/{tip}` (komisyoncu vb.), `/firmalar/{sehir}/{tip}` (Faz B). Sitemap firma→hub.
+- [x] **S2.** Hub + zengin firma wireframe yazıldı (canlı hal fiyat bağlama, schema CollectionPage/LocalBusiness) → brief'te.
+- [x] **S3.** Kalite barajı: `seo_index=1 ⇔ aktif+onaylı+şehir VE (ürün≥3 VEYA açıklama≥120 VEYA claim=verified)`. **Şu an 0 firma geçer → hepsi noindex (doğru).** AI açıklama: yalnız gerçek-verili firmaya, toplu spun ÜRETME (doorway riski).
+- [x] **S4.** Codex brief hazır: **`docs/codex-briefs/firma-seo.md`** (F1–F5, kabul kriterleri, wireframe).
+
+> **Kritik veri (bu oturumda doğrulandı):** firma benzersiz içerik = **0** (0 ürün listesi, 0 açıklama,
+> 0 claim). Mevcut `firma/[slug]/page.tsx` zaten koşullu robots veriyor ama bar çok düşük (NAP→index).
+> Karar: seo_index DB-driven (ürün deseni gibi), default 0; hub'lar keşfi taşır.
 
 ### 🛠️ Codex (implement)
 - [ ] **F1.** `hf_firms.seo_index` kolonu (seed) + bireysel firma sayfası noindex + sitemap'ten çıkar.
