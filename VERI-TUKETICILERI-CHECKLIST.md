@@ -40,7 +40,7 @@
 - [x] **T14 · Tahmin disclaimer:** tahmin endpoint'ine `disclaimer` alanı. *(Model versiyonlama → DEFER.)* **☑ Codex 2026-06-06**
 
 ## Carry-over
-- [ ] **T15 · TMO tarih fix:** `tmo-alim.ts` `recordedDate` "2026-06-01" → çalışma tarihi → `/urun/bugday` & `/arpa` `range=1d`'de fiyat görünür. Sonra 1 kez ETL tetikle.
+- [x] **T15 · TMO tarih fix:** `tmo-alim.ts` `recordedDate` "2026-06-01" → çalışma tarihi → `/urun/bugday` & `/arpa` `range=1d`'de fiyat görünür. Sonra 1 kez ETL tetikle. **☑ Codex 2026-06-06:** canlı ETL `tmo_alim_resmi` çalıştı; Buğday/Arpa `range=1d` fiyatları dönüyor.
 
 ---
 
