@@ -84,6 +84,8 @@ export default async function PublicLayout({
         logoDarkUrl={settings.site_logo_dark}
         logoLightUrl={settings.site_logo_light}
         trackedProducts={overview.trackedProducts}
+        activeCities={overview.activeCities}
+        targetCoverage={overview.targetCoverage}
         latestRecordedDate={overview.latestRecordedDate}
       />
 

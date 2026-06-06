@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 
 type Props = {
   trackedProducts?: number;
+  activeCities?: number;
+  targetCoverage?: string;
   latestRecordedDate?: string | null;
 };
 
@@ -11,7 +13,7 @@ type Props = {
  * "İzlenen ürün" + "Son veri" GERÇEK veriden (server prop) gelir — hard-code yok, saat de değil.
  * Sağdaki güncel tarih client'ta render edilir (hydration mismatch'i önlemek için).
  */
-export default function TopbarClient({ trackedProducts, latestRecordedDate }: Props) {
+export default function TopbarClient({ trackedProducts, activeCities, targetCoverage, latestRecordedDate }: Props) {
   const [today, setToday] = useState<string>("");
 
   useEffect(() => {
@@ -25,12 +27,14 @@ export default function TopbarClient({ trackedProducts, latestRecordedDate }: Pr
       ? `${trackedProducts.toLocaleString("tr-TR")} ürün`
       : "—";
 
-  const lastUpdateLabel = latestRecordedDate
-    ? new Date(latestRecordedDate + "T12:00:00").toLocaleDateString("tr-TR", {
-        day: "numeric",
-        month: "long",
-      })
+  const date = latestRecordedDate ? new Date(latestRecordedDate + "T12:00:00") : null;
+  const lastUpdateLabel = date && !Number.isNaN(date.getTime())
+    ? date.toLocaleDateString("tr-TR", { day: "numeric", month: "long" })
     : "—";
+  const cityLabel =
+    typeof activeCities === "number" && activeCities > 0
+      ? `${activeCities.toLocaleString("tr-TR")} aktif il`
+      : targetCoverage || "81 il hedef";
 
   return (
     <div className="hidden md:flex h-12 items-center justify-between text-[12px] text-(--color-muted)">
@@ -43,6 +47,8 @@ export default function TopbarClient({ trackedProducts, latestRecordedDate }: Pr
         <span>
           İzlenen: <span className="text-(--color-foreground)">{trackedLabel}</span>
         </span>
+        <span className="text-(--color-faint)">|</span>
+        <span className="text-(--color-foreground)">{cityLabel}</span>
         <span className="text-(--color-faint)">|</span>
         <span>
           Son veri:{" "}

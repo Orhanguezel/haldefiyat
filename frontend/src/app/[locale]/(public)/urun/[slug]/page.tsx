@@ -18,6 +18,7 @@ import RetailComparison from "@/components/sections/RetailComparison";
 import VariantPriceTable from "@/components/sections/VariantPriceTable";
 import FrostRiskBanner from "@/components/sections/FrostRiskBanner";
 import PriceTable from "@/components/ui/PriceTable";
+import FreshnessBadge from "@/components/ui/FreshnessBadge";
 import FavoriteButton from "@/components/ui/FavoriteButton";
 import ExportButton from "@/components/ui/ExportButton";
 import { getEmoji } from "@/lib/emoji";
@@ -27,9 +28,9 @@ import { getProductEditorial } from "@/lib/product-content";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
-function toNumberSafe(value: string | null | undefined): number {
+function toNumberSafe(value: string | number | null | undefined): number {
   if (value == null) return 0;
-  const n = parseFloat(value);
+  const n = typeof value === "number" ? value : parseFloat(value);
   return Number.isFinite(n) ? n : 0;
 }
 
@@ -72,7 +73,7 @@ async function fetchTodayPriceLine(slug: string, fallbackUnit: string): Promise<
     const latestDate = prices.reduce((max, p) => (p.recordedDate > max ? p.recordedDate : max), "");
     const dayRows = prices.filter((p) => p.recordedDate === latestDate);
     const avgs = dayRows
-      .map((p) => parseFloat(p.avgPrice))
+      .map((p) => toNumberSafe(p.avgPrice))
       .filter((n) => Number.isFinite(n) && n > 0);
     if (avgs.length === 0) return "";
     const avg = avgs.reduce((a, b) => a + b, 0) / avgs.length;
@@ -224,7 +225,7 @@ export default async function UrunPage({ params }: Props) {
         (now - new Date(h.recordedDate + "T12:00:00Z").getTime()) / 86_400_000,
       );
       if (daysAgo < 335 || daysAgo > 395) continue;
-      const n = parseFloat(h.avgPrice);
+      const n = toNumberSafe(h.avgPrice);
       if (!Number.isFinite(n) || n <= 0) continue;
       if (!buckets[h.marketSlug]) buckets[h.marketSlug] = { sum: 0, count: 0 };
       buckets[h.marketSlug].sum += n;
@@ -260,10 +261,30 @@ export default async function UrunPage({ params }: Props) {
       }),
     },
   } satisfies Record<string, unknown>;
+  const latestDate = [...todayPrices, ...borsaPrices, ...resmiPrices, ...history]
+    .map((row) => row.recordedDate)
+    .filter(Boolean)
+    .sort()
+    .at(-1) ?? null;
+  const datasetSchema = {
+    name: `${displayName} fiyat veri seti`,
+    description: `${displayName} için hal, resmi alım ve borsa kaynaklı tarihsel fiyat gözlemleri.`,
+    url: `${SITE_URL_META}/urun/${slug}`,
+    license: "https://creativecommons.org/licenses/by/4.0/",
+    creator: { "@id": `${SITE_URL_META}/#organization` },
+    temporalCoverage: latestDate ? `${latestDate}/..` : "2025/..",
+    variableMeasured: ["minPrice", "avgPrice", "maxPrice"],
+    distribution: {
+      "@type": "DataDownload",
+      encodingFormat: "application/json",
+      contentUrl: `${SITE_URL_META}/api/v1/prices?product=${encodeURIComponent(slug)}`,
+    },
+  } satisfies Record<string, unknown>;
 
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <JsonLd type="Product" data={productSchema} />
+      <JsonLd type="Dataset" data={datasetSchema} />
       <Breadcrumb items={[
         { name: "Anasayfa", href: "/" },
         { name: "Fiyatlar", href: "/fiyatlar" },
@@ -297,6 +318,7 @@ export default async function UrunPage({ params }: Props) {
                 </Link>
               </div>
             )}
+            <div className="mt-2"><FreshnessBadge recordedDate={latestDate} /></div>
           </div>
         </div>
         <FavoriteButton slug={product.slug} productName={displayName} />

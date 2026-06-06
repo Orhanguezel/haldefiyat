@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { setRequestLocale } from "next-intl/server";
 import { getPageMetadata, ORG_REF } from "@/lib/seo";
-import { fetchListings, fetchMarkets, fetchProducts, fetchWidget, type TrendingItem } from "@/lib/api";
+import { fetchListings, fetchMarkets, fetchPricesOverview, fetchProducts, fetchWidget, type TrendingItem } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
 import HeroSection from "@/components/sections/HeroSection";
 import PriceTicker from "@/components/sections/PriceTicker";
@@ -67,11 +67,12 @@ export default async function HomePage({ params }: Props) {
 
   // Ticker: trending (uç değişimler) yerine widget verisi (popüler ürünler,
   // makul haftalık değişim). previous = avgPrice / (1 + changePct/100).
-  const [widget, markets, products, listings] = await Promise.all([
+  const [widget, markets, products, listings, overview] = await Promise.all([
     fetchWidget({ limit: 30 }),
     fetchMarkets(),
     fetchProducts(undefined, undefined, { seoIndex: true }),
     fetchListings({ limit: 3 }),
+    fetchPricesOverview(),
   ]);
   const trending: TrendingItem[] = widget
     .filter((w) => w.changePct !== null && Number.isFinite(w.avgPrice) && w.avgPrice > 0)
@@ -92,16 +93,13 @@ export default async function HomePage({ params }: Props) {
         },
       };
     });
-  const cityCount = new Set(
+  const cityCount = overview.activeCities || new Set(
     markets
       .filter((market) => market.regionSlug !== "ulusal")
       .map((market) => market.cityName?.trim())
       .filter(Boolean),
   ).size;
-  const latestMarketUpdate = markets
-    .map((market) => market.updatedAt)
-    .filter((date): date is string => Boolean(date))
-    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
+  const latestMarketUpdate = overview.lastSourceDate ?? overview.latestRecordedDate ?? undefined;
   const stats: Stat[] = [
     {
       kind: "number",
@@ -115,7 +113,7 @@ export default async function HomePage({ params }: Props) {
     },
     {
       kind: "number",
-      value: products.length,
+      value: overview.trackedProducts || products.length,
       label: "İzlenen Ürün",
     },
     {
@@ -130,7 +128,7 @@ export default async function HomePage({ params }: Props) {
       <JsonLd type="Dataset" data={datasetSchema} />
       <MobileHomeHero locale={locale} products={products.length} markets={markets} widget={widget} />
       <div className="hidden md:block">
-        <HeroSection />
+        <HeroSection activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
         <PriceTicker items={trending} />
         <PriceDashboard />
         <CitySelector locale={locale} />
@@ -151,7 +149,7 @@ export default async function HomePage({ params }: Props) {
           </section>
         ) : null}
         <SeasonalGuide />
-        <FeaturesGrid />
+        <FeaturesGrid activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
         <HowItWorks />
         <HomeFaq />
         <CtaNewsletter />

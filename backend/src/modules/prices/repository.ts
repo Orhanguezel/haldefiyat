@@ -1,7 +1,9 @@
 import type { SQL } from "drizzle-orm";
 import { and, asc, desc, eq, gte, lte, sql, or, like, inArray, isNotNull } from "drizzle-orm";
 import { db } from "@/db/client";
-import { hfMarkets, hfPriceHistory, hfProductEditorial, hfProducts, hfRetailPrices } from "@/db/schema";
+import { hfEtlRuns, hfMarkets, hfPriceHistory, hfProductEditorial, hfProducts, hfRetailPrices } from "@/db/schema";
+import { activeSources } from "@/config/etl-sources";
+import { sourceInfoFor, sourceTypeFromMarketType } from "@/config/source-urls";
 import { INDEX_BASKET_SLUGS } from "@/modules/index/calculator";
 
 export function parseRangeToDays(range?: string): number {
@@ -31,11 +33,103 @@ export async function latestRecordedDate(): Promise<string | null> {
   return String(raw).slice(0, 10);
 }
 
-/** Topbar/anasayfa için gerçek özet: izlenen ürün sayısı + son veri tarihi (hard-code yerine). */
-export async function overviewStats(): Promise<{ trackedProducts: number; latestRecordedDate: string | null }> {
-  const [row] = await db.select({ c: sql<number>`COUNT(*)` }).from(hfProducts);
+function isoDate(raw: unknown): string | null {
+  if (!raw) return null;
+  if (raw instanceof Date) return raw.toISOString().slice(0, 10);
+  const s = String(raw);
+  return /^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) : null;
+}
+
+function isoDateTime(raw: unknown): string | null {
+  if (!raw) return null;
+  if (raw instanceof Date) return raw.toISOString();
+  const d = new Date(String(raw));
+  return Number.isFinite(d.getTime()) ? d.toISOString() : null;
+}
+
+function toNumber(raw: unknown): number | null {
+  if (raw == null || raw === "") return null;
+  const n = typeof raw === "number" ? raw : Number(raw);
+  return Number.isFinite(n) ? n : null;
+}
+
+function todayIso(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+type RawPriceRow = typeof priceColumns extends infer T ? T : never;
+
+function enrichPriceRow<T extends Record<string, unknown>>(row: T) {
+  const marketType = typeof row.marketType === "string" ? row.marketType : null;
+  const sourceApi = typeof row.sourceApi === "string" ? row.sourceApi : null;
+  const source = sourceInfoFor(sourceApi, marketType);
+  const recordedDate = isoDate(row.recordedDate);
+  const fetchedAt = isoDateTime(row.fetchedAt);
+  const isStale = recordedDate ? recordedDate < todayIso() : true;
+  return {
+    ...row,
+    minPrice: toNumber(row.minPrice),
+    maxPrice: toNumber(row.maxPrice),
+    avgPrice: toNumber(row.avgPrice) ?? 0,
+    recordedDate: recordedDate ?? String(row.recordedDate ?? ""),
+    fetchedAt,
+    publishedAt: recordedDate,
+    sourceName: source?.name || (typeof row.marketName === "string" ? row.marketName : sourceApi),
+    sourceUrl: source?.url || null,
+    sourceType: source?.type ?? sourceTypeFromMarketType(marketType),
+    isStale,
+    isFresh: !isStale,
+    isOfficialSource: source?.official ?? (marketType === "hal" || marketType === "resmi"),
+    qualityFlags: isStale ? ["STALE_DATA"] : [],
+    recordCount: 1,
+    rawProductName: row.productName,
+    canonicalProduct: row.canonicalProduct ?? row.productSlug,
+    varietySlug: row.productSlug,
+  };
+}
+
+function enrichPriceRows<T extends Record<string, unknown>>(rows: T[]) {
+  return rows.map(enrichPriceRow);
+}
+
+/** Topbar/anasayfa için gerçek özet: kapsam + son veri tarihi (hard-code yerine). */
+export async function overviewStats(): Promise<{
+  activeCities: number;
+  activeMarkets: number;
+  targetCoverage: string;
+  trackedProducts: number;
+  lastSourceDate: string | null;
+  latestRecordedDate: string | null;
+  lastEtlRunAt: string | null;
+}> {
+  const [products, cities, markets, etl] = await Promise.all([
+    db.select({ c: sql<number>`COUNT(*)` }).from(hfProducts).where(eq(hfProducts.isActive, 1)),
+    db
+      .select({ c: sql<number>`COUNT(DISTINCT ${hfMarkets.cityName})` })
+      .from(hfPriceHistory)
+      .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+      .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+      .where(and(
+        eq(hfMarkets.isActive, 1),
+        eq(hfProducts.isActive, 1),
+        gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 30 DAY)`),
+      )),
+    db.select({ c: sql<number>`COUNT(*)` }).from(hfMarkets).where(eq(hfMarkets.isActive, 1)),
+    db
+      .select({ d: sql<string | Date | null>`MAX(${hfEtlRuns.createdAt})` })
+      .from(hfEtlRuns)
+      .where(eq(hfEtlRuns.status, "ok")),
+  ]);
   const latest = await latestRecordedDate();
-  return { trackedProducts: Number(row?.c ?? 0), latestRecordedDate: latest };
+  return {
+    activeCities: Number(cities[0]?.c ?? 0),
+    activeMarkets: Number(markets[0]?.c ?? 0),
+    targetCoverage: "81 il hedef",
+    trackedProducts: Number(products[0]?.c ?? 0),
+    lastSourceDate: latest,
+    latestRecordedDate: latest,
+    lastEtlRunAt: isoDateTime(etl[0]?.d),
+  };
 }
 
 function likeSafe(raw: string): string {
@@ -149,7 +243,7 @@ export async function listPriceRows(params: {
         .groupBy(hfPriceHistory.productId, hfPriceHistory.marketId),
     );
 
-    return db
+    const rows = await db
       .with(latest)
       .select({
         id:           hfPriceHistory.id,
@@ -160,8 +254,10 @@ export async function listPriceRows(params: {
         unit:         hfPriceHistory.unit,
         recordedDate: hfPriceHistory.recordedDate,
         sourceApi:    hfPriceHistory.sourceApi,
+        fetchedAt:    hfPriceHistory.createdAt,
         productSlug:  hfProducts.slug,
         productName:  hfProducts.nameTr,
+        canonicalProduct: sql<string | null>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
         categorySlug: hfProducts.categorySlug,
         marketSlug:   hfMarkets.slug,
         marketName:   hfMarkets.name,
@@ -182,9 +278,10 @@ export async function listPriceRows(params: {
       .where(and(...conds))
       .orderBy(desc(hfPriceHistory.recordedDate), hfProducts.displayOrder)
       .limit(limit);
+    return enrichPriceRows(rows);
   }
 
-  return db
+  const rows = await db
     .select({
       id:           hfPriceHistory.id,
       minPrice:     hfPriceHistory.minPrice,
@@ -194,8 +291,10 @@ export async function listPriceRows(params: {
       unit:         hfPriceHistory.unit,
       recordedDate: hfPriceHistory.recordedDate,
       sourceApi:    hfPriceHistory.sourceApi,
+      fetchedAt:    hfPriceHistory.createdAt,
       productSlug:  hfProducts.slug,
       productName:  hfProducts.nameTr,
+      canonicalProduct: sql<string | null>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
       categorySlug: hfProducts.categorySlug,
       marketSlug:   hfMarkets.slug,
       marketName:   hfMarkets.name,
@@ -208,6 +307,7 @@ export async function listPriceRows(params: {
     .where(and(...conds))
     .orderBy(desc(hfPriceHistory.recordedDate), hfProducts.displayOrder)
     .limit(limit);
+  return enrichPriceRows(rows);
 }
 
 type PriceSortKey = "avg-desc" | "avg-asc" | "name-asc" | "date-desc";
@@ -289,8 +389,10 @@ const priceColumns = {
   unit:         hfPriceHistory.unit,
   recordedDate: hfPriceHistory.recordedDate,
   sourceApi:    hfPriceHistory.sourceApi,
+  fetchedAt:    hfPriceHistory.createdAt,
   productSlug:  hfProducts.slug,
   productName:  hfProducts.nameTr,
+  canonicalProduct: sql<string | null>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
   categorySlug: hfProducts.categorySlug,
   marketSlug:   hfMarkets.slug,
   marketName:   hfMarkets.name,
@@ -371,7 +473,7 @@ export async function listPriceRowsPage(params: {
       .offset(offset);
 
     const total = Number(totalRows[0]?.total ?? 0);
-    return { items, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
+    return { items: enrichPriceRows(items), total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
   }
 
   const totalRows = await db
@@ -392,7 +494,151 @@ export async function listPriceRowsPage(params: {
     .offset(offset);
 
   const total = Number(totalRows[0]?.total ?? 0);
-  return { items, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
+  return { items: enrichPriceRows(items), total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
+}
+
+export async function latestPrice(params: { city?: string; product?: string; market?: string }) {
+  const conds: SQL[] = [eq(hfProducts.isActive, 1), eq(hfMarkets.isActive, 1)];
+  if (params.product?.trim()) {
+    const p = likeSafe(params.product.trim());
+    conds.push(or(eq(hfProducts.slug, p), like(hfProducts.nameTr, `%${p}%`), like(hfProducts.slug, `%${p}%`))!);
+  }
+  if (params.city?.trim()) {
+    const c = likeSafe(params.city.trim());
+    conds.push(or(like(hfMarkets.cityName, `%${c}%`), like(hfMarkets.slug, `%${c}%`))!);
+  }
+  if (params.market?.trim()) conds.push(eq(hfMarkets.slug, params.market.trim()));
+
+  const [latest] = await db
+    .select({ d: sql<string | Date | null>`MAX(${hfPriceHistory.recordedDate})` })
+    .from(hfPriceHistory)
+    .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+    .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+    .where(and(...conds));
+  const latestDate = isoDate(latest?.d);
+  if (!latestDate) return null;
+
+  const rows = await db
+    .select(priceColumns)
+    .from(hfPriceHistory)
+    .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+    .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+    .where(and(...conds, eq(hfPriceHistory.recordedDate, sql`${latestDate}`)))
+    .orderBy(hfProducts.displayOrder, hfMarkets.displayOrder)
+    .limit(100);
+
+  return {
+    items: enrichPriceRows(rows),
+    latestRecordedDate: latestDate,
+    warnings: latestDate < todayIso()
+      ? [{
+          code: "STALE_DATA",
+          message: `${params.city ?? "Bu sorgu"} için bugünün verisi yok; en son ${latestDate} tarihli veri gösteriliyor.`,
+          asOf: latestDate,
+        }]
+      : [],
+  };
+}
+
+export async function productAliases(slug: string) {
+  const rows = await db
+    .select({
+      slug: hfProducts.slug,
+      nameTr: hfProducts.nameTr,
+      aliases: hfProducts.aliases,
+      canonicalSlug: hfProducts.canonicalSlug,
+      displayName: hfProducts.displayName,
+    })
+    .from(hfProducts)
+    .where(and(eq(hfProducts.slug, slug), eq(hfProducts.isActive, 1)))
+    .limit(1);
+  const row = rows[0];
+  if (!row) return null;
+  return {
+    slug: row.slug,
+    nameTr: row.nameTr,
+    displayName: row.displayName,
+    aliases: Array.isArray(row.aliases) ? row.aliases : [],
+    canonicalSlug: row.canonicalSlug,
+    canonicalProduct: row.canonicalSlug ?? row.slug,
+  };
+}
+
+export async function sourceStatusRows() {
+  const sources = activeSources();
+  const sourceKeys = sources.map((s) => s.key);
+  const [runRows, priceRows, marketRows] = await Promise.all([
+    db.execute(sql`
+      SELECT r.source_api AS sourceApi, r.run_date AS runDate, r.rows_inserted AS rowsInserted,
+             r.rows_fetched AS rowsFetched, r.rows_skipped AS rowsSkipped, r.status,
+             r.error_msg AS errorMsg, r.created_at AS lastRunAt
+      FROM hf_etl_runs r
+      INNER JOIN (
+        SELECT source_api, MAX(id) AS id
+        FROM hf_etl_runs
+        GROUP BY source_api
+      ) latest ON latest.id = r.id
+    `),
+    db
+      .select({
+        sourceApi: hfPriceHistory.sourceApi,
+        lastSourceDate: sql<string | Date>`MAX(${hfPriceHistory.recordedDate})`,
+      })
+      .from(hfPriceHistory)
+      .groupBy(hfPriceHistory.sourceApi),
+    db
+      .select({
+        sourceKey: hfMarkets.sourceKey,
+        city: hfMarkets.cityName,
+        marketName: hfMarkets.name,
+        marketType: marketTypeSql,
+      })
+      .from(hfMarkets)
+      .where(eq(hfMarkets.isActive, 1)),
+  ]);
+
+  const runs = (Array.isArray(runRows) ? runRows[0] : runRows) as unknown as Array<Record<string, unknown>>;
+  const runMap = new Map(runs.map((r) => [String(r.sourceApi), r]));
+  const priceMap = new Map(priceRows.map((r) => [r.sourceApi, isoDate(r.lastSourceDate)]));
+  const marketMap = new Map<string, typeof marketRows[number]>();
+  for (const market of marketRows) {
+    if (market.sourceKey && !marketMap.has(market.sourceKey)) marketMap.set(market.sourceKey, market);
+  }
+
+  const staleCutoff = new Date();
+  staleCutoff.setDate(staleCutoff.getDate() - 2);
+  const staleIso = staleCutoff.toISOString().slice(0, 10);
+
+  return sourceKeys.map((sourceKey) => {
+    const source = sources.find((s) => s.key === sourceKey)!;
+    const run = runMap.get(sourceKey);
+    const market = marketMap.get(sourceKey);
+    const lastSourceDate = priceMap.get(sourceKey) ?? null;
+    const runStatus = typeof run?.status === "string" ? run.status : null;
+    const status = runStatus === "error"
+      ? "error"
+      : runStatus === "partial"
+        ? "partial"
+        : lastSourceDate && lastSourceDate < staleIso
+          ? "stale"
+          : "ok";
+    const info = sourceInfoFor(sourceKey, market?.marketType);
+    return {
+      sourceApi: sourceKey,
+      sourceName: info?.name ?? sourceKey,
+      sourceUrl: info?.url || null,
+      sourceType: info?.type ?? sourceTypeFromMarketType(market?.marketType),
+      city: market?.city ?? null,
+      marketName: market?.marketName ?? source.marketSlug,
+      status,
+      lastSourceDate,
+      lastRunAt: isoDateTime(run?.lastRunAt),
+      rowsInserted: Number(run?.rowsInserted ?? 0),
+      rowsFetched: Number(run?.rowsFetched ?? 0),
+      rowsSkipped: Number(run?.rowsSkipped ?? 0),
+      errorMsg: typeof run?.errorMsg === "string" ? run.errorMsg : null,
+    };
+  });
 }
 
 export async function listProducts(q?: string, category?: string, seoIndex?: boolean, marketType?: MarketType) {

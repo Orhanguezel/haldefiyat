@@ -53,6 +53,7 @@ export async function registerPricesForecast(app: FastifyInstance) {
         slope:       result.slope,
         intercept:   result.intercept,
         predictions: result.predictions,
+        disclaimer:  "Tahminler bilgilendirme amaçlıdır; tek başına ticari karar için kullanılmamalıdır.",
       });
     },
   );

@@ -103,9 +103,15 @@ function normalize(s: string): string {
     .replace(/ç/g, "c");
 }
 
-function fmt(value: string | null | undefined): string {
+function toPriceNumber(value: string | number | null | undefined): number {
+  if (value == null || value === "") return NaN;
+  const n = typeof value === "number" ? value : parseFloat(value);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+function fmt(value: string | number | null | undefined): string {
   if (value == null || value === "") return "—";
-  const n = parseFloat(value);
+  const n = toPriceNumber(value);
   if (!Number.isFinite(n)) return "—";
   return n.toLocaleString("tr-TR", {
     minimumFractionDigits: 2,
@@ -114,24 +120,24 @@ function fmt(value: string | null | undefined): string {
 }
 
 function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString("tr-TR", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  } catch {
-    return iso;
-  }
+  if (!iso) return "—";
+  const raw = iso.includes("T") ? iso : `${iso.slice(0, 10)}T12:00:00Z`;
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleDateString("tr-TR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function sortRows(rows: PriceRow[], key: SortKey): PriceRow[] {
   const copy = [...rows];
   switch (key) {
     case "avg-asc":
-      return copy.sort((a, b) => parseFloat(a.avgPrice) - parseFloat(b.avgPrice));
+      return copy.sort((a, b) => toPriceNumber(a.avgPrice) - toPriceNumber(b.avgPrice));
     case "avg-desc":
-      return copy.sort((a, b) => parseFloat(b.avgPrice) - parseFloat(a.avgPrice));
+      return copy.sort((a, b) => toPriceNumber(b.avgPrice) - toPriceNumber(a.avgPrice));
     case "name-asc":
       return copy.sort((a, b) => a.productName.localeCompare(b.productName, "tr"));
     case "date-desc":
@@ -480,7 +486,7 @@ export default function PriceTable({
                   SOURCE_FAMILY_BADGE[family] ??
                   "bg-white/10 text-(--color-muted) border-white/10";
                 const yearAgoAvg = yoyByMarket?.[row.marketSlug];
-                const currentAvg = parseFloat(row.avgPrice);
+                const currentAvg = toPriceNumber(row.avgPrice);
                 const yoyPct =
                   yearAgoAvg && yearAgoAvg > 0 && Number.isFinite(currentAvg)
                     ? ((currentAvg - yearAgoAvg) / yearAgoAvg) * 100
@@ -540,15 +546,37 @@ export default function PriceTable({
                       ₺{fmt(row.maxPrice)}
                     </td>
                     <td className="px-4 py-3.5">
-                      <span
-                        title={row.sourceApi}
-                        className={
-                          "inline-flex items-center rounded-[5px] border px-2 py-0.5 font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.05em] " +
-                          sourceClass
-                        }
-                      >
-                        {family}
-                      </span>
+                      <div className="flex min-w-[132px] flex-wrap gap-1.5">
+                        <span
+                          title={row.sourceName ?? row.sourceApi}
+                          className={
+                            "inline-flex items-center rounded-[5px] border px-2 py-0.5 font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.05em] " +
+                            sourceClass
+                          }
+                        >
+                          {family}
+                        </span>
+                        {row.isOfficialSource && (
+                          <span className="inline-flex items-center rounded-[5px] border border-emerald-400/25 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-200">
+                            Resmi kaynak
+                          </span>
+                        )}
+                        {row.isStale && (
+                          <span className="inline-flex items-center rounded-[5px] border border-amber-400/25 bg-amber-400/10 px-2 py-0.5 text-[10px] font-semibold text-amber-200">
+                            Gecikmeli
+                          </span>
+                        )}
+                        {row.sourceUrl && (
+                          <a
+                            href={row.sourceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center rounded-[5px] border border-sky-400/25 bg-sky-400/10 px-2 py-0.5 text-[10px] font-semibold text-sky-200 hover:border-sky-300/50"
+                          >
+                            Doğrulanabilir
+                          </a>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3.5 font-(family-name:--font-mono) text-[12px] text-(--color-muted)">
                       {formatDate(row.recordedDate)}
@@ -574,10 +602,11 @@ export default function PriceTable({
           onPageSizeChange={setPageSize}
         />
       ) : (
-        <div className="flex items-center justify-between font-(family-name:--font-mono) text-[11px] uppercase tracking-[0.1em] text-(--color-muted)">
+        <div className="flex flex-wrap items-center justify-between gap-2 font-(family-name:--font-mono) text-[11px] uppercase tracking-[0.1em] text-(--color-muted)">
           <span>
             {filtered.length} / {safePrices.length} kayıt
           </span>
+          <span>Toptancı hal fiyatıdır, perakende değildir.</span>
           {deferredQuery.trim() && (
             <span className="text-(--color-foreground)">
               &ldquo;{deferredQuery.trim()}&rdquo; için sonuçlar

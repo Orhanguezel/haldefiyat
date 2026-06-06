@@ -8,19 +8,28 @@ interface Feature {
   label: string;
 }
 
-const FEATURES: ReadonlyArray<Feature> = [
-  { icon: "📊", label: "Günlük Fiyat Verileri" },
-  { icon: "🏪", label: "81 İl Hal Bilgisi" },
-  { icon: "📈", label: "Fiyat Grafikleri" },
-  { icon: "🔔", label: "Fiyat Uyarıları" },
-];
-
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   show:   { opacity: 1, y: 0 },
 };
 
-export default function HeroSectionClient() {
+export default function HeroSectionClient({
+  activeCities,
+  targetCoverage = "81 il hedef",
+}: {
+  activeCities?: number;
+  targetCoverage?: string;
+}) {
+  const coverageLabel = activeCities && activeCities > 0
+    ? `${activeCities.toLocaleString("tr-TR")} Aktif İl`
+    : targetCoverage;
+  const features: ReadonlyArray<Feature> = [
+    { icon: "📊", label: "Günlük Fiyat Verileri" },
+    { icon: "🏪", label: `${coverageLabel} Hal Bilgisi` },
+    { icon: "📈", label: "Fiyat Grafikleri" },
+    { icon: "🔔", label: "Fiyat Uyarıları" },
+  ];
+
   return (
     <div className="mx-auto max-w-[860px]">
       <motion.div
@@ -30,7 +39,7 @@ export default function HeroSectionClient() {
         className="mb-8 inline-flex items-center gap-2 rounded-full border border-(--color-brand)/20 bg-(--color-brand)/10 px-[18px] py-1.5 font-(family-name:--font-mono) text-[12px] font-semibold uppercase tracking-[0.08em] text-(--color-brand)"
       >
         <span className="live-dot-sm" aria-hidden />
-        Canlı Veri Akışı · 81 İl
+        Canlı Veri Akışı · {coverageLabel}
       </motion.div>
 
       {/* Masaüstü hero görseli h2: tek birincil H1 mobil hero'da (Google
@@ -95,7 +104,7 @@ export default function HeroSectionClient() {
         transition={{ duration: 0.7, delay: 0.35, ease: "easeOut" }}
         className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap sm:gap-10"
       >
-        {FEATURES.map((feat) => (
+        {features.map((feat) => (
           <div
             key={feat.label}
             className="flex items-center gap-2.5 text-[14px] text-(--color-muted)"

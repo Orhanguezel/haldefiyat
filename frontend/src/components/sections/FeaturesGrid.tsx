@@ -7,7 +7,11 @@ interface Feature {
   desc: string;
 }
 
-const FEATURES: ReadonlyArray<Feature> = [
+function buildFeatures(activeCities?: number, targetCoverage = "81 il hedef"): ReadonlyArray<Feature> {
+  const coverageTitle = activeCities && activeCities > 0
+    ? `${activeCities.toLocaleString("tr-TR")} Aktif İl`
+    : targetCoverage;
+  return [
   {
     icon: "📊",
     color: "lime",
@@ -29,8 +33,8 @@ const FEATURES: ReadonlyArray<Feature> = [
   {
     icon: "🏪",
     color: "red",
-    title: "81 İl Kapsamı",
-    desc: "Türkiye'nin her ilinden hal verilerine erişin. Bölgesel fiyat farklılıklarını tek tıkla karşılaştırın.",
+    title: coverageTitle,
+    desc: `${targetCoverage} doğrultusunda, aktif kaynaklardan gelen bölgesel fiyat farklılıklarını tek ekranda karşılaştırın.`,
   },
   {
     icon: "📱",
@@ -44,7 +48,8 @@ const FEATURES: ReadonlyArray<Feature> = [
     title: "Tamamen Ücretsiz",
     desc: "Hiçbir ücret veya gizli maliyet yok. Çiftçiden tüketiciye herkese açık, bağımsız fiyat platformu.",
   },
-];
+  ];
+}
 
 const ICON_CLASSES: Record<FeatureColor, string> = {
   lime: "bg-[rgba(132,240,76,0.10)] border-[rgba(132,240,76,0.15)]",
@@ -61,7 +66,8 @@ const ICON_CLASSES: Record<FeatureColor, string> = {
  * NEDEN: Tamamen statik icerik — hicbir state, fetch veya effect yok.
  * RSC olarak kalmasi bundle'a sifir JS ekler.
  */
-export default function FeaturesGrid() {
+export default function FeaturesGrid({ activeCities, targetCoverage }: { activeCities?: number; targetCoverage?: string }) {
+  const features = buildFeatures(activeCities, targetCoverage);
   return (
     <section
       id="hakkinda"
@@ -78,7 +84,7 @@ export default function FeaturesGrid() {
         </header>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((feat) => (
+          {features.map((feat) => (
             <article
               key={feat.title}
               className="group relative rounded-[20px] border border-(--color-border) bg-(--color-surface) p-10 transition-all duration-300 hover:-translate-y-1 hover:bg-(--color-bg-alt) hover:shadow-2xl"

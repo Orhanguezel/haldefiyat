@@ -27,6 +27,9 @@ export async function GET() {
 - [Metodoloji](${SITE_URL}/metodoloji): Veri kaynakları, derleme süreci, güvenilirlik standartları
 - [Hakkımızda](${SITE_URL}/hakkimizda): Platform amacı, kapsam, ekip
 - [API Dokümantasyonu](${SITE_URL}/api-docs): Geliştiriciler için açık veri API erişimi
+- [API Kullanım Politikası](${SITE_URL}/api-policy): API serbest, HTML scraping yasak, atıf ve cache kuralları
+- [Veri Sağlığı](${SITE_URL}/data-health): ETL kaynaklarının son çekim ve hata durumları
+- [OpenAPI JSON](${SITE_URL}/openapi.json): Makine-okunur API sözleşmesi
 
 ## Dinamik Sayfalar
 
@@ -35,11 +38,25 @@ export async function GET() {
 
 ## Açık Veri API
 
+- OpenAPI sözleşmesi: ${SITE_URL}/openapi.json
+- API politikası: ${SITE_URL}/api-policy
+- Kaynak sağlığı: ${SITE_URL}/data-health
 - Tüm ürün fiyatları: ${API_URL}/api/v1/prices
+- Güncel fiyat niyeti: ${API_URL}/api/v1/prices/latest?city={city}&product={product}
+- Kaynak durumları: ${API_URL}/api/v1/sources/status
 - Ürün bazlı fiyat geçmişi: ${API_URL}/api/v1/prices/history/{slug}
-- Hal listesi: ${API_URL}/api/v1/markets
+- Ürün arama: ${API_URL}/api/v1/products/search?q={query}
+- Ürün aliasları: ${API_URL}/api/v1/products/{slug}/aliases
+- Hal listesi: ${API_URL}/api/v1/prices/markets
 - Fiyat endeksi: ${API_URL}/api/v1/index/latest
 - Endeks geçmişi: ${API_URL}/api/v1/index/history
+
+## Bot ve Ajan Kullanımı
+
+- HTML sayfalarını scrape etmeyin; JSON API ve OpenAPI sözleşmesini kullanın.
+- Yanıtları en az 5 dakika cache'leyin.
+- Bayat veri için API response içindeki warnings, isStale, fetchedAt ve sourceUrl alanlarını dikkate alın.
+- Önerilen atıf: "Kaynak: HaldeFiyat.com; birincil kaynak: {sourceName/sourceUrl}".
 
 ## Veri Kaynakları
 
@@ -54,6 +71,7 @@ Veriler aşağıdaki resmi kaynaklardan otomatik olarak derlenmektedir:
 
 İçerik Creative Commons Atıf 4.0 (CC BY 4.0) lisansı altındadır.
 Kaynak belirtilerek serbestçe kullanılabilir: haldefiyat.com
+HTML scraping kullanım koşullarına aykırıdır; açık veri erişimi API üzerinden serbesttir.
 `;
 
   return new NextResponse(content, {

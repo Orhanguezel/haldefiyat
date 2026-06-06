@@ -19,13 +19,26 @@ const API: string = (
 
 export interface PriceRow {
   id: number;
-  minPrice: string | null;
-  maxPrice: string | null;
-  avgPrice: string;
+  minPrice: number | string | null;
+  maxPrice: number | string | null;
+  avgPrice: number | string;
   currency: string;
   unit: string;
   recordedDate: string;
   sourceApi: string;
+  sourceName?: string | null;
+  sourceUrl?: string | null;
+  sourceType?: "municipality" | "exchange" | "official" | "cooperative" | "manual";
+  fetchedAt?: string | null;
+  publishedAt?: string | null;
+  isFresh?: boolean;
+  isStale?: boolean;
+  isOfficialSource?: boolean;
+  qualityFlags?: string[];
+  recordCount?: number;
+  rawProductName?: string;
+  canonicalProduct?: string;
+  varietySlug?: string;
   productSlug: string;
   productName: string;
   categorySlug: string;
@@ -261,9 +274,9 @@ export interface TrendingItem {
 
 export interface PriceHistoryRow {
   recordedDate: string;
-  minPrice: string | null;
-  maxPrice: string | null;
-  avgPrice: string;
+  minPrice: number | string | null;
+  maxPrice: number | string | null;
+  avgPrice: number | string;
   marketSlug: string;
   marketName: string;
   cityName: string;
@@ -509,15 +522,46 @@ export async function fetchMarkets(city?: string): Promise<Market[]> {
 }
 
 export interface PricesOverview {
+  activeCities?: number;
+  activeMarkets?: number;
+  targetCoverage?: string;
   trackedProducts: number;
+  lastSourceDate?: string | null;
   latestRecordedDate: string | null;
+  lastEtlRunAt?: string | null;
 }
 
 export async function fetchPricesOverview(): Promise<PricesOverview> {
   return safeFetch<PricesOverview>("/prices/overview", 300, {
+    activeCities: 0,
+    activeMarkets: 0,
+    targetCoverage: "81 il hedef",
     trackedProducts: 0,
+    lastSourceDate: null,
     latestRecordedDate: null,
+    lastEtlRunAt: null,
   });
+}
+
+export interface SourceStatusRow {
+  sourceApi: string;
+  sourceName: string;
+  sourceUrl: string | null;
+  sourceType: string;
+  city: string | null;
+  marketName: string | null;
+  status: "ok" | "partial" | "error" | "stale";
+  lastSourceDate: string | null;
+  lastRunAt: string | null;
+  rowsInserted: number;
+  rowsFetched: number;
+  rowsSkipped: number;
+  errorMsg: string | null;
+}
+
+export async function fetchSourceStatus(): Promise<SourceStatusRow[]> {
+  const data = await safeFetchRaw<{ items: SourceStatusRow[] }>("/sources/status", 120, { items: [] });
+  return data.items;
 }
 
 export async function fetchFirms(params: {

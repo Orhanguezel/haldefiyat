@@ -18,26 +18,26 @@
 
 ## FAZ 1 — Güven & Tutarlılık (P0, en hızlı güven kazancı)
 
-- [ ] **T1 · Metrik tutarsızlığı (DOĞRULANDI):** ana sayfada hem "22 il" hem "**81 İl**" geçiyor; "Son veri" ≠ "Son Güncelleme". Tek kaynaktan besle + ayır: `activeCities` (~22-23), `targetCoverage` ("81 il hedef" — çıplak "81 İl" YAZMA), `trackedProducts`, `lastSourceDate`, `lastEtlRunAt`.
-- [ ] **T2 · Tazelik görünürlüğü:** her hal/ürün sayfasında "Son güncelleme **N gün önce**" rozeti (bayatsa kırmızı); **"Invalid Date" bug fix**; bugünün verisi yoksa "en son X tarihli veri gösteriliyor".
-- [ ] **T3 · `GET /api/v1/prices/latest?city=&product=`** (yok, 404): "bugünkü fiyat" niyeti; veri bayatsa `warnings:[{code:"STALE_DATA", message, asOf}]`. **AI ajan için en kritik endpoint.**
-- [ ] **T4 · alerts auth (GÜVENLİK):** `GET /api/v1/alerts?email=...` auth'suz 200 → tercih sızıntısı. Ownership token/oturum. + alert silmede tahmin-edilemez token.
+- [x] **T1 · Metrik tutarsızlığı (DOĞRULANDI):** ana sayfada hem "22 il" hem "**81 İl**" geçiyor; "Son veri" ≠ "Son Güncelleme". Tek kaynaktan besle + ayır: `activeCities` (~22-23), `targetCoverage` ("81 il hedef" — çıplak "81 İl" YAZMA), `trackedProducts`, `lastSourceDate`, `lastEtlRunAt`. **☑ Codex 2026-06-06**
+- [x] **T2 · Tazelik görünürlüğü:** her hal/ürün sayfasında "Son güncelleme **N gün önce**" rozeti (bayatsa kırmızı); **"Invalid Date" bug fix**; bugünün verisi yoksa "en son X tarihli veri gösteriliyor". **☑ Codex 2026-06-06**
+- [x] **T3 · `GET /api/v1/prices/latest?city=&product=`** (yok, 404): "bugünkü fiyat" niyeti; veri bayatsa `warnings:[{code:"STALE_DATA", message, asOf}]`. **AI ajan için en kritik endpoint.** **☑ Codex 2026-06-06**
+- [x] **T4 · alerts auth (GÜVENLİK):** `GET /api/v1/alerts?email=...` auth'suz 200 → tercih sızıntısı. Ownership token/oturum. + alert silmede tahmin-edilemez token. **☑ Codex 2026-06-06**
 
 ## FAZ 2 — Provenance & Şeffaflık (P1, AI güveni)
 
-- [ ] **T5 · Fiyat satırı provenance:** `sourceName`, `sourceUrl` (kaynak→URL map), `sourceType`, `fetchedAt`, `publishedAt`, `isFresh`/`isStale`, `isOfficialSource`, `qualityFlags`, `recordCount`. (`sourceApi`+`recordedDate`+`marketName`+`marketType` zaten var.)
-- [ ] **T6 · Fiyatlar number döndür** (`min/avg/maxPrice` string değil number).
-- [ ] **T7 · `/data-health` + `GET /api/v1/sources/status`:** kaynak-bazlı tablo (Kaynak·Şehir·son kaynak tarihi·son çekme·durum·satır·hata) — `hf_etl_runs`'tan. Public şeffaflık.
-- [ ] **T8 · Güven etiketleri:** fiyat kartına `Resmi kaynak`/`Gecikmeli`/`Doğrulanabilir` + sabit "Toptancı hal fiyatıdır, perakende değildir".
+- [x] **T5 · Fiyat satırı provenance:** `sourceName`, `sourceUrl` (kaynak→URL map), `sourceType`, `fetchedAt`, `publishedAt`, `isFresh`/`isStale`, `isOfficialSource`, `qualityFlags`, `recordCount`. (`sourceApi`+`recordedDate`+`marketName`+`marketType` zaten var.) **☑ Codex 2026-06-06**
+- [x] **T6 · Fiyatlar number döndür** (`min/avg/maxPrice` string değil number). **☑ Codex 2026-06-06**
+- [x] **T7 · `/data-health` + `GET /api/v1/sources/status`:** kaynak-bazlı tablo (Kaynak·Şehir·son kaynak tarihi·son çekme·durum·satır·hata) — `hf_etl_runs`'tan. Public şeffaflık. **☑ Codex 2026-06-06**
+- [x] **T8 · Güven etiketleri:** fiyat kartına `Resmi kaynak`/`Gecikmeli`/`Doğrulanabilir` + sabit "Toptancı hal fiyatıdır, perakende değildir". **☑ Codex 2026-06-06**
 
 ## FAZ 3 — AI Discoverability & API Olgunluğu (P1-P2)
 
-- [ ] **T9 · Varyant/ürün API:** `GET /api/v1/products/search?q=` + `/api/v1/products/{slug}/aliases`; response'a `rawProductName`+`canonicalProduct`+`varietySlug`. "muhtelif/ortalama" açık yaz.
-- [ ] **T10 · `Dataset` structured data** (schema.org) `/hal` + `/urun` (JsonLd).
-- [ ] **T11 · `/api-policy` sayfası:** "HTML scraping yasak, API serbest, 120/dk, yüksek hacim→key, atıf, cache≥5dk" + kullanım koşullarına aynı ayrım.
-- [ ] **T12 · Standart error formatı** (`{error:{code,message,details,requestId}}`) + rate-limit header'ları (`X-RateLimit-Limit/Remaining/Reset`).
-- [ ] **T13 · `llms.txt` zenginleştir:** `/openapi.json`, `/api-policy`, `/data-health`, lisans, atıf.
-- [ ] **T14 · Tahmin disclaimer:** tahmin endpoint'ine `disclaimer` alanı. *(Model versiyonlama → DEFER.)*
+- [x] **T9 · Varyant/ürün API:** `GET /api/v1/products/search?q=` + `/api/v1/products/{slug}/aliases`; response'a `rawProductName`+`canonicalProduct`+`varietySlug`. "muhtelif/ortalama" açık yaz. **☑ Codex 2026-06-06**
+- [x] **T10 · `Dataset` structured data** (schema.org) `/hal` + `/urun` (JsonLd). **☑ Codex 2026-06-06**
+- [x] **T11 · `/api-policy` sayfası:** "HTML scraping yasak, API serbest, 120/dk, yüksek hacim→key, atıf, cache≥5dk" + kullanım koşullarına aynı ayrım. **☑ Codex 2026-06-06**
+- [x] **T12 · Standart error formatı** (`{error:{code,message,details,requestId}}`) + rate-limit header'ları (`X-RateLimit-Limit/Remaining/Reset`). **☑ Codex 2026-06-06**
+- [x] **T13 · `llms.txt` zenginleştir:** `/openapi.json`, `/api-policy`, `/data-health`, lisans, atıf. **☑ Codex 2026-06-06**
+- [x] **T14 · Tahmin disclaimer:** tahmin endpoint'ine `disclaimer` alanı. *(Model versiyonlama → DEFER.)* **☑ Codex 2026-06-06**
 
 ## Carry-over
 - [ ] **T15 · TMO tarih fix:** `tmo-alim.ts` `recordedDate` "2026-06-01" → çalışma tarihi → `/urun/bugday` & `/arpa` `range=1d`'de fiyat görünür. Sonra 1 kez ETL tetikle.

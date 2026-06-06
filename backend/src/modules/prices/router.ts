@@ -10,7 +10,10 @@ import {
   parseRangeToDays,
   trendingChanges,
   latestRecordedDate,
+  latestPrice,
   overviewStats,
+  productAliases,
+  sourceStatusRows,
   widgetPrices,
   retailPricesByProduct,
   cityPriceMap,
@@ -54,6 +57,12 @@ const qProducts = z.object({
   category: z.string().optional(),
   marketType: z.enum(["hal", "borsa", "resmi", "kooperatif"]).optional(),
   seoIndex: boolish,
+});
+
+const qLatest = z.object({
+  city: z.string().optional(),
+  product: z.string().optional(),
+  market: z.string().optional(),
 });
 
 const qMarkets = z.object({
@@ -117,6 +126,32 @@ export async function registerPrices(app: FastifyInstance) {
     if (!q.success) return reply.status(400).send({ error: "Gecersiz parametre" });
     const items = await listProducts(q.data.q, q.data.category, q.data.seoIndex, q.data.marketType);
     return reply.send({ items });
+  });
+
+  app.get("/prices/products/search", async (req, reply) => {
+    const q = qProducts.safeParse(req.query);
+    if (!q.success) return reply.status(400).send({ error: "Gecersiz parametre" });
+    const items = await listProducts(q.data.q, q.data.category, q.data.seoIndex, q.data.marketType);
+    return reply.send({ items });
+  });
+
+  app.get("/products/search", async (req, reply) => {
+    const q = qProducts.safeParse(req.query);
+    if (!q.success) return reply.status(400).send({ error: "Gecersiz parametre" });
+    const items = await listProducts(q.data.q, q.data.category, q.data.seoIndex, q.data.marketType);
+    return reply.send({ items });
+  });
+
+  app.get<{ Params: { slug: string } }>("/prices/products/:slug/aliases", async (req, reply) => {
+    const item = await productAliases(req.params.slug);
+    if (!item) return reply.status(404).send({ error: "Urun bulunamadi" });
+    return reply.send({ item });
+  });
+
+  app.get<{ Params: { slug: string } }>("/products/:slug/aliases", async (req, reply) => {
+    const item = await productAliases(req.params.slug);
+    if (!item) return reply.status(404).send({ error: "Urun bulunamadi" });
+    return reply.send({ item });
   });
 
   /**
@@ -257,6 +292,33 @@ export async function registerPrices(app: FastifyInstance) {
     setPublicWidgetHeaders(reply);
     const stats = await overviewStats();
     return reply.send(stats);
+  });
+
+  app.get("/sources/status", async (_req, reply) => {
+    const items = await sourceStatusRows();
+    reply.header("Cache-Control", "public, max-age=120, s-maxage=120");
+    return reply.send({ items });
+  });
+
+  app.get("/prices/latest", async (req, reply) => {
+    const parsed = qLatest.safeParse(req.query);
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz sorgu parametreleri" });
+    if (!parsed.data.city && !parsed.data.product && !parsed.data.market) {
+      return reply.status(400).send({ error: "city, product veya market parametresi zorunlu" });
+    }
+    const result = await latestPrice(parsed.data);
+    if (!result || result.items.length === 0) {
+      return reply.status(404).send({ error: "Fiyat verisi bulunamadi" });
+    }
+    reply.header("Cache-Control", "public, max-age=120, s-maxage=120");
+    return reply.send({
+      items: result.items,
+      warnings: result.warnings,
+      meta: {
+        latestRecordedDate: result.latestRecordedDate,
+        total: result.items.length,
+      },
+    });
   });
 
   /**

@@ -95,13 +95,15 @@ export async function registerAlerts(app: FastifyInstance) {
 
   /**
    * GET /api/v1/alerts?email=foo@bar.com
-   * Bir email'e ait aktif alarmlari listeler (MVP — auth yok)
+   * Legacy liste endpoint'i. E-posta ile auth'suz listeleme tercih sızıntısı
+   * ürettiği için artık oturum ve sahiplik zorunlu.
    */
-  app.get("/alerts", async (req, reply) => {
+  app.get("/alerts", { onRequest: [requireAuth] }, async (req, reply) => {
     const parsed = listQuerySchema.safeParse(req.query);
     if (!parsed.success) {
       return reply.status(400).send({ error: "email parametresi zorunlu" });
     }
+    const userId = getAuthUserId(req);
 
     const rows = await db
       .select({
@@ -122,7 +124,11 @@ export async function registerAlerts(app: FastifyInstance) {
       .from(hfAlerts)
       .innerJoin(hfProducts, eq(hfProducts.id, hfAlerts.productId))
       .leftJoin(hfMarkets,   eq(hfMarkets.id,  hfAlerts.marketId))
-      .where(and(eq(hfAlerts.isActive, 1), eq(hfAlerts.contactEmail, parsed.data.email)))
+      .where(and(
+        eq(hfAlerts.isActive, 1),
+        eq(hfAlerts.userId, userId),
+        eq(hfAlerts.contactEmail, parsed.data.email),
+      ))
       .orderBy(desc(hfAlerts.createdAt));
 
     return reply.send({ items: rows });
@@ -132,11 +138,17 @@ export async function registerAlerts(app: FastifyInstance) {
    * DELETE /api/v1/alerts/:id
    * Alarmi soft-delete eder (isActive = 0)
    */
-  app.delete<{ Params: { id: string } }>("/alerts/:id", async (req, reply) => {
+  app.delete<{ Params: { id: string } }>("/alerts/:id", { onRequest: [requireAuth] }, async (req, reply) => {
     const id = parseInt(req.params.id, 10);
     if (!Number.isFinite(id) || id <= 0) {
       return reply.status(400).send({ error: "Gecersiz id" });
     }
+    const userId = getAuthUserId(req);
+
+    const [alert] = await db.select({ id: hfAlerts.id }).from(hfAlerts)
+      .where(and(eq(hfAlerts.id, id), eq(hfAlerts.userId, userId), eq(hfAlerts.isActive, 1)))
+      .limit(1);
+    if (!alert) return reply.status(404).send({ error: "Uyari bulunamadi veya erisim yetkiniz yok" });
 
     await db.update(hfAlerts).set({ isActive: 0 }).where(eq(hfAlerts.id, id));
     return reply.send({ ok: true });

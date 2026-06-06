@@ -8,6 +8,7 @@ import { fetchPrices, fetchMarkets, fetchFirms, fetchListings } from "@/lib/api"
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceTable from "@/components/ui/PriceTable";
+import FreshnessBadge from "@/components/ui/FreshnessBadge";
 import WeatherWidget from "@/components/sections/WeatherWidget";
 import { cityToWeatherSlug } from "@/lib/weather";
 import { getPageMetadata } from "@/lib/seo";
@@ -149,6 +150,20 @@ export default async function HalPage({ params }: Props) {
       addressCountry: "TR",
     },
   } satisfies Record<string, unknown>;
+  const datasetSchema = {
+    name: `${market.name} fiyat veri seti`,
+    description: `${market.name} için ürün bazlı min, ortalama ve maksimum toptancı hal fiyatları.`,
+    url: `${SITE_URL}/hal/${slug}`,
+    license: "https://creativecommons.org/licenses/by/4.0/",
+    creator: { "@id": `${SITE_URL}/#organization` },
+    temporalCoverage: latestDate ? `${latestDate}/..` : "2025/..",
+    spatialCoverage: { "@type": "Place", name: market.cityName },
+    distribution: {
+      "@type": "DataDownload",
+      encodingFormat: "application/json",
+      contentUrl: `${SITE_URL}/api/v1/prices?market=${encodeURIComponent(slug)}`,
+    },
+  } satisfies Record<string, unknown>;
 
   const breadcrumbItems = [
     { name: "Anasayfa", href: "/" },
@@ -160,6 +175,7 @@ export default async function HalPage({ params }: Props) {
     return (
       <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
         <JsonLd type="Place" data={placeSchema} />
+        <JsonLd type="Dataset" data={datasetSchema} />
         <Breadcrumb items={breadcrumbItems} />
         <div className="mb-8">
           <div className="flex flex-wrap items-center gap-2">
@@ -178,6 +194,7 @@ export default async function HalPage({ params }: Props) {
               ? `${new Date(latestDate + "T12:00:00Z").toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })} fiyatları`
               : "Veri bekleniyor"}
           </p>
+          <div className="mt-3"><FreshnessBadge recordedDate={latestDate} /></div>
         </div>
 
         <div className="mb-8 rounded-[14px] border border-(--color-border) bg-(--color-surface) p-5 text-[13px] text-(--color-muted) space-y-1.5">
@@ -202,6 +219,7 @@ export default async function HalPage({ params }: Props) {
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <JsonLd type="Place" data={placeSchema} />
+      <JsonLd type="Dataset" data={datasetSchema} />
       <Breadcrumb items={breadcrumbItems} />
       <div className="mb-8">
         <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
@@ -215,6 +233,7 @@ export default async function HalPage({ params }: Props) {
           Kaynak: {market.sourceKey ?? "manuel"}
           {latestDate ? ` · ${new Date(latestDate + "T12:00:00Z").toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })} fiyatları` : ""}
         </p>
+        <div className="mt-3"><FreshnessBadge recordedDate={latestDate} /></div>
       </div>
 
       {/* Hava durumu — sadece eslesen sehirler icin */}
