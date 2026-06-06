@@ -1,21 +1,19 @@
-# Veri Sağlığı & AI Veri Altyapısı — Master Checklist (2026-06-06)
+# Veri Sağlığı — ETL Üretici Tarafı Checklist (2026-06-06)
 
-> Kapsam: (A) çöken ETL kaynakları, (B) Migros Wayback backfill, (C) veri tazeliği/
-> şeffaflık, (D) AI veri güveni/provenance, (E) güvenlik, (F) carry-over.
-> Kaynaklar: ETL sağlık raporu (`etl-health.sh`) + ChatGPT "AI veri platformu"
-> raporu (eleştirel ayıklanmış) + bu oturum bulguları.
-> Rol: **Claude** teşhis/tasarım · **Codex** implement · **Orhan** operasyon/kaynak.
+> Kapsam (**üretici/kaynak tarafı**): (A) çöken ETL kaynakları, (B) Migros Wayback backfill, (F) carry-over.
+> **Tüketici tarafı** (API/AI/görünüm/güvenlik) → [`VERI-TUKETICILERI-CHECKLIST.md`](VERI-TUKETICILERI-CHECKLIST.md).
+> Kaynak: `etl-health.sh` raporu + bu oturum bulguları. Rol: **Claude** teşhis · **Codex** implement · **Orhan** operasyon/kaynak.
 
 ---
 
-## 🔥 ÖNCELİK SIRASI (özet)
-1. **C0 metrik tutarsızlığı** ("22 il" vs "**81 İl**" ana sayfada — DOĞRULANDI, kapsam abartısı = en hızlı güven kaybı)
-2. **A5 hal_gov_tr_ulusal** (ulusal HKS — düzelirse çok il tek seferde, Mersin dahil) — en yüksek kaldıraç
-3. **A1 mersin_resmi** (18 gün bayat, en büyük il 240 firma)
-4. **C1-C2 tazelik görünürlüğü** (bayat veriyi "güncel" göstermeyi durdur)
-5. **D3 /prices/latest + STALE_DATA warning** (AI ajan + "bugünkü fiyat" niyeti)
-6. **E1 alerts auth** (gizlilik sızıntısı)
-7. Gerisi sırayla.
+## 🔥 ÖNCELİK SIRASI (üretici tarafı — bu dosya)
+1. **A5 hal_gov_tr_ulusal** (ulusal HKS — düzelirse çok il tek seferde, Mersin dahil) — en yüksek kaldıraç
+2. **A1 mersin_resmi** (18 gün bayat, en büyük il 240 firma)
+3. **A2/A6** manisa + tekirdağ parser
+4. **B1** Migros backfill
+
+> Tüketici tarafı önceliği (metrik tutarsızlığı, tazelik, /prices/latest, alerts auth)
+> → `VERI-TUKETICILERI-CHECKLIST.md` (T1-T15).
 
 ---
 
@@ -49,40 +47,12 @@ checklist Atakan maddesi). VPS IP-block hipotezi doğrulanırsa: farklı egress 
 
 ---
 
-## C. Veri Tazeliği, Tutarlılık & Şeffaflık (her iki ChatGPT raporu — DOĞRULANDI)
-> Mersin sayfası 18 günlük veriyi "güncel" gibi gösteriyor + "Invalid Date". Güven riski.
-- [ ] **C0. 🔴 Metrik tutarsızlığı (DOĞRULANDI):** ana sayfada hem "22 il" hem "**81 İl**" geçiyor; "Son veri" ile "Son Güncelleme" farklı tarihler. **Tek kaynaktan besle + ayır:** `activeCities` (gerçek=22-23), `targetCoverage` ("81 il hedef" — abartı YAZMA), `trackedProducts`, `lastSourceDate` (son kaynak tarihi), `lastEtlRunAt` (son başarılı ETL). "81 il" sadece gerçekse, yoksa "22 il aktif · 81 il hedef".
-- [ ] **C1.** API + DB: `isStale`/`isFresh` hesabı (satır `recordedDate` vs o hal'in son tarihi / global anchor). Backend hesaplar, API döner.
-- [ ] **C2.** UI: "Son güncelleme **N gün önce**" belirgin rozet (bayatsa kırmızı); **"Invalid Date" bug fix**; eski veri gösterirken "Bugünün verisi yok, en son X tarihli veri" notu.
-- [ ] **C3.** Public veri sağlık paneli **`/data-health`**: kaynak-bazlı tablo (Kaynak · Şehir · son kaynak tarihi · son çekme · durum · satır · hata). `etl-health.sh` mantığı → sayfa. "Biz saklamıyoruz, şeffafız" sinyali.
-- [ ] **C4.** Fiyat kartına güven etiketi: `Resmi kaynak` / `Gecikmeli` / `Kaynak doğrulanabilir`; sabit "Toptancı hal fiyatıdır, perakende değildir" uyarısı.
-
----
-
-## D. AI Veri Güveni / Provenance (ChatGPT raporu — eleştirel ayıklanmış)
-
-> ⚠️ Rapor "eksik" dediklerinin bir kısmı **ZATEN VAR** (yanıltmasın):
-> - **OpenAPI VAR** (`/openapi.json`, `/api/docs/json` 200) — yapma, sadece doğrula/linkle.
-> - **llms.txt VAR** (`/llms.txt` 200) — yapma, **zenginleştir** (API+lisans+önemli sayfa).
-> - **Varyant infra VAR** (`canonical_slug`+`aliases`) — API'de daha görünür yap.
-
-**Gerçekten eksik (DOĞRULANDI) + ucuz + AI-talebine uygun** *(trafik: AI crawler 3,5× Googlebot)*:
-- [ ] **D1.** Fiyat API satırına ekle: `sourceName`, `sourceUrl` (kaynak→URL map), `sourceType` (municipality/borsa/resmi), `fetchedAt`, `publishedAt`, `isFresh`/`isStale`, `isOfficialSource`, `qualityFlags`, `recordCount`. (`sourceApi`+`recordedDate`+`marketName`+`marketType` zaten var.)
-- [ ] **D2.** Fiyatları **string değil number** döndür (`minPrice`/`avgPrice`/`maxPrice`) — BI/pipeline/AI için. *(meta'da `hasMore` zaten var.)*
-- [ ] **D3.** **`/api/v1/prices/latest?city=&product=`** endpoint (DOĞRULANDI 404 — yok). "Bugünkü fiyat" niyeti; bugünün verisi yoksa `warnings:[{code:"STALE_DATA",message:"... en son X tarihli"}]` döndür. **AI ajan için en kritik endpoint.** → **D6 ile aynı, P0.**
-- [ ] **D4.** **`/api/v1/sources/status`** endpoint (DOĞRULANDI 404) → `/data-health` (C3) panelini besler: sourceId, sourceName, city, status, lastSourceDate, lastFetchedAt, rowsInserted, rowsRejected, errorMessage.
-- [ ] **D5.** Varyant/ürün sözlüğü endpoint: **`/api/v1/products/search?q=`** + **`/api/v1/products/{slug}/aliases`**. API'de `rawProductName` + `canonicalProduct` + `varietySlug` + `normalizationConfidence` ayrımı (infra `canonical_slug`+`aliases` var → response'a ve endpoint'e taşı). "Domates muhtelif/ortalama" olduğunu açık yaz.
-- [ ] **D7.** `Dataset` structured data (schema.org) `/hal` + `/urun` — AI + Google için güçlü.
-- [ ] **D8.** **`/api-policy` sayfası:** "HTML scraping yasak, belgelenmiş API serbest, 120/dk, yüksek hacim→API key, atıf formatı, cache≥5dk". + kullanım koşullarına aynı ayrım (rapor haklı: çelişki var). llms.txt'ten linkle.
-- [ ] **D9.** Standart **error formatı** (`{error:{code,message,details,requestId}}`) tüm endpoint'lerde + **rate-limit header'ları** (`X-RateLimit-Limit/Remaining/Reset`).
-- [ ] **D10.** `llms.txt` **zenginleştir**: `/openapi.json`, `/api-policy`, `/data-health`, lisans (CC BY 4.0 kapsamı), "API kullan, HTML scrape etme", atıf. *(llms.txt + openapi.json + /api/v1/health ZATEN VAR — sadece içerik+link.)*
-
----
-
-## E. Güvenlik
-- [ ] **E1.** `GET /api/v1/alerts?email=...` **auth'suz 200 dönüyor** → herhangi bir e-postanın uyarı tercihleri sızar (enumeration). Ownership token / oturum şartı ekle. *(Bkz. memory signup-default-admin-vuln pattern.)*
-- [ ] **E2.** Alert silme: tahmin-edilemez token + sahiplik kontrolü.
-- [ ] **E3.** Rate limit IP/API-key/kullanıcı bazlı (sadece dakika değil); CSV export kota+cache.
+## C/D/E. Tüketici-tarafı (API · AI · görünüm · güvenlik) → AYRI DOSYA
+> Metrik tutarsızlığı, tazelik görünürlüğü, `/prices/latest`, provenance alanları,
+> `/data-health`, varyant API, `/api-policy`, error format, llms.txt, alerts auth —
+> hepsi **[`VERI-TUKETICILERI-CHECKLIST.md`](VERI-TUKETICILERI-CHECKLIST.md)** (T1-T15) +
+> brief [`docs/codex-briefs/veri-tuketicileri.md`](docs/codex-briefs/veri-tuketicileri.md).
+> Bu dosya yalnızca **üretici tarafı** (ETL kaynak sağlığı A + Migros backfill B).
 
 ---
 
@@ -93,31 +63,14 @@ checklist Atakan maddesi). VPS IP-block hipotezi doğrulanırsa: farklı egress 
 
 ---
 
-## ⏸️ DEFER — Monetizasyon Faz 4+ (ŞİMDİ DEĞİL)
-> Memory `MONETIZASYON-CHECKLIST`: monetizasyon KAPALI, mükemmelleştirme fazı. 10K DAU tetiğinde aç.
-
-- Paket tiers (Free/Developer/Pro/Enterprise) + kurumsal API key + SLA + kota.
-- Webhook (`price.changed` — "Mersin domates %10 düştü") · Parquet/JSONL bulk günlük dump.
-- Tahmin endpoint zenginleştirme (model versiyonu, eğitim aralığı, güven aralığı, disclaimer) — **ama disclaimer'ı şimdi ekle (ucuz/güven)**, model-versiyonlama ertelenir.
-- Ürün-eşleştirme servisi (ticari).
-→ `MONETIZASYON-CHECKLIST`'e taşı.
-
----
-
-## ⏭️ SKIP / minor
-fiyat number-vs-string (kozmetik) · recordCount · "Sayfa hazırlanıyor" placeholder (crawler görünümü — kontrol et, küçük).
-
----
-
-## Görev ayrımı
-- **🧠 Claude:** A5/A1 ETL teşhis derinleştir · C1-C4 + D1-D5 tasarım/sözleşme · Codex brief.
-- **🛠️ Codex:** A6 parser fix · B1 backfill · C/D/E/F implement (brief sonrası).
+## Görev ayrımı (üretici tarafı)
+- **🧠 Claude:** A5/A1 ETL teşhis derinleştir (ulusal HKS, IP-block hipotezi).
+- **🛠️ Codex:** A6 tekirdağ parser fix · B1 Migros backfill.
 - **👤 Orhan:** VPS IP-block doğrula (mersin/manisa proxy?) · Atakan HKS/borsa feed ortaklığı · kaynak teyit.
 
-## Sonraki somut adım
-1. **C0** metrik tutarsızlığı ("81 İl" abartısı) — hızlı, en yüksek güven kazancı (frontend metin/veri tekilleştirme).
-2. **A5** `hal_gov_tr_ulusal` neden timeout (Scrapling multi-step regresyon) — teşhis. Düzelirse Mersin dahil çok il döner.
-3. Paralel: **A1** mersin'i Scrapling'e taşıyıp test (000 sürerse IP-block kesinleşir).
-4. **D3** `/prices/latest` + STALE_DATA (AI ajan niyeti) ve **F1** TMO tarih fix (hızlı kazançlar).
+> Tüketici-tarafı (API/AI/görünüm) görev ayrımı + DEFER (monetizasyon) → `VERI-TUKETICILERI-CHECKLIST.md`.
 
-> İmplementasyon Codex'e brief'lenecek (C0/C1-C4 + D1-D10 + E1-E3). A5/A1 ETL teşhisi Claude+Orhan; A6 parser Codex; B1 backfill Codex.
+## Sonraki somut adım (üretici)
+1. **A5** `hal_gov_tr_ulusal` neden timeout (Scrapling multi-step regresyon) — teşhis. Düzelirse Mersin dahil çok il döner.
+2. Paralel: **A1** mersin'i Scrapling'e taşıyıp test (000 sürerse IP-block kesinleşir).
+3. **B1** Migros wayback backfill.
