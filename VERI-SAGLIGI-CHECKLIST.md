@@ -35,13 +35,14 @@
 | A1 | `mersin_resmi` (18g bayat) | **TT Altosec WAF, 403, datacenter IP bloku** | **Residential TR proxy** şart (belediye doğrudan); ya da A5 ile dolaylı | 🔴 P0 (proxy bekliyor) |
 | A2 | `manisa_resmi` | aynı WAF deseni (muhtemel) | Residential proxy ile test; ya da A5 | 🟠 P1 |
 | A3 | `kutahya_resmi` | aynı WAF (Scrapling'de bile 000) | Residential proxy; ya da A5 | 🟡 P2 |
-| A4 | `canakkale_resmi` | timeout (Scrapling regresyon) | dynamic mode + timeout artır; WAF mı kontrol | 🟡 P2 |
+| A4 | `canakkale_resmi` | **SITE-side timeout** (local scraper'la bile timeout → scraper değil, site yavaş/down) | Fetcher Scrapling timeout'u artır (30s→90s) + dynamic mode; site geri gelince düzelir | 🟡 P2 |
 | A6 | `tekirdag_resmi` | listing boş (yapı değişti) | Parser fix; Wayback ile eski yapı kıyas | 🟡 P2 |
 | A7 | `denizli/bursa/balikesir/yalova` | **partial** (veri GİRİYOR) | Düşük: filtre çalışıyor; parser kolon-hizası bak | ⚪ P3 |
 | A8 | `corum/kahramanmaras/trabzon` | ok ama 0 satır (kaynak yayınlamıyor) | İzle: mevsimsel mi | ⚪ P3 |
 
 **A genel strateji (DOĞRULANDI):**
-1. **✅ hal.gov.tr (A5) ÇÖZÜLDÜ** — local scraper migration timeout'u düzeltti (257 satır/gün, proxy'siz, WAF'sız). **Local scraper'ın somut faydası bu.** Kalan: ulusal→il-spesifik için HKS form'unda il seçimi (enhancement).
+1. **✅ hal.gov.tr (A5) ÇÖZÜLDÜ** — local scraper migration timeout'u düzeltti (257 satır/gün, proxy'siz, WAF'sız). **Local scraper'ın somut faydası bu.**
+   - **❌ İl-spesifik HKS YOK (denendi):** FiyatDetaylari **ulusal-only** (il/hal select yok); Toptanci-Halleri sadece hal **dizini** (adres, fiyat değil). Yani **Mersin-spesifik fiyat hal.gov.tr'de mevcut değil** → il-kırılım için **proxy/belediye TEK yol** (kesinleşti).
 2. **🥈 Residential TR proxy** — TT-WAF'lı belediyeler (mersin/manisa/kütahya) için TEK yol.
    *Bekliyor:* provider + credential + "API kodu" + **fayda netleşmesi** (kaç kaynak açılır, maliyet/değer).
    Scraper main branch'inde residential proxy desteği VAR (`PROXY_URL` env boş). **Not:** hal.gov.tr ulusal veriyi zaten getiriyor → belediye proxy'sinin marjinal faydası = sadece il-spesifik kırılım.
