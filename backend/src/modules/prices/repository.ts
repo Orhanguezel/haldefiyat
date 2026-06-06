@@ -44,6 +44,29 @@ function likeSafe(raw: string): string {
 
 type MarketType = "hal" | "borsa" | "resmi" | "kooperatif";
 
+const BORSA_SOURCE_KEYS = ["tmo_piyasa_bulteni", "polatli_borsa", "izmir_borsa_pamuk"] as const;
+const RESMI_SOURCE_KEYS = ["tmo_alim_resmi", "bakanlik_destekleme"] as const;
+const NON_HAL_SOURCE_KEYS = [...BORSA_SOURCE_KEYS, ...RESMI_SOURCE_KEYS] as const;
+
+function marketTypeCondition(marketType: MarketType): SQL {
+  switch (marketType) {
+    case "borsa":
+      return inArray(hfMarkets.sourceKey, [...BORSA_SOURCE_KEYS]);
+    case "resmi":
+      return inArray(hfMarkets.sourceKey, [...RESMI_SOURCE_KEYS]);
+    case "hal":
+      return or(sql`${hfMarkets.sourceKey} IS NULL`, sql`${hfMarkets.sourceKey} NOT IN (${sql.join([...NON_HAL_SOURCE_KEYS].map((s) => sql`${s}`), sql`, `)})`)!;
+    case "kooperatif":
+      return sql`0 = 1`;
+  }
+}
+
+const marketTypeSql = sql<MarketType>`CASE
+  WHEN ${hfMarkets.sourceKey} IN (${sql.join([...BORSA_SOURCE_KEYS].map((s) => sql`${s}`), sql`, `)}) THEN 'borsa'
+  WHEN ${hfMarkets.sourceKey} IN (${sql.join([...RESMI_SOURCE_KEYS].map((s) => sql`${s}`), sql`, `)}) THEN 'resmi'
+  ELSE 'hal'
+END`;
+
 export async function listPriceRows(params: {
   product?: string;
   q?: string;
@@ -71,7 +94,7 @@ export async function listPriceRows(params: {
   if (params.market || params.marketType) {
     const marketConds: SQL[] = [];
     if (params.market) marketConds.push(eq(hfMarkets.slug, params.market));
-    if (params.marketType) marketConds.push(eq(hfMarkets.marketType, params.marketType));
+    if (params.marketType) marketConds.push(marketTypeCondition(params.marketType));
     const mRows = await db
       .select({ d: sql<string | null>`MAX(${hfPriceHistory.recordedDate})` })
       .from(hfPriceHistory)
@@ -99,7 +122,7 @@ export async function listPriceRows(params: {
   conds.push(eq(hfProducts.isActive, 1));
   if (params.product)  conds.push(eq(hfProducts.slug, params.product));
   if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
-  if (params.marketType) conds.push(eq(hfMarkets.marketType, params.marketType));
+  if (params.marketType) conds.push(marketTypeCondition(params.marketType));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
   if (params.q?.trim()) {
     const q = likeSafe(params.q.trim());
@@ -142,7 +165,7 @@ export async function listPriceRows(params: {
         categorySlug: hfProducts.categorySlug,
         marketSlug:   hfMarkets.slug,
         marketName:   hfMarkets.name,
-        marketType:   hfMarkets.marketType,
+        marketType:   marketTypeSql,
         cityName:     hfMarkets.cityName,
       })
       .from(hfPriceHistory)
@@ -176,7 +199,7 @@ export async function listPriceRows(params: {
       categorySlug: hfProducts.categorySlug,
       marketSlug:   hfMarkets.slug,
       marketName:   hfMarkets.name,
-      marketType:   hfMarkets.marketType,
+      marketType:   marketTypeSql,
       cityName:     hfMarkets.cityName,
     })
     .from(hfPriceHistory)
@@ -218,7 +241,7 @@ async function priceQueryContext(params: {
   if (params.market || params.marketType) {
     const marketConds: SQL[] = [];
     if (params.market) marketConds.push(eq(hfMarkets.slug, params.market));
-    if (params.marketType) marketConds.push(eq(hfMarkets.marketType, params.marketType));
+    if (params.marketType) marketConds.push(marketTypeCondition(params.marketType));
     const mRows = await db
       .select({ d: sql<string | null>`MAX(${hfPriceHistory.recordedDate})` })
       .from(hfPriceHistory)
@@ -243,7 +266,7 @@ async function priceQueryContext(params: {
   conds.push(eq(hfProducts.isActive, 1));
   if (params.product)  conds.push(eq(hfProducts.slug, params.product));
   if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
-  if (params.marketType) conds.push(eq(hfMarkets.marketType, params.marketType));
+  if (params.marketType) conds.push(marketTypeCondition(params.marketType));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
   if (params.q?.trim()) {
     const q = likeSafe(params.q.trim());
@@ -271,7 +294,7 @@ const priceColumns = {
   categorySlug: hfProducts.categorySlug,
   marketSlug:   hfMarkets.slug,
   marketName:   hfMarkets.name,
-  marketType:   hfMarkets.marketType,
+  marketType:   marketTypeSql,
   cityName:     hfMarkets.cityName,
 };
 
@@ -383,7 +406,15 @@ export async function listProducts(q?: string, category?: string, seoIndex?: boo
       INNER JOIN hf_markets m ON m.id = ph.market_id
       WHERE ph.product_id = ${hfProducts.id}
         AND m.is_active = 1
-        AND m.market_type = ${marketType}
+        AND ${
+          marketType === "borsa"
+            ? sql`m.source_key IN (${sql.join([...BORSA_SOURCE_KEYS].map((s) => sql`${s}`), sql`, `)})`
+            : marketType === "resmi"
+              ? sql`m.source_key IN (${sql.join([...RESMI_SOURCE_KEYS].map((s) => sql`${s}`), sql`, `)})`
+              : marketType === "hal"
+                ? sql`(m.source_key IS NULL OR m.source_key NOT IN (${sql.join([...NON_HAL_SOURCE_KEYS].map((s) => sql`${s}`), sql`, `)}))`
+                : sql`0 = 1`
+        }
     )`);
   }
   if (q?.trim()) {
@@ -571,7 +602,7 @@ export async function listMarkets(city?: string, seoIndex?: boolean) {
       cityName:    hfMarkets.cityName,
       regionSlug:  hfMarkets.regionSlug,
       sourceKey:   hfMarkets.sourceKey,
-      marketType:   hfMarkets.marketType,
+      marketType:   marketTypeSql,
       seoIndex:    hfMarkets.seoIndex,
       updatedAt:   hfMarkets.updatedAt,
     })
