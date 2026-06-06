@@ -24,7 +24,7 @@ import type { EtlSourceConfig } from "@/config/etl-sources";
 import { env } from "@/core/env";
 import { fetchViaScraper, shouldUseScraperFor, shouldUseDynamicFor } from "./scraper-client";
 import { parseTmoAlimResmi } from "./sources/borsa/tmo-alim";
-import { parseBorsaHtml, parseBorsaText } from "./sources/borsa/text-parsers";
+import { parseBorsaHtml, parseBorsaText, parsePolatliBorsaJson } from "./sources/borsa/text-parsers";
 
 export interface EtlRunResult {
   inserted: number;
@@ -82,6 +82,7 @@ function parseResponse(
     case "batiakdeniz_html":  return parseBatiakdenizHtml(String(raw));
     case "bolu_html":         return parseBoluHtml(String(raw));
     case "tmo_pdf_bulten":    return parseBorsaText(String(raw));
+    case "polatli_borsa_json": return parsePolatliBorsaJson(raw);
     case "borsa_html":        return parseBorsaHtml(String(raw));
     case "borsa_pdf":         return parseBorsaText(String(raw));
     default:                 return [];
@@ -935,6 +936,9 @@ async function fetchDated(
   if (source.responseShape === "tmo_alim_resmi") {
     return { rows: parseResponse(source.responseShape, null, source), dateUsed: date, httpStatus: 200 };
   }
+  if (source.responseShape === "polatli_borsa_json") {
+    return fetchPolatliBorsaDated(source, date, isBackfill);
+  }
 
   // Geriye dönük çağrıda backfillEndpoint tercih edilir (Konya gibi: default
   // sayfa bugünü, ?tarih=YYYY-MM-DD arşivi döndürür).
@@ -966,6 +970,34 @@ async function fetchDated(
   try { json = JSON.parse(text); }
   catch { throw new Error(`Invalid JSON response from ${url}`); }
 
+  return { rows: parseResponse(source.responseShape, json, source), dateUsed: date, httpStatus: res.status };
+}
+
+async function fetchPolatliBorsaDated(
+  source: EtlSourceConfig,
+  date: string,
+  isBackfill = false,
+): Promise<FetchOutcome> {
+  const template = isBackfill ? source.backfillEndpoint : source.endpointTemplate;
+  const requestDate = formatDateTr(date);
+  const endpoint = template.includes("{date}") ? template.replace("{date}", encodeURIComponent(requestDate)) : template;
+  const url = source.baseUrl + endpoint;
+  const res = await fetch(url, {
+    headers: {
+      Accept: "application/json,text/plain,*/*",
+      "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
+    },
+    signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+  });
+
+  if (res.status === 204) return { rows: [], dateUsed: date, httpStatus: 204 };
+  if (!res.ok) throw new Error(`HTTP ${res.status} @ ${url}`);
+
+  const text = await decodeResponseBody(res);
+  if (!text.trim()) return { rows: [], dateUsed: date, httpStatus: res.status };
+  let json: unknown;
+  try { json = JSON.parse(text); }
+  catch { throw new Error(`Invalid JSON response from ${url}`); }
   return { rows: parseResponse(source.responseShape, json, source), dateUsed: date, httpStatus: res.status };
 }
 

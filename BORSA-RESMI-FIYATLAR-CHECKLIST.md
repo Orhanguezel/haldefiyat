@@ -33,7 +33,7 @@ Codex Faz A kodunu yazdı (seed/şema/parser/MCP/frontend — §3-§9 ☑) ve do
 - ✅ `backend bun run build`, `db:seed:hal:fresh`, `frontend bun run build` temiz. **☑ Codex 2026-06-06**
 - ✅ `/urun/bugday|arpa|misir|aycicegi|pamuk` lokal 200; TMO resmi alım ve borsa serbest fiyat bölümleri ayrı etiketli. **☑ Codex 2026-06-06**
 - ✅ Git deploy yapıldı: local commit/push → VPS `git fetch + reset --hard origin/main` → backend build + `pm2 reload hal-backend` → frontend/admin build + `pm2 restart hal-frontend hal-admin --update-env`. **☑ Codex 2026-06-06**
-- ⚠️ Canlı PDF (TMO bülten) / JS (Polatlı) extraction gerçek veriyle test edilmedi — kaynaklar şimdilik `defaultEnabled:false`.
+- ⚠️ Canlı PDF (TMO bülten) extraction gerçek veriyle test edilmedi — kaynak şimdilik `defaultEnabled:false`. Polatlı TB JSON endpoint'i doğrulandı ve `defaultEnabled:true`. **☑ Codex 2026-06-06**
 
 > **🚧 DOĞRULAMA KAPISI (deploy ÖNCESİ ŞART):** `db:seed:hal:fresh` temiz çalışsın →
 > `bun run build` temiz → `/urun/bugday` **200** + TMO alım/borsa **ayrı etiketli** → SONRA git deploy
@@ -118,7 +118,7 @@ Codex Faz A kodunu yazdı (seed/şema/parser/MCP/frontend — §3-§9 ☑) ve do
 - [x] `etl-sources.ts` RAW_SOURCES'a kayıtlar: `tmo_piyasa_bulteni` (pdf), `tmo_alim_resmi` (yıllık), `polatli_borsa` (scrapling dynamic), `izmir_borsa_pamuk` (pdf). **☑ Codex 2026-06-06:** kayıtlar eklendi; canlı PDF/JS kaynakları default disabled, TMO alım aktif.
 - [x] Yeni `responseShape`: `tmo_pdf_bulten`, `borsa_html`, `borsa_pdf` → `parseResponse()` switch + parser fonksiyonları. **☑ Codex 2026-06-06**
 - [ ] PDF parse: TMO/İzmir bülten PDF → text → satır eşleştirme (ürün/borsa/min/max/ort/birim). PDF zorsa o kaynağı HTML veren alternatifle değiştir. **Codex notu 2026-06-06:** text parser sözleşmesi ve MCP tool bağlandı; canlı PDF text extraction doğrulaması açık.
-- [ ] Scrapling: Polatlı JS-render → `HF_SCRAPER_DYNAMIC` (mevcut altyapı). **Codex notu 2026-06-06:** kaynak + HTML parser hazır; env'de dynamic enable/canlı doğrulama açık.
+- [x] Polatlı TB günlük bülten: JS sayfasının kullandığı tarihli JSON endpoint (`/BultenGunluk.ashx?tarih=GG.AA.YYYY`) → buğday/arpa/mısır toplulaştırma + geçmiş backfill. **☑ Codex 2026-06-06:** tek günlük backfill doğrulandı; 5 yıllık canlı backfill deploy sonrası çalıştırılacak.
 - [ ] Cron: borsa günlük (mevcut `30 7 * * *`), TMO alım yıllık/manuel.
 - [x] `etl-health.sh`'e ekle (oturum-başı izleme). **☑ Codex 2026-06-06:** Borsa/Resmi kaynaklar bölümü eklendi.
 - [ ] Backfill: TMO yıllık alım fiyatı serisi (CSV/elle) → "yıllara göre buğday fiyatı" grafiği = güçlü SEO.
@@ -186,7 +186,7 @@ ve agent/dev erişimi sağlar.
 - [x] **X1.** Seed: `hf_markets.market_type` kolonu (CREATE TABLE) + market kayıtları + yeni kategoriler + MVP 5 ürün (seo_index=1, is_active=1). `db:seed:*:fresh` ile doğrula. **☑ Codex 2026-06-06:** fresh seed doğrulandı; 5 market + MVP 5 ürün `is_active=1`.
 - [x] **X2.** Ortak borsa parser modülü `modules/etl/sources/borsa/` — TMO alım (statik/yıllık) parser. **☑ Codex 2026-06-06**
 - [ ] **X3.** `tmo_piyasa_bulteni` PDF parser (`responseShape: tmo_pdf_bulten`) — ürün×borsa×min/max/ort/birim, TL/ton→TL/kg normalize. **Codex notu 2026-06-06:** responseShape + text parser var; canlı PDF text extraction doğrulaması açık.
-- [ ] **X4.** Polatlı borsa (Scrapling dynamic) + İzmir pamuk parser. **Codex notu 2026-06-06:** kaynak/parser kayıtları var; canlı JS/PDF doğrulaması açık.
+- [ ] **X4.** Polatlı borsa + İzmir pamuk parser. **Codex notu 2026-06-06:** Polatlı JSON endpoint'i ve geçmiş backfill doğrulandı; İzmir pamuk PDF doğrulaması açık.
 - [x] **X5.** `etl-sources.ts` kayıtları + `parseResponse()` switch + cron entegrasyonu + etl-health. **☑ Codex 2026-06-06:** kaynaklar loadEtlSources akışına ve health raporuna bağlı.
 - [x] **X6.** Repo katmanı: `marketType` opsiyonel param (`listProducts`/`listPriceRows`/`listPriceRowsPage`). **☑ Codex 2026-06-06**
 - [x] **X7.** Frontend: `/borsa` landing + `/urun/{slug}` borsa bölümleri (wireframe'e göre) + iç linkler. **☑ Codex 2026-06-06**

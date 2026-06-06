@@ -60,3 +60,88 @@ export function parseBorsaHtml(raw: string): BorsaPriceRow[] {
   return parseBorsaText(text.replace(/ (?=(Buğday|Bugday|Arpa|Mısır|Misir|Ayçiçeği|Aycicegi|Pamuk)\b)/gi, "\n"));
 }
 
+interface PolatliRawRow {
+  UrunAdi?: unknown;
+  MinFiyat?: unknown;
+  MaxFiyat?: unknown;
+  OrtFiyat?: unknown;
+  Miktar?: unknown;
+  Birimi?: unknown;
+}
+
+interface PolatliBucket {
+  name: string;
+  category: string;
+  unit: string;
+  mins: number[];
+  maxs: number[];
+  avgs: number[];
+  weightedTotal: number;
+  quantityTotal: number;
+}
+
+function rawTrNumber(value: unknown): number | null {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value !== "string") return null;
+  return parseTrNumber(value);
+}
+
+export function parsePolatliBorsaJson(raw: unknown): BorsaPriceRow[] {
+  const obj = raw as { Bulten?: unknown };
+  const list = Array.isArray(obj?.Bulten) ? obj.Bulten : Array.isArray(raw) ? raw : [];
+  const buckets = new Map<string, PolatliBucket>();
+
+  for (const item of list) {
+    const row = item as PolatliRawRow;
+    const rawName = typeof row.UrunAdi === "string" ? row.UrunAdi.trim() : "";
+    if (!rawName) continue;
+
+    const product = PRODUCT_CATEGORY.find((p) => p.pattern.test(rawName));
+    if (!product) continue;
+
+    const min = rawTrNumber(row.MinFiyat);
+    const max = rawTrNumber(row.MaxFiyat);
+    const avg = rawTrNumber(row.OrtFiyat) ?? (min != null && max != null ? (min + max) / 2 : null);
+    if (avg == null || avg <= 0) continue;
+
+    const unit = typeof row.Birimi === "string" && row.Birimi.trim()
+      ? row.Birimi.trim().toLocaleLowerCase("tr-TR")
+      : "kg";
+    const quantity = rawTrNumber(row.Miktar);
+    const bucket = buckets.get(product.name) ?? {
+      name: product.name,
+      category: product.category,
+      unit,
+      mins: [],
+      maxs: [],
+      avgs: [],
+      weightedTotal: 0,
+      quantityTotal: 0,
+    };
+
+    if (min != null && min > 0) bucket.mins.push(asKg(min, unit));
+    if (max != null && max > 0) bucket.maxs.push(asKg(max, unit));
+    bucket.avgs.push(asKg(avg, unit));
+
+    if (quantity != null && quantity > 0) {
+      bucket.weightedTotal += asKg(avg, unit) * quantity;
+      bucket.quantityTotal += quantity;
+    }
+
+    buckets.set(product.name, bucket);
+  }
+
+  return Array.from(buckets.values()).map((bucket) => {
+    const avg = bucket.quantityTotal > 0
+      ? bucket.weightedTotal / bucket.quantityTotal
+      : bucket.avgs.reduce((sum, value) => sum + value, 0) / bucket.avgs.length;
+    return {
+      name: bucket.name,
+      category: bucket.category,
+      unit: bucket.unit,
+      min: bucket.mins.length > 0 ? Math.min(...bucket.mins) : avg,
+      max: bucket.maxs.length > 0 ? Math.max(...bucket.maxs) : avg,
+      avg,
+    };
+  });
+}

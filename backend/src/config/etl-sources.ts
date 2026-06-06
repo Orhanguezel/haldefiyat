@@ -43,6 +43,7 @@ type ResponseShape =
   | "bolu_html"
   | "tmo_alim_resmi"
   | "tmo_pdf_bulten"
+  | "polatli_borsa_json"
   | "borsa_html"
   | "borsa_pdf";
 
@@ -500,11 +501,12 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "polatli_borsa",
-    defaultEnabled:    false,
+    defaultEnabled:    true,
     defaultMarketSlug: "polatli-ticaret-borsasi",
     defaultBaseUrl:    "https://bulten.polatliborsa.org.tr",
-    defaultEndpoint:   "/gunluk-bulten.html",
-    responseShape:     "borsa_html",
+    defaultEndpoint:   "/BultenGunluk.ashx",
+    defaultBackfill:   "/BultenGunluk.ashx?tarih={date}",
+    responseShape:     "polatli_borsa_json",
     defaultUnit:       "kg",
     defaultCategory:   "hububat",
   },
