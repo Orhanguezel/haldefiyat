@@ -68,16 +68,21 @@ function titleCaseSlug(value: string): string {
     .join(" ");
 }
 
-function citySlugFromName(value: string): string {
+function normalizeTrSlug(value: string): string {
   return value
+    .trim()
     .toLocaleLowerCase("tr")
+    .replace(/İ/g, "i")
     .replace(/ğ/g, "g")
     .replace(/ü/g, "u")
     .replace(/ş/g, "s")
     .replace(/ı/g, "i")
     .replace(/ö/g, "o")
     .replace(/ç/g, "c")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
+    .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
 
@@ -87,7 +92,7 @@ async function findCityMarket(citySlug: string) {
     market.marketType !== "borsa" &&
     market.marketType !== "resmi" &&
     market.regionSlug !== "ulusal" &&
-    citySlugFromName(market.cityName) === citySlug
+    normalizeTrSlug(market.cityName) === normalizeTrSlug(citySlug)
   )) ?? null;
 }
 
@@ -209,9 +214,9 @@ function CityHub({
   const districts = districtSummary(firmPage.items);
   const priceDate = prices[0]?.recordedDate;
   const topProducts = prices.slice(0, 3).map((price) => `${price.productName} ${formatPrice(price.avgPrice)}`);
-  const marketHref = market ? `/hal/${market.slug}` : `/fiyatlar?city=${encodeURIComponent(slug)}`;
+  const marketHref = market ? `/hal/${market.slug}` : null;
 
-  const intro = `${cityName} hal komisyoncuları ve firmaları rehberinde ${total} aktif kayıt yer alıyor. ${districts.length > 0 ? `Kayıtlar özellikle ${districts.join(", ")} ilçelerinde yoğunlaşıyor. ` : ""}${cityName} komisyoncu arayan üretici, tüccar ve alıcılar telefon, adres ve firma tipine göre hızlı karşılaştırma yapabilir. Güncel fiyat tarafında ${cityName} hali canlı sebze meyve fiyatları ile firma rehberini birlikte kullanarak satış ve sevkiyat planı daha net kurulabilir.`;
+  const intro = `${cityName} hal komisyoncuları ve firmaları rehberinde ${total} aktif kayıt yer alıyor. ${districts.length > 0 ? `Kayıtlar özellikle ${districts.join(", ")} ilçelerinde yoğunlaşıyor. ` : ""}${cityName} komisyoncu arayan üretici, tüccar ve alıcılar telefon, adres ve firma tipine göre hızlı karşılaştırma yapabilir.${marketHref ? ` ${cityName} hali fiyat sayfasıyla birlikte kullanıldığında satış ve sevkiyat planı daha net kurulabilir.` : " Bu sayfa fiyat verisine bağlı kalmadan gerçek işletme dizini olarak çalışır."}`;
 
   const schema = {
     name: `${cityName} Hal Komisyoncuları ve Firmaları`,
@@ -239,23 +244,25 @@ function CityHub({
         description={intro}
       />
 
-      <section className="mb-8 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-5">
-          <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
-            {cityName} Hali Canlı Fiyat Bağlantısı
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-(--color-muted)">
-            Firma aramasını güncel hal fiyatlarıyla birlikte değerlendirin. Komisyoncu görüşmeleri öncesinde ürün bazlı min, ortalama ve maks fiyatları kontrol edebilirsiniz.
-          </p>
-          {topProducts.length > 0 && (
-            <p className="mt-3 font-(family-name:--font-mono) text-[12px] text-(--color-muted)">
-              {priceDate ? `${priceDate}: ` : ""}{topProducts.join(" · ")}
+      <section className={`mb-8 grid gap-4 ${marketHref ? "lg:grid-cols-[1.2fr_0.8fr]" : ""}`}>
+        {marketHref && (
+          <div className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-5">
+            <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
+              {cityName} Hali Fiyat Bağlantısı
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-(--color-muted)">
+              Firma aramasını hal fiyatlarıyla birlikte değerlendirin. Komisyoncu görüşmeleri öncesinde ürün bazlı min, ortalama ve maks fiyatları kontrol edebilirsiniz.
             </p>
-          )}
-          <Link href={marketHref} className="mt-4 inline-flex rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-white">
-            {cityName} hal fiyatlarına bak
-          </Link>
-        </div>
+            {topProducts.length > 0 && (
+              <p className="mt-3 font-(family-name:--font-mono) text-[12px] text-(--color-muted)">
+                {priceDate ? `${priceDate}: ` : ""}{topProducts.join(" · ")}
+              </p>
+            )}
+            <Link href={marketHref} className="mt-4 inline-flex rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-white">
+              {cityName} hal fiyatlarına bak
+            </Link>
+          </div>
+        )}
         <div className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-5">
           <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">Firma Dağılımı</h2>
           <dl className="mt-4 grid grid-cols-2 gap-3">
