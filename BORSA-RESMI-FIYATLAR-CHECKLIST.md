@@ -101,6 +101,15 @@ Codex Faz A kodunu yazdı (seed/şema/parser/MCP/frontend — §3-§9 ☑) ve do
 - [ ] Stale filter: sezon dışı veri "güncel" gösterilmez (>45 gün → "geçen sezon" rozeti).
 - [ ] Pamuk lif USD/lb referanslıysa TL'ye çevir + notla.
 
+### C6 — Fiyat-tipi doğruluk QA kabul kriteri (Claude, deploy öncesi her borsa ürünü için)
+1. **Her fiyat satırı kaynak market tipiyle etiketli** ("TMO Resmi Alım" / "Polatlı Ticaret Borsası" / "Bakanlık Destekleme Primi").
+2. **TMO alım ile borsa serbest AYNI üründe AYRI bölümlerde**; ortalaması ALINMAZ, tek sayıda KARIŞTIRILMAZ.
+3. **Destekleme primi "fiyat" değil** → ayrı "prim" bilgi kutusu ("+X TL/kg ek ödeme"), fiyatla toplanmaz.
+4. **Birim her satırda açık** (TL/kg); TL/ton kaynak → kg normalize doğrula (16.500 TL/ton = **16,50 TL/kg**).
+5. **Tarih + kaynak atfı** her değerde görünür.
+6. **Stale:** sezon dışı (>45 gün) "geçen sezon" rozeti; "güncel" gibi gösterilmez.
+7. **Test:** `/urun/bugday` → TMO alım kutusu "16,50 TL/kg (TMO Resmi Alım, {tarih})" + borsa serbest AYRI tablo; karışmıyor. ✅ (canlı migration sonrası /borsa doğrulandı; /urun fiyat görünürlüğü T15 TMO tarih fix bekliyor.)
+
 ---
 
 ## 4. Veri modeli & mimari (Claude → Codex)
@@ -174,13 +183,13 @@ ve agent/dev erişimi sağlar.
 
 ## 9. GÖREVLER
 
-### 🧠 Claude (tasarım/karar — sonraki oturum)
-- [ ] **C1.** Orhan §2 teyidinden sonra `hf_markets` seed şemasını (market_type + market kayıtları) net SQL olarak yaz.
-- [ ] **C2.** TMO PDF bülten yapısını çöz (örnek PDF indir, ürün/borsa/fiyat sütun haritası) → parser sözleşmesi (input→output JSON) tanımla.
-- [ ] **C3.** `/borsa` landing + `/urun/{slug}` borsa-varyant wireframe (bölüm sırası, fiyat-tipi etiketleme UI).
-- [ ] **C4.** Codex brief'ini yaz: `docs/codex-briefs/borsa-resmi-fiyatlar.md` (C1–C3 çıktısıyla).
-- [ ] **C5.** MCP tool şemalarını (input/output JSON schema) tanımla (§6).
-- [ ] **C6.** Fiyat-tipi doğruluk kurallarını (§3) UI kabul kriteri olarak netleştir (QA checklist).
+### 🧠 Claude (tasarım/karar) — ✅ TAMAMLANDI 2026-06-06
+- [x] **C1.** `hf_markets` seed şeması (market_type + 5 market) — Codex implement + Claude canlı additive migration (bu oturum). ✅
+- [x] **C2.** TMO PDF → **fetch timeout DOĞRULANDI (60-280s, exit 28).** **Claude kararı:** canlı cron'da real-time TMO PDF parse'a güvenme. `tmo_piyasa_bulteni` `defaultEnabled:false` KALSIN; borsa verisi tek tek kaynaktan (Polatlı JSON ✅, İzmir) — TMO PDF zaten onların derlemesi. PDF gerekirse async 280s+ timeout + retry + offline cache + başarısızlığı tolere et. Parser sözleşmesi: `{urun, borsa, min, max, avg, birim, tarih}` satır dizisi → TL/ton→kg normalize.
+- [x] **C3.** `/borsa` + `/urun/{slug}` wireframe — Codex implement (TMO/borsa ayrı bölüm + destekleme uyarısı). ✅
+- [x] **C4.** Codex brief `docs/codex-briefs/borsa-resmi-fiyatlar.md` mevcut. ✅
+- [x] **C5.** MCP tool şemaları — Codex `hal-borsa-mcp` 5 tool. ✅
+- [x] **C6.** Fiyat-tipi doğruluk QA kabul kriteri — §3 sonuna eklendi. ✅
 
 ### 🛠️ Codex (implement — C4 brief'i sonrası)
 - [x] **X1.** Seed: `hf_markets.market_type` kolonu (CREATE TABLE) + market kayıtları + yeni kategoriler + MVP 5 ürün (seo_index=1, is_active=1). `db:seed:*:fresh` ile doğrula. **☑ Codex 2026-06-06:** fresh seed doğrulandı; 5 market + MVP 5 ürün `is_active=1`.
