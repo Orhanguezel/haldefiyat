@@ -10,7 +10,7 @@ interface PriceTableProps {
   initialPrices?: PriceRow[];
   initialPricePage?: PriceListResponse;
   markets: Market[];
-  requestParams?: Pick<FetchPricesParams, "range" | "latestOnly" | "product" | "market" | "sort">;
+  requestParams?: Pick<FetchPricesParams, "range" | "latestOnly" | "product" | "market" | "marketType" | "sort">;
   initialCategory?: string;
   initialCity?: string;
   initialQuery?: string;
@@ -38,6 +38,9 @@ const CATEGORY_LABEL: Record<string, string> = {
   "tatli-su": "Tatlı Su",
   kultur: "Kültür",
   bakliyat: "Bakliyat",
+  hububat: "Hububat",
+  "yagli-tohum": "Yağlı Tohum",
+  "sanayi-bitkisi": "Sanayi Bitkisi",
   diger: "Diğer",
 };
 
@@ -196,6 +199,7 @@ export default function PriceTable({
       latestOnly: requestParams?.latestOnly ?? true,
       product: requestParams?.product,
       market: requestParams?.market,
+      marketType: requestParams?.marketType,
       page,
       limit: pageSize,
       sort,
@@ -233,6 +237,7 @@ export default function PriceTable({
     requestParams?.latestOnly,
     requestParams?.product,
     requestParams?.market,
+    requestParams?.marketType,
   ]);
 
   const cityOptions = useMemo(() => {
@@ -258,7 +263,7 @@ export default function PriceTable({
       const key = p.categorySlug || "diger";
       counts.set(key, (counts.get(key) ?? 0) + 1);
     }
-    const categorySlugs = serverPagination
+    const categorySlugs = serverPagination && !requestParams?.marketType
       ? [...PRICE_TABLE_CATEGORY_SLUGS]
       : [...counts.keys()];
     const list = categorySlugs
@@ -268,7 +273,7 @@ export default function PriceTable({
       { slug: "all", label: "Tümü", count: meta?.total ?? safePrices.length },
       ...list,
     ];
-  }, [safePrices, serverPagination, meta?.total]);
+  }, [safePrices, serverPagination, requestParams?.marketType, meta?.total]);
 
   const filtered = useMemo(() => {
     if (serverPagination) return safePrices;

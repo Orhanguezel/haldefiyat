@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import { ArrowRight, BadgeCheck, BarChart3, Wheat } from "lucide-react";
-import { fetchPrices, fetchProducts, type Product } from "@/lib/api";
+import { fetchPrices, fetchPricesPage, fetchProducts, type Product } from "@/lib/api";
 import PriceTable from "@/components/ui/PriceTable";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
@@ -48,11 +48,12 @@ export default async function BorsaPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [products, borsaRows, resmiRows] = await Promise.all([
+  const [products, borsaPage, resmiRows] = await Promise.all([
     fetchProducts(undefined, undefined, { seoIndex: true }),
-    fetchPrices({ marketType: "borsa", range: "45d", limit: 100 }),
+    fetchPricesPage({ marketType: "borsa", range: "1825d", latestOnly: false, limit: 100, sort: "date-desc" }),
     fetchPrices({ marketType: "resmi", range: "365d", limit: 50 }),
   ]);
+  const borsaRows = borsaPage.items;
 
   const mvpProducts = withFallbackProducts(products).filter((p) => BORE_PRODUCTS.includes(p.slug));
   const latestDate = [...borsaRows, ...resmiRows]
@@ -137,7 +138,11 @@ export default async function BorsaPage({ params }: Props) {
             <h2 className="text-xl font-bold text-foreground">Borsa serbest piyasa fiyatları</h2>
             <p className="mt-1 text-sm text-muted">TMO bülteni ve ticaret borsalarından gelen günlük fiyatlar.</p>
           </div>
-          <PriceTable initialPrices={borsaRows} markets={[]} />
+          <PriceTable
+            initialPricePage={borsaPage}
+            markets={[]}
+            requestParams={{ marketType: "borsa", range: "1825d", latestOnly: false, sort: "date-desc" }}
+          />
         </div>
       </section>
     </main>

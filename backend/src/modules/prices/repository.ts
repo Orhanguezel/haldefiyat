@@ -417,9 +417,12 @@ export async function listPriceRowsPage(params: {
   const page = Math.max(1, params.page ?? 1);
   const offset = (page - 1) * limit;
   const latestOnly = params.latestOnly !== false;
-  // latestOnly=false fetches all historical rows — cap at 365d to prevent full-table timeout.
+  // latestOnly=false fetches all historical rows. Keep broad hal queries capped,
+  // but allow borsa archives to expose the 5-year public history requested by
+  // /borsa without opening the full hal table.
+  const historyMaxDays = params.marketType === "borsa" ? 1825 : 365;
   const cappedParams = !latestOnly
-    ? { ...params, range: capRange(params.range, 365) }
+    ? { ...params, range: capRange(params.range, historyMaxDays) }
     : params;
   const { windowConds, conds } = await priceQueryContext(cappedParams);
   const order = priceOrder(params.sort);
