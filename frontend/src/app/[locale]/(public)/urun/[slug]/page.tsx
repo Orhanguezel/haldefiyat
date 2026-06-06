@@ -6,6 +6,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import {
   fetchPrices,
+  fetchPricesPage,
   fetchPriceHistory,
   fetchProducts,
   type Product,
@@ -192,15 +193,18 @@ export default async function UrunPage({ params }: Props) {
     .sort((a, b) => a.displayName.localeCompare(b.displayName, "tr"));
   const isClusterMaster = variants.length >= 5;
 
-  const [history, todayPrices, editorial, borsaPrices, resmiPrices] = await Promise.all([
+  const [history, todayPrices, editorial, borsaPricePage, resmiPrices] = await Promise.all([
     // 5 yıl history — PriceChart kendi içinde 7G/30G/90G filtreler;
     // SeasonCompare aynı veriden yıl grupları çıkarır (en az 2 yıl lazım).
     fetchPriceHistory(slug, undefined, "1825d"),
     fetchPrices({ product: slug, marketType: borsaProduct ? undefined : "hal", range: "1d", limit: 20 }),
     getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug }),
-    borsaProduct ? fetchPrices({ product: slug, marketType: "borsa", range: "45d", limit: 30 }) : Promise.resolve([]),
+    borsaProduct
+      ? fetchPricesPage({ product: slug, marketType: "borsa", range: "1825d", latestOnly: false, limit: 100, sort: "date-desc" })
+      : Promise.resolve({ items: [], meta: { rangeDays: 1825, latestRecordedDate: null, total: 0, page: 1, limit: 100, totalPages: 1 } }),
     borsaProduct ? fetchPrices({ product: slug, marketType: "resmi", range: "365d", limit: 20 }) : Promise.resolve([]),
   ]);
+  const borsaPrices = borsaPricePage.items;
 
   const mins = history
     .map((h) => toNumberSafe(h.minPrice))
@@ -390,7 +394,11 @@ export default async function UrunPage({ params }: Props) {
             <h2 className="text-xl font-bold text-foreground">Borsa günlük fiyatı</h2>
             <p className="mt-1 text-sm text-muted">Ticaret borsası veya TMO piyasa bülteni kaynaklı serbest piyasa gözlemleri.</p>
             <div className="mt-4">
-              <PriceTable initialPrices={borsaPrices} markets={[]} />
+              <PriceTable
+                initialPricePage={borsaPricePage}
+                markets={[]}
+                requestParams={{ product: slug, marketType: "borsa", range: "1825d", latestOnly: false, sort: "date-desc" }}
+              />
             </div>
           </div>
         </section>
