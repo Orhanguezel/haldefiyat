@@ -31,7 +31,7 @@
 
 | # | Kaynak | Kök neden (DOĞRULANDI) | Aksiyon | Öncelik |
 |---|---|---|---|---|
-| A5 | `hal_gov_tr_ulusal` | **WAF yok**, erişilebilir; multi-step form curl-cffi fast'te timeout | **Multi-step'i dynamic browser (form action) veya ViewState POST ile onar → Mersin dahil çok il PROXY'SİZ** | 🔴 **P0 (kenarından dolaşma)** |
+| A5 | `hal_gov_tr_ulusal` | ✅ **ÇÖZÜLDÜ 2026-06-06** | **Timeout = UZAK scraper yükü/network'tü. Local scraper (8201) ile multi-step GET 3.2s+POST 3.2s → ETL 431 insert, DB'de 257 satır bugün.** Kod değişikliği YOK. *(Not: ulusal ortalama; Mersin-spesifik için il-seçimli HKS query veya proxy.)* | ✅ TAMAM |
 | A1 | `mersin_resmi` (18g bayat) | **TT Altosec WAF, 403, datacenter IP bloku** | **Residential TR proxy** şart (belediye doğrudan); ya da A5 ile dolaylı | 🔴 P0 (proxy bekliyor) |
 | A2 | `manisa_resmi` | aynı WAF deseni (muhtemel) | Residential proxy ile test; ya da A5 | 🟠 P1 |
 | A3 | `kutahya_resmi` | aynı WAF (Scrapling'de bile 000) | Residential proxy; ya da A5 | 🟡 P2 |
@@ -41,11 +41,12 @@
 | A8 | `corum/kahramanmaras/trabzon` | ok ama 0 satır (kaynak yayınlamıyor) | İzle: mevsimsel mi | ⚪ P3 |
 
 **A genel strateji (DOĞRULANDI):**
-1. **🥇 hal.gov.tr (A5) onar — proxy'siz, çok il, WAF'sız.** Önce bunu çöz (kenarından dolaşma).
+1. **✅ hal.gov.tr (A5) ÇÖZÜLDÜ** — local scraper migration timeout'u düzeltti (257 satır/gün, proxy'siz, WAF'sız). **Local scraper'ın somut faydası bu.** Kalan: ulusal→il-spesifik için HKS form'unda il seçimi (enhancement).
 2. **🥈 Residential TR proxy** — TT-WAF'lı belediyeler (mersin/manisa/kütahya) için TEK yol.
    *Bekliyor:* provider + credential + "API kodu" + **fayda netleşmesi** (kaç kaynak açılır, maliyet/değer).
-   Scraper main branch'inde residential proxy desteği VAR (`PROXY_URL` env boş).
+   Scraper main branch'inde residential proxy desteği VAR (`PROXY_URL` env boş). **Not:** hal.gov.tr ulusal veriyi zaten getiriyor → belediye proxy'sinin marjinal faydası = sadece il-spesifik kırılım.
 3. **🥉 Atakan ağı** — resmi HKS/borsa feed ortaklığı (uzun vade, scrape'siz).
+4. Diğer Scrapling timeout kaynakları (canakkale vb.) de local scraper'la tekrar test edilmeli — aynı düzelme olabilir.
 
 ---
 
