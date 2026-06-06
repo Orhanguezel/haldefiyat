@@ -74,6 +74,12 @@ const SOURCE_URLS: Record<string, SourceInfo> = {
     type: "exchange",
     official: true,
   },
+  polatli_borsa_pdf: {
+    name: "Polatlı Ticaret Borsası Piyasa Analiz Bülteni",
+    url: "https://www.polatliborsa.org.tr/ptb-piyasa-analiz-bulteni/",
+    type: "exchange",
+    official: true,
+  },
   izmir_borsa_pamuk: {
     name: "İzmir Ticaret Borsası Pamuk Bülteni",
     url: "https://itb.org.tr/GunlukBultenler/2-pamuk-bulteni",

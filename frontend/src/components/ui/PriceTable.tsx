@@ -467,10 +467,10 @@ export default function PriceTable({
                 Maks
               </th>
               <th className="px-4 py-3 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.1em] text-(--color-muted)">
-                Kaynak
+                Tarih
               </th>
               <th className="px-4 py-3 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.1em] text-(--color-muted)">
-                Tarih
+                Kaynak
               </th>
             </tr>
           </thead>
@@ -556,6 +556,9 @@ export default function PriceTable({
                     <td className="px-4 py-3.5 text-right font-(family-name:--font-mono) text-[13px] text-(--color-muted)">
                       ₺{fmt(row.maxPrice)}
                     </td>
+                    <td className="whitespace-nowrap px-4 py-3.5 font-(family-name:--font-mono) text-[12px] text-(--color-muted)">
+                      {formatDate(row.recordedDate)}
+                    </td>
                     <td className="px-4 py-3.5">
                       <div className="flex min-w-[132px] flex-wrap gap-1.5">
                         <span
@@ -588,9 +591,6 @@ export default function PriceTable({
                           </a>
                         )}
                       </div>
-                    </td>
-                    <td className="px-4 py-3.5 font-(family-name:--font-mono) text-[12px] text-(--color-muted)">
-                      {formatDate(row.recordedDate)}
                     </td>
                   </tr>
                 );
