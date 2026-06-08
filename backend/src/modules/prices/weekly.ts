@@ -89,16 +89,21 @@ function scoreMovements(rows: Row[]): Scored[] {
   const scored: Scored[] = [];
   for (const [, list] of byKey) {
     list.sort((a, b) => (toDateStr(a.recordedDate) < toDateStr(b.recordedDate) ? -1 : 1));
-    if (list.length < 2) continue;
+    // En az 3 kayit: tek-iki gurultulu kayitla (yeni eklenen kaynak/nis urun) anomali olusmasin.
+    if (list.length < 3) continue;
     const first = list[0]!;
     const last  = list[list.length - 1]!;
     const pp = parseFloat(first.avgPrice);
     const lp = parseFloat(last.avgPrice);
     if (!pp || !Number.isFinite(pp) || !Number.isFinite(lp)) continue;
+    const pct = Math.round((10000 * (lp - pp)) / pp) / 100;
+    // Anomali/veri-hatasi filtresi: haftalik |degisim|>%80 neredeyse her zaman bozuk veri
+    // (sifira yakin taban, tek market glitch — orn. YILDIZ MEYVESI %2698). annual-report ile ayni mantik.
+    if (Math.abs(pct) > 80) continue;
     scored.push({
       productId: last.productId,
       marketId:  last.marketId,
-      changePct: Math.round((10000 * (lp - pp)) / pp) / 100,
+      changePct: pct,
       latest:    lp,
       previous:  pp,
     });
