@@ -173,6 +173,8 @@ export const env = {
     // Deniz ürünü (istakoz ~7000, premium balık ~2100) gerçekten pahalı → ayrı tavan.
     priceSanityMaxProduce: parseEnvInt(process.env.ETL_PRICE_SANITY_MAX, 1500),
     priceSanityMaxSeafood: parseEnvInt(process.env.ETL_PRICE_SANITY_MAX_SEAFOOD, 12000),
+    // Koli/kasa (paket) fiyatlı ürünler kg değil — örn. Muz İthal (Koli) ~25kg → ayrı yüksek tavan.
+    priceSanityMaxKoli: parseEnvInt(process.env.ETL_PRICE_SANITY_MAX_KOLI, 15000),
     healthSchedule: process.env.ETL_HEALTH_CRON_SCHEDULE || "0 8 * * *",
     healthStaleHours: parseEnvInt(process.env.ETL_HEALTH_STALE_HOURS, 30),
     healthEmptyRunThreshold: parseEnvInt(process.env.ETL_HEALTH_EMPTY_RUN_THRESHOLD, 3),

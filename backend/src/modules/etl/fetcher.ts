@@ -450,6 +450,13 @@ function normalizePriceRow(row: NormalizedRow, source: EtlSourceConfig): Normali
   if (next.min != null && next.max != null && next.min > next.max) {
     next = { ...next, min: next.max, max: next.min };
   }
+
+  // Koli/kasa (paket) fiyatlı ürünler: birim kg değil, paket fiyatı (örn. "Muz İthal (Koli)").
+  // Ürün adı koli/kasa içeriyorsa birimi "koli" yap → kg-tavanlı sıhhat filtresine takılmaz +
+  // sayfada doğru birimle (TL/koli) gösterilir.
+  if (next.unit !== "koli" && /\b(koli|kasa)\b|\((?:koli|kasa)\)/i.test(next.name ?? "")) {
+    next = { ...next, unit: "koli" };
+  }
   return next;
 }
 
@@ -459,9 +466,14 @@ function normalizePriceRow(row: NormalizedRow, source: EtlSourceConfig): Normali
  * Sorun varsa açıklama döner; temizse null. Bunlar tweet/bültene sızmadan elenir.
  */
 function priceSanityIssue(row: NormalizedRow, avg: number): string | null {
-  // Deniz ürünleri (istakoz, premium balık) gerçekten pahalı — ayrı tavan.
+  // Deniz ürünleri (istakoz, premium balık) ve koli/kasa (paket) fiyatları kg değil — ayrı tavan.
   const isSeafood = (row.category ?? "").toLowerCase().includes("balik");
-  const max = isSeafood ? env.ETL.priceSanityMaxSeafood : env.ETL.priceSanityMaxProduce;
+  const isKoli = (row.unit ?? "").toLowerCase().includes("koli")
+    || (row.unit ?? "").toLowerCase().includes("kasa")
+    || /\b(koli|kasa)\b/i.test(row.name ?? "");
+  const max = isKoli
+    ? env.ETL.priceSanityMaxKoli
+    : isSeafood ? env.ETL.priceSanityMaxSeafood : env.ETL.priceSanityMaxProduce;
   const vals = [avg, row.min, row.max].filter((v): v is number => v != null && Number.isFinite(v));
   if (vals.some((v) => v <= 0)) return "fiyat <= 0";
   if (vals.some((v) => v > max)) return `absürd fiyat > ${max} TL`;
