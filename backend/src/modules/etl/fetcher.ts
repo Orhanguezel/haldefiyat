@@ -457,6 +457,21 @@ function normalizePriceRow(row: NormalizedRow, source: EtlSourceConfig): Normali
   if (next.unit !== "koli" && /\b(koli|kasa)\b|\((?:koli|kasa)\)/i.test(next.name ?? "")) {
     next = { ...next, unit: "koli" };
   }
+
+  // Etiketsiz koli tespiti: bazı haller paket fiyatını "koli" yazmadan verir
+  // (örn. Yalova "MUZ (İTHAL)" 2000-2500 ₺ — yerli muz 95 ₺ iken). Produce kg-tavanını
+  // aşıyor AMA [min ≤ avg ≤ max] içsel tutarlıysa = gerçek paket fiyatı (bozuk veri değil)
+  // → koli işaretle (atmak yerine). Tutarsız bozuk satırları (avg aralık dışı, min>max) sıhhat eler.
+  if (next.unit !== "koli") {
+    const isSeafood = (next.category ?? "").toLowerCase().includes("balik");
+    const kgCap = isSeafood ? env.ETL.priceSanityMaxSeafood : env.ETL.priceSanityMaxProduce;
+    const rep = next.avg ?? (next.min != null && next.max != null ? (next.min + next.max) / 2 : (next.min ?? next.max));
+    const consistent = next.min != null && next.max != null && next.min > 0 &&
+      next.min <= next.max && rep != null && rep >= next.min && rep <= next.max;
+    if (rep != null && rep > kgCap && rep <= env.ETL.priceSanityMaxKoli && consistent) {
+      next = { ...next, unit: "koli" };
+    }
+  }
   return next;
 }
 
