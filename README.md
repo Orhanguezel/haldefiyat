@@ -4,10 +4,6 @@
 
 Çiftçiye, tüccara ve sektör oyuncularına günlük hal ve piyasa fiyatı takibi sunan tarım veri platformu. Tarım Dijital Ekosistemi'nin merkezi fiyat veri servisi olarak diğer ekosistem projelerine REST API ile fiyat bilgisi sağlar.
 
-## Canlı Erişim Notu
-
-Canlı servis `vps-vistainsaat` sunucusundadır. SSH erişimi key ile yapılır: `ssh vps-vistainsaat`.
-
 ## Tech Stack
 
 - **Backend:** Fastify 5 · TypeScript · Drizzle ORM · MySQL · Bun (canli port 8091)
