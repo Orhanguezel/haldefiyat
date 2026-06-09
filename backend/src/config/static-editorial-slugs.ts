@@ -3,11 +3,14 @@
 // Bu ürünler DB editoryeli olmasa da özgün statik içeriğe sahiptir → audit/seoIndex
 // kararlarında "editoryeli var" sayılır. Frontend listesi değişirse burayı güncel tut.
 export const STATIC_EDITORIAL_SLUGS = new Set<string>([
+  "arpa",
   "armut",
+  "aycicegi",
   "biber",
   "biber-dolma",
   "biber-sivri",
   "brokoli",
+  "bugday",
   "cilek",
   "domates",
   "elma",
@@ -21,7 +24,9 @@ export const STATIC_EDITORIAL_SLUGS = new Set<string>([
   "kivi",
   "limon",
   "mandalina",
+  "misir",
   "muz",
+  "pamuk",
   "patates",
   "patlican",
   "portakal",

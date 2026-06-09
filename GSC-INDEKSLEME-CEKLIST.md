@@ -54,7 +54,7 @@ gecikme). **Firma SEO fix'i (06-06 deploy) henüz GSC'ye yansımadı.** Yani exp
 > editorial'a bakıp false-positive veriyor). **Noindex'lenMEDİ** (asıl SEO hedefi). 1'i gerçek.
 
 - [x] **2.1** `salkito-kokteyl-d` (lowquality, dq=60, messy varyant adı) → **set-noindex YAPILDI** ✅
-- [ ] **2.2** **bugday/arpa/misir thin_indexed = AUDIT FALSE-POSITIVE.** Noindex YAPMA. İki gerçek fix (Codex):
+- [x] **2.2** **bugday/arpa/misir thin_indexed = AUDIT FALSE-POSITIVE.** Noindex YAPMA. İki gerçek fix (Codex):
   (a) seo-audit'in `hasEd` mantığı **static editorial'ı da tanısın** (false-positive bitsin), VEYA
   (b) borsa MVP ürünlerine **DB editorial** ekle (daha zengin içerik → "buğday fiyatı" daha iyi sıralanır).
 - [ ] **2.3** Audit'i `filter=issues` ile haftalık kontrol et — GERÇEK thin/variant çıkarsa temizle (borsa false-positive'i hariç tut).
@@ -70,7 +70,7 @@ gecikme). **Firma SEO fix'i (06-06 deploy) henüz GSC'ye yansımadı.** Yani exp
 
 > Mevcut indexli doygun (340 ürün, eligible'lar açık). Büyüme yeni içerikten:
 
-- [ ] **4.1** Firma hub'ları indexlendikçe izle; `/firmalar/{sehir}/{tip}` kombinasyon hub'ları (Faz B, firma-seo.md) — büyük illerde ek uzun-kuyruk.
+- [x] **4.1** Firma hub'ları indexlendikçe izle; `/firmalar/{sehir}/{tip}` kombinasyon hub'ları (Faz B, firma-seo.md) — büyük illerde ek uzun-kuyruk.
 - [ ] **4.2** Firma zenginleştirme → tekil firma re-index (firma-seo.md F5): firma sayfasına canlı hal fiyatı + AI açıklama → kalite barajı geçenleri seo_index=1 (claim funnel ile rıza geldikçe).
 - [ ] **4.3** Haftalık analiz raporları (/analiz) — düzenli yayınla (her hafta indexli içerik).
 - [ ] **4.4** Borsa dikeyi genişlet (çeltik/zeytin/bakliyat — BORSA checklist Faz B) → yeni indexli ürün sayfaları.

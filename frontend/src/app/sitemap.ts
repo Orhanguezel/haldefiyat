@@ -13,6 +13,8 @@ const API_URL = (
 ).replace(/\/$/, "");
 
 const FETCH_TIMEOUT = 10_000;
+const FIRM_COMBO_CITY_SLUGS = new Set(["mersin", "antalya", "adana"]);
+const MIN_FIRM_COMBO_TOTAL = 10;
 
 interface PriceSitemapItem {
   slug: string;
@@ -35,7 +37,9 @@ interface FirmSitemapItem {
 
 interface FirmCitySitemapItem {
   citySlug: string;
+  cityName?: string;
   total: number;
+  byType?: Record<FirmTypeSitemapItem["firmType"], number>;
 }
 
 interface FirmTypeSitemapItem {
@@ -218,6 +222,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: type.firmType === "komisyoncu" ? 0.74 : 0.68,
     }));
 
+  const firmComboHubs: MetadataRoute.Sitemap = firmCities.flatMap((city) => (
+    Object.entries(typeSlug)
+      .filter(([firmType]) => (
+        FIRM_COMBO_CITY_SLUGS.has(city.citySlug) &&
+        (city.byType?.[firmType as FirmTypeSitemapItem["firmType"]] ?? 0) >= MIN_FIRM_COMBO_TOTAL
+      ))
+      .map(([, slug]) => ({
+        url: `${SITE_URL}/firmalar/${city.citySlug}/${slug}`,
+        lastModified: now,
+        changeFrequency: "weekly" as const,
+        priority: slug === "komisyoncu" ? 0.73 : 0.66,
+      }))
+  ));
+
   const analizPages: MetadataRoute.Sitemap = getSonMakaleler(100).map((m) => ({
     url: `${SITE_URL}/analiz/${m.slug}`,
     lastModified: m.tarih ? new Date(m.tarih) : now,
@@ -225,5 +243,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...publicPages, ...productPages, ...marketPages, ...firmCityHubs, ...firmTypeHubs, ...firmPages, ...analizPages];
+  return [...publicPages, ...productPages, ...marketPages, ...firmCityHubs, ...firmTypeHubs, ...firmComboHubs, ...firmPages, ...analizPages];
 }
