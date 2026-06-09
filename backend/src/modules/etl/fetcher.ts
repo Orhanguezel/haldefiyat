@@ -2249,6 +2249,8 @@ export async function runSourceFetch(
         avgPrice:     String(avg),
         recordedDate: row.recordedDate ?? outcome.dateUsed,
         sourceApi:    source.key,
+        // Yalnız koli/kasa paket birimi geçirilir; diğerleri kg default'unda kalır.
+        unit:         row.unit === "koli" ? "koli" : undefined,
       });
       touchedProductSlugs.add(product.slug);
       inserted++;

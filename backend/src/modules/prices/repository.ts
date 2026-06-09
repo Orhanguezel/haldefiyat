@@ -1281,7 +1281,9 @@ export async function upsertPriceRow(input: {
   avgPrice:    string;
   recordedDate: string;
   sourceApi:   string;
+  unit?:       string | null;   // koli/kasa gibi paket birimleri; verilmezse kg
 }) {
+  const unit = input.unit ?? "kg";
   await db
     .insert(hfPriceHistory)
     .values({
@@ -1291,7 +1293,7 @@ export async function upsertPriceRow(input: {
       maxPrice:     input.maxPrice ?? null,
       avgPrice:     input.avgPrice,
       currency:     "TRY",
-      unit:         "kg",
+      unit,
       recordedDate: new Date(`${input.recordedDate}T12:00:00`),
       sourceApi:    input.sourceApi,
     })
@@ -1300,6 +1302,7 @@ export async function upsertPriceRow(input: {
         minPrice:  input.minPrice ?? null,
         maxPrice:  input.maxPrice ?? null,
         avgPrice:  input.avgPrice,
+        unit,
         sourceApi: input.sourceApi,
       },
     });
