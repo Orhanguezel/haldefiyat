@@ -52,9 +52,11 @@
 ---
 
 ## B. Migros Wayback Backfill
-- [ ] **B1.** Wayback Machine geri geldi → çalıştır:
-  `ssh vps-vistainsaat 'cd .../backend && bun scripts/wayback-migros-backfill.ts --dry-run'`
-  → çıktı OK ise `--dry-run` kaldır + gerçek backfill. (Detay: CLAUDE.md Aktif Hatırlatmalar)
+- [x] **B1.** ❌ **BACKFILL MÜMKÜN DEĞİL (2026-06-09 doğrulandı).** Wayback online ama Migros
+  **ürün/kategori sayfalarını hiç arşivlememiş** — dry-run 0 snapshot; geniş CDX `migros.com.tr/sebze-meyve*`
+  = 0 arşiv; `migros.com.tr*` = sadece ana sayfa + `.well-known/`. Geçmiş veri yok → script boş döner.
+  **Aksiyon: YOK.** CLAUDE.md Aktif Hatırlatmalar'dan bu madde **emekliye ayrılabilir.**
+  *(Alternatif: başka retail kaynağı için archive var mı bakılabilir ama migros özelinde yok.)*
 
 ---
 
