@@ -3,7 +3,6 @@ import type { FastifyInstance } from "fastify";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
 import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
-import { checkWaybackAndNotify } from "@/modules/wayback-monitor";
 import { checkAndNotifyEtlHealth } from "@/modules/etl/health";
 import { runCompetitorCheck } from "@/modules/competitor-monitor";
 import { publishDailyReport } from "@/modules/telegram-channel/publisher";
@@ -53,8 +52,8 @@ export function startCron(app: FastifyInstance): void {
     { name: "migros-daily",       schedule: env.ETL.migrosSchedule,        handler: () => runMigrosJob(app) },
     // marketfiyati.org.tr çoklu zincir ETL — 09:30 UTC = 12:30 TRT
     { name: "marketfiyati-daily", schedule: env.ETL.marketfiyatiSchedule,  handler: () => runMarketfiyatiJob(app) },
-    // Wayback Machine probe — 6 saatte bir; online dönünce tek Telegram bildirimi
-    { name: "wayback-monitor",    schedule: env.ETL.waybackMonitorSchedule, handler: () => runWaybackMonitorJob(app) },
+    // wayback-monitor KALDIRILDI (2026-06-09): Migros ürün sayfaları Wayback'te arşivli değil,
+    // backfill imkansız. İleriye-dönük retail veri toplama (marketfiyati-daily) devam ediyor.
     // Haftalik mail bulten — pazartesi 06:00 UTC = 09:00 TRT
     { name: "weekly-mail",        schedule: env.ETL.weeklyMailSchedule,    handler: () => runWeeklyMailJob(app) },
     // Aylik enflasyon (TCMB EVDS) — ayin 5'i 10:00 UTC
@@ -352,18 +351,6 @@ async function runFirmPriceReminderJob(app: FastifyInstance): Promise<void> {
   }
 }
 
-async function runWaybackMonitorJob(app: FastifyInstance): Promise<void> {
-  const t0 = Date.now();
-  try {
-    const result = await checkWaybackAndNotify();
-    app.log.info(
-      { ...result, durationMs: Date.now() - t0 },
-      "[cron:wayback-monitor] kontrol tamamlandi",
-    );
-  } catch (err) {
-    app.log.error({ err }, "[cron:wayback-monitor] hata");
-  }
-}
 
 async function runCompetitorJob(app: FastifyInstance): Promise<void> {
   const t0 = Date.now();
