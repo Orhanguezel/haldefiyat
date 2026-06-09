@@ -47,13 +47,17 @@ gecikme). **Firma SEO fix'i (06-06 deploy) henüz GSC'ye yansımadı.** Yani exp
 - [ ] **1.3** URL Denetimi → **borsa ürünleri**: `/urun/bugday`, `/urun/arpa`, `/urun/misir`, `/urun/aycicegi`, `/urun/pamuk` → indeksleme iste.
 - [ ] **1.4** (opsiyonel) Eski firma URL'leri için ayrı işlem GEREKMEZ — sitemap'ten çıktı + noindex, Google zamanla düşürür.
 
-## FAZ 2 — Ürün audit temizliği (P1, Codex/Claude · `/admin/seo-audit`)
+## FAZ 2 — Ürün audit temizliği (P1) — ✅ KISMEN YAPILDI 2026-06-09
 
-> `/admin/redirects` (seo-audit) verisi: ürün tarafı temiz, 4 küçük iş.
+> 4 "sorunlu" üründen 3'ü **borsa ürünü** (bugday/arpa/misir, thin_indexed) — ama bunlar
+> canlıda **`index,follow`** (static editorial `product-content.ts` var; audit sadece DB
+> editorial'a bakıp false-positive veriyor). **Noindex'lenMEDİ** (asıl SEO hedefi). 1'i gerçek.
 
-- [ ] **2.1** `thin_indexed` (3 ürün): seoIndex=1 ama editorial yok → `POST /admin/seo-audit/actions {action:"set-noindex"}` ile noindex. (interlock zaten noindex tutuyor; kaydı netleştir.)
-- [ ] **2.2** `lowquality_indexed` (1 ürün): seoIndex=1 ama dataQuality<70 → ya editorial+kalite ekle ya noindex.
-- [ ] **2.3** Audit'i `filter=issues` ile periyodik kontrol et (haftalık) — yeni thin/variant çıkarsa temizle.
+- [x] **2.1** `salkito-kokteyl-d` (lowquality, dq=60, messy varyant adı) → **set-noindex YAPILDI** ✅
+- [ ] **2.2** **bugday/arpa/misir thin_indexed = AUDIT FALSE-POSITIVE.** Noindex YAPMA. İki gerçek fix (Codex):
+  (a) seo-audit'in `hasEd` mantığı **static editorial'ı da tanısın** (false-positive bitsin), VEYA
+  (b) borsa MVP ürünlerine **DB editorial** ekle (daha zengin içerik → "buğday fiyatı" daha iyi sıralanır).
+- [ ] **2.3** Audit'i `filter=issues` ile haftalık kontrol et — GERÇEK thin/variant çıkarsa temizle (borsa false-positive'i hariç tut).
 
 ## FAZ 3 — İzleme (P1, Orhan · 1-2 hafta)
 
