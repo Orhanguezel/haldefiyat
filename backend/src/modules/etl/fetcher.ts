@@ -420,7 +420,9 @@ function scaleByPackage(price: number | null, divisor: number): number | null {
 
 const CENT_SCALED_SOURCES = new Set([
   "balikesir_resmi",
-  "bursa_resmi",
+  // bursa_resmi ÇIKARILDI (2026-06-09): bursa TL raporluyor (Elma 8-110, Domates 10-80),
+  // kuruş değil. ≥1000 ÷100 heuristic'i sadece yüksek paket fiyatlarını (Sandık/Koli 2340→23.4)
+  // bozup min/max/avg tutarsızlığı + sahte rejection üretiyordu.
   "hal_gov_tr_ulusal",
   "istanbul_ibb",
   "kayseri_resmi",
@@ -451,10 +453,14 @@ function normalizePriceRow(row: NormalizedRow, source: EtlSourceConfig): Normali
     next = { ...next, min: next.max, max: next.min };
   }
 
-  // Koli/kasa (paket) fiyatlı ürünler: birim kg değil, paket fiyatı (örn. "Muz İthal (Koli)").
-  // Ürün adı koli/kasa içeriyorsa birimi "koli" yap → kg-tavanlı sıhhat filtresine takılmaz +
-  // sayfada doğru birimle (TL/koli) gösterilir.
-  if (next.unit !== "koli" && /\b(koli|kasa)\b|\((?:koli|kasa)\)/i.test(next.name ?? "")) {
+  // Koli/kasa/sandık/çuval (paket) fiyatlı ürünler: birim kg değil, paket fiyatı.
+  // Birim sütununda (örn. Bursa "Limon | Sandık", "Muz | Koli") veya üründe ("Muz İthal (Koli)")
+  // paket göstergesi varsa birimi "koli" yap → kg-tavanlı sıhhat filtresine takılmaz + TL/koli gösterilir.
+  // (normalizeUnit Türkçe sadeleştirir: sandık→sandik, çuval→cuval.)
+  const unitStr = (next.unit ?? "").toLowerCase();
+  if (next.unit !== "koli" &&
+      (/\b(koli|kasa|sandik|cuval)\b/.test(unitStr) ||
+       /\b(koli|kasa|sandık|çuval)\b|\((?:koli|kasa)\)/i.test(next.name ?? ""))) {
     next = { ...next, unit: "koli" };
   }
 
