@@ -24,16 +24,20 @@ export async function checkAndNotifyEtlHealth(): Promise<{
   notified: boolean;
 }> {
   const issues = await checkEtlHealth();
-  const critical = issues.filter((i) => i.severity === "critical").length;
+  const criticalIssues = issues.filter((i) => i.severity === "critical");
+  const critical = criticalIssues.length;
   const warning = issues.filter((i) => i.severity === "warning").length;
 
-  if (issues.length === 0) {
+  // Telegram push YALNIZ kritik (0 satir, gercek cokus) durumunda. partial/warning
+  // (sihhat filtresi reddi, veri-akisi-yok) rapor/dashboard'da gorunur ama gunluk
+  // push spam'lemez. Imza yalniz kritiklerden -> kritik seti degisince tek push.
+  if (criticalIssues.length === 0) {
     lastSentSignature = "";
     return { checked: activeSources().length, critical, warning, notified: false };
   }
 
-  const signature = issues
-    .map((i) => `${i.severity}:${i.source}:${i.reason}`)
+  const signature = criticalIssues
+    .map((i) => `${i.source}:${i.reason}`)
     .sort()
     .join("|");
 
@@ -89,10 +93,13 @@ export async function checkEtlHealth(): Promise<EtlHealthIssue[]> {
       continue;
     }
 
+    // error = 0 satir, gercek cokus -> CRITICAL.
+    // partial = veri GIRDI ama sihhat filtresi birkac urunu reddetti (filtre isini yapiyor,
+    // tekrarlayan koli/birim/min-max edge urunleri) -> WARNING (kritik alarm spam'i degil).
     if (latest.status === "error" || latest.status === "partial") {
       issues.push({
         source: source.key,
-        severity: "critical",
+        severity: latest.status === "error" ? "critical" : "warning",
         reason: `${latest.status}: ${latest.errorMsg ?? "detay yok"}`,
         lastRunAt: latestAt,
       });
