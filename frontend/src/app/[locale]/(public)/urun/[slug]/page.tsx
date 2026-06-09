@@ -392,7 +392,7 @@ export default async function UrunPage({ params }: Props) {
           </div>
           <div>
             <h2 className="text-xl font-bold text-foreground">Borsa günlük fiyatı</h2>
-            <p className="mt-1 text-sm text-muted">Ticaret borsası veya TMO piyasa bülteni kaynaklı serbest piyasa gözlemleri.</p>
+            <p className="mt-1 text-sm text-muted">Ticaret borsası veya TMO piyasa bülteni kaynaklı serbest piyasa gözlemleri. 45 günü aşan kayıtlar geçen sezon olarak işaretlenir.</p>
             <div className="mt-4">
               <PriceTable
                 initialPricePage={borsaPricePage}

@@ -72,8 +72,8 @@ gecikme). **Firma SEO fix'i (06-06 deploy) henüz GSC'ye yansımadı.** Yani exp
 
 - [x] **4.1** Firma hub'ları indexlendikçe izle; `/firmalar/{sehir}/{tip}` kombinasyon hub'ları (Faz B, firma-seo.md) — büyük illerde ek uzun-kuyruk.
 - [x] **4.2** Firma zenginleştirme → tekil firma re-index (firma-seo.md F5): firma sayfasına canlı hal fiyatı + açıklama render'ı mevcut; F5 kalite barajı için `backend/scripts/firms/apply-firm-seo-index.ts` eklendi (ürün/özgün açıklama/verified claim olan firmaları `seo_index=1` yapar, değişen URL'leri IndexNow'a yollar). Toplu spun AI açıklama üretilmedi.
-- [ ] **4.3** Haftalık analiz raporları (/analiz) — düzenli yayınla (her hafta indexli içerik).
-- [ ] **4.4** Borsa dikeyi genişlet (çeltik/zeytin/bakliyat — BORSA checklist Faz B) → yeni indexli ürün sayfaları.
+- [x] **4.3** Haftalık analiz raporları (/analiz) — 2026-23 (`haziran-1-hafta-2026-hal-raporu`, 1-7 Haziran, 8.790 kayıt) canlı ve `/analiz` listesinde ilk sırada.
+- [ ] **4.4** Borsa dikeyi genişlet (çeltik/zeytin/bakliyat — BORSA checklist Faz B) → yeni indexli ürün sayfaları. Hazırlık: borsa fiyatlarında >45 gün "geçen sezon" stale guard eklendi; yeni ürünler fiyat+editorial hazır olmadan index'e açılmayacak.
 
 ---
 

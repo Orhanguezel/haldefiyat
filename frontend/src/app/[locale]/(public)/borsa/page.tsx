@@ -104,6 +104,7 @@ export default async function BorsaPage({ params }: Props) {
           </div>
           <p className="mt-3 text-sm leading-6 text-muted">
             Destekleme primleri fiyat değildir; resmi alım ve borsa serbest fiyatlarından ayrı değerlendirilir.
+            45 günü aşan borsa kayıtları geçen sezon olarak etiketlenir.
           </p>
         </div>
       </section>
@@ -136,7 +137,7 @@ export default async function BorsaPage({ params }: Props) {
         <div>
           <div className="mb-3">
             <h2 className="text-xl font-bold text-foreground">Borsa serbest piyasa fiyatları</h2>
-            <p className="mt-1 text-sm text-muted">TMO bülteni ve ticaret borsalarından gelen günlük fiyatlar.</p>
+            <p className="mt-1 text-sm text-muted">TMO bülteni ve ticaret borsalarından gelen günlük fiyatlar. 45 günü aşan kayıtlar geçen sezon olarak işaretlenir.</p>
           </div>
           <PriceTable
             initialPricePage={borsaPage}

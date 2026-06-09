@@ -171,6 +171,7 @@ export default function PriceTable({
 }: PriceTableProps) {
   const initialMeta = initialPricePage?.meta;
   const serverPagination = Boolean(initialPricePage);
+  const isBorsaTable = requestParams?.marketType === "borsa";
   const initialSort = requestParams?.sort ?? "avg-desc";
   const [prices, setPrices] = useState<PriceRow[]>(
     initialPricePage?.items ?? (Array.isArray(initialPrices) ? initialPrices : []),
@@ -577,7 +578,7 @@ export default function PriceTable({
                         )}
                         {row.isStale && (
                           <span className="inline-flex items-center rounded-[5px] border border-amber-400/25 bg-amber-400/10 px-2 py-0.5 text-[10px] font-semibold text-amber-200">
-                            Gecikmeli
+                            {isBorsaTable ? "Geçen sezon" : "Gecikmeli"}
                           </span>
                         )}
                         {row.sourceUrl && (

@@ -53,8 +53,19 @@ function toNumber(raw: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
+function daysSinceIso(iso: string | null): number | null {
+  if (!iso) return null;
+  const date = new Date(`${iso.slice(0, 10)}T12:00:00Z`);
+  if (!Number.isFinite(date.getTime())) return null;
+  const today = new Date();
+  const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 12);
+  return Math.max(0, Math.floor((todayUtc - date.getTime()) / 86_400_000));
+}
+
+function staleThresholdDays(marketType: string | null): number {
+  if (marketType === "borsa") return 45;
+  if (marketType === "resmi") return 395;
+  return 0;
 }
 
 type RawPriceRow = typeof priceColumns extends infer T ? T : never;
@@ -65,7 +76,8 @@ function enrichPriceRow<T extends Record<string, unknown>>(row: T) {
   const source = sourceInfoFor(sourceApi, marketType);
   const recordedDate = isoDate(row.recordedDate);
   const fetchedAt = isoDateTime(row.fetchedAt);
-  const isStale = recordedDate ? recordedDate < todayIso() : true;
+  const daysSinceRecord = daysSinceIso(recordedDate);
+  const isStale = daysSinceRecord == null || daysSinceRecord > staleThresholdDays(marketType);
   return {
     ...row,
     minPrice: toNumber(row.minPrice),
@@ -520,6 +532,9 @@ export async function latestPrice(params: { city?: string; product?: string; mar
     .where(and(...conds));
   const latestDate = isoDate(latest?.d);
   if (!latestDate) return null;
+  const latestDaysOld = daysSinceIso(latestDate);
+  const latestIsStale = (latestDaysOld ?? Infinity) > staleThresholdDays(null);
+  const staleMessage = `${params.city ?? "Bu sorgu"} için bugünün verisi yok; en son ${latestDate} tarihli veri gösteriliyor.`;
 
   const rows = await db
     .select(priceColumns)
@@ -533,10 +548,10 @@ export async function latestPrice(params: { city?: string; product?: string; mar
   return {
     items: enrichPriceRows(rows),
     latestRecordedDate: latestDate,
-    warnings: latestDate < todayIso()
+    warnings: latestIsStale
       ? [{
           code: "STALE_DATA",
-          message: `${params.city ?? "Bu sorgu"} için bugünün verisi yok; en son ${latestDate} tarihli veri gösteriliyor.`,
+          message: staleMessage,
           asOf: latestDate,
         }]
       : [],
