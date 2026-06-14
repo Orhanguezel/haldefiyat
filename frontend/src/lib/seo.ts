@@ -211,11 +211,18 @@ export function buildMetadata(
  * Kısayol: fetchPageSeo + buildMetadata tek satırda.
  */
 export async function getPageMetadata(
-  pageKey: string,
+  pageKey: string | string[],
   overrides?: MetadataOverrides,
 ): Promise<Metadata> {
   const resolvedLocale = overrides?.locale ?? await getRequestLocale();
-  const seo = await fetchPageSeo(pageKey);
+  const pageKeys = Array.isArray(pageKey) ? pageKey : [pageKey];
+  let seo: PageSeoData | null = null;
+
+  for (const key of pageKeys) {
+    seo = await fetchPageSeo(key);
+    if (seo) break;
+  }
+
   return buildMetadata(seo, {
     ...overrides,
     locale: resolvedLocale,

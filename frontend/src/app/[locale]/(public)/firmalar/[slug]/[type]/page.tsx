@@ -68,9 +68,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!ctx) notFound();
 
   const title = `${ctx.cityName} ${ctx.typeLabel} Firmaları`;
-  return getPageMetadata("firmalar", {
+  return getPageMetadata(["firmalar_sehir_tip", "firmalar"], {
     locale,
     pathname: `/firmalar/${slug}/${type}`,
+    vars: {
+      city: ctx.cityName,
+      type: ctx.typeLabel,
+      year: String(YEAR),
+    },
     title: `${title} ${YEAR} — ${ctx.total} Firma, İletişim & Adres`,
     description: `${title}: ${ctx.total} aktif firma. Telefon, adres, ilçe ve firma profillerini şehir bazlı karşılaştırın.`,
     robots: ctx.total >= MIN_INDEXABLE_COMBO_TOTAL ? { index: true, follow: true } : { index: false, follow: true },

@@ -254,13 +254,13 @@ hal-fiyatlari tarafi:
 ```bash
 # JWT üret (VPS'te Python ile)
 JWT=$(ssh vps-vistainsaat 'python3 -c "
-import hmac, hashlib, base64, json, time
+import hmac, hashlib, base64, json, os, time
 def b64url(d):
     if isinstance(d,str): d=d.encode()
     return base64.urlsafe_b64encode(d).rstrip(b\"=\"\").decode()
 h=b64url(json.dumps({\"alg\":\"HS256\",\"typ\":\"JWT\"}))
 p=b64url(json.dumps({\"sub\":\"4f618a8d-6fdb-498c-898a-395d368b2193\",\"role\":\"admin\",\"iat\":int(time.time()),\"exp\":int(time.time())+3600}))
-s=hmac.new(\"3af77dee968934d4882ed2c0f1a5571871cec02e15b6ed75e8b8cc5e17379956\".encode(),\"{}.{}\".format(h,p).encode(),hashlib.sha256).digest()
+s=hmac.new(os.environ[\"JWT_SECRET\"].encode(),\"{}.{}\".format(h,p).encode(),hashlib.sha256).digest()
 print(\"{}.{}.{}\".format(h,p,b64url(s)))
 "')
 

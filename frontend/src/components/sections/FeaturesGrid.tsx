@@ -40,7 +40,7 @@ function buildFeatures(activeCities?: number, targetCoverage = "81 il hedef"): R
     icon: "📱",
     color: "purple",
     title: "Mobil Uyumlu",
-    desc: "Tarlada, hallde veya masabaşında — her cihazdan kesintisiz erişim. PWA desteği ile offline kullanım.",
+    desc: "Tarlada, halde veya masabaşında — her cihazdan kesintisiz erişim. PWA desteği ile offline kullanım.",
   },
   {
     icon: "🌿",

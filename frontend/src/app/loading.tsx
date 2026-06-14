@@ -13,10 +13,7 @@ export default function Loading() {
           ))}
         </div>
         <div className="rounded-2xl border border-border-soft bg-surface p-6">
-          <div className="mb-4 flex items-center gap-3 text-muted">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-border border-t-brand" />
-            <span className="text-sm">Sayfa hazırlanıyor...</span>
-          </div>
+          <div className="mb-4 h-4 w-32 animate-pulse rounded bg-bg-alt" />
           <div className="space-y-3">
             {[1, 2, 3, 4].map((item) => (
               <div key={item} className="h-14 animate-pulse rounded-xl bg-bg-alt" />

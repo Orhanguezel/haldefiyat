@@ -29,6 +29,18 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
 PHONE_RE = re.compile(r"0[ .]?5[0-9]{2}[ .]?[0-9]{3}[ .]?[0-9]{2}[ .]?[0-9]{2}")
 
 
+def env(key, default=""):
+    if os.environ.get(key):
+        return os.environ[key]
+    try:
+        for ln in open(".env", "r", encoding="utf-8"):
+            if ln.startswith(key + "="):
+                return ln.split("=", 1)[1].strip().strip('"').strip("'")
+    except Exception:
+        pass
+    return default
+
+
 def norm(s):
     d = re.sub(r"\D", "", s)
     if len(d) == 11 and d.startswith("05"):
@@ -60,8 +72,11 @@ def ocr_phones(data):
 
 
 def main():
-    conn = pymysql.connect(host="127.0.0.1", user="haldefiyat", password="Hal2026!secure",
-                           database="hal_fiyatlari", charset="utf8mb4")
+    conn = pymysql.connect(host=env("DB_HOST", "127.0.0.1"),
+                           user=env("DB_USER", "haldefiyat"),
+                           password=env("DB_PASSWORD", env("MYSQL_PASSWORD")),
+                           database=env("DB_NAME", "hal_fiyatlari"),
+                           charset="utf8mb4")
     cur = conn.cursor()
     where = "photo_url IS NOT NULL" + ("" if ALL else " AND phone IS NULL")
     cur.execute(f"SELECT id, photo_url, phone, raw FROM hf_firms WHERE {where} ORDER BY id"

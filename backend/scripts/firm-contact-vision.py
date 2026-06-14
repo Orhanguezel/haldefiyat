@@ -11,7 +11,7 @@ Kullanim:
   python3 scripts/firm-contact-vision.py --limit=3        # dry-run test
   python3 scripts/firm-contact-vision.py --apply --all    # tum fotolu firmalar
 """
-import sys, re, io, json, time, base64, urllib.request
+import os, sys, re, io, json, time, base64, urllib.request
 from PIL import Image
 import pymysql
 
@@ -24,6 +24,8 @@ for a in sys.argv:
 
 
 def env(key, default=""):
+    if os.environ.get(key):
+        return os.environ[key]
     try:
         for ln in open(".env", "r", encoding="utf-8"):
             if ln.startswith(key + "="):
@@ -94,8 +96,11 @@ def main():
     if not KEY:
         print("ANTHROPIC_API_KEY yok")
         return
-    conn = pymysql.connect(host="127.0.0.1", user="haldefiyat", password="Hal2026!secure",
-                           database="hal_fiyatlari", charset="utf8mb4")
+    conn = pymysql.connect(host=env("DB_HOST", "127.0.0.1"),
+                           user=env("DB_USER", "haldefiyat"),
+                           password=env("DB_PASSWORD", env("MYSQL_PASSWORD")),
+                           database=env("DB_NAME", "hal_fiyatlari"),
+                           charset="utf8mb4")
     cur = conn.cursor()
     # Resumable + maliyet-verimli: zaten ocr_contacts'i olan firmalari atla (kredi bitse de bastan baslamaz).
     where = ("photo_url IS NOT NULL AND COALESCE(JSON_LENGTH(raw->'$.ocr_contacts'),0)=0"

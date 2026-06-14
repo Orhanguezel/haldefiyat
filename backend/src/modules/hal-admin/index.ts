@@ -28,7 +28,6 @@ import {
   runSingleProductionSource,
 } from "@/modules/etl/production-fetcher";
 import { publishDailyReport } from "@/modules/telegram-channel/publisher";
-import { publishDailyTweet, postTweet } from "@/modules/twitter-channel/publisher";
 import {
   latestRecordedDate,
   listPriceRows,
@@ -750,22 +749,6 @@ export async function registerHalAdmin(app: FastifyInstance) {
       const msg = err instanceof Error ? err.message : String(err);
       return reply.status(500).send({ ok: false, error: msg });
     }
-  });
-
-  // Twitter/X gunluk trending tweet (manuel tetik)
-  app.post("/hal/twitter/publish", async (_req, reply) => {
-    const result = await publishDailyTweet();
-    return reply.send(result);
-  });
-
-  // Twitter/X ozel metin tweet (test icin)
-  app.post<{ Body: { text: string } }>("/hal/twitter/tweet", async (req, reply) => {
-    const text = req.body?.text;
-    if (!text || typeof text !== "string") {
-      return reply.status(400).send({ ok: false, error: "text alani zorunlu" });
-    }
-    const result = await postTweet(text);
-    return reply.send(result);
   });
 
   app.post("/hal/notifications/test", async (req, reply) => {

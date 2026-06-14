@@ -1,0 +1,92 @@
+{
+  "title": "GA4 Analytics",
+  "description": "Kullanıcı, edinme, etkileşim, olay, dönüşüm ve GA4 ayar raporları",
+  "connected": "Bağlı",
+  "disconnected": "Bağlı değil",
+  "tabs": {
+    "overview": "Özet",
+    "realtime": "Gerçek Zamanlı",
+    "acquisition": "Edinme",
+    "engagement": "Etkileşim",
+    "events": "Olaylar",
+    "conversions": "Dönüşümler",
+    "ecommerce": "E-ticaret",
+    "settings": "Ayarlar"
+  },
+  "cards": {
+    "users": "Kullanıcı",
+    "sessions": "Oturum",
+    "views": "Görüntüleme",
+    "conversions": "Dönüşüm"
+  },
+  "charts": {
+    "sessions": "Oturum Trendi"
+  },
+  "channels": "Kanallar",
+  "devices": "Cihazlar",
+  "pages": "En Çok Görüntülenen Sayfalar",
+  "empty": "Veri yok.",
+  "cols": {
+    "name": "Ad",
+    "extra": "Detay",
+    "value": "Değer",
+    "action": "Aksiyon"
+  },
+  "realtime": {
+    "activeUsers": "Şu an aktif kullanıcı",
+    "screens": "Aktif ekran/sayfa",
+    "countries": "Ülke"
+  },
+  "acq": {
+    "sources": "Oturum Kaynakları",
+    "sourceMediums": "Kaynak / Medium",
+    "channels": "İlk Kullanıcı Kanalı",
+    "newReturning": "Yeni / Dönen Kullanıcı"
+  },
+  "geo": {
+    "title": "Coğrafya"
+  },
+  "engagement": {
+    "rate": "Etkileşim Oranı",
+    "avgDuration": "Ort. Oturum Süresi",
+    "bounce": "Bounce Rate",
+    "engagedSessions": "Etkileşimli Oturum",
+    "userDuration": "Toplam Kullanıcı Etkileşim Süresi"
+  },
+  "events": {
+    "title": "En Çok Tetiklenen Olaylar",
+    "makeKey": "Anahtar olay yap"
+  },
+  "ecommerce": {
+    "revenue": "Satın Alma Geliri",
+    "transactions": "İşlem",
+    "items": "Ürün Geliri"
+  },
+  "settings": {
+    "streams": "Data Streams",
+    "enhanced": "Enhanced measurement",
+    "customDimensions": "Custom Dimensions",
+    "audiences": "Audiences",
+    "adsLinks": "GA4 ↔ Google Ads",
+    "adsHelp": "Bağlantı Analytics/Ads arayüzünden kurulur; burada mevcut bağlantı durumu izlenir.",
+    "adsMissing": "Google Ads bağlantısı bulunamadı. Dönüşüm importu için GA4 property ayarlarından Ads linki kurulmalı.",
+    "linked": "Bağlı",
+    "partial": "Kısmi"
+  },
+  "ke": {
+    "title": "Anahtar Olaylar (Dönüşümler)",
+    "description": "Bir olayı dönüşüm olarak işaretle; sayım yöntemi ve varsayılan değer eklenebilir.",
+    "placeholder": "olay_adi",
+    "add": "Ekle",
+    "added": "Anahtar olay eklendi",
+    "remove": "Kaldır",
+    "removeConfirm": "Bu anahtar olay işareti kaldırılacak. Devam edilsin mi?",
+    "removed": "Anahtar olay kaldırıldı",
+    "failed": "İşlem başarısız",
+    "custom": "Özel",
+    "empty": "Tanımlı anahtar olay yok.",
+    "onceEvent": "Olay başına",
+    "onceSession": "Oturum başına",
+    "value": "Değer"
+  }
+}

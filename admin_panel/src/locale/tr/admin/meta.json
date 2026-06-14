@@ -1,0 +1,23 @@
+{
+  "title": "Meta Pixel + CAPI",
+  "description": "Facebook/Instagram Pixel ve Conversions API (server-side) yönetimi",
+  "enabled": "Aktif",
+  "pixelConfigured": "Pixel ayarlı",
+  "capiConfigured": "CAPI ayarlı",
+  "settings": "Ayarlar",
+  "pixelId": "Pixel / Dataset ID",
+  "capiToken": "Conversions API Token",
+  "capiTokenHint": "Boş bırakırsan mevcut token korunur. Token site ayarlarına şifreli saklanır (public'e sızmaz).",
+  "testCode": "Test Event Code (opsiyonel)",
+  "save": "Kaydet",
+  "saving": "Kaydediliyor...",
+  "saved": "Meta ayarları kaydedildi",
+  "saveFailed": "Kaydetme başarısız",
+  "test": "Test Olayı Gönder",
+  "testing": "Gönderiliyor...",
+  "testOk": "Test olayı gönderildi ({n} alındı). Events Manager > Test Events'te gör.",
+  "testSkipped": "Önce Pixel ID + CAPI token girip aktif et.",
+  "testFailed": "Test başarısız",
+  "note": "Pixel siteye otomatik enjekte edilir (meta_pixel_id). Teklif formunda tarayıcı 'Lead' + sunucu CAPI 'Lead' aynı event_id ile gönderilir (dedup). Google offline import'un Meta eşi.",
+  "help": "Kurulum: Meta Events Manager > veri kaynağı (Pixel) ID; Ayarlar > Conversions API > erişim token'ı oluştur. İsteğe bağlı Test Events kodu."
+}

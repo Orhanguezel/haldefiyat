@@ -1,4 +1,5 @@
 import type { CustomPageData } from "@/lib/api";
+import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 
 interface Props {
   page: CustomPageData | null;
@@ -33,7 +34,7 @@ export default function LegalPageContent({ page, fallbackTitle }: Props) {
               [&_th]:px-4 [&_th]:py-2 [&_th]:text-left [&_th]:font-semibold [&_th]:text-foreground
               [&_td]:px-4 [&_td]:py-2 [&_td]:border-b [&_td]:border-border/50
             "
-            dangerouslySetInnerHTML={{ __html: content }}
+            dangerouslySetInnerHTML={{ __html: sanitizeCmsHtml(content) }}
           />
         ) : (
           <p className="text-lg text-muted">Bu sayfa yakında güncellenecektir.</p>

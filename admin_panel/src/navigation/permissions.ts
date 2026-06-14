@@ -25,7 +25,15 @@ export type AdminPermissionKey =
   | 'admin.audit'
   | 'admin.analytics'
   | 'admin.competitor_monitor'
-  | 'admin.redirects';
+  | 'admin.redirects'
+  | 'admin.google_connect'
+  | 'admin.ga4'
+  | 'admin.search_console'
+  | 'admin.google_ads'
+  | 'admin.gtm'
+  | 'admin.meta'
+  | 'admin.twitter'
+  | 'admin.popups';
 
 export type AdminNavKey =
   | 'dashboard'
@@ -53,7 +61,15 @@ export type AdminNavKey =
   | 'audit'
   | 'analytics'
   | 'competitor_monitor'
-  | 'redirects';
+  | 'redirects'
+  | 'google_connect'
+  | 'ga4'
+  | 'search_console'
+  | 'google_ads'
+  | 'gtm'
+  | 'meta'
+  | 'twitter'
+  | 'popups';
 
 const ADMIN_ONLY: PanelRole[] = ['admin'];
 
@@ -83,6 +99,14 @@ const ADMIN_PERMISSION_ROLE_MAP: Record<AdminPermissionKey, PanelRole[]> = {
   'admin.analytics': ADMIN_ONLY,
   'admin.competitor_monitor': ADMIN_ONLY,
   'admin.redirects': ADMIN_ONLY,
+  'admin.google_connect': ADMIN_ONLY,
+  'admin.ga4': ADMIN_ONLY,
+  'admin.search_console': ADMIN_ONLY,
+  'admin.google_ads': ADMIN_ONLY,
+  'admin.gtm': ADMIN_ONLY,
+  'admin.meta': ADMIN_ONLY,
+  'admin.twitter': ADMIN_ONLY,
+  'admin.popups': ADMIN_ONLY,
 };
 
 export function canAccessAdminPermission(role: PanelRole, key: AdminPermissionKey): boolean {
@@ -116,6 +140,14 @@ const ADMIN_NAV_PERMISSION_MAP: Partial<Record<AdminNavKey, AdminPermissionKey>>
   analytics: 'admin.analytics',
   competitor_monitor: 'admin.competitor_monitor',
   redirects: 'admin.redirects',
+  google_connect: 'admin.google_connect',
+  ga4: 'admin.ga4',
+  search_console: 'admin.search_console',
+  google_ads: 'admin.google_ads',
+  gtm: 'admin.gtm',
+  meta: 'admin.meta',
+  twitter: 'admin.twitter',
+  popups: 'admin.popups',
 };
 
 export function getAdminNavRoles(key: AdminNavKey): PanelRole[] {
@@ -130,6 +162,7 @@ const ADMIN_PERMISSION_PATHS: Record<AdminPermissionKey, string[]> = {
   'admin.hf_products': ['/admin/hf-products'],
   'admin.markets': ['/admin/markets'],
   'admin.firms': ['/admin/firmalar'],
+  'admin.listings': ['/admin/ilanlar'],
   'admin.etl_logs': ['/admin/etl-logs'],
   'admin.alerts': ['/admin/alerts'],
   'admin.contacts': ['/admin/contacts'],
@@ -149,6 +182,14 @@ const ADMIN_PERMISSION_PATHS: Record<AdminPermissionKey, string[]> = {
   'admin.analytics': ['/admin/analytics'],
   'admin.competitor_monitor': ['/admin/competitor-monitor'],
   'admin.redirects': ['/admin/redirects'],
+  'admin.google_connect': ['/admin/google-connect'],
+  'admin.ga4': ['/admin/ga4'],
+  'admin.search_console': ['/admin/search-console'],
+  'admin.google_ads': ['/admin/google-ads'],
+  'admin.gtm': ['/admin/gtm'],
+  'admin.meta': ['/admin/meta'],
+  'admin.twitter': ['/admin/twitter'],
+  'admin.popups': ['/admin/popups'],
 };
 
 function stripQueryAndHash(pathname: string): string {

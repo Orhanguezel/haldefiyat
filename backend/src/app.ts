@@ -116,6 +116,21 @@ export async function createApp() {
     reply.header("X-RateLimit-Remaining", "600");
     reply.header("X-RateLimit-Reset", "60");
   });
+  app.addHook("onRequest", async (req, reply) => {
+    reply.header("X-Content-Type-Options", "nosniff");
+    reply.header("X-Frame-Options", "DENY");
+    reply.header("Referrer-Policy", "strict-origin-when-cross-origin");
+    reply.header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    if (env.NODE_ENV === "production") {
+      reply.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    }
+    if (!req.url.startsWith("/api/docs")) {
+      reply.header(
+        "Content-Security-Policy",
+        "default-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'",
+      );
+    }
+  });
   app.addHook("onSend", async (req, reply, payload) => {
     if (reply.statusCode < 400 || payload == null) return payload;
     let body: unknown = payload;

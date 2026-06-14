@@ -65,7 +65,7 @@ const CITY_OPTIONS: Array<{ slug: string; label: string }> = [
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
-  return getPageMetadata("firmalar", {
+  return getPageMetadata(["firmalar_liste", "firmalar"], {
     locale,
     pathname: "/firmalar",
     title: "Hal Firmaları ve Komisyoncu Rehberi",

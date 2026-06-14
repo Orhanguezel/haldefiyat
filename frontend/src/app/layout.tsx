@@ -1,8 +1,9 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 import type { Metadata, Viewport } from "next";
 import { Outfit, IBM_Plex_Sans } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
+import { Suspense } from "react";
 import { defaultLocale } from "@/i18n/routing";
 import { fetchSiteSettings, fetchAnalyticsConfig } from "@/lib/site-settings";
 import Analytics, { GtmNoscript } from "@/components/seo/Analytics";
@@ -138,7 +139,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <AttributionProvider />
                 <FavoriteSyncManager />
                 <ServiceWorkerProvider />
-                <PageviewTracker />
+                <Suspense fallback={null}>
+                  <PageviewTracker />
+                </Suspense>
                 {children}
                 <CookieConsentBanner />
               </ToastProvider>

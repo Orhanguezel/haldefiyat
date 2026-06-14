@@ -209,7 +209,18 @@
       "Bash(python3 /tmp/hf_pdf.py)",
       "Bash(sed -n '449,520p' src/lib/api.ts)",
       "Bash(sed -n '485,505p' src/components/ui/PriceTable.tsx)",
-      "WebFetch(domain:bulten.polatliborsa.org.tr)"
+      "WebFetch(domain:bulten.polatliborsa.org.tr)",
+      "Bash(curl -s \"https://haldefiyat.com/urun/bugday\")",
+      "Bash(curl -s \"https://haldefiyat.com/api/v1/prices?product=bugday&range=1d\")",
+      "Bash(curl -s \"https://haldefiyat.com/borsa\")",
+      "Bash(grep -nA8 '\"hal_gov_tr_ulusal\"' backend/src/config/etl-sources.ts)",
+      "Bash(ssh orhan@72.61.93.212 'echo \"14604925\" | sudo -S docker ps --filter name=scraper 2>/dev/null | tail -3; echo \"--- son 20 log ---\"; echo \"14604925\" | sudo -S docker logs scraper-service-api-1 --tail 8 2>&1 | tail -10')",
+      "Bash(ssh orhan@72.61.93.212 'echo \"14604925\" | sudo -S docker logs scraper-service-api-1 --since 24h 2>&1 | grep -oE \"POST /api/v1/scrape\" | wc -l')",
+      "Bash(sed -n '1326,1340p' src/modules/etl/fetcher.ts)",
+      "Bash(sed -n '1356,1370p' src/modules/etl/fetcher.ts)",
+      "Bash(git -C /home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari show a08bb038:CLAUDE.md)",
+      "Bash(awk '{print $NF}')",
+      "Bash(git rebase *)"
     ],
     "additionalDirectories": [
       "/home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/(public)",

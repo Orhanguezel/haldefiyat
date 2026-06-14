@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+env:
+  CI: true
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  verify:
+    name: Typecheck, Test, Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout hal-fiyatlari
+        uses: actions/checkout@v4
+        with:
+          path: tarim-dijital-ekosistem/projects/hal-fiyatlari
+
+      - name: Checkout shared packages
+        uses: actions/checkout@v4
+        with:
+          repository: Orhanguezel/shared-ecosystem-packages
+          path: tarim-dijital-ekosistem/packages
+          token: ${{ secrets.SHARED_ECOSYSTEM_PACKAGES_TOKEN || github.token }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.17
+
+      - name: Create CI workspace manifest
+        working-directory: tarim-dijital-ekosistem
+        run: |
+          cat > package.json <<'JSON'
+          {
+            "name": "tarim-dijital-ekosistem-ci",
+            "private": true,
+            "workspaces": [
+              "packages/shared-backend",
+              "packages/shared-types",
+              "packages/shared-config",
+              "packages/shared-frontend",
+              "packages/ecosystem-weather-widget",
+              "packages/shared-ui",
+              "projects/hal-fiyatlari/backend",
+              "projects/hal-fiyatlari/frontend",
+              "projects/hal-fiyatlari/admin_panel"
+            ],
+            "scripts": {
+              "build:shared": "cd packages/shared-backend && bun x tsc -p tsconfig.build.json",
+              "check:shared": "cd packages/shared-backend && bun x tsc --noEmit"
+            }
+          }
+          JSON
+
+      - name: Install dependencies
+        working-directory: tarim-dijital-ekosistem
+        run: bun install
+
+      - name: Build shared backend
+        working-directory: tarim-dijital-ekosistem
+        run: bun run build:shared
+
+      - name: Backend typecheck
+        working-directory: tarim-dijital-ekosistem/projects/hal-fiyatlari/backend
+        run: bun run typecheck
+
+      - name: Backend tests
+        working-directory: tarim-dijital-ekosistem/projects/hal-fiyatlari/backend
+        run: bun run test
+
+      - name: Frontend typecheck
+        working-directory: tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend
+        run: bun x tsc --noEmit
+
+      - name: Frontend tests
+        working-directory: tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend
+        run: bun run test
+
+      - name: Frontend lint
+        working-directory: tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend
+        run: bun run lint

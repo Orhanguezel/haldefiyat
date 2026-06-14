@@ -72,9 +72,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!firm) notFound();
 
   const city = titleCaseSlug(firm.citySlug);
-  return getPageMetadata("firma", {
+  return getPageMetadata(["firma_detay", "firma"], {
     locale,
     pathname: `/firma/${slug}`,
+    vars: {
+      name: firm.name,
+      city,
+    },
     title: `${firm.name} | ${city} Firma Profili`,
     description: `${firm.name} firma profili, adres ve iletişim bilgileri. ${city} hal firmaları ve komisyoncu rehberi.`,
     robots: hasIndexableContent(firm)

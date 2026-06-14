@@ -13,6 +13,7 @@ import {
   readingTimeMinutes,
 } from "@/lib/analiz";
 import { fetchAutoWeeklyReport, fetchAutoWeeklyReports, type AutoWeeklyReport } from "@/lib/api";
+import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 import PageContainer from "@/components/layout/PageContainer";
 
 // İçerik HTML ile başlıyorsa zengin rapor (kendi <style> + inline SVG) olarak
@@ -219,7 +220,7 @@ export default async function AnalizMakalePage({ params }: Props) {
           {isHtml ? (
             <div
               className="mt-8"
-              dangerouslySetInnerHTML={{ __html: makale.icerik }}
+              dangerouslySetInnerHTML={{ __html: sanitizeCmsHtml(makale.icerik) }}
             />
           ) : (
             <div className="mt-8 space-y-5">{renderContent(makale.icerik)}</div>

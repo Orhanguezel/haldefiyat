@@ -1,0 +1,86 @@
+{
+  "title": "Search Console",
+  "description": "Arama performansı, sorgular, sayfalar, sitemap ve indexleme durumu",
+  "connected": "Bağlı",
+  "disconnected": "Bağlı değil",
+  "selectSite": "Site seçin",
+  "tabs": {
+    "overview": "Özet",
+    "index": "İndexleme",
+    "queries": "Sorgular/Sayfalar",
+    "sitemaps": "Sitemap"
+  },
+  "types": {
+    "web": "Web",
+    "image": "Görsel",
+    "video": "Video",
+    "news": "Haber"
+  },
+  "cards": {
+    "clicks": "Tıklama",
+    "impressions": "Gösterim",
+    "ctr": "CTR",
+    "position": "Ort. Pozisyon"
+  },
+  "charts": {
+    "series": "Zaman Serisi",
+    "clicksImpressions": "Tıklama / Gösterim",
+    "devices": "Cihaz Kırılımı",
+    "countries": "Ülke Kırılımı"
+  },
+  "queries": "En Çok Tıklanan Sorgular",
+  "pages": "En Çok Tıklanan Sayfalar",
+  "drill": {
+    "title": "Sayfa Sorguları"
+  },
+  "cols": {
+    "query": "Sorgu",
+    "page": "Sayfa",
+    "clicks": "Tıklama",
+    "impressions": "Gösterim",
+    "ctr": "CTR",
+    "position": "Pozisyon"
+  },
+  "empty": "Seçilen dönemde veri yok.",
+  "index": {
+    "all": "Tümü",
+    "indexed": "İndexli",
+    "notIndexed": "İndexsiz",
+    "issue": "Sorunlu",
+    "unknown": "Bilinmiyor",
+    "url": "URL",
+    "status": "Durum",
+    "lastCrawl": "Son tarama",
+    "recommendation": "Düzeltme önerisi",
+    "refresh": "Yeniden Tara",
+    "refreshing": "Taranıyor...",
+    "refreshed": "{count} URL kontrol edildi, {skipped} güncel kayıt atlandı. Toplam URL: {total}.",
+    "failed": "Indexleme analizi başarısız",
+    "empty": "Henüz index cache kaydı yok. Yeniden tara ile ilk analizi başlatın.",
+    "help": "Indexsiz URL'lerde canonical, noindex, robots.txt, sitemap güncelliği, iç link ve içerik kalitesini birlikte kontrol edin. Genel URL'ler için Indexing API yerine GSC'deki URL Inspection ekranından manuel istek daha güvenlidir."
+  },
+  "inspect": {
+    "title": "URL İnceleme / Indexleme",
+    "description": "Bir URL'nin Google'da indexli olup olmadığını kontrol et",
+    "placeholder": "https://haldefiyat.com/...",
+    "check": "Kontrol Et",
+    "checking": "Kontrol ediliyor...",
+    "failed": "İnceleme başarısız",
+    "coverage": "Kapsam",
+    "lastCrawl": "Son tarama",
+    "requestIndex": "GSC'de İndekslenmeyi İste",
+    "requestIndexNote": "Not: Google indexleme isteğini API'den vermiyor. Bu buton URL'yi doğrudan Search Console'un URL Denetimi ekranında açar; oradaki \"İndekslenmeyi İste\" butonuna basman yeterli."
+  },
+  "sitemaps": "Site Haritaları",
+  "sm": {
+    "placeholder": "https://haldefiyat.com/sitemap.xml",
+    "submit": "Gönder",
+    "submitted": "Sitemap gönderildi.",
+    "deleted": "Sitemap silindi.",
+    "failed": "Sitemap işlemi başarısız",
+    "errors": "hata",
+    "warnings": "uyarı",
+    "ok": "Sorunsuz",
+    "empty": "Kayıtlı site haritası yok."
+  }
+}

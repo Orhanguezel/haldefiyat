@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 
 /** Segment `error.tsx` — üst layout içinde render edilir; `<html>` / `<body>` kullanılmaz. */
@@ -12,6 +13,7 @@ export default function AppError({
 }) {
   useEffect(() => {
     console.error(error);
+    Sentry.captureException(error);
   }, [error]);
 
   return (

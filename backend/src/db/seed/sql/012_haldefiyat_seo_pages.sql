@@ -67,6 +67,42 @@ VALUES (
       "og_image": "/uploads/og/iletisim.png",
       "no_index": false
     },
+    "firmalar": {
+      "title": "Hal Firmaları ve Komisyoncu Rehberi",
+      "description": "Türkiye genelindeki hal komisyoncuları, soğuk hava depoları, nakliyeciler ve zirai ilaç firmaları rehberi.",
+      "og_image": "/uploads/og/firmalar.png",
+      "no_index": false
+    },
+    "firmalar_liste": {
+      "title": "Hal Firmaları ve Komisyoncu Rehberi",
+      "description": "Hal komisyoncuları, soğuk hava depoları, nakliyeciler ve zirai ilaç firmalarını şehir ve hizmet türüne göre filtreleyin.",
+      "og_image": "/uploads/og/firmalar.png",
+      "no_index": false
+    },
+    "firmalar_sehir": {
+      "title": "{{city}} Hal Komisyoncuları {{year}}",
+      "description": "{{city}} hal firmaları, komisyoncuları, adres ve telefon bilgileri. Şehir bazlı firma rehberini güncel kayıtlarla inceleyin.",
+      "og_image": "/uploads/og/firmalar.png",
+      "no_index": false
+    },
+    "firmalar_tip": {
+      "title": "{{type}} Firmaları ve İletişim Rehberi",
+      "description": "{{type}} kategorisindeki firmaları şehir, adres ve telefon bilgilerine göre karşılaştırın.",
+      "og_image": "/uploads/og/firmalar.png",
+      "no_index": false
+    },
+    "firmalar_sehir_tip": {
+      "title": "{{city}} {{type}} Firmaları {{year}}",
+      "description": "{{city}} {{type}} firmaları: aktif kayıtlar, adres, telefon ve firma profilleri.",
+      "og_image": "/uploads/og/firmalar.png",
+      "no_index": false
+    },
+    "firma_detay": {
+      "title": "{{name}} Firma Profili",
+      "description": "{{name}} adres, telefon ve firma bilgileri. Şehir ve kategori bazlı hal firma rehberi.",
+      "og_image": "/uploads/og/firmalar.png",
+      "no_index": false
+    },
     "giris": {
       "title": "Giriş Yap | HaldeFiyat",
       "description": "HaldeFiyat hesabınıza giriş yapın.",

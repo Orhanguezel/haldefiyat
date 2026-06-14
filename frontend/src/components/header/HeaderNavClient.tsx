@@ -44,7 +44,7 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
   const locale = getLocaleFromPathname(pathname);
   const [open, setOpen] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
-  const { user, loading, logout } = useAuthSession();
+  const { user, logout } = useAuthSession();
   const { data: profile } = useProfile();
 
   useEffect(() => {
@@ -158,7 +158,7 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
               href={localePath(locale, "/giris")}
               className="h-10 px-5 inline-flex items-center justify-center rounded-xl border border-(--color-border) text-[13px] font-semibold text-(--color-foreground) hover:bg-(--color-bg-alt) hover:text-(--color-brand) transition-all active:scale-95 whitespace-nowrap"
             >
-              {loading ? "Yükleniyor..." : "Giriş Yap"}
+              Giriş Yap
             </Link>
             <Link
               href={localePath(locale, "/kayit")}

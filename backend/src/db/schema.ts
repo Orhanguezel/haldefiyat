@@ -83,6 +83,7 @@ export const hfPriceHistory = mysqlTable(
   (t) => [
     uniqueIndex("hf_ph_product_market_date_uq").on(t.productId, t.marketId, t.recordedDate),
     index("hf_ph_recorded_date").on(t.recordedDate),
+    index("idx_ph_date_product_market").on(t.recordedDate, t.productId, t.marketId),
     index("hf_ph_source_api").on(t.sourceApi),
   ],
 );

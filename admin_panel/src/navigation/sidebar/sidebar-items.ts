@@ -5,6 +5,7 @@
 
 import {
   Bell,
+  BarChart3,
   Building2,
   Contact2,
   Database,
@@ -15,10 +16,13 @@ import {
   LayoutDashboard,
   Mail,
   MessageSquare,
+  MousePointerClick,
   Package,
   Route,
+  Search,
   Send,
   Settings,
+  Tags,
   TrendingUp,
   Users,
   type LucideIcon,
@@ -62,6 +66,7 @@ export type AdminNavGroupKey =
   | 'price_data'
   | 'alerts_group'
   | 'production_data'
+  | 'marketing'
   | 'content'
   | 'communication'
   | 'system';
@@ -118,26 +123,40 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
   },
   {
     id: 5,
+    key: 'marketing',
+    items: [
+      { key: 'google_connect', url: '/admin/google-connect', icon: MousePointerClick },
+      { key: 'ga4', url: '/admin/ga4', icon: BarChart3 },
+      { key: 'search_console', url: '/admin/search-console', icon: Search },
+      { key: 'google_ads', url: '/admin/google-ads', icon: TrendingUp },
+      { key: 'gtm', url: '/admin/gtm', icon: Tags },
+      { key: 'meta', url: '/admin/meta', icon: MousePointerClick },
+    ],
+  },
+  {
+    id: 6,
     key: 'content',
     items: [
       { key: 'custom_pages', url: '/admin/custom-pages', icon: FileText },
       { key: 'analysis_reports', url: '/admin/analysis-reports', icon: FileText },
       { key: 'authors', url: '/admin/authors', icon: Users },
       { key: 'press', url: '/admin/press', icon: Mail },
+      { key: 'popups', url: '/admin/popups', icon: MessageSquare },
       { key: 'support', url: '/admin/support', icon: HelpCircle },
     ],
   },
   {
-    id: 6,
+    id: 7,
     key: 'communication',
     items: [
       { key: 'contacts', url: '/admin/contacts', icon: Contact2 },
       { key: 'email_templates', url: '/admin/email-templates', icon: Mail },
       { key: 'newsletter', url: '/admin/newsletter', icon: Mail },
+      { key: 'twitter', url: '/admin/twitter', icon: Send },
     ],
   },
   {
-    id: 7,
+    id: 8,
     key: 'system',
     items: [
       { key: 'users', url: '/admin/users', icon: Users },
@@ -165,6 +184,7 @@ const FALLBACK_GROUP_LABELS: Record<AdminNavGroupKey, string> = {
   price_data: 'Fiyat Verileri',
   alerts_group: 'Uyarilar',
   production_data: 'Uretim Verileri',
+  marketing: 'Pazarlama & Analitik',
   content: 'İçerik',
   communication: 'İletişim',
   system: 'Sistem',
@@ -182,6 +202,12 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   competitor_monitor: 'Rakip İzleme',
   alerts: 'Uyari Listesi',
   production: 'Yillik Uretim',
+  google_connect: 'Google Bağlantısı',
+  ga4: 'GA4 Analytics',
+  search_console: 'Search Console',
+  google_ads: 'Google Ads',
+  gtm: 'Google Tag Manager',
+  meta: 'Meta Pixel + CAPI',
   custom_pages: 'Sayfalar',
   analysis_reports: 'Analiz Yazilari',
   authors: 'Yazarlar',
@@ -190,6 +216,8 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   email_templates: 'E-posta Sablonlari',
   contacts: 'İletişim Mesajları',
   newsletter: 'Bülten',
+  twitter: 'Sosyal Yayın Merkezi',
+  popups: 'Popup Yönetimi',
   users: 'Kullanicilar',
   site_settings: 'Site Ayarlari',
   storage: 'Depolama',

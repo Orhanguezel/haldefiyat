@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import path from "node:path";
 import createNextIntlPlugin from "next-intl/plugin";
+import { withSentryConfig } from "@sentry/nextjs";
 
 function apiRemotePattern() {
   const raw = process.env.NEXT_PUBLIC_API_URL;
@@ -81,4 +82,13 @@ const withNextIntl = createNextIntlPlugin({
   requestConfig: "./src/i18n/request.ts",
 });
 
-export default withNextIntl(nextConfig);
+export default withSentryConfig(withNextIntl(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+  },
+  telemetry: false,
+});

@@ -15,6 +15,14 @@ import { registerSupport, registerSupportAdmin } from "@agro/shared-backend/modu
 import { registerCustomPagesAdmin } from "@agro/shared-backend/modules/customPages";
 import { registerEmailTemplatesAdmin } from "@agro/shared-backend/modules/emailTemplates/admin.routes";
 import { registerAuditAdmin } from "@agro/shared-backend/modules/audit";
+import { registerTwitterAdmin } from "@agro/shared-backend/modules/twitter";
+import { registerGa4Admin } from "@agro/shared-backend/modules/ga4";
+import { registerSearchConsoleAdmin } from "@agro/shared-backend/modules/searchConsole";
+import { registerGtmAdmin } from "@agro/shared-backend/modules/gtm";
+import { registerGoogleAdsAdmin } from "@agro/shared-backend/modules/googleAds";
+import { registerGoogleConnectAdmin } from "@agro/shared-backend/modules/googleConnect";
+import { registerMetaAdmin } from "@agro/shared-backend/modules/meta";
+import { registerPopups, registerPopupsAdmin } from "@agro/shared-backend/modules/popups";
 
 export async function registerSharedPublic(api: FastifyInstance) {
   await registerAuth(api);
@@ -28,6 +36,7 @@ export async function registerSharedPublic(api: FastifyInstance) {
   await registerContacts(api);
   await registerNotifications(api);
   await registerSupport(api);
+  await registerPopups(api);
 }
 
 export async function registerSharedAdmin(adminApi: FastifyInstance) {
@@ -42,6 +51,14 @@ export async function registerSharedAdmin(adminApi: FastifyInstance) {
   await registerSupportAdmin(adminApi);
   await registerEmailTemplatesAdmin(adminApi);
   await registerAuditAdmin(adminApi);
+  await registerTwitterAdmin(adminApi);
+  await registerGa4Admin(adminApi);
+  await registerSearchConsoleAdmin(adminApi);
+  await registerGtmAdmin(adminApi);
+  await registerGoogleAdsAdmin(adminApi);
+  await registerGoogleConnectAdmin(adminApi);
+  await registerMetaAdmin(adminApi);
+  await registerPopupsAdmin(adminApi);
 
   const { aiContentAssist } = await import("@agro/shared-backend/modules/ai/content");
   adminApi.post("/ai/content", aiContentAssist);

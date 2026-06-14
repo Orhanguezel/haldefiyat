@@ -323,3 +323,100 @@ export {
   useGetSeoAuditAdminQuery,
   useRunSeoAuditActionAdminMutation,
 } from "@/integrations/endpoints/admin/redirects-admin-endpoints";
+
+export {
+  useGoogleConnectStatusQuery,
+  useGoogleConnectRedirectQuery,
+  useLazyGoogleConnectAuthUrlQuery,
+  useGoogleConnectExchangeMutation,
+  useGoogleConnectDisconnectMutation,
+  useGoogleConnectCredentialsMutation,
+} from "@/integrations/endpoints/admin/google-connect-admin-endpoints";
+
+export {
+  useGa4StatusQuery,
+  useGa4OverviewQuery,
+  useGa4ReportQuery,
+  useGa4RealtimeQuery,
+  useGa4ConfigQuery,
+  useGa4KeyEventsQuery,
+  useGa4CreateKeyEventMutation,
+  useGa4DeleteKeyEventMutation,
+} from "@/integrations/endpoints/admin/ga4-admin-endpoints";
+
+export {
+  useGscStatusQuery,
+  useGscSitesQuery,
+  useGscOverviewQuery,
+  useGscAnalyticsQuery,
+  useGscPageQueriesQuery,
+  useGscSitemapsQuery,
+  useGscSubmitSitemapMutation,
+  useGscDeleteSitemapMutation,
+  useGscInspectMutation,
+  useGscIndexQuery,
+  useGscIndexRefreshMutation,
+} from "@/integrations/endpoints/admin/search-console-admin-endpoints";
+
+export {
+  useGoogleAdsStatusQuery,
+  useGoogleAdsVerifyMutation,
+  useGoogleAdsCampaignsQuery,
+  useLazyGoogleAdsCampaignsQuery,
+  useGoogleAdsSetStatusMutation,
+  useGoogleAdsSetBudgetMutation,
+  useGoogleAdsInsightsQuery,
+  useGoogleAdsKeywordStatusMutation,
+  useGoogleAdsSetBiddingMutation,
+  useGoogleAdsReportQuery,
+  useGoogleAdsAccountsQuery,
+  useGoogleAdsProductsQuery,
+  useGoogleAdsConversionHealthQuery,
+  useGoogleAdsOfflineStatusQuery,
+  useGoogleAdsOfflineUploadMutation,
+  useLazyGoogleAdsAdGroupsQuery,
+  useGoogleAdsAddNegativeKeywordMutation,
+  useGoogleAdsAddKeywordMutation,
+  useGoogleAdsAssetGroupsQuery,
+  useGoogleAdsAssetGroupAssetsQuery,
+  useGoogleAdsUploadAssetMutation,
+  useGoogleAdsUploadAssetUrlMutation,
+  useGoogleAdsAddTextMutation,
+  useGoogleAdsAddVideoMutation,
+  useGoogleAdsRemoveAssetMutation,
+} from "@/integrations/endpoints/admin/google-ads-admin-endpoints";
+
+export {
+  useGtmStatusQuery,
+  useGtmOverviewQuery,
+  useGtmPublishMutation,
+} from "@/integrations/endpoints/admin/gtm-admin-endpoints";
+
+export {
+  useMetaStatusQuery,
+  useMetaSaveMutation,
+  useMetaTestMutation,
+} from "@/integrations/endpoints/admin/meta-admin-endpoints";
+
+export {
+  useTwitterStatusQuery,
+  useTwitterTemplatePreviewsQuery,
+  useTwitterVerifyMutation,
+  useTwitterSyncHistoryMutation,
+  useTwitterAiDraftMutation,
+  useTwitterSendMutation,
+  useTwitterListTweetsQuery,
+  useTwitterPlansQuery,
+  useLazyTwitterListTweetsQuery,
+  useTwitterCancelTweetMutation,
+} from "@/integrations/endpoints/admin/twitter-admin-endpoints";
+
+export {
+  useListPopupsAdminQuery,
+  useGetPopupAdminQuery,
+  useCreatePopupAdminMutation,
+  useUpdatePopupAdminMutation,
+  useDeletePopupAdminMutation,
+  useReorderPopupsAdminMutation,
+  useSetPopupStatusAdminMutation,
+} from "@/integrations/endpoints/admin/popups-admin-endpoints";

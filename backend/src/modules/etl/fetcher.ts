@@ -19,7 +19,7 @@ import { db } from "@/db/client";
 import { hfMarkets, hfProducts, hfEtlRuns } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { upsertPriceRow } from "@/modules/prices/repository";
-import { resolveProductSlug, turkishToAscii, invalidateAliasCache } from "./normalizer";
+import { resolveProductSlug, turkishToAscii, invalidateAliasCache, normalizeRawProductName } from "./normalizer";
 import type { EtlSourceConfig } from "@/config/etl-sources";
 import { env } from "@/core/env";
 import { fetchViaScraper, shouldUseScraperFor, shouldUseDynamicFor } from "./scraper-client";
@@ -2129,7 +2129,8 @@ function normalizeCategory(raw: string | null, fallback: string): string {
 }
 
 async function findOrCreateProduct(raw: NormalizedRow, source: EtlSourceConfig): Promise<{ id: number; slug: string } | null> {
-  const slug = await resolveProductSlug(raw.name);
+  const normalizedName = normalizeRawProductName(raw.name);
+  const slug = await resolveProductSlug(normalizedName);
   if (slug) {
     const rows = await db.select({ id: hfProducts.id })
       .from(hfProducts)
@@ -2139,7 +2140,7 @@ async function findOrCreateProduct(raw: NormalizedRow, source: EtlSourceConfig):
   }
   if (!env.ETL.autoRegisterProducts) return null;
 
-  const newSlug = slugify(raw.name);
+  const newSlug = slugify(normalizedName);
   if (!newSlug) return null;
 
   const unit = (raw.unit ?? source.defaultUnit).toLowerCase();
@@ -2147,14 +2148,14 @@ async function findOrCreateProduct(raw: NormalizedRow, source: EtlSourceConfig):
   // Upsert: slug unique
   await db.insert(hfProducts).values({
     slug:         newSlug,
-    nameTr:       raw.name,
+    nameTr:       normalizedName,
     categorySlug: normalizeCategory(raw.category, source.defaultCategory),
     unit,
-    aliases:      [raw.name],
+    aliases:      Array.from(new Set([raw.name, normalizedName])),
     isActive:     1,
   }).onDuplicateKeyUpdate({
     set: {
-      nameTr:       raw.name,
+      nameTr:       normalizedName,
       categorySlug: normalizeCategory(raw.category, source.defaultCategory),
       unit,
     },

@@ -22,7 +22,6 @@ import PriceTable from "@/components/ui/PriceTable";
 import FreshnessBadge from "@/components/ui/FreshnessBadge";
 import FavoriteButton from "@/components/ui/FavoriteButton";
 import ExportButton from "@/components/ui/ExportButton";
-import { getEmoji } from "@/lib/emoji";
 import { getPageMetadata } from "@/lib/seo";
 import ProductImage from "@/components/ui/ProductImage";
 import { getProductEditorial } from "@/lib/product-content";
@@ -53,8 +52,26 @@ function withBorsaFallbackProducts(products: Product[]): Product[] {
   ];
 }
 
+function titleCaseTr(input: string): string {
+  return input
+    .toLocaleLowerCase("tr-TR")
+    .split(/(\s|\(|\)|-|,)/)
+    .map((part) => {
+      if (!part || /^\s+$/u.test(part) || /^[()\-,]+$/u.test(part)) return part;
+      return part.charAt(0).toLocaleUpperCase("tr-TR") + part.slice(1);
+    })
+    .join("")
+    .replace(/\(\s+/g, "(")
+    .replace(/\s+\)/g, ")")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function getDisplayName(product: { displayName?: string | null; nameTr: string }) {
-  return product.displayName?.trim() || product.nameTr;
+  const value = (product.displayName?.trim() || product.nameTr).trim();
+  const letters = value.replace(/[^A-Za-zÇĞİÖŞÜçğıöşü]/gu, "");
+  const isAllCaps = letters.length > 1 && letters === letters.toLocaleUpperCase("tr-TR");
+  return isAllCaps ? titleCaseTr(value) : value;
 }
 
 // En güncel ortalama fiyat satırı — SERP açıklamasında canlı veri = yüksek CTR.
@@ -409,7 +426,7 @@ export default async function UrunPage({ params }: Props) {
       {(() => {
         const faqItems = [
           {
-            question: `${product.nameTr} fiyatı neden değişir?`,
+            question: `${displayName} fiyatı neden değişir?`,
             answer: `${displayName} fiyatları; hasat dönemi, hava koşulları, nakliye maliyetleri ve arz-talep dengesine göre günlük değişim gösterir. Sezon dışı dönemlerde fiyatlar belirgin biçimde yükselebilir.`,
           },
           {

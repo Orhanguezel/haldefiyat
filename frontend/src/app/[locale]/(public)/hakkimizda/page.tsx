@@ -5,6 +5,7 @@ import { BarChart3, ShieldCheck, Zap, Globe2, LineChart, Cpu, Users, BookOpen, T
 import { fetchCustomPageBySlug } from "@/lib/api";
 import { getCoverage } from "@/lib/coverage";
 import { getPageMetadata } from "@/lib/seo";
+import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -108,7 +109,7 @@ export default async function AboutPage({ params }: Props) {
                 Neden HalDeFiyat?
               </h2>
               {page?.content ? (
-                <div dangerouslySetInnerHTML={{ __html: page.content }} />
+                <div dangerouslySetInnerHTML={{ __html: sanitizeCmsHtml(page.content) }} />
               ) : (
                 <>
                   <p>

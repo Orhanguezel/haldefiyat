@@ -2,6 +2,17 @@ import { db } from "@/db/client";
 import { hfProducts } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
+const PRODUCT_NAME_SPELLING_FIXES: ReadonlyArray<{ pattern: RegExp; replacement: string }> = [
+  { pattern: /\bavakado\b/giu, replacement: "Avokado" },
+];
+
+export function normalizeRawProductName(rawName: string): string {
+  return PRODUCT_NAME_SPELLING_FIXES.reduce(
+    (value, rule) => value.replace(rule.pattern, rule.replacement),
+    rawName.replace(/\s+/g, " ").trim(),
+  );
+}
+
 // Türkçe karakter normalizasyonu: Havuç → havuc, ÜZÜM → uzum, DİĞER → diger.
 // toLocaleLowerCase('tr-TR') şart: default toLowerCase() "İ"yi combining dot
 // ile "i̇" yaparak slug'ı "di-ger" gibi kırık çıkarır.
@@ -50,7 +61,7 @@ export async function getAliasMap(): Promise<Map<string, string>> {
 // Ham API ürün adından slug bul; bulunamazsa null döner
 export async function resolveProductSlug(rawName: string): Promise<string | null> {
   const map = await getAliasMap();
-  return map.get(turkishToAscii(rawName)) ?? null;
+  return map.get(turkishToAscii(normalizeRawProductName(rawName))) ?? null;
 }
 
 // Cache'i geçersiz kıl (yeni ürün eklendikten sonra çağrılır)

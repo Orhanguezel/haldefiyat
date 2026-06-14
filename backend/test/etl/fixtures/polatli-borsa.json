@@ -1,0 +1,28 @@
+{
+  "Bulten": [
+    {
+      "UrunAdi": "Ekmeklik Bugday Anadolu Kirmizi Sert",
+      "MinFiyat": "11.000,00",
+      "MaxFiyat": "12.000,00",
+      "OrtFiyat": "11.500,00",
+      "Miktar": "10",
+      "Birimi": "TL/Ton"
+    },
+    {
+      "UrunAdi": "Ekmeklik Bugday Diger",
+      "MinFiyat": "12.000,00",
+      "MaxFiyat": "13.000,00",
+      "OrtFiyat": "12.500,00",
+      "Miktar": "30",
+      "Birimi": "TL/Ton"
+    },
+    {
+      "UrunAdi": "Arpa Beyaz",
+      "MinFiyat": "9.000,00",
+      "MaxFiyat": "10.000,00",
+      "OrtFiyat": "9.500,00",
+      "Miktar": "5",
+      "Birimi": "TL/Ton"
+    }
+  ]
+}

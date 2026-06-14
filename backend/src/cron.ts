@@ -6,7 +6,6 @@ import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
 import { checkAndNotifyEtlHealth } from "@/modules/etl/health";
 import { runCompetitorCheck } from "@/modules/competitor-monitor";
 import { publishDailyReport } from "@/modules/telegram-channel/publisher";
-import { publishDailyTweet } from "@/modules/twitter-channel/publisher";
 import { runAllProductionSources } from "@/modules/etl/production-fetcher";
 import { getSourceByKey } from "@/config/etl-sources";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
@@ -21,6 +20,7 @@ import { runFirmDailyPriceReminders } from "@/modules/firms/reminders";
 import { expireListings } from "@/modules/listings";
 import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
 import { submitToIndexNow } from "@/modules/indexnow";
+import { cleanupOldEtlRuns } from "@/modules/etl/maintenance";
 
 /**
  * Cron zamanlaması env'den gelir:
@@ -42,6 +42,8 @@ export function startCron(app: FastifyInstance): void {
     { name: "weekly-analysis",  schedule: env.ETL.weeklyAnalysisSchedule, handler: () => runWeeklyAnalysisJob(app) },
     // Haftalık SEO auto-recovery — sezonsal ürünler verisi dönünce otomatik index/çıkış
     { name: "seo-maintenance",  schedule: env.ETL.seoMaintenanceSchedule, handler: () => runSeoMaintenanceJob(app) },
+    // Aylık ETL run log retention — dashboard için son 90 gün yeterli
+    { name: "etl-retention",    schedule: env.ETL.runRetentionSchedule,    handler: () => runEtlRetentionJob(app) },
     // ANTKOMDER fiyatları öğleden sonra yayınlandığı için ikinci çalıştırma
     { name: "etl-antkomder-pm",   schedule: env.ETL.antkomderSchedule,   handler: () => runAntkomderJob(app) },
     // Rakip izleme — haftalık
@@ -69,17 +71,6 @@ export function startCron(app: FastifyInstance): void {
       handler: () => runFirmPriceReminderJob(app),
     });
   }
-  // Twitter/X gunluk trending tweet — 08:30 UTC = 11:30 TRT.
-  // Varsayilan KAPALI: @haldefiyat'a tek X kaynagi ekosistem-sosyal-medya paneli.
-  // Tekrar acmak icin VPS .env: TWITTER_ENABLED=true
-  if (env.TWITTER.enabled) {
-    tasks.push({
-      name: "twitter-daily",
-      schedule: env.ETL.twitterSchedule,
-      handler: () => runTwitterJob(app),
-    });
-  }
-
   for (const t of tasks) {
     if (!cron.validate(t.schedule)) {
       app.log.error({ task: t.name, schedule: t.schedule }, "[cron] gecersiz schedule");
@@ -246,6 +237,24 @@ async function runAlertsJob(app: FastifyInstance): Promise<void> {
   }
 }
 
+async function runEtlRetentionJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info({ retentionDays: env.ETL.runRetentionDays }, "[cron:etl-retention] eski ETL run kayitlari temizleniyor");
+  try {
+    const result = await cleanupOldEtlRuns(env.ETL.runRetentionDays);
+    app.log.info(
+      {
+        deleted: result.deleted,
+        cutoff: result.cutoff.toISOString(),
+        durationMs: Date.now() - t0,
+      },
+      "[cron:etl-retention] tamamlandi",
+    );
+  } catch (err) {
+    app.log.error({ err }, "[cron:etl-retention] hata");
+  }
+}
+
 async function runAntkomderJob(app: FastifyInstance): Promise<void> {
   const sources = ["antalya_merkez_antkomder", "antalya_serik_antkomder", "antalya_kumluca_antkomder"];
   app.log.info({ sources }, "[cron:antkomder] ogleden sonra calistiriliyor");
@@ -326,17 +335,6 @@ async function runInflationJob(app: FastifyInstance): Promise<void> {
     app.log.info({ results, durationMs: Date.now() - t0 }, "[cron:inflation] tamamlandi");
   } catch (err) {
     app.log.error({ err }, "[cron:inflation] hata");
-  }
-}
-
-async function runTwitterJob(app: FastifyInstance): Promise<void> {
-  const t0 = Date.now();
-  app.log.info("[cron:twitter] gunluk trending tweet baslatiliyor");
-  try {
-    const result = await publishDailyTweet();
-    app.log.info({ ...result, durationMs: Date.now() - t0 }, "[cron:twitter] tamamlandi");
-  } catch (err) {
-    app.log.error({ err }, "[cron:twitter] hata");
   }
 }
 

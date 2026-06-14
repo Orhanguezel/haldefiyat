@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 import type { MetadataRoute } from "next";
 import { getProductImage } from "@/lib/product-images";
@@ -50,7 +50,7 @@ interface FirmTypeSitemapItem {
 async function fetchActiveProducts(): Promise<PriceSitemapItem[]> {
   try {
     const res = await fetch(`${API_URL}/api/v1/prices/products?seoIndex=true`, {
-      cache: "no-store",
+      next: { revalidate },
       signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });
     if (!res.ok) return [];
@@ -70,7 +70,7 @@ async function fetchActiveProducts(): Promise<PriceSitemapItem[]> {
 async function fetchMarkets(): Promise<PriceSitemapItem[]> {
   try {
     const res = await fetch(`${API_URL}/api/v1/prices/markets?seoIndex=true`, {
-      cache: "no-store",
+      next: { revalidate },
       signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });
     if (!res.ok) return [];
@@ -95,7 +95,7 @@ async function fetchFirms(): Promise<FirmSitemapItem[]> {
     for (let page = 0; page < MAX_PAGES; page++) {
       const offset = page * PAGE;
       const res = await fetch(`${API_URL}/api/v1/firms?limit=${PAGE}&offset=${offset}`, {
-        cache: "no-store",
+        next: { revalidate },
         signal: AbortSignal.timeout(FETCH_TIMEOUT),
       });
       if (!res.ok) break;
@@ -115,7 +115,7 @@ async function fetchFirms(): Promise<FirmSitemapItem[]> {
 async function fetchFirmCities(): Promise<FirmCitySitemapItem[]> {
   try {
     const res = await fetch(`${API_URL}/api/v1/firms/cities`, {
-      cache: "no-store",
+      next: { revalidate },
       signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });
     if (!res.ok) return [];
@@ -129,7 +129,7 @@ async function fetchFirmCities(): Promise<FirmCitySitemapItem[]> {
 async function fetchFirmTypes(): Promise<FirmTypeSitemapItem[]> {
   try {
     const res = await fetch(`${API_URL}/api/v1/firms/types`, {
-      cache: "no-store",
+      next: { revalidate },
       signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });
     if (!res.ok) return [];

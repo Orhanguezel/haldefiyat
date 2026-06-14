@@ -1,0 +1,120 @@
+{
+  "title": "Popup Yönetimi",
+  "description": "Topbar, sidebar ve sayfa popup'larını yönet.",
+  "tabs": {
+    "content": "İçerik",
+    "styling": "Görünüm",
+    "behavior": "Davranış",
+    "seo": "SEO / Görsel"
+  },
+  "filters": {
+    "searchPlaceholder": "Başlık veya içerik ara...",
+    "onlyActive": "Sadece aktif",
+    "type": "Tür",
+    "allTypes": "Tümü",
+    "type_topbar": "Topbar",
+    "type_sidebar_top": "Sidebar Üst",
+    "type_sidebar_center": "Sidebar Orta",
+    "type_sidebar_bottom": "Sidebar Alt"
+  },
+  "actions": {
+    "back": "Geri",
+    "save": "Kaydet",
+    "create": "Yeni Popup",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "refresh": "Yenile",
+    "activate": "Aktifleştir",
+    "deactivate": "Devre Dışı"
+  },
+  "table": {
+    "order": "Sıra",
+    "title": "Başlık",
+    "type": "Tür",
+    "active": "Aktif",
+    "schedule": "Zamanlama",
+    "frequency": "Gösterim",
+    "actions": "İşlemler"
+  },
+  "list": {
+    "empty": "Henüz popup eklenmemiş.",
+    "refreshing": "Yenileniyor...",
+    "loading": "Yükleniyor..."
+  },
+  "detail": {
+    "newTitle": "Yeni Popup",
+    "editTitle": "Popup Düzenle",
+    "contentTitle": "İçerik Bilgileri",
+    "stylingTitle": "Renk ve Görünüm",
+    "behaviorTitle": "Davranış Ayarları",
+    "seoTitle": "SEO & Görsel",
+    "imageHelp": "Popup görseli storage üzerinden uploads/popups klasörüne yüklenir."
+  },
+  "form": {
+    "title": "Başlık",
+    "titlePlaceholder": "Popup başlığı",
+    "content": "İçerik",
+    "contentPlaceholder": "Popup içeriği (HTML destekler)",
+    "type": "Popup Türü",
+    "typeOptions": {
+      "topbar": "Topbar",
+      "sidebar_top": "Sidebar Üst",
+      "sidebar_center": "Sidebar Orta",
+      "sidebar_bottom": "Sidebar Alt"
+    },
+    "backgroundColor": "Arka Plan Rengi",
+    "textColor": "Yazı Rengi",
+    "buttonText": "Buton Metni",
+    "buttonTextPlaceholder": "Ör: Detaylı Bilgi",
+    "buttonColor": "Buton Rengi",
+    "buttonHoverColor": "Buton Hover Rengi",
+    "buttonTextColor": "Buton Yazı Rengi",
+    "linkUrl": "Bağlantı URL",
+    "linkUrlPlaceholder": "https://...",
+    "linkTarget": "Bağlantı Hedefi",
+    "linkTargetOptions": {
+      "_self": "Aynı Sayfa",
+      "_blank": "Yeni Sekme"
+    },
+    "targetPaths": "Hedef Sayfalar",
+    "targetPathsPlaceholder": "Her satıra bir yol (ör: /urunler/*)",
+    "targetPathsHelp": "Boş bırakılırsa tüm sayfalarda gösterilir. Wildcard: /urunler/*",
+    "imageUrl": "Görsel URL",
+    "imageUrlPlaceholder": "https://...",
+    "imageAssetId": "Depolama Asset ID",
+    "imageUpload": "Popup Görseli",
+    "alt": "Alt Metin",
+    "altPlaceholder": "Görsel alternatif metni",
+    "textBehavior": "Metin Davranışı",
+    "textBehaviorOptions": {
+      "static": "Sabit",
+      "marquee": "Kayan Yazı"
+    },
+    "scrollSpeed": "Kayma Hızı (px/s)",
+    "closeable": "Kapatılabilir",
+    "delaySeconds": "Gecikme (saniye)",
+    "displayFrequency": "Gösterim Sıklığı",
+    "displayFrequencyOptions": {
+      "always": "Her Zaman",
+      "once": "Bir Kez",
+      "daily": "Günde Bir"
+    },
+    "isActive": "Aktif",
+    "displayOrder": "Sıralama",
+    "startAt": "Başlangıç Tarihi",
+    "endAt": "Bitiş Tarihi"
+  },
+  "messages": {
+    "created": "Popup oluşturuldu.",
+    "updated": "Popup güncellendi.",
+    "deleted": "Popup silindi.",
+    "requiredError": "Başlık zorunludur.",
+    "errorPrefix": "Hata",
+    "unknownError": "Bilinmeyen bir hata oluştu.",
+    "confirmDelete": "'{title}' popup'ını silmek istediğine emin misin?",
+    "deleteError": "Popup silinirken hata oluştu.",
+    "statusChanged": "Popup durumu güncellendi.",
+    "reorderSuccess": "Sıralama güncellendi.",
+    "aiApplied": "AI içerik uygulandı."
+  }
+}

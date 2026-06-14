@@ -19,11 +19,11 @@ function capRange(range: string | undefined, maxDays: number): string {
   return `${Math.min(days, maxDays)}d`;
 }
 
-/**
- * En son fiyat kaydının tarihi. DB boşsa null.
- * Frontend'in "son veri X gün öncesine ait" mesajı için de kullanılır.
- */
-export async function latestRecordedDate(): Promise<string | null> {
+const LATEST_RECORDED_DATE_CACHE_MS = 5_000;
+let latestRecordedDateCache: { value: string | null; expiresAt: number } | null = null;
+let latestRecordedDateInFlight: Promise<string | null> | null = null;
+
+async function queryLatestRecordedDate(): Promise<string | null> {
   const rows = await db
     .select({ d: sql<string | Date | null>`MAX(${hfPriceHistory.recordedDate})` })
     .from(hfPriceHistory);
@@ -31,6 +31,35 @@ export async function latestRecordedDate(): Promise<string | null> {
   if (!raw) return null;
   if (raw instanceof Date) return raw.toISOString().slice(0, 10);
   return String(raw).slice(0, 10);
+}
+
+/**
+ * En son fiyat kaydının tarihi. DB boşsa null.
+ * Frontend'in "son veri X gün öncesine ait" mesajı için de kullanılır.
+ */
+export async function latestRecordedDate(): Promise<string | null> {
+  const now = Date.now();
+  if (latestRecordedDateCache && latestRecordedDateCache.expiresAt > now) {
+    return latestRecordedDateCache.value;
+  }
+
+  if (latestRecordedDateInFlight) {
+    return latestRecordedDateInFlight;
+  }
+
+  latestRecordedDateInFlight = queryLatestRecordedDate()
+    .then((value) => {
+      latestRecordedDateCache = {
+        value,
+        expiresAt: Date.now() + LATEST_RECORDED_DATE_CACHE_MS,
+      };
+      return value;
+    })
+    .finally(() => {
+      latestRecordedDateInFlight = null;
+    });
+
+  return latestRecordedDateInFlight;
 }
 
 function isoDate(raw: unknown): string | null {

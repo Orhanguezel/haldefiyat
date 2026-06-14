@@ -120,9 +120,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const types = await fetchFirmTypes();
     const total = types.find((item) => item.firmType === type)?.total ?? 0;
     const meta = TYPE_META[type];
-    return getPageMetadata("firmalar", {
+    return getPageMetadata(["firmalar_tip", "firmalar"], {
       locale,
       pathname: `/firmalar/${slug}`,
+      vars: {
+        type: meta.h1,
+      },
       title: meta.title.replace(" — Firma", ` — ${total} Firma`),
       description: `${meta.h1}: ${total} aktif firma. Telefon, adres ve şehir bazlı firma rehberi.`,
       robots: { index: true, follow: true },
@@ -132,9 +135,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ctx = await cityContext(slug);
   if (!ctx) notFound();
   const total = ctx.aggregate?.total ?? ctx.firmPage.meta.total;
-  return getPageMetadata("firmalar", {
+  return getPageMetadata(["firmalar_sehir", "firmalar"], {
     locale,
     pathname: `/firmalar/${slug}`,
+    vars: {
+      city: ctx.cityName,
+      year: String(YEAR),
+    },
     title: `${ctx.cityName} Hal Komisyoncuları ${YEAR} — ${total} Firma, İletişim & Adres`,
     description: `${ctx.cityName} halindeki ${total} komisyoncu ve firma: telefon, adres, çalıştıkları ürünler. ${ctx.cityName} hal güncel sebze meyve fiyatları.`,
     robots: total >= 5 ? { index: true, follow: true } : { index: false, follow: true },
