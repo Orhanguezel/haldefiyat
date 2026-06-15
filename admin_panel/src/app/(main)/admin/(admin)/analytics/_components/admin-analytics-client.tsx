@@ -228,6 +228,8 @@ export default function AdminAnalyticsClient() {
                     <TableHead className="text-right">D+1</TableHead>
                     <TableHead className="text-right">D+3</TableHead>
                     <TableHead className="text-right">D+7</TableHead>
+                    <TableHead className="text-right">D+14</TableHead>
+                    <TableHead className="text-right">D+30</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -244,9 +246,15 @@ export default function AdminAnalyticsClient() {
                       <TableCell className="text-right">
                         {fmtNumber(row.d7)} <span className="text-muted-foreground">({fmtPct(row.d7Pct)})</span>
                       </TableCell>
+                      <TableCell className="text-right">
+                        {fmtNumber(row.d14)} <span className="text-muted-foreground">({fmtPct(row.d14Pct)})</span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {fmtNumber(row.d30)} <span className="text-muted-foreground">({fmtPct(row.d30Pct)})</span>
+                      </TableCell>
                     </TableRow>
                   ))}
-                  {!retentionQ.isFetching && (retention?.cohorts?.length ?? 0) === 0 && <EmptyRow colSpan={5} />}
+                  {!retentionQ.isFetching && (retention?.cohorts?.length ?? 0) === 0 && <EmptyRow colSpan={7} />}
                 </TableBody>
               </Table>
             </CardContent>

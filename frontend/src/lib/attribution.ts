@@ -36,7 +36,8 @@ function getCookie(name: string): string | null {
 function setCookie(name: string, value: string, maxAgeSeconds: number): void {
   if (!canUseBrowser()) return;
   const secure = window.location.protocol === "https:" ? "; Secure" : "";
-  document.cookie = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax${secure}`;
+  const domain = window.location.hostname.endsWith("haldefiyat.com") ? "; Domain=.haldefiyat.com" : "";
+  document.cookie = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax${secure}${domain}`;
 }
 
 export function getAttribution(): AttributionData | null {

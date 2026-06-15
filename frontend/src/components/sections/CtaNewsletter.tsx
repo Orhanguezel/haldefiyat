@@ -54,7 +54,7 @@ export default function CtaNewsletter() {
       }
 
       setState({ kind: "success" });
-      trackConversion("newsletter_signup", { method: "newsletter_cta" }, { email: trimmed });
+      trackConversion("newsletter_signup", { event_label: "newsletter_cta", method: "newsletter_cta" }, { email: trimmed });
       setEmail("");
     } catch (err) {
       const message =

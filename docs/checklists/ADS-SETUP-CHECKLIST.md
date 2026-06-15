@@ -74,11 +74,11 @@ Eski Gmail relay (info@vistaseeds.com.tr) DKIM/SPF uyumsuzluğu sebebiyle Gmail 
 **Sorun:** Şu an "Maksimum Tıklama" optimizasyonu yapılıyor — conversion data yok. İlerde "Maksimum Dönüşüm" stratejisine geçmek için event'ler lazım.
 
 **Yapılacak (GA4 + Google Ads):**
-- [ ] `newsletter_signup` — `/uyarilar` form submit
-- [ ] `pro_upgrade` — `/pro` checkout başarılı
-- [ ] `embed_inquiry` — `/embed` form submit
-- [ ] `price_alert_created` — fiyat alarmı kayıt
-- [ ] Backend `success` response sonrası `window.gtag('event', 'newsletter_signup')` tetikle
+- [x] `newsletter_signup` — `/uyarilar` form submit
+- [x] `pro_inquiry` — `/pro` ana CTA
+- [x] `urun_favorited` — ürün favoriye ekleme
+- [x] `price_alert_created` — fiyat alarmı kayıt
+- [x] Backend `success` response sonrası `window.gtag('event', 'newsletter_signup')` tetikle
 - [ ] Google Ads → Araçlar → Dönüşümler → her event'i conversion action olarak ekle
 
 ---

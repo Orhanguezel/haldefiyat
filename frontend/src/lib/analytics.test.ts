@@ -67,6 +67,9 @@ describe("attribution and conversion analytics", () => {
       "newsletter_signup",
       expect.objectContaining({
         currency: "TRY",
+        event_category: "conversion",
+        event_label: "live_prices_landing",
+        value: 30,
         method: "live_prices_landing",
         gclid: "test123",
         utm_source: "google",
@@ -82,9 +85,9 @@ describe("attribution and conversion analytics", () => {
   it("supports all Google Ads conversion event names", () => {
     const events: ConversionEventName[] = [
       "newsletter_signup",
-      "pro_upgrade",
-      "embed_inquiry",
       "price_alert_created",
+      "pro_inquiry",
+      "urun_favorited",
     ];
 
     for (const eventName of events) {
@@ -97,6 +100,7 @@ describe("attribution and conversion analytics", () => {
         eventName,
         expect.objectContaining({
           currency: "TRY",
+          event_label: "contract_test",
           method: "contract_test",
         }),
       );
@@ -115,6 +119,7 @@ describe("attribution and conversion analytics", () => {
       "newsletter_signup",
       expect.objectContaining({
         method: "newsletter_cta",
+        event_label: "newsletter_cta",
         user_data: {
           email_address: "b4c9a289323b21a01c3e940f150eb9b8c542587f1abfd8f0e1cc1ffc5e475514",
         },

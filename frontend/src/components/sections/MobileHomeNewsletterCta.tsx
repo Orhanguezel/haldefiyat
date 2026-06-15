@@ -28,7 +28,7 @@ export default function MobileHomeNewsletterCta() {
         body: JSON.stringify({ email: trimmed }),
       });
       if (!res.ok) throw new Error("subscribe_failed");
-      trackConversion("newsletter_signup", { method: "mobile_home_sticky" }, { email: trimmed });
+      trackConversion("newsletter_signup", { event_label: "mobile_home_sticky", method: "mobile_home_sticky" }, { email: trimmed });
       setEmail("");
       setState("success");
     } catch {

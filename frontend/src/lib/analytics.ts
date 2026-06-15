@@ -4,9 +4,11 @@ import { getAttribution } from "@/lib/attribution";
 
 export type ConversionEventName =
   | "newsletter_signup"
+  | "price_alert_created"
+  | "pro_inquiry"
+  | "urun_favorited"
   | "pro_upgrade"
-  | "embed_inquiry"
-  | "price_alert_created";
+  | "embed_inquiry";
 
 type ConversionParams = Record<string, string | number | boolean | null | undefined>;
 
@@ -19,6 +21,19 @@ declare global {
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
   }
+}
+
+const EVENT_VALUE: Record<ConversionEventName, number> = {
+  price_alert_created: 50,
+  newsletter_signup: 30,
+  pro_inquiry: 40,
+  urun_favorited: 10,
+  pro_upgrade: 40,
+  embed_inquiry: 35,
+};
+
+function eventCategory(eventName: ConversionEventName): "conversion" | "engagement" {
+  return eventName === "urun_favorited" ? "engagement" : "conversion";
 }
 
 async function sha256Lower(text: string): Promise<string | null> {
@@ -43,6 +58,9 @@ export function trackConversion(
 
   const attribution = getAttribution();
   const eventParams: ConversionParams & { user_data?: { email_address: string } } = {
+    event_category: eventCategory(eventName),
+    event_label: params.event_label ?? params.product_slug ?? params.method ?? "",
+    value: params.value ?? EVENT_VALUE[eventName],
     currency: "TRY",
     ...params,
   };

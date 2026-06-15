@@ -7,6 +7,7 @@ import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceTable from "@/components/ui/PriceTable";
 import ExportButton from "@/components/ui/ExportButton";
+import PriceListNewsletterStrip from "@/components/sections/PriceListNewsletterStrip";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -124,6 +125,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
         </div>
         <ExportButton params={{ range: "7d" }} />
       </div>
+      <PriceListNewsletterStrip />
       <PriceTable
         initialPricePage={pricePage}
         markets={markets}

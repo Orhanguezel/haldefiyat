@@ -20,6 +20,10 @@ export default function robots(): MetadataRoute.Robots {
         disallow: "/",
       },
       {
+        userAgent: "PetalBot",
+        disallow: "/",
+      },
+      {
         userAgent: "CCBot",
         allow: "/",
         disallow: ["/api/", "/_next/"],

@@ -40,7 +40,11 @@ export default function LivePriceNewsletter() {
       }
 
       setState("success");
-      trackConversion("newsletter_signup", { method: "live_prices_landing" }, { email: trimmed });
+      trackConversion(
+        "newsletter_signup",
+        { event_label: "landing_canli_hal_fiyatlari", method: "live_prices_landing" },
+        { email: trimmed },
+      );
       setEmail("");
     } catch (err) {
       setState({ error: err instanceof Error ? err.message : "Kayıt alınamadı." });

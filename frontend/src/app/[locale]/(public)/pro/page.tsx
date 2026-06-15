@@ -3,6 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import { getPageMetadata } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import PageContainer from "@/components/layout/PageContainer";
+import TrackedConversionLink from "@/components/analytics/TrackedConversionLink";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -135,12 +136,14 @@ export default async function ProPage({ params }: Props) {
               </li>
             ))}
           </ul>
-          <Link
+          <TrackedConversionLink
             href={`/${locale}/iletisim?subject=Pro%20Plan%20Talebi`}
+            eventName="pro_inquiry"
+            eventLabel="pro_main_cta"
             className="block text-center rounded-lg bg-emerald-500 text-white px-4 py-2.5 text-sm font-medium hover:bg-emerald-600 transition"
           >
             Pro&apos;ya Geç
-          </Link>
+          </TrackedConversionLink>
         </div>
       </section>
 

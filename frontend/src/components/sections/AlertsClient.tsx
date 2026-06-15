@@ -78,11 +78,12 @@ export default function AlertsClient() {
       trackConversion(
         "price_alert_created",
         {
+          event_label: form.productSlug,
           product_slug: form.productSlug,
           market_slug: form.marketSlug || null,
           channel: form.channel,
           direction: form.direction,
-          value: Number.parseFloat(form.thresholdPrice),
+          threshold_price: Number.parseFloat(form.thresholdPrice),
         },
         { email: form.contactEmail || null },
       );

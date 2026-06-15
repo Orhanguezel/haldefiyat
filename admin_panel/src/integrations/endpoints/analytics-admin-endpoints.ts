@@ -89,6 +89,10 @@ export interface AnalyticsRetentionResponse {
     d3Pct: number;
     d7: number;
     d7Pct: number;
+    d14: number;
+    d14Pct: number;
+    d30: number;
+    d30Pct: number;
   }>;
 }
 

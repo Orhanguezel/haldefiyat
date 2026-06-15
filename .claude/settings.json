@@ -220,7 +220,12 @@
       "Bash(sed -n '1356,1370p' src/modules/etl/fetcher.ts)",
       "Bash(git -C /home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari show a08bb038:CLAUDE.md)",
       "Bash(awk '{print $NF}')",
-      "Bash(git rebase *)"
+      "Bash(git rebase *)",
+      "Bash(pdfinfo analiz-31-mayis-05-haziran-2026.pdf)",
+      "Bash(python3 -c \"import reportlab; print\\('reportlab', reportlab.Version\\)\")",
+      "Bash(python3 /tmp/md2pdf_hal.py analiz-06-15-haziran-2026.md analiz-06-15-haziran-2026.pdf)",
+      "Bash(pdfinfo analiz-06-15-haziran-2026.pdf)",
+      "Bash(bunx eslint *)"
     ],
     "additionalDirectories": [
       "/home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/(public)",

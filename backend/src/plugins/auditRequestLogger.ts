@@ -2,6 +2,7 @@ import fp from "fastify-plugin";
 import type { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
 import type { RowDataPacket } from "mysql2";
 import geoip from "geoip-lite";
+import { isBotUserAgent, isInternalIpValue } from "@agro/shared-backend/modules/audit/helpers";
 
 type RequestWithUser = FastifyRequest & {
   user?: unknown;
@@ -15,9 +16,10 @@ type RequestWithUser = FastifyRequest & {
 type UserRecord = Record<string, unknown>;
 
 const requestStarts = new WeakMap<FastifyRequest, bigint>();
-const ATTRIBUTION_COLUMNS = ["gclid", "utm_source", "utm_medium", "utm_campaign", "utm_content"] as const;
+const ATTRIBUTION_COLUMNS = ["gclid", "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
 let hasAttributionColumnsCache: boolean | null = null;
 let hasApiKeyIdColumnCache: boolean | null = null;
+let hasBotInternalColumnsCache: boolean | null = null;
 
 interface AuditColumnRow extends RowDataPacket {
   Field: string;
@@ -170,6 +172,21 @@ async function auditApiKeyIdColumnExists(app: FastifyInstance): Promise<boolean>
   }
 }
 
+async function auditBotInternalColumnsExist(app: FastifyInstance): Promise<boolean> {
+  if (hasBotInternalColumnsCache !== null) return hasBotInternalColumnsCache;
+
+  try {
+    const [rows] = await app.db.query<AuditColumnRow[]>(
+      "SHOW COLUMNS FROM audit_request_logs WHERE Field IN ('is_bot', 'is_internal')",
+    );
+    hasBotInternalColumnsCache = rows.length === 2;
+    return hasBotInternalColumnsCache;
+  } catch {
+    hasBotInternalColumnsCache = false;
+    return false;
+  }
+}
+
 function responseTimeMs(req: FastifyRequest): number {
   const start = requestStarts.get(req);
   if (!start) return 0;
@@ -221,6 +238,9 @@ export const auditRequestLoggerPlugin: FastifyPluginAsync = fp(async (app) => {
       const ip = normalizeClientIp(req);
       const { userId, isAdmin } = normalizeUser(req);
       const { country, city } = resolveGeo(req, ip);
+      const userAgent = firstHeader(req, "user-agent") || null;
+      const isBot = isBotUserAgent(userAgent) ? 1 : 0;
+      const isInternal = isInternalIpValue(ip, country) ? 1 : 0;
       const auditError = (req as RequestWithUser).auditError;
       const statusCode = Number(reply.statusCode || reply.raw.statusCode || 0);
       const errorMessage =
@@ -236,7 +256,7 @@ export const auditRequestLoggerPlugin: FastifyPluginAsync = fp(async (app) => {
         statusCode,
         responseTimeMs(req),
         ip,
-        firstHeader(req, "user-agent") || null,
+        userAgent,
         (req as RequestWithUser).auditPageview?.referer ?? firstHeader(req, "referer") ?? null,
         userId,
         isAdmin,
@@ -252,52 +272,33 @@ export const auditRequestLoggerPlugin: FastifyPluginAsync = fp(async (app) => {
           attr(searchParams, "utm_medium"),
           attr(searchParams, "utm_campaign"),
           attr(searchParams, "utm_content"),
+          attr(searchParams, "utm_term"),
       ];
 
       const hasAttributionColumns = await auditAttributionColumnsExist(app);
       const hasApiKeyIdColumn = await auditApiKeyIdColumnExists(app);
+      const hasBotInternalColumns = await auditBotInternalColumnsExist(app);
 
-      if (hasAttributionColumns && hasApiKeyIdColumn) {
-        await app.db.query(
-          `INSERT INTO audit_request_logs
-            (req_id, method, url, path, status_code, response_time_ms, ip, user_agent, referer,
-             user_id, is_admin, country, city, error_message, error_code, request_body,
-             api_key_id, gclid, utm_source, utm_medium, utm_campaign, utm_content)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [...baseValues, (req as RequestWithUser).auditApiKeyId ?? null, ...attributionValues],
-        );
-        return;
-      }
+      const columns = [
+        "req_id", "method", "url", "path", "status_code", "response_time_ms", "ip", "user_agent", "referer",
+        "user_id", "is_admin",
+        ...(hasBotInternalColumns ? ["is_bot", "is_internal"] : []),
+        "country", "city", "error_message", "error_code", "request_body",
+        ...(hasApiKeyIdColumn ? ["api_key_id"] : []),
+        ...(hasAttributionColumns ? ["gclid", "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] : []),
+      ];
 
-      if (hasAttributionColumns) {
-        await app.db.query(
-          `INSERT INTO audit_request_logs
-            (req_id, method, url, path, status_code, response_time_ms, ip, user_agent, referer,
-             user_id, is_admin, country, city, error_message, error_code, request_body,
-             gclid, utm_source, utm_medium, utm_campaign, utm_content)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [...baseValues, ...attributionValues],
-        );
-        return;
-      }
-
-      if (hasApiKeyIdColumn) {
-        await app.db.query(
-          `INSERT INTO audit_request_logs
-            (req_id, method, url, path, status_code, response_time_ms, ip, user_agent, referer,
-             user_id, is_admin, country, city, error_message, error_code, request_body, api_key_id)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [...baseValues, (req as RequestWithUser).auditApiKeyId ?? null],
-        );
-        return;
-      }
-
+      const values = [
+        ...baseValues.slice(0, 11),
+        ...(hasBotInternalColumns ? [isBot, isInternal] : []),
+        ...baseValues.slice(11),
+        ...(hasApiKeyIdColumn ? [(req as RequestWithUser).auditApiKeyId ?? null] : []),
+        ...(hasAttributionColumns ? attributionValues : []),
+      ];
       await app.db.query(
-        `INSERT INTO audit_request_logs
-          (req_id, method, url, path, status_code, response_time_ms, ip, user_agent, referer,
-           user_id, is_admin, country, city, error_message, error_code, request_body)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        baseValues,
+        `INSERT INTO audit_request_logs (${columns.map((column) => `\`${column}\``).join(", ")})
+         VALUES (${columns.map(() => "?").join(", ")})`,
+        values,
       );
     } catch (err) {
       req.log.warn({ err }, "audit_request_log_failed");
