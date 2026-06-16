@@ -357,6 +357,7 @@ export {
   useCreateHfProductAdminMutation,
   useDeleteHfProductAdminMutation,
   useGetHfProductAdminQuery,
+  useGetMergeSuggestionsAdminQuery,
   useListHfProductsAdminQuery,
   useMergeHfProductsAdminMutation,
   useUpdateHfProductAdminMutation,

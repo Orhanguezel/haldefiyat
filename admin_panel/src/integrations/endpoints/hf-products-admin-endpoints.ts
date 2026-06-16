@@ -120,9 +120,34 @@ export const hfProductsAdminApi = baseApi.injectEndpoints({
       query: (body) => ({ url: "/admin/hal/products/merge", method: "POST", body }),
       invalidatesTags: [{ type: "HfProducts" as const, id: "LIST" }],
     }),
+    getMergeSuggestionsAdmin: builder.query<
+      {
+        count: number;
+        clusters: Array<{
+          signature: string;
+          master: HfProductMergeCandidate;
+          variants: HfProductMergeCandidate[];
+        }>;
+      },
+      void
+    >({
+      query: () => ({ url: "/admin/hal/products/merge-suggestions" }),
+      providesTags: [{ type: "HfProducts" as const, id: "SUGGESTIONS" }],
+    }),
   }),
   overrideExisting: false,
 });
+
+export type HfProductMergeCandidate = {
+  id: number;
+  slug: string;
+  nameTr: string;
+  displayName: string | null;
+  seoIndex: number;
+  dataQuality: number;
+  searchVolume: number;
+  hal: number;
+};
 
 export const {
   useListHfProductsAdminQuery,
@@ -134,4 +159,5 @@ export const {
   useUpdateHfProductEditorialAdminMutation,
   useAutocompleteHfProductsQuery,
   useMergeHfProductsAdminMutation,
+  useGetMergeSuggestionsAdminQuery,
 } = hfProductsAdminApi;

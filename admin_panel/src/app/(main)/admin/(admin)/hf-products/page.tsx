@@ -4,7 +4,7 @@ import { type ReactNode, useMemo, useState } from "react";
 
 import Link from "next/link";
 
-import { Edit, Plus, Search } from "lucide-react";
+import { Edit, GitMerge, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useListHfProductsAdminQuery, useMergeHfProductsAdminMutation } from "@/integrations/hooks";
+
+import { MergeSuggestionsPanel } from "./_components/merge-suggestions-panel";
 
 const ALL = "all";
 
@@ -35,6 +37,7 @@ export default function Page() {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [masterId, setMasterId] = useState<string>("");
   const [merge, mergeState] = useMergeHfProductsAdminMutation();
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const query = {
     q: q.trim() || undefined,
@@ -133,12 +136,22 @@ export default function Page() {
               kalite {stats.avgQuality}
             </p>
           </div>
-          <Button asChild size="sm">
-            <Link href="/admin/hf-products/new">
-              <Plus className="mr-2 size-4" />
-              Yeni ürün
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant={showSuggestions ? "secondary" : "outline"}
+              onClick={() => setShowSuggestions((v) => !v)}
+            >
+              <GitMerge className="mr-2 size-4" />
+              Birleştirme önerileri
+            </Button>
+            <Button asChild size="sm">
+              <Link href="/admin/hf-products/new">
+                <Plus className="mr-2 size-4" />
+                Yeni ürün
+              </Link>
+            </Button>
+          </div>
         </div>
         <div className="grid gap-2 md:grid-cols-[minmax(200px,1fr)_150px_140px_140px_150px]">
           <div className="relative">
@@ -196,6 +209,7 @@ export default function Page() {
         </div>
       </CardHeader>
       <CardContent>
+        {showSuggestions && <MergeSuggestionsPanel onClose={() => setShowSuggestions(false)} />}
         {selected.size >= 2 && (
           <div className="mb-3 flex flex-wrap items-center gap-2 rounded-md border bg-muted/40 p-2">
             <span className="font-medium text-sm">{selected.size} ürün seçili → birleştir</span>
