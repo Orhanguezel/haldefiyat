@@ -215,6 +215,18 @@ export default async function UrunPage({ params }: Props) {
     .sort((a, b) => a.displayName.localeCompare(b.displayName, "tr"));
   const isClusterMaster = variants.length >= 5;
 
+  // İç linkleme: aynı kategoriden indexlenebilir kardeş ürünler. Rotasyonlu pencere
+  // (her ürün kendinden sonraki 12'yi linkler) → link eşit dağılır, az-linkli niş
+  // sayfalar da komşularından inbound link alır (crawl + otorite sinyali).
+  const categorySiblings = products
+    .filter((p) => p.categorySlug === product.categorySlug && !p.canonicalSlug && (p.seoIndex === 1 || p.seoIndex === true))
+    .sort((a, b) => a.slug.localeCompare(b.slug, "tr"));
+  const selfIdx = categorySiblings.findIndex((p) => p.slug === slug);
+  const relatedProducts = (selfIdx >= 0
+    ? [...categorySiblings.slice(selfIdx + 1), ...categorySiblings.slice(0, selfIdx)]
+    : categorySiblings
+  ).slice(0, 12);
+
   const [history, todayPrices, editorial, borsaPricePage, resmiPrices] = await Promise.all([
     // 5 yıl history — PriceChart kendi içinde 7G/30G/90G filtreler;
     // SeasonCompare aynı veriden yıl grupları çıkarır (en az 2 yıl lazım).
@@ -491,6 +503,24 @@ export default async function UrunPage({ params }: Props) {
                 <span className="mt-0.5 block text-xs text-muted">
                   {variant.categorySlug} · {variant.unit}
                 </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {relatedProducts.length > 0 && (
+        <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5">
+          <h2 className="text-base font-semibold text-foreground">Aynı kategoriden ürünler</h2>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {relatedProducts.map((p) => (
+              <Link
+                key={p.slug}
+                href={`/urun/${p.slug}`}
+                className="rounded-lg border border-border-soft bg-background/40 px-3 py-2 text-sm transition-colors hover:border-brand/40"
+              >
+                <span className="font-medium text-foreground">{getDisplayName(p)}</span>
+                <span className="mt-0.5 block text-xs text-muted">güncel hal fiyatı</span>
               </Link>
             ))}
           </div>
