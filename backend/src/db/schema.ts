@@ -49,6 +49,7 @@ export const hfProducts = mysqlTable(
     aliases:      json("aliases").$type<string[]>(),
     displayName:  varchar("display_name", { length: 160 }),
     canonicalSlug: varchar("canonical_slug", { length: 128 }),
+    familySlug:   varchar("family_slug", { length: 128 }),
     seoIndex:     tinyint("seo_index").notNull().default(0),
     dataQuality:  tinyint("data_quality").notNull().default(0),
     searchVolume: int("search_volume").notNull().default(0),
@@ -61,6 +62,7 @@ export const hfProducts = mysqlTable(
     uniqueIndex("hf_products_slug_uq").on(t.slug),
     index("hf_products_category_idx").on(t.categorySlug),
     index("hf_products_canonical_idx").on(t.canonicalSlug),
+    index("hf_products_family_idx").on(t.familySlug),
     index("hf_products_seo_idx").on(t.seoIndex, t.displayOrder),
   ],
 );

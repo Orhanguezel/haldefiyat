@@ -11,6 +11,7 @@ export type HfProductItem = {
   seoIndex: number | boolean;
   displayName: string | null;
   canonicalSlug: string | null;
+  familySlug: string | null;
   dataQuality: number;
   searchVolume: number;
   displayOrder: number;
@@ -26,6 +27,7 @@ export type HfProductPayload = {
   seoIndex?: boolean;
   displayName?: string | null;
   canonicalSlug?: string | null;
+  familySlug?: string | null;
   dataQuality?: number;
   searchVolume?: number;
   displayOrder?: number;

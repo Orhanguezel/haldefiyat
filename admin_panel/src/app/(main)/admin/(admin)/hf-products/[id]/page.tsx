@@ -112,6 +112,7 @@ export default function Page() {
     seoIndex: false,
     displayName: "",
     canonicalSlug: "",
+    familySlug: "",
     dataQuality: "0",
     searchVolume: "0",
     displayOrder: "0",
@@ -130,6 +131,7 @@ export default function Page() {
       seoIndex: Boolean(data.seoIndex),
       displayName: data.displayName || "",
       canonicalSlug: data.canonicalSlug || "",
+      familySlug: data.familySlug || "",
       dataQuality: String(data.dataQuality ?? 0),
       searchVolume: String(data.searchVolume ?? 0),
       displayOrder: String(data.displayOrder ?? 0),
@@ -194,6 +196,7 @@ export default function Page() {
     seoIndex: form.seoIndex,
     displayName: form.displayName.trim() || null,
     canonicalSlug: form.canonicalSlug.trim() || null,
+    familySlug: form.familySlug.trim() || null,
     dataQuality: Number(form.dataQuality || 0),
     searchVolume: Number(form.searchVolume || 0),
     displayOrder: Number(form.displayOrder || 0),
@@ -413,6 +416,18 @@ export default function Page() {
                   value={form.canonicalSlug}
                   onChange={(e) => setForm((p) => ({ ...p, canonicalSlug: e.target.value }))}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label>Çeşit ailesi (family slug)</Label>
+                <Input
+                  placeholder="örn. biber (tüm biber çeşitleri için aynı)"
+                  value={form.familySlug}
+                  onChange={(e) => setForm((p) => ({ ...p, familySlug: e.target.value }))}
+                />
+                <p className="text-muted-foreground text-xs">
+                  Aynı aile slug'lı ürünler ürün sayfasında "çeşit seçici" ile birbirine bağlanır (her biri kendi
+                  sayfasında kalır). Canonical'dan farklı: canonical = aynı şey, family = farklı çeşitler.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label>Veri kalitesi</Label>

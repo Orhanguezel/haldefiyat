@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `hf_products` (
   `aliases`       JSON             DEFAULT NULL COMMENT 'Türkçe varyant listesi normalizer için',
   `display_name`  VARCHAR(160)     DEFAULT NULL COMMENT 'Insancil baslik. NULL ise name_tr Title-Case fallback',
   `canonical_slug` VARCHAR(128)    DEFAULT NULL COMMENT 'Master urune yonlendirme hedefi. NULL = bu kayit master',
+  `family_slug`   VARCHAR(128)     DEFAULT NULL COMMENT 'Cesit ailesi (orn. tum biber cesitleri family=biber) - aile secici icin',
   `seo_index`     TINYINT(1)       NOT NULL DEFAULT 0 COMMENT 'Sitemap ve index havuzuna dahil mi',
   `data_quality`  TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '0-100 otomatik veri kalite skoru',
   `search_volume` INT UNSIGNED     NOT NULL DEFAULT 0 COMMENT 'Manuel aylik arama hacmi tahmini',
@@ -45,6 +46,7 @@ CREATE TABLE IF NOT EXISTS `hf_products` (
   UNIQUE KEY `hf_products_slug_uq` (`slug`),
   KEY `hf_products_category_idx` (`category_slug`),
   KEY `hf_products_canonical_idx` (`canonical_slug`),
+  KEY `hf_products_family_idx` (`family_slug`),
   KEY `hf_products_seo_idx` (`seo_index`, `display_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
