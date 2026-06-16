@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 
 import Link from "next/link";
 
@@ -27,6 +27,8 @@ export default function Page() {
   const [category, setCategory] = useState(ALL);
   const [isActive, setIsActive] = useState(ALL);
   const [seoIndex, setSeoIndex] = useState(ALL);
+  const [sortKey, setSortKey] = useState<"name" | "category" | "quality" | "search">("name");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   const query = {
     q: q.trim() || undefined,
@@ -48,6 +50,40 @@ export default function Page() {
       : 0;
     return { indexed, active, avgQuality };
   }, [items]);
+
+  const sortedItems = useMemo(() => {
+    const arr = [...items];
+    arr.sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === "name")
+        cmp = (a.displayName || a.nameTr || "").localeCompare(b.displayName || b.nameTr || "", "tr");
+      else if (sortKey === "category") cmp = (a.categorySlug || "").localeCompare(b.categorySlug || "", "tr");
+      else if (sortKey === "quality") cmp = Number(a.dataQuality ?? 0) - Number(b.dataQuality ?? 0);
+      else cmp = Number(a.searchVolume ?? 0) - Number(b.searchVolume ?? 0);
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+    return arr;
+  }, [items, sortKey, sortDir]);
+
+  const toggleSort = (key: typeof sortKey) => {
+    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(key);
+      setSortDir(key === "quality" || key === "search" ? "desc" : "asc");
+    }
+  };
+  const SortHead = ({ k, children, className }: { k: typeof sortKey; children: ReactNode; className?: string }) => (
+    <TableHead className={className}>
+      <button
+        type="button"
+        onClick={() => toggleSort(k)}
+        className="inline-flex items-center gap-1 hover:text-foreground"
+      >
+        {children}
+        <span className="text-muted-foreground text-xs">{sortKey === k ? (sortDir === "asc" ? "▲" : "▼") : "↕"}</span>
+      </button>
+    </TableHead>
+  );
 
   return (
     <Card className="rounded-lg">
@@ -115,12 +151,12 @@ export default function Page() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Ad</TableHead>
+              <SortHead k="name">Ad</SortHead>
               <TableHead>Slug</TableHead>
-              <TableHead>Kategori</TableHead>
+              <SortHead k="category">Kategori</SortHead>
               <TableHead>Birim</TableHead>
-              <TableHead>Kalite</TableHead>
-              <TableHead>Arama</TableHead>
+              <SortHead k="quality">Kalite</SortHead>
+              <SortHead k="search">Arama</SortHead>
               <TableHead>SEO</TableHead>
               <TableHead className="w-24 text-right">İşlem</TableHead>
             </TableRow>
@@ -136,7 +172,7 @@ export default function Page() {
                 <TableCell colSpan={8}>Kayıt bulunamadı.</TableCell>
               </TableRow>
             )}
-            {items.map((item) => (
+            {sortedItems.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>
                   <Link className="text-primary" href={`/admin/hf-products/${item.id}`}>
