@@ -454,25 +454,35 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const id = Number(req.params.id);
     const parsed = productBody.safeParse(req.body);
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz govde", details: parsed.error.flatten() });
-    await db
-      .update(hfProducts)
-      .set({
-        slug: parsed.data.slug,
-        nameTr: parsed.data.nameTr,
-        categorySlug: parsed.data.categorySlug,
-        unit: parsed.data.unit,
-        aliases: parsed.data.aliases,
-        seoIndex: parsed.data.seoIndex ? 1 : 0,
-        displayName: parsed.data.displayName?.trim() || null,
-        canonicalSlug: parsed.data.canonicalSlug?.trim() || null,
-        familySlug: parsed.data.familySlug?.trim() || null,
-        dataQuality: parsed.data.dataQuality,
-        searchVolume: parsed.data.searchVolume,
-        displayOrder: parsed.data.displayOrder,
-        isActive: parsed.data.isActive ? 1 : 0,
-      })
-      .where(eq(hfProducts.id, id));
-    return reply.send({ ok: true });
+    try {
+      await db
+        .update(hfProducts)
+        .set({
+          slug: parsed.data.slug,
+          nameTr: parsed.data.nameTr,
+          categorySlug: parsed.data.categorySlug,
+          unit: parsed.data.unit,
+          aliases: parsed.data.aliases,
+          seoIndex: parsed.data.seoIndex ? 1 : 0,
+          displayName: parsed.data.displayName?.trim() || null,
+          canonicalSlug: parsed.data.canonicalSlug?.trim() || null,
+          familySlug: parsed.data.familySlug?.trim() || null,
+          dataQuality: parsed.data.dataQuality,
+          searchVolume: parsed.data.searchVolume,
+          displayOrder: parsed.data.displayOrder,
+          isActive: parsed.data.isActive ? 1 : 0,
+        })
+        .where(eq(hfProducts.id, id));
+      return reply.send({ ok: true });
+    } catch (err) {
+      // Slug benzersiz — başka üründe varsa rename çakışır. Rename yerine merge önerilir.
+      if (err instanceof Error && /ER_DUP_ENTRY|Duplicate entry/i.test(err.message)) {
+        return reply.status(409).send({
+          error: `"${parsed.data.slug}" slug'ı zaten başka bir üründe kullanılıyor. Yanlış yazımı düzeltmek için bu ürünü doğru ürünle birleştirin (Birleştirme önerileri).`,
+        });
+      }
+      throw err;
+    }
   });
 
   app.delete<{ Params: { id: string } }>("/hal/products/:id", async (req, reply) => {
