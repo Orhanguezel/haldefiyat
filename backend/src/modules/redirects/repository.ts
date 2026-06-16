@@ -325,19 +325,23 @@ export async function runSeoIndexMaintenance() {
     WHERE p.is_active = 1
   `);
 
+  // Kalite > nicelik: index için ≥3 market şartı. Tek/iki marketli "thin" sayfaları
+  // Google zaten "Discovered - not indexed" yapıyor (sıfır trafik) → indexlemeye zorlamak
+  // crawl bütçesi israfı. ≥3 market = anlamlı fiyat karşılaştırması. Self-healing: market
+  // kazanan ürün (örn. sezonu açılan balık) sonraki çalıştırmada geri index'lenir.
   const up = await db.execute(sql`
     UPDATE hf_products p
     JOIN hf_product_editorial e ON e.product_slug = p.slug AND e.published_at IS NOT NULL
-    JOIN (SELECT product_id, COUNT(*) pr FROM hf_price_history WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY product_id) s ON s.product_id = p.id
+    JOIN (SELECT product_id, COUNT(*) pr, COUNT(DISTINCT market_id) mc FROM hf_price_history WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY product_id) s ON s.product_id = p.id
     SET p.seo_index = 1
-    WHERE p.canonical_slug IS NULL AND p.data_quality >= 70 AND s.pr > 0 AND p.seo_index = 0
+    WHERE p.canonical_slug IS NULL AND p.data_quality >= 70 AND s.pr > 0 AND s.mc >= 3 AND p.seo_index = 0
   `);
 
   const down = await db.execute(sql`
     UPDATE hf_products p
-    LEFT JOIN (SELECT product_id, COUNT(*) pr FROM hf_price_history WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY product_id) s ON s.product_id = p.id
+    LEFT JOIN (SELECT product_id, COUNT(*) pr, COUNT(DISTINCT market_id) mc FROM hf_price_history WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY product_id) s ON s.product_id = p.id
     SET p.seo_index = 0
-    WHERE p.seo_index = 1 AND p.canonical_slug IS NULL AND COALESCE(s.pr,0) = 0
+    WHERE p.seo_index = 1 AND p.canonical_slug IS NULL AND (COALESCE(s.pr,0) = 0 OR COALESCE(s.mc,0) < 3)
   `);
 
   const affected = (r: unknown) => Number((Array.isArray(r) ? (r[0] as { affectedRows?: number }) : null)?.affectedRows ?? 0);
