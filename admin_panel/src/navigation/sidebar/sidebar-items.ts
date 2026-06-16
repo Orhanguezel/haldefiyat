@@ -163,7 +163,6 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
       { key: 'storage', url: '/admin/storage', icon: HardDrive },
       { key: 'telegram', url: '/admin/telegram', icon: Send },
       { key: 'audit', url: '/admin/audit', icon: MessageSquare },
-      { key: 'analytics', url: '/admin/analytics', icon: TrendingUp },
     ],
   },
 ];
@@ -221,7 +220,6 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   storage: 'Depolama',
   telegram: 'Telegram',
   audit: 'Komuta Merkezi',
-  analytics: 'Analytics',
 };
 
 export const ADMIN_NAV_ROUTE_MAP: Record<AdminNavItemKey, string> = adminNavConfig

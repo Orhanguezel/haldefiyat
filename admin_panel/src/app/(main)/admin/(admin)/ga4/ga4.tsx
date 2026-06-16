@@ -13,6 +13,7 @@ import { OverviewTab } from './ga4-overview-tab';
 import { AcquisitionTab, EcommerceTab, EngagementTab, EventsTab } from './ga4-report-tabs';
 import { RealtimeTab } from './ga4-realtime-tab';
 import { SettingsTab } from './ga4-settings-tab';
+import AdminAnalyticsClient from './_components/admin-analytics-client';
 
 export default function Ga4Page() {
   const t = useAdminT('admin.ga4');
@@ -55,6 +56,7 @@ export default function Ga4Page() {
           <TabsTrigger value="events">{t('tabs.events')}</TabsTrigger>
           <TabsTrigger value="conversions">{t('tabs.conversions')}</TabsTrigger>
           <TabsTrigger value="ecommerce">{t('tabs.ecommerce')}</TabsTrigger>
+          <TabsTrigger value="site">Site Analitiği</TabsTrigger>
           <TabsTrigger value="settings">{t('tabs.settings')}</TabsTrigger>
         </TabsList>
         <TabsContent value="overview"><OverviewTab ov={ov} report={report} loading={isFetching} t={t} /></TabsContent>
@@ -64,6 +66,7 @@ export default function Ga4Page() {
         <TabsContent value="events"><EventsTab report={report} t={t} onMakeKey={makeKeyEvent} /></TabsContent>
         <TabsContent value="conversions"><ConversionsTab t={t} presetEvent={presetEvent} /></TabsContent>
         <TabsContent value="ecommerce"><EcommerceTab report={report} t={t} /></TabsContent>
+        <TabsContent value="site"><AdminAnalyticsClient /></TabsContent>
         <TabsContent value="settings"><SettingsTab t={t} /></TabsContent>
       </Tabs>
     </div>
