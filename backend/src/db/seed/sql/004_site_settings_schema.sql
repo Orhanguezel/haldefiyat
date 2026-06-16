@@ -36,6 +36,7 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'google_ads_id',      '*', '"702-033-4476"'),
 (UUID(), 'search_console_property', '*', '"haldefiyat.com"'),
 (UUID(), 'gsc_site_url',         '*', '"sc-domain:haldefiyat.com"'),
+(UUID(), 'public_base_url',      '*', '"https://haldefiyat.com"'),
 (UUID(), 'contact_phone',      '*', '"+90 530 048 41 83"'),
 (UUID(), 'contact_email',      '*', '"iletisim@haldefiyat.com"'),
 (UUID(), 'social_telegram',    '*', '"https://t.me/haldefiyat"');
