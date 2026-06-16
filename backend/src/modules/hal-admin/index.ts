@@ -549,26 +549,28 @@ export async function registerHalAdmin(app: FastifyInstance) {
     return reply.send({ ok: true, master: master.slug, merged: variants.map((v) => v.slug), editorialMovedFrom });
   });
 
-  // Auto-merge önerici: master ürünleri isim-imzasına göre kümeler → dublike adayları.
-  // Sadece gürültü qualifier'ları (yerli/sera/ithal/adet...) temizlenir; deniz/kültür/donuk
-  // gibi anlamlı ayrımlar KORUNUR (yanlış birleştirme olmasın). Kullanıcı her kümeyi onaylar.
+  // Auto-merge önerici: ürünleri KÖK İSME göre aileler halinde kümeler (dağınık varyantlar
+  // — "Kırmızı Marul", "Aysberg Marul", bozuk ETL isimleri — tek ailede toplanır). Kök isim =
+  // ürün isim token'ları içinden global frekansı en yüksek olan (marul/fasulye/elma her varyantta
+  // tekrarlandığı için niteleyicilerden ayrışır). Niteleyiciler (taze/kırmızı/yerli...) kök adayı
+  // olamaz. Aile içinde kullanıcı çoklu master seçip alt-alt birleştirir.
   app.get("/hal/products/merge-suggestions", async (_req, reply) => {
-    const STOP = new Set([
-      "yerli", "sera", "ithal", "adet", "paket", "tane", "kg", "kilogram", "kasa", "gr",
-      "normal", "muhtelif", "ikinci", "birinci", "iyi", "tarim", "kucukboy", "buyukboy",
+    // Kök isim adayı OLAMAYACAK niteleyiciler (renk/tazelik/menşe/boy/birim/jenerik).
+    const QUALIFIER = new Set([
+      "yerli", "sera", "ithal", "adet", "paket", "tane", "kg", "kilogram", "kasa", "gr", "kilo", "koli", "demet", "bas",
+      "normal", "muhtelif", "ikinci", "birinci", "iyi", "tarim", "kucukboy", "buyukboy", "kucuk", "buyuk", "orta", "iri",
+      "taze", "kuru", "donuk", "dondurulmus", "kirmizi", "yesil", "sari", "beyaz", "mor", "siyah", "pembe", "turuncu",
+      "deniz", "kultur", "koy", "karadeniz", "marmara", "ege", "akdeniz", "kalite", "ekstra", "diger", "cesit", "karisik",
+      "organik", "salata", "salat", "yagli", "kop", "ince", "kalin",
     ]);
-    const sig = (name: string): string => {
-      const ascii = name
+    const tokenize = (name: string): string[] =>
+      name
         .toLocaleLowerCase("tr")
         .replace(/ç/g, "c").replace(/ğ/g, "g").replace(/ı/g, "i").replace(/ö/g, "o").replace(/ş/g, "s").replace(/ü/g, "u")
-        .replace(/\([^)]*\)/g, " ")
-        .replace(/[^a-z0-9\s]/g, " ");
-      const toks = ascii
+        .replace(/[^a-z0-9\s]/g, " ")
         .split(/\s+/)
-        .map((t) => t.replace(/(lik|luk)$/, "")) // -lık nominalizer (dolmalik→dolma)
-        .filter((t) => t.length >= 3 && !STOP.has(t));
-      return Array.from(new Set(toks)).sort().join(" ");
-    };
+        .map((t) => t.replace(/(lik|luk)$/, ""))
+        .filter((t) => t.length >= 3 && !QUALIFIER.has(t));
 
     const rowsRes = await db.execute(sql`
       SELECT p.id, p.slug, p.name_tr AS nameTr, p.display_name AS displayName, p.seo_index AS seoIndex,
@@ -580,23 +582,49 @@ export async function registerHalAdmin(app: FastifyInstance) {
     type P = { id: number; slug: string; nameTr: string; displayName: string | null; seoIndex: number; dataQuality: number; searchVolume: number; hal: number };
     const products = (Array.isArray(rowsRes) ? rowsRes[0] : rowsRes) as unknown as P[];
 
+    // 1) global token frekansı
+    const freq = new Map<string, number>();
+    const tokensOf = new Map<number, string[]>();
+    for (const p of products) {
+      const toks = tokenize(p.displayName || p.nameTr);
+      tokensOf.set(p.id, toks);
+      for (const t of new Set(toks)) freq.set(t, (freq.get(t) ?? 0) + 1);
+    }
+    // 2) her ürün için kök = en yüksek frekanslı token (eşitlikte en kısa)
+    const baseOf = (p: P): string => {
+      const toks = tokensOf.get(p.id) ?? [];
+      if (!toks.length) return "";
+      return toks.reduce((best, t) => {
+        const fb = freq.get(best) ?? 0;
+        const ft = freq.get(t) ?? 0;
+        if (ft > fb) return t;
+        if (ft === fb && t.length < best.length) return t;
+        return best;
+      });
+    };
+
     const groups = new Map<string, P[]>();
     for (const p of products) {
-      const s = sig(p.displayName || p.nameTr);
-      if (!s) continue;
-      const arr = groups.get(s);
+      const base = baseOf(p);
+      if (!base) continue;
+      const arr = groups.get(base);
       if (arr) arr.push(p);
-      else groups.set(s, [p]);
+      else groups.set(base, [p]);
     }
 
     const clusters = [];
     for (const [signature, members] of groups) {
       if (members.length < 2) continue;
-      members.sort((a, b) => Number(b.hal) - Number(a.hal) || Number(b.dataQuality) - Number(a.dataQuality));
+      // Master adayı = en çok hal; sonra benzer isimler yan yana dursun diye isme göre sırala.
+      members.sort(
+        (a, b) =>
+          Number(b.hal) - Number(a.hal) ||
+          (a.displayName || a.nameTr).localeCompare(b.displayName || b.nameTr, "tr"),
+      );
       const [master, ...variants] = members;
-      clusters.push({ signature, master, variants });
+      clusters.push({ signature, master, variants, size: members.length });
     }
-    clusters.sort((a, b) => b.variants.length - a.variants.length);
+    clusters.sort((a, b) => b.size - a.size);
     return reply.send({ count: clusters.length, clusters });
   });
 
