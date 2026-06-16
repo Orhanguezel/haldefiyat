@@ -135,8 +135,8 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'google_ads_client_id', '*', '""'),
 (UUID(), 'google_ads_client_secret', '*', '""'),
 (UUID(), 'google_ads_refresh_token', '*', '""'),
-(UUID(), 'google_ads_customer_id', '*', '"9410576390"'),
-(UUID(), 'google_ads_login_customer_id', '*', '""'),
+(UUID(), 'google_ads_customer_id', '*', '"7020334476"'),
+(UUID(), 'google_ads_login_customer_id', '*', '"5200994833"'),
 (UUID(), 'google_oauth_redirect', '*', '"https://haldefiyat.com/admin/google-connect/callback"'),
 (UUID(), 'google_oauth_connected_at', '*', '""')
 ON DUPLICATE KEY UPDATE `value` = VALUES(`value`);

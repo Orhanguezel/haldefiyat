@@ -33,7 +33,7 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'gtm_container_id',   '*', '"GTM-K3WDGHX5"'),
 -- Referans (frontend tuketmiyor; admin/raporlama icin tenant kaydi tam olsun)
 (UUID(), 'ga4_property_id',    '*', '"538279658"'),
-(UUID(), 'google_ads_id',      '*', '"941-057-6390"'),
+(UUID(), 'google_ads_id',      '*', '"702-033-4476"'),
 (UUID(), 'search_console_property', '*', '"haldefiyat.com"'),
 (UUID(), 'contact_phone',      '*', '"+90 530 048 41 83"'),
 (UUID(), 'contact_email',      '*', '"iletisim@haldefiyat.com"'),
