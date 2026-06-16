@@ -29,6 +29,7 @@ export default function Page() {
   const [category, setCategory] = useState(ALL);
   const [isActive, setIsActive] = useState(ALL);
   const [seoIndex, setSeoIndex] = useState(ALL);
+  const [variantFilter, setVariantFilter] = useState(ALL);
   const [sortKey, setSortKey] = useState<"name" | "category" | "quality" | "search">("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -50,14 +51,22 @@ export default function Page() {
   const stats = useMemo(() => {
     const indexed = items.filter((item) => Boolean(item.seoIndex)).length;
     const active = items.filter((item) => Boolean(item.isActive)).length;
+    const variants = items.filter((item) => Boolean(item.canonicalSlug)).length;
     const avgQuality = items.length
       ? Math.round(items.reduce((sum, item) => sum + Number(item.dataQuality ?? 0), 0) / items.length)
       : 0;
-    return { indexed, active, avgQuality };
+    return { indexed, active, variants, avgQuality };
   }, [items]);
 
+  // slug → ürün (varyantın master'ına admin linki için)
+  const bySlug = useMemo(() => new Map(items.map((item) => [item.slug, item])), [items]);
+
   const sortedItems = useMemo(() => {
-    const arr = [...items];
+    const arr = items.filter((item) => {
+      if (variantFilter === "variant") return Boolean(item.canonicalSlug);
+      if (variantFilter === "master") return !item.canonicalSlug;
+      return true;
+    });
     arr.sort((a, b) => {
       let cmp = 0;
       if (sortKey === "name")
@@ -68,7 +77,7 @@ export default function Page() {
       return sortDir === "asc" ? cmp : -cmp;
     });
     return arr;
-  }, [items, sortKey, sortDir]);
+  }, [items, sortKey, sortDir, variantFilter]);
 
   const toggleSort = (key: typeof sortKey) => {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -120,7 +129,8 @@ export default function Page() {
           <div>
             <CardTitle className="text-base">Hal ürünleri</CardTitle>
             <p className="mt-1 text-muted-foreground text-sm">
-              {items.length} ürün · {stats.active} aktif · {stats.indexed} index · ortalama kalite {stats.avgQuality}
+              {items.length} ürün · {stats.active} aktif · {stats.indexed} index · {stats.variants} varyant · ortalama
+              kalite {stats.avgQuality}
             </p>
           </div>
           <Button asChild size="sm">
@@ -130,7 +140,7 @@ export default function Page() {
             </Link>
           </Button>
         </div>
-        <div className="grid gap-2 md:grid-cols-[minmax(220px,1fr)_180px_150px_150px]">
+        <div className="grid gap-2 md:grid-cols-[minmax(200px,1fr)_150px_140px_140px_150px]">
           <div className="relative">
             <Search className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-3 size-4 text-muted-foreground" />
             <Input
@@ -171,6 +181,16 @@ export default function Page() {
               <SelectItem value={ALL}>Index + noindex</SelectItem>
               <SelectItem value="index">Index</SelectItem>
               <SelectItem value="noindex">Noindex</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={variantFilter} onValueChange={setVariantFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Varyant" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>Tümü</SelectItem>
+              <SelectItem value="master">Bağımsız / master</SelectItem>
+              <SelectItem value="variant">Sadece varyantlar (301)</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -261,11 +281,22 @@ export default function Page() {
                   </TableCell>
                   <TableCell>{item.searchVolume ?? 0}</TableCell>
                   <TableCell>
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap items-center gap-1">
                       {item.canonicalSlug ? (
-                        <Badge variant="secondary" title={`Varyant → ${item.canonicalSlug}`}>
-                          Varyant
-                        </Badge>
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                          <Badge variant="secondary">Varyant</Badge>
+                          <Link
+                            className="text-primary text-xs"
+                            href={
+                              bySlug.get(item.canonicalSlug)
+                                ? `/admin/hf-products/${bySlug.get(item.canonicalSlug)?.id}`
+                                : "/admin/hf-products"
+                            }
+                            title="Master ürüne git"
+                          >
+                            301 → {item.canonicalSlug}
+                          </Link>
+                        </span>
                       ) : (
                         <Badge variant={item.seoIndex ? "default" : "outline"}>
                           {item.seoIndex ? "Index" : "Noindex"}
