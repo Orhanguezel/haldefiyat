@@ -25,7 +25,6 @@ export type AdminPermissionKey =
   | 'admin.audit'
   | 'admin.analytics'
   | 'admin.competitor_monitor'
-  | 'admin.redirects'
   | 'admin.google_connect'
   | 'admin.ga4'
   | 'admin.search_console'
@@ -61,7 +60,6 @@ export type AdminNavKey =
   | 'audit'
   | 'analytics'
   | 'competitor_monitor'
-  | 'redirects'
   | 'google_connect'
   | 'ga4'
   | 'search_console'
@@ -98,7 +96,6 @@ const ADMIN_PERMISSION_ROLE_MAP: Record<AdminPermissionKey, PanelRole[]> = {
   'admin.audit': ADMIN_ONLY,
   'admin.analytics': ADMIN_ONLY,
   'admin.competitor_monitor': ADMIN_ONLY,
-  'admin.redirects': ADMIN_ONLY,
   'admin.google_connect': ADMIN_ONLY,
   'admin.ga4': ADMIN_ONLY,
   'admin.search_console': ADMIN_ONLY,
@@ -139,7 +136,6 @@ const ADMIN_NAV_PERMISSION_MAP: Partial<Record<AdminNavKey, AdminPermissionKey>>
   audit: 'admin.audit',
   analytics: 'admin.analytics',
   competitor_monitor: 'admin.competitor_monitor',
-  redirects: 'admin.redirects',
   google_connect: 'admin.google_connect',
   ga4: 'admin.ga4',
   search_console: 'admin.search_console',
@@ -181,7 +177,6 @@ const ADMIN_PERMISSION_PATHS: Record<AdminPermissionKey, string[]> = {
   'admin.audit': ['/admin/audit'],
   'admin.analytics': ['/admin/analytics'],
   'admin.competitor_monitor': ['/admin/competitor-monitor'],
-  'admin.redirects': ['/admin/redirects'],
   'admin.google_connect': ['/admin/google-connect'],
   'admin.ga4': ['/admin/ga4'],
   'admin.search_console': ['/admin/search-console'],

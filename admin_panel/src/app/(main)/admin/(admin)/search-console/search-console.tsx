@@ -17,6 +17,7 @@ import { IndexTab } from './gsc-index-tab';
 import { OverviewTab } from './gsc-overview-tab';
 import { SitemapTab } from './gsc-sitemap-tab';
 import { RowTable } from './gsc-tables';
+import { SeoOpsPanel } from './_components/seo-ops-panel';
 
 export default function SearchConsolePage() {
   const t = useAdminT('admin.searchConsole');
@@ -77,6 +78,7 @@ export default function SearchConsolePage() {
           <TabsTrigger value="index">{t('tabs.index')}</TabsTrigger>
           <TabsTrigger value="queries">{t('tabs.queries')}</TabsTrigger>
           <TabsTrigger value="sitemaps">{t('tabs.sitemaps')}</TabsTrigger>
+          <TabsTrigger value="seo-ops">İçerik / Yönlendirme</TabsTrigger>
         </TabsList>
         <TabsContent value="overview"><OverviewTab data={analytics} loading={isFetching} t={t} /></TabsContent>
         <TabsContent value="index"><IndexTab site={activeSite} t={t} /></TabsContent>
@@ -104,6 +106,7 @@ export default function SearchConsolePage() {
             </CardContent></Card>
         </TabsContent>
         <TabsContent value="sitemaps"><SitemapTab items={sm?.items ?? []} site={activeSite} t={t} /></TabsContent>
+        <TabsContent value="seo-ops"><SeoOpsPanel /></TabsContent>
       </Tabs>
     </div>
   );

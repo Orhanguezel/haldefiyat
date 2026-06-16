@@ -225,7 +225,12 @@
       "Bash(python3 -c \"import reportlab; print\\('reportlab', reportlab.Version\\)\")",
       "Bash(python3 /tmp/md2pdf_hal.py analiz-06-15-haziran-2026.md analiz-06-15-haziran-2026.pdf)",
       "Bash(pdfinfo analiz-06-15-haziran-2026.pdf)",
-      "Bash(bunx eslint *)"
+      "Bash(bunx eslint *)",
+      "WebFetch(domain:www.aydinticaretborsasi.org.tr)",
+      "WebFetch(domain:www.tmo.gov.tr)",
+      "Bash(grep -rnoE \"const B|B =|\\\\.\\(get|post\\)\\\\\\(\\\\`[^\\\\`]+\" admin.routes.ts)",
+      "Bash(grep -A 40 \"CREATE TABLE \\\\`posts\\\\`\" /home/orhan/Documents/Projeler/wiribude/docs/wiribu_db.sql)",
+      "Bash(git mv *)"
     ],
     "additionalDirectories": [
       "/home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/(public)",

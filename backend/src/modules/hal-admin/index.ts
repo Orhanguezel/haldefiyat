@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { and, asc, desc, eq, like, sql } from "drizzle-orm";
+import { and, asc, desc, eq, like, or, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/db/client";
@@ -10,6 +10,7 @@ import {
   hfEtlRuns,
   hfMarkets,
   hfPriceHistory,
+  hfProductEditorial,
   hfProducts,
 } from "@/db/schema";
 import { loadEtlSources } from "@/config/etl-sources";
@@ -89,6 +90,19 @@ const productBody = z.object({
   searchVolume: z.coerce.number().int().min(0).optional().default(0),
   displayOrder: z.coerce.number().int().optional().default(0),
   isActive: boolish.default(true),
+});
+
+const productEditorialBody = z.object({
+  aboutMd: z.string().optional().default(""),
+  priceFactorsMd: z.string().optional().default(""),
+  seasonMd: z.string().optional().default(""),
+  productionRegionMd: z.string().optional().default(""),
+  qualityIndicatorsMd: z.string().optional().nullable(),
+  culinaryUsesMd: z.string().optional().nullable(),
+  relatedSlugs: z.array(z.string().min(1)).optional().default([]),
+  source: z.enum(["manual", "ai_draft", "ai_reviewed"]).optional().default("manual"),
+  reviewedBy: z.string().max(36).optional().nullable(),
+  published: boolish.default(false),
 });
 
 const marketBody = z.object({
@@ -364,6 +378,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
         q: z.string().optional(),
         category: z.string().optional(),
         isActive: boolish,
+        seoIndex: boolish,
       })
       .safeParse(req.query);
     if (!query.success) return reply.status(400).send({ error: "Gecersiz sorgu" });
@@ -371,8 +386,15 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const conds = [];
     if (query.data.category) conds.push(eq(hfProducts.categorySlug, query.data.category));
     if (query.data.isActive != null) conds.push(eq(hfProducts.isActive, query.data.isActive ? 1 : 0));
+    if (query.data.seoIndex != null) conds.push(eq(hfProducts.seoIndex, query.data.seoIndex ? 1 : 0));
     const q = likeSafe(query.data.q);
-    if (q) conds.push(like(hfProducts.nameTr, `%${q}%`));
+    if (q) {
+      conds.push(or(
+        like(hfProducts.nameTr, `%${q}%`),
+        like(hfProducts.slug, `%${q}%`),
+        like(hfProducts.displayName, `%${q}%`),
+      ));
+    }
 
     const items = await db
       .select()
@@ -438,6 +460,86 @@ export async function registerHalAdmin(app: FastifyInstance) {
   app.delete<{ Params: { id: string } }>("/hal/products/:id", async (req, reply) => {
     const id = Number(req.params.id);
     await db.delete(hfProducts).where(eq(hfProducts.id, id));
+    return reply.send({ ok: true });
+  });
+
+  app.get<{ Params: { id: string } }>("/hal/products/:id/editorial", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz id" });
+
+    const productRows = await db.select({ slug: hfProducts.slug }).from(hfProducts).where(eq(hfProducts.id, id)).limit(1);
+    const product = productRows[0];
+    if (!product) return reply.status(404).send({ error: "Urun bulunamadi" });
+
+    const rows = await db.select().from(hfProductEditorial).where(eq(hfProductEditorial.productSlug, product.slug)).limit(1);
+    const row = rows[0];
+    if (!row) {
+      return reply.send({
+        productSlug: product.slug,
+        aboutMd: "",
+        priceFactorsMd: "",
+        seasonMd: "",
+        productionRegionMd: "",
+        qualityIndicatorsMd: "",
+        culinaryUsesMd: "",
+        relatedSlugs: [],
+        source: "manual",
+        reviewedBy: null,
+        reviewedAt: null,
+        publishedAt: null,
+      });
+    }
+
+    return reply.send({
+      ...row,
+      relatedSlugs: Array.isArray(row.relatedSlugs) ? row.relatedSlugs : [],
+      reviewedAt: row.reviewedAt instanceof Date ? row.reviewedAt.toISOString() : row.reviewedAt,
+      publishedAt: row.publishedAt instanceof Date ? row.publishedAt.toISOString() : row.publishedAt,
+    });
+  });
+
+  app.put<{ Params: { id: string } }>("/hal/products/:id/editorial", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz id" });
+
+    const productRows = await db.select({ slug: hfProducts.slug }).from(hfProducts).where(eq(hfProducts.id, id)).limit(1);
+    const product = productRows[0];
+    if (!product) return reply.status(404).send({ error: "Urun bulunamadi" });
+
+    const parsed = productEditorialBody.safeParse(req.body);
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz govde", details: parsed.error.flatten() });
+    const b = parsed.data;
+    const now = sql`CURRENT_TIMESTAMP(3)`;
+
+    await db.insert(hfProductEditorial).values({
+      productSlug: product.slug,
+      aboutMd: b.aboutMd.trim(),
+      priceFactorsMd: b.priceFactorsMd.trim(),
+      seasonMd: b.seasonMd.trim(),
+      productionRegionMd: b.productionRegionMd.trim(),
+      qualityIndicatorsMd: b.qualityIndicatorsMd?.trim() || null,
+      culinaryUsesMd: b.culinaryUsesMd?.trim() || null,
+      relatedSlugs: b.relatedSlugs,
+      source: b.source,
+      reviewedBy: b.reviewedBy?.trim() || null,
+      reviewedAt: b.published ? now : null,
+      publishedAt: b.published ? now : null,
+    }).onDuplicateKeyUpdate({
+      set: {
+        aboutMd: b.aboutMd.trim(),
+        priceFactorsMd: b.priceFactorsMd.trim(),
+        seasonMd: b.seasonMd.trim(),
+        productionRegionMd: b.productionRegionMd.trim(),
+        qualityIndicatorsMd: b.qualityIndicatorsMd?.trim() || null,
+        culinaryUsesMd: b.culinaryUsesMd?.trim() || null,
+        relatedSlugs: b.relatedSlugs,
+        source: b.source,
+        reviewedBy: b.reviewedBy?.trim() || null,
+        reviewedAt: b.published ? now : null,
+        publishedAt: b.published ? now : null,
+      },
+    });
+
     return reply.send({ ok: true });
   });
 

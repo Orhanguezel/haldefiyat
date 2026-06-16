@@ -18,7 +18,6 @@ import {
   MessageSquare,
   MousePointerClick,
   Package,
-  Route,
   Search,
   Send,
   Settings,
@@ -165,7 +164,6 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
       { key: 'telegram', url: '/admin/telegram', icon: Send },
       { key: 'audit', url: '/admin/audit', icon: MessageSquare },
       { key: 'analytics', url: '/admin/analytics', icon: TrendingUp },
-      { key: 'redirects', url: '/admin/redirects', icon: Route },
     ],
   },
 ];
@@ -224,7 +222,6 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   telegram: 'Telegram',
   audit: 'Komuta Merkezi',
   analytics: 'Analytics',
-  redirects: 'SEO / Yönlendirme',
 };
 
 export const ADMIN_NAV_ROUTE_MAP: Record<AdminNavItemKey, string> = adminNavConfig

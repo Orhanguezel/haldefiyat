@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { toast } from 'sonner';
-import { Loader2, Trash2, Route, Search } from 'lucide-react';
+import { Loader2, Trash2, Search } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,7 +47,7 @@ import {
   type SeoAuditItemDto,
 } from '@/integrations/shared';
 
-export default function RedirectsPage() {
+export function SeoOpsPanel() {
   const [typeFilter, setTypeFilter] = React.useState<'all' | RedirectType>('all');
   const [search, setSearch] = React.useState('');
   const [form, setForm] = React.useState<{ sourcePath: string; type: RedirectType; targetUrl: string; note: string }>({
@@ -180,14 +180,7 @@ export default function RedirectsPage() {
   }
 
   return (
-    <div className="space-y-4 p-4">
-      <div>
-        <h1 className="flex items-center gap-2 text-xl font-semibold">
-          <Route className="h-5 w-5" /> SEO / Yönlendirme
-        </h1>
-        <p className="text-sm text-muted-foreground">301/410 yönlendirme yönetimi ve içerik/index denetimi.</p>
-      </div>
-
+    <div className="space-y-4">
       <Tabs defaultValue="redirects">
         <TabsList>
           <TabsTrigger value="redirects">Yönlendirmeler (301/410)</TabsTrigger>
