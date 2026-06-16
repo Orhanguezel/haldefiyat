@@ -30,7 +30,7 @@ Durum işaretleri: `[ ]` açık · `[~]` devam · `[x]` bitti · `[O]` Orhan (op
 
 - [x] A3.1 — DB incelemesi: bozuk örnekler için `hf_products.slug` + `canonical_slug` değerlerini çek; kesilme/normalize hatasını tespit et. *(Canlı SELECT: `e-kulak`, `ucburun-koy-b`, `yesil-dolma-b` DB'de var; `zeytin` yok.)*
 - [x] A3.2 — Slug üreten backend yolunu (ürün upsert/ETL) düzelt — kaynakta tutarlı slug. *(ETL `resolveProductSlug()` + alias map + `slugify()` yolu kontrol edildi; mevcut kesik örnekler kaynak kısaltması/ürün kapsamı, kırılma frontend resolver kapsamı.)*
-- [x] A3.3 — `/urun/[slug]` resolver'a yumuşak fallback: eşleşme yoksa en yakın `canonicalSlug`'a 301, yoksa anlamlı 404 (hard ölü sayfa değil).
+- [x] A3.3 — Yumuşak fallback **middleware'de** (`proxy.ts`): canonical/prefix → gerçek ürüne 308, bilinen kırık slug → `/fiyatlar?q=` 307, diğer → 404. *(Sayfa-içi versiyon middleware'in erken 404'ü yüzünden hiç çalışmıyordu — taşındı, prod'da doğrulandı.)*
 
 ## A4 — [P3] PetalBot bant genişliği gürültüsü 🟢
 **Belirti:** PetalBot (Huawei) 6.480 hit, tüm crawler'ların #1'i; TR'de SEO değeri marjinal.
