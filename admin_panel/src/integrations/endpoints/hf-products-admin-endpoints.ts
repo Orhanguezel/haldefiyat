@@ -111,6 +111,13 @@ export const hfProductsAdminApi = baseApi.injectEndpoints({
     >({
       query: (q) => ({ url: "/admin/hal/products/autocomplete", params: { q } }),
     }),
+    mergeHfProductsAdmin: builder.mutation<
+      { ok: boolean; master: string; merged: string[] },
+      { masterId: number; variantIds: number[] }
+    >({
+      query: (body) => ({ url: "/admin/hal/products/merge", method: "POST", body }),
+      invalidatesTags: [{ type: "HfProducts" as const, id: "LIST" }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -124,4 +131,5 @@ export const {
   useGetHfProductEditorialAdminQuery,
   useUpdateHfProductEditorialAdminMutation,
   useAutocompleteHfProductsQuery,
+  useMergeHfProductsAdminMutation,
 } = hfProductsAdminApi;

@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { and, asc, desc, eq, like, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, like, or, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/db/client";
@@ -476,6 +476,39 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const id = Number(req.params.id);
     await db.delete(hfProducts).where(eq(hfProducts.id, id));
     return reply.send({ ok: true });
+  });
+
+  // Ürün birleştirme: dublike ürünleri bir master altında konsolide et.
+  // Varyantlar → canonical_slug=master + noindex; master aliases'a varyant isimleri eklenir
+  // (gelecek ETL aynı isimleri master'a yazsın, yeniden parçalanmasın). Fiyat geçmişi
+  // taşınmaz (varyant sayfaları 301 ile master'a gider; master zaten kapsamlı).
+  app.post<{ Body: { masterId?: number; variantIds?: number[] } }>("/hal/products/merge", async (req, reply) => {
+    const masterId = Number(req.body?.masterId);
+    const variantIds = (Array.isArray(req.body?.variantIds) ? req.body.variantIds : [])
+      .map(Number)
+      .filter((id) => Number.isFinite(id) && id > 0 && id !== masterId);
+    if (!Number.isFinite(masterId) || masterId <= 0 || variantIds.length === 0) {
+      return reply.status(400).send({ error: "masterId ve en az 1 variantId gerekli" });
+    }
+    const masterRows = await db.select().from(hfProducts).where(eq(hfProducts.id, masterId)).limit(1);
+    const master = masterRows[0];
+    if (!master) return reply.status(404).send({ error: "Master ürün bulunamadi" });
+    if (master.canonicalSlug) return reply.status(400).send({ error: "Master kendisi varyant olamaz" });
+
+    const variants = await db.select().from(hfProducts).where(inArray(hfProducts.id, variantIds));
+    if (variants.length === 0) return reply.status(404).send({ error: "Varyant bulunamadi" });
+
+    await db.update(hfProducts).set({ canonicalSlug: master.slug, seoIndex: 0 }).where(inArray(hfProducts.id, variants.map((v) => v.id)));
+
+    const aliasSet = new Set<string>([...(Array.isArray(master.aliases) ? (master.aliases as string[]) : [])]);
+    for (const v of variants) {
+      if (v.nameTr) aliasSet.add(v.nameTr);
+      if (v.displayName) aliasSet.add(v.displayName);
+      for (const a of Array.isArray(v.aliases) ? (v.aliases as string[]) : []) aliasSet.add(a);
+    }
+    await db.update(hfProducts).set({ aliases: Array.from(aliasSet) }).where(eq(hfProducts.id, masterId));
+
+    return reply.send({ ok: true, master: master.slug, merged: variants.map((v) => v.slug) });
   });
 
   app.get<{ Params: { id: string } }>("/hal/products/:id/editorial", async (req, reply) => {

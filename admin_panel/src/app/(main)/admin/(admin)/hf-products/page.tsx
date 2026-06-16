@@ -5,14 +5,16 @@ import { type ReactNode, useMemo, useState } from "react";
 import Link from "next/link";
 
 import { Edit, Plus, Search } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useListHfProductsAdminQuery } from "@/integrations/hooks";
+import { useListHfProductsAdminQuery, useMergeHfProductsAdminMutation } from "@/integrations/hooks";
 
 const ALL = "all";
 
@@ -29,6 +31,9 @@ export default function Page() {
   const [seoIndex, setSeoIndex] = useState(ALL);
   const [sortKey, setSortKey] = useState<"name" | "category" | "quality" | "search">("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [masterId, setMasterId] = useState<string>("");
+  const [merge, mergeState] = useMergeHfProductsAdminMutation();
 
   const query = {
     q: q.trim() || undefined,
@@ -84,6 +89,29 @@ export default function Page() {
       </button>
     </TableHead>
   );
+
+  const toggleSelect = (id: number) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const selectedList = items.filter((item) => selected.has(item.id));
+  const masterOptions = selectedList.filter((item) => !item.canonicalSlug);
+  const handleMerge = async () => {
+    const mid = Number(masterId);
+    if (!mid || selected.size < 2) return;
+    const variantIds = [...selected].filter((id) => id !== mid);
+    try {
+      const res = await merge({ masterId: mid, variantIds }).unwrap();
+      toast.success(`${res.merged.length} ürün "${res.master}" altında birleştirildi`);
+      setSelected(new Set());
+      setMasterId("");
+    } catch {
+      toast.error("Birleştirme başarısız");
+    }
+  };
 
   return (
     <Card className="rounded-lg">
@@ -148,10 +176,44 @@ export default function Page() {
         </div>
       </CardHeader>
       <CardContent>
+        {selected.size >= 2 && (
+          <div className="mb-3 flex flex-wrap items-center gap-2 rounded-md border bg-muted/40 p-2">
+            <span className="font-medium text-sm">{selected.size} ürün seçili → birleştir</span>
+            <Select value={masterId} onValueChange={setMasterId}>
+              <SelectTrigger className="w-72">
+                <SelectValue placeholder="Ana ürün (master) seç" />
+              </SelectTrigger>
+              <SelectContent>
+                {masterOptions.map((item) => (
+                  <SelectItem key={item.id} value={String(item.id)}>
+                    {item.displayName || item.nameTr} ({item.slug})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button size="sm" onClick={handleMerge} disabled={!masterId || mergeState.isLoading}>
+              Birleştir
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setSelected(new Set());
+                setMasterId("");
+              }}
+            >
+              İptal
+            </Button>
+            <span className="text-muted-foreground text-xs">
+              Seçilenler master'a canonical+noindex bağlanır (301 yönlenir), isimleri alias olur.
+            </span>
+          </div>
+        )}
         <div className="w-full overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-8" />
                 <SortHead k="name">Ad</SortHead>
                 <TableHead>Slug</TableHead>
                 <SortHead k="category">Kategori</SortHead>
@@ -165,16 +227,23 @@ export default function Page() {
             <TableBody>
               {(isLoading || isFetching) && (
                 <TableRow>
-                  <TableCell colSpan={8}>Yükleniyor...</TableCell>
+                  <TableCell colSpan={9}>Yükleniyor...</TableCell>
                 </TableRow>
               )}
               {!isLoading && items.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8}>Kayıt bulunamadı.</TableCell>
+                  <TableCell colSpan={9}>Kayıt bulunamadı.</TableCell>
                 </TableRow>
               )}
               {sortedItems.map((item) => (
-                <TableRow key={item.id}>
+                <TableRow key={item.id} data-state={selected.has(item.id) ? "selected" : undefined}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selected.has(item.id)}
+                      onCheckedChange={() => toggleSelect(item.id)}
+                      aria-label="Seç"
+                    />
+                  </TableCell>
                   <TableCell>
                     <Link className="text-primary" href={`/admin/hf-products/${item.id}`}>
                       {item.displayName || item.nameTr}
@@ -192,10 +261,16 @@ export default function Page() {
                   </TableCell>
                   <TableCell>{item.searchVolume ?? 0}</TableCell>
                   <TableCell>
-                    <div className="flex gap-1">
-                      <Badge variant={item.seoIndex ? "default" : "outline"}>
-                        {item.seoIndex ? "Index" : "Noindex"}
-                      </Badge>
+                    <div className="flex flex-wrap gap-1">
+                      {item.canonicalSlug ? (
+                        <Badge variant="secondary" title={`Varyant → ${item.canonicalSlug}`}>
+                          Varyant
+                        </Badge>
+                      ) : (
+                        <Badge variant={item.seoIndex ? "default" : "outline"}>
+                          {item.seoIndex ? "Index" : "Noindex"}
+                        </Badge>
+                      )}
                       {!item.isActive && <Badge variant="secondary">Pasif</Badge>}
                     </div>
                   </TableCell>
