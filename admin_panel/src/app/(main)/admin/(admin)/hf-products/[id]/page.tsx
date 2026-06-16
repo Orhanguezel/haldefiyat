@@ -156,6 +156,32 @@ export default function Page() {
   const editorialScore = useMemo(() => scoreEditorial(editorial), [editorial]);
   const dataQuality = Number(form.dataQuality || 0);
   const readiness = Math.round(dataQuality * 0.45 + editorialScore * 0.45 + (form.seoIndex ? 10 : 0));
+
+  // Veri kalitesi puanının gerekçesi: data_quality formülünün 5 bileşeni (toplam = puan)
+  const qualityBreakdown = useMemo(() => {
+    const pd = data as { priceRows30d?: number; marketCount30d?: number; hasEditorial?: boolean } | undefined;
+    const name = (form.displayName || form.nameTr || "").trim();
+    const nameOk = name.length > 0 && !name.includes(".") && !/^[\p{L}]([.]|\s)/u.test(name);
+    const aliasCount = splitCsv(form.aliases).length;
+    return [
+      {
+        label: "Fiyat verisi (son 30 gün)",
+        ok: Number(pd?.priceRows30d ?? 0) >= 1,
+        pts: 40,
+        detail: `${pd?.priceRows30d ?? 0} kayıt`,
+      },
+      {
+        label: "En az 3 hal kapsamı",
+        ok: Number(pd?.marketCount30d ?? 0) >= 3,
+        pts: 25,
+        detail: `${pd?.marketCount30d ?? 0} hal`,
+      },
+      { label: "Temiz ürün adı", ok: nameOk, pts: 15, detail: nameOk ? "" : "displayName ata" },
+      { label: "Alias tanımlı", ok: aliasCount >= 1, pts: 10, detail: `${aliasCount} alias` },
+      { label: "Editöryel yayında", ok: Boolean(pd?.hasEditorial) || editorial.published, pts: 10, detail: "" },
+    ];
+  }, [data, form.displayName, form.nameTr, form.aliases, editorial.published]);
+
   const saving = createState.isLoading || updateState.isLoading || editorialState.isLoading;
   const publicUrl = form.slug ? `https://haldefiyat.com/urun/${form.slug}` : "";
 
@@ -263,6 +289,30 @@ export default function Page() {
             <span>{readiness}/100</span>
           </div>
           <Progress value={readiness} />
+          <div className="pt-2">
+            <p className="mb-1.5 font-medium text-sm">Veri kalitesi gerekçesi ({dataQuality}/100)</p>
+            <div className="grid gap-1.5 sm:grid-cols-2">
+              {qualityBreakdown.map((c) => (
+                <div
+                  key={c.label}
+                  className="flex items-center justify-between rounded-md border px-2.5 py-1.5 text-xs"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <span className={c.ok ? "text-emerald-600" : "text-destructive"}>{c.ok ? "✓" : "✗"}</span>
+                    {c.label}
+                    {c.detail ? <span className="text-muted-foreground"> · {c.detail}</span> : null}
+                  </span>
+                  <span className={c.ok ? "font-medium text-emerald-600" : "text-muted-foreground"}>
+                    {c.ok ? `+${c.pts}` : `0/${c.pts}`}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-1.5 text-muted-foreground text-xs">
+              Eksik bileşenleri tamamla → veri kalitesi ve index kararı yükselir. (≥3 hal + fiyat verisi =
+              indexlenebilir)
+            </p>
+          </div>
         </CardContent>
       </Card>
 

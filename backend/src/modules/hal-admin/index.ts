@@ -409,7 +409,22 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const id = Number(req.params.id);
     const rows = await db.select().from(hfProducts).where(eq(hfProducts.id, id)).limit(1);
     if (!rows[0]) return reply.status(404).send({ error: "Kayit bulunamadi" });
-    return reply.send(rows[0]);
+    // Kalite gerekçesi: data_quality formülünün bileşen sinyalleri (son 30g fiyat/hal + editöryel)
+    const statsRes = await db.execute(sql`
+      SELECT COUNT(*) AS pr, COUNT(DISTINCT market_id) AS mc
+      FROM hf_price_history WHERE product_id = ${id} AND recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+    `);
+    const edRes = await db.execute(sql`
+      SELECT 1 AS ok FROM hf_product_editorial WHERE product_slug = ${rows[0].slug} AND published_at IS NOT NULL LIMIT 1
+    `);
+    const statRow = (Array.isArray(statsRes) ? statsRes[0] : []) as Array<{ pr: number; mc: number }>;
+    const edRow = (Array.isArray(edRes) ? edRes[0] : []) as Array<{ ok: number }>;
+    return reply.send({
+      ...rows[0],
+      priceRows30d: Number(statRow[0]?.pr ?? 0),
+      marketCount30d: Number(statRow[0]?.mc ?? 0),
+      hasEditorial: edRow.length > 0,
+    });
   });
 
   app.post("/hal/products", async (req, reply) => {

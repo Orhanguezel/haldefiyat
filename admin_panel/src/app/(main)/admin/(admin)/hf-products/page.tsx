@@ -148,61 +148,69 @@ export default function Page() {
         </div>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <SortHead k="name">Ad</SortHead>
-              <TableHead>Slug</TableHead>
-              <SortHead k="category">Kategori</SortHead>
-              <TableHead>Birim</TableHead>
-              <SortHead k="quality">Kalite</SortHead>
-              <SortHead k="search">Arama</SortHead>
-              <TableHead>SEO</TableHead>
-              <TableHead className="w-24 text-right">İşlem</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {(isLoading || isFetching) && (
+        <div className="w-full overflow-x-auto">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={8}>Yükleniyor...</TableCell>
+                <SortHead k="name">Ad</SortHead>
+                <TableHead>Slug</TableHead>
+                <SortHead k="category">Kategori</SortHead>
+                <TableHead>Birim</TableHead>
+                <SortHead k="quality">Kalite</SortHead>
+                <SortHead k="search">Arama</SortHead>
+                <TableHead>SEO</TableHead>
+                <TableHead className="w-24 text-right">İşlem</TableHead>
               </TableRow>
-            )}
-            {!isLoading && items.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={8}>Kayıt bulunamadı.</TableCell>
-              </TableRow>
-            )}
-            {sortedItems.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>
-                  <Link className="text-primary" href={`/admin/hf-products/${item.id}`}>
-                    {item.displayName || item.nameTr}
-                  </Link>
-                </TableCell>
-                <TableCell>{item.slug}</TableCell>
-                <TableCell>{item.categorySlug}</TableCell>
-                <TableCell>{item.unit}</TableCell>
-                <TableCell>
-                  <Badge variant={qualityVariant(Number(item.dataQuality ?? 0))}>{item.dataQuality ?? 0}</Badge>
-                </TableCell>
-                <TableCell>{item.searchVolume ?? 0}</TableCell>
-                <TableCell>
-                  <div className="flex gap-1">
-                    <Badge variant={item.seoIndex ? "default" : "outline"}>{item.seoIndex ? "Index" : "Noindex"}</Badge>
-                    {!item.isActive && <Badge variant="secondary">Pasif</Badge>}
-                  </div>
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button asChild variant="ghost" size="icon">
-                    <Link href={`/admin/hf-products/${item.id}`} aria-label="Düzenle">
-                      <Edit className="size-4" />
+            </TableHeader>
+            <TableBody>
+              {(isLoading || isFetching) && (
+                <TableRow>
+                  <TableCell colSpan={8}>Yükleniyor...</TableCell>
+                </TableRow>
+              )}
+              {!isLoading && items.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={8}>Kayıt bulunamadı.</TableCell>
+                </TableRow>
+              )}
+              {sortedItems.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>
+                    <Link className="text-primary" href={`/admin/hf-products/${item.id}`}>
+                      {item.displayName || item.nameTr}
                     </Link>
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                  </TableCell>
+                  <TableCell className="max-w-[150px] truncate text-muted-foreground" title={item.slug}>
+                    {item.slug}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">{item.categorySlug}</TableCell>
+                  <TableCell className="max-w-[130px] truncate" title={item.unit ?? ""}>
+                    {item.unit}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={qualityVariant(Number(item.dataQuality ?? 0))}>{item.dataQuality ?? 0}</Badge>
+                  </TableCell>
+                  <TableCell>{item.searchVolume ?? 0}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Badge variant={item.seoIndex ? "default" : "outline"}>
+                        {item.seoIndex ? "Index" : "Noindex"}
+                      </Badge>
+                      {!item.isActive && <Badge variant="secondary">Pasif</Badge>}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button asChild variant="ghost" size="icon">
+                      <Link href={`/admin/hf-products/${item.id}`} aria-label="Düzenle">
+                        <Edit className="size-4" />
+                      </Link>
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );
