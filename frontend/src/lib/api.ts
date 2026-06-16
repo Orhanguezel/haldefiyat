@@ -56,6 +56,7 @@ export interface Product {
   unit: string;
   displayName?: string | null;
   canonicalSlug?: string | null;
+  familySlug?: string | null;
   seoIndex?: number | boolean;
   dataQuality?: number;
   searchVolume?: number;

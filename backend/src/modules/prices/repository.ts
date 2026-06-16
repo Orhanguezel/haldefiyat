@@ -723,6 +723,7 @@ export async function listProducts(q?: string, category?: string, seoIndex?: boo
       unit:         hfProducts.unit,
       displayName:  hfProducts.displayName,
       canonicalSlug: hfProducts.canonicalSlug,
+      familySlug:   hfProducts.familySlug,
       seoIndex:     hfProducts.seoIndex,
       dataQuality:  hfProducts.dataQuality,
       searchVolume: hfProducts.searchVolume,

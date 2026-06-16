@@ -227,6 +227,14 @@ export default async function UrunPage({ params }: Props) {
     : categorySiblings
   ).slice(0, 12);
 
+  // Çeşit ailesi seçici: aynı family_slug'lı çeşitler (her biri kendi indexli sayfası).
+  // canonical=aynı şey (varyant), family=farklı çeşitler (ayrı sayfa, seçiciyle bağlı).
+  const familyMembers = product.familySlug
+    ? products
+        .filter((p) => p.familySlug === product.familySlug && !p.canonicalSlug)
+        .sort((a, b) => getDisplayName(a).localeCompare(getDisplayName(b), "tr"))
+    : [];
+
   const [history, todayPrices, editorial, borsaPricePage, resmiPrices] = await Promise.all([
     // 5 yıl history — PriceChart kendi içinde 7G/30G/90G filtreler;
     // SeasonCompare aynı veriden yıl grupları çıkarır (en az 2 yıl lazım).
@@ -361,6 +369,31 @@ export default async function UrunPage({ params }: Props) {
         </div>
         <FavoriteButton slug={product.slug} productName={displayName} />
       </div>
+
+      {familyMembers.length > 1 && (
+        <nav aria-label="Çeşit ailesi" className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-medium text-muted">Çeşitler:</span>
+          {familyMembers.map((p) =>
+            p.slug === slug ? (
+              <span
+                key={p.slug}
+                aria-current="page"
+                className="rounded-full bg-brand/10 px-3 py-1 text-sm font-semibold text-brand"
+              >
+                {getDisplayName(p)}
+              </span>
+            ) : (
+              <Link
+                key={p.slug}
+                href={`/urun/${p.slug}`}
+                className="rounded-full border border-border-soft px-3 py-1 text-sm text-foreground transition-colors hover:border-brand/40 hover:text-brand"
+              >
+                {getDisplayName(p)}
+              </Link>
+            ),
+          )}
+        </nav>
+      )}
 
       {/* Grafik */}
       <div className="rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6">
