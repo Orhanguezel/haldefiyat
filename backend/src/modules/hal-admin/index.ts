@@ -562,6 +562,8 @@ export async function registerHalAdmin(app: FastifyInstance) {
       "taze", "kuru", "donuk", "dondurulmus", "kirmizi", "yesil", "sari", "beyaz", "mor", "siyah", "pembe", "turuncu",
       "deniz", "kultur", "koy", "karadeniz", "marmara", "ege", "akdeniz", "kalite", "ekstra", "diger", "cesit", "karisik",
       "organik", "salata", "salat", "yagli", "kop", "ince", "kalin",
+      // Jenerik ek/sıfatlar — kök isim değil, ürünler arası ortak (otu/yaprağı/çiçeği/tatlı/acı...)
+      "otu", "ot", "yaprak", "yapragi", "cicek", "cicegi", "tatli", "aci", "eksi", "sap", "filiz", "tohum",
     ]);
     const tokenize = (name: string): string[] =>
       name
