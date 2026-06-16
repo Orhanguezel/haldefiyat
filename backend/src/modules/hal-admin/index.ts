@@ -511,7 +511,32 @@ export async function registerHalAdmin(app: FastifyInstance) {
     }
     await db.update(hfProducts).set({ aliases: Array.from(aliasSet) }).where(eq(hfProducts.id, masterId));
 
-    return reply.send({ ok: true, master: master.slug, merged: variants.map((v) => v.slug) });
+    // Editorial koruma: master'da editorial yoksa, varyantların en zengin (en uzun about_md)
+    // editorial'ını master slug'a taşı — yoksa içerik 301 arkasında görünmez kalır.
+    let editorialMovedFrom: string | null = null;
+    const masterEdRes = await db.execute(
+      sql`SELECT id FROM hf_product_editorial WHERE product_slug = ${master.slug} LIMIT 1`,
+    );
+    const masterEdRows = (Array.isArray(masterEdRes) ? masterEdRes[0] : masterEdRes) as unknown as Array<{ id: number }>;
+    if (masterEdRows.length === 0) {
+      const inList = sql.join(
+        variants.map((v) => sql`${v.slug}`),
+        sql`, `,
+      );
+      const bestRes = await db.execute(
+        sql`SELECT id, product_slug FROM hf_product_editorial WHERE product_slug IN (${inList}) ORDER BY CHAR_LENGTH(COALESCE(about_md, '')) DESC LIMIT 1`,
+      );
+      const bestRows = (Array.isArray(bestRes) ? bestRes[0] : bestRes) as unknown as Array<{
+        id: number;
+        product_slug: string;
+      }>;
+      if (bestRows.length > 0) {
+        await db.execute(sql`UPDATE hf_product_editorial SET product_slug = ${master.slug} WHERE id = ${bestRows[0].id}`);
+        editorialMovedFrom = bestRows[0].product_slug;
+      }
+    }
+
+    return reply.send({ ok: true, master: master.slug, merged: variants.map((v) => v.slug), editorialMovedFrom });
   });
 
   // Auto-merge önerici: master ürünleri isim-imzasına göre kümeler → dublike adayları.
