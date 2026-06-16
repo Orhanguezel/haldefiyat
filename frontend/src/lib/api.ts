@@ -903,3 +903,22 @@ export async function fetchCustomPageBySlug(
     null,
   );
 }
+
+// ── Sosyal medya akışı (@haldefiyat) ─────────────────────────────────────────
+// Veri ekosistem-sosyal-medya sisteminde; backend /social/feed cross-DB okur.
+export interface SocialTweet {
+  tweetId: string;
+  url: string;
+  text: string;
+  hashtags: string | null;
+  mediaUrls: string[];
+  postedAt: string;
+  likes: number;
+  comments: number;
+  shares: number;
+  impressions: number;
+}
+
+export async function fetchSocialFeed(limit = 30): Promise<SocialTweet[]> {
+  return safeFetch<SocialTweet[]>(`/social/feed?limit=${limit}`, 300, []);
+}
