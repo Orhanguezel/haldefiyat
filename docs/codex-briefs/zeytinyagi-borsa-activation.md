@@ -41,7 +41,7 @@ ZEYTİN YEŞİL HUSUSİ   KG  15.06.2026  100
 ### Z2 — Kaynak config
 - `src/config/source-urls.ts`: `tobb_borsa_edremit` kaydı (name "Edremit Ticaret Borsası", url `https://borsa.tobb.org.tr/fiyat_borsa.php?borsakod=5ED20`, type "exchange", official true).
 - `src/config/etl-sources.ts` RAW_SOURCES: yeni kayıt `tobb_borsa_edremit` (defaultMarketSlug `edremit-ticaret-borsasi`, baseUrl `https://borsa.tobb.org.tr`, endpoint `/fiyat_borsa.php?borsakod=5ED20`, responseShape `tobb_borsa_html`, unit kg, category yagli-tohum). `defaultEnabled: true`.
-- (v2: ayvalik/gemlik borsakod'larını bul → aynı pattern 1 satır.)
+- **Gemlik = `5GE10`** (doğrulandı, sofralık zeytin uzmanı, Gemlik zeytini AB tescilli) → sofralık `zeytin` için ikinci kaynak; Edremit(5ED20)=yağ, Gemlik(5GE10)=sofralık. v1'de Edremit yeterli, Gemlik'i hemen ekleyebilirsin (1 satır config).
 
 ### Z3 — Seed (markets + products + editorial) — NO ALTER, sadece CREATE/INSERT
 - `020_hal_domain_schema.sql`:
@@ -49,7 +49,7 @@ ZEYTİN YEŞİL HUSUSİ   KG  15.06.2026  100
   - **products**: `zeytinyagi` + `zeytin` satırları (pamuk #201 pattern). `aliases` JSON TOBB isimlerini KAPSAMALI ki `resolveProductSlug` eşlesin:
     - zeytinyagi: `["zeytinyağı","zeytinyagi","natürel sızma zeytinyağı","sızma zeytinyağı","zeytinyağı sızma","sizma zeytinyagi","olive oil"]`
     - zeytin: `["zeytin","sofralık zeytin","sofralik zeytin","zeytin siyah salamur","zeytin yeşil hususi","yeşil zeytin","siyah zeytin","table olive"]`
-- `037_borsa_product_editorial.sql`: `zeytinyagi` + `zeytin` için **özgün SEO içeriği** (pamuk #75 uzunluğunda: tanım + fiyatı etkileyen faktörler + öne çıkan iller). SEO için ZORUNLU (ince içerik = noindex).
+- `037_borsa_product_editorial.sql`: **editöryel HAZIR → [`zeytinyagi-editorial-037.sql`](./zeytinyagi-editorial-037.sql)** dosyasındaki 2 VALUES bloğunu 037'nin VALUES listesine ekle (kolon sırası birebir, kendi metnini YAZMA). 7 alan dolu (about/price_factors/season/region/quality/culinary + related_slugs). SEO için ZORUNLU (ince içerik = noindex).
 - `src/config/static-editorial-slugs.ts`: `zeytinyagi`, `zeytin` ekle.
 
 ### Z4 — Frontend (borsa listelerine ekle + KNOWN_BROKEN'dan çıkar)
