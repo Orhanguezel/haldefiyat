@@ -564,6 +564,8 @@ export async function registerHalAdmin(app: FastifyInstance) {
       "organik", "salata", "salat", "yagli", "kop", "ince", "kalin",
       // Jenerik ek/sıfatlar — kök isim değil, ürünler arası ortak (otu/yaprağı/çiçeği/tatlı/acı...)
       "otu", "ot", "yaprak", "yapragi", "cicek", "cicegi", "tatli", "aci", "eksi", "sap", "filiz", "tohum",
+      // Tazelik/durum nitelemeleri ("Yaş-Taze" → yas kök sanılmasın, alakasız bitkileri toplar)
+      "yas", "grass", "dilimlenmis", "dondurulmus", "kavrulmus", "haslanmis",
     ]);
     const tokenize = (name: string): string[] =>
       name
