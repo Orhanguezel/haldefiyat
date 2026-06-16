@@ -22,6 +22,7 @@ import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
 import { submitToIndexNow } from "@/modules/indexnow";
 import { cleanupOldEtlRuns } from "@/modules/etl/maintenance";
 import { refreshSearchConsoleIndex } from "@agro/shared-backend/modules/searchConsole";
+import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
 
 /**
  * Cron zamanlaması env'den gelir:
@@ -66,6 +67,8 @@ export function startCron(app: FastifyInstance): void {
     { name: "firms-monthly",      schedule: env.ETL.firmsMonthlySchedule,   handler: () => runFirmsJob(app, true) },
     // GSC URL Inspection incremental — günlük batch, sitemap'i kota-dostu kapsar + taze tutar
     { name: "gsc-index-refresh",  schedule: env.ETL.gscIndexSchedule,       handler: () => runGscIndexJob(app) },
+    // search_volume'u GSC gösterimlerinden doldur — haftalık (talep yavaş değişir)
+    { name: "search-volume-sync", schedule: env.ETL.searchVolumeSchedule,   handler: () => runSearchVolumeJob(app) },
   ];
   if (env.ETL.firmPriceReminderSchedule) {
     tasks.push({
@@ -239,6 +242,17 @@ async function runGscIndexJob(app: FastifyInstance): Promise<void> {
     );
   } catch (err) {
     app.log.error({ err }, "[cron:gsc-index] hata");
+  }
+}
+
+async function runSearchVolumeJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:search-volume] GSC gösterim → search_volume senkronu");
+  try {
+    const r = await syncSearchVolumeFromGsc(90);
+    app.log.info({ updated: r.updated, products: r.products, durationMs: Date.now() - t0 }, "[cron:search-volume] tamamlandi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:search-volume] hata");
   }
 }
 

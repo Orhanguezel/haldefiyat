@@ -24,6 +24,7 @@ import { registerFirmsAdmin, registerFirmsPublic } from "@/modules/firms";
 import { registerAuthorsAdmin, registerAuthorsPublic } from "@/modules/authors";
 import { registerListingsAdmin, registerListingsPublic } from "@/modules/listings";
 import { registerSocial } from "@/modules/social";
+import { registerSeoVolumeAdmin } from "@/modules/seo-volume";
 
 export async function registerProjectPublic(api: FastifyInstance) {
   await registerMarkets(api);
@@ -68,6 +69,7 @@ export async function registerProjectAdmin(adminApi: FastifyInstance) {
   await registerAnalyticsAdmin(adminApi);
   await registerAuditConsumersAdmin(adminApi);
   await registerSeoOpsAdmin(adminApi);
+  await registerSeoVolumeAdmin(adminApi);
   await registerFirmsAdmin(adminApi);
   await registerListingsAdmin(adminApi);
   await registerAuthorsAdmin(adminApi);
