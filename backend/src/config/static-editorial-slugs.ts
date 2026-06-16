@@ -35,4 +35,6 @@ export const STATIC_EDITORIAL_SLUGS = new Set<string>([
   "seftali",
   "sogan-kuru",
   "uzum",
+  "zeytin",
+  "zeytinyagi",
 ]);

@@ -44,6 +44,7 @@ type ResponseShape =
   | "tmo_alim_resmi"
   | "tmo_pdf_bulten"
   | "polatli_borsa_json"
+  | "tobb_borsa_html"
   | "borsa_html"
   | "borsa_pdf";
 
@@ -521,6 +522,26 @@ const RAW_SOURCES: RawSource[] = [
     responseShape:     "borsa_html",
     defaultUnit:       "kg",
     defaultCategory:   "sanayi-bitkisi",
+  },
+  {
+    key:               "tobb_borsa_edremit",
+    defaultEnabled:    true,
+    defaultMarketSlug: "edremit-ticaret-borsasi",
+    defaultBaseUrl:    "https://borsa.tobb.org.tr",
+    defaultEndpoint:   "/fiyat_borsa.php?borsakod=5ED20",
+    responseShape:     "tobb_borsa_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "yagli-tohum",
+  },
+  {
+    key:               "tobb_borsa_gemlik",
+    defaultEnabled:    false,
+    defaultMarketSlug: "gemlik-ticaret-borsasi",
+    defaultBaseUrl:    "https://borsa.tobb.org.tr",
+    defaultEndpoint:   "/fiyat_borsa.php?borsakod=5GE10",
+    responseShape:     "tobb_borsa_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
   },
 ];
 

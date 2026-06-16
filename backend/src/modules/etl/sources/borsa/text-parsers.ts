@@ -17,6 +17,21 @@ function parseTrNumber(raw: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+function decodeHtmlText(raw: string): string {
+  return raw
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, "\"")
+    .replace(/&#39;/g, "'")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([\da-f]+);/gi, (_, code) => String.fromCharCode(Number.parseInt(code, 16)))
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function asKg(price: number, line: string): number {
   return /ton|tona|tl\/t|tl\s*t/i.test(line) || price > 500 ? price / 1000 : price;
 }
@@ -58,6 +73,91 @@ export function parseBorsaHtml(raw: string): BorsaPriceRow[] {
     .replace(/&amp;/g, "&")
     .replace(/\s+/g, " ");
   return parseBorsaText(text.replace(/ (?=(Buğday|Bugday|Arpa|Mısır|Misir|Ayçiçeği|Aycicegi|Pamuk)\b)/gi, "\n"));
+}
+
+function parseTrDate(raw: string): string | undefined {
+  const match = raw.trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})(?:\s+\d{1,2}:\d{2})?/);
+  if (!match) return undefined;
+  const [, day, month, year] = match;
+  return `${year}-${month!.padStart(2, "0")}-${day!.padStart(2, "0")}`;
+}
+
+function toTobbProduct(rawName: string): { name: string; category: string } | null {
+  const name = rawName.toLocaleUpperCase("tr-TR");
+  if (/ZEYT[İI]NYA[ĞG]I\s+SIZMA/.test(name) || /ZEYT[İI]N\s*YA[ĞG]I\s+SIZMA/.test(name)) {
+    return { name: "Zeytinyağı", category: "yagli-tohum" };
+  }
+  if (
+    /ZEYT[İI]N\s+S[İI]YAH\s+SALAMUR/.test(name)
+    || /ZEYT[İI]N\s+YE[ŞS][İI]L\s+HUSUS[İI]/.test(name)
+    || (/^ZEYT[İI]N\b/.test(name) && !/ZEYT[İI]N\s*YA[ĞG](?:I|LIK)?\b/.test(name))
+  ) {
+    return { name: "Sofralık Zeytin", category: "sebze-meyve" };
+  }
+  return null;
+}
+
+function mergeSameDayRows(rows: BorsaPriceRow[]): BorsaPriceRow[] {
+  const buckets = new Map<string, BorsaPriceRow[]>();
+  for (const row of rows) {
+    const key = `${row.name}|${row.recordedDate ?? ""}`;
+    const bucket = buckets.get(key) ?? [];
+    bucket.push(row);
+    buckets.set(key, bucket);
+  }
+
+  return Array.from(buckets.values()).map((bucket) => {
+    if (bucket.length === 1) return bucket[0]!;
+    const first = bucket[0]!;
+    const mins = bucket.map((row) => row.min).filter((value): value is number => value != null);
+    const maxs = bucket.map((row) => row.max).filter((value): value is number => value != null);
+    const avgs = bucket.map((row) => row.avg).filter((value): value is number => value != null);
+    const avg = avgs.reduce((sum, value) => sum + value, 0) / avgs.length;
+    return {
+      name: first.name,
+      category: first.category,
+      unit: first.unit,
+      recordedDate: first.recordedDate,
+      min: mins.length > 0 ? Math.min(...mins) : avg,
+      max: maxs.length > 0 ? Math.max(...maxs) : avg,
+      avg,
+    };
+  });
+}
+
+export function parseTobbBorsaHtml(raw: string): BorsaPriceRow[] {
+  const tableBlocks = raw.match(/<table\b[^>]*class=["'][^"']*\btable\b[^"']*["'][^>]*>[\s\S]*?<\/table>/gi) ?? [];
+  const scopes = tableBlocks.length > 0 ? tableBlocks : [raw];
+  const rows: BorsaPriceRow[] = [];
+
+  for (const scope of scopes) {
+    const trBlocks = scope.match(/<tr\b[^>]*>[\s\S]*?<\/tr>/gi) ?? [];
+    for (const tr of trBlocks) {
+      const cells = Array.from(tr.matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi), (match) => decodeHtmlText(match[1] ?? ""));
+      if (cells.length < 6 || /ürün/i.test(cells[0] ?? "")) continue;
+
+      const product = toTobbProduct(cells[0] ?? "");
+      if (!product) continue;
+
+      const min = parseTrNumber(cells[3] ?? "");
+      const max = parseTrNumber(cells[4] ?? "");
+      const avg = parseTrNumber(cells[5] ?? "") ?? (min != null && max != null ? (min + max) / 2 : min ?? max);
+      if (avg == null || avg <= 0) continue;
+
+      const unit = (cells[1] ?? "kg").trim().toLocaleLowerCase("tr-TR") || "kg";
+      rows.push({
+        name: product.name,
+        category: product.category,
+        unit,
+        recordedDate: parseTrDate(cells[2] ?? ""),
+        min: min ?? avg,
+        max: max ?? avg,
+        avg,
+      });
+    }
+  }
+
+  return mergeSameDayRows(rows);
 }
 
 interface PolatliRawRow {

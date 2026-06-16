@@ -164,7 +164,9 @@ INSERT INTO `hf_markets` (`slug`, `name`, `city_name`, `region_slug`, `source_ke
 ('tmo-piyasa-bulteni',     'TMO Piyasa Bülteni',                   'Türkiye',   'ulusal',     'tmo_piyasa_bulteni',       'borsa', 102, 1),
 ('polatli-ticaret-borsasi','Polatlı Ticaret Borsası',              'Ankara',    'ic-anadolu', 'polatli_borsa',           'borsa', 103, 1),
 ('izmir-ticaret-borsasi',  'İzmir Ticaret Borsası',                'İzmir',     'ege',        'izmir_borsa_pamuk',        'borsa', 104, 1),
-('bakanlik-destekleme',    'Bakanlık Destekleme',                  'Türkiye',   'ulusal',     'bakanlik_destekleme',      'resmi', 105, 1)
+('edremit-ticaret-borsasi','Edremit Ticaret Borsası',              'Balıkesir', 'marmara',    'tobb_borsa_edremit',       'borsa', 105, 1),
+('gemlik-ticaret-borsasi', 'Gemlik Ticaret Borsası',               'Bursa',     'marmara',    'tobb_borsa_gemlik',        'borsa', 106, 1),
+('bakanlik-destekleme',    'Bakanlık Destekleme',                  'Türkiye',   'ulusal',     'bakanlik_destekleme',      'resmi', 107, 1)
 ON DUPLICATE KEY UPDATE
   `name`       = VALUES(`name`),
   `source_key` = VALUES(`source_key`),
@@ -198,7 +200,9 @@ VALUES
   ('arpa',     'Arpa',     'hububat',        'kg', JSON_ARRAY('arpa','barley','yemlik arpa'),                                      'Arpa',     1, 70, 6500, 102, 1),
   ('misir',    'Mısır',    'hububat',        'kg', JSON_ARRAY('mısır','misir','dane mısır','corn'),                                'Mısır',    1, 70, 8000, 103, 1),
   ('aycicegi', 'Ayçiçeği', 'yagli-tohum',    'kg', JSON_ARRAY('ayçiçeği','aycicegi','yağlık ayçiçeği','sunflower'),                'Ayçiçeği', 1, 70, 5400, 104, 1),
-  ('pamuk',    'Pamuk',    'sanayi-bitkisi', 'kg', JSON_ARRAY('pamuk','kütlü pamuk','kutlu pamuk','lif pamuk','cotton'),            'Pamuk',    1, 70, 7200, 105, 1)
+  ('pamuk',    'Pamuk',    'sanayi-bitkisi', 'kg', JSON_ARRAY('pamuk','kütlü pamuk','kutlu pamuk','lif pamuk','cotton'),            'Pamuk',    1, 70, 7200, 105, 1),
+  ('zeytinyagi','Zeytinyağı','yagli-tohum',   'kg', JSON_ARRAY('zeytinyağı','zeytinyagi','natürel sızma zeytinyağı','sızma zeytinyağı','zeytinyağı sızma','sizma zeytinyagi','olive oil'),'Zeytinyağı', 1, 70, 18000, 106, 1),
+  ('zeytin',   'Sofralık Zeytin','sebze-meyve','kg', JSON_ARRAY('zeytin','sofralık zeytin','sofralik zeytin','zeytin siyah salamur','zeytin yeşil hususi','yeşil zeytin','siyah zeytin','table olive'),   'Sofralık Zeytin', 1, 70, 9000, 107, 1)
 ON DUPLICATE KEY UPDATE
   `name_tr` = VALUES(`name_tr`),
   `category_slug` = VALUES(`category_slug`),

@@ -42,7 +42,11 @@ const BORSA_FALLBACK_PRODUCTS: Product[] = [
   { id: -103, slug: "misir", nameTr: "Mısır", displayName: "Mısır", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
   { id: -104, slug: "aycicegi", nameTr: "Ayçiçeği", displayName: "Ayçiçeği", categorySlug: "yagli-tohum", unit: "kg", seoIndex: 1 },
   { id: -105, slug: "pamuk", nameTr: "Pamuk", displayName: "Pamuk", categorySlug: "sanayi-bitkisi", unit: "kg", seoIndex: 1 },
+  { id: -106, slug: "zeytinyagi", nameTr: "Zeytinyağı", displayName: "Zeytinyağı", categorySlug: "yagli-tohum", unit: "kg", seoIndex: 1 },
+  { id: -107, slug: "zeytin", nameTr: "Sofralık Zeytin", displayName: "Sofralık Zeytin", categorySlug: "sebze-meyve", unit: "kg", seoIndex: 1 },
 ];
+
+const BORSA_PRODUCT_SLUGS = new Set(BORSA_FALLBACK_PRODUCTS.map((product) => product.slug));
 
 function withBorsaFallbackProducts(products: Product[]): Product[] {
   const seen = new Set(products.map((p) => p.slug));
@@ -109,8 +113,9 @@ function isSeoIndexed(product: { seoIndex?: number | boolean }) {
   return product.seoIndex === true || product.seoIndex === 1;
 }
 
-function isBorsaProduct(product: { categorySlug?: string }) {
-  return ["hububat", "yagli-tohum", "sanayi-bitkisi", "bakliyat-kuru"].includes(product.categorySlug ?? "");
+function isBorsaProduct(product: { categorySlug?: string; slug?: string }) {
+  return BORSA_PRODUCT_SLUGS.has(product.slug ?? "")
+    || ["hububat", "yagli-tohum", "sanayi-bitkisi", "bakliyat-kuru"].includes(product.categorySlug ?? "");
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

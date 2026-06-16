@@ -86,6 +86,18 @@ const SOURCE_URLS: Record<string, SourceInfo> = {
     type: "exchange",
     official: true,
   },
+  tobb_borsa_edremit: {
+    name: "Edremit Ticaret Borsası Günlük Fiyatları",
+    url: "https://borsa.tobb.org.tr/fiyat_borsa.php?borsakod=5ED20",
+    type: "exchange",
+    official: true,
+  },
+  tobb_borsa_gemlik: {
+    name: "Gemlik Ticaret Borsası Günlük Fiyatları",
+    url: "https://borsa.tobb.org.tr/fiyat_borsa.php?borsakod=5GE10",
+    type: "exchange",
+    official: true,
+  },
 };
 
 export function sourceTypeFromMarketType(marketType: string | null | undefined): SourceType {

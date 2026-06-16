@@ -24,7 +24,7 @@ import type { EtlSourceConfig } from "@/config/etl-sources";
 import { env } from "@/core/env";
 import { fetchViaScraper, shouldUseScraperFor, shouldUseDynamicFor } from "./scraper-client";
 import { parseTmoAlimResmi } from "./sources/borsa/tmo-alim";
-import { parseBorsaHtml, parseBorsaText, parsePolatliBorsaJson } from "./sources/borsa/text-parsers";
+import { parseBorsaHtml, parseBorsaText, parsePolatliBorsaJson, parseTobbBorsaHtml } from "./sources/borsa/text-parsers";
 
 export interface EtlRunResult {
   inserted: number;
@@ -83,6 +83,7 @@ function parseResponse(
     case "bolu_html":         return parseBoluHtml(String(raw));
     case "tmo_pdf_bulten":    return parseBorsaText(String(raw));
     case "polatli_borsa_json": return parsePolatliBorsaJson(raw);
+    case "tobb_borsa_html":   return parseTobbBorsaHtml(String(raw));
     case "borsa_html":        return parseBorsaHtml(String(raw));
     case "borsa_pdf":         return parseBorsaText(String(raw));
     default:                 return [];
@@ -811,6 +812,7 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "trabzon_html",
   "batiakdeniz_html",
   "bolu_html",
+  "tobb_borsa_html",
   "borsa_html",
 ]);
 
