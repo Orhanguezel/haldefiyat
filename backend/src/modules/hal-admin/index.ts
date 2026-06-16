@@ -514,6 +514,57 @@ export async function registerHalAdmin(app: FastifyInstance) {
     return reply.send({ ok: true, master: master.slug, merged: variants.map((v) => v.slug) });
   });
 
+  // Auto-merge önerici: master ürünleri isim-imzasına göre kümeler → dublike adayları.
+  // Sadece gürültü qualifier'ları (yerli/sera/ithal/adet...) temizlenir; deniz/kültür/donuk
+  // gibi anlamlı ayrımlar KORUNUR (yanlış birleştirme olmasın). Kullanıcı her kümeyi onaylar.
+  app.get("/hal/products/merge-suggestions", async (_req, reply) => {
+    const STOP = new Set([
+      "yerli", "sera", "ithal", "adet", "paket", "tane", "kg", "kilogram", "kasa", "gr",
+      "normal", "muhtelif", "ikinci", "birinci", "iyi", "tarim", "kucukboy", "buyukboy",
+    ]);
+    const sig = (name: string): string => {
+      const ascii = name
+        .toLocaleLowerCase("tr")
+        .replace(/ç/g, "c").replace(/ğ/g, "g").replace(/ı/g, "i").replace(/ö/g, "o").replace(/ş/g, "s").replace(/ü/g, "u")
+        .replace(/\([^)]*\)/g, " ")
+        .replace(/[^a-z0-9\s]/g, " ");
+      const toks = ascii
+        .split(/\s+/)
+        .map((t) => t.replace(/(lik|luk)$/, "")) // -lık nominalizer (dolmalik→dolma)
+        .filter((t) => t.length >= 3 && !STOP.has(t));
+      return Array.from(new Set(toks)).sort().join(" ");
+    };
+
+    const rowsRes = await db.execute(sql`
+      SELECT p.id, p.slug, p.name_tr AS nameTr, p.display_name AS displayName, p.seo_index AS seoIndex,
+        p.data_quality AS dataQuality, p.search_volume AS searchVolume, COALESCE(s.mc, 0) AS hal
+      FROM hf_products p
+      LEFT JOIN (SELECT product_id, COUNT(DISTINCT market_id) mc FROM hf_price_history WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY product_id) s ON s.product_id = p.id
+      WHERE p.is_active = 1 AND p.canonical_slug IS NULL
+    `);
+    type P = { id: number; slug: string; nameTr: string; displayName: string | null; seoIndex: number; dataQuality: number; searchVolume: number; hal: number };
+    const products = (Array.isArray(rowsRes) ? rowsRes[0] : rowsRes) as unknown as P[];
+
+    const groups = new Map<string, P[]>();
+    for (const p of products) {
+      const s = sig(p.displayName || p.nameTr);
+      if (!s) continue;
+      const arr = groups.get(s);
+      if (arr) arr.push(p);
+      else groups.set(s, [p]);
+    }
+
+    const clusters = [];
+    for (const [signature, members] of groups) {
+      if (members.length < 2) continue;
+      members.sort((a, b) => Number(b.hal) - Number(a.hal) || Number(b.dataQuality) - Number(a.dataQuality));
+      const [master, ...variants] = members;
+      clusters.push({ signature, master, variants });
+    }
+    clusters.sort((a, b) => b.variants.length - a.variants.length);
+    return reply.send({ count: clusters.length, clusters });
+  });
+
   app.get<{ Params: { id: string } }>("/hal/products/:id/editorial", async (req, reply) => {
     const id = Number(req.params.id);
     if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz id" });
