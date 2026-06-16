@@ -125,6 +125,7 @@ export const hfProductsAdminApi = baseApi.injectEndpoints({
         count: number;
         clusters: Array<{
           signature: string;
+          size: number;
           master: HfProductMergeCandidate;
           variants: HfProductMergeCandidate[];
         }>;
