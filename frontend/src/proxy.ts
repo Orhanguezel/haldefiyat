@@ -11,6 +11,14 @@ const intlMiddleware = createMiddleware({
 
 const LOWERCASE_SLUG_SECTIONS = new Set(["urun", "hal", "analiz"]);
 const BORSA_PRODUCT_SLUGS = new Set(["bugday", "arpa", "misir", "aycicegi", "pamuk"]);
+// Listeleme link'i kesik/eski slug üretiyor; ürün yok → arama sayfasına yumuşak iniş.
+const KNOWN_BROKEN_PRODUCT_SLUGS = new Set([
+  "bezelye-taze",
+  "e-kulak",
+  "ucburun-koy-b",
+  "yesil-dolma-b",
+  "zeytin",
+]);
 const API_URL = (
   process.env.BACKEND_URL ??
   process.env.NEXT_PUBLIC_API_URL ??
@@ -102,6 +110,38 @@ async function productCanonicalRedirectResponse(request: NextRequest) {
     : null;
 }
 
+// Var olmayan ürün slug'ı: hard 404 yerine yumuşak iniş. canonical/prefix eşleşmesi
+// gerçek ürüne (308), bilinen kırık slug arama sayfasına (307) yönlendirilir.
+// Not: bu mantık sayfada (generateMetadata/page) değil burada olmalı — middleware
+// var-olmayan slug'ı sayfadan önce 404'lüyor, sayfa-içi redirect hiç çalışmaz.
+async function productFallbackRedirect(request: NextRequest, slug: string): Promise<NextResponse | null> {
+  const candidates = await fetchItems(`/api/v1/prices/products?q=${encodeURIComponent(slug)}`);
+
+  const canonical = candidates.find((p) => p.canonicalSlug === slug && typeof p.slug === "string" && p.slug !== slug);
+  if (canonical) return redirectWithPath(request, `/urun/${canonical.slug as string}`, 308);
+
+  const prefix = candidates.find(
+    (p) =>
+      typeof p.slug === "string" &&
+      p.slug !== slug &&
+      (p.slug.startsWith(`${slug}-`) || slug.startsWith(`${p.slug}-`)),
+  );
+  if (prefix) {
+    const target =
+      typeof prefix.canonicalSlug === "string" && prefix.canonicalSlug ? prefix.canonicalSlug : (prefix.slug as string);
+    return redirectWithPath(request, `/urun/${target}`, 308);
+  }
+
+  if (KNOWN_BROKEN_PRODUCT_SLUGS.has(slug)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/fiyatlar";
+    url.search = `?q=${encodeURIComponent(slug.replace(/-/g, " ").trim())}`;
+    return NextResponse.redirect(url, 307);
+  }
+
+  return null;
+}
+
 async function slugNotFoundResponse(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const parts = pathname.split("/");
@@ -110,9 +150,12 @@ async function slugNotFoundResponse(request: NextRequest) {
   const slug = parts[offset + 1];
 
   if (!section || !slug || !LOWERCASE_SLUG_SECTIONS.has(section)) return null;
-  return await slugExists(section, slug)
-    ? null
-    : new NextResponse("Not Found", { status: 404 });
+  if (await slugExists(section, slug)) return null;
+  if (section === "urun") {
+    const fallback = await productFallbackRedirect(request, slug);
+    if (fallback) return fallback;
+  }
+  return new NextResponse("Not Found", { status: 404 });
 }
 
 const APP_LOCALES_SET = new Set(["tr", "en"]);

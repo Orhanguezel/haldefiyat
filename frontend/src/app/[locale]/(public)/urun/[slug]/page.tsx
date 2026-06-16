@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, permanentRedirect, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import {
   fetchPrices,
@@ -43,14 +43,6 @@ const BORSA_FALLBACK_PRODUCTS: Product[] = [
   { id: -104, slug: "aycicegi", nameTr: "Ayçiçeği", displayName: "Ayçiçeği", categorySlug: "yagli-tohum", unit: "kg", seoIndex: 1 },
   { id: -105, slug: "pamuk", nameTr: "Pamuk", displayName: "Pamuk", categorySlug: "sanayi-bitkisi", unit: "kg", seoIndex: 1 },
 ];
-
-const KNOWN_BROKEN_PRODUCT_SLUGS = new Set([
-  "bezelye-taze",
-  "e-kulak",
-  "ucburun-koy-b",
-  "yesil-dolma-b",
-  "zeytin",
-]);
 
 function withBorsaFallbackProducts(products: Product[]): Product[] {
   const seen = new Set(products.map((p) => p.slug));
@@ -121,42 +113,12 @@ function isBorsaProduct(product: { categorySlug?: string }) {
   return ["hububat", "yagli-tohum", "sanayi-bitkisi", "bakliyat-kuru"].includes(product.categorySlug ?? "");
 }
 
-type FallbackRedirect = { url: string; permanent: boolean };
-
-function brokenSlugSearchPath(slug: string): string | null {
-  if (!KNOWN_BROKEN_PRODUCT_SLUGS.has(slug)) return null;
-  const q = slug.replace(/-/g, " ").trim();
-  return `/fiyatlar?q=${encodeURIComponent(q)}`;
-}
-
-// Gerçek bir ürüne eşleşen fallback'ler kalıcı (308); "bilinen kırık" slug → arama
-// sayfasına GEÇİCİ (307) yönlendirilir, çünkü o slug ileride gerçek ürün olabilir.
-function findProductFallbackRedirect(slug: string, products: Product[]): FallbackRedirect | null {
-  const canonicalMatch = products.find((p) => p.canonicalSlug === slug && p.slug !== slug);
-  if (canonicalMatch) return { url: `/urun/${canonicalMatch.slug}`, permanent: true };
-
-  const prefixMatch = products.find((p) =>
-    p.slug !== slug && (p.slug.startsWith(`${slug}-`) || slug.startsWith(`${p.slug}-`)),
-  );
-  if (prefixMatch) return { url: `/urun/${prefixMatch.canonicalSlug || prefixMatch.slug}`, permanent: true };
-
-  const searchPath = brokenSlugSearchPath(slug);
-  return searchPath ? { url: searchPath, permanent: false } : null;
-}
-
-function applyFallbackRedirect(fallback: FallbackRedirect | null): void {
-  if (!fallback) return;
-  if (fallback.permanent) permanentRedirect(fallback.url);
-  redirect(fallback.url);
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   const products = withBorsaFallbackProducts(await fetchProducts());
   const product = products.find((p) => p.slug === slug);
 
   if (!product) {
-    applyFallbackRedirect(findProductFallbackRedirect(slug, products));
     notFound();
   }
 
@@ -228,7 +190,6 @@ export default async function UrunPage({ params }: Props) {
   const product = products.find((p) => p.slug === slug);
 
   if (!product) {
-    applyFallbackRedirect(findProductFallbackRedirect(slug, products));
     notFound();
   }
 
