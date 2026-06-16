@@ -142,6 +142,9 @@ export const env = {
     weeklyAnalysisSchedule: process.env.WEEKLY_ANALYSIS_CRON_SCHEDULE || "20 6 * * 1",
     // Haftalık SEO auto-recovery (dataQuality recalc + seoIndex flip/demote) — pazartesi 06:40 UTC
     seoMaintenanceSchedule: process.env.SEO_MAINTENANCE_CRON_SCHEDULE || "40 6 * * 1",
+    // GSC URL Inspection incremental — her gün 02:00 UTC, batch (kota-dostu, sitemap'i günlere yayar)
+    gscIndexSchedule: process.env.GSC_INDEX_CRON_SCHEDULE || "0 2 * * *",
+    gscIndexBatch: Number(process.env.GSC_INDEX_BATCH || "120"),
     // ETL run log retention — ayda bir eski hf_etl_runs kayitlarini temizle
     runRetentionSchedule: process.env.ETL_RUN_RETENTION_CRON_SCHEDULE || "0 3 1 * *",
     runRetentionDays: parseEnvInt(process.env.ETL_RUN_RETENTION_DAYS, 90),

@@ -21,6 +21,7 @@ import { expireListings } from "@/modules/listings";
 import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
 import { submitToIndexNow } from "@/modules/indexnow";
 import { cleanupOldEtlRuns } from "@/modules/etl/maintenance";
+import { refreshSearchConsoleIndex } from "@agro/shared-backend/modules/searchConsole";
 
 /**
  * Cron zamanlaması env'den gelir:
@@ -63,6 +64,8 @@ export function startCron(app: FastifyInstance): void {
     // Halkatalogu firma rehberi — haftalik delta + aylik tam tarama
     { name: "firms-weekly",       schedule: env.ETL.firmsWeeklySchedule,    handler: () => runFirmsJob(app, false) },
     { name: "firms-monthly",      schedule: env.ETL.firmsMonthlySchedule,   handler: () => runFirmsJob(app, true) },
+    // GSC URL Inspection incremental — günlük batch, sitemap'i kota-dostu kapsar + taze tutar
+    { name: "gsc-index-refresh",  schedule: env.ETL.gscIndexSchedule,       handler: () => runGscIndexJob(app) },
   ];
   if (env.ETL.firmPriceReminderSchedule) {
     tasks.push({
@@ -220,6 +223,22 @@ async function runSeoMaintenanceJob(app: FastifyInstance): Promise<void> {
     }
   } catch (err) {
     app.log.error({ err }, "[cron:seo-maintenance] hata");
+  }
+}
+
+// GSC URL Inspection kotası düşük + Google hesabındaki tüm siteler paylaşır → günlük
+// batch ile sitemap'i kademeli kapat (force=false: <1gün denetlenenleri atlar, listede ilerler).
+async function runGscIndexJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:gsc-index] incremental refresh basliyor");
+  try {
+    const r = await refreshSearchConsoleIndex({ limit: env.ETL.gscIndexBatch });
+    app.log.info(
+      { site: r.site, checked: r.checked, skipped: r.skipped, totalUrls: r.totalUrls, durationMs: Date.now() - t0 },
+      "[cron:gsc-index] tamamlandi",
+    );
+  } catch (err) {
+    app.log.error({ err }, "[cron:gsc-index] hata");
   }
 }
 
