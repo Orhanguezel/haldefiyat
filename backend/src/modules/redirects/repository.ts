@@ -240,7 +240,7 @@ export async function auditProducts(filter: "all" | "issues" = "issues") {
     if (indexed && !hasEd) issue = "thin_indexed";
     else if (indexed && !isMaster) issue = "variant_indexed";
     else if (indexed && dataQuality < 70) issue = "lowquality_indexed";
-    else if (!indexed && hasEd && isMaster && dataQuality >= 70) issue = "ready_not_indexed";
+    else if (!indexed && hasEd && isMaster && dataQuality >= 70 && marketCount30d >= 3) issue = "ready_not_indexed";
 
     // GSC coverage_state → kategori (wiribude mapCoverageToStatus pattern)
     const cov = String(r.gscState ?? "").toLowerCase();
@@ -319,8 +319,8 @@ export async function applySeoAuditAction(opts: {
     if (requested.size > 0 && !requested.has(item.slug)) return false;
     if (opts.issue && item.issue !== opts.issue) return false;
     if (opts.action === "set-index") {
-      // Güvenli index açma: yalnızca içerikli, master ve kalite >=70 ürünler.
-      return !item.indexed && item.hasEditorial && !item.canonicalSlug && item.dataQuality >= 70;
+      // Güvenli index açma: içerikli, master, kalite >=70 VE ≥3 market (kalite>nicelik kapısı).
+      return !item.indexed && item.hasEditorial && !item.canonicalSlug && item.dataQuality >= 70 && item.marketCount30d >= 3;
     }
     return item.indexed;
   });
