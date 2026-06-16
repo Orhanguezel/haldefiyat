@@ -179,6 +179,8 @@ type AuditRawRow = {
   marketCount30d: number | string;
   nameClean: number;
   aliasCount: number | string;
+  gscState: string | null;
+  gscVerdict: string | null;
 };
 
 export async function auditProducts(filter: "all" | "issues" = "issues") {
@@ -198,7 +200,9 @@ export async function auditProducts(filter: "all" | "issues" = "issues") {
          AND COALESCE(NULLIF(p.display_name, ''), p.name_tr) NOT REGEXP '^[[:alpha:]]([.]|[[:space:]])'
         THEN 1 ELSE 0
       END AS nameClean,
-      COALESCE(JSON_LENGTH(p.aliases), 0) AS aliasCount
+      COALESCE(JSON_LENGTH(p.aliases), 0) AS aliasCount,
+      g.coverage_state AS gscState,
+      g.verdict AS gscVerdict
     FROM hf_products p
     LEFT JOIN hf_product_editorial ed ON ed.product_slug = p.slug
     LEFT JOIN (
@@ -207,6 +211,7 @@ export async function auditProducts(filter: "all" | "issues" = "issues") {
       WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
       GROUP BY product_id
     ) s ON s.product_id = p.id
+    LEFT JOIN gsc_url_index g ON g.url LIKE '%/urun/%' AND SUBSTRING_INDEX(g.url, '/urun/', -1) = p.slug
     WHERE p.is_active = 1
   `);
   const rows = (Array.isArray(result) ? result[0] : result) as unknown as AuditRawRow[];
@@ -237,6 +242,28 @@ export async function auditProducts(filter: "all" | "issues" = "issues") {
     else if (indexed && dataQuality < 70) issue = "lowquality_indexed";
     else if (!indexed && hasEd && isMaster && dataQuality >= 70) issue = "ready_not_indexed";
 
+    // GSC coverage_state → kategori (wiribude mapCoverageToStatus pattern)
+    const cov = String(r.gscState ?? "").toLowerCase();
+    let gscStatus: string = "not_checked";
+    if (!cov) gscStatus = "not_checked";
+    else if (cov.includes("submitted and indexed") || cov.includes("indexed, not submitted")) gscStatus = "indexed";
+    else if (cov.includes("crawled - currently not indexed")) gscStatus = "crawled_not_indexed";
+    else if (cov.includes("discovered - currently not indexed")) gscStatus = "discovered_not_indexed";
+    else if (cov.includes("noindex")) gscStatus = "noindex";
+    else if (cov.includes("redirect")) gscStatus = "redirect";
+    else if (cov.includes("unknown")) gscStatus = "unknown";
+    else gscStatus = "other";
+
+    // Aksiyon önerisi: kalite sinyali + Google sonucu birleşik triyaj
+    let recommendation = "ok";
+    if (isMaster && indexed && gscStatus === "indexed") recommendation = "ok";
+    else if (issue === "ready_not_indexed") recommendation = "index_ac";
+    else if (issue === "lowquality_indexed" || issue === "thin_indexed") recommendation = "noindex_veya_duzelt";
+    else if (!isMaster) recommendation = "variant_canonical_ok";
+    else if ((gscStatus === "discovered_not_indexed" || gscStatus === "crawled_not_indexed") && marketCount30d < 3) recommendation = "thin_market_ekle_veya_noindex";
+    else if ((gscStatus === "discovered_not_indexed" || gscStatus === "crawled_not_indexed") && marketCount30d >= 3) recommendation = "zenginlestir_ic_link";
+    else if (indexed && (gscStatus === "not_checked" || gscStatus === "unknown")) recommendation = "tarama_bekliyor";
+
     return {
       slug: r.slug,
       displayName: r.displayName,
@@ -247,6 +274,9 @@ export async function auditProducts(filter: "all" | "issues" = "issues") {
       hasEditorial: hasEd,
       indexed,
       issue,
+      gscStatus,
+      gscState: r.gscState ?? null,
+      recommendation,
       priceRows30d,
       marketCount30d,
       nameClean,
@@ -255,6 +285,7 @@ export async function auditProducts(filter: "all" | "issues" = "issues") {
     };
   });
 
+  const gscCount = (st: string) => annotated.filter((r) => r.gscStatus === st).length;
   const summary = {
     total: annotated.length,
     indexed: annotated.filter((r) => r.indexed).length,
@@ -263,6 +294,14 @@ export async function auditProducts(filter: "all" | "issues" = "issues") {
     variant_indexed: annotated.filter((r) => r.issue === "variant_indexed").length,
     lowquality_indexed: annotated.filter((r) => r.issue === "lowquality_indexed").length,
     ready_not_indexed: annotated.filter((r) => r.issue === "ready_not_indexed").length,
+    gsc: {
+      indexed: gscCount("indexed"),
+      discovered_not_indexed: gscCount("discovered_not_indexed"),
+      crawled_not_indexed: gscCount("crawled_not_indexed"),
+      noindex: gscCount("noindex"),
+      unknown: gscCount("unknown"),
+      not_checked: gscCount("not_checked"),
+    },
   };
 
   const items = filter === "issues" ? annotated.filter((r) => r.issue) : annotated;

@@ -76,7 +76,33 @@ export interface SeoAuditItemDto {
   nameClean: boolean;
   aliasCount: number;
   missing: SeoAuditMissing[];
+  gscStatus: string;
+  gscState: string | null;
+  recommendation: string;
 }
+
+// GSC coverage_state → kullanıcı etiketi (Google'ın gerçek index sonucu)
+export const GSC_STATUS_LABELS: Record<string, string> = {
+  indexed: 'İndexli',
+  discovered_not_indexed: 'Keşfedildi, indexlenmedi',
+  crawled_not_indexed: 'Tarandı, indexlenmedi',
+  noindex: 'Noindex (bizim)',
+  unknown: 'Google bilmiyor',
+  redirect: 'Yönlendirme',
+  not_checked: 'Henüz denetlenmedi',
+  other: 'Diğer',
+};
+
+// Aksiyon önerisi etiketleri (kalite + Google sonucu birleşik triyaj)
+export const SEO_AUDIT_RECOMMENDATION_LABELS: Record<string, string> = {
+  ok: 'İyi durumda',
+  index_ac: "Index'e aç",
+  noindex_veya_duzelt: 'Düzelt veya noindex',
+  variant_canonical_ok: 'Varyant (canonical OK)',
+  thin_market_ekle_veya_noindex: 'Market ekle veya noindex',
+  zenginlestir_ic_link: 'Zenginleştir + iç link',
+  tarama_bekliyor: 'Tarama bekliyor',
+};
 
 // dataQuality bileşenleri (puan) — kullanıcı "elle tamamla" tarafı için.
 export const SEO_AUDIT_MISSING_LABELS: Record<SeoAuditMissing, string> = {
@@ -96,6 +122,14 @@ export interface SeoAuditResponseDto {
     variant_indexed: number;
     lowquality_indexed: number;
     ready_not_indexed: number;
+    gsc?: {
+      indexed: number;
+      discovered_not_indexed: number;
+      crawled_not_indexed: number;
+      noindex: number;
+      unknown: number;
+      not_checked: number;
+    };
   };
   items: SeoAuditItemDto[];
 }

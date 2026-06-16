@@ -41,6 +41,8 @@ import {
 import {
   SEO_AUDIT_ISSUE_LABELS,
   SEO_AUDIT_MISSING_LABELS,
+  GSC_STATUS_LABELS,
+  SEO_AUDIT_RECOMMENDATION_LABELS,
   type RedirectType,
   type SeoAuditItemDto,
 } from '@/integrations/shared';
@@ -55,7 +57,7 @@ export default function RedirectsPage() {
     note: '',
   });
   const [bulkText, setBulkText] = React.useState('');
-  const [auditView, setAuditView] = React.useState<'issues' | 'indexed' | 'noindex' | 'ready' | 'all'>('issues');
+  const [auditView, setAuditView] = React.useState<'issues' | 'undiscovered' | 'indexed' | 'noindex' | 'ready' | 'all'>('issues');
   const [auditSearch, setAuditSearch] = React.useState('');
 
   const listQ = useListRedirectsAdminQuery({ type: typeFilter, search: search || undefined });
@@ -72,6 +74,7 @@ export default function RedirectsPage() {
     const q = auditSearch.trim().toLocaleLowerCase('tr');
     return (audit?.items ?? []).filter((item) => {
       if (auditView === 'issues' && !item.issue) return false;
+      if (auditView === 'undiscovered' && item.gscStatus !== 'discovered_not_indexed' && item.gscStatus !== 'crawled_not_indexed') return false;
       if (auditView === 'indexed' && !item.indexed) return false;
       if (auditView === 'noindex' && item.indexed) return false;
       if (auditView === 'ready' && item.issue !== 'ready_not_indexed') return false;
@@ -316,10 +319,30 @@ export default function RedirectsPage() {
             ))}
           </div>
 
+          {/* Google Search Console gerçek index sonucu (denetlenen URL'ler) */}
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+            {([
+              ['gsc-indexed', 'GSC: İndexli', audit?.summary.gsc?.indexed],
+              ['gsc-discovered', 'GSC: Keşfedildi, indexsiz', audit?.summary.gsc?.discovered_not_indexed],
+              ['gsc-crawled', 'GSC: Tarandı, indexsiz', audit?.summary.gsc?.crawled_not_indexed],
+              ['gsc-noindex', 'GSC: Noindex', audit?.summary.gsc?.noindex],
+              ['gsc-unknown', 'GSC: Bilinmiyor', audit?.summary.gsc?.unknown],
+              ['gsc-notchecked', 'GSC: Denetlenmedi', audit?.summary.gsc?.not_checked],
+            ] as const).map(([key, label, val]) => (
+              <Card key={key}>
+                <CardContent className="p-3">
+                  <div className="text-2xl font-semibold">{val ?? '—'}</div>
+                  <div className="text-xs text-muted-foreground">{label}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
           <div className="flex flex-wrap items-center gap-3">
             <Tabs value={auditView} onValueChange={(v) => setAuditView(v as typeof auditView)}>
               <TabsList>
                 <TabsTrigger value="issues">Sorunlular</TabsTrigger>
+                <TabsTrigger value="undiscovered">Keşfedilmemiş</TabsTrigger>
                 <TabsTrigger value="noindex">Noindex</TabsTrigger>
                 <TabsTrigger value="ready">Indexe Hazır</TabsTrigger>
                 <TabsTrigger value="indexed">Index</TabsTrigger>
@@ -357,6 +380,8 @@ export default function RedirectsPage() {
                     <TableHead>Editoryel</TableHead>
                     <TableHead className="text-right">Veri kalitesi</TableHead>
                     <TableHead className="text-right">30g hal/kayıt</TableHead>
+                    <TableHead>Google durumu</TableHead>
+                    <TableHead>Öneri</TableHead>
                     <TableHead>Eksik bileşenler (tamamla)</TableHead>
                     <TableHead>Sorun</TableHead>
                     <TableHead className="text-right">Aksiyon</TableHead>
@@ -370,6 +395,17 @@ export default function RedirectsPage() {
                       <TableCell>{it.hasEditorial ? '✓' : '—'}</TableCell>
                       <TableCell className="text-right">{it.dataQuality}</TableCell>
                       <TableCell className="text-right text-muted-foreground">{it.marketCount30d}/{it.priceRows30d}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={it.gscStatus === 'indexed' ? 'default' : it.gscStatus === 'not_checked' ? 'outline' : 'secondary'}
+                          className="text-[11px]"
+                        >
+                          {GSC_STATUS_LABELS[it.gscStatus] ?? it.gscStatus}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {SEO_AUDIT_RECOMMENDATION_LABELS[it.recommendation] ?? it.recommendation}
+                      </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {it.missing.length === 0
@@ -402,7 +438,7 @@ export default function RedirectsPage() {
                     </TableRow>
                   ))}
                   {!auditQ.isFetching && auditRows.length === 0 && (
-                    <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground">Sorun bulunamadı</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={10} className="text-center text-muted-foreground">Sorun bulunamadı</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>

@@ -1292,6 +1292,8 @@ export {
   SEO_AUDIT_ADMIN_BASE,
   SEO_AUDIT_ISSUE_LABELS,
   SEO_AUDIT_MISSING_LABELS,
+  GSC_STATUS_LABELS,
+  SEO_AUDIT_RECOMMENDATION_LABELS,
   type RedirectType,
   type RedirectRowDto,
   type RedirectsListResponseDto,
