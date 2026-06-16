@@ -566,6 +566,9 @@ export async function registerHalAdmin(app: FastifyInstance) {
       "otu", "ot", "yaprak", "yapragi", "cicek", "cicegi", "tatli", "aci", "eksi", "sap", "filiz", "tohum",
       // Tazelik/durum nitelemeleri ("Yaş-Taze" → yas kök sanılmasın, alakasız bitkileri toplar)
       "yas", "grass", "dilimlenmis", "dondurulmus", "kavrulmus", "haslanmis",
+      // "yeni" ("Papates Yeni"/"Salatalık Yeni" gibi yeni-X'leri toplar). "Yeni Dünya"/loquat
+      // → "dunya" kökünde kümelenir (yeni dünya tek üründür, ayrışması sorun değil).
+      "yeni",
     ]);
     const tokenize = (name: string): string[] =>
       name
