@@ -34,6 +34,10 @@ export const socialAdminApi = baseApi.injectEndpoints({
       query: ({ platform }): FetchArgs => ({ url: `${SOCIAL_ADMIN_BASE}/status`, params: { platform } }),
     }),
 
+    socialChartPreview: b.query<{ success: boolean; url: string | null }, { platform: SocialFeedPlatform }>({
+      query: ({ platform }): FetchArgs => ({ url: `${SOCIAL_ADMIN_BASE}/chart-preview`, params: { platform } }),
+    }),
+
     socialPlan: b.query<SocialPlanResp, { platform: SocialFeedPlatform }>({
       query: ({ platform }): FetchArgs => ({ url: `${SOCIAL_ADMIN_BASE}/plan`, params: { platform } }),
     }),
@@ -68,6 +72,7 @@ export const socialAdminApi = baseApi.injectEndpoints({
 export const {
   useSocialFeedQuery,
   useSocialStatusQuery,
+  useLazySocialChartPreviewQuery,
   useSocialPlanQuery,
   useSocialTemplatesQuery,
   useSocialPostsQuery,

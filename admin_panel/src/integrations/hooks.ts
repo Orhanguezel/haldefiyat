@@ -275,6 +275,7 @@ export {
 export {
   useSocialFeedQuery,
   useSocialStatusQuery,
+  useLazySocialChartPreviewQuery,
   useSocialPlanQuery,
   useSocialTemplatesQuery,
   useSocialPostsQuery,

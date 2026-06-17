@@ -6,7 +6,7 @@
 "use client";
 
 import * as React from "react";
-import { Send, Save, Sparkles, CalendarClock } from "lucide-react";
+import { Send, Save, Sparkles, CalendarClock, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 
 import AdminImageUploadField from "@/app/(main)/admin/_components/common/admin-image-upload-field";
@@ -17,7 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useSocialSavePostMutation, useSocialSendMutation } from "@/integrations/hooks";
+import { useLazySocialChartPreviewQuery, useSocialSavePostMutation, useSocialSendMutation } from "@/integrations/hooks";
 import { getErrorMessage, type SocialComposeBody, type SocialFeedPlatform } from "@/integrations/shared";
 
 export default function SocialComposePanel({ platform }: { platform: SocialFeedPlatform }) {
@@ -29,9 +29,24 @@ export default function SocialComposePanel({ platform }: { platform: SocialFeedP
   const [scheduledAt, setScheduledAt] = React.useState("");
   const [send, { isLoading: sending }] = useSocialSendMutation();
   const [saveDraft, { isLoading: saving }] = useSocialSavePostMutation();
+  const [fetchChart, { isFetching: chartLoading }] = useLazySocialChartPreviewQuery();
   const { assist, loading: aiLoading } = useAIContentAssist();
 
-  const busy = sending || saving || aiLoading;
+  const busy = sending || saving || aiLoading || chartLoading;
+
+  const handleAddChart = async () => {
+    try {
+      const res = await fetchChart({ platform }).unwrap();
+      if (res.url) {
+        setMedia(res.url);
+        toast.success(t("compose.chartAdded"));
+      } else {
+        toast.error(t("compose.chartFailed"));
+      }
+    } catch {
+      toast.error(t("compose.chartFailed"));
+    }
+  };
 
   const buildBody = (): SocialComposeBody => ({
     platform,
@@ -129,14 +144,22 @@ export default function SocialComposePanel({ platform }: { platform: SocialFeedP
           />
         </div>
 
-        <AdminImageUploadField
-          label={t("compose.media")}
-          helperText={t("compose.mediaHelper")}
-          folder="social"
-          value={media}
-          onChange={setMedia}
-          previewAspect="16x9"
-        />
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">{t("compose.media")}</span>
+            <Button type="button" variant="ghost" size="sm" onClick={handleAddChart} disabled={busy}>
+              <BarChart3 className="mr-2 h-4 w-4" />
+              {chartLoading ? t("compose.chartLoading") : t("compose.addChart")}
+            </Button>
+          </div>
+          <AdminImageUploadField
+            helperText={t("compose.mediaHelper")}
+            folder="social"
+            value={media}
+            onChange={setMedia}
+            previewAspect="16x9"
+          />
+        </div>
 
         <div className="space-y-2">
           <Label htmlFor="social-schedule" className="flex items-center gap-2">
