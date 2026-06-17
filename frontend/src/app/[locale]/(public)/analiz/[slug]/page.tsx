@@ -29,10 +29,16 @@ type Props = { params: Promise<{ locale: string; slug: string }> };
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
+function absoluteUrl(url: string): string {
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${SITE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+}
+
 // Yüklenmiş özel kapak yoksa dinamik OG route'una düş — her rapor markalı kapak alır.
 function coverImageUrl(makale: { ogImage?: string | null }, slug: string): string {
-  const custom = makale.ogImage && !/og-default/.test(makale.ogImage) ? makale.ogImage : null;
-  return custom ?? `${SITE_URL}/og/analiz/${slug}`;
+  const raw = makale.ogImage?.trim();
+  const custom = raw && !/og-default/.test(raw) ? raw : null;
+  return custom ? absoluteUrl(custom) : `${SITE_URL}/og/analiz/${slug}`;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -41,6 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!makale) notFound();
 
   const cover = coverImageUrl(makale, slug);
+  const coverAlt = makale.imageAlt || makale.baslik;
 
   return {
     title: makale.metaTitle || `${makale.baslik} | HalDeFiyat Analiz`,
@@ -54,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       authors: [makale.authorProfile?.fullName ?? makale.yazar],
       tags: makale.etiketler,
       section: isHaftalikRapor(makale) ? "Haftalık Hal Raporu" : "Hal Fiyatı Analizi",
-      images: [{ url: cover, width: 1200, height: 630, alt: makale.baslik }],
+      images: [{ url: cover, width: 1200, height: 630, alt: coverAlt }],
     },
     twitter: {
       card: "summary_large_image",
@@ -131,6 +138,8 @@ export default async function AnalizMakalePage({ params }: Props) {
   const isHtml = isHtmlContent(makale.icerik);
   const authorProfile = makale.authorProfile;
   const authorName = authorProfile?.fullName ?? makale.yazar;
+  const cover = coverImageUrl(makale, makale.slug);
+  const coverAlt = makale.imageAlt || makale.baslik;
   const authorTitle = authorProfile?.title ?? null;
   const authorUrl = authorProfile ? `${SITE_URL}/yazar/${authorProfile.slug}` : null;
 
@@ -156,7 +165,7 @@ export default async function AnalizMakalePage({ params }: Props) {
     url: `${SITE_URL}/analiz/${makale.slug}`,
     inLanguage: "tr-TR",
     keywords: makale.etiketler.join(", "),
-    image: coverImageUrl(makale, makale.slug),
+    image: cover,
     articleSection: isWeekly ? "Haftalık Hal Raporu" : "Hal Fiyatı Analizi",
     isAccessibleForFree: true,
     wordCount: makale.icerik.trim().split(/\s+/g).filter(Boolean).length,
@@ -179,8 +188,8 @@ export default async function AnalizMakalePage({ params }: Props) {
         <article className="min-w-0 rounded-[20px] border border-(--color-border) bg-(--color-surface) p-6 sm:p-8 lg:p-10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={coverImageUrl(makale, makale.slug)}
-            alt={makale.baslik}
+            src={cover}
+            alt={coverAlt}
             width={1200}
             height={630}
             className="mb-7 aspect-[1200/630] w-full rounded-[16px] border border-(--color-border-soft) object-cover"

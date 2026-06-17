@@ -179,28 +179,11 @@ function likeSafe(raw: string): string {
 
 type MarketType = "hal" | "borsa" | "resmi" | "kooperatif";
 
-const BORSA_SOURCE_KEYS = ["tmo_piyasa_bulteni", "polatli_borsa", "izmir_borsa_pamuk"] as const;
-const RESMI_SOURCE_KEYS = ["tmo_alim_resmi", "bakanlik_destekleme"] as const;
-const NON_HAL_SOURCE_KEYS = [...BORSA_SOURCE_KEYS, ...RESMI_SOURCE_KEYS] as const;
-
 function marketTypeCondition(marketType: MarketType): SQL {
-  switch (marketType) {
-    case "borsa":
-      return inArray(hfMarkets.sourceKey, [...BORSA_SOURCE_KEYS]);
-    case "resmi":
-      return inArray(hfMarkets.sourceKey, [...RESMI_SOURCE_KEYS]);
-    case "hal":
-      return or(sql`${hfMarkets.sourceKey} IS NULL`, sql`${hfMarkets.sourceKey} NOT IN (${sql.join([...NON_HAL_SOURCE_KEYS].map((s) => sql`${s}`), sql`, `)})`)!;
-    case "kooperatif":
-      return sql`0 = 1`;
-  }
+  return eq(hfMarkets.marketType, marketType);
 }
 
-const marketTypeSql = sql<MarketType>`CASE
-  WHEN ${hfMarkets.sourceKey} IN (${sql.join([...BORSA_SOURCE_KEYS].map((s) => sql`${s}`), sql`, `)}) THEN 'borsa'
-  WHEN ${hfMarkets.sourceKey} IN (${sql.join([...RESMI_SOURCE_KEYS].map((s) => sql`${s}`), sql`, `)}) THEN 'resmi'
-  ELSE 'hal'
-END`;
+const marketTypeSql = sql<MarketType>`${hfMarkets.marketType}`;
 
 export async function listPriceRows(params: {
   product?: string;
@@ -699,15 +682,7 @@ export async function listProducts(q?: string, category?: string, seoIndex?: boo
       INNER JOIN hf_markets m ON m.id = ph.market_id
       WHERE ph.product_id = ${hfProducts.id}
         AND m.is_active = 1
-        AND ${
-          marketType === "borsa"
-            ? sql`m.source_key IN (${sql.join([...BORSA_SOURCE_KEYS].map((s) => sql`${s}`), sql`, `)})`
-            : marketType === "resmi"
-              ? sql`m.source_key IN (${sql.join([...RESMI_SOURCE_KEYS].map((s) => sql`${s}`), sql`, `)})`
-              : marketType === "hal"
-                ? sql`(m.source_key IS NULL OR m.source_key NOT IN (${sql.join([...NON_HAL_SOURCE_KEYS].map((s) => sql`${s}`), sql`, `)}))`
-                : sql`0 = 1`
-        }
+        AND m.market_type = ${marketType}
     )`);
   }
   if (q?.trim()) {

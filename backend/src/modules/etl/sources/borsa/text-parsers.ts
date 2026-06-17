@@ -4,8 +4,15 @@ const PRODUCT_CATEGORY: Array<{ pattern: RegExp; name: string; category: string 
   { pattern: /\b(ekmeklik\s+)?bu[ğg]day\b/i, name: "Buğday", category: "hububat" },
   { pattern: /\barpa\b/i, name: "Arpa", category: "hububat" },
   { pattern: /\bm[ıi]s[ıi]r\b/i, name: "Mısır", category: "hububat" },
+  { pattern: /\b[çc]elt[ıi]k\b/i, name: "Çeltik", category: "hububat" },
+  { pattern: /\bp[ıi]r[ıi]n[çc]\b/i, name: "Pirinç", category: "hububat" },
+  { pattern: /\byulaf\b/i, name: "Yulaf", category: "hububat" },
+  { pattern: /\b[çc]avdar\b/i, name: "Çavdar", category: "hububat" },
   { pattern: /\bay[çc]i[çc]e[ğg]i\b|\bay[çc]icegi\b/i, name: "Ayçiçeği", category: "yagli-tohum" },
   { pattern: /\bpamuk\b/i, name: "Pamuk", category: "sanayi-bitkisi" },
+  { pattern: /\bmerc[ıi]mek\b/i, name: "Mercimek", category: "bakliyat-kuru" },
+  { pattern: /\bnohut\b/i, name: "Nohut", category: "bakliyat-kuru" },
+  { pattern: /\b(kuru\s+)?fasulye\b/i, name: "Kuru Fasulye", category: "bakliyat-kuru" },
 ];
 
 function parseTrNumber(raw: string): number | null {
@@ -72,7 +79,7 @@ export function parseBorsaHtml(raw: string): BorsaPriceRow[] {
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/\s+/g, " ");
-  return parseBorsaText(text.replace(/ (?=(Buğday|Bugday|Arpa|Mısır|Misir|Ayçiçeği|Aycicegi|Pamuk)\b)/gi, "\n"));
+  return parseBorsaText(text.replace(/ (?=(Buğday|Bugday|Arpa|Mısır|Misir|Ayçiçeği|Aycicegi|Pamuk|Mercimek|Nohut|Kuru Fasulye|Fasulye)\b)/gi, "\n"));
 }
 
 function parseTrDate(raw: string): string | undefined {
@@ -84,6 +91,41 @@ function parseTrDate(raw: string): string | undefined {
 
 function toTobbProduct(rawName: string): { name: string; category: string } | null {
   const name = rawName.toLocaleUpperCase("tr-TR");
+  if (/BU[ĞG]DAY\b/.test(name)) {
+    if (/EKMEKL[İI]K/.test(name)) return { name: "Ekmeklik Buğday", category: "hububat" };
+    if (/DURUM/.test(name) || /MAKARNALIK/.test(name)) return { name: "Makarnalık Buğday", category: "hububat" };
+    return { name: "Buğday", category: "hububat" };
+  }
+  if (/^ARPA\b/.test(name)) {
+    return { name: "Arpa", category: "hububat" };
+  }
+  if (/MISIR\b|M[İI]S[İI]R\b/.test(name)) {
+    return { name: "Mısır", category: "hububat" };
+  }
+  if (/ÇELT[İI]K\b|CELT[İI]K\b/.test(name)) {
+    return { name: "Çeltik", category: "hububat" };
+  }
+  if (/P[İI]R[İI]N[ÇC]\b|PIRIN[ÇC]\b/.test(name)) {
+    return { name: "Pirinç", category: "hububat" };
+  }
+  if (/YULAF\b/.test(name)) {
+    return { name: "Yulaf", category: "hububat" };
+  }
+  if (/ÇAVDAR\b|CAVDAR\b/.test(name)) {
+    return { name: "Çavdar", category: "hububat" };
+  }
+  if (/AY[ÇC][İI]ÇE[ĞG][İI]\s+YA[ĞG]LIK/.test(name)) {
+    return { name: "Ayçiçeği", category: "yagli-tohum" };
+  }
+  if (/MERC[İI]MEK\b/.test(name)) {
+    return { name: "Mercimek", category: "bakliyat-kuru" };
+  }
+  if (/NOHUT\b/.test(name)) {
+    return { name: "Nohut", category: "bakliyat-kuru" };
+  }
+  if (/FASULYE\b/.test(name)) {
+    return { name: "Kuru Fasulye", category: "bakliyat-kuru" };
+  }
   if (/ZEYT[İI]NYA[ĞG]I\s+SIZMA/.test(name) || /ZEYT[İI]N\s*YA[ĞG]I\s+SIZMA/.test(name)) {
     return { name: "Zeytinyağı", category: "yagli-tohum" };
   }
@@ -158,6 +200,58 @@ export function parseTobbBorsaHtml(raw: string): BorsaPriceRow[] {
   }
 
   return mergeSameDayRows(rows);
+}
+
+export function parseItbPamukPdfText(raw: string): BorsaPriceRow[] {
+  const text = raw
+    .replace(/\u00a0/g, " ")
+    .replace(/\r\n/g, "\n")
+    .replace(/[ \t]+/g, " ");
+
+  const dateMatch = /(\d{1,2})\.(\d{1,2})\.(\d{4})/.exec(text);
+  const recordedDate = dateMatch
+    ? `${dateMatch[3]}-${dateMatch[2]!.padStart(2, "0")}-${dateMatch[1]!.padStart(2, "0")}`
+    : undefined;
+
+  const rows: BorsaPriceRow[] = [];
+
+  const bulletinMatch = /52\s+Renk\/CGrd([\s\S]{0,1400}?)(?:Özel\s+Şartlı|Special\s+Conditions|Bir\s+Önce|Previous)/i.exec(text);
+  if (bulletinMatch) {
+    const values = Array.from((bulletinMatch[1] ?? "").matchAll(/[0-9]{1,3},[0-9]{2}/g))
+      .map((match) => parseTrNumber(match[0]))
+      .filter((value): value is number => value != null && value > 0);
+    const tlValues = values.filter((_, index) => index % 3 === 0).filter((value) => value > 20);
+    if (tlValues.length > 0) {
+      const min = Math.min(...tlValues);
+      const max = Math.max(...tlValues);
+      rows.push({
+        name: "Pamuk",
+        category: "sanayi-bitkisi",
+        unit: "kg",
+        recordedDate,
+        min,
+        max,
+        avg: (min + max) / 2,
+      });
+      return rows;
+    }
+  }
+
+  const referenceMatch = /52\s+Renk\s+Pamuk[\s\S]{0,240}?([0-9]{1,3},[0-9]{2,3})/i.exec(text);
+  const referencePrice = referenceMatch ? parseTrNumber(referenceMatch[1]!) : null;
+  if (referencePrice != null && referencePrice > 0) {
+    rows.push({
+      name: "Pamuk",
+      category: "sanayi-bitkisi",
+      unit: "kg",
+      recordedDate,
+      min: referencePrice,
+      max: referencePrice,
+      avg: referencePrice,
+    });
+  }
+
+  return rows;
 }
 
 interface PolatliRawRow {

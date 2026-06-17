@@ -74,6 +74,48 @@ const SOURCE_URLS: Record<string, SourceInfo> = {
     type: "exchange",
     official: true,
   },
+  tobb_borsa_edirne: {
+    name: "Edirne Ticaret Borsası Günlük Fiyatları",
+    url: "https://borsa.tobb.org.tr/fiyat_borsa.php?borsakod=5ED10",
+    type: "exchange",
+    official: true,
+  },
+  tobb_borsa_uzunkopru: {
+    name: "Uzunköprü Ticaret Borsası Günlük Fiyatları",
+    url: "https://borsa.tobb.org.tr/fiyat_borsa.php?borsakod=5UZ10",
+    type: "exchange",
+    official: true,
+  },
+  tobb_borsa_gaziantep: {
+    name: "Gaziantep Ticaret Borsası Günlük Fiyatları",
+    url: "https://borsa.tobb.org.tr/fiyat_borsa.php?borsakod=5GA10",
+    type: "exchange",
+    official: true,
+  },
+  tobb_borsa_corum: {
+    name: "Çorum Ticaret Borsası Günlük Fiyatları",
+    url: "https://borsa.tobb.org.tr/fiyat_borsa.php?borsakod=5CO20",
+    type: "exchange",
+    official: true,
+  },
+  tobb_borsa_alaca: {
+    name: "Alaca Ticaret Borsası Günlük Fiyatları",
+    url: "https://borsa.tobb.org.tr/fiyat_borsa.php?borsakod=5AL05",
+    type: "exchange",
+    official: true,
+  },
+  tobb_borsa_konya: {
+    name: "Konya Ticaret Borsası Günlük Fiyatları",
+    url: "https://borsa.tobb.org.tr/fiyat_borsa.php?borsakod=5KO10",
+    type: "exchange",
+    official: true,
+  },
+  tobb_borsa_aksehir: {
+    name: "Akşehir Ticaret Borsası Günlük Fiyatları",
+    url: "https://borsa.tobb.org.tr/fiyat_borsa.php?borsakod=5AK30",
+    type: "exchange",
+    official: true,
+  },
   polatli_borsa_pdf: {
     name: "Polatlı Ticaret Borsası Piyasa Analiz Bülteni",
     url: "https://www.polatliborsa.org.tr/ptb-piyasa-analiz-bulteni/",

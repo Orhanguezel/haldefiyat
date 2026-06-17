@@ -84,7 +84,7 @@ describe("borsa ETL parsers", () => {
     ]);
   });
 
-  it("parses TOBB borsa HTML tables for olive products only", () => {
+  it("parses TOBB borsa HTML tables for borsa products", () => {
     const rows = parseTobbBorsaHtml(`
       <table class="table">
         <tr>
@@ -101,6 +101,12 @@ describe("borsa ETL parsers", () => {
         </tr>
         <tr>
           <td>ZEYTİNYAĞI SIZMA</td><td>KG</td><td>15.06.2026 16:06</td><td>250,000</td><td>300,000</td><td>274,000</td>
+        </tr>
+        <tr>
+          <td>NOHUT</td><td>KG</td><td>05.06.2026 10:19</td><td>36,880</td><td>36,880</td><td>36,880</td>
+        </tr>
+        <tr>
+          <td>MERCİMEK KIRMIZI KIRILMIŞ İÇ.</td><td>KG</td><td>03.06.2026 17:03</td><td>83,150</td><td>92,000</td><td>91,020</td>
         </tr>
       </table>
     `);
@@ -132,6 +138,24 @@ describe("borsa ETL parsers", () => {
         min: 250,
         max: 300,
         avg: 274,
+      },
+      {
+        name: "Nohut",
+        category: "bakliyat-kuru",
+        unit: "kg",
+        recordedDate: "2026-06-05",
+        min: 36.88,
+        max: 36.88,
+        avg: 36.88,
+      },
+      {
+        name: "Mercimek",
+        category: "bakliyat-kuru",
+        unit: "kg",
+        recordedDate: "2026-06-03",
+        min: 83.15,
+        max: 92,
+        avg: 91.02,
       },
     ]);
   });

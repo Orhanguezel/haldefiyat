@@ -38,12 +38,21 @@ const SITE_URL_META = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.c
 
 const BORSA_FALLBACK_PRODUCTS: Product[] = [
   { id: -101, slug: "bugday", nameTr: "Buğday", displayName: "Buğday", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
-  { id: -102, slug: "arpa", nameTr: "Arpa", displayName: "Arpa", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
-  { id: -103, slug: "misir", nameTr: "Mısır", displayName: "Mısır", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
-  { id: -104, slug: "aycicegi", nameTr: "Ayçiçeği", displayName: "Ayçiçeği", categorySlug: "yagli-tohum", unit: "kg", seoIndex: 1 },
-  { id: -105, slug: "pamuk", nameTr: "Pamuk", displayName: "Pamuk", categorySlug: "sanayi-bitkisi", unit: "kg", seoIndex: 1 },
-  { id: -106, slug: "zeytinyagi", nameTr: "Zeytinyağı", displayName: "Zeytinyağı", categorySlug: "yagli-tohum", unit: "kg", seoIndex: 1 },
-  { id: -107, slug: "zeytin", nameTr: "Sofralık Zeytin", displayName: "Sofralık Zeytin", categorySlug: "sebze-meyve", unit: "kg", seoIndex: 1 },
+  { id: -102, slug: "bugday-ekmeklik", nameTr: "Ekmeklik Buğday", displayName: "Ekmeklik Buğday", categorySlug: "hububat", unit: "kg", seoIndex: 1, familySlug: "bugday" },
+  { id: -103, slug: "bugday-makarnalik", nameTr: "Makarnalık Buğday", displayName: "Makarnalık Buğday", categorySlug: "hububat", unit: "kg", seoIndex: 1, familySlug: "bugday" },
+  { id: -104, slug: "arpa", nameTr: "Arpa", displayName: "Arpa", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -105, slug: "misir", nameTr: "Mısır", displayName: "Mısır", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -106, slug: "celtik", nameTr: "Çeltik", displayName: "Çeltik", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -107, slug: "pirinc", nameTr: "Pirinç", displayName: "Pirinç", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -108, slug: "yulaf", nameTr: "Yulaf", displayName: "Yulaf", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -109, slug: "cavdar", nameTr: "Çavdar", displayName: "Çavdar", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -110, slug: "aycicegi", nameTr: "Ayçiçeği", displayName: "Ayçiçeği", categorySlug: "yagli-tohum", unit: "kg", seoIndex: 1 },
+  { id: -111, slug: "pamuk", nameTr: "Pamuk", displayName: "Pamuk", categorySlug: "sanayi-bitkisi", unit: "kg", seoIndex: 1 },
+  { id: -112, slug: "mercimek", nameTr: "Mercimek", displayName: "Mercimek", categorySlug: "bakliyat-kuru", unit: "kg", seoIndex: 1 },
+  { id: -113, slug: "nohut", nameTr: "Nohut", displayName: "Nohut", categorySlug: "bakliyat-kuru", unit: "kg", seoIndex: 1 },
+  { id: -114, slug: "kuru-fasulye", nameTr: "Kuru Fasulye", displayName: "Kuru Fasulye", categorySlug: "bakliyat-kuru", unit: "kg", seoIndex: 1 },
+  { id: -115, slug: "zeytinyagi", nameTr: "Zeytinyağı", displayName: "Zeytinyağı", categorySlug: "yagli-tohum", unit: "kg", seoIndex: 1 },
+  { id: -116, slug: "zeytin", nameTr: "Sofralık Zeytin", displayName: "Sofralık Zeytin", categorySlug: "sebze-meyve", unit: "kg", seoIndex: 1 },
 ];
 
 const BORSA_PRODUCT_SLUGS = new Set(BORSA_FALLBACK_PRODUCTS.map((product) => product.slug));

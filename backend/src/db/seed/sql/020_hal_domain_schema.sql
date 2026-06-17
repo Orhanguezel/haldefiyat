@@ -165,10 +165,17 @@ INSERT INTO `hf_markets` (`slug`, `name`, `city_name`, `region_slug`, `source_ke
 ('tmo-resmi-alim',         'TMO Resmi Alım',                       'Türkiye',   'ulusal',     'tmo_alim_resmi',           'resmi', 101, 1),
 ('tmo-piyasa-bulteni',     'TMO Piyasa Bülteni',                   'Türkiye',   'ulusal',     'tmo_piyasa_bulteni',       'borsa', 102, 1),
 ('polatli-ticaret-borsasi','Polatlı Ticaret Borsası',              'Ankara',    'ic-anadolu', 'polatli_borsa',           'borsa', 103, 1),
-('izmir-ticaret-borsasi',  'İzmir Ticaret Borsası',                'İzmir',     'ege',        'izmir_borsa_pamuk',        'borsa', 104, 1),
-('edremit-ticaret-borsasi','Edremit Ticaret Borsası',              'Balıkesir', 'marmara',    'tobb_borsa_edremit',       'borsa', 105, 1),
-('gemlik-ticaret-borsasi', 'Gemlik Ticaret Borsası',               'Bursa',     'marmara',    'tobb_borsa_gemlik',        'borsa', 106, 1),
-('bakanlik-destekleme',    'Bakanlık Destekleme',                  'Türkiye',   'ulusal',     'bakanlik_destekleme',      'resmi', 107, 1)
+('edirne-ticaret-borsasi', 'Edirne Ticaret Borsası',               'Edirne',    'marmara',    'tobb_borsa_edirne',        'borsa', 104, 1),
+('uzunkopru-ticaret-borsasi','Uzunköprü Ticaret Borsası',           'Edirne',    'marmara',    'tobb_borsa_uzunkopru',     'borsa', 105, 1),
+('gaziantep-ticaret-borsasi','Gaziantep Ticaret Borsası',           'Gaziantep', 'guneydogu',   'tobb_borsa_gaziantep',     'borsa', 106, 1),
+('corum-ticaret-borsasi',  'Çorum Ticaret Borsası',                'Çorum',     'karadeniz',  'tobb_borsa_corum',         'borsa', 107, 1),
+('alaca-ticaret-borsasi',  'Alaca Ticaret Borsası',                'Çorum',     'karadeniz',  'tobb_borsa_alaca',         'borsa', 108, 1),
+('konya-ticaret-borsasi',  'Konya Ticaret Borsası',                'Konya',     'ic-anadolu', 'tobb_borsa_konya',         'borsa', 109, 1),
+('aksehir-ticaret-borsasi','Akşehir Ticaret Borsası',              'Konya',     'ic-anadolu', 'tobb_borsa_aksehir',       'borsa', 110, 1),
+('izmir-ticaret-borsasi',  'İzmir Ticaret Borsası',                'İzmir',     'ege',        'izmir_borsa_pamuk',        'borsa', 111, 1),
+('edremit-ticaret-borsasi','Edremit Ticaret Borsası',              'Balıkesir', 'marmara',    'tobb_borsa_edremit',       'borsa', 112, 1),
+('gemlik-ticaret-borsasi', 'Gemlik Ticaret Borsası',               'Bursa',     'marmara',    'tobb_borsa_gemlik',        'borsa', 113, 1),
+('bakanlik-destekleme',    'Bakanlık Destekleme',                  'Türkiye',   'ulusal',     'bakanlik_destekleme',      'resmi', 114, 1)
 ON DUPLICATE KEY UPDATE
   `name`       = VALUES(`name`),
   `source_key` = VALUES(`source_key`),
@@ -196,21 +203,32 @@ CREATE TABLE IF NOT EXISTS `hf_index_snapshots` (
 -- Borsa/resmi fiyat dikeyi için MVP ürünleri seed edilir; hal ürünleri
 -- ETL_AUTO_REGISTER_PRODUCTS=true akışıyla gerçek kaynaklardan büyümeye devam eder.
 INSERT INTO `hf_products`
-  (`slug`, `name_tr`, `category_slug`, `unit`, `aliases`, `display_name`, `seo_index`, `data_quality`, `search_volume`, `display_order`, `is_active`)
+  (`slug`, `name_tr`, `category_slug`, `unit`, `aliases`, `display_name`, `canonical_slug`, `family_slug`, `seo_index`, `data_quality`, `search_volume`, `display_order`, `is_active`)
 VALUES
-  ('bugday',   'Buğday',   'hububat',        'kg', JSON_ARRAY('bugday','buğday','ekmeklik buğday','makarnalık buğday','wheat'),       'Buğday',   1, 70, 9000, 101, 1),
-  ('arpa',     'Arpa',     'hububat',        'kg', JSON_ARRAY('arpa','barley','yemlik arpa'),                                      'Arpa',     1, 70, 6500, 102, 1),
-  ('misir',    'Mısır',    'hububat',        'kg', JSON_ARRAY('mısır','misir','dane mısır','corn'),                                'Mısır',    1, 70, 8000, 103, 1),
-  ('aycicegi', 'Ayçiçeği', 'yagli-tohum',    'kg', JSON_ARRAY('ayçiçeği','aycicegi','yağlık ayçiçeği','sunflower'),                'Ayçiçeği', 1, 70, 5400, 104, 1),
-  ('pamuk',    'Pamuk',    'sanayi-bitkisi', 'kg', JSON_ARRAY('pamuk','kütlü pamuk','kutlu pamuk','lif pamuk','cotton'),            'Pamuk',    1, 70, 7200, 105, 1),
-  ('zeytinyagi','Zeytinyağı','yagli-tohum',   'kg', JSON_ARRAY('zeytinyağı','zeytinyagi','natürel sızma zeytinyağı','sızma zeytinyağı','zeytinyağı sızma','sizma zeytinyagi','olive oil'),'Zeytinyağı', 1, 70, 18000, 106, 1),
-  ('zeytin',   'Sofralık Zeytin','sebze-meyve','kg', JSON_ARRAY('zeytin','sofralık zeytin','sofralik zeytin','zeytin siyah salamur','zeytin yeşil hususi','yeşil zeytin','siyah zeytin','table olive'),   'Sofralık Zeytin', 1, 70, 9000, 107, 1)
+  ('bugday',   'Buğday',   'hububat',        'kg', JSON_ARRAY('bugday','buğday','wheat'),       'Buğday', NULL, 'bugday', 1, 70, 9000, 101, 1),
+  ('bugday-ekmeklik', 'Ekmeklik Buğday', 'hububat', 'kg', JSON_ARRAY('ekmeklik buğday','ekmeklik bugday','buğday ekmeklik','bugday ekmeklik','bread wheat'), 'Ekmeklik Buğday', NULL, 'bugday', 1, 70, 4200, 102, 1),
+  ('bugday-makarnalik', 'Makarnalık Buğday', 'hububat', 'kg', JSON_ARRAY('makarnalık buğday','makarnalik bugday','durum buğday','durum bugday','buğday anadolu durum','durum wheat'), 'Makarnalık Buğday', NULL, 'bugday', 1, 70, 3600, 103, 1),
+  ('arpa',     'Arpa',     'hububat',        'kg', JSON_ARRAY('arpa','barley','yemlik arpa'),                                      'Arpa',     NULL, NULL, 1, 70, 6500, 104, 1),
+  ('misir',    'Mısır',    'hububat',        'kg', JSON_ARRAY('mısır','misir','dane mısır','corn'),                                'Mısır',    NULL, NULL, 1, 70, 8000, 105, 1),
+  ('celtik',   'Çeltik',   'hububat',        'kg', JSON_ARRAY('çeltik','celtik','paddy','paddy rice'),                              'Çeltik',   NULL, NULL, 1, 70, 3200, 106, 1),
+  ('pirinc',   'Pirinç',   'hububat',        'kg', JSON_ARRAY('pirinç','pirinc','pirinç uzun tane','pirinç orta tane','pirinç kısa tane','pirinç kırık','rice'), 'Pirinç', NULL, NULL, 1, 70, 11000, 107, 1),
+  ('yulaf',    'Yulaf',    'hububat',        'kg', JSON_ARRAY('yulaf','oat','oats'),                                               'Yulaf',    NULL, NULL, 1, 70, 4800, 108, 1),
+  ('cavdar',   'Çavdar',   'hububat',        'kg', JSON_ARRAY('çavdar','cavdar','rye'),                                            'Çavdar',   NULL, NULL, 1, 70, 2600, 109, 1),
+  ('aycicegi', 'Ayçiçeği', 'yagli-tohum',    'kg', JSON_ARRAY('ayçiçeği','aycicegi','yağlık ayçiçeği','sunflower'),                'Ayçiçeği', NULL, NULL, 1, 70, 5400, 110, 1),
+  ('pamuk',    'Pamuk',    'sanayi-bitkisi', 'kg', JSON_ARRAY('pamuk','kütlü pamuk','kutlu pamuk','lif pamuk','cotton'),            'Pamuk',    NULL, NULL, 1, 70, 7200, 111, 1),
+  ('mercimek', 'Mercimek', 'bakliyat-kuru',  'kg', JSON_ARRAY('mercimek','kırmızı mercimek','kirmizi mercimek','mercimek kırmızı kırılmış iç','mercimek kirmizi kirilmis ic','lentil'), 'Mercimek', NULL, NULL, 1, 70, 6200, 112, 1),
+  ('nohut',    'Nohut',    'bakliyat-kuru',  'kg', JSON_ARRAY('nohut','chickpea','nohut naturel','nohut natürel'),                  'Nohut',    NULL, NULL, 1, 70, 5400, 113, 1),
+  ('kuru-fasulye', 'Kuru Fasulye', 'bakliyat-kuru', 'kg', JSON_ARRAY('kuru fasulye','fasulye kuru','kuru fasulye naturel','k.fasulye','k.fasulye dermason','k.fasulye barbunya','white bean'), 'Kuru Fasulye', NULL, NULL, 1, 70, 6800, 114, 1),
+  ('zeytinyagi','Zeytinyağı','yagli-tohum',   'kg', JSON_ARRAY('zeytinyağı','zeytinyagi','natürel sızma zeytinyağı','sızma zeytinyağı','zeytinyağı sızma','sizma zeytinyagi','olive oil'),'Zeytinyağı', NULL, NULL, 1, 70, 18000, 115, 1),
+  ('zeytin',   'Sofralık Zeytin','sebze-meyve','kg', JSON_ARRAY('zeytin','sofralık zeytin','sofralik zeytin','zeytin siyah salamur','zeytin yeşil hususi','yeşil zeytin','siyah zeytin','table olive'),   'Sofralık Zeytin', NULL, NULL, 1, 70, 9000, 116, 1)
 ON DUPLICATE KEY UPDATE
   `name_tr` = VALUES(`name_tr`),
   `category_slug` = VALUES(`category_slug`),
   `unit` = VALUES(`unit`),
   `aliases` = VALUES(`aliases`),
   `display_name` = VALUES(`display_name`),
+  `canonical_slug` = VALUES(`canonical_slug`),
+  `family_slug` = VALUES(`family_slug`),
   `seo_index` = VALUES(`seo_index`),
   `data_quality` = GREATEST(`data_quality`, VALUES(`data_quality`)),
   `search_volume` = VALUES(`search_volume`),

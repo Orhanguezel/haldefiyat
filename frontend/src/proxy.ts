@@ -10,7 +10,24 @@ const intlMiddleware = createMiddleware({
 });
 
 const LOWERCASE_SLUG_SECTIONS = new Set(["urun", "hal", "analiz"]);
-const BORSA_PRODUCT_SLUGS = new Set(["bugday", "arpa", "misir", "aycicegi", "pamuk", "zeytinyagi", "zeytin"]);
+const BORSA_PRODUCT_SLUGS = new Set([
+  "bugday",
+  "bugday-ekmeklik",
+  "bugday-makarnalik",
+  "arpa",
+  "misir",
+  "celtik",
+  "pirinc",
+  "yulaf",
+  "cavdar",
+  "aycicegi",
+  "pamuk",
+  "mercimek",
+  "nohut",
+  "kuru-fasulye",
+  "zeytinyagi",
+  "zeytin",
+]);
 // Listeleme link'i kesik/eski slug üretiyor; ürün yok → arama sayfasına yumuşak iniş.
 const KNOWN_BROKEN_PRODUCT_SLUGS = new Set([
   "bezelye-taze",

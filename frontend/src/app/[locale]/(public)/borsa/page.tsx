@@ -3,22 +3,47 @@ export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
-import { ArrowRight, BadgeCheck, BarChart3, Wheat } from "lucide-react";
+import { ArrowRight, BadgeCheck, BarChart3 } from "lucide-react";
 import { fetchPrices, fetchPricesPage, fetchProducts, type Product } from "@/lib/api";
 import PriceTable from "@/components/ui/PriceTable";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
+import ProductImage from "@/components/ui/ProductImage";
 
 type Props = { params: Promise<{ locale: string }> };
 
-const BORE_PRODUCTS = ["bugday", "arpa", "misir", "aycicegi", "pamuk"];
+const BORE_PRODUCTS = [
+  "bugday",
+  "bugday-ekmeklik",
+  "bugday-makarnalik",
+  "arpa",
+  "misir",
+  "celtik",
+  "pirinc",
+  "yulaf",
+  "cavdar",
+  "aycicegi",
+  "pamuk",
+  "mercimek",
+  "nohut",
+  "kuru-fasulye",
+];
 
 const FALLBACK_PRODUCTS: Product[] = [
   { id: -101, slug: "bugday", nameTr: "Buğday", displayName: "Buğday", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
-  { id: -102, slug: "arpa", nameTr: "Arpa", displayName: "Arpa", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
-  { id: -103, slug: "misir", nameTr: "Mısır", displayName: "Mısır", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
-  { id: -104, slug: "aycicegi", nameTr: "Ayçiçeği", displayName: "Ayçiçeği", categorySlug: "yagli-tohum", unit: "kg", seoIndex: 1 },
-  { id: -105, slug: "pamuk", nameTr: "Pamuk", displayName: "Pamuk", categorySlug: "sanayi-bitkisi", unit: "kg", seoIndex: 1 },
+  { id: -102, slug: "bugday-ekmeklik", nameTr: "Ekmeklik Buğday", displayName: "Ekmeklik Buğday", categorySlug: "hububat", unit: "kg", seoIndex: 1, familySlug: "bugday" },
+  { id: -103, slug: "bugday-makarnalik", nameTr: "Makarnalık Buğday", displayName: "Makarnalık Buğday", categorySlug: "hububat", unit: "kg", seoIndex: 1, familySlug: "bugday" },
+  { id: -104, slug: "arpa", nameTr: "Arpa", displayName: "Arpa", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -105, slug: "misir", nameTr: "Mısır", displayName: "Mısır", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -106, slug: "celtik", nameTr: "Çeltik", displayName: "Çeltik", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -107, slug: "pirinc", nameTr: "Pirinç", displayName: "Pirinç", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -108, slug: "yulaf", nameTr: "Yulaf", displayName: "Yulaf", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -109, slug: "cavdar", nameTr: "Çavdar", displayName: "Çavdar", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
+  { id: -110, slug: "aycicegi", nameTr: "Ayçiçeği", displayName: "Ayçiçeği", categorySlug: "yagli-tohum", unit: "kg", seoIndex: 1 },
+  { id: -111, slug: "pamuk", nameTr: "Pamuk", displayName: "Pamuk", categorySlug: "sanayi-bitkisi", unit: "kg", seoIndex: 1 },
+  { id: -112, slug: "mercimek", nameTr: "Mercimek", displayName: "Mercimek", categorySlug: "bakliyat-kuru", unit: "kg", seoIndex: 1 },
+  { id: -113, slug: "nohut", nameTr: "Nohut", displayName: "Nohut", categorySlug: "bakliyat-kuru", unit: "kg", seoIndex: 1 },
+  { id: -114, slug: "kuru-fasulye", nameTr: "Kuru Fasulye", displayName: "Kuru Fasulye", categorySlug: "bakliyat-kuru", unit: "kg", seoIndex: 1 },
 ];
 
 function withFallbackProducts(products: Product[]): Product[] {
@@ -30,7 +55,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   return {
     title: "Borsa ve Resmi Tarım Fiyatları | HaldeFiyat",
-    description: "Buğday, arpa, mısır, ayçiçeği ve pamuk için TMO resmi alım fiyatları ile ticaret borsası fiyatları.",
+    description: "Buğday, ekmeklik ve makarnalık buğday, arpa, mısır, çeltik, pirinç, yulaf, çavdar, ayçiçeği, pamuk, mercimek, nohut ve kuru fasulye için TMO resmi alım fiyatları ile ticaret borsası fiyatları.",
     alternates: { canonical: `/${locale}/borsa` },
   };
 }
@@ -90,7 +115,7 @@ export default async function BorsaPage({ params }: Props) {
             Borsa ve resmi tarım fiyatları
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-muted">
-            Hububat, yağlı tohum ve sanayi bitkilerinde TMO resmi alım fiyatları ile ticaret borsası
+            Hububat, yağlı tohum, sanayi bitkisi ve kuru bakliyatta TMO resmi alım fiyatları ile ticaret borsası
             serbest piyasa fiyatlarını ayrı kaynak ve tarih etiketiyle izleyin.
           </p>
         </div>
@@ -109,7 +134,7 @@ export default async function BorsaPage({ params }: Props) {
         </div>
       </section>
 
-      <section className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <section className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {mvpProducts.map((product) => (
           <Link
             key={product.slug}
@@ -117,7 +142,13 @@ export default async function BorsaPage({ params }: Props) {
             className="group rounded-lg border border-border bg-surface p-4 transition-colors hover:border-brand/50"
           >
             <div className="mb-5 flex items-center justify-between">
-              <Wheat className="h-5 w-5 text-brand" />
+              <ProductImage
+                slug={product.slug}
+                name={product.displayName || product.nameTr}
+                categorySlug={product.categorySlug}
+                size={44}
+                className="rounded-lg"
+              />
               <ArrowRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-1" />
             </div>
             <div className="font-semibold text-foreground">{product.displayName || product.nameTr}</div>

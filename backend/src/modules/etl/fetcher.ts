@@ -15,6 +15,10 @@
  *   6. hf_etl_runs'a özet kayıt
  */
 
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { spawn } from "node:child_process";
 import { db } from "@/db/client";
 import { hfMarkets, hfProducts, hfEtlRuns } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -24,7 +28,7 @@ import type { EtlSourceConfig } from "@/config/etl-sources";
 import { env } from "@/core/env";
 import { fetchViaScraper, shouldUseScraperFor, shouldUseDynamicFor } from "./scraper-client";
 import { parseTmoAlimResmi } from "./sources/borsa/tmo-alim";
-import { parseBorsaHtml, parseBorsaText, parsePolatliBorsaJson, parseTobbBorsaHtml } from "./sources/borsa/text-parsers";
+import { parseBorsaHtml, parseBorsaText, parseItbPamukPdfText, parsePolatliBorsaJson, parseTobbBorsaHtml } from "./sources/borsa/text-parsers";
 
 export interface EtlRunResult {
   inserted: number;
@@ -84,6 +88,7 @@ function parseResponse(
     case "tmo_pdf_bulten":    return parseBorsaText(String(raw));
     case "polatli_borsa_json": return parsePolatliBorsaJson(raw);
     case "tobb_borsa_html":   return parseTobbBorsaHtml(String(raw));
+    case "itb_pamuk_pdf":     return parseItbPamukPdfText(String(raw));
     case "borsa_html":        return parseBorsaHtml(String(raw));
     case "borsa_pdf":         return parseBorsaText(String(raw));
     default:                 return [];
@@ -976,6 +981,9 @@ async function fetchDated(
   if (source.responseShape === "polatli_borsa_json") {
     return fetchPolatliBorsaDated(source, date, isBackfill);
   }
+  if (source.responseShape === "itb_pamuk_pdf") {
+    return fetchItbPamukPdfDated(source, date, isBackfill);
+  }
 
   // Geriye dönük çağrıda backfillEndpoint tercih edilir (Konya gibi: default
   // sayfa bugünü, ?tarih=YYYY-MM-DD arşivi döndürür).
@@ -1036,6 +1044,85 @@ async function fetchPolatliBorsaDated(
   try { json = JSON.parse(text); }
   catch { throw new Error(`Invalid JSON response from ${url}`); }
   return { rows: parseResponse(source.responseShape, json, source), dateUsed: date, httpStatus: res.status };
+}
+
+function ymdFromIso(iso: string): string {
+  return iso.replace(/-/g, "");
+}
+
+function isoFromYmd(ymd: string): string {
+  return `${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6, 8)}`;
+}
+
+function latestItbPamukPdfUrl(html: string, baseUrl: string, targetDate: string, isBackfill: boolean): { url: string; date: string } | null {
+  const pairs = [...html.matchAll(/(\d{8})\s*:\s*\[\s*["']([^"']*pamuk-bulteni-2\.(?:pdf|xls|xlsx))["']/gi)]
+    .map((match) => ({ ymd: match[1]!, file: match[2]! }))
+    .filter((item) => !isBackfill || item.ymd === ymdFromIso(targetDate))
+    .filter((item) => item.ymd <= ymdFromIso(targetDate))
+    .sort((a, b) => b.ymd.localeCompare(a.ymd));
+
+  const pdf = pairs.find((item) => /\.pdf$/i.test(item.file));
+  if (!pdf) return null;
+  return {
+    url: new URL(`/dosya/bulten/${pdf.file}`, baseUrl).toString(),
+    date: isoFromYmd(pdf.ymd),
+  };
+}
+
+async function pdfBufferToText(buffer: ArrayBuffer): Promise<string> {
+  const dir = await mkdtemp(join(tmpdir(), "itb-pamuk-"));
+  const pdfPath = join(dir, "bulletin.pdf");
+  try {
+    await writeFile(pdfPath, Buffer.from(buffer));
+    const child = spawn("pdftotext", ["-layout", pdfPath, "-"], {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    const stdoutChunks: Buffer[] = [];
+    const stderrChunks: Buffer[] = [];
+    child.stdout.on("data", (chunk: Buffer) => stdoutChunks.push(chunk));
+    child.stderr.on("data", (chunk: Buffer) => stderrChunks.push(chunk));
+    const exitCode = await new Promise<number>((resolve, reject) => {
+      child.on("error", reject);
+      child.on("close", resolve);
+    });
+    const stderr = Buffer.concat(stderrChunks).toString("utf8");
+    if (exitCode !== 0) throw new Error(`pdftotext failed (${exitCode}): ${stderr}`);
+    return Buffer.concat(stdoutChunks).toString("utf8");
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+}
+
+async function fetchItbPamukPdfDated(
+  source: EtlSourceConfig,
+  date: string,
+  isBackfill = false,
+): Promise<FetchOutcome> {
+  const indexUrl = source.baseUrl + source.endpointTemplate;
+  const indexRes = await fetch(indexUrl, {
+    headers: {
+      Accept: "text/html,application/xhtml+xml",
+      "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
+    },
+    signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+  });
+  if (!indexRes.ok) throw new Error(`HTTP ${indexRes.status} @ ${indexUrl}`);
+
+  const html = await decodeResponseBody(indexRes);
+  const pdf = latestItbPamukPdfUrl(html, source.baseUrl, date, isBackfill);
+  if (!pdf) return { rows: [], dateUsed: date, httpStatus: indexRes.status };
+
+  const pdfRes = await fetch(pdf.url, {
+    headers: {
+      Accept: "application/pdf,*/*",
+      "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
+    },
+    signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+  });
+  if (!pdfRes.ok) throw new Error(`HTTP ${pdfRes.status} @ ${pdf.url}`);
+
+  const text = await pdfBufferToText(await pdfRes.arrayBuffer());
+  return { rows: parseResponse(source.responseShape, text, source), dateUsed: pdf.date, httpStatus: pdfRes.status };
 }
 
 async function fetchAnkaraDated(

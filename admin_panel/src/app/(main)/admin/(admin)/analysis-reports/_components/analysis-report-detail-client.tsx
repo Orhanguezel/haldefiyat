@@ -28,6 +28,17 @@ import { resolveMediaUrl } from '@/lib/media-url';
 
 import { AnalysisReportQualityPanel } from './analysis-report-quality-panel';
 
+function publicSiteOrigin(): string {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://haldefiyat.com';
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return 'https://haldefiyat.com';
+  }
+}
+
+const SITE_URL = publicSiteOrigin();
+
 type EditorState = {
   title: string;
   slug: string;
@@ -56,10 +67,21 @@ function emptyEditor(): EditorState {
     tags: 'hal fiyatları, piyasa analizi',
     metaTitle: '',
     metaDescription: '',
-    ogImage: '/og-default.png',
+    ogImage: '',
     imageAlt: '',
     authorId: '',
   };
+}
+
+function isDefaultOgImage(value: string | null | undefined): boolean {
+  return !String(value || '').trim() || /og-default/.test(String(value));
+}
+
+function analysisCoverUrl(ogImage: string | null | undefined, slug: string): string {
+  const raw = String(ogImage || '').trim();
+  if (!isDefaultOgImage(raw)) return resolveMediaUrl(raw);
+  const safeSlug = slug.trim();
+  return safeSlug ? `${SITE_URL}/og/analiz/${safeSlug}` : '';
 }
 
 function formatDate(value: string | null | undefined): string {
@@ -188,6 +210,8 @@ export function AnalysisReportDetailClient({ id }: Props) {
   const isSaving = isCreating || isUpdating;
   const status = report?.status ?? 'draft';
   const previewUrl = editor.slug ? `https://haldefiyat.com/analiz/${editor.slug}` : '';
+  const customOgImage = isDefaultOgImage(editor.ogImage) ? '' : editor.ogImage;
+  const effectiveCoverUrl = analysisCoverUrl(editor.ogImage, editor.slug || slugify(editor.title));
   const tags = splitTags(editor.tags);
   const authors = authorsData?.items ?? [];
 
@@ -205,7 +229,7 @@ export function AnalysisReportDetailClient({ id }: Props) {
       tags,
       metaTitle: editor.metaTitle || null,
       metaDescription: editor.metaDescription || null,
-      ogImage: editor.ogImage || null,
+      ogImage: customOgImage || null,
       imageAlt: editor.imageAlt || editor.title,
       authorId: editor.authorId ? Number(editor.authorId) : null,
       ...(nextStatus ? { status: nextStatus } : {}),
@@ -402,9 +426,9 @@ export function AnalysisReportDetailClient({ id }: Props) {
                 <p className="mt-3 border-l-4 border-primary bg-muted/40 px-4 py-3 text-sm leading-6">
                   {editor.summary || 'Özet'}
                 </p>
-                {editor.ogImage && (
+                {effectiveCoverUrl && (
                   <img
-                    src={resolveMediaUrl(editor.ogImage)}
+                    src={effectiveCoverUrl}
                     alt={editor.imageAlt || editor.title}
                     className="mt-4 aspect-video w-full rounded-md border object-cover"
                   />
@@ -475,10 +499,20 @@ export function AnalysisReportDetailClient({ id }: Props) {
             </TabsContent>
 
             <TabsContent value="image" className="space-y-4 pt-4">
+              {effectiveCoverUrl && (
+                <div className="rounded-md border bg-muted/30 p-3">
+                  <div className="mb-2 text-xs font-medium text-muted-foreground">Public sayfada görünen kapak</div>
+                  <img
+                    src={effectiveCoverUrl}
+                    alt={editor.imageAlt || editor.title}
+                    className="aspect-[1200/630] w-full rounded-md border bg-background object-cover"
+                  />
+                </div>
+              )}
               <AdminImageUploadField
-                label="Meta / OG görseli"
-                helperText="Sosyal medya paylaşımı ve arama sonuçları için kullanılacak kapak görseli."
-                value={editor.ogImage}
+                label="Özel kapak / OG görseli"
+                helperText="Boş bırakılırsa public analiz sayfasında dinamik rapor kapağı kullanılır. Görsel yüklerseniz sayfa, sosyal medya ve arama önizlemesi bu görseli kullanır."
+                value={customOgImage}
                 onChange={(url) => setEditor((prev) => ({ ...prev, ogImage: url }))}
                 folder="uploads/analysis-reports"
                 previewAspect="16x9"
