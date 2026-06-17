@@ -6,6 +6,7 @@ import { hfAnalysisReports, hfAuthors } from "@/db/schema";
 import { repoGetSnapshotHistory } from "@/modules/index/repository";
 import { resolveWeekRange } from "@/modules/prices/iso-week";
 import { weeklyPriceSummary, type WeeklySummary } from "@/modules/prices/weekly";
+import { registerAnalysisQuality } from "./quality";
 
 export type AutoWeeklyReport = {
   slug: string;
@@ -248,6 +249,8 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
     if (!row) return reply.status(404).send({ error: "Rapor bulunamadi" });
     return reply.send({ data: reportRowToAdmin(row) });
   });
+
+  await registerAnalysisQuality(app);
 }
 
 export async function generateLatestWeeklyAnalysisReport(): Promise<AutoWeeklyReport | null> {

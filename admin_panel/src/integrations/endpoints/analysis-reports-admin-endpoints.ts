@@ -41,6 +41,37 @@ export interface AnalysisReportPatch {
   status?: AnalysisReportStatus;
 }
 
+export interface QualityBreakItem {
+  key: string;
+  label: string;
+  points: number;
+  max: number;
+  pass: boolean;
+  detail?: string;
+}
+
+export type GscIndexCategory = 'indexed' | 'not_indexed' | 'issue' | 'unknown';
+
+export interface AnalysisReportQuality {
+  reportId: number;
+  slug: string;
+  status: AnalysisReportStatus;
+  publicUrl: string;
+  readiness: number;
+  content: { score: number; breakdown: QualityBreakItem[]; wordCount: number; h2: number; tables: number };
+  seo: { score: number; breakdown: QualityBreakItem[] };
+  gsc: {
+    url: string;
+    checked: boolean;
+    verdict: string | null;
+    coverageState: string | null;
+    lastCrawl: string | null;
+    checkedAt: string | null;
+    category: GscIndexCategory;
+    label: string;
+  };
+}
+
 export interface AnalysisReportCreate {
   title: string;
   slug?: string;
@@ -108,6 +139,16 @@ export const analysisReportsAdminApi = baseApi.injectEndpoints({
       query: ({ id }) => ({ url: `/admin/analysis/reports/${id}/archive`, method: 'POST' }),
       invalidatesTags: [{ type: 'AnalysisReports' as const, id: 'LIST' }],
     }),
+    getAnalysisReportQualityAdmin: builder.query<AnalysisReportQuality, { id: number | string }>({
+      query: ({ id }) => ({ url: `/admin/analysis/reports/${id}/quality` }),
+      transformResponse: (response: { data: AnalysisReportQuality }) => response.data,
+      providesTags: (_res, _err, { id }) => [{ type: 'AnalysisReports' as const, id: `quality-${id}` }],
+    }),
+    inspectAnalysisReportAdmin: builder.mutation<AnalysisReportQuality, { id: number }>({
+      query: ({ id }) => ({ url: `/admin/analysis/reports/${id}/inspect`, method: 'POST' }),
+      transformResponse: (response: { data: AnalysisReportQuality }) => response.data,
+      invalidatesTags: (_res, _err, { id }) => [{ type: 'AnalysisReports' as const, id: `quality-${id}` }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -121,4 +162,6 @@ export const {
   usePublishAnalysisReportAdminMutation,
   useDraftAnalysisReportAdminMutation,
   useArchiveAnalysisReportAdminMutation,
+  useGetAnalysisReportQualityAdminQuery,
+  useInspectAnalysisReportAdminMutation,
 } = analysisReportsAdminApi;

@@ -26,6 +26,8 @@ import {
 } from '@/integrations/hooks';
 import { resolveMediaUrl } from '@/lib/media-url';
 
+import { AnalysisReportQualityPanel } from './analysis-report-quality-panel';
+
 type EditorState = {
   title: string;
   slug: string;
@@ -298,11 +300,12 @@ export function AnalysisReportDetailClient({ id }: Props) {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="content">İçerik</TabsTrigger>
               <TabsTrigger value="preview">Önizleme</TabsTrigger>
               <TabsTrigger value="seo">SEO</TabsTrigger>
               <TabsTrigger value="image">Görsel</TabsTrigger>
+              <TabsTrigger value="quality">Kalite</TabsTrigger>
             </TabsList>
 
             <TabsContent value="content" className="space-y-4 pt-4">
@@ -490,6 +493,10 @@ export function AnalysisReportDetailClient({ id }: Props) {
                   onChange={(event) => setEditor((prev) => ({ ...prev, imageAlt: event.target.value }))}
                 />
               </div>
+            </TabsContent>
+
+            <TabsContent value="quality" className="pt-4">
+              <AnalysisReportQualityPanel id={id} isNew={isNew} />
             </TabsContent>
           </Tabs>
         </CardContent>

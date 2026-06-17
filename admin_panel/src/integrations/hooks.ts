@@ -311,6 +311,8 @@ export {
   useDraftAnalysisReportAdminMutation,
   useGenerateAnalysisReportAdminMutation,
   useGetAnalysisReportAdminQuery,
+  useGetAnalysisReportQualityAdminQuery,
+  useInspectAnalysisReportAdminMutation,
   useListAnalysisReportsAdminQuery,
   usePublishAnalysisReportAdminMutation,
   useUpdateAnalysisReportAdminMutation,
