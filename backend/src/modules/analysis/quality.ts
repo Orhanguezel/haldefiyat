@@ -74,7 +74,8 @@ function scoreSeo(report: ReportRow): { score: number; breakdown: BreakItem[] } 
   const mdPts = metaDesc.length >= 120 && metaDesc.length <= 160 ? 20 : metaDesc.length >= 80 && metaDesc.length <= 185 ? 12 : metaDesc ? 5 : 0;
   const slugPts = slug && /^[a-z0-9-]+$/.test(slug) && slug.length <= 80 ? 15 : slug ? 6 : 0;
   const tagPts = tags.length >= 3 ? 15 : tags.length >= 1 ? 8 : 0;
-  const ogPts = ogImage && !/og-default/.test(ogImage) ? 10 : ogImage ? 6 : 0;
+  const hasCustomOg = Boolean(ogImage) && !/og-default/.test(ogImage);
+  const ogPts = 10;
   const titlePts = titleLen >= 30 && titleLen <= 65 ? 10 : titleLen ? 4 : 0;
   const altPts = imageAlt ? 10 : 0;
 
@@ -83,7 +84,7 @@ function scoreSeo(report: ReportRow): { score: number; breakdown: BreakItem[] } 
     { key: "metaDesc", label: "Meta açıklama (120-160 krk)", points: mdPts, max: 20, pass: mdPts === 20, detail: `${metaDesc.length} krk` },
     { key: "slug", label: "Temiz slug", points: slugPts, max: 15, pass: slugPts === 15 },
     { key: "tags", label: "Etiketler (≥3)", points: tagPts, max: 15, pass: tags.length >= 3, detail: `${tags.length} etiket` },
-    { key: "og", label: "Kapak (OG) görseli", points: ogPts, max: 10, pass: ogPts === 10, detail: ogImage && /og-default/.test(ogImage) ? "varsayılan görsel" : undefined },
+    { key: "og", label: "Kapak (OG) görseli", points: ogPts, max: 10, pass: true, detail: hasCustomOg ? "özel görsel" : "otomatik üretilen kapak (/og/analiz)" },
     { key: "title", label: "Başlık uzunluğu (30-65 krk)", points: titlePts, max: 10, pass: titlePts === 10, detail: `${titleLen} krk` },
     { key: "alt", label: "Görsel alt metni", points: altPts, max: 10, pass: altPts === 10 },
   ];

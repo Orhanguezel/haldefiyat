@@ -28,10 +28,18 @@ type Props = { params: Promise<{ locale: string; slug: string }> };
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
+// Yüklenmiş özel kapak yoksa dinamik OG route'una düş — her rapor markalı kapak alır.
+function coverImageUrl(makale: { ogImage?: string | null }, slug: string): string {
+  const custom = makale.ogImage && !/og-default/.test(makale.ogImage) ? makale.ogImage : null;
+  return custom ?? `${SITE_URL}/og/analiz/${slug}`;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const makale = await getMakaleForSlug(slug);
   if (!makale) notFound();
+
+  const cover = coverImageUrl(makale, slug);
 
   return {
     title: makale.metaTitle || `${makale.baslik} | HalDeFiyat Analiz`,
@@ -45,13 +53,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       authors: [makale.authorProfile?.fullName ?? makale.yazar],
       tags: makale.etiketler,
       section: isHaftalikRapor(makale) ? "Haftalık Hal Raporu" : "Hal Fiyatı Analizi",
-      ...(makale.ogImage ? { images: [makale.ogImage] } : {}),
+      images: [{ url: cover, width: 1200, height: 630, alt: makale.baslik }],
     },
     twitter: {
       card: "summary_large_image",
       title: makale.metaTitle || makale.baslik,
       description: makale.metaDescription || makale.ozet,
-      ...(makale.ogImage ? { images: [makale.ogImage] } : {}),
+      images: [cover],
     },
     alternates: {
       canonical: `${SITE_URL}/analiz/${slug}`,
@@ -147,7 +155,7 @@ export default async function AnalizMakalePage({ params }: Props) {
     url: `${SITE_URL}/analiz/${makale.slug}`,
     inLanguage: "tr-TR",
     keywords: makale.etiketler.join(", "),
-    ...(makale.ogImage ? { image: makale.ogImage } : {}),
+    image: coverImageUrl(makale, makale.slug),
     articleSection: isWeekly ? "Haftalık Hal Raporu" : "Hal Fiyatı Analizi",
     isAccessibleForFree: true,
     wordCount: makale.icerik.trim().split(/\s+/g).filter(Boolean).length,
@@ -168,6 +176,14 @@ export default async function AnalizMakalePage({ params }: Props) {
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
         <article className="min-w-0 rounded-[20px] border border-(--color-border) bg-(--color-surface) p-6 sm:p-8 lg:p-10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={coverImageUrl(makale, makale.slug)}
+            alt={makale.baslik}
+            width={1200}
+            height={630}
+            className="mb-7 aspect-[1200/630] w-full rounded-[16px] border border-(--color-border-soft) object-cover"
+          />
           <div className="mb-5 flex flex-wrap gap-2">
             {(isWeekly ? ["Haftalık Rapor", ...makale.etiketler] : makale.etiketler).slice(0, 6).map((tag) => (
               <span
