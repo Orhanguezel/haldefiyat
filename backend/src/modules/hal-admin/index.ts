@@ -31,7 +31,8 @@ import {
 import { publishDailyReport } from "@/modules/telegram-channel/publisher";
 import {
   latestRecordedDate,
-  listPriceRows,
+  listPriceCategories,
+  listPriceRowsPage,
   parseRangeToDays,
   upsertPriceRow,
 } from "@/modules/prices/repository";
@@ -61,6 +62,7 @@ const listPricesQuery = z.object({
   category: z.string().optional(),
   range: z.string().optional(),
   limit: z.coerce.number().optional(),
+  page: z.coerce.number().optional(),
   latestOnly: boolish,
 });
 
@@ -225,27 +227,36 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const parsed = listPricesQuery.safeParse(req.query);
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz sorgu parametreleri" });
     const p = parsed.data;
-    const [items, latestDate] = await Promise.all([
-      listPriceRows({
+    const [page, latestDate] = await Promise.all([
+      listPriceRowsPage({
         product: p.product,
         q: p.q,
         city: p.city,
         market: p.market,
         category: p.category,
         range: p.range,
-        limit: p.limit,
+        limit: p.limit ?? 50,
+        page: p.page,
         latestOnly: p.latestOnly,
       }),
       latestRecordedDate(),
     ]);
 
     return reply.send({
-      items,
+      items: page.items,
+      total: page.total,
+      page: page.page,
+      limit: page.limit,
+      totalPages: page.totalPages,
       meta: {
         latestRecordedDate: latestDate,
         rangeDays: parseRangeToDays(p.range),
       },
     });
+  });
+
+  app.get("/hal/price-categories", async (_req, reply) => {
+    return reply.send({ items: await listPriceCategories() });
   });
 
   app.get<{ Params: { id: string } }>("/hal/prices/:id", async (req, reply) => {

@@ -424,6 +424,20 @@ const priceColumns = {
   cityName:     hfMarkets.cityName,
 };
 
+// Admin fiyat filtresi için dinamik kategori listesi (aktif ürünlerin distinct
+// kategorileri + ürün sayısı). Dropdown'u beslemek için kullanılır.
+export async function listPriceCategories(): Promise<{ slug: string; count: number }[]> {
+  const rows = await db
+    .select({ slug: hfProducts.categorySlug, count: sql<number>`COUNT(*)` })
+    .from(hfProducts)
+    .where(eq(hfProducts.isActive, 1))
+    .groupBy(hfProducts.categorySlug)
+    .orderBy(hfProducts.categorySlug);
+  return rows
+    .filter((r) => r.slug)
+    .map((r) => ({ slug: r.slug as string, count: Number(r.count) }));
+}
+
 export async function listPriceRowsPage(params: {
   product?: string;
   q?: string;

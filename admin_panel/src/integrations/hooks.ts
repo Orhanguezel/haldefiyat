@@ -382,6 +382,7 @@ export {
 export {
   useCreatePriceAdminMutation,
   useGetPriceAdminQuery,
+  useListPriceCategoriesAdminQuery,
   useListPricesAdminQuery,
   useUpdatePriceAdminMutation,
 } from "@/integrations/endpoints/prices-admin-endpoints";

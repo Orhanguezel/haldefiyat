@@ -35,14 +35,18 @@ export type BulkPriceResult = { ok: boolean; inserted: number; skipped: number; 
 export const pricesAdminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     listPricesAdmin: builder.query<
-      { items: PriceAdminItem[]; meta?: { latestRecordedDate?: string | null; rangeDays?: number } },
-      { product?: string; q?: string; city?: string; market?: string; category?: string; range?: string; limit?: number; latestOnly?: boolean } | void
+      { items: PriceAdminItem[]; total: number; page: number; limit: number; totalPages: number; meta?: { latestRecordedDate?: string | null; rangeDays?: number } },
+      { product?: string; q?: string; city?: string; market?: string; category?: string; range?: string; limit?: number; page?: number; latestOnly?: boolean } | void
     >({
       query: (params) => ({
         url: '/admin/hal/prices',
         params: cleanParams(params as Record<string, unknown> | undefined),
       }),
       providesTags: [{ type: 'Prices' as const, id: 'LIST' }],
+    }),
+    listPriceCategoriesAdmin: builder.query<{ items: { slug: string; count: number }[] }, void>({
+      query: () => ({ url: '/admin/hal/price-categories' }),
+      providesTags: [{ type: 'Prices' as const, id: 'CATEGORIES' }],
     }),
     getPriceAdmin: builder.query<PriceAdminItem, number | string>({
       query: (id) => ({ url: `/admin/hal/prices/${id}` }),
@@ -66,6 +70,7 @@ export const pricesAdminApi = baseApi.injectEndpoints({
 
 export const {
   useListPricesAdminQuery,
+  useListPriceCategoriesAdminQuery,
   useGetPriceAdminQuery,
   useCreatePriceAdminMutation,
   useUpdatePriceAdminMutation,
