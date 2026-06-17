@@ -65,6 +65,15 @@ export const socialAdminApi = baseApi.injectEndpoints({
       query: (id): FetchArgs => ({ url: `${SOCIAL_ADMIN_BASE}/posts/${id}`, method: "DELETE" }),
       invalidatesTags: [POSTS_TAG],
     }),
+
+    socialPublishPost: b.mutation<{ success: boolean; id: string }, number>({
+      query: (id): FetchArgs => ({ url: `${SOCIAL_ADMIN_BASE}/posts/${id}/publish`, method: "POST", body: {} }),
+      invalidatesTags: [POSTS_TAG],
+    }),
+
+    socialUpdatePlan: b.mutation<{ success: boolean }, { id: string; is_active: boolean }>({
+      query: ({ id, is_active }): FetchArgs => ({ url: `${SOCIAL_ADMIN_BASE}/plan/${id}`, method: "PATCH", body: { is_active } }),
+    }),
   }),
   overrideExisting: true,
 });
@@ -79,4 +88,6 @@ export const {
   useSocialSendMutation,
   useSocialSavePostMutation,
   useSocialDeletePostMutation,
+  useSocialPublishPostMutation,
+  useSocialUpdatePlanMutation,
 } = socialAdminApi;

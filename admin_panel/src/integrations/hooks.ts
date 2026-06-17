@@ -282,6 +282,8 @@ export {
   useSocialSendMutation,
   useSocialSavePostMutation,
   useSocialDeletePostMutation,
+  useSocialPublishPostMutation,
+  useSocialUpdatePlanMutation,
 } from "@/integrations/endpoints/admin/social-admin-endpoints";
 export {
   useAdminGetQuery,

@@ -6,12 +6,15 @@ import {
   cancelQueuedTweet,
   repoListTweets,
   repoListContentPlans,
+  repoMarkTweetSent,
   type TweetRow,
   type SocialPlatform,
 } from "@agro/shared-backend/modules/twitter";
 import {
   listSocialPosts,
   listSocialTemplates,
+  getTweetById,
+  setPlanActive,
   isSocialPlatform,
   type SocialPlatformKey,
 } from "./repository";
@@ -197,6 +200,40 @@ export async function registerSocialAdmin(adminApi: FastifyInstance) {
       return reply.send({ success: true, id: res.tweet_id });
     } catch (err) {
       return fail(reply, err, req.log, "admin_social_send_failed");
+    }
+  });
+
+  // Taslak/kuyruk kaydını ŞİMDİ yayınla (@haldefiyat).
+  adminApi.post("/social/posts/:id/publish", async (req, reply) => {
+    const id = String((req.params as { id?: string })?.id ?? "");
+    if (!id) return reply.status(400).send({ success: false, error: "Geçersiz id" });
+    try {
+      const row = await getTweetById(id);
+      if (!row) return reply.status(404).send({ success: false, error: "Kayıt yok" });
+      if (row.status === "sent") return reply.status(400).send({ success: false, error: "Zaten yayınlandı" });
+      const res = await sendTweet({
+        text: row.content,
+        platform: row.platform as SocialPlatform,
+        mediaUrl: row.mediaUrl,
+        source: "manual",
+      });
+      await repoMarkTweetSent(id, res.tweet_id, row.platform);
+      return reply.send({ success: true, id });
+    } catch (err) {
+      return fail(reply, err, req.log, "admin_social_publish_failed");
+    }
+  });
+
+  // Plan slotu aç/kapa — otomasyonu (günlük/haftalık) kontrol eder.
+  adminApi.patch("/social/plan/:id", async (req, reply) => {
+    const id = String((req.params as { id?: string })?.id ?? "");
+    const body = (req.body ?? {}) as { is_active?: boolean };
+    if (!id) return reply.status(400).send({ success: false, error: "Geçersiz id" });
+    try {
+      const ok = await setPlanActive(id, body.is_active !== false);
+      return reply.send({ success: ok });
+    } catch (err) {
+      return fail(reply, err, req.log, "admin_social_plan_update_failed");
     }
   });
 

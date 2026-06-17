@@ -5,7 +5,7 @@
     "instagram": "Instagram"
   },
   "header": {
-    "description": "haldefiyat sosyal medyası — ekosistem-sosyal-medya motoru üzerinden yönetilir.",
+    "description": "haldefiyat sosyal medyası — bu panelden yönetilir (otomatik + manuel).",
     "source": "Motor: ekosistem-sosyal-medya",
     "statusEnabled": "Hesap aktif",
     "statusDisabled": "Hesap pasif",
@@ -28,11 +28,13 @@
   "openPost": "Gönderiyi aç",
   "plan": {
     "title": "İçerik Planı / Strateji",
-    "description": "Otomatik tweet stratejisi — haftalık slotlar (gün/saat/şablon).",
+    "description": "Otomatik tweet stratejisi. Anahtar kapalıysa o otomasyon (örn. günün hareketi) çalışmaz.",
     "loading": "Plan yükleniyor...",
     "empty": "Bu platform için strateji slotu tanımlı değil.",
     "active": "Aktif",
     "inactive": "Pasif",
+    "enabled": "Otomasyon açıldı",
+    "disabled": "Otomasyon kapatıldı",
     "cols": {
       "slot": "Slot",
       "time": "Saat",
@@ -58,7 +60,11 @@
     "delete": "Sil",
     "deleteConfirm": "Bu gönderi silinsin mi?",
     "deleted": "Gönderi silindi",
-    "deleteFailed": "Silinemedi"
+    "deleteFailed": "Silinemedi",
+    "publishNow": "Şimdi Yayınla",
+    "publishConfirm": "Bu gönderi @haldefiyat hesabından CANLI yayınlanacak. Devam edilsin mi?",
+    "published": "Gönderi yayınlandı",
+    "publishFailed": "Yayınlanamadı"
   },
   "compose": {
     "title": "Manuel Gönderi",

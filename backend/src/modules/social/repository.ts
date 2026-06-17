@@ -132,6 +132,51 @@ export interface SocialTemplateRow {
   isActive: number;
 }
 
+// ── Tweet (yayınla için) + Plan slot aç/kapa (hal-local) ───────────────────────
+
+export interface TweetForPublish {
+  id: string;
+  content: string;
+  mediaUrl: string | null;
+  platform: string;
+  status: string;
+}
+
+export async function getTweetById(id: string): Promise<TweetForPublish | null> {
+  const res = await db.execute(sql`
+    SELECT id, content, media_url AS mediaUrl, platform, status FROM tweets WHERE id = ${id} LIMIT 1
+  `);
+  const rows = (Array.isArray(res) ? res[0] : (res as { rows?: unknown[] }).rows ?? res) as Record<string, unknown>[];
+  const r = rows?.[0];
+  if (!r) return null;
+  return {
+    id: String(r.id),
+    content: String(r.content ?? ""),
+    mediaUrl: r.mediaUrl ? String(r.mediaUrl) : null,
+    platform: String(r.platform ?? "twitter"),
+    status: String(r.status ?? ""),
+  };
+}
+
+/** Plan slotu aktif mi? (kayıt yoksa varsayılan aktif) */
+export async function isPlanSlotActive(platform: string, slotKey: string): Promise<boolean> {
+  const res = await db.execute(sql`
+    SELECT is_active AS a FROM social_content_plans WHERE platform = ${platform} AND slot_key = ${slotKey} LIMIT 1
+  `);
+  const rows = (Array.isArray(res) ? res[0] : (res as { rows?: unknown[] }).rows ?? res) as Record<string, unknown>[];
+  const r = rows?.[0];
+  if (!r) return true;
+  return Number(r.a) === 1;
+}
+
+export async function setPlanActive(id: string, active: boolean): Promise<boolean> {
+  const res = await db.execute(sql`
+    UPDATE social_content_plans SET is_active = ${active ? 1 : 0}, updated_at = NOW() WHERE id = ${id}
+  `);
+  const info = (Array.isArray(res) ? res[0] : res) as { affectedRows?: number } | undefined;
+  return (info?.affectedRows ?? 0) > 0;
+}
+
 export async function listSocialTemplates(platform: string): Promise<SocialTemplateRow[]> {
   const ecoPlatform = platform === "twitter" ? "x" : platform;
   const res = await db.execute(sql`

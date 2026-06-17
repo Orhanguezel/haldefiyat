@@ -7,6 +7,7 @@
 import { randomUUID } from "crypto";
 import { queueTweet, repoInsertTweet } from "@agro/shared-backend/modules/twitter";
 import { trendingChanges } from "@/modules/prices/repository";
+import { isPlanSlotActive } from "./repository";
 import { buildMoversChartUrl, type ChartRow } from "./chart";
 
 const SITE = "https://haldefiyat.com";
@@ -75,6 +76,7 @@ export async function buildTodayChartUrl(): Promise<string | null> {
 
 /** Günlük movers tweet'ini (metin + grafik) kuyruğa ekler. sourceRef ile tekilleştirilir. */
 export async function runDailyMoversJob(): Promise<{ ok: boolean; reason?: string }> {
+  if (!(await isPlanSlotActive("twitter", "morning"))) return { ok: false, reason: "slot_inactive" };
   const trending = await trendingChanges(10);
   const text = buildTextFromTrend(trending);
   if (!text) return { ok: false, reason: "no_data" };
@@ -114,8 +116,9 @@ export async function createDraftTweet(text: string, source = "manual", mediaUrl
   return id;
 }
 
-/** Haftalık analiz yayınlanınca özet tweet'i TASLAK olarak hazırlar. */
-export async function createWeeklyAnalysisDraft(title: string, slug: string): Promise<string> {
+/** Haftalık analiz yayınlanınca özet tweet'i TASLAK olarak hazırlar (slot pasifse atlar). */
+export async function createWeeklyAnalysisDraft(title: string, slug: string): Promise<string | null> {
+  if (!(await isPlanSlotActive("twitter", "weekly"))) return null;
   const url = `${SITE}/analiz/${slug}`;
   const head = "📈 Haftalık hal fiyat analizi yayında:";
   let text = `${head}\n${title}\n${url}\n${HASHTAGS}`;

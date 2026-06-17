@@ -5,12 +5,14 @@
 
 "use client";
 
+import { toast } from "sonner";
+
 import { useAdminT } from "@/app/(main)/admin/_components/common/use-admin-t";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useSocialPlanQuery } from "@/integrations/hooks";
-import { type SocialFeedPlatform } from "@/integrations/shared";
+import { useSocialPlanQuery, useSocialUpdatePlanMutation } from "@/integrations/hooks";
+import { getErrorMessage, type SocialFeedPlatform } from "@/integrations/shared";
 
 const SLOT_LABELS: Record<string, string> = {
   morning: "Sabah",
@@ -26,7 +28,17 @@ function fmtTime(h: number, m: number): string {
 export default function SocialPlanPanel({ platform }: { platform: SocialFeedPlatform }) {
   const t = useAdminT("admin.social");
   const { data, isLoading } = useSocialPlanQuery({ platform });
+  const [updatePlan, { isLoading: updating }] = useSocialUpdatePlanMutation();
   const items = data?.items ?? [];
+
+  const handleToggle = async (id: string, is_active: boolean) => {
+    try {
+      await updatePlan({ id, is_active }).unwrap();
+      toast.success(is_active ? t("plan.enabled") : t("plan.disabled"));
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    }
+  };
 
   return (
     <Card>
@@ -65,9 +77,12 @@ export default function SocialPlanPanel({ platform }: { platform: SocialFeedPlat
                 <TableCell className="max-w-[220px] truncate">{p.template || p.slot_key}</TableCell>
                 <TableCell className="max-w-[220px] truncate">{p.topic || p.pillar || "—"}</TableCell>
                 <TableCell>
-                  <Badge variant={p.is_active ? "default" : "secondary"}>
-                    {p.is_active ? t("plan.active") : t("plan.inactive")}
-                  </Badge>
+                  <Switch
+                    checked={!!p.is_active}
+                    disabled={updating}
+                    onCheckedChange={(v) => handleToggle(p.id, v)}
+                    aria-label={p.is_active ? t("plan.active") : t("plan.inactive")}
+                  />
                 </TableCell>
               </TableRow>
             ))}

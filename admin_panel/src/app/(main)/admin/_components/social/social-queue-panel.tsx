@@ -5,14 +5,14 @@
 
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { Send, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAdminT } from "@/app/(main)/admin/_components/common/use-admin-t";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useSocialDeletePostMutation, useSocialPostsQuery } from "@/integrations/hooks";
+import { useSocialDeletePostMutation, useSocialPostsQuery, useSocialPublishPostMutation } from "@/integrations/hooks";
 import { getErrorMessage, type SocialFeedPlatform, type SocialPostRow, type SocialPostStatus } from "@/integrations/shared";
 
 const STATUS_VARIANT: Record<SocialPostStatus, "default" | "secondary" | "destructive" | "outline"> = {
@@ -34,6 +34,7 @@ export default function SocialQueuePanel({ platform }: { platform: SocialFeedPla
   const t = useAdminT("admin.social");
   const { data, isLoading } = useSocialPostsQuery({ platform, scope: "queue" });
   const [deletePost, { isLoading: deleting }] = useSocialDeletePostMutation();
+  const [publishPost, { isLoading: publishing }] = useSocialPublishPostMutation();
   const items = data?.items ?? [];
 
   const handleDelete = async (row: SocialPostRow) => {
@@ -43,6 +44,16 @@ export default function SocialQueuePanel({ platform }: { platform: SocialFeedPla
       toast.success(t("queue.deleted"));
     } catch (err) {
       toast.error(`${t("queue.deleteFailed")}: ${getErrorMessage(err)}`);
+    }
+  };
+
+  const handlePublish = async (row: SocialPostRow) => {
+    if (!confirm(t("queue.publishConfirm"))) return;
+    try {
+      await publishPost(row.id).unwrap();
+      toast.success(t("queue.published"));
+    } catch (err) {
+      toast.error(`${t("queue.publishFailed")}: ${getErrorMessage(err)}`);
     }
   };
 
@@ -79,9 +90,15 @@ export default function SocialQueuePanel({ platform }: { platform: SocialFeedPla
                   {row.hashtags ? <p className="text-xs text-sky-500">{row.hashtags}</p> : null}
                   {row.errorMessage ? <p className="text-xs text-destructive">{row.errorMessage}</p> : null}
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => handleDelete(row)} disabled={deleting} title={t("queue.delete")}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex shrink-0 gap-1">
+                  <Button variant="outline" size="sm" onClick={() => handlePublish(row)} disabled={publishing || deleting} title={t("queue.publishNow")}>
+                    <Send className="mr-1.5 h-3.5 w-3.5" />
+                    {t("queue.publishNow")}
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(row)} disabled={deleting || publishing} title={t("queue.delete")}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
