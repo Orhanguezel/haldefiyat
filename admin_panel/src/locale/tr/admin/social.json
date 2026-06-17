@@ -34,7 +34,7 @@
     "active": "Aktif",
     "inactive": "Pasif",
     "cols": {
-      "day": "Gün",
+      "slot": "Slot",
       "time": "Saat",
       "template": "Şablon",
       "topic": "Konu",

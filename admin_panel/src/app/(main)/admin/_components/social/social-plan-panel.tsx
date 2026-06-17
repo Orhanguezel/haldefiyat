@@ -10,7 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useSocialPlanQuery } from "@/integrations/hooks";
-import { PLAN_DAY_LABELS, type SocialFeedPlatform } from "@/integrations/shared";
+import { type SocialFeedPlatform } from "@/integrations/shared";
+
+const SLOT_LABELS: Record<string, string> = {
+  morning: "Sabah",
+  midday: "Öğle",
+  evening: "Akşam",
+  weekly: "Haftalık",
+};
 
 function fmtTime(h: number, m: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
@@ -31,7 +38,7 @@ export default function SocialPlanPanel({ platform }: { platform: SocialFeedPlat
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t("plan.cols.day")}</TableHead>
+              <TableHead>{t("plan.cols.slot")}</TableHead>
               <TableHead>{t("plan.cols.time")}</TableHead>
               <TableHead>{t("plan.cols.template")}</TableHead>
               <TableHead>{t("plan.cols.topic")}</TableHead>
@@ -53,7 +60,7 @@ export default function SocialPlanPanel({ platform }: { platform: SocialFeedPlat
             )}
             {items.map((p) => (
               <TableRow key={p.id}>
-                <TableCell>{PLAN_DAY_LABELS[p.day_of_week] ?? p.day_of_week}</TableCell>
+                <TableCell>{SLOT_LABELS[p.slot_key] ?? p.slot_key}</TableCell>
                 <TableCell>{fmtTime(p.hour, p.minute)}</TableCell>
                 <TableCell className="max-w-[220px] truncate">{p.template || p.slot_key}</TableCell>
                 <TableCell className="max-w-[220px] truncate">{p.topic || p.pillar || "—"}</TableCell>
