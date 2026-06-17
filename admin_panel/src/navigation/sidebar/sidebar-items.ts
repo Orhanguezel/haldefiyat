@@ -15,6 +15,7 @@ import {
   HelpCircle,
   LayoutDashboard,
   Mail,
+  Megaphone,
   MessageSquare,
   MousePointerClick,
   Package,
@@ -130,6 +131,7 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
       { key: 'google_ads', url: '/admin/google-ads', icon: TrendingUp },
       { key: 'gtm', url: '/admin/gtm', icon: Tags },
       { key: 'meta', url: '/admin/meta', icon: MousePointerClick },
+      { key: 'banners', url: '/admin/banners', icon: Megaphone },
     ],
   },
   {
@@ -205,6 +207,7 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   google_ads: 'Google Ads',
   gtm: 'Google Tag Manager',
   meta: 'Meta Pixel + CAPI',
+  banners: 'Reklam / Bannerlar',
   custom_pages: 'Sayfalar',
   analysis_reports: 'Analiz Yazilari',
   authors: 'Yazarlar',

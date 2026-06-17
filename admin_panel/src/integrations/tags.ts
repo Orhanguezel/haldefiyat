@@ -215,6 +215,7 @@ export const tags = [
   'CompetitorSites',
   'CompetitorSnapshots',
   'AnalysisReports',
+  'Banners',
   'Authors',
   'PressContacts',
   'PressCampaigns',

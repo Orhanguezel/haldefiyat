@@ -31,7 +31,8 @@ export type AdminPermissionKey =
   | 'admin.gtm'
   | 'admin.meta'
   | 'admin.twitter'
-  | 'admin.popups';
+  | 'admin.popups'
+  | 'admin.banners';
 
 export type AdminNavKey =
   | 'dashboard'
@@ -65,7 +66,8 @@ export type AdminNavKey =
   | 'gtm'
   | 'meta'
   | 'twitter'
-  | 'popups';
+  | 'popups'
+  | 'banners';
 
 const ADMIN_ONLY: PanelRole[] = ['admin'];
 
@@ -101,6 +103,7 @@ const ADMIN_PERMISSION_ROLE_MAP: Record<AdminPermissionKey, PanelRole[]> = {
   'admin.meta': ADMIN_ONLY,
   'admin.twitter': ADMIN_ONLY,
   'admin.popups': ADMIN_ONLY,
+  'admin.banners': ADMIN_ONLY,
 };
 
 export function canAccessAdminPermission(role: PanelRole, key: AdminPermissionKey): boolean {
@@ -140,6 +143,7 @@ const ADMIN_NAV_PERMISSION_MAP: Partial<Record<AdminNavKey, AdminPermissionKey>>
   meta: 'admin.meta',
   twitter: 'admin.twitter',
   popups: 'admin.popups',
+  banners: 'admin.banners',
 };
 
 export function getAdminNavRoles(key: AdminNavKey): PanelRole[] {
@@ -180,6 +184,7 @@ const ADMIN_PERMISSION_PATHS: Record<AdminPermissionKey, string[]> = {
   'admin.meta': ['/admin/meta'],
   'admin.twitter': ['/admin/twitter'],
   'admin.popups': ['/admin/popups'],
+  'admin.banners': ['/admin/banners'],
 };
 
 function stripQueryAndHash(pathname: string): string {

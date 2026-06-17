@@ -318,6 +318,14 @@ export {
   useUpdateAnalysisReportAdminMutation,
 } from "@/integrations/endpoints/analysis-reports-admin-endpoints";
 export {
+  useListBannersAdminQuery,
+  useBannerStatsAdminQuery,
+  useGetBannerAdminQuery,
+  useCreateBannerAdminMutation,
+  useUpdateBannerAdminMutation,
+  useDeleteBannerAdminMutation,
+} from "@/integrations/endpoints/banners-admin-endpoints";
+export {
   useGetAnalyticsAdsAttributionAdminQuery,
   useGetAnalyticsAdsDailyAdminQuery,
   useGetAnalyticsDeviceDailyAdminQuery,
