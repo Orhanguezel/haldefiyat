@@ -15,6 +15,7 @@ import {
 import { fetchAutoWeeklyReport, fetchAutoWeeklyReports, type AutoWeeklyReport } from "@/lib/api";
 import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 import PageContainer from "@/components/layout/PageContainer";
+import BannerSlot from "@/components/ads/BannerSlot";
 
 // İçerik HTML ile başlıyorsa zengin rapor (kendi <style> + inline SVG) olarak
 // render edilir; aksi halde markdown-benzeri paragraf render'ı kullanılır.
@@ -233,6 +234,8 @@ export default async function AnalizMakalePage({ params }: Props) {
             {makale.ozet}
           </p>
 
+          <BannerSlot position="analiz_inline" />
+
           {isHtml ? (
             <div
               className="mt-8"
@@ -244,6 +247,7 @@ export default async function AnalizMakalePage({ params }: Props) {
         </article>
 
         <aside className="space-y-5 lg:sticky lg:top-28 lg:self-start">
+          <BannerSlot position="analiz_sidebar" />
           <div className="rounded-[18px] border border-(--color-border) bg-(--color-surface) p-5">
             <h2 className="font-(family-name:--font-display) text-[16px] font-bold text-(--color-foreground)">
               Rapor Özeti

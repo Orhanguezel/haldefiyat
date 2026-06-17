@@ -42,6 +42,8 @@ const upsertSchema = z.object({
   linkTarget: z.string().trim().max(20).optional(),
   rel: z.string().trim().max(64).optional(),
   code: z.string().max(20000).nullable().optional(),
+  caption: z.string().trim().max(300).nullable().optional(),
+  ctaLabel: z.string().trim().max(60).nullable().optional(),
   device: deviceSchema.optional(),
   weight: z.coerce.number().int().min(1).max(1000).optional(),
   displayOrder: z.coerce.number().int().min(0).max(100000).optional(),
@@ -73,6 +75,8 @@ function publicBanner(row: NonNullable<Awaited<ReturnType<typeof pickActiveForPo
     linkTarget: row.linkTarget,
     rel: row.rel,
     code: row.code,
+    caption: row.caption,
+    ctaLabel: row.ctaLabel,
     device: row.device,
   };
 }

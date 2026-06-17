@@ -50,6 +50,8 @@ export interface BannerAdmin {
   linkTarget: string;
   rel: string;
   code: string | null;
+  caption: string | null;
+  ctaLabel: string | null;
   device: BannerDevice;
   weight: number;
   displayOrder: number;
@@ -84,6 +86,8 @@ export interface BannerUpsert {
   linkTarget?: string;
   rel?: string;
   code?: string | null;
+  caption?: string | null;
+  ctaLabel?: string | null;
   device?: BannerDevice;
   weight?: number;
   displayOrder?: number;

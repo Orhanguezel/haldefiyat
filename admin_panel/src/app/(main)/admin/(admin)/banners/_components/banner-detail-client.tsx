@@ -43,6 +43,8 @@ type FormState = {
   linkTarget: string;
   rel: string;
   code: string;
+  caption: string;
+  ctaLabel: string;
   device: BannerDevice;
   weight: string;
   displayOrder: string;
@@ -64,6 +66,8 @@ function emptyForm(): FormState {
     linkTarget: '_blank',
     rel: 'sponsored nofollow noopener',
     code: '',
+    caption: '',
+    ctaLabel: '',
     device: 'all',
     weight: '1',
     displayOrder: '0',
@@ -86,6 +90,8 @@ function toForm(b: BannerAdmin): FormState {
     linkTarget: b.linkTarget || '_blank',
     rel: b.rel || 'sponsored nofollow noopener',
     code: b.code ?? '',
+    caption: b.caption ?? '',
+    ctaLabel: b.ctaLabel ?? '',
     device: b.device,
     weight: String(b.weight ?? 1),
     displayOrder: String(b.displayOrder ?? 0),
@@ -162,6 +168,8 @@ export function BannerDetailClient({ id }: Props) {
       linkTarget: form.linkTarget || '_blank',
       rel: form.rel || 'sponsored nofollow noopener',
       code: form.code.trim() || null,
+      caption: form.caption.trim() || null,
+      ctaLabel: form.ctaLabel.trim() || null,
       device: form.device,
       weight: Number(form.weight) || 1,
       displayOrder: Number(form.displayOrder) || 0,
@@ -273,6 +281,19 @@ export function BannerDetailClient({ id }: Props) {
                 <div className="grid gap-2">
                   <Label>Hedef link (URL)</Label>
                   <Input value={form.linkUrl} placeholder="https://vistaseeds.com.tr" onChange={(e) => set('linkUrl', e.target.value)} />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Reklam metni (caption)</Label>
+                  <Input
+                    value={form.caption}
+                    placeholder="Sertifikalı hibrit tohumda Türkiye'nin güveni"
+                    onChange={(e) => set('caption', e.target.value)}
+                  />
+                  <p className="text-muted-foreground text-xs">Görselin yanında/altında görünen kısa reklam metni (opsiyonel).</p>
+                </div>
+                <div className="grid gap-2">
+                  <Label>CTA buton metni</Label>
+                  <Input value={form.ctaLabel} placeholder="Tohumları Keşfet" onChange={(e) => set('ctaLabel', e.target.value)} />
                 </div>
               </>
             ) : (

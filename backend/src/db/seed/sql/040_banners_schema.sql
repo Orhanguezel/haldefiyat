@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS hf_banners (
   link_target VARCHAR(20) NOT NULL DEFAULT '_blank',
   rel VARCHAR(64) NOT NULL DEFAULT 'sponsored nofollow noopener',
   code TEXT NULL,
+  caption VARCHAR(300) NULL,
+  cta_label VARCHAR(60) NULL,
   device ENUM('all','desktop','mobile') NOT NULL DEFAULT 'all',
   weight INT UNSIGNED NOT NULL DEFAULT 1,
   display_order INT NOT NULL DEFAULT 0,

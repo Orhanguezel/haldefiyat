@@ -14,6 +14,8 @@ export type PublicBanner = {
   linkTarget: string;
   rel: string;
   code: string | null;
+  caption: string | null;
+  ctaLabel: string | null;
   device: "all" | "desktop" | "mobile";
 };
 

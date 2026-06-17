@@ -17,6 +17,8 @@ export type BannerInput = {
   linkTarget?: string;
   rel?: string;
   code?: string | null;
+  caption?: string | null;
+  ctaLabel?: string | null;
   device?: BannerDevice;
   weight?: number;
   displayOrder?: number;
@@ -52,6 +54,8 @@ function mapInsert(input: BannerInput) {
     linkTarget: input.linkTarget ?? "_blank",
     rel: input.rel ?? "sponsored nofollow noopener",
     code: input.code ?? null,
+    caption: input.caption ?? null,
+    ctaLabel: input.ctaLabel ?? null,
     device: input.device ?? "all",
     weight: input.weight ?? 1,
     displayOrder: input.displayOrder ?? 0,
@@ -101,6 +105,8 @@ export async function updateBanner(id: number, patch: Partial<BannerInput>): Pro
   if (patch.linkTarget !== undefined) set.linkTarget = patch.linkTarget;
   if (patch.rel !== undefined) set.rel = patch.rel;
   if (patch.code !== undefined) set.code = patch.code || null;
+  if (patch.caption !== undefined) set.caption = patch.caption || null;
+  if (patch.ctaLabel !== undefined) set.ctaLabel = patch.ctaLabel || null;
   if (patch.device !== undefined) set.device = patch.device;
   if (patch.weight !== undefined) set.weight = patch.weight;
   if (patch.displayOrder !== undefined) set.displayOrder = patch.displayOrder;

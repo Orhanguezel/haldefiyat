@@ -653,6 +653,8 @@ export const hfBanners = mysqlTable(
     linkTarget:   varchar("link_target", { length: 20 }).notNull().default("_blank"),
     rel:          varchar("rel", { length: 64 }).notNull().default("sponsored nofollow noopener"),
     code:         text("code"),
+    caption:      varchar("caption", { length: 300 }),
+    ctaLabel:     varchar("cta_label", { length: 60 }),
     device:       mysqlEnum("device", ["all", "desktop", "mobile"]).notNull().default("all"),
     weight:       int("weight").notNull().default(1),
     displayOrder: int("display_order").notNull().default(0),
