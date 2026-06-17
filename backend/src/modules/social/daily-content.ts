@@ -138,10 +138,19 @@ function buildStaplesText(
   return [header, ...items.slice(0, 4).map(line), footer].join("\n").slice(0, MAX_LEN);
 }
 
+// Sebze/meyve hal fiyatı için akıl-sağlığı tavanı — üstü neredeyse kesin garbage veri
+// (ör. limon ₺615, muz ₺449). Public tweet'e hatalı fiyat gitmesin.
+const MAX_STAPLE_PRICE = 300;
+
 /** Popüler ürün fiyatlarını bir sonraki 13:00 TR'ye planlar (tablo grafiği ile). */
 export async function runStaplesJob(): Promise<{ ok: boolean; reason?: string }> {
   if (!(await isPlanSlotActive("twitter", "popular"))) return { ok: false, reason: "slot_inactive" };
-  const items = (await widgetPrices(POPULAR_SLUGS, undefined, POPULAR_SLUGS.length)).filter((i) => i.avgPrice > 0);
+  const raw = await widgetPrices(POPULAR_SLUGS, undefined, POPULAR_SLUGS.length);
+  // POPULAR_SLUGS sırasına göre (domates/biber önce) + akıl-sağlığı fiyat filtresi.
+  const order = new Map(POPULAR_SLUGS.map((s, i) => [s, i]));
+  const items = raw
+    .filter((i) => i.avgPrice > 0 && i.avgPrice <= MAX_STAPLE_PRICE)
+    .sort((a, b) => (order.get(a.productSlug) ?? 99) - (order.get(b.productSlug) ?? 99));
   if (!items.length) return { ok: false, reason: "no_data" };
 
   const scheduledAt = nextUtcHour(10); // 13:00 TR
