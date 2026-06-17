@@ -15,6 +15,7 @@ import {
   isSocialPlatform,
   type SocialPlatformKey,
 } from "./repository";
+import { createDraftTweet } from "./daily-content";
 
 function resolvePlatform(raw: unknown): SocialPlatformKey {
   return isSocialPlatform(raw) ? raw : "twitter";
@@ -24,6 +25,7 @@ const HANDLE = "haldefiyat";
 
 // hal tweets.status → frontend SocialPostStatus
 const STATUS_MAP: Record<string, string> = {
+  draft: "draft",
   queued: "scheduled",
   posting: "publishing",
   sent: "posted",
@@ -57,7 +59,7 @@ function mapTweet(row: TweetRow) {
   };
 }
 
-const QUEUE_STATUSES = new Set(["queued", "posting", "failed"]);
+const QUEUE_STATUSES = new Set(["draft", "queued", "posting", "failed"]);
 
 function fail(reply: FastifyReply, err: unknown, log: FastifyInstance["log"], msg: string) {
   log.warn({ err }, msg);
@@ -150,15 +152,20 @@ export async function registerSocialAdmin(adminApi: FastifyInstance) {
     const text = [body.caption?.trim(), body.hashtags?.trim()].filter(Boolean).join("\n\n");
     if (!body.caption?.trim()) return reply.status(400).send({ success: false, error: "Metin boş olamaz" });
     try {
-      const res = await queueTweet({
-        text,
-        platform: platform as SocialPlatform,
-        scheduledAt: body.scheduledAt ? new Date(body.scheduledAt) : null,
-        mediaUrl: body.mediaUrls?.[0] ?? null,
-        source: "manual",
-      });
-      if (!res.ok) return reply.status(400).send({ success: false, error: res.reason });
-      return reply.send({ success: true, id: res.id });
+      // Tarih varsa kuyruğa (dispatcher o zaman yayınlar); yoksa gerçek TASLAK (yayınlanmaz).
+      if (body.scheduledAt) {
+        const res = await queueTweet({
+          text,
+          platform: platform as SocialPlatform,
+          scheduledAt: new Date(body.scheduledAt),
+          mediaUrl: body.mediaUrls?.[0] ?? null,
+          source: "manual",
+        });
+        if (!res.ok) return reply.status(400).send({ success: false, error: res.reason });
+        return reply.send({ success: true, id: res.id });
+      }
+      const id = await createDraftTweet(text, "manual", body.mediaUrls?.[0] ?? null);
+      return reply.send({ success: true, id });
     } catch (err) {
       return fail(reply, err, req.log, "admin_social_save_failed");
     }

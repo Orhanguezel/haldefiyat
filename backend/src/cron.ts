@@ -24,6 +24,7 @@ import { cleanupOldEtlRuns } from "@/modules/etl/maintenance";
 import { refreshSearchConsoleIndex } from "@agro/shared-backend/modules/searchConsole";
 import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
 import { processSocialQueueOnce } from "@agro/shared-backend/modules/twitter";
+import { runDailyMoversJob, createWeeklyAnalysisDraft } from "@/modules/social/daily-content";
 
 /**
  * Cron zamanlaması env'den gelir:
@@ -71,6 +72,7 @@ export function startCron(app: FastifyInstance): void {
     // search_volume'u GSC gösterimlerinden doldur — haftalık (talep yavaş değişir)
     { name: "search-volume-sync", schedule: env.ETL.searchVolumeSchedule,   handler: () => runSearchVolumeJob(app) },
     { name: "social-queue",       schedule: env.SOCIAL.queueSchedule,        handler: () => runSocialQueueJob(app) },
+    { name: "social-daily-movers", schedule: env.SOCIAL.dailyMoversSchedule,  handler: () => runDailyMoversTweetJob(app) },
   ];
   if (env.ETL.firmPriceReminderSchedule) {
     tasks.push({
@@ -131,6 +133,16 @@ async function runSocialQueueJob(app: FastifyInstance): Promise<void> {
     }
   } catch (err) {
     app.log.error({ err }, "[cron:social-queue] hata");
+  }
+}
+
+// Günlük "Günün hareketi" tweet'ini kuyruğa ekler (dispatcher yayınlar).
+async function runDailyMoversTweetJob(app: FastifyInstance): Promise<void> {
+  try {
+    const r = await runDailyMoversJob();
+    app.log.info({ ...r }, "[cron:social-daily-movers] tamamlandi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:social-daily-movers] hata");
   }
 }
 
@@ -208,6 +220,12 @@ async function runWeeklyAnalysisJob(app: FastifyInstance): Promise<void> {
     if (!report) {
       app.log.warn({ durationMs: Date.now() - t0 }, "[cron:weekly-analysis] yeterli veri yok");
       return;
+    }
+    // Haftalık analiz yayınlanınca özet tweet'i TASLAK olarak hazırla (otomatik atılmaz).
+    try {
+      await createWeeklyAnalysisDraft(report.baslik, report.slug);
+    } catch (e) {
+      app.log.warn({ err: e }, "[cron:weekly-analysis] tweet taslagi olusturulamadi");
     }
     app.log.info(
       {
