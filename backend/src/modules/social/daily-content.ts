@@ -14,14 +14,20 @@ const SITE = "https://haldefiyat.com";
 const HASHTAGS = "#haldefiyat #halfiyatları #sebze #meyve #tarım";
 const MAX_LEN = 280;
 
-function istanbulDate(): string {
-  return new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "2-digit", timeZone: "Europe/Istanbul" }).format(
-    new Date(),
-  );
+function istanbulDateLabel(d = new Date()): string {
+  return new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "2-digit", timeZone: "Europe/Istanbul" }).format(d);
 }
 
-function isoDate(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date());
+function istanbulIso(d = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(d);
+}
+
+// Bir sonraki 09:00 Istanbul (= 06:00 UTC, TR sabit UTC+3). Günlük tweet bu saate planlanır.
+function nextMorningUtc(): Date {
+  const now = new Date();
+  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 6, 0, 0));
+  if (d.getTime() <= now.getTime()) d.setUTCDate(d.getUTCDate() + 1);
+  return d;
 }
 
 function fmtPrice(n: number): string {
@@ -38,16 +44,16 @@ function line(arrow: string, t: Trend, withPrice: boolean): string {
 
 /** Günün hareketi caption'ı — 280 karaktere sığacak şekilde kısaltır. */
 export async function buildDailyMoversText(): Promise<string | null> {
-  return buildTextFromTrend(await trendingChanges(10));
+  return buildTextFromTrend(await trendingChanges(10), istanbulDateLabel());
 }
 
-function buildTextFromTrend(trending: Awaited<ReturnType<typeof trendingChanges>>): string | null {
+function buildTextFromTrend(trending: Awaited<ReturnType<typeof trendingChanges>>, dateLabel: string): string | null {
   const risers = trending.filter((t) => t.changePct > 0).slice(0, 3);
   const fallers = trending.filter((t) => t.changePct < 0).slice(0, 2);
   if (!risers.length && !fallers.length) return null;
 
   const footer = `Güncel fiyatlar 👇 ${SITE}`;
-  const header = `📊 Günün hal hareketleri (${istanbulDate()})`;
+  const header = `📊 Günün hal hareketleri (${dateLabel})`;
 
   const build = (rCount: number, fCount: number): string => {
     const body: string[] = [];
@@ -64,36 +70,41 @@ function buildTextFromTrend(trending: Awaited<ReturnType<typeof trendingChanges>
   return build(1, 0).slice(0, MAX_LEN);
 }
 
-/** Bugünün movers grafiğini üretip URL döner (tweet atmaz — önizleme/günlük iş ortak kullanır). */
-export async function buildTodayChartUrl(): Promise<string | null> {
-  const trending = await trendingChanges(10);
-  const chartRows: ChartRow[] = [...trending]
+function chartRowsFrom(trending: Awaited<ReturnType<typeof trendingChanges>>): ChartRow[] {
+  return [...trending]
     .sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct))
     .slice(0, 5)
     .map((t) => ({ name: t.product?.nameTr ?? "—", changePct: t.changePct, latest: t.latest }));
-  return buildMoversChartUrl(chartRows, istanbulDate(), isoDate());
 }
 
-/** Günlük movers tweet'ini (metin + grafik) kuyruğa ekler. sourceRef ile tekilleştirilir. */
+/** Bugünün movers grafiğini üretip URL döner (tweet atmaz — önizleme/manuel). */
+export async function buildTodayChartUrl(): Promise<string | null> {
+  const trending = await trendingChanges(10);
+  return buildMoversChartUrl(chartRowsFrom(trending), istanbulDateLabel(), istanbulIso());
+}
+
+/**
+ * Günlük "Günün hareketi" tweet'ini bir sonraki 09:00 TR'ye PLANLAR (kuyruğa ileri tarihli ekler).
+ * Taslak & Kuyruk'ta görünür; dispatcher vakti gelince yayınlar. sourceRef ile tekilleştirilir.
+ */
 export async function runDailyMoversJob(): Promise<{ ok: boolean; reason?: string }> {
   if (!(await isPlanSlotActive("twitter", "morning"))) return { ok: false, reason: "slot_inactive" };
   const trending = await trendingChanges(10);
-  const text = buildTextFromTrend(trending);
+  const scheduledAt = nextMorningUtc();
+  const dateLabel = istanbulDateLabel(scheduledAt);
+  const dateIso = istanbulIso(scheduledAt);
+
+  const text = buildTextFromTrend(trending, dateLabel);
   if (!text) return { ok: false, reason: "no_data" };
 
-  const chartRows: ChartRow[] = [...trending]
-    .sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct))
-    .slice(0, 5)
-    .map((t) => ({ name: t.product?.nameTr ?? "—", changePct: t.changePct, latest: t.latest }));
-  const date = isoDate();
-  const mediaUrl = await buildMoversChartUrl(chartRows, istanbulDate(), date);
+  const mediaUrl = await buildMoversChartUrl(chartRowsFrom(trending), dateLabel, dateIso);
 
   const res = await queueTweet({
     text,
     platform: "twitter",
     source: "auto",
-    sourceRef: `daily_movers:${date}`,
-    scheduledAt: null,
+    sourceRef: `daily_movers:${dateIso}`,
+    scheduledAt,
     mediaUrl,
   });
   return res.ok ? { ok: true } : { ok: false, reason: res.reason };

@@ -102,8 +102,9 @@ export const env = {
   // Kuyruk dispatcher: planli/zamanlanmis tweetleri yayinlar (TWITTER_ENABLED gate).
   SOCIAL: {
     queueSchedule: process.env.SOCIAL_QUEUE_SCHEDULE || "*/5 * * * *",
-    // Günlük "Günün hareketi" tweet'i — 06:00 UTC = 09:00 Istanbul
-    dailyMoversSchedule: process.env.SOCIAL_DAILY_MOVERS_SCHEDULE || "0 6 * * *",
+    // Günlük tweet HAZIRLIK: 12:00 UTC=15:00 TR (ETL sonrası) → yarın 09:00 TR'ye planlar.
+    // Tweet kuyrukta ileri tarihli görünür; social-queue dispatcher vakti gelince yayınlar.
+    dailyMoversSchedule: process.env.SOCIAL_DAILY_MOVERS_SCHEDULE || "0 12 * * *",
   },
   SMTP_HOST: process.env.SMTP_HOST || "",
   SMTP_PORT: parseEnvInt(process.env.SMTP_PORT, 587),
