@@ -1,6 +1,6 @@
 // =============================================================
 // FILE: src/app/(main)/admin/_components/social/social-plan-panel.tsx
-// Plan / Strateji — ekosistem içerik takvimi (read-only)
+// Plan / Strateji — hal social_content_plans (haftalık otomasyon slotları)
 // =============================================================
 
 "use client";
@@ -10,11 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useSocialPlanQuery } from "@/integrations/hooks";
-import type { SocialFeedPlatform } from "@/integrations/shared";
+import { PLAN_DAY_LABELS, type SocialFeedPlatform } from "@/integrations/shared";
 
-function fmtDate(iso: string): string {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "—" : new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(d);
+function fmtTime(h: number, m: number): string {
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
 export default function SocialPlanPanel({ platform }: { platform: SocialFeedPlatform }) {
@@ -32,10 +31,10 @@ export default function SocialPlanPanel({ platform }: { platform: SocialFeedPlat
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t("plan.cols.date")}</TableHead>
-              <TableHead>{t("plan.cols.slot")}</TableHead>
-              <TableHead>{t("plan.cols.type")}</TableHead>
-              <TableHead>{t("plan.cols.note")}</TableHead>
+              <TableHead>{t("plan.cols.day")}</TableHead>
+              <TableHead>{t("plan.cols.time")}</TableHead>
+              <TableHead>{t("plan.cols.template")}</TableHead>
+              <TableHead>{t("plan.cols.topic")}</TableHead>
               <TableHead>{t("plan.cols.status")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -54,12 +53,14 @@ export default function SocialPlanPanel({ platform }: { platform: SocialFeedPlat
             )}
             {items.map((p) => (
               <TableRow key={p.id}>
-                <TableCell>{fmtDate(p.date)}</TableCell>
-                <TableCell>{p.timeSlot}</TableCell>
-                <TableCell>{p.postType}</TableCell>
-                <TableCell className="max-w-[280px] truncate">{p.notes || "—"}</TableCell>
+                <TableCell>{PLAN_DAY_LABELS[p.day_of_week] ?? p.day_of_week}</TableCell>
+                <TableCell>{fmtTime(p.hour, p.minute)}</TableCell>
+                <TableCell className="max-w-[220px] truncate">{p.template || p.slot_key}</TableCell>
+                <TableCell className="max-w-[220px] truncate">{p.topic || p.pillar || "—"}</TableCell>
                 <TableCell>
-                  <Badge variant="secondary">{p.status}</Badge>
+                  <Badge variant={p.is_active ? "default" : "secondary"}>
+                    {p.is_active ? t("plan.active") : t("plan.inactive")}
+                  </Badge>
                 </TableCell>
               </TableRow>
             ))}

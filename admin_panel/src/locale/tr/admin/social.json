@@ -27,16 +27,18 @@
   "empty": "Bu platform için henüz yayınlanmış gönderi yok.",
   "openPost": "Gönderiyi aç",
   "plan": {
-    "title": "İçerik Planı",
-    "description": "ekosistem-sosyal-medya içerik takvimi (otomatik planlanan gönderiler).",
+    "title": "İçerik Planı / Strateji",
+    "description": "Otomatik tweet stratejisi — haftalık slotlar (gün/saat/şablon).",
     "loading": "Plan yükleniyor...",
-    "empty": "Bu platform için planlı içerik yok.",
+    "empty": "Bu platform için strateji slotu tanımlı değil.",
+    "active": "Aktif",
+    "inactive": "Pasif",
     "cols": {
-      "date": "Tarih",
-      "slot": "Zaman",
-      "type": "Tür",
-      "status": "Durum",
-      "note": "Not"
+      "day": "Gün",
+      "time": "Saat",
+      "template": "Şablon",
+      "topic": "Konu",
+      "status": "Durum"
     }
   },
   "templates": {
@@ -67,6 +69,15 @@
     "hashtagsPlaceholder": "#haldefiyat #halfiyatlari",
     "media": "Görsel (opsiyonel)",
     "mediaHelper": "Görsel URL'si — medya kütüphanesinden veya yüklemeden.",
+    "aiTitle": "AI Tweet Yardımı",
+    "aiTopicPlaceholder": "Örn: bugün en çok artan ürünler için kısa bir tweet",
+    "aiGenerate": "AI Taslak Hazırla",
+    "aiGenerating": "Hazırlanıyor...",
+    "aiTopicRequired": "Önce kısa bir konu veya metin gir",
+    "schedule": "İleri tarihli planla",
+    "scheduleHelper": "Boş bırakırsan taslak olarak kaydedilir. Tarih seçersen o zamanda otomatik yayınlanır.",
+    "scheduleBtn": "Planla",
+    "scheduled": "Gönderi planlandı",
     "publish": "Yayınla",
     "publishing": "Yayınlanıyor...",
     "publishConfirm": "Gönderi @haldefiyat hesabından CANLI yayınlanacak. Devam edilsin mi?",

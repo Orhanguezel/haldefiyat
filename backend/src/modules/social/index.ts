@@ -1,17 +1,20 @@
 import type { FastifyInstance, FastifyReply } from "fastify";
-import { listSocialPosts, isSocialPlatform, type SocialPlatformKey } from "./repository";
 import {
-  getPosts,
-  getCalendar,
-  getTemplates,
-  getPlatforms,
-  createPost,
-  publishNow,
-  deletePost,
-  toEcoPlatform,
-  type EcoPost,
-  type HalPlatform,
-} from "./eco-client";
+  getSocialPlatformStatus,
+  sendTweet,
+  queueTweet,
+  cancelQueuedTweet,
+  repoListTweets,
+  repoListContentPlans,
+  type TweetRow,
+  type SocialPlatform,
+} from "@agro/shared-backend/modules/twitter";
+import {
+  listSocialPosts,
+  listSocialTemplates,
+  isSocialPlatform,
+  type SocialPlatformKey,
+} from "./repository";
 
 function resolvePlatform(raw: unknown): SocialPlatformKey {
   return isSocialPlatform(raw) ? raw : "twitter";
@@ -19,37 +22,46 @@ function resolvePlatform(raw: unknown): SocialPlatformKey {
 
 const HANDLE = "haldefiyat";
 
-function externalUrl(p: EcoPost): string | null {
-  if (p.platform === "x" && p.xTweetId) return `https://twitter.com/${HANDLE}/status/${p.xTweetId}`;
-  if (p.platform === "facebook" && p.fbPostId) return `https://www.facebook.com/${p.fbPostId}`;
+// hal tweets.status → frontend SocialPostStatus
+const STATUS_MAP: Record<string, string> = {
+  queued: "scheduled",
+  posting: "publishing",
+  sent: "posted",
+  failed: "failed",
+  canceled: "cancelled",
+};
+
+function externalUrl(row: TweetRow): string | null {
+  if (row.platform === "twitter" && row.x_tweet_id) return `https://twitter.com/${HANDLE}/status/${row.x_tweet_id}`;
+  if (row.external_post_id && row.platform === "facebook") return `https://www.facebook.com/${row.external_post_id}`;
   return null;
 }
 
-function mapPost(p: EcoPost) {
+function mapTweet(row: TweetRow) {
   return {
-    id: p.id,
-    uuid: p.uuid,
-    platform: p.platform,
-    title: p.title,
-    caption: p.caption,
-    hashtags: p.hashtags,
-    mediaUrls: Array.isArray(p.mediaUrls) ? p.mediaUrls : [],
-    imageUrl: p.imageUrl,
-    status: p.status,
-    scheduledAt: p.scheduledAt,
-    postedAt: p.postedAt,
-    sourceType: p.sourceType,
-    errorMessage: p.errorMessage,
-    externalUrl: externalUrl(p),
-    createdAt: p.createdAt,
+    id: Number(row.id) || row.id,
+    uuid: String(row.id),
+    platform: row.platform,
+    title: null as string | null,
+    caption: row.content,
+    hashtags: null as string | null,
+    mediaUrls: row.media_url ? [row.media_url] : [],
+    imageUrl: null as string | null,
+    status: STATUS_MAP[row.status] ?? row.status,
+    scheduledAt: row.scheduled_at ? new Date(row.scheduled_at).toISOString() : null,
+    postedAt: row.posted_at ? new Date(row.posted_at).toISOString() : null,
+    sourceType: row.source,
+    errorMessage: row.error_message,
+    externalUrl: externalUrl(row),
+    createdAt: row.created_at ? new Date(row.created_at).toISOString() : "",
   };
 }
 
-const QUEUE_STATUSES = new Set(["draft", "scheduled", "publishing", "failed"]);
+const QUEUE_STATUSES = new Set(["queued", "posting", "failed"]);
 
-async function ecoFail(reply: FastifyReply, err: unknown, log: FastifyInstance["log"], msg: string) {
+function fail(reply: FastifyReply, err: unknown, log: FastifyInstance["log"], msg: string) {
   log.warn({ err }, msg);
-  return reply.status(502).send({ success: false, error: "ekosistem-sosyal-medya'ya ulaşılamadı" });
+  return reply.status(500).send({ success: false, error: (err as Error)?.message || "hata" });
 }
 
 export async function registerSocial(app: FastifyInstance) {
@@ -70,7 +82,7 @@ export async function registerSocial(app: FastifyInstance) {
 }
 
 export async function registerSocialAdmin(adminApi: FastifyInstance) {
-  // Yayınlananlar — X-formatlı feed (ekosistem_sosyal cross-DB, analitik dahil).
+  // Yayınlananlar — X-formatlı feed (yayınlanmış + analitik).
   adminApi.get("/social/feed", async (req, reply) => {
     const q = req.query as { limit?: string; platform?: string };
     const limit = Number(q?.limit) || 30;
@@ -84,110 +96,102 @@ export async function registerSocialAdmin(adminApi: FastifyInstance) {
     }
   });
 
-  // Hesap durumu — ekosistem platform_accounts (gerçek @haldefiyat).
+  // Hesap durumu — hal site_settings X kimlik bilgileri.
   adminApi.get("/social/status", async (req, reply) => {
     const platform = resolvePlatform((req.query as { platform?: string })?.platform);
-    const eco = toEcoPlatform(platform as HalPlatform);
     try {
-      const { items } = await getPlatforms();
-      const acc = items.find((a) => a.platform === eco) ?? null;
-      const has_credentials = !!(acc && (acc.hasOAuth1 || acc.hasAccessToken || acc.hasPageToken));
-      return reply.send({
-        platform,
-        enabled: acc?.isActive === 1,
-        has_credentials,
-        account: acc ? { name: acc.accountName, handle: acc.accountName, lastError: acc.lastError } : null,
-      });
+      const s = await getSocialPlatformStatus(platform as SocialPlatform);
+      return reply.send({ platform, enabled: s.enabled, has_credentials: s.has_credentials, account: null });
     } catch (err) {
-      return ecoFail(reply, err, req.log, "admin_social_status_failed");
+      return fail(reply, err, req.log, "admin_social_status_failed");
     }
   });
 
-  // Plan / Strateji — ekosistem content_calendar.
+  // Plan / Strateji — hal social_content_plans (haftalık strateji slotları).
   adminApi.get("/social/plan", async (req, reply) => {
     const platform = resolvePlatform((req.query as { platform?: string })?.platform);
     try {
-      const { items } = await getCalendar(platform as HalPlatform);
+      const items = await repoListContentPlans(platform);
       return reply.send({ items });
     } catch (err) {
-      return ecoFail(reply, err, req.log, "admin_social_plan_failed");
+      return fail(reply, err, req.log, "admin_social_plan_failed");
     }
   });
 
-  // Şablonlar — ekosistem content_templates.
+  // Şablonlar — hal hf_social_templates.
   adminApi.get("/social/templates", async (req, reply) => {
     const platform = resolvePlatform((req.query as { platform?: string })?.platform);
     try {
-      const { items } = await getTemplates(platform as HalPlatform);
+      const items = await listSocialTemplates(platform);
       return reply.send({ items });
     } catch (err) {
-      return ecoFail(reply, err, req.log, "admin_social_templates_failed");
+      return fail(reply, err, req.log, "admin_social_templates_failed");
     }
   });
 
-  // Taslak & Kuyruk / Geçmiş — ekosistem posts.
+  // Taslak & Kuyruk / Geçmiş — hal tweets.
   adminApi.get("/social/posts", async (req, reply) => {
     const q = req.query as { platform?: string; scope?: string };
     const platform = resolvePlatform(q?.platform);
     const scope = q?.scope === "history" ? "history" : "queue";
     try {
-      const { items } = await getPosts(platform as HalPlatform, 50);
-      const filtered = items.filter((p) =>
-        scope === "history" ? p.status === "posted" : QUEUE_STATUSES.has(p.status),
-      );
-      return reply.send({ items: filtered.map(mapPost), scope });
+      const { items } = await repoListTweets({ platform, limit: 50, offset: 0 });
+      const filtered = items.filter((r) => (scope === "history" ? r.status === "sent" : QUEUE_STATUSES.has(r.status)));
+      return reply.send({ items: filtered.map(mapTweet), scope });
     } catch (err) {
-      return ecoFail(reply, err, req.log, "admin_social_posts_failed");
+      return fail(reply, err, req.log, "admin_social_posts_failed");
     }
   });
 
-  // Taslak kaydet (yayınlamadan).
+  // Taslak kaydet / ileri tarihli planla (kuyruk).
   adminApi.post("/social/posts", async (req, reply) => {
     const body = (req.body ?? {}) as { platform?: string; caption?: string; hashtags?: string; mediaUrls?: string[]; scheduledAt?: string };
     const platform = resolvePlatform(body.platform);
+    const text = [body.caption?.trim(), body.hashtags?.trim()].filter(Boolean).join("\n\n");
     if (!body.caption?.trim()) return reply.status(400).send({ success: false, error: "Metin boş olamaz" });
     try {
-      const post = await createPost({
-        platform: platform as HalPlatform,
-        caption: body.caption.trim(),
-        hashtags: body.hashtags,
-        mediaUrls: body.mediaUrls,
-        scheduledAt: body.scheduledAt,
+      const res = await queueTweet({
+        text,
+        platform: platform as SocialPlatform,
+        scheduledAt: body.scheduledAt ? new Date(body.scheduledAt) : null,
+        mediaUrl: body.mediaUrls?.[0] ?? null,
+        source: "manual",
       });
-      return reply.send({ success: true, id: post.id, post: mapPost(post) });
+      if (!res.ok) return reply.status(400).send({ success: false, error: res.reason });
+      return reply.send({ success: true, id: res.id });
     } catch (err) {
-      return ecoFail(reply, err, req.log, "admin_social_save_failed");
+      return fail(reply, err, req.log, "admin_social_save_failed");
     }
   });
 
-  // Manuel gönderi — oluştur + ANINDA yayınla (gerçek @haldefiyat hesabından).
+  // Manuel gönderi — anında yayınla (@haldefiyat, hal publisher).
   adminApi.post("/social/send", async (req, reply) => {
     const body = (req.body ?? {}) as { platform?: string; caption?: string; hashtags?: string; mediaUrls?: string[] };
     const platform = resolvePlatform(body.platform);
+    const text = [body.caption?.trim(), body.hashtags?.trim()].filter(Boolean).join("\n\n");
     if (!body.caption?.trim()) return reply.status(400).send({ success: false, error: "Metin boş olamaz" });
     try {
-      const post = await createPost({
-        platform: platform as HalPlatform,
-        caption: body.caption.trim(),
-        hashtags: body.hashtags,
-        mediaUrls: body.mediaUrls,
+      const res = await sendTweet({
+        text,
+        platform: platform as SocialPlatform,
+        mediaUrl: body.mediaUrls?.[0] ?? null,
+        source: "manual",
       });
-      await publishNow(post.id);
-      return reply.send({ success: true, id: post.id });
+      return reply.send({ success: true, id: res.tweet_id });
     } catch (err) {
-      return ecoFail(reply, err, req.log, "admin_social_send_failed");
+      return fail(reply, err, req.log, "admin_social_send_failed");
     }
   });
 
-  // Taslak/kuyruk kaydı sil.
+  // Kuyruk/taslak kaydı iptal et.
   adminApi.delete("/social/posts/:id", async (req, reply) => {
-    const id = Number((req.params as { id?: string })?.id);
-    if (!Number.isFinite(id)) return reply.status(400).send({ success: false, error: "Geçersiz id" });
+    const id = String((req.params as { id?: string })?.id ?? "");
+    if (!id) return reply.status(400).send({ success: false, error: "Geçersiz id" });
     try {
-      await deletePost(id);
-      return reply.send({ success: true });
+      const res = await cancelQueuedTweet(id);
+      return reply.send({ success: res.ok });
     } catch (err) {
-      return ecoFail(reply, err, req.log, "admin_social_delete_failed");
+      return fail(reply, err, req.log, "admin_social_delete_failed");
     }
   });
 }

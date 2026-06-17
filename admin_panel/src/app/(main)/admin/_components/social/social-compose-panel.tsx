@@ -1,16 +1,17 @@
 // =============================================================
 // FILE: src/app/(main)/admin/_components/social/social-compose-panel.tsx
-// Manuel Gönderi — ekosistem üzerinden oluştur/yayınla (@haldefiyat)
+// Manuel Gönderi — AI taslak + anında yayınla / ileri tarihli planla (@haldefiyat)
 // =============================================================
 
 "use client";
 
 import * as React from "react";
-import { Send, Save } from "lucide-react";
+import { Send, Save, Sparkles, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
 
 import AdminImageUploadField from "@/app/(main)/admin/_components/common/admin-image-upload-field";
 import { useAdminT } from "@/app/(main)/admin/_components/common/use-admin-t";
+import { useAIContentAssist } from "@/app/(main)/admin/_components/common/use-ai-content-assist";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -24,22 +25,38 @@ export default function SocialComposePanel({ platform }: { platform: SocialFeedP
   const [caption, setCaption] = React.useState("");
   const [hashtags, setHashtags] = React.useState("");
   const [media, setMedia] = React.useState("");
+  const [topic, setTopic] = React.useState("");
+  const [scheduledAt, setScheduledAt] = React.useState("");
   const [send, { isLoading: sending }] = useSocialSendMutation();
   const [saveDraft, { isLoading: saving }] = useSocialSavePostMutation();
+  const { assist, loading: aiLoading } = useAIContentAssist();
 
-  const busy = sending || saving;
+  const busy = sending || saving || aiLoading;
 
   const buildBody = (): SocialComposeBody => ({
     platform,
     caption: caption.trim(),
     hashtags: hashtags.trim() || undefined,
     mediaUrls: media.trim() ? [media.trim()] : undefined,
+    scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
   });
 
   const reset = () => {
     setCaption("");
     setHashtags("");
     setMedia("");
+    setTopic("");
+    setScheduledAt("");
+  };
+
+  const handleAi = async () => {
+    const seed = topic.trim() || caption.trim();
+    if (!seed) return toast.error(t("compose.aiTopicRequired"));
+    const result = await assist({ title: seed, locale: "tr", action: "full", module_key: "social-tweet" });
+    const first = result?.[0];
+    if (!first) return;
+    setCaption((first.summary || first.content || "").trim().slice(0, 280));
+    if (first.tags) setHashtags(first.tags);
   };
 
   const handlePublish = async () => {
@@ -58,7 +75,7 @@ export default function SocialComposePanel({ platform }: { platform: SocialFeedP
     if (!caption.trim()) return toast.error(t("compose.emptyCaption"));
     try {
       await saveDraft(buildBody()).unwrap();
-      toast.success(t("compose.saved"));
+      toast.success(scheduledAt ? t("compose.scheduled") : t("compose.saved"));
       reset();
     } catch (err) {
       toast.error(`${t("compose.saveFailed")}: ${getErrorMessage(err)}`);
@@ -72,6 +89,25 @@ export default function SocialComposePanel({ platform }: { platform: SocialFeedP
         <CardDescription>{t("compose.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* AI taslak */}
+        <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+          <Label htmlFor="social-topic" className="flex items-center gap-2 text-sm">
+            <Sparkles className="h-4 w-4" /> {t("compose.aiTitle")}
+          </Label>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Input
+              id="social-topic"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder={t("compose.aiTopicPlaceholder")}
+            />
+            <Button type="button" variant="secondary" onClick={handleAi} disabled={busy}>
+              <Sparkles className="mr-2 h-4 w-4" />
+              {aiLoading ? t("compose.aiGenerating") : t("compose.aiGenerate")}
+            </Button>
+          </div>
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="social-caption">{t("compose.caption")}</Label>
           <Textarea
@@ -102,10 +138,23 @@ export default function SocialComposePanel({ platform }: { platform: SocialFeedP
           previewAspect="16x9"
         />
 
+        <div className="space-y-2">
+          <Label htmlFor="social-schedule" className="flex items-center gap-2">
+            <CalendarClock className="h-4 w-4" /> {t("compose.schedule")}
+          </Label>
+          <Input
+            id="social-schedule"
+            type="datetime-local"
+            value={scheduledAt}
+            onChange={(e) => setScheduledAt(e.target.value)}
+          />
+          <p className="text-xs text-muted-foreground">{t("compose.scheduleHelper")}</p>
+        </div>
+
         <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
           <Button variant="outline" onClick={handleSaveDraft} disabled={busy}>
             <Save className="mr-2 h-4 w-4" />
-            {saving ? t("compose.saving") : t("compose.saveDraft")}
+            {saving ? t("compose.saving") : scheduledAt ? t("compose.scheduleBtn") : t("compose.saveDraft")}
           </Button>
           <Button onClick={handlePublish} disabled={busy}>
             <Send className="mr-2 h-4 w-4" />

@@ -48,32 +48,36 @@ export type SocialStatusResp = {
   account: { name: string | null; handle: string | null; lastError: string | null } | null;
 };
 
-// ── Plan (ekosistem content_calendar) ──────────────────────────────────────────
+// ── Plan / Strateji (hal social_content_plans — haftalık slotlar) ──────────────
+
+export const PLAN_DAY_LABELS = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"] as const;
 
 export type SocialPlanItem = {
-  id: number;
-  date: string;
-  timeSlot: string;
-  postType: string;
+  id: string;
   platform: string;
-  notes: string | null;
-  templateId: number | null;
-  postId: number | null;
-  status: string;
+  slot_key: string;
+  day_of_week: number;
+  hour: number;
+  minute: number;
+  template: string;
+  pillar: string | null;
+  topic: string | null;
+  post_format: string;
+  is_active: number;
+  order_index: number;
 };
 
 export type SocialPlanResp = { items: SocialPlanItem[] };
 
-// ── Şablonlar (ekosistem content_templates) ────────────────────────────────────
+// ── Şablonlar (hal hf_social_templates) ────────────────────────────────────────
 
 export type SocialTemplate = {
   id: number;
   name: string;
-  postType: string;
   platform: string;
   captionTemplate: string;
   hashtags: string | null;
-  variables: string[] | null;
+  variables: string[];
   isActive: number;
 };
 

@@ -98,11 +98,10 @@ export const env = {
     accessToken:       process.env.TWITTER_ACCESS_TOKEN || "",
     accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET || "",
   },
-  // ekosistem-sosyal-medya backend'i — haldefiyat sosyal medyasinin tek motoru.
-  // hal admin sosyal sayfalari bu API'yi proxy'ler (ayni VPS, localhost).
-  ECO_SOCIAL: {
-    url:    process.env.ECO_SOCIAL_URL || "http://127.0.0.1:8089/api/v1",
-    tenant: process.env.ECO_SOCIAL_TENANT || "haldefiyat",
+  // Sosyal medya (X/Twitter) — haldefiyat sosyali artik tamamen hal'de.
+  // Kuyruk dispatcher: planli/zamanlanmis tweetleri yayinlar (TWITTER_ENABLED gate).
+  SOCIAL: {
+    queueSchedule: process.env.SOCIAL_QUEUE_SCHEDULE || "*/5 * * * *",
   },
   SMTP_HOST: process.env.SMTP_HOST || "",
   SMTP_PORT: parseEnvInt(process.env.SMTP_PORT, 587),

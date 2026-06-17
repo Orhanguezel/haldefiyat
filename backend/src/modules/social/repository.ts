@@ -119,3 +119,44 @@ export type SocialTweet = SocialPost;
 export function listSocialTweets(limit = 30): Promise<SocialPost[]> {
   return listSocialPosts("twitter", limit);
 }
+
+// ── Şablonlar (hal-local hf_social_templates) ──────────────────────────────────
+
+export interface SocialTemplateRow {
+  id: number;
+  platform: string;
+  name: string;
+  captionTemplate: string;
+  hashtags: string | null;
+  variables: string[];
+  isActive: number;
+}
+
+export async function listSocialTemplates(platform: string): Promise<SocialTemplateRow[]> {
+  const ecoPlatform = platform === "twitter" ? "x" : platform;
+  const res = await db.execute(sql`
+    SELECT id, platform, name, caption_template AS captionTemplate, hashtags, variables, is_active AS isActive
+    FROM hf_social_templates
+    WHERE platform IN (${ecoPlatform}, ${platform}) AND is_active = 1
+    ORDER BY id
+  `);
+  const rows = (Array.isArray(res) ? res[0] : (res as { rows?: unknown[] }).rows ?? res) as Record<string, unknown>[];
+  return (rows ?? []).map((r) => {
+    let variables: string[] = [];
+    try {
+      const v = typeof r.variables === "string" ? JSON.parse(r.variables) : r.variables;
+      if (Array.isArray(v)) variables = v.filter((x): x is string => typeof x === "string");
+    } catch {
+      /* ignore */
+    }
+    return {
+      id: Number(r.id),
+      platform: String(r.platform ?? ""),
+      name: String(r.name ?? ""),
+      captionTemplate: String(r.captionTemplate ?? ""),
+      hashtags: r.hashtags ? String(r.hashtags) : null,
+      variables,
+      isActive: Number(r.isActive) || 0,
+    };
+  });
+}

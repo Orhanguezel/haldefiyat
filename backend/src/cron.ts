@@ -23,6 +23,7 @@ import { submitToIndexNow } from "@/modules/indexnow";
 import { cleanupOldEtlRuns } from "@/modules/etl/maintenance";
 import { refreshSearchConsoleIndex } from "@agro/shared-backend/modules/searchConsole";
 import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
+import { processSocialQueueOnce } from "@agro/shared-backend/modules/twitter";
 
 /**
  * Cron zamanlaması env'den gelir:
@@ -69,6 +70,7 @@ export function startCron(app: FastifyInstance): void {
     { name: "gsc-index-refresh",  schedule: env.ETL.gscIndexSchedule,       handler: () => runGscIndexJob(app) },
     // search_volume'u GSC gösterimlerinden doldur — haftalık (talep yavaş değişir)
     { name: "search-volume-sync", schedule: env.ETL.searchVolumeSchedule,   handler: () => runSearchVolumeJob(app) },
+    { name: "social-queue",       schedule: env.SOCIAL.queueSchedule,        handler: () => runSocialQueueJob(app) },
   ];
   if (env.ETL.firmPriceReminderSchedule) {
     tasks.push({
@@ -115,6 +117,20 @@ async function runEtlJob(app: FastifyInstance): Promise<void> {
     await runListingsExpireJob(app);
   } catch (err) {
     app.log.error({ err }, "[cron:etl] hata");
+  }
+}
+
+// Planli/zamanlanmis sosyal gönderileri yayinlar. TWITTER_ENABLED + kimlik bilgisi
+// yoksa processSocialQueueOnce 'disabled'/'no_credentials' döner ve sessizce atlar.
+async function runSocialQueueJob(app: FastifyInstance): Promise<void> {
+  try {
+    for (let i = 0; i < 10; i++) {
+      const r = await processSocialQueueOnce();
+      if (!r.processed) break;
+      app.log.info({ id: r.id, platform: r.platform, status: r.status }, "[cron:social-queue] gönderildi");
+    }
+  } catch (err) {
+    app.log.error({ err }, "[cron:social-queue] hata");
   }
 }
 

@@ -37,7 +37,6 @@ export default function SocialPublishingPage({ platform }: Props) {
               {status?.enabled ? t("header.statusEnabled") : t("header.statusDisabled")}
             </Badge>
             {status?.account?.name ? <Badge variant="outline">{status.account.name}</Badge> : null}
-            <Badge variant="outline">{t("header.source")}</Badge>
           </div>
           {status?.account?.lastError ? (
             <p className="text-xs text-destructive">

@@ -1076,6 +1076,7 @@ export {
   SOCIAL_ADMIN_BASE,
   SOCIAL_FEED_PLATFORMS,
   SOCIAL_ACCOUNTS,
+  PLAN_DAY_LABELS,
   hasPublicSocialUrl,
   type SocialFeedPlatform,
   type SocialFeedPost,
