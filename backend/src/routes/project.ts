@@ -23,7 +23,7 @@ import { registerTracking } from "@/modules/tracking/router";
 import { registerFirmsAdmin, registerFirmsPublic } from "@/modules/firms";
 import { registerAuthorsAdmin, registerAuthorsPublic } from "@/modules/authors";
 import { registerListingsAdmin, registerListingsPublic } from "@/modules/listings";
-import { registerSocial } from "@/modules/social";
+import { registerSocial, registerSocialAdmin } from "@/modules/social";
 import { registerSeoVolumeAdmin } from "@/modules/seo-volume";
 import { registerBanners, registerBannersAdmin } from "@/modules/banners";
 
@@ -76,4 +76,5 @@ export async function registerProjectAdmin(adminApi: FastifyInstance) {
   await registerListingsAdmin(adminApi);
   await registerAuthorsAdmin(adminApi);
   await registerBannersAdmin(adminApi);
+  await registerSocialAdmin(adminApi);
 }

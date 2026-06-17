@@ -1,12 +1,12 @@
 // =============================================================
-// FILE: src/app/(main)/admin/(admin)/twitter/twitter.tsx
-// X / Twitter izleme paneli
+// FILE: src/app/(main)/admin/(admin)/facebook/facebook.tsx
+// Facebook izleme paneli
 // =============================================================
 
 "use client";
 
 import SocialFeedPanel from "@/app/(main)/admin/_components/social/social-feed-panel";
 
-export default function TwitterAdminPage() {
-  return <SocialFeedPanel platform="twitter" />;
+export default function FacebookAdminPage() {
+  return <SocialFeedPanel platform="facebook" />;
 }

@@ -273,17 +273,8 @@ export {
   useUpdateThemeAdminMutation,
 } from "@/integrations/endpoints/admin/theme-admin-endpoints";
 export {
-  useLazyTwitterListTweetsQuery,
-  useTwitterAiDraftMutation,
-  useTwitterCancelTweetMutation,
-  useTwitterListTweetsQuery,
-  useTwitterPlansQuery,
-  useTwitterSendMutation,
-  useTwitterStatusQuery,
-  useTwitterSyncHistoryMutation,
-  useTwitterTemplatePreviewsQuery,
-  useTwitterVerifyMutation,
-} from "@/integrations/endpoints/admin/twitter-admin-endpoints";
+  useSocialFeedQuery,
+} from "@/integrations/endpoints/admin/social-admin-endpoints";
 export {
   useAdminGetQuery,
   useAdminListQuery,

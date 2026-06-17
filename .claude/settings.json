@@ -251,7 +251,8 @@
       "Bash(curl -s \"https://haldefiyat.com/api/v1/banners?position=bogus\" -w \"\\\\n[http %{http_code}]\\\\n\")",
       "Bash(echo \"frontend: $\\(bun x tsc --noEmit --pretty false 2>&1)",
       "Bash(grep -iE \"borsa|^[0-9a-f]{7,}\")",
-      "Bash(curl -s -o /dev/null -w \"http %{http_code}\\\\n\" \"https://haldefiyat.com/borsa\")"
+      "Bash(curl -s -o /dev/null -w \"http %{http_code}\\\\n\" \"https://haldefiyat.com/borsa\")",
+      "Bash(echo \"backend: $\\(bun run typecheck 2>&1)"
     ],
     "additionalDirectories": [
       "/home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/frontend/src/app/[locale]/(public)",

@@ -31,6 +31,8 @@ export type AdminPermissionKey =
   | 'admin.gtm'
   | 'admin.meta'
   | 'admin.twitter'
+  | 'admin.facebook'
+  | 'admin.instagram'
   | 'admin.popups'
   | 'admin.banners';
 
@@ -66,6 +68,8 @@ export type AdminNavKey =
   | 'gtm'
   | 'meta'
   | 'twitter'
+  | 'facebook'
+  | 'instagram'
   | 'popups'
   | 'banners';
 
@@ -102,6 +106,8 @@ const ADMIN_PERMISSION_ROLE_MAP: Record<AdminPermissionKey, PanelRole[]> = {
   'admin.gtm': ADMIN_ONLY,
   'admin.meta': ADMIN_ONLY,
   'admin.twitter': ADMIN_ONLY,
+  'admin.facebook': ADMIN_ONLY,
+  'admin.instagram': ADMIN_ONLY,
   'admin.popups': ADMIN_ONLY,
   'admin.banners': ADMIN_ONLY,
 };
@@ -142,6 +148,8 @@ const ADMIN_NAV_PERMISSION_MAP: Partial<Record<AdminNavKey, AdminPermissionKey>>
   gtm: 'admin.gtm',
   meta: 'admin.meta',
   twitter: 'admin.twitter',
+  facebook: 'admin.facebook',
+  instagram: 'admin.instagram',
   popups: 'admin.popups',
   banners: 'admin.banners',
 };
@@ -183,6 +191,8 @@ const ADMIN_PERMISSION_PATHS: Record<AdminPermissionKey, string[]> = {
   'admin.gtm': ['/admin/gtm'],
   'admin.meta': ['/admin/meta'],
   'admin.twitter': ['/admin/twitter'],
+  'admin.facebook': ['/admin/facebook'],
+  'admin.instagram': ['/admin/instagram'],
   'admin.popups': ['/admin/popups'],
   'admin.banners': ['/admin/banners'],
 };
