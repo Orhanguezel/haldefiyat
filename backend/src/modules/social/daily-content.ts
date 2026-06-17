@@ -7,6 +7,7 @@
 import { randomUUID } from "crypto";
 import { queueTweet, repoInsertTweet } from "@agro/shared-backend/modules/twitter";
 import { trendingChanges } from "@/modules/prices/repository";
+import { buildMoversChartUrl, type ChartRow } from "./chart";
 
 const SITE = "https://haldefiyat.com";
 const HASHTAGS = "#haldefiyat #halfiyatları #sebze #meyve #tarım";
@@ -36,7 +37,10 @@ function line(arrow: string, t: Trend, withPrice: boolean): string {
 
 /** Günün hareketi caption'ı — 280 karaktere sığacak şekilde kısaltır. */
 export async function buildDailyMoversText(): Promise<string | null> {
-  const trending = await trendingChanges(10);
+  return buildTextFromTrend(await trendingChanges(10));
+}
+
+function buildTextFromTrend(trending: Awaited<ReturnType<typeof trendingChanges>>): string | null {
   const risers = trending.filter((t) => t.changePct > 0).slice(0, 3);
   const fallers = trending.filter((t) => t.changePct < 0).slice(0, 2);
   if (!risers.length && !fallers.length) return null;
@@ -59,16 +63,36 @@ export async function buildDailyMoversText(): Promise<string | null> {
   return build(1, 0).slice(0, MAX_LEN);
 }
 
-/** Günlük movers tweet'ini kuyruğa ekler (dispatcher yayınlar). sourceRef ile tekilleştirilir. */
+/** Bugünün movers grafiğini üretip URL döner (tweet atmaz — önizleme/günlük iş ortak kullanır). */
+export async function buildTodayChartUrl(): Promise<string | null> {
+  const trending = await trendingChanges(10);
+  const chartRows: ChartRow[] = [...trending]
+    .sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct))
+    .slice(0, 5)
+    .map((t) => ({ name: t.product?.nameTr ?? "—", changePct: t.changePct, latest: t.latest }));
+  return buildMoversChartUrl(chartRows, istanbulDate(), isoDate());
+}
+
+/** Günlük movers tweet'ini (metin + grafik) kuyruğa ekler. sourceRef ile tekilleştirilir. */
 export async function runDailyMoversJob(): Promise<{ ok: boolean; reason?: string }> {
-  const text = await buildDailyMoversText();
+  const trending = await trendingChanges(10);
+  const text = buildTextFromTrend(trending);
   if (!text) return { ok: false, reason: "no_data" };
+
+  const chartRows: ChartRow[] = [...trending]
+    .sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct))
+    .slice(0, 5)
+    .map((t) => ({ name: t.product?.nameTr ?? "—", changePct: t.changePct, latest: t.latest }));
+  const date = isoDate();
+  const mediaUrl = await buildMoversChartUrl(chartRows, istanbulDate(), date);
+
   const res = await queueTweet({
     text,
     platform: "twitter",
     source: "auto",
-    sourceRef: `daily_movers:${isoDate()}`,
+    sourceRef: `daily_movers:${date}`,
     scheduledAt: null,
+    mediaUrl,
   });
   return res.ok ? { ok: true } : { ok: false, reason: res.reason };
 }

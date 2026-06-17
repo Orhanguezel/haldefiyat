@@ -15,7 +15,7 @@ import {
   isSocialPlatform,
   type SocialPlatformKey,
 } from "./repository";
-import { createDraftTweet } from "./daily-content";
+import { createDraftTweet, buildTodayChartUrl } from "./daily-content";
 
 function resolvePlatform(raw: unknown): SocialPlatformKey {
   return isSocialPlatform(raw) ? raw : "twitter";
@@ -95,6 +95,16 @@ export async function registerSocialAdmin(adminApi: FastifyInstance) {
     } catch (err) {
       req.log.warn({ err }, "admin_social_feed_failed");
       return reply.send({ handle: HANDLE, platform, count: 0, items: [] });
+    }
+  });
+
+  // Günün grafiği önizleme (tweet atmaz) — Faz3 görsel doğrulama + manuel kullanım.
+  adminApi.get("/social/chart-preview", async (req, reply) => {
+    try {
+      const url = await buildTodayChartUrl();
+      return reply.send({ success: true, url });
+    } catch (err) {
+      return fail(reply, err, req.log, "admin_social_chart_failed");
     }
   });
 
