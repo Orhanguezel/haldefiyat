@@ -181,16 +181,28 @@ export function parseTobbBorsaHtml(raw: string): BorsaPriceRow[] {
       const product = toTobbProduct(cells[0] ?? "");
       if (!product) continue;
 
-      const min = parseTrNumber(cells[3] ?? "");
-      const max = parseTrNumber(cells[4] ?? "");
-      const avg = parseTrNumber(cells[5] ?? "") ?? (min != null && max != null ? (min + max) / 2 : min ?? max);
-      if (avg == null || avg <= 0) continue;
+      const rawMin = parseTrNumber(cells[3] ?? "");
+      const rawMax = parseTrNumber(cells[4] ?? "");
+      const rawAvg = parseTrNumber(cells[5] ?? "") ?? (rawMin != null && rawMax != null ? (rawMin + rawMax) / 2 : rawMin ?? rawMax);
+      if (rawAvg == null || rawAvg <= 0) continue;
 
-      const unit = (cells[1] ?? "kg").trim().toLocaleLowerCase("tr-TR") || "kg";
+      // Birim normalizasyonu: TOBB borsa bazen TL/TON yayınlar → kg'a çevir.
+      // Birim sütunu (cells[1]) "ton" diyorsa /1000; demese de değer >500 ise (tahıl/
+      // bakliyat/yağlı tohum kg fiyatı asla bu kadar olmaz) TL/ton kabul edilir.
+      const unitRaw = (cells[1] ?? "").trim().toLocaleLowerCase("tr-TR");
+      const isTon = /ton/.test(unitRaw);
+      const toKg = (v: number | null): number | null =>
+        v == null ? null : isTon || v > 500 ? v / 1000 : v;
+      const min = toKg(rawMin);
+      const max = toKg(rawMax);
+      const avg = toKg(rawAvg)!;
+      // Akıl-sağlığı: kg'a çevrildikten sonra hâlâ >2000 ise hacim/birim hatası → atla.
+      if (avg > 2000) continue;
+
       rows.push({
         name: product.name,
         category: product.category,
-        unit,
+        unit: "kg",
         recordedDate: parseTrDate(cells[2] ?? ""),
         min: min ?? avg,
         max: max ?? avg,
