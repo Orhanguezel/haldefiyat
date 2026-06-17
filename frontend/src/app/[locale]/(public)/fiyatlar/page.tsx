@@ -8,6 +8,7 @@ import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceTable from "@/components/ui/PriceTable";
 import ExportButton from "@/components/ui/ExportButton";
 import PriceListNewsletterStrip from "@/components/sections/PriceListNewsletterStrip";
+import BannerSlot from "@/components/ads/BannerSlot";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -126,6 +127,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
         <ExportButton params={{ range: "7d" }} />
       </div>
       <PriceListNewsletterStrip />
+      <BannerSlot position="prices_top" />
       <PriceTable
         initialPricePage={pricePage}
         markets={markets}

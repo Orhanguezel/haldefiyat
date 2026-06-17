@@ -16,6 +16,7 @@ import IndexCta from "@/components/sections/IndexCta";
 import SeasonalGuide from "@/components/sections/SeasonalGuide";
 import HomeFaq from "@/components/sections/HomeFaq";
 import MobileHomeHero from "@/components/sections/MobileHomeHero";
+import BannerSlot from "@/components/ads/BannerSlot";
 import type { Stat } from "@/components/sections/StatsBarClient";
 import { ListingCard } from "@/components/listings/ListingCard";
 
@@ -130,9 +131,11 @@ export default async function HomePage({ params }: Props) {
       <div className="hidden md:block">
         <HeroSection activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
         <PriceTicker items={trending} />
+        <BannerSlot position="home_ticker_below" />
         <PriceDashboard />
         <CitySelector locale={locale} />
         <StatsBar stats={stats} />
+        <BannerSlot position="home_mid" />
         <IndexCta />
         {listings.items.length ? (
           <section className="mx-auto max-w-7xl px-6 py-10">
@@ -154,6 +157,8 @@ export default async function HomePage({ params }: Props) {
         <HomeFaq />
         <CtaNewsletter />
       </div>
+      {/* Tüm cihazlarda (mobil dahil) gösterilen footer üstü slot */}
+      <BannerSlot position="home_footer_top" />
     </>
   );
 }
