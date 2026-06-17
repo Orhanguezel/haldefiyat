@@ -18,7 +18,7 @@ import {
   isSocialPlatform,
   type SocialPlatformKey,
 } from "./repository";
-import { createDraftTweet, buildTodayChartUrl, runDailyMoversJob } from "./daily-content";
+import { createDraftTweet, buildTodayChartUrl, runDailyMoversJob, runStaplesJob } from "./daily-content";
 
 function resolvePlatform(raw: unknown): SocialPlatformKey {
   return isSocialPlatform(raw) ? raw : "twitter";
@@ -101,11 +101,12 @@ export async function registerSocialAdmin(adminApi: FastifyInstance) {
     }
   });
 
-  // Günlük tweet'i ŞİMDİ hazırla — yarın 09:00 TR'ye planlar, kuyruğa ileri tarihli ekler.
+  // Günlük tweetleri ŞİMDİ hazırla — movers (09:00) + popüler ürünler (13:00) planlanır.
   adminApi.post("/social/prepare-daily", async (req, reply) => {
     try {
-      const r = await runDailyMoversJob();
-      return reply.send({ success: r.ok, reason: r.reason });
+      const movers = await runDailyMoversJob();
+      const staples = await runStaplesJob();
+      return reply.send({ success: movers.ok || staples.ok, movers, staples });
     } catch (err) {
       return fail(reply, err, req.log, "admin_social_prepare_failed");
     }

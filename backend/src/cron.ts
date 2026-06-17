@@ -24,7 +24,7 @@ import { cleanupOldEtlRuns } from "@/modules/etl/maintenance";
 import { refreshSearchConsoleIndex } from "@agro/shared-backend/modules/searchConsole";
 import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
 import { processSocialQueueOnce } from "@agro/shared-backend/modules/twitter";
-import { runDailyMoversJob, createWeeklyAnalysisDraft } from "@/modules/social/daily-content";
+import { runDailyMoversJob, runStaplesJob, createWeeklyAnalysisDraft } from "@/modules/social/daily-content";
 
 /**
  * Cron zamanlaması env'den gelir:
@@ -136,13 +136,15 @@ async function runSocialQueueJob(app: FastifyInstance): Promise<void> {
   }
 }
 
-// Günlük "Günün hareketi" tweet'ini kuyruğa ekler (dispatcher yayınlar).
+// Günlük tweetleri hazırlar: movers (09:00 TR) + popüler ürün fiyatları (13:00 TR).
+// İkisi de ileri tarihli kuyruğa eklenir; dispatcher vakti gelince yayınlar.
 async function runDailyMoversTweetJob(app: FastifyInstance): Promise<void> {
   try {
-    const r = await runDailyMoversJob();
-    app.log.info({ ...r }, "[cron:social-daily-movers] tamamlandi");
+    const movers = await runDailyMoversJob();
+    const staples = await runStaplesJob();
+    app.log.info({ movers, staples }, "[cron:social-daily-prepare] tamamlandi");
   } catch (err) {
-    app.log.error({ err }, "[cron:social-daily-movers] hata");
+    app.log.error({ err }, "[cron:social-daily-prepare] hata");
   }
 }
 

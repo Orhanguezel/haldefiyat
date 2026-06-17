@@ -15,10 +15,11 @@ import { useSocialPlanQuery, useSocialUpdatePlanMutation } from "@/integrations/
 import { getErrorMessage, type SocialFeedPlatform } from "@/integrations/shared";
 
 const SLOT_LABELS: Record<string, string> = {
-  morning: "Sabah",
+  morning: "Sabah (Hareketler)",
+  popular: "Öğle (Popüler ürünler)",
   midday: "Öğle",
   evening: "Akşam",
-  weekly: "Haftalık",
+  weekly: "Haftalık (Analiz)",
 };
 
 function fmtTime(h: number, m: number): string {

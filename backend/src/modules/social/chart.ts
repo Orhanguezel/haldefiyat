@@ -66,23 +66,73 @@ function chartSvg(title: string, subtitle: string, rows: ChartRow[]): string {
   </svg>`;
 }
 
+export type StapleRow = { name: string; price: number; changePct: number | null };
+
+// Popüler ürün fiyatları — 2 sütunlu temiz fiyat tablosu.
+function staplesGridSvg(title: string, subtitle: string, rows: StapleRow[]): string {
+  const data = rows.slice(0, 10);
+  const cols = 2;
+  const colW = (WIDTH - 96 - 40) / cols; // sol/sağ kenar + sütun arası
+  const top = 210;
+  const rowH = 78;
+
+  const cells = data
+    .map((r, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const x = 56 + col * (colW + 40);
+      const y = top + row * rowH;
+      const mid = y + rowH / 2;
+      const up = (r.changePct ?? 0) >= 0;
+      const chg =
+        r.changePct == null ? "" : `${up ? "▲" : "▼"} %${Math.abs(r.changePct).toFixed(1)}`;
+      const chgColor = r.changePct == null ? "#94a3b8" : up ? "#16a34a" : "#dc2626";
+      return `
+      <rect x="${x}" y="${y + 8}" width="${colW}" height="${rowH - 16}" rx="14" fill="#f8fafc" stroke="#e2e8f0"/>
+      <text x="${x + 24}" y="${mid + 9}" font-size="28" font-weight="700" fill="#172033">${escapeXml(clip(r.name, 18))}</text>
+      <text x="${x + colW - 24}" y="${mid - 4}" text-anchor="end" font-size="30" font-weight="800" fill="#0f172a">₺${escapeXml(fmtPrice(r.price))}</text>
+      <text x="${x + colW - 24}" y="${mid + 26}" text-anchor="end" font-size="20" font-weight="700" fill="${chgColor}">${escapeXml(chg)}</text>`;
+    })
+    .join("\n");
+
+  return `<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
+    <rect width="${WIDTH}" height="${HEIGHT}" fill="#f1f5f9"/>
+    <rect x="40" y="40" width="${WIDTH - 80}" height="${HEIGHT - 80}" rx="28" fill="#ffffff" stroke="#dbe3ec"/>
+    <text x="56" y="120" font-size="44" font-weight="800" fill="#0f172a">${escapeXml(title)}</text>
+    <text x="56" y="162" font-size="26" fill="#64748b">${escapeXml(subtitle)}</text>
+    <line x1="56" y1="184" x2="${WIDTH - 56}" y2="184" stroke="#e2e8f0" stroke-width="2"/>
+    ${cells}
+    <text x="56" y="${HEIGHT - 58}" font-size="26" font-weight="800" fill="#16a34a">haldefiyat.com</text>
+    <text x="${WIDTH - 56}" y="${HEIGHT - 58}" text-anchor="end" font-size="22" fill="#94a3b8">Kaynak: hal fiyat verisi</text>
+  </svg>`;
+}
+
 function absolutize(url: string): string {
   if (/^https?:\/\//i.test(url)) return url;
   const base = (env.PUBLIC_URL || "").replace(/\/+$/, "");
   return base ? `${base}${url.startsWith("/") ? "" : "/"}${url}` : url;
 }
 
-/** Movers grafiğini üretip yükler; public URL döner (yoksa null). */
-export async function buildMoversChartUrl(rows: ChartRow[], dateLabel: string, slug: string): Promise<string | null> {
-  if (!rows.length) return null;
+async function renderAndUpload(svg: string, publicId: string): Promise<string | null> {
   try {
-    const svg = chartSvg("Günün Hal Hareketleri", dateLabel, rows);
     const png = await sharp(Buffer.from(svg)).png().toBuffer();
     const cfg = await getCloudinaryConfig();
     if (!cfg) return null;
-    const up = await uploadBufferAuto(cfg, png, { folder: "social", publicId: `movers-${slug}`, mime: "image/png" });
+    const up = await uploadBufferAuto(cfg, png, { folder: "social", publicId, mime: "image/png" });
     return absolutize(up.secure_url);
   } catch {
     return null;
   }
+}
+
+/** Movers grafiğini üretip yükler; public URL döner (yoksa null). */
+export async function buildMoversChartUrl(rows: ChartRow[], dateLabel: string, slug: string): Promise<string | null> {
+  if (!rows.length) return null;
+  return renderAndUpload(chartSvg("Günün Hal Hareketleri", dateLabel, rows), `movers-${slug}`);
+}
+
+/** Popüler ürün fiyat tablosu grafiğini üretip yükler. */
+export async function buildStaplesChartUrl(rows: StapleRow[], dateLabel: string, slug: string): Promise<string | null> {
+  if (!rows.length) return null;
+  return renderAndUpload(staplesGridSvg("Popüler Ürün Fiyatları", dateLabel, rows), `staples-${slug}`);
 }

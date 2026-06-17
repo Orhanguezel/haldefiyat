@@ -6,9 +6,16 @@
 
 import { randomUUID } from "crypto";
 import { queueTweet, repoInsertTweet } from "@agro/shared-backend/modules/twitter";
-import { trendingChanges } from "@/modules/prices/repository";
+import { trendingChanges, widgetPrices } from "@/modules/prices/repository";
+import { getProductEmoji } from "@/modules/telegram-channel/emoji-map";
 import { isPlanSlotActive } from "./repository";
-import { buildMoversChartUrl, type ChartRow } from "./chart";
+import { buildMoversChartUrl, buildStaplesChartUrl, type ChartRow, type StapleRow } from "./chart";
+
+// Popüler / mevsim ürünleri — günün fiyat tablosu için.
+const POPULAR_SLUGS = [
+  "domates", "biber", "patlican", "salatalik", "patates", "sogan", "kabak", "havuc",
+  "karpuz", "kavun", "kiraz", "seftali", "kayisi", "uzum", "cilek", "limon", "elma", "muz",
+];
 
 const SITE = "https://haldefiyat.com";
 const HASHTAGS = "#haldefiyat #halfiyatları #sebze #meyve #tarım";
@@ -22,10 +29,10 @@ function istanbulIso(d = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(d);
 }
 
-// Bir sonraki 09:00 Istanbul (= 06:00 UTC, TR sabit UTC+3). Günlük tweet bu saate planlanır.
-function nextMorningUtc(): Date {
+// Bir sonraki <hourUtc>:00 UTC. TR sabit UTC+3 → 06:00 UTC=09:00 TR, 10:00 UTC=13:00 TR.
+function nextUtcHour(hourUtc: number): Date {
   const now = new Date();
-  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 6, 0, 0));
+  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hourUtc, 0, 0));
   if (d.getTime() <= now.getTime()) d.setUTCDate(d.getUTCDate() + 1);
   return d;
 }
@@ -90,7 +97,7 @@ export async function buildTodayChartUrl(): Promise<string | null> {
 export async function runDailyMoversJob(): Promise<{ ok: boolean; reason?: string }> {
   if (!(await isPlanSlotActive("twitter", "morning"))) return { ok: false, reason: "slot_inactive" };
   const trending = await trendingChanges(10);
-  const scheduledAt = nextMorningUtc();
+  const scheduledAt = nextUtcHour(6); // 09:00 TR
   const dateLabel = istanbulDateLabel(scheduledAt);
   const dateIso = istanbulIso(scheduledAt);
 
@@ -104,6 +111,54 @@ export async function runDailyMoversJob(): Promise<{ ok: boolean; reason?: strin
     platform: "twitter",
     source: "auto",
     sourceRef: `daily_movers:${dateIso}`,
+    scheduledAt,
+    mediaUrl,
+  });
+  return res.ok ? { ok: true } : { ok: false, reason: res.reason };
+}
+
+// ── Popüler ürün fiyatları (2. günlük içerik tipi) ─────────────────────────────
+
+function buildStaplesText(
+  items: { productName: string; categorySlug: string; avgPrice: number; changePct: number | null }[],
+  dateLabel: string,
+): string | null {
+  if (!items.length) return null;
+  const footer = `Tüm fiyatlar 👇 ${SITE}`;
+  const header = `🧺 Popüler ürün fiyatları (${dateLabel})`;
+  const line = (it: (typeof items)[number]) => {
+    const emoji = getProductEmoji(it.productName, it.categorySlug);
+    const arrow = it.changePct == null ? "" : it.changePct >= 0 ? " 🔺" : " 🔻";
+    return `${emoji} ${it.productName}: ₺${fmtPrice(it.avgPrice)}${arrow}`;
+  };
+  for (const n of [7, 6, 5, 4]) {
+    const text = [header, ...items.slice(0, n).map(line), footer, HASHTAGS].join("\n");
+    if (text.length <= MAX_LEN) return text;
+  }
+  return [header, ...items.slice(0, 4).map(line), footer].join("\n").slice(0, MAX_LEN);
+}
+
+/** Popüler ürün fiyatlarını bir sonraki 13:00 TR'ye planlar (tablo grafiği ile). */
+export async function runStaplesJob(): Promise<{ ok: boolean; reason?: string }> {
+  if (!(await isPlanSlotActive("twitter", "popular"))) return { ok: false, reason: "slot_inactive" };
+  const items = (await widgetPrices(POPULAR_SLUGS, undefined, POPULAR_SLUGS.length)).filter((i) => i.avgPrice > 0);
+  if (!items.length) return { ok: false, reason: "no_data" };
+
+  const scheduledAt = nextUtcHour(10); // 13:00 TR
+  const dateLabel = istanbulDateLabel(scheduledAt);
+  const dateIso = istanbulIso(scheduledAt);
+
+  const text = buildStaplesText(items, dateLabel);
+  if (!text) return { ok: false, reason: "no_data" };
+
+  const chartRows: StapleRow[] = items.slice(0, 10).map((i) => ({ name: i.productName, price: i.avgPrice, changePct: i.changePct }));
+  const mediaUrl = await buildStaplesChartUrl(chartRows, dateLabel, dateIso);
+
+  const res = await queueTweet({
+    text,
+    platform: "twitter",
+    source: "auto",
+    sourceRef: `staples:${dateIso}`,
     scheduledAt,
     mediaUrl,
   });
