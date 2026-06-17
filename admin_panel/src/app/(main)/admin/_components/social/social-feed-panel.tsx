@@ -1,91 +1,158 @@
 // =============================================================
 // FILE: src/app/(main)/admin/_components/social/social-feed-panel.tsx
-// Platform başına sosyal izleme paneli (ekosistem-sosyal-medya, read-only)
+// Yayınlanan gönderiler — X (Twitter) görünümünde önizleme (read-only)
+// Veri: ekosistem-sosyal-medya (ekosistem_sosyal cross-DB)
 // =============================================================
 
 "use client";
 
 import * as React from "react";
-import { ExternalLink, Heart, MessageCircle, RefreshCw, Repeat2, Eye } from "lucide-react";
+import {
+  Bookmark,
+  Heart,
+  MessageCircle,
+  RefreshCw,
+  Repeat2,
+  Share,
+  BarChart2,
+} from "lucide-react";
 
 import { useAdminT } from "@/app/(main)/admin/_components/common/use-admin-t";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSocialFeedQuery } from "@/integrations/hooks";
-import { hasPublicSocialUrl, type SocialFeedPlatform, type SocialFeedPost } from "@/integrations/shared";
+import {
+  SOCIAL_ACCOUNTS,
+  hasPublicSocialUrl,
+  type SocialFeedPlatform,
+  type SocialFeedPost,
+} from "@/integrations/shared";
 
 type Props = { platform: SocialFeedPlatform };
 
-function formatDate(iso: string, locale: string): string {
+function compact(n: number): string {
+  if (n < 1000) return String(n);
+  if (n < 1_000_000) return `${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}B`;
+  return `${(n / 1_000_000).toFixed(1)}M`;
+}
+
+function formatXDate(iso: string): string {
   if (!iso) return "—";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "—";
-  return new Intl.DateTimeFormat(locale === "tr" ? "tr-TR" : locale, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(d);
+  const time = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(d);
+  const date = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(d);
+  return `${time} · ${date}`;
 }
 
-function Metric({ icon: Icon, value, label }: { icon: typeof Heart; value: number; label: string }) {
+// Metni hashtag, mention ve link'lere göre renklendirir.
+function RichText({ text }: { text: string }) {
+  if (!text) return null;
+  const parts = text.split(/(\s+)/);
   return (
-    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground" title={label}>
-      <Icon className="h-3.5 w-3.5" />
-      {value.toLocaleString("tr-TR")}
+    <>
+      {parts.map((token, i) => {
+        if (/^#[\p{L}\p{N}_]+$/u.test(token) || /^@[\w]+$/.test(token)) {
+          return (
+            <span key={i} className="text-sky-500">
+              {token}
+            </span>
+          );
+        }
+        if (/^https?:\/\//.test(token) || /^[\w-]+\.(com|org|net|gov|tr)\b/.test(token)) {
+          return (
+            <span key={i} className="text-sky-500">
+              {token}
+            </span>
+          );
+        }
+        return <React.Fragment key={i}>{token}</React.Fragment>;
+      })}
+    </>
+  );
+}
+
+function Action({ icon: Icon, value }: { icon: typeof Heart; value?: number }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+      <Icon className="h-[1.1rem] w-[1.1rem]" />
+      {typeof value === "number" && value > 0 ? compact(value) : null}
     </span>
   );
 }
 
-function PostCard({ post, t, locale }: { post: SocialFeedPost; t: ReturnType<typeof useAdminT>; locale: string }) {
+function TweetCard({ post, platform }: { post: SocialFeedPost; platform: SocialFeedPlatform }) {
+  const acc = SOCIAL_ACCOUNTS[platform];
   const media = post.mediaUrls[0];
-  return (
-    <Card className="overflow-hidden">
-      <CardContent className="flex gap-4 p-4">
-        {media ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={media} alt="" className="h-24 w-24 shrink-0 rounded-md object-cover" loading="lazy" />
-        ) : null}
-        <div className="min-w-0 flex-1 space-y-2">
-          <p className="whitespace-pre-wrap break-words text-sm">{post.text || "—"}</p>
-          {post.hashtags ? <p className="text-xs text-primary">{post.hashtags}</p> : null}
-          <div className="flex flex-wrap items-center gap-3 pt-1">
-            <span className="text-xs text-muted-foreground">{formatDate(post.postedAt, locale)}</span>
-            <Metric icon={Heart} value={post.likes} label={t("metrics.likes")} />
-            <Metric icon={MessageCircle} value={post.comments} label={t("metrics.comments")} />
-            <Metric icon={Repeat2} value={post.shares} label={t("metrics.shares")} />
-            <Metric icon={Eye} value={post.impressions} label={t("metrics.impressions")} />
+  const body = (
+    <Card className="mx-auto w-full max-w-[600px] rounded-2xl">
+      <CardContent className="space-y-3 p-4">
+        <div className="flex items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={acc.avatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
+          <div className="leading-tight">
+            <p className="text-sm font-semibold">{acc.name}</p>
+            <p className="text-xs text-muted-foreground">{acc.handle}</p>
           </div>
         </div>
-        {hasPublicSocialUrl(post) ? (
-          <Button asChild variant="ghost" size="icon" className="shrink-0">
-            <a href={post.url ?? "#"} target="_blank" rel="noopener noreferrer" title={t("openPost")}>
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </Button>
+
+        {post.text ? (
+          <p className="whitespace-pre-wrap break-words text-[15px] leading-relaxed">
+            <RichText text={post.text} />
+          </p>
         ) : null}
+
+        {post.hashtags ? (
+          <p className="text-[15px] text-sky-500">
+            <RichText text={post.hashtags} />
+          </p>
+        ) : null}
+
+        {media ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={media} alt="" className="w-full rounded-2xl border object-cover" loading="lazy" />
+        ) : null}
+
+        <p className="text-xs text-muted-foreground">
+          {formatXDate(post.postedAt)}
+          {post.impressions > 0 ? ` · ${compact(post.impressions)} Görüntülenme` : ""}
+        </p>
+
+        <div className="flex items-center justify-between border-t pt-3">
+          <Action icon={MessageCircle} value={post.comments} />
+          <Action icon={Repeat2} value={post.shares} />
+          <Action icon={Heart} value={post.likes} />
+          <Action icon={BarChart2} value={post.impressions} />
+          <Action icon={Bookmark} />
+          <Action icon={Share} />
+        </div>
       </CardContent>
     </Card>
   );
+
+  if (hasPublicSocialUrl(post)) {
+    return (
+      <a href={post.url ?? "#"} target="_blank" rel="noopener noreferrer" className="block transition hover:opacity-95">
+        {body}
+      </a>
+    );
+  }
+  return body;
 }
 
 export default function SocialFeedPanel({ platform }: Props) {
   const t = useAdminT("admin.social");
-  const locale = "tr";
   const { data, isLoading, isFetching, refetch } = useSocialFeedQuery({ platform, limit: 30 });
   const items = data?.items ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-4">
           <div className="space-y-1">
-            <CardTitle className="text-base">{t(`platforms.${platform}` as "platforms.twitter")}</CardTitle>
+            <CardTitle className="text-base">{t("feed.title")}</CardTitle>
             <CardDescription>{t("header.description")}</CardDescription>
-            <div className="flex gap-2 pt-1">
-              <Badge variant="secondary">{t("header.source")}</Badge>
-              <Badge variant="outline">{t("header.count", { count: String(data?.count ?? 0) })}</Badge>
-            </div>
           </div>
           <Button variant="outline" size="sm" onClick={() => void refetch()} disabled={isFetching}>
             <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
@@ -95,19 +162,19 @@ export default function SocialFeedPanel({ platform }: Props) {
       </Card>
 
       {isLoading ? (
-        <div className="space-y-3">
-          {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-28 w-full" />
+        <div className="mx-auto w-full max-w-[600px] space-y-3">
+          {[0, 1].map((i) => (
+            <Skeleton key={i} className="h-64 w-full rounded-2xl" />
           ))}
         </div>
       ) : items.length === 0 ? (
-        <Card>
+        <Card className="mx-auto w-full max-w-[600px]">
           <CardContent className="py-12 text-center text-sm text-muted-foreground">{t("empty")}</CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {items.map((post) => (
-            <PostCard key={post.postId} post={post} t={t} locale={locale} />
+            <TweetCard key={post.postId} post={post} platform={platform} />
           ))}
         </div>
       )}

@@ -1,12 +1,12 @@
 // =============================================================
 // FILE: src/app/(main)/admin/(admin)/twitter/twitter.tsx
-// X / Twitter izleme paneli
+// X / Twitter yönetimi (plan + manuel + kuyruk + yayınlananlar)
 // =============================================================
 
 "use client";
 
-import SocialFeedPanel from "@/app/(main)/admin/_components/social/social-feed-panel";
+import SocialPublishingPage from "@/app/(main)/admin/_components/social/social-publishing-page";
 
 export default function TwitterAdminPage() {
-  return <SocialFeedPanel platform="twitter" />;
+  return <SocialPublishingPage platform="twitter" />;
 }

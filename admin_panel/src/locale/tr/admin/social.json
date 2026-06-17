@@ -5,17 +5,11 @@
     "instagram": "Instagram"
   },
   "header": {
-    "description": "ekosistem-sosyal-medya sisteminde haldefiyat için yayınlanan gönderiler ve etkileşim verileri (salt okunur).",
-    "source": "Kaynak: ekosistem-sosyal-medya",
-    "count": "{count} gönderi"
+    "description": "ekosistem-sosyal-medya sisteminde haldefiyat için yayınlanan gönderiler (salt okunur)."
   },
-  "metrics": {
-    "likes": "Beğeni",
-    "comments": "Yorum",
-    "shares": "Paylaşım",
-    "impressions": "Görüntülenme"
+  "feed": {
+    "title": "Yayınlanan gönderiler"
   },
   "refresh": "Yenile",
-  "openPost": "Gönderiyi aç",
   "empty": "Bu platform için henüz yayınlanmış gönderi yok."
 }

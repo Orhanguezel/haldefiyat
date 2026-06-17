@@ -276,6 +276,18 @@ export {
   useSocialFeedQuery,
 } from "@/integrations/endpoints/admin/social-admin-endpoints";
 export {
+  useLazyTwitterListTweetsQuery,
+  useTwitterAiDraftMutation,
+  useTwitterCancelTweetMutation,
+  useTwitterListTweetsQuery,
+  useTwitterPlansQuery,
+  useTwitterSendMutation,
+  useTwitterStatusQuery,
+  useTwitterSyncHistoryMutation,
+  useTwitterTemplatePreviewsQuery,
+  useTwitterVerifyMutation,
+} from "@/integrations/endpoints/admin/twitter-admin-endpoints";
+export {
   useAdminGetQuery,
   useAdminListQuery,
   useAdminRemoveUserMutation,

@@ -41,3 +41,32 @@ export type SocialFeedParams = {
 export function hasPublicSocialUrl(post: SocialFeedPost): boolean {
   return typeof post.url === "string" && post.url.length > 0;
 }
+
+/** Önizleme kartı başlığı için marka hesap bilgisi (haldefiyat). */
+export type SocialAccountInfo = {
+  name: string;
+  handle: string;
+  avatarUrl: string;
+  profileUrl: string;
+};
+
+export const SOCIAL_ACCOUNTS: Record<SocialFeedPlatform, SocialAccountInfo> = {
+  twitter: {
+    name: "Hal de Fiyat",
+    handle: "@haldefiyat",
+    avatarUrl: "https://haldefiyat.com/apple-touch-icon.png",
+    profileUrl: "https://x.com/haldefiyat",
+  },
+  facebook: {
+    name: "Hal de Fiyat",
+    handle: "haldefiyat",
+    avatarUrl: "https://haldefiyat.com/apple-touch-icon.png",
+    profileUrl: "https://www.facebook.com/haldefiyat",
+  },
+  instagram: {
+    name: "Hal de Fiyat",
+    handle: "@haldefiyat",
+    avatarUrl: "https://haldefiyat.com/apple-touch-icon.png",
+    profileUrl: "https://www.instagram.com/haldefiyat",
+  },
+};

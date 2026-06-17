@@ -1,12 +1,12 @@
 // =============================================================
 // FILE: src/app/(main)/admin/(admin)/facebook/facebook.tsx
-// Facebook izleme paneli
+// Facebook yönetimi (plan + manuel + kuyruk + yayınlananlar)
 // =============================================================
 
 "use client";
 
-import SocialFeedPanel from "@/app/(main)/admin/_components/social/social-feed-panel";
+import SocialPublishingPage from "@/app/(main)/admin/_components/social/social-publishing-page";
 
 export default function FacebookAdminPage() {
-  return <SocialFeedPanel platform="facebook" />;
+  return <SocialPublishingPage platform="facebook" />;
 }
