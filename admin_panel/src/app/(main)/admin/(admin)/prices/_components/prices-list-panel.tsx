@@ -12,7 +12,7 @@ import { useListPricesAdminQuery } from '@/integrations/hooks';
 
 interface Props {
   initialFilters?: {
-    product?: string;
+    q?: string;
     market?: string;
     city?: string;
     category?: string;
@@ -20,50 +20,79 @@ interface Props {
   };
 }
 
+const RESULT_LIMIT = 2000;
+
+function useDebounced<T>(value: T, ms: number): T {
+  const [debounced, setDebounced] = React.useState(value);
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), ms);
+    return () => clearTimeout(timer);
+  }, [value, ms]);
+  return debounced;
+}
+
 export default function PricesListPanel({ initialFilters }: Props) {
   const [filters, setFilters] = React.useState({
-    product: initialFilters?.product || '',
+    q: initialFilters?.q || '',
     market: initialFilters?.market || '',
     city: initialFilters?.city || '',
     category: initialFilters?.category || '',
-    range: initialFilters?.range || '7d',
+    // Varsayılan geniş pencere: her ürünün EN GÜNCEL fiyatı görünsün (haftalık/aylık
+    // güncellenen borsa ürünleri 7 günlük pencerede kaybolmasın).
+    range: initialFilters?.range || '3650d',
   });
 
+  const debouncedFilters = useDebounced(filters, 400);
+
   const { data, isLoading, isFetching } = useListPricesAdminQuery({
-    ...filters,
+    ...debouncedFilters,
     latestOnly: true,
-    limit: 200,
+    limit: RESULT_LIMIT,
   });
+
+  const items = data?.items || [];
+  const capped = items.length >= RESULT_LIMIT;
+
+  function set<K extends keyof typeof filters>(key: K, value: string) {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function clearFilters() {
+    setFilters({ q: '', market: '', city: '', category: '', range: '3650d' });
+  }
 
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Filtreler</CardTitle>
-          <Button asChild size="sm">
-            <Link href="/admin/prices/new">Yeni Fiyat</Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={clearFilters}>Temizle</Button>
+            <Button asChild size="sm">
+              <Link href="/admin/prices/new">Yeni Fiyat</Link>
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-5">
           <div className="space-y-2">
-            <Label>Urun slug</Label>
-            <Input value={filters.product} onChange={(e) => setFilters((p) => ({ ...p, product: e.target.value }))} />
+            <Label>Ürün ara (ad/slug)</Label>
+            <Input value={filters.q} placeholder="biber, domates..." onChange={(e) => set('q', e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>Hal slug</Label>
-            <Input value={filters.market} onChange={(e) => setFilters((p) => ({ ...p, market: e.target.value }))} />
+            <Label>Şehir / Hal ara</Label>
+            <Input value={filters.city} placeholder="antalya, izmir..." onChange={(e) => set('city', e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>Sehir</Label>
-            <Input value={filters.city} onChange={(e) => setFilters((p) => ({ ...p, city: e.target.value }))} />
+            <Label>Hal slug (tam)</Label>
+            <Input value={filters.market} placeholder="antalya-toptanci-hali" onChange={(e) => set('market', e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>Kategori</Label>
-            <Input value={filters.category} onChange={(e) => setFilters((p) => ({ ...p, category: e.target.value }))} />
+            <Label>Kategori (tam slug)</Label>
+            <Input value={filters.category} placeholder="sebze-meyve, bakliyat-kuru..." onChange={(e) => set('category', e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>Aralik</Label>
-            <Input value={filters.range} onChange={(e) => setFilters((p) => ({ ...p, range: e.target.value }))} placeholder="7d" />
+            <Label>Aralık</Label>
+            <Input value={filters.range} onChange={(e) => set('range', e.target.value)} placeholder="3650d" />
           </div>
         </CardContent>
       </Card>
@@ -71,17 +100,24 @@ export default function PricesListPanel({ initialFilters }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            Fiyat Kayitlari
-            {isFetching ? ' guncelleniyor...' : ''}
+            Fiyat Kayıtları
+            <span className="ml-2 text-muted-foreground text-sm font-normal">
+              ({items.length}{capped ? '+' : ''} kayıt{isFetching ? ' · güncelleniyor…' : ''})
+            </span>
           </CardTitle>
+          {capped && (
+            <p className="text-muted-foreground text-xs">
+              İlk {RESULT_LIMIT} kayıt gösteriliyor. Daha fazlası için ürün/şehir/kategori ile daraltın.
+            </p>
+          )}
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Urun</TableHead>
+                <TableHead>Ürün</TableHead>
                 <TableHead>Hal</TableHead>
-                <TableHead>Sehir</TableHead>
+                <TableHead>Şehir</TableHead>
                 <TableHead>Tarih</TableHead>
                 <TableHead>Min</TableHead>
                 <TableHead>Ort</TableHead>
@@ -92,10 +128,10 @@ export default function PricesListPanel({ initialFilters }: Props) {
             <TableBody>
               {isLoading && (
                 <TableRow>
-                  <TableCell colSpan={8}>Yukleniyor...</TableCell>
+                  <TableCell colSpan={8}>Yükleniyor...</TableCell>
                 </TableRow>
               )}
-              {!isLoading && (data?.items || []).map((item) => (
+              {!isLoading && items.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>
                     <Link className="font-medium text-primary" href={`/admin/prices/${item.id}`}>
@@ -111,9 +147,9 @@ export default function PricesListPanel({ initialFilters }: Props) {
                   <TableCell>{item.sourceApi}</TableCell>
                 </TableRow>
               ))}
-              {!isLoading && !(data?.items || []).length && (
+              {!isLoading && !items.length && (
                 <TableRow>
-                  <TableCell colSpan={8}>Kayit bulunamadi.</TableCell>
+                  <TableCell colSpan={8}>Kayıt bulunamadı.</TableCell>
                 </TableRow>
               )}
             </TableBody>

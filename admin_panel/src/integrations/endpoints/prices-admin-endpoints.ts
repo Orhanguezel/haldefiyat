@@ -36,7 +36,7 @@ export const pricesAdminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     listPricesAdmin: builder.query<
       { items: PriceAdminItem[]; meta?: { latestRecordedDate?: string | null; rangeDays?: number } },
-      { product?: string; city?: string; market?: string; category?: string; range?: string; limit?: number; latestOnly?: boolean } | void
+      { product?: string; q?: string; city?: string; market?: string; category?: string; range?: string; limit?: number; latestOnly?: boolean } | void
     >({
       query: (params) => ({
         url: '/admin/hal/prices',

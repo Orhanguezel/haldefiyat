@@ -5,7 +5,7 @@ import PricesListPanel from './_components/prices-list-panel';
 
 interface Props {
   initialFilters?: {
-    product?: string;
+    q?: string;
     market?: string;
     city?: string;
     category?: string;

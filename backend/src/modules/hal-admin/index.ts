@@ -55,6 +55,7 @@ const boolish = z.preprocess((v) => {
 
 const listPricesQuery = z.object({
   product: z.string().optional(),
+  q: z.string().optional(),
   city: z.string().optional(),
   market: z.string().optional(),
   category: z.string().optional(),
@@ -227,6 +228,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const [items, latestDate] = await Promise.all([
       listPriceRows({
         product: p.product,
+        q: p.q,
         city: p.city,
         market: p.market,
         category: p.category,
