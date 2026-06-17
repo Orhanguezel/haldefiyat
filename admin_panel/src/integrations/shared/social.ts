@@ -1,15 +1,16 @@
 // ===================================================================
 // FILE: src/integrations/shared/social.ts
-// Sosyal izleme paneli — ekosistem-sosyal-medya verisini okuma tipleri
+// Sosyal medya admin — ekosistem-sosyal-medya proxy tipleri (haldefiyat)
 // ===================================================================
 
 export const SOCIAL_ADMIN_BASE = "/admin/social";
 
-/** Ayrı admin sayfası olan platformlar (izleme paneli). */
+/** Ayrı admin sayfası olan platformlar. */
 export const SOCIAL_FEED_PLATFORMS = ["twitter", "facebook", "instagram"] as const;
 export type SocialFeedPlatform = (typeof SOCIAL_FEED_PLATFORMS)[number];
 
-/** GET /admin/social/feed?platform=&limit= döndüğü tek gönderi. */
+// ── Yayınlananlar feed (cross-DB, X-formatlı önizleme) ─────────────────────────
+
 export type SocialFeedPost = {
   platform: SocialFeedPlatform;
   postId: string;
@@ -32,23 +33,88 @@ export type SocialFeedResp = {
   items: SocialFeedPost[];
 };
 
-export type SocialFeedParams = {
-  platform: SocialFeedPlatform;
-  limit?: number;
-};
+export type SocialFeedParams = { platform: SocialFeedPlatform; limit?: number };
 
-/** Platforma göre gönderi URL'inin gösterilip gösterilemeyeceği. */
 export function hasPublicSocialUrl(post: SocialFeedPost): boolean {
   return typeof post.url === "string" && post.url.length > 0;
 }
 
-/** Önizleme kartı başlığı için marka hesap bilgisi (haldefiyat). */
-export type SocialAccountInfo = {
-  name: string;
-  handle: string;
-  avatarUrl: string;
-  profileUrl: string;
+// ── Hesap durumu ───────────────────────────────────────────────────────────────
+
+export type SocialStatusResp = {
+  platform: SocialFeedPlatform;
+  enabled: boolean;
+  has_credentials: boolean;
+  account: { name: string | null; handle: string | null; lastError: string | null } | null;
 };
+
+// ── Plan (ekosistem content_calendar) ──────────────────────────────────────────
+
+export type SocialPlanItem = {
+  id: number;
+  date: string;
+  timeSlot: string;
+  postType: string;
+  platform: string;
+  notes: string | null;
+  templateId: number | null;
+  postId: number | null;
+  status: string;
+};
+
+export type SocialPlanResp = { items: SocialPlanItem[] };
+
+// ── Şablonlar (ekosistem content_templates) ────────────────────────────────────
+
+export type SocialTemplate = {
+  id: number;
+  name: string;
+  postType: string;
+  platform: string;
+  captionTemplate: string;
+  hashtags: string | null;
+  variables: string[] | null;
+  isActive: number;
+};
+
+export type SocialTemplatesResp = { items: SocialTemplate[] };
+
+// ── Gönderiler (taslak / kuyruk / geçmiş) ──────────────────────────────────────
+
+export type SocialPostStatus = "draft" | "scheduled" | "publishing" | "posted" | "failed" | "cancelled";
+
+export type SocialPostRow = {
+  id: number;
+  uuid: string;
+  platform: string;
+  title: string | null;
+  caption: string;
+  hashtags: string | null;
+  mediaUrls: string[];
+  imageUrl: string | null;
+  status: SocialPostStatus;
+  scheduledAt: string | null;
+  postedAt: string | null;
+  sourceType: string;
+  errorMessage: string | null;
+  externalUrl: string | null;
+  createdAt: string;
+};
+
+export type SocialPostsParams = { platform: SocialFeedPlatform; scope: "queue" | "history" };
+export type SocialPostsResp = { items: SocialPostRow[]; scope: "queue" | "history" };
+
+export type SocialComposeBody = {
+  platform: SocialFeedPlatform;
+  caption: string;
+  hashtags?: string;
+  mediaUrls?: string[];
+  scheduledAt?: string;
+};
+
+// ── Önizleme kartı için marka hesap görünümü ───────────────────────────────────
+
+export type SocialAccountInfo = { name: string; handle: string; avatarUrl: string; profileUrl: string };
 
 export const SOCIAL_ACCOUNTS: Record<SocialFeedPlatform, SocialAccountInfo> = {
   twitter: {

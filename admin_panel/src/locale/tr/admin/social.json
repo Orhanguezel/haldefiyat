@@ -5,11 +5,85 @@
     "instagram": "Instagram"
   },
   "header": {
-    "description": "ekosistem-sosyal-medya sisteminde haldefiyat için yayınlanan gönderiler (salt okunur)."
+    "description": "haldefiyat sosyal medyası — ekosistem-sosyal-medya motoru üzerinden yönetilir.",
+    "source": "Motor: ekosistem-sosyal-medya",
+    "statusEnabled": "Hesap aktif",
+    "statusDisabled": "Hesap pasif",
+    "credentialsOk": "Hesap bağlı",
+    "credentialsMissing": "Hesap bağlı değil",
+    "accountError": "Son hata"
+  },
+  "tabs": {
+    "plan": "Plan",
+    "templates": "Şablonlar",
+    "compose": "Manuel Gönderi",
+    "queue": "Taslak & Kuyruk",
+    "published": "Yayınlananlar"
   },
   "feed": {
     "title": "Yayınlanan gönderiler"
   },
   "refresh": "Yenile",
-  "empty": "Bu platform için henüz yayınlanmış gönderi yok."
+  "empty": "Bu platform için henüz yayınlanmış gönderi yok.",
+  "openPost": "Gönderiyi aç",
+  "plan": {
+    "title": "İçerik Planı",
+    "description": "ekosistem-sosyal-medya içerik takvimi (otomatik planlanan gönderiler).",
+    "loading": "Plan yükleniyor...",
+    "empty": "Bu platform için planlı içerik yok.",
+    "cols": {
+      "date": "Tarih",
+      "slot": "Zaman",
+      "type": "Tür",
+      "status": "Durum",
+      "note": "Not"
+    }
+  },
+  "templates": {
+    "title": "İçerik Şablonları",
+    "description": "Stratejide kullanılan caption şablonları.",
+    "loading": "Şablonlar yükleniyor...",
+    "empty": "Bu platform için şablon tanımlı değil.",
+    "variables": "Değişkenler",
+    "inactive": "Pasif"
+  },
+  "queue": {
+    "title": "Taslak & Kuyruk",
+    "description": "Henüz yayınlanmamış gönderiler (taslak, planlı, başarısız).",
+    "loading": "Yükleniyor...",
+    "empty": "Bekleyen gönderi yok.",
+    "scheduledFor": "Planlanan",
+    "delete": "Sil",
+    "deleteConfirm": "Bu gönderi silinsin mi?",
+    "deleted": "Gönderi silindi",
+    "deleteFailed": "Silinemedi"
+  },
+  "compose": {
+    "title": "Manuel Gönderi",
+    "description": "Bu gönderi @haldefiyat hesabından herkese açık paylaşılır.",
+    "caption": "Metin",
+    "captionPlaceholder": "Ne paylaşmak istersiniz?",
+    "hashtags": "Hashtagler",
+    "hashtagsPlaceholder": "#haldefiyat #halfiyatlari",
+    "media": "Görsel (opsiyonel)",
+    "mediaHelper": "Görsel URL'si — medya kütüphanesinden veya yüklemeden.",
+    "publish": "Yayınla",
+    "publishing": "Yayınlanıyor...",
+    "publishConfirm": "Gönderi @haldefiyat hesabından CANLI yayınlanacak. Devam edilsin mi?",
+    "published": "Gönderi yayınlandı",
+    "publishFailed": "Yayınlanamadı",
+    "saveDraft": "Taslak Kaydet",
+    "saving": "Kaydediliyor...",
+    "saved": "Taslak kaydedildi",
+    "saveFailed": "Kaydedilemedi",
+    "emptyCaption": "Metin boş olamaz"
+  },
+  "status": {
+    "draft": "Taslak",
+    "scheduled": "Planlandı",
+    "publishing": "Yayınlanıyor",
+    "posted": "Yayınlandı",
+    "failed": "Başarısız",
+    "cancelled": "İptal"
+  }
 }

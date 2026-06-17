@@ -223,6 +223,7 @@ export const tags = [
   'PressSummary',
   'ApiKey',
   'ApiKeys',
+  'SocialPosts',
 ] as const;
 
 export type tag = typeof tags[number];

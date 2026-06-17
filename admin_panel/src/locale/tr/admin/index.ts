@@ -24,7 +24,6 @@ import storage from "./storage.json";
 import support from "./support.json";
 import social from "./social.json";
 import telegram from "./telegram.json";
-import twitter from "./twitter.json";
 import users from "./users.json";
 
 const adminMessages = {
@@ -54,7 +53,6 @@ const adminMessages = {
   storage: storage,
   social: social,
   telegram: telegram,
-  twitter: twitter,
   users: users,
 } as const;
 

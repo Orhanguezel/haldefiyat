@@ -15,7 +15,6 @@ import { registerSupport, registerSupportAdmin } from "@agro/shared-backend/modu
 import { registerCustomPagesAdmin } from "@agro/shared-backend/modules/customPages";
 import { registerEmailTemplatesAdmin } from "@agro/shared-backend/modules/emailTemplates/admin.routes";
 import { registerAuditAdmin } from "@agro/shared-backend/modules/audit";
-import { registerTwitterAdmin } from "@agro/shared-backend/modules/twitter";
 import { registerGa4Admin } from "@agro/shared-backend/modules/ga4";
 import { registerSearchConsoleAdmin } from "@agro/shared-backend/modules/searchConsole";
 import { registerGtmAdmin } from "@agro/shared-backend/modules/gtm";
@@ -51,7 +50,6 @@ export async function registerSharedAdmin(adminApi: FastifyInstance) {
   await registerSupportAdmin(adminApi);
   await registerEmailTemplatesAdmin(adminApi);
   await registerAuditAdmin(adminApi);
-  await registerTwitterAdmin(adminApi);
   await registerGa4Admin(adminApi);
   await registerSearchConsoleAdmin(adminApi);
   await registerGtmAdmin(adminApi);
