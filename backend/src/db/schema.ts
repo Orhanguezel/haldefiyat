@@ -637,3 +637,35 @@ export const hfRedirects = mysqlTable(
     index("hf_redirects_active_idx").on(t.isActive, t.type),
   ],
 );
+
+export const hfBanners = mysqlTable(
+  "hf_banners",
+  {
+    id:           int("id").autoincrement().primaryKey(),
+    position:     varchar("position", { length: 64 }).notNull(),
+    title:        varchar("title", { length: 190 }).notNull(),
+    advertiser:   varchar("advertiser", { length: 160 }),
+    notes:        varchar("notes", { length: 500 }),
+    type:         mysqlEnum("type", ["image", "code"]).notNull().default("image"),
+    imageUrl:     varchar("image_url", { length: 512 }),
+    alt:          varchar("alt", { length: 255 }),
+    linkUrl:      varchar("link_url", { length: 500 }),
+    linkTarget:   varchar("link_target", { length: 20 }).notNull().default("_blank"),
+    rel:          varchar("rel", { length: 64 }).notNull().default("sponsored nofollow noopener"),
+    code:         text("code"),
+    device:       mysqlEnum("device", ["all", "desktop", "mobile"]).notNull().default("all"),
+    weight:       int("weight").notNull().default(1),
+    displayOrder: int("display_order").notNull().default(0),
+    isActive:     tinyint("is_active").notNull().default(0),
+    startAt:      datetime("start_at", { fsp: 3 }),
+    endAt:        datetime("end_at", { fsp: 3 }),
+    impressions:  int("impressions").notNull().default(0),
+    clicks:       int("clicks").notNull().default(0),
+    createdAt:    datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:    datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    index("hf_banners_pos_idx").on(t.position, t.isActive, t.displayOrder),
+    index("hf_banners_active_idx").on(t.isActive),
+  ],
+);
