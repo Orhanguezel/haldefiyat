@@ -44,9 +44,9 @@ interface RetailExtra {
 }
 const RETAIL_EXTRA: RetailExtra[] = [
   { slug: "dana-kiyma", name: "Dana Kıyma", category: "et", unit: "kg", keyword: "dana kıyma",
-    menuCategory: "Et, Tavuk ve Balık", include: /KIYMA/i, exclude: /K[ÖO]FTE|HAZIR|BAHARATLI|DONUK|KARI[ŞS]IK|TAVUK|HİND[İI]/i },
+    menuCategory: "Et, Tavuk ve Balık", include: /KIYMA/i, exclude: /K[ÖO]FTE|HAZIR|BAHARATLI|DONUK|DONDURUL|KARI[ŞS]IK|TAVUK|HİND[İI]/i },
   { slug: "dana-kusbasi", name: "Dana Kuşbaşı", category: "et", unit: "kg", keyword: "dana kuşbaşı",
-    menuCategory: "Et, Tavuk ve Balık", include: /KU[ŞS]BA[ŞS]I/i, exclude: /DONUK|HAZIR|BAHARATLI|TAVUK|HİND[İI]/i },
+    menuCategory: "Et, Tavuk ve Balık", include: /KU[ŞS]BA[ŞS]I/i, exclude: /DONUK|DONDURUL|HAZIR|BAHARATLI|TAVUK|HİND[İI]/i },
   { slug: "tavuk-gogsu", name: "Tavuk Göğsü", category: "et", unit: "kg", keyword: "tavuk göğüs",
     menuCategory: "Et, Tavuk ve Balık", include: /TAVUK.*(G[ÖO][ĞG][ÜU]S|B[ÖO]N|F[İI]LETO)|G[ÖO][ĞG][ÜU]S/i, exclude: /DONUK|[ŞS][İI]N[İI]TZEL|SCHNITZEL|MAR[İI]NE|BAHARAT|NUGGET|KANAT|BUT\b|PİRZOLA/i },
   { slug: "sut", name: "Süt", category: "sut", unit: "lt", keyword: "süt",
