@@ -136,30 +136,49 @@ function toTobbProduct(rawName: string): { name: string; category: string } | nu
   ) {
     return { name: "Sofralık Zeytin", category: "sebze-meyve" };
   }
-  // Karkas et (kesilmiş, TL/kg karkas) — canlı ağırlıktan AYRI dikey ("et").
-  // Canlı/karkas karışmasın diye ÖNCE karkas yakalanır (KARKAS/ET KARKAS).
-  if (/KARKAS\b/.test(name)) {
-    if (/DANA|TOSUN|BO[ĞG]A|S[İIıI][ĞG][İIıI]R|BÜY[ÜU]KBA[ŞS]/.test(name)) return { name: "Dana Karkas (Et)", category: "et" };
-    if (/KUZU/.test(name)) return { name: "Kuzu Karkas (Et)", category: "et" };
-    if (/KOYUN/.test(name)) return { name: "Koyun Karkas (Et)", category: "et" };
-    if (/KE[ÇC][İI]|O[ĞG]LAK|K[ÜU][ÇC][ÜU]KBA[ŞS]/.test(name)) return { name: "Keçi/Oğlak Karkas (Et)", category: "et" };
-    if (/MANDA|MALAK/.test(name)) return { name: "Manda Karkas (Et)", category: "et" };
-    return { name: "Karkas Et", category: "et" };
+  // Keçiboynuzu (harnup) bir MEYVEdir; aşağıdaki "keçi" eşlemesine düşmesin.
+  if (/KE[ÇC][İI]\s*BOYNUZ/.test(name)) return { name: "Keçiboynuzu", category: "sebze-meyve" };
+
+  // Kırmızı et (karkas + parça) — "ET/ETİ", "KARKAS" veya parça adı (but/kol/pirzola...)
+  // geçen satırlar → "et" kategorisi. Canlı ağırlıktan AYRI; ÖNCE et yakalanır.
+  const isMeat = /KARKAS\b/.test(name) || /\bET[İI]?\b/.test(name) || /ET\s*\(/.test(name)
+    || /\bBUT\b|\bKOL\b|P[İI]RZOLA|ANTR[İI]KOT|BONF[İI]LE|KIYMA|KU[ŞS]BA[ŞS]/.test(name);
+  if (isMeat) {
+    if (/OT\s*KUZU/.test(name)) return { name: "Ot Kuzusu Eti", category: "et" };
+    if (/S[ÜU]T\s*KUZU/.test(name)) return { name: "Süt Kuzusu Eti", category: "et" };
+    const animal =
+      /KUZU/.test(name) ? "Kuzu"
+      : /KOYUN/.test(name) ? "Koyun"
+      : /KE[ÇC][İI]|O[ĞG]LAK/.test(name) ? "Keçi"
+      : /MANDA|MALAK/.test(name) ? "Manda"
+      : /DANA|S[İIıI][ĞG][İIıI]R|TOSUN|BO[ĞG]A|B[ÜU]Y[ÜU]KBA[ŞS]/.test(name) ? "Dana"
+      : null;
+    if (!animal) return null;
+    const cut =
+      /KARKAS/.test(name) ? "Karkas"
+      : /P[İI]RZOLA/.test(name) ? "Pirzola"
+      : /\bBUT\b/.test(name) ? "But"
+      : /\bKOL\b/.test(name) ? "Kol"
+      : /ANTR[İI]KOT/.test(name) ? "Antrikot"
+      : /BONF[İI]LE/.test(name) ? "Bonfile"
+      : /KIYMA/.test(name) ? "Kıyma"
+      : /KU[ŞS]BA[ŞS]/.test(name) ? "Kuşbaşı"
+      : null;
+    return { name: cut ? `${animal} ${cut} (Et)` : `${animal} Eti`, category: "et" };
   }
-  // Canlı hayvan (büyükbaş/küçükbaş) — TOBB borsalarında canlı ağırlık TL/kg.
-  // Faz A: hal odağını bozmadan ayrı dikey ("canli-hayvan" kategorisi).
+
+  // Canlı hayvan (canlı ağırlık TL/kg) — "ET" geçmeyen hayvan adları. Ayrı dikey.
   if (/S[ÜU]T\s+KUZU/.test(name)) return { name: "Süt Kuzusu (Canlı)", category: "canli-hayvan" };
+  if (/OT\s+KUZU/.test(name)) return { name: "Ot Kuzusu (Canlı)", category: "canli-hayvan" };
   if (/KUZU\b/.test(name)) return { name: "Kuzu (Canlı)", category: "canli-hayvan" };
   if (/TOKLU\b/.test(name)) return { name: "Toklu (Canlı)", category: "canli-hayvan" };
   if (/KOYUN\b/.test(name)) return { name: "Koyun (Canlı)", category: "canli-hayvan" };
-  if (/KE[ÇC][İI]\b/.test(name) && !/KE[ÇC][İI]\s*BOYNUZ/.test(name)) return { name: "Keçi (Canlı)", category: "canli-hayvan" };
+  if (/KE[ÇC][İI]\b/.test(name)) return { name: "Keçi (Canlı)", category: "canli-hayvan" };
   if (/O[ĞG]LAK\b/.test(name)) return { name: "Oğlak (Canlı)", category: "canli-hayvan" };
   if (/D[ÜU]VE\b/.test(name)) return { name: "Düve (Canlı)", category: "canli-hayvan" };
   if (/[İI]NEK\b/.test(name)) return { name: "İnek (Canlı)", category: "canli-hayvan" };
   if (/MANDA\b|MALAK\b/.test(name)) return { name: "Manda (Canlı)", category: "canli-hayvan" };
-  if (/DANA\b|TOSUN\b|BO[ĞG]A\b|D[İI]Ş[İI]\s+BESI|ERKEK\s+BESI|BES[İI]L[İI]K|S[ıI][ĞG][İI]R\b/.test(name)) {
-    return { name: "Dana (Canlı)", category: "canli-hayvan" };
-  }
+  if (/DANA\b|TOSUN\b|BO[ĞG]A\b|S[İIıI][ĞG][İIıI]R\b/.test(name)) return { name: "Dana (Canlı)", category: "canli-hayvan" };
   return null;
 }
 

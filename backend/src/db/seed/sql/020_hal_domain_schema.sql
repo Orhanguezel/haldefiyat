@@ -166,6 +166,7 @@ INSERT INTO `hf_markets` (`slug`, `name`, `city_name`, `region_slug`, `source_ke
 ('tmo-piyasa-bulteni',     'TMO Piyasa Bülteni',                   'Türkiye',   'ulusal',     'tmo_piyasa_bulteni',       'borsa', 102, 1),
 ('polatli-ticaret-borsasi','Polatlı Ticaret Borsası',              'Ankara',    'ic-anadolu', 'polatli_borsa',           'borsa', 103, 1),
 ('edirne-ticaret-borsasi', 'Edirne Ticaret Borsası',               'Edirne',    'marmara',    'tobb_borsa_edirne',        'borsa', 104, 1),
+('ankara-ticaret-borsasi', 'Ankara Ticaret Borsası',               'Ankara',    'ic-anadolu', 'tobb_borsa_ankara',        'borsa', 130, 1),
 ('uzunkopru-ticaret-borsasi','Uzunköprü Ticaret Borsası',           'Edirne',    'marmara',    'tobb_borsa_uzunkopru',     'borsa', 105, 1),
 ('gaziantep-ticaret-borsasi','Gaziantep Ticaret Borsası',           'Gaziantep', 'guneydogu',   'tobb_borsa_gaziantep',     'borsa', 106, 1),
 ('corum-ticaret-borsasi',  'Çorum Ticaret Borsası',                'Çorum',     'karadeniz',  'tobb_borsa_corum',         'borsa', 107, 1),

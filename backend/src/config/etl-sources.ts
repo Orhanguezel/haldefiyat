@@ -525,6 +525,17 @@ const RAW_SOURCES: RawSource[] = [
     defaultCategory:   "hububat",
   },
   {
+    // Ankara: zengin kırmızı et (dana/kuzu karkas + but/kol/pirzola) + ot/süt kuzusu eti.
+    key:               "tobb_borsa_ankara",
+    defaultEnabled:    true,
+    defaultMarketSlug: "ankara-ticaret-borsasi",
+    defaultBaseUrl:    "https://borsa.tobb.org.tr",
+    defaultEndpoint:   "/fiyat_borsa.php?borsakod=5AN10",
+    responseShape:     "tobb_borsa_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "et",
+  },
+  {
     key:               "tobb_borsa_uzunkopru",
     defaultEnabled:    true,
     defaultMarketSlug: "uzunkopru-ticaret-borsasi",
