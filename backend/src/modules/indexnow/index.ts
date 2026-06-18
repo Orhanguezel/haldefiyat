@@ -5,7 +5,7 @@ import { env } from "@/core/env";
 const ENDPOINT = "https://api.indexnow.org/indexnow";
 
 // Gunluk guncellenen ana hub sayfalari (fiyatlar her gece ETL ile degisir).
-const DEFAULT_HUB_PATHS = ["/", "/fiyatlar", "/hal", "/canli-hal-fiyatlari", "/endeks"];
+const DEFAULT_HUB_PATHS = ["/", "/fiyatlar", "/hal", "/canli-hal-fiyatlari", "/endeks", "/borsa", "/canli-hayvan-fiyatlari", "/et-fiyatlari"];
 
 function resolveSiteUrl(): string {
   const raw = process.env.INDEXNOW_SITE_URL || env.FRONTEND_URL || "";
