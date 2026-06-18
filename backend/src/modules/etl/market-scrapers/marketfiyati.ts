@@ -265,7 +265,8 @@ export async function runMarketfiyatiEtl(
     const productId = await findOrCreateRetailProduct(x);
     for (const p of found) {
       if (p.menu_category !== x.menuCategory) continue;
-      const title = p.title ?? "";
+      // Türkçe büyütme (ı→I, i→İ) — JS /i flag'i Türkçe katlamaz; uppercased başlıkta eşleştir.
+      const title = (p.title ?? "").toLocaleUpperCase("tr-TR");
       if (!x.include.test(title) || x.exclude.test(title)) continue;
       const depots = p.productDepotInfoList ?? [];
       for (const d of depots) {
