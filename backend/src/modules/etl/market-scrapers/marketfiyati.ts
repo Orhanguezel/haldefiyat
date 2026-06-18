@@ -27,8 +27,35 @@ const PAGE_SIZE = 25;
 const MAX_PAGES_PER_KEYWORD = 4;
 const REQUEST_TIMEOUT_MS = 20000;
 
-const SUPPORTED_CHAINS = ["a101", "bim", "carrefour", "migros", "tarim_kredi"] as const;
+const SUPPORTED_CHAINS = ["a101", "bim", "carrefour", "migros", "tarim_kredi", "sok"] as const;
 type ChainSlug = (typeof SUPPORTED_CHAINS)[number];
+
+// Faz A2: sebze-meyve dışı perakende dikeyleri (süt/et). Ham keyword araması aromalı/
+// markalı varyant getirdiği için include/exclude başlık filtresi şart (sade ürün temsili).
+interface RetailExtra {
+  slug: string;
+  name: string;
+  category: string;
+  unit: string;
+  keyword: string;
+  menuCategory: string;
+  include: RegExp;
+  exclude: RegExp;
+}
+const RETAIL_EXTRA: RetailExtra[] = [
+  { slug: "dana-kiyma", name: "Dana Kıyma", category: "et", unit: "kg", keyword: "dana kıyma",
+    menuCategory: "Et, Tavuk ve Balık", include: /KIYMA/i, exclude: /K[ÖO]FTE|HAZIR|BAHARATLI|DONUK|KARI[ŞS]IK|TAVUK|HİND[İI]/i },
+  { slug: "dana-kusbasi", name: "Dana Kuşbaşı", category: "et", unit: "kg", keyword: "dana kuşbaşı",
+    menuCategory: "Et, Tavuk ve Balık", include: /KU[ŞS]BA[ŞS]I/i, exclude: /DONUK|HAZIR|BAHARATLI|TAVUK|HİND[İI]/i },
+  { slug: "tavuk-gogsu", name: "Tavuk Göğsü", category: "et", unit: "kg", keyword: "tavuk göğüs",
+    menuCategory: "Et, Tavuk ve Balık", include: /TAVUK.*(G[ÖO][ĞG][ÜU]S|B[ÖO]N|F[İI]LETO)|G[ÖO][ĞG][ÜU]S/i, exclude: /DONUK|[ŞS][İI]N[İI]TZEL|SCHNITZEL|MAR[İI]NE|BAHARAT|NUGGET|KANAT|BUT\b|PİRZOLA/i },
+  { slug: "sut", name: "Süt", category: "sut", unit: "lt", keyword: "süt",
+    menuCategory: "Süt Ürünleri ve Kahvaltılık", include: /\bS[ÜU]T\b/i, exclude: /[ÇC][İI]LEK|[ÇC][İI]KOLAT|KAKAO|MUZ|AROMA|VAN[İI]L|BADEM|YULAF|H[İI]ND[İI]STAN|PROTE[İI]N|KAYMAK|TOZ|KONDENS|LABNE|PEYN[İI]R|YO[ĞG]URT/i },
+  { slug: "beyaz-peynir", name: "Beyaz Peynir", category: "sut", unit: "kg", keyword: "beyaz peynir",
+    menuCategory: "Süt Ürünleri ve Kahvaltılık", include: /BEYAZ\s*PEYN[İI]R/i, exclude: /KREM|LOR|[ÜU][ÇC]GEN|TOST|D[İI]L\b|KA[ŞS]AR|LAKTOZSUZ/i },
+  { slug: "yogurt", name: "Yoğurt", category: "sut", unit: "kg", keyword: "yoğurt",
+    menuCategory: "Süt Ürünleri ve Kahvaltılık", include: /YO[ĞG]URT/i, exclude: /[ÇC][İI]LEK|MEYVE|KIVAM|[İI][ÇC][İI]M\b|KA[ŞS]IK|AROMA|H[ÜU]PP|KIT|PROTE[İI]N|AYRAN|KEF[İI]R|MANT|DANON[İI]NO/i },
+];
 
 interface DepotInfo {
   marketAdi: string;
@@ -129,8 +156,21 @@ async function resolveProductId(rawTitle: string): Promise<number | null> {
 }
 
 // (chain, productId) → tüm depot unitPriceValue'larını topla
-type Bucket = { sum: number; count: number; productNameRaw: string };
+type Bucket = { sum: number; count: number; productNameRaw: string; unit: string };
 const bucketKey = (chain: ChainSlug, productId: number) => `${chain}::${productId}`;
+
+// Küratörlü perakende ürünü (süt/et) — yoksa oluştur, id döndür.
+async function findOrCreateRetailProduct(x: RetailExtra): Promise<number> {
+  const rows = await db.select({ id: hfProducts.id }).from(hfProducts).where(eq(hfProducts.slug, x.slug)).limit(1);
+  if (rows[0]) return rows[0].id;
+  await db.insert(hfProducts).values({
+    slug: x.slug, nameTr: x.name, categorySlug: x.category, unit: x.unit,
+    aliases: [x.name, x.keyword], isActive: 1, seoIndex: 0,
+  }).onDuplicateKeyUpdate({ set: { categorySlug: x.category, unit: x.unit } });
+  invalidateAliasCache();
+  const created = await db.select({ id: hfProducts.id }).from(hfProducts).where(eq(hfProducts.slug, x.slug)).limit(1);
+  return created[0]!.id;
+}
 
 export interface MarketfiyatiEtlResult {
   inserted: number;
@@ -212,7 +252,34 @@ export async function runMarketfiyatiEtl(
           existing.sum += price;
           existing.count += 1;
         } else {
-          buckets.set(key, { sum: price, count: 1, productNameRaw: p.title });
+          buckets.set(key, { sum: price, count: 1, productNameRaw: p.title, unit: "kg" });
+        }
+      }
+    }
+  }
+
+  // 2b) Faz A2: süt/et perakende dikeyi — küratörlü keyword + başlık filtresi.
+  for (const x of RETAIL_EXTRA) {
+    const found = await searchKeyword(x.keyword);
+    result.apiCallCount++;
+    const productId = await findOrCreateRetailProduct(x);
+    for (const p of found) {
+      if (p.menu_category !== x.menuCategory) continue;
+      const title = p.title ?? "";
+      if (!x.include.test(title) || x.exclude.test(title)) continue;
+      const depots = p.productDepotInfoList ?? [];
+      for (const d of depots) {
+        const chain = d.marketAdi as ChainSlug;
+        if (!SUPPORTED_CHAINS.includes(chain)) continue;
+        const price = Number(d.unitPriceValue);
+        if (!Number.isFinite(price) || price <= 0) continue;
+        const key = bucketKey(chain, productId);
+        const existing = buckets.get(key);
+        if (existing) {
+          existing.sum += price;
+          existing.count += 1;
+        } else {
+          buckets.set(key, { sum: price, count: 1, productNameRaw: p.title, unit: x.unit });
         }
       }
     }
@@ -231,7 +298,7 @@ export async function runMarketfiyatiEtl(
           chainSlug: chain!,
           price: avg.toFixed(2),
           currency: "TRY",
-          unit: "kg",
+          unit: b.unit,
           productNameRaw: b.productNameRaw,
           productUrl: null,
           recordedDate: new Date(`${recordedDate}T12:00:00`),
