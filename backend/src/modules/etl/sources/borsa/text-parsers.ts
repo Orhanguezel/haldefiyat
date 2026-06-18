@@ -136,6 +136,16 @@ function toTobbProduct(rawName: string): { name: string; category: string } | nu
   ) {
     return { name: "Sofralık Zeytin", category: "sebze-meyve" };
   }
+  // Karkas et (kesilmiş, TL/kg karkas) — canlı ağırlıktan AYRI dikey ("et").
+  // Canlı/karkas karışmasın diye ÖNCE karkas yakalanır (KARKAS/ET KARKAS).
+  if (/KARKAS\b/.test(name)) {
+    if (/DANA|TOSUN|BO[ĞG]A|S[İIıI][ĞG][İIıI]R|BÜY[ÜU]KBA[ŞS]/.test(name)) return { name: "Dana Karkas (Et)", category: "et" };
+    if (/KUZU/.test(name)) return { name: "Kuzu Karkas (Et)", category: "et" };
+    if (/KOYUN/.test(name)) return { name: "Koyun Karkas (Et)", category: "et" };
+    if (/KE[ÇC][İI]|O[ĞG]LAK|K[ÜU][ÇC][ÜU]KBA[ŞS]/.test(name)) return { name: "Keçi/Oğlak Karkas (Et)", category: "et" };
+    if (/MANDA|MALAK/.test(name)) return { name: "Manda Karkas (Et)", category: "et" };
+    return { name: "Karkas Et", category: "et" };
+  }
   // Canlı hayvan (büyükbaş/küçükbaş) — TOBB borsalarında canlı ağırlık TL/kg.
   // Faz A: hal odağını bozmadan ayrı dikey ("canli-hayvan" kategorisi).
   if (/S[ÜU]T\s+KUZU/.test(name)) return { name: "Süt Kuzusu (Canlı)", category: "canli-hayvan" };
@@ -205,11 +215,11 @@ export function parseTobbBorsaHtml(raw: string): BorsaPriceRow[] {
       // bakliyat/yağlı tohum kg fiyatı asla bu kadar olmaz) TL/ton kabul edilir.
       const unitRaw = (cells[1] ?? "").trim().toLocaleLowerCase("tr-TR");
       const isTon = /ton/.test(unitRaw);
-      // Canlı hayvan TL/kg canlı ağırlık olarak yüksektir (150–600); >500 "ton" sezgisi
-      // UYGULANMAZ (yoksa 600₺ kuzu yanlışlıkla /1000 olur). Sadece birim "ton" derse böl.
-      const isLivestock = product.category === "canli-hayvan";
+      // Canlı hayvan + karkas et TL/kg yüksektir (150–700); >500 "ton" sezgisi
+      // UYGULANMAZ (yoksa 650₺ karkas/kuzu yanlışlıkla /1000 olur). Sadece birim "ton" derse böl.
+      const isAnimal = product.category === "canli-hayvan" || product.category === "et";
       const toKg = (v: number | null): number | null =>
-        v == null ? null : isTon || (!isLivestock && v > 500) ? v / 1000 : v;
+        v == null ? null : isTon || (!isAnimal && v > 500) ? v / 1000 : v;
       const min = toKg(rawMin);
       const max = toKg(rawMax);
       const avg = toKg(rawAvg)!;
