@@ -10,6 +10,7 @@ import { fetchPricesOverview } from "@/lib/api";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import PublicPopups from "@/components/popups/PublicPopups";
 import BannerSlot from "@/components/ads/BannerSlot";
+import HideOnHome from "@/components/ads/HideOnHome";
 import type { AppLocale } from "@/i18n/routing";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033";
@@ -92,8 +93,8 @@ export default async function PublicLayout({
       />
       <PublicPopups locale={currentLocale} />
 
-      {/* Tüm sayfalarda görünen global reklam (header altı) */}
-      <BannerSlot position="global_top" />
+      {/* Global üst reklam — anasayfa hariç (anasayfada hero'ya denk gelmesin) */}
+      <HideOnHome><BannerSlot position="global_top" /></HideOnHome>
 
       <main className="relative z-10 grow pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">{children}</main>
 
