@@ -458,7 +458,7 @@ export default async function UrunPage({ params }: Props) {
       </div>
 
       {borsaProduct && (
-        <section className="mt-8 grid gap-8 xl:grid-cols-2">
+        <section className="mt-8 grid gap-8">
           <div>
             <h2 className="text-xl font-bold text-foreground">TMO resmi alım fiyatı</h2>
             <p className="mt-1 text-sm text-muted">Taban/devlet alımı niteliğindedir; borsa serbest piyasa fiyatıyla karıştırılmamalıdır.</p>
