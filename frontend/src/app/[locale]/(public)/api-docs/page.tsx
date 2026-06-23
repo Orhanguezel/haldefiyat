@@ -358,7 +358,7 @@ export default async function ApiDocsPage({ params }: Props) {
         {[
           { label: "Base URL", value: BASE },
           { label: "Format", value: "JSON (UTF-8)" },
-          { label: "Rate Limit", value: "120 istek / dakika" },
+          { label: "Rate Limit", value: "600/dk · anahtarsız" },
         ].map((item) => (
           <div key={item.label} className="rounded-xl border border-border bg-surface p-4">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-faint mb-1">{item.label}</p>
@@ -366,6 +366,35 @@ export default async function ApiDocsPage({ params }: Props) {
           </div>
         ))}
       </div>
+
+      {/* Ticari / yüksek hacim CTA — koruma + gelir funnel'ı */}
+      <section className="mb-12 rounded-2xl border border-brand/30 bg-brand/5 p-6 sm:flex sm:items-center sm:justify-between sm:gap-6">
+        <div className="max-w-2xl">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-brand/25 bg-brand/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-brand">
+            Ticari & Yüksek Hacim
+          </div>
+          <h2 className="font-display text-xl font-bold text-foreground">Yoğun kullanım için API anahtarı alın</h2>
+          <p className="mt-2 text-[14px] leading-relaxed text-muted">
+            Anahtarsız erişim, IP başına dakikalık limitle (600/dk) ücretsizdir. Ticari kullanım, yüksek
+            hacimli entegrasyon veya garantili kota için <code className="text-foreground">X-API-Key</code> ile
+            daha yüksek günlük limit ve öncelikli erişim sunuyoruz. Anahtarlar başvuru üzerine tanımlanır.
+          </p>
+        </div>
+        <div className="mt-4 flex shrink-0 flex-col gap-2 sm:mt-0">
+          <a
+            href="/iletisim"
+            className="inline-flex items-center justify-center rounded-xl bg-brand px-5 py-2.5 text-[14px] font-semibold text-brand-fg transition-opacity hover:opacity-90"
+          >
+            API Anahtarı Talep Et →
+          </a>
+          <a
+            href="/pro"
+            className="inline-flex items-center justify-center rounded-xl border border-border px-5 py-2.5 text-[13px] font-semibold text-foreground transition-colors hover:border-brand/40 hover:text-brand"
+          >
+            Pro / Premium
+          </a>
+        </div>
+      </section>
 
       {/* Gruplar */}
       <div className="space-y-16">
