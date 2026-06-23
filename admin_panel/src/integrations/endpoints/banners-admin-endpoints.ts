@@ -4,6 +4,8 @@ export type BannerType = 'image' | 'code';
 export type BannerDevice = 'all' | 'desktop' | 'mobile';
 
 export type BannerPosition =
+  | 'global_top'
+  | 'global_footer'
   | 'home_ticker_below'
   | 'home_mid'
   | 'home_footer_top'
@@ -15,6 +17,8 @@ export type BannerPosition =
   | 'hal_sidebar';
 
 export const BANNER_POSITIONS: { value: BannerPosition; label: string; size: string }[] = [
+  { value: 'global_top', label: 'TÜM SAYFALAR — üst (header altı)', size: 'Yatay 970×90' },
+  { value: 'global_footer', label: 'TÜM SAYFALAR — footer üstü', size: 'Yatay 970×90' },
   { value: 'home_ticker_below', label: 'Anasayfa — ticker altı', size: 'Yatay 970×90 (mobil 320×100)' },
   { value: 'home_mid', label: 'Anasayfa — orta', size: 'Yatay 970×90' },
   { value: 'home_footer_top', label: 'Anasayfa — footer üstü', size: 'Yatay 970×90' },

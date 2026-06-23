@@ -15,6 +15,8 @@ import {
 
 // Kanonik reklam pozisyonları (frontend slot key'leri ile birebir).
 export const BANNER_POSITIONS = [
+  "global_top",
+  "global_footer",
   "home_ticker_below",
   "home_mid",
   "home_footer_top",
