@@ -131,11 +131,11 @@ export default async function HomePage({ params }: Props) {
       <div className="hidden md:block">
         <HeroSection activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
         <PriceTicker items={trending} />
-        <BannerSlot position="home_ticker_below" />
         <PriceDashboard />
+        {/* "Bugünkü Hal Fiyatları" bölümünün hemen altındaki reklam */}
+        <BannerSlot position="home_mid" />
         <CitySelector locale={locale} />
         <StatsBar stats={stats} />
-        <BannerSlot position="home_mid" />
         <IndexCta />
         {listings.items.length ? (
           <section className="mx-auto max-w-7xl px-6 py-10">
@@ -157,8 +157,6 @@ export default async function HomePage({ params }: Props) {
         <HomeFaq />
         <CtaNewsletter />
       </div>
-      {/* Tüm cihazlarda (mobil dahil) gösterilen footer üstü slot */}
-      <BannerSlot position="home_footer_top" />
     </>
   );
 }
