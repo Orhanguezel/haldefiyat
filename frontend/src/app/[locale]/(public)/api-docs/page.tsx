@@ -117,13 +117,14 @@ const GROUPS: Group[] = [
       },
       {
         method: "GET",
-        path: "/prices/:productSlug/history",
-        desc: "Belirli bir ürünün günlük fiyat geçmişi.",
+        path: "/prices/history/:productSlug",
+        desc: "Belirli bir ürünün günlük fiyat geçmişi (5+ yıla kadar).",
         params: [
           { name: "productSlug", type: "string", required: true, desc: "URL'de ürün slug'ı" },
-          { name: "days", type: "number", desc: "Kaç günlük geçmiş (varsayılan: 30)" },
+          { name: "range", type: "string", desc: "Geçmiş penceresi, ör. 30d / 365d / 1825d (varsayılan: 7d)" },
+          { name: "market", type: "string", desc: "Belirli hal/borsa slug'ı (opsiyonel)" },
         ],
-        example: `curl "${BASE}/prices/domates/history?days=14"`,
+        example: `curl "${BASE}/prices/history/domates?range=365d"`,
         response: `[
   { "priceDate": "2026-04-21", "avgPrice": "10.25", "minPrice": "8.50", "maxPrice": "14.00" }
 ]`,
