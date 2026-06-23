@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props) {
     pathname: "/pro",
     title: "HaldeFiyat Pro — Yüksek Hacim API",
     description:
-      "10.000 istek/gün, öncelikli destek, ticari kullanım. API key ile tier-bazlı rate limit. Aylık 99 TL.",
+      "10.000 istek/gün, öncelikli destek, ticari kullanım. API key ile tier-bazlı rate limit. Aylık 2.999 TL.",
   });
 }
 
@@ -61,7 +61,7 @@ export default async function ProPage({ params }: Props) {
     {
       tier: "pro",
       dailyLimit: 10000,
-      priceMonthlyTL: 99,
+      priceMonthlyTL: 2999,
       features: [
         "10.000 istek/gün",
         "Öncelikli destek",
@@ -126,7 +126,7 @@ export default async function ProPage({ params }: Props) {
             Önerilen
           </span>
           <h2 className="text-2xl font-semibold mb-1">Pro</h2>
-          <p className="text-3xl font-bold mb-1">{pro.priceMonthlyTL} ₺</p>
+          <p className="text-3xl font-bold mb-1">{fmtNumber(pro.priceMonthlyTL)} ₺</p>
           <p className="text-sm text-muted-foreground mb-6">Aylık (KDV dahil)</p>
           <ul className="space-y-2 mb-6">
             {pro.features.map((f) => (
@@ -180,7 +180,7 @@ export default async function ProPage({ params }: Props) {
 
       <section className="mb-16">
         <h2 className="text-2xl font-semibold mb-4">Örnek kullanım</h2>
-        <pre className="rounded-lg bg-muted p-4 text-xs overflow-x-auto">{`# Yeni anahtar oluştur (JWT auth gerekli)
+        <pre className="rounded-lg border border-border bg-card p-4 text-xs leading-relaxed text-foreground overflow-x-auto">{`# Yeni anahtar oluştur (JWT auth gerekli)
 curl -X POST https://haldefiyat.com/api/v1/keys \\
   -H "Authorization: Bearer $JWT" \\
   -H "Content-Type: application/json" \\

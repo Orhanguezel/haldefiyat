@@ -86,7 +86,7 @@ export const env = {
   API_KEY_FREE_DAILY_LIMIT: parseEnvInt(process.env.API_KEY_FREE_DAILY_LIMIT, 100),
   API_KEY_PRO_DAILY_LIMIT: parseEnvInt(process.env.API_KEY_PRO_DAILY_LIMIT, 10_000),
   // Pro tier aylik ucret (frontend /pro sayfasinda gosterilir)
-  PRO_PRICE_MONTHLY_TL: parseEnvInt(process.env.PRO_PRICE_MONTHLY_TL, 99),
+  PRO_PRICE_MONTHLY_TL: parseEnvInt(process.env.PRO_PRICE_MONTHLY_TL, 2999),
   // Twitter/X OAuth 1.0a — @haldefiyat hesabi otomatik tweet
   // 2026-06-03: @haldefiyat'a tek X kaynagi ekosistem-sosyal-medya paneli olsun
   // diye varsayilan KAPALI. Bu cron tekrar acilirsa cift-tweet riski olusur.
