@@ -44,6 +44,42 @@ function formatDateTime(value: string | null): string {
   return value.replace("T", " ").slice(0, 16);
 }
 
+// GSC ham (İngilizce) verdict/coverage değerlerini ekranda Türkçeleştir.
+const GSC_VERDICT_TR: Record<string, string> = {
+  PASS: "Geçti",
+  NEUTRAL: "Nötr",
+  FAIL: "Başarısız",
+  PARTIAL: "Kısmi",
+  VERDICT_UNSPECIFIED: "Belirsiz",
+};
+const GSC_COVERAGE_TR: Array<[RegExp, string]> = [
+  [/submitted and indexed/i, "Gönderildi ve indexlendi"],
+  [/indexed, not submitted in sitemap/i, "Indexli (sitemap’te değil)"],
+  [/discovered - currently not indexed/i, "Keşfedildi – henüz indexlenmedi"],
+  [/crawled - currently not indexed/i, "Tarandı – henüz indexlenmedi"],
+  [/url is unknown to google/i, "Google bu URL’yi henüz bilmiyor"],
+  [/page with redirect/i, "Yönlendirmeli sayfa (301/302)"],
+  [/excluded by .?noindex.? tag/i, "noindex etiketiyle hariç tutuldu"],
+  [/blocked by robots\.txt/i, "robots.txt ile engellendi"],
+  [/duplicate.*different canonical/i, "Kopya – Google farklı canonical seçti"],
+  [/duplicate without user-selected canonical/i, "Kopya – canonical seçilmemiş"],
+  [/duplicate, submitted url not selected as canonical/i, "Kopya – gönderilen URL canonical seçilmedi"],
+  [/alternate page with proper canonical/i, "Canonical’ı doğru alternatif sayfa"],
+  [/soft 404/i, "Yumuşak 404"],
+  [/not found \(404\)/i, "Bulunamadı (404)"],
+  [/server error/i, "Sunucu hatası (5xx)"],
+  [/redirect error/i, "Yönlendirme hatası"],
+];
+function trVerdict(v: string | null): string {
+  if (!v) return "—";
+  return GSC_VERDICT_TR[v.toUpperCase()] ?? v;
+}
+function trCoverage(c: string | null): string {
+  if (!c) return "—";
+  for (const [re, tr] of GSC_COVERAGE_TR) if (re.test(c)) return tr;
+  return c;
+}
+
 export function ProductGscPanel({ id, isNew }: { id: string; isNew: boolean }) {
   const { data, isFetching, refetch } = useGetHfProductGscAdminQuery({ id }, { skip: isNew });
   const [inspect, { isLoading: inspecting }] = useInspectHfProductGscAdminMutation();
@@ -100,19 +136,20 @@ export function ProductGscPanel({ id, isNew }: { id: string; isNew: boolean }) {
         >
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
-            <strong>{gsc.category === "issue" ? "Index sorunu" : "Henüz indexlenmedi"}:</strong> {gsc.label}
+            <strong>{gsc.category === "issue" ? "Index sorunu" : "Henüz indexlenmedi"}:</strong>{" "}
+            {trCoverage(gsc.label)}
             {!seoIndex && " · Bu ürün noindex işaretli; Google'ın indexlememesi beklenir."}
           </span>
         </div>
       )}
 
-      <ProductGscBadge category={gsc.category} label={gsc.label} />
+      <ProductGscBadge category={gsc.category} label={trCoverage(gsc.label)} />
 
       <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-muted-foreground text-xs">
-        <dt>Verdict</dt>
-        <dd className="text-right text-foreground">{gsc.verdict ?? "—"}</dd>
-        <dt>Coverage</dt>
-        <dd className="text-right text-foreground">{gsc.coverageState ?? "—"}</dd>
+        <dt>Sonuç</dt>
+        <dd className="text-right text-foreground">{trVerdict(gsc.verdict)}</dd>
+        <dt>Kapsam durumu</dt>
+        <dd className="text-right text-foreground">{trCoverage(gsc.coverageState)}</dd>
         <dt>Son tarama (Google)</dt>
         <dd className="text-right text-foreground">{formatDateTime(gsc.lastCrawl)}</dd>
         <dt>Son denetim</dt>
