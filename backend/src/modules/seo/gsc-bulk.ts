@@ -53,18 +53,26 @@ export async function runGscBulkRefresh(
     .sort((a, b) => (checkedAt.get(a) ?? 0) - (checkedAt.get(b) ?? 0))
     .slice(0, limit);
 
+  // GSC URL Inspection cagri basina ~yavas (3-7sn); sinirli eszamanlilik ile
+  // hizlandir (kota 600/dk'nin cok altinda kalir).
+  const concurrency = Math.max(1, Math.min(Number(process.env.GSC_BULK_CONCURRENCY || "4"), 8));
+  let idx = 0;
   let checked = 0;
   let failed = 0;
-  for (const url of pending) {
-    try {
-      const r = await inspectSearchConsoleUrl(url);
-      await upsertGscRow(url, { verdict: r.verdict, coverage: r.coverage, last_crawl: r.last_crawl });
-      checked++;
-    } catch {
-      failed++;
+  async function worker() {
+    while (idx < pending.length) {
+      const url = pending[idx++];
+      try {
+        const r = await inspectSearchConsoleUrl(url);
+        await upsertGscRow(url, { verdict: r.verdict, coverage: r.coverage, last_crawl: r.last_crawl });
+        checked++;
+      } catch {
+        failed++;
+      }
+      await new Promise((res) => setTimeout(res, 100));
     }
-    await new Promise((res) => setTimeout(res, 200));
   }
+  await Promise.all(Array.from({ length: concurrency }, () => worker()));
   return { total: all.length, pending: pending.length, checked, failed, skipped: all.length - pending.length };
 }
 
