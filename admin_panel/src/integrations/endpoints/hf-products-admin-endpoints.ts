@@ -49,6 +49,27 @@ export type HfProductEditorialItem = {
   publishedAt: string | null;
 };
 
+export type GscIndexCategory = "indexed" | "not_indexed" | "issue" | "unknown";
+
+export type HfProductGsc = {
+  url: string;
+  checked: boolean;
+  verdict: string | null;
+  coverageState: string | null;
+  lastCrawl: string | null;
+  checkedAt: string | null;
+  category: GscIndexCategory;
+  label: string;
+};
+
+export type HfProductGscResult = {
+  productId: number;
+  slug: string;
+  seoIndex: boolean;
+  publicUrl: string;
+  gsc: HfProductGsc;
+};
+
 export type HfProductEditorialPayload = {
   aboutMd?: string;
   priceFactorsMd?: string;
@@ -120,6 +141,16 @@ export const hfProductsAdminApi = baseApi.injectEndpoints({
       query: (body) => ({ url: "/admin/hal/products/merge", method: "POST", body }),
       invalidatesTags: [{ type: "HfProducts" as const, id: "LIST" }],
     }),
+    getHfProductGscAdmin: builder.query<HfProductGscResult, { id: number | string }>({
+      query: ({ id }) => ({ url: `/admin/hal/products/${id}/gsc` }),
+      transformResponse: (response: { data: HfProductGscResult }) => response.data,
+      providesTags: (_r, _e, { id }) => [{ type: "HfProducts" as const, id: `GSC-${id}` }],
+    }),
+    inspectHfProductGscAdmin: builder.mutation<HfProductGscResult, { id: number | string }>({
+      query: ({ id }) => ({ url: `/admin/hal/products/${id}/gsc/inspect`, method: "POST" }),
+      transformResponse: (response: { data: HfProductGscResult }) => response.data,
+      invalidatesTags: (_r, _e, { id }) => [{ type: "HfProducts" as const, id: `GSC-${id}` }],
+    }),
     getMergeSuggestionsAdmin: builder.query<
       {
         count: number;
@@ -161,4 +192,6 @@ export const {
   useAutocompleteHfProductsQuery,
   useMergeHfProductsAdminMutation,
   useGetMergeSuggestionsAdminQuery,
+  useGetHfProductGscAdminQuery,
+  useInspectHfProductGscAdminMutation,
 } = hfProductsAdminApi;

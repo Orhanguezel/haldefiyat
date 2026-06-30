@@ -1,19 +1,13 @@
 import type { FastifyInstance } from "fastify";
 import { eq } from "drizzle-orm";
 import { inspectSearchConsoleUrl } from "@agro/shared-backend/modules/searchConsole";
-import { db, pool } from "@/db/client";
+import { db } from "@/db/client";
 import { hfAnalysisReports } from "@/db/schema";
-import { env } from "@/core/env";
+import { gscBlock, publicOrigin, readGscRow, upsertGscRow } from "@/modules/seo/gsc-index";
 
 type BreakItem = { key: string; label: string; points: number; max: number; pass: boolean; detail?: string };
-type GscCategory = "indexed" | "not_indexed" | "issue" | "unknown";
 
 type ReportRow = typeof hfAnalysisReports.$inferSelect;
-
-function publicOrigin(): string {
-  const raw = env.PUBLIC_BASE_URL || env.PUBLIC_URL || "https://haldefiyat.com";
-  return raw.replace(/\/+$/, "");
-}
 
 function reportUrl(slug: string): string {
   return `${publicOrigin()}/analiz/${slug}`;
@@ -92,52 +86,6 @@ function scoreSeo(report: ReportRow): { score: number; breakdown: BreakItem[] } 
   return { score, breakdown };
 }
 
-function classifyGsc(verdict: string | null, coverage: string | null): { category: GscCategory; label: string } {
-  const v = `${verdict ?? ""} ${coverage ?? ""}`.toLowerCase();
-  if (!verdict && !coverage) return { category: "unknown", label: "Henüz Google tarafından kontrol edilmedi" };
-  if (v.includes("submitted and indexed") || (verdict ?? "").toUpperCase() === "PASS") return { category: "indexed", label: "Google'da indexli" };
-  if (v.includes("noindex") || v.includes("redirect") || v.includes("duplicate") || v.includes("soft 404") || v.includes("not found") || v.includes("error")) {
-    return { category: "issue", label: coverage || "Index sorunu" };
-  }
-  if (v.includes("not indexed") || v.includes("discovered") || v.includes("crawled") || v.includes("unknown to google")) {
-    return { category: "not_indexed", label: coverage || "Henüz indexlenmedi" };
-  }
-  return { category: "unknown", label: coverage || verdict || "Bilinmiyor" };
-}
-
-type GscRow = { url: string; verdict: string | null; coverage_state: string | null; last_crawl: Date | string | null; checked_at: Date | string | null };
-
-async function readGscRow(url: string): Promise<GscRow | null> {
-  const [rows] = await pool.query<any[]>(
-    "SELECT url, verdict, coverage_state, last_crawl, checked_at FROM gsc_url_index WHERE url = ? LIMIT 1",
-    [url],
-  );
-  return (rows?.[0] as GscRow) ?? null;
-}
-
-function toMysqlDt(iso: string | null | undefined): string | null {
-  if (!iso) return null;
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toISOString().slice(0, 19).replace("T", " ");
-}
-
-function gscBlock(url: string, row: GscRow | null) {
-  const verdict = row?.verdict ?? null;
-  const coverage = row?.coverage_state ?? null;
-  const { category, label } = classifyGsc(verdict, coverage);
-  return {
-    url,
-    checked: Boolean(row),
-    verdict,
-    coverageState: coverage,
-    lastCrawl: row?.last_crawl ? new Date(row.last_crawl).toISOString() : null,
-    checkedAt: row?.checked_at ? new Date(row.checked_at).toISOString() : null,
-    category,
-    label,
-  };
-}
-
 async function buildQuality(report: ReportRow) {
   const url = reportUrl(report.slug);
   const content = scoreContent(report);
@@ -176,13 +124,7 @@ export async function registerAnalysisQuality(app: FastifyInstance) {
     const url = reportUrl(report.slug);
     try {
       const r = await inspectSearchConsoleUrl(url);
-      await pool.execute(
-        `INSERT INTO gsc_url_index (url, verdict, coverage_state, last_crawl, checked_at)
-         VALUES (?, ?, ?, ?, NOW(3))
-         ON DUPLICATE KEY UPDATE verdict = VALUES(verdict), coverage_state = VALUES(coverage_state),
-           last_crawl = VALUES(last_crawl), checked_at = VALUES(checked_at)`,
-        [url, r.verdict || null, r.coverage || null, toMysqlDt(r.last_crawl)],
-      );
+      await upsertGscRow(url, { verdict: r.verdict, coverage: r.coverage, last_crawl: r.last_crawl });
     } catch (err) {
       app.log.error({ err, url }, "[analysis:inspect] GSC url inspection failed");
       return reply.status(502).send({ error: "Google Search Console denetimi başarısız. Yetkilendirme/kotayı kontrol edin." });

@@ -19,8 +19,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   useGetHfProductEditorialAdminQuery,
+  useGetHfProductGscAdminQuery,
   useUpdateHfProductEditorialAdminMutation,
 } from "@/integrations/endpoints/hf-products-admin-endpoints";
+import { ProductGscBadge, ProductGscPanel } from "../_components/product-gsc-panel";
 import {
   useCreateHfProductAdminMutation,
   useGetHfProductAdminQuery,
@@ -100,6 +102,7 @@ export default function Page() {
 
   const { data } = useGetHfProductAdminQuery(routeId, { skip: isNew });
   const { data: editorialData } = useGetHfProductEditorialAdminQuery(routeId, { skip: isNew });
+  const { data: gscData } = useGetHfProductGscAdminQuery({ id: routeId }, { skip: isNew });
   const [createItem, createState] = useCreateHfProductAdminMutation();
   const [updateItem, updateState] = useUpdateHfProductAdminMutation();
   const [updateEditorial, editorialState] = useUpdateHfProductEditorialAdminMutation();
@@ -265,6 +268,7 @@ export default function Page() {
               <Badge variant={readiness >= 75 ? "default" : readiness >= 45 ? "secondary" : "destructive"}>
                 SEO kalite {readiness}
               </Badge>
+              {gscData?.gsc && <ProductGscBadge category={gscData.gsc.category} label={gscData.gsc.label} />}
             </div>
           </div>
           <div className="flex flex-wrap justify-end gap-2">
@@ -323,6 +327,7 @@ export default function Page() {
         <TabsList>
           <TabsTrigger value="product">Ürün</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
+          <TabsTrigger value="gsc">İndexlenme</TabsTrigger>
           <TabsTrigger value="editorial">Editoryel</TabsTrigger>
         </TabsList>
 
@@ -455,6 +460,17 @@ export default function Page() {
                 </div>
                 <Progress value={editorialScore} />
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="gsc">
+          <Card className="rounded-lg">
+            <CardHeader>
+              <CardTitle className="text-base">Google’da indexlenme durumu</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProductGscPanel id={routeId} isNew={isNew} />
             </CardContent>
           </Card>
         </TabsContent>

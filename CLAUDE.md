@@ -112,6 +112,24 @@ ssh vps-vistainsaat '/var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/bac
 
 ---
 
+## 📊 Trafik Raporu Hazirlarken — ARACI KULLAN (elle awk yazma)
+
+Donemsel trafik analiz raporu (`reports/analiz-*.md` + `.pdf`) istenince **sifirdan
+awk/log analizi yazma** — kalici arac hazir:
+
+```bash
+cd backend/scripts
+./traffic-report.sh --from 24 --to 30 [--month Jun] [--year 2026] [--pdf]
+```
+
+- Cikti: `reports/analiz-<from>-<to>-<ay>-<yil>.md` (+ `.pdf`).
+- Otomatik dolar: ozet tablo, gunluk tablo, saatlik, HTTP durum, bot/AI, gclid landing, referrer.
+- **Elle (Claude) doldurulacak `<!-- TODO -->`:** trend karsilastirmasi (onceki donem), HATALAR/BULGULAR, Aksiyon Listesi, Genel Durum. Bilincli — yorum/karar otomatiklesmesin.
+- **Akis:** tam gunleri sec (gunu bitmemis kismi gunu disla) → script calistir → TODO'lari onceki raporla kiyaslayip doldur.
+- Dosyalar: `traffic-report.sh` (orchestrator), `.awk` (analyzer, nginx `haldefiyat.access.log*`), `-format.py` (md tablolari), `.css` (PDF stili — pandoc + weasyprint).
+
+---
+
 ## Repo Niteligi
 
 - Repo: `github.com/Orhanguezel/haldefiyat` (push: main) — local git repo. **VPS de ayni git repo** (2026-05-26 dogrulandi). Yeni deploy akisi: local commit + push → VPS `git pull --ff-only origin main` → `cd frontend && bun run build` → `pm2 reload hal-frontend --update-env`. Acil scp yine yapilir ama tercih edilen yol git.

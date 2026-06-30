@@ -37,6 +37,7 @@ import {
   upsertPriceRow,
 } from "@/modules/prices/repository";
 import { listProduction } from "@/modules/production/repository";
+import { registerProductGsc } from "@/modules/products/product-gsc";
 import {
   isOneSignalConfigured,
   sendBroadcast,
@@ -195,6 +196,8 @@ async function getPriceDetail(id: number) {
 }
 
 export async function registerHalAdmin(app: FastifyInstance) {
+  await registerProductGsc(app);
+
   app.get("/dashboard/summary", async (_req, reply) => {
     const [
       [pricesCount],
