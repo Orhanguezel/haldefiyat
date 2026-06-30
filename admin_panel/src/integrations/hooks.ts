@@ -169,6 +169,7 @@ export {
   useMetaTestMutation,
 } from "@/integrations/endpoints/admin/meta-admin-endpoints";
 export {
+  useNewsletterFunnelAdminQuery,
   useDeleteNewsletterAdminMutation,
   useListNewsletterAdminQuery,
   usePreviewWeeklyMailAdminQuery,

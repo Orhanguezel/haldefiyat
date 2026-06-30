@@ -6,6 +6,16 @@
 export const NEWSLETTER_ADMIN_BASE = "/admin/newsletter";
 export const NEWSLETTER_DIGEST_BASE = "/admin/hal/newsletter/weekly-mail";
 
+export interface NewsletterFunnel {
+  total: number;
+  active: number;
+  unsubscribed: number;
+  last7: number;
+  last30: number;
+  bySource: { source: string; n: number; active: number }[];
+  byDay: { day: string; n: number }[];
+}
+
 export interface NewsletterSubscriber {
   id: string;
   email: string;

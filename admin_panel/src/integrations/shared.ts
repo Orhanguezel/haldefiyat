@@ -255,6 +255,7 @@ export {
   type NewsletterListQueryParams,
   type NewsletterStatus,
   type NewsletterStats,
+  type NewsletterFunnel,
   type WeeklyMailSendResult,
   computeNewsletterStats,
   formatNewsletterDate,

@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { mysqlTable, char, varchar, tinyint, datetime, longtext } from "drizzle-orm/mysql-core";
 
-import { db } from "@/db/client";
+import { db, pool } from "@/db/client";
 import { sendBereketMail } from "@agro/shared-backend/core/mail";
 import { telegramNotify } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
 
@@ -99,4 +99,42 @@ export async function registerHalNewsletter(app: FastifyInstance) {
   app.post("/newsletter/subscribe", subscribe);
   app.post("/newsletter/unsubscribe", unsubscribe);
   app.get("/newsletter/unsubscribe", unsubscribe); // one-click / List-Unsubscribe uyumu
+}
+
+// Funnel ölçümü: hangi CTA/kaynak kaç abone getiriyor + günlük akış.
+export async function registerHalNewsletterAdmin(app: FastifyInstance) {
+  app.get("/newsletter/funnel", async (_req, reply) => {
+    const [[totals]] = await pool.query<any[]>(
+      `SELECT COUNT(*) total,
+         SUM(unsubscribed_at IS NULL) active,
+         SUM(unsubscribed_at IS NOT NULL) unsubscribed,
+         SUM(created_at >= NOW() - INTERVAL 7 DAY) last7,
+         SUM(created_at >= NOW() - INTERVAL 30 DAY) last30
+       FROM newsletter_subscribers`,
+    );
+    const [bySource] = await pool.query<any[]>(
+      `SELECT COALESCE(JSON_UNQUOTE(JSON_EXTRACT(meta, '$.source')), '(belirsiz)') source,
+         COUNT(*) n, SUM(unsubscribed_at IS NULL) active
+       FROM newsletter_subscribers GROUP BY source ORDER BY n DESC`,
+    );
+    const [byDay] = await pool.query<any[]>(
+      `SELECT DATE(created_at) day, COUNT(*) n
+       FROM newsletter_subscribers WHERE created_at >= NOW() - INTERVAL 30 DAY
+       GROUP BY DATE(created_at) ORDER BY day`,
+    );
+    return reply.send({
+      data: {
+        total: Number(totals?.total ?? 0),
+        active: Number(totals?.active ?? 0),
+        unsubscribed: Number(totals?.unsubscribed ?? 0),
+        last7: Number(totals?.last7 ?? 0),
+        last30: Number(totals?.last30 ?? 0),
+        bySource: (bySource ?? []).map((r) => ({ source: r.source, n: Number(r.n), active: Number(r.active) })),
+        byDay: (byDay ?? []).map((r) => ({
+          day: r.day instanceof Date ? r.day.toISOString().slice(0, 10) : String(r.day).slice(0, 10),
+          n: Number(r.n),
+        })),
+      },
+    });
+  });
 }

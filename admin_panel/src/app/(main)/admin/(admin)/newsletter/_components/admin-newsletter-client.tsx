@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAdminT } from '@/app/(main)/admin/_components/common/use-admin-t';
+import { NewsletterFunnelPanel } from './newsletter-funnel-panel';
 import {
   useDeleteNewsletterAdminMutation,
   useListNewsletterAdminQuery,
@@ -87,6 +88,8 @@ export default function AdminNewsletterClient() {
           {t('actions.refresh')}
         </Button>
       </div>
+
+      <NewsletterFunnelPanel />
 
       {/* Stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

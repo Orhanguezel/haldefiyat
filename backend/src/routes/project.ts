@@ -18,7 +18,7 @@ import { registerAnnualReport } from "@/modules/annual-report";
 import { registerAnalyticsAdmin } from "@/modules/analytics";
 import { registerAuditConsumersAdmin } from "@/modules/audit-consumers";
 import { registerRedirectsPublic, registerSeoOpsAdmin } from "@/modules/redirects";
-import { registerHalNewsletter } from "@/modules/newsletter/router";
+import { registerHalNewsletter, registerHalNewsletterAdmin } from "@/modules/newsletter/router";
 import { registerTracking } from "@/modules/tracking/router";
 import { registerFirmsAdmin, registerFirmsPublic } from "@/modules/firms";
 import { registerAuthorsAdmin, registerAuthorsPublic } from "@/modules/authors";
@@ -79,4 +79,5 @@ export async function registerProjectAdmin(adminApi: FastifyInstance) {
   await registerAuthorsAdmin(adminApi);
   await registerBannersAdmin(adminApi);
   await registerSocialAdmin(adminApi);
+  await registerHalNewsletterAdmin(adminApi);
 }

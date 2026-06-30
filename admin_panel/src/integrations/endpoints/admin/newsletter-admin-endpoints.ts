@@ -6,6 +6,7 @@ import { baseApi } from "@/integrations/base-api";
 import {
   NEWSLETTER_ADMIN_BASE,
   NEWSLETTER_DIGEST_BASE,
+  type NewsletterFunnel,
   type NewsletterListQueryParams,
   type NewsletterSubscriber,
   type WeeklyMailSendResult,
@@ -13,6 +14,11 @@ import {
 
 export const newsletterAdminApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
+    newsletterFunnelAdmin: build.query<NewsletterFunnel, void>({
+      query: () => ({ url: `${NEWSLETTER_ADMIN_BASE}/funnel`, method: "GET" }),
+      transformResponse: (response: { data: NewsletterFunnel }) => response.data,
+      providesTags: [{ type: "NewsletterSubscribers" as const, id: "FUNNEL" }],
+    }),
     listNewsletterAdmin: build.query<NewsletterSubscriber[], NewsletterListQueryParams | void>({
       query: (params?: NewsletterListQueryParams) => ({
         url: NEWSLETTER_ADMIN_BASE,
@@ -70,6 +76,7 @@ export const newsletterAdminApi = baseApi.injectEndpoints({
 });
 
 export const {
+  useNewsletterFunnelAdminQuery,
   useListNewsletterAdminQuery,
   useDeleteNewsletterAdminMutation,
   usePreviewWeeklyMailAdminQuery,
