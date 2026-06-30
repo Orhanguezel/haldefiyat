@@ -23,6 +23,7 @@ import {
   useUpdateHfProductEditorialAdminMutation,
 } from "@/integrations/endpoints/hf-products-admin-endpoints";
 import { ProductGscBadge, ProductGscPanel } from "../_components/product-gsc-panel";
+import { ProductRedirectPanel } from "../_components/product-redirect-panel";
 import {
   useCreateHfProductAdminMutation,
   useGetHfProductAdminQuery,
@@ -471,8 +472,9 @@ export default function Page() {
             <CardHeader>
               <CardTitle className="text-base">Google’da indexlenme durumu</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <ProductGscPanel id={routeId} isNew={isNew} />
+              <ProductRedirectPanel slug={form.slug} isNew={isNew} />
             </CardContent>
           </Card>
         </TabsContent>

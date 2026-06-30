@@ -143,6 +143,15 @@ export function ProductGscPanel({ id, isNew }: { id: string; isNew: boolean }) {
         </div>
       )}
 
+      {seoIndex && (gsc.category === "issue" || gsc.category === "not_indexed") && (
+        <div className="mb-3 rounded-md border border-sky-500/40 bg-sky-500/10 p-3 text-sm text-sky-700 dark:text-sky-300">
+          ℹ️ Bu ürün <strong>indexlenebilir</strong> ayarlı. Bu durum, Google’ın <strong>son taramasına</strong>
+          {gsc.lastCrawl ? ` (${formatDateTime(gsc.lastCrawl)})` : ""} dayanır — sayfa o tarihten sonra düzeltildiyse
+          (örn. editöryel eklendiyse) Google yeniden tarayana kadar eski durumu gösterir. Canlı sayfa doğruysa sorun
+          yoktur; hızlandırmak için GSC’de “İndexlenmeyi iste”.
+        </div>
+      )}
+
       <ProductGscBadge category={gsc.category} label={trCoverage(gsc.label)} />
 
       <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-muted-foreground text-xs">
