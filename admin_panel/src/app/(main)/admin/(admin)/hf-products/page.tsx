@@ -75,8 +75,10 @@ export default function Page() {
     const avgQuality = items.length
       ? Math.round(items.reduce((sum, item) => sum + Number(item.dataQuality ?? 0), 0) / items.length)
       : 0;
+    // Aksiyon gerektiren: indexlenebilir (seoIndex) AMA Google'da olmayan/sorunlu.
+    // Noindex/varyantların GSC'de "excluded" olması beklenir → sayma.
     const gscProblem = items.filter(
-      (item) => item.gscCategory === "not_indexed" || item.gscCategory === "issue",
+      (item) => Boolean(item.seoIndex) && (item.gscCategory === "not_indexed" || item.gscCategory === "issue"),
     ).length;
     return { indexed, active, variants, avgQuality, gscProblem };
   }, [items]);
