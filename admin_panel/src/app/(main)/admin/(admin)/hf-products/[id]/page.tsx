@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 import { ArrowLeft, Eye, Save } from "lucide-react";
 import { toast } from "sonner";
@@ -94,6 +94,8 @@ function errorMessage(error: unknown, fallback: string) {
 export default function Page() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState(searchParams?.get("tab") || "product");
   const [routeId, setRouteId] = useState("new");
   useEffect(() => {
     setRouteId(String(params?.id || "new"));
@@ -323,7 +325,7 @@ export default function Page() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="product" className="space-y-4">
+      <Tabs value={tab} onValueChange={setTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="product">Ürün</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>

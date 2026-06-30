@@ -90,6 +90,11 @@ export default function Page() {
     const arr = items.filter((item) => {
       if (variantFilter === "variant" && !item.canonicalSlug) return false;
       if (variantFilter === "master" && item.canonicalSlug) return false;
+      if (
+        gscFilter === "actionable" &&
+        !(Boolean(item.seoIndex) && (item.gscCategory === "not_indexed" || item.gscCategory === "issue"))
+      )
+        return false;
       if (gscFilter === "indexed" && item.gscCategory !== "indexed") return false;
       if (gscFilter === "not_indexed" && item.gscCategory !== "not_indexed" && item.gscCategory !== "issue")
         return false;
@@ -257,6 +262,7 @@ export default function Page() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={ALL}>Google: tümü</SelectItem>
+              <SelectItem value="actionable">⚠ İndexlenebilir ama Google’da yok</SelectItem>
               <SelectItem value="indexed">İndexli</SelectItem>
               <SelectItem value="not_indexed">İndexsiz / sorun</SelectItem>
               <SelectItem value="issue">Sadece sorun</SelectItem>
@@ -379,7 +385,13 @@ export default function Page() {
                   </TableCell>
                   <TableCell>
                     {item.gscCategory ? (
-                      <ProductGscBadge category={item.gscCategory} label={GSC_SHORT_LABEL[item.gscCategory]} />
+                      <Link
+                        href={`/admin/hf-products/${item.id}?tab=gsc`}
+                        title="Google indexlenme detayına git"
+                        className="inline-flex"
+                      >
+                        <ProductGscBadge category={item.gscCategory} label={GSC_SHORT_LABEL[item.gscCategory]} />
+                      </Link>
                     ) : (
                       <span className="text-muted-foreground text-xs">—</span>
                     )}
