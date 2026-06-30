@@ -21,7 +21,7 @@ import { expireListings } from "@/modules/listings";
 import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
 import { submitToIndexNow } from "@/modules/indexnow";
 import { cleanupOldEtlRuns } from "@/modules/etl/maintenance";
-import { refreshSearchConsoleIndex } from "@agro/shared-backend/modules/searchConsole";
+import { runGscBulkRefresh } from "@/modules/seo/gsc-bulk";
 import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
 import { processSocialQueueOnce } from "@agro/shared-backend/modules/twitter";
 import { runDailyMoversJob, runStaplesJob, createWeeklyAnalysisDraft } from "@/modules/social/daily-content";
@@ -266,16 +266,14 @@ async function runSeoMaintenanceJob(app: FastifyInstance): Promise<void> {
 }
 
 // GSC URL Inspection kotası düşük + Google hesabındaki tüm siteler paylaşır → günlük
-// batch ile sitemap'i kademeli kapat (force=false: <1gün denetlenenleri atlar, listede ilerler).
+// batch ile TUM hal URL'lerini (urun incl. noindex + hal + analiz) kademeli kapat +
+// taze tut. Tek indirici burasi; sosyal platform sonuclari /gsc/export'tan okur.
 async function runGscIndexJob(app: FastifyInstance): Promise<void> {
   const t0 = Date.now();
   app.log.info("[cron:gsc-index] incremental refresh basliyor");
   try {
-    const r = await refreshSearchConsoleIndex({ limit: env.ETL.gscIndexBatch });
-    app.log.info(
-      { site: r.site, checked: r.checked, skipped: r.skipped, totalUrls: r.totalUrls, durationMs: Date.now() - t0 },
-      "[cron:gsc-index] tamamlandi",
-    );
+    const r = await runGscBulkRefresh({ limit: env.ETL.gscIndexBatch });
+    app.log.info({ ...r, durationMs: Date.now() - t0 }, "[cron:gsc-index] tamamlandi");
   } catch (err) {
     app.log.error({ err }, "[cron:gsc-index] hata");
   }

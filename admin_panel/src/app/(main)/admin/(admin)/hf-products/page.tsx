@@ -4,7 +4,7 @@ import { type ReactNode, useMemo, useState } from "react";
 
 import Link from "next/link";
 
-import { Edit, GitMerge, Plus, Search } from "lucide-react";
+import { Edit, GitMerge, Plus, RefreshCw, Search } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useListHfProductsAdminQuery, useMergeHfProductsAdminMutation } from "@/integrations/hooks";
+import {
+  useBulkRefreshHfGscMutation,
+  useGetHfGscSummaryQuery,
+} from "@/integrations/endpoints/hf-products-admin-endpoints";
 
 import { MergeSuggestionsPanel } from "./_components/merge-suggestions-panel";
 import { GSC_SHORT_LABEL, ProductGscBadge } from "./_components/product-gsc-panel";
@@ -40,6 +44,17 @@ export default function Page() {
   const [masterId, setMasterId] = useState<string>("");
   const [merge, mergeState] = useMergeHfProductsAdminMutation();
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const { data: gscSummary } = useGetHfGscSummaryQuery(undefined, { pollingInterval: 20000 });
+  const [bulkRefreshGsc, bulkState] = useBulkRefreshHfGscMutation();
+
+  const handleBulkGsc = async () => {
+    try {
+      await bulkRefreshGsc({}).unwrap();
+      toast.success("Toplu Google denetimi başladı (arka planda). Birkaç dakika sonra liste dolar.");
+    } catch {
+      toast.error("Toplu denetim başlatılamadı (zaten çalışıyor olabilir).");
+    }
+  };
 
   const query = {
     q: q.trim() || undefined,
@@ -145,8 +160,26 @@ export default function Page() {
               {items.length} ürün · {stats.active} aktif · {stats.indexed} index · {stats.variants} varyant · ortalama
               kalite {stats.avgQuality} · {stats.gscProblem} Google’da indexsiz
             </p>
+            {gscSummary && (
+              <p className="mt-0.5 text-muted-foreground text-xs">
+                GSC önbelleği: {gscSummary.total} URL denetli · {gscSummary.indexed} indexli · {gscSummary.issue} sorunlu
+                {gscSummary.lastChecked
+                  ? ` · son: ${gscSummary.lastChecked.replace("T", " ").slice(0, 16)}`
+                  : ""}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleBulkGsc}
+              disabled={bulkState.isLoading || gscSummary?.running}
+              title="Tüm hal URL'lerini Google Search Console'da denetle (tek indirici; sonuç ürün listesine yansır)"
+            >
+              <RefreshCw className={`mr-2 size-4 ${gscSummary?.running ? "animate-spin" : ""}`} />
+              {gscSummary?.running ? "Google denetimi sürüyor…" : "Google: tümünü denetle"}
+            </Button>
             <Button
               size="sm"
               variant={showSuggestions ? "secondary" : "outline"}

@@ -72,6 +72,14 @@ export type HfProductGscResult = {
   gsc: HfProductGsc;
 };
 
+export type HfGscSummary = {
+  total: number;
+  indexed: number;
+  issue: number;
+  lastChecked: string | null;
+  running: boolean;
+};
+
 export type HfProductEditorialPayload = {
   aboutMd?: string;
   priceFactorsMd?: string;
@@ -143,6 +151,15 @@ export const hfProductsAdminApi = baseApi.injectEndpoints({
       query: (body) => ({ url: "/admin/hal/products/merge", method: "POST", body }),
       invalidatesTags: [{ type: "HfProducts" as const, id: "LIST" }],
     }),
+    getHfGscSummary: builder.query<HfGscSummary, void>({
+      query: () => ({ url: "/admin/hal/gsc/summary" }),
+      transformResponse: (response: { data: HfGscSummary }) => response.data,
+      providesTags: [{ type: "HfProducts" as const, id: "GSC-SUMMARY" }],
+    }),
+    bulkRefreshHfGsc: builder.mutation<{ ok: boolean; started: boolean }, { limit?: number; force?: boolean } | void>({
+      query: (body) => ({ url: "/admin/hal/gsc/bulk-refresh", method: "POST", body: body ?? {} }),
+      invalidatesTags: [{ type: "HfProducts" as const, id: "GSC-SUMMARY" }],
+    }),
     getHfProductGscAdmin: builder.query<HfProductGscResult, { id: number | string }>({
       query: ({ id }) => ({ url: `/admin/hal/products/${id}/gsc` }),
       transformResponse: (response: { data: HfProductGscResult }) => response.data,
@@ -196,4 +213,6 @@ export const {
   useGetMergeSuggestionsAdminQuery,
   useGetHfProductGscAdminQuery,
   useInspectHfProductGscAdminMutation,
+  useGetHfGscSummaryQuery,
+  useBulkRefreshHfGscMutation,
 } = hfProductsAdminApi;
