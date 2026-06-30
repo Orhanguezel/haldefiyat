@@ -64,6 +64,23 @@ export function gscBlock(url: string, row: GscRow | null) {
   };
 }
 
+// Cache'li GSC durumunu toplu okur (canli GSC cagrisi YOK) — liste ekranlari icin.
+export async function readGscCategoriesForUrls(
+  urls: string[],
+): Promise<Map<string, { category: GscCategory; label: string }>> {
+  const map = new Map<string, { category: GscCategory; label: string }>();
+  if (!urls.length) return map;
+  const placeholders = urls.map(() => "?").join(",");
+  const [rows] = await pool.query<any[]>(
+    `SELECT url, verdict, coverage_state FROM gsc_url_index WHERE url IN (${placeholders})`,
+    urls,
+  );
+  for (const row of rows ?? []) {
+    map.set(row.url, classifyGsc(row.verdict ?? null, row.coverage_state ?? null));
+  }
+  return map;
+}
+
 export async function upsertGscRow(url: string, r: { verdict: string | null; coverage: string | null; last_crawl: string | null }): Promise<void> {
   await pool.execute(
     `INSERT INTO gsc_url_index (url, verdict, coverage_state, last_crawl, checked_at)

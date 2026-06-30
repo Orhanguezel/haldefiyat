@@ -38,6 +38,7 @@ import {
 } from "@/modules/prices/repository";
 import { listProduction } from "@/modules/production/repository";
 import { registerProductGsc } from "@/modules/products/product-gsc";
+import { publicOrigin, readGscCategoriesForUrls } from "@/modules/seo/gsc-index";
 import {
   isOneSignalConfigured,
   sendBroadcast,
@@ -419,7 +420,14 @@ export async function registerHalAdmin(app: FastifyInstance) {
       .where(conds.length ? and(...conds) : undefined)
       .orderBy(asc(hfProducts.displayOrder), asc(hfProducts.nameTr));
 
-    return reply.send({ items });
+    const origin = publicOrigin();
+    const gscMap = await readGscCategoriesForUrls(items.map((it) => `${origin}/urun/${it.slug}`));
+    const enriched = items.map((it) => {
+      const g = gscMap.get(`${origin}/urun/${it.slug}`);
+      return { ...it, gscCategory: g?.category ?? null, gscLabel: g?.label ?? null };
+    });
+
+    return reply.send({ items: enriched });
   });
 
   app.get<{ Params: { id: string } }>("/hal/products/:id", async (req, reply) => {

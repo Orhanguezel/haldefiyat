@@ -21,6 +21,13 @@ const gscMeta: Record<
   unknown: { variant: "outline", Icon: HelpCircle },
 };
 
+export const GSC_SHORT_LABEL: Record<GscIndexCategory, string> = {
+  indexed: "İndexli",
+  not_indexed: "İndexsiz",
+  issue: "Sorun",
+  unknown: "Bilinmiyor",
+};
+
 export function ProductGscBadge({ category, label }: { category: GscIndexCategory; label: string }) {
   const meta = gscMeta[category];
   const Icon = meta.Icon;

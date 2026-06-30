@@ -16,6 +16,8 @@ export type HfProductItem = {
   searchVolume: number;
   displayOrder: number;
   isActive: number | boolean;
+  gscCategory?: GscIndexCategory | null;
+  gscLabel?: string | null;
 };
 
 export type HfProductPayload = {

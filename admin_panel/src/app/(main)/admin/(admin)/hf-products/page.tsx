@@ -17,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useListHfProductsAdminQuery, useMergeHfProductsAdminMutation } from "@/integrations/hooks";
 
 import { MergeSuggestionsPanel } from "./_components/merge-suggestions-panel";
+import { GSC_SHORT_LABEL, ProductGscBadge } from "./_components/product-gsc-panel";
 
 const ALL = "all";
 
@@ -32,6 +33,7 @@ export default function Page() {
   const [isActive, setIsActive] = useState(ALL);
   const [seoIndex, setSeoIndex] = useState(ALL);
   const [variantFilter, setVariantFilter] = useState(ALL);
+  const [gscFilter, setGscFilter] = useState(ALL);
   const [sortKey, setSortKey] = useState<"name" | "category" | "quality" | "search">("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -58,7 +60,10 @@ export default function Page() {
     const avgQuality = items.length
       ? Math.round(items.reduce((sum, item) => sum + Number(item.dataQuality ?? 0), 0) / items.length)
       : 0;
-    return { indexed, active, variants, avgQuality };
+    const gscProblem = items.filter(
+      (item) => item.gscCategory === "not_indexed" || item.gscCategory === "issue",
+    ).length;
+    return { indexed, active, variants, avgQuality, gscProblem };
   }, [items]);
 
   // slug → ürün (varyantın master'ına admin linki için)
@@ -66,8 +71,13 @@ export default function Page() {
 
   const sortedItems = useMemo(() => {
     const arr = items.filter((item) => {
-      if (variantFilter === "variant") return Boolean(item.canonicalSlug);
-      if (variantFilter === "master") return !item.canonicalSlug;
+      if (variantFilter === "variant" && !item.canonicalSlug) return false;
+      if (variantFilter === "master" && item.canonicalSlug) return false;
+      if (gscFilter === "indexed" && item.gscCategory !== "indexed") return false;
+      if (gscFilter === "not_indexed" && item.gscCategory !== "not_indexed" && item.gscCategory !== "issue")
+        return false;
+      if (gscFilter === "issue" && item.gscCategory !== "issue") return false;
+      if (gscFilter === "unchecked" && item.gscCategory) return false;
       return true;
     });
     arr.sort((a, b) => {
@@ -80,7 +90,7 @@ export default function Page() {
       return sortDir === "asc" ? cmp : -cmp;
     });
     return arr;
-  }, [items, sortKey, sortDir, variantFilter]);
+  }, [items, sortKey, sortDir, variantFilter, gscFilter]);
 
   const toggleSort = (key: typeof sortKey) => {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -133,7 +143,7 @@ export default function Page() {
             <CardTitle className="text-base">Hal ürünleri</CardTitle>
             <p className="mt-1 text-muted-foreground text-sm">
               {items.length} ürün · {stats.active} aktif · {stats.indexed} index · {stats.variants} varyant · ortalama
-              kalite {stats.avgQuality}
+              kalite {stats.avgQuality} · {stats.gscProblem} Google’da indexsiz
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -153,7 +163,7 @@ export default function Page() {
             </Button>
           </div>
         </div>
-        <div className="grid gap-2 md:grid-cols-[minmax(200px,1fr)_150px_140px_140px_150px]">
+        <div className="grid gap-2 md:grid-cols-[minmax(180px,1fr)_140px_130px_130px_140px_150px]">
           <div className="relative">
             <Search className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-3 size-4 text-muted-foreground" />
             <Input
@@ -206,6 +216,18 @@ export default function Page() {
               <SelectItem value="variant">Sadece varyantlar (301)</SelectItem>
             </SelectContent>
           </Select>
+          <Select value={gscFilter} onValueChange={setGscFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Google" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>Google: tümü</SelectItem>
+              <SelectItem value="indexed">İndexli</SelectItem>
+              <SelectItem value="not_indexed">İndexsiz / sorun</SelectItem>
+              <SelectItem value="issue">Sadece sorun</SelectItem>
+              <SelectItem value="unchecked">Denetlenmemiş</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </CardHeader>
       <CardContent>
@@ -255,18 +277,19 @@ export default function Page() {
                 <SortHead k="quality">Kalite</SortHead>
                 <SortHead k="search">Arama</SortHead>
                 <TableHead>SEO</TableHead>
+                <TableHead>Google</TableHead>
                 <TableHead className="w-24 text-right">İşlem</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {(isLoading || isFetching) && (
                 <TableRow>
-                  <TableCell colSpan={9}>Yükleniyor...</TableCell>
+                  <TableCell colSpan={10}>Yükleniyor...</TableCell>
                 </TableRow>
               )}
               {!isLoading && items.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={9}>Kayıt bulunamadı.</TableCell>
+                  <TableCell colSpan={10}>Kayıt bulunamadı.</TableCell>
                 </TableRow>
               )}
               {sortedItems.map((item) => (
@@ -318,6 +341,13 @@ export default function Page() {
                       )}
                       {!item.isActive && <Badge variant="secondary">Pasif</Badge>}
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    {item.gscCategory ? (
+                      <ProductGscBadge category={item.gscCategory} label={GSC_SHORT_LABEL[item.gscCategory]} />
+                    ) : (
+                      <span className="text-muted-foreground text-xs">—</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button asChild variant="ghost" size="icon">
