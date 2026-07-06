@@ -7,6 +7,14 @@ import { repoGetSnapshotHistory } from "@/modules/index/repository";
 import { resolveWeekRange } from "@/modules/prices/iso-week";
 import { weeklyPriceSummary, type WeeklySummary } from "@/modules/prices/weekly";
 import { registerAnalysisQuality } from "./quality";
+import { submitToIndexNow } from "@/modules/indexnow";
+
+// Rapor yayina alininca IndexNow'a (Bing/Yandex) aninda bildir — fire-and-forget,
+// yaniti bloklamaz. Google icin API yok; GSC "Request Indexing" manuel kalir.
+function pingReportIndexNow(slug: string | null | undefined): void {
+  if (!slug) return;
+  void submitToIndexNow([`/analiz/${slug}`]).catch(() => {});
+}
 
 export type AutoWeeklyReport = {
   slug: string;
@@ -181,6 +189,7 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
     });
 
     const [row] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.slug, slug)).limit(1);
+    if (status === "published") pingReportIndexNow(slug);
     return reply.status(201).send({ data: row ? reportRowToAdmin(row) : null });
   });
 
@@ -229,12 +238,14 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
 
     const [row] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.id, id)).limit(1);
     if (!row) return reply.status(404).send({ error: "Rapor bulunamadi" });
+    if (next.status === "published") pingReportIndexNow(row.slug);
     return reply.send({ data: reportRowToAdmin(row) });
   });
 
   app.post<{ Params: { id: string } }>("/analysis/reports/:id/publish", async (req, reply) => {
     const row = await setReportStatus(req.params.id, "published");
     if (!row) return reply.status(404).send({ error: "Rapor bulunamadi" });
+    pingReportIndexNow(row.slug);
     return reply.send({ data: reportRowToAdmin(row) });
   });
 
