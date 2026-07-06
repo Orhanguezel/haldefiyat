@@ -38,5 +38,9 @@ export async function rebuildProductFamilies(): Promise<{ families: number; assi
     await db.update(hfProducts).set({ familySlug: null }).where(inArray(hfProducts.id, clearIds.slice(i, i + 500)));
   }
 
+  // canonical (varyant) ürünlerde family_slug artık anlamsız — temizle (seçiciye zaten girmezler,
+  // ama veri tutarlı kalsın). Frontend filtresi !canonicalSlug ile korunur; bu ek sağlamlık.
+  await db.execute(sql`UPDATE hf_products SET family_slug = NULL WHERE canonical_slug IS NOT NULL AND family_slug IS NOT NULL`);
+
   return { families: byFamily.size, assigned, cleared: clearIds.length };
 }

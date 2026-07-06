@@ -549,7 +549,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
     }
 
     const variantIdList = variants.map((v) => v.id);
-    await db.update(hfProducts).set({ canonicalSlug: master.slug, seoIndex: 0 }).where(inArray(hfProducts.id, variantIdList));
+    await db.update(hfProducts).set({ canonicalSlug: master.slug, seoIndex: 0, familySlug: null }).where(inArray(hfProducts.id, variantIdList));
 
     // Fiyat geçmişini master'a taşı — tüm hallerin verisi tek üründe toplansın.
     // (product_id,market_id,recorded_date) unique; çakışan satırları IGNORE atlar, kalıntı silinir.
