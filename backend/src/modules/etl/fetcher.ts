@@ -2219,7 +2219,9 @@ function normalizeCategory(raw: string | null, fallback: string): string {
 
 async function findOrCreateProduct(raw: NormalizedRow, source: EtlSourceConfig): Promise<{ id: number; slug: string } | null> {
   const normalizedName = normalizeRawProductName(raw.name);
-  const slug = await resolveProductSlug(normalizedName);
+  const unit = (raw.unit ?? source.defaultUnit).toLowerCase();
+  // Birim-kapsamlı eşleştirme: "Aysberg Marul" ve "Marul Aysberg" (aynı birim) tek ürüne düşer.
+  const slug = await resolveProductSlug(normalizedName, unit);
   if (slug) {
     const rows = await db.select({ id: hfProducts.id })
       .from(hfProducts)
@@ -2231,8 +2233,6 @@ async function findOrCreateProduct(raw: NormalizedRow, source: EtlSourceConfig):
 
   const newSlug = slugify(normalizedName);
   if (!newSlug) return null;
-
-  const unit = (raw.unit ?? source.defaultUnit).toLowerCase();
 
   // Upsert: slug unique
   await db.insert(hfProducts).values({

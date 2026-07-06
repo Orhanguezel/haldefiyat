@@ -39,6 +39,7 @@ import {
 import { listProduction } from "@/modules/production/repository";
 import { registerProductGsc } from "@/modules/products/product-gsc";
 import { publicOrigin, readGscCategoriesForUrls } from "@/modules/seo/gsc-index";
+import { unitClass, invalidateAliasCache } from "@/modules/etl/normalizer";
 import {
   isOneSignalConfigured,
   sendBroadcast,
@@ -517,8 +518,8 @@ export async function registerHalAdmin(app: FastifyInstance) {
 
   // Ürün birleştirme: dublike ürünleri bir master altında konsolide et.
   // Varyantlar → canonical_slug=master + noindex; master aliases'a varyant isimleri eklenir
-  // (gelecek ETL aynı isimleri master'a yazsın, yeniden parçalanmasın). Fiyat geçmişi
-  // taşınmaz (varyant sayfaları 301 ile master'a gider; master zaten kapsamlı).
+  // (gelecek ETL aynı isimleri master'a yazsın). Fiyat geçmişi master'a TAŞINIR (tüm hallerin
+  // verisi tek üründe toplansın). Birim uyuşmazsa (kg vs adet) merge REDDEDİLİR — fiyat bozulmasın.
   app.post<{ Body: { masterId?: number; variantIds?: number[] } }>("/hal/products/merge", async (req, reply) => {
     const masterId = Number(req.body?.masterId);
     const variantIds = (Array.isArray(req.body?.variantIds) ? req.body.variantIds : [])
@@ -535,7 +536,23 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const variants = await db.select().from(hfProducts).where(inArray(hfProducts.id, variantIds));
     if (variants.length === 0) return reply.status(404).send({ error: "Varyant bulunamadi" });
 
-    await db.update(hfProducts).set({ canonicalSlug: master.slug, seoIndex: 0 }).where(inArray(hfProducts.id, variants.map((v) => v.id)));
+    // Birim-guard: kg ile adet birleştirilemez (ortalama fiyat anlamsız olur).
+    const masterUnit = unitClass(master.unit);
+    const badUnit = variants.filter((v) => unitClass(v.unit) !== masterUnit);
+    if (badUnit.length > 0) {
+      return reply.status(400).send({
+        error: `Birim uyuşmuyor: ${badUnit.map((v) => `${v.slug} (${v.unit})`).join(", ")} → master birimi "${master.unit}". Farklı birim ayrı ürün olarak kalmalı; birleştirmek fiyatı bozar.`,
+      });
+    }
+
+    const variantIdList = variants.map((v) => v.id);
+    await db.update(hfProducts).set({ canonicalSlug: master.slug, seoIndex: 0 }).where(inArray(hfProducts.id, variantIdList));
+
+    // Fiyat geçmişini master'a taşı — tüm hallerin verisi tek üründe toplansın.
+    // (product_id,market_id,recorded_date) unique; çakışan satırları IGNORE atlar, kalıntı silinir.
+    const idsSql = sql.join(variantIdList.map((i) => sql`${i}`), sql`, `);
+    await db.execute(sql`UPDATE IGNORE hf_price_history SET product_id = ${masterId} WHERE product_id IN (${idsSql})`);
+    await db.execute(sql`DELETE FROM hf_price_history WHERE product_id IN (${idsSql})`);
 
     const aliasSet = new Set<string>([...(Array.isArray(master.aliases) ? (master.aliases as string[]) : [])]);
     for (const v of variants) {
@@ -544,6 +561,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
       for (const a of Array.isArray(v.aliases) ? (v.aliases as string[]) : []) aliasSet.add(a);
     }
     await db.update(hfProducts).set({ aliases: Array.from(aliasSet) }).where(eq(hfProducts.id, masterId));
+    invalidateAliasCache(); // yeni alias'lar ETL eşleştirmesine hemen yansısın
 
     // Editorial koruma: master'da editorial yoksa, varyantların en zengin (en uzun about_md)
     // editorial'ını master slug'a taşı — yoksa içerik 301 arkasında görünmez kalır.
