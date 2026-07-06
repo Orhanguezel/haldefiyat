@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "@/db/client";
+import { db, pool } from "@/db/client";
 import { hfAnalysisReports, hfAuthors } from "@/db/schema";
 import { repoGetSnapshotHistory } from "@/modules/index/repository";
 import { resolveWeekRange } from "@/modules/prices/iso-week";
@@ -14,6 +14,25 @@ import { submitToIndexNow } from "@/modules/indexnow";
 function pingReportIndexNow(slug: string | null | undefined): void {
   if (!slug) return;
   void submitToIndexNow([`/analiz/${slug}`]).catch(() => {});
+}
+
+// Zamanı gelen (publish_at <= NOW) taslakları yayınlar + IndexNow ping'ler.
+// Cron 'scheduled-publish' periyodik çağırır. Yayınlanan rapor sayısını döner.
+export async function publishScheduledReports(): Promise<number> {
+  const [due] = await pool.query<any[]>(
+    "SELECT report_id FROM hf_scheduled_publishes WHERE publish_at <= NOW()",
+  );
+  let published = 0;
+  for (const r of due ?? []) {
+    const [rep] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.id, r.report_id)).limit(1);
+    if (rep && rep.status !== "published") {
+      await db.update(hfAnalysisReports).set({ status: "published", publishedAt: new Date() }).where(eq(hfAnalysisReports.id, rep.id));
+      pingReportIndexNow(rep.slug);
+      published++;
+    }
+    await pool.execute("DELETE FROM hf_scheduled_publishes WHERE report_id = ?", [r.report_id]);
+  }
+  return published;
 }
 
 export type AutoWeeklyReport = {
@@ -259,6 +278,33 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
     const row = await setReportStatus(req.params.id, "draft");
     if (!row) return reply.status(404).send({ error: "Rapor bulunamadi" });
     return reply.send({ data: reportRowToAdmin(row) });
+  });
+
+  // Bir raporu ileri bir zamanda otomatik yayınlanmak üzere planla / planı kaldır.
+  app.post<{ Params: { id: string }; Body: { publishAt?: string | null } }>(
+    "/analysis/reports/:id/schedule",
+    async (req, reply) => {
+      const id = Number(req.params.id);
+      if (!Number.isFinite(id)) return reply.status(400).send({ error: "Gecersiz id" });
+      const raw = req.body?.publishAt;
+      if (!raw) {
+        await pool.execute("DELETE FROM hf_scheduled_publishes WHERE report_id = ?", [id]);
+        return reply.send({ ok: true, scheduled: null });
+      }
+      const at = new Date(raw);
+      if (Number.isNaN(at.getTime())) return reply.status(400).send({ error: "Gecersiz tarih" });
+      const mysqlAt = at.toISOString().slice(0, 19).replace("T", " ");
+      await pool.execute(
+        "INSERT INTO hf_scheduled_publishes (report_id, publish_at) VALUES (?, ?) ON DUPLICATE KEY UPDATE publish_at = VALUES(publish_at)",
+        [id, mysqlAt],
+      );
+      return reply.send({ ok: true, scheduled: at.toISOString() });
+    },
+  );
+
+  // Cron dışı manuel tetik (test / hemen çalıştır).
+  app.post("/analysis/scheduled/run", async (_req, reply) => {
+    return reply.send({ ok: true, published: await publishScheduledReports() });
   });
 
   await registerAnalysisQuality(app);

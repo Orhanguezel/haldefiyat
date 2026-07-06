@@ -1296,3 +1296,5 @@ export {
   type SeoAuditActionRequestDto,
   type SeoAuditActionResponseDto,
 } from "@/integrations/shared/redirects";
+
+export { trGscVerdict, trGscCoverage } from "@/integrations/shared/gsc-labels";

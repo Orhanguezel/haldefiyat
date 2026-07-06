@@ -12,7 +12,7 @@ import { checkAndNotifyAlerts } from "@/modules/alerts";
 import { runWeeklyDigest } from "@/modules/notifications/weekly-digest";
 import { runWeeklyMailDigest } from "@/modules/notifications/weekly-mail-digest";
 import { calculateWeeklyIndex } from "@/modules/index";
-import { generateLatestWeeklyAnalysisReport } from "@/modules/analysis";
+import { generateLatestWeeklyAnalysisReport, publishScheduledReports } from "@/modules/analysis";
 import { syncInflation } from "@/modules/inflation";
 import { env } from "@/core/env";
 import { runFirmDirectoryEtl } from "@/modules/firms/service";
@@ -73,6 +73,8 @@ export function startCron(app: FastifyInstance): void {
     { name: "search-volume-sync", schedule: env.ETL.searchVolumeSchedule,   handler: () => runSearchVolumeJob(app) },
     { name: "social-queue",       schedule: env.SOCIAL.queueSchedule,        handler: () => runSocialQueueJob(app) },
     { name: "social-daily-movers", schedule: env.SOCIAL.dailyMoversSchedule,  handler: () => runDailyMoversTweetJob(app) },
+    // Zamanlanmış yayın — publish_at zamanı gelen taslakları yayınlar + IndexNow ping
+    { name: "scheduled-publish",  schedule: env.ETL.scheduledPublishSchedule, handler: () => runScheduledPublishJob(app) },
   ];
   if (env.ETL.firmPriceReminderSchedule) {
     tasks.push({
@@ -276,6 +278,15 @@ async function runGscIndexJob(app: FastifyInstance): Promise<void> {
     app.log.info({ ...r, durationMs: Date.now() - t0 }, "[cron:gsc-index] tamamlandi");
   } catch (err) {
     app.log.error({ err }, "[cron:gsc-index] hata");
+  }
+}
+
+async function runScheduledPublishJob(app: FastifyInstance): Promise<void> {
+  try {
+    const n = await publishScheduledReports();
+    if (n > 0) app.log.info({ published: n }, "[cron:scheduled-publish] rapor yayinlandi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:scheduled-publish] hata");
   }
 }
 

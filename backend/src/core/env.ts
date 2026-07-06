@@ -153,6 +153,8 @@ export const env = {
     // GSC URL Inspection incremental — her gün 02:00 UTC, batch (kota-dostu, sitemap'i günlere yayar)
     gscIndexSchedule: process.env.GSC_INDEX_CRON_SCHEDULE || "0 2 * * *",
     gscIndexBatch: Number(process.env.GSC_INDEX_BATCH || "400"),
+    // Zamanlanmış yayın kontrolü — her 10 dakikada bir due taslakları yayınlar
+    scheduledPublishSchedule: process.env.SCHEDULED_PUBLISH_CRON || "*/10 * * * *",
     // search_volume GSC gösterim senkronu — pazartesi 02:30 UTC (haftalık)
     searchVolumeSchedule: process.env.SEARCH_VOLUME_CRON_SCHEDULE || "30 2 * * 1",
     // ETL run log retention — ayda bir eski hf_etl_runs kayitlarini temizle

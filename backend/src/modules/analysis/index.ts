@@ -1,1 +1,1 @@
-export { generateLatestWeeklyAnalysisReport, registerAnalysis, registerAnalysisAdmin } from "./weekly-report";
+export { generateLatestWeeklyAnalysisReport, registerAnalysis, registerAnalysisAdmin, publishScheduledReports } from "./weekly-report";

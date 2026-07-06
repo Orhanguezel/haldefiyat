@@ -16,6 +16,7 @@ import {
   useGetAnalysisReportQualityAdminQuery,
   useInspectAnalysisReportAdminMutation,
 } from '@/integrations/hooks';
+import { trGscCoverage, trGscVerdict } from '@/integrations/shared';
 
 function scoreVariant(score: number): 'default' | 'secondary' | 'destructive' {
   if (score >= 75) return 'default';
@@ -98,14 +99,14 @@ function GscPanel({ data, onInspect, inspecting }: { data: AnalysisReportQuality
       <div className="flex items-center gap-2">
         <Badge variant={meta.variant} className="gap-1">
           <Icon className="h-3.5 w-3.5" />
-          {data.gsc.label}
+          {trGscCoverage(data.gsc.label)}
         </Badge>
       </div>
       <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
-        <dt>Verdict</dt>
-        <dd className="text-right text-foreground">{data.gsc.verdict ?? '—'}</dd>
-        <dt>Coverage</dt>
-        <dd className="text-right text-foreground">{data.gsc.coverageState ?? '—'}</dd>
+        <dt>Sonuç</dt>
+        <dd className="text-right text-foreground">{trGscVerdict(data.gsc.verdict)}</dd>
+        <dt>Kapsam durumu</dt>
+        <dd className="text-right text-foreground">{trGscCoverage(data.gsc.coverageState)}</dd>
         <dt>Son tarama (Google)</dt>
         <dd className="text-right text-foreground">{formatDateTime(data.gsc.lastCrawl)}</dd>
         <dt>Son denetim</dt>
