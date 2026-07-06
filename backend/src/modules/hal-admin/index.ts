@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify";
-import { and, asc, desc, eq, inArray, like, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, like, or, sql } from "drizzle-orm";
+import { computeBaseMap } from "@/modules/prices/family";
 import { z } from "zod";
 
 import { db } from "@/db/client";
@@ -598,30 +599,6 @@ export async function registerHalAdmin(app: FastifyInstance) {
   // tekrarlandığı için niteleyicilerden ayrışır). Niteleyiciler (taze/kırmızı/yerli...) kök adayı
   // olamaz. Aile içinde kullanıcı çoklu master seçip alt-alt birleştirir.
   app.get("/hal/products/merge-suggestions", async (_req, reply) => {
-    // Kök isim adayı OLAMAYACAK niteleyiciler (renk/tazelik/menşe/boy/birim/jenerik).
-    const QUALIFIER = new Set([
-      "yerli", "sera", "ithal", "adet", "paket", "tane", "kg", "kilogram", "kasa", "gr", "kilo", "koli", "demet", "bas",
-      "normal", "muhtelif", "ikinci", "birinci", "iyi", "tarim", "kucukboy", "buyukboy", "kucuk", "buyuk", "orta", "iri",
-      "taze", "kuru", "donuk", "dondurulmus", "kirmizi", "yesil", "sari", "beyaz", "mor", "siyah", "pembe", "turuncu",
-      "deniz", "kultur", "koy", "karadeniz", "marmara", "ege", "akdeniz", "kalite", "ekstra", "diger", "cesit", "karisik",
-      "organik", "salata", "salat", "yagli", "kop", "ince", "kalin",
-      // Jenerik ek/sıfatlar — kök isim değil, ürünler arası ortak (otu/yaprağı/çiçeği/tatlı/acı...)
-      "otu", "ot", "yaprak", "yapragi", "cicek", "cicegi", "tatli", "aci", "eksi", "sap", "filiz", "tohum",
-      // Tazelik/durum nitelemeleri ("Yaş-Taze" → yas kök sanılmasın, alakasız bitkileri toplar)
-      "yas", "grass", "dilimlenmis", "dondurulmus", "kavrulmus", "haslanmis",
-      // "yeni" ("Papates Yeni"/"Salatalık Yeni" gibi yeni-X'leri toplar). "Yeni Dünya"/loquat
-      // → "dunya" kökünde kümelenir (yeni dünya tek üründür, ayrışması sorun değil).
-      "yeni",
-    ]);
-    const tokenize = (name: string): string[] =>
-      name
-        .toLocaleLowerCase("tr")
-        .replace(/ç/g, "c").replace(/ğ/g, "g").replace(/ı/g, "i").replace(/ö/g, "o").replace(/ş/g, "s").replace(/ü/g, "u")
-        .replace(/[^a-z0-9\s]/g, " ")
-        .split(/\s+/)
-        .map((t) => t.replace(/(lik|luk)$/, ""))
-        .filter((t) => t.length >= 3 && !QUALIFIER.has(t));
-
     const rowsRes = await db.execute(sql`
       SELECT p.id, p.slug, p.name_tr AS nameTr, p.display_name AS displayName, p.seo_index AS seoIndex,
         p.data_quality AS dataQuality, p.search_volume AS searchVolume, COALESCE(s.mc, 0) AS hal
@@ -632,30 +609,12 @@ export async function registerHalAdmin(app: FastifyInstance) {
     type P = { id: number; slug: string; nameTr: string; displayName: string | null; seoIndex: number; dataQuality: number; searchVolume: number; hal: number };
     const products = (Array.isArray(rowsRes) ? rowsRes[0] : rowsRes) as unknown as P[];
 
-    // 1) global token frekansı
-    const freq = new Map<string, number>();
-    const tokensOf = new Map<number, string[]>();
-    for (const p of products) {
-      const toks = tokenize(p.displayName || p.nameTr);
-      tokensOf.set(p.id, toks);
-      for (const t of new Set(toks)) freq.set(t, (freq.get(t) ?? 0) + 1);
-    }
-    // 2) her ürün için kök = en yüksek frekanslı token (eşitlikte en kısa)
-    const baseOf = (p: P): string => {
-      const toks = tokensOf.get(p.id) ?? [];
-      if (!toks.length) return "";
-      return toks.reduce((best, t) => {
-        const fb = freq.get(best) ?? 0;
-        const ft = freq.get(t) ?? 0;
-        if (ft > fb) return t;
-        if (ft === fb && t.length < best.length) return t;
-        return best;
-      });
-    };
+    // Kök isim (family) tespiti — ortak helper (merge önerici + family_slug aynı mantık).
+    const baseMap = computeBaseMap(products.map((p) => ({ id: p.id, name: p.displayName || p.nameTr })));
 
     const groups = new Map<string, P[]>();
     for (const p of products) {
-      const base = baseOf(p);
+      const base = baseMap.get(p.id) || "";
       if (!base) continue;
       const arr = groups.get(base);
       if (arr) arr.push(p);
@@ -676,6 +635,44 @@ export async function registerHalAdmin(app: FastifyInstance) {
     }
     clusters.sort((a, b) => b.size - a.size);
     return reply.send({ count: clusters.length, clusters });
+  });
+
+  // family_slug'ı DETERMİNİSTİK yeniden kur: aktif+canonical-olmayan ürünleri kök isme göre
+  // kümele, ≥2 üyeli kökler family_slug=kök alır (çeşit seçici o kök altında çıkar), tek üyeli
+  // veya köksüzler NULL. İdempotent — istendiği kadar çalıştırılır (ETL sonrası cron da çağırır).
+  app.post("/hal/products/rebuild-families", async (_req, reply) => {
+    const rows = await db
+      .select({ id: hfProducts.id, name: sql<string>`COALESCE(NULLIF(${hfProducts.displayName}, ''), ${hfProducts.nameTr})` })
+      .from(hfProducts)
+      .where(and(eq(hfProducts.isActive, 1), isNull(hfProducts.canonicalSlug)));
+
+    const baseMap = computeBaseMap(rows);
+    const counts = new Map<string, number>();
+    for (const b of baseMap.values()) if (b) counts.set(b, (counts.get(b) ?? 0) + 1);
+
+    const byFamily = new Map<string, number[]>();
+    const clearIds: number[] = [];
+    for (const r of rows) {
+      const b = baseMap.get(r.id) || "";
+      if (b && (counts.get(b) ?? 0) >= 2) {
+        const arr = byFamily.get(b) ?? [];
+        arr.push(r.id);
+        byFamily.set(b, arr);
+      } else clearIds.push(r.id);
+    }
+
+    let assigned = 0;
+    for (const [fam, ids] of byFamily) {
+      for (let i = 0; i < ids.length; i += 500) {
+        await db.update(hfProducts).set({ familySlug: fam }).where(inArray(hfProducts.id, ids.slice(i, i + 500)));
+      }
+      assigned += ids.length;
+    }
+    for (let i = 0; i < clearIds.length; i += 500) {
+      await db.update(hfProducts).set({ familySlug: null }).where(inArray(hfProducts.id, clearIds.slice(i, i + 500)));
+    }
+
+    return reply.send({ ok: true, families: byFamily.size, assigned, cleared: clearIds.length });
   });
 
   app.get<{ Params: { id: string } }>("/hal/products/:id/editorial", async (req, reply) => {
