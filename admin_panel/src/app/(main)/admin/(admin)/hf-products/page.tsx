@@ -169,7 +169,11 @@ export default function Page() {
             </p>
             {gscSummary && (
               <p className="mt-0.5 text-muted-foreground text-xs">
-                GSC önbelleği: {gscSummary.total} URL denetli · {gscSummary.indexed} indexli · {gscSummary.issue} sorunlu
+                GSC önbelleği: {gscSummary.total} URL · {gscSummary.indexed} indexli ·{" "}
+                <span className={gscSummary.realIssue > 0 ? "font-medium text-amber-600" : ""}>
+                  {gscSummary.realIssue} gerçek sorun (indexlenebilir)
+                </span>{" "}
+                · {gscSummary.expectedExcluded} beklenen exclusion (noindex/varyant)
                 {gscSummary.lastChecked
                   ? ` · son: ${gscSummary.lastChecked.replace("T", " ").slice(0, 16)}`
                   : ""}
@@ -203,8 +207,8 @@ export default function Page() {
             </Button>
           </div>
         </div>
-        <div className="grid gap-2 md:grid-cols-[minmax(180px,1fr)_140px_130px_130px_140px_150px]">
-          <div className="relative">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative min-w-[220px] flex-1">
             <Search className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-3 size-4 text-muted-foreground" />
             <Input
               className="pl-9"
@@ -214,7 +218,7 @@ export default function Page() {
             />
           </div>
           <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger>
+            <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="Kategori" />
             </SelectTrigger>
             <SelectContent>
@@ -227,7 +231,7 @@ export default function Page() {
             </SelectContent>
           </Select>
           <Select value={isActive} onValueChange={setIsActive}>
-            <SelectTrigger>
+            <SelectTrigger className="w-[130px]">
               <SelectValue placeholder="Durum" />
             </SelectTrigger>
             <SelectContent>
@@ -237,7 +241,7 @@ export default function Page() {
             </SelectContent>
           </Select>
           <Select value={seoIndex} onValueChange={setSeoIndex}>
-            <SelectTrigger>
+            <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="SEO" />
             </SelectTrigger>
             <SelectContent>
@@ -247,7 +251,7 @@ export default function Page() {
             </SelectContent>
           </Select>
           <Select value={variantFilter} onValueChange={setVariantFilter}>
-            <SelectTrigger>
+            <SelectTrigger className="w-[185px]">
               <SelectValue placeholder="Varyant" />
             </SelectTrigger>
             <SelectContent>
@@ -257,7 +261,7 @@ export default function Page() {
             </SelectContent>
           </Select>
           <Select value={gscFilter} onValueChange={setGscFilter}>
-            <SelectTrigger>
+            <SelectTrigger className="w-[190px]">
               <SelectValue placeholder="Google" />
             </SelectTrigger>
             <SelectContent>
@@ -342,35 +346,39 @@ export default function Page() {
                       aria-label="Seç"
                     />
                   </TableCell>
-                  <TableCell>
-                    <Link className="text-primary" href={`/admin/hf-products/${item.id}`}>
+                  <TableCell className="max-w-[190px]">
+                    <Link
+                      className="block truncate text-primary"
+                      href={`/admin/hf-products/${item.id}`}
+                      title={item.displayName || item.nameTr}
+                    >
                       {item.displayName || item.nameTr}
                     </Link>
                   </TableCell>
-                  <TableCell className="max-w-[150px] truncate text-muted-foreground" title={item.slug}>
+                  <TableCell className="max-w-[130px] truncate text-muted-foreground" title={item.slug}>
                     {item.slug}
                   </TableCell>
                   <TableCell className="whitespace-nowrap">{item.categorySlug}</TableCell>
-                  <TableCell className="max-w-[130px] truncate" title={item.unit ?? ""}>
+                  <TableCell className="max-w-[110px] truncate" title={item.unit ?? ""}>
                     {item.unit}
                   </TableCell>
                   <TableCell>
                     <Badge variant={qualityVariant(Number(item.dataQuality ?? 0))}>{item.dataQuality ?? 0}</Badge>
                   </TableCell>
                   <TableCell>{item.searchVolume ?? 0}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap items-center gap-1">
+                  <TableCell className="max-w-[170px]">
+                    <div className="flex items-center gap-1">
                       {item.canonicalSlug ? (
-                        <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                        <span className="inline-flex min-w-0 items-center gap-1">
                           <Badge variant="secondary">Varyant</Badge>
                           <Link
-                            className="text-primary text-xs"
+                            className="min-w-0 truncate text-primary text-xs"
                             href={
                               bySlug.get(item.canonicalSlug)
                                 ? `/admin/hf-products/${bySlug.get(item.canonicalSlug)?.id}`
                                 : "/admin/hf-products"
                             }
-                            title="Master ürüne git"
+                            title={`Master: ${item.canonicalSlug}`}
                           >
                             301 → {item.canonicalSlug}
                           </Link>
