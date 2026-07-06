@@ -9,7 +9,7 @@ function checkSecurityDefaults() {
     console.error("[GUVENLIK] JWT_SECRET varsayilan deger! Production icin degistirin.");
     process.exit(1);
   }
-  if (isProd && env.COOKIE_SECRET === "cookie-secret") {
+  if (isProd && env.COOKIE_SECRET === 'cookie-secret') {
     console.warn("[GUVENLIK] COOKIE_SECRET varsayilan deger — degistirmeniz onerilir.");
   }
 }
