@@ -238,7 +238,9 @@ export async function listPriceRows(params: {
   // filtre yalnizca conds'a eklenir.
   const conds: SQL[] = [...windowConds];
   conds.push(eq(hfProducts.isActive, 1));
-  if (params.product)  conds.push(eq(hfProducts.slug, params.product));
+  // Ürün filtresi ailesiyle: master slug + canonical çocukları (varyantlar fiyatını
+  // kendi ürününde tutar, master sayfası aileyi gösterimde toplar — her satır kendi adıyla).
+  if (params.product)  conds.push(or(eq(hfProducts.slug, params.product), eq(hfProducts.canonicalSlug, params.product))!);
   if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
   if (params.marketType) conds.push(marketTypeCondition(params.marketType));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
@@ -388,7 +390,9 @@ async function priceQueryContext(params: {
   // filtre yalnizca conds'a eklenir.
   const conds: SQL[] = [...windowConds];
   conds.push(eq(hfProducts.isActive, 1));
-  if (params.product)  conds.push(eq(hfProducts.slug, params.product));
+  // Ürün filtresi ailesiyle: master slug + canonical çocukları (varyantlar fiyatını
+  // kendi ürününde tutar, master sayfası aileyi gösterimde toplar — her satır kendi adıyla).
+  if (params.product)  conds.push(or(eq(hfProducts.slug, params.product), eq(hfProducts.canonicalSlug, params.product))!);
   if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
   if (params.marketType) conds.push(marketTypeCondition(params.marketType));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
