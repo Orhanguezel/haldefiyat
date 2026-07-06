@@ -213,6 +213,10 @@ export default async function UrunPage({ params }: Props) {
 
   const displayName = getDisplayName(product);
   const borsaProduct = isBorsaProduct(product);
+  // Canonical çocuklar = farklı hal yazımları (merge sonrası fiyatları bu sayfada birleşik).
+  // İsme göre tekilleştir + master adıyla aynı olanları ele (mükerrer "Domates" kartları olmasın).
+  const masterKey = displayName.toLocaleLowerCase("tr-TR").trim();
+  const seenVariant = new Set<string>();
   const variants = products
     .filter((p) => p.canonicalSlug === slug && p.slug !== slug)
     .map((p) => ({
@@ -221,6 +225,12 @@ export default async function UrunPage({ params }: Props) {
       categorySlug: p.categorySlug,
       unit: p.unit,
     }))
+    .filter((v) => {
+      const key = v.displayName.toLocaleLowerCase("tr-TR").trim();
+      if (!key || key === masterKey || seenVariant.has(key)) return false;
+      seenVariant.add(key);
+      return true;
+    })
     .sort((a, b) => a.displayName.localeCompare(b.displayName, "tr"));
   const isClusterMaster = variants.length >= 5;
 
@@ -532,20 +542,20 @@ export default async function UrunPage({ params }: Props) {
       })()}
 
       {variants.length > 0 && (
-        <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5">
-          <h2 className="text-base font-semibold text-foreground">Bu ürünün varyantları</h2>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <div id="variants" className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5">
+          <h2 className="text-base font-semibold text-foreground">Bu ürünün diğer hal adları</h2>
+          <p className="mt-1 text-xs text-muted">
+            Aynı ürün farklı hallerde bu adlarla da kaydedilir; fiyatları bu sayfada birleştirilmiştir.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
             {variants.map((variant) => (
-              <Link
+              <span
                 key={variant.slug}
-                href={`/urun/${variant.slug}`}
-                className="rounded-lg border border-border-soft bg-background/40 px-3 py-2 text-sm transition-colors hover:border-brand/40"
+                className="rounded-lg border border-border-soft bg-background/40 px-3 py-1.5 text-sm text-foreground"
+                title={`${variant.categorySlug} · ${variant.unit}`}
               >
-                <span className="font-medium text-foreground">{variant.displayName}</span>
-                <span className="mt-0.5 block text-xs text-muted">
-                  {variant.categorySlug} · {variant.unit}
-                </span>
-              </Link>
+                {variant.displayName}
+              </span>
             ))}
           </div>
         </div>
