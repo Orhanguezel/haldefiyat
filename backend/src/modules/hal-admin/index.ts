@@ -518,8 +518,9 @@ export async function registerHalAdmin(app: FastifyInstance) {
 
   // Ürün birleştirme: dublike ürünleri bir master altında konsolide et.
   // Varyantlar → canonical_slug=master + noindex; master aliases'a varyant isimleri eklenir
-  // (gelecek ETL aynı isimleri master'a yazsın). Fiyat geçmişi master'a TAŞINIR (tüm hallerin
-  // verisi tek üründe toplansın). Birim uyuşmazsa (kg vs adet) merge REDDEDİLİR — fiyat bozulmasın.
+  // (gelecek ETL aynı isimleri master'a yazsın). Fiyat geçmişi TAŞINMAZ — varyant kendi fiyatını
+  // tutar (isim + granülarite korunur), master sayfası canonical aileyi gösterimde toplar.
+  // Birim uyuşmazsa (kg vs adet) merge REDDEDİLİR — fiyat bozulmasın.
   app.post<{ Body: { masterId?: number; variantIds?: number[] } }>("/hal/products/merge", async (req, reply) => {
     const masterId = Number(req.body?.masterId);
     const variantIds = (Array.isArray(req.body?.variantIds) ? req.body.variantIds : [])
