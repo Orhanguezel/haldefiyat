@@ -1,6 +1,7 @@
 import * as cron from "node-cron";
 import type { FastifyInstance } from "fastify";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
+import { rebuildProductFamilies } from "@/modules/prices/family-service";
 import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
 import { checkAndNotifyEtlHealth } from "@/modules/etl/health";
@@ -114,6 +115,14 @@ async function runEtlJob(app: FastifyInstance): Promise<void> {
       { inserted, skipped, durationMs: Date.now() - t0, sources: results.map((r) => r.source) },
       "[cron:etl] tamamlandi",
     );
+
+    // Yeni ürünler geldiyse çeşit ailelerini deterministik yeniden kur (çeşit seçici güncel kalsın)
+    try {
+      const fam = await rebuildProductFamilies();
+      app.log.info(fam, "[cron:etl] family_slug yeniden kuruldu");
+    } catch (err) {
+      app.log.error({ err }, "[cron:etl] family rebuild hata");
+    }
 
     // ETL tamamlaninca anlik alert kontrolu — sabah veri gelir gelmez kullanicilar uyarilsin
     await runAlertsJob(app);
