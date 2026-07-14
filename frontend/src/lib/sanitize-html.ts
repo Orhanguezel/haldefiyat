@@ -28,6 +28,7 @@ const allowedTags = [
   "defs",
   "linearGradient",
   "stop",
+  "text",
 ];
 
 const allowedAttributes: sanitizeHtml.IOptions["allowedAttributes"] = {
@@ -45,6 +46,7 @@ const allowedAttributes: sanitizeHtml.IOptions["allowedAttributes"] = {
   g: ["fill", "stroke", "opacity", "transform"],
   linearGradient: ["id", "x1", "y1", "x2", "y2"],
   stop: ["offset", "stop-color", "stop-opacity"],
+  text: ["x", "y", "dx", "dy", "fill", "transform", "text-anchor", "dominant-baseline"],
 };
 
 export function sanitizeCmsHtml(html: string): string {
@@ -54,6 +56,12 @@ export function sanitizeCmsHtml(html: string): string {
     allowedSchemes: ["http", "https", "mailto", "tel"],
     allowedSchemesByTag: {
       img: ["http", "https", "data"],
+    },
+    parser: {
+      // SVG attributes are case-sensitive. In particular, lower-casing viewBox
+      // makes sanitize-html drop it and leaves charts in the browser's default
+      // 300x150 viewport.
+      lowerCaseAttributeNames: false,
     },
     transformTags: {
       a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }),

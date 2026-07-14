@@ -21,4 +21,19 @@ describe("sanitizeCmsHtml", () => {
     expect(sanitized).not.toContain("onclick");
     expect(sanitized).not.toContain("onerror");
   });
+
+  it("keeps responsive SVG viewports and chart labels", () => {
+    const html = `
+      <svg viewBox="0 0 720 320" width="100%" role="img" onclick="alert(1)">
+        <text class="axis" x="46" y="248" text-anchor="end">175</text>
+        <polyline points="52,103 706,88" fill="none" stroke="#d85a30" />
+      </svg>
+    `;
+
+    const sanitized = sanitizeCmsHtml(html);
+
+    expect(sanitized).toContain('viewBox="0 0 720 320"');
+    expect(sanitized).toContain('<text class="axis" x="46" y="248" text-anchor="end">175</text>');
+    expect(sanitized).not.toContain("onclick");
+  });
 });

@@ -247,7 +247,7 @@ export default async function AnalizMakalePage({ params }: Props) {
 
           {isHtml ? (
             <div
-              className="mt-8"
+              className="mt-8 [&_svg]:h-auto [&_svg]:max-w-full"
               dangerouslySetInnerHTML={{ __html: sanitizeCmsHtml(makale.icerik) }}
             />
           ) : (
