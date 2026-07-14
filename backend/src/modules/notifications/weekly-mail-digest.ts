@@ -3,9 +3,9 @@
  * abonelere SMTP uzerinden HTML mail gonderir.
  *
  * Icerik:
- *  - Bu hafta en cok degisen 5 urun (% degisim)
+ *  - Bu hafta en cok degisen urunler (urun ailesi + cok-hal ulusal ortalamasi)
  *  - Sezonluk urunler (mevcut ayda hasatta olanlar)
- *  - Gecen yila gore karsilastirma (yoyChangePct ile)
+ *  - Gecen yilin ayni donemine gore karsilastirma (ulusal ortalama tabanli)
  *
  * Tetikleyici:
  *  - Cron: `0 6 * * 1` (pazartesi 06:00 UTC = 09:00 TRT, push'tan 1 saat sonra)
@@ -19,7 +19,7 @@ import { mysqlTable, varchar, datetime, tinyint, text } from "drizzle-orm/mysql-
 
 import { db } from "@/db/client";
 import { sendBereketMail } from "@agro/shared-backend/core/mail";
-import { trendingChanges, widgetPrices } from "@/modules/prices/repository";
+import { nationalMovers } from "@/modules/prices/movers";
 import { unsubUrl, unsubHeaders } from "@/modules/newsletter/token";
 
 // Newsletter aboneleri tablosu (shared-backend schemasi yerine local proxy)
@@ -59,23 +59,21 @@ function pctColor(n: number): string {
 }
 
 async function buildHtml(): Promise<{ html: string; subject: string; movers: number } | null> {
-  const trending = await trendingChanges(10);
-  if (trending.length === 0) return null;
-
-  const movers = trending.slice(0, 6);
-  const slugs = movers.map((m) => m.product?.slug).filter((s): s is string => !!s);
-  const widget = await widgetPrices(slugs, undefined, slugs.length);
-  const yoyBySlug = new Map(widget.map((w) => [w.productSlug, w.yoyChangePct]));
+  // Ulusal (çok-hal ortalaması, ürün ailesi düzeyi) hareketler — tek halin ETL sıçraması
+  // "haftanın hareketi" olarak bültene düşmesin. Geçen yıl da aynı ulusal tabana göre.
+  const movers = (await nationalMovers(10)).slice(0, 6);
+  if (movers.length === 0) return null;
 
   const moverRows = movers.map((m) => {
-    const yoy = yoyBySlug.get(m.product?.slug ?? "") ?? null;
+    const yoy = m.yoyPct;
+    const lastYearHint = m.lastYearAvg != null ? `Gecen yil ort. ₺${fmtPriceTr(m.lastYearAvg)}` : "Gecen yil verisi yok";
     return `
       <tr>
         <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;">
-          <a href="${SITE_URL}/urun/${m.product?.slug ?? ""}" style="color:#0f172a;text-decoration:none;font-weight:600;">
-            ${m.product?.nameTr ?? "Urun"}
+          <a href="${SITE_URL}/urun/${m.productSlug}" style="color:#0f172a;text-decoration:none;font-weight:600;">
+            ${m.productName}
           </a>
-          <div style="color:#6b7280;font-size:11px;">${m.market?.cityName ?? ""}</div>
+          <div style="color:#6b7280;font-size:11px;">${m.marketCount} hal ortalaması</div>
         </td>
         <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;color:#0f172a;">
           ₺${fmtPriceTr(m.latest)}
@@ -83,13 +81,13 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
         <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;color:${pctColor(m.changePct)};font-weight:600;">
           ${fmtPct(m.changePct)}
         </td>
-        <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;color:${yoy != null ? pctColor(yoy) : "#6b7280"};">
+        <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;color:${yoy != null ? pctColor(yoy) : "#6b7280"};" title="${lastYearHint}">
           ${yoy != null ? fmtPct(yoy) : "—"}
         </td>
       </tr>`;
   }).join("");
 
-  const subject = `Hal Fiyatlari Haftalik Ozet — ${movers[0]?.product?.nameTr} ${fmtPct(movers[0]?.changePct ?? 0)}`;
+  const subject = `Hal Fiyatlari Haftalik Ozet — ${movers[0]?.productName} ${fmtPct(movers[0]?.changePct ?? 0)}`;
 
   const html = `<!DOCTYPE html>
 <html lang="tr">
@@ -102,7 +100,8 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
     </div>
     <div style="padding:24px;">
       <p style="margin:0 0 16px;color:#374151;font-size:14px;line-height:1.6;">
-        Son 7 gunde en cok degisen urunler ve gecen yila gore karsilastirmasi:
+        Son 7 gunde en cok degisen urunler. Fiyatlar birden fazla halin ulusal ortalamasidir;
+        "Gecen yil" sutunu ayni urunun gecen yil ayni donemdeki ortalamasina gore degisimi gosterir.
       </p>
       <table style="width:100%;border-collapse:collapse;font-size:13px;">
         <thead>
@@ -110,7 +109,7 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
             <th style="text-align:left;padding:8px;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;">Urun</th>
             <th style="text-align:right;padding:8px;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;">Son</th>
             <th style="text-align:right;padding:8px;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;">7g</th>
-            <th style="text-align:right;padding:8px;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;">Gecen yil</th>
+            <th style="text-align:right;padding:8px;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;">Gecen yila gore</th>
           </tr>
         </thead>
         <tbody>${moverRows}</tbody>
