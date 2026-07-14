@@ -44,13 +44,27 @@ function isoShift(iso: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-// Verilen tarih aralığında ürün ailesi başına ulusal ortalama + kaç halde gözlendiği.
+function median(nums: number[]): number {
+  const s = [...nums].sort((a, b) => a - b);
+  const mid = Math.floor(s.length / 2);
+  return s.length % 2 ? s[mid]! : (s[mid - 1]! + s[mid]!) / 2;
+}
+
+/**
+ * Verilen tarih aralığında ürün ailesi başına ulusal fiyat + kaç halde gözlendiği.
+ *
+ * Ulusal fiyat = önce HER HAL için ortalama, sonra haller arasında MEDYAN.
+ * Neden medyan: bazı kaynaklar (özellikle "Türkiye Ulusal Ortalama / hal.gov.tr" agregatörü)
+ * ara sıra çöp değer basıyor — turp için 507 ₺/kg gibi (gerçek haller 22–50 ₺). Düz ortalamada
+ * bu tek kaynak tabloyu zehirliyordu; medyan tek bozuk kaynaktan etkilenmez. Sabit "şu kaynağı
+ * dışla" listesi yerine istatistiksel dayanıklılık — yeni bozuk kaynak çıkarsa da korur.
+ */
 async function windowByMaster(from: string, to: string): Promise<Map<string, Agg>> {
   const rows = await db
     .select({
       masterSlug: sql<string>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
-      avg:        sql<string>`AVG(${hfPriceHistory.avgPrice})`,
-      markets:    sql<number>`COUNT(DISTINCT ${hfPriceHistory.marketId})`,
+      marketId:   hfPriceHistory.marketId,
+      hallAvg:    sql<string>`AVG(${hfPriceHistory.avgPrice})`,
     })
     .from(hfPriceHistory)
     .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
@@ -63,13 +77,20 @@ async function windowByMaster(from: string, to: string): Promise<Map<string, Agg
         sql`${hfProducts.categorySlug} NOT IN (${sql.join(MOVER_EXCLUDED_CATEGORIES.map((c) => sql`${c}`), sql`, `)})`,
       ),
     )
-    .groupBy(sql`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`);
+    .groupBy(sql`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`, hfPriceHistory.marketId);
+
+  const byMaster = new Map<string, number[]>();
+  for (const r of rows) {
+    const v = parseFloat(String(r.hallAvg));
+    if (!Number.isFinite(v) || v <= 0) continue;
+    const arr = byMaster.get(r.masterSlug);
+    if (arr) arr.push(v);
+    else byMaster.set(r.masterSlug, [v]);
+  }
 
   const out = new Map<string, Agg>();
-  for (const r of rows) {
-    const avg = parseFloat(String(r.avg));
-    if (!Number.isFinite(avg) || avg <= 0) continue;
-    out.set(r.masterSlug, { avg, markets: Number(r.markets) || 0 });
+  for (const [slug, halls] of byMaster) {
+    out.set(slug, { avg: median(halls), markets: halls.length });
   }
   return out;
 }
