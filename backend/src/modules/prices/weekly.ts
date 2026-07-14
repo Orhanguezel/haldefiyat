@@ -93,8 +93,6 @@ async function fetchWeekRows(weekStart: string, weekEnd: string): Promise<Row[]>
   return rows as Row[];
 }
 
-type Bucket = { sum: number; n: number; markets: Set<number> };
-
 function scoreMovements(rows: Row[]): Scored[] {
   const usable = rows.filter(
     (r) => r.unit === "kg" && !MOVER_EXCLUDED_CATEGORIES.has(r.categorySlug || ""),
@@ -106,8 +104,15 @@ function scoreMovements(rows: Row[]): Scored[] {
   const startDates = new Set(dates.slice(0, span));
   const endDates   = new Set(dates.slice(-span));
 
-  const newBucket = (): Bucket => ({ sum: 0, n: 0, markets: new Set() });
-  const agg = new Map<string, { start: Bucket; end: Bucket }>();
+  // (master, hal) → pencere içi ortalama. Ulusal fiyat bunların MEDYANI olur: bazı kaynaklar
+  // (hal.gov.tr agregatörü) ara sıra çöp basıyor (turp 507 TL/kg gibi); düz ortalama zehirlenir,
+  // medyan tek bozuk kaynaktan etkilenmez.
+  const agg = new Map<string, { start: Map<number, number[]>; end: Map<number, number[]> }>();
+  const push = (m: Map<number, number[]>, marketId: number, p: number) => {
+    const arr = m.get(marketId);
+    if (arr) arr.push(p);
+    else m.set(marketId, [p]);
+  };
 
   for (const r of usable) {
     const p = parseFloat(r.avgPrice);
@@ -118,28 +123,30 @@ function scoreMovements(rows: Row[]): Scored[] {
     if (!isStart && !isEnd) continue;
     let a = agg.get(r.masterSlug);
     if (!a) {
-      a = { start: newBucket(), end: newBucket() };
+      a = { start: new Map(), end: new Map() };
       agg.set(r.masterSlug, a);
     }
-    const bucket = isStart ? a.start : a.end;
-    bucket.sum += p;
-    bucket.n += 1;
-    bucket.markets.add(r.marketId);
+    push(isStart ? a.start : a.end, r.marketId, p);
   }
+
+  const medianOfHalls = (m: Map<number, number[]>): number => {
+    const perHall = [...m.values()].map((xs) => xs.reduce((s, x) => s + x, 0) / xs.length).sort((x, y) => x - y);
+    const mid = Math.floor(perHall.length / 2);
+    return perHall.length % 2 ? perHall[mid]! : (perHall[mid - 1]! + perHall[mid]!) / 2;
+  };
 
   const scored: Scored[] = [];
   for (const [masterSlug, a] of agg) {
-    if (a.start.markets.size < MIN_MARKETS || a.end.markets.size < MIN_MARKETS) continue;
-    if (!a.start.n || !a.end.n) continue;
-    const pp = a.start.sum / a.start.n;
-    const lp = a.end.sum / a.end.n;
-    if (!pp) continue;
+    if (a.start.size < MIN_MARKETS || a.end.size < MIN_MARKETS) continue;
+    const pp = medianOfHalls(a.start);
+    const lp = medianOfHalls(a.end);
+    if (!pp || !Number.isFinite(pp) || !Number.isFinite(lp)) continue;
     const pct = Math.round((10000 * (lp - pp)) / pp) / 100;
     // Hal ortalaması + çok-hal şartı anomalilerin çoğunu zaten eler; bu son emniyet kemeri.
     if (Math.abs(pct) > 80) continue;
     scored.push({
       masterSlug,
-      marketCount: Math.min(a.start.markets.size, a.end.markets.size),
+      marketCount: Math.min(a.start.size, a.end.size),
       changePct:   pct,
       latest:      lp,
       previous:    pp,
