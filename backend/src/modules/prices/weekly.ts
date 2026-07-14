@@ -1,14 +1,27 @@
 import { between, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import { hfMarkets, hfPriceHistory, hfProducts } from "@/db/schema";
+import { hfPriceHistory, hfProducts } from "@/db/schema";
 import { toIsoWeekOfRange } from "./iso-week";
+
+// Haftalık hareket metodolojisi (yayınlanan raporlarla birebir aynı):
+// - Ürün AİLESİ (kanonik master) düzeyinde — aynı ürünün farklı hal yazımları tek başlıkta.
+// - Hafta başı (ilk 2 gün) vs hafta sonu (son 2 gün) HAL ORTALAMASI kıyaslanır.
+// - En az MIN_MARKETS ayrı halde gözlem şartı → tek halin glitch'i "haftanın hareketi" olmaz.
+// - Fiyatı kg cinsinden olmayan ve fiyat düzeyi kıyaslanamayan kategoriler (balık/et/hububat)
+//   hareket listesinden çıkarılır; kategori ortalaması tablosunda yine görünürler.
+const MIN_MARKETS = 6;
+const MOVER_EXCLUDED_CATEGORIES = new Set([
+  "balik-deniz", "balik-ithal", "balik-kultur", "et", "canli-hayvan", "hububat", "bakliyat",
+]);
 
 type Row = {
   productId:    number;
   marketId:     number;
   avgPrice:     string;
+  unit:         string;
   recordedDate: Date | string;
   categorySlug: string;
+  masterSlug:   string;
 };
 
 type WeeklyMovement = {
@@ -31,11 +44,11 @@ export type WeeklySummary = {
 };
 
 type Scored = {
-  productId: number;
-  marketId:  number;
-  changePct: number;
-  latest:    number;
-  previous:  number;
+  masterSlug:  string;
+  marketCount: number;
+  changePct:   number;
+  latest:      number;
+  previous:    number;
 };
 
 function toDateStr(d: Date | string): string {
@@ -69,8 +82,10 @@ async function fetchWeekRows(weekStart: string, weekEnd: string): Promise<Row[]>
       productId:    hfPriceHistory.productId,
       marketId:     hfPriceHistory.marketId,
       avgPrice:     hfPriceHistory.avgPrice,
+      unit:         hfPriceHistory.unit,
       recordedDate: hfPriceHistory.recordedDate,
       categorySlug: hfProducts.categorySlug,
+      masterSlug:   sql<string>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
     })
     .from(hfPriceHistory)
     .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
@@ -78,34 +93,56 @@ async function fetchWeekRows(weekStart: string, weekEnd: string): Promise<Row[]>
   return rows as Row[];
 }
 
+type Bucket = { sum: number; n: number; markets: Set<number> };
+
 function scoreMovements(rows: Row[]): Scored[] {
-  const byKey = new Map<string, Row[]>();
-  for (const r of rows) {
-    const k = `${r.productId}:${r.marketId}`;
-    if (!byKey.has(k)) byKey.set(k, []);
-    byKey.get(k)!.push(r);
+  const usable = rows.filter(
+    (r) => r.unit === "kg" && !MOVER_EXCLUDED_CATEGORIES.has(r.categorySlug || ""),
+  );
+  const dates = [...new Set(usable.map((r) => toDateStr(r.recordedDate)))].sort();
+  if (dates.length < 2) return [];
+  // 4+ günlük haftada ilk/son 2 gün; kısa haftada tek gün — pencerelerin çakışmaması şart.
+  const span = dates.length >= 4 ? 2 : 1;
+  const startDates = new Set(dates.slice(0, span));
+  const endDates   = new Set(dates.slice(-span));
+
+  const newBucket = (): Bucket => ({ sum: 0, n: 0, markets: new Set() });
+  const agg = new Map<string, { start: Bucket; end: Bucket }>();
+
+  for (const r of usable) {
+    const p = parseFloat(r.avgPrice);
+    if (!Number.isFinite(p) || p <= 0) continue;
+    const d = toDateStr(r.recordedDate);
+    const isStart = startDates.has(d);
+    const isEnd   = endDates.has(d);
+    if (!isStart && !isEnd) continue;
+    let a = agg.get(r.masterSlug);
+    if (!a) {
+      a = { start: newBucket(), end: newBucket() };
+      agg.set(r.masterSlug, a);
+    }
+    const bucket = isStart ? a.start : a.end;
+    bucket.sum += p;
+    bucket.n += 1;
+    bucket.markets.add(r.marketId);
   }
 
   const scored: Scored[] = [];
-  for (const [, list] of byKey) {
-    list.sort((a, b) => (toDateStr(a.recordedDate) < toDateStr(b.recordedDate) ? -1 : 1));
-    // En az 3 kayit: tek-iki gurultulu kayitla (yeni eklenen kaynak/nis urun) anomali olusmasin.
-    if (list.length < 3) continue;
-    const first = list[0]!;
-    const last  = list[list.length - 1]!;
-    const pp = parseFloat(first.avgPrice);
-    const lp = parseFloat(last.avgPrice);
-    if (!pp || !Number.isFinite(pp) || !Number.isFinite(lp)) continue;
+  for (const [masterSlug, a] of agg) {
+    if (a.start.markets.size < MIN_MARKETS || a.end.markets.size < MIN_MARKETS) continue;
+    if (!a.start.n || !a.end.n) continue;
+    const pp = a.start.sum / a.start.n;
+    const lp = a.end.sum / a.end.n;
+    if (!pp) continue;
     const pct = Math.round((10000 * (lp - pp)) / pp) / 100;
-    // Anomali/veri-hatasi filtresi: haftalik |degisim|>%80 neredeyse her zaman bozuk veri
-    // (sifira yakin taban, tek market glitch — orn. YILDIZ MEYVESI %2698). annual-report ile ayni mantik.
+    // Hal ortalaması + çok-hal şartı anomalilerin çoğunu zaten eler; bu son emniyet kemeri.
     if (Math.abs(pct) > 80) continue;
     scored.push({
-      productId: last.productId,
-      marketId:  last.marketId,
-      changePct: pct,
-      latest:    lp,
-      previous:  pp,
+      masterSlug,
+      marketCount: Math.min(a.start.markets.size, a.end.markets.size),
+      changePct:   pct,
+      latest:      lp,
+      previous:    pp,
     });
   }
 
@@ -133,23 +170,23 @@ function avgByCategoryFromRows(rows: Row[]): Record<string, number> {
 async function enrichMovements(scored: Scored[]): Promise<WeeklyMovement[]> {
   if (!scored.length) return [];
   const top = scored.slice(0, 20);
-  const prodIds = [...new Set(top.map((t) => t.productId))];
-  const mktIds  = [...new Set(top.map((t) => t.marketId))];
+  const slugs = [...new Set(top.map((t) => t.masterSlug))];
 
-  const [products, markets] = await Promise.all([
-    db.select({ id: hfProducts.id, slug: hfProducts.slug, nameTr: hfProducts.nameTr })
-      .from(hfProducts).where(inArray(hfProducts.id, prodIds)),
-    db.select({ id: hfMarkets.id, name: hfMarkets.name })
-      .from(hfMarkets).where(inArray(hfMarkets.id, mktIds)),
-  ]);
+  const products = await db
+    .select({
+      slug: hfProducts.slug,
+      name: sql<string>`COALESCE(NULLIF(${hfProducts.displayName}, ''), ${hfProducts.nameTr})`,
+    })
+    .from(hfProducts)
+    .where(inArray(hfProducts.slug, slugs));
 
-  const pMap = new Map(products.map((p) => [p.id, p]));
-  const mMap = new Map(markets.map((m) => [m.id, m]));
+  const pMap = new Map(products.map((p) => [p.slug, p.name]));
 
   return top.map((t) => ({
-    productSlug: pMap.get(t.productId)?.slug   ?? "",
-    productName: pMap.get(t.productId)?.nameTr ?? "",
-    marketName:  mMap.get(t.marketId)?.name    ?? "",
+    productSlug: t.masterSlug,
+    productName: pMap.get(t.masterSlug) ?? t.masterSlug,
+    // Hareket artık tek hal değil, ulusal ortalama — kaç halde gözlendiği güveni gösterir.
+    marketName:  `${t.marketCount} hal ortalaması`,
     changePct:   t.changePct,
     latestAvg:   t.latest,
     previousAvg: t.previous,
