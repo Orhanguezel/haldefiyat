@@ -467,11 +467,14 @@ export default async function UrunPage({ params }: Props) {
         />
       )}
 
-      {/* Hal vs Market — perakende zincir karşılaştırması (varsa) */}
+      {/* Hal vs Market — perakende zincir karşılaştırması (varsa).
+          halAvgPrice GUNCEL hal ortalamasidir: onceden 5 YILLIK ortalama
+          geciriliyordu ve market/hal makasi (markupPct) bugunun raf fiyatini
+          yillar oncesinin hal fiyatiyla kiyasladigi icin sistematik sisiyordu. */}
       <RetailComparison
         productSlug={slug}
         productName={displayName}
-        halAvgPrice={avgPrice}
+        halAvgPrice={offerAvg}
       />
 
       {/* Editoryal içerik — AI alıntılanabilirlik + E-E-A-T */}
