@@ -2,6 +2,7 @@ import { and, avg, between, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfIndexSnapshots, hfPriceHistory, hfProducts } from "@/db/schema";
 import { resolveWeekRange } from "@/modules/prices/iso-week";
+import { blackoutFilter } from "@/modules/prices/blackouts";
 
 /**
  * HaldeFiyat Endeksi v1 sepeti — temel sebze ve meyveler.
@@ -124,6 +125,8 @@ async function computeBasketAvg(
         // Sepet ₺/kg tabanlidir; adet/koli/demet fiyatlari ortalamaya KARISMAMALI.
         eq(hfPriceHistory.unit, "kg"),
         sql`${hfPriceHistory.avgPrice} > 0`,
+        // Guvenilmez (donmus) hal x tarih araliklari — baz hafta dahil tum haftalarda dislanir.
+        await blackoutFilter(hfPriceHistory.recordedDate, hfPriceHistory.marketId),
       ),
     )
     .groupBy(hfPriceHistory.productId, hfPriceHistory.marketId);

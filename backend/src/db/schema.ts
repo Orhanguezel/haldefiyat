@@ -67,6 +67,20 @@ export const hfProducts = mysqlTable(
   ],
 );
 
+/** Hal x tarih karantinasi — gerekce 048_market_blackouts_schema.sql'de. */
+export const hfMarketBlackouts = mysqlTable(
+  "hf_market_blackouts",
+  {
+    id:        int("id").autoincrement().primaryKey(),
+    marketId:  int("market_id").notNull(),
+    fromDate:  date("from_date").notNull(),
+    toDate:    date("to_date").notNull(),
+    reason:    varchar("reason", { length: 255 }).notNull(),
+    createdAt: datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [index("idx_blackout_market").on(t.marketId, t.fromDate, t.toDate)],
+);
+
 /** Gonderilen bultenlerin arsivi — gerekce 045_newsletter_sends_schema.sql'de. */
 export const hfNewsletterSends = mysqlTable(
   "hf_newsletter_sends",
