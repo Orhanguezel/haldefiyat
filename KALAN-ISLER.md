@@ -53,6 +53,18 @@ Kaynak: [`reports/analiz-06-19-temmuz-2026.md`](reports/analiz-06-19-temmuz-2026
       `offers` hiç yazılmıyor. `image` + `url` eklendi.
 - [x] **Aynı hatanın ikinci yüzü:** `RetailComparison` market/hal makasını bugünün raf fiyatı
       ile 5 yıllık hal ortalaması arasında hesaplıyordu → makas sistematik olarak şişikti.
+- [x] **Birim karışımı — koli fiyatı kg diye yayınlanıyordu.** Yalova ithal muzu **2400 TL/koli**,
+      Tekirdağ taze kekiği **4000 TL/koli** bildiriyor; şema bunları kg fiyatı sayıyordu.
+      Artık baskın birim **veriden** tayin ediliyor (satırların çoğunluğu hangi birimdeyse o),
+      azınlık birim eleniyor. 87 URL'nin tamamı doğrulandı: 87/87 sağlıklı, 0 sorun.
+- [ ] **`hf_products.unit` alanı güvenilmez — düzeltilmeli.** Filtreyi ilk denemede bu alana
+      bağlayınca 13 sağlıklı ürün işaretlemesini kaybetti. Katalog ile gerçek veri çelişiyor:
+      `elma` → **"kg."** (sonunda nokta), `marul` → "adet", `maydonoz` → "bag",
+      `dereotu` → "demet", `avakado`/`mango`/`kekik` → "adet" — hepsinin bütün fiyat satırları
+      **kg**. Şema artık bu alana bağlı değil ama sitede birim gösteren başka yerler etkilenebilir.
+- [ ] **`kekik-yas-taze` verisi şüpheli.** Tek kaynak (hal.gov.tr ulusal ortalama) ve değer
+      gün içinde 208 → 942 TL/kg zıplıyor. Şema artık DB'de ne varsa onu doğru bildiriyor;
+      sorun DB'de. `avg_price` sentetik-ortalama borcunun bir parçası.
 - [ ] **`aggregateRating` EKLENMEYECEK — bilinçli karar.** Sitede kullanıcı puanı yok; uydurmak
       Google'ın yapılandırılmış veri spam politikasını ihlal eder (manuel işlem riski).
       Google dokümantasyonu bunun *uyarı* olduğunu, hata olmadığını ve sıralamayı etkilemediğini
