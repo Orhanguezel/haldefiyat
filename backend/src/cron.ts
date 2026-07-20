@@ -18,7 +18,7 @@ import { syncInflation } from "@/modules/inflation";
 import { env } from "@/core/env";
 import { runFirmDirectoryEtl } from "@/modules/firms/service";
 import { runFirmDailyPriceReminders } from "@/modules/firms/reminders";
-import { expireListings } from "@/modules/listings";
+import { expireListings, sendListingExpiryReminders } from "@/modules/listings";
 import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
 import { submitToIndexNow } from "@/modules/indexnow";
 import { cleanupOldEtlRuns } from "@/modules/etl/maintenance";
@@ -128,6 +128,7 @@ async function runEtlJob(app: FastifyInstance): Promise<void> {
     await runAlertsJob(app);
     await runEtlHealthJob(app);
     await runListingsExpireJob(app);
+    await runListingReminderJob(app);
   } catch (err) {
     app.log.error({ err }, "[cron:etl] hata");
   }
@@ -156,6 +157,23 @@ async function runDailyMoversTweetJob(app: FastifyInstance): Promise<void> {
     app.log.info({ movers, staples }, "[cron:social-daily-prepare] tamamlandi");
   } catch (err) {
     app.log.error({ err }, "[cron:social-daily-prepare] hata");
+  }
+}
+
+/**
+ * Suresi dolmak uzere olan ilanlarin sahibine uzatma hatirlatmasi.
+ * Expire job'undan SONRA calisir: once bugun dolanlar kapanir, sonra 3 gun sonra
+ * dolacaklara mail gider — ayni kosuda ikisi karismaz.
+ */
+async function runListingReminderJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  try {
+    const result = await sendListingExpiryReminders();
+    if (result.candidates > 0) {
+      app.log.info({ ...result, durationMs: Date.now() - t0 }, "[cron:listing-reminder] tamamlandi");
+    }
+  } catch (err) {
+    app.log.error({ err }, "[cron:listing-reminder] hata");
   }
 }
 

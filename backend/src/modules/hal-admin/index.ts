@@ -22,6 +22,7 @@ import { runWaybackBackfill } from "@/modules/etl/fetcher";
 import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
 import { checkWaybackAndNotify } from "@/modules/wayback-monitor";
+import { sendListingExpiryReminders } from "@/modules/listings";
 import { sourceFreshness, detectPriceJumps } from "@/modules/etl/freshness";
 import { checkEtlHealth, checkAndNotifyEtlHealth } from "@/modules/etl/health";
 import {
@@ -1029,6 +1030,16 @@ export async function registerHalAdmin(app: FastifyInstance) {
       }
     },
   );
+
+  /** Ilan uzatma hatirlatmalarini elle tetikle (cron ETL sonrasi zaten calisir). */
+  app.post("/hal/listings/expiry-reminders", async (_req, reply) => {
+    try {
+      const result = await sendListingExpiryReminders();
+      return reply.send({ ok: true, ...result });
+    } catch (err) {
+      return reply.status(500).send({ ok: false, error: err instanceof Error ? err.message : String(err) });
+    }
+  });
 
   app.post("/hal/wayback/check", async (_req, reply) => {
     try {

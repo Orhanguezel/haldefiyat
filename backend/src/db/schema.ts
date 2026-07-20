@@ -67,6 +67,18 @@ export const hfProducts = mysqlTable(
   ],
 );
 
+/** Ilan hatirlatma gonderim kaydi — gerekce 051_listing_reminders_schema.sql'de. */
+export const hfListingReminders = mysqlTable(
+  "hf_listing_reminders",
+  {
+    id:        int("id").autoincrement().primaryKey(),
+    listingId: int("listing_id").notNull(),
+    kind:      varchar("kind", { length: 32 }).notNull(),
+    sentAt:    datetime("sent_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [uniqueIndex("uq_listing_kind").on(t.listingId, t.kind)],
+);
+
 /** Hal x tarih karantinasi — gerekce 048_market_blackouts_schema.sql'de. */
 export const hfMarketBlackouts = mysqlTable(
   "hf_market_blackouts",

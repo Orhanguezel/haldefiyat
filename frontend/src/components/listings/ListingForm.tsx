@@ -35,34 +35,6 @@ export function ListingForm({ products }: { products: Product[] }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
-  const [otpToken, setOtpToken] = useState("");
-  const [otpStatus, setOtpStatus] = useState("");
-  const [otpLoading, setOtpLoading] = useState(false);
-
-  async function sendOtp(form: HTMLFormElement) {
-    const phone = String(new FormData(form).get("contactPhone") ?? "");
-    setOtpLoading(true);
-    setOtpStatus("");
-    const res = await fetch(`${API_BASE}/listings/otp/send`, {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone }),
-    });
-    setOtpLoading(false);
-    setOtpStatus(res.ok ? "Kod gönderildi." : "Kod gönderilemedi.");
-  }
-
-  async function verifyOtp(form: HTMLFormElement) {
-    const phone = String(new FormData(form).get("contactPhone") ?? "");
-    setOtpLoading(true);
-    const res = await fetch(`${API_BASE}/listings/otp/verify`, {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone, code: otpCode }),
-    });
-    const json = await res.json().catch(() => ({}));
-    setOtpLoading(false);
-    setOtpToken(res.ok && json.token ? json.token : "");
-    setOtpStatus(res.ok ? "Telefon doğrulandı." : "Kod doğrulanamadı.");
-  }
-
   async function uploadImages(files: FileList | null) {
     if (!files?.length) return;
     setUploading(true);
@@ -110,7 +82,7 @@ export function ListingForm({ products }: { products: Product[] }) {
       const body = Object.fromEntries(fd.entries());
       await apiPost("/listings", {
         ...body, productName, productSlug: productSlug || undefined, citySlug, districtSlug,
-        otpToken, images, hidePhone: body.hidePhone === "on",
+        images, hidePhone: body.hidePhone === "on",
       });
       setStatus("İlan moderasyon için alındı. Onaylandıktan sonra yayınlanır.");
       form.reset();
@@ -182,15 +154,17 @@ export function ListingForm({ products }: { products: Product[] }) {
       <Input name="priceMin" label="Fiyat" type="number" step="0.01" error={errors.priceMin} />
       <Input name="priceUnit" label="Fiyat birimi" defaultValue="kg" />
       <Input name="contactName" label="İletişim adı" defaultValue={user.full_name ?? ""} />
-      <Input name="contactPhone" label="Telefon" defaultValue={user.phone ?? ""} required error={errors.contactPhone} />
-      <div className="grid gap-2">
-        <Input value={otpCode} onChange={(event) => setOtpCode(event.target.value)} label="SMS kodu" inputMode="numeric" maxLength={6} />
-        <div className="flex gap-2">
-          <Button type="button" variant="secondary" loading={otpLoading} onClick={(event) => sendOtp(event.currentTarget.form!)}>Kod gönder</Button>
-          <Button type="button" variant="secondary" loading={otpLoading} onClick={(event) => verifyOtp(event.currentTarget.form!)}>Doğrula</Button>
-        </div>
-        {otpStatus ? <p className="text-xs text-(--color-muted)">{otpStatus}</p> : null}
-      </div>
+      <Input
+        name="contactPhone"
+        label="Telefon"
+        type="tel"
+        inputMode="tel"
+        autoComplete="tel"
+        placeholder="05XX XXX XX XX"
+        defaultValue={user.phone ?? ""}
+        required
+        error={errors.contactPhone}
+      />
       <div className="md:col-span-2">
         <span className="text-xs font-medium text-foreground">Görseller ({images.length}/{MAX_IMAGES})</span>
         <div className="mt-1.5 flex flex-wrap items-center gap-2">

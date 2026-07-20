@@ -7,3 +7,4 @@ export async function registerListings(app: FastifyInstance) {
 
 export { registerListingsAdmin, registerListingsPublic };
 export { expireListings } from "./repo";
+export { sendListingExpiryReminders } from "./expiry-reminder";
