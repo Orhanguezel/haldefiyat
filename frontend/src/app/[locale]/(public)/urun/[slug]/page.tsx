@@ -34,6 +34,20 @@ function toNumberSafe(value: string | number | null | undefined): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/**
+ * Birim adlarini tek yazima indirger.
+ *
+ * Ayni birim veride farkli yazilabiliyor: urun tanimi "kilogram", hal satiri "kg".
+ * Duz esitlik karsilastirmasi bunlari FARKLI sayip taze kekik gibi urunlerde
+ * butun satirlari eleyecekti.
+ */
+function normalizeUnit(value: string | null | undefined): string {
+  const u = (value ?? "").trim().toLocaleLowerCase("tr-TR");
+  if (["kg", "kilo", "kilogram"].includes(u)) return "kg";
+  if (["adet", "tane"].includes(u)) return "adet";
+  return u || "kg";
+}
+
 const SITE_URL_META = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
 const BORSA_FALLBACK_PRODUCTS: Product[] = [
@@ -309,27 +323,26 @@ export default async function UrunPage({ params }: Props) {
    * son 30 gun. Ikisi de yoksa `offers` HIC yazilmaz — yanlis isaretleme,
    * eksik isaretlemeden kotudur.
    */
-  const offerRows = (() => {
-    const today = todayPrices.filter((row) => toNumberSafe(row.avgPrice) > 0);
-    if (today.length > 0) {
-      return today.map((row) => ({
-        min: toNumberSafe(row.minPrice) || toNumberSafe(row.avgPrice),
-        max: toNumberSafe(row.maxPrice) || toNumberSafe(row.avgPrice),
-        avg: toNumberSafe(row.avgPrice),
-        market: row.marketSlug,
-      }));
-    }
-    const cutoff = Date.now() - 30 * 86_400_000;
-    return history
-      .filter((h) => new Date(`${h.recordedDate}T12:00:00Z`).getTime() >= cutoff)
-      .map((h) => ({
-        min: toNumberSafe(h.minPrice) || toNumberSafe(h.avgPrice),
-        max: toNumberSafe(h.maxPrice) || toNumberSafe(h.avgPrice),
-        avg: toNumberSafe(h.avgPrice),
-        market: h.marketSlug,
-      }))
-      .filter((r) => r.avg > 0);
-  })();
+  const offerUnit = normalizeUnit(product.unit);
+  const toOfferRow = (row: { minPrice: unknown; maxPrice: unknown; avgPrice: unknown; marketSlug: string }) => ({
+    min: toNumberSafe(row.minPrice as never) || toNumberSafe(row.avgPrice as never),
+    max: toNumberSafe(row.maxPrice as never) || toNumberSafe(row.avgPrice as never),
+    avg: toNumberSafe(row.avgPrice as never),
+    market: row.marketSlug,
+  });
+
+  // Birim filtresi SART: bazi haller ayni urunu KOLI fiyatiyla bildiriyor
+  // (Yalova ithal muz 2400 TL/koli, Tekirdag taze kekik 4000 TL/koli). Bunlar
+  // kg olarak isaretlenince Google'a "2400 TL/kg muz" demis oluyorduk.
+  const sameUnit = (u: string | null | undefined) => normalizeUnit(u) === offerUnit;
+
+  const todaySameUnit = todayPrices.filter((row) => toNumberSafe(row.avgPrice) > 0 && sameUnit(row.unit));
+  const fallbackRows = todaySameUnit.length > 0
+    ? []
+    : (await fetchPrices({ product: slug, range: "30d", limit: 60, latestOnly: true }).catch(() => []))
+        .filter((row) => toNumberSafe(row.avgPrice) > 0 && sameUnit(row.unit));
+
+  const offerRows = (todaySameUnit.length > 0 ? todaySameUnit : fallbackRows).map(toOfferRow);
 
   const offerLow  = offerRows.length ? Math.min(...offerRows.map((r) => r.min).filter((n) => n > 0)) : 0;
   const offerHigh = offerRows.length ? Math.max(...offerRows.map((r) => r.max).filter((n) => n > 0)) : 0;
@@ -359,8 +372,10 @@ export default async function UrunPage({ params }: Props) {
             "@type": "PriceSpecification",
             price: String(offerAvg),
             priceCurrency: "TRY",
-            unitCode: "KGM",
-            unitText: "kg",
+            // Birim gercekten ne ise o yazilir. Sabit "KGM" yazmak, adet/demet
+            // satan urunlerde ayni yanlis-birim hatasinin tekrari olurdu.
+            ...(offerUnit === "kg" ? { unitCode: "KGM" } : {}),
+            unitText: offerUnit,
           },
         }),
       },
