@@ -21,7 +21,7 @@ import { runDailyEtl, runSingleSource } from "@/modules/etl";
 import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
 import { checkWaybackAndNotify } from "@/modules/wayback-monitor";
-import { detectStaleSources, detectPriceJumps } from "@/modules/etl/freshness";
+import { sourceFreshness, detectPriceJumps } from "@/modules/etl/freshness";
 import { checkEtlHealth, checkAndNotifyEtlHealth } from "@/modules/etl/health";
 import {
   runWeeklyMailDigest,
@@ -982,8 +982,13 @@ export async function registerHalAdmin(app: FastifyInstance) {
    * hf_etl_runs bu ayrimi tutmuyor; donmus/yanlis eslesmis seriler sessizce yayinlaniyordu.
    */
   app.get("/hal/etl/freshness", async (_req, reply) => {
-    const [stale, jumps] = await Promise.all([detectStaleSources(), detectPriceJumps()]);
-    return reply.send({ ok: true, staleSources: stale, priceJumps: jumps });
+    const [sources, jumps] = await Promise.all([sourceFreshness(), detectPriceJumps()]);
+    return reply.send({
+      ok: true,
+      sources,
+      staleSources: sources.filter((s) => s.isStale),
+      priceJumps: jumps,
+    });
   });
 
   /** Saglik denetimini elle calistir. ?notify=1 ise Telegram/e-posta uyarisi da gonderir. */

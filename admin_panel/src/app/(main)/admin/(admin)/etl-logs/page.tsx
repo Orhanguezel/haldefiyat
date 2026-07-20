@@ -3,12 +3,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useListEtlLogsAdminQuery } from '@/integrations/hooks';
+import { SourceFreshnessPanel } from './_components/source-freshness-panel';
 
 export default function Page() {
   const { data, isLoading } = useListEtlLogsAdminQuery();
 
   return (
-    <Card>
+    <div className="space-y-6">
+      <SourceFreshnessPanel />
+
+      <Card>
       <CardHeader>
         <CardTitle className="text-base">ETL Loglari</CardTitle>
       </CardHeader>
@@ -29,6 +33,7 @@ export default function Page() {
           </TableBody>
         </Table>
       </CardContent>
-    </Card>
+      </Card>
+    </div>
   );
 }

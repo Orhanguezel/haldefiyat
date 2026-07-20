@@ -47,6 +47,8 @@ export interface StaleSource {
   baselineDays: number;
   lastChanged:  string;
   rows:         number;
+  /** Kaynagin KENDI tabanina gore donmus sayilip sayilmadigi. */
+  isStale:      boolean;
 }
 
 export interface PriceJump {
@@ -61,10 +63,11 @@ export interface PriceJump {
 }
 
 /**
- * Gunluk parmak izi degismeyen kaynaklar. `baselineDays`, o kaynagin son 180 gundeki
- * EN UZUN normal donma suresi — alarm ancak bunu asinca uretilir.
+ * TUM kaynaklarin tazelik durumu: son degisim tarihi, kac gundur sabit, kendi tabani.
+ * `isStale` yalnizca kaynagin KENDI tabanini asanlarda true — bazi haller kronik
+ * yapiskan fiyatlidir ve bu normaldir.
  */
-export async function detectStaleSources(windowDays = 180): Promise<StaleSource[]> {
+export async function sourceFreshness(windowDays = 180): Promise<StaleSource[]> {
   const rows = await db.execute(sql`
     SELECT source_api, recorded_date,
            COUNT(*) AS n,
@@ -105,17 +108,21 @@ export async function detectStaleSources(windowDays = 180): Promise<StaleSource[
     const baseline = runs.slice(0, -1).reduce((m, r) => Math.max(m, r.len), 1);
     const threshold = Math.max(MIN_STALE_DAYS, baseline + BASELINE_MARGIN);
 
-    if (current.len >= threshold) {
-      out.push({
-        sourceApi:    source,
-        staleDays:    current.len,
-        baselineDays: baseline,
-        lastChanged:  current.from,
-        rows:         current.n,
-      });
-    }
+    out.push({
+      sourceApi:    source,
+      staleDays:    current.len,
+      baselineDays: baseline,
+      lastChanged:  current.from,
+      rows:         current.n,
+      isStale:      current.len >= threshold,
+    });
   }
   return out.sort((a, b) => b.staleDays - a.staleDays);
+}
+
+/** Yalnizca kendi tabanini asan (donmus) kaynaklar — uyari zinciri bunu kullanir. */
+export async function detectStaleSources(windowDays = 180): Promise<StaleSource[]> {
+  return (await sourceFreshness(windowDays)).filter((s) => s.isStale);
 }
 
 /**
