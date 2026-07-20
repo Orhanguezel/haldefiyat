@@ -5,6 +5,7 @@ import { hfEtlRuns } from "@/db/schema";
 import { env } from "@/core/env";
 import { sendEmailAlert } from "@/modules/alerts/email";
 import { sendTelegramAlert } from "@/modules/alerts/telegram";
+import { detectStaleSources, detectPriceJumps } from "./freshness";
 
 type EtlHealthSeverity = "critical" | "warning";
 
@@ -114,6 +115,36 @@ export async function checkEtlHealth(): Promise<EtlHealthIssue[]> {
         lastRunAt: latestAt,
       });
     }
+  }
+
+  // Tazelik denetimi — "basarili calisti" ile "yeni veri geldi" ayrimi.
+  // Yukaridaki kontroller kosu durumuna bakar (0 satir, ardisik hata). Bir kaynak her gun
+  // AYNI degerleri yazarsa hepsi 'ok' gorunur ve hicbiri calmaz; uc halin verisi 1.097 gun
+  // boyunca boyle donmus yayinlandi. Bu yuzden ayri bir sinyal olarak eklenir.
+  try {
+    const [stale, jumps] = await Promise.all([detectStaleSources(), detectPriceJumps()]);
+
+    // DONMA = kesin sessiz hata -> kritik (push edilir).
+    for (const s of stale) {
+      issues.push({
+        source: s.sourceApi,
+        severity: "critical",
+        reason: `veri donmus: ${s.staleDays} gundur ayni parmak izi (kaynagin kendi tabani ${s.baselineDays} gun), son degisim ${s.lastChanged}`,
+        lastRunAt: null,
+      });
+    }
+
+    // SAPMA = supheli, insan yorumu gerektirir -> uyari (rapora duser, push etmez).
+    for (const j of jumps.slice(0, 10)) {
+      issues.push({
+        source: `${j.marketName} / ${j.productSlug}`,
+        severity: "warning",
+        reason: `akranlara gore konum ${j.ratio}x kaydi (${j.value} TL, akran medyani ${j.peerMedian} TL) — yanlis eslesme olabilir`,
+        lastRunAt: null,
+      });
+    }
+  } catch (err) {
+    console.warn("[etl-health] tazelik denetimi basarisiz:", err instanceof Error ? err.message : err);
   }
 
   return issues;
