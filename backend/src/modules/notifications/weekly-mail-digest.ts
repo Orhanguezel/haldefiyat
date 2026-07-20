@@ -61,7 +61,7 @@ function pctColor(n: number): string {
 async function buildHtml(): Promise<{ html: string; subject: string; movers: number } | null> {
   // Ulusal (çok-hal ortalaması, ürün ailesi düzeyi) hareketler — tek halin ETL sıçraması
   // "haftanın hareketi" olarak bültene düşmesin. Geçen yıl da aynı ulusal tabana göre.
-  const movers = (await nationalMovers(10)).slice(0, 6);
+  const movers = await nationalMovers(6);
   if (movers.length === 0) return null;
 
   const moverRows = movers.map((m) => {
@@ -75,7 +75,7 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
           <a href="${SITE_URL}/urun/${m.productSlug}" style="color:#0f172a;text-decoration:none;font-weight:600;">
             ${m.productName}
           </a>
-          <div style="color:#6b7280;font-size:11px;">${m.marketCount} hal ortalaması</div>
+          <div style="color:#6b7280;font-size:11px;">${m.marketCount} halde medyan</div>
         </td>
         <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;color:#0f172a;">
           ₺${fmtPriceTr(m.latest)}
