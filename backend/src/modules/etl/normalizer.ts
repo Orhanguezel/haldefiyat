@@ -35,16 +35,59 @@ const UNIT_CLASS: ReadonlyArray<[RegExp, string]> = [
   [/^(adet|tane|ad)\b/i, "adet"],
   [/^(demet)\b/i, "demet"],
   [/^(kasa)\b/i, "kasa"],
+  // koli SART: fiyat gecmisinde fiilen kullanilan iki birimden biri (digeri kg).
+  // Listede olmasaydi asagidaki "kg" varsayimina duser ve koli fiyatlari kg
+  // fiyatlariyla ayni urune karisirdi — Yalova ithal muzu 2400 TL/koli.
+  [/^(koli|kutu)\b/i, "koli"],
   [/^(paket|pk)\b/i, "paket"],
   [/^(bag|bag)\b/i, "bag"],
   [/^(litre|lt|l)\b/i, "litre"],
 ];
 
+/**
+ * Birimi sinifina indirger.
+ *
+ * Iki savunma katmani var, cunku kaynak tablolardan birim sutunu yerine BASLIK
+ * metni sizabiliyor. `hf_products.unit` alaninda bulunan gercek ornekler:
+ *
+ *   "kasa (10 kg)p ks.-s kut."   <- Ankara/Bursa balik tablosu sutun basligi
+ *   "kilo (1 kg)p ks- s kut"
+ *   "sardalya", "napolyon", "asili"  <- urun adi parcasi, birim degil
+ *   "(adet)", "18 kg", "taze kg", "kg."
+ *
+ * 1. Bastaki parantez/sayi/sifat temizlenir, sonra sinif tablosu uygulanir —
+ *    "(adet)" -> adet, "18 kg" / "taze kg" -> kg.
+ * 2. Hicbir sinifa girmeyen deger BIRIM DEGILDIR; "kg" varsayilir. Onceden ham
+ *    dize geri donuyordu ve `productMatchKey`'in parcasi oldugu icin
+ *    "sardalya" birimli bir urun, ayni urunun kg'lik kaydiyla eslesmiyordu.
+ */
 export function unitClass(unit: string | null | undefined): string {
-  const u = turkishToAscii(unit ?? "").trim();
-  for (const [re, cls] of UNIT_CLASS) if (re.test(u)) return cls;
-  return u || "kg";
+  const raw = turkishToAscii(unit ?? "").trim();
+  if (!raw) return "kg";
+
+  const candidates = [
+    raw,
+    raw.replace(/^[^a-z]+/i, ""),          // "18 kg" -> "kg", "(adet)" -> "adet)"
+    raw.replace(/[()]/g, " ").trim(),      // "(adet)" -> "adet"
+    raw.split(/\s+/).slice(-1)[0] ?? "",   // "taze kg" -> "kg"
+  ];
+
+  for (const candidate of candidates) {
+    for (const [re, cls] of UNIT_CLASS) if (re.test(candidate)) return cls;
+  }
+
+  // Sessizce yutma: gercekten YENI bir birim (ornegin yeni bir kaynak "ton"
+  // bildirmeye baslarsa) burada goze carpsin ki UNIT_CLASS'a eklensin. Aksi
+  // halde ton fiyatlari kg diye kaydedilir — TOBB'da bir kez yasandi.
+  if (!_warnedUnits.has(raw)) {
+    _warnedUnits.add(raw);
+    console.warn(`[normalizer] taninmayan birim "${raw}" — kg varsayildi. Gercek birimse UNIT_CLASS'a ekle.`);
+  }
+  return "kg";
 }
+
+/** Ayni bilinmeyen birim icin log bir kez basilir; ETL dongusu gurultu yapmasin. */
+const _warnedUnits = new Set<string>();
 
 // Kanonik eşleştirme anahtarı: tr-ascii + noktalama sil + kelimeleri SIRALA + birim sınıfı.
 // "Aysberg Marul", "Marul Aysberg", "Marul, Aysberg" (aynı birim) → AYNI anahtar.
