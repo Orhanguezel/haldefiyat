@@ -81,7 +81,27 @@ Kaynak sayfada **sade "Soğan Kuru" satırı yok**; olan satır `Soğan Kuru Arp
 - [x] Endeks serisi 2026-20'ye rebase edildi; öncesi kaldırıldı (ürün başına ~2 hal, ulusal endeks değildi). Yedek: `/tmp/index_snapshots_backup.sql`
 
 ### Açık kalan
-- [ ] **Genel hayalet taraması**: Kayseri dışında da eski yanlış eşleşmeden kalan satırlar var. Yöntem: her kaynağı çalıştır, dönen `touchedProductSlugs` ile o (hal, tarih) için DB'deki ürünleri karşılaştır, farkı sil
+- [x] **Genel hayalet taraması — YAPILDI, SİLME GEREKMEDİ (2026-07-20)**
+
+  Tarama 2026-07-06→07 arasında neredeyse tüm hallerde toplu yeniden eşleşme gösterdi
+  (`8380af4e` birim-kapsamlı eşleştirme anahtarı commit'i). **Ama bu meşru bir
+  normalizasyondu:** eski slug'lar yeni master'lara `canonical_slug` ile bağlı
+  (`sivri-biber`→`biber-sivri`, `domates-ceri`→`domates-cherry`, `beyaz-lahana`→`lahana-beyaz`…),
+  yani tarihsel veri aynı aileye yuvarlanıyor — **kayıp yok, hayalet yok.**
+
+  **Değer üzerinden hayalet tespiti güvenilmez:** yuvarlak fiyatlar sık çakışıyor
+  (`bakla` 30 → `marul-aysberg` 30, `nane` 15 → `semizotu` 15). Çapraz-aile eşleşmelerinin
+  neredeyse tamamı tesadüftü. Otomatik silme YAPILMAMALI.
+
+  Kayseri vakası istisnaydı: orada değer *semantik olarak farklı* bir ürüne (arpacık → kuru
+  soğan) yazılıyordu. Öyle vakalar ancak kaynak sayfayla karşılaştırılarak bulunur.
+
+- [x] **Bunun yerine gerçek sorun bulundu: bozuk slug'lar.** `slugify` Türkçe karakteri
+  ASCII'ye çevirmeden değiştirdiğinde harf `-` oluyordu (`kereviz`→`kerev-z`,
+  `limon-mayer`→`l-mon-mayer`, `semizotu`→`sem-zotu`). Bunlar **ayrı master** olarak oluşmuş
+  ve fiyatları doğru aileye yuvarlanmıyordu. Hata ~2026-05-12'de düzelmiş, öksüz ürünler
+  kalmış. **15 çift, 178 kayıt** — `canonical_slug` ile bağlandı (silme yok),
+  `049_bozuk_slug_kanonik.sql`.
 - [ ] Mükerrer ürünler: `sogan-kuru-taze`/`sogan-kuru-taze-kg`, `oval-domates`/`domates-oval`, `armut-s-maria`/`armut-santamaria`
 - [ ] Kalan 54 alias çakışması (yazım hatası / farklı aile — elle karar gerektirir)
 
