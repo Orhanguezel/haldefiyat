@@ -21,6 +21,7 @@ import { runDailyEtl, runSingleSource } from "@/modules/etl";
 import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
 import { checkWaybackAndNotify } from "@/modules/wayback-monitor";
+import { detectStaleSources, detectPriceJumps } from "@/modules/etl/freshness";
 import {
   runWeeklyMailDigest,
   buildWeeklyMailPreview,
@@ -973,6 +974,15 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const result = await deleteDraft(id);
     if (!result.ok) return reply.status(result.reason === "not-found" ? 404 : 409).send({ ok: false, error: result.reason });
     return reply.send({ ok: true });
+  });
+
+  /**
+   * ETL tazelik denetimi — "basarili calisti" ile "yeni veri geldi" ayrimi.
+   * hf_etl_runs bu ayrimi tutmuyor; donmus/yanlis eslesmis seriler sessizce yayinlaniyordu.
+   */
+  app.get("/hal/etl/freshness", async (_req, reply) => {
+    const [stale, jumps] = await Promise.all([detectStaleSources(), detectPriceJumps()]);
+    return reply.send({ ok: true, staleSources: stale, priceJumps: jumps });
   });
 
   app.post("/hal/wayback/check", async (_req, reply) => {
