@@ -19,9 +19,19 @@ export const MOVER_EXCLUDED_CATEGORIES = [
 
 // Hafta-içi hareket için en az bu kadar ayrı halde gözlem şartı (tek hal glitch'i elenir).
 export const MIN_MARKETS = 6;
-// Geçen yıl karşılaştırmasında tarihsel kapsam daha düşük — eşik gevşek, ama tek-hal değil.
-// Burada sayılan şey EŞLEŞEN (hal × ürün) çifti sayısıdır, ham gözlem değil.
-export const MIN_PAIRS_YOY = 3;
+// Geçen yıl karşılaştırmasında sayılan şey EŞLEŞEN (hal × ürün) çifti sayısıdır, ham gözlem
+// değil. 3 iken domates yıllık değişimi 7 çiftin 4'ü bozuk olduğu için -%47,5 çıkıyordu
+// (gerçeğe yakın değer ≈ -%19). Bültenin manşeti bu sayı — eşik yükseltildi.
+export const MIN_PAIRS_YOY = 5;
+
+/**
+ * Hallerin çoğu ortalama yayınlamıyor; ETL avg_price'ı min-max ORTA NOKTASI olarak türetiyor
+ * (kayıtların %79'u). Makas darken bu makul bir tahmin, ama genişken tamamen anlamsız:
+ * Bursa domates min 10 / max 185 → "ortalama" 97,50 ₺ diye kaydediliyor ve Temmuz 2025
+ * domatesini 97 liraya çıkarıyor. Makası bu orandan genişse kayıt toplamaya alınmaz.
+ * min/max olmayan kayıtlar (%5,3) etkilenmez — onlarda avg gerçek veridir.
+ */
+export const MAX_MINMAX_SPREAD = 3;
 
 export interface NationalMover {
   productSlug: string;
@@ -81,6 +91,11 @@ export async function windowByMaster(from: string, to: string): Promise<Map<stri
         eq(hfProducts.isActive, 1),
         eq(hfPriceHistory.unit, "kg"),
         sql`${hfPriceHistory.avgPrice} > 0`,
+        sql`(
+          ${hfPriceHistory.minPrice} IS NULL OR ${hfPriceHistory.minPrice} <= 0
+          OR ${hfPriceHistory.maxPrice} IS NULL OR ${hfPriceHistory.maxPrice} <= 0
+          OR ${hfPriceHistory.maxPrice} / ${hfPriceHistory.minPrice} <= ${MAX_MINMAX_SPREAD}
+        )`,
         sql`${hfProducts.categorySlug} NOT IN (${sql.join(MOVER_EXCLUDED_CATEGORIES.map((c) => sql`${c}`), sql`, `)})`,
       ),
     )

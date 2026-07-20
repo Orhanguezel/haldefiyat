@@ -18,7 +18,7 @@
 import { and, between, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfBasketProducts, hfPriceHistory, hfProducts } from "@/db/schema";
-import { isoShift, latestRecordedDate, MIN_MARKETS, MOVER_EXCLUDED_CATEGORIES } from "./movers";
+import { isoShift, latestRecordedDate, MAX_MINMAX_SPREAD, MIN_MARKETS, MOVER_EXCLUDED_CATEGORIES } from "./movers";
 
 /** Yilin bu kadar ayri haftasindan azinda gorulen urun mevsimlik sayilir. */
 const YEAR_ROUND_WEEKS = 44;
@@ -64,6 +64,11 @@ async function weeklyGrid(fromIso: string, toIso: string): Promise<Map<string, M
         eq(hfProducts.isActive, 1),
         eq(hfPriceHistory.unit, "kg"),
         sql`${hfPriceHistory.avgPrice} > 0`,
+        sql`(
+          ${hfPriceHistory.minPrice} IS NULL OR ${hfPriceHistory.minPrice} <= 0
+          OR ${hfPriceHistory.maxPrice} IS NULL OR ${hfPriceHistory.maxPrice} <= 0
+          OR ${hfPriceHistory.maxPrice} / ${hfPriceHistory.minPrice} <= ${MAX_MINMAX_SPREAD}
+        )`,
         sql`${hfProducts.categorySlug} NOT IN (${sql.join(MOVER_EXCLUDED_CATEGORIES.map((c) => sql`${c}`), sql`, `)})`,
       ),
     )
