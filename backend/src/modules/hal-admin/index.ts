@@ -22,6 +22,7 @@ import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
 import { checkWaybackAndNotify } from "@/modules/wayback-monitor";
 import { detectStaleSources, detectPriceJumps } from "@/modules/etl/freshness";
+import { checkEtlHealth, checkAndNotifyEtlHealth } from "@/modules/etl/health";
 import {
   runWeeklyMailDigest,
   buildWeeklyMailPreview,
@@ -983,6 +984,21 @@ export async function registerHalAdmin(app: FastifyInstance) {
   app.get("/hal/etl/freshness", async (_req, reply) => {
     const [stale, jumps] = await Promise.all([detectStaleSources(), detectPriceJumps()]);
     return reply.send({ ok: true, staleSources: stale, priceJumps: jumps });
+  });
+
+  /** Saglik denetimini elle calistir. ?notify=1 ise Telegram/e-posta uyarisi da gonderir. */
+  app.post<{ Querystring: { notify?: string } }>("/hal/etl/health-check", async (req, reply) => {
+    if (req.query?.notify === "1") {
+      const result = await checkAndNotifyEtlHealth();
+      return reply.send({ ok: true, ...result });
+    }
+    const issues = await checkEtlHealth();
+    return reply.send({
+      ok: true,
+      critical: issues.filter((i) => i.severity === "critical").length,
+      warning: issues.filter((i) => i.severity === "warning").length,
+      issues,
+    });
   });
 
   app.post("/hal/wayback/check", async (_req, reply) => {
