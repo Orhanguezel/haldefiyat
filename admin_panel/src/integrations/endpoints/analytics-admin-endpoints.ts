@@ -106,6 +106,23 @@ export interface AnalyticsHeatmapResponse {
   }>;
 }
 
+/** Bulten CTA hunisi — gosterimden aboneye. Backend: modules/tracking/cta.ts */
+export interface CtaFunnelRow {
+  placement: string;
+  device: string;
+  impression: number;
+  focus: number;
+  submit: number;
+  success: number;
+  conversionPct: number | null;
+  engagePct: number | null;
+}
+
+export interface CtaFunnelResponse {
+  success: boolean;
+  data: { days: number; rows: CtaFunnelRow[] };
+}
+
 export const analyticsAdminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getAnalyticsOverviewAdmin: builder.query<AnalyticsOverview, { range?: AnalyticsRange } | undefined>({
@@ -136,6 +153,10 @@ export const analyticsAdminApi = baseApi.injectEndpoints({
       query: (params) => ({ url: `/admin/analytics/heatmap?range=${params?.range ?? '7d'}` }),
       providesTags: [{ type: 'AuditMetric' as const, id: 'ANALYTICS_HEATMAP' }],
     }),
+    getCtaFunnelAdmin: builder.query<CtaFunnelResponse, { days?: number } | undefined>({
+      query: (params) => ({ url: `/admin/analytics/cta-funnel?days=${params?.days ?? 30}` }),
+      providesTags: [{ type: 'AuditMetric' as const, id: 'CTA_FUNNEL' }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -148,4 +169,5 @@ export const {
   useGetAnalyticsFunnelAdminQuery,
   useGetAnalyticsRetentionAdminQuery,
   useGetAnalyticsHeatmapAdminQuery,
+  useGetCtaFunnelAdminQuery,
 } = analyticsAdminApi;

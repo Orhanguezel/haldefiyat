@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { BarChart3, MousePointerClick, RefreshCcw, Smartphone, TrendingUp } from "lucide-react";
+import { BarChart3, Mail, MousePointerClick, RefreshCcw, Smartphone, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -19,9 +19,10 @@ import {
   useGetAnalyticsHeatmapAdminQuery,
   useGetAnalyticsOverviewAdminQuery,
   useGetAnalyticsRetentionAdminQuery,
+  useGetCtaFunnelAdminQuery,
 } from "@/integrations/hooks";
 
-type TabKey = "overview" | "retention" | "ads" | "device";
+type TabKey = "overview" | "retention" | "ads" | "device" | "cta";
 
 const numberFormat = new Intl.NumberFormat("tr-TR");
 
@@ -32,6 +33,13 @@ function fmtNumber(value: number | null | undefined): string {
 function fmtPct(value: number | null | undefined): string {
   return `${(value ?? 0).toLocaleString("tr-TR", { maximumFractionDigits: 1 })}%`;
 }
+
+const CTA_LABEL: Record<string, string> = {
+  mobile_home_sticky: "Anasayfa mobil (sticky)",
+  home_bottom: "Anasayfa alt",
+  price_list_strip: "/fiyatlar şerit",
+  live_price: "Canlı fiyat landing",
+};
 
 function deviceLabel(value: string): string {
   if (value === "mobile") return "Mobil";
@@ -60,6 +68,7 @@ export default function AdminAnalyticsClient() {
     },
   );
   const heatmapQ = useGetAnalyticsHeatmapAdminQuery({ range }, { skip: tab !== "device", refetchOnFocus: true });
+  const ctaQ = useGetCtaFunnelAdminQuery({ days: 30 }, { skip: tab !== "cta", refetchOnFocus: true });
 
   const overview = overviewQ.data;
   const retention = retentionQ.data;
@@ -68,6 +77,7 @@ export default function AdminAnalyticsClient() {
   const funnel = funnelQ.data;
   const deviceDaily = deviceDailyQ.data;
   const heatmap = heatmapQ.data;
+  const cta = ctaQ.data?.data;
 
   const loading =
     overviewQ.isFetching ||
@@ -88,6 +98,7 @@ export default function AdminAnalyticsClient() {
         tab === "ads" ? funnelQ.refetch() : Promise.resolve(),
         tab === "device" ? deviceDailyQ.refetch() : Promise.resolve(),
         tab === "device" ? heatmapQ.refetch() : Promise.resolve(),
+        tab === "cta" ? ctaQ.refetch() : Promise.resolve(),
       ]);
       toast.success("Analytics verileri güncellendi.");
     } catch {
@@ -159,7 +170,62 @@ export default function AdminAnalyticsClient() {
             <Smartphone className="mr-2 h-4 w-4" />
             Cihaz
           </TabsTrigger>
+          <TabsTrigger value="cta">
+            <Mail className="mr-2 h-4 w-4" />
+            Bülten CTA
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="cta" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Bülten CTA Hunisi — son 30 gün</CardTitle>
+              <CardDescription>
+                Gösterim → yazmaya başlama → gönderme → abone. Tekil ziyaretçi sayılır.
+                Hangi adımda kaybettiğimiz burada görünür: gösterim düşükse CTA görülmüyor,
+                gösterim var ilgi yoksa metin/teklif zayıf, gönderim var abone yoksa teknik hata.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Yerleşim</TableHead>
+                    <TableHead>Cihaz</TableHead>
+                    <TableHead className="text-right">Gördü</TableHead>
+                    <TableHead className="text-right">İlgilendi</TableHead>
+                    <TableHead className="text-right">Gönderdi</TableHead>
+                    <TableHead className="text-right">Abone</TableHead>
+                    <TableHead className="text-right">İlgi %</TableHead>
+                    <TableHead className="text-right">Dönüşüm %</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(cta?.rows ?? []).map((row) => (
+                    <TableRow key={`${row.placement}-${row.device}`}>
+                      <TableCell className="font-medium">{CTA_LABEL[row.placement] ?? row.placement}</TableCell>
+                      <TableCell>{deviceLabel(row.device)}</TableCell>
+                      <TableCell className="text-right">{fmtNumber(row.impression)}</TableCell>
+                      <TableCell className="text-right">{fmtNumber(row.focus)}</TableCell>
+                      <TableCell className="text-right">{fmtNumber(row.submit)}</TableCell>
+                      <TableCell className="text-right font-semibold">{fmtNumber(row.success)}</TableCell>
+                      <TableCell className="text-right">{fmtPct(row.engagePct)}</TableCell>
+                      <TableCell className="text-right font-semibold">{fmtPct(row.conversionPct)}</TableCell>
+                    </TableRow>
+                  ))}
+                  {!cta?.rows?.length ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-muted-foreground">
+                        Henüz veri yok. Ölçüm 20 Temmuz 2026&apos;da açıldı; anlamlı karşılaştırma için
+                        birkaç yüz gösterim birikmesini bekleyin.
+                      </TableCell>
+                    </TableRow>
+                  ) : null}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="overview" className="space-y-4">
           <Card>
