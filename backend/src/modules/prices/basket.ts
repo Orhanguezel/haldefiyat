@@ -26,6 +26,11 @@ export interface BasketRow {
   productName: string;
   price:       number;
   marketCount: number;
+  /**
+   * Yillik kiyasin gosterilecek guncel fiyati: eslesmis sepetten gelir, tum hallerin
+   * medyanindan degil. Iki fiyat ile yuzde ayni kumeden olsun ki okur dogrulayabilsin.
+   */
+  yoyCurrent:  number | null;
   /** Gecen haftanin fiyati — su an tabloda gosterilmiyor, fikir degisirse hazir. */
   prevPrice:   number | null;
   weeklyPct:   number | null;
@@ -102,6 +107,7 @@ export async function weeklyBasket(): Promise<BasketRow[]> {
       marketCount: c.markets,
       prevPrice:   comparable ? p!.avg : null,
       weeklyPct:   comparable ? Math.round((10000 * (c.avg - p!.avg)) / p!.avg) / 100 : null,
+      yoyCurrent:  yoy?.currentAvg ?? null,
       lastYearAvg: yoy?.lastYearAvg ?? null,
       yoyPct:      yoy?.yoyPct ?? null,
       yoyPairs:    yoy?.pairs ?? null,
@@ -133,7 +139,7 @@ export async function yearlyMovers(limit = 10): Promise<{ up: YearlyMove[]; down
     scored.push({
       productSlug: slug,
       productName: slug,
-      price:       c.avg,
+      price:       yoy.currentAvg,
       lastYearAvg: yoy.lastYearAvg,
       yoyPct:      yoy.yoyPct,
       yoyPairs:    yoy.pairs,

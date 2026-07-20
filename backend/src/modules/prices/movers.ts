@@ -130,7 +130,10 @@ export async function windowByMaster(from: string, to: string): Promise<Map<stri
  * Çözüm: yalnızca HER İKİ dönemde de aynı (hal × ürün) çiftinde gözlenmiş fiyatlar kıyaslanır.
  * Sepet iki tarafta tanımı gereği özdeş olduğundan geriye sadece fiyat hareketi kalır.
  */
-export function matchedYoy(cur: Agg, ly: Agg): { lastYearAvg: number; yoyPct: number; pairs: number } | null {
+export function matchedYoy(
+  cur: Agg,
+  ly: Agg,
+): { currentAvg: number; lastYearAvg: number; yoyPct: number; pairs: number } | null {
   const curVals: number[] = [];
   const lyVals:  number[] = [];
   for (const [key, lyPrice] of ly.pairs) {
@@ -145,7 +148,11 @@ export function matchedYoy(cur: Agg, ly: Agg): { lastYearAvg: number; yoyPct: nu
   const lyMed  = median(lyVals);
   if (lyMed <= 0) return null;
 
+  // currentAvg de eslesmis sepetten dondurulur: tabloda gosterilen iki fiyat ile yuzde
+  // AYNI kumeden gelmeli, yoksa okur eline kalem alip dogrulayinca tutmuyor
+  // (ornek: domates 57,09 -> 31,75 yazip -%47,5 demek; okur -%44,4 hesaplar).
   return {
+    currentAvg:  curMed,
     lastYearAvg: lyMed,
     yoyPct:      Math.round((10000 * (curMed - lyMed)) / lyMed) / 100,
     pairs:       curVals.length,

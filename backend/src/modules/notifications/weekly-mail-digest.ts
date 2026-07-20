@@ -80,7 +80,7 @@ function basketTable(rows: BasketRow[]): string {
     <tr>
       ${productCell(r.productSlug, r.productName, `${r.marketCount} halde medyan`)}
       <td style="${NUM}color:#6b7280;">${r.lastYearAvg != null ? `₺${fmtPriceTr(r.lastYearAvg)}` : "—"}</td>
-      <td style="${NUM}color:#0f172a;font-weight:600;">₺${fmtPriceTr(r.price)}</td>
+      <td style="${NUM}color:#0f172a;font-weight:600;">₺${fmtPriceTr(r.yoyCurrent ?? r.price)}</td>
       <td style="${NUM}color:${r.yoyPct != null ? pctColor(r.yoyPct) : "#6b7280"};font-weight:600;">
         ${r.yoyPct != null ? fmtPct(r.yoyPct) : "—"}
       </td>
