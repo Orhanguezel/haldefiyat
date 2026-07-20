@@ -9,6 +9,7 @@ import { telegramNotify } from "@agro/shared-backend/modules/telegram/helpers/te
 
 import { decodeEmail, verifyUnsubToken, unsubHeaders } from "./token";
 import { buildWelcomeEmail } from "./welcome-email";
+import { isValidEmail, normalizeEmail } from "./email-validate";
 
 // Ortak `newsletter_subscribers` tablosu icin local proxy (digest ile ayni tablo).
 const subscribers = mysqlTable("newsletter_subscribers", {
@@ -20,15 +21,14 @@ const subscribers = mysqlTable("newsletter_subscribers", {
   unsubscribedAt: datetime("unsubscribed_at", { fsp: 3 }),
 });
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type SubscribeBody = { email?: string; source?: string; locale?: string };
 type UnsubInput = { e?: string; t?: string };
 
 async function subscribe(req: FastifyRequest, reply: FastifyReply) {
   const { email, source, locale } = (req.body ?? {}) as SubscribeBody;
-  const clean = (email || "").toLowerCase().trim();
-  if (!clean || !EMAIL_RE.test(clean)) {
+  const clean = normalizeEmail(email);
+  if (!isValidEmail(clean)) {
     return reply.code(422).send({ error: { message: "invalid_email" } });
   }
 
