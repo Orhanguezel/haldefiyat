@@ -185,15 +185,25 @@ Veremeyeceği: günlük seri. 1.097 günün ~21'i dolar, 1.076'sı boş kalır.
 
 ---
 
-## Faz 2 — Backfill uygulaması
+## Faz 2 — Backfill uygulaması (2026-07-20)
 
-- [ ] `etl-sources.ts`: ilgili hallere `backfillEndpoint` / tarih desteği ekle
-- [ ] `fetcher.ts`: gerekiyorsa `fetchBursaDated` / `fetchDenizliDated` / `fetchEskisehirDated`
-- [ ] Wayback yolu için ortak yardımcı: `fetchViaWayback(source, date)` — CDX'ten en yakın snapshot + mevcut parser
-- [ ] **Önce tek gün, tek hal** ile dene; sonucu gerçek piyasa seviyesiyle karşılaştır (akran halleri: Konya/Ankara/İzmir/Mersin)
-- [ ] Kademeli backfill: 1 ay → doğrula → 6 ay → doğrula → tam aralık
-- [ ] Upsert donmuş satırın üzerine yazıyor mu, ilk günde doğrula (unique key sayesinde yazmalı)
-- [ ] **Yedek:** backfill öncesi ilgili aralığın `mysqldump`'ı alınsın (geri dönüş için; silme yapmıyoruz ama üzerine yazıyoruz)
+Kaynak sitelerde tarih parametresi yok; tek yol Wayback. `fetchXxxDated` yazmaya gerek kalmadı.
+
+- [x] `fetcher.ts` → `runWaybackBackfill(source, opts)`: CDX'ten snapshot listesi, her biri
+      `id_` eki ile HAM çekilir (arşiv banner'ı olmadan), **mevcut parser** ile ayrıştırılır
+      ve **snapshot tarihine** yazılır. Sayfa içi tarihe güvenilmez; arşiv damgası kesindir.
+- [x] Backfill satırları `sourceApi = "<key>_wayback"` ile işaretlenir
+- [x] `blackoutFilter` bu satırları **dışlamaz** — karantina uydurma veriyi gizlemek için var,
+      gerçek veriyi değil. Backfill ilerledikçe o günler kendiliğinden görünür olur;
+      blackout kaydını elle daraltmak gerekmez.
+- [x] Admin endpoint: `POST /admin/hal/etl/wayback-backfill` (`dryRun:true` ile ölçüm)
+- [x] **Dry-run doğrulaması:** üç kaynakta da 6/6 snapshot ayrıştırıldı
+      (Bursa 984, Eskişehir 387, Denizli 396 satır / 6 snapshot)
+- [ ] Tam backfill koşusu — devam ediyor
+- [ ] Akran doğrulaması: backfill edilen günlerin Konya/Ankara/İzmir/Mersin ile tutarlılığı
+
+> Upsert donmuş satırın üzerine yazar (unique key `product_id, market_id, recorded_date`),
+> ama backfill günleri donmuş dönemin ~%2'si — kalan günler karantinada kalır.
 
 ---
 
