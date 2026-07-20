@@ -84,8 +84,18 @@ export function useCtaTracking<T extends HTMLElement = HTMLElement>(
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          // %50 gorunurluk: kenardan siyrilan bir CTA "gorulmus" sayilmasin.
-          if (!entry.isIntersecting || entry.intersectionRatio < 0.5 || seen.current) continue;
+          if (!entry.isIntersecting || seen.current) continue;
+
+          // "Gorulmus" esigi: ekrana giren yukseklik, elemanin ve ekranin
+          // KUCUK olaninin yarisi kadar olmali.
+          //
+          // Duz `intersectionRatio >= 0.5` yanlisti: anasayfa alt CTA'si (py-24)
+          // telefon ekranindan daha UZUN, oran hicbir zaman 0,5'e ulasamaz ve
+          // gosterim asla sayilmazdi. Kucuk CTA'larda ise oran kurali dogru
+          // calisir — ikisini birlikte karsilayan olcut bu.
+          const visible = entry.intersectionRect.height;
+          const limit = Math.min(entry.boundingClientRect.height, window.innerHeight) * 0.5;
+          if (visible < limit) continue;
           seen.current = true;
           try {
             sessionStorage.setItem(key, "1");
@@ -96,7 +106,9 @@ export function useCtaTracking<T extends HTMLElement = HTMLElement>(
           io.disconnect();
         }
       },
-      { threshold: 0.5 },
+      // Uzun elemanlarda 0,5 esigi hic tetiklenmeyecegi icin 0 da dinlenir;
+      // asil karar yukaridaki yukseklik karsilastirmasinda veriliyor.
+      { threshold: [0, 0.25, 0.5] },
     );
 
     io.observe(el);
