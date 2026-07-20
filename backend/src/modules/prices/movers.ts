@@ -22,7 +22,7 @@ export const MIN_MARKETS = 6;
 // Geçen yıl karşılaştırmasında sayılan şey EŞLEŞEN (hal × ürün) çifti sayısıdır, ham gözlem
 // değil. 3 iken domates yıllık değişimi 7 çiftin 4'ü bozuk olduğu için -%47,5 çıkıyordu
 // (gerçeğe yakın değer ≈ -%19). Bültenin manşeti bu sayı — eşik yükseltildi.
-export const MIN_PAIRS_YOY = 5;
+export const MIN_PAIRS_MATCHED = 5;
 
 /**
  * Hallerin çoğu ortalama yayınlamıyor; ETL avg_price'ı min-max ORTA NOKTASI olarak türetiyor
@@ -145,19 +145,19 @@ export async function windowByMaster(from: string, to: string): Promise<Map<stri
  * Çözüm: yalnızca HER İKİ dönemde de aynı (hal × ürün) çiftinde gözlenmiş fiyatlar kıyaslanır.
  * Sepet iki tarafta tanımı gereği özdeş olduğundan geriye sadece fiyat hareketi kalır.
  */
-export function matchedYoy(
+export function matchedChange(
   cur: Agg,
-  ly: Agg,
-): { currentAvg: number; lastYearAvg: number; yoyPct: number; pairs: number } | null {
+  base: Agg,
+): { currentAvg: number; baseAvg: number; changePct: number; pairs: number } | null {
   const curVals: number[] = [];
   const lyVals:  number[] = [];
-  for (const [key, lyPrice] of ly.pairs) {
+  for (const [key, lyPrice] of base.pairs) {
     const curPrice = cur.pairs.get(key);
     if (curPrice == null || lyPrice <= 0 || curPrice <= 0) continue;
     curVals.push(curPrice);
     lyVals.push(lyPrice);
   }
-  if (curVals.length < MIN_PAIRS_YOY) return null;
+  if (curVals.length < MIN_PAIRS_MATCHED) return null;
 
   const curMed = median(curVals);
   const lyMed  = median(lyVals);
@@ -167,10 +167,10 @@ export function matchedYoy(
   // AYNI kumeden gelmeli, yoksa okur eline kalem alip dogrulayinca tutmuyor
   // (ornek: domates 57,09 -> 31,75 yazip -%47,5 demek; okur -%44,4 hesaplar).
   return {
-    currentAvg:  curMed,
-    lastYearAvg: lyMed,
-    yoyPct:      Math.round((10000 * (curMed - lyMed)) / lyMed) / 100,
-    pairs:       curVals.length,
+    currentAvg: curMed,
+    baseAvg:    lyMed,
+    changePct:  Math.round((10000 * (curMed - lyMed)) / lyMed) / 100,
+    pairs:      curVals.length,
   };
 }
 
@@ -209,7 +209,7 @@ export async function nationalMovers(limit = 10): Promise<NationalMover[]> {
     if (Math.abs(changePct) > 80) continue;
 
     const ly = lastYear.get(slug);
-    const yoy = ly ? matchedYoy(c, ly) : null;
+    const yoy = ly ? matchedChange(c, ly) : null;
 
     scored.push({
       productSlug: slug,
@@ -219,8 +219,8 @@ export async function nationalMovers(limit = 10): Promise<NationalMover[]> {
       changePct,
       marketCount: Math.min(c.markets, p.markets),
       yoyPairs:    yoy?.pairs ?? null,
-      lastYearAvg: yoy?.lastYearAvg ?? null,
-      yoyPct:      yoy?.yoyPct ?? null,
+      lastYearAvg: yoy?.baseAvg ?? null,
+      yoyPct:      yoy?.changePct ?? null,
     });
   }
   if (!scored.length) return [];

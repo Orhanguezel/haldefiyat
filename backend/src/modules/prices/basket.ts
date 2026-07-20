@@ -15,7 +15,7 @@ import { hfBasketProducts, hfProducts } from "@/db/schema";
 import {
   isoShift,
   latestRecordedDate,
-  matchedYoy,
+  matchedChange,
   windowByMaster,
   MIN_MARKETS,
   type Agg,
@@ -24,16 +24,19 @@ import {
 export interface BasketRow {
   productSlug: string;
   productName: string;
+  /** Tum hallerin medyani — sitenin gosterdigi ulusal fiyatla ayni. */
   price:       number;
   marketCount: number;
   /**
-   * Yillik kiyasin gosterilecek guncel fiyati: eslesmis sepetten gelir, tum hallerin
-   * medyanindan degil. Iki fiyat ile yuzde ayni kumeden olsun ki okur dogrulayabilsin.
+   * Haftalik kiyasin iki ucu ve yuzdesi: hepsi ESLESMIS sepetten gelir (ayni hal, ayni urun
+   * kaydi), tum hallerin medyanindan degil. Boylece okur eline kalem alip dogrulayabilir.
    */
-  yoyCurrent:  number | null;
-  /** Gecen haftanin fiyati — su an tabloda gosterilmiyor, fikir degisirse hazir. */
+  weekCurrent: number | null;
   prevPrice:   number | null;
   weeklyPct:   number | null;
+  weeklyPairs: number | null;
+  /** Yillik kiyas — 2025 kapsami zayif oldugu icin su an bultende GOSTERILMIYOR. */
+  yoyCurrent:  number | null;
   lastYearAvg: number | null;
   yoyPct:      number | null;
   yoyPairs:    number | null;
@@ -95,21 +98,23 @@ export async function weeklyBasket(): Promise<BasketRow[]> {
     if (!c || c.markets < MIN_MARKETS) continue;
 
     const p = prev.get(b.slug);
-    const comparable = p && p.avg > 0 && p.markets >= MIN_MARKETS;
+    const week = p ? matchedChange(c, p) : null;
 
     const ly = lastYear.get(b.slug);
-    const yoy = ly ? matchedYoy(c, ly) : null;
+    const yoy = ly ? matchedChange(c, ly) : null;
 
     rows.push({
       productSlug: b.slug,
       productName: b.slug,
       price:       c.avg,
       marketCount: c.markets,
-      prevPrice:   comparable ? p!.avg : null,
-      weeklyPct:   comparable ? Math.round((10000 * (c.avg - p!.avg)) / p!.avg) / 100 : null,
+      weekCurrent: week?.currentAvg ?? null,
+      prevPrice:   week?.baseAvg ?? null,
+      weeklyPct:   week?.changePct ?? null,
+      weeklyPairs: week?.pairs ?? null,
       yoyCurrent:  yoy?.currentAvg ?? null,
-      lastYearAvg: yoy?.lastYearAvg ?? null,
-      yoyPct:      yoy?.yoyPct ?? null,
+      lastYearAvg: yoy?.baseAvg ?? null,
+      yoyPct:      yoy?.changePct ?? null,
       yoyPairs:    yoy?.pairs ?? null,
     });
   }
@@ -133,15 +138,15 @@ export async function yearlyMovers(limit = 10): Promise<{ up: YearlyMove[]; down
     if (c.markets < MIN_MARKETS) continue;
     const ly = lastYear.get(slug);
     if (!ly) continue;
-    const yoy = matchedYoy(c, ly);
+    const yoy = matchedChange(c, ly);
     if (!yoy) continue;
 
     scored.push({
       productSlug: slug,
       productName: slug,
       price:       yoy.currentAvg,
-      lastYearAvg: yoy.lastYearAvg,
-      yoyPct:      yoy.yoyPct,
+      lastYearAvg: yoy.baseAvg,
+      yoyPct:      yoy.changePct,
       yoyPairs:    yoy.pairs,
     });
   }

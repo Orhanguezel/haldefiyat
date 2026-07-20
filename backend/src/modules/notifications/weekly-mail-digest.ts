@@ -79,17 +79,17 @@ function basketTable(rows: BasketRow[]): string {
   const body = rows.map((r) => `
     <tr>
       ${productCell(r.productSlug, r.productName, `${r.marketCount} halde medyan`)}
-      <td style="${NUM}color:#6b7280;">${r.lastYearAvg != null ? `₺${fmtPriceTr(r.lastYearAvg)}` : "—"}</td>
-      <td style="${NUM}color:#0f172a;font-weight:600;">₺${fmtPriceTr(r.yoyCurrent ?? r.price)}</td>
-      <td style="${NUM}color:${r.yoyPct != null ? pctColor(r.yoyPct) : "#6b7280"};font-weight:600;">
-        ${r.yoyPct != null ? fmtPct(r.yoyPct) : "—"}
+      <td style="${NUM}color:#6b7280;">${r.prevPrice != null ? `₺${fmtPriceTr(r.prevPrice)}` : "—"}</td>
+      <td style="${NUM}color:#0f172a;font-weight:600;">₺${fmtPriceTr(r.weekCurrent ?? r.price)}</td>
+      <td style="${NUM}color:${r.weeklyPct != null ? pctColor(r.weeklyPct) : "#6b7280"};font-weight:600;">
+        ${r.weeklyPct != null ? fmtPct(r.weeklyPct) : "—"}
       </td>
     </tr>`).join("");
 
   return `<table style="width:100%;border-collapse:collapse;font-size:13px;">
     <thead><tr style="background:#f9fafb;">
       <th style="text-align:left;${TH}">Urun</th>
-      <th style="text-align:right;${TH}">Gecen yil</th>
+      <th style="text-align:right;${TH}">Gecen hafta</th>
       <th style="text-align:right;${TH}">Bu hafta</th>
       <th style="text-align:right;${TH}">Degisim</th>
     </tr></thead>
@@ -124,13 +124,13 @@ function seasonalTable(rows: SeasonalRow[]): string {
  */
 function buildSubject(basket: BasketRow[]): string {
   const moved = basket
-    .filter((r) => r.yoyPct != null)
-    .sort((a, b) => Math.abs(b.yoyPct!) - Math.abs(a.yoyPct!))
+    .filter((r) => r.weeklyPct != null)
+    .sort((a, b) => Math.abs(b.weeklyPct!) - Math.abs(a.weeklyPct!))
     .slice(0, 2)
-    .map((r) => `${r.productName} ${fmtPct(r.yoyPct!)}`);
+    .map((r) => `${r.productName} ${fmtPct(r.weeklyPct!)}`);
 
   return moved.length
-    ? `Gecen yila gore ${moved.join(", ")}`
+    ? `Hal fiyatlari: ${moved.join(", ")}`
     : "Hal fiyatlari haftalik ozet";
 }
 
@@ -162,8 +162,8 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
     <div style="padding:24px;">
       <h2 style="margin:0 0 4px;font-size:16px;color:#0f172a;">Temel Urunler</h2>
       <p style="margin:0 0 12px;color:#6b7280;font-size:12px;line-height:1.6;">
-        En cok tuketilen urunler, her hafta ayni sirada. Gecen yilin ayni haftasiyla karsilastirma;
-        yalnizca her iki yilda da <strong>ayni halde ve ayni urun kaydiyla</strong> olculmus
+        En cok tuketilen urunler, her hafta ayni sirada. Bir onceki haftayla karsilastirma;
+        yalnizca <strong>ayni halde ve ayni urun kaydiyla</strong> iki haftada da olculmus
         fiyatlar kiyaslanir. Fiyatlar haller arasindaki medyandir (₺/kg).
       </p>
       ${basketTable(basket)}
