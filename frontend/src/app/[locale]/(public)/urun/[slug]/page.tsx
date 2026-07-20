@@ -323,7 +323,6 @@ export default async function UrunPage({ params }: Props) {
    * son 30 gun. Ikisi de yoksa `offers` HIC yazilmaz — yanlis isaretleme,
    * eksik isaretlemeden kotudur.
    */
-  const offerUnit = normalizeUnit(product.unit);
   const toOfferRow = (row: { minPrice: unknown; maxPrice: unknown; avgPrice: unknown; marketSlug: string }) => ({
     min: toNumberSafe(row.minPrice as never) || toNumberSafe(row.avgPrice as never),
     max: toNumberSafe(row.maxPrice as never) || toNumberSafe(row.avgPrice as never),
@@ -331,18 +330,40 @@ export default async function UrunPage({ params }: Props) {
     market: row.marketSlug,
   });
 
-  // Birim filtresi SART: bazi haller ayni urunu KOLI fiyatiyla bildiriyor
-  // (Yalova ithal muz 2400 TL/koli, Tekirdag taze kekik 4000 TL/koli). Bunlar
-  // kg olarak isaretlenince Google'a "2400 TL/kg muz" demis oluyorduk.
-  const sameUnit = (u: string | null | undefined) => normalizeUnit(u) === offerUnit;
+  /**
+   * Baskin birim VERIDEN tayin edilir, urun katalogundan DEGIL.
+   *
+   * `hf_products.unit` guvenilmez: elma "kg." (sonunda nokta), marul "adet",
+   * maydonoz "bag", dereotu "demet" yaziyor — ama bu urunlerin butun fiyat
+   * satirlari kg. Filtreyi katalog alanina baglayinca 13 saglikli urun
+   * teklif isaretlemesini kaybetti.
+   *
+   * Satirlarin cogunlugu hangi birimdeyse o esas alinir, azinlikta kalan birim
+   * elenir. Amac karisimi engellemek: Yalova ithal muzu KOLI basi 2400 TL
+   * bildiriyor, digerleri kg basi ~110 TL. Karistirilinca Google'a
+   * "2400 TL/kg muz" demis oluyorduk.
+   */
+  const pickByDominantUnit = (rows: Array<{ avgPrice: unknown; unit?: string | null }>) => {
+    const valid = rows.filter((row) => toNumberSafe(row.avgPrice as never) > 0);
+    if (valid.length === 0) return { rows: valid, unit: "kg" };
+    const tally = new Map<string, number>();
+    for (const row of valid) {
+      const u = normalizeUnit(row.unit);
+      tally.set(u, (tally.get(u) ?? 0) + 1);
+    }
+    const unit = [...tally.entries()].sort((a, b) => b[1] - a[1])[0][0];
+    return { rows: valid.filter((row) => normalizeUnit(row.unit) === unit), unit };
+  };
 
-  const todaySameUnit = todayPrices.filter((row) => toNumberSafe(row.avgPrice) > 0 && sameUnit(row.unit));
-  const fallbackRows = todaySameUnit.length > 0
-    ? []
-    : (await fetchPrices({ product: slug, range: "30d", limit: 60, latestOnly: true }).catch(() => []))
-        .filter((row) => toNumberSafe(row.avgPrice) > 0 && sameUnit(row.unit));
+  const todayPick = pickByDominantUnit(todayPrices);
+  const pick = todayPick.rows.length > 0
+    ? todayPick
+    : pickByDominantUnit(
+        await fetchPrices({ product: slug, range: "30d", limit: 60, latestOnly: true }).catch(() => []),
+      );
 
-  const offerRows = (todaySameUnit.length > 0 ? todaySameUnit : fallbackRows).map(toOfferRow);
+  const offerUnit = pick.unit;
+  const offerRows = pick.rows.map((row) => toOfferRow(row as never));
 
   const offerLow  = offerRows.length ? Math.min(...offerRows.map((r) => r.min).filter((n) => n > 0)) : 0;
   const offerHigh = offerRows.length ? Math.max(...offerRows.map((r) => r.max).filter((n) => n > 0)) : 0;
