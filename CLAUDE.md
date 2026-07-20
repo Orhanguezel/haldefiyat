@@ -32,6 +32,11 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 
 > **➡️ Sonraki oturumda yapilacak isler:** [`KALAN-ISLER.md`](./KALAN-ISLER.md)
 >
+> **🔴 2026-07-20 oturumu — VERI KALITESI acik isleri KALAN-ISLER.md'nin BASINDA.**
+> En buyugu: `avg_price` kayitlarin %79'unda SENTETIK (min-max orta noktasi). Bulten icin
+> makas filtresi kondu ama asil cozum ETL'de; sitedeki tum fiyatlari ve raporlari etkiliyor.
+> Detay: [`docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md`](./docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md)
+>
 > Hizli baslangic siralamasi: #60 (changePct dogrulama) → #62 (competitor admin
 > UI) → #34 (Turkiye haritasi) → #41 (embed widget). Diger acik isler ve
 > beklemeler bu dosyada kategorize.

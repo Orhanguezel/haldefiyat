@@ -4,6 +4,43 @@
 **Amaç:** Tüm açık `[ ]` maddeler tek yerde. Detay/bağlam için ilgili `docs/checklists/<dosya>.md`.
 > Tamamlanmış planlar (ETL-KAPSAM, FIRMA-FORM, FIRMA-UYE, hal-yeni-kaynaklar, INDEKSLEME-ANALIZ) açık madde içermez.
 
+---
+
+## 🔴 VERİ KALİTESİ — 2026-07-20 oturumu (ÖNCELİKLİ)
+
+Detay: [`docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md`](docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md)
+
+- [ ] **`avg_price` %79 oranında SENTETİK — en büyük açık.** Haller ortalama yayınlamıyor;
+      ETL `avg`'ı min-max **orta noktası** olarak türetiyor. Makas darken makul, genişken çöp
+      (Bursa domates min 10 / max 185 → "ortalama" 97,50 ₺). Kayıtların %14,6'sında makas >5 kat.
+      Bültene `MAX_MINMAX_SPREAD=3` filtresi kondu ama **asıl çözüm ETL'de**: hallerin geniş
+      min-max'ında ne yayınlayacağımıza karar vermek. *Bu sadece bülteni değil sitedeki tüm
+      fiyatları ve raporları etkiliyor.*
+
+- [ ] **Tarihsel aykırı değer taraması.** Akran sapması dedektörü 14 günlük pencereye bakıyor;
+      eski bozuk kayıtlar yakalanmıyor. Örnek: Ilgın `inek-canli` **16,33 TL/kg** (2026-03-10),
+      Edirne'de aynı ürün 210 TL. Landing sayfasından 90 günlük pencereyle düştü ama DB'de duruyor.
+      Gereken: dedektörün pencere parametreli, tüm geçmişe uygulanan hâli.
+
+- [ ] **TOBB Adana + Ordu parser'ı** — `borsakod=5AD10` / `5OR10` istekte satır gösteriyor,
+      `tobb_borsa_html` parser'ı 0 çıkarıyor.
+
+- [ ] **71 yakın-mükerrer master çifti** (elle karar): `kamkat`/`kumkat`/`kunkat`,
+      `hinnap`/`hunnap`. **Birleştirilmemesi gerekenler var:** `dereotu`/`tereotu` mesafe-1
+      ama farklı bitkiler (dill vs cress).
+
+- [ ] **Yıllık (YoY) kıyas hâlâ kapalı.** 12 üründen 3'ü eşikte. Backfill çözmedi
+      (kapsam ~%2). Gerçekçi tarih **Mayıs 2027** — 2026-05'ten itibaren kapsam iyi.
+      `basket.ts` yoyPct alanları hazır bekliyor.
+
+- [ ] **Faz 4 kalan:** admin panelde kaynak sağlık kartına "son değişim tarihi" ✅ yapıldı;
+      telegram bildirimi ✅ yapıldı. Kalan yok — faz kapandı.
+
+- [ ] **Diğer projelere `TELEGRAM_CHAT_ID` ekle** (operasyonel iş, kod hazır):
+      bereketfide, tarim-ansiklopedisi, tarimda-bugun, tarimiklim → token var, chat id yok.
+      hava-durumu-don-uyarisi → ikisi de yok, don uyarısı gönderemiyor olmalı.
+
+
 ## Özet
 
 | Çeklist | Açık |
