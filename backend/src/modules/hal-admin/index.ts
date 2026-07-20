@@ -527,9 +527,8 @@ export async function registerHalAdmin(app: FastifyInstance) {
   });
 
   // Ürün birleştirme: dublike ürünleri bir master altında konsolide et.
-  // Varyantlar → canonical_slug=master + noindex; master aliases'a varyant isimleri eklenir
-  // (gelecek ETL aynı isimleri master'a yazsın). Fiyat geçmişi TAŞINMAZ — varyant kendi fiyatını
-  // tutar (isim + granülarite korunur), master sayfası canonical aileyi gösterimde toplar.
+  // Varyantlar → canonical_slug=master + noindex. Fiyat geçmişi TAŞINMAZ, alias EKLENMEZ:
+  // varyant kendi satırlarını ve adını korur, master sayfası aileyi gösterimde toplar.
   // Birim uyuşmazsa (kg vs adet) merge REDDEDİLİR — fiyat bozulmasın.
   app.post<{ Body: { masterId?: number; variantIds?: number[] } }>("/hal/products/merge", async (req, reply) => {
     const masterId = Number(req.body?.masterId);
@@ -559,20 +558,17 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const variantIdList = variants.map((v) => v.id);
     await db.update(hfProducts).set({ canonicalSlug: master.slug, seoIndex: 0, familySlug: null }).where(inArray(hfProducts.id, variantIdList));
 
-    // Fiyat geçmişini master'a taşı — tüm hallerin verisi tek üründe toplansın.
-    // (product_id,market_id,recorded_date) unique; çakışan satırları IGNORE atlar, kalıntı silinir.
-    const idsSql = sql.join(variantIdList.map((i) => sql`${i}`), sql`, `);
-    await db.execute(sql`UPDATE IGNORE hf_price_history SET product_id = ${masterId} WHERE product_id IN (${idsSql})`);
-    await db.execute(sql`DELETE FROM hf_price_history WHERE product_id IN (${idsSql})`);
-
-    const aliasSet = new Set<string>([...(Array.isArray(master.aliases) ? (master.aliases as string[]) : [])]);
-    for (const v of variants) {
-      if (v.nameTr) aliasSet.add(v.nameTr);
-      if (v.displayName) aliasSet.add(v.displayName);
-      for (const a of Array.isArray(v.aliases) ? (v.aliases as string[]) : []) aliasSet.add(a);
-    }
-    await db.update(hfProducts).set({ aliases: Array.from(aliasSet) }).where(eq(hfProducts.id, masterId));
-    invalidateAliasCache(); // yeni alias'lar ETL eşleştirmesine hemen yansısın
+    // Fiyat geçmişi TAŞINMAZ ve SİLİNMEZ. Varyant kendi satırlarını tutar; master sayfası
+    // aileyi gösterimde `canonical_slug` üzerinden toplar. Önceden burada geçmiş master'a
+    // taşınıp varyant satırları siliniyordu — dosyanın başındaki yorumla çelişiyordu ve
+    // granülariteyi (hangi hal hangi çeşidi kaç liraya sattı) geri dönülmez şekilde yok ediyordu.
+    //
+    // Varyant isimleri master'ın alias'ına da EKLENMEZ. Varyant ürünü aktif kaldığı için ETL
+    // onu zaten kendi adıyla bulur (normalizer: kendi adı > alias). Eklemek iki ürünün aynı
+    // eşleştirme anahtarını talep etmesine yol açıyordu: katalogda 1.525 anahtarın 513'ü
+    // çakışmış, 653 ürün etkilenmişti. Somut sonuç, kaynakta üç ayrı domates satırı varken
+    // üçünün tek ürüne düşüp son satırın diğerlerini ezmesiydi.
+    invalidateAliasCache(); // canonical_slug değişikliği ETL eşleştirmesine hemen yansısın
 
     // Editorial koruma: master'da editorial yoksa, varyantların en zengin (en uzun about_md)
     // editorial'ını master slug'a taşı — yoksa içerik 301 arkasında görünmez kalır.
