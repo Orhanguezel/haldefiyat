@@ -62,10 +62,28 @@ Kumluca kaynak sayfasında `Domates 25₺`, `Yuvarlak Domates 30₺`, `Oval Doma
 
 **Doğrulanan kazanç** (aynı gün, yeniden çekim sonrası): Konya 111 → 155 ürün, Kayseri 112 → 128, Finike 13 → 19, Demre 17 → 22, Kumluca 13 → 19.
 
+### Kayseri 110 ₺ — ÇÖZÜLDÜ (2026-07-20)
+Kaynak sayfada **sade "Soğan Kuru" satırı yok**; olan satır `Soğan Kuru Arpacık 120/100 ₺ → 110`. Arpacığın gerçek fiyatı `sogan-kuru`'ya yazılıyordu.
+
+```
+2026-04-21 → 06-03 : 12–15 ₺    ← gerçek kuru soğan
+2026-07-07 → 07-20 : 110,00 ₺   ← arpacık, yanlış eşleşme
+```
+
+**Başlangıç 7 Temmuz** — `8380af4e feat(etl): birim-kapsamlı eşleştirme anahtarı` (2026-07-06) commit'inin ertesi günü. Yani "7 Temmuz'da bir şey oldu" sezgisi DOĞRUYDU; mekanizma donma değil, eşleştirme regresyonuydu.
+
+14 hayalet satır silindi. Ulusal soğan medyanı düzeldi (34–50 ₺ bandı, 110 aykırısı yok). Yayınlanmış soğan analizi **etkilenmedi** — orada Kayseri zaten elenmişti (rakamlar yeniden hesaplandı, birebir aynı).
+
+### Yapıldı
+- [x] Alias temizliği: 136 üründen 961 alias kaldırıldı; çakışma 513 → 54, etkilenen ürün 653 → 95. Yedek: `/tmp/alias_backup.sql`
+- [x] Merge kodu düzeltildi: fiyat geçmişi artık taşınmıyor/silinmiyor, varyant adı master alias'ına eklenmiyor (çakışmanın tekrarını önler)
+- [x] Endeks sepeti düzeltildi (4 hatalı slug + birim filtresi yok + kompozisyon kayması)
+- [x] Endeks serisi 2026-20'ye rebase edildi; öncesi kaldırıldı (ürün başına ~2 hal, ulusal endeks değildi). Yedek: `/tmp/index_snapshots_backup.sql`
+
 ### Açık kalan
-- [ ] Kayseri `sogan-kuru` = 110,00 ₺ hâlâ açıklanamadı (diğer haller 45–55). `sogan-kuru-arpacik` de aynı 110,00. Kaynak sayfadan doğrulanmalı.
-- [ ] Alias temizliği: master'ların alias listesinden, aktif varyant ürününe ait adlar çıkarılsın (kod düzeltmesi çakışmayı çözüyor ama veri hâlâ kirli)
-- [ ] `sogan-kuru-taze` / `sogan-kuru-taze-kg` gibi mükerrer ürünler dedup edilsin
+- [ ] **Genel hayalet taraması**: Kayseri dışında da eski yanlış eşleşmeden kalan satırlar var. Yöntem: her kaynağı çalıştır, dönen `touchedProductSlugs` ile o (hal, tarih) için DB'deki ürünleri karşılaştır, farkı sil
+- [ ] Mükerrer ürünler: `sogan-kuru-taze`/`sogan-kuru-taze-kg`, `oval-domates`/`domates-oval`, `armut-s-maria`/`armut-santamaria`
+- [ ] Kalan 54 alias çakışması (yazım hatası / farklı aile — elle karar gerektirir)
 
 ---
 
@@ -73,16 +91,16 @@ Kumluca kaynak sayfasında `Domates 25₺`, `Yuvarlak Domates 30₺`, `Oval Doma
 
 Gerçek veri gelene kadar uydurma veri yayından kalkmalı. Silme değil, sorgu düzeyinde dışlama.
 
-- [ ] `hf_market_blackouts` tablosu (seed SQL, yeni dosya): `market_id, from_date, to_date, reason, created_at`
-- [ ] Üç hal için kayıt gir: Bursa/Eskişehir/Denizli, `2023-04-21` → hal bazında gerçek unfreeze tarihi (aşağıda Faz 1.0'da netleşecek; geçici olarak `2026-04-21`)
-- [ ] Drizzle şema tanımı `db/schema.ts`
-- [ ] Ortak yardımcı: `excludeBlackouts(qb)` — tek yerden, 15 sorgu noktası kopya kod yazmasın
+- [x] `hf_market_blackouts` tablosu — `048_market_blackouts_schema.sql`
+- [x] Üç hal kaydı girildi (günlük parmak izinden ölçülen bitiş tarihleriyle): Bursa `2026-04-21`, Denizli `2026-04-24`, Eskişehir `2026-04-19`
+- [x] Drizzle şema tanımı `db/schema.ts` → `hfMarketBlackouts`
+- [x] Ortak yardımcı: `modules/prices/blackouts.ts` → `blackoutFilter(dateCol, marketCol)` (5 dk cache)
 - [ ] Uygula — **öncelik sırası** (görünürlüğe göre):
   - [ ] `modules/prices/movers.ts` (bülten + hareketler)
   - [ ] `modules/prices/seasonal.ts` (bülten mevsimlik)
   - [ ] `modules/prices/repository.ts` (ürün sayfaları, grafikler)
   - [ ] `modules/prices/weekly.ts`
-  - [ ] `modules/index/calculator.ts` (endeks)
+  - [x] `modules/index/calculator.ts` (endeks) — baz hafta dahil uygulandı
   - [ ] `modules/annual-report/index.ts`
   - [ ] `modules/feeds/index.ts`
   - [ ] `modules/alerts/checker.ts`
