@@ -267,20 +267,6 @@ export default async function UrunPage({ params }: Props) {
   ]);
   const borsaPrices = borsaPricePage.items;
 
-  const mins = history
-    .map((h) => toNumberSafe(h.minPrice))
-    .filter((n) => n > 0);
-  const maxes = history
-    .map((h) => toNumberSafe(h.maxPrice))
-    .filter((n) => n > 0);
-  const avgs = history
-    .map((h) => toNumberSafe(h.avgPrice))
-    .filter((n) => n > 0);
-  const lowPrice  = mins.length > 0 ? Math.min(...mins) : 0;
-  const highPrice = maxes.length > 0 ? Math.max(...maxes) : 0;
-  const avgPrice  = avgs.length > 0
-    ? Math.round(avgs.reduce((a, b) => a + b, 0) / avgs.length * 100) / 100
-    : 0;
 
   const now = Date.now();
   const yoyByMarket: Record<string, number> = (() => {
@@ -303,28 +289,79 @@ export default async function UrunPage({ params }: Props) {
     return result;
   })();
 
+  /**
+   * Yapilandirilmis veri fiyatlari, sayfada GORUNEN fiyatlarla ayni kumeden gelmeli.
+   *
+   * Onceki hal `history` (5 YILLIK pencere) uzerinden hesapliyordu ve Google'a
+   * gercekle alakasiz araliklar bildiriyordu:
+   *   limon    -> schema 1-5050 TL  (son 7 gun gercegi: 18-150)
+   *   domates  -> schema 5-210 TL   (son 7 gun gercegi: 7-160), "fiyat" 72,53 = 5 yil ortalamasi
+   *   offerCount -> 4841 = fiyat gecmisi SATIR sayisi; satici/teklif sayisi degil
+   *
+   * Google'in yapilandirilmis veri politikasi, isaretlemenin sayfadaki icerikle
+   * eslesmesini sart kosar; 5050 TL gibi bir tavan ayrica bozuk kayitlarin
+   * (birim hatasi) arama sonucuna sizmasi demekti.
+   *
+   * Yeni kaynak: once bugunun fiyatlari (PriceTable'da gosterilen kume), yoksa
+   * son 30 gun. Ikisi de yoksa `offers` HIC yazilmaz — yanlis isaretleme,
+   * eksik isaretlemeden kotudur.
+   */
+  const offerRows = (() => {
+    const today = todayPrices.filter((row) => toNumberSafe(row.avgPrice) > 0);
+    if (today.length > 0) {
+      return today.map((row) => ({
+        min: toNumberSafe(row.minPrice) || toNumberSafe(row.avgPrice),
+        max: toNumberSafe(row.maxPrice) || toNumberSafe(row.avgPrice),
+        avg: toNumberSafe(row.avgPrice),
+        market: row.marketSlug,
+      }));
+    }
+    const cutoff = Date.now() - 30 * 86_400_000;
+    return history
+      .filter((h) => new Date(`${h.recordedDate}T12:00:00Z`).getTime() >= cutoff)
+      .map((h) => ({
+        min: toNumberSafe(h.minPrice) || toNumberSafe(h.avgPrice),
+        max: toNumberSafe(h.maxPrice) || toNumberSafe(h.avgPrice),
+        avg: toNumberSafe(h.avgPrice),
+        market: h.marketSlug,
+      }))
+      .filter((r) => r.avg > 0);
+  })();
+
+  const offerLow  = offerRows.length ? Math.min(...offerRows.map((r) => r.min).filter((n) => n > 0)) : 0;
+  const offerHigh = offerRows.length ? Math.max(...offerRows.map((r) => r.max).filter((n) => n > 0)) : 0;
+  const offerAvg  = offerRows.length
+    ? Math.round((offerRows.reduce((a, r) => a + r.avg, 0) / offerRows.length) * 100) / 100
+    : 0;
+  /** Teklif sayisi = fiyat bildiren PAZAR sayisi. Gecmis satiri saymak anlamsizdi. */
+  const offerCount = new Set(offerRows.map((r) => r.market).filter(Boolean)).size;
+
   const productSchema = {
     name: displayName,
     description: borsaProduct
       ? `${displayName} için güncel TMO resmi alım ve ticaret borsası fiyatları.`
       : `${displayName} için güncel hal fiyatları. Türkiye genelinde günlük min/ort/maks fiyat verisi.`,
     category: product.categorySlug,
-    offers: {
-      "@type": "AggregateOffer",
-      priceCurrency: "TRY",
-      lowPrice:  String(lowPrice),
-      highPrice: String(highPrice),
-      offerCount: String(history.length),
-      ...(avgPrice > 0 && {
-        priceSpecification: {
-          "@type": "PriceSpecification",
-          price: String(avgPrice),
-          priceCurrency: "TRY",
-          unitCode: "KGM",
-          unitText: "kg",
-        },
-      }),
-    },
+    url: `${SITE_URL_META}/urun/${slug}`,
+    image: `${SITE_URL_META}/og/urun/${slug}`,
+    ...(offerLow > 0 && offerHigh > 0 && {
+      offers: {
+        "@type": "AggregateOffer",
+        priceCurrency: "TRY",
+        lowPrice:  String(offerLow),
+        highPrice: String(offerHigh),
+        ...(offerCount > 0 && { offerCount: String(offerCount) }),
+        ...(offerAvg > 0 && {
+          priceSpecification: {
+            "@type": "PriceSpecification",
+            price: String(offerAvg),
+            priceCurrency: "TRY",
+            unitCode: "KGM",
+            unitText: "kg",
+          },
+        }),
+      },
+    }),
   } satisfies Record<string, unknown>;
   const latestDate = [...todayPrices, ...borsaPrices, ...resmiPrices, ...history]
     .map((row) => row.recordedDate)
