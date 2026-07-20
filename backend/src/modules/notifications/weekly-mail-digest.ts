@@ -66,7 +66,9 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
 
   const moverRows = movers.map((m) => {
     const yoy = m.yoyPct;
-    const lastYearHint = m.lastYearAvg != null ? `Gecen yil ort. ₺${fmtPriceTr(m.lastYearAvg)}` : "Gecen yil verisi yok";
+    const lastYearHint = m.lastYearAvg != null
+      ? `Gecen yil ayni donem ₺${fmtPriceTr(m.lastYearAvg)} (${m.yoyPairs} ortak hal-urun kaydi)`
+      : "Gecen yil icin karsilastirilabilir kayit yok";
     return `
       <tr>
         <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;">
@@ -100,8 +102,10 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
     </div>
     <div style="padding:24px;">
       <p style="margin:0 0 16px;color:#374151;font-size:14px;line-height:1.6;">
-        Son 7 gunde en cok degisen urunler. Fiyatlar birden fazla halin ulusal ortalamasidir;
-        "Gecen yil" sutunu ayni urunun gecen yil ayni donemdeki ortalamasina gore degisimi gosterir.
+        Son 7 gunde en cok degisen urunler. <strong>Son</strong> ve <strong>7g</strong> sutunlari
+        haftalik hareketi, <strong>Gecen yila gore</strong> sutunu yillik degisimi gosterir.
+        Yillik kiyas yalnizca her iki yilda da ayni halde ve ayni urun kaydiyla olcülen
+        fiyatlar uzerinden yapilir — kapsam degisimi artis gibi gorunmesin.
       </p>
       <table style="width:100%;border-collapse:collapse;font-size:13px;">
         <thead>

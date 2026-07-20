@@ -20,7 +20,8 @@ export const MOVER_EXCLUDED_CATEGORIES = [
 // Hafta-içi hareket için en az bu kadar ayrı halde gözlem şartı (tek hal glitch'i elenir).
 export const MIN_MARKETS = 6;
 // Geçen yıl karşılaştırmasında tarihsel kapsam daha düşük — eşik gevşek, ama tek-hal değil.
-export const MIN_MARKETS_YOY = 3;
+// Burada sayılan şey EŞLEŞEN (hal × ürün) çifti sayısıdır, ham gözlem değil.
+export const MIN_PAIRS_YOY = 3;
 
 export interface NationalMover {
   productSlug: string;
@@ -29,6 +30,8 @@ export interface NationalMover {
   previous:    number;
   changePct:   number;
   marketCount: number;
+  /** Geçen yıl karşılaştırmasının dayandığı eşleşmiş (hal × ürün) çifti sayısı. */
+  yoyPairs:    number | null;
   lastYearAvg: number | null;
   yoyPct:      number | null;
 }
@@ -36,6 +39,8 @@ export interface NationalMover {
 interface Agg {
   avg:     number;
   markets: number;
+  /** `${marketId}|${productSlug}` → o çiftin ortalama fiyatı. Yıllık kıyas sepetini eşlemek için. */
+  pairs:   Map<string, number>;
 }
 
 function isoShift(iso: string, days: number): string {
@@ -62,9 +67,11 @@ function median(nums: number[]): number {
 async function windowByMaster(from: string, to: string): Promise<Map<string, Agg>> {
   const rows = await db
     .select({
-      masterSlug: sql<string>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
-      marketId:   hfPriceHistory.marketId,
-      hallAvg:    sql<string>`AVG(${hfPriceHistory.avgPrice})`,
+      masterSlug:  sql<string>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
+      marketId:    hfPriceHistory.marketId,
+      productSlug: hfProducts.slug,
+      hallAvg:     sql<string>`AVG(${hfPriceHistory.avgPrice})`,
+      obs:         sql<string>`COUNT(*)`,
     })
     .from(hfPriceHistory)
     .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
@@ -77,22 +84,72 @@ async function windowByMaster(from: string, to: string): Promise<Map<string, Agg
         sql`${hfProducts.categorySlug} NOT IN (${sql.join(MOVER_EXCLUDED_CATEGORIES.map((c) => sql`${c}`), sql`, `)})`,
       ),
     )
-    .groupBy(sql`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`, hfPriceHistory.marketId);
+    .groupBy(
+      sql`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
+      hfPriceHistory.marketId,
+      hfProducts.slug,
+    );
 
-  const byMaster = new Map<string, number[]>();
+  // (master, hal) → varyantların gözlem-ağırlıklı ortalaması; ayrıca (hal, varyant) çiftleri.
+  interface Acc { halls: Map<number, { sum: number; n: number }>; pairs: Map<string, number> }
+  const byMaster = new Map<string, Acc>();
   for (const r of rows) {
     const v = parseFloat(String(r.hallAvg));
-    if (!Number.isFinite(v) || v <= 0) continue;
-    const arr = byMaster.get(r.masterSlug);
-    if (arr) arr.push(v);
-    else byMaster.set(r.masterSlug, [v]);
+    const n = parseInt(String(r.obs), 10);
+    if (!Number.isFinite(v) || v <= 0 || !Number.isFinite(n) || n <= 0) continue;
+
+    let acc = byMaster.get(r.masterSlug);
+    if (!acc) { acc = { halls: new Map(), pairs: new Map() }; byMaster.set(r.masterSlug, acc); }
+
+    const hall = acc.halls.get(r.marketId);
+    if (hall) { hall.sum += v * n; hall.n += n; }
+    else acc.halls.set(r.marketId, { sum: v * n, n });
+
+    acc.pairs.set(`${r.marketId}|${r.productSlug}`, v);
   }
 
   const out = new Map<string, Agg>();
-  for (const [slug, halls] of byMaster) {
-    out.set(slug, { avg: median(halls), markets: halls.length });
+  for (const [slug, acc] of byMaster) {
+    const hallAvgs = [...acc.halls.values()].map((h) => h.sum / h.n);
+    out.set(slug, { avg: median(hallAvgs), markets: hallAvgs.length, pairs: acc.pairs });
   }
   return out;
+}
+
+/**
+ * Yıllık değişim — EŞLEŞTİRİLMİŞ SEPET.
+ *
+ * Neden: iki yılın ham medyanını kıyaslamak elmayla armut kıyaslamaktı. İki taraf ne aynı
+ * halleri ne de aynı varyantları içeriyordu; oran gerçek fiyat hareketini değil sepet
+ * değişimini ölçüyordu. Somut vaka (2026-07-20 bülteni): `sogan-kuru` ailesinde 2025 sepeti
+ * 7 haldi ve içinde bugün hiç görünmeyen ucuz varyantlar vardı (`sogan-kuru-ii-taze` 5 ₺,
+ * `sogan-arpacik` 13 ₺) → medyan 10,5 ₺. 2026 sepeti ise 14 halde düz `sogan-kuru` → 47,88 ₺.
+ * Çıkan "+%356" fiyat artışı değil, kapsam artışıydı. Aynı hata tere'de `tere-70-100gr`
+ * (100 gramlık paket, kg fiyatı gibi 3,1 ₺) ve greyfurt'ta `greyfurt-diger` üzerinden tekrarlıyordu.
+ *
+ * Çözüm: yalnızca HER İKİ dönemde de aynı (hal × ürün) çiftinde gözlenmiş fiyatlar kıyaslanır.
+ * Sepet iki tarafta tanımı gereği özdeş olduğundan geriye sadece fiyat hareketi kalır.
+ */
+function matchedYoy(cur: Agg, ly: Agg): { lastYearAvg: number; yoyPct: number; pairs: number } | null {
+  const curVals: number[] = [];
+  const lyVals:  number[] = [];
+  for (const [key, lyPrice] of ly.pairs) {
+    const curPrice = cur.pairs.get(key);
+    if (curPrice == null || lyPrice <= 0 || curPrice <= 0) continue;
+    curVals.push(curPrice);
+    lyVals.push(lyPrice);
+  }
+  if (curVals.length < MIN_PAIRS_YOY) return null;
+
+  const curMed = median(curVals);
+  const lyMed  = median(lyVals);
+  if (lyMed <= 0) return null;
+
+  return {
+    lastYearAvg: lyMed,
+    yoyPct:      Math.round((10000 * (curMed - lyMed)) / lyMed) / 100,
+    pairs:       curVals.length,
+  };
 }
 
 async function latestRecordedDate(): Promise<string | null> {
@@ -130,8 +187,7 @@ export async function nationalMovers(limit = 10): Promise<NationalMover[]> {
     if (Math.abs(changePct) > 80) continue;
 
     const ly = lastYear.get(slug);
-    const lyOk = ly && ly.markets >= MIN_MARKETS_YOY && ly.avg > 0;
-    const yoyPct = lyOk ? Math.round((10000 * (c.avg - ly.avg)) / ly.avg) / 100 : null;
+    const yoy = ly ? matchedYoy(c, ly) : null;
 
     scored.push({
       productSlug: slug,
@@ -140,8 +196,9 @@ export async function nationalMovers(limit = 10): Promise<NationalMover[]> {
       previous:    p.avg,
       changePct,
       marketCount: Math.min(c.markets, p.markets),
-      lastYearAvg: lyOk ? ly.avg : null,
-      yoyPct,
+      yoyPairs:    yoy?.pairs ?? null,
+      lastYearAvg: yoy?.lastYearAvg ?? null,
+      yoyPct:      yoy?.yoyPct ?? null,
     });
   }
   if (!scored.length) return [];
