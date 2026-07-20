@@ -47,7 +47,7 @@ export const MAKALELER: AnalizMakale[] = [
     hafta: "2026-19",
     yazar: "HaldeFiyat Veri Ekibi",
     etiketler: ["çilek", "kiraz", "domates", "haftalık rapor"],
-    icerik: `Türkiye genelindeki aktif haller merkezinden derlenen 12 Mayıs 2026 haftası verileri, ilkbaharın ürün çeşitliliğini hızla artırdığını ortaya koyuyor. HaldeFiyat Endeksi bu hafta baz haftaya göre 97,4 puanda seyrediyor; geçen haftaki 99,1'e kıyasla hafif gerileme yaşandı.
+    icerik: `Türkiye genelindeki aktif haller merkezinden derlenen 12 Mayıs 2026 haftası verileri, ilkbaharın ürün çeşitliliğini hızla artırdığını ortaya koyuyor. Bu hafta (2026-20) HaldeFiyat Endeksi'nin **baz haftasıdır** ve 100,0 puan olarak tanımlanır; sonraki tüm haftalar bu haftaya oranlanır.
 
 **Çilek ve Kiraz: Sezon Açılışı Fiyatları Bastırdı**
 
@@ -73,7 +73,7 @@ Sıcaklıkların mevsim normali üzerinde seyretmesi durumunda domates açık al
     hafta: "2026-18",
     yazar: "HaldeFiyat Veri Ekibi",
     etiketler: ["domates", "narenciye", "salatalık", "haftalık rapor"],
-    icerik: `5 Mayıs 2026 haftası verileri, yazın habercisi olan ürünlerin piyasayı hareketlendirmeye başladığını gösteriyor. HaldeFiyat Endeksi bu haftayı 99,1 puanda kapattı; bir önceki haftanın 101,4 değerinin altına indi.
+    icerik: `5 Mayıs 2026 haftası verileri, yazın habercisi olan ürünlerin piyasayı hareketlendirmeye başladığını gösteriyor. HaldeFiyat Endeksi bu hafta için yayımlanmıyor: endeks serisi, ürün başına ölçüm yapılan hal sayısının sağlam seviyeye ulaştığı 11–17 Mayıs 2026 haftasından itibaren hesaplanır.
 
 **Domates: Sezona Giriş Baskısı**
 
@@ -113,35 +113,43 @@ Soğuğa dayalı kış sebzelerinde tam tersi bir tablo var. Ispanak ve brokoli 
 
 Hasat sezonuna 6-8 hafta kala patates stokları kritik seviyelere yaklaşıyor. Niğde ve Nevşehir merkezli tüccarlar yeni hasat beklentisiyle stok satışını yavaşlattı; bu da hal fiyatlarını yüzde 8 artırdı. Haziran hasadı normal gerçekleşirse fiyatlar hızla geri çekilecek; ancak gecikme yaşanırsa Mayıs sonunda zirve görülebilir.
 
-**HaldeFiyat Endeksi: 101,4**
+**HaldeFiyat Endeksi**
 
-Bu haftaki endeks değeri olan 101,4, baz haftanın (100,0) üzerinde seyrediyor. Kış-ilkbahar geçişinin yarattığı arz belirsizliği ve lojistik gecikmeler bu yüksek seyrin temel nedeni. Önümüzdeki iki hafta içinde açık alan arzının yaygınlaşmasıyla endeksin 95-97 bandına gerilemesi bekleniyor.`,
+Bu hafta için HaldeFiyat Endeksi yayımlanmıyor. Endeks serisi 11–17 Mayıs 2026 haftasından (baz hafta, 100 puan) itibaren hesaplanıyor; daha eski haftalarda ürün başına ölçüm yapılan hal sayısı ulusal bir endeksi taşıyacak düzeyde değildi. Bu haftanın ürün bazlı fiyat hareketleri aşağıdaki tablolarda yer alıyor.`,
   },
   {
     slug: "nisan-3-hafta-2026-endeks-analizi",
-    baslik: "HaldeFiyat Endeksi Baz Haftanın Altına İndi: Sebep Nedir?",
-    ozet: "HaldeFiyat Endeksi, baz hafta olan 2026-14'ün 100 puanının altına düştü. Bu ne anlama geliyor ve hangi ürünler bu düşüşü sürüklüyor?",
+    baslik: "HaldeFiyat Endeksi Nasıl Hesaplanır? Sepet, Baz Hafta ve Okuma Kılavuzu",
+    ozet: "HaldeFiyat Endeksi 15 temel üründen oluşan bir sepeti izler ve 11–17 Mayıs 2026 haftasını 100 puan kabul eder. Sepette ne var, neden medyan kullanılıyor ve endeks değeri nasıl okunmalı?",
     tarih: "2026-04-21",
     hafta: "2026-16",
     yazar: "HaldeFiyat Veri Ekibi",
     etiketler: ["endeks", "analiz", "metodoloji", "fiyat trendi"],
-    icerik: `HaldeFiyat Endeksi, 21 Nisan 2026 itibarıyla 98,8 puana geriledi. Baz hafta olarak belirlenen 2026 yılının 14. haftasında endeks 100,0 puan olarak tanımlandığından, bu düşüş sepet ürünlerin genel fiyat düzeyinin yüzde 1,2 oranında gerilediğini gösteriyor. İlk bakışta küçük görünen bu hareket, ardındaki ürün bazlı dinamikler açısından incelenmeye değer.
+    icerik: `HaldeFiyat Endeksi, Türkiye'nin toptancı hallerinde en çok tüketilen 15 temel ürünün fiyat düzeyini tek bir sayıya indirger. Amaç mutlak fiyatı vermek değil, sepetin genel yönünü göstermektir.
 
-**Endeks Nedir, Nasıl Hesaplanır?**
+**Sepette Ne Var?**
 
-HaldeFiyat Endeksi, Türkiye'nin toptancı hallerinde en çok işlem gören 15 temel ürünün ağırlıksız ortalamasından oluşan haftalık bir fiyat göstergesi. Sepette domates, biber, salatalık, patlıcan, havuç, patates, soğan, elma, portakal, mandalina, limon, muz, üzüm, karpuz ve çilek yer alıyor. Her hafta bu ürünlerin aktif hallerden alınan ortalama fiyatları hesaplanıp baz haftaya oranlanıyor.
+Endeks sepeti şu 15 kalemden oluşur: domates, sivri biber, patlıcan, salatalık, patates, kuru soğan, havuç, kıvırcık marul, kabak, brokoli, elma, portakal, limon, üzüm ve yerli muz. Seçim ölçütü tüketim hacmi ve yıl boyu bulunabilirliktir — sezon dışında kaybolan ürünler sepette yer almaz, çünkü sepetten çıkıp girmeleri endeksi fiyat değişmeden oynatır.
 
-**Bu Haftanın Düşüşüne Ne Yol Açtı?**
+**Baz Hafta: 11–17 Mayıs 2026 = 100**
 
-Endeksi aşağı çeken iki temel katkı var. Birincisi narenciye: portakal ve mandalina fiyatları sezon ortası bolluğuyla yüzde 8-10 geriledi. İkincisi salatalık: Antalya'nın sera ihracat sezonunun zirveyi geçmesiyle iç piyasaya ek arz aktı, fiyatlar yüzde 12 düştü. Buna karşın patates ve kış sebzelerindeki artışlar endekse yukarı yönlü baskı yapıyor; ancak düşüş yönlü katkılar ağır bastı.
+Endeks, 2026 yılının 20. haftasını (11–17 Mayıs) 100 puan kabul eder. Bu hafta baz seçildi çünkü ürün başına ölçüm yapılan hal sayısı ilk kez sağlam seviyeye ulaştı (ortalama 8 hal). Daha eski haftalarda kapsam ürün başına iki hal civarındaydı; o dönem için ulusal bir endeks hesaplamak veriyi olduğundan güvenilir göstermek olurdu.
 
-**Geçen Yılla Karşılaştırma**
+**Nasıl Hesaplanır?**
 
-Geçen yıl aynı dönemde endeks, 2025 baz haftasına göre 103,2 puandaydı. Yani 2026'da aynı haftada fiyatlar görece daha düşük seyrediyor. Bunun temel nedeni, 2026 yılında Antalya'nın sera sezonunun erken kapasiteye ulaşması ve arzın 2025'ten daha güçlü olması.
+Her ürün için önce **her halin** kendi haftalık ortalaması alınır, sonra haller arasında **medyan** hesaplanır. Medyan tercih edilir çünkü tek bir kaynağın hatalı kaydı ortalamayı bozabilir; medyan bundan etkilenmez. Ardından 15 ürünün ortalaması alınır ve baz haftanın sepet ortalamasına oranlanır.
 
-**Uyarı: Endeks Fiyat Değil, Yönü Gösteriyor**
+Sepetin bileşimi **sabittir**. Bir ürün o hafta ölçülemediyse yerine başka ürün konmaz — çünkü sepet değişince endeksin iki haftası kıyaslanamaz hale gelir.
 
-Endeks değerleri mutlak fiyat düzeyini değil, baz haftaya göre değişimi ölçüyor. Endeksin 98,8 olması tüm ürünlerin ucuzladığı anlamına gelmiyor; bazı ürünler pahalanabilirken sepet geneli düşüyor. Detaylı ürün bazlı analiz için HaldeFiyat'ın grafik araçlarını kullanabilirsiniz.`,
+**Endeks Değeri Nasıl Okunmalı?**
+
+Endeksin 92 olması, sepetin baz haftaya göre yüzde 8 ucuz olduğu anlamına gelir. Bu, tüm ürünlerin ucuzladığı demek değildir: bazı kalemler pahalanırken sepet geneli düşebilir. Endeks yönü gösterir, tek tek fiyatları değil.
+
+Haftalık değişimi yorumlarken ürün bazlı tabloya da bakmak gerekir — sepetin üçte biri yatay kaldığı halde birkaç kalemdeki sert hareket endeksi belirgin biçimde oynatabilir.
+
+**Sınırları**
+
+Endeks toptan hal fiyatlarını ölçer, perakendeyi değil. Mevsimsel ürünler sepette olmadığı için yaz meyvelerindeki sert hareketler endekse doğrudan yansımaz. Ayrıca endeks yalnızca baz haftadan sonrası için yayımlanır; öncesi için kapsam yetersizdir.`,
   },
   {
     slug: "turkiye-domates-fiyati-neden-degisir",
