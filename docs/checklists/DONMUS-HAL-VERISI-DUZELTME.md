@@ -243,14 +243,29 @@ kurtarıldı (345.101 donmuş satır gizli kalmaya devam ediyor).
 
 ---
 
-## Faz 3 — Doğrulama
+## Faz 3 — Doğrulama (2026-07-20 ölçüldü)
 
-- [ ] Donma teşhis sorgusu tekrar: üç hal için donmuş seri oranı **%0'a** inmeli
-- [ ] Akran karşılaştırması: hal/akran oranı yıllar arası **sabit** olmalı (2025 ve 2026 sapması birbirine yakın). Bkz. hafıza `[[yillik-kiyas-veri-engeli]]` — eskiden Denizli 2,18x → 1,06x idi
-- [ ] Zaman serisi görsel kontrolü: düz çizgi bitmiş, mevsimsel eğri görünüyor
-- [ ] Yıllık kıyas yeniden ölçülsün: eşleşmiş çift sayısı ürün başına ≥5 oluyor mu?
-- [ ] Olduysa: bültende **yıllık manşet** açılabilir (asıl hedef buydu) — `basket.ts` yoyPct alanları hazır bekliyor
-- [ ] `/analiz` ve yıllık raporlar yeniden üretilsin (eski raporlar kirli veriyle yazılmıştı)
+- [x] **Donmuş seri oranı — GEÇTİ.** Karantina uygulanmış görünümde: Eskişehir %0, Denizli %0,
+      Bursa %1. *Not: ham tabloda donmuş satırlar duruyor (silinmedi); ölçüm, yayına çıkan
+      veri üzerinden yapılır — karantina dışlıyor, wayback satırları muaf.*
+- [x] **Akran karşılaştırması — GEÇTİ.** Kurtarılan veri / temiz haller oranı **medyan 1,33**,
+      %10-90 aralığı 0,94–1,77. Donmuş veride oran sabit ve şişikti (Denizli 2,18x,
+      Eskişehir 1,86x, Bursa 1,51x). Kurtarılan veri *dağılıyor* — gerçek piyasa davranışı.
+- [x] **Zaman serisi — GEÇTİ.** Bursa domates artık düz çizgi değil:
+      `14,3 → 16,5 → 22,5 → 21,0 → 28,5 → 43,5 → 48,5 → 41,0` (2023-03 → 2025-01).
+      Mevsimsel dalga + enflasyon eğrisi görünüyor.
+- [ ] **Yıllık kıyas ≥5 çift — GEÇMEDİ.** Pencere tüm Temmuz 2025'e genişletilip backfill
+      dahil edildiğinde bile 12 üründen **yalnızca 3'ü** eşiğe ulaşıyor (domates 6, elma 6,
+      patates 5). Kazancın çoğu pencere genişletmesinden geldi, backfill'den değil —
+      Temmuz 2025 civarında yalnızca 4 gün kurtarılabildi.
+- [ ] **Bültende yıllık manşet — AÇILMADI** (yukarıdaki maddeye bağlı). `basket.ts` yoyPct
+      alanları hazır bekliyor. Gerçekçi tarih: **Mayıs 2027** — 2026-05'ten itibaren kapsam
+      iyi (ürün başına 8-11 hal), o zaman YoY kendiliğinden sağlam olur.
+- [x] **`/analiz` raporları — YENİDEN ÜRETİM GEREKMEDİ.** 14 yayınlanmış raporun **13'ü**
+      karantina döneminin tamamen dışında (veri pencereleri 2026-05-11 ve sonrası; karantina
+      2026-04-24'te bitiyor). Tek kısmi örtüşme zeytinyağı yazısı, o da borsa kaynaklı.
+      *Ancak* endeks rebase'i sonrası 10 raporun endeks bölümü, başlığı ve özeti yeni seriye
+      göre yeniden yazıldı (5'inde anlatının yönü tersine döndü).
 
 ---
 
