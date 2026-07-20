@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: "Et Fiyatları — Dana Karkas, Kuzu Karkas | HaldeFiyat",
     description:
-      "Türkiye ticaret borsalarından güncel karkas et fiyatları: dana karkas ve kuzu karkas (TL/kg). Kaynak ve tarih etiketli, günlük güncellenir.",
+      "Türkiye ticaret borsalarından güncel karkas et fiyatları: dana karkas ve kuzu karkas (TL/kg). Her satırda kaynak ve tarih etiketlidir; borsalar periyodik yayımlar.",
     alternates: { canonical: `/${locale}/et-fiyatlari` },
   };
 }

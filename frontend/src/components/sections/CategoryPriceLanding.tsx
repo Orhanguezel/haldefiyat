@@ -38,7 +38,13 @@ export default async function CategoryPriceLanding({
 }: CategoryPriceLandingProps) {
   const [allProducts, pricePage] = await Promise.all([
     fetchProducts(undefined, category, { seoIndex: true }),
-    fetchPricesPage({ category, range: "1825d", latestOnly: true, limit: 200, sort: "date-desc" }),
+    // 90 gun: "guncel fiyatlar" listesi bayat kayit gostermesin. `latestOnly` her
+    // (urun, hal) ciftinin SON fiyatini getirir; pencere genis olursa veri vermeyi
+    // birakmis bir borsanin son fiyati sonsuza dek guncel gibi listelenir. 1825 gunluk
+    // (5 yil) pencerede Erzurum'un 22 Aralik 2021 tarihli koyun fiyati ve Ilgin'in
+    // 132 gunluk (16,33 TL/kg — birim hatasi supheli) inek fiyati listede duruyordu.
+    // 90 gun, borsalarin periyodik yayin ritmini (haftalik/aylik) tolere eder.
+    fetchPricesPage({ category, range: "90d", latestOnly: true, limit: 200, sort: "date-desc" }),
   ]);
   const products = allProducts.filter((p) => p.categorySlug === category);
   const rows = pricePage.items;
