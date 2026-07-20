@@ -10,9 +10,9 @@
  * ilan sayisini artirma isinin ilk adimi.
  */
 
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import { hfListingReminders, hfListings } from "@/db/schema";
+import { hfListingReminders } from "@/db/schema";
 import { sendBereketMail } from "@agro/shared-backend/core/mail";
 
 /** Suresi dolmadan kac gun once hatirlatilacak. */
@@ -120,7 +120,3 @@ export async function sendListingExpiryReminders(): Promise<ExpiryReminderResult
 
   return out;
 }
-
-void and;
-void eq;
-void isNull;
