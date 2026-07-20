@@ -3,6 +3,7 @@ export const revalidate = 3600;
 import type { MetadataRoute } from "next";
 import { getProductImage } from "@/lib/product-images";
 import { getSonMakaleler } from "@/lib/analiz";
+import { fetchAutoWeeklyReports } from "@/lib/api";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033").replace(/\/$/, "");
 // SSR'da BACKEND_URL (internal) kullan; yoksa NEXT_PUBLIC_API_URL'ye düş
@@ -239,12 +240,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }))
   ));
 
-  const analizPages: MetadataRoute.Sitemap = getSonMakaleler(100).map((m) => ({
-    url: `${SITE_URL}/analiz/${m.slug}`,
-    lastModified: m.tarih ? new Date(m.tarih) : now,
-    changeFrequency: "monthly" as const,
-    priority: 0.6,
-  }));
+  // Statik makaleler (lib/analiz) + DB'den gelen otomatik haftalik raporlar.
+  // Haftalik raporlar sadece statik diziden uretildigi icin sitemap'e HIC girmiyordu —
+  // haziran/temmuz raporlarinin tamami arama motorlarina sitemap uzerinden gorunmuyordu.
+  const autoReports = await fetchAutoWeeklyReports(200);
+  const staticSlugs = new Set(getSonMakaleler(100).map((m) => m.slug));
+
+  const analizPages: MetadataRoute.Sitemap = [
+    ...getSonMakaleler(100).map((m) => ({
+      url: `${SITE_URL}/analiz/${m.slug}`,
+      lastModified: m.tarih ? new Date(m.tarih) : now,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
+    ...autoReports
+      .filter((r) => !staticSlugs.has(r.slug))
+      .map((r) => ({
+        url: `${SITE_URL}/analiz/${r.slug}`,
+        lastModified: r.tarih ? new Date(r.tarih) : now,
+        changeFrequency: "monthly" as const,
+        priority: 0.6,
+      })),
+  ];
 
   return [...publicPages, ...productPages, ...marketPages, ...firmCityHubs, ...firmTypeHubs, ...firmComboHubs, ...firmPages, ...analizPages];
 }
