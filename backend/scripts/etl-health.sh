@@ -12,7 +12,10 @@
 #
 # CLAUDE.md'de proje kontrol talimati: bu scripti calistir, sonuca gore aksiyon al.
 
-set -euo pipefail
+set -uo pipefail
+# NOT: `set -e` BILEREK yok. Bolum sorgulari bos donunce `grep -v` exit 1 verir ve
+# pipefail ile birlesince script oluyordu — yani SORUN YOKKEN rapor yarida kesiliyordu.
+# CLAUDE.md'nin bakmamizi soyledigi "Veri Akisi Yok" bolumu bu yuzden hic yazdirilmamis.
 
 WINDOW_HOURS="${1:-24}"
 
@@ -50,7 +53,7 @@ FROM hf_etl_runs
 WHERE created_at >= NOW() - INTERVAL $WINDOW_HOURS HOUR
 GROUP BY source_api, status
 ORDER BY source_api, status;
-" 2>&1 | grep -v "Using a password"
+" 2>&1 | grep -v "Using a password" || true
 
 echo
 echo "── Sorunlu Kaynaklar (son $WINDOW_HOURS saat icinde 3+ error, 0 ok) ──"
@@ -65,7 +68,7 @@ WHERE created_at >= NOW() - INTERVAL $WINDOW_HOURS HOUR
 GROUP BY source_api
 HAVING hata_sayisi >= 3 AND ok_sayisi = 0
 ORDER BY hata_sayisi DESC;
-" 2>&1 | grep -v "Using a password"
+" 2>&1 | grep -v "Using a password" || true
 
 echo
 echo "── Veri Akisi Yok (son ok > 7 gun once) ──"
@@ -79,7 +82,7 @@ FROM hf_etl_runs
 GROUP BY source_api
 HAVING son_basarili IS NULL OR son_basarili < NOW() - INTERVAL 7 DAY
 ORDER BY son_basarili IS NULL DESC, son_basarili ASC;
-" 2>&1 | grep -v "Using a password"
+" 2>&1 | grep -v "Using a password" || true
 
 echo
 echo "── Borsa/Resmi Kaynaklar ──"
@@ -98,7 +101,7 @@ LEFT JOIN hf_etl_runs r ON r.source_api = m.source_key
 WHERE m.market_type IN ('borsa','resmi')
 GROUP BY m.source_key, m.name, m.market_type
 ORDER BY FIELD(m.market_type, 'resmi', 'borsa'), m.name;
-" 2>&1 | grep -v "Using a password"
+" 2>&1 | grep -v "Using a password" || true
 
 echo
 echo "── DONMUS SERILER — 'basarili calisti' != 'yeni veri geldi' ──"
@@ -125,7 +128,7 @@ JOIN (
 GROUP BY f.source_api
 HAVING gun_sabit >= 5
 ORDER BY gun_sabit DESC;
-" 2>&1 | grep -v "Using a password"
+" 2>&1 | grep -v "Using a password" || true
 echo "   NOT: bazi haller kronik yapiskan fiyatli (Konya, Kutahya). Kaynagin KENDI tabaniyla"
 echo "        kiyaslayan tam denetim: GET /api/v1/admin/hal/etl/freshness"
 
