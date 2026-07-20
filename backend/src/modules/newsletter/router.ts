@@ -9,7 +9,7 @@ import { telegramNotify } from "@agro/shared-backend/modules/telegram/helpers/te
 
 import { decodeEmail, verifyUnsubToken, unsubHeaders } from "./token";
 import { buildWelcomeEmail } from "./welcome-email";
-import { isValidEmail, normalizeEmail } from "./email-validate";
+import { isValidEmail, normalizeEmail } from "@agro/shared-backend/core/email-validate";
 
 // Ortak `newsletter_subscribers` tablosu icin local proxy (digest ile ayni tablo).
 const subscribers = mysqlTable("newsletter_subscribers", {
