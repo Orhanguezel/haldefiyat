@@ -132,8 +132,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const products = withBorsaFallbackProducts(await fetchProducts());
   const product = products.find((p) => p.slug === slug);
 
+  // notFound() BURADA cagrilmaz: generateMetadata icinde cagrilirsa Next render
+  // agacini kurmadan kisa devre yapar ve stillendirilmis not-found.tsx yerine
+  // duz metin "Not Found" doner. 404'u page component'i veriyor (asagida).
   if (!product) {
-    notFound();
+    return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
   }
 
   if (product.canonicalSlug && product.canonicalSlug !== slug) {

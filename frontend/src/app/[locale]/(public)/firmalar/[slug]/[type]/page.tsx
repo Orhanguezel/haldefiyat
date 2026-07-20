@@ -65,7 +65,10 @@ type ComboContext = NonNullable<Awaited<ReturnType<typeof comboContext>>>;
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug, type } = await params;
   const ctx = await comboContext(slug, type);
-  if (!ctx) notFound();
+  // notFound() BURADA cagrilmaz: generateMetadata icinde cagrilirsa Next
+  // render agacini kurmadan kisa devre yapar ve stillendirilmis not-found.tsx
+  // yerine ciplak hata kabugu doner. 404'u page component'i veriyor.
+  if (!ctx) return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
 
   const title = `${ctx.cityName} ${ctx.typeLabel} Firmaları`;
   return getPageMetadata(["firmalar_sehir_tip", "firmalar"], {

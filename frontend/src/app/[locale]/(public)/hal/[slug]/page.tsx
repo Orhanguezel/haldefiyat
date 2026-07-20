@@ -53,8 +53,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const markets = await fetchMarkets();
   const market = markets.find((m) => m.slug === slug);
 
+  // notFound() BURADA cagrilmaz: generateMetadata icinde cagrilirsa Next render
+  // agacini kurmadan kisa devre yapar ve stillendirilmis not-found.tsx yerine
+  // duz metin "Not Found" doner. 404'u page component'i veriyor (asagida).
   if (!market) {
-    notFound();
+    return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
   }
 
   // Index: seoIndex açık VE özgün (elle yazılmış) editoryel içerik var.

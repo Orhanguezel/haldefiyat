@@ -44,7 +44,10 @@ function coverImageUrl(makale: { ogImage?: string | null }, slug: string): strin
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const makale = await getMakaleForSlug(slug);
-  if (!makale) notFound();
+  // notFound() BURADA cagrilmaz: generateMetadata icinde cagrilirsa Next
+  // render agacini kurmadan kisa devre yapar ve stillendirilmis not-found.tsx
+  // yerine ciplak hata kabugu doner. 404'u page component'i veriyor.
+  if (!makale) return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
 
   const cover = coverImageUrl(makale, slug);
   const coverAlt = makale.imageAlt || makale.baslik;

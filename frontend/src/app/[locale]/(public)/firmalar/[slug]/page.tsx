@@ -133,7 +133,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const ctx = await cityContext(slug);
-  if (!ctx) notFound();
+  // notFound() BURADA cagrilmaz: generateMetadata icinde cagrilirsa Next
+  // render agacini kurmadan kisa devre yapar ve stillendirilmis not-found.tsx
+  // yerine ciplak hata kabugu doner. 404'u page component'i veriyor.
+  if (!ctx) return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
   const total = ctx.aggregate?.total ?? ctx.firmPage.meta.total;
   return getPageMetadata(["firmalar_sehir", "firmalar"], {
     locale,

@@ -69,7 +69,10 @@ function hasIndexableContent(firm: Awaited<ReturnType<typeof fetchFirm>>): boole
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   const firm = await fetchFirm(slug);
-  if (!firm) notFound();
+  // notFound() BURADA cagrilmaz: generateMetadata icinde cagrilirsa Next
+  // render agacini kurmadan kisa devre yapar ve stillendirilmis not-found.tsx
+  // yerine ciplak hata kabugu doner. 404'u page component'i veriyor.
+  if (!firm) return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
 
   const city = titleCaseSlug(firm.citySlug);
   return getPageMetadata(["firma_detay", "firma"], {

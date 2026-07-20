@@ -14,7 +14,10 @@ const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const author = await fetchAuthor(slug);
-  if (!author) notFound();
+  // notFound() BURADA cagrilmaz: generateMetadata icinde cagrilirsa Next
+  // render agacini kurmadan kisa devre yapar ve stillendirilmis not-found.tsx
+  // yerine ciplak hata kabugu doner. 404'u page component'i veriyor.
+  if (!author) return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
 
   const title = `${author.fullName}${author.title ? ` — ${author.title}` : ""} | HaldeFiyat`;
   const description = author.bio || `${author.fullName} tarafından hazırlanan hal fiyatları ve piyasa analizleri.`;
