@@ -16,6 +16,7 @@
 import { sql, type SQL } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfMarketBlackouts } from "@/db/schema";
+import { WAYBACK_SOURCE_SUFFIX } from "@/modules/etl/fetcher";
 
 interface Blackout { marketId: number; from: string; to: string }
 
@@ -53,12 +54,23 @@ async function load(): Promise<Blackout[]> {
  * Karantinali (hal x tarih) kombinasyonlarini disliyan SQL kosulu.
  * Karantina yoksa `undefined` doner — where() zincirinde zararsizca atlanir.
  */
-export async function blackoutFilter(dateCol: SQL | unknown, marketCol: SQL | unknown): Promise<SQL | undefined> {
+export async function blackoutFilter(
+  dateCol: SQL | unknown,
+  marketCol: SQL | unknown,
+  sourceCol?: SQL | unknown,
+): Promise<SQL | undefined> {
   const list = await load();
   if (!list.length) return undefined;
 
+  // Arsivden kurtarilan satirlar karantinadan MUAF: karantina uydurma veriyi gizlemek
+  // icin var, gercek veriyi degil. Boylece Wayback backfill ilerledikce o gunler
+  // kendiliginden gorunur hale gelir — blackout kaydini elle daraltmak gerekmez.
+  const rescued = sourceCol
+    ? sql` AND ${sourceCol} NOT LIKE ${"%" + WAYBACK_SOURCE_SUFFIX}`
+    : sql``;
+
   const parts = list.map(
-    (b) => sql`NOT (${marketCol} = ${b.marketId} AND ${dateCol} BETWEEN ${b.from} AND ${b.to})`,
+    (b) => sql`NOT (${marketCol} = ${b.marketId} AND ${dateCol} BETWEEN ${b.from} AND ${b.to}${rescued})`,
   );
   return sql.join(parts, sql` AND `);
 }

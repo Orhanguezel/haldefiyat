@@ -18,6 +18,7 @@ import {
 import { loadEtlSources } from "@/config/etl-sources";
 import { loadProductionSources } from "@/config/production-sources";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
+import { runWaybackBackfill } from "@/modules/etl/fetcher";
 import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
 import { checkWaybackAndNotify } from "@/modules/wayback-monitor";
@@ -1005,6 +1006,29 @@ export async function registerHalAdmin(app: FastifyInstance) {
       issues,
     });
   });
+
+  /**
+   * Arsivden backfill — donmus donemin gercek verisini web.archive.org'dan kurtarir.
+   * ?dryRun=1 ile yalnizca olcum yapar, DB'ye yazmaz.
+   */
+  app.post<{ Body: { source?: string; from?: string; to?: string; dryRun?: boolean; limit?: number } }>(
+    "/hal/etl/wayback-backfill",
+    async (req, reply) => {
+      const key = String(req.body?.source ?? "");
+      const source = getSourceByKey(key);
+      if (!source) return reply.status(400).send({ ok: false, error: `Bilinmeyen kaynak: ${key}` });
+      try {
+        const result = await runWaybackBackfill(source, {
+          from: req.body?.from, to: req.body?.to,
+          dryRun: req.body?.dryRun === true,
+          limit: req.body?.limit,
+        });
+        return reply.send({ ok: true, source: key, ...result });
+      } catch (err) {
+        return reply.status(500).send({ ok: false, error: err instanceof Error ? err.message : String(err) });
+      }
+    },
+  );
 
   app.post("/hal/wayback/check", async (_req, reply) => {
     try {

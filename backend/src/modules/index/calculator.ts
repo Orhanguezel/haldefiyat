@@ -126,7 +126,7 @@ async function computeBasketAvg(
         eq(hfPriceHistory.unit, "kg"),
         sql`${hfPriceHistory.avgPrice} > 0`,
         // Guvenilmez (donmus) hal x tarih araliklari — baz hafta dahil tum haftalarda dislanir.
-        await blackoutFilter(hfPriceHistory.recordedDate, hfPriceHistory.marketId),
+        await blackoutFilter(hfPriceHistory.recordedDate, hfPriceHistory.marketId, hfPriceHistory.sourceApi),
       ),
     )
     .groupBy(hfPriceHistory.productId, hfPriceHistory.marketId);

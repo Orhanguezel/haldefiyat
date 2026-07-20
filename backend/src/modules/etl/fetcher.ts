@@ -2393,3 +2393,128 @@ export async function runSourceFetch(
     touchedMarketSlug: source.marketSlug,
   };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WAYBACK BACKFILL — donmus donemin gercek verisini arsivden kurtarir.
+//
+// Bursa/Denizli/Eskisehir'in 2023-04 → 2026-04 arasi verisi uydurma (tek anlik goruntu
+// her gune kopyalanmis). Kaynak siteler gecmis tarih servis etmiyor; tek yol
+// web.archive.org. Kapsam ~iki ayda bir: hal basina ~21 gercek gun (1.097 gunun ~%2'si).
+// Gunluk seriyi geri getirmez; grafiklerdeki duz yalani seyrek ama DOGRU noktalarla
+// degistirir. Gerekce ve karar: docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md
+//
+// Backfill satirlari `sourceApi = "<key>_wayback"` ile yazilir. Karantina filtresi
+// (modules/prices/blackouts.ts) bu satirlari DISLAMAZ — donmus olanlari disler, kurtarilani
+// gosterir. Boylece backfill ilerledikce veri kendiliginde gorunur hale gelir.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const WAYBACK_SOURCE_SUFFIX = "_wayback";
+
+interface WaybackSnapshot { timestamp: string; date: string }
+
+/** CDX API'den benzersiz snapshot listesi. `collapse=digest` ayni icerigi tekrarlamaz. */
+async function listWaybackSnapshots(url: string, from: string, to: string): Promise<WaybackSnapshot[]> {
+  const cdx = `https://web.archive.org/cdx/search/cdx?url=${encodeURIComponent(url)}`
+    + `&matchType=exact&from=${from}&to=${to}&output=json&collapse=digest&fl=timestamp&limit=3000`;
+  const res = await fetch(cdx, { signal: AbortSignal.timeout(60_000) });
+  if (!res.ok) throw new Error(`CDX HTTP ${res.status}`);
+
+  const body = (await res.json()) as string[][];
+  if (!Array.isArray(body) || body.length < 2) return [];
+
+  return body.slice(1).map((r) => {
+    const ts = String(r[0]);
+    return { timestamp: ts, date: `${ts.slice(0, 4)}-${ts.slice(4, 6)}-${ts.slice(6, 8)}` };
+  });
+}
+
+export interface WaybackBackfillResult {
+  snapshots: number;
+  ingested:  number;
+  inserted:  number;
+  skipped:   number;
+  errors:    string[];
+  days:      string[];
+}
+
+/**
+ * Bir kaynagin arsiv snapshot'larini tarar ve her birini kendi tarihine yazar.
+ * `dryRun` ile yalnizca kac satir cikacagi olculur, DB'ye yazilmaz.
+ */
+export async function runWaybackBackfill(
+  source: EtlSourceConfig,
+  opts: { from?: string; to?: string; dryRun?: boolean; limit?: number } = {},
+): Promise<WaybackBackfillResult> {
+  const from = opts.from ?? "2023";
+  const to   = opts.to ?? "2026";
+  const url  = source.baseUrl + source.endpointTemplate;
+
+  const marketRows = await db.select({ id: hfMarkets.id })
+    .from(hfMarkets).where(eq(hfMarkets.slug, source.marketSlug)).limit(1);
+  if (!marketRows[0]) throw new Error(`Market bulunamadi: ${source.marketSlug}`);
+  const marketId = marketRows[0].id;
+
+  const snaps = await listWaybackSnapshots(url, from, to);
+  const picked = opts.limit ? snaps.slice(0, opts.limit) : snaps;
+
+  const out: WaybackBackfillResult = {
+    snapshots: snaps.length, ingested: 0, inserted: 0, skipped: 0, errors: [], days: [],
+  };
+
+  for (const snap of picked) {
+    // `id_` eki: arsivin enjekte ettigi banner/JS olmadan HAM sayfa.
+    const archiveUrl = `https://web.archive.org/web/${snap.timestamp}id_/${url}`;
+    let html: string;
+    try {
+      const res = await fetch(archiveUrl, { signal: AbortSignal.timeout(90_000) });
+      if (!res.ok) { out.errors.push(`${snap.date}: HTTP ${res.status}`); continue; }
+      html = await res.text();
+    } catch (err) {
+      out.errors.push(`${snap.date}: ${err instanceof Error ? err.message : String(err)}`);
+      continue;
+    }
+
+    let rows: NormalizedRow[];
+    try {
+      rows = parseResponse(html, source);
+    } catch (err) {
+      out.errors.push(`${snap.date}: parse — ${err instanceof Error ? err.message : String(err)}`);
+      continue;
+    }
+    if (rows.length === 0) { out.errors.push(`${snap.date}: 0 satir`); continue; }
+
+    out.ingested++;
+    out.days.push(snap.date);
+    if (opts.dryRun) { out.inserted += rows.length; continue; }
+
+    for (const rawRow of rows) {
+      const row = normalizePriceRow(rawRow, source);
+      const avg = row.avg ?? (row.min != null && row.max != null ? (row.min + row.max) / 2 : null);
+      if (avg == null || !Number.isFinite(avg) || avg <= 0) { out.skipped++; continue; }
+      if (priceSanityIssue(row, avg)) { out.skipped++; continue; }
+
+      let product: { id: number; slug: string } | null = null;
+      try { product = await findOrCreateProduct(row, source); } catch { out.skipped++; continue; }
+      if (!product) { out.skipped++; continue; }
+
+      try {
+        await upsertPriceRow({
+          productId: product.id,
+          marketId,
+          minPrice:     row.min != null ? String(row.min) : null,
+          maxPrice:     row.max != null ? String(row.max) : null,
+          avgPrice:     String(avg),
+          // Snapshot'in kendi tarihi — sayfa ici tarihe guvenilmez, arsiv damgasi kesindir.
+          recordedDate: snap.date,
+          sourceApi:    `${source.key}${WAYBACK_SOURCE_SUFFIX}`,
+          unit:         row.unit === "koli" ? "koli" : undefined,
+        });
+        out.inserted++;
+      } catch (err) {
+        out.errors.push(`${snap.date}/${row.name}: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+  }
+
+  return out;
+}
