@@ -122,6 +122,12 @@ function cleanInput(input: RedirectInput): RedirectInput | null {
  *
  * Tek yonlu: 410 kaldirilinca urun kendiliginden geri acilmaz — yeniden yayina almak
  * editoryel bir karardir, yan etki olarak gerceklesmemeli.
+ *
+ * DIKKAT: yalnizca AKTIF 410 kaydi urunu pasife ceker. Kapatilmis 410 kayitlari
+ * (`hf_redirects.is_active = 0`) "bu 410 yanlisti, geri aldik" demektir — pamuk ve
+ * aycicegi boyle; borsa dikeyinin gercek urunleri, yanlis pozitif 410 otomatiyla
+ * isaretlenip sonra elle kapatilmislar. Aktiflik kontrolu atlanirsa canli sayfalar
+ * sessizce listeden dusuyor.
  */
 async function deactivateGoneProducts(paths: string[]): Promise<number> {
   const slugs = paths
@@ -179,11 +185,11 @@ export async function updateRedirect(id: number, patch: Partial<RedirectInput> &
   // tekil duzenleme arasinda davranis farki olusur.
   if (set.type === "410") {
     const [row] = (await db
-      .select({ sourcePath: hfRedirects.sourcePath })
+      .select({ sourcePath: hfRedirects.sourcePath, isActive: hfRedirects.isActive })
       .from(hfRedirects)
       .where(eq(hfRedirects.id, id))
-      .limit(1)) as Array<{ sourcePath: string }>;
-    if (row?.sourcePath) await deactivateGoneProducts([row.sourcePath]);
+      .limit(1)) as Array<{ sourcePath: string; isActive: number }>;
+    if (row?.sourcePath && row.isActive) await deactivateGoneProducts([row.sourcePath]);
   }
 }
 
