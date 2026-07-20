@@ -9,10 +9,11 @@
  * Iki ayri basarisizlik modunu yakalar:
  *
  *  1) DONMA  — kaynagin gunluk parmak izi (satir sayisi + fiyat toplami) degismiyor.
- *  2) SICRAMA — bir (hal x urun) serisinin degeri kendi yakin gecmisine gore uctu.
- *     Bu genelde donma degil, YANLIS ESLESME belirtisidir: 2026-07-07'de Kayseri'de
- *     arpacik soganin fiyati (110 TL) sade kuru sogana yazilmaya basladi; seri
- *     15 TL'den 110 TL'ye sicradi ve 14 gun oyle kaldi.
+ *  2) SAPMA — bir (hal x urun) serisi, ayni urunu satan DIGER hallerden kalici olarak
+ *     ayrisiyor. Bu YANLIS ESLESME belirtisidir: 2026-07-07'de Kayseri'de arpacik
+ *     soganin fiyati (110 TL) sade kuru sogana yazilmaya basladi; diger haller 45 TL'de
+ *     iken o hal 110'da kaldi. Mevsimsel hareket tum halleri birlikte tasidigi icin
+ *     bu testten gecmez (kiraz sezon sonu her yerde duser — alarm degildir).
  *
  * ONEMLI — esik mutlak DEGIL, kaynagin KENDI gecmisine gore: bazi haller kronik yapiskan
  * fiyatli (Konya %71, Kutahya %80 seri "14 gunde hic degismedi" tabani NORMAL). Mutlak
@@ -30,8 +31,15 @@ import { db } from "@/db/client";
 const MIN_STALE_DAYS = 4;
 /** Kaynagin kendi tarihsel donma suresine eklenen guvenlik payi. */
 const BASELINE_MARGIN = 2;
-/** Sicrama esigi: serinin kendi medyanina gore bu katin uzeri/alti supheli. */
-const JUMP_FACTOR = 4;
+/**
+ * Sicrama esigi — AKRAN hallerden sapma kati.
+ *
+ * Serinin kendi gecmisiyle kiyaslamak yetmiyor: mevsim gecisinde kiraz her yerde 4 kat
+ * duser, bu gercek piyasa hareketidir ve alarm olmamalidir. Ayirt edici sinyal, ayni
+ * urunu ayni gunlerde satan DIGER hallerden sapma: mevsimsel hareket tum halleri birlikte
+ * tasir, yanlis eslesme ise tek hali ayirir.
+ */
+const PEER_DIVERGENCE = 2.5;
 
 export interface StaleSource {
   sourceApi:    string;
@@ -44,9 +52,10 @@ export interface StaleSource {
 export interface PriceJump {
   marketName:  string;
   productSlug: string;
-  from:        number;
-  to:          number;
-  since:       string;
+  /** Ayni urunun DIGER hallerdeki medyani (referans). */
+  peerMedian:  number;
+  value:       number;
+  ratio:       number;
   days:        number;
 }
 
@@ -109,50 +118,54 @@ export async function detectStaleSources(windowDays = 180): Promise<StaleSource[
 }
 
 /**
- * Bir (hal x urun) serisinin kendi 30 gunluk medyanina gore uctugu ve o seviyede
- * KALDIGI durumlar. Tek gunluk sicrama gecici olabilir; kalici sicrama yanlis
- * eslesme belirtisidir.
+ * Ayni urunu satan diger hallerden kalici olarak ayrisan seriler.
+ *
+ * Yanlis eslesmenin imzasi budur: Kayseri'de arpacik soganin fiyati (110 TL) sade kuru
+ * sogana yazilinca, diger haller 45 TL'deyken o hal 110'da kaldi. Mevsimsel hareketler
+ * tum halleri birlikte tasidigi icin bu testten gecmez.
  */
 export async function detectPriceJumps(minDays = 3): Promise<PriceJump[]> {
   const rows = await db.execute(sql`
     SELECT m.name AS market_name, p.slug AS product_slug,
-           cur.val AS to_val, cur.days AS days, cur.since AS since,
-           base.med AS from_val
+           cur.val AS value, cur.days AS days, peer.med AS peer_median
     FROM (
-      SELECT market_id, product_id, avg_price AS val,
-             COUNT(*) AS days, MIN(recorded_date) AS since
-      FROM hf_price_history
-      WHERE recorded_date >= CURDATE() - INTERVAL 21 DAY AND unit = 'kg' AND avg_price > 0
-      GROUP BY market_id, product_id, avg_price
-      HAVING COUNT(*) >= ${minDays} AND MAX(recorded_date) >= CURDATE() - INTERVAL 2 DAY
+      SELECT h.market_id, h.product_id,
+             AVG(h.avg_price) AS val, COUNT(DISTINCT h.recorded_date) AS days
+      FROM hf_price_history h
+      WHERE h.recorded_date >= CURDATE() - INTERVAL 14 DAY AND h.unit = 'kg' AND h.avg_price > 0
+      GROUP BY h.market_id, h.product_id
+      HAVING COUNT(DISTINCT h.recorded_date) >= ${minDays}
     ) cur
     JOIN (
-      SELECT market_id, product_id, AVG(avg_price) AS med
-      FROM hf_price_history
-      WHERE recorded_date BETWEEN CURDATE() - INTERVAL 90 DAY AND CURDATE() - INTERVAL 22 DAY
-        AND unit = 'kg' AND avg_price > 0
-      GROUP BY market_id, product_id
-      HAVING COUNT(*) >= 10
-    ) base ON base.market_id = cur.market_id AND base.product_id = cur.product_id
+      SELECT h.product_id, COUNT(DISTINCT h.market_id) AS halls,
+             AVG(h.avg_price) AS med
+      FROM hf_price_history h
+      WHERE h.recorded_date >= CURDATE() - INTERVAL 14 DAY AND h.unit = 'kg' AND h.avg_price > 0
+      GROUP BY h.product_id
+      HAVING COUNT(DISTINCT h.market_id) >= 4
+    ) peer ON peer.product_id = cur.product_id
     JOIN hf_markets m ON m.id = cur.market_id
     JOIN hf_products p ON p.id = cur.product_id
-    WHERE base.med > 0
-      AND (cur.val / base.med >= ${JUMP_FACTOR} OR base.med / cur.val >= ${JUMP_FACTOR})
-    ORDER BY cur.val / base.med DESC
+    WHERE peer.med > 0
+      AND (cur.val / peer.med >= ${PEER_DIVERGENCE} OR peer.med / cur.val >= ${PEER_DIVERGENCE})
+    ORDER BY GREATEST(cur.val / peer.med, peer.med / cur.val) DESC
     LIMIT 40
   `);
 
   const list = (Array.isArray(rows) ? rows[0] : rows) as unknown as Array<{
-    market_name: string; product_slug: string; to_val: string; from_val: string;
-    since: unknown; days: number;
+    market_name: string; product_slug: string; value: string; peer_median: string; days: number;
   }>;
 
-  return list.map((r) => ({
-    marketName:  r.market_name,
-    productSlug: r.product_slug,
-    from:        Math.round(parseFloat(String(r.from_val)) * 100) / 100,
-    to:          Math.round(parseFloat(String(r.to_val)) * 100) / 100,
-    since:       String(r.since).slice(0, 10),
-    days:        Number(r.days),
-  }));
+  return list.map((r) => {
+    const value = parseFloat(String(r.value));
+    const peer = parseFloat(String(r.peer_median));
+    return {
+      marketName:  r.market_name,
+      productSlug: r.product_slug,
+      peerMedian:  Math.round(peer * 100) / 100,
+      value:       Math.round(value * 100) / 100,
+      ratio:       Math.round((value / peer) * 100) / 100,
+      days:        Number(r.days),
+    };
+  });
 }
