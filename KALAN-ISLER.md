@@ -57,14 +57,37 @@ Kaynak: [`reports/analiz-06-19-temmuz-2026.md`](reports/analiz-06-19-temmuz-2026
       Tekirdağ taze kekiği **4000 TL/koli** bildiriyor; şema bunları kg fiyatı sayıyordu.
       Artık baskın birim **veriden** tayin ediliyor (satırların çoğunluğu hangi birimdeyse o),
       azınlık birim eleniyor. 87 URL'nin tamamı doğrulandı: 87/87 sağlıklı, 0 sorun.
-- [ ] **`hf_products.unit` alanı güvenilmez — düzeltilmeli.** Filtreyi ilk denemede bu alana
-      bağlayınca 13 sağlıklı ürün işaretlemesini kaybetti. Katalog ile gerçek veri çelişiyor:
-      `elma` → **"kg."** (sonunda nokta), `marul` → "adet", `maydonoz` → "bag",
-      `dereotu` → "demet", `avakado`/`mango`/`kekik` → "adet" — hepsinin bütün fiyat satırları
-      **kg**. Şema artık bu alana bağlı değil ama sitede birim gösteren başka yerler etkilenebilir.
-- [ ] **`kekik-yas-taze` verisi şüpheli.** Tek kaynak (hal.gov.tr ulusal ortalama) ve değer
-      gün içinde 208 → 942 TL/kg zıplıyor. Şema artık DB'de ne varsa onu doğru bildiriyor;
-      sorun DB'de. `avg_price` sentetik-ortalama borcunun bir parçası.
+- [x] **`hf_products.unit` alanı güvenilmezdi — düzeltildi (2026-07-20).** Katalogda birim yerine
+      parser'dan sızmış tablo başlıkları vardı: `"kasa (10 kg)p ks.-s kut."`, `"sardalya"`,
+      `"napolyon"`, `"asili"`, `"(adet)"`, `"18 kg"`, `"kg."`. Balık ürünlerinde Ankara/Bursa
+      fiyat tablosunun sütun başlığı birim sanılmıştı. Önemi: `unit`, `productMatchKey` içinde
+      ürün kimliğinin parçası — "sardalya" birimli kayıt, aynı ürünün kg kaydıyla eşleşmiyordu
+      (sessiz veri kaybı). Kök `unitClass()`'ta kapatıldı (tanınmayan değer artık ham dönmez,
+      kg varsayılır + log uyarısı; koli/kutu sınıfa eklendi). Katalog seed 053 ile temizlendi:
+      8 geçerli birim kaldı (kg 1179, adet 80, bağ 40, demet 6, paket/koli/kasa 4, lt 1).
+- [x] **`kekik-yas-taze` (ve tüm yaprak sebzeler) düzeltildi — kök sebep bulundu.** hal.gov.tr
+      tablosu aynı ürünü **birden fazla satırla** veriyor (üretim türü Geleneksel/İyi Tarım +
+      varyete) ve parser **İşlem Hacmi** sütununu atıp düz ortalama alıyordu. Adaçayı: Geleneksel
+      58 TL (8 kg) + İyi Tarım **3945 TL (4 kg)** → düz ort 2001 TL/kg. 4 kg'lık butik satış,
+      224 bin kg'lık işlemle eşit ağırlıktaydı. Artık **hacim ağırlıklı ortalama**. Canlı ETL
+      doğrulandı: kekik 942→**23**, kişniş 368→**14**, ıspanak 320→**28**, adaçayı 2001→**14**.
+      *Geçmiş kayıtlar hâlâ eski (düz) değerde — yeniden hesaplama `avg_price` sentetik borcunun
+      parçası.*
+- [ ] **hal.gov.tr `kabak` generic 345 TL/kg — isim eşleştirme şüphesi.** Hacim ağırlıklı düzeltme
+      sonrası bile yüksek; muhtemelen "KABAK ÇİÇEĞİ" gibi bir varyant generic slug'a düşüyor.
+      Ürün sayfası şeması hal verisini kullandığı için etkilenmiyor; sadece ulusal seride.
+
+## 🟡 ALTYAPI — ürün sayfası 404 kırılganlığı (2026-07-20 keşfedildi)
+
+- [ ] **`/urun/*` yük altında ara sıra 404 dönüyor.** Kök: sayfa `force-dynamic` ve her istekte
+      `fetchProducts()` ile **290 KB'lık tüm katalogu** çekip `find()` yapıyor. `safeFetch` hata/
+      timeout'ta sessizce **boş dizi** döndürüyor → `find()` undefined → `notFound()` → 404.
+      **Ölçüm:** aralıklı istek 10/10 → 200; 87 ardışık istek → ~10 farklı ürün 404. Yani normal
+      kullanıcı trafiğinde görünmüyor ama Googlebot hızlı ardışık çekim yaparsa index'ten düşme
+      riski var (GSC-kritik). **Düzeltme yönü:** ya ürün çözümlemesini tek-ürün endpoint'ine
+      çevir, ya `fetchProducts` boş dönerse `notFound()` yerine tek-ürün teyidi yap (liste fail
+      etti diye ürünü yok sayma), ya da ürün sayfalarını SSG + revalidate'e taşı. Önceden var
+      olan sorun, birim/kekik işiyle ilgisiz.
 - [ ] **`aggregateRating` EKLENMEYECEK — bilinçli karar.** Sitede kullanıcı puanı yok; uydurmak
       Google'ın yapılandırılmış veri spam politikasını ihlal eder (manuel işlem riski).
       Google dokümantasyonu bunun *uyarı* olduğunu, hata olmadığını ve sıralamayı etkilemediğini
