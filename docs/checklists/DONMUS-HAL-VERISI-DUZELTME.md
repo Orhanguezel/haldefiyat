@@ -174,11 +174,14 @@ Her hal için ayrı ayrı: geçmiş tarih verisi nereden alınır?
 
 Asıl skandal, 3 yıl boyunca kimsenin fark etmemesi. Tespit otomatikleşmeli.
 
-- [ ] **Donma dedektörü:** günlük ETL sonrası, her (hal, ürün) serisi için son 14 günde `COUNT(DISTINCT avg_price)=1` ise uyar
-- [ ] `etl-health.sh`'a "DONMUŞ SERİ" bölümü ekle — oturum başı kontrolde görünsün (CLAUDE.md'de zaten "önce bunu çalıştır" var)
-- [ ] Telegram/e-posta uyarısı: bir hal 7 gün üst üste aynı parmak izini basarsa
-- [ ] `hf_etl_runs`'a günlük parmak izi yaz — "başarılı çalıştı" ≠ "yeni veri geldi"; bu ayrım kaydedilsin
+- [x] **Donma dedektörü** — `modules/etl/freshness.ts` → `detectStaleSources()`. Günlük parmak izi (satır sayısı + fiyat toplamı) değişmeyen kaynaklar. **Eşik mutlak DEĞİL**, kaynağın kendi 180 günlük tabanına göre: Konya (%71) ve Kütahya (%80) kronik yapışkan fiyatlı; mutlak eşik ilk denemede yanlış alarm üretti.
+- [x] **Sapma dedektörü** — `detectPriceJumps()`. Bir serinin akranlarına göre **konumunun kayması**. "Bu hal farklı" sinyal değil (Demre üretim bölgesi, salkım domates hep akran medyanının ~%15'i — doğru veri); anlamlı olan oranın kayması. Kayseri vakası: 0,33 → 2,4 (7 kat).
+- [x] `etl-health.sh`'a "DONMUŞ SERİLER" bölümü — oturum başı kontrolde görünüyor
+- [x] Admin endpoint: `GET /api/v1/admin/hal/etl/freshness` (tam denetim, kendi-taban kıyaslı)
+- [ ] Telegram/e-posta uyarısı — dedektör hazır, bildirim kanalına bağlanacak
 - [ ] Admin panelde kaynak sağlık kartına "son değişim tarihi" alanı
+
+> **Yan bulgu (düzeltildi):** `etl-health.sh` `set -euo pipefail` yüzünden **sorun YOKKEN ölüyordu** — boş sorgu → `grep -v` exit 1 → pipefail. Rapor "Sorunlu Kaynaklar" başlığında kesiliyor, sonraki tüm bölümler (CLAUDE.md'nin bakmamızı söylediği "Veri Akışı Yok" dahil) hiç yazdırılmıyordu. Sağlık kontrolünün kendisi sessizce bozukmuş.
 
 ---
 
