@@ -74,7 +74,8 @@ function basketTable(rows: BasketRow[]): string {
   const body = rows.map((r) => `
     <tr>
       ${productCell(r.productSlug, r.productName, `${r.marketCount} halde medyan`)}
-      <td style="${NUM}color:#0f172a;">₺${fmtPriceTr(r.price)}</td>
+      <td style="${NUM}color:#6b7280;">${r.prevPrice != null ? `₺${fmtPriceTr(r.prevPrice)}` : "—"}</td>
+      <td style="${NUM}color:#0f172a;font-weight:600;">₺${fmtPriceTr(r.price)}</td>
       <td style="${NUM}color:${r.weeklyPct != null ? pctColor(r.weeklyPct) : "#6b7280"};font-weight:600;">
         ${r.weeklyPct != null ? fmtPct(r.weeklyPct) : "—"}
       </td>
@@ -83,8 +84,9 @@ function basketTable(rows: BasketRow[]): string {
   return `<table style="width:100%;border-collapse:collapse;font-size:13px;">
     <thead><tr style="background:#f9fafb;">
       <th style="text-align:left;${TH}">Urun</th>
-      <th style="text-align:right;${TH}">Fiyat</th>
+      <th style="text-align:right;${TH}">Gecen hafta</th>
       <th style="text-align:right;${TH}">Bu hafta</th>
+      <th style="text-align:right;${TH}">Degisim</th>
     </tr></thead>
     <tbody>${body}</tbody>
   </table>`;
@@ -160,8 +162,8 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
     <div style="padding:24px;">
       <h2 style="margin:0 0 4px;font-size:16px;color:#0f172a;">Temel Urunler</h2>
       <p style="margin:0 0 12px;color:#6b7280;font-size:12px;line-height:1.6;">
-        En cok tuketilen urunler, her hafta ayni sirada. Fiyat, urunun olculdugu haller
-        arasindaki medyandir; <strong>Bu hafta</strong> sutunu bir onceki haftaya gore degisimi gosterir.
+        En cok tuketilen urunler, her hafta ayni sirada. Fiyatlar urunun olculdugu haller
+        arasindaki medyandir (₺/kg).
       </p>
       ${basketTable(basket)}
       ${yearlySection}

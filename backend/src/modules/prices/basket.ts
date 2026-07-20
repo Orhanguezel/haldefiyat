@@ -24,6 +24,8 @@ import {
 export interface BasketRow {
   productSlug: string;
   productName: string;
+  /** Gecen haftanin fiyati — yuzde tek basina "neye gore?" sorusunu birakiyordu. */
+  prevPrice:   number | null;
   price:       number;
   marketCount: number;
   weeklyPct:   number | null;
@@ -85,16 +87,15 @@ export async function weeklyBasket(): Promise<BasketRow[]> {
     if (!c || c.markets < MIN_MARKETS) continue;
 
     const p = prev.get(b.slug);
-    const weeklyPct = p && p.avg > 0 && p.markets >= MIN_MARKETS
-      ? Math.round((10000 * (c.avg - p.avg)) / p.avg) / 100
-      : null;
+    const comparable = p && p.avg > 0 && p.markets >= MIN_MARKETS;
 
     rows.push({
       productSlug: b.slug,
       productName: b.slug,
+      prevPrice:   comparable ? p!.avg : null,
       price:       c.avg,
       marketCount: c.markets,
-      weeklyPct,
+      weeklyPct:   comparable ? Math.round((10000 * (c.avg - p!.avg)) / p!.avg) / 100 : null,
     });
   }
 
