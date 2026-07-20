@@ -2476,7 +2476,7 @@ export async function runWaybackBackfill(
 
     let rows: NormalizedRow[];
     try {
-      rows = parseResponse(html, source);
+      rows = parseResponse(source.responseShape, html, source);
     } catch (err) {
       out.errors.push(`${snap.date}: parse — ${err instanceof Error ? err.message : String(err)}`);
       continue;

@@ -15,7 +15,7 @@ import {
   hfProductEditorial,
   hfProducts,
 } from "@/db/schema";
-import { loadEtlSources } from "@/config/etl-sources";
+import { loadEtlSources, getSourceByKey } from "@/config/etl-sources";
 import { loadProductionSources } from "@/config/production-sources";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
 import { runWaybackBackfill } from "@/modules/etl/fetcher";
