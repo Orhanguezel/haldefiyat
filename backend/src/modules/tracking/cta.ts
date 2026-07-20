@@ -17,6 +17,7 @@
 import { and, gte, sql } from "drizzle-orm";
 import { createHash } from "node:crypto";
 import type { FastifyInstance, FastifyRequest } from "fastify";
+import { env } from "@/core/env";
 import { db } from "@/db/client";
 import { hfCtaEvents } from "@/db/schema";
 
@@ -50,8 +51,13 @@ function visitorHash(req: FastifyRequest): string {
   const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.ip || "";
   const ua = (req.headers["user-agent"] as string) || "";
   const day = new Date().toISOString().slice(0, 10);
-  const salt = process.env.JWT_SECRET || "";
-  return createHash("sha256").update(`${ip}|${ua}|${day}|${salt}`).digest("hex").slice(0, 16);
+  // env.JWT_SECRET yoksa uygulama zaten acilmaz (core/env fail-closed). Burada
+  // `|| ""` gibi bir fallback KOYULMAZ: bos tuz, hash'i disaridan yeniden
+  // uretilebilir hale getirip ziyaretci parmak izini tahmin edilir yapardi.
+  return createHash("sha256")
+    .update(`${ip}|${ua}|${day}|${env.JWT_SECRET}`)
+    .digest("hex")
+    .slice(0, 16);
 }
 
 export async function registerCtaTracking(app: FastifyInstance) {
