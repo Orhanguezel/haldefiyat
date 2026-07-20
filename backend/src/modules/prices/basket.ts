@@ -24,11 +24,14 @@ import {
 export interface BasketRow {
   productSlug: string;
   productName: string;
-  /** Gecen haftanin fiyati — yuzde tek basina "neye gore?" sorusunu birakiyordu. */
-  prevPrice:   number | null;
   price:       number;
   marketCount: number;
+  /** Gecen haftanin fiyati — su an tabloda gosterilmiyor, fikir degisirse hazir. */
+  prevPrice:   number | null;
   weeklyPct:   number | null;
+  lastYearAvg: number | null;
+  yoyPct:      number | null;
+  yoyPairs:    number | null;
 }
 
 export interface YearlyMove {
@@ -73,7 +76,7 @@ async function loadWindows(): Promise<{ latest: string; w: Windows } | null> {
 export async function weeklyBasket(): Promise<BasketRow[]> {
   const loaded = await loadWindows();
   if (!loaded) return [];
-  const { cur, prev } = loaded.w;
+  const { cur, prev, lastYear } = loaded.w;
 
   const basket = await db
     .select({ slug: hfBasketProducts.slug })
@@ -89,13 +92,19 @@ export async function weeklyBasket(): Promise<BasketRow[]> {
     const p = prev.get(b.slug);
     const comparable = p && p.avg > 0 && p.markets >= MIN_MARKETS;
 
+    const ly = lastYear.get(b.slug);
+    const yoy = ly ? matchedYoy(c, ly) : null;
+
     rows.push({
       productSlug: b.slug,
       productName: b.slug,
-      prevPrice:   comparable ? p!.avg : null,
       price:       c.avg,
       marketCount: c.markets,
+      prevPrice:   comparable ? p!.avg : null,
       weeklyPct:   comparable ? Math.round((10000 * (c.avg - p!.avg)) / p!.avg) / 100 : null,
+      lastYearAvg: yoy?.lastYearAvg ?? null,
+      yoyPct:      yoy?.yoyPct ?? null,
+      yoyPairs:    yoy?.pairs ?? null,
     });
   }
 

@@ -3,9 +3,13 @@
  * abonelere SMTP uzerinden HTML mail gonderir.
  *
  * Icerik:
- *  - Bu hafta en cok degisen urunler (urun ailesi + cok-hal ulusal ortalamasi)
- *  - Sezonluk urunler (mevcut ayda hasatta olanlar)
- *  - Gecen yilin ayni donemine gore karsilastirma (ulusal ortalama tabanli)
+ *  - Temel urunler: sabit sepet, gecen yilin ayni haftasina gore degisim
+ *  - Mevsimin urunleri: su an sezonunda olanlar, sezon basina gore seyir
+ *
+ * Neden bu ikisi: haftalik degisim cogu hafta gurultudur (bu hafta domates -%2,3,
+ * biber %0,0) — okura bir sey soylemez. Yillik degisim ise hem haber degeri tasir hem
+ * de 5 yillik tarihsel seri sayesinde rakiplerin uretemedigi veridir. Mevsimlik urunlerde
+ * ise yillik kiyas yalan uretir (hasat kaymasi), o yuzden ayri bolum + ayri metodoloji.
  *
  * Tetikleyici:
  *  - Cron: `0 6 * * 1` (pazartesi 06:00 UTC = 09:00 TRT, push'tan 1 saat sonra)
@@ -19,7 +23,8 @@ import { mysqlTable, varchar, datetime, tinyint, text } from "drizzle-orm/mysql-
 
 import { db } from "@/db/client";
 import { sendBereketMail } from "@agro/shared-backend/core/mail";
-import { weeklyBasket, yearlyMovers, type BasketRow, type YearlyMove } from "@/modules/prices/basket";
+import { weeklyBasket, type BasketRow } from "@/modules/prices/basket";
+import { seasonalProducts, type SeasonalRow } from "@/modules/prices/seasonal";
 import { unsubUrl, unsubHeaders } from "@/modules/newsletter/token";
 import { getSend, markSent, recordSend } from "./newsletter-archive";
 
@@ -74,17 +79,17 @@ function basketTable(rows: BasketRow[]): string {
   const body = rows.map((r) => `
     <tr>
       ${productCell(r.productSlug, r.productName, `${r.marketCount} halde medyan`)}
-      <td style="${NUM}color:#6b7280;">${r.prevPrice != null ? `₺${fmtPriceTr(r.prevPrice)}` : "—"}</td>
+      <td style="${NUM}color:#6b7280;">${r.lastYearAvg != null ? `₺${fmtPriceTr(r.lastYearAvg)}` : "—"}</td>
       <td style="${NUM}color:#0f172a;font-weight:600;">₺${fmtPriceTr(r.price)}</td>
-      <td style="${NUM}color:${r.weeklyPct != null ? pctColor(r.weeklyPct) : "#6b7280"};font-weight:600;">
-        ${r.weeklyPct != null ? fmtPct(r.weeklyPct) : "—"}
+      <td style="${NUM}color:${r.yoyPct != null ? pctColor(r.yoyPct) : "#6b7280"};font-weight:600;">
+        ${r.yoyPct != null ? fmtPct(r.yoyPct) : "—"}
       </td>
     </tr>`).join("");
 
   return `<table style="width:100%;border-collapse:collapse;font-size:13px;">
     <thead><tr style="background:#f9fafb;">
       <th style="text-align:left;${TH}">Urun</th>
-      <th style="text-align:right;${TH}">Gecen hafta</th>
+      <th style="text-align:right;${TH}">Gecen yil</th>
       <th style="text-align:right;${TH}">Bu hafta</th>
       <th style="text-align:right;${TH}">Degisim</th>
     </tr></thead>
@@ -92,20 +97,20 @@ function basketTable(rows: BasketRow[]): string {
   </table>`;
 }
 
-function yearlyTable(rows: YearlyMove[]): string {
+function seasonalTable(rows: SeasonalRow[]): string {
   const body = rows.map((r) => `
     <tr>
-      ${productCell(r.productSlug, r.productName, `${r.yoyPairs} ortak hal-urun kaydi`)}
-      <td style="${NUM}color:#6b7280;">₺${fmtPriceTr(r.lastYearAvg)}</td>
-      <td style="${NUM}color:#0f172a;">₺${fmtPriceTr(r.price)}</td>
-      <td style="${NUM}color:${pctColor(r.yoyPct)};font-weight:600;">${fmtPct(r.yoyPct)}</td>
+      ${productCell(r.productSlug, r.productName, `${r.seasonWeeks}. sezon haftasi, ${r.marketCount} halde`)}
+      <td style="${NUM}color:#6b7280;">₺${fmtPriceTr(r.seasonStart)}</td>
+      <td style="${NUM}color:#0f172a;font-weight:600;">₺${fmtPriceTr(r.price)}</td>
+      <td style="${NUM}color:${pctColor(r.changePct)};font-weight:600;">${fmtPct(r.changePct)}</td>
     </tr>`).join("");
 
   return `<table style="width:100%;border-collapse:collapse;font-size:13px;">
     <thead><tr style="background:#f9fafb;">
       <th style="text-align:left;${TH}">Urun</th>
-      <th style="text-align:right;${TH}">Gecen yil</th>
-      <th style="text-align:right;${TH}">Simdi</th>
+      <th style="text-align:right;${TH}">Sezon basi</th>
+      <th style="text-align:right;${TH}">Bu hafta</th>
       <th style="text-align:right;${TH}">Degisim</th>
     </tr></thead>
     <tbody>${body}</tbody>
@@ -119,36 +124,31 @@ function yearlyTable(rows: YearlyMove[]): string {
  */
 function buildSubject(basket: BasketRow[]): string {
   const moved = basket
-    .filter((r) => r.weeklyPct != null)
-    .sort((a, b) => Math.abs(b.weeklyPct!) - Math.abs(a.weeklyPct!))
+    .filter((r) => r.yoyPct != null)
+    .sort((a, b) => Math.abs(b.yoyPct!) - Math.abs(a.yoyPct!))
     .slice(0, 2)
-    .map((r) => `${r.productName} ${fmtPct(r.weeklyPct!)}`);
+    .map((r) => `${r.productName} ${fmtPct(r.yoyPct!)}`);
 
   return moved.length
-    ? `Hal fiyatlari: ${moved.join(", ")}`
+    ? `Gecen yila gore ${moved.join(", ")}`
     : "Hal fiyatlari haftalik ozet";
 }
 
 async function buildHtml(): Promise<{ html: string; subject: string; movers: number } | null> {
-  const [basket, yearly] = await Promise.all([weeklyBasket(), yearlyMovers(10)]);
+  const [basket, seasonal] = await Promise.all([weeklyBasket(), seasonalProducts(8)]);
   if (basket.length === 0) return null;
 
   const subject = buildSubject(basket);
 
-  // Yillik bolum veri yoksa tamamen dusurulur — bos tablo basmaktansa hic gosterme.
-  const yearlySection = (yearly.up.length || yearly.down.length) ? `
-      <h2 style="margin:32px 0 4px;font-size:16px;color:#0f172a;">Gecen Yila Gore</h2>
+  // Mevsimlik bolum veri yoksa tamamen dusurulur — bos tablo basmaktansa hic gosterme.
+  const seasonalSection = seasonal.length ? `
+      <h2 style="margin:32px 0 4px;font-size:16px;color:#0f172a;">Mevsimin Urunleri</h2>
       <p style="margin:0 0 12px;color:#6b7280;font-size:12px;line-height:1.6;">
-        Gecen yilin ayni haftasiyla karsilastirma. Yalnizca her iki yilda da <strong>ayni halde
-        ve ayni urun kaydiyla</strong> olculmus fiyatlar kiyaslanir; boylece veri kapsamindaki
-        degisim fiyat artisi gibi gorunmez.
+        Su an sezonunda olan urunler. Mevsimlik urunlerde gecen yilla karsilastirma yaniltir —
+        hasat bir hafta kaysa fiyat carpilir. Onun yerine urunun <strong>kendi sezonu icindeki
+        seyri</strong> gosteriliyor: sezon basindaki fiyat ile bugunku fiyat.
       </p>
-      ${yearly.up.length ? `
-        <div style="margin:16px 0 6px;font-size:12px;font-weight:600;color:#dc2626;">En cok pahalilasan</div>
-        ${yearlyTable(yearly.up)}` : ""}
-      ${yearly.down.length ? `
-        <div style="margin:20px 0 6px;font-size:12px;font-weight:600;color:#16a34a;">En cok ucuzlayan</div>
-        ${yearlyTable(yearly.down)}` : ""}` : "";
+      ${seasonalTable(seasonal)}` : "";
 
   const html = `<!DOCTYPE html>
 <html lang="tr">
@@ -162,11 +162,12 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
     <div style="padding:24px;">
       <h2 style="margin:0 0 4px;font-size:16px;color:#0f172a;">Temel Urunler</h2>
       <p style="margin:0 0 12px;color:#6b7280;font-size:12px;line-height:1.6;">
-        En cok tuketilen urunler, her hafta ayni sirada. Fiyatlar urunun olculdugu haller
-        arasindaki medyandir (₺/kg).
+        En cok tuketilen urunler, her hafta ayni sirada. Gecen yilin ayni haftasiyla karsilastirma;
+        yalnizca her iki yilda da <strong>ayni halde ve ayni urun kaydiyla</strong> olculmus
+        fiyatlar kiyaslanir. Fiyatlar haller arasindaki medyandir (₺/kg).
       </p>
       ${basketTable(basket)}
-      ${yearlySection}
+      ${seasonalSection}
       <div style="margin-top:28px;padding:16px;background:#f0fdf4;border-radius:6px;font-size:13px;color:#166534;">
         <strong>💡 Bilgi:</strong> Tum fiyatlar resmi belediye hal mudurluklerinden gunluk olarak derlenmektedir.
         Tarihsel veri ve detayli karsilastirma icin
