@@ -341,6 +341,7 @@ export {
   useGetAnalyticsHeatmapAdminQuery,
   useGetAnalyticsOverviewAdminQuery,
   useGetAnalyticsRetentionAdminQuery,
+  useGetCtaFunnelAdminQuery,
 } from "@/integrations/endpoints/analytics-admin-endpoints";
 export {
   useCreateAuthorAdminMutation,
