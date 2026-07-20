@@ -75,13 +75,40 @@ async function getMaps(): Promise<{ exact: Map<string, string>; byKey: Map<strin
 
   const exact = new Map<string, string>();
   const byKey = new Map<string, string>();
-  for (const p of products) {
-    const names = [p.nameTr, ...((p.aliases as string[] | null) ?? [])].filter(Boolean);
-    for (const name of names) {
-      exact.set(turkishToAscii(name), p.slug);
-      // Birim-kapsamlı anahtar (ilk gelen kazanır — çakışma nadir)
-      const k = productMatchKey(name, p.unit);
-      if (!byKey.has(k)) byKey.set(k, p.slug);
+
+  // İKİ GEÇİŞ — ürünün KENDİ adı, başka bir ürünün alias'ını yener.
+  //
+  // Neden: merge sırasında varyantın adı master'ın alias listesine ekleniyor ama varyant
+  // ürünü aktif kalıyor (canonical_slug ile master'a bağlı). Böylece iki ürün aynı
+  // eşleştirme anahtarını talep ediyor. Eski davranış "ilk gelen kazanır"dı ve kazananı
+  // DB satır sırası belirliyordu — belirlenimsiz.
+  //
+  // Somut sonuç (2026-07-20, Kumluca): kaynak sayfada "Domates 25₺", "Yuvarlak Domates 30₺",
+  // "Oval Domates 35₺" olmasına rağmen üçü de `domates` ürününe düşüyordu; (ürün, hal, tarih)
+  // unique key yüzünden son satır diğerlerini eziyor ve halin domates fiyatı her gün 35₺
+  // (oval fiyatı) olarak kaydediliyordu. 25₺ ve 30₺ sessizce kayboluyordu.
+  //
+  // Katalog genelinde 1.525 anahtarın 513'ü (=%34) çakışıyordu; 653 ürün etkileniyordu.
+  //
+  // Varyantın kendi kaydını tutması doğru davranış: aile toplaması zaten canonical_slug
+  // üzerinden yapılıyor, granülarite kaybedilmemeli.
+  // Slug'a göre sıralı gezinme: iki ürün aynı anahtarı aynı öncelikte talep ederse
+  // kazananı DB satır sırası değil, sabit bir kural belirlesin (tekrarlanabilirlik).
+  const ordered = [...products].sort((a, b) => a.slug.localeCompare(b.slug));
+
+  const claim = (name: string, slug: string, unit: string | null) => {
+    const e = turkishToAscii(name);
+    if (!exact.has(e)) exact.set(e, slug);
+    const k = productMatchKey(name, unit);
+    if (!byKey.has(k)) byKey.set(k, slug);
+  };
+
+  for (const p of ordered) {
+    if (p.nameTr) claim(p.nameTr, p.slug, p.unit);
+  }
+  for (const p of ordered) {
+    for (const alias of ((p.aliases as string[] | null) ?? [])) {
+      if (alias) claim(alias, p.slug, p.unit);
     }
   }
 
