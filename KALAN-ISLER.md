@@ -43,6 +43,25 @@ Kaynak: [`reports/analiz-06-19-temmuz-2026.md`](reports/analiz-06-19-temmuz-2026
 
 ---
 
+## 🏷️ YAPILANDIRILMIŞ VERİ (Product snippet) — 2026-07-20
+
+- [x] **Şema fiyatları 5 yıllık pencereden geliyordu — düzeltildi.** GSC'nin "aggregateRating
+      eksik" uyarısını incelerken çıktı. `history` (1825 gün) üzerinden hesaplandığı için
+      Google'a gerçekle alakasız aralıklar bildiriliyordu: **limon 1–5050 TL** (gerçek: 18–150),
+      domates 5–210, `offerCount` 4841 = geçmiş **satır** sayısı, `price` = 5 yılın ortalaması.
+      Artık bugünün fiyatları (yoksa son 30 gün), `offerCount` = pazar sayısı, veri yoksa
+      `offers` hiç yazılmıyor. `image` + `url` eklendi.
+- [x] **Aynı hatanın ikinci yüzü:** `RetailComparison` market/hal makasını bugünün raf fiyatı
+      ile 5 yıllık hal ortalaması arasında hesaplıyordu → makas sistematik olarak şişikti.
+- [ ] **`aggregateRating` EKLENMEYECEK — bilinçli karar.** Sitede kullanıcı puanı yok; uydurmak
+      Google'ın yapılandırılmış veri spam politikasını ihlal eder (manuel işlem riski).
+      Google dokümantasyonu bunun *uyarı* olduğunu, hata olmadığını ve sıralamayı etkilemediğini
+      söylüyor; Product snippet zaten satın alınamayan sayfalar için doğru tip. **GSC'de bu
+      uyarı kalıcı olarak duracak — tekrar gündeme gelirse bu satır cevaptır.**
+      İleride gerçek kullanıcı puanı toplanırsa (ürün sayfasına oylama) o zaman eklenebilir.
+
+---
+
 ## 🔴 VERİ KALİTESİ — 2026-07-20 oturumu (ÖNCELİKLİ)
 
 Detay: [`docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md`](docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md)
