@@ -134,12 +134,50 @@ Her hal için ayrı ayrı: geçmiş tarih verisi nereden alınır?
 - [ ] Eskişehir: liste/detay ID deseni var mı? (Tekirdağ deseni: `id:NNN` backfill)
 - [ ] Belediyeye **resmi veri talebi** — 3 yıllık arşiv CSV/Excel olarak istenebilir (en temiz yol, denenmeden geçilmesin)
 
-### 1.2 Wayback Machine fizibilitesi (tarih parametresi yoksa ana yol)
-- [ ] CDX ile snapshot envanteri çıkar (hal başına):
-      `https://web.archive.org/cdx/search/cdx?url=<host>/<path>&from=2023&to=2026&output=json&collapse=digest`
-- [ ] Snapshot sıklığı yeterli mi? (haftalık ideal, aylık kabul edilebilir, yıllık işe yaramaz)
-- [ ] Snapshot HTML'i mevcut parser'la (`bursa_html` / `denizli_html` / `eskisehir_html`) uyumlu mu? Format 3 yılda değiştiyse **tarihsel parser varyantı** gerekir
-- [ ] Kapsama raporu: hal × ay matrisi, hangi aylar kurtarılabilir
+### 1.2 Wayback Machine fizibilitesi — YAPILDI (2026-07-20)
+
+- [x] CDX envanteri çıkarıldı. **Tuzak:** Denizli'nin URL'i query string içeriyor
+      (`Default.aspx?k=halfiyatlari`); onsuz arama 2 snapshot gösteriyor, doğrusuyla **29**.
+      URL'i `matchType=exact` ve encode edilmiş query ile sorgula.
+- [x] Snapshot HTML'i **parse ediliyor**. Bursa 2025-01-13 snapshot'ı: 174 satır,
+      `ÜRÜN | BR | FİYAT (min - max ₺)` — bugünkü `bursa_html` parser'ının beklediği yapı.
+      Sayfa içi tarih (13.01.2025) snapshot damgasıyla uyumlu, yani **hangi güne ait olduğu belli**.
+      Gerçek fiyatlar görünüyor (Armut 10–50 ₺, Ayva 11–53 ₺) — donmuş veriden tamamen farklı.
+
+**Kapsama (2023-01 → 2026-05, 43 ay):**
+
+| Hal | Snapshot | Kapsanan ay | Oran |
+|---|---|---|---|
+| Bursa | 27 | 21 | %49 |
+| Denizli | 29 | 22 | %51 |
+| Eskişehir | 28 | 20 | %47 |
+
+Sıklık **iki ayda bir** civarı — haftalık değil, güvenilir aylık bile değil. Bazı aylar 2-3
+snapshot, bazıları boş.
+
+### 1.3 Karar kapısı — DOLDURULDU
+
+**Üç hal için de: KISMİ BACKFILL.**
+
+Wayback'in verebileceği: hal başına **~20-22 gerçek gözlem günü** (toplam ~63 gün).
+Veremeyeceği: günlük seri. 1.097 günün ~21'i dolar, 1.076'sı boş kalır.
+
+**Ne işe yarar:**
+- Ürün sayfalarındaki 3 yıllık grafik, düz yalan yerine **seyrek ama dürüst** bir seri olur
+- Aylık/çeyreklik agregatlar için çıpa noktaları
+- Temmuz 2025 kıyası: Denizli (1) ve Eskişehir (2) snapshot'ı var, Bursa'nın yok
+
+**Ne işe yaramaz:**
+- Günlük seri rekonstrüksiyonu
+- Endeks (zaten 2026-20'ye rebase edildi, donma dönemi kapsam dışı)
+- Sağlam YoY — bunun için asıl çözüm beklemek: 2026-05'ten itibaren kapsam iyi
+  (ürün başına 8-11 hal), dolayısıyla **Mayıs 2027'de YoY kendiliğinden sağlam olacak**
+
+**Kurtarılamayan aralıklar Faz 0 karantinasında KALIR** (silinmez, gizlenir).
+
+> **Maliyet/fayda notu:** Faz 2 (wayback fetch altyapısı + tarihsel parser varyantı +
+> kademeli backfill) ciddi bir iş; karşılığı 3 hal × ~21 gün. Karar Orhan'da. Alternatif:
+> backfill'i atlayıp karantinayı kalıcı bırakmak ve Mayıs 2027'yi beklemek.
 
 ### 1.3 Karar kapısı
 - [ ] Her hal için: **tam backfill / kısmi backfill / kurtarılamaz** kararı yazılı olarak bu dosyaya işlensin
