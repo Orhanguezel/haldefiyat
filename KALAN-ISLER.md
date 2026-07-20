@@ -6,6 +6,34 @@
 
 ---
 
+## 📊 TRAFİK RAPORU AKSİYONLARI — 6-19 Temmuz 2026
+
+Kaynak: [`reports/analiz-06-19-temmuz-2026.md`](reports/analiz-06-19-temmuz-2026.md)
+
+- [x] **P1 — Nginx log saklama 14 → 90 gün.** VPS `/etc/logrotate.d/nginx`. Bu raporda
+      6 günlük veri kalıcı olarak kaybolmuştu. (VPS-only; repoda değil.)
+- [x] **P1 — Deploy'da `pm2 reload` → `restart`.** `deploy.sh` (frontend + admin).
+      Next standalone reload'da yeni build'i almıyordu → 6 Temmuz'daki 33 statik 500.
+- [x] **P2 — 410'lu ürünlere iç link.** 410 upsert/update artık ürünü pasife çekiyor
+      (`redirects/repository.ts`); mevcut 22 ürün pasife alındı. Sitemap ve ürün listesi temiz.
+- [ ] **P2 — Organik dönüşüm.** Altyapı zaten yerinde (mobil hero CTA, /fiyatlar şeridi,
+      anasayfa alt CTA, `trackConversion` ölçümü, subscribe 201 dönüyor). **Gerçek boşluk
+      yerleşim değil, dönüşüm oranı:** ~900 engaged pageview/gün'e karşılık toplam **11 abone**.
+      Sıradaki iş CTA ekleme değil, mevcut CTA'ların gösterim/tıklama verisini okuyup
+      metin-teklif testi yapmak.
+- [ ] **P3 — GEO / AI görünürlüğü.** Rapordaki "yapılandırılmış veri ekle" önerisi
+      **zaten karşılanmış**: llms.txt (66 satır, API sözleşmesi dahil), robots'ta GPTBot/
+      ClaudeBot/PerplexityBot/Google-Extended açık, ürün sayfalarında Dataset + Product +
+      AggregateOffer + FAQPage. Crawler 233/gün ama yönlendirme 16 — kalan makas altyapı
+      değil **alıntılanabilirlik/atıf gecikmesi**. Ölçüp beklemek dışında net aksiyon yok.
+- [ ] **[izle]** Mobil oran %76, hafta sonu %85. PWA çeklistinin getirisi bu grupta yüksek.
+
+> **Not:** Yukarıdaki P2/P3 maddelerinin "yapılacak iş" kısmı raporu yazarken log verisinden
+> türetilmişti; kod tarafı kontrol edilince ikisinin de altyapısı hazır çıktı. Rapor
+> aksiyonlarını uygularken önce mevcut durumu ölç.
+
+---
+
 ## 🔴 VERİ KALİTESİ — 2026-07-20 oturumu (ÖNCELİKLİ)
 
 Detay: [`docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md`](docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md)
