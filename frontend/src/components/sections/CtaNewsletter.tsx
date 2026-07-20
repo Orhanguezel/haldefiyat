@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { trackConversion } from "@/lib/analytics";
+import { isValidEmail } from "@/lib/email";
 
 type SubmitState =
   | { kind: "idle" }
@@ -14,7 +15,6 @@ const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")}/api/v1`
   : "/api/v1";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
  * E-posta abonelik CTA (client component).
@@ -34,7 +34,7 @@ export default function CtaNewsletter() {
     if (isLoading || isSuccess) return;
 
     const trimmed = email.trim();
-    if (!EMAIL_RE.test(trimmed)) {
+    if (!isValidEmail(trimmed)) {
       setState({ kind: "error", message: "Geçerli bir e-posta girin." });
       return;
     }

@@ -3,12 +3,12 @@
 import { useState, type FormEvent } from "react";
 import { Mail } from "lucide-react";
 import { trackConversion } from "@/lib/analytics";
+import { isValidEmail } from "@/lib/email";
 
 const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")}/api/v1`
   : "/api/v1";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function PriceListNewsletterStrip() {
   const [email, setEmail] = useState("");
@@ -17,7 +17,7 @@ export default function PriceListNewsletterStrip() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = email.trim();
-    if (!EMAIL_RE.test(trimmed)) {
+    if (!isValidEmail(trimmed)) {
       setState("error");
       return;
     }

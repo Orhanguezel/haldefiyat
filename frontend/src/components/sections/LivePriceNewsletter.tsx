@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { Mail } from "lucide-react";
 import { trackConversion } from "@/lib/analytics";
+import { isValidEmail } from "@/lib/email";
 
 type SubmitState = "idle" | "loading" | "success" | { error: string };
 
@@ -10,7 +11,6 @@ const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")}/api/v1`
   : "/api/v1";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LivePriceNewsletter() {
   const [email, setEmail] = useState("");
@@ -21,7 +21,7 @@ export default function LivePriceNewsletter() {
     if (state === "loading" || state === "success") return;
 
     const trimmed = email.trim();
-    if (!EMAIL_RE.test(trimmed)) {
+    if (!isValidEmail(trimmed)) {
       setState({ error: "Geçerli bir e-posta girin." });
       return;
     }
