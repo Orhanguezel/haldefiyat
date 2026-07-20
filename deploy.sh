@@ -77,9 +77,15 @@ if [ -d "$SHARED_NM" ] && [ -d "$BUN_STORE" ]; then
   echo "    shared-backend symlink'leri kontrol edildi"
 fi
 
-echo "==> [5/5] PM2 yeniden başlatılıyor"
+# PM2: Next standalone icin RELOAD DEGIL RESTART.
+#
+# `pm2 reload` graceful-reload yapar; eski process ayakta kalir ve silinmis chunk'lara
+# isaret eden ESKI HTML'i servis etmeye devam eder → /_next/static 500 / ChunkLoadError.
+# 6 Temmuz 2026'da 33 adet statik 500 tam olarak bundan olustu. Kural CLAUDE.md'de
+# yaziliydi ama script `reload` yapiyordu; insan hatasina birakmamak icin buraya sabitlendi.
+echo "==> [5/5] PM2 yeniden başlatılıyor (restart — Next standalone reload'u almaz)"
 cd "$REPO_ROOT"
-pm2 reload ecosystem.config.cjs || pm2 start ecosystem.config.cjs
+pm2 restart ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs
 # Admin panel ayrı ecosystem ile yönetiliyor
 ADMIN_PANEL_APP_NAME=hal-admin \
 ADMIN_PANEL_CWD="$ADMIN/.next/standalone/admin_panel" \
@@ -87,7 +93,7 @@ ADMIN_PANEL_PORT=3036 \
 ADMIN_PANEL_HOST=127.0.0.1 \
 ADMIN_PANEL_OUT_LOG="$LOGS/hal-admin-out.log" \
 ADMIN_PANEL_ERR_LOG="$LOGS/hal-admin-err.log" \
-pm2 reload "$ADMIN/ecosystem.config.cjs" --only hal-admin \
+pm2 restart "$ADMIN/ecosystem.config.cjs" --only hal-admin --update-env \
   || ADMIN_PANEL_APP_NAME=hal-admin \
      ADMIN_PANEL_CWD="$ADMIN/.next/standalone/admin_panel" \
      ADMIN_PANEL_PORT=3036 \

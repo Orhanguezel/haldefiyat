@@ -112,9 +112,35 @@ function cleanInput(input: RedirectInput): RedirectInput | null {
   return { sourcePath, type, targetUrl: targetUrl || null, note: input.note?.trim() || null };
 }
 
+/**
+ * 410 verilen bir urun sayfasinin urununu pasife ceker.
+ *
+ * Neden: liste/sitemap sorgularinin tamami `is_active = 1` filtresiyle calisir. Urune 410
+ * konulup urun aktif birakilinca sayfa "gitti" ama site ICINDEN link verilmeye devam ediyor
+ * — Next.js prefetch'i o linkleri arka planda cagirip 410 aliyor. 6-19 Temmuz 2026 trafik
+ * analizinde `findik-taze` 29, `feslegem-*` 71 isabetle bu sekilde gorundu.
+ *
+ * Tek yonlu: 410 kaldirilinca urun kendiliginden geri acilmaz — yeniden yayina almak
+ * editoryel bir karardir, yan etki olarak gerceklesmemeli.
+ */
+async function deactivateGoneProducts(paths: string[]): Promise<number> {
+  const slugs = paths
+    .filter((p) => p.startsWith("/urun/"))
+    .map((p) => p.slice("/urun/".length))
+    .filter(Boolean);
+  if (!slugs.length) return 0;
+
+  await db
+    .update(hfProducts)
+    .set({ isActive: 0 })
+    .where(and(inArray(hfProducts.slug, slugs), eq(hfProducts.isActive, 1)));
+  return slugs.length;
+}
+
 export async function upsertRedirects(inputs: RedirectInput[]) {
   let created = 0;
   let skipped = 0;
+  const gonePaths: string[] = [];
   for (const raw of inputs) {
     const clean = cleanInput(raw);
     if (!clean) {
@@ -132,9 +158,11 @@ export async function upsertRedirects(inputs: RedirectInput[]) {
       .onDuplicateKeyUpdate({
         set: { type: clean.type, targetUrl: clean.targetUrl, note: clean.note, isActive: 1 },
       });
+    if (clean.type === "410") gonePaths.push(clean.sourcePath);
     created++;
   }
-  return { created, skipped };
+  const deactivated = await deactivateGoneProducts(gonePaths);
+  return { created, skipped, deactivated };
 }
 
 export async function updateRedirect(id: number, patch: Partial<RedirectInput> & { isActive?: number }) {
@@ -146,6 +174,17 @@ export async function updateRedirect(id: number, patch: Partial<RedirectInput> &
   if (patch.isActive !== undefined) set.isActive = patch.isActive ? 1 : 0;
   if (Object.keys(set).length === 0) return;
   await db.update(hfRedirects).set(set).where(eq(hfRedirects.id, id));
+
+  // Tek kayit 410'a cevrildiginde de urun pasife dusmeli — yoksa toplu upsert ile
+  // tekil duzenleme arasinda davranis farki olusur.
+  if (set.type === "410") {
+    const [row] = (await db
+      .select({ sourcePath: hfRedirects.sourcePath })
+      .from(hfRedirects)
+      .where(eq(hfRedirects.id, id))
+      .limit(1)) as Array<{ sourcePath: string }>;
+    if (row?.sourcePath) await deactivateGoneProducts([row.sourcePath]);
+  }
 }
 
 export async function deleteRedirect(id: number) {

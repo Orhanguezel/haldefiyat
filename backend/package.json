@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun --hot src/index.ts",
-    "build": "bun x tsc -p tsconfig.json && node scripts/fix-build.mjs",
+    "build": "bun x tsc@5 -p tsconfig.json && node scripts/fix-build.mjs",
     "start": "node --experimental-specifier-resolution=node dist/index.js",
     "start:bun": "bun dist/index.js",
     "test": "bun test",
