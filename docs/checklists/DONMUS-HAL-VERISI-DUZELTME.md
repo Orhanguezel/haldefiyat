@@ -1,0 +1,149 @@
+# Donmuş Hal Verisi Düzeltme Çeklisti
+
+**Tespit:** 2026-07-20
+**Karar (Orhan):** Veri **silinmeyecek**, düzeltilecek.
+**Durum:** Faz 0 başlamadı.
+
+---
+
+## 1. Bulgu
+
+Bursa, Eskişehir ve Denizli toptancı hallerinin verisi **2023-04-21 → 2026-04-21 arasında donmuş.** Tek bir Nisan 2023 anlık görüntüsü 1.097 gün boyunca her güne kopyalanmış.
+
+| Hal | Günlük parmak izi (kayıt/toplam ₺) | Donuk gün | Seri | Donmuş seri |
+|---|---|---|---|---|
+| Denizli | 80 / 6.051,00 | 1.100 | 80 | %100 |
+| Eskişehir | 92 / 6.020,73 | 1.095 | 92 | %100 |
+| Bursa | 147 / 12.990,46 | 902 | 147 | %100 |
+
+**Ölçek: 349.758 kayıt = `hf_price_history` tablosunun %34,5'i.**
+Diğer tüm haller temiz (%0-1 donmuş seri). Üç hal de ~2026-04 ETL revizyonuyla gerçek veri üretmeye başladı.
+
+### Teşhis sorgusu (tekrar çalıştırılabilir)
+```sql
+SELECT m.name, COUNT(*) seri, SUM(tekil=1) donmus, ROUND(100*SUM(tekil=1)/COUNT(*),0) yuzde
+FROM (SELECT market_id, product_id, COUNT(DISTINCT avg_price) tekil, COUNT(DISTINCT recorded_date) gun
+      FROM hf_price_history WHERE unit='kg' AND avg_price>0 AND recorded_date BETWEEN ? AND ?
+      GROUP BY market_id, product_id HAVING gun>=100) t
+JOIN hf_markets m ON m.id=t.market_id GROUP BY m.name HAVING seri>=10 ORDER BY yuzde DESC;
+```
+
+### Neden önemli
+Bu, "+%356 soğan" ve "-%47,5 domates" hatalarının nihai kök nedeni ve yıllık kıyasın hiçbir yöntemle çalışmamasının cevabı — kıyaslanacak geçmişin üçte biri hiç var olmamış. Etkilenen yüzeyler: üç halin 3 yıllık grafikleri (düz çizgi), 2023-2026 ulusal ortalamalar, yıllık raporlar, `/analiz` raporları, ürün sayfaları, YoY.
+
+### Düzeltmeyi mümkün kılan iki teknik gerçek
+- **Unique key var:** `hf_ph_product_market_date_uq (product_id, market_id, recorded_date)` → backfill upsert ile donmuş satırın **üzerine yazar**. Silmeye gerek yok.
+- **Wayback altyapısı var:** `modules/wayback-monitor/` zaten `web.archive.org` CDX API kullanıyor — geçmiş snapshot çekme deseni mevcut.
+
+---
+
+## Faz 0 — Karantina (yıkıcı değil, ACİL)
+
+Gerçek veri gelene kadar uydurma veri yayından kalkmalı. Silme değil, sorgu düzeyinde dışlama.
+
+- [ ] `hf_market_blackouts` tablosu (seed SQL, yeni dosya): `market_id, from_date, to_date, reason, created_at`
+- [ ] Üç hal için kayıt gir: Bursa/Eskişehir/Denizli, `2023-04-21` → hal bazında gerçek unfreeze tarihi (aşağıda Faz 1.0'da netleşecek; geçici olarak `2026-04-21`)
+- [ ] Drizzle şema tanımı `db/schema.ts`
+- [ ] Ortak yardımcı: `excludeBlackouts(qb)` — tek yerden, 15 sorgu noktası kopya kod yazmasın
+- [ ] Uygula — **öncelik sırası** (görünürlüğe göre):
+  - [ ] `modules/prices/movers.ts` (bülten + hareketler)
+  - [ ] `modules/prices/seasonal.ts` (bülten mevsimlik)
+  - [ ] `modules/prices/repository.ts` (ürün sayfaları, grafikler)
+  - [ ] `modules/prices/weekly.ts`
+  - [ ] `modules/index/calculator.ts` (endeks)
+  - [ ] `modules/annual-report/index.ts`
+  - [ ] `modules/feeds/index.ts`
+  - [ ] `modules/alerts/checker.ts`
+  - [ ] `modules/telegram-bot/commands.ts`
+  - [ ] `modules/firms/repository.ts`, `modules/listings/repo.ts`, `modules/hal-admin/index.ts`
+- [ ] Doğrulama: karantina öncesi/sonrası ulusal medyan farkı ürün bazında raporlansın (beklenen: 2023-2026 aralığında belirgin değişim, 2026-05 sonrası değişim YOK)
+
+> **Not:** Faz 0 geçici. Faz 2 başarılı olursa blackout kayıtları silinir, veri açılır.
+
+---
+
+## Faz 1 — Gerçek veri kaynağı fizibilitesi
+
+Her hal için ayrı ayrı: geçmiş tarih verisi nereden alınır?
+
+### 1.0 Kesin unfreeze tarihini bul (her hal için)
+- [ ] Günlük parmak izi ile ilk gerçek gün: `CONCAT(COUNT(*),'_',ROUND(SUM(avg_price),2))` per (hal, tarih), ardışık tekrar biten gün
+- [ ] Faz 0 blackout `to_date` değerlerini bu tarihlerle güncelle
+
+### 1.1 Kaynak sitede tarih parametresi var mı?
+Üçünde de `backfillEndpoint` **tanımlı değil**, düz endpoint kullanılıyor:
+
+| Hal | Kaynak | Endpoint |
+|---|---|---|
+| Bursa | bursa.bel.tr | `/hal_fiyatlari` |
+| Denizli | denizli.bel.tr | `/Default.aspx?k=halfiyatlari` (ASP.NET — ViewState POST ihtimali) |
+| Eskişehir | eskisehir.bel.tr | `/hal-fiyatlari` |
+
+- [ ] Bursa: tarih query param / arşiv sayfası var mı? (Bolu deseni: `/{DD-MM-YYYY}-...`)
+- [ ] Denizli: ASP.NET postback ile tarih seçimi var mı? (hal.gov.tr deseni: ViewState + tarih POST — `fetchHalGovTrDated` referans)
+- [ ] Eskişehir: liste/detay ID deseni var mı? (Tekirdağ deseni: `id:NNN` backfill)
+- [ ] Belediyeye **resmi veri talebi** — 3 yıllık arşiv CSV/Excel olarak istenebilir (en temiz yol, denenmeden geçilmesin)
+
+### 1.2 Wayback Machine fizibilitesi (tarih parametresi yoksa ana yol)
+- [ ] CDX ile snapshot envanteri çıkar (hal başına):
+      `https://web.archive.org/cdx/search/cdx?url=<host>/<path>&from=2023&to=2026&output=json&collapse=digest`
+- [ ] Snapshot sıklığı yeterli mi? (haftalık ideal, aylık kabul edilebilir, yıllık işe yaramaz)
+- [ ] Snapshot HTML'i mevcut parser'la (`bursa_html` / `denizli_html` / `eskisehir_html`) uyumlu mu? Format 3 yılda değiştiyse **tarihsel parser varyantı** gerekir
+- [ ] Kapsama raporu: hal × ay matrisi, hangi aylar kurtarılabilir
+
+### 1.3 Karar kapısı
+- [ ] Her hal için: **tam backfill / kısmi backfill / kurtarılamaz** kararı yazılı olarak bu dosyaya işlensin
+- [ ] Kurtarılamayan aralıklar Faz 0 karantinasında **kalıcı** olarak kalır (silinmez, gizlenir)
+
+---
+
+## Faz 2 — Backfill uygulaması
+
+- [ ] `etl-sources.ts`: ilgili hallere `backfillEndpoint` / tarih desteği ekle
+- [ ] `fetcher.ts`: gerekiyorsa `fetchBursaDated` / `fetchDenizliDated` / `fetchEskisehirDated`
+- [ ] Wayback yolu için ortak yardımcı: `fetchViaWayback(source, date)` — CDX'ten en yakın snapshot + mevcut parser
+- [ ] **Önce tek gün, tek hal** ile dene; sonucu gerçek piyasa seviyesiyle karşılaştır (akran halleri: Konya/Ankara/İzmir/Mersin)
+- [ ] Kademeli backfill: 1 ay → doğrula → 6 ay → doğrula → tam aralık
+- [ ] Upsert donmuş satırın üzerine yazıyor mu, ilk günde doğrula (unique key sayesinde yazmalı)
+- [ ] **Yedek:** backfill öncesi ilgili aralığın `mysqldump`'ı alınsın (geri dönüş için; silme yapmıyoruz ama üzerine yazıyoruz)
+
+---
+
+## Faz 3 — Doğrulama
+
+- [ ] Donma teşhis sorgusu tekrar: üç hal için donmuş seri oranı **%0'a** inmeli
+- [ ] Akran karşılaştırması: hal/akran oranı yıllar arası **sabit** olmalı (2025 ve 2026 sapması birbirine yakın). Bkz. hafıza `[[yillik-kiyas-veri-engeli]]` — eskiden Denizli 2,18x → 1,06x idi
+- [ ] Zaman serisi görsel kontrolü: düz çizgi bitmiş, mevsimsel eğri görünüyor
+- [ ] Yıllık kıyas yeniden ölçülsün: eşleşmiş çift sayısı ürün başına ≥5 oluyor mu?
+- [ ] Olduysa: bültende **yıllık manşet** açılabilir (asıl hedef buydu) — `basket.ts` yoyPct alanları hazır bekliyor
+- [ ] `/analiz` ve yıllık raporlar yeniden üretilsin (eski raporlar kirli veriyle yazılmıştı)
+
+---
+
+## Faz 4 — Tekrarını önle (bu adım atlanmasın)
+
+Asıl skandal, 3 yıl boyunca kimsenin fark etmemesi. Tespit otomatikleşmeli.
+
+- [ ] **Donma dedektörü:** günlük ETL sonrası, her (hal, ürün) serisi için son 14 günde `COUNT(DISTINCT avg_price)=1` ise uyar
+- [ ] `etl-health.sh`'a "DONMUŞ SERİ" bölümü ekle — oturum başı kontrolde görünsün (CLAUDE.md'de zaten "önce bunu çalıştır" var)
+- [ ] Telegram/e-posta uyarısı: bir hal 7 gün üst üste aynı parmak izini basarsa
+- [ ] `hf_etl_runs`'a günlük parmak izi yaz — "başarılı çalıştı" ≠ "yeni veri geldi"; bu ayrım kaydedilsin
+- [ ] Admin panelde kaynak sağlık kartına "son değişim tarihi" alanı
+
+---
+
+## Riskler / Tuzaklar
+
+- **Bursa min/max makası çok geniş** (ort. 7,96x) — `avg_price` %79 oranında min-max orta noktası olduğu için Bursa'nın "ortalaması" gerçek veride bile şüpheli. `MAX_MINMAX_SPREAD=3` filtresi devrede ama Bursa için ayrıca bakılmalı. Bkz. `[[yillik-kiyas-veri-engeli]]`
+- **`CENT_SCALED_SOURCES` notu:** `bursa_resmi` 2026-06-09'da listeden çıkarıldı (TL raporluyor, kuruş değil). Tarihsel snapshot'larda birim farklı olabilir — backfill'de birim doğrulaması şart.
+- **Parser sürüm kayması:** 3 yıllık snapshot'lar bugünkü HTML yapısında olmayabilir; sessizce 0 satır dönmesi "başarılı" sanılmasın.
+- **Wayback rate limit** — kademeli çekim, retry, `scraper-service` üzerinden geçiş değerlendirilsin.
+- **Karantina yarım kalırsa** veri bazı sayfalarda gizli bazı sayfalarda görünür olur → tutarsızlık. Faz 0 tamamlanmadan Faz 2'ye geçilmesin.
+
+---
+
+## İlgili
+
+- Hafıza: `[[yillik-kiyas-veri-engeli]]`, `[[haftalik-bulten-metodolojisi]]`
+- Kod: `modules/etl/fetcher.ts`, `config/etl-sources.ts`, `modules/prices/movers.ts`, `modules/wayback-monitor/`
+- Sağlık: `backend/scripts/etl-health.sh`
