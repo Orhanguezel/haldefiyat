@@ -48,6 +48,9 @@ interface NormalizedRow {
   // Satıra özel tarih — örn. ANTKOMDER HTML'i aynı sayfada 2 güne ait fiyat
   // verir. Boş bırakılırsa fetch turundaki dateUsed kullanılır.
   recordedDate?: string;
+  // Parser-ici: işlem hacmi (kg). Yalnizca hal.gov.tr'nin cok-satirli urunlerini
+  // hacim agirlikli birlestirmek icin kullanilir, downstream'e tasinmaz.
+  weight?: number;
 }
 
 // ── Response parsers ────────────────────────────────────────────────────────
@@ -2056,7 +2059,7 @@ function parseHalGovTrPage(html: string, gvId: string): NormalizedRow[] {
       cells.push(decodeHtmlEntities(txt));
     }
     if (cells.length < 4) continue;
-    const [urunAdi, urunCinsi, , fiyatRaw, , birimRaw] = cells;
+    const [urunAdi, urunCinsi, , fiyatRaw, hacimRaw, birimRaw] = cells;
     // Pager satırları: ilk hücre sayı veya "..."
     if (!urunAdi || /^[\d\.]+$|^\.\.\.$/.test(urunAdi)) continue;
     // Başlık satırı
@@ -2070,6 +2073,9 @@ function parseHalGovTrPage(html: string, gvId: string): NormalizedRow[] {
     const avg = parseTrPrice(fiyatRaw ?? "");
     if (avg == null) continue;
 
+    // İşlem hacmi (kg) — ayni urun icin birden fazla satiri agirlikli birlestirmek icin.
+    const hacim = parseTrPrice(hacimRaw ?? "") ?? 0;
+
     rows.push({
       name,
       category: "sebze-meyve",
@@ -2077,9 +2083,59 @@ function parseHalGovTrPage(html: string, gvId: string): NormalizedRow[] {
       avg,
       min: null,
       max: null,
+      weight: hacim > 0 ? hacim : undefined,
     });
   }
-  return rows;
+  return mergeHalGovTrByVolume(rows);
+}
+
+/**
+ * hal.gov.tr ayni urunu BIRDEN FAZLA satirla verir: uretim turu (Geleneksel /
+ * İyi Tarim) ve varyete ayri ayri. Ornek gercek veri:
+ *
+ *   ARMUT  Geleneksel  37,56 TL  hacim 224.897 kg
+ *   ARMUT  İyi Tarim   88,00 TL  hacim  18.770 kg
+ *   ARMUT  Geleneksel  80,00 TL  hacim      45 kg   <- 45 kg'lik butik satis
+ *   ADAÇAYI Geleneksel 58,44 TL  hacim       8 kg
+ *   ADAÇAYI İyi Tarim 3945,34 TL hacim       4 kg   <- 4 kg'lik ozel satis
+ *
+ * Onceki parser her satiri ayri kayit yapiyordu ve downstream DUZ ortalama
+ * aliyordu: adaçayi (58+3945)/2 ≈ 2001 TL/kg. 4 kg'lik islem, 8 kg'lik islemle
+ * esit agirlik aliyordu. Yaprak sebzelerde (kekik, kisnis, ispanak) hal.gov.tr
+ * ortalamasi hallerin 4-18 katina cikiyordu — sema ve raporlara sizan buydu.
+ *
+ * Cozum: urun basina HACIM AGIRLIKLI ortalama. Piyasanin fiilen olustugu fiyat
+ * budur; 224 bin kg'lik islem, 45 kg'lik butik satisi bogar. Hacim yoksa (0)
+ * duz ortalamaya duseriz — eskisinden kotu degil.
+ */
+function mergeHalGovTrByVolume(rows: NormalizedRow[]): NormalizedRow[] {
+  const groups = new Map<string, NormalizedRow[]>();
+  for (const r of rows) {
+    const key = r.name.toLowerCase();
+    (groups.get(key) ?? groups.set(key, []).get(key)!).push(r);
+  }
+
+  const out: NormalizedRow[] = [];
+  for (const group of groups.values()) {
+    if (group.length === 1) { out.push(group[0]!); continue; }
+
+    const totalW = group.reduce((s, r) => s + (r.weight ?? 0), 0);
+    const avg = totalW > 0
+      ? group.reduce((s, r) => s + r.avg * (r.weight ?? 0), 0) / totalW
+      : group.reduce((s, r) => s + r.avg, 0) / group.length;
+
+    const first = group[0]!;
+    out.push({
+      name: first.name,
+      category: first.category,
+      unit: first.unit,
+      avg: Math.round(avg * 100) / 100,
+      min: null,
+      max: null,
+      weight: totalW > 0 ? totalW : undefined,
+    });
+  }
+  return out;
 }
 
 /**
