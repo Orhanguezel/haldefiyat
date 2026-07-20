@@ -9,13 +9,13 @@
 -- etl-sources.ts'te karsiligi yoktu — onlar icin yalnizca kaynak tanimi eklendi.
 
 INSERT INTO hf_markets (slug, name, city_name, market_type, source_key, is_active, seo_index)
-SELECT * FROM (SELECT 'nevsehir-ticaret-borsasi','NEVŞEHİR TİCARET BORSASI','NEVŞEHİR','borsa','tobb_borsa_nevsehir',1,1) AS t
+SELECT * FROM (SELECT 'nevsehir-ticaret-borsasi' AS slug, 'NEVŞEHİR TİCARET BORSASI' AS name, 'NEVŞEHİR' AS city_name, 'borsa' AS market_type, 'tobb_borsa_nevsehir' AS source_key, 1 AS is_active, 1 AS seo_index) AS t
 WHERE NOT EXISTS (SELECT 1 FROM hf_markets WHERE slug='nevsehir-ticaret-borsasi');
 
 INSERT INTO hf_markets (slug, name, city_name, market_type, source_key, is_active, seo_index)
-SELECT * FROM (SELECT 'adana-ticaret-borsasi','ADANA TİCARET BORSASI','ADANA','borsa','tobb_borsa_adana',1,1) AS t
+SELECT * FROM (SELECT 'adana-ticaret-borsasi' AS slug, 'ADANA TİCARET BORSASI' AS name, 'ADANA' AS city_name, 'borsa' AS market_type, 'tobb_borsa_adana' AS source_key, 1 AS is_active, 1 AS seo_index) AS t
 WHERE NOT EXISTS (SELECT 1 FROM hf_markets WHERE slug='adana-ticaret-borsasi');
 
 INSERT INTO hf_markets (slug, name, city_name, market_type, source_key, is_active, seo_index)
-SELECT * FROM (SELECT 'ordu-ticaret-borsasi','ORDU TİCARET BORSASI','ORDU','borsa','tobb_borsa_ordu',1,1) AS t
+SELECT * FROM (SELECT 'ordu-ticaret-borsasi' AS slug, 'ORDU TİCARET BORSASI' AS name, 'ORDU' AS city_name, 'borsa' AS market_type, 'tobb_borsa_ordu' AS source_key, 1 AS is_active, 1 AS seo_index) AS t
 WHERE NOT EXISTS (SELECT 1 FROM hf_markets WHERE slug='ordu-ticaret-borsasi');
