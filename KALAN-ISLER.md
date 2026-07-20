@@ -16,11 +16,20 @@ Kaynak: [`reports/analiz-06-19-temmuz-2026.md`](reports/analiz-06-19-temmuz-2026
       Next standalone reload'da yeni build'i almıyordu → 6 Temmuz'daki 33 statik 500.
 - [x] **P2 — 410'lu ürünlere iç link.** 410 upsert/update artık ürünü pasife çekiyor
       (`redirects/repository.ts`); mevcut 22 ürün pasife alındı. Sitemap ve ürün listesi temiz.
-- [ ] **P2 — Organik dönüşüm.** Altyapı zaten yerinde (mobil hero CTA, /fiyatlar şeridi,
-      anasayfa alt CTA, `trackConversion` ölçümü, subscribe 201 dönüyor). **Gerçek boşluk
-      yerleşim değil, dönüşüm oranı:** ~900 engaged pageview/gün'e karşılık toplam **11 abone**.
-      Sıradaki iş CTA ekleme değil, mevcut CTA'ların gösterim/tıklama verisini okuyup
-      metin-teklif testi yapmak.
+- [x] **P2 — Organik dönüşüm: ÖLÇÜM KURULDU (2026-07-20).** Veriyi okumaya çalışınca
+      **veri olmadığı** ortaya çıktı: sitede yalnızca Google Ads etiketi (AW-…) yüklü, GA4 yok;
+      `trackConversion` sadece *başarılı* kayıtta ateşleniyordu. Yani kaç kişinin CTA'yı gördüğü
+      hiç bilinmiyordu. Kurulan huni: **gösterim → ilgilendi → gönderdi → abone**
+      (`hf_cta_events`, `POST /track/cta`, `/admin/ga4` → "Bülten CTA" sekmesi).
+      Canlı trafikten olay akışı doğrulandı.
+- [ ] **P2 (devam) — Metin/teklif testi.** ~2 hafta veri biriktikten sonra `/admin/ga4` →
+      Bülten CTA sekmesini oku ve **kaybın hangi adımda olduğuna göre** aksiyon al:
+      · gösterim düşük → yerleşim/scroll derinliği
+      · gösterim var ilgi yok → **teklif metni** ("Haftalık fiyat bültenini al" yerine somut
+        fayda: hangi ürün, hangi şehir, ne kazandırıyor)
+      · ilgi var gönderim yok → form güveni (KVKK metni, "spam yok" ibaresi)
+      · gönderim var abone yok → teknik hata
+      Dört yerleşim ayrı ölçülüyor; en çok gösterim alan yerleşimde test etmek en hızlı sonucu verir.
 - [ ] **P3 — GEO / AI görünürlüğü.** Rapordaki "yapılandırılmış veri ekle" önerisi
       **zaten karşılanmış**: llms.txt (66 satır, API sözleşmesi dahil), robots'ta GPTBot/
       ClaudeBot/PerplexityBot/Google-Extended açık, ürün sayfalarında Dataset + Product +
