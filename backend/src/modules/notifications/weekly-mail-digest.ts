@@ -21,6 +21,7 @@ import { db } from "@/db/client";
 import { sendBereketMail } from "@agro/shared-backend/core/mail";
 import { weeklyBasket, yearlyMovers, type BasketRow, type YearlyMove } from "@/modules/prices/basket";
 import { unsubUrl, unsubHeaders } from "@/modules/newsletter/token";
+import { getSend, markSent, recordSend } from "./newsletter-archive";
 
 // Newsletter aboneleri tablosu (shared-backend schemasi yerine local proxy)
 const newsletterSubscribers = mysqlTable("newsletter_subscribers", {
@@ -213,19 +214,22 @@ async function sendToOne(to: string, subject: string, html: string): Promise<boo
   }
 }
 
-export async function runWeeklyMailDigest(): Promise<WeeklyMailResult> {
-  // 1) Subject + HTML
+/** Guncel veriden bulten uretip TASLAK olarak arsive yazar — gonderim yok. */
+export async function createWeeklyDraft(): Promise<{ ok: boolean; id?: string; subject?: string; reason?: string }> {
   let content: { html: string; subject: string; movers: number } | null;
   try {
     content = await buildHtml();
   } catch (err) {
-    return { sent: false, reason: `build_html_error: ${err instanceof Error ? err.message : err}` };
+    return { ok: false, reason: `build_html_error: ${err instanceof Error ? err.message : err}` };
   }
-  if (!content) {
-    return { sent: false, reason: "no-movers" };
-  }
+  if (!content) return { ok: false, reason: "no-data" };
 
-  // 2) Aboneler
+  const id = await recordSend({ status: "draft", subject: content.subject, html: content.html });
+  return { ok: true, id, subject: content.subject };
+}
+
+/** Abonelere gonderir. Arsivdeki HTML degistirilmeden aynen kullanilir. */
+async function deliver(subject: string, html: string): Promise<{ recipients: number; successes: number; failures: number } | { reason: string }> {
   // Single opt-in: explicit form girişi = açık rıza. is_verified şartı yok,
   // sadece unsubscribe etmemiş aboneler. (Bkz. newsletter-activation.md)
   const subs = await db
@@ -233,30 +237,67 @@ export async function runWeeklyMailDigest(): Promise<WeeklyMailResult> {
     .from(newsletterSubscribers)
     .where(isNull(newsletterSubscribers.unsubscribedAt));
 
-  if (subs.length === 0) {
-    return { sent: false, reason: "no-active-subscribers" };
-  }
+  if (subs.length === 0) return { reason: "no-active-subscribers" };
 
-  // 3) Paralel gönderim — concurrency limit
   let successes = 0;
   let failures = 0;
   for (let i = 0; i < subs.length; i += SEND_CONCURRENCY) {
     const batch = subs.slice(i, i + SEND_CONCURRENCY);
-    const results = await Promise.all(
-      batch.map((s) => sendToOne(s.email, content!.subject, content!.html)),
-    );
+    const results = await Promise.all(batch.map((s) => sendToOne(s.email, subject, html)));
     for (const ok of results) {
       if (ok) successes++;
       else failures++;
     }
   }
+  return { recipients: subs.length, successes, failures };
+}
 
-  return {
-    sent: successes > 0,
-    recipients: subs.length,
-    successes,
-    failures,
-  };
+/** Arsivdeki bir taslagi — panelde incelenmis/duzenlenmis haliyle — gonderir. */
+export async function sendStoredDraft(id: string): Promise<WeeklyMailResult> {
+  const row = await getSend(id);
+  if (!row) return { sent: false, reason: "not-found" };
+  if (row.status !== "draft") return { sent: false, reason: "already-sent" };
+
+  const out = await deliver(row.subject, row.html);
+  if ("reason" in out) {
+    await markSent(id, { status: "skipped", recipients: 0, successes: 0, failures: 0, reason: out.reason });
+    return { sent: false, reason: out.reason };
+  }
+
+  await markSent(id, {
+    status: out.successes > 0 ? "sent" : "failed",
+    ...out,
+  });
+  return { sent: out.successes > 0, ...out };
+}
+
+export async function runWeeklyMailDigest(): Promise<WeeklyMailResult> {
+  let content: { html: string; subject: string; movers: number } | null;
+  try {
+    content = await buildHtml();
+  } catch (err) {
+    return { sent: false, reason: `build_html_error: ${err instanceof Error ? err.message : err}` };
+  }
+  if (!content) {
+    await recordSend({ status: "skipped", subject: "(uretilemedi)", html: "", reason: "no-data" });
+    return { sent: false, reason: "no-data" };
+  }
+
+  const out = await deliver(content.subject, content.html);
+  if ("reason" in out) {
+    await recordSend({ status: "skipped", subject: content.subject, html: content.html, reason: out.reason });
+    return { sent: false, reason: out.reason };
+  }
+
+  // Arsiv her zaman tam olsun: cron dogrudan gonderse de kayit dusulur.
+  await recordSend({
+    status: out.successes > 0 ? "sent" : "failed",
+    subject: content.subject,
+    html: content.html,
+    ...out,
+  });
+
+  return { sent: out.successes > 0, ...out };
 }
 
 // trendingChanges'in sezon-spesifik bagimsizligi icin sql import'u yorum satirinda kalmasin

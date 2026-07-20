@@ -25,7 +25,15 @@ import {
   runWeeklyMailDigest,
   buildWeeklyMailPreview,
   sendWeeklyMailTest,
+  createWeeklyDraft,
+  sendStoredDraft,
 } from "@/modules/notifications/weekly-mail-digest";
+import {
+  listSends,
+  getSend,
+  updateDraft,
+  deleteDraft,
+} from "@/modules/notifications/newsletter-archive";
 import {
   runAllProductionSources,
   runSingleProductionSource,
@@ -917,6 +925,58 @@ export async function registerHalAdmin(app: FastifyInstance) {
     if (!body.success) return reply.status(400).send({ ok: false, error: "to (email) gerekli" });
     const result = await sendWeeklyMailTest(body.data.to);
     return reply.send({ ok: result.sent, ...result });
+  });
+
+  // --- Bulten arsivi: gonderilen her bulten saklanir, taslak once incelenir ---
+
+  app.get("/hal/newsletter/sends", async (req, reply) => {
+    const q = z.object({ limit: z.coerce.number().int().min(1).max(200).default(50) }).safeParse(req.query);
+    const items = await listSends(q.success ? q.data.limit : 50);
+    return reply.send({ ok: true, items });
+  });
+
+  app.get("/hal/newsletter/sends/:id", async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const row = await getSend(id);
+    if (!row) return reply.status(404).send({ ok: false, error: "not-found" });
+    return reply.send({ ok: true, item: row });
+  });
+
+  /** Arsivlenmis bulteni tarayicida oldugu gibi goster (gonderilen birebir kopya). */
+  app.get("/hal/newsletter/sends/:id/html", async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const row = await getSend(id);
+    if (!row) return reply.status(404).send({ ok: false, error: "not-found" });
+    reply.header("Content-Type", "text/html; charset=utf-8");
+    return reply.send(row.html.replace(/\{\{UNSUB_URL\}\}/g, "#"));
+  });
+
+  app.post("/hal/newsletter/sends/draft", async (_req, reply) => {
+    const result = await createWeeklyDraft();
+    if (!result.ok) return reply.status(400).send({ ok: false, error: result.reason });
+    return reply.send(result);
+  });
+
+  app.put("/hal/newsletter/sends/:id", async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const body = z.object({ subject: z.string().min(1).max(255).optional(), html: z.string().min(1).optional() }).safeParse(req.body);
+    if (!body.success) return reply.status(400).send({ ok: false, error: "subject veya html gerekli" });
+    const result = await updateDraft(id, body.data);
+    if (!result.ok) return reply.status(result.reason === "not-found" ? 404 : 409).send({ ok: false, error: result.reason });
+    return reply.send({ ok: true });
+  });
+
+  app.post("/hal/newsletter/sends/:id/send", async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const result = await sendStoredDraft(id);
+    return reply.send({ ok: result.sent, ...result });
+  });
+
+  app.delete("/hal/newsletter/sends/:id", async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const result = await deleteDraft(id);
+    if (!result.ok) return reply.status(result.reason === "not-found" ? 404 : 409).send({ ok: false, error: result.reason });
+    return reply.send({ ok: true });
   });
 
   app.post("/hal/wayback/check", async (_req, reply) => {

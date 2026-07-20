@@ -67,6 +67,27 @@ export const hfProducts = mysqlTable(
   ],
 );
 
+/** Gonderilen bultenlerin arsivi — gerekce 045_newsletter_sends_schema.sql'de. */
+export const hfNewsletterSends = mysqlTable(
+  "hf_newsletter_sends",
+  {
+    id:         varchar("id", { length: 36 }).notNull().primaryKey(),
+    kind:       varchar("kind", { length: 16 }).notNull().default("weekly"),
+    status:     varchar("status", { length: 16 }).notNull().default("draft"),
+    subject:    varchar("subject", { length: 255 }).notNull(),
+    html:       text("html").notNull(),
+    recipients: int("recipients").notNull().default(0),
+    successes:  int("successes").notNull().default(0),
+    failures:   int("failures").notNull().default(0),
+    reason:     varchar("reason", { length: 255 }),
+    editedAt:   datetime("edited_at", { fsp: 3 }),
+    sentAt:     datetime("sent_at", { fsp: 3 }),
+    createdAt:  datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:  datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [index("idx_sends_status").on(t.status, t.createdAt)],
+);
+
 /** Haftalik bultenin sabit sepeti — secim gerekcesi 044_basket_products_schema.sql'de. */
 export const hfBasketProducts = mysqlTable(
   "hf_basket_products",
