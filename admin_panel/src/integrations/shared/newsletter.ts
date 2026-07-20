@@ -82,3 +82,54 @@ export function computeNewsletterStats(subscribers: NewsletterSubscriber[]): New
   }
   return { total: subscribers.length, active, unsubscribed };
 }
+
+// --- Gönderim arşivi ---
+
+export const NEWSLETTER_SENDS_BASE = "/admin/hal/newsletter/sends";
+
+export type NewsletterSendStatus = "draft" | "sent" | "skipped" | "failed";
+
+export interface NewsletterSend {
+  id: string;
+  kind: string;
+  status: NewsletterSendStatus;
+  subject: string;
+  recipients: number;
+  successes: number;
+  failures: number;
+  reason: string | null;
+  editedAt: string | null;
+  sentAt: string | null;
+  createdAt: string | null;
+}
+
+export interface NewsletterSendDetail extends NewsletterSend {
+  html: string;
+}
+
+export function getNewsletterSendStatusKey(status: NewsletterSendStatus): string {
+  return `sends.status.${status}`;
+}
+
+export function getNewsletterSendStatusVariant(
+  status: NewsletterSendStatus,
+): "default" | "secondary" | "destructive" | "outline" {
+  if (status === "sent") return "default";
+  if (status === "failed") return "destructive";
+  if (status === "draft") return "outline";
+  return "secondary";
+}
+
+/** Gönderilmiş bülten değiştirilemez — arşiv kaydı yalan olmasın diye sadece taslak düzenlenir. */
+export function isNewsletterSendEditable(send: Pick<NewsletterSend, "status">): boolean {
+  return send.status === "draft";
+}
+
+export function formatNewsletterDateTime(value: string | null): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString("tr-TR", {
+    year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
+  });
+}

@@ -76,6 +76,8 @@ export type HfGscSummary = {
   total: number;
   indexed: number;
   issue: number;
+  realIssue: number;
+  expectedExcluded: number;
   lastChecked: string | null;
   running: boolean;
 };

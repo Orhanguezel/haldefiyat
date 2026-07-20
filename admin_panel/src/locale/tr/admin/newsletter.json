@@ -46,5 +46,47 @@
     "sent": "Bülten gönderildi: {count} alıcı.",
     "sendFailed": "Bülten gönderilemedi.",
     "error": "Bir hata oluştu."
+  },
+  "sends": {
+    "title": "Gönderilen Bültenler",
+    "description": "Abonelere ne gittiğinin arşivi. Taslak üret, incele, düzelt, sonra gönder.",
+    "empty": "Henüz arşivlenmiş bülten yok.",
+    "createDraft": "Taslak üret",
+    "status": {
+      "draft": "Taslak",
+      "sent": "Gönderildi",
+      "skipped": "Atlandı",
+      "failed": "Hata"
+    },
+    "table": {
+      "date": "Tarih",
+      "subject": "Konu",
+      "status": "Durum",
+      "recipients": "Alıcı",
+      "actions": "İşlem"
+    },
+    "actions": {
+      "view": "Görüntüle",
+      "edit": "Konuyu düzenle",
+      "send": "Abonelere gönder",
+      "delete": "Taslağı sil",
+      "sendConfirm": "Bu taslak tüm aktif abonelere gönderilecek. Onaylıyor musun?",
+      "deleteConfirm": "Bu taslak silinsin mi?",
+      "save": "Kaydet",
+      "cancel": "Vazgeç"
+    },
+    "detail": {
+      "title": "Bülten önizleme",
+      "subjectLabel": "Konu",
+      "editableHint": "Sadece taslaklar düzenlenebilir; gönderilmiş bülten arşiv kaydıdır."
+    },
+    "toast": {
+      "draftCreated": "Taslak üretildi.",
+      "draftFailed": "Taslak üretilemedi.",
+      "updated": "Kaydedildi.",
+      "deleted": "Taslak silindi.",
+      "sent": "Bülten gönderildi: {count} alıcı.",
+      "sendFailed": "Gönderilemedi."
+    }
   }
 }

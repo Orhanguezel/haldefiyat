@@ -174,6 +174,12 @@ export {
   useListNewsletterAdminQuery,
   usePreviewWeeklyMailAdminQuery,
   useSendWeeklyMailAdminMutation,
+  useListNewsletterSendsAdminQuery,
+  useGetNewsletterSendAdminQuery,
+  useCreateNewsletterDraftAdminMutation,
+  useUpdateNewsletterDraftAdminMutation,
+  useSendNewsletterDraftAdminMutation,
+  useDeleteNewsletterDraftAdminMutation,
   useSendWeeklyMailTestAdminMutation,
 } from "@/integrations/endpoints/admin/newsletter-admin-endpoints";
 export {

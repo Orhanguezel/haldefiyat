@@ -159,6 +159,7 @@ export const tags = [
   'EmailTemplateKey',
   'Newsletter',
   'NewsletterSubscribers',
+  'NewsletterSends',
   'NewsletterSubscriber',
   'Offer',
   'Offers',
