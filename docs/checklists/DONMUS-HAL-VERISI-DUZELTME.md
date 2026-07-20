@@ -81,6 +81,21 @@ Kaynak sayfada **sade "Soğan Kuru" satırı yok**; olan satır `Soğan Kuru Arp
 - [x] Endeks serisi 2026-20'ye rebase edildi; öncesi kaldırıldı (ürün başına ~2 hal, ulusal endeks değildi). Yedek: `/tmp/index_snapshots_backup.sql`
 
 ### Açık kalan
+
+- [ ] **Tarihsel aykırı değer taraması.** Akran sapması dedektörü 14 günlük pencereye bakıyor;
+      daha eski bozuk kayıtlar yakalanmıyor. Somut örnek: Ilgın Ticaret Borsası `inek-canli`
+      **16,33 TL/kg** (2026-03-10) — Edirne'de aynı ürün 210 TL, yani ~13 kat düşük; birim
+      hatası şüphesi. `/canli-hayvan-fiyatlari` sayfasından 90 günlük pencereyle düştü ama
+      **DB'de duruyor** ve ürün sayfası / tarihsel grafikte görünebilir. Gereken: tüm geçmişe
+      uygulanan, akran medyanına göre kalıcı sapma taraması (dedektörün pencere parametreli hâli).
+
+- [ ] **TOBB Adana + Ordu parser'ı.** `fiyat_borsa.php?borsakod=5AD10` ve `5OR10` istekte satır
+      gösteriyor ama `tobb_borsa_html` parser'ı 0 satır çıkarıyor; tablo yapısı farklı olabilir.
+
+- [ ] **Kalan 71 yakın-mükerrer master çifti** (elle karar gerektirir): `kamkat`/`kumkat`/`kunkat`,
+      `hinnap`/`hunnap` gibi yazım varyantları. **Birleştirilmemesi gerekenler var:**
+      `dereotu`/`tereotu` mesafe-1 ama farklı bitkiler (dill vs cress).
+
 - [x] **Genel hayalet taraması — YAPILDI, SİLME GEREKMEDİ (2026-07-20)**
 
   Tarama 2026-07-06→07 arasında neredeyse tüm hallerde toplu yeniden eşleşme gösterdi
