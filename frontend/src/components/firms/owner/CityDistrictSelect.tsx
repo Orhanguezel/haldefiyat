@@ -28,7 +28,7 @@ export function CityDistrictSelect({ citySlug, districtSlug, required = false, o
           placeholder="İl seçin"
           emptyText="İl bulunamadı"
         />
-        {!cityKnown && <p className="text-xs text-amber-600">Kayıtlı il listede yok. Lütfen yeniden seçin.</p>}
+        {!cityKnown && <p className="text-xs text-(--color-warning)">Kayıtlı il listede yok. Lütfen yeniden seçin.</p>}
       </label>
 
       <label className="space-y-1 text-sm">
@@ -43,7 +43,7 @@ export function CityDistrictSelect({ citySlug, districtSlug, required = false, o
           disabled={!citySlug}
           emptyText="İlçe bulunamadı"
         />
-        {!districtKnown && <p className="text-xs text-amber-600">Kayıtlı ilçe bu ile ait değil. Lütfen yeniden seçin.</p>}
+        {!districtKnown && <p className="text-xs text-(--color-warning)">Kayıtlı ilçe bu ile ait değil. Lütfen yeniden seçin.</p>}
       </label>
     </div>
   );

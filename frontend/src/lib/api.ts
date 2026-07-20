@@ -200,6 +200,7 @@ export interface Listing {
   districtSlug: string | null;
   contactName: string | null;
   contactPhone: string | null;
+  phoneVerified: number | boolean;
   hidePhone: number | boolean;
   validUntil: string;
   status: "pending" | "approved" | "rejected" | "expired" | "closed";
