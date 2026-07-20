@@ -52,9 +52,10 @@ export interface StaleSource {
 export interface PriceJump {
   marketName:  string;
   productSlug: string;
-  /** Ayni urunun DIGER hallerdeki medyani (referans). */
+  /** Ayni urunun DIGER hallerdeki guncel medyani (referans). */
   peerMedian:  number;
   value:       number;
+  /** Akranlara gore konumun kac kat kaydigi (1 = degismedi). */
   ratio:       number;
   days:        number;
 }
@@ -118,54 +119,75 @@ export async function detectStaleSources(windowDays = 180): Promise<StaleSource[
 }
 
 /**
- * Ayni urunu satan diger hallerden kalici olarak ayrisan seriler.
+ * Bir (hal x urun) serisinin akranlarina gore KONUMUNUN DEGISMESI.
  *
- * Yanlis eslesmenin imzasi budur: Kayseri'de arpacik soganin fiyati (110 TL) sade kuru
- * sogana yazilinca, diger haller 45 TL'deyken o hal 110'da kaldi. Mevsimsel hareketler
- * tum halleri birlikte tasidigi icin bu testten gecmez.
+ * "Bu hal digerlerinden farkli" tek basina sinyal degil — bolgesel fiyat farki normaldir
+ * (Demre uretim bolgesi, salkim domatesi hep akran medyaninin ~%15'i; bu dogru veridir).
+ * Anlamli sinyal, oranin KAYMASI: hal eskiden akranlarini izlerken artik izlemiyorsa,
+ * o seride bir sey degismistir.
+ *
+ * Kayseri vakasi: kuru sogan orani 15/45 ≈ 0,33 iken 110/45 ≈ 2,4'e cikti — oran 7 kat
+ * kaydi. Demre'de ise oran hep ~0,15; kayma yok, alarm yok.
  */
-export async function detectPriceJumps(minDays = 3): Promise<PriceJump[]> {
+export async function detectPriceJumps(): Promise<PriceJump[]> {
   const rows = await db.execute(sql`
-    SELECT m.name AS market_name, p.slug AS product_slug,
-           cur.val AS value, cur.days AS days, peer.med AS peer_median
-    FROM (
-      SELECT h.market_id, h.product_id,
-             AVG(h.avg_price) AS val, COUNT(DISTINCT h.recorded_date) AS days
-      FROM hf_price_history h
-      WHERE h.recorded_date >= CURDATE() - INTERVAL 14 DAY AND h.unit = 'kg' AND h.avg_price > 0
-      GROUP BY h.market_id, h.product_id
-      HAVING COUNT(DISTINCT h.recorded_date) >= ${minDays}
-    ) cur
-    JOIN (
-      SELECT h.product_id, COUNT(DISTINCT h.market_id) AS halls,
-             AVG(h.avg_price) AS med
-      FROM hf_price_history h
-      WHERE h.recorded_date >= CURDATE() - INTERVAL 14 DAY AND h.unit = 'kg' AND h.avg_price > 0
-      GROUP BY h.product_id
-      HAVING COUNT(DISTINCT h.market_id) >= 4
-    ) peer ON peer.product_id = cur.product_id
-    JOIN hf_markets m ON m.id = cur.market_id
-    JOIN hf_products p ON p.id = cur.product_id
-    WHERE peer.med > 0
-      AND (cur.val / peer.med >= ${PEER_DIVERGENCE} OR peer.med / cur.val >= ${PEER_DIVERGENCE})
-    ORDER BY GREATEST(cur.val / peer.med, peer.med / cur.val) DESC
-    LIMIT 40
+    SELECT h.product_id, h.market_id, m.name AS market_name, p.slug AS product_slug,
+           AVG(CASE WHEN h.recorded_date >= CURDATE() - INTERVAL 14 DAY THEN h.avg_price END) AS now_val,
+           AVG(CASE WHEN h.recorded_date BETWEEN CURDATE() - INTERVAL 90 DAY
+                                              AND CURDATE() - INTERVAL 30 DAY THEN h.avg_price END) AS then_val
+    FROM hf_price_history h
+    JOIN hf_markets m ON m.id = h.market_id
+    JOIN hf_products p ON p.id = h.product_id
+    WHERE h.recorded_date >= CURDATE() - INTERVAL 90 DAY AND h.unit = 'kg' AND h.avg_price > 0
+    GROUP BY h.product_id, h.market_id, m.name, p.slug
+    HAVING now_val IS NOT NULL AND then_val IS NOT NULL
   `);
 
   const list = (Array.isArray(rows) ? rows[0] : rows) as unknown as Array<{
-    market_name: string; product_slug: string; value: string; peer_median: string; days: number;
+    product_id: number; market_name: string; product_slug: string;
+    now_val: string; then_val: string;
   }>;
 
-  return list.map((r) => {
-    const value = parseFloat(String(r.value));
-    const peer = parseFloat(String(r.peer_median));
-    return {
+  // Urun basina akran MEDYANI (ortalama degil — tek bozuk hal referansi kaydirmasin).
+  const byProduct = new Map<number, { now: number[]; then: number[] }>();
+  for (const r of list) {
+    const acc = byProduct.get(r.product_id) ?? { now: [], then: [] };
+    acc.now.push(parseFloat(String(r.now_val)));
+    acc.then.push(parseFloat(String(r.then_val)));
+    byProduct.set(r.product_id, acc);
+  }
+  const median = (v: number[]) => {
+    const s = [...v].sort((a, b) => a - b);
+    const m = Math.floor(s.length / 2);
+    return s.length % 2 ? s[m]! : (s[m - 1]! + s[m]!) / 2;
+  };
+
+  const out: PriceJump[] = [];
+  for (const r of list) {
+    const acc = byProduct.get(r.product_id)!;
+    if (acc.now.length < 4) continue; // akran karsilastirmasi icin yeterli hal yok
+
+    const peerNow = median(acc.now);
+    const peerThen = median(acc.then);
+    if (!(peerNow > 0) || !(peerThen > 0)) continue;
+
+    const nowVal = parseFloat(String(r.now_val));
+    const thenVal = parseFloat(String(r.then_val));
+    if (!(nowVal > 0) || !(thenVal > 0)) continue;
+
+    const ratioNow = nowVal / peerNow;
+    const ratioThen = thenVal / peerThen;
+    const shift = ratioNow / ratioThen;
+    if (shift < PEER_DIVERGENCE && shift > 1 / PEER_DIVERGENCE) continue;
+
+    out.push({
       marketName:  r.market_name,
       productSlug: r.product_slug,
-      peerMedian:  Math.round(peer * 100) / 100,
-      value:       Math.round(value * 100) / 100,
-      ratio:       Math.round((value / peer) * 100) / 100,
-      days:        Number(r.days),
-    };
-  });
+      peerMedian:  Math.round(peerNow * 100) / 100,
+      value:       Math.round(nowVal * 100) / 100,
+      ratio:       Math.round(shift * 100) / 100,
+      days:        14,
+    });
+  }
+  return out.sort((a, b) => Math.abs(Math.log(b.ratio)) - Math.abs(Math.log(a.ratio))).slice(0, 30);
 }
