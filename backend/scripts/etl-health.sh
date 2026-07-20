@@ -101,6 +101,35 @@ ORDER BY FIELD(m.market_type, 'resmi', 'borsa'), m.name;
 " 2>&1 | grep -v "Using a password"
 
 echo
+echo "── DONMUS SERILER — 'basarili calisti' != 'yeni veri geldi' ──"
+echo "   (gunluk parmak izi = satir sayisi + fiyat toplami; degismiyorsa kaynak taze veri uretmiyor)"
+mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" --table -e "
+SELECT f.source_api,
+       DATEDIFF(CURDATE(), MIN(f.d)) AS gun_sabit,
+       MIN(f.d) AS son_degisim,
+       MAX(f.n) AS satir
+FROM (
+  SELECT source_api, recorded_date AS d,
+         CONCAT(COUNT(*), '_', ROUND(SUM(avg_price),2)) AS fp,
+         COUNT(*) AS n
+  FROM hf_price_history
+  WHERE recorded_date >= CURDATE() - INTERVAL 60 DAY
+  GROUP BY source_api, recorded_date
+) f
+JOIN (
+  SELECT source_api, CONCAT(COUNT(*), '_', ROUND(SUM(avg_price),2)) AS fp
+  FROM hf_price_history WHERE recorded_date = (
+    SELECT MAX(recorded_date) FROM hf_price_history
+  ) GROUP BY source_api
+) cur ON cur.source_api = f.source_api AND cur.fp = f.fp
+GROUP BY f.source_api
+HAVING gun_sabit >= 5
+ORDER BY gun_sabit DESC;
+" 2>&1 | grep -v "Using a password"
+echo "   NOT: bazi haller kronik yapiskan fiyatli (Konya, Kutahya). Kaynagin KENDI tabaniyla"
+echo "        kiyaslayan tam denetim: GET /api/v1/admin/hal/etl/freshness"
+
+echo
 echo "── scraper-service docker container ──"
 docker ps --filter name=scraper-service --format "table {{.Names}}\t{{.Status}}" 2>/dev/null || echo "(scraper-service vps-vistainsaat'ta degil — vps-guezelwebdesign'da)"
 
