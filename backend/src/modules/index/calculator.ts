@@ -8,22 +8,36 @@ import { resolveWeekRange } from "@/modules/prices/iso-week";
  * ETL ürünleri otomatik kaydeder; buradaki slug'lar DB'deki slug'larla eşleşmeli.
  * Eşleşmeyen slug'lar sessizce atlanır (products_count bu durumu yansıtır).
  */
+/**
+ * Endeks sepeti — SLUG'LAR BIREBIR hf_products.slug ile eslesmeli.
+ *
+ * 2026-07-20'de duzeltildi. Onceki listede dort hata vardi ve hepsi sessizdi
+ * ("eslesmeyen slug'lar sessizce atlanir"):
+ *   - "sogan"  → boyle bir urun YOK; sogan endekste hic yer almiyordu (oysa 2026'nin
+ *                en buyuk fiyat hareketi soganda yasandi)
+ *   - "muz"    → birimi KOLI ve 3 halde; gercegi muz-yerli (kg, 16 hal)
+ *   - "marul"  → birimi ADET; kg sepetine adet fiyati karisiyordu
+ *   - "biber"  → generic aile-basi; varyantlar dogru cozulunce 0 halde kaldi
+ *
+ * Yeni slug eklerken/degistirirken KONTROL ET: urun var mi, birimi kg mi, kac halde
+ * olculuyor. Sessiz atlama yuzunden yanlis slug fark edilmiyor.
+ */
 export const INDEX_BASKET_SLUGS = [
   "domates",
-  "biber",
+  "biber-sivri",
   "patlican",
   "salatalik",
   "patates",
-  "sogan",
+  "sogan-kuru",
   "havuc",
-  "marul",
+  "marul-kivircik",
   "kabak",
   "brokoli",
   "elma",
   "portakal",
   "limon",
   "uzum",
-  "muz",
+  "muz-yerli",
 ];
 
 export type IndexSnapshot = {
@@ -107,6 +121,9 @@ async function computeBasketAvg(
       and(
         inArray(hfPriceHistory.productId, productIds),
         between(hfPriceHistory.recordedDate, sql`${weekStart}`, sql`${weekEnd}`),
+        // Sepet ₺/kg tabanlidir; adet/koli/demet fiyatlari ortalamaya KARISMAMALI.
+        eq(hfPriceHistory.unit, "kg"),
+        sql`${hfPriceHistory.avgPrice} > 0`,
       ),
     )
     .groupBy(hfPriceHistory.productId, hfPriceHistory.marketId);
@@ -131,13 +148,13 @@ async function computeBasketAvg(
 
   if (!productAvgs.length) return null;
 
-  // Sepet genelinde de outlier ürün ortalamalarını çıkar
-  // (örn: yanlış birim girilen tek-pazar verisi)
-  const cleanAvgs = iqrFilter(productAvgs);
-  const finalAvgs = cleanAvgs.length >= 3 ? cleanAvgs : productAvgs;
-
-  const mean = finalAvgs.reduce((s, p) => s + p, 0) / finalAvgs.length;
-  return { avg: mean, count: finalAvgs.length };
+  // Sepet duzeyinde IQR ile URUN DUSURULMEZ. Onceden dusuruluyordu ve her hafta farkli
+  // urun elendigi icin sepet kompozisyonu degisiyordu (14 → 13 → 12); pahali bir urun
+  // elendiginde endeks fiyat dusmemis olsa da geriliyordu. Olculdu: 2026-28 → 2026-29
+  // yayinlanan degisim −%12,0 iken ayni sepetle gercek hareket −%8,7 idi.
+  // Aykiri PAZAR degerleri zaten yukarida urun bazinda IQR ile temizleniyor.
+  const mean = productAvgs.reduce((s, p) => s + p, 0) / productAvgs.length;
+  return { avg: mean, count: productAvgs.length };
 }
 
 /** IQR yöntemiyle aşırı uç değerleri filtreler (az veri varsa dokunmaz). */
