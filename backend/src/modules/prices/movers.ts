@@ -36,14 +36,14 @@ export interface NationalMover {
   yoyPct:      number | null;
 }
 
-interface Agg {
+export interface Agg {
   avg:     number;
   markets: number;
   /** `${marketId}|${productSlug}` → o çiftin ortalama fiyatı. Yıllık kıyas sepetini eşlemek için. */
   pairs:   Map<string, number>;
 }
 
-function isoShift(iso: string, days: number): string {
+export function isoShift(iso: string, days: number): string {
   const d = new Date(`${iso}T12:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
@@ -64,7 +64,7 @@ function median(nums: number[]): number {
  * bu tek kaynak tabloyu zehirliyordu; medyan tek bozuk kaynaktan etkilenmez. Sabit "şu kaynağı
  * dışla" listesi yerine istatistiksel dayanıklılık — yeni bozuk kaynak çıkarsa da korur.
  */
-async function windowByMaster(from: string, to: string): Promise<Map<string, Agg>> {
+export async function windowByMaster(from: string, to: string): Promise<Map<string, Agg>> {
   const rows = await db
     .select({
       masterSlug:  sql<string>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
@@ -130,7 +130,7 @@ async function windowByMaster(from: string, to: string): Promise<Map<string, Agg
  * Çözüm: yalnızca HER İKİ dönemde de aynı (hal × ürün) çiftinde gözlenmiş fiyatlar kıyaslanır.
  * Sepet iki tarafta tanımı gereği özdeş olduğundan geriye sadece fiyat hareketi kalır.
  */
-function matchedYoy(cur: Agg, ly: Agg): { lastYearAvg: number; yoyPct: number; pairs: number } | null {
+export function matchedYoy(cur: Agg, ly: Agg): { lastYearAvg: number; yoyPct: number; pairs: number } | null {
   const curVals: number[] = [];
   const lyVals:  number[] = [];
   for (const [key, lyPrice] of ly.pairs) {
@@ -152,7 +152,7 @@ function matchedYoy(cur: Agg, ly: Agg): { lastYearAvg: number; yoyPct: number; p
   };
 }
 
-async function latestRecordedDate(): Promise<string | null> {
+export async function latestRecordedDate(): Promise<string | null> {
   const rows = await db
     .select({ d: sql<string>`MAX(${hfPriceHistory.recordedDate})` })
     .from(hfPriceHistory);

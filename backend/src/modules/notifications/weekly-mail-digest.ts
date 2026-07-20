@@ -19,7 +19,7 @@ import { mysqlTable, varchar, datetime, tinyint, text } from "drizzle-orm/mysql-
 
 import { db } from "@/db/client";
 import { sendBereketMail } from "@agro/shared-backend/core/mail";
-import { nationalMovers } from "@/modules/prices/movers";
+import { weeklyBasket, yearlyMovers, type BasketRow, type YearlyMove } from "@/modules/prices/basket";
 import { unsubUrl, unsubHeaders } from "@/modules/newsletter/token";
 
 // Newsletter aboneleri tablosu (shared-backend schemasi yerine local proxy)
@@ -58,38 +58,94 @@ function pctColor(n: number): string {
   return "#6b7280";
 }
 
+const TH = "padding:8px;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;";
+const TD = "padding:10px 8px;border-bottom:1px solid #e5e7eb;";
+const NUM = `${TD}text-align:right;font-family:monospace;`;
+
+function productCell(slug: string, name: string, sub: string): string {
+  return `<td style="${TD}">
+    <a href="${SITE_URL}/urun/${slug}" style="color:#0f172a;text-decoration:none;font-weight:600;">${name}</a>
+    <div style="color:#6b7280;font-size:11px;">${sub}</div>
+  </td>`;
+}
+
+function basketTable(rows: BasketRow[]): string {
+  const body = rows.map((r) => `
+    <tr>
+      ${productCell(r.productSlug, r.productName, `${r.marketCount} halde medyan`)}
+      <td style="${NUM}color:#0f172a;">₺${fmtPriceTr(r.price)}</td>
+      <td style="${NUM}color:${r.weeklyPct != null ? pctColor(r.weeklyPct) : "#6b7280"};font-weight:600;">
+        ${r.weeklyPct != null ? fmtPct(r.weeklyPct) : "—"}
+      </td>
+    </tr>`).join("");
+
+  return `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+    <thead><tr style="background:#f9fafb;">
+      <th style="text-align:left;${TH}">Urun</th>
+      <th style="text-align:right;${TH}">Fiyat</th>
+      <th style="text-align:right;${TH}">Bu hafta</th>
+    </tr></thead>
+    <tbody>${body}</tbody>
+  </table>`;
+}
+
+function yearlyTable(rows: YearlyMove[]): string {
+  const body = rows.map((r) => `
+    <tr>
+      ${productCell(r.productSlug, r.productName, `${r.yoyPairs} ortak hal-urun kaydi`)}
+      <td style="${NUM}color:#6b7280;">₺${fmtPriceTr(r.lastYearAvg)}</td>
+      <td style="${NUM}color:#0f172a;">₺${fmtPriceTr(r.price)}</td>
+      <td style="${NUM}color:${pctColor(r.yoyPct)};font-weight:600;">${fmtPct(r.yoyPct)}</td>
+    </tr>`).join("");
+
+  return `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+    <thead><tr style="background:#f9fafb;">
+      <th style="text-align:left;${TH}">Urun</th>
+      <th style="text-align:right;${TH}">Gecen yil</th>
+      <th style="text-align:right;${TH}">Simdi</th>
+      <th style="text-align:right;${TH}">Degisim</th>
+    </tr></thead>
+    <tbody>${body}</tbody>
+  </table>`;
+}
+
+/**
+ * Konu satiri sabit sepetten uretilir — okurun tanidigi urun ismi acilma oranini belirler.
+ * Eskiden "en cok yuzde degisen" urunden ureluyordu ve "Bamya +%33" gibi kimseyi
+ * ilgilendirmeyen basliklar cikiyordu.
+ */
+function buildSubject(basket: BasketRow[]): string {
+  const moved = basket
+    .filter((r) => r.weeklyPct != null)
+    .sort((a, b) => Math.abs(b.weeklyPct!) - Math.abs(a.weeklyPct!))
+    .slice(0, 2)
+    .map((r) => `${r.productName} ${fmtPct(r.weeklyPct!)}`);
+
+  return moved.length
+    ? `Hal fiyatlari: ${moved.join(", ")}`
+    : "Hal fiyatlari haftalik ozet";
+}
+
 async function buildHtml(): Promise<{ html: string; subject: string; movers: number } | null> {
-  // Ulusal (çok-hal ortalaması, ürün ailesi düzeyi) hareketler — tek halin ETL sıçraması
-  // "haftanın hareketi" olarak bültene düşmesin. Geçen yıl da aynı ulusal tabana göre.
-  const movers = await nationalMovers(6);
-  if (movers.length === 0) return null;
+  const [basket, yearly] = await Promise.all([weeklyBasket(), yearlyMovers(10)]);
+  if (basket.length === 0) return null;
 
-  const moverRows = movers.map((m) => {
-    const yoy = m.yoyPct;
-    const lastYearHint = m.lastYearAvg != null
-      ? `Gecen yil ayni donem ₺${fmtPriceTr(m.lastYearAvg)} (${m.yoyPairs} ortak hal-urun kaydi)`
-      : "Gecen yil icin karsilastirilabilir kayit yok";
-    return `
-      <tr>
-        <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;">
-          <a href="${SITE_URL}/urun/${m.productSlug}" style="color:#0f172a;text-decoration:none;font-weight:600;">
-            ${m.productName}
-          </a>
-          <div style="color:#6b7280;font-size:11px;">${m.marketCount} halde medyan</div>
-        </td>
-        <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;color:#0f172a;">
-          ₺${fmtPriceTr(m.latest)}
-        </td>
-        <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;color:${pctColor(m.changePct)};font-weight:600;">
-          ${fmtPct(m.changePct)}
-        </td>
-        <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;color:${yoy != null ? pctColor(yoy) : "#6b7280"};" title="${lastYearHint}">
-          ${yoy != null ? fmtPct(yoy) : "—"}
-        </td>
-      </tr>`;
-  }).join("");
+  const subject = buildSubject(basket);
 
-  const subject = `Hal Fiyatlari Haftalik Ozet — ${movers[0]?.productName} ${fmtPct(movers[0]?.changePct ?? 0)}`;
+  // Yillik bolum veri yoksa tamamen dusurulur — bos tablo basmaktansa hic gosterme.
+  const yearlySection = (yearly.up.length || yearly.down.length) ? `
+      <h2 style="margin:32px 0 4px;font-size:16px;color:#0f172a;">Gecen Yila Gore</h2>
+      <p style="margin:0 0 12px;color:#6b7280;font-size:12px;line-height:1.6;">
+        Gecen yilin ayni haftasiyla karsilastirma. Yalnizca her iki yilda da <strong>ayni halde
+        ve ayni urun kaydiyla</strong> olculmus fiyatlar kiyaslanir; boylece veri kapsamindaki
+        degisim fiyat artisi gibi gorunmez.
+      </p>
+      ${yearly.up.length ? `
+        <div style="margin:16px 0 6px;font-size:12px;font-weight:600;color:#dc2626;">En cok pahalilasan</div>
+        ${yearlyTable(yearly.up)}` : ""}
+      ${yearly.down.length ? `
+        <div style="margin:20px 0 6px;font-size:12px;font-weight:600;color:#16a34a;">En cok ucuzlayan</div>
+        ${yearlyTable(yearly.down)}` : ""}` : "";
 
   const html = `<!DOCTYPE html>
 <html lang="tr">
@@ -101,24 +157,14 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
       <h1 style="margin:6px 0 0;font-size:22px;color:#0f172a;">Bu Hafta Hallerden Notlar</h1>
     </div>
     <div style="padding:24px;">
-      <p style="margin:0 0 16px;color:#374151;font-size:14px;line-height:1.6;">
-        Son 7 gunde en cok degisen urunler. <strong>Son</strong> ve <strong>7g</strong> sutunlari
-        haftalik hareketi, <strong>Gecen yila gore</strong> sutunu yillik degisimi gosterir.
-        Yillik kiyas yalnizca her iki yilda da ayni halde ve ayni urun kaydiyla olcülen
-        fiyatlar uzerinden yapilir — kapsam degisimi artis gibi gorunmesin.
+      <h2 style="margin:0 0 4px;font-size:16px;color:#0f172a;">Temel Urunler</h2>
+      <p style="margin:0 0 12px;color:#6b7280;font-size:12px;line-height:1.6;">
+        En cok tuketilen urunler, her hafta ayni sirada. Fiyat, urunun olculdugu haller
+        arasindaki medyandir; <strong>Bu hafta</strong> sutunu bir onceki haftaya gore degisimi gosterir.
       </p>
-      <table style="width:100%;border-collapse:collapse;font-size:13px;">
-        <thead>
-          <tr style="background:#f9fafb;">
-            <th style="text-align:left;padding:8px;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;">Urun</th>
-            <th style="text-align:right;padding:8px;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;">Son</th>
-            <th style="text-align:right;padding:8px;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;">7g</th>
-            <th style="text-align:right;padding:8px;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;">Gecen yila gore</th>
-          </tr>
-        </thead>
-        <tbody>${moverRows}</tbody>
-      </table>
-      <div style="margin-top:24px;padding:16px;background:#f0fdf4;border-radius:6px;font-size:13px;color:#166534;">
+      ${basketTable(basket)}
+      ${yearlySection}
+      <div style="margin-top:28px;padding:16px;background:#f0fdf4;border-radius:6px;font-size:13px;color:#166534;">
         <strong>💡 Bilgi:</strong> Tum fiyatlar resmi belediye hal mudurluklerinden gunluk olarak derlenmektedir.
         Tarihsel veri ve detayli karsilastirma icin
         <a href="${SITE_URL}" style="color:#16a34a;font-weight:600;">haldefiyat.com</a>'u ziyaret edin.
@@ -131,7 +177,7 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
 </body>
 </html>`;
 
-  return { html, subject, movers: movers.length };
+  return { html, subject, movers: basket.length };
 }
 
 /** HTML preview için — mail göndermeden sadece şablonu üretir */

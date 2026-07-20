@@ -61,12 +61,14 @@ function buildTextFromTrend(trending: Awaited<ReturnType<typeof trendingChanges>
 
   const footer = `Güncel fiyatlar 👇 ${SITE}`;
   const header = `📊 Günün hal hareketleri (${dateLabel})`;
+  // Reply-bait: düz veri yerine yorum doğuran spesifik soru (engagement stratejisi).
+  const question = "💬 Sizin pazarınızda en çok ne değişti?";
 
   const build = (rCount: number, fCount: number): string => {
     const body: string[] = [];
     risers.slice(0, rCount).forEach((t, i) => body.push(line("🔺", t, i === 0)));
     fallers.slice(0, fCount).forEach((t) => body.push(line("🔻", t, false)));
-    return [header, ...body, footer, HASHTAGS].join("\n");
+    return [header, ...body, "", question, footer, HASHTAGS].join("\n");
   };
 
   // Sığana kadar madde sayısını azalt.
@@ -126,16 +128,18 @@ function buildStaplesText(
   if (!items.length) return null;
   const footer = `Tüm fiyatlar 👇 ${SITE}`;
   const header = `🧺 Popüler ürün fiyatları (${dateLabel})`;
+  // Reply-bait: tüketici/esnaf yorumu doğuran soru (engagement stratejisi).
+  const question = "💬 Sizin pazarınızda kaça?";
   const line = (it: (typeof items)[number]) => {
     const emoji = getProductEmoji(it.productName, it.categorySlug);
     const arrow = it.changePct == null ? "" : it.changePct >= 0 ? " 🔺" : " 🔻";
     return `${emoji} ${it.productName}: ₺${fmtPrice(it.avgPrice)}${arrow}`;
   };
   for (const n of [7, 6, 5, 4]) {
-    const text = [header, ...items.slice(0, n).map(line), footer, HASHTAGS].join("\n");
+    const text = [header, ...items.slice(0, n).map(line), "", question, footer, HASHTAGS].join("\n");
     if (text.length <= MAX_LEN) return text;
   }
-  return [header, ...items.slice(0, 4).map(line), footer].join("\n").slice(0, MAX_LEN);
+  return [header, ...items.slice(0, 4).map(line), question, footer].join("\n").slice(0, MAX_LEN);
 }
 
 // Sebze/meyve hal fiyatı için akıl-sağlığı tavanı — üstü neredeyse kesin garbage veri

@@ -50,12 +50,25 @@ export async function registerProductGsc(app: FastifyInstance) {
          MAX(checked_at) AS lastChecked
        FROM gsc_url_index`,
     );
+    // Gerçek aksiyon gereken: indexlenebilir ürün + GSC'de indexli değil.
+    // (noindex/varyant exclusion'ları beklenen, "sorun" sayılmaz.)
+    const [realRows] = await pool.query<any[]>(
+      `SELECT COUNT(*) AS realIssue
+       FROM hf_products p JOIN gsc_url_index g ON g.url = CONCAT(?, '/urun/', p.slug)
+       WHERE p.seo_index = 1
+         AND NOT (g.coverage_state LIKE 'Submitted and indexed%' OR g.verdict = 'PASS')`,
+      [publicOrigin()],
+    );
     const s = rows?.[0] ?? {};
+    const issue = Number(s.issue ?? 0);
+    const realIssue = Number(realRows?.[0]?.realIssue ?? 0);
     return reply.send({
       data: {
         total: Number(s.total ?? 0),
         indexed: Number(s.indexed ?? 0),
-        issue: Number(s.issue ?? 0),
+        issue,
+        realIssue,
+        expectedExcluded: Math.max(0, issue - realIssue),
         lastChecked: s.lastChecked ? new Date(s.lastChecked).toISOString() : null,
         running: isGscBulkRunning(),
       },

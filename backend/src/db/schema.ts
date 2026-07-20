@@ -67,6 +67,19 @@ export const hfProducts = mysqlTable(
   ],
 );
 
+/** Haftalik bultenin sabit sepeti — secim gerekcesi 044_basket_products_schema.sql'de. */
+export const hfBasketProducts = mysqlTable(
+  "hf_basket_products",
+  {
+    slug:      varchar("slug", { length: 128 }).notNull().primaryKey(),
+    sortOrder: int("sort_order").notNull().default(0),
+    isActive:  tinyint("is_active").notNull().default(1),
+    createdAt: datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt: datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [index("idx_basket_active_order").on(t.isActive, t.sortOrder)],
+);
+
 export const hfPriceHistory = mysqlTable(
   "hf_price_history",
   {
