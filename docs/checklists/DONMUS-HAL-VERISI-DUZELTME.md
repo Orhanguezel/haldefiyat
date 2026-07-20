@@ -199,8 +199,24 @@ Kaynak sitelerde tarih parametresi yok; tek yol Wayback. `fetchXxxDated` yazmaya
 - [x] Admin endpoint: `POST /admin/hal/etl/wayback-backfill` (`dryRun:true` ile ölçüm)
 - [x] **Dry-run doğrulaması:** üç kaynakta da 6/6 snapshot ayrıştırıldı
       (Bursa 984, Eskişehir 387, Denizli 396 satır / 6 snapshot)
-- [ ] Tam backfill koşusu — devam ediyor
-- [ ] Akran doğrulaması: backfill edilen günlerin Konya/Ankara/İzmir/Mersin ile tutarlılığı
+- [x] **Tam backfill koşusu — TAMAMLANDI (2026-07-20)**
+
+| Kaynak | Snapshot | Ayrıştırılan | Yazılan satır | Benzersiz gün | Aralık |
+|---|---|---|---|---|---|
+| Bursa | 27 | 27 | 4.276 | 25 | 2023-03-16 → 2026-05-19 |
+| Denizli | 29 | 29 | 2.096 | 28 | 2023-01-27 → 2026-05-21 |
+| Eskişehir | 28 | 28 | 1.990 | 28 | 2023-02-06 → 2026-05-12 |
+
+**84 snapshot, %100 ayrıştırma, sıfır hata.** Toplam 6.565 satır karantina aralığı içinde
+kurtarıldı (345.101 donmuş satır gizli kalmaya devam ediyor).
+
+- [x] **Akran doğrulaması geçti.** Kurtarılan domates fiyatları vs Konya/Ankara/İzmir/Mersin
+      (±3 gün): 53 gözlem, **medyan oran 1,33**, %10-90 aralığı **0,94–1,77**.
+      Kıyas — donmuş verinin oranları sabit ve şişikti: Denizli 2,18x, Eskişehir 1,86x,
+      Bursa 1,51x. Kurtarılan veri gerçek piyasa gibi *dağılıyor*, sabit değil.
+- [x] **Üzerine yazma doğrulandı:** Bursa domates 2023-10-04 artık **22,50 ₺**
+      (`bursa_resmi_wayback`), donmuş 97,50 ₺ yerine — 4,3 kat düzeltme.
+- [x] Karantina muafiyeti çalışıyor: kurtarılan satırlar görünür, donmuş satırlar gizli.
 
 > Upsert donmuş satırın üzerine yazar (unique key `product_id, market_id, recorded_date`),
 > ama backfill günleri donmuş dönemin ~%2'si — kalan günler karantinada kalır.
