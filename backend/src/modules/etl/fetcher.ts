@@ -2121,8 +2121,8 @@ function mergeHalGovTrByVolume(rows: NormalizedRow[]): NormalizedRow[] {
 
     const totalW = group.reduce((s, r) => s + (r.weight ?? 0), 0);
     const avg = totalW > 0
-      ? group.reduce((s, r) => s + r.avg * (r.weight ?? 0), 0) / totalW
-      : group.reduce((s, r) => s + r.avg, 0) / group.length;
+      ? group.reduce((s, r) => s + (r.avg ?? 0) * (r.weight ?? 0), 0) / totalW
+      : group.reduce((s, r) => s + (r.avg ?? 0), 0) / group.length;
 
     const first = group[0]!;
     out.push({
