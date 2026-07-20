@@ -1032,9 +1032,13 @@ export async function registerHalAdmin(app: FastifyInstance) {
   );
 
   /** Ilan uzatma hatirlatmalarini elle tetikle (cron ETL sonrasi zaten calisir). */
-  app.post("/hal/listings/expiry-reminders", async (_req, reply) => {
+  app.post<{ Querystring: { days?: string } }>("/hal/listings/expiry-reminders", async (req, reply) => {
     try {
-      const result = await sendListingExpiryReminders();
+      const days = req.query?.days !== undefined ? Number(req.query.days) : undefined;
+      if (days !== undefined && (!Number.isInteger(days) || days < 0 || days > 30)) {
+        return reply.status(400).send({ ok: false, error: "days 0-30 arasi tam sayi olmali" });
+      }
+      const result = await sendListingExpiryReminders(days);
       return reply.send({ ok: true, ...result });
     } catch (err) {
       return reply.status(500).send({ ok: false, error: err instanceof Error ? err.message : String(err) });

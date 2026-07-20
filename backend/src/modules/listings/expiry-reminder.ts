@@ -15,9 +15,8 @@ import { db } from "@/db/client";
 import { hfListingReminders } from "@/db/schema";
 import { sendBereketMail } from "@agro/shared-backend/core/mail";
 
-/** Suresi dolmadan kac gun once hatirlatilacak. */
-const DAYS_BEFORE = 3;
-const KIND = "expiry_3d";
+/** Varsayilan: suresi dolmadan 3 gun once. `sendListingExpiryReminders(0)` = son gun. */
+const DEFAULT_DAYS_BEFORE = 3;
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://haldefiyat.com").replace(/\/$/, "");
 
@@ -31,7 +30,15 @@ function esc(v: string): string {
   return v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function buildHtml(input: { name: string; title: string; slug: string; validUntil: string }): string {
+function buildHtml(input: { name: string; title: string; slug: string; validUntil: string; daysBefore: number }): string {
+  const baslik =
+    input.daysBefore === 0
+      ? "İlanınız bugün yayından kalkıyor"
+      : `İlanınızın süresi ${input.daysBefore} gün sonra doluyor`;
+  const govde =
+    input.daysBefore === 0
+      ? "Bugün son gün. Uzatmazsanız yarın alıcılar ilanınızı göremeyecek."
+      : "Bu tarihten sonra ilan yayından kalkar ve alıcılar tarafından görülmez.";
   const date = new Date(`${input.validUntil}T12:00:00Z`).toLocaleDateString("tr-TR", {
     day: "numeric", month: "long", year: "numeric",
   });
@@ -42,13 +49,13 @@ function buildHtml(input: { name: string; title: string; slug: string; validUnti
   <div style="max-width:560px;margin:24px auto;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e5e7eb;">
     <div style="padding:20px 24px;border-bottom:2px solid #16a34a;">
       <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:#16a34a;">İlan Hatırlatması</div>
-      <h1 style="margin:6px 0 0;font-size:20px;color:#0f172a;">İlanınızın süresi ${DAYS_BEFORE} gün sonra doluyor</h1>
+      <h1 style="margin:6px 0 0;font-size:20px;color:#0f172a;">${baslik}</h1>
     </div>
     <div style="padding:24px;color:#374151;font-size:14px;line-height:1.7;">
       <p style="margin:0 0 16px;">Merhaba ${esc(input.name)},</p>
       <p style="margin:0 0 16px;">
         <strong>${esc(input.title)}</strong> başlıklı ilanınızın geçerlilik tarihi
-        <strong>${date}</strong>. Bu tarihten sonra ilan yayından kalkar ve alıcılar tarafından görülmez.
+        <strong>${date}</strong>. ${govde}
       </p>
       <p style="margin:0 0 20px;">Ürününüz hâlâ satılıktaysa tek tıkla süresini uzatabilirsiniz.</p>
       <a href="${SITE_URL}/hesabim/ilanlarim"
@@ -76,7 +83,10 @@ function buildHtml(input: { name: string; title: string; slug: string; validUnti
  * `hf_listing_reminders` UNIQUE(listing_id, kind) sayesinde ayni ilan icin ikinci mail
  * gitmez — cron iki kez calissa da, deploy sirasinda tekrar tetiklense de guvenli.
  */
-export async function sendListingExpiryReminders(): Promise<ExpiryReminderResult> {
+export async function sendListingExpiryReminders(
+  daysBefore: number = DEFAULT_DAYS_BEFORE,
+): Promise<ExpiryReminderResult> {
+  const KIND = `expiry_${daysBefore}d`;
   const rows = await db.execute(sql`
     SELECT l.id, l.slug, l.title, l.valid_until AS validUntil,
            COALESCE(NULLIF(l.contact_name, ''), u.full_name, 'İlan sahibi') AS name,
@@ -85,7 +95,7 @@ export async function sendListingExpiryReminders(): Promise<ExpiryReminderResult
     JOIN users u ON u.id = l.user_id
     LEFT JOIN hf_listing_reminders r ON r.listing_id = l.id AND r.kind = ${KIND}
     WHERE l.status = 'approved'
-      AND l.valid_until = CURDATE() + INTERVAL ${DAYS_BEFORE} DAY
+      AND l.valid_until = CURDATE() + INTERVAL ${daysBefore} DAY
       AND r.id IS NULL
       AND u.email IS NOT NULL AND u.email <> ''
   `);
@@ -101,8 +111,11 @@ export async function sendListingExpiryReminders(): Promise<ExpiryReminderResult
     try {
       await sendBereketMail({
         to: item.email,
-        subject: `İlanınızın süresi ${DAYS_BEFORE} gün sonra doluyor — ${item.title}`,
-        html: buildHtml({ name: item.name, title: item.title, slug: item.slug, validUntil }),
+        subject:
+          daysBefore === 0
+            ? `Son gün: ilanınız bugün yayından kalkıyor — ${item.title}`
+            : `İlanınızın süresi ${daysBefore} gün sonra doluyor — ${item.title}`,
+        html: buildHtml({ name: item.name, title: item.title, slug: item.slug, validUntil, daysBefore }),
       });
 
       // Once mail, sonra kayit: kayit atilip mail gitmemesindense, mail gidip kayit
