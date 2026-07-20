@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { Mail } from "lucide-react";
 import { trackConversion } from "@/lib/analytics";
 import { isValidEmail } from "@/lib/email";
+import { useCtaTracking } from "@/lib/cta-tracking";
 
 const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")}/api/v1`
@@ -13,14 +14,17 @@ const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
 export default function PriceListNewsletterStrip() {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const cta = useCtaTracking<HTMLElement>("price_list_strip");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = email.trim();
     if (!isValidEmail(trimmed)) {
+      cta.track("invalid");
       setState("error");
       return;
     }
+    cta.track("submit");
     setState("loading");
     try {
       const res = await fetch(`${API_BASE}/newsletter/subscribe`, {
@@ -30,15 +34,17 @@ export default function PriceListNewsletterStrip() {
       });
       if (!res.ok) throw new Error("subscribe_failed");
       trackConversion("newsletter_signup", { event_label: "fiyatlar_strip", method: "fiyatlar_strip" }, { email: trimmed });
+      cta.track("success");
       setEmail("");
       setState("success");
     } catch {
+      cta.track("error");
       setState("error");
     }
   }
 
   return (
-    <section className="mb-6 rounded-lg border border-(--color-border) bg-(--color-surface) p-4">
+    <section ref={cta.ref} className="mb-6 rounded-lg border border-(--color-border) bg-(--color-surface) p-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 items-start gap-3">
           <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--color-brand)/12 text-(--color-brand)">
@@ -62,6 +68,7 @@ export default function PriceListNewsletterStrip() {
               setEmail(e.target.value);
               if (state === "error") setState("idle");
             }}
+            onFocus={() => cta.track("focus")}
             placeholder="E-posta adresiniz"
             aria-label="E-posta adresiniz"
             className="min-h-11 min-w-0 flex-1 rounded-lg border border-(--color-border) bg-(--color-background) px-3 text-[14px] text-(--color-foreground) outline-none focus:border-(--color-brand)"

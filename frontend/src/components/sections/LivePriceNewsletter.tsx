@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { Mail } from "lucide-react";
 import { trackConversion } from "@/lib/analytics";
 import { isValidEmail } from "@/lib/email";
+import { useCtaTracking } from "@/lib/cta-tracking";
 
 type SubmitState = "idle" | "loading" | "success" | { error: string };
 
@@ -15,6 +16,7 @@ const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
 export default function LivePriceNewsletter() {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<SubmitState>("idle");
+  const cta = useCtaTracking<HTMLDivElement>("live_price");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -22,10 +24,12 @@ export default function LivePriceNewsletter() {
 
     const trimmed = email.trim();
     if (!isValidEmail(trimmed)) {
+      cta.track("invalid");
       setState({ error: "Geçerli bir e-posta girin." });
       return;
     }
 
+    cta.track("submit");
     setState("loading");
     try {
       const res = await fetch(`${API_BASE}/newsletter/subscribe`, {
@@ -39,6 +43,7 @@ export default function LivePriceNewsletter() {
         throw new Error(text || "Kayıt alınamadı.");
       }
 
+      cta.track("success");
       setState("success");
       trackConversion(
         "newsletter_signup",
@@ -47,12 +52,13 @@ export default function LivePriceNewsletter() {
       );
       setEmail("");
     } catch (err) {
+      cta.track("error");
       setState({ error: err instanceof Error ? err.message : "Kayıt alınamadı." });
     }
   }
 
   return (
-    <div className="self-center rounded-lg border border-(--color-border) bg-(--color-background) p-5 shadow-sm sm:p-6">
+    <div ref={cta.ref} className="self-center rounded-lg border border-(--color-border) bg-(--color-background) p-5 shadow-sm sm:p-6">
       <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-(--color-brand)/12 text-(--color-brand)">
         <Mail className="h-5 w-5" />
       </div>
@@ -74,6 +80,7 @@ export default function LivePriceNewsletter() {
             setEmail(e.target.value);
             if (typeof state === "object") setState("idle");
           }}
+          onFocus={() => cta.track("focus")}
           placeholder="E-posta adresiniz"
           aria-label="E-posta adresiniz"
           className="min-h-12 flex-1 rounded-lg border border-(--color-border) bg-(--color-surface) px-4 text-[15px] text-(--color-foreground) outline-none focus:border-(--color-brand)"

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { trackConversion } from "@/lib/analytics";
 import { isValidEmail } from "@/lib/email";
+import { useCtaTracking } from "@/lib/cta-tracking";
 
 type SubmitState =
   | { kind: "idle" }
@@ -26,6 +27,7 @@ export default function CtaNewsletter() {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<SubmitState>({ kind: "idle" });
 
+  const cta = useCtaTracking<HTMLElement>("home_bottom");
   const isLoading = state.kind === "loading";
   const isSuccess = state.kind === "success";
 
@@ -35,10 +37,12 @@ export default function CtaNewsletter() {
 
     const trimmed = email.trim();
     if (!isValidEmail(trimmed)) {
+      cta.track("invalid");
       setState({ kind: "error", message: "Geçerli bir e-posta girin." });
       return;
     }
 
+    cta.track("submit");
     setState({ kind: "loading" });
 
     try {
@@ -53,18 +57,20 @@ export default function CtaNewsletter() {
         throw new Error(text || `HTTP ${res.status}`);
       }
 
+      cta.track("success");
       setState({ kind: "success" });
       trackConversion("newsletter_signup", { event_label: "newsletter_cta", method: "newsletter_cta" }, { email: trimmed });
       setEmail("");
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Kayıt sırasında bir hata oluştu.";
+      cta.track("error");
       setState({ kind: "error", message });
     }
   }
 
   return (
-    <section className="relative z-10 px-8 py-24">
+    <section ref={cta.ref} className="relative z-10 px-8 py-24">
       <div
         className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[28px] border border-[rgba(132,240,76,0.15)] px-6 py-16 text-center sm:px-12 sm:py-20"
         style={{
@@ -104,6 +110,7 @@ export default function CtaNewsletter() {
               setEmail(e.target.value);
               if (state.kind === "error") setState({ kind: "idle" });
             }}
+            onFocus={() => cta.track("focus")}
             placeholder="E-posta adresiniz"
             aria-label="E-posta adresiniz"
             className="w-full rounded-[14px] border border-(--color-border) bg-[rgba(255,255,255,0.04)] px-5 py-4 font-(family-name:--font-body) text-[15px] text-(--color-foreground) outline-none transition-all duration-300 placeholder:text-(--color-muted) focus:border-(--color-brand) focus:shadow-[0_0_0_3px_rgba(132,240,76,0.1)] disabled:opacity-60"

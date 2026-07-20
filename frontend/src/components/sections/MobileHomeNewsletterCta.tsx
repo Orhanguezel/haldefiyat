@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { trackConversion } from "@/lib/analytics";
 import { isValidEmail } from "@/lib/email";
+import { useCtaTracking } from "@/lib/cta-tracking";
 
 const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")}/api/v1`
@@ -12,14 +13,17 @@ const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
 export default function MobileHomeNewsletterCta() {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const cta = useCtaTracking<HTMLElement>("mobile_home_sticky");
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const trimmed = email.trim();
     if (!isValidEmail(trimmed)) {
+      cta.track("invalid");
       setState("error");
       return;
     }
+    cta.track("submit");
     setState("loading");
     try {
       const res = await fetch(`${API_BASE}/newsletter/subscribe`, {
@@ -29,15 +33,17 @@ export default function MobileHomeNewsletterCta() {
       });
       if (!res.ok) throw new Error("subscribe_failed");
       trackConversion("newsletter_signup", { event_label: "mobile_home_sticky", method: "mobile_home_sticky" }, { email: trimmed });
+      cta.track("success");
       setEmail("");
       setState("success");
     } catch {
+      cta.track("error");
       setState("error");
     }
   }
 
   return (
-    <section className="sticky bottom-3 z-30 px-4 py-4">
+    <section ref={cta.ref} className="sticky bottom-3 z-30 px-4 py-4">
       <form onSubmit={submit} className="rounded-lg border border-(--color-brand)/35 bg-(--color-surface)/95 p-3 shadow-xl backdrop-blur">
         <div className="mb-2 text-[13px] font-black text-(--color-foreground)">Haftalık fiyat bültenini al</div>
         <div className="flex gap-2">
@@ -51,6 +57,7 @@ export default function MobileHomeNewsletterCta() {
               setEmail(e.target.value);
               if (state === "error") setState("idle");
             }}
+            onFocus={() => cta.track("focus")}
             placeholder="E-posta"
             aria-label="E-posta adresiniz"
             className="min-h-11 min-w-0 flex-1 rounded-md border border-(--color-border) bg-(--color-background) px-3 text-[14px] text-(--color-foreground) outline-none focus:border-(--color-brand)"

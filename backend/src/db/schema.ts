@@ -731,3 +731,24 @@ export const hfBanners = mysqlTable(
     index("hf_banners_active_idx").on(t.isActive),
   ],
 );
+
+/**
+ * CTA huni olaylari — bulten formlarinin gosterim/etkilesim/donusum olcumu.
+ * Detay ve gerekce: db/seed/sql/052_cta_events_schema.sql
+ */
+export const hfCtaEvents = mysqlTable(
+  "hf_cta_events",
+  {
+    id:          int("id").autoincrement().primaryKey(),
+    placement:   varchar("placement", { length: 48 }).notNull(),
+    event:       varchar("event", { length: 16 }).notNull(),
+    path:        varchar("path", { length: 255 }).notNull().default("/"),
+    device:      varchar("device", { length: 8 }).notNull().default("desktop"),
+    visitorHash: varchar("visitor_hash", { length: 16 }).notNull().default(""),
+    createdAt:   datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    index("hf_cta_events_day_idx").on(t.createdAt, t.placement, t.event),
+    index("hf_cta_events_placement_idx").on(t.placement, t.event),
+  ],
+);

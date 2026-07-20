@@ -20,6 +20,7 @@ import { registerAuditConsumersAdmin } from "@/modules/audit-consumers";
 import { registerRedirectsPublic, registerSeoOpsAdmin } from "@/modules/redirects";
 import { registerHalNewsletter, registerHalNewsletterAdmin } from "@/modules/newsletter/router";
 import { registerTracking } from "@/modules/tracking/router";
+import { registerCtaTracking } from "@/modules/tracking/cta";
 import { registerFirmsAdmin, registerFirmsPublic } from "@/modules/firms";
 import { registerAuthorsAdmin, registerAuthorsPublic } from "@/modules/authors";
 import { registerListingsAdmin, registerListingsPublic } from "@/modules/listings";
@@ -44,6 +45,7 @@ export async function registerProjectPublic(api: FastifyInstance) {
   await registerTelegramBotPublic(api);
   await registerHalNewsletter(api);
   await registerTracking(api);
+  await registerCtaTracking(api);
   await registerRedirectsPublic(api);
   await registerFirmsPublic(api);
   await registerListingsPublic(api);
