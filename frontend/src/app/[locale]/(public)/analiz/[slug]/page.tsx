@@ -133,8 +133,10 @@ export default async function AnalizMakalePage({ params }: Props) {
   const makale = await getMakaleForSlug(slug);
   if (!makale) notFound();
 
-  const autoReports = await fetchAutoWeeklyReports(6);
-  const related = mergeUniqueArticles(autoReports, getSonMakaleler(6)).filter((m) => m.slug !== slug).slice(0, 3);
+  const autoReports = await fetchAutoWeeklyReports(12);
+  // SEO iç-link: her analiz sayfasından diğer analizlere daha çok link ("discovered
+  // — not indexed" kuyruğunu besler). 3 → 6.
+  const related = mergeUniqueArticles(autoReports, getSonMakaleler(12)).filter((m) => m.slug !== slug).slice(0, 6);
   const weeklyReports = mergeUniqueArticles(autoReports, getHaftalikRaporlar(6)).filter((m) => m.slug !== slug).slice(0, 4);
   const readingTime = readingTimeMinutes(makale.icerik);
   const isWeekly = isHaftalikRapor(makale);
