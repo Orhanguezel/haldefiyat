@@ -15,6 +15,7 @@ import HowItWorks from "@/components/sections/HowItWorks";
 import CtaNewsletter from "@/components/sections/CtaNewsletter";
 import IndexCta from "@/components/sections/IndexCta";
 import SeasonalGuide from "@/components/sections/SeasonalGuide";
+import LatestReports from "@/components/sections/LatestReports";
 import HomeFaq from "@/components/sections/HomeFaq";
 import MobileHomeHero from "@/components/sections/MobileHomeHero";
 import BannerSlot from "@/components/ads/BannerSlot";
@@ -139,6 +140,7 @@ export default async function HomePage({ params }: Props) {
         <JsonLd type="Dataset" data={datasetSchema} />
         <MobileHomeHero locale={locale} products={products.length} markets={markets} widget={widget} />
         {/* SEO metin bölümleri mobil ağaçta da render edilir (mobile-first index) */}
+        <LatestReports limit={6} />
         <SeasonalGuide />
         <FeaturesGrid activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
         <HowItWorks />
@@ -173,6 +175,7 @@ export default async function HomePage({ params }: Props) {
           </div>
         </section>
       ) : null}
+      <LatestReports limit={6} />
       <SeasonalGuide />
       <FeaturesGrid activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
       <HowItWorks />
