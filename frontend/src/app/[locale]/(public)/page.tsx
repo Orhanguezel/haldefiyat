@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { headers } from "next/headers";
 import { setRequestLocale } from "next-intl/server";
 import { getPageMetadata, ORG_REF } from "@/lib/seo";
 import { fetchListings, fetchMarkets, fetchPricesOverview, fetchProducts, fetchWidget, type TrendingItem } from "@/lib/api";
@@ -66,6 +67,14 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
+  // Cihaz-bazlı sunucu render (sayfa force-dynamic → cache zehirlenmesi yok).
+  // Mobil UA'ya masaüstü ağacı HİÇ gönderilmez: eskiden `hidden md:block` ile
+  // gizlenip yine de indirilip hydrate ediliyordu (~1MB HTML / 505KB RSC) ve
+  // mobil FCP/LCP'yi şişiriyordu. Googlebot Smartphone mobil ağacı görür; SEO
+  // metin bölümleri (rehber/SSS) mobil ağaçta da render edilir.
+  const ua = (await headers()).get("user-agent") ?? "";
+  const isMobile = /Android|iPhone|iPod|Mobi|IEMobile|Opera Mini|BlackBerry/i.test(ua);
+
   // Ticker: trending (uç değişimler) yerine widget verisi (popüler ürünler,
   // makul haftalık değişim). previous = avgPrice / (1 + changePct/100).
   const [widget, markets, products, listings, overview] = await Promise.all([
@@ -124,39 +133,51 @@ export default async function HomePage({ params }: Props) {
     },
   ];
 
-  return (
-    <>
-      <JsonLd type="Dataset" data={datasetSchema} />
-      <MobileHomeHero locale={locale} products={products.length} markets={markets} widget={widget} />
-      <div className="hidden md:block">
-        <HeroSection activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
-        <PriceTicker items={trending} />
-        <PriceDashboard />
-        {/* "Bugünkü Hal Fiyatları" bölümünün hemen altındaki reklam */}
-        <BannerSlot position="home_mid" />
-        <CitySelector locale={locale} />
-        <StatsBar stats={stats} />
-        <IndexCta />
-        {listings.items.length ? (
-          <section className="mx-auto max-w-7xl px-6 py-10">
-            <div className="mb-5 flex items-end justify-between gap-4">
-              <div>
-                <h2 className="font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">İlan vitrini</h2>
-                <p className="mt-1 text-sm text-(--color-muted)">Üretici, komisyoncu ve alıcı ilanlarından güncel fırsatlar.</p>
-              </div>
-              <a href="/ilanlar" className="text-sm font-semibold text-(--color-brand)">Tümü</a>
-            </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              {listings.items.map((item) => <ListingCard key={item.id} item={item} compact />)}
-            </div>
-          </section>
-        ) : null}
+  if (isMobile) {
+    return (
+      <>
+        <JsonLd type="Dataset" data={datasetSchema} />
+        <MobileHomeHero locale={locale} products={products.length} markets={markets} widget={widget} />
+        {/* SEO metin bölümleri mobil ağaçta da render edilir (mobile-first index) */}
         <SeasonalGuide />
         <FeaturesGrid activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
         <HowItWorks />
         <HomeFaq />
         <CtaNewsletter />
-      </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <JsonLd type="Dataset" data={datasetSchema} />
+      <HeroSection activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
+      <PriceTicker items={trending} />
+      <PriceDashboard />
+      {/* "Bugünkü Hal Fiyatları" bölümünün hemen altındaki reklam */}
+      <BannerSlot position="home_mid" />
+      <CitySelector locale={locale} />
+      <StatsBar stats={stats} />
+      <IndexCta />
+      {listings.items.length ? (
+        <section className="mx-auto max-w-7xl px-6 py-10">
+          <div className="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <h2 className="font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">İlan vitrini</h2>
+              <p className="mt-1 text-sm text-(--color-muted)">Üretici, komisyoncu ve alıcı ilanlarından güncel fırsatlar.</p>
+            </div>
+            <a href="/ilanlar" className="text-sm font-semibold text-(--color-brand)">Tümü</a>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {listings.items.map((item) => <ListingCard key={item.id} item={item} compact />)}
+          </div>
+        </section>
+      ) : null}
+      <SeasonalGuide />
+      <FeaturesGrid activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
+      <HowItWorks />
+      <HomeFaq />
+      <CtaNewsletter />
     </>
   );
 }

@@ -23,7 +23,7 @@ export default function MobileHomeHero({
   widget: WidgetPrice[];
 }) {
   return (
-    <div className="md:hidden">
+    <div>
       <section className="px-4 pb-5 pt-7">
         <div className="rounded-lg border border-(--color-border) bg-(--color-surface) p-4">
           <div className="font-(family-name:--font-mono) text-[10px] font-bold uppercase tracking-[0.12em] text-(--color-brand)">
