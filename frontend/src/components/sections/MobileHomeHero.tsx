@@ -119,7 +119,7 @@ function MobileMarketsMap({ locale, markets }: { locale: string; markets: Market
                   stroke={active ? "rgba(255,255,255,0.72)" : "var(--map-stroke)"}
                   strokeWidth={active ? 1.2 : 0.7}
                 >
-                  <title>{province.name}{active ? " - hal verisi var" : ""}</title>
+                  <title>{active ? `${province.name} - hal verisi var` : province.name}</title>
                 </path>
               );
             })}
