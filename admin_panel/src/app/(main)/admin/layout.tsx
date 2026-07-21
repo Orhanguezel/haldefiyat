@@ -43,7 +43,10 @@ export default function Layout({ children }: Readonly<{ children: ReactNode }>) 
 
           <SidebarInset
             className={cn(
-              'flex flex-col',
+              // min-w-0: flex child'in varsayilan min-width:auto'su genis tablolarda
+              // (or. search-console 10 kolon) sayfayi yatay tasiriyordu. min-w-0 ile
+              // ic overflow-auto container devreye girer, tablo kart icinde scroll olur.
+              'flex min-w-0 flex-col',
               '[html[data-content-layout=centered]_&]:mx-auto! [html[data-content-layout=centered]_&]:max-w-screen-2xl!',
               'max-[113rem]:peer-data-[variant=inset]:mr-2! min-[101rem]:peer-data-[variant=inset]:peer-data-[state=collapsed]:peer-data-[state=collapsed]:mr-auto!',
             )}
