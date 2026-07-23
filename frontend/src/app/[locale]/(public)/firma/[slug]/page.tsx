@@ -10,6 +10,7 @@ import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
 import FirmCard from "@/components/firms/FirmCard";
 import { FirmClaimButton } from "@/components/firms/FirmClaimButton";
+import FirmClaimPrompt from "@/components/firms/FirmClaimPrompt";
 import FirmLeadForm from "@/components/firms/FirmLeadForm";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -237,6 +238,13 @@ export default async function FirmDetailPage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      <FirmClaimPrompt
+        firmId={firm.id}
+        firmSlug={firm.slug}
+        firmName={firm.name}
+        claimStatus={firm.claimStatus}
+      />
 
       <section className="mt-10 grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
