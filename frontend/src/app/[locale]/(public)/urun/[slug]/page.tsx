@@ -191,10 +191,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     title: borsaProduct
       ? `${displayName} Fiyatları ${year} — Güncel TMO Alım & Borsa Fiyatı`
-      : `${displayName} Hal Fiyatı ${year}`,
+      : `${displayName} Hal Fiyatı ${year} — Toptan & Piyasa Fiyatları`,
     description: borsaProduct
       ? `${displayName} için TMO resmi alım fiyatı ve ticaret borsası serbest piyasa fiyatları. ${priceLine}Kaynak, fiyat tipi ve tarih ayrı gösterilir.`
-      : `Türkiye genelinde ${displayName} hal fiyatları. ${priceLine}Trend grafikleri, 5 yıllık geçmiş ve şehir bazlı güncel karşılaştırma.`,
+      : `${displayName} güncel hal, toptan ve piyasa fiyatları. ${priceLine}Türkiye geneli günlük ortalama, 5 yıllık trend grafiği ve şehir bazlı karşılaştırma.`,
     robots: shouldIndex
       ? { index: true, follow: true }
       : { index: false, follow: true },
@@ -451,6 +451,11 @@ export default async function UrunPage({ params }: Props) {
             <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-muted)">
               {product.categorySlug}
             </span>
+            {!borsaProduct && (
+              <p className="mt-1 max-w-xl text-sm text-muted">
+                {displayName} güncel <strong className="text-foreground">hal, toptan ve piyasa</strong> fiyatları — Türkiye geneli günlük ortalama, min–maks ve şehir bazlı karşılaştırma.
+              </p>
+            )}
             {isClusterMaster && (
               <div className="mt-1 text-sm text-muted">
                 {variants.length} farklı {displayName.toLocaleLowerCase("tr-TR")} çeşidi izleniyor.{" "}

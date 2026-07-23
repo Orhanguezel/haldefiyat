@@ -20,8 +20,8 @@ VALUES (
       "no_index": false
     },
     "fiyatlar": {
-      "title": "Güncel Hal Fiyatları",
-      "description": "Tüm Türkiye hal fiyatlarını filtreleyin: şehir, kategori, tarih aralığı.",
+      "title": "Güncel Hal Fiyatları {{year}} — Bugünkü Toptan Sebze & Meyve Fiyatları",
+      "description": "Türkiye geneli güncel hal fiyatları: sebze, meyve ve bakliyat toptan/piyasa fiyatlarını şehir, kategori ve tarihe göre filtreleyin. Fiyatlar her gün sabah otomatik güncellenir.",
       "og_image": "/uploads/og/fiyatlar.png",
       "no_index": false
     },
@@ -32,8 +32,8 @@ VALUES (
       "no_index": false
     },
     "urun": {
-      "title": "{{name}} Hal Fiyatı {{year}}",
-      "description": "Türkiye genelinde {{name}} hal fiyatları. {{priceLine}}Trend grafikleri, 5 yıllık geçmiş ve şehir bazlı güncel karşılaştırma.",
+      "title": "{{name}} Hal Fiyatı {{year}} — Toptan & Piyasa Fiyatları",
+      "description": "{{name}} güncel hal, toptan ve piyasa fiyatları. {{priceLine}}Türkiye geneli günlük ortalama, 5 yıllık trend grafiği ve şehir bazlı karşılaştırma.",
       "og_image": "/uploads/og/urun.png",
       "no_index": false
     },
