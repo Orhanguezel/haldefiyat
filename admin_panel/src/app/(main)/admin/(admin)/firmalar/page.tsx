@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import { buildFirmWhatsappLink } from '@/lib/firm-whatsapp';
 import {
   useCreateFirmDealAdminMutation,
   useCreateFirmSponsorshipAdminMutation,
@@ -203,6 +204,18 @@ export default function FirmsAdminPage() {
                       <Button size="sm" variant="outline" onClick={() => setFirmStatus(item, 'rejected')} disabled={isUpdatingFirm}>Reddet</Button>
                     )}
                     <Button size="sm" variant="outline" onClick={() => setSelectedFirm(item)}>Detay</Button>
+                    {item.claimStatus !== 'verified' && buildFirmWhatsappLink(item) && (
+                      <Button
+                        asChild
+                        size="sm"
+                        variant="outline"
+                        className="border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                      >
+                        <a href={buildFirmWhatsappLink(item)!} target="_blank" rel="noopener noreferrer">
+                          WhatsApp davet
+                        </a>
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
