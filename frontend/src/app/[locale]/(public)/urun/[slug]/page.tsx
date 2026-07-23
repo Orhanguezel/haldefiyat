@@ -577,7 +577,23 @@ export default async function UrunPage({ params }: Props) {
 
       {/* FAQ bölümü — AI alıntılanabilirlik + FAQPage schema */}
       {(() => {
+        // "X kilosu ne kadar 2026" soru-niyetli long-tail için canlı fiyatlı
+        // cevap bloğu (öne çıkan snippet hedefi). Birim kg değilse "fiyatı",
+        // fiyat verisi yoksa sayısız açıklamaya düşer.
+        const yearNow = String(new Date().getFullYear());
+        const fmt = (n: number) => n.toLocaleString("tr-TR", { maximumFractionDigits: 2 });
+        const unitWord = offerUnit === "kg" ? "kilosu" : "fiyatı";
+        const rangeText = offerLow > 0 && offerHigh > 0
+          ? ` (en düşük ${fmt(offerLow)} TL, en yüksek ${fmt(offerHigh)} TL)`
+          : "";
+        const priceAnswer = offerAvg > 0
+          ? `${displayName} bugün Türkiye genelindeki hallerde ortalama ${fmt(offerAvg)} TL/${offerUnit}${rangeText} seviyesinde işlem görüyor. Bu bir toptan hal fiyatıdır; market raf fiyatının altındadır. Fiyat hasat dönemi, üretim bölgesi ve kaliteye göre değişir — güncel değerler bu sayfadaki tabloda gösterilir.`
+          : `${displayName} ${unitWord} fiyatı; hasat dönemi, hava koşulları, üretim bölgesi ve kaliteye göre günlük değişir. Bu sayfadaki tabloda tüm hallerdeki güncel en düşük, ortalama ve en yüksek toptan fiyatları görebilirsiniz.`;
         const faqItems = [
+          {
+            question: `${displayName} ${unitWord} ne kadar? (${yearNow})`,
+            answer: priceAnswer,
+          },
           {
             question: `${displayName} fiyatı neden değişir?`,
             answer: `${displayName} fiyatları; hasat dönemi, hava koşulları, nakliye maliyetleri ve arz-talep dengesine göre günlük değişim gösterir. Sezon dışı dönemlerde fiyatlar belirgin biçimde yükselebilir.`,
