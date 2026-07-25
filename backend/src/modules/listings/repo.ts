@@ -182,7 +182,11 @@ async function replaceListingImages(id: number, urls: string[]) {
 export async function updateListingAdmin(id: number, input: ListingPatchInput) {
   const row = await getListingById(id);
   if (!row) return null;
-  await db.update(hfListings).set(await toListingValues(input, row)).where(eq(hfListings.id, id));
+  const values = await toListingValues(input, row);
+  // Sadece gorsel degistiyse values bos kalir; Drizzle bos set()'te hata verir.
+  if (Object.keys(values).length) {
+    await db.update(hfListings).set(values).where(eq(hfListings.id, id));
+  }
   if (input.images !== undefined) await replaceListingImages(id, input.images);
   return getListingById(id);
 }
