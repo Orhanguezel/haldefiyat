@@ -20,6 +20,15 @@ const MAX_IMAGES = 6;
 const SELECT_CLASS =
   "min-h-11 rounded-lg border border-(--color-border) bg-(--color-bg) px-3 text-sm text-(--color-foreground) [&_option]:bg-(--color-surface) [&_option]:text-(--color-foreground)";
 
+// Public listing yalnizca validUntil >= bugun ise gorunur. Kullanici bugunu secerse ilan
+// ertesi gun kaybolur — bu yuzden min=yarin, default=+30 gun ile makul bir pencere veriyoruz.
+const DEFAULT_VALID_DAYS = 7;
+function dateOffsetStr(days: number) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
 export function ListingForm({ products }: { products: Product[] }) {
   const { user, loading: authLoading } = useAuthSession();
   const productOptions = useMemo(
@@ -143,7 +152,16 @@ export function ListingForm({ products }: { products: Product[] }) {
         }} />
         {errors.city ? <p className="mt-1 text-xs text-danger">{errors.city}</p> : null}
       </div>
-      <Input name="validUntil" label="Geçerlilik tarihi" type="date" required error={errors.validUntil} />
+      <Input
+        name="validUntil"
+        label="Geçerlilik tarihi"
+        type="date"
+        required
+        min={dateOffsetStr(1)}
+        defaultValue={dateOffsetStr(DEFAULT_VALID_DAYS)}
+        hint="İlan bu tarihe kadar yayında kalır. En az yarın olmalı."
+        error={errors.validUntil}
+      />
       <Input name="quantity" label="Miktar" type="number" step="0.01" />
       <Input name="quantityUnit" label="Miktar birimi" defaultValue="kg" />
       <select name="priceType" className={SELECT_CLASS}>

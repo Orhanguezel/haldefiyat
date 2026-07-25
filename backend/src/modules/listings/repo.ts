@@ -169,6 +169,14 @@ export async function updateOwnerListing(id: number, userId: string, input: List
   return getListingById(id);
 }
 
+// Admin duzenlemesi sahip kontrolu yapmaz ve statusu pending'e cekmez — moderator zaten yetkili.
+export async function updateListingAdmin(id: number, input: ListingPatchInput) {
+  const row = await getListingById(id);
+  if (!row) return null;
+  await db.update(hfListings).set(await toListingValues(input, row)).where(eq(hfListings.id, id));
+  return getListingById(id);
+}
+
 export async function closeOwnerListing(id: number, userId: string) {
   const result = await db.update(hfListings).set({ status: "closed" }).where(and(eq(hfListings.id, id), eq(hfListings.userId, userId)));
   return Number(result[0]?.affectedRows ?? 0);

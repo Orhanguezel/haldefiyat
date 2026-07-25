@@ -14,6 +14,7 @@ import {
   listPublicListings,
   moderateAdminListing,
   patchOwnerListing,
+  updateAdminListing,
 } from "./controller";
 import { featureCallback, featureCheckout } from "./checkout";
 import { listingBoard, sendListingOtp, verifyListingOtp } from "./phase12.controller";
@@ -40,6 +41,7 @@ export async function registerListingsAdmin(app: FastifyInstance) {
   app.get("/listings", listAdminListings);
   app.post("/listings", createAdminListing);
   app.get("/listings/inquiries", listAdminInquiries);
+  app.patch<{ Params: { id: string } }>("/listings/:id", updateAdminListing);
   app.patch<{ Params: { id: string } }>("/listings/:id/moderate", moderateAdminListing);
   app.patch<{ Params: { id: string } }>("/listings/:id/feature", featureAdminListing);
   app.delete<{ Params: { id: string } }>("/listings/:id", deleteAdminListing);

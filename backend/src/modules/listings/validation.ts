@@ -15,9 +15,11 @@ function validateLocation(data: { citySlug?: string | null; districtSlug?: strin
 }
 
 function validateDates(data: { validUntil?: string }, ctx: z.RefinementCtx) {
+  // Public listeleme validUntil >= CURRENT_DATE() filtreler. Bugunu secen ilan ertesi gun
+  // kaybolur — bu yuzden en az yarin sart (aksi halde 0 gun yayinda kalan ilan olusur).
   const today = new Date().toISOString().slice(0, 10);
-  if (data.validUntil && data.validUntil < today) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["validUntil"], message: "past_date" });
+  if (data.validUntil && data.validUntil <= today) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["validUntil"], message: "must_be_future" });
   }
 }
 

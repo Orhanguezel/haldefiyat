@@ -13,7 +13,33 @@ type Listing = {
   id: number; title: string; productName: string; citySlug: string | null;
   listingType: string; status: string; isSuspicious: number | boolean; isFeatured: number | boolean;
   validUntil: string; contactPhone: string | null;
+  quantity: string | number | null; quantityUnit: string | null;
+  priceType: string | null; priceMin: string | number | null; priceMax: string | number | null;
+  description: string | null;
 };
+type EditForm = {
+  title: string; validUntil: string; contactPhone: string;
+  quantity: string; quantityUnit: string; priceType: string;
+  priceMin: string; priceMax: string; description: string;
+};
+const PRICE_TYPE_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: 'sabit', label: 'Sabit fiyat' },
+  { value: 'pazarlik', label: 'Pazarlık' },
+  { value: 'hal_endeksli', label: 'Hal endeksli' },
+];
+function toEditForm(item: Listing): EditForm {
+  return {
+    title: item.title ?? '',
+    validUntil: (item.validUntil ?? '').slice(0, 10),
+    contactPhone: item.contactPhone ?? '',
+    quantity: item.quantity == null ? '' : String(item.quantity),
+    quantityUnit: item.quantityUnit ?? 'kg',
+    priceType: item.priceType ?? 'sabit',
+    priceMin: item.priceMin == null ? '' : String(item.priceMin),
+    priceMax: item.priceMax == null ? '' : String(item.priceMax),
+    description: item.description ?? '',
+  };
+}
 type Inquiry = { id: number; listingId: number; name: string | null; phone: string | null; message: string | null; offerPrice: string | null; createdAt: string | null };
 type ListingResponse = { items: Listing[]; summary?: { active: number; pending: number; rejected: number } };
 type Pricing = Record<'daily' | 'weekly' | 'monthly', { days: number; price: number }>;
@@ -43,6 +69,10 @@ export default function ListingsAdminPage() {
   const [busy, setBusy] = useState(false);
   const [pricing, setPricing] = useState<Pricing | null>(null);
   const [savingPricing, setSavingPricing] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [form, setForm] = useState<EditForm | null>(null);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [editError, setEditError] = useState('');
 
   async function load() {
     setBusy(true);
@@ -73,6 +103,43 @@ export default function ListingsAdminPage() {
     await load();
   }
 
+  function startEdit(item: Listing) {
+    setEditError('');
+    setEditId(item.id);
+    setForm(toEditForm(item));
+  }
+
+  function setField<K extends keyof EditForm>(key: K, value: EditForm[K]) {
+    setForm((prev) => (prev ? { ...prev, [key]: value } : prev));
+  }
+
+  async function saveEdit() {
+    if (editId == null || !form) return;
+    setSavingEdit(true);
+    setEditError('');
+    const payload: Record<string, unknown> = {
+      title: form.title.trim(),
+      validUntil: form.validUntil,
+      contactPhone: form.contactPhone.trim() || null,
+      quantity: form.quantity.trim() === '' ? null : Number(form.quantity),
+      quantityUnit: form.quantityUnit.trim() || 'kg',
+      priceType: form.priceType,
+      priceMin: form.priceMin.trim() === '' ? null : Number(form.priceMin),
+      priceMax: form.priceMax.trim() === '' ? null : Number(form.priceMax),
+      description: form.description.trim() || null,
+    };
+    const res = await api(`/admin/listings/${editId}`, { method: 'PATCH', body: JSON.stringify(payload) });
+    setSavingEdit(false);
+    if (!res.ok) {
+      const body = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+      setEditError(body.error?.message ?? 'Kaydedilemedi. Alanları kontrol edin (geçerlilik tarihi yarından itibaren olmalı).');
+      return;
+    }
+    setEditId(null);
+    setForm(null);
+    await load();
+  }
+
   async function savePricing() {
     if (!pricing) return;
     setSavingPricing(true);
@@ -95,6 +162,70 @@ export default function ListingsAdminPage() {
         <Metric title="Bekleyen" value={data.summary?.pending ?? 0} />
         <Metric title="Reddedilen" value={data.summary?.rejected ?? 0} />
       </div>
+
+      {form && editId != null ? (
+        <Card className="border-primary/40">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-base">İlanı Düzenle · #{editId}</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => { setEditId(null); setForm(null); setEditError(''); }}>Kapat</Button>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="space-y-1 block sm:col-span-2">
+                <span className="text-sm text-muted-foreground">Başlık</span>
+                <Input value={form.title} onChange={(e) => setField('title', e.target.value)} />
+              </label>
+              <label className="space-y-1 block">
+                <span className="text-sm text-muted-foreground">Geçerlilik tarihi (yarından itibaren)</span>
+                <Input type="date" value={form.validUntil} onChange={(e) => setField('validUntil', e.target.value)} />
+              </label>
+              <label className="space-y-1 block">
+                <span className="text-sm text-muted-foreground">Telefon</span>
+                <Input value={form.contactPhone} onChange={(e) => setField('contactPhone', e.target.value)} />
+              </label>
+              <label className="space-y-1 block">
+                <span className="text-sm text-muted-foreground">Miktar</span>
+                <Input type="number" step="0.01" value={form.quantity} onChange={(e) => setField('quantity', e.target.value)} />
+              </label>
+              <label className="space-y-1 block">
+                <span className="text-sm text-muted-foreground">Miktar birimi</span>
+                <Input value={form.quantityUnit} onChange={(e) => setField('quantityUnit', e.target.value)} />
+              </label>
+              <label className="space-y-1 block">
+                <span className="text-sm text-muted-foreground">Fiyat tipi</span>
+                <select
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                  value={form.priceType}
+                  onChange={(e) => setField('priceType', e.target.value)}
+                >
+                  {PRICE_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="space-y-1 block">
+                  <span className="text-sm text-muted-foreground">Fiyat (min)</span>
+                  <Input type="number" step="0.01" value={form.priceMin} onChange={(e) => setField('priceMin', e.target.value)} />
+                </label>
+                <label className="space-y-1 block">
+                  <span className="text-sm text-muted-foreground">Fiyat (maks)</span>
+                  <Input type="number" step="0.01" value={form.priceMax} onChange={(e) => setField('priceMax', e.target.value)} />
+                </label>
+              </div>
+              <label className="space-y-1 block sm:col-span-2">
+                <span className="text-sm text-muted-foreground">Açıklama</span>
+                <Textarea value={form.description} onChange={(e) => setField('description', e.target.value)} />
+              </label>
+            </div>
+            {editError ? <p className="text-sm text-destructive">{editError}</p> : null}
+            <div className="flex gap-2">
+              <Button onClick={saveEdit} disabled={savingEdit}>{savingEdit ? 'Kaydediliyor…' : 'Kaydet'}</Button>
+              <Button variant="outline" onClick={() => { setEditId(null); setForm(null); setEditError(''); }}>Vazgeç</Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -131,6 +262,7 @@ export default function ListingsAdminPage() {
                   <TableCell>{item.validUntil}</TableCell>
                   <TableCell>{item.contactPhone ?? '—'}</TableCell>
                   <TableCell className="space-x-1">
+                    <Button size="sm" variant="secondary" onClick={() => startEdit(item)}>Düzenle</Button>
                     <Button size="sm" onClick={() => moderate(item.id, 'approved')}>Onayla</Button>
                     <Button size="sm" variant="outline" onClick={() => moderate(item.id, 'rejected')}>Reddet</Button>
                     <Button size="sm" variant="outline" onClick={() => feature(item.id, 'daily')}>Günlük</Button>

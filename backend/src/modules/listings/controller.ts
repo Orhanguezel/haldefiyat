@@ -14,6 +14,7 @@ import {
   listInquiries,
   listListings,
   moderateListing,
+  updateListingAdmin,
   updateOwnerListing,
 } from "./repo";
 import {
@@ -162,6 +163,17 @@ export async function moderateAdminListing(req: FastifyRequest<{ Params: { id: s
     return reply.send({ item });
   } catch (err) {
     return handleRouteError(reply, req, err, "moderate_listing");
+  }
+}
+
+export async function updateAdminListing(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+  try {
+    const id = idParam(req);
+    const item = id ? await updateListingAdmin(id, listingPatchSchema.parse(req.body ?? {})) : null;
+    if (!item) return sendNotFound(reply);
+    return reply.send({ item });
+  } catch (err) {
+    return handleRouteError(reply, req, err, "update_admin_listing");
   }
 }
 
