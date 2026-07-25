@@ -15,8 +15,13 @@ type Listing = {
   validUntil: string; contactPhone: string | null;
   quantity: string | number | null; quantityUnit: string | null;
   priceType: string | null; priceMin: string | number | null; priceMax: string | number | null;
-  description: string | null;
+  description: string | null; images?: string[];
 };
+const MAX_IMAGES = 6;
+const UPLOAD_ORIGIN = BASE_URL.replace(/\/api\/v1\/?$/, '');
+function imageSrc(url: string) {
+  return /^https?:\/\//.test(url) ? url : `${UPLOAD_ORIGIN}${url}`;
+}
 type EditForm = {
   title: string; validUntil: string; contactPhone: string;
   quantity: string; quantityUnit: string; priceType: string;
@@ -71,6 +76,8 @@ export default function ListingsAdminPage() {
   const [savingPricing, setSavingPricing] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState<EditForm | null>(null);
+  const [editImages, setEditImages] = useState<string[]>([]);
+  const [imgUploading, setImgUploading] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState('');
 
@@ -107,10 +114,42 @@ export default function ListingsAdminPage() {
     setEditError('');
     setEditId(item.id);
     setForm(toEditForm(item));
+    setEditImages(item.images ?? []);
+  }
+
+  function closeEdit() {
+    setEditId(null);
+    setForm(null);
+    setEditImages([]);
+    setEditError('');
   }
 
   function setField<K extends keyof EditForm>(key: K, value: EditForm[K]) {
     setForm((prev) => (prev ? { ...prev, [key]: value } : prev));
+  }
+
+  async function uploadImages(files: FileList | null) {
+    if (!files?.length) return;
+    setImgUploading(true);
+    const token = tokenStore.get();
+    const slots = MAX_IMAGES - editImages.length;
+    for (const file of Array.from(files).slice(0, Math.max(0, slots))) {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch(`${BASE_URL}/storage/listings/upload`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: fd,
+      });
+      const json = (await res.json().catch(() => ({}))) as { url?: string };
+      if (res.ok && json.url) setEditImages((prev) => [...prev, json.url as string]);
+    }
+    setImgUploading(false);
+  }
+
+  function removeImage(url: string) {
+    setEditImages((prev) => prev.filter((item) => item !== url));
   }
 
   async function saveEdit() {
@@ -127,6 +166,7 @@ export default function ListingsAdminPage() {
       priceMin: form.priceMin.trim() === '' ? null : Number(form.priceMin),
       priceMax: form.priceMax.trim() === '' ? null : Number(form.priceMax),
       description: form.description.trim() || null,
+      images: editImages,
     };
     const res = await api(`/admin/listings/${editId}`, { method: 'PATCH', body: JSON.stringify(payload) });
     setSavingEdit(false);
@@ -135,8 +175,7 @@ export default function ListingsAdminPage() {
       setEditError(body.error?.message ?? 'Kaydedilemedi. Alanları kontrol edin (geçerlilik tarihi yarından itibaren olmalı).');
       return;
     }
-    setEditId(null);
-    setForm(null);
+    closeEdit();
     await load();
   }
 
@@ -167,7 +206,7 @@ export default function ListingsAdminPage() {
         <Card className="border-primary/40">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">İlanı Düzenle · #{editId}</CardTitle>
-            <Button variant="ghost" size="sm" onClick={() => { setEditId(null); setForm(null); setEditError(''); }}>Kapat</Button>
+            <Button variant="ghost" size="sm" onClick={closeEdit}>Kapat</Button>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid gap-3 sm:grid-cols-2">
@@ -217,11 +256,43 @@ export default function ListingsAdminPage() {
                 <span className="text-sm text-muted-foreground">Açıklama</span>
                 <Textarea value={form.description} onChange={(e) => setField('description', e.target.value)} />
               </label>
+              <div className="space-y-2 sm:col-span-2">
+                <span className="text-sm text-muted-foreground">Görseller ({editImages.length}/{MAX_IMAGES})</span>
+                <div className="flex flex-wrap gap-3">
+                  {editImages.map((url) => (
+                    <div key={url} className="relative h-20 w-20 overflow-hidden rounded-md border">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={imageSrc(url)} alt="ilan görseli" className="h-full w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(url)}
+                        className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-bl bg-destructive text-xs text-destructive-foreground"
+                        aria-label="Görseli kaldır"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  {editImages.length < MAX_IMAGES ? (
+                    <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-md border border-dashed text-center text-xs text-muted-foreground hover:bg-muted">
+                      {imgUploading ? 'Yükleniyor…' : '+ Görsel'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        disabled={imgUploading}
+                        onChange={(e) => { void uploadImages(e.target.files); e.target.value = ''; }}
+                      />
+                    </label>
+                  ) : null}
+                </div>
+              </div>
             </div>
             {editError ? <p className="text-sm text-destructive">{editError}</p> : null}
             <div className="flex gap-2">
-              <Button onClick={saveEdit} disabled={savingEdit}>{savingEdit ? 'Kaydediliyor…' : 'Kaydet'}</Button>
-              <Button variant="outline" onClick={() => { setEditId(null); setForm(null); setEditError(''); }}>Vazgeç</Button>
+              <Button onClick={saveEdit} disabled={savingEdit || imgUploading}>{savingEdit ? 'Kaydediliyor…' : 'Kaydet'}</Button>
+              <Button variant="outline" onClick={closeEdit}>Vazgeç</Button>
             </div>
           </CardContent>
         </Card>

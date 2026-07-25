@@ -169,11 +169,21 @@ export async function updateOwnerListing(id: number, userId: string, input: List
   return getListingById(id);
 }
 
+// Ilanin gorsellerini verilen listeyle tamamen degistirir (patch'te images gonderilirse).
+async function replaceListingImages(id: number, urls: string[]) {
+  await db.delete(hfListingImages).where(eq(hfListingImages.listingId, id));
+  const clean = urls.filter((url) => typeof url === "string" && url.trim()).slice(0, 6);
+  if (clean.length) {
+    await db.insert(hfListingImages).values(clean.map((url, index) => ({ listingId: id, url, displayOrder: index })));
+  }
+}
+
 // Admin duzenlemesi sahip kontrolu yapmaz ve statusu pending'e cekmez — moderator zaten yetkili.
 export async function updateListingAdmin(id: number, input: ListingPatchInput) {
   const row = await getListingById(id);
   if (!row) return null;
   await db.update(hfListings).set(await toListingValues(input, row)).where(eq(hfListings.id, id));
+  if (input.images !== undefined) await replaceListingImages(id, input.images);
   return getListingById(id);
 }
 
