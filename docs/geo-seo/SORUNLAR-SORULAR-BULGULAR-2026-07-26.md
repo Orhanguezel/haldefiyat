@@ -42,12 +42,8 @@ altyapısal bulguları tutar.
   önceki ve sonraki 28 günlük sorgu, gösterim, tıklama, CTR ve ortalama konum
   karşılaştırılmalı.
 
-### GSC 28 gün yardımcısı ve PSI kotası
+### PSI kotası
 
-- Ortak `getGscDateRange("LAST_28_DAYS")` başlangıcı bitişten 28 gün geri
-  alıyor; iki uç dahil GSC sorgusunda 29 takvim günü oluşuyor. Baseline doğrudan
-  kesin tarihlerle 28 gün alındı. Yardımcı fonksiyon, diğer projelere etkisi
-  değerlendirilerek ayrı kod düzeltmesi ister.
 - 27 Temmuz PSI tekrar sorgusu günlük Google proje kotasına takıldı. CrUX
   origin baseline'ı 26 Temmuz kanıtından alındı; URL-level veri “yetersiz/
   erişilemedi” bırakıldı ve Lighthouse lab sonucu alan verisi gibi kullanılmadı.
@@ -143,3 +139,7 @@ altyapısal bulguları tutar.
   sorumlu yayıncı eksikliği kapatıldı.
 - `haldefiyat.com.tr` duplicate-host 200 yanıtı canonical `.com` 301
   yönlendirmesine geçirildi.
+- Ortak GSC tarih yardımcısının kapsayıcı sınırlarla 29 gün üreten
+  `LAST_28_DAYS` hatası kapatıldı. Güncel ve önceki dönemler tam 7/28/90 gün
+  üretiyor; shared paket `cef6149` ile canlıya alındı. Kanıt:
+  `docs/geo-seo/GSC-TARIH-ARALIGI-KABULU-2026-07-27.md`.

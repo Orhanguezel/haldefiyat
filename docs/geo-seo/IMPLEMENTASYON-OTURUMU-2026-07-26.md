@@ -2016,6 +2016,32 @@ Commit: `6775780a feat(trust): publish transparency policy content`
 - Bu bulgu 66 maddelik ana checklist dışında ayrı operasyonel bulguydu; sayaç
   61/66 tamamlanan ve 5/66 açık olarak değişmedi.
 
+### 3.77 GSC Kapsayıcı Tarih Aralığı Düzeltmesi
+
+- Shared backend'deki `getGscDateRange` iki ucu da kapsayan GSC tarih
+  sözleşmesine rağmen başlangıcı `days` kadar geri alıyor ve 7/28/90 günlük
+  seçimleri fiilen 8/29/91 gün üretiyordu.
+- Başlangıç hesabı `days - 1` olarak düzeltildi. Karşılaştırmalı analitikteki
+  önceki dönem de aynı kurala geçirildi; böylece güncel ve önceki pencereler
+  eşit uzunlukta ve bitişik kaldı.
+- Shared paket TypeScript kontrolü hatasız tamamlandı; sabit çalışma tarihinde
+  7, 28 ve 90 günlük kapsayıcı gün sayıları ayrı ayrı doğrulandı.
+- `cef6149 fix(gsc): make date ranges inclusive-exact` commit'i shared paket
+  `main` dalına push edildi ve canlı paket deposu fast-forward güncellendi.
+- Canlı backend ilk derlemede kayıtlı çift `mysql2` çözümleme sorununa takıldı.
+  Proje-kökü `node_modules` benzersiz geçici ada taşınıp geri yüklenerek build
+  tamamlandı; geçici yol kalmadı ve kullanıcı dosyası silinmedi.
+- `pm2 restart hal-backend --update-env` sonrasında iç ve dış `/api/health`
+  yanıtları 200. Canlı yardımcı 18–24 Temmuz = 7, 27 Haziran–24 Temmuz = 28
+  ve 26 Nisan–24 Temmuz = 90 gün üretti.
+- İlk smoke komutundaki `3002` portu yanlıştı; gerçek `.env` portu `8091`
+  üzerinden kontrol tekrarlandı ve geçti. Bu, uygulama arızası veya kesinti
+  değildi.
+- Ayrıntılı kabul:
+  `docs/geo-seo/GSC-TARIH-ARALIGI-KABULU-2026-07-27.md`.
+- Bu hata 66 maddelik ana checklist dışında ayrı teknik bulguydu; sayaç
+  61/66 tamamlanan ve 5/66 açık olarak değişmedi.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
