@@ -4,6 +4,11 @@ import { setRequestLocale } from "next-intl/server";
 import { AuthGuard } from "@/components/providers/AuthGuard";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardMobileNav } from "@/components/dashboard/DashboardMobileNav";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 interface Props {
   children: React.ReactNode;

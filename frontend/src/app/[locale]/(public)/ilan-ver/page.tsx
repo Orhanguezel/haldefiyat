@@ -5,8 +5,22 @@ import PageContainer from "@/components/layout/PageContainer";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import { ListingForm } from "@/components/listings/ListingForm";
 import { fetchProducts } from "@/lib/api";
+import { getPageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: Props) {
+  const { locale } = await params;
+  return {
+    ...getPageMetadata("ilan_ver", {
+      locale,
+      pathname: "/ilan-ver",
+      title: "İlan Ver | HalDeFiyat",
+      description: "HalDeFiyat üzerinde tarım ürünü ilanınızı oluşturun.",
+    }),
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function CreateListingPage({ params }: Props) {
   const { locale } = await params;
@@ -22,4 +36,3 @@ export default async function CreateListingPage({ params }: Props) {
     </PageContainer>
   );
 }
-

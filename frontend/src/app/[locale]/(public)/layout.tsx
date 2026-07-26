@@ -1,6 +1,6 @@
 export const revalidate = 300;
 
-import { JsonLd } from "@agro/shared-ui/public/seo/JsonLd";
+import JsonLd from "@/components/seo/JsonLd";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AmbientBackground from "@/components/ui/AmbientBackground";
