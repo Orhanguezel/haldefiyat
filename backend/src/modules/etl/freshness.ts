@@ -69,13 +69,20 @@ export interface PriceJump {
  */
 export async function sourceFreshness(windowDays = 180): Promise<StaleSource[]> {
   const rows = await db.execute(sql`
-    SELECT source_api, recorded_date,
+    SELECT ph.source_api, ph.recorded_date,
            COUNT(*) AS n,
-           ROUND(SUM(avg_price), 2) AS s
-    FROM hf_price_history
-    WHERE recorded_date >= CURDATE() - INTERVAL ${windowDays} DAY
-    GROUP BY source_api, recorded_date
-    ORDER BY source_api, recorded_date
+           ROUND(SUM(ph.avg_price), 2) AS s
+    FROM hf_price_history ph
+    WHERE ph.recorded_date >= CURDATE() - INTERVAL ${windowDays} DAY
+      -- Karantinaya alinmis (market x tarih) araliklari donma denetiminden cikar:
+      -- bilincli isaretlenmis donmus kaynak tekrar alarm uretmesin.
+      AND NOT EXISTS (
+        SELECT 1 FROM hf_market_blackouts b
+        WHERE b.market_id = ph.market_id
+          AND ph.recorded_date BETWEEN b.from_date AND b.to_date
+      )
+    GROUP BY ph.source_api, ph.recorded_date
+    ORDER BY ph.source_api, ph.recorded_date
   `);
 
   const list = (Array.isArray(rows) ? rows[0] : rows) as unknown as Array<{
