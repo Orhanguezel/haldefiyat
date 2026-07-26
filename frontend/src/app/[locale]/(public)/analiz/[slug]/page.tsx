@@ -100,6 +100,15 @@ function formatDate(iso: string): string {
   });
 }
 
+function findingSummary(value: string): string {
+  return value
+    .trim()
+    .split(/(?<=[.!?])\s+/u)
+    .filter(Boolean)
+    .slice(0, 3)
+    .join(" ");
+}
+
 function renderContent(icerik: string) {
   return icerik.split("\n\n").map((para, i) => {
     const trimmed = para.trim();
@@ -158,6 +167,7 @@ export default async function AnalizMakalePage({ params }: Props) {
   const coverAlt = makale.imageAlt || makale.baslik;
   const authorTitle = authorProfile?.title ?? null;
   const authorUrl = authorProfile ? `${SITE_URL}/yazar/${authorProfile.slug}` : null;
+  const summary = findingSummary(makale.ozet);
 
   const newsArticleSchema = {
     headline: makale.baslik,
@@ -284,7 +294,7 @@ export default async function AnalizMakalePage({ params }: Props) {
                 </>
               }
             >
-              <p className="text-[16px] font-medium text-foreground">{makale.ozet}</p>
+              <p className="text-[16px] font-medium text-foreground">{summary}</p>
               <p className="mt-2">
                 Bulgular, rapor dönemindeki resmi hal fiyatı kayıtlarının karşılaştırmalı
                 analizine dayanır; kapsam ve veri gecikmeleri değerlendirilirken yöntem
