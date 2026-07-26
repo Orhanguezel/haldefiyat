@@ -1,6 +1,12 @@
 import type { MetadataRoute } from "next";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033").replace(/\/$/, "");
+const AI_PUBLIC_API_PATHS = [
+  "/api/v1/prices",
+  "/api/v1/index",
+  "/api/v1/sources/status",
+  "/api/docs/json",
+];
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -12,7 +18,7 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: ["GPTBot", "ChatGPT-User", "ClaudeBot", "PerplexityBot", "Google-Extended"],
-        allow: "/",
+        allow: ["/", ...AI_PUBLIC_API_PATHS],
         disallow: ["/api/", "/_next/"],
       },
       {
@@ -25,7 +31,7 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: "CCBot",
-        allow: "/",
+        allow: ["/", ...AI_PUBLIC_API_PATHS],
         disallow: ["/api/", "/_next/"],
       },
     ],
