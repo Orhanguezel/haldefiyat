@@ -21,6 +21,7 @@ import MobileHomeHero from "@/components/sections/MobileHomeHero";
 import BannerSlot from "@/components/ads/BannerSlot";
 import type { Stat } from "@/components/sections/StatsBarClient";
 import { ListingCard } from "@/components/listings/ListingCard";
+import { schemaDateRange } from "@/lib/schema-dates";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -48,7 +49,6 @@ const datasetSchemaBase = {
   url: SITE_URL,
   creator: ORG_REF,
   license: "https://creativecommons.org/licenses/by/4.0/",
-  temporalCoverage: "2025/..",
   spatialCoverage: { "@type": "Place", name: "Türkiye" },
   variableMeasured: ["MinFiyat", "MaxFiyat", "OrtalamaFiyat"],
   isAccessibleForFree: true,
@@ -118,9 +118,16 @@ export default async function HomePage({ params }: Props) {
       .filter(Boolean),
   ).size;
   const latestMarketUpdate = overview.lastSourceDate ?? overview.latestRecordedDate ?? undefined;
+  const datasetDates = schemaDateRange([
+    overview.earliestRecordedDate,
+    overview.latestRecordedDate,
+  ]);
   const datasetSchema = {
     ...datasetSchemaBase,
-    ...(latestMarketUpdate ? { dateModified: latestMarketUpdate } : {}),
+    ...(datasetDates ? {
+      temporalCoverage: datasetDates.temporalCoverage,
+      dateModified: datasetDates.latest,
+    } : latestMarketUpdate ? { dateModified: latestMarketUpdate } : {}),
   };
   const stats: Stat[] = [
     {

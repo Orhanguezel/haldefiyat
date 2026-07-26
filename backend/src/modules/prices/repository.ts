@@ -140,10 +140,11 @@ export async function overviewStats(): Promise<{
   targetCoverage: string;
   trackedProducts: number;
   lastSourceDate: string | null;
+  earliestRecordedDate: string | null;
   latestRecordedDate: string | null;
   lastEtlRunAt: string | null;
 }> {
-  const [products, cities, markets, etl] = await Promise.all([
+  const [products, cities, markets, etl, dateBounds] = await Promise.all([
     db.select({ c: sql<number>`COUNT(*)` }).from(hfProducts).where(eq(hfProducts.isActive, 1)),
     db
       .select({ c: sql<number>`COUNT(DISTINCT ${hfMarkets.cityName})` })
@@ -160,6 +161,11 @@ export async function overviewStats(): Promise<{
       .select({ d: sql<string | Date | null>`MAX(${hfEtlRuns.createdAt})` })
       .from(hfEtlRuns)
       .where(eq(hfEtlRuns.status, "ok")),
+    db
+      .select({
+        earliest: sql<string | Date | null>`MIN(${hfPriceHistory.recordedDate})`,
+      })
+      .from(hfPriceHistory),
   ]);
   const latest = await latestRecordedDate();
   return {
@@ -168,6 +174,7 @@ export async function overviewStats(): Promise<{
     targetCoverage: "81 il hedef",
     trackedProducts: Number(products[0]?.c ?? 0),
     lastSourceDate: latest,
+    earliestRecordedDate: isoDate(dateBounds[0]?.earliest),
     latestRecordedDate: latest,
     lastEtlRunAt: isoDateTime(etl[0]?.d),
   };

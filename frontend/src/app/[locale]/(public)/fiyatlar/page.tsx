@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
-import { fetchPricesPage, fetchMarkets } from "@/lib/api";
+import { fetchPricesPage, fetchMarkets, fetchPricesOverview } from "@/lib/api";
 import { getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
@@ -10,6 +10,7 @@ import PriceTable from "@/components/ui/PriceTable";
 import ExportButton from "@/components/ui/ExportButton";
 import PriceListNewsletterStrip from "@/components/sections/PriceListNewsletterStrip";
 import BannerSlot from "@/components/ads/BannerSlot";
+import { schemaDateRange } from "@/lib/schema-dates";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -73,7 +74,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
   const page = Math.max(1, Number(single(query?.page)) || 1);
   const limit = Math.min(250, Math.max(50, Number(single(query?.limit)) || 100));
 
-  const [pricePage, markets] = await Promise.all([
+  const [pricePage, markets, overview] = await Promise.all([
     // Tüm geçmiş fiyat kayıtları sayfalanarak gezilir. Tek seferde tüm tabloyu
     // indirmek yerine API meta.total/meta.totalPages ile sayfa sayfa ilerleriz.
     fetchPricesPage({
@@ -87,6 +88,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
       q,
     }),
     fetchMarkets(),
+    fetchPricesOverview(),
   ]);
 
   // İç link için popüler şehir halleri: GSC tık sırasına göre öne al, indexli hal'lerle sınırla.
@@ -102,17 +104,30 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
     .slice(0, 16);
 
   const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
+  const datasetDates = schemaDateRange([
+    overview.earliestRecordedDate,
+    overview.latestRecordedDate,
+  ]);
   const fiyatlarDataset = {
     name: "Türkiye Güncel Hal Fiyatları",
-    description: "Türkiye genelinde Türkiye genelinden sebze, meyve ve bakliyat ürünlerinin günlük hal fiyatları.",
+    description: "Türkiye genelinden sebze, meyve ve bakliyat ürünlerinin günlük hal fiyatları.",
     url: `${SITE_URL}/fiyatlar`,
     creator: ORG_REF,
     license: "https://creativecommons.org/licenses/by/4.0/",
-    temporalCoverage: "2025/..",
+    ...(datasetDates ? {
+      temporalCoverage: datasetDates.temporalCoverage,
+      dateModified: datasetDates.latest,
+    } : {}),
     spatialCoverage: { "@type": "Place", name: "Türkiye" },
     variableMeasured: ["MinFiyat", "MaxFiyat", "OrtalamaFiyat"],
     isAccessibleForFree: true,
-    encodingFormat: "text/html",
+    measurementTechnique:
+      "Resmi hal kaynaklarından günlük ETL ile derleme, ürün ve birim normalizasyonu",
+    distribution: {
+      "@type": "DataDownload",
+      encodingFormat: "application/json",
+      contentUrl: `${SITE_URL}/api/v1/prices`,
+    },
   } satisfies Record<string, unknown>;
 
   const dataCatalogSchema = {
@@ -130,7 +145,10 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
         url: `${SITE_URL}/fiyatlar`,
         creator: ORG_REF,
         license: "https://creativecommons.org/licenses/by/4.0/",
-        temporalCoverage: "2025/..",
+        ...(datasetDates ? {
+          temporalCoverage: datasetDates.temporalCoverage,
+          dateModified: datasetDates.latest,
+        } : {}),
         isAccessibleForFree: true,
       },
       {

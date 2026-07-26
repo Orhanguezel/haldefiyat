@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import { Bell, Clock3, MapPin, Newspaper, TrendingDown, TrendingUp } from "lucide-react";
-import { fetchMarkets, fetchProducts, fetchWidget } from "@/lib/api";
+import { fetchMarkets, fetchPricesOverview, fetchProducts, fetchWidget } from "@/lib/api";
 import { getPageMetadata, ORG_REF } from "@/lib/seo";
+import { schemaDateRange } from "@/lib/schema-dates";
 import JsonLd from "@/components/seo/JsonLd";
 import LivePriceNewsletter from "@/components/sections/LivePriceNewsletter";
 
@@ -42,18 +43,25 @@ export default async function LiveMarketPricesPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [widget, markets, products] = await Promise.all([
+  const [widget, markets, products, overview] = await Promise.all([
     fetchWidget({ limit: 12 }),
     fetchMarkets(),
     fetchProducts(undefined, undefined, { seoIndex: true }),
+    fetchPricesOverview(),
+  ]);
+  const datasetDates = schemaDateRange([
+    overview.earliestRecordedDate,
+    overview.latestRecordedDate,
   ]);
 
-  const updatedAt = new Intl.DateTimeFormat("tr-TR", {
-    day: "2-digit",
-    month: "long",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date());
+  const updatedAt = datasetDates
+    ? new Intl.DateTimeFormat("tr-TR", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC",
+      }).format(new Date(`${datasetDates.latest}T00:00:00Z`))
+    : "Veri tarihi bilinmiyor";
 
   const datasetSchema = {
     "@context": "https://schema.org",
@@ -62,9 +70,21 @@ export default async function LiveMarketPricesPage({ params }: Props) {
     description: "Türkiye toptancı halleri için günlük sebze ve meyve fiyat verisi.",
     url: `${SITE_URL}/canli-hal-fiyatlari`,
     creator: ORG_REF,
-    temporalCoverage: "2025/..",
+    license: "https://creativecommons.org/licenses/by/4.0/",
+    ...(datasetDates ? {
+      temporalCoverage: datasetDates.temporalCoverage,
+      dateModified: datasetDates.latest,
+    } : {}),
     spatialCoverage: { "@type": "Country", name: "Türkiye" },
     variableMeasured: ["Ortalama fiyat", "Günlük değişim", "Hal", "Ürün"],
+    isAccessibleForFree: true,
+    measurementTechnique:
+      "Resmi hal kaynaklarından günlük ETL ile derleme, ürün ve birim normalizasyonu",
+    distribution: {
+      "@type": "DataDownload",
+      encodingFormat: "application/json",
+      contentUrl: `${SITE_URL}/api/v1/prices`,
+    },
   } satisfies Record<string, unknown>;
 
   const breadcrumbSchema = {
@@ -86,7 +106,7 @@ export default async function LiveMarketPricesPage({ params }: Props) {
           <div className="flex min-w-0 flex-col justify-center">
             <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-(--color-brand)/35 bg-(--color-brand)/10 px-3 py-1 text-[12px] font-semibold text-(--color-brand)">
               <Clock3 className="h-3.5 w-3.5" />
-              Bugün güncellendi
+              Son veri: {updatedAt}
             </div>
             <h1
               className="max-w-3xl text-[34px] font-black leading-[1.05] tracking-normal text-(--color-foreground) sm:text-[48px] lg:text-[58px]"

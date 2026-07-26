@@ -529,6 +529,7 @@ export interface PricesOverview {
   targetCoverage?: string;
   trackedProducts: number;
   lastSourceDate?: string | null;
+  earliestRecordedDate: string | null;
   latestRecordedDate: string | null;
   lastEtlRunAt?: string | null;
 }
@@ -540,6 +541,7 @@ export async function fetchPricesOverview(): Promise<PricesOverview> {
     targetCoverage: "81 il hedef",
     trackedProducts: 0,
     lastSourceDate: null,
+    earliestRecordedDate: null,
     latestRecordedDate: null,
     lastEtlRunAt: null,
   });
