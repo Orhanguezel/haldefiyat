@@ -1,18 +1,24 @@
 import type { CustomPageData } from "@/lib/api";
 import { sanitizeCmsHtml } from "@/lib/sanitize-html";
+import Breadcrumb from "@/components/seo/Breadcrumb";
 
 interface Props {
   page: CustomPageData | null;
   fallbackTitle: string;
+  pathname: string;
 }
 
-export default function LegalPageContent({ page, fallbackTitle }: Props) {
+export default function LegalPageContent({ page, fallbackTitle, pathname }: Props) {
   const title = page?.title ?? fallbackTitle;
   const content = page?.content ?? null;
 
   return (
     <div className="mx-auto max-w-350 px-8 py-12">
       <div className="mx-auto max-w-3xl">
+        <Breadcrumb visible items={[
+          { name: "Anasayfa", href: "/" },
+          { name: title, href: pathname },
+        ]} />
         <h1 className="font-display text-4xl font-bold text-foreground mb-8">
           {title}
         </h1>

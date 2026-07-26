@@ -23,5 +23,11 @@ export default async function PrivacyPage({ params }: Props) {
 
   const page = await fetchCustomPageBySlug("gizlilik-politikasi", locale);
 
-  return <LegalPageContent page={page} fallbackTitle="Gizlilik Politikası" />;
+  return (
+    <LegalPageContent
+      page={page}
+      fallbackTitle="Gizlilik Politikası"
+      pathname="/gizlilik-politikasi"
+    />
+  );
 }

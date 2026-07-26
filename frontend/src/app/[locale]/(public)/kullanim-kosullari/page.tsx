@@ -26,7 +26,11 @@ export default async function TermsPage({ params }: Props) {
 
   return (
     <>
-      <LegalPageContent page={page} fallbackTitle="Kullanım Koşulları" />
+      <LegalPageContent
+        page={page}
+        fallbackTitle="Kullanım Koşulları"
+        pathname="/kullanim-kosullari"
+      />
       <section className="mx-auto -mt-8 mb-12 max-w-4xl px-6">
         <div className="rounded-[10px] border border-(--color-border) bg-(--color-surface) p-5 text-sm leading-6 text-(--color-muted)">
           HalDeFiyat veri erişiminde HTML scraping yerine açık JSON API kullanımını destekler. API serbest, yüksek hacimli kullanım adil limitlere tabidir; detaylar için{" "}

@@ -23,5 +23,11 @@ export default async function KvkkPage({ params }: Props) {
 
   const page = await fetchCustomPageBySlug("kvkk", locale);
 
-  return <LegalPageContent page={page} fallbackTitle="KVKK Aydınlatma Metni" />;
+  return (
+    <LegalPageContent
+      page={page}
+      fallbackTitle="KVKK Aydınlatma Metni"
+      pathname="/kvkk"
+    />
+  );
 }
