@@ -7,8 +7,8 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 59/66 checkbox — kapanış kanıtları bu dosyada korunur.
-- **Açık:** 7/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
+- **Tamamlanan:** 61/66 checkbox — kapanış kanıtları bu dosyada korunur.
+- **Açık:** 5/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
   kalan iş olarak ayrıldığı için toplam takip maddesi 66 oldu. Açıklar:
   `HALDEFIYAT-GEO-SEO-ACIK-ISLER.md`.
 - Bu dosyaya yeni açık iş eklenmez. Açık dosyada tamamlanan maddeler, kanıtıyla
@@ -173,6 +173,15 @@ ayrı açık işler dosyasına taşınmıştır.
   OpenAPI sözleşmesi, Postman collection, changelog ve major-version/sunset
   politikası yayımlandı; canlı `/api-docs` örnekleri gerçek parametre/yanıtla
   eşlendi. (`examples/haldefiyat-api/`)
+- [x] Canlı haftalık ve aylık özgün endeks/hal raporu serisi doğrulandı; 12
+  doğrulanmış iletişim satırı konu segmenti, pitch, cadence ve mention takip
+  sözleşmesiyle dağıtım listesine dönüştürüldü.
+  (`docs/geo-seo/ENDEKS-BULTENI-BASIN-DAGITIMI-2026-Q3.md`)
+- [x] “Turkey vegetable prices” İngilizce genişlemesi; 90 günlük GSC talebi,
+  SERP/kaynak yapısı, mevcut i18n maliyeti, query ambiguity, 17 sayfalık pilot,
+  hreflang/canonical kabulü ve sekiz haftalık go/no-go eşikleriyle fizibiliteye
+  bağlandı. Tam site çevirisi şu aşamada reddedildi.
+  (`docs/geo-seo/ENGLISH-EXPANSION-FEASIBILITY-2026-07-27.md`)
 
 ---
 

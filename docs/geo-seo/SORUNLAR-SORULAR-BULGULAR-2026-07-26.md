@@ -95,6 +95,20 @@ altyapısal bulguları tutar.
   belirlenmediğinden OpenAPI'ye varsayımsal lisans adı yazılmadı; validator'ın
   `info-license` uyarısı bilinçli olarak açık.
 
+### Gmail DKIM kanıt araması
+
+- Bağlı Gmail hesabında
+  `rfc822msgid:40b5618c-176a-3c08-ba8f-bd2efbff881f@haldefiyat.com`
+  exact araması ve 26–27 Temmuz `from:(@haldefiyat.com)` tarih araması sonuç
+  vermedi.
+- Arama salt okunur yapıldı; mesaj, etiket veya posta kutusu durumu
+  değiştirilmedi.
+- Bu sonuç Resend'in kabul ettiği iletinin teslim edilmediğini kanıtlamaz.
+  Bağlı hesabın test alıcısı olmadığı veya iletinin bu kutuda tutulmadığı
+  anlamına gelebilir.
+- DKIM/alignment kabulü, gerçek alıcı kutusundaki ham
+  `Authentication-Results` görülmeden açık kalır.
+
 ### ETL veri akışı
 
 - Kocaeli, Mersin ve Çanakkale’de uzun süredir veri akışı olmadığı bildirildi.

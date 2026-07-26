@@ -1,0 +1,13 @@
+organization,email,segment,story_fit,template_key,cadence,verification_source,status
+Dünya Gazetesi,dunya@dunya.com,ulusal-ekonomi,"aylık endeks; gıda enflasyonu; şehir farkları",weekly_index_story_pitch,monthly,https://www.dunya.com/p/kunye,target
+Tarım Türk Dergisi,tarimturk@gmail.com,sektorel-tarim,"haftalık ürün hareketi; üretim döngüsü",weekly_index_story_pitch,biweekly,https://www.tarimturk.com.tr/iletisim,target
+Tarım Türk Dergisi - Dergi,tarimturkdergisi@gmail.com,sektorel-tarim,"aylık rapor; veri metodolojisi",monthly_index_story_pitch,monthly,https://www.tarimturk.com.tr/iletisim,target
+Türkiye Ziraat Odaları Birliği,ziraatodalari@tzob.org.tr,meslek-kurulusu,"üretici-hal-market makası; ürün bazlı analiz",monthly_index_story_pitch,monthly,https://www.tzob.org.tr/iletisim/,target
+Türkiye Ziraatçılar Derneği,ziraatcilerdernegi@gmail.com,meslek-kurulusu,"tarım politikası; arz döngüsü; aylık rapor",monthly_index_story_pitch,monthly,https://tzd.org.tr/,target
+T.C. Tarım ve Orman Bakanlığı Basın,tarimbasin@tarim.gov.tr,kamu,"metodoloji; kaynak kapsamı; veri kataloğu",monthly_index_story_pitch,quarterly,https://www.tarimorman.gov.tr/Sayfalar/Detay.aspx?SayfaId=5,target
+Anadolu Ajansı,kurumsaliletisim@aa.com.tr,ulusal-ajans,"yüksek etkili haftalık/aylık veri bulgusu",weekly_index_story_pitch,monthly,https://cdnuploads.aa.com.tr/uploads/userFilesShared/pazarlama%2FAA-KURUMSAL-SUNUM-EN.pdf,target
+Anadolu Ajansı Yeni Medya,yenimedya@aa.com.tr,ulusal-ajans,"veri görselleştirme; API; etkileşimli harita",monthly_index_story_pitch,monthly,https://www.aa.com.tr/tr/p/kunye,target
+Bergama Ziraat Odası,posta@berzob.org,yerel-uretici,"İzmir/Bergama ürün ve hal kırılımı",weekly_index_story_pitch,event-driven,https://www.berzob.org/berzob/iletisim.asp,target
+Ceyhan Ziraat Odası,ceyhan@tzob.org.tr,yerel-uretici,"Adana/Ceyhan ürün ve hal kırılımı",weekly_index_story_pitch,event-driven,https://www.tzob.org.tr/ziraat-odalari-iletisim-bilgileri/,target
+Aladağ Ziraat Odası,aladag@tzob.org.tr,yerel-uretici,"Adana/Aladağ ürün ve hal kırılımı",weekly_index_story_pitch,event-driven,https://www.tzob.org.tr/ziraat-odalari-iletisim-bilgileri/,target
+İmamoğlu Ziraat Odası,imamoglu@tzob.org.tr,yerel-uretici,"Adana/İmamoğlu ürün ve hal kırılımı",weekly_index_story_pitch,event-driven,https://www.tzob.org.tr/ziraat-odalari-iletisim-bilgileri/,target

@@ -1967,6 +1967,39 @@ Commit: `6775780a feat(trust): publish transparency policy content`
 - Canlı SSR dokümanda `latestOnly`, `recordedDate` ve `week=2026-29`
   görünüyor; kaldırılan yanlış `dateFrom` örneği görünmüyor.
 
+### 3.74 Endeks Bülteni ve Basın Dağıtım Paketi
+
+- Canlı endeks 2026-29 / 85,2215 / 15 ürün / 13–19 Temmuz olarak doğrulandı.
+- Temmuz 1–3, Haziran 1–4 ve Mayıs 4–5 haftalık raporları ile Haziran aylık
+  raporu canlı API'de bulundu; özgün yayın serisinin gerçek olduğu kanıtlandı.
+- Mevcut 12 doğrulanmış basın/kurum iletişimi segment, haber uyumu, pitch,
+  cadence, doğrulama kaynağı ve durumla
+  `docs/press/haldefiyat-press-distribution-q3-2026.csv` dosyasına taşındı.
+- Haftalık/aylık yayın sözleşmesi, gönderim öncesi veri kontrolü, UTM ve
+  kazanılmış mention kayıt alanları
+  `docs/geo-seo/ENDEKS-BULTENI-BASIN-DAGITIMI-2026-Q3.md` içinde tanımlandı.
+- Dış mesaj gönderilmedi; gönderim kullanıcı onaylı ayrı operasyondur.
+- Sayaçlar 60/66 tamamlanan ve 6/66 açık olarak güncellendi.
+
+### 3.75 İngilizce Genişleme Fizibilitesi
+
+- 26 Nisan–24 Temmuz GSC döneminde 5.107 sorgu satırı incelendi. Geniş
+  İngilizce-token filtresinin çoğu Türkçe `market` sorgusu/false positive;
+  gerçek İngilizce sorgular tekil gösterim ve 0 tıklama düzeyinde.
+- İngilizce SERP'te TÜİK, Tridge, Selina Wamucii ve EU Agri-food Data kaynak
+  yapıları karşılaştırıldı. Günlük belediye-hal/şehir kapsamı dar bir fırsat,
+  kanıtlanmış geniş talep değil.
+- `Turkey` kelimesinin hindi eti sorgularıyla çakışması nedeniyle hedefleme
+  `Türkiye/Turkish fresh produce wholesale prices` olarak sınırlandı.
+- Mevcut uygulamanın yalnız `tr` locale, tek mesaj kataloğu ve yoğun hard-coded
+  Türkçe içerik taşıdığı doğrulandı; global `en` açılımı mixed-language/thin
+  sayfa riski nedeniyle reddedildi.
+- 17 sayfalık, insan incelemeli pilot; canonical/hreflang/schema/sitemap kabulü
+  ve sekiz haftalık impression/click/referring-domain/lead/AI-citation go/no-go
+  eşikleri `docs/geo-seo/ENGLISH-EXPANSION-FEASIBILITY-2026-07-27.md`
+  dosyasına yazıldı.
+- Sayaçlar 61/66 tamamlanan ve 5/66 açık olarak güncellendi.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
