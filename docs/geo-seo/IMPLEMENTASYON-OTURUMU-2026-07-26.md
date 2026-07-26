@@ -890,6 +890,17 @@ Commit: `abf83083 fix(schema): safely serialize json-ld`
   gözlem süresi gerektiren kabul maddeleri açık bırakıldı. Böylece yerel kod
   tamamlanması canlı operasyon doğrulaması gibi gösterilmedi.
 
+### 3.46 Kök Schema Çağrı Sözleşmesi
+
+Commit: `23cf57e2 fix(schema): declare root entity types explicitly`
+
+- Global public layout'taki Organization ve WebSite çağrıları tür bilgisini
+  veri nesnesiyle örtük biçimde ezmek yerine `JsonLd` bileşenine açıkça veriyor.
+- Yinelenen `@context`/`@type` alanları veri nesnelerinden kaldırıldı; tüm
+  uygulamada JSON-LD script üretimi artık yalnız ortak güvenli emitter'dan
+  geçiyor.
+- Değişiklik sonrası typecheck, 14 dosya/38 test ve `git diff --check` geçti.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -1443,6 +1454,7 @@ ccb21d00 fix(content): remove stale realtime data claims
 4556608c fix(schema): model product prices as dataset only
 2d497832 fix(schema): align list types and canonical urls
 abf83083 fix(schema): safely serialize json-ld
+23cf57e2 fix(schema): declare root entity types explicitly
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
