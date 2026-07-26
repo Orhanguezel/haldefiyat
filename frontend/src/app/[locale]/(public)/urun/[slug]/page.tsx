@@ -26,6 +26,8 @@ import { getPageMetadata } from "@/lib/seo";
 import { schemaDateRange } from "@/lib/schema-dates";
 import ProductImage from "@/components/ui/ProductImage";
 import { getProductEditorial } from "@/lib/product-content";
+import AnswerBlock from "@/components/seo/AnswerBlock";
+import { calculateWindowTrend } from "@/lib/citability";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -344,7 +346,14 @@ export default async function UrunPage({ params }: Props) {
    * bildiriyor, digerleri kg basi ~110 TL. Karistirilinca Google'a
    * "2400 TL/kg muz" demis oluyorduk.
    */
-  const pickByDominantUnit = (rows: Array<{ avgPrice: unknown; unit?: string | null }>) => {
+  const pickByDominantUnit = (
+    rows: Array<{
+      avgPrice: unknown;
+      unit?: string | null;
+      sourceName?: string | null;
+      marketName?: string | null;
+    }>,
+  ) => {
     const valid = rows.filter((row) => toNumberSafe(row.avgPrice as never) > 0);
     if (valid.length === 0) return { rows: valid, unit: "kg" };
     const tally = new Map<string, number>();
@@ -373,6 +382,13 @@ export default async function UrunPage({ params }: Props) {
     : 0;
   /** Teklif sayisi = fiyat bildiren PAZAR sayisi. Gecmis satiri saymak anlamsizdi. */
   const offerCount = new Set(offerRows.map((r) => r.market).filter(Boolean)).size;
+  const sourceNames = [...new Set(
+    pick.rows
+      .map((row) => row.sourceName?.trim() || row.marketName?.trim())
+      .filter((name): name is string => Boolean(name)),
+  )];
+  const shortTrend = calculateWindowTrend(history, 7);
+  const longTrend = calculateWindowTrend(history, 30);
 
   const productSchema = {
     name: displayName,
@@ -476,6 +492,65 @@ export default async function UrunPage({ params }: Props) {
         </div>
         <FavoriteButton slug={product.slug} productName={displayName} />
       </div>
+
+      <AnswerBlock
+        id="ortalama-fiyat"
+        title={`Bugün ${displayName} Türkiye ortalama hal fiyatı ne kadar?`}
+        meta={
+          <>
+            <strong className="text-foreground">Kaynak:</strong>{" "}
+            {sourceNames.length > 0
+              ? sourceNames.slice(0, 3).join(", ") +
+                (sourceNames.length > 3 ? ` ve ${sourceNames.length - 3} diğer resmi hal kaynağı` : "")
+              : "Resmi belediye hal müdürlükleri ve hal.gov.tr"}
+            {latestDate && (
+              <>
+                {" · "}<strong className="text-foreground">Veri tazeliği:</strong>{" "}
+                son kayıt <time dateTime={latestDate}>{formatDateTr(latestDate)}</time>
+              </>
+            )}
+          </>
+        }
+      >
+        {offerAvg > 0 && latestDate ? (
+          <>
+            <time dateTime={latestDate}>{formatDateTr(latestDate)}</time> tarihli verilere göre{" "}
+            <strong className="text-foreground">{displayName}</strong> Türkiye ortalama toptan hal
+            fiyatı <strong className="text-foreground">
+              {offerAvg.toLocaleString("tr-TR", { maximumFractionDigits: 2 })} TL/{offerUnit}
+            </strong>
+            {offerLow > 0 && offerHigh > 0 && (
+              <>
+                ; en düşük{" "}
+                <strong className="text-foreground">
+                  {offerLow.toLocaleString("tr-TR", { maximumFractionDigits: 2 })} TL
+                </strong>
+                , en yüksek{" "}
+                <strong className="text-foreground">
+                  {offerHigh.toLocaleString("tr-TR", { maximumFractionDigits: 2 })} TL
+                </strong>
+              </>
+            )}. Örneklem {offerCount} halden oluşuyor.{" "}
+            {(shortTrend || longTrend) && (
+              <>
+                {displayName} piyasası{" "}
+                {shortTrend && (
+                  <>son 7 günlük dönemde %{Math.abs(shortTrend.changePct).toLocaleString("tr-TR")} {shortTrend.direction}</>
+                )}
+                {shortTrend && longTrend && "; "}
+                {longTrend && (
+                  <>son 30 günlük dönemde %{Math.abs(longTrend.changePct).toLocaleString("tr-TR")} {longTrend.direction}</>
+                )} gösterdi.
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            {displayName} için doğrulanmış güncel hal fiyatı henüz bulunmuyor. Son kayıt
+            geldiğinde kesin tarih, birim, fiyat aralığı ve hal örneklemi burada yayımlanır.
+          </>
+        )}
+      </AnswerBlock>
 
       {familyMembers.length > 1 && (
         <nav aria-label="Çeşit ailesi" className="flex flex-wrap items-center gap-2">
