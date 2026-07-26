@@ -1613,6 +1613,39 @@ Commit: `7a343b4a fix(perf): defer OneSignal outside push flows`
   başarıyla karıştırılmadı ve açık kalmaya devam ediyor.
 - Dependency registry audit’i ayrı açık satıra bölündü.
 
+### 3.56 Production Dependency Audit
+
+- `bun audit --production` 180 saniyede yanıt vermediği için frontend
+  production manifesti izole npm lockfile ile registry advisory denetiminden
+  geçirildi; ham JSON artefaktı saklandı.
+- İlk denetimdeki doğrudan `next-intl` advisory'leri 4.13.4 güncellemesiyle
+  kapatıldı.
+- Sonuçta critical 0, high 3, moderate 2 kaydedildi. Kalanların tamamı Next.js
+  16.2.3'ün `postcss`/`sharp` zincirinden geliyor; audit'in önerdiği Next 9.3.3
+  downgrade'i uyumsuz ve güvenli bir düzeltme olmadığı için uygulanmadı.
+- `postcss` yalnız güvenilir proje CSS'iyle build-time çalışıyor;
+  `images.unoptimized: true` nedeniyle Next'in canlı image optimizer/`sharp`
+  yüzeyi kullanılmıyor. Risk ve upstream izleme kararı ayrı kabul belgesinde.
+- Typecheck, 15 dosyada 40 test ve production build temiz geçti.
+
+Kanıt:
+`docs/geo-seo/PRODUCTION-DEPENDENCY-AUDIT-2026-07-26.md`.
+
+### 3.57 Redirect ve Soft-404 Canlı Matrisi
+
+- HTTP ve `www` varyantları tek adımda HTTPS kök kanoniğine birleşti.
+- Trailing slash ve varsayılan `/tr` locale varyantları tek adımda doğru
+  kanoniğe ulaştı.
+- Geçerli ürün slug'ındaki baş harf varyantı küçük harf kanoniğine yönlendi;
+  tamamen büyük harf/geçersiz route örnekleri 404 ile kapandı.
+- Olmayan genel, ürün ve hal URL ailelerinde 200 dönmedi; test örneklerinde
+  soft-404 bulunmadı.
+- F-43 nedeniyle tam envanter crawl'ı bu örneklem kabulüne dahil edilmedi ve
+  ilgili tam crawl maddeleri açık bırakıldı.
+
+Kanıt:
+`docs/geo-seo/REDIRECT-SOFT404-KABULU-2026-07-26.md`.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.

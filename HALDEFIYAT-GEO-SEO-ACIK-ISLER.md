@@ -3,9 +3,9 @@
 > Kaynak checklist:
 > `HALDEFIYAT-GEO-SEO-AKSIYON-CEKLISTI.md`
 >
-> Tarih: 2026-07-26 · Durum: **22 açık madde**
+> Tarih: 2026-07-26 · Durum: **20 açık madde**
 >
-> Bu dosya yalnız açık işleri içerir. Tamamlanmış 44 madde, kapanış kanıtlarıyla
+> Bu dosya yalnız açık işleri içerir. Tamamlanmış 46 madde, kapanış kanıtlarıyla
 > ana aksiyon checklist'inde korunur. Burada tamamlanan bir madde `[x]`
 > yapıldıktan sonra ana checklist'e taşınmalı ve iki dosyanın sayaçları birlikte
 > güncellenmelidir.
@@ -41,8 +41,6 @@ beklenmedik meşru gönderici bulunmuyor.
 - [ ] Canlı crawl ile kalan orphan URL, link derinliği ve anchor dağılımını ölç.
 - [ ] 3xx/4xx/5xx iç linkleri ve redirect chain'leri tam crawl ile çıkar.
 - [ ] Duplicate/missing/truncated title-description-H1 envanteri ile canonical ve hreflang self/reciprocal kontrolünü tamamla. Kod açıkları kapatıldı (`6ca33051`); tam canlı crawl bekleniyor.
-- [ ] `www`, HTTP, trailing-slash ve case varyantlarını; redirect zincirlerini ve soft-404 ailelerini tam canlı crawl ile doğrula.
-- [ ] Production dependency audit’i registry erişimiyle tamamla ve sonuçlarını arşivle; önceki `bun audit --production` denemesi 60 saniyede yanıt vermedi.
 
 ### Anahtar kelime yoğunluğu canlı kontrolü
 

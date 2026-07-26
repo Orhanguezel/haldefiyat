@@ -7,8 +7,8 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 44/66 checkbox — kapanış kanıtları bu dosyada korunur.
-- **Açık:** 22/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
+- **Tamamlanan:** 46/66 checkbox — kapanış kanıtları bu dosyada korunur.
+- **Açık:** 20/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
   kalan iş olarak ayrıldığı için toplam takip maddesi 66 oldu. Açıklar:
   `HALDEFIYAT-GEO-SEO-ACIK-ISLER.md`.
 - Bu dosyaya yeni açık iş eklenmez. Açık dosyada tamamlanan maddeler, kanıtıyla
@@ -117,6 +117,8 @@ ayrı açık işler dosyasına taşınmıştır.
 - [x] Ana sayfa cache/transport maliyeti ölçüldü: sıcak TTFB 178–236 ms, Brotli ve hash'li assetlerde bir yıllık immutable cache aktif; UA/locale bağımlı SSR nedeniyle public HTML cache güvenli bulunmadı, HTTP/3 ayrı fırsat olarak kaydedildi. (`docs/geo-seo/CACHE-TRANSPORT-DENETIMI-2026-07-26.md`)
 - [x] 07–26 Temmuz Nginx loglarında Googlebot, Bingbot, GPTBot, ChatGPT-User, ClaudeBot, CCBot ve PerplexityBot status dağılımı çıkarıldı; kendi audit crawler'ı hariç tutuldu, 4xx/5xx yolları ve spoofed user-agent sınırı kaydedildi. (`docs/geo-seo/BOT-CRAWL-LOG-ANALIZI-2026-07-07-26.md`)
 - [x] Canlı Lighthouse Accessibility 100, Best Practices 100 ve SEO 100 kabulü geçti; OneSignal ana sayfa kritik yolundan push akışına ertelendi, first-party source map yayımlandı ve SRI uygunluğu değerlendirildi. (`7a343b4a`, `docs/geo-seo/LIGHTHOUSE-BEST-PRACTICES-100-2026-07-26.md`)
+- [x] `www`, HTTP, trailing-slash, varsayılan locale ve case varyantları düşük eşzamanlı canlı matriste doğrulandı; kanonik geçişler en fazla tek işlevsel redirect, olmayan genel/ürün/hal örnekleri gerçek 404 ve soft-404 yok. (`docs/geo-seo/REDIRECT-SOFT404-KABULU-2026-07-26.md`)
+- [x] Frontend production manifesti registry advisory verisiyle denetlendi; `next-intl` 4.13.4'e yükseltildi, critical açık yok, güvenli otomatik düzeltmesi bulunmayan Next.js `postcss`/`sharp` zinciri yüzey ve kabul gerekçesiyle arşivlendi. (`docs/geo-seo/PRODUCTION-DEPENDENCY-AUDIT-2026-07-26.md`)
 
 ### 6.1 Anahtar kelime yoğunluğu ve sayfa içi tutarlılık
 
