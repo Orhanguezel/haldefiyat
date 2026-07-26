@@ -941,6 +941,17 @@ Commit: `6ca33051 fix(seo): noindex private action routes`
   emitter'ına geçirildi.
 - Typecheck, 15 dosya/39 test ve `git diff --check` geçti.
 
+### 3.50 Widget Route'ları İndeks Politikası
+
+Commit: `edc43c6d fix(seo): noindex embeddable widgets`
+
+- Fiyat, endeks ve hava iframe route'larını kapsayan widget layout'una merkezi
+  `noindex,follow` politikası eklendi.
+- Widget'ların kendi landing sayfalarıyla ince/parametreli kopya olarak rekabet
+  etmesi engellenirken ana fiyat/endeks sayfalarına kaynak bağlantıları korundu.
+- Fiyat widget'ındaki veri tarihi veya akış durumu kanıtlamayan “Canlı veri”
+  rozeti nötr “Fiyat verisi” metnine çevrildi.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -1450,6 +1461,15 @@ Orhan'dan beklenen:
 - Layout proje içindeki testli güvenli emitter'a geçirildi; paylaşılan pakete
   diğer projeleri etkileyen kapsam dışı değişiklik yapılmadı.
 
+### F-41 — Parametreli iframe widget'ları robots politikası taşımıyordu
+
+- `/fiyatlar/widget`, `/endeks/widget` ve `/hava/widget` sitemap'te değildi ama
+  meta robots politikaları da yoktu.
+- Tema, ürün, kategori, limit, konum ve özel başlık parametreleri çok sayıda ince
+  URL varyantı üretebilir; bunların indekslenmesi landing sayfalarına değer katmaz.
+- Route grubu seviyesindeki `noindex,follow` tüm mevcut ve yeni widget'lar için
+  politikayı tek noktadan uygular.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1546,6 +1566,7 @@ abf83083 fix(schema): safely serialize json-ld
 8610e751 fix(content): label automated reports truthfully
 3fc97d80 fix(trust): use configured contact details
 6ca33051 fix(seo): noindex private action routes
+edc43c6d fix(seo): noindex embeddable widgets
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
