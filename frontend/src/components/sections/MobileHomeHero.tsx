@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import type { Market, WidgetPrice } from "@/lib/api";
 import PopularProductsCarousel from "@/components/sections/PopularProductsCarousel";
 import CityChipsRow from "@/components/sections/CityChipsRow";
@@ -11,7 +12,7 @@ function cityKey(value: string) {
   return value.trim().toLocaleLowerCase("tr-TR").replace(/\s+/g, " ");
 }
 
-export default function MobileHomeHero({
+export default async function MobileHomeHero({
   locale,
   products,
   markets,
@@ -22,6 +23,8 @@ export default function MobileHomeHero({
   markets: Market[];
   widget: WidgetPrice[];
 }) {
+  const t = await getTranslations({ locale, namespace: "home.hero" });
+
   return (
     <div>
       <section className="px-4 pb-5 pt-7">
@@ -30,7 +33,7 @@ export default function MobileHomeHero({
             Canlı veri akışı
           </div>
           <h1 className="mt-3 text-[32px] font-black leading-[1.05] text-(--color-foreground)">
-            Türkiye hal fiyatları cebinde
+            {t("title")} — {t("subtitle")}
           </h1>
           <p className="mt-3 text-[14px] leading-6 text-(--color-muted)">
             Güncel sebze-meyve fiyatlarını şehir, ürün ve değişim yüzdesiyle hızlıca takip edin.

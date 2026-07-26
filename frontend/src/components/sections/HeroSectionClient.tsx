@@ -18,9 +18,13 @@ interface Feature {
 export default function HeroSectionClient({
   activeCities,
   targetCoverage = "81 il hedef",
+  title,
+  subtitle,
 }: {
   activeCities?: number;
   targetCoverage?: string;
+  title: string;
+  subtitle: string;
 }) {
   const coverageLabel = activeCities && activeCities > 0
     ? `${activeCities.toLocaleString("tr-TR")} Aktif İl`
@@ -39,10 +43,8 @@ export default function HeroSectionClient({
         Canlı Veri Akışı · {coverageLabel}
       </div>
 
-      {/* Masaüstü hero görseli h2: tek birincil H1 mobil hero'da (Google
-          mobile-first indeksleme + trafiğin %78 mobil). Çift H1 kaldırıldı. */}
-      <h2 className="font-(family-name:--font-display) text-[42px] font-black leading-[1.05] tracking-[-0.04em] text-(--color-foreground) sm:text-[52px] lg:text-[64px]">
-        Türkiye Hal Fiyatları
+      <h1 className="font-(family-name:--font-display) text-[42px] font-black leading-[1.05] tracking-[-0.04em] text-(--color-foreground) sm:text-[52px] lg:text-[64px]">
+        {title}
         <br />
         <span
           className="bg-clip-text text-transparent"
@@ -51,9 +53,9 @@ export default function HeroSectionClient({
               "linear-gradient(135deg, var(--brand), #4ade80, var(--brand-light))",
           }}
         >
-          Tek Ekranda
+          {subtitle}
         </span>
-      </h2>
+      </h1>
 
       <p className="mx-auto mt-6 max-w-[600px] text-[19px] leading-[1.7] text-(--color-muted)">
         İstanbul, Ankara, İzmir ve tüm illerden günlük sebze-meyve hal
