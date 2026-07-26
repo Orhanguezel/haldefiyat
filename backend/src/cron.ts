@@ -22,6 +22,7 @@ import { expireListings, sendListingExpiryReminders } from "@/modules/listings";
 import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
 import { submitToIndexNow } from "@/modules/indexnow";
 import { cleanupOldEtlRuns } from "@/modules/etl/maintenance";
+import { cleanupOldAuditLogs } from "@/modules/audit-consumers/retention";
 import { runGscBulkRefresh } from "@/modules/seo/gsc-bulk";
 import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
 import { processSocialQueueOnce } from "@agro/shared-backend/modules/twitter";
@@ -49,6 +50,8 @@ export function startCron(app: FastifyInstance): void {
     { name: "seo-maintenance",  schedule: env.ETL.seoMaintenanceSchedule, handler: () => runSeoMaintenanceJob(app) },
     // Aylık ETL run log retention — dashboard için son 90 gün yeterli
     { name: "etl-retention",    schedule: env.ETL.runRetentionSchedule,    handler: () => runEtlRetentionJob(app) },
+    // Günlük audit log retention — tablo ~67K satir/gun büyüyor, pencere dışını buda
+    { name: "audit-retention",  schedule: env.ETL.auditRetentionSchedule,   handler: () => runAuditRetentionJob(app) },
     // ANTKOMDER fiyatları öğleden sonra yayınlandığı için ikinci çalıştırma
     { name: "etl-antkomder-pm",   schedule: env.ETL.antkomderSchedule,   handler: () => runAntkomderJob(app) },
     // Rakip izleme — haftalık
@@ -357,6 +360,24 @@ async function runEtlRetentionJob(app: FastifyInstance): Promise<void> {
     );
   } catch (err) {
     app.log.error({ err }, "[cron:etl-retention] hata");
+  }
+}
+
+async function runAuditRetentionJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info({ retentionDays: env.ETL.auditRetentionDays }, "[cron:audit-retention] eski audit kayitlari temizleniyor");
+  try {
+    const result = await cleanupOldAuditLogs(env.ETL.auditRetentionDays);
+    app.log.info(
+      {
+        deleted: result.deleted,
+        cutoff: result.cutoff.toISOString(),
+        durationMs: Date.now() - t0,
+      },
+      "[cron:audit-retention] tamamlandi",
+    );
+  } catch (err) {
+    app.log.error({ err }, "[cron:audit-retention] hata");
   }
 }
 
