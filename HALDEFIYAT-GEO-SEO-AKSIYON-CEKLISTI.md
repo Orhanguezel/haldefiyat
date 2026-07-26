@@ -7,10 +7,10 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 35/65 checkbox — yerel kod, test, build, canlı smoke veya dokümantasyon kanıtı var.
-- **Açık:** 30/65 checkbox.
+- **Tamamlanan:** 37/65 checkbox — yerel kod, test, build, canlı smoke veya dokümantasyon kanıtı var.
+- **Açık:** 28/65 checkbox.
 - Açıkların sahiplik grupları: Orhan/DNS/kurumsal içerik/strateji (10),
-  deploy-staging-canlı crawl/validator/Lighthouse doğrulaması (13),
+  deploy-staging-canlı crawl/validator/Lighthouse doğrulaması (11),
   GSC/CrUX/benchmark/KPI ölçümü (6) ve ekran görüntüsündeki denetim URL/tarih
   bilgisinin tamamlanması (1).
 - Kaynak kodda tamamlanıp yalnız canlı kabulü bekleyen iş, tamamlanan uygulama
@@ -25,7 +25,7 @@ Rapor 74/100 verdi ama bazı bulguları canlı site/kodla çelişiyor. Aşağıd
 |---|---|---|
 | NewsArticle/Article schema | VAR: `analiz/[slug]`, `rapor/yillik/[year]`, `metodoloji` | Kalite doğrula (§4.1) |
 | BreadcrumbList | VAR: `components/seo/Breadcrumb.tsx` + kullanımlar | Kapsam doğrula (§4.2) |
-| CSP başlığı yok | VAR: `Content-Security-Policy-Report-Only` (tam policy) | Enforce'a geçir (§5.1) |
+| CSP başlığı yok | VAR: endpoint'e bağlı enforce `Content-Security-Policy` (26.07.2026) | İzle ve sıkılaştır (§5.1) |
 | Dataset schema ekle | VAR: `components/seo/JsonLd.tsx` | Zenginleştir (§4.3) |
 | CSS minify edilmemiş | Şüpheli: Next.js prod zaten minify eder | Önce ölç; anlamsızsa DÜŞ (§6) |
 
@@ -109,8 +109,8 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 ### 5.1 Report-Only → Enforce
 - [x] Report-Only ihlalleri boyut sınırlı ve URL sorguları redakte edilen merkezi endpoint'te toplanıyor. (`88bde326`, `8cb88095`, `99bcee1a`)
 - [x] Mevcut inline script, GTM/GA/Ads, OneSignal, JSON-LD ve CMS banner bağımlılıkları ile nonce/hash azaltma sırası çıkarıldı. (S-10)
-- [ ] Staging'de login/kayıt/fiyat alarmı/GTM-GA4/Ads/embed regresyon testi.
-- [ ] Küçük trafik yüzdesinde enforce → sorunsuzsa `Content-Security-Policy` enforce.
+- [x] Ayrı staging bulunmadığı için canlıda kontrollü `/`, login, fiyat alarmı, embed ve hava widget headless Chrome regresyon taraması yapıldı; GTM/GA4/Ads, OneSignal ve Tarımİklim izinleriyle CSP engeli görülmedi. (3.54)
+- [x] Orhan'ın açık canlı yetkisiyle `Content-Security-Policy` enforce edildi; `Reporting-Endpoints` ve geriye uyumlu `report-uri` canlı rapor endpoint'ine bağlandı. (3.54)
 - **Kabul:** enforce CSP aktif; 1–2 hafta ihlal raporu temiz; 3P akışlar (GTM/GA/Ads/harita/YouTube) çalışıyor.
 
 ---

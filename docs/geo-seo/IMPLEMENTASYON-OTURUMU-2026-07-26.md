@@ -1,6 +1,6 @@
 # HalDeFiyat GEO/SEO Implementasyon Oturumu — 26.07.2026
 
-> Durum: Devam ediyor
+> Durum: GEO/SEO uygulaması canlı; dış veri/ölçüm ve sahiplik girdisi bekleyen maddeler sürüyor
 > Uygulama brief'i: `docs/codex-briefs/geo-seo-implementation.md`
 > Kaynak rapor v1: `HalDeFiyat-GEO-SEO-Raporu-2026-07-26.pdf`
 > Kaynak rapor v2: `HalDeFiyat-GEO-SEO-Raporu-2026-07-26 copy.pdf`
@@ -29,7 +29,7 @@
 | GÖREV 4b — Breadcrumb kalite | Hedef şablonlarda tamamlandı | `62e71ca5` |
 | GÖREV 4c — Dataset kalite | Ana sayfa/ürün/hal tamamlandı | `35ab742f` |
 | GÖREV 5 — E-E-A-T iskele | Kod iskeleti tamamlandı | `820c58d2`; CMS metinleri bekleniyor |
-| GÖREV 6 — CSP gözlem hazırlığı | Backend tamamlandı | `88bde326`; nginx header bağlantısı bekliyor |
+| GÖREV 6 — CSP gözlem ve enforce | Canlı tamamlandı | Endpoint + Nginx reporting + enforce; canlı Chrome regresyonu temiz (3.54) |
 | GÖREV 7 — Web Vitals RUM | Kod tamamlandı | `ccaf86ae`; canlı event doğrulaması bekliyor |
 | GÖREV 8 — Sitemap doğruluğu | Kod tamamlandı | `a9620c9a`; canlı tam crawl bekliyor |
 
@@ -1012,8 +1012,35 @@ Canlı kaynak commit'i: `85dd633b`
     allow kuralları, security.txt 200 ve CSP rapor endpoint'i 204.
   - HTTP, www, `/tr/fiyatlar` ve trailing-slash varyantları tek yönlendirmeyle
     canonical URL'ye gidiyor.
-- Nginx CSP Report-Only başlığı hâlâ `report-uri`/`Reporting-Endpoints`
-  içermiyor; endpoint canlı olsa da tarayıcı rapor akışı S-03 kapsamında açık.
+- Bu deploy anında Nginx CSP Report-Only başlığı henüz endpoint'e bağlı değildi;
+  takip eden 3.54 çalışmasında raporlama bağlantısı ve enforce tamamlandı.
+
+### 3.54 Nginx CSP Raporlama Bağlantısı ve Canlı Enforce
+
+- Orhan'ın açık canlı erişim ve enforce onayıyla VPS Nginx yapılandırması
+  değişiklik öncesi yedeklendi. `sites-enabled/haldefiyat` dosyasının symlink
+  değil bağımsız kopya olduğu saptandı; hem aktif kopya hem
+  `sites-available/haldefiyat` aynı snippet kullanımına geçirildi.
+- `/etc/nginx/snippets/haldefiyat-csp.conf` içinde modern
+  `Reporting-Endpoints` ile geriye uyumlu `report-uri`, mevcut
+  `/api/v1/csp-reports` endpoint'ine bağlandı.
+- Eski `Content-Security-Policy-Report-Only` kaldırıldı ve
+  `Content-Security-Policy` enforce açıldı. GTM/GA/Ads, Google,
+  OneSignal, Tarımİklim hava widget'ı, Sentry, YouTube ve mevcut embed
+  akışları için gözlenen origin'ler allowlist'e alındı.
+- `nginx -t` geçti ve servis reload edildi. Sunucudaki diğer sitelere ait,
+  önceden var olan çakışan server-name uyarıları bu değişiklikten bağımsızdır.
+- Public ve localhost/Host yanıtlarında tek enforce CSP ile
+  `Reporting-Endpoints` görüldü; eski Report-Only başlığı artık dönmüyor.
+- Headless Chrome ile `/`, `/giris`, `/uyarilar`, `/embed` ve
+  `/hava/widget?location=antalya` tarandı: tamamı 200, DOM üretimi başarılı,
+  CSP engeli ve Report-Only konsol mesajı sıfır.
+- CSP endpoint sentetik canlı rapora 204 verdi; backend DB health `ok`,
+  Nginx aktif, `hal-backend`, `hal-frontend` ve `hal-admin` online kaldı.
+- 7–14 günlük pasif gözlem beklenmeden enforce açılması kullanıcının açık
+  kararıdır. İlk çok-rotalı tarama temizdir; gerçek trafik raporları izlenmeye
+  devam etmeli, `unsafe-inline`/`unsafe-eval` kaldırma ise ayrı sıkılaştırma
+  çalışması olarak korunmalıdır.
 
 ## 4. Doğrulama Kayıtları
 
@@ -1052,20 +1079,13 @@ Bilinen build uyarısı:
 - Görsel preload eklenmedi; tag zinciri idle/etkileşim sonrasına alındı.
 - Nihai field p75 sonucu yalnız deploy sonrası 28 günlük RUM/CrUX ile kanıtlanabilir.
 
-### S-03 — CSP header repo dışında
+### S-03 — CSP header repo dışında — Çözüldü
 
-- Canlı `Content-Security-Policy-Report-Only` nginx üzerinde set ediliyor.
-- Nginx config repo içinde değil.
-- Endpoint kodu hazır; header henüz endpoint'e bağlanmadı.
-
-Gerekli canlı header ekleri:
-
-```text
-report-uri https://haldefiyat.com/api/v1/csp-reports;
-```
-
-Modern Reporting API için ayrıca nginx `Report-To` veya `Reporting-Endpoints`
-başlığının tarayıcı uyumluluğu değerlendirilmelidir.
+- Nginx config repo dışında kaldığı için canlı VPS üzerinde yedekli değiştirildi.
+- `Reporting-Endpoints` ve `report-uri` endpoint'e bağlandı; Report-Only
+  kaldırılıp enforce açıldı.
+- Aktif `sites-enabled` dosyasının bağımsız kopya olması nedeniyle iki Nginx
+  config kopyası eşitlendi. Canlı header ve headless Chrome kanıtı 3.54'tedir.
 
 ### S-04 — Şeffaflık sayfalarının nihai içeriği yok
 
@@ -1114,7 +1134,7 @@ başlığının tarayıcı uyumluluğu değerlendirilmelidir.
 - Brief'in yasakladığı yapay tarih üretimi yapılmadı; gerçek CMS/DB tarihleri
   sağlanana kadar `datePublished` eklenmedi.
 
-### S-10 — CSP nonce/hash geçişi için runtime engeller
+### S-10 — CSP nonce/hash geçişi için runtime engeller — Enforce çözüldü, sıkılaştırma açık
 
 - `Analytics.tsx` içinde Consent Mode, GTM, GA4 ve Ads için dört inline script var.
 - Next.js runtime inline bootstrap scriptleri request bazlı nonce gerektiriyor.
@@ -1124,15 +1144,14 @@ başlığının tarayıcı uyumluluğu değerlendirilmelidir.
 - GTM custom HTML tag envanteri repo dışındaki GTM workspace'ten çıkarılmalıdır.
 - OneSignal SDK origin'i allowlist içinde korunmalıdır.
 
-Önerilen geçiş:
+Enforce 3.54'te açık kullanıcı onayıyla tamamlandı. Kalan sıkılaştırma sırası:
 
-1. Report-Only header yeni endpoint'e bağlanır ve 7–14 gün veri toplanır.
+1. Gerçek trafik CSP raporları izlenir.
 2. GTM custom HTML ve CMS banner kodları envanterlenir.
 3. Ham banner HTML'i tanımlı reklam sağlayıcı bileşenlerine dönüştürülür.
 4. Request bazlı nonce staging'de Next scriptleri ve JSON-LD ile doğrulanır.
 5. Production build'de önce `unsafe-eval`, sonra uygun olduğunda
    `unsafe-inline` kaldırılır.
-6. Enforce yalnız ayrı Orhan/Claude onayıyla açılır.
 
 ### S-11 — Yerel standalone smoke test redirect döngüsü
 
@@ -1546,8 +1565,9 @@ Orhan'dan beklenen:
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
-- CSP header endpoint'e bağlanmadan gözlem başlamaz.
-- CSP enforce'a erken geçmek GTM/GA/Ads/harita/video akışlarını kırabilir.
+- CSP artık endpoint'e bağlı ve enforce; gerçek trafik ihlal raporları izlenmelidir.
+- Allowlist değişikliklerinde GTM/GA/Ads/OneSignal/hava/video akışları yeniden
+  headless taramadan geçirilmelidir.
 - RUM event'i GTM tarafında yapılandırılmadan veri rapora düşmeyebilir.
 - Ürün sayfasındaki yanlış Product/Offer kaldırıldığı için mevcut GSC Product
   snippet görünürlüğü değişebilir; deploy öncesi/sonrası raporlanmalıdır.
@@ -1561,9 +1581,10 @@ Orhan'dan beklenen:
 4. Backend + frontend canlı deploy edilir.
 5. Ürün/hal/genel/analiz anchor'ları canlı SSR HTML'de doğrulanır.
 6. Mobil Lighthouse en az üç koşu alınır; RUM/CrUX p75 28 gün izlenir.
-7. Nginx CSP Report-Only header endpoint'e bağlanır.
-8. En az 7–14 gün CSP ihlal verisi gözlemlenir.
-9. Enforce kararı ayrı onayla alınır.
+7. Tamamlandı: Nginx CSP rapor endpoint'ine bağlandı ve enforce açıldı.
+8. CSP ihlal verisi gerçek trafikte izlenir; yeni origin'ler doğrulanmadan eklenmez.
+9. Nonce/hash ile `unsafe-inline` ve `unsafe-eval` azaltımı ayrı güvenlik
+   sıkılaştırması olarak planlanır.
 
 ## 10. Commit Dizisi
 
@@ -1655,6 +1676,6 @@ c4897cba feat(trust): record analysis human reviews
 - [x] Backend deploy öncesi `054_analysis_report_reviews.sql` migration'ı uygulandı.
 - [x] Backend deploy sonrası CSP endpoint 204 doğrulandı.
 - [x] Frontend deploy sonrası H1, schema, sitemap, yeni route'lar doğrulandı.
-- [ ] Nginx Report-Only header rapor endpoint'e bağlandı.
+- [x] Nginx CSP rapor akışı endpoint'e bağlandı; sentetik rapor 204 doğrulandı.
 - [x] PM2 frontend için `restart --update-env` kullanıldı; reload kullanılmadı.
-- [ ] CSP enforce açılmadı.
+- [x] CSP enforce açıldı; beş kritik rotada headless Chrome CSP regresyonu temiz.
