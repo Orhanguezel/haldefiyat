@@ -162,7 +162,12 @@ export default async function HomePage({ params }: Props) {
         <SeasonalGuide />
         <FeaturesGrid activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
         <HowItWorks />
-        <HomeFaq />
+        <HomeFaq
+          activeCities={cityCount}
+          activeMarkets={overview.activeMarkets || markets.length}
+          trackedProducts={overview.trackedProducts || products.length}
+          latestRecordedDate={latestMarketUpdate}
+        />
         <CtaNewsletter />
       </>
     );
@@ -197,7 +202,12 @@ export default async function HomePage({ params }: Props) {
       <SeasonalGuide />
       <FeaturesGrid activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
       <HowItWorks />
-      <HomeFaq />
+      <HomeFaq
+        activeCities={cityCount}
+        activeMarkets={overview.activeMarkets || markets.length}
+        trackedProducts={overview.trackedProducts || products.length}
+        latestRecordedDate={latestMarketUpdate}
+      />
       <CtaNewsletter />
     </>
   );

@@ -1,50 +1,86 @@
 import JsonLd from "@/components/seo/JsonLd";
 
-const FAQ_ITEMS = [
-  {
+type HomeFaqProps = {
+  activeCities?: number;
+  activeMarkets?: number;
+  trackedProducts?: number;
+  latestRecordedDate?: string | null;
+};
+
+function formatDate(value?: string | null): string | null {
+  if (!value) return null;
+  const date = new Date(`${value.slice(0, 10)}T12:00:00Z`);
+  return Number.isNaN(date.getTime())
+    ? null
+    : date.toLocaleDateString("tr-TR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+}
+
+export function buildFaqItems({
+  activeCities,
+  activeMarkets,
+  trackedProducts,
+  latestRecordedDate,
+}: HomeFaqProps) {
+  const latestDate = formatDate(latestRecordedDate);
+  const coverage =
+    activeCities && activeMarkets
+      ? `${activeCities.toLocaleString("tr-TR")} ilde ${activeMarkets.toLocaleString("tr-TR")} aktif hal ve pazar`
+      : "Türkiye genelindeki aktif hal ve pazarlar";
+  const productCoverage = trackedProducts
+    ? `${trackedProducts.toLocaleString("tr-TR")} tarım ürünü`
+    : "sebze, meyve, bakliyat ve diğer tarım ürünleri";
+
+  return [
+    {
     question: "Hal fiyatları ne zaman güncellenir?",
     answer:
-      "Fiyatlar her gün TSİ 06:15'te otomatik olarak güncellenir. Veriler, Türkiye genelindeki resmi hal müdürlüklerinin sistemlerinden gece ETL işlemiyle derlenir.",
-  },
-  {
-    question: "Hangi iller ve haller kapsanıyor?",
-    answer:
-      "Türkiye genelinden 16 resmi ETL kaynağı izlenmektedir: İstanbul, Ankara, İzmir, Antalya, Bursa, Adana, Kocaeli, Gaziantep, Mersin, Balıkesir, Kayseri ve hal.gov.tr ulusal ortalamaları.",
-  },
-  {
-    question: "Fiyatlar resmi mi, güvenilir mi?",
-    answer:
-      "Evet. Veriler doğrudan belediye hal müdürlüklerinin resmi sistemlerinden ve Tarım Bakanlığı'na bağlı hal.gov.tr'den otomatik olarak çekilmektedir. Herhangi bir manuel müdahale yapılmaz.",
-  },
-  {
-    question: "Kaç ürün takip ediliyor?",
-    answer:
-      "Sebze, meyve, bakliyat ve ithal ürünler dahil 250'den fazla tarım ürünü günlük olarak izlenmektedir.",
-  },
-  {
-    question: "Geçmiş fiyat verilerine nasıl ulaşabilirim?",
-    answer:
-      "Her ürün sayfasında (örn. /urun/domates) 5 yıllık fiyat geçmişi grafik ve tablo olarak sunulmaktadır. Ayrıca API üzerinden JSON formatında geçmiş veriye erişilebilir.",
-  },
-  {
-    question: "Veriler ücretli mi?",
-    answer:
-      "Hayır. HalDeFiyat tamamen ücretsiz bir platformdur. Tüm fiyat verileri, endeks ve karşılaştırma araçları kayıt gerektirmeksizin kullanılabilir.",
-  },
-];
-
-const faqSchema = {
-  mainEntity: FAQ_ITEMS.map((item) => ({
-    "@type": "Question",
-    name: item.question,
-    acceptedAnswer: {
-      "@type": "Answer",
-      text: item.answer,
+      `Fiyatlar her kaynağın resmi yayın takvimine göre otomatik olarak alınır; kaynaklar aynı saatte bülten yayımlamayabilir.${latestDate ? ` Platformdaki son doğrulanmış fiyat kaydı ${latestDate} tarihlidir.` : ""}`,
     },
-  })),
-} satisfies Record<string, unknown>;
+    {
+      question: "Hangi iller ve haller kapsanıyor?",
+      answer:
+        `${coverage} izlenmektedir. Güncel kapsam, yalnız gerçekten fiyat kaydı bulunan aktif kaynaklardan hesaplanır.`,
+    },
+    {
+      question: "Fiyatlar resmi mi, güvenilir mi?",
+      answer:
+        "Veriler belediye hal müdürlükleri, hal.gov.tr ve sayfada adı gösterilen diğer kaynaklardan alınır. Kayıtlar ürün ve birim normalizasyonu ile kalite kontrollerinden geçirilir; kaynak ve veri tarihi her fiyat satırında görülebilir.",
+    },
+    {
+      question: "Kaç ürün takip ediliyor?",
+      answer:
+        `${productCoverage} izlenmektedir. Kapsam yeni kaynaklar ve ürün eşleştirmeleri eklendikçe otomatik olarak güncellenir.`,
+    },
+    {
+      question: "Geçmiş fiyat verilerine nasıl ulaşabilirim?",
+      answer:
+        "Her ürün sayfasında fiyat geçmişi grafik ve tablo olarak sunulur. Ayrıca belgelenmiş API üzerinden JSON formatındaki geçmiş verilere erişilebilir.",
+    },
+    {
+      question: "Veriler ücretli mi?",
+      answer:
+        "Hayır. HalDeFiyat fiyat verileri, endeks ve karşılaştırma araçları kayıt gerektirmeksizin kullanılabilir.",
+    },
+  ];
+}
 
-export default function HomeFaq() {
+export default function HomeFaq(props: HomeFaqProps) {
+  const faqItems = buildFaqItems(props);
+  const faqSchema = {
+    mainEntity: faqItems.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  } satisfies Record<string, unknown>;
+
   return (
     <section className="mx-auto max-w-3xl px-4 py-16">
       <JsonLd type="FAQPage" data={faqSchema} />
@@ -55,7 +91,7 @@ export default function HomeFaq() {
         HalDeFiyat hakkında merak ettikleriniz
       </p>
       <div className="space-y-3">
-        {FAQ_ITEMS.map((item, idx) => (
+        {faqItems.map((item, idx) => (
           <details
             key={idx}
             className="group rounded-xl border border-border bg-surface overflow-hidden"
