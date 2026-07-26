@@ -841,6 +841,19 @@ Commit: `ccb21d00 fix(content): remove stale realtime data claims`
 - Yıllık rapor metodoloji notundaki sabit `30+ resmi belediye hal API'si`
   iddiası, rapor kapsamı ve metodoloji sayfasına atıfla değiştirildi.
 
+### 3.42 Ürün Fiyatlarında Product/Offer Semantiğinin Kaldırılması
+
+Commit: `4556608c fix(schema): model product prices as dataset only`
+
+- `/urun/[slug]` üzerindeki hal, borsa ve resmi alım fiyatlarını satın alınabilir
+  teklif gibi yayımlayan `Product/AggregateOffer` JSON-LD kaldırıldı.
+- Aynı sayfadaki zengin `Dataset` korunarak ürün adı, görseli ve kategorisi
+  `Dataset.about` altında `Thing` olarak tanımlandı.
+- Görünür cevap bloğundaki min/ortalama/maks ve hal örneklemi hesapları
+  korunuyor; yalnız yanlış satış teklifi semantiği kaldırıldı.
+- Gerçek satın alınabilir Pro aboneliği ile gerçek kullanıcı ilanlarındaki
+  `Product/Offer` schema'larına dokunulmadı.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -908,12 +921,13 @@ başlığının tarayıcı uyumluluğu değerlendirilmelidir.
 - Backend kapalıysa gürültülü `ECONNREFUSED` logları oluşuyor.
 - Build başarısız değil; fakat gerçek içerikle prerender doğrulamasını zorlaştırıyor.
 
-### S-06 — Product/Offer semantik kararı
+### S-06 — Product/Offer semantik kararı — Çözüldü
 
 - Brief yeni fiyat verisini `Product/Offer` yapmayı yasaklıyor.
-- Mevcut ürün sayfasında daha önce oluşturulmuş `Product/AggregateOffer` var.
-- GSC Product snippets süreci ve geçmiş kararlar nedeniyle bu oturumda kaldırılmadı.
-- Kaldırma/koruma kararı ayrıca GSC görünürlüğü ve semantik uygunlukla değerlendirilmelidir.
+- Hal ve borsa gözlemlerini satış teklifi gibi sunan mevcut
+  `Product/AggregateOffer` kaldırıldı; Dataset korundu.
+- Gerçek abonelik ve ilan teklifleri semantik olarak ayrı tutuldu.
+- Deploy sonrası GSC Product snippet görünürlüğündeki değişim izlenmelidir.
 
 ### S-07 — Canonical locale tutarsızlığı — Çözüldü
 
@@ -1271,13 +1285,24 @@ Orhan'dan beklenen:
 - Görünür içerik, sosyal metadata, Dataset yöntemi ve LLMS güncelleme dili artık
   kaynak bazlı yayın takvimi ve tarihli kayıt modelinde birleşiyor.
 
+### F-34 — Hal fiyatı gözlemleri satın alınabilir AggregateOffer değildi
+
+- Ürün sayfası aynı değerleri hem doğru Dataset hem de `AggregateOffer` olarak
+  yayımlıyordu.
+- Hal satırları satıcı, stok, teslimat veya satın alma eylemi içeren perakende
+  teklifler değil; kaynak ve tarihe bağlı referans fiyat gözlemleridir.
+- Gerçek teklif schema'ları korunurken referans fiyatlar yalnız Dataset
+  modelinde bırakıldı. Rich Results/GSC değişimi semantik düzeltmenin beklenen
+  etkisi olarak ayrıca izlenmelidir.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
 - CSP header endpoint'e bağlanmadan gözlem başlamaz.
 - CSP enforce'a erken geçmek GTM/GA/Ads/harita/video akışlarını kırabilir.
 - RUM event'i GTM tarafında yapılandırılmadan veri rapora düşmeyebilir.
-- Ürün sayfasındaki Product/Offer kaldırılırsa mevcut GSC Product snippet görünürlüğü etkilenebilir.
+- Ürün sayfasındaki yanlış Product/Offer kaldırıldığı için mevcut GSC Product
+  snippet görünürlüğü değişebilir; deploy öncesi/sonrası raporlanmalıdır.
 - Ana sayfa UA-bazlı farklı SSR ürettiği için körlemesine public edge cache yanlış cihaz ağacını sunabilir.
 
 ## 9. Sonraki Uygulama Sırası
@@ -1359,6 +1384,7 @@ d241af55 fix(seo): align policy page breadcrumbs
 32feeed0 fix(seo): publish completed annual reports
 0d70eb33 fix(seo): include published authors in sitemap
 ccb21d00 fix(content): remove stale realtime data claims
+4556608c fix(schema): model product prices as dataset only
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
