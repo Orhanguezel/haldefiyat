@@ -2,20 +2,60 @@ import { NextResponse } from "next/server";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
+const INTERNAL_API_URL = (
+  process.env.BACKEND_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  "http://localhost:8088"
+).replace(/\/$/, "");
 
 export const revalidate = 3600;
 
+interface Overview {
+  activeCities?: number;
+  activeMarkets?: number;
+  trackedProducts?: number;
+  earliestRecordedDate?: string | null;
+}
+
+async function fetchJson<T>(path: string): Promise<T | null> {
+  try {
+    const response = await fetch(`${INTERNAL_API_URL}/api/v1${path}`, {
+      next: { revalidate: 3600 },
+    });
+    return response.ok ? await response.json() as T : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET() {
+  const [overview, sourceResponse] = await Promise.all([
+    fetchJson<Overview>("/prices/overview"),
+    fetchJson<{ items?: unknown[] }>("/sources/status"),
+  ]);
+  const productCoverage = overview?.trackedProducts
+    ? `${overview.trackedProducts} izlenen ürün`
+    : "İzlenen sebze, meyve, bakliyat ve diğer tarım ürünleri";
+  const marketCoverage = overview?.activeMarkets
+    ? `${overview.activeMarkets} aktif toptancı hali`
+    : "Türkiye genelindeki aktif toptancı halleri";
+  const sourceCoverage = sourceResponse?.items?.length
+    ? `${sourceResponse.items.length} izlenen resmi veri kaynağı`
+    : "Belediye hal müdürlükleri ve resmi veri kaynakları";
+  const historyCoverage = overview?.earliestRecordedDate
+    ? `${overview.earliestRecordedDate} tarihinden itibaren`
+    : "Tarihsel fiyat kayıtları";
+
   const content = `# HalDeFiyat
 > Türkiye genelindeki hal ve toptancı pazar fiyatlarını günlük olarak izleyen bağımsız veri platformu. Sebze, meyve ve bakliyat için resmi belediye hal müdürlüklerinden otomatik olarak derlenen veriler.
 
 ## Platformun Kapsamı
 
-- Türkiye genelindeki aktif toptancı halleri (çoklu il ve bölge)
-- 250+ ürün — sebze, meyve, bakliyat, ithal ürünler
-- 16 resmi ETL kaynağı — belediye hal müdürlükleri + hal.gov.tr
+- ${marketCoverage} (çoklu il ve bölge)
+- ${productCoverage}
+- ${sourceCoverage}
 - Güncelleme sıklığı: Her gün TSİ 06:15 (gece ETL çalışır)
-- Veri geçmişi: 2025'ten itibaren
+- Veri geçmişi: ${historyCoverage}
 
 ## Ana Sayfalar
 

@@ -14,6 +14,7 @@ export const revalidate = 3600;
 
 interface Product { slug: string; nameTr: string; categorySlug: string; unit: string; }
 interface Market { slug: string; name: string; cityName: string; regionSlug: string | null; }
+interface Overview { earliestRecordedDate?: string | null; }
 
 async function fetchList<T>(path: string): Promise<T[]> {
   try {
@@ -27,11 +28,30 @@ async function fetchList<T>(path: string): Promise<T[]> {
   }
 }
 
+async function fetchObject<T>(path: string): Promise<T | null> {
+  try {
+    const res = await fetch(`${INTERNAL_API_URL}${path}`, { next: { revalidate: 3600 } });
+    return res.ok ? await res.json() as T : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET() {
-  const [products, markets] = await Promise.all([
+  const [products, markets, overview] = await Promise.all([
     fetchList<Product>("/prices/products?seoIndex=true"),
     fetchList<Market>("/prices/markets?seoIndex=true"),
+    fetchObject<Overview>("/prices/overview"),
   ]);
+  const productCoverage = products.length > 0
+    ? `${products.length} indekslenebilir ürün`
+    : "İndekslenebilir ürün kataloğu";
+  const marketCoverage = markets.length > 0
+    ? `${markets.length} indekslenebilir toptancı hali`
+    : "İndekslenebilir toptancı hali kataloğu";
+  const historyCoverage = overview?.earliestRecordedDate
+    ? `${overview.earliestRecordedDate} tarihinden itibaren`
+    : "Tarihsel fiyat kayıtları";
 
   const productLines = products.length > 0
     ? products.map((p) => `- [${p.nameTr}](${SITE_URL}/urun/${p.slug}) — kategori: ${p.categorySlug}, birim: ${p.unit}`).join("\n")
@@ -49,9 +69,9 @@ export async function GET() {
 
 ## Platform Kapsamı
 
-- Türkiye genelindeki aktif toptancı halleri (çoklu il ve bölge)
-- 250+ ürün — sebze, meyve, bakliyat, ithal ürünler
-- Veri geçmişi: 2025'ten itibaren
+- ${marketCoverage} (çoklu il ve bölge)
+- ${productCoverage}
+- Veri geçmişi: ${historyCoverage}
 - Güncelleme: Günlük otomatik (ETL)
 
 ## Açık Veri API
