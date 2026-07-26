@@ -83,20 +83,25 @@ export async function registerAuditConsumersAdmin(adminApi: FastifyInstance) {
     const query = req.query as { days?: string | number; min_hits?: string | number };
     const days = parseDays(query.days ?? 7);
     const minHits = parseMinHits(query.min_hits);
+    // GROUP BY yalnizca ip: user_agent longtext olduğu için onu grupta tutmak dev bir
+    // temp-table/filesort yaratıyordu. ip başına temsili ua/country/city ANY_VALUE ile alınır.
+    // FORCE INDEX(created_idx): planlayıcı aksi halde ip_idx ile tüm 3.9M satırı tarıyor;
+    // created index tarih penceresini sınırlar. Çok-günlük pencere yine ağırdır (covering
+    // index gerekir) ama günlük pencerede kabul edilebilir.
     const [rows] = await adminApi.db.query<DataPullerRow[]>(
       `SELECT
          ip,
-         user_agent AS userAgent,
-         COALESCE(NULLIF(country, ''), '') AS country,
-         COALESCE(NULLIF(city, ''), '') AS city,
+         ANY_VALUE(user_agent) AS userAgent,
+         ANY_VALUE(COALESCE(NULLIF(country, ''), '')) AS country,
+         ANY_VALUE(COALESCE(NULLIF(city, ''), '')) AS city,
          COUNT(*) AS hits,
          COUNT(DISTINCT path) AS uniquePaths,
          SUM(CASE WHEN path LIKE '/api/v1/prices%export%' OR path = '/api/v1/prices/export' THEN 1 ELSE 0 END) AS exportHits,
          MAX(created_at) AS lastSeen
-       FROM audit_request_logs
+       FROM audit_request_logs FORCE INDEX (audit_request_logs_created_idx)
        WHERE path LIKE '/api/v1/prices%'
          AND created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-       GROUP BY ip, user_agent, country, city
+       GROUP BY ip
        HAVING hits >= ?
        ORDER BY hits DESC
        LIMIT 100`,

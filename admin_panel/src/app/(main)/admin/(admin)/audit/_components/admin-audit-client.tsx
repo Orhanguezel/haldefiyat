@@ -761,19 +761,45 @@ export default function AdminAuditClient() {
                 </div>
                 <div className="space-y-2">
                   <Label>{t('requests.method')}</Label>
-                  <Input
-                    value={methodText}
-                    onChange={(e) => setMethodText(e.target.value)}
-                    placeholder={t('requests.placeholders.method')}
-                  />
+                  <Select value={methodText || '__all__'} onValueChange={(v) => setMethodText(v === '__all__' ? '' : v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('common.all')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__all__">{t('common.all')}</SelectItem>
+                      <SelectItem value="GET">GET</SelectItem>
+                      <SelectItem value="POST">POST</SelectItem>
+                      <SelectItem value="PUT">PUT</SelectItem>
+                      <SelectItem value="PATCH">PATCH</SelectItem>
+                      <SelectItem value="DELETE">DELETE</SelectItem>
+                      <SelectItem value="HEAD">HEAD</SelectItem>
+                      <SelectItem value="OPTIONS">OPTIONS</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>{t('requests.status')}</Label>
-                  <Input
-                    value={statusText}
-                    onChange={(e) => setStatusText(e.target.value)}
-                    placeholder={t('requests.placeholders.status')}
-                  />
+                  <Select value={statusText || '__all__'} onValueChange={(v) => setStatusText(v === '__all__' ? '' : v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('common.all')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__all__">{t('common.all')}</SelectItem>
+                      <SelectItem value="200">200 · Başarılı</SelectItem>
+                      <SelectItem value="201">201 · Oluşturuldu</SelectItem>
+                      <SelectItem value="204">204 · İçerik yok</SelectItem>
+                      <SelectItem value="301">301 · Kalıcı yönlendirme</SelectItem>
+                      <SelectItem value="304">304 · Değişmedi</SelectItem>
+                      <SelectItem value="400">400 · Hatalı istek</SelectItem>
+                      <SelectItem value="401">401 · Yetkisiz</SelectItem>
+                      <SelectItem value="403">403 · Yasak</SelectItem>
+                      <SelectItem value="404">404 · Bulunamadı</SelectItem>
+                      <SelectItem value="429">429 · Çok fazla istek</SelectItem>
+                      <SelectItem value="500">500 · Sunucu hatası</SelectItem>
+                      <SelectItem value="502">502 · Hatalı ağ geçidi</SelectItem>
+                      <SelectItem value="503">503 · Servis yok</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>{t('common.from')}</Label>
