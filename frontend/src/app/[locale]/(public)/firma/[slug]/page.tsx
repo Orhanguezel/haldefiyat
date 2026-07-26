@@ -133,7 +133,7 @@ export default async function FirmDetailPage({ params }: Props) {
   return (
     <main className="relative z-10 mx-auto max-w-[1180px] px-8 py-12">
       <JsonLd type="LocalBusiness" data={localBusinessSchema} />
-      <Breadcrumb items={[
+      <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Firmalar", href: "/firmalar" },
         { name: firm.name, href: `/firma/${firm.slug}` },

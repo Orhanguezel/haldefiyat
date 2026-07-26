@@ -251,7 +251,7 @@ export default async function HalPage({ params }: Props) {
       <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
         <JsonLd type="Place" data={placeSchema} />
         <JsonLd type="Dataset" data={datasetSchema} />
-        <Breadcrumb items={breadcrumbItems} />
+        <Breadcrumb visible items={breadcrumbItems} />
         <div className="mb-8">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
@@ -299,7 +299,7 @@ export default async function HalPage({ params }: Props) {
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <JsonLd type="Place" data={placeSchema} />
       <JsonLd type="Dataset" data={datasetSchema} />
-      <Breadcrumb items={breadcrumbItems} />
+      <Breadcrumb visible items={breadcrumbItems} />
       <div className="mb-8">
         <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
           {market.cityName}

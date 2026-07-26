@@ -194,7 +194,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <JsonLd type="Dataset" data={fiyatlarDataset} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(dataCatalogSchema) }} />
-      <Breadcrumb items={[
+      <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Güncel Hal Fiyatları", href: "/fiyatlar" },
       ]} />

@@ -84,7 +84,7 @@ export default async function EmbedPage({ params }: Props) {
   return (
     <PageContainer>
       <JsonLd type="DataFeed" data={widgetDataFeedSchema} />
-      <Breadcrumb items={[
+      <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Embed Widget", href: "/embed" },
       ]} />

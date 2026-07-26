@@ -84,7 +84,7 @@ export default async function CategoryPriceLanding({
   return (
     <main className="mx-auto max-w-[1400px] px-6 py-10 md:px-8">
       <JsonLd type="Dataset" data={collectionSchema} />
-      <Breadcrumb items={[
+      <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: breadcrumbLabel, href: `/${slug}` },
       ]} />

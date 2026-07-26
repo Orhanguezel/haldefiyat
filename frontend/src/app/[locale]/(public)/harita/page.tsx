@@ -30,7 +30,7 @@ export default async function HaritaPage({ params }: Props) {
 
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-6 py-12 lg:px-8">
-      <Breadcrumb items={[
+      <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Türkiye Fiyat Haritası", href: "/harita" },
       ]} />

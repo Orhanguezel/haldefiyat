@@ -72,7 +72,7 @@ export default async function HalIndexPage({ params }: Props) {
 
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
-      <Breadcrumb items={[{ name: "Ana Sayfa", href: "/" }, { name: "Tüm Haller", href: "/hal" }]} />
+      <Breadcrumb visible items={[{ name: "Ana Sayfa", href: "/" }, { name: "Tüm Haller", href: "/hal" }]} />
       <header className="mb-10">
         <div className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
           Bölgesel Piyasa Analizi

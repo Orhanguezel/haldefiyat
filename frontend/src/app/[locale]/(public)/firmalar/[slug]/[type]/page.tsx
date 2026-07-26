@@ -123,7 +123,7 @@ function ComboHub({
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <JsonLd type="ItemList" data={schema} />
-      <Breadcrumb items={[
+      <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Firmalar", href: "/firmalar" },
         { name: cityName, href: `/firmalar/${citySlug}` },

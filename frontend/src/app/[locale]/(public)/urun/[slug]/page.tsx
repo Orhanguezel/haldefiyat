@@ -449,7 +449,7 @@ export default async function UrunPage({ params }: Props) {
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <JsonLd type="Product" data={productSchema} />
       <JsonLd type="Dataset" data={datasetSchema} />
-      <Breadcrumb items={[
+      <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Fiyatlar", href: "/fiyatlar" },
         { name: displayName, href: `/urun/${slug}` },

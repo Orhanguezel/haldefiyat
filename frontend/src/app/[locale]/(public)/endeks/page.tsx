@@ -82,7 +82,7 @@ export default async function EndeksPage({ params }: Props) {
   return (
     <div className="mx-auto max-w-350 px-8 py-12 space-y-10">
       <JsonLd type="Dataset" data={endeksDataset} />
-      <Breadcrumb items={[
+      <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "HalDeFiyat Endeksi", href: "/endeks" },
       ]} />

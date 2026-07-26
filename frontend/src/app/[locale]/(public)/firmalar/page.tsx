@@ -107,7 +107,7 @@ export default async function FirmsPage({ params, searchParams }: Props) {
 
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
-      <Breadcrumb items={[
+      <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Firmalar", href: "/firmalar" },
       ]} />

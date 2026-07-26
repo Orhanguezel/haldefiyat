@@ -62,7 +62,7 @@ export default async function AboutPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-350 px-8 py-12">
-      <Breadcrumb items={[
+      <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Hakkımızda", href: "/hakkimizda" },
       ]} />
