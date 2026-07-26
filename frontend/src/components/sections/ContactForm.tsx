@@ -4,38 +4,53 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
-import { Mail, MapPin, Send, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, MapPin, Phone, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type ConversionEventName, trackConversion } from "@/lib/analytics";
 
-const CONTACT_INFO = [
-  {
-    icon: Mail,
-    label: "E-posta",
-    value: "iletisim@haldefiyat.com",
-    href: "mailto:iletisim@haldefiyat.com",
-  },
-  {
-    icon: MapPin,
-    label: "Adres",
-    value: "Antalya Toptancı Hali, Kepez, Antalya",
-    href: "https://maps.google.com",
-  },
-];
-
 interface ContactFormProps {
   defaultSubject?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  contactAddress?: string;
   conversionEventName?: Extract<ConversionEventName, "embed_inquiry" | "pro_upgrade">;
   conversionParams?: Record<string, string | number | boolean | null | undefined>;
 }
 
 export function ContactForm({
   defaultSubject = "",
+  contactEmail = "iletisim@haldefiyat.com",
+  contactPhone,
+  contactAddress,
   conversionEventName,
   conversionParams,
 }: ContactFormProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const contactInfo = [
+    {
+      icon: Mail,
+      label: "E-posta",
+      value: contactEmail,
+      href: `mailto:${contactEmail}`,
+    },
+    ...(contactPhone
+      ? [{
+          icon: Phone,
+          label: "Telefon",
+          value: contactPhone,
+          href: `tel:${contactPhone.replace(/[^\d+]/g, "")}`,
+        }]
+      : []),
+    ...(contactAddress
+      ? [{
+          icon: MapPin,
+          label: "Adres",
+          value: contactAddress,
+          href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contactAddress)}`,
+        }]
+      : []),
+  ];
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -97,7 +112,7 @@ export function ContactForm({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-          {CONTACT_INFO.map((item) => (
+          {contactInfo.map((item) => (
             <a
               key={item.label}
               href={item.href}
@@ -121,14 +136,6 @@ export function ContactForm({
           ))}
         </div>
 
-        <div className="p-8 rounded-2xl bg-gradient-to-br from-brand/20 to-success/20 border border-brand/10">
-          <h3 className="font-bold text-foreground mb-2">Çalışma Saatleri</h3>
-          <p className="text-sm text-foreground/80 leading-relaxed">
-            Pazartesi - Cuma: 09:00 - 18:00<br />
-            Cumartesi: 09:00 - 13:00<br />
-            Pazar: Kapalı
-          </p>
-        </div>
       </div>
 
       {/* Sağ taraf: Form */}

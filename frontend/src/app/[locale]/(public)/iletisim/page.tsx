@@ -4,6 +4,7 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import { getPageMetadata } from "@/lib/seo";
+import { fetchSiteSettings } from "@/lib/site-settings";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -25,6 +26,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
   const subject = (await searchParams)?.subject ?? "";
   const isProInquiry = subject.toLocaleLowerCase("tr-TR").includes("pro");
   setRequestLocale(locale);
+  const settings = await fetchSiteSettings(locale);
 
   return (
     <main className="relative min-h-screen overflow-hidden pt-24 pb-20">
@@ -51,6 +53,9 @@ export default async function ContactPage({ params, searchParams }: Props) {
             {/* İletişim Formu ve Bilgiler */}
             <ContactForm
               defaultSubject={subject}
+              contactEmail={settings.contact_email || "iletisim@haldefiyat.com"}
+              contactPhone={settings.contact_phone}
+              contactAddress={settings.contact_address}
               conversionEventName={isProInquiry ? "pro_upgrade" : undefined}
               conversionParams={isProInquiry ? { source_page: "pro", value: 99 } : undefined}
             />
