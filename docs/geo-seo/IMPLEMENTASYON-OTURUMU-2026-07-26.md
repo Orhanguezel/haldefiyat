@@ -790,6 +790,24 @@ Yapılanlar:
 - Dinamik yol alternates ve `og:url === canonical` eşitliği otomatik testlere
   eklendi.
 
+### 3.39 Tamamlanmış Yıllık Raporların Keşfi ve Index Politikası
+
+Commit: `32feeed0 fix(seo): publish completed annual reports`
+
+- Backend'e fiyat geçmişindeki gerçek `YEAR(recorded_date)` değerlerini,
+  satır sayısını ve yılın min/max tarihini döndüren
+  `/reports/annual/years` endpoint'i eklendi.
+- Envanter yalnız veri içeren ve tamamlanmış yılları döndürüyor; devam eden
+  2026 yılı “yıllık rapor” olarak yayımlanmıyor.
+- Sitemap yalnız endpoint'in doğruladığı yıllık rapor URL'lerini gerçek en yeni
+  kayıt tarihiyle ekliyor.
+- Analiz hub'ı aynı envanterden yıllık raporlara görünür iç link veriyor; orphan
+  durumu giderildi.
+- Yıllık rapor metadata'sı veri bulunmayan, backend'den yüklenemeyen veya henüz
+  tamamlanmamış yıl için `noindex,follow` üretiyor.
+- Analiz girişindeki sabit `28+` hal iddiası canlı `activeMarkets` veya nötr
+  fallback ile değiştirildi.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -1188,6 +1206,17 @@ Orhan'dan beklenen:
   canlıda `/tr/...` redirect varyantlarının prefixsiz canonical'a döndüğü ayrıca
   doğrulanmalıdır.
 
+### F-31 — Yıllık rapor route'u orphan ve veri yokken indexlenebilirdi
+
+- `/rapor/yillik/[year]` kaliteli Article/Dataset içeriği taşımasına rağmen
+  sitemap veya analiz hub'ından keşfedilmiyordu.
+- Geçerli yıl formatında veri bulunamazsa route 200 açıklama döndürüyor fakat
+  metadata indexlenebilir kalıyordu; bu soft-404 riskiydi.
+- Yıl aralığını tahmin etmek yerine veritabanı envanteri kullanıldı. Devam eden
+  yıl tamamlanmış rapor sayılmadığı için sitemap/hub dışında ve noindex kalıyor.
+- Canlı deploy sonrasında yıl envanteri endpoint'i, sitemap URL'leri ve örnek
+  tamamlanmış yılın 200/self-canonical/indexable durumu birlikte doğrulanmalıdır.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1273,6 +1302,7 @@ d241af55 fix(seo): align policy page breadcrumbs
 8a44624e test(seo): verify breadcrumb content parity
 1a3027f5 fix(seo): add hreflang to dynamic content
 0f900081 fix(seo): align open graph urls with canonicals
+32feeed0 fix(seo): publish completed annual reports
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
