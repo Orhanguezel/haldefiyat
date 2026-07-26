@@ -7,8 +7,8 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 54/66 checkbox — kapanış kanıtları bu dosyada korunur.
-- **Açık:** 12/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
+- **Tamamlanan:** 55/66 checkbox — kapanış kanıtları bu dosyada korunur.
+- **Açık:** 11/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
   kalan iş olarak ayrıldığı için toplam takip maddesi 66 oldu. Açıklar:
   `HALDEFIYAT-GEO-SEO-ACIK-ISLER.md`.
 - Bu dosyaya yeni açık iş eklenmez. Açık dosyada tamamlanan maddeler, kanıtıyla
@@ -153,6 +153,11 @@ ayrı açık işler dosyasına taşınmıştır.
 - [x] **INP/CWV RUM:** örneklemeli web-vitals telemetry GA4 veri katmanına bağlandı ve test edildi. (`ccaf86ae`, `ad6f5be4`)
 - [x] GSC URL Inspection cache'indeki 1.503 URL; discovered/crawled-not-indexed, noindex, redirect, unknown, 404 ve duplicate/canonical kırılımlarında incelendi. 11 gerçek indekslenebilir takip URL'si, 24 stale-noindex ürün ve bilinçli 301/noindex/410 kayıtları ayrıştırıldı; duplicate/canonical, soft-404 ve server-error 0. (`docs/geo-seo/GSC-PAGE-INDEXING-INCELEMESI-2026-07-27.md`)
 - [x] Tam 28 veri günlük GSC baseline'ı ile CrUX origin/URL alan durumu ayrıştırıldı: 9.744 tıklama, 289.062 gösterim, %3,371 CTR, 6,326 konum; origin LCP 3.080 ms, INP 170 ms, CLS 0. URL-level veri yokluğu lab sonucuyla doldurulmadı. (`docs/geo-seo/CRUX-GSC-28-GUN-BASELINE-2026-07-27.md`)
+- [x] 40 sabit Türkçe sorguyla ilk AI görünürlük baseline'ı alındı; platform,
+  tarih, model, hesap/konum durumu, marka geçişi ve citation URL/sırası ham
+  kanıtla arşivlendi. Anthropic web-search yüzeyinde marka geçişi %25,
+  haldefiyat.com citation oranı %45; aylık tekrar komutu sabitlendi.
+  (`docs/geo-seo/AI-GORUNURLUK-BASELINE-2026-07-27.md`)
 
 ---
 

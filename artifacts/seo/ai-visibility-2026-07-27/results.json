@@ -1,0 +1,2143 @@
+{
+  "summary": {
+    "schema_version": 1,
+    "benchmark_date": "2026-07-27",
+    "platform": "Anthropic Messages API + web_search",
+    "model": "claude-haiku-4-5",
+    "query_count": 40,
+    "successful_count": 40,
+    "error_count": 0,
+    "brand_mention_count": 10,
+    "brand_mention_rate": 0.25,
+    "haldefiyat_citation_count": 18,
+    "haldefiyat_citation_rate": 0.45,
+    "repeat": "monthly; same query file and system instruction",
+    "limitations": [
+      "This measures an API web-search surface, not the ChatGPT consumer UI.",
+      "Results are stochastic and can change with model, index, location and time.",
+      "API execution does not reproduce a signed-in or personalized user account."
+    ]
+  },
+  "results": [
+    {
+      "id": "gen-01",
+      "group": "genel",
+      "query": "Türkiye hal fiyatlarını bugün nereden takip edebilirim?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:08:42.756Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 0,
+      "citations": [],
+      "answer": "Türkiye'deki hal fiyatlarını takip etmek için başlıca kaynaklar şunlardır:\n\n**Resmi Kaynaklar:**\n- **Gıda, Tarım ve Hayvancılık Bakanlığı**: Tarımsal ürünlerin fiyat verilerini yayımlar\n- **Türkiye Cumhuriyet Merkez Bankası (TCMB)**: Enflasyon ve fiyat endekslerini sunar\n\n**Hal Pazar Sistemi:**\n- **Ankara, İstanbul, İzmir gibi büyük şehirlerdeki hal müdürlükleri**: Günlük fiyat listeleri yayımlar\n- **TZOB (Türkiye Ziraat Odaları Birliği)**: Tarım ürünü fiyat bilgileri\n\n**İnternet Platformları:**\n- Çiftçilerle doğrudan bağlantı sağlayan tarım ticaret platformları\n- Haber sitelerinin tarım ve ekonomi bölümleri günlük fiyat takibini yapabilir\n\n**Tavsiye:**\nEn güncel veriler için ilçeniz veya il merkezinizdeki hal müdürlüğüne doğrudan başvurabilir veya bakanlığın resmi web sitesini kontrol edebilirsiniz. Belirli bir ürün hakkında bilgi istiyorsanız, o ürünü üreten bölgedeki hal pazar fiyatlarını takip etmek d",
+      "request_id": "req_011CdRWasJzR9ofEfjCvxk2L",
+      "usage": {
+        "input_tokens": 2346,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 400,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      }
+    },
+    {
+      "id": "gen-02",
+      "group": "genel",
+      "query": "Güncel sebze ve meyve hal fiyatları için güvenilir kaynaklar hangileri?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:08:48.507Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": true,
+      "domain_mention": false,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 5,
+      "citation_count": 7,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://tarimpiyasa.com/hal",
+          "title": "Hal Fiyatları — Günlük Sebze ve Meyve Fiyatları | Tarım Piyasa",
+          "cited_text": "Bu fiyatlar; çiftçiden toptan alıcıya uzanan tedarik zincirinin başlangıç noktasını oluşturur ve Tarım Bakanlığı'na bağlı hal müdürlükleri tarafından ...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://harmanapps.com/hal-borsa-fiyatlari",
+          "title": "Türkiye Geneli Hal Fiyatları Bugün 22.07.2026 | Harman App",
+          "cited_text": "Kaynak: T.C. Ticaret Bakanlığı · Asma Yaprağı Kereviz Sap Cibes Avokado Erik Diğer Çilek Ayva Deniz Börülcesi(deniz Otu Ege Otu) Deniz Börülcesi (deni...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://tarimpiyasa.com/hal",
+          "title": "Hal Fiyatları — Günlük Sebze ve Meyve Fiyatları | Tarım Piyasa",
+          "cited_text": "81 il ve ilçelerden derlenen günlük ortalama, minimum ve maksimum fiyat verileri.\n\n",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 4,
+          "url": "https://tarimpiyasa.com/hal",
+          "title": "Hal Fiyatları — Günlük Sebze ve Meyve Fiyatları | Tarım Piyasa",
+          "cited_text": "81 il ve ilçelerden derlenen günlük ortalama, minimum ve maksimum fiyat verileri.\n\n",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 5,
+          "url": "https://haldefiyat.com/",
+          "title": "Türkiye Hal Fiyatları — Günlük, Gerçek Zamanlı | HaldeFiyat",
+          "cited_text": "81 ilin hal ve pazar fiyatları tek ekranda. Sebze, meyve ve bakliyat fiyatlarını şehir ve kategori bazında karşılaştırın.\n\n",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 6,
+          "url": "https://www.tarim-pazar.com/hal-fiyatlari/",
+          "title": "Hal Fiyatları 25.07.2026 - Güncel Sebze Meyve Fiyatları | Tarım Pazar",
+          "cited_text": "Tarım Pazar üzerinden Antalya hal fiyatları, Adana hal fiyatları, Bursa hal fiyatları, Çanakkale hal fiyatları, İzmir hal fiyatları, Kocaeli hal fiyat...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 7,
+          "url": "https://tarim.ibb.istanbul/avrupa-yakasi-hal-mudurlugu/hal-fiyatlari.html",
+          "title": "Hal Fiyatları - Avrupa Yakası Hal Şube Müdürlüğü",
+          "cited_text": "Hal Fiyatları - AVRUPA YAKASI HAL ŞUBE MÜDÜRLÜĞÜ\n\nMeyve · Sebze · İthal Ürünler · 2026 · 2025 · 2024 · 2023 · 2022 · 2021 · 2020 · 2019 · 2018 · 2017 ...",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Türkiye'deki güncel sebze ve meyve hal fiyatları için başlıca güvenilir kaynaklar şunlardır:\n\n**Resmi Kaynaklar:**\n\nTarım Bakanlığı'na bağlı hal müdürlükleri tarafından her iş günü sabah ilan edilen fiyatlar\n en güvenilir verilerdir. \nT.C. Ticaret Bakanlığı verileri Türkiye'nin 81 ili için sunulmaktadır\n.\n\n**Sektör Platformları:**\n- \nTarım Piyasa: 81 il ve ilçelerden derlenen günlük ortalama, minimum ve maksimum fiyat verileri\n\n- \nHaldeFiyat: 81 ilin hal ve pazar fiyatlarını sebze, meyve ve bakliyat bazında sunmaktadır\n\n- \nTarım Pazar: Türkiye geneli ve Antalya, Adana, Bursa, İzmir gibi şehirlerin hal fiyatlarına erişim sağlar\n\n\n**Yerel Hal Müdürlükleri:**\n\nİst",
+      "request_id": "req_011CdRWbJMspoLBuDdjUuNxz",
+      "usage": {
+        "input_tokens": 12472,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 471,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "gen-03",
+      "group": "genel",
+      "query": "Türkiye genelinde hal fiyatlarını karşılaştıran site önerir misin?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:08:55.811Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": true,
+      "domain_mention": true,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 2,
+      "citation_count": 4,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://halfiyatlari.tr/",
+          "title": "Güncel Hal Fiyatları 2026 (Türkiye Geneli)",
+          "cited_text": "Türkiye genelindeki hallerin günlük fiyatlarını tek bir sayfada topluyoruz. Bu sayede, Adana, Mersin, İzmir, Antalya gibi tarımda öne çıkan şehirlerin...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://haldefiyat.com/",
+          "title": "Türkiye Hal Fiyatları — Günlük, Gerçek Zamanlı | HaldeFiyat",
+          "cited_text": "Türkiye&#x27;nin 81 ilindeki hal fiyatlarını günlük takip edin. ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 3,
+          "url": "https://haldefiyat.com/",
+          "title": "Türkiye Hal Fiyatları — Günlük, Gerçek Zamanlı | HaldeFiyat",
+          "cited_text": "... Tüm büyük hallerden günde iki kez güncellenen canlı sebze ve meyve fiyatları. ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 4,
+          "url": "https://harmanapps.com/hal-borsa-fiyatlari",
+          "title": "Türkiye Geneli Hal Fiyatları Bugün 22.07.2026 | Harman App",
+          "cited_text": "Türkiye'nin 81 ili için hal borsa fiyatları. Yeşil iller günlük güncel veri akışına sahiptir.\n\n",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Evet, Türkiye genelinde hal fiyatlarını karşılaştırmanız için kullanışlı siteler var:\n\n\n**halfiyatlari.tr** — Türkiye genelindeki hallerin günlük fiyatlarını tek sayfada toplar. İstanbul, Ankara ve diğer şehirlerdeki hal fiyatlarına kolayca ulaşabilir, ürün bazında karşılaştırma yapabilirsiniz.\n\n\n\n**haldefiyat.com** — Türkiye'nin 81 ilindeki hal fiyatlarını günlük takip etmenizi sağlar. Tüm büyük hallerden günde iki kez güncellenen canlı sebze ve meyve fiyatları sunulur.\n\n\n\n**Harman App** — Türkiye'nin 81 ili için hal borsa fiyatları sunar; yeşil iller günlük güncel veri akışına sahiptir.\n\n\nBu siteler şehir ve ürün bazında fiyat karşılaştırması yapmanıza, trendleri takip etmenize ve maliyet düşürmenize yardımcı olur.",
+      "request_id": "req_011CdRWbrSRkSvXKVypw7zq7",
+      "usage": {
+        "input_tokens": 11055,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 436,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "gen-04",
+      "group": "genel",
+      "query": "Hal fiyatları günlük olarak nasıl karşılaştırılır?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:09:03.550Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 2,
+      "citation_count": 6,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://tarimpiyasa.com/hal",
+          "title": "Hal Fiyatları — Günlük Sebze ve Meyve Fiyatları | Tarım Piyasa",
+          "cited_text": "Bu fiyatlar; çiftçiden toptan alıcıya uzanan tedarik zincirinin başlangıç noktasını oluşturur ve Tarım Bakanlığı'na bağlı hal müdürlükleri tarafından ...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://haldefiyat.com/",
+          "title": "Türkiye Hal Fiyatları — Günlük, Gerçek Zamanlı | HaldeFiyat",
+          "cited_text": "Türkiye&#x27;nin 81 ilindeki hal fiyatlarını günlük takip edin. Trend analizleri, karşılaştırma grafikleri ve bölgesel veriler.\n\n",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 3,
+          "url": "https://tarimpiyasa.com/hal",
+          "title": "Hal Fiyatları — Günlük Sebze ve Meyve Fiyatları | Tarım Piyasa",
+          "cited_text": "Ortalama fiyat — O gün Türkiye genelindeki hallerin ağırlıklı ortalamasıdır. Minimum fiyat — En düşük kaydedilen alım fiyatını gösterir. Maksimum fiya...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 4,
+          "url": "https://haldefiyat.com/urun/salatalik",
+          "title": "Salatalık Hal Fiyatı 2026 — Toptan & Piyasa Fiyatları",
+          "cited_text": "HalDeFiyat karşılaştırma aracıyla şehir bazlı fiyatları kolayca kıyaslayabilirsiniz. ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 5,
+          "url": "https://haldefiyat.com/",
+          "title": "Türkiye Hal Fiyatları — Günlük, Gerçek Zamanlı | HaldeFiyat",
+          "cited_text": "... Haftalık, aylık ve yıllık fiyat grafikleri ile piyasa trendlerini analiz edin. ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 6,
+          "url": "https://tarimpiyasa.com/hal",
+          "title": "Hal Fiyatları — Günlük Sebze ve Meyve Fiyatları | Tarım Piyasa",
+          "cited_text": "Her il, kendi coğrafi konumuna ve tarım üretimine göre farklı fiyat seviyeleri oluşturur. Karadeniz'de fındık, Ege'de zeytin ve üzüm, Akdeniz'de naren...",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Hal fiyatlarının günlük karşılaştırılması hakkında güncel bilgi almak için araştırayım.\nHal fiyatları günlük olarak çeşitli yollarla karşılaştırılır:\n\n**Resmi Kaynaklar:** \nTarım Bakanlığı'na bağlı hal müdürlükleri tarafından her iş günü sabah ilan edilen fiyatlar\n kullanılmaktadır.\n\n**Çevrimiçi Platformlar:** \nTürkiye'nin 81 ilindeki hal fiyatlarını günlük takip etme, trend analizleri, karşılaştırma grafikleri ve bölgesel veriler\n sağlanmaktadır.\n\n**Karşılaştırma Yöntemleri:**\n- \nOrtalama fiyat (ağırlıklı ortalama), minimum fiyat (en düşük alım) ve maksimum fiyat (en yüksek satış)\n kullanılarak yapılır\n- \nŞehir bazlı fiyatlar kolayca kıyaslanabilir\n\n- \nHaftalık, aylık ve yıllık fiyat grafikleri ile piyasa trendleri analiz edilir\n\n\n\nHer",
+      "request_id": "req_011CdRWcPpKDoN9CtKKwuE11",
+      "usage": {
+        "input_tokens": 13568,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 506,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "gen-05",
+      "group": "genel",
+      "query": "Üretici ile market fiyatı arasındaki farkı görmek için hangi veriler kullanılabilir?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:09:10.375Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 0,
+      "citations": [],
+      "answer": "Üretici ile market (perakende) fiyatı arasındaki farkı anlamak için kullanılabilecek temel veriler şunlardır:\n\n**Resmi İstatistikler:**\n- Türkiye İstatistik Kurumu (TÜİK) tarafından yayımlanan Üretici Fiyat Endeksi (ÜFE) ve Tüketici Fiyat Endeksi (TÜFE)\n- Bu endeksler arasındaki fark marjı gösterir\n\n**Sektörel Veriler:**\n- Sektörlere özgü fiyat raporları\n- Ticaret ve Lojistik Derneği gibi kuruluşların araştırmaları\n- Gümrük ve Ticaret Bakanlığı verileri\n\n**Pazar Araştırmaları:**\n- Perakende zincirlerinin fiyat listeleri\n- Üretici firmalardan alınan doğrudan fiyat kotasyonları\n- Bağımsız pazar araştırma şirketlerinin raporları\n\n**Arabulucu Maliyetleri:**\n- Taşımacılık ve lojistik giderleri\n- Depo ve dağıtım maliyetleri\n- Perakendeci kar marjları\n\n**Sektöre Özgü İncelemeler:**\n- Gıda, tekstil, elektronik gibi alanlarda uzman raporları\n\nBu veriler karşılaştırılarak fiy",
+      "request_id": "req_011CdRWctzkLXDADap6PS6gW",
+      "usage": {
+        "input_tokens": 2356,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 400,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      }
+    },
+    {
+      "id": "urun-01",
+      "group": "urun",
+      "query": "Bugün limon hal fiyatı ne kadar ve şehirler arasında nasıl değişiyor?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:09:15.624Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 1,
+      "citation_count": 4,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://haldefiyat.com/urun/limon",
+          "title": "Limon Hal Fiyatı 2026 — Toptan & Piyasa Fiyatları",
+          "cited_text": "... Limon bugün Türkiye genelindeki hallerde ortalama 73,09 TL/kg (en düşük 20,75 TL, en yüksek 150 TL) seviyesinde işlem görüyor. ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 2,
+          "url": "https://haldefiyat.com/urun/limon",
+          "title": "Limon Hal Fiyatı 2026 — Toptan & Piyasa Fiyatları",
+          "cited_text": "... Üretim bölgelerine yakın hallerde (özellikle Antalya, İzmir ve Adana gibi tarım merkezleri) Limon fiyatları genellikle daha düşük seyreder.\n\n",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 3,
+          "url": "https://haldefiyat.com/urun/limon",
+          "title": "Limon Hal Fiyatı 2026 — Toptan & Piyasa Fiyatları",
+          "cited_text": "Fiyat hasat dönemi, üretim bölgesi ve kaliteye göre değişir — güncel değerler bu sayfadaki tabloda gösterilir. ... Limon fiyatları; hasat dönemi, hava...",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 4,
+          "url": "https://haldefiyat.com/urun/limon",
+          "title": "Limon Hal Fiyatı 2026 — Toptan & Piyasa Fiyatları",
+          "cited_text": "Bu bir toptan hal fiyatıdır; market raf fiyatının altındadır. ",
+          "is_haldefiyat": true
+        }
+      ],
+      "answer": "Bugün Türkiye genelindeki hallerde limon ortalama 73,09 TL/kg seviyesinde işlem görüyor (en düşük 20,75 TL, en yüksek 150 TL)\n.\n\n**Şehirler Arasında Değişim:**\n\n\nÜretim bölgelerine yakın hallerde (özellikle Antalya, İzmir ve Adana gibi tarım merkezleri) limon fiyatları genellikle daha düşük seyreder\n. \nFiyat hasat dönemi, üretim bölgesi, kalite, hava koşulları, nakliye maliyetleri ve arz-talep dengesine göre günlük değişim gösterir\n. \nBu bir toptan hal fiyatıdır; market raf fiyatının altındadır\n.",
+      "request_id": "req_011CdRWdJ4aGvm1KCE7ZGXjx",
+      "usage": {
+        "input_tokens": 11994,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 358,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "urun-02",
+      "group": "urun",
+      "query": "Bugün patates hal fiyatı ne kadar?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:09:20.539Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 2,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://harmanapps.com/hal-borsa-fiyatlari",
+          "title": "Türkiye Geneli Hal Fiyatları Bugün 22.07.2026 | Harman App",
+          "cited_text": "Biber Acı Kavun SALATALIK SOĞAN ... anında bildirim al Bildirimleri Aç › · Karpuz Diğer · 📍 Türkiye Geneli · 10,04 TL/kg · ▼ %5.4 Son 7 gün · 7G 30G 9...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://ciftcikolik.com/fiyatlar/turkiye-geneli/tatli-patates",
+          "title": "Tatlı Patates Fiyatı Bugün — Türkiye Geneli Hali (69,06 ₺/kg) | Çiftçikolik",
+          "cited_text": "Çiftçikolik hal fiyatları resmi kaynaklardan her gün otomatik güncellenir. ",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Güncel patates hal fiyatları bulundunuz. Arama sonuçlarının çoğu biraz eski tarihli olsa da, en yakın bilgiler şöyledir:\n\n\n22 Temmuz 2026 güncel verilere göre Türkiye genelinde patates hal fiyatları bulunmaktadır\n. Ancak spesifik fiyat tutarı bu kaynakta açıkça belirtilmemiştir.\n\nDaha detaylı bilgi için Ticaret Bakanlığı'nın resmi Hali Satış Noktası (HKS) sistemine veya \nÇiftçikolik gibi hal fiyatlarını resmi kaynaklardan günlük güncellenen platformlara\n başvurmanız önerilir. Bu siteler konumunuza göre güncel ve bölgesel fiyat farkları hakkında daha ayrıntılı bilgi sunmaktadır.",
+      "request_id": "req_011CdRWdeQgSfjb9LiHCqzEn",
+      "usage": {
+        "input_tokens": 12669,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 347,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "urun-03",
+      "group": "urun",
+      "query": "Bugün kuru soğan hal fiyatı ne kadar?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:09:28.875Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 1,
+      "citation_count": 3,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://haldefiyat.com/urun/sogan-kuru",
+          "title": "Soğan Hal Fiyatı 2026",
+          "cited_text": "Ortalama 48,50 TL/kg (14 Temmuz 2026). ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 2,
+          "url": "https://tarimmemleketi.com/sogan-fiyatlari",
+          "title": "Kuru Soğan Fiyatları 2026 - (Güncel)",
+          "cited_text": "Soğan fiyatları bölgelere göre değişiklik göstermektedir. Hatta halden, pazardan veya zincir marketlerden alacağınız aynı kuru soğanın fiyatında bile ...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://haldefiyat.com/urun/sogan-kuru",
+          "title": "Soğan Hal Fiyatı 2026",
+          "cited_text": "Hal fiyatı toptan ortalamadır; perakende zincir fiyatına ulaşırken nakliye, soğuk zincir, fire ve marka maliyetleri eklenir. Bu nedenle hal-perakende ...",
+          "is_haldefiyat": true
+        }
+      ],
+      "answer": "Türkiye genelinde kuru soğan hal fiyatı ortalama 48,50 TL/kg'dir (14 Temmuz 2026 itibariyle)\n. Ancak \nfiyatlar bölgelere göre değişiklik göstermektedir ve halden, pazardan veya zincir marketlerden alacağınız soğanın fiyatında ciddi farklılıklar olabilir\n.\n\n\nHal fiyatı toptan ortalamadır; perakende fiyatına ulaşırken nakliye, soğuk zincir ve diğer maliyetler eklenerek fark oluşmaktadır\n. Güncel, bölgesel fiyatlar için resmi hal müdürlükleri ve hal.gov.tr sitesini kontrol edebilirsiniz.",
+      "request_id": "req_011CdRWeGX5mzdidfMqHeakd",
+      "usage": {
+        "input_tokens": 13896,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 335,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "urun-04",
+      "group": "urun",
+      "query": "Bugün kayısı hal fiyatı ne kadar?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:09:36.537Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 1,
+      "citation_count": 2,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://haldefiyat.com/urun/kayisi",
+          "title": "Kayısı Hal Fiyatı 2026",
+          "cited_text": "Ortalama 83,13 TL/kg (10 Temmuz 2026). ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 2,
+          "url": "https://haldefiyat.com/urun/kayisi",
+          "title": "Kayısı Hal Fiyatı 2026",
+          "cited_text": "Her gün TSİ 06:15'te güncellenir. ... Kayısı fiyatları; hasat dönemi, hava koşulları, nakliye maliyetleri ve arz-talep dengesine göre günlük değişim g...",
+          "is_haldefiyat": true
+        }
+      ],
+      "answer": "Türkiye genelinde kayısının ortalama hal fiyatı 83,13 TL/kg (10 Temmuz 2026)\n olarak kaydedilmiştir. Ancak bu fiyat bölgelere ve kayısı çeşidine göre değişkenlik gösterebilir. \nHal fiyatları her gün TSİ 06:15'te güncellenir ve hasat dönemi, hava koşulları, nakliye maliyetleri ile arz-talep dengesine göre günlük değişim gösterir\n.\n\nGüncel fiyatlar için resmi hal müdürlükleri veya hal.gov.tr sitesinden en son verileri kontrol edebilirsiniz.",
+      "request_id": "req_011CdRWeppmsjF3ZryxoQpS9",
+      "usage": {
+        "input_tokens": 11903,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 293,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "urun-05",
+      "group": "urun",
+      "query": "Bugün karpuz hal fiyatı ne kadar?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:09:43.071Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 1,
+      "citation_count": 4,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://haldefiyat.com/urun/karpuz",
+          "title": "Karpuz Hal Fiyatı 2026",
+          "cited_text": "Ortalama 20,26 TL/kg (11 Temmuz 2026). ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 2,
+          "url": "https://harmanapps.com/karpuz-muhtelif-fiyati",
+          "title": "Karpuz Muhtelif Fiyatları Bugün Kaç TL 2026 | Harman App",
+          "cited_text": "Türkiye genelinde Karpuz Muhtelif hal fiyatı bugün ortalama ₺13,00/kg (en düşük ₺12,00, en yüksek ₺13,00). ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://haldefiyat.com/urun/karpuz",
+          "title": "Karpuz Hal Fiyatı 2026",
+          "cited_text": "Fiyatı etkileyen faktörler: Karpuz fiyatları mevsimsel arz dalgalanmasından doğrudan etkilenir. Hasat başında bol ürün piyasaya gelmesiyle fiyatlar dü...",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 4,
+          "url": "https://haldefiyat.com/urun/karpuz",
+          "title": "Karpuz Hal Fiyatı 2026",
+          "cited_text": "Kalite farklılıkları (şeker oranı, et sertliği) toptancı halinde 30-50 lira aralığında fiyat farkı yaratır. ",
+          "is_haldefiyat": true
+        }
+      ],
+      "answer": "Güncel karpuz hal fiyatları hakkında bilgi sunuyorum:\n\n\nTürkiye genelinde karpuz hal fiyatı ortalama 20,26 TL/kg (11 Temmuz 2026)\n olarak kaydedilmiştir. Ayrıca \nkarpuz muhtelif hal fiyatı bugün ortalama ₺13,00/kg\n civarındadır.\n\n\nKarpuz fiyatları mevsimsel arz dalgalanmasından doğrudan etkilenir; hasat başında bol ürün piyasaya gelmesiyle fiyatlar düşer, Ağustos sonrası arz azaldıkça yükselir.\n \nKalite farklılıkları toptancı halinde 30-50 lira aralığında fiyat farkı yaratır.\n\n\nFiyatlar bölge, kalite ve mevsime göre değişebilmektedir. Güncel detaylı bilgi için yerel hal müdürlükleri veya tarımsal fiyat izleme sitelerine başvurabilirsiniz.",
+      "request_id": "req_011CdRWfJj4Mpm6sQkoePdLq",
+      "usage": {
+        "input_tokens": 11790,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 416,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "urun-06",
+      "group": "urun",
+      "query": "Bugün kiraz hal fiyatı ne kadar?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:09:49.036Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 2,
+      "citation_count": 2,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://harmanapps.com/hal-borsa-fiyatlari",
+          "title": "Türkiye Geneli Hal Fiyatları Bugün 22.07.2026 | Harman App",
+          "cited_text": "Süt 106 Mısır 106 Kiralık Pulluk 84 Satılık Damızlık Tavuk 80 Zeytin 72 Fındık 65 Domates 61 Buğday 61 Üzüm 56 Kiraz 55 Ceviz 55 Çilek 50 Pamuk 50 Sar...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://haldefiyat.com/urun/kiraz",
+          "title": "Kıraz Hal Fiyatı 2026",
+          "cited_text": "Ortalama 92,03 TL/kg (27 Haziran 2026). ",
+          "is_haldefiyat": true
+        }
+      ],
+      "answer": "Güncel kiraz hal fiyatı hakkında en son bilgilere göre, \nkirazın hal fiyat endeksi 55 seviyesindedir\n. Ancak bu genel bir indeks verisidir.\n\nDaha detaylı bilgiye göre, \nTürkiye genelinde kiraz hal fiyatlarının ortalaması 27 Haziran 2026 tarihi itibarıyla 92,03 TL/kg\ndir. \n\nKiraz fiyatları mevsime, çeşide ve bölgeye göre değişkenlik göstermektedir. Daha güncel ve bölgesel fiyatlar için Tarım ve Orman Bakanlığı'nın hal borsa sistemi ya da yerel hal pazarlarını kontrol etmeniz önerilir.",
+      "request_id": "req_011CdRWfkHxFVr8afBAXqmA1",
+      "usage": {
+        "input_tokens": 12258,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 303,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "urun-07",
+      "group": "urun",
+      "query": "Bugün şeftali hal fiyatı ne kadar?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:09:54.587Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 1,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://www.tarimziraat.com/fiyat/seftali_fiyatlari-a32.html",
+          "title": "Şeftali Fiyatları 2026",
+          "cited_text": "... Güncel Denizli, büyükler 75, Küçükler 60 ve 40 TL. ",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Güncel hal fiyatlarını bulmak için Ticaret Bakanlığı'nın resmi hal fiyat sistemi veya Harman App gibi kaynakları kontrol etmenizi tavsiye ederim. \nDenizli'de şeftali fiyatları büyükler 75, küçükler 60 ve 40 TL arasında\n gözükmektedir. Bölgenize göre fiyatlar değişebilir. En güncel bilgi için bölgenizin hal müdürlüğünün resmi sitesine veya hal fiyat uygulamalarına bakmanız en doğru olacaktır.",
+      "request_id": "req_011CdRWg9yV7SKJiLA2An6ks",
+      "usage": {
+        "input_tokens": 10697,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 253,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "urun-08",
+      "group": "urun",
+      "query": "Bugün erik hal fiyatı ne kadar?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:09:59.882Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": true,
+      "domain_mention": false,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 1,
+      "citation_count": 2,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://haldefiyat.com/urun/erik",
+          "title": "Erik Hal Fiyatı 2026",
+          "cited_text": "Ortalama 68,33 TL/kg (11 Haziran 2026). ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 2,
+          "url": "https://haldefiyat.com/urun/erik",
+          "title": "Erik Hal Fiyatı 2026",
+          "cited_text": "... Erik fiyatları; hasat dönemi, hava koşulları, nakliye maliyetleri ve arz-talep dengesine göre günlük değişim gösterir. ",
+          "is_haldefiyat": true
+        }
+      ],
+      "answer": "Arama sonuçlarında yeterli güncel fiyat bilgisi yer almıyor. Bulduğum en yakın veriler Haziran başına ait. Daha güncel fiyatlar için hal fiyat sitelerine doğrudan bakmanızı tavsiye ederim.\n\n\nHaziran 11'de erik hal fiyatı ortalama 68,33 TL/kg\n idi. Ancak erik fiyatları sezonsal ürün olduğundan hızlı değişiklik gösterir. \nFiyatlar hasat dönemi, hava koşulları, nakliye maliyetleri ve arz-talep dengesine göre günlük değişim gösterir.\n\n\nBugünün en güncel fiyatlarını öğrenmek için HalDeFiyat, Harman App veya resmi hal müdürlüklerinin sitelerini ziyaret etmenizi önerim.",
+      "request_id": "req_011CdRWgYbmHrFEdcW2Shz2S",
+      "usage": {
+        "input_tokens": 12879,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 338,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "urun-09",
+      "group": "urun",
+      "query": "Bugün taze fasulye hal fiyatı ne kadar?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:10:05.983Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 3,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://harmanapps.com/fasulye-fiyati",
+          "title": "Fasulye Fiyatları 2026 | Hal Borsa Grafiği | Harman App",
+          "cited_text": "Türkiye genelinde Fasulye hal fiyatı bugün ortalama ₺112,86/kg. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://harmanapps.com/fasulye-fiyati",
+          "title": "Fasulye Fiyatları 2026 | Hal Borsa Grafiği | Harman App",
+          "cited_text": "Fiyatlar şehir, kalite ve mevsime göre değişir.\n\n",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://www.kiliskenthaber.com/haber/kilis-hal-fiyatlari-3-temmuz-2026-guncel-sebze-meyve-ve-yesillik-fiyat-listesi-89102.html",
+          "title": "Kilis Hal Fiyatları 3 Temmuz 2026: Güncel Sebze, Meyve ve Yeşillik Fiyat Listesi - Kilis Kent Haber",
+          "cited_text": "Yaz döneminin favorilerinden taze fasulye kilogramı 60,00 TL - 70,00 TL ile dikkat çekerken, kuru sarımsak 60,00 TL - 80,00 TL fiyat aralığına sahip.",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Güncel hal fiyat bilgisini arayarak size en güncel bilgiyi getireyim.\nAradığım sonuçlara göre taze fasulye fiyatları bölgeye göre değişkenlik göstermektedir:\n\n\nTürkiye genelinde taze fasulye hal fiyatı bugün ortalama ₺112,86/kg\n'dir. Ancak \nfiyatlar şehir, kalite ve mevsime göre değişir\n.\n\nSpesifik bölgeler için örnek verecek olursak, \nKilis'te taze fasulye kilogramı 60,00 TL - 70,00 TL aralığında\ndır. Fiyat dalgalanması yaşandığından en güncel hal borsa fiyatlarını bölgenizin resmi hal müdürlüğü veya hal fiyat takip platformlarından kontrol etmenizi tavsiye ederim.",
+      "request_id": "req_011CdRWgzieWYRPckmQn2H9K",
+      "usage": {
+        "input_tokens": 12810,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 358,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "urun-10",
+      "group": "urun",
+      "query": "Domates hal fiyatları son günlerde nasıl değişti?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:10:12.974Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 1,
+      "citation_count": 5,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://haldefiyat.com/urun/domates",
+          "title": "Domates Hal Fiyatı 2026",
+          "cited_text": "Ortalama 39,29 TL/kg (10 Temmuz 2026). ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 2,
+          "url": "https://harmanapps.com/hal-borsa-fiyatlari/istanbul",
+          "title": "İstanbul Hal Fiyatları Bugün 22.07.2026 | Harman App",
+          "cited_text": "İstanbul hal fiyatları bugün (22.07.2026): Domates 85-105₺, Biber 40-85₺, Soğan 105-130₺. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://harmanapps.com/hal-borsa-fiyatlari/ankara",
+          "title": "Ankara Hal Fiyatları Bugün 19.07.2026 | Harman App",
+          "cited_text": "Ankara hal fiyatları bugün (19.07.2026): Domates 40-55₺, Biber 45-90₺, Patates 35-44₺. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 4,
+          "url": "https://harmanapps.com/hal-borsa-fiyatlari/antalya",
+          "title": "Antalya Hal Fiyatları 01.07.2026 - Güncel | Harman App",
+          "cited_text": "Domates 10-25₺, Biber 40-75₺, Patates 20-45₺. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 5,
+          "url": "https://haldefiyat.com/urun/domates",
+          "title": "Domates Hal Fiyatı 2026",
+          "cited_text": "... Domates fiyatları; hasat dönemi, hava koşulları, nakliye maliyetleri ve arz-talep dengesine göre günlük değişim gösterir. Sezon dışı dönemlerde fi...",
+          "is_haldefiyat": true
+        }
+      ],
+      "answer": "Güncel hal fiyatlarına göre domates fiyatları şöyle değişmektedir:\n\n\nTürkiye genelinde domates hal fiyatı ortalama 39,29 TL/kg\n (10 Temmuz 2026 verisi). Ancak bölgelere göre değişiklik göstermektedir: \nİstanbul'da 85-105₺\n, \nAnkara'da 40-55₺\n ve \nAntalya'da 10-25₺\n arasında değişmektedir.\n\n\nDomates fiyatları hasat dönemi, hava koşulları, nakliye maliyetleri ve arz-talep dengesine göre günlük değişim gösterir; sezon dışı dönemlerde fiyatlar belirgin biçimde yükselebilir.\n Fiyat farkları şehir, kalite ve mevsimsel koşullara bağlıdır.",
+      "request_id": "req_011CdRWhWaFfVkpdUEtLZGVt",
+      "usage": {
+        "input_tokens": 14166,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 397,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "hal-01",
+      "group": "hal",
+      "query": "İstanbul hal fiyatlarını bugün nereden görebilirim?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:10:19.694Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 5,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://halfiyatlari.tr/istanbul/",
+          "title": "İstanbul Hal Fiyatları 2026",
+          "cited_text": "Halfiyatlari.tr, İstanbul Hali’nden alınan en güncel bilgileri derleyerek sizlere ulaştırır. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://www.guncelfiyatlari.com/istanbul-hal-fiyatlari/",
+          "title": "İstanbul Hal Fiyatları 2026 Listesi - GuncelFiyatlari.Com",
+          "cited_text": "İstanbul Hal fiyatları 2026 güncel listesi hazırlanırken İstanbul Büyükşehir Belediye Başkanlığının günlük olarak açıkladığı meyve sebze ve ithal ürün...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://harmanapps.com/hal-borsa-fiyatlari/istanbul",
+          "title": "İstanbul Hal Fiyatları Bugün 22.07.2026 | Harman App",
+          "cited_text": "İstanbul'un en büyük hali Bayrampaşa Sebze ve Meyve Hali'dir. Ayrıca Ataşehir, Esenyurt, İçerenköy bölgelerindeki haller de bu sayfaya dahildir. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 4,
+          "url": "https://halfiyatlari.tr/istanbul/",
+          "title": "İstanbul Hal Fiyatları 2026",
+          "cited_text": "Sitemizde yer alan fiyat bilgileri, şu başlıklar altında sunulmaktadır: Sebze Fiyatları: Domates, salatalık, biber, patlıcan gibi ürünlerin en güncel ...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 5,
+          "url": "https://harmanapps.com/hal-borsa-fiyatlari/istanbul",
+          "title": "İstanbul Hal Fiyatları Bugün 22.07.2026 | Harman App",
+          "cited_text": "48+ meyve sebze fiyatı günlük güncellenir. ",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "İstanbul hal fiyatlarını bugün görmek için birkaç kaynak kullanabilirsiniz:\n\n**Web Siteleri:**\n- \nHalfiyatlari.tr, İstanbul Hali'nden alınan en güncel bilgileri derleyerek sunmaktadır\n\n- \nGuncelfiyatlari.com, İstanbul Büyükşehir Belediye Başkanlığının günlük açıklamalarını dikkate alarak güncel liste hazırlamaktadır\n\n- \nHarman App, Bayrampaşa Sebze ve Meyve Hali'nin yanı sıra Ataşehir, Esenyurt, İçerenköy bölgelerindeki haller hakkında bilgi sunmaktadır\n\n\n**Ürünler:**\n\nBu siteler domates, salatalık, biber, patlıcan gibi sebzeler ile elma, nar, portakal gibi meyvelerin güncel fiyatlarını sağlamaktadır\n. \nGenellikle 48+ meyve sebze fiyatı günlük güncellenir\n.\n\nBu kaynakları ziyaret ederek bugünün hal fiyatlarını kolayca takip edeb",
+      "request_id": "req_011CdRWi1BTD8hr7TDcfMXt4",
+      "usage": {
+        "input_tokens": 12048,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 466,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "hal-02",
+      "group": "hal",
+      "query": "Konya hal fiyatlarını bugün nereden görebilirim?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:10:27.197Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 0,
+      "citations": [],
+      "answer": "Konya'daki bugünkü hal fiyatlarını görebileceğiniz ana kaynaklar:\n\n1. **Konya Gıda, Tarım ve Hayvancılık İl Müdürlüğü** - Resmi fiyat takip sistemleri\n2. **Ticaret Bakanlığı Fiyat İzleme Sistemi** - Güncel tarım ürünleri fiyatları\n3. **Konya Ticaret Borsası** - Bölgesel ürün fiyatları\n4. **Tarim.gov.tr** - Ziraat ve Orman Bakanlığı'nın resmi platformu\n\nAyrıca **Konya Ovaköy Hal Pazarı** ve diğer yerel pazarların sosyal medya hesapları veya doğrudan telefonla aranması da güncel fiyat bilgisi almanın yollarıdır.\n\nEn güvenilir seçenek resmi devlet kurumlarının sitelerini ziyaret etmektir. Fiyatlar hızla değiştiği için aynı gün içinde birden fazla kaynaktan kontrol yapılması önerilir.",
+      "request_id": "req_011CdRWiZQC41t6NBVSY2A4E",
+      "usage": {
+        "input_tokens": 2343,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 314,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      }
+    },
+    {
+      "id": "hal-03",
+      "group": "hal",
+      "query": "Kahramanmaraş hal fiyatlarını bugün nereden görebilirim?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:10:32.015Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 2,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://kahramanmaras.bel.tr/hal-sebze-ve-meyve-fiyatlari",
+          "title": "Hal Sebze ve Meyve Fiyatları | Kahramanmaraş Büyükşehir Belediyesi",
+          "cited_text": "Günlük sebze ve meyve fiyatlarının anlık takip edildiği sistemimiz belediyemiz resmi web sitesinden yayın yapılarak vatandaşımızın hizmetine sunulmuşt...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://harmanapps.com/hal-borsa-fiyatlari",
+          "title": "Türkiye Geneli Hal Fiyatları Bugün 22.07.2026 | Harman App",
+          "cited_text": "Türkiye'nin 81 ili için hal borsa fiyatları. Yeşil iller günlük güncel veri akışına sahiptir. \n\n",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Kahramanmaraş hal fiyatlarını güncel olarak görebileceğiniz başlıca kaynaklar:\n\n1. **Kahramanmaraş Büyükşehir Belediyesi Resmi Web Sitesi**: \nGünlük sebze ve meyve fiyatlarının anlık takip edildiği sistem belediye web sitesinden yayın yapılmaktadır.\n kahramanmaras.bel.tr adresindeki \"Hal Sebze ve Meyve Fiyatları\" bölümünü ziyaret edebilirsiniz.\n\n2. **Tarım.com.tr**: Kahramanmaraş Hali fiyatlarını listeleme yapan bir site olarak hizmet vermektedir.\n\n3. **Harita Uygulamaları**: Harman App gibi uygulamalar \nTürkiye'nin 81 ili için hal borsa fiyatları sunmakta, yeşil işaretli iller günlük güncel veri akışına sahiptir.\n\n\n4. **Yerel Haber Kaynakları**: Maraş Bugün gibi yerel siteler de haftalık fiyat listeleri yayınlamaktadır.\n\nEn güvenilir seçenek belediye resmi web sitesidir.",
+      "request_id": "req_011CdRWiv4f7BLokjDhrJZYb",
+      "usage": {
+        "input_tokens": 11511,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 441,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "hal-04",
+      "group": "hal",
+      "query": "Ankara hal fiyatlarını bugün nereden görebilirim?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:10:39.496Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": true,
+      "domain_mention": true,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 2,
+      "citation_count": 4,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://www.ankara.bel.tr/hal-fiyatlari",
+          "title": "Hal Fiyatları",
+          "cited_text": "Hallerde bulunan ürün türlerinden birini seçiniz. ... Arama sonucunda belirttiğiniz tarihteki ve türdeki fiyatlar görüntülenecektir.\n\n",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://haldefiyat.com/hal/ankara-hal",
+          "title": "Ankara Toptancı Hali Fiyatları 2026 — Güncel Toptan Liste",
+          "cited_text": "Veriler, belediye hal müdürlüğünün resmi sistemi ve hal.gov.tr üzerinden otomatik çekilmekte; her gün TSİ 06:15&#x27;te güncellenmektedir. ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 3,
+          "url": "https://harmanapps.com/hal-borsa-fiyatlari/ankara",
+          "title": "Ankara Hal Fiyatları Bugün 19.07.2026 | Harman App",
+          "cited_text": "48+ meyve sebze fiyatı günlük güncellenir. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 4,
+          "url": "https://harmanapps.com/hal-borsa-fiyatlari/ankara",
+          "title": "Ankara Hal Fiyatları Bugün 19.07.2026 | Harman App",
+          "cited_text": "Ankara hal fiyatları bugün (19.07.2026): Domates 40-55₺, Biber 45-90₺, Patates 35-44₺. ",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Ankara hal fiyatlarını güncel olarak görebileceğiniz kaynaklar:\n\n1. **Ankara Büyükşehir Belediyesi**: \nankara.bel.tr üzerinden hallerdeki ürün türlerini seçerek belirttiğiniz tarihteki fiyatları görüntüleyebilirsiniz\n.\n\n2. **Hal.gov.tr (Resmi Sistem)**: \nVeriler belediye hal müdürlüğünün resmi sistemi ve hal.gov.tr üzerinden her gün TSİ 06:15'te güncellenmektedir\n.\n\n3. **Harman App**: \n48+ meyve sebze fiyatı günlük güncellenir\n ve Ankara'ya özel filtreleme yapabilirsiniz.\n\n4. **Hal Fiyatları Portalleri**: halfiyatlari.tr, tarim.com.tr ve haldefiyat.com gibi siteler de güncel fiyatları sunar.\n\n\nGüncel fiyatlara örnek olarak domates 40-55₺, biber 45-90₺, patates 35-44₺ aralıklarında işlem görmektedir\n.",
+      "request_id": "req_011CdRWjU12eqdgpPWTDMkFC",
+      "usage": {
+        "input_tokens": 11521,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 432,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "hal-05",
+      "group": "hal",
+      "query": "Bursa hal fiyatlarını bugün nereden görebilirim?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:10:45.968Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": true,
+      "domain_mention": true,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 3,
+      "citation_count": 4,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://www.bursa.bel.tr/hal_fiyatlari",
+          "title": "Bursa Hikmet Şahin Kent Hali Hal Fiyatları",
+          "cited_text": "Bursa Hikmet Şahin Kent Hali Hal Fiyatları · Meyve · Sebze · İthal · Pelajik Su Ürünleri · Dip Su Ürünleri · İç Su Ürünleri · Diğer Su Ürünleri · Kült...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://harmanapps.com/hal-borsa-fiyatlari/bursa",
+          "title": "Bursa Hal Fiyatları Bugün 12.07.2026 | Harman App",
+          "cited_text": "Aşağıdaki günlük güncel fiyatlar Bursa genelini kapsar. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://haldefiyat.com/hal/bursa-hal",
+          "title": "Bursa Toptancı Hali Fiyatları 2026 — Güncel Toptan Liste",
+          "cited_text": "Bugün güncellendi · Hava Durumu — Bursatarimiklim.com · ☀️ · 34°C · Hissedilen 41°C · Nem \u00100 · açık · Rüzgar 5.79 km/s · 12 Tem Paz☀️ · 33°/ 18° · 13 ...",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 4,
+          "url": "https://halfiyatlari.tr/bursa/",
+          "title": "Bursa Hal Fiyatları 2025",
+          "cited_text": "... \n\nBursa Hali’nde sebze, meyve ve balık fiyatları günlük olarak güncellenmekte, sabah saatlerinden itibaren tüketicilere ve tüccarlara sunulmaktadı...",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Bursa hal fiyatlarını güncel olarak görebileceğiniz birkaç kaynak bulunmaktadır:\n\n1. **Bursa Belediyesi Resmi Sitesi**: \nBursa Hikmet Şahin Kent Hali fiyatları, Bursa Belediyesi'nin web sitesinde meyve, sebze, su ürünleri gibi kategorilerde sunulmaktadır\n.\n\n2. **Tarım.com.tr**: Türkiye genelinde hal fiyatlarını sunan bu site, Bursa Hali için ayrıntılı ürün listelerini içerir.\n\n3. **Harman App**: \nBursa genelini kapsayan günlük güncel fiyatlar\n burada bulunmaktadır.\n\n4. **HalDeFiyat.com**: \nBursa toptancı hali fiyatları bu sitede güncellenmektedir\n.\n\n\nBursa Hali'nde sebze, meyve ve balık fiyatları günlük olarak güncellenmekte, sabah saatlerinden itibaren tüketicilere ve tüccarlara sunulmaktadır\n.",
+      "request_id": "req_011CdRWjwiACNn2qPswrxb6b",
+      "usage": {
+        "input_tokens": 12075,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 425,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "hal-06",
+      "group": "hal",
+      "query": "Balıkesir hal fiyatlarını bugün nereden görebilirim?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:10:53.727Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": true,
+      "domain_mention": false,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 3,
+      "citation_count": 3,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://www.ehalmal.com/hal-fiyatlari-128",
+          "title": "- ehalmal.com Hal Fiyatları | Et ve Süt Fiyatları Hububat ve Bakliyat Borsaları",
+          "cited_text": "Samsun https://www.samsun.bel.tr/icerik/hal-fiyatlari · Balıkesir https://halvepazarfiyatlari.balikesir.bel.tr/ Kahramanmaraş https://kahramanmaras.be...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://www.ehalmal.com/hal-fiyatlari-128",
+          "title": "- ehalmal.com Hal Fiyatları | Et ve Süt Fiyatları Hububat ve Bakliyat Borsaları",
+          "cited_text": "Ticaret Bakanlığı Hal Kayıt Sistemi Fiyat Listesi · http://www.hal.gov.tr/Sayfalar/FiyatDetaylari.aspx ·\n\n\n\nİstanbul https://tarim.ibb.istanbul/avrupa...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://haldefiyat.com/",
+          "title": "Türkiye Hal Fiyatları — Günlük, Gerçek Zamanlı | HaldeFiyat",
+          "cited_text": "İstanbul, Ankara, İzmir ve tüm illerden günlük sebze-meyve hal fiyatlarını anlık takip edin. Fiyat grafikleri, trend analizleri ve akıllı uyarılar. ",
+          "is_haldefiyat": true
+        }
+      ],
+      "answer": "Balıkesir hal fiyatlarını güncel biçimde görebilmek için web'de arayalım.\nBalıkesir hal fiyatlarını bugün görebileceğiniz kaynaklar:\n\n\n**Balıkesir Belediyesi Resmi Sayfası**: halvepazarfiyatlari.balikesir.bel.tr/\n – Sebze-meyve hal fiyatlarına doğrudan erişebilirsiniz.\n\n\n**T.C. Ticaret Bakanlığı Hal Kayıt Sistemi**: hal.gov.tr\n – Tüm Türkiye'deki hal fiyatlarını karşılaştırabilirsiniz.\n\nAyrıca \nHaldeFiyat gibi platformlar da günlük sebze-meyve hal fiyatlarını anlık takip etme, fiyat grafikleri ve trend analizleri sunar\n.\n\nBu kaynaklar güncel veriler sağlayarak günlük fiyat değişikliklerini izlemenize yardımcı olacak.",
+      "request_id": "req_011CdRWkWoyZaDycTPjG7UYJ",
+      "usage": {
+        "input_tokens": 10665,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 399,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "hal-07",
+      "group": "hal",
+      "query": "Gaziantep hal fiyatlarını bugün nereden görebilirim?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:10:59.508Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 3,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://www.gaziantephaber.com/gaziantep-hal-fiyatlari/12616/",
+          "title": "Gaziantep hal fiyatları",
+          "cited_text": "Gaziantep Büyükşehir Belediyesi resmi internet sitesi Hal fiyatları bölümünde yayınlanan fiyatlar. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://www.tarim.com.tr/Hal-Fiyatlari.aspx?Ara=%7Cil%7CGaziantep-Hali%7Cilid%7C17",
+          "title": "Hal Fiyatları - Gaziantep",
+          "cited_text": "Anasayfa » Hal Fiyatları · Hal Grupları · Meyve &amp; Sebze · Haller · (Tümü) Adana Hali · Afyon Hali · Alanya Hali · Ankara Hali · Antalya Hali · Baf...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://halfiyatlari.co/gaziantep-hal-fiyatlari",
+          "title": "Gaziantep Hal Fiyatları (12.05.2026) | Güncel Sebze Meyve Fiyatları",
+          "cited_text": "halfiyatlari.co üzerinden sunulan güncel veriler sayesinde Gaziantep Toptancı Hali’nde işlem gören ürünlerin fiyatlarını kolayca inceleyebilirsiniz. ",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Gaziantep hal fiyatlarını öğrenmek için en güncel bilgiye ulaşmak üzere araştırayım.\nGaziantep hal fiyatlarını güncel olarak görebileceğiniz kaynaklar:\n\n1. **Gaziantep Büyükşehir Belediyesi** - \nResmi internet sitesinin Hal fiyatları bölümünde yayınlanan fiyatlar\n en güvenilir kaynaktır.\n\n2. **Tarım.com.tr** - \nGaziantep Hali'nin yer aldığı kapsamlı hal fiyatları listesi\n sunmaktadır.\n\n3. **Hal Fiyatları İnternet Siteleri** - \nhalfiyatlari.co gibi platformlar Gaziantep Toptancı Hali'nde işlem gören ürünlerin fiyatlarını kolayca inceleyebileceğiniz güncel veriler sunmaktadır.\n\n\n4. **Yerel Haber Siteleri** - Gaziantep Postası ve benzeri yerel medya kuruluşları günlük hal fiyatlarını yayınlamaktadır.\n\nBu kaynaklarda domates, biber, patlıcan, sebzeler ve meyveler olmak üzere 40+ ürünün güncel fiyatlarını bulabilirsiniz.",
+      "request_id": "req_011CdRWkwXmhRtE5jm8uSCY1",
+      "usage": {
+        "input_tokens": 12106,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 464,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "hal-08",
+      "group": "hal",
+      "query": "Eskişehir hal fiyatlarını bugün nereden görebilirim?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:11:07.462Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 0,
+      "citations": [],
+      "answer": "Eskişehir'deki hal fiyatlarını güncel olarak görmek için en güvenilir kaynaklar:\n\n1. **Tarım ve Orman Bakanlığı** - Resmi hal fiyat verilerini Gıda ve Kontrol Genel Müdürlüğü aracılığıyla yayınlar. Bakanlığın websitesinde güncel fiyatları bulabilirsiniz.\n\n2. **Eskişehir Sebze-Meyve Hali** - Doğrudan hal müdürlüğüne telefon ederek o günkü fiyatlarını öğrenebilirsiniz.\n\n3. **Lokomotif Hali** - Eskişehir'deki önemli hal işletmelerinden biridir ve fiyat bilgisi alabilirsiniz.\n\n4. **Ticari siteler** - Bazı tarım ticaret platformları ve gıda işletmeleri güncel hal fiyatlarını listeler.\n\nHalden doğrudan bilgi almak en hızlı yoldur. Taze ürün fiyatları günlük değiştiği için internet arayışından çok, hal müdürlüğüne telefon etmek daha pratik olabilir. Bakanlık sitesinde de haftalık raporlar mevcuttur.",
+      "request_id": "req_011CdRWmXXuht5wZ47mZgXTK",
+      "usage": {
+        "input_tokens": 2345,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 348,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      }
+    },
+    {
+      "id": "hal-09",
+      "group": "hal",
+      "query": "Çanakkale hal fiyatlarını bugün nereden görebilirim?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:11:13.722Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 2,
+      "citation_count": 4,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://www.ehalmal.com/hal-fiyatlari-128",
+          "title": "- ehalmal.com Hal Fiyatları | Et ve Süt Fiyatları Hububat ve Bakliyat Borsaları",
+          "cited_text": "Elazığ https://www.elazig.bel.tr/hal-fiyatlari-ebelediye-139 · Kütahya http://www.kutahya.bel.tr/hal.asp · Çanakkale https://www.canakkale.bel.tr/tr/s...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://haldefiyat.com/hal/canakkale-hal",
+          "title": "Çanakkale Toptancı Hali Fiyatları 2026 — Güncel Toptan Liste",
+          "cited_text": "Veriler, belediye hal müdürlüğünün resmi sistemi ve hal.gov.tr üzerinden otomatik çekilmekte; her gün TSİ 06:15&#x27;te güncellenmektedir.",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 3,
+          "url": "https://harmanapps.com/hal-borsa-fiyatlari",
+          "title": "Türkiye Geneli Hal Fiyatları Bugün 22.07.2026 | Harman App",
+          "cited_text": "Türkiye&#x27;nin 81 ili için hal borsa fiyatları. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 4,
+          "url": "https://haldefiyat.com/hal/canakkale-hal",
+          "title": "Çanakkale Toptancı Hali Fiyatları 2026 — Güncel Toptan Liste",
+          "cited_text": "Veriler, belediye hal müdürlüğünün resmi sistemi ve hal.gov.tr üzerinden otomatik çekilmekte; her gün TSİ 06:15&#x27;te güncellenmektedir.",
+          "is_haldefiyat": true
+        }
+      ],
+      "answer": "Çanakkale hal fiyatlarını görmek için birkaç seçeneğiniz vardır:\n\n\nÇanakkale Belediyesi'nin resmi websitesinden (canakkale.bel.tr) hal fiyatlarına erişebilirsiniz\n. \nBu veriler belediye hal müdürlüğünün resmi sistemi ve hal.gov.tr üzerinden otomatik olarak her gün TSİ 06:15'te güncellenmektedir\n.\n\nAyrıca \nHarman App gibi uygulamalar Türkiye'nin 81 ili için hal borsa fiyatlarını\n günlük olarak sunmaktadır. \nhal.gov.tr Ticaret Bakanlığı'nın resmi hal kayıt sistemi\n olarak da hizmet vermektedir.\n\nEn güncel ve doğru fiyatlar için Çanakkale Belediyesi'nin sitesini ziyaret etmeniz en uygun seçenek olacaktır.",
+      "request_id": "req_011CdRWmzHjsbhrUxcNmYBHC",
+      "usage": {
+        "input_tokens": 10746,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 386,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "hal-10",
+      "group": "hal",
+      "query": "Çorum hal fiyatlarını bugün nereden görebilirim?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:11:19.689Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": true,
+      "domain_mention": true,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 2,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://www.corum.bel.tr/hal-fiyatlari",
+          "title": "Hal Fiyatları | Çorum Belediyesi",
+          "cited_text": "Dr. Halil İbrahim AŞGIN ... Yeni fiyat listeleri her hafta Pazartesi, Çarşamba ve Cuma günleri eklenmektedir. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://corumrehberi.net/hal-fiyatlari",
+          "title": "Çorum Hal Fiyatları",
+          "cited_text": "Liste Pazartesi, Çarşamba ve Cuma güncellenir; diğer günler en son liste gösterilir. ",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Çorum hal fiyatlarını güncel olarak görmek için kullanabileceğiniz kaynaklar:\n\n1. **Çorum Belediyesi Resmi Sayfası**: \nYeni fiyat listeleri her hafta Pazartesi, Çarşamba ve Cuma günleri eklenmektedir.\n corum.bel.tr/hal-fiyatlari adresinden kontrol edebilirsiniz.\n\n2. **Harman App**: Türkiye genelinde hal fiyatlarını gösteren platform, Çorum'u da kapsamaktadır.\n\n3. **HalDeFiyat.com**: Çorum dahil olmak üzere tüm illerin hal fiyatlarını listelemektedir.\n\n4. **Tarım Ziraat Portalleri**: Çiftçi ve tüccarların paylaştığı fiyat bilgilerini içerir.\n\nDikkat etmeniz gereken nokta: \nListe Pazartesi, Çarşamba ve Cuma güncellenir; diğer günler en son liste gösterilir.\n Bu nedenle hafta sonu ve hafta arası günlerde fiyatlar güncellenmiş olmayabilir.",
+      "request_id": "req_011CdRWnRptwRQhkQ2pPtxpx",
+      "usage": {
+        "input_tokens": 11769,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 405,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "yerel-01",
+      "group": "yerel",
+      "query": "Antalya Serik Hali güncel fiyatları nedir?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:11:26.104Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 3,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://www.karekod.org/blog/serik-hal-fiyatlari/",
+          "title": "Serik Hal Fiyatları 2026 (Güncel Serik Hal Fiyat Listesi)",
+          "cited_text": "Serik hal fiyatlarının belirlenmesinde birden fazla faktör dikkate alınır ve hal fiyatları güncel piyasa koşullarına göre sürekli olarak değişir. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://halfiyatlari.tr/antalya/serik/",
+          "title": "Serik Hal Fiyatları 2026",
+          "cited_text": "Serik hal fiyatları bugün, domates, biber, patlıcan, kabak, salatalık gibi sebzelerin yanı sıra, portakal, nar, limon gibi meyvelerin de fiyatlarını i...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://www.guncelfiyatlari.com/serik-hal-fiyatlari/",
+          "title": "Serik Hal Fiyatları 2026 Listesi - GuncelFiyatlari.Com",
+          "cited_text": "Serik Hal fiyatları 2026 güncel listesi hazırlanırken Serik Toptancı Hali Komisyoncular Derneği tarafından günlük olarak yayınlanan listeler göz önünd...",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Serik Hali'nde güncel fiyatlar, \nhal fiyatları güncel piyasa koşullarına göre sürekli olarak değişir\n. \nSerik hal fiyatları bugün, domates, biber, patlıcan, kabak, salatalık gibi sebzelerin yanı sıra, portakal, nar, limon gibi meyvelerin de fiyatlarını içermektedir.\n\n\n\nSerik Hal fiyatları 2026 güncel listesi Serik Toptancı Hali Komisyoncular Derneği tarafından günlük olarak yayınlanan listeler göz önünde bulundurularak tablo halinde sunulmaktadır.\n Güncel ve detaylı fiyat listelerine erişmek için Serik Toptancı Hali'nin resmi kaynakları veya hal fiyatlarını günlük takip eden web sitelerini ziyaret etmenizi tavsiye ederim.",
+      "request_id": "req_011CdRWnuFQHGbqULM1h2KkT",
+      "usage": {
+        "input_tokens": 11968,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 372,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "yerel-02",
+      "group": "yerel",
+      "query": "İzmir halinde domates bugün kaç TL?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:11:31.558Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 2,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://www.tarim-pazar.com/hal-fiyatlari/izmir-hal-fiyatlari/",
+          "title": "İzmir Hal Fiyatları 22.07.2026 - Güncel | Tarım Pazar",
+          "cited_text": "DOMATES (KOKTEYL) 40-60₺, PATATES CALMA 15-38₺, SOĞAN KIRMIZI 35-70₺. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://harmanapps.com/domates-salcalikrio-fiyati/izmir",
+          "title": "İzmir Domates Salçalık(Rio) Fiyatları Bugün Kaç TL 2026 | Harman App",
+          "cited_text": "İzmir bölgesinde Domates Salçalık(Rio) hal fiyatı bugün ortalama ₺15,00/kg. ",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "İzmir halinde domates fiyatları çeşide göre değişmektedir. \nKokteyl domates 40-60 TL aralığında\n, \nsalçalık (Rio) domates ise ortalama 15 TL/kg\n olarak kaydedilmektedir.\n\nFiyatlar kalite, sezon ve arz-talep koşullarına bağlı olarak günlük değişim gösterebilir. En güncel fiyatları resmi hal bültinlerinden kontrol etmeniz önerilir.",
+      "request_id": "req_011CdRWoJZs3pwjJ1YEXnQWW",
+      "usage": {
+        "input_tokens": 14323,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 239,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "yerel-03",
+      "group": "yerel",
+      "query": "Mersin halinde limon bugün kaç TL?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:11:36.998Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 1,
+      "citation_count": 4,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://haldefiyat.com/urun/limon",
+          "title": "Limon Hal Fiyatı 2026 — Toptan & Piyasa Fiyatları",
+          "cited_text": "Ortalama 144,86 TL/kg (25 Temmuz 2026). ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 2,
+          "url": "https://harmanapps.com/limon-fiyati",
+          "title": "Limon Fiyatları Bugün Kaç TL 2026 | Harman App",
+          "cited_text": "Fiyatlar şehir, kalite ve mevsime göre değişir. \n\n",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://www.tarimziraat.com/fiyat/limon_fiyatlari-a30.html",
+          "title": "Limon Fiyatları 2026",
+          "cited_text": "Bugün , 11:42| Misafir390212| Şikayet Et · Gönder · Mersin /Erdemli Piyasası Genel Limon fiyatları · Şikayet Et · ﻿ Burada yazılan fiyatlar arasında u...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 4,
+          "url": "https://haldefiyat.com/urun/limon",
+          "title": "Limon Hal Fiyatı 2026 — Toptan & Piyasa Fiyatları",
+          "cited_text": "... Üretim bölgelerine yakın hallerde (özellikle Antalya, İzmir ve Adana gibi tarım merkezleri) Limon fiyatları genellikle daha düşük seyreder. ",
+          "is_haldefiyat": true
+        }
+      ],
+      "answer": "Mersin haldinde limon fiyatları günümüz piyasa koşullarına bağlı olarak değişkenlik göstermektedir. \n25 Temmuz 2026 itibarıyla ortalama 144,86 TL/kg\n seviyesindedir. Ancak \nfiyatlar şehir, kalite ve mevsime göre değişir\n.\n\nMersin Erdemli bölgesinde yapılan son raporlamalarda \npiyasada 60-65 TL bandında hareketlilik\n gözlenmiştir. \nMersin gibi üretim bölgelerine yakın hallerde limon fiyatları genellikle daha düşük seyreder\n.\n\nEn doğru fiyat bilgisi için Mersin Büyükşehir Belediyesi tarafından günlük yayınlanan resmi hal fiyat listelerini kontrol etmeniz önerilir.",
+      "request_id": "req_011CdRWohpMETu1QNWcYjgG6",
+      "usage": {
+        "input_tokens": 12424,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 371,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "yerel-04",
+      "group": "yerel",
+      "query": "Kocaeli halinde sebze fiyatları bugün ne durumda?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:11:43.003Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 3,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://www.bugunkocaeli.com.tr/kocaeli-halinde-sebze-ve-meyve-fiyatlari-bugun-ne-kadar",
+          "title": "KOCAELİ HALİNDE SEBZE VE MEYVE FİYATLARI BUGÜN NE KADAR? - | Bugün Kocaeli Gazetesi",
+          "cited_text": "Temel sebzelerde daha dengeli bir seyir izlenirken, ithal ve özel ürünlerde yüksek tavan fiyatlar dikkat çekiyor. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://www.bugunkocaeli.com.tr/kocaeli-hal-fiyatlari-aciklandi-sebze-ve-meyvede-son-durum-19-mart-2026",
+          "title": "KOCAELİ HAL FİYATLARI AÇIKLANDI: SEBZE VE MEYVEDE SON DURUM (19 MART 2026) - | Bugün Kocaeli Gazetesi",
+          "cited_text": "KOCAELİ VE SAKARYA İŞ DÜNYASI İZMİT’TE BULUŞTU ... Yetkililer, fiyatlardaki değişimin arz-talep dengesi, mevsim koşulları ve lojistik maliyetlerden ka...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://www.kocaeli.bel.tr/hal-fiyatlari/",
+          "title": "HAL FİYATLARI - Kocaeli Büyükşehir Belediyesi",
+          "cited_text": "Kocaeli Büyükşehir Belediyesi Günlük Hal Fiyatları ... Formda bulunan tarih alanından öncelikle görmek istediğiniz tarihi belirtin. ... Şehrimizde bul...",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Maalesef bugün (26 Temmuz 2026) için Kocaeli hali sebze fiyatlarının güncel verilerine ulaşamadım. Arama sonuçlarında en güncel bilgiler Haziran ve öncesine ait.\n\nAncak genel durum şöyle özetlenebilir: \nTemel sebzelerde daha dengeli bir seyir izlenirken, ithal ve özel ürünlerde yüksek tavan fiyatlar dikkat çekiyor.\n \nFiyatlardaki değişimin arz-talep dengesi, mevsim koşulları ve lojistik maliyetlerden kaynaklandığı belirtiliyor.\n\n\nGüncel fiyatlar için \nKocaeli Büyükşehir Belediyesi'nin resmi hal fiyatları sayfasından belirttiğiniz tarihe göre sebze hali fiyatlarını kontrol edebilirsiniz.",
+      "request_id": "req_011CdRWp9YAHv82jj3E7pmUK",
+      "usage": {
+        "input_tokens": 12921,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 373,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "yerel-05",
+      "group": "yerel",
+      "query": "Adana halinde karpuz fiyatları ne kadar?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:11:49.655Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 4,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://www.gazetevatan.com/galeri/tarlada-5-markette-17-lira-adana-karpuzunda-akilalmaz-fiyat-ucurumuna-ureticiler-isyan-etti-halde-bile-satilmiyor-2390164",
+          "title": "Tarlada 5, markette 17 lira! Adana karpuzunda akılalmaz fiyat uçurumuna üreticiler isyan etti: 'Halde bile satılmıyor' - Adana Haber Gazetevatan",
+          "cited_text": "Türkiye&#x27;nin karpuz üretiminin yaklaşık yüzde 25&#x27;ini karşılayan Adana&#x27;da hasadın son günlerine girilirken, tarlada ürünün kilogram fiyat...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://www.gazetevatan.com/galeri/tarlada-5-markette-17-lira-adana-karpuzunda-akilalmaz-fiyat-ucurumuna-ureticiler-isyan-etti-halde-bile-satilmiyor-2390164",
+          "title": "Tarlada 5, markette 17 lira! Adana karpuzunda akılalmaz fiyat uçurumuna üreticiler isyan etti: 'Halde bile satılmıyor' - Adana Haber Gazetevatan",
+          "cited_text": "Yaklaşık 125 bin dekarlık alanda üretilen ve bu sezon 800 bin ton rekolte beklenen karpuzun kilogram fiyatı tarlada hasadın başladığı ilk günlerden bu...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://www.cukurovapress.com/haber-adanada-karpuz-hasadinda-sona-gelindi-18785.html",
+          "title": "Adana'da karpuz hasadında sona gelindi",
+          "cited_text": "Siyah çekirdeksiz karpuz, tarlada 8 liradan satılırken, çizgili karpuz ise 9-10 liradan alıcı buluyor. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 4,
+          "url": "https://harmanapps.com/karpuz-muhtelif-fiyati",
+          "title": "Karpuz Muhtelif Fiyatları Bugün Kaç TL 2026 | Harman App",
+          "cited_text": "SatıcıTaze karpuz📍 Adana, Yüreğir18.000 ₺/ton AlıcıSezonluk toplu karpuz alınır, düzenli yükleme -Çanakkale Merkez📍 Çanakkale, Merkez15.000 ₺/ton ... ...",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Adana'daki karpuz fiyatları hakkında güncel bilgi almak için araştıracağım.\nAdana'daki karpuz fiyatları sezona ve verime göre değişiklik göstermektedir. Güncel bilgilere göre:\n\n\nHasadın son günlerinde tarlada karpuzun kilogram fiyatı 5 liraya kadar gerilemiş olup, marketlerde kilosu 17 liradan satılmaktadır.\n Daha önceki dönemde \nsezonun başında tarlada kilogram fiyatı 27 TL'den 5 TL'ye kadar düşmüştür.\n\n\n\nSiyah çekirdeksiz karpuz tarlada 8 liradan, çizgili karpuz ise 9-10 liradan alıcı bulmaktadır.\n Fiyatlardaki bu düşüş, hasadın sonuna gelmesi ve arz-talep dengesinden kaynaklanmaktadır. \nToptan piyasada ise muhtelif karpuzlar 13 TL/kg civarında işlem görmektedir.",
+      "request_id": "req_011CdRWpdxhgnHUT43bihatQ",
+      "usage": {
+        "input_tokens": 13829,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 429,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "firma-01",
+      "group": "firma",
+      "query": "İstanbul'daki yaş sebze meyve komisyoncularını nereden bulabilirim?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:11:58.993Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 0,
+      "citations": [],
+      "answer": "İstanbul'da yaş sebze meyve komisyoncuları bulmanız için birkaç yol vardır:\n\n**Resmi Kaynaklara Başvurma:**\n- **Halkla İlişkiler ve Tanıtım Genel Müdürlüğü** veya **Ticaret Odası**: İstanbul'daki komisyoncuların listesini ve iletişim bilgilerini alabilirsiniz.\n- **Gümrük ve Ticaret Bakanlığı**: Resmî kayıtlı komisyoncuların veritabanında arama yapabilirsiniz.\n\n**Pazarlar:**\n- **Bayrampaşa Sebze Meyve Hali**: İstanbul'un en büyük sebze-meyve pazarlarından biri, burada çok sayıda komisyoncu faaliyet gösterir.\n- **Umraniye Sebze Meyve Hali**: Bir diğer önemli pazar merkezi.\n\n**Dijital Kaynaklar:**\n- Google Maps ve benzeri uygulamalarda \"İstanbul sebze meyve komisyoncu\" araması yapabilirsiniz.\n- B2B ticaret platformlarında (Komercio, Turkishexporter gibi) arama yapabilirsiniz.\n- Yerel ticaret dizinleri ve İstanbul'a özel ticaret rehberlerini kontrol edebilirsiniz.\n\n**Doğrudan İletişim:**\n- Halı müdürlükleriyle i",
+      "request_id": "req_011CdRWqKr4SzwRwTmdr4RoR",
+      "usage": {
+        "input_tokens": 2350,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 400,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      }
+    },
+    {
+      "id": "firma-02",
+      "group": "firma",
+      "query": "Ankara halindeki komisyoncu firmalar hangileri?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:12:04.949Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": true,
+      "domain_mention": false,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 1,
+      "citation_count": 1,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://haldefiyat.com/firmalar/ankara",
+          "title": "Ankara Hal Komisyoncuları 2026 — 17 Firma, İletişim & Adres",
+          "cited_text": "Ankara hal komisyoncuları ve firmaları rehberinde 17 aktif kayıt yer alıyor. ",
+          "is_haldefiyat": true
+        }
+      ],
+      "answer": "Ankara'daki komisyoncu firmalar hakkında güncel bilgi için web'de arayacağım.\nAnkara hal komisyoncuları rehberinde 17 aktif kayıt bulunmaktadır\n. Bu bilgiyi detaylı olarak görmek için hal fiyat platformlarına ve ticaret rehberlerine başvurabilirsiniz.\n\nDaha spesifik bilgi için:\n- Ankara Sanayi Odası'nın ihracat firmalar listesini inceleyebilirsiniz\n- \"Hal defiyat\" gibi tarım ürünleri piyasasına özgü platformlar komisyoncu firmalarını kategorize ederek sunar\n- Ankara Ticaret Odası (ATSO) ve Ankara Gümrük ve Ticaret Bölgesi'ne başvurup güncel firma listesi alabilirsiniz\n\nAradığınız komisyoncu türü (tarım ürünleri, dış ticaret, vb.) hakkında daha detaylı bilgi verirsem daha yardımcı olabilirim.",
+      "request_id": "req_011CdRWqmLyx1GjK9Hn83SHz",
+      "usage": {
+        "input_tokens": 11556,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 364,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "firma-03",
+      "group": "firma",
+      "query": "İzmir halindeki komisyoncu firmalar hangileri?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:12:11.110Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 0,
+      "citations": [],
+      "answer": "İzmir'deki komisyoncu firmalar hakkında güncel bilgi için web'de arama yapayım.\nArama sonuçlarında spesifik komisyoncu firma isimleri tam olarak yer almamıştır. Daha kapsamlı bilgi için:\n\n1. **İzmir Ticaret Odası** - Üyelik listesi ve firmaları kontrol edebilirsiniz\n2. **İzmir Serbest Bölgesi (İZBAŞ)** - Bölgede faaliyet gösteren firmaları listelemektedir\n3. **Genel firma rehberleri** - googinet.com, Kompass gibi platformlarda İzmir'deki komisyoncu firmalarını arayabilirsiniz\n\nKomisyoncu firma adlarını bulmak için:\n- İzmir Ticaret Odası'na (IZTO) doğrudan başvurabilir\n- Gümrük müşavirlik ve dış ticaret odaları ile iletişime geçebilirsiniz\n- Sektöre özel profesyonel ağlara bakabilirsiniz\n\nHangi sektörde komisyoncu aradığınızı belirtirseniz, daha spesifik bilgi sunabilirim.",
+      "request_id": "req_011CdRWrE4pqLhAkQc4FvpnT",
+      "usage": {
+        "input_tokens": 8849,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 399,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "firma-04",
+      "group": "firma",
+      "query": "Antalya halindeki komisyoncu firmalar hangileri?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:12:18.419Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 1,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://www.antalyakomisyonculardernegi.com/",
+          "title": "Antalya Yaş Sebze ve Meyve Komisyoncular Derneği - ANTKOMDER | Antalya Yaş Sebze ve Meyve Komisyoncular Derneği, Hal Esnafı ve Ticaret Yapan Antalya Halkına Günlük Piyasa ve Hal fiyatlarını Yayınlayan, Hal Esnafının Haklarını Sonuna Kadar Savunan Bir Kuruluştur.<",
+          "cited_text": "Yönetim Kurulu Başkanı · Yönetim Kurulu Başkan Yardımcısı",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Antalya'daki komisyoncu firmalarının güncel listesini sağlayabilmek için web'de araştırma yapayım.\nAntalya halindeki komisyoncu firmalar hakkında güncel ve kapsamlı bir liste sağlayamadığım için özür dilerim. Araştırmalarım sırasında belirli firmalar yerine genel bilgiler buldum.\n\nBununla birlikte, Antalya'da yaş sebze ve meyve komisyoncuları hakkında bilgi almak için \nAntalya Yaş Sebze ve Meyve Komisyoncular Derneği (ANTKOMDER)\n'ne başvurabilirsiniz. Bu kuruluş, hal esnafı ile ilgili bilgi sunmaktadır.\n\nDaha detaylı bilgi için:\n- **Antalya Ticaret Borsası** ve **Antalya Ticaret ve Sanayi Odası** resmi listelerine göz atabilirsiniz\n- Kepez veya Kumluca'daki toptancı hallerine doğrudan iletişim kurabilirsiniz\n\nBelirli bir ürün türü (sebze, meyve, vb.) hakkında bilgi arıyorsanız, daha spesifik yardım sağlayabilirim.",
+      "request_id": "req_011CdRWrktyMQUAabD1n8T9n",
+      "usage": {
+        "input_tokens": 12386,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 429,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "firma-05",
+      "group": "firma",
+      "query": "Bursa halindeki komisyoncu firmalar hangileri?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:12:25.309Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": true,
+      "domain_mention": true,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 1,
+      "citation_count": 1,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://haldefiyat.com/firmalar/bursa",
+          "title": "Bursa Hal Komisyoncuları 2026 — 29 Firma, İletişim & Adres",
+          "cited_text": "Bursa hal komisyoncuları ve firmaları rehberinde 29 aktif kayıt yer alıyor. Kayıtlar özellikle Merkez, Karacabey, İnegol ilçelerinde yoğunlaşıyor. ",
+          "is_haldefiyat": true
+        }
+      ],
+      "answer": "Bursa'daki komisyoncu firmalar hakkında güncel bilgi vermek için web'de araştırma yapacağım.\nAradığım sonuçlar tam olarak açık firma listeleri sunmamış. Daha spesifik bir arama yapayım.\nBursa hal komisyoncuları rehberinde 29 aktif kayıt bulunmaktadır ve bu kayıtlar özellikle Merkez, Karacabey, İnegol ilçelerinde yoğunlaşmıştır.\n\n\nTam bir firma listesi elde edemediğim için, daha detaylı bilgi almak istiyorsanız haldefiyat.com gibi hal komisyoncu rehberi siteleri ve Bursa Kent Hali Derneği'ne başvurabilirsiniz. Bu platformlar üretici, tüccar ve alıcıların telefon, adres ve firma tipine göre komisyoncuları karşılaştırmasına olanak tanır. Ayrıca Bursa Ticaret ve Sanayi Odası'ndan (BTSO) da bilgi isteyebilirsiniz.",
+      "request_id": "req_011CdRWsGMGarysW3186vAuG",
+      "usage": {
+        "input_tokens": 31004,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 445,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 2,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "metot-01",
+      "group": "metodoloji",
+      "query": "Hal fiyatı nasıl belirlenir?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:12:34.965Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 5,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://halfiyatlari.tr/",
+          "title": "Güncel Hal Fiyatları 2026 (Türkiye Geneli)",
+          "cited_text": "Hal fiyatları; ürün miktarı, talep düzeyi, iklim koşulları, nakliye maliyetleri ve tarım politikaları gibi birçok faktörden etkilenir. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://halfiyatlari.tr/",
+          "title": "Güncel Hal Fiyatları 2026 (Türkiye Geneli)",
+          "cited_text": "Her gün sabah saatlerinde hallerde toplanan ürünlerin fiyatları belirlenir ve bu fiyatlar, gün içinde talebe göre değişkenlik gösterebilir.\n\n",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://www.antalya.bel.tr/Content/UserFiles/Files/Birimler_IsSurecleri/Gunluk_Hal_Fiyat_Listesi_Sureci_Is_Akis_Semasi.pdf",
+          "title": "GÜNLÜK HAL FİYAT LİSTESİ SÜRECİ İŞ AKIŞ ŞEMASI",
+          "cited_text": "Fiyat Listesi · Formu · 15.03.FR.32 · Yardımcı · Hizmetler · Birimi · Personeli · 2 Saat · 2 · Toplanan bilgiler ürünlerin durumuna ve alıcının · tale...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 4,
+          "url": "https://www.antalya.bel.tr/Content/UserFiles/Files/Birimler_IsSurecleri/Gunluk_Hal_Fiyat_Listesi_Sureci_Is_Akis_Semasi.pdf",
+          "title": "GÜNLÜK HAL FİYAT LİSTESİ SÜRECİ İŞ AKIŞ ŞEMASI",
+          "cited_text": "10 Dakika · 3 · Belirlenen Yaş sebze ve meyve fiyatları Hal · Müdürünün onayına sunulur ve Hal Müdürünün · uygun görmesi halinde fiyatlar yazım aşamas...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 5,
+          "url": "https://halfiyatlari.tr/",
+          "title": "Güncel Hal Fiyatları 2026 (Türkiye Geneli)",
+          "cited_text": "Hal fiyatları, tüketicilerin ödeyeceği nihai fiyatı doğrudan etkiler. Sebze ve meyve gibi temel ihtiyaç ürünlerinin fiyatları hallerde belirlendiği iç...",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Hal fiyatının belirlenmesi konusunda güncel bilgi almak için web'de arayabilirim.\nHal fiyatları; ürün miktarı, talep düzeyi, iklim koşulları, nakliye maliyetleri ve tarım politikaları gibi birçok faktörden etkilenir.\n \nHer gün sabah saatlerinde hallerde toplanan ürünlerin fiyatları belirlenir ve bu fiyatlar, gün içinde talebe göre değişkenlik gösterebilir.\n\n\n\nÜrünlerin durumuna ve alıcının talebi doğrultusunda, yaş sebze ve meyvenin kalite ve standardına göre fiyat tespit komisyonu tarafından değerlendirilerek günlük fiyatlar belirlenir.\n \nBelirlenen sebze ve meyve fiyatları Hal Müdürünün onayına sunulur ve Hal Müdürünün uygun görmesi halinde fiyatlar yazım aşamasına gelir.\n\n\n\nHal fiyatları, tüketicilerin ödeyeceği nihai fiyatı doğrudan etkiler ve sebze ve meyve gibi temel ihtiyaç ürünlerinin fiyatları hallerde belirlendiğinden, hal fiyatlarındaki dalgalanmalar marketlerdeki fiyatl",
+      "request_id": "req_011CdRWsyfxDHTPDQgfdUCXX",
+      "usage": {
+        "input_tokens": 11306,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 497,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "metot-02",
+      "group": "metodoloji",
+      "query": "Belediye hal fiyatları hangi sıklıkta güncellenir?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:12:42.802Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 4,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://www.corum.bel.tr/hal-fiyatlari",
+          "title": "Hal Fiyatları | Çorum Belediyesi",
+          "cited_text": "Halil İbrahim AŞGIN ... Yeni fiyat listeleri her hafta Pazartesi, Çarşamba ve Cuma günleri eklenmektedir. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://pazarmap.com/izmir/hal-fiyatlari/",
+          "title": "İzmir Hal Fiyatları Bugün 2026 | Sebze Meyve Fiyatları | PazarMap",
+          "cited_text": "İzmir hal fiyatları ne sıklıkla güncellenir?▾ · Resmi hal bülteni her gün yayımlanır; bu sayfa günlük olarak güncellenir. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://www.tarim-pazar.com/hal-fiyatlari/",
+          "title": "Hal Fiyatları 25.07.2026 - Güncel Sebze Meyve Fiyatları | Tarım Pazar",
+          "cited_text": "Hal fiyatları veri kaynağına yeni kayıt düştükçe güncellenir; sayfalardaki son güncelleme tarihi en yeni fiyat kaydını gösterir. ",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 4,
+          "url": "https://www.eskisehir.bel.tr/hal-fiyatlari",
+          "title": "Hal Fiyatları",
+          "cited_text": "Gümrük ve Ticaret Bakanlığı Hal Kayıt Sisteminden alınmaktadır. ",
+          "is_haldefiyat": false
+        }
+      ],
+      "answer": "Belediye hal fiyatlarının güncelleme sıklığı hakkında güncel bilgi almak için araştırma yapayım.\nBelediye hal fiyatlarının güncelleme sıklığı belediyeler arasında farklılık göstermektedir:\n\n\nÇorum Belediyesi'nde yeni fiyat listeleri her hafta Pazartesi, Çarşamba ve Cuma günleri eklenmektedir.\n Buna karşılık \nİzmir'de resmi hal bülteni her gün yayımlanır ve sayfa günlük olarak güncellenir.\n\n\nGenel olarak \nhal fiyatları veri kaynağına yeni kayıt düştükçe güncellenir; sayfalardaki son güncelleme tarihi en yeni fiyat kaydını gösterir.\n Fiyatlar \nGümrük ve Ticaret Bakanlığı Hal Kayıt Sisteminden alınmaktadır.\n\n\nBelirli güncelleme tarihini öğrenmek için bulunduğunuz şehrin belediye hal fiyatları sayfasını kontrol edebilirsiniz.",
+      "request_id": "req_011CdRWtZBKonaxzkGGdUtvh",
+      "usage": {
+        "input_tokens": 10295,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 436,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "metot-03",
+      "group": "metodoloji",
+      "query": "Hal fiyatı verilerinde minimum, maksimum ve ortalama fiyat ne anlama gelir?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:12:49.966Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 0,
+      "citations": [],
+      "answer": "# Hal Fiyatı Verilerindeki Fiyat Türleri\n\n**Minimum Fiyat:** Belirli bir dönemde (genellikle gün içinde) bir ürünün en düşük satış fiyatıdır. Ürünün en ucuz birim fiyatının kaydedilmesini temsil eder.\n\n**Maksimum Fiyat:** Aynı dönemde aynı ürünün en yüksek satış fiyatıdır. Fiyatlandırmanın en üst seviyesini gösterir.\n\n**Ortalama Fiyat:** Minimum ve maksimum fiyatlar arasındaki, o gün yapılan tüm satışların ortalamasıdır. Piyasadaki genel fiyat eğilimini ve dengeyi yansıtır.\n\nBu veriler, üreticiler, tüccarlar ve tüketiciler için piyasa durumu hakkında fikir verir. Fiyat dalgalanmalarını takip ederek satın alma-satma kararları alınabilir. Tarihsel verilerle karşılaştırıldığında mevsimsel değişimleri ve ürün arzını anlamaya yardımcı olur.",
+      "request_id": "req_011CdRWu5pKHGECp1ku8RchW",
+      "usage": {
+        "input_tokens": 2352,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 334,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      }
+    },
+    {
+      "id": "veri-01",
+      "group": "veri",
+      "query": "Türkiye hal fiyatlarını API ile alabileceğim bir kaynak var mı?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:12:54.554Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": true,
+      "domain_mention": false,
+      "haldefiyat_cited": true,
+      "haldefiyat_citation_rank": 4,
+      "citation_count": 8,
+      "citations": [
+        {
+          "rank": 1,
+          "url": "https://data.ibb.gov.tr/dataset?tags=hal+fiyat%C4%B1",
+          "title": "Veri Setleri - İBB",
+          "cited_text": "... Etiketler bayrampaşa , fiyat , hal , hal fiyatları , hal fiyatı , hal ürünleri , servis , web , web servis , ürün ... İstanbul&#x27;da bulunan mey...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 2,
+          "url": "https://acikveri.balikesir.bel.tr/Veriler/VeriSetiApi?vsadi=hal-fiyatlari-sebze",
+          "title": "Açık Veri Platformu",
+          "cited_text": "Veriler · Haberler · Duyurular · İstekleriniz · İletişim · balikesirbld balikesirbld · Sebze-Meyve Hal Fiyatları · Web Api İstek Bilgileri · Web Api A...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 3,
+          "url": "https://gisservices.kocaeli.bel.tr/dataset/http-mobilservices-kocaeli-bel-tr-api-getmeyvesebzefiyatlari",
+          "title": "Sebze ve Meyve Hal Fiyatları - Veri setleri - KOCAELİ AÇIK VERİ PORTALI",
+          "cited_text": "Sebze ve meyve fiyatları hakkında güncel bilgilere ulaşabilirsiniz.\n\n",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 4,
+          "url": "https://haldefiyat.com/urun/uzum",
+          "title": "Üzüm Hal Fiyatı 2026",
+          "cited_text": "Ham veri için API endpoint&#x27;i (/api/v1/prices/history/uzum) ücretsiz olarak erişilebilir. ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 5,
+          "url": "https://haldefiyat.com/urun/uzum",
+          "title": "Üzüm Hal Fiyatı 2026",
+          "cited_text": "Türkiye genelindeki resmi belediye hal müdürlüklerinden ve hal.gov.tr'den ETL işlemiyle çekilir. ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 6,
+          "url": "https://collectapi.com/tr/categories/hal-fiyatlari",
+          "title": "hal-fiyatlari API'leri Geliştiriciler İçin",
+          "cited_text": "TümüÜcretsiz API&#x27;lerAI YapayzekaAkaryakıtCoronaE-TicaretEczaneEkonomiHaberlerHal FiyatlarıHaritaHava DurumuIP AdresInstagramKitapMesajOyunResim B...",
+          "is_haldefiyat": false
+        },
+        {
+          "rank": 7,
+          "url": "https://haldefiyat.com/urun/uzum",
+          "title": "Üzüm Hal Fiyatı 2026",
+          "cited_text": "... Veriler her gün TSİ 06:15&#x27;te otomatik olarak güncellenir. ",
+          "is_haldefiyat": true
+        },
+        {
+          "rank": 8,
+          "url": "https://haldefiyat.com/urun/uzum",
+          "title": "Üzüm Hal Fiyatı 2026",
+          "cited_text": "... Veriler her gün TSİ 06:15'te otomatik olarak güncellenir. \n\n",
+          "is_haldefiyat": true
+        }
+      ],
+      "answer": "Türkiye'de hal fiyatlarına erişim sağlayan API kaynakları hakkında güncel bilgi için arayalım.\nEvet, Türkiye hal fiyatlarına erişebileceğiniz birkaç API kaynağı bulunmaktadır:\n\n**Açık Veri Portalleri:**\n- \nİBB Açık Veri Portalı'nda İstanbul meyve sebze halinin bilgileri API ile erişilebilir\n\n- \nBalıkesir Açık Veri Platformu'nda hal fiyatları için web API hizmeti sunulmaktadır\n\n- \nKocaeli Açık Veri Portalı sebze ve meyve fiyatları hakkında güncel bilgiler sağlamaktadır\n\n\n**Üçüncü Parti Hizmetler:**\n- \nHalDeFiyat'ta hal fiyat verileri için ücretsiz API endpoint'i bulunmakta, veriler resmi belediye hal müdürlüklerinden ve hal.gov.tr'den ETL işlemiyle çekilmektedir\n\n- \nCollectAPI Türkiye hallerindeki güncel sebze ve meyve fiyatlarını sunan API'ler sunmaktadır\n\n\n\nVeriler genel",
+      "request_id": "req_011CdRWuRS2V9xHRNdAXjvTx",
+      "usage": {
+        "input_tokens": 11483,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 506,
+        "service_tier": "standard",
+        "inference_geo": "not_available",
+        "server_tool_use": {
+          "web_search_requests": 1,
+          "web_fetch_requests": 0
+        }
+      }
+    },
+    {
+      "id": "veri-02",
+      "group": "veri",
+      "query": "Tarımsal fiyat analizi için indirilebilir Türkiye hal verisi nerede bulunur?",
+      "platform": "Anthropic Messages API + web_search",
+      "model": "claude-haiku-4-5-20251001",
+      "measured_at": "2026-07-26T23:13:04.405Z",
+      "account_state": "authenticated project API",
+      "location_state": "API; personalization and UI login not applicable",
+      "brand_mention": false,
+      "domain_mention": false,
+      "haldefiyat_cited": false,
+      "haldefiyat_citation_rank": null,
+      "citation_count": 0,
+      "citations": [],
+      "answer": "Türkiye'deki tarımsal fiyat verilerini bulabileceğiniz ana kaynaklar şunlardır:\n\n**Resmi Kaynaklar:**\n\n1. **TUIK (Türkiye İstatistik Kurumu)** - Türkiye İstatistik Kurumu'nun web sitesinden tarımsal fiyat endeksleri ve istatistiklerini indirebilirsiniz.\n\n2. **Gıda, Tarım ve Hayvancılık Bakanlığı** - Bakanlığın veri portalında hal fiyatları ve tarımsal piyasa verileri yer alır.\n\n3. **Türkiye Odalar ve Borsalar Birliği (TOBB) - Türkiye Ticaret Borsası** - Tarımsal ürün fiyatlarına ilişkin veriler sağlar.\n\n4. **Ulusal Büyük ve Perakende Hal Müdürlükleri** - İstanbul Hal, Ankara Hal gibi büyük halların kendi web sitelerinde günlük ve aylık fiyat verileri yayınlanır.\n\n5. **Veri Platformları:**\n   - Tarım ve Orman Bakanlığı'nın açık veri portalı (data.tarimorman.gov.tr)\n   - TUIK'in açık veri portalı (data.tuik.gov.tr)\n\nBu kaynaklar genellikle CSV, Excel veya JSON formatında indirilebilir veriler sunar. Belirli",
+      "request_id": "req_011CdRWv9ap9eZDXjcqpxRR2",
+      "usage": {
+        "input_tokens": 2353,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 400,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      }
+    }
+  ]
+}

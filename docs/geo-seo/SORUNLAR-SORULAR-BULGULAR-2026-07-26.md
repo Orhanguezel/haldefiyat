@@ -52,6 +52,18 @@ altyapısal bulguları tutar.
   origin baseline'ı 26 Temmuz kanıtından alındı; URL-level veri “yetersiz/
   erişilemedi” bırakıldı ve Lighthouse lab sonucu alan verisi gibi kullanılmadı.
 
+### AI benchmark platform kotası
+
+- 27 Temmuz 2026'da OpenAI Responses API + `web_search` iki sorguluk pilotu
+  kimlik doğrulamadan sonra `429 insufficient_quota` verdi. OpenAI platformu
+  için görünürlük sonucu üretilmiş sayılmadı.
+- Anthropic Messages API + web-search aynı gün 40/40 sorguyu hatasız tamamladı;
+  bu seri API platformu olarak açıkça etiketlendi ve tüketici Claude.ai sonucu
+  gibi sunulmadı.
+- OpenAI proje kotası açılırsa aynı 40 sorgu ayrı platform serisi olarak
+  çalıştırılmalı. İlk aylık Anthropic karşılaştırma penceresi 27 Ağustos 2026'da
+  dolar.
+
 ### ETL veri akışı
 
 - Kocaeli, Mersin ve Çanakkale’de uzun süredir veri akışı olmadığı bildirildi.

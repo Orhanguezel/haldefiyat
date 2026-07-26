@@ -1863,6 +1863,26 @@ Commit: `6775780a feat(trust): publish transparency policy content`
   `docs/geo-seo/CRUX-GSC-28-GUN-BASELINE-2026-07-27.md` dosyasına yazıldı.
 - Sayaçlar 54/66 tamamlanan ve 12/66 açık olarak güncellendi.
 
+### 3.68 AI Görünürlük Benchmark Baseline'ı
+
+- Yedi niyet grubunda 40 sabit Türkçe sorgu
+  `scripts/seo/ai-visibility-queries.json` dosyasında tanımlandı.
+- Tarih, platform, model, hesap/konum durumu, cevap, marka geçişi, citation
+  URL'si ve citation sırasını kaydeden tekrar çalıştırılabilir
+  `scripts/seo/ai-visibility-benchmark.mjs` eklendi.
+- OpenAI web-search pilotu `429 insufficient_quota` verdi ve ölçülmüş gibi
+  raporlanmadı.
+- Anthropic Messages API + web-search, `claude-haiku-4-5` modeliyle 40/40
+  sorguyu hatasız tamamladı.
+- İlk baseline: marka geçişi 10/40 (%25), haldefiyat.com citation 18/40
+  (%45). Citation alan cevapların 10'unda HalDeFiyat ilk kaynaktı.
+- Ham yanıt ve citation kanıtları
+  `artifacts/seo/ai-visibility-2026-07-27/`, yöntem ve aylık tekrar komutu
+  `docs/geo-seo/AI-GORUNURLUK-BASELINE-2026-07-27.md` altında arşivlendi.
+- Bu yüzey tüketici Claude.ai/ChatGPT arayüzü olarak etiketlenmedi. İlk gerçek
+  aylık değişim karşılaştırması 27 Ağustos 2026 veya sonrasında yapılabilir.
+- Sayaçlar 55/66 tamamlanan ve 11/66 açık olarak güncellendi.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.

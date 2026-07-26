@@ -55,8 +55,8 @@ değişiklikleri yapılmalıdır.
 - [ ] Her alt metriğin 0–100 puanlama kuralını örnekle.
 - [ ] Platform skorlarının “alıntılanma olasılığı” olmadığını veya olasılık kalibrasyon kanıtını göster.
 - [ ] ChatGPT 82, Perplexity 82, Gemini 78 gibi skorların hangi gerçek sorgu setinden geldiğini yaz.
-- [ ] En az 30–50 hedef sorguluk Türkçe benchmark seti tanımla.
-- [ ] Her sorgu için platform, tarih, konum/hesap durumu, cevapta marka geçişi, link/citation ve sıra kaydet.
+- [x] En az 30–50 hedef sorguluk Türkçe benchmark seti tanımla.
+- [x] Her sorgu için platform, tarih, konum/hesap durumu, cevapta marka geçişi, link/citation ve sıra kaydet.
 - [ ] Skorların hata payını ve test tekrarındaki oynaklığını raporla.
 - [ ] “85+” hedefinin iş sonucuna bağını kur: AI citation, organik tıklama, branded search veya lead KPI.
 
@@ -304,4 +304,3 @@ değişiklikleri yapılmalıdır.
 - [Google: Article structured data rehberi](https://developers.google.com/search/docs/appearance/structured-data/article)
 - [Google: FAQ rich result kapsam değişikliği](https://developers.google.com/search/blog/2023/08/howto-faq-changes)
 - [Google: Generative AI Search performans raporu](https://support.google.com/webmasters/answer/16984139)
-
