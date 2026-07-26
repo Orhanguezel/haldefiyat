@@ -23,6 +23,7 @@ import FreshnessBadge from "@/components/ui/FreshnessBadge";
 import FavoriteButton from "@/components/ui/FavoriteButton";
 import ExportButton from "@/components/ui/ExportButton";
 import { getPageMetadata } from "@/lib/seo";
+import { schemaDateRange } from "@/lib/schema-dates";
 import ProductImage from "@/components/ui/ProductImage";
 import { getProductEditorial } from "@/lib/product-content";
 
@@ -402,19 +403,20 @@ export default async function UrunPage({ params }: Props) {
       },
     }),
   } satisfies Record<string, unknown>;
-  const latestDate = [...todayPrices, ...borsaPrices, ...resmiPrices, ...history]
-    .map((row) => row.recordedDate)
-    .filter(Boolean)
-    .sort()
-    .at(-1) ?? null;
+  const datasetDates = schemaDateRange(
+    [...todayPrices, ...borsaPrices, ...resmiPrices, ...history].map((row) => row.recordedDate),
+  );
+  const latestDate = datasetDates?.latest ?? null;
   const datasetSchema = {
     name: `${displayName} fiyat veri seti`,
     description: `${displayName} için hal, resmi alım ve borsa kaynaklı tarihsel fiyat gözlemleri.`,
     url: `${SITE_URL_META}/urun/${slug}`,
     license: "https://creativecommons.org/licenses/by/4.0/",
     creator: { "@id": `${SITE_URL_META}/#organization` },
-    temporalCoverage: latestDate ? `${latestDate}/..` : "2025/..",
-    ...(latestDate ? { dateModified: latestDate } : {}),
+    ...(datasetDates ? {
+      temporalCoverage: datasetDates.temporalCoverage,
+      dateModified: datasetDates.latest,
+    } : {}),
     spatialCoverage: { "@type": "Place", name: "Türkiye" },
     variableMeasured: ["minPrice", "avgPrice", "maxPrice"],
     isAccessibleForFree: true,

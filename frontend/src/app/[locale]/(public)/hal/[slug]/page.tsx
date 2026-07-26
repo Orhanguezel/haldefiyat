@@ -12,6 +12,7 @@ import FreshnessBadge from "@/components/ui/FreshnessBadge";
 import WeatherWidget from "@/components/sections/WeatherWidget";
 import { cityToWeatherSlug } from "@/lib/weather";
 import { getPageMetadata } from "@/lib/seo";
+import { schemaDateRange } from "@/lib/schema-dates";
 import { getMarketEditorial } from "@/lib/market-content";
 import FirmCard from "@/components/firms/FirmCard";
 import { ListingCard } from "@/components/listings/ListingCard";
@@ -125,9 +126,8 @@ export default async function HalPage({ params }: Props) {
   const antalyaMerkez = isAntalyaSource
     ? markets.find((m) => m.slug === "antalya-hal-merkez")
     : null;
-  const latestDate = prices.length > 0
-    ? prices.reduce((max, p) => (p.recordedDate > max ? p.recordedDate : max), prices[0]!.recordedDate)
-    : null;
+  const datasetDates = schemaDateRange(prices.map((price) => price.recordedDate));
+  const latestDate = datasetDates?.latest ?? null;
 
   if (!market) {
     notFound();
@@ -159,8 +159,10 @@ export default async function HalPage({ params }: Props) {
     url: `${SITE_URL}/hal/${slug}`,
     license: "https://creativecommons.org/licenses/by/4.0/",
     creator: { "@id": `${SITE_URL}/#organization` },
-    temporalCoverage: latestDate ? `${latestDate}/..` : "2025/..",
-    ...(latestDate ? { dateModified: latestDate } : {}),
+    ...(datasetDates ? {
+      temporalCoverage: datasetDates.temporalCoverage,
+      dateModified: datasetDates.latest,
+    } : {}),
     spatialCoverage: { "@type": "Place", name: market.cityName },
     isAccessibleForFree: true,
     measurementTechnique:
