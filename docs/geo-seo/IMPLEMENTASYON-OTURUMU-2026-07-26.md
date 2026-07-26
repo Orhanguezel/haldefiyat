@@ -981,6 +981,40 @@ Commit: `c4897cba feat(trust): record analysis human reviews`
 - Eski yayımlanmış raporlar geriye dönük olarak incelenmiş varsayılmıyor.
   Otomatik/manuel/kaynaksız ve kanıtlı/kanıtsız durumlar test edildi.
 
+### 3.53 Git Push, Migration ve Canlı Deploy
+
+Canlı kaynak commit'i: `85dd633b`
+
+- Çalışma ağacındaki iki GEO/SEO raporu, backlink notu, firma exportları ve
+  Lighthouse JSON'u `85dd633b` ile commit edildi; 27 yerel commit `main`
+  branch'ine push edildi.
+- VPS'teki 609 untracked operasyonel dosyanın hiçbiri gelen 114 tracked yolla
+  çakışmıyordu; `git clean` çalıştırılmadı ve upload/env yedekleri korunarak
+  tracked kaynak `origin/main` commit'ine sabitlendi.
+- `hf_analysis_reports` tablosu 14 kayıtla
+  `/tmp/hal-db-backups/hf_analysis_reports-pre-geo-20260726T122500Z.sql.gz`
+  dosyasına `--no-tablespaces --single-transaction` ile yedeklendi.
+- 054 migration uygulandı; `reviewed_by varchar(36)` ve
+  `reviewed_at datetime(3)` kolonları doğrulandı, 14 mevcut rapor korundu.
+- Backend build sonrası `pm2 reload hal-backend --update-env`; frontend 65
+  route build sonrası zorunlu `pm2 restart hal-frontend --update-env` ile
+  yayımlandı. Admin değişmediği için build/restart edilmedi.
+- Backend health DB dahil `ok`; backend/frontend/admin PM2 servisleri online ve
+  unstable restart sayıları sıfır.
+- Canlı smoke sonuçları:
+  - `/`, `/fiyatlar`, `/urun/domates`, `/hal/izmir-hal`, `/analiz`,
+    `/iletisim` ve dört şeffaflık route'u 200.
+  - Ana sayfa, ürün, hal ve genel fiyat sayfalarında tek H1; cevap anchor'ları
+    mevcut; örnek sayfalardaki JSON-LD bloklarının tamamı parse edildi.
+  - `/ilan-ver` `noindex,nofollow`; widget `noindex,follow`; `/hesabim`
+    `noindex,nofollow`.
+  - Sitemap 345 URL, `/tr/` canonical varyantı sıfır; robots AI crawler
+    allow kuralları, security.txt 200 ve CSP rapor endpoint'i 204.
+  - HTTP, www, `/tr/fiyatlar` ve trailing-slash varyantları tek yönlendirmeyle
+    canonical URL'ye gidiyor.
+- Nginx CSP Report-Only başlığı hâlâ `report-uri`/`Reporting-Endpoints`
+  içermiyor; endpoint canlı olsa da tarayıcı rapor akışı S-03 kapsamında açık.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -1614,13 +1648,13 @@ c4897cba feat(trust): record analysis human reviews
 - [ ] Claude kod diff'lerini brief maddeleriyle karşılaştırdı.
 - [ ] Orhan açık soruları değerlendirdi.
 - [ ] Şeffaflık CMS metinleri hazır.
-- [ ] Frontend tests/typecheck/build temiz.
-- [ ] Backend typecheck/build temiz.
-- [ ] Staging veya lokal gerçek backend ile smoke test yapıldı.
-- [ ] Push kapsamı yalnız ilgili commitlerden oluşuyor.
-- [ ] Backend deploy öncesi `054_analysis_report_reviews.sql` migration'ı uygulandı.
-- [ ] Backend deploy sonrası CSP endpoint 204 doğrulandı.
-- [ ] Frontend deploy sonrası H1, schema, sitemap, yeni route'lar doğrulandı.
+- [x] Frontend tests/typecheck/build temiz.
+- [x] Backend typecheck/build temiz.
+- [x] Canlı gerçek backend ile smoke test yapıldı.
+- [x] Tüm çalışma ağacı commitlendi ve `main` push kapsamı doğrulandı.
+- [x] Backend deploy öncesi `054_analysis_report_reviews.sql` migration'ı uygulandı.
+- [x] Backend deploy sonrası CSP endpoint 204 doğrulandı.
+- [x] Frontend deploy sonrası H1, schema, sitemap, yeni route'lar doğrulandı.
 - [ ] Nginx Report-Only header rapor endpoint'e bağlandı.
-- [ ] PM2 frontend için `restart --update-env` kullanıldı; reload kullanılmadı.
+- [x] PM2 frontend için `restart --update-env` kullanıldı; reload kullanılmadı.
 - [ ] CSP enforce açılmadı.

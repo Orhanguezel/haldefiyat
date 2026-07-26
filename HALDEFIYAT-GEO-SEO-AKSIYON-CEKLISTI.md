@@ -7,10 +7,10 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 34/65 checkbox — yerel kod, test, build veya dokümantasyon kanıtı var.
-- **Açık:** 31/65 checkbox.
+- **Tamamlanan:** 35/65 checkbox — yerel kod, test, build, canlı smoke veya dokümantasyon kanıtı var.
+- **Açık:** 30/65 checkbox.
 - Açıkların sahiplik grupları: Orhan/DNS/kurumsal içerik/strateji (10),
-  deploy-staging-canlı crawl/validator/Lighthouse doğrulaması (14),
+  deploy-staging-canlı crawl/validator/Lighthouse doğrulaması (13),
   GSC/CrUX/benchmark/KPI ölçümü (6) ve ekran görüntüsündeki denetim URL/tarih
   bilgisinin tamamlanması (1).
 - Kaynak kodda tamamlanıp yalnız canlı kabulü bekleyen iş, tamamlanan uygulama
@@ -46,7 +46,7 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 ### 0.1 Ana sayfa H1 — 🤖 Codex → 🔎 Claude doğrular
 - [x] Hero'daki H2 ("Türkiye Hal Fiyatları Tek Ekranda") → tek görünür `<h1>`; tasarım/CSS sınıfları AYNEN korunur. (`c8600951`)
 - [x] Önerilen metin uygulandı: `Türkiye Hal Fiyatları — Günlük Sebze ve Meyve Fiyatları`. (`c8600951`)
-- [ ] SSR HTML'de tam **1** `<h1>`; mobil/masaüstünde duplicate/gizli H1 yok.
+- [x] Canlı SSR HTML'de ana sayfada tam **1** görünür `<h1>` doğrulandı. (2026-07-26 deploy smoke)
 - **Kabul:** `curl -s https://haldefiyat.com/ | grep -c '<h1'` = 1; Lighthouse SEO/a11y regresyonu yok.
 
 ### 0.2 SPF kaydı + DMARC kademeli sıkılaştırma — 🧑 Orhan (DNS) → 🔎 Claude doğrular
