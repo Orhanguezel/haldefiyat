@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { formatOgDate } from "@/lib/og-date";
 
 // DİNAMİK OG (route handler — i18n bağımsız), ürün OG pattern'inin analiz raporu
 // replikası. URL: /og/analiz/[slug]. Her haftalık rapor kendi markalı kapak
@@ -63,13 +64,7 @@ export async function GET(req: Request, { params }: Props) {
   const [report, font] = await Promise.all([fetchReport(slug), loadFont()]);
   const title: string = report?.baslik ?? "Haftalık Hal Raporu";
   const week: string = report?.hafta ? `Hafta ${report.hafta}` : "";
-  const date = report?.tarih
-    ? new Date(`${report.tarih}T12:00:00Z`).toLocaleDateString("tr-TR", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      })
-    : new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" });
+  const date = formatOgDate(report?.tarih);
 
   return new ImageResponse(
     (

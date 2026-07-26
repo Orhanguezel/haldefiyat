@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { formatOgDate } from "@/lib/og-date";
 
 // KANONİK DİNAMİK OG REFERANSI (route handler — i18n bağımsız).
 // URL: /og/urun/[slug]. `/api/` nginx'te Fastify backend'e gittiği için OG
@@ -36,7 +37,7 @@ async function loadFont(): Promise<ArrayBuffer | null> {
 
 async function fetchProduct(slug: string) {
   try {
-    const res = await fetch(`${API}/api/v1/prices/products?limit=2000`, {
+    const res = await fetch(`${API}/api/v1/prices/products/seo-eligible?since=365d`, {
       next: { revalidate: 3600 },
     });
     if (!res.ok) return null;
@@ -53,11 +54,7 @@ export async function GET(_req: Request, { params }: Props) {
   const [product, font] = await Promise.all([fetchProduct(slug), loadFont()]);
   const name: string = product?.nameTr ?? "Hal Fiyatı";
   const category: string = product?.categorySlug ?? "sebze-meyve";
-  const today = new Date().toLocaleDateString("tr-TR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
+  const dataDate = formatOgDate(product?.updatedAt);
 
   return new ImageResponse(
     (
@@ -108,7 +105,7 @@ export async function GET(_req: Request, { params }: Props) {
             {name}
           </div>
           <div style={{ fontSize: 28, color: "#9fb0c8", display: "flex" }}>
-            {`${category} · Türkiye genelinde günlük fiyat · ${today}`}
+            {[category, "Türkiye genelinde günlük fiyat", dataDate].filter(Boolean).join(" · ")}
           </div>
         </div>
 
