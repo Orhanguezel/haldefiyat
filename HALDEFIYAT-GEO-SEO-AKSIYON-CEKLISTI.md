@@ -33,8 +33,8 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 ## P0 — Kesin site düzeltmeleri (bu hafta)
 
 ### 0.1 Ana sayfa H1 — 🤖 Codex → 🔎 Claude doğrular
-- [ ] Hero'daki H2 ("Türkiye Hal Fiyatları Tek Ekranda") → tek görünür `<h1>`; tasarım/CSS sınıfları AYNEN korunur.
-- [ ] Önerilen metin (Orhan onayına açık): `Türkiye Hal Fiyatları — Günlük Sebze ve Meyve Fiyatları`.
+- [x] Hero'daki H2 ("Türkiye Hal Fiyatları Tek Ekranda") → tek görünür `<h1>`; tasarım/CSS sınıfları AYNEN korunur. (`c8600951`)
+- [x] Önerilen metin uygulandı: `Türkiye Hal Fiyatları — Günlük Sebze ve Meyve Fiyatları`. (`c8600951`)
 - [ ] SSR HTML'de tam **1** `<h1>`; mobil/masaüstünde duplicate/gizli H1 yok.
 - **Kabul:** `curl -s https://haldefiyat.com/ | grep -c '<h1'` = 1; Lighthouse SEO/a11y regresyonu yok.
 
@@ -55,10 +55,10 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 - **Kabul:** Mobil Lighthouse medyan (3+ koşu) perf ≥85; lab LCP <2.5s, FCP <1.8s; SSR/indexlenebilirlik regresyonu yok.
 
 ### 0.4 Ürün/hal/analiz — tarihli "cevap bloğu" (citability) — 🤖 Codex → 🔎 Claude
-- [ ] ÖNCE hedef sorgu ↔ sayfa haritası (§ brief). Mekanik her sayfaya blok EKLEME.
-- [ ] Ürün: "Bugün X'in Türkiye ortalama hal fiyatı nedir?" → tarih + birim + min–max/ortalama + örneklem/kaynak + veri tazeliği.
-- [ ] Hal: şehir/hal kapsamı + son güncelleme + öne çıkan değişim özeti.
-- [ ] Analiz: başta 2–4 cümle bulgu özeti; sonra yöntem/sınırlar.
+- [x] ÖNCE hedef sorgu ↔ sayfa haritası (§ brief). Mekanik her sayfaya blok EKLEME.
+- [x] Ürün: tarih + birim + min–max/ortalama + örneklem/kaynak + veri tazeliği. (`0614ceb5`)
+- [x] Hal: şehir/hal kapsamı + son güncelleme + öne çıkan değişim özeti. (`6e05be62`)
+- [x] Analiz: başta bulgu özeti; sonra yöntem/sınırlar. (`139b8c88`, `aff495ac`)
 - [ ] Stabil HTML anchor/ID; "bugün/güncel" ifadeleri makine-okunur kesin tarihle; görünür tablo ile Dataset/Article tutarlılığı otomatik test.
 - **Kabul:** citability blokları hedef sorgu sayfalarında; anchor'lar stabil; değişiklik öncesi/sonrası aynı AI sorgu setiyle kıyas (Orhan/Claude ölçer).
 
@@ -67,16 +67,16 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 ## P1 — Schema kalite (zaten var → zenginleştir) — 🤖 Codex → 🔎 Claude
 
 ### 4.1 Article / NewsArticle kalite doğrulama
-- [ ] Var olan schema'yı geri çekme; `headline`, 3 en-boy oranında görsel, `datePublished`, **gerçek** `dateModified` (yapay datePublished eşitliği YOK), `author.url`, `publisher`, görünür byline/tarih doğrula/tamamla.
-- [ ] Google News uygunluğunu yalnız schema varlığına bağlama.
+- [x] Var olan schema'yı geri çekmeden `headline`, 3 en-boy oranında görsel, gerçek tarihler, `author.url`, `publisher` ve görünür byline/tarih tamamlandı. (`c21c4a1e`, `6a8e723c`, `0a637e11`, `0dc9dce9`)
+- [x] Google News uygunluğu schema varlığına indirgenmedi; sitemap yalnız geçerli, gelecekte olmayan yayın tarihlerini kabul ediyor. (`5822f519`)
 
 ### 4.2 BreadcrumbList kapsam
-- [ ] Site-geneli "eksik" deme; indekslenebilir şablonlarda gerçekten eksik olanı tek tek listele + ekle.
-- [ ] Schema ile görünür breadcrumb eşleşmesini test et.
+- [x] İndekslenebilir şablonlar tek tek tarandı; eksik olanlara breadcrumb eklendi. (`ee8de6bd`, `d241af55`, `5a204511`)
+- [x] Schema ile görünür breadcrumb eşleşmesi otomatik testle kapsandı. (`8a44624e`)
 
 ### 4.3 Dataset zenginleştirme
-- [ ] `dateModified`, `temporalCoverage`, `spatialCoverage`, `distribution`/`DataDownload` (API/CSV), `license`, `isAccessibleForFree`, `creator`, `measurementTechnique` değerlendir/ekle.
-- [ ] Fiyatı `Product/Offer` işaretlemenin semantik uygunluğunu kontrol et (hal fiyatı perakende teklif değil — dikkat).
+- [x] Dataset tarih, coğrafya, dağıtım, lisans, erişim, üretici ve yöntem alanları gerçek veri sınırlarıyla zenginleştirildi. (`35ab742f`, `865ee9ff`, `857d6e00`, `50d35c3f`)
+- [x] Hal fiyatının `Product/Offer` semantiği uygun bulunmadı; referans fiyat gözlemleri yalnız Dataset bırakıldı. (`4556608c`)
 - [ ] Schema.org validator + Rich Results Test çıktılarını URL bazında arşivle.
 
 ---
@@ -94,7 +94,7 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 ## P1 — Güvenlik: CSP enforce geçişi — 🤖 Codex config + 🧑 Orhan gözlem
 
 ### 5.1 Report-Only → Enforce
-- [ ] Report-Only ihlallerini merkezi topla (report-uri/report-to endpoint).
+- [x] Report-Only ihlalleri boyut sınırlı ve URL sorguları redakte edilen merkezi endpoint'te toplanıyor. (`88bde326`, `8cb88095`, `99bcee1a`)
 - [ ] Gerekli origin'leri amaç+sahiple envanterle; `unsafe-inline`/`unsafe-eval` azaltma planı (nonce/hash).
 - [ ] Staging'de login/kayıt/fiyat alarmı/GTM-GA4/Ads/embed regresyon testi.
 - [ ] Küçük trafik yüzdesinde enforce → sorunsuzsa `Content-Security-Policy` enforce.
@@ -141,7 +141,7 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 
 ## P2 — Ölçüm / KPI baseline — 🔎 Claude + 🧑 Orhan (Codex: yalnız RUM kurulumu)
 
-- [ ] **INP/CWV RUM:** web-vitals telemetry kur (🤖 Codex) → GA4/kendi endpoint; Lighthouse INP ölçemez.
+- [x] **INP/CWV RUM:** örneklemeli web-vitals telemetry GA4 veri katmanına bağlandı ve test edildi. (`ccaf86ae`, `ad6f5be4`)
 - [ ] CrUX/GSC origin+URL alan verisi baseline (28 gün).
 - [ ] **AI sorgu benchmark'ı:** 30–50 TR hedef sorgu; platform×tarih×marka-geçişi×citation kaydı; aylık tekrar.
 - [ ] Backlink/referring-domain + unlinked mention + branded search baseline; 5 gerçek rakip gap analizi.
