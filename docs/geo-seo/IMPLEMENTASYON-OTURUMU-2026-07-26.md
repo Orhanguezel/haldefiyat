@@ -538,13 +538,51 @@ Commit: `50d35c3f feat(seo): enrich category price datasets`
   dağıtımı tamamlandı.
 - Veri yoksa tarih alanları uydurulmuyor.
 
+### 3.24 AI Crawler API Bağlantıları
+
+Commit: `35f290ed fix(geo): publish canonical API links to crawlers`
+
+- `llms-full.txt` ürün kaynağındaki geçersiz `/api/v1/products` yolu
+  `/api/v1/prices/products` olarak düzeltildi.
+- Dinamik ürün ve hal listeleri yalnız `seoIndex=true` kayıtlarından üretiliyor;
+  AI crawler'a noindex/canonical varyant URL'leri sunulmuyor.
+- Yanlış `/openapi.json` bağlantıları Fastify Swagger'ın gerçek
+  `/api/docs/json` yoluna taşındı.
+- API kullanım politikası sayfasındaki görünür OpenAPI linki de aynı hedefe alındı.
+
+### 3.25 Robots ve LLMS API Erişim Tutarlılığı
+
+Commit: `f2ece31a fix(geo): allow AI crawlers on public data APIs`
+
+- `llms.txt` ajanlara JSON API kullanmalarını söylerken robots tüm `/api/`
+  yollarını engelliyordu.
+- GPTBot, ChatGPT-User, ClaudeBot, PerplexityBot, Google-Extended ve CCBot için
+  yalnız şu read-only veri yüzeyleri daha uzun `Allow` kuralıyla açıldı:
+  - `/api/v1/prices`
+  - `/api/v1/index`
+  - `/api/v1/sources/status`
+  - `/api/docs/json`
+- Genel `/api/` engeli korunuyor; admin/yazma yüzeyleri açılmadı.
+- Robots policy otomatik testle güvenceye alındı.
+
+### 3.26 LLMS Kapsam Verilerinin Canlılaştırılması
+
+Commit: `96bc3b54 fix(geo): derive llms coverage from live data`
+
+- Sabit “250+ ürün”, “16 kaynak” ve “2025'ten itibaren” iddiaları kaldırıldı.
+- `llms.txt`; gerçek overview ve source-status cevabından ürün, hal, kaynak ve en
+  eski veri tarihini üretiyor.
+- `llms-full.txt`; indekslenebilir gerçek ürün/hal sayısı ile DB başlangıç
+  tarihini kullanıyor.
+- Backend erişilemezse `0` veya uydurma sayı yerine nötr metin gösteriliyor.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
 
 - Frontend `bunx tsc --noEmit`: geçti.
 - Backend `bunx tsc --noEmit`: geçti.
-- Frontend `bun run test`: 9 dosya, 25 test geçti.
+- Frontend `bun run test`: 10 dosya, 27 test geçti.
 - Backend `bun run test`: 2 dosya, 11 test geçti.
 - Frontend `bun run build`: geçti; son durumda 63 route üretildi.
 - Backend `bun run build`: geçti.
@@ -816,6 +854,24 @@ Orhan'dan beklenen:
   hava, firma, ilan ve kaynak açıklaması gibi ek değerler korunuyor.
 - Tam crawl/GSC verisi olmadan boş fiyat tablosu nedeniyle toplu 404/410 uygulanmadı.
 
+### F-17 — LLMS dosyası geçersiz ürün ve OpenAPI yolları yayımlıyordu
+
+- `/api/v1/products` public backend route'u yoktu.
+- `/openapi.json` repo ve Fastify Swagger config'inde tanımlı değildi.
+- Gerçek yollar sırasıyla `/api/v1/prices/products` ve `/api/docs/json`.
+
+### F-18 — Robots politikası LLMS yönlendirmesiyle çelişiyordu
+
+- LLMS ajanları JSON API'ye yönlendiriyordu.
+- Aynı ajan user-agent grubu `/api/` altında tamamen engelleniyordu.
+- Yalnız belgelenmiş okuma yüzeyleri açılarak çelişki giderildi.
+
+### F-19 — Makine-okunur kapsam sayıları hardcode edilmişti
+
+- Ürün, kaynak ve veri başlangıç bilgileri gerçek DB kapsamından bağımsızdı.
+- ETL/kapsam değişimlerinde AI ajanlarına bayat bilgi sunma riski vardı.
+- Kapsam metinleri artık API verisinden, hatada ise nötr fallback'ten geliyor.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -879,6 +935,10 @@ ab012981 fix(seo): canonicalize default locale without prefix
 3dddeb04 fix(a11y): describe product images
 955cb6fe fix(content): avoid false ETL status on empty markets
 50d35c3f feat(seo): enrich category price datasets
+fa429d11 docs(geo-seo): record P2 content and dataset fixes
+35f290ed fix(geo): publish canonical API links to crawlers
+f2ece31a fix(geo): allow AI crawlers on public data APIs
+96bc3b54 fix(geo): derive llms coverage from live data
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
