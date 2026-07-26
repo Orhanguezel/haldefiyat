@@ -4,7 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
-import { ORG_REF } from "@/lib/seo";
+import { getLocaleAlternates, ORG_REF } from "@/lib/seo";
 import {
   getHaftalikRaporlar,
   getMakale,
@@ -52,7 +52,7 @@ function articleImages(makale: { ogImage?: string | null }, slug: string): strin
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const makale = await getMakaleForSlug(slug);
   // notFound() BURADA cagrilmaz: generateMetadata icinde cagrilirsa Next
   // render agacini kurmadan kisa devre yapar ve stillendirilmis not-found.tsx
@@ -82,9 +82,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: makale.metaDescription || makale.ozet,
       images: [cover],
     },
-    alternates: {
-      canonical: `${SITE_URL}/analiz/${slug}`,
-    },
+    alternates: getLocaleAlternates(locale, `/analiz/${slug}`),
   };
 }
 

@@ -6,13 +6,14 @@ import PageContainer from "@/components/layout/PageContainer";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
 import { fetchAuthor } from "@/lib/api";
+import { getLocaleAlternates } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const author = await fetchAuthor(slug);
   // notFound() BURADA cagrilmaz: generateMetadata icinde cagrilirsa Next
   // render agacini kurmadan kisa devre yapar ve stillendirilmis not-found.tsx
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: `${SITE_URL}/yazar/${author.slug}` },
+    alternates: getLocaleAlternates(locale, `/yazar/${author.slug}`),
     openGraph: {
       type: "profile",
       title,
