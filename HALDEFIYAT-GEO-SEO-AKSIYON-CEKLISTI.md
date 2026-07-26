@@ -114,6 +114,29 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 - [ ] Log analiziyle Googlebot/Bingbot/AI-bot crawl sıklığı + 4xx/5xx (audit_request_logs zaten var).
 - [ ] a11y 97 / best-practices 96 kayıplarının tekil audit maddeleri; security.txt + SRI + dependency audit.
 
+### 6.1 Anahtar kelime yoğunluğu ve sayfa içi tutarlılık
+
+- [ ] Denetim URL'si, hedef sorgu ve aracın tarama tarihi kaydedilsin; yalnız
+  “düşük yoğunluk” puanından hareketle metin çoğaltılmasın.
+- [ ] Hedef ifade title, meta description, tek H1, en az bir açıklayıcı H2 ve
+  görünür giriş/cevap bloğında doğal biçimde mevcut mu kontrol edilsin.
+- [ ] Kelime sayımını şişiren tekrarlar ayrı ölçülsün: tablo satırları, select
+  option'ları, menü/footer, kaynak rozetleri, gizli/mobil kopyalar ve fiyat
+  para birimi karakterleri ana editoryal içerik sayılmasın.
+- [ ] İl/ilçe/hal detay tablolarında her satırda değişmeyen şehir ve hal adı
+  sütunları tek bağlam başlığına indirgensin; ürün/fiyat verisi korunmalı.
+- [ ] Hedef sorgunun eş anlamlı ve yakın niyetleri kapsansın: “hal fiyatları”,
+  “toptan fiyat”, “güncel fiyat listesi”, kesin veri tarihi ve kaynak.
+- [ ] Keyword stuffing kontrolü yapılsın: yapay tekrar, anlamsız alt etiketi,
+  gizli metin veya yalnız araç puanı için başlık çoğaltması eklenmesin.
+- [ ] En az bir yüksek gösterimli ürün, şehir hali ve genel fiyat sayfası
+  karşılaştırılsın; şablon kaynaklı sorun ile URL'ye özgü içerik açığı ayrılsın.
+- [ ] Değişiklik sonrası görünür metin, title/meta/H1-H2 dağılımı ve SSR HTML
+  yeniden taransın; GSC sorgu/CTR etkisi 28 gün izlenerek sonuç kaydedilsin.
+- **Kabul:** hedef terim title/meta/H1 ve doğal açıklayıcı içerikte tutarlı;
+  tablo/boilerplate tekrarı editoryal metni baskılamıyor; yoğunluk için yapay
+  tekrar yok; sayfa tasarımı ve fiyat verisi değişmemiş.
+
 ---
 
 ## P2 — Ölçüm / KPI baseline — 🔎 Claude + 🧑 Orhan (Codex: yalnız RUM kurulumu)

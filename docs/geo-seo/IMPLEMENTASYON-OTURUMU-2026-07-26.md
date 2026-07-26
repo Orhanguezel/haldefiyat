@@ -642,6 +642,33 @@ Yapılanlar:
   kullandığı, `font-display: swap` ve Next font preload'un etkin olduğu görüldü;
   bu nedenle ek font preload veya görsel preload eklenmedi.
 
+### 3.31 Düşük Anahtar Kelime Tutarlılığı ve Hal Tablosu Tekrarları
+
+Commit: `a0aae0bf fix(seo): remove repeated market terms from detail tables`
+
+Kaynak:
+
+- Kullanıcının paylaştığı YourSeoBoard ekran görüntüsü.
+- Görünen kelime dağılımı: “antalya” 120, “serik” 72, “hali” 72 ve bu
+  sözcüklerden oluşan ikili/üçlü ifadeler 48–72 tekrar.
+- Hedef URL görüntüde yazmadığı için kelime örüntüsünden
+  `/hal/antalya-hal-serik` şablonu olduğu çıkarımı yapıldı.
+
+Uygulama:
+
+- Hal detayındaki her fiyat satırı aynı `marketName` ve `cityName` değerini
+  tekrar basıyordu.
+- Market ve şehir bilgisi H1, metadata, breadcrumb, cevap bloğu ve editoryal
+  bölümde zaten mevcut olduğundan detay tablosundaki değişmeyen iki sütun
+  gizlendi.
+- Ürün, min/ortalama/maks, tarih ve kaynak sütunları korunuyor.
+- Cevap bloğu H2'si tüm market adını doğal sorgu biçiminde kullanıyor:
+  “{Hal adı} fiyatları bugün ne durumda?”
+- Ortak `PriceTable` yalnız hal detayında yeni sütun gizleme prop'larını alıyor;
+  ürün ve genel fiyat tablolarının şehirler arası karşılaştırma bağlamı korunuyor.
+- Master checklist'e keyword density/tutarlılık için ayrı teşhis ve kabul
+  maddeleri eklendi.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -770,6 +797,14 @@ başlığının tarayıcı uyumluluğu değerlendirilmelidir.
 - TypeScript, test ve production build temizdir; canlı deploy sonrası URL bazlı
   SSR/canonical kontrolü zorunlu kalır.
 
+### S-12 — Keyword density aracı tablo içeriğini editoryal içerikle birleştiriyor
+
+- YourSeoBoard ekranındaki 72 adet “Serik” ve “hali” tekrarı, fiyat tablosundaki
+  aynı hal/şehir hücre sayısıyla uyumludur.
+- Bu sayı hedef kelimenin doğal metinde yetersizliğini tek başına kanıtlamaz;
+  şablon tekrarı sayfa içi dağılımı bozuyordu.
+- Yapay kelime tekrarı eklemek yerine değişmeyen tablo bağlamı tekilleştirildi.
+
 ## 6. Açık Sorular
 
 ### Q-01 — Hedef sorgu–sayfa haritası — Yanıtlandı
@@ -805,6 +840,12 @@ Orhan'dan beklenen:
 - Bu dosyadaki yerel commit dizisi birlikte mi deploy edilecek?
 - Önce staging/ayrı branch kabulü yapılacak mı?
 - Canlı deploy sonrası Claude hangi URL örneklerini doğrulayacak?
+
+### Q-06 — YourSeoBoard denetim hedefi
+
+- Ekran görüntüsündeki tam URL ve tarama tarihi görünmüyor.
+- Kelime örüntüsü `/hal/antalya-hal-serik` olarak yorumlandı.
+- Çapraz kontrolde gerçek URL ve aracın hedef anahtar kelime ayarı teyit edilmeli.
 
 ## 7. Bulgular
 
@@ -964,6 +1005,14 @@ Orhan'dan beklenen:
 - Hero metninde `swap` ve preload zaten mevcut; teşhise aykırı görsel preload
   veya yinelenen font preload eklenmedi.
 
+### F-24 — “Düşük yoğunluk” uyarısının kökü az içerik değil, tekrar dağılımıydı
+
+- Hal detay şablonu market ve şehir adını her ürün satırında yeniden yazıyordu.
+- Serik örneğinde 72 tekrar, aracın en yaygın iki/üç kelimeli ifade tablolarını
+  tamamen aynı hal adına ayırmasına neden olmuş görünüyor.
+- Hedef ifade metadata, H1 ve editoryal içerikte zaten vardı; doğru müdahale
+  metni şişirmek değil, tablodaki sabit bağlamı tekilleştirmekti.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1037,6 +1086,7 @@ f2ece31a fix(geo): allow AI crawlers on public data APIs
 aff495ac fix(geo): bound analysis finding summaries
 b507c516 perf(lcp): defer Google tags until idle or interaction
 085c7681 perf(lcp): render homepage FAQ without hydration
+a0aae0bf fix(seo): remove repeated market terms from detail tables
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
