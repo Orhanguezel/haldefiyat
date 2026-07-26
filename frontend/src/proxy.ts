@@ -64,13 +64,13 @@ function lowercaseSlugRedirect(request: NextRequest) {
   return redirectWithPath(request, nextParts.join("/") || "/", 301);
 }
 
-async function fetchItems(path: string): Promise<Array<Record<string, unknown>>> {
+async function fetchItems(path: string): Promise<Array<Record<string, unknown>> | null> {
   try {
     const res = await fetch(`${API_URL}${path}`, {
       headers: { Accept: "application/json" },
       signal: AbortSignal.timeout(5_000),
     });
-    if (!res.ok) return [];
+    if (!res.ok) return null;
     const data = await res.json();
     if (Array.isArray(data)) return data;
     if (Array.isArray(data?.items)) return data.items;
@@ -78,29 +78,35 @@ async function fetchItems(path: string): Promise<Array<Record<string, unknown>>>
     if (data?.data && typeof data.data === "object") return [data.data];
     return [];
   } catch {
-    return [];
+    return null;
   }
 }
 
-async function fetchProductBySlug(slug: string): Promise<Record<string, unknown> | null> {
+async function fetchProductBySlug(
+  slug: string,
+): Promise<Record<string, unknown> | null | undefined> {
   const products = await fetchItems(`/api/v1/prices/products?q=${encodeURIComponent(slug)}`);
+  if (products === null) return undefined;
   return products.find((product) => product.slug === slug) ?? null;
 }
 
-async function slugExists(section: string, slug: string): Promise<boolean> {
+async function slugExists(section: string, slug: string): Promise<boolean | null> {
   if (section === "urun") {
     if (BORSA_PRODUCT_SLUGS.has(slug)) return true;
-    return Boolean(await fetchProductBySlug(slug));
+    const product = await fetchProductBySlug(slug);
+    return product === undefined ? null : Boolean(product);
   }
 
   if (section === "hal") {
     const markets = await fetchItems("/api/v1/prices/markets");
+    if (markets === null) return null;
     return markets.some((market) => market.slug === slug);
   }
 
   if (section === "analiz") {
     if (MAKALELER.some((makale) => makale.slug === slug)) return true;
     const reports = await fetchItems(`/api/v1/analysis/weekly-reports/${encodeURIComponent(slug)}`);
+    if (reports === null) return null;
     return reports.some((report) => report.slug === slug);
   }
 
@@ -132,6 +138,7 @@ async function productCanonicalRedirectResponse(request: NextRequest) {
 // var-olmayan slug'ı sayfadan önce 404'lüyor, sayfa-içi redirect hiç çalışmaz.
 async function productFallbackRedirect(request: NextRequest, slug: string): Promise<NextResponse | null> {
   const candidates = await fetchItems(`/api/v1/prices/products?q=${encodeURIComponent(slug)}`);
+  if (candidates === null) return null;
 
   const canonical = candidates.find((p) => p.canonicalSlug === slug && typeof p.slug === "string" && p.slug !== slug);
   if (canonical) return redirectWithPath(request, `/urun/${canonical.slug as string}`, 308);
@@ -166,7 +173,10 @@ async function slugNotFoundResponse(request: NextRequest) {
   const slug = parts[offset + 1];
 
   if (!section || !slug || !LOWERCASE_SLUG_SECTIONS.has(section)) return null;
-  if (await slugExists(section, slug)) return null;
+  const exists = await slugExists(section, slug);
+  // Backend timeout/5xx is not proof that a public slug does not exist. Let the
+  // route render from its cached data instead of emitting a transient hard 404.
+  if (exists === null || exists) return null;
   if (section === "urun") {
     const fallback = await productFallbackRedirect(request, slug);
     if (fallback) return fallback;
@@ -194,7 +204,7 @@ async function getRedirectMap(): Promise<Map<string, ManagedRedirect>> {
   if (redirectCache && now - redirectCache.at < REDIRECT_TTL_MS) return redirectCache.map;
   const items = await fetchItems("/api/v1/redirects");
   const map = new Map<string, ManagedRedirect>();
-  for (const r of items) {
+  for (const r of items ?? []) {
     const src = typeof r.sourcePath === "string" ? normalizeRedirectPath(r.sourcePath) : null;
     if (src) map.set(src, { type: r.type as "301" | "410", targetUrl: (r.targetUrl as string) ?? null, id: Number(r.id) });
   }

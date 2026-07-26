@@ -6,8 +6,10 @@ const inputPath = process.argv[2]
   ?? "artifacts/seo/live-crawl-meta-final-2026-07-26/report.json";
 const outputDir = process.argv[3]
   ?? "artifacts/seo/internal-link-status-2026-07-26";
+const issueSourcePath = process.argv[4];
 const concurrency = Math.max(1, Math.min(4, Number(process.env.LINK_CHECK_CONCURRENCY ?? 2)));
 const delayMs = Math.max(0, Number(process.env.LINK_CHECK_DELAY_MS ?? 250));
+const initialMethod = process.env.LINK_CHECK_METHOD === "GET" ? "GET" : "HEAD";
 const userAgent = "HalDeFiyat-SEO-Link-Audit/1.0 (+https://haldefiyat.com/security.txt)";
 
 const sourceReport = JSON.parse(await readFile(inputPath, "utf8"));
@@ -36,9 +38,14 @@ const excluded = [...sourcesByTarget.keys()]
     kind: targetKind(url),
     sources: [...sourcesByTarget.get(url)],
   }));
-const targets = [...sourcesByTarget.keys()]
+let targets = [...sourcesByTarget.keys()]
   .filter((url) => targetKind(url) === "html-navigation")
   .sort();
+if (issueSourcePath) {
+  const issueSource = JSON.parse(await readFile(issueSourcePath, "utf8"));
+  const issueUrls = new Set((issueSource.issues ?? []).map((item) => item.url));
+  targets = targets.filter((url) => issueUrls.has(url));
+}
 
 async function request(url, method) {
   return fetch(url, {
@@ -74,7 +81,7 @@ async function inspectTarget(url) {
   const startedAt = Date.now();
   const chain = [];
   let current = url;
-  let method = "HEAD";
+  let method = initialMethod;
   let totalAttempts = 0;
 
   for (let hop = 0; hop <= 10; hop++) {
@@ -152,7 +159,7 @@ const report = {
   generatedAt: new Date().toISOString(),
   sourceReport: inputPath,
   origin,
-  check: { concurrency, delayMs, userAgent },
+  check: { concurrency, delayMs, initialMethod, issueSourcePath: issueSourcePath ?? null, userAgent },
   summary,
   issues: results.filter((item) =>
     item.error || item.status < 200 || item.status >= 300 || item.redirectCount > 0),
