@@ -60,11 +60,19 @@ const MONTH_NAMES = [
 
 export async function generateMetadata({ params }: Props) {
   const { locale, year } = await params;
+  const image = `${SITE_URL}/og/rapor/yillik/${year}?ratio=16x9`;
   return getPageMetadata("annual_report", {
     locale,
     pathname: `/rapor/yillik/${year}`,
     title: `Türkiye Hal Fiyatları ${year} Yıllık Raporu`,
     description: `${year} yılı boyunca Türkiye toptan hal fiyatlarının kapsamlı analizi: en çok artan ve düşen ürünler, sezon trendleri, şehir karşılaştırması.`,
+    openGraph: {
+      title: `Türkiye Hal Fiyatları ${year} Yıllık Raporu`,
+      description: `${year} yılı toptan hal fiyatları, ürün hareketleri ve şehir karşılaştırmaları.`,
+      type: "article",
+      url: `${SITE_URL}/rapor/yillik/${year}`,
+      images: [{ url: image, width: 1200, height: 675 }],
+    },
   });
 }
 
@@ -114,6 +122,9 @@ export default async function YearlyReportPage({ params }: Props) {
   }
 
   const { overview, topRisers, topFallers, seasonalPeaks, cityCheapest, cityMostExpensive } = report;
+  const articleImages = ["1x1", "4x3", "16x9"].map(
+    (ratio) => `${SITE_URL}/og/rapor/yillik/${year}?ratio=${ratio}`,
+  );
 
   return (
     <PageContainer className="print:py-0">
@@ -129,7 +140,7 @@ export default async function YearlyReportPage({ params }: Props) {
           dateModified: overview.newestDate,
           mainEntityOfPage: `${SITE_URL}/rapor/yillik/${year}`,
           url: `${SITE_URL}/rapor/yillik/${year}`,
-          image: [`${SITE_URL}/og-default.png`],
+          image: articleImages,
           author: ORG_REF,
           publisher: ORG_REF,
           inLanguage: "tr-TR",
