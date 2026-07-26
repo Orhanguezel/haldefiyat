@@ -914,6 +914,19 @@ Commit: `8610e751 fix(content): label automated reports truthfully`
 - Kaynak ayrımı otomatik, manuel ve eski/kaynaksız içerik senaryolarıyla test
   edildi.
 
+### 3.48 İletişim Bilgilerinin Gerçek Ayarlara Bağlanması
+
+Commit: `3fc97d80 fix(trust): use configured contact details`
+
+- İletişim sayfası e-posta, telefon ve adresi mevcut `site_settings`
+  kaynağından alıyor; boş telefon/adres görünür kart üretmiyor.
+- Kodda doğrulanabilir kaynağı olmayan “Antalya Toptancı Hali” adresi ve sabit
+  çalışma saatleri kaldırıldı.
+- E-posta için mevcut kurumsal `iletisim@haldefiyat.com` güvenli fallback'i
+  korundu; yapılandırılmış adresin harita bağlantısı adres sorgusundan üretiliyor.
+- Sorumlu tüzel kişi/kurum bilgisi hâlâ sahiplik girdisi beklediği için checklist
+  maddesi tamamen kapatılmadı.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -1395,6 +1408,15 @@ Orhan'dan beklenen:
 - Etiket artık yalnız veritabanındaki açık kaynak değerinden türetiliyor ve
   inceleme iddiası kanıt üretilecek iş akışına kadar yayımlanmıyor.
 
+### F-38 — İletişim sayfası yapılandırılmamış adres ve saat yayımlıyordu
+
+- Site ayarlarında iletişim alanları bulunmasına rağmen form bileşeni sabit bir
+  Antalya adresi ve çalışma saatleri gösteriyordu.
+- Bu değerlerin işletme kaydı veya CMS doğrulaması yoktu; E-E-A-T amacıyla
+  eklenen bir yüzeyde yanlış kurumsal sinyal üretme riski taşıyordu.
+- Sayfa artık yalnız yapılandırılmış telefon/adresi yayımlıyor; sahiplik ve
+  sorumlu kurum bilgisi Orhan'ın nihai girdisine bağlı kalıyor.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1489,6 +1511,7 @@ ccb21d00 fix(content): remove stale realtime data claims
 abf83083 fix(schema): safely serialize json-ld
 23cf57e2 fix(schema): declare root entity types explicitly
 8610e751 fix(content): label automated reports truthfully
+3fc97d80 fix(trust): use configured contact details
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
