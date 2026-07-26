@@ -28,6 +28,7 @@ import { registerSocial, registerSocialAdmin } from "@/modules/social";
 import { registerSeoVolumeAdmin } from "@/modules/seo-volume";
 import { registerBanners, registerBannersAdmin } from "@/modules/banners";
 import { registerGscPublic } from "@/modules/seo/gsc-export";
+import { registerCspReports } from "@/modules/csp-reports";
 
 export async function registerProjectPublic(api: FastifyInstance) {
   await registerMarkets(api);
@@ -53,6 +54,7 @@ export async function registerProjectPublic(api: FastifyInstance) {
   await registerSocial(api);
   await registerBanners(api);
   await registerGscPublic(api);
+  await registerCspReports(api);
 
   // P2: SSO entegrasyonu icin frontend'in auth durumunu dogrulayabilecegi stub endpoint.
   // Gercek /auth endpoint'leri shared-backend auth modulunde zaten kayitli (registerAuth).

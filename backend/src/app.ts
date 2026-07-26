@@ -105,6 +105,19 @@ export async function createApp() {
       }
     },
   );
+  for (const contentType of ["application/csp-report", "application/reports+json"]) {
+    app.addContentTypeParser(
+      contentType,
+      { parseAs: "string" },
+      (_req, body, done) => {
+        try {
+          done(null, JSON.parse(body as string));
+        } catch {
+          done(null, {});
+        }
+      },
+    );
+  }
 
   await app.register(auditRequestLoggerPlugin);
 
