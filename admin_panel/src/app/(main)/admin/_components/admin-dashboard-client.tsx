@@ -16,6 +16,7 @@ import { RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EarlyWarningPanel } from '@/components/common/early-warning-panel';
 
 import { useGetDashboardSummaryAdminQuery } from '@/integrations/hooks';
 import { useStatusQuery } from '@/integrations/hooks';
@@ -123,6 +124,9 @@ export default function AdminDashboardClient() {
           {copy.common?.actions?.refresh || t('admin.common.refresh')}
         </Button>
       </div>
+
+      {/* Erken uyarı — fırlayan temel gıdalar (soğan imzası) en üstte görünür */}
+      {role === 'admin' && <EarlyWarningPanel />}
 
       {/* Loading skeleton */}
       {q.isLoading && (
