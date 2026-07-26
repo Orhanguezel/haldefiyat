@@ -6,6 +6,7 @@ import PageContainer from "@/components/layout/PageContainer";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
 import { fetchAuthor } from "@/lib/api";
+import { compactMetaDescription, compactMetaTitle } from "@/lib/meta-text";
 import { getLocaleAlternates } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -20,11 +21,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // yerine ciplak hata kabugu doner. 404'u page component'i veriyor.
   if (!author) return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
 
-  const title = `${author.fullName}${author.title ? ` — ${author.title}` : ""} | HaldeFiyat`;
-  const description = author.bio || `${author.fullName} tarafından hazırlanan hal fiyatları ve piyasa analizleri.`;
+  const title = compactMetaTitle(`${author.fullName}${author.title ? ` — ${author.title}` : ""} | HaldeFiyat`);
+  const description = compactMetaDescription(
+    author.bio || `${author.fullName} tarafından hazırlanan hal fiyatları ve piyasa analizleri.`,
+  );
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: getLocaleAlternates(locale, `/yazar/${author.slug}`),
     openGraph: {
