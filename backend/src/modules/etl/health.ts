@@ -125,7 +125,10 @@ export async function checkEtlHealth(): Promise<EtlHealthIssue[]> {
     const [stale, jumps] = await Promise.all([detectStaleSources(), detectPriceJumps()]);
 
     // DONMA = kesin sessiz hata -> kritik (push edilir).
+    // Devlet-set/mevsimlik sabit kaynaklar (TMO vb.) muaf — bilincli sabit veri.
+    const ignoreFrozen = new Set(env.ETL.healthIgnoreFrozenSources);
     for (const s of stale) {
+      if (ignoreFrozen.has(s.sourceApi)) continue;
       issues.push({
         source: s.sourceApi,
         severity: "critical",

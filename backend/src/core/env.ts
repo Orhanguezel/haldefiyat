@@ -205,6 +205,9 @@ export const env = {
     healthNotifyEmails: parseEnvList(process.env.ETL_HEALTH_NOTIFY_EMAILS || process.env.ADMIN_EMAIL),
     healthTelegramChatIds: parseEnvList(process.env.ETL_HEALTH_TELEGRAM_CHAT_IDS || process.env.TELEGRAM_CHAT_ID),
     healthIgnoreEmptySources: parseEnvList(process.env.ETL_HEALTH_IGNORE_EMPTY_SOURCES),
+    // Devlet-set / mevsimlik sabit fiyat kaynaklari (or. TMO alim fiyatlari) gunluk degismez;
+    // donma detektorunden muaf tut, aksi halde surekli yanlis 'kritik' uretir.
+    healthIgnoreFrozenSources: parseEnvList(process.env.ETL_HEALTH_IGNORE_FROZEN_SOURCES),
   },
 
   ONESIGNAL: {
