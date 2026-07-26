@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import dynamic from "next/dynamic";
 import type { Market, PriceHistoryRow, Product } from "@/lib/api";
+import Breadcrumb from "@/components/seo/Breadcrumb";
 import ComparisonControls from "./comparison/ComparisonControls";
 import ComparisonChips from "./comparison/ComparisonChips";
 import ComparisonSummary from "./comparison/ComparisonSummary";
@@ -127,13 +127,10 @@ export default function ComparisonClient({ products, markets }: ComparisonClient
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-6 py-10 md:px-8 md:py-14">
       <header className="mb-8">
-        <nav aria-label="Breadcrumb" className="mb-4 font-(family-name:--font-mono) text-[11px] text-(--color-muted)">
-          <Link href="/" className="transition-colors hover:text-(--color-brand)">
-            Ana Sayfa
-          </Link>
-          <span className="mx-2 opacity-50">/</span>
-          <span className="text-(--color-foreground)">Fiyat Karşılaştırma</span>
-        </nav>
+        <Breadcrumb visible items={[
+          { name: "Ana Sayfa", href: "/" },
+          { name: "Fiyat Karşılaştırma", href: "/karsilastirma" },
+        ]} />
         <div className="mb-2 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
           Karşılaştır
         </div>
