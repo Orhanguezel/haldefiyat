@@ -7,8 +7,9 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 43/65 checkbox — kapanış kanıtları bu dosyada korunur.
-- **Açık:** 22/65 checkbox — ayrı dosyaya taşındı:
+- **Tamamlanan:** 44/66 checkbox — kapanış kanıtları bu dosyada korunur.
+- **Açık:** 22/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
+  kalan iş olarak ayrıldığı için toplam takip maddesi 66 oldu. Açıklar:
   `HALDEFIYAT-GEO-SEO-ACIK-ISLER.md`.
 - Bu dosyaya yeni açık iş eklenmez. Açık dosyada tamamlanan maddeler, kanıtıyla
   birlikte buraya taşınır ve iki dosyanın sayaçları birlikte güncellenir.
@@ -115,6 +116,7 @@ ayrı açık işler dosyasına taşınmıştır.
 - [x] RFC uyumlu, yapılandırılmış `security.txt` ve açıklayıcı ürün görsel alt metinleri tamamlandı. (`7cf22f9a`, `3dddeb04`)
 - [x] Ana sayfa cache/transport maliyeti ölçüldü: sıcak TTFB 178–236 ms, Brotli ve hash'li assetlerde bir yıllık immutable cache aktif; UA/locale bağımlı SSR nedeniyle public HTML cache güvenli bulunmadı, HTTP/3 ayrı fırsat olarak kaydedildi. (`docs/geo-seo/CACHE-TRANSPORT-DENETIMI-2026-07-26.md`)
 - [x] 07–26 Temmuz Nginx loglarında Googlebot, Bingbot, GPTBot, ChatGPT-User, ClaudeBot, CCBot ve PerplexityBot status dağılımı çıkarıldı; kendi audit crawler'ı hariç tutuldu, 4xx/5xx yolları ve spoofed user-agent sınırı kaydedildi. (`docs/geo-seo/BOT-CRAWL-LOG-ANALIZI-2026-07-07-26.md`)
+- [x] Canlı Lighthouse Accessibility 100, Best Practices 100 ve SEO 100 kabulü geçti; OneSignal ana sayfa kritik yolundan push akışına ertelendi, first-party source map yayımlandı ve SRI uygunluğu değerlendirildi. (`7a343b4a`, `docs/geo-seo/LIGHTHOUSE-BEST-PRACTICES-100-2026-07-26.md`)
 
 ### 6.1 Anahtar kelime yoğunluğu ve sayfa içi tutarlılık
 

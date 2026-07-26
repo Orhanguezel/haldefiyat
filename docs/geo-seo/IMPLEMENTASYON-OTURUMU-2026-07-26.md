@@ -1597,6 +1597,22 @@ Orhan'dan beklenen:
 - Deploy sonrası Lighthouse tekrarında contrast kabulü ve LCP ayrıca
   doğrulanmalıdır; açık checklist maddesi o zamana kadar açık kalır.
 
+### 3.55 Lighthouse Best Practices 100
+
+Commit: `7a343b4a fix(perf): defer OneSignal outside push flows`
+
+- OneSignal SDK ana sayfada koşulsuz yüklenmek yerine push alarm rotaları veya
+  daha önce bildirim izni verilmiş tarayıcılarla sınırlandı.
+- Ana sayfada SDK isteği/cookie/Inspector issue sıfırlandı; `/uyarilar`
+  rotasında SDK yüklenmeye ve CSP hatası olmadan çalışmaya devam ediyor.
+- Public repo ve client-only kapsam dikkate alınarak production browser source
+  map açıldı.
+- Canlı Lighthouse: Accessibility 100, Best Practices 100, SEO 100; başarısız
+  Best Practices audit’i sıfır.
+- Performance 63 ve lab LCP 10,5 sn olduğundan performans/CWV maddesi bu
+  başarıyla karıştırılmadı ve açık kalmaya devam ediyor.
+- Dependency registry audit’i ayrı açık satıra bölündü.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.

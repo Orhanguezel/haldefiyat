@@ -5,10 +5,13 @@
 >
 > Tarih: 2026-07-26 · Durum: **22 açık madde**
 >
-> Bu dosya yalnız açık işleri içerir. Tamamlanmış 43 madde, kapanış kanıtlarıyla
+> Bu dosya yalnız açık işleri içerir. Tamamlanmış 44 madde, kapanış kanıtlarıyla
 > ana aksiyon checklist'inde korunur. Burada tamamlanan bir madde `[x]`
 > yapıldıktan sonra ana checklist'e taşınmalı ve iki dosyanın sayaçları birlikte
 > güncellenmelidir.
+>
+> Lighthouse/SRI ile dependency audit tek satırdayken doğrulanabilir kabul ve
+> registry bağımlı kalan iş olarak ikiye ayrıldı; toplam takip maddesi 66 oldu.
 
 ## P0 — DNS ve canlı kabul
 
@@ -39,7 +42,7 @@ beklenmedik meşru gönderici bulunmuyor.
 - [ ] 3xx/4xx/5xx iç linkleri ve redirect chain'leri tam crawl ile çıkar.
 - [ ] Duplicate/missing/truncated title-description-H1 envanteri ile canonical ve hreflang self/reciprocal kontrolünü tamamla. Kod açıkları kapatıldı (`6ca33051`); tam canlı crawl bekleniyor.
 - [ ] `www`, HTTP, trailing-slash ve case varyantlarını; redirect zincirlerini ve soft-404 ailelerini tam canlı crawl ile doğrula.
-- [ ] Canlı Lighthouse a11y/best-practices tekil kayıplarını, SRI uygunluğunu ve dependency audit sonuçlarını arşivle.
+- [ ] Production dependency audit’i registry erişimiyle tamamla ve sonuçlarını arşivle; önceki `bun audit --production` denemesi 60 saniyede yanıt vermedi.
 
 ### Anahtar kelime yoğunluğu canlı kontrolü
 
