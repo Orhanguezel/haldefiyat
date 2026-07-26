@@ -3,6 +3,7 @@ import { ContactForm } from "@/components/sections/ContactForm";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import Breadcrumb from "@/components/seo/Breadcrumb";
+import Link from "next/link";
 import { getPageMetadata } from "@/lib/seo";
 import { fetchSiteSettings } from "@/lib/site-settings";
 
@@ -59,6 +60,29 @@ export default async function ContactPage({ params, searchParams }: Props) {
               conversionEventName={isProInquiry ? "pro_upgrade" : undefined}
               conversionParams={isProInquiry ? { source_page: "pro", value: 99 } : undefined}
             />
+            <section className="mx-auto mt-12 max-w-3xl rounded-2xl border border-border/50 bg-surface/40 p-6 text-sm leading-relaxed text-muted">
+              <h2 className="text-lg font-bold text-foreground">Yayıncı ve sorumluluk bilgisi</h2>
+              <p className="mt-3">
+                Sorumlu yayıncı ve platform işletim noktası <strong className="text-foreground">HalDeFiyat</strong>’tır.
+                Veri, içerik, düzeltme, basın ve ticari işbirliği bildirimleri yukarıdaki iletişim
+                kanallarından alınır.
+              </p>
+              <p className="mt-3">
+                İçerik ve veri süreçleri için{" "}
+                <Link className="font-semibold text-brand underline underline-offset-2" href="/editoryal-politika">
+                  Editoryal Politika
+                </Link>
+                ,{" "}
+                <Link className="font-semibold text-brand underline underline-offset-2" href="/duzeltme-politikasi">
+                  Düzeltme Politikası
+                </Link>{" "}
+                ve{" "}
+                <Link className="font-semibold text-brand underline underline-offset-2" href="/veri-kaynagi-politikasi">
+                  Veri Kaynağı Politikası
+                </Link>{" "}
+                geçerlidir.
+              </p>
+            </section>
           </div>
         </ScrollReveal>
       </div>

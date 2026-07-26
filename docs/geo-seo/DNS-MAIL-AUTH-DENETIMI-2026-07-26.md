@@ -40,6 +40,28 @@ gereksiz SPF eklemek yerine gerçek envelope alanındaki tek kayıt korunmalıd�
 - `rua` eklendikten sonra en az yedi günlük rapor incelenmeden `quarantine` veya
   `reject` politikasına geçilmez.
 
+## 27 Temmuz canlı test gönderimi
+
+- Canlı backend ile aynı `smtp.resend.com:465` ayarları kullanılarak yapılandırılmış
+  yönetici Gmail adresine benzersiz bir kimlik doğrulama iletisi gönderildi.
+- UTC zaman: `2026-07-26T22:41:45.499Z`
+- SMTP sonucu: `accepted=1`, `rejected=0`
+- Message-ID:
+  `<40b5618c-176a-3c08-ba8f-bd2efbff881f@haldefiyat.com>`
+- Bu sonuç Resend'in mesajı kabul ettiğini kanıtlar; alıcı tarafındaki
+  `Authentication-Results` başlığı görülmeden SPF/DKIM/DMARC aligned-pass
+  maddesi kapatılmaz.
+- Gmail bağlantısı önerildi. Bağlantı sağlandığında yukarıdaki Message-ID ile
+  ileti bulunup ham başlık kanıtı bu dosyaya eklenecek.
+
+## DNS yönetimi durumu
+
+- Yetkili nameserver'lar `dns1.turhost.com` ve `dns2.turhost.com`.
+- Proje ve canlı sunucuda Turhost DNS API/oturum anahtarı bulunmadı.
+- Kontrollü bir DMARC rapor posta kutusu da yapılandırmada tanımlı değil.
+  Bu nedenle rastgele `rua` adresi yazılmadı ve yetkisiz DNS değişikliği
+  denenmedi.
+
 ## Tekrar komutları
 
 ```bash

@@ -5,6 +5,22 @@ altyapısal bulguları tutar.
 
 ## Açık Operasyonel Konular
 
+### E-posta kimlik doğrulama kabulü ve DMARC raporları
+
+- 27 Temmuz 2026 canlı test iletisi Resend tarafından kabul edildi:
+  Message-ID
+  `<40b5618c-176a-3c08-ba8f-bd2efbff881f@haldefiyat.com>`,
+  `accepted=1`, `rejected=0`.
+- SPF/DKIM/DMARC aligned-pass kapanışı için yönetici Gmail posta kutusundaki
+  iletinin ham `Authentication-Results` başlığı gerekiyor. Gmail bağlantısı
+  önerildi; bağlantı henüz onaylanmadı.
+- DNS Turhost tarafından yönetiliyor. Sunucuda DNS API anahtarı yok ve DMARC
+  aggregate raporlarını alacak kontrollü posta kutusu belirlenmemiş.
+- Karar gereken konu: `rua` için yönetilen adres/servis. Adres tanımlandıktan
+  sonra `p=none` ile en az yedi gün rapor toplanmalı; meşru gönderen envanteri
+  temizse sırasıyla `quarantine; pct=25`, `pct=100` ve gerekirse `reject`
+  değerlendirilmeli.
+
 ### ETL veri akışı
 
 - Kocaeli, Mersin ve Çanakkale’de uzun süredir veri akışı olmadığı bildirildi.
