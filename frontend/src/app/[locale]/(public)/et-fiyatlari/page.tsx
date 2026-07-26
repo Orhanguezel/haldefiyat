@@ -1,19 +1,20 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import CategoryPriceLanding from "@/components/sections/CategoryPriceLanding";
+import { getPageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
-  return {
+  return getPageMetadata("et_fiyatlari", {
+    locale,
+    pathname: "/et-fiyatlari",
     title: "Et Fiyatları — Dana Karkas, Kuzu Karkas | HaldeFiyat",
     description:
       "Türkiye ticaret borsalarından güncel karkas et fiyatları: dana karkas ve kuzu karkas (TL/kg). Her satırda kaynak ve tarih etiketlidir; borsalar periyodik yayımlar.",
-    alternates: { canonical: `/${locale}/et-fiyatlari` },
-  };
+  });
 }
 
 export default async function Page({ params }: Props) {

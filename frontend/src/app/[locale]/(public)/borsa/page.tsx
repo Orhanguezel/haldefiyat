@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import { ArrowRight, BadgeCheck, BarChart3 } from "lucide-react";
@@ -9,6 +8,7 @@ import PriceTable from "@/components/ui/PriceTable";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import ProductImage from "@/components/ui/ProductImage";
+import { getPageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -51,13 +51,14 @@ function withFallbackProducts(products: Product[]): Product[] {
   return [...products, ...FALLBACK_PRODUCTS.filter((p) => !seen.has(p.slug))];
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
-  return {
+  return getPageMetadata("borsa", {
+    locale,
+    pathname: "/borsa",
     title: "Borsa ve Resmi Tarım Fiyatları | HaldeFiyat",
     description: "Buğday, ekmeklik ve makarnalık buğday, arpa, mısır, çeltik, pirinç, yulaf, çavdar, ayçiçeği, pamuk, mercimek, nohut ve kuru fasulye için TMO resmi alım fiyatları ile ticaret borsası fiyatları.",
-    alternates: { canonical: `/${locale}/borsa` },
-  };
+  });
 }
 
 function formatDate(raw?: string | null) {
