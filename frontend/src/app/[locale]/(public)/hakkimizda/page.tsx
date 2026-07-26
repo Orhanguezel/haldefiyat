@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props) {
     locale,
     pathname: "/hakkimizda",
     title: "Hakkımızda | HaldeFiyat",
-    description: "HalDeFiyat, Türkiye genelindeki resmi hal müdürlüklerinden günlük fiyat verisi derleyen bağımsız bir açık veri platformudur. Metodoloji, veri kalitesi ve misyonumuz hakkında.",
+    description: "HalDeFiyat, Türkiye genelindeki izlenen resmi ve açık kaynaklardan tarihli fiyat verisi derleyen bağımsız bir açık veri platformudur. Metodoloji, veri kalitesi ve misyonumuz hakkında.",
   });
 }
 
@@ -24,7 +24,7 @@ const VALUES = [
   {
     icon: ShieldCheck,
     title: "Şeffaf Veri",
-    desc: "Türkiye genelindeki tüm hal verilerini doğrudan resmi kaynaklardan alıyor, hiçbir manipülasyon yapmadan sunuyoruz. Hangi kaynaktan ne aldığımızı metodoloji sayfamızda açıklıyoruz.",
+    desc: "Türkiye genelindeki izlenen hal verilerini resmi ve açık kaynaklardan derliyor, kaynak ile kayıt tarihini birlikte sunuyoruz. Hangi kaynaktan ne aldığımızı metodoloji sayfamızda açıklıyoruz.",
   },
   {
     icon: Zap,
@@ -34,12 +34,12 @@ const VALUES = [
   {
     icon: LineChart,
     title: "Tarihi Analiz",
-    desc: "Sadece bugünün değil, 2025'ten bu yana biriken verinin izini sürüyoruz. Sezonluk karşılaştırmalar, yıllık trend grafikleri ve haftalık sepet endeksiyle piyasayı anlık okuyun.",
+    desc: "Sadece son kaydın değil, biriken tarihli verinin izini sürüyoruz. Sezonluk karşılaştırmalar, yıllık trend grafikleri ve haftalık sepet endeksiyle dönemsel değişimi inceleyin.",
   },
 ];
 
 const WHO_USES = [
-  { icon: Leaf, title: "Çiftçi ve Üreticiler", desc: "Ürünlerini hangi hale, hangi fiyatla götüreceklerine karar verirken anlık piyasa verisine ihtiyaç duyarlar." },
+  { icon: Leaf, title: "Çiftçi ve Üreticiler", desc: "Ürünlerini hangi hale, hangi fiyatla götüreceklerine karar verirken kaynak ve tarihi belli piyasa verisine ihtiyaç duyarlar." },
   { icon: TrendingUp, title: "Tüccar ve Komisyoncular", desc: "Şehirler arası fiyat farklarını analiz ederek alım-satım kararlarını optimize ederler." },
   { icon: BookOpen, title: "Araştırmacı ve Analistler", desc: "Tarım ekonomisi üzerine çalışan akademisyen ve analistler tarihsel veri setlerine API üzerinden erişir." },
   { icon: Users, title: "Tüketici ve Medya", desc: "Marketlerdeki fiyatların toptancı fiyatıyla karşılaştırılması, tüketici bilinçlenmesine katkı sağlar." },
@@ -113,24 +113,24 @@ export default async function AboutPage({ params }: Props) {
                     dağınık, erişilmesi zor ve çoğu zaman gecikmeli kaldı.
                   </p>
                   <p>
-                    HalDeFiyat bu sorunu çözmek için kuruldu. 2025 yılında yayına giren platform, Türkiye'nin
-                    Türkiye genelindeki resmi hal müdürlüklerinden günlük olarak otomatik veri derliyor; sebze, meyve
+                    HalDeFiyat bu sorunu çözmek için kuruldu. Platform, Türkiye genelindeki izlenen resmi ve açık
+                    veri kaynaklarından yayın takvimlerine göre kayıt derliyor; sebze, meyve
                     ve bakliyat fiyatlarını herkesin anlayabileceği sade bir arayüzde sunuyor.
                   </p>
                   <p>
                     Platform tamamen bağımsızdır. Hiçbir ticari kuruluşa veya belediyeye bağlı değiliz.
-                    Veriler olduğu gibi sunulur; fiyatlar manipüle edilmez, pazara yön verme amacı taşınmaz.
+                    Kayıtlar kaynak, tarih ve normalizasyon bilgisiyle sunulur; pazara yön verme amacı taşınmaz.
                     Şeffaflık, HalDeFiyat'ın temel değeridir.
                   </p>
                   <p>
                     Teknik altyapı, modern web scraping ve ETL (Extract, Transform, Load) teknolojileriyle
                     inşa edilmiştir. Bazı kaynaklar için özel headless browser çözümleri, bazıları için JSON
-                    API entegrasyonları kullanılmaktadır. Tüm bu süreç her sabah otomatik olarak çalışır;
-                    insan müdahalesi gerektirmez.
+                    API entegrasyonları kullanılmaktadır. Süreçler kaynakların yayın takvimine göre çalışır;
+                    normalizasyon ve veri kalitesi kontrolleri uygulanır.
                   </p>
                   <p>
-                    HalDeFiyat'ın sunduğu veriler yalnızca anlık fiyatlardan ibaret değildir: 2025'ten bu
-                    yana biriken tarihsel veri seti, sezonluk karşılaştırmalar ve haftalık sepet endeksiyle
+                    HalDeFiyat'ın sunduğu kayıtlar yalnızca son fiyatlardan ibaret değildir: biriken tarihsel
+                    veri seti, sezonluk karşılaştırmalar ve haftalık sepet endeksiyle
                     piyasanın uzun vadeli seyri de izlenebilmektedir.
                   </p>
                 </>

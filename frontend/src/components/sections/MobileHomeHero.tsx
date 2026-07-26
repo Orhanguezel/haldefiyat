@@ -30,7 +30,7 @@ export default async function MobileHomeHero({
       <section className="px-4 pb-5 pt-7">
         <div className="rounded-lg border border-(--color-border) bg-(--color-surface) p-4">
           <div className="font-(family-name:--font-mono) text-[10px] font-bold uppercase tracking-[0.12em] text-(--color-brand)">
-            Canlı veri akışı
+            Tarihli veri akışı
           </div>
           <h1 className="mt-3 text-[32px] font-black leading-[1.05] text-(--color-foreground)">
             {t("title")} — {t("subtitle")}

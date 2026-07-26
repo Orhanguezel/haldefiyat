@@ -30,7 +30,7 @@ export default function HeroSectionClient({
     ? `${activeCities.toLocaleString("tr-TR")} Aktif İl`
     : targetCoverage;
   const features: ReadonlyArray<Feature> = [
-    { icon: "📊", label: "Günlük Fiyat Verileri" },
+    { icon: "📊", label: "Tarihli Fiyat Verileri" },
     { icon: "🏪", label: `${coverageLabel} Hal Bilgisi` },
     { icon: "📈", label: "Fiyat Grafikleri" },
     { icon: "🔔", label: "Fiyat Uyarıları" },
@@ -40,7 +40,7 @@ export default function HeroSectionClient({
     <div className="mx-auto max-w-[860px]">
       <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-(--color-brand)/20 bg-(--color-brand)/10 px-[18px] py-1.5 font-(family-name:--font-mono) text-[12px] font-semibold uppercase tracking-[0.08em] text-(--color-brand)">
         <span className="live-dot-sm" aria-hidden />
-        Canlı Veri Akışı · {coverageLabel}
+        Tarihli Veri Akışı · {coverageLabel}
       </div>
 
       <h1 className="font-(family-name:--font-display) text-[42px] font-black leading-[1.05] tracking-[-0.04em] text-(--color-foreground) sm:text-[52px] lg:text-[64px]">
@@ -58,8 +58,8 @@ export default function HeroSectionClient({
       </h1>
 
       <p className="mx-auto mt-6 max-w-[600px] text-[19px] leading-[1.7] text-(--color-muted)">
-        İstanbul, Ankara, İzmir ve tüm illerden günlük sebze-meyve hal
-        fiyatlarını anlık takip edin. Fiyat grafikleri, trend analizleri ve
+        İstanbul, Ankara, İzmir ve aktif kaynaklardan yayımlanan sebze-meyve hal
+        fiyatlarını kayıt tarihleriyle takip edin. Fiyat grafikleri, trend analizleri ve
         akıllı uyarılar.
       </p>
 

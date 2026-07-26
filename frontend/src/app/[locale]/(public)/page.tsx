@@ -53,7 +53,7 @@ const datasetSchemaBase = {
   variableMeasured: ["MinFiyat", "MaxFiyat", "OrtalamaFiyat"],
   isAccessibleForFree: true,
   measurementTechnique:
-    "Resmi hal kaynaklarından günlük ETL ile derleme, ürün ve birim normalizasyonu",
+    "Resmi hal kaynaklarının yayın takvimine göre ETL ile derleme, ürün ve birim normalizasyonu",
   distribution: {
     "@type": "DataDownload",
     encodingFormat: "application/json",
@@ -62,9 +62,9 @@ const datasetSchemaBase = {
 } satisfies Record<string, unknown>;
 
 function formatUpdatedAt(value: string | undefined): string {
-  if (!value) return "Bugün";
+  if (!value) return "Bilinmiyor";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Bugün";
+  if (Number.isNaN(date.getTime())) return "Bilinmiyor";
   return new Intl.DateTimeFormat("tr-TR", {
     day: "2-digit",
     month: "short",

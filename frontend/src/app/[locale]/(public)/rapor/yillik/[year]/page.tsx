@@ -362,7 +362,7 @@ export default async function YearlyReportPage({ params }: Props) {
           <li>Yıllık enflasyon: Q1 (Oca-Mar) vs Q4 (Eki-Ara) tüm sebze-meyve sepet ortalaması.</li>
           <li>Sezon pikleri: ürünün herhangi bir ay ortalaması yıllık ortalamadan ≥1.5x ise listelenir.</li>
           <li>Şehir karşılaştırması: sadece kg-bazlı ürünler, en az 50 kayıt olan haller.</li>
-          <li>Veri kaynağı: 30+ resmi belediye hal API'si + ETL pipeline (haldefiyat.com/metodoloji).</li>
+          <li>Veri kaynağı: rapor kapsamındaki resmi ve açık fiyat kaynakları; ETL ve normalizasyon ayrıntıları metodoloji sayfasındadır.</li>
         </ul>
       </section>
 

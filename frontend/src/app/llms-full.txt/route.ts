@@ -72,7 +72,7 @@ export async function GET() {
 - ${marketCoverage} (çoklu il ve bölge)
 - ${productCoverage}
 - Veri geçmişi: ${historyCoverage}
-- Güncelleme: Günlük otomatik (ETL)
+- Güncelleme: Kaynakların resmi yayın takvimine göre otomatik ETL
 
 ## Açık Veri API
 

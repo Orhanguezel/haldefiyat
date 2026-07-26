@@ -9,7 +9,7 @@ import { getPageMetadata } from "@/lib/seo";
 type Props = { params: Promise<{ locale: string }> };
 
 const FACTS_STATIC = [
-  { label: "Güncelleme", value: "Günlük", desc: "ETL kaynaklarından otomatik veri akışı" },
+  { label: "Güncelleme", value: "Kaynak bazlı", desc: "Kaynakların yayın takvimine göre otomatik ETL" },
   { label: "İçerik", value: "/analiz", desc: "Haftalık fiyat yorumları ve endeks raporları" },
   { label: "Erişim", value: "Ücretsiz", desc: "Kamuya açık fiyat tablosu, grafik ve API dokümantasyonu" },
 ];
