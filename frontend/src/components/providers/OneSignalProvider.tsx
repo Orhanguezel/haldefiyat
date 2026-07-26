@@ -2,7 +2,7 @@
 
 import Script from "next/script";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 
 declare global {
@@ -38,9 +38,25 @@ export function OneSignalProvider() {
   const { user } = useAuthSession();
   const pathname = usePathname();
   const deferForLanding = pathname?.endsWith("/canli-hal-fiyatlari") || pathname === "/canli-hal-fiyatlari";
+  const pushAlarmRoute = pathname?.endsWith("/uyarilar") ?? false;
+  const [shouldLoadSdk, setShouldLoadSdk] = useState(false);
 
   useEffect(() => {
-    if (!ONESIGNAL_ACTIVE || deferForLanding || typeof window === "undefined") return;
+    if (!ONESIGNAL_ACTIVE || deferForLanding || typeof window === "undefined") {
+      setShouldLoadSdk(false);
+      return;
+    }
+
+    // OneSignal ana sayfada her ziyaretçiye üçüncü taraf cookie bırakmamalı.
+    // SDK yalnız push alarm akışında veya daha önce izin vermiş abonede gerekir.
+    setShouldLoadSdk(
+      pushAlarmRoute
+      || ("Notification" in window && window.Notification.permission === "granted"),
+    );
+  }, [deferForLanding, pushAlarmRoute]);
+
+  useEffect(() => {
+    if (!ONESIGNAL_ACTIVE || deferForLanding || !shouldLoadSdk || typeof window === "undefined") return;
 
     window.OneSignalDeferred = window.OneSignalDeferred || [];
 
@@ -79,9 +95,9 @@ export function OneSignalProvider() {
         console.debug("[onesignal] identity sync skipped", err);
       }
     });
-  }, [deferForLanding, user?.id]);
+  }, [deferForLanding, shouldLoadSdk, user?.id]);
 
-  if (!ONESIGNAL_ACTIVE || deferForLanding) return null;
+  if (!ONESIGNAL_ACTIVE || deferForLanding || !shouldLoadSdk) return null;
 
   return (
     <Script

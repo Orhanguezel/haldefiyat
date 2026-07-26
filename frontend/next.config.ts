@@ -33,7 +33,10 @@ const nextConfig: NextConfig = {
   output: "standalone",
   compress: true,
   poweredByHeader: false,
-  productionBrowserSourceMaps: false,
+  // Public frontend kaynak kodu GitHub'da; browser source map'leri production
+  // hata ayıklama ve Lighthouse Best Practices doğrulaması için yayımlanabilir.
+  // Server/env değerleri client bundle'a dahil edilmediği için map'e de girmez.
+  productionBrowserSourceMaps: true,
   turbopack: {
     root: path.resolve(process.cwd(), "../../.."),
   },
