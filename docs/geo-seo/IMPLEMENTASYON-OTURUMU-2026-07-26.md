@@ -23,8 +23,8 @@
 | Brief görevi | Durum | Commit / not |
 |---|---|---|
 | GÖREV 1 — Ana sayfa H1 | Kod tamamlandı | `c8600951` |
-| GÖREV 2 — Citability cevap blokları | Bloklu | Hedef sorgu–sayfa haritası bekleniyor |
-| GÖREV 3 — Mobil LCP/FCP | Bloklu | Gerçek LCP elementi ve waterfall bekleniyor |
+| GÖREV 2 — Citability cevap blokları | Yerelde tamamlandı | Ürün → hal → genel → analiz şablonları uygulandı |
+| GÖREV 3 — Mobil LCP/FCP | Yerelde tamamlandı | Metin LCP teşhisine göre Google tag zinciri ertelendi; SSS hidrasyonu kaldırıldı |
 | GÖREV 4a — Article/NewsArticle kalite | Büyük ölçüde tamamlandı | `35ab742f`, `c21c4a1e` |
 | GÖREV 4b — Breadcrumb kalite | Hedef şablonlarda tamamlandı | `62e71ca5` |
 | GÖREV 4c — Dataset kalite | Ana sayfa/ürün/hal tamamlandı | `35ab742f` |
@@ -576,15 +576,81 @@ Commit: `96bc3b54 fix(geo): derive llms coverage from live data`
   tarihini kullanıyor.
 - Backend erişilemezse `0` veya uydurma sayı yerine nötr metin gösteriliyor.
 
+### 3.27 Tarihli Ürün Cevap Blokları
+
+Commit: `0614ceb5 feat(geo): add dated product answer summaries`
+
+- Ortak, görünür ve anchor destekli `AnswerBlock` bileşeni eklendi.
+- Tüm ürün şablonlarında `#ortalama-fiyat`; kesin kayıt tarihi, baskın birim,
+  min–maks, ortalama, hal örneklemi, kaynak ve veri tazeliğini gösteriyor.
+- Görünür değerler Product schema ve perakende kıyasının kullandığı aynı
+  `offerLow`, `offerHigh`, `offerAvg`, `offerCount` kaynağından geliyor.
+- Piyasa niyeti için günlük ortalamalardan birbirini izleyen 7 ve 30 günlük
+  pencere değişimleri hesaplanıyor.
+- Trend hesapları otomatik testle kapsandı.
+
+### 3.28 Tarihli Hal Cevap Blokları
+
+Commit: `6e05be62 feat(geo): add dated market answer summaries`
+
+- Tüm hal şablonlarında `#bugunun-hal-fiyatlari` SSR bloğu eklendi.
+- Son kayıt tarihindeki gerçek ürün sayısı, kaynak ve kesin güncelleme tarihi
+  gösteriliyor.
+- Son 90 günlük gerçek seriden her ürünün en yeni iki yayın günü kıyaslanıyor;
+  mutlak değişimi en yüksek üç ürün özetleniyor.
+- Veri yoksa “bugün” veya çalışan ETL iddiası üretilmiyor.
+
+### 3.29 Genel Fiyat ve Analiz Özetleri
+
+Commitler:
+
+- `33200273 feat(geo): summarize current national price coverage`
+- `139b8c88 feat(geo): anchor analysis finding summaries`
+- `aff495ac fix(geo): bound analysis finding summaries`
+
+Yapılanlar:
+
+- `/fiyatlar#turkiye-hal-fiyatlari-ozeti` gerçek son veri kesitindeki ürün ve
+  hal/kaynak kapsamını gösteriyor; öncelikli ürün ve İstanbul hal sayfasına
+  görünür iç link veriyor.
+- Analizlerde mevcut CMS/rapor özeti `#bulgu-ozeti` içine alındı; rapor tarihi,
+  yöntem/sınır bağlantısı ve kapsam uyarısıyla 2–4 cümlelik giriş sağlandı.
+- CMS özeti en fazla ilk üç cümleyle sınırlandı; kapsam uyarısıyla blok en fazla
+  dört cümle kalıyor.
+- Özet metni içerikten bağımsız üretilmedi; `makale.ozet` tek kaynak kaldı.
+
+### 3.30 Ölçüme Dayalı Mobil LCP Hazırlığı
+
+Commitler:
+
+- `b507c516 perf(lcp): defer Google tags until idle or interaction`
+- `085c7681 perf(lcp): render homepage FAQ without hydration`
+
+Yapılanlar:
+
+- GTM, GA4 ve Ads dış scriptleri pencere `load` sonrasındaki idle anına veya ilk
+  kullanıcı etkileşimine ertelendi.
+- Consent Mode küçük başlangıç kodu etiketlerden önce kalıyor.
+- Etiket yüklenmeden oluşan conversion ve RUM event'leri `dataLayer` kuyruğunda
+  korunuyor.
+- GTM mevcutsa GA4 ayrıca yüklenmiyor; Ads etiketi aynı gecikmeli yükleyicide
+  başlatılıyor.
+- Mobil/masaüstü UA sunucu ayrımı ve statik hero metni korundu.
+- Ana sayfa SSS, React state ve ikon JS'i yerine native `<details>` kullanıyor;
+  içerik SSR'da görünür kalırken bu bölüm artık hydrate edilmiyor.
+- Outfit denetiminde tüm 300–900 ağırlıklarının aynı iki değişken WOFF2 dosyasını
+  kullandığı, `font-display: swap` ve Next font preload'un etkin olduğu görüldü;
+  bu nedenle ek font preload veya görsel preload eklenmedi.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
 
 - Frontend `bunx tsc --noEmit`: geçti.
 - Backend `bunx tsc --noEmit`: geçti.
-- Frontend `bun run test`: 10 dosya, 27 test geçti.
+- Frontend `bun run test`: 11 dosya, 31 test geçti.
 - Backend `bun run test`: 2 dosya, 11 test geçti.
-- Frontend `bun run build`: geçti; son durumda 63 route üretildi.
+- Frontend `bun run build`: geçti; son durumda 65 route üretildi.
 - Backend `bun run build`: geçti.
 - `git diff --check`: değişiklik paketlerinde geçti.
 - Canlı public URL örneklerinde status/canonical/noindex kontrolü yapıldı.
@@ -600,19 +666,18 @@ Bilinen build uyarısı:
 
 ## 5. Sorunlar
 
-### S-01 — GÖREV 2 sorgu haritası yok
+### S-01 — GÖREV 2 sorgu haritası — Çözüldü
 
-- Brief “harita gelmeden mekanik blok ekleme” diyor.
-- `docs/codex-briefs/geo-seo-implementation.md` içinde harita hâlâ yok.
-- GSC sorgu verisi bu çalışma bağlamında sunulmadı.
-- Sonuç: AnswerBlock ve sayfa değişiklikleri bilinçli olarak yapılmadı.
+- GSC sorgu kümeleri brief'e eklendi.
+- Ürün, hal ve genel şablonlar belirtilen sırayla uygulandı.
+- Firma/komisyoncu şablonlarına, güçlü mevcut performansı korumak için dokunulmadı.
 
-### S-02 — GÖREV 3 gerçek LCP teşhisi yok
+### S-02 — GÖREV 3 gerçek LCP teşhisi — Çözüldü
 
-- Gerçek LCP elementi belirtilmedi.
-- Lighthouse waterfall ve LCP phase breakdown yok.
-- Tek koşu 6682 ms değer var; medyan yok.
-- Sonuç: preload, font veya cache değişikliği varsayımla yapılmadı.
+- Gerçek LCP elementinin hero metni olduğu ve ana yükün Google tag zincirinden
+  geldiği brief'e eklendi.
+- Görsel preload eklenmedi; tag zinciri idle/etkileşim sonrasına alındı.
+- Nihai field p75 sonucu yalnız deploy sonrası 28 günlük RUM/CrUX ile kanıtlanabilir.
 
 ### S-03 — CSP header repo dışında
 
@@ -695,26 +760,27 @@ başlığının tarayıcı uyumluluğu değerlendirilmelidir.
    `unsafe-inline` kaldırılır.
 6. Enforce yalnız ayrı Orhan/Claude onayıyla açılır.
 
+### S-11 — Yerel standalone smoke test redirect döngüsü
+
+- Production standalone sunucu yerelde `127.0.0.1:3133` üzerinde başladı.
+- Proxy `/` isteğini dahili `/tr` yoluna rewrite ederken aynı yanıtta tekrar `/`
+  konumuna 308 döndürüyor; `curl -L` 50 yönlendirmede duruyor.
+- Bu nedenle yeni answer anchor'larının gerçek backend verisiyle yerel SSR curl
+  kontrolü tamamlanamadı.
+- TypeScript, test ve production build temizdir; canlı deploy sonrası URL bazlı
+  SSR/canonical kontrolü zorunlu kalır.
+
 ## 6. Açık Sorular
 
-### Q-01 — Hedef sorgu–sayfa haritası
+### Q-01 — Hedef sorgu–sayfa haritası — Yanıtlandı
 
-Claude/Orhan'dan beklenen:
+- Brief'in 2026-07-26 ekinde ürün, hal, firma ve genel sorgu kümeleri sağlandı.
 
-- Hangi ürün sorguları?
-- Hangi hal/şehir sorguları?
-- Hangi analiz sorguları?
-- Öncelik ve mevcut GSC impression/position değerleri?
+### Q-02 — LCP teşhisi — Yanıtlandı
 
-### Q-02 — LCP teşhisi
-
-Claude'dan beklenen:
-
-- Mobil LCP elementi nedir?
-- TTFB, load delay, load duration, render delay değerleri?
-- Üç koşu medyan sonuç?
-- Ana sayfanın mobil ve masaüstü UA SSR response boyutları?
-- Cache önerisi UA-bazlı farklı HTML nedeniyle güvenli mi?
+- LCP'nin hero metni olduğu, field p75'in 3,08 saniye olduğu ve ana fırsatın
+  326 KiB Google tag zinciri olduğu brief'e eklendi.
+- Deploy sonrası 28 günlük p75 hâlâ kabul kanıtı olarak bekleniyor.
 
 ### Q-03 — Şeffaflık metinleri
 
@@ -736,7 +802,7 @@ Orhan'dan beklenen:
 
 ### Q-05 — Deploy kapsamı
 
-- Dokuz yerel commit birlikte mi deploy edilecek?
+- Bu dosyadaki yerel commit dizisi birlikte mi deploy edilecek?
 - Önce staging/ayrı branch kabulü yapılacak mı?
 - Canlı deploy sonrası Claude hangi URL örneklerini doğrulayacak?
 
@@ -872,6 +938,32 @@ Orhan'dan beklenen:
 - ETL/kapsam değişimlerinde AI ajanlarına bayat bilgi sunma riski vardı.
 - Kapsam metinleri artık API verisinden, hatada ise nötr fallback'ten geliyor.
 
+### F-20 — Mevcut ürün fiyat hesapları citability için yeniden kullanılabilirdi
+
+- Product schema, görünür perakende kıyası ve güncel tablo için baskın birim,
+  min–maks, ortalama ve hal sayısı zaten tek akışta hesaplanıyordu.
+- AnswerBlock bu değerleri yeniden hesaplamadan kullandığı için görünür metin ile
+  schema ayrışma riski azaltıldı.
+
+### F-21 — Hal “güncel liste” satırları aynı tarihte olmak zorunda değildi
+
+- API varsayılanı her ürün–hal çifti için kendi en yeni satırını döndürüyor.
+- Bu kümenin tamamını “bugünkü ürün sayısı” saymak durmuş ürünleri de kapsayabilirdi.
+- Cevap bloğunda yalnız hal veri setinin gerçek en yeni tarihindeki satırlar sayıldı.
+
+### F-22 — Google tag `lazyOnload` LCP sonrası garantisi vermiyordu
+
+- `lazyOnload`, pencere yüklemesinden sonra üçüncü taraf zinciri hemen
+  başlatabiliyordu.
+- Yeni yükleyici ilk etkileşim veya `requestIdleCallback` ile başlıyor; conversion
+  event'leri yükleme öncesinde kuyruklanabiliyor.
+
+### F-23 — Font ağırlıkları ayrı dosya yükü oluşturmuyordu
+
+- Outfit 300–900 tanımları iki değişken font dosyasını ortak kullanıyor.
+- Hero metninde `swap` ve preload zaten mevcut; teşhise aykırı görsel preload
+  veya yinelenen font preload eklenmedi.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -883,17 +975,15 @@ Orhan'dan beklenen:
 
 ## 9. Sonraki Uygulama Sırası
 
-1. Claude hedef sorgu–sayfa haritasını brief'e ekler.
-2. GÖREV 2 ortak `AnswerBlock` ile hedef sayfalarda uygulanır.
-3. Claude gerçek LCP element/waterfall ölçümünü ekler.
-4. GÖREV 3 yalnız ölçümün gösterdiği kök nedene göre uygulanır.
-5. Orhan dört şeffaflık metnini sağlar; CMS içerikleri doldurulur.
-6. Yerel commitler çapraz kod incelemesinden geçer.
-7. Commitler push edilir.
-8. Backend + frontend canlı deploy edilir.
-9. Nginx CSP Report-Only header endpoint'e bağlanır.
-10. En az 7–14 gün CSP ve RUM veri gözlemi yapılır.
-11. Enforce kararı ayrı onayla alınır.
+1. Orhan dört şeffaflık metnini sağlar; CMS içerikleri doldurulur.
+2. Yerel commitler çapraz kod incelemesinden geçer.
+3. Commitler push edilir.
+4. Backend + frontend canlı deploy edilir.
+5. Ürün/hal/genel/analiz anchor'ları canlı SSR HTML'de doğrulanır.
+6. Mobil Lighthouse en az üç koşu alınır; RUM/CrUX p75 28 gün izlenir.
+7. Nginx CSP Report-Only header endpoint'e bağlanır.
+8. En az 7–14 gün CSP ihlal verisi gözlemlenir.
+9. Enforce kararı ayrı onayla alınır.
 
 ## 10. Commit Dizisi
 
@@ -939,6 +1029,14 @@ fa429d11 docs(geo-seo): record P2 content and dataset fixes
 35f290ed fix(geo): publish canonical API links to crawlers
 f2ece31a fix(geo): allow AI crawlers on public data APIs
 96bc3b54 fix(geo): derive llms coverage from live data
+1a872976 docs(geo-seo): record crawler API consistency fixes
+0614ceb5 feat(geo): add dated product answer summaries
+6e05be62 feat(geo): add dated market answer summaries
+33200273 feat(geo): summarize current national price coverage
+139b8c88 feat(geo): anchor analysis finding summaries
+aff495ac fix(geo): bound analysis finding summaries
+b507c516 perf(lcp): defer Google tags until idle or interaction
+085c7681 perf(lcp): render homepage FAQ without hydration
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
