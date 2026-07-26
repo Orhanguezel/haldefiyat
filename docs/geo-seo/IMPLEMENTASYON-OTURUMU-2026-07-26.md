@@ -459,6 +459,22 @@ Commit: `0a637e11 feat(seo): align methodology Article identity`
   satırı eklendi.
 - Gerçek yayın/değişiklik tarihi olmadığı için tarih uydurulmadı.
 
+### 3.18 Metodoloji Görsel Varyantları
+
+Commit: `0dc9dce9 feat(seo): add methodology image variants`
+
+- Yeni endpoint: `/og/metodoloji`.
+- 1:1, 4:3 ve 16:9 oranları destekleniyor.
+- Metodoloji Article JSON-LD üç görsel URL'sini kullanıyor.
+- Open Graph metadata 16:9 metodoloji görselini kullanıyor.
+- Görselde güvenilir kaynağı olmayan yayın/değişiklik tarihi gösterilmiyor.
+
+Çapraz kontrol:
+
+- [ ] Üç oran URL'si 200 ve doğru piksel boyutunda.
+- [ ] Article JSON-LD üç görseli içeriyor.
+- [ ] `og:image` metodoloji 16:9 görseline gidiyor.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -763,6 +779,8 @@ fe7dbfa4 fix(seo): reject invalid and future sitemap dates
 27b09bba fix(seo): use real data dates in OG images
 0a637e11 feat(seo): align methodology Article identity
 99bcee1a fix(security): redact URL queries from CSP logs
+1e04f787 docs(geo-seo): record OG truth and CSP feasibility
+0dc9dce9 feat(seo): add methodology image variants
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
