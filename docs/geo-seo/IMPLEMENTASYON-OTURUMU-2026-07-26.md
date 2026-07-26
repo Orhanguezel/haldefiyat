@@ -965,13 +965,29 @@ Commit: `edc43c6d fix(seo): noindex embeddable widgets`
 - Böylece canlıya çıkmamış kod, dış validator sonucu veya 28 günlük ölçüm
   tamamlanmış gibi işaretlenmedi.
 
+### 3.52 Otomatik Analizlerde Denetlenebilir İnsan İncelemesi
+
+Commit: `c4897cba feat(trust): record analysis human reviews`
+
+- `hf_analysis_reports` tablosuna `reviewed_by` ve `reviewed_at` alanlarını
+  ekleyen 054 migration'ı ve Drizzle schema karşılığı eklendi.
+- Admin publish ve schedule eylemleri kimliği doğrulanmış kullanıcı ile inceleme
+  kaydı oluşturuyor; cron yalnız önceden planlanıp incelenmiş raporu yayımlıyor.
+- Yayımlanmış otomatik raporun başlık, slug, özet, içerik, etiket veya yazarı
+  değiştirilirse önceki inceleme geçersiz sayılıyor ve rapor taslağa dönüyor.
+- Public API yalnız inceleme zamanını yayımlıyor; dahili kullanıcı kimliği
+  public yanıta çıkmıyor. Görünür insan kontrolü iddiası yalnız geçerli
+  `reviewedAt` olduğunda gösteriliyor.
+- Eski yayımlanmış raporlar geriye dönük olarak incelenmiş varsayılmıyor.
+  Otomatik/manuel/kaynaksız ve kanıtlı/kanıtsız durumlar test edildi.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
 
 - Frontend `bunx tsc --noEmit`: geçti.
 - Backend `bunx tsc --noEmit`: geçti.
-- Frontend `bun run test`: 15 dosya, 39 test geçti.
+- Frontend `bun run test`: 15 dosya, 40 test geçti.
 - Backend `bun run test`: 2 dosya, 11 test geçti.
 - Frontend `bun run build`: geçti; son durumda 65 route üretildi.
 - Backend `bun run build`: geçti.
@@ -1102,16 +1118,16 @@ başlığının tarayıcı uyumluluğu değerlendirilmelidir.
   şablon tekrarı sayfa içi dağılımı bozuyordu.
 - Yapay kelime tekrarı eklemek yerine değişmeyen tablo bağlamı tekilleştirildi.
 
-### S-13 — Analizlerde insan incelemesi kayıt altına alınmıyor
+### S-13 — Analizlerde insan incelemesi kayıt altına alınmıyor — Çözüldü
 
 - Otomatik raporlar taslak üretiliyor ve admin yayın/planlama uçları üzerinden
   yayımlanıyor; ancak `hf_analysis_reports` tablosunda inceleyen kişi ve
   inceleme zamanı alanları yok.
 - Bu nedenle yayımlanmış olmak, tek başına insan incelemesinin denetlenebilir
   kanıtı değildir. Görünür “insan kontrolü” iddiası şimdilik kaldırıldı.
-- Checklist maddesini gerçekten kapatmak için `reviewed_by`, `reviewed_at`,
-  inceleme zorunluluğu olan publish/schedule validasyonu ve public provenance
-  çıktısı ayrı veri modeli değişikliği olarak tasarlanmalıdır.
+- `c4897cba` ile `reviewed_by`, `reviewed_at`, publish/schedule kaydı, değişiklik
+  sonrası inceleme geçersizleştirme ve public provenance çıktısı eklendi.
+- 054 migration deploy sırasında backend'den önce uygulanmalıdır.
 
 ## 6. Açık Sorular
 
@@ -1483,6 +1499,16 @@ Orhan'dan beklenen:
 - Route grubu seviyesindeki `noindex,follow` tüm mevcut ve yeni widget'lar için
   politikayı tek noktadan uygular.
 
+### F-42 — Yayın durumu insan incelemesinin denetlenebilir kanıtı değildi
+
+- Admin veya cron tarafından `published` durumuna geçmek, incelemeyi kimin ne
+  zaman yaptığını göstermiyordu; içerik sonradan değiştiğinde de önceki kontrol
+  iddiasının geçerliliği izlenemiyordu.
+- İnceleme artık ayrı alanlarla kaydediliyor ve otomatik içerikte editoryal
+  değişiklik yapıldığında geçersizleştiriliyor.
+- Eski kayıtlar için backfill yapılmadı; gerçek inceleme yapılmadan geçmiş
+  raporlara yeni güven iddiası eklenmiyor.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1580,6 +1606,7 @@ abf83083 fix(schema): safely serialize json-ld
 3fc97d80 fix(trust): use configured contact details
 6ca33051 fix(seo): noindex private action routes
 edc43c6d fix(seo): noindex embeddable widgets
+c4897cba feat(trust): record analysis human reviews
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
@@ -1591,6 +1618,7 @@ edc43c6d fix(seo): noindex embeddable widgets
 - [ ] Backend typecheck/build temiz.
 - [ ] Staging veya lokal gerçek backend ile smoke test yapıldı.
 - [ ] Push kapsamı yalnız ilgili commitlerden oluşuyor.
+- [ ] Backend deploy öncesi `054_analysis_report_reviews.sql` migration'ı uygulandı.
 - [ ] Backend deploy sonrası CSP endpoint 204 doğrulandı.
 - [ ] Frontend deploy sonrası H1, schema, sitemap, yeni route'lar doğrulandı.
 - [ ] Nginx Report-Only header rapor endpoint'e bağlandı.

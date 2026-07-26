@@ -7,12 +7,12 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 33/65 checkbox — yerel kod, test, build veya dokümantasyon kanıtı var.
-- **Açık:** 32/65 checkbox.
+- **Tamamlanan:** 34/65 checkbox — yerel kod, test, build veya dokümantasyon kanıtı var.
+- **Açık:** 31/65 checkbox.
 - Açıkların sahiplik grupları: Orhan/DNS/kurumsal içerik/strateji (10),
   deploy-staging-canlı crawl/validator/Lighthouse doğrulaması (14),
-  GSC/CrUX/benchmark/KPI ölçümü (6), yerel insan-inceleme veri modeli (1) ve
-  ekran görüntüsündeki denetim URL/tarih bilgisinin tamamlanması (1).
+  GSC/CrUX/benchmark/KPI ölçümü (6) ve ekran görüntüsündeki denetim URL/tarih
+  bilgisinin tamamlanması (1).
 - Kaynak kodda tamamlanıp yalnız canlı kabulü bekleyen iş, tamamlanan uygulama
   ve ayrı açık doğrulama satırı olarak ikiye bölünmüştür.
 
@@ -99,7 +99,7 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 - [x] Editoryal politika + düzeltme politikası + veri-kaynağı politikası + sahiplik/finansman route/CMS/footer/sitemap iskeleti tamamlandı. (`820c58d2`)
 - [ ] Dört şeffaflık sayfasının Orhan onaylı nihai CMS metinlerini yayımla. (S-04)
 - [x] Analizlerde görünür byline; atanmış yazarlarda profil linki, unvan, uzmanlık ve profil schema'sı tamamlandı. (`c21c4a1e`, `0d70eb33`)
-- [ ] Otomatik haftalık raporları "otomatik üretildi + insan kontrolü" olarak görünür etiketle. Kaynak etiketi gerçek `source` alanına bağlandı (`8610e751`); insan kontrolü için denetlenebilir `reviewed_by/reviewed_at` modeli henüz yok, bkz. S-13.
+- [x] Otomatik haftalık raporlarda kaynak ve insan kontrolü görünür/kanıtlı: `source=auto` etiketi ile admin publish/schedule işleminde yazılan `reviewed_by/reviewed_at` kaydı birlikte kullanılıyor. (`8610e751`, `c4897cba`)
 - [ ] İletişim sayfasında kurumsal e-posta + sorumlu kişi/kurum. E-posta ve yalnız yapılandırılmış telefon/adres gerçek ayarlara bağlandı (`3fc97d80`); sorumlu kişi/kurum için sahiplik girdisi bekleniyor.
 
 ---
