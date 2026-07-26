@@ -16,21 +16,23 @@ export interface PriceSurge {
   productSlug: string;
   name: string;
   buckets: [number, number, number, number]; // [3 hafta once ... simdi]
-  pctChange: number;   // simdi / 3-hafta-once - 1 (yuzde)
+  pctChange: number;   // 4 hafta toplam yukselis (simdi / 3-hafta-once - 1), %
+  lastWeekPct: number; // son hafta ivmesi (simdi / 1-hafta-once - 1), %
   hals: number;        // en guncel hafta hal sayisi
   latestAvg: number;
   severity: number;    // pct * ln(hal) — buyukluk x guvenilirlik
+  tier: "güçlü" | "izle"; // güçlü = yuksek/yaygin (aksiyon); izle = erken sinyal
 }
 
 export interface EarlyWarningOptions {
   minHals?: number;    // guvenilir kapsam esigi (varsayilan 8)
-  minPct?: number;     // toplam yukselis esigi % (varsayilan 20)
+  minPct?: number;     // toplam yukselis esigi % (varsayilan 18 — biraz erken yakala)
   weekStepPct?: number; // her hafta minimum artis (varsayilan 3)
 }
 
 export async function detectPriceSurges(opts: EarlyWarningOptions = {}): Promise<PriceSurge[]> {
   const minHals = opts.minHals ?? 8;
-  const minPct = opts.minPct ?? 20;
+  const minPct = opts.minPct ?? 18;
   const step = 1 + (opts.weekStepPct ?? 3) / 100;
 
   const [rows] = await pool.query<RowDataPacket[]>(
@@ -74,15 +76,20 @@ export async function detectPriceSurges(opts: EarlyWarningOptions = {}): Promise
   return rows.map((r) => {
     const b0 = Number(r.b0), b1 = Number(r.b1), b2 = Number(r.b2), b3 = Number(r.b3);
     const pct = Math.round((b0 / b3 - 1) * 100);
+    const lastWeekPct = Math.round((b0 / b1 - 1) * 100);
     const hal = Number(r.hal);
+    // güçlü = büyük ve yaygın (aksiyon al); izle = eşiği yeni geçen erken sinyal.
+    const tier: PriceSurge["tier"] = (pct >= 35 || (pct >= 25 && hal >= 12)) ? "güçlü" : "izle";
     return {
       productSlug: String(r.slug),
       name: String(r.name),
       buckets: [round1(b3), round1(b2), round1(b1), round1(b0)] as [number, number, number, number],
       pctChange: pct,
+      lastWeekPct,
       hals: hal,
       latestAvg: round1(b0),
       severity: Math.round(pct * Math.log(Math.max(2, hal))),
+      tier,
     };
   });
 }
@@ -98,8 +105,9 @@ function buildSurgeText(surges: PriceSurge[]): string {
     "",
   ];
   for (const s of surges) {
+    const badge = s.tier === "güçlü" ? "🔴 GÜÇLÜ" : "🟡 İzle";
     lines.push(
-      `• ${s.name}: ${s.buckets[0]} → ${s.buckets[3]} TL/kg  (%${s.pctChange} ↑, ${s.hals} hal)`,
+      `${badge}  ${s.name}: ${s.buckets[0]} → ${s.buckets[3]} TL/kg  (%${s.pctChange} ↑ / son hafta %${s.lastWeekPct}, ${s.hals} hal)`,
     );
   }
   lines.push("", "Bu ürünler mainstream haber olmadan ~2 hafta önce yakalandı.");

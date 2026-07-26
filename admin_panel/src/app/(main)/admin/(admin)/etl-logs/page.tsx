@@ -4,12 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useListEtlLogsAdminQuery } from '@/integrations/hooks';
 import { SourceFreshnessPanel } from './_components/source-freshness-panel';
+import { EarlyWarningPanel } from './_components/early-warning-panel';
 
 export default function Page() {
   const { data, isLoading } = useListEtlLogsAdminQuery();
 
   return (
     <div className="space-y-6">
+      <EarlyWarningPanel />
       <SourceFreshnessPanel />
 
       <Card>

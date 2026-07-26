@@ -355,7 +355,7 @@ export {
   useRunCompetitorCheckAdminMutation,
   useToggleCompetitorSiteAdminMutation,
 } from "@/integrations/endpoints/competitor-monitor-admin-endpoints";
-export { useListEtlLogsAdminQuery } from "@/integrations/endpoints/etl-logs-admin-endpoints";
+export { useListEtlLogsAdminQuery, useEarlyWarningAdminQuery } from "@/integrations/endpoints/etl-logs-admin-endpoints";
 export { useEtlFreshnessAdminQuery } from "@/integrations/endpoints/etl-freshness-admin-endpoints";
 export {
   useCreateFirmDealAdminMutation,
