@@ -1772,6 +1772,35 @@ Kanıt:
 `artifacts/seo/internal-link-get-acceptance-2026-07-26/report.json` ve
 `artifacts/seo/live-crawl-internal-links-final-2026-07-26/report.json`.
 
+### 3.63 E-posta Kabul İlerlemesi ve Şeffaflık İçeriklerinin Yayını
+
+- Canlı Resend SMTP ayarlarıyla yönetici Gmail adresine benzersiz kimlik
+  doğrulama iletisi gönderildi: `accepted=1`, `rejected=0`; Message-ID
+  `<40b5618c-176a-3c08-ba8f-bd2efbff881f@haldefiyat.com>`.
+- DNS yeniden ölçüldü: `send` SPF/MX ve `resend._domainkey` DKIM kaydı mevcut;
+  DMARC hâlâ `v=DMARC1; p=none;` ve `rua` yok. Gmail ham
+  `Authentication-Results` başlığı ve kontrollü DMARC rapor adresi olmadan bu
+  iki kabul maddesi açık bırakıldı.
+- Canlıda dört şeffaflık sayfasının 200 olmasına rağmen yalnız “Bu sayfa yakında
+  güncellenecektir.” gösterdiği doğrulandı.
+- `056_transparency_policy_content.sql` ile editoryal politika, düzeltme
+  politikası, veri kaynağı politikası ve sahiplik/finansman metinleri CMS'te
+  published olarak oluşturuldu.
+- İletişim sayfasına “Sorumlu yayıncı: HalDeFiyat” açıklaması ve üç politika
+  bağlantısı eklendi. Kişisel isim veya adres uydurulmadı; mevcut kurumsal
+  e-posta ve telefon ayarları korundu.
+- Yerel frontend testleri 48/48 ve production build geçti. Canlı migration
+  sonrasında dört API kaydının içerik uzunluğu ve published durumu doğrulandı.
+- Canlı frontend build'in ilk denemesi eski nested standalone dizininde
+  `ENOTEMPTY` ile durmuş, PM2 sürecine dokunmamıştı. Eski standalone çıktı
+  `/tmp/hal-frontend-build.hVPjN5` altında recoverable yedeklenerek yeni build
+  üretildi ve `pm2 restart hal-frontend --update-env` uygulandı.
+- Restart readiness penceresinden sonra ana sayfa ve dört politika URL'si 200;
+  placeholder 0, “Son güncelleme” 4/4 ve iletişim sorumluluk bloğu 1/1.
+- Bu iki kapanışla sayaçlar 52/66 tamamlanan ve 14/66 açık olarak güncellendi.
+
+Commit: `6775780a feat(trust): publish transparency policy content`
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1878,7 +1907,7 @@ c4897cba feat(trust): record analysis human reviews
 
 - [ ] Claude kod diff'lerini brief maddeleriyle karşılaştırdı.
 - [ ] Orhan açık soruları değerlendirdi.
-- [ ] Şeffaflık CMS metinleri hazır.
+- [x] Şeffaflık CMS metinleri hazır ve canlıda yayımlandı.
 - [x] Frontend tests/typecheck/build temiz.
 - [x] Backend typecheck/build temiz.
 - [x] Canlı gerçek backend ile smoke test yapıldı.

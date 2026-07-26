@@ -7,8 +7,8 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 50/66 checkbox — kapanış kanıtları bu dosyada korunur.
-- **Açık:** 16/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
+- **Tamamlanan:** 52/66 checkbox — kapanış kanıtları bu dosyada korunur.
+- **Açık:** 14/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
   kalan iş olarak ayrıldığı için toplam takip maddesi 66 oldu. Açıklar:
   `HALDEFIYAT-GEO-SEO-ACIK-ISLER.md`.
 - Bu dosyaya yeni açık iş eklenmez. Açık dosyada tamamlanan maddeler, kanıtıyla
@@ -92,6 +92,8 @@ ayrı açık işler dosyasına taşınmıştır.
 
 ### 4.4 Editoryal şeffaflık
 - [x] Editoryal politika + düzeltme politikası + veri-kaynağı politikası + sahiplik/finansman route/CMS/footer/sitemap iskeleti tamamlandı. (`820c58d2`)
+- [x] Dört şeffaflık sayfasının nihai CMS metinleri yayımlandı; canlı URL'lerin tamamı 200, içerik API kayıtları published ve placeholder sayısı 0. (`6775780a`, `056_transparency_policy_content.sql`)
+- [x] İletişim sayfasına mevcut Organization schema ve kurumsal iletişim ayarlarıyla tutarlı “Sorumlu yayıncı: HalDeFiyat” bloğu ve politika bağlantıları eklendi. (`6775780a`)
 - [x] Analizlerde görünür byline; atanmış yazarlarda profil linki, unvan, uzmanlık ve profil schema'sı tamamlandı. (`c21c4a1e`, `0d70eb33`)
 - [x] Otomatik haftalık raporlarda kaynak ve insan kontrolü görünür/kanıtlı: `source=auto` etiketi ile admin publish/schedule işleminde yazılan `reviewed_by/reviewed_at` kaydı birlikte kullanılıyor. (`8610e751`, `c4897cba`)
 

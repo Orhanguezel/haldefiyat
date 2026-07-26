@@ -40,6 +40,12 @@ altyapısal bulguları tutar.
   iç içe dependency kurulumunun hangi eski süreç tarafından üretildiğini
   belirlemek; ardından monorepo için tek kilit/tek kurulum politikası uygulamak.
   Kullanıcıya ait untracked dosyalar bu oturumda silinmedi.
+- Frontend'in eski `.next/standalone` çıktısı iç içe `.next` dizini ürettiği
+  için sonraki `next build` temizleme aşamasında `ENOTEMPTY` verebiliyor.
+  27 Temmuz deploy'unda eski standalone çıktı silinmeden
+  `/tmp/hal-frontend-build.hVPjN5` altına taşındı; build ve restart başarıyla
+  tamamlandı. Kalıcı deploy akışı önceki build çıktısını version'lı/recoverable
+  dizine atomik taşımalıdır.
 
 ## Kapatılan Teknik Bulgular
 
@@ -47,3 +53,5 @@ altyapısal bulguları tutar.
 - Dinamik ürün proxy’sinin geçici backend hatasını hard 404 sayması giderildi.
 - İç linklerde ham ETL slug, varsayılan locale prefixi ve ürün redirect zinciri
   kaynaklı sorunlar kapatıldı.
+- Dört şeffaflık sayfasındaki placeholder içerikler ve iletişim sayfasındaki
+  sorumlu yayıncı eksikliği kapatıldı.

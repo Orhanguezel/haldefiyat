@@ -3,9 +3,9 @@
 > Kaynak checklist:
 > `HALDEFIYAT-GEO-SEO-AKSIYON-CEKLISTI.md`
 >
-> Tarih: 2026-07-26 · Durum: **16 açık madde**
+> Tarih: 2026-07-27 · Durum: **14 açık madde**
 >
-> Bu dosya yalnız açık işleri içerir. Tamamlanmış 50 madde, kapanış kanıtlarıyla
+> Bu dosya yalnız açık işleri içerir. Tamamlanmış 52 madde, kapanış kanıtlarıyla
 > ana aksiyon checklist'inde korunur. Burada tamamlanan bir madde `[x]`
 > yapıldıktan sonra ana checklist'e taşınmalı ve iki dosyanın sayaçları birlikte
 > güncellenmelidir.
@@ -28,11 +28,6 @@ beklenmedik meşru gönderici bulunmuyor.
 ### Schema validator çıktıları — 🔎 Claude
 
 - [ ] Schema.org Validator ve Rich Results Test çıktılarını URL bazında arşivle.
-
-### Editoryal şeffaflık — 🧑 Orhan
-
-- [ ] Dört şeffaflık sayfasının Orhan onaylı nihai CMS metinlerini yayımla. (S-04)
-- [ ] İletişim sayfasına sorumlu kişi/kurum bilgisini ekle; kurumsal e-posta ve yapılandırılmış telefon/adres mevcut ayarlara bağlıdır.
 
 ## P2 — Teknik SEO ve canlı tarama
 
