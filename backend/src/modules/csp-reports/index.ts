@@ -35,6 +35,7 @@ export async function registerCspReports(api: FastifyInstance) {
   api.post(
     "/csp-reports",
     {
+      bodyLimit: 64 * 1024,
       config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     },
     async (req, reply) => {

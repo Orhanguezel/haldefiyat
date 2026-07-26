@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { normalizeCspReports } from "../src/modules/csp-reports";
+import Fastify from "fastify";
+import { normalizeCspReports, registerCspReports } from "../src/modules/csp-reports";
 
 describe("CSP report normalization", () => {
   it("normalizes legacy report-uri payloads", () => {
@@ -78,5 +79,33 @@ describe("CSP report normalization", () => {
     expect(report).not.toHaveProperty("cookies");
     expect(report).not.toHaveProperty("requestBody");
     expect(report).not.toHaveProperty("user");
+  });
+});
+
+describe("CSP report endpoint", () => {
+  it("accepts a browser report and rejects oversized bodies", async () => {
+    const app = Fastify({ logger: false });
+    await registerCspReports(app);
+
+    const accepted = await app.inject({
+      method: "POST",
+      url: "/csp-reports",
+      payload: {
+        "csp-report": {
+          "document-uri": "https://haldefiyat.com/",
+          "violated-directive": "script-src",
+        },
+      },
+    });
+    expect(accepted.statusCode).toBe(204);
+
+    const oversized = await app.inject({
+      method: "POST",
+      url: "/csp-reports",
+      payload: { body: { documentURL: `https://haldefiyat.com/?q=${"x".repeat(70_000)}` } },
+    });
+    expect(oversized.statusCode).toBe(413);
+
+    await app.close();
   });
 });
