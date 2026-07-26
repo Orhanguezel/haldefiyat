@@ -48,6 +48,19 @@ interface FirmTypeSitemapItem {
   total: number;
 }
 
+function validDate(value?: string | Date | null): Date | undefined {
+  if (!value) return undefined;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date;
+}
+
+function latestDate(values: Array<string | Date | null | undefined>): Date | undefined {
+  return values.reduce<Date | undefined>((latest, value) => {
+    const date = validDate(value);
+    return date && (!latest || date > latest) ? date : latest;
+  }, undefined);
+}
+
 async function fetchActiveProducts(): Promise<PriceSitemapItem[]> {
   try {
     const res = await fetch(`${API_URL}/api/v1/prices/products?seoIndex=true`, {
@@ -149,37 +162,44 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     fetchFirmCities(),
     fetchFirmTypes(),
   ]);
-  const now = new Date().toISOString().split("T")[0];
+  const priceLastModified = latestDate([
+    ...products.map((item) => item.updatedAt ?? item.updated_at),
+    ...markets.map((item) => item.updatedAt ?? item.updated_at),
+  ]);
+  const firmLastModified = latestDate(
+    firms.map((item) => item.updatedAt ?? item.lastSeenAt),
+  );
 
   const publicPages: MetadataRoute.Sitemap = [
-    { url: `${SITE_URL}/`, lastModified: now, changeFrequency: "daily", priority: 1 },
-    { url: `${SITE_URL}/canli-hal-fiyatlari`, lastModified: now, changeFrequency: "daily", priority: 0.98 },
-    { url: `${SITE_URL}/fiyatlar`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${SITE_URL}/borsa`, lastModified: now, changeFrequency: "daily", priority: 0.85 },
-    { url: `${SITE_URL}/canli-hayvan-fiyatlari`, lastModified: now, changeFrequency: "daily", priority: 0.85 },
-    { url: `${SITE_URL}/et-fiyatlari`, lastModified: now, changeFrequency: "daily", priority: 0.85 },
-    { url: `${SITE_URL}/harita`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-    { url: `${SITE_URL}/endeks`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${SITE_URL}/embed`, lastModified: now, changeFrequency: "monthly", priority: 0.75 },
-    { url: `${SITE_URL}/basin`, lastModified: now, changeFrequency: "monthly", priority: 0.65 },
-    { url: `${SITE_URL}/hal`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
-    { url: `${SITE_URL}/firmalar`, lastModified: now, changeFrequency: "weekly", priority: 0.78 },
-    { url: `${SITE_URL}/karsilastirma`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${SITE_URL}/analiz`, lastModified: now, changeFrequency: "weekly", priority: 0.75 },
-    { url: `${SITE_URL}/metodoloji`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${SITE_URL}/hakkimizda`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${SITE_URL}/iletisim`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${SITE_URL}/api-docs`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
-    { url: `${SITE_URL}/gizlilik-politikasi`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${SITE_URL}/kullanim-kosullari`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${SITE_URL}/kvkk`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${SITE_URL}/`, ...(priceLastModified && { lastModified: priceLastModified }), changeFrequency: "daily", priority: 1 },
+    { url: `${SITE_URL}/canli-hal-fiyatlari`, ...(priceLastModified && { lastModified: priceLastModified }), changeFrequency: "daily", priority: 0.98 },
+    { url: `${SITE_URL}/fiyatlar`, ...(priceLastModified && { lastModified: priceLastModified }), changeFrequency: "daily", priority: 0.95 },
+    { url: `${SITE_URL}/tr/borsa`, changeFrequency: "daily", priority: 0.85 },
+    { url: `${SITE_URL}/tr/canli-hayvan-fiyatlari`, changeFrequency: "daily", priority: 0.85 },
+    { url: `${SITE_URL}/tr/et-fiyatlari`, changeFrequency: "daily", priority: 0.85 },
+    { url: `${SITE_URL}/harita`, ...(priceLastModified && { lastModified: priceLastModified }), changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE_URL}/endeks`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${SITE_URL}/embed`, changeFrequency: "monthly", priority: 0.75 },
+    { url: `${SITE_URL}/basin`, changeFrequency: "monthly", priority: 0.65 },
+    { url: `${SITE_URL}/hal`, ...(priceLastModified && { lastModified: priceLastModified }), changeFrequency: "weekly", priority: 0.85 },
+    { url: `${SITE_URL}/firmalar`, ...(firmLastModified && { lastModified: firmLastModified }), changeFrequency: "weekly", priority: 0.78 },
+    { url: `${SITE_URL}/karsilastirma`, ...(priceLastModified && { lastModified: priceLastModified }), changeFrequency: "weekly", priority: 0.8 },
+    { url: `${SITE_URL}/analiz`, changeFrequency: "weekly", priority: 0.75 },
+    { url: `${SITE_URL}/metodoloji`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${SITE_URL}/hakkimizda`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${SITE_URL}/iletisim`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${SITE_URL}/gizlilik-politikasi`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${SITE_URL}/kullanim-kosullari`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${SITE_URL}/kvkk`, changeFrequency: "yearly", priority: 0.3 },
   ];
 
   const productPages: MetadataRoute.Sitemap = products.map((p) => {
     const imgPath = getProductImage(p.slug);
     return {
       url: `${SITE_URL}/urun/${p.slug}`,
-      lastModified: (p.updatedAt ?? p.updated_at) ? new Date(p.updatedAt ?? p.updated_at!) : now,
+      ...(validDate(p.updatedAt ?? p.updated_at) && {
+        lastModified: validDate(p.updatedAt ?? p.updated_at),
+      }),
       changeFrequency: "daily" as const,
       priority: 0.8,
       ...(imgPath && {
@@ -190,14 +210,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const marketPages: MetadataRoute.Sitemap = markets.map((m) => ({
     url: `${SITE_URL}/hal/${m.slug}`,
-    lastModified: (m.updatedAt ?? m.updated_at) ? new Date(m.updatedAt ?? m.updated_at!) : now,
+    ...(validDate(m.updatedAt ?? m.updated_at) && {
+      lastModified: validDate(m.updatedAt ?? m.updated_at),
+    }),
     changeFrequency: "daily" as const,
     priority: 0.7,
   }));
 
   const firmPages: MetadataRoute.Sitemap = firms.map((firm) => ({
     url: `${SITE_URL}/firma/${firm.slug}`,
-    lastModified: firm.updatedAt || firm.lastSeenAt ? new Date(firm.updatedAt ?? firm.lastSeenAt!) : now,
+    ...(validDate(firm.updatedAt ?? firm.lastSeenAt) && {
+      lastModified: validDate(firm.updatedAt ?? firm.lastSeenAt),
+    }),
     changeFrequency: "monthly" as const,
     priority: 0.55,
   }));
@@ -206,7 +230,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((city) => city.citySlug && city.total >= 5)
     .map((city) => ({
       url: `${SITE_URL}/firmalar/${city.citySlug}`,
-      lastModified: now,
+      ...(firmLastModified && { lastModified: firmLastModified }),
       changeFrequency: "weekly" as const,
       priority: 0.72,
     }));
@@ -221,7 +245,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((type) => type.total > 0)
     .map((type) => ({
       url: `${SITE_URL}/firmalar/${typeSlug[type.firmType]}`,
-      lastModified: now,
+      ...(firmLastModified && { lastModified: firmLastModified }),
       changeFrequency: "weekly" as const,
       priority: type.firmType === "komisyoncu" ? 0.74 : 0.68,
     }));
@@ -234,7 +258,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ))
       .map(([, slug]) => ({
         url: `${SITE_URL}/firmalar/${city.citySlug}/${slug}`,
-        lastModified: now,
+        ...(firmLastModified && { lastModified: firmLastModified }),
         changeFrequency: "weekly" as const,
         priority: slug === "komisyoncu" ? 0.73 : 0.66,
       }))
@@ -244,12 +268,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Haftalik raporlar sadece statik diziden uretildigi icin sitemap'e HIC girmiyordu —
   // haziran/temmuz raporlarinin tamami arama motorlarina sitemap uzerinden gorunmuyordu.
   const autoReports = await fetchAutoWeeklyReports(200);
-  const staticSlugs = new Set(getSonMakaleler(100).map((m) => m.slug));
+  const staticArticles = getSonMakaleler(100);
+  const staticSlugs = new Set(staticArticles.map((m) => m.slug));
+  const analysisLastModified = latestDate([
+    ...staticArticles.map((article) => article.tarih),
+    ...autoReports.map((article) => article.tarih),
+  ]);
+  const analysisIndex = publicPages.find((item) => item.url === `${SITE_URL}/analiz`);
+  if (analysisIndex && analysisLastModified) {
+    analysisIndex.lastModified = analysisLastModified;
+  }
 
   const analizPages: MetadataRoute.Sitemap = [
-    ...getSonMakaleler(100).map((m) => ({
+    ...staticArticles.map((m) => ({
       url: `${SITE_URL}/analiz/${m.slug}`,
-      lastModified: m.tarih ? new Date(m.tarih) : now,
+      ...(validDate(m.tarih) && { lastModified: validDate(m.tarih) }),
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
@@ -257,7 +290,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((r) => !staticSlugs.has(r.slug))
       .map((r) => ({
         url: `${SITE_URL}/analiz/${r.slug}`,
-        lastModified: r.tarih ? new Date(r.tarih) : now,
+        ...(validDate(r.tarih) && { lastModified: validDate(r.tarih) }),
         changeFrequency: "monthly" as const,
         priority: 0.6,
       })),
