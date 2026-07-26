@@ -56,7 +56,7 @@ function firstForwardedIp(value: string): string {
   return value.split(",").map((item) => item.trim()).find(Boolean) ?? "";
 }
 
-function normalizeClientIp(req: FastifyRequest): string {
+export function normalizeClientIp(req: FastifyRequest): string {
   const cf = firstHeader(req, "cf-connecting-ip");
   if (cf) return cf;
 

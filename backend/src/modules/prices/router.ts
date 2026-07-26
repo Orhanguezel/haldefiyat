@@ -23,6 +23,7 @@ import {
 import { resolveWeekRange } from "./iso-week";
 import { weeklyPriceSummary } from "./weekly";
 import { toCsvPayload, csvFilename } from "./csv";
+import { exportQuotaGuard } from "./export-guard";
 
 const boolish = z.preprocess((v) => {
   if (typeof v === "boolean") return v;
@@ -325,7 +326,7 @@ export async function registerPrices(app: FastifyInstance) {
    * GET /api/v1/prices/export?format=csv&...
    * CSV export (Excel uyumlu, UTF-8 BOM'lu). Max 2000 satir.
    */
-  app.get("/prices/export", async (req, reply) => {
+  app.get("/prices/export", { preHandler: exportQuotaGuard }, async (req, reply) => {
     const parsed = qExport.safeParse(req.query);
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz sorgu parametreleri" });
     const p = parsed.data;
