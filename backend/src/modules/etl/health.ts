@@ -142,7 +142,7 @@ export async function checkEtlHealth(): Promise<EtlHealthIssue[]> {
       issues.push({
         source: `${j.marketName} / ${j.productSlug}`,
         severity: "warning",
-        reason: `akranlara gore konum ${j.ratio}x kaydi (${j.value} TL, akran medyani ${j.peerMedian} TL) — yanlis eslesme olabilir`,
+        reason: `akran konumu ${j.ratio}x kaydi ve su an medyandan ${j.nowRatio}x uzakta (deger ${j.value} TL, akran medyani ${j.peerMedian} TL) — yanlis eslesme/spike olabilir`,
         lastRunAt: null,
       });
     }

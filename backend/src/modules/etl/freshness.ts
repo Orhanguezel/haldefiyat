@@ -40,6 +40,9 @@ const BASELINE_MARGIN = 2;
  * tasir, yanlis eslesme ise tek hali ayirir.
  */
 const PEER_DIVERGENCE = 2.5;
+// Konum kaymis OLSA BILE su an akran medyanina yakinsa (converge etmis) alarm uretme:
+// yalnizca hem kaymis HEM su an medyandan >=%40 sapmis olanlar insan incelemesine deger.
+const CURRENT_DIVERGENCE_MIN = 0.4;
 
 export interface StaleSource {
   sourceApi:    string;
@@ -59,6 +62,8 @@ export interface PriceJump {
   value:       number;
   /** Akranlara gore konumun kac kat kaydigi (1 = degismedi). */
   ratio:       number;
+  /** Su anki deger / akran medyani (1 = medyanda). */
+  nowRatio:    number;
   days:        number;
 }
 
@@ -193,6 +198,8 @@ export async function detectPriceJumps(): Promise<PriceJump[]> {
     const ratioThen = thenVal / peerThen;
     const shift = ratioNow / ratioThen;
     if (shift < PEER_DIVERGENCE && shift > 1 / PEER_DIVERGENCE) continue;
+    // Kaymis ama su an medyana yakinsa (converge) — gerçek anomali degil, atla.
+    if (Math.abs(ratioNow - 1) < CURRENT_DIVERGENCE_MIN) continue;
 
     out.push({
       marketName:  r.market_name,
@@ -200,6 +207,7 @@ export async function detectPriceJumps(): Promise<PriceJump[]> {
       peerMedian:  Math.round(peerNow * 100) / 100,
       value:       Math.round(nowVal * 100) / 100,
       ratio:       Math.round(shift * 100) / 100,
+      nowRatio:    Math.round(ratioNow * 100) / 100,
       days:        14,
     });
   }
