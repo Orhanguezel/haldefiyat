@@ -111,6 +111,12 @@ export default function FirmsAdminPage() {
     if (selectedFirm?.id === item.id) setSelectedFirm({ ...item, status: nextStatus });
   }
 
+  async function releaseOwnership(item: FirmAdminItem) {
+    if (!window.confirm(`"${item.name}" firmasının sahipliğini kaldırmak istiyor musunuz? Firma kaydı silinmez; tekrar sahiplenilebilir olur.`)) return;
+    await updateFirm({ firmId: item.id, body: { claimStatus: 'unclaimed', ownerUserId: null } }).unwrap();
+    if (selectedFirm?.id === item.id) setSelectedFirm({ ...item, claimStatus: 'unclaimed', ownerUserId: null });
+  }
+
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-4">
@@ -204,6 +210,17 @@ export default function FirmsAdminPage() {
                       <Button size="sm" variant="outline" onClick={() => setFirmStatus(item, 'rejected')} disabled={isUpdatingFirm}>Reddet</Button>
                     )}
                     <Button size="sm" variant="outline" onClick={() => setSelectedFirm(item)}>Detay</Button>
+                    {item.claimStatus === 'verified' && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-red-300 text-red-600 hover:bg-red-50"
+                        onClick={() => releaseOwnership(item)}
+                        disabled={isUpdatingFirm}
+                      >
+                        Sahipliği kaldır
+                      </Button>
+                    )}
                     {item.claimStatus !== 'verified' && buildFirmWhatsappLink(item) && (
                       <Button
                         asChild

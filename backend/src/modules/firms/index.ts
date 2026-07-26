@@ -32,6 +32,7 @@ import {
   listStaleFirms,
   moderateFirmClaim,
   updateFirmByOwner,
+  releaseFirmOwnership,
   updateFirmDeal,
   updateFirmPrice,
   updateFirmProduct,
@@ -439,6 +440,15 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     if (!firm || firm.ownerUserId !== userId) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
     const affected = await deleteFirmProduct(productId, firmId);
     if (!affected) return reply.status(404).send({ error: "Urun bulunamadi" });
+    return reply.send({ ok: true });
+  });
+
+  app.post<{ Params: { id: string } }>("/firms/:id/release", { onRequest: [requireAuth] }, async (req, reply) => {
+    const userId = getAuthUserId(req);
+    const firmId = Number(req.params.id);
+    if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const ok = await releaseFirmOwnership(firmId, userId);
+    if (!ok) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
     return reply.send({ ok: true });
   });
 

@@ -282,6 +282,25 @@ export function FirmOwnerForm({ mode, locale }: Props) {
     return <div className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-8 text-sm text-(--color-muted)">Yükleniyor...</div>;
   }
 
+  async function handleRelease() {
+    if (!firm) return;
+    if (!window.confirm("Bu firmanın sahipliğini bırakmak istediğinize emin misiniz? Firma kaydı ve fiyatları silinmez; firma tekrar sahiplenilebilir hale gelir.")) return;
+    setSaving(true);
+    setError(null);
+    setMessage(null);
+    try {
+      await apiPost<{ ok: boolean }>(`/firms/${firm.id}/release`, {});
+      setFirm(null);
+      setForm(emptyFirm);
+      setPrices([]);
+      setMessage("Firma sahipliği bırakıldı.");
+    } catch {
+      setError("Sahiplik bırakılamadı. Lütfen tekrar deneyin.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   if (mode === "manage" && !firm) {
     return (
       <div className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-6">
@@ -308,11 +327,23 @@ export function FirmOwnerForm({ mode, locale }: Props) {
               </p>
             )}
           </div>
-          {firm?.slug && firm.status === "approved" && (
-            <Link href={`/firma/${firm.slug}`} className="rounded-[6px] border border-(--color-border) px-3 py-2 font-(family-name:--font-mono) text-[11px] font-semibold text-(--color-foreground)">
-              Profili gör
-            </Link>
-          )}
+          <div className="flex flex-wrap gap-2">
+            {firm?.slug && firm.status === "approved" && (
+              <Link href={`/firma/${firm.slug}`} className="rounded-[6px] border border-(--color-border) px-3 py-2 font-(family-name:--font-mono) text-[11px] font-semibold text-(--color-foreground)">
+                Profili gör
+              </Link>
+            )}
+            {mode === "manage" && firm && (
+              <button
+                type="button"
+                onClick={handleRelease}
+                disabled={saving}
+                className="rounded-[6px] border border-red-300 px-3 py-2 font-(family-name:--font-mono) text-[11px] font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-60"
+              >
+                Sahipliği bırak
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">

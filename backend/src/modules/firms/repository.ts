@@ -306,6 +306,15 @@ export async function updateFirmByOwner(id: number, userId: string, input: FirmP
   return getFirmById(id);
 }
 
+// Sahibin kendi firmasinin sahipligini birakmasi: sahiplik ve claim durumu sifirlanir,
+// firma kayd (ve fiyatlari) silinmez — baskasi tekrar sahiplenebilir.
+export async function releaseFirmOwnership(id: number, userId: string): Promise<boolean> {
+  const firm = await getFirmById(id);
+  if (!firm || firm.ownerUserId !== userId) return false;
+  await updateFirmFields(id, { ownerUserId: null, claimStatus: "unclaimed" });
+  return true;
+}
+
 export async function adminUpdateFirm(id: number, input: FirmPatchInput & {
   status?: "pending" | "approved" | "rejected";
   claimStatus?: "unclaimed" | "pending" | "verified";
