@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { PriceRow } from "@/lib/api";
 import { getEmoji } from "@/lib/emoji";
 import FavoriteButton from "@/components/ui/FavoriteButton";
+import { productHref } from "@/lib/product-links";
 
 interface PriceCardProps {
   row: PriceRow;
@@ -107,7 +108,7 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
               {emoji}
             </span>
             <div className="min-w-0">
-              <Link href={`/urun/${row.productSlug}`} className="block truncate text-[15px] font-bold text-(--color-foreground) hover:text-(--color-brand) transition-colors">
+              <Link href={productHref(row)} className="block truncate text-[15px] font-bold text-(--color-foreground) hover:text-(--color-brand) transition-colors">
                 {row.productName}
               </Link>
               <div className="mt-px truncate text-[11px] text-(--color-muted)">

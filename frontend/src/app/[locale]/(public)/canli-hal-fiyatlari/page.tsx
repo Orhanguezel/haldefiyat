@@ -142,7 +142,7 @@ export default async function LiveMarketPricesPage({ params }: Props) {
               Ortalama toptan fiyat ve son değişim.
             </p>
           </div>
-          <Link href={`/${locale}/fiyatlar`} className="hidden text-[14px] font-semibold text-(--color-brand) sm:inline">
+          <Link href="/fiyatlar" className="hidden text-[14px] font-semibold text-(--color-brand) sm:inline">
             Tüm fiyatlar
           </Link>
         </div>
@@ -154,7 +154,7 @@ export default async function LiveMarketPricesPage({ params }: Props) {
             return (
               <Link
                 key={item.productSlug}
-                href={`/${locale}/urun/${item.productSlug}`}
+                href={`/urun/${item.productSlug}`}
                 className="rounded-lg border border-(--color-border) bg-(--color-surface) p-4 transition-colors hover:border-(--color-brand)/55"
               >
                 <div className="flex items-start justify-between gap-3">

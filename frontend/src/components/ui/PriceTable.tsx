@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useDeferredValue } from "react";
 import Link from "next/link";
+import { productHref } from "@/lib/product-links";
 import { apiGet } from "@/lib/api-client";
 import type { PriceRow, Market, PriceListResponse, PriceListMeta, FetchPricesParams } from "@/lib/api";
 import Pagination from "@/components/ui/Pagination";
@@ -522,7 +523,7 @@ export default function PriceTable({
                     {!hideProductColumn && (
                       <td className="px-4 py-3.5">
                         <Link
-                          href={`/urun/${row.productSlug}`}
+                          href={productHref(row)}
                           className="flex items-center gap-2 text-[14px] font-semibold text-(--color-foreground) hover:text-(--color-brand)"
                         >
                           <span

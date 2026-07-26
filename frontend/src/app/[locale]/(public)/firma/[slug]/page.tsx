@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import { productHref } from "@/lib/product-links";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { fetchFirm, fetchFirms, fetchMarkets, fetchPrices, type PriceRow } from "@/lib/api";
@@ -393,7 +394,7 @@ function CityMarketPricesBlock({
           {prices.slice(0, 6).map((price) => (
             <Link
               key={`${price.productSlug}-${price.marketSlug}-${price.recordedDate}`}
-              href={`/urun/${price.productSlug}`}
+              href={productHref(price)}
               className="rounded-[6px] border border-(--color-border-soft) p-3 hover:border-(--color-brand)/45"
             >
               <span className="block text-sm font-semibold text-(--color-foreground)">{price.productName}</span>
