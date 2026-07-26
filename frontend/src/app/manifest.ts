@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "HaldeFiyat — Türkiye Hal Toptan Fiyatları",
     short_name: "HaldeFiyat",
     description:
-      "Türkiye 22+ halinde toptan sebze-meyve fiyatları, canlı veri ve haftalık bülten.",
+      "Türkiye genelinde tarihli toptan sebze-meyve hal fiyatları ve haftalık fiyat bülteni.",
     start_url: "/",
     scope: "/",
     display: "standalone",

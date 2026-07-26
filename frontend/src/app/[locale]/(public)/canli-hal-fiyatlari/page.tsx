@@ -5,6 +5,7 @@ import { fetchMarkets, fetchPricesOverview, fetchProducts, fetchWidget } from "@
 import { getPageMetadata, ORG_REF } from "@/lib/seo";
 import { schemaDateRange } from "@/lib/schema-dates";
 import JsonLd from "@/components/seo/JsonLd";
+import Breadcrumb from "@/components/seo/Breadcrumb";
 import LivePriceNewsletter from "@/components/sections/LivePriceNewsletter";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -22,10 +23,15 @@ const cityLinks = [
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
+  const overview = await fetchPricesOverview();
+  const coverageTitle = overview.activeMarkets
+    ? ` — ${overview.activeMarkets.toLocaleString("tr-TR")} Aktif Hal`
+    : "";
+
   return getPageMetadata("canli_hal_fiyatlari", {
     locale,
     pathname: "/canli-hal-fiyatlari",
-    title: "Canlı Hal Fiyatları 2026 — 22+ Toptan Hali Anlık",
+    title: `Canlı Hal Fiyatları 2026${coverageTitle}`,
     description:
       "Türkiye geneli canlı hal fiyatları, günlük güncellenen sebze ve meyve fiyatları, şehir karşılaştırmaları ve ücretsiz haftalık fiyat bülteni.",
   });
@@ -62,6 +68,8 @@ export default async function LiveMarketPricesPage({ params }: Props) {
         timeZone: "UTC",
       }).format(new Date(`${datasetDates.latest}T00:00:00Z`))
     : "Veri tarihi bilinmiyor";
+  const activeMarketCount = overview.activeMarkets || markets.length;
+  const trackedProductCount = overview.trackedProducts || products.length;
 
   const datasetSchema = {
     "@context": "https://schema.org",
@@ -87,23 +95,17 @@ export default async function LiveMarketPricesPage({ params }: Props) {
     },
   } satisfies Record<string, unknown>;
 
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Anasayfa", item: SITE_URL },
-      { "@type": "ListItem", position: 2, name: "Canlı Hal Fiyatları", item: `${SITE_URL}/canli-hal-fiyatlari` },
-    ],
-  } satisfies Record<string, unknown>;
-
   return (
     <main className="min-h-screen bg-(--color-background)">
       <JsonLd type="Dataset" data={datasetSchema} />
-      <JsonLd type="BreadcrumbList" data={breadcrumbSchema} />
 
       <section className="border-b border-(--color-border) bg-(--color-surface)">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-14">
           <div className="flex min-w-0 flex-col justify-center">
+            <Breadcrumb visible items={[
+              { name: "Anasayfa", href: "/" },
+              { name: "Canlı Hal Fiyatları", href: "/canli-hal-fiyatlari" },
+            ]} />
             <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-(--color-brand)/35 bg-(--color-brand)/10 px-3 py-1 text-[12px] font-semibold text-(--color-brand)">
               <Clock3 className="h-3.5 w-3.5" />
               Son veri: {updatedAt}
@@ -112,14 +114,16 @@ export default async function LiveMarketPricesPage({ params }: Props) {
               className="max-w-3xl text-[34px] font-black leading-[1.05] tracking-normal text-(--color-foreground) sm:text-[48px] lg:text-[58px]"
               style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
             >
-              Türkiye 22+ hal toptan sebze-meyve fiyatları
+              Türkiye canlı hal fiyatları
             </h1>
             <p className="mt-5 max-w-2xl text-[16px] leading-7 text-(--color-muted) sm:text-[18px]">
-              Güncel hal verisini ürün, şehir ve değişim yüzdesiyle takip edin. Haftalık bülteni alıp fiyat hareketlerini kaçırmayın.
+              {activeMarketCount
+                ? `${activeMarketCount.toLocaleString("tr-TR")} aktif haldeki sebze ve meyve fiyatlarını`
+                : "Yayımlanan sebze ve meyve hal fiyatlarını"} ürün, şehir ve değişim yüzdesiyle takip edin. Haftalık bülteni alıp fiyat hareketlerini kaçırmayın.
             </p>
             <div className="mt-7 grid max-w-2xl grid-cols-3 gap-3">
-              <Kpi label="Ürün" value={products.length || 250} />
-              <Kpi label="Hal" value={markets.length || 22} />
+              <Kpi label="Ürün" value={trackedProductCount || "—"} />
+              <Kpi label="Aktif hal" value={activeMarketCount || "—"} />
               <Kpi label="Son veri" value={updatedAt} small />
             </div>
           </div>

@@ -39,9 +39,9 @@ export default async function MobileHomeHero({
             Güncel sebze-meyve fiyatlarını şehir, ürün ve değişim yüzdesiyle hızlıca takip edin.
           </p>
           <div className="mt-4 grid grid-cols-3 gap-2">
-            <Kpi value={products || 250} label="Ürün" />
-            <Kpi value={markets.length || 22} label="Hal" />
-            <Kpi value="Bugün" label="Güncel" />
+            <Kpi value={products || "—"} label="Ürün" />
+            <Kpi value={markets.length || "—"} label="Aktif hal" />
+            <Kpi value="Tarihli" label="Veri" />
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2">
             <Link href="/fiyatlar" className="inline-flex min-h-11 items-center justify-center rounded-lg bg-(--color-brand) px-4 text-[13px] font-black text-(--color-brand-fg)">
