@@ -23,11 +23,23 @@
 Kabul: SPF pass, DKIM pass ve DMARC aligned pass; yedi günlük raporda
 beklenmedik meşru gönderici bulunmuyor.
 
+Mevcut kanıt/engel:
+
+- Resend test iletisini kabul etti; Message-ID kayıtlı. Bağlı Gmail hesabında
+  exact Message-ID ve tarih/gönderen araması sonuç vermedi; gerçek alıcı Gmail
+  kutusunun ham `Authentication-Results` başlığı gerekli.
+- DNS Turhost'ta; sunucuda DNS API erişimi ve doğrulanmış `rua` mailbox yok.
+  Mailbox + DNS değişikliği sonrası en az 7 günlük `p=none` gözlemi zorunlu.
+
 ## P1 — Schema ve kurumsal şeffaflık
 
 ### Schema validator çıktıları — 🔎 Claude
 
 - [ ] Schema.org Validator ve Rich Results Test çıktılarını URL bazında arşivle.
+
+Mevcut kanıt/engel: 8 URL için Schema.org Validator error=0/warning=0 ham
+çıktıları arşivli. Google Rich Results Test anonim otomasyonda reCAPTCHA ve
+“Log in and try again” veriyor; oturumlu etkileşimli Google çıktısı gerekli.
 
 ## P2 — Teknik SEO ve canlı tarama
 
@@ -35,9 +47,17 @@ beklenmedik meşru gönderici bulunmuyor.
 
 - [ ] Değişiklik sonrası görünür metni, title/meta/H1-H2 dağılımını ve SSR HTML'i yeniden tara; GSC sorgu/CTR etkisini 28 gün izle ve sonucu kaydet.
 
+Mevcut kanıt/engel: teknik yeniden tarama ve ham rapor tamam. Değişiklik sonrası
+tam 28 günlük GSC penceresi en erken **24 Ağustos 2026** tarihinde dolar.
+
 ## P2 — Ölçüm ve KPI baseline
 
 - [ ] Backlink/referring-domain, unlinked mention ve branded search baseline'ı ile beş gerçek rakip gap analizi oluştur.
+
+Mevcut kanıt/engel: branded GSC baseline ve beş gerçek organik rakip kayıtlı.
+Sunucuda Ahrefs/Semrush/Moz/Majestic/DataForSEO erişimi yok; Search Console
+Links export veya doğrulanmış backlink sağlayıcısı olmadan referring-domain ve
+dofollow sayıları tahmin edilmeyecek.
 ## Stratejik — Bu çeyrek
 
 ## Operasyon sırası
