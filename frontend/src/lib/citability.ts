@@ -77,7 +77,11 @@ export function calculateWindowTrend(
  * günde birden fazla satır varsa önce günlük ortalama alınır.
  */
 export function calculateProductMovers(
-  rows: Array<DatedAverage & { productSlug: string; productName: string }>,
+  rows: Array<DatedAverage & {
+    productSlug: string;
+    canonicalProduct?: string | null;
+    productName: string;
+  }>,
   limit = 3,
 ): ProductMover[] {
   const products = new Map<string, {
@@ -89,14 +93,15 @@ export function calculateProductMovers(
     const value = numeric(row.avgPrice);
     const date = row.recordedDate.slice(0, 10);
     if (value == null || !/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
-    const product = products.get(row.productSlug) ?? {
+    const productSlug = row.canonicalProduct || row.productSlug;
+    const product = products.get(productSlug) ?? {
       name: row.productName,
       days: new Map<string, number[]>(),
     };
     const values = product.days.get(date) ?? [];
     values.push(value);
     product.days.set(date, values);
-    products.set(row.productSlug, product);
+    products.set(productSlug, product);
   }
 
   return [...products.entries()]

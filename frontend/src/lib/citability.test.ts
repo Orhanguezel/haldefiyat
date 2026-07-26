@@ -48,4 +48,25 @@ describe("calculateProductMovers", () => {
       { productSlug: "elma", productName: "Elma", changePct: -10, direction: "düştü" },
     ]);
   });
+
+  it("uses the canonical product slug for generated mover links", () => {
+    const result = calculateProductMovers([
+      {
+        productSlug: "biber-kapya",
+        canonicalProduct: "kapya-biber",
+        productName: "Biber Kapya",
+        recordedDate: "2026-07-26",
+        avgPrice: 60,
+      },
+      {
+        productSlug: "biber-kapya",
+        canonicalProduct: "kapya-biber",
+        productName: "Biber Kapya",
+        recordedDate: "2026-07-25",
+        avgPrice: 50,
+      },
+    ]);
+
+    expect(result[0]?.productSlug).toBe("kapya-biber");
+  });
 });
