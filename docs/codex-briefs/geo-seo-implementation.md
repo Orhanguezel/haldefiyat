@@ -118,3 +118,68 @@
 - GÖREV 2: hedef-sorgu ↔ sayfa haritası (GSC query verisi [[gsc-query-data-fetch]] + [[analiz-seo-takip-metrikleri]]).
 - GÖREV 3: gerçek LCP elementi + waterfall + RSC/hydration ölçümü.
 - Her görev: kabul kriteri doğrulaması + AI-sorgu öncesi/sonrası kıyası.
+
+---
+
+# EK: Claude girdileri hazır (2026-07-26) — Codex GÖREV 2 ve 3'e başlayabilir
+
+## GÖREV 2 girdisi — Sorgu haritası (GSC gerçek verisi, son 90 gün, tıklamaya göre)
+
+**Kaynak:** GSC searchAnalytics/query, `sc-domain:haldefiyat.com`, 2026-04-27→07-25.
+Aşağıdaki kümeler gerçek arama verisinden; blok metni bu niyeti karşılamalı.
+
+### Küme A — Ürün fiyatı (`/urun/[slug]`) → EN YÜKSEK ÖNCELİK
+Sorgu kalıbı: `{ürün} fiyatları`, `{ürün} fiyatları 2026`, `{ürün} piyasası`, `{ürün} kaç para`.
+Gerçek veriden öncelik ürünleri (tıklama): **limon** (225 + "limon piyasası" 107, 8841 impr, CTR %1.2 ⚠️), **patates** (112), **soğan** (91), **kayısı** (71, pos 2.4), **karpuz** (60), **kiraz** (44), **şeftali** (31), **erik** (23), **taze fasulye** (25).
+- **Answer block (ürün):** "Bugün {ürün} Türkiye ortalama hal fiyatı ne kadar?" → **kesin tarih + birim + min–max + ortalama + örneklem (kaç hal) + kaynak + veri tazeliği**.
+- **"piyasa" niyeti** (limon piyasası 8841 impr, CTR %1.2 = en büyük fırsat): bloğa "piyasa/genel eğilim" cümlesi ekle (son 7/30 gün yön + değişim %). "piyasası" kelimesi görünür geçsin.
+- **"2026" varyantı:** blokta yıl + kesin tarih makine-okunur olsun (kayısı/karpuz/kiraz/şeftali/erik hepsi "2026" ile aranıyor).
+- Şablon TÜM ürünlere; ama yukarıdaki 9 üründe metin+değeri **elle doğrula** (Claude AI-sorgu kıyası bunlarla yapılır).
+
+### Küme B — Şehir hal fiyatı (`/hal/[slug]`)
+Sorgu kalıbı: `{şehir} hal fiyatları`, `{şehir} hal fiyatları bugün`.
+Öncelik (impression/tıklama): **istanbul** (4340 impr, CTR %1.4 ⚠️ en büyük fırsat), **konya** (1924 impr, pos 2.7, CTR %1.2 ⚠️), kahramanmaraş/maraş (86+40+34), ankara (48+23 "bugün"), bursa, balıkesir, gaziantep, eskişehir, çanakkale, çorum.
+- **Answer block (hal):** "{şehir} halinde bugün ({tarih}) fiyatlar" → kapsanan ürün sayısı + son güncelleme tarihi + öne çıkan 2–3 fiyat değişimi. "bugün" → görünür kesin tarih.
+- **Düşük-CTR + yüksek-impression** (istanbul %1.4, konya %1.2): sorun snippet kalitesi; blok başı özet meta description/başlıkla hizalı olsun.
+
+### Küme C — Komisyoncu/firma (`/firma`, `/firmalar/{şehir}`) → BLOK EKLEME, snippet KORU
+Sorgu: `{şehir} hal komisyoncuları`. malatya CTR %34.7, konya %35.2, bursa %23.9 — **zaten güçlü** (B2B niyet, [[monetizasyon-sponsor-haric-yonu]]). Buraya mekanik cevap bloğu EKLEME; mevcut liste/snippet netliğini koru, olsa olsa "{şehir} halinde {n} komisyoncu" tek satır özet.
+
+### Küme D — Genel (`/` ve `/fiyatlar`)
+`hal fiyatları` (52 tıklama, **pos 11.7 = 2. sayfa**): ana sayfa/fiyatlar özet answer block + güçlü iç link. Öncelik düşük (tek sorgu), ama H1 + özet bloğu pozisyonu 1. sayfaya taşıyabilir.
+
+**Sıra:** Küme A (ürün) → Küme B (hal) → Küme D (genel). Küme C'ye dokunma.
+
+---
+
+## GÖREV 3 girdisi — LCP teşhisi (PSI mobil + CrUX, 2026-07-26)
+
+**KRİTİK — lab vs field ayrımı (rapor bunu karıştırmıştı):**
+| Metrik | Lab (Lighthouse mobil) | Field (CrUX p75, gerçek kullanıcı) |
+|---|---|---|
+| LCP | 6.8 s (kötümser/throttled) | **3.08 s — AVERAGE** |
+| FCP | 3.5 s | 2.42 s — AVERAGE |
+| INP | — (lab ölçemez) | **170 ms — FAST ✅** |
+| CLS | 0 | **0 — FAST ✅** |
+| Perf | 60 | — |
+
+**Gerçek hedef: field LCP 3.08 → ≤2.5 s (~0.6 s kırp).** INP/CLS zaten iyi — sadece KORU, bozma. Alarm 6.8s lab; gerçek kullanıcı 3.08s.
+
+**LCP elementi:** **METİN** (hero başlık — CLS=0, image-LCP değil). → **Görsel preload EKLEME.** Fix = render-blocking + font zinciri.
+
+**Kök neden — 518 KiB unused JS (ana fırsat ~900ms):**
+| Kaynak | Boyut | Tür |
+|---|---|---|
+| Google tag'ları (GTM `gtm.js` 61KB + GA4 `G-YHLL9WK7ML` 75KB + Ads `AW-18007572524` 121+69KB) | **~326 KiB** | 3rd-party |
+| First-party Next chunk (`0e5hl~zyne1tl.js` 71KB + `139~irplfi2a-.js` 50KB) | **~121 KiB** | 1st-party |
+| main-thread work 1.7 s · bootup 1.0 s | — | JS exec |
+
+**Fix önceliği (bu sıra):**
+1. **Google tag yüklemesini daha da geciktir** — en büyük (326KB), **SEO'ya etkisiz**. Şu an `lazyOnload` ([[anasayfa-mobil-lcp]]); LCP sonrası / ilk kullanıcı etkileşimi / `requestIdleCallback`'e taşı. Consent-gated zaten; conversion event'leri kaybetme.
+2. **First-party unused chunk azalt (121KB):** fold-altı & masaüstü-only bileşenleri `next/dynamic`. **UA-split zaten var** (`if(isMobile)`); mobil ağaçta gereksiz masaüstü chunk kalmadığını doğrula — kalıyorsa import'u mobil daldan çıkar.
+3. **Font:** hero başlık fontunu preload + `font-display: swap` (metin-LCP hızlanır). Yalnız kullanılan weight.
+4. main-thread 1.7s: 1+2 yeterli; ekstra long-task varsa profiler ile.
+
+**Kabul (revize — field öncelikli):** field p75 LCP ≤2.5 s (28 gün, GÖREV 7 RUM ile izle); lab mobil perf ≥85 hedef ama field belirleyici; INP ≤200ms + CLS ≤0.1 KORUNUR; SSR/index regresyonu yok. **Preload görsel eklenmez (LCP metin).**
+
+**Not:** GÖREV 7 (web-vitals RUM) zaten kuruldu → LCP/INP'yi gerçek kullanıcıdan izlemek için kullan; PSI tek koşu, RUM 28-gün p75 belirleyici.
