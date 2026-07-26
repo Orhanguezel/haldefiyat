@@ -105,7 +105,7 @@ export default async function HomePage({ params }: Props) {
         previous,
         product: {
           id: i + 1,
-          slug: w.productSlug,
+          slug: w.canonicalProduct || w.productSlug,
           nameTr: w.productName,
           categorySlug: w.categorySlug,
         },

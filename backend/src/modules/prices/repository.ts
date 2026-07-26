@@ -1287,6 +1287,7 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
     const yoyChangePct = rawYoy !== null && Math.abs(rawYoy) <= 400 ? rawYoy : null;
     return {
       productSlug:  r.productSlug,
+      canonicalProduct: r.canonicalProduct,
       productName:  r.productName,
       categorySlug: r.categorySlug,
       avgPrice:     latest,

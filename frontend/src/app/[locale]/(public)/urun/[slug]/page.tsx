@@ -17,6 +17,7 @@ import PriceChart from "@/components/sections/PriceChartLazy";
 import SeasonCompare from "@/components/sections/SeasonCompare";
 import RetailComparison from "@/components/sections/RetailComparison";
 import VariantPriceTable from "@/components/sections/VariantPriceTable";
+import { productHref } from "@/lib/product-links";
 import FrostRiskBanner from "@/components/sections/FrostRiskBanner";
 import PriceTable from "@/components/ui/PriceTable";
 import FreshnessBadge from "@/components/ui/FreshnessBadge";
@@ -550,7 +551,7 @@ export default async function UrunPage({ params }: Props) {
             ) : (
               <Link
                 key={p.slug}
-                href={`/urun/${p.slug}`}
+                href={productHref({ productSlug: p.slug, canonicalSlug: p.canonicalSlug })}
                 className="rounded-full border border-border-soft px-3 py-1 text-sm text-foreground transition-colors hover:border-brand/40 hover:text-brand"
               >
                 {getDisplayName(p)}
@@ -732,7 +733,7 @@ export default async function UrunPage({ params }: Props) {
             {relatedProducts.map((p) => (
               <Link
                 key={p.slug}
-                href={`/urun/${p.slug}`}
+                href={productHref({ productSlug: p.slug, canonicalSlug: p.canonicalSlug })}
                 className="rounded-lg border border-border-soft bg-background/40 px-3 py-2 text-sm transition-colors hover:border-brand/40"
               >
                 <span className="font-medium text-foreground">{getDisplayName(p)}</span>

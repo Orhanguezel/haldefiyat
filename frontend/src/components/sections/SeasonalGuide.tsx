@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getProductsInSeason, getMonthName } from "@/lib/season";
 import { fetchWidget } from "@/lib/api";
+import { productHref } from "@/lib/product-links";
 
 function formatTr(n: number): string {
   return n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -57,7 +58,7 @@ export default async function SeasonalGuide() {
           return (
             <Link
               key={p.slug}
-              href={`/urun/${p.slug}`}
+              href={productHref({ productSlug: p.slug })}
               className="group flex flex-col gap-2 rounded-[14px] border border-(--color-border) bg-(--color-surface) p-4 transition-colors hover:border-(--color-brand)/50 hover:bg-(--color-bg-alt)"
             >
               <div className="flex items-start justify-between gap-2">

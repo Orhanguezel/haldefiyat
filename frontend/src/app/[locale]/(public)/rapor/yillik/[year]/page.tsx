@@ -194,7 +194,7 @@ export default async function YearlyReportPage({ params }: Props) {
         <div className="mt-6 flex gap-3 justify-center no-print">
           <PrintButton />
           <Link
-            href={`/${locale}`}
+            href="/"
             className="rounded-lg border border-border px-5 py-2 text-sm font-medium hover:bg-muted transition"
           >
             Ana Sayfa

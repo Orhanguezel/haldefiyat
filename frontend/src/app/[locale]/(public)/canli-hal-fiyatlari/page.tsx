@@ -192,7 +192,7 @@ export default async function LiveMarketPricesPage({ params }: Props) {
             {cityLinks.map((city) => (
               <Link
                 key={city.label}
-                href={`/${locale}${city.href}`}
+                href={city.href}
                 className="flex items-center gap-2 rounded-lg border border-(--color-border) bg-(--color-background) px-4 py-3 text-[14px] font-semibold text-(--color-foreground) hover:border-(--color-brand)/55"
               >
                 <MapPin className="h-4 w-4 text-(--color-brand)" />
@@ -204,12 +204,12 @@ export default async function LiveMarketPricesPage({ params }: Props) {
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-4 px-4 py-10 sm:px-6 md:grid-cols-2 lg:px-8">
-        <Link href={`/${locale}/uyarilar`} className="rounded-lg border border-(--color-border) bg-(--color-surface) p-5 hover:border-(--color-brand)/55">
+        <Link href="/uyarilar" className="rounded-lg border border-(--color-border) bg-(--color-surface) p-5 hover:border-(--color-brand)/55">
           <Bell className="mb-4 h-6 w-6 text-(--color-brand)" />
           <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">Fiyat alarmı kur</h2>
           <p className="mt-2 text-[14px] leading-6 text-(--color-muted)">Ürün hedef fiyata geldiğinde e-posta, Telegram veya Web Push ile haber alın.</p>
         </Link>
-        <Link href={`/${locale}/analiz`} className="rounded-lg border border-(--color-border) bg-(--color-surface) p-5 hover:border-(--color-brand)/55">
+        <Link href="/analiz" className="rounded-lg border border-(--color-border) bg-(--color-surface) p-5 hover:border-(--color-brand)/55">
           <Newspaper className="mb-4 h-6 w-6 text-(--color-brand)" />
           <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">Haftalık piyasa özeti</h2>
           <p className="mt-2 text-[14px] leading-6 text-(--color-muted)">Sebze ve meyvede haftanın öne çıkan fiyat hareketlerini tek ekranda okuyun.</p>

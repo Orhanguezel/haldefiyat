@@ -11,4 +11,9 @@ describe("productHref", () => {
     expect(productHref({ productSlug: "domates", canonicalProduct: null }))
       .toBe("/urun/domates");
   });
+
+  it("skips active redirects even when an old master is supplied", () => {
+    expect(productHref({ productSlug: "biber-kil-aci", canonicalProduct: "biber" }))
+      .toBe("/urun/biber-carliston");
+  });
 });
