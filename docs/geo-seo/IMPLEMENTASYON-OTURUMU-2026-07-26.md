@@ -808,6 +808,21 @@ Commit: `32feeed0 fix(seo): publish completed annual reports`
 - Analiz girişindeki sabit `28+` hal iddiası canlı `activeMarkets` veya nötr
   fallback ile değiştirildi.
 
+### 3.40 Yayımlanmış Yazar Profillerinin Sitemap Kapsamı
+
+Commit: `0d70eb33 fix(seo): include published authors in sitemap`
+
+- Frontend API katmanına aktif public yazar envanteri eklendi.
+- Sitemap, aktif bütün yazarları körlemesine yayımlamıyor; yalnız statik veya
+  otomatik yayımlanmış analizlerde `authorProfile.slug` ile gerçekten referans
+  verilen ve public envanterde bulunan profilleri ekliyor.
+- Profil `lastModified` değeri ilgili yazarın en yeni yayımlanmış makale
+  tarihinden türetiliyor.
+- Yazar profil breadcrumb'ı görünür hale getirildi; schema ile kullanıcıya
+  gösterilen sayfa yolu eşlendi.
+- Backend erişilemezse yazar listesi boş fallback döndürüyor; doğrulanamayan
+  profil sitemap'e eklenmiyor.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -1217,6 +1232,17 @@ Orhan'dan beklenen:
 - Canlı deploy sonrasında yıl envanteri endpoint'i, sitemap URL'leri ve örnek
   tamamlanmış yılın 200/self-canonical/indexable durumu birlikte doğrulanmalıdır.
 
+### F-32 — Yazar profilleri iç linkli fakat sitemap dışında kalıyordu
+
+- Analiz Article schema ve görünür byline yazar profil URL'si yayımlıyordu;
+  profil route'u indexlenebilir olmasına rağmen sitemap üretimi yazarları
+  kapsamıyordu.
+- Yalnız aktif yazar listesini sitemap'e almak, henüz makalesi olmayan ince
+  profilleri yayımlayabilirdi. Bu nedenle aktif envanter ile yayımlanmış makale
+  referansı kesiştirildi.
+- Canlı doğrulamada sitemap'teki her yazar URL'sinin 200, self-canonical ve
+  en az bir yayımlanmış analiz bağlantısı taşıdığı kontrol edilmelidir.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1303,6 +1329,7 @@ d241af55 fix(seo): align policy page breadcrumbs
 1a3027f5 fix(seo): add hreflang to dynamic content
 0f900081 fix(seo): align open graph urls with canonicals
 32feeed0 fix(seo): publish completed annual reports
+0d70eb33 fix(seo): include published authors in sitemap
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
