@@ -1,33 +1,24 @@
 "use client";
 
 import { useReportWebVitals } from "next/web-vitals";
+import {
+  isSampledWebVitalsSession,
+  isSyntheticUserAgent,
+  webVitalsSampleRate,
+} from "@/lib/web-vitals-sampling";
 
 const SAMPLE_STORAGE_KEY = "hf_web_vitals_sampled";
-const DEFAULT_SAMPLE_RATE = 0.1;
-const BOT_USER_AGENT =
-  /bot|crawler|spider|crawling|headless|lighthouse|pagespeed|google-inspectiontool/i;
-
-function sampleRate(): number {
-  const configured = Number(process.env.NEXT_PUBLIC_WEB_VITALS_SAMPLE_RATE);
-  if (!Number.isFinite(configured)) return DEFAULT_SAMPLE_RATE;
-  return Math.min(1, Math.max(0, configured));
-}
 
 function isSampledSession(): boolean {
-  try {
-    const stored = window.sessionStorage.getItem(SAMPLE_STORAGE_KEY);
-    if (stored !== null) return stored === "1";
-
-    const sampled = Math.random() < sampleRate();
-    window.sessionStorage.setItem(SAMPLE_STORAGE_KEY, sampled ? "1" : "0");
-    return sampled;
-  } catch {
-    return Math.random() < sampleRate();
-  }
+  return isSampledWebVitalsSession({
+    storage: window.sessionStorage,
+    storageKey: SAMPLE_STORAGE_KEY,
+    rate: webVitalsSampleRate(process.env.NEXT_PUBLIC_WEB_VITALS_SAMPLE_RATE),
+  });
 }
 
 function shouldReport(): boolean {
-  if (BOT_USER_AGENT.test(window.navigator.userAgent)) return false;
+  if (isSyntheticUserAgent(window.navigator.userAgent)) return false;
   return isSampledSession();
 }
 
