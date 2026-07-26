@@ -193,7 +193,7 @@ export default async function AnalizMakalePage({ params }: Props) {
   return (
     <PageContainer>
       <JsonLd type="NewsArticle" data={newsArticleSchema} />
-      <Breadcrumb items={[
+      <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Analiz", href: "/analiz" },
         { name: makale.baslik, href: `/analiz/${makale.slug}` },

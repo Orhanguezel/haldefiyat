@@ -117,7 +117,7 @@ export default async function YearlyReportPage({ params }: Props) {
 
   return (
     <PageContainer className="print:py-0">
-      <Breadcrumb items={[
+      <Breadcrumb visible items={[
         { name: "Ana Sayfa", href: "/" },
         { name: `${year} Yıllık Raporu`, href: `/rapor/yillik/${year}` },
       ]} />

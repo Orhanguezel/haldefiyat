@@ -45,7 +45,7 @@ export default async function MetodolojiPage({ params }: Props) {
   return (
     <PageContainer py="lg" className="space-y-12">
       <JsonLd type="Article" data={articleSchema} />
-      <Breadcrumb items={[
+      <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Metodoloji", href: "/metodoloji" },
       ]} />
