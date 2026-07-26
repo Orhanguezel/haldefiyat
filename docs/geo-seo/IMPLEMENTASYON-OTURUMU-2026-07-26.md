@@ -753,6 +753,22 @@ Yapılanlar:
   görünür yapıya taşındı.
 - Sitemap'teki İletişim sayfasına görünür + yapısal breadcrumb eklendi.
 
+### 3.37 İndekslenebilir Şablonlarda Görünür Breadcrumb Kapsamı
+
+Commit: `5a204511 fix(seo): show breadcrumbs on indexed templates`
+
+- BreadcrumbList zaten üretildiği halde görünür sayfa yolu olmayan sitemap
+  şablonları tek tek envanterlendi.
+- Ürün ve hal detayları; hal, fiyat, analiz, endeks, borsa, harita, embed,
+  basın ve hakkımızda hub'ları görünür breadcrumb'a geçirildi.
+- Firma detay/şehir/tür kombinasyonları ve firma hub'ı aynı kapsama alındı.
+- Canlı hayvan ve et fiyatlarının ortak `CategoryPriceLanding` şablonu
+  görünürleştirildi.
+- Boş veri dönen hal detay dalı da normal hal detayıyla aynı görünür/schema
+  breadcrumb kaynağını kullanıyor.
+- Noindex veya sitemap dışı ilan/sosyal/yazar şablonları bu commitin kapsamına
+  alınmadı; indekslenebilir şablon denetimiyle karıştırılmadı.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -1131,6 +1147,16 @@ Orhan'dan beklenen:
 - Ortak bileşene geçiş, görünür ad/sıra/link ile JSON-LD item'larının farklılaşma
   riskini kaldırdı.
 
+### F-29 — BreadcrumbList kapsamı görünür breadcrumb kapsamından genişti
+
+- Yüksek değerli ürün, hal ve fiyat şablonlarının çoğu ortak `Breadcrumb`
+  bileşenini kullanıyor fakat `visible` varsayılanı kapalı olduğu için yalnız
+  JSON-LD yayımlıyordu.
+- Eksik yeni schema eklemek yerine var olan tek kaynak görünürleştirildi; böylece
+  schema adı, sırası ve URL'si kullanıcıya gösterilen sayfa yoluyla aynı kaldı.
+- Canlı doğrulamada mobil taşma, current-page accessibility ve ara link 200
+  kontrolleri hâlâ yapılmalıdır.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1212,6 +1238,7 @@ ab0b923b fix(content): replace stale coverage and ETL schedule claims
 e3c1776b fix(content): remove stale live coverage claims
 ee8de6bd fix(seo): add comparison breadcrumb schema
 d241af55 fix(seo): align policy page breadcrumbs
+5a204511 fix(seo): show breadcrumbs on indexed templates
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
