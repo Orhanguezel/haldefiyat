@@ -952,6 +952,19 @@ Commit: `edc43c6d fix(seo): noindex embeddable widgets`
 - Fiyat widget'ındaki veri tarihi veya akış durumu kanıtlamayan “Canlı veri”
   rozeti nötr “Fiyat verisi” metnine çevrildi.
 
+### 3.51 Master Checklist Tam Durum Uzlaştırması
+
+- 65 checkbox'ın tamamı uygulama günlüğü ve commit dizisiyle yeniden
+  karşılaştırıldı.
+- Yerel kod/test/build veya dokümantasyon kanıtı olan 33 madde `[x]` olarak
+  işaretlendi; kısmi maddeler “uygulama tamamlandı” ve “canlı kabul bekliyor”
+  biçiminde ayrı satırlara bölündü.
+- Kalan 32 madde açık bırakıldı: Orhan/DNS/kurumsal içerik/strateji 10,
+  deploy-staging-canlı doğrulama 14, GSC/CrUX/KPI ölçümü 6, insan-inceleme veri
+  modeli 1 ve eksik denetim URL/tarih girdisi 1.
+- Böylece canlıya çıkmamış kod, dış validator sonucu veya 28 günlük ölçüm
+  tamamlanmış gibi işaretlenmedi.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:

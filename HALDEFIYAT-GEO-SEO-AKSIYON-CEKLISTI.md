@@ -5,6 +5,17 @@
 > Hazırlayan: Claude (Mimar) · Tarih: 2026-07-26
 > Implementasyon: **Codex** (`docs/codex-briefs/geo-seo-implementation.md`) · Doğrulama: **Claude**
 
+## Güncel durum (2026-07-26)
+
+- **Tamamlanan:** 33/65 checkbox — yerel kod, test, build veya dokümantasyon kanıtı var.
+- **Açık:** 32/65 checkbox.
+- Açıkların sahiplik grupları: Orhan/DNS/kurumsal içerik/strateji (10),
+  deploy-staging-canlı crawl/validator/Lighthouse doğrulaması (14),
+  GSC/CrUX/benchmark/KPI ölçümü (6), yerel insan-inceleme veri modeli (1) ve
+  ekran görüntüsündeki denetim URL/tarih bilgisinin tamamlanması (1).
+- Kaynak kodda tamamlanıp yalnız canlı kabulü bekleyen iş, tamamlanan uygulama
+  ve ayrı açık doğrulama satırı olarak ikiye bölünmüştür.
+
 ## 0. Gerçeklik kontrolü — rapordaki YANLIŞ bulgular (İŞ AÇMA)
 
 Rapor 74/100 verdi ama bazı bulguları canlı site/kodla çelişiyor. Aşağıdakiler
@@ -47,11 +58,11 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 - **Not:** Kod değil — DNS işi. Codex'e verilmez.
 
 ### 0.3 Mobil LCP/FCP teşhis + optimizasyon — 🔎 Claude teşhis → 🤖 Codex → 🔎 Claude ölçer
-- [ ] Gerçek LCP elementini belirle (varsayımla preload EKLEME). Bağlam: [[anasayfa-mobil-lcp]] — masaüstü ağacı `hidden md:block` mobilde hydrate ediliyordu (505KB RSC).
-- [ ] LCP'yi TTFB + resource load delay/duration + render delay olarak parçala; RSC payload + hydration maliyetini ölç.
-- [ ] Above-the-fold ticker / ilan vitrini / rapor kartlarının SSR-vs-client maliyeti; kullanılmayan JS/CSS + long task.
-- [ ] Viewport-gated dynamic import ile masaüstü-only ağaçları mobilde yükleme; SEO-kritik içeriği SSR'da KORU.
-- [ ] Font preload'ları yalnız kullanılan weight'lerle sınırla.
+- [x] Gerçek LCP elementinin hero metni olduğu belirlendi; varsayımsal görsel preload eklenmedi. (S-02, `b507c516`)
+- [x] LCP/field p75 ve Google tag zinciri maliyeti ayrıştırıldı; 326 KiB tag zinciri ana kod fırsatı olarak kaydedildi. (S-02)
+- [x] Above-the-fold ve hydration yüzeyleri denetlendi; ana sayfa FAQ hydration'sız native HTML'e geçirildi. (`085c7681`)
+- [x] Mobilde masaüstü ağacının gönderilmemesi UA-bazlı sunucu ayrımıyla korundu; SEO-kritik hero SSR kaldı. Viewport dynamic import yerine mevcut daha erken sunucu ayrımı kullanıldı. (3.30)
+- [x] Outfit ağırlıklarının aynı iki variable WOFF2 kullandığı ve Next preload'un etkin olduğu doğrulandı; gereksiz ek preload yapılmadı. (3.30)
 - **Kabul:** Mobil Lighthouse medyan (3+ koşu) perf ≥85; lab LCP <2.5s, FCP <1.8s; SSR/indexlenebilirlik regresyonu yok.
 
 ### 0.4 Ürün/hal/analiz — tarihli "cevap bloğu" (citability) — 🤖 Codex → 🔎 Claude
@@ -59,7 +70,8 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 - [x] Ürün: tarih + birim + min–max/ortalama + örneklem/kaynak + veri tazeliği. (`0614ceb5`)
 - [x] Hal: şehir/hal kapsamı + son güncelleme + öne çıkan değişim özeti. (`6e05be62`)
 - [x] Analiz: başta bulgu özeti; sonra yöntem/sınırlar. (`139b8c88`, `aff495ac`)
-- [ ] Stabil HTML anchor/ID; "bugün/güncel" ifadeleri makine-okunur kesin tarihle; görünür tablo ile Dataset/Article tutarlılığı otomatik test.
+- [x] Stabil anchor/ID ve kesin tarihli görünür bloklar tamamlandı; trend, kapsam ve breadcrumb tutarlılığı otomatik testlerle kapsandı. (`0614ceb5`, `6e05be62`, `33200273`, `139b8c88`)
+- [ ] Deploy sonrası görünür tablo–Dataset/Article değer eşleşmesini gerçek SSR HTML üzerinde URL bazında doğrula. (S-11)
 - **Kabul:** citability blokları hedef sorgu sayfalarında; anchor'lar stabil; değişiklik öncesi/sonrası aynı AI sorgu setiyle kıyas (Orhan/Claude ölçer).
 
 ---
@@ -84,8 +96,9 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 ## P1 — İçerik & yayın şeffaflığı (E-E-A-T) — 🤖 Codex iskele + 🧑 Orhan içerik
 
 ### 4.4 Editoryal şeffaflık
-- [ ] Editoryal politika + düzeltme politikası + veri-kaynağı politikası + sahiplik/finansman açıklaması sayfaları.
-- [ ] Tüm analizlerde görünür byline + yazar profil linki + uzmanlık.
+- [x] Editoryal politika + düzeltme politikası + veri-kaynağı politikası + sahiplik/finansman route/CMS/footer/sitemap iskeleti tamamlandı. (`820c58d2`)
+- [ ] Dört şeffaflık sayfasının Orhan onaylı nihai CMS metinlerini yayımla. (S-04)
+- [x] Analizlerde görünür byline; atanmış yazarlarda profil linki, unvan, uzmanlık ve profil schema'sı tamamlandı. (`c21c4a1e`, `0d70eb33`)
 - [ ] Otomatik haftalık raporları "otomatik üretildi + insan kontrolü" olarak görünür etiketle. Kaynak etiketi gerçek `source` alanına bağlandı (`8610e751`); insan kontrolü için denetlenebilir `reviewed_by/reviewed_at` modeli henüz yok, bkz. S-13.
 - [ ] İletişim sayfasında kurumsal e-posta + sorumlu kişi/kurum. E-posta ve yalnız yapılandırılmış telefon/adres gerçek ayarlara bağlandı (`3fc97d80`); sorumlu kişi/kurum için sahiplik girdisi bekleniyor.
 
@@ -95,7 +108,7 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 
 ### 5.1 Report-Only → Enforce
 - [x] Report-Only ihlalleri boyut sınırlı ve URL sorguları redakte edilen merkezi endpoint'te toplanıyor. (`88bde326`, `8cb88095`, `99bcee1a`)
-- [ ] Gerekli origin'leri amaç+sahiple envanterle; `unsafe-inline`/`unsafe-eval` azaltma planı (nonce/hash).
+- [x] Mevcut inline script, GTM/GA/Ads, OneSignal, JSON-LD ve CMS banner bağımlılıkları ile nonce/hash azaltma sırası çıkarıldı. (S-10)
 - [ ] Staging'de login/kayıt/fiyat alarmı/GTM-GA4/Ads/embed regresyon testi.
 - [ ] Küçük trafik yüzdesinde enforce → sorunsuzsa `Content-Security-Policy` enforce.
 - **Kabul:** enforce CSP aktif; 1–2 hafta ihlal raporu temiz; 3P akışlar (GTM/GA/Ads/harita/YouTube) çalışıyor.
@@ -104,33 +117,37 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 
 ## P2 — Teknik SEO denetimi (raporun atladığı) — 🔎 Claude/🧑 ölçer, 🤖 Codex düzeltir
 
-- [ ] Sitemap: yalnız 200 + kanonik + indexable URL; gerçek `<lastmod>`; 200/redirect/404/noindex/canonical dağılımı.
+- [x] Sitemap üretimi kanonik/indexlenebilir kayıtlar ve gerçek, geçerli, gelecekte olmayan `lastmod` tarihleriyle düzeltildi. (`a9620c9a`, `f46eeb93`, `fe7dbfa4`, `32feeed0`, `0d70eb33`)
+- [ ] Deploy sonrası sitemap URL'lerinin 200/redirect/404/noindex/canonical dağılımını tam crawl ile arşivle.
 - [ ] GSC Page Indexing: keşfedildi-taranmadı / tarandı-indekslenmedi / duplicate-canonical.
-- [ ] Orphan ürün/hal/analiz sayfaları; iç link derinliği + anchor dağılımı.
+- [x] Analiz iç-link havuzu genişletildi; indekslenebilir ürün/hal/yazar keşif listeleri sitemap ve LLMS yüzeylerine bağlandı. (`35f290ed`, `0d70eb33`)
+- [ ] Canlı crawl ile kalan orphan URL, link derinliği ve anchor dağılımını ölç.
 - [ ] 3xx/4xx/5xx iç link + redirect chain (tam crawl).
 - [ ] Duplicate/missing/truncated title-description-H1 envanteri; canonical + hreflang self/reciprocal. Kod envanterinde dashboard, ilan oluşturma ve firma oluşturma metadata açıkları kapatıldı (`6ca33051`); tam canlı crawl bekleniyor.
-- [ ] `www`/HTTP/trailing-slash/locale/case varyantları; soft-404 + boş fiyat sayfası index politikası ([[410-yanlis-pozitif-aile-basi]]).
+- [x] Varsayılan locale canonical/hreflang politikası ve boş ürün/hal/yıllık rapor index koşulları kodda düzeltildi. (`ab012981`, `32feeed0`, `6ca33051`, `edc43c6d`)
+- [ ] Canlıda `www`/HTTP/trailing-slash/case varyantları, redirect zinciri ve soft-404 ailelerini tam crawl ile doğrula.
 - [ ] Ana sayfa cache politikası (`private, no-cache, no-store`) perf maliyetini ölç; Brotli/HTTP-3/immutable assets fırsatı.
 - [ ] Log analiziyle Googlebot/Bingbot/AI-bot crawl sıklığı + 4xx/5xx (audit_request_logs zaten var).
-- [ ] a11y 97 / best-practices 96 kayıplarının tekil audit maddeleri; security.txt + SRI + dependency audit.
+- [x] RFC uyumlu, yapılandırılmış `security.txt` ve açıklayıcı ürün görsel alt metinleri tamamlandı. (`7cf22f9a`, `3dddeb04`)
+- [ ] Canlı Lighthouse a11y/best-practices tekil kayıpları, SRI uygunluğu ve dependency audit sonuçlarını arşivle.
 
 ### 6.1 Anahtar kelime yoğunluğu ve sayfa içi tutarlılık
 
 - [ ] Denetim URL'si, hedef sorgu ve aracın tarama tarihi kaydedilsin; yalnız
   “düşük yoğunluk” puanından hareketle metin çoğaltılmasın.
-- [ ] Hedef ifade title, meta description, tek H1, en az bir açıklayıcı H2 ve
+- [x] Hedef ifade title, meta description, tek H1, en az bir açıklayıcı H2 ve
   görünür giriş/cevap bloğında doğal biçimde mevcut mu kontrol edilsin.
-- [ ] Kelime sayımını şişiren tekrarlar ayrı ölçülsün: tablo satırları, select
+- [x] Kelime sayımını şişiren tekrarlar ayrı ölçülsün: tablo satırları, select
   option'ları, menü/footer, kaynak rozetleri, gizli/mobil kopyalar ve fiyat
   para birimi karakterleri ana editoryal içerik sayılmasın.
-- [ ] İl/ilçe/hal detay tablolarında her satırda değişmeyen şehir ve hal adı
+- [x] İl/ilçe/hal detay tablolarında her satırda değişmeyen şehir ve hal adı
   sütunları tek bağlam başlığına indirgensin; ürün/fiyat verisi korunmalı.
-- [ ] Hedef sorgunun eş anlamlı ve yakın niyetleri kapsansın: “hal fiyatları”,
+- [x] Hedef sorgunun eş anlamlı ve yakın niyetleri kapsansın: “hal fiyatları”,
   “toptan fiyat”, “güncel fiyat listesi”, kesin veri tarihi ve kaynak.
-- [ ] Keyword stuffing kontrolü yapılsın: yapay tekrar, anlamsız alt etiketi,
+- [x] Keyword stuffing kontrolü yapılsın: yapay tekrar, anlamsız alt etiketi,
   gizli metin veya yalnız araç puanı için başlık çoğaltması eklenmesin.
-- [ ] En az bir yüksek gösterimli ürün, şehir hali ve genel fiyat sayfası
-  karşılaştırılsın; şablon kaynaklı sorun ile URL'ye özgü içerik açığı ayrılsın.
+- [x] Ürün, Serik/Antalya hal şablonu ve genel fiyat şablonu karşılaştırılarak
+  şablon kaynaklı tekrar ile URL'ye özgü içerik ayrıldı; ayrıntılar 3.31/S-12'de.
 - [ ] Değişiklik sonrası görünür metin, title/meta/H1-H2 dağılımı ve SSR HTML
   yeniden taransın; GSC sorgu/CTR etkisi 28 gün izlenerek sonuç kaydedilsin.
 - **Kabul:** hedef terim title/meta/H1 ve doğal açıklayıcı içerikte tutarlı;
