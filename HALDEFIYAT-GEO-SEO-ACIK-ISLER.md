@@ -3,9 +3,9 @@
 > Kaynak checklist:
 > `HALDEFIYAT-GEO-SEO-AKSIYON-CEKLISTI.md`
 >
-> Tarih: 2026-07-26 · Durum: **18 açık madde**
+> Tarih: 2026-07-26 · Durum: **17 açık madde**
 >
-> Bu dosya yalnız açık işleri içerir. Tamamlanmış 48 madde, kapanış kanıtlarıyla
+> Bu dosya yalnız açık işleri içerir. Tamamlanmış 49 madde, kapanış kanıtlarıyla
 > ana aksiyon checklist'inde korunur. Burada tamamlanan bir madde `[x]`
 > yapıldıktan sonra ana checklist'e taşınmalı ve iki dosyanın sayaçları birlikte
 > güncellenmelidir.
@@ -38,7 +38,6 @@ beklenmedik meşru gönderici bulunmuyor.
 
 - [ ] GSC Page Indexing verisini keşfedildi-taranmadı, tarandı-indekslenmedi ve duplicate-canonical kırılımlarında incele.
 - [ ] 3xx/4xx/5xx iç linkleri ve redirect chain'leri tam crawl ile çıkar.
-- [ ] Duplicate/missing/truncated title-description-H1 envanteri ile canonical ve hreflang self/reciprocal kontrolünü tamamla. Son crawl'da duplicate/eksik/H1/canonical/hreflang self-reciprocal hatası 0; uzunluk baseline'ı title `<30`: 5, title `>60`: 65, description `<120`: 52, description `>160`: 214. Bu kümeler URL/şablon bazında değerlendirilip gerçek SERP truncation riski düzeltilmeden madde kapanmaz.
 
 ### Anahtar kelime yoğunluğu canlı kontrolü
 

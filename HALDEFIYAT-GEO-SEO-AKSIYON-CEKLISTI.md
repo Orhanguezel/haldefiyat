@@ -7,8 +7,8 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 48/66 checkbox — kapanış kanıtları bu dosyada korunur.
-- **Açık:** 18/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
+- **Tamamlanan:** 49/66 checkbox — kapanış kanıtları bu dosyada korunur.
+- **Açık:** 17/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
   kalan iş olarak ayrıldığı için toplam takip maddesi 66 oldu. Açıklar:
   `HALDEFIYAT-GEO-SEO-ACIK-ISLER.md`.
 - Bu dosyaya yeni açık iş eklenmez. Açık dosyada tamamlanan maddeler, kanıtıyla
@@ -121,6 +121,7 @@ ayrı açık işler dosyasına taşınmıştır.
 - [x] Frontend production manifesti registry advisory verisiyle denetlendi; `next-intl` 4.13.4'e yükseltildi, critical açık yok, güvenli otomatik düzeltmesi bulunmayan Next.js `postcss`/`sharp` zinciri yüzey ve kabul gerekçesiyle arşivlendi. (`docs/geo-seo/PRODUCTION-DEPENDENCY-AUDIT-2026-07-26.md`)
 - [x] Sitemap URL'lerinin canlı dağılımı tek işçi ve 500 ms istek aralığıyla yeniden tarandı: 316/316 HTTP 200; redirect/4xx/5xx, noindex, canonical farkı, eksik title/description, H1 sorunu, JSON-LD parse hatası ve duplicate title/description sıfır. (`artifacts/seo/live-crawl-final-2026-07-26/report.md`)
 - [x] Orphan/link derinliği/anchor dağılımı canlı ölçüldü; 50 aday gerçek dizin ve footer linkleriyle kapatıldı. Son crawl: orphan 0, azami derinlik 3, 22.738 anchor, 3.053 benzersiz metin, boş anchor 0, genel “tıkla/detay/devam” anchor 0. (`artifacts/seo/live-crawl-anchor-2026-07-26/report.md`)
+- [x] Duplicate/missing/truncated title-description-H1 envanteri ile canonical ve hreflang self/reciprocal kontrolü tamamlandı. 316/316 URL 200; eksik/duplicate/H1/canonical/hreflang hatası 0. Arama metadata'sı title ≤60 ve description ≤160 olacak şekilde anlamlı cümle/kelime sınırında kısaltıldı; düzeltme sonrası uzun title/description 0. (`9a34270a`, `9bb063e7`, `artifacts/seo/live-crawl-meta-final-2026-07-26/metadata-hreflang-acceptance.md`)
 
 ### 6.1 Anahtar kelime yoğunluğu ve sayfa içi tutarlılık
 

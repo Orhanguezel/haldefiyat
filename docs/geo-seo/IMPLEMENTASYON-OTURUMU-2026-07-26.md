@@ -1717,6 +1717,33 @@ Kanıt:
 Kanıt:
 `artifacts/seo/live-crawl-anchor-2026-07-26/report.json` ve `report.md`.
 
+### 3.61 Metadata Uzunluğu, Canonical ve Hreflang Kabulü
+
+- Önceki canlı crawl'daki gerçek SERP kesilme riski şablonlara ayrıldı:
+  65 title 60 karakteri, 214 description 160 karakteri aşıyordu.
+- Ortak metadata üretiminde boşlukları normalize eden, uygun olduğunda tam
+  cümleyi; aksi halde kelime sınırını koruyan 60/160 karakter kısaltması
+  uygulandı. Uzun sosyal paylaşım metinleri Open Graph alanlarında korunurken
+  arama title/description değerleri sınırlandı.
+- Analiz sayfalarının ve yazar profilinin kök title template'iyle ikinci marka
+  eki üretmesi `title.absolute` ile engellendi.
+- Yardımcı fonksiyon için cümle koruma, kelime sınırı ve değişmeden bırakma
+  testleri eklendi; typecheck, testler ve production build geçti.
+- `9a34270a` canlı sürümündeki düşük hızlı tam tarama 316/316 HTTP 200 verdi;
+  eksik/duplicate title-description, H1, canonical, noindex, JSON-LD, orphan
+  ve genel anchor hatalarının tamamı 0 kaldı.
+- Hreflang matrisinde self, `tr`, `x-default`, sitemap dışı hedef ve reciprocal
+  hata sayıları 0 çıktı.
+- Tam taramada kalan tek 63 karakterlik yazar title'ı `9bb063e7` ile
+  düzeltildi ve tekrar canlı ölçümde 50 karakter oldu. Böylece nihai title
+  `>60` ve description `>160` sayısı 0.
+- Bu kanıtla birleşik metadata/canonical/hreflang maddesi kapandı; sayaçlar
+  49/66 tamamlanan ve 17/66 açık olarak güncellendi.
+
+Kanıt:
+`artifacts/seo/live-crawl-meta-final-2026-07-26/report.json`, `report.md` ve
+`metadata-hreflang-acceptance.md`.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
