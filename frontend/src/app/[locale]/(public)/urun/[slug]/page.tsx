@@ -310,21 +310,20 @@ export default async function UrunPage({ params }: Props) {
   })();
 
   /**
-   * Yapilandirilmis veri fiyatlari, sayfada GORUNEN fiyatlarla ayni kumeden gelmeli.
+   * Gorunur cevap blogu fiyatlari, sayfadaki tabloyla ayni kumeden gelmeli.
    *
    * Onceki hal `history` (5 YILLIK pencere) uzerinden hesapliyordu ve Google'a
    * gercekle alakasiz araliklar bildiriyordu:
-   *   limon    -> schema 1-5050 TL  (son 7 gun gercegi: 18-150)
-   *   domates  -> schema 5-210 TL   (son 7 gun gercegi: 7-160), "fiyat" 72,53 = 5 yil ortalamasi
-   *   offerCount -> 4841 = fiyat gecmisi SATIR sayisi; satici/teklif sayisi degil
+   *   limon    -> eski hesap 1-5050 TL  (son 7 gun gercegi: 18-150)
+   *   domates  -> eski hesap 5-210 TL   (son 7 gun gercegi: 7-160), ortalama 72,53 = 5 yil ortalamasi
    *
    * Google'in yapilandirilmis veri politikasi, isaretlemenin sayfadaki icerikle
    * eslesmesini sart kosar; 5050 TL gibi bir tavan ayrica bozuk kayitlarin
    * (birim hatasi) arama sonucuna sizmasi demekti.
    *
-   * Yeni kaynak: once bugunun fiyatlari (PriceTable'da gosterilen kume), yoksa
-   * son 30 gun. Ikisi de yoksa `offers` HIC yazilmaz — yanlis isaretleme,
-   * eksik isaretlemeden kotudur.
+   * Yeni kaynak: once son veri kesitinin fiyatlari (PriceTable'da gosterilen
+   * kume), yoksa son 30 gun. Bu rakamlar satis teklifi degil, tarihli toptan
+   * fiyat gozlemleridir; schema tarafinda Dataset olarak yayimlanir.
    */
   const toOfferRow = (row: { minPrice: unknown; maxPrice: unknown; avgPrice: unknown; marketSlug: string }) => ({
     min: toNumberSafe(row.minPrice as never) || toNumberSafe(row.avgPrice as never),
@@ -380,7 +379,7 @@ export default async function UrunPage({ params }: Props) {
   const offerAvg  = offerRows.length
     ? Math.round((offerRows.reduce((a, r) => a + r.avg, 0) / offerRows.length) * 100) / 100
     : 0;
-  /** Teklif sayisi = fiyat bildiren PAZAR sayisi. Gecmis satiri saymak anlamsizdi. */
+  /** Orneklem = fiyat bildiren benzersiz pazar/hal sayisi. */
   const offerCount = new Set(offerRows.map((r) => r.market).filter(Boolean)).size;
   const sourceNames = [...new Set(
     pick.rows
@@ -390,35 +389,6 @@ export default async function UrunPage({ params }: Props) {
   const shortTrend = calculateWindowTrend(history, 7);
   const longTrend = calculateWindowTrend(history, 30);
 
-  const productSchema = {
-    name: displayName,
-    description: borsaProduct
-      ? `${displayName} için güncel TMO resmi alım ve ticaret borsası fiyatları.`
-      : `${displayName} için güncel hal fiyatları. Türkiye genelinde günlük min/ort/maks fiyat verisi.`,
-    category: product.categorySlug,
-    url: `${SITE_URL_META}/urun/${slug}`,
-    image: `${SITE_URL_META}/og/urun/${slug}`,
-    ...(offerLow > 0 && offerHigh > 0 && {
-      offers: {
-        "@type": "AggregateOffer",
-        priceCurrency: "TRY",
-        lowPrice:  String(offerLow),
-        highPrice: String(offerHigh),
-        ...(offerCount > 0 && { offerCount: String(offerCount) }),
-        ...(offerAvg > 0 && {
-          priceSpecification: {
-            "@type": "PriceSpecification",
-            price: String(offerAvg),
-            priceCurrency: "TRY",
-            // Birim gercekten ne ise o yazilir. Sabit "KGM" yazmak, adet/demet
-            // satan urunlerde ayni yanlis-birim hatasinin tekrari olurdu.
-            ...(offerUnit === "kg" ? { unitCode: "KGM" } : {}),
-            unitText: offerUnit,
-          },
-        }),
-      },
-    }),
-  } satisfies Record<string, unknown>;
   const datasetDates = schemaDateRange(
     [...todayPrices, ...borsaPrices, ...resmiPrices, ...history].map((row) => row.recordedDate),
   );
@@ -435,6 +405,12 @@ export default async function UrunPage({ params }: Props) {
     } : {}),
     spatialCoverage: { "@type": "Place", name: "Türkiye" },
     variableMeasured: ["minPrice", "avgPrice", "maxPrice"],
+    about: {
+      "@type": "Thing",
+      name: displayName,
+      image: `${SITE_URL_META}/og/urun/${slug}`,
+      additionalType: product.categorySlug,
+    },
     isAccessibleForFree: true,
     measurementTechnique:
       "Resmi hal, ticaret borsası ve alım kaynaklarından ETL ile derleme; ürün ve birim normalizasyonu",
@@ -447,7 +423,6 @@ export default async function UrunPage({ params }: Props) {
 
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
-      <JsonLd type="Product" data={productSchema} />
       <JsonLd type="Dataset" data={datasetSchema} />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
