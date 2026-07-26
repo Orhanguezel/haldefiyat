@@ -901,13 +901,26 @@ Commit: `23cf57e2 fix(schema): declare root entity types explicitly`
   geçiyor.
 - Değişiklik sonrası typecheck, 14 dosya/38 test ve `git diff --check` geçti.
 
+### 3.47 Otomatik Analiz Kaynağı ve İnceleme İddiası
+
+Commit: `8610e751 fix(content): label automated reports truthfully`
+
+- Public analiz API yanıtına rapor tablosundaki gerçek `source` (`auto` veya
+  `manual`) alanı eklendi.
+- Analiz sayfası artık `totalRecords` varlığından otomasyon sonucu çıkarmıyor;
+  yalnız açıkça `source=auto` olan rapora otomatik üretim etiketi gösteriyor.
+- Veri modelinde `reviewed_by`/`reviewed_at` kanıtı olmadığı için “insan
+  editoryal kontrolünden geçirilmiştir” kesin iddiası kaldırıldı.
+- Kaynak ayrımı otomatik, manuel ve eski/kaynaksız içerik senaryolarıyla test
+  edildi.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
 
 - Frontend `bunx tsc --noEmit`: geçti.
 - Backend `bunx tsc --noEmit`: geçti.
-- Frontend `bun run test`: 14 dosya, 38 test geçti.
+- Frontend `bun run test`: 15 dosya, 39 test geçti.
 - Backend `bun run test`: 2 dosya, 11 test geçti.
 - Frontend `bun run build`: geçti; son durumda 65 route üretildi.
 - Backend `bun run build`: geçti.
@@ -1037,6 +1050,17 @@ başlığının tarayıcı uyumluluğu değerlendirilmelidir.
 - Bu sayı hedef kelimenin doğal metinde yetersizliğini tek başına kanıtlamaz;
   şablon tekrarı sayfa içi dağılımı bozuyordu.
 - Yapay kelime tekrarı eklemek yerine değişmeyen tablo bağlamı tekilleştirildi.
+
+### S-13 — Analizlerde insan incelemesi kayıt altına alınmıyor
+
+- Otomatik raporlar taslak üretiliyor ve admin yayın/planlama uçları üzerinden
+  yayımlanıyor; ancak `hf_analysis_reports` tablosunda inceleyen kişi ve
+  inceleme zamanı alanları yok.
+- Bu nedenle yayımlanmış olmak, tek başına insan incelemesinin denetlenebilir
+  kanıtı değildir. Görünür “insan kontrolü” iddiası şimdilik kaldırıldı.
+- Checklist maddesini gerçekten kapatmak için `reviewed_by`, `reviewed_at`,
+  inceleme zorunluluğu olan publish/schedule validasyonu ve public provenance
+  çıktısı ayrı veri modeli değişikliği olarak tasarlanmalıdır.
 
 ## 6. Açık Sorular
 
@@ -1362,6 +1386,15 @@ Orhan'dan beklenen:
   bloklarının Google Rich Results Test ve schema.org validator ile okunması
   ayrıca arşivlenmelidir.
 
+### F-37 — Otomatik rapor etiketi yanlış sinyale ve kanıtsız iddiaya dayanıyordu
+
+- Public DB raporlarının manuel olanlarında da `totalRecords` bulunduğundan,
+  alan varlığı otomatik üretim kanıtı değildi.
+- Public API gerçek kaynak alanını iletmiyordu; sayfa ayrıca kalıcı inceleme
+  kaydı olmadan insan kontrolünü tamamlanmış gösteriyordu.
+- Etiket artık yalnız veritabanındaki açık kaynak değerinden türetiliyor ve
+  inceleme iddiası kanıt üretilecek iş akışına kadar yayımlanmıyor.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1455,6 +1488,7 @@ ccb21d00 fix(content): remove stale realtime data claims
 2d497832 fix(schema): align list types and canonical urls
 abf83083 fix(schema): safely serialize json-ld
 23cf57e2 fix(schema): declare root entity types explicitly
+8610e751 fix(content): label automated reports truthfully
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol

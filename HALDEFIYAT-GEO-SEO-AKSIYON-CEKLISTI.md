@@ -86,7 +86,7 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 ### 4.4 Editoryal şeffaflık
 - [ ] Editoryal politika + düzeltme politikası + veri-kaynağı politikası + sahiplik/finansman açıklaması sayfaları.
 - [ ] Tüm analizlerde görünür byline + yazar profil linki + uzmanlık.
-- [ ] Otomatik haftalık raporları "otomatik üretildi + insan kontrolü" olarak görünür etiketle ([[haftalik-analiz-raporu]]).
+- [ ] Otomatik haftalık raporları "otomatik üretildi + insan kontrolü" olarak görünür etiketle. Kaynak etiketi gerçek `source` alanına bağlandı (`8610e751`); insan kontrolü için denetlenebilir `reviewed_by/reviewed_at` modeli henüz yok, bkz. S-13.
 - [ ] İletişim sayfasında kurumsal e-posta + sorumlu kişi/kurum.
 
 ---
