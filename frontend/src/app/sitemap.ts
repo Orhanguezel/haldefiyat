@@ -5,6 +5,7 @@ import { getProductImage } from "@/lib/product-images";
 import { getSonMakaleler } from "@/lib/analiz";
 import { fetchAnnualReportYears, fetchAuthors, fetchAutoWeeklyReports } from "@/lib/api";
 import { latestSitemapDate, validSitemapDate } from "@/lib/sitemap-date";
+import { getMarketEditorial } from "@/lib/market-content";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033").replace(/\/$/, "");
 // SSR'da BACKEND_URL (internal) kullan; yoksa NEXT_PUBLIC_API_URL'ye düş
@@ -21,6 +22,11 @@ const MIN_FIRM_COMBO_TOTAL = 10;
 interface PriceSitemapItem {
   slug: string;
   nameTr?: string;
+  name?: string;
+  cityName?: string;
+  regionSlug?: string | null;
+  canonicalSlug?: string | null;
+  seoIndex?: number | boolean;
   updatedAt?: string;
   updated_at?: string;
 }
@@ -61,6 +67,8 @@ async function fetchActiveProducts(): Promise<PriceSitemapItem[]> {
     return items.map((p) => ({
       slug: p.slug,
       nameTr: p.nameTr,
+      canonicalSlug: p.canonicalSlug,
+      seoIndex: p.seoIndex,
       updatedAt: p.updatedAt,
       updated_at: p.updated_at,
     }));
@@ -78,7 +86,13 @@ async function fetchMarkets(): Promise<PriceSitemapItem[]> {
     if (!res.ok) return [];
     const data = await res.json();
     const items = (Array.isArray(data) ? data : data.items ?? data.data ?? []) as PriceSitemapItem[];
-    return items.map((m) => ({ slug: m.slug }));
+    return items.map((m) => ({
+      slug: m.slug,
+      name: m.name,
+      cityName: m.cityName,
+      regionSlug: m.regionSlug,
+      seoIndex: m.seoIndex,
+    }));
   } catch {
     return [];
   }
@@ -180,7 +194,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/kvkk`, changeFrequency: "yearly", priority: 0.3 },
   ];
 
-  const productPages: MetadataRoute.Sitemap = products.map((p) => {
+  const productPages: MetadataRoute.Sitemap = products
+    .filter((product) => !product.canonicalSlug)
+    .map((p) => {
     const imgPath = getProductImage(p.slug);
     const lastModified = validSitemapDate(p.updatedAt ?? p.updated_at);
     return {
@@ -192,13 +208,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         images: [`${SITE_URL}${imgPath}`],
       }),
     };
-  });
+    });
 
-  const marketPages: MetadataRoute.Sitemap = markets.map((m) => ({
-    url: `${SITE_URL}/hal/${m.slug}`,
-    changeFrequency: "daily" as const,
-    priority: 0.7,
-  }));
+  const marketPages: MetadataRoute.Sitemap = markets
+    .filter((market) => {
+      const editorial = getMarketEditorial({
+        slug: market.slug,
+        name: market.name ?? market.slug,
+        cityName: market.cityName ?? "",
+        regionSlug: market.regionSlug,
+      });
+      return (market.seoIndex === true || market.seoIndex === 1)
+        && editorial.source !== "template";
+    })
+    .map((m) => ({
+      url: `${SITE_URL}/hal/${m.slug}`,
+      changeFrequency: "daily" as const,
+      priority: 0.7,
+    }));
 
   const firmPages: MetadataRoute.Sitemap = firms.map((firm) => {
     const lastModified = validSitemapDate(firm.updatedAt ?? firm.lastSeenAt);

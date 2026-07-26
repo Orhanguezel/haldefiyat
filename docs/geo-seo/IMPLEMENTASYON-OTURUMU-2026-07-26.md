@@ -1646,6 +1646,31 @@ Kanıt:
 Kanıt:
 `docs/geo-seo/REDIRECT-SOFT404-KABULU-2026-07-26.md`.
 
+### 3.58 Düşük Eşzamanlı Tam Sitemap Crawl ve Düzeltmeler
+
+- F-43 tekrarını önlemek için crawler varsayılanı 6 işçiden 1 işçiye,
+  azami işçi 12'den 4'e indirildi; varsayılan 500 ms istek aralığı eklendi.
+- Canlı kabul 1 işçi ve 750 ms aralıkla 345 sitemap URL'sini taradı:
+  339 HTTP 200, 6 HTTP 500, 34 noindex, 1 canonical farkı, 8 H1 sorunu,
+  0 JSON-LD parse hatası.
+- Altı 500 yanıtının tamamı 2020–2025 yıllık raporlardı. Backend'in
+  `seasonalPeaks` cevabı `monthAvg/peakRatio` döndürürken frontend
+  `peakAvg/ratio` bekliyordu; `undefined.toLocaleString()` hatası gerçek API
+  sözleşmesine bağlanarak düzeltildi.
+- Noindex kümesinin 28'i yalnız şablon içerikli ticaret borsası/ulusal kaynak
+  sayfasıydı. Sayfa metadata politikası bunları noindex yaparken sitemap yalnız
+  `seoIndex` bayrağına bakıyordu. Sitemap aynı özgün editoryal içerik koşuluna
+  bağlandı.
+- İki otomatik haftalık raporun CMS HTML'i sayfa şablonundaki H1'e ek ikinci
+  H1 üretiyordu. CMS içeriğindeki H1'ler semantik sırayı koruyacak H2'ye
+  dönüştürülüyor ve otomatik testle korunuyor.
+- Crawl ayrıca bir redirect sitemap URL'si (`/urun/biber`) ile iki duplicate
+  title kümesi ve 47 orphan adayı buldu. Bunlar canlı düzeltme kabulünden sonra
+  ayrı düşük hacimli doğrulanacak; tam crawl maddesi henüz kapatılmadı.
+
+Ham kanıt:
+`artifacts/seo/live-crawl-safe-2026-07-26/report.json` ve `report.md`.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.

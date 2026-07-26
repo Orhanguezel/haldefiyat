@@ -36,4 +36,11 @@ describe("sanitizeCmsHtml", () => {
     expect(sanitized).toContain('<text class="axis" x="46" y="248" text-anchor="end">175</text>');
     expect(sanitized).not.toContain("onclick");
   });
+
+  it("demotes CMS headings that would duplicate the page-level H1", () => {
+    const sanitized = sanitizeCmsHtml("<h1>Rapor başlığı</h1><h2>Alt başlık</h2>");
+
+    expect(sanitized).toBe("<h2>Rapor başlığı</h2><h2>Alt başlık</h2>");
+    expect(sanitized).not.toContain("<h1");
+  });
 });

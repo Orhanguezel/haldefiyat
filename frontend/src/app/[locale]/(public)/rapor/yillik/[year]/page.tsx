@@ -32,9 +32,9 @@ interface SeasonalPeak {
   productSlug: string;
   productName: string;
   month: number;
-  peakAvg: number;
+  monthAvg: number;
   yearAvg: number;
-  ratio: number;
+  peakRatio: number;
 }
 
 interface CityRank {
@@ -311,9 +311,9 @@ export default async function YearlyReportPage({ params }: Props) {
                   <tr key={`${p.productSlug}-${p.month}`} className={i % 2 ? "bg-muted/20" : ""}>
                     <td className="py-1.5 px-4">{p.productName}</td>
                     <td className="py-1.5 px-4 font-medium">{MONTH_NAMES[p.month] ?? "—"}</td>
-                    <td className="py-1.5 px-4 text-right">{fmtPrice(p.peakAvg)} ₺</td>
+                    <td className="py-1.5 px-4 text-right">{fmtPrice(p.monthAvg)} ₺</td>
                     <td className="py-1.5 px-4 text-right text-muted-foreground">{fmtPrice(p.yearAvg)} ₺</td>
-                    <td className="py-1.5 px-4 text-right font-semibold text-amber-600">{p.ratio.toFixed(1)}x</td>
+                    <td className="py-1.5 px-4 text-right font-semibold text-amber-600">{p.peakRatio.toFixed(1)}x</td>
                   </tr>
                 ))}
               </tbody>

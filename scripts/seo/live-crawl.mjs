@@ -5,7 +5,8 @@ import { load } from "cheerio";
 
 const origin = new URL(process.argv[2] ?? "https://haldefiyat.com").origin;
 const outputDir = process.argv[3] ?? "artifacts/seo/live-crawl-2026-07-26";
-const concurrency = Math.max(1, Math.min(12, Number(process.env.CRAWL_CONCURRENCY ?? 6)));
+const concurrency = Math.max(1, Math.min(4, Number(process.env.CRAWL_CONCURRENCY ?? 1)));
+const crawlDelayMs = Math.max(0, Number(process.env.CRAWL_DELAY_MS ?? 500));
 const userAgent = "HalDeFiyat-SEO-Audit/1.0 (+https://haldefiyat.com/security.txt)";
 
 async function fetchText(url, redirect = "follow") {
@@ -56,6 +57,9 @@ async function pool(items, worker) {
   await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, async () => {
     while (cursor < items.length) {
       const index = cursor++;
+      if (index > 0 && crawlDelayMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, crawlDelayMs));
+      }
       try {
         output[index] = await worker(items[index], index);
       } catch (error) {
@@ -169,6 +173,7 @@ function markdown(report) {
     "# HalDeFiyat Canlı SEO Crawl — 2026-07-26",
     "",
     `- Origin: \`${origin}\``,
+    `- Eşzamanlılık: **${report.crawl.concurrency}**; istek aralığı: **${report.crawl.delayMs} ms**`,
     `- Sitemap URL: **${s.total}**`,
     `- HTTP 200: **${s.status200}**`,
     `- Hatalı/redirect yanıt: **${s.non200}**`,
@@ -239,6 +244,7 @@ const summary = {
 const report = {
   generatedAt: new Date().toISOString(),
   origin,
+  crawl: { concurrency, delayMs: crawlDelayMs, userAgent },
   summary,
   duplicates,
   orphanCandidates,

@@ -65,6 +65,9 @@ export function sanitizeCmsHtml(html: string): string {
     },
     transformTags: {
       a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }),
+      // Public article templates already render the single page-level H1.
+      // CMS/automated report HTML must not introduce a second H1.
+      h1: "h2",
     },
   });
 }

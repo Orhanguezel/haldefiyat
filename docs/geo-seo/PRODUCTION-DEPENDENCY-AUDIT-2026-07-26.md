@@ -27,7 +27,8 @@ Bu yöntem registry advisory durumunu doğrular; proje dışındaki monorepo
 4.13.4'e yükseltildi. Yükseltme sonrasında `next-intl` adına görünen kayıt,
 paketin kendi açığı değil `next` üzerinden aktarılan kayıttır.
 
-Kalan bulgular Next.js 16.2.3'ün gömülü `postcss` ve `sharp` ağacından gelir:
+Kalan bulgular denetim anındaki Next.js ağacının gömülü `postcss` ve `sharp`
+bağımlılıklarından gelir:
 
 - `postcss`: denetim aracı `<=8.5.17` için kaynak haritası/dosya okuma ve CSS
   stringify advisory'leri bildiriyor. Uygulama saldırgan kontrollü CSS derlemiyor;
@@ -42,6 +43,10 @@ Audit'in önerdiği otomatik “fix”, Next.js'i 9.3.3'e düşürmektedir. Bu, 
 ve uyumlu bir düzeltme olmadığı için uygulanmadı. Next.js'in sabitlenmiş
 `postcss`/`sharp` sürümlerini içeren kararlı sürümü yayımlandığında yeniden
 değerlendirilecek.
+
+Canlı kurulum mevcut semver aralığından Next.js 16.2.12'yi seçti; production
+test/build bu patch ile geçti. Yerel ve canlı kurulumun yeniden üretilebilir
+kalması için manifest de `16.2.12` sürümüne sabitlendi.
 
 ## Kabul ve doğrulama
 
