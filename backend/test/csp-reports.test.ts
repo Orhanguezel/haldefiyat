@@ -80,6 +80,32 @@ describe("CSP report normalization", () => {
     expect(report).not.toHaveProperty("requestBody");
     expect(report).not.toHaveProperty("user");
   });
+
+  it("removes query strings and fragments from logged HTTP URLs", () => {
+    const [report] = normalizeCspReports({
+      body: {
+        documentURL: "https://haldefiyat.com/urun/domates?email=person%40example.com#prices",
+        blockedURL: "https://tracker.invalid/pixel?id=secret",
+        sourceFile: "https://haldefiyat.com/app.js?v=123",
+      },
+    });
+
+    expect(report?.documentUri).toBe("https://haldefiyat.com/urun/domates");
+    expect(report?.blockedUri).toBe("https://tracker.invalid/pixel");
+    expect(report?.sourceFile).toBe("https://haldefiyat.com/app.js");
+  });
+
+  it("preserves CSP keywords and non-HTTP blocked URI values", () => {
+    const [report] = normalizeCspReports({
+      body: {
+        blockedURL: "inline",
+        sourceFile: "data",
+      },
+    });
+
+    expect(report?.blockedUri).toBe("inline");
+    expect(report?.sourceFile).toBe("data");
+  });
 });
 
 describe("CSP report endpoint", () => {

@@ -10,6 +10,20 @@ function text(value: unknown, max = 2_000): string | null {
   return typeof value === "string" ? value.slice(0, max) : null;
 }
 
+function sanitizedUrl(value: unknown): string | null {
+  const raw = text(value);
+  if (!raw) return null;
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return raw;
+    url.search = "";
+    url.hash = "";
+    return url.toString();
+  } catch {
+    return raw;
+  }
+}
+
 export function normalizeCspReports(payload: unknown): JsonRecord[] {
   const reports = Array.isArray(payload) ? payload : [payload];
   return reports.slice(0, 20).map((raw) => {
@@ -18,10 +32,10 @@ export function normalizeCspReports(payload: unknown): JsonRecord[] {
     return {
       type: text(envelope.type, 100) ?? "csp-violation",
       age: typeof envelope.age === "number" ? envelope.age : null,
-      documentUri: text(body.documentURL ?? body["document-uri"]),
+      documentUri: sanitizedUrl(body.documentURL ?? body["document-uri"]),
       violatedDirective: text(body.effectiveDirective ?? body["violated-directive"], 300),
-      blockedUri: text(body.blockedURL ?? body["blocked-uri"]),
-      sourceFile: text(body.sourceFile ?? body["source-file"]),
+      blockedUri: sanitizedUrl(body.blockedURL ?? body["blocked-uri"]),
+      sourceFile: sanitizedUrl(body.sourceFile ?? body["source-file"]),
       lineNumber: typeof (body.lineNumber ?? body["line-number"]) === "number"
         ? body.lineNumber ?? body["line-number"]
         : null,
