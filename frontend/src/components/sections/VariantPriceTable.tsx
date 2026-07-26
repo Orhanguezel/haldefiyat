@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { fetchVariantPrices } from "@/lib/api";
 
 interface VariantPriceTableProps {
@@ -59,9 +58,9 @@ export default async function VariantPriceTable({
             {visibleRows.map((row) => (
               <tr key={row.slug} className="border-b border-border-soft">
                 <td className="border-b border-border-soft py-2 pr-4">
-                  <Link href={row.url} className="font-medium text-foreground hover:text-brand">
+                  <span className="font-medium text-foreground">
                     {row.displayName}
-                  </Link>
+                  </span>
                   <span className="ml-2 text-xs text-muted">/{row.unit}</span>
                 </td>
                 <td className="border-b border-border-soft px-4 py-2 text-right font-(family-name:--font-mono) text-foreground">

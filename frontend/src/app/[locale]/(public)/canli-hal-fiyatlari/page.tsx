@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { productHref } from "@/lib/product-links";
 import { setRequestLocale } from "next-intl/server";
 import { Bell, Clock3, MapPin, Newspaper, TrendingDown, TrendingUp } from "lucide-react";
 import { fetchMarkets, fetchPricesOverview, fetchProducts, fetchWidget } from "@/lib/api";
@@ -154,7 +155,7 @@ export default async function LiveMarketPricesPage({ params }: Props) {
             return (
               <Link
                 key={item.productSlug}
-                href={`/urun/${item.productSlug}`}
+                href={productHref(item)}
                 className="rounded-lg border border-(--color-border) bg-(--color-surface) p-4 transition-colors hover:border-(--color-brand)/55"
               >
                 <div className="flex items-start justify-between gap-3">

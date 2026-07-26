@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { productHref } from "@/lib/product-links";
 import type { WidgetPrice } from "@/lib/api";
 
 const FALLBACK_PRODUCTS: WidgetPrice[] = [
@@ -40,7 +41,7 @@ export default function PopularProductsCarousel({ items }: { items: WidgetPrice[
           return (
             <Link
               key={item.productSlug}
-              href={`/urun/${item.productSlug}`}
+              href={productHref(item)}
               className="min-h-[146px] w-[46vw] min-w-[156px] max-w-[190px] snap-start rounded-lg border border-(--color-border) bg-(--color-surface) p-4"
             >
               <div className="text-[15px] font-black leading-5 text-(--color-foreground)">{item.productName}</div>

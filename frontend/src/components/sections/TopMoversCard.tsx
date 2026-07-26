@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { WidgetPrice } from "@/lib/api";
+import { productHref } from "@/lib/product-links";
 
 function movers(items: WidgetPrice[], direction: "up" | "down") {
   return items
@@ -33,7 +34,7 @@ function MoverList({ title, rows, empty }: { title: string; rows: WidgetPrice[];
       <h3 className="text-[13px] font-black text-(--color-foreground)">{title}</h3>
       <div className="mt-2 space-y-2">
         {rows.length ? rows.map((row) => (
-          <Link key={`${title}-${row.productSlug}`} href={`/urun/${row.productSlug}`} className="flex min-h-11 items-center justify-between gap-3 rounded-md bg-(--color-background) px-3">
+          <Link key={`${title}-${row.productSlug}`} href={productHref(row)} className="flex min-h-11 items-center justify-between gap-3 rounded-md bg-(--color-background) px-3">
             <span className="truncate text-[13px] font-semibold text-(--color-foreground)">{row.productName}</span>
             <span className={`text-[12px] font-black ${(row.changePct ?? 0) >= 0 ? "text-(--color-success)" : "text-(--color-danger)"}`}>
               {(row.changePct ?? 0) >= 0 ? "+" : ""}{(row.changePct ?? 0).toFixed(1)}%

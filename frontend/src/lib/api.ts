@@ -721,6 +721,7 @@ export async function fetchRetailPrices(productSlug: string): Promise<RetailPric
 
 export interface WidgetPrice {
   productSlug: string;
+  canonicalProduct?: string | null;
   productName: string;
   categorySlug: string;
   avgPrice: number;

@@ -1215,6 +1215,7 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
   const latestRows = await db
     .select({
       productSlug:  hfProducts.slug,
+      canonicalProduct: sql<string>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
       productName:  sql<string>`COALESCE(NULLIF(${hfProducts.displayName}, ''), ${hfProducts.nameTr})`,
       categorySlug: hfProducts.categorySlug,
       unit:         hfProducts.unit,
@@ -1226,7 +1227,14 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
       gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 3 DAY)`),
       ...productConds,
     ))
-    .groupBy(hfProducts.id, hfProducts.slug, hfProducts.nameTr, hfProducts.categorySlug, hfProducts.unit)
+    .groupBy(
+      hfProducts.id,
+      hfProducts.slug,
+      hfProducts.canonicalSlug,
+      hfProducts.nameTr,
+      hfProducts.categorySlug,
+      hfProducts.unit,
+    )
     .orderBy(hfProducts.displayOrder)
     .limit(limit);
 
