@@ -823,6 +823,24 @@ Commit: `0d70eb33 fix(seo): include published authors in sitemap`
 - Backend erişilemezse yazar listesi boş fallback döndürüyor; doğrulanamayan
   profil sitemap'e eklenmiyor.
 
+### 3.41 “Anlık/Günlük” ve Sabit Kaynak İddialarının Temizlenmesi
+
+Commit: `ccb21d00 fix(content): remove stale realtime data claims`
+
+- Locale layout description, Open Graph ve Twitter fallback'lerindeki “anlık”
+  iddiası “tarihli hal fiyatları” diline geçirildi.
+- Masaüstü ve mobil hero “canlı/anlık” yerine kayıt tarihi belli veri akışını
+  anlatıyor; “Günlük Fiyat Verileri” etiketi “Tarihli Fiyat Verileri” oldu.
+- Ana sayfa son veri tarihi yokken “Bugün” uydurmak yerine “Bilinmiyor”
+  gösteriyor.
+- Ana sayfa Dataset yöntem açıklaması, LLMS Full ve basın kiti güncelleme dili
+  kaynakların yayın takvimine bağlandı.
+- Hakkımızda metadata, değer kartları ve fallback uzun metindeki `2025'ten bu
+  yana`, “her sabah”, “insan müdahalesi gerektirmez”, “tüm hal verileri” ve
+  “anlık” kesinlikleri kaldırıldı.
+- Yıllık rapor metodoloji notundaki sabit `30+ resmi belediye hal API'si`
+  iddiası, rapor kapsamı ve metodoloji sayfasına atıfla değiştirildi.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -1243,6 +1261,16 @@ Orhan'dan beklenen:
 - Canlı doğrulamada sitemap'teki her yazar URL'sinin 200, self-canonical ve
   en az bir yayımlanmış analiz bağlantısı taşıdığı kontrol edilmelidir.
 
+### F-33 — Tazelik iddiası sayısal kapsamdan daha geniş bir yüzeye yayılmıştı
+
+- Önceki kapsam taramaları ürün/hal/kaynak sayılarını düzeltmişti; fakat layout,
+  hero, basın kiti, Hakkımızda fallback'i ve yıllık rapor metodolojisi hâlâ
+  gerçek zamanlı veya tek ritimli veri akışı izlenimi veriyordu.
+- En kritik hata, overview tarihi yokken ana sayfa istatistiğinin “Bugün”
+  göstermesiydi.
+- Görünür içerik, sosyal metadata, Dataset yöntemi ve LLMS güncelleme dili artık
+  kaynak bazlı yayın takvimi ve tarihli kayıt modelinde birleşiyor.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1330,6 +1358,7 @@ d241af55 fix(seo): align policy page breadcrumbs
 0f900081 fix(seo): align open graph urls with canonicals
 32feeed0 fix(seo): publish completed annual reports
 0d70eb33 fix(seo): include published authors in sitemap
+ccb21d00 fix(content): remove stale realtime data claims
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
