@@ -674,13 +674,57 @@ Uygulama:
 - Master checklist'e keyword density/tutarlılık için ayrı teşhis ve kabul
   maddeleri eklendi.
 
+### 3.32 Ana Sayfa FAQ Kapsam Doğruluğu
+
+Commit: `ce97793f fix(content): derive homepage FAQ coverage from live data`
+
+- Ana sayfa SSS ve FAQPage schema aynı `buildFaqItems` çıktısından üretiliyor.
+- Sabit “16 resmi ETL kaynağı” ve “250’den fazla ürün” ifadeleri kaldırıldı.
+- Gerçek `activeCities`, `activeMarkets`, `trackedProducts` ve son fiyat tarihi
+  ana sayfanın zaten çektiği overview verisinden aktarılıyor.
+- Backend erişilemezse `0` veya eski sayı yerine nötr kapsam metni gösteriliyor.
+- “Her gün 06:15” ve “manuel müdahale yok” yerine kaynak yayın takvimi,
+  normalizasyon ve kalite kontrolü açıklandı.
+- Canlı kapsam ve nötr fallback iki otomatik testle güvenceye alındı.
+
+### 3.33 Site Genelinde Kapsam ve ETL Takvimi Tutarlılığı
+
+Commit: `ab0b923b fix(content): replace stale coverage and ETL schedule claims`
+
+- `/fiyatlar` metadata, görünür giriş, FAQ ve DataCatalog açıklamasındaki sabit
+  ürün sayısı/saat iddiaları gerçek overview veya nötr fallback'e geçirildi.
+- Ürün ve hal metadata/FAQ/editoryal metinlerindeki tek saat iddiası kaldırıldı;
+  ürün FAQ'sı gerçek son kayıt tarihini kullanıyor.
+- `llms.txt` ve `llms-full.txt` aynı kaynak yayın takvimi tanımına geçirildi.
+- `getCoverage`; gerçek ürün, kaynak, en eski ve en yeni kayıt alanlarıyla
+  genişletildi.
+- Hakkımızda istatistikleri gerçek il, hal, ürün ve izlenen kaynak sayılarını
+  kullanıyor; “boş sayfa asla olmaz” gibi ETL kesintileriyle çelişen iddia
+  kaldırıldı.
+- Metodoloji metadata ve genel bakış kartları izlenen kaynak sayısı ile gerçek
+  veri başlangıcını kullanıyor; sabit 16 kaynak/2025/06:15 kaldırıldı.
+- Statik kaynak tablosu eksiksiz aktif envanter gibi sunulmayıp “Başlıca Veri
+  Kaynakları” olarak doğru sınırlandı.
+
+### 3.34 Endeks Dataset Tarihlerinin Canlılaştırılması
+
+Commit: `52115e13 fix(seo): derive index dataset dates from history`
+
+- Endeks sayfası schema için API'nin izin verdiği 104 haftalık kayıt penceresini
+  çekiyor; görünür grafik ve tablo son 26 haftada kalıyor.
+- Dataset `temporalCoverage` ve `dateModified` gerçek `weekStart`/`weekEnd`
+  sınırlarından üretiliyor.
+- `/fiyatlar` DataCatalog içindeki endeks kaydında doğrulanamayan `2025/..`
+  sabiti kaldırıldı; ayrı endeks sayfası gerçek tarih aralığının kanonik kaynağı.
+- Veri yoksa schema tarih alanı uydurulmuyor.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
 
 - Frontend `bunx tsc --noEmit`: geçti.
 - Backend `bunx tsc --noEmit`: geçti.
-- Frontend `bun run test`: 11 dosya, 31 test geçti.
+- Frontend `bun run test`: 12 dosya, 33 test geçti.
 - Backend `bun run test`: 2 dosya, 11 test geçti.
 - Frontend `bun run build`: geçti; son durumda 65 route üretildi.
 - Backend `bun run build`: geçti.
@@ -1019,6 +1063,21 @@ Orhan'dan beklenen:
 - Hedef ifade metadata, H1 ve editoryal içerikte zaten vardı; doğru müdahale
   metni şişirmek değil, tablodaki sabit bağlamı tekilleştirmekti.
 
+### F-25 — Makine ve insan yüzeylerinde aynı bayat kapsam iddiaları kalmıştı
+
+- LLMS kapsamı daha önce canlılaştırılmış olsa da görünür SSS, fiyatlar,
+  hakkımızda, metodoloji, ürün ve hal içeriklerinde `16`, `250+` ve `06:15`
+  sabitleri yaşamaya devam ediyordu.
+- Antalya kaynaklarının öğleden sonra yayın takvimi ve uzun süre durmuş ETL
+  kaynakları tek saat/tazelik iddiasını yanlış yapıyordu.
+- Görünür içerik, FAQ schema, metadata ve LLMS artık aynı veri gerçeğini anlatıyor.
+
+### F-26 — Endeks schema gerçek kayıtları kullanırken sabit tarih yayımlıyordu
+
+- Endeks sayfasında haftalık `weekStart`/`weekEnd` kayıtları zaten mevcuttu.
+- Buna rağmen Dataset ve katalog kaydı açık uçlu `2025/..` kullanıyordu.
+- Gerçek geçmiş penceresi schema tarih kaynağına dönüştürüldü.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1094,6 +1153,9 @@ b507c516 perf(lcp): defer Google tags until idle or interaction
 085c7681 perf(lcp): render homepage FAQ without hydration
 a0aae0bf fix(seo): remove repeated market terms from detail tables
 a55ddb1f fix(seo): remove repeated product terms from detail tables
+ce97793f fix(content): derive homepage FAQ coverage from live data
+ab0b923b fix(content): replace stale coverage and ETL schedule claims
+52115e13 fix(seo): derive index dataset dates from history
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
