@@ -1,5 +1,6 @@
 import { getSonMakaleler } from "@/lib/analiz";
 import { fetchAutoWeeklyReports } from "@/lib/api";
+import { isRecentNewsDate } from "@/lib/news-sitemap";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
@@ -12,16 +13,11 @@ function escapeXml(value: string) {
     .replace(/'/g, "&apos;");
 }
 
-function isRecent(date: string) {
-  const published = new Date(`${date}T12:00:00Z`).getTime();
-  return Number.isFinite(published) && Date.now() - published <= 48 * 60 * 60 * 1000;
-}
-
 export async function GET() {
   const reports = await fetchAutoWeeklyReports(20);
   const articles = [...reports, ...getSonMakaleler(20)]
     .filter((article, index, list) => list.findIndex((item) => item.slug === article.slug) === index)
-    .filter((article) => isRecent(article.tarih))
+    .filter((article) => isRecentNewsDate(article.tarih))
     .slice(0, 100);
 
   const items = articles.map((article) => `
