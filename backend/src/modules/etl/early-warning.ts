@@ -1,6 +1,9 @@
 import type { FastifyInstance } from "fastify";
 import type { RowDataPacket } from "mysql2";
 import { pool } from "@/db/client";
+import { env } from "@/core/env";
+import { sendTelegramAlert } from "@/modules/alerts/telegram";
+import { sendEmailAlert } from "@/modules/alerts/email";
 
 // "Soğan imzası" — önemli bir temel gıda haftalar boyunca kesintisiz tırmandığında,
 // mainstream haber olmadan ~2 hafta önce yakalanır. Soğan W28'de (6-12 Tem) bu sinyali
@@ -86,6 +89,38 @@ export async function detectPriceSurges(opts: EarlyWarningOptions = {}): Promise
 
 function round1(n: number): number {
   return Math.round(n * 10) / 10;
+}
+
+function buildSurgeText(surges: PriceSurge[]): string {
+  const lines = [
+    "🚨 HaldeFiyat Erken Uyarı — Fiyatı Fırlayan Temel Gıdalar",
+    `${surges.length} ürün 4 haftadır kesintisiz tırmanıyor (soğan imzası):`,
+    "",
+  ];
+  for (const s of surges) {
+    lines.push(
+      `• ${s.name}: ${s.buckets[0]} → ${s.buckets[3]} TL/kg  (%${s.pctChange} ↑, ${s.hals} hal)`,
+    );
+  }
+  lines.push("", "Bu ürünler mainstream haber olmadan ~2 hafta önce yakalandı.");
+  lines.push("Detay: https://haldefiyat.com/admin/etl-logs");
+  return lines.join("\n");
+}
+
+// Haftalik cron: firlaan temel gida varsa email/telegram ile proaktif uyar.
+export async function checkAndNotifyEarlyWarning(): Promise<{ count: number }> {
+  const surges = await detectPriceSurges();
+  if (surges.length === 0) return { count: 0 };
+
+  const text = buildSurgeText(surges);
+  const subject = `[HaldeFiyat] Erken Uyarı: ${surges.length} temel gıda fırlıyor`;
+  const html = `<pre style="font-family:ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap">${text.replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]!))}</pre>`;
+
+  await Promise.all([
+    ...env.ETL.healthTelegramChatIds.map((chatId) => sendTelegramAlert(chatId, text)),
+    ...env.ETL.healthNotifyEmails.map((email) => sendEmailAlert(email, subject, html)),
+  ]);
+  return { count: surges.length };
 }
 
 export async function registerEarlyWarningAdmin(app: FastifyInstance) {

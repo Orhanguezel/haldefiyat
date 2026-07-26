@@ -23,6 +23,7 @@ import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
 import { submitToIndexNow } from "@/modules/indexnow";
 import { cleanupOldEtlRuns } from "@/modules/etl/maintenance";
 import { cleanupOldAuditLogs } from "@/modules/audit-consumers/retention";
+import { checkAndNotifyEarlyWarning } from "@/modules/etl/early-warning";
 import { runGscBulkRefresh } from "@/modules/seo/gsc-bulk";
 import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
 import { processSocialQueueOnce } from "@agro/shared-backend/modules/twitter";
@@ -52,6 +53,8 @@ export function startCron(app: FastifyInstance): void {
     { name: "etl-retention",    schedule: env.ETL.runRetentionSchedule,    handler: () => runEtlRetentionJob(app) },
     // Günlük audit log retention — tablo ~67K satir/gun büyüyor, pencere dışını buda
     { name: "audit-retention",  schedule: env.ETL.auditRetentionSchedule,   handler: () => runAuditRetentionJob(app) },
+    // Haftalık erken uyarı — fırlayan temel gıdaları (soğan imzası) proaktif bildir
+    { name: "early-warning",    schedule: env.ETL.earlyWarningSchedule,     handler: () => runEarlyWarningJob(app) },
     // ANTKOMDER fiyatları öğleden sonra yayınlandığı için ikinci çalıştırma
     { name: "etl-antkomder-pm",   schedule: env.ETL.antkomderSchedule,   handler: () => runAntkomderJob(app) },
     // Rakip izleme — haftalık
@@ -360,6 +363,17 @@ async function runEtlRetentionJob(app: FastifyInstance): Promise<void> {
     );
   } catch (err) {
     app.log.error({ err }, "[cron:etl-retention] hata");
+  }
+}
+
+async function runEarlyWarningJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:early-warning] firlaan temel gida taramasi");
+  try {
+    const result = await checkAndNotifyEarlyWarning();
+    app.log.info({ ...result, durationMs: Date.now() - t0 }, "[cron:early-warning] tamamlandi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:early-warning] hata");
   }
 }
 

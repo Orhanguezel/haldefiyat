@@ -166,6 +166,8 @@ export const env = {
     // Audit log retention — ~67K satir/gun; analitik UI max 30 gun gosterir, o pencereyi koru
     auditRetentionSchedule: process.env.AUDIT_RETENTION_CRON_SCHEDULE || "30 3 * * *",
     auditRetentionDays: parseEnvInt(process.env.AUDIT_RETENTION_DAYS, 30),
+    // Erken uyari — firlaan temel gida tespiti; pazartesi 06:00 UTC (haftalik veri oturunca)
+    earlyWarningSchedule: process.env.EARLY_WARNING_CRON_SCHEDULE || "0 6 * * 1",
     // ANTKOMDER (Antalya) fiyatları öğleden sonra yayınlanıyor — 10:30 UTC = 13:30 TRT
     antkomderSchedule: process.env.ANTKOMDER_CRON_SCHEDULE || "30 10 * * *",
     // Rakip izleme — her pazartesi 07:00 UTC (ETL sona erdikten sonra)
