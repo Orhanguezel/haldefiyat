@@ -2042,6 +2042,23 @@ Commit: `6775780a feat(trust): publish transparency policy content`
 - Bu hata 66 maddelik ana checklist dışında ayrı teknik bulguydu; sayaç
   61/66 tamamlanan ve 5/66 açık olarak değişmedi.
 
+### 3.78 PSI/CrUX URL-level Baseline Tamamlama
+
+- Günlük kota yenilendikten sonra PSI API'de mobil stratejiyle ana sayfa,
+  `/fiyatlar`, Antalya Serik Hali ve limon ürün URL'leri tekrar sorgulandı.
+- Ana sayfa ve hal sayfasının `loadingExperience.id` değeri origin'e düştüğü
+  için bağımsız URL-level örnek sayılmadı.
+- `/fiyatlar` bağımsız URL-level kayıt verdi: LCP 2.829 ms, CLS 0,02; INP
+  alanı bulunmadığından üç metrikli paydadan çıkarıldı.
+- `/urun/limon` üç metriği de taşıyan bağımsız kayıttı: LCP 2.652 ms, INP
+  117 ms, CLS 0. LCP eşiği aşıldığı için CWV-good değil.
+- URL-level tam örnek baseline'ı 0/1 (%0) olarak KPI sözlüğüne işlendi.
+  Örneklem site geneline genellenmedi; origin fallback ve eksik alan verisi
+  başarı sayılmadı.
+- PSI kota bulgusu kapatıldı. Performans hedefi ve aylık CrUX izleme devam
+  ediyor; bu ayrı ölçüm güncellemesi ana checklist sayacını değiştirmedi:
+  61/66 tamamlanan, 5/66 açık.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.

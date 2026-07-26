@@ -37,22 +37,25 @@ değildir. Ana iyileştirme alanı origin LCP'dir. INP ve CLS korunmalıdır.
 
 ## CrUX URL-level alan verisi
 
-| URL | Durum |
-|---|---|
-| `https://haldefiyat.com/` | Ayrı URL-level CrUX kaydı mevcut kanıtta tutulmamış |
-| `https://haldefiyat.com/fiyatlar` | Yetersiz/erişilemeyen alan verisi |
-| `https://haldefiyat.com/hal/antalya-hal-serik` | Yetersiz/erişilemeyen alan verisi |
-| `https://haldefiyat.com/urun/limon` | Yetersiz/erişilemeyen alan verisi |
+27 Temmuz ilk tekrar sorgusu günlük proje kotasına takıldı. Kota yenilendikten
+sonra aynı mobil URL seti yeniden sorgulandı:
 
-27 Temmuz tekrar sorgusunda PageSpeed Insights API günlük proje kotası dolu
-olduğu için origin/URL ayrımı yeniden indirilemedi. URL-level veri yokluğu
-performansın iyi veya kötü olduğu anlamına gelmez; lab Lighthouse değerleri bu
-hücrelere yazılmadı.
+| URL | Google field-data kimliği | LCP p75 | INP p75 | CLS p75 | Değerlendirme |
+|---|---|---:|---:|---:|---|
+| `https://haldefiyat.com/` | `https://haldefiyat.com` | 3.080 ms | 170 ms | 0 | Origin fallback; URL paydasına alınmadı |
+| `https://haldefiyat.com/fiyatlar` | Aynı URL | 2.829 ms | Veri yok | 0,02 | URL-level var; üç CWV metriği tamamlanmadığı için paydadan çıkarıldı |
+| `https://haldefiyat.com/hal/antalya-hal-serik` | `https://haldefiyat.com` | 3.080 ms | 170 ms | 0 | Origin fallback; URL paydasına alınmadı |
+| `https://haldefiyat.com/urun/limon` | Aynı URL | 2.652 ms | 117 ms | 0 | URL-level tam; LCP nedeniyle CWV-good değil |
+
+Google'ın `loadingExperience.id` alanı istenen URL ile aynı değilse sonuç origin
+fallback olarak değerlendirildi. Üç temel metriği de bulunan bağımsız URL
+örnekleminde CWV-good baseline **0/1 (%0)**. Örneklem küçüktür; site geneline
+genellenmez ve veri yokluğu başarı sayılmaz.
 
 ## Tekrar ölçüm ve hedef
 
 - GSC: her pazartesi, son tamamlanmış 28 gün.
-- CrUX origin/URL: aylık; API kotası yenilendiğinde aynı URL seti.
+- CrUX origin/URL: aylık; aynı URL seti ve aynı fallback/payda kuralı.
 - Origin LCP hedefi: p75 **≤2.500 ms**.
 - INP hedefi: p75 **≤200 ms**; mevcut iyi durum korunmalı.
 - CLS hedefi: p75 **≤0,1**; mevcut iyi durum korunmalı.
@@ -61,8 +64,7 @@ hücrelere yazılmadı.
 
 ## Ölçüm sınırı
 
-Ortak `getGscDateRange("LAST_28_DAYS")` yardımcısı başlangıcı bitişten 28 gün
-geri aldığı için kapsayıcı tarih aralığında 29 takvim günü üretiyor. Bu rapor o
-etiketi kullanmadı; API'ye doğrudan 27 Haziran–24 Temmuz verilerek 28 günlük
-baseline oluşturuldu.
-
+Ortak `getGscDateRange("LAST_28_DAYS")` yardımcısındaki bir gün fazla aralık
+hatası `cef6149` shared paket commit'iyle kapatıldı. Bu raporun ilk GSC
+baseline'ı zaten API'ye doğrudan 27 Haziran–24 Temmuz verilerek tam 28 günlük
+oluşturulmuştu; tarih düzeltmesi sayıları geriye dönük değiştirmedi.

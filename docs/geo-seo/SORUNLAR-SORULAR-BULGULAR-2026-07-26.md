@@ -42,12 +42,6 @@ altyapısal bulguları tutar.
   önceki ve sonraki 28 günlük sorgu, gösterim, tıklama, CTR ve ortalama konum
   karşılaştırılmalı.
 
-### PSI kotası
-
-- 27 Temmuz PSI tekrar sorgusu günlük Google proje kotasına takıldı. CrUX
-  origin baseline'ı 26 Temmuz kanıtından alındı; URL-level veri “yetersiz/
-  erişilemedi” bırakıldı ve Lighthouse lab sonucu alan verisi gibi kullanılmadı.
-
 ### AI benchmark platform kotası
 
 - 27 Temmuz 2026'da OpenAI Responses API + `web_search` iki sorguluk pilotu
@@ -143,3 +137,7 @@ altyapısal bulguları tutar.
   `LAST_28_DAYS` hatası kapatıldı. Güncel ve önceki dönemler tam 7/28/90 gün
   üretiyor; shared paket `cef6149` ile canlıya alındı. Kanıt:
   `docs/geo-seo/GSC-TARIH-ARALIGI-KABULU-2026-07-27.md`.
+- PSI günlük kota engeli yenileme sonrasında kapandı. Dört mobil URL yeniden
+  sorgulandı; iki sonuç origin fallback, iki sonuç bağımsız URL-level çıktı.
+  Üç CWV metriği tam tek URL LCP nedeniyle good değil: 0/1. Ayrıntı:
+  `docs/geo-seo/CRUX-GSC-28-GUN-BASELINE-2026-07-27.md`.
