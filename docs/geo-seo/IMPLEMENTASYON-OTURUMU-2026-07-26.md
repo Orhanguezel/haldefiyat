@@ -771,13 +771,32 @@ Commit: `5a204511 fix(seo): show breadcrumbs on indexed templates`
 - `8a44624e test(seo): verify breadcrumb content parity` ile görünür navigation
   ve JSON-LD sırası/adları/URL'leri ortak test altında doğrulandı.
 
+### 3.38 Dinamik Canonical, Hreflang ve Open Graph URL Tutarlılığı
+
+Commitler:
+
+- `1a3027f5 fix(seo): add hreflang to dynamic content`
+- `0f900081 fix(seo): align open graph urls with canonicals`
+
+Yapılanlar:
+
+- İndekslenebilir analiz ve yazar detay şablonları yalnız canonical üretmek
+  yerine ortak locale alternates yardımcısına geçirildi.
+- Dinamik URL'ler artık prefixsiz Türkçe canonical ile `tr` ve `x-default`
+  hreflang değerlerini aynı kaynaktan üretiyor.
+- Noindex ilan detayı hreflang kapsamına alınmadı.
+- Ortak `getPageMetadata` akışında Open Graph `url`, sayfanın canonical
+  değerinden türetiliyor; statik/hub sayfalarında `og:url` boşluğu kapatıldı.
+- Dinamik yol alternates ve `og:url === canonical` eşitliği otomatik testlere
+  eklendi.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
 
 - Frontend `bunx tsc --noEmit`: geçti.
 - Backend `bunx tsc --noEmit`: geçti.
-- Frontend `bun run test`: 13 dosya, 35 test geçti.
+- Frontend `bun run test`: 13 dosya, 36 test geçti.
 - Backend `bun run test`: 2 dosya, 11 test geçti.
 - Frontend `bun run build`: geçti; son durumda 65 route üretildi.
 - Backend `bun run build`: geçti.
@@ -1159,6 +1178,16 @@ Orhan'dan beklenen:
 - Canlı doğrulamada mobil taşma, current-page accessibility ve ara link 200
   kontrolleri hâlâ yapılmalıdır.
 
+### F-30 — Dinamik içerik alternates alanları ortak metadata akışını atlıyordu
+
+- Statik sayfalar `getPageMetadata` ile canonical, `tr` ve `x-default` üretirken
+  analiz/yazar detayları elle yalnız canonical tanımlıyordu.
+- Ortak metadata yardımcısı canonical üretmesine rağmen bu URL'yi Open Graph
+  metadata'sına taşımıyordu.
+- Canonical, hreflang ve paylaşım URL'si aynı locale/path kaynağına bağlandı;
+  canlıda `/tr/...` redirect varyantlarının prefixsiz canonical'a döndüğü ayrıca
+  doğrulanmalıdır.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1242,6 +1271,8 @@ ee8de6bd fix(seo): add comparison breadcrumb schema
 d241af55 fix(seo): align policy page breadcrumbs
 5a204511 fix(seo): show breadcrumbs on indexed templates
 8a44624e test(seo): verify breadcrumb content parity
+1a3027f5 fix(seo): add hreflang to dynamic content
+0f900081 fix(seo): align open graph urls with canonicals
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
