@@ -203,7 +203,7 @@ export default async function HalPage({ params }: Props) {
   const answerBlock = (
     <AnswerBlock
       id="bugunun-hal-fiyatlari"
-      title={`${market.cityName} halinde bugün fiyatlar`}
+      title={`${market.name} fiyatları bugün ne durumda?`}
       meta={
         <>
           <strong className="text-foreground">Kaynak:</strong>{" "}
@@ -288,6 +288,8 @@ export default async function HalPage({ params }: Props) {
           initialPrices={prices}
           markets={markets}
           requestParams={{ market: slug, range: MARKET_PRICE_RANGE }}
+          hideMarketColumn
+          hideCityColumn
         />
       </main>
     );
@@ -347,6 +349,8 @@ export default async function HalPage({ params }: Props) {
         initialPrices={prices}
         markets={markets}
         requestParams={{ market: slug, range: MARKET_PRICE_RANGE }}
+        hideMarketColumn
+        hideCityColumn
       />
 
       {marketFirms.items.length > 0 && (

@@ -16,6 +16,8 @@ interface PriceTableProps {
   initialQuery?: string;
   yoyByMarket?: Record<string, number>;
   hideProductColumn?: boolean;
+  hideMarketColumn?: boolean;
+  hideCityColumn?: boolean;
 }
 
 type SortKey = "avg-desc" | "avg-asc" | "name-asc" | "date-desc";
@@ -168,10 +170,17 @@ export default function PriceTable({
   initialQuery,
   yoyByMarket,
   hideProductColumn = false,
+  hideMarketColumn = false,
+  hideCityColumn = false,
 }: PriceTableProps) {
   const initialMeta = initialPricePage?.meta;
   const serverPagination = Boolean(initialPricePage);
   const isBorsaTable = requestParams?.marketType === "borsa";
+  const visibleColumnCount =
+    8 -
+    Number(hideProductColumn) -
+    Number(hideMarketColumn) -
+    Number(hideCityColumn);
   const initialSort = requestParams?.sort ?? "avg-desc";
   const [prices, setPrices] = useState<PriceRow[]>(
     initialPricePage?.items ?? (Array.isArray(initialPrices) ? initialPrices : []),
@@ -452,12 +461,16 @@ export default function PriceTable({
                   Ürün
                 </th>
               )}
-              <th className="px-4 py-3 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.1em] text-(--color-muted)">
-                Hal
-              </th>
-              <th className="px-4 py-3 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.1em] text-(--color-muted)">
-                Şehir
-              </th>
+              {!hideMarketColumn && (
+                <th className="px-4 py-3 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.1em] text-(--color-muted)">
+                  Hal
+                </th>
+              )}
+              {!hideCityColumn && (
+                <th className="px-4 py-3 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.1em] text-(--color-muted)">
+                  Şehir
+                </th>
+              )}
               <th className="px-4 py-3 text-right font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.1em] text-(--color-muted)">
                 Min
               </th>
@@ -479,7 +492,7 @@ export default function PriceTable({
             {filtered.length === 0 ? (
               <tr>
                 <td
-                  colSpan={hideProductColumn ? 7 : 8}
+                  colSpan={visibleColumnCount}
                   className="px-4 py-12 text-center text-[13px] text-(--color-muted)"
                 >
                   {safePrices.length === 0
@@ -521,17 +534,21 @@ export default function PriceTable({
                         </Link>
                       </td>
                     )}
-                    <td className="px-4 py-3.5">
-                      <Link
-                        href={`/hal/${row.marketSlug}`}
-                        className="text-[13px] text-(--color-muted) hover:text-(--color-brand)"
-                      >
-                        {row.marketName}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3.5 text-[13px] text-(--color-muted)">
-                      {row.cityName}
-                    </td>
+                    {!hideMarketColumn && (
+                      <td className="px-4 py-3.5">
+                        <Link
+                          href={`/hal/${row.marketSlug}`}
+                          className="text-[13px] text-(--color-muted) hover:text-(--color-brand)"
+                        >
+                          {row.marketName}
+                        </Link>
+                      </td>
+                    )}
+                    {!hideCityColumn && (
+                      <td className="px-4 py-3.5 text-[13px] text-(--color-muted)">
+                        {row.cityName}
+                      </td>
+                    )}
                     <td className="px-4 py-3.5 text-right font-(family-name:--font-mono) text-[13px] text-(--color-muted)">
                       ₺{fmt(row.minPrice)}
                     </td>
