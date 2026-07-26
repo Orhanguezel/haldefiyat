@@ -29,8 +29,8 @@ async function fetchList<T>(path: string): Promise<T[]> {
 
 export async function GET() {
   const [products, markets] = await Promise.all([
-    fetchList<Product>("/prices/products"),
-    fetchList<Market>("/markets"),
+    fetchList<Product>("/prices/products?seoIndex=true"),
+    fetchList<Market>("/prices/markets?seoIndex=true"),
   ]);
 
   const productLines = products.length > 0
@@ -59,7 +59,7 @@ export async function GET() {
 - Tüm fiyatlar: ${PUBLIC_API_URL}/prices
 - Ürün fiyat geçmişi: ${PUBLIC_API_URL}/prices/history/{slug}
 - Hal listesi: ${PUBLIC_API_URL}/markets
-- Ürün listesi: ${PUBLIC_API_URL}/products
+- Ürün listesi: ${PUBLIC_API_URL}/prices/products
 - Fiyat endeksi: ${PUBLIC_API_URL}/index/latest
 
 ## Ana Sayfalar

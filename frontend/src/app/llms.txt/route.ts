@@ -29,7 +29,7 @@ export async function GET() {
 - [API Dokümantasyonu](${SITE_URL}/api-docs): Geliştiriciler için açık veri API erişimi
 - [API Kullanım Politikası](${SITE_URL}/api-policy): API serbest, HTML scraping yasak, atıf ve cache kuralları
 - [Veri Sağlığı](${SITE_URL}/data-health): ETL kaynaklarının son çekim ve hata durumları
-- [OpenAPI JSON](${SITE_URL}/openapi.json): Makine-okunur API sözleşmesi
+- [OpenAPI JSON](${SITE_URL}/api/docs/json): Makine-okunur API sözleşmesi
 
 ## Dinamik Sayfalar
 
@@ -38,7 +38,7 @@ export async function GET() {
 
 ## Açık Veri API
 
-- OpenAPI sözleşmesi: ${SITE_URL}/openapi.json
+- OpenAPI sözleşmesi: ${SITE_URL}/api/docs/json
 - API politikası: ${SITE_URL}/api-policy
 - Kaynak sağlığı: ${SITE_URL}/data-health
 - Tüm ürün fiyatları: ${API_URL}/api/v1/prices

@@ -50,7 +50,7 @@ export default async function ApiPolicyPage({ params }: Props) {
       <section className="mt-8 rounded-[10px] border border-(--color-brand)/25 bg-(--color-brand)/8 p-5 text-sm leading-6 text-(--color-muted)">
         <h2 className="font-semibold text-(--color-foreground)">AI ajanlar için önerilen girişler</h2>
         <ul className="mt-3 list-disc space-y-1 pl-5">
-          <li><a className="text-(--color-brand) hover:underline" href="/openapi.json">/openapi.json</a></li>
+          <li><a className="text-(--color-brand) hover:underline" href="/api/docs/json">/api/docs/json</a></li>
           <li><a className="text-(--color-brand) hover:underline" href="/api-docs">/api-docs</a></li>
           <li><a className="text-(--color-brand) hover:underline" href="/data-health">/data-health</a></li>
           <li><a className="text-(--color-brand) hover:underline" href="/llms.txt">/llms.txt</a></li>
