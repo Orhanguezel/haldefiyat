@@ -742,6 +742,7 @@ export interface AutoWeeklyReport {
   weekEnd: string;
   totalRecords: number;
   source?: "auto" | "manual";
+  reviewedAt?: string | null;
   updatedAt?: string | null;
   metaTitle?: string | null;
   metaDescription?: string | null;

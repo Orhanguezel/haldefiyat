@@ -8,6 +8,7 @@ import { resolveWeekRange } from "@/modules/prices/iso-week";
 import { weeklyPriceSummary, type WeeklySummary } from "@/modules/prices/weekly";
 import { registerAnalysisQuality } from "./quality";
 import { submitToIndexNow } from "@/modules/indexnow";
+import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 
 // Rapor yayina alininca IndexNow'a (Bing/Yandex) aninda bildir — fire-and-forget,
 // yaniti bloklamaz. Google icin API yok; GSC "Request Indexing" manuel kalir.
@@ -48,6 +49,7 @@ export type AutoWeeklyReport = {
   weekEnd: string;
   totalRecords: number;
   source?: "auto" | "manual";
+  reviewedAt?: string | null;
   updatedAt?: string | null;
   metaTitle?: string | null;
   metaDescription?: string | null;
@@ -229,6 +231,8 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz rapor alani" });
 
     const next = parsed.data;
+    const [current] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.id, id)).limit(1);
+    if (!current) return reply.status(404).send({ error: "Rapor bulunamadi" });
     const patch: Partial<typeof hfAnalysisReports.$inferInsert> = {};
     if (next.title !== undefined) patch.title = next.title;
     if (next.slug !== undefined) {
@@ -249,9 +253,27 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
       patch.authorId = author?.id ?? null;
       patch.author = author?.fullName ?? "HaldeFiyat Veri Ekibi";
     }
+    const hasEditorialChanges = [
+      next.title,
+      next.slug,
+      next.summary,
+      next.content,
+      next.tags,
+      next.authorId,
+    ].some((value) => value !== undefined);
+    if (current.source === "auto" && hasEditorialChanges && next.status !== "published") {
+      patch.status = "draft";
+      patch.publishedAt = null;
+      patch.reviewedBy = null;
+      patch.reviewedAt = null;
+    }
     if (next.status !== undefined) {
       patch.status = next.status;
       patch.publishedAt = next.status === "published" ? new Date() : null;
+      if (next.status === "published") {
+        patch.reviewedBy = getAuthUserId(req);
+        patch.reviewedAt = new Date();
+      }
     }
 
     if (Object.keys(patch).length === 0) return reply.status(400).send({ error: "Guncellenecek alan yok" });
@@ -264,7 +286,7 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
   });
 
   app.post<{ Params: { id: string } }>("/analysis/reports/:id/publish", async (req, reply) => {
-    const row = await setReportStatus(req.params.id, "published");
+    const row = await setReportStatus(req.params.id, "published", getAuthUserId(req));
     if (!row) return reply.status(404).send({ error: "Rapor bulunamadi" });
     pingReportIndexNow(row.slug);
     return reply.send({ data: reportRowToAdmin(row) });
@@ -300,6 +322,10 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
         "INSERT INTO hf_scheduled_publishes (report_id, publish_at) VALUES (?, ?) ON DUPLICATE KEY UPDATE publish_at = VALUES(publish_at)",
         [id, mysqlAt],
       );
+      await db
+        .update(hfAnalysisReports)
+        .set({ reviewedBy: getAuthUserId(req), reviewedAt: new Date() })
+        .where(eq(hfAnalysisReports.id, id));
       return reply.send({ ok: true, scheduled: at.toISOString() });
     },
   );
@@ -425,12 +451,18 @@ async function generateWeeklyReport(week: string): Promise<AutoWeeklyReport | nu
   };
 }
 
-async function setReportStatus(idRaw: string, status: AnalysisReportStatus) {
+async function setReportStatus(idRaw: string, status: AnalysisReportStatus, reviewerId?: string | null) {
   const id = Number(idRaw);
   if (!Number.isFinite(id)) return null;
   await db
     .update(hfAnalysisReports)
-    .set({ status, publishedAt: status === "published" ? new Date() : null })
+    .set({
+      status,
+      publishedAt: status === "published" ? new Date() : null,
+      ...(status === "published"
+        ? { reviewedBy: reviewerId ?? null, reviewedAt: new Date() }
+        : {}),
+    })
     .where(eq(hfAnalysisReports.id, id));
   const [row] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.id, id)).limit(1);
   return row ?? null;
@@ -450,6 +482,7 @@ function reportRowToPublic(row: typeof hfAnalysisReports.$inferSelect, author?: 
     weekEnd: toDateOnly(row.weekEnd),
     totalRecords: row.totalRecords,
     source: row.source,
+    reviewedAt: row.reviewedAt ? row.reviewedAt.toISOString() : null,
     updatedAt: row.updatedAt ? row.updatedAt.toISOString() : null,
     metaTitle: row.metaTitle ?? null,
     metaDescription: row.metaDescription ?? null,
@@ -476,6 +509,7 @@ function reportRowToAdmin(row: typeof hfAnalysisReports.$inferSelect) {
     source: row.source,
     status: row.status,
     publishedAt: row.publishedAt ? row.publishedAt.toISOString() : null,
+    reviewedBy: row.reviewedBy ?? null,
     createdAt: row.createdAt ? row.createdAt.toISOString() : null,
     updatedAt: row.updatedAt ? row.updatedAt.toISOString() : null,
   };

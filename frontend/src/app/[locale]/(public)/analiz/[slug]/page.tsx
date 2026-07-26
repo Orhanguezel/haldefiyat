@@ -17,7 +17,7 @@ import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 import PageContainer from "@/components/layout/PageContainer";
 import BannerSlot from "@/components/ads/BannerSlot";
 import AnswerBlock from "@/components/seo/AnswerBlock";
-import { isAutomatedAnalysis } from "@/lib/analysis-provenance";
+import { hasVerifiedHumanReview, isAutomatedAnalysis } from "@/lib/analysis-provenance";
 
 // İçerik HTML ile başlıyorsa zengin rapor (kendi <style> + inline SVG) olarak
 // render edilir; aksi halde markdown-benzeri paragraf render'ı kullanılır.
@@ -159,6 +159,7 @@ export default async function AnalizMakalePage({ params }: Props) {
   const readingTime = readingTimeMinutes(makale.icerik);
   const isWeekly = isHaftalikRapor(makale);
   const isAutomatedReport = isAutomatedAnalysis(makale);
+  const hasHumanReview = hasVerifiedHumanReview(makale);
   const isHtml = isHtmlContent(makale.icerik);
   const authorProfile = makale.authorProfile;
   const authorName = authorProfile?.fullName ?? makale.yazar;
@@ -268,8 +269,11 @@ export default async function AnalizMakalePage({ params }: Props) {
             {isAutomatedReport && (
               <p className="mt-4 rounded-[10px] border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-[12px] leading-5 text-(--color-muted)">
                 Bu rapor HalDeFiyat veri sistemi tarafından otomatik
-                oluşturulmuştur. Veri kapsamı ve yöntem sınırlamaları aşağıda
-                açıklanır.
+                oluşturulmuştur.
+                {hasHumanReview
+                  ? " Yayın öncesinde insan editoryal kontrolünden geçirilmiştir."
+                  : ""}
+                {" "}Veri kapsamı ve yöntem sınırlamaları aşağıda açıklanır.
               </p>
             )}
           </header>

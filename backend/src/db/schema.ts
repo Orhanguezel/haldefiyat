@@ -265,6 +265,8 @@ export const hfAnalysisReports = mysqlTable(
     source:       mysqlEnum("source", ["auto", "manual"]).notNull().default("auto"),
     status:       mysqlEnum("status", ["draft", "published", "archived"]).notNull().default("draft"),
     totalRecords: int("total_records").notNull().default(0),
+    reviewedBy:   varchar("reviewed_by", { length: 36 }),
+    reviewedAt:   datetime("reviewed_at", { fsp: 3 }),
     publishedAt:  datetime("published_at", { fsp: 3 }),
     createdAt:    datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
     updatedAt:    datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
