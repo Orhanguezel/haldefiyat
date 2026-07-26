@@ -734,6 +734,25 @@ Commit: `e3c1776b fix(content): remove stale live coverage claims`
   geçirildi.
 - Aynı sabit fallback'leri kullanan mobil ana sayfa KPI'ları da düzeltildi.
 
+### 3.36 Eksik Breadcrumb Şablonlarının Tamamlanması
+
+Commitler:
+
+- `ee8de6bd fix(seo): add comparison breadcrumb schema`
+- `d241af55 fix(seo): align policy page breadcrumbs`
+
+Yapılanlar:
+
+- Sitemap'teki `/karsilastirma` görünür breadcrumb'ı elle yazılmış nav yerine
+  ortak bileşene geçirildi; aynı item dizisi artık BreadcrumbList de üretiyor.
+- Ortak `LegalPageContent` bileşeni pathname alarak görünür ve yapısal sayfa
+  yolunu birlikte üretiyor.
+- Gizlilik Politikası, Kullanım Koşulları ve KVKK şablonları bu ortak kapsama
+  alındı.
+- Dört editoryal şeffaflık sayfasındaki yalnız-schema breadcrumb da aynı ortak
+  görünür yapıya taşındı.
+- Sitemap'teki İletişim sayfasına görünür + yapısal breadcrumb eklendi.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -1103,6 +1122,15 @@ Orhan'dan beklenen:
 - Bu yüzeyler overview/gerçek koleksiyon sayıları veya nötr fallback kullanacak
   şekilde hizalandı; taramada ilgili sabitlerin kalmadığı doğrulandı.
 
+### F-28 — Karşılaştırma sayfasında breadcrumb yalnız görseldi
+
+- `/karsilastirma` sitemap'te indekslenebilir olmasına ve görünür sayfa yolu
+  taşımasına rağmen BreadcrumbList üretmiyordu.
+- Yasal sayfalar ise ne görünür ne yapısal breadcrumb taşıyordu; şeffaflık
+  sayfalarında schema vardı fakat görünür karşılığı yoktu.
+- Ortak bileşene geçiş, görünür ad/sıra/link ile JSON-LD item'larının farklılaşma
+  riskini kaldırdı.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1182,6 +1210,8 @@ ce97793f fix(content): derive homepage FAQ coverage from live data
 ab0b923b fix(content): replace stale coverage and ETL schedule claims
 52115e13 fix(seo): derive index dataset dates from history
 e3c1776b fix(content): remove stale live coverage claims
+ee8de6bd fix(seo): add comparison breadcrumb schema
+d241af55 fix(seo): align policy page breadcrumbs
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
