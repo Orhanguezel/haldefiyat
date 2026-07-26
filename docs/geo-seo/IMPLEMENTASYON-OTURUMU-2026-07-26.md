@@ -509,6 +509,35 @@ Commit: `ab012981 fix(seo): canonicalize default locale without prefix`
 - Proxy'nin zaten `/tr/...` isteklerini prefixsiz URL'ye 308 yönlendirmesiyle
   sitemap/canonical çelişkisi giderildi.
 
+### 3.21 Ürün Görsel Alt Metni
+
+Commit: `3dddeb04 fix(a11y): describe product images`
+
+- Ürün fotoğraflarındaki yalnız ürün adından oluşan alt metin
+  “{ürün} ürün görseli” biçiminde açıklayıcı hale getirildi.
+- Dekoratif emoji fallback'i `aria-hidden` kalmaya devam ediyor.
+
+### 3.22 Boş Hal Sayfasında ETL İddiası
+
+Commit: `955cb6fe fix(content): avoid false ETL status on empty markets`
+
+- Veri bulunmadığında “ETL kaynağı çalışıyor” şeklindeki doğrulanmamış kesin ifade
+  kaldırıldı.
+- Mesaj; bülten yayımlanmaması, aktarım gecikmesi veya kaynak erişim kesintisi
+  olasılıklarını birbirinden ayırıyor.
+- Kocaeli, Mersin ve Çanakkale kesintileriyle görünür mesajın çelişmesi engellendi.
+
+### 3.23 Canlı Hayvan ve Et Dataset Zenginleştirmesi
+
+Commit: `50d35c3f feat(seo): enrich category price datasets`
+
+- Ortak kategori fiyat şablonuna gerçek satırlardan `dateModified` ve
+  `temporalCoverage` eklendi.
+- `creator`, `license`, `spatialCoverage`, `variableMeasured`,
+  `isAccessibleForFree`, `measurementTechnique` ve JSON `DataDownload`
+  dağıtımı tamamlandı.
+- Veri yoksa tarih alanları uydurulmuyor.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -773,6 +802,20 @@ Orhan'dan beklenen:
   prefixsiz karşılıklarına yönleniyordu.
 - Canonical'ın kök nedeni düzeltilip sitemap doğrudan 200 hedeflere çevrildi.
 
+### F-15 — Boş hal mesajı ETL durumunu yanlış kesinlikle bildiriyordu
+
+- Sayfa, fiyat yoksa kaynağın çalıştığını varsayıyordu.
+- Operasyonel sağlık kaydı üç kaynakta bunun tersinin mümkün olduğunu gösteriyor.
+- Mesaj artık gözlenen sonuç ile olası nedenleri birbirinden ayırıyor.
+
+### F-16 — Soft-404/index politikası yalnız veri varlığına bağlı değil
+
+- Ürün ve hal sayfaları `seoIndex` ile özgün editoryel içerik birlikte yoksa
+  `noindex` oluyor.
+- Hiç fiyatı olmayan fakat özgün içerik taşıyan hal sayfası otomatik 404 yapılmıyor;
+  hava, firma, ilan ve kaynak açıklaması gibi ek değerler korunuyor.
+- Tam crawl/GSC verisi olmadan boş fiyat tablosu nedeniyle toplu 404/410 uygulanmadı.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -832,6 +875,10 @@ fe7dbfa4 fix(seo): reject invalid and future sitemap dates
 3bf64760 docs(geo-seo): record methodology image coverage
 7cf22f9a feat(security): publish configured security.txt
 ab012981 fix(seo): canonicalize default locale without prefix
+19ed5405 docs(geo-seo): record security contact and canonical fix
+3dddeb04 fix(a11y): describe product images
+955cb6fe fix(content): avoid false ETL status on empty markets
+50d35c3f feat(seo): enrich category price datasets
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
