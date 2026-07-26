@@ -1585,6 +1585,12 @@ Orhan'dan beklenen:
   ikisi tanımsız `--color-navy` token'ını kullanan CTA/cookie butonlarıydı.
 - Ana sayfadaki üç bileşen tanımlı `--color-brand-fg` ve daha açık düşüş
   rengine geçirildi. Typecheck, 15 dosya/40 test ve 65-route build geçti.
+- İlk deploy sonrası koşuda buton sorunları kapandı, kalan dört öğenin
+  `PopularProductsCarousel` danger rozetleri olduğu belirlendi. Açık/koyu tema
+  için `text-red-700`/`text-red-300` uygulanıp ikinci kez build/deploy edildi.
+- Nihai canlı Lighthouse'ta accessibility 100, color-contrast 1.0 ve sorunlu
+  öğe sayısı sıfır; SEO 100. Ara koşuda LCP 3,0 sn, nihai koşuda 10,9 sn
+  ölçüldüğü için lab performansının oynaklığı ayrıca kayıtlıdır.
 - Best-practices kayıpları OneSignal üçüncü taraf cookie/Inspector issue ile
   source map eksikliğidir. Dependency audit registry yanıtı 60 saniyeyi aştığı
   için tamamlanmış sayılmadı.
