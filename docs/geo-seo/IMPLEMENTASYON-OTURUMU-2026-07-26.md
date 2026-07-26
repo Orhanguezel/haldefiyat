@@ -1576,6 +1576,21 @@ Orhan'dan beklenen:
   Kalıcı çözümde ürün/hal varlık sorgusu “bulunamadı” ile “upstream hata”
   durumlarını tipli sonuçla ayırmalı; upstream hatada 404 üretmemelidir.
 
+### F-44 — Güncel Lighthouse a11y ve performans regresyonu
+
+- 26 Temmuz canlı ana sayfa Lighthouse sonucu: performans 59, a11y 96,
+  best-practices 79, SEO 100; lab LCP 11,1 sn ve LCP öğesi hero H1.
+- LCP süresinin %94'ü render delay olarak raporlandı.
+- Altı contrast kaybının dördü düşüş rozetindeki sınırda kalan kırmızı ton,
+  ikisi tanımsız `--color-navy` token'ını kullanan CTA/cookie butonlarıydı.
+- Ana sayfadaki üç bileşen tanımlı `--color-brand-fg` ve daha açık düşüş
+  rengine geçirildi. Typecheck, 15 dosya/40 test ve 65-route build geçti.
+- Best-practices kayıpları OneSignal üçüncü taraf cookie/Inspector issue ile
+  source map eksikliğidir. Dependency audit registry yanıtı 60 saniyeyi aştığı
+  için tamamlanmış sayılmadı.
+- Deploy sonrası Lighthouse tekrarında contrast kabulü ve LCP ayrıca
+  doğrulanmalıdır; açık checklist maddesi o zamana kadar açık kalır.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.

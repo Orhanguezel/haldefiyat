@@ -3,9 +3,9 @@
 > Kaynak checklist:
 > `HALDEFIYAT-GEO-SEO-AKSIYON-CEKLISTI.md`
 >
-> Tarih: 2026-07-26 · Durum: **24 açık madde**
+> Tarih: 2026-07-26 · Durum: **22 açık madde**
 >
-> Bu dosya yalnız açık işleri içerir. Tamamlanmış 41 madde, kapanış kanıtlarıyla
+> Bu dosya yalnız açık işleri içerir. Tamamlanmış 43 madde, kapanış kanıtlarıyla
 > ana aksiyon checklist'inde korunur. Burada tamamlanan bir madde `[x]`
 > yapıldıktan sonra ana checklist'e taşınmalı ve iki dosyanın sayaçları birlikte
 > güncellenmelidir.
@@ -19,10 +19,6 @@
 
 Kabul: SPF pass, DKIM pass ve DMARC aligned pass; yedi günlük raporda
 beklenmedik meşru gönderici bulunmuyor.
-
-### Citability canlı kabulü — 🔎 Claude / 🧑 Orhan
-
-- [ ] Deploy sonrası görünür tablo ile Dataset/Article değer eşleşmesini gerçek SSR HTML üzerinde URL bazında doğrula. (S-11)
 
 ## P1 — Schema ve kurumsal şeffaflık
 
@@ -43,7 +39,6 @@ beklenmedik meşru gönderici bulunmuyor.
 - [ ] 3xx/4xx/5xx iç linkleri ve redirect chain'leri tam crawl ile çıkar.
 - [ ] Duplicate/missing/truncated title-description-H1 envanteri ile canonical ve hreflang self/reciprocal kontrolünü tamamla. Kod açıkları kapatıldı (`6ca33051`); tam canlı crawl bekleniyor.
 - [ ] `www`, HTTP, trailing-slash ve case varyantlarını; redirect zincirlerini ve soft-404 ailelerini tam canlı crawl ile doğrula.
-- [ ] `audit_request_logs` üzerinden Googlebot, Bingbot ve AI bot crawl sıklığı ile 4xx/5xx dağılımını analiz et.
 - [ ] Canlı Lighthouse a11y/best-practices tekil kayıplarını, SRI uygunluğunu ve dependency audit sonuçlarını arşivle.
 
 ### Anahtar kelime yoğunluğu canlı kontrolü

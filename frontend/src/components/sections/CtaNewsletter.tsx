@@ -118,12 +118,12 @@ export default function CtaNewsletter() {
           <button
             type="submit"
             disabled={isLoading || isSuccess}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-[14px] bg-(--color-brand) px-8 py-4 font-(family-name:--font-display) text-[15px] font-bold whitespace-nowrap text-(--color-navy) transition-all duration-300 hover:-translate-y-0.5 hover:bg-(--color-brand-dark) disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-[14px] bg-(--color-brand) px-8 py-4 font-(family-name:--font-display) text-[15px] font-bold whitespace-nowrap text-(--color-brand-fg) transition-all duration-300 hover:-translate-y-0.5 hover:bg-(--color-brand-dark) disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
           >
             {isLoading && (
               <span
                 aria-hidden
-                className="h-4 w-4 animate-spin rounded-full border-2 border-(--color-navy) border-t-transparent"
+                className="h-4 w-4 animate-spin rounded-full border-2 border-(--color-brand-fg) border-t-transparent"
               />
             )}
             {isLoading ? "Kaydediliyor" : "Kayıt Ol"}

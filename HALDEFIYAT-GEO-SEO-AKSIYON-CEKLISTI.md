@@ -7,8 +7,8 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 41/65 checkbox — kapanış kanıtları bu dosyada korunur.
-- **Açık:** 24/65 checkbox — ayrı dosyaya taşındı:
+- **Tamamlanan:** 43/65 checkbox — kapanış kanıtları bu dosyada korunur.
+- **Açık:** 22/65 checkbox — ayrı dosyaya taşındı:
   `HALDEFIYAT-GEO-SEO-ACIK-ISLER.md`.
 - Bu dosyaya yeni açık iş eklenmez. Açık dosyada tamamlanan maddeler, kanıtıyla
   birlikte buraya taşınır ve iki dosyanın sayaçları birlikte güncellenir.
@@ -66,6 +66,7 @@ ayrı açık işler dosyasına taşınmıştır.
 - [x] Hal: şehir/hal kapsamı + son güncelleme + öne çıkan değişim özeti. (`6e05be62`)
 - [x] Analiz: başta bulgu özeti; sonra yöntem/sınırlar. (`139b8c88`, `aff495ac`)
 - [x] Stabil anchor/ID ve kesin tarihli görünür bloklar tamamlandı; trend, kapsam ve breadcrumb tutarlılığı otomatik testlerle kapsandı. (`0614ceb5`, `6e05be62`, `33200273`, `139b8c88`)
+- [x] Canlı SSR üzerinde Domates ürün, Antalya Serik Hali ve kuru soğan analiz şablonlarında görünür cevap/tablo bağlamı ile Dataset/NewsArticle URL, tarih, kapsam, başlık ve özet eşleşmesi doğrulandı. (`docs/geo-seo/CITABILITY-SCHEMA-CANLI-KABUL-2026-07-26.md`)
 - **Kabul:** citability blokları hedef sorgu sayfalarında; anchor'lar stabil; değişiklik öncesi/sonrası aynı AI sorgu setiyle kıyas (Orhan/Claude ölçer).
 
 ---
@@ -113,6 +114,7 @@ ayrı açık işler dosyasına taşınmıştır.
 - [x] Varsayılan locale canonical/hreflang politikası ve boş ürün/hal/yıllık rapor index koşulları kodda düzeltildi. (`ab012981`, `32feeed0`, `6ca33051`, `edc43c6d`)
 - [x] RFC uyumlu, yapılandırılmış `security.txt` ve açıklayıcı ürün görsel alt metinleri tamamlandı. (`7cf22f9a`, `3dddeb04`)
 - [x] Ana sayfa cache/transport maliyeti ölçüldü: sıcak TTFB 178–236 ms, Brotli ve hash'li assetlerde bir yıllık immutable cache aktif; UA/locale bağımlı SSR nedeniyle public HTML cache güvenli bulunmadı, HTTP/3 ayrı fırsat olarak kaydedildi. (`docs/geo-seo/CACHE-TRANSPORT-DENETIMI-2026-07-26.md`)
+- [x] 07–26 Temmuz Nginx loglarında Googlebot, Bingbot, GPTBot, ChatGPT-User, ClaudeBot, CCBot ve PerplexityBot status dağılımı çıkarıldı; kendi audit crawler'ı hariç tutuldu, 4xx/5xx yolları ve spoofed user-agent sınırı kaydedildi. (`docs/geo-seo/BOT-CRAWL-LOG-ANALIZI-2026-07-07-26.md`)
 
 ### 6.1 Anahtar kelime yoğunluğu ve sayfa içi tutarlılık
 

@@ -81,7 +81,7 @@ function TickerEntry({ item, index }: { item: TrendingItem; index: number }) {
             (isUp
               ? "bg-green-500/10 text-green-400"
               : isDown
-              ? "bg-red-500/10 text-red-400"
+              ? "bg-red-500/10 text-red-300"
               : "bg-blue-500/10 text-blue-400")
           }
         >
