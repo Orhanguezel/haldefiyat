@@ -1,6 +1,8 @@
 # Codex Brief — HalDeFiyat GEO/SEO Implementasyonu
 
 > Master checklist: `HALDEFIYAT-GEO-SEO-AKSIYON-CEKLISTI.md` (kök)
+> Implementasyon oturumu ve çapraz kontrol kaydı:
+> `docs/geo-seo/IMPLEMENTASYON-OTURUMU-2026-07-26.md`
 > Bu brief SADECE Codex'in kod/config ile yapacağı işleri kapsar. DNS (SPF/DMARC),
 > GSC, AI benchmark, backlink baseline, iş geliştirme → Codex'e VERİLMEZ.
 > Kontrol/doğrulama: Claude. Her görev bittiğinde Claude kabul kriterini çalıştırır.
