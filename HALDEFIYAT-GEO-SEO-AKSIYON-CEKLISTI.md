@@ -7,8 +7,8 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 37/65 checkbox — kapanış kanıtları bu dosyada korunur.
-- **Açık:** 28/65 checkbox — ayrı dosyaya taşındı:
+- **Tamamlanan:** 41/65 checkbox — kapanış kanıtları bu dosyada korunur.
+- **Açık:** 24/65 checkbox — ayrı dosyaya taşındı:
   `HALDEFIYAT-GEO-SEO-ACIK-ISLER.md`.
 - Bu dosyaya yeni açık iş eklenmez. Açık dosyada tamamlanan maddeler, kanıtıyla
   birlikte buraya taşınır ve iki dosyanın sayaçları birlikte güncellenir.
@@ -40,6 +40,11 @@ ayrı açık işler dosyasına taşınmıştır.
 ---
 
 ## P0 — Kesin site düzeltmeleri (bu hafta)
+
+### 0.2 SPF ve gönderen envanteri — DNS doğrulandı
+
+- [x] Canlı backend ve kod yollarında gönderen envanteri çıkarıldı: tek sağlayıcı Resend SMTP, görünür gönderen `noreply@haldefiyat.com`; ikinci SMTP/API sağlayıcısı bulunmadı. (`docs/geo-seo/DNS-MAIL-AUTH-DENETIMI-2026-07-26.md`)
+- [x] Resend’in gerçek Return-Path alanı `send.haldefiyat.com` üzerinde tek SPF (`include:amazonses.com ~all`) ve bölge MX kaydı doğrulandı; köke ikinci SPF eklenmemesi kayda alındı. (`docs/geo-seo/DNS-MAIL-AUTH-DENETIMI-2026-07-26.md`)
 
 ### 0.1 Ana sayfa H1 — 🤖 Codex → 🔎 Claude doğrular
 - [x] Hero'daki H2 ("Türkiye Hal Fiyatları Tek Ekranda") → tek görünür `<h1>`; tasarım/CSS sınıfları AYNEN korunur. (`c8600951`)
@@ -107,9 +112,11 @@ ayrı açık işler dosyasına taşınmıştır.
 - [x] Analiz iç-link havuzu genişletildi; indekslenebilir ürün/hal/yazar keşif listeleri sitemap ve LLMS yüzeylerine bağlandı. (`35f290ed`, `0d70eb33`)
 - [x] Varsayılan locale canonical/hreflang politikası ve boş ürün/hal/yıllık rapor index koşulları kodda düzeltildi. (`ab012981`, `32feeed0`, `6ca33051`, `edc43c6d`)
 - [x] RFC uyumlu, yapılandırılmış `security.txt` ve açıklayıcı ürün görsel alt metinleri tamamlandı. (`7cf22f9a`, `3dddeb04`)
+- [x] Ana sayfa cache/transport maliyeti ölçüldü: sıcak TTFB 178–236 ms, Brotli ve hash'li assetlerde bir yıllık immutable cache aktif; UA/locale bağımlı SSR nedeniyle public HTML cache güvenli bulunmadı, HTTP/3 ayrı fırsat olarak kaydedildi. (`docs/geo-seo/CACHE-TRANSPORT-DENETIMI-2026-07-26.md`)
 
 ### 6.1 Anahtar kelime yoğunluğu ve sayfa içi tutarlılık
 
+- [x] Ekran görüntüsündeki denetim URL'si `https://haldefiyat.com/hal/antalya-hal-serik`, hedef sorgu `Antalya Serik Hali fiyatları` ve oturum tarihi 2026-07-26 olarak kaydedildi; araçta ayrı crawl timestamp'i görünmediği açıkça belirtildi. (`docs/geo-seo/ANAHTAR-KELIME-CANLI-DENETIMI-2026-07-26.md`)
 - [x] Hedef ifade title, meta description, tek H1, en az bir açıklayıcı H2 ve
   görünür giriş/cevap bloğında doğal biçimde mevcut mu kontrol edilsin.
 - [x] Kelime sayımını şişiren tekrarlar ayrı ölçülsün: tablo satırları, select

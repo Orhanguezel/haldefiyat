@@ -1,0 +1,296 @@
+# HalDeFiyat Canlı SEO Crawl — 2026-07-26
+
+- Origin: `https://haldefiyat.com`
+- Sitemap URL: **345**
+- HTTP 200: **180**
+- Hatalı/redirect yanıt: **165**
+- Noindex: **29**
+- Canonical eksik/farklı: **123**
+- Title eksik: **122**; duplicate kümesi: **0**
+- Description eksik: **122**; duplicate kümesi: **0**
+- H1 sayısı 1 olmayan: **128**
+- JSON-LD parse hatası olan URL: **0**
+- Sitemap içinde ana sayfadan ulaşılamayan URL: **101**
+- En yüksek iç link derinliği: **4**
+
+## Sorunlu URL'ler
+
+- `https://haldefiyat.com/urun/acur` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/ahududu` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/ananas` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/araka` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/armut` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/armut-akca` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/armut-deveci` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/armut-santamaria` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/asma-yapragi` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/avakado` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/avokado` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/ayva` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/bakla` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/bal-kabagi` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/barbunya` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/barbunya-taze` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/bezelye` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/bezelye-taze-araka` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/biber-carliston` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/biber-cin` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/biberiye-rozmarin` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/bogurtlen` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/brokoli` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/bruksel-lahana` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/cilek` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/dana-karkas-et` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/deniz-borulcesi` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/dere-otu` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/dereotu` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/dereotu-yas-taze` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/domates` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/domates-pembe` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/domates-salcalik` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/domates-salkim` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/domates-sera` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/elma-golden` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/elma-granny-smith` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/elma-starking` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/enginar` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/erik` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/erik-anjelik` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/erik-can` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/erik-malta` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/erik-papaz` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/fasulye-ayse-kadin` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/fasulye-cali` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/fasulye-sirik` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/feslegen` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/feslegen-reyhan` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/incir` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/incir-siyah` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/incir-beyaz` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/ispanak` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kabak` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kabak-kara` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kabak-sakiz` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kabak-ampul` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kamkat` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kapya-biber` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kavun-galya` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kayisi` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kayisi-mut` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kayisi-sekerpare` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kekik` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kekik-yas-taze` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kereviz` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kestane` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kiraz` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kiraz-napolyon` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kirmizi-lahana` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kisnis` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kivi` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kizilcik` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kil-sivri-biber` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kuskonmaz` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/kuzukulagi` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/mango` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/mantar` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/marul-aysberg` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/marul-gobekli` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/marul-iceberg` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/marul-kivircik-kivircik-kirmizi-lolorosso` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/maydanoz` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/maydonoz` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/mersin-yaban-mersini-mersin-yaban-mersini` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/misir-taze` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/muz` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/muz-ithal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/muz-yerli` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/nane` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/nar` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/nektari` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/nektarin` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/pancar` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/patlican-bostan-topak` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/patlican-topak` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/pazi` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/pirasa` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/portakal` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/portakal-valencia` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/portakal-washington` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/portakal-finike` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/portakal-sikmalik` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/pshalis-guvey-feneri` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/reyhan` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/roka` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/roka-bag` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/salatalik-cengelkoy` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/salgam` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/semiz-otu` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/semizotu` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/sogan-taze` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/sogan-kuru` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/tatli-patates` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/tere` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/turp` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/turp-kirmizi` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/turp-beyaz` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/turp-findik` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/turp-siyah` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/ucburun-koy-biberi` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/uzum` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/uzum-beyaz` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/uzum-cekirdeksiz` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/uzum-siyah` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/yaban-mersini` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/yesil-sogan` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/zencefil` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/biber` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/urun/zeytinyagi` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/ordu-ticaret-borsasi` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/adana-ticaret-borsasi` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/nevsehir-ticaret-borsasi` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/izmir-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/konya-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/ankara-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/kayseri-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/mersin-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/eskisehir-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/denizli-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/antalya-hal-merkez` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/antalya-hal-serik` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/antalya-hal-kumluca` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/gaziantep-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/bursa-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/kocaeli-hal-merkez` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/balikesir-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/istanbul-hal-ibb` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/corum-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/kutahya-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/manisa-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/kahramanmaras-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/canakkale-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/yalova-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/tekirdag-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/trabzon-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/gazipasa-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/hal/alanya-hal` — HTTP 404, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/analiz/mayis-5-hafta-2026-hal-raporu` — H1=2
+- `https://haldefiyat.com/analiz/mayis-4-hafta-2026-hal-raporu` — H1=2
+- `https://haldefiyat.com/rapor/yillik/2025` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/rapor/yillik/2024` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/rapor/yillik/2023` — The operation was aborted due to timeout, title eksik, description eksik, H1=0, canonical=eksik
+- `https://haldefiyat.com/rapor/yillik/2022` — HTTP 500, H1=0
+- `https://haldefiyat.com/rapor/yillik/2021` — HTTP 500, H1=0
+- `https://haldefiyat.com/rapor/yillik/2020` — HTTP 500, H1=0
+- `https://haldefiyat.com/yazar/orhan-guzel` — HTTP 404, H1=0, canonical=https://haldefiyat.com/yazar/undefined
+
+## Duplicate title kümeleri
+
+- Yok.
+
+## Orphan adayları
+
+- https://haldefiyat.com/canli-hal-fiyatlari
+- https://haldefiyat.com/canli-hayvan-fiyatlari
+- https://haldefiyat.com/et-fiyatlari
+- https://haldefiyat.com/embed
+- https://haldefiyat.com/basin
+- https://haldefiyat.com/urun/ayva
+- https://haldefiyat.com/urun/bakla
+- https://haldefiyat.com/urun/barbunya
+- https://haldefiyat.com/urun/bezelye
+- https://haldefiyat.com/urun/biberiye-rozmarin
+- https://haldefiyat.com/urun/erik-anjelik
+- https://haldefiyat.com/urun/erik-can
+- https://haldefiyat.com/urun/erik-papaz
+- https://haldefiyat.com/urun/feslegen
+- https://haldefiyat.com/urun/kuzukulagi
+- https://haldefiyat.com/urun/mango
+- https://haldefiyat.com/urun/mantar
+- https://haldefiyat.com/urun/marul-aysberg
+- https://haldefiyat.com/urun/marul-gobekli
+- https://haldefiyat.com/urun/nektari
+- https://haldefiyat.com/urun/nektarin
+- https://haldefiyat.com/urun/pancar
+- https://haldefiyat.com/urun/patlican-bostan-topak
+- https://haldefiyat.com/urun/patlican-topak
+- https://haldefiyat.com/urun/pazi
+- https://haldefiyat.com/urun/pirasa
+- https://haldefiyat.com/urun/portakal
+- https://haldefiyat.com/urun/portakal-valencia
+- https://haldefiyat.com/urun/reyhan
+- https://haldefiyat.com/urun/roka
+- https://haldefiyat.com/urun/salatalik-cengelkoy
+- https://haldefiyat.com/urun/salgam
+- https://haldefiyat.com/urun/semiz-otu
+- https://haldefiyat.com/urun/semizotu
+- https://haldefiyat.com/urun/sogan-taze
+- https://haldefiyat.com/urun/uzum-beyaz
+- https://haldefiyat.com/urun/yaban-mersini
+- https://haldefiyat.com/urun/yesil-sogan
+- https://haldefiyat.com/urun/zencefil
+- https://haldefiyat.com/urun/biber
+- https://haldefiyat.com/urun/zeytinyagi
+- https://haldefiyat.com/firmalar/mersin
+- https://haldefiyat.com/firmalar/adana
+- https://haldefiyat.com/firmalar/istanbul
+- https://haldefiyat.com/firmalar/hatay
+- https://haldefiyat.com/firmalar/samsun
+- https://haldefiyat.com/firmalar/aydin
+- https://haldefiyat.com/firmalar/van
+- https://haldefiyat.com/firmalar/sanliurfa
+- https://haldefiyat.com/firmalar/manisa
+- https://haldefiyat.com/firmalar/diyarbakir
+- https://haldefiyat.com/firmalar/ordu
+- https://haldefiyat.com/firmalar/eskisehir
+- https://haldefiyat.com/firmalar/kayseri
+- https://haldefiyat.com/firmalar/adiyaman
+- https://haldefiyat.com/firmalar/tokat
+- https://haldefiyat.com/firmalar/aksaray
+- https://haldefiyat.com/firmalar/erzurum
+- https://haldefiyat.com/firmalar/karaman
+- https://haldefiyat.com/firmalar/kocaeli
+- https://haldefiyat.com/firmalar/malatya
+- https://haldefiyat.com/firmalar/mardin
+- https://haldefiyat.com/firmalar/agri
+- https://haldefiyat.com/firmalar/batman
+- https://haldefiyat.com/firmalar/denizli
+- https://haldefiyat.com/firmalar/kahramanmaras
+- https://haldefiyat.com/firmalar/kars
+- https://haldefiyat.com/firmalar/mugla
+- https://haldefiyat.com/firmalar/osmaniye
+- https://haldefiyat.com/firmalar/sakarya
+- https://haldefiyat.com/firmalar/bingol
+- https://haldefiyat.com/firmalar/elazig
+- https://haldefiyat.com/firmalar/isparta
+- https://haldefiyat.com/firmalar/mus
+- https://haldefiyat.com/firmalar/rize
+- https://haldefiyat.com/firmalar/nigde
+- https://haldefiyat.com/firmalar/kilis
+- https://haldefiyat.com/firmalar/siirt
+- https://haldefiyat.com/firmalar/trabzon
+- https://haldefiyat.com/firmalar/amasya
+- https://haldefiyat.com/firmalar/duzce
+- https://haldefiyat.com/firmalar/karabuk
+- https://haldefiyat.com/firmalar/yalova
+- https://haldefiyat.com/firmalar/zonguldak
+- https://haldefiyat.com/firmalar/canakkale
+- https://haldefiyat.com/firmalar/kutahya
+- https://haldefiyat.com/firmalar/sivas
+- https://haldefiyat.com/firmalar/erzincan
+- https://haldefiyat.com/firmalar/komisyoncu
+- https://haldefiyat.com/firmalar/soguk-hava
+- https://haldefiyat.com/firmalar/nakliye
+- https://haldefiyat.com/firmalar/mersin/komisyoncu
+- https://haldefiyat.com/firmalar/antalya/komisyoncu
+- https://haldefiyat.com/firmalar/adana/komisyoncu
+- https://haldefiyat.com/analiz/haziran-2-hafta-2026-hal-raporu
+- https://haldefiyat.com/analiz/haziran-1-hafta-2026-hal-raporu
+- https://haldefiyat.com/analiz/mayis-5-hafta-2026-hal-raporu
+- https://haldefiyat.com/analiz/mayis-4-hafta-2026-hal-raporu
+- https://haldefiyat.com/rapor/yillik/2025
+- https://haldefiyat.com/rapor/yillik/2024
+- https://haldefiyat.com/rapor/yillik/2023
+
+## Not
+
+Bu tarama sitemap tabanlıdır. GSC indeksleme nedenleri ve dış validator sonuçları ayrı veri kaynaklarıdır.

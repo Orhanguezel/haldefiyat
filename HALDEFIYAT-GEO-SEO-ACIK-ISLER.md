@@ -3,9 +3,9 @@
 > Kaynak checklist:
 > `HALDEFIYAT-GEO-SEO-AKSIYON-CEKLISTI.md`
 >
-> Tarih: 2026-07-26 · Durum: **28 açık madde**
+> Tarih: 2026-07-26 · Durum: **24 açık madde**
 >
-> Bu dosya yalnız açık işleri içerir. Tamamlanmış 37 madde, kapanış kanıtlarıyla
+> Bu dosya yalnız açık işleri içerir. Tamamlanmış 41 madde, kapanış kanıtlarıyla
 > ana aksiyon checklist'inde korunur. Burada tamamlanan bir madde `[x]`
 > yapıldıktan sonra ana checklist'e taşınmalı ve iki dosyanın sayaçları birlikte
 > güncellenmelidir.
@@ -14,8 +14,6 @@
 
 ### SPF ve DMARC — 🧑 Orhan / DNS
 
-- [ ] Gönderen envanteri: Resend (`smtp-email-alerts-deferred` hafızası) ve varsa diğer gönderenler.
-- [ ] Tek birleşik SPF TXT oluştur; birden fazla SPF TXT bırakma ve DNS lookup sayısını 10 veya altında tut.
 - [ ] DKIM selector ve alignment'ı gerçek test e-postasıyla doğrula.
 - [ ] DMARC `rua` mailbox ekle; rapor gözleminden sonra `p=quarantine; pct=25`, `pct=100` ve gerekirse `reject` sırasını uygula.
 
@@ -45,13 +43,11 @@ beklenmedik meşru gönderici bulunmuyor.
 - [ ] 3xx/4xx/5xx iç linkleri ve redirect chain'leri tam crawl ile çıkar.
 - [ ] Duplicate/missing/truncated title-description-H1 envanteri ile canonical ve hreflang self/reciprocal kontrolünü tamamla. Kod açıkları kapatıldı (`6ca33051`); tam canlı crawl bekleniyor.
 - [ ] `www`, HTTP, trailing-slash ve case varyantlarını; redirect zincirlerini ve soft-404 ailelerini tam canlı crawl ile doğrula.
-- [ ] Ana sayfanın `private, no-cache, no-store` cache politikasının performans maliyetini ölç; Brotli, HTTP/3 ve immutable asset fırsatlarını değerlendir.
 - [ ] `audit_request_logs` üzerinden Googlebot, Bingbot ve AI bot crawl sıklığı ile 4xx/5xx dağılımını analiz et.
 - [ ] Canlı Lighthouse a11y/best-practices tekil kayıplarını, SRI uygunluğunu ve dependency audit sonuçlarını arşivle.
 
 ### Anahtar kelime yoğunluğu canlı kontrolü
 
-- [ ] Denetim URL'sini, hedef sorguyu ve aracın tarama tarihini kaydet; yalnız “düşük yoğunluk” puanından hareketle metin çoğaltma.
 - [ ] Değişiklik sonrası görünür metni, title/meta/H1-H2 dağılımını ve SSR HTML'i yeniden tara; GSC sorgu/CTR etkisini 28 gün izle ve sonucu kaydet.
 
 ## P2 — Ölçüm ve KPI baseline

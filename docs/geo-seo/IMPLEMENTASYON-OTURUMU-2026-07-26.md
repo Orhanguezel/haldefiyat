@@ -1562,6 +1562,20 @@ Orhan'dan beklenen:
 - Eski kayıtlar için backfill yapılmadı; gerçek inceleme yapılmadan geçmiş
   raporlara yeni güven iddiası eklenmiyor.
 
+### F-43 — Geçici ürün/hal API hatası 404 olarak maskelenebiliyor
+
+- İlk sitemap crawl'ında yüksek eşzamanlılık altında 123 ürün/hal URL'si 404,
+  üç yıllık rapor URL'si 500 ve 39 URL timeout verdi.
+- `acur`, `ahududu`, `armut`, `domates`, `ayva` ve `bakla` düşük hacimli
+  tekrarda 200 döndü; dolayısıyla ilk 404 kümesi kalıcı “kayıt yok” sonucu değil.
+- Ürün route'u `fetchProducts()` hata halinde boş fallback döndürdüğü için
+  geçici backend/timeout ile gerçekten bulunmayan slug'ı ayıramıyor ve
+  `notFound()` çağırıyor. Bu davranış arama motoruna yanlış kalıcı 404 sinyali
+  verme riski taşır.
+- Tam crawl sonucu retry/backoff ve düşük eşzamanlılıkla yeniden doğrulanıyor.
+  Kalıcı çözümde ürün/hal varlık sorgusu “bulunamadı” ile “upstream hata”
+  durumlarını tipli sonuçla ayırmalı; upstream hatada 404 üretmemelidir.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
