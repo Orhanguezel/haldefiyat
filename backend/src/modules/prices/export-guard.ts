@@ -36,10 +36,13 @@ export async function exportQuotaGuard(req: FastifyRequest, reply: FastifyReply)
   const used = Number((rows as Array<{ c?: number | string }>)[0]?.c ?? 0);
   if (used >= limit) {
     reply.header("X-Export-Daily-Limit", String(limit));
+    // error obje olmali: global onSend normalizer string 'error'i INTERNAL_SERVER_ERROR'a duser.
     return reply.status(429).send({
-      error: "export_daily_limit",
-      message: `Gunluk ucretsiz CSV indirme limitine ulastiniz (${limit}/gun). Sinirsiz erisim icin API anahtari alin: /pro`,
-      dailyLimit: limit,
+      error: {
+        code: "export_daily_limit",
+        message: `Günlük ücretsiz CSV indirme limitine ulaştınız (${limit}/gün). Sınırsız erişim için API anahtarı alın: /pro`,
+      },
+      details: { dailyLimit: limit },
     });
   }
 }
