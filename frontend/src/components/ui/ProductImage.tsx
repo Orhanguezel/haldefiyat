@@ -33,7 +33,7 @@ export default function ProductImage({
       >
         <Image
           src={src}
-          alt={name}
+          alt={`${name} ürün görseli`}
           width={size}
           height={size}
           className="h-full w-full object-cover"
