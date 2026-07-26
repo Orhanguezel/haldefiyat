@@ -19,6 +19,7 @@ export interface AnalizMakale {
   icerik: string; // plain paragraphs, "\n\n" separated
   yazar: string;
   tarih: string; // ISO YYYY-MM-DD
+  updatedAt?: string | null;
   etiketler: string[];
   hafta?: string; // ISO week "2026-19"
   metaTitle?: string | null;

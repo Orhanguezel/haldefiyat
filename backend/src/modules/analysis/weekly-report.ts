@@ -47,6 +47,7 @@ export type AutoWeeklyReport = {
   weekStart: string;
   weekEnd: string;
   totalRecords: number;
+  updatedAt?: string | null;
   metaTitle?: string | null;
   metaDescription?: string | null;
   ogImage?: string | null;
@@ -447,6 +448,7 @@ function reportRowToPublic(row: typeof hfAnalysisReports.$inferSelect, author?: 
     weekStart: toDateOnly(row.weekStart),
     weekEnd: toDateOnly(row.weekEnd),
     totalRecords: row.totalRecords,
+    updatedAt: row.updatedAt ? row.updatedAt.toISOString() : null,
     metaTitle: row.metaTitle ?? null,
     metaDescription: row.metaDescription ?? null,
     ogImage: row.ogImage ?? null,

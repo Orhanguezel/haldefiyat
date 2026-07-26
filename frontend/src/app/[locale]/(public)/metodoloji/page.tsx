@@ -34,7 +34,6 @@ const articleSchema = {
     "Türkiye hal fiyatı verilerinin nasıl toplandığı, doğrulandığı ve sunulduğuna dair kapsamlı açıklama.",
   author: ORG_REF,
   publisher: ORG_REF,
-  dateModified: new Date().toISOString().split("T")[0],
   inLanguage: "tr-TR",
   about: { "@type": "Thing", name: "Hal Fiyatları Veri Metodolojisi" },
 } satisfies Record<string, unknown>;

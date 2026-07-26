@@ -414,7 +414,12 @@ export default async function UrunPage({ params }: Props) {
     license: "https://creativecommons.org/licenses/by/4.0/",
     creator: { "@id": `${SITE_URL_META}/#organization` },
     temporalCoverage: latestDate ? `${latestDate}/..` : "2025/..",
+    ...(latestDate ? { dateModified: latestDate } : {}),
+    spatialCoverage: { "@type": "Place", name: "Türkiye" },
     variableMeasured: ["minPrice", "avgPrice", "maxPrice"],
+    isAccessibleForFree: true,
+    measurementTechnique:
+      "Resmi hal, ticaret borsası ve alım kaynaklarından ETL ile derleme; ürün ve birim normalizasyonu",
     distribution: {
       "@type": "DataDownload",
       encodingFormat: "application/json",

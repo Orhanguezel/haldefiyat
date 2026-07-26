@@ -152,7 +152,7 @@ export default async function AnalizMakalePage({ params }: Props) {
     headline: makale.baslik,
     description: makale.ozet,
     datePublished: makale.tarih,
-    dateModified: makale.tarih,
+    ...(makale.updatedAt ? { dateModified: makale.updatedAt } : {}),
     mainEntityOfPage: `${SITE_URL}/analiz/${makale.slug}`,
     author: authorProfile ? {
       "@type": "Person",
@@ -227,6 +227,15 @@ export default async function AnalizMakalePage({ params }: Props) {
               )}
               <span aria-hidden>·</span>
               <time dateTime={makale.tarih}>{formatDate(makale.tarih)}</time>
+              {makale.updatedAt && makale.updatedAt.slice(0, 10) !== makale.tarih && (
+                <>
+                  <span aria-hidden>·</span>
+                  <span>
+                    Güncellendi{" "}
+                    <time dateTime={makale.updatedAt}>{formatDate(makale.updatedAt)}</time>
+                  </span>
+                </>
+              )}
               {makale.hafta && (
                 <>
                   <span aria-hidden>·</span>

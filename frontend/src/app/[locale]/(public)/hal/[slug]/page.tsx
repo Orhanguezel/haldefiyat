@@ -160,7 +160,11 @@ export default async function HalPage({ params }: Props) {
     license: "https://creativecommons.org/licenses/by/4.0/",
     creator: { "@id": `${SITE_URL}/#organization` },
     temporalCoverage: latestDate ? `${latestDate}/..` : "2025/..",
+    ...(latestDate ? { dateModified: latestDate } : {}),
     spatialCoverage: { "@type": "Place", name: market.cityName },
+    isAccessibleForFree: true,
+    measurementTechnique:
+      "İlgili resmi hal kaynağından günlük ETL ile derleme, ürün ve birim normalizasyonu",
     distribution: {
       "@type": "DataDownload",
       encodingFormat: "application/json",

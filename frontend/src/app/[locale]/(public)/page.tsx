@@ -41,7 +41,7 @@ const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").
 // DB site_settings'ten beslenir. Burada tekrar uretmek marka kimligini cakistirir
 // (rapor: CRITICAL duplicate schema). Dataset.creator kanonik Organization'a @id
 // ile referans verir — isim hardcode edilmez.
-const datasetSchema = {
+const datasetSchemaBase = {
   name: "Türkiye Hal Fiyatları",
   description:
     "Türkiye genelindeki hal ve pazar fiyat verileri. Günlük güncellenir.",
@@ -52,6 +52,13 @@ const datasetSchema = {
   spatialCoverage: { "@type": "Place", name: "Türkiye" },
   variableMeasured: ["MinFiyat", "MaxFiyat", "OrtalamaFiyat"],
   isAccessibleForFree: true,
+  measurementTechnique:
+    "Resmi hal kaynaklarından günlük ETL ile derleme, ürün ve birim normalizasyonu",
+  distribution: {
+    "@type": "DataDownload",
+    encodingFormat: "application/json",
+    contentUrl: `${SITE_URL}/api/v1/prices`,
+  },
 } satisfies Record<string, unknown>;
 
 function formatUpdatedAt(value: string | undefined): string {
@@ -111,6 +118,10 @@ export default async function HomePage({ params }: Props) {
       .filter(Boolean),
   ).size;
   const latestMarketUpdate = overview.lastSourceDate ?? overview.latestRecordedDate ?? undefined;
+  const datasetSchema = {
+    ...datasetSchemaBase,
+    ...(latestMarketUpdate ? { dateModified: latestMarketUpdate } : {}),
+  };
   const stats: Stat[] = [
     {
       kind: "number",
