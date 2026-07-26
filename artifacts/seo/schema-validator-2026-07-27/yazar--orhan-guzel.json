@@ -1,0 +1,631 @@
+{
+  "url": "https://haldefiyat.com/yazar/orhan-guzel",
+  "isRendered": true,
+  "tripleGroups": [
+    {
+      "ownerSet": {},
+      "nodes": [
+        {
+          "types": [
+            {
+              "pred": "itemtype",
+              "value": "BreadcrumbList",
+              "errors": [],
+              "begin": 11904,
+              "end": 11920
+            }
+          ],
+          "typeGroup": "BreadcrumbList",
+          "errors": [],
+          "properties": [],
+          "nodeProperties": [
+            {
+              "pred": "itemListElement",
+              "target": {
+                "types": [
+                  {
+                    "pred": "itemtype",
+                    "value": "ListItem",
+                    "errors": [],
+                    "begin": 11949,
+                    "end": 11959
+                  }
+                ],
+                "typeGroup": "ListItem",
+                "errors": [],
+                "properties": [
+                  {
+                    "pred": "position",
+                    "value": "1",
+                    "errors": [],
+                    "begin": 11971,
+                    "end": 11972
+                  },
+                  {
+                    "pred": "name",
+                    "value": "Anasayfa",
+                    "errors": [],
+                    "begin": 11980,
+                    "end": 11990
+                  }
+                ],
+                "nodeProperties": [
+                  {
+                    "pred": "item",
+                    "target": {
+                      "types": [
+                        {
+                          "pred": "itemtype",
+                          "value": "Thing",
+                          "errors": [],
+                          "begin": 11998,
+                          "end": 12023
+                        }
+                      ],
+                      "typeGroup": "Thing",
+                      "idProperty": {
+                        "pred": "urn:spore:url",
+                        "value": "https://haldefiyat.com/",
+                        "errors": [],
+                        "begin": 11998,
+                        "end": 12023
+                      },
+                      "errors": [],
+                      "properties": [],
+                      "nodeProperties": [],
+                      "numErrors": 0,
+                      "numWarnings": 0
+                    },
+                    "errors": [],
+                    "begin": 11998,
+                    "end": 12023
+                  }
+                ],
+                "numErrors": 0,
+                "numWarnings": 0
+              },
+              "errors": [],
+              "begin": 11940,
+              "end": 12024
+            },
+            {
+              "pred": "itemListElement",
+              "target": {
+                "types": [
+                  {
+                    "pred": "itemtype",
+                    "value": "ListItem",
+                    "errors": [],
+                    "begin": 12034,
+                    "end": 12044
+                  }
+                ],
+                "typeGroup": "ListItem",
+                "errors": [],
+                "properties": [
+                  {
+                    "pred": "position",
+                    "value": "2",
+                    "errors": [],
+                    "begin": 12056,
+                    "end": 12057
+                  },
+                  {
+                    "pred": "name",
+                    "value": "Yazarlar",
+                    "errors": [],
+                    "begin": 12065,
+                    "end": 12075
+                  }
+                ],
+                "nodeProperties": [
+                  {
+                    "pred": "item",
+                    "target": {
+                      "types": [
+                        {
+                          "pred": "itemtype",
+                          "value": "Thing",
+                          "errors": [],
+                          "begin": 12083,
+                          "end": 12114
+                        }
+                      ],
+                      "typeGroup": "Thing",
+                      "idProperty": {
+                        "pred": "urn:spore:url",
+                        "value": "https://haldefiyat.com/analiz",
+                        "errors": [],
+                        "begin": 12083,
+                        "end": 12114
+                      },
+                      "errors": [],
+                      "properties": [],
+                      "nodeProperties": [],
+                      "numErrors": 0,
+                      "numWarnings": 0
+                    },
+                    "errors": [],
+                    "begin": 12083,
+                    "end": 12114
+                  }
+                ],
+                "numErrors": 0,
+                "numWarnings": 0
+              },
+              "errors": [],
+              "begin": 12025,
+              "end": 12115
+            },
+            {
+              "pred": "itemListElement",
+              "target": {
+                "types": [
+                  {
+                    "pred": "itemtype",
+                    "value": "ListItem",
+                    "errors": [],
+                    "begin": 12125,
+                    "end": 12135
+                  }
+                ],
+                "typeGroup": "ListItem",
+                "errors": [],
+                "properties": [
+                  {
+                    "pred": "position",
+                    "value": "3",
+                    "errors": [],
+                    "begin": 12147,
+                    "end": 12148
+                  },
+                  {
+                    "pred": "name",
+                    "value": "Orhan Güzel",
+                    "errors": [],
+                    "begin": 12156,
+                    "end": 12170
+                  }
+                ],
+                "nodeProperties": [
+                  {
+                    "pred": "item",
+                    "target": {
+                      "types": [
+                        {
+                          "pred": "itemtype",
+                          "value": "Thing",
+                          "errors": [],
+                          "begin": 12178,
+                          "end": 12220
+                        }
+                      ],
+                      "typeGroup": "Thing",
+                      "idProperty": {
+                        "pred": "urn:spore:url",
+                        "value": "https://haldefiyat.com/yazar/orhan-guzel",
+                        "errors": [],
+                        "begin": 12178,
+                        "end": 12220
+                      },
+                      "errors": [],
+                      "properties": [],
+                      "nodeProperties": [],
+                      "numErrors": 0,
+                      "numWarnings": 0
+                    },
+                    "errors": [],
+                    "begin": 12178,
+                    "end": 12220
+                  }
+                ],
+                "numErrors": 0,
+                "numWarnings": 0
+              },
+              "errors": [],
+              "begin": 12116,
+              "end": 12221
+            }
+          ],
+          "numErrors": 0,
+          "numWarnings": 0
+        }
+      ],
+      "numNodesWithError": 0,
+      "numNodesWithWarning": 0,
+      "numErrors": 0,
+      "numWarnings": 0,
+      "type": "BreadcrumbList"
+    },
+    {
+      "ownerSet": {},
+      "nodes": [
+        {
+          "types": [
+            {
+              "pred": "itemtype",
+              "value": "ProfilePage",
+              "errors": [],
+              "begin": 11121,
+              "end": 11134
+            }
+          ],
+          "typeGroup": "ProfilePage",
+          "errors": [],
+          "properties": [
+            {
+              "pred": "url",
+              "value": "https://haldefiyat.com/yazar/orhan-guzel",
+              "errors": [],
+              "begin": 11141,
+              "end": 11183
+            },
+            {
+              "pred": "name",
+              "value": "Orhan Güzel | HaldeFiyat Yazar Profili",
+              "errors": [],
+              "begin": 11191,
+              "end": 11232
+            }
+          ],
+          "nodeProperties": [
+            {
+              "pred": "mainEntity",
+              "target": {
+                "types": [
+                  {
+                    "pred": "itemtype",
+                    "value": "Person",
+                    "errors": [],
+                    "begin": 11255,
+                    "end": 11263
+                  }
+                ],
+                "typeGroup": "Person",
+                "errors": [],
+                "properties": [
+                  {
+                    "pred": "name",
+                    "value": "Orhan Güzel",
+                    "errors": [],
+                    "begin": 11271,
+                    "end": 11285
+                  },
+                  {
+                    "pred": "url",
+                    "value": "https://haldefiyat.com/yazar/orhan-guzel",
+                    "errors": [],
+                    "begin": 11292,
+                    "end": 11334
+                  },
+                  {
+                    "pred": "jobTitle",
+                    "value": "Veri ve Piyasa Analisti",
+                    "errors": [],
+                    "begin": 11346,
+                    "end": 11371
+                  },
+                  {
+                    "pred": "description",
+                    "value": "Orhan Güzel, HaldeFiyat üzerinde Türkiye toptancı hal fiyatlarını, ürün bazlı fiyat hareketlerini ve piyasa trendlerini veri odaklı analiz eder.",
+                    "errors": [],
+                    "begin": 11386,
+                    "end": 11542
+                  },
+                  {
+                    "pred": "knowsAbout",
+                    "value": "hal fiyatları",
+                    "errors": [],
+                    "begin": 11557,
+                    "end": 11573
+                  },
+                  {
+                    "pred": "knowsAbout",
+                    "value": "veri analizi",
+                    "errors": [],
+                    "begin": 11574,
+                    "end": 11588
+                  },
+                  {
+                    "pred": "knowsAbout",
+                    "value": "piyasa analizi",
+                    "errors": [],
+                    "begin": 11589,
+                    "end": 11605
+                  },
+                  {
+                    "pred": "knowsAbout",
+                    "value": "tarım ekonomisi",
+                    "errors": [],
+                    "begin": 11606,
+                    "end": 11624
+                  },
+                  {
+                    "pred": "image",
+                    "value": "https://lh3.googleusercontent.com/a/ACg8ocJRYNVtjOyld6L1_zH6Y36Wfx2Jud4kOlMKJswEicA1fXU7KxMF8w=s96-c",
+                    "errors": [],
+                    "begin": 11634,
+                    "end": 11736
+                  }
+                ],
+                "nodeProperties": [
+                  {
+                    "pred": "hasCredential",
+                    "target": {
+                      "types": [
+                        {
+                          "pred": "itemtype",
+                          "value": "Credential",
+                          "errors": [],
+                          "begin": 11753,
+                          "end": 11817
+                        }
+                      ],
+                      "typeGroup": "Credential",
+                      "errors": [],
+                      "properties": [
+                        {
+                          "pred": "name",
+                          "value": "HaldeFiyat kurucu ekibi; veri, SEO ve piyasa analiz operasyonu",
+                          "errors": [],
+                          "begin": 11753,
+                          "end": 11817
+                        }
+                      ],
+                      "nodeProperties": [],
+                      "numErrors": 0,
+                      "numWarnings": 0
+                    },
+                    "errors": [],
+                    "begin": 11753,
+                    "end": 11817
+                  }
+                ],
+                "numErrors": 0,
+                "numWarnings": 0
+              },
+              "errors": [],
+              "begin": 11246,
+              "end": 11818
+            }
+          ],
+          "numErrors": 0,
+          "numWarnings": 0
+        }
+      ],
+      "numNodesWithError": 0,
+      "numNodesWithWarning": 0,
+      "numErrors": 0,
+      "numWarnings": 0,
+      "type": "ProfilePage"
+    },
+    {
+      "ownerSet": {},
+      "nodes": [
+        {
+          "types": [
+            {
+              "pred": "itemtype",
+              "value": "WebSite",
+              "errors": [],
+              "begin": 4353,
+              "end": 4362
+            }
+          ],
+          "typeGroup": "WebSite",
+          "idProperty": {
+            "pred": "urn:spore:url",
+            "value": "https://haldefiyat.com/#website",
+            "errors": [],
+            "begin": 4369,
+            "end": 4402
+          },
+          "errors": [],
+          "properties": [
+            {
+              "pred": "name",
+              "value": "HalDeFiyat",
+              "errors": [],
+              "begin": 4410,
+              "end": 4422
+            },
+            {
+              "pred": "url",
+              "value": "https://haldefiyat.com/",
+              "errors": [],
+              "begin": 4429,
+              "end": 4453
+            }
+          ],
+          "nodeProperties": [
+            {
+              "pred": "publisher",
+              "target": {
+                "types": [
+                  {
+                    "pred": "itemtype",
+                    "value": "Organization",
+                    "errors": [],
+                    "begin": 3958,
+                    "end": 3972
+                  }
+                ],
+                "typeGroup": "Organization",
+                "idProperty": {
+                  "pred": "urn:spore:url",
+                  "value": "https://haldefiyat.com/#organization",
+                  "errors": [],
+                  "begin": 3979,
+                  "end": 4017
+                },
+                "errors": [],
+                "properties": [
+                  {
+                    "pred": "name",
+                    "value": "HalDeFiyat",
+                    "errors": [],
+                    "begin": 4025,
+                    "end": 4037
+                  },
+                  {
+                    "pred": "url",
+                    "value": "https://haldefiyat.com/",
+                    "errors": [],
+                    "begin": 4044,
+                    "end": 4068
+                  },
+                  {
+                    "pred": "logo",
+                    "value": "https://haldefiyat.com/uploads/brand/logo.png",
+                    "errors": [],
+                    "begin": 4076,
+                    "end": 4123
+                  },
+                  {
+                    "pred": "email",
+                    "value": "iletisim@haldefiyat.com",
+                    "errors": [],
+                    "begin": 4132,
+                    "end": 4157
+                  },
+                  {
+                    "pred": "telephone",
+                    "value": "+90 530 048 41 83",
+                    "errors": [],
+                    "begin": 4170,
+                    "end": 4189
+                  },
+                  {
+                    "pred": "sameAs",
+                    "value": "https://www.instagram.com/haldefiyat/",
+                    "errors": [],
+                    "begin": 4200,
+                    "end": 4239
+                  },
+                  {
+                    "pred": "sameAs",
+                    "value": "https://x.com/haldefiyat",
+                    "errors": [],
+                    "begin": 4240,
+                    "end": 4266
+                  }
+                ],
+                "nodeProperties": [],
+                "numErrors": 0,
+                "numWarnings": 0
+              },
+              "errors": [],
+              "begin": 4466,
+              "end": 4512
+            },
+            {
+              "pred": "potentialAction",
+              "target": {
+                "types": [
+                  {
+                    "pred": "itemtype",
+                    "value": "SearchAction",
+                    "errors": [],
+                    "begin": 4540,
+                    "end": 4554
+                  }
+                ],
+                "typeGroup": "SearchAction",
+                "errors": [],
+                "properties": [],
+                "nodeProperties": [
+                  {
+                    "pred": "target",
+                    "target": {
+                      "types": [
+                        {
+                          "pred": "itemtype",
+                          "value": "EntryPoint",
+                          "errors": [],
+                          "begin": 4564,
+                          "end": 4620
+                        }
+                      ],
+                      "typeGroup": "EntryPoint",
+                      "errors": [],
+                      "properties": [
+                        {
+                          "pred": "urlTemplate",
+                          "value": "https://haldefiyat.com/fiyatlar?q={search_term_string}",
+                          "errors": [],
+                          "begin": 4564,
+                          "end": 4620
+                        }
+                      ],
+                      "nodeProperties": [],
+                      "numErrors": 0,
+                      "numWarnings": 0
+                    },
+                    "errors": [],
+                    "begin": 4564,
+                    "end": 4620
+                  },
+                  {
+                    "pred": "query-input",
+                    "target": {
+                      "types": [
+                        {
+                          "pred": "itemtype",
+                          "value": "PropertyValueSpecification",
+                          "errors": [],
+                          "begin": 4635,
+                          "end": 4669
+                        }
+                      ],
+                      "typeGroup": "PropertyValueSpecification",
+                      "errors": [],
+                      "properties": [
+                        {
+                          "pred": "valueRequired",
+                          "value": "http://schema.org/True",
+                          "errors": [],
+                          "begin": 4635,
+                          "end": 4669
+                        },
+                        {
+                          "pred": "valueName",
+                          "value": "search_term_string",
+                          "errors": [],
+                          "begin": 4635,
+                          "end": 4669
+                        }
+                      ],
+                      "nodeProperties": [],
+                      "numErrors": 0,
+                      "numWarnings": 0
+                    },
+                    "errors": [],
+                    "begin": 4635,
+                    "end": 4669
+                  }
+                ],
+                "numErrors": 0,
+                "numWarnings": 0
+              },
+              "errors": [],
+              "begin": 4531,
+              "end": 4670
+            }
+          ],
+          "numErrors": 0,
+          "numWarnings": 0
+        }
+      ],
+      "numNodesWithError": 0,
+      "numNodesWithWarning": 0,
+      "numErrors": 0,
+      "numWarnings": 0,
+      "type": "WebSite"
+    }
+  ],
+  "numObjects": 3,
+  "html": "<!DOCTYPE html><html lang=\"tr\" data-brand=\"hal-fiyatlari\" class=\"outfit_c3f1ddd8-module__Pv4iYa__variable ibm_plex_sans_12df3592-module__sMrOjG__variable font-sans\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=5\"/><link rel=\"preload\" href=\"https://lh3.googleusercontent.com/a/ACg8ocJRYNVtjOyld6L1_zH6Y36Wfx2Jud4kOlMKJswEicA1fXU7KxMF8w=s96-c\" as=\"image\"/><link rel=\"stylesheet\" href=\"/_next/static/chunks/3tfwshwg68odk.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"/_next/static/chunks/1_wsjbfhfngmh.css\" data-precedence=\"next\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/0z30dleiw5bh0.js\"/><script src=\"/_next/static/chunks/0vkack54ll98b.js\" async=\"\"></script><script src=\"/_next/static/chunks/1j4frrfq_23r4.js\" async=\"\"></script><script src=\"/_next/static/chunks/1gzvenf-6_y-c.js\" async=\"\"></script><script src=\"/_next/static/chunks/3jjd4l-3ontk-.js\" async=\"\"></script><script src=\"/_next/static/chunks/3t688ad-y5opb.js\" async=\"\"></script><script src=\"/_next/static/chunks/turbopack-0m381uysrageg.js\" async=\"\"></script><script src=\"/_next/static/chunks/3l2n4vag9uy_v.js\" async=\"\"></script><script src=\"/_next/static/chunks/2gf1k_nl3aw5o.js\" async=\"\"></script><script src=\"/_next/static/chunks/0joxhtbpu8-za.js\" async=\"\"></script><script src=\"/_next/static/chunks/0ej7a8qwa20n-.js\" async=\"\"></script><script src=\"/_next/static/chunks/1kczrxn-ot--k.js\" async=\"\"></script><script src=\"/_next/static/chunks/17k79_ja_5ps6.js\" async=\"\"></script><script src=\"/_next/static/chunks/0_iycftn_az0c.js\" async=\"\"></script><script src=\"/_next/static/chunks/2kf_wzuj_k_51.js\" async=\"\"></script><meta name=\"next-size-adjust\" content=\"\"/><meta name=\"theme-color\" content=\"#10b981\" media=\"(prefers-color-scheme: light)\"/><meta name=\"theme-color\" content=\"#0c5e3a\" media=\"(prefers-color-scheme: dark)\"/><link rel=\"manifest\" href=\"/manifest.json\"/><meta name=\"theme-color\" content=\"#10b981\"/><meta name=\"theme-color\" content=\"#10b981\" media=\"(prefers-color-scheme: light)\"/><meta name=\"theme-color\" content=\"#0c5e3a\" media=\"(prefers-color-scheme: dark)\"/><link rel=\"apple-touch-icon\" href=\"/icons/apple-touch-icon.png\"/><meta name=\"apple-mobile-web-app-capable\" content=\"yes\"/><meta name=\"apple-mobile-web-app-status-bar-style\" content=\"default\"/><meta name=\"apple-mobile-web-app-title\" content=\"HaldeFiyat\"/><script>(self.__next_s=self.__next_s||[]).push([0,{\"children\":\"window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}try{var c=localStorage.getItem('hf_cookie_consent');var v=c==='accepted'?'granted':'denied';gtag('consent','default',{ad_storage:v,analytics_storage:v,ad_user_data:v,ad_personalization:v,wait_for_update:500});}catch(e){gtag('consent','default',{ad_storage:'denied',analytics_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',wait_for_update:500});}\",\"id\":\"google-consent-mode\"}])</script><script src=\"/_next/static/chunks/0cz1d0mv5g_q7.js\" noModule=\"\"></script></head><body><div hidden=\"\"><!--$?--><template id=\"B:0\"></template><!--/$--></div><noscript><iframe src=\"https://www.googletagmanager.com/ns.html?id=GTM-K3WDGHX5\" height=\"0\" width=\"0\" style=\"display:none;visibility:hidden\"></iframe></noscript><script>((a,b,c,d,e,f,g,h)=>{let i=document.documentElement,j=[\"light\",\"dark\"];function k(b){var c;(Array.isArray(a)?a:[a]).forEach(a=>{let c=\"class\"===a,d=c&&f?e.map(a=>f[a]||a):e;c?(i.classList.remove(...d),i.classList.add(f&&f[b]?f[b]:b)):i.setAttribute(a,b)}),c=b,h&&j.includes(c)&&(i.style.colorScheme=c)}if(d)k(d);else try{let a=localStorage.getItem(b)||c,d=g&&\"system\"===a?window.matchMedia(\"(prefers-color-scheme: dark)\").matches?\"dark\":\"light\":a;k(d)}catch(a){}})(\"data-theme\",\"theme\",\"dark\",null,[\"light\",\"dark\"],null,true,true)</script><!--$--><!--/$--><div class=\"relative flex min-h-screen flex-col\"><script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"Organization\",\"@id\":\"https://haldefiyat.com/#organization\",\"name\":\"HalDeFiyat\",\"url\":\"https://haldefiyat.com\",\"logo\":\"https://haldefiyat.com/uploads/brand/logo.png\",\"email\":\"iletisim@haldefiyat.com\",\"telephone\":\"+90 530 048 41 83\",\"sameAs\":[\"https://www.instagram.com/haldefiyat/\",\"https://x.com/haldefiyat\"]}</script><script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"@id\":\"https://haldefiyat.com/#website\",\"name\":\"HalDeFiyat\",\"url\":\"https://haldefiyat.com\",\"publisher\":{\"@id\":\"https://haldefiyat.com/#organization\"},\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://haldefiyat.com/fiyatlar?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}</script><div class=\"pointer-events-none fixed inset-0 z-0 overflow-hidden\" aria-hidden=\"true\"><div class=\"ambient-orb-1\"></div><div class=\"ambient-orb-2\"></div><div class=\"ambient-orb-3\"></div></div><div class=\"dot-grid pointer-events-none fixed inset-0 z-0 opacity-[0.03]\" aria-hidden=\"true\"></div><header class=\"sticky top-0 z-50 w-full\"><div class=\"hidden md:block bg-(--color-header-top) backdrop-blur-xl border-b border-(--color-border-soft)\"><div class=\"mx-auto max-w-7xl px-4 sm:px-6 lg:px-8\"><div class=\"hidden md:flex h-12 items-center justify-between text-[12px] text-(--color-muted)\"><div class=\"flex items-center gap-5\"><span class=\"flex items-center gap-2 font-mono text-(--color-brand)\"><span class=\"live-dot\" aria-hidden=\"true\"></span>Canlı Veri</span><span class=\"text-(--color-faint)\">|</span><span>İzlenen: <span class=\"text-(--color-foreground)\">1.212 ürün</span></span><span class=\"text-(--color-faint)\">|</span><span class=\"text-(--color-foreground)\">29 aktif il</span><span class=\"text-(--color-faint)\">|</span><span>Son veri:<!-- --> <span class=\"font-mono text-(--color-foreground)\">26 Temmuz</span></span></div><div class=\"font-mono text-(--color-foreground)\"></div></div></div></div><div class=\"relative bg-(--color-header) backdrop-blur-xl border-b border-(--color-border-soft)\"><div class=\"mx-auto flex h-[78px] max-w-7xl items-center justify-between gap-3 px-4 sm:h-[82px] sm:px-6 md:h-[72px] lg:h-[68px] lg:px-8\"><a class=\"flex min-w-0 flex-1 items-center lg:flex-none\" href=\"/\"><img alt=\"HalDeFiyat\" loading=\"lazy\" width=\"250\" height=\"94\" decoding=\"async\" data-nimg=\"1\" class=\"h-auto max-h-[64px] w-[min(238px,calc(100vw-92px))] object-contain sm:w-[250px] md:max-h-[60px] md:w-[210px] lg:w-[160px] xl:w-[178px] dark:hidden\" style=\"color:transparent\" src=\"/logohaldefiyat_dark.png\"/><img alt=\"HalDeFiyat\" loading=\"lazy\" width=\"250\" height=\"94\" decoding=\"async\" data-nimg=\"1\" class=\"hidden h-auto max-h-[64px] w-[min(238px,calc(100vw-92px))] object-contain sm:w-[250px] md:max-h-[60px] md:w-[210px] lg:w-[160px] xl:w-[178px] dark:block\" style=\"color:transparent\" src=\"/logohaldefiyat_dark_theme.png\"/></a><nav class=\"hidden lg:flex items-center gap-1\"><div class=\"relative\"><button type=\"button\" aria-expanded=\"false\" aria-haspopup=\"menu\" class=\"inline-flex items-center gap-1 px-3 py-2 rounded-md text-[13px] font-medium transition-colors text-(--color-muted) hover:text-(--color-foreground) hover:bg-(--color-bg-alt)\">Fiyatlar<svg width=\"12\" height=\"12\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" class=\"transition-transform\" aria-hidden=\"true\"><path d=\"M5 7.5l5 5 5-5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg></button></div><a class=\"px-3 py-2 rounded-md text-[13px] font-medium transition-colors text-(--color-muted) hover:text-(--color-foreground) hover:bg-(--color-bg-alt)\" href=\"/firmalar\">Firmalar</a><div class=\"relative\"><button type=\"button\" aria-expanded=\"false\" aria-haspopup=\"menu\" class=\"inline-flex items-center gap-1 px-3 py-2 rounded-md text-[13px] font-medium transition-colors text-(--color-muted) hover:text-(--color-foreground) hover:bg-(--color-bg-alt)\">İlanlar<svg width=\"12\" height=\"12\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" class=\"transition-transform\" aria-hidden=\"true\"><path d=\"M5 7.5l5 5 5-5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg></button></div><div class=\"relative\"><button type=\"button\" aria-expanded=\"false\" aria-haspopup=\"menu\" class=\"inline-flex items-center gap-1 px-3 py-2 rounded-md text-[13px] font-medium transition-colors text-(--color-muted) hover:text-(--color-foreground) hover:bg-(--color-bg-alt)\">Takibim<svg width=\"12\" height=\"12\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" class=\"transition-transform\" aria-hidden=\"true\"><path d=\"M5 7.5l5 5 5-5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg></button></div><a class=\"px-3 py-2 rounded-md text-[13px] font-medium transition-colors text-(--color-muted) hover:text-(--color-foreground) hover:bg-(--color-bg-alt)\" href=\"/hakkimizda\">Hakkımızda</a></nav><div class=\"hidden lg:flex items-center w-full max-w-[240px] min-w-[140px] h-10 px-3 rounded-xl bg-(--color-bg-alt) border border-(--color-border-soft) hover:border-(--color-brand)/30 hover:bg-(--color-background) transition-all group\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" class=\"text-(--color-muted) group-hover:text-(--color-brand) transition-colors shrink-0\" aria-hidden=\"true\"><circle cx=\"9\" cy=\"9\" r=\"6\"></circle><path d=\"m17 17-3.5-3.5\" stroke-linecap=\"round\"></path></svg><input type=\"search\" readOnly=\"\" placeholder=\"Ara...\" aria-label=\"Ürün veya şehir ara\" class=\"flex-1 mx-2 cursor-pointer bg-transparent text-[13px] text-(--color-foreground) placeholder:text-(--color-muted) focus:outline-none\"/><kbd class=\"hidden xl:inline-flex items-center px-1.5 py-0.5 rounded border border-(--color-border) bg-(--color-background) text-[10px] font-mono text-(--color-muted)\">⌘K</kbd></div><div class=\"hidden lg:flex items-center gap-4 shrink-0 px-2\"><div class=\"w-9 h-9\"></div><a class=\"h-10 px-5 inline-flex items-center justify-center rounded-xl border border-(--color-border) text-[13px] font-semibold text-(--color-foreground) hover:bg-(--color-bg-alt) hover:text-(--color-brand) transition-all active:scale-95 whitespace-nowrap\" href=\"/giris\">Giriş Yap</a><a class=\"h-10 px-5 inline-flex items-center justify-center rounded-xl bg-(--color-brand) text-(--color-brand-fg) text-[13px] font-bold hover:bg-(--color-brand-dark) hover:scale-[1.02] transition-all active:scale-95 shadow-lg shadow-(--color-brand)/20 whitespace-nowrap\" href=\"/kayit\">Ücretsiz Başla</a></div><button type=\"button\" aria-label=\"Menüyü aç/kapat\" aria-expanded=\"false\" class=\"lg:hidden inline-flex h-9 w-9 items-center justify-center rounded-[8px] bg-(--color-brand) text-white shadow-sm transition-transform active:scale-95\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M4 6h12M4 10h12M4 14h12\" stroke-linecap=\"round\"></path></svg></button></div></div></header><main class=\"relative z-10 grow pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0\"><main class=\"relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-12\"><script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"ProfilePage\",\"url\":\"https://haldefiyat.com/yazar/orhan-guzel\",\"name\":\"Orhan Güzel | HaldeFiyat Yazar Profili\",\"mainEntity\":{\"@type\":\"Person\",\"name\":\"Orhan Güzel\",\"url\":\"https://haldefiyat.com/yazar/orhan-guzel\",\"jobTitle\":\"Veri ve Piyasa Analisti\",\"description\":\"Orhan Güzel, HaldeFiyat üzerinde Türkiye toptancı hal fiyatlarını, ürün bazlı fiyat hareketlerini ve piyasa trendlerini veri odaklı analiz eder.\",\"knowsAbout\":[\"hal fiyatları\",\"veri analizi\",\"piyasa analizi\",\"tarım ekonomisi\"],\"image\":\"https://lh3.googleusercontent.com/a/ACg8ocJRYNVtjOyld6L1_zH6Y36Wfx2Jud4kOlMKJswEicA1fXU7KxMF8w=s96-c\",\"hasCredential\":\"HaldeFiyat kurucu ekibi; veri, SEO ve piyasa analiz operasyonu\"}}</script><script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Anasayfa\",\"item\":\"https://haldefiyat.com/\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"Yazarlar\",\"item\":\"https://haldefiyat.com/analiz\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"Orhan Güzel\",\"item\":\"https://haldefiyat.com/yazar/orhan-guzel\"}]}</script><nav aria-label=\"Sayfa yolu\" class=\"mb-6 text-[13px] text-(--color-muted)\"><ol class=\"flex flex-wrap items-center gap-2\"><li class=\"flex min-w-0 items-center gap-2\"><a class=\"hover:text-(--color-brand)\" href=\"/\">Anasayfa</a></li><li class=\"flex min-w-0 items-center gap-2\"><span aria-hidden=\"true\">/</span><a class=\"hover:text-(--color-brand)\" href=\"/analiz\">Yazarlar</a></li><li class=\"flex min-w-0 items-center gap-2\"><span aria-hidden=\"true\">/</span><span aria-current=\"page\" class=\"truncate text-(--color-foreground)\">Orhan Güzel</span></li></ol></nav><section class=\"mt-8 grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]\"><aside class=\"lg:sticky lg:top-28 lg:self-start\"><div class=\"rounded-[20px] border border-(--color-border) bg-(--color-surface) p-6\"><div class=\"aspect-square overflow-hidden rounded-[14px] border border-(--color-border-soft) bg-(--color-bg-alt)\"><img src=\"https://lh3.googleusercontent.com/a/ACg8ocJRYNVtjOyld6L1_zH6Y36Wfx2Jud4kOlMKJswEicA1fXU7KxMF8w=s96-c\" alt=\"Orhan Güzel\" class=\"h-full w-full object-cover\"/></div><h1 class=\"mt-5 font-(family-name:--font-display) text-[28px] font-bold leading-tight text-(--color-foreground)\">Orhan Güzel</h1><p class=\"mt-2 text-[15px] font-medium text-(--color-brand)\">Veri ve Piyasa Analisti</p><p class=\"mt-4 rounded-[12px] border border-(--color-border-soft) bg-(--color-bg-alt) p-3 text-[13px] leading-5 text-(--color-muted)\">HaldeFiyat kurucu ekibi; veri, SEO ve piyasa analiz operasyonu</p></div></aside><main class=\"min-w-0\"><section class=\"rounded-[20px] border border-(--color-border) bg-(--color-surface) p-6 sm:p-8\"><div class=\"font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)\">HaldeFiyat Yazar Profili</div><h2 class=\"mt-3 font-(family-name:--font-display) text-[30px] font-bold leading-tight text-(--color-foreground)\">Orhan Güzel<!-- --> analizleri</h2><p class=\"mt-4 max-w-3xl text-[16px] leading-7 text-(--color-muted)\">Orhan Güzel, HaldeFiyat üzerinde Türkiye toptancı hal fiyatlarını, ürün bazlı fiyat hareketlerini ve piyasa trendlerini veri odaklı analiz eder.</p><div class=\"mt-5 flex flex-wrap gap-2\"><span class=\"rounded-full bg-(--color-brand)/10 px-3 py-1 text-[12px] font-semibold text-(--color-brand)\">hal fiyatları</span><span class=\"rounded-full bg-(--color-brand)/10 px-3 py-1 text-[12px] font-semibold text-(--color-brand)\">veri analizi</span><span class=\"rounded-full bg-(--color-brand)/10 px-3 py-1 text-[12px] font-semibold text-(--color-brand)\">piyasa analizi</span><span class=\"rounded-full bg-(--color-brand)/10 px-3 py-1 text-[12px] font-semibold text-(--color-brand)\">tarım ekonomisi</span></div></section><section class=\"mt-6 rounded-[20px] border border-(--color-border) bg-(--color-surface) p-6 sm:p-8\"><div class=\"mb-5 flex items-center justify-between gap-4\"><h2 class=\"font-(family-name:--font-display) text-[22px] font-bold text-(--color-foreground)\">Yayınlanan Yazılar</h2><span class=\"text-[13px] text-(--color-muted)\">3<!-- --> yazı</span></div><ul class=\"grid gap-4\" role=\"list\"><li><a class=\"block rounded-[14px] border border-(--color-border-soft) bg-(--color-bg-alt) p-4 transition-colors hover:border-(--color-brand)/40\" href=\"/analiz/mayis-4-hafta-2026-hal-raporu\"><div class=\"flex flex-wrap items-center gap-2 text-[11px] text-(--color-muted)\"><time dateTime=\"2026-05-24\">24 Mayıs 2026</time><span class=\"rounded-full bg-(--color-surface) px-2 py-0.5\">haftalık rapor</span><span class=\"rounded-full bg-(--color-surface) px-2 py-0.5\">hal fiyatları</span><span class=\"rounded-full bg-(--color-surface) px-2 py-0.5\">endeks</span></div><h3 class=\"mt-2 text-[17px] font-bold leading-snug text-(--color-foreground)\">Mayıs 4. Hafta Hal Raporu: Endeks Geriledi, Domates ve Salatalık Rahatladı</h3><p class=\"mt-2 line-clamp-2 text-[14px] leading-6 text-(--color-muted)\">18-24 Mayıs 2026 haftasında HaldeFiyat Endeksi 100,0 puandan 92,9 puana geriledi. Domates, patlıcan, salatalık, kabak ve fasulyede belirgin düşüş görülürken limon, kuru soğan ve havuç yukarı yönlü kaldı. Antalya, İstanbul, Bursa, Çanakkale, Çorum ve Trabzon hal fiyatları arasındaki farklar haftanın ana geo-seo tablosunu oluşturdu.</p></a></li><li><a class=\"block rounded-[14px] border border-(--color-border-soft) bg-(--color-bg-alt) p-4 transition-colors hover:border-(--color-brand)/40\" href=\"/analiz/mayis-3-hafta-2026-hal-raporu\"><div class=\"flex flex-wrap items-center gap-2 text-[11px] text-(--color-muted)\"><time dateTime=\"2026-05-19\">19 Mayıs 2026</time><span class=\"rounded-full bg-(--color-surface) px-2 py-0.5\">kiraz</span><span class=\"rounded-full bg-(--color-surface) px-2 py-0.5\">çilek</span><span class=\"rounded-full bg-(--color-surface) px-2 py-0.5\">domates</span></div><h3 class=\"mt-2 text-[17px] font-bold leading-snug text-(--color-foreground)\">Mayıs 3. Hafta Hal Raporu: Kiraz ve Çilekte Sezon Açıldı, Fiyat Bandı Rekor Genişledi</h3><p class=\"mt-2 line-clamp-2 text-[14px] leading-6 text-(--color-muted)\">HaldeFiyat Endeksi&#x27;nin baz haftası 2026-20 (11–17 Mayıs) = 100,0 puan; seri bu haftadan itibaren ölçülüyor. Kiraz (₺247) ve çilekte (₺136, bant ₺58–₺418) sezon açıldı ama kalite/bölge farkı fiyat bandını rekor seviyede genişletti; domates ₺81,5 ile mevsim üstü, patates ve soğan sakin.</p></a></li><li><a class=\"block rounded-[14px] border border-(--color-border-soft) bg-(--color-bg-alt) p-4 transition-colors hover:border-(--color-brand)/40\" href=\"/analiz/elma-fiyat-analizi-mayis-2026\"><div class=\"flex flex-wrap items-center gap-2 text-[11px] text-(--color-muted)\"><time dateTime=\"2026-05-18\">18 Mayıs 2026</time><span class=\"rounded-full bg-(--color-surface) px-2 py-0.5\">elma</span><span class=\"rounded-full bg-(--color-surface) px-2 py-0.5\">analiz</span><span class=\"rounded-full bg-(--color-surface) px-2 py-0.5\">don</span></div><h3 class=\"mt-2 text-[17px] font-bold leading-snug text-(--color-foreground)\">Elma Fiyat Analizi — Mayıs 2026: Don Şoku, Rekor Makas ve Bölgesel Parçalanma</h3><p class=\"mt-2 line-clamp-2 text-[14px] leading-6 text-(--color-muted)\">Don kaynaklı arz şoku ile talep yıkımı aynı anda yaşanıyor: elma, Nisan TZOB raporunda %393,7 ile tüm yaş meyve-sebzede en geniş üretici–market makasına sahip ürün oldu. Mayıs sonunda kaliteli stok eridikçe Golden yukarı dönerken ulusal ortalama gerçeği gizliyor; asıl tablo bölgesel parçalanmada.</p></a></li></ul></section></main></section></main><!--$?--><template id=\"B:1\"></template><!--/$--></main><div class=\"\" aria-label=\"Reklam\"><div class=\"mx-auto my-5 max-w-3xl px-4\"><div class=\"mb-1 text-center font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.12em] text-(--color-muted)\">Sponsorlu</div><div class=\"flex flex-col items-center gap-3 rounded-xl border border-(--color-border) bg-(--color-surface) p-3 sm:flex-row sm:gap-4 sm:p-4\"><div class=\"shrink-0\"><a href=\"/api/v1/banners/5/click\" target=\"_blank\" rel=\"sponsored nofollow noopener\"><img src=\"https://www.vistaseeds.com.tr/uploads/media/logo/x-banner-1500x500.png\" alt=\"VistaSeeds tohumlari\" loading=\"lazy\" decoding=\"async\" class=\"max-h-24 w-auto rounded-md object-contain\"/></a></div><div class=\"min-w-0 flex-1\"><p class=\"text-[14px] font-medium leading-snug text-(--color-foreground)\">Sertifikalı hibrit tohumda Türkiye&#x27;nin güveni</p><a href=\"/api/v1/banners/5/click\" target=\"_blank\" rel=\"sponsored nofollow noopener\" class=\"mt-2 inline-flex items-center rounded-lg bg-(--color-brand) px-3.5 py-1.5 text-[13px] font-semibold text-(--color-brand-fg) transition-opacity hover:opacity-90\">Tohumları Keşfet<!-- --> →</a></div></div></div></div><footer class=\"border-t border-(--color-border) bg-(--color-header) px-5 py-12 sm:px-8 sm:py-16\"><div class=\"mx-auto max-w-[1400px]\"><div class=\"mb-7 grid grid-cols-1 gap-12 border-b border-(--color-border) pb-12 lg:grid-cols-[2fr_1fr_1fr_1fr]\"><div class=\"space-y-4\"><a class=\"inline-flex max-w-full\" href=\"/\"><img alt=\"HalDeFiyat\" loading=\"lazy\" width=\"280\" height=\"105\" decoding=\"async\" data-nimg=\"1\" class=\"h-auto max-h-[72px] w-[min(260px,78vw)] object-contain sm:w-[280px] lg:w-[220px] dark:hidden\" style=\"color:transparent\" src=\"/logohaldefiyat_dark.png\"/><img alt=\"HalDeFiyat\" loading=\"lazy\" width=\"280\" height=\"105\" decoding=\"async\" data-nimg=\"1\" class=\"hidden h-auto max-h-[72px] w-[min(260px,78vw)] object-contain sm:w-[280px] lg:w-[220px] dark:block\" style=\"color:transparent\" src=\"/logohaldefiyat_dark_theme.png\"/></a><p class=\"max-w-[320px] text-[14px] leading-relaxed text-(--color-muted)\">Türkiye&#x27;nin hal fiyatları platformu. Günlük sebze ve meyve fiyatlarını takip et.</p><div class=\"flex items-center gap-3 pt-1\"><a href=\"https://x.com/haldefiyat\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Twitter/X\" class=\"text-(--color-muted) hover:text-(--color-brand) transition-colors\"><svg class=\"h-4 w-4\" fill=\"currentColor\" viewBox=\"0 0 24 24\"><path d=\"M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z\"></path></svg></a><a href=\"https://www.instagram.com/haldefiyat/\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Instagram\" class=\"text-(--color-muted) hover:text-(--color-brand) transition-colors\"><svg class=\"h-4 w-4\" fill=\"currentColor\" viewBox=\"0 0 24 24\"><path d=\"M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z\"></path></svg></a><a href=\"https://t.me/haldefiyat\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Telegram\" class=\"text-(--color-muted) hover:text-(--color-brand) transition-colors\"><svg class=\"h-4 w-4\" fill=\"currentColor\" viewBox=\"0 0 24 24\"><path d=\"M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.5 1.201-.82 1.23-.697.065-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z\"></path></svg></a></div></div><div><h3 class=\"mb-4 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-foreground)\">PLATFORM</h3><ul class=\"space-y-2.5\"><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/fiyatlar\">Hal Fiyatları</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/canli-hal-fiyatlari\">Canlı Hal Fiyatları</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/canli-hayvan-fiyatlari\">Canlı Hayvan Fiyatları</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/et-fiyatlari\">Et Fiyatları</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/borsa\">Borsa / Resmi Fiyatlar</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/ilanlar\">İlanlar</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/ilan-ver\">İlan Ver</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/karsilastirma\">Karşılaştır</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/fiyatlar?range=7d\">Trend</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/embed\">Widget ve Embed</a></li></ul></div><div><h3 class=\"mb-4 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-foreground)\">KURUMSAL</h3><ul class=\"space-y-2.5\"><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/hakkimizda\">Hakkımızda</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/metodoloji\">Metodoloji</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/editoryal-politika\">Editoryal Politika</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/duzeltme-politikasi\">Düzeltme Politikası</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/veri-kaynagi-politikasi\">Veri Kaynağı Politikası</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/sahiplik-finansman\">Sahiplik ve Finansman</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/api-docs\">API Dokümantasyonu</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/basin\">Basın Odası</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/iletisim\">İletişim</a></li></ul></div><div><h3 class=\"mb-4 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-foreground)\">YASAL</h3><ul class=\"space-y-2.5\"><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/gizlilik-politikasi\">Gizlilik Politikası</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/kullanim-kosullari\">Kullanım Koşulları</a></li><li><a class=\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\" href=\"/kvkk\">KVKK Aydınlatma</a></li></ul></div></div><div class=\"flex flex-col items-center justify-between gap-3 text-[13px] sm:flex-row\"><p class=\"text-(--color-muted)\">© <!-- -->2026<!-- --> <!-- -->HalDeFiyat<!-- -->. Tüm hakları saklıdır.</p><a href=\"https://guezelwebdesign.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-(--color-muted) transition-colors hover:text-(--color-brand)\">Tasarım Dizayn GWD</a></div></div></footer><nav aria-label=\"Mobil navigasyon\" class=\"fixed inset-x-0 bottom-0 z-50 flex border-t border-(--color-border-soft) bg-(--color-surface)/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden\"><a class=\"flex h-16 flex-1 flex-col items-center justify-center gap-1 transition-colors text-(--color-muted) hover:text-(--color-foreground)\" href=\"/\"><span class=\"grid place-items-center rounded-xl p-1.5 transition-colors \"><svg width=\"22\" height=\"22\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 9.5 10 3l7 6.5\" stroke-linecap=\"round\"></path><path d=\"M5 8.5V17h10V8.5\"></path><path d=\"M8.5 17v-4h3v4\"></path></svg></span><span class=\"text-[10px] font-semibold tracking-wide\">Anasayfa</span></a><a class=\"flex h-16 flex-1 flex-col items-center justify-center gap-1 transition-colors text-(--color-muted) hover:text-(--color-foreground)\" href=\"/fiyatlar\"><span class=\"grid place-items-center rounded-xl p-1.5 transition-colors \"><svg width=\"22\" height=\"22\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10.5 2.5H4.5a2 2 0 0 0-2 2v6l7.5 7.5a1.5 1.5 0 0 0 2.1 0l4.9-4.9a1.5 1.5 0 0 0 0-2.1L9.5 3.1\"></path><circle cx=\"6.5\" cy=\"6.5\" r=\"1.1\" fill=\"currentColor\" stroke=\"none\"></circle></svg></span><span class=\"text-[10px] font-semibold tracking-wide\">Fiyatlar</span></a><a class=\"flex h-16 flex-1 flex-col items-center justify-center gap-1 transition-colors text-(--color-muted) hover:text-(--color-foreground)\" href=\"/harita\"><span class=\"grid place-items-center rounded-xl p-1.5 transition-colors \"><svg width=\"22\" height=\"22\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.5 3.5 3 5v12l4.5-1.5 5 1.5L17 15.5V3.5L12.5 5l-5-1.5z\"></path><path d=\"M7.5 3.5v12M12.5 5v12\"></path></svg></span><span class=\"text-[10px] font-semibold tracking-wide\">Harita</span></a><a class=\"flex h-16 flex-1 flex-col items-center justify-center gap-1 transition-colors text-(--color-muted) hover:text-(--color-foreground)\" href=\"/uyarilar\"><span class=\"grid place-items-center rounded-xl p-1.5 transition-colors \"><svg width=\"22\" height=\"22\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" aria-hidden=\"true\"><path d=\"M10 2.5a5.5 5.5 0 0 1 5.5 5.5v3l1.5 2H3l1.5-2V8A5.5 5.5 0 0 1 10 2.5z\" stroke-linejoin=\"round\"></path><path d=\"M8 16.5a2 2 0 0 0 4 0\" stroke-linecap=\"round\"></path></svg></span><span class=\"text-[10px] font-semibold tracking-wide\">Uyarılar</span></a></nav></div><script>requestAnimationFrame(function(){$RT=performance.now()});</script><script src=\"/_next/static/chunks/0z30dleiw5bh0.js\" id=\"_R_\" async=\"\"></script><script>(self.__next_f=self.__next_f||[]).push([0])</script><script>self.__next_f.push([1,\"1:\\\"$Sreact.fragment\\\"\\n5:I[232266,[\\\"/_next/static/chunks/3l2n4vag9uy_v.js\\\"],\\\"default\\\"]\\n6:I[518922,[\\\"/_next/static/chunks/3l2n4vag9uy_v.js\\\"],\\\"default\\\"]\\n8:I[103679,[\\\"/_next/static/chunks/3l2n4vag9uy_v.js\\\"],\\\"OutletBoundary\\\"]\\n9:\\\"$Sreact.suspense\\\"\\nc:I[103679,[\\\"/_next/static/chunks/3l2n4vag9uy_v.js\\\"],\\\"ViewportBoundary\\\"]\\ne:I[103679,[\\\"/_next/static/chunks/3l2n4vag9uy_v.js\\\"],\\\"MetadataBoundary\\\"]\\n10:I[424682,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\",\\\"/_next/static/chunks/0ej7a8qwa20n-.js\\\"],\\\"default\\\"]\\n12:I[682582,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\",\\\"/_next/static/chunks/1kczrxn-ot--k.js\\\",\\\"/_next/static/chunks/17k79_ja_5ps6.js\\\",\\\"/_next/static/chunks/0_iycftn_az0c.js\\\"],\\\"default\\\"]\\n13:I[608915,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\",\\\"/_next/static/chunks/1kczrxn-ot--k.js\\\",\\\"/_next/static/chunks/17k79_ja_5ps6.js\\\",\\\"/_next/static/chunks/0_iycftn_az0c.js\\\"],\\\"\\\"]\\n14:I[280114,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\",\\\"/_next/static/chunks/1kczrxn-ot--k.js\\\",\\\"/_next/static/chunks/17k79_ja_5ps6.js\\\",\\\"/_next/static/chunks/0_iycftn_az0c.js\\\"],\\\"Image\\\"]\\n15:I[937442,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\",\\\"/_next/static/chunks/1kczrxn-ot--k.js\\\",\\\"/_next/static/chunks/17k79_ja_5ps6.js\\\",\\\"/_next/static/chunks/0_iycftn_az0c.js\\\"],\\\"default\\\"]\\n16:I[416302,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\",\\\"/_next/static/chunks/1kczrxn-ot--k.js\\\",\\\"/_next/static/chunks/17k79_ja_5ps6.js\\\",\\\"/_next/static/chunks/0_iycftn_az0c.js\\\"],\\\"default\\\"]\\n20:I[676822,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\",\\\"/_next/static/chunks/1kczrxn-ot--k.js\\\",\\\"/_next/static/chunks/17k79_ja_5ps6.js\\\",\\\"/_next/static/chunks/0_iycftn_az0c.js\\\"],\\\"default\\\"]\\n21:I[473367,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\",\\\"/_next/static/chunks/1kczrxn-ot--k.js\\\",\\\"/_next/static/chunks/17k79_ja_5ps6.js\\\",\\\"/_next/static/chunks/0_iycftn_az0c.js\\\"],\\\"MobileBottomNav\\\"]\\n22:I[960276,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\"],\\\"\\\"]\\n25:I[612414,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\"],\\\"default\\\"]\\n26:I[322942,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\"],\\\"ThemeProvider\\\"]\\n28:I[820621,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\"],\\\"default\\\"]\\n2a:I[477804,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\"],\\\"AuthSessionProvider\\\"]\\n2b:I[694474,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\"],\\\"ToastProvider\\\"]\\n2c:I[458171,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\"],\\\"OneSignalProvider\\\"]\\n2d:I[461779,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\"],\\\"AttributionProvider\\\"]\\n2e:I[182253,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\"],\\\"FavoriteSyncManager\\\"]\\n2f:I[543429,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\"],\\\"ServiceWorkerProvider\\\"]\\n30:I[255352,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\"],\\\"PageviewTracker\\\"]\\n31:I[797916,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\",\\\"/_next/static/chunks/2kf_wzuj_k_51.js\\\"],\\\"default\\\"]\\n32:I[997905,[\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\"],\\\"CookieConsentBanner\\\"]\\n:HL[\\\"/_next/static/chunks/3tfwshwg68odk.css\\\",\\\"style\\\"]\\n:HL[\\\"/_next/static/chunks/1_wsjbfhfngmh.css\\\",\\\"style\\\"]\\n:HL[\\\"/_next/static/media/03fc1b4a8d284b5e-s.p.0wiir8udbzjvx.woff2\\\",\\\"font\\\",{\\\"crossOrigin\\\":\\\"\\\",\\\"type\\\":\\\"font/woff2\\\"}]\\n:HL[\\\"/_next/static/media/1b99372b3eaef0c8-s.p.1gsd1jahc5dg_.woff2\\\",\\\"font\\\",{\\\"crossOrigin\\\":\\\"\\\",\\\"type\\\":\\\"font/woff2\\\"}]\\n\"])</script><script>self.__next_f.push([1,\"0:{\\\"P\\\":null,\\\"c\\\":[\\\"\\\",\\\"yazar\\\",\\\"orhan-guzel\\\"],\\\"q\\\":\\\"\\\",\\\"i\\\":false,\\\"f\\\":[[[\\\"\\\",{\\\"children\\\":[[\\\"locale\\\",\\\"tr\\\",\\\"d\\\",null],{\\\"children\\\":[\\\"(public)\\\",{\\\"children\\\":[\\\"yazar\\\",{\\\"children\\\":[[\\\"slug\\\",\\\"orhan-guzel\\\",\\\"d\\\",null],{\\\"children\\\":[\\\"__PAGE__\\\",{}]}]}]}]}]},\\\"$undefined\\\",\\\"$undefined\\\",16],[[\\\"$\\\",\\\"$1\\\",\\\"c\\\",{\\\"children\\\":[[[\\\"$\\\",\\\"link\\\",\\\"0\\\",{\\\"rel\\\":\\\"stylesheet\\\",\\\"href\\\":\\\"/_next/static/chunks/3tfwshwg68odk.css\\\",\\\"precedence\\\":\\\"next\\\",\\\"crossOrigin\\\":\\\"$undefined\\\",\\\"nonce\\\":\\\"$undefined\\\"}],[\\\"$\\\",\\\"link\\\",\\\"1\\\",{\\\"rel\\\":\\\"stylesheet\\\",\\\"href\\\":\\\"/_next/static/chunks/1_wsjbfhfngmh.css\\\",\\\"precedence\\\":\\\"next\\\",\\\"crossOrigin\\\":\\\"$undefined\\\",\\\"nonce\\\":\\\"$undefined\\\"}],[\\\"$\\\",\\\"script\\\",\\\"script-0\\\",{\\\"src\\\":\\\"/_next/static/chunks/2gf1k_nl3aw5o.js\\\",\\\"async\\\":true,\\\"nonce\\\":\\\"$undefined\\\"}],[\\\"$\\\",\\\"script\\\",\\\"script-1\\\",{\\\"src\\\":\\\"/_next/static/chunks/0joxhtbpu8-za.js\\\",\\\"async\\\":true,\\\"nonce\\\":\\\"$undefined\\\"}]],\\\"$L2\\\"]}],{\\\"children\\\":[[\\\"$\\\",\\\"$1\\\",\\\"c\\\",{\\\"children\\\":[null,\\\"$L3\\\"]}],{\\\"children\\\":[[\\\"$\\\",\\\"$1\\\",\\\"c\\\",{\\\"children\\\":[[[\\\"$\\\",\\\"script\\\",\\\"script-0\\\",{\\\"src\\\":\\\"/_next/static/chunks/1kczrxn-ot--k.js\\\",\\\"async\\\":true,\\\"nonce\\\":\\\"$undefined\\\"}],[\\\"$\\\",\\\"script\\\",\\\"script-1\\\",{\\\"src\\\":\\\"/_next/static/chunks/17k79_ja_5ps6.js\\\",\\\"async\\\":true,\\\"nonce\\\":\\\"$undefined\\\"}],[\\\"$\\\",\\\"script\\\",\\\"script-2\\\",{\\\"src\\\":\\\"/_next/static/chunks/0_iycftn_az0c.js\\\",\\\"async\\\":true,\\\"nonce\\\":\\\"$undefined\\\"}]],\\\"$L4\\\"]}],{\\\"children\\\":[[\\\"$\\\",\\\"$1\\\",\\\"c\\\",{\\\"children\\\":[null,[\\\"$\\\",\\\"$L5\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"error\\\":\\\"$undefined\\\",\\\"errorStyles\\\":\\\"$undefined\\\",\\\"errorScripts\\\":\\\"$undefined\\\",\\\"template\\\":[\\\"$\\\",\\\"$L6\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":\\\"$undefined\\\",\\\"forbidden\\\":\\\"$undefined\\\",\\\"unauthorized\\\":\\\"$undefined\\\"}]]}],{\\\"children\\\":[[\\\"$\\\",\\\"$1\\\",\\\"c\\\",{\\\"children\\\":[null,[\\\"$\\\",\\\"$L5\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"error\\\":\\\"$undefined\\\",\\\"errorStyles\\\":\\\"$undefined\\\",\\\"errorScripts\\\":\\\"$undefined\\\",\\\"template\\\":[\\\"$\\\",\\\"$L6\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":\\\"$undefined\\\",\\\"forbidden\\\":\\\"$undefined\\\",\\\"unauthorized\\\":\\\"$undefined\\\"}]]}],{\\\"children\\\":[[\\\"$\\\",\\\"$1\\\",\\\"c\\\",{\\\"children\\\":[\\\"$L7\\\",null,[\\\"$\\\",\\\"$L8\\\",null,{\\\"children\\\":[\\\"$\\\",\\\"$9\\\",null,{\\\"name\\\":\\\"Next.MetadataOutlet\\\",\\\"children\\\":\\\"$@a\\\"}]}]]}],{},null,false,null]},null,false,\\\"$@b\\\"]},null,false,\\\"$@b\\\"]},null,false,null]},null,false,null]},null,false,null],[\\\"$\\\",\\\"$1\\\",\\\"h\\\",{\\\"children\\\":[null,[\\\"$\\\",\\\"$Lc\\\",null,{\\\"children\\\":\\\"$Ld\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"hidden\\\":true,\\\"children\\\":[\\\"$\\\",\\\"$Le\\\",null,{\\\"children\\\":[\\\"$\\\",\\\"$9\\\",null,{\\\"name\\\":\\\"Next.Metadata\\\",\\\"children\\\":\\\"$Lf\\\"}]}]}],[\\\"$\\\",\\\"meta\\\",null,{\\\"name\\\":\\\"next-size-adjust\\\",\\\"content\\\":\\\"\\\"}]]}],false]],\\\"m\\\":\\\"$undefined\\\",\\\"G\\\":[\\\"$10\\\",[[\\\"$\\\",\\\"link\\\",\\\"0\\\",{\\\"rel\\\":\\\"stylesheet\\\",\\\"href\\\":\\\"/_next/static/chunks/3tfwshwg68odk.css\\\",\\\"precedence\\\":\\\"next\\\",\\\"crossOrigin\\\":\\\"$undefined\\\",\\\"nonce\\\":\\\"$undefined\\\"}],[\\\"$\\\",\\\"link\\\",\\\"1\\\",{\\\"rel\\\":\\\"stylesheet\\\",\\\"href\\\":\\\"/_next/static/chunks/1_wsjbfhfngmh.css\\\",\\\"precedence\\\":\\\"next\\\",\\\"crossOrigin\\\":\\\"$undefined\\\",\\\"nonce\\\":\\\"$undefined\\\"}]]],\\\"S\\\":false,\\\"h\\\":null,\\\"s\\\":\\\"$undefined\\\",\\\"l\\\":\\\"$undefined\\\",\\\"p\\\":\\\"$undefined\\\",\\\"d\\\":\\\"$undefined\\\",\\\"b\\\":\\\"OJ4GvX2p67Zeei1HYi1f-\\\"}\\n\"])</script><script>self.__next_f.push([1,\"11:[]\\nb:\\\"$W11\\\"\\n3:[\\\"$\\\",\\\"$L5\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"error\\\":\\\"$undefined\\\",\\\"errorStyles\\\":\\\"$undefined\\\",\\\"errorScripts\\\":\\\"$undefined\\\",\\\"template\\\":[\\\"$\\\",\\\"$L6\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":\\\"$undefined\\\",\\\"forbidden\\\":\\\"$undefined\\\",\\\"unauthorized\\\":\\\"$undefined\\\"}]\\n\"])</script><script>self.__next_f.push([1,\"4:[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"relative flex min-h-screen flex-col\\\",\\\"children\\\":[[\\\"$\\\",\\\"script\\\",null,{\\\"type\\\":\\\"application/ld+json\\\",\\\"dangerouslySetInnerHTML\\\":{\\\"__html\\\":\\\"{\\\\\\\"@context\\\\\\\":\\\\\\\"https://schema.org\\\\\\\",\\\\\\\"@type\\\\\\\":\\\\\\\"Organization\\\\\\\",\\\\\\\"@id\\\\\\\":\\\\\\\"https://haldefiyat.com/#organization\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"HalDeFiyat\\\\\\\",\\\\\\\"url\\\\\\\":\\\\\\\"https://haldefiyat.com\\\\\\\",\\\\\\\"logo\\\\\\\":\\\\\\\"https://haldefiyat.com/uploads/brand/logo.png\\\\\\\",\\\\\\\"email\\\\\\\":\\\\\\\"iletisim@haldefiyat.com\\\\\\\",\\\\\\\"telephone\\\\\\\":\\\\\\\"+90 530 048 41 83\\\\\\\",\\\\\\\"sameAs\\\\\\\":[\\\\\\\"https://www.instagram.com/haldefiyat/\\\\\\\",\\\\\\\"https://x.com/haldefiyat\\\\\\\"]}\\\"}}],[\\\"$\\\",\\\"script\\\",null,{\\\"type\\\":\\\"application/ld+json\\\",\\\"dangerouslySetInnerHTML\\\":{\\\"__html\\\":\\\"{\\\\\\\"@context\\\\\\\":\\\\\\\"https://schema.org\\\\\\\",\\\\\\\"@type\\\\\\\":\\\\\\\"WebSite\\\\\\\",\\\\\\\"@id\\\\\\\":\\\\\\\"https://haldefiyat.com/#website\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"HalDeFiyat\\\\\\\",\\\\\\\"url\\\\\\\":\\\\\\\"https://haldefiyat.com\\\\\\\",\\\\\\\"publisher\\\\\\\":{\\\\\\\"@id\\\\\\\":\\\\\\\"https://haldefiyat.com/#organization\\\\\\\"},\\\\\\\"potentialAction\\\\\\\":{\\\\\\\"@type\\\\\\\":\\\\\\\"SearchAction\\\\\\\",\\\\\\\"target\\\\\\\":\\\\\\\"https://haldefiyat.com/fiyatlar?q={search_term_string}\\\\\\\",\\\\\\\"query-input\\\\\\\":\\\\\\\"required name=search_term_string\\\\\\\"}}\\\"}}],[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"pointer-events-none fixed inset-0 z-0 overflow-hidden\\\",\\\"aria-hidden\\\":true,\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"ambient-orb-1\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"ambient-orb-2\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"ambient-orb-3\\\"}]]}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"dot-grid pointer-events-none fixed inset-0 z-0 opacity-[0.03]\\\",\\\"aria-hidden\\\":true}]],[\\\"$\\\",\\\"header\\\",null,{\\\"className\\\":\\\"sticky top-0 z-50 w-full\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"hidden md:block bg-(--color-header-top) backdrop-blur-xl border-b border-(--color-border-soft)\\\",\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"mx-auto max-w-7xl px-4 sm:px-6 lg:px-8\\\",\\\"children\\\":[\\\"$\\\",\\\"$L12\\\",null,{\\\"trackedProducts\\\":1212,\\\"activeCities\\\":29,\\\"targetCoverage\\\":\\\"81 il hedef\\\",\\\"latestRecordedDate\\\":\\\"2026-07-26\\\"}]}]}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"relative bg-(--color-header) backdrop-blur-xl border-b border-(--color-border-soft)\\\",\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"mx-auto flex h-[78px] max-w-7xl items-center justify-between gap-3 px-4 sm:h-[82px] sm:px-6 md:h-[72px] lg:h-[68px] lg:px-8\\\",\\\"children\\\":[[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/\\\",\\\"className\\\":\\\"flex min-w-0 flex-1 items-center lg:flex-none\\\",\\\"children\\\":[[\\\"$\\\",\\\"$L14\\\",null,{\\\"src\\\":\\\"/logohaldefiyat_dark.png\\\",\\\"alt\\\":\\\"HalDeFiyat\\\",\\\"width\\\":250,\\\"height\\\":94,\\\"className\\\":\\\"h-auto max-h-[64px] w-[min(238px,calc(100vw-92px))] object-contain sm:w-[250px] md:max-h-[60px] md:w-[210px] lg:w-[160px] xl:w-[178px] dark:hidden\\\",\\\"unoptimized\\\":true}],[\\\"$\\\",\\\"$L14\\\",null,{\\\"src\\\":\\\"/logohaldefiyat_dark_theme.png\\\",\\\"alt\\\":\\\"HalDeFiyat\\\",\\\"width\\\":250,\\\"height\\\":94,\\\"className\\\":\\\"hidden h-auto max-h-[64px] w-[min(238px,calc(100vw-92px))] object-contain sm:w-[250px] md:max-h-[60px] md:w-[210px] lg:w-[160px] xl:w-[178px] dark:block\\\",\\\"unoptimized\\\":true}]]}],[\\\"$\\\",\\\"$L15\\\",null,{\\\"entries\\\":[{\\\"key\\\":\\\"prices-group\\\",\\\"label\\\":\\\"Fiyatlar\\\",\\\"items\\\":[{\\\"key\\\":\\\"prices\\\",\\\"label\\\":\\\"Günlük Fiyatlar\\\",\\\"href\\\":\\\"/fiyatlar\\\"},{\\\"key\\\":\\\"borsa\\\",\\\"label\\\":\\\"Borsa / Resmi\\\",\\\"href\\\":\\\"/borsa\\\"},{\\\"key\\\":\\\"canli-hayvan\\\",\\\"label\\\":\\\"Canlı Hayvan\\\",\\\"href\\\":\\\"/canli-hayvan-fiyatlari\\\"},{\\\"key\\\":\\\"et\\\",\\\"label\\\":\\\"Et (Karkas)\\\",\\\"href\\\":\\\"/et-fiyatlari\\\"},{\\\"key\\\":\\\"cities\\\",\\\"label\\\":\\\"Şehirler / Haller\\\",\\\"href\\\":\\\"/hal\\\"},{\\\"key\\\":\\\"map\\\",\\\"label\\\":\\\"Harita\\\",\\\"href\\\":\\\"/harita\\\"},{\\\"key\\\":\\\"index\\\",\\\"label\\\":\\\"Endeks\\\",\\\"href\\\":\\\"/endeks\\\"},{\\\"key\\\":\\\"analiz\\\",\\\"label\\\":\\\"Analiz\\\",\\\"href\\\":\\\"/analiz\\\"}]},{\\\"key\\\":\\\"firms\\\",\\\"label\\\":\\\"Firmalar\\\",\\\"href\\\":\\\"/firmalar\\\"},{\\\"key\\\":\\\"listings-group\\\",\\\"label\\\":\\\"İlanlar\\\",\\\"items\\\":[{\\\"key\\\":\\\"listings\\\",\\\"label\\\":\\\"Tüm İlanlar\\\",\\\"href\\\":\\\"/ilanlar\\\"},{\\\"key\\\":\\\"listing-create\\\",\\\"label\\\":\\\"İlan Ver\\\",\\\"href\\\":\\\"/ilan-ver\\\"}]},{\\\"key\\\":\\\"follow-group\\\",\\\"label\\\":\\\"Takibim\\\",\\\"items\\\":[{\\\"key\\\":\\\"favorites\\\",\\\"label\\\":\\\"Favorilerim\\\",\\\"href\\\":\\\"/favoriler\\\"},{\\\"key\\\":\\\"alerts\\\",\\\"label\\\":\\\"Uyarılar\\\",\\\"href\\\":\\\"/uyarilar\\\"}]},{\\\"key\\\":\\\"about\\\",\\\"label\\\":\\\"Hakkımızda\\\",\\\"href\\\":\\\"/hakkimizda\\\"}]}]]}]}]]}],[\\\"$\\\",\\\"$L16\\\",null,{\\\"locale\\\":\\\"tr\\\"}],[\\\"$\\\",\\\"main\\\",null,{\\\"className\\\":\\\"relative z-10 grow pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0\\\",\\\"children\\\":[\\\"$\\\",\\\"$L5\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"error\\\":\\\"$undefined\\\",\\\"errorStyles\\\":\\\"$undefined\\\",\\\"errorScripts\\\":\\\"$undefined\\\",\\\"template\\\":[\\\"$\\\",\\\"$L6\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":\\\"$undefined\\\",\\\"forbidden\\\":\\\"$undefined\\\",\\\"unauthorized\\\":\\\"$undefined\\\"}]}],\\\"$L17\\\",[\\\"$\\\",\\\"footer\\\",null,{\\\"className\\\":\\\"border-t border-(--color-border) bg-(--color-header) px-5 py-12 sm:px-8 sm:py-16\\\",\\\"children\\\":\\\"$L18\\\"}],\\\"$L19\\\",\\\"$L1a\\\"]}]\\n\"])</script><script>self.__next_f.push([1,\"1b:T42e,M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z\"])</script><script>self.__next_f.push([1,\"18:[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"mx-auto max-w-[1400px]\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"mb-7 grid grid-cols-1 gap-12 border-b border-(--color-border) pb-12 lg:grid-cols-[2fr_1fr_1fr_1fr]\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"space-y-4\\\",\\\"children\\\":[[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/\\\",\\\"className\\\":\\\"inline-flex max-w-full\\\",\\\"children\\\":[[\\\"$\\\",\\\"$L14\\\",null,{\\\"src\\\":\\\"/logohaldefiyat_dark.png\\\",\\\"alt\\\":\\\"HalDeFiyat\\\",\\\"width\\\":280,\\\"height\\\":105,\\\"className\\\":\\\"h-auto max-h-[72px] w-[min(260px,78vw)] object-contain sm:w-[280px] lg:w-[220px] dark:hidden\\\",\\\"unoptimized\\\":true}],[\\\"$\\\",\\\"$L14\\\",null,{\\\"src\\\":\\\"/logohaldefiyat_dark_theme.png\\\",\\\"alt\\\":\\\"HalDeFiyat\\\",\\\"width\\\":280,\\\"height\\\":105,\\\"className\\\":\\\"hidden h-auto max-h-[72px] w-[min(260px,78vw)] object-contain sm:w-[280px] lg:w-[220px] dark:block\\\",\\\"unoptimized\\\":true}]]}],[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"max-w-[320px] text-[14px] leading-relaxed text-(--color-muted)\\\",\\\"children\\\":\\\"Türkiye'nin hal fiyatları platformu. Günlük sebze ve meyve fiyatlarını takip et.\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"flex items-center gap-3 pt-1\\\",\\\"children\\\":[[\\\"$\\\",\\\"a\\\",null,{\\\"href\\\":\\\"https://x.com/haldefiyat\\\",\\\"target\\\":\\\"_blank\\\",\\\"rel\\\":\\\"noopener noreferrer\\\",\\\"aria-label\\\":\\\"Twitter/X\\\",\\\"className\\\":\\\"text-(--color-muted) hover:text-(--color-brand) transition-colors\\\",\\\"children\\\":[\\\"$\\\",\\\"svg\\\",null,{\\\"className\\\":\\\"h-4 w-4\\\",\\\"fill\\\":\\\"currentColor\\\",\\\"viewBox\\\":\\\"0 0 24 24\\\",\\\"children\\\":[\\\"$\\\",\\\"path\\\",null,{\\\"d\\\":\\\"M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z\\\"}]}]}],[\\\"$\\\",\\\"a\\\",null,{\\\"href\\\":\\\"https://www.instagram.com/haldefiyat/\\\",\\\"target\\\":\\\"_blank\\\",\\\"rel\\\":\\\"noopener noreferrer\\\",\\\"aria-label\\\":\\\"Instagram\\\",\\\"className\\\":\\\"text-(--color-muted) hover:text-(--color-brand) transition-colors\\\",\\\"children\\\":[\\\"$\\\",\\\"svg\\\",null,{\\\"className\\\":\\\"h-4 w-4\\\",\\\"fill\\\":\\\"currentColor\\\",\\\"viewBox\\\":\\\"0 0 24 24\\\",\\\"children\\\":[\\\"$\\\",\\\"path\\\",null,{\\\"d\\\":\\\"$1b\\\"}]}]}],\\\"\\\",[\\\"$\\\",\\\"a\\\",null,{\\\"href\\\":\\\"https://t.me/haldefiyat\\\",\\\"target\\\":\\\"_blank\\\",\\\"rel\\\":\\\"noopener noreferrer\\\",\\\"aria-label\\\":\\\"Telegram\\\",\\\"className\\\":\\\"text-(--color-muted) hover:text-(--color-brand) transition-colors\\\",\\\"children\\\":[\\\"$\\\",\\\"svg\\\",null,{\\\"className\\\":\\\"h-4 w-4\\\",\\\"fill\\\":\\\"currentColor\\\",\\\"viewBox\\\":\\\"0 0 24 24\\\",\\\"children\\\":[\\\"$\\\",\\\"path\\\",null,{\\\"d\\\":\\\"M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.5 1.201-.82 1.23-.697.065-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z\\\"}]}]}]]}]]}],[\\\"$L1c\\\",\\\"$L1d\\\",\\\"$L1e\\\"]]}],\\\"$L1f\\\"]}]\\n\"])</script><script>self.__next_f.push([1,\"19:[\\\"$\\\",\\\"$L20\\\",null,{}]\\n1a:[\\\"$\\\",\\\"$L21\\\",null,{\\\"locale\\\":\\\"tr\\\"}]\\n\"])</script><script>self.__next_f.push([1,\"1c:[\\\"$\\\",\\\"div\\\",\\\"PLATFORM\\\",{\\\"children\\\":[[\\\"$\\\",\\\"h3\\\",null,{\\\"className\\\":\\\"mb-4 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-foreground)\\\",\\\"children\\\":\\\"PLATFORM\\\"}],[\\\"$\\\",\\\"ul\\\",null,{\\\"className\\\":\\\"space-y-2.5\\\",\\\"children\\\":[[\\\"$\\\",\\\"li\\\",\\\"/fiyatlar\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/fiyatlar\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Hal Fiyatları\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/canli-hal-fiyatlari\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/canli-hal-fiyatlari\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Canlı Hal Fiyatları\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/canli-hayvan-fiyatlari\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/canli-hayvan-fiyatlari\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Canlı Hayvan Fiyatları\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/et-fiyatlari\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/et-fiyatlari\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Et Fiyatları\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/borsa\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/borsa\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Borsa / Resmi Fiyatlar\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/ilanlar\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/ilanlar\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"İlanlar\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/ilan-ver\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/ilan-ver\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"İlan Ver\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/karsilastirma\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/karsilastirma\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Karşılaştır\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/fiyatlar?range=7d\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/fiyatlar?range=7d\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Trend\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/embed\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/embed\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Widget ve Embed\\\"}]}]]}]]}]\\n\"])</script><script>self.__next_f.push([1,\"1d:[\\\"$\\\",\\\"div\\\",\\\"KURUMSAL\\\",{\\\"children\\\":[[\\\"$\\\",\\\"h3\\\",null,{\\\"className\\\":\\\"mb-4 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-foreground)\\\",\\\"children\\\":\\\"KURUMSAL\\\"}],[\\\"$\\\",\\\"ul\\\",null,{\\\"className\\\":\\\"space-y-2.5\\\",\\\"children\\\":[[\\\"$\\\",\\\"li\\\",\\\"/hakkimizda\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/hakkimizda\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Hakkımızda\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/metodoloji\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/metodoloji\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Metodoloji\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/editoryal-politika\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/editoryal-politika\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Editoryal Politika\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/duzeltme-politikasi\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/duzeltme-politikasi\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Düzeltme Politikası\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/veri-kaynagi-politikasi\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/veri-kaynagi-politikasi\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Veri Kaynağı Politikası\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/sahiplik-finansman\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/sahiplik-finansman\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Sahiplik ve Finansman\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/api-docs\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/api-docs\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"API Dokümantasyonu\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/basin\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/basin\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Basın Odası\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/iletisim\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/iletisim\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"İletişim\\\"}]}]]}]]}]\\n\"])</script><script>self.__next_f.push([1,\"1e:[\\\"$\\\",\\\"div\\\",\\\"YASAL\\\",{\\\"children\\\":[[\\\"$\\\",\\\"h3\\\",null,{\\\"className\\\":\\\"mb-4 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-foreground)\\\",\\\"children\\\":\\\"YASAL\\\"}],[\\\"$\\\",\\\"ul\\\",null,{\\\"className\\\":\\\"space-y-2.5\\\",\\\"children\\\":[[\\\"$\\\",\\\"li\\\",\\\"/gizlilik-politikasi\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/gizlilik-politikasi\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Gizlilik Politikası\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/kullanim-kosullari\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/kullanim-kosullari\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Kullanım Koşulları\\\"}]}],[\\\"$\\\",\\\"li\\\",\\\"/kvkk\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/kvkk\\\",\\\"className\\\":\\\"text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"KVKK Aydınlatma\\\"}]}]]}]]}]\\n1f:[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"flex flex-col items-center justify-between gap-3 text-[13px] sm:flex-row\\\",\\\"children\\\":[[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"text-(--color-muted)\\\",\\\"children\\\":[\\\"© \\\",2026,\\\" \\\",\\\"HalDeFiyat\\\",\\\". Tüm hakları saklıdır.\\\"]}],[\\\"$\\\",\\\"a\\\",null,{\\\"href\\\":\\\"https://guezelwebdesign.com\\\",\\\"target\\\":\\\"_blank\\\",\\\"rel\\\":\\\"noopener noreferrer\\\",\\\"className\\\":\\\"text-(--color-muted) transition-colors hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Tasarım Dizayn GWD\\\"}]]}]\\nd:[[\\\"$\\\",\\\"meta\\\",\\\"0\\\",{\\\"charSet\\\":\\\"utf-8\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"1\\\",{\\\"name\\\":\\\"viewport\\\",\\\"content\\\":\\\"width=device-width, initial-scale=1, maximum-scale=5\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"2\\\",{\\\"name\\\":\\\"theme-color\\\",\\\"content\\\":\\\"#10b981\\\",\\\"media\\\":\\\"(prefers-color-scheme: light)\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"3\\\",{\\\"name\\\":\\\"theme-color\\\",\\\"content\\\":\\\"#0c5e3a\\\",\\\"media\\\":\\\"(prefers-color-scheme: dark)\\\"}]]\\n23:T549,(function(c){var loaded=false,timer;function add(src){var s=document.createElement('script');s.async=true;s.src=src;document.head.appendChild(s)}function load(){if(loaded)return;loaded=true;clearTimeout(timer);['pointerdown','keydown','touchstart','scroll'].forEach(function(e){removeEventListener(e,load)});window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){dataLayer.push(arguments)};if(c.gtmId){dataLayer.push({'gtm.start':Date.now(),event:'gtm.js'});add('https://www.googletagmanager.com/gtm.js?id='+encodeURIComponent(c.gtmId))}else if(c.ga4Id){gtag('js',new Date());gtag('config',c.ga4Id);add('https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(c.ga4Id))}if(c.adsConversionId){gtag('js',new Date());gtag('config',c.adsConversionId,{allow_enhanced_conversions:true});if(!c.gtmId\\u0026\\u0026c.adsConversionId!==c.ga4Id)add('https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(c.adsConversionId))}}['pointerdown','keydown','touchstart','scroll'].forEach(function(e){addEventListener(e,load,{once:true,passive:true})});function idle(){if('requestIdleCallback'in window){requestIdleCallback(load,{timeout:2500})}else{timer=setTimeout(load,2500)}}if(document.readyState==='complete')idle();else addEventListener('load',idle,{once:true})})({\\\"ga4Id\\\":null,\\\"gtmId\\\":\\\"GTM-K3WDGHX5\\\",\\\"adsConversionId\\\":\\\"AW-18007572524\\\"});24:[\\\"$\\\",\\\"iframe\\\",null,{\\\"src\\\":\\\"https://www.googletagmanager.com/ns.html?id=GTM-K3WDGHX5\\\",\\\"height\\\":\\\"0\\\",\\\"width\\\":\\\"0\\\",\\\"style\\\":{\\\"display\\\":\\\"none\\\",\\\"visibility\\\":\\\"hidden\\\"}}]\\n\"])</script><script>self.__next_f.push([1,\"2:[\\\"$\\\",\\\"html\\\",null,{\\\"lang\\\":\\\"tr\\\",\\\"data-brand\\\":\\\"hal-fiyatlari\\\",\\\"suppressHydrationWarning\\\":true,\\\"className\\\":\\\"outfit_c3f1ddd8-module__Pv4iYa__variable ibm_plex_sans_12df3592-module__sMrOjG__variable font-sans\\\",\\\"children\\\":[[\\\"$\\\",\\\"head\\\",null,{\\\"children\\\":[[\\\"$\\\",\\\"link\\\",null,{\\\"rel\\\":\\\"manifest\\\",\\\"href\\\":\\\"/manifest.json\\\"}],[\\\"$\\\",\\\"meta\\\",null,{\\\"name\\\":\\\"theme-color\\\",\\\"content\\\":\\\"#10b981\\\"}],[\\\"$\\\",\\\"meta\\\",null,{\\\"name\\\":\\\"theme-color\\\",\\\"content\\\":\\\"#10b981\\\",\\\"media\\\":\\\"(prefers-color-scheme: light)\\\"}],[\\\"$\\\",\\\"meta\\\",null,{\\\"name\\\":\\\"theme-color\\\",\\\"content\\\":\\\"#0c5e3a\\\",\\\"media\\\":\\\"(prefers-color-scheme: dark)\\\"}],[\\\"$\\\",\\\"link\\\",null,{\\\"rel\\\":\\\"apple-touch-icon\\\",\\\"href\\\":\\\"/icons/apple-touch-icon.png\\\"}],[\\\"$\\\",\\\"meta\\\",null,{\\\"name\\\":\\\"apple-mobile-web-app-capable\\\",\\\"content\\\":\\\"yes\\\"}],[\\\"$\\\",\\\"meta\\\",null,{\\\"name\\\":\\\"apple-mobile-web-app-status-bar-style\\\",\\\"content\\\":\\\"default\\\"}],[\\\"$\\\",\\\"meta\\\",null,{\\\"name\\\":\\\"apple-mobile-web-app-title\\\",\\\"content\\\":\\\"HaldeFiyat\\\"}],[[\\\"$\\\",\\\"$L22\\\",null,{\\\"id\\\":\\\"google-consent-mode\\\",\\\"strategy\\\":\\\"beforeInteractive\\\",\\\"children\\\":\\\"window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}try{var c=localStorage.getItem('hf_cookie_consent');var v=c==='accepted'?'granted':'denied';gtag('consent','default',{ad_storage:v,analytics_storage:v,ad_user_data:v,ad_personalization:v,wait_for_update:500});}catch(e){gtag('consent','default',{ad_storage:'denied',analytics_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',wait_for_update:500});}\\\"}],[\\\"$\\\",\\\"$L22\\\",null,{\\\"id\\\":\\\"google-tags-deferred-loader\\\",\\\"strategy\\\":\\\"afterInteractive\\\",\\\"children\\\":\\\"$23\\\"}]]]}],[\\\"$\\\",\\\"body\\\",null,{\\\"suppressHydrationWarning\\\":true,\\\"children\\\":[[\\\"$\\\",\\\"noscript\\\",null,{\\\"children\\\":\\\"$24\\\"}],[\\\"$\\\",\\\"$L25\\\",null,{}],[\\\"$\\\",\\\"$L26\\\",null,{\\\"children\\\":\\\"$L27\\\"}]]}]]}]\\n\"])</script><script>self.__next_f.push([1,\"17:[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"\\\",\\\"aria-label\\\":\\\"Reklam\\\",\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"mx-auto my-5 max-w-3xl px-4\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"mb-1 text-center font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.12em] text-(--color-muted)\\\",\\\"children\\\":\\\"Sponsorlu\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"flex flex-col items-center gap-3 rounded-xl border border-(--color-border) bg-(--color-surface) p-3 sm:flex-row sm:gap-4 sm:p-4\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"shrink-0\\\",\\\"children\\\":[\\\"$\\\",\\\"a\\\",null,{\\\"href\\\":\\\"/api/v1/banners/5/click\\\",\\\"target\\\":\\\"_blank\\\",\\\"rel\\\":\\\"sponsored nofollow noopener\\\",\\\"children\\\":[\\\"$\\\",\\\"img\\\",null,{\\\"src\\\":\\\"https://www.vistaseeds.com.tr/uploads/media/logo/x-banner-1500x500.png\\\",\\\"alt\\\":\\\"VistaSeeds tohumlari\\\",\\\"loading\\\":\\\"lazy\\\",\\\"decoding\\\":\\\"async\\\",\\\"className\\\":\\\"max-h-24 w-auto rounded-md object-contain\\\"}]}]}],[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"min-w-0 flex-1\\\",\\\"children\\\":[[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"text-[14px] font-medium leading-snug text-(--color-foreground)\\\",\\\"children\\\":\\\"Sertifikalı hibrit tohumda Türkiye'nin güveni\\\"}],[\\\"$\\\",\\\"a\\\",null,{\\\"href\\\":\\\"/api/v1/banners/5/click\\\",\\\"target\\\":\\\"_blank\\\",\\\"rel\\\":\\\"sponsored nofollow noopener\\\",\\\"className\\\":\\\"mt-2 inline-flex items-center rounded-lg bg-(--color-brand) px-3.5 py-1.5 text-[13px] font-semibold text-(--color-brand-fg) transition-opacity hover:opacity-90\\\",\\\"children\\\":[\\\"Tohumları Keşfet\\\",\\\" →\\\"]}]]}]]}]]}]}]\\n\"])</script><script>self.__next_f.push([1,\"27:[\\\"$\\\",\\\"$L28\\\",null,{\\\"formats\\\":\\\"$undefined\\\",\\\"locale\\\":\\\"tr\\\",\\\"messages\\\":{\\\"common\\\":{\\\"loading\\\":\\\"Yükleniyor...\\\",\\\"error\\\":\\\"Bir hata oluştu\\\",\\\"noData\\\":\\\"Veri bulunamadı\\\",\\\"search\\\":\\\"Ara...\\\",\\\"filter\\\":\\\"Filtrele\\\",\\\"all\\\":\\\"Tümü\\\",\\\"back\\\":\\\"Geri\\\",\\\"seeAll\\\":\\\"Tümünü Gör\\\",\\\"currency\\\":\\\"₺\\\",\\\"unit\\\":\\\"kg\\\",\\\"perKg\\\":\\\"/ kg\\\"},\\\"nav\\\":{\\\"home\\\":\\\"Ana Sayfa\\\",\\\"prices\\\":\\\"Hal Fiyatları\\\",\\\"compare\\\":\\\"Karşılaştır\\\",\\\"about\\\":\\\"Hakkımızda\\\",\\\"contact\\\":\\\"İletişim\\\"},\\\"home\\\":{\\\"hero\\\":{\\\"title\\\":\\\"Türkiye Hal Fiyatları\\\",\\\"subtitle\\\":\\\"Günlük Sebze ve Meyve Fiyatları\\\",\\\"lastUpdate\\\":\\\"Son güncelleme\\\",\\\"searchPlaceholder\\\":\\\"Ürün veya hal ara...\\\"},\\\"stats\\\":{\\\"products\\\":\\\"Ürün\\\",\\\"markets\\\":\\\"Hal\\\",\\\"cities\\\":\\\"Şehir\\\",\\\"updates\\\":\\\"Günlük Güncelleme\\\"},\\\"trending\\\":\\\"Trend Ürünler\\\",\\\"risingPrices\\\":\\\"Yükselen Fiyatlar\\\",\\\"fallingPrices\\\":\\\"Düşen Fiyatlar\\\"},\\\"prices\\\":{\\\"title\\\":\\\"Hal Fiyatları\\\",\\\"filterByCity\\\":\\\"Şehir Filtrele\\\",\\\"filterByCategory\\\":\\\"Kategori\\\",\\\"sortBy\\\":\\\"Sırala\\\",\\\"priceAsc\\\":\\\"Fiyat (Düşük→Yüksek)\\\",\\\"priceDesc\\\":\\\"Fiyat (Yüksek→Düşük)\\\",\\\"nameAsc\\\":\\\"İsim (A→Z)\\\",\\\"priceChange\\\":\\\"Değişim\\\",\\\"minPrice\\\":\\\"Min. Fiyat\\\",\\\"maxPrice\\\":\\\"Maks. Fiyat\\\",\\\"avgPrice\\\":\\\"Ort. Fiyat\\\",\\\"date\\\":\\\"Tarih\\\",\\\"market\\\":\\\"Hal\\\",\\\"city\\\":\\\"Şehir\\\",\\\"product\\\":\\\"Ürün\\\"},\\\"market\\\":{\\\"title\\\":\\\"Hal Bilgisi\\\",\\\"priceHistory\\\":\\\"Fiyat Geçmişi\\\",\\\"topProducts\\\":\\\"En Çok İşlem Gören\\\"},\\\"product\\\":{\\\"title\\\":\\\"Ürün Fiyat Takibi\\\",\\\"chart7d\\\":\\\"7 Günlük\\\",\\\"chart30d\\\":\\\"30 Günlük\\\",\\\"chart90d\\\":\\\"90 Günlük\\\",\\\"allMarkets\\\":\\\"Tüm Hallerde Fiyat\\\"},\\\"alert\\\":{\\\"title\\\":\\\"Fiyat Alarmı Kur\\\",\\\"description\\\":\\\"Seçtiğin ürün belirlediğin fiyata gelince seni bildirelim\\\",\\\"targetPrice\\\":\\\"Hedef Fiyat\\\",\\\"subscribe\\\":\\\"Alarm Kur\\\",\\\"success\\\":\\\"Alarm kuruldu!\\\"},\\\"dashboard\\\":{\\\"nav\\\":{\\\"overview\\\":\\\"Genel Bakış\\\",\\\"myFirm\\\":\\\"Firmam\\\",\\\"profile\\\":\\\"Profilim\\\",\\\"alerts\\\":\\\"Uyarılarım\\\",\\\"favorites\\\":\\\"Favorilerim\\\",\\\"notifications\\\":\\\"Bildirimler\\\",\\\"security\\\":\\\"Güvenlik\\\",\\\"support\\\":\\\"Destek\\\"},\\\"overview\\\":{\\\"greeting\\\":\\\"Hoş geldiniz!\\\",\\\"greetingWithUser\\\":\\\"Merhaba, {name}!\\\",\\\"subtitle\\\":\\\"Hesabınızın genel durumu aşağıda özetlenmiştir.\\\",\\\"activeAlerts\\\":\\\"Aktif Uyarı\\\",\\\"favoriteProducts\\\":\\\"Favori Ürün\\\",\\\"unreadNotifications\\\":\\\"Okunmamış Bildirim\\\",\\\"openTickets\\\":\\\"Açık Destek Talebi\\\",\\\"quickActions\\\":\\\"Hızlı Eylemler\\\",\\\"addAlert\\\":\\\"Yeni Uyarı Ekle\\\",\\\"addAlertDesc\\\":\\\"Fiyat hedefi belirle, bildirim al\\\",\\\"viewPrices\\\":\\\"Fiyatlara Bak\\\",\\\"viewPricesDesc\\\":\\\"Güncel hal fiyatlarını incele\\\",\\\"compare\\\":\\\"Ürün Karşılaştır\\\",\\\"compareDesc\\\":\\\"Birden fazla ürünü yan yana gör\\\",\\\"logout\\\":\\\"Çıkış Yap\\\",\\\"guest\\\":\\\"Üye\\\",\\\"inbox\\\":\\\"Gelen Kutusu\\\"},\\\"profile\\\":{\\\"title\\\":\\\"Kişisel Bilgiler\\\",\\\"subtitle\\\":\\\"Hesap bilgilerinizi buradan yönetebilirsiniz.\\\",\\\"fullName\\\":\\\"Ad Soyad\\\",\\\"fullNamePlaceholder\\\":\\\"Adınız ve soyadınız\\\",\\\"phone\\\":\\\"Telefon\\\",\\\"phonePlaceholder\\\":\\\"+90 5xx xxx xx xx\\\",\\\"city\\\":\\\"Şehir\\\",\\\"cityPlaceholder\\\":\\\"İstanbul\\\",\\\"address\\\":\\\"Adres\\\",\\\"addressPlaceholder\\\":\\\"Sokak / Mahalle\\\",\\\"bio\\\":\\\"Hakkımda\\\",\\\"bioPlaceholder\\\":\\\"Kısa bir tanıtım...\\\",\\\"save\\\":\\\"Kaydet\\\",\\\"updateButton\\\":\\\"Profilimi Güncelle\\\",\\\"saving\\\":\\\"Kaydediliyor...\\\",\\\"saveSuccess\\\":\\\"Profiliniz başarıyla kaydedildi.\\\",\\\"saveError\\\":\\\"Kaydedilemedi. Lütfen tekrar deneyin.\\\"},\\\"alerts\\\":{\\\"title\\\":\\\"Fiyat Uyarılarım\\\",\\\"empty\\\":\\\"Henüz fiyat uyarısı eklemediniz.\\\",\\\"above\\\":\\\"üstünde\\\",\\\"below\\\":\\\"altında\\\",\\\"lastTriggered\\\":\\\"Son tetiklenme\\\",\\\"never\\\":\\\"Hiç tetiklenmedi\\\",\\\"edit\\\":\\\"Düzenle\\\",\\\"delete\\\":\\\"Sil\\\",\\\"deleteConfirm\\\":\\\"Bu uyarıyı silmek istediğinizden emin misiniz?\\\",\\\"editTitle\\\":\\\"Uyarı Düzenle\\\",\\\"thresholdPrice\\\":\\\"Eşik Fiyat (₺)\\\",\\\"direction\\\":\\\"Yön\\\",\\\"dirAbove\\\":\\\"↑ Üstüne çıkınca\\\",\\\"dirBelow\\\":\\\"↓ Altına düşünce\\\",\\\"updateSuccess\\\":\\\"Uyarı güncellendi.\\\",\\\"updateError\\\":\\\"Güncellenemedi. Tekrar deneyin.\\\",\\\"deleteSuccess\\\":\\\"Uyarı silindi.\\\",\\\"deleteError\\\":\\\"Silinemedi. Tekrar deneyin.\\\"},\\\"favorites\\\":{\\\"title\\\":\\\"Favori Ürünlerim\\\",\\\"empty\\\":\\\"Henüz favori ürün eklemediniz.\\\",\\\"viewPrice\\\":\\\"Fiyata Bak\\\",\\\"remove\\\":\\\"Kaldır\\\"},\\\"notifications\\\":{\\\"title\\\":\\\"Bildirimler\\\",\\\"empty\\\":\\\"Okunmamış bildirim yok.\\\",\\\"markRead\\\":\\\"Okundu İşaretle\\\",\\\"markAllRead\\\":\\\"Tümünü Okundu İşaretle\\\"},\\\"security\\\":{\\\"emailLabel\\\":\\\"E-posta adresi\\\",\\\"emailVerified\\\":\\\"Doğrulandı\\\",\\\"emailUnverified\\\":\\\"Doğrulanmadı\\\",\\\"changePassword\\\":\\\"Şifre Değiştir\\\",\\\"currentPassword\\\":\\\"Mevcut Şifre\\\",\\\"newPassword\\\":\\\"Yeni Şifre\\\",\\\"confirmPassword\\\":\\\"Yeni Şifre (Tekrar)\\\",\\\"update\\\":\\\"Şifreyi Güncelle\\\",\\\"updating\\\":\\\"Güncelleniyor...\\\",\\\"successMsg\\\":\\\"Şifreniz başarıyla güncellendi.\\\",\\\"errorWrong\\\":\\\"Mevcut şifre yanlış.\\\",\\\"errorGeneric\\\":\\\"Güncellenemedi. Tekrar deneyin.\\\",\\\"errorMinLength\\\":\\\"Yeni şifre en az 8 karakter olmalı.\\\",\\\"errorMismatch\\\":\\\"Yeni şifreler eşleşmiyor.\\\"},\\\"support\\\":{\\\"title\\\":\\\"Destek Taleplerim\\\",\\\"newTicket\\\":\\\"Yeni Destek Talebi\\\",\\\"subject\\\":\\\"Konu\\\",\\\"message\\\":\\\"Mesaj\\\",\\\"send\\\":\\\"Talebi Gönder\\\",\\\"sending\\\":\\\"Gönderiliyor...\\\",\\\"successMsg\\\":\\\"Talebiniz alındı. En kısa sürede dönüş yapılacak.\\\",\\\"errorMsg\\\":\\\"Gönderilemedi. Tekrar deneyin.\\\",\\\"empty\\\":\\\"Henüz destek talebi oluşturmadınız.\\\",\\\"statusOpen\\\":\\\"Açık\\\",\\\"statusClosed\\\":\\\"Kapalı\\\",\\\"statusPending\\\":\\\"Bekliyor\\\",\\\"backToList\\\":\\\"← Geri\\\",\\\"you\\\":\\\"Siz\\\",\\\"staff\\\":\\\"Destek Ekibi\\\",\\\"reply\\\":\\\"Yanıtla\\\",\\\"replying\\\":\\\"Gönderiliyor...\\\",\\\"replyPlaceholder\\\":\\\"Yanıtınızı yazın...\\\"}},\\\"footer\\\":{\\\"description\\\":\\\"Türkiye'nin hal fiyatları platformu. Günlük sebze ve meyve fiyatlarını takip et.\\\",\\\"links\\\":\\\"Bağlantılar\\\",\\\"legal\\\":\\\"Yasal\\\",\\\"copyright\\\":\\\"© 2025 HalDeFiyat. Tüm hakları saklıdır.\\\"}},\\\"now\\\":\\\"$undefined\\\",\\\"timeZone\\\":\\\"UTC\\\",\\\"children\\\":\\\"$L29\\\"}]\\n\"])</script><script>self.__next_f.push([1,\"29:[\\\"$\\\",\\\"$L2a\\\",null,{\\\"children\\\":[\\\"$\\\",\\\"$L2b\\\",null,{\\\"children\\\":[[\\\"$\\\",\\\"$L2c\\\",null,{}],[\\\"$\\\",\\\"$L2d\\\",null,{}],[\\\"$\\\",\\\"$L2e\\\",null,{}],[\\\"$\\\",\\\"$L2f\\\",null,{}],[\\\"$\\\",\\\"$9\\\",null,{\\\"fallback\\\":null,\\\"children\\\":[\\\"$\\\",\\\"$L30\\\",null,{}]}],[\\\"$\\\",\\\"$L5\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"error\\\":\\\"$31\\\",\\\"errorStyles\\\":[],\\\"errorScripts\\\":[[\\\"$\\\",\\\"script\\\",\\\"script-0\\\",{\\\"src\\\":\\\"/_next/static/chunks/2kf_wzuj_k_51.js\\\",\\\"async\\\":true}]],\\\"template\\\":[\\\"$\\\",\\\"$L6\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"min-h-screen bg-background px-6 py-16\\\",\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"mx-auto flex min-h-[70vh] max-w-4xl items-center justify-center\\\",\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"w-full rounded-[2rem] border border-border-soft bg-surface p-10 shadow-sm\\\",\\\"children\\\":[[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"text-xs font-semibold uppercase tracking-[0.24em] text-brand mb-4\\\",\\\"children\\\":\\\"404\\\"}],[\\\"$\\\",\\\"h1\\\",null,{\\\"className\\\":\\\"text-4xl font-extrabold tracking-tight text-foreground mb-4\\\",\\\"children\\\":\\\"Aradığınız sayfa bulunamadı\\\"}],[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"max-w-2xl text-sm leading-6 text-muted mb-8\\\",\\\"children\\\":\\\"İlgili bağlantı taşınmış, kaldırılmış veya yanlış yazılmış olabilir. site ana sayfasına dönerek yeni bir rota başlatabilirsiniz.\\\"}],[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/\\\",\\\"className\\\":\\\"inline-flex items-center justify-center rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-dark transition-colors\\\",\\\"children\\\":\\\"Ana Sayfa\\\"}]]}]}]}],[]],\\\"forbidden\\\":\\\"$undefined\\\",\\\"unauthorized\\\":\\\"$undefined\\\"}],[\\\"$\\\",\\\"$L32\\\",null,{}]]}]}]\\n\"])</script><script>self.__next_f.push([1,\":HL[\\\"https://lh3.googleusercontent.com/a/ACg8ocJRYNVtjOyld6L1_zH6Y36Wfx2Jud4kOlMKJswEicA1fXU7KxMF8w=s96-c\\\",\\\"image\\\"]\\n\"])</script><script>self.__next_f.push([1,\"7:[\\\"$\\\",\\\"main\\\",null,{\\\"className\\\":\\\"relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-12\\\",\\\"children\\\":[[\\\"$\\\",\\\"script\\\",null,{\\\"type\\\":\\\"application/ld+json\\\",\\\"dangerouslySetInnerHTML\\\":{\\\"__html\\\":\\\"{\\\\\\\"@context\\\\\\\":\\\\\\\"https://schema.org\\\\\\\",\\\\\\\"@type\\\\\\\":\\\\\\\"ProfilePage\\\\\\\",\\\\\\\"url\\\\\\\":\\\\\\\"https://haldefiyat.com/yazar/orhan-guzel\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"Orhan Güzel | HaldeFiyat Yazar Profili\\\\\\\",\\\\\\\"mainEntity\\\\\\\":{\\\\\\\"@type\\\\\\\":\\\\\\\"Person\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"Orhan Güzel\\\\\\\",\\\\\\\"url\\\\\\\":\\\\\\\"https://haldefiyat.com/yazar/orhan-guzel\\\\\\\",\\\\\\\"jobTitle\\\\\\\":\\\\\\\"Veri ve Piyasa Analisti\\\\\\\",\\\\\\\"description\\\\\\\":\\\\\\\"Orhan Güzel, HaldeFiyat üzerinde Türkiye toptancı hal fiyatlarını, ürün bazlı fiyat hareketlerini ve piyasa trendlerini veri odaklı analiz eder.\\\\\\\",\\\\\\\"knowsAbout\\\\\\\":[\\\\\\\"hal fiyatları\\\\\\\",\\\\\\\"veri analizi\\\\\\\",\\\\\\\"piyasa analizi\\\\\\\",\\\\\\\"tarım ekonomisi\\\\\\\"],\\\\\\\"image\\\\\\\":\\\\\\\"https://lh3.googleusercontent.com/a/ACg8ocJRYNVtjOyld6L1_zH6Y36Wfx2Jud4kOlMKJswEicA1fXU7KxMF8w=s96-c\\\\\\\",\\\\\\\"hasCredential\\\\\\\":\\\\\\\"HaldeFiyat kurucu ekibi; veri, SEO ve piyasa analiz operasyonu\\\\\\\"}}\\\"}}],[[\\\"$\\\",\\\"script\\\",null,{\\\"type\\\":\\\"application/ld+json\\\",\\\"dangerouslySetInnerHTML\\\":{\\\"__html\\\":\\\"{\\\\\\\"@context\\\\\\\":\\\\\\\"https://schema.org\\\\\\\",\\\\\\\"@type\\\\\\\":\\\\\\\"BreadcrumbList\\\\\\\",\\\\\\\"itemListElement\\\\\\\":[{\\\\\\\"@type\\\\\\\":\\\\\\\"ListItem\\\\\\\",\\\\\\\"position\\\\\\\":1,\\\\\\\"name\\\\\\\":\\\\\\\"Anasayfa\\\\\\\",\\\\\\\"item\\\\\\\":\\\\\\\"https://haldefiyat.com/\\\\\\\"},{\\\\\\\"@type\\\\\\\":\\\\\\\"ListItem\\\\\\\",\\\\\\\"position\\\\\\\":2,\\\\\\\"name\\\\\\\":\\\\\\\"Yazarlar\\\\\\\",\\\\\\\"item\\\\\\\":\\\\\\\"https://haldefiyat.com/analiz\\\\\\\"},{\\\\\\\"@type\\\\\\\":\\\\\\\"ListItem\\\\\\\",\\\\\\\"position\\\\\\\":3,\\\\\\\"name\\\\\\\":\\\\\\\"Orhan Güzel\\\\\\\",\\\\\\\"item\\\\\\\":\\\\\\\"https://haldefiyat.com/yazar/orhan-guzel\\\\\\\"}]}\\\"}}],[\\\"$\\\",\\\"nav\\\",null,{\\\"aria-label\\\":\\\"Sayfa yolu\\\",\\\"className\\\":\\\"mb-6 text-[13px] text-(--color-muted)\\\",\\\"children\\\":[\\\"$\\\",\\\"ol\\\",null,{\\\"className\\\":\\\"flex flex-wrap items-center gap-2\\\",\\\"children\\\":[[\\\"$\\\",\\\"li\\\",\\\"/-0\\\",{\\\"className\\\":\\\"flex min-w-0 items-center gap-2\\\",\\\"children\\\":[false,[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/\\\",\\\"className\\\":\\\"hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Anasayfa\\\"}]]}],[\\\"$\\\",\\\"li\\\",\\\"/analiz-1\\\",{\\\"className\\\":\\\"flex min-w-0 items-center gap-2\\\",\\\"children\\\":[[\\\"$\\\",\\\"span\\\",null,{\\\"aria-hidden\\\":true,\\\"children\\\":\\\"/\\\"}],[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/analiz\\\",\\\"className\\\":\\\"hover:text-(--color-brand)\\\",\\\"children\\\":\\\"Yazarlar\\\"}]]}],[\\\"$\\\",\\\"li\\\",\\\"/yazar/orhan-guzel-2\\\",{\\\"className\\\":\\\"flex min-w-0 items-center gap-2\\\",\\\"children\\\":[[\\\"$\\\",\\\"span\\\",null,{\\\"aria-hidden\\\":true,\\\"children\\\":\\\"/\\\"}],[\\\"$\\\",\\\"span\\\",null,{\\\"aria-current\\\":\\\"page\\\",\\\"className\\\":\\\"truncate text-(--color-foreground)\\\",\\\"children\\\":\\\"Orhan Güzel\\\"}]]}]]}]}]],[\\\"$\\\",\\\"section\\\",null,{\\\"className\\\":\\\"mt-8 grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]\\\",\\\"children\\\":[[\\\"$\\\",\\\"aside\\\",null,{\\\"className\\\":\\\"lg:sticky lg:top-28 lg:self-start\\\",\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"rounded-[20px] border border-(--color-border) bg-(--color-surface) p-6\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"aspect-square overflow-hidden rounded-[14px] border border-(--color-border-soft) bg-(--color-bg-alt)\\\",\\\"children\\\":[\\\"$\\\",\\\"img\\\",null,{\\\"src\\\":\\\"https://lh3.googleusercontent.com/a/ACg8ocJRYNVtjOyld6L1_zH6Y36Wfx2Jud4kOlMKJswEicA1fXU7KxMF8w=s96-c\\\",\\\"alt\\\":\\\"Orhan Güzel\\\",\\\"className\\\":\\\"h-full w-full object-cover\\\"}]}],[\\\"$\\\",\\\"h1\\\",null,{\\\"className\\\":\\\"mt-5 font-(family-name:--font-display) text-[28px] font-bold leading-tight text-(--color-foreground)\\\",\\\"children\\\":\\\"Orhan Güzel\\\"}],[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"mt-2 text-[15px] font-medium text-(--color-brand)\\\",\\\"children\\\":\\\"Veri ve Piyasa Analisti\\\"}],[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"mt-4 rounded-[12px] border border-(--color-border-soft) bg-(--color-bg-alt) p-3 text-[13px] leading-5 text-(--color-muted)\\\",\\\"children\\\":\\\"HaldeFiyat kurucu ekibi; veri, SEO ve piyasa analiz operasyonu\\\"}],false]}]}],[\\\"$\\\",\\\"main\\\",null,{\\\"className\\\":\\\"min-w-0\\\",\\\"children\\\":[[\\\"$\\\",\\\"section\\\",null,{\\\"className\\\":\\\"rounded-[20px] border border-(--color-border) bg-(--color-surface) p-6 sm:p-8\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)\\\",\\\"children\\\":\\\"HaldeFiyat Yazar Profili\\\"}],[\\\"$\\\",\\\"h2\\\",null,{\\\"className\\\":\\\"mt-3 font-(family-name:--font-display) text-[30px] font-bold leading-tight text-(--color-foreground)\\\",\\\"children\\\":[\\\"Orhan Güzel\\\",\\\" analizleri\\\"]}],\\\"$L33\\\",\\\"$L34\\\"]}],\\\"$L35\\\"]}]]}]]}]\\n\"])</script><script>self.__next_f.push([1,\"33:[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"mt-4 max-w-3xl text-[16px] leading-7 text-(--color-muted)\\\",\\\"children\\\":\\\"Orhan Güzel, HaldeFiyat üzerinde Türkiye toptancı hal fiyatlarını, ürün bazlı fiyat hareketlerini ve piyasa trendlerini veri odaklı analiz eder.\\\"}]\\n34:[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"mt-5 flex flex-wrap gap-2\\\",\\\"children\\\":[[\\\"$\\\",\\\"span\\\",\\\"hal fiyatları\\\",{\\\"className\\\":\\\"rounded-full bg-(--color-brand)/10 px-3 py-1 text-[12px] font-semibold text-(--color-brand)\\\",\\\"children\\\":\\\"hal fiyatları\\\"}],[\\\"$\\\",\\\"span\\\",\\\"veri analizi\\\",{\\\"className\\\":\\\"rounded-full bg-(--color-brand)/10 px-3 py-1 text-[12px] font-semibold text-(--color-brand)\\\",\\\"children\\\":\\\"veri analizi\\\"}],[\\\"$\\\",\\\"span\\\",\\\"piyasa analizi\\\",{\\\"className\\\":\\\"rounded-full bg-(--color-brand)/10 px-3 py-1 text-[12px] font-semibold text-(--color-brand)\\\",\\\"children\\\":\\\"piyasa analizi\\\"}],[\\\"$\\\",\\\"span\\\",\\\"tarım ekonomisi\\\",{\\\"className\\\":\\\"rounded-full bg-(--color-brand)/10 px-3 py-1 text-[12px] font-semibold text-(--color-brand)\\\",\\\"children\\\":\\\"tarım ekonomisi\\\"}]]}]\\n\"])</script><script>self.__next_f.push([1,\"35:[\\\"$\\\",\\\"section\\\",null,{\\\"className\\\":\\\"mt-6 rounded-[20px] border border-(--color-border) bg-(--color-surface) p-6 sm:p-8\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"mb-5 flex items-center justify-between gap-4\\\",\\\"children\\\":[[\\\"$\\\",\\\"h2\\\",null,{\\\"className\\\":\\\"font-(family-name:--font-display) text-[22px] font-bold text-(--color-foreground)\\\",\\\"children\\\":\\\"Yayınlanan Yazılar\\\"}],[\\\"$\\\",\\\"span\\\",null,{\\\"className\\\":\\\"text-[13px] text-(--color-muted)\\\",\\\"children\\\":[3,\\\" yazı\\\"]}]]}],[\\\"$\\\",\\\"ul\\\",null,{\\\"className\\\":\\\"grid gap-4\\\",\\\"role\\\":\\\"list\\\",\\\"children\\\":[[\\\"$\\\",\\\"li\\\",\\\"mayis-4-hafta-2026-hal-raporu\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/analiz/mayis-4-hafta-2026-hal-raporu\\\",\\\"className\\\":\\\"block rounded-[14px] border border-(--color-border-soft) bg-(--color-bg-alt) p-4 transition-colors hover:border-(--color-brand)/40\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"flex flex-wrap items-center gap-2 text-[11px] text-(--color-muted)\\\",\\\"children\\\":[[\\\"$\\\",\\\"time\\\",null,{\\\"dateTime\\\":\\\"2026-05-24\\\",\\\"children\\\":\\\"24 Mayıs 2026\\\"}],[[\\\"$\\\",\\\"span\\\",\\\"haftalık rapor\\\",{\\\"className\\\":\\\"rounded-full bg-(--color-surface) px-2 py-0.5\\\",\\\"children\\\":\\\"haftalık rapor\\\"}],[\\\"$\\\",\\\"span\\\",\\\"hal fiyatları\\\",{\\\"className\\\":\\\"rounded-full bg-(--color-surface) px-2 py-0.5\\\",\\\"children\\\":\\\"hal fiyatları\\\"}],[\\\"$\\\",\\\"span\\\",\\\"endeks\\\",{\\\"className\\\":\\\"rounded-full bg-(--color-surface) px-2 py-0.5\\\",\\\"children\\\":\\\"endeks\\\"}]]]}],[\\\"$\\\",\\\"h3\\\",null,{\\\"className\\\":\\\"mt-2 text-[17px] font-bold leading-snug text-(--color-foreground)\\\",\\\"children\\\":\\\"Mayıs 4. Hafta Hal Raporu: Endeks Geriledi, Domates ve Salatalık Rahatladı\\\"}],[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"mt-2 line-clamp-2 text-[14px] leading-6 text-(--color-muted)\\\",\\\"children\\\":\\\"18-24 Mayıs 2026 haftasında HaldeFiyat Endeksi 100,0 puandan 92,9 puana geriledi. Domates, patlıcan, salatalık, kabak ve fasulyede belirgin düşüş görülürken limon, kuru soğan ve havuç yukarı yönlü kaldı. Antalya, İstanbul, Bursa, Çanakkale, Çorum ve Trabzon hal fiyatları arasındaki farklar haftanın ana geo-seo tablosunu oluşturdu.\\\"}]]}]}],[\\\"$\\\",\\\"li\\\",\\\"mayis-3-hafta-2026-hal-raporu\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/analiz/mayis-3-hafta-2026-hal-raporu\\\",\\\"className\\\":\\\"block rounded-[14px] border border-(--color-border-soft) bg-(--color-bg-alt) p-4 transition-colors hover:border-(--color-brand)/40\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"flex flex-wrap items-center gap-2 text-[11px] text-(--color-muted)\\\",\\\"children\\\":[[\\\"$\\\",\\\"time\\\",null,{\\\"dateTime\\\":\\\"2026-05-19\\\",\\\"children\\\":\\\"19 Mayıs 2026\\\"}],[[\\\"$\\\",\\\"span\\\",\\\"kiraz\\\",{\\\"className\\\":\\\"rounded-full bg-(--color-surface) px-2 py-0.5\\\",\\\"children\\\":\\\"kiraz\\\"}],[\\\"$\\\",\\\"span\\\",\\\"çilek\\\",{\\\"className\\\":\\\"rounded-full bg-(--color-surface) px-2 py-0.5\\\",\\\"children\\\":\\\"çilek\\\"}],[\\\"$\\\",\\\"span\\\",\\\"domates\\\",{\\\"className\\\":\\\"rounded-full bg-(--color-surface) px-2 py-0.5\\\",\\\"children\\\":\\\"domates\\\"}]]]}],[\\\"$\\\",\\\"h3\\\",null,{\\\"className\\\":\\\"mt-2 text-[17px] font-bold leading-snug text-(--color-foreground)\\\",\\\"children\\\":\\\"Mayıs 3. Hafta Hal Raporu: Kiraz ve Çilekte Sezon Açıldı, Fiyat Bandı Rekor Genişledi\\\"}],[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"mt-2 line-clamp-2 text-[14px] leading-6 text-(--color-muted)\\\",\\\"children\\\":\\\"HaldeFiyat Endeksi'nin baz haftası 2026-20 (11–17 Mayıs) = 100,0 puan; seri bu haftadan itibaren ölçülüyor. Kiraz (₺247) ve çilekte (₺136, bant ₺58–₺418) sezon açıldı ama kalite/bölge farkı fiyat bandını rekor seviyede genişletti; domates ₺81,5 ile mevsim üstü, patates ve soğan sakin.\\\"}]]}]}],[\\\"$\\\",\\\"li\\\",\\\"elma-fiyat-analizi-mayis-2026\\\",{\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"href\\\":\\\"/analiz/elma-fiyat-analizi-mayis-2026\\\",\\\"className\\\":\\\"block rounded-[14px] border border-(--color-border-soft) bg-(--color-bg-alt) p-4 transition-colors hover:border-(--color-brand)/40\\\",\\\"children\\\":[[\\\"$\\\",\\\"div\\\",null,{\\\"className\\\":\\\"flex flex-wrap items-center gap-2 text-[11px] text-(--color-muted)\\\",\\\"children\\\":[[\\\"$\\\",\\\"time\\\",null,{\\\"dateTime\\\":\\\"2026-05-18\\\",\\\"children\\\":\\\"18 Mayıs 2026\\\"}],[[\\\"$\\\",\\\"span\\\",\\\"elma\\\",{\\\"className\\\":\\\"rounded-full bg-(--color-surface) px-2 py-0.5\\\",\\\"children\\\":\\\"elma\\\"}],\\\"$L36\\\",\\\"$L37\\\"]]}],\\\"$L38\\\",\\\"$L39\\\"]}]}]]}]]}]\\n\"])</script><script>self.__next_f.push([1,\"36:[\\\"$\\\",\\\"span\\\",\\\"analiz\\\",{\\\"className\\\":\\\"rounded-full bg-(--color-surface) px-2 py-0.5\\\",\\\"children\\\":\\\"analiz\\\"}]\\n37:[\\\"$\\\",\\\"span\\\",\\\"don\\\",{\\\"className\\\":\\\"rounded-full bg-(--color-surface) px-2 py-0.5\\\",\\\"children\\\":\\\"don\\\"}]\\n38:[\\\"$\\\",\\\"h3\\\",null,{\\\"className\\\":\\\"mt-2 text-[17px] font-bold leading-snug text-(--color-foreground)\\\",\\\"children\\\":\\\"Elma Fiyat Analizi — Mayıs 2026: Don Şoku, Rekor Makas ve Bölgesel Parçalanma\\\"}]\\n39:[\\\"$\\\",\\\"p\\\",null,{\\\"className\\\":\\\"mt-2 line-clamp-2 text-[14px] leading-6 text-(--color-muted)\\\",\\\"children\\\":\\\"Don kaynaklı arz şoku ile talep yıkımı aynı anda yaşanıyor: elma, Nisan TZOB raporunda %393,7 ile tüm yaş meyve-sebzede en geniş üretici–market makasına sahip ürün oldu. Mayıs sonunda kaliteli stok eridikçe Golden yukarı dönerken ulusal ortalama gerçeği gizliyor; asıl tablo bölgesel parçalanmada.\\\"}]\\n\"])</script><script>self.__next_f.push([1,\"3a:I[916775,[\\\"/_next/static/chunks/3l2n4vag9uy_v.js\\\"],\\\"IconMark\\\"]\\na:null\\n\"])</script><script>self.__next_f.push([1,\"f:[[\\\"$\\\",\\\"title\\\",\\\"0\\\",{\\\"children\\\":\\\"Orhan Güzel — Veri ve Piyasa Analisti | HaldeFiyat\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"1\\\",{\\\"name\\\":\\\"description\\\",\\\"content\\\":\\\"Orhan Güzel, HaldeFiyat üzerinde Türkiye toptancı hal fiyatlarını, ürün bazlı fiyat hareketlerini ve piyasa trendlerini veri odaklı analiz eder.\\\"}],[\\\"$\\\",\\\"link\\\",\\\"2\\\",{\\\"rel\\\":\\\"manifest\\\",\\\"href\\\":\\\"/manifest.webmanifest\\\",\\\"crossOrigin\\\":\\\"$undefined\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"3\\\",{\\\"name\\\":\\\"keywords\\\",\\\"content\\\":\\\"hal fiyatları,sebze fiyatları,meyve fiyatları,İstanbul hal,türkiye hal fiyatları\\\"}],[\\\"$\\\",\\\"link\\\",\\\"4\\\",{\\\"rel\\\":\\\"canonical\\\",\\\"href\\\":\\\"https://haldefiyat.com/yazar/orhan-guzel\\\"}],[\\\"$\\\",\\\"link\\\",\\\"5\\\",{\\\"rel\\\":\\\"alternate\\\",\\\"hrefLang\\\":\\\"tr\\\",\\\"href\\\":\\\"https://haldefiyat.com/yazar/orhan-guzel\\\"}],[\\\"$\\\",\\\"link\\\",\\\"6\\\",{\\\"rel\\\":\\\"alternate\\\",\\\"hrefLang\\\":\\\"x-default\\\",\\\"href\\\":\\\"https://haldefiyat.com/yazar/orhan-guzel\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"7\\\",{\\\"property\\\":\\\"og:title\\\",\\\"content\\\":\\\"Orhan Güzel — Veri ve Piyasa Analisti | HaldeFiyat\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"8\\\",{\\\"property\\\":\\\"og:description\\\",\\\"content\\\":\\\"Orhan Güzel, HaldeFiyat üzerinde Türkiye toptancı hal fiyatlarını, ürün bazlı fiyat hareketlerini ve piyasa trendlerini veri odaklı analiz eder.\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"9\\\",{\\\"property\\\":\\\"og:url\\\",\\\"content\\\":\\\"https://haldefiyat.com/yazar/orhan-guzel\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"10\\\",{\\\"property\\\":\\\"og:image\\\",\\\"content\\\":\\\"https://lh3.googleusercontent.com/a/ACg8ocJRYNVtjOyld6L1_zH6Y36Wfx2Jud4kOlMKJswEicA1fXU7KxMF8w=s96-c\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"11\\\",{\\\"property\\\":\\\"og:type\\\",\\\"content\\\":\\\"profile\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"12\\\",{\\\"name\\\":\\\"twitter:card\\\",\\\"content\\\":\\\"summary_large_image\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"13\\\",{\\\"name\\\":\\\"twitter:title\\\",\\\"content\\\":\\\"HaldeFiyat — Türkiye Hal Fiyatları\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"14\\\",{\\\"name\\\":\\\"twitter:description\\\",\\\"content\\\":\\\"Türkiye genelindeki tarihli hal fiyatlarını takip edin.\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"15\\\",{\\\"name\\\":\\\"twitter:image\\\",\\\"content\\\":\\\"https://lh3.googleusercontent.com/a/ACg8ocJRYNVtjOyld6L1_zH6Y36Wfx2Jud4kOlMKJswEicA1fXU7KxMF8w=s96-c\\\"}],[\\\"$\\\",\\\"link\\\",\\\"16\\\",{\\\"rel\\\":\\\"shortcut icon\\\",\\\"href\\\":\\\"/uploads/brand/favicon.png\\\"}],[\\\"$\\\",\\\"link\\\",\\\"17\\\",{\\\"rel\\\":\\\"icon\\\",\\\"href\\\":\\\"/uploads/brand/favicon.png\\\"}],[\\\"$\\\",\\\"link\\\",\\\"18\\\",{\\\"rel\\\":\\\"apple-touch-icon\\\",\\\"href\\\":\\\"/uploads/brand/apple-touch-icon.png\\\"}],[\\\"$\\\",\\\"$L3a\\\",\\\"19\\\",{}]]\\n\"])</script><title>Orhan Güzel — Veri ve Piyasa Analisti | HaldeFiyat</title><meta name=\"description\" content=\"Orhan Güzel, HaldeFiyat üzerinde Türkiye toptancı hal fiyatlarını, ürün bazlı fiyat hareketlerini ve piyasa trendlerini veri odaklı analiz eder.\"/><link rel=\"manifest\" href=\"/manifest.webmanifest\"/><meta name=\"keywords\" content=\"hal fiyatları,sebze fiyatları,meyve fiyatları,İstanbul hal,türkiye hal fiyatları\"/><link rel=\"canonical\" href=\"https://haldefiyat.com/yazar/orhan-guzel\"/><link rel=\"alternate\" hrefLang=\"tr\" href=\"https://haldefiyat.com/yazar/orhan-guzel\"/><link rel=\"alternate\" hrefLang=\"x-default\" href=\"https://haldefiyat.com/yazar/orhan-guzel\"/><meta property=\"og:title\" content=\"Orhan Güzel — Veri ve Piyasa Analisti | HaldeFiyat\"/><meta property=\"og:description\" content=\"Orhan Güzel, HaldeFiyat üzerinde Türkiye toptancı hal fiyatlarını, ürün bazlı fiyat hareketlerini ve piyasa trendlerini veri odaklı analiz eder.\"/><meta property=\"og:url\" content=\"https://haldefiyat.com/yazar/orhan-guzel\"/><meta property=\"og:image\" content=\"https://lh3.googleusercontent.com/a/ACg8ocJRYNVtjOyld6L1_zH6Y36Wfx2Jud4kOlMKJswEicA1fXU7KxMF8w=s96-c\"/><meta property=\"og:type\" content=\"profile\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:title\" content=\"HaldeFiyat — Türkiye Hal Fiyatları\"/><meta name=\"twitter:description\" content=\"Türkiye genelindeki tarihli hal fiyatlarını takip edin.\"/><meta name=\"twitter:image\" content=\"https://lh3.googleusercontent.com/a/ACg8ocJRYNVtjOyld6L1_zH6Y36Wfx2Jud4kOlMKJswEicA1fXU7KxMF8w=s96-c\"/><link rel=\"shortcut icon\" href=\"/uploads/brand/favicon.png\"/><link rel=\"icon\" href=\"/uploads/brand/favicon.png\"/><link rel=\"apple-touch-icon\" href=\"/uploads/brand/apple-touch-icon.png\"/><script>document.querySelectorAll('body link[rel=\"icon\"], body link[rel=\"apple-touch-icon\"]').forEach(el => document.head.appendChild(el))</script><div hidden id=\"S:1\"></div><script>$RB=[];$RV=function(a){$RT=performance.now();for(var b=0;b<a.length;b+=2){var c=a[b],e=a[b+1];null!==e.parentNode&&e.parentNode.removeChild(e);var f=c.parentNode;if(f){var g=c.previousSibling,h=0;do{if(c&&8===c.nodeType){var d=c.data;if(\"/$\"===d||\"/&\"===d)if(0===h)break;else h--;else\"$\"!==d&&\"$?\"!==d&&\"$~\"!==d&&\"$!\"!==d&&\"&\"!==d||h++}d=c.nextSibling;f.removeChild(c);c=d}while(c);for(;e.firstChild;)f.insertBefore(e.firstChild,c);g.data=\"$\";g._reactRetry&&requestAnimationFrame(g._reactRetry)}}a.length=0};\n$RC=function(a,b){if(b=document.getElementById(b))(a=document.getElementById(a))?(a.previousSibling.data=\"$~\",$RB.push(a,b),2===$RB.length&&(\"number\"!==typeof $RT?requestAnimationFrame($RV.bind(null,$RB)):(a=performance.now(),setTimeout($RV.bind(null,$RB),2300>a&&2E3<a?2300-a:$RT+300-a)))):b.parentNode.removeChild(b)};$RC(\"B:1\",\"S:1\")</script><div hidden id=\"S:0\"></div><script>$RC(\"B:0\",\"S:0\")</script></body></html>",
+  "errors": [],
+  "totalNumErrors": 0,
+  "totalNumWarnings": 0
+}

@@ -1801,6 +1801,21 @@ Kanıt:
 
 Commit: `6775780a feat(trust): publish transparency policy content`
 
+### 3.64 Schema.org URL Bazlı Kabul ve Rich Results Engeli
+
+- Resmî Schema.org Validator POST endpoint'i için tekrar çalıştırılabilir
+  `scripts/seo/schema-validator-audit.mjs` eklendi.
+- Ana sayfa, fiyat listesi, ürün, hal, analiz, yıllık rapor, metodoloji ve yazar
+  olmak üzere sekiz temsilî canlı URL denetlendi.
+- Sekiz URL'nin tamamında `totalNumErrors=0` ve `totalNumWarnings=0`; ham JSON
+  yanıtları ve tip özeti
+  `artifacts/seo/schema-validator-2026-07-27/` altında arşivlendi.
+- Google Rich Results Test ana sayfa URL modunda headless Chrome ile denendi;
+  reCAPTCHA/oturum engeli “Log in and try again” sonucu verdi. Ekran görüntüsü
+  `artifacts/seo/rich-results-test-2026-07-27/home-blocked.png`.
+- Google sonucu varmış gibi işaretlenmedi. Birleşik Schema/Rich Results
+  checklist maddesi etkileşimli Google oturum kanıtı alınana kadar açık.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.

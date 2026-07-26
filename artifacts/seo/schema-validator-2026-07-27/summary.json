@@ -1,0 +1,94 @@
+[
+  {
+    "url": "https://haldefiyat.com/",
+    "checkedAt": "2026-07-26T22:51:01.636Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": [
+      "Dataset",
+      "FAQPage",
+      "WebSite"
+    ]
+  },
+  {
+    "url": "https://haldefiyat.com/fiyatlar",
+    "checkedAt": "2026-07-26T22:51:10.439Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": [
+      "BreadcrumbList",
+      "DataCatalog",
+      "Dataset",
+      "FAQPage",
+      "WebSite"
+    ]
+  },
+  {
+    "url": "https://haldefiyat.com/urun/acur",
+    "checkedAt": "2026-07-26T22:51:18.344Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": [
+      "BreadcrumbList",
+      "Dataset",
+      "FAQPage",
+      "WebSite"
+    ]
+  },
+  {
+    "url": "https://haldefiyat.com/hal/izmir-hal",
+    "checkedAt": "2026-07-26T22:51:22.400Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": [
+      "BreadcrumbList",
+      "Dataset",
+      "Place",
+      "WebSite"
+    ]
+  },
+  {
+    "url": "https://haldefiyat.com/analiz/hal-fiyati-nasil-belirlenir",
+    "checkedAt": "2026-07-26T22:51:26.204Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": [
+      "BreadcrumbList",
+      "NewsArticle",
+      "WebSite"
+    ]
+  },
+  {
+    "url": "https://haldefiyat.com/rapor/yillik/2025",
+    "checkedAt": "2026-07-26T22:51:36.422Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": [
+      "Article",
+      "BreadcrumbList",
+      "WebSite"
+    ]
+  },
+  {
+    "url": "https://haldefiyat.com/metodoloji",
+    "checkedAt": "2026-07-26T22:51:43.488Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": [
+      "Article",
+      "BreadcrumbList",
+      "WebSite"
+    ]
+  },
+  {
+    "url": "https://haldefiyat.com/yazar/orhan-guzel",
+    "checkedAt": "2026-07-26T22:51:46.764Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": [
+      "BreadcrumbList",
+      "ProfilePage",
+      "WebSite"
+    ]
+  }
+]

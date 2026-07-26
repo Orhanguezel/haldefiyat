@@ -21,6 +21,18 @@ altyapısal bulguları tutar.
   temizse sırasıyla `quarantine; pct=25`, `pct=100` ve gerekirse `reject`
   değerlendirilmeli.
 
+### Google Rich Results Test oturum engeli
+
+- Sekiz temsilî URL Schema.org Validator resmî endpoint'inde hata 0, uyarı 0
+  sonucu verdi; ham JSON çıktıları
+  `artifacts/seo/schema-validator-2026-07-27/` altında arşivlendi.
+- Google Rich Results Test URL modu anonim headless Chrome'da reCAPTCHA sonrası
+  “Something went wrong — Log in and try again” yanıtı verdi.
+- Kanıt:
+  `artifacts/seo/rich-results-test-2026-07-27/home-blocked.png`.
+- Google sonucu uydurulmadı. Checklist maddesi, giriş yapılmış etkileşimli
+  Google oturumunda URL bazlı çıktılar alınana kadar açık kalacak.
+
 ### ETL veri akışı
 
 - Kocaeli, Mersin ve Çanakkale’de uzun süredir veri akışı olmadığı bildirildi.
