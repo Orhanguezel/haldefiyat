@@ -8,15 +8,7 @@ interface AnalyticsProps {
 
 export function GoogleAnalytics({ ga4Id }: { ga4Id: string }) {
   return (
-    <>
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${ga4Id}`}
-        strategy="lazyOnload"
-      />
-      <Script id="ga4-init" strategy="lazyOnload">
-        {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${ga4Id}');`}
-      </Script>
-    </>
+    <DeferredGoogleTags ga4Id={ga4Id} />
   );
 }
 
@@ -29,24 +21,23 @@ export function GoogleConsentMode() {
 }
 
 export function GoogleTagManager({ gtmId }: { gtmId: string }) {
-  return (
-    <Script id="gtm-init" strategy="lazyOnload">
-      {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`}
-    </Script>
-  );
+  return <DeferredGoogleTags gtmId={gtmId} />;
 }
 
 export function GoogleAdsConversion({ id }: { id: string }) {
+  return <DeferredGoogleTags adsConversionId={id} />;
+}
+
+function DeferredGoogleTags({
+  ga4Id,
+  gtmId,
+  adsConversionId,
+}: AnalyticsProps) {
+  const config = JSON.stringify({ ga4Id, gtmId, adsConversionId });
   return (
-    <>
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${id}`}
-        strategy="lazyOnload"
-      />
-      <Script id="google-ads-init" strategy="lazyOnload">
-        {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${id}',{allow_enhanced_conversions:true});`}
-      </Script>
-    </>
+    <Script id="google-tags-deferred-loader" strategy="afterInteractive">
+      {`(function(c){var loaded=false,timer;function add(src){var s=document.createElement('script');s.async=true;s.src=src;document.head.appendChild(s)}function load(){if(loaded)return;loaded=true;clearTimeout(timer);['pointerdown','keydown','touchstart','scroll'].forEach(function(e){removeEventListener(e,load)});window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){dataLayer.push(arguments)};if(c.gtmId){dataLayer.push({'gtm.start':Date.now(),event:'gtm.js'});add('https://www.googletagmanager.com/gtm.js?id='+encodeURIComponent(c.gtmId))}else if(c.ga4Id){gtag('js',new Date());gtag('config',c.ga4Id);add('https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(c.ga4Id))}if(c.adsConversionId){gtag('js',new Date());gtag('config',c.adsConversionId,{allow_enhanced_conversions:true});if(!c.gtmId&&c.adsConversionId!==c.ga4Id)add('https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(c.adsConversionId))}}['pointerdown','keydown','touchstart','scroll'].forEach(function(e){addEventListener(e,load,{once:true,passive:true})});function idle(){if('requestIdleCallback'in window){requestIdleCallback(load,{timeout:2500})}else{timer=setTimeout(load,2500)}}if(document.readyState==='complete')idle();else addEventListener('load',idle,{once:true})})(${config});`}
+    </Script>
   );
 }
 
@@ -69,8 +60,11 @@ export default function Analytics({ ga4Id, gtmId, adsConversionId }: AnalyticsPr
   return (
     <>
       <GoogleConsentMode />
-      {gtmId ? <GoogleTagManager gtmId={gtmId} /> : ga4Id ? <GoogleAnalytics ga4Id={ga4Id} /> : null}
-      {adsConversionId ? <GoogleAdsConversion id={adsConversionId} /> : null}
+      <DeferredGoogleTags
+        ga4Id={gtmId ? null : ga4Id}
+        gtmId={gtmId}
+        adsConversionId={adsConversionId}
+      />
     </>
   );
 }
