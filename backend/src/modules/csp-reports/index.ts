@@ -10,7 +10,7 @@ function text(value: unknown, max = 2_000): string | null {
   return typeof value === "string" ? value.slice(0, max) : null;
 }
 
-function normalizeReport(payload: unknown): JsonRecord[] {
+export function normalizeCspReports(payload: unknown): JsonRecord[] {
   const reports = Array.isArray(payload) ? payload : [payload];
   return reports.slice(0, 20).map((raw) => {
     const envelope = record(raw);
@@ -38,7 +38,7 @@ export async function registerCspReports(api: FastifyInstance) {
       config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     },
     async (req, reply) => {
-      const reports = normalizeReport(req.body);
+      const reports = normalizeCspReports(req.body);
       for (const report of reports) {
         req.log.warn({ event: "csp_violation", report }, "CSP violation report");
       }
