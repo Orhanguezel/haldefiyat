@@ -16,6 +16,7 @@ import { fetchAutoWeeklyReport, fetchAutoWeeklyReports, type AutoWeeklyReport } 
 import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 import PageContainer from "@/components/layout/PageContainer";
 import BannerSlot from "@/components/ads/BannerSlot";
+import AnswerBlock from "@/components/seo/AnswerBlock";
 
 // İçerik HTML ile başlıyorsa zengin rapor (kendi <style> + inline SVG) olarak
 // render edilir; aksi halde markdown-benzeri paragraf render'ı kullanılır.
@@ -268,9 +269,29 @@ export default async function AnalizMakalePage({ params }: Props) {
             <Metric label="Veri tipi" value="Haftalık fiyat raporu" />
           </section>
 
-          <p className="mt-8 rounded-[16px] border-l-4 border-(--color-brand) bg-(--color-bg-alt) px-5 py-4 text-[16px] font-medium leading-relaxed text-(--color-foreground)">
-            {makale.ozet}
-          </p>
+          <div className="mt-8">
+            <AnswerBlock
+              id="bulgu-ozeti"
+              title="Bulgu özeti"
+              meta={
+                <>
+                  <strong className="text-foreground">Rapor tarihi:</strong>{" "}
+                  <time dateTime={makale.tarih}>{formatDate(makale.tarih)}</time>
+                  {" · "}
+                  <Link href="/metodoloji" className="font-medium text-brand hover:underline">
+                    Yöntem ve veri sınırları
+                  </Link>
+                </>
+              }
+            >
+              <p className="text-[16px] font-medium text-foreground">{makale.ozet}</p>
+              <p className="mt-2">
+                Bulgular, rapor dönemindeki resmi hal fiyatı kayıtlarının karşılaştırmalı
+                analizine dayanır; kapsam ve veri gecikmeleri değerlendirilirken yöntem
+                sınırları dikkate alınmalıdır.
+              </p>
+            </AnswerBlock>
+          </div>
 
           <BannerSlot position="analiz_inline" />
 
