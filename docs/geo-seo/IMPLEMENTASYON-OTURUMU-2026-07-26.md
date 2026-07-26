@@ -102,10 +102,13 @@ Commit: `a9620c9a fix(seo): keep sitemap canonical and use real lastmod dates`
 Değişiklikler:
 
 - `noindex` olduğu canlı kontrolde doğrulanan `/api-docs` sitemap'ten çıkarıldı.
-- Canlı canonical'ı `/tr/...` olan üç sayfanın sitemap URL'si canonical ile eşleştirildi:
-  - `/tr/borsa`
-  - `/tr/canli-hayvan-fiyatlari`
-  - `/tr/et-fiyatlari`
+- İlk aşamada canlı canonical'ı `/tr/...` olan üç sayfanın sitemap URL'si mevcut
+  canonical ile eşleştirildi.
+- Sonraki kök neden düzeltmesinde `localePrefix: "as-needed"` politikasına aykırı
+  manuel canonical'lar kaldırıldı ve üç URL yeniden prefixsiz hale getirildi:
+  - `/borsa`
+  - `/canli-hayvan-fiyatlari`
+  - `/et-fiyatlari`
 - Statik sayfalardaki uydurma günlük `lastmod` değerleri kaldırıldı.
 - Ürün/hal/firma sayfalarında yalnız geçerli gerçek tarih varsa `lastModified` yazılıyor.
 - Fiyat hub'larında ürün/hal güncellemelerinin en yeni tarihi kullanılıyor.
@@ -475,13 +478,44 @@ Commit: `0dc9dce9 feat(seo): add methodology image variants`
 - [ ] Article JSON-LD üç görseli içeriyor.
 - [ ] `og:image` metodoloji 16:9 görseline gidiyor.
 
+### 3.19 RFC Security.txt
+
+Commit: `7cf22f9a feat(security): publish configured security.txt`
+
+- Yeni endpoint: `/.well-known/security.txt`.
+- `Contact` adresi hardcode edilmeden DB `siteSettings.contact_email` alanından geliyor.
+- `Expires` her yanıtta bir yıl ilerisi olacak şekilde RFC tarih formatında üretiliyor.
+- HTTPS `Canonical` ve `Preferred-Languages: tr, en` alanları bulunuyor.
+- Eksik/geçersiz e-posta durumunda yanlış iletişim yayınlamak yerine 503 dönüyor.
+- Header enjeksiyonuna uygun bozuk e-posta değerleri reddediliyor.
+
+Çapraz kontrol:
+
+- [ ] Canlı endpoint 200 ve `text/plain` dönüyor.
+- [ ] Contact kurumsal e-postayla aynı.
+- [ ] Canonical HTTPS ve kendi endpoint'i.
+- [ ] Expires gelecekte ve bir yıldan uzun değil.
+
+### 3.20 Varsayılan Locale Canonical Düzeltmesi
+
+Commit: `ab012981 fix(seo): canonicalize default locale without prefix`
+
+- Borsa, canlı hayvan ve et fiyatları sayfalarındaki manuel `/tr/...` canonical
+  değerleri kaldırıldı.
+- Üç sayfa ortak `getPageMetadata` ve `buildLocaleAlternates` yoluna geçirildi.
+- Türkçe varsayılan locale için canonical, hreflang `tr` ve `x-default`
+  prefixsiz URL kullanıyor.
+- Sitemap aynı prefixsiz kanonik URL'lere geri alındı.
+- Proxy'nin zaten `/tr/...` isteklerini prefixsiz URL'ye 308 yönlendirmesiyle
+  sitemap/canonical çelişkisi giderildi.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
 
 - Frontend `bunx tsc --noEmit`: geçti.
 - Backend `bunx tsc --noEmit`: geçti.
-- Frontend `bun run test`: 7 dosya, 22 test geçti.
+- Frontend `bun run test`: 9 dosya, 25 test geçti.
 - Backend `bun run test`: 2 dosya, 11 test geçti.
 - Frontend `bun run build`: geçti; son durumda 63 route üretildi.
 - Backend `bun run build`: geçti.
@@ -550,13 +584,15 @@ başlığının tarayıcı uyumluluğu değerlendirilmelidir.
 - GSC Product snippets süreci ve geçmiş kararlar nedeniyle bu oturumda kaldırılmadı.
 - Kaldırma/koruma kararı ayrıca GSC görünürlüğü ve semantik uygunlukla değerlendirilmelidir.
 
-### S-07 — Canonical locale tutarsızlığı
+### S-07 — Canonical locale tutarsızlığı — Çözüldü
 
 - Canlı kontrolde `/borsa`, `/canli-hayvan-fiyatlari`, `/et-fiyatlari` sayfaları
   `/tr/...` canonical döndürüyor.
 - Diğer varsayılan Türkçe sayfalar prefixsiz canonical kullanıyor.
-- Sitemap mevcut canlı canonical'a uyduruldu; kök locale politikasının kendisi ayrıca
-  düzeltilmelidir.
+- Kök neden üç sayfadaki manuel `/${locale}/...` canonical üretimiydi.
+- `ab012981` ile ortak as-needed locale politikasına geçirildi; sitemap de prefixsiz
+  URL'lere döndürüldü.
+- Canlı deploy sonrası canonical ve 308 davranışı yeniden doğrulanmalıdır.
 
 ### S-08 — RUM event teslimi canlı doğrulanmadı
 
@@ -724,13 +760,25 @@ Orhan'dan beklenen:
 - HTTP(S) URL query ve fragment bölümleri log öncesinde kaldırılıyor.
 - `inline` ve `data` gibi CSP tanımlayıcıları korunuyor.
 
+### F-13 — Security.txt mevcut değildi
+
+- `/.well-known/security.txt` route veya statik dosyası yoktu.
+- Kurumsal güvenlik bildirim kanalı artık mevcut site settings e-postasından
+  dinamik ve RFC biçiminde yayınlanıyor.
+
+### F-14 — Sitemap URL'leri proxy tarafından redirect ediliyordu
+
+- Üç sitemap URL'si `/tr/...` biçimindeydi.
+- Proxy varsayılan Türkçe locale prefix'ini kaldırdığı için bu URL'ler 308 ile
+  prefixsiz karşılıklarına yönleniyordu.
+- Canonical'ın kök nedeni düzeltilip sitemap doğrudan 200 hedeflere çevrildi.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
 - CSP header endpoint'e bağlanmadan gözlem başlamaz.
 - CSP enforce'a erken geçmek GTM/GA/Ads/harita/video akışlarını kırabilir.
 - RUM event'i GTM tarafında yapılandırılmadan veri rapora düşmeyebilir.
-- Sitemap canonical'ı mevcut `/tr/...` davranışına uydurmak locale tutarsızlığını kalıcılaştırabilir.
 - Ürün sayfasındaki Product/Offer kaldırılırsa mevcut GSC Product snippet görünürlüğü etkilenebilir.
 - Ana sayfa UA-bazlı farklı SSR ürettiği için körlemesine public edge cache yanlış cihaz ağacını sunabilir.
 
@@ -781,6 +829,9 @@ fe7dbfa4 fix(seo): reject invalid and future sitemap dates
 99bcee1a fix(security): redact URL queries from CSP logs
 1e04f787 docs(geo-seo): record OG truth and CSP feasibility
 0dc9dce9 feat(seo): add methodology image variants
+3bf64760 docs(geo-seo): record methodology image coverage
+7cf22f9a feat(security): publish configured security.txt
+ab012981 fix(seo): canonicalize default locale without prefix
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
