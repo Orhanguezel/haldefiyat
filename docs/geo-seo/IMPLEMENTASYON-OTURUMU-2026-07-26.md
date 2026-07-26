@@ -1955,6 +1955,18 @@ Commit: `6775780a feat(trust): publish transparency policy content`
 - `/api/v1` runtime sözleşmesi değiştirilmedi; breaking deploy yapılmadı.
 - Sayaçlar 59/66 tamamlanan ve 7/66 açık olarak güncellendi.
 
+### 3.73 API Dokümanı Canlı Kabulü
+
+- `05740418` commit'i `main` dalına push edildi ve canlı sunucu
+  `git pull --ff-only` ile güncellendi.
+- Eski `frontend/.next/standalone` silinmeden version'lı geçici dizine taşındı;
+  canlı production build başarıyla tamamlandı.
+- `pm2 restart hal-frontend --update-env` sonrası frontend ve backend online.
+- Canlı kabul: `/api-docs` 200, `/` 200 ve örnek
+  `/api/v1/prices?product=domates&limit=1` 200.
+- Canlı SSR dokümanda `latestOnly`, `recordedDate` ve `week=2026-29`
+  görünüyor; kaldırılan yanlış `dateFrom` örneği görünmüyor.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
