@@ -9,6 +9,13 @@ export type PriceTrend = {
   direction: "yükseliş" | "düşüş" | "yatay";
 };
 
+export type ProductMover = {
+  productSlug: string;
+  productName: string;
+  changePct: number;
+  direction: "yükseldi" | "düştü";
+};
+
 function numeric(value: number | string): number | null {
   const parsed = typeof value === "number" ? value : Number.parseFloat(value);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
@@ -63,4 +70,51 @@ export function calculateWindowTrend(
           ? "yükseliş"
           : "düşüş",
   };
+}
+
+/**
+ * Bir haldeki her ürünün en yeni iki yayın gününü karşılaştırır. Aynı ürün ve
+ * günde birden fazla satır varsa önce günlük ortalama alınır.
+ */
+export function calculateProductMovers(
+  rows: Array<DatedAverage & { productSlug: string; productName: string }>,
+  limit = 3,
+): ProductMover[] {
+  const products = new Map<string, {
+    name: string;
+    days: Map<string, number[]>;
+  }>();
+
+  for (const row of rows) {
+    const value = numeric(row.avgPrice);
+    const date = row.recordedDate.slice(0, 10);
+    if (value == null || !/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+    const product = products.get(row.productSlug) ?? {
+      name: row.productName,
+      days: new Map<string, number[]>(),
+    };
+    const values = product.days.get(date) ?? [];
+    values.push(value);
+    product.days.set(date, values);
+    products.set(row.productSlug, product);
+  }
+
+  return [...products.entries()]
+    .flatMap(([productSlug, product]) => {
+      const days = [...product.days.entries()]
+        .map(([date, values]) => ({ date, average: mean(values) as number }))
+        .sort((a, b) => b.date.localeCompare(a.date));
+      if (days.length < 2 || days[1].average === 0) return [];
+      const changePct =
+        Math.round(((days[0].average - days[1].average) / days[1].average) * 1_000) / 10;
+      if (Math.abs(changePct) < 0.1) return [];
+      return [{
+        productSlug,
+        productName: product.name,
+        changePct,
+        direction: changePct > 0 ? "yükseldi" as const : "düştü" as const,
+      }];
+    })
+    .sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct))
+    .slice(0, Math.max(0, limit));
 }

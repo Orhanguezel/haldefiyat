@@ -16,6 +16,8 @@ import { schemaDateRange } from "@/lib/schema-dates";
 import { getMarketEditorial } from "@/lib/market-content";
 import FirmCard from "@/components/firms/FirmCard";
 import { ListingCard } from "@/components/listings/ListingCard";
+import AnswerBlock from "@/components/seo/AnswerBlock";
+import { calculateProductMovers } from "@/lib/citability";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -115,8 +117,15 @@ export default async function HalPage({ params }: Props) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const [prices, markets] = await Promise.all([
+  const [prices, trendHistory, markets] = await Promise.all([
     fetchPrices({ market: slug, range: MARKET_PRICE_RANGE, limit: 500 }),
+    fetchPrices({
+      market: slug,
+      range: "90d",
+      limit: 1000,
+      latestOnly: false,
+      sort: "date-desc",
+    }),
     fetchMarkets(),
   ]);
 
@@ -179,6 +188,63 @@ export default async function HalPage({ params }: Props) {
     { name: "Haller", href: "/hal" },
     { name: market.name, href: `/hal/${slug}` },
   ];
+  const latestRows = latestDate
+    ? prices.filter((price) => price.recordedDate.slice(0, 10) === latestDate)
+    : [];
+  const latestProductCount = new Set(latestRows.map((price) => price.productSlug)).size;
+  const movers = calculateProductMovers(trendHistory, 3);
+  const latestDateTr = latestDate
+    ? new Date(`${latestDate}T12:00:00Z`).toLocaleDateString("tr-TR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : null;
+  const answerBlock = (
+    <AnswerBlock
+      id="bugunun-hal-fiyatlari"
+      title={`${market.cityName} halinde bugün fiyatlar`}
+      meta={
+        <>
+          <strong className="text-foreground">Kaynak:</strong>{" "}
+          {market.sourceKey ?? market.name}
+          {latestDateTr && (
+            <>
+              {" · "}<strong className="text-foreground">Son güncelleme:</strong>{" "}
+              <time dateTime={latestDate ?? undefined}>{latestDateTr}</time>
+            </>
+          )}
+        </>
+      }
+    >
+      {latestDateTr && latestProductCount > 0 ? (
+        <>
+          <time dateTime={latestDate ?? undefined}>{latestDateTr}</time> tarihli son
+          listede <strong className="text-foreground">{latestProductCount} ürün</strong>{" "}
+          kapsanıyor.
+          {movers.length > 0 && (
+            <>
+              {" "}Öne çıkan değişimler:{" "}
+              {movers.map((mover, index) => (
+                <span key={mover.productSlug}>
+                  {index > 0 ? "; " : ""}
+                  <Link href={`/urun/${mover.productSlug}`} className="font-medium text-brand hover:underline">
+                    {mover.productName}
+                  </Link>{" "}
+                  %{Math.abs(mover.changePct).toLocaleString("tr-TR")} {mover.direction}
+                </span>
+              ))}.
+            </>
+          )}
+        </>
+      ) : (
+        <>
+          {market.name} için doğrulanmış güncel fiyat listesi bulunmuyor. Kaynak yeni
+          kayıt yayımladığında kapsam, kesin tarih ve öne çıkan değişimler burada gösterilir.
+        </>
+      )}
+    </AnswerBlock>
+  );
 
   if (isNational) {
     return (
@@ -205,6 +271,8 @@ export default async function HalPage({ params }: Props) {
           </p>
           <div className="mt-3"><FreshnessBadge recordedDate={latestDate} /></div>
         </div>
+
+        <div className="mb-8">{answerBlock}</div>
 
         <div className="mb-8 rounded-[14px] border border-(--color-border) bg-(--color-surface) p-5 text-[13px] text-(--color-muted) space-y-1.5">
           <p>
@@ -244,6 +312,8 @@ export default async function HalPage({ params }: Props) {
         </p>
         <div className="mt-3"><FreshnessBadge recordedDate={latestDate} /></div>
       </div>
+
+      <div className="mb-8">{answerBlock}</div>
 
       {/* Hava durumu — sadece eslesen sehirler icin */}
       {weatherSlug && (

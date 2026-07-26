@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateWindowTrend } from "./citability";
+import { calculateProductMovers, calculateWindowTrend } from "./citability";
 
 describe("calculateWindowTrend", () => {
   it("compares daily means across consecutive windows", () => {
@@ -31,5 +31,21 @@ describe("calculateWindowTrend", () => {
       { recordedDate: "2026-07-04", avgPrice: 10 },
       { recordedDate: "2026-07-03", avgPrice: 10 },
     ], 1)?.direction).toBe("yatay");
+  });
+});
+
+describe("calculateProductMovers", () => {
+  it("returns the largest product changes between their latest two days", () => {
+    const rows = [
+      { productSlug: "limon", productName: "Limon", recordedDate: "2026-07-04", avgPrice: 30 },
+      { productSlug: "limon", productName: "Limon", recordedDate: "2026-07-03", avgPrice: 20 },
+      { productSlug: "elma", productName: "Elma", recordedDate: "2026-07-04", avgPrice: 9 },
+      { productSlug: "elma", productName: "Elma", recordedDate: "2026-07-03", avgPrice: 10 },
+    ];
+
+    expect(calculateProductMovers(rows, 2)).toEqual([
+      { productSlug: "limon", productName: "Limon", changePct: 50, direction: "yükseldi" },
+      { productSlug: "elma", productName: "Elma", changePct: -10, direction: "düştü" },
+    ]);
   });
 });
