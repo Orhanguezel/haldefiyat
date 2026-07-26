@@ -10,12 +10,20 @@ const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
+  const image = `${SITE_URL}/og/metodoloji?ratio=16x9`;
   return getPageMetadata("metodoloji", {
     locale,
     pathname: "/metodoloji",
     title: "Veri Metodolojisi | HalDeFiyat",
     description:
       "HalDeFiyat'ın hal fiyatı verilerini nasıl topladığını, doğruladığını ve sunduğunu öğrenin. 16 resmi kaynak, günlük ETL, şeffaf metodoloji.",
+    openGraph: {
+      title: "HalDeFiyat Veri Metodolojisi",
+      description: "Resmi hal fiyatlarının toplanması, normalizasyonu ve veri kalitesi yaklaşımı.",
+      type: "article",
+      url: `${SITE_URL}/metodoloji`,
+      images: [{ url: image, width: 1200, height: 675 }],
+    },
   });
 }
 
@@ -29,13 +37,17 @@ const SOURCES = [
   { name: "Gaziantep, Mersin, Balıkesir, Kayseri", desc: "Belediye hal müdürlükleri resmi sistemleri", type: "İl" },
 ];
 
+const articleImages = ["1x1", "4x3", "16x9"].map(
+  (ratio) => `${SITE_URL}/og/metodoloji?ratio=${ratio}`,
+);
+
 const articleSchema = {
   headline: "HalDeFiyat Veri Metodolojisi",
   description:
     "Türkiye hal fiyatı verilerinin nasıl toplandığı, doğrulandığı ve sunulduğuna dair kapsamlı açıklama.",
   mainEntityOfPage: `${SITE_URL}/metodoloji`,
   url: `${SITE_URL}/metodoloji`,
-  image: [`${SITE_URL}/og-default.png`],
+  image: articleImages,
   author: ORG_REF,
   publisher: ORG_REF,
   inLanguage: "tr-TR",
