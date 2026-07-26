@@ -927,6 +927,20 @@ Commit: `3fc97d80 fix(trust): use configured contact details`
 - Sorumlu tüzel kişi/kurum bilgisi hâlâ sahiplik girdisi beklediği için checklist
   maddesi tamamen kapatılmadı.
 
+### 3.49 Özel/İşlem Route'ları İndeks Politikası ve Kök JSON-LD
+
+Commit: `6ca33051 fix(seo): noindex private action routes`
+
+- Hesap dashboard layout'una merkezi `noindex,nofollow` metadata eklendi; dokuz
+  hesap alt sayfası artık genel public metadata'yı miras alıp indekslenebilir
+  görünmüyor.
+- `/ilan-ver` ve kimlik doğrulaması isteyen `/firmalar/ekle` için özgün
+  title/description/canonical ile `noindex,nofollow` politikası eklendi.
+- Public layout'taki Organization/WebSite schema'ları güvensiz
+  `@agro/shared-ui` emitter'ı yerine bu projede sertleştirilen ortak `JsonLd`
+  emitter'ına geçirildi.
+- Typecheck, 15 dosya/39 test ve `git diff --check` geçti.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -1417,6 +1431,25 @@ Orhan'dan beklenen:
 - Sayfa artık yalnız yapılandırılmış telefon/adresi yayımlıyor; sahiplik ve
   sorumlu kurum bilgisi Orhan'ın nihai girdisine bağlı kalıyor.
 
+### F-39 — Özel hesap ve içerik oluşturma route'ları noindex miras almıyordu
+
+- Dashboard layout robots metadata yayımlamıyordu. Hesap sayfaları da tek tek
+  metadata tanımlamadığından public kök metadata'sıyla taranabiliyordu.
+- İlan ve firma oluşturma sayfaları arama niyeti taşıyan landing page değil,
+  kullanıcı işlemi/form yüzeyidir; buna rağmen açık robots politikaları yoktu.
+- Politika route grubunda merkezi, bağımsız iki işlem sayfasında açık metadata
+  ile düzeltildi. Canlı deploy sonrası meta robots kontrolü gerekir.
+
+### F-40 — Kök schema güvenli serializer'ı atlıyordu
+
+- Proje içindeki JSON-LD kullanımları güvenli emitter'a bağlanmıştı; public
+  layout ise farklı workspace bileşenini import ediyor ve doğrudan
+  `JSON.stringify` kullanıyordu.
+- Site adı, logo ve iletişim ayarları dinamik olduğundan kök Organization/
+  WebSite scriptleri de aynı HTML script-context riskini taşıyordu.
+- Layout proje içindeki testli güvenli emitter'a geçirildi; paylaşılan pakete
+  diğer projeleri etkileyen kapsam dışı değişiklik yapılmadı.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1512,6 +1545,7 @@ abf83083 fix(schema): safely serialize json-ld
 23cf57e2 fix(schema): declare root entity types explicitly
 8610e751 fix(content): label automated reports truthfully
 3fc97d80 fix(trust): use configured contact details
+6ca33051 fix(seo): noindex private action routes
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol

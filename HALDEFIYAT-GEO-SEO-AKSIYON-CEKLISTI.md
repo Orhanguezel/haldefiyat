@@ -108,7 +108,7 @@ mobil LCP 6.7 sn, citability blokları dar. Bunlar aşağıda P0/P1.
 - [ ] GSC Page Indexing: keşfedildi-taranmadı / tarandı-indekslenmedi / duplicate-canonical.
 - [ ] Orphan ürün/hal/analiz sayfaları; iç link derinliği + anchor dağılımı.
 - [ ] 3xx/4xx/5xx iç link + redirect chain (tam crawl).
-- [ ] Duplicate/missing/truncated title-description-H1 envanteri; canonical + hreflang self/reciprocal.
+- [ ] Duplicate/missing/truncated title-description-H1 envanteri; canonical + hreflang self/reciprocal. Kod envanterinde dashboard, ilan oluşturma ve firma oluşturma metadata açıkları kapatıldı (`6ca33051`); tam canlı crawl bekleniyor.
 - [ ] `www`/HTTP/trailing-slash/locale/case varyantları; soft-404 + boş fiyat sayfası index politikası ([[410-yanlis-pozitif-aile-basi]]).
 - [ ] Ana sayfa cache politikası (`private, no-cache, no-store`) perf maliyetini ölç; Brotli/HTTP-3/immutable assets fırsatı.
 - [ ] Log analiziyle Googlebot/Bingbot/AI-bot crawl sıklığı + 4xx/5xx (audit_request_logs zaten var).
