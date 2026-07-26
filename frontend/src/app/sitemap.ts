@@ -4,6 +4,7 @@ import type { MetadataRoute } from "next";
 import { getProductImage } from "@/lib/product-images";
 import { getSonMakaleler } from "@/lib/analiz";
 import { fetchAutoWeeklyReports } from "@/lib/api";
+import { latestSitemapDate, validSitemapDate } from "@/lib/sitemap-date";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033").replace(/\/$/, "");
 // SSR'da BACKEND_URL (internal) kullan; yoksa NEXT_PUBLIC_API_URL'ye düş
@@ -46,19 +47,6 @@ interface FirmCitySitemapItem {
 interface FirmTypeSitemapItem {
   firmType: "komisyoncu" | "soguk_hava" | "nakliye" | "zirai_ilac";
   total: number;
-}
-
-function validDate(value?: string | Date | null): Date | undefined {
-  if (!value) return undefined;
-  const date = value instanceof Date ? value : new Date(value);
-  return Number.isNaN(date.getTime()) ? undefined : date;
-}
-
-function latestDate(values: Array<string | Date | null | undefined>): Date | undefined {
-  return values.reduce<Date | undefined>((latest, value) => {
-    const date = validDate(value);
-    return date && (!latest || date > latest) ? date : latest;
-  }, undefined);
 }
 
 async function fetchActiveProducts(): Promise<PriceSitemapItem[]> {
@@ -158,10 +146,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     fetchFirmCities(),
     fetchFirmTypes(),
   ]);
-  const priceLastModified = latestDate([
+  const priceLastModified = latestSitemapDate([
     ...products.map((item) => item.updatedAt ?? item.updated_at),
   ]);
-  const firmLastModified = latestDate(
+  const firmLastModified = latestSitemapDate(
     firms.map((item) => item.updatedAt ?? item.lastSeenAt),
   );
 
@@ -194,11 +182,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const productPages: MetadataRoute.Sitemap = products.map((p) => {
     const imgPath = getProductImage(p.slug);
+    const lastModified = validSitemapDate(p.updatedAt ?? p.updated_at);
     return {
       url: `${SITE_URL}/urun/${p.slug}`,
-      ...(validDate(p.updatedAt ?? p.updated_at) && {
-        lastModified: validDate(p.updatedAt ?? p.updated_at),
-      }),
+      ...(lastModified && { lastModified }),
       changeFrequency: "daily" as const,
       priority: 0.8,
       ...(imgPath && {
@@ -213,14 +200,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const firmPages: MetadataRoute.Sitemap = firms.map((firm) => ({
-    url: `${SITE_URL}/firma/${firm.slug}`,
-    ...(validDate(firm.updatedAt ?? firm.lastSeenAt) && {
-      lastModified: validDate(firm.updatedAt ?? firm.lastSeenAt),
-    }),
-    changeFrequency: "monthly" as const,
-    priority: 0.55,
-  }));
+  const firmPages: MetadataRoute.Sitemap = firms.map((firm) => {
+    const lastModified = validSitemapDate(firm.updatedAt ?? firm.lastSeenAt);
+    return {
+      url: `${SITE_URL}/firma/${firm.slug}`,
+      ...(lastModified && { lastModified }),
+      changeFrequency: "monthly" as const,
+      priority: 0.55,
+    };
+  });
 
   const firmCityHubs: MetadataRoute.Sitemap = firmCities
     .filter((city) => city.citySlug && city.total >= 5)
@@ -266,7 +254,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const autoReports = await fetchAutoWeeklyReports(200);
   const staticArticles = getSonMakaleler(100);
   const staticSlugs = new Set(staticArticles.map((m) => m.slug));
-  const analysisLastModified = latestDate([
+  const analysisLastModified = latestSitemapDate([
     ...staticArticles.map((article) => article.tarih),
     ...autoReports.map((article) => article.tarih),
   ]);
@@ -276,20 +264,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   const analizPages: MetadataRoute.Sitemap = [
-    ...staticArticles.map((m) => ({
-      url: `${SITE_URL}/analiz/${m.slug}`,
-      ...(validDate(m.tarih) && { lastModified: validDate(m.tarih) }),
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
-    })),
-    ...autoReports
-      .filter((r) => !staticSlugs.has(r.slug))
-      .map((r) => ({
-        url: `${SITE_URL}/analiz/${r.slug}`,
-        ...(validDate(r.tarih) && { lastModified: validDate(r.tarih) }),
+    ...staticArticles.map((m) => {
+      const lastModified = validSitemapDate(m.tarih);
+      return {
+        url: `${SITE_URL}/analiz/${m.slug}`,
+        ...(lastModified && { lastModified }),
         changeFrequency: "monthly" as const,
         priority: 0.6,
-      })),
+      };
+    }),
+    ...autoReports
+      .filter((r) => !staticSlugs.has(r.slug))
+      .map((r) => {
+        const lastModified = validSitemapDate(r.tarih);
+        return {
+          url: `${SITE_URL}/analiz/${r.slug}`,
+          ...(lastModified && { lastModified }),
+          changeFrequency: "monthly" as const,
+          priority: 0.6,
+        };
+      }),
   ];
 
   return [...publicPages, ...productPages, ...marketPages, ...firmCityHubs, ...firmTypeHubs, ...firmComboHubs, ...firmPages, ...analizPages];
