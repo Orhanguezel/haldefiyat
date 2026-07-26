@@ -1816,6 +1816,23 @@ Commit: `6775780a feat(trust): publish transparency policy content`
 - Google sonucu varmış gibi işaretlenmedi. Birleşik Schema/Rich Results
   checklist maddesi etkileşimli Google oturum kanıtı alınana kadar açık.
 
+### 3.65 GSC Page Indexing Kırılımı
+
+- Canlı `gsc_url_index` cache'inde 1.503 URL incelendi; en yeni kontrol
+  26 Temmuz 02:02 UTC.
+- Dağılım: 277 indexed, 12 discovered-not-indexed, 3 crawled-not-indexed,
+  600 noindex, 310 redirect, 300 Google tarafından bilinmeyen ve 1 eski 404.
+- URL bazlı canlı HTTP/canonical/robots/sitemap karşılaştırmasıyla 11 gerçek
+  indekslenebilir takip URL'si ayrıldı.
+- İki crawled ürün bugün bilinçli tek 301; iki discovered hal noindex/sitemap
+  dışı; eski `fejoya` bugün 410.
+- Cache'te noindex görünen fakat bugün `seo_index=1` ve yayımlanmış editoryelli
+  24 ürün, Google'ın eski crawl sonucunu taşıyan stale küme olarak ayrıldı.
+- Duplicate/canonical, soft-404 ve server-error coverage sayıları 0.
+- Ayrıntılı URL listesi ve izleme kararı
+  `docs/geo-seo/GSC-PAGE-INDEXING-INCELEMESI-2026-07-27.md` dosyasına yazıldı.
+- Bu kapanışla sayaçlar 53/66 tamamlanan ve 13/66 açık olarak güncellendi.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.

@@ -7,8 +7,8 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 52/66 checkbox — kapanış kanıtları bu dosyada korunur.
-- **Açık:** 14/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
+- **Tamamlanan:** 53/66 checkbox — kapanış kanıtları bu dosyada korunur.
+- **Açık:** 13/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
   kalan iş olarak ayrıldığı için toplam takip maddesi 66 oldu. Açıklar:
   `HALDEFIYAT-GEO-SEO-ACIK-ISLER.md`.
 - Bu dosyaya yeni açık iş eklenmez. Açık dosyada tamamlanan maddeler, kanıtıyla
@@ -151,6 +151,7 @@ ayrı açık işler dosyasına taşınmıştır.
 ## P2 — Ölçüm / KPI baseline — 🔎 Claude + 🧑 Orhan (Codex: yalnız RUM kurulumu)
 
 - [x] **INP/CWV RUM:** örneklemeli web-vitals telemetry GA4 veri katmanına bağlandı ve test edildi. (`ccaf86ae`, `ad6f5be4`)
+- [x] GSC URL Inspection cache'indeki 1.503 URL; discovered/crawled-not-indexed, noindex, redirect, unknown, 404 ve duplicate/canonical kırılımlarında incelendi. 11 gerçek indekslenebilir takip URL'si, 24 stale-noindex ürün ve bilinçli 301/noindex/410 kayıtları ayrıştırıldı; duplicate/canonical, soft-404 ve server-error 0. (`docs/geo-seo/GSC-PAGE-INDEXING-INCELEMESI-2026-07-27.md`)
 
 ---
 
