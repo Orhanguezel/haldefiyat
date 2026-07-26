@@ -265,6 +265,7 @@ Commitler:
 - `88bde326 feat(security): collect CSP violation reports`
 - `86be72df test(security): cover CSP report normalization`
 - `8cb88095 fix(security): cap CSP report request bodies`
+- `99bcee1a fix(security): redact URL queries from CSP logs`
 
 Değişiklikler:
 
@@ -277,6 +278,7 @@ Değişiklikler:
 - İstek gövdesi route seviyesinde 64 KB ile sınırlı.
 - String alanları sınırlandırılıyor.
 - Payload ham biçimde loglanmıyor.
+- HTTP(S) URL'lerinin query string ve fragment bölümleri loglanmıyor.
 - Yapılandırılmış log olayı: `event=csp_violation`.
 - Endpoint rate-limit: 60 istek/dakika.
 - Başarılı cevap: 204.
@@ -438,14 +440,33 @@ Değişiklikler:
 - [ ] `og:image` 16:9 yıllık rapor görseline gidiyor.
 - [ ] Rich Results Test Article görsellerini kabul ediyor.
 
+### 3.16 Dinamik OG Tarih Doğruluğu
+
+Commit: `27b09bba fix(seo): use real data dates in OG images`
+
+- Ürün OG görselindeki her istekte “bugün” üreten tarih kaldırıldı.
+- Ürün görseli yalnız gerçek son fiyat `updatedAt` değeri varsa tarih gösteriyor.
+- Analiz API'si başarısız olduğunda bugünün tarihini gösteren fallback kaldırıldı.
+- Geçersiz takvim günlerini normalize etmeyen ortak OG tarih formatlayıcısı eklendi.
+
+### 3.17 Metodoloji Article Kimliği
+
+Commit: `0a637e11 feat(seo): align methodology Article identity`
+
+- Article schema'ya `mainEntityOfPage`, `url`, `image` ve
+  `isAccessibleForFree` eklendi.
+- Organization author referansıyla eşleşen görünür “Hazırlayan: HalDeFiyat”
+  satırı eklendi.
+- Gerçek yayın/değişiklik tarihi olmadığı için tarih uydurulmadı.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
 
 - Frontend `bunx tsc --noEmit`: geçti.
 - Backend `bunx tsc --noEmit`: geçti.
-- Frontend `bun run test`: 6 dosya, 20 test geçti.
-- Backend `bun run test`: 2 dosya, 9 test geçti.
+- Frontend `bun run test`: 7 dosya, 22 test geçti.
+- Backend `bun run test`: 2 dosya, 11 test geçti.
 - Frontend `bun run build`: geçti; son durumda 63 route üretildi.
 - Backend `bun run build`: geçti.
 - `git diff --check`: değişiklik paketlerinde geçti.
@@ -534,6 +555,26 @@ başlığının tarayıcı uyumluluğu değerlendirilmelidir.
 - Metodoloji sayfasında da gerçek yayın/değişiklik tarihi kaynağı yok.
 - Brief'in yasakladığı yapay tarih üretimi yapılmadı; gerçek CMS/DB tarihleri
   sağlanana kadar `datePublished` eklenmedi.
+
+### S-10 — CSP nonce/hash geçişi için runtime engeller
+
+- `Analytics.tsx` içinde Consent Mode, GTM, GA4 ve Ads için dört inline script var.
+- Next.js runtime inline bootstrap scriptleri request bazlı nonce gerektiriyor.
+- JSON-LD scriptleri de `script-src` kapsamındadır.
+- `BannerSlot`, CMS'den değişken ham reklam HTML'i render edebiliyor; sabit hash
+  yaklaşımı bu içerik için uygun değil.
+- GTM custom HTML tag envanteri repo dışındaki GTM workspace'ten çıkarılmalıdır.
+- OneSignal SDK origin'i allowlist içinde korunmalıdır.
+
+Önerilen geçiş:
+
+1. Report-Only header yeni endpoint'e bağlanır ve 7–14 gün veri toplanır.
+2. GTM custom HTML ve CMS banner kodları envanterlenir.
+3. Ham banner HTML'i tanımlı reklam sağlayıcı bileşenlerine dönüştürülür.
+4. Request bazlı nonce staging'de Next scriptleri ve JSON-LD ile doğrulanır.
+5. Production build'de önce `unsafe-eval`, sonra uygun olduğunda
+   `unsafe-inline` kaldırılır.
+6. Enforce yalnız ayrı Orhan/Claude onayıyla açılır.
 
 ## 6. Açık Sorular
 
@@ -654,6 +695,19 @@ Orhan'dan beklenen:
   `og-default.png` görselini kullanıyordu.
 - Yıllık rapora özel üç oranlı dinamik görsel endpoint'i eklendi.
 
+### F-11 — OG görselleri veri yokken güncel tarih iddia ediyordu
+
+- Ürün OG görseli gerçek son veri tarihinden bağımsız olarak sunucu gününü basıyordu.
+- Analiz OG endpoint'i rapor alınamazsa sunucu gününü yayın tarihi gibi gösteriyordu.
+- Tarih artık yalnız doğrulanmış kaynak kaydı varsa gösteriliyor.
+
+### F-12 — CSP log URL'leri query verisi taşıyordu
+
+- `documentURL`, `blockedURL` ve `sourceFile` query içinde kullanıcı veya kampanya
+  verisi taşıyabilir.
+- HTTP(S) URL query ve fragment bölümleri log öncesinde kaldırılıyor.
+- `inline` ve `data` gibi CSP tanımlayıcıları korunuyor.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -705,6 +759,10 @@ e1b65b4a docs(geo-seo): record data freshness corrections
 ad6f5be4 test(analytics): cover Web Vitals sampling rules
 fe7dbfa4 fix(seo): reject invalid and future sitemap dates
 6a8e723c feat(seo): add annual report image variants
+36604e09 docs(geo-seo): record RUM and Article hardening
+27b09bba fix(seo): use real data dates in OG images
+0a637e11 feat(seo): align methodology Article identity
+99bcee1a fix(security): redact URL queries from CSP logs
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
