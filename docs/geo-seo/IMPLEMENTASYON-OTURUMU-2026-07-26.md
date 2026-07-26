@@ -1664,9 +1664,11 @@ Kanıt:
 - İki otomatik haftalık raporun CMS HTML'i sayfa şablonundaki H1'e ek ikinci
   H1 üretiyordu. CMS içeriğindeki H1'ler semantik sırayı koruyacak H2'ye
   dönüştürülüyor ve otomatik testle korunuyor.
-- Crawl ayrıca bir redirect sitemap URL'si (`/urun/biber`) ile iki duplicate
-  title kümesi ve 47 orphan adayı buldu. Bunlar canlı düzeltme kabulünden sonra
-  ayrı düşük hacimli doğrulanacak; tam crawl maddesi henüz kapatılmadı.
+- Crawl ayrıca bir redirect sitemap URL'si (`/urun/biber`) buldu. Sitemap artık
+  aktif redirect envanterini backend'den alıp kaynak yollarını tüm URL
+  ailelerinden çıkarıyor.
+- İki duplicate title kümesi ve 47 orphan adayı ayrı düşük hacimli
+  doğrulanacak; tam crawl maddesi henüz kapatılmadı.
 
 Ham kanıt:
 `artifacts/seo/live-crawl-safe-2026-07-26/report.json` ve `report.md`.

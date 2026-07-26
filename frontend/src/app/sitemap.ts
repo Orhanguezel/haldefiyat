@@ -55,6 +55,10 @@ interface FirmTypeSitemapItem {
   total: number;
 }
 
+interface ActiveRedirect {
+  sourcePath: string;
+}
+
 async function fetchActiveProducts(): Promise<PriceSitemapItem[]> {
   try {
     const res = await fetch(`${API_URL}/api/v1/prices/products?seoIndex=true`, {
@@ -152,14 +156,30 @@ async function fetchFirmTypes(): Promise<FirmTypeSitemapItem[]> {
   }
 }
 
+async function fetchActiveRedirects(): Promise<ActiveRedirect[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/redirects`, {
+      next: { revalidate },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.items ?? []) as ActiveRedirect[];
+  } catch {
+    return [];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, markets, firms, firmCities, firmTypes] = await Promise.all([
+  const [products, markets, firms, firmCities, firmTypes, activeRedirects] = await Promise.all([
     fetchActiveProducts(),
     fetchMarkets(),
     fetchFirms(),
     fetchFirmCities(),
     fetchFirmTypes(),
+    fetchActiveRedirects(),
   ]);
+  const redirectSourcePaths = new Set(activeRedirects.map((redirect) => redirect.sourcePath));
   const priceLastModified = latestSitemapDate([
     ...products.map((item) => item.updatedAt ?? item.updated_at),
   ]);
@@ -348,5 +368,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       };
     });
 
-  return [...publicPages, ...productPages, ...marketPages, ...firmCityHubs, ...firmTypeHubs, ...firmComboHubs, ...firmPages, ...analizPages, ...annualReportPages, ...authorPages];
+  return [
+    ...publicPages,
+    ...productPages,
+    ...marketPages,
+    ...firmCityHubs,
+    ...firmTypeHubs,
+    ...firmComboHubs,
+    ...firmPages,
+    ...analizPages,
+    ...annualReportPages,
+    ...authorPages,
+  ].filter((item) => !redirectSourcePaths.has(new URL(item.url).pathname));
 }
