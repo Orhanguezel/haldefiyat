@@ -47,6 +47,13 @@ function toEditForm(item: Listing): EditForm {
 }
 type Inquiry = { id: number; listingId: number; name: string | null; phone: string | null; message: string | null; offerPrice: string | null; createdAt: string | null };
 type ListingResponse = { items: Listing[]; summary?: { active: number; pending: number; rejected: number } };
+type ListingAnalytics = {
+  days: number;
+  summary: { listViews: number; detailViews: number; ilanVerViews: number; inquiries: number };
+  daily: Array<{ date: string; listViews: number; detailViews: number; ilanVerViews: number; inquiries: number }>;
+  searches: { products: Array<{ term: string; hits: number }>; cities: Array<{ term: string; hits: number }> };
+  perListing: Array<{ id: number; title: string; slug: string; status: string; viewCount: number; inquiries: number }>;
+};
 type Pricing = Record<'daily' | 'weekly' | 'monthly', { days: number; price: number }>;
 const PKG_LABEL: Record<'daily' | 'weekly' | 'monthly', string> = { daily: 'Günlük', weekly: 'Haftalık', monthly: 'Aylık' };
 const STATUS_LABEL: Record<string, string> = { pending: 'Bekleyen', approved: 'Onaylı', rejected: 'Reddedilen', expired: 'Süresi doldu', closed: 'Kapalı', all: 'Tümü' };
@@ -80,6 +87,8 @@ export default function ListingsAdminPage() {
   const [imgUploading, setImgUploading] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState('');
+  const [analytics, setAnalytics] = useState<ListingAnalytics | null>(null);
+  const [analyticsDays, setAnalyticsDays] = useState(30);
 
   async function load() {
     setBusy(true);
@@ -189,6 +198,12 @@ export default function ListingsAdminPage() {
   useEffect(() => { void load(); }, [status]);
   useEffect(() => {
     void (async () => {
+      const res = await api(`/admin/listings/analytics?days=${analyticsDays}`);
+      if (res.ok) setAnalytics((await res.json()) as ListingAnalytics);
+    })();
+  }, [analyticsDays]);
+  useEffect(() => {
+    void (async () => {
       const res = await api('/admin/listings/featured-pricing');
       if (res.ok) setPricing(((await res.json()) as { pricing: Pricing }).pricing);
     })();
@@ -201,6 +216,80 @@ export default function ListingsAdminPage() {
         <Metric title="Bekleyen" value={data.summary?.pending ?? 0} />
         <Metric title="Reddedilen" value={data.summary?.rejected ?? 0} />
       </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base">İlan Trafiği · Son {analyticsDays} gün</CardTitle>
+          <div className="flex gap-2">
+            {[7, 30, 90].map((d) => (
+              <Button key={d} size="sm" variant={analyticsDays === d ? 'default' : 'outline'} onClick={() => setAnalyticsDays(d)}>
+                {d} gün
+              </Button>
+            ))}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {!analytics ? (
+            <div className="text-sm text-muted-foreground">Yükleniyor…</div>
+          ) : (
+            <>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <Metric title="Liste görüntüleme" value={analytics.summary.listViews} />
+                <Metric title="İlan detay tıklama" value={analytics.summary.detailViews} />
+                <Metric title="İlan ver ziyareti" value={analytics.summary.ilanVerViews} />
+                <Metric title="Teklif / iletişim" value={analytics.summary.inquiries} />
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div>
+                  <div className="mb-2 text-sm font-medium">En çok görüntülenen ilanlar</div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow><TableHead>İlan</TableHead><TableHead className="text-right">Görüntüleme</TableHead><TableHead className="text-right">Teklif</TableHead></TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {analytics.perListing.slice(0, 10).map((l) => (
+                        <TableRow key={l.id}>
+                          <TableCell className="max-w-[220px] truncate">{l.title || `#${l.id}`}</TableCell>
+                          <TableCell className="text-right font-medium">{l.viewCount}</TableCell>
+                          <TableCell className="text-right">{l.inquiries}</TableCell>
+                        </TableRow>
+                      ))}
+                      {analytics.perListing.length === 0 && (
+                        <TableRow><TableCell colSpan={3} className="text-muted-foreground">Kayıt yok.</TableCell></TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                  <div>
+                    <div className="mb-2 text-sm font-medium">En çok aranan ürünler</div>
+                    <div className="space-y-1 text-sm">
+                      {analytics.searches.products.length === 0 && <div className="text-muted-foreground">Veri yok.</div>}
+                      {analytics.searches.products.map((s) => (
+                        <div key={s.term} className="flex justify-between border-b py-1 last:border-0">
+                          <span className="truncate">{s.term}</span><span className="text-muted-foreground">{s.hits}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="mb-2 text-sm font-medium">En çok aranan iller</div>
+                    <div className="space-y-1 text-sm">
+                      {analytics.searches.cities.length === 0 && <div className="text-muted-foreground">Veri yok.</div>}
+                      {analytics.searches.cities.map((s) => (
+                        <div key={s.term} className="flex justify-between border-b py-1 last:border-0">
+                          <span className="truncate">{s.term}</span><span className="text-muted-foreground">{s.hits}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       {form && editId != null ? (
         <Card className="border-primary/40">
