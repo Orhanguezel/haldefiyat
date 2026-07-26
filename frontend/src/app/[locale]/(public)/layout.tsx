@@ -43,8 +43,6 @@ export default async function PublicLayout({
   const siteId = `${SITE_URL}/#website`;
 
   const organizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
     "@id": orgId,
     name: settings.site_name,
     url: SITE_URL,
@@ -59,8 +57,6 @@ export default async function PublicLayout({
   };
 
   const webSiteSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
     "@id": siteId,
     name: settings.site_name,
     url: SITE_URL,
@@ -74,8 +70,8 @@ export default async function PublicLayout({
 
   return (
     <div className="relative flex min-h-screen flex-col">
-      <JsonLd data={organizationSchema} />
-      <JsonLd data={webSiteSchema} />
+      <JsonLd type="Organization" data={organizationSchema} />
+      <JsonLd type="WebSite" data={webSiteSchema} />
 
       <AmbientBackground />
 
