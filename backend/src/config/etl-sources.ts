@@ -152,7 +152,10 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "mersin_resmi",
-    defaultEnabled:    true,
+    // 2026-07: mersin.bel.tr WAF/IP seviyesinde 403 blokluyor (datacenter IP).
+    // Scrapling/scraper-service Chrome-impersonation ile de 403 — TLS-fingerprint degil,
+    // hard blok. Kapatildi; residential proxy veya alternatif kaynak bulununca geri ac.
+    defaultEnabled:    false,
     defaultMarketSlug: "mersin-hal",
     defaultBaseUrl:    "https://www.mersin.bel.tr",
     defaultEndpoint:   "/hal-fiyatlari-day",
