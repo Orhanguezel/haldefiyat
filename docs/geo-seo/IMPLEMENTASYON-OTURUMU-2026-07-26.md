@@ -364,13 +364,32 @@ Değişiklikler:
 - [ ] Ürün URL'lerinde `lastmod` gerçek son fiyat kaydıyla aynı.
 - [ ] Ana sayfa/fiyatlar/harita hub tarihleri gerçek ürün fiyat üst sınırıyla aynı.
 
+### 3.12 News Sitemap Gelecek Tarih Koruması
+
+Commit: `5822f519 fix(seo): reject future dates from news sitemap`
+
+Değişiklikler:
+
+- News sitemap'in negatif yaş nedeniyle gelecek tarihli yazıları kabul etmesi engellendi.
+- Yalnız geçerli `YYYY-MM-DD` takvim tarihleri kabul ediliyor.
+- Gelecek takvim günleri reddediliyor.
+- Mevcut 48 saatlik Google News penceresi korunuyor.
+- Bugün, 48 saat içi, süresi geçmiş, gelecek ve geçersiz tarih senaryoları test edildi.
+
+Çapraz kontrol:
+
+- [ ] Gelecek tarihli analiz news sitemap'e girmiyor.
+- [ ] Son 48 saatteki gerçek analiz URL'si sitemap'te bulunuyor.
+- [ ] 48 saatten eski URL news sitemap'te bulunmuyor.
+- [ ] XML Google News sitemap doğrulamasından geçiyor.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
 
 - Frontend `bunx tsc --noEmit`: geçti.
 - Backend `bunx tsc --noEmit`: geçti.
-- Frontend `bun run test`: 3 dosya, 10 test geçti.
+- Frontend `bun run test`: 4 dosya, 13 test geçti.
 - Backend `bun run test`: 2 dosya, 9 test geçti.
 - Frontend `bun run build`: geçti; son durumda 63 route üretildi.
 - Backend `bun run build`: geçti.
@@ -560,6 +579,12 @@ Orhan'dan beklenen:
 - Hal bazlı fiyat üst sınırı mevcut endpoint'te olmadığı için yanlış `lastmod`
   kaldırıldı ve ayrı geliştirme gereksinimi olarak bırakıldı.
 
+### F-09 — News sitemap gelecek tarihleri kabul ediyordu
+
+- Önceki kontrol yalnız `şimdi - yayın <= 48 saat` koşulunu kullanıyordu.
+- Gelecek bir yayın tarihi negatif fark ürettiği için koşulu geçiyordu.
+- Gelecek takvim günü ve geçersiz takvim tarihi kontrolleri eklendi.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -605,6 +630,8 @@ c21c4a1e feat(seo): add article image variants and truthful report dates
 857d6e00 fix(seo): derive dataset freshness from database bounds
 f46eeb93 fix(seo): omit misleading market sitemap dates
 8cb88095 fix(security): cap CSP report request bodies
+e1b65b4a docs(geo-seo): record data freshness corrections
+5822f519 fix(seo): reject future dates from news sitemap
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
