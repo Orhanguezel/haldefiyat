@@ -8,7 +8,11 @@ import { ImageResponse } from "next/og";
 // gittiği için OG namespace'i `/og/`.
 
 export const revalidate = 3600;
-const size = { width: 1200, height: 630 };
+const IMAGE_SIZES = {
+  "1x1": { width: 1200, height: 1200 },
+  "4x3": { width: 1200, height: 900 },
+  "16x9": { width: 1200, height: 675 },
+} as const;
 
 const API: string =
   process.env.BACKEND_URL ??
@@ -52,8 +56,10 @@ function titleFontSize(title: string): number {
   return 70;
 }
 
-export async function GET(_req: Request, { params }: Props) {
+export async function GET(req: Request, { params }: Props) {
   const { slug } = await params;
+  const ratio = new URL(req.url).searchParams.get("ratio");
+  const size = IMAGE_SIZES[ratio === "1x1" || ratio === "4x3" ? ratio : "16x9"];
   const [report, font] = await Promise.all([fetchReport(slug), loadFont()]);
   const title: string = report?.baslik ?? "Haftalık Hal Raporu";
   const week: string = report?.hafta ? `Hafta ${report.hafta}` : "";

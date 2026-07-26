@@ -41,6 +41,15 @@ function coverImageUrl(makale: { ogImage?: string | null }, slug: string): strin
   return custom ? absoluteUrl(custom) : `${SITE_URL}/og/analiz/${slug}`;
 }
 
+function articleImages(makale: { ogImage?: string | null }, slug: string): string[] {
+  const raw = makale.ogImage?.trim();
+  const hasCustomCover = Boolean(raw && !/og-default/.test(raw));
+  if (hasCustomCover) return [absoluteUrl(raw!)];
+
+  const base = `${SITE_URL}/og/analiz/${slug}`;
+  return [`${base}?ratio=1x1`, `${base}?ratio=4x3`, `${base}?ratio=16x9`];
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const makale = await getMakaleForSlug(slug);
@@ -170,7 +179,7 @@ export default async function AnalizMakalePage({ params }: Props) {
     url: `${SITE_URL}/analiz/${makale.slug}`,
     inLanguage: "tr-TR",
     keywords: makale.etiketler.join(", "),
-    image: cover,
+    image: articleImages(makale, makale.slug),
     articleSection: isWeekly ? "Haftalık Hal Raporu" : "Hal Fiyatı Analizi",
     isAccessibleForFree: true,
     wordCount: makale.icerik.trim().split(/\s+/g).filter(Boolean).length,

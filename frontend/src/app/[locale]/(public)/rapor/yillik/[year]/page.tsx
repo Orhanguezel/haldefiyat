@@ -8,6 +8,7 @@ import PrintButton from "@/components/PrintButton";
 import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string; year: string }> };
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
 interface YearOverview {
   year: number;
@@ -116,17 +117,27 @@ export default async function YearlyReportPage({ params }: Props) {
 
   return (
     <PageContainer className="print:py-0">
-      <Breadcrumb items={[{ name: "Ana Sayfa", href: "/" }, { name: "Yıllık Rapor", href: "/rapor/yillik/" + year }, { name: `${year}`, href: "/rapor/yillik/" + year }]} />
+      <Breadcrumb items={[
+        { name: "Ana Sayfa", href: "/" },
+        { name: `${year} Yıllık Raporu`, href: `/rapor/yillik/${year}` },
+      ]} />
       <JsonLd
         type="Article"
         data={{
-          "@context": "https://schema.org",
-          "@type": "Article",
           headline: `Türkiye Hal Fiyatları ${year} Yıllık Raporu`,
           description: `${year} yılı toptan hal fiyat analizi: en çok artan/düşen ürünler, sezon, şehir karşılaştırması.`,
-          datePublished: `${year + 1}-01-01`,
+          dateModified: overview.newestDate,
+          mainEntityOfPage: `${SITE_URL}/rapor/yillik/${year}`,
+          url: `${SITE_URL}/rapor/yillik/${year}`,
+          image: [`${SITE_URL}/og-default.png`],
           author: ORG_REF,
           publisher: ORG_REF,
+          inLanguage: "tr-TR",
+          isAccessibleForFree: true,
+          about: {
+            "@type": "Thing",
+            name: "Türkiye Toptancı Hal Fiyatları",
+          },
         }}
       />
 
@@ -148,6 +159,11 @@ export default async function YearlyReportPage({ params }: Props) {
         <p className="text-muted-foreground max-w-2xl mx-auto">
           {year} yılı boyunca <b>{fmtNum(overview.totalRows)}</b> fiyat kaydı toplandı.{" "}
           <b>{overview.uniqueProducts}</b> ürün, <b>{overview.uniqueMarkets}</b> hal.
+        </p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Veri dönemi: <time dateTime={overview.oldestDate}>{overview.oldestDate}</time>
+          {" – "}
+          <time dateTime={overview.newestDate}>{overview.newestDate}</time>
         </p>
         <div className="mt-6 flex gap-3 justify-center no-print">
           <PrintButton />
