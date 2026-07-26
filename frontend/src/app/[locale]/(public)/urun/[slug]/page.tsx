@@ -627,7 +627,7 @@ export default async function UrunPage({ params }: Props) {
           {!borsaProduct && (
             <>
           <a href="https://hal.gov.tr" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">hal.gov.tr</a>{" "}
-          ulusal ortalamaları. Her gün TSİ 06:15'te güncellenir.
+          ulusal ortalamaları. Kayıtlar kaynakların resmi yayın takvimine göre güncellenir.
             </>
           )}
         </p>
@@ -690,7 +690,9 @@ export default async function UrunPage({ params }: Props) {
           },
           {
             question: "Hal fiyatları ne kadar güncel?",
-            answer: "Veriler her gün TSİ 06:15'te otomatik olarak güncellenir. Türkiye genelindeki resmi belediye hal müdürlüklerinden ve hal.gov.tr'den ETL işlemiyle çekilir.",
+            answer: latestDate
+              ? `Veriler kaynakların resmi yayın takvimine göre otomatik alınır. Bu ürün için son doğrulanmış kayıt ${formatDateTr(latestDate)} tarihlidir.`
+              : "Veriler kaynakların resmi yayın takvimine göre otomatik alınır. Güncel kayıt bulunmadığında tarih veya tazelik iddiası yayımlanmaz.",
           },
         ];
 

@@ -64,7 +64,7 @@ export async function GET() {
   const content = `# HalDeFiyat — Tam Platform Bilgisi
 
 > HalDeFiyat, Türkiye genelindeki sebze ve meyve hallerinden günlük fiyat verisi toplayan bağımsız bir fiyat takip platformudur.
-> Kaynak: Belediye hal müdürlükleri, hal.gov.tr (Tarım Bakanlığı). Güncelleme: Her gün TSİ 06:15.
+> Kaynak: Belediye hal müdürlükleri, hal.gov.tr (Tarım Bakanlığı). Güncelleme: Kaynakların resmi yayın takvimine göre otomatik ETL.
 > Lisans: Creative Commons Atıf 4.0 (CC BY 4.0) — haldefiyat.com kaynak gösterilerek kullanılabilir.
 
 ## Platform Kapsamı

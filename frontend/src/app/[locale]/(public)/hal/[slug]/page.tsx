@@ -87,7 +87,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = `${market.name} Fiyatları ${yearTr} — Güncel Toptan Liste`;
   // market.name zaten şehri içerir ("Antalya Toptancı Hali ...") → cityName tekrarı yok.
-  const description = `${market.name} güncel hal fiyatları. ${liveLine}Sebze, meyve ve bakliyat için min/ort/maks toptan fiyat. Resmi belediye hal müdürlüğü verileri, her gün TSİ 06:15 güncellenir.`;
+  const description = `${market.name} güncel hal fiyatları. ${liveLine}Sebze, meyve ve bakliyat için min/ort/maks toptan fiyat. Kaynağın resmi yayın takvimine göre güncellenir.`;
 
   // page key "hal_detay": DB seo_pages'teki liste-sayfası "hal" (Tüm Haller)
   // template'i detay sayfalarını ezmesin diye ayrı anahtar kullanılır.
@@ -404,7 +404,7 @@ export default async function HalPage({ params }: Props) {
             <p>
               Veriler, belediye hal müdürlüğünün resmi sistemi ve{" "}
               <a href="https://hal.gov.tr" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">hal.gov.tr</a>{" "}
-              üzerinden otomatik çekilmekte; her gün TSİ 06:15'te güncellenmektedir.
+              üzerinden kaynağın resmi yayın takvimine göre otomatik çekilmektedir.
               Diğer illerle kıyaslamak için{" "}
               <a href="/karsilastirma" className="text-brand hover:underline">fiyat karşılaştırma</a>{" "}
               aracını kullanabilirsiniz.

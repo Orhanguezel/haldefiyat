@@ -54,7 +54,7 @@ export async function GET() {
 - ${marketCoverage} (çoklu il ve bölge)
 - ${productCoverage}
 - ${sourceCoverage}
-- Güncelleme sıklığı: Her gün TSİ 06:15 (gece ETL çalışır)
+- Güncelleme sıklığı: Kaynakların resmi yayın takvimine göre otomatik ETL
 - Veri geçmişi: ${historyCoverage}
 
 ## Ana Sayfalar

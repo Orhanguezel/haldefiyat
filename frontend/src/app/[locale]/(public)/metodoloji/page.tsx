@@ -4,6 +4,7 @@ import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PageContainer from "@/components/layout/PageContainer";
 import { Database, Clock, ShieldCheck, RefreshCw, Globe2, FileText } from "lucide-react";
+import { fetchPricesOverview, fetchSourceStatus } from "@/lib/api";
 
 type Props = { params: Promise<{ locale: string }> };
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
@@ -11,12 +12,16 @@ const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   const image = `${SITE_URL}/og/metodoloji?ratio=16x9`;
+  const sources = await fetchSourceStatus();
+  const sourceLine = sources.length > 0
+    ? `${sources.length.toLocaleString("tr-TR")} izlenen kaynak`
+    : "izlenebilir veri kaynakları";
   return getPageMetadata("metodoloji", {
     locale,
     pathname: "/metodoloji",
     title: "Veri Metodolojisi | HalDeFiyat",
     description:
-      "HalDeFiyat'ın hal fiyatı verilerini nasıl topladığını, doğruladığını ve sunduğunu öğrenin. 16 resmi kaynak, günlük ETL, şeffaf metodoloji.",
+      `HalDeFiyat'ın hal fiyatı verilerini nasıl topladığını, doğruladığını ve sunduğunu öğrenin. ${sourceLine}, otomatik ETL ve şeffaf metodoloji.`,
     openGraph: {
       title: "HalDeFiyat Veri Metodolojisi",
       description: "Resmi hal fiyatlarının toplanması, normalizasyonu ve veri kalitesi yaklaşımı.",
@@ -58,6 +63,16 @@ const articleSchema = {
 export default async function MetodolojiPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const [overview, sourceStatus] = await Promise.all([
+    fetchPricesOverview(),
+    fetchSourceStatus(),
+  ]);
+  const historyStart = overview.earliestRecordedDate
+    ? new Date(`${overview.earliestRecordedDate}T12:00:00Z`).toLocaleDateString("tr-TR", {
+        month: "long",
+        year: "numeric",
+      })
+    : "İlk doğrulanmış kayıttan itibaren";
 
   return (
     <PageContainer py="lg" className="space-y-12">
@@ -88,9 +103,15 @@ export default async function MetodolojiPage({ params }: Props) {
       {/* Genel Bakış */}
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { icon: Globe2, label: "Kaynak Sayısı", value: "16 Resmi Kaynak" },
-          { icon: Clock, label: "Güncelleme", value: "Her Gün 06:15 TSİ" },
-          { icon: Database, label: "Veri Geçmişi", value: "2025'ten İtibaren" },
+          {
+            icon: Globe2,
+            label: "Kaynak Sayısı",
+            value: sourceStatus.length > 0
+              ? `${sourceStatus.length.toLocaleString("tr-TR")} İzlenen Kaynak`
+              : "Canlı Kapsam",
+          },
+          { icon: Clock, label: "Güncelleme", value: "Kaynak Yayın Takvimine Göre" },
+          { icon: Database, label: "Veri Geçmişi", value: historyStart },
         ].map(({ icon: Icon, label, value }) => (
           <div key={label} className="rounded-xl border border-border bg-surface p-5 flex items-center gap-4">
             <div className="rounded-lg bg-brand/10 p-3 text-brand">
@@ -113,8 +134,8 @@ export default async function MetodolojiPage({ params }: Props) {
         <div className="space-y-3 text-sm text-muted leading-relaxed">
           <p>
             Veriler, <strong className="text-foreground">ETL (Extract, Transform, Load)</strong> adı verilen
-            otomatik bir süreçle toplanır. Her gece TSİ 03:15'te çalışan bu süreç, kaynak sistemleri
-            tarayarak fiyat verilerini çeker, normalize eder ve veritabanına yazar.
+            otomatik süreçlerle toplanır. Kaynak bazlı zamanlanan görevler, resmi yayın
+            takvimleri doğrultusunda fiyat verilerini çeker, normalize eder ve veritabanına yazar.
           </p>
           <p>
             Bazı kaynaklar standart HTML tabloları sunarken, bazıları JSON API veya ASP.NET ViewState
@@ -131,7 +152,7 @@ export default async function MetodolojiPage({ params }: Props) {
       <section className="space-y-4">
         <h2 className="font-display text-2xl font-bold text-foreground flex items-center gap-2">
           <Database className="h-5 w-5 text-brand" />
-          Aktif Veri Kaynakları
+          Başlıca Veri Kaynakları
         </h2>
         <div className="overflow-hidden rounded-xl border border-border">
           <table className="w-full text-sm">

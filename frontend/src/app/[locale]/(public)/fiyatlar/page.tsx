@@ -21,13 +21,17 @@ type Props = {
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   const year = String(new Date().getFullYear());
+  const overview = await fetchPricesOverview();
+  const coverageLine = overview.trackedProducts > 0
+    ? `${overview.trackedProducts.toLocaleString("tr-TR")} ürünün`
+    : "sebze, meyve ve bakliyat ürünlerinin";
   return getPageMetadata("fiyatlar", {
     locale,
     pathname: "/fiyatlar",
     vars: { year },
     title: `Güncel Hal Fiyatları ${year} — Bugünkü Toptan Sebze & Meyve Fiyatları`,
     description:
-      "Türkiye geneli güncel hal fiyatları: sebze, meyve ve bakliyat toptan/piyasa fiyatlarını şehir, kategori ve tarihe göre filtreleyin. Her gün TSİ 06:15'te güncellenir.",
+      `Türkiye geneli güncel hal fiyatları: ${coverageLine} toptan/piyasa fiyatlarını şehir, kategori ve tarihe göre filtreleyin. Kaynakların resmi yayın takvimine göre güncellenir.`,
   });
 }
 
@@ -162,7 +166,9 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
       {
         "@type": "Dataset",
         name: "Günlük Hal Fiyatları",
-        description: "Türkiye genelindeki hal müdürlüklerinden toplanan 250+ sebze, meyve ve bakliyat ürününün günlük en düşük, ortalama ve en yüksek toptan fiyat verisi.",
+        description: overview.trackedProducts > 0
+          ? `Türkiye genelindeki hal kaynaklarından toplanan ${overview.trackedProducts.toLocaleString("tr-TR")} ürünün en düşük, ortalama ve en yüksek toptan fiyat verisi.`
+          : "Türkiye genelindeki hal kaynaklarından toplanan ürünlerin en düşük, ortalama ve en yüksek toptan fiyat verisi.",
         url: `${SITE_URL}/fiyatlar`,
         creator: ORG_REF,
         license: "https://creativecommons.org/licenses/by/4.0/",
@@ -207,7 +213,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
       <p className="mb-8 max-w-3xl text-sm leading-relaxed text-muted">
         Türkiye genelindeki resmi hal müdürlüklerinden derlenen <strong className="text-foreground">güncel sebze, meyve ve bakliyat hal fiyatları</strong>.
         Her ürün için en düşük, ortalama ve en yüksek <strong className="text-foreground">toptan piyasa fiyatı</strong>; şehir, kategori ve tarih aralığına göre filtrelenebilir.
-        Veriler her gün <strong className="text-foreground">TSİ 06:15</strong>&apos;te otomatik güncellenir.
+        Veriler her kaynağın <strong className="text-foreground">resmi yayın takvimine</strong> göre otomatik güncellenir.
       </p>
       <div className="mb-8">
         <AnswerBlock
@@ -306,7 +312,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
           },
           {
             question: "Hal fiyatları ne sıklıkla güncellenir?",
-            answer: "HalDeFiyat verileri her gün TSİ 06:15'te, Türkiye genelindeki resmi belediye hal müdürlüklerinden ve hal.gov.tr ulusal ortalamalarından otomatik olarak derlenip güncellenir.",
+            answer: `HalDeFiyat verileri her kaynağın resmi yayın takvimine göre otomatik olarak derlenir.${latestDateTr ? ` Platformdaki son doğrulanmış fiyat kaydı ${latestDateTr} tarihlidir.` : ""}`,
           },
           {
             question: "Hal fiyatları toptan mı perakende mi?",

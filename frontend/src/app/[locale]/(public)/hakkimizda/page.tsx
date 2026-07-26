@@ -20,12 +20,6 @@ export async function generateMetadata({ params }: Props) {
   });
 }
 
-const STATS_STATIC = [
-  { label: "Ürün", value: "250+", desc: "Sebze, Meyve, Bakliyat" },
-  { label: "Günlük Kayıt", value: "10K+", desc: "Her Gün Güncellenir" },
-  { label: "ETL Kaynağı", value: "16", desc: "Resmi Belediye Sistemi" },
-];
-
 const VALUES = [
   {
     icon: ShieldCheck,
@@ -62,7 +56,8 @@ export default async function AboutPage({ params }: Props) {
   const STATS = [
     { label: "İl", value: cov.cities > 0 ? String(cov.cities) : "—", desc: "Veri alınan il sayısı" },
     { label: "Hal", value: cov.markets > 0 ? String(cov.markets) : "—", desc: "Aktif toptancı hali" },
-    ...STATS_STATIC,
+    { label: "Ürün", value: cov.products > 0 ? String(cov.products) : "—", desc: "İzlenen tarım ürünü" },
+    { label: "ETL Kaynağı", value: cov.sources > 0 ? String(cov.sources) : "—", desc: "İzlenen veri kaynağı" },
   ];
 
   return (
@@ -189,9 +184,9 @@ export default async function AboutPage({ params }: Props) {
               <div className="space-y-2">
                 <p className="font-bold text-foreground text-base">1. Veri Çekme</p>
                 <p>
-                  Her gece TSİ 03:15'te otomatik ETL süreci başlar. 16 resmi kaynak —
-                  belediye hal sistemleri, antkomder.com.tr ve hal.gov.tr — sistematik
-                  olarak taranır.
+                  Otomatik ETL süreçleri kaynakların resmi yayın takvimine göre çalışır.
+                  Belediye hal sistemleri, antkomder.com.tr ve hal.gov.tr gibi kaynaklar
+                  sistematik olarak taranır.
                 </p>
               </div>
               <div className="space-y-2">
@@ -205,8 +200,8 @@ export default async function AboutPage({ params }: Props) {
               <div className="space-y-2">
                 <p className="font-bold text-foreground text-base">3. Yayınlama</p>
                 <p>
-                  Temizlenen veriler veritabanına yazılır; API ve web arayüzü üzerinden
-                  TSİ 06:15'e kadar erişime açılır. Geçmiş veriler silinmez, tarihsel
+                  Temizlenen veriler veritabanına yazılır ve API ile web arayüzünde
+                  kaynak bazlı son kayıt tarihiyle yayımlanır. Geçmiş veriler tarihsel
                   analiz için saklanır.
                 </p>
               </div>
@@ -244,10 +239,10 @@ export default async function AboutPage({ params }: Props) {
               </div>
               <div className="space-y-4">
                 <p>
-                  ETL (Veri Çekme, Dönüştürme, Yükleme) süreci her gece TSİ 03:15'te başlar ve
-                  tüm kaynakları sırayla tarar. Bir kaynakta hata oluşursa sistem bir sonraki
-                  denemeye kadar önceki günün verisini saklı tutar; böylece kullanıcı hiçbir zaman
-                  boş sayfa görmez.
+                  ETL (Veri Çekme, Dönüştürme, Yükleme) görevleri kaynakların yayın
+                  saatlerine göre çalışır. Bir kaynakta hata oluşursa önceki kayıtlar tarihleriyle
+                  birlikte korunur; güncel veri bulunmayan sayfalarda gecikme olasılığı açıkça
+                  belirtilir.
                 </p>
                 <p>
                   Tüm ETL çalışmaları kayıt altına alınır. Hangi kaynağın kaç satır veri
