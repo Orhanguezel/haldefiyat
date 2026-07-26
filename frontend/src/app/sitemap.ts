@@ -90,11 +90,7 @@ async function fetchMarkets(): Promise<PriceSitemapItem[]> {
     if (!res.ok) return [];
     const data = await res.json();
     const items = (Array.isArray(data) ? data : data.items ?? data.data ?? []) as PriceSitemapItem[];
-    return items.map((m) => ({
-      slug: m.slug,
-      updatedAt: m.updatedAt,
-      updated_at: m.updated_at,
-    }));
+    return items.map((m) => ({ slug: m.slug }));
   } catch {
     return [];
   }
@@ -164,7 +160,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
   const priceLastModified = latestDate([
     ...products.map((item) => item.updatedAt ?? item.updated_at),
-    ...markets.map((item) => item.updatedAt ?? item.updated_at),
   ]);
   const firmLastModified = latestDate(
     firms.map((item) => item.updatedAt ?? item.lastSeenAt),
@@ -214,9 +209,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const marketPages: MetadataRoute.Sitemap = markets.map((m) => ({
     url: `${SITE_URL}/hal/${m.slug}`,
-    ...(validDate(m.updatedAt ?? m.updated_at) && {
-      lastModified: validDate(m.updatedAt ?? m.updated_at),
-    }),
     changeFrequency: "daily" as const,
     priority: 0.7,
   }));
