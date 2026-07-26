@@ -98,7 +98,15 @@ function titleCaseTr(input: string): string {
 }
 
 function getDisplayName(product: { displayName?: string | null; nameTr: string }) {
-  const value = (product.displayName?.trim() || product.nameTr).trim();
+  const configured = product.displayName?.trim();
+  // A shortened display_name must not erase a meaningful variant qualifier.
+  // Example: ROKA (BAĞ) and ROKA were both rendered as "Roka", producing two
+  // indexable pages with identical title/description.
+  const nameHasQualifier = /\([^)]{2,}\)/u.test(product.nameTr);
+  const displayHasQualifier = configured ? /\([^)]{2,}\)/u.test(configured) : false;
+  const value = (nameHasQualifier && !displayHasQualifier
+    ? product.nameTr
+    : configured || product.nameTr).trim();
   const letters = value.replace(/[^A-Za-zÇĞİÖŞÜçğıöşü]/gu, "");
   const isAllCaps = letters.length > 1 && letters === letters.toLocaleUpperCase("tr-TR");
   return isAllCaps ? titleCaseTr(value) : value;
