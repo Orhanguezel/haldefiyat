@@ -1,0 +1,38 @@
+{
+  "info": {
+    "_postman_id": "c4cd2553-7154-4f1e-9854-haldefiyat-public",
+    "name": "HalDeFiyat Public API",
+    "description": "Public v1 fiyat, kaynak ve endeks örnekleri.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "baseUrl", "value": "https://haldefiyat.com/api/v1"},
+    {"key": "product", "value": "domates"}
+  ],
+  "item": [
+    {
+      "name": "Fiyat listesi",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Accept", "value": "application/json"}],
+        "url": "{{baseUrl}}/prices?product={{product}}&range=7d&limit=5"
+      }
+    },
+    {
+      "name": "Ürün geçmişi",
+      "request": {"method": "GET", "url": "{{baseUrl}}/prices/history/{{product}}?range=30d"}
+    },
+    {
+      "name": "Haftalık özet",
+      "request": {"method": "GET", "url": "{{baseUrl}}/prices/weekly-summary"}
+    },
+    {
+      "name": "Kaynak sağlığı",
+      "request": {"method": "GET", "url": "{{baseUrl}}/sources/status"}
+    },
+    {
+      "name": "Son endeks",
+      "request": {"method": "GET", "url": "{{baseUrl}}/index/latest"}
+    }
+  ]
+}

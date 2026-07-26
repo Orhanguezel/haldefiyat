@@ -217,12 +217,12 @@ değişiklikleri yapılmalıdır.
 
 - [ ] Mevcut referring domains, kaliteli dofollow linkler, unlinked mentions ve branded search baseline'ı çıkar.
 - [ ] En az 5 gerçek organik rakiple karşılaştırmalı gap analizi yap.
-- [ ] data.gov.tr/Kaggle gibi platformlara veri koymadan önce lisans, güncelleme ve kaynak doğruluğu sürecini hazırla.
-- [ ] GitHub'da örnek istemciler, notebook ve API kullanım senaryoları yayınla.
-- [ ] Postman collection + OpenAPI doğrulama + changelog + API versioning ekle.
-- [ ] Aylık/haftalık özgün veri bültenleri için basın listesi, pitch ve kazanılan mention takibi kur.
-- [ ] Wikipedia maddesini hedef/KPI olarak dayatma; bağımsız kayda değerlik oluşmadan promosyonel madde açma.
-- [ ] Reddit/YouTube'u yalnız presence için değil, ölçülebilir içerik ve topluluk planıyla ele al.
+- [x] data.gov.tr/Kaggle gibi platformlara veri koymadan önce lisans, güncelleme ve kaynak doğruluğu sürecini hazırla.
+- [x] GitHub'da örnek istemciler, notebook ve API kullanım senaryoları yayınla.
+- [x] Postman collection + OpenAPI doğrulama + changelog + API versioning ekle.
+- [x] Aylık/haftalık özgün veri bültenleri için basın listesi, pitch ve kazanılan mention takibi kur.
+- [x] Wikipedia maddesini hedef/KPI olarak dayatma; bağımsız kayda değerlik oluşmadan promosyonel madde açma.
+- [x] Reddit/YouTube'u yalnız presence için değil, ölçülebilir içerik ve topluluk planıyla ele al.
 
 ---
 

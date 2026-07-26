@@ -1,0 +1,94 @@
+openapi: 3.0.3
+info:
+  title: HalDeFiyat Public API
+  version: 1.0.0-docs
+  description: Türkiye hal fiyatları için kimlik doğrulamasız public REST API.
+servers:
+  - url: https://haldefiyat.com/api/v1
+security: []
+paths:
+  /prices:
+    get:
+      operationId: listPrices
+      summary: Filtrelenmiş hal fiyatları
+      parameters:
+        - {name: product, in: query, schema: {type: string}, example: domates}
+        - {name: city, in: query, schema: {type: string}, example: konya}
+        - {name: market, in: query, schema: {type: string}}
+        - {name: category, in: query, schema: {type: string}}
+        - {name: range, in: query, schema: {type: string, default: 7d}}
+        - {name: latestOnly, in: query, schema: {type: boolean}}
+        - {name: page, in: query, schema: {type: integer, minimum: 1}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100}}
+      responses:
+        "200":
+          description: Fiyat satırları ve sayfalama bilgisi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriceList"
+  /prices/history/{productSlug}:
+    get:
+      operationId: getProductHistory
+      summary: Ürün fiyat geçmişi
+      parameters:
+        - {name: productSlug, in: path, required: true, schema: {type: string}}
+        - {name: market, in: query, schema: {type: string}}
+        - {name: range, in: query, schema: {type: string, default: 7d}}
+      responses:
+        "200": {description: Tarihli fiyat geçmişi}
+  /prices/weekly-summary:
+    get:
+      operationId: getWeeklySummary
+      summary: Son tamamlanmış haftanın fiyat özeti
+      parameters:
+        - {name: week, in: query, schema: {type: string}, example: 2026-29}
+      responses:
+        "200": {description: "Yükselenler, düşenler ve haftalık kapsam"}
+  /sources/status:
+    get:
+      operationId: getSourceStatus
+      summary: Veri kaynaklarının güncellik durumu
+      responses:
+        "200": {description: Kaynak sağlık satırları}
+  /index/latest:
+    get:
+      operationId: getLatestIndex
+      summary: En güncel HalDeFiyat Endeksi
+      responses:
+        "200": {description: Endeks değeri ve hafta bilgisi}
+components:
+  schemas:
+    Price:
+      type: object
+      required: [productSlug, marketSlug, avgPrice, unit, recordedDate]
+      properties:
+        productSlug: {type: string}
+        productName: {type: string}
+        marketSlug: {type: string}
+        marketName: {type: string}
+        cityName: {type: string}
+        minPrice: {type: number}
+        maxPrice: {type: number}
+        avgPrice: {type: number}
+        currency: {type: string, example: TRY}
+        unit: {type: string, example: kg}
+        recordedDate: {type: string, format: date}
+        sourceName: {type: string}
+        sourceUrl: {type: string, format: uri}
+        isStale: {type: boolean}
+        qualityFlags: {type: array, items: {type: string}}
+    PriceList:
+      type: object
+      required: [items, meta]
+      properties:
+        items: {type: array, items: {$ref: "#/components/schemas/Price"}}
+        meta:
+          type: object
+          properties:
+            rangeDays: {type: integer}
+            latestRecordedDate: {type: string, format: date, nullable: true}
+            total: {type: integer}
+            page: {type: integer}
+            limit: {type: integer}
+            totalPages: {type: integer}

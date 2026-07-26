@@ -7,8 +7,8 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 57/66 checkbox — kapanış kanıtları bu dosyada korunur.
-- **Açık:** 9/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
+- **Tamamlanan:** 59/66 checkbox — kapanış kanıtları bu dosyada korunur.
+- **Açık:** 7/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
   kalan iş olarak ayrıldığı için toplam takip maddesi 66 oldu. Açıklar:
   `HALDEFIYAT-GEO-SEO-ACIK-ISLER.md`.
 - Bu dosyaya yeni açık iş eklenmez. Açık dosyada tamamlanan maddeler, kanıtıyla
@@ -165,6 +165,14 @@ ayrı açık işler dosyasına taşınmıştır.
   yazıldı; yetersiz URL-level CrUX verisi başarı sayılmadı ve tek “GEO skoru”
   operasyon metriği olarak kullanılmadı.
   (`docs/geo-seo/OPERASYONEL-KPI-TANIMLARI-2026-07-27.md`)
+- [x] Marka otoritesi için mevcut basın/analiz/endeks altyapısına bağlı veri
+  kataloğu, 30/60/90 günlük kazanılmış mention programı ve ölçülebilir
+  YouTube/Reddit içerik-topluluk planı hazırlandı; Wikipedia hedef/KPI
+  yapılmadı. (`docs/geo-seo/MARKA-OTORITESI-PLANI-2026-Q3.md`)
+- [x] Public API için GitHub örnek istemci ve notebook, doğrulanmış ayrı
+  OpenAPI sözleşmesi, Postman collection, changelog ve major-version/sunset
+  politikası yayımlandı; canlı `/api-docs` örnekleri gerçek parametre/yanıtla
+  eşlendi. (`examples/haldefiyat-api/`)
 
 ---
 

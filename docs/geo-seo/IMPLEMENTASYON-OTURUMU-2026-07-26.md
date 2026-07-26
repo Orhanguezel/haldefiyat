@@ -1917,6 +1917,44 @@ Commit: `6775780a feat(trust): publish transparency policy content`
 - “GEO skoru” operasyonel tek metrik olmaktan çıkarıldı. İki KPI checklist
   maddesi kapandı; sayaçlar 57/66 tamamlanan ve 9/66 açık olarak güncellendi.
 
+### 3.71 Marka Otoritesi ve Topluluk Planı
+
+- Canlı `/basin`, `/endeks`, `/api-docs` ve `/analiz` kaynaklarının 200 olduğu;
+  basın CRM tabloları, admin akışı, üç pitch şablonu ve 11 kişilik başlangıç
+  listesinin mevcut olduğu doğrulandı.
+- Dokuz veri varlığı canonical URL, format, sıklık, hedef kitle, kaynak yöntemi,
+  lisans durumu, citation biçimi, owner ve kalite kapısıyla
+  `docs/geo-seo/VERI-KATALOGU-2026-07-27.csv` içinde kataloglandı.
+- Harici veri platformuna yüklemeden önce kaynak lisansı, veri sözlüğü, kapsam,
+  revizyon, checksum/sürüm ve owner onayı kapısı tanımlandı.
+- 30/60/90 günlük basın mention, haftalık endeks hikâyesi, YouTube açıklayıcı
+  video ve kurallara uygun Reddit topluluk programı hazırlandı.
+- YouTube için izlenme yerine retention/referral; Reddit için gönderi sayısı
+  yerine silinme, anlamlı yorum ve engaged referral KPI'ları yazıldı.
+- Wikipedia hedef veya KPI yapılmadı; bağımsız kayda değerlik olmadan madde
+  açılmaması açıkça kaydedildi.
+- Hiçbir dış kişiye e-posta gönderilmedi ve sosyal gönderi yayımlanmadı; belge
+  operasyon planıdır.
+- Sayaçlar 58/66 tamamlanan ve 8/66 açık olarak güncellendi.
+
+### 3.72 Public API Geliştirici Paketi
+
+- `examples/haldefiyat-api/` altında Node.js 20+ istemcisi, standart
+  kütüphaneli Jupyter notebook, Postman collection, public OpenAPI,
+  changelog ve versioning/sunset politikası oluşturuldu.
+- Node istemcisi canlı `domates` sorgusunda 5 satır ve gerçek metadata ile
+  başarıyla çalıştı; Postman ve notebook JSON dosyaları parse edildi.
+- Redocly doğrulamasında OpenAPI yapısal hata 0; lisans kararı verilmediği ve
+  salt GET rotalarda genel 4xx tanımı eklenmediği için 6 kalite uyarısı kaldı.
+- Frontend API dokümanındaki eski `{data,total}`, `dateFrom/dateTo` ve yanlış
+  haftalık özet sözleşmesi gerçek `{items,meta}`, `range` ve `week` biçimine
+  geçirildi.
+- Doğru frontend test komutunda 17 dosya/48 test geçti; production build
+  tamamlandı. Yerel backend çalışmadığı için prerender fetch'leri fallback
+  kullandı, build çıkış kodu 0.
+- `/api/v1` runtime sözleşmesi değiştirilmedi; breaking deploy yapılmadı.
+- Sayaçlar 59/66 tamamlanan ve 7/66 açık olarak güncellendi.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.

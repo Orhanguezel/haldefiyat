@@ -50,14 +50,14 @@ const GROUPS: Group[] = [
           { name: "city", type: "string", desc: "Şehir adı veya kodu (örn. istanbul)" },
           { name: "product", type: "string", desc: "Ürün slug'ı (örn. domates)" },
           { name: "category", type: "string", desc: "Kategori slug'ı (örn. sebze)" },
-          { name: "dateFrom", type: "string", desc: "Başlangıç tarihi YYYY-MM-DD" },
-          { name: "dateTo", type: "string", desc: "Bitiş tarihi YYYY-MM-DD" },
+          { name: "range", type: "string", desc: "Geçmiş penceresi, ör. 7d / 30d / 365d" },
+          { name: "latestOnly", type: "boolean", desc: "Her ürün/hal için yalnız son kaydı getirir" },
           { name: "page", type: "number", desc: "Sayfa no (varsayılan: 1)" },
           { name: "limit", type: "number", desc: "Sayfa boyutu (maks. 100)" },
         ],
         example: `curl "${BASE}/prices?city=istanbul&product=domates&limit=5"`,
         response: `{
-  "data": [
+  "items": [
     {
       "id": "...",
       "marketName": "İstanbul Büyükçekmece Hali",
@@ -66,12 +66,18 @@ const GROUPS: Group[] = [
       "maxPrice": "12.00",
       "avgPrice": "10.25",
       "unit": "kg",
-      "priceDate": "2026-04-21"
+      "recordedDate": "2026-04-21",
+      "sourceName": "Resmi kaynak",
+      "isStale": false,
+      "qualityFlags": []
     }
   ],
-  "total": 142,
-  "page": 1,
-  "limit": 5
+  "meta": {
+    "total": 142,
+    "page": 1,
+    "limit": 5,
+    "latestRecordedDate": "2026-04-21"
+  }
 }`,
         cache: "5 dakika",
       },
@@ -100,20 +106,16 @@ const GROUPS: Group[] = [
         path: "/prices/weekly-summary",
         desc: "Haftalık fiyat özeti — her ürün için min/max/ort ve hafta bazlı gruplandırma.",
         params: [
-          { name: "product", type: "string", desc: "Ürün slug'ı" },
-          { name: "weeks", type: "number", desc: "Kaç haftalık geçmiş (varsayılan: 8)" },
+          { name: "week", type: "string", desc: "ISO hafta, ör. 2026-29; varsayılan son tamamlanmış hafta" },
         ],
-        example: `curl "${BASE}/prices/weekly-summary?product=domates&weeks=4"`,
-        response: `[
-  {
-    "isoWeek": "2026-16",
-    "weekStart": "2026-04-14",
-    "avgPrice": "10.25",
-    "minPrice": "8.00",
-    "maxPrice": "14.50",
-    "recordCount": 68
-  }
-]`,
+        example: `curl "${BASE}/prices/weekly-summary?week=2026-29"`,
+        response: `{
+  "week": "2026-29",
+  "weekStart": "2026-07-13",
+  "weekEnd": "2026-07-19",
+  "topRisers": [],
+  "topFallers": []
+}`,
       },
       {
         method: "GET",
@@ -136,10 +138,9 @@ const GROUPS: Group[] = [
         params: [
           { name: "city", type: "string", desc: "Şehir filtresi" },
           { name: "product", type: "string", desc: "Ürün filtresi" },
-          { name: "dateFrom", type: "string", desc: "Başlangıç tarihi" },
-          { name: "dateTo", type: "string", desc: "Bitiş tarihi" },
+          { name: "range", type: "string", desc: "Geçmiş penceresi, ör. 7d / 30d / 365d" },
         ],
-        example: `curl -o fiyatlar.csv "${BASE}/prices/export?city=istanbul&dateFrom=2026-04-01"`,
+        example: `curl -o fiyatlar.csv "${BASE}/prices/export?city=istanbul&range=30d"`,
         response: `market_name,product_name,min_price,max_price,avg_price,unit,price_date
 İstanbul Büyükçekmece Hali,Domates,8.50,14.00,10.25,kg,2026-04-21`,
       },

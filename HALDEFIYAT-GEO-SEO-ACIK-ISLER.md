@@ -3,9 +3,9 @@
 > Kaynak checklist:
 > `HALDEFIYAT-GEO-SEO-AKSIYON-CEKLISTI.md`
 >
-> Tarih: 2026-07-27 · Durum: **9 açık madde**
+> Tarih: 2026-07-27 · Durum: **7 açık madde**
 >
-> Bu dosya yalnız açık işleri içerir. Tamamlanmış 57 madde, kapanış kanıtlarıyla
+> Bu dosya yalnız açık işleri içerir. Tamamlanmış 59 madde, kapanış kanıtlarıyla
 > ana aksiyon checklist'inde korunur. Burada tamamlanan bir madde `[x]`
 > yapıldıktan sonra ana checklist'e taşınmalı ve iki dosyanın sayaçları birlikte
 > güncellenmelidir.
@@ -40,8 +40,6 @@ beklenmedik meşru gönderici bulunmuyor.
 - [ ] Backlink/referring-domain, unlinked mention ve branded search baseline'ı ile beş gerçek rakip gap analizi oluştur.
 ## Stratejik — Bu çeyrek
 
-- [ ] Marka otoritesi için veri kataloğu, tarım/ekonomi basın mention'ları ve ölçülebilir YouTube/Reddit planı oluştur; Wikipedia'yı KPI yapma.
-- [ ] Açık veri API pazarlaması için GitHub örnek istemci/notebook, Postman collection, OpenAPI, changelog ve versioning hazırla.
 - [ ] Haftalık/aylık özgün endeks bülteni ve basın listesi oluştur.
 - [ ] “Turkey vegetable prices” odağında İngilizce genişleme fizibilitesi hazırla.
 

@@ -82,6 +82,19 @@ altyapısal bulguları tutar.
 - Bu host düzeltmesi backlink baseline maddesinin parçası sayılmadı; canlı
   Nginx değişikliği öncesi sertifika ve redirect-loop kabulü ayrı yapılmalı.
 
+### Public API dokümantasyon sapması
+
+- Dinamik Swagger belgesi 384 rotayı, admin rotaları dâhil tek yüzeyde
+  listeliyor; public geliştirici sözleşmesi olarak fazla geniş.
+- Canlı frontend `/api-docs` sayfası fiyat yanıtını eski `{data, total}` biçimi
+  ve uygulanmayan `dateFrom/dateTo` parametreleriyle gösteriyordu. Gerçek canlı
+  yanıt `{items, meta}`, tarih penceresi parametresi `range`.
+- Frontend örnekleri mevcut runtime davranışına eşlendi. Ayrı public OpenAPI
+  yalnız beş kararlı, kimlik doğrulamasız rotayı kapsıyor.
+- Veri/API çıktılarının açık lisansı henüz owner/hukuk tarafından
+  belirlenmediğinden OpenAPI'ye varsayımsal lisans adı yazılmadı; validator'ın
+  `info-license` uyarısı bilinçli olarak açık.
+
 ### ETL veri akışı
 
 - Kocaeli, Mersin ve Çanakkale’de uzun süredir veri akışı olmadığı bildirildi.
