@@ -6,6 +6,7 @@ type JsonLdType =
   | "BlogPosting"
   | "NewsArticle"
   | "DataFeed"
+  | "DataCatalog"
   | "Product"
   | "BreadcrumbList"
   | "FAQPage"
@@ -19,6 +20,21 @@ type JsonLdType =
 interface JsonLdProps {
   type: JsonLdType;
   data: Record<string, unknown>;
+}
+
+/**
+ * JSON-LD is embedded in an HTML script element, so JSON.stringify alone is
+ * insufficient: a CMS/API value containing `</script>` could close the tag.
+ * Escaping HTML-significant characters keeps the payload valid JSON while
+ * preventing it from being interpreted as markup.
+ */
+export function serializeJsonLd(value: unknown): string {
+  return JSON.stringify(value)
+    .replace(/&/g, "\\u0026")
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
 }
 
 /**
@@ -39,7 +55,7 @@ export default function JsonLd({ type, data }: JsonLdProps) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }}
     />
   );
 }

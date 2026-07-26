@@ -156,8 +156,6 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
   } satisfies Record<string, unknown>;
 
   const dataCatalogSchema = {
-    "@context": "https://schema.org",
-    "@type": "DataCatalog",
     name: "HalDeFiyat Veri Kataloğu",
     description: "Türkiye genelindeki hal müdürlüklerinden derlenen günlük fiyat veri seti kataloğu.",
     url: `${SITE_URL}/fiyatlar`,
@@ -193,7 +191,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <JsonLd type="Dataset" data={fiyatlarDataset} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(dataCatalogSchema) }} />
+      <JsonLd type="DataCatalog" data={dataCatalogSchema} />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Güncel Hal Fiyatları", href: "/fiyatlar" },
@@ -323,8 +321,6 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
           },
         ];
         const faqSchema = {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
           mainEntity: faqItems.map((item) => ({
             "@type": "Question",
             name: item.question,
@@ -333,7 +329,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
         };
         return (
           <>
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+            <JsonLd type="FAQPage" data={faqSchema} />
             <section className="mt-6 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted">
               <h2 className="text-base font-semibold text-foreground">Hal Fiyatları Hakkında Sık Sorulan Sorular</h2>
               <dl className="mt-3 space-y-4">

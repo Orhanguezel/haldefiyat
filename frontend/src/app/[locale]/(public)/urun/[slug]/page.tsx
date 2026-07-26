@@ -681,10 +681,7 @@ export default async function UrunPage({ params }: Props) {
 
         return (
           <>
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", ...faqSchema }) }}
-            />
+            <JsonLd type="FAQPage" data={faqSchema} />
             <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-3">
               <h2 className="text-base font-semibold text-foreground">Sık Sorulan Sorular</h2>
               <dl className="space-y-4">
