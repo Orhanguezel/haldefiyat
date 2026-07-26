@@ -15,6 +15,7 @@ describe("SEO locale alternates", () => {
       tr: expect.stringMatching(/\/borsa$/),
       "x-default": expect.stringMatching(/\/borsa$/),
     });
+    expect(metadata.openGraph?.url).toBe(metadata.alternates?.canonical);
   });
 
   it("builds reciprocal language links for dynamic paths", () => {

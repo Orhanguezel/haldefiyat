@@ -160,6 +160,9 @@ export function buildMetadata(
     img.startsWith("/") ? `${SITE_URL}${img}` : img,
   );
   const alternates = locale && pathname ? buildLocaleAlternates(locale, pathname) : overrides?.alternates;
+  const canonicalUrl = typeof alternates?.canonical === "string" || alternates?.canonical instanceof URL
+    ? alternates.canonical
+    : undefined;
   const {
     vars: _vars,
     siteName: _siteName,
@@ -190,6 +193,7 @@ export function buildMetadata(
     ...(robots && { robots }),
     openGraph: {
       ...(overrideOpenGraph as object),
+      ...(canonicalUrl && { url: canonicalUrl }),
       ...(title && { title }),
       ...(description && { description }),
       ...(seo?.open_graph?.type && { type: seo.open_graph.type as "website" }),
