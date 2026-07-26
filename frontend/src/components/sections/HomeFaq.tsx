@@ -1,9 +1,4 @@
-"use client";
-
-import { useState } from "react";
 import JsonLd from "@/components/seo/JsonLd";
-import { ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const FAQ_ITEMS = [
   {
@@ -50,8 +45,6 @@ const faqSchema = {
 } satisfies Record<string, unknown>;
 
 export default function HomeFaq() {
-  const [open, setOpen] = useState<number | null>(null);
-
   return (
     <section className="mx-auto max-w-3xl px-4 py-16">
       <JsonLd type="FAQPage" data={faqSchema} />
@@ -63,29 +56,19 @@ export default function HomeFaq() {
       </p>
       <div className="space-y-3">
         {FAQ_ITEMS.map((item, idx) => (
-          <div
+          <details
             key={idx}
-            className="rounded-xl border border-border bg-surface overflow-hidden"
+            className="group rounded-xl border border-border bg-surface overflow-hidden"
           >
-            <button
-              onClick={() => setOpen(open === idx ? null : idx)}
-              className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left text-sm font-semibold text-foreground"
-              aria-expanded={open === idx}
+            <summary
+              className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-4 text-left text-sm font-semibold text-foreground after:text-base after:text-muted after:content-['⌄'] after:transition-transform group-open:after:rotate-180 [&::-webkit-details-marker]:hidden"
             >
               {item.question}
-              <ChevronDown
-                className={cn(
-                  "h-4 w-4 flex-shrink-0 text-muted transition-transform duration-200",
-                  open === idx && "rotate-180"
-                )}
-              />
-            </button>
-            {open === idx && (
-              <p className="px-6 pb-5 text-sm leading-relaxed text-muted">
-                {item.answer}
-              </p>
-            )}
-          </div>
+            </summary>
+            <p className="px-6 pb-5 text-sm leading-relaxed text-muted">
+              {item.answer}
+            </p>
+          </details>
         ))}
       </div>
     </section>
