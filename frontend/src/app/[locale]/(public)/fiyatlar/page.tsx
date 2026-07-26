@@ -185,7 +185,6 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
         url: `${SITE_URL}/endeks`,
         creator: ORG_REF,
         license: "https://creativecommons.org/licenses/by/4.0/",
-        temporalCoverage: "2025/..",
         isAccessibleForFree: true,
       },
     ],

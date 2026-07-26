@@ -4,6 +4,7 @@ import { INDEX_BASKET_LABELS } from "@/lib/index-basket";
 import { getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
+import { schemaDateRange } from "@/lib/schema-dates";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -46,10 +47,11 @@ export default async function EndeksPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [latest, history] = await Promise.all([
+  const [latest, fullHistory] = await Promise.all([
     fetchIndexLatest(),
-    fetchIndexHistory(26),
+    fetchIndexHistory(104),
   ]);
+  const history = fullHistory.slice(-26);
 
   const currentValue = latest ? parseFloat(latest.indexValue) : null;
   const prevSnapshot = history.length >= 2 ? history[history.length - 2] : null;
@@ -59,13 +61,19 @@ export default async function EndeksPage({ params }: Props) {
     : null;
 
   const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
+  const datasetDates = schemaDateRange(
+    fullHistory.flatMap((snapshot) => [snapshot.weekStart, snapshot.weekEnd]),
+  );
   const endeksDataset = {
     name: "HalDeFiyat Tarımsal Fiyat Endeksi",
     description: "15 temel tarım ürününden oluşan haftalık sepet endeksi. Türkiye hal fiyatlarının baz haftaya göre değişimini izler.",
     url: `${SITE_URL}/endeks`,
     creator: ORG_REF,
     license: "https://creativecommons.org/licenses/by/4.0/",
-    temporalCoverage: "2025/..",
+    ...(datasetDates ? {
+      temporalCoverage: datasetDates.temporalCoverage,
+      dateModified: datasetDates.latest,
+    } : {}),
     spatialCoverage: { "@type": "Place", name: "Türkiye" },
     variableMeasured: "Fiyat Endeksi",
     isAccessibleForFree: true,
