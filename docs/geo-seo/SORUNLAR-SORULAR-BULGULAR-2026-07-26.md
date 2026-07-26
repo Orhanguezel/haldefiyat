@@ -73,14 +73,12 @@ altyapısal bulguları tutar.
 - `haldefiyat.com.tr`, ana alan adıyla aynı `187.124.166.65` IP'sine ve aynı
   Turhost nameserver'larına çözülüyor; canlı Nginx yapılandırmasında
   `haldefiyat.com` ile aynı server block içinde. Bu alan adı dış kopya değil.
-- Buna rağmen `https://haldefiyat.com.tr/` 301 yerine 200 ve tam site içeriği
-  döndürüyor; arama sonuçlarında ana alan adından ayrı sonuç olarak göründü.
-  Canonical işareti tek başına duplicate host sinyalini tamamen ortadan
-  kaldırmaz. Alan adı kullanıcıya ait yönlendirme alias'ıysa `.com.tr` ve
-  `www` varyantları sorgu/path korunarak `https://haldefiyat.com` adresine 301
-  yönlendirilmelidir.
-- Bu host düzeltmesi backlink baseline maddesinin parçası sayılmadı; canlı
-  Nginx değişikliği öncesi sertifika ve redirect-loop kabulü ayrı yapılmalı.
+- İlk kontrolde `https://haldefiyat.com.tr/` 301 yerine 200 ve tam site
+  içeriği döndürüyordu; arama sonuçlarında ana alan adından ayrı görünmüştü.
+- **Kapandı (27.07.2026):** sertifika kapsamı doğrulandı; `.com.tr`, `www` ve
+  HTTP varyantları path/query korunarak tek adımda
+  `https://haldefiyat.com` hedefine 301 yapıldı. Kanıt:
+  `docs/geo-seo/HOST-CANONICAL-REDIRECT-KABULU-2026-07-27.md`.
 
 ### Public API dokümantasyon sapması
 
@@ -143,3 +141,5 @@ altyapısal bulguları tutar.
   kaynaklı sorunlar kapatıldı.
 - Dört şeffaflık sayfasındaki placeholder içerikler ve iletişim sayfasındaki
   sorumlu yayıncı eksikliği kapatıldı.
+- `haldefiyat.com.tr` duplicate-host 200 yanıtı canonical `.com` 301
+  yönlendirmesine geçirildi.

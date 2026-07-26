@@ -2000,6 +2000,22 @@ Commit: `6775780a feat(trust): publish transparency policy content`
   dosyasına yazıldı.
 - Sayaçlar 61/66 tamamlanan ve 5/66 açık olarak güncellendi.
 
+### 3.76 `.com.tr` Duplicate Host Kapanışı
+
+- `haldefiyat.com.tr` ve ana `.com` aynı IP/Turhost DNS/Nginx uygulamasına
+  bağlıydı; çıplak `.com.tr` HTTPS 200 döndürüyordu.
+- Sertifikanın dört hostu kapsadığı doğrulandı. Ana uygulama yalnız
+  `haldefiyat.com` hostunda bırakıldı; `.com.tr`, `www` ve HTTP varyantları
+  path/query korunarak tek adım canonical `.com` HTTPS 301'e geçirildi.
+- Nginx aktif dosyasının `sites-available` symlink'i değil ayrı normal dosya
+  olduğu ilk kabul testinde görüldü; iki dosya eşitlendi, yedekler yüklenmeyen
+  dizinde korundu.
+- `nginx -t` ve reload başarılı; canonical host 200, dört alternatif varyant
+  301. Ayrıntı:
+  `docs/geo-seo/HOST-CANONICAL-REDIRECT-KABULU-2026-07-27.md`.
+- Bu bulgu 66 maddelik ana checklist dışında ayrı operasyonel bulguydu; sayaç
+  61/66 tamamlanan ve 5/66 açık olarak değişmedi.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
