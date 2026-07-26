@@ -5,6 +5,8 @@ import PriceTable from "@/components/ui/PriceTable";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import ProductImage from "@/components/ui/ProductImage";
+import { ORG_REF } from "@/lib/seo";
+import { schemaDateRange } from "@/lib/schema-dates";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
@@ -48,11 +50,29 @@ export default async function CategoryPriceLanding({
   ]);
   const products = allProducts.filter((p) => p.categorySlug === category);
   const rows = pricePage.items;
-  const latestDate = rows.map((r) => r.recordedDate).sort().at(-1);
+  const datasetDates = schemaDateRange(rows.map((row) => row.recordedDate));
+  const latestDate = datasetDates?.latest;
 
   const collectionSchema = {
     name: title,
     description,
+    url: `${SITE_URL}/${slug}`,
+    creator: ORG_REF,
+    license: "https://creativecommons.org/licenses/by/4.0/",
+    ...(datasetDates ? {
+      temporalCoverage: datasetDates.temporalCoverage,
+      dateModified: datasetDates.latest,
+    } : {}),
+    spatialCoverage: { "@type": "Country", name: "Türkiye" },
+    variableMeasured: ["minPrice", "avgPrice", "maxPrice"],
+    isAccessibleForFree: true,
+    measurementTechnique:
+      "Ticaret borsası ve resmi kaynaklardan ETL ile derleme; ürün, fiyat tipi ve birim normalizasyonu",
+    distribution: {
+      "@type": "DataDownload",
+      encodingFormat: "application/json",
+      contentUrl: `${SITE_URL}/api/v1/prices?category=${encodeURIComponent(category)}&range=90d`,
+    },
     hasPart: products.map((product) => ({
       "@type": "Product",
       name: product.displayName || product.nameTr,
