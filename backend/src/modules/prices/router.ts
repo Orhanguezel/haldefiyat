@@ -163,9 +163,10 @@ export async function registerPrices(app: FastifyInstance) {
     "/prices/editorial/:slug",
     async (req, reply) => {
       const item = await getPublishedProductEditorial(req.params.slug);
-      if (!item) return reply.status(404).send({ error: "Editoryel icerik bulunamadi" });
+      // Editoryel icerik opsiyoneldir; yoklugu hata degil. 404 yerine 200+null don ki
+      // audit'e binlerce sahte 404 dusmesin (frontend zaten item ?? null ele aliyor).
       reply.header("Cache-Control", "public, max-age=300, s-maxage=300");
-      return reply.send({ item });
+      return reply.send({ item: item ?? null });
     },
   );
 

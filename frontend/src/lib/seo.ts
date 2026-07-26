@@ -105,9 +105,14 @@ export async function fetchPageSeo(pageKey: string): Promise<PageSeoData | null>
           },
         };
       }
+      // Blob yuklendi ama bu key icinde yok: kod-seviyesi default'lara birak.
+      // Legacy /page-seo/{key} cagirma — bu projede seo_pages_*/seo_defaults kaydi yok,
+      // her zaman 404 uretip audit'i sisiriyordu (gunde ~8K). Legacy yalniz blob fetch'i
+      // network hatasi verdiginde (catch) devreye girsin.
+      return null;
     }
   } catch {
-    // fallback to legacy endpoint below
+    // blob fetch network hatasi — legacy endpoint'i dayaniklilik icin dene (asagida)
   }
 
   try {
