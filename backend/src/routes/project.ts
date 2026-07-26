@@ -5,6 +5,7 @@ import { registerAlerts } from "@/modules/alerts";
 import { registerFavorites } from "@/modules/favorites";
 import { registerProduction } from "@/modules/production";
 import { registerHalAdmin } from "@/modules/hal-admin";
+import { registerEarlyWarningAdmin } from "@/modules/etl/early-warning";
 import { registerCompetitorMonitor } from "@/modules/competitor-monitor";
 import { registerTelegramBotPublic, registerTelegramBotAdmin } from "@/modules/telegram-bot";
 import { registerUser } from "@/modules/user/router";
@@ -69,6 +70,7 @@ export async function registerProjectPublic(api: FastifyInstance) {
 export async function registerProjectAdmin(adminApi: FastifyInstance) {
   await registerHalAdmin(adminApi);
   await registerCompetitorMonitor(adminApi);
+  await registerEarlyWarningAdmin(adminApi);
   await registerAnalysisAdmin(adminApi);
   await registerPressPrAdmin(adminApi);
   await registerTelegramBotAdmin(adminApi);
