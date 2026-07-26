@@ -7,8 +7,8 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 49/66 checkbox — kapanış kanıtları bu dosyada korunur.
-- **Açık:** 17/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
+- **Tamamlanan:** 50/66 checkbox — kapanış kanıtları bu dosyada korunur.
+- **Açık:** 16/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
   kalan iş olarak ayrıldığı için toplam takip maddesi 66 oldu. Açıklar:
   `HALDEFIYAT-GEO-SEO-ACIK-ISLER.md`.
 - Bu dosyaya yeni açık iş eklenmez. Açık dosyada tamamlanan maddeler, kanıtıyla
@@ -122,6 +122,7 @@ ayrı açık işler dosyasına taşınmıştır.
 - [x] Sitemap URL'lerinin canlı dağılımı tek işçi ve 500 ms istek aralığıyla yeniden tarandı: 316/316 HTTP 200; redirect/4xx/5xx, noindex, canonical farkı, eksik title/description, H1 sorunu, JSON-LD parse hatası ve duplicate title/description sıfır. (`artifacts/seo/live-crawl-final-2026-07-26/report.md`)
 - [x] Orphan/link derinliği/anchor dağılımı canlı ölçüldü; 50 aday gerçek dizin ve footer linkleriyle kapatıldı. Son crawl: orphan 0, azami derinlik 3, 22.738 anchor, 3.053 benzersiz metin, boş anchor 0, genel “tıkla/detay/devam” anchor 0. (`artifacts/seo/live-crawl-anchor-2026-07-26/report.md`)
 - [x] Duplicate/missing/truncated title-description-H1 envanteri ile canonical ve hreflang self/reciprocal kontrolü tamamlandı. 316/316 URL 200; eksik/duplicate/H1/canonical/hreflang hatası 0. Arama metadata'sı title ≤60 ve description ≤160 olacak şekilde anlamlı cümle/kelime sınırında kısaltıldı; düzeltme sonrası uzun title/description 0. (`9a34270a`, `9bb063e7`, `artifacts/seo/live-crawl-meta-final-2026-07-26/metadata-hreflang-acceptance.md`)
+- [x] Tam SSR iç-link grafiğinde 3xx/4xx/5xx ve redirect zincirleri çıkarıldı ve düzeltildi. Başlangıçta 2.463 hedefte 14 adet 4xx, 511 redirect ve 50 uzun zincir vardı; nihai 1.959 HTML hedefin tamamı 2xx, redirect/4xx/5xx/ağ hatası ve uzun zincir 0. (`16b48efb`, `6f997811`, `7032275b`, `b7993dfe`, `a2b845a1`, `artifacts/seo/internal-link-acceptance-2026-07-26.md`)
 
 ### 6.1 Anahtar kelime yoğunluğu ve sayfa içi tutarlılık
 

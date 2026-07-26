@@ -1,0 +1,33 @@
+# GEO/SEO — Sorunlar, Sorular ve Ayrı Bulgular
+
+Bu dosya checklist kapanışlarından ayrı değerlendirilecek operasyonel veya
+altyapısal bulguları tutar.
+
+## Açık Operasyonel Konular
+
+### ETL veri akışı
+
+- Kocaeli, Mersin ve Çanakkale’de uzun süredir veri akışı olmadığı bildirildi.
+- Mersin kaynağı 2026-07-26 tarihinde HTTP 403 verdi.
+- Bu konu GEO/SEO implementasyonundan ayrıdır; kaynak adaptörü, erişim yöntemi,
+  zamanlayıcı ve son başarılı çalışma kayıtları ayrı operasyonel inceleme ister.
+
+### Canlı sunucu bağımlılık çözümlemesi
+
+- Canlı proje kökünde bulunan iç içe `node_modules`, backend’in `mysql2` 3.23.1
+  tiplerini; üst monorepo ise 3.20.0 tiplerini çözüyor. `bun run build` bu iki
+  fiziksel paket kopyası yüzünden TypeScript uyumsuzluğu verebiliyor.
+- Deploy sırasında kaynak dosyalara dokunulmadan iç node_modules geçici olarak
+  kenara alındı, monorepo kilitli TypeScript kurulumu ile build alındı ve dizin
+  geri kondu. Canlı süreçler başarıyla yeniden başlatıldı.
+- Kalıcı çözüm: sunucudaki untracked proje-kökü `package.json`/`bun.lock` ve
+  iç içe dependency kurulumunun hangi eski süreç tarafından üretildiğini
+  belirlemek; ardından monorepo için tek kilit/tek kurulum politikası uygulamak.
+  Kullanıcıya ait untracked dosyalar bu oturumda silinmedi.
+
+## Kapatılan Teknik Bulgular
+
+- CSP rapor endpoint bağlantısı ve enforce geçişi tamamlandı.
+- Dinamik ürün proxy’sinin geçici backend hatasını hard 404 sayması giderildi.
+- İç linklerde ham ETL slug, varsayılan locale prefixi ve ürün redirect zinciri
+  kaynaklı sorunlar kapatıldı.

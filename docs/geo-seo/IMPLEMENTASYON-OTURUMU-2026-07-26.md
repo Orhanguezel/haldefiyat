@@ -1744,6 +1744,34 @@ Kanıt:
 `artifacts/seo/live-crawl-meta-final-2026-07-26/report.json`, `report.md` ve
 `metadata-hreflang-acceptance.md`.
 
+### 3.62 Tam İç Link HTTP ve Redirect Zinciri Kabulü
+
+- 316 sitemap sayfasının SSR HTML'inden 2.642 benzersiz iç hedef çıkarıldı;
+  179 API click/export hedefi canlı yan etki oluşturmamak için ayrı envanterlendi.
+- İlk 2.463 HTML hedef kontrolünde 14 adet 4xx, 511 redirect ve 50 adet birden
+  uzun zincir bulundu; 5xx ve ağ hatası yoktu.
+- Fiyat tabloları ham ETL slug yerine API `canonicalProduct` hedefine bağlandı.
+  Varyant karşılaştırmasındaki aynı master'a dönen alias linkler metne çevrildi.
+- Widget, ticker, sezon rehberi, ürün ilişkileri ve pazar hareketleri ortak
+  kanonik link politikasına geçirildi; varsayılan locale `/tr` linkleri kaldırıldı.
+- Proxy backend timeout/5xx ile doğrulanmış katalog “bulunamadı” sonucunu ayıracak
+  şekilde düzeltildi. Geçici backend cevapsızlığı artık hard 404 üretmiyor.
+- Aktif `biber` ve `sarimsak` master redirectleriyle çelişen 51 çocuk canonical
+  kaydı `055_redirected_master_canonical_alignment.sql` ile canlıda düzeltildi.
+- Nihai sitemap crawl 316/316 HTTP 200; noindex/canonical/title/description/H1/
+  JSON-LD/duplicate/orphan hataları 0 kaldı.
+- Nihai SSR grafiği 1.959 benzersiz HTML hedef içeriyor. Önceki tam sonuçlar,
+  GET yeniden doğrulama ve değişen kaynakların hedefli SSR kabulü birleştirildi:
+  1.959/1.959 2xx; redirect, 4xx, 5xx, ağ hatası ve uzun zincir 0.
+- Bu kanıtla iç link HTTP/redirect-chain maddesi kapandı; sayaçlar 50/66
+  tamamlanan ve 16/66 açık olarak güncellendi.
+
+Kanıt:
+`artifacts/seo/internal-link-acceptance-2026-07-26.md`,
+`artifacts/seo/internal-link-status-2026-07-26/report.json`,
+`artifacts/seo/internal-link-get-acceptance-2026-07-26/report.json` ve
+`artifacts/seo/live-crawl-internal-links-final-2026-07-26/report.json`.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.

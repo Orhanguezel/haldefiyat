@@ -3,9 +3,9 @@
 > Kaynak checklist:
 > `HALDEFIYAT-GEO-SEO-AKSIYON-CEKLISTI.md`
 >
-> Tarih: 2026-07-26 · Durum: **17 açık madde**
+> Tarih: 2026-07-26 · Durum: **16 açık madde**
 >
-> Bu dosya yalnız açık işleri içerir. Tamamlanmış 49 madde, kapanış kanıtlarıyla
+> Bu dosya yalnız açık işleri içerir. Tamamlanmış 50 madde, kapanış kanıtlarıyla
 > ana aksiyon checklist'inde korunur. Burada tamamlanan bir madde `[x]`
 > yapıldıktan sonra ana checklist'e taşınmalı ve iki dosyanın sayaçları birlikte
 > güncellenmelidir.
@@ -37,7 +37,6 @@ beklenmedik meşru gönderici bulunmuyor.
 ## P2 — Teknik SEO ve canlı tarama
 
 - [ ] GSC Page Indexing verisini keşfedildi-taranmadı, tarandı-indekslenmedi ve duplicate-canonical kırılımlarında incele.
-- [ ] 3xx/4xx/5xx iç linkleri ve redirect chain'leri tam crawl ile çıkar.
 
 ### Anahtar kelime yoğunluğu canlı kontrolü
 

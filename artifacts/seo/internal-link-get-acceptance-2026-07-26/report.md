@@ -1,0 +1,237 @@
+# İç Link HTTP ve Redirect Zinciri Denetimi — 2026-07-26
+
+- Keşfedilen benzersiz iç hedef: **2343**
+- Kontrol edilen HTML navigasyon hedefi: **279**
+- Yan etki/indirme riski nedeniyle ayrılan API hedefi: **179**
+- 2xx: **279**; nihai 3xx: **0**
+- 4xx: **0**; 5xx: **0**; ağ hatası: **0**
+- Redirect içeren hedef: **219**
+- Birden uzun redirect zinciri: **4**
+
+## Sorunlar
+
+- `https://haldefiyat.com/tr` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/rapor/yillik/2025, https://haldefiyat.com/rapor/yillik/2024, https://haldefiyat.com/rapor/yillik/2023
+- `https://haldefiyat.com/tr/analiz` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/canli-hal-fiyatlari
+- `https://haldefiyat.com/tr/hal/antalya-hal-merkez` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/canli-hal-fiyatlari
+- `https://haldefiyat.com/tr/hal?city=ankara` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/canli-hal-fiyatlari
+- `https://haldefiyat.com/tr/hal?city=bursa` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/canli-hal-fiyatlari
+- `https://haldefiyat.com/tr/hal?city=istanbul` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/canli-hal-fiyatlari
+- `https://haldefiyat.com/tr/hal?city=izmir` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/canli-hal-fiyatlari
+- `https://haldefiyat.com/tr/hal?city=mersin` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/canli-hal-fiyatlari
+- `https://haldefiyat.com/tr/uyarilar` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/canli-hal-fiyatlari
+- `https://haldefiyat.com/urun/aci-carli-biber` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/biber-carliston
+- `https://haldefiyat.com/urun/armut-ankara` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/armut
+- `https://haldefiyat.com/urun/armut-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/canli-hal-fiyatlari, https://haldefiyat.com/urun/armut
+- `https://haldefiyat.com/urun/armut-frenk` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/armut
+- `https://haldefiyat.com/urun/armut-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/armut
+- `https://haldefiyat.com/urun/armut-normal` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/armut
+- `https://haldefiyat.com/urun/beyaz-lahana` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/lahana-beyaz
+- `https://haldefiyat.com/urun/beyaz-lahana-azman` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/lahana-beyaz
+- `https://haldefiyat.com/urun/beyaz-lahana-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/lahana-beyaz
+- `https://haldefiyat.com/urun/beyaz-lahana-hibrit` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/lahana-beyaz
+- `https://haldefiyat.com/urun/biber` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/, https://haldefiyat.com/fiyatlar, https://haldefiyat.com/urun/ahududu
+- `https://haldefiyat.com/urun/biber-carli` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/biber-carliston
+- `https://haldefiyat.com/urun/biber-dolmalik` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/biber-dolma
+- `https://haldefiyat.com/urun/biber-kapya` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/hal/gaziantep-hal
+- `https://haldefiyat.com/urun/biber-kil-aci` — HTTP 200; redirect=2; kaynak: https://haldefiyat.com/canli-hal-fiyatlari
+- `https://haldefiyat.com/urun/biber-kil-sivri` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kil-sivri-biber
+- `https://haldefiyat.com/urun/biber-kirmizi` — HTTP 200; redirect=2; kaynak: https://haldefiyat.com/
+- `https://haldefiyat.com/urun/biber-koy-mazo` — HTTP 200; redirect=2; kaynak: https://haldefiyat.com/
+- `https://haldefiyat.com/urun/biber-sili` — HTTP 200; redirect=2; kaynak: https://haldefiyat.com/
+- `https://haldefiyat.com/urun/dolma-biber-e` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/biber-dolma
+- `https://haldefiyat.com/urun/dolma-biber-y` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/biber-dolma
+- `https://haldefiyat.com/urun/domates-ceri` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/hal/yalova-hal
+- `https://haldefiyat.com/urun/domates-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates
+- `https://haldefiyat.com/urun/domates-ii` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates
+- `https://haldefiyat.com/urun/domates-ikinci` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates
+- `https://haldefiyat.com/urun/domates-kasa-salkim` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates-salkim
+- `https://haldefiyat.com/urun/domates-koy` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates, https://haldefiyat.com/hal/kahramanmaras-hal
+- `https://haldefiyat.com/urun/domates-koy-yerli` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates
+- `https://haldefiyat.com/urun/domates-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates
+- `https://haldefiyat.com/urun/domates-organik-salkim` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates-salkim
+- `https://haldefiyat.com/urun/domates-organik-siyah` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates
+- `https://haldefiyat.com/urun/domates-oval` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates
+- `https://haldefiyat.com/urun/domates-salkim-ceri` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates-salkim
+- `https://haldefiyat.com/urun/domates-salkim-kutu` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates-salkim
+- `https://haldefiyat.com/urun/domates-sofralik` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates
+- `https://haldefiyat.com/urun/domates-yerli` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates
+- `https://haldefiyat.com/urun/elma-amasya` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-arapkizi` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-bodur` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-eksi` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-fuji` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-granny` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-granny-simith` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-grannysmith` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-gransimit` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-gransmit` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-ikinci` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-koli-extra` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-misket` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-pikleydi` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-starkin` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/elma-yesil` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/elma
+- `https://haldefiyat.com/urun/erik-alyanak` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/erik
+- `https://haldefiyat.com/urun/erik-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/erik
+- `https://haldefiyat.com/urun/erik-freze` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/erik
+- `https://haldefiyat.com/urun/erik-italyan` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/erik
+- `https://haldefiyat.com/urun/erik-kirmizi` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/erik
+- `https://haldefiyat.com/urun/erik-kirmizi-japon` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/erik
+- `https://haldefiyat.com/urun/erik-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/erik
+- `https://haldefiyat.com/urun/erik-murdum` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/erik
+- `https://haldefiyat.com/urun/erik-murdum-karaca` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/erik
+- `https://haldefiyat.com/urun/erik-normal` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/erik
+- `https://haldefiyat.com/urun/fasulye-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/fasulye
+- `https://haldefiyat.com/urun/fasulye-nazende` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/fasulye
+- `https://haldefiyat.com/urun/fasulye-sarikiz` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/fasulye
+- `https://haldefiyat.com/urun/fasulye-taze` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/fasulye
+- `https://haldefiyat.com/urun/fasulye-taze-boncuk` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/fasulye
+- `https://haldefiyat.com/urun/fasulye-taze-cino` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/fasulye
+- `https://haldefiyat.com/urun/fasulye-taze-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/fasulye, https://haldefiyat.com/hal/tekirdag-hal
+- `https://haldefiyat.com/urun/fasulye-taze-sarikiz` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/fasulye
+- `https://haldefiyat.com/urun/fasulye-yer` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/fasulye
+- `https://haldefiyat.com/urun/havuc-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/havuc
+- `https://haldefiyat.com/urun/havuc-i` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/havuc
+- `https://haldefiyat.com/urun/havuc-ikinci` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/havuc
+- `https://haldefiyat.com/urun/havuc-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/havuc
+- `https://haldefiyat.com/urun/havuc-normal` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/havuc
+- `https://haldefiyat.com/urun/havuc-sari` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/havuc
+- `https://haldefiyat.com/urun/k-sogan` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/sogan-kuru, https://haldefiyat.com/hal/bolu-hal
+- `https://haldefiyat.com/urun/kabak-bal` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kabak
+- `https://haldefiyat.com/urun/kabak-cerezlik` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kabak
+- `https://haldefiyat.com/urun/kabak-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kabak
+- `https://haldefiyat.com/urun/kabak-dolmalik` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/, https://haldefiyat.com/urun/kabak
+- `https://haldefiyat.com/urun/kabak-mini` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kabak
+- `https://haldefiyat.com/urun/kabak-sari` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kabak
+- `https://haldefiyat.com/urun/kabak-taze` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kabak
+- `https://haldefiyat.com/urun/karpuz-1-kalite` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/karpuz
+- `https://haldefiyat.com/urun/karpuz-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/karpuz
+- `https://haldefiyat.com/urun/karpuz-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/karpuz, https://haldefiyat.com/hal/bolu-hal
+- `https://haldefiyat.com/urun/karpuz-normal` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/karpuz
+- `https://haldefiyat.com/urun/kavun-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kavun
+- `https://haldefiyat.com/urun/kavun-kelek` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kavun
+- `https://haldefiyat.com/urun/kavun-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kavun
+- `https://haldefiyat.com/urun/kavun-normal` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kavun
+- `https://haldefiyat.com/urun/kavun-pamukova` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kavun
+- `https://haldefiyat.com/urun/kayisi-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kayisi
+- `https://haldefiyat.com/urun/kayisi-i` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kayisi
+- `https://haldefiyat.com/urun/kayisi-igdir` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kayisi
+- `https://haldefiyat.com/urun/kayisi-malatya` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kayisi
+- `https://haldefiyat.com/urun/kayisi-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kayisi
+- `https://haldefiyat.com/urun/kayisi-normal` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kayisi
+- `https://haldefiyat.com/urun/kayisi-tokali` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kayisi
+- `https://haldefiyat.com/urun/kayisi-tokaloglu` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kayisi
+- `https://haldefiyat.com/urun/kilcik-biber` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kil-sivri-biber
+- `https://haldefiyat.com/urun/kilcik-sivri-biber` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kil-sivri-biber
+- `https://haldefiyat.com/urun/kiraz-beyaz` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kiraz
+- `https://haldefiyat.com/urun/kiraz-burlent` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kiraz
+- `https://haldefiyat.com/urun/kiraz-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kiraz
+- `https://haldefiyat.com/urun/kiraz-ihracat` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kiraz
+- `https://haldefiyat.com/urun/kiraz-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kiraz
+- `https://haldefiyat.com/urun/kiraz-salihli` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kiraz
+- `https://haldefiyat.com/urun/kiraz-yerli` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/kiraz
+- `https://haldefiyat.com/urun/lahana` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/bruksel-lahana, https://haldefiyat.com/urun/kirmizi-lahana, https://haldefiyat.com/urun/lahana-beyaz
+- `https://haldefiyat.com/urun/lahana-beyaz-kg` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/lahana-beyaz
+- `https://haldefiyat.com/urun/lahana-top` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/lahana-beyaz
+- `https://haldefiyat.com/urun/limon-acik` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/limon
+- `https://haldefiyat.com/urun/limon-dal` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/limon
+- `https://haldefiyat.com/urun/limon-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/limon
+- `https://haldefiyat.com/urun/limon-dokme` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/limon
+- `https://haldefiyat.com/urun/limon-enter` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/limon
+- `https://haldefiyat.com/urun/limon-file` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/limon
+- `https://haldefiyat.com/urun/limon-ikinci` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/limon
+- `https://haldefiyat.com/urun/limon-kg-yeni` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/limon
+- `https://haldefiyat.com/urun/limon-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/limon
+- `https://haldefiyat.com/urun/limon-normal` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/limon
+- `https://haldefiyat.com/urun/mandalina-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/mandalina, https://haldefiyat.com/hal/balikesir-hal
+- `https://haldefiyat.com/urun/mandalina-izmir` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/mandalina
+- `https://haldefiyat.com/urun/mandalina-king` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/mandalina
+- `https://haldefiyat.com/urun/mandalina-klemantin` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/mandalina
+- `https://haldefiyat.com/urun/mandalina-normal` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/mandalina
+- `https://haldefiyat.com/urun/mandalina-rize` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/mandalina
+- `https://haldefiyat.com/urun/mandalina-satsuma` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/mandalina
+- `https://haldefiyat.com/urun/marul-a` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/marul
+- `https://haldefiyat.com/urun/marul-duz` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/marul
+- `https://haldefiyat.com/urun/marul-g` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/marul
+- `https://haldefiyat.com/urun/marul-k` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/marul
+- `https://haldefiyat.com/urun/marul-kivircik-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/marul
+- `https://haldefiyat.com/urun/marul-mor` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/marul
+- `https://haldefiyat.com/urun/marul-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/marul
+- `https://haldefiyat.com/urun/muz-muz-yerli-anamur` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/hal/balikesir-hal
+- `https://haldefiyat.com/urun/organik-domates` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates
+- `https://haldefiyat.com/urun/patates-2-kalite` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patates
+- `https://haldefiyat.com/urun/patates-agira` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patates
+- `https://haldefiyat.com/urun/patates-bebe` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patates
+- `https://haldefiyat.com/urun/patates-calma` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patates
+- `https://haldefiyat.com/urun/patates-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patates
+- `https://haldefiyat.com/urun/patates-eski` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patates
+- `https://haldefiyat.com/urun/patates-ii-taze` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patates
+- `https://haldefiyat.com/urun/patates-ikinci` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patates
+- `https://haldefiyat.com/urun/patates-kumpir` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patates
+- `https://haldefiyat.com/urun/patates-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patates
+- `https://haldefiyat.com/urun/patates-normal` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patates
+- `https://haldefiyat.com/urun/patlican-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patlican
+- `https://haldefiyat.com/urun/patlican-i` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patlican
+- `https://haldefiyat.com/urun/patlican-kebaplik` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patlican
+- `https://haldefiyat.com/urun/patlican-kemer` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patlican
+- `https://haldefiyat.com/urun/patlican-manisa` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patlican
+- `https://haldefiyat.com/urun/patlican-normal` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patlican
+- `https://haldefiyat.com/urun/patlican-oval` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patlican
+- `https://haldefiyat.com/urun/patlican-tophane` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patlican
+- `https://haldefiyat.com/urun/patlican-uzun` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patlican
+- `https://haldefiyat.com/urun/patlican-yamula` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patlican
+- `https://haldefiyat.com/urun/patlican-yerli` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/patlican
+- `https://haldefiyat.com/urun/portakal-cavdir` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/portakal
+- `https://haldefiyat.com/urun/portakal-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/portakal
+- `https://haldefiyat.com/urun/portakal-kan` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/portakal
+- `https://haldefiyat.com/urun/portakal-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/portakal
+- `https://haldefiyat.com/urun/salatalik-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/salatalik
+- `https://haldefiyat.com/urun/salatalik-i` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/salatalik
+- `https://haldefiyat.com/urun/salatalik-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/salatalik
+- `https://haldefiyat.com/urun/salatalik-sofralik` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/salatalik
+- `https://haldefiyat.com/urun/salatalik-yerli` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/salatalik
+- `https://haldefiyat.com/urun/salk-domates` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates-salkim
+- `https://haldefiyat.com/urun/sarimsak` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/, https://haldefiyat.com/fiyatlar, https://haldefiyat.com/urun/sarimsak-taze
+- `https://haldefiyat.com/urun/sogan-arpacik` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/sogan-kuru
+- `https://haldefiyat.com/urun/sogan-ikinci` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/sogan-kuru
+- `https://haldefiyat.com/urun/sogan-kirmizi-balik` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/sogan-kuru
+- `https://haldefiyat.com/urun/sogan-kuru-arpacik` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/sogan-kuru
+- `https://haldefiyat.com/urun/sogan-kuru-beyaz-gumus` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/sogan-kuru
+- `https://haldefiyat.com/urun/sogan-kuru-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/sogan-kuru
+- `https://haldefiyat.com/urun/sogan-kuru-frenk` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/sogan-kuru
+- `https://haldefiyat.com/urun/sogan-kuru-kirmizi` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/sogan-kuru
+- `https://haldefiyat.com/urun/sogan-kuru-mor` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/sogan-kuru
+- `https://haldefiyat.com/urun/sogan-taze-bag` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/sogan-kuru
+- `https://haldefiyat.com/urun/tere-70-100gr` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/tere
+- `https://haldefiyat.com/urun/tere-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/tere
+- `https://haldefiyat.com/urun/tere-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/tere
+- `https://haldefiyat.com/urun/tere-tere-filizi` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/tere
+- `https://haldefiyat.com/urun/uzum-asikara` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum
+- `https://haldefiyat.com/urun/uzum-beyaz-cavus` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum-beyaz
+- `https://haldefiyat.com/urun/uzum-beyaz-diger` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum
+- `https://haldefiyat.com/urun/uzum-beyaz-inci` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum-beyaz
+- `https://haldefiyat.com/urun/uzum-beyaz-kardinal` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum-beyaz
+- `https://haldefiyat.com/urun/uzum-beyaz-kirmizi` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum
+- `https://haldefiyat.com/urun/uzum-beyaz-mor` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum-beyaz
+- `https://haldefiyat.com/urun/uzum-beyaz-muskule` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum-beyaz
+- `https://haldefiyat.com/urun/uzum-beyaz-rezaki` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum-beyaz
+- `https://haldefiyat.com/urun/uzum-beyaz-siyah` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum
+- `https://haldefiyat.com/urun/uzum-beyaz-sultaniye` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum-beyaz
+- `https://haldefiyat.com/urun/uzum-bursa` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum
+- `https://haldefiyat.com/urun/uzum-cekirdekli` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum
+- `https://haldefiyat.com/urun/uzum-kardinal` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum
+- `https://haldefiyat.com/urun/uzum-kirmizi` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum
+- `https://haldefiyat.com/urun/uzum-mor` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum
+- `https://haldefiyat.com/urun/uzum-muhtelif` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum
+- `https://haldefiyat.com/urun/uzum-rezaki` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/uzum-beyaz
+- `https://haldefiyat.com/urun/y-sogan` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/hal/bolu-hal
+- `https://haldefiyat.com/urun/y-tere` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/tere
+- `https://haldefiyat.com/urun/yuvarlak-domates` — HTTP 200; redirect=1; kaynak: https://haldefiyat.com/urun/domates
+
+## Kapsam Notu
+
+API click ve CSV export hedefleri HTML SEO navigasyonu değildir. Canlıda sayaç
+artışı veya pahalı dışa aktarma yan etkisi oluşturmamak için istek gönderilmeden
+ayrı envanterlenmiştir. Ham JSON bu URL'leri kaynak sayfalarıyla birlikte içerir.
