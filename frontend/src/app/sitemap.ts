@@ -3,7 +3,7 @@ export const revalidate = 3600;
 import type { MetadataRoute } from "next";
 import { getProductImage } from "@/lib/product-images";
 import { getSonMakaleler } from "@/lib/analiz";
-import { fetchAnnualReportYears, fetchAutoWeeklyReports } from "@/lib/api";
+import { fetchAnnualReportYears, fetchAuthors, fetchAutoWeeklyReports } from "@/lib/api";
 import { latestSitemapDate, validSitemapDate } from "@/lib/sitemap-date";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033").replace(/\/$/, "");
@@ -251,9 +251,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Statik makaleler (lib/analiz) + DB'den gelen otomatik haftalik raporlar.
   // Haftalik raporlar sadece statik diziden uretildigi icin sitemap'e HIC girmiyordu —
   // haziran/temmuz raporlarinin tamami arama motorlarina sitemap uzerinden gorunmuyordu.
-  const [autoReports, annualReportYears] = await Promise.all([
+  const [autoReports, annualReportYears, authors] = await Promise.all([
     fetchAutoWeeklyReports(200),
     fetchAnnualReportYears(),
+    fetchAuthors(),
   ]);
   const staticArticles = getSonMakaleler(100);
   const staticSlugs = new Set(staticArticles.map((m) => m.slug));
@@ -299,5 +300,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
   });
 
-  return [...publicPages, ...productPages, ...marketPages, ...firmCityHubs, ...firmTypeHubs, ...firmComboHubs, ...firmPages, ...analizPages, ...annualReportPages];
+  const authorLatestArticle = new Map<string, string>();
+  for (const article of [...staticArticles, ...autoReports]) {
+    const authorSlug = article.authorProfile?.slug;
+    if (!authorSlug) continue;
+    const previous = authorLatestArticle.get(authorSlug);
+    if (!previous || article.tarih > previous) {
+      authorLatestArticle.set(authorSlug, article.tarih);
+    }
+  }
+  const authorPages: MetadataRoute.Sitemap = authors
+    .filter((author) => authorLatestArticle.has(author.slug))
+    .map((author) => {
+      const lastModified = validSitemapDate(authorLatestArticle.get(author.slug));
+      return {
+        url: `${SITE_URL}/yazar/${author.slug}`,
+        ...(lastModified && { lastModified }),
+        changeFrequency: "monthly" as const,
+        priority: 0.5,
+      };
+    });
+
+  return [...publicPages, ...productPages, ...marketPages, ...firmCityHubs, ...firmTypeHubs, ...firmComboHubs, ...firmPages, ...analizPages, ...annualReportPages, ...authorPages];
 }

@@ -68,7 +68,7 @@ export default async function AuthorPage({ params }: Props) {
   return (
     <PageContainer>
       <JsonLd type="ProfilePage" data={profilePageSchema} />
-      <Breadcrumb items={[
+      <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Yazarlar", href: "/analiz" },
         { name: author.fullName, href: `/yazar/${author.slug}` },

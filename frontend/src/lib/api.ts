@@ -774,6 +774,16 @@ export interface PublicAuthorDetail extends PublicAuthor {
   articles: AuthorArticle[];
 }
 
+export async function fetchAuthors(limit = 100): Promise<PublicAuthor[]> {
+  const qs = buildQuery({ limit });
+  const response = await safeFetch<{ items: PublicAuthor[] }>(
+    `/authors${qs}`,
+    300,
+    { items: [] },
+  );
+  return response.items;
+}
+
 export async function fetchWidget(params: { slugs?: string[]; category?: string; limit?: number }): Promise<WidgetPrice[]> {
   const qs = buildQuery({
     slugs: params.slugs?.join(","),
