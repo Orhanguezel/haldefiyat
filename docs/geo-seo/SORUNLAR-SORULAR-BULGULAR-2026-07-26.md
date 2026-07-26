@@ -33,6 +33,15 @@ altyapısal bulguları tutar.
 - Google sonucu uydurulmadı. Checklist maddesi, giriş yapılmış etkileşimli
   Google oturumunda URL bazlı çıktılar alınana kadar açık kalacak.
 
+### Anahtar kelime yoğunluğu 28 günlük GSC kabul penceresi
+
+- Değişiklik sonrası canlı SSR/görünür metin taraması 27 Temmuz 2026'da
+  tamamlandı; title/meta/H1-H2 dağılımı doğal ve yapay tekrar gerekmiyor.
+- Birleşik checklist maddesinin GSC sorgu/CTR etkisi henüz ölçülemez.
+- En erken karşılaştırma tarihi: **24 Ağustos 2026**. O tarihte aynı URL için
+  önceki ve sonraki 28 günlük sorgu, gösterim, tıklama, CTR ve ortalama konum
+  karşılaştırılmalı.
+
 ### ETL veri akışı
 
 - Kocaeli, Mersin ve Çanakkale’de uzun süredir veri akışı olmadığı bildirildi.

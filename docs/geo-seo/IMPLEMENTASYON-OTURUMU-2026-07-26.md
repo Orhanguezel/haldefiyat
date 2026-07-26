@@ -1833,6 +1833,21 @@ Commit: `6775780a feat(trust): publish transparency policy content`
   `docs/geo-seo/GSC-PAGE-INDEXING-INCELEMESI-2026-07-27.md` dosyasına yazıldı.
 - Bu kapanışla sayaçlar 53/66 tamamlanan ve 13/66 açık olarak güncellendi.
 
+### 3.66 Anahtar Kelime Yoğunluğu Değişiklik Sonrası Canlı Tarama
+
+- `scripts/seo/keyword-density-audit.mjs` ile görünür tüm metin ve
+  boilerplate/tablo/form hariç ana içerik ayrı ölçülebilir hale getirildi.
+- Antalya Serik Hali URL'si HTTP 200, self-canonical ve index/follow; title,
+  description, tek H1 ve açıklayıcı H2 hedef niyetle tutarlı.
+- Tüm görünür metin 379, ana içerik 169 kelime. Tam
+  `Antalya Serik Hali fiyatları` ifadesi ana içerikte 1; `Antalya Serik Hali`
+  4 kez geçiyor.
+- Ham `Serik` tekrarı 30 iken tablo/boilerplate çıkarıldığında 8. Araçtaki ham
+  sayım editoryal keyword density olarak kullanılmadı ve yapay tekrar eklenmedi.
+- Kanıt `artifacts/seo/keyword-density-2026-07-27/` altında arşivlendi.
+- Teknik yeniden tarama tamamlandı; 28 günlük GSC sorgu/CTR penceresi en erken
+  24 Ağustos 2026'da dolacağı için birleşik madde açık bırakıldı.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.

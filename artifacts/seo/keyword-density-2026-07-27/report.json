@@ -1,0 +1,113 @@
+{
+  "url": "https://haldefiyat.com/hal/antalya-hal-serik",
+  "checkedAt": "2026-07-26T22:59:15.540Z",
+  "httpStatus": 200,
+  "htmlBytes": 166836,
+  "title": "Antalya Serik Hali Fiyatları 2026 — Güncel Toptan Liste",
+  "description": "Antalya Serik Hali güncel hal fiyatları. Son listede 10 ürün (26 Temmuz 2026). Sebze, meyve ve bakliyat için min/ort/maks toptan fiyat.",
+  "canonical": "https://haldefiyat.com/hal/antalya-hal-serik",
+  "robots": "index, follow",
+  "h1": [
+    "Antalya Serik Hali"
+  ],
+  "h2": [
+    "Antalya Serik Hali fiyatları bugün ne durumda?",
+    "Bu Haldeki Firmalar",
+    "Antalya Serik Hali Hakkında"
+  ],
+  "fullVisibleWords": 379,
+  "editorialWords": 169,
+  "excludedAsBoilerplate": [
+    "script/style/noscript/svg/template",
+    "aria-hidden/hidden",
+    "table",
+    "nav/footer/aside",
+    "form/select/option/button/dialog"
+  ],
+  "counts": [
+    {
+      "phrase": "antalya",
+      "full": 16,
+      "editorial": 14,
+      "fullPer100Words": 4.22,
+      "editorialPer100Words": 8.28
+    },
+    {
+      "phrase": "serik",
+      "full": 30,
+      "editorial": 8,
+      "fullPer100Words": 7.92,
+      "editorialPer100Words": 4.73
+    },
+    {
+      "phrase": "hal",
+      "full": 15,
+      "editorial": 9,
+      "fullPer100Words": 3.96,
+      "editorialPer100Words": 5.33
+    },
+    {
+      "phrase": "fiyat",
+      "full": 17,
+      "editorial": 5,
+      "fullPer100Words": 4.49,
+      "editorialPer100Words": 2.96
+    },
+    {
+      "phrase": "fiyatları",
+      "full": 8,
+      "editorial": 2,
+      "fullPer100Words": 2.11,
+      "editorialPer100Words": 1.18
+    },
+    {
+      "phrase": "antalya serik hali",
+      "full": 5,
+      "editorial": 4,
+      "fullPer100Words": 1.32,
+      "editorialPer100Words": 2.37
+    },
+    {
+      "phrase": "antalya serik hali fiyatları",
+      "full": 1,
+      "editorial": 1,
+      "fullPer100Words": 0.26,
+      "editorialPer100Words": 0.59
+    },
+    {
+      "phrase": "serik hali",
+      "full": 5,
+      "editorial": 4,
+      "fullPer100Words": 1.32,
+      "editorialPer100Words": 2.37
+    },
+    {
+      "phrase": "hal fiyatları",
+      "full": 3,
+      "editorial": 0,
+      "fullPer100Words": 0.79,
+      "editorialPer100Words": 0
+    },
+    {
+      "phrase": "güncel hal fiyatları",
+      "full": 0,
+      "editorial": 0,
+      "fullPer100Words": 0,
+      "editorialPer100Words": 0
+    },
+    {
+      "phrase": "toptan fiyat",
+      "full": 0,
+      "editorial": 0,
+      "fullPer100Words": 0,
+      "editorialPer100Words": 0
+    },
+    {
+      "phrase": "güncel fiyat listesi",
+      "full": 0,
+      "editorial": 0,
+      "fullPer100Words": 0,
+      "editorialPer100Words": 0
+    }
+  ]
+}
