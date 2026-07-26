@@ -718,6 +718,22 @@ Commit: `52115e13 fix(seo): derive index dataset dates from history`
   sabiti kaldırıldı; ayrı endeks sayfası gerçek tarih aralığının kanonik kaynağı.
 - Veri yoksa schema tarih alanı uydurulmuyor.
 
+### 3.35 Canlı Hal Landing Kapsamı ve Breadcrumb Tutarlılığı
+
+Commit: `e3c1776b fix(content): remove stale live coverage claims`
+
+- `/canli-hal-fiyatlari` title ve hero içindeki sabit `22+` kapsam iddiası
+  kaldırıldı; aktif hal sayısı overview verisinden geliyor.
+- Ürün ve hal KPI'ları backend erişilemediğinde `250`/`22` uydurmak yerine nötr
+  `—` gösteriyor.
+- “Anlık” ve tarihten bağımsız “bugün” kesinliği azaltıldı; görünür son veri
+  tarihi korunuyor.
+- Elle yazılmış yalnız-schema breadcrumb yerine ortak `Breadcrumb` bileşeni
+  kullanıldı; görünür sayfa yolu ve BreadcrumbList aynı item kaynağından çıkıyor.
+- Web manifest içindeki sabit `22+` iddiası tarihsiz, nötr kapsam metnine
+  geçirildi.
+- Aynı sabit fallback'leri kullanan mobil ana sayfa KPI'ları da düzeltildi.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -1078,6 +1094,15 @@ Orhan'dan beklenen:
 - Buna rağmen Dataset ve katalog kaydı açık uçlu `2025/..` kullanıyordu.
 - Gerçek geçmiş penceresi schema tarih kaynağına dönüştürüldü.
 
+### F-27 — Canlı fiyat landing ve manifest eski kapsamı yayımlamaya devam ediyordu
+
+- Site-geneli taramada `/canli-hal-fiyatlari` metadata, H1 ve KPI'larında `22+`,
+  `250` ve `22` sabitleri bulundu.
+- Aynı fallback'ler mobil ana sayfada, `22+` ifadesi ise web manifest
+  açıklamasında da bulunuyordu.
+- Bu yüzeyler overview/gerçek koleksiyon sayıları veya nötr fallback kullanacak
+  şekilde hizalandı; taramada ilgili sabitlerin kalmadığı doğrulandı.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1156,6 +1181,7 @@ a55ddb1f fix(seo): remove repeated product terms from detail tables
 ce97793f fix(content): derive homepage FAQ coverage from live data
 ab0b923b fix(content): replace stale coverage and ETL schedule claims
 52115e13 fix(seo): derive index dataset dates from history
+e3c1776b fix(content): remove stale live coverage claims
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
