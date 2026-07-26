@@ -67,7 +67,7 @@ export default async function AnalizPage({ params }: Props) {
 
   return (
     <PageContainer className="space-y-10">
-      <JsonLd type="Dataset" data={itemListSchema} />
+      <JsonLd type="ItemList" data={itemListSchema} />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Analiz", href: "/analiz" },

@@ -14,6 +14,7 @@ import FirmCard from "@/components/firms/FirmCard";
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
 const YEAR = new Date().getFullYear();
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 const TYPE_SLUGS: Record<string, Firm["firmType"]> = {
   komisyoncu: "komisyoncu",
   "soguk-hava": "soguk_hava",
@@ -176,12 +177,12 @@ async function TypeHub({ slug }: { slug: keyof typeof TYPE_SLUGS }) {
 
   const schema = {
     name: meta.h1,
-    url: `/firmalar/${slug}`,
+    url: `${SITE_URL}/firmalar/${slug}`,
     numberOfItems: total,
     itemListElement: firmPage.items.slice(0, 20).map((firm, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: `/firma/${firm.slug}`,
+      url: `${SITE_URL}/firma/${firm.slug}`,
       name: firm.name,
     })),
   } satisfies Record<string, unknown>;
@@ -230,12 +231,12 @@ function CityHub({
 
   const schema = {
     name: `${cityName} Hal Komisyoncuları ve Firmaları`,
-    url: `/firmalar/${slug}`,
+    url: `${SITE_URL}/firmalar/${slug}`,
     numberOfItems: total,
     itemListElement: firmPage.items.slice(0, 20).map((firm, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: `/firma/${firm.slug}`,
+      url: `${SITE_URL}/firma/${firm.slug}`,
       name: firm.name,
     })),
   } satisfies Record<string, unknown>;

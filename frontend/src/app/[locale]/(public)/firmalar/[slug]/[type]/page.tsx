@@ -14,6 +14,7 @@ import FirmCard from "@/components/firms/FirmCard";
 type Props = { params: Promise<{ locale: string; slug: string; type: string }> };
 
 const YEAR = new Date().getFullYear();
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 const MIN_INDEXABLE_COMBO_TOTAL = 10;
 const TYPE_SLUGS: Record<string, Firm["firmType"]> = {
   komisyoncu: "komisyoncu",
@@ -110,12 +111,12 @@ function ComboHub({
 
   const schema = {
     name: title,
-    url: `/firmalar/${citySlug}/${typeSlug}`,
+    url: `${SITE_URL}/firmalar/${citySlug}/${typeSlug}`,
     numberOfItems: total,
     itemListElement: firmPage.items.slice(0, 20).map((firm, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: `/firma/${firm.slug}`,
+      url: `${SITE_URL}/firma/${firm.slug}`,
       name: firm.name,
     })),
   } satisfies Record<string, unknown>;
