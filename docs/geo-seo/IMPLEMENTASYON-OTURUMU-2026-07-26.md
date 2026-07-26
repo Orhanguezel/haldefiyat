@@ -264,6 +264,7 @@ Commitler:
 
 - `88bde326 feat(security): collect CSP violation reports`
 - `86be72df test(security): cover CSP report normalization`
+- `8cb88095 fix(security): cap CSP report request bodies`
 
 Değişiklikler:
 
@@ -273,6 +274,7 @@ Değişiklikler:
   - `application/reports+json`
 - Eski `csp-report` ve yeni Reporting API envelope formatları normalize ediliyor.
 - Tek istekte en fazla 20 rapor işleniyor.
+- İstek gövdesi route seviyesinde 64 KB ile sınırlı.
 - String alanları sınırlandırılıyor.
 - Payload ham biçimde loglanmıyor.
 - Yapılandırılmış log olayı: `event=csp_violation`.
@@ -295,6 +297,7 @@ Dosyalar:
 - [ ] `application/reports+json` örnek payload → 204.
 - [ ] PM2 logunda sanitize edilmiş `csp_violation` kaydı var.
 - [ ] Bozuk JSON backend'i düşürmüyor.
+- [ ] 64 KB üzeri gövde 413 dönüyor.
 - [ ] Rate-limit çalışıyor.
 
 ### 3.9 ETL Akış Sorunlarının Kaydı
@@ -308,14 +311,67 @@ Commit: `5961e1bf docs(etl): track stalled Kocaeli Mersin Canakkale feeds`
 - Çanakkale son başarılı: 26.05.2026.
 - Her kaynak için teşhis yönü ve kabul kriteri yazıldı.
 
+### 3.10 Dataset Zaman Kapsamı ve Görünür Veri Tazeliği
+
+Commitler:
+
+- `865ee9ff fix(seo): bound dataset temporal coverage to real dates`
+- `857d6e00 fix(seo): derive dataset freshness from database bounds`
+
+Değişiklikler:
+
+- Ürün ve hal Dataset `temporalCoverage` alanındaki yanlış
+  `en-yeni-tarih/..` gösterimi kaldırıldı.
+- Veri yokken uydurulan `2025/..` fallback'i ürün ve hal şablonlarından çıkarıldı.
+- Ortak `schemaDateRange` yardımcısı yalnız geçerli ISO tarihleri kabul ediyor ve
+  gerçek `en-eski/en-yeni` aralığını üretiyor.
+- `/prices/overview` cevabına DB `MIN(recorded_date)` üzerinden
+  `earliestRecordedDate` eklendi.
+- Ana sayfa, fiyatlar hub'ı ve canlı fiyat sayfası Dataset tarihleri gerçek DB
+  alt/üst sınırlarından besleniyor.
+- Fiyatlar ve canlı fiyat Dataset'lerine eksik `DataDownload`,
+  `measurementTechnique`, `license` ve `isAccessibleForFree` alanları tamamlandı.
+- Canlı fiyat sayfasındaki sunucu saatinden üretilen “Bugün güncellendi” ifadesi
+  kaldırıldı; görünür “Son veri” tarihi Dataset `dateModified` ile aynı kaynaktan
+  geliyor.
+
+Çapraz kontrol:
+
+- [ ] Ürün ve hal örneklerinde `temporalCoverage` en eski/en yeni gerçek satırla aynı.
+- [ ] Veri olmayan sayfada `temporalCoverage` ve `dateModified` uydurulmuyor.
+- [ ] Ana sayfa/fiyatlar/canlı fiyat schema tarihleri `/prices/overview` ile aynı.
+- [ ] Canlı fiyat görünür “Son veri” tarihi ile JSON-LD `dateModified` aynı.
+- [ ] DataDownload URL'leri 200 ve JSON döndürüyor.
+
+### 3.11 Hal Sitemap Tarihlerinin Düzeltilmesi
+
+Commit: `f46eeb93 fix(seo): omit misleading market sitemap dates`
+
+Değişiklikler:
+
+- Hal sitemap URL'lerinde fiyat güncellemesi sanılarak kullanılan
+  `hf_markets.updated_at` kaldırıldı.
+- Bu alan hal master kaydının düzenleme tarihidir; hal fiyat listesinin son veri
+  tarihi değildir.
+- Hal bazlı gerçek `MAX(recorded_date)` sitemap API'sine eklenene kadar `lastmod`
+  üretmemek, yanlış tarih üretmekten daha doğru kabul edildi.
+- Ana fiyat hub'larının `lastmod` değeri ürün endpoint'indeki gerçek
+  `MAX(recorded_date)` üzerinden gelmeye devam ediyor.
+
+Çapraz kontrol:
+
+- [ ] Hal URL'lerinde master kayıt tarihinden üretilmiş `lastmod` yok.
+- [ ] Ürün URL'lerinde `lastmod` gerçek son fiyat kaydıyla aynı.
+- [ ] Ana sayfa/fiyatlar/harita hub tarihleri gerçek ürün fiyat üst sınırıyla aynı.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
 
 - Frontend `bunx tsc --noEmit`: geçti.
 - Backend `bunx tsc --noEmit`: geçti.
-- Frontend `bun run test`: 2 dosya, 7 test geçti.
-- Backend `bun run test`: 2 dosya, 8 test geçti.
+- Frontend `bun run test`: 3 dosya, 10 test geçti.
+- Backend `bun run test`: 2 dosya, 9 test geçti.
 - Frontend `bun run build`: geçti; son durumda 63 route üretildi.
 - Backend `bun run build`: geçti.
 - `git diff --check`: değişiklik paketlerinde geçti.
@@ -481,6 +537,29 @@ Orhan'dan beklenen:
 - Mersin güncel hata: HTTP 403.
 - Bazı kaynaklarda ayrıca donmuş seri işaretleri var; bu çalışma kapsamına alınmadı.
 
+### F-06 — Dataset zaman aralığı ters ve açık uçlu yazılıyordu
+
+- Ürün ve hal sayfalarında `temporalCoverage`, en yeni kayıttan geleceğe doğru
+  açık aralık olarak üretiliyordu.
+- Bu gösterim geçmiş veri kapsamını ifade etmiyor ve veri setinin gelecekteki
+  tarihleri kapsadığı izlenimini veriyordu.
+- Ana hub sayfalarında ayrıca gerçek DB başlangıç tarihi yerine sabit `2025/..`
+  kullanılıyordu.
+
+### F-07 — Canlı fiyat sayfası veri tazeliğini sunucu saatinden üretiyordu
+
+- Sayfada “Bugün güncellendi” ve “Son veri” metinleri gerçek fiyat kaydından
+  bağımsız olarak her render'da güncel görünüyordu.
+- ETL kaynağı durmuş olsa bile kullanıcıya taze veri izlenimi verebilirdi.
+- Görünür tarih artık `/prices/overview` içindeki gerçek son kayıt tarihidir.
+
+### F-08 — Hal sitemap `lastmod` fiyat tarihi değildi
+
+- `/prices/markets` içindeki `updatedAt`, hal master kaydının düzenleme tarihidir.
+- Sitemap bunu hal sayfasındaki fiyat içeriğinin değişiklik tarihi gibi kullanıyordu.
+- Hal bazlı fiyat üst sınırı mevcut endpoint'te olmadığı için yanlış `lastmod`
+  kaldırıldı ve ayrı geliştirme gereksinimi olarak bırakıldı.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -521,6 +600,11 @@ c21c4a1e feat(seo): add article image variants and truthful report dates
 62e71ca5 feat(seo): align visible and structured breadcrumbs
 4808d02d docs(geo-seo): record implementation review ledger
 86be72df test(security): cover CSP report normalization
+27386209 docs(geo-seo): update CSP verification record
+865ee9ff fix(seo): bound dataset temporal coverage to real dates
+857d6e00 fix(seo): derive dataset freshness from database bounds
+f46eeb93 fix(seo): omit misleading market sitemap dates
+8cb88095 fix(security): cap CSP report request bodies
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
