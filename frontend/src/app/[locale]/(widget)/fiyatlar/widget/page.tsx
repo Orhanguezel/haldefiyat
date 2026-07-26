@@ -91,7 +91,7 @@ export default async function FiyatlarWidget({ searchParams }: Props) {
                 </h1>
               </div>
               <span style={{ flex: "0 0 auto", borderRadius: "999px", border: `1px solid ${border}`, padding: "5px 8px", fontSize: "10px", color: muted }}>
-                Canlı veri
+                Fiyat verisi
               </span>
             </div>
 
