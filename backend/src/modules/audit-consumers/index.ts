@@ -101,6 +101,8 @@ export async function registerAuditConsumersAdmin(adminApi: FastifyInstance) {
        FROM audit_request_logs FORCE INDEX (audit_request_logs_created_idx)
        WHERE path LIKE '/api/v1/prices%'
          AND created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+         AND ip NOT IN ('127.0.0.1', '::1')
+         AND COALESCE(is_internal, 0) = 0
        GROUP BY ip
        HAVING hits >= ?
        ORDER BY hits DESC
