@@ -644,7 +644,10 @@ Yapılanlar:
 
 ### 3.31 Düşük Anahtar Kelime Tutarlılığı ve Hal Tablosu Tekrarları
 
-Commit: `a0aae0bf fix(seo): remove repeated market terms from detail tables`
+Commitler:
+
+- `a0aae0bf fix(seo): remove repeated market terms from detail tables`
+- `a55ddb1f fix(seo): remove repeated product terms from detail tables`
 
 Kaynak:
 
@@ -666,6 +669,8 @@ Uygulama:
   “{Hal adı} fiyatları bugün ne durumda?”
 - Ortak `PriceTable` yalnız hal detayında yeni sütun gizleme prop'larını alıyor;
   ürün ve genel fiyat tablolarının şehirler arası karşılaştırma bağlamı korunuyor.
+- Ürün detayında da her hal satırında değişmeyen ürün sütunu gizlendi; hal ve
+  şehir sütunları fiyat karşılaştırması için görünür bırakıldı.
 - Master checklist'e keyword density/tutarlılık için ayrı teşhis ve kabul
   maddeleri eklendi.
 
@@ -1008,6 +1013,7 @@ Orhan'dan beklenen:
 ### F-24 — “Düşük yoğunluk” uyarısının kökü az içerik değil, tekrar dağılımıydı
 
 - Hal detay şablonu market ve şehir adını her ürün satırında yeniden yazıyordu.
+- Ürün detay şablonu da ürün adını her hal satırında yeniden yazıyordu.
 - Serik örneğinde 72 tekrar, aracın en yaygın iki/üç kelimeli ifade tablolarını
   tamamen aynı hal adına ayırmasına neden olmuş görünüyor.
 - Hedef ifade metadata, H1 ve editoryal içerikte zaten vardı; doğru müdahale
@@ -1087,6 +1093,7 @@ aff495ac fix(geo): bound analysis finding summaries
 b507c516 perf(lcp): defer Google tags until idle or interaction
 085c7681 perf(lcp): render homepage FAQ without hydration
 a0aae0bf fix(seo): remove repeated market terms from detail tables
+a55ddb1f fix(seo): remove repeated product terms from detail tables
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
