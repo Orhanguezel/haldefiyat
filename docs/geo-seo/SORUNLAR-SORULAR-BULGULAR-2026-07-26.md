@@ -64,6 +64,24 @@ altyapısal bulguları tutar.
   çalıştırılmalı. İlk aylık Anthropic karşılaştırma penceresi 27 Ağustos 2026'da
   dolar.
 
+### Branded search ve ikinci alan adı
+
+- GSC Search Analytics'te 27 Haziran–24 Temmuz 2026 arasındaki tam 28 veri
+  gününde 4.519 sorgu satırı tarandı. `haldefiyat`, `hal de fiyat` ve
+  `halde fiyat` varyantlarında yalnız `halde fiyat` görüldü: 4 tıklama,
+  5 gösterim, %80 CTR ve 3,2 ortalama konum. Branded search talebi düşük.
+- `haldefiyat.com.tr`, ana alan adıyla aynı `187.124.166.65` IP'sine ve aynı
+  Turhost nameserver'larına çözülüyor; canlı Nginx yapılandırmasında
+  `haldefiyat.com` ile aynı server block içinde. Bu alan adı dış kopya değil.
+- Buna rağmen `https://haldefiyat.com.tr/` 301 yerine 200 ve tam site içeriği
+  döndürüyor; arama sonuçlarında ana alan adından ayrı sonuç olarak göründü.
+  Canonical işareti tek başına duplicate host sinyalini tamamen ortadan
+  kaldırmaz. Alan adı kullanıcıya ait yönlendirme alias'ıysa `.com.tr` ve
+  `www` varyantları sorgu/path korunarak `https://haldefiyat.com` adresine 301
+  yönlendirilmelidir.
+- Bu host düzeltmesi backlink baseline maddesinin parçası sayılmadı; canlı
+  Nginx değişikliği öncesi sertifika ve redirect-loop kabulü ayrı yapılmalı.
+
 ### ETL veri akışı
 
 - Kocaeli, Mersin ve Çanakkale’de uzun süredir veri akışı olmadığı bildirildi.

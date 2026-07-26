@@ -3,9 +3,9 @@
 > Kaynak checklist:
 > `HALDEFIYAT-GEO-SEO-AKSIYON-CEKLISTI.md`
 >
-> Tarih: 2026-07-27 · Durum: **11 açık madde**
+> Tarih: 2026-07-27 · Durum: **9 açık madde**
 >
-> Bu dosya yalnız açık işleri içerir. Tamamlanmış 55 madde, kapanış kanıtlarıyla
+> Bu dosya yalnız açık işleri içerir. Tamamlanmış 57 madde, kapanış kanıtlarıyla
 > ana aksiyon checklist'inde korunur. Burada tamamlanan bir madde `[x]`
 > yapıldıktan sonra ana checklist'e taşınmalı ve iki dosyanın sayaçları birlikte
 > güncellenmelidir.
@@ -38,9 +38,6 @@ beklenmedik meşru gönderici bulunmuyor.
 ## P2 — Ölçüm ve KPI baseline
 
 - [ ] Backlink/referring-domain, unlinked mention ve branded search baseline'ı ile beş gerçek rakip gap analizi oluştur.
-- [ ] Schema-valid URL, indexable sitemap, CWV-good URL ve AI-referrer trafiği için operasyonel KPI'ları tanımla.
-- [ ] Her KPI için baseline, hedef, kaynak, owner ve kontrol sıklığı belirle; “GEO skoru”nu tek metrik olarak kullanma.
-
 ## Stratejik — Bu çeyrek
 
 - [ ] Marka otoritesi için veri kataloğu, tarım/ekonomi basın mention'ları ve ölçülebilir YouTube/Reddit planı oluştur; Wikipedia'yı KPI yapma.

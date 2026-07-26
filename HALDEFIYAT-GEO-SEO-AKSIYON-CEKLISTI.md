@@ -7,8 +7,8 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 55/66 checkbox — kapanış kanıtları bu dosyada korunur.
-- **Açık:** 11/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
+- **Tamamlanan:** 57/66 checkbox — kapanış kanıtları bu dosyada korunur.
+- **Açık:** 9/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
   kalan iş olarak ayrıldığı için toplam takip maddesi 66 oldu. Açıklar:
   `HALDEFIYAT-GEO-SEO-ACIK-ISLER.md`.
 - Bu dosyaya yeni açık iş eklenmez. Açık dosyada tamamlanan maddeler, kanıtıyla
@@ -158,6 +158,13 @@ ayrı açık işler dosyasına taşınmıştır.
   kanıtla arşivlendi. Anthropic web-search yüzeyinde marka geçişi %25,
   haldefiyat.com citation oranı %45; aylık tekrar komutu sabitlendi.
   (`docs/geo-seo/AI-GORUNURLUK-BASELINE-2026-07-27.md`)
+- [x] Schema-valid şablon, indexable sitemap, origin/URL-level CWV ve gerçek
+  dış AI-referrer landing KPI'ları kesin pay/payda ve dışlama kurallarıyla
+  tanımlandı. (`docs/geo-seo/OPERASYONEL-KPI-TANIMLARI-2026-07-27.md`)
+- [x] Her KPI için baseline, hedef, veri kaynağı, owner ve kontrol sıklığı
+  yazıldı; yetersiz URL-level CrUX verisi başarı sayılmadı ve tek “GEO skoru”
+  operasyon metriği olarak kullanılmadı.
+  (`docs/geo-seo/OPERASYONEL-KPI-TANIMLARI-2026-07-27.md`)
 
 ---
 

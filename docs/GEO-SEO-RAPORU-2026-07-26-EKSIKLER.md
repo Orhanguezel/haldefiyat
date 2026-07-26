@@ -252,15 +252,15 @@ değişiklikleri yapılmalıdır.
 
 ## 7. P2 — KPI ve izleme planı
 
-- [ ] “GEO skoru”nu tek başarı metriği yapma.
+- [x] “GEO skoru”nu tek başarı metriği yapma.
 - [ ] GSC generative AI raporu erişilebiliyorsa AI Overviews/AI Mode impression, page, device ve country baseline'ı al.
 - [ ] GSC Web arama: non-brand clicks, impressions, CTR ve average position'ı sayfa grubu bazında izle.
 - [ ] GA4: organic landing, engaged session, API signup, alarm kurma ve diğer dönüşümleri izle.
 - [ ] AI platformlarından gelen referrer trafiğini ayrı kanal grubunda izle.
 - [ ] Aylık sabit prompt benchmark'ında citation/link/brand mention oranı tut.
-- [ ] Schema valid URL oranı, indexable sitemap oranı ve CWV good URL oranını operasyonel KPI yap.
+- [x] Schema valid URL oranı, indexable sitemap oranı ve CWV good URL oranını operasyonel KPI yap.
 - [ ] Marka otoritesi için kaliteli referring domain, bağımsız mention ve branded query trendini izle.
-- [ ] Her KPI için baseline, hedef, veri kaynağı, owner ve kontrol sıklığı tanımla.
+- [x] Her KPI için baseline, hedef, veri kaynağı, owner ve kontrol sıklığı tanımla.
 - [ ] 30/60/90 gün sonunda yalnız skor değil, iş sonucu ve regresyon raporu yayınla.
 
 ---

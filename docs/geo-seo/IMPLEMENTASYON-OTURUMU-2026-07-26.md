@@ -1883,6 +1883,40 @@ Commit: `6775780a feat(trust): publish transparency policy content`
   aylık değişim karşılaştırması 27 Ağustos 2026 veya sonrasında yapılabilir.
 - Sayaçlar 55/66 tamamlanan ve 11/66 açık olarak güncellendi.
 
+### 3.69 Backlink/Marka Baseline'ı — İlk Veri Ayrıştırması
+
+- GSC'de 27 Haziran–24 Temmuz 2026 tam 28 veri günü ve 4.519 sorgu satırı
+  tarandı.
+- Markalı varyantlardan yalnız `halde fiyat` sorgusu bulundu: 4 tıklama,
+  5 gösterim, %80 CTR, 3,2 ortalama konum.
+- Canlı ortamda Ahrefs/Semrush/Moz/Majestic/DataForSEO benzeri backlink veri
+  sağlayıcısı erişimi bulunmadı. Referring-domain ve dofollow sayıları arama
+  sonucu tahminiyle doldurulmadı; birleşik checklist maddesi açık kaldı.
+- Organik sonuçlarda beş gerçek karşılaştırma adayı ayrıldı:
+  `tarimpiyasa.com`, `pazarmap.com`, `tarim-pazar.com`, `halfiyatlari.co` ve
+  `gidaveri.com`. Sayısal gap analizi backlink veri kaynağı olmadan kapanmadı.
+- Marka taramasında `haldefiyat.com.tr` ayrı sonuç olarak görüldü. DNS ve canlı
+  Nginx kontrolü bunun dış kopya değil, aynı sunucudaki alias olduğunu; ancak
+  ana sayfanın 301 yerine 200 döndüğünü gösterdi. Redirect konusu ayrı teknik
+  bulgu olarak sorunlar dosyasına kaydedildi.
+
+### 3.70 Operasyonel KPI Sözlüğü
+
+- Schema-valid temsilî şablon, indexable sitemap URL, origin/URL-level
+  CWV-good, AI-referrer landing, markalı organik talep ve AI citation
+  metrikleri kesin pay/payda ve dışlama kurallarıyla tanımlandı.
+- Baseline/hedef/kaynak/owner/sıklık tablosu
+  `docs/geo-seo/OPERASYONEL-KPI-TANIMLARI-2026-07-27.md` dosyasına yazıldı.
+- Canlı Nginx'in 6–26 Temmuz arasında sakladığı 21 günlük loglarda dış referrer
+  hostuna dayalı 28 AI landing görüldü: ChatGPT 18, Gemini 7, Copilot 2,
+  Claude 1.
+- AI bot user-agent'ları, iç self-referrer ve URL'de kalan UTM parametreleri
+  insan referral metriğine katılmadı.
+- URL-level CrUX alan verisi yetersiz olduğundan oran uydurulmadı; origin LCP
+  3.080 ms nedeniyle CWV-good kabul edilmedi.
+- “GEO skoru” operasyonel tek metrik olmaktan çıkarıldı. İki KPI checklist
+  maddesi kapandı; sayaçlar 57/66 tamamlanan ve 9/66 açık olarak güncellendi.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
