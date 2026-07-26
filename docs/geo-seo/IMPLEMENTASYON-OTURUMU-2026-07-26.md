@@ -768,6 +768,8 @@ Commit: `5a204511 fix(seo): show breadcrumbs on indexed templates`
   breadcrumb kaynağını kullanıyor.
 - Noindex veya sitemap dışı ilan/sosyal/yazar şablonları bu commitin kapsamına
   alınmadı; indekslenebilir şablon denetimiyle karıştırılmadı.
+- `8a44624e test(seo): verify breadcrumb content parity` ile görünür navigation
+  ve JSON-LD sırası/adları/URL'leri ortak test altında doğrulandı.
 
 ## 4. Doğrulama Kayıtları
 
@@ -775,7 +777,7 @@ Bu oturumda çalıştırılan kontroller:
 
 - Frontend `bunx tsc --noEmit`: geçti.
 - Backend `bunx tsc --noEmit`: geçti.
-- Frontend `bun run test`: 12 dosya, 33 test geçti.
+- Frontend `bun run test`: 13 dosya, 35 test geçti.
 - Backend `bun run test`: 2 dosya, 11 test geçti.
 - Frontend `bun run build`: geçti; son durumda 65 route üretildi.
 - Backend `bun run build`: geçti.
@@ -1239,6 +1241,7 @@ e3c1776b fix(content): remove stale live coverage claims
 ee8de6bd fix(seo): add comparison breadcrumb schema
 d241af55 fix(seo): align policy page breadcrumbs
 5a204511 fix(seo): show breadcrumbs on indexed templates
+8a44624e test(seo): verify breadcrumb content parity
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
