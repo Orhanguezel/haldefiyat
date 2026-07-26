@@ -383,13 +383,68 @@ Değişiklikler:
 - [ ] 48 saatten eski URL news sitemap'te bulunmuyor.
 - [ ] XML Google News sitemap doğrulamasından geçiyor.
 
+### 3.13 RUM Örnekleme Testleri
+
+Commit: `ad6f5be4 test(analytics): cover Web Vitals sampling rules`
+
+Değişiklikler:
+
+- Web Vitals örnekleme ve sentetik UA kontrolü tarayıcı bileşeninden ayrılarak
+  test edilebilir yardımcı fonksiyonlara taşındı.
+- Varsayılan `%10` oranı ve 0–1 sınırlandırması test edildi.
+- İlk örnekleme kararının session storage içinde sabit kalması test edildi.
+- Session storage kapalı/hatalı olduğunda rastgele fallback davranışı test edildi.
+- Lighthouse, Google Inspection Tool ve bot UA dışlamaları test edildi.
+
+Çapraz kontrol:
+
+- [ ] Üretim bundle'ında ayarlanmamış oran `%10`.
+- [ ] `0` oranında event yok; `1` oranında gerçek kullanıcı event'i var.
+- [ ] Aynı oturumda karar değişmiyor.
+- [ ] Lighthouse ve Google Inspection Tool event oluşturmuyor.
+
+### 3.14 Sitemap `lastmod` Tarih Sağlamlığı
+
+Commit: `fe7dbfa4 fix(seo): reject invalid and future sitemap dates`
+
+Değişiklikler:
+
+- Sitemap tarih doğrulaması ortak, testli yardımcıya taşındı.
+- Gelecek UTC takvim günleri reddediliyor.
+- JavaScript'in başka güne normalize ettiği `2026-02-31` gibi geçersiz takvim
+  tarihleri reddediliyor.
+- Bozuk tarihlerin en yeni tarih hesabını zehirlemesi engellendi.
+- Ürün, firma, analiz ve hub `lastmod` değerleri aynı doğrulayıcıdan geçiyor.
+
+### 3.15 Yıllık Rapor Görsel Varyantları
+
+Commit: `6a8e723c feat(seo): add annual report image variants`
+
+Değişiklikler:
+
+- Yeni endpoint: `/og/rapor/yillik/[year]`.
+- Desteklenen oranlar:
+  - `?ratio=1x1` → 1200×1200
+  - `?ratio=4x3` → 1200×900
+  - `?ratio=16x9` → 1200×675
+- Yıllık rapor JSON-LD `image` dizisi aynı üç kanonik URL'yi kullanıyor.
+- Open Graph metadata 16:9 yıllık rapor görselini kullanıyor.
+- Görsel üzerinde güncel tarih uydurulmuyor; yalnız rapor yılı gösteriliyor.
+
+Çapraz kontrol:
+
+- [ ] Üç URL 200 ve doğru piksel boyutunda.
+- [ ] Yıllık rapor JSON-LD üç görseli içeriyor.
+- [ ] `og:image` 16:9 yıllık rapor görseline gidiyor.
+- [ ] Rich Results Test Article görsellerini kabul ediyor.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
 
 - Frontend `bunx tsc --noEmit`: geçti.
 - Backend `bunx tsc --noEmit`: geçti.
-- Frontend `bun run test`: 4 dosya, 13 test geçti.
+- Frontend `bun run test`: 6 dosya, 20 test geçti.
 - Backend `bun run test`: 2 dosya, 9 test geçti.
 - Frontend `bun run build`: geçti; son durumda 63 route üretildi.
 - Backend `bun run build`: geçti.
@@ -471,6 +526,14 @@ başlığının tarayıcı uyumluluğu değerlendirilmelidir.
 - Kod `dataLayer` event'i üretiyor.
 - GTM container içinde `web_vitals` trigger/tag eşlemesi kontrol edilmedi.
 - Kodun varlığı, GA4 raporuna event düştüğünü tek başına kanıtlamaz.
+
+### S-09 — Yıllık rapor ve metodoloji gerçek yayın tarihi bilinmiyor
+
+- Yıllık raporda gerçek veri son tarihi `dateModified` olarak bulunuyor.
+- Raporun ilk yayın anını gösteren kalıcı `publishedAt` alanı backend modelinde yok.
+- Metodoloji sayfasında da gerçek yayın/değişiklik tarihi kaynağı yok.
+- Brief'in yasakladığı yapay tarih üretimi yapılmadı; gerçek CMS/DB tarihleri
+  sağlanana kadar `datePublished` eklenmedi.
 
 ## 6. Açık Sorular
 
@@ -585,6 +648,12 @@ Orhan'dan beklenen:
 - Gelecek bir yayın tarihi negatif fark ürettiği için koşulu geçiyordu.
 - Gelecek takvim günü ve geçersiz takvim tarihi kontrolleri eklendi.
 
+### F-10 — Yıllık rapor Article görsel seti eksikti
+
+- Analiz NewsArticle şablonu üç oran kullanırken yıllık rapor yalnız genel
+  `og-default.png` görselini kullanıyordu.
+- Yıllık rapora özel üç oranlı dinamik görsel endpoint'i eklendi.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -632,6 +701,10 @@ f46eeb93 fix(seo): omit misleading market sitemap dates
 8cb88095 fix(security): cap CSP report request bodies
 e1b65b4a docs(geo-seo): record data freshness corrections
 5822f519 fix(seo): reject future dates from news sitemap
+6e8d7965 docs(geo-seo): record sitemap date safeguards
+ad6f5be4 test(analytics): cover Web Vitals sampling rules
+fe7dbfa4 fix(seo): reject invalid and future sitemap dates
+6a8e723c feat(seo): add annual report image variants
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
