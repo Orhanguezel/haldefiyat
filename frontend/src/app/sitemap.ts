@@ -3,7 +3,7 @@ export const revalidate = 3600;
 import type { MetadataRoute } from "next";
 import { getProductImage } from "@/lib/product-images";
 import { getSonMakaleler } from "@/lib/analiz";
-import { fetchAutoWeeklyReports } from "@/lib/api";
+import { fetchAnnualReportYears, fetchAutoWeeklyReports } from "@/lib/api";
 import { latestSitemapDate, validSitemapDate } from "@/lib/sitemap-date";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033").replace(/\/$/, "");
@@ -251,7 +251,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Statik makaleler (lib/analiz) + DB'den gelen otomatik haftalik raporlar.
   // Haftalik raporlar sadece statik diziden uretildigi icin sitemap'e HIC girmiyordu —
   // haziran/temmuz raporlarinin tamami arama motorlarina sitemap uzerinden gorunmuyordu.
-  const autoReports = await fetchAutoWeeklyReports(200);
+  const [autoReports, annualReportYears] = await Promise.all([
+    fetchAutoWeeklyReports(200),
+    fetchAnnualReportYears(),
+  ]);
   const staticArticles = getSonMakaleler(100);
   const staticSlugs = new Set(staticArticles.map((m) => m.slug));
   const analysisLastModified = latestSitemapDate([
@@ -286,5 +289,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }),
   ];
 
-  return [...publicPages, ...productPages, ...marketPages, ...firmCityHubs, ...firmTypeHubs, ...firmComboHubs, ...firmPages, ...analizPages];
+  const annualReportPages: MetadataRoute.Sitemap = annualReportYears.map((reportYear) => {
+    const lastModified = validSitemapDate(reportYear.newestDate);
+    return {
+      url: `${SITE_URL}/rapor/yillik/${reportYear.year}`,
+      ...(lastModified && { lastModified }),
+      changeFrequency: "monthly" as const,
+      priority: 0.65,
+    };
+  });
+
+  return [...publicPages, ...productPages, ...marketPages, ...firmCityHubs, ...firmTypeHubs, ...firmComboHubs, ...firmPages, ...analizPages, ...annualReportPages];
 }

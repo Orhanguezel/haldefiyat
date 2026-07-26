@@ -795,6 +795,22 @@ export async function fetchAutoWeeklyReport(slug: string): Promise<AutoWeeklyRep
   );
 }
 
+export interface AnnualReportYear {
+  year: number;
+  totalRows: number;
+  oldestDate: string;
+  newestDate: string;
+}
+
+export async function fetchAnnualReportYears(): Promise<AnnualReportYear[]> {
+  const response = await safeFetch<{ items: AnnualReportYear[] }>(
+    "/reports/annual/years",
+    21_600,
+    { items: [] },
+  );
+  return response.items;
+}
+
 export async function fetchAuthor(slug: string): Promise<PublicAuthorDetail | null> {
   return safeFetchNoStore<PublicAuthorDetail | null>(
     `/authors/${encodeURIComponent(slug)}`,

@@ -60,6 +60,10 @@ const MONTH_NAMES = [
 
 export async function generateMetadata({ params }: Props) {
   const { locale, year } = await params;
+  const parsedYear = Number.parseInt(year, 10);
+  const report = Number.isInteger(parsedYear) && parsedYear >= 2020 && parsedYear < new Date().getFullYear()
+    ? await fetchReport(parsedYear)
+    : null;
   const image = `${SITE_URL}/og/rapor/yillik/${year}?ratio=16x9`;
   return getPageMetadata("annual_report", {
     locale,
@@ -73,6 +77,7 @@ export async function generateMetadata({ params }: Props) {
       url: `${SITE_URL}/rapor/yillik/${year}`,
       images: [{ url: image, width: 1200, height: 675 }],
     },
+    ...(!hasAnnualReport(report) && { robots: { index: false, follow: true } }),
   });
 }
 
@@ -87,6 +92,16 @@ async function fetchReport(year: number): Promise<AnnualReport | null> {
   } catch {
     return null;
   }
+}
+
+function hasAnnualReport(report: AnnualReport | null): report is AnnualReport {
+  return Boolean(
+    report &&
+    report.overview.year < new Date().getFullYear() &&
+    report.overview.totalRows > 0 &&
+    /^\d{4}-\d{2}-\d{2}$/.test(report.overview.oldestDate) &&
+    /^\d{4}-\d{2}-\d{2}$/.test(report.overview.newestDate),
+  );
 }
 
 function fmtPrice(n: number): string {
@@ -112,7 +127,7 @@ export default async function YearlyReportPage({ params }: Props) {
   }
 
   const report = await fetchReport(year);
-  if (!report) {
+  if (!hasAnnualReport(report)) {
     return (
       <PageContainer>
         <h1 className="text-2xl font-bold mb-4">{year} Yıllık Rapor</h1>

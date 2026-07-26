@@ -261,6 +261,36 @@ async function buildReport(year: number): Promise<AnnualReport> {
 }
 
 export async function registerAnnualReport(api: FastifyInstance) {
+  api.get("/reports/annual/years", async (_req, reply) => {
+    const rows = await db
+      .select({
+        year: sql<number>`YEAR(${hfPriceHistory.recordedDate})`,
+        totalRows: sql<number>`COUNT(*)`,
+        oldestDate: sql<string>`MIN(${hfPriceHistory.recordedDate})`,
+        newestDate: sql<string>`MAX(${hfPriceHistory.recordedDate})`,
+      })
+      .from(hfPriceHistory)
+      .groupBy(sql`YEAR(${hfPriceHistory.recordedDate})`)
+      .orderBy(desc(sql`YEAR(${hfPriceHistory.recordedDate})`));
+
+    reply.header("Cache-Control", "public, max-age=21600");
+    return reply.send({
+      items: rows
+        .map((row) => ({
+          year: Number(row.year),
+          totalRows: Number(row.totalRows),
+          oldestDate: String(row.oldestDate).slice(0, 10),
+          newestDate: String(row.newestDate).slice(0, 10),
+        }))
+        .filter((row) => (
+          Number.isInteger(row.year) &&
+          row.year >= 2020 &&
+          row.year < new Date().getFullYear() &&
+          row.totalRows > 0
+        )),
+    });
+  });
+
   api.get<{ Querystring: { year?: string } }>(
     "/reports/annual",
     async (req, reply) => {

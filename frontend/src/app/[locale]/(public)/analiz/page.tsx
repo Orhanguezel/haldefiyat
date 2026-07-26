@@ -4,7 +4,7 @@ import { getPageMetadata } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import { getSonMakaleler } from "@/lib/analiz";
-import { fetchAutoWeeklyReports } from "@/lib/api";
+import { fetchAnnualReportYears, fetchAutoWeeklyReports, fetchPricesOverview } from "@/lib/api";
 import PageContainer from "@/components/layout/PageContainer";
 
 export const dynamic = "force-dynamic";
@@ -36,8 +36,10 @@ export default async function AnalizPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [autoReports] = await Promise.all([
+  const [autoReports, annualReportYears, overview] = await Promise.all([
     fetchAutoWeeklyReports(8),
+    fetchAnnualReportYears(),
+    fetchPricesOverview(),
   ]);
   const staticMakaleler = getSonMakaleler(20);
   const seen = new Set<string>();
@@ -79,10 +81,32 @@ export default async function AnalizPage({ params }: Props) {
           Hal Fiyatı Analizleri
         </h1>
         <p className="text-lg text-muted leading-relaxed">
-          Türkiye'nin 28+ toptancı halinden derlenen verilere dayalı haftalık fiyat raporları,
+          {overview.activeMarkets
+            ? `Türkiye'deki ${overview.activeMarkets.toLocaleString("tr-TR")} aktif halden`
+            : "Türkiye genelindeki toptancı hallerinden"} derlenen verilere dayalı haftalık fiyat raporları,
           mevsimsel trend analizleri ve HaldeFiyat Endeksi yorumları.
         </p>
       </header>
+
+      {annualReportYears.length > 0 && (
+        <section aria-labelledby="annual-reports-heading">
+          <h2 id="annual-reports-heading" className="mb-4 font-display text-2xl font-bold text-foreground">
+            Yıllık Hal Fiyatı Raporları
+          </h2>
+          <ul className="flex flex-wrap gap-3" role="list">
+            {annualReportYears.map((reportYear) => (
+              <li key={reportYear.year}>
+                <Link
+                  href={`/rapor/yillik/${reportYear.year}`}
+                  className="inline-flex rounded-lg border border-(--color-border) bg-(--color-surface) px-4 py-2 text-sm font-semibold text-(--color-foreground) hover:border-(--color-brand)/40 hover:text-(--color-brand)"
+                >
+                  {reportYear.year} yıllık raporu
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
         {makaleler.map((m) => (
