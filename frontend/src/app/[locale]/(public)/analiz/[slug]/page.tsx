@@ -149,6 +149,7 @@ export default async function AnalizMakalePage({ params }: Props) {
   const weeklyReports = mergeUniqueArticles(autoReports, getHaftalikRaporlar(6)).filter((m) => m.slug !== slug).slice(0, 4);
   const readingTime = readingTimeMinutes(makale.icerik);
   const isWeekly = isHaftalikRapor(makale);
+  const isAutomatedReport = "totalRecords" in makale;
   const isHtml = isHtmlContent(makale.icerik);
   const authorProfile = makale.authorProfile;
   const authorName = authorProfile?.fullName ?? makale.yazar;
@@ -254,6 +255,11 @@ export default async function AnalizMakalePage({ params }: Props) {
               <span aria-hidden>·</span>
               <span>{readingTime} dk okuma</span>
             </div>
+            {isAutomatedReport && (
+              <p className="mt-4 rounded-[10px] border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-[12px] leading-5 text-(--color-muted)">
+                Bu rapor HalDeFiyat veri sistemi tarafından otomatik oluşturulmuş ve yayın öncesinde insan editoryal kontrolünden geçirilmiştir.
+              </p>
+            )}
           </header>
 
           <section className="mt-6 grid gap-3 sm:grid-cols-3">

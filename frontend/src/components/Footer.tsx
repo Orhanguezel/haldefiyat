@@ -44,6 +44,10 @@ const COLUMNS: ReadonlyArray<FooterColumn> = [
     links: [
       { label: "Hakkımızda", href: "/hakkimizda" },
       { label: "Metodoloji", href: "/metodoloji" },
+      { label: "Editoryal Politika", href: "/editoryal-politika" },
+      { label: "Düzeltme Politikası", href: "/duzeltme-politikasi" },
+      { label: "Veri Kaynağı Politikası", href: "/veri-kaynagi-politikasi" },
+      { label: "Sahiplik ve Finansman", href: "/sahiplik-finansman" },
       { label: "API Dokümantasyonu", href: "/api-docs" },
       { label: "İletişim", href: "/iletisim" },
     ],
