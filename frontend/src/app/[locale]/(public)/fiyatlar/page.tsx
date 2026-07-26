@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
-import { fetchPricesPage, fetchMarkets, fetchPricesOverview } from "@/lib/api";
+import { fetchPrices, fetchPricesPage, fetchMarkets, fetchPricesOverview } from "@/lib/api";
 import { getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
@@ -11,6 +11,7 @@ import ExportButton from "@/components/ui/ExportButton";
 import PriceListNewsletterStrip from "@/components/sections/PriceListNewsletterStrip";
 import BannerSlot from "@/components/ads/BannerSlot";
 import { schemaDateRange } from "@/lib/schema-dates";
+import AnswerBlock from "@/components/seo/AnswerBlock";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -74,7 +75,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
   const page = Math.max(1, Number(single(query?.page)) || 1);
   const limit = Math.min(250, Math.max(50, Number(single(query?.limit)) || 100));
 
-  const [pricePage, markets, overview] = await Promise.all([
+  const [pricePage, latestPrices, markets, overview] = await Promise.all([
     // Tüm geçmiş fiyat kayıtları sayfalanarak gezilir. Tek seferde tüm tabloyu
     // indirmek yerine API meta.total/meta.totalPages ile sayfa sayfa ilerleriz.
     fetchPricesPage({
@@ -87,6 +88,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
       city,
       q,
     }),
+    fetchPrices({ range: "30d", limit: 1000, latestOnly: true }),
     fetchMarkets(),
     fetchPricesOverview(),
   ]);
@@ -102,6 +104,25 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
   const popularCities = [...halMarkets]
     .sort((a, b) => rank(a.slug) - rank(b.slug) || a.slug.localeCompare(b.slug, "tr"))
     .slice(0, 16);
+  const latestDate = latestPrices.reduce(
+    (mostRecent, row) =>
+      row.recordedDate.slice(0, 10) > mostRecent
+        ? row.recordedDate.slice(0, 10)
+        : mostRecent,
+    "",
+  );
+  const currentRows = latestDate
+    ? latestPrices.filter((row) => row.recordedDate.slice(0, 10) === latestDate)
+    : [];
+  const currentProductCount = new Set(currentRows.map((row) => row.productSlug)).size;
+  const currentMarketCount = new Set(currentRows.map((row) => row.marketSlug)).size;
+  const latestDateTr = latestDate
+    ? new Date(`${latestDate}T12:00:00Z`).toLocaleDateString("tr-TR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : null;
 
   const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
   const datasetDates = schemaDateRange([
@@ -188,6 +209,47 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
         Her ürün için en düşük, ortalama ve en yüksek <strong className="text-foreground">toptan piyasa fiyatı</strong>; şehir, kategori ve tarih aralığına göre filtrelenebilir.
         Veriler her gün <strong className="text-foreground">TSİ 06:15</strong>&apos;te otomatik güncellenir.
       </p>
+      <div className="mb-8">
+        <AnswerBlock
+          id="turkiye-hal-fiyatlari-ozeti"
+          title="Türkiye hal fiyatları bugün ne durumda?"
+          meta={
+            latestDateTr ? (
+              <>
+                <strong className="text-foreground">Son veri tarihi:</strong>{" "}
+                <time dateTime={latestDate}>{latestDateTr}</time>
+                {" · "}Resmi hal ve ulusal fiyat kaynakları
+              </>
+            ) : "Son veri tarihi doğrulanamadı."
+          }
+        >
+          {latestDateTr && currentProductCount > 0 ? (
+            <>
+              <time dateTime={latestDate}>{latestDateTr}</time> tarihli son ulusal
+              veri kesitinde <strong className="text-foreground">{currentProductCount} ürün</strong>{" "}
+              ve <strong className="text-foreground">{currentMarketCount} hal/kaynak</strong>{" "}
+              yer alıyor. Ürün bazında kesin min–maks ve ortalama değerleri görmek için{" "}
+              <Link href="/urun/limon" className="font-medium text-brand hover:underline">
+                limon piyasası
+              </Link>
+              ,{" "}
+              <Link href="/urun/patates" className="font-medium text-brand hover:underline">
+                patates fiyatları
+              </Link>{" "}
+              veya aşağıdaki güncel tabloyu; şehir kapsamı için{" "}
+              <Link href="/hal/istanbul-hal-ibb" className="font-medium text-brand hover:underline">
+                İstanbul hal fiyatlarını
+              </Link>{" "}
+              inceleyin.
+            </>
+          ) : (
+            <>
+              Doğrulanmış son ulusal veri kesiti henüz alınamadı. Güncel kayıt
+              geldiğinde kesin tarih, ürün ve hal kapsamı burada yayımlanır.
+            </>
+          )}
+        </AnswerBlock>
+      </div>
       <PriceListNewsletterStrip />
       <BannerSlot position="prices_top" />
       <PriceTable
