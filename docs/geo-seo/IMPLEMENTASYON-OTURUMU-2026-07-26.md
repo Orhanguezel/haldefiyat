@@ -866,13 +866,27 @@ Commit: `2d497832 fix(schema): align list types and canonical urls`
 - Görünür analiz/firma listelerine ve navigasyona dokunulmadı; yalnız
   makine-okunur tür ve URL kimliği düzeltildi.
 
+### 3.44 JSON-LD Script Bağlamı Güvenliği
+
+Commit: `abf83083 fix(schema): safely serialize json-ld`
+
+- Ortak `JsonLd` emitter'ına HTML script bağlamına uygun serializer eklendi.
+  `<`, `>`, `&`, U+2028 ve U+2029 karakterleri JSON'un anlamını değiştirmeden
+  Unicode escape biçiminde yayımlanıyor.
+- Böylece ürün adı veya API/CMS metni `</script>` içerdiğinde JSON-LD script
+  etiketini erken kapatamıyor ve ardından HTML/JavaScript enjekte edemiyor.
+- Fiyatlar sayfasındaki elle yazılmış DataCatalog ve FAQPage ile ürün
+  sayfasındaki dinamik FAQPage scriptleri ortak güvenli emitter'a taşındı.
+- Kötücül script-kapanış girdisinin serialize edilmesi, JSON ile geri
+  okunabilmesi ve tek geçerli schema scripti üretilmesi iki testle kapsandı.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
 
 - Frontend `bunx tsc --noEmit`: geçti.
 - Backend `bunx tsc --noEmit`: geçti.
-- Frontend `bun run test`: 13 dosya, 36 test geçti.
+- Frontend `bun run test`: 14 dosya, 38 test geçti.
 - Backend `bun run test`: 2 dosya, 11 test geçti.
 - Frontend `bun run build`: geçti; son durumda 65 route üretildi.
 - Backend `bun run build`: geçti.
@@ -1316,6 +1330,17 @@ Orhan'dan beklenen:
 - Tür ve URL kimlikleri schema içeriğiyle hizalandı; canlı schema.org validator
   çıktısı analiz ve örnek firma hub URL'leri için arşivlenmelidir.
 
+### F-36 — JSON.stringify tek başına güvenli JSON-LD HTML üretmiyordu
+
+- React'in `dangerouslySetInnerHTML` alanına doğrudan `JSON.stringify` sonucu
+  veriliyordu. JSON geçerli olsa da dinamik bir değerdeki `</script>` dizisi
+  HTML ayrıştırıcısı tarafından script etiketi kapanışı olarak yorumlanabilirdi.
+- Risk ortak emitter'da merkezi olarak kapatıldı; elle yazılmış dinamik FAQ
+  scriptleri de bu güvenli yola alındı.
+- Canlı doğrulamada örnek ürün ve fiyatlar sayfası kaynak kodundaki JSON-LD
+  bloklarının Google Rich Results Test ve schema.org validator ile okunması
+  ayrıca arşivlenmelidir.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1407,6 +1432,7 @@ d241af55 fix(seo): align policy page breadcrumbs
 ccb21d00 fix(content): remove stale realtime data claims
 4556608c fix(schema): model product prices as dataset only
 2d497832 fix(schema): align list types and canonical urls
+abf83083 fix(schema): safely serialize json-ld
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
