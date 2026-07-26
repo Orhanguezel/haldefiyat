@@ -260,7 +260,10 @@ Dosyalar:
 
 ### 3.8 CSP İhlal Toplama
 
-Commit: `88bde326 feat(security): collect CSP violation reports`
+Commitler:
+
+- `88bde326 feat(security): collect CSP violation reports`
+- `86be72df test(security): cover CSP report normalization`
 
 Değişiklikler:
 
@@ -275,6 +278,8 @@ Değişiklikler:
 - Yapılandırılmış log olayı: `event=csp_violation`.
 - Endpoint rate-limit: 60 istek/dakika.
 - Başarılı cevap: 204.
+- Legacy ve Reporting API normalizasyonu, batch/string sınırları ve bilinmeyen
+  alanların loga taşınmaması otomatik testlerle kapsandı.
 - Enforce modu açılmadı.
 
 Dosyalar:
@@ -282,6 +287,7 @@ Dosyalar:
 - `backend/src/modules/csp-reports/index.ts`
 - `backend/src/routes/project.ts`
 - `backend/src/app.ts`
+- `backend/test/csp-reports.test.ts`
 
 Çapraz kontrol:
 
@@ -309,6 +315,7 @@ Bu oturumda çalıştırılan kontroller:
 - Frontend `bunx tsc --noEmit`: geçti.
 - Backend `bunx tsc --noEmit`: geçti.
 - Frontend `bun run test`: 2 dosya, 7 test geçti.
+- Backend `bun run test`: 2 dosya, 8 test geçti.
 - Frontend `bun run build`: geçti; son durumda 63 route üretildi.
 - Backend `bun run build`: geçti.
 - `git diff --check`: değişiklik paketlerinde geçti.
@@ -358,6 +365,8 @@ başlığının tarayıcı uyumluluğu değerlendirilmelidir.
 
 - Route/CMS/footer/sitemap iskeleti hazır.
 - Nihai editoryal, düzeltme, veri kaynağı ve sahiplik/finansman metinleri verilmedi.
+- İletişim sayfasında `iletisim@haldefiyat.com` kurumsal e-postası mevcut; brief'in
+  istediği “sorumlu kurum” bilgisi ise sahiplik girdisi olmadığı için eklenmedi.
 - CMS içeriği yoksa sayfa “yakında güncellenecektir” fallback'i gösterir.
 - İnce içerik olarak uzun süre canlı bırakılmamalıdır.
 
@@ -510,6 +519,8 @@ c21c4a1e feat(seo): add article image variants and truthful report dates
 88bde326 feat(security): collect CSP violation reports
 820c58d2 feat(trust): scaffold editorial transparency pages
 62e71ca5 feat(seo): align visible and structured breadcrumbs
+4808d02d docs(geo-seo): record implementation review ledger
+86be72df test(security): cover CSP report normalization
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
