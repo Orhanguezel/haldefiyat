@@ -854,6 +854,18 @@ Commit: `4556608c fix(schema): model product prices as dataset only`
 - Gerçek satın alınabilir Pro aboneliği ile gerçek kullanıcı ilanlarındaki
   `Product/Offer` schema'larına dokunulmadı.
 
+### 3.43 Liste Schema Türü ve URL Tutarlılığı
+
+Commit: `2d497832 fix(schema): align list types and canonical urls`
+
+- Analiz hub'ındaki `numberOfItems` ve `itemListElement` taşıyan nesne yanlışlıkla
+  `Dataset` olarak yayımlanıyordu; gerçek semantik türü olan `ItemList` yapıldı.
+- Firma şehir, tür ve şehir+tür ItemList schema'larındaki sayfa/firma URL'leri
+  relative path yerine `NEXT_PUBLIC_SITE_URL` tabanlı mutlak canonical URL'lere
+  geçirildi.
+- Görünür analiz/firma listelerine ve navigasyona dokunulmadı; yalnız
+  makine-okunur tür ve URL kimliği düzeltildi.
+
 ## 4. Doğrulama Kayıtları
 
 Bu oturumda çalıştırılan kontroller:
@@ -1295,6 +1307,15 @@ Orhan'dan beklenen:
   modelinde bırakıldı. Rich Results/GSC değişimi semantik düzeltmenin beklenen
   etkisi olarak ayrıca izlenmelidir.
 
+### F-35 — Analiz listesi Dataset etiketiyle yayımlanıyordu
+
+- Analiz hub schema nesnesinin adı `itemListSchema`, alanları da ItemList
+  alanlarıydı; çağrıda `JsonLd type="Dataset"` seçilmişti.
+- Firma ItemList öğeleri ise site genelindeki mutlak URL yaklaşımından farklı
+  olarak relative URL kullanıyordu.
+- Tür ve URL kimlikleri schema içeriğiyle hizalandı; canlı schema.org validator
+  çıktısı analiz ve örnek firma hub URL'leri için arşivlenmelidir.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
@@ -1385,6 +1406,7 @@ d241af55 fix(seo): align policy page breadcrumbs
 0d70eb33 fix(seo): include published authors in sitemap
 ccb21d00 fix(content): remove stale realtime data claims
 4556608c fix(schema): model product prices as dataset only
+2d497832 fix(schema): align list types and canonical urls
 ```
 
 ## 11. Canlıya Çıkış Öncesi Kontrol
