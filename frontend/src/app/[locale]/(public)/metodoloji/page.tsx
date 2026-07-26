@@ -6,6 +6,7 @@ import PageContainer from "@/components/layout/PageContainer";
 import { Database, Clock, ShieldCheck, RefreshCw, Globe2, FileText } from "lucide-react";
 
 type Props = { params: Promise<{ locale: string }> };
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
@@ -32,9 +33,13 @@ const articleSchema = {
   headline: "HalDeFiyat Veri Metodolojisi",
   description:
     "Türkiye hal fiyatı verilerinin nasıl toplandığı, doğrulandığı ve sunulduğuna dair kapsamlı açıklama.",
+  mainEntityOfPage: `${SITE_URL}/metodoloji`,
+  url: `${SITE_URL}/metodoloji`,
+  image: [`${SITE_URL}/og-default.png`],
   author: ORG_REF,
   publisher: ORG_REF,
   inLanguage: "tr-TR",
+  isAccessibleForFree: true,
   about: { "@type": "Thing", name: "Hal Fiyatları Veri Metodolojisi" },
 } satisfies Record<string, unknown>;
 
@@ -62,6 +67,9 @@ export default async function MetodolojiPage({ params }: Props) {
           HalDeFiyat, Türkiye'deki hal fiyatı verilerini nasıl topladığını, işlediğini ve
           sunduğunu tam şeffaflıkla paylaşır. Bu sayfa, verilerimizin güvenilirliğini
           ve sınırlılıklarını açıklamaktadır.
+        </p>
+        <p className="mt-4 text-sm text-muted">
+          Hazırlayan: <span className="font-semibold text-foreground">HalDeFiyat</span>
         </p>
       </header>
 
