@@ -42,6 +42,16 @@ altyapısal bulguları tutar.
   önceki ve sonraki 28 günlük sorgu, gösterim, tıklama, CTR ve ortalama konum
   karşılaştırılmalı.
 
+### GSC 28 gün yardımcısı ve PSI kotası
+
+- Ortak `getGscDateRange("LAST_28_DAYS")` başlangıcı bitişten 28 gün geri
+  alıyor; iki uç dahil GSC sorgusunda 29 takvim günü oluşuyor. Baseline doğrudan
+  kesin tarihlerle 28 gün alındı. Yardımcı fonksiyon, diğer projelere etkisi
+  değerlendirilerek ayrı kod düzeltmesi ister.
+- 27 Temmuz PSI tekrar sorgusu günlük Google proje kotasına takıldı. CrUX
+  origin baseline'ı 26 Temmuz kanıtından alındı; URL-level veri “yetersiz/
+  erişilemedi” bırakıldı ve Lighthouse lab sonucu alan verisi gibi kullanılmadı.
+
 ### ETL veri akışı
 
 - Kocaeli, Mersin ve Çanakkale’de uzun süredir veri akışı olmadığı bildirildi.

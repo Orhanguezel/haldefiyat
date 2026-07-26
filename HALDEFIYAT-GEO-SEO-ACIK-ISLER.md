@@ -3,9 +3,9 @@
 > Kaynak checklist:
 > `HALDEFIYAT-GEO-SEO-AKSIYON-CEKLISTI.md`
 >
-> Tarih: 2026-07-27 · Durum: **13 açık madde**
+> Tarih: 2026-07-27 · Durum: **12 açık madde**
 >
-> Bu dosya yalnız açık işleri içerir. Tamamlanmış 53 madde, kapanış kanıtlarıyla
+> Bu dosya yalnız açık işleri içerir. Tamamlanmış 54 madde, kapanış kanıtlarıyla
 > ana aksiyon checklist'inde korunur. Burada tamamlanan bir madde `[x]`
 > yapıldıktan sonra ana checklist'e taşınmalı ve iki dosyanın sayaçları birlikte
 > güncellenmelidir.
@@ -37,7 +37,6 @@ beklenmedik meşru gönderici bulunmuyor.
 
 ## P2 — Ölçüm ve KPI baseline
 
-- [ ] CrUX/GSC origin ve URL alan verisi için 28 günlük baseline oluştur.
 - [ ] 30–50 Türkçe hedef sorguyla AI sorgu benchmark'ı oluştur; platform, tarih, marka geçişi ve citation kaydını aylık tekrarla.
 - [ ] Backlink/referring-domain, unlinked mention ve branded search baseline'ı ile beş gerçek rakip gap analizi oluştur.
 - [ ] Schema-valid URL, indexable sitemap, CWV-good URL ve AI-referrer trafiği için operasyonel KPI'ları tanımla.

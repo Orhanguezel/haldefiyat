@@ -1848,6 +1848,21 @@ Commit: `6775780a feat(trust): publish transparency policy content`
 - Teknik yeniden tarama tamamlandı; 28 günlük GSC sorgu/CTR penceresi en erken
   24 Ağustos 2026'da dolacağı için birleşik madde açık bırakıldı.
 
+### 3.67 CrUX/GSC 28 Günlük Baseline
+
+- Canlı Google OAuth ile GSC Search Analytics API çalıştırıldı.
+- Ortak `LAST_28_DAYS` yardımcısının kapsayıcı uçlarla fiilen 29 gün ürettiği
+  görüldü; baseline doğrudan 27 Haziran–24 Temmuz tarihleriyle alındı.
+- 28/28 veri günü: 9.744 tıklama, 289.062 gösterim, %3,371 CTR ve 6,326
+  ortalama konum.
+- 26 Temmuz CrUX origin kanıtı ayrıştırıldı: LCP 3.080 ms, FCP 2.420 ms,
+  INP 170 ms, CLS 0.
+- URL-level alan verisi mevcut kanıtta yoktu; 27 Temmuz PSI tekrar isteği günlük
+  proje kotasına takıldı. URL hücreleri Lighthouse lab verisiyle doldurulmadı.
+- Kaynak, hedef, tekrar sıklığı ve ölçüm sınırı
+  `docs/geo-seo/CRUX-GSC-28-GUN-BASELINE-2026-07-27.md` dosyasına yazıldı.
+- Sayaçlar 54/66 tamamlanan ve 12/66 açık olarak güncellendi.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
