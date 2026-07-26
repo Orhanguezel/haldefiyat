@@ -14,6 +14,7 @@ import {
 } from "@/lib/analiz";
 import { fetchAutoWeeklyReport, fetchAutoWeeklyReports, type AutoWeeklyReport } from "@/lib/api";
 import { sanitizeCmsHtml } from "@/lib/sanitize-html";
+import { compactMetaDescription, compactMetaTitle } from "@/lib/meta-text";
 import PageContainer from "@/components/layout/PageContainer";
 import BannerSlot from "@/components/ads/BannerSlot";
 import AnswerBlock from "@/components/seo/AnswerBlock";
@@ -62,10 +63,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const cover = coverImageUrl(makale, slug);
   const coverAlt = makale.imageAlt || makale.baslik;
+  const searchTitle = compactMetaTitle(makale.metaTitle || `${makale.baslik} | HalDeFiyat Analiz`);
+  const searchDescription = compactMetaDescription(makale.metaDescription || makale.ozet);
 
   return {
-    title: makale.metaTitle || `${makale.baslik} | HalDeFiyat Analiz`,
-    description: makale.metaDescription || makale.ozet,
+    title: { absolute: searchTitle },
+    description: searchDescription,
     openGraph: {
       type: "article",
       title: makale.metaTitle || makale.baslik,

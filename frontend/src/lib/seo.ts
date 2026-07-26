@@ -2,6 +2,7 @@
 // SEO helper — backend'den sayfa SEO verisini çekip Next.js Metadata objesi oluşturur.
 
 import type { Metadata } from "next";
+import { compactMetaDescription, compactMetaTitle } from "@/lib/meta-text";
 import { appLocales, toLocalizedPath, type AppLocale } from "@/i18n/routing";
 import { getRequestLocale } from "@/i18n/get-request-locale";
 
@@ -150,6 +151,8 @@ export function buildMetadata(
 
   const title = seo?.title ? interpolate(seo.title, vars) : fallbackTitle;
   const description = seo?.description ? interpolate(seo.description, vars) : fallbackDescription;
+  const searchTitle = title ? compactMetaTitle(title) : undefined;
+  const searchDescription = description ? compactMetaDescription(description) : undefined;
   const keywords = seo?.keywords ? seo.keywords.split(",").map((k) => k.trim()).filter(Boolean) : undefined;
 
   const robots = seo?.robots?.noindex
@@ -187,8 +190,8 @@ export function buildMetadata(
 
   const meta: Metadata = {
     ...restOverrides,
-    ...(title && { title: { absolute: title } }),
-    ...(description && { description }),
+    ...(searchTitle && { title: { absolute: searchTitle } }),
+    ...(searchDescription && { description: searchDescription }),
     ...(keywords && { keywords }),
     ...(robots && { robots }),
     openGraph: {
