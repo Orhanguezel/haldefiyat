@@ -32,11 +32,15 @@ const COLUMNS: ReadonlyArray<FooterColumn> = [
     title: "PLATFORM",
     links: [
       { label: "Hal Fiyatları", href: "/fiyatlar" },
+      { label: "Canlı Hal Fiyatları", href: "/canli-hal-fiyatlari" },
+      { label: "Canlı Hayvan Fiyatları", href: "/canli-hayvan-fiyatlari" },
+      { label: "Et Fiyatları", href: "/et-fiyatlari" },
       { label: "Borsa / Resmi Fiyatlar", href: "/borsa" },
       { label: "İlanlar", href: "/ilanlar" },
       { label: "İlan Ver", href: "/ilan-ver" },
       { label: "Karşılaştır", href: "/karsilastirma" },
       { label: "Trend", href: "/fiyatlar?range=7d" },
+      { label: "Widget ve Embed", href: "/embed" },
     ],
   },
   {
@@ -49,6 +53,7 @@ const COLUMNS: ReadonlyArray<FooterColumn> = [
       { label: "Veri Kaynağı Politikası", href: "/veri-kaynagi-politikasi" },
       { label: "Sahiplik ve Finansman", href: "/sahiplik-finansman" },
       { label: "API Dokümantasyonu", href: "/api-docs" },
+      { label: "Basın Odası", href: "/basin" },
       { label: "İletişim", href: "/iletisim" },
     ],
   },

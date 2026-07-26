@@ -37,20 +37,21 @@ export default async function AnalizPage({ params }: Props) {
   setRequestLocale(locale);
 
   const [autoReports, annualReportYears, overview] = await Promise.all([
-    fetchAutoWeeklyReports(8),
+    fetchAutoWeeklyReports(200),
     fetchAnnualReportYears(),
     fetchPricesOverview(),
   ]);
   const staticMakaleler = getSonMakaleler(20);
   const seen = new Set<string>();
-  const makaleler = [...autoReports, ...staticMakaleler]
+  const allMakaleler = [...autoReports, ...staticMakaleler]
     .filter((m) => {
       if (seen.has(m.slug)) return false;
       seen.add(m.slug);
       return true;
     })
-    .sort((a, b) => b.tarih.localeCompare(a.tarih))
-    .slice(0, 20);
+    .sort((a, b) => b.tarih.localeCompare(a.tarih));
+  const makaleler = allMakaleler.slice(0, 20);
+  const archiveMakaleler = allMakaleler.slice(20);
 
   const itemListSchema = {
     name: "HalDeFiyat Analiz ve Raporlar",
@@ -139,6 +140,26 @@ export default async function AnalizPage({ params }: Props) {
           </li>
         ))}
       </ul>
+
+      {archiveMakaleler.length > 0 && (
+        <details className="rounded-xl border border-(--color-border) bg-(--color-surface) p-5">
+          <summary className="cursor-pointer font-display text-base font-semibold text-(--color-foreground)">
+            Eski analiz ve rapor arşivi
+          </summary>
+          <ul className="mt-4 grid gap-x-6 gap-y-2 sm:grid-cols-2" role="list">
+            {archiveMakaleler.map((makale) => (
+              <li key={makale.slug}>
+                <Link
+                  href={`/analiz/${makale.slug}`}
+                  className="text-sm text-(--color-muted) hover:text-(--color-brand) hover:underline"
+                >
+                  {makale.baslik}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
     </PageContainer>
   );
 }

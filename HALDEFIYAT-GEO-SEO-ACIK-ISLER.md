@@ -3,9 +3,9 @@
 > Kaynak checklist:
 > `HALDEFIYAT-GEO-SEO-AKSIYON-CEKLISTI.md`
 >
-> Tarih: 2026-07-26 · Durum: **20 açık madde**
+> Tarih: 2026-07-26 · Durum: **19 açık madde**
 >
-> Bu dosya yalnız açık işleri içerir. Tamamlanmış 46 madde, kapanış kanıtlarıyla
+> Bu dosya yalnız açık işleri içerir. Tamamlanmış 47 madde, kapanış kanıtlarıyla
 > ana aksiyon checklist'inde korunur. Burada tamamlanan bir madde `[x]`
 > yapıldıktan sonra ana checklist'e taşınmalı ve iki dosyanın sayaçları birlikte
 > güncellenmelidir.
@@ -36,7 +36,6 @@ beklenmedik meşru gönderici bulunmuyor.
 
 ## P2 — Teknik SEO ve canlı tarama
 
-- [ ] Sitemap URL'lerinin 200/redirect/404/noindex/canonical dağılımını tam canlı crawl ile arşivle.
 - [ ] GSC Page Indexing verisini keşfedildi-taranmadı, tarandı-indekslenmedi ve duplicate-canonical kırılımlarında incele.
 - [ ] Canlı crawl ile kalan orphan URL, link derinliği ve anchor dağılımını ölç.
 - [ ] 3xx/4xx/5xx iç linkleri ve redirect chain'leri tam crawl ile çıkar.

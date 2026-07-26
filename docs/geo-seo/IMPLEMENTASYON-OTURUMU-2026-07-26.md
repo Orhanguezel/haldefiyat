@@ -1673,6 +1673,39 @@ Kanıt:
 Ham kanıt:
 `artifacts/seo/live-crawl-safe-2026-07-26/report.json` ve `report.md`.
 
+### 3.59 Nihai Sitemap Crawl Kabulü
+
+- Düzeltmeler canlıya çıktıktan sonra 1 işçi ve 500 ms istek aralığıyla tüm
+  güncel sitemap tekrar tarandı.
+- 316/316 URL HTTP 200 döndü.
+- Redirect/4xx/5xx, noindex, canonical farkı, eksik title, eksik description,
+  H1 sayısı sorunu, JSON-LD parse hatası, duplicate title ve duplicate
+  description: **0**.
+- `roka-bag` ürününün anlamlı `(Bağ)` varyant niteleyicisi kısa
+  `displayName` tarafından silinmediği için önceki duplicate başlık da kapandı.
+- İç link grafiğinde azami derinlik 4, orphan adayı 50. Bu küme sitemap kabulünü
+  bozmaz; orphan/anchor dağılımı birleşik açık maddesinde ayrıca işlenecek.
+- Bu sonuçla sitemap HTTP/indexlenebilirlik/canonical dağılım maddesi kapandı;
+  tamamlanan/açık sayaçları 47/66 ve 19/66 olarak güncellendi.
+
+Kanıt:
+`artifacts/seo/live-crawl-final-2026-07-26/report.json` ve `report.md`.
+
+### 3.60 Orphan Kümesi İç Link Düzeltmesi
+
+- Nihai sitemap kabulündeki 50 orphan adayı ailelere ayrıldı: 42 firma şehir/
+  hizmet hub'ı, 3 eski analiz, 5 üst seviye public landing.
+- Firma dizini sitemap ile aynı `total >= 5`, aktif hizmet türü ve üç şehirde
+  en az 10 komisyoncu koşullarını kullanarak şehir/hizmet alt sayfalarına
+  gerçek HTML navigasyon linkleri yayımlıyor.
+- Analiz sayfası yalnız son sekiz otomatik raporu çekmek yerine arşiv
+  envanterini alıyor; ilk 20 karttan eski kayıtlar ayrı görünür arşiv
+  navigasyonunda bağlanıyor.
+- `canli-hal-fiyatlari`, `canli-hayvan-fiyatlari`, `et-fiyatlari`, `embed` ve
+  `basin` landing'leri ortak footer navigasyonuna eklendi.
+- Değişiklikler tasarım içinde `details`/link dizini kullanır; gizli SEO metni
+  veya anahtar kelime tekrarı eklemez.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.

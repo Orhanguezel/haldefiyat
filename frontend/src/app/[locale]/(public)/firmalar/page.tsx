@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
-import { fetchFirms, type Firm } from "@/lib/api";
+import { fetchFirmCities, fetchFirms, fetchFirmTypes, type Firm } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import FirmCard from "@/components/firms/FirmCard";
@@ -18,6 +18,13 @@ const FIRM_TYPES: Array<{ value: Firm["firmType"]; label: string }> = [
   { value: "nakliye", label: "Nakliye" },
   { value: "zirai_ilac", label: "Zirai İlaç" },
 ];
+
+const FIRM_TYPE_SLUGS: Partial<Record<Firm["firmType"], string>> = {
+  komisyoncu: "komisyoncu",
+  soguk_hava: "soguk-hava",
+  nakliye: "nakliye",
+  zirai_ilac: "zirai-ilac",
+};
 
 const CITY_OPTIONS: Array<{ slug: string; label: string }> = [
   { slug: "adana", label: "Adana" }, { slug: "adiyaman", label: "Adıyaman" },
@@ -102,8 +109,18 @@ export default async function FirmsPage({ params, searchParams }: Props) {
   const limit = view === "list" ? 60 : 48;
   const offset = (page - 1) * limit;
 
-  const firmPage = await fetchFirms({ q, city, district, type, limit, offset });
+  const [firmPage, firmCities, firmTypes] = await Promise.all([
+    fetchFirms({ q, city, district, type, limit, offset }),
+    fetchFirmCities(),
+    fetchFirmTypes(),
+  ]);
   const totalPages = Math.max(1, Math.ceil(firmPage.meta.total / limit));
+  const directoryCities = firmCities.filter((item) => item.citySlug && item.total >= 5);
+  const directoryTypes = firmTypes.filter((item) => item.total > 0 && FIRM_TYPE_SLUGS[item.firmType]);
+  const comboCities = firmCities.filter((item) =>
+    ["mersin", "antalya", "adana"].includes(item.citySlug)
+    && (item.byType?.komisyoncu ?? 0) >= 10,
+  );
 
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
@@ -164,6 +181,48 @@ export default async function FirmsPage({ params, searchParams }: Props) {
           Filtrele
         </button>
       </form>
+
+      <details className="mb-8 rounded-[8px] border border-(--color-border) bg-(--color-surface) p-4">
+        <summary className="cursor-pointer font-(family-name:--font-display) text-sm font-semibold text-(--color-foreground)">
+          Şehir ve hizmet türüne göre firma rehberi
+        </summary>
+        <nav aria-label="Firma rehberi alt sayfaları" className="mt-4 space-y-4">
+          <ul className="flex flex-wrap gap-2" role="list">
+            {directoryTypes.map((item) => (
+              <li key={item.firmType}>
+                <Link
+                  href={`/firmalar/${FIRM_TYPE_SLUGS[item.firmType]}`}
+                  className="inline-flex rounded-full border border-(--color-border) px-3 py-1 text-xs text-(--color-muted) hover:border-(--color-brand)/40 hover:text-(--color-brand)"
+                >
+                  {FIRM_TYPES.find((typeItem) => typeItem.value === item.firmType)?.label ?? item.firmType}
+                </Link>
+              </li>
+            ))}
+            {comboCities.map((item) => (
+              <li key={`${item.citySlug}-komisyoncu`}>
+                <Link
+                  href={`/firmalar/${item.citySlug}/komisyoncu`}
+                  className="inline-flex rounded-full border border-(--color-border) px-3 py-1 text-xs text-(--color-muted) hover:border-(--color-brand)/40 hover:text-(--color-brand)"
+                >
+                  {item.cityName} komisyoncuları
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <ul className="flex flex-wrap gap-x-3 gap-y-2" role="list">
+            {directoryCities.map((item) => (
+              <li key={item.citySlug}>
+                <Link
+                  href={`/firmalar/${item.citySlug}`}
+                  className="text-xs text-(--color-muted) hover:text-(--color-brand) hover:underline"
+                >
+                  {item.cityName} firmaları
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </details>
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="font-(family-name:--font-mono) text-[12px] text-(--color-muted)">
