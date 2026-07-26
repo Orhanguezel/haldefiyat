@@ -1705,6 +1705,17 @@ Kanıt:
   `basin` landing'leri ortak footer navigasyonuna eklendi.
 - Değişiklikler tasarım içinde `details`/link dizini kullanır; gizli SEO metni
   veya anahtar kelime tekrarı eklemez.
+- Canlı deploy sonrasında önceki rapordaki 50 orphan URL'nin tamamının ana
+  sayfa, firma dizini veya analiz arşivi SSR HTML'inde gerçek `href` hedefi
+  olduğu doğrulandı; eksik hedef 0.
+- Anchor kayıtlı son crawl 316/316 HTTP 200, orphan 0 ve azami link derinliği
+  3 sonucunu verdi. 22.738 anchor içinde 3.053 benzersiz metin bulundu; boş
+  anchor 0 ve “tıkla/detay/devam/daha fazla/incele/link” genel anchor 0.
+- Bu kanıtla birleşik orphan/link derinliği/anchor maddesi kapandı; sayaçlar
+  48/66 tamamlanan ve 18/66 açık olarak güncellendi.
+
+Kanıt:
+`artifacts/seo/live-crawl-anchor-2026-07-26/report.json` ve `report.md`.
 
 ## 8. Riskler
 

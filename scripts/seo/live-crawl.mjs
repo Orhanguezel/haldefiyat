@@ -115,6 +115,7 @@ async function inspectPage(url) {
     robots: null,
     hreflang: [],
     links: [],
+    anchors: [],
     jsonLdTypes: [],
     jsonLdErrors: [],
   };
@@ -129,7 +130,17 @@ async function inspectPage(url) {
     lang: $(node).attr("hreflang"),
     href: cleanUrl($(node).attr("href"), url),
   })).get();
-  result.links = [...new Set($("a[href]").map((_, node) => cleanUrl($(node).attr("href"), url)).get().filter(Boolean))];
+  result.anchors = $("a[href]").map((_, node) => {
+    const href = cleanUrl($(node).attr("href"), url);
+    if (!href) return null;
+    const text = textOrNull(
+      $(node).text()
+      || $(node).attr("aria-label")
+      || $(node).find("img[alt]").first().attr("alt"),
+    );
+    return { href, text };
+  }).get().filter(Boolean);
+  result.links = [...new Set(result.anchors.map((anchor) => anchor.href))];
   const jsonLd = inspectJsonLd($);
   result.jsonLdTypes = jsonLd.types;
   result.jsonLdErrors = jsonLd.errors;
@@ -167,6 +178,34 @@ function calculateDepth(pages) {
   return Object.fromEntries(depths);
 }
 
+function calculateAnchorDistribution(pages) {
+  const genericPattern = /^(buraya|tıkla|detay|devam|daha fazla|incele|link)$/i;
+  const values = new Map();
+  let total = 0;
+  let empty = 0;
+  let generic = 0;
+  for (const page of pages) {
+    for (const anchor of page.anchors ?? []) {
+      total++;
+      if (!anchor.text) {
+        empty++;
+        continue;
+      }
+      if (genericPattern.test(anchor.text)) generic++;
+      const key = anchor.text.toLocaleLowerCase("tr-TR");
+      const item = values.get(key) ?? { text: anchor.text, count: 0, targets: new Set() };
+      item.count++;
+      item.targets.add(anchor.href);
+      values.set(key, item);
+    }
+  }
+  const top = [...values.values()]
+    .map((item) => ({ text: item.text, count: item.count, uniqueTargets: item.targets.size }))
+    .sort((a, b) => b.count - a.count || a.text.localeCompare(b.text, "tr"))
+    .slice(0, 100);
+  return { total, empty, generic, uniqueTexts: values.size, top };
+}
+
 function markdown(report) {
   const s = report.summary;
   const lines = [
@@ -185,6 +224,7 @@ function markdown(report) {
     `- JSON-LD parse hatası olan URL: **${s.jsonLdErrorPages}**`,
     `- Sitemap içinde ana sayfadan ulaşılamayan URL: **${s.orphanCandidates}**`,
     `- En yüksek iç link derinliği: **${s.maxDepth}**`,
+    `- Anchor: **${s.anchorTotal}** toplam, **${s.anchorUniqueTexts}** benzersiz metin, **${s.emptyAnchors}** boş, **${s.genericAnchors}** genel`,
     "",
     "## Sorunlu URL'ler",
     "",
@@ -208,6 +248,10 @@ function markdown(report) {
   lines.push("", "## Duplicate title kümeleri", "");
   if (!report.duplicates.title.length) lines.push("- Yok.");
   for (const group of report.duplicates.title) lines.push(`- **${group.value}** — ${group.urls.join(", ")}`);
+  lines.push("", "## En yaygın anchor metinleri", "");
+  for (const item of report.anchorDistribution.top.slice(0, 30)) {
+    lines.push(`- **${item.text}** — ${item.count} kullanım, ${item.uniqueTargets} farklı hedef`);
+  }
   lines.push("", "## Orphan adayları", "");
   if (!report.orphanCandidates.length) lines.push("- Yok.");
   for (const url of report.orphanCandidates) lines.push(`- ${url}`);
@@ -221,6 +265,7 @@ const urls = [...new Set(await loadSitemap())];
 const pages = await pool(urls, inspectPage);
 const validPages = pages.filter((page) => !page.error);
 const depths = calculateDepth(validPages);
+const anchorDistribution = calculateAnchorDistribution(validPages);
 const orphanCandidates = urls.filter((url) => url !== `${origin}/` && depths[url] == null);
 const duplicates = {
   title: duplicateMap(validPages, "title"),
@@ -240,6 +285,10 @@ const summary = {
   duplicateDescriptionGroups: duplicates.description.length,
   orphanCandidates: orphanCandidates.length,
   maxDepth: Math.max(0, ...Object.values(depths)),
+  anchorTotal: anchorDistribution.total,
+  anchorUniqueTexts: anchorDistribution.uniqueTexts,
+  emptyAnchors: anchorDistribution.empty,
+  genericAnchors: anchorDistribution.generic,
 };
 const report = {
   generatedAt: new Date().toISOString(),
@@ -247,6 +296,7 @@ const report = {
   crawl: { concurrency, delayMs: crawlDelayMs, userAgent },
   summary,
   duplicates,
+  anchorDistribution,
   orphanCandidates,
   depths,
   pages,
