@@ -94,6 +94,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import WebVitals from "@/components/analytics/WebVitals";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -131,6 +132,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body suppressHydrationWarning>
         {analytics.gtmId && <GtmNoscript gtmId={analytics.gtmId} />}
+        <WebVitals />
         <ThemeProvider>
           <NextIntlClientProvider>
             <AuthSessionProvider>
