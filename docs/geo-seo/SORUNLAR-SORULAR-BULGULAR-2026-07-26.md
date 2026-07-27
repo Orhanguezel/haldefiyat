@@ -16,6 +16,11 @@ altyapısal bulguları tutar.
   signing domain exact aligned.
 - DNS Turhost tarafından yönetiliyor. Sunucuda DNS API anahtarı yok ve DMARC
   aggregate raporlarını alacak kontrollü posta kutusu belirlenmemiş.
+- **Yeni bulgu (27.07.2026):** alan adının MX kaydı `0 haldefiyat.com`
+  üzerinden web VPS'i `187.124.166.65` adresine gidiyor. VPS'te Postfix,
+  Exim veya Dovecot aktif değil; 25/465/587/993/995 portlarında dinleyen posta
+  servisi yok. Dolayısıyla mevcut MX fiilen gelen posta kabul etmiyor ve
+  `dmarc@haldefiyat.com` gibi bir adres oluşturulmuş kabul edilemez.
 - Karar gereken konu: `rua` için yönetilen adres/servis. Adres tanımlandıktan
   sonra `p=none` ile en az yedi gün rapor toplanmalı; meşru gönderen envanteri
   temizse sırasıyla `quarantine; pct=25`, `pct=100` ve gerekirse `reject`
@@ -134,6 +139,11 @@ altyapısal bulguları tutar.
   başarısız cronları açmak veri akışını düzeltmez. Ayrıntı ve yeniden açma
   kapıları:
   `docs/geo-seo/ETL-KAYNAK-KESINTISI-INCELEMESI-2026-07-27.md`.
+- **Proxy altyapı kontrolü (27.07.2026):** canlıda iki merkezi scraper ve
+  HalDeFiyat scraper container'ları çalışıyor, fakat hiçbir ilgili env
+  dosyasında `SCRAPE_PROXY_URL`, `PROXY_URL`, `FAIR_PROXY_URL` veya
+  `PLACES_PROXY_URL` tanımlı değil. Mevcut scraper'lar yine datacenter IP ile
+  çıkıyor; Mersin WAF ve Çanakkale çıkış yolu sorununu çözemez.
 
 ### Canlı sunucu bağımlılık çözümlemesi
 

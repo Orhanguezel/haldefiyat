@@ -26,6 +26,9 @@ Mevcut kanıt/engel:
 
 - DKIM gerçek test iletisiyle kapandı: selector `resend`, signing domain
   `haldefiyat.com`, doğrulama `pass`; görünür From ile exact alignment.
+- `haldefiyat.com` MX kaydı doğrudan web VPS IP'sine çözülüyor; VPS'te
+  SMTP/IMAP servisi ve açık 25/465/587 portu yok. Bu nedenle alan adı
+  üzerindeki varsayımsal `dmarc@`/`iletisim@` adresi `rua` hedefi yapılamaz.
 - DNS Turhost'ta; sunucuda DNS API erişimi ve doğrulanmış `rua` mailbox yok.
   Mailbox + DNS değişikliği sonrası en az 7 günlük `p=none` gözlemi zorunlu.
 

@@ -37,6 +37,12 @@ Hem `/hal-fiyatlari` hem `/hal-fiyatlari-day` yerel ve canlı ağdan HTTP 403
 veriyor. Aynı davranış farklı istemci yollarında görüldüğü için mevcut durum
 yalnız user-agent veya TLS fingerprint problemi olarak değerlendirilemez.
 
+27 Temmuz tekrar kontrolünde `www`, çıplak alan adı ve HTTP→HTTPS varyantları
+aynı 403 sonucuna ulaştı. Arama motoru dizininde sayfanın genel açıklamasının
+bulunması uygulama sunucusuna izinli otomasyon erişimi sağlamıyor. Canlıdaki
+scraper container'larında residential/genel proxy env'i tanımlı değil; tüm
+istemciler datacenter çıkışında kalıyor.
+
 Güvenli çözüm seçenekleri:
 
 1. Belediyeden API/otomasyon erişimi veya IP allowlist talep etmek.

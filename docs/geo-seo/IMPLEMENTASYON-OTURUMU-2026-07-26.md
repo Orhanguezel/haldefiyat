@@ -2130,6 +2130,20 @@ Commit: `6775780a feat(trust): publish transparency policy content`
 - Kanıt:
   `docs/geo-seo/BACKLINK-MENTION-KAMU-TARAMASI-2026-07-27.md`.
 
+### 3.83 DMARC Alıcı ve ETL Proxy Altyapısı Doğrulaması
+
+- DMARC `rua` için düşünülebilecek alan adı posta akışı canlıda kontrol edildi.
+- MX `0 haldefiyat.com` ile web VPS'ine gidiyor; VPS'te SMTP/IMAP daemon'ı
+  veya 25/465/587/993/995 listener'ı yok. Yönetilmeyen bir alan adı adresi
+  rapor hedefi olarak yazılmadı.
+- Turhost DNS erişimi ve doğrulanmış rapor mailbox/servisi bulunmadığı için
+  DMARC TXT kaydı değiştirilmedi; yedi günlük gözlem maddesi açık kaldı.
+- Mersin/Kocaeli/Çanakkale için canlı scraper altyapısı yeniden incelendi.
+  Container'lar çalışıyor ancak residential/genel scrape proxy değişkenleri
+  tanımlı değil; mevcut servisler datacenter IP engelini aşamıyor.
+- Mersin `www`, çıplak domain ve HTTP/HTTPS varyantları tekrar 403 verdi.
+  Kaynaklar veri doğruluğu kapıları geçmeden etkinleştirilmedi.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
