@@ -57,6 +57,36 @@ function titleFontSize(title: string): number {
   return 70;
 }
 
+type IndexPoint = { value: number; change: number | null };
+
+/** Raporun ISO haftasına denk gelen endeks değeri + bir önceki haftaya göre değişim.
+ *  Public /index/latest'ten okur; hafta formatı farklarını (2026-30 / 2026-W30) rakamla eşler. */
+async function fetchIndexForWeek(isoWeek?: string): Promise<IndexPoint | null> {
+  if (!isoWeek) return null;
+  const norm = (s: string) => s.replace(/[^0-9]/g, "");
+  const target = norm(isoWeek);
+  try {
+    const res = await fetch(`${API}/api/v1/index/latest`, { next: { revalidate: 3600 } });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const rows = (json?.data ?? json ?? []) as Array<{ indexWeek: string; indexValue: string; weekStart?: string }>;
+    if (!Array.isArray(rows) || rows.length === 0) return null;
+    const sorted = [...rows].sort((a, b) => norm(a.indexWeek).localeCompare(norm(b.indexWeek)));
+    const idx = sorted.findIndex((r) => norm(r.indexWeek) === target);
+    if (idx === -1) return null;
+    const value = Number(sorted[idx]!.indexValue);
+    const prev = idx > 0 ? Number(sorted[idx - 1]!.indexValue) : null;
+    const change = prev && prev > 0 ? ((value - prev) / prev) * 100 : null;
+    return { value, change };
+  } catch {
+    return null;
+  }
+}
+
+function fmtTr(n: number, digits = 1): string {
+  return n.toLocaleString("tr-TR", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+}
+
 export async function GET(req: Request, { params }: Props) {
   const { slug } = await params;
   const ratio = new URL(req.url).searchParams.get("ratio");
@@ -65,6 +95,7 @@ export async function GET(req: Request, { params }: Props) {
   const title: string = report?.baslik ?? "Haftalık Hal Raporu";
   const week: string = report?.hafta ? `Hafta ${report.hafta}` : "";
   const date = formatOgDate(report?.tarih);
+  const endeks = await fetchIndexForWeek(report?.hafta);
 
   return new ImageResponse(
     (
@@ -106,6 +137,30 @@ export async function GET(req: Request, { params }: Props) {
           <div style={{ fontSize: 26, color: "#9fb0c8", display: "flex", gap: 14 }}>
             {[date, week].filter(Boolean).join("  ·  ")}
           </div>
+          {endeks && (
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 22, marginTop: 20 }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <div style={{ fontSize: 22, color: BRAND, fontWeight: 700, letterSpacing: 2 }}>HALDEFİYAT ENDEKSİ</div>
+                <div style={{ fontSize: 104, fontWeight: 800, lineHeight: 1, color: "#fff" }}>{fmtTr(endeks.value)}</div>
+              </div>
+              {endeks.change != null && (
+                <div
+                  style={{
+                    display: "flex",
+                    padding: "8px 20px",
+                    borderRadius: 999,
+                    marginBottom: 16,
+                    background: endeks.change < 0 ? "rgba(29,158,117,0.20)" : "rgba(216,90,48,0.20)",
+                    color: endeks.change < 0 ? "#3ddc97" : "#ff8a5c",
+                    fontSize: 36,
+                    fontWeight: 800,
+                  }}
+                >
+                  {`${endeks.change < 0 ? "−" : "+"}%${fmtTr(Math.abs(endeks.change))}`}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div
