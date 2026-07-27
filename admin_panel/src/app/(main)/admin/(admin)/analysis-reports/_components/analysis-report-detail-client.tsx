@@ -193,6 +193,36 @@ export function AnalysisReportDetailClient({ id }: Props) {
   const [activeTab, setActiveTab] = useState('content');
   const initializedRef = useRef<string | null>(null);
   const importInputRef = useRef<HTMLInputElement | null>(null);
+  const contentRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // Zengin metin toolbar — seçimi semantik HTML ile sarar / blok ekler (woody blog editör modeli).
+  function surroundContent(before: string, after: string, placeholder: string) {
+    const ta = contentRef.current;
+    const value = editor.content;
+    const start = ta?.selectionStart ?? value.length;
+    const end = ta?.selectionEnd ?? value.length;
+    const selected = value.slice(start, end) || placeholder;
+    const next = value.slice(0, start) + before + selected + after + value.slice(end);
+    setEditor((prev) => ({ ...prev, content: next }));
+    requestAnimationFrame(() => {
+      const node = contentRef.current;
+      if (!node) return;
+      node.focus();
+      const pos = start + before.length;
+      node.setSelectionRange(pos, pos + selected.length);
+    });
+  }
+  function insertContentBlock(snippet: string) {
+    const ta = contentRef.current;
+    const value = editor.content;
+    const start = ta?.selectionStart ?? value.length;
+    const prefix = start > 0 && value[start - 1] !== '\n' ? '\n' : '';
+    const next = value.slice(0, start) + prefix + snippet + value.slice(start);
+    setEditor((prev) => ({ ...prev, content: next }));
+    requestAnimationFrame(() => contentRef.current?.focus());
+  }
+  const TABLE_SNIPPET =
+    '<div class="overflow-x"><table>\n<thead><tr><th>Ürün</th><th class="num">Geçen hafta</th><th class="num">Bu hafta</th><th class="num">Değişim</th><th class="num">Hal</th></tr></thead>\n<tbody>\n<tr><td>Ürün</td><td class="num">0,00 ₺</td><td class="num">0,00 ₺</td><td class="num down">−%0,0</td><td class="num">0</td></tr>\n</tbody>\n</table></div>\n';
 
   useEffect(() => {
     if (isNew) {
@@ -399,12 +429,32 @@ export function AnalysisReportDetailClient({ id }: Props) {
                     </Button>
                   </div>
                 </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {[
+                    { label: 'H2', run: () => surroundContent('<h2>', '</h2>', 'Ara başlık') },
+                    { label: 'H3', run: () => surroundContent('<h3>', '</h3>', 'Alt başlık') },
+                    { label: 'Paragraf', run: () => surroundContent('<p>', '</p>', 'Paragraf metni') },
+                    { label: 'Kalın', run: () => surroundContent('<strong>', '</strong>', 'kalın metin') },
+                    { label: 'Bağlantı', run: () => surroundContent('<a href="/">', '</a>', 'bağlantı metni') },
+                    { label: 'Liste', run: () => insertContentBlock('<ul>\n  <li>Madde</li>\n  <li>Madde</li>\n</ul>\n') },
+                    { label: 'Tablo', run: () => insertContentBlock(TABLE_SNIPPET) },
+                    { label: 'Not', run: () => surroundContent('<p class="note">', '</p>', 'Not metni') },
+                  ].map((tool) => (
+                    <Button key={tool.label} size="sm" variant="outline" type="button" className="h-8 px-2.5 text-[11px] font-semibold" onClick={tool.run}>
+                      {tool.label}
+                    </Button>
+                  ))}
+                </div>
                 <Textarea
+                  ref={contentRef}
                   id="analysis-content"
                   className="min-h-[520px] font-mono text-xs"
                   value={editor.content}
                   onChange={(event) => setEditor((prev) => ({ ...prev, content: event.target.value }))}
                 />
+                <p className="text-muted-foreground text-xs">
+                  Temiz semantik HTML kullanın (h2/p/strong/table); stil otomatik gelir — gömülü &lt;style&gt; gerekmez. Renk için tablo hücrelerine <code>class=&quot;down&quot;</code> (ucuzlama) / <code>class=&quot;up&quot;</code> (artış) ekleyin.
+                </p>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="analysis-tags">Etiketler</Label>
@@ -434,7 +484,7 @@ export function AnalysisReportDetailClient({ id }: Props) {
                   />
                 )}
                 {isHtmlContent(editor.content) ? (
-                  <div className="mt-5" dangerouslySetInnerHTML={{ __html: editor.content }} />
+                  <div className="report-prose mt-5" dangerouslySetInnerHTML={{ __html: editor.content }} />
                 ) : (
                   <div className="mt-5 space-y-4">{renderPlainPreview(editor.content)}</div>
                 )}

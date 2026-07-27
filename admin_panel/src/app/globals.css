@@ -249,3 +249,27 @@ html {
 .disable-transitions * {
   transition: none !important;
 }
+
+/* Analiz raporu zengin metin önizlemesi — public .report-prose'un admin karşılığı
+   (frontend tokenleri yerine admin shadcn tokenleri). Editör preview'i canlı sonuca yaklaşır. */
+.report-prose { color: var(--foreground); line-height: 1.75; }
+.report-prose > :first-child { margin-top: 0; }
+.report-prose h2 { font-size: 1.4rem; font-weight: 700; margin: 2rem 0 0.7rem; color: var(--foreground); }
+.report-prose h3 { font-size: 1.1rem; font-weight: 600; margin: 1.4rem 0 0.5rem; color: var(--foreground); }
+.report-prose p { margin: 0 0 1rem; }
+.report-prose strong { font-weight: 700; color: var(--foreground); }
+.report-prose a { color: var(--primary); text-decoration: underline; }
+.report-prose ul, .report-prose ol { margin: 0 0 1rem; padding-left: 1.5rem; }
+.report-prose ul { list-style: disc; } .report-prose ol { list-style: decimal; }
+.report-prose li { margin: 0.35rem 0; }
+.report-prose .kicker { font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: #16a34a; font-weight: 700; margin: 0.4rem 0 0.6rem; }
+.report-prose .dek { font-size: 1.08rem; color: var(--muted-foreground); margin: 0 0 1.4rem; }
+.report-prose .meta { display: flex; flex-wrap: wrap; gap: 18px; padding: 12px 0; margin: 0 0 1.5rem; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--muted-foreground); }
+.report-prose table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1.4rem; font-size: 0.85rem; }
+.report-prose th { text-align: left; padding: 8px 10px; border-bottom: 2px solid var(--border); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted-foreground); }
+.report-prose td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.report-prose td.num, .report-prose th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.report-prose .up { color: #dc2626; font-weight: 700; }
+.report-prose .down { color: #16a34a; font-weight: 700; }
+.report-prose .note { background: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 0.8rem; color: var(--muted-foreground); margin: 1.4rem 0; }
+.report-prose .overflow-x { overflow-x: auto; }
