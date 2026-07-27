@@ -6,24 +6,27 @@
 
 ---
 
-## 🔴 ETL VERİ AKIŞI KESİNTİLERİ — 2026-07-26
+## 🔴 ETL VERİ AKIŞI KESİNTİLERİ — 2026-07-26 → TEŞHİS EDİLDİ 2026-07-27
 
-Kaynak: VPS `backend/scripts/etl-health.sh 24` canlı çıktısı.
+**Sonuç: üçü de bugün ship edilebilir kod düzeltmesiyle çözülmüyor.** Farklı vantaj
+noktasından (Anthropic infra ≠ VPS datacenter IP) doğrulandı; kök neden ayrıştı:
 
-- [ ] **Kocaeli (`kocaeli_merkez`) — veri akışı durmuş.** Son başarılı ETL:
-      `2026-05-08`; son hata `2026-05-22`. Kaynak uzun süredir devre dışı/down kabul
-      edilmişti. Kaynak siteyi yeniden kontrol et; döndüyse `defaultEnabled` ve
-      `HF_SCRAPER_SOURCES` durumunu yeniden değerlendir, parser + canlı insert testi yap.
-- [ ] **Mersin (`mersin_resmi`) — HTTP 403.** Son başarılı ETL: `2026-05-19`;
-      `2026-07-26` koşusu `https://www.mersin.bel.tr/hal-fiyatlari-day?category=3`
-      adresinde 403 aldı. Tarayıcı/curl farkı, WAF/header/cookie gereksinimi ve güncel
-      endpoint incelenecek; gerekirse Scrapling kaynağına taşınacak.
-- [ ] **Çanakkale (`canakkale_resmi`) — veri akışı durmuş.** Son başarılı ETL:
-      `2026-05-26`; son hata `2026-06-06`. Kaynak Scrapling listesinde görünmesine rağmen
-      son 24 saat çalıştırma tablosunda yok. Source enable/config/cron seçimi ve son hata
-      ayrıntısı incelenecek, ardından manuel ETL + insert doğrulaması yapılacak.
-- [ ] **Kabul:** Her kaynak için manuel koşu `status=ok`, `rows_inserted>0`, fiyat tarihi
-      güncel ve takip eden üç planlı ETL koşusu başarılı.
+- [x] **Teşhis — Kocaeli (`kocaeli_merkez`) → ⚫ ÖLÜ KAYNAK.** Anthropic infra da
+      `ECONNREFUSED 195.142.243.21:443` aldı → belediye sunucusu gerçekten kapalı/443
+      reddediyor, bize-özel blok DEĞİL. **Proxy çözmez.** Belediye sunucusunu düzeltene
+      kadar `defaultEnabled:false` kalır. (config yorumu güncellendi)
+- [x] **Teşhis — Mersin (`mersin_resmi`) → 🔴 GLOBAL WAF.** Anthropic infra da 403 aldı
+      → IP değil, bot/WAF bloğu (her cloud'u reddediyor). **Tek yol: residential (TR
+      consumer) proxy.** (config yorumu güncellendi)
+- [x] **Teşhis — Çanakkale (`canakkale_resmi`) → 🔴 IP-DROP (site AYAKTA).** Anthropic
+      infra tabloyu çekebildi (07.07 tarihli, seyrek güncelleniyor) ama VPS IP'si sessizce
+      düşürülüyor (timeout). Ölü değil → **residential proxy ile geri açılır.** (config yorumu güncellendi)
+- [ ] **KARAR GEREKİR (Orhan) — Residential proxy.** Mersin + Çanakkale + daha önce
+      IP-bloklu Adana/Samsun aynı çözüme bağlı. TR residential proxy (~aylık ücret) alınırsa
+      scraper-service `stealthy` mode + `PROXY` env ile hepsi tek hamlede açılır. Alternatif:
+      bu 4 kaynağı kalıcı olarak bırak (coverage yeterliyse). **Karar verilene kadar bu blok bekler.**
+- [ ] **Kabul (proxy alınırsa):** Her kaynak için manuel koşu `status=ok`,
+      `rows_inserted>0`, fiyat tarihi güncel ve takip eden üç planlı ETL koşusu başarılı.
 
 ---
 

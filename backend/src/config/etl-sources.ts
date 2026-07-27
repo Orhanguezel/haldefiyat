@@ -156,6 +156,8 @@ const RAW_SOURCES: RawSource[] = [
     // 2026-07: mersin.bel.tr WAF/IP seviyesinde 403 blokluyor (datacenter IP).
     // Scrapling/scraper-service Chrome-impersonation ile de 403 — TLS-fingerprint degil,
     // hard blok. Kapatildi; residential proxy veya alternatif kaynak bulununca geri ac.
+    // 2026-07-27 dogrulama: Anthropic infra (farkli IP) da 403 aldi → GLOBAL WAF/bot
+    // blogu, bize-ozel degil. Tek cozum residential (TR consumer) proxy.
     defaultEnabled:    false,
     defaultMarketSlug: "mersin-hal",
     defaultBaseUrl:    "https://www.mersin.bel.tr",
@@ -261,6 +263,9 @@ const RAW_SOURCES: RawSource[] = [
     // 2026-05-13: Kocaeli Belediyesi sitesi sunucu sorunu (timeout VPS+lokal).
     // DNS resolve OK (195.142.243.21) ama hicbir URL yanit vermiyor. Cron her
     // seferinde 120s harcamasin diye disable. Site geri gelince true cevir.
+    // 2026-07-27 dogrulama: Anthropic infra da ECONNREFUSED 195.142.243.21:443
+    // aldi → sunucu GERCEKTEN kapali/443 reddediyor, bize-ozel blok DEGIL.
+    // Proxy cozmez; belediye sunucusunu duzeltene kadar bekle.
     defaultEnabled:    false,
     defaultMarketSlug: "kocaeli-hal-merkez",
     defaultBaseUrl:    "https://www.kocaeli.bel.tr",
@@ -357,6 +362,9 @@ const RAW_SOURCES: RawSource[] = [
   {
     // 2026-06-06: site DOWN/hanging — dynamic browser bile 130s'de cevap alamadi (timeout
     // artisi cozmez, sadece cron'u yavaslatir). Site geri gelince true yap. (kocaeli precedent)
+    // 2026-07-27 REVIZE: site ASLINDA AYAKTA. Anthropic infra (farkli IP) tabloyu cekti
+    // (07.07 tarihli, seyrek guncelleniyor). VPS datacenter IP'si sessizce DUSURULUYOR
+    // (silent drop = timeout). Kocaeli gibi olu DEGIL → residential proxy ile geri acilir.
     key:               "canakkale_resmi",
     defaultEnabled:    false,
     defaultMarketSlug: "canakkale-hal",
