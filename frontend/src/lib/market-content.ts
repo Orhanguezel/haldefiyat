@@ -2,6 +2,14 @@ interface MarketContent {
   description: string;
   coverage: string;
   specialties: string;
+  /** Doğrulanmış genel/resmi adres — yalnızca güvenilir kaynaktan. */
+  location?: string;
+  /** Yalnızca doğrulanmış resmi hal müdürlüğü telefonu. */
+  phone?: string;
+  /** Kuruluş yılı (biliniyorsa). */
+  founded?: string;
+  /** Satış/çalışma saatleri (biliniyorsa). */
+  hours?: string;
 }
 
 const MARKET_CONTENT: Record<string, MarketContent> = {
@@ -14,16 +22,20 @@ const MARKET_CONTENT: Record<string, MarketContent> = {
     description: "Ankara Toptancı Hali, İç Anadolu'nun en önemli tarımsal dağıtım noktasıdır. Başkentin yaklaşık 5,5 milyon kişilik nüfusu ile çevre illerin büyük bölümünü besleyen hal, günlük yüksek işlem hacmine sahiptir.",
     coverage: "Ankara ilinin tüm ilçeleri; Çankırı, Kırıkkale, Kırşehir ve çevre ilçeler.",
     specialties: "Orta Anadolu üretiminden gelen ürünler (patates, soğan, elma, armut) yoğun olarak işlem görür.",
+    location: "Gazi Mah., Hal Küme Evleri, Yenimahalle/Ankara",
   },
   "izmir-hal": {
     description: "İzmir Toptancı Hali, Ege bölgesinin en büyük ve en köklü hal müdürlüklerinden biridir. Türkiye'nin önemli ihracat limanlarına yakın konumu sayesinde iç tüketim fiyatlarını uluslararası piyasalarla ilişkilendirir.",
     coverage: "İzmir il merkezi ve ilçeleri; Manisa, Aydın ve Muğla'nın bir bölümü.",
     specialties: "Ege bölgesinin meşhur ürünleri: incir, üzüm, zeytin, kiraz ve sebze çeşitleri öne çıkar.",
+    location: "Sebze Halleri Şube Müdürlüğü, Kaynaklar, Buca/İzmir",
   },
   "antalya-hal-merkez": {
     description: "Antalya Toptancı Hali (Merkez), Türkiye'nin en büyük sera üretim bölgesinin kalbinde yer alır. Akdeniz ikliminin sağladığı üstünlükle kış döneminde Avrupa'ya ihraç edilen sebze ve meyvelerin önemli bir bölümü bu hal üzerinden geçer.",
     coverage: "Antalya il merkezi ve çevre ilçeler; Kemer, Serik, Manavgat.",
     specialties: "Domates, salatalık, biber, patlıcan ve çilek — özellikle kış döneminde (Kasım–Nisan) ihracat odaklı fiyat oluşumu.",
+    location: "Kepez, Yeni Hal Yolu No:101, Antalya",
+    phone: "0242 338 01 01",
   },
   "antalya-hal-serik": {
     description: "Antalya Serik Hali, Serik ilçesinin yoğun örtü altı tarım alanlarına hizmet eden bir hal müdürlüğüdür. Özellikle domates ve biber üretiminde öne çıkan ilçenin fiyat hareketleri bölgesel yansıma yaratır.",
@@ -49,6 +61,7 @@ const MARKET_CONTENT: Record<string, MarketContent> = {
     description: "Mersin Toptancı Hali, narenciye ihracatının en önemli çıkış noktalarından birinde yer alır. Limon, portakal ve mandalinada dünya pazarlarıyla entegre fiyat oluşumu söz konusudur.",
     coverage: "Mersin merkez ve ilçeleri; Tarsus, Silifke, Mut.",
     specialties: "Narenciye (limon, portakal, mandalina, greyfurt) ile kışlık sebzeler.",
+    location: "Hal Mahallesi, Akdeniz/Mersin",
   },
   "adana-hal": {
     description: "Adana Toptancı Hali, Çukurova ovasının verimli tarım alanlarının yanı başında yer alır. Pamuk, buğday ve sebze üretiminde Türkiye'nin ambarlarından biri konumundaki Çukurova'nın fiyat belirleyicisidir.",
@@ -64,6 +77,10 @@ const MARKET_CONTENT: Record<string, MarketContent> = {
     description: "Konya Toptancı Hali, Türkiye'nin en büyük il yüzölçümüne sahip olan Konya'nın tarımsal üretime aracılık eder. Buğday, arpa ve şeker pancarının yanı sıra sebze ve meyve de önemli hacimde işlem görür.",
     coverage: "Konya merkez ve ilçeleri; Karaman.",
     specialties: "Elma, havuç, soğan, patates; yerel üretim ağırlıklı.",
+    location: "Adnan Menderes Toptancı Hali, Musalla Bağları Mah., Hal 1 Sok. No:56, Selçuklu/Konya",
+    phone: "0332 205 50 44",
+    founded: "1977",
+    hours: "04:00 – 13:00",
   },
   "balikesir-hal": {
     description: "Balıkesir Toptancı Hali, Marmara ile Ege bölgesi arasında köprü kuran ve zeytin, domates, şeftali gibi ürünlerde zengin üretim potansiyeline sahip ilin fiyat referansıdır.",

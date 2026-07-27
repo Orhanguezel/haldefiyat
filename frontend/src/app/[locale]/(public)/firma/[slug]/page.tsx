@@ -12,7 +12,10 @@ import JsonLd from "@/components/seo/JsonLd";
 import FirmCard from "@/components/firms/FirmCard";
 import { FirmClaimButton } from "@/components/firms/FirmClaimButton";
 import FirmClaimPrompt from "@/components/firms/FirmClaimPrompt";
+import BannerSlot from "@/components/ads/BannerSlot";
 import FirmLeadForm from "@/components/firms/FirmLeadForm";
+import { TrackedAdLink } from "@/components/ads/AdConversionTracker";
+import { buildFirmDescription } from "@/lib/firm-description";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -176,11 +179,9 @@ export default async function FirmDetailPage({ params }: Props) {
             {firm.address && <Info label="Adres" value={firm.address} wide />}
           </dl>
 
-          {firm.description && (
-            <div className="mt-6 rounded-[8px] border border-(--color-border) bg-(--color-surface) p-4 text-sm leading-6 text-(--color-muted)">
-              {firm.description}
-            </div>
-          )}
+          <div className="mt-6 rounded-[8px] border border-(--color-border) bg-(--color-surface) p-4 text-sm leading-6 text-(--color-muted)">
+            {firm.description || buildFirmDescription(firm)}
+          </div>
 
           {(firm.ocrContacts ?? []).length > 0 && (
             <div className="mt-6 rounded-[8px] border border-(--color-border) bg-(--color-surface) p-4">
@@ -212,12 +213,28 @@ export default async function FirmDetailPage({ params }: Props) {
 
           <div className="mt-8 flex flex-wrap gap-3">
             {firm.phone && (
-              <a
+              <TrackedAdLink
+                eventType="phone_click"
+                entityType="firm"
+                entityId={firm.id}
                 href={`tel:${firm.phone.replace(/[^\d+]/g, "")}`}
                 className="rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-white"
               >
                 Telefonla ara
-              </a>
+              </TrackedAdLink>
+            )}
+            {firm.phone && (
+              <TrackedAdLink
+                eventType="whatsapp_click"
+                entityType="firm"
+                entityId={firm.id}
+                href={`https://wa.me/${firm.phone.replace(/\D/g, "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-[6px] border border-(--color-brand)/40 px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand)"
+              >
+                WhatsApp
+              </TrackedAdLink>
             )}
             <Link
               href={firm.citySlug ? `/firmalar/${firm.citySlug}` : "/firmalar"}
@@ -226,14 +243,17 @@ export default async function FirmDetailPage({ params }: Props) {
               Şehirdeki firmalar
             </Link>
             {mapUrl && (
-              <a
+              <TrackedAdLink
+                eventType="directions_click"
+                entityType="firm"
+                entityId={firm.id}
                 href={mapUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-[6px] border border-(--color-border) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-foreground)"
               >
                 Haritada aç
-              </a>
+              </TrackedAdLink>
             )}
             <FirmClaimButton firmId={firm.id} claimStatus={firm.claimStatus} />
           </div>
@@ -324,7 +344,9 @@ export default async function FirmDetailPage({ params }: Props) {
 
           <FirmLeadForm firmSlug={firm.slug} />
         </div>
-        <aside className="rounded-[8px] border border-dashed border-(--color-border) bg-(--color-bg-alt) p-5">
+        <aside>
+          <BannerSlot position="firm_detail_sidebar" context={{ firm: firm.id, city: firm.citySlug }} />
+          <div className="rounded-[8px] border border-dashed border-(--color-border) bg-(--color-bg-alt) p-5">
           <div className="font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.1em] text-(--color-brand)">
             Reklam Alanı
           </div>
@@ -337,6 +359,7 @@ export default async function FirmDetailPage({ params }: Props) {
           <Link href="/iletisim?subject=Firma%20Rehberi%20Sponsorluk" className="mt-4 inline-flex rounded-[6px] border border-(--color-border) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-foreground)">
             Sponsorluk talebi
           </Link>
+          </div>
         </aside>
       </section>
 
@@ -357,6 +380,7 @@ export default async function FirmDetailPage({ params }: Props) {
           </div>
         </section>
       )}
+      <BannerSlot position="firm_detail_footer" className="mt-12" context={{ firm: firm.id, city: firm.citySlug }} />
     </main>
   );
 }

@@ -18,6 +18,7 @@ import FirmCard from "@/components/firms/FirmCard";
 import { ListingCard } from "@/components/listings/ListingCard";
 import AnswerBlock from "@/components/seo/AnswerBlock";
 import { calculateProductMovers } from "@/lib/citability";
+import BannerSlot from "@/components/ads/BannerSlot";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -152,12 +153,24 @@ export default async function HalPage({ params }: Props) {
     ? { items: [] }
     : await fetchListings({ city: citySlug(market.cityName), limit: 6 });
 
+  const editorial = getMarketEditorial({
+    slug,
+    name: market.name,
+    cityName: market.cityName,
+    regionSlug: market.regionSlug,
+  });
+  const mapQuery = `${market.name} ${market.cityName}`.trim();
+  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
+
   const placeSchema = {
     name: market.name,
     description: `${market.name} — ${market.cityName} güncel hal ve toptancı pazar fiyatları.`,
     url: `${SITE_URL}/hal/${slug}`,
+    ...(editorial.phone ? { telephone: editorial.phone } : {}),
+    hasMap: mapUrl,
     address: {
       "@type": "PostalAddress",
+      ...(editorial.location ? { streetAddress: editorial.location } : {}),
       addressLocality: market.cityName,
       addressCountry: "TR",
     },
@@ -392,26 +405,64 @@ export default async function HalPage({ params }: Props) {
         </section>
       )}
 
+      {/* Hal künyesi — doğrulanmış konum/telefon/kuruluş + harita (benzersiz yerel içerik) */}
+      {(editorial.location || editorial.phone || editorial.founded || editorial.hours) && (
+        <section className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5">
+          <h2 className="text-base font-semibold text-foreground">{market.name} — Künye ve İletişim</h2>
+          <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+            {editorial.location && (
+              <div className="sm:col-span-2">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Konum</dt>
+                <dd className="mt-1 text-sm text-foreground">{editorial.location}</dd>
+              </div>
+            )}
+            {editorial.phone && (
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Telefon</dt>
+                <dd className="mt-1 text-sm">
+                  <a href={`tel:${editorial.phone.replace(/[^\d+]/g, "")}`} className="font-semibold text-brand hover:underline">{editorial.phone}</a>
+                </dd>
+              </div>
+            )}
+            {editorial.founded && (
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Kuruluş</dt>
+                <dd className="mt-1 text-sm text-foreground">{editorial.founded}</dd>
+              </div>
+            )}
+            {editorial.hours && (
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Satış Saatleri</dt>
+                <dd className="mt-1 text-sm text-foreground">{editorial.hours}</dd>
+              </div>
+            )}
+          </dl>
+          <a href={mapUrl} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex rounded-md border border-border px-4 py-2 text-xs font-semibold text-foreground hover:border-brand">
+            Haritada aç
+          </a>
+        </section>
+      )}
+
       {/* Editoryal içerik — AI alıntılanabilirlik + E-E-A-T */}
-      {(() => {
-        const editorial = getMarketEditorial({ slug, name: market.name, cityName: market.cityName, regionSlug: market.regionSlug });
-        return (
-          <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-3">
-            <h2 className="text-base font-semibold text-foreground">{market.name} Hakkında</h2>
-            <p>{editorial.description}</p>
-            <p><strong className="text-foreground">Kapsama alanı:</strong> {editorial.coverage}</p>
-            <p><strong className="text-foreground">Öne çıkan ürünler:</strong> {editorial.specialties}</p>
-            <p>
-              Veriler, belediye hal müdürlüğünün resmi sistemi ve{" "}
-              <a href="https://hal.gov.tr" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">hal.gov.tr</a>{" "}
-              üzerinden kaynağın resmi yayın takvimine göre otomatik çekilmektedir.
-              Diğer illerle kıyaslamak için{" "}
-              <a href="/karsilastirma" className="text-brand hover:underline">fiyat karşılaştırma</a>{" "}
-              aracını kullanabilirsiniz.
-            </p>
-          </div>
-        );
-      })()}
+      <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-3">
+        <h2 className="text-base font-semibold text-foreground">{market.name} Hakkında</h2>
+        <p>{editorial.description}</p>
+        <p><strong className="text-foreground">Kapsama alanı:</strong> {editorial.coverage}</p>
+        <p><strong className="text-foreground">Öne çıkan ürünler:</strong> {editorial.specialties}</p>
+        <p>
+          Veriler, belediye hal müdürlüğünün resmi sistemi ve{" "}
+          <a href="https://hal.gov.tr" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">hal.gov.tr</a>{" "}
+          üzerinden kaynağın resmi yayın takvimine göre otomatik çekilmektedir.
+          Diğer illerle kıyaslamak için{" "}
+          <a href="/karsilastirma" className="text-brand hover:underline">fiyat karşılaştırma</a>{" "}
+          aracını kullanabilirsiniz.
+        </p>
+      </div>
+      <BannerSlot
+        position="hal_sidebar"
+        className="mt-8"
+        context={{ market: market.slug, city: citySlug(market.cityName) }}
+      />
     </main>
   );
 }
