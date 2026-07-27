@@ -101,7 +101,11 @@ export default function SearchConsolePage() {
                 </Button></div>
               {inspectRes ? <div className="flex flex-wrap gap-2"><Badge variant={inspectRes.verdict === 'PASS' ? 'default' : 'secondary'}>{adsLabel(GSC_VERDICT_LABELS, inspectRes.verdict)}</Badge>
                 <Badge variant="outline">{t('inspect.coverage')}: {inspectRes.coverage || '-'}</Badge>
-                <Badge variant="outline">{t('inspect.lastCrawl')}: {inspectRes.last_crawl ? new Date(inspectRes.last_crawl).toLocaleDateString('tr-TR') : '-'}</Badge></div> : null}
+                <Badge variant="outline">{t('inspect.lastCrawl')}: {inspectRes.last_crawl ? new Date(inspectRes.last_crawl).toLocaleDateString('tr-TR') : '-'}</Badge>
+                <Badge variant={inspectRes.rich_results_verdict === 'PASS' ? 'default' : 'secondary'}>
+                  {t('inspect.richResults')}: {inspectRes.rich_results_verdict || t('inspect.notDetected')}
+                </Badge>
+                {inspectRes.rich_result_types.map((type) => <Badge key={type} variant="outline">{type}</Badge>)}</div> : null}
               <p className="text-muted-foreground text-xs">{t('inspect.requestIndexNote')}</p>
             </CardContent></Card>
         </TabsContent>

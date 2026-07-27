@@ -68,6 +68,8 @@
     "failed": "İnceleme başarısız",
     "coverage": "Kapsam",
     "lastCrawl": "Son tarama",
+    "richResults": "Zengin sonuç",
+    "notDetected": "Algılanmadı",
     "requestIndex": "GSC'de İndekslenmeyi İste",
     "requestIndexNote": "Not: Google indexleme isteğini API'den vermiyor. Bu buton URL'yi doğrudan Search Console'un URL Denetimi ekranında açar; oradaki \"İndekslenmeyi İste\" butonuna basman yeterli."
   },

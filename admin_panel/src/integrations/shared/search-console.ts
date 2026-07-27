@@ -37,7 +37,15 @@ export type GscAnalyticsResp = {
 };
 export type GscPageQueriesResp = { site: string; page: string; items: GscRow[] };
 export type GscSitemapsResp = { site: string; items: GscSitemap[] };
-export type GscInspectResp = { verdict: string; coverage: string; indexing: string; last_crawl: string; robots: string };
+export type GscInspectResp = {
+  verdict: string;
+  coverage: string;
+  indexing: string;
+  last_crawl: string;
+  robots: string;
+  rich_results_verdict: string;
+  rich_result_types: string[];
+};
 export type GscInspectArgs = { url: string; site_url?: string };
 export type GscQueryArgs = { range?: GscRange; type?: GscSearchType; site_url?: string };
 export type GscSitemapMutationArgs = { feedpath: string; site_url?: string };
