@@ -1546,10 +1546,17 @@ function parseKahramanmarasHtml(html: string): NormalizedRow[] {
  * Kolonlar ürün satırlarında: MALZEMENİN ADI | BİRİM | ASGARİ SATIŞ FİYATI | AZAMİ SATIŞ FİYATI.
  * Fiyat formatı "55,00TL". Kategori (SEBZE/MEYVE) başlık satırından belirlenir.
  */
-function parseCanakkaleHtml(html: string): NormalizedRow[] {
+export function parseCanakkaleHtml(html: string): NormalizedRow[] {
   const out: NormalizedRow[] = [];
   const tables = extractTables(html);
   if (tables.length === 0) return out;
+  // URL statik ve sayfa belediye tarafından düzensiz güncelleniyor. İstek
+  // tarihini kullanmak eski bir tabloyu bugünün fiyatı gibi yazardı.
+  const pageDate = parseTrDate(
+    html.match(/TOPTANCI\s+HALİ[\s\S]{0,500}?(\d{2}\.\d{2}\.\d{4})/i)?.[1]
+      ?? html.match(/\b(\d{2}\.\d{2}\.\d{4})\b/)?.[1]
+      ?? "",
+  );
   let currentCategory: string | null = null;
   for (const row of tables[0]!) {
     if (row.length < 2) continue;
@@ -1573,6 +1580,7 @@ function parseCanakkaleHtml(html: string): NormalizedRow[] {
       avg,
       min,
       max,
+      ...(pageDate ? { recordedDate: pageDate } : {}),
     });
   }
   return out;
