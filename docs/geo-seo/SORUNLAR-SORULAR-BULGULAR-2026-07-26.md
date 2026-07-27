@@ -99,10 +99,20 @@ altyapısal bulguları tutar.
 
 ### ETL veri akışı
 
-- Kocaeli, Mersin ve Çanakkale’de uzun süredir veri akışı olmadığı bildirildi.
-- Mersin kaynağı 2026-07-26 tarihinde HTTP 403 verdi.
-- Bu konu GEO/SEO implementasyonundan ayrıdır; kaynak adaptörü, erişim yöntemi,
-  zamanlayıcı ve son başarılı çalışma kayıtları ayrı operasyonel inceleme ister.
+- **Açık:** Kocaeli canlı VPS ve yerel ağdan 25 saniyede bağlantı kuramıyor;
+  yayıncı servis genel olarak erişilemiyor. Son başarılı veri 8 Mayıs 2026.
+- **Açık:** Mersin canlı VPS ve yerel ağdan hızlı HTTP 403 veriyor; ana sayfa
+  ve günlük endpoint aynı WAF/IP engelinde. Son başarılı veri 19 Mayıs 2026.
+- **Açık:** Çanakkale yayıncı sayfası yerel ağdan HTTP 200 ve 7 Temmuz 2026
+  tarihli 88 geçerli satır veriyor; canlı VPS ve merkezi scraper iki ayrı
+  modda zaman aşımına uğruyor. Sorun yayın değil, sunucu çıkış yolu/IP erişimi.
+- **Kapandı:** Çanakkale statik sayfasının eski tablosunu istek tarihiyle
+  “bugün” diye yazma riski giderildi. Parser sayfadaki gerçek tarihi her satıra
+  taşıyor; iki test/typecheck geçti ve `756b1cdd` ile canlıya alındı.
+- Üç kaynak erişim yolu çözülene kadar bilinçli olarak devre dışı kalıyor;
+  başarısız cronları açmak veri akışını düzeltmez. Ayrıntı ve yeniden açma
+  kapıları:
+  `docs/geo-seo/ETL-KAYNAK-KESINTISI-INCELEMESI-2026-07-27.md`.
 
 ### Canlı sunucu bağımlılık çözümlemesi
 

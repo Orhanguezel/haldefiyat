@@ -2059,6 +2059,31 @@ Commit: `6775780a feat(trust): publish transparency policy content`
   ediyor; bu ayrı ölçüm güncellemesi ana checklist sayacını değiştirmedi:
   61/66 tamamlanan, 5/66 açık.
 
+### 3.79 Kocaeli/Mersin/Çanakkale ETL Erişim İncelemesi
+
+- Canlı VPS ve yerel bağlantı ayrı ayrı ölçüldü. Kocaeli iki ağda da 25 saniye
+  içinde bağlantı kuramadı; Mersin iki ağda da ana sayfa ve günlük endpoint'te
+  hızlı HTTP 403 verdi.
+- Çanakkale yerel bağlantıda 0,54 saniyede HTTP 200 ve 7 Temmuz tarihli tablo
+  verdi; canlı VPS doğrudan bağlantısı 25 saniyede, merkezi scraper fast ve
+  stealthy denemeleri yaklaşık 75'er saniyede zaman aşımına uğradı.
+- Bu karşılaştırma Çanakkale'nin yayıncı servisinin geri geldiğini, fakat canlı
+  veri merkezi çıkışının engelli olduğunu gösterdi. Kaynak doğrudan açılmadı;
+  aksi halde günlük cron yalnız zaman aşımı üretecekti.
+- Çanakkale parser'ı statik sayfadaki `DD.MM.YYYY` tarihini `recordedDate`
+  olarak satırlara taşıyacak şekilde düzeltildi. Böylece kaynak yolu açıldığında
+  7 Temmuz tablosu 27 Temmuz fiyatı olarak yazılmayacak.
+- İki birim testi ve backend typecheck geçti. Gerçek yayıncı HTML'i yerelde
+  88 satır ve tek `2026-07-07` tarihiyle parse edildi.
+- `756b1cdd fix(etl): preserve Canakkale source dates` commit'i push edildi;
+  canlı backend build/restart tamamlandı, iç ve dış health 200.
+- Commit hook'u bu değişiklikten bağımsız, fetcher'da önceden bulunan dokuz
+  `rejectUnauthorized: false` kullanımını yüksek bulgu olarak raporladı.
+  Düzeltme bu oturumda kapsam genişletilerek yapılmadı; ayrı güvenlik borcu
+  olarak izlenmeli.
+- Kaynakların üçü de erişim çözümü beklediği için operasyonel konu açık;
+  GEO/SEO ana checklist sayacı değişmedi: 61/66 tamamlanan, 5/66 açık.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
