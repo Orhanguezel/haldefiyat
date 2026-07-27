@@ -821,6 +821,7 @@ const HTML_SHAPES = new Set<EtlSourceConfig["responseShape"]>([
   "trabzon_html",
   "batiakdeniz_html",
   "bolu_html",
+  "tokat_html",
   "tobb_borsa_html",
   "borsa_html",
 ]);
