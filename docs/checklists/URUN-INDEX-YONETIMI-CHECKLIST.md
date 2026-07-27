@@ -153,6 +153,21 @@ varsayımıyla yazılmış → borsa ürünü yapısal olarak indexlenemiyor (27
 
 ---
 
+## 3.6 Alias-merge + isim normalizasyonu (2026-07-27, kısmi TAMAM)
+
+- [x] 136 cluster değerlendirildi; **161 riskli MERGE-DIŞI** bırakıldı (domates-salçalık 2062,
+      kapya-biber 2658... değerli ayrı ürünler). Tuzaklar atlandı: manda≠dana, Maraş≠sivri, birim-uyumsuz.
+- [x] **10 kesin merge** (301 doğrulandı): domates-bursa/tarla-diger→domates, kokty/salkito→
+      domates-kokteyl, sogan-kuru-ii/taze→sogan-kuru, y-uzum-muhtelif→uzum, cilek-kg→cilek,
+      kiraz-kg→kiraz, bezelye-taze-diger→bezelye.
+- [x] **6 isim düzeltme** (çiftlenmiş/NULL display): Yaban Mersini, Limon Otu, Turşuluk Salatalık,
+      Deniz Börülcesi, Muz 1.Kalite, Taze İncir. Tarama: 0 çiftlenmiş kaldı, indexli display'ler temiz.
+      **name_tr'ye dokunulmadı** (ETL alias eşleşmesi ona bağlı; frontend getDisplayName ALLCAPS'i çözer).
+- [x] 410 hijyen: 20 aktif 410'dan 1 yanlış-pozitif (fejoya, canlı veri) → kaldırıldı (410→404).
+- [ ] **⏳ ERTELENDİ (Orhan ile aile-aile — EN SONA):** kalan ~95 belirsiz cluster (çeşit/tip
+      soruları: erik-siyah distinct mi? soğan-mor? biber tipleri?). Noindex-thin, zararsız; otonom
+      merge = kayıp riski. Kullanıcı kararı: "bunu sonda yapalım." Birlikte aile-aile geçilecek.
+
 ## 4. FAZ 3 — 365 "1-2 hal" Ürünü (sürekli süreç)
 
 Bunlar için **doğru cevap indexe zorlamak DEĞİL** (thin page → Google zaten reddediyor, 1.230
