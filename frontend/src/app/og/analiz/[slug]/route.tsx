@@ -66,7 +66,7 @@ async function fetchIndexForWeek(isoWeek?: string): Promise<IndexPoint | null> {
   const norm = (s: string) => s.replace(/[^0-9]/g, "");
   const target = norm(isoWeek);
   try {
-    const res = await fetch(`${API}/api/v1/index/latest`, { next: { revalidate: 3600 } });
+    const res = await fetch(`${API}/api/v1/index/history`, { next: { revalidate: 3600 } });
     if (!res.ok) return null;
     const json = await res.json();
     const rows = (json?.data ?? json ?? []) as Array<{ indexWeek: string; indexValue: string; weekStart?: string }>;
