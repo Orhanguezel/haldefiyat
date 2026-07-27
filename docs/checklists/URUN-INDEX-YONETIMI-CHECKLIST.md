@@ -6,6 +6,28 @@
 
 ---
 
+## ⭐ GÜNCEL DURUM (2026-07-27 sonu) — maraton oturum bitti
+
+**Bitenler (aşağıdaki eski `[ ]`'lerin çoğu artık DONE):**
+- ✅ Faz 1: 8 editoryel → index (yulaf, buğday-ekmeklik, vişne, bamya, soğan-beyaz, börülce + merges)
+- ✅ Faz 2: borsa-farkında index kriteri + `POST /hal/products/seo-maintenance` endpoint + 7 borsa editoryeli
+- ✅ **Retail-as-primary:** pirinç (11K), kuru-fasulye (6.8K), bulgur, mercimek retail ile index (frontend headline + backend kriter)
+- ✅ Faz 4: 69 junk pasif silindi; biber+4 canonical hijyen fix; fejoya 410→404
+- ✅ Faz 5: **Aksiyon kolonu + SEO bakım butonu** canlı; distinct-market bug fix
+- ✅ **Alias-merge + isim/birim normalizasyonu:** ~94 merge (kullanıcı kararlarıyla), 6 çiftlenmiş/NULL isim, 24 ot→demet birimi
+- ✅ **Marul (5 tip) + Muz (2 tip) düğümleri** çözüldü (131 kasa-satırı temizlendi, muz-ithal 235→117.8)
+- ✅ marketfiyati bakliyat dikeyi + RETAIL_EXTRA throttle bug fix
+- **index master 171 → 194+**
+
+**SIRADA (gerçek kalan, öncelik sırasıyla):**
+1. **ETL genişletme — eksik büyük şehir halleri** (Adana JS-rendered/AJAX, Şanlıurfa 500, Samsun 403 blok, Mersin WAF): coverage'ın ASIL darboğazı, `needs_coverage`'ı azaltır. Adana odaklı build oturumu.
+2. **Recrawl takibi** (~1 hafta sonra): yeni indexlenen ~25 ürün için "Google: tümünü denetle" → excluded düşmeli + kategori hub iç link kontrolü.
+3. **Faz 5 cila:** GSC bulk denetimini haftalık cron'a bağla (şu an elle buton); fırsat-sıralı (search_volume DESC) varsayılan görünüm.
+4. **çeltik:** sonbahar hasadında self-heal (aksiyon yok).
+5. **Donmuş batiakdeniz kaynakları** (Haziran'dan sabit): blackout/karantina (veri kalitesi).
+
+---
+
 ## 0. Mevcut Durum Röntgeni (2026-07-27)
 
 | Sınıf | Adet | Ort. Kalite | Toplam Arama | Durum |
