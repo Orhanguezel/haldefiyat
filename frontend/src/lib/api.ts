@@ -330,13 +330,14 @@ async function safeFetch<T>(
   path: string,
   revalidate: number,
   fallback: T,
+  tags?: string[],
 ): Promise<T> {
   try {
     // Build-time (next build) sırasında backend ulaşılamazsa Next.js worker
     // 60s sonra sayfayı zorla kill ediyor. 15s AbortSignal timeout ile erken
     // bail-out; catch'e düşer, fallback döner, sayfa yine prerender olur.
     const res = await fetch(`${API}${path}`, {
-      next: { revalidate },
+      next: { revalidate, ...(tags ? { tags } : {}) },
       headers: { Accept: "application/json" },
       signal: AbortSignal.timeout(15_000),
     });
@@ -524,7 +525,8 @@ export async function fetchVariantPrices(masterSlug: string, range = "7d"): Prom
 
 export async function fetchMarkets(city?: string): Promise<Market[]> {
   const qs = buildQuery({ city });
-  return safeFetch<Market[]>(`/prices/markets${qs}`, 300, []);
+  // "markets" tag'i: admin künye/hal düzenleyince backend on-demand revalidate tetikler.
+  return safeFetch<Market[]>(`/prices/markets${qs}`, 300, [], ["markets"]);
 }
 
 export interface PricesOverview {

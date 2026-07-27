@@ -67,6 +67,8 @@ export const env = {
 
   PUBLIC_URL: process.env.PUBLIC_URL || "http://localhost:8088",
   FRONTEND_URL,
+  // Frontend on-demand cache revalidation icin paylasimli secret (frontend .env ile ayni).
+  REVALIDATE_SECRET: process.env.REVALIDATE_SECRET || "",
 
   REDIS_URL: process.env.REDIS_URL || "",
   BULLMQ_CONNECTION: process.env.BULLMQ_CONNECTION || "",

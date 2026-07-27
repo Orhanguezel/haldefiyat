@@ -24,6 +24,7 @@ import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
 import { getScraperStatus } from "@/modules/etl/scraper-client";
 import { getCronCatalog } from "@/cron";
+import { revalidateFrontendTag } from "@/core/revalidate";
 import { checkWaybackAndNotify } from "@/modules/wayback-monitor";
 import { sendListingExpiryReminders } from "@/modules/listings";
 import { sourceFreshness, detectPriceJumps } from "@/modules/etl/freshness";
@@ -849,6 +850,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
       isActive: parsed.data.isActive ? 1 : 0,
     });
     const id = Number((result as unknown as Array<{ insertId?: number }>)[0]?.insertId ?? 0);
+    void revalidateFrontendTag("markets");
     return reply.send({ ok: true, id });
   });
 
@@ -872,6 +874,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
         isActive: parsed.data.isActive ? 1 : 0,
       })
       .where(eq(hfMarkets.id, id));
+    void revalidateFrontendTag("markets");
     return reply.send({ ok: true });
   });
 
