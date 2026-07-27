@@ -20,9 +20,18 @@
 - **index master 171 → 194+**
 
 **SIRADA (gerçek kalan, öncelik sırasıyla):**
-1. **ETL genişletme — eksik büyük şehir halleri** (Adana JS-rendered/AJAX, Şanlıurfa 500, Samsun 403 blok, Mersin WAF): coverage'ın ASIL darboğazı, `needs_coverage`'ı azaltır. Adana odaklı build oturumu.
-2. **Recrawl takibi** (~1 hafta sonra): yeni indexlenen ~25 ürün için "Google: tümünü denetle" → excluded düşmeli + kategori hub iç link kontrolü.
-3. **Faz 5 cila:** GSC bulk denetimini haftalık cron'a bağla (şu an elle buton); fırsat-sıralı (search_volume DESC) varsayılan görünüm.
+1. **ETL genişletme — eksik büyük şehir halleri.** 2026-07-27 farklı-IP teşhisi:
+   - 🔴 IP/WAF bloklu (Adana, Mersin, Samsun, Çanakkale): **residential proxy şart** →
+     KARAR ORHAN'DA, 2026-07-27 "şimdilik proxy yok" dendi. Bekliyor.
+   - ⚫ Kocaeli: sunucu gerçekten ölü (proxy çözmez).
+   - 🟡 Proxy'siz erişilebilir ama JS-render/AJAX: **Uşak + Ordu** (200 dönüyor) →
+     scraper dynamic-mode DOM extraction / endpoint reverse-engineering. Ayrı build oturumu.
+     Detay: memory [[sehir-hal-etl-kapsam-haritasi]].
+2. **Recrawl takibi** (~1 hafta sonra ≈ 2026-08-03): yeni indexlenen ~25 ürün için
+   "Google: tümünü denetle" → excluded düşmeli + kategori hub iç link kontrolü.
+3. ~~**Faz 5 cila**~~ ✅ 2026-07-27 TAMAM: fırsat-sıralı varsayılan görünüm eklendi
+   (opportunity sort — aksiyon önceliği + searchVolume DESC, "🎯 Fırsat sırası" butonu).
+   GSC bulk zaten `gsc-index-refresh` günlük cron'unda (incremental, kota-dostu) — ekstra iş yok.
 4. **çeltik:** sonbahar hasadında self-heal (aksiyon yok).
 5. **Donmuş batiakdeniz kaynakları** (Haziran'dan sabit): blackout/karantina (veri kalitesi).
 

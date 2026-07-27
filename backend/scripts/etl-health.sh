@@ -105,27 +105,34 @@ ORDER BY FIELD(m.market_type, 'resmi', 'borsa'), m.name;
 
 echo
 echo "── DONMUS SERILER — 'basarili calisti' != 'yeni veri geldi' ──"
-echo "   (gunluk parmak izi = satir sayisi + fiyat toplami; degismiyorsa kaynak taze veri uretmiyor)"
+echo "   (gun_sabit = son GERCEK fingerprint degisiminden bu yana ARDISIK gun; ~2 haftada bir"
+echo "    guncellenen dusuk-frekansli haller icin normal gap != donma)"
+# ARDISIK-RUN mantigi (freshness.ts ile ayni): bugunun fingerprint'i, 60 gun icindeki AYNI
+# DEGERLI en eski gune degil, en son FARKLI gune gore olculur. Eski sorgu deger-carpismasi
+# yapiyordu (demre bugun 21_434, tesadufen 06-14 de 21_434 → yanlislikla "43 gun donmus").
+# cur = her kaynagin KENDI son gunune gore (global MAX degil).
 mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" --table -e "
-SELECT f.source_api,
-       DATEDIFF(CURDATE(), MIN(f.d)) AS gun_sabit,
-       MIN(f.d) AS son_degisim,
-       MAX(f.n) AS satir
-FROM (
+WITH daily AS (
   SELECT source_api, recorded_date AS d,
-         CONCAT(COUNT(*), '_', ROUND(SUM(avg_price),2)) AS fp,
-         COUNT(*) AS n
-  FROM hf_price_history
-  WHERE recorded_date >= CURDATE() - INTERVAL 60 DAY
+         CONCAT(COUNT(*), '_', ROUND(SUM(avg_price),2)) AS fp, COUNT(*) AS n
+  FROM hf_price_history WHERE recorded_date >= CURDATE() - INTERVAL 60 DAY
   GROUP BY source_api, recorded_date
-) f
-JOIN (
-  SELECT source_api, CONCAT(COUNT(*), '_', ROUND(SUM(avg_price),2)) AS fp
-  FROM hf_price_history WHERE recorded_date = (
-    SELECT MAX(recorded_date) FROM hf_price_history
-  ) GROUP BY source_api
-) cur ON cur.source_api = f.source_api AND cur.fp = f.fp
-GROUP BY f.source_api
+),
+cur AS (
+  SELECT source_api, fp AS cur_fp, n AS cur_n,
+         ROW_NUMBER() OVER (PARTITION BY source_api ORDER BY d DESC) rn FROM daily
+),
+lastdiff AS (
+  SELECT dl.source_api, MAX(dl.d) AS last_change
+  FROM daily dl JOIN cur c ON c.source_api = dl.source_api AND c.rn = 1
+  WHERE dl.fp <> c.cur_fp GROUP BY dl.source_api
+)
+SELECT c.source_api,
+  DATEDIFF(CURDATE(), COALESCE(ld.last_change, (SELECT MIN(d) FROM daily d2 WHERE d2.source_api = c.source_api))) AS gun_sabit,
+  COALESCE(ld.last_change, (SELECT MIN(d) FROM daily d2 WHERE d2.source_api = c.source_api)) AS son_degisim,
+  c.cur_n AS satir
+FROM cur c LEFT JOIN lastdiff ld ON ld.source_api = c.source_api
+WHERE c.rn = 1
 HAVING gun_sabit >= 5
 ORDER BY gun_sabit DESC;
 " 2>&1 | grep -v "Using a password" || true
