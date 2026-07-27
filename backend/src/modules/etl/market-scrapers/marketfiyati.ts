@@ -55,6 +55,24 @@ const RETAIL_EXTRA: RetailExtra[] = [
     menuCategory: "Süt Ürünleri ve Kahvaltılık", include: /BEYAZ\s*PEYN[İI]R/i, exclude: /KREM|LOR|[ÜU][ÇC]GEN|TOST|D[İI]L\b|KA[ŞS]AR|LAKTOZSUZ/i },
   { slug: "yogurt", name: "Yoğurt", category: "sut", unit: "kg", keyword: "yoğurt",
     menuCategory: "Süt Ürünleri ve Kahvaltılık", include: /YO[ĞG]URT/i, exclude: /[ÇC][İI]LEK|MEYVE|KIVAM|[İI][ÇC][İI]M\b|KA[ŞS]IK|AROMA|H[ÜU]PP|KIT|PROTE[İI]N|AYRAN|KEF[İI]R|MANT|DANON[İI]NO/i },
+  // Faz A3: paketli temel gıda / bakliyat perakende dikeyi (marketfiyati "Temel Gıda").
+  // Premium/organik/basmati/marka çeşitleri kg-birim fiyatı şişirdiği için exclude şart —
+  // amaç halkın aradığı sade osmancık/baldo pirinç, kırmızı mercimek gibi temsili fiyat.
+  { slug: "pirinc", name: "Pirinç", category: "hububat", unit: "kg", keyword: "pirinç",
+    menuCategory: "Temel Gıda", include: /P[İI]R[İI]N[ÇC]/i,
+    exclude: /ORGAN[İI]K|BASMAT[İI]|JASM[İI]N|ESMER|KEPEKL[İI]|YABAN[İI]|GLUTENS[İI]Z|BEBEK|PATLA|[ÇC]?[İI]?KOLAT/i },
+  { slug: "mercimek", name: "Mercimek", category: "bakliyat-kuru", unit: "kg", keyword: "kırmızı mercimek",
+    menuCategory: "Temel Gıda", include: /MERC[İI]MEK/i,
+    exclude: /ORGAN[İI]K|F[İI]L[İI]Z|BEBEK|[ÇC]ORBA|HAZIR|SARI|YE[ŞS][İI]L/i },
+  { slug: "kuru-fasulye", name: "Kuru Fasulye", category: "bakliyat-kuru", unit: "kg", keyword: "kuru fasulye",
+    menuCategory: "Temel Gıda", include: /FASULYE/i,
+    exclude: /TAZE|BARBUNYA|B[ÖO]R[ÜU]LCE|[ÇC]ALI|AY[ŞS]E|HAZIR|KONSERVE|ORGAN[İI]K|YE[ŞS][İI]L/i },
+  { slug: "nohut", name: "Nohut", category: "bakliyat-kuru", unit: "kg", keyword: "nohut",
+    menuCategory: "Temel Gıda", include: /NOHUT/i,
+    exclude: /LEBLEB[İI]|CA[ĞG]LA|HAZIR|KONSERVE|ORGAN[İI]K|[ÇC][İI][ĞG]|HUMUS/i },
+  { slug: "bulgur", name: "Bulgur", category: "bakliyat-kuru", unit: "kg", keyword: "bulgur",
+    menuCategory: "Temel Gıda", include: /BULGUR/i,
+    exclude: /ORGAN[İI]K|[ÇC][İI][ĞG]|ESMER|S[İI]YAH|A[ŞS]UREL[İI]K/i },
 ];
 
 interface DepotInfo {
