@@ -470,7 +470,7 @@ export async function runSeoIndexMaintenance() {
     WHERE p.canonical_slug IS NULL AND p.seo_index = 0
       AND p.category_slug IN ${STAPLE_CATS}
       AND COALESCE(s.pr, 0) = 0
-      AND r.chains >= 3 AND r.rdays >= 3
+      AND r.chains >= 3 AND r.rdays >= 1
   `);
 
   // DEMOTE: verisi kuruyan / thin olan indexli sayfaları noindex'e çek. Hal ürünü <3 hal
