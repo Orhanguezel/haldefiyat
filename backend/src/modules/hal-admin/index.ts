@@ -22,6 +22,8 @@ import { runDailyEtl, runSingleSource } from "@/modules/etl";
 import { runWaybackBackfill } from "@/modules/etl/fetcher";
 import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
+import { getScraperStatus } from "@/modules/etl/scraper-client";
+import { getCronCatalog } from "@/cron";
 import { checkWaybackAndNotify } from "@/modules/wayback-monitor";
 import { sendListingExpiryReminders } from "@/modules/listings";
 import { sourceFreshness, detectPriceJumps } from "@/modules/etl/freshness";
@@ -1120,6 +1122,17 @@ export async function registerHalAdmin(app: FastifyInstance) {
       .orderBy(desc(hfEtlRuns.createdAt))
       .limit(100);
     return reply.send({ logs });
+  });
+
+  // Scraper mikroservis (hal-scraper 8201) canli durum + source konfigurasyonu
+  app.get("/hal/etl/scraper", async (_req, reply) => {
+    const status = await getScraperStatus();
+    return reply.send(status);
+  });
+
+  // Cron gorev katalogu — schedule + aciklama (salt-okunur metadata)
+  app.get("/hal/etl/cron", async (_req, reply) => {
+    return reply.send(getCronCatalog());
   });
 
   app.get("/hal/production", async (req, reply) => {

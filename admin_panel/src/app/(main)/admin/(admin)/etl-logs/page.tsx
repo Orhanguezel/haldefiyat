@@ -1,41 +1,49 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useListEtlLogsAdminQuery } from '@/integrations/hooks';
-import { SourceFreshnessPanel } from './_components/source-freshness-panel';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { EarlyWarningPanel } from '@/components/common/early-warning-panel';
+import { SourceFreshnessPanel } from './_components/source-freshness-panel';
+import { LogsPanel } from './_components/logs-panel';
+import { ScraperPanel } from './_components/scraper-panel';
+import { CronPanel } from './_components/cron-panel';
 
 export default function Page() {
-  const { data, isLoading } = useListEtlLogsAdminQuery();
-
   return (
     <div className="space-y-6">
-      <EarlyWarningPanel />
-      <SourceFreshnessPanel />
+      <div>
+        <h1 className="text-xl font-semibold">ETL & Otomasyon</h1>
+        <p className="text-sm text-muted-foreground">
+          Veri çekme çalışmaları, kaynak tazeliği, scraper mikroservisi ve zamanlanmış görevler.
+        </p>
+      </div>
 
-      <Card>
-      <CardHeader>
-        <CardTitle className="text-base">ETL Loglari</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader><TableRow><TableHead>Kaynak</TableHead><TableHead>Tarih</TableHead><TableHead>Rows Fetched</TableHead><TableHead>Status</TableHead><TableHead>Sure</TableHead></TableRow></TableHeader>
-          <TableBody>
-            {isLoading && <TableRow><TableCell colSpan={5}>Yukleniyor...</TableCell></TableRow>}
-            {(data?.logs || []).map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.sourceApi}</TableCell>
-                <TableCell>{String(item.runDate).slice(0, 10)}</TableCell>
-                <TableCell>{item.rowsFetched}</TableCell>
-                <TableCell>{item.status}</TableCell>
-                <TableCell>{item.durationMs ?? '-'} ms</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-      </Card>
+      <EarlyWarningPanel />
+
+      <Tabs defaultValue="logs">
+        <TabsList className="w-full justify-start overflow-x-auto">
+          <TabsTrigger value="logs">Loglar</TabsTrigger>
+          <TabsTrigger value="errors">Hatalar</TabsTrigger>
+          <TabsTrigger value="freshness">Kaynak Tazeliği</TabsTrigger>
+          <TabsTrigger value="scraper">Scraper</TabsTrigger>
+          <TabsTrigger value="cron">Cron</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="logs" className="mt-4">
+          <LogsPanel />
+        </TabsContent>
+        <TabsContent value="errors" className="mt-4">
+          <LogsPanel onlyErrors />
+        </TabsContent>
+        <TabsContent value="freshness" className="mt-4">
+          <SourceFreshnessPanel />
+        </TabsContent>
+        <TabsContent value="scraper" className="mt-4">
+          <ScraperPanel />
+        </TabsContent>
+        <TabsContent value="cron" className="mt-4">
+          <CronPanel />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

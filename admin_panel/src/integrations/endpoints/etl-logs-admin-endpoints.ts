@@ -13,6 +13,29 @@ export type EtlLogItem = {
   createdAt: string;
 };
 
+export type ScraperStatus = {
+  enabled: boolean;
+  url: string | null;
+  reachable: boolean;
+  latencyMs: number | null;
+  health: Record<string, unknown> | null;
+  sources: string[];
+  dynamicSources: string[];
+  error?: string;
+};
+
+export type CronCatalogItem = {
+  name: string;
+  schedule: string;
+  category: 'etl' | 'seo' | 'icerik' | 'sosyal' | 'bakim' | 'bildirim' | 'reklam';
+  description: string;
+};
+
+export type CronCatalog = {
+  timezone: string;
+  tasks: CronCatalogItem[];
+};
+
 export type PriceSurgeItem = {
   productSlug: string;
   name: string;
@@ -34,8 +57,19 @@ export const etlLogsAdminApi = baseApi.injectEndpoints({
     earlyWarningAdmin: builder.query<{ items: PriceSurgeItem[]; generatedAt: string }, void>({
       query: () => ({ url: '/admin/early-warning' }),
     }),
+    scraperStatusAdmin: builder.query<ScraperStatus, void>({
+      query: () => ({ url: '/admin/hal/etl/scraper' }),
+    }),
+    cronCatalogAdmin: builder.query<CronCatalog, void>({
+      query: () => ({ url: '/admin/hal/etl/cron' }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useListEtlLogsAdminQuery, useEarlyWarningAdminQuery } = etlLogsAdminApi;
+export const {
+  useListEtlLogsAdminQuery,
+  useEarlyWarningAdminQuery,
+  useScraperStatusAdminQuery,
+  useCronCatalogAdminQuery,
+} = etlLogsAdminApi;

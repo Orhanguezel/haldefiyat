@@ -28,7 +28,7 @@ import { runGscBulkRefresh } from "@/modules/seo/gsc-bulk";
 import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
 import { processSocialQueueOnce } from "@agro/shared-backend/modules/twitter";
 import { runDailyMoversJob, runStaplesJob, createWeeklyAnalysisDraft } from "@/modules/social/daily-content";
-import { auditBannerTargets, processAdPaymentReminders, syncBannerLifecycle } from "@/modules/banners/repository";
+import { auditBannerTargets, auditLiveBannerSources, optimizeBannerPerformance, processAdPaymentReminders, sendScheduledCampaignReports, syncBannerLifecycle } from "@/modules/banners/repository";
 
 /**
  * Cron zamanlaması env'den gelir:
@@ -38,6 +38,57 @@ import { auditBannerTargets, processAdPaymentReminders, syncBannerLifecycle } fr
  */
 
 type CronTask = { name: string; schedule: string; handler: () => Promise<void> };
+
+export type CronCatalogItem = {
+  name: string;
+  schedule: string;
+  category: "etl" | "seo" | "icerik" | "sosyal" | "bakim" | "bildirim" | "reklam";
+  description: string;
+};
+
+/**
+ * Admin ETL panel icin cron gorev katalogu — schedule env'den okunur, aciklama sabit.
+ * Handler'lar startCron icinde register edilir; burasi salt-okunur metadata.
+ */
+export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] } {
+  const E = env.ETL;
+  const S = env.SOCIAL;
+  const tasks: CronCatalogItem[] = [
+    { name: "etl-daily",          schedule: E.cronSchedule,             category: "etl",      description: "Gunluk hal fiyati ETL — tum resmi belediye + antkomder kaynaklari" },
+    { name: "etl-antkomder-pm",   schedule: E.antkomderSchedule,        category: "etl",      description: "ANTKOMDER ogleden sonra ikinci cekim (fiyatlar gec yayinlaniyor)" },
+    { name: "etl-health",         schedule: E.healthSchedule,           category: "bildirim", description: "ETL saglik kontrolu — sorunlu/durmus kaynaklari Telegram'a bildirir" },
+    { name: "production-etl",     schedule: E.productionSchedule,       category: "etl",      description: "Uretim/borsa kaynaklari (aylik)" },
+    { name: "migros-daily",       schedule: E.migrosSchedule,           category: "etl",      description: "Migros perakende fiyat ETL" },
+    { name: "marketfiyati-daily", schedule: E.marketfiyatiSchedule,     category: "etl",      description: "marketfiyati.org.tr coklu zincir perakende ETL (a101/bim/carrefour...)" },
+    { name: "firms-weekly",       schedule: E.firmsWeeklySchedule,      category: "etl",      description: "Halkatalogu firma rehberi — haftalik delta tarama" },
+    { name: "firms-monthly",      schedule: E.firmsMonthlySchedule,     category: "etl",      description: "Halkatalogu firma rehberi — aylik tam tarama" },
+    { name: "inflation-monthly",  schedule: E.inflationSchedule,        category: "etl",      description: "TCMB EVDS aylik enflasyon senkronu" },
+    { name: "alerts-check",       schedule: E.alertsSchedule,           category: "bildirim", description: "Kullanici fiyat alarmlarini kontrol et + bildir" },
+    { name: "early-warning",      schedule: E.earlyWarningSchedule,     category: "bildirim", description: "Firlayan temel gida erken uyarisi (sogan imzasi)" },
+    { name: "competitor-monitor", schedule: E.competitorSchedule,       category: "bildirim", description: "Rakip site izleme (haftalik)" },
+    { name: "index-weekly",       schedule: E.indexSchedule,            category: "icerik",   description: "Haftalik fiyat endeksi hesaplama" },
+    { name: "weekly-analysis",    schedule: E.weeklyAnalysisSchedule,   category: "icerik",   description: "Haftalik analiz raporu taslagi olustur" },
+    { name: "weekly-digest",      schedule: E.weeklyDigestSchedule,     category: "bildirim", description: "Haftalik ozet bildirim" },
+    { name: "weekly-mail",        schedule: E.weeklyMailSchedule,       category: "bildirim", description: "Haftalik e-posta bulteni (Pazartesi)" },
+    { name: "channel-publish",    schedule: E.channelPublishSchedule,   category: "sosyal",   description: "Telegram kanal gunluk fiyat paylasimi" },
+    { name: "scheduled-publish",  schedule: E.scheduledPublishSchedule, category: "icerik",   description: "Zamanlanmis taslaklari yayinla + IndexNow ping" },
+    { name: "seo-maintenance",    schedule: E.seoMaintenanceSchedule,   category: "seo",      description: "SEO index auto-recovery — sezonsal urun verisi donunce index/cikis" },
+    { name: "gsc-index-refresh",  schedule: E.gscIndexSchedule,         category: "seo",      description: "GSC URL Inspection gunluk batch — index durumu tazeleme" },
+    { name: "search-volume-sync", schedule: E.searchVolumeSchedule,     category: "seo",      description: "GSC gosterimlerinden arama hacmi doldur (haftalik)" },
+    { name: "etl-retention",      schedule: E.runRetentionSchedule,     category: "bakim",    description: "Eski ETL run loglarini buda (aylik, son 90 gun tutulur)" },
+    { name: "audit-retention",    schedule: E.auditRetentionSchedule,   category: "bakim",    description: "Eski audit loglarini buda (gunluk)" },
+    { name: "social-queue",       schedule: S.queueSchedule,            category: "sosyal",   description: "Sosyal medya yayin kuyrugunu isle" },
+    { name: "social-daily-movers", schedule: S.dailyMoversSchedule,     category: "sosyal",   description: "Gunun en cok degisen fiyatlarini tweet et" },
+    { name: "banner-lifecycle",   schedule: "*/5 * * * *",              category: "reklam",   description: "Reklam kampanya durumlari + hedef denetimi + odeme hatirlatma" },
+    { name: "banner-source-audit", schedule: "15 4 * * *",              category: "reklam",   description: "Bozulan reklam kaynaklarini problem durumuna al (gunluk)" },
+    { name: "banner-performance", schedule: "45 4 * * *",               category: "reklam",   description: "Reklam kreatif performansi + agirlik optimizasyonu" },
+    { name: "banner-reports",     schedule: "15 5 * * *",               category: "reklam",   description: "Sponsor kampanya raporlarini gonder" },
+  ];
+  if (E.firmPriceReminderSchedule) {
+    tasks.push({ name: "firm-price-reminder", schedule: E.firmPriceReminderSchedule, category: "bildirim", description: "Firma gunluk fiyat girisi hatirlatmasi" });
+  }
+  return { timezone: env.ETL.cronTimezone, tasks };
+}
 
 export function startCron(app: FastifyInstance): void {
   const tasks: CronTask[] = [
@@ -90,6 +141,19 @@ export function startCron(app: FastifyInstance): void {
       if (targetAudit.problem) app.log.warn(targetAudit, "[cron:banner-targets] gecersiz hedefler pasiflestirildi");
       const paymentReminders = await processAdPaymentReminders();
       if (paymentReminders.reminded) app.log.warn(paymentReminders, "[cron:banner-payments] geciken odemeler icin personel uyarisi olusturuldu");
+    } },
+    { name: "banner-source-audit", schedule: "15 4 * * *", handler: async () => {
+      const result = await auditLiveBannerSources();
+      if (result.problem) app.log.warn(result, "[cron:banner-quality] bozulan reklamlar problem durumuna alindi");
+      else app.log.info(result, "[cron:banner-quality] gunluk kaynak denetimi tamamlandi");
+    } },
+    { name: "banner-performance", schedule: "45 4 * * *", handler: async () => {
+      const result = await optimizeBannerPerformance();
+      app.log.info(result, "[cron:banner-performance] kreatif performansi ve agirliklar guncellendi");
+    } },
+    { name: "banner-reports", schedule: "15 5 * * *", handler: async () => {
+      const result = await sendScheduledCampaignReports();
+      app.log.info(result, "[cron:banner-reports] sponsor raporlari gonderildi");
     } },
   ];
   if (env.ETL.firmPriceReminderSchedule) {

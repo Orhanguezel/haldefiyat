@@ -342,9 +342,32 @@ export {
 export {
   useListBannersAdminQuery,
   useBannerStatsAdminQuery,
+  useBannerDistributionAdminQuery,
+  useBannerMetricsAdminQuery,
+  useBannerConversionsAdminQuery,
+  useBannerRevenueAdminQuery,
+  useBannerInventoryAdminQuery,
+  useListAdSlotsAdminQuery,
+  useUpdateAdSlotAdminMutation,
+  useAdCalendarAdminQuery,
+  useAdSlotAvailabilityAdminQuery,
+  useListAdPackagesAdminQuery,
+  useCreateAdPackageAdminMutation,
+  useUpdateAdPackageAdminMutation,
+  useQuoteAdPriceAdminMutation,
+  useListAdWaitlistAdminQuery,
+  useAdWaitlistSuggestionsAdminQuery,
+  useCreateAdWaitlistAdminMutation,
+  useUpdateAdWaitlistAdminMutation,
   useGetBannerAdminQuery,
+  useGetBannerQualityAdminQuery,
+  useGetBannerPerformanceAdminQuery,
+  useGetAdPaymentsAdminQuery,
+  useGetAdPaymentAlertsAdminQuery,
+  useCreateAdPaymentAdminMutation,
   useCreateBannerAdminMutation,
   useUpdateBannerAdminMutation,
+  useDuplicateBannerAdminMutation,
   useDeleteBannerAdminMutation,
 } from "@/integrations/endpoints/banners-admin-endpoints";
 export {
@@ -369,14 +392,16 @@ export {
   useRunCompetitorCheckAdminMutation,
   useToggleCompetitorSiteAdminMutation,
 } from "@/integrations/endpoints/competitor-monitor-admin-endpoints";
-export { useListEtlLogsAdminQuery, useEarlyWarningAdminQuery } from "@/integrations/endpoints/etl-logs-admin-endpoints";
+export { useListEtlLogsAdminQuery, useEarlyWarningAdminQuery, useScraperStatusAdminQuery, useCronCatalogAdminQuery } from "@/integrations/endpoints/etl-logs-admin-endpoints";
 export { useEtlFreshnessAdminQuery } from "@/integrations/endpoints/etl-freshness-admin-endpoints";
 export {
   useCreateFirmDealAdminMutation,
+  useCreateFirmAdCampaignAdminMutation,
   useCreateFirmSponsorshipAdminMutation,
   useDeleteFirmDealAdminMutation,
   useDeleteFirmSponsorshipAdminMutation,
   useListFirmClaimsAdminQuery,
+  useListFirmAdCampaignsAdminQuery,
   useListFirmDealsAdminQuery,
   useListFirmSponsorshipsAdminQuery,
   useListFirmsAdminQuery,

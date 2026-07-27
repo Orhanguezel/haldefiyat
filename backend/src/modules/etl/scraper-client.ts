@@ -69,6 +69,55 @@ export function shouldUseDynamicFor(sourceKey: string): boolean {
   return envList("HF_SCRAPER_DYNAMIC").has(sourceKey);
 }
 
+export interface ScraperStatus {
+  enabled: boolean;
+  url: string | null;
+  reachable: boolean;
+  latencyMs: number | null;
+  health: Record<string, unknown> | null;
+  sources: string[];
+  dynamicSources: string[];
+  error?: string;
+}
+
+/** scraper-service /health probe — admin dashboard icin canli durum. */
+export async function getScraperStatus(): Promise<ScraperStatus> {
+  const baseUrl = (process.env.SCRAPER_URL ?? "").replace(/\/$/, "") || null;
+  const sources = Array.from(envList("HF_SCRAPER_SOURCES")).sort();
+  const dynamicSources = Array.from(envList("HF_SCRAPER_DYNAMIC")).sort();
+  const enabled = isScraperEnabled();
+
+  if (!baseUrl) {
+    return { enabled, url: null, reachable: false, latencyMs: null, health: null, sources, dynamicSources, error: "SCRAPER_URL tanimsiz" };
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  const t0 = Date.now();
+  try {
+    const res = await fetch(`${baseUrl}/health`, { signal: controller.signal });
+    const latencyMs = Date.now() - t0;
+    if (!res.ok) {
+      return { enabled, url: baseUrl, reachable: false, latencyMs, health: null, sources, dynamicSources, error: `HTTP ${res.status}` };
+    }
+    const health = (await res.json()) as Record<string, unknown>;
+    return { enabled, url: baseUrl, reachable: true, latencyMs, health, sources, dynamicSources };
+  } catch (err: unknown) {
+    return {
+      enabled,
+      url: baseUrl,
+      reachable: false,
+      latencyMs: null,
+      health: null,
+      sources,
+      dynamicSources,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export async function fetchViaScraper(
   url: string,
   options: ScrapeOptions = {},
