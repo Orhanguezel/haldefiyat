@@ -1179,14 +1179,74 @@ function avgObs(rows: Obs[]): number | null {
 }
 
 // Tek ürünün belirli hal'deki fiyat geçmişi
-export async function productPriceHistory(productSlug: string, marketSlug?: string, days = 30) {
+export type HistoryBucket = "daily" | "weekly" | "monthly" | "auto";
+
+/**
+ * Tarih -> kova baslangici SQL ifadesi.
+ * - weekly: haftanin Pazartesi'si
+ * - monthly: ayin 1'i
+ * - auto: son 90 gun gunluk, 90-365 gun haftalik, otesi aylik
+ *   (uzun araliklarda payload'i ~10x kuculterek grafik hizini artirir)
+ */
+function bucketDateSql(bucket: Exclude<HistoryBucket, "daily">): SQL {
+  const week = sql`DATE_SUB(ph.recorded_date, INTERVAL WEEKDAY(ph.recorded_date) DAY)`;
+  const month = sql`CAST(DATE_FORMAT(ph.recorded_date, '%Y-%m-01') AS DATE)`;
+  if (bucket === "weekly") return week;
+  if (bucket === "monthly") return month;
+  return sql`CASE
+    WHEN ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY) THEN ph.recorded_date
+    WHEN ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 365 DAY) THEN ${week}
+    ELSE ${month}
+  END`;
+}
+
+export interface PriceHistoryRow {
+  recordedDate: string | Date;
+  minPrice: string;
+  maxPrice: string;
+  avgPrice: string;
+  marketSlug: string;
+  marketName: string;
+  cityName: string | null;
+}
+
+export async function productPriceHistory(
+  productSlug: string,
+  marketSlug?: string,
+  days = 30,
+  bucket: HistoryBucket = "daily",
+): Promise<PriceHistoryRow[]> {
+  if (bucket !== "daily") {
+    const bucketExpr = bucketDateSql(bucket);
+    const marketFilter = marketSlug ? sql`AND m.slug = ${marketSlug}` : sql``;
+    const result = await db.execute(sql`
+      SELECT
+        ${bucketExpr} AS recordedDate,
+        MIN(ph.min_price) AS minPrice,
+        MAX(ph.max_price) AS maxPrice,
+        AVG(ph.avg_price) AS avgPrice,
+        m.slug AS marketSlug,
+        m.name AS marketName,
+        m.city_name AS cityName
+      FROM hf_price_history ph
+      INNER JOIN hf_products p ON p.id = ph.product_id
+      INNER JOIN hf_markets m ON m.id = ph.market_id
+      WHERE p.slug = ${productSlug}
+        AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)
+        ${marketFilter}
+      GROUP BY m.id, m.slug, m.name, m.city_name, recordedDate
+      ORDER BY recordedDate, m.display_order
+    `);
+    return (Array.isArray(result) ? result[0] : result) as unknown as PriceHistoryRow[];
+  }
+
   const conds: SQL[] = [
     eq(hfProducts.slug, productSlug),
     gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)`),
   ];
   if (marketSlug) conds.push(eq(hfMarkets.slug, marketSlug));
 
-  return db
+  const rows = await db
     .select({
       recordedDate: hfPriceHistory.recordedDate,
       minPrice:     hfPriceHistory.minPrice,
@@ -1201,6 +1261,7 @@ export async function productPriceHistory(productSlug: string, marketSlug?: stri
     .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
     .where(and(...conds))
     .orderBy(hfPriceHistory.recordedDate, hfMarkets.displayOrder);
+  return rows as unknown as PriceHistoryRow[];
 }
 
 /**

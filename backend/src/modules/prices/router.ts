@@ -78,6 +78,7 @@ const qSeoEligibleProducts = z.object({
 const qHistory = z.object({
   market: z.string().optional(),
   range:  z.string().optional(),
+  bucket: z.enum(["daily", "weekly", "monthly", "auto"]).optional(),
 });
 
 const qVariants = z.object({
@@ -240,8 +241,15 @@ export async function registerPrices(app: FastifyInstance) {
     async (req, reply) => {
       const q = qHistory.safeParse(req.query);
       const days = parseRangeToDays(q.success ? q.data.range : undefined);
-      const items = await productPriceHistory(req.params.productSlug, q.success ? q.data.market : undefined, days);
-      return reply.send({ items, meta: { productSlug: req.params.productSlug, rangeDays: days } });
+      const bucket = q.success ? q.data.bucket ?? "daily" : "daily";
+      const items = await productPriceHistory(
+        req.params.productSlug,
+        q.success ? q.data.market : undefined,
+        days,
+        bucket,
+      );
+      reply.header("Cache-Control", "public, max-age=3600, s-maxage=3600");
+      return reply.send({ items, meta: { productSlug: req.params.productSlug, rangeDays: days, bucket } });
     },
   );
 
