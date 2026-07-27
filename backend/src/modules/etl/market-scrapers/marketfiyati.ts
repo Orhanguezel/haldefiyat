@@ -281,17 +281,20 @@ export async function runMarketfiyatiEtl(
     const found = await searchKeyword(x.keyword);
     result.apiCallCount++;
     const productId = await findOrCreateRetailProduct(x);
+    let dbgPass = 0, dbgMc = 0, dbgBucket = 0; // DEBUG
     for (const p of found) {
-      if (p.menu_category !== x.menuCategory) continue;
+      if (p.menu_category !== x.menuCategory) { dbgMc++; continue; }
       // Türkçe büyütme (ı→I, i→İ) — JS /i flag'i Türkçe katlamaz; uppercased başlıkta eşleştir.
       const title = (p.title ?? "").toLocaleUpperCase("tr-TR");
       if (!x.include.test(title) || x.exclude.test(title)) continue;
+      dbgPass++; // DEBUG
       const depots = p.productDepotInfoList ?? [];
       for (const d of depots) {
         const chain = d.marketAdi as ChainSlug;
         if (!SUPPORTED_CHAINS.includes(chain)) continue;
         const price = Number(d.unitPriceValue);
         if (!Number.isFinite(price) || price <= 0) continue;
+        dbgBucket++; // DEBUG
         const key = bucketKey(chain, productId);
         const existing = buckets.get(key);
         if (existing) {
@@ -302,6 +305,7 @@ export async function runMarketfiyatiEtl(
         }
       }
     }
+    console.log(`[RETAIL_EXTRA] ${x.slug}: found=${found.length} mcFail=${dbgMc} passed=${dbgPass} bucketed=${dbgBucket}`); // DEBUG
   }
 
   // 3) Bucket → hf_retail_prices upsert (AVG)
