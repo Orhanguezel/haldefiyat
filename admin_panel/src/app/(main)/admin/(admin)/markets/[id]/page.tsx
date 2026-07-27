@@ -19,7 +19,7 @@ export default function Page() {
   const { data } = useGetMarketAdminQuery(routeId, { skip: isNew });
   const [createItem] = useCreateMarketAdminMutation();
   const [updateItem] = useUpdateMarketAdminMutation();
-  const [form, setForm] = useState({ slug: '', name: '', cityName: '', regionSlug: '', sourceKey: '', displayOrder: '0', isActive: true });
+  const [form, setForm] = useState({ slug: '', name: '', cityName: '', regionSlug: '', sourceKey: '', displayOrder: '0', address: '', phone: '', founded: '', hours: '', isActive: true });
 
   useEffect(() => {
     if (!data) return;
@@ -30,6 +30,10 @@ export default function Page() {
       regionSlug: data.regionSlug || '',
       sourceKey: data.sourceKey || '',
       displayOrder: String(data.displayOrder ?? 0),
+      address: data.address || '',
+      phone: data.phone || '',
+      founded: data.founded || '',
+      hours: data.hours || '',
       isActive: Boolean(data.isActive),
     });
   }, [data]);
@@ -42,6 +46,10 @@ export default function Page() {
       regionSlug: form.regionSlug || null,
       sourceKey: form.sourceKey || null,
       displayOrder: Number(form.displayOrder || 0),
+      address: form.address || null,
+      phone: form.phone || null,
+      founded: form.founded || null,
+      hours: form.hours || null,
       isActive: form.isActive,
     };
     try {
@@ -70,6 +78,10 @@ export default function Page() {
         <div className="space-y-2"><Label>Sehir</Label><Input value={form.cityName} onChange={(e) => setForm((p) => ({ ...p, cityName: e.target.value }))} /></div>
         <div className="space-y-2"><Label>Bolge</Label><Input value={form.regionSlug} onChange={(e) => setForm((p) => ({ ...p, regionSlug: e.target.value }))} /></div>
         <div className="space-y-2 md:col-span-2"><Label>Kaynak Anahtari</Label><Input value={form.sourceKey} onChange={(e) => setForm((p) => ({ ...p, sourceKey: e.target.value }))} /></div>
+        <div className="space-y-2 md:col-span-2"><Label>Adres / Konum</Label><Input value={form.address} placeholder="Mah., Cad. No, İlçe/İl — yalnızca doğrulanmış" onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))} /></div>
+        <div className="space-y-2"><Label>Telefon</Label><Input value={form.phone} placeholder="0XXX XXX XX XX — resmi hal müdürlüğü" onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} /></div>
+        <div className="space-y-2"><Label>Kurulus Yili</Label><Input value={form.founded} placeholder="örn. 1977" onChange={(e) => setForm((p) => ({ ...p, founded: e.target.value }))} /></div>
+        <div className="space-y-2"><Label>Satis Saatleri</Label><Input value={form.hours} placeholder="örn. 04:00 – 13:00" onChange={(e) => setForm((p) => ({ ...p, hours: e.target.value }))} /></div>
       </CardContent>
     </Card>
   );

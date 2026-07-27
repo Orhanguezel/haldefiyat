@@ -136,6 +136,10 @@ const marketBody = z.object({
   regionSlug: z.string().max(64).optional().nullable(),
   sourceKey: z.string().max(64).optional().nullable(),
   displayOrder: z.coerce.number().int().optional().default(0),
+  address: z.string().max(255).optional().nullable(),
+  phone: z.string().max(64).optional().nullable(),
+  founded: z.string().max(32).optional().nullable(),
+  hours: z.string().max(64).optional().nullable(),
   isActive: boolish.default(true),
 });
 
@@ -838,6 +842,10 @@ export async function registerHalAdmin(app: FastifyInstance) {
       regionSlug: parsed.data.regionSlug ?? null,
       sourceKey: parsed.data.sourceKey ?? null,
       displayOrder: parsed.data.displayOrder,
+      address: parsed.data.address ?? null,
+      phone: parsed.data.phone ?? null,
+      founded: parsed.data.founded ?? null,
+      hours: parsed.data.hours ?? null,
       isActive: parsed.data.isActive ? 1 : 0,
     });
     const id = Number((result as unknown as Array<{ insertId?: number }>)[0]?.insertId ?? 0);
@@ -857,6 +865,10 @@ export async function registerHalAdmin(app: FastifyInstance) {
         regionSlug: parsed.data.regionSlug ?? null,
         sourceKey: parsed.data.sourceKey ?? null,
         displayOrder: parsed.data.displayOrder,
+        address: parsed.data.address ?? null,
+        phone: parsed.data.phone ?? null,
+        founded: parsed.data.founded ?? null,
+        hours: parsed.data.hours ?? null,
         isActive: parsed.data.isActive ? 1 : 0,
       })
       .where(eq(hfMarkets.id, id));

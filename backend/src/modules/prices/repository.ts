@@ -897,6 +897,10 @@ export async function listMarkets(city?: string, seoIndex?: boolean) {
       regionSlug:  hfMarkets.regionSlug,
       sourceKey:   hfMarkets.sourceKey,
       marketType:   marketTypeSql,
+      address:     hfMarkets.address,
+      phone:       hfMarkets.phone,
+      founded:     hfMarkets.founded,
+      hours:       hfMarkets.hours,
       seoIndex:    hfMarkets.seoIndex,
       updatedAt:   hfMarkets.updatedAt,
     })

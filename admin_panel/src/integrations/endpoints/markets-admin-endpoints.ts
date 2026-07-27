@@ -9,6 +9,10 @@ export type MarketAdminItem = {
   regionSlug: string | null;
   sourceKey: string | null;
   displayOrder: number;
+  address?: string | null;
+  phone?: string | null;
+  founded?: string | null;
+  hours?: string | null;
   isActive: number | boolean;
 };
 
@@ -19,6 +23,10 @@ export type MarketAdminPayload = {
   regionSlug?: string | null;
   sourceKey?: string | null;
   displayOrder?: number;
+  address?: string | null;
+  phone?: string | null;
+  founded?: string | null;
+  hours?: string | null;
   isActive?: boolean;
 };
 

@@ -162,15 +162,23 @@ export default async function HalPage({ params }: Props) {
   const mapQuery = `${market.name} ${market.cityName}`.trim();
   const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
 
+  // Künye: DB (admin'den düzenlenebilir) öncelikli, market-content.ts fallback.
+  const halInfo = {
+    location: market.address || editorial.location || null,
+    phone: market.phone || editorial.phone || null,
+    founded: market.founded || editorial.founded || null,
+    hours: market.hours || editorial.hours || null,
+  };
+
   const placeSchema = {
     name: market.name,
     description: `${market.name} — ${market.cityName} güncel hal ve toptancı pazar fiyatları.`,
     url: `${SITE_URL}/hal/${slug}`,
-    ...(editorial.phone ? { telephone: editorial.phone } : {}),
+    ...(halInfo.phone ? { telephone: halInfo.phone } : {}),
     hasMap: mapUrl,
     address: {
       "@type": "PostalAddress",
-      ...(editorial.location ? { streetAddress: editorial.location } : {}),
+      ...(halInfo.location ? { streetAddress: halInfo.location } : {}),
       addressLocality: market.cityName,
       addressCountry: "TR",
     },
@@ -405,35 +413,35 @@ export default async function HalPage({ params }: Props) {
         </section>
       )}
 
-      {/* Hal künyesi — doğrulanmış konum/telefon/kuruluş + harita (benzersiz yerel içerik) */}
-      {(editorial.location || editorial.phone || editorial.founded || editorial.hours) && (
+      {/* Hal künyesi — DB (admin) öncelikli, doğrulanmış konum/telefon/kuruluş + harita */}
+      {(halInfo.location || halInfo.phone || halInfo.founded || halInfo.hours) && (
         <section className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5">
           <h2 className="text-base font-semibold text-foreground">{market.name} — Künye ve İletişim</h2>
           <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-            {editorial.location && (
+            {halInfo.location && (
               <div className="sm:col-span-2">
                 <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Konum</dt>
-                <dd className="mt-1 text-sm text-foreground">{editorial.location}</dd>
+                <dd className="mt-1 text-sm text-foreground">{halInfo.location}</dd>
               </div>
             )}
-            {editorial.phone && (
+            {halInfo.phone && (
               <div>
                 <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Telefon</dt>
                 <dd className="mt-1 text-sm">
-                  <a href={`tel:${editorial.phone.replace(/[^\d+]/g, "")}`} className="font-semibold text-brand hover:underline">{editorial.phone}</a>
+                  <a href={`tel:${halInfo.phone.replace(/[^\d+]/g, "")}`} className="font-semibold text-brand hover:underline">{halInfo.phone}</a>
                 </dd>
               </div>
             )}
-            {editorial.founded && (
+            {halInfo.founded && (
               <div>
                 <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Kuruluş</dt>
-                <dd className="mt-1 text-sm text-foreground">{editorial.founded}</dd>
+                <dd className="mt-1 text-sm text-foreground">{halInfo.founded}</dd>
               </div>
             )}
-            {editorial.hours && (
+            {halInfo.hours && (
               <div>
                 <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Satış Saatleri</dt>
-                <dd className="mt-1 text-sm text-foreground">{editorial.hours}</dd>
+                <dd className="mt-1 text-sm text-foreground">{halInfo.hours}</dd>
               </div>
             )}
           </dl>

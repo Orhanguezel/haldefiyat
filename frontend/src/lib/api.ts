@@ -95,6 +95,10 @@ export interface Market {
   regionSlug: string | null;
   sourceKey: string | null;
   marketType?: "hal" | "borsa" | "resmi" | "kooperatif";
+  address?: string | null;
+  phone?: string | null;
+  founded?: string | null;
+  hours?: string | null;
   seoIndex?: number | boolean;
   updatedAt?: string;
 }
