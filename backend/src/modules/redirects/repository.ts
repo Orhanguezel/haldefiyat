@@ -474,17 +474,17 @@ export async function runSeoIndexMaintenance() {
   `);
 
   // TUTARLI-NİŞ UP: az halli (mc<3) ama SÜREKLİ veri veren niş ürün. mc≥3 eşiği bunları
-  // dışlıyordu; ancak 30 günde ≥20 farklı günde fiyat = tek-atış glitch değil, gerçek seri.
-  // editoryel + dq≥70 + ≥20 gün → içerik + veri gerçek. Limon çeşidi, yer elması, mangostan,
-  // taze börülce gibi yüksek-aramalı ama az-marketli kalemleri açar (doorway değil: her biri
-  // özgün editöryel + aylık günlük veriye sahip).
+  // dışlıyordu; ancak 30 günde ≥15 farklı günde fiyat (ayın ~yarısı) = tek-atış glitch değil,
+  // gerçek seri. editoryel + dq≥70 + ≥15 gün → içerik + veri gerçek. Limon çeşidi, yer elması,
+  // mangostan, karadut, taze börülce gibi yüksek-aramalı ama az-marketli kalemleri açar
+  // (doorway değil: her biri özgün editöryel + aylık düzenli veriye sahip).
   const upNiche = await db.execute(sql`
     UPDATE hf_products p
     JOIN hf_product_editorial e ON e.product_slug = p.slug AND e.published_at IS NOT NULL
     JOIN ${signals} s ON s.product_id = p.id
     SET p.seo_index = 1
     WHERE p.canonical_slug IS NULL AND p.seo_index = 0
-      AND p.data_quality >= 70 AND s.hal_rows >= 1 AND s.days >= 20
+      AND p.data_quality >= 70 AND s.hal_rows >= 1 AND s.days >= 15
   `);
 
   // DEMOTE: verisi kuruyan / thin olan indexli sayfaları noindex'e çek. Hal ürünü <3 hal
@@ -498,7 +498,7 @@ export async function runSeoIndexMaintenance() {
     SET p.seo_index = 0
     WHERE p.seo_index = 1 AND p.canonical_slug IS NULL
       AND NOT (p.category_slug IN ${STAPLE_CATS} AND COALESCE(r.chains, 0) >= 3)
-      AND NOT (COALESCE(s.days, 0) >= 20 AND ed.product_slug IS NOT NULL AND p.data_quality >= 70)
+      AND NOT (COALESCE(s.days, 0) >= 15 AND ed.product_slug IS NOT NULL AND p.data_quality >= 70)
       AND (
         COALESCE(s.pr, 0) = 0
         OR (COALESCE(s.hal_rows, 0) >= 1 AND s.mc < 3)
