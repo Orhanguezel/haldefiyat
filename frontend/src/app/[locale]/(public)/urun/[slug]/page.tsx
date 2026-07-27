@@ -9,6 +9,7 @@ import {
   fetchPricesPage,
   fetchPriceHistory,
   fetchProducts,
+  fetchRetailPrices,
   type Product,
 } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
@@ -29,6 +30,7 @@ import ProductImage from "@/components/ui/ProductImage";
 import { getProductEditorial } from "@/lib/product-content";
 import AnswerBlock from "@/components/seo/AnswerBlock";
 import { calculateWindowTrend } from "@/lib/citability";
+import BannerSlot from "@/components/ads/BannerSlot";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -123,10 +125,26 @@ function formatDateTr(isoDate: string): string {
     : d.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
 }
 
+// Hal/borsa fiyatı olmayan paketli staple (pirinç, bulgur) için market rafı ortalaması —
+// meta açıklaması ve headline boş kalmasın; retail = birincil fiyat.
+async function fetchRetailPriceLine(slug: string, fallbackUnit: string): Promise<string> {
+  try {
+    const rows = await fetchRetailPrices(slug);
+    const vals = rows.map((r) => toNumberSafe(r.price)).filter((n) => Number.isFinite(n) && n > 0);
+    if (vals.length === 0) return "";
+    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const avgTr = avg.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const unit = rows.find((r) => r.unit)?.unit ?? fallbackUnit;
+    return `Market rafı ortalaması ${avgTr} TL/${unit} (${vals.length} zincir). `;
+  } catch {
+    return "";
+  }
+}
+
 async function fetchTodayPriceLine(slug: string, fallbackUnit: string): Promise<string> {
   try {
     const prices = await fetchPrices({ product: slug, range: "1d", limit: 50 });
-    if (prices.length === 0) return "";
+    if (prices.length === 0) return fetchRetailPriceLine(slug, fallbackUnit);
     const latestDate = prices.reduce((max, p) => (p.recordedDate > max ? p.recordedDate : max), "");
     const dayRows = prices.filter((p) => p.recordedDate === latestDate);
     const avgs = dayRows
@@ -759,6 +777,11 @@ export default async function UrunPage({ params }: Props) {
         markets={[]}
         yoyByMarket={yoyByMarket}
         hideProductColumn
+      />
+      <BannerSlot
+        position="urun_sidebar"
+        className="mt-8"
+        context={{ product: product.slug, category: product.categorySlug }}
       />
     </main>
   );

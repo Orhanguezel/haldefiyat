@@ -28,7 +28,7 @@ import { runGscBulkRefresh } from "@/modules/seo/gsc-bulk";
 import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
 import { processSocialQueueOnce } from "@agro/shared-backend/modules/twitter";
 import { runDailyMoversJob, runStaplesJob, createWeeklyAnalysisDraft } from "@/modules/social/daily-content";
-import { syncBannerLifecycle } from "@/modules/banners/repository";
+import { auditBannerTargets, processAdPaymentReminders, syncBannerLifecycle } from "@/modules/banners/repository";
 
 /**
  * Cron zamanlaması env'den gelir:
@@ -86,6 +86,10 @@ export function startCron(app: FastifyInstance): void {
     { name: "banner-lifecycle", schedule: "*/5 * * * *", handler: async () => {
       const result = await syncBannerLifecycle();
       if (result.started || result.completed || result.cancelledReservations) app.log.info(result, "[cron:banner-lifecycle] durumlar guncellendi");
+      const targetAudit = await auditBannerTargets();
+      if (targetAudit.problem) app.log.warn(targetAudit, "[cron:banner-targets] gecersiz hedefler pasiflestirildi");
+      const paymentReminders = await processAdPaymentReminders();
+      if (paymentReminders.reminded) app.log.warn(paymentReminders, "[cron:banner-payments] geciken odemeler icin personel uyarisi olusturuldu");
     } },
   ];
   if (env.ETL.firmPriceReminderSchedule) {
@@ -289,7 +293,7 @@ async function runSeoMaintenanceJob(app: FastifyInstance): Promise<void> {
   try {
     const r = await runSeoIndexMaintenance();
     app.log.info(
-      { flippedUp: r.flippedUp, flippedUpBorsa: r.flippedUpBorsa, demoted: r.demoted, durationMs: Date.now() - t0 },
+      { flippedUp: r.flippedUp, flippedUpBorsa: r.flippedUpBorsa, flippedUpRetail: r.flippedUpRetail, demoted: r.demoted, durationMs: Date.now() - t0 },
       "[cron:seo-maintenance] tamamlandi",
     );
 

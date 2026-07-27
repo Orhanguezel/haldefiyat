@@ -424,6 +424,15 @@ export async function runSeoIndexMaintenance() {
     GROUP BY ph.product_id
   )`;
 
+  // Perakende (market zinciri) sinyali — hal/borsa'sı olmayan paketli staple (pirinç,
+  // bulgur) için birincil fiyat kaynağı. hf_retail_prices ayrı tabloda.
+  const retailSignals = sql`(
+    SELECT product_id, COUNT(DISTINCT chain_slug) chains, COUNT(DISTINCT recorded_date) rdays
+    FROM hf_retail_prices WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+    GROUP BY product_id
+  )`;
+  const STAPLE_CATS = sql`('hububat','bakliyat-kuru','yagli-tohum')`;
+
   // HAL ürünü UP: ≥3 hal + dq≥70. Tek/iki marketli "thin" sayfaları Google zaten
   // "Discovered - not indexed" yapıyor → indexe zorlamak crawl bütçesi israfı.
   const up = await db.execute(sql`
@@ -448,20 +457,37 @@ export async function runSeoIndexMaintenance() {
       AND p.data_quality >= 60 AND s.hal_rows = 0 AND s.borsa_rows >= 1 AND s.days >= 3
   `);
 
+  // RETAIL-STAPLE UP: hal/borsa kaynağı YOK ama market zinciri fiyatı var (pirinç, bulgur).
+  // Staple kategorisinde + editoryel + ≥3 zincir + ≥3 gün. dq düşük kalır (hf_price_history
+  // yok) → dq gate uygulanmaz; editoryel + retail kapsamı içeriği garantiler. "Pirinç fiyatı"
+  // gibi yüksek arama nişini açar (retail = birincil fiyat, karar: Orhan onayı 2026-07-27).
+  const upRetail = await db.execute(sql`
+    UPDATE hf_products p
+    JOIN hf_product_editorial e ON e.product_slug = p.slug AND e.published_at IS NOT NULL
+    JOIN ${retailSignals} r ON r.product_id = p.id
+    LEFT JOIN ${signals} s ON s.product_id = p.id
+    SET p.seo_index = 1
+    WHERE p.canonical_slug IS NULL AND p.seo_index = 0
+      AND p.category_slug IN ${STAPLE_CATS}
+      AND COALESCE(s.pr, 0) = 0
+      AND r.chains >= 3 AND r.rdays >= 3
+  `);
+
   // DEMOTE: verisi kuruyan / thin olan indexli sayfaları noindex'e çek. Hal ürünü <3 hal
-  // ise düşür; borsa ürünü ise yalnız TAMAMEN veri kuruduğunda (pr=0) düşür — seyrek ama
-  // canlı borsa serisi korunur.
+  // ise düşür; borsa ürünü ise yalnız TAMAMEN veri kuruduğunda (pr=0) düşür. RETAIL-staple
+  // ise pr=0 olsa da retail kapsamı (≥3 zincir) sürdükçe KORUNUR — yalnız retail de kuruyunca düşer.
   const down = await db.execute(sql`
     UPDATE hf_products p
     LEFT JOIN ${signals} s ON s.product_id = p.id
+    LEFT JOIN ${retailSignals} r ON r.product_id = p.id
     SET p.seo_index = 0
     WHERE p.seo_index = 1 AND p.canonical_slug IS NULL
       AND (
-        COALESCE(s.pr, 0) = 0
+        (COALESCE(s.pr, 0) = 0 AND NOT (p.category_slug IN ${STAPLE_CATS} AND COALESCE(r.chains, 0) >= 3))
         OR (COALESCE(s.hal_rows, 0) >= 1 AND s.mc < 3)
       )
   `);
 
   const affected = (r: unknown) => Number((Array.isArray(r) ? (r[0] as { affectedRows?: number }) : null)?.affectedRows ?? 0);
-  return { flippedUp: affected(up), flippedUpBorsa: affected(upBorsa), demoted: affected(down) };
+  return { flippedUp: affected(up), flippedUpBorsa: affected(upBorsa), flippedUpRetail: affected(upRetail), demoted: affected(down) };
 }
