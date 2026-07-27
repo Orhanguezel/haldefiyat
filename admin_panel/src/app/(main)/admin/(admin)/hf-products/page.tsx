@@ -48,6 +48,18 @@ const ACTION_META: Record<
   variant: { label: "—", variant: "outline", hint: "Varyant (301) — aksiyon yok" },
 };
 
+// Fırsat sırası: hangi aksiyon en yüksek getirili (yaz→hemen index) → en düşük.
+// Aynı aksiyon içinde çok aranan (searchVolume) öne gelir.
+const ACTION_RANK: Record<HfProductAction, number> = {
+  ready_editorial: 0,
+  maintenance_pending: 1,
+  needs_coverage: 2,
+  recrawl_pending: 3,
+  seasonal_dry: 4,
+  indexed: 5,
+  variant: 6,
+};
+
 export default function Page() {
   const [q, setQ] = useState("");
   const [category, setCategory] = useState(ALL);
@@ -55,7 +67,7 @@ export default function Page() {
   const [seoIndex, setSeoIndex] = useState(ALL);
   const [variantFilter, setVariantFilter] = useState(ALL);
   const [gscFilter, setGscFilter] = useState(ALL);
-  const [sortKey, setSortKey] = useState<"name" | "category" | "quality" | "search">("name");
+  const [sortKey, setSortKey] = useState<"opportunity" | "name" | "category" | "quality" | "search">("opportunity");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [masterId, setMasterId] = useState<string>("");
@@ -134,6 +146,12 @@ export default function Page() {
       return true;
     });
     arr.sort((a, b) => {
+      if (sortKey === "opportunity") {
+        // Önce aksiyon önceliği, eşitlikte çok aranan üste. sortDir tüm sırayı çevirir.
+        const rankCmp = ACTION_RANK[a.action ?? "variant"] - ACTION_RANK[b.action ?? "variant"];
+        const cmp = rankCmp !== 0 ? rankCmp : Number(b.searchVolume ?? 0) - Number(a.searchVolume ?? 0);
+        return sortDir === "asc" ? cmp : -cmp;
+      }
       let cmp = 0;
       if (sortKey === "name")
         cmp = (a.displayName || a.nameTr || "").localeCompare(b.displayName || b.nameTr || "", "tr");
@@ -328,6 +346,17 @@ export default function Page() {
               <SelectItem value="indexed">İndexli</SelectItem>
             </SelectContent>
           </Select>
+          <Button
+            size="sm"
+            variant={sortKey === "opportunity" ? "secondary" : "outline"}
+            onClick={() => {
+              setSortKey("opportunity");
+              setSortDir("asc");
+            }}
+            title="Aksiyon gerektiren + çok aranan ürünler en üstte (yaz→index olacak fırsatlar)"
+          >
+            🎯 Fırsat sırası
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
