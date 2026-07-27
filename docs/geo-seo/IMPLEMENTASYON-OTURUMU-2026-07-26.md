@@ -2084,6 +2084,25 @@ Commit: `6775780a feat(trust): publish transparency policy content`
 - Kaynakların üçü de erişim çözümü beklediği için operasyonel konu açık;
   GEO/SEO ana checklist sayacı değişmedi: 61/66 tamamlanan, 5/66 açık.
 
+### 3.80 DKIM Selector ve Alignment Canlı Kabulü
+
+- Hesap gerektirmeyen bağımsız DKIMValidator alıcısına canlı backend'in gerçek
+  Resend SMTP yolundan teknik test iletisi gönderildi.
+- Alıcı ham iletisinde görünür From `noreply@haldefiyat.com`; birincil imza
+  `d=haldefiyat.com`, `s=resend`, `a=rsa-sha256`.
+- Validator yetkili DNS'ten `resend._domainkey.haldefiyat.com` public key'ini
+  aldı ve kriptografik sonucu `pass` verdi.
+- From ve signing domain exact eşleştiği için DKIM alignment kabulü kapandı.
+- Validator SPF görünümünde inbound aktarım Return-Path'i korunmadığından From
+  alanını envelope sender varsayıp kök SPF için `none` verdi. Bu sonuç
+  `send.haldefiyat.com` Return-Path DNS modelini çürüten SPF kanıtı olarak
+  kullanılmadı; DMARC `rua` ve yedi günlük rapor maddesi açık kaldı.
+- Kamu taramasında `tarvista.com` ve `bereketfide.com.tr` üzerinde iki gerçek
+  ekosistem backlink'i doğrulandı; bağımsız kazanılmış mention bulunmadı.
+  Bunlar bağımsız referring-domain metriğine katılmadı.
+- Kanıt: `docs/geo-seo/DKIM-ALIGNMENT-KABULU-2026-07-27.md`.
+- Sayaç 62/66 tamamlanan ve 4/66 açık olarak güncellendi.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.

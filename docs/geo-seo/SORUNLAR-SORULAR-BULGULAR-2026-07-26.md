@@ -11,9 +11,9 @@ altyapısal bulguları tutar.
   Message-ID
   `<40b5618c-176a-3c08-ba8f-bd2efbff881f@haldefiyat.com>`,
   `accepted=1`, `rejected=0`.
-- SPF/DKIM/DMARC aligned-pass kapanışı için yönetici Gmail posta kutusundaki
-  iletinin ham `Authentication-Results` başlığı gerekiyor. Gmail bağlantısı
-  önerildi; bağlantı henüz onaylanmadı.
+- **DKIM kapandı:** bağımsız alıcıdaki gerçek iletide `s=resend`,
+  `d=haldefiyat.com`, DNS public key ve kriptografik `pass` görüldü; From ile
+  signing domain exact aligned.
 - DNS Turhost tarafından yönetiliyor. Sunucuda DNS API anahtarı yok ve DMARC
   aggregate raporlarını alacak kontrollü posta kutusu belirlenmemiş.
 - Karar gereken konu: `rua` için yönetilen adres/servis. Adres tanımlandıktan
@@ -83,7 +83,7 @@ altyapısal bulguları tutar.
   belirlenmediğinden OpenAPI'ye varsayımsal lisans adı yazılmadı; validator'ın
   `info-license` uyarısı bilinçli olarak açık.
 
-### Gmail DKIM kanıt araması
+### Gmail DKIM ek kanıt araması
 
 - Bağlı Gmail hesabında
   `rfc822msgid:40b5618c-176a-3c08-ba8f-bd2efbff881f@haldefiyat.com`
@@ -94,8 +94,8 @@ altyapısal bulguları tutar.
 - Bu sonuç Resend'in kabul ettiği iletinin teslim edilmediğini kanıtlamaz.
   Bağlı hesabın test alıcısı olmadığı veya iletinin bu kutuda tutulmadığı
   anlamına gelebilir.
-- DKIM/alignment kabulü, gerçek alıcı kutusundaki ham
-  `Authentication-Results` görülmeden açık kalır.
+- Bağımsız alıcı testi DKIM/alignment kabulünü kapattı. Gmail iletisi bulunursa
+  yalnız sağlayıcılar-arası ek teslim kanıtı olacaktır.
 
 ### ETL veri akışı
 

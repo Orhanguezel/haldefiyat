@@ -30,12 +30,20 @@ Return-Path alt alanında, DKIM ise `resend._domainkey` altında tanımlanır.
 Dolayısıyla kökte SPF bulunmaması tek başına hata değildir; köke ikinci ve
 gereksiz SPF eklemek yerine gerçek envelope alanındaki tek kayıt korunmalıdır.
 
+## DKIM canlı kabul — kapandı 27 Temmuz
+
+- Canlı backend'in kullandığı `smtp.resend.com:465` yolundan bağımsız
+  DKIMValidator alıcısına gerçek teknik test iletisi gönderildi.
+- Görünür From: `HaldeFiyat <noreply@haldefiyat.com>`.
+- Birincil DKIM: `d=haldefiyat.com`, `s=resend`, `a=rsa-sha256`.
+- Yetkili DNS'ten `resend._domainkey.haldefiyat.com` anahtarı bulundu.
+- Kriptografik doğrulama: `result = pass`.
+- From domain'i ile signing domain birebir aynı olduğundan relaxed/strict
+  DKIM alignment geçer.
+- Ayrıntı: `docs/geo-seo/DKIM-ALIGNMENT-KABULU-2026-07-27.md`.
+
 ## Açık kabul
 
-- DNS’te DKIM public key bulunması, gerçek iletinin `DKIM-Signature` ve
-  `Authentication-Results` header’ında `dkim=pass` kanıtı değildir.
-- Gerçek test mesajı alınabilecek bir mailbox veya mail-tester adresiyle SPF,
-  DKIM ve DMARC alignment birlikte doğrulanmalıdır.
 - DMARC raporlarının gideceği kontrollü mailbox belirlenmeden `rua` uydurulmaz.
 - `rua` eklendikten sonra en az yedi günlük rapor incelenmeden `quarantine` veya
   `reject` politikasına geçilmez.
@@ -48,11 +56,11 @@ gereksiz SPF eklemek yerine gerçek envelope alanındaki tek kayıt korunmalıd�
 - SMTP sonucu: `accepted=1`, `rejected=0`
 - Message-ID:
   `<40b5618c-176a-3c08-ba8f-bd2efbff881f@haldefiyat.com>`
-- Bu sonuç Resend'in mesajı kabul ettiğini kanıtlar; alıcı tarafındaki
-  `Authentication-Results` başlığı görülmeden SPF/DKIM/DMARC aligned-pass
-  maddesi kapatılmaz.
+- Bu sonuç Resend'in mesajı kabul ettiğini kanıtladı. Sonraki bağımsız alıcı
+  testi DKIM selector/imza/alignment kabulünü ayrıca kapattı.
 - Gmail bağlantısı önerildi. Bağlantı sağlandığında yukarıdaki Message-ID ile
-  ileti bulunup ham başlık kanıtı bu dosyaya eklenecek.
+  ileti bulunursa Gmail alıcı-yüzeyi için ek kanıt olarak arşivlenebilir; DKIM
+  kabulünün kapanması artık bu kutuya bağlı değildir.
 
 ## DNS yönetimi durumu
 

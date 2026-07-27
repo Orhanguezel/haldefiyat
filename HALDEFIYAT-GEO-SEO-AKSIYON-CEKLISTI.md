@@ -7,8 +7,8 @@
 
 ## Güncel durum (2026-07-26)
 
-- **Tamamlanan:** 61/66 checkbox — kapanış kanıtları bu dosyada korunur.
-- **Açık:** 5/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
+- **Tamamlanan:** 62/66 checkbox — kapanış kanıtları bu dosyada korunur.
+- **Açık:** 4/66 checkbox — birleşik Lighthouse/dependency maddesi kabul ve
   kalan iş olarak ayrıldığı için toplam takip maddesi 66 oldu. Açıklar:
   `HALDEFIYAT-GEO-SEO-ACIK-ISLER.md`.
 - Bu dosyaya yeni açık iş eklenmez. Açık dosyada tamamlanan maddeler, kanıtıyla
@@ -46,6 +46,10 @@ ayrı açık işler dosyasına taşınmıştır.
 
 - [x] Canlı backend ve kod yollarında gönderen envanteri çıkarıldı: tek sağlayıcı Resend SMTP, görünür gönderen `noreply@haldefiyat.com`; ikinci SMTP/API sağlayıcısı bulunmadı. (`docs/geo-seo/DNS-MAIL-AUTH-DENETIMI-2026-07-26.md`)
 - [x] Resend’in gerçek Return-Path alanı `send.haldefiyat.com` üzerinde tek SPF (`include:amazonses.com ~all`) ve bölge MX kaydı doğrulandı; köke ikinci SPF eklenmemesi kayda alındı. (`docs/geo-seo/DNS-MAIL-AUTH-DENETIMI-2026-07-26.md`)
+- [x] Canlı SMTP yolundan bağımsız test alıcısına giden gerçek iletide
+  `d=haldefiyat.com`, `s=resend` imzası DNS anahtarıyla kriptografik olarak
+  `pass` verdi; görünür From domain'iyle DKIM alignment birebir eşleşti.
+  (`docs/geo-seo/DKIM-ALIGNMENT-KABULU-2026-07-27.md`)
 
 ### 0.1 Ana sayfa H1 — 🤖 Codex → 🔎 Claude doğrular
 - [x] Hero'daki H2 ("Türkiye Hal Fiyatları Tek Ekranda") → tek görünür `<h1>`; tasarım/CSS sınıfları AYNEN korunur. (`c8600951`)

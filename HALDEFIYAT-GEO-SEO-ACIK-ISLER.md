@@ -3,9 +3,9 @@
 > Kaynak checklist:
 > `HALDEFIYAT-GEO-SEO-AKSIYON-CEKLISTI.md`
 >
-> Tarih: 2026-07-27 · Durum: **5 açık madde**
+> Tarih: 2026-07-27 · Durum: **4 açık madde**
 >
-> Bu dosya yalnız açık işleri içerir. Tamamlanmış 61 madde, kapanış kanıtlarıyla
+> Bu dosya yalnız açık işleri içerir. Tamamlanmış 62 madde, kapanış kanıtlarıyla
 > ana aksiyon checklist'inde korunur. Burada tamamlanan bir madde `[x]`
 > yapıldıktan sonra ana checklist'e taşınmalı ve iki dosyanın sayaçları birlikte
 > güncellenmelidir.
@@ -17,7 +17,6 @@
 
 ### SPF ve DMARC — 🧑 Orhan / DNS
 
-- [ ] DKIM selector ve alignment'ı gerçek test e-postasıyla doğrula.
 - [ ] DMARC `rua` mailbox ekle; rapor gözleminden sonra `p=quarantine; pct=25`, `pct=100` ve gerekirse `reject` sırasını uygula.
 
 Kabul: SPF pass, DKIM pass ve DMARC aligned pass; yedi günlük raporda
@@ -25,9 +24,8 @@ beklenmedik meşru gönderici bulunmuyor.
 
 Mevcut kanıt/engel:
 
-- Resend test iletisini kabul etti; Message-ID kayıtlı. Bağlı Gmail hesabında
-  exact Message-ID ve tarih/gönderen araması sonuç vermedi; gerçek alıcı Gmail
-  kutusunun ham `Authentication-Results` başlığı gerekli.
+- DKIM gerçek test iletisiyle kapandı: selector `resend`, signing domain
+  `haldefiyat.com`, doğrulama `pass`; görünür From ile exact alignment.
 - DNS Turhost'ta; sunucuda DNS API erişimi ve doğrulanmış `rua` mailbox yok.
   Mailbox + DNS değişikliği sonrası en az 7 günlük `p=none` gözlemi zorunlu.
 
