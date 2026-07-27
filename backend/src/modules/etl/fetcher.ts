@@ -88,6 +88,7 @@ function parseResponse(
     case "trabzon_html":      return parseTrabzonHtml(String(raw));
     case "batiakdeniz_html":  return parseBatiakdenizHtml(String(raw));
     case "bolu_html":         return parseBoluHtml(String(raw));
+    case "tokat_html":        return parseTokatHtml(String(raw));
     case "tmo_pdf_bulten":    return parseBorsaText(String(raw));
     case "polatli_borsa_json": return parsePolatliBorsaJson(raw);
     case "tobb_borsa_html":   return parseTobbBorsaHtml(String(raw));
@@ -1478,6 +1479,34 @@ function parseKutahyaHtml(html: string): NormalizedRow[] {
  * Tek tablo, kolonlar: Tip(MEYVE/SEBZE) | Adı | Birim | En Az | En Çok.
  * Fiyat formatı "110,00 TL". Sayfa tarih parametresi almaz (daima güncel).
  */
+/**
+ * Tokat Belediyesi — https://www.tokat.bel.tr/hal-fiyatlari
+ * Tek SSR tablo. Kolonlar: Ürün | Tür | Birim | En Düşük | En Yüksek | Önceki Fiyat | Değişim.
+ * Birim satır-bazlı (Demet/Adet/Bağ/Kg). Fiyat "12.00 ₺" (nokta ondalık). Tarih parametresi yok.
+ */
+function parseTokatHtml(html: string): NormalizedRow[] {
+  const out: NormalizedRow[] = [];
+  const tables = extractTables(html);
+  if (tables.length === 0) return out;
+  for (const row of tables[0]!) {
+    if (row.length < 5) continue;
+    const name = (row[0] ?? "").trim();
+    if (!name || /^(ürün|tür|birim|en düşük|en yüksek|önceki|değişim)$/i.test(name)) continue;
+    const turRaw = (row[1] ?? "").trim().toLocaleLowerCase("tr-TR");
+    const category = turRaw.includes("meyve")
+      ? "meyve"
+      : turRaw.includes("sebze") || turRaw.includes("yeşillik")
+        ? "sebze"
+        : null;
+    const min = parsePriceTry(row[3] ?? "");
+    const max = parsePriceTry(row[4] ?? "");
+    if (min == null && max == null) continue;
+    const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
+    out.push({ name, category, unit: normalizeUnit(row[2] ?? ""), avg, min, max });
+  }
+  return out;
+}
+
 function parseManisaHtml(html: string): NormalizedRow[] {
   const out: NormalizedRow[] = [];
   const tables = extractTables(html);

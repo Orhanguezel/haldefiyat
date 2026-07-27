@@ -41,6 +41,7 @@ type ResponseShape =
   | "trabzon_html"
   | "batiakdeniz_html"
   | "bolu_html"
+  | "tokat_html"
   | "tmo_alim_resmi"
   | "tmo_pdf_bulten"
   | "polatli_borsa_json"
@@ -468,6 +469,18 @@ const RAW_SOURCES: RawSource[] = [
     defaultBaseUrl:    "https://www.bolu.bel.tr",
     defaultEndpoint:   "/",
     responseShape:     "bolu_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "sebze-meyve",
+  },
+  // Tokat Belediyesi — SSR HTML, tek tablo (Ürün|Tür|Birim|En Düşük|En Yüksek|...).
+  // Birim satır-bazlı (Demet/Adet/Bağ/Kg). Fiyat "12.00 ₺". Tarih parametresi yok.
+  {
+    key:               "tokat_resmi",
+    defaultEnabled:    true,
+    defaultMarketSlug: "tokat-hal",
+    defaultBaseUrl:    "https://www.tokat.bel.tr",
+    defaultEndpoint:   "/hal-fiyatlari",
+    responseShape:     "tokat_html",
     defaultUnit:       "kg",
     defaultCategory:   "sebze-meyve",
   },

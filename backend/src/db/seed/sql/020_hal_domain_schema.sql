@@ -162,6 +162,7 @@ INSERT INTO `hf_markets` (`slug`, `name`, `city_name`, `region_slug`, `source_ke
 ('demre-hal',              'Demre Toptancı Hali',                  'Antalya',   'akdeniz',    'demre_batiakdeniz',        'hal', 26, 1),
 ('finike-hal',             'Finike Toptancı Hali',                 'Antalya',   'akdeniz',    'finike_batiakdeniz',       'hal', 27, 1),
 ('bolu-hal',               'Bolu Toptancı Hali',                   'Bolu',      'karadeniz',  'bolu_resmi',               'hal', 28, 1),
+('tokat-hal',              'Tokat Toptancı Hali',                  'Tokat',     'karadeniz',  'tokat_resmi',              'hal', 29, 1),
 ('tmo-resmi-alim',         'TMO Resmi Alım',                       'Türkiye',   'ulusal',     'tmo_alim_resmi',           'resmi', 101, 1),
 ('tmo-piyasa-bulteni',     'TMO Piyasa Bülteni',                   'Türkiye',   'ulusal',     'tmo_piyasa_bulteni',       'borsa', 102, 1),
 ('polatli-ticaret-borsasi','Polatlı Ticaret Borsası',              'Ankara',    'ic-anadolu', 'polatli_borsa',           'borsa', 103, 1),
