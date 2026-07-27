@@ -282,3 +282,28 @@ body {
   animation: live-pulse 2s ease-out infinite;
 }
 
+
+/* ── Analiz raporu zengin metin (rich text) — semantik içeriği tutarlı stiller.
+   İçerik temiz HTML (h2/p/table/strong/ul); stil buradan gelir, gömülü <style> gerekmez.
+   Eski kendi-stilli (hdf-report) raporlar da bozulmaz (kendi CSS'leri override eder). */
+.report-prose { color: var(--color-foreground); line-height: 1.75; }
+.report-prose > :first-child { margin-top: 0; }
+.report-prose h2 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; margin: 2.25rem 0 0.75rem; color: var(--color-foreground); }
+.report-prose h3 { font-size: 1.15rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: var(--color-foreground); }
+.report-prose p { margin: 0 0 1rem; }
+.report-prose strong { font-weight: 700; color: var(--color-foreground); }
+.report-prose a { color: var(--color-brand); text-decoration: underline; text-underline-offset: 2px; }
+.report-prose ul, .report-prose ol { margin: 0 0 1rem; padding-left: 1.5rem; }
+.report-prose ul { list-style: disc; } .report-prose ol { list-style: decimal; }
+.report-prose li { margin: 0.35rem 0; }
+.report-prose .kicker { font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-success); font-weight: 700; margin: 0.5rem 0 0.6rem; }
+.report-prose .dek { font-size: 1.125rem; color: var(--color-muted); font-family: var(--font-display); margin: 0 0 1.5rem; }
+.report-prose .meta { display: flex; flex-wrap: wrap; gap: 20px; padding: 14px 0; margin: 0 0 1.75rem; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); font-size: 0.8125rem; color: var(--color-muted); }
+.report-prose table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1.5rem; font-size: 0.875rem; }
+.report-prose th { text-align: left; padding: 9px 10px; border-bottom: 2px solid var(--color-border); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-muted); }
+.report-prose td { padding: 9px 10px; border-bottom: 1px solid var(--color-border); }
+.report-prose td.num, .report-prose th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.report-prose .up { color: var(--color-danger); font-weight: 700; }
+.report-prose .down { color: var(--color-success); font-weight: 700; }
+.report-prose .note { background: var(--color-bg-alt); border: 1px solid var(--color-border); border-radius: 8px; padding: 16px 18px; font-size: 0.8125rem; color: var(--color-muted); margin: 1.5rem 0; }
+.report-prose .overflow-x { overflow-x: auto; }
