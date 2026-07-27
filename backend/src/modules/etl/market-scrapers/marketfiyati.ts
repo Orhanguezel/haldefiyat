@@ -242,6 +242,32 @@ export async function runMarketfiyatiEtl(
   // 2) Her keyword için search → menu_category filter → bucket
   const buckets = new Map<string, Bucket>();
 
+  // 2a) Faz A2/A3: küratörlü perakende dikeyi (süt/et + paketli bakliyat). Fresh-produce
+  // döngüsünden ÖNCE çalışır — marketfiyati ~750 çağrıdan sonra IP'yi throttle'layıp boş
+  // döndürüyor; kürasyonlu az sayıda keyword taze rate budget ile veri alsın diye başta.
+  for (const x of RETAIL_EXTRA) {
+    const found = await searchKeyword(x.keyword);
+    result.apiCallCount++;
+    const productId = await findOrCreateRetailProduct(x);
+    for (const p of found) {
+      if (p.menu_category !== x.menuCategory) continue;
+      // Türkçe büyütme (ı→I, i→İ) — JS /i flag'i Türkçe katlamaz; uppercased başlıkta eşleştir.
+      const title = (p.title ?? "").toLocaleUpperCase("tr-TR");
+      if (!x.include.test(title) || x.exclude.test(title)) continue;
+      for (const d of p.productDepotInfoList ?? []) {
+        const chain = d.marketAdi as ChainSlug;
+        if (!SUPPORTED_CHAINS.includes(chain)) continue;
+        const price = Number(d.unitPriceValue);
+        if (!Number.isFinite(price) || price <= 0) continue;
+        const key = bucketKey(chain, productId);
+        const existing = buckets.get(key);
+        if (existing) { existing.sum += price; existing.count += 1; }
+        else buckets.set(key, { sum: price, count: 1, productNameRaw: p.title, unit: x.unit });
+      }
+    }
+  }
+
+  // 2b) Fresh produce (sebze-meyve) — çok sayıda keyword; throttle riski en son burada.
   for (const keyword of keywords) {
     const found = await searchKeyword(keyword);
     result.apiCallCount++;
@@ -276,37 +302,6 @@ export async function runMarketfiyatiEtl(
     }
   }
 
-  // 2b) Faz A2: süt/et perakende dikeyi — küratörlü keyword + başlık filtresi.
-  for (const x of RETAIL_EXTRA) {
-    const found = await searchKeyword(x.keyword);
-    result.apiCallCount++;
-    const productId = await findOrCreateRetailProduct(x);
-    let dbgPass = 0, dbgMc = 0, dbgBucket = 0; // DEBUG
-    for (const p of found) {
-      if (p.menu_category !== x.menuCategory) { dbgMc++; continue; }
-      // Türkçe büyütme (ı→I, i→İ) — JS /i flag'i Türkçe katlamaz; uppercased başlıkta eşleştir.
-      const title = (p.title ?? "").toLocaleUpperCase("tr-TR");
-      if (!x.include.test(title) || x.exclude.test(title)) continue;
-      dbgPass++; // DEBUG
-      const depots = p.productDepotInfoList ?? [];
-      for (const d of depots) {
-        const chain = d.marketAdi as ChainSlug;
-        if (!SUPPORTED_CHAINS.includes(chain)) continue;
-        const price = Number(d.unitPriceValue);
-        if (!Number.isFinite(price) || price <= 0) continue;
-        dbgBucket++; // DEBUG
-        const key = bucketKey(chain, productId);
-        const existing = buckets.get(key);
-        if (existing) {
-          existing.sum += price;
-          existing.count += 1;
-        } else {
-          buckets.set(key, { sum: price, count: 1, productNameRaw: p.title, unit: x.unit });
-        }
-      }
-    }
-    console.log(`[RETAIL_EXTRA] ${x.slug}: found=${found.length} mcFail=${dbgMc} passed=${dbgPass} bucketed=${dbgBucket}`); // DEBUG
-  }
 
   // 3) Bucket → hf_retail_prices upsert (AVG)
   for (const [key, b] of buckets.entries()) {
