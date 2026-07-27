@@ -2562,7 +2562,9 @@ export async function runWaybackBackfill(
     try {
       const res = await fetch(archiveUrl, { signal: AbortSignal.timeout(90_000) });
       if (!res.ok) { out.errors.push(`${snap.date}: HTTP ${res.status}`); continue; }
-      html = await res.text();
+      // Wayback `id_` ham arsiv headerlarini korur → charset'i (windows-1254 vb.) decode et.
+      // Eski `res.text()` UTF-8 varsayip Turkce karakterleri bozuyordu (ZENCEFİL→ZENCEF�L).
+      html = await decodeResponseBody(res);
     } catch (err) {
       out.errors.push(`${snap.date}: ${err instanceof Error ? err.message : String(err)}`);
       continue;
