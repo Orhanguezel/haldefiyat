@@ -286,7 +286,9 @@ export default async function UrunPage({ params }: Props) {
   const [history, todayPrices, editorial, borsaPricePage, resmiPrices] = await Promise.all([
     // 5 yıl history — PriceChart kendi içinde 7G/30G/90G filtreler;
     // SeasonCompare aynı veriden yıl grupları çıkarır (en az 2 yıl lazım).
-    fetchPriceHistory(slug, undefined, "1825d"),
+    // bucket=auto: son 90 gün günlük (grafik birebir aynı), 90-365g haftalık,
+    // ötesi aylık → payload ~%74 küçülür (bezelye 388KB→102KB), sayfa hızlanır.
+    fetchPriceHistory(slug, undefined, "1825d", "auto"),
     fetchPrices({ product: slug, marketType: borsaProduct ? undefined : "hal", range: "1d", limit: 20 }),
     getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug }),
     borsaProduct

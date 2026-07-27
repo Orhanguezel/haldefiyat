@@ -695,8 +695,9 @@ export async function fetchPriceHistory(
   productSlug: string,
   marketSlug?: string,
   range?: string,
+  bucket?: "daily" | "weekly" | "monthly" | "auto",
 ): Promise<PriceHistoryRow[]> {
-  const qs = buildQuery({ market: marketSlug, range });
+  const qs = buildQuery({ market: marketSlug, range, bucket });
   return safeFetch<PriceHistoryRow[]>(
     `/prices/history/${encodeURIComponent(productSlug)}${qs}`,
     300,
