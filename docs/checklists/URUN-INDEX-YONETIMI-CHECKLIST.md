@@ -168,6 +168,22 @@ varsayımıyla yazılmış → borsa ürünü yapısal olarak indexlenemiyor (27
       soruları: erik-siyah distinct mi? soğan-mor? biber tipleri?). Noindex-thin, zararsız; otonom
       merge = kayıp riski. Kullanıcı kararı: "bunu sonda yapalım." Birlikte aile-aile geçilecek.
 
+## 3.7 Retail-as-primary + pasif temizlik + ETL teşhis (2026-07-27, Orhan kararlarıyla)
+
+- [x] **Retail-as-primary AÇILDI (#1):** `runSeoIndexMaintenance`'a RETAIL-STAPLE UP dalı
+      (staple kategori + editoryel + ≥3 zincir retail, hal/borsa yok). Frontend headline
+      retail'e düşüyor. **pirinç (11K), kuru-fasulye (6.8K), bulgur index'lendi** — market
+      rafı ortalaması sayfada + meta'da. mercimek edge-case (borsa days<3 + s.pr>0), bekliyor.
+- [x] **132 pasif → 69 SİLİNDİ (#2):** pasif+master+<10 geçmiş+0 arama (bozuk slug çöpü).
+      **63 KORUNDU:** varyant (silmek 301→404) / 10+ geçmiş (FK CASCADE veri kaybı) / aramalı.
+- [x] **Belirsiz cluster öneri listesi (#3):** 102 varyant önerimle gruplandı (44 birleştir /
+      17 ayrı kalsın / 41 muhtemelen ayrı) → karar artifact'ı. Orhan ile birlikte uygulanacak.
+- [ ] **ETL genişletme (#4) — TEŞHİS TAMAM, BUILD BEKLİYOR:** 50+ kaynak sağlıklı. Eksik BÜYÜK
+      şehir halleri: **Adana (200, JS-rendered — AJAX reverse-eng gerek), Şanlıurfa (500),
+      Samsun (403), Mersin (WAF hard-blok → residential proxy)**, Diyarbakır/Hatay/Malatya.
+      Her biri kendi ters-mühendisliğini ister; odaklı build oturumu — Adana en umutlu aday.
+      Donmuş batiakdeniz kaynakları (Haziran'dan sabit) ayrıca blackout gerektirir (veri kalitesi).
+
 ## 4. FAZ 3 — 365 "1-2 hal" Ürünü (sürekli süreç)
 
 Bunlar için **doğru cevap indexe zorlamak DEĞİL** (thin page → Google zaten reddediyor, 1.230
