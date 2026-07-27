@@ -16,8 +16,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useListHfProductsAdminQuery, useMergeHfProductsAdminMutation } from "@/integrations/hooks";
 import {
+  type HfProductAction,
   useBulkRefreshHfGscMutation,
   useGetHfGscSummaryQuery,
+  useRunHfSeoMaintenanceMutation,
 } from "@/integrations/endpoints/hf-products-admin-endpoints";
 
 import { MergeSuggestionsPanel } from "./_components/merge-suggestions-panel";
@@ -30,6 +32,21 @@ function qualityVariant(score: number): "default" | "secondary" | "destructive" 
   if (score >= 45) return "secondary";
   return "destructive";
 }
+
+// Her ürün için "sonraki adım" — backend'in market/editöryel sinyallerinden türettiği
+// action koduna göre okunur etiket + renk. Panel böylece kendini belgeler.
+const ACTION_META: Record<
+  HfProductAction,
+  { label: string; variant: "default" | "secondary" | "destructive" | "outline"; hint: string }
+> = {
+  indexed: { label: "İndexli ✓", variant: "default", hint: "Google'da indexli, aksiyon yok" },
+  recrawl_pending: { label: "Recrawl bekliyor", variant: "secondary", hint: "Index'e alındı; Google yeniden taramalı" },
+  ready_editorial: { label: "Editoryel yaz →", variant: "destructive", hint: "Veri yeterli; editöryel yazınca index'lenir" },
+  maintenance_pending: { label: "Bakım bekliyor", variant: "secondary", hint: "Kriterleri karşılıyor; SEO bakımı çalıştır" },
+  needs_coverage: { label: "Veri bekliyor", variant: "outline", hint: "Editöryel var ama hal/veri kapsamı yetersiz" },
+  seasonal_dry: { label: "Sezon/veri yok", variant: "outline", hint: "Son 30g fiyat yok; sezon dönünce açılır" },
+  variant: { label: "—", variant: "outline", hint: "Varyant (301) — aksiyon yok" },
+};
 
 export default function Page() {
   const [q, setQ] = useState("");
@@ -44,8 +61,21 @@ export default function Page() {
   const [masterId, setMasterId] = useState<string>("");
   const [merge, mergeState] = useMergeHfProductsAdminMutation();
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [actionFilter, setActionFilter] = useState(ALL);
   const { data: gscSummary } = useGetHfGscSummaryQuery(undefined, { pollingInterval: 20000 });
   const [bulkRefreshGsc, bulkState] = useBulkRefreshHfGscMutation();
+  const [runMaintenance, maintenanceState] = useRunHfSeoMaintenanceMutation();
+
+  const handleMaintenance = async () => {
+    try {
+      const r = await runMaintenance().unwrap();
+      toast.success(
+        `SEO bakımı: ${r.flippedUp} hal + ${r.flippedUpBorsa} borsa index'e alındı, ${r.demoted} düşürüldü.`,
+      );
+    } catch {
+      toast.error("SEO bakımı çalıştırılamadı.");
+    }
+  };
 
   const handleBulkGsc = async () => {
     try {
@@ -100,6 +130,7 @@ export default function Page() {
         return false;
       if (gscFilter === "issue" && item.gscCategory !== "issue") return false;
       if (gscFilter === "unchecked" && item.gscCategory) return false;
+      if (actionFilter !== ALL && item.action !== actionFilter) return false;
       return true;
     });
     arr.sort((a, b) => {
@@ -112,7 +143,7 @@ export default function Page() {
       return sortDir === "asc" ? cmp : -cmp;
     });
     return arr;
-  }, [items, sortKey, sortDir, variantFilter, gscFilter]);
+  }, [items, sortKey, sortDir, variantFilter, gscFilter, actionFilter]);
 
   const toggleSort = (key: typeof sortKey) => {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -190,6 +221,16 @@ export default function Page() {
             >
               <RefreshCw className={`mr-2 size-4 ${gscSummary?.running ? "animate-spin" : ""}`} />
               {gscSummary?.running ? "Google denetimi sürüyor…" : "Google: tümünü denetle"}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleMaintenance}
+              disabled={maintenanceState.isLoading}
+              title="dataQuality yeniden hesapla + kriteri karşılayan ürünleri index'e al / veri kuruyanı düşür"
+            >
+              <RefreshCw className={`mr-2 size-4 ${maintenanceState.isLoading ? "animate-spin" : ""}`} />
+              SEO bakımı
             </Button>
             <Button
               size="sm"
@@ -273,6 +314,20 @@ export default function Page() {
               <SelectItem value="unchecked">Denetlenmemiş</SelectItem>
             </SelectContent>
           </Select>
+          <Select value={actionFilter} onValueChange={setActionFilter}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Aksiyon" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>Aksiyon: tümü</SelectItem>
+              <SelectItem value="ready_editorial">✍ Editoryel yaz → index</SelectItem>
+              <SelectItem value="maintenance_pending">Bakım bekliyor</SelectItem>
+              <SelectItem value="recrawl_pending">Recrawl bekliyor</SelectItem>
+              <SelectItem value="needs_coverage">Veri bekliyor</SelectItem>
+              <SelectItem value="seasonal_dry">Sezon/veri yok</SelectItem>
+              <SelectItem value="indexed">İndexli</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </CardHeader>
       <CardContent>
@@ -323,18 +378,19 @@ export default function Page() {
                 <SortHead k="search">Arama</SortHead>
                 <TableHead>SEO</TableHead>
                 <TableHead>Google</TableHead>
+                <TableHead>Aksiyon</TableHead>
                 <TableHead className="w-24 text-right">İşlem</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {(isLoading || isFetching) && (
                 <TableRow>
-                  <TableCell colSpan={10}>Yükleniyor...</TableCell>
+                  <TableCell colSpan={11}>Yükleniyor...</TableCell>
                 </TableRow>
               )}
               {!isLoading && items.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={10}>Kayıt bulunamadı.</TableCell>
+                  <TableCell colSpan={11}>Kayıt bulunamadı.</TableCell>
                 </TableRow>
               )}
               {sortedItems.map((item) => (
@@ -416,6 +472,17 @@ export default function Page() {
                     ) : (
                       <span className="text-muted-foreground text-xs">—</span>
                     )}
+                  </TableCell>
+                  <TableCell>
+                    {(() => {
+                      const meta = ACTION_META[item.action ?? "variant"];
+                      if (item.action === "variant") return <span className="text-muted-foreground text-xs">—</span>;
+                      return (
+                        <Badge variant={meta.variant} title={meta.hint} className="whitespace-nowrap">
+                          {meta.label}
+                        </Badge>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button asChild variant="ghost" size="icon">

@@ -438,9 +438,54 @@ export async function registerHalAdmin(app: FastifyInstance) {
 
     const origin = publicOrigin();
     const gscMap = await readGscCategoriesForUrls(items.map((it) => `${origin}/urun/${it.slug}`));
+
+    // Aksiyon sınıflandırması için ürün başı sinyaller: hal/borsa market sayısı, veri günü,
+    // yayınlı editöryel. Tek sorguda (id -> sinyal) toplanıp merge edilir.
+    const sigRes = await db.execute(sql`
+      SELECT p.id,
+        COALESCE(SUM(m.market_type = 'hal'), 0) AS halMarkets,
+        COALESCE(SUM(m.market_type IN ('borsa','resmi')), 0) AS borsaMarkets,
+        COUNT(DISTINCT ph.recorded_date) AS days30,
+        MAX(ed.published_at IS NOT NULL) AS hasEditorial
+      FROM hf_products p
+      LEFT JOIN hf_price_history ph ON ph.product_id = p.id AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+      LEFT JOIN hf_markets m ON m.id = ph.market_id
+      LEFT JOIN hf_product_editorial ed ON ed.product_slug = p.slug
+      GROUP BY p.id
+    `);
+    const sigRows = (Array.isArray(sigRes) ? sigRes[0] : sigRes) as unknown as Array<{
+      id: number; halMarkets: number; borsaMarkets: number; days30: number; hasEditorial: number;
+    }>;
+    const sigMap = new Map(sigRows.map((r) => [r.id, r]));
+
+    const classifyAction = (it: (typeof items)[number], gsc: string | null): string => {
+      if (it.canonicalSlug) return "variant";
+      const s = sigMap.get(it.id);
+      const hal = Number(s?.halMarkets ?? 0);
+      const borsa = Number(s?.borsaMarkets ?? 0);
+      const days = Number(s?.days30 ?? 0);
+      const ed = Number(s?.hasEditorial ?? 0) > 0;
+      const dq = Number(it.dataQuality ?? 0);
+      if (it.seoIndex) return gsc === "indexed" ? "indexed" : "recrawl_pending";
+      const halOk = hal >= 3 && dq >= 70;
+      const borsaOk = hal === 0 && borsa >= 1 && days >= 3 && dq >= 60;
+      if (halOk || borsaOk) return ed ? "maintenance_pending" : "ready_editorial";
+      if (days === 0) return "seasonal_dry";
+      return "needs_coverage";
+    };
+
     const enriched = items.map((it) => {
       const g = gscMap.get(`${origin}/urun/${it.slug}`);
-      return { ...it, gscCategory: g?.category ?? null, gscLabel: g?.label ?? null };
+      const s = sigMap.get(it.id);
+      return {
+        ...it,
+        gscCategory: g?.category ?? null,
+        gscLabel: g?.label ?? null,
+        hasEditorial: Number(s?.hasEditorial ?? 0) > 0,
+        halMarkets30d: Number(s?.halMarkets ?? 0),
+        borsaMarkets30d: Number(s?.borsaMarkets ?? 0),
+        action: classifyAction(it, g?.category ?? null),
+      };
     });
 
     return reply.send({ items: enriched });

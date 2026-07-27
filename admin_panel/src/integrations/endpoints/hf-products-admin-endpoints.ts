@@ -18,7 +18,20 @@ export type HfProductItem = {
   isActive: number | boolean;
   gscCategory?: GscIndexCategory | null;
   gscLabel?: string | null;
+  hasEditorial?: boolean;
+  halMarkets30d?: number;
+  borsaMarkets30d?: number;
+  action?: HfProductAction;
 };
+
+export type HfProductAction =
+  | "variant"
+  | "indexed"
+  | "recrawl_pending"
+  | "ready_editorial"
+  | "maintenance_pending"
+  | "needs_coverage"
+  | "seasonal_dry";
 
 export type HfProductPayload = {
   slug: string;
@@ -162,6 +175,13 @@ export const hfProductsAdminApi = baseApi.injectEndpoints({
       query: (body) => ({ url: "/admin/hal/gsc/bulk-refresh", method: "POST", body: body ?? {} }),
       invalidatesTags: [{ type: "HfProducts" as const, id: "GSC-SUMMARY" }],
     }),
+    runHfSeoMaintenance: builder.mutation<
+      { ok: boolean; flippedUp: number; flippedUpBorsa: number; demoted: number },
+      void
+    >({
+      query: () => ({ url: "/admin/hal/products/seo-maintenance", method: "POST", body: {} }),
+      invalidatesTags: ["HfProducts"],
+    }),
     getHfProductGscAdmin: builder.query<HfProductGscResult, { id: number | string }>({
       query: ({ id }) => ({ url: `/admin/hal/products/${id}/gsc` }),
       transformResponse: (response: { data: HfProductGscResult }) => response.data,
@@ -217,4 +237,5 @@ export const {
   useInspectHfProductGscAdminMutation,
   useGetHfGscSummaryQuery,
   useBulkRefreshHfGscMutation,
+  useRunHfSeoMaintenanceMutation,
 } = hfProductsAdminApi;
