@@ -16,6 +16,7 @@ import {
   HardDrive,
   HelpCircle,
   LayoutDashboard,
+  Link2,
   Mail,
   Megaphone,
   MessageSquare,
@@ -168,6 +169,7 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
       { key: 'site_settings', url: '/admin/site-settings', icon: Settings },
       { key: 'storage', url: '/admin/storage', icon: HardDrive },
       { key: 'telegram', url: '/admin/telegram', icon: Send },
+      { key: 'entegrasyonlar', url: '/admin/entegrasyonlar', icon: Link2 },
       { key: 'audit', url: '/admin/audit', icon: MessageSquare },
     ],
   },
@@ -228,6 +230,7 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   site_settings: 'Site Ayarlari',
   storage: 'Depolama',
   telegram: 'Telegram',
+  entegrasyonlar: 'Entegrasyonlar',
   audit: 'Komuta Merkezi',
 };
 

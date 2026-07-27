@@ -34,7 +34,8 @@ export type AdminPermissionKey =
   | 'admin.facebook'
   | 'admin.instagram'
   | 'admin.popups'
-  | 'admin.banners';
+  | 'admin.banners'
+  | 'admin.entegrasyonlar';
 
 export type AdminNavKey =
   | 'dashboard'
@@ -71,7 +72,8 @@ export type AdminNavKey =
   | 'facebook'
   | 'instagram'
   | 'popups'
-  | 'banners';
+  | 'banners'
+  | 'entegrasyonlar';
 
 const ADMIN_ONLY: PanelRole[] = ['admin'];
 
@@ -110,6 +112,7 @@ const ADMIN_PERMISSION_ROLE_MAP: Record<AdminPermissionKey, PanelRole[]> = {
   'admin.instagram': ADMIN_ONLY,
   'admin.popups': ADMIN_ONLY,
   'admin.banners': ADMIN_ONLY,
+  'admin.entegrasyonlar': ADMIN_ONLY,
 };
 
 export function canAccessAdminPermission(role: PanelRole, key: AdminPermissionKey): boolean {
@@ -152,6 +155,7 @@ const ADMIN_NAV_PERMISSION_MAP: Partial<Record<AdminNavKey, AdminPermissionKey>>
   instagram: 'admin.instagram',
   popups: 'admin.popups',
   banners: 'admin.banners',
+  entegrasyonlar: 'admin.entegrasyonlar',
 };
 
 export function getAdminNavRoles(key: AdminNavKey): PanelRole[] {
@@ -195,6 +199,7 @@ const ADMIN_PERMISSION_PATHS: Record<AdminPermissionKey, string[]> = {
   'admin.instagram': ['/admin/instagram'],
   'admin.popups': ['/admin/popups'],
   'admin.banners': ['/admin/banners'],
+  'admin.entegrasyonlar': ['/admin/entegrasyonlar'],
 };
 
 function stripQueryAndHash(pathname: string): string {

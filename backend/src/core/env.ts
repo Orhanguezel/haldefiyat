@@ -88,6 +88,14 @@ export const env = {
   // Anonim (API key'siz) IP basina gunluk CSV export kotasi — public indirme butonu calisir,
   // agir export'cular (or. 879 export ceken) key almaya yonlendirilir
   EXPORT_ANON_DAILY_LIMIT: parseEnvInt(process.env.EXPORT_ANON_DAILY_LIMIT, 10),
+  // Per-kullanici Gmail/Takvim token sifreleme anahtari — lazy getter (yalniz kullanildiginda),
+  // fail-closed, fallback YOK (CLAUDE.md). openssl rand -hex 40 ile uretilir.
+  get MAIL_ENCRYPTION_KEY(): string {
+    const v = process.env.MAIL_ENCRYPTION_KEY;
+    if (!v || v.length < 32) throw new Error("Missing/short required env: MAIL_ENCRYPTION_KEY (>=32 byte)");
+    return v;
+  },
+  MAIL_TOKEN_STORE_DIR: process.env.MAIL_TOKEN_STORE_DIR || ".mail-tokens",
   // Pro tier aylik ucret (frontend /pro sayfasinda gosterilir)
   PRO_PRICE_MONTHLY_TL: parseEnvInt(process.env.PRO_PRICE_MONTHLY_TL, 2999),
   // Twitter/X OAuth 1.0a — @haldefiyat hesabi otomatik tweet

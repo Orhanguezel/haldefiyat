@@ -30,6 +30,7 @@ import { registerSeoVolumeAdmin } from "@/modules/seo-volume";
 import { registerBanners, registerBannersAdmin } from "@/modules/banners";
 import { registerGscPublic } from "@/modules/seo/gsc-export";
 import { registerCspReports } from "@/modules/csp-reports";
+import { registerMailAccountsPublic, registerMailAccountsUser } from "@/modules/mailAccounts";
 
 export async function registerProjectPublic(api: FastifyInstance) {
   await registerMarkets(api);
@@ -56,6 +57,8 @@ export async function registerProjectPublic(api: FastifyInstance) {
   await registerBanners(api);
   await registerGscPublic(api);
   await registerCspReports(api);
+  // OAuth callback — auth yok, state HMAC ile dogrulanir
+  await registerMailAccountsPublic(api);
 
   // P2: SSO entegrasyonu icin frontend'in auth durumunu dogrulayabilecegi stub endpoint.
   // Gercek /auth endpoint'leri shared-backend auth modulunde zaten kayitli (registerAuth).
@@ -86,4 +89,6 @@ export async function registerProjectAdmin(adminApi: FastifyInstance) {
   await registerBannersAdmin(adminApi);
   await registerSocialAdmin(adminApi);
   await registerHalNewsletterAdmin(adminApi);
+  // Kisi-bazli Gmail/Takvim/Gorevler entegrasyonu (admin oturumu gerekli)
+  await registerMailAccountsUser(adminApi);
 }

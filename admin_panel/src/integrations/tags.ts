@@ -225,6 +225,8 @@ export const tags = [
   'ApiKey',
   'ApiKeys',
   'SocialPosts',
+  'MailAccounts',
+  'GoogleIntegration',
 ] as const;
 
 export type tag = typeof tags[number];

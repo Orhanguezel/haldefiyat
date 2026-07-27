@@ -206,6 +206,20 @@ export {
   useUpdatePressContactAdminMutation,
 } from "@/integrations/endpoints/admin/press-admin-endpoints";
 export {
+  useListMailAccountsQuery,
+  useLazyGmailConnectUrlQuery,
+  useDeleteMailAccountMutation,
+  useGoogleTasksStatusQuery,
+  useSyncGoogleTasksMutation,
+  useGoogleCalendarStatusQuery,
+  useSyncGoogleCalendarMutation,
+  useSendUserMailMutation,
+  useListOwnMailInboxQuery,
+  useLazyGetOwnMailMessageQuery,
+  useListOwnGoogleTasksQuery,
+  useListOwnGoogleEventsQuery,
+} from "@/integrations/endpoints/admin/mail-accounts-admin-endpoints";
+export {
   useDeleteRedirectAdminMutation,
   useGetSeoAuditAdminQuery,
   useListRedirectsAdminQuery,
