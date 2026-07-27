@@ -98,6 +98,30 @@ Tek eksikleri editoryel; cron sonraki çalıştırmada indexler. Arama hacmine g
 
 ---
 
+## 2.5 FAZ 3-Başlangıç — Tahıl/Bakliyat veri kaynağı (2026-07-27, TAMAM)
+
+**Teşhis:** pirinç (11K arama), kuru-fasulye (6.8K), çeltik (3.2K) "hiç veri almamış" değil —
+DURMUŞLAR (pirinç/çeltik son veri 2023, kuru-fasulye 2026-04). Neden:
+- **çeltik:** mevsimsel borsa emtiası (sonbahar hasadı) → self-healing sonbaharda halleder.
+- **pirinç/kuru-fasulye/mercimek:** borsa emtiası değil (pirinç), asıl aranan = **perakende raf fiyatı**.
+  Perakende ETL (marketfiyati) yalnız taze sebze-meyve kapsıyordu.
+
+**Yapıldı — marketfiyati'ye paketli bakliyat dikeyi:**
+- [x] `RETAIL_EXTRA`'ya 5 entry: pirinç, mercimek, kuru-fasulye, nohut, bulgur ("Temel Gıda",
+      birim-kg fiyat, premium/organik/basmati exclude regex).
+- [x] **Kritik bug bulundu+düzeltildi:** marketfiyati ~750 fresh-produce çağrısından sonra VPS IP'yi
+      **throttle**'lıyordu; sonda çalışan RETAIL_EXTRA `found=0` alıyordu → **meat/dairy dikeyi de
+      (dana-kıyma/süt/yoğurt) hiç veri almamış**tı. RETAIL_EXTRA fresh'ten ÖNCE çalışacak şekilde
+      reorder edildi. Sonuç: pirinç 93, kuru-fasulye 144, mercimek 88, nohut 202, bulgur 66 TL/kg
+      (6 zincir) + meat/dairy retail geri geldi. Cron günlük otomatik.
+
+**Kalan — MİMARİ KARAR (Orhan):** Retail veri `hf_retail_prices`'ta (karşılaştırma), index'i süren
+`hf_price_history`'de değil — bilinçli ayrım (raf ≠ hal). pirinç gibi **retail-only** ürünleri tam
+index'lemek için "retail'i birincil fiyat say" kararı gerek. Bu ürünün kimliğiyle ilgili karar
+(hal-odaklı site retail sayfası açmalı mı?) → önerilir ama Orhan onayı bekler.
+
+---
+
 ## 3. FAZ 2 — Borsa Ürünleri Kilidi (yüksek etki, 1-2 hafta)
 
 **Sorun:** En büyük arama fırsatları borsa/bakliyat ürünlerinde ama "≥3 hal" şartı hal-pazarı
