@@ -29,18 +29,43 @@
 
 ---
 
-## 1. TAMAMLANANLAR ✅ (2026-07-27, Claude)
+## 1. TAMAMLANANLAR ✅ (2026-07-27, Claude — İKİ OTURUM)
 
-- [x] **biber çelişkisi düzeltildi** — DB'de master+index görünüyordu ama `/urun/biber` 301 →
-      biber-carliston atıyordu (5916 hit). Admin API ile `canonical=biber-carliston, seoIndex=0`
-      yapıldı; DB artık canlı redirect'le tutarlı. GSC "Page with redirect" sorunu kapanacak.
-- [x] **Google badge UX** — tabloda noindex/varyant ürünlerin GSC kolonu artık kırmızı "Sorun"
-      değil nötr **"Beklenen"** gösteriyor. Kırmızı yalnız GERÇEK sorunda (indexlenebilir ama
-      Google'da yok) yanar. Panel gürültüsü bitti; "26 gerçek sorun" sayacı zaten doğruydu.
-- [x] Teşhis: "26 gerçek sorun"un 24'ü = **yakın zamanda index'e alınmış, Google recrawl bekleyen**
-      ürünler (canlı sayfa `index,follow` basıyor ✓, sitemap'te var ✓, GSC cache ≤9 gün taze —
-      Google'ın son crawl'ı eski). Bug değil, gecikme. Kalan 2: misir-taze (Discovered),
-      dereotu-yas-taze (URL unknown) — aynı bekleme sınıfı.
+### 1.a Teşhis & UX (birinci tur)
+- [x] **biber çelişkisi düzeltildi** — DB master+index görünüyordu ama 301 → biber-carliston
+      atıyordu (5916 hit). `canonical=biber-carliston, seoIndex=0` yapıldı.
+- [x] **Google badge UX** — noindex/varyantta kırmızı "Sorun" yerine nötr **"Beklenen"**.
+- [x] "26 gerçek sorun"un 24'ü = recrawl bekleyen (bug değil, gecikme).
+
+### 1.b Faz 4-Hijyen: canonical↔redirect tutarlılığı (TAMAM)
+- [x] Tam tarama: C (döngü), D (kırık zincir), E (zincir-zinciri), F (index'te varyant) → **hepsi temiz**.
+- [x] 4 ek biber-tipi çelişki düzeltildi: **sarimsak** (1934 hit), **lahana** (1263), alabas, isirgan
+      → canonical set edildi, DB canlı 301'lerle tutarlı. 514 varyantın frontend `permanentRedirect`
+      ile doğru 301 attığı doğrulandı (redirect tablosu ikincil).
+
+### 1.c Faz 1: Hazır adaylar editoryel → index (TAMAM)
+- [x] 6 hal ürünü editoryel yazıldı+yayınlandı+**index'lendi**: yulaf, bugday-ekmeklik, visne,
+      bamya, borulce, sogan-beyaz (6 alanlı, doğru Türkçe içerik, `source=ai_reviewed`).
+- [x] 2 merge: **bamya-taze→bamya**, **reyhan-feslegen→reyhan** (aynı ürün, thin sayfa konsolidasyonu).
+
+### 1.d Faz 2: Borsa-farkında index kriteri (TAMAM — en yüksek etki)
+- [x] `runSeoIndexMaintenance`'a **borsa/resmi UP dalı** eklendi: hal_rows=0 + editoryel +
+      veri sürekliliği (≥3 gün) + dq≥60 (hal ürünü ≥3 hal şartı AYNEN korundu). Demote borsa
+      ürününü yalnız pr=0'da düşürür.
+- [x] **Manuel tetik: `POST /hal/products/seo-maintenance`** (editoryel sonrası cron beklemeden).
+- [x] Kriter + editoryel ile **~20 ürün index'lendi**: zeytin (9K), nohut (5.4K), yulaf (4.8K),
+      buğday (4.2K), çavdar (2.6K) + **tüm canlı hayvan/et dikeyi** (dana/kuzu canlı+karkas,
+      editoryelleri vardı ama hal-kuralına takılıydı). nohut/çavdar/mercimek/makarnalık-buğday
+      editoryelleri yazıldı. mercimek days<3 → doğru şekilde bekliyor.
+- [x] **Sonuç: index master 171 → 192** (+21 net).
+
+### 1.e Faz 5: Panel aksiyon kolonu (TAMAM)
+- [x] Liste endpoint'i her ürüne DISTINCT-market + editoryel sinyalinden **`action`** türetir;
+      maintenance kriteriyle birebir hizalı (satır-vs-distinct bug'ı düzeltildi).
+- [x] Panelde **"Aksiyon" kolonu + filtresi** (Editoryel yaz / Bakım bekliyor / Recrawl / Veri
+      bekliyor / Sezon-yok / İndexli) + **"SEO bakımı" butonu**. Sayfa artık kendini belgeliyor.
+- [x] Doğru dağılım: 145 indexli · 45 recrawl · **0 editoryel-bekliyor** · 352 veri-bekliyor ·
+      265 sezon/veri-yok · 536 varyant.
 
 ---
 
@@ -123,8 +148,10 @@ indexsiz firma sayfası dersi). Doğru cevap iki koldan:
 
 - [ ] **132 pasif ürün:** fiyat geçmişi hiç olmayan + arama 0 olanlar → sil ya da arşiv;
       geçmişi olanlar pasif kalsın (tarihsel veri korunur, sayfa zaten yok)
-- [ ] **search_volume 408 üründe 0/boş** → fırsat sıralaması kör. GSC query verisinden
-      (gsc-query-data-fetch yöntemi) toplu doldurma script'i; olmayanlar gerçek 0 olarak kalır
+- [x] ~~**search_volume 408 üründe 0/boş**~~ → **ZATEN OTOMATİK**: cron `search-volume-sync`
+      (`syncSearchVolumeFromGsc`) haftalık GSC gösterimlerinden doldurur. 0 kalanlar ya henüz
+      gösterim almamış (noindex olduğu için) ya da gerçek 0. Index'lenen ürünler gösterim
+      alınca otomatik dolar. Ek iş gerekmiyor.
 - [ ] **Varyant hijyeni:** `hf_redirects` ↔ `hf_products.canonical_slug` tutarlılık taraması
       (biber vakasının taraması — başka çelişki var mı?):
       redirect var + DB master → biber tipi bug; DB varyant + redirect yok → 301 eksik
