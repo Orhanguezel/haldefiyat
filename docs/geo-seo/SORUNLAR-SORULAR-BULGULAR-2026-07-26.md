@@ -32,6 +32,27 @@ altyapısal bulguları tutar.
   `artifacts/seo/rich-results-test-2026-07-27/home-blocked.png`.
 - Google sonucu uydurulmadı. Checklist maddesi, giriş yapılmış etkileşimli
   Google oturumunda URL bazlı çıktılar alınana kadar açık kalacak.
+- **İlerleme (27.07.2026):** resmî GSC URL Inspection API ile sekiz URL
+  incelendi. Google'ın taradığı 7/7 URL'de rich results verdict `PASS`;
+  Breadcrumb ve Dataset türleri URL bazında alındı. `/rapor/yillik/2025`
+  henüz crawl edilmediği için sonuç üretmedi.
+- URL Inspection zengin sonuç kararı ve türleri ortak backend yanıtına ve
+  `/admin/search-console` arayüzüne eklendi; canlı build/sağlık kontrolleri
+  geçti. Ayrıntı:
+  `docs/geo-seo/GSC-RICH-RESULTS-INCELEMESI-2026-07-27.md`.
+
+### Backlink ve bağımsız mention veri kaynağı
+
+- Kamu web ve GitHub exact-match taramasında `tarvista.com`,
+  `bereketfide.com.tr` ve Orhanguezel ekosistem depolarındaki referanslar
+  doğrulandı.
+- Bu kaynaklar aynı sahiplik/ekosistem kapsamındadır; bağımsız kazanılmış
+  backlink veya editoryal mention sayılmadı.
+- Kamu arama sonuçlarından referring-domain ve dofollow sayısı türetilmedi.
+  GSC Links export'u veya doğrulanmış sağlayıcı export'u olmadan rakip gap
+  maddesi açık kalıyor.
+- Ayrıntı:
+  `docs/geo-seo/BACKLINK-MENTION-KAMU-TARAMASI-2026-07-27.md`.
 
 ### Anahtar kelime yoğunluğu 28 günlük GSC kabul penceresi
 

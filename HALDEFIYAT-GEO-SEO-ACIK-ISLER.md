@@ -36,8 +36,13 @@ Mevcut kanıt/engel:
 - [ ] Schema.org Validator ve Rich Results Test çıktılarını URL bazında arşivle.
 
 Mevcut kanıt/engel: 8 URL için Schema.org Validator error=0/warning=0 ham
-çıktıları arşivli. Google Rich Results Test anonim otomasyonda reCAPTCHA ve
-“Log in and try again” veriyor; oturumlu etkileşimli Google çıktısı gerekli.
+çıktıları arşivli. Resmî GSC URL Inspection API'de dizindeki 7/7 URL için rich
+results verdict `PASS`; algılanan türler admin panelinde görünür hale getirildi
+ve canlıya alındı. Yıllık rapor URL'si henüz crawl edilmemiş. Google Rich
+Results Test anonim otomasyonda reCAPTCHA ve “Log in and try again” veriyor;
+oturumlu etkileşimli çıktı hâlâ gerekli.
+
+Kanıt: `docs/geo-seo/GSC-RICH-RESULTS-INCELEMESI-2026-07-27.md`.
 
 ## P2 — Teknik SEO ve canlı tarama
 
@@ -55,7 +60,11 @@ tam 28 günlük GSC penceresi en erken **24 Ağustos 2026** tarihinde dolar.
 Mevcut kanıt/engel: branded GSC baseline ve beş gerçek organik rakip kayıtlı.
 Sunucuda Ahrefs/Semrush/Moz/Majestic/DataForSEO erişimi yok; Search Console
 Links export veya doğrulanmış backlink sağlayıcısı olmadan referring-domain ve
-dofollow sayıları tahmin edilmeyecek.
+dofollow sayıları tahmin edilmeyecek. Kamu taramasında yalnız aynı sahiplikteki
+`tarvista.com`, `bereketfide.com.tr` ve ekosistem GitHub referansları
+doğrulandı; bağımsız kazanılmış mention bulunmadı.
+
+Kanıt: `docs/geo-seo/BACKLINK-MENTION-KAMU-TARAMASI-2026-07-27.md`.
 ## Stratejik — Bu çeyrek
 
 ## Operasyon sırası

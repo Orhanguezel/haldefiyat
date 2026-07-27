@@ -2103,6 +2103,33 @@ Commit: `6775780a feat(trust): publish transparency policy content`
 - Kanıt: `docs/geo-seo/DKIM-ALIGNMENT-KABULU-2026-07-27.md`.
 - Sayaç 62/66 tamamlanan ve 4/66 açık olarak güncellendi.
 
+### 3.81 Resmî GSC Rich Results Kanıtı ve Admin Görünürlüğü
+
+- Search Console URL Inspection API ile sekiz temsilî canlı URL incelendi.
+- Google tarafından taranmış 7/7 URL'nin rich results verdict'i `PASS`;
+  Breadcrumb ve Dataset öğeleri URL bazında kaydedildi.
+- `/rapor/yillik/2025` henüz Google crawl kaydı taşımadığı için zengin sonuç
+  kararı vermedi.
+- Ortak Search Console servis yanıtına `rich_results_verdict` ve
+  `rich_result_types` eklendi; admin URL inceleme kartında gösterildi.
+- Shared packages `3c842b6`, HalDeFiyat admin `ade375c1` commit'leri canlıya
+  alındı. Backend health HTTP 200/DB ok, admin Search Console rotası HTTP 200.
+- GSC URL Inspection, etkileşimli Rich Results Test ekran çıktısı yerine
+  geçirilmedi; birleşik validator maddesi açık tutuldu.
+- Kanıt:
+  `docs/geo-seo/GSC-RICH-RESULTS-INCELEMESI-2026-07-27.md`.
+
+### 3.82 Backlink/Mention Kamu Kanıtı
+
+- Alan adı, marka ve GitHub exact-match taramalarında `tarvista.com`,
+  `bereketfide.com.tr` ve aynı sahiplikteki ekosistem depoları doğrulandı.
+- Bağımsız kazanılmış mention bulunmadı; aynı sahiplik bağlantıları bağımsız
+  referring domain baseline'ına eklenmedi.
+- Backlink sağlayıcısı veya GSC Links export'u olmadan RD/dofollow/gap sayısı
+  tahmin edilmedi. Madde açık kaldı.
+- Kanıt:
+  `docs/geo-seo/BACKLINK-MENTION-KAMU-TARAMASI-2026-07-27.md`.
+
 ## 8. Riskler
 
 - Şeffaflık sayfalarını nihai içerik olmadan canlıya almak ince içerik üretir.
