@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { and, asc, desc, eq, inArray, like, or, sql } from "drizzle-orm";
 import { computeBaseMap } from "@/modules/prices/family";
 import { rebuildProductFamilies } from "@/modules/prices/family-service";
+import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
 import { z } from "zod";
 
 import { db } from "@/db/client";
@@ -651,6 +652,14 @@ export async function registerHalAdmin(app: FastifyInstance) {
   // veya köksüzler NULL. İdempotent — istendiği kadar çalıştırılır (ETL sonrası cron da çağırır).
   app.post("/hal/products/rebuild-families", async (_req, reply) => {
     const result = await rebuildProductFamilies();
+    return reply.send({ ok: true, ...result });
+  });
+
+  // SEO index bakımını elle tetikle: dataQuality recalc + seoIndex flip/demote
+  // (hal ≥3 hal + borsa editoryel/süreklilik). Editoryel yayınlandıktan sonra haftalık
+  // cron'u beklemeden index'e almak için kullanılır. Sonuç: {flippedUp, flippedUpBorsa, demoted}.
+  app.post("/hal/products/seo-maintenance", async (_req, reply) => {
+    const result = await runSeoIndexMaintenance();
     return reply.send({ ok: true, ...result });
   });
 

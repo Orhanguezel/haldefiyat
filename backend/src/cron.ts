@@ -28,6 +28,7 @@ import { runGscBulkRefresh } from "@/modules/seo/gsc-bulk";
 import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
 import { processSocialQueueOnce } from "@agro/shared-backend/modules/twitter";
 import { runDailyMoversJob, runStaplesJob, createWeeklyAnalysisDraft } from "@/modules/social/daily-content";
+import { syncBannerLifecycle } from "@/modules/banners/repository";
 
 /**
  * Cron zamanlaması env'den gelir:
@@ -82,6 +83,10 @@ export function startCron(app: FastifyInstance): void {
     { name: "social-daily-movers", schedule: env.SOCIAL.dailyMoversSchedule,  handler: () => runDailyMoversTweetJob(app) },
     // Zamanlanmış yayın — publish_at zamanı gelen taslakları yayınlar + IndexNow ping
     { name: "scheduled-publish",  schedule: env.ETL.scheduledPublishSchedule, handler: () => runScheduledPublishJob(app) },
+    { name: "banner-lifecycle", schedule: "*/5 * * * *", handler: async () => {
+      const result = await syncBannerLifecycle();
+      if (result.started || result.completed || result.cancelledReservations) app.log.info(result, "[cron:banner-lifecycle] durumlar guncellendi");
+    } },
   ];
   if (env.ETL.firmPriceReminderSchedule) {
     tasks.push({
@@ -284,7 +289,7 @@ async function runSeoMaintenanceJob(app: FastifyInstance): Promise<void> {
   try {
     const r = await runSeoIndexMaintenance();
     app.log.info(
-      { flippedUp: r.flippedUp, demoted: r.demoted, durationMs: Date.now() - t0 },
+      { flippedUp: r.flippedUp, flippedUpBorsa: r.flippedUpBorsa, demoted: r.demoted, durationMs: Date.now() - t0 },
       "[cron:seo-maintenance] tamamlandi",
     );
 

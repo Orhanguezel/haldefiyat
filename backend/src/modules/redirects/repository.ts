@@ -409,25 +409,59 @@ export async function runSeoIndexMaintenance() {
     WHERE p.is_active = 1
   `);
 
-  // Kalite > nicelik: index için ≥3 market şartı. Tek/iki marketli "thin" sayfaları
-  // Google zaten "Discovered - not indexed" yapıyor (sıfır trafik) → indexlemeye zorlamak
-  // crawl bütçesi israfı. ≥3 market = anlamlı fiyat karşılaştırması. Self-healing: market
-  // kazanan ürün (örn. sezonu açılan balık) sonraki çalıştırmada geri index'lenir.
+  // market_type kırılımlı sinyal alt-sorgusu. hf ürünleri hal'de, tahıl/bakliyat
+  // (buğday, pirinç, mercimek...) borsa/resmi kaynakta fiyatlanır. Aynı ≥3 hal şartı
+  // borsa ürününe yapısal olarak uymaz (borsa kaynağı az) → ayrı kriter gerekir.
+  const signals = sql`(
+    SELECT ph.product_id,
+      COUNT(*) pr,
+      COUNT(DISTINCT ph.market_id) mc,
+      COUNT(DISTINCT ph.recorded_date) days,
+      SUM(m.market_type = 'hal') hal_rows,
+      SUM(m.market_type IN ('borsa','resmi')) borsa_rows
+    FROM hf_price_history ph JOIN hf_markets m ON m.id = ph.market_id
+    WHERE ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+    GROUP BY ph.product_id
+  )`;
+
+  // HAL ürünü UP: ≥3 hal + dq≥70. Tek/iki marketli "thin" sayfaları Google zaten
+  // "Discovered - not indexed" yapıyor → indexe zorlamak crawl bütçesi israfı.
   const up = await db.execute(sql`
     UPDATE hf_products p
     JOIN hf_product_editorial e ON e.product_slug = p.slug AND e.published_at IS NOT NULL
-    JOIN (SELECT product_id, COUNT(*) pr, COUNT(DISTINCT market_id) mc FROM hf_price_history WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY product_id) s ON s.product_id = p.id
+    JOIN ${signals} s ON s.product_id = p.id
     SET p.seo_index = 1
-    WHERE p.canonical_slug IS NULL AND p.data_quality >= 70 AND s.pr > 0 AND s.mc >= 3 AND p.seo_index = 0
+    WHERE p.canonical_slug IS NULL AND p.seo_index = 0
+      AND p.data_quality >= 70 AND s.hal_rows >= 1 AND s.mc >= 3
   `);
 
+  // BORSA/RESMİ ürünü UP: hal kaynağı yok, kaynak borsa/TMO. mc≥3 şartı uygulanmaz;
+  // yerine editoryel + veri sürekliliği (≥3 farklı gün) + dq≥60 (mc bonusu olmadan
+  // pr40+ad15+editöryel10=65 ulaşılabilir). Yüksek arama nişini (buğday/mercimek/nohut)
+  // açar. Editoryel şart olduğu için içerik boş sayfa riski yok.
+  const upBorsa = await db.execute(sql`
+    UPDATE hf_products p
+    JOIN hf_product_editorial e ON e.product_slug = p.slug AND e.published_at IS NOT NULL
+    JOIN ${signals} s ON s.product_id = p.id
+    SET p.seo_index = 1
+    WHERE p.canonical_slug IS NULL AND p.seo_index = 0
+      AND p.data_quality >= 60 AND s.hal_rows = 0 AND s.borsa_rows >= 1 AND s.days >= 3
+  `);
+
+  // DEMOTE: verisi kuruyan / thin olan indexli sayfaları noindex'e çek. Hal ürünü <3 hal
+  // ise düşür; borsa ürünü ise yalnız TAMAMEN veri kuruduğunda (pr=0) düşür — seyrek ama
+  // canlı borsa serisi korunur.
   const down = await db.execute(sql`
     UPDATE hf_products p
-    LEFT JOIN (SELECT product_id, COUNT(*) pr, COUNT(DISTINCT market_id) mc FROM hf_price_history WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY product_id) s ON s.product_id = p.id
+    LEFT JOIN ${signals} s ON s.product_id = p.id
     SET p.seo_index = 0
-    WHERE p.seo_index = 1 AND p.canonical_slug IS NULL AND (COALESCE(s.pr,0) = 0 OR COALESCE(s.mc,0) < 3)
+    WHERE p.seo_index = 1 AND p.canonical_slug IS NULL
+      AND (
+        COALESCE(s.pr, 0) = 0
+        OR (COALESCE(s.hal_rows, 0) >= 1 AND s.mc < 3)
+      )
   `);
 
   const affected = (r: unknown) => Number((Array.isArray(r) ? (r[0] as { affectedRows?: number }) : null)?.affectedRows ?? 0);
-  return { flippedUp: affected(up), demoted: affected(down) };
+  return { flippedUp: affected(up), flippedUpBorsa: affected(upBorsa), demoted: affected(down) };
 }
