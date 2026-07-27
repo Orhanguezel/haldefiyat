@@ -1,0 +1,167 @@
+# Ürün Index Yönetimi — Yol Haritası & Checklist
+
+> **Sayfa:** `/admin/hf-products` — ürün envanterinin SEO/veri kalitesi komuta merkezi.
+> **Analiz tarihi:** 2026-07-27 (canlı DB + GSC cache + kod incelemesi, Claude)
+> **Hedef:** 1345 ürünün TAMAMI için doğru sınıf + doğru aksiyon; index seti temiz büyüsün.
+
+---
+
+## 0. Mevcut Durum Röntgeni (2026-07-27)
+
+| Sınıf | Adet | Ort. Kalite | Toplam Arama | Durum |
+|---|---|---|---|---|
+| **Index master (aktif)** | 171 | 100 | 221.137 | ✅ Tertemiz — hepsi dq=100, ≥3 hal |
+| **Noindex master (aktif)** | 528 | 57 | **56.581** | ⚠️ Fırsat havuzu burada |
+| **Varyant 301 (aktif)** | 514 | 59 | 1.661 | ✅ Beklenen |
+| Noindex pasif | 117 | 7 | ~0 | Temizlik adayı |
+| Varyant pasif | 15 | 0 | 0 | Temizlik adayı |
+
+**Noindex 528'in kırılımı (son 30 gün verisiyle):**
+| Alt grup | Adet | Not |
+|---|---|---|
+| 1-2 hal veri | 365 | 146'sı **editoryelli** — sadece ≥3 hal şartına takılıyor |
+| 0 fiyat/30g | 155 | Mevsimsel/ölü — self-healing sezonla halleder |
+| ≥3 hal (hazır!) | 8 | Tek eksik: **editoryel** → yazılınca otomatik indexlenir |
+
+**Mekanizma (zaten çalışıyor, `runSeoIndexMaintenance`):** haftalık cron dq'yu yeniden hesaplar;
+`editoryel + dq≥70 + ≥3 hal + 30g veri` → index'e alır; verisi kuruyan indexliyi noindex'e çeker.
+**Bu self-healing korunacak — elle seo_index oynamak yerine girdilerini (editoryel/veri) besle.**
+
+---
+
+## 1. TAMAMLANANLAR ✅ (2026-07-27, Claude)
+
+- [x] **biber çelişkisi düzeltildi** — DB'de master+index görünüyordu ama `/urun/biber` 301 →
+      biber-carliston atıyordu (5916 hit). Admin API ile `canonical=biber-carliston, seoIndex=0`
+      yapıldı; DB artık canlı redirect'le tutarlı. GSC "Page with redirect" sorunu kapanacak.
+- [x] **Google badge UX** — tabloda noindex/varyant ürünlerin GSC kolonu artık kırmızı "Sorun"
+      değil nötr **"Beklenen"** gösteriyor. Kırmızı yalnız GERÇEK sorunda (indexlenebilir ama
+      Google'da yok) yanar. Panel gürültüsü bitti; "26 gerçek sorun" sayacı zaten doğruydu.
+- [x] Teşhis: "26 gerçek sorun"un 24'ü = **yakın zamanda index'e alınmış, Google recrawl bekleyen**
+      ürünler (canlı sayfa `index,follow` basıyor ✓, sitemap'te var ✓, GSC cache ≤9 gün taze —
+      Google'ın son crawl'ı eski). Bug değil, gecikme. Kalan 2: misir-taze (Discovered),
+      dereotu-yas-taze (URL unknown) — aynı bekleme sınıfı.
+
+---
+
+## 2. FAZ 1 — Hızlı Kazanımlar (bu hafta)
+
+### 2.1 Sekiz hazır aday: editoryel yaz → otomatik index
+Tek eksikleri editoryel; cron sonraki çalıştırmada indexler. Arama hacmine göre öncelik:
+
+- [ ] `yulaf` (**4.800 arama**, dq90, 4 hal)
+- [ ] `bugday-ekmeklik` (**4.200 arama**, dq90, 6 hal)
+- [ ] `visne` (13 hal — kapsamı en geniş)
+- [ ] `bamya` (10 hal)
+- [ ] `bamya-taze` (5 hal) → önce bamya ile aile/merge kararı: ikisi ayrı mı kalmalı?
+- [ ] `sogan-beyaz` (3 hal)
+- [ ] `borulce` (3 hal)
+- [ ] `reyhan-feslegen` (3 hal) → `reyhan` zaten indexli — MERGE adayı olabilir, önce kontrol
+- **Yöntem:** `/admin/hf-products/{id}` → Editoryel sekmesi; AI-assist ile taslak + insan onayı.
+      Yayınla (published_at dolmalı). Sonra haftalık cron'u bekle veya elle tetikle.
+
+### 2.2 Recrawl hızlandırma (24 bekleyen ürün)
+- [ ] Sitemap `lastmod`'un bu ürünler için güncel olduğunu doğrula (index'e alınma tarihi olmalı)
+- [ ] Kategori hub + ilgili-ürün iç linklerinde bu 24'ün linklendiğini doğrula (crawl teşviki)
+- [ ] 1 hafta sonra "Google: tümünü denetle" çalıştır → "Excluded by noindex" sayısı düşmeli
+- [ ] Düşmeyenler için GSC arayüzünden elle "Request Indexing" (günlük kota ~10, en yüksek
+      aramalılar önce: bal-kabagi 247, reyhan 140, incir-siyah 106, turp 70)
+
+### 2.3 Panel doğrulaması
+- [ ] Deploy sonrası `/admin/hf-products`'ta noindex satırların Google kolonu "Beklenen" görünüyor
+- [ ] "⚠ İndexlenebilir ama Google'da yok" filtresi ~25 ürün listeliyor (biber düştü)
+
+---
+
+## 3. FAZ 2 — Borsa Ürünleri Kilidi (yüksek etki, 1-2 hafta)
+
+**Sorun:** En büyük arama fırsatları borsa/bakliyat ürünlerinde ama "≥3 hal" şartı hal-pazarı
+varsayımıyla yazılmış → borsa ürünü yapısal olarak indexlenemiyor (27 borsa ürününden sadece 5 indexli).
+
+| Ürün | Arama/ay | Engel |
+|---|---|---|
+| `pirinc` | **11.000** | 0 hal verisi (borsa ürünü) |
+| `zeytin` | **9.000** | 1 kaynak |
+| `kuru-fasulye` | **6.800** | 0 |
+| `mercimek` | **6.200** | 2 kaynak |
+| `nohut` | **5.400** | 2 kaynak |
+| `celtik` | 3.200 | 0 |
+| `cavdar` | 2.600 | 2 kaynak |
+
+- [ ] **Karar kuralı tanımla (backend):** ürünün son 30g verisi ağırlıkla `market_type='borsa'`
+      ise index şartı: `≥1 borsa kaynağı + ≥20 gün veri devamlılığı + editoryel + dq≥70`
+      (hal ürünü şartı ≥3 hal AYNEN kalır — thin-page koruması)
+- [ ] `runSeoIndexMaintenance` up/down sorgularına borsa dalını ekle (tek UPDATE'e CASE değil,
+      ayrı ikinci UPDATE — okunabilirlik)
+- [ ] pirinc/kuru-fasulye/celtik için TMO+borsa kaynak kapsamını genişlet
+      (bkz. hafıza: borsa-resmi-fiyatlar-dikeyi, TOBB portal pattern — borsakod ile tüm borsalar)
+- [ ] 7 ürünün editoryelini yaz (AI-assist + onay)
+- [ ] Landing zenginleştirme: borsa ürün sayfasında "hal fiyatı" tablosu yerine borsa/TMO
+      serisi + tarihçe grafiği öncelikli görünsün (frontend, ayrı iş)
+
+**Beklenen etki:** ~44.000 aylık arama hacmine sayfa açılır — mevcut index setinin (221K)
+%20'si kadar yeni potansiyel, üstelik rekabeti düşük sorgu ailesi.
+
+---
+
+## 4. FAZ 3 — 365 "1-2 hal" Ürünü (sürekli süreç)
+
+Bunlar için **doğru cevap indexe zorlamak DEĞİL** (thin page → Google zaten reddediyor, 1.230
+indexsiz firma sayfası dersi). Doğru cevap iki koldan:
+
+- [ ] **ETL kapsamı büyüt:** 146 editoryelli+1-2 hallik ürünün hangi hallerde eksik olduğunu çıkar;
+      eksik haller çalışan kaynaklarda parser/alias sorunu mu yoksa gerçekten yayınlamıyor mu ayır
+      (alias çakışması playbook'u: urun-eslestirme-alias-cakismasi hafızası)
+- [ ] **Alias birleştirme taraması:** 365'in içinde mevcut indexli master'ların farklı yazımı
+      olanlar var → "Birleştirme önerileri" paneliyle aile aile geç (auto-merge playbook kuralları:
+      farklı-ürün tuzakları, qualifier bug pattern'ine dikkat)
+- [ ] Aylık rapor: bu havuzdan kaç ürün ≥3 hal'e terfi etti (self-healing otomatik indexler)
+
+---
+
+## 5. FAZ 4 — Temizlik & Hijyen (ay içinde, düşük öncelik)
+
+- [ ] **132 pasif ürün:** fiyat geçmişi hiç olmayan + arama 0 olanlar → sil ya da arşiv;
+      geçmişi olanlar pasif kalsın (tarihsel veri korunur, sayfa zaten yok)
+- [ ] **search_volume 408 üründe 0/boş** → fırsat sıralaması kör. GSC query verisinden
+      (gsc-query-data-fetch yöntemi) toplu doldurma script'i; olmayanlar gerçek 0 olarak kalır
+- [ ] **Varyant hijyeni:** `hf_redirects` ↔ `hf_products.canonical_slug` tutarlılık taraması
+      (biber vakasının taraması — başka çelişki var mı?):
+      redirect var + DB master → biber tipi bug; DB varyant + redirect yok → 301 eksik
+- [ ] 410 yanlış-pozitif kontrolü: aile-başı generic slug'lar 410 değil 301 olmalı
+      (410-yanlis-pozitif-aile-basi hafızası — teşhis SQL'i orada)
+
+---
+
+## 6. FAZ 5 — Panel Geliştirmeleri (istek üzerine)
+
+- [ ] **"Aksiyon" kolonu:** her satırda sınıf+sonraki adım rozeti
+      (örn. "editoryel yaz → index", "hal kapsamı bekliyor", "recrawl bekliyor", "borsa kriteri")
+      — backend'te sınıflandırma zaten SQL ile çıkıyor, liste endpoint'ine ekle
+- [ ] **Fırsat sıralaması varsayılanı:** tablo varsayılan sıralaması `search_volume DESC`
+      + noindex filtresiyle açılan "Fırsatlar" hazır görünümü
+- [ ] Toplu editoryel akışı: seçili N ürün için AI taslak kuyruğu (insan onayı şart, otomatik yayın YOK)
+- [ ] GSC bulk denetimini haftalık cron'a bağla (şu an elle buton; tek-indirici kuralına uygun,
+      bkz. gsc-single-inspector-architecture)
+
+---
+
+## 7. Karar Kuralları — Tüm Ürünler İçin (kalıcı politika)
+
+| Sınıf | Tanım | Doğru aksiyon |
+|---|---|---|
+| **A. Indexli** | seo_index=1, dq100 | Dokunma; self-healing verisi kuruyanı düşürür |
+| **B. Hazır aday** | ≥3 hal + dq≥70 + editoryel YOK | Editoryel yaz → cron indexler |
+| **C. Borsa ürünü** | Verisi borsa/TMO'dan | Faz 2 borsa kriteri; hal şartı uygulanmaz |
+| **D. Dar kapsam** | 1-2 hal, editoryelli | Indexe ZORLAMA; ETL kapsamı büyüt veya bekle |
+| **E. Mevsimsel/0 veri** | 30g fiyatsız | Bekle — sezon dönünce self-healing indexler; kalıcı ölüyse 301/410 playbook |
+| **F. Varyant** | canonical_slug dolu | Dokunma; redirect↔DB tutarlılığını dönemsel tara |
+| **G. Pasif** | is_active=0 | Geçmişsiz+aramasız → sil; diğerleri arşiv |
+
+**Altın kural:** `seo_index` elle OYNANMAZ — girdileri (editoryel, veri kapsamı) beslenir,
+self-healing karar verir. Elle müdahale yalnız çelişki düzeltmede (biber vakası).
+
+---
+
+*İlgili hafıza/dokümanlar: seo-index-expansion-plan, auto-merge-onerici, analiz-kalite-gsc-paneli,
+gsc-single-inspector-architecture, borsa-resmi-fiyatlar-dikeyi, urun-eslestirme-birim-kimlik.*

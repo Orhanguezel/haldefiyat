@@ -398,7 +398,20 @@ export default function Page() {
                         title="Google indexlenme detayına git"
                         className="inline-flex"
                       >
-                        <ProductGscBadge category={item.gscCategory} label={GSC_SHORT_LABEL[item.gscCategory]} />
+                        {/* Noindex/varyant ürünün GSC'de excluded olması BEKLENEN durum —
+                            kırmızı "Sorun" basmak paneli gürültüye boğar. Gerçek sorun =
+                            indexlenebilir (seoIndex, master) ama Google'da yok. */}
+                        {!item.seoIndex || item.canonicalSlug ? (
+                          item.gscCategory === "indexed" ? (
+                            <ProductGscBadge category="indexed" label={GSC_SHORT_LABEL.indexed} />
+                          ) : (
+                            <Badge variant="outline" className="text-muted-foreground">
+                              Beklenen
+                            </Badge>
+                          )
+                        ) : (
+                          <ProductGscBadge category={item.gscCategory} label={GSC_SHORT_LABEL[item.gscCategory]} />
+                        )}
                       </Link>
                     ) : (
                       <span className="text-muted-foreground text-xs">—</span>
