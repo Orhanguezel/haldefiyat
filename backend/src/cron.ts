@@ -28,7 +28,7 @@ import { runGscBulkRefresh } from "@/modules/seo/gsc-bulk";
 import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
 import { processSocialQueueOnce } from "@agro/shared-backend/modules/twitter";
 import { runDailyMoversJob, runStaplesJob, createWeeklyAnalysisDraft } from "@/modules/social/daily-content";
-import { auditBannerTargets, auditLiveBannerSources, optimizeBannerPerformance, processAdPaymentReminders, sendScheduledCampaignReports, syncBannerLifecycle } from "@/modules/banners/repository";
+import { archiveExpiredBanners, auditBannerTargets, auditLiveBannerSources, optimizeBannerPerformance, processAdPaymentReminders, sendScheduledCampaignReports, syncBannerLifecycle } from "@/modules/banners/repository";
 
 /**
  * Cron zamanlaması env'den gelir:
@@ -83,6 +83,7 @@ export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] }
     { name: "banner-source-audit", schedule: "15 4 * * *",              category: "reklam",   description: "Bozulan reklam kaynaklarini problem durumuna al (gunluk)" },
     { name: "banner-performance", schedule: "45 4 * * *",               category: "reklam",   description: "Reklam kreatif performansi + agirlik optimizasyonu" },
     { name: "banner-reports",     schedule: "15 5 * * *",               category: "reklam",   description: "Sponsor kampanya raporlarini gonder" },
+    { name: "banner-archive",     schedule: "30 5 * * *",               category: "reklam",   description: "90 gundur tamamlanmis reklam kampanyalarini arsivle" },
   ];
   if (E.firmPriceReminderSchedule) {
     tasks.push({ name: "firm-price-reminder", schedule: E.firmPriceReminderSchedule, category: "bildirim", description: "Firma gunluk fiyat girisi hatirlatmasi" });
@@ -154,6 +155,10 @@ export function startCron(app: FastifyInstance): void {
     { name: "banner-reports", schedule: "15 5 * * *", handler: async () => {
       const result = await sendScheduledCampaignReports();
       app.log.info(result, "[cron:banner-reports] sponsor raporlari gonderildi");
+    } },
+    { name: "banner-archive", schedule: "30 5 * * *", handler: async () => {
+      const result = await archiveExpiredBanners();
+      app.log.info(result, "[cron:banner-archive] suresi dolan kampanyalar arsivlendi");
     } },
   ];
   if (env.ETL.firmPriceReminderSchedule) {
@@ -357,7 +362,7 @@ async function runSeoMaintenanceJob(app: FastifyInstance): Promise<void> {
   try {
     const r = await runSeoIndexMaintenance();
     app.log.info(
-      { flippedUp: r.flippedUp, flippedUpBorsa: r.flippedUpBorsa, flippedUpRetail: r.flippedUpRetail, demoted: r.demoted, durationMs: Date.now() - t0 },
+      { flippedUp: r.flippedUp, flippedUpBorsa: r.flippedUpBorsa, flippedUpRetail: r.flippedUpRetail, flippedUpNiche: r.flippedUpNiche, demoted: r.demoted, durationMs: Date.now() - t0 },
       "[cron:seo-maintenance] tamamlandi",
     );
 

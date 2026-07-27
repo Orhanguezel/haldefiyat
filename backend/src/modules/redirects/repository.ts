@@ -457,10 +457,10 @@ export async function runSeoIndexMaintenance() {
       AND p.data_quality >= 60 AND s.hal_rows = 0 AND s.borsa_rows >= 1 AND s.days >= 3
   `);
 
-  // RETAIL-STAPLE UP: hal/borsa kaynağı YOK ama market zinciri fiyatı var (pirinç, bulgur).
-  // Staple kategorisinde + editoryel + ≥3 zincir + ≥3 gün. dq düşük kalır (hf_price_history
-  // yok) → dq gate uygulanmaz; editoryel + retail kapsamı içeriği garantiler. "Pirinç fiyatı"
-  // gibi yüksek arama nişini açar (retail = birincil fiyat, karar: Orhan onayı 2026-07-27).
+  // RETAIL-STAPLE UP: market zinciri fiyatı birincil kaynak olan staple (pirinç, bulgur,
+  // mercimek). Editoryel + ≥3 zincir + ≥1 gün. Hal'de az sayıda (mc<3) INCIDENTAL kayıt olsa
+  // da (ör. mercimek 2 halde görünür ama asıl fiyat markette) retail sinyali geçerlidir; bu
+  // yüzden pr=0 yerine mc<3 kullanılır. Broadly-traded (mc≥3) ürün zaten hal-UP'a düşer.
   const upRetail = await db.execute(sql`
     UPDATE hf_products p
     JOIN hf_product_editorial e ON e.product_slug = p.slug AND e.published_at IS NOT NULL
@@ -469,25 +469,42 @@ export async function runSeoIndexMaintenance() {
     SET p.seo_index = 1
     WHERE p.canonical_slug IS NULL AND p.seo_index = 0
       AND p.category_slug IN ${STAPLE_CATS}
-      AND COALESCE(s.pr, 0) = 0
+      AND COALESCE(s.mc, 0) < 3
       AND r.chains >= 3 AND r.rdays >= 1
   `);
 
+  // TUTARLI-NİŞ UP: az halli (mc<3) ama SÜREKLİ veri veren niş ürün. mc≥3 eşiği bunları
+  // dışlıyordu; ancak 30 günde ≥20 farklı günde fiyat = tek-atış glitch değil, gerçek seri.
+  // editoryel + dq≥70 + ≥20 gün → içerik + veri gerçek. Limon çeşidi, yer elması, mangostan,
+  // taze börülce gibi yüksek-aramalı ama az-marketli kalemleri açar (doorway değil: her biri
+  // özgün editöryel + aylık günlük veriye sahip).
+  const upNiche = await db.execute(sql`
+    UPDATE hf_products p
+    JOIN hf_product_editorial e ON e.product_slug = p.slug AND e.published_at IS NOT NULL
+    JOIN ${signals} s ON s.product_id = p.id
+    SET p.seo_index = 1
+    WHERE p.canonical_slug IS NULL AND p.seo_index = 0
+      AND p.data_quality >= 70 AND s.hal_rows >= 1 AND s.days >= 20
+  `);
+
   // DEMOTE: verisi kuruyan / thin olan indexli sayfaları noindex'e çek. Hal ürünü <3 hal
-  // ise düşür; borsa ürünü ise yalnız TAMAMEN veri kuruduğunda (pr=0) düşür. RETAIL-staple
-  // ise pr=0 olsa da retail kapsamı (≥3 zincir) sürdükçe KORUNUR — yalnız retail de kuruyunca düşer.
+  // ise düşür — AMA (a) retail-staple (≥3 zincir) ve (b) tutarlı-niş (≥20 gün + editoryel +
+  // dq≥70) MUAF; bunların içeriği+verisi gerçek, tek/iki market olsa da korunur.
   const down = await db.execute(sql`
     UPDATE hf_products p
     LEFT JOIN ${signals} s ON s.product_id = p.id
     LEFT JOIN ${retailSignals} r ON r.product_id = p.id
+    LEFT JOIN hf_product_editorial ed ON ed.product_slug = p.slug AND ed.published_at IS NOT NULL
     SET p.seo_index = 0
     WHERE p.seo_index = 1 AND p.canonical_slug IS NULL
+      AND NOT (p.category_slug IN ${STAPLE_CATS} AND COALESCE(r.chains, 0) >= 3)
+      AND NOT (COALESCE(s.days, 0) >= 20 AND ed.product_slug IS NOT NULL AND p.data_quality >= 70)
       AND (
-        (COALESCE(s.pr, 0) = 0 AND NOT (p.category_slug IN ${STAPLE_CATS} AND COALESCE(r.chains, 0) >= 3))
+        COALESCE(s.pr, 0) = 0
         OR (COALESCE(s.hal_rows, 0) >= 1 AND s.mc < 3)
       )
   `);
 
   const affected = (r: unknown) => Number((Array.isArray(r) ? (r[0] as { affectedRows?: number }) : null)?.affectedRows ?? 0);
-  return { flippedUp: affected(up), flippedUpBorsa: affected(upBorsa), flippedUpRetail: affected(upRetail), demoted: affected(down) };
+  return { flippedUp: affected(up), flippedUpBorsa: affected(upBorsa), flippedUpRetail: affected(upRetail), flippedUpNiche: affected(upNiche), demoted: affected(down) };
 }

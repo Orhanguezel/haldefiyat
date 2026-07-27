@@ -176,7 +176,7 @@ export const hfProductsAdminApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "HfProducts" as const, id: "GSC-SUMMARY" }],
     }),
     runHfSeoMaintenance: builder.mutation<
-      { ok: boolean; flippedUp: number; flippedUpBorsa: number; demoted: number },
+      { ok: boolean; flippedUp: number; flippedUpBorsa: number; flippedUpRetail: number; flippedUpNiche: number; demoted: number },
       void
     >({
       query: () => ({ url: "/admin/hal/products/seo-maintenance", method: "POST", body: {} }),

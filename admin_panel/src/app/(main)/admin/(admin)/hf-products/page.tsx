@@ -82,7 +82,7 @@ export default function Page() {
     try {
       const r = await runMaintenance().unwrap();
       toast.success(
-        `SEO bakımı: ${r.flippedUp} hal + ${r.flippedUpBorsa} borsa index'e alındı, ${r.demoted} düşürüldü.`,
+        `SEO bakımı: ${r.flippedUp} hal + ${r.flippedUpBorsa} borsa + ${r.flippedUpRetail} market + ${r.flippedUpNiche} niş index'e alındı, ${r.demoted} düşürüldü.`,
       );
     } catch {
       toast.error("SEO bakımı çalıştırılamadı.");
