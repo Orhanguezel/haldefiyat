@@ -398,10 +398,17 @@ export async function runSeoIndexMaintenance() {
       SELECT product_id, COUNT(*) pr, COUNT(DISTINCT market_id) mc
       FROM hf_price_history WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY product_id
     ) s ON s.product_id = p.id
+    LEFT JOIN (
+      SELECT product_id, COUNT(DISTINCT chain_slug) chains
+      FROM hf_retail_prices WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY product_id
+    ) rq ON rq.product_id = p.id
     LEFT JOIN hf_product_editorial ed ON ed.product_slug = p.slug
     SET p.data_quality = LEAST(100,
-      (COALESCE(s.pr,0) >= 1) * 40 +
-      (COALESCE(s.mc,0) >= 3) * 25 +
+      -- Fiyat verisi: hal (hf_price_history) VEYA market zinciri (hf_retail_prices). Retail-staple
+      -- (pirinç/bulgur) hal'de yok ama market rafında var → aynı 40 puanı hak eder (sayfada render ediliyor).
+      (COALESCE(s.pr,0) >= 1 OR COALESCE(rq.chains,0) >= 3) * 40 +
+      -- Kapsam genişliği: ≥3 hal VEYA ≥3 market zinciri.
+      (COALESCE(s.mc,0) >= 3 OR COALESCE(rq.chains,0) >= 3) * 25 +
       (COALESCE(NULLIF(p.display_name,''), p.name_tr) NOT LIKE '%.%'
         AND COALESCE(NULLIF(p.display_name,''), p.name_tr) NOT REGEXP '^[[:alpha:]]([.]|[[:space:]])') * 15 +
       (COALESCE(JSON_LENGTH(p.aliases),0) >= 1) * 10 +
