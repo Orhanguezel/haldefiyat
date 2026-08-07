@@ -9,6 +9,7 @@ import { useProfile } from "@/lib/hooks/useProfile";
 const NAV_ITEMS = [
   { href: "hesabim",             key: "overview",      icon: GridIcon },
   { href: "hesabim/firmam",      key: "myFirm",        icon: BriefcaseIcon },
+  { href: "hesabim/reklamlarim", key: "ads",           icon: MegaphoneIcon },
   { href: "hesabim/profil",      key: "profile",       icon: UserIcon },
   { href: "hesabim/uyarilar",    key: "alerts",        icon: BellIcon },
   { href: "hesabim/favoriler",   key: "favorites",     icon: StarIcon },
@@ -64,7 +65,7 @@ export function DashboardSidebar({ locale }: Props) {
               }`}
             >
               <Icon size={17} />
-              {t(`nav.${key}`)}
+              {key === "ads" ? "Reklamlarım" : t(`nav.${key}`)}
             </Link>
           );
         })}
@@ -107,6 +108,9 @@ function BriefcaseIcon({ size }: { size: number }) {
       <rect x="3" y="7" width="14" height="10" rx="2" /><path d="M7 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" /><path d="M3 11h14" />
     </svg>
   );
+}
+function MegaphoneIcon({ size }: { size: number }) {
+  return <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden><path d="M3 9v3a2 2 0 0 0 2 2h2l2.5 3H12l-2-4 7-3V5L7 9H5a2 2 0 0 0-2 2" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
 function BellIcon({ size }: { size: number }) {
   return (

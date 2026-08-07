@@ -666,6 +666,9 @@ export async function createFirmDeal(input: {
   currency?: string;
   owner?: string | null;
   notes?: string | null;
+  contractNumber?: string | null;
+  contractUrl?: string | null;
+  renewalReminderDays?: number;
   contactedAt?: Date | null;
   nextActionAt?: Date | null;
 }) {
@@ -677,6 +680,9 @@ export async function createFirmDeal(input: {
     currency: input.currency ?? "TRY",
     owner: input.owner ?? null,
     notes: input.notes ?? null,
+    contractNumber: input.contractNumber ?? null,
+    contractUrl: input.contractUrl ?? null,
+    renewalReminderDays: input.renewalReminderDays ?? 14,
     contactedAt: input.contactedAt ?? null,
     nextActionAt: input.nextActionAt ?? null,
   });
@@ -690,6 +696,9 @@ export async function updateFirmDeal(id: number, input: {
   currency?: string;
   owner?: string | null;
   notes?: string | null;
+  contractNumber?: string | null;
+  contractUrl?: string | null;
+  renewalReminderDays?: number;
   contactedAt?: Date | null;
   nextActionAt?: Date | null;
 }) {
@@ -702,6 +711,9 @@ export async function updateFirmDeal(id: number, input: {
       ...(input.currency !== undefined ? { currency: input.currency } : {}),
       ...(input.owner !== undefined ? { owner: input.owner } : {}),
       ...(input.notes !== undefined ? { notes: input.notes } : {}),
+      ...(input.contractNumber !== undefined ? { contractNumber: input.contractNumber } : {}),
+      ...(input.contractUrl !== undefined ? { contractUrl: input.contractUrl } : {}),
+      ...(input.renewalReminderDays !== undefined ? { renewalReminderDays: input.renewalReminderDays } : {}),
       ...(input.contactedAt !== undefined ? { contactedAt: input.contactedAt } : {}),
       ...(input.nextActionAt !== undefined ? { nextActionAt: input.nextActionAt } : {}),
     })

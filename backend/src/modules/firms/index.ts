@@ -44,6 +44,15 @@ import {
 import { runFirmDirectoryEtl } from "./service";
 import { runFirmDailyPriceReminders } from "./reminders";
 import { isValidCitySlug, isValidDistrictSlug } from "@/data/turkey-city-slugs";
+import {
+  createBanner,
+  findLayoutConflicts,
+  getAdSlot,
+  listBanners,
+  replaceBannerTargets,
+  syncBannersForSponsorship,
+} from "@/modules/banners/repository";
+import type { BannerInput, BannerTarget } from "@/modules/banners/repository";
 
 const firmTypeSchema = z.enum(["komisyoncu", "soguk_hava", "nakliye", "zirai_ilac"]);
 
@@ -74,6 +83,9 @@ const dealBodySchema = z.object({
   currency: z.string().max(8).optional(),
   owner: z.string().max(128).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
+  contractNumber: z.string().max(96).optional().nullable(),
+  contractUrl: z.string().max(500).optional().nullable(),
+  renewalReminderDays: z.coerce.number().int().min(1).max(180).optional(),
   contactedAt: z.string().datetime().optional().nullable(),
   nextActionAt: z.string().datetime().optional().nullable(),
 });
@@ -90,6 +102,26 @@ const sponsorshipBodySchema = z.object({
 
 const sponsorshipPatchSchema = sponsorshipBodySchema.partial().extend({
   firmId: z.coerce.number().int().positive().optional(),
+});
+
+const firmAdCampaignSchema = z.object({
+  dealId: z.coerce.number().int().positive().optional().nullable(),
+  position: z.string().min(1).max(64),
+  title: z.string().min(2).max(190),
+  caption: z.string().max(300).optional().nullable(),
+  ctaLabel: z.string().max(60).optional().nullable(),
+  imageUrl: z.string().max(512).optional().nullable(),
+  linkUrl: z.string().max(500).optional().nullable(),
+  tier: z.string().min(1).max(32).default("standard"),
+  placement: z.enum(["il", "kategori", "global"]).default("il"),
+  placementSlug: z.string().max(128).optional().nullable(),
+  startsAt: z.string().datetime(),
+  endsAt: z.string().datetime(),
+  device: z.enum(["all", "desktop", "mobile"]).default("all"),
+  desktopRow: z.coerce.number().int().min(1).max(12).default(1),
+  desktopColumns: z.coerce.number().int().min(1).max(4).default(1),
+  paymentStatus: z.enum(["unpaid", "partial", "paid", "waived"]).default("unpaid"),
+  salesOwner: z.string().max(160).optional().nullable(),
 });
 
 const publicLeadBodySchema = z.object({
@@ -204,6 +236,9 @@ function toDealInput(data: z.infer<typeof dealBodySchema>, firmId: number): {
   currency?: string;
   owner?: string | null;
   notes?: string | null;
+  contractNumber?: string | null;
+  contractUrl?: string | null;
+  renewalReminderDays?: number;
   contactedAt?: Date | null;
   nextActionAt?: Date | null;
 } {
@@ -215,6 +250,9 @@ function toDealInput(data: z.infer<typeof dealBodySchema>, firmId: number): {
     currency: data.currency,
     owner: data.owner,
     notes: data.notes,
+    contractNumber: data.contractNumber,
+    contractUrl: data.contractUrl,
+    renewalReminderDays: data.renewalReminderDays,
     contactedAt: parseOptionalDate(data.contactedAt),
     nextActionAt: parseOptionalDate(data.nextActionAt),
   };
@@ -607,6 +645,87 @@ export async function registerFirmsAdmin(app: FastifyInstance) {
     return reply.send({ items: await listFirmSponsorships(id) });
   });
 
+  app.get<{ Params: { id: string } }>("/firms/:id/ad-campaigns", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const items = await listBanners({ firmId: id, limit: 200 });
+    return reply.send({
+      items,
+      summary: items.reduce((acc, item) => {
+        acc.impressions += item.impressions;
+        acc.clicks += item.clicks;
+        return acc;
+      }, { impressions: 0, clicks: 0 }),
+    });
+  });
+
+  app.post<{ Params: { id: string } }>("/firms/:id/ad-campaigns", async (req, reply) => {
+    const firmId = Number(req.params.id);
+    if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const parsed = firmAdCampaignSchema.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz kampanya parametreleri", issues: parsed.error.issues });
+    const firm = await getFirmById(firmId);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi" });
+    const slot = await getAdSlot(parsed.data.position);
+    if (!slot || !slot.isActive) return reply.status(400).send({ error: "Reklam slotu bulunamadi veya pasif" });
+    if (new Date(parsed.data.endsAt) <= new Date(parsed.data.startsAt)) {
+      return reply.status(400).send({ error: "Bitis tarihi baslangictan sonra olmali" });
+    }
+
+    const paid = parsed.data.paymentStatus === "paid" || parsed.data.paymentStatus === "waived";
+    const startsAt = new Date(parsed.data.startsAt);
+    const endsAt = new Date(parsed.data.endsAt);
+    const lifecycleStatus = paid ? (startsAt.getTime() > Date.now() ? "scheduled" : "live") : "payment_pending";
+    const targets: BannerTarget[] = parsed.data.placement === "global"
+      ? [{ scopeType: "global" as const, scopeValue: null }]
+      : [{
+          scopeType: parsed.data.placement === "il" ? "city" as const : "category" as const,
+          scopeValue: parsed.data.placementSlug || (parsed.data.placement === "il" ? firm.citySlug : null),
+        }];
+    if (parsed.data.position.startsWith("firm_detail_")) {
+      targets.push({ scopeType: "firm" as const, scopeValue: String(firmId) });
+    }
+    const validTargets = targets.filter((target) => target.scopeType === "global" || Boolean(target.scopeValue));
+    const bannerInput: BannerInput = {
+      position: parsed.data.position,
+      title: parsed.data.title,
+      advertiser: firm.name,
+      sourceType: "firm" as const,
+      firmId,
+      dealId: parsed.data.dealId,
+      imageUrl: parsed.data.imageUrl || firm.photoUrl,
+      alt: firm.name,
+      linkUrl: parsed.data.linkUrl || `/firma/${firm.slug}`,
+      caption: parsed.data.caption,
+      ctaLabel: parsed.data.ctaLabel || "Firmayı İncele",
+      device: parsed.data.device,
+      desktopRow: parsed.data.desktopRow,
+      desktopColumns: parsed.data.desktopColumns,
+      startAt: startsAt,
+      endAt: endsAt,
+      paymentStatus: parsed.data.paymentStatus,
+      lifecycleStatus,
+      isActive: paid,
+      salesOwner: parsed.data.salesOwner,
+      targets: validTargets,
+    };
+    const conflicts = await findLayoutConflicts(bannerInput);
+    if (conflicts.length) return reply.status(409).send({ error: "Secilen slot ve tarihler dolu", conflicts });
+
+    const sponsorshipId = Number(await createFirmSponsorship({
+      firmId,
+      tier: parsed.data.tier,
+      placement: parsed.data.placement,
+      placementSlug: parsed.data.placement === "global" ? null : parsed.data.placementSlug,
+      startsAt,
+      endsAt,
+      isActive: paid,
+    }));
+    const bannerId = await createBanner({ ...bannerInput, sponsorshipId });
+    await replaceBannerTargets(bannerId, validTargets);
+    return reply.status(201).send({ id: bannerId, bannerId, sponsorshipId });
+  });
+
   app.post("/firms/sponsorships", async (req, reply) => {
     const parsed = sponsorshipBodySchema.safeParse(req.body ?? {});
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz sponsorluk parametreleri", issues: parsed.error.issues });
@@ -631,12 +750,18 @@ export async function registerFirmsAdmin(app: FastifyInstance) {
       endsAt: parsed.data.endsAt ? new Date(parsed.data.endsAt) : undefined,
     });
     if (!affected) return reply.status(404).send({ error: "Sponsorluk bulunamadi" });
+    await syncBannersForSponsorship(sponsorshipId, {
+      startsAt: parsed.data.startsAt ? new Date(parsed.data.startsAt) : undefined,
+      endsAt: parsed.data.endsAt ? new Date(parsed.data.endsAt) : undefined,
+      isActive: parsed.data.isActive,
+    });
     return reply.send({ ok: true });
   });
 
   app.delete<{ Params: { sponsorshipId: string } }>("/firms/sponsorships/:sponsorshipId", async (req, reply) => {
     const sponsorshipId = Number(req.params.sponsorshipId);
     if (!Number.isFinite(sponsorshipId) || sponsorshipId <= 0) return reply.status(400).send({ error: "Gecersiz sponsorluk id" });
+    await syncBannersForSponsorship(sponsorshipId, { isActive: false });
     const affected = await deleteFirmSponsorship(sponsorshipId);
     if (!affected) return reply.status(404).send({ error: "Sponsorluk bulunamadi" });
     return reply.send({ ok: true });

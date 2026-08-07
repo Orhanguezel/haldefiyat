@@ -38,6 +38,7 @@ const COLUMNS: ReadonlyArray<FooterColumn> = [
       { label: "Borsa / Resmi Fiyatlar", href: "/borsa" },
       { label: "İlanlar", href: "/ilanlar" },
       { label: "İlan Ver", href: "/ilan-ver" },
+      { label: "Reklam Ver", href: "/reklam-ver" },
       { label: "Karşılaştır", href: "/karsilastirma" },
       { label: "Trend", href: "/fiyatlar?range=7d" },
       { label: "Widget ve Embed", href: "/embed" },

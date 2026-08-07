@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { BASE_URL } from '@/integrations/api-base';
@@ -12,7 +14,7 @@ import { tokenStore } from '@/integrations/core/token';
 type Listing = {
   id: number; title: string; productName: string; citySlug: string | null;
   listingType: string; status: string; isSuspicious: number | boolean; isFeatured: number | boolean;
-  validUntil: string; contactPhone: string | null;
+  validUntil: string; featuredUntil?: string | null; contactPhone: string | null;
   quantity: string | number | null; quantityUnit: string | null;
   priceType: string | null; priceMin: string | number | null; priceMax: string | number | null;
   description: string | null; images?: string[];
@@ -55,9 +57,26 @@ type ListingAnalytics = {
   perListing: Array<{ id: number; title: string; slug: string; status: string; viewCount: number; inquiries: number }>;
 };
 type Pricing = Record<'daily' | 'weekly' | 'monthly', { days: number; price: number }>;
+type ListingAd = {
+  id: number; listingId: number | null; position: string; desktopRow: number; desktopColumns: number;
+  device: 'all' | 'desktop' | 'mobile'; isActive: number | boolean; endAt: string | null;
+};
+type AdForm = {
+  enabled: boolean; position: string; desktopRow: string; desktopColumns: string;
+  device: 'all' | 'desktop' | 'mobile'; package: 'daily' | 'weekly' | 'monthly'; paymentConfirmed: boolean;
+};
+const AD_POSITIONS = [
+  { value: 'global_footer', label: 'Tüm sayfalar · footer üstü' },
+  { value: 'home_mid', label: 'Anasayfa · orta alan' },
+  { value: 'home_footer_top', label: 'Anasayfa · footer üstü' },
+  { value: 'prices_top', label: 'Fiyatlar · üst şerit' },
+  { value: 'listing_detail_sidebar', label: 'İlan detay · yan sütun' },
+  { value: 'firm_detail_footer', label: 'Firma detay · içerik altı' },
+] as const;
 const PKG_LABEL: Record<'daily' | 'weekly' | 'monthly', string> = { daily: 'Günlük', weekly: 'Haftalık', monthly: 'Aylık' };
 const STATUS_LABEL: Record<string, string> = { pending: 'Bekleyen', approved: 'Onaylı', rejected: 'Reddedilen', expired: 'Süresi doldu', closed: 'Kapalı', all: 'Tümü' };
 const TYPE_LABEL: Record<string, string> = { satis: 'Satış ilanı', alim: 'Alım talebi' };
+const isLiveAd = (ad?: ListingAd) => Boolean(ad?.isActive && (!ad.endAt || new Date(ad.endAt).getTime() >= Date.now()));
 
 async function api(path: string, init: RequestInit = {}) {
   const token = tokenStore.get();
@@ -89,15 +108,19 @@ export default function ListingsAdminPage() {
   const [editError, setEditError] = useState('');
   const [analytics, setAnalytics] = useState<ListingAnalytics | null>(null);
   const [analyticsDays, setAnalyticsDays] = useState(30);
+  const [listingAds, setListingAds] = useState<ListingAd[]>([]);
+  const [adForm, setAdForm] = useState<AdForm>({ enabled: false, position: 'global_footer', desktopRow: '1', desktopColumns: '2', device: 'all', package: 'weekly', paymentConfirmed: false });
 
   async function load() {
     setBusy(true);
-    const [listRes, inquiryRes] = await Promise.all([
+    const [listRes, inquiryRes, adsRes] = await Promise.all([
       api(`/admin/listings?status=${status}&limit=100`),
       api('/admin/listings/inquiries'),
+      api('/admin/banners?limit=500'),
     ]);
     setData(listRes.ok ? await listRes.json() as ListingResponse : { items: [] });
     setInquiries(inquiryRes.ok ? ((await inquiryRes.json()) as { items?: Inquiry[] }).items ?? [] : []);
+    setListingAds(adsRes.ok ? ((await adsRes.json()) as { items?: ListingAd[] }).items?.filter((item) => item.listingId != null) ?? [] : []);
     setBusy(false);
   }
 
@@ -106,11 +129,6 @@ export default function ListingsAdminPage() {
       method: 'PATCH',
       body: JSON.stringify({ status: nextStatus, moderationNote: note || null }),
     });
-    await load();
-  }
-
-  async function feature(id: number, pkg: 'daily' | 'weekly' | 'monthly') {
-    await api(`/admin/listings/${id}/feature`, { method: 'PATCH', body: JSON.stringify({ package: pkg }) });
     await load();
   }
 
@@ -124,6 +142,16 @@ export default function ListingsAdminPage() {
     setEditId(item.id);
     setForm(toEditForm(item));
     setEditImages(item.images ?? []);
+    const ad = listingAds.find((entry) => entry.listingId === item.id);
+    setAdForm({
+      enabled: isLiveAd(ad),
+      position: ad?.position ?? 'global_footer',
+      desktopRow: String(ad?.desktopRow ?? 1),
+      desktopColumns: String(ad?.desktopColumns ?? 2),
+      device: ad?.device ?? 'all',
+      package: 'weekly',
+      paymentConfirmed: isLiveAd(ad),
+    });
   }
 
   function closeEdit() {
@@ -178,12 +206,66 @@ export default function ListingsAdminPage() {
       images: editImages,
     };
     const res = await api(`/admin/listings/${editId}`, { method: 'PATCH', body: JSON.stringify(payload) });
-    setSavingEdit(false);
     if (!res.ok) {
+      setSavingEdit(false);
       const body = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
       setEditError(body.error?.message ?? 'Kaydedilemedi. Alanları kontrol edin (geçerlilik tarihi yarından itibaren olmalı).');
       return;
     }
+    const currentAd = listingAds.find((entry) => entry.listingId === editId);
+    if (adForm.enabled) {
+      const currentListing = data.items.find((item) => item.id === editId);
+      if (currentListing?.status !== 'approved') {
+        setSavingEdit(false);
+        setEditError('Reklam yalnızca onaylı ilan için açılabilir. Önce ilanı onaylayın.');
+        return;
+      }
+      const days = pricing?.[adForm.package].days ?? ({ daily: 1, weekly: 7, monthly: 30 } as const)[adForm.package];
+      const endAt = new Date(Date.now() + days * 86400000).toISOString();
+      const bannerPayload = {
+        position: adForm.position,
+        title: `${form.title.trim()} · sponsorlu ilan`,
+        advertiser: 'Sponsorlu İlan',
+        type: 'image',
+        sourceType: 'listing',
+        listingId: editId,
+        alt: form.title.trim(),
+        linkTarget: '_self',
+        rel: 'sponsored nofollow noopener',
+        caption: form.description.trim().slice(0, 300) || null,
+        ctaLabel: 'İlanı İncele',
+        device: adForm.device,
+        desktopRow: Number(adForm.desktopRow) || 1,
+        desktopColumns: Number(adForm.desktopColumns) || 1,
+        displayOrder: 1,
+        weight: 1,
+        lifecycleStatus: adForm.paymentConfirmed ? 'live' : 'payment_pending',
+        paymentStatus: adForm.paymentConfirmed ? 'paid' : 'unpaid',
+        isActive: adForm.paymentConfirmed,
+        endAt,
+      };
+      const adRes = await api(currentAd ? `/admin/banners/${currentAd.id}` : '/admin/banners', {
+        method: currentAd ? 'PATCH' : 'POST',
+        body: JSON.stringify(bannerPayload),
+      });
+      if (!adRes.ok) {
+        const body = (await adRes.json().catch(() => ({}))) as { error?: string };
+        setSavingEdit(false);
+        setEditError(body.error ?? 'Reklam slotu kaydedilemedi. Seçilen satır dolu olabilir.');
+        return;
+      }
+      if (adForm.paymentConfirmed) {
+        await api(`/admin/listings/${editId}/feature`, { method: 'PATCH', body: JSON.stringify({ package: adForm.package }) });
+      } else {
+        await api(`/admin/listings/${editId}/feature`, { method: 'DELETE' });
+      }
+    } else {
+      if (currentAd?.isActive) {
+        await api(`/admin/banners/${currentAd.id}`, { method: 'PATCH', body: JSON.stringify({ isActive: false }) });
+      }
+      await api(`/admin/listings/${editId}/feature`, { method: 'DELETE' });
+    }
+    setSavingEdit(false);
     closeEdit();
     await load();
   }
@@ -377,6 +459,53 @@ export default function ListingsAdminPage() {
                   ) : null}
                 </div>
               </div>
+              <div className="space-y-4 rounded-md border border-primary/20 bg-primary/5 p-4 sm:col-span-2">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <div className="text-sm font-semibold">Reklam slotunda yayınla</div>
+                    <p className="text-xs text-muted-foreground">
+                      Açıldığında ilan “Sponsorlu” ve “Öne çıkan” olur. Kapatıldığında iki durum da kaldırılır.
+                    </p>
+                  </div>
+                  <Switch checked={adForm.enabled} onCheckedChange={(enabled) => setAdForm((prev) => ({ ...prev, enabled }))} />
+                </div>
+                {adForm.enabled ? (
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    <label className="space-y-1 block sm:col-span-2">
+                      <span className="text-sm text-muted-foreground">Reklam yeri</span>
+                      <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={adForm.position} onChange={(e) => setAdForm((prev) => ({ ...prev, position: e.target.value }))}>
+                        {AD_POSITIONS.map((position) => <option key={position.value} value={position.value}>{position.label}</option>)}
+                      </select>
+                    </label>
+                    <label className="space-y-1 block">
+                      <span className="text-sm text-muted-foreground">Süre / paket</span>
+                      <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={adForm.package} onChange={(e) => setAdForm((prev) => ({ ...prev, package: e.target.value as AdForm['package'] }))}>
+                        {(['daily', 'weekly', 'monthly'] as const).map((key) => <option key={key} value={key}>{PKG_LABEL[key]} · {pricing?.[key].price ?? 0} ₺</option>)}
+                      </select>
+                    </label>
+                    <label className="flex items-center gap-2 rounded-md border p-3 text-sm sm:col-span-2 lg:col-span-3">
+                      <input type="checkbox" checked={adForm.paymentConfirmed} onChange={(event) => setAdForm((prev) => ({ ...prev, paymentConfirmed: event.target.checked }))} />
+                      Ödeme alındı — reklam yayına alınabilir
+                    </label>
+                    <label className="space-y-1 block">
+                      <span className="text-sm text-muted-foreground">Satır</span>
+                      <Input type="number" min={1} max={20} value={adForm.desktopRow} onChange={(e) => setAdForm((prev) => ({ ...prev, desktopRow: e.target.value }))} />
+                    </label>
+                    <label className="space-y-1 block">
+                      <span className="text-sm text-muted-foreground">Satır kapasitesi</span>
+                      <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={adForm.desktopColumns} onChange={(e) => setAdForm((prev) => ({ ...prev, desktopColumns: e.target.value }))}>
+                        <option value="1">1 reklam</option><option value="2">2 reklam</option><option value="3">3 reklam</option>
+                      </select>
+                    </label>
+                    <label className="space-y-1 block">
+                      <span className="text-sm text-muted-foreground">Cihaz</span>
+                      <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={adForm.device} onChange={(e) => setAdForm((prev) => ({ ...prev, device: e.target.value as AdForm['device'] }))}>
+                        <option value="all">Tüm cihazlar</option><option value="desktop">Masaüstü</option><option value="mobile">Mobil</option>
+                      </select>
+                    </label>
+                  </div>
+                ) : null}
+              </div>
             </div>
             {editError ? <p className="text-sm text-destructive">{editError}</p> : null}
             <div className="flex gap-2">
@@ -413,8 +542,12 @@ export default function ListingsAdminPage() {
                 <TableRow key={item.id}>
                   <TableCell>
                     <div className="font-medium">{item.title}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {item.productName} · {item.citySlug ?? 'TR'} {item.isSuspicious ? '· şüpheli fiyat' : ''} {item.isFeatured ? '· öne çıkan' : ''}
+                    <div className="mt-1 flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
+                      <span>{item.productName} · {item.citySlug ?? 'TR'}</span>
+                      {item.isSuspicious ? <Badge variant="destructive">Şüpheli fiyat</Badge> : null}
+                      {listingAds.some((ad) => ad.listingId === item.id && isLiveAd(ad))
+                        ? <Badge>Reklamda · Sponsorlu</Badge>
+                        : item.isFeatured ? <Badge variant="secondary">Yalnız öne çıkan</Badge> : null}
                     </div>
                   </TableCell>
                   <TableCell>{TYPE_LABEL[item.listingType] ?? item.listingType}</TableCell>
@@ -425,9 +558,6 @@ export default function ListingsAdminPage() {
                     <Button size="sm" variant="secondary" onClick={() => startEdit(item)}>Düzenle</Button>
                     <Button size="sm" onClick={() => moderate(item.id, 'approved')}>Onayla</Button>
                     <Button size="sm" variant="outline" onClick={() => moderate(item.id, 'rejected')}>Reddet</Button>
-                    <Button size="sm" variant="outline" onClick={() => feature(item.id, 'daily')}>Günlük</Button>
-                    <Button size="sm" variant="outline" onClick={() => feature(item.id, 'weekly')}>Haftalık</Button>
-                    <Button size="sm" variant="outline" onClick={() => feature(item.id, 'monthly')}>Aylık</Button>
                     <Button size="sm" variant="destructive" onClick={() => remove(item.id)}>Sil</Button>
                   </TableCell>
                 </TableRow>

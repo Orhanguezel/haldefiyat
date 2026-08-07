@@ -162,6 +162,13 @@ export async function getListingById(id: number) {
   return row ?? null;
 }
 
+export async function getListingCreative(id: number) {
+  const [row] = await db.select().from(hfListings).where(eq(hfListings.id, id)).limit(1);
+  if (!row) return null;
+  const images = (await imagesByListing([id])).get(id) ?? [];
+  return { ...row, images };
+}
+
 export async function updateOwnerListing(id: number, userId: string, input: ListingPatchInput) {
   const row = await getListingById(id);
   if (!row || row.userId !== userId) return null;
@@ -225,6 +232,11 @@ export async function moderateListing(id: number, status: "approved" | "rejected
 
 export async function featureListing(id: number, days: number) {
   await db.update(hfListings).set({ isFeatured: 1, featuredUntil: sql`DATE_ADD(CURRENT_TIMESTAMP(3), INTERVAL ${days} DAY)` }).where(eq(hfListings.id, id));
+  return getListingById(id);
+}
+
+export async function unfeatureListing(id: number) {
+  await db.update(hfListings).set({ isFeatured: 0, featuredUntil: null }).where(eq(hfListings.id, id));
   return getListingById(id);
 }
 

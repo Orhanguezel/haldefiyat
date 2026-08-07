@@ -9,6 +9,7 @@ import {
 import { apiPost, apiDelete } from "@/lib/api-client";
 import { getStoredAccessToken } from "@/lib/auth-token";
 import { trackConversion } from "@/lib/analytics";
+import { trackAdConversion } from "@/lib/ad-conversions";
 
 interface FavoriteButtonProps {
   slug: string;
@@ -52,6 +53,7 @@ export default function FavoriteButton({
           await apiDelete(`/favorites/${slug}`);
         } else {
           await apiPost("/favorites", { productSlug: slug });
+          trackAdConversion("favorite_add", "product", slug);
           trackConversion("urun_favorited", { event_label: slug, product_slug: slug });
         }
       } catch {
@@ -61,6 +63,7 @@ export default function FavoriteButton({
       const next = toggleFavorite(slug);
       setActive(next);
       if (next) {
+        trackAdConversion("favorite_add", "product", slug);
         trackConversion("urun_favorited", { event_label: slug, product_slug: slug });
       }
     }

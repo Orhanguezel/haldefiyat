@@ -5,6 +5,8 @@ import PageContainer from "@/components/layout/PageContainer";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
 import { ListingInquiryForm } from "@/components/listings/ListingInquiryForm";
+import BannerSlot from "@/components/ads/BannerSlot";
+import { AdConversionTracker, TrackedAdLink } from "@/components/ads/AdConversionTracker";
 import { fetchListing } from "@/lib/api";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -48,6 +50,7 @@ export default async function ListingDetailPage({ params }: Props) {
 
   return (
     <PageContainer>
+      <AdConversionTracker eventType="listing_view" entityType="listing" entityId={listing.id} />
       <JsonLd type="Product" data={schema} />
       <Breadcrumb items={[{ name: "Anasayfa", href: "/" }, { name: "İlanlar", href: "/ilanlar" }, { name: listing.title, href: `/ilan/${listing.slug}` }]} />
       <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
@@ -72,10 +75,19 @@ export default async function ListingDetailPage({ params }: Props) {
             <div><dt className="text-xs text-(--color-faint)">Geçerli</dt><dd className="font-semibold">{listing.validUntil}</dd></div>
           </dl>
           {listing.description ? <p className="mt-6 whitespace-pre-line leading-7 text-(--color-muted)">{listing.description}</p> : null}
-          {listing.contactPhone ? <p className="mt-6 text-sm font-semibold">Telefon: {listing.contactPhone}</p> : null}
+          {listing.contactPhone ? (
+            <TrackedAdLink eventType="phone_click" entityType="listing" entityId={listing.id} href={`tel:${listing.contactPhone.replace(/[^\d+]/g, "")}`} className="mt-6 inline-block text-sm font-semibold text-(--color-brand)">
+              Telefon: {listing.contactPhone}
+            </TrackedAdLink>
+          ) : null}
         </article>
         <aside>
           <ListingInquiryForm listingId={listing.id} />
+          <BannerSlot
+            position="listing_detail_sidebar"
+            className="mt-6"
+            context={{ listing: listing.id, city: listing.citySlug, product: listing.productSlug }}
+          />
         </aside>
       </div>
     </PageContainer>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
+import { trackAdConversion } from "@/lib/ad-conversions";
 
 const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")}/api/v1`
@@ -30,6 +31,7 @@ export default function FirmLeadForm({ firmSlug }: { firmSlug: string }) {
         throw new Error(json.error || "Talep gönderilemedi");
       }
       event.currentTarget.reset();
+      trackAdConversion("firm_contact", "firm", firmSlug);
       setStatus("success");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Talep gönderilemedi");

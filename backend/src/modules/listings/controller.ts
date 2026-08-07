@@ -7,6 +7,7 @@ import {
   createListing,
   deleteListing,
   featureListing,
+  unfeatureListing,
   getListingById,
   getListingBySlug,
   incrementListingView,
@@ -196,6 +197,16 @@ export async function featureAdminListing(req: FastifyRequest<{ Params: { id: st
     return reply.send({ item, pricing });
   } catch (err) {
     return handleRouteError(reply, req, err, "feature_listing");
+  }
+}
+
+export async function unfeatureAdminListing(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+  try {
+    const item = await unfeatureListing(idParam(req));
+    if (!item) return sendNotFound(reply);
+    return reply.send({ item });
+  } catch (err) {
+    return handleRouteError(reply, req, err, "unfeature_listing");
   }
 }
 

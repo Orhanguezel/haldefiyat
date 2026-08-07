@@ -15,6 +15,7 @@ import {
   moderateAdminListing,
   patchOwnerListing,
   updateAdminListing,
+  unfeatureAdminListing,
 } from "./controller";
 import { featureCallback, featureCheckout } from "./checkout";
 import { getListingAnalytics } from "./analytics";
@@ -46,5 +47,6 @@ export async function registerListingsAdmin(app: FastifyInstance) {
   app.patch<{ Params: { id: string } }>("/listings/:id", updateAdminListing);
   app.patch<{ Params: { id: string } }>("/listings/:id/moderate", moderateAdminListing);
   app.patch<{ Params: { id: string } }>("/listings/:id/feature", featureAdminListing);
+  app.delete<{ Params: { id: string } }>("/listings/:id/feature", unfeatureAdminListing);
   app.delete<{ Params: { id: string } }>("/listings/:id", deleteAdminListing);
 }

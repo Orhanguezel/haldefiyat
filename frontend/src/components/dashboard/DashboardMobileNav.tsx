@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 const NAV_ITEMS = [
   { href: "hesabim",             key: "overview",      icon: GridIcon },
   { href: "hesabim/firmam",      key: "myFirm",        icon: BriefcaseIcon },
+  { href: "hesabim/reklamlarim", key: "ads",           icon: MegaphoneIcon },
   { href: "hesabim/uyarilar",    key: "alerts",        icon: BellIcon },
   { href: "hesabim/favoriler",   key: "favorites",     icon: StarIcon },
   { href: "hesabim/profil",      key: "profile",       icon: UserIcon },
@@ -39,7 +40,7 @@ export function DashboardMobileNav({ locale }: Props) {
             <div className={`p-1.5 rounded-xl transition-colors ${active ? "bg-brand/10" : ""}`}>
               <Icon size={20} />
             </div>
-            <span className="text-[9px] font-bold uppercase tracking-wider">{t(`nav.${key}`)}</span>
+            <span className="text-[9px] font-bold uppercase tracking-wider">{key === "ads" ? "Reklamlar" : t(`nav.${key}`)}</span>
           </Link>
         );
       })}
@@ -69,6 +70,9 @@ function BriefcaseIcon({ size }: { size: number }) {
       <rect x="3" y="7" width="14" height="10" rx="2" /><path d="M7 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" /><path d="M3 11h14" />
     </svg>
   );
+}
+function MegaphoneIcon({ size }: { size: number }) {
+  return <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden><path d="M3 9v3a2 2 0 0 0 2 2h2l2.5 3H12l-2-4 7-3V5L7 9H5a2 2 0 0 0-2 2" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
 function StarIcon({ size }: { size: number }) {
   return (

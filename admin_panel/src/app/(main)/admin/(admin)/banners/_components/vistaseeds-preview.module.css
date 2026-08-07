@@ -1,0 +1,129 @@
+.preview {
+  position: relative;
+  display: grid;
+  align-items: center;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+  background: radial-gradient(circle at 15% 100%, #287443 0, transparent 38%), linear-gradient(115deg, #061f13, #0b4b2b);
+  box-shadow: 0 14px 32px rgb(0 0 0 / 20%);
+  color: white;
+}
+
+.sidebar {
+  aspect-ratio: 6 / 5;
+}
+
+.leaderboard {
+  grid-template-columns: 29% 1fr 25%;
+  min-height: 118px;
+}
+
+.stage {
+  position: absolute;
+  top: 18%;
+  right: -4%;
+  width: 47%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 50%;
+  background: #07110c;
+  box-shadow: 0 15px 30px rgb(0 0 0 / 32%);
+}
+
+.leaderboard .stage {
+  position: relative;
+  top: auto;
+  right: auto;
+  width: auto;
+  height: 86px;
+  margin: 16px;
+  border-radius: 10px;
+}
+
+.product {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  animation: cycle 12s ease-in-out infinite;
+}
+
+.product:nth-child(2) {
+  animation-delay: 4s;
+}
+
+.product:nth-child(3) {
+  animation-delay: 8s;
+}
+
+.copy {
+  position: relative;
+  z-index: 2;
+  padding: 18px;
+}
+
+.sidebar .copy {
+  align-self: stretch;
+  width: 58%;
+  padding-top: 68px;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: #b9e679;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.headline {
+  display: block;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.03;
+}
+
+.cta {
+  display: inline-flex;
+  margin-top: 12px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: #f1c84b;
+  color: #15331f;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.brand {
+  position: absolute;
+  z-index: 2;
+  top: 17px;
+  left: 18px;
+  width: 120px;
+}
+
+.leaderboard .brand {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: 120px;
+  margin: auto;
+}
+
+@keyframes cycle {
+  0% { opacity: 0; transform: scale(1.07); }
+  7%, 27% { opacity: 1; }
+  32%, 100% { opacity: 0; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product { animation: none; }
+  .product:first-child { opacity: 1; }
+}

@@ -90,6 +90,9 @@ export type FirmDeal = {
   currency: string;
   owner: string | null;
   notes: string | null;
+  contractNumber: string | null;
+  contractUrl: string | null;
+  renewalReminderDays: number;
   contactedAt: string | null;
   nextActionAt: string | null;
   createdAt: string | null;
@@ -103,6 +106,9 @@ export type FirmDealPayload = {
   currency?: string;
   owner?: string | null;
   notes?: string | null;
+  contractNumber?: string | null;
+  contractUrl?: string | null;
+  renewalReminderDays?: number;
   contactedAt?: string | null;
   nextActionAt?: string | null;
 };
@@ -128,6 +134,38 @@ export type FirmSponsorshipPayload = {
   startsAt: string;
   endsAt: string;
   isActive?: boolean;
+};
+
+export type FirmAdCampaign = {
+  id: number;
+  position: string;
+  title: string;
+  lifecycleStatus: string;
+  paymentStatus: string;
+  impressions: number;
+  clicks: number;
+  startAt: string | null;
+  endAt: string | null;
+};
+
+export type FirmAdCampaignPayload = {
+  dealId?: number | null;
+  position: string;
+  title: string;
+  caption?: string | null;
+  ctaLabel?: string | null;
+  imageUrl?: string | null;
+  linkUrl?: string | null;
+  tier?: string;
+  placement?: FirmSponsorship['placement'];
+  placementSlug?: string | null;
+  startsAt: string;
+  endsAt: string;
+  device?: 'all' | 'desktop' | 'mobile';
+  desktopRow?: number;
+  desktopColumns?: number;
+  paymentStatus?: 'unpaid' | 'partial' | 'paid' | 'waived';
+  salesOwner?: string | null;
 };
 
 export const firmsAdminApi = baseApi.injectEndpoints({
@@ -197,6 +235,18 @@ export const firmsAdminApi = baseApi.injectEndpoints({
       query: ({ sponsorshipId }) => ({ url: `/admin/firms/sponsorships/${sponsorshipId}`, method: 'DELETE' }),
       invalidatesTags: (_r, _e, { firmId }) => [{ type: 'Firms' as const, id: `SPONSOR-${firmId}` }, { type: 'Firms' as const, id: 'LIST' }],
     }),
+    listFirmAdCampaignsAdmin: builder.query<{ items: FirmAdCampaign[]; summary: { impressions: number; clicks: number } }, number>({
+      query: (firmId) => ({ url: `/admin/firms/${firmId}/ad-campaigns` }),
+      providesTags: (_r, _e, firmId) => [{ type: 'Firms' as const, id: `ADS-${firmId}` }],
+    }),
+    createFirmAdCampaignAdmin: builder.mutation<{ id: number; bannerId: number; sponsorshipId: number }, { firmId: number; body: FirmAdCampaignPayload }>({
+      query: ({ firmId, body }) => ({ url: `/admin/firms/${firmId}/ad-campaigns`, method: 'POST', body }),
+      invalidatesTags: (_r, _e, { firmId }) => [
+        { type: 'Firms' as const, id: `ADS-${firmId}` },
+        { type: 'Firms' as const, id: `SPONSOR-${firmId}` },
+        { type: 'Firms' as const, id: 'LIST' },
+      ],
+    }),
   }),
   overrideExisting: false,
 });
@@ -216,4 +266,6 @@ export const {
   useCreateFirmSponsorshipAdminMutation,
   useUpdateFirmSponsorshipAdminMutation,
   useDeleteFirmSponsorshipAdminMutation,
+  useListFirmAdCampaignsAdminQuery,
+  useCreateFirmAdCampaignAdminMutation,
 } = firmsAdminApi;

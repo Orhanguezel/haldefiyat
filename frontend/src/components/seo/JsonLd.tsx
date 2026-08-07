@@ -15,7 +15,8 @@ type JsonLdType =
   | "Dataset"
   | "Place"
   | "Person"
-  | "ProfilePage";
+  | "ProfilePage"
+  | "Service";
 
 interface JsonLdProps {
   type: JsonLdType;
