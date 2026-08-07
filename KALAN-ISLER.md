@@ -6,6 +6,278 @@
 
 ---
 
+## 🔴 UYARI — VPS'te `git reset --hard origin/main` ÇALIŞTIRMA (near-miss 2026-08-07)
+
+Reklam pazaryeri WIP'i (lifecycle/payment/quality/targeting, `backend/src/modules/banners/`,
+ayrıca `firms/`, `listings/`, admin_panel ve frontend'de 20+ dosya) **hâlâ commit edilmemiş**
+ama VPS'te git HEAD'in önünde çalışıyor (bkz. [[hostinger-affiliate-banner-and-vps-drift]]).
+Bambaşka bir dosyada (borsa ETL parser) normal bir düzeltmeyi deploy ederken standart akış
+uygulandı (`git fetch && git reset --hard origin/main`) — bu, VPS'teki TÜM uncommitted WIP
+dosyalarını (30+ dosya) sildi, `cron.ts` (commit'te zaten var, yeni fonksiyon isimleri
+bekliyor) ile sıfırlanmış `repository.ts` uyuşmadı, build patladı, **backend birkaç dakika
+502 verdi.** Local'deki aynı uncommitted kopyalardan (git status hâlâ "M" gösteriyordu, kayıp
+değildi) tüm dosyalar `rsync`/`scp` ile VPS'e geri yüklendi, build+reload ile düzeltildi.
+
+- [ ] **KESİN KURAL (yeni):** Bu repoda `git reset --hard origin/main` çalıştırmadan ÖNCE
+      `git status --porcelain` ile VPS'te tracked-modified dosya olup olmadığı kontrol edilir.
+      Varsa (WIP drift durumu) reset YERİNE `git pull --ff-only` denenir veya sadece ilgili
+      dosya `scp` ile hedefli patch edilir (Orhan onayıyla, tek dosya istisnası).
+- [ ] **Asıl çözüm:** Reklam pazaryeri WIP'i bir an önce commit edilmeli — bu drift durduğu
+      sürece her normal "git ile deploy" refleksi aynı riski taşır.
+
+---
+
+## 🟢 Admin panelden ürün fotoğrafı yükleme — YAPILDI (2026-08-07)
+
+Jenerik/yanlış görsel sorunu ("üç burun köy" placeholder her yerde) tekrar gündeme geldi.
+Statik `manifest.json` sistemine ek olarak artık DB-destekli, admin panelden self-servis
+bir katman var.
+
+- [x] **`hf_products.image_url`** kolonu eklendi (nullable, `backend/src/db/schema.ts` +
+      `020_hal_domain_schema.sql` — ALTER değil, CREATE TABLE'a eklendi; local+VPS'e
+      ayrıca additive `ALTER TABLE ... ADD COLUMN` uygulandı, veri kaybı yok).
+- [x] **Admin `/admin/hf-products` liste sayfası:** her satırda küçük görsel/emoji/"yok"
+      göstergesi (`ProductThumb`, DB `imageUrl` > `manifest.json` > "yok").
+- [x] **Admin detay sayfası:** başlıkta + Ürün sekmesinde `AdminImageUploadField` (bannerlarla
+      aynı bileşen, `folder="uploads/hf-products"`) — admin doğrudan fotoğraf yükleyip
+      kaydedebiliyor.
+- [x] **Public site'a yayıldı:** `/prices`, `/prices/products`, ürün detay (`/urun/[slug]`),
+      `/borsa`, favoriler, arama, karşılaştırma — hepsi DB `imageUrl`'i manifest'ten önce
+      kullanıyor (`ProductImage` bileşeni + `Product`/`PriceRow` tipleri güncellendi).
+      `SeasonalGuide` (statik `season.ts` dizisi) bilinçli olarak dışarıda bırakıldı —
+      halihazırda manifest fallback'i var, DB'ye bağlamak ayrı bir iş.
+- [ ] **Takip:** admin panelden yeni fotoğraf yüklendikçe önceki `manifest.json`
+      sisteminin (~150/269 ürün) yerini zamanla DB alacak — ikisi birlikte çalışıyor,
+      çakışma yok. Kalan ~110 jenerik emoji ürün hâlâ tek tek gerçek fotoğraf bekliyor
+      (bkz. [[urun-fotograflari-jenerik-emoji-fix]]), artık bunu admin panelden
+      manuel yükleyerek de kapatmak mümkün.
+
+---
+
+## 🟢 Kırmızı/Yeşil Mercimek ayrımı — DÜZELTİLDİ (2026-08-07)
+
+TOBB borsa parser'ı "Mercimek" adını geçen her satırı tek ürüne (`mercimek`, id 10181)
+düşürüyordu; kırmızı ve yeşil mercimek çok farklı fiyatlanan ayrı emtialar, bu da o ürünün
+fiyat tarihçesindeki anormal oynaklığın (47₺→92₺→65₺ aynı ay) bir kısmını açıklıyor.
+
+- [x] **Parser düzeltildi** (`backend/src/modules/etl/sources/borsa/text-parsers.ts`,
+      commit `7e16ce19`, VPS'e deploy edildi): "KIRMIZI MERCİMEK" / "YEŞİL MERCİMEK" artık
+      ayrı ürün olarak eşleşiyor (buğdaydaki ekmeklik/makarnalık ayrımıyla aynı desen).
+      Renk belirtilmeyen satırlar geriye dönük uyumlu genel "Mercimek"e düşmeye devam eder.
+- [x] **İki yeni ürün oluşturuldu:** `kirmizi-mercimek` (id 13833), `yesil-mercimek` (id
+      13834) — ikisi de `seoIndex=false` (henüz editöryel yok), `searchVolume=0` (gerçek
+      arama hacmi araştırılmadı, tahmin edilmedi — bilinçli tercih).
+- [x] **Eski `mercimek` (id 10181) alias'ları temizlendi** — "kırmızı mercimek" vb. artık
+      yeni ürüne ait, eskisinde sadece genel "mercimek"/"lentil" kaldı.
+- [ ] **Takip:** Bugün (07 Ağu) mercimek hiçbir TOBB kaynağında işlem görmedi, uçtan uca
+      canlı doğrulama yapılamadı — parser mantığı statik olarak doğrulandı. Mercimek
+      işlem gördüğünde `hf_price_history`'de `kirmizi-mercimek`/`yesil-mercimek`
+      product_id'lerinin dolduğunu kontrol et.
+- [x] **Tarihçe geriye dönük ayrıldı (2026-08-07):** TOBB'un kendi "mercimek yeşil" referans
+      sayfası (borsa.tobb.org.tr) Çorum+Sungurlu rakamlarının BİZİM veritabanımızdakiyle
+      birebir eşleştiğini doğruladı → pazar bazlı kesin ayrım yapıldı: Gaziantep Ticaret
+      Borsası = Kırmızı Mercimek (109 satır, 2023-2026, 20-92 TL/kg — 3 yıllık enflasyon
+      trendiyle tutarlı, artık makul), Çorum+Sungurlu = Yeşil Mercimek (2 satır, 22-32 TL/kg).
+- [x] **Editöryel yazıldı (ai_reviewed/claude), Kırmızı Mercimek index'e açıldı** (109 satırlık
+      gerçek borsa geçmişi var); **Yeşil Mercimek şimdilik noindex** (sadece 2 veri noktası,
+      daha çok veri toplanınca otomatik "ready" duruma gelecek).
+- [ ] **Opsiyonel:** Gerçek arama hacmi (searchVolume, şu an ikisi de 0) araştırılıp
+      girilmeli.
+
+---
+
+## 🟢 50 Ton Yeşil Mercimek satış ilanı — CANLI (2026-08-07)
+
+Kullanıcının kendi/tanıdığı üreticide (Akın Bulanık, Kırşehir/Kaman — aynı satıcı, [[mercimek
+samanı ilanı]]yla aynı harmandan) 50 ton yeşil mercimek stoğu var. Web araştırmasıyla
+doğrulandı: **Antep kırmızı, Çorum/Yozgat/Kırşehir yeşil mercimek bölgesi hipotezi doğru**
+(Güneydoğu Anadolu üretimin ~%90'ı kırmızı; Yozgat/Konya/Çorum/Kırşehir yeşilde başı çekiyor,
+Çorum tek başına ~%13 pay). Gönderilen fotoğraf (bütün, zeytin yeşili tane, harman yerinde)
+kesin olarak yeşil mercimek — kırmızı hep kabuğu soyulmuş/kırılmış satılır, görsel uyuşmuyor.
+
+- [x] İlan oluşturuldu: `/ilan/yesil-mercimek-kirsehir-7` (id 7), `productId=yesil-mercimek`e
+      bağlı, durum "approved" (canlı, aktif ilanlarda görünüyor).
+- [x] **Fiyat düzeltildi (2026-08-07, Orhan/satıcı Akın'ın gerçek beyanı):** 45,00 TL/kg
+      (sabit), ilk girdiğim 20-24 TL/kg borsa-referanslı tahmindi, gerçek fiyat değil —
+      satıcının kendi verdiği rakamla değiştirildi.
+- [x] Fotoğraf yüklendi ve ilana bağlandı (`hf_listing_images`).
+- [ ] **Takip — satış kanalı (araştırıldı, aksiyon Orhan'da):** Gerçek potansiyel alıcılar
+      bulundu — Uzel Bakliyat (Yozgat, günlük 120 ton işleme kapasiteli yeşil mercimek
+      işleyicisi), Çağlayan Gıda / Aycenk Gıda (toptan bakliyat alıcıları, kurumsal),
+      Zeyada Gıda (ihracatçı, Mersin Limanı). Site içi ilan pasif bekliyor; aktif satış için
+      bu firmalara doğrudan ulaşmak gerekebilir.
+
+---
+
+## 🟢 Yeşil Mercimek index — VERİ BULUNDU, AÇILDI (2026-08-07)
+
+Orhan talimatı: "geçmiş 5-10 yıllık verilere bak, dolunca index'e aç, sezonu boşa geçirmeyelim."
+TOBB'un kendi "geçmiş fiyat sorgu" formu bulundu (`fiyat_sorgu1.php` → POST
+`fiyat_sorgu2.php?ana_kod=3&alt_kod=XXX`, alanlar: gun1/ay1/yil1, gun2/ay2/yil2, borsa) —
+ürün-bazlı (alt_kod: 609=yeşil, 608=yeşil sultani, 601=kırmızı kabuklu, 602=kırmızı kırılmış
+iç) ve borsa-bazlı **kesin renkli** geçmiş veri veriyor, market-bazlı tahmine gerek kalmadı.
+
+- [x] **2005-2026 arası tam geriye dönük backfill yapıldı** (5 borsa x 4 alt_kod, 1343 satır
+      tarandı): **Yeşil Mercimek 695 satır** (2005-01-03 → 2026-08-06, 0,30-58 TL/kg),
+      **Kırmızı Mercimek +423 yeni satır ekledi** (toplam 532 satır, 2005-04-20 → 2026-08-06,
+      0,48-94 TL/kg) — ikisi de Türkiye'nin 21 yıllık enflasyon eğrisiyle tutarlı, düzgün.
+- [x] **Şanlıurfa Ticaret Borsası eklendi** (kırmızı mercimekte Mardin'den sonra 2. büyük
+      üretici, sistemde hiç yoktu) — `tobb_borsa_sanliurfa`, borsakod=5UR10, commit
+      `ccbe5c89`, `git pull --ff-only` ile deploy edildi.
+- [x] **Yozgat Ticaret Borsası eklendi** (üretimde 1. sıra) — `tobb_borsa_yozgat`,
+      borsakod=5YO10, commit `9b15196d`. (Not: Yozgat'ın TOBB geçmiş-sorgu dropdown'unda
+      hiç kaydı yok — sadece ileriye dönük canlı veri için, geçmiş backfill'e dahil değil.)
+- [x] **İndex açma kriteri karşılandı ve açıldı:** son 30 günde yeşil mercimekte 3 farklı
+      gün + 2 farklı pazar (Çorum, Sungurlu) — `classifyAction` borsaOk eşiği (>=3 gün,
+      dq>=60) tutuyor. `dataQuality` 30→75, `seoIndex` false→true yapıldı. Sayfa cache'i
+      (~5 dk revalidate) yenilenince `index,follow` görünecek.
+- [ ] **Takip:** `source_api='tobb_borsa_gecmis_backfill'` etiketli satırlar geriye dönük
+      eklenenleri ayırt eder — ileride bir sorun çıkarsa filtrelemek için kullanılabilir.
+- [x] **Frontend eşlemesi düzeltildi (2026-08-07):** `/borsa` sayfasının sabit `BORE_PRODUCTS`
+      listesi hâlâ eski "mercimek" slug'ını kullanıyordu (yeni ürünler grid'de görünmüyordu);
+      `product-images.ts`/`emoji.ts` de eski slug'a bağlıydı (jenerik 🫘 emoji gösteriyordu).
+      Düzeltildi: kirmizi-mercimek → mevcut mercimek.jpg (zaten kırmızı mercimek fotoğrafıydı),
+      yesil-mercimek → satıcının gönderdiği gerçek hasat fotoğrafı (yeni yüklendi). Commit
+      `d8c89af7`, `git pull --ff-only` + `pm2 restart hal-frontend` (reload DEĞİL, standalone
+      kuralı) ile deploy edildi.
+## 🟢 Jenerik ürün fotoğrafları — 34 ürün düzeltildi (2026-08-07)
+
+"Jenerik resimler amatör gösteriyor" geri bildirimi. 269 index'li üründen **150'sinde
+(%56)** gerçek fotoğraf yoktu (`product-images.ts`'in prefix-fallback mantığı hesaba
+katılınca düzeltilmiş rakam — ilk kaba tarama 197 diyordu, yanlıştı).
+
+- [x] Arama hacmine göre en yüksek ~40 ürün için Wikimedia Commons'tan (CC BY/CC BY-SA/
+      kamu malı lisanslı) fotoğraf indirildi. **HER BİRİ tek tek görsel olarak
+      doğrulandı** — ilk otomatik eşleşmenin ~%36'sı yanlış çıktı (ör. "böğürtlen" için
+      mürver çiçeği fotoğrafı, "bamya" için maydanoz+erişte fotoğrafı, "kuzukulağı" için
+      alakasız bir yemek fotoğrafı, "dut"ta Çince tabela, "tarhun"da botanik kitap
+      taraması) — bunlar tek tek fark edilip yeniden arandı, düzeltildi. Commit `d269a29b`,
+      `git pull --ff-only` + `bun run build` + **`pm2 restart`** (reload DEĞİL, standalone
+      kuralı) ile deploy edildi, canlıda 200 döndüğü doğrulandı.
+- [x] **Yan bulgu — slug yazım tutarsızlığı:** `maydonoz` (DB) ↔ `maydanoz` (image key),
+      `yesil-sogan` (DB) ↔ `sogan-yesil-bag` (image key) — aynı ürünün iki farklı yazımı,
+      zaten var olan fotoğrafa bağlandı, yeni indirme gerekmedi. `dereotu`/`dere-otu` için
+      de aynı örüntü daha önce görülmüştü (mercimek oturumunda değil, ayrı). **Öneri:** DB
+      slug'ları ile mevcut image key'leri arasında toplu bir tutarlılık taraması yapılmalı
+      — kaç tane daha "aslında fotoğrafı var ama yazım farkı yüzünden görünmüyor" ürün
+      olduğu bilinmiyor.
+- [ ] **KALICI RİSK — Wikimedia Commons lisans atıfı yapılmıyor.** CC BY/CC BY-SA lisanslı
+      görsellerin çoğu teknik olarak atıf (fotoğrafçı adı + lisans linki) gerektirir; site
+      hiçbir görselde atıf göstermiyor (mevcut 106 Trabzon Belediyesi fotoğrafı da
+      göstermiyor, aynı risk zaten vardı). Düşük pratik risk (küçük ürün ikonları, ticari
+      olmayan kullanım) ama sıfır değil. Kalıcı çözüm: ya atıf sayfası eklenmeli ya da
+      tamamen kamu malı (public domain/CC0) kaynaklara geçilmeli.
+- [ ] **Kalan ~110 düşük-hacimli ürün** hâlâ jenerik emoji gösteriyor (çoğu arama
+      hacmi <50). Aynı yöntemle (Commons API ara → tek tek doğrula → indir) devam
+      edilebilir, öncelik sırası `hf_products.search_volume DESC` olmalı.
+- [x] **İkinci bulgu (2026-08-07, kullanıcı ekran görüntüsüyle yakaladı):** Anasayfa
+      "Mevsim Rehberi" widget'ı (`SeasonalGuide.tsx`) `product-images.ts`'ten TAMAMEN
+      bağımsız, kendi sabit emoji listesini (`lib/season.ts`) kullanıyordu — Kabak "🥬"
+      (yanlış), İncir "🫐" (yaban mersini, yanlış) gösteriyordu; domates/patlıcan gibi
+      zaten gerçek fotoğrafı olan ürünler bile bu widget'ta emoji ile görünüyordu.
+      Düzeltildi: widget artık `getProductImage()`'ı önce dener, yoksa emoji'ye düşer.
+      Eksik son fotoğraf (elma) eklendi — 25 mevsimlik ürünün 25'i de gerçek fotoğraf
+      gösteriyor. Commit `9a4500f6`.
+- [x] **Kontrol edildi — başka "kendi sabit listesi" yok.** `grep -rn "emoji:"
+      frontend/src/` sadece `season.ts`'i buldu; başka widget'ta ayrı bir hardcoded
+      emoji listesi yok, bu sorun tekil ve düzeltildi.
+
+---
+
+- [ ] **Bulundu ama düzeltilmedi (kapsam dışı, ayrı iş):** Ürün detay sayfasında "Kaynak:"
+      etiketi ham `source_api` anahtarını gösteriyor (örn. "tobb_borsa_gecmis_backfill",
+      "tobb_borsa_gaziantep") — kullanıcıya teknik/çirkin görünüyor. Bu SADECE mercimeğe özgü
+      değil, TÜM borsa kaynaklarını etkiliyor; frontend'de source_api→okunur-etiket eşlemesi
+      hiç yok. Ayrı bir iş olarak ele alınmalı.
+
+---
+
+## 🟡 92 ürün "Recrawl bekliyor" — BUG DEĞİL, manuel GSC talebi gerekiyor (2026-08-07)
+
+`/admin/hf-products` panelinde 92 üründe SEO=Index + Google=Sorun + Aksiyon=Recrawl bekliyor
+görünüyor. **Teşhis: sistem doğru çalışıyor.** `urun/[slug]/page.tsx:198` —
+`shouldIndex = seoIndex && editorial.source !== "template"`. Bu 89 ürün geçmişte (Mayıs-Temmuz
+crawl'larında) editöryel yazılmadan önce haklı olarak noindex'ti; editöryel yazılınca düzeldi
+ama Google henüz tekrar taramadı (`last_crawl` Mayıs-Temmuz arası, `checked_at` bugün — GSC
+cache güncel okunuyor, sadece Googlebot'un ziyareti eski). 10 örnek canlı sayfa tek tek
+doğrulandı, hepsi şu an doğru `index,follow` veriyor.
+
+- [ ] **Panel butonları recrawl ZORLAYAMIYOR** — "İncele"/"tümünü denetle" sadece GSC'nin
+      mevcut bilgisini okuyor (`inspectSearchConsoleUrl`, read-only). Google'ın resmi Indexing
+      API'si sadece JobPosting/BroadcastEvent için; sıradan ürün sayfasında kullanmak GSC
+      hesabını riske atar — YAPILMADI, bilinçli tercih.
+- [ ] **Manuel GSC "Dizine Ekleme İste" — arama hacmine göre öncelik sıralı, günde 10 URL:**
+      Gün1: borulce-taze(492), limon-mayer(445), bal-kabagi(247), mangostan(142), yer-elmasi(128),
+      tarhun(112), uzum-red-globe(108), incir-siyah(106), karadut(91), nohut-taze(87).
+      Gün2: turp, nektarin-beyaz, havuc-kirmizi, ciplak-mezgit, yabani-kalamar, bakla-taze-sakiz,
+      domates-ayas, nane-bag, turp-siyah, papaya. Gün3: arpa, mirmir-deniz, norvec-somonu,
+      sarpa-deniz, soya-filizi, y-nane, fener-deniz, maskolin-500-gr,
+      yesillik-maydanoz-nane-tere-roka-dere, lidaki-deniz. Gün4: rozmerin, karnibahar, kivano,
+      yildiz-meyvesi, ebegumeci, bluberry, labada, bugday-makarnalik, eksi-ot-bag, bogrulce.
+      Kalan ~52 ürün arama hacmi=0, doğal crawl'e bırakılabilir. **İstisna:** `bulgur` ve
+      `armut-margarit` Google'da hiç bilinmiyor (excluded bile değil) — öncelikli eklenmeli.
+- [ ] **Takip:** 1-2 hafta sonra bu 89'un GSC durumunu tekrar kontrol et
+      (`gsc_url_index.coverage_state LIKE 'Submitted and indexed%'` olmalı).
+
+---
+
+## 🟢 KRİTİK BUG DÜZELTİLDİ — Reklam frekans kilidi süresiz blokluyordu (bulundu+çözüldü 2026-08-06)
+
+**Etki: TÜM banner'lar (VistaSeeds dahil) çoğu tekrar ziyaretçiye günlerdir gösterilmiyor
+olabilir.** `backend/src/modules/banners/repository.ts` → `isVisitorFrequencyBlocked()`:
+
+```ts
+return stat.totalImpressions >= banner.visitorCampaignImpressionLimit
+  || daily >= banner.visitorDailyImpressionLimit
+  || stat.lastPageHash === pageHash;   // <-- zaman penceresi YOK, süresiz blok
+```
+
+`lastPageHash === pageHash` koşulu zaman sınırı olmadan kontrol ediliyor → bir ziyaretçi bir
+pozisyonu (aynı position+query) bir kez görünce, o pozisyonda **bir daha ASLA** reklam
+görmüyor (günler/haftalar sonra bile). VPS'te `hf_banner_visitor_frequency` tablosu tespit
+anında 27.541 satır / 13.072 farklı ziyaretçi, hepsi tam 1 gösterimde kilitli durumdaydı.
+
+- [x] **Geçici mitigasyon (2026-08-06, ilk 30 dk):** İlgili banner id'leri için `last_page_hash
+      = NULL` (veri-only). Kalıcı değildi, tablo yeniden dolunca aynı şekilde bloklandı.
+- [x] **Kalıcı kod düzeltmesi — Orhan onayıyla İSTİSNA olarak VPS'e doğrudan patch edildi
+      (2026-08-06).** `isVisitorFrequencyBlocked`'a 30 dakikalık zaman penceresi eklendi:
+      `lastPageHash` eşleşmesi artık sadece son 30 dk içindeyse blok sayılıyor (hızlı reload'u
+      önler), süresiz blok kalktı. Normalde bu proje kuralı "deploy sadece git" der (scp/rsync
+      YASAK) — bu seferlik istisna, Orhan'ın açık onayıyla yapıldı çünkü VPS zaten git HEAD'in
+      önündeydi (bu WIP dosyası hiç commit edilmemişti) ve canlı reklam geliri etkileniyordu.
+      **Local dosya (`backend/src/modules/banners/repository.ts`) ile VPS artık senkron** —
+      reklam pazaryeri WIP'i git'e alınırken bu fix de otomatik gelecek, tekrar elle taşımaya
+      gerek yok. `bun run build` + `pm2 reload hal-backend` ile canlıya alındı, test edildi
+      (art arda 2 istek: ilki gösterir, 30 dk içindeki tekrarı bloklar — beklenen davranış).
+- [ ] **Takip:** Bir hafta sonra `hf_banner_visitor_frequency`'de gerçek trafikte hâlâ makul
+      dağılım (tekil ziyaretçi başına periyodik gösterim, süresiz sıfır değil) olduğunu kontrol et.
+
+---
+
+## 🟢 Hostinger affiliate banner — CANLI (2026-08-06)
+
+- [x] **3 banner yayında** (`hf_banners` id 8, 9, 10): `firm_detail_footer`, `analiz_inline`,
+      `firm_detail_sidebar`. `type=image` + `creativeTemplate=leaderboard` + `creativeConfig`
+      (mor #2f1c6a / gold #ffd84d, wiribu'daki tasarımdan uyarlandı). `paymentStatus=waived`,
+      `lifecycleStatus=live`, `linkUrl=hostinger.com/tr?REFERRALCODE=WZHORHANGDMX`.
+- [ ] **Bilgi — `type:"code"` (ham HTML) artık kullanılamaz.** VPS'teki `sanitizeAdHtml()`
+      tüm `style` attribute'lerini siliyor (sadece `class/aria-label/role` + `a`:href/target/rel
+      + `img`:src/alt izinli) → inline-style banner kodu (wiribu tarzı) sitede stilsiz düz metne
+      dönüşür. Yeni "code" tipi reklam eklerken **`creativeTemplate`+`creativeConfig`** kullan
+      (bkz. `TemplateBanner.tsx`), ya da site CSS'ine kalıcı bir class eklet.
+- [ ] **Bilgi — VPS backend/DB, local git HEAD'in ÖNÜNDE.** Reklam pazaryeri genişlemesi
+      (lifecycle/payment/quality/targeting — `backend/src/modules/banners/`, seed `058-079`)
+      henüz commit edilmemiş ama **VPS'te zaten çalışıyor** (muhtemelen rsync ile build
+      edildi, git deploy akışı atlandı). `hf_banners` VPS şeması commit'teki basit şemadan çok
+      daha geniş. Bu WIP'i commit'e almadan önce local'de de aynı migration sırası uygulanmalı.
+      **Ayrıca fark edildi:** `home_ticker_below`, `prices_sidebar`, `hal_sidebar`, `urun_sidebar`,
+      `listing_detail_sidebar`, `global_top`, `home_footer_top` pozisyonları şemada/enum'da var
+      ama hiçbir sayfada `<BannerSlot position=.../>` ile bağlanmamış — reklam eklenirse
+      görünmez. Sadece şunlar gerçekten bağlı: `global_footer`, `home_mid`, `prices_top`,
+      `analiz_inline`, `analiz_sidebar`, `firm_detail_sidebar`, `firm_detail_footer`.
+
+---
+
 ## 🔴 ETL VERİ AKIŞI KESİNTİLERİ — 2026-07-26 → TEŞHİS EDİLDİ 2026-07-27
 
 **Sonuç: üçü de bugün ship edilebilir kod düzeltmesiyle çözülmüyor.** Farklı vantaj
