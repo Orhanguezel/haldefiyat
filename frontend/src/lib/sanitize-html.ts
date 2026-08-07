@@ -71,3 +71,16 @@ export function sanitizeCmsHtml(html: string): string {
     },
   });
 }
+
+/**
+ * Analysis reports come from multiple generations of CMS templates. Some wrap
+ * tables, while older reports render a bare table that can widen the article
+ * grid. Add one consistent scroll boundary after sanitization so every report
+ * behaves the same without rewriting stored article HTML.
+ */
+export function sanitizeAnalysisHtml(html: string): string {
+  return sanitizeCmsHtml(html).replace(
+    /<table\b[\s\S]*?<\/table>/gi,
+    '<div class="report-table-scroll" role="region" aria-label="Tablo" tabindex="0">$&</div>',
+  );
+}

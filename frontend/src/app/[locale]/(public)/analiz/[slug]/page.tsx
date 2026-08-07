@@ -13,7 +13,7 @@ import {
   readingTimeMinutes,
 } from "@/lib/analiz";
 import { fetchAutoWeeklyReport, fetchAutoWeeklyReports, type AutoWeeklyReport } from "@/lib/api";
-import { sanitizeCmsHtml } from "@/lib/sanitize-html";
+import { sanitizeAnalysisHtml } from "@/lib/sanitize-html";
 import { compactMetaDescription, compactMetaTitle } from "@/lib/meta-text";
 import PageContainer from "@/components/layout/PageContainer";
 import BannerSlot from "@/components/ads/BannerSlot";
@@ -316,7 +316,7 @@ export default async function AnalizMakalePage({ params }: Props) {
           {isHtml ? (
             <div
               className="report-prose mt-8 [&_svg]:h-auto [&_svg]:max-w-full"
-              dangerouslySetInnerHTML={{ __html: sanitizeCmsHtml(makale.icerik) }}
+              dangerouslySetInnerHTML={{ __html: sanitizeAnalysisHtml(makale.icerik) }}
             />
           ) : (
             <div className="mt-8 space-y-5">{renderContent(makale.icerik)}</div>
