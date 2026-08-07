@@ -110,6 +110,54 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "uzum":                  "/images/urunler/uzum-muhtelif.jpeg",
   "yeni-dunya":            "/images/urunler/yeni-dunya.jpg",
   "yulaf":                 "/images/urunler/yulaf.jpg",
+
+  // Slug yazım farkı yüzünden mevcut fotoğrafı bulamayan ürünler (DB'de "maydonoz"/
+  // "yesil-sogan" gibi farklı yazılmış, catalog'da "maydanoz"/"sogan-yesil-bag" var).
+  // TAKİP: bu ürünlerin slug'ı DB'de düzeltilirse burası da temizlenebilir.
+  "maydonoz":              "/images/urunler/maydanoz-bag.jpg",
+  "yesil-sogan":           "/images/urunler/sogan-yesil-bag.jpg",
+
+  // Wikimedia Commons'tan indirilen, tek tek görsel olarak doğrulanmış fotoğraflar
+  // (2026-08-07, "jenerik emoji amatör görünüyor" geri bildirimi sonrası). Lisans:
+  // CC BY / CC BY-SA / kamu malı — dosya başlıkları için commons.wikimedia.org'da ara.
+  "erik":                  "/images/urunler/erik.jpg",
+  "kekik":                 "/images/urunler/kekik.jpg",
+  "bogurtlen":             "/images/urunler/bogurtlen.jpg",
+  "yaban-mersini":         "/images/urunler/yaban-mersini.jpg",
+  "ahududu":               "/images/urunler/ahududu.jpg",
+  "barbunya":              "/images/urunler/barbunya.jpg",
+  "acur":                  "/images/urunler/acur.jpg",
+  "enginar":               "/images/urunler/enginar.jpg",
+  "dut":                   "/images/urunler/dut.jpg",
+  "karadut":               "/images/urunler/dut.jpg",
+  "biber":                 "/images/urunler/biber.jpg",
+  "bakla":                 "/images/urunler/bakla.jpg",
+  "bezelye":               "/images/urunler/bezelye.jpg",
+  "nektarin":              "/images/urunler/nektarin.jpg",
+  "kizilcik":              "/images/urunler/kizilcik.jpg",
+  "incir":                 "/images/urunler/incir.jpg",
+  "kuskonmaz":             "/images/urunler/kuskonmaz.jpg",
+  "borulce":               "/images/urunler/borulce.jpg",
+  "visne":                 "/images/urunler/visne.jpg",
+  "feslegen":              "/images/urunler/feslegen.jpg",
+  "reyhan":                "/images/urunler/reyhan.jpg",
+  "ananas":                "/images/urunler/ananas.jpg",
+  "bal-kabagi":            "/images/urunler/bal-kabagi.jpg",
+  "pazi":                  "/images/urunler/pazi.jpg",
+  "bamya":                 "/images/urunler/bamya.jpg",
+  "pancar":                "/images/urunler/pancar.jpg",
+  "mangostan":             "/images/urunler/mangostan.jpg",
+  "yer-elmasi":            "/images/urunler/yer-elmasi.jpg",
+  "tarhun":                "/images/urunler/tarhun.jpg",
+  "asma-yapragi":          "/images/urunler/asma-yapragi.jpg",
+  "jalapeno":              "/images/urunler/jalapeno.jpg",
+  "bruksel-lahana":        "/images/urunler/bruksel-lahana.jpg",
+  "biberiye-rozmarin":     "/images/urunler/biberiye-rozmarin.jpg",
+  "tere":                  "/images/urunler/tere.jpg",
+  "kuzukulagi":            "/images/urunler/kuzukulagi.jpg",
+  "karalahana":            "/images/urunler/karalahana.jpg",
+  "zeytinyagi":            "/images/urunler/zeytinyagi.jpg",
+  "deniz-borulcesi":       "/images/urunler/deniz-borulcesi.jpg",
 };
 
 /**
