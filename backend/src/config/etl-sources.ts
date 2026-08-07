@@ -580,6 +580,16 @@ const RAW_SOURCES: RawSource[] = [
     defaultCategory:   "bakliyat-kuru",
   },
   {
+    key:               "tobb_borsa_sanliurfa",
+    defaultEnabled:    true,
+    defaultMarketSlug: "sanliurfa-ticaret-borsasi",
+    defaultBaseUrl:    "https://borsa.tobb.org.tr",
+    defaultEndpoint:   "/fiyat_borsa.php?borsakod=5UR10",
+    responseShape:     "tobb_borsa_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "bakliyat-kuru",
+  },
+  {
     key:               "tobb_borsa_corum",
     defaultEnabled:    true,
     defaultMarketSlug: "corum-ticaret-borsasi",

@@ -92,6 +92,12 @@ const SOURCE_URLS: Record<string, SourceInfo> = {
     type: "exchange",
     official: true,
   },
+  tobb_borsa_sanliurfa: {
+    name: "Şanlıurfa Ticaret Borsası Günlük Fiyatları",
+    url: "https://borsa.tobb.org.tr/fiyat_borsa.php?borsakod=5UR10",
+    type: "exchange",
+    official: true,
+  },
   tobb_borsa_corum: {
     name: "Çorum Ticaret Borsası Günlük Fiyatları",
     url: "https://borsa.tobb.org.tr/fiyat_borsa.php?borsakod=5CO20",
