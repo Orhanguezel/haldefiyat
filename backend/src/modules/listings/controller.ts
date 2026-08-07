@@ -29,6 +29,7 @@ import {
 import { readFeaturedPricing } from "./settings";
 import { verifyOtpToken } from "./otp";
 import { notifyMatches, notifyAdminNewListing } from "./matching";
+import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
 import { env } from "@/core/env";
 
 function idParam(req: FastifyRequest<{ Params: { id: string } }>) {
@@ -66,9 +67,17 @@ export async function getPublicListing(req: FastifyRequest<{ Params: { slug: str
 export async function createPublicInquiry(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
   try {
     const id = idParam(req);
-    if (!id || !(await getListingById(id))) return sendNotFound(reply);
+    const listing = id ? await getListingById(id) : null;
+    if (!listing) return sendNotFound(reply);
     const parsed = inquirySchema.parse(req.body ?? {});
     const inquiryId = await createInquiry({ listingId: id, ...parsed });
+    if (env.TELEGRAM_ADMIN_CHAT_ID) {
+      const text =
+        `💬 Yeni ilan mesajı\nİlan: ${listing.title}\nAd: ${parsed.name} · Tel: ${parsed.phone}\n` +
+        (parsed.offerPrice != null ? `Teklif: ${parsed.offerPrice}\n` : "") +
+        `Mesaj: ${parsed.message}`;
+      void telegramSendRaw({ chatId: env.TELEGRAM_ADMIN_CHAT_ID, text }).catch(() => {});
+    }
     return reply.status(201).send({ ok: true, id: inquiryId });
   } catch (err) {
     return handleRouteError(reply, req, err, "create_listing_inquiry");
