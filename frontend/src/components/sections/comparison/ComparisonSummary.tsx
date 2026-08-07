@@ -1,6 +1,6 @@
 "use client";
 
-import { getEmoji } from "@/lib/emoji";
+import ProductImage from "@/components/ui/ProductImage";
 import type { SummaryRow } from "./types";
 
 interface ComparisonSummaryProps {
@@ -41,7 +41,7 @@ export default function ComparisonSummary({ summary }: ComparisonSummaryProps) {
                       style={{ backgroundColor: row.color }}
                       aria-hidden
                     />
-                    <span className="text-xl">{getEmoji(row.product.slug, row.product.categorySlug)}</span>
+                    <ProductImage slug={row.product.slug} name={row.product.nameTr} categorySlug={row.product.categorySlug} size={28} />
                     <span className="font-medium text-(--color-foreground)">
                       {row.product.nameTr}
                     </span>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { PriceRow } from "@/lib/api";
-import { getEmoji } from "@/lib/emoji";
+import ProductImage from "@/components/ui/ProductImage";
 import FavoriteButton from "@/components/ui/FavoriteButton";
 import { productHref } from "@/lib/product-links";
 
@@ -87,7 +87,6 @@ function PlaceholderSpark({ trend }: { trend: Trend }) {
 
 export default function PriceCard({ row, changePct }: PriceCardProps) {
   const trend = trendOf(changePct);
-  const emoji = getEmoji(row.productSlug, row.categorySlug);
   const sign = changePct !== undefined && changePct > 0 ? "+" : "";
 
   return (
@@ -104,9 +103,12 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
       <div className="relative">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="text-[28px] shrink-0" aria-hidden>
-              {emoji}
-            </span>
+            <ProductImage
+              slug={row.productSlug}
+              name={row.productName}
+              categorySlug={row.categorySlug}
+              size={40}
+            />
             <div className="min-w-0">
               <Link href={productHref(row)} className="block truncate text-[15px] font-bold text-(--color-foreground) hover:text-(--color-brand) transition-colors">
                 {row.productName}

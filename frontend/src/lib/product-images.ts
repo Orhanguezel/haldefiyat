@@ -159,6 +159,23 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "zeytinyagi":            "/images/urunler/zeytinyagi.jpg",
   "deniz-borulcesi":       "/images/urunler/deniz-borulcesi.jpg",
   "elma":                  "/images/urunler/elma.jpg",
+
+  // "Biber ailesi" — aynı ürünün onlarca farklı yazımı var (bkz. KALAN-ISLER.md
+  // "Biber ürün ailesi çok parçalı" notu, gerçek çözüm merge/301). Şimdilik en az
+  // görüneni Commons fotoğrafıyla eşleştirildi (yaklaşık eşleşme, kapya/üçburun
+  // Türkiye'ye özgü çeşitler oldukları için Commons'ta birebir karşılığı yok).
+  "kapya":                 "/images/urunler/kapya.jpg",
+  "biber-kapya":           "/images/urunler/kapya.jpg",
+  "kapya-biber":           "/images/urunler/kapya.jpg",
+  "biber-salcalik-kapya":  "/images/urunler/kapya.jpg",
+  "biber-kapya-sera":      "/images/urunler/kapya.jpg",
+  "uc-burun-koy":          "/images/urunler/uc-burun-koy.jpg",
+  "ucburun-koy-biberi":    "/images/urunler/uc-burun-koy.jpg",
+  "ucburun-koy-b":         "/images/urunler/uc-burun-koy.jpg",
+  "biber-ucburun":         "/images/urunler/uc-burun-koy.jpg",
+  "kilcik-biber":          "/images/urunler/kilcik-biber.jpg",
+  "sivri-biber-kilcik":    "/images/urunler/kilcik-biber.jpg",
+  "kilcik-sivri-biber":    "/images/urunler/kilcik-biber.jpg",
 };
 
 /**

@@ -9,12 +9,14 @@ interface ProductImageProps {
   /** Görüntü boyutu (px). Default 80. */
   size?: number;
   className?: string;
+  /** Sadece sayfa açılışında görünen TEK bir görsel için true yapın (LCP). Liste/ticker/kart gibi tekrarlı kullanımlarda false kalmalı. */
+  priority?: boolean;
 }
 
 /**
- * Ürün detay ve analiz kartları için fotoğraf bileşeni.
- * Fotoğraf varsa gösterir, yoksa emoji fallback döner.
- * Liste görünümlerinde (PriceCard) kullanılmaz.
+ * Ürün fotoğraf bileşeni — detay sayfası, kart, liste, ticker, arama sonucu
+ * fark etmeksizin her yerde kullanılabilir. Fotoğraf varsa gösterir, yoksa
+ * emoji fallback döner.
  */
 export default function ProductImage({
   slug,
@@ -22,6 +24,7 @@ export default function ProductImage({
   categorySlug,
   size = 80,
   className = "",
+  priority = false,
 }: ProductImageProps) {
   const src = getProductImage(slug);
 
@@ -37,7 +40,7 @@ export default function ProductImage({
           width={size}
           height={size}
           className="h-full w-full object-cover"
-          priority
+          priority={priority}
         />
       </div>
     );

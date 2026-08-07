@@ -8,7 +8,7 @@ import {
   removeFavorite,
   subscribeFavorites,
 } from "@/lib/favorites";
-import { getEmoji } from "@/lib/emoji";
+import ProductImage from "@/components/ui/ProductImage";
 
 const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")}/api/v1`
@@ -100,14 +100,13 @@ function FavoriteCard({
   row: PriceRow | null;
   onRemove: (slug: string) => void;
 }) {
-  const emoji = getEmoji(slug, row?.categorySlug);
   const name = row?.productName ?? humanize(slug);
 
   return (
     <div className="group relative overflow-hidden rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6 transition-all duration-300 hover:-translate-y-1 hover:border-(--color-brand)/30">
       <div className="mb-4 flex items-start justify-between gap-2">
         <Link href={`/urun/${slug}`} className="flex items-center gap-2.5">
-          <span className="text-[28px]" aria-hidden>{emoji}</span>
+          <ProductImage slug={slug} name={name} categorySlug={row?.categorySlug} size={40} />
           <div>
             <div className="text-[15px] font-bold text-(--color-foreground)">{name}</div>
             {row ? (

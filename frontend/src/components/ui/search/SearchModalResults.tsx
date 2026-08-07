@@ -1,6 +1,6 @@
 "use client";
 
-import { getEmoji } from "@/lib/emoji";
+import ProductImage from "@/components/ui/ProductImage";
 import type { SearchFlatRow, SearchResults } from "./types";
 
 interface SearchModalResultsProps {
@@ -51,7 +51,7 @@ export default function SearchModalResults({
               onMouseEnter={() => setActiveIdx(i)}
               onClick={() => onNavigate({ kind: "product", item: p })}
             >
-              <span className="text-xl">{getEmoji(p.slug, p.categorySlug)}</span>
+              <ProductImage slug={p.slug} name={p.nameTr} categorySlug={p.categorySlug} size={28} />
               <span className="flex-1 truncate text-[14px] font-medium text-(--color-foreground)">
                 {p.nameTr}
               </span>
