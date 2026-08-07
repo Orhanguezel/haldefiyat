@@ -469,6 +469,7 @@ export default async function UrunPage({ params }: Props) {
             slug={slug}
             name={displayName}
             categorySlug={product.categorySlug}
+            imageUrl={product.imageUrl}
             size={80}
           />
           <div>

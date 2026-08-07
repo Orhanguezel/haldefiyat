@@ -106,7 +106,7 @@ function FavoriteCard({
     <div className="group relative overflow-hidden rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6 transition-all duration-300 hover:-translate-y-1 hover:border-(--color-brand)/30">
       <div className="mb-4 flex items-start justify-between gap-2">
         <Link href={`/urun/${slug}`} className="flex items-center gap-2.5">
-          <ProductImage slug={slug} name={name} categorySlug={row?.categorySlug} size={40} />
+          <ProductImage slug={slug} name={name} categorySlug={row?.categorySlug} imageUrl={row?.imageUrl} size={40} />
           <div>
             <div className="text-[15px] font-bold text-(--color-foreground)">{name}</div>
             {row ? (

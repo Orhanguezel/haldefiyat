@@ -52,6 +52,7 @@ export const hfProducts = mysqlTable(
     unit:         varchar("unit", { length: 32 }).notNull().default("kg"),
     aliases:      json("aliases").$type<string[]>(),
     displayName:  varchar("display_name", { length: 160 }),
+    imageUrl:     varchar("image_url", { length: 512 }),
     canonicalSlug: varchar("canonical_slug", { length: 128 }),
     familySlug:   varchar("family_slug", { length: 128 }),
     seoIndex:     tinyint("seo_index").notNull().default(0),

@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `hf_products` (
   `unit`          VARCHAR(32)      NOT NULL DEFAULT 'kg',
   `aliases`       JSON             DEFAULT NULL COMMENT 'Türkçe varyant listesi normalizer için',
   `display_name`  VARCHAR(160)     DEFAULT NULL COMMENT 'Insancil baslik. NULL ise name_tr Title-Case fallback',
+  `image_url`     VARCHAR(512)     DEFAULT NULL COMMENT 'Admin panelden yuklenen urun fotografi. NULL ise manifest.json/emoji fallback',
   `canonical_slug` VARCHAR(128)    DEFAULT NULL COMMENT 'Master urune yonlendirme hedefi. NULL = bu kayit master',
   `family_slug`   VARCHAR(128)     DEFAULT NULL COMMENT 'Cesit ailesi (orn. tum biber cesitleri family=biber) - aile secici icin',
   `seo_index`     TINYINT(1)       NOT NULL DEFAULT 0 COMMENT 'Sitemap ve index havuzuna dahil mi',

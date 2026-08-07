@@ -149,6 +149,7 @@ export default async function BorsaPage({ params }: Props) {
                 slug={product.slug}
                 name={product.displayName || product.nameTr}
                 categorySlug={product.categorySlug}
+                imageUrl={product.imageUrl}
                 size={44}
                 className="rounded-lg"
               />

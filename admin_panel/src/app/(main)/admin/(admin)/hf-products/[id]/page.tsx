@@ -22,8 +22,10 @@ import {
   useGetHfProductGscAdminQuery,
   useUpdateHfProductEditorialAdminMutation,
 } from "@/integrations/endpoints/hf-products-admin-endpoints";
+import { AdminImageUploadField } from "@/components/common/admin-image-upload-field";
 import { ProductGscBadge, ProductGscPanel } from "../_components/product-gsc-panel";
 import { ProductRedirectPanel } from "../_components/product-redirect-panel";
+import { ProductThumb } from "../_components/product-thumb";
 import {
   useCreateHfProductAdminMutation,
   useGetHfProductAdminQuery,
@@ -117,6 +119,7 @@ export default function Page() {
     aliases: "",
     seoIndex: false,
     displayName: "",
+    imageUrl: "",
     canonicalSlug: "",
     familySlug: "",
     dataQuality: "0",
@@ -136,6 +139,7 @@ export default function Page() {
       aliases: (data.aliases || []).join(", "),
       seoIndex: Boolean(data.seoIndex),
       displayName: data.displayName || "",
+      imageUrl: data.imageUrl || "",
       canonicalSlug: data.canonicalSlug || "",
       familySlug: data.familySlug || "",
       dataQuality: String(data.dataQuality ?? 0),
@@ -201,6 +205,7 @@ export default function Page() {
     aliases: splitCsv(form.aliases),
     seoIndex: form.seoIndex,
     displayName: form.displayName.trim() || null,
+    imageUrl: form.imageUrl.trim() || null,
     canonicalSlug: form.canonicalSlug.trim() || null,
     familySlug: form.familySlug.trim() || null,
     dataQuality: Number(form.dataQuality || 0),
@@ -261,17 +266,22 @@ export default function Page() {
     <div className="space-y-4">
       <Card className="rounded-lg">
         <CardHeader className="flex flex-row items-center justify-between gap-3">
-          <div>
-            <CardTitle className="text-base">
-              {isNew ? "Yeni ürün" : form.displayName || form.nameTr || "Ürün detayı"}
-            </CardTitle>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <Badge variant={form.isActive ? "default" : "secondary"}>{form.isActive ? "Aktif" : "Pasif"}</Badge>
-              <Badge variant={form.seoIndex ? "default" : "outline"}>{form.seoIndex ? "Index" : "Noindex"}</Badge>
-              <Badge variant={readiness >= 75 ? "default" : readiness >= 45 ? "secondary" : "destructive"}>
-                SEO kalite {readiness}
-              </Badge>
-              {gscData?.gsc && <ProductGscBadge category={gscData.gsc.category} label={gscData.gsc.label} />}
+          <div className="flex items-start gap-3">
+            {!isNew && (
+              <ProductThumb slug={form.slug} name={form.displayName || form.nameTr} imageUrl={form.imageUrl} size={48} />
+            )}
+            <div>
+              <CardTitle className="text-base">
+                {isNew ? "Yeni ürün" : form.displayName || form.nameTr || "Ürün detayı"}
+              </CardTitle>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Badge variant={form.isActive ? "default" : "secondary"}>{form.isActive ? "Aktif" : "Pasif"}</Badge>
+                <Badge variant={form.seoIndex ? "default" : "outline"}>{form.seoIndex ? "Index" : "Noindex"}</Badge>
+                <Badge variant={readiness >= 75 ? "default" : readiness >= 45 ? "secondary" : "destructive"}>
+                  SEO kalite {readiness}
+                </Badge>
+                {gscData?.gsc && <ProductGscBadge category={gscData.gsc.category} label={gscData.gsc.label} />}
+              </div>
             </div>
           </div>
           <div className="flex flex-wrap justify-end gap-2">
@@ -395,6 +405,16 @@ export default function Page() {
               <div className="space-y-2 md:col-span-2">
                 <Label>Aliaslar</Label>
                 <Input value={form.aliases} onChange={(e) => setForm((p) => ({ ...p, aliases: e.target.value }))} />
+              </div>
+              <div className="md:col-span-2">
+                <AdminImageUploadField
+                  label="Ürün görseli"
+                  helperText='Yüklenirse siteye hemen yansır. Boşsa "manifest.json" eşleşmesi, o da yoksa emoji gösterilir.'
+                  value={form.imageUrl}
+                  onChange={(url) => setForm((p) => ({ ...p, imageUrl: url ?? "" }))}
+                  folder="uploads/hf-products"
+                  previewAspect="1x1"
+                />
               </div>
             </CardContent>
           </Card>

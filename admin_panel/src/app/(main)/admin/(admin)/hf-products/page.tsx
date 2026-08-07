@@ -24,6 +24,7 @@ import {
 
 import { MergeSuggestionsPanel } from "./_components/merge-suggestions-panel";
 import { GSC_SHORT_LABEL, ProductGscBadge } from "./_components/product-gsc-panel";
+import { ProductThumb } from "./_components/product-thumb";
 
 const ALL = "all";
 
@@ -399,6 +400,7 @@ export default function Page() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-8" />
+                <TableHead className="w-10">Görsel</TableHead>
                 <SortHead k="name">Ad</SortHead>
                 <TableHead>Slug</TableHead>
                 <SortHead k="category">Kategori</SortHead>
@@ -414,12 +416,12 @@ export default function Page() {
             <TableBody>
               {(isLoading || isFetching) && (
                 <TableRow>
-                  <TableCell colSpan={11}>Yükleniyor...</TableCell>
+                  <TableCell colSpan={12}>Yükleniyor...</TableCell>
                 </TableRow>
               )}
               {!isLoading && items.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={11}>Kayıt bulunamadı.</TableCell>
+                  <TableCell colSpan={12}>Kayıt bulunamadı.</TableCell>
                 </TableRow>
               )}
               {sortedItems.map((item) => (
@@ -430,6 +432,9 @@ export default function Page() {
                       onCheckedChange={() => toggleSelect(item.id)}
                       aria-label="Seç"
                     />
+                  </TableCell>
+                  <TableCell>
+                    <ProductThumb slug={item.slug} name={item.displayName || item.nameTr} imageUrl={item.imageUrl} />
                   </TableCell>
                   <TableCell className="max-w-[190px]">
                     <Link

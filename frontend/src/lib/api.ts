@@ -42,6 +42,7 @@ export interface PriceRow {
   productSlug: string;
   productName: string;
   categorySlug: string;
+  imageUrl?: string | null;
   marketSlug: string;
   marketName: string;
   marketType?: "hal" | "borsa" | "resmi" | "kooperatif";
@@ -55,6 +56,7 @@ export interface Product {
   categorySlug: string;
   unit: string;
   displayName?: string | null;
+  imageUrl?: string | null;
   canonicalSlug?: string | null;
   familySlug?: string | null;
   seoIndex?: number | boolean;

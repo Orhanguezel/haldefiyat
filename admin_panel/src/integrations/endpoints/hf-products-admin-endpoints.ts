@@ -10,6 +10,7 @@ export type HfProductItem = {
   aliases: string[] | null;
   seoIndex: number | boolean;
   displayName: string | null;
+  imageUrl: string | null;
   canonicalSlug: string | null;
   familySlug: string | null;
   dataQuality: number;
@@ -41,6 +42,7 @@ export type HfProductPayload = {
   aliases?: string[];
   seoIndex?: boolean;
   displayName?: string | null;
+  imageUrl?: string | null;
   canonicalSlug?: string | null;
   familySlug?: string | null;
   dataQuality?: number;

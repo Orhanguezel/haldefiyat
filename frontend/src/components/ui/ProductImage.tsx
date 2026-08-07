@@ -1,11 +1,14 @@
 import Image from "next/image";
 import { getProductImage } from "@/lib/product-images";
 import { getEmoji } from "@/lib/emoji";
+import { resolveImageUrl } from "@/lib/utils";
 
 interface ProductImageProps {
   slug: string;
   name: string;
   categorySlug?: string;
+  /** Admin panelden yüklenen gerçek foto (DB, hf_products.image_url). Varsa manifest.json'dan önce kullanılır. */
+  imageUrl?: string | null;
   /** Görüntü boyutu (px). Default 80. */
   size?: number;
   className?: string;
@@ -22,11 +25,12 @@ export default function ProductImage({
   slug,
   name,
   categorySlug,
+  imageUrl,
   size = 80,
   className = "",
   priority = false,
 }: ProductImageProps) {
-  const src = getProductImage(slug);
+  const src = (imageUrl ? resolveImageUrl(imageUrl, "") : "") || getProductImage(slug);
 
   if (src) {
     return (
