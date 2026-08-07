@@ -10,6 +10,8 @@ const PRODUCT_CATEGORY: Array<{ pattern: RegExp; name: string; category: string 
   { pattern: /\b[çc]avdar\b/i, name: "Çavdar", category: "hububat" },
   { pattern: /\bay[çc]i[çc]e[ğg]i\b|\bay[çc]icegi\b/i, name: "Ayçiçeği", category: "yagli-tohum" },
   { pattern: /\bpamuk\b/i, name: "Pamuk", category: "sanayi-bitkisi" },
+  { pattern: /\bk[ıi]rm[ıi]z[ıi]\s+merc[ıi]mek\b/i, name: "Kırmızı Mercimek", category: "bakliyat-kuru" },
+  { pattern: /\bye[şs][ıi]l\s+merc[ıi]mek\b/i, name: "Yeşil Mercimek", category: "bakliyat-kuru" },
   { pattern: /\bmerc[ıi]mek\b/i, name: "Mercimek", category: "bakliyat-kuru" },
   { pattern: /\bnohut\b/i, name: "Nohut", category: "bakliyat-kuru" },
   { pattern: /\b(kuru\s+)?fasulye\b/i, name: "Kuru Fasulye", category: "bakliyat-kuru" },
@@ -118,6 +120,8 @@ function toTobbProduct(rawName: string): { name: string; category: string } | nu
     return { name: "Ayçiçeği", category: "yagli-tohum" };
   }
   if (/MERC[İI]MEK\b/.test(name)) {
+    if (/KIRMIZI\b/.test(name)) return { name: "Kırmızı Mercimek", category: "bakliyat-kuru" };
+    if (/YE[ŞS][İI]L\b/.test(name)) return { name: "Yeşil Mercimek", category: "bakliyat-kuru" };
     return { name: "Mercimek", category: "bakliyat-kuru" };
   }
   if (/NOHUT\b/.test(name)) {
