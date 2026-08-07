@@ -48,6 +48,8 @@ function asKg(price: number, line: string): number {
 export function parseBorsaText(raw: string): BorsaPriceRow[] {
   const rows: BorsaPriceRow[] = [];
   for (const line of raw.split(/\r?\n/)) {
+    // İşlenmiş ürünler (un, irmik) ham tahıl fiyatına karışmasın — bkz. toTobbProduct yorumu.
+    if (/\bunu\b|\b[iı]rm[iı]k\b/i.test(line)) continue;
     const product = PRODUCT_CATEGORY.find((p) => p.pattern.test(line));
     if (!product) continue;
 
@@ -93,6 +95,10 @@ function parseTrDate(raw: string): string | undefined {
 
 function toTobbProduct(rawName: string): { name: string; category: string } | null {
   const name = rawName.toLocaleUpperCase("tr-TR");
+  // İşlenmiş ürünler (un, irmik vb.) ham tahıl/bakliyat fiyatına karışmasın — farklı emtia,
+  // farklı fiyat bazı. Örn. "BUĞDAY UNU TİP 2" ~900 TL/kg, ham buğday ~15 TL/kg —
+  // karışınca ham ürünün geçmişi anlamsız sıçramalar yapıyordu (Nevşehir, 2026-08-07).
+  if (/\bUNU\b|\b[İI]RM[İI]K\b/.test(name)) return null;
   if (/BU[ĞG]DAY\b/.test(name)) {
     if (/EKMEKL[İI]K/.test(name)) return { name: "Ekmeklik Buğday", category: "hububat" };
     if (/DURUM/.test(name) || /MAKARNALIK/.test(name)) return { name: "Makarnalık Buğday", category: "hububat" };
@@ -350,7 +356,7 @@ export function parsePolatliBorsaJson(raw: unknown): BorsaPriceRow[] {
   for (const item of list) {
     const row = item as PolatliRawRow;
     const rawName = typeof row.UrunAdi === "string" ? row.UrunAdi.trim() : "";
-    if (!rawName) continue;
+    if (!rawName || /\bunu\b|\b[iı]rm[iı]k\b/i.test(rawName)) continue;
 
     const product = PRODUCT_CATEGORY.find((p) => p.pattern.test(rawName));
     if (!product) continue;
