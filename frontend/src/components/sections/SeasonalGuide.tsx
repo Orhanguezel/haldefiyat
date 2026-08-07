@@ -1,7 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getProductsInSeason, getMonthName } from "@/lib/season";
 import { fetchWidget } from "@/lib/api";
 import { productHref } from "@/lib/product-links";
+import { getProductImage } from "@/lib/product-images";
 
 function formatTr(n: number): string {
   return n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -41,6 +43,7 @@ export default async function SeasonalGuide() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {products.map((p) => {
+          const photo = getProductImage(p.slug);
           const w = widgetBySlug.get(p.slug);
           const hasPrice = w && Number.isFinite(w.avgPrice) && w.avgPrice > 0;
           const changePct = w?.changePct ?? null;
@@ -62,9 +65,15 @@ export default async function SeasonalGuide() {
               className="group flex flex-col gap-2 rounded-[14px] border border-(--color-border) bg-(--color-surface) p-4 transition-colors hover:border-(--color-brand)/50 hover:bg-(--color-bg-alt)"
             >
               <div className="flex items-start justify-between gap-2">
-                <span className="text-3xl leading-none" aria-hidden>
-                  {p.emoji}
-                </span>
+                {photo ? (
+                  <span className="block h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-(--color-border) bg-(--color-bg-alt)">
+                    <Image src={photo} alt={p.nameTr} width={40} height={40} className="h-full w-full object-cover" />
+                  </span>
+                ) : (
+                  <span className="text-3xl leading-none" aria-hidden>
+                    {p.emoji}
+                  </span>
+                )}
                 {hasPrice && (
                   <span className="font-(family-name:--font-mono) text-[14px] font-bold text-(--color-foreground)">
                     ₺{formatTr(w.avgPrice)}

@@ -158,6 +158,7 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "karalahana":            "/images/urunler/karalahana.jpg",
   "zeytinyagi":            "/images/urunler/zeytinyagi.jpg",
   "deniz-borulcesi":       "/images/urunler/deniz-borulcesi.jpg",
+  "elma":                  "/images/urunler/elma.jpg",
 };
 
 /**
