@@ -64,7 +64,8 @@ const EMOJI: Record<string, string> = {
   // Bakliyat & Tahıl
   "kuru-fasulye": "🫘",
   nohut: "🫘",
-  mercimek: "🫘",
+  "kirmizi-mercimek": "🫘",
+  "yesil-mercimek": "🫘",
   bugday: "🌾",
   arpa: "🌾",
   yulaf: "🌾",

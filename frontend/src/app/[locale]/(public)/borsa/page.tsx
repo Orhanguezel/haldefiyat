@@ -24,7 +24,8 @@ const BORE_PRODUCTS = [
   "cavdar",
   "aycicegi",
   "pamuk",
-  "mercimek",
+  "kirmizi-mercimek",
+  "yesil-mercimek",
   "nohut",
   "kuru-fasulye",
 ];
@@ -41,7 +42,8 @@ const FALLBACK_PRODUCTS: Product[] = [
   { id: -109, slug: "cavdar", nameTr: "Çavdar", displayName: "Çavdar", categorySlug: "hububat", unit: "kg", seoIndex: 1 },
   { id: -110, slug: "aycicegi", nameTr: "Ayçiçeği", displayName: "Ayçiçeği", categorySlug: "yagli-tohum", unit: "kg", seoIndex: 1 },
   { id: -111, slug: "pamuk", nameTr: "Pamuk", displayName: "Pamuk", categorySlug: "sanayi-bitkisi", unit: "kg", seoIndex: 1 },
-  { id: -112, slug: "mercimek", nameTr: "Mercimek", displayName: "Mercimek", categorySlug: "bakliyat-kuru", unit: "kg", seoIndex: 1 },
+  { id: -112, slug: "kirmizi-mercimek", nameTr: "Kırmızı Mercimek", displayName: "Kırmızı Mercimek", categorySlug: "bakliyat-kuru", unit: "kg", seoIndex: 1 },
+  { id: -115, slug: "yesil-mercimek", nameTr: "Yeşil Mercimek", displayName: "Yeşil Mercimek", categorySlug: "bakliyat-kuru", unit: "kg", seoIndex: 1 },
   { id: -113, slug: "nohut", nameTr: "Nohut", displayName: "Nohut", categorySlug: "bakliyat-kuru", unit: "kg", seoIndex: 1 },
   { id: -114, slug: "kuru-fasulye", nameTr: "Kuru Fasulye", displayName: "Kuru Fasulye", categorySlug: "bakliyat-kuru", unit: "kg", seoIndex: 1 },
 ];
@@ -57,7 +59,7 @@ export async function generateMetadata({ params }: Props) {
     locale,
     pathname: "/borsa",
     title: "Borsa ve Resmi Tarım Fiyatları | HaldeFiyat",
-    description: "Buğday, ekmeklik ve makarnalık buğday, arpa, mısır, çeltik, pirinç, yulaf, çavdar, ayçiçeği, pamuk, mercimek, nohut ve kuru fasulye için TMO resmi alım fiyatları ile ticaret borsası fiyatları.",
+    description: "Buğday, ekmeklik ve makarnalık buğday, arpa, mısır, çeltik, pirinç, yulaf, çavdar, ayçiçeği, pamuk, kırmızı ve yeşil mercimek, nohut ve kuru fasulye için TMO resmi alım fiyatları ile ticaret borsası fiyatları.",
   });
 }
 
