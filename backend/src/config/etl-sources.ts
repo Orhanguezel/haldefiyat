@@ -590,6 +590,16 @@ const RAW_SOURCES: RawSource[] = [
     defaultCategory:   "bakliyat-kuru",
   },
   {
+    key:               "tobb_borsa_yozgat",
+    defaultEnabled:    true,
+    defaultMarketSlug: "yozgat-ticaret-borsasi",
+    defaultBaseUrl:    "https://borsa.tobb.org.tr",
+    defaultEndpoint:   "/fiyat_borsa.php?borsakod=5YO10",
+    responseShape:     "tobb_borsa_html",
+    defaultUnit:       "kg",
+    defaultCategory:   "bakliyat-kuru",
+  },
+  {
     key:               "tobb_borsa_alaca",
     defaultEnabled:    true,
     defaultMarketSlug: "alaca-ticaret-borsasi",

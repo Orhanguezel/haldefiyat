@@ -98,6 +98,12 @@ const SOURCE_URLS: Record<string, SourceInfo> = {
     type: "exchange",
     official: true,
   },
+  tobb_borsa_yozgat: {
+    name: "Yozgat Ticaret Borsası Günlük Fiyatları",
+    url: "https://borsa.tobb.org.tr/fiyat_borsa.php?borsakod=5YO10",
+    type: "exchange",
+    official: true,
+  },
   tobb_borsa_alaca: {
     name: "Alaca Ticaret Borsası Günlük Fiyatları",
     url: "https://borsa.tobb.org.tr/fiyat_borsa.php?borsakod=5AL05",
