@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { formatOgDate } from "@/lib/og-date";
+import { loadOgBrandAssets, OgBackground, OgBrand } from "@/lib/og-brand";
 
 // KANONİK DİNAMİK OG REFERANSI (route handler — i18n bağımsız).
 // URL: /og/urun/[slug]. `/api/` nginx'te Fastify backend'e gittiği için OG
@@ -51,7 +52,7 @@ async function fetchProduct(slug: string) {
 
 export async function GET(_req: Request, { params }: Props) {
   const { slug } = await params;
-  const [product, font] = await Promise.all([fetchProduct(slug), loadFont()]);
+  const [product, font, brandAssets] = await Promise.all([fetchProduct(slug), loadFont(), loadOgBrandAssets()]);
   const name: string = product?.nameTr ?? "Hal Fiyatı";
   const category: string = product?.categorySlug ?? "sebze-meyve";
   const dataDate = formatOgDate(product?.updatedAt);
@@ -62,6 +63,7 @@ export async function GET(_req: Request, { params }: Props) {
         style={{
           width: "100%",
           height: "100%",
+          position: "relative",
           display: "flex",
           flexDirection: "column",
           background: `linear-gradient(135deg, ${INK} 0%, #11203a 60%, ${INK} 100%)`,
@@ -70,25 +72,8 @@ export async function GET(_req: Request, { params }: Props) {
           fontFamily: font ? "Outfit" : "sans-serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 14,
-              background: BRAND,
-              color: INK,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 38,
-              fontWeight: 800,
-            }}
-          >
-            H
-          </div>
-          <div style={{ fontSize: 34, fontWeight: 800 }}>HalDeFiyat</div>
-        </div>
+        <OgBackground src={brandAssets.background} />
+        <OgBrand logo={brandAssets.logo} />
 
         <div
           style={{

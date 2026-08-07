@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { loadOgBrandAssets, OgBackground, OgBrand } from "@/lib/og-brand";
 
 export const revalidate = 86400;
 
@@ -25,7 +26,7 @@ async function loadFont(): Promise<ArrayBuffer | null> {
 export async function GET(req: Request) {
   const ratio = new URL(req.url).searchParams.get("ratio");
   const size = IMAGE_SIZES[ratio === "1x1" || ratio === "4x3" ? ratio : "16x9"];
-  const font = await loadFont();
+  const [font, brandAssets] = await Promise.all([loadFont(), loadOgBrandAssets()]);
 
   return new ImageResponse(
     (
@@ -33,6 +34,7 @@ export async function GET(req: Request) {
         style={{
           width: "100%",
           height: "100%",
+          position: "relative",
           display: "flex",
           flexDirection: "column",
           background: `linear-gradient(135deg, ${INK} 0%, #11203a 60%, ${INK} 100%)`,
@@ -41,25 +43,8 @@ export async function GET(req: Request) {
           fontFamily: font ? "Outfit" : "sans-serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 14,
-              background: BRAND,
-              color: INK,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 38,
-              fontWeight: 800,
-            }}
-          >
-            H
-          </div>
-          <div style={{ fontSize: 34, fontWeight: 800 }}>HalDeFiyat</div>
-        </div>
+        <OgBackground src={brandAssets.background} />
+        <OgBrand logo={brandAssets.logo} />
 
         <div style={{ display: "flex", flexDirection: "column", marginTop: "auto", gap: 18 }}>
           <div style={{ fontSize: 30, color: BRAND, fontWeight: 700 }}>
