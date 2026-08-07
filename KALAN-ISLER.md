@@ -18,12 +18,20 @@ bekliyor) ile sıfırlanmış `repository.ts` uyuşmadı, build patladı, **back
 502 verdi.** Local'deki aynı uncommitted kopyalardan (git status hâlâ "M" gösteriyordu, kayıp
 değildi) tüm dosyalar `rsync`/`scp` ile VPS'e geri yüklendi, build+reload ile düzeltildi.
 
-- [ ] **KESİN KURAL (yeni):** Bu repoda `git reset --hard origin/main` çalıştırmadan ÖNCE
+- [x] **KESİN KURAL (kalıcı):** Bu repoda `git reset --hard origin/main` çalıştırmadan ÖNCE
       `git status --porcelain` ile VPS'te tracked-modified dosya olup olmadığı kontrol edilir.
       Varsa (WIP drift durumu) reset YERİNE `git pull --ff-only` denenir veya sadece ilgili
-      dosya `scp` ile hedefli patch edilir (Orhan onayıyla, tek dosya istisnası).
-- [ ] **Asıl çözüm:** Reklam pazaryeri WIP'i bir an önce commit edilmeli — bu drift durduğu
-      sürece her normal "git ile deploy" refleksi aynı riski taşır.
+      dosya hedefli patch edilir.
+- [x] **Asıl çözüm — YAPILDI (2026-08-07):** Reklam pazaryeri WIP'i 4 commit'e bölünüp
+      (`50142a47`, `418e4961`, `8e203a30`, `f138b163`) push edildi, VPS `git stash` →
+      `pull --ff-only` → `stash pop` → `drop` ile temiz şekilde HEAD'e senkronlandı, 3 uygulama
+      da committed state'ten yeniden build edilip restart edildi. Detay: hafıza
+      [[reklam-pazaryeri-deploy-2026-08-07]]. Drift artık yok — bundan sonraki normal
+      `git pull --ff-only` deploy'ları sorunsuz çalışmalı.
+- [ ] **Yeni bulunan, ayrı iş:** VPS repo kökünde ~70 stray/ilgisiz dosya-klasör var
+      (`(main)/`, `[locale]/`, `layout.tsx`, `globals.css`, `package.json` gibi tekrarlar repo
+      root'ta yanlış konumda duruyor — muhtemelen eski bir kopyalama/extract hatası). Bugünkü
+      deploy'u etkilemedi, dokunulmadı. Ayrı bir oturumda incelenip temizlenmeli.
 
 ---
 
