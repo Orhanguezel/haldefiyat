@@ -15,7 +15,7 @@ import {
   symlinkSync,
   unlinkSync,
 } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -80,15 +80,22 @@ function main() {
     cpSync(publicSrc, publicDest, { recursive: true });
   }
 
+  // Symlink hedefi GORELI yazilir. Mutlak yazilirsa link makineye baglanir
+  // (local /home/orhan/..., VPS /var/www/...), git'te kalici "modified" olarak
+  // gorunur ve bir gun checkout/reset yerse yanlis makinenin yolunu geri koyup
+  // pm2'yi kirar. Goreli yol iki makinede de ayni.
   const linkPath = join(FRONTEND, "standalone-server.js");
+  const relTarget = relative(FRONTEND, target);
+  // unlink kosulsuz: existsSync symlink'i TAKIP eder, yani KIRIK symlink'te
+  // false doner ve asagidaki symlinkSync EEXIST ile patlardi.
   try {
-    if (existsSync(linkPath)) unlinkSync(linkPath);
+    unlinkSync(linkPath);
   } catch {
-    /* ignore */
+    /* yoksa sorun degil */
   }
-  symlinkSync(target, linkPath);
+  symlinkSync(relTarget, linkPath);
   console.info(
-    `sync-standalone-assets: OK → ${staticDest} (${staticSrc})\npm2 script: ${linkPath} → ${target}`,
+    `sync-standalone-assets: OK → ${staticDest} (${staticSrc})\npm2 script: ${linkPath} → ${relTarget}`,
   );
 }
 

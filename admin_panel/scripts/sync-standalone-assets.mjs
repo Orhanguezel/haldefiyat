@@ -15,7 +15,7 @@ import {
   symlinkSync,
   unlinkSync,
 } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -84,15 +84,22 @@ function main() {
 
   // standalone-server.js symlink (admin pm2 dogrudan server.js kullaniyor; symlink opsiyonel).
   // Broken symlink / EEXIST durumunda build'i KIRMA — kritik kopyalama zaten bitti.
+  // Symlink hedefi GORELI yazilir. Mutlak yazilirsa link makineye baglanir
+  // (local /home/orhan/..., VPS /var/www/...), git'te kalici "modified" olarak
+  // gorunur ve bir gun checkout/reset yerse yanlis makinenin yolunu geri koyup
+  // pm2'yi kirar. Goreli yol iki makinede de ayni.
   const linkPath = join(FRONTEND, "standalone-server.js");
+  const relTarget = relative(FRONTEND, target);
   try {
+    // unlink kosulsuz: existsSync symlink'i TAKIP eder, KIRIK symlink'te
+    // false doner ve symlinkSync EEXIST ile patlardi.
     try {
       unlinkSync(linkPath);
     } catch {
       /* yoksa sorun değil */
     }
-    symlinkSync(target, linkPath);
-    console.info(`pm2 script symlink: ${linkPath} → ${target}`);
+    symlinkSync(relTarget, linkPath);
+    console.info(`pm2 script symlink: ${linkPath} → ${relTarget}`);
   } catch (err) {
     console.warn(`sync-standalone-assets: symlink atlandı (kritik değil): ${err?.message ?? err}`);
   }

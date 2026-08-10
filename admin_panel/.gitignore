@@ -6,6 +6,11 @@ node_modules/
 out/
 dist/
 
+# deploy/sync script symlink — her build'de yeniden uretilir, makineye ozgudur.
+# Git'te tutulursa VPS'te kalici "modified" olarak gorunur ve bir checkout/reset
+# yanlis makinenin yolunu geri koyup pm2'yi kirar. Frontend'de de ignore'lu.
+standalone-server.js
+
 # local env
 .env.local
 .env.*.local

@@ -1,1 +1,0 @@
-/home/orhan/Documents/Projeler/tarim-dijital-ekosistem/projects/hal-fiyatlari/admin_panel/.next/standalone/projects/hal-fiyatlari/admin_panel/server.js
