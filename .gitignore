@@ -78,3 +78,12 @@ venv*/
 
 # GSC coverage exports (one-off, repoya girmesin)
 haldefiyat.com-Coverage-*.zip
+
+# Canli runtime verisi — repoya GIRMEZ ama silinmemeli de.
+# Ignore edilmelerinin asil sebebi `git clean -fd`: ignore'lu olmadiklarinda
+# untracked sayilip temizlikte silinirler. backend/uploads altinda kullanici
+# ilan gorselleri, sosyal medya gorselleri ve CANLI SITE LOGOLARI var
+# (/uploads/uploads/logohaldefiyat_*.png DB'den referansli, HTTP 200).
+backend/uploads/
+.wayback-state
+.claude/settings.local.json

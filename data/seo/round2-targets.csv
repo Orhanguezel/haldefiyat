@@ -1,0 +1,161 @@
+priority,type,master_slug,display_name_ham,category_slug,cluster_size
+1,singleton,armut-deveci,"Armut (Deveci)",meyve,1
+2,singleton,brokoli,"Brokolı",sebze,1
+3,singleton,kereviz,"Kerevız",sebze,1
+4,singleton,biber-sivri,"Biber Sivri",sebze,1
+5,singleton,domates-salkim,"Domates (Salkım)",sebze,1
+6,singleton,elma-golden,"Elma Golden",meyve,1
+7,singleton,pirasa,"Pırasa",sebze,1
+8,singleton,salatalik-silor,"Salatalık (Silor)",sebze,1
+9,singleton,sarimsak-kuru,"Sarımsak (Kuru)",sebze,1
+10,singleton,domates-kokteyl,"Domates Kokteyl",sebze-meyve,1
+11,singleton,domates-pembe,"Domates (Pembe)",sebze,1
+12,singleton,greyfurt,"Greyfurt",meyve,1
+13,singleton,turp-kirmizi,"Turp (Kırmızı)",sebze,1
+14,singleton,biber-carliston,"Biber (Çarliston)",sebze-meyve,1
+15,singleton,ayva,"Ayva",meyve,1
+16,singleton,karnabahar,"Karnabahar",sebze,1
+17,singleton,mango,"Mango",ithal,1
+18,singleton,muz-yerli,"Muz Yerli",sebze-meyve,1
+19,singleton,roka,"Roka",sebze-meyve,1
+20,singleton,lahana-beyaz,"Lahana (Beyaz)",sebze,1
+21,singleton,pancar,"Pancar",sebze,1
+22,singleton,sogan-kuru,"Soğan",sebze,1
+23,singleton,zencefil,"Zencefil",ithal,1
+24,singleton,avokado,"Avokado",sebze-meyve,1
+25,singleton,biber-dolma,"Biber Dolma",sebze,1
+26,singleton,patates-taze,"Patates, Taze",sebze,1
+27,singleton,pazi,"Pazı",sebze,1
+28,singleton,semizotu,"Semizotu",sebze-meyve,1
+29,singleton,bezelye,"Bezelye",sebze,1
+30,singleton,elma-starking,"Elma Starking",meyve,1
+31,singleton,maydanoz,"Maydanoz",sebze-meyve,1
+32,singleton,turp-beyaz,"Turp Beyaz",sebze-meyve,1
+33,singleton,hindistan-cevizi,"Hındıstan Cevızı",ithal,1
+34,singleton,marul-kivircik,"Marul (Kıvırcık)",sebze,1
+35,singleton,portakal-sikmalik,"Portakal Sıkmalık",sebze-meyve,1
+36,singleton,uzum-cekirdeksiz,"Üzüm Çekirdeksiz",sebze-meyve,1
+37,singleton,cagla,"Çağla",sebze-meyve,1
+38,singleton,domates-ceri,"Domates Çeri",sebze-meyve,1
+39,singleton,elma-granny-smith,"Elma Granny Smıth",sebze-meyve,1
+40,singleton,limon-yatak,"Limon Yatak",sebze-meyve,1
+41,singleton,muz-ithal,"Muz (İthal)",meyve,1
+42,singleton,portakal-finike,"Portakal Finike",sebze-meyve,1
+43,singleton,turp-findik,"Turp Fındık",sebze-meyve,1
+44,singleton,domates-cherry,"Domates (Cherry)",sebze-meyve,1
+45,singleton,fasulye-cali,"Fasülye (Çalı)",sebze,1
+46,singleton,havuc-siyah,"Havuç Siyah",sebze-meyve,1
+47,singleton,sogan-taze,"Taze Soğan",sebze,1
+48,singleton,uzum-siyah,"Üzüm Siyah",meyve,1
+49,singleton,armut-santamaria,"Armut Santamaria",meyve,1
+50,singleton,erik-can,"Erik (Can)",meyve,1
+51,singleton,erik-papaz,"Erik Papaz",sebze-meyve,1
+52,singleton,feslegen-reyhan,"Fesleğen (Reyhan)",sebze-meyve,1
+53,singleton,havuc-beypazari,"Havuç (Beypazarı)",meyve,1
+54,singleton,kabak-sakiz,"Kabak (Sakız)",sebze,1
+55,singleton,kirmizi-lahana,"Kırmızı Lahana",sebze-meyve,1
+56,singleton,kuzukulagi,"Kuzukulağı",sebze-meyve,1
+57,singleton,marul-iceberg,"Marul, Iceberg",sebze-meyve,1
+58,singleton,patlican-bostan-topak,"Patlıcan Bostan (Topak)",sebze-meyve,1
+59,singleton,sivri-biber,"Sivri Biber",sebze-meyve,1
+60,singleton,turp-siyah,"Turp Siyah",sebze,1
+61,singleton,armut-santamari,"Armut Santamari",sebze-meyve,1
+62,singleton,asma-yapragi,"Asma Yaprağı",sebze,1
+63,singleton,barbunya,"Barbunya",sebze,1
+64,singleton,dere-otu,"Dere Otu",sebze,1
+65,singleton,dereotu,"Dereotu",sebze-meyve,1
+66,singleton,domates-ayas,"Domates Ayaş",sebze-meyve,1
+67,singleton,domates-beef,"Domates Beef",sebze-meyve,1
+68,singleton,domates-salcalik,"Domates (Salçalık)",sebze,1
+69,singleton,elma-arjantin,"Elma Arjantin",meyve,1
+70,singleton,erik-anjelik,"Erik (Anjelik)",meyve,1
+71,singleton,erik-papaz-can,"Erik Papaz (Can)",sebze-meyve,1
+72,singleton,fasulye-taze-cali,"Fasulye Taze Çalı",sebze-meyve,1
+73,singleton,feslegen,"Fesleğen",sebze-meyve,1
+74,singleton,kapya-biber,"Kapya Biber",sebze-meyve,1
+75,singleton,karpuz-cekirdeksiz,"Karpuz Çekirdeksiz",sebze-meyve,1
+76,singleton,kavun-galya,"Kavun Galya",sebze-meyve,1
+77,singleton,kisnis,"Kişniş",meyve,1
+78,singleton,limon-lemas,"Limon Lemas",sebze-meyve,1
+79,singleton,mantar-kultur,"Mantar Kültür",sebze,1
+80,singleton,marul-aysberg,"Marul (Aysberg)",sebze,1
+81,singleton,marul-kivircik-kivircik-kirmizi-lolorosso,"Marul Kıvırcık Kıvırcık Kırmızı (Lolorosso)",sebze-meyve,1
+82,singleton,marul-kivircik-kivircik-lolorosso-y,"MARUL KIVIRCIK KIVIRCIK (LOLOROSSO Y.)",sebze-meyve,1
+83,singleton,muz-muz-yerli-anamur,"Muz Muz Yerli (Anamur)",sebze-meyve,1
+84,singleton,portakal-valencia,"Portakal Valencia",sebze-meyve,1
+85,singleton,portakal-washington,"Portakal (Washington)",meyve,1
+86,singleton,salatalik-cengelkoy,"Salatalık Çengelköy",sebze-meyve,1
+87,singleton,uzum-beyaz-kirmizi,"Üzüm Beyaz Kırmızı",sebze-meyve,1
+88,singleton,uzum-beyaz-siyah,"Üzüm Beyaz Siyah",sebze-meyve,1
+89,singleton,yesil-sogan,"Yeşil Soğan",sebze-meyve,1
+90,singleton,armut-ankara,"Armut Ankara",sebze-meyve,1
+91,singleton,barbunya-taze,"Barbunya (Taze)",sebze,1
+92,singleton,beyaz-lahana-hibrit,"Beyaz Lahana Hibrit",sebze-meyve,1
+93,singleton,biberiye-rozmarin,"Biberiye (Rozmarin)",sebze-meyve,1
+94,singleton,deniz-borulcesi,"Denız Börülcesi",sebze,1
+95,singleton,dereotu-yas-taze,"Dereotu (Yaş-Taze)",sebze-meyve,1
+96,singleton,dolma-biber,"Dolma Biber",sebze-meyve,1
+97,singleton,domates-sera,"Domates (Sera)",sebze,1
+98,singleton,dut-kara,"Dut Kara",sebze-meyve,1
+99,singleton,elma-starking-elma-starking,"Elma Starkıng Elma, Starking",sebze-meyve,1
+100,singleton,erik-yesil,"Erik Yeşil",sebze-meyve,1
+101,singleton,fasulye-ayse-kadin,"Fasülye (Ayşe Kadın)",sebze,1
+102,singleton,kabak-bal,"Kabak Bal",sebze,1
+103,singleton,kavun-kirkagac,"Kavun (Kırkağaç)",meyve,1
+104,singleton,kiraz-napolyon,"Kiraz Napolyon",sebze-meyve,1
+105,singleton,limon-lamas,"Limon (Lamas)",meyve,1
+106,singleton,limon-mayer,"Limon Mayer",sebze-meyve,1
+107,singleton,marul-gobekli-marul-gobekli-yagli-kop-salat,"Marul Göbekli Marul Göbekli (Yağlı-Kop Salat)",sebze-meyve,1
+108,singleton,misir-taze,"Mısır Taze",meyve,1
+109,singleton,nektari,"Nektari",meyve,1
+110,singleton,pomelo,"Pomelo",sebze-meyve,1
+111,singleton,semiz-otu,"Semız Otu",sebze,1
+112,singleton,uzum-beyaz,"Üzüm (Beyaz)",meyve,1
+113,singleton,yaban-mersini,"Yaban Mersini",sebze-meyve,1
+114,singleton,yeni-dunya-malta-erigi,"Yeni Dünya (Malta Eriği)",meyve,1
+115,singleton,yer-elmasi,"Yer Elması",meyve,1
+116,singleton,ahududu,"Ahududu",sebze-meyve,1
+117,singleton,armut-akca,"Armut (Akça)",meyve,1
+118,singleton,armut-margarit,"Armut Margarit",sebze-meyve,1
+119,singleton,badem-yas-taze,"Badem (Yaş-Taze)",sebze-meyve,1
+120,singleton,bakla-taze-sakiz,"Bakla Taze Sakız",sebze-meyve,1
+121,singleton,bal-kabagi,"Bal Kabağı",sebze-meyve,1
+122,singleton,balkabagi,"Balkabağı",meyve,1
+123,singleton,bezelye-taze-araka,"Bezelye Taze Araka",sebze-meyve,1
+124,singleton,borulce-taze,"Börülce (Taze)",sebze,1
+125,singleton,bruksel-lahanasi,"Brüksel Lahanası",sebze-meyve,1
+126,singleton,cagla-badem,"Çağla Badem",meyve,1
+127,singleton,deniz-borulcesi-deniz-otu-ege-otu-deniz-borulcesi-deniz-otu-ege-otu,"Deniz Börülcesi (Deniz Otu Ege Otu) Deniz Börülcesi (Deniz Otu Ege Otu)",sebze-meyve,1
+128,singleton,elma-amasya,"Elma Amasya",meyve,1
+129,singleton,elma-fuji,"Elma (Fuji)",meyve,1
+130,singleton,erik-freze,"Erik Freze",sebze-meyve,1
+131,singleton,erik-kirmizi,"Erik Kırmızı",sebze-meyve,1
+132,singleton,erik-malta,"Erik Malta",meyve,1
+133,singleton,fasulye-sirik,"Fasulye Sırık",sebze-meyve,1
+134,singleton,fasulye-taze-ayse-kadin,"Fasulye Taze Ayşe Kadın",sebze-meyve,1
+135,singleton,fasulye-taze-cino,"Fasulye Taze Cino",sebze-meyve,1
+136,singleton,havuc-iri-takoz,"Havuç İri (Takoz)",sebze-meyve,1
+137,singleton,havuc-kirmizi,"Havuç Kırmızı",sebze-meyve,1
+138,singleton,incir-beyaz,"İncir Beyaz",sebze-meyve,1
+139,singleton,incir-siyah,"İncir Siyah",sebze-meyve,1
+140,singleton,kabak-kara,"Kabak Kara",sebze-meyve,1
+141,singleton,kayisi-mut,"Kayısı Mut",sebze-meyve,1
+142,singleton,kayisi-sekerpare,"Kayısı (Şekerpare)",meyve,1
+143,singleton,kekik,"Kekik",sebze-meyve,1
+144,singleton,kekik-yas-taze,"Kekik (Yaş-Taze)",sebze,1
+145,singleton,kilcik-sivri-biber,"Kılçık Sivri Biber",sebze-meyve,1
+146,singleton,marul-gobekli,"Marul Göbekli",sebze,1
+147,singleton,marul-lolorosso,"Marul (Lolorosso)",sebze,1
+148,singleton,maydonoz,"Maydonoz",sebze,1
+149,singleton,nane-bag,"Nane",sebze,1
+150,singleton,nektarin-beyaz,"Nektarin Beyaz",sebze-meyve,1
+151,singleton,patlican-kemer,"Patlıcan (Kemer)",sebze,1
+152,singleton,patlican-topan,"Patlıcan (Topan)",sebze,1
+153,singleton,portakal-sikma,"Portakal Sıkma",sebze-meyve,1
+154,singleton,portakal-yafa,"Portakal Yafa",meyve,1
+155,singleton,reyhan,"Reyhan",sebze-meyve,1
+156,singleton,roka-bag,"Roka",sebze,1
+157,singleton,turp-cin,"Turp Çin",sebze-meyve,1
+158,singleton,ucburun-koy-biberi,"Uçburun Köy Biberi",sebze-meyve,1
+159,singleton,uzum-red-globe,"Üzüm Red Globe",meyve,1
+160,singleton,yeni-dunya-malta-erigi-yeni-dunya-malta-erigi,"Yeni Dünya (Malta Eriği) Yeni Dünya (Malta Eriği)",sebze-meyve,1
