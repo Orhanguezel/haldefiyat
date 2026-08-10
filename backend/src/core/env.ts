@@ -103,7 +103,12 @@ export const env = {
   // Twitter/X OAuth 1.0a — @haldefiyat hesabi otomatik tweet
   // 2026-06-03: @haldefiyat'a tek X kaynagi ekosistem-sosyal-medya paneli olsun
   // diye varsayilan KAPALI. Bu cron tekrar acilirsa cift-tweet riski olusur.
-  // Acmak icin VPS .env: TWITTER_ENABLED=true
+  //
+  // DIKKAT — buradaki `enabled` GERCEK YAYIN KAPISI DEGIL. Publisher yolu
+  // (getTwitterSettings) ayari site_settings tablosundaki `twitter_enabled`
+  // satirindan okur; env bu yolda hic okunmaz. Yayini acip kapatmak icin:
+  //   UPDATE site_settings SET value='false' WHERE `key`='twitter_enabled';
+  // 2026-08-10: X API kredisi bitti (402), DB'den kapatildi.
   TWITTER: {
     enabled:           process.env.TWITTER_ENABLED === "true",
     apiKey:            process.env.TWITTER_API_KEY || "",

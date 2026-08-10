@@ -26,7 +26,7 @@ import { cleanupOldAuditLogs } from "@/modules/audit-consumers/retention";
 import { checkAndNotifyEarlyWarning } from "@/modules/etl/early-warning";
 import { runGscBulkRefresh } from "@/modules/seo/gsc-bulk";
 import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
-import { processSocialQueueOnce } from "@agro/shared-backend/modules/twitter";
+import { listEnabledQueuePlatforms, processSocialQueueOnce } from "@agro/shared-backend/modules/twitter";
 import { runDailyMoversJob, runStaplesJob, createWeeklyAnalysisDraft } from "@/modules/social/daily-content";
 import { archiveExpiredBanners, auditBannerTargets, auditLiveBannerSources, optimizeBannerPerformance, processAdPaymentReminders, sendScheduledCampaignReports, syncBannerLifecycle } from "@/modules/banners/repository";
 
@@ -218,8 +218,9 @@ async function runEtlJob(app: FastifyInstance): Promise<void> {
   }
 }
 
-// Planli/zamanlanmis sosyal gönderileri yayinlar. TWITTER_ENABLED + kimlik bilgisi
-// yoksa processSocialQueueOnce 'disabled'/'no_credentials' döner ve sessizce atlar.
+// Planli/zamanlanmis sosyal gönderileri yayinlar. Yayin kapisi site_settings'teki
+// twitter_enabled (env TWITTER_ENABLED DEGIL); kapaliysa processSocialQueueOnce
+// 'disabled' döner ve sessizce atlar.
 async function runSocialQueueJob(app: FastifyInstance): Promise<void> {
   try {
     for (let i = 0; i < 10; i++) {
@@ -234,8 +235,17 @@ async function runSocialQueueJob(app: FastifyInstance): Promise<void> {
 
 // Günlük tweetleri hazırlar: movers (09:00 TR) + popüler ürün fiyatları (13:00 TR).
 // İkisi de ileri tarihli kuyruğa eklenir; dispatcher vakti gelince yayınlar.
+//
+// Hazirlik, yayin kapisina bagli: hicbir platform aktif degilse tweet URETILMEZ.
+// Aksi halde dispatcher kapaliyken kuyruk her gun buyur ve platform tekrar
+// acildiginda haftalarca eski fiyat verisi topluca yayinlanir.
 async function runDailyMoversTweetJob(app: FastifyInstance): Promise<void> {
   try {
+    const platforms = await listEnabledQueuePlatforms();
+    if (!platforms.length) {
+      app.log.info("[cron:social-daily-prepare] aktif platform yok — hazirlik atlandi");
+      return;
+    }
     const movers = await runDailyMoversJob();
     const staples = await runStaplesJob();
     app.log.info({ movers, staples }, "[cron:social-daily-prepare] tamamlandi");

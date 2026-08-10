@@ -1,4 +1,18 @@
-export const dynamic = "force-dynamic";
+/**
+ * ISR — force-dynamic DEGIL.
+ *
+ * force-dynamic sadece render'i degil, sayfadaki TUM fetch'lerin cache'ini de
+ * kapatir (fetchCache: force-no-store). Bu sayfada 14 backend cagrisi var ve
+ * api.ts'teki `next: { revalidate }` ayarlari force-dynamic yuzunden hic
+ * islemiyordu → her goruntuleme backend'e 14 sorgu. ETL'in dondugu 07:00 UTC
+ * blogunda backend yavaslayinca sayfalar 504'e dusuyordu (gunde ~74 adet).
+ *
+ * Bunu kaldirinca fetch-seviyesi cache devreye giriyor. Sayfa yine per-request
+ * render ediliyor (BannerSlot headers() okuyor), ama fiyat verisi cache'ten
+ * geliyor. Fiyatlar gunde bir kez ETL ile degistigi icin 300s tazelik fazlasiyla
+ * yeterli; ayrica admin duzenlemesi on-demand revalidate ile tag'i dusuruyor.
+ */
+export const revalidate = 300;
 
 import type { Metadata } from "next";
 import Link from "next/link";
