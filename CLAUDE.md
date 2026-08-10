@@ -14,6 +14,13 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 >    process silinmiş chunk'lara işaret eden eski HTML serve eder → `/_next/static`
 >    500 / ChunkLoadError. `pm2 restart hal-frontend hal-admin --update-env` şart.
 >
+> **⚠️ Build çıktısını ASLA `head`/`grep`'e pipe'lama.** SIGPIPE build'i yarıda
+> keser, `.next` içinde `server.js` hiç yazılmaz, `standalone-server.js` symlink'i
+> boşa bakar → pm2 `waiting restart` + **site 502** (2026-08-10'da 8 dk kesinti).
+> Doğrusu: `bun run build > /tmp/build.log 2>&1; echo "EXIT=$?"; tail -20 /tmp/build.log`
+> Restart'tan ÖNCE hedefi doğrula:
+> `ls -la frontend/.next/standalone/projects/hal-fiyatlari/frontend/server.js`
+>
 > **Neden:** rsync ile deploy edince local ve server git'ten ayrisip "anlamsiz
 > coplige" donuyor (commit edilmemis dosyalar, drift, takip edilemez degisiklik).
 > Her sey once git'e gider, sonra serverdan cekilir. Dosya dosya git kontrolu
