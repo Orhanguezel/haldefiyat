@@ -77,9 +77,9 @@ Release `c9df3079` sonrası temiz tarayıcı profiliyle:
 - ilk ziyaret `data-theme=light`, body zemini `rgb(246, 248, 247)`;
 - kayıtlı `localStorage.theme=dark` tercihi reload sonrasında korunuyor, body zemini `rgb(11, 13, 20)`;
 - masaüstü 1440×1100 sayfa yüksekliği 9.289 px;
-- mobil 390×844 sunucu ağacı 16.465 px ve 13 section;
+- mobil 390×844 sunucu ağacı ilk ölçümde 16.465 px/13 section; IA sadeleştirmesi sonrası 11.759 px/9 section (yaklaşık %29 daha kısa);
 - mobil ilk fiyat rotası ilk ekrandaki “Fiyatları incele” bağlantısıyla bir tık uzakta;
 - ana sayfa, ürün ve ilan listesinde tarayıcı konsol hatası 0; ilan listesinde `tel:` bağlantısı 0;
 - görsel kanıtlar `output/playwright/theme-clean-data/` altında tutuldu.
 
-Mobil sayfanın hâlâ 13 bölüm/16.465 px olması yoğunluk bulgusunun tamamen kapanmadığını gösterir; sonraki IA geçişinde ikincil editoryal bölümler özetlenmeli veya ayrı rotaya taşınmalıdır.
+Mobil sayfa kısaltılmış olsa da 11.759 px/9 bölüm hâlâ ana görev sonrası ikincil içerik barındırır; gerçek etkileşim verisine göre ek özetleme yapılmalıdır.

@@ -18,14 +18,14 @@ export default function VistaSeedsLeaderboard({ href, target, rel, alt, headline
       href={href ?? undefined}
       target={href ? target : undefined}
       rel={href ? rel : undefined}
-      aria-label={alt}
+      aria-label={`${alt}. Profesyonel hibrit tohum. ${headline || "Her hasatta güçlü performans."} Pazar değeri yüksek, güvenilir VistaSeeds çeşitleri. ${ctaLabel || "Çeşitleri keşfet"}`}
     >
       <span className={styles.products} aria-hidden="true">
         <span className={styles.productFrame}>
           {/* eslint-disable @next/next/no-img-element */}
-          <img className={styles.product} src={`${ASSET_ROOT}/lucky-f1.webp`} alt="" />
-          <img className={styles.product} src={`${ASSET_ROOT}/cankan-f1.webp`} alt="" />
-          <img className={styles.product} src={`${ASSET_ROOT}/saray-f1.webp`} alt="" />
+          <img className={styles.product} src={`${ASSET_ROOT}/lucky-f1.webp`} width="420" height="420" alt="" />
+          <img className={styles.product} src={`${ASSET_ROOT}/cankan-f1.webp`} width="420" height="420" alt="" />
+          <img className={styles.product} src={`${ASSET_ROOT}/saray-f1.webp`} width="420" height="420" alt="" />
           {/* eslint-enable @next/next/no-img-element */}
         </span>
       </span>
@@ -42,7 +42,7 @@ export default function VistaSeedsLeaderboard({ href, target, rel, alt, headline
 
       <span className={styles.brandWrap} aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className={styles.brand} src={`${ASSET_ROOT}/logo-white.png`} alt="" />
+        <img className={styles.brand} src={`${ASSET_ROOT}/logo-white.png`} width="420" height="113" alt="" />
       </span>
     </a>
   );

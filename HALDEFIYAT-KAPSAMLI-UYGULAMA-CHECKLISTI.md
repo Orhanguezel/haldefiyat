@@ -78,9 +78,9 @@
 
 ### 2.3 Baz metrik ve kabul hedefi
 
-- [ ] F0.23 Lighthouse mobile/desktop raporlarını ana sayfa, ürün, analiz, ilan ve data-health için al.
-- [ ] F0.24 LCP, CLS, INP, FCP ve JS bundle bazını kaydet.
-- [ ] F0.25 WCAG/axe baz taramasını aynı sayfalarda çalıştır.
+- [~] F0.23 Ana sayfa mobile Lighthouse bazı alındı (P41/A96/BP100/SEO100); desktop ve ürün/analiz/ilan/data-health rotaları bekliyor. Kanıt: Faz 0 performans bazı.
+- [~] F0.24 Ana sayfa laboratuvar bazı FCP 3,1 sn, LCP 6,8 sn, CLS 0, TBT 1.610 ms; route bazlı bundle ve gerçek INP/CrUX bekliyor.
+- [~] F0.25 Ana sayfa Lighthouse accessibility 96; kontrast, accessible-name ve unsized-image bulguları düzeltildi. Diğer rotalar ve tekrar ölçüm bekliyor.
 - [ ] F0.26 Search Console’da bozuk/kopya URL, canonical ve indeks bazını kaydet.
 - [ ] F0.27 Analytics’te ürün arama, fiyat görüntüleme, ilan görüntüleme ve iletişim bazını kaydet.
 - [ ] F0.28 Veri kalite bazını kaydet: anomali, alias dışı ad, birim bilinmiyor, stale kaynak.
