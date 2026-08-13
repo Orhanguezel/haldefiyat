@@ -58,6 +58,7 @@
 - Kimliksiz `POST /api/v1/listings/:id/call-requests`: HTTP 401.
 - Domates türev perakende anomali guard: geçti.
 - Analiz tarih guard: geçti.
+- Mobil arama CTA’sı: ilk uygulamada alt navigasyon tarafından örtüldüğü Playwright ile yakalandı; `bottom-16` düzeltmesi sonrası 390×844 kabul görüntüsü `output/playwright/faz1/ilan-arama-talebi-mobile-final.png`.
 
 ## Görsel kanıtlar
 
