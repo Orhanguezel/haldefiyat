@@ -8,12 +8,12 @@
 :root {
   /* Native kontrollerin (select/option/scrollbar) acik temada acik render olmasi */
   color-scheme: light;
-  /* Brand — Lime/Neon Yesil (Fiyat Platformu Aksani) */
-  --brand:        hsl(102 85% 40%);
-  --brand-dark:   hsl(102 85% 30%);
-  --brand-light:  hsl(102 85% 94%);
-  --brand-xlight: hsl(102 85% 97%);
-  --brand-rgb:    111, 189, 15;
+  /* Brand — Temiz Veri: kurumsal, yüksek kontrastlı koyu yeşil */
+  --brand:        hsl(157 85% 20%);
+  --brand-dark:   hsl(157 84% 15%);
+  --brand-light:  hsl(151 38% 93%);
+  --brand-xlight: hsl(150 28% 97%);
+  --brand-rgb:    6, 95, 59;
 
   /* Semantic */
   --success:      hsl(142 76% 36%);
@@ -26,22 +26,23 @@
   --info-bg:      hsl(213 94% 95%);
 
   /* Neutral — Light mode defaults */
-  --foreground:   hsl(225 30% 10%);
-  --muted:        hsl(225 15% 45%);
-  --faint:        hsl(225 10% 70%);
-  --border:       hsl(225 15% 90%);
-  --border-soft:  hsl(225 15% 94%);
+  --foreground:   hsl(160 22% 10%);
+  --muted:        hsl(160 8% 40%);
+  --faint:        hsl(160 7% 66%);
+  --border:       hsl(155 12% 86%);
+  --border-soft:  hsl(150 10% 92%);
   --surface:      hsl(0 0% 100%);
-  --background:   hsl(225 20% 98%);
-  --bg-alt:       hsl(225 15% 95%);
+  --background:   hsl(150 12% 97%);
+  --bg-alt:       hsl(150 14% 94%);
+  --editorial-bg: hsl(42 45% 96%);
   
   /* Layout specific */
-  --header-bg:    rgba(255, 255, 255, 0.85);
-  --header-top:   rgba(248, 250, 252, 0.85);
+  --header-bg:    rgba(255, 255, 255, 0.96);
+  --header-top:   rgba(247, 249, 248, 0.96);
   --card-bg:      hsl(0 0% 100%);
-  --card-shadow:  0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --orb-opacity:  0.15;
-  --brand-fg:     hsl(225 30% 10%);
+  --card-shadow:  0 1px 2px rgb(6 35 24 / 0.06), 0 8px 24px rgb(6 35 24 / 0.05);
+  --orb-opacity:  0;
+  --brand-fg:     hsl(0 0% 100%);
 
   /* Map (Turkey choropleth) — kontrast ayarlari */
   --map-empty-fill: hsl(225 15% 88%);  /* veri olmayan il dolgusu */
@@ -77,6 +78,7 @@
   --surface:      hsl(225 28% 9%);
   --background:   hsl(225 30% 6%);
   --bg-alt:       hsl(225 26% 11%);
+  --editorial-bg: hsl(42 20% 12%);
 
   /* Layout specific */
   --header-bg:    rgba(10, 14, 26, 0.85);
@@ -169,6 +171,11 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+
+*:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brand) 70%, white);
+  outline-offset: 3px;
 }
 
 /* Ambient arkaplan efekti */
@@ -280,6 +287,16 @@ body {
   background-color: var(--brand);
   box-shadow: 0 0 6px var(--brand);
   animation: live-pulse 2s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .ticker-track { animation: none; }
 }
 
 

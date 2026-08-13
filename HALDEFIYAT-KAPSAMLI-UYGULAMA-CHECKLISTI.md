@@ -21,36 +21,30 @@
 
 ### 1.1 Ana referanslar
 
-- [ ] R1.1 `docs/PDF-RAPORLARI-AYRINTILI-INCELEME.md` bulgularını bu checklist ile çapraz kontrol et.
-- [ ] R1.2 `docs/HALDEFIYAT-DURUM-EKLENTI-TEMA-ANA-RAPORU.md` içindeki faz ve güvenli arama kararlarını koru.
-- [ ] R1.3 `docs/HALDEFIYAT-DUZELTME-VE-YENILEME-CHECKLISTI.md` içindeki açık maddeleri bu dosyaya eşle; paralel iki ana checklist yürütme.
-- [ ] R1.4 `docs/URUN-BIRLESTIRME-PLAYBOOK.md` ürün merge/redirect kararlarını veri fazının bağlayıcı alt prosedürü yap.
-- [ ] R1.5 `docs/VERI-SAGLIGI-CHECKLIST.md` ve `docs/VERI-TUKETICILERI-CHECKLIST.md` açık işlerini bu programdaki veri fazına bağla.
-- [ ] R1.6 GEO/SEO, reklam ve dashboard checklist’lerindeki açık işleri ilgili fazlarda referansla; tekrar iş oluşturma.
-- [ ] R1.7 `konsept-gorselleri/README.md` ve 7 konsept panosunu tasarım kararının görsel eki yap.
+- [x] R1.1 `docs/PDF-RAPORLARI-AYRINTILI-INCELEME.md` bulguları ana checklist ve Faz 0 kanıtlarıyla çapraz kontrol edildi.
+- [x] R1.2 Ana rapordaki faz ve güvenli arama kararları korundu; public numarasız arama talebi canlıya alındı.
+- [x] R1.3 Eski düzeltme/yenileme checklist'i kaynak kabul edildi; tek yürütme kaynağı bu kök checklist olarak sabitlendi.
+- [x] R1.4 Ürün birleştirme playbook'u veri fazının bağlayıcı alt prosedürü olarak korundu; farklı birimler körlemesine merge edilmiyor.
+- [x] R1.5 Veri sağlığı/tüketicileri işleri Faz 1–2 veri bekçisi ve tüm tüketicilerden karantina kapsamına bağlandı.
+- [x] R1.6 GEO/SEO, reklam ve dashboard işleri ilgili fazlarda mevcut altyapının üstüne inşa ilkesiyle referanslandı.
+- [x] R1.7 `konsept-gorselleri/README.md` ve 7 pano `docs/TEMA-KARAR-KAYDI.md` kararının görsel eki yapıldı.
 
 ### 1.2 Eski plan çakışmalarını kapatma
 
-- [ ] R1.8 `frontend/FRONTEND-PLAN.md` belgesini mevcut kod ve 2026 Ağustos kararlarıyla yeniden değerlendir.
-- [ ] R1.9 Eski plandaki koyu neon varsayılan, ambient orb, terminal/kripto görünümü ve emoji hedeflerini iptal edilmiş olarak işaretle.
-- [ ] R1.10 Eski plandaki 12 bölümlü uzun ana sayfa hedefini iptal et; yeni fiyat-arama odaklı IA’yı bağlayıcı yap.
-- [ ] R1.11 Kayan ticker, sayaç animasyonu ve yoğun hareketleri yalnız ölçülmüş kullanıcı değeri varsa tut.
-- [ ] R1.12 Sabit/iddialı `81 il`, `2480+ ürün`, `%100` gibi rakamları merkezi metrik olmadan frontend’e yazma.
-- [ ] R1.13 Güncel frontend mimari belgesini seçilen konsept sonrası yeniden yaz ve eski planın başına “tarihsel” uyarısı ekle.
+- [x] R1.8 `frontend/FRONTEND-PLAN.md` mevcut kod ve Ağustos kararlarıyla yeniden değerlendirildi.
+- [x] R1.9 Eski planın koyu neon, ambient orb, terminal/kripto ve emoji hedefleri tarihsel uyarıyla iptal edildi; public layout'tan ambient katman çıkarıldı.
+- [x] R1.10 Eski 12 bölümlü hedef iptal edildi; fiyat-arama odaklı IA tema kararına işlendi.
+- [x] R1.11 Sürekli hareket azaltılmış-hareket kuralına bağlandı; ticker `prefers-reduced-motion` altında duruyor, varsayılan tasarım öğesi sayılmıyor.
+- [x] R1.12 Görünür metrikler canlı overview/market/product verisinden üretiliyor; sabit iddialı sayı yazılmıyor.
+- [x] R1.13 Güncel mimari ve sayfa ailesi kararı `docs/TEMA-KARAR-KAYDI.md` ile Faz 0 envanterine yazıldı; eski plan tarihsel işaretlendi.
 
 ### 1.3 Konsept seçimi kapısı
 
-- [ ] R1.14 `01-ana-sayfa-karsilastirma.png` üzerinden ilk ekran ve mobil okunabilirliği puanla.
-- [ ] R1.15 `02-urun-detay-karsilastirma.png` üzerinden fiyat, kaynak, tablo ve grafik okunabilirliğini puanla.
-- [ ] R1.16 `03-analiz-rapor-karsilastirma.png` üzerinden editoryal okuma ve veri güvenini puanla.
-- [ ] R1.17 `04-ilanlar-karsilastirma.png` üzerinden filtre/kart yoğunluğu ve mobil kullanılabilirliği puanla.
-- [ ] R1.18 `05-ilan-detay-arama-karsilastirma.png` üzerinden gizlilik ve çağrı talebi açıklığını puanla.
-- [ ] R1.19 `06-harita-veri-durumu-karsilastirma.png` üzerinden operasyonel şeffaflığı puanla.
-- [ ] R1.20 `07-api-pro-kurumsal-karsilastirma.png` üzerinden B2B güveni ve fiyatlandırma okunabilirliğini puanla.
-- [ ] R1.21 Pazar Defteri, Temiz Veri ve Tarladan Sofraya için 1–5 puanlı karar matrisi oluştur.
-- [ ] R1.22 Seçilen ana yönü ve diğer yönlerden alınacak parçaları `docs/TEMA-KARAR-KAYDI.md` dosyasına yaz.
-- [ ] R1.23 Logo, ana renk, font, fotoğraf kullanımı, kart dili ve tablo dili için kesin karar al.
-- [ ] R1.24 Tema seçilene kadar geniş frontend restyle başlatma; yalnız P0 güven/veri düzeltmelerini ilerlet.
+- [x] R1.14–R1.20 Yedi pano; ilk ekran, fiyat/kaynak/tablo, editoryal okuma, ilan yoğunluğu, çağrı gizliliği, veri şeffaflığı ve B2B güveni eksenlerinde puanlandı.
+- [x] R1.21 Üç yön için 12 ölçütlü 1–5 karar matrisi oluşturuldu; Temiz Veri 59/60 ile seçildi.
+- [x] R1.22 Ana yön ve Pazar Defteri'nden alınacak editoryal parçalar `docs/TEMA-KARAR-KAYDI.md` dosyasına yazıldı.
+- [x] R1.23 Logo, renk, font, fotoğraf, kart, tablo, hareket ve dil kararları kesinleştirildi.
+- [x] R1.24 Tema kapısı geçildi; restyle yalnız karar kaydı oluşturulduktan sonra ortak tokenlardan başlatıldı.
 
 ## 2. Faz 0 — Canlı baz çizgisi ve teknik keşif
 
@@ -67,20 +61,20 @@
 - [x] F0.9 Ana sayfa, harita, mobil hero ve fiyat sayfalarındaki sayaçları yan yana kaydet. `1.234 ürün / 29 aktif il / 19 güncel il`.
 - [x] F0.10 Sahiplik/finansman ve hakkımızda sayfalarının gerçek muhatap bilgilerini kontrol et. Muhatap yalnız “HalDeFiyat”; eksik devam ediyor.
 - [x] F0.11 İlan detayında telefonun HTML, RSC payload, API, JSON-LD ve `tel:` içinde sızıp sızmadığını kontrol et. API alanı + serbest metin + frontend `tel:` sızıntısı doğrulandı.
-- [ ] F0.12 PDF’deki her maddeyi `devam ediyor / çözülmüş / kısmen / yanlış pozitif` olarak işaretle.
+- [x] F0.12 PDF'deki 12 madde canlı/API/DB/kod kanıtıyla sınıflandırıldı. Kanıt: `artifacts/renewal-2026/pdf-bulgu-siniflandirmasi-2026-08-13.md`.
 
 ### 2.2 Teknik envanter
 
-- [ ] F0.13 `frontend/src/app/globals.css` tokenlarının kullanım ve hard-coded renk envanterini çıkar.
-- [ ] F0.14 `ThemeProvider`, `ThemeToggle`, root layout ve hydration davranışını haritala.
-- [ ] F0.15 Public sayfaları ortak şablon ailelerine ayır: veri, editoryal, pazar/ilan, kurumsal, yasal, auth.
-- [ ] F0.16 Ortak UI bileşenlerini kullanım sıklığına göre listele.
-- [ ] F0.17 Emoji kullanılan tüm TSX/mesaj dosyalarını `rg` ile çıkar ve sınıflandır.
-- [ ] F0.18 Hard-coded font size, radius, shadow, color ve width kullanımlarını raporla.
-- [ ] F0.19 Client component ve ağır paket sınırlarını çıkar; gereksiz hydration noktalarını işaretle.
+- [x] F0.13 Token ve 349 hard-coded renk eşleşmesi Faz 0 teknik envanterine kaydedildi.
+- [x] F0.14 ThemeProvider, toggle, root layout ve hydration davranışı haritalandı; dark/light varsayılan çelişkisi düzeltildi.
+- [x] F0.15 58 public sayfa veri, editoryal, pazar, kurumsal, güven/yasal ve auth ailelerine ayrıldı.
+- [x] F0.16 Ortak UI bileşenleri tekrar sıklığına göre yüksek/orta/özel olarak listelendi.
+- [x] F0.17 Emoji kullanılan 170 TS/TSX satırı envantere alındı; ikon/dekoratif/içerik sınıflandırma borcu kaydedildi.
+- [x] F0.18 Hard-coded renk, radius, shadow, font ve genişlik borcu ile geçiş sırası raporlandı.
+- [x] F0.19 90 client island ve ağır etkileşim sınırları kaydedildi; ana mobil ağacın UA ile SSR ayrımı doğrulandı.
 - [ ] F0.20 Ana veri endpoint’lerini, cache/revalidate sürelerini ve fallback davranışlarını haritala.
-- [ ] F0.21 Public telefonun backend repository→controller→DTO→page akışını diyagramla.
-- [ ] F0.22 Ürün canonical/alias/birim/price ingest akışını DB’den public sayfaya kadar haritala.
+- [x] F0.21 Public telefonun repository→controller→DTO sanitizer→page akışı Faz 0 envanterinde haritalandı.
+- [x] F0.22 Ürün kaynak→ETL→match/alias→canonical/birim→price→API→display akışı haritalandı.
 
 ### 2.3 Baz metrik ve kabul hedefi
 
@@ -95,10 +89,10 @@
 
 ### Faz 0 kabul kapısı
 
-- [ ] G0.1 PDF bulgularının tamamı canlı kanıtla sınıflandırıldı.
+- [x] G0.1 PDF bulgularının tamamı canlı kanıtla sınıflandırıldı; yanlış pozitif yok, kısmi ve dış-onay bağımlı işler açıkça ayrıldı.
 - [ ] G0.2 Teknik envanter ve baz metrik raporu hazır.
-- [ ] G0.3 Başka kişilerin worktree değişiklikleri ve doküman taşıma işlemleri korunuyor.
-- [ ] G0.4 Tema kararı için puanlama yapılabilecek veri hazır.
+- [x] G0.3 Başka kişilerin backend WIP değişiklikleri ve doküman taşıma işlemleri korunuyor; kapsam dışı dosyalara dokunulmadı.
+- [x] G0.4 Yedi pano ve 12 ölçütlü karar matrisi hazır; tema kararı kayda alındı.
 
 ## 3. Faz 1 — P0 güvenlik, gizlilik ve görünür hata düzeltmeleri
 

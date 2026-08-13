@@ -1,5 +1,7 @@
 # HalDeFiyat — Frontend Yapılandırma Planı
 
+> **TARİHSEL BELGE — UYGULAMA KAYNAĞI DEĞİLDİR (13 Ağustos 2026).** Bu plan ilk iskelet dönemindeki koyu neon, ambient orb, emoji, kayan ticker, animasyonlu sayaç ve 12 bölümlü uzun ana sayfa varsayımlarını içerir. Bu hedefler iptal edilmiştir. Güncel bağlayıcı yön için `docs/TEMA-KARAR-KAYDI.md` ve kökteki `HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md` kullanılır. Mevcut API, sayfa ve bileşen altyapısı yeniden kurulmaz; üzerine inşa edilir.
+
 **Referans Tasarım:** `haldefiyat.html`
 **Stack:** Next.js 16, TypeScript, Tailwind CSS v4, next-intl (tr-only), Framer Motion, Recharts
 **Backend API:** `http://localhost:8088/api/v1`

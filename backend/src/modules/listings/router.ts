@@ -36,7 +36,14 @@ export async function registerListingsPublic(app: FastifyInstance) {
   app.get("/listings/:slug", getPublicListing);
   app.post("/listings", { onRequest: [requireAuth] }, createOwnerListing);
   app.post("/listings/:id/inquiry", createPublicInquiry);
-  app.post<{ Params: { id: string } }>("/listings/:id/call-requests", { onRequest: [requireAuth] }, createPublicCallRequest);
+  app.post<{ Params: { id: string } }>("/listings/:id/call-requests", {
+    onRequest: [requireAuth],
+    config: {
+      // Buyer/listing/seller quotas live in the repository. This short IP
+      // window catches bursts without persisting raw IP addresses.
+      rateLimit: { max: 10, timeWindow: "1 hour" },
+    },
+  }, createPublicCallRequest);
   app.post("/listings/feature/callback", featureCallback);
   app.patch<{ Params: { id: string } }>("/listings/:id", { onRequest: [requireAuth] }, patchOwnerListing);
   app.post<{ Params: { id: string } }>("/listings/:id/close", { onRequest: [requireAuth] }, closeListing);

@@ -19,7 +19,7 @@ export default async function HeroSection({
   return (
     <section
       id="hero"
-      className="relative z-10 px-8 pt-[100px] pb-20 text-center"
+      className="relative z-10 px-4 pb-12 pt-12 text-center sm:px-8 sm:pb-16 sm:pt-16"
     >
       <HeroSectionClient
         activeCities={activeCities}

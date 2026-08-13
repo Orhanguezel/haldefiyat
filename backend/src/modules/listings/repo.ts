@@ -223,6 +223,8 @@ export async function createCallRequest(input: {
   preferredSlot: "asap" | "morning" | "afternoon" | "evening";
   note?: string | null;
 }) {
+  await expireStaleCallRequests();
+
   const [duplicate] = await db.select({ id: hfListingCallRequests.id })
     .from(hfListingCallRequests)
     .where(and(
@@ -242,6 +244,18 @@ export async function createCallRequest(input: {
     ));
   if (Number(daily?.count ?? 0) >= 5) return { ok: false as const, reason: "rate_limited" as const };
 
+  if (input.sellerUserId) {
+    const [sellerDaily] = await db.select({ count: sql<number>`COUNT(*)` })
+      .from(hfListingCallRequests)
+      .where(and(
+        eq(hfListingCallRequests.sellerUserId, input.sellerUserId),
+        gte(hfListingCallRequests.createdAt, sql`DATE_SUB(CURRENT_TIMESTAMP(3), INTERVAL 1 DAY)`),
+      ));
+    if (Number(sellerDaily?.count ?? 0) >= 25) {
+      return { ok: false as const, reason: "seller_rate_limited" as const };
+    }
+  }
+
   const result = await db.insert(hfListingCallRequests).values({
     listingId: input.listingId,
     buyerUserId: input.buyerUserId,
@@ -260,6 +274,7 @@ export async function markCallRequestNotified(id: number) {
 }
 
 export async function listCallRequestsForUser(userId: string) {
+  await expireStaleCallRequests();
   return db.select({
     id: hfListingCallRequests.id,
     listingId: hfListingCallRequests.listingId,
@@ -284,6 +299,17 @@ export async function listCallRequestsForUser(userId: string) {
     ))
     .orderBy(desc(hfListingCallRequests.createdAt))
     .limit(100);
+}
+
+/** Unanswered requests stop appearing actionable after 48 hours. */
+export async function expireStaleCallRequests() {
+  const result = await db.update(hfListingCallRequests)
+    .set({ status: "expired", resolvedAt: new Date() })
+    .where(and(
+      inArray(hfListingCallRequests.status, ["pending", "notified"]),
+      sql`${hfListingCallRequests.createdAt} < DATE_SUB(CURRENT_TIMESTAMP(3), INTERVAL 48 HOUR)`,
+    ));
+  return Number(result[0]?.affectedRows ?? 0);
 }
 
 export async function updateCallRequestStatus(

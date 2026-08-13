@@ -3,7 +3,6 @@ export const revalidate = 300;
 import JsonLd from "@/components/seo/JsonLd";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import AmbientBackground from "@/components/ui/AmbientBackground";
 import AlertModalProvider from "@/components/ui/AlertModalProvider";
 import { fetchSiteSettings } from "@/lib/site-settings";
 import { fetchPricesOverview } from "@/lib/api";
@@ -72,8 +71,6 @@ export default async function PublicLayout({
     <div className="relative flex min-h-screen flex-col">
       <JsonLd type="Organization" data={organizationSchema} />
       <JsonLd type="WebSite" data={webSiteSchema} />
-
-      <AmbientBackground />
 
       <Header
         siteName={settings.site_name || "HalDeFiyat"}

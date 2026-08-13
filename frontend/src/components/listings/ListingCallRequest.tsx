@@ -13,6 +13,7 @@ type PreferredSlot = "asap" | "morning" | "afternoon" | "evening";
 const STATUS_MESSAGES: Record<string, string> = {
   duplicate: "Bu ilan için yakın zamanda bir arama talebi gönderdiniz.",
   rate_limited: "Günlük arama talebi sınırına ulaştınız. Lütfen daha sonra tekrar deneyin.",
+  seller_rate_limited: "Bu satıcı bugün çok sayıda talep aldı. Lütfen daha sonra tekrar deneyin.",
   own_listing: "Kendi ilanınız için arama talebi oluşturamazsınız.",
 };
 
