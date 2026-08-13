@@ -71,8 +71,8 @@ export default async function RetailComparison({ productSlug, productName, halAv
 
       <p className="mt-4 text-[11px] leading-relaxed text-muted/80">
         Hal fiyatı toptan ortalamadır; perakende zincir fiyatına ulaşırken nakliye, soğuk
-        zincir, fire ve marka maliyetleri eklenir. Bu nedenle hal-perakende farkı %50-200
-        aralığında olabilir.
+        zincir, fire, paket/gramaj ve marka maliyetleri eklenir. Fark ürün ve döneme göre
+        geniş ölçüde değişebilir; bu oran bir piyasa kuralı veya fiyat tahmini değildir.
       </p>
     </div>
   );

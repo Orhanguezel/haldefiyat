@@ -1,6 +1,6 @@
 import type { RetailPriceRow } from "./api";
 
-export const MAX_RETAIL_MARKUP_PCT = 200;
+export const MAX_RETAIL_MARKUP_PCT = 1_000;
 
 export type PlausibleRetailPrice = RetailPriceRow & {
   numericPrice: number;
@@ -9,7 +9,8 @@ export type PlausibleRetailPrice = RetailPriceRow & {
 
 /**
  * Perakende kartı bir fiyat kaynağı değil, hal fiyatından türetilen karşılaştırmadır.
- * Geçersiz veya hal ortalamasının üç katını aşan (%200 üzeri) değerleri yayınlamaz.
+ * Geçersiz veya hal ortalamasının on bir katını aşan (%1000 üzeri) sert eşleme/türev
+ * anomalilerini yayınlamaz. Olağan raf marjı için dar ve yanıltıcı bir tavan varsaymaz.
  */
 export function plausibleRetailPrices(rows: RetailPriceRow[], halAvgPrice: number): PlausibleRetailPrice[] {
   if (!Number.isFinite(halAvgPrice) || halAvgPrice <= 0) return [];

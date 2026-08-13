@@ -9,6 +9,7 @@ describe("retail price quality guard", () => {
   });
   it("keeps a retail value inside the documented markup range", () => {
     expect(assessRetailPriceQuality({ price: 90, wholesalePeers: [38, 39, 40, 40, 41, 42] }).publish).toBeTrue();
+    expect(assessRetailPriceQuality({ price: 149.9, wholesalePeers: [28, 29, 30, 30, 31, 32] }).publish).toBeTrue();
   });
   it("uses retail history when wholesale coverage is unavailable", () => {
     expect(assessRetailPriceQuality({ price: 500, retailPeers: [75, 78, 80, 82, 84, 85] }).reason).toBe("RETAIL_PEER_DEVIATION");

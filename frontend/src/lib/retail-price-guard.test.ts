@@ -10,6 +10,12 @@ describe("plausibleRetailPrices", () => {
     ]);
   });
 
+  it("does not hide a real retail price merely because markup exceeds 200 percent", () => {
+    expect(plausibleRetailPrices([row("149.90")], 30)).toEqual([
+      expect.objectContaining({ numericPrice: 149.9, markupPct: 400 }),
+    ]);
+  });
+
   it("blocks the 546 TL tomato class of derived anomalies", () => {
     expect(plausibleRetailPrices([row("546.21")], 36.3)).toEqual([]);
   });

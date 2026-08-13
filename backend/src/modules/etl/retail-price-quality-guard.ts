@@ -30,8 +30,9 @@ export function assessRetailPriceQuality(input: {
     publish: false, reason, confidence, wholesaleMedian: wholesale, retailMedian: retail, markupPct, deviationRatio,
   });
   if (!Number.isFinite(input.price) || input.price <= 0) return blocked("INVALID_RETAIL_PRICE", 1);
-  // Public karşılaştırmanın belgelediği üst sınır: hal medyanının en fazla 3 katı (%200 markup).
-  if (markupPct != null && markupPct > 200) return blocked("WHOLESALE_MARKUP_LIMIT", 0.99);
+  // Canlı örneklemde olağan raf fiyatları %200'ü sık aşabildiği için bu bir iş kuralı
+  // değildir. Yalnız 11 katı aşan (%1000+) sert türev/anlam eşleme hataları karantinaya gider.
+  if (markupPct != null && markupPct > 1_000) return blocked("WHOLESALE_MARKUP_LIMIT", 0.99);
   if (deviationRatio != null && (deviationRatio > 4 || deviationRatio < 0.25)) return blocked("RETAIL_PEER_DEVIATION", 0.9);
   return { publish: true, reason: null, confidence: 1, wholesaleMedian: wholesale, retailMedian: retail, markupPct, deviationRatio };
 }
