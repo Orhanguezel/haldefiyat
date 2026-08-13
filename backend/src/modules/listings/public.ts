@@ -1,7 +1,10 @@
 const TR_MOBILE_PHONE_PATTERN = /(?<!\d)(?:\+?90[\s().-]*)?(?:0?5\d{2})[\s().-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}(?!\d)/g;
+const EMAIL_PATTERN = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
 
-function redactPhoneText(value: string | null | undefined) {
-  return value?.replace(TR_MOBILE_PHONE_PATTERN, "[telefon gizlendi]") ?? value;
+export function redactContactText(value: string | null | undefined) {
+  return value
+    ?.replace(TR_MOBILE_PHONE_PATTERN, "[telefon gizlendi]")
+    .replace(EMAIL_PATTERN, "[e-posta gizlendi]") ?? value;
 }
 
 /**
@@ -23,9 +26,9 @@ export function toPublicListing<
     ...item,
     contactPhone: null,
     raw: null,
-    title: redactPhoneText(item.title),
-    description: redactPhoneText(item.description),
-    quality: redactPhoneText(item.quality),
-    packaging: redactPhoneText(item.packaging),
+    title: redactContactText(item.title),
+    description: redactContactText(item.description),
+    quality: redactContactText(item.quality),
+    packaging: redactContactText(item.packaging),
   };
 }

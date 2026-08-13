@@ -38,7 +38,7 @@ import { verifyOtpToken } from "./otp";
 import { notifyMatches, notifyAdminNewListing } from "./matching";
 import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
 import { env } from "@/core/env";
-import { toPublicListing } from "./public";
+import { redactContactText, toPublicListing } from "./public";
 
 function idParam(req: FastifyRequest<{ Params: { id: string } }>) {
   const id = Number(req.params.id);
@@ -98,12 +98,13 @@ export async function createPublicCallRequest(req: FastifyRequest<{ Params: { id
       return reply.code(400).send({ error: { message: "own_listing" } });
     }
     const parsed = callRequestSchema.parse(req.body ?? {});
+    const safeNote = redactContactText(parsed.note)?.trim() || null;
     const result = await createCallRequest({
       listingId: id,
       buyerUserId,
       sellerUserId: listing.userId,
       preferredSlot: parsed.preferredSlot,
-      note: parsed.note,
+      note: safeNote,
     });
     if (!result.ok) {
       const status = result.reason === "duplicate" ? 409 : 429;
@@ -116,7 +117,7 @@ export async function createPublicCallRequest(req: FastifyRequest<{ Params: { id
         "📞 Yeni arama talebi",
         `İlan: ${listing.title}`,
         `Uygun zaman: ${slotLabels[parsed.preferredSlot]}`,
-        parsed.note ? `Not: ${parsed.note}` : null,
+        safeNote ? `Not: ${safeNote}` : null,
         `Talep no: ${result.id}`,
       ].filter(Boolean).join("\n");
       const notified = await telegramSendRaw({ chatId: env.TELEGRAM_ADMIN_CHAT_ID, text }).then(() => true).catch(() => false);

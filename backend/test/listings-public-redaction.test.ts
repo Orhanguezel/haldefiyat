@@ -34,6 +34,19 @@ describe("toPublicListing", () => {
     expect(result.packaging).toBe("25 kg çuval");
   });
 
+  it("redacts email addresses from public and call-request free text", () => {
+    const result = toPublicListing({
+      contactPhone: null,
+      raw: null,
+      title: "Bilgi: satici@example.com",
+      description: "orhan+ilan@example.com adresine yazın",
+      quality: null,
+      packaging: null,
+    });
+    expect(result.title).toBe("Bilgi: [e-posta gizlendi]");
+    expect(result.description).toBe("[e-posta gizlendi] adresine yazın");
+  });
+
   it("does not redact prices, quantities, dates or non-mobile digit sequences", () => {
     const result = toPublicListing({
       contactPhone: null,

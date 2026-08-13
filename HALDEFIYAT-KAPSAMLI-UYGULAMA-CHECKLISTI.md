@@ -128,7 +128,7 @@
 - [x] F1.22 Uygun zaman, kısa not, zorunlu KVKK onayı ve gizlilik bağlantısını erişilebilir form olarak ekle.
 - [~] F1.23 Başarı, yükleniyor, auth, kota, duplicate, kendi ilanı ve genel servis hatası eklendi; timeout/expired durumları bekliyor.
 - [x] F1.24 Mevcut “Mesaj gönder / teklif ver” formu arama talebinin altında korunuyor.
-- [ ] F1.25 Ham telefonları uygulama logunda maskele; audit logta kim/ne zaman/durum tut.
+- [~] F1.25 Public ilan ve arama-talebi serbest metnindeki telefon/e-posta kayıttan/Telegram’dan önce maskeleniyor; durum ve zaman call-request tablosunda auditleniyor. Genel uygulama logları için alan bazlı denetim bekliyor.
 - [ ] F1.26 Bot/CAPTCHA veya risk kontrolünü yalnız şüpheli akışta devreye sokacak şekilde tasarla.
 - [ ] F1.27 KVKK aydınlatma, amaç, saklama, silme ve satıcı tercih metinlerini güncelle.
 - [x] F1.28 `phone_click` yerine `call_request_view/submit/accepted/declined/cancelled/completed` eventlerini mevcut attribution-aware analytics katmanına bağla; parametrelerde telefon/e-posta/not yok.
