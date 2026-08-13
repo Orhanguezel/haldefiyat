@@ -564,7 +564,7 @@ export default function PriceTable({
                             title={`Geçen yıl aynı dönem: ₺${yearAgoAvg!.toFixed(2)}`}
                             className={
                               "font-(family-name:--font-mono) text-[10px] font-semibold " +
-                              (yoyPct > 0 ? "text-red-400" : "text-green-400")
+                              (yoyPct > 0 ? "text-(--trend-up)" : "text-(--trend-down)")
                             }
                           >
                             {yoyPct > 0 ? "+" : ""}

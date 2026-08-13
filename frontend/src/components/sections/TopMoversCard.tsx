@@ -36,7 +36,7 @@ function MoverList({ title, rows, empty }: { title: string; rows: WidgetPrice[];
         {rows.length ? rows.map((row) => (
           <Link key={`${title}-${row.productSlug}`} href={productHref(row)} className="flex min-h-11 items-center justify-between gap-3 rounded-md bg-(--color-background) px-3">
             <span className="truncate text-[13px] font-semibold text-(--color-foreground)">{row.productName}</span>
-            <span className={`text-[12px] font-black ${(row.changePct ?? 0) >= 0 ? "text-emerald-800 dark:text-emerald-200" : "text-red-800 dark:text-red-200"}`}>
+            <span className={`text-[12px] font-black ${(row.changePct ?? 0) >= 0 ? "text-(--trend-up)" : "text-(--trend-down)"}`}>
               {(row.changePct ?? 0) >= 0 ? "+" : ""}{(row.changePct ?? 0).toFixed(1)}%
             </span>
           </Link>

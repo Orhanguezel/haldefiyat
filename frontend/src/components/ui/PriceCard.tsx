@@ -30,8 +30,8 @@ function fmt(value: string | number | null | undefined): string {
 }
 
 const BADGE_CLASS: Record<Trend, string> = {
-  up:     "bg-(--color-success-bg) text-(--color-success)",
-  down:   "bg-(--color-danger-bg) text-(--color-danger)",
+  up:     "bg-(--trend-bg) text-(--trend-up)",
+  down:   "bg-(--trend-bg) text-(--trend-down)",
   stable: "bg-(--color-info-bg) text-(--color-info)",
 };
 
@@ -42,8 +42,8 @@ const BADGE_LABEL: Record<Trend, string> = {
 };
 
 const CHANGE_CLASS: Record<Trend, string> = {
-  up:     "text-(--color-success)",
-  down:   "text-(--color-danger)",
+  up:     "text-(--trend-up)",
+  down:   "text-(--trend-down)",
   stable: "text-(--color-muted)",
 };
 

@@ -48,7 +48,7 @@ export default function PopularProductsCarousel({ items }: { items: WidgetPrice[
               <div className="mt-1 text-[11px] uppercase text-(--color-muted)">{item.categorySlug}</div>
               <div className="mt-5 text-[22px] font-black text-(--color-foreground)">{formatPrice(item.avgPrice)}</div>
               <div className="mt-1 text-[11px] text-(--color-muted)">/{item.unit}</div>
-              <div className={`mt-3 inline-flex min-h-8 items-center rounded-md px-2 text-[12px] font-bold ${isUp ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200" : "bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200"}`}>
+              <div className={`mt-3 inline-flex min-h-8 items-center rounded-md bg-(--trend-bg) px-2 text-[12px] font-bold ${isUp ? "text-(--trend-up)" : "text-(--trend-down)"}`}>
                 {isUp ? "+" : ""}{change.toFixed(1)}%
               </div>
             </Link>

@@ -67,7 +67,7 @@ export default async function VariantPriceTable({
                   ₺{formatPrice(row.avgPrice)}
                 </td>
                 <td className="border-b border-border-soft px-4 py-2 text-right font-(family-name:--font-mono)">
-                  <span className={row.yoyPct != null && row.yoyPct > 0 ? "text-red-500" : "text-emerald-500"}>
+                  <span className={row.yoyPct != null && row.yoyPct > 0 ? "text-(--trend-up)" : "text-(--trend-down)"}>
                     {formatPct(row.yoyPct)}
                   </span>
                 </td>

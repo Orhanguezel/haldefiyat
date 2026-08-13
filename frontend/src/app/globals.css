@@ -24,6 +24,10 @@
   --danger-bg:    hsl(0 84% 95%);
   --info:         hsl(213 94% 50%);
   --info-bg:      hsl(213 94% 95%);
+  /* Directional, not semantic: fiyat artışı başarı; düşüş hata değildir. */
+  --trend-up:     hsl(272 55% 42%);
+  --trend-down:   hsl(213 65% 38%);
+  --trend-bg:     hsl(220 24% 95%);
 
   /* Neutral — Light mode defaults */
   --foreground:   hsl(160 22% 10%);
@@ -68,6 +72,9 @@
   --danger-bg:    hsl(0 84% 10%);
   --info:         hsl(213 94% 67%);
   --info-bg:      hsl(213 94% 10%);
+  --trend-up:     hsl(272 75% 72%);
+  --trend-down:   hsl(205 85% 70%);
+  --trend-bg:     hsl(225 22% 14%);
 
   /* Neutral — Dark mode defaults */
   --foreground:   hsl(225 30% 95%);

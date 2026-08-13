@@ -79,9 +79,9 @@ function TickerEntry({ item, index }: { item: TrendingItem; index: number }) {
           className={
             "rounded-[4px] px-2 py-0.5 font-(family-name:--font-mono) text-[12px] font-semibold " +
             (isUp
-              ? "bg-green-500/10 text-green-400"
+              ? "bg-(--trend-bg) text-(--trend-up)"
               : isDown
-              ? "bg-red-500/10 text-red-300"
+              ? "bg-(--trend-bg) text-(--trend-down)"
               : "bg-blue-500/10 text-blue-400")
           }
         >

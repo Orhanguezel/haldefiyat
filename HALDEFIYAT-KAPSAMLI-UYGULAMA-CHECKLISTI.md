@@ -212,8 +212,8 @@
 
 ### 4.5 Veri bekçisi paneli
 
-- [~] F2.32 Mutlak sınır, medyan sapması, önceki güne sıçrama, kaynak farkı ve stale kurallarını ekle. (Mutlak sınır + tarih-yakın emsal medyanı canlı; diğer reason code’lar bekliyor.)
-- [ ] F2.33 Anomali reason code, severity ve confidence alanlarını tanımla.
+- [~] F2.32 Mutlak sınır, medyan sapması, önceki güne sıçrama, kaynak farkı ve stale kurallarını ekle. (Mutlak sınır, tarih-yakın emsal, önceki fiyat ve diğer kaynak medyanı canlı yazım yolunda; stale reason kuralı tanımlı ancak tarihsel backfill'i yanlış engellememek için kaynak yayın takvimi bağlamı bekliyor. Commit: `b5b549f7`.)
+- [x] F2.33 Anomali reason code, severity ve confidence alanlarını tanımla. (`ABSOLUTE_LIMIT`, `PEER_MEDIAN_DEVIATION`, `PREVIOUS_PRICE_JUMP`, `SOURCE_MEDIAN_DEVIATION`, `STALE_SOURCE_RECORD`, yapısal ve birim reason code'ları tipli; warning/critical ve 0–1 confidence karantinaya yazılıyor. 6/6 guard testi geçti.)
 - [x] F2.34 Kuyrukta ürün, kaynak, birim, tarih, önem ve durum filtreleri sun. (Canlı admin kuyruğu: ürün/hal araması, kaynak, birim, tarih aralığı, reason, önem ve durum.)
 - [~] F2.35 Onay, ret, düzelt, alias’a bağla ve toplu işlem aksiyonları ekle. (Admin UI ve API’de tekil onay/ret/düzelterek yayın canlı; alias ve toplu işlem bekliyor.)
 - [~] F2.36 Kritik toplu işlem için ön izleme ve çift onay ekle. (Kritik tekil yayın `confirmCritical=true` ikinci onayına bağlı; toplu ön izleme bekliyor.)
@@ -235,8 +235,8 @@
 ### 5.1 Tasarım tokenları
 
 - [x] F3.1 Temiz Veri primary/secondary/neutral ve Pazar Defteri editoryal paleti tema karar kaydı ile ortak CSS tokenlarına çıkarıldı.
-- [~] F3.2 Success/warning/danger/info tokenları var; fresh/stale/unknown adlandırmalarının grafik ve badge tüketicilerine yayılması bekliyor.
-- [ ] F3.3 Fiyat artışını otomatik success yeşili olarak kodlama; nötr trend tokenı kullan.
+- [x] F3.2 Success/warning/danger/info tokenları ile fresh/stale/unknown adlandırmaları ortak metrik tüketicilerine yayıldı; operasyon durumu ve fiyat yönü birbirinden ayrıldı.
+- [x] F3.3 Fiyat artışını otomatik success yeşili olarak kodlama; nötr trend tokenı kullan. (`--trend-up`, `--trend-down`, `--trend-bg` light/dark tokenları kart, ticker, sezon, popüler ürün, mover, tablo ve varyant yüzeylerinde kullanılıyor.)
 - [x] F3.4 Light tema canlı ilk ziyaret varsayılanı; `localStorage.theme=dark` tercihi reload sonrası korunuyor.
 - [x] F3.5 `next-themes` data attribute, root hydration guard ve mount öncesi sabit toggle placeholder ile tema hydration farkı engellendi; canlı konsol hatası 0.
 - [ ] F3.6 Foreground/muted/faint/border kontrastlarını WCAG AA’ya göre doğrula.

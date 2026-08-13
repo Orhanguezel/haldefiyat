@@ -51,11 +51,11 @@ export default async function SeasonalGuide() {
           const isDown = changePct != null && changePct < 0;
           const arrow = isUp ? "▲" : isDown ? "▼" : "—";
           const sign = isUp ? "+" : "";
-          // PriceTicker ile tutarli: UP=yesil (fiyat yukseliyor), DOWN=kirmizi
+          // Yön rengi semantik başarı/hata değildir: artış iyi, düşüş kötü varsayılmaz.
           const changeClass = isUp
-            ? "bg-green-500/10 text-green-400"
+            ? "bg-(--trend-bg) text-(--trend-up)"
             : isDown
-            ? "bg-red-500/10 text-red-400"
+            ? "bg-(--trend-bg) text-(--trend-down)"
             : "bg-blue-500/10 text-blue-400";
 
           return (
