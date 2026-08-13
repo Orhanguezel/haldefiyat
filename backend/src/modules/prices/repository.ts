@@ -708,6 +708,8 @@ export async function sourceStatusRows() {
       ? "error"
       : runStatus === "partial"
         ? "partial"
+        : !lastSourceDate
+          ? "no_data"
         : lastSourceDate && lastSourceDate < staleIso
           ? "stale"
           : "ok";
@@ -733,6 +735,8 @@ export async function sourceStatusRows() {
           ? "Son aktarım kısmen tamamlandı; eksik kayıtlar yeniden denenecek."
           : status === "stale"
             ? "Kaynağın son yayın tarihi iki günden eski."
+            : status === "no_data"
+              ? "Bu kaynak için henüz tarihli fiyat kaydı bulunmuyor."
             : null,
     };
   });

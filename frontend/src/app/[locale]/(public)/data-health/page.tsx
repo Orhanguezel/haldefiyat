@@ -36,6 +36,7 @@ const STATUS_META: Record<SourceStatusRow["status"], { label: string; className:
   partial: { label: "Kısmi", symbol: "!", className: "border-amber-700/25 bg-amber-500/10 text-amber-800 dark:text-amber-300" },
   stale: { label: "Gecikmeli", symbol: "◷", className: "border-orange-700/25 bg-orange-500/10 text-orange-800 dark:text-orange-300" },
   error: { label: "Bakımda", symbol: "×", className: "border-red-700/25 bg-red-500/10 text-red-800 dark:text-red-300" },
+  no_data: { label: "Veri yok", symbol: "–", className: "border-slate-700/25 bg-slate-500/10 text-slate-700 dark:text-slate-300" },
 };
 
 function StatusBadge({ status }: { status: SourceStatusRow["status"] }) {

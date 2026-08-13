@@ -323,9 +323,9 @@
 - [ ] P4.33 `/hal`, `/hal/[slug]`, `/harita` ve `/data-health` bilgi mimarisini netleştir.
 - [ ] P4.34 Harita sayaçlarını merkezi metrik sözlüğünden besle.
 - [ ] P4.35 Harita legend’ında renk yanında pattern/ikon/metin kullan.
-- [ ] P4.36 “Güncel”, “gecikmeli”, “bakımda”, “veri yok” eşiklerini açıkla.
-- [ ] P4.37 Kaynak tablosunda son başarılı çekim, satır sayısı, tazelik ve durum göster.
-- [ ] P4.38 İç hostname, stack trace veya güvenlik detayını public durum sayfasına sızdırma.
+- [x] P4.36 “Güncel”, “gecikmeli”, “bakımda”, “veri yok” eşiklerini açıkla. (13 Ağustos: `/data-health` açıklama paneli + API `no_data` durumu.)
+- [x] P4.37 Kaynak tablosunda son başarılı çekim, satır sayısı, tazelik ve durum göster. (13 Ağustos: mobil kart/masaüstü tablo canlı kabul edildi.)
+- [x] P4.38 İç hostname, stack trace veya güvenlik detayını public durum sayfasına sızdırma. (13 Ağustos: ham `errorMsg` public sözleşmeden kaldırıldı; güvenli `statusMessage` eklendi.)
 - [ ] P4.39 Hal detayında iletişim/veri kaynağı ile fiyat verisini birbirine karıştırma.
 - [ ] P4.40 Mobil haritada alternatif erişilebilir kaynak listesi sun.
 - [ ] P4.41 Olay/geçmiş bölümünü gerçek sağlık eventlerinden besle.
@@ -487,7 +487,7 @@
 - [ ] F8.9 Ana sayfa arama→ürün E2E.
 - [ ] F8.10 İlan listesi→detay→arama talebi E2E.
 - [ ] F8.11 Analiz liste→rapor→PDF/paylaş E2E.
-- [ ] F8.12 Harita/data-health filtre ve status E2E.
+- [~] F8.12 Harita/data-health filtre ve status E2E. (`/data-health`: 390 px, taşma yok, 56 kart, konsol 0 hata; harita bekliyor.)
 - [ ] F8.13 API Pro başvuru ve reklam talep E2E.
 - [ ] F8.14 Light/dark visual regression snapshotları.
 - [ ] F8.15 7 konsept ekran ailesi için canlı sonrası karşılaştırmalı screenshot seti.

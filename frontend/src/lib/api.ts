@@ -576,7 +576,7 @@ export interface SourceStatusRow {
   sourceType: string;
   city: string | null;
   marketName: string | null;
-  status: "ok" | "partial" | "error" | "stale";
+  status: "ok" | "partial" | "error" | "stale" | "no_data";
   lastSourceDate: string | null;
   lastRunAt: string | null;
   rowsInserted: number;
