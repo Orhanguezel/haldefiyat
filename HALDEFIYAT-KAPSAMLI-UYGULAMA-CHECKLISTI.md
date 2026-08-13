@@ -643,10 +643,10 @@
 ### 15.8 Deploy ve rollout emniyeti (Faz 9'a bağlanır)
 
 - [x] E37 Deploy scripti git-only ve `git pull --ff-only`: local commit+push → VPS drift/kesişim kontrolü → build. rsync/scp ve `reset --hard` normal akışta yok.
-- [~] E38 Build çıktısı pipe edilmiyor ve log dosyasına yazılıyor. Canlı ISR ile üç kez görülen `.next/cache ENOTEMPTY` yarışına karşı release bazlı `NEXT_DIST_DIR=.next-release-<sha>` izole build eklendi; VPS kabul testi bekliyor.
+- [x] E38 Build çıktısı pipe edilmiyor ve log dosyasına yazılıyor. Canlı ISR ile üç kez görülen `.next/cache ENOTEMPTY` yarışı release bazlı `NEXT_DIST_DIR=.next-release-<sha>` ile kapandı; VPS ilk-deneme build ve dört rota kabulü geçti.
 - [ ] E39 Frontend/admin için `pm2 restart hal-frontend hal-admin --update-env` (reload DEĞİL — standalone eski HTML/chunk servis eder); restart öncesi `.next/standalone/.../server.js` varlığı doğrulanır; backend'de `pm2 reload hal-backend` yeterli.
 - [ ] E40 Ürün sayfaları ISR'da: tema rollout'unda revalidate/cache purge planı yapılır; F9.7 eski/yeni CSS-HTML karışımı testi ISR sayfalarını da kapsar.
-- [ ] E41 Rollout sonrası nginx `haldefiyat.access.log` + pm2 log'da 502/ChunkLoadError taraması; `pm2 describe hal-frontend` script args kontrolü (`next start` regresyonu = standalone uyuşmazlığı → 502).
+- [~] E41 Rollout sonrası nginx/PM2 taraması yapıldı; yeni release’de ChunkLoadError yok, standalone script doğru. Ancak tek-instance restart anında 20:14:04–20:14:06 UTC arasında yaklaşık 2 saniyelik 502 görüldü; cluster rolling reload veya blue/green switch bekliyor.
 
 ### 15.9 Analitik ve dağıtım tekleştirme
 
