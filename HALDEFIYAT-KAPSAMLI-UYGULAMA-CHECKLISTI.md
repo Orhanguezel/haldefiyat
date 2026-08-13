@@ -642,8 +642,8 @@
 
 ### 15.8 Deploy ve rollout emniyeti (Faz 9'a bağlanır)
 
-- [ ] E37 Deploy SADECE git: local commit+push → VPS drift/clean-tree kontrolü → tercihen `git pull --ff-only` → build. rsync/scp yasak. VPS değişikliği varsa önce korunur/commitlenir; `git reset --hard` normal deploy adımı değildir ve yalnız açık hedef doğrulaması + yedek + özel onayla istisnai uygulanabilir.
-- [ ] E38 Build çıktısı asla pipe'lanmaz (SIGPIPE → bozuk `.next` → 502, 2026-08-10 vakası): `bun run build > /tmp/build.log 2>&1; echo EXIT=$?; tail -20 /tmp/build.log`.
+- [x] E37 Deploy scripti git-only ve `git pull --ff-only`: local commit+push → VPS drift/kesişim kontrolü → build. rsync/scp ve `reset --hard` normal akışta yok.
+- [~] E38 Build çıktısı pipe edilmiyor ve log dosyasına yazılıyor. Canlı ISR ile üç kez görülen `.next/cache ENOTEMPTY` yarışına karşı release bazlı `NEXT_DIST_DIR=.next-release-<sha>` izole build eklendi; VPS kabul testi bekliyor.
 - [ ] E39 Frontend/admin için `pm2 restart hal-frontend hal-admin --update-env` (reload DEĞİL — standalone eski HTML/chunk servis eder); restart öncesi `.next/standalone/.../server.js` varlığı doğrulanır; backend'de `pm2 reload hal-backend` yeterli.
 - [ ] E40 Ürün sayfaları ISR'da: tema rollout'unda revalidate/cache purge planı yapılır; F9.7 eski/yeni CSS-HTML karışımı testi ISR sayfalarını da kapsar.
 - [ ] E41 Rollout sonrası nginx `haldefiyat.access.log` + pm2 log'da 502/ChunkLoadError taraması; `pm2 describe hal-frontend` script args kontrolü (`next start` regresyonu = standalone uyuşmazlığı → 502).

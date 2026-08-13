@@ -9,17 +9,22 @@ REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 FRONTEND="$REPO_ROOT/frontend"
 LOGS="$REPO_ROOT/logs"
 
-echo "==> [1/5] git pull"
+echo "==> [1/5] git pull (fast-forward only)"
 cd "$REPO_ROOT"
-git pull origin main
+git pull --ff-only origin main
 
-echo "==> [2/5] frontend production build (next build + standalone static sync)"
-if ! (cd "$FRONTEND" && bun run build); then
+RELEASE_SHA="$(git rev-parse --short=12 HEAD)"
+RELEASE_DIST=".next-release-$RELEASE_SHA"
+
+echo "==> [2/5] frontend izole production build ($RELEASE_DIST)"
+if ! (cd "$FRONTEND" && NEXT_DIST_DIR="$RELEASE_DIST" bun run build > "/tmp/hal-frontend-build-$RELEASE_SHA.log" 2>&1); then
+  tail -80 "/tmp/hal-frontend-build-$RELEASE_SHA.log"
   echo "HATA: frontend build başarısız!" && exit 1
 fi
+tail -25 "/tmp/hal-frontend-build-$RELEASE_SHA.log"
 
 echo "==> [3/5] standalone server.js symlink doğrulaması"
-TARGET="$(find "$FRONTEND/.next/standalone" \( -path "*/node_modules/*" -o -path "*/.bun/*" \) -prune -o -name "server.js" -print | head -1)"
+TARGET="$(find "$FRONTEND/$RELEASE_DIST/standalone" \( -path "*/node_modules/*" -o -path "*/.bun/*" \) -prune -o -name "server.js" -print | head -1)"
 if [ -z "$TARGET" ]; then
   echo "HATA: frontend server.js bulunamadı!" && exit 1
 fi

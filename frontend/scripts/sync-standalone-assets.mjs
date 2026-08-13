@@ -20,7 +20,11 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const FRONTEND = join(__dirname, "..");
-const STANDALONE_ROOT = join(FRONTEND, ".next", "standalone");
+const DIST_DIR = process.env.NEXT_DIST_DIR?.trim() || ".next";
+if (DIST_DIR.includes("/") || DIST_DIR.includes("\\") || !/^\.next(?:-release-[a-f0-9]+)?$/u.test(DIST_DIR)) {
+  throw new Error(`Guvenli olmayan NEXT_DIST_DIR: ${DIST_DIR}`);
+}
+const STANDALONE_ROOT = join(FRONTEND, DIST_DIR, "standalone");
 
 const SKIP_DIRS = new Set(["node_modules", ".bun", ".git"]);
 
@@ -62,8 +66,8 @@ function main() {
   }
 
   const serverDir = dirname(target);
-  const staticSrc = join(FRONTEND, ".next", "static");
-  const staticDest = join(serverDir, ".next", "static");
+  const staticSrc = join(FRONTEND, DIST_DIR, "static");
+  const staticDest = join(serverDir, DIST_DIR, "static");
   const publicSrc = join(FRONTEND, "public");
   const publicDest = join(serverDir, "public");
 

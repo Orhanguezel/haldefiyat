@@ -22,6 +22,8 @@ function apiRemotePattern() {
 }
 
 const nextConfig: NextConfig = {
+  // Canlı ISR cache'i ile deploy build çıktısını ayırmak için release distDir desteği.
+  distDir: process.env.NEXT_DIST_DIR?.trim() || ".next",
   experimental: {
     // Router cache (client-side) TTL for force-dynamic pages.
     // Default is 30s — prefetched empty payloads would be served for 30s.
