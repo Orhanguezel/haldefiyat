@@ -6,6 +6,8 @@ describe("canonical product contract", () => {
     expect(canonicalUnit("Kg.")).toBe("kg");
     expect(canonicalUnit("Sandık")).toBe("kasa");
     expect(canonicalUnit("Bağ")).toBe("bag");
+    expect(canonicalUnit("Paket")).toBe("paket");
+    expect(canonicalUnit("Lt.")).toBe("litre");
     expect(canonicalUnit("Ton")).toBe("ton");
     expect(canonicalUnit("sardalya")).toBeNull();
     expect(canonicalUnit(null)).toBeNull();

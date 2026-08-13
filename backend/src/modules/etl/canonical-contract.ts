@@ -1,6 +1,6 @@
 import { normalizeRawProductName, productMatchKey, turkishToAscii } from "./normalizer";
 
-export const CANONICAL_UNITS = ["kg", "adet", "kasa", "bag", "demet", "koli", "ton"] as const;
+export const CANONICAL_UNITS = ["kg", "adet", "kasa", "bag", "demet", "koli", "paket", "litre", "ton"] as const;
 export type CanonicalUnit = typeof CANONICAL_UNITS[number];
 
 const UNIT_RULES: ReadonlyArray<[RegExp, CanonicalUnit]> = [
@@ -10,6 +10,8 @@ const UNIT_RULES: ReadonlyArray<[RegExp, CanonicalUnit]> = [
   [/^(bag)(?:\b|\.)/i, "bag"],
   [/^(demet)(?:\b|\.)/i, "demet"],
   [/^(koli|kutu)(?:\b|\.)/i, "koli"],
+  [/^(paket|pk)(?:\b|\.)/i, "paket"],
+  [/^(litre|lt|l)(?:\b|\.)/i, "litre"],
   [/^(ton|tonne)(?:\b|\.)/i, "ton"],
 ];
 
