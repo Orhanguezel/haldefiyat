@@ -251,29 +251,29 @@
 
 - [x] F3.13 Ortak Button primary, secondary, outline, ghost, danger ve geriye uyumlu success varyantlarıyla standardize edildi.
 - [x] F3.14 Ortak Button boyutları en az 44 px; loading `aria-busy`, disabled ve erişilebilir dekoratif spinner içeriyor.
-- [~] F3.15 Input/TextArea label/hint/error, `aria-invalid`, `aria-describedby` ve alert davranışı birleşti; Combobox/SearchableSelect geçişi bekliyor.
+- [x] F3.15 Input/TextArea/Combobox label-hint-error-required ve ARIA sözleşmesi birleşti; SearchableSelect ikinci uygulama olmaktan çıkarılıp ortak Combobox adaptörüne dönüştürüldü.
 - [ ] F3.16 Kart bileşenlerini data, editorial, listing, commercial ve ad olarak ayır.
-- [ ] F3.17 `Badge` ve `FreshnessBadge` semantiğini birleştir; yalnız renkle anlam verme.
+- [x] F3.17 `Badge` semantik token + border + metin/ikon sözleşmesine, `FreshnessBadge` bu ortak bileşene taşındı; durum yalnız renkle anlatılmıyor.
 - [~] F3.18 PriceCard fiyat, birim, tarih ve kaynak gösteriyor; sahte placeholder sparkline kaldırıldı. Örneklem zorunluluğu API'de bulunmadığı kayıtlar için bekliyor.
-- [ ] F3.19 `PriceTable` desktop tablo + mobil kart görünümünü erişilebilir yap.
+- [x] F3.19 `PriceTable` desktop semantik tablo + mobil `<article>/<dl>` kart görünümüne ayrıldı; 390 px canlıda 100 kart, tablo gizli, taşma ve konsol hatası 0.
 - [ ] F3.20 Skeleton’ları nihai layout boyutuyla eşleştir; CLS üretme.
-- [ ] F3.21 Empty/error/offline durumları için ortak bileşenler oluştur.
-- [ ] F3.22 Lucide tabanlı tek çizgi ikon setini kullan; dekoratif emoji envanterini temizle.
-- [ ] F3.23 İkonlara gerekli `aria-hidden` veya anlamlı erişilebilir adları ekle.
-- [ ] F3.24 Reklam bileşenini açık `Reklam` etiketi ve farklı yüzey diliyle standardize et.
-- [ ] F3.25 Modal/sheet/dialog focus trap, Escape, backdrop ve scroll lock davranışını test et.
+- [x] F3.21 Ortak `StatusState` empty/error/offline/loading rolleri, ikon, açıklama ve aksiyon sözleşmesiyle oluşturuldu; PriceTable boş durumda kullanıyor.
+- [~] F3.22 Ortak modal, tema, arama ve durum ikonları Lucide'a taşındı; kalan sayfa içi dekoratif emoji envanterinin toplu geçişi sürüyor.
+- [~] F3.23 Yeni ortak ikonlar `aria-hidden`, etkileşimli kontroller anlamlı `aria-label` taşıyor; kalan 58 public sayfanın ikon taraması bekliyor.
+- [x] F3.24 Reklam alanı semantik `aside`, `data-content-type=advertisement` ve görünür `Reklam · Sponsorlu` etiketiyle normal içerikten ayrıldı.
+- [x] F3.25 Arama/alarm dialoglarında ortak focus trap, ilk odak, Escape, backdrop, body scroll lock ve focus return uygulandı; canlı klavye kabulü geçti.
 - [x] F3.26 Global `prefers-reduced-motion` animasyon/transition süresini düşürüyor ve ticker'ı durduruyor; ana sayfa ticker'ı ayrıca kaldırıldı.
 
 ### 5.3 Global kabuk
 
-- [ ] F3.27 Header navigasyonunu kullanıcı görevlerine göre sadeleştir.
-- [ ] F3.28 Arama tetikleyicisini desktop ve mobilde görünür, klavye erişilebilir yap.
-- [ ] F3.29 Topbar’da yalnız tanımlı ve güncel metrikleri göster; kalabalık promosyon ekleme.
-- [ ] F3.30 Theme toggle’ı ikincil ama erişilebilir tut.
-- [ ] F3.31 MobileBottomNav rotalarını gerçek en sık görevlere göre doğrula.
-- [ ] F3.32 Footer’ı marka, fiyat/veri, kurumsal, yasal ve iletişim gruplarıyla düzenle.
-- [ ] F3.33 Künye/metodoloji/düzeltme bağlantılarını global kabukta erişilebilir yap.
-- [ ] F3.34 PageContainer, grid ve breadcrumb ölçülerini tüm sayfalarda ortaklaştır.
+- [x] F3.27 Desktop header Fiyatlar/İlanlar/Takibim görev grupları + Firma/Hakkımızda düzeyine indirildi; alt rotalar dropdown/drawer içinde.
+- [x] F3.28 Desktop arama alanı ve mobil 44×44 arama butonu görünür/klavye erişilebilir; mobil aç-kapat ve focus return canlı kabul edildi.
+- [x] F3.29 Topbar yalnız merkezi overview'dan tazelik, izlenen ürün, aktif il ve son veri metriklerini gösteriyor; promosyon yok.
+- [x] F3.30 Tema düğmesi 44×44, ikincil yüzey, dinamik açık/koyu erişilebilir adı ve `aria-pressed` ile doğrulandı.
+- [x] F3.31 MobileBottomNav ana sayfa, fiyatlar, harita ve uyarılar olmak üzere dört tekrar eden kullanıcı görevine sabitlendi; arama ayrıca global header'da.
+- [x] F3.32 Footer marka, Fiyat ve Veri, Pazar ve Hizmet, Kurumsal, Yasal ve İletişim gruplarına ayrıldı.
+- [x] F3.33 Künye/Sahiplik, metodoloji ve düzeltme politikası bağlantıları global footer'da canlı DOM ile doğrulandı.
+- [~] F3.34 Ortak `PageContainer` ve breadcrumb mevcut; eski sayfalardaki doğrudan max-width/padding/main kalıplarının tümü henüz taşınmadı.
 
 ## 6. Faz 4 — Sayfa ailelerinin konsept uyarlaması
 
@@ -298,7 +298,7 @@
 - [ ] P4.14 Filtreleri ürün, hal/il, kategori, birim ve tarih ekseninde sadeleştir.
 - [ ] P4.15 URL query senkronizasyonu ve paylaşılabilir filtre durumunu koru.
 - [ ] P4.16 Filtre sonucu sayısını ve güncellik bağlamını göster.
-- [ ] P4.17 Tablo sütunlarını mobilde kart/list view’e dönüştür; yatay scroll’u son çare yap.
+- [x] P4.17 Ortak PriceTable mobilde yatay tablo yerine erişilebilir fiyat kartlarına dönüştü; desktop semantik tablo korunuyor.
 - [ ] P4.18 Sort değerlerini açık yaz; “en güncel”, “en düşük”, “en yüksek” tanımını belirt.
 - [ ] P4.19 CSV/export’ta filtre, birim, tarih ve kaynak metadata’sını dahil et.
 - [ ] P4.20 Empty, stale, partial ve error durumlarını birbirinden ayır.
@@ -322,7 +322,7 @@
 
 - [ ] P4.33 `/hal`, `/hal/[slug]`, `/harita` ve `/data-health` bilgi mimarisini netleştir.
 - [ ] P4.34 Harita sayaçlarını merkezi metrik sözlüğünden besle.
-- [ ] P4.35 Harita legend’ında renk yanında pattern/ikon/metin kullan.
+- [x] P4.35 Harita legend'ı tokenlaşmış düşük/orta/yüksek skala yanında “Ucuz”, “Pahalı”, endeks tanımı ve “Veri yok: gri” metnini birlikte gösteriyor.
 - [x] P4.36 “Güncel”, “gecikmeli”, “bakımda”, “veri yok” eşiklerini açıkla. (13 Ağustos: `/data-health` açıklama paneli + API `no_data` durumu.)
 - [x] P4.37 Kaynak tablosunda son başarılı çekim, satır sayısı, tazelik ve durum göster. (13 Ağustos: mobil kart/masaüstü tablo canlı kabul edildi.)
 - [x] P4.38 İç hostname, stack trace veya güvenlik detayını public durum sayfasına sızdırma. (13 Ağustos: ham `errorMsg` public sözleşmeden kaldırıldı; güvenli `statusMessage` eklendi.)
