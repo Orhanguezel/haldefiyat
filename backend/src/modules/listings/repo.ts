@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, desc, eq, gte, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, or, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfPriceHistory, hfProducts } from "@/db/schema";
 import { buildListingSlug } from "./slug";
@@ -257,6 +257,53 @@ export async function markCallRequestNotified(id: number) {
   await db.update(hfListingCallRequests)
     .set({ status: "notified", notifiedAt: new Date() })
     .where(eq(hfListingCallRequests.id, id));
+}
+
+export async function listCallRequestsForUser(userId: string) {
+  return db.select({
+    id: hfListingCallRequests.id,
+    listingId: hfListingCallRequests.listingId,
+    listingSlug: hfListings.slug,
+    listingTitle: hfListings.title,
+    buyerUserId: hfListingCallRequests.buyerUserId,
+    sellerUserId: hfListingCallRequests.sellerUserId,
+    preferredSlot: hfListingCallRequests.preferredSlot,
+    note: hfListingCallRequests.note,
+    status: hfListingCallRequests.status,
+    consentAt: hfListingCallRequests.consentAt,
+    notifiedAt: hfListingCallRequests.notifiedAt,
+    resolvedAt: hfListingCallRequests.resolvedAt,
+    createdAt: hfListingCallRequests.createdAt,
+    updatedAt: hfListingCallRequests.updatedAt,
+  })
+    .from(hfListingCallRequests)
+    .innerJoin(hfListings, eq(hfListings.id, hfListingCallRequests.listingId))
+    .where(or(
+      eq(hfListingCallRequests.buyerUserId, userId),
+      eq(hfListingCallRequests.sellerUserId, userId),
+    ))
+    .orderBy(desc(hfListingCallRequests.createdAt))
+    .limit(100);
+}
+
+export async function updateCallRequestStatus(
+  id: number,
+  userId: string,
+  status: "accepted" | "declined" | "cancelled" | "completed",
+) {
+  const sellerTransition = status === "accepted" || status === "declined" || status === "completed";
+  const ownership = sellerTransition
+    ? eq(hfListingCallRequests.sellerUserId, userId)
+    : eq(hfListingCallRequests.buyerUserId, userId);
+  const allowedFrom = status === "completed" ? ["accepted"] : ["pending", "notified"];
+  const result = await db.update(hfListingCallRequests)
+    .set({ status, resolvedAt: status === "accepted" ? null : new Date() })
+    .where(and(
+      eq(hfListingCallRequests.id, id),
+      ownership,
+      inArray(hfListingCallRequests.status, allowedFrom),
+    ));
+  return Number(result[0]?.affectedRows ?? 0);
 }
 
 export async function listingSummary() {

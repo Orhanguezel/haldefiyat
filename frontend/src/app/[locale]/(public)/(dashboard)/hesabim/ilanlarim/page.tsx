@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { setRequestLocale } from "next-intl/server";
 import { MyListingsClient } from "@/components/listings/MyListingsClient";
+import { CallRequestDashboard } from "@/components/listings/CallRequestDashboard";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -12,6 +13,7 @@ export default async function MyListingsPage({ params }: Props) {
     <div className="space-y-6">
       <h1 className="font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">İlanlarım</h1>
       <MyListingsClient />
+      <CallRequestDashboard />
     </div>
   );
 }

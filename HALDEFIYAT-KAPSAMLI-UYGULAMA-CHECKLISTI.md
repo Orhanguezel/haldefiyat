@@ -117,11 +117,11 @@
 - [~] F1.11 Alıcı için günlük 5 ve ilan+alıcı için 24 saat limiti eklendi; IP ve satıcı bazlı risk limiti bekliyor.
 - [ ] F1.12 Doğrulanmamış kullanıcının OTP/giriş akışına yönlendirilmesini sağla.
 - [ ] F1.13 Kullanıcının kendi maskeli numarasını backend’den güvenli profil özeti olarak göster.
-- [~] F1.14 İlk MVP bildirimi mevcut Telegram admin kanalına bağlandı; satıcıya e-posta/panel teslimi ve retry gözlemi bekliyor. Netgsm canlı provider/credential/flag pasif.
+- [~] F1.14 İlk MVP bildirimi mevcut Telegram admin kanalına ve alıcı/satıcı paneline bağlandı; satıcıya e-posta teslimi ve retry gözlemi bekliyor. Netgsm canlı provider/credential/flag pasif.
 - [x] F1.15 Telegram bildiriminde alıcının telefonu/e-postası/adı paylaşılmıyor; yalnız ilan, tercih zamanı, not ve talep no gönderiliyor.
-- [ ] F1.16 Satıcı dashboard’una talep kabul/ret/tamamla kontrolleri ekle.
+- [x] F1.16 Satıcı dashboard’una talep kabul/ret/tamamla kontrolleri ekle; geçişler backend sahiplik kuralıyla korunuyor.
 - [ ] F1.17 Satıcının uygun saat ve arama talebi kabul ayarını ekle.
-- [ ] F1.18 Alıcı dashboard’una talep durumu ve iptal kontrolü ekle.
+- [x] F1.18 Alıcı dashboard’una talep durumu ve yalnız açık talepte iptal kontrolü ekle.
 - [~] F1.19 “Satıcıyı ara” CTA/formu deploy edildi ve canlı desktop HTML’de doğrulandı; sticky davranış ve mobil görsel kabul bekliyor.
 - [x] F1.20 Panel başlığını “Arama talebi gönder” yap; anlık bağlantı vaadi verme.
 - [x] F1.21 “Numaranız ve satıcının numarası açık paylaşılmaz” güven metnini ekle.
@@ -132,7 +132,7 @@
 - [ ] F1.26 Bot/CAPTCHA veya risk kontrolünü yalnız şüpheli akışta devreye sokacak şekilde tasarla.
 - [ ] F1.27 KVKK aydınlatma, amaç, saklama, silme ve satıcı tercih metinlerini güncelle.
 - [ ] F1.28 `phone_click` yerine yeni huni eventlerini tanımla.
-- [ ] F1.29 Unit, integration, auth, rate-limit ve data-leak testleri ekle.
+- [~] F1.29 DTO data-leak, HMAC secret, consent ve status validation unit testleri eklendi; DB integration/auth/rate-limit uçtan uca fixture’ı bekliyor.
 - [x] F1.30 Deploy sonrası public liste/detay API, HTML/RSC, `tel:` ve serbest metin sızıntı testini tekrar yap; 2 canlı kayıtta satıcı telefonu sızıntısı 0.
 
 ### 3.2 Invalid Date ve içerik artıklarını kapatma

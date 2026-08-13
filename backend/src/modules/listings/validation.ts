@@ -106,6 +106,10 @@ export const callRequestSchema = z.object({
   privacyAccepted: z.literal(true),
 });
 
+export const callRequestStatusSchema = z.object({
+  status: z.enum(["accepted", "declined", "cancelled", "completed"]),
+});
+
 export const moderateSchema = z.object({
   status: z.enum(["approved", "rejected"]),
   moderationNote: z.string().trim().max(2000).optional().nullable(),

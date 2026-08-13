@@ -12,9 +12,11 @@ import {
   listAdminInquiries,
   listAdminListings,
   listMyListings,
+  listMyCallRequests,
   listPublicListings,
   moderateAdminListing,
   patchOwnerListing,
+  patchMyCallRequest,
   updateAdminListing,
   unfeatureAdminListing,
 } from "./controller";
@@ -29,6 +31,8 @@ export async function registerListingsPublic(app: FastifyInstance) {
   app.post("/listings/otp/send", sendListingOtp);
   app.post("/listings/otp/verify", verifyListingOtp);
   app.get("/listings/me", { onRequest: [requireAuth] }, listMyListings);
+  app.get("/listings/call-requests/me", { onRequest: [requireAuth] }, listMyCallRequests);
+  app.patch<{ Params: { id: string } }>("/listings/call-requests/:id", { onRequest: [requireAuth] }, patchMyCallRequest);
   app.get("/listings/:slug", getPublicListing);
   app.post("/listings", { onRequest: [requireAuth] }, createOwnerListing);
   app.post("/listings/:id/inquiry", createPublicInquiry);

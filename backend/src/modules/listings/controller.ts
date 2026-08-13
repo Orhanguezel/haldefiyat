@@ -15,16 +15,19 @@ import {
   listingSummary,
   listInquiries,
   listListings,
+  listCallRequestsForUser,
   markCallRequestNotified,
   moderateListing,
   updateListingAdmin,
   updateOwnerListing,
+  updateCallRequestStatus,
 } from "./repo";
 import {
   adminCreateSchema,
   featureSchema,
   inquirySchema,
   callRequestSchema,
+  callRequestStatusSchema,
   listingCreateSchema,
   listingPatchSchema,
   listingQuerySchema,
@@ -132,6 +135,37 @@ export async function listMyListings(req: FastifyRequest, reply: FastifyReply) {
     return reply.send({ items });
   } catch (err) {
     return handleRouteError(reply, req, err, "list_my_listings");
+  }
+}
+
+export async function listMyCallRequests(req: FastifyRequest, reply: FastifyReply) {
+  try {
+    const userId = getAuthUserId(req);
+    const items = await listCallRequestsForUser(userId);
+    return reply.send({
+      items: items.map((item) => ({
+        ...item,
+        role: item.sellerUserId === userId ? "seller" : "buyer",
+        buyerUserId: undefined,
+        sellerUserId: undefined,
+      })),
+    });
+  } catch (err) {
+    return handleRouteError(reply, req, err, "list_my_call_requests");
+  }
+}
+
+export async function patchMyCallRequest(
+  req: FastifyRequest<{ Params: { id: string } }>,
+  reply: FastifyReply,
+) {
+  try {
+    const parsed = callRequestStatusSchema.parse(req.body ?? {});
+    const affected = await updateCallRequestStatus(idParam(req), getAuthUserId(req), parsed.status);
+    if (!affected) return reply.code(409).send({ error: { message: "invalid_transition" } });
+    return reply.send({ ok: true, status: parsed.status });
+  } catch (err) {
+    return handleRouteError(reply, req, err, "patch_my_call_request");
   }
 }
 
