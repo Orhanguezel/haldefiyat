@@ -69,3 +69,17 @@ Yüksek tekrar: `Header`, `Footer`, `PageContainer`, `Button`, `Input`, `Badge`,
 - `Invalid Date`, ham source key ve anlamsız `(...)`: kritik yüzeylerde 0.
 - Ana sayfa/ürün/analiz/ilan/data-health için WCAG AA kritik ihlal: 0.
 - Mobil LCP hedefi ≤2.5 s, CLS ≤0.1, INP ≤200 ms; gerçek baz değerleri canlı Lighthouse/CrUX kanıtıyla kaydedilir.
+
+## Canlı tema ve ana sayfa ölçümü
+
+Release `c9df3079` sonrası temiz tarayıcı profiliyle:
+
+- ilk ziyaret `data-theme=light`, body zemini `rgb(246, 248, 247)`;
+- kayıtlı `localStorage.theme=dark` tercihi reload sonrasında korunuyor, body zemini `rgb(11, 13, 20)`;
+- masaüstü 1440×1100 sayfa yüksekliği 9.289 px;
+- mobil 390×844 sunucu ağacı 16.465 px ve 13 section;
+- mobil ilk fiyat rotası ilk ekrandaki “Fiyatları incele” bağlantısıyla bir tık uzakta;
+- ana sayfa, ürün ve ilan listesinde tarayıcı konsol hatası 0; ilan listesinde `tel:` bağlantısı 0;
+- görsel kanıtlar `output/playwright/theme-clean-data/` altında tutuldu.
+
+Mobil sayfanın hâlâ 13 bölüm/16.465 px olması yoğunluk bulgusunun tamamen kapanmadığını gösterir; sonraki IA geçişinde ikincil editoryal bölümler özetlenmeli veya ayrı rotaya taşınmalıdır.

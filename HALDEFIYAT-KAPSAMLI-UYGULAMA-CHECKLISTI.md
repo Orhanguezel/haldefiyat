@@ -51,8 +51,8 @@
 ### 2.1 Canlı bulgu doğrulama
 
 - [x] F0.1 Ana sayfayı masaüstü ve 390 px mobilde canlı kaydet. Kanıt: `output/playwright/faz0/home-desktop.png`, `home-mobile.png`.
-- [ ] F0.2 Açık ve koyu tema davranışı ile ilk ziyaret varsayılanını doğrula.
-- [ ] F0.3 Ana sayfa toplam yüksekliğini, bölüm sayısını ve ilk fiyat sonucuna adım sayısını ölç.
+- [x] F0.2 Temiz profilde ilk ziyaret açık; `theme=dark` tercihi reload sonrası koyu olarak korunuyor. Canlı Playwright kabulü Faz 0 envanterinde.
+- [x] F0.3 Masaüstü 9.289 px; mobil 16.465 px/13 bölüm; ilk fiyat rotası ilk ekrandan 1 tık. Yoğunluk iyileştirmesi Faz 3'te açık.
 - [x] F0.4 `Domates (...)`, `Erik (...)` ve diğer şablon artıkları için canlı tarama yap; Domates kök nedeni ortak display-name guard ile kapatıldı. Kanıt: Faz 0 raporu ve ürün alias/birim envanteri.
 - [x] F0.5 Domates market karşılaştırmasındaki 546 TL örneğinin güncel durumunu DB/API/canlı sayfada doğrula. Canlı değer 546,21 TL; türev guard eklendi.
 - [x] F0.6 Haftalık raporlarda `Invalid Date`, boş veya yanlış tarih taraması yap. Canlı hata doğrulandı; ortak ISO tarih düzeltmesi eklendi.
@@ -102,13 +102,13 @@
 - [x] F1.2 Liste ve detay endpoint’lerinin gerçek telefonu public döndürmediğini unit ve deploy sonrası canlı API/HTML taramasıyla doğrula.
 - [x] F1.3 `hidePhoneIfNeeded` yaklaşımını “varsayılan gizli” modele geçir; opt-in açık telefon bırakma.
 - [x] F1.4 İlan detayındaki doğrudan `tel:` bağlantısı ve açık numara metnini kaldır.
-- [~] F1.5 Canlı HTML/RSC ve API sızıntı taraması tamamlandı; Organization JSON-LD’deki platform telefonu meşru. Sentry breadcrumb ve analytics payload denetimi bekliyor.
+- [x] F1.5 Canlı HTML/RSC/API/JSON-LD sızıntı taraması tamamlandı; Organization telefonu meşru. Call-request analytics yalnız ID/slot içeriyor; Sentry request body/cookie/auth header/query PII scrub ve `sendDefaultPii:false` ile korundu.
 - [x] F1.6 `call_requests` veri modelini tasarla: listing, buyer, seller, state, preferred slot, note, consent, timestamps.
 - [x] F1.7 Durumları tanımla: `pending`, `notified`, `accepted`, `declined`, `expired`, `cancelled`, `completed`.
 - [x] F1.8 Migration’ı additive ve mevcut ilanlarla uyumlu hazırla; rollback tabloyu düşüreceği için yalnız operasyon onayıyla uygulanır.
 - [x] F1.9 Yetkili `POST /listings/:id/call-requests` endpoint’i ekle.
 - [x] F1.10 Aynı ilan+alıcı için aktif talebi 24 saat engelleyen idempotency kuralı ekle.
-- [~] F1.11 Alıcı için günlük 5 ve ilan+alıcı için 24 saat limiti eklendi; IP ve satıcı bazlı risk limiti bekliyor.
+- [x] F1.11 Alıcı günlük 5, ilan+alıcı 24 saat, satıcı günlük 25 DB kotası ve IP başına 10/saat route burst limiti eklendi; ham IP saklanmıyor.
 - [ ] F1.12 Doğrulanmamış kullanıcının OTP/giriş akışına yönlendirilmesini sağla.
 - [ ] F1.13 Kullanıcının kendi maskeli numarasını backend’den güvenli profil özeti olarak göster.
 - [~] F1.14 İlk MVP bildirimi mevcut Telegram admin kanalına ve alıcı/satıcı paneline bağlandı; satıcıya e-posta teslimi ve retry gözlemi bekliyor. Netgsm canlı provider/credential/flag pasif.
@@ -120,9 +120,9 @@
 - [x] F1.20 Panel başlığını “Arama talebi gönder” yap; anlık bağlantı vaadi verme.
 - [x] F1.21 “Numaranız ve satıcının numarası açık paylaşılmaz” güven metnini ekle.
 - [x] F1.22 Uygun zaman, kısa not, zorunlu KVKK onayı ve gizlilik bağlantısını erişilebilir form olarak ekle.
-- [~] F1.23 Başarı, yükleniyor, auth, kota, duplicate, kendi ilanı ve genel servis hatası eklendi; timeout/expired durumları bekliyor.
+- [x] F1.23 Başarı, yükleniyor, auth, alıcı/satıcı/IP kotası, duplicate, kendi ilanı ve genel servis hatası var; yanıtsız pending/notified talepler 48 saatte idempotent `expired` oluyor.
 - [x] F1.24 Mevcut “Mesaj gönder / teklif ver” formu arama talebinin altında korunuyor.
-- [~] F1.25 Public ilan ve arama-talebi serbest metnindeki telefon/e-posta kayıttan/Telegram’dan önce maskeleniyor; durum ve zaman call-request tablosunda auditleniyor. Genel uygulama logları için alan bazlı denetim bekliyor.
+- [x] F1.25 Public ilan ve arama-talebi serbest metnindeki telefon/e-posta kayıttan/Telegram'dan önce maskeleniyor; durum/zaman auditleniyor. Audit URL/referrer hassas query anahtarları ve bilinmeyen anahtardaki telefon/e-posta değerleri testli scrub ediliyor; request body kaydedilmiyor.
 - [ ] F1.26 Bot/CAPTCHA veya risk kontrolünü yalnız şüpheli akışta devreye sokacak şekilde tasarla.
 - [ ] F1.27 KVKK aydınlatma, amaç, saklama, silme ve satıcı tercih metinlerini güncelle.
 - [x] F1.28 `phone_click` yerine `call_request_view/submit/accepted/declined/cancelled/completed` eventlerini mevcut attribution-aware analytics katmanına bağla; parametrelerde telefon/e-posta/not yok.

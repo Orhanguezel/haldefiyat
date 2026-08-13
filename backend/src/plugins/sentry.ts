@@ -19,7 +19,25 @@ export default fp(async (app) => {
     app.log.info("Sentry disabled: missing SENTRY_DSN");
     return;
   }
-  Sentry.init({ dsn: env.SENTRY_DSN, environment: env.NODE_ENV });
+  Sentry.init({
+    dsn: env.SENTRY_DSN,
+    environment: env.NODE_ENV,
+    sendDefaultPii: false,
+    beforeSend(event) {
+      if (event.request) {
+        event.request.data = undefined;
+        event.request.cookies = undefined;
+        event.request.headers = undefined;
+        if (event.request.url) event.request.url = event.request.url.split("?")[0];
+      }
+      if (event.user) {
+        delete event.user.email;
+        delete event.user.ip_address;
+        delete event.user.username;
+      }
+      return event;
+    },
+  });
   sentryEnabled = true;
   app.log.info("Sentry initialized");
 

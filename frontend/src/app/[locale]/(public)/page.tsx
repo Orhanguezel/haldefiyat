@@ -3,18 +3,14 @@ export const dynamic = "force-dynamic";
 import { headers } from "next/headers";
 import { setRequestLocale } from "next-intl/server";
 import { getPageMetadata, ORG_REF } from "@/lib/seo";
-import { fetchListings, fetchMarkets, fetchPricesOverview, fetchProducts, fetchWidget, type TrendingItem } from "@/lib/api";
+import { fetchListings, fetchMarkets, fetchPricesOverview, fetchProducts, fetchWidget } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
 import HeroSection from "@/components/sections/HeroSection";
-import PriceTicker from "@/components/sections/PriceTicker";
 import PriceDashboard from "@/components/sections/PriceDashboard";
 import CitySelector from "@/components/sections/CitySelector";
 import StatsBar from "@/components/sections/StatsBar";
-import FeaturesGrid from "@/components/sections/FeaturesGrid";
-import HowItWorks from "@/components/sections/HowItWorks";
 import CtaNewsletter from "@/components/sections/CtaNewsletter";
 import IndexCta from "@/components/sections/IndexCta";
-import SeasonalGuide from "@/components/sections/SeasonalGuide";
 import LatestReports from "@/components/sections/LatestReports";
 import HomeFaq from "@/components/sections/HomeFaq";
 import MobileHomeHero from "@/components/sections/MobileHomeHero";
@@ -83,8 +79,6 @@ export default async function HomePage({ params }: Props) {
   const ua = (await headers()).get("user-agent") ?? "";
   const isMobile = /Android|iPhone|iPod|Mobi|IEMobile|Opera Mini|BlackBerry/i.test(ua);
 
-  // Ticker: trending (uç değişimler) yerine widget verisi (popüler ürünler,
-  // makul haftalık değişim). previous = avgPrice / (1 + changePct/100).
   const [widget, markets, products, listings, overview] = await Promise.all([
     fetchWidget({ limit: 30 }),
     fetchMarkets(),
@@ -92,25 +86,6 @@ export default async function HomePage({ params }: Props) {
     fetchListings({ limit: 3 }),
     fetchPricesOverview(),
   ]);
-  const trending: TrendingItem[] = widget
-    .filter((w) => w.changePct !== null && Number.isFinite(w.avgPrice) && w.avgPrice > 0)
-    .map((w, i) => {
-      const pct = w.changePct as number;
-      const previous = pct !== 0 ? w.avgPrice / (1 + pct / 100) : w.avgPrice;
-      return {
-        productId: i + 1,
-        marketId: 0,
-        changePct: pct,
-        latest: w.avgPrice,
-        previous,
-        product: {
-          id: i + 1,
-          slug: w.canonicalProduct || w.productSlug,
-          nameTr: w.productName,
-          categorySlug: w.categorySlug,
-        },
-      };
-    });
   const cityCount = overview.activeCities || new Set(
     markets
       .filter((market) => market.regionSlug !== "ulusal")
@@ -157,18 +132,14 @@ export default async function HomePage({ params }: Props) {
       <>
         <JsonLd type="Dataset" data={datasetSchema} />
         <MobileHomeHero locale={locale} products={products.length} markets={markets} widget={widget} />
-        {/* SEO metin bölümleri mobil ağaçta da render edilir (mobile-first index) */}
+        {/* Ana görevden sonra yalnız güncel içerik ve güven/SSS kalır. */}
         <LatestReports limit={6} />
-        <SeasonalGuide />
-        <FeaturesGrid activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
-        <HowItWorks />
         <HomeFaq
           activeCities={cityCount}
           activeMarkets={overview.activeMarkets || markets.length}
           trackedProducts={overview.trackedProducts || products.length}
           latestRecordedDate={latestMarketUpdate}
         />
-        <CtaNewsletter />
       </>
     );
   }
@@ -177,7 +148,6 @@ export default async function HomePage({ params }: Props) {
     <>
       <JsonLd type="Dataset" data={datasetSchema} />
       <HeroSection activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
-      <PriceTicker items={trending} />
       <PriceDashboard />
       {/* "Bugünkü Hal Fiyatları" bölümünün hemen altındaki reklam */}
       <BannerSlot position="home_mid" />
@@ -199,9 +169,6 @@ export default async function HomePage({ params }: Props) {
         </section>
       ) : null}
       <LatestReports limit={6} />
-      <SeasonalGuide />
-      <FeaturesGrid activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
-      <HowItWorks />
       <HomeFaq
         activeCities={cityCount}
         activeMarkets={overview.activeMarkets || markets.length}

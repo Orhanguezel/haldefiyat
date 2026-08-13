@@ -3,6 +3,7 @@ import type { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest 
 import type { RowDataPacket } from "mysql2";
 import geoip from "geoip-lite";
 import { isBotUserAgent, isInternalIpValue } from "@agro/shared-backend/modules/audit/helpers";
+import { sanitizeAuditUrl } from "./sanitize-audit-url";
 
 type RequestWithUser = FastifyRequest & {
   user?: unknown;
@@ -251,13 +252,13 @@ export const auditRequestLoggerPlugin: FastifyPluginAsync = fp(async (app) => {
       const baseValues = [
         String(req.id || ""),
         String(req.method || "").toUpperCase(),
-        url,
+        sanitizeAuditUrl(url),
         path,
         statusCode,
         responseTimeMs(req),
         ip,
         userAgent,
-        (req as RequestWithUser).auditPageview?.referer ?? firstHeader(req, "referer") ?? null,
+        sanitizeAuditUrl((req as RequestWithUser).auditPageview?.referer ?? firstHeader(req, "referer") ?? "") || null,
         userId,
         isAdmin,
         country,
