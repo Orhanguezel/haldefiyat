@@ -96,11 +96,28 @@ export async function getListingAnalytics(req: FastifyRequest, reply: FastifyRep
     );
     const searches = tallySearches(searchRows as Array<{ url: string }>);
 
+    const [callRows] = await pool.query<RowDataPacket[]>(
+      `SELECT status, COUNT(*) AS total
+       FROM hf_listing_call_requests
+       WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+       GROUP BY status`,
+      [days - 1],
+    );
+    const callRequests = Object.fromEntries(callRows.map((r) => [String(r.status), Number(r.total ?? 0)]));
+    const callRequestTotal = Object.values(callRequests).reduce((sum, value) => sum + value, 0);
+    const callRequestAccepted = Number(callRequests.accepted ?? 0) + Number(callRequests.completed ?? 0);
+
     return reply.send({
       days,
       summary,
       daily,
       searches,
+      callRequests: {
+        total: callRequestTotal,
+        accepted: callRequestAccepted,
+        completionRate: callRequestTotal ? Math.round((callRequestAccepted / callRequestTotal) * 1000) / 10 : 0,
+        byStatus: callRequests,
+      },
       perListing: perListing.map((r) => ({
         id: Number(r.id),
         title: String(r.title ?? ""),

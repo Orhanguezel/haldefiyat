@@ -8,7 +8,13 @@ export type ConversionEventName =
   | "pro_inquiry"
   | "urun_favorited"
   | "pro_upgrade"
-  | "embed_inquiry";
+  | "embed_inquiry"
+  | "call_request_view"
+  | "call_request_submit"
+  | "call_request_accepted"
+  | "call_request_declined"
+  | "call_request_cancelled"
+  | "call_request_completed";
 
 type ConversionParams = Record<string, string | number | boolean | null | undefined>;
 
@@ -30,10 +36,18 @@ const EVENT_VALUE: Record<ConversionEventName, number> = {
   urun_favorited: 10,
   pro_upgrade: 40,
   embed_inquiry: 35,
+  call_request_view: 5,
+  call_request_submit: 45,
+  call_request_accepted: 70,
+  call_request_declined: 0,
+  call_request_cancelled: 0,
+  call_request_completed: 90,
 };
 
 function eventCategory(eventName: ConversionEventName): "conversion" | "engagement" {
-  return eventName === "urun_favorited" ? "engagement" : "conversion";
+  return ["urun_favorited", "call_request_view", "call_request_declined", "call_request_cancelled"].includes(eventName)
+    ? "engagement"
+    : "conversion";
 }
 
 async function sha256Lower(text: string): Promise<string | null> {

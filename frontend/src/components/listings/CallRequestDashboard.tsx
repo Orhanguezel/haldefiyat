@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { apiGet, apiPatch, ApiError } from "@/lib/api-client";
 import { Button } from "@/components/ui/Button";
 import { formatDateTr } from "@/lib/date-format";
+import { trackConversion, type ConversionEventName } from "@/lib/analytics";
 
 type CallRequestStatus = "pending" | "notified" | "accepted" | "declined" | "expired" | "cancelled" | "completed";
 type CallRequest = {
@@ -61,6 +62,9 @@ export function CallRequestDashboard() {
     setError("");
     try {
       await apiPatch(`/listings/call-requests/${id}`, { status });
+      const eventName = `call_request_${status}` as Extract<ConversionEventName,
+        "call_request_accepted" | "call_request_declined" | "call_request_cancelled" | "call_request_completed">;
+      trackConversion(eventName, { call_request_id: id });
       await load();
     } catch (caught) {
       const invalid = caught instanceof ApiError && caught.code === "invalid_transition";

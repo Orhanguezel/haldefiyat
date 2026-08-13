@@ -88,6 +88,12 @@ describe("attribution and conversion analytics", () => {
       "price_alert_created",
       "pro_inquiry",
       "urun_favorited",
+      "call_request_view",
+      "call_request_submit",
+      "call_request_accepted",
+      "call_request_declined",
+      "call_request_cancelled",
+      "call_request_completed",
     ];
 
     for (const eventName of events) {
@@ -105,6 +111,20 @@ describe("attribution and conversion analytics", () => {
         }),
       );
     }
+  });
+
+  it("tracks call requests without contact or free-text PII", () => {
+    trackConversion("call_request_submit", { listing_id: 7, preferred_slot: "morning" });
+
+    expect(window.gtag).toHaveBeenCalledWith(
+      "event",
+      "call_request_submit",
+      expect.objectContaining({ listing_id: 7, preferred_slot: "morning", value: 45 }),
+    );
+    const payload = (window.gtag as ReturnType<typeof vi.fn>).mock.calls[0]?.[2];
+    expect(payload).not.toHaveProperty("phone");
+    expect(payload).not.toHaveProperty("email");
+    expect(payload).not.toHaveProperty("note");
   });
 
   it("attaches SHA-256 hashed email for enhanced conversions", async () => {

@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { TextArea } from "@/components/ui/TextArea";
 import { getStoredAuthUser } from "@/lib/auth";
 import { apiPost, ApiError } from "@/lib/api-client";
+import { trackConversion } from "@/lib/analytics";
 
 type PreferredSlot = "asap" | "morning" | "afternoon" | "evening";
 
@@ -24,12 +25,17 @@ export function ListingCallRequest({ listingId }: { listingId: number }) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    trackConversion("call_request_view", { listing_id: listingId });
+  }, [listingId]);
+
   async function submit() {
     if (!privacyAccepted || loading) return;
     setLoading(true);
     setError("");
     try {
       await apiPost(`/listings/${listingId}/call-requests`, { preferredSlot, note, privacyAccepted: true });
+      trackConversion("call_request_submit", { listing_id: listingId, preferred_slot: preferredSlot });
       setSuccess(true);
     } catch (caught) {
       const code = caught instanceof ApiError ? caught.code : "request_failed";
