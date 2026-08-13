@@ -29,19 +29,29 @@ interface FooterColumn {
 
 const COLUMNS: ReadonlyArray<FooterColumn> = [
   {
-    title: "PLATFORM",
+    title: "FİYAT VE VERİ",
     links: [
       { label: "Hal Fiyatları", href: "/fiyatlar" },
       { label: "Canlı Hal Fiyatları", href: "/canli-hal-fiyatlari" },
       { label: "Canlı Hayvan Fiyatları", href: "/canli-hayvan-fiyatlari" },
       { label: "Et Fiyatları", href: "/et-fiyatlari" },
       { label: "Borsa / Resmi Fiyatlar", href: "/borsa" },
+      { label: "Karşılaştır", href: "/karsilastirma" },
+      { label: "Türkiye Haritası", href: "/harita" },
+      { label: "Fiyat Endeksi", href: "/endeks" },
+      { label: "Analizler", href: "/analiz" },
+    ],
+  },
+  {
+    title: "PAZAR VE HİZMET",
+    links: [
       { label: "İlanlar", href: "/ilanlar" },
       { label: "İlan Ver", href: "/ilan-ver" },
+      { label: "Firmalar", href: "/firmalar" },
       { label: "Reklam Ver", href: "/reklam-ver" },
-      { label: "Karşılaştır", href: "/karsilastirma" },
-      { label: "Trend", href: "/fiyatlar?range=7d" },
       { label: "Widget ve Embed", href: "/embed" },
+      { label: "API Pro", href: "/pro" },
+      { label: "API Dokümantasyonu", href: "/api-docs" },
     ],
   },
   {
@@ -52,15 +62,14 @@ const COLUMNS: ReadonlyArray<FooterColumn> = [
       { label: "Editoryal Politika", href: "/editoryal-politika" },
       { label: "Düzeltme Politikası", href: "/duzeltme-politikasi" },
       { label: "Veri Kaynağı Politikası", href: "/veri-kaynagi-politikasi" },
-      { label: "Sahiplik ve Finansman", href: "/sahiplik-finansman" },
-      { label: "API Dokümantasyonu", href: "/api-docs" },
+      { label: "Künye, Sahiplik ve Finansman", href: "/sahiplik-finansman" },
       { label: "Basın Odası", href: "/basin" },
-      { label: "İletişim", href: "/iletisim" },
     ],
   },
   {
-    title: "YASAL",
+    title: "YASAL VE İLETİŞİM",
     links: [
+      { label: "İletişim", href: "/iletisim" },
       { label: "Gizlilik Politikası", href: "/gizlilik-politikasi" },
       { label: "Kullanım Koşulları", href: "/kullanim-kosullari" },
       { label: "KVKK Aydınlatma", href: "/kvkk" },
@@ -94,7 +103,7 @@ export default function Footer({
   return (
     <footer className="border-t border-(--color-border) bg-(--color-header) px-5 py-12 sm:px-8 sm:py-16">
       <div className="mx-auto max-w-[1400px]">
-        <div className="mb-7 grid grid-cols-1 gap-12 border-b border-(--color-border) pb-12 lg:grid-cols-[2fr_1fr_1fr_1fr]">
+        <div className="mb-7 grid grid-cols-1 gap-10 border-b border-(--color-border) pb-12 sm:grid-cols-2 lg:grid-cols-[1.7fr_repeat(4,minmax(0,1fr))]">
           {/* Sutun 1 — Brand */}
           <div className="space-y-4">
             <Link href="/" className="inline-flex max-w-full">
