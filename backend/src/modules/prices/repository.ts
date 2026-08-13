@@ -154,10 +154,17 @@ export async function overviewStats(): Promise<{
 }> {
   const [products, pricedProducts, currentProducts, cities, sources, markets, etl, dateBounds] = await Promise.all([
     db.select({ c: sql<number>`COUNT(*)` }).from(hfProducts).where(eq(hfProducts.isActive, 1)),
-    db.select({ c: sql<number>`COUNT(DISTINCT ${hfPriceHistory.productId})` }).from(hfPriceHistory),
     db.select({ c: sql<number>`COUNT(DISTINCT ${hfPriceHistory.productId})` })
       .from(hfPriceHistory)
-      .where(gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 7 DAY)`)),
+      .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+      .where(eq(hfProducts.isActive, 1)),
+    db.select({ c: sql<number>`COUNT(DISTINCT ${hfPriceHistory.productId})` })
+      .from(hfPriceHistory)
+      .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+      .where(and(
+        eq(hfProducts.isActive, 1),
+        gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 7 DAY)`),
+      )),
     db
       .select({ c: sql<number>`COUNT(DISTINCT ${hfMarkets.cityName})` })
       .from(hfPriceHistory)
