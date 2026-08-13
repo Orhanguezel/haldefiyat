@@ -6,6 +6,7 @@ import { buildListingSlug } from "./slug";
 import { hfListingCallRequests, hfListingImages, hfListingInquiries, hfListings } from "./schema";
 import { users } from "@agro/shared-backend/modules/auth/schema";
 import { profiles } from "@agro/shared-backend/modules/profiles/schema";
+import { maskOwnPhone } from "./public";
 
 async function imagesByListing(ids: number[]): Promise<Map<number, string[]>> {
   const map = new Map<number, string[]>();
@@ -267,13 +268,6 @@ export async function createCallRequest(input: {
     consentAt: new Date(),
   });
   return { ok: true as const, id: Number(result[0]?.insertId ?? 0) };
-}
-
-export function maskOwnPhone(value: string | null | undefined): string | null {
-  const digits = String(value ?? "").replace(/\D/g, "");
-  const local = digits.startsWith("90") ? digits.slice(2) : digits.startsWith("0") ? digits.slice(1) : digits;
-  if (local.length < 10) return null;
-  return `0${local.slice(0, 1)}** *** ** ${local.slice(-2)}`;
 }
 
 /** Yalnız oturum sahibine, geri dönen tam numarayı asla içermeyen özet. */

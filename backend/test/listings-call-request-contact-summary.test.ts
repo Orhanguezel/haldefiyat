@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { maskOwnPhone } from "../src/modules/listings/repo";
+import { maskOwnPhone } from "../src/modules/listings/public";
 
 describe("call request contact summary", () => {
   it("returns only a masked Turkish phone", () => {

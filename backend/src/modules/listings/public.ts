@@ -7,6 +7,13 @@ export function redactContactText(value: string | null | undefined) {
     .replace(EMAIL_PATTERN, "[e-posta gizlendi]") ?? value;
 }
 
+export function maskOwnPhone(value: string | null | undefined): string | null {
+  const digits = String(value ?? "").replace(/\D/g, "");
+  const local = digits.startsWith("90") ? digits.slice(2) : digits.startsWith("0") ? digits.slice(1) : digits;
+  if (local.length < 10) return null;
+  return `0${local.slice(0, 1)}** *** ** ${local.slice(-2)}`;
+}
+
 /**
  * Public ilan cevaplarında telefon hiçbir kanaldan sızmamalı. Yalnız contactPhone
  * alanını boşaltmak yeterli değildir; kullanıcı açıklama/başlık gibi serbest metinlere
