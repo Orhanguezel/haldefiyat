@@ -26,13 +26,20 @@ export default function PriceQuarantinePanel() {
   const [status, setStatus] = React.useState<PriceQuarantineStatus>('pending');
   const [severity, setSeverity] = React.useState('all');
   const [q, setQ] = React.useState('');
+  const [source, setSource] = React.useState('');
+  const [unit, setUnit] = React.useState('all');
+  const [reason, setReason] = React.useState('all');
+  const [dateFrom, setDateFrom] = React.useState('');
+  const [dateTo, setDateTo] = React.useState('');
   const [selected, setSelected] = React.useState<PriceQuarantineItem | null>(null);
   const [decision, setDecision] = React.useState<'approve' | 'reject' | 'correct'>('reject');
   const [note, setNote] = React.useState('');
   const [values, setValues] = React.useState({ min: '', avg: '', max: '' });
   const [confirmCritical, setConfirmCritical] = React.useState(false);
   const { data, isFetching, refetch } = useListPriceQuarantineAdminQuery({
-    status, severity: severity === 'all' ? undefined : severity as 'warning' | 'critical', q: q || undefined, limit: 100,
+    status, severity: severity === 'all' ? undefined : severity as 'warning' | 'critical', q: q || undefined,
+    source: source || undefined, unit: unit === 'all' ? undefined : unit, reason: reason === 'all' ? undefined : reason,
+    dateFrom: dateFrom || undefined, dateTo: dateTo || undefined, limit: 100,
   });
   const [review, { isLoading }] = useReviewPriceQuarantineAdminMutation();
 
@@ -57,7 +64,12 @@ export default function PriceQuarantinePanel() {
       <div><Label htmlFor="queue-search">Ürün veya hal</Label><Input id="queue-search" className="mt-2" value={q} onChange={e => setQ(e.target.value)} placeholder="Domates, Antalya..." /></div>
       <div><Label>Durum</Label><Select value={status} onValueChange={v => setStatus(v as PriceQuarantineStatus)}><SelectTrigger className="mt-2"><SelectValue /></SelectTrigger><SelectContent>{Object.entries(statusLabels).map(([v,l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent></Select></div>
       <div><Label>Önem</Label><Select value={severity} onValueChange={setSeverity}><SelectTrigger className="mt-2"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">Tümü</SelectItem><SelectItem value="critical">Kritik</SelectItem><SelectItem value="warning">Uyarı</SelectItem></SelectContent></Select></div>
-      <div className="flex items-end"><Button variant="outline" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />Yenile</Button></div>
+      <div><Label htmlFor="source-filter">Kaynak</Label><Input id="source-filter" className="mt-2" value={source} onChange={e=>setSource(e.target.value)} placeholder="izmir_sebzemeyve" /></div>
+      <div><Label>Birim</Label><Select value={unit} onValueChange={setUnit}><SelectTrigger className="mt-2"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">Tümü</SelectItem>{['kg','adet','kasa','koli','bag','demet','ton'].map(v=><SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select></div>
+      <div><Label>Neden</Label><Select value={reason} onValueChange={setReason}><SelectTrigger className="mt-2"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">Tümü</SelectItem>{Object.entries(reasonLabels).map(([v,l])=><SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent></Select></div>
+      <div><Label htmlFor="date-from">Başlangıç tarihi</Label><Input id="date-from" className="mt-2" type="date" value={dateFrom} onChange={e=>setDateFrom(e.target.value)} /></div>
+      <div><Label htmlFor="date-to">Bitiş tarihi</Label><Input id="date-to" className="mt-2" type="date" value={dateTo} onChange={e=>setDateTo(e.target.value)} /></div>
+      <div className="flex items-end gap-2"><Button variant="outline" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />Yenile</Button><Button variant="ghost" onClick={()=>{setQ('');setSource('');setUnit('all');setReason('all');setSeverity('all');setDateFrom('');setDateTo('');}}>Temizle</Button></div>
     </CardContent></Card>
     <Card><CardHeader><CardTitle className="text-base">Kayıtlar ({data?.total ?? 0})</CardTitle></CardHeader><CardContent><div className="overflow-x-auto"><Table><TableHeader><TableRow><TableHead>Ürün / Hal</TableHead><TableHead>Fiyat</TableHead><TableHead>Kanıt</TableHead><TableHead>Önem</TableHead><TableHead className="text-right">İşlem</TableHead></TableRow></TableHeader><TableBody>
       {(data?.items ?? []).map(item => <TableRow key={item.id}>

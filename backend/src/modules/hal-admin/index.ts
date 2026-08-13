@@ -105,6 +105,10 @@ const quarantineListQuery = z.object({
   status: z.enum(["pending", "approved", "rejected", "corrected"]).optional().default("pending"),
   severity: z.enum(["warning", "critical"]).optional(),
   reason: z.string().max(64).optional(),
+  source: z.string().max(64).optional(),
+  unit: z.string().max(32).optional(),
+  dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   q: z.string().max(128).optional(),
   limit: z.coerce.number().int().min(1).max(200).optional().default(50),
   offset: z.coerce.number().int().min(0).optional().default(0),
@@ -251,11 +255,15 @@ export async function registerHalAdmin(app: FastifyInstance) {
   app.get("/hal/price-quarantine", async (req, reply) => {
     const parsed = quarantineListQuery.safeParse(req.query);
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz sorgu", details: parsed.error.flatten() });
-    const { status, severity, reason, q, limit, offset } = parsed.data;
+    const { status, severity, reason, source, unit, dateFrom, dateTo, q, limit, offset } = parsed.data;
     const filters = ["pq.status = ?"];
     const values: Array<string | number> = [status];
     if (severity) { filters.push("pq.severity = ?"); values.push(severity); }
     if (reason) { filters.push("pq.reason_code = ?"); values.push(reason); }
+    if (source) { filters.push("pq.source_api = ?"); values.push(source); }
+    if (unit) { filters.push("pq.unit = ?"); values.push(unit); }
+    if (dateFrom) { filters.push("pq.recorded_date >= ?"); values.push(dateFrom); }
+    if (dateTo) { filters.push("pq.recorded_date <= ?"); values.push(dateTo); }
     if (q?.trim()) { filters.push("(p.name_tr LIKE ? OR p.slug LIKE ? OR m.name LIKE ?)"); const term = `%${likeSafe(q) ?? ""}%`; values.push(term, term, term); }
     const where = filters.join(" AND ");
     const [items] = await pool.query(

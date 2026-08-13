@@ -76,7 +76,7 @@ export const pricesAdminApi = baseApi.injectEndpoints({
     }),
     listPriceQuarantineAdmin: builder.query<
       { items: PriceQuarantineItem[]; total: number; limit: number; offset: number },
-      { status?: PriceQuarantineStatus; severity?: 'warning' | 'critical'; reason?: string; q?: string; limit?: number; offset?: number } | void
+      { status?: PriceQuarantineStatus; severity?: 'warning' | 'critical'; reason?: string; source?: string; unit?: string; dateFrom?: string; dateTo?: string; q?: string; limit?: number; offset?: number } | void
     >({
       query: (params) => ({ url: '/admin/hal/price-quarantine', params: cleanParams(params as Record<string, unknown> | undefined) }),
       providesTags: [{ type: 'Prices' as const, id: 'QUARANTINE' }],
