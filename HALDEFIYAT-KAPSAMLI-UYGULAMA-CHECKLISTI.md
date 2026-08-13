@@ -214,8 +214,8 @@
 
 - [~] F2.32 Mutlak sınır, medyan sapması, önceki güne sıçrama, kaynak farkı ve stale kurallarını ekle. (Mutlak sınır + tarih-yakın emsal medyanı canlı; diğer reason code’lar bekliyor.)
 - [ ] F2.33 Anomali reason code, severity ve confidence alanlarını tanımla.
-- [~] F2.34 Kuyrukta ürün, kaynak, birim, tarih, önem ve durum filtreleri sun. (Admin API: durum, önem, reason ve ürün/hal araması; tarih/birim UI filtresi bekliyor.)
-- [~] F2.35 Onay, ret, düzelt, alias’a bağla ve toplu işlem aksiyonları ekle. (Tekil onay/ret/düzelterek yayın API’si canlı; alias ve toplu UI bekliyor.)
+- [x] F2.34 Kuyrukta ürün, kaynak, birim, tarih, önem ve durum filtreleri sun. (Canlı admin kuyruğu: ürün/hal araması, kaynak, birim, tarih aralığı, reason, önem ve durum.)
+- [~] F2.35 Onay, ret, düzelt, alias’a bağla ve toplu işlem aksiyonları ekle. (Admin UI ve API’de tekil onay/ret/düzelterek yayın canlı; alias ve toplu işlem bekliyor.)
 - [~] F2.36 Kritik toplu işlem için ön izleme ve çift onay ekle. (Kritik tekil yayın `confirmCritical=true` ikinci onayına bağlı; toplu ön izleme bekliyor.)
 - [x] F2.37 Her kararın önce/sonra değeri, kullanıcı, zaman ve açıklamasını audit et. (Ham karantina değeri korunuyor; status, zorunlu not, reviewer ve reviewed_at transaction içinde yazılıyor.)
 - [~] F2.38 Yanlış kararı geri alıp downstream cache/index/raporu yenile. (Onay/düzeltmede `prices` revalidate var; karar geri alma ve rapor/index yenileme bekliyor.)
