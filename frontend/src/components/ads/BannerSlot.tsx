@@ -60,7 +60,7 @@ export default async function BannerSlot({
   }
 
   return (
-    <div className={className} aria-label="Reklam">
+    <aside className={className} aria-label="Reklam" data-content-type="advertisement">
       <div className={`mx-auto my-5 ${sidebar ? "max-w-[336px]" : "max-w-6xl"} px-4`}>
         <SponsorLabel />
         <div className="space-y-4">
@@ -71,7 +71,7 @@ export default async function BannerSlot({
           ))}
         </div>
       </div>
-    </div>
+    </aside>
   );
 }
 
@@ -123,5 +123,5 @@ export function BannerCreative({ banner, sidebar }: { banner: PublicBanner; side
 }
 
 function SponsorLabel() {
-  return <div className="mb-1 text-center font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.12em] text-(--color-muted)">Sponsorlu</div>;
+  return <div className="mb-1 text-center font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.12em] text-(--color-muted)">Reklam · Sponsorlu</div>;
 }

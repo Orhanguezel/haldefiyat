@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Bell, CheckCircle2, X } from "lucide-react";
 import type { Market, Product } from "@/lib/api";
 import AlertModalForm from "./alert/AlertModalForm";
 import { INITIAL_FORM, type AlertFormState } from "./alert/types";
 import { trackConversion } from "@/lib/analytics";
+import { useModalA11y } from "@/hooks/useModalA11y";
 
 export { openAlertModal } from "./alert/types";
 
@@ -37,6 +39,8 @@ export default function AlertModal({
 }: AlertModalProps) {
   const [form, setForm] = useState<AlertFormState>(INITIAL_FORM);
   const [status, setStatus] = useState<SubmitState>({ kind: "idle" });
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalA11y(isOpen, onClose, dialogRef);
 
   useEffect(() => {
     if (!isOpen) {
@@ -50,18 +54,6 @@ export default function AlertModal({
       marketSlug: initialMarket ?? prev.marketSlug,
     }));
   }, [isOpen, initialProduct, initialMarket]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [isOpen, onClose]);
 
   const handleChange = useCallback(
     <K extends keyof AlertFormState>(key: K, value: AlertFormState[K]) => {
@@ -146,6 +138,8 @@ export default function AlertModal({
           aria-label="Fiyat Alarmı"
         >
           <motion.div
+            ref={dialogRef}
+            tabIndex={-1}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -154,8 +148,9 @@ export default function AlertModal({
             className="relative w-full max-w-md overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-(--color-border) px-5 py-4">
-              <h2 className="font-(family-name:--font-display) text-[18px] font-bold text-(--color-foreground)">
-                🔔 Fiyat Alarmı Kur
+              <h2 className="flex items-center gap-2 font-(family-name:--font-display) text-[18px] font-bold text-(--color-foreground)">
+                <Bell className="h-5 w-5 text-(--color-brand)" aria-hidden="true" />
+                Fiyat Alarmı Kur
               </h2>
               <button
                 type="button"
@@ -163,9 +158,7 @@ export default function AlertModal({
                 aria-label="Kapat"
                 className="flex h-7 w-7 items-center justify-center rounded-md text-(--color-muted) hover:bg-(--color-bg-alt) hover:text-(--color-foreground)"
               >
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round" />
-                </svg>
+                <X className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
 
@@ -184,8 +177,9 @@ export default function AlertModal({
               ) : null}
 
               {status.kind === "success" ? (
-                <div className="mt-4 rounded-lg border border-(--color-success)/40 bg-(--color-success)/10 px-3 py-2 text-[12px] font-medium text-(--color-success)">
-                  ✅ Alarm kuruldu! Hedef fiyata ulaşıldığında sizi bilgilendireceğiz.
+                <div role="status" className="mt-4 flex items-start gap-2 rounded-lg border border-(--color-success)/40 bg-(--color-success)/10 px-3 py-2 text-[12px] font-medium text-(--color-success)">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span>Alarm kuruldu! Hedef fiyata ulaşıldığında sizi bilgilendireceğiz.</span>
                 </div>
               ) : null}
 

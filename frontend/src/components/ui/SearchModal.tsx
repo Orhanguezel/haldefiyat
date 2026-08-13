@@ -13,6 +13,7 @@ import {
   type SearchResults,
 } from "./search/types";
 import { productHref } from "@/lib/product-links";
+import { useModalA11y } from "@/hooks/useModalA11y";
 
 const API_BASE =
   (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "") +
@@ -32,10 +33,12 @@ export function openSearchModal(): void {
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SearchResults>({ products: [], markets: [] });
   const [activeIdx, setActiveIdx] = useState(0);
+  useModalA11y(isOpen, onClose, dialogRef, inputRef);
 
   const flat = useMemo<SearchFlatRow[]>(() => {
     const rows: SearchFlatRow[] = [];
@@ -111,10 +114,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         e.preventDefault();
         document.dispatchEvent(new Event("open-search"));
       }
-      if (e.key === "Escape" && isOpen) {
-        e.preventDefault();
-        onClose();
-      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -150,6 +149,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           aria-label="Arama"
         >
           <motion.div
+            ref={dialogRef}
+            tabIndex={-1}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}

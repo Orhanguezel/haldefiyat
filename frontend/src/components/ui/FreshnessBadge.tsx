@@ -1,4 +1,6 @@
 import { formatDateTr } from "@/lib/date-format";
+import { CheckCircle2, Clock3, History } from "lucide-react";
+import { Badge } from "./Badge";
 
 function daysSince(iso?: string | null): number | null {
   if (!iso) return null;
@@ -13,13 +15,7 @@ export default function FreshnessBadge({ recordedDate }: { recordedDate?: string
   const days = daysSince(recordedDate);
   if (days == null || !recordedDate) return null;
 
-  const tone = days > 45
-    ? "border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200"
-    : days > 14
-    ? "border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200"
-    : days > 7
-      ? "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200"
-      : "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-200";
+  const tone = days > 14 ? "danger" : days > 7 ? "warning" : "success";
   const label = days > 45
     ? "Geçen sezon verisi"
     : days === 0
@@ -29,10 +25,15 @@ export default function FreshnessBadge({ recordedDate }: { recordedDate?: string
       : `Son güncelleme ${days} gün önce`;
   const formatted = formatDateTr(recordedDate);
   const suffix = days > 0 && formatted ? `; en son ${formatted} tarihli veri gösteriliyor` : "";
+  const icon = days > 45
+    ? <History className="h-3.5 w-3.5" aria-hidden="true" />
+    : days > 7
+      ? <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
+      : <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />;
 
   return (
-    <span className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${tone}`}>
+    <Badge color={tone} icon={icon} className="text-[11px]">
       {label}{suffix}
-    </span>
+    </Badge>
   );
 }

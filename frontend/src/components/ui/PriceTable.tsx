@@ -6,6 +6,7 @@ import { productHref } from "@/lib/product-links";
 import { apiGet } from "@/lib/api-client";
 import type { PriceRow, Market, PriceListResponse, PriceListMeta, FetchPricesParams } from "@/lib/api";
 import Pagination from "@/components/ui/Pagination";
+import { StatusState } from "@/components/ui/StatusState";
 
 interface PriceTableProps {
   initialPrices?: PriceRow[];
@@ -448,12 +449,37 @@ export default function PriceTable({
       </div>
 
       {/* Tablo */}
-      <div className="relative overflow-x-auto rounded-[14px] border border-(--color-border) bg-(--color-surface)">
+      <div className="relative overflow-hidden rounded-[14px] border border-(--color-border) bg-(--color-surface)">
         {loading && (
           <div className="absolute inset-x-0 top-0 z-10 h-0.5 overflow-hidden bg-(--color-border)">
             <div className="h-full w-1/3 animate-pulse bg-(--color-brand)" />
           </div>
         )}
+        <div className="md:hidden">
+          {filtered.length === 0 ? (
+            <StatusState
+              kind="empty"
+              compact
+              title={safePrices.length === 0 ? "Henüz fiyat verisi yok" : "Filtrelere uyan kayıt bulunamadı"}
+              description={safePrices.length === 0 ? "Yeni kaynak verisi geldiğinde bu liste güncellenecek." : "Arama veya filtreleri değiştirerek tekrar deneyin."}
+            />
+          ) : (
+            <div className="divide-y divide-(--color-border-soft)">
+              {filtered.map((row) => (
+                <MobilePriceCard
+                  key={row.id}
+                  row={row}
+                  isBorsaTable={isBorsaTable}
+                  yearAgoAvg={yoyByMarket?.[row.marketSlug]}
+                  hideProduct={hideProductColumn}
+                  hideMarket={hideMarketColumn}
+                  hideCity={hideCityColumn}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="hidden overflow-x-auto md:block">
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-(--color-border) text-left">
@@ -618,6 +644,7 @@ export default function PriceTable({
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {serverPagination ? (
@@ -646,5 +673,71 @@ export default function PriceTable({
         </div>
       )}
     </div>
+  );
+}
+
+function MobilePriceCard({
+  row,
+  isBorsaTable,
+  yearAgoAvg,
+  hideProduct,
+  hideMarket,
+  hideCity,
+}: {
+  row: PriceRow;
+  isBorsaTable: boolean;
+  yearAgoAvg?: number;
+  hideProduct: boolean;
+  hideMarket: boolean;
+  hideCity: boolean;
+}) {
+  const currentAvg = toPriceNumber(row.avgPrice);
+  const yoyPct = yearAgoAvg && yearAgoAvg > 0 && Number.isFinite(currentAvg)
+    ? ((currentAvg - yearAgoAvg) / yearAgoAvg) * 100
+    : null;
+  const family = sourceFamily(row.sourceApi);
+
+  return (
+    <article className="space-y-3 p-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          {!hideProduct ? (
+            <Link href={productHref(row)} className="block truncate text-sm font-bold text-(--color-foreground) hover:text-(--color-brand)">
+              {row.productName}
+            </Link>
+          ) : null}
+          {!hideMarket ? (
+            <Link href={`/hal/${row.marketSlug}`} className="mt-1 block truncate text-xs text-(--color-muted) hover:text-(--color-brand)">
+              {row.marketName}
+            </Link>
+          ) : null}
+          {!hideCity ? <p className="mt-0.5 text-xs text-(--color-muted)">{row.cityName}</p> : null}
+        </div>
+        <div className="shrink-0 text-right">
+          <p className="font-(family-name:--font-mono) text-lg font-bold text-(--color-foreground)">₺{fmt(row.avgPrice)}</p>
+          <p className="text-[11px] text-(--color-muted)">/{row.unit}</p>
+          {yoyPct !== null ? (
+            <p className={`mt-1 text-[10px] font-semibold ${yoyPct > 0 ? "text-(--trend-up)" : "text-(--trend-down)"}`}>
+              {yoyPct > 0 ? "↑" : "↓"} %{Math.abs(yoyPct).toFixed(1)} geçen yıla
+            </p>
+          ) : null}
+        </div>
+      </div>
+
+      <dl className="grid grid-cols-3 gap-2 rounded-lg bg-(--color-bg-alt) p-3 text-xs">
+        <div><dt className="text-(--color-muted)">Min</dt><dd className="mt-1 font-(family-name:--font-mono) font-semibold text-(--color-foreground)">₺{fmt(row.minPrice)}</dd></div>
+        <div><dt className="text-(--color-muted)">Ortalama</dt><dd className="mt-1 font-(family-name:--font-mono) font-semibold text-(--color-foreground)">₺{fmt(row.avgPrice)}</dd></div>
+        <div><dt className="text-(--color-muted)">Maks</dt><dd className="mt-1 font-(family-name:--font-mono) font-semibold text-(--color-foreground)">₺{fmt(row.maxPrice)}</dd></div>
+      </dl>
+
+      <div className="flex flex-wrap items-center gap-2 text-[11px] text-(--color-muted)">
+        <time dateTime={row.recordedDate}>{formatDate(row.recordedDate)}</time>
+        <span aria-hidden>·</span>
+        <span title={row.sourceName ?? row.sourceApi} className="font-semibold uppercase">{family}</span>
+        {row.isOfficialSource ? <span className="rounded-full border border-(--color-success)/35 bg-(--color-success-bg) px-2 py-0.5 text-(--color-success)">Resmi kaynak</span> : null}
+        {row.isStale ? <span className="rounded-full border border-(--color-warning)/40 bg-(--color-warning-bg) px-2 py-0.5 text-(--color-warning)">{isBorsaTable ? "Geçen sezon" : "Gecikmeli"}</span> : null}
+        {row.sourceUrl ? <a href={row.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-(--color-info) underline underline-offset-2">Kaynağı doğrula</a> : null}
+      </div>
+    </article>
   );
 }

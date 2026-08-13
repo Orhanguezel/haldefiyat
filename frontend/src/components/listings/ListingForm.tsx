@@ -133,8 +133,9 @@ export function ListingForm({ products }: { products: Product[] }) {
       </select>
       <Input name="title" label="Başlık" required minLength={4} className="md:col-span-2" error={errors.title} />
       <div className="md:col-span-2">
-        <span className="text-xs font-medium text-foreground">Ürün<span className="text-danger"> *</span></span>
         <SearchableSelect
+          label="Ürün"
+          required
           placeholder="Ürün ara (ör. domates)…"
           options={productOptions}
           value={productSlug}

@@ -9,6 +9,12 @@ type Props = {
   options: ComboboxOption[];
   value?: string | null;
   onChange: (value: string | null) => void;
+  label?: string;
+  error?: string;
+  hint?: string;
+  required?: boolean;
+  id?: string;
+  name?: string;
   placeholder?: string;
   disabled?: boolean;
   emptyText?: string;
@@ -18,11 +24,19 @@ export function Combobox({
   options,
   value,
   onChange,
+  label,
+  error,
+  hint,
+  required = false,
+  id: providedId,
+  name,
   placeholder = "Seçin",
   disabled = false,
   emptyText = "Sonuç yok",
 }: Props) {
-  const id = useId();
+  const generatedId = useId();
+  const id = providedId ?? generatedId;
+  const helpId = `${id}-${error ? "error" : "hint"}`;
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
@@ -65,13 +79,27 @@ export function Combobox({
   }
 
   return (
-    <div ref={rootRef} className="relative">
-      <input
+    <div ref={rootRef} className="flex flex-col gap-1.5">
+      {label ? (
+        <label htmlFor={id} className="text-xs font-medium text-(--color-foreground)">
+          {label}{required ? <span className="text-(--color-danger)"> *</span> : null}
+        </label>
+      ) : null}
+      <div className="relative">
+        <input
+        id={id}
+        name={name}
         ref={inputRef}
         role="combobox"
+        aria-autocomplete="list"
+        aria-label={label ? undefined : placeholder}
         aria-expanded={open}
         aria-controls={`${id}-listbox`}
         aria-activedescendant={open && filtered[activeIndex] ? `${id}-${filtered[activeIndex].value}` : undefined}
+        aria-invalid={Boolean(error)}
+        aria-describedby={(error || hint) ? helpId : undefined}
+        required={required}
+        autoComplete="off"
         disabled={disabled}
         value={open ? query : selected?.label ?? ""}
         onFocus={() => !disabled && setOpen(true)}
@@ -99,7 +127,7 @@ export function Combobox({
           }
         }}
         placeholder={placeholder}
-        className="min-h-11 w-full rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm text-(--color-foreground) outline-none focus:border-(--color-brand) disabled:cursor-not-allowed disabled:opacity-60"
+        className={`min-h-11 w-full rounded-[6px] border bg-(--color-background) px-3 text-sm text-(--color-foreground) outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-60 ${error ? "border-(--color-danger) focus:border-(--color-danger) focus:ring-(--color-danger)/20" : "border-(--color-border) focus:border-(--color-brand) focus:ring-(--color-brand)/20"}`}
       />
       {open && !disabled && (
         <div
@@ -130,6 +158,9 @@ export function Combobox({
           ))}
         </div>
       )}
+      </div>
+      {error ? <p id={helpId} role="alert" className="text-xs text-(--color-danger)">{error}</p> : null}
+      {hint && !error ? <p id={helpId} className="text-xs text-(--color-muted)">{hint}</p> : null}
     </div>
   );
 }
