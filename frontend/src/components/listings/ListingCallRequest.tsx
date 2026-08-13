@@ -41,7 +41,7 @@ export function ListingCallRequest({ listingId }: { listingId: number }) {
 
   if (!user) {
     return (
-      <section className="rounded-[10px] border border-(--color-brand)/25 bg-(--color-brand)/8 p-4" aria-labelledby="call-request-title">
+      <section id="call-request" className="scroll-mt-24 rounded-[10px] border border-(--color-brand)/25 bg-(--color-brand)/8 p-4" aria-labelledby="call-request-title">
         <h2 id="call-request-title" className="font-semibold text-(--color-foreground)">Satıcıyı ara</h2>
         <p className="mt-2 text-sm leading-6 text-(--color-muted)">
           Satıcının numarası açık paylaşılmaz. Güvenli bir arama talebi göndermek için giriş yapın.
@@ -55,7 +55,7 @@ export function ListingCallRequest({ listingId }: { listingId: number }) {
 
   if (success) {
     return (
-      <section className="rounded-[10px] border border-(--color-success)/30 bg-(--color-success-bg) p-4" role="status">
+      <section id="call-request" className="scroll-mt-24 rounded-[10px] border border-(--color-success)/30 bg-(--color-success-bg) p-4" role="status">
         <h2 className="font-semibold text-(--color-foreground)">Arama talebiniz iletildi</h2>
         <p className="mt-2 text-sm leading-6 text-(--color-muted)">
           Satıcı uygun olduğunda geri dönüş yapabilir. Tarafların telefon numaraları bu sayfada açık paylaşılmaz.
@@ -65,7 +65,7 @@ export function ListingCallRequest({ listingId }: { listingId: number }) {
   }
 
   return (
-    <section className="rounded-[10px] border border-(--color-brand)/25 bg-(--color-surface) p-4" aria-labelledby="call-request-title">
+    <section id="call-request" className="scroll-mt-24 rounded-[10px] border border-(--color-brand)/25 bg-(--color-surface) p-4" aria-labelledby="call-request-title">
       <h2 id="call-request-title" className="font-semibold text-(--color-foreground)">Arama talebi gönder</h2>
       <p className="mt-2 text-sm leading-6 text-(--color-muted)">
         Numaranız ve satıcının numarası açık paylaşılmaz. Bu işlem anlık görüşme garantisi vermez.

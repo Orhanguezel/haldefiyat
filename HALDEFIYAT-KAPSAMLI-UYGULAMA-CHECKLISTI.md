@@ -122,7 +122,7 @@
 - [x] F1.16 Satıcı dashboard’una talep kabul/ret/tamamla kontrolleri ekle; geçişler backend sahiplik kuralıyla korunuyor.
 - [ ] F1.17 Satıcının uygun saat ve arama talebi kabul ayarını ekle.
 - [x] F1.18 Alıcı dashboard’una talep durumu ve yalnız açık talepte iptal kontrolü ekle.
-- [~] F1.19 “Satıcıyı ara” CTA/formu deploy edildi ve canlı desktop HTML’de doğrulandı; sticky davranış ve mobil görsel kabul bekliyor.
+- [~] F1.19 “Satıcıyı ara” CTA/formu deploy edildi; desktop sidebar sticky, mobilde safe-area uyumlu sabit CTA eklendi. Canlı mobil görsel kabul bekliyor.
 - [x] F1.20 Panel başlığını “Arama talebi gönder” yap; anlık bağlantı vaadi verme.
 - [x] F1.21 “Numaranız ve satıcının numarası açık paylaşılmaz” güven metnini ekle.
 - [x] F1.22 Uygun zaman, kısa not, zorunlu KVKK onayı ve gizlilik bağlantısını erişilebilir form olarak ekle.

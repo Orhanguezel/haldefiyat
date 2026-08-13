@@ -77,7 +77,7 @@ export default async function ListingDetailPage({ params }: Props) {
           </dl>
           {listing.description ? <p className="mt-6 whitespace-pre-line leading-7 text-(--color-muted)">{listing.description}</p> : null}
         </article>
-        <aside>
+        <aside className="lg:sticky lg:top-24 lg:self-start">
           <ListingCallRequest listingId={listing.id} />
           <div className="mt-6">
           <ListingInquiryForm listingId={listing.id} />
@@ -88,6 +88,11 @@ export default async function ListingDetailPage({ params }: Props) {
             context={{ listing: listing.id, city: listing.citySlug, product: listing.productSlug }}
           />
         </aside>
+      </div>
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-(--color-border) bg-(--color-surface)/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(0,0,0,0.14)] backdrop-blur lg:hidden">
+        <a href="#call-request" className="mx-auto flex min-h-11 max-w-xl items-center justify-center rounded-lg bg-(--color-brand) px-5 text-sm font-semibold text-white">
+          Satıcıya arama talebi gönder
+        </a>
       </div>
     </PageContainer>
   );
