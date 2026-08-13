@@ -187,7 +187,7 @@
 - [x] F2.13 Canonical katman bilinmeyen/boş birimde `null/UNKNOWN_UNIT` döndürüyor; varsayımsal kg dönüşümü yapmıyor. Legacy ETL çağrı noktasına geçiş F2.15 ile birlikte yapılacak.
 - [x] F2.14 Ürün–varyant–birim izin matrisini kur. (Her ürün/varyant tek canonical default birim; farklı paket birimi ayrı kimlik. Merkezi yazımda enforce ediliyor.)
 - [x] F2.15 Bilinmeyen birimi karantinaya al ve admin kuyruğunda göster. (`UNKNOWN_PRODUCT_UNIT` ve `PRODUCT_UNIT_MISMATCH` reason code’ları canlı admin kuyruğunda.)
-- [ ] F2.16 Fiyat etiketi, tablo başlığı, grafik tooltip ve CSV’de birimi zorunlu göster.
+- [x] F2.16 Fiyat etiketi, tablo başlığı, grafik tooltip ve CSV’de birimi zorunlu göster. (Fiyat tablosu min/ort/maks hücreleri ile ürün, sezon ve karşılaştırma grafik tooltip'leri birimli hale getirildi; CSV'deki zorunlu `Birim` sütunu doğrulandı. Production build ve 390 px canlı DOM kabulü geçti: yatay taşma yok, `kg`, `bag`, `koli` birimleri fiyatlarla birlikte görünüyor. Commit: `b920537c`.)
 - [~] F2.17 Geçmiş yanlış birimleri dry-run raporuyla belirle ve onaylı göç uygula. (147.179 potansiyel uyumsuz satır kohortlandı; kanıtsız toplu dönüşüm yapılmadı. Rapor: `artifacts/renewal-2026/urun-birim-matrisi-ve-dry-run-2026-08-13.md`.)
 
 ### 4.3 URL ve SEO göçü
