@@ -1,7 +1,7 @@
 export const revalidate = 300;
 
 import type { Metadata, Viewport } from "next";
-import { Outfit, IBM_Plex_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import { NextIntlClientProvider } from "next-intl";
 import { Suspense } from "react";
 import { defaultLocale } from "@/i18n/routing";
@@ -17,18 +17,11 @@ import { ServiceWorkerProvider } from "@/components/providers/ServiceWorkerProvi
 import { PageviewTracker } from "@/components/providers/PageviewTracker";
 import "./globals.css";
 
-const outfit = Outfit({
-  subsets: ["latin"],
+const outfit = localFont({
+  src: "../../public/fonts/Outfit-800.ttf",
   variable: "--font-display",
   display: "swap",
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
-});
-
-const ibmPlexSans = IBM_Plex_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-  weight: ["300", "400", "500", "600", "700"],
+  weight: "800",
 });
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033").replace(/\/$/, "");
@@ -117,7 +110,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       lang="tr"
       data-brand="hal-fiyatlari"
       suppressHydrationWarning
-      className={`${outfit.variable} ${ibmPlexSans.variable} font-sans`}
+      className={`${outfit.variable} font-sans`}
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
