@@ -38,7 +38,7 @@ const generatedAt = new Date().toISOString();
 const lines = [
   "# Ürün Eski → Canonical URL Haritası",
   "",
-  `Üretim zamanı: \`${generatedAt}\`  `,
+  `Üretim zamanı: \`${generatedAt}\``,
   `Kaynak API: \`${apiBase}\``,
   "",
   "Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür. Frontend proxy bu kayıtları istek anında 301 ile canonical ürüne yönlendirir; `hf_redirects` tablosundaki birebir kayıt yalnız ek denetim ve hit ölçümü içindir.",

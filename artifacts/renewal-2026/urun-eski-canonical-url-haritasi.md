@@ -1,6 +1,6 @@
 # Ürün Eski → Canonical URL Haritası
 
-Üretim zamanı: `2026-08-13T22:05:57.258Z`  
+Üretim zamanı: `2026-08-13T22:07:14.132Z`
 Kaynak API: `https://haldefiyat.com/api/v1`
 
 Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür. Frontend proxy bu kayıtları istek anında 301 ile canonical ürüne yönlendirir; `hf_redirects` tablosundaki birebir kayıt yalnız ek denetim ve hit ölçümü içindir.
@@ -12,7 +12,7 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 - Birebir kayıtlı aktif 301: **4**
 - Aktif 410 ile çelişen eşleşme: **0**
 - Eksik canonical hedef: **0**
-- Birden fazla sıçramalı canonical hedef: **12**
+- Birden fazla sıçramalı canonical hedef: **0**
 - Dinamik canonical 301'e bağlı eşleşme: **608**
 
 ## Harita
@@ -47,10 +47,10 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/ayva-normal` | `/urun/ayva` | kg | doğrudan | proxy 301 |
 | `/urun/bakla-muhtelif` | `/urun/bakla` | kg | doğrudan | proxy 301 |
 | `/urun/bakla-taze` | `/urun/bakla` | kg | doğrudan | proxy 301 |
-| `/urun/bakla-taze-diger` | `/urun/bakla-taze` | kg | ZİNCİRLİ HEDEF | proxy 301 |
+| `/urun/bakla-taze-diger` | `/urun/bakla` | kg | doğrudan | proxy 301 |
 | `/urun/bal-kabagi-normal` | `/urun/bal-kabagi` | kg | doğrudan | proxy 301 |
 | `/urun/balkabagi` | `/urun/bal-kabagi` | kg | doğrudan | proxy 301 |
-| `/urun/balkabagi-soyulmus` | `/urun/balkabagi` | kg | ZİNCİRLİ HEDEF | proxy 301 |
+| `/urun/balkabagi-soyulmus` | `/urun/bal-kabagi` | kg | doğrudan | proxy 301 |
 | `/urun/bamya-muhtelif` | `/urun/bamya` | kg | doğrudan | proxy 301 |
 | `/urun/bamya-taze` | `/urun/bamya` | kg | doğrudan | proxy 301 |
 | `/urun/barbunya-muhtelif` | `/urun/barbunya` | kg | doğrudan | proxy 301 |
@@ -153,7 +153,7 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/domates-oval` | `/urun/domates` | kg | doğrudan | proxy 301 |
 | `/urun/domates-pembe-iyi-tarim` | `/urun/domates-pembe` | kg | doğrudan | proxy 301 |
 | `/urun/domates-petemek` | `/urun/domates-pembe` | kg | doğrudan | proxy 301 |
-| `/urun/domates-petemek-erik` | `/urun/domates-petemek` | kg | ZİNCİRLİ HEDEF | proxy 301 |
+| `/urun/domates-petemek-erik` | `/urun/domates-pembe` | kg | doğrudan | proxy 301 |
 | `/urun/domates-salcalik-hurma` | `/urun/domates-salcalik` | kg | doğrudan | proxy 301 |
 | `/urun/domates-salcalik-rio` | `/urun/domates-salcalik` | kg | doğrudan | proxy 301 |
 | `/urun/domates-salkim-ceri` | `/urun/domates-salkim` | kg | doğrudan | proxy 301 |
@@ -337,11 +337,11 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/kiraz-yerli` | `/urun/kiraz` | kg | doğrudan | proxy 301 |
 | `/urun/kiris-ciris` | `/urun/kiris` | kg | doğrudan | proxy 301 |
 | `/urun/kirmizi-marul` | `/urun/marul-lolorosso` | adet | doğrudan | proxy 301 |
-| `/urun/kirmizi-pancar` | `/urun/kir-pancar` | kg | ZİNCİRLİ HEDEF | proxy 301 |
+| `/urun/kirmizi-pancar` | `/urun/pancar` | kg | doğrudan | proxy 301 |
 | `/urun/kisnis-muhtelif` | `/urun/kisnis` | adet | doğrudan | proxy 301 |
 | `/urun/kiv-marul` | `/urun/marul-kivircik` | adet | doğrudan | proxy 301 |
 | `/urun/kivi-ithal` | `/urun/kivi` | kg | doğrudan | proxy 301 |
-| `/urun/kivi-ithal-muhtelif` | `/urun/kivi-ithal` | kg | ZİNCİRLİ HEDEF | proxy 301 |
+| `/urun/kivi-ithal-muhtelif` | `/urun/kivi` | kg | doğrudan | proxy 301 |
 | `/urun/kivi-muhtelif` | `/urun/kivi` | kg | doğrudan | proxy 301 |
 | `/urun/kivi-normal` | `/urun/kivi` | kg | doğrudan | proxy 301 |
 | `/urun/kivircik` | `/urun/marul-kivircik` | adet | doğrudan | proxy 301 |
@@ -449,7 +449,7 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/nektarin-kirmizi` | `/urun/nektarin` | kg | doğrudan | proxy 301 |
 | `/urun/organik-domates` | `/urun/domates` | kg | doğrudan | proxy 301 |
 | `/urun/oval-domates` | `/urun/domates` | kg | doğrudan | proxy 301 |
-| `/urun/pancar-kirmizi` | `/urun/kir-pancar` | kg | ZİNCİRLİ HEDEF | proxy 301 |
+| `/urun/pancar-kirmizi` | `/urun/pancar` | kg | doğrudan | proxy 301 |
 | `/urun/papates-yeni` | `/urun/patates-taze` | kg | doğrudan | proxy 301 |
 | `/urun/patates-2-kalite` | `/urun/patates` | kg | doğrudan | proxy 301 |
 | `/urun/patates-agira` | `/urun/patates` | kg | doğrudan | proxy 301 |
@@ -526,7 +526,7 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/sarimsak-yesil` | `/urun/sarimsak-kuru` | kg | doğrudan | proxy 301 |
 | `/urun/seftali-muhtelif` | `/urun/seftali` | kg | doğrudan | proxy 301 |
 | `/urun/seftali-nektari` | `/urun/seftali` | kg | doğrudan | proxy 301 |
-| `/urun/seftali-nektari-muhtelif` | `/urun/seftali-nektari` | kg | ZİNCİRLİ HEDEF | proxy 301 |
+| `/urun/seftali-nektari-muhtelif` | `/urun/seftali` | kg | doğrudan | proxy 301 |
 | `/urun/seftali-normal` | `/urun/seftali` | kg | doğrudan | proxy 301 |
 | `/urun/seftali-yassi` | `/urun/seftali` | kg | doğrudan | proxy 301 |
 | `/urun/seftali-yerli` | `/urun/seftali` | kg | doğrudan | proxy 301 |
@@ -544,7 +544,7 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/siyah-kabak` | `/urun/kabak-kara` | kg | doğrudan | proxy 301 |
 | `/urun/sogan-arpacik` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
 | `/urun/sogan-beyaz` | `/urun/sogan-taze` | kg | doğrudan | proxy 301 |
-| `/urun/sogan-beyaz-kg` | `/urun/sogan-beyaz` | kg | ZİNCİRLİ HEDEF | proxy 301 |
+| `/urun/sogan-beyaz-kg` | `/urun/sogan-taze` | kg | doğrudan | proxy 301 |
 | `/urun/sogan-goger` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
 | `/urun/sogan-ii` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
 | `/urun/sogan-ii-muhtelif` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
@@ -557,13 +557,13 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/sogan-kuru-frenk` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
 | `/urun/sogan-kuru-ii` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
 | `/urun/sogan-kuru-ii-taze` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
-| `/urun/sogan-kuru-kg` | `/urun/sogan-kuru-ii` | kg | ZİNCİRLİ HEDEF | proxy 301 |
+| `/urun/sogan-kuru-kg` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
 | `/urun/sogan-kuru-kirmizi` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
 | `/urun/sogan-kuru-mor` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
-| `/urun/sogan-kuru-taze` | `/urun/sogan-kuru-taze-kg` | kg | ZİNCİRLİ HEDEF | proxy 301 |
-| `/urun/sogan-kuru-taze-ii` | `/urun/sogan-kuru-taze-kg` | kg | ZİNCİRLİ HEDEF | proxy 301 |
+| `/urun/sogan-kuru-taze` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
+| `/urun/sogan-kuru-taze-ii` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
 | `/urun/sogan-kuru-taze-kg` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
-| `/urun/sogan-mor` | `/urun/sogan-mor-kg` | kg | ZİNCİRLİ HEDEF | proxy 301 |
+| `/urun/sogan-mor` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
 | `/urun/sogan-mor-kg` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
 | `/urun/sogan-taze-bag` | `/urun/sogan-kuru` | kg | doğrudan | proxy 301 |
 | `/urun/sogan-taze-kg` | `/urun/sogan-taze` | kg | doğrudan | proxy 301 |
@@ -631,4 +631,3 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/yuvarlak-domates` | `/urun/domates` | kg | doğrudan | proxy 301 |
 | `/urun/zencefil-taze` | `/urun/zencefil` | kg | doğrudan | proxy 301 |
 | `/urun/zencefil-yas` | `/urun/zencefil` | kg | doğrudan | proxy 301 |
-
