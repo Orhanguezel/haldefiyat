@@ -25,4 +25,10 @@ describe("price quality guard", () => {
     expect(assessPriceQuality({ avg: 30, unit: "kg", expectedUnit: "adet" }).reason).toBe("PRODUCT_UNIT_MISMATCH");
     expect(assessPriceQuality({ avg: 30, unit: "kg", expectedUnit: null }).reason).toBe("UNKNOWN_PRODUCT_UNIT");
   });
+
+  it("labels previous-day, cross-source and stale anomalies separately", () => {
+    expect(assessPriceQuality({ avg: 120, unit: "kg", expectedUnit: "kg", previousPrice: 20 }).reason).toBe("PREVIOUS_PRICE_JUMP");
+    expect(assessPriceQuality({ avg: 120, unit: "kg", expectedUnit: "kg", sourcePeerPrices: [18, 20, 22, 24] }).reason).toBe("SOURCE_MEDIAN_DEVIATION");
+    expect(assessPriceQuality({ avg: 20, unit: "kg", expectedUnit: "kg", sourceRecordAgeDays: 401 }).reason).toBe("STALE_SOURCE_RECORD");
+  });
 });

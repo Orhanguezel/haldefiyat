@@ -1511,6 +1511,22 @@ export async function upsertPriceRow(input: {
     [input.productId, unit, input.recordedDate],
   );
   const typedPeers = peerRows as Array<{ price: number | string }>;
+  const [[previousRow], [sourcePeerRows]] = await Promise.all([
+    pool.query(
+      `SELECT avg_price AS price FROM hf_price_history
+       WHERE product_id=? AND market_id=? AND unit=? AND recorded_date < ?
+       ORDER BY recorded_date DESC LIMIT 1`,
+      [input.productId, input.marketId, unit, input.recordedDate],
+    ),
+    pool.query(
+      `SELECT avg_price AS price FROM hf_price_history
+       WHERE product_id=? AND market_id<>? AND unit=? AND ABS(DATEDIFF(recorded_date, ?)) <= 3
+       ORDER BY recorded_date DESC LIMIT 30`,
+      [input.productId, input.marketId, unit, input.recordedDate],
+    ),
+  ]);
+  const previous = (previousRow as Array<{ price: number | string }>)[0];
+  const sourcePeers = sourcePeerRows as Array<{ price: number | string }>;
   const quality = assessPriceQuality({
     avg,
     min,
@@ -1519,6 +1535,8 @@ export async function upsertPriceRow(input: {
     expectedUnit,
     categorySlug: product.categorySlug,
     peerPrices: typedPeers.map((row) => Number(row.price)).filter((value) => value > 0),
+    previousPrice: previous ? Number(previous.price) : null,
+    sourcePeerPrices: sourcePeers.map((row) => Number(row.price)).filter((value) => value > 0),
   });
 
   if (!quality.publish) {

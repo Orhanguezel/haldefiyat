@@ -4,6 +4,9 @@ export type PriceQualityReason =
   | "AVG_OUTSIDE_RANGE"
   | "ABSOLUTE_LIMIT"
   | "PEER_MEDIAN_DEVIATION"
+  | "PREVIOUS_PRICE_JUMP"
+  | "SOURCE_MEDIAN_DEVIATION"
+  | "STALE_SOURCE_RECORD"
   | "PRODUCT_UNIT_MISMATCH"
   | "UNKNOWN_PRODUCT_UNIT";
 
@@ -15,6 +18,9 @@ export interface PriceQualityInput {
   expectedUnit?: string | null;
   categorySlug?: string | null;
   peerPrices?: readonly number[];
+  previousPrice?: number | null;
+  sourcePeerPrices?: readonly number[];
+  sourceRecordAgeDays?: number | null;
 }
 
 export interface PriceQualityDecision {
@@ -44,6 +50,7 @@ function absoluteLimit(input: Pick<PriceQualityInput, "unit" | "categorySlug">):
 export function assessPriceQuality(input: PriceQualityInput): PriceQualityDecision {
   const limit = absoluteLimit(input);
   const peers = input.peerPrices ?? [];
+  const sourcePeers = input.sourcePeerPrices ?? [];
   const peerMedian = peers.length >= 5 ? median(peers) : null;
   const deviationRatio = peerMedian && peerMedian > 0 ? input.avg / peerMedian : null;
   const decision = (reason: PriceQualityReason, severity: "warning" | "critical", confidence: number): PriceQualityDecision => ({
@@ -63,6 +70,17 @@ export function assessPriceQuality(input: PriceQualityInput): PriceQualityDecisi
   if (input.min != null && input.max != null && input.min > input.max) return decision("MIN_GREATER_THAN_MAX", "critical", 1);
   if ((input.min != null && input.avg < input.min) || (input.max != null && input.avg > input.max)) return decision("AVG_OUTSIDE_RANGE", "critical", 1);
   if (values.some((value) => value > limit)) return decision("ABSOLUTE_LIMIT", "critical", 0.99);
+  if (input.sourceRecordAgeDays != null && input.sourceRecordAgeDays > 400) {
+    return decision("STALE_SOURCE_RECORD", "warning", Math.min(0.99, 0.8 + input.sourceRecordAgeDays / 10_000));
+  }
+  if (input.previousPrice != null && input.previousPrice > 0) {
+    const previousRatio = input.avg / input.previousPrice;
+    if (previousRatio > 5 || previousRatio < 0.2) return decision("PREVIOUS_PRICE_JUMP", "warning", 0.95);
+  }
+  const sourceMedian = sourcePeers.length >= 3 ? median(sourcePeers) : null;
+  if (sourceMedian && (input.avg / sourceMedian > 4 || input.avg / sourceMedian < 0.25)) {
+    return decision("SOURCE_MEDIAN_DEVIATION", "warning", Math.min(0.99, 0.8 + sourcePeers.length / 100));
+  }
 
   // En az 5 tarih-yakın emsal olmadan medyan kararı verilmez. Dört kat üstü veya
   // dörtte bir altı sapma karantinaya gider; mevsimsel hareketlere geniş marj bırakır.

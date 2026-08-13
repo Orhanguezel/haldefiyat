@@ -206,9 +206,9 @@
 - [x] F2.26 Toplam/fiyatlı/güncel ürün, aktif kaynak ve güncel il tanımları `docs/MERKEZI-METRIK-SOZLUGU.md` içinde yazıldı.
 - [x] F2.27 Her metriğin query anlamı, 7/30 günlük penceresi, 300 sn TTL, owner ve gösterim kuralı bağlandı.
 - [x] F2.28 Mevcut `/prices/overview` yeniden kullanılip merkezi kaynak olarak genişletildi; paralel stats servisi kurulmadı.
-- [ ] F2.29 Ana sayfa, harita, data-health, topbar ve mobil hero’yu ortak kaynağa geçir.
-- [~] F2.30 Endpoint `fresh/stale/unknown`, `measuredAt` ve son kayıt tarihini döndürüyor; topbar “Canlı Veri” yerine nötr “Veri Özeti” diyor. Tüm yüzeylerde stale badge geçişi bekliyor.
-- [~] F2.31 Metrik sözlüğü repo dokümanında açıklandı; public metodoloji tooltip/metin bağlantısı bekliyor.
+- [x] F2.29 Ana sayfa, harita, data-health, topbar ve mobil hero’yu ortak kaynağa geçir. (Tüm yüzeyler `/prices/overview` içindeki tracked/current ürün, active market/city ve freshness alanlarını kullanıyor. Canlı 390 px kabul: harita 29 güncel şehir/63 aktif hal; taşma yok. Commitler: `c3ab268c`, `6b366252`.)
+- [x] F2.30 Endpoint `fresh/stale/unknown`, `measuredAt` ve son kayıt tarihini döndürüyor; tüm tüketici yüzeyleri güncel/gecikmeli/bilinmiyor durumunu aynı sözlükle gösteriyor.
+- [x] F2.31 Metrik sözlüğü repo dokümanında ve public metodoloji bağlantısında açıklandı; topbar ile harita özeti metodolojiye doğrudan bağlandı, data-health açıklaması aynı eşikleri gösteriyor.
 
 ### 4.5 Veri bekçisi paneli
 
