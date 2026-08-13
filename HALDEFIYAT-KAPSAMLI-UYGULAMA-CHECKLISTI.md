@@ -110,7 +110,7 @@
 - [x] F1.10 Aynı ilan+alıcı için aktif talebi 24 saat engelleyen idempotency kuralı ekle.
 - [x] F1.11 Alıcı günlük 5, ilan+alıcı 24 saat, satıcı günlük 25 DB kotası ve IP başına 10/saat route burst limiti eklendi; ham IP saklanmıyor.
 - [ ] F1.12 Doğrulanmamış kullanıcının OTP/giriş akışına yönlendirilmesini sağla.
-- [ ] F1.13 Kullanıcının kendi maskeli numarasını backend’den güvenli profil özeti olarak göster.
+- [x] F1.13 Yetkili backend profil özeti tam numarayı sunucuda maskeliyor; form `05** *** ** 67` biçimini veya profil tamamlama linkini gösteriyor. Canlı auth kabulünde tam telefon yanıt gövdesinde yok; kanıt `artifacts/renewal-2026/arama-talebi-maskeli-profil-kabul-2026-08-14.md`.
 - [~] F1.14 İlk MVP bildirimi mevcut Telegram admin kanalına ve alıcı/satıcı paneline bağlandı; satıcıya e-posta teslimi ve retry gözlemi bekliyor. Netgsm canlı provider/credential/flag pasif.
 - [x] F1.15 Telegram bildiriminde alıcının telefonu/e-postası/adı paylaşılmıyor; yalnız ilan, tercih zamanı, not ve talep no gönderiliyor.
 - [x] F1.16 Satıcı dashboard’una talep kabul/ret/tamamla kontrolleri ekle; geçişler backend sahiplik kuralıyla korunuyor.
