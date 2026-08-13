@@ -7,6 +7,7 @@ import { sourceInfoFor, sourceTypeFromMarketType } from "@/config/source-urls";
 import { INDEX_BASKET_SLUGS } from "@/modules/index/calculator";
 import { disambiguateProductUnitLabels } from "./product-unit-labels";
 import { assessPriceQuality } from "@/modules/etl/price-quality-guard";
+import { assessRetailPriceQuality } from "@/modules/etl/retail-price-quality-guard";
 
 export function parseRangeToDays(range?: string): number {
   if (!range) return 7;
@@ -1438,6 +1439,43 @@ export async function retailPricesByProduct(productSlug: string) {
       gte(hfRetailPrices.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 3 DAY)`),
     ))
     .groupBy(hfRetailPrices.chainSlug, hfRetailPrices.unit);
+}
+
+export async function upsertRetailPriceRow(input: {
+  productId: number; chainSlug: string; price: number; unit: string; recordedDate: string;
+  productNameRaw?: string | null; productUrl?: string | null;
+}) {
+  const [wholesaleRows, retailRows] = await Promise.all([
+    pool.query(
+      `SELECT avg_price AS price FROM hf_price_history WHERE product_id=? AND unit=?
+       AND ABS(DATEDIFF(recorded_date, ?)) <= 45 ORDER BY recorded_date DESC LIMIT 30`,
+      [input.productId, input.unit, input.recordedDate],
+    ),
+    pool.query(
+      `SELECT price FROM hf_retail_prices WHERE product_id=? AND chain_slug=? AND unit=?
+       AND ABS(DATEDIFF(recorded_date, ?)) <= 45 ORDER BY recorded_date DESC LIMIT 30`,
+      [input.productId, input.chainSlug, input.unit, input.recordedDate],
+    ),
+  ]);
+  const prices = (result: unknown) => ((result as [Array<{ price: number | string }>])[0] ?? []).map(row => Number(row.price)).filter(value => value > 0);
+  const quality = assessRetailPriceQuality({ price: input.price, wholesalePeers: prices(wholesaleRows), retailPeers: prices(retailRows) });
+  if (!quality.publish) {
+    await pool.query(
+      `INSERT INTO hf_retail_price_quarantine
+       (product_id,chain_slug,recorded_date,unit,price,product_name_raw,product_url,reason_code,confidence,wholesale_median,retail_median,markup_pct,deviation_ratio)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE price=VALUES(price), product_name_raw=VALUES(product_name_raw),
+       product_url=VALUES(product_url), confidence=VALUES(confidence), wholesale_median=VALUES(wholesale_median),
+       retail_median=VALUES(retail_median), markup_pct=VALUES(markup_pct), deviation_ratio=VALUES(deviation_ratio), status='pending'`,
+      [input.productId,input.chainSlug,input.recordedDate,input.unit,input.price,input.productNameRaw ?? null,input.productUrl ?? null,
+       quality.reason,quality.confidence,quality.wholesaleMedian,quality.retailMedian,quality.markupPct,quality.deviationRatio],
+    );
+    throw new Error(`RETAIL_PRICE_QUARANTINED:${quality.reason}`);
+  }
+  await db.insert(hfRetailPrices).values({
+    productId: input.productId, chainSlug: input.chainSlug, price: input.price.toFixed(2), currency: "TRY",
+    unit: input.unit, productNameRaw: input.productNameRaw ?? null, productUrl: input.productUrl ?? null,
+    recordedDate: new Date(`${input.recordedDate}T12:00:00`),
+  }).onDuplicateKeyUpdate({ set: { price: input.price.toFixed(2), productNameRaw: input.productNameRaw ?? null, productUrl: input.productUrl ?? null } });
 }
 
 // ETL: tek satır upsert (DUPLICATE KEY UPDATE)

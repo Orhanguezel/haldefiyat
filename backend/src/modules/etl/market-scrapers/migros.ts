@@ -12,10 +12,11 @@
  */
 
 import { db } from "@/db/client";
-import { hfProducts, hfRetailPrices } from "@/db/schema";
+import { hfProducts } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { fetchViaScraper } from "../scraper-client";
 import { turkishToAscii, getAliasMap, invalidateAliasCache } from "../normalizer";
+import { upsertRetailPriceRow } from "@/modules/prices/repository";
 
 const MIGROS_BASE = "https://www.migros.com.tr/sebze-meyve-c-2";
 const CHAIN_SLUG = "migros";
@@ -152,25 +153,8 @@ export async function runMigrosEtl(targetDate?: string): Promise<MigrosEtlResult
     }
 
     try {
-      await db
-        .insert(hfRetailPrices)
-        .values({
-          productId,
-          chainSlug: CHAIN_SLUG,
-          price: p.price.toFixed(2),
-          currency: "TRY",
-          unit: "kg",
-          productNameRaw: p.nameRaw,
-          productUrl: p.url || null,
-          recordedDate: new Date(`${recordedDate}T12:00:00`),
-        })
-        .onDuplicateKeyUpdate({
-          set: {
-            price: p.price.toFixed(2),
-            productNameRaw: p.nameRaw,
-            productUrl: p.url || null,
-          },
-        });
+      await upsertRetailPriceRow({ productId, chainSlug: CHAIN_SLUG, price: p.price, unit: "kg",
+        productNameRaw: p.nameRaw, productUrl: p.url || null, recordedDate });
       result.inserted++;
     } catch (err) {
       result.skipped++;

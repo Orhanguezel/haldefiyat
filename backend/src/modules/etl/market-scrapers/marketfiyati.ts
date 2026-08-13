@@ -15,9 +15,10 @@
  */
 
 import { db } from "@/db/client";
-import { hfProducts, hfRetailPrices } from "@/db/schema";
+import { hfProducts } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { turkishToAscii, getAliasMap, invalidateAliasCache } from "../normalizer";
+import { upsertRetailPriceRow } from "@/modules/prices/repository";
 
 const API_BASE = "https://api.marketfiyati.org.tr/api/v2";
 const UA =
@@ -309,24 +310,8 @@ export async function runMarketfiyatiEtl(
     const productId = Number(productIdStr);
     const avg = b.sum / b.count;
     try {
-      await db
-        .insert(hfRetailPrices)
-        .values({
-          productId,
-          chainSlug: chain!,
-          price: avg.toFixed(2),
-          currency: "TRY",
-          unit: b.unit,
-          productNameRaw: b.productNameRaw,
-          productUrl: null,
-          recordedDate: new Date(`${recordedDate}T12:00:00`),
-        })
-        .onDuplicateKeyUpdate({
-          set: {
-            price: avg.toFixed(2),
-            productNameRaw: b.productNameRaw,
-          },
-        });
+      await upsertRetailPriceRow({ productId, chainSlug: chain!, price: avg, unit: b.unit,
+        productNameRaw: b.productNameRaw, productUrl: null, recordedDate });
       result.inserted++;
     } catch (err) {
       result.skipped++;

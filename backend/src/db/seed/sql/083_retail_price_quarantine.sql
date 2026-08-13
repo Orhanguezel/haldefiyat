@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS `hf_retail_price_quarantine` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `product_id` INT UNSIGNED NOT NULL,
+  `chain_slug` VARCHAR(64) NOT NULL,
+  `recorded_date` DATE NOT NULL,
+  `unit` VARCHAR(32) NOT NULL,
+  `price` DECIMAL(12,2) NOT NULL,
+  `product_name_raw` VARCHAR(255) NULL,
+  `product_url` VARCHAR(512) NULL,
+  `reason_code` VARCHAR(64) NOT NULL,
+  `confidence` DECIMAL(5,4) NOT NULL,
+  `wholesale_median` DECIMAL(12,2) NULL,
+  `retail_median` DECIMAL(12,2) NULL,
+  `markup_pct` DECIMAL(12,4) NULL,
+  `deviation_ratio` DECIMAL(12,4) NULL,
+  `status` ENUM('pending','approved','rejected','corrected') NOT NULL DEFAULT 'pending',
+  `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `hf_rpq_record_uq` (`product_id`,`chain_slug`,`recorded_date`,`reason_code`),
+  KEY `hf_rpq_status_created_idx` (`status`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
