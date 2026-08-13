@@ -1286,7 +1286,7 @@ export async function productPriceHistory(
       FROM hf_price_history ph
       INNER JOIN hf_products p ON p.id = ph.product_id
       INNER JOIN hf_markets m ON m.id = ph.market_id
-      WHERE p.slug = ${productSlug}
+      WHERE (p.slug = ${productSlug} OR p.canonical_slug = ${productSlug})
         AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)
         ${marketFilter}
       GROUP BY m.id, m.slug, m.name, m.city_name, recordedDate
@@ -1296,7 +1296,7 @@ export async function productPriceHistory(
   }
 
   const conds: SQL[] = [
-    eq(hfProducts.slug, productSlug),
+    or(eq(hfProducts.slug, productSlug), eq(hfProducts.canonicalSlug, productSlug))!,
     gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)`),
   ];
   if (marketSlug) conds.push(eq(hfMarkets.slug, marketSlug));
