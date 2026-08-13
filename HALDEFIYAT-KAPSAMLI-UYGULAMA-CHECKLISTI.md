@@ -154,7 +154,7 @@
 - [x] F1.45 Mutlak eşik ve medyan sapmasını birlikte kullanan yayın öncesi guard ekle. (Merkezi `upsertPriceRow`; en az 5 emsal, 4x/0.25x sapma.)
 - [x] F1.46 Şüpheli kayıtları silme; karantinaya ve inceleme kuyruğuna al. (`hf_price_quarantine`: ham değer, reason, severity, confidence, median, review durumu.)
 - [x] F1.47 Karantinalı veriyi page/API/widget/CSV/bülten/sosyal/rapordan hariç tut. (Karantina kararı `hf_price_history` yazımından önce veriliyor; downstream yalnız yayın tablosunu okuyor.)
-- [ ] F1.48 546 TL domates ve yanlış adet/kg vakalarını fixture yap.
+- [x] F1.48 546 TL domates ve yanlış adet/kg vakalarını fixture yap. (Backend hal/retail guard ve frontend türev testlerinde 546; `PRODUCT_UNIT_MISMATCH` adet/kg fixture’ı testli.)
 - [~] F1.49 Guard false-positive oranını örneklemle kontrol et. (Canlı dry-run: 869 grubun 7’si, %0,81 potansiyel karantina; 7 vakanın insan etiketlemesi bekliyor.)
 
 ### Faz 1 kabul kapısı
@@ -185,10 +185,10 @@
 - [~] F2.11 Kodda kullanılan ham birim kuralları canonical contract modülünde toplandı; kaynak bazlı DB frekans export'u bekliyor.
 - [x] F2.12 `kg`, `adet`, `kasa`, `bag`, `demet`, `koli`, `ton` canonical birimleri tipli sabit olarak tanımlandı.
 - [x] F2.13 Canonical katman bilinmeyen/boş birimde `null/UNKNOWN_UNIT` döndürüyor; varsayımsal kg dönüşümü yapmıyor. Legacy ETL çağrı noktasına geçiş F2.15 ile birlikte yapılacak.
-- [ ] F2.14 Ürün–varyant–birim izin matrisini kur.
-- [ ] F2.15 Bilinmeyen birimi karantinaya al ve admin kuyruğunda göster.
+- [x] F2.14 Ürün–varyant–birim izin matrisini kur. (Her ürün/varyant tek canonical default birim; farklı paket birimi ayrı kimlik. Merkezi yazımda enforce ediliyor.)
+- [x] F2.15 Bilinmeyen birimi karantinaya al ve admin kuyruğunda göster. (`UNKNOWN_PRODUCT_UNIT` ve `PRODUCT_UNIT_MISMATCH` reason code’ları canlı admin kuyruğunda.)
 - [ ] F2.16 Fiyat etiketi, tablo başlığı, grafik tooltip ve CSV’de birimi zorunlu göster.
-- [ ] F2.17 Geçmiş yanlış birimleri dry-run raporuyla belirle ve onaylı göç uygula.
+- [~] F2.17 Geçmiş yanlış birimleri dry-run raporuyla belirle ve onaylı göç uygula. (147.179 potansiyel uyumsuz satır kohortlandı; kanıtsız toplu dönüşüm yapılmadı. Rapor: `artifacts/renewal-2026/urun-birim-matrisi-ve-dry-run-2026-08-13.md`.)
 
 ### 4.3 URL ve SEO göçü
 
