@@ -13,6 +13,7 @@ type HeaderProps = {
   activeCities?: number;
   targetCoverage?: string;
   latestRecordedDate?: string | null;
+  freshness?: "fresh" | "stale" | "unknown";
 };
 
 const NAV_ENTRIES: ReadonlyArray<NavEntry> = [
@@ -54,7 +55,7 @@ const NAV_ENTRIES: ReadonlyArray<NavEntry> = [
  * Iki katmanli sticky header.
  * Sunucu render — JS sadece TopbarClient (saat) + HeaderNavClient (active state, drawer).
  */
-export default function Header({ siteName, logoUrl, logoDarkUrl, logoLightUrl, trackedProducts, activeCities, targetCoverage, latestRecordedDate }: HeaderProps) {
+export default function Header({ siteName, logoUrl, logoDarkUrl, logoLightUrl, trackedProducts, activeCities, targetCoverage, latestRecordedDate, freshness }: HeaderProps) {
   const displayName = siteName || "HalDeFiyat";
   const lightThemeLogo = logoLightUrl || logoUrl;
   const darkThemeLogo = logoDarkUrl || lightThemeLogo || "";
@@ -65,7 +66,7 @@ export default function Header({ siteName, logoUrl, logoDarkUrl, logoLightUrl, t
       {/* Layer 1 — Topbar */}
       <div className="hidden md:block bg-(--color-header-top) backdrop-blur-xl border-b border-(--color-border-soft)">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <TopbarClient trackedProducts={trackedProducts} activeCities={activeCities} targetCoverage={targetCoverage} latestRecordedDate={latestRecordedDate} />
+          <TopbarClient trackedProducts={trackedProducts} activeCities={activeCities} targetCoverage={targetCoverage} latestRecordedDate={latestRecordedDate} freshness={freshness} />
         </div>
       </div>
 

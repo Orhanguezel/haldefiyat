@@ -82,6 +82,7 @@ export default async function PublicLayout({
         activeCities={overview.activeCities}
         targetCoverage={overview.targetCoverage}
         latestRecordedDate={overview.latestRecordedDate}
+        freshness={overview.freshness}
       />
       <PublicPopups locale={currentLocale} />
 

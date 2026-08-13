@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { setRequestLocale } from "next-intl/server";
-import { fetchCityPriceMap, fetchMarkets } from "@/lib/api";
+import { fetchCityPriceMap, fetchMarkets, fetchPricesOverview } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import TurkeyMapClient from "@/components/sections/TurkeyMapClient";
@@ -23,9 +23,10 @@ export default async function HaritaPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [markets, cityPriceMap] = await Promise.all([
+  const [markets, cityPriceMap, overview] = await Promise.all([
     fetchMarkets(),
     fetchCityPriceMap({ range: "7d" }),
+    fetchPricesOverview(),
   ]);
 
   return (
@@ -48,6 +49,9 @@ export default async function HaritaPage({ params }: Props) {
             karşılaştırılır (Türkiye ortalaması = 1.00). Böylece farklı ürün karışımı raporlayan iller
             adil biçimde kıyaslanır — ham ortalama yanıltıcıdır. Bir ile tıklayarak hal sayısı, ürün
             kapsamı ve endeksini inceleyebilirsiniz.
+          </p>
+          <p className="mt-3 font-(family-name:--font-mono) text-xs text-(--color-muted)">
+            {overview.currentCities?.toLocaleString("tr-TR") ?? "—"} güncel şehir · {overview.activeMarkets?.toLocaleString("tr-TR") ?? "—"} aktif hal · {overview.freshness === "fresh" ? "veri güncel" : overview.freshness === "stale" ? "veri gecikmeli" : "tazelik bilinmiyor"} · <a href="/metodoloji" className="text-(--color-brand) hover:underline">metodoloji</a>
           </p>
         </div>
       </header>

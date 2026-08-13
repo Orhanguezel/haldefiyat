@@ -112,7 +112,7 @@ export default async function HomePage({ params }: Props) {
     },
     {
       kind: "number",
-      value: markets.length,
+      value: overview.activeMarkets || markets.length,
       label: "Aktif Hal",
     },
     {
@@ -147,7 +147,7 @@ export default async function HomePage({ params }: Props) {
   return (
     <>
       <JsonLd type="Dataset" data={datasetSchema} />
-      <HeroSection activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} />
+      <HeroSection activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} freshness={overview.freshness} />
       <PriceDashboard />
       {/* "Bugünkü Hal Fiyatları" bölümünün hemen altındaki reklam */}
       <BannerSlot position="home_mid" />

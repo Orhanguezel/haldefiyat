@@ -70,7 +70,7 @@ export default async function DataHealthPage({ params }: Props) {
     { label: "Güncel ürün", value: overview.currentProducts, note: "Son 7 günde fiyatı olan" },
     { label: "Aktif kaynak", value: overview.activeSources, note: "Son 30 günde veri sağlayan" },
     { label: "Güncel şehir", value: overview.currentCities, note: "Son 30 günde verisi olan" },
-    { label: "Son veri tarihi", value: formatDate(overview.latestRecordedDate), note: overview.freshness === "fresh" ? "Veri güncel" : "Tazelik kontrol ediliyor" },
+    { label: "Son veri tarihi", value: formatDate(overview.latestRecordedDate), note: overview.freshness === "fresh" ? "Veri güncel" : overview.freshness === "stale" ? "Veri gecikmeli" : "Tazelik bilinmiyor" },
   ];
 
   return (

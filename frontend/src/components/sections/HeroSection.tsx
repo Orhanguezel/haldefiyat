@@ -10,9 +10,11 @@ import HeroSectionClient from "./HeroSectionClient";
 export default async function HeroSection({
   activeCities,
   targetCoverage,
+  freshness,
 }: {
   activeCities?: number;
   targetCoverage?: string;
+  freshness?: "fresh" | "stale" | "unknown";
 }) {
   const t = await getTranslations("home.hero");
 
@@ -24,6 +26,7 @@ export default async function HeroSection({
       <HeroSectionClient
         activeCities={activeCities}
         targetCoverage={targetCoverage}
+        freshness={freshness}
         title={t("title")}
         subtitle={t("subtitle")}
       />

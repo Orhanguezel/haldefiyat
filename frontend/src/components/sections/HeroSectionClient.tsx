@@ -13,11 +13,13 @@ import Link from "next/link";
 export default function HeroSectionClient({
   activeCities,
   targetCoverage = "81 il hedef",
+  freshness = "unknown",
   title,
   subtitle,
 }: {
   activeCities?: number;
   targetCoverage?: string;
+  freshness?: "fresh" | "stale" | "unknown";
   title: string;
   subtitle: string;
 }) {
@@ -29,12 +31,13 @@ export default function HeroSectionClient({
     `${coverageLabel} hal bilgisi`,
     "Kaynak ve tazelik görünür",
   ];
+  const freshnessLabel = freshness === "fresh" ? "Güncel" : freshness === "stale" ? "Gecikmeli" : "Tazelik bilinmiyor";
 
   return (
     <div className="mx-auto max-w-[920px]">
       <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-(--color-brand)/20 bg-(--color-brand-light) px-4 py-1.5 font-(family-name:--font-mono) text-[12px] font-semibold uppercase tracking-[0.08em] text-(--color-brand)">
         <span className="live-dot-sm" aria-hidden />
-        Tarihli Veri Akışı · {coverageLabel}
+        {freshnessLabel} Veri Akışı · {coverageLabel}
       </div>
 
       <h1 className="font-(family-name:--font-display) text-[40px] font-black leading-[1.04] tracking-[-0.035em] text-(--color-foreground) sm:text-[52px] lg:text-[60px]">
