@@ -4,6 +4,8 @@ import { eq } from "drizzle-orm";
 
 const PRODUCT_NAME_SPELLING_FIXES: ReadonlyArray<{ pattern: RegExp; replacement: string }> = [
   { pattern: /\bavakado\b/giu, replacement: "Avokado" },
+  { pattern: /\bmaydonoz\b/giu, replacement: "Maydanoz" },
+  { pattern: /\bhındıstan\b/giu, replacement: "Hindistan" },
 ];
 
 export function normalizeRawProductName(rawName: string): string {

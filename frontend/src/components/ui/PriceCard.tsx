@@ -3,6 +3,7 @@ import type { PriceRow } from "@/lib/api";
 import ProductImage from "@/components/ui/ProductImage";
 import FavoriteButton from "@/components/ui/FavoriteButton";
 import { productHref } from "@/lib/product-links";
+import { formatDateTr } from "@/lib/date-format";
 
 interface PriceCardProps {
   row: PriceRow;
@@ -45,45 +46,6 @@ const CHANGE_CLASS: Record<Trend, string> = {
   down:   "text-(--color-danger)",
   stable: "text-(--color-muted)",
 };
-
-const SPARK_STROKE: Record<Trend, string> = {
-  up:     "var(--success)",
-  down:   "var(--danger)",
-  stable: "var(--info)",
-};
-
-/**
- * Statik placeholder sparkline. Gercek price history sonraki sprintte
- * fetchPriceHistory ile beslenecek.
- */
-function PlaceholderSpark({ trend }: { trend: Trend }) {
-  const linePath =
-    trend === "up"
-      ? "M2 32 L18 28 L34 30 L50 22 L66 18 L82 12 L98 8"
-      : trend === "down"
-      ? "M2 8 L18 14 L34 12 L50 20 L66 24 L82 30 L98 34"
-      : "M2 20 L18 22 L34 18 L50 22 L66 19 L82 21 L98 20";
-  const areaPath = `${linePath} L98 40 L2 40 Z`;
-  const stroke = SPARK_STROKE[trend];
-  return (
-    <svg
-      viewBox="0 0 100 40"
-      preserveAspectRatio="none"
-      className="h-10 w-full"
-      aria-hidden
-    >
-      <path d={areaPath} fill={stroke} opacity={0.15} />
-      <path
-        d={linePath}
-        fill="none"
-        stroke={stroke}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 export default function PriceCard({ row, changePct }: PriceCardProps) {
   const trend = trendOf(changePct);
@@ -157,8 +119,10 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
           <div className="mb-4 h-[19px]" aria-hidden />
         )}
 
-        <div className="overflow-hidden rounded-md bg-(--color-bg-alt)">
-          <PlaceholderSpark trend={trend} />
+        <div className="rounded-md border border-(--color-border-soft) bg-(--color-bg-alt) px-3 py-2 text-[11px] text-(--color-muted)">
+          <span className="font-semibold text-(--color-foreground)">{formatDateTr(row.recordedDate) ?? "Tarih bilinmiyor"}</span>
+          <span aria-hidden> · </span>
+          <span>{row.sourceName || "Kaynak bilgisi mevcut"}</span>
         </div>
 
         <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-(--color-muted)">

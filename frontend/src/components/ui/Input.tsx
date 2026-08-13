@@ -9,6 +9,7 @@ interface Props extends InputHTMLAttributes<HTMLInputElement> {
 
 export function Input({ label, error, hint, className, id, required, ...rest }: Props) {
   const inputId = id ?? label?.toLowerCase().replace(/\s+/g, "-");
+  const helpId = inputId ? `${inputId}-${error ? "error" : "hint"}` : undefined;
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
@@ -20,6 +21,8 @@ export function Input({ label, error, hint, className, id, required, ...rest }: 
       <input
         id={inputId}
         required={required}
+        aria-invalid={Boolean(error)}
+        aria-describedby={(error || hint) ? helpId : undefined}
         {...rest}
         className={cn(
           "w-full px-4 py-2.5 rounded-lg border bg-background text-foreground text-sm outline-none transition-all",
@@ -31,8 +34,8 @@ export function Input({ label, error, hint, className, id, required, ...rest }: 
           className
         )}
       />
-      {error && <p className="text-xs text-danger">{error}</p>}
-      {hint && !error && <p className="text-xs text-muted">{hint}</p>}
+      {error && <p id={helpId} role="alert" className="text-xs text-danger">{error}</p>}
+      {hint && !error && <p id={helpId} className="text-xs text-muted">{hint}</p>}
     </div>
   );
 }

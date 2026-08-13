@@ -169,22 +169,22 @@
 
 ### 4.1 Canonical ürün sözlüğü
 
-- [ ] F2.1 Canonical product ID, slug, display name, category, default unit, aliases ve variants sözleşmesini yaz.
-- [ ] F2.2 Türkçe casefold, diakritik ve karakter normalizasyon kurallarını sabitle.
-- [ ] F2.3 Kaynak ürün adı→canonical ürün eşleme güven skorunu tanımla.
+- [x] F2.1 Canonical ID/slug/display/category/defaultUnit/aliases/canonical/family/variant sözleşmesi `docs/CANONICAL-URUN-VE-BIRIM-SOZLESMESI.md` ve tipli backend modülünde yazıldı.
+- [x] F2.2 Türkçe `tr-TR` casefold, diakritik, boşluk, bilinen yazım ve kullanıcı gösterim kuralları sabitlendi.
+- [x] F2.3 Exact 100, güvenli normalize 95, kayıtlı alias 90, bilinmeyen 0/review eşleme skoru testli tanımlandı; fuzzy otomatik merge yok.
 - [ ] F2.4 Yeni/belirsiz adları otomatik yeni public ürün yapma; review kuyruğuna gönder.
-- [ ] F2.5 Maydanoz/Maydonoz, Avokado/Avakado, Incir/İncir ve Hındıstan/Hindistan fixture’larını ekle.
-- [ ] F2.6 Format/menşe/grade qualifier kurallarını playbook ile eşle.
-- [ ] F2.7 Gerçek çeşitleri yanlış birleştirmeyen negatif test seti oluştur.
+- [x] F2.5 Maydanoz/Maydonoz, Avokado/Avakado, Incir/İncir ve Hındıstan/Hindistan fixture'ları canonical contract testine eklendi.
+- [x] F2.6 Format/menşe/grade/renk/çeşit qualifierları anlamlı varyant olarak korunacak şekilde sözleşme ve playbook kuralına bağlandı.
+- [x] F2.7 `Domates Beef != Domates` negatif fixture'ı eklendi; kelime/diakritik benzerliği otomatik merge yetkisi vermiyor.
 - [ ] F2.8 Balık/et/sebze kategori karışımını kaynak ve kategori sözlüğüyle düzelt.
 - [ ] F2.9 Admin merge/alias arayüzünü canonical sözleşmeyle uyumlandır.
 - [ ] F2.10 Arama, filtre, fiyat tablosu, rapor, alarm ve API’nin aynı product ID kullanmasını sağla.
 
 ### 4.2 Birim ve varyant güvenliği
 
-- [ ] F2.11 Kaynak bazlı ham birim sözlüğü çıkar.
-- [ ] F2.12 `kg`, `adet`, `kasa`, `bağ`, `demet`, `koli`, `ton` canonical birimlerini tanımla.
-- [ ] F2.13 Yalnız bilinen katsayılı birimleri dönüştür; varsayımsal kg dönüşümü yapma.
+- [~] F2.11 Kodda kullanılan ham birim kuralları canonical contract modülünde toplandı; kaynak bazlı DB frekans export'u bekliyor.
+- [x] F2.12 `kg`, `adet`, `kasa`, `bag`, `demet`, `koli`, `ton` canonical birimleri tipli sabit olarak tanımlandı.
+- [x] F2.13 Canonical katman bilinmeyen/boş birimde `null/UNKNOWN_UNIT` döndürüyor; varsayımsal kg dönüşümü yapmıyor. Legacy ETL çağrı noktasına geçiş F2.15 ile birlikte yapılacak.
 - [ ] F2.14 Ürün–varyant–birim izin matrisini kur.
 - [ ] F2.15 Bilinmeyen birimi karantinaya al ve admin kuyruğunda göster.
 - [ ] F2.16 Fiyat etiketi, tablo başlığı, grafik tooltip ve CSV’de birimi zorunlu göster.
@@ -234,27 +234,27 @@
 
 ### 5.1 Tasarım tokenları
 
-- [ ] F3.1 Seçilen konseptten primary/secondary/accent/neutral paleti çıkar.
-- [ ] F3.2 Semantic tokenları tanımla: success, warning, danger, info, fresh, stale, unknown.
+- [x] F3.1 Temiz Veri primary/secondary/neutral ve Pazar Defteri editoryal paleti tema karar kaydı ile ortak CSS tokenlarına çıkarıldı.
+- [~] F3.2 Success/warning/danger/info tokenları var; fresh/stale/unknown adlandırmalarının grafik ve badge tüketicilerine yayılması bekliyor.
 - [ ] F3.3 Fiyat artışını otomatik success yeşili olarak kodlama; nötr trend tokenı kullan.
-- [ ] F3.4 Light temayı varsayılan yap; dark temayı kullanıcı tercihi olarak koru.
-- [ ] F3.5 İlk render ve hydration’da tema flash’ını engelle.
+- [x] F3.4 Light tema canlı ilk ziyaret varsayılanı; `localStorage.theme=dark` tercihi reload sonrası korunuyor.
+- [x] F3.5 `next-themes` data attribute, root hydration guard ve mount öncesi sabit toggle placeholder ile tema hydration farkı engellendi; canlı konsol hatası 0.
 - [ ] F3.6 Foreground/muted/faint/border kontrastlarını WCAG AA’ya göre doğrula.
-- [ ] F3.7 Font ailelerini kesinleştir; gereksiz font ağırlıklarını kaldır.
+- [~] F3.7 IBM Plex Sans/Outfit kesinleştirildi ve üçüncü font yasaklandı; yüklenen gereksiz ağırlıkların bundle azaltımı bekliyor.
 - [ ] F3.8 Responsive type scale oluştur: display, h1–h4, price-xl/lg/md, body, label, caption, data.
-- [ ] F3.9 4/8 spacing ölçeği, container genişliği ve section aralıklarını tanımla.
-- [ ] F3.10 Radius, border, shadow ve elevation seviyelerini standardize et.
+- [x] F3.9 4/8 tabanlı spacing, 1100/1400 container ve responsive 4/6/8 padding `PageContainer` ile tanımlı.
+- [x] F3.10 Radius ve düşük elevation seviyeleri tema kararında ve ortak tokenlarda standardize edildi; neon glow kaldırıldı.
 - [ ] F3.11 Grafik, harita ve tablo renk/pattern tokenlarını ekle.
 - [ ] F3.12 CSS variable/Tailwind theme kaynağını tekle; hard-coded renkleri aşamalı kaldır.
 
 ### 5.2 Ortak UI bileşenleri
 
-- [ ] F3.13 `Button` varyantlarını primary, secondary, outline, ghost, danger olarak standardize et.
-- [ ] F3.14 Tüm butonlarda 44 px mobil dokunma alanı, loading ve disabled durumu sağla.
-- [ ] F3.15 `Input`, `TextArea`, `Combobox`, `SearchableSelect` label/help/error yapısını birleştir.
+- [x] F3.13 Ortak Button primary, secondary, outline, ghost, danger ve geriye uyumlu success varyantlarıyla standardize edildi.
+- [x] F3.14 Ortak Button boyutları en az 44 px; loading `aria-busy`, disabled ve erişilebilir dekoratif spinner içeriyor.
+- [~] F3.15 Input/TextArea label/hint/error, `aria-invalid`, `aria-describedby` ve alert davranışı birleşti; Combobox/SearchableSelect geçişi bekliyor.
 - [ ] F3.16 Kart bileşenlerini data, editorial, listing, commercial ve ad olarak ayır.
 - [ ] F3.17 `Badge` ve `FreshnessBadge` semantiğini birleştir; yalnız renkle anlam verme.
-- [ ] F3.18 `PriceCard` içinde fiyat, birim, tarih, kaynak ve örneklem zorunlu alanlarını tanımla.
+- [~] F3.18 PriceCard fiyat, birim, tarih ve kaynak gösteriyor; sahte placeholder sparkline kaldırıldı. Örneklem zorunluluğu API'de bulunmadığı kayıtlar için bekliyor.
 - [ ] F3.19 `PriceTable` desktop tablo + mobil kart görünümünü erişilebilir yap.
 - [ ] F3.20 Skeleton’ları nihai layout boyutuyla eşleştir; CLS üretme.
 - [ ] F3.21 Empty/error/offline durumları için ortak bileşenler oluştur.
@@ -262,7 +262,7 @@
 - [ ] F3.23 İkonlara gerekli `aria-hidden` veya anlamlı erişilebilir adları ekle.
 - [ ] F3.24 Reklam bileşenini açık `Reklam` etiketi ve farklı yüzey diliyle standardize et.
 - [ ] F3.25 Modal/sheet/dialog focus trap, Escape, backdrop ve scroll lock davranışını test et.
-- [ ] F3.26 `prefers-reduced-motion` desteği ekle; scroll reveal/ticker hareketini azalt.
+- [x] F3.26 Global `prefers-reduced-motion` animasyon/transition süresini düşürüyor ve ticker'ı durduruyor; ana sayfa ticker'ı ayrıca kaldırıldı.
 
 ### 5.3 Global kabuk
 
