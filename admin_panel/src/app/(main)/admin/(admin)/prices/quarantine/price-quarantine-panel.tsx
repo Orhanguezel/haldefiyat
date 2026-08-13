@@ -1,0 +1,80 @@
+'use client';
+
+import * as React from 'react';
+import { AlertTriangle, RefreshCw, ShieldAlert } from 'lucide-react';
+import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
+import type { PriceQuarantineItem, PriceQuarantineStatus } from '@/integrations/endpoints/prices-admin-endpoints';
+import { useListPriceQuarantineAdminQuery, useReviewPriceQuarantineAdminMutation } from '@/integrations/hooks';
+
+const reasonLabels: Record<string, string> = {
+  NON_POSITIVE_PRICE: 'Sıfır/negatif fiyat', MIN_GREATER_THAN_MAX: 'Minimum maksimumdan büyük',
+  AVG_OUTSIDE_RANGE: 'Ortalama aralık dışında', ABSOLUTE_LIMIT: 'Mutlak tavan aşıldı',
+  PEER_MEDIAN_DEVIATION: 'Emsal medyan sapması',
+};
+const statusLabels: Record<PriceQuarantineStatus, string> = { pending: 'Bekliyor', approved: 'Onaylandı', rejected: 'Reddedildi', corrected: 'Düzeltildi' };
+const price = (value: string | null) => value == null ? '—' : Number(value).toLocaleString('tr-TR', { maximumFractionDigits: 2 });
+
+export default function PriceQuarantinePanel() {
+  const [status, setStatus] = React.useState<PriceQuarantineStatus>('pending');
+  const [severity, setSeverity] = React.useState('all');
+  const [q, setQ] = React.useState('');
+  const [selected, setSelected] = React.useState<PriceQuarantineItem | null>(null);
+  const [decision, setDecision] = React.useState<'approve' | 'reject' | 'correct'>('reject');
+  const [note, setNote] = React.useState('');
+  const [values, setValues] = React.useState({ min: '', avg: '', max: '' });
+  const [confirmCritical, setConfirmCritical] = React.useState(false);
+  const { data, isFetching, refetch } = useListPriceQuarantineAdminQuery({
+    status, severity: severity === 'all' ? undefined : severity as 'warning' | 'critical', q: q || undefined, limit: 100,
+  });
+  const [review, { isLoading }] = useReviewPriceQuarantineAdminMutation();
+
+  function choose(item: PriceQuarantineItem, next: typeof decision) {
+    setSelected(item); setDecision(next); setNote(''); setConfirmCritical(false);
+    setValues({ min: item.minPrice ?? '', avg: item.avgPrice, max: item.maxPrice ?? '' });
+  }
+  async function submit() {
+    if (!selected || note.trim().length < 3) return toast.error('En az 3 karakterlik inceleme notu yazın.');
+    if (selected.severity === 'critical' && decision !== 'reject' && !confirmCritical) return toast.error('Kritik kayıt için ikinci onay zorunlu.');
+    if (decision === 'correct' && (!Number.isFinite(Number(values.avg)) || Number(values.avg) <= 0)) return toast.error('Geçerli ortalama fiyat girin.');
+    try {
+      await review({ id: selected.id, decision, note: note.trim(), confirmCritical,
+        ...(decision === 'correct' ? { avgPrice: Number(values.avg), minPrice: values.min ? Number(values.min) : null, maxPrice: values.max ? Number(values.max) : null } : {}) }).unwrap();
+      toast.success('İnceleme kararı kaydedildi.'); setSelected(null); await refetch();
+    } catch { toast.error('Karar kaydedilemedi. Alanları ve yetkinizi kontrol edin.'); }
+  }
+
+  return <div className="space-y-6">
+    <Card><CardHeader><CardTitle>Fiyat inceleme kuyruğu</CardTitle><CardDescription>Şüpheli fiyatları emsal medyanı ve sapma kanıtıyla inceleyin. Ham kayıt her kararda korunur.</CardDescription></CardHeader></Card>
+    <Card><CardContent className="grid gap-4 pt-6 md:grid-cols-4">
+      <div><Label htmlFor="queue-search">Ürün veya hal</Label><Input id="queue-search" className="mt-2" value={q} onChange={e => setQ(e.target.value)} placeholder="Domates, Antalya..." /></div>
+      <div><Label>Durum</Label><Select value={status} onValueChange={v => setStatus(v as PriceQuarantineStatus)}><SelectTrigger className="mt-2"><SelectValue /></SelectTrigger><SelectContent>{Object.entries(statusLabels).map(([v,l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent></Select></div>
+      <div><Label>Önem</Label><Select value={severity} onValueChange={setSeverity}><SelectTrigger className="mt-2"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">Tümü</SelectItem><SelectItem value="critical">Kritik</SelectItem><SelectItem value="warning">Uyarı</SelectItem></SelectContent></Select></div>
+      <div className="flex items-end"><Button variant="outline" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />Yenile</Button></div>
+    </CardContent></Card>
+    <Card><CardHeader><CardTitle className="text-base">Kayıtlar ({data?.total ?? 0})</CardTitle></CardHeader><CardContent><div className="overflow-x-auto"><Table><TableHeader><TableRow><TableHead>Ürün / Hal</TableHead><TableHead>Fiyat</TableHead><TableHead>Kanıt</TableHead><TableHead>Önem</TableHead><TableHead className="text-right">İşlem</TableHead></TableRow></TableHeader><TableBody>
+      {(data?.items ?? []).map(item => <TableRow key={item.id}>
+        <TableCell><div className="font-medium">{item.productName} · {item.unit}</div><div className="text-xs text-muted-foreground">{item.marketName} · {String(item.recordedDate).slice(0,10)} · {item.sourceApi}</div></TableCell>
+        <TableCell><div className="font-mono font-semibold">₺{price(item.avgPrice)}</div><div className="text-xs text-muted-foreground">{price(item.minPrice)}–{price(item.maxPrice)}</div></TableCell>
+        <TableCell><div>{reasonLabels[item.reasonCode] ?? item.reasonCode}</div><div className="text-xs text-muted-foreground">Medyan ₺{price(item.peerMedian)} · {item.deviationRatio ? `${Number(item.deviationRatio).toFixed(2)}x` : '—'} · güven %{Math.round(Number(item.confidence)*100)}</div></TableCell>
+        <TableCell><Badge variant={item.severity === 'critical' ? 'destructive' : 'secondary'}>{item.severity === 'critical' ? 'Kritik' : 'Uyarı'}</Badge></TableCell>
+        <TableCell className="text-right"><div className="flex justify-end gap-1"><Button size="sm" variant="outline" onClick={() => choose(item,'approve')}>Onayla</Button><Button size="sm" variant="outline" onClick={() => choose(item,'correct')}>Düzelt</Button><Button size="sm" variant="destructive" onClick={() => choose(item,'reject')}>Reddet</Button></div></TableCell>
+      </TableRow>)}
+      {!isFetching && !(data?.items.length) && <TableRow><TableCell colSpan={5} className="py-12 text-center text-muted-foreground">Bu filtrelerde kayıt yok.</TableCell></TableRow>}
+    </TableBody></Table></div></CardContent></Card>
+    {selected && <Card className="border-amber-500/40"><CardHeader><CardTitle className="flex items-center gap-2 text-base">{selected.severity === 'critical' ? <ShieldAlert className="h-5 w-5 text-red-600" /> : <AlertTriangle className="h-5 w-5 text-amber-600" />}{selected.productName} için karar</CardTitle><CardDescription>Orijinal değer karantinada kalır; yayın kararı kullanıcı, not ve zamanla kaydedilir.</CardDescription></CardHeader><CardContent className="space-y-4">
+      <div className="flex flex-wrap gap-2"><Button variant={decision === 'approve' ? 'default' : 'outline'} onClick={() => setDecision('approve')}>Onayla</Button><Button variant={decision === 'correct' ? 'default' : 'outline'} onClick={() => setDecision('correct')}>Düzelterek yayınla</Button><Button variant={decision === 'reject' ? 'destructive' : 'outline'} onClick={() => setDecision('reject')}>Reddet</Button></div>
+      {decision === 'correct' && <div className="grid gap-3 sm:grid-cols-3">{(['min','avg','max'] as const).map(key => <div key={key}><Label>{key === 'min' ? 'Minimum' : key === 'avg' ? 'Ortalama' : 'Maksimum'}</Label><Input value={values[key]} onChange={e=>setValues(v=>({...v,[key]:e.target.value}))} inputMode="decimal" /></div>)}</div>}
+      <div><Label htmlFor="review-note">İnceleme notu</Label><Textarea id="review-note" value={note} onChange={e=>setNote(e.target.value)} placeholder="Kararın veri ve kaynak gerekçesi..." className="mt-2" /></div>
+      {selected.severity === 'critical' && decision !== 'reject' && <label className="flex items-start gap-3 rounded-md border border-red-500/30 bg-red-500/5 p-3 text-sm"><input type="checkbox" className="mt-1" checked={confirmCritical} onChange={e=>setConfirmCritical(e.target.checked)} /><span><strong>Kritik yayın onayı:</strong> Kaynak ve emsal değerleri ikinci kez kontrol ettim.</span></label>}
+      <div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setSelected(null)}>Vazgeç</Button><Button onClick={submit} disabled={isLoading}>{isLoading ? 'Kaydediliyor...' : 'Kararı kaydet'}</Button></div>
+    </CardContent></Card>}
+  </div>;
+}

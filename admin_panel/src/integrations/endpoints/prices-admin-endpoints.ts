@@ -32,6 +32,16 @@ export type PriceAdminPayload = {
 export type BulkPriceEntry = PriceAdminPayload;
 export type BulkPriceResult = { ok: boolean; inserted: number; skipped: number; ids: number[] };
 
+export type PriceQuarantineStatus = 'pending' | 'approved' | 'rejected' | 'corrected';
+export type PriceQuarantineItem = {
+  id: number; productId: number; productName: string; productSlug: string;
+  marketId: number; marketName: string; recordedDate: string; sourceApi: string; unit: string;
+  minPrice: string | null; maxPrice: string | null; avgPrice: string;
+  reasonCode: string; severity: 'warning' | 'critical'; confidence: string;
+  peerMedian: string | null; deviationRatio: string | null; status: PriceQuarantineStatus;
+  reviewNote: string | null; reviewedBy: string | null; reviewedAt: string | null; createdAt: string;
+};
+
 export const pricesAdminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     listPricesAdmin: builder.query<
@@ -64,6 +74,20 @@ export const pricesAdminApi = baseApi.injectEndpoints({
       query: (body) => ({ url: '/admin/hal/prices/bulk-entry', method: 'POST', body }),
       invalidatesTags: [{ type: 'Prices' as const, id: 'LIST' }],
     }),
+    listPriceQuarantineAdmin: builder.query<
+      { items: PriceQuarantineItem[]; total: number; limit: number; offset: number },
+      { status?: PriceQuarantineStatus; severity?: 'warning' | 'critical'; reason?: string; q?: string; limit?: number; offset?: number } | void
+    >({
+      query: (params) => ({ url: '/admin/hal/price-quarantine', params: cleanParams(params as Record<string, unknown> | undefined) }),
+      providesTags: [{ type: 'Prices' as const, id: 'QUARANTINE' }],
+    }),
+    reviewPriceQuarantineAdmin: builder.mutation<
+      { ok: boolean; id: number; status: PriceQuarantineStatus },
+      { id: number; decision: 'approve' | 'reject' | 'correct'; note: string; confirmCritical?: boolean; avgPrice?: number; minPrice?: number | null; maxPrice?: number | null }
+    >({
+      query: ({ id, ...body }) => ({ url: `/admin/hal/price-quarantine/${id}/review`, method: 'PATCH', body }),
+      invalidatesTags: [{ type: 'Prices' as const, id: 'QUARANTINE' }, { type: 'Prices' as const, id: 'LIST' }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -75,4 +99,6 @@ export const {
   useCreatePriceAdminMutation,
   useUpdatePriceAdminMutation,
   useBulkCreatePricesAdminMutation,
+  useListPriceQuarantineAdminQuery,
+  useReviewPriceQuarantineAdminMutation,
 } = pricesAdminApi;

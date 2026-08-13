@@ -436,6 +436,8 @@ export {
   useGetPriceAdminQuery,
   useListPriceCategoriesAdminQuery,
   useListPricesAdminQuery,
+  useListPriceQuarantineAdminQuery,
+  useReviewPriceQuarantineAdminMutation,
   useUpdatePriceAdminMutation,
 } from "@/integrations/endpoints/prices-admin-endpoints";
 export {
