@@ -197,9 +197,9 @@
 - [x] F2.20 Tek adımlı 301/308 uygula; zincir ve loop testi yap. (12 iki-sıçramalı hedef migration 084 ile son master'a düzleştirildi; canlı harita `missingTargets=0`, `chainedTargets=0`, `conflicts410=0`. Örnek eski URL'lerde 301 ve nihai hedefte tek hop/200 doğrulandı.)
 - [~] F2.21 Canonical, hreflang/locale, breadcrumb ve iç linkleri yeni hedefe geçir. (Ürün sayfası canonical redirect/metadata katmanı mevcut. Arama modalı canonical hedefe geçirildi; kategori landing ve `llms-full.txt` varyant linklerini artık yayımlamıyor. Kalan doğrudan `/urun/${slug}` üreticileri repo-geneli taranıp veri sözleşmesine göre kapatılacak. Commit: `63397966`.)
 - [x] F2.22 Sitemap’ten eski/kopya URL’leri çıkar. (`canonicalSlug` dolu ürünler sitemap üretiminde dışlanıyor; canlı sitemap kabulünde dört eski örnek yok, dört nihai master mevcut; toplam 406 URL.)
-- [ ] F2.23 Structured data name/url/date/source alanlarını canonical veriden besle.
-- [ ] F2.24 Redirect edilen ürünün geçmiş fiyatlarını hedef sayfada koru.
-- [ ] F2.25 Search Console doğrulama ve sitemap yeniden gönderim planını uygula.
+- [x] F2.23 Structured data name/url/date/source alanlarını canonical veriden besle. (Ürün Dataset şeması canonical master adı/URL'sini, gerçek gözlem tarih aralığını ve görünür cevap bloğuyla aynı resmi kaynak kümesini `isBasedOn` olarak yayımlıyor.)
+- [x] F2.24 Redirect edilen ürünün geçmiş fiyatlarını hedef sayfada koru. (`productPriceHistory` hem master slug'ını hem `canonical_slug=master` çocuklarını okuyor. Canlı `biber-carliston` kabulü: 28 pazar, 2.337 kova, 2021-08-01→2026-08-13. Commit: `029d1956`.)
+- [~] F2.25 Search Console doğrulama ve sitemap yeniden gönderim planını uygula. (Canlı GSC cache: 623 master/1 denetlenmemiş; 612 varyant/0 denetlenmemiş, 388 redirect. Sitemap submit denemesi mevcut readonly token nedeniyle `403 ACCESS_TOKEN_SCOPE_INSUFFICIENT`; yazma kapsamlı yeniden yetkilendirme sonrası ortak submit fonksiyonu kullanılacak. Kanıt/plan: `artifacts/renewal-2026/gsc-canonical-goc-kabul-2026-08-14.md`.)
 
 ### 4.4 Merkezi metrik sözlüğü
 

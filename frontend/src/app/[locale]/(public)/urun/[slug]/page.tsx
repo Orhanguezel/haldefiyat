@@ -400,6 +400,17 @@ export default async function UrunPage({ params }: Props) {
       .map((row) => row.sourceName?.trim() || row.marketName?.trim())
       .filter((name): name is string => Boolean(name)),
   )];
+  const schemaSources = [...new Map(
+    pick.rows.map((row) => {
+      const name = row.sourceName?.trim() || row.marketName?.trim() || "Resmi fiyat kaynağı";
+      const url = row.sourceUrl?.trim() || null;
+      return [`${name}|${url ?? ""}`, {
+        "@type": "CreativeWork",
+        name,
+        ...(url ? { url } : {}),
+      }];
+    }),
+  ).values()];
   const shortTrend = calculateWindowTrend(history, 7);
   const longTrend = calculateWindowTrend(history, 30);
 
@@ -413,6 +424,7 @@ export default async function UrunPage({ params }: Props) {
     url: `${SITE_URL_META}/urun/${slug}`,
     license: "https://creativecommons.org/licenses/by/4.0/",
     creator: { "@id": `${SITE_URL_META}/#organization` },
+    ...(schemaSources.length > 0 ? { isBasedOn: schemaSources } : {}),
     ...(datasetDates ? {
       temporalCoverage: datasetDates.temporalCoverage,
       dateModified: datasetDates.latest,
