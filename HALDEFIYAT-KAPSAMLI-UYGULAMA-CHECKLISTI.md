@@ -238,7 +238,7 @@
 - [x] F3.2 Success/warning/danger/info tokenları ile fresh/stale/unknown adlandırmaları ortak metrik tüketicilerine yayıldı; operasyon durumu ve fiyat yönü birbirinden ayrıldı.
 - [x] F3.3 Fiyat artışını otomatik success yeşili olarak kodlama; nötr trend tokenı kullan. (`--trend-up`, `--trend-down`, `--trend-bg` light/dark tokenları kart, ticker, sezon, popüler ürün, mover, tablo ve varyant yüzeylerinde kullanılıyor.)
 - [x] F3.4 Light tema canlı ilk ziyaret varsayılanı; `localStorage.theme=dark` tercihi reload sonrası korunuyor.
-- [x] F3.5 `next-themes` data attribute, root hydration guard ve mount öncesi sabit toggle placeholder ile tema hydration farkı engellendi; canlı konsol hatası 0.
+- [x] F3.5 `next-themes` root/toggle hydration guard'ına ek olarak SSR-istemci ayrışan ağır SVG harita ayrı `ssr:false` adasına alındı; canlı `/`, `/hal`, `/harita` konsol hatası 0.
 - [x] F3.6 Foreground/muted/faint metinleri her iki temada ve ana yüzeyde >=4.5:1, işlevsel border >=3:1 olacak şekilde gerçek HSL tokenlarından ölçüldü; kanıt `artifacts/renewal-2026/wcag-tipografi-kabul-2026-08-14.md`.
 - [x] F3.7 Gövde için self-host IBM Plex Sans Variable 100–700, başlık için yalnız yerel Outfit 800 kesinleştirildi; Inter/JetBrains üçüncü font adları ve kullanılmayan font ağırlıkları kaldırıldı.
 - [x] F3.8 `display`, `h1`–`h4`, `price-xl/lg/md`, `body`, `label`, `caption`, `data` rolleri responsive ortak ölçekte ve fiyat/veri için tabular rakamlarla oluşturuldu.

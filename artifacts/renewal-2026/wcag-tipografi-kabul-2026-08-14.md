@@ -33,3 +33,14 @@ Hesap W3C bağıl parlaklık formülü ve `(L1 + 0.05) / (L2 + 0.05)` oranıyla,
 ## Hydration notu
 
 Canlı `/harita` rotasında temiz Service Worker/cache sonrasında da yalnız harita istemci adasında React #418 oluştuğu doğrulandı. Ağır etkileşimli SVG harita `ssr:false` istemci sınırına alındı; sayfanın başlık, açıklama, breadcrumb ve veri tazeliği içeriği SSR kalır. Canlı kabulte console error=0 ayrıca doğrulanacaktır.
+
+## Canlı kabul
+
+Release `6caefc8a`, Next 16.2.12 izole production build ve PM2 reload sonrasında 390×844 gerçek Chromium kontrolü:
+
+- açık ve koyu temada React hydration/console hatası: 0;
+- Türkiye haritası SVG path'leri istemcide yüklendi;
+- `document.fonts.check("16px IBM Plex Sans Variable")`: `true`;
+- body font ailesi: `IBM Plex Sans Variable`;
+- `scrollWidth = viewport = 390`, yatay taşma: 0;
+- koyu tema görseli: `output/playwright/theme-clean-data/harita-aa-dark-mobile-2026-08-14.png`.
