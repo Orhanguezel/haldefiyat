@@ -239,12 +239,12 @@
 - [x] F3.3 Fiyat artışını otomatik success yeşili olarak kodlama; nötr trend tokenı kullan. (`--trend-up`, `--trend-down`, `--trend-bg` light/dark tokenları kart, ticker, sezon, popüler ürün, mover, tablo ve varyant yüzeylerinde kullanılıyor.)
 - [x] F3.4 Light tema canlı ilk ziyaret varsayılanı; `localStorage.theme=dark` tercihi reload sonrası korunuyor.
 - [x] F3.5 `next-themes` data attribute, root hydration guard ve mount öncesi sabit toggle placeholder ile tema hydration farkı engellendi; canlı konsol hatası 0.
-- [ ] F3.6 Foreground/muted/faint/border kontrastlarını WCAG AA’ya göre doğrula.
-- [~] F3.7 IBM Plex Sans/Outfit kesinleştirildi ve üçüncü font yasaklandı; yüklenen gereksiz ağırlıkların bundle azaltımı bekliyor.
-- [ ] F3.8 Responsive type scale oluştur: display, h1–h4, price-xl/lg/md, body, label, caption, data.
+- [x] F3.6 Foreground/muted/faint metinleri her iki temada ve ana yüzeyde >=4.5:1, işlevsel border >=3:1 olacak şekilde gerçek HSL tokenlarından ölçüldü; kanıt `artifacts/renewal-2026/wcag-tipografi-kabul-2026-08-14.md`.
+- [x] F3.7 Gövde için self-host IBM Plex Sans Variable 100–700, başlık için yalnız yerel Outfit 800 kesinleştirildi; Inter/JetBrains üçüncü font adları ve kullanılmayan font ağırlıkları kaldırıldı.
+- [x] F3.8 `display`, `h1`–`h4`, `price-xl/lg/md`, `body`, `label`, `caption`, `data` rolleri responsive ortak ölçekte ve fiyat/veri için tabular rakamlarla oluşturuldu.
 - [x] F3.9 4/8 tabanlı spacing, 1100/1400 container ve responsive 4/6/8 padding `PageContainer` ile tanımlı.
 - [x] F3.10 Radius ve düşük elevation seviyeleri tema kararında ve ortak tokenlarda standardize edildi; neon glow kaldırıldı.
-- [ ] F3.11 Grafik, harita ve tablo renk/pattern tokenlarını ekle.
+- [x] F3.11 Grafik serileri/grid, harita low/mid/high/empty/stroke ve tablo header/hover tokenları açık-koyu temaya eklendi; haritadaki runtime hard-coded HSL üretimi kaldırıldı.
 - [ ] F3.12 CSS variable/Tailwind theme kaynağını tekle; hard-coded renkleri aşamalı kaldır.
 
 ### 5.2 Ortak UI bileşenleri
@@ -460,7 +460,7 @@
 - [ ] F7.13 Route bazlı client JS ve hydration sınırlarını ölç.
 - [ ] F7.14 Ağır grafik/harita bileşenlerini görünürlük veya dynamic import ile yükle.
 - [ ] F7.15 Fotoğraf kullanılan konseptte LCP preload/priority kararını doğru uygula.
-- [ ] F7.16 Font subset/preload ve `font-display` ayarlarını optimize et.
+- [x] F7.16 IBM Plex Sans yalnız değişken `wght` paketi ve unicode-range latin/latin-ext dosyalarıyla self-host edildi; Outfit yalnız 800 ağırlığında preload + `font-display:swap`, italik/genişlik/statik ağırlıklar bundle dışında.
 - [ ] F7.17 Skeleton/layout ölçüleriyle CLS’yi hedef altında tut.
 - [ ] F7.18 API waterfall, cache ve duplicate fetch’leri azalt.
 - [ ] F7.19 Lighthouse hedefleri: Performance ≥90, Accessibility ≥95, SEO ≥95 (kritik sayfalar).

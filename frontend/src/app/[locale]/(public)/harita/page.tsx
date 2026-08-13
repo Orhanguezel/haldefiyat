@@ -4,7 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import { fetchCityPriceMap, fetchMarkets, fetchPricesOverview } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
-import TurkeyMapClient from "@/components/sections/TurkeyMapClient";
+import TurkeyMapNoSsr from "@/components/sections/TurkeyMapNoSsr";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -57,7 +57,7 @@ export default async function HaritaPage({ params }: Props) {
       </header>
 
       <div className="h-auto min-h-[720px]">
-        <TurkeyMapClient markets={markets} cityPrices={cityPriceMap.items} />
+        <TurkeyMapNoSsr markets={markets} cityPrices={cityPriceMap.items} />
       </div>
     </main>
   );

@@ -58,9 +58,11 @@ function indexLabel(idx: number | null | undefined): string {
 // var(--map-empty-fill) light/dark icin globals.css'de tanimli — dark mode'da surface ile karismayan ton.
 function colorFor(value: number | null | undefined, min: number, max: number) {
   if (!Number.isFinite(value ?? NaN)) return "var(--map-empty-fill)";
-  if (max <= min) return "hsl(48 90% 52%)";
+  if (max <= min) return "var(--map-mid)";
   const ratio = Math.min(1, Math.max(0, ((value as number) - min) / (max - min)));
-  return `hsl(${132 - ratio * 128} 70% 46%)`;
+  if (ratio < 0.34) return "var(--map-low)";
+  if (ratio < 0.67) return "var(--map-mid)";
+  return "var(--map-high)";
 }
 
 interface ProvinceRow {
@@ -161,7 +163,7 @@ export default function TurkeyMapClient({ markets, cityPrices = [] }: Props) {
             <span>Fiyat Endeksi · 1.00 = Türkiye ort.</span>
             <span>Pahalı</span>
           </div>
-          <div className="h-2 rounded-full bg-[linear-gradient(90deg,hsl(132_70%_46%),hsl(68_70%_46%),hsl(4_70%_46%))]" />
+          <div className="h-2 rounded-full bg-[linear-gradient(90deg,var(--map-low),var(--map-mid),var(--map-high))]" />
           <div className="mt-2 flex items-center justify-between gap-3 font-(family-name:--font-mono) text-[10px] text-(--color-muted)">
             <span>{priced.length ? formatIndex(minIdx) : "-"}</span>
             <span>Veri yok: gri</span>

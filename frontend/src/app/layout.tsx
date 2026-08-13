@@ -2,6 +2,7 @@ export const revalidate = 300;
 
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import "@fontsource-variable/ibm-plex-sans/wght.css";
 import { NextIntlClientProvider } from "next-intl";
 import { Suspense } from "react";
 import { defaultLocale } from "@/i18n/routing";
@@ -22,6 +23,7 @@ const outfit = localFont({
   variable: "--font-display",
   display: "swap",
   weight: "800",
+  preload: true,
 });
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033").replace(/\/$/, "");
