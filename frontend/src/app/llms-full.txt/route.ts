@@ -12,7 +12,7 @@ const INTERNAL_API_URL = (
 
 export const revalidate = 3600;
 
-interface Product { slug: string; nameTr: string; categorySlug: string; unit: string; }
+interface Product { slug: string; nameTr: string; categorySlug: string; unit: string; canonicalSlug?: string | null; }
 interface Market { slug: string; name: string; cityName: string; regionSlug: string | null; }
 interface Overview { earliestRecordedDate?: string | null; }
 
@@ -43,8 +43,9 @@ export async function GET() {
     fetchList<Market>("/prices/markets?seoIndex=true"),
     fetchObject<Overview>("/prices/overview"),
   ]);
-  const productCoverage = products.length > 0
-    ? `${products.length} indekslenebilir ürün`
+  const canonicalProducts = products.filter((product) => !product.canonicalSlug);
+  const productCoverage = canonicalProducts.length > 0
+    ? `${canonicalProducts.length} indekslenebilir ürün`
     : "İndekslenebilir ürün kataloğu";
   const marketCoverage = markets.length > 0
     ? `${markets.length} indekslenebilir toptancı hali`
@@ -53,8 +54,8 @@ export async function GET() {
     ? `${overview.earliestRecordedDate} tarihinden itibaren`
     : "Tarihsel fiyat kayıtları";
 
-  const productLines = products.length > 0
-    ? products.map((p) => `- [${p.nameTr}](${SITE_URL}/urun/${p.slug}) — kategori: ${p.categorySlug}, birim: ${p.unit}`).join("\n")
+  const productLines = canonicalProducts.length > 0
+    ? canonicalProducts.map((p) => `- [${p.nameTr}](${SITE_URL}/urun/${p.slug}) — kategori: ${p.categorySlug}, birim: ${p.unit}`).join("\n")
     : "- (ürün listesi yüklenemedi)";
 
   const marketLines = markets.length > 0

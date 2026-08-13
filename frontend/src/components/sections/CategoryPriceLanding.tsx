@@ -48,7 +48,7 @@ export default async function CategoryPriceLanding({
     // 90 gun, borsalarin periyodik yayin ritmini (haftalik/aylik) tolere eder.
     fetchPricesPage({ category, range: "90d", latestOnly: true, limit: 200, sort: "date-desc" }),
   ]);
-  const products = allProducts.filter((p) => p.categorySlug === category);
+  const products = allProducts.filter((p) => p.categorySlug === category && !p.canonicalSlug);
   const rows = pricePage.items;
   const datasetDates = schemaDateRange(rows.map((row) => row.recordedDate));
   const latestDate = datasetDates?.latest;

@@ -12,6 +12,7 @@ import {
   type SearchFlatRow,
   type SearchResults,
 } from "./search/types";
+import { productHref } from "@/lib/product-links";
 
 const API_BASE =
   (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "") +
@@ -95,8 +96,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   const handleNavigate = useCallback(
     (row: SearchFlatRow) => {
-      const href =
-        row.kind === "product" ? `/urun/${row.item.slug}` : `/hal/${row.item.slug}`;
+      const href = row.kind === "product"
+        ? productHref({ productSlug: row.item.slug, canonicalSlug: row.item.canonicalSlug })
+        : `/hal/${row.item.slug}`;
       onClose();
       router.push(href);
     },
