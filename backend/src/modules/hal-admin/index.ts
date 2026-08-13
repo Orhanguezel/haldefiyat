@@ -5,7 +5,7 @@ import { rebuildProductFamilies } from "@/modules/prices/family-service";
 import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
 import { z } from "zod";
 
-import { db } from "@/db/client";
+import { db, pool } from "@/db/client";
 import {
   hfAlerts,
   hfAnnualEtlRuns,
@@ -99,6 +99,31 @@ const priceBody = z.object({
 
 const bulkPriceBody = z.object({
   entries: z.array(priceBody).min(1).max(100),
+});
+
+const quarantineListQuery = z.object({
+  status: z.enum(["pending", "approved", "rejected", "corrected"]).optional().default("pending"),
+  severity: z.enum(["warning", "critical"]).optional(),
+  reason: z.string().max(64).optional(),
+  q: z.string().max(128).optional(),
+  limit: z.coerce.number().int().min(1).max(200).optional().default(50),
+  offset: z.coerce.number().int().min(0).optional().default(0),
+});
+
+const quarantineReviewBody = z.object({
+  decision: z.enum(["approve", "reject", "correct"]),
+  note: z.string().trim().min(3).max(2000),
+  confirmCritical: z.boolean().optional().default(false),
+  avgPrice: z.coerce.number().positive().optional(),
+  minPrice: z.coerce.number().positive().nullable().optional(),
+  maxPrice: z.coerce.number().positive().nullable().optional(),
+}).superRefine((value, ctx) => {
+  if (value.decision === "correct" && value.avgPrice == null) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["avgPrice"], message: "Düzeltme için ortalama fiyat zorunlu" });
+  }
+  if (value.minPrice != null && value.maxPrice != null && value.minPrice > value.maxPrice) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["minPrice"], message: "Minimum fiyat maksimumdan büyük olamaz" });
+  }
 });
 
 const productBody = z.object({
@@ -222,6 +247,82 @@ async function getPriceDetail(id: number) {
 
 export async function registerHalAdmin(app: FastifyInstance) {
   await registerProductGsc(app);
+
+  app.get("/hal/price-quarantine", async (req, reply) => {
+    const parsed = quarantineListQuery.safeParse(req.query);
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz sorgu", details: parsed.error.flatten() });
+    const { status, severity, reason, q, limit, offset } = parsed.data;
+    const filters = ["pq.status = ?"];
+    const values: Array<string | number> = [status];
+    if (severity) { filters.push("pq.severity = ?"); values.push(severity); }
+    if (reason) { filters.push("pq.reason_code = ?"); values.push(reason); }
+    if (q?.trim()) { filters.push("(p.name_tr LIKE ? OR p.slug LIKE ? OR m.name LIKE ?)"); const term = `%${likeSafe(q) ?? ""}%`; values.push(term, term, term); }
+    const where = filters.join(" AND ");
+    const [items] = await pool.query(
+      `SELECT pq.id, pq.product_id AS productId, p.name_tr AS productName, p.slug AS productSlug,
+              pq.market_id AS marketId, m.name AS marketName, pq.recorded_date AS recordedDate,
+              pq.source_api AS sourceApi, pq.unit, pq.min_price AS minPrice, pq.max_price AS maxPrice,
+              pq.avg_price AS avgPrice, pq.reason_code AS reasonCode, pq.severity, pq.confidence,
+              pq.peer_median AS peerMedian, pq.deviation_ratio AS deviationRatio, pq.status,
+              pq.review_note AS reviewNote, pq.reviewed_by AS reviewedBy, pq.reviewed_at AS reviewedAt,
+              pq.created_at AS createdAt
+       FROM hf_price_quarantine pq
+       JOIN hf_products p ON p.id = pq.product_id
+       JOIN hf_markets m ON m.id = pq.market_id
+       WHERE ${where} ORDER BY FIELD(pq.severity,'critical','warning'), pq.created_at DESC LIMIT ? OFFSET ?`,
+      [...values, limit, offset],
+    );
+    const [countRows] = await pool.query(
+      `SELECT COUNT(*) AS total FROM hf_price_quarantine pq
+       JOIN hf_products p ON p.id = pq.product_id JOIN hf_markets m ON m.id = pq.market_id WHERE ${where}`,
+      values,
+    );
+    return reply.send({ items, total: Number((countRows as Array<{ total: number | string }>)[0]?.total ?? 0), limit, offset });
+  });
+
+  app.patch<{ Params: { id: string } }>("/hal/price-quarantine/:id/review", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz id" });
+    const parsed = quarantineReviewBody.safeParse(req.body);
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz karar", details: parsed.error.flatten() });
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      const [rows] = await connection.query("SELECT * FROM hf_price_quarantine WHERE id = ? FOR UPDATE", [id]);
+      const row = (rows as Array<Record<string, unknown>>)[0];
+      if (!row) { await connection.rollback(); return reply.status(404).send({ error: "Karantina kaydi bulunamadi" }); }
+      if (row.status !== "pending") { await connection.rollback(); return reply.status(409).send({ error: "Kayit daha once incelenmis" }); }
+      if (row.severity === "critical" && parsed.data.decision !== "reject" && !parsed.data.confirmCritical) {
+        await connection.rollback();
+        return reply.status(400).send({ error: "Kritik kaydi yayinlamak icin confirmCritical=true zorunlu" });
+      }
+      const reviewer = String((req.user as { id?: string } | undefined)?.id ?? "admin").slice(0, 36);
+      const status = parsed.data.decision === "approve" ? "approved" : parsed.data.decision === "correct" ? "corrected" : "rejected";
+      if (status !== "rejected") {
+        const avg = status === "corrected" ? parsed.data.avgPrice : row.avg_price;
+        const min = status === "corrected" ? (parsed.data.minPrice ?? null) : row.min_price;
+        const max = status === "corrected" ? (parsed.data.maxPrice ?? null) : row.max_price;
+        await connection.query(
+          `INSERT INTO hf_price_history (product_id,market_id,min_price,max_price,avg_price,currency,unit,recorded_date,source_api)
+           VALUES (?,?,?,?,?,'TRY',?,?,?) ON DUPLICATE KEY UPDATE min_price=VALUES(min_price),max_price=VALUES(max_price),
+           avg_price=VALUES(avg_price),unit=VALUES(unit),source_api=VALUES(source_api)`,
+          [row.product_id, row.market_id, min, max, avg, row.unit, row.recorded_date, `${String(row.source_api)}:reviewed`.slice(0, 64)],
+        );
+      }
+      await connection.query(
+        "UPDATE hf_price_quarantine SET status=?, review_note=?, reviewed_by=?, reviewed_at=CURRENT_TIMESTAMP(3) WHERE id=?",
+        [status, parsed.data.note, reviewer, id],
+      );
+      await connection.commit();
+      void revalidateFrontendTag("prices");
+      return reply.send({ ok: true, id, status });
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  });
 
   app.get("/dashboard/summary", async (_req, reply) => {
     const [
