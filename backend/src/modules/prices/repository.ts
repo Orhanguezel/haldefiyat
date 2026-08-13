@@ -1,11 +1,12 @@
 import type { SQL } from "drizzle-orm";
 import { and, asc, desc, eq, gte, lte, sql, or, like, inArray, isNotNull } from "drizzle-orm";
-import { db } from "@/db/client";
+import { db, pool } from "@/db/client";
 import { hfEtlRuns, hfMarkets, hfPriceHistory, hfProductEditorial, hfProducts, hfRetailPrices } from "@/db/schema";
 import { activeSources } from "@/config/etl-sources";
 import { sourceInfoFor, sourceTypeFromMarketType } from "@/config/source-urls";
 import { INDEX_BASKET_SLUGS } from "@/modules/index/calculator";
 import { disambiguateProductUnitLabels } from "./product-unit-labels";
+import { assessPriceQuality } from "@/modules/etl/price-quality-guard";
 
 export function parseRangeToDays(range?: string): number {
   if (!range) return 7;
@@ -1451,6 +1452,43 @@ export async function upsertPriceRow(input: {
   unit?:       string | null;   // koli/kasa gibi paket birimleri; verilmezse kg
 }) {
   const unit = input.unit ?? "kg";
+  const avg = Number(input.avgPrice);
+  const min = input.minPrice == null ? null : Number(input.minPrice);
+  const max = input.maxPrice == null ? null : Number(input.maxPrice);
+  const [peerRows] = await pool.query(
+    `SELECT ph.avg_price AS price, p.category_slug AS categorySlug
+     FROM hf_products p
+     LEFT JOIN hf_price_history ph ON ph.product_id = p.id AND ph.unit = ?
+       AND ABS(DATEDIFF(ph.recorded_date, ?)) <= 45
+     WHERE p.id = ?
+     ORDER BY ph.recorded_date DESC LIMIT 30`,
+    [unit, input.recordedDate, input.productId],
+  );
+  const typedPeers = peerRows as Array<{ price: number | string; categorySlug: string | null }>;
+  const quality = assessPriceQuality({
+    avg,
+    min,
+    max,
+    unit,
+    categorySlug: typedPeers[0]?.categorySlug,
+    peerPrices: typedPeers.map((row) => Number(row.price)).filter((value) => value > 0),
+  });
+
+  if (!quality.publish) {
+    await pool.query(
+      `INSERT INTO hf_price_quarantine
+       (product_id, market_id, recorded_date, source_api, unit, min_price, max_price, avg_price,
+        reason_code, severity, confidence, peer_median, deviation_ratio)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE min_price=VALUES(min_price), max_price=VALUES(max_price),
+         avg_price=VALUES(avg_price), severity=VALUES(severity), confidence=VALUES(confidence),
+         peer_median=VALUES(peer_median), deviation_ratio=VALUES(deviation_ratio), status='pending'`,
+      [input.productId, input.marketId, input.recordedDate, input.sourceApi, unit,
+       input.minPrice ?? null, input.maxPrice ?? null, input.avgPrice, quality.reason,
+       quality.severity, quality.confidence, quality.peerMedian, quality.deviationRatio],
+    );
+    throw new Error(`PRICE_QUARANTINED:${quality.reason}`);
+  }
   await db
     .insert(hfPriceHistory)
     .values({
