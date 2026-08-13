@@ -131,7 +131,7 @@ export default async function HomePage({ params }: Props) {
     return (
       <>
         <JsonLd type="Dataset" data={datasetSchema} />
-        <MobileHomeHero locale={locale} products={products.length} markets={markets} widget={widget} />
+        <MobileHomeHero locale={locale} products={overview.trackedProducts || products.length} markets={markets} widget={widget} activeMarkets={overview.activeMarkets} freshness={overview.freshness} />
         {/* Ana görevden sonra yalnız güncel içerik ve güven/SSS kalır. */}
         <LatestReports limit={6} />
         <HomeFaq

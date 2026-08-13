@@ -17,11 +17,15 @@ export default async function MobileHomeHero({
   products,
   markets,
   widget,
+  activeMarkets,
+  freshness,
 }: {
   locale: string;
   products: number;
   markets: Market[];
   widget: WidgetPrice[];
+  activeMarkets?: number;
+  freshness?: "fresh" | "stale" | "unknown";
 }) {
   const t = await getTranslations({ locale, namespace: "home.hero" });
 
@@ -30,7 +34,7 @@ export default async function MobileHomeHero({
       <section className="px-4 pb-5 pt-7">
         <div className="rounded-lg border border-(--color-border) bg-(--color-surface) p-4">
           <div className="font-(family-name:--font-mono) text-[10px] font-bold uppercase tracking-[0.12em] text-(--color-brand)">
-            Tarihli veri akışı
+            {freshness === "fresh" ? "Güncel" : freshness === "stale" ? "Gecikmeli" : "Tarihli"} veri akışı
           </div>
           <h1 className="mt-3 text-[32px] font-black leading-[1.05] text-(--color-foreground)">
             {t("title")} — {t("subtitle")}
@@ -40,8 +44,8 @@ export default async function MobileHomeHero({
           </p>
           <div className="mt-4 grid grid-cols-3 gap-2">
             <Kpi value={products || "—"} label="Ürün" />
-            <Kpi value={markets.length || "—"} label="Aktif hal" />
-            <Kpi value="Tarihli" label="Veri" />
+            <Kpi value={activeMarkets || markets.length || "—"} label="Aktif hal" />
+            <Kpi value={freshness === "fresh" ? "Güncel" : freshness === "stale" ? "Gecikmeli" : "Bilinmiyor"} label="Veri" />
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2">
             <Link href="/fiyatlar" className="inline-flex min-h-11 items-center justify-center rounded-lg bg-(--color-brand) px-4 text-[13px] font-black text-(--color-brand-fg)">
