@@ -12,6 +12,7 @@ import { localePath } from "@/lib/locale-path";
 import { ThemeToggle } from "./ThemeToggle";
 import { NotificationBell } from "@/components/dashboard/notifications/NotificationBell";
 import { HeaderNavDropdown } from "./HeaderNavDropdown";
+import { Search } from "lucide-react";
 
 export interface NavLink {
   key: string;
@@ -170,13 +171,23 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
         )}
       </div>
 
+      {/* Mobil arama — ana görev drawer içine saklanmaz. */}
+      <button
+        type="button"
+        onClick={() => document.dispatchEvent(new Event("open-search"))}
+        aria-label="Ürün veya hal ara"
+        className="ml-auto inline-flex h-11 w-11 items-center justify-center rounded-[8px] border border-(--color-border) bg-(--color-surface) text-(--color-foreground) lg:hidden"
+      >
+        <Search className="h-5 w-5" aria-hidden="true" />
+      </button>
+
       {/* Mobile toggle */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label="Menüyü aç/kapat"
         aria-expanded={open}
-        className="lg:hidden inline-flex h-9 w-9 items-center justify-center rounded-[8px] bg-(--color-brand) text-white shadow-sm transition-transform active:scale-95"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-[8px] bg-(--color-brand) text-(--color-brand-fg) shadow-sm transition-transform active:scale-95 lg:hidden"
       >
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5">
           {open ? (
