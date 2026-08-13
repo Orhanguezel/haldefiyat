@@ -49,7 +49,7 @@ export function FavoritesList({ locale }: Props) {
               href={`/${locale}/urun/${product.slug}`}
               className="truncate text-[13px] font-semibold text-(--color-foreground) hover:text-(--color-brand) transition-colors"
             >
-              {product.nameTr}
+              {product.displayName || product.nameTr}
             </Link>
             <p className="mt-0.5 text-[11px] text-(--color-muted) capitalize">
               {product.categorySlug} · {product.unit}

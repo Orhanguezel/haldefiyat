@@ -41,9 +41,9 @@ export default function ComparisonSummary({ summary }: ComparisonSummaryProps) {
                       style={{ backgroundColor: row.color }}
                       aria-hidden
                     />
-                    <ProductImage slug={row.product.slug} name={row.product.nameTr} categorySlug={row.product.categorySlug} imageUrl={row.product.imageUrl} size={28} />
+                    <ProductImage slug={row.product.slug} name={row.product.displayName || row.product.nameTr} categorySlug={row.product.categorySlug} imageUrl={row.product.imageUrl} size={28} />
                     <span className="font-medium text-(--color-foreground)">
-                      {row.product.nameTr}
+                      {row.product.displayName || row.product.nameTr}
                     </span>
                   </div>
                 </td>

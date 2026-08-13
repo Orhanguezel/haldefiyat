@@ -51,9 +51,9 @@ export default function SearchModalResults({
               onMouseEnter={() => setActiveIdx(i)}
               onClick={() => onNavigate({ kind: "product", item: p })}
             >
-              <ProductImage slug={p.slug} name={p.nameTr} categorySlug={p.categorySlug} imageUrl={p.imageUrl} size={28} />
+              <ProductImage slug={p.slug} name={p.displayName || p.nameTr} categorySlug={p.categorySlug} imageUrl={p.imageUrl} size={28} />
               <span className="flex-1 truncate text-[14px] font-medium text-(--color-foreground)">
-                {p.nameTr}
+                {p.displayName || p.nameTr}
               </span>
               <span className="rounded-md bg-(--color-bg-alt) px-2 py-0.5 font-(family-name:--font-mono) text-[10px] uppercase tracking-wide text-(--color-muted)">
                 {p.categorySlug}

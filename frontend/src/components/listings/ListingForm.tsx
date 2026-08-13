@@ -32,7 +32,7 @@ function dateOffsetStr(days: number) {
 export function ListingForm({ products }: { products: Product[] }) {
   const { user, loading: authLoading } = useAuthSession();
   const productOptions = useMemo(
-    () => products.map((product) => ({ value: product.slug, label: product.nameTr })),
+    () => products.map((product) => ({ value: product.slug, label: product.displayName || product.nameTr })),
     [products],
   );
   const [productSlug, setProductSlug] = useState("");

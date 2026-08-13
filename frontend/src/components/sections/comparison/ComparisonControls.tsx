@@ -48,7 +48,7 @@ export default function ComparisonControls({
           </option>
           {availableProducts.map((p) => (
             <option key={p.id} value={p.slug}>
-              {p.nameTr}
+              {p.displayName || p.nameTr}
             </option>
           ))}
         </select>

@@ -62,7 +62,7 @@
 - [x] F0.4 `Domates (...)`, `Erik (...)` ve diğer şablon artıkları için canlı tarama yap; Domates kök nedeni ortak display-name guard ile kapatıldı. Kanıt: Faz 0 raporu ve ürün alias/birim envanteri.
 - [x] F0.5 Domates market karşılaştırmasındaki 546 TL örneğinin güncel durumunu DB/API/canlı sayfada doğrula. Canlı değer 546,21 TL; türev guard eklendi.
 - [x] F0.6 Haftalık raporlarda `Invalid Date`, boş veya yanlış tarih taraması yap. Canlı hata doğrulandı; ortak ISO tarih düzeltmesi eklendi.
-- [~] F0.7 `avakado`/`avokado` ve `maydonoz`/`maydanoz` çiftleri canlı DB’de satır sayısı, tarih ve birimle doğrulandı; geniş alias taraması bekliyor. Birim farkı nedeniyle kör canonical merge yasaklandı.
+- [~] F0.7 `avakado`/`avokado` ve `maydonoz`/`maydanoz` çiftleri canlı DB’de satır sayısı, tarih ve birimle doğrulandı; kullanıcı etiketleri `Avokado (Adet/Kg)` ve `Maydanoz (Demet/Bağ)` olarak ayrıldı. Geniş alias taraması bekliyor; kör canonical merge yasak.
 - [~] F0.8 Avokado/Maydanoz için bozuk yazım ve birim envanteri export edildi; tüm filtre listesinin geniş taraması bekliyor.
 - [x] F0.9 Ana sayfa, harita, mobil hero ve fiyat sayfalarındaki sayaçları yan yana kaydet. `1.234 ürün / 29 aktif il / 19 güncel il`.
 - [x] F0.10 Sahiplik/finansman ve hakkımızda sayfalarının gerçek muhatap bilgilerini kontrol et. Muhatap yalnız “HalDeFiyat”; eksik devam ediyor.

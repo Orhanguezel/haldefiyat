@@ -28,12 +28,12 @@ export default function ComparisonChips({ selectedProducts, onRemove }: Comparis
             />
             <span className="text-base">{getEmoji(p.slug, p.categorySlug)}</span>
             <span className="text-[13px] font-medium text-(--color-foreground)">
-              {p.nameTr}
+              {p.displayName || p.nameTr}
             </span>
             <button
               type="button"
               onClick={() => onRemove(p.slug)}
-              aria-label={`${p.nameTr} kaldır`}
+              aria-label={`${p.displayName || p.nameTr} kaldır`}
               className="flex h-6 w-6 items-center justify-center rounded-full text-(--color-muted) transition-colors hover:bg-(--color-bg-alt) hover:text-(--color-foreground)"
             >
               <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5">
