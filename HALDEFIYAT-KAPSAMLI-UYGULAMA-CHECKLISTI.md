@@ -183,7 +183,7 @@
 ### 4.2 Birim ve varyant güvenliği
 
 - [~] F2.11 Kodda kullanılan ham birim kuralları canonical contract modülünde toplandı; kaynak bazlı DB frekans export'u bekliyor.
-- [x] F2.12 `kg`, `adet`, `kasa`, `bag`, `demet`, `koli`, `ton` canonical birimleri tipli sabit olarak tanımlandı.
+- [x] F2.12 `kg`, `adet`, `kasa`, `bag`, `demet`, `koli`, `paket`, `litre`, `ton` canonical birimleri tipli sabit olarak tanımlandı; `kg.`, `kilogram`, `bağ`, `lt` legacy yazımları normalize edildi.
 - [x] F2.13 Canonical katman bilinmeyen/boş birimde `null/UNKNOWN_UNIT` döndürüyor; varsayımsal kg dönüşümü yapmıyor. Legacy ETL çağrı noktasına geçiş F2.15 ile birlikte yapılacak.
 - [x] F2.14 Ürün–varyant–birim izin matrisini kur. (Her ürün/varyant tek canonical default birim; farklı paket birimi ayrı kimlik. Merkezi yazımda enforce ediliyor.)
 - [x] F2.15 Bilinmeyen birimi karantinaya al ve admin kuyruğunda göster. (`UNKNOWN_PRODUCT_UNIT` ve `PRODUCT_UNIT_MISMATCH` reason code’ları canlı admin kuyruğunda.)
@@ -192,8 +192,8 @@
 
 ### 4.3 URL ve SEO göçü
 
-- [x] F2.18 Kopya/yanlış ürün URL’leri için eski→canonical haritası üret. (Canlı 1.235 aktif ürün üzerinden 612 eşleşme üretildi; eksik hedef ve aktif 410 çakışması yok. Tekrar üretilebilir script: `scripts/seo/product-canonical-map.mjs`; çıktı: `artifacts/renewal-2026/urun-eski-canonical-url-haritasi.md`.)
-- [ ] F2.19 Gerçek çeşitleri ayrı tut; yalnız alias/thin format varyantlarını doğru hedefe yönlendir.
+- [x] F2.18 Kopya/yanlış ürün URL’leri için eski→canonical haritası üret. (Canlı 1.235 aktif ürün üzerinden 601 eşleşme üretildi; eksik hedef, zincir ve aktif 410 çakışması yok. Tekrar üretilebilir script: `scripts/seo/product-canonical-map.mjs`; çıktı: `artifacts/renewal-2026/urun-eski-canonical-url-haritasi.md`.)
+- [x] F2.19 Gerçek çeşitleri ayrı tut; yalnız alias/thin format varyantlarını doğru hedefe yönlendir. (Ayrı çeşitler `family_slug` altında master kimlikler olarak korunuyor. Tarihsel merge'lerden kalan 11 farklı-birimli ürün migration 085 ile ayrıldı; canlı canonical denetimde 601 varyant, 0 birim uyuşmazlığı, 0 indexli varyant, 0 eksik hedef. Paket/kasa/bağ/demet/adet ayrımı korunuyor. Commit: `015e413f`.)
 - [x] F2.20 Tek adımlı 301/308 uygula; zincir ve loop testi yap. (12 iki-sıçramalı hedef migration 084 ile son master'a düzleştirildi; canlı harita `missingTargets=0`, `chainedTargets=0`, `conflicts410=0`. Örnek eski URL'lerde 301 ve nihai hedefte tek hop/200 doğrulandı.)
 - [~] F2.21 Canonical, hreflang/locale, breadcrumb ve iç linkleri yeni hedefe geçir. (Ürün sayfası canonical redirect/metadata katmanı mevcut. Arama modalı canonical hedefe geçirildi; kategori landing ve `llms-full.txt` varyant linklerini artık yayımlamıyor. Kalan doğrudan `/urun/${slug}` üreticileri repo-geneli taranıp veri sözleşmesine göre kapatılacak. Commit: `63397966`.)
 - [x] F2.22 Sitemap’ten eski/kopya URL’leri çıkar. (`canonicalSlug` dolu ürünler sitemap üretiminde dışlanıyor; canlı sitemap kabulünde dört eski örnek yok, dört nihai master mevcut; toplam 406 URL.)

@@ -58,7 +58,6 @@ const lines = [
   "| Eski URL | Canonical URL | Birim | Hedef | Redirect kaydı |",
   "|---|---|---:|---|---|",
   ...rows.map((row) => `| \`${row.source}\` | \`${row.target}\` | ${row.unit} | ${row.targetState} | ${row.conflict410 ? "410 ÇAKIŞMASI" : row.exact301 ? "301 kayıtlı" : "proxy 301"} |`),
-  "",
 ];
 
 await mkdir(dirname(outputPath), { recursive: true });

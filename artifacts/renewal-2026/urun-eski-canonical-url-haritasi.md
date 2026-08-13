@@ -1,6 +1,6 @@
 # Ürün Eski → Canonical URL Haritası
 
-Üretim zamanı: `2026-08-13T22:07:14.132Z`
+Üretim zamanı: `2026-08-13T22:21:05.440Z`
 Kaynak API: `https://haldefiyat.com/api/v1`
 
 Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür. Frontend proxy bu kayıtları istek anında 301 ile canonical ürüne yönlendirir; `hf_redirects` tablosundaki birebir kayıt yalnız ek denetim ve hit ölçümü içindir.
@@ -8,12 +8,12 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 ## Özet
 
 - Aktif ürün: **1235**
-- Eski/varyant → canonical eşleşmesi: **612**
+- Eski/varyant → canonical eşleşmesi: **601**
 - Birebir kayıtlı aktif 301: **4**
 - Aktif 410 ile çelişen eşleşme: **0**
 - Eksik canonical hedef: **0**
 - Birden fazla sıçramalı canonical hedef: **0**
-- Dinamik canonical 301'e bağlı eşleşme: **608**
+- Dinamik canonical 301'e bağlı eşleşme: **597**
 
 ## Harita
 
@@ -124,7 +124,6 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/cilek-sera` | `/urun/cilek` | kg | doğrudan | proxy 301 |
 | `/urun/cin-biber` | `/urun/biber-cin` | kg | doğrudan | proxy 301 |
 | `/urun/dere-otu-bag` | `/urun/dere-otu` | demet | doğrudan | proxy 301 |
-| `/urun/dere-otu-muhtelif` | `/urun/dere-otu` | bag | doğrudan | proxy 301 |
 | `/urun/dereotu` | `/urun/dere-otu` | demet | doğrudan | proxy 301 |
 | `/urun/dereotu-70-100-gr` | `/urun/dere-otu` | demet | doğrudan | proxy 301 |
 | `/urun/dolma-biber` | `/urun/biber-dolma` | kg | doğrudan | proxy 301 |
@@ -353,9 +352,7 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/kus-konmaz` | `/urun/kuskonmaz` | kg | doğrudan | proxy 301 |
 | `/urun/lahana` | `/urun/lahana-beyaz` | kg | doğrudan | proxy 301 |
 | `/urun/lahana-beyaz-kg` | `/urun/lahana-beyaz` | kg | doğrudan | proxy 301 |
-| `/urun/lahana-bruksel` | `/urun/bruksel-lahana` | paket | doğrudan | proxy 301 |
 | `/urun/lahana-buruksel` | `/urun/bruksel-lahana` | kg | doğrudan | proxy 301 |
-| `/urun/lahana-kara` | `/urun/karalahana` | adet | doğrudan | proxy 301 |
 | `/urun/lahana-kara-bag` | `/urun/karalahana` | kg | doğrudan | proxy 301 |
 | `/urun/lahana-karayaprak` | `/urun/karalahana` | kg | doğrudan | proxy 301 |
 | `/urun/lahana-kirmizi` | `/urun/kirmizi-lahana` | kg | doğrudan | proxy 301 |
@@ -422,7 +419,6 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/marul-polorosso` | `/urun/marul-lolorosso` | adet | doğrudan | proxy 301 |
 | `/urun/marul-yerli-adet` | `/urun/marul` | adet | doğrudan | proxy 301 |
 | `/urun/maydanoz-70-100-gr` | `/urun/maydanoz` | demet | doğrudan | proxy 301 |
-| `/urun/maydanoz-bag` | `/urun/maydanoz` | kg | doğrudan | proxy 301 |
 | `/urun/maydanoz-normal` | `/urun/maydanoz` | demet | doğrudan | proxy 301 |
 | `/urun/maydonoz-muhtelif` | `/urun/maydonoz` | bag | doğrudan | proxy 301 |
 | `/urun/maydonoz-yerli-bag` | `/urun/maydonoz` | bag | doğrudan | proxy 301 |
@@ -438,7 +434,6 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/muz-ithal-koli` | `/urun/muz-ithal` | kg | doğrudan | proxy 301 |
 | `/urun/muz-muz-yerli-anamur` | `/urun/muz-yerli` | kg | doğrudan | proxy 301 |
 | `/urun/nane-70-100-gr` | `/urun/nane` | demet | doğrudan | proxy 301 |
-| `/urun/nane-taze` | `/urun/nane` | kg | doğrudan | proxy 301 |
 | `/urun/nane-tekli` | `/urun/nane` | demet | doğrudan | proxy 301 |
 | `/urun/nar-cekirdeksiz` | `/urun/nar` | kg | doğrudan | proxy 301 |
 | `/urun/nar-muhtelif` | `/urun/nar` | kg | doğrudan | proxy 301 |
@@ -499,8 +494,6 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/portakal-vashington` | `/urun/portakal-washington` | kg | doğrudan | proxy 301 |
 | `/urun/portakal-vasington-sn` | `/urun/portakal-washington` | kg | doğrudan | proxy 301 |
 | `/urun/portakal-wasington` | `/urun/portakal-washington` | kg | doğrudan | proxy 301 |
-| `/urun/reyhan-feslegen` | `/urun/reyhan` | bag | doğrudan | proxy 301 |
-| `/urun/reyhan-kirmizi-70-100gr` | `/urun/reyhan` | bag | doğrudan | proxy 301 |
 | `/urun/s-kabak` | `/urun/kabak-sakiz` | kg | doğrudan | proxy 301 |
 | `/urun/salata-cengelkoy-silor` | `/urun/salatalik-silor` | kg | doğrudan | proxy 301 |
 | `/urun/salatalik-diger` | `/urun/salatalik` | kg | doğrudan | proxy 301 |
@@ -573,11 +566,8 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/t-patates` | `/urun/patates-taze` | kg | doğrudan | proxy 301 |
 | `/urun/t-sarimsak` | `/urun/sarimsak-taze` | kg | doğrudan | proxy 301 |
 | `/urun/taze-bas-sarimsak` | `/urun/sarimsak-taze` | kg | doğrudan | proxy 301 |
-| `/urun/tere-70-100gr` | `/urun/tere` | bag | doğrudan | proxy 301 |
 | `/urun/tere-bag` | `/urun/tere` | demet | doğrudan | proxy 301 |
 | `/urun/tere-diger` | `/urun/tere` | demet | doğrudan | proxy 301 |
-| `/urun/tere-muhtelif` | `/urun/tere` | bag | doğrudan | proxy 301 |
-| `/urun/tere-tere-filizi` | `/urun/tere` | bağ | doğrudan | proxy 301 |
 | `/urun/topak-patlican` | `/urun/patlican-topak` | kg | doğrudan | proxy 301 |
 | `/urun/turp-cin` | `/urun/turp` | kg | doğrudan | proxy 301 |
 | `/urun/turp-daygon` | `/urun/turp-beyaz` | kg | doğrudan | proxy 301 |
@@ -617,7 +607,6 @@ Bu dosya `hf_products.canonical_slug` alanının canlı anlık görüntüsüdür
 | `/urun/y-reyhan` | `/urun/reyhan` | demet | doğrudan | proxy 301 |
 | `/urun/y-roka` | `/urun/roka` | demet | doğrudan | proxy 301 |
 | `/urun/y-sogan` | `/urun/sogan-taze` | kg | doğrudan | proxy 301 |
-| `/urun/y-tere` | `/urun/tere` | bağ | doğrudan | proxy 301 |
 | `/urun/y-uzum-muhtelif` | `/urun/uzum` | kg | doğrudan | proxy 301 |
 | `/urun/yaban-mersini-paket` | `/urun/yaban-mersini` | adet | doğrudan | proxy 301 |
 | `/urun/yayin` | `/urun/yayin-tatli` | kg | doğrudan | proxy 301 |
