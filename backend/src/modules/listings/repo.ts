@@ -295,7 +295,9 @@ export async function updateCallRequestStatus(
   const ownership = sellerTransition
     ? eq(hfListingCallRequests.sellerUserId, userId)
     : eq(hfListingCallRequests.buyerUserId, userId);
-  const allowedFrom = status === "completed" ? ["accepted"] : ["pending", "notified"];
+  const allowedFrom: Array<"pending" | "notified" | "accepted"> = status === "completed"
+    ? ["accepted"]
+    : ["pending", "notified"];
   const result = await db.update(hfListingCallRequests)
     .set({ status, resolvedAt: status === "accepted" ? null : new Date() })
     .where(and(
