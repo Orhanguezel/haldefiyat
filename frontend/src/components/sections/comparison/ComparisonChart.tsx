@@ -24,7 +24,7 @@ interface ComparisonChartProps {
   selectedProducts: Product[];
 }
 
-function ChartTooltip({ active, payload, label }: TooltipProps<number, string>) {
+function ChartTooltip({ active, payload, label, units }: TooltipProps<number, string> & { units: Record<string, string> }) {
   if (!active || !payload || payload.length === 0) return null;
   const point = payload[0]?.payload as ChartPoint | undefined;
   const raw = point?.rawDate ?? String(label ?? "");
@@ -46,6 +46,7 @@ function ChartTooltip({ active, payload, label }: TooltipProps<number, string>) 
             <span className="text-(--color-muted)">{entry.name}:</span>
             <span className="font-semibold text-(--color-foreground)">
               ₺{Number(entry.value ?? 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
+              /{units[String(entry.dataKey)] ?? "kg"}
             </span>
           </div>
         ))}
@@ -55,6 +56,7 @@ function ChartTooltip({ active, payload, label }: TooltipProps<number, string>) 
 }
 
 export default function ComparisonChart({ data, selectedProducts }: ComparisonChartProps) {
+  const units = Object.fromEntries(selectedProducts.map((product) => [product.slug, product.unit || "kg"]));
   if (selectedProducts.length === 0) {
     return (
       <div className="flex h-[360px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-(--color-border) bg-(--color-surface)/60 px-8 text-center">
@@ -98,7 +100,7 @@ export default function ComparisonChart({ data, selectedProducts }: ComparisonCh
             width={60}
           />
           <Tooltip
-            content={<ChartTooltip />}
+            content={<ChartTooltip units={units} />}
             cursor={{ stroke: "var(--brand)", strokeWidth: 1, strokeDasharray: "3 3" }}
           />
           <Legend

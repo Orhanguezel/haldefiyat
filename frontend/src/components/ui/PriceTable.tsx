@@ -551,12 +551,13 @@ export default function PriceTable({
                       </td>
                     )}
                     <td className="px-4 py-3.5 text-right font-(family-name:--font-mono) text-[13px] text-(--color-muted)">
-                      ₺{fmt(row.minPrice)}
+                      ₺{fmt(row.minPrice)}<span className="ml-1 text-[10px]">/{row.unit}</span>
                     </td>
                     <td className="px-4 py-3.5 text-right">
                       <div className="flex flex-col items-end gap-0.5">
                         <span className="font-(family-name:--font-mono) text-[15px] font-bold text-(--color-foreground)">
                           ₺{fmt(row.avgPrice)}
+                          <span className="ml-1 text-[10px] font-medium text-(--color-muted)">/{row.unit}</span>
                         </span>
                         {yoyPct !== null && (
                           <span
@@ -573,7 +574,7 @@ export default function PriceTable({
                       </div>
                     </td>
                     <td className="px-4 py-3.5 text-right font-(family-name:--font-mono) text-[13px] text-(--color-muted)">
-                      ₺{fmt(row.maxPrice)}
+                      ₺{fmt(row.maxPrice)}<span className="ml-1 text-[10px]">/{row.unit}</span>
                     </td>
                     <td className="whitespace-nowrap px-4 py-3.5 font-(family-name:--font-mono) text-[12px] text-(--color-muted)">
                       {formatDate(row.recordedDate)}

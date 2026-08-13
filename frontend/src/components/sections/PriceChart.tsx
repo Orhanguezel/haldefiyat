@@ -28,7 +28,7 @@ const RANGES: ReadonlyArray<RangeOption> = [
   { key: "7d", label: "7G", days: 7 }, { key: "30d", label: "30G", days: 30 }, { key: "90d", label: "90G", days: 90 },
 ] as const;
 
-interface ChartPoint { date: string; rawDate: string; avg?: number; min?: number; max?: number; predicted?: number; isForecast?: boolean; }
+interface ChartPoint { date: string; rawDate: string; unit: string; avg?: number; min?: number; max?: number; predicted?: number; isForecast?: boolean; }
 
 function toNumber(value: string | number | null | undefined): number {
   if (value == null) return 0;
@@ -67,18 +67,18 @@ function ChartTooltip({ active, payload }: TooltipProps<number, string>) {
       </div>
       {hasAvg ? (
         <div className="font-(family-name:--font-mono) text-[14px] font-bold text-(--color-foreground)">
-          ₺{(point.avg ?? 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
+          ₺{(point.avg ?? 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}/{point.unit}
         </div>
       ) : null}
       {hasForecast ? (
         <div className="font-(family-name:--font-mono) text-[13px] font-semibold text-(--color-brand)/80">
-          tahmin ₺{(point.predicted ?? 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
+          tahmin ₺{(point.predicted ?? 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}/{point.unit}
         </div>
       ) : null}
       {hasAvg && typeof point.min === "number" && typeof point.max === "number" ? (
         <div className="mt-1 flex gap-3 font-(family-name:--font-mono) text-[11px] text-(--color-muted)">
-          <span>min ₺{point.min.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}</span>
-          <span>max ₺{point.max.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}</span>
+          <span>min ₺{point.min.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}/{point.unit}</span>
+          <span>max ₺{point.max.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}/{point.unit}</span>
         </div>
       ) : null}
     </div>
@@ -101,6 +101,7 @@ export default function PriceChart({ history, productName }: PriceChartProps) {
     const real: ChartPoint[] = filtered.map((row) => ({
       rawDate: row.recordedDate,
       date: formatShortDate(row.recordedDate),
+      unit: row.unit || "kg",
       avg: toNumber(row.avgPrice),
       min: toNumber(row.minPrice),
       max: toNumber(row.maxPrice),
@@ -111,9 +112,11 @@ export default function PriceChart({ history, productName }: PriceChartProps) {
     }
 
     const forecasts = predictNextDays(filtered, 7);
+    const forecastUnit = real.at(-1)?.unit ?? "kg";
     const forecastPoints: ChartPoint[] = forecasts.map((p) => ({
       rawDate: p.date,
       date: formatShortDate(p.date),
+      unit: forecastUnit,
       predicted: p.predicted,
       isForecast: true,
     }));

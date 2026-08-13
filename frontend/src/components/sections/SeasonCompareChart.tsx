@@ -116,7 +116,7 @@ function formatDoyTick(doy: number): string {
   return slot?.label ?? "";
 }
 
-function SeasonTooltip({ active, payload, label }: TooltipProps<number, string>) {
+function SeasonTooltip({ active, payload, label, unit }: TooltipProps<number, string> & { unit: string }) {
   if (!active || !payload || payload.length === 0) return null;
   const doy = typeof label === "number" ? label : Number(label);
   const date = new Date(2024, 0, doy);
@@ -134,6 +134,7 @@ function SeasonTooltip({ active, payload, label }: TooltipProps<number, string>)
         >
           {String(entry.dataKey)}: ₺
           {Number(entry.value ?? 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
+          /{unit}
         </div>
       ))}
     </div>
@@ -141,6 +142,7 @@ function SeasonTooltip({ active, payload, label }: TooltipProps<number, string>)
 }
 
 export default function SeasonCompareChart({ history, productName }: SeasonCompareChartProps) {
+  const unit = history.find((row) => row.unit)?.unit ?? "kg";
   const { chartData, years } = useMemo(() => {
     // 1) Yıl + gün başına — tüm marketlerin değerlerini topla (son değerle
     //    overwrite etmek yerine ortalama al). Farklı haller farklı günde
@@ -219,7 +221,7 @@ export default function SeasonCompareChart({ history, productName }: SeasonCompa
             tickFormatter={(v: number) => `₺${v}`}
             width={50}
           />
-          <Tooltip content={<SeasonTooltip />} cursor={{ stroke: "var(--brand)", strokeWidth: 1, strokeDasharray: "3 3" }} />
+          <Tooltip content={<SeasonTooltip unit={unit} />} cursor={{ stroke: "var(--brand)", strokeWidth: 1, strokeDasharray: "3 3" }} />
           <Legend wrapperStyle={{ fontFamily: "var(--font-mono)", fontSize: 11 }} />
           {years.map((g, idx) => (
             <Line
