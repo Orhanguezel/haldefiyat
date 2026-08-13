@@ -8,6 +8,7 @@ import { INDEX_BASKET_SLUGS } from "@/modules/index/calculator";
 import { disambiguateProductUnitLabels } from "./product-unit-labels";
 import { assessPriceQuality } from "@/modules/etl/price-quality-guard";
 import { assessRetailPriceQuality } from "@/modules/etl/retail-price-quality-guard";
+import { canonicalUnit } from "@/modules/etl/canonical-contract";
 
 export function parseRangeToDays(range?: string): number {
   if (!range) return 7;
@@ -1489,26 +1490,34 @@ export async function upsertPriceRow(input: {
   sourceApi:   string;
   unit?:       string | null;   // koli/kasa gibi paket birimleri; verilmezse kg
 }) {
-  const unit = input.unit ?? "kg";
+  const [productRows] = await pool.query(
+    "SELECT unit, category_slug AS categorySlug FROM hf_products WHERE id=? LIMIT 1",
+    [input.productId],
+  );
+  const product = (productRows as Array<{ unit: string; categorySlug: string | null }>)[0];
+  if (!product) throw new Error("PRICE_PRODUCT_NOT_FOUND");
+  const expectedUnit = canonicalUnit(product.unit);
+  const explicitUnit = input.unit == null ? null : canonicalUnit(input.unit);
+  const unit = input.unit == null ? (expectedUnit ?? product.unit) : (explicitUnit ?? input.unit);
   const avg = Number(input.avgPrice);
   const min = input.minPrice == null ? null : Number(input.minPrice);
   const max = input.maxPrice == null ? null : Number(input.maxPrice);
   const [peerRows] = await pool.query(
-    `SELECT ph.avg_price AS price, p.category_slug AS categorySlug
-     FROM hf_products p
-     LEFT JOIN hf_price_history ph ON ph.product_id = p.id AND ph.unit = ?
+    `SELECT ph.avg_price AS price
+     FROM hf_price_history ph
+     WHERE ph.product_id = ? AND ph.unit = ?
        AND ABS(DATEDIFF(ph.recorded_date, ?)) <= 45
-     WHERE p.id = ?
      ORDER BY ph.recorded_date DESC LIMIT 30`,
-    [unit, input.recordedDate, input.productId],
+    [input.productId, unit, input.recordedDate],
   );
-  const typedPeers = peerRows as Array<{ price: number | string; categorySlug: string | null }>;
+  const typedPeers = peerRows as Array<{ price: number | string }>;
   const quality = assessPriceQuality({
     avg,
     min,
     max,
     unit,
-    categorySlug: typedPeers[0]?.categorySlug,
+    expectedUnit,
+    categorySlug: product.categorySlug,
     peerPrices: typedPeers.map((row) => Number(row.price)).filter((value) => value > 0),
   });
 

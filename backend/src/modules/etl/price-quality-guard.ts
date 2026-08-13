@@ -3,13 +3,16 @@ export type PriceQualityReason =
   | "MIN_GREATER_THAN_MAX"
   | "AVG_OUTSIDE_RANGE"
   | "ABSOLUTE_LIMIT"
-  | "PEER_MEDIAN_DEVIATION";
+  | "PEER_MEDIAN_DEVIATION"
+  | "PRODUCT_UNIT_MISMATCH"
+  | "UNKNOWN_PRODUCT_UNIT";
 
 export interface PriceQualityInput {
   avg: number;
   min?: number | null;
   max?: number | null;
   unit: string;
+  expectedUnit?: string | null;
   categorySlug?: string | null;
   peerPrices?: readonly number[];
 }
@@ -54,6 +57,8 @@ export function assessPriceQuality(input: PriceQualityInput): PriceQualityDecisi
   });
 
   const values = [input.avg, input.min, input.max].filter((value): value is number => value != null);
+  if (!input.expectedUnit) return decision("UNKNOWN_PRODUCT_UNIT", "critical", 1);
+  if (input.unit !== input.expectedUnit) return decision("PRODUCT_UNIT_MISMATCH", "critical", 1);
   if (values.some((value) => !Number.isFinite(value) || value <= 0)) return decision("NON_POSITIVE_PRICE", "critical", 1);
   if (input.min != null && input.max != null && input.min > input.max) return decision("MIN_GREATER_THAN_MAX", "critical", 1);
   if ((input.min != null && input.avg < input.min) || (input.max != null && input.avg > input.max)) return decision("AVG_OUTSIDE_RANGE", "critical", 1);

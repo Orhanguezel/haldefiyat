@@ -18,6 +18,7 @@ const reasonLabels: Record<string, string> = {
   NON_POSITIVE_PRICE: 'Sıfır/negatif fiyat', MIN_GREATER_THAN_MAX: 'Minimum maksimumdan büyük',
   AVG_OUTSIDE_RANGE: 'Ortalama aralık dışında', ABSOLUTE_LIMIT: 'Mutlak tavan aşıldı',
   PEER_MEDIAN_DEVIATION: 'Emsal medyan sapması',
+  PRODUCT_UNIT_MISMATCH: 'Ürün birimiyle çelişiyor', UNKNOWN_PRODUCT_UNIT: 'Tanınmayan ürün birimi',
 };
 const statusLabels: Record<PriceQuarantineStatus, string> = { pending: 'Bekliyor', approved: 'Onaylandı', rejected: 'Reddedildi', corrected: 'Düzeltildi' };
 const price = (value: string | null) => value == null ? '—' : Number(value).toLocaleString('tr-TR', { maximumFractionDigits: 2 });
