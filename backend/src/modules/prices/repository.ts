@@ -5,6 +5,7 @@ import { hfEtlRuns, hfMarkets, hfPriceHistory, hfProductEditorial, hfProducts, h
 import { activeSources } from "@/config/etl-sources";
 import { sourceInfoFor, sourceTypeFromMarketType } from "@/config/source-urls";
 import { INDEX_BASKET_SLUGS } from "@/modules/index/calculator";
+import { disambiguateProductUnitLabels } from "./product-unit-labels";
 
 export function parseRangeToDays(range?: string): number {
   if (!range) return 7;
@@ -716,7 +717,7 @@ export async function listProducts(q?: string, category?: string, seoIndex?: boo
     const s = likeSafe(q.trim());
     if (s) conds.push(or(like(hfProducts.nameTr, `%${s}%`), like(hfProducts.slug, `%${s}%`))!);
   }
-  return db
+  const rows = await db
     .select({
       id:           hfProducts.id,
       slug:         hfProducts.slug,
@@ -734,6 +735,7 @@ export async function listProducts(q?: string, category?: string, seoIndex?: boo
     .from(hfProducts)
     .where(and(...conds))
     .orderBy(hfProducts.displayOrder, hfProducts.nameTr);
+  return disambiguateProductUnitLabels(rows);
 }
 
 export async function getPublishedProductEditorial(slug: string) {
