@@ -725,7 +725,15 @@ export async function sourceStatusRows() {
       rowsInserted: Number(run?.rowsInserted ?? 0),
       rowsFetched: Number(run?.rowsFetched ?? 0),
       rowsSkipped: Number(run?.rowsSkipped ?? 0),
-      errorMsg: typeof run?.errorMsg === "string" ? run.errorMsg : null,
+      // ETL hata metinleri URL, hostname, dosya yolu veya sağlayıcı cevabı
+      // içerebilir. Public durum API'si yalnızca güvenli, eyleme dönük özeti yayınlar.
+      statusMessage: status === "error"
+        ? "Kaynak geçici olarak alınamıyor; ekip tarafından inceleniyor."
+        : status === "partial"
+          ? "Son aktarım kısmen tamamlandı; eksik kayıtlar yeniden denenecek."
+          : status === "stale"
+            ? "Kaynağın son yayın tarihi iki günden eski."
+            : null,
     };
   });
 }

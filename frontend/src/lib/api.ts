@@ -582,7 +582,7 @@ export interface SourceStatusRow {
   rowsInserted: number;
   rowsFetched: number;
   rowsSkipped: number;
-  errorMsg: string | null;
+  statusMessage: string | null;
 }
 
 export async function fetchSourceStatus(): Promise<SourceStatusRow[]> {
