@@ -150,12 +150,12 @@
 
 ### 3.4 Geçici anomali emniyeti
 
-- [ ] F1.44 Ürün/birim bazlı geçici makul aralıkları veriyle çıkar.
-- [ ] F1.45 Mutlak eşik ve medyan sapmasını birlikte kullanan yayın öncesi guard ekle.
-- [ ] F1.46 Şüpheli kayıtları silme; karantinaya ve inceleme kuyruğuna al.
-- [ ] F1.47 Karantinalı veriyi page/API/widget/CSV/bülten/sosyal/rapordan hariç tut.
+- [~] F1.44 Ürün/birim bazlı geçici makul aralıkları veriyle çıkar. (13 Ağustos: kg/deniz ürünü/koli geçici tavanları ve 869 grupluk dry-run; ürün özel matris bekliyor.)
+- [x] F1.45 Mutlak eşik ve medyan sapmasını birlikte kullanan yayın öncesi guard ekle. (Merkezi `upsertPriceRow`; en az 5 emsal, 4x/0.25x sapma.)
+- [x] F1.46 Şüpheli kayıtları silme; karantinaya ve inceleme kuyruğuna al. (`hf_price_quarantine`: ham değer, reason, severity, confidence, median, review durumu.)
+- [x] F1.47 Karantinalı veriyi page/API/widget/CSV/bülten/sosyal/rapordan hariç tut. (Karantina kararı `hf_price_history` yazımından önce veriliyor; downstream yalnız yayın tablosunu okuyor.)
 - [ ] F1.48 546 TL domates ve yanlış adet/kg vakalarını fixture yap.
-- [ ] F1.49 Guard false-positive oranını örneklemle kontrol et.
+- [~] F1.49 Guard false-positive oranını örneklemle kontrol et. (Canlı dry-run: 869 grubun 7’si, %0,81 potansiyel karantina; 7 vakanın insan etiketlemesi bekliyor.)
 
 ### Faz 1 kabul kapısı
 
@@ -212,7 +212,7 @@
 
 ### 4.5 Veri bekçisi paneli
 
-- [ ] F2.32 Mutlak sınır, medyan sapması, önceki güne sıçrama, kaynak farkı ve stale kurallarını ekle.
+- [~] F2.32 Mutlak sınır, medyan sapması, önceki güne sıçrama, kaynak farkı ve stale kurallarını ekle. (Mutlak sınır + tarih-yakın emsal medyanı canlı; diğer reason code’lar bekliyor.)
 - [ ] F2.33 Anomali reason code, severity ve confidence alanlarını tanımla.
 - [ ] F2.34 Kuyrukta ürün, kaynak, birim, tarih, önem ve durum filtreleri sun.
 - [ ] F2.35 Onay, ret, düzelt, alias’a bağla ve toplu işlem aksiyonları ekle.
@@ -602,7 +602,7 @@
 
 - [ ] E16 `avg_price` kayıtların ~%79'unda SENTETİK (min–max orta noktası). Çeklistte hiç geçmiyor; sitedeki tüm fiyatları, raporları ve endeksi etkileyen en büyük veri borcu budur. ETL'de gerçek ortalama/sentetik ayrımı (ör. `is_synthetic` bayrağı) + tüketici yüzeylerinde (sayfa/API/bülten/endeks) ayrıştırma. Ref: `docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md`.
 - [ ] E17 2025 tarihsel serisi 3 halde şişik (muhtemel parser regresyonu) — YoY kıyas BLOKLU; 5 düzeltme yöntemi denendi, başarısız. Ürün detaydaki "Yıllık Karşılaştırma" dahil tüm YoY yüzeyleri bu seriyi ya karantinalar ya açıkça işaretler; sessiz YoY yayınlanmaz.
-- [ ] E18 546 TL domates kök nedeni ham fiyat değil, "tahmini perakende" TÜREV hesabıdır. F1.44–48 guard'ı ham fiyatlara ek olarak türev formüle (hal→perakende katsayısı) ve `hf_retail_prices` girdilerine uygulanır; ekrandaki "%50–200 aralığı" iddiası testle doğrulanır.
+- [~] E18 546 TL domates kök nedeni ham fiyat değil, "tahmini perakende" TÜREV hesabıdır. Frontend türev guard’ı `%200` üstünü göstermiyor ve 546 TL fixture’ı testli; hal yazım guard’ında da fixture var. `hf_retail_prices` yazım-sınırı guard’ı bekliyor.
 - [ ] E19 marketfiyati RETAIL_EXTRA throttle gerçeği: ~750 fresh çağrı sonrası IP throttle; kürasyonlu dikey fresh-produce'tan ÖNCE çalışmalı; retail destekleyicidir, index'i sürmez. Retail comparison'daki tazelik etiketi bu kısıtı yansıtır.
 - [ ] E20 TOBB TL/ton→kg birim vakası (~1000x şişik fiyat; 194 garbage kayıt temizliği + parser fix) F2.13 ve F2.17'nin birincil fixture'ı yapılır; zeytinyağı/zeytin gerçek 100–350 TL bandı negatif test olarak eklenir.
 - [ ] E21 Bekleyen toplu temizlikler F2 kapsamına alınır: iceberg ailesi birleştirmesi (KALAN-ISLER), donma detektörünün mutlak eşikle yanlış pozitif verdiği bulgusu F2.32 kural setine işlenir.
