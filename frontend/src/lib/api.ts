@@ -532,6 +532,11 @@ export async function fetchMarkets(city?: string): Promise<Market[]> {
 }
 
 export interface PricesOverview {
+  totalProducts?: number;
+  pricedProducts?: number;
+  currentProducts?: number;
+  activeSources?: number;
+  currentCities?: number;
   activeCities?: number;
   activeMarkets?: number;
   targetCoverage?: string;
@@ -540,6 +545,8 @@ export interface PricesOverview {
   earliestRecordedDate: string | null;
   latestRecordedDate: string | null;
   lastEtlRunAt?: string | null;
+  measuredAt?: string;
+  freshness?: "fresh" | "stale" | "unknown";
 }
 
 export async function fetchPricesOverview(): Promise<PricesOverview> {
@@ -548,10 +555,17 @@ export async function fetchPricesOverview(): Promise<PricesOverview> {
     activeMarkets: 0,
     targetCoverage: "81 il hedef",
     trackedProducts: 0,
+    totalProducts: 0,
+    pricedProducts: 0,
+    currentProducts: 0,
+    activeSources: 0,
+    currentCities: 0,
     lastSourceDate: null,
     earliestRecordedDate: null,
     latestRecordedDate: null,
     lastEtlRunAt: null,
+    measuredAt: undefined,
+    freshness: "unknown",
   });
 }
 

@@ -136,6 +136,11 @@ function enrichPriceRows<T extends Record<string, unknown>>(rows: T[]) {
 
 /** Topbar/anasayfa için gerçek özet: kapsam + son veri tarihi (hard-code yerine). */
 export async function overviewStats(): Promise<{
+  totalProducts: number;
+  pricedProducts: number;
+  currentProducts: number;
+  activeSources: number;
+  currentCities: number;
   activeCities: number;
   activeMarkets: number;
   targetCoverage: string;
@@ -144,9 +149,15 @@ export async function overviewStats(): Promise<{
   earliestRecordedDate: string | null;
   latestRecordedDate: string | null;
   lastEtlRunAt: string | null;
+  measuredAt: string;
+  freshness: "fresh" | "stale" | "unknown";
 }> {
-  const [products, cities, markets, etl, dateBounds] = await Promise.all([
+  const [products, pricedProducts, currentProducts, cities, sources, markets, etl, dateBounds] = await Promise.all([
     db.select({ c: sql<number>`COUNT(*)` }).from(hfProducts).where(eq(hfProducts.isActive, 1)),
+    db.select({ c: sql<number>`COUNT(DISTINCT ${hfPriceHistory.productId})` }).from(hfPriceHistory),
+    db.select({ c: sql<number>`COUNT(DISTINCT ${hfPriceHistory.productId})` })
+      .from(hfPriceHistory)
+      .where(gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 7 DAY)`)),
     db
       .select({ c: sql<number>`COUNT(DISTINCT ${hfMarkets.cityName})` })
       .from(hfPriceHistory)
@@ -157,6 +168,9 @@ export async function overviewStats(): Promise<{
         eq(hfProducts.isActive, 1),
         gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 30 DAY)`),
       )),
+    db.select({ c: sql<number>`COUNT(DISTINCT ${hfPriceHistory.sourceApi})` })
+      .from(hfPriceHistory)
+      .where(gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 30 DAY)`)),
     db.select({ c: sql<number>`COUNT(*)` }).from(hfMarkets).where(eq(hfMarkets.isActive, 1)),
     db
       .select({ d: sql<string | Date | null>`MAX(${hfEtlRuns.createdAt})` })
@@ -169,7 +183,15 @@ export async function overviewStats(): Promise<{
       .from(hfPriceHistory),
   ]);
   const latest = await latestRecordedDate();
+  const latestMs = latest ? new Date(`${latest}T12:00:00Z`).getTime() : Number.NaN;
+  const ageDays = Number.isFinite(latestMs) ? Math.floor((Date.now() - latestMs) / 86_400_000) : null;
+  const freshness = ageDays == null ? "unknown" : ageDays <= 7 ? "fresh" : "stale";
   return {
+    totalProducts: Number(products[0]?.c ?? 0),
+    pricedProducts: Number(pricedProducts[0]?.c ?? 0),
+    currentProducts: Number(currentProducts[0]?.c ?? 0),
+    activeSources: Number(sources[0]?.c ?? 0),
+    currentCities: Number(cities[0]?.c ?? 0),
     activeCities: Number(cities[0]?.c ?? 0),
     activeMarkets: Number(markets[0]?.c ?? 0),
     targetCoverage: "81 il hedef",
@@ -178,6 +200,8 @@ export async function overviewStats(): Promise<{
     earliestRecordedDate: isoDate(dateBounds[0]?.earliest),
     latestRecordedDate: latest,
     lastEtlRunAt: isoDateTime(etl[0]?.d),
+    measuredAt: new Date().toISOString(),
+    freshness,
   };
 }
 

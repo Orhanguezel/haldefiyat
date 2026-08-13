@@ -41,7 +41,7 @@ export default function TopbarClient({ trackedProducts, activeCities, targetCove
       <div className="flex items-center gap-5">
         <span className="flex items-center gap-2 font-mono text-(--color-brand)">
           <span className="live-dot" aria-hidden />
-          Canlı Veri
+          Veri Özeti
         </span>
         <span className="text-(--color-faint)">|</span>
         <span>

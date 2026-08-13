@@ -203,12 +203,12 @@
 
 ### 4.4 Merkezi metrik sözlüğü
 
-- [ ] F2.26 `toplam ürün`, `fiyatlı ürün`, `güncel ürün`, `aktif kaynak`, `güncel il` tanımlarını yaz.
-- [ ] F2.27 Her metriğe query, zaman penceresi, cache TTL, owner ve açıklama bağla.
-- [ ] F2.28 Ortak stats servis/endpoint’ini oluştur veya mevcut doğru servisi tek kaynak yap.
+- [x] F2.26 Toplam/fiyatlı/güncel ürün, aktif kaynak ve güncel il tanımları `docs/MERKEZI-METRIK-SOZLUGU.md` içinde yazıldı.
+- [x] F2.27 Her metriğin query anlamı, 7/30 günlük penceresi, 300 sn TTL, owner ve gösterim kuralı bağlandı.
+- [x] F2.28 Mevcut `/prices/overview` yeniden kullanılip merkezi kaynak olarak genişletildi; paralel stats servisi kurulmadı.
 - [ ] F2.29 Ana sayfa, harita, data-health, topbar ve mobil hero’yu ortak kaynağa geçir.
-- [ ] F2.30 Cache stale/error durumunda eski rakamı sessizce “canlı” gösterme.
-- [ ] F2.31 Metrik sözlüğünü kullanıcıya tooltip/metodoloji metniyle açıkla.
+- [~] F2.30 Endpoint `fresh/stale/unknown`, `measuredAt` ve son kayıt tarihini döndürüyor; topbar “Canlı Veri” yerine nötr “Veri Özeti” diyor. Tüm yüzeylerde stale badge geçişi bekliyor.
+- [~] F2.31 Metrik sözlüğü repo dokümanında açıklandı; public metodoloji tooltip/metin bağlantısı bekliyor.
 
 ### 4.5 Veri bekçisi paneli
 
