@@ -100,6 +100,12 @@ export const inquirySchema = z.object({
   offerPrice: positiveMoney,
 });
 
+export const callRequestSchema = z.object({
+  preferredSlot: z.enum(["asap", "morning", "afternoon", "evening"]).default("asap"),
+  note: z.string().trim().max(500).optional().nullable(),
+  privacyAccepted: z.literal(true),
+});
+
 export const moderateSchema = z.object({
   status: z.enum(["approved", "rejected"]),
   moderationNote: z.string().trim().max(2000).optional().nullable(),

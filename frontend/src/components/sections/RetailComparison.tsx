@@ -1,4 +1,6 @@
 import { fetchRetailPrices } from "@/lib/api";
+import { formatDateTr } from "@/lib/date-format";
+import { plausibleRetailPrices } from "@/lib/retail-price-guard";
 
 interface Props {
   productSlug: string;
@@ -18,13 +20,8 @@ function formatTr(n: number): string {
   return n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function formatDateTr(iso: string): string {
-  const d = new Date(iso.includes("T") ? iso : `${iso}T12:00:00`);
-  return d.toLocaleDateString("tr-TR", { day: "numeric", month: "long" });
-}
-
 export default async function RetailComparison({ productSlug, productName, halAvgPrice }: Props) {
-  const rows = await fetchRetailPrices(productSlug);
+  const rows = plausibleRetailPrices(await fetchRetailPrices(productSlug), halAvgPrice);
   if (rows.length === 0) return null;
 
   return (
@@ -47,10 +44,8 @@ export default async function RetailComparison({ productSlug, productName, halAv
       <div className="grid gap-3 sm:grid-cols-2">
         {rows.map((row) => {
           const chain = CHAIN_META[row.chainSlug] ?? { label: row.chainSlug, sourceUrl: row.chainSlug };
-          const price = parseFloat(row.price);
-          const markupPct = halAvgPrice > 0 && Number.isFinite(price)
-            ? Math.round(((price - halAvgPrice) / halAvgPrice) * 100)
-            : null;
+          const price = row.numericPrice;
+          const markupPct = row.markupPct;
 
           return (
             <div
@@ -59,17 +54,15 @@ export default async function RetailComparison({ productSlug, productName, halAv
             >
               <div className="flex items-baseline justify-between gap-3">
                 <span className="text-sm font-semibold text-foreground">{chain.label}</span>
-                {markupPct != null && (
-                  <span className="font-(family-name:--font-mono) text-[11px] font-semibold text-(--color-brand)">
-                    {markupPct > 0 ? `+%${markupPct}` : `%${markupPct}`}
-                  </span>
-                )}
+                <span className="font-(family-name:--font-mono) text-[11px] font-semibold text-(--color-brand)">
+                  {markupPct > 0 ? `+%${markupPct}` : `%${markupPct}`}
+                </span>
               </div>
               <div className="mt-1 font-(family-name:--font-mono) text-lg font-bold text-foreground">
                 Tahmini perakende ~₺{formatTr(price)}
               </div>
               <div className="mt-1 text-[11px] text-muted">
-                Son güncelleme: {formatDateTr(row.recordedDate)} • Kaynak: {chain.sourceUrl}
+                Son güncelleme: {formatDateTr(row.recordedDate, { day: "numeric", month: "long" }) ?? "Tarih doğrulanamadı"} • Kaynak: {chain.sourceUrl}
               </div>
             </div>
           );

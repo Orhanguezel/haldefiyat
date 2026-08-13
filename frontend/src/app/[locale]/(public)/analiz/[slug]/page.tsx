@@ -19,6 +19,7 @@ import PageContainer from "@/components/layout/PageContainer";
 import BannerSlot from "@/components/ads/BannerSlot";
 import AnswerBlock from "@/components/seo/AnswerBlock";
 import { hasVerifiedHumanReview, isAutomatedAnalysis } from "@/lib/analysis-provenance";
+import { formatDateTr } from "@/lib/date-format";
 
 // İçerik HTML ile başlıyorsa zengin rapor (kendi <style> + inline SVG) olarak
 // render edilir; aksi halde markdown-benzeri paragraf render'ı kullanılır.
@@ -92,14 +93,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 async function getMakaleForSlug(slug: string) {
   return getMakale(slug) ?? await fetchAutoWeeklyReport(slug);
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso + "T12:00:00Z").toLocaleDateString("tr-TR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
 }
 
 function findingSummary(value: string): string {
@@ -250,13 +243,13 @@ export default async function AnalizMakalePage({ params }: Props) {
                 <span className="font-medium text-(--color-foreground)">{authorName}</span>
               )}
               <span aria-hidden>·</span>
-              <time dateTime={makale.tarih}>{formatDate(makale.tarih)}</time>
+              <time dateTime={makale.tarih}>{formatDateTr(makale.tarih) ?? makale.tarih}</time>
               {makale.updatedAt && makale.updatedAt.slice(0, 10) !== makale.tarih && (
                 <>
                   <span aria-hidden>·</span>
                   <span>
                     Güncellendi{" "}
-                    <time dateTime={makale.updatedAt}>{formatDate(makale.updatedAt)}</time>
+                    <time dateTime={makale.updatedAt}>{formatDateTr(makale.updatedAt) ?? ""}</time>
                   </span>
                 </>
               )}
@@ -282,7 +275,7 @@ export default async function AnalizMakalePage({ params }: Props) {
           </header>
 
           <section className="mt-6 grid gap-3 sm:grid-cols-3">
-            <Metric label="Rapor tarihi" value={formatDate(makale.tarih)} />
+            <Metric label="Rapor tarihi" value={formatDateTr(makale.tarih) ?? makale.tarih} />
             <Metric label="Kapsam" value="aktif haller" />
             <Metric label="Veri tipi" value="Haftalık fiyat raporu" />
           </section>
@@ -294,7 +287,7 @@ export default async function AnalizMakalePage({ params }: Props) {
               meta={
                 <>
                   <strong className="text-foreground">Rapor tarihi:</strong>{" "}
-                  <time dateTime={makale.tarih}>{formatDate(makale.tarih)}</time>
+                  <time dateTime={makale.tarih}>{formatDateTr(makale.tarih) ?? makale.tarih}</time>
                   {" · "}
                   <Link href="/metodoloji" className="font-medium text-brand hover:underline">
                     Yöntem ve veri sınırları
@@ -331,7 +324,7 @@ export default async function AnalizMakalePage({ params }: Props) {
             </h2>
             <dl className="mt-4 space-y-3 text-[13px]">
               <SummaryItem label="Yayıncı" value={authorName} />
-              <SummaryItem label="Yayın tarihi" value={formatDate(makale.tarih)} />
+              <SummaryItem label="Yayın tarihi" value={formatDateTr(makale.tarih) ?? makale.tarih} />
               {makale.hafta && <SummaryItem label="ISO hafta" value={makale.hafta} />}
               <SummaryItem label="Kategori" value={isWeekly ? "Haftalık rapor" : "Analiz"} />
             </dl>
@@ -370,7 +363,7 @@ export default async function AnalizMakalePage({ params }: Props) {
                         {m.baslik}
                       </p>
                       <time className="mt-1 block text-[11px] text-(--color-muted)" dateTime={m.tarih}>
-                        {formatDate(m.tarih)}
+                        {formatDateTr(m.tarih) ?? m.tarih}
                       </time>
                     </Link>
                   </li>
@@ -417,7 +410,7 @@ export default async function AnalizMakalePage({ params }: Props) {
                       {m.baslik}
                     </p>
                     <time className="mt-0.5 block text-[12px] text-(--color-muted)" dateTime={m.tarih}>
-                      {formatDate(m.tarih)}
+                      {formatDateTr(m.tarih) ?? m.tarih}
                     </time>
                   </div>
                   <span className="shrink-0 text-(--color-muted) group-hover:text-(--color-brand) transition-colors">→</span>

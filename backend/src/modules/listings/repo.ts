@@ -3,7 +3,7 @@ import { and, desc, eq, gte, inArray, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfPriceHistory, hfProducts } from "@/db/schema";
 import { buildListingSlug } from "./slug";
-import { hfListingImages, hfListingInquiries, hfListings } from "./schema";
+import { hfListingCallRequests, hfListingImages, hfListingInquiries, hfListings } from "./schema";
 
 async function imagesByListing(ids: number[]): Promise<Map<number, string[]>> {
   const map = new Map<number, string[]>();
@@ -214,6 +214,49 @@ export async function createInquiry(input: { listingId: number; userId?: string 
 
 export async function listInquiries() {
   return db.select().from(hfListingInquiries).orderBy(desc(hfListingInquiries.createdAt)).limit(200);
+}
+
+export async function createCallRequest(input: {
+  listingId: number;
+  buyerUserId: string;
+  sellerUserId?: string | null;
+  preferredSlot: "asap" | "morning" | "afternoon" | "evening";
+  note?: string | null;
+}) {
+  const [duplicate] = await db.select({ id: hfListingCallRequests.id })
+    .from(hfListingCallRequests)
+    .where(and(
+      eq(hfListingCallRequests.listingId, input.listingId),
+      eq(hfListingCallRequests.buyerUserId, input.buyerUserId),
+      inArray(hfListingCallRequests.status, ["pending", "notified", "accepted"]),
+      gte(hfListingCallRequests.createdAt, sql`DATE_SUB(CURRENT_TIMESTAMP(3), INTERVAL 24 HOUR)`),
+    ))
+    .limit(1);
+  if (duplicate) return { ok: false as const, reason: "duplicate" as const };
+
+  const [daily] = await db.select({ count: sql<number>`COUNT(*)` })
+    .from(hfListingCallRequests)
+    .where(and(
+      eq(hfListingCallRequests.buyerUserId, input.buyerUserId),
+      gte(hfListingCallRequests.createdAt, sql`DATE_SUB(CURRENT_TIMESTAMP(3), INTERVAL 1 DAY)`),
+    ));
+  if (Number(daily?.count ?? 0) >= 5) return { ok: false as const, reason: "rate_limited" as const };
+
+  const result = await db.insert(hfListingCallRequests).values({
+    listingId: input.listingId,
+    buyerUserId: input.buyerUserId,
+    sellerUserId: input.sellerUserId ?? null,
+    preferredSlot: input.preferredSlot,
+    note: input.note ?? null,
+    consentAt: new Date(),
+  });
+  return { ok: true as const, id: Number(result[0]?.insertId ?? 0) };
+}
+
+export async function markCallRequestNotified(id: number) {
+  await db.update(hfListingCallRequests)
+    .set({ status: "notified", notifiedAt: new Date() })
+    .where(eq(hfListingCallRequests.id, id));
 }
 
 export async function listingSummary() {

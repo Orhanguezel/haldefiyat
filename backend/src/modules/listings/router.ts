@@ -5,6 +5,7 @@ import {
   createAdminListing,
   createOwnerListing,
   createPublicInquiry,
+  createPublicCallRequest,
   deleteAdminListing,
   featureAdminListing,
   getPublicListing,
@@ -31,6 +32,7 @@ export async function registerListingsPublic(app: FastifyInstance) {
   app.get("/listings/:slug", getPublicListing);
   app.post("/listings", { onRequest: [requireAuth] }, createOwnerListing);
   app.post("/listings/:id/inquiry", createPublicInquiry);
+  app.post("/listings/:id/call-requests", { onRequest: [requireAuth] }, createPublicCallRequest);
   app.post("/listings/feature/callback", featureCallback);
   app.patch<{ Params: { id: string } }>("/listings/:id", { onRequest: [requireAuth] }, patchOwnerListing);
   app.post<{ Params: { id: string } }>("/listings/:id/close", { onRequest: [requireAuth] }, closeListing);

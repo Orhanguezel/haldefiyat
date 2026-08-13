@@ -5,8 +5,9 @@ import PageContainer from "@/components/layout/PageContainer";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
 import { ListingInquiryForm } from "@/components/listings/ListingInquiryForm";
+import { ListingCallRequest } from "@/components/listings/ListingCallRequest";
 import BannerSlot from "@/components/ads/BannerSlot";
-import { AdConversionTracker, TrackedAdLink } from "@/components/ads/AdConversionTracker";
+import { AdConversionTracker } from "@/components/ads/AdConversionTracker";
 import { fetchListing } from "@/lib/api";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -75,14 +76,12 @@ export default async function ListingDetailPage({ params }: Props) {
             <div><dt className="text-xs text-(--color-faint)">Geçerli</dt><dd className="font-semibold">{listing.validUntil}</dd></div>
           </dl>
           {listing.description ? <p className="mt-6 whitespace-pre-line leading-7 text-(--color-muted)">{listing.description}</p> : null}
-          {listing.contactPhone ? (
-            <TrackedAdLink eventType="phone_click" entityType="listing" entityId={listing.id} href={`tel:${listing.contactPhone.replace(/[^\d+]/g, "")}`} className="mt-6 inline-block text-sm font-semibold text-(--color-brand)">
-              Telefon: {listing.contactPhone}
-            </TrackedAdLink>
-          ) : null}
         </article>
         <aside>
+          <ListingCallRequest listingId={listing.id} />
+          <div className="mt-6">
           <ListingInquiryForm listingId={listing.id} />
+          </div>
           <BannerSlot
             position="listing_detail_sidebar"
             className="mt-6"

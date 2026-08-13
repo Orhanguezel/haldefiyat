@@ -3,6 +3,7 @@ import { getAuthUserId, handleRouteError, parsePage, sendNotFound } from "@agro/
 import {
   closeOwnerListing,
   countListings,
+  createCallRequest,
   createInquiry,
   createListing,
   deleteListing,
@@ -14,6 +15,7 @@ import {
   listingSummary,
   listInquiries,
   listListings,
+  markCallRequestNotified,
   moderateListing,
   updateListingAdmin,
   updateOwnerListing,
@@ -22,6 +24,7 @@ import {
   adminCreateSchema,
   featureSchema,
   inquirySchema,
+  callRequestSchema,
   listingCreateSchema,
   listingPatchSchema,
   listingQuerySchema,
@@ -32,14 +35,11 @@ import { verifyOtpToken } from "./otp";
 import { notifyMatches, notifyAdminNewListing } from "./matching";
 import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
 import { env } from "@/core/env";
+import { toPublicListing } from "./public";
 
 function idParam(req: FastifyRequest<{ Params: { id: string } }>) {
   const id = Number(req.params.id);
   return Number.isFinite(id) && id > 0 ? id : 0;
-}
-
-function hidePhoneIfNeeded<T extends { hidePhone?: number | boolean; contactPhone?: string | null }>(item: T) {
-  return item.hidePhone ? { ...item, contactPhone: null } : item;
 }
 
 export async function listPublicListings(req: FastifyRequest, reply: FastifyReply) {
@@ -48,7 +48,7 @@ export async function listPublicListings(req: FastifyRequest, reply: FastifyRepl
     const { limit, offset, page } = parsePage(parsed, { maxLimit: 100 });
     const filters = { ...parsed, publicOnly: true, limit, offset, type: parsed.type };
     const [items, total] = await Promise.all([listListings(filters), countListings(filters)]);
-    return reply.send({ items: items.map(hidePhoneIfNeeded), meta: { total, limit, page } });
+    return reply.send({ items: items.map(toPublicListing), meta: { total, limit, page } });
   } catch (err) {
     return handleRouteError(reply, req, err, "list_public_listings");
   }
@@ -59,7 +59,7 @@ export async function getPublicListing(req: FastifyRequest<{ Params: { slug: str
     const item = await getListingBySlug(req.params.slug, true);
     if (!item) return sendNotFound(reply);
     await incrementListingView(item.id);
-    return reply.send({ item: hidePhoneIfNeeded({ ...item, viewCount: item.viewCount + 1 }) });
+    return reply.send({ item: toPublicListing({ ...item, viewCount: item.viewCount + 1 }) });
   } catch (err) {
     return handleRouteError(reply, req, err, "get_public_listing");
   }
@@ -82,6 +82,46 @@ export async function createPublicInquiry(req: FastifyRequest<{ Params: { id: st
     return reply.status(201).send({ ok: true, id: inquiryId });
   } catch (err) {
     return handleRouteError(reply, req, err, "create_listing_inquiry");
+  }
+}
+
+export async function createPublicCallRequest(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+  try {
+    const id = idParam(req);
+    const listing = id ? await getListingById(id) : null;
+    if (!listing || listing.status !== "approved") return sendNotFound(reply);
+    const buyerUserId = getAuthUserId(req);
+    if (listing.userId && listing.userId === buyerUserId) {
+      return reply.code(400).send({ error: { message: "own_listing" } });
+    }
+    const parsed = callRequestSchema.parse(req.body ?? {});
+    const result = await createCallRequest({
+      listingId: id,
+      buyerUserId,
+      sellerUserId: listing.userId,
+      preferredSlot: parsed.preferredSlot,
+      note: parsed.note,
+    });
+    if (!result.ok) {
+      const status = result.reason === "duplicate" ? 409 : 429;
+      return reply.code(status).send({ error: { message: result.reason } });
+    }
+
+    if (env.TELEGRAM_ADMIN_CHAT_ID) {
+      const slotLabels = { asap: "En kısa sürede", morning: "09:00–12:00", afternoon: "12:00–17:00", evening: "17:00–20:00" };
+      const text = [
+        "📞 Yeni arama talebi",
+        `İlan: ${listing.title}`,
+        `Uygun zaman: ${slotLabels[parsed.preferredSlot]}`,
+        parsed.note ? `Not: ${parsed.note}` : null,
+        `Talep no: ${result.id}`,
+      ].filter(Boolean).join("\n");
+      const notified = await telegramSendRaw({ chatId: env.TELEGRAM_ADMIN_CHAT_ID, text }).then(() => true).catch(() => false);
+      if (notified) await markCallRequestNotified(result.id);
+    }
+    return reply.code(201).send({ ok: true, id: result.id, status: "pending" });
+  } catch (err) {
+    return handleRouteError(reply, req, err, "create_listing_call_request");
   }
 }
 

@@ -80,6 +80,25 @@ export const hfListingInquiries = mysqlTable("hf_listing_inquiries", {
   index("hf_listing_inquiries_status_idx").on(t.status, t.createdAt),
 ]);
 
+export const hfListingCallRequests = mysqlTable("hf_listing_call_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  listingId: int("listing_id").notNull(),
+  buyerUserId: varchar("buyer_user_id", { length: 36 }).notNull(),
+  sellerUserId: varchar("seller_user_id", { length: 36 }),
+  preferredSlot: mysqlEnum("preferred_slot", ["asap", "morning", "afternoon", "evening"]).notNull().default("asap"),
+  note: varchar("note", { length: 500 }),
+  status: mysqlEnum("status", ["pending", "notified", "accepted", "declined", "expired", "cancelled", "completed"]).notNull().default("pending"),
+  consentAt: datetime("consent_at", { fsp: 3 }).notNull(),
+  notifiedAt: datetime("notified_at", { fsp: 3 }),
+  resolvedAt: datetime("resolved_at", { fsp: 3 }),
+  createdAt: datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+  updatedAt: datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+}, (t) => [
+  index("hf_call_requests_listing_status_idx").on(t.listingId, t.status, t.createdAt),
+  index("hf_call_requests_buyer_idx").on(t.buyerUserId, t.createdAt),
+  index("hf_call_requests_seller_idx").on(t.sellerUserId, t.status, t.createdAt),
+]);
+
 export const hfListingImages = mysqlTable("hf_listing_images", {
   id: int("id").autoincrement().primaryKey(),
   listingId: int("listing_id").notNull(),

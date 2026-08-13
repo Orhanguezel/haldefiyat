@@ -1,0 +1,55 @@
+# Faz 0 Canlı Doğrulama — 13 Ağustos 2026
+
+## Ortam
+
+- Local HEAD: `60873b3d09f4d5a7999d015b28e76d1b6d303c4d`
+- Origin/main: `60873b3d09f4d5a7999d015b28e76d1b6d303c4d`
+- VPS HEAD: `60873b3d09f4d5a7999d015b28e76d1b6d303c4d`
+- PM2: `hal-backend`, `hal-frontend`, `hal-admin` online.
+- Browser eklentisi yok; `playwright-cli` normal Chrome fallback’i kullanıldı.
+- WIP koruması: VPS ve localde `core/env.ts`, `etl/fetcher.ts`, `routes/project.ts`, `web-connection/` ve Bursa testi değişiklikleri var. Deploy yapılmadı.
+
+## Canlı bulgular
+
+| Bulgu | Durum | Kanıt |
+|---|---|---|
+| Koyu/neon ve yoğun ana sayfa | Devam ediyor | İlk ekran + ticker + emoji özellik satırı; Playwright snapshot/screenshot |
+| Bozuk ürün adı | Devam ediyor | `/urun/domates`: `Domates (...)` title, meta, schema ve içerikte |
+| 546 TL domates | Devam ediyor | `/urun/domates`: `546,21`, türev perakende karşılaştırması |
+| Invalid Date | Devam ediyor | `/analiz/agustos-2-hafta-2026-hal-raporu` |
+| Avakado/Avokado | Devam ediyor | Her iki URL 200; ana sayfada `Avokado (Adet)` `/urun/avakado`, birim `/kg` |
+| Sayaç çelişkisi | Devam ediyor | Topbar `1.234 ürün`, `29 aktif il`; harita `19 ilde güncel veri` |
+| Künye | Devam ediyor | Sorumlu yayıncı yalnız “HalDeFiyat” |
+| Açık ilan telefonu | Kritik/devam ediyor | `/api/v1/listings` `contactPhone` alanı ve açıklama içinde ikinci telefon |
+| Newsletter subscribe 404 | Canlıda kapanmış | Geçersiz email POST’u endpoint’e ulaşıp 422 döndü; 404 değil |
+
+## SMS/OTP gerçekliği
+
+- Kod altyapısı mevcut: Netgsm adapter, OTP HMAC/TTL/limit, send/verify endpoint’leri.
+- Canlıda `SMS_PROVIDER`, `NETGSM_USERCODE`, `NETGSM_PASSWORD`, `NETGSM_MSGHEADER` ve `LISTING_REQUIRE_PHONE_OTP` tanımlı değil.
+- Sonuç: yeni SMS sistemi yazılmayacak; mevcut kod ileride credential ile aktive edilebilir. Arama talebi MVP’si Resend + Telegram + panel üzerinden tasarlanmalı.
+
+## İlk P0 düzeltme paketi
+
+1. Public listing DTO’sunda `contactPhone` ve `raw` daima kaldırıldı.
+2. Başlık/açıklama/kalite/paketleme içindeki Türk mobil numaraları redakte edildi.
+3. Frontend ilan detayındaki doğrudan `tel:` render yolu kaldırıldı.
+4. Analiz tarih formatı date-only ve full ISO için ortak, güvenli yardımcıya taşındı.
+5. %200 üzeri türev perakende farkları public karttan filtrelendi; 546,21 TL fixture’ı eklendi.
+6. Newsletter unsubscribe imzasındaki sabit production fallback kaldırıldı.
+
+## Testler
+
+- `listings-public-redaction`: 3/3 geçti.
+- `newsletter-token-secret`: 2/2 geçti.
+- Tarih yardımcı fonksiyonu Node assertion: geçti.
+- Retail türev guard Node assertion: geçti.
+- Local tam TypeScript/build: local bağımlılıklar kurulu olmadığı ve `bunx` bulunmadığı için henüz çalıştırılmadı. Deploy öncesi temiz bağımlılık ortamında zorunlu.
+
+## Görsel kanıtlar
+
+- `output/playwright/faz0/home-desktop.png`
+- `output/playwright/faz0/home-mobile.png`
+- `output/playwright/faz0/domates-desktop.png`
+- `output/playwright/faz0/analysis-invalid-date.png`
+- `output/playwright/faz0/listing-phone-desktop.png`

@@ -6,6 +6,7 @@ import Breadcrumb from "@/components/seo/Breadcrumb";
 import { getSonMakaleler } from "@/lib/analiz";
 import { fetchAnnualReportYears, fetchAutoWeeklyReports, fetchPricesOverview } from "@/lib/api";
 import PageContainer from "@/components/layout/PageContainer";
+import { formatDateTr } from "@/lib/date-format";
 
 export const dynamic = "force-dynamic";
 
@@ -23,14 +24,6 @@ export async function generateMetadata({ params }: Props) {
 }
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
-
-function formatDate(iso: string): string {
-  return new Date(iso + "T12:00:00Z").toLocaleDateString("tr-TR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
 
 export default async function AnalizPage({ params }: Props) {
   const { locale } = await params;
@@ -134,7 +127,7 @@ export default async function AnalizPage({ params }: Props) {
               </p>
               <div className="flex items-center justify-between text-[12px] text-(--color-muted)">
                 <span className="font-medium">{m.yazar}</span>
-                <time dateTime={m.tarih}>{formatDate(m.tarih)}</time>
+                      <time dateTime={m.tarih}>{formatDateTr(m.tarih) ?? m.tarih}</time>
               </div>
             </Link>
           </li>

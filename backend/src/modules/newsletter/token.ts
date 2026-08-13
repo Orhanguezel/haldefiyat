@@ -1,13 +1,17 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-const SECRET = process.env.NEWSLETTER_SECRET || process.env.JWT_SECRET || "hf-newsletter-secret";
+function newsletterSecret(): string {
+  const secret = process.env.NEWSLETTER_SECRET || process.env.JWT_SECRET;
+  if (!secret) throw new Error("NEWSLETTER_SECRET or JWT_SECRET is required");
+  return secret;
+}
 
 function b64url(input: Buffer | string): string {
   return Buffer.from(input).toString("base64url");
 }
 
 export function makeUnsubToken(email: string): string {
-  return b64url(createHmac("sha256", SECRET).update(email.toLowerCase().trim()).digest());
+  return b64url(createHmac("sha256", newsletterSecret()).update(email.toLowerCase().trim()).digest());
 }
 
 export function verifyUnsubToken(email: string, token: string): boolean {
