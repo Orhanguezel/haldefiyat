@@ -11,6 +11,7 @@ import {
   unfeatureListing,
   getListingById,
   getListingBySlug,
+  getCallRequestContactSummary,
   incrementListingView,
   listingSummary,
   listInquiries,
@@ -153,6 +154,14 @@ export async function listMyCallRequests(req: FastifyRequest, reply: FastifyRepl
     });
   } catch (err) {
     return handleRouteError(reply, req, err, "list_my_call_requests");
+  }
+}
+
+export async function getMyCallRequestContactSummary(req: FastifyRequest, reply: FastifyReply) {
+  try {
+    return reply.send(await getCallRequestContactSummary(getAuthUserId(req)));
+  } catch (err) {
+    return handleRouteError(reply, req, err, "get_call_request_contact_summary");
   }
 }
 

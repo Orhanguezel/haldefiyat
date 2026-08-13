@@ -5,10 +5,11 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { TextArea } from "@/components/ui/TextArea";
 import { getStoredAuthUser } from "@/lib/auth";
-import { apiPost, ApiError } from "@/lib/api-client";
+import { apiGet, apiPost, ApiError } from "@/lib/api-client";
 import { trackConversion } from "@/lib/analytics";
 
 type PreferredSlot = "asap" | "morning" | "afternoon" | "evening";
+type ContactSummary = { maskedPhone: string | null; phonePresent: boolean; accountVerified: boolean };
 
 const STATUS_MESSAGES: Record<string, string> = {
   duplicate: "Bu ilan için yakın zamanda bir arama talebi gönderdiniz.",
@@ -25,10 +26,20 @@ export function ListingCallRequest({ listingId }: { listingId: number }) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [contactSummary, setContactSummary] = useState<ContactSummary | null>(null);
 
   useEffect(() => {
     trackConversion("call_request_view", { listing_id: listingId });
   }, [listingId]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    apiGet<ContactSummary>("/listings/call-requests/contact-summary")
+      .then((summary) => { if (!cancelled) setContactSummary(summary); })
+      .catch(() => { if (!cancelled) setContactSummary(null); });
+    return () => { cancelled = true; };
+  }, [user]);
 
   async function submit() {
     if (!privacyAccepted || loading) return;
@@ -77,6 +88,15 @@ export function ListingCallRequest({ listingId }: { listingId: number }) {
       <p className="mt-2 text-sm leading-6 text-(--color-muted)">
         Numaranız ve satıcının numarası açık paylaşılmaz. Bu işlem anlık görüşme garantisi vermez.
       </p>
+      {contactSummary ? (
+        <div className="mt-3 rounded-lg border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-xs leading-5 text-(--color-muted)">
+          {contactSummary.phonePresent ? (
+            <>Hesabınızdaki maskeli numara: <strong className="text-(--color-foreground)">{contactSummary.maskedPhone}</strong>. Tam numara bu sayfada veya satıcıya açık gösterilmez.</>
+          ) : (
+            <>Hesabınızda telefon bulunamadı. Geri dönüş için <Link href="/hesabim/profil" className="font-semibold text-(--color-brand) underline underline-offset-2">profilinize numara ekleyin</Link>.</>
+          )}
+        </div>
+      ) : null}
 
       <label htmlFor="preferred-call-slot" className="mt-4 block text-xs font-medium text-(--color-foreground)">
         Uygun zaman

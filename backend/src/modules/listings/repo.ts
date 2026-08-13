@@ -4,6 +4,8 @@ import { db } from "@/db/client";
 import { hfPriceHistory, hfProducts } from "@/db/schema";
 import { buildListingSlug } from "./slug";
 import { hfListingCallRequests, hfListingImages, hfListingInquiries, hfListings } from "./schema";
+import { users } from "@agro/shared-backend/modules/auth/schema";
+import { profiles } from "@agro/shared-backend/modules/profiles/schema";
 
 async function imagesByListing(ids: number[]): Promise<Map<number, string[]>> {
   const map = new Map<number, string[]>();
@@ -265,6 +267,32 @@ export async function createCallRequest(input: {
     consentAt: new Date(),
   });
   return { ok: true as const, id: Number(result[0]?.insertId ?? 0) };
+}
+
+export function maskOwnPhone(value: string | null | undefined): string | null {
+  const digits = String(value ?? "").replace(/\D/g, "");
+  const local = digits.startsWith("90") ? digits.slice(2) : digits.startsWith("0") ? digits.slice(1) : digits;
+  if (local.length < 10) return null;
+  return `0${local.slice(0, 1)}** *** ** ${local.slice(-2)}`;
+}
+
+/** Yalnız oturum sahibine, geri dönen tam numarayı asla içermeyen özet. */
+export async function getCallRequestContactSummary(userId: string) {
+  const [row] = await db.select({
+    userPhone: users.phone,
+    profilePhone: profiles.phone,
+    emailVerified: users.email_verified,
+  })
+    .from(users)
+    .leftJoin(profiles, eq(profiles.id, users.id))
+    .where(eq(users.id, userId))
+    .limit(1);
+  const maskedPhone = maskOwnPhone(row?.profilePhone || row?.userPhone);
+  return {
+    maskedPhone,
+    phonePresent: Boolean(maskedPhone),
+    accountVerified: Boolean(row?.emailVerified),
+  };
 }
 
 export async function markCallRequestNotified(id: number) {

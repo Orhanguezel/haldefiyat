@@ -9,6 +9,7 @@ import {
   deleteAdminListing,
   featureAdminListing,
   getPublicListing,
+  getMyCallRequestContactSummary,
   listAdminInquiries,
   listAdminListings,
   listMyListings,
@@ -32,6 +33,7 @@ export async function registerListingsPublic(app: FastifyInstance) {
   app.post("/listings/otp/verify", verifyListingOtp);
   app.get("/listings/me", { onRequest: [requireAuth] }, listMyListings);
   app.get("/listings/call-requests/me", { onRequest: [requireAuth] }, listMyCallRequests);
+  app.get("/listings/call-requests/contact-summary", { onRequest: [requireAuth] }, getMyCallRequestContactSummary);
   app.patch<{ Params: { id: string } }>("/listings/call-requests/:id", { onRequest: [requireAuth] }, patchMyCallRequest);
   app.get("/listings/:slug", getPublicListing);
   app.post("/listings", { onRequest: [requireAuth] }, createOwnerListing);
