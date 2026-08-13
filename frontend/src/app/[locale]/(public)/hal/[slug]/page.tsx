@@ -19,6 +19,7 @@ import { ListingCard } from "@/components/listings/ListingCard";
 import AnswerBlock from "@/components/seo/AnswerBlock";
 import { calculateProductMovers } from "@/lib/citability";
 import BannerSlot from "@/components/ads/BannerSlot";
+import { formatDateTr } from "@/lib/date-format";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -213,14 +214,11 @@ export default async function HalPage({ params }: Props) {
     ? prices.filter((price) => price.recordedDate.slice(0, 10) === latestDate)
     : [];
   const latestProductCount = new Set(latestRows.map((price) => price.productSlug)).size;
+  const primarySource = latestRows.find((price) => price.sourceName || price.sourceUrl) ?? prices[0];
+  const sourceLabel = primarySource?.sourceName || market.name;
+  const sourceUrl = primarySource?.sourceUrl;
   const movers = calculateProductMovers(trendHistory, 3);
-  const latestDateTr = latestDate
-    ? new Date(`${latestDate}T12:00:00Z`).toLocaleDateString("tr-TR", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })
-    : null;
+  const latestDateTr = formatDateTr(latestDate);
   const answerBlock = (
     <AnswerBlock
       id="bugunun-hal-fiyatlari"
@@ -228,7 +226,8 @@ export default async function HalPage({ params }: Props) {
       meta={
         <>
           <strong className="text-foreground">Kaynak:</strong>{" "}
-          {market.sourceKey ?? market.name}
+          {sourceUrl ? <a href={sourceUrl} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">{sourceLabel}</a> : sourceLabel}
+          {" · "}<Link href="/metodoloji" className="text-brand hover:underline">Metodoloji</Link>
           {latestDateTr && (
             <>
               {" · "}<strong className="text-foreground">Son güncelleme:</strong>{" "}
@@ -330,8 +329,9 @@ export default async function HalPage({ params }: Props) {
           {market.name}
         </h1>
         <p className="mt-1 text-sm text-(--color-muted)">
-          Kaynak: {market.sourceKey ?? "manuel"}
-          {latestDate ? ` · ${new Date(latestDate + "T12:00:00Z").toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })} fiyatları` : ""}
+          Kaynak: {sourceUrl ? <a href={sourceUrl} target="_blank" rel="noopener noreferrer" className="hover:text-(--color-brand) hover:underline">{sourceLabel}</a> : sourceLabel}
+          {latestDateTr ? ` · ${latestDateTr} fiyatları` : ""}
+          {" · "}<Link href="/metodoloji" className="hover:text-(--color-brand) hover:underline">Metodoloji</Link>
         </p>
         <div className="mt-3"><FreshnessBadge recordedDate={latestDate} /></div>
       </div>

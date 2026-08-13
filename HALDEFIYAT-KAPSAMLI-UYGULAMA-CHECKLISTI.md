@@ -142,8 +142,8 @@
 - [x] F1.33 Geçersiz/boş tarihte alanı saklayan `null` fallback davranışı eklendi.
 - [~] F1.34 Analiz listesi/detayı, freshness badge, karşılaştırma ve dashboard tarihleri ortak güvenli yardımcıya geçirildi; sitemap zaten `validSitemapDate`, schema zaten `schemaDateRange` guard’lı. Yıllık raporun görünür tarih alanı kapsamı bekliyor.
 - [~] F1.35 `Invalid Date` ve `(...)` için guard testleri eklendi; `undefined`, `NaN` ve ham key kapsamı bekliyor.
-- [ ] F1.36 `tarim_kredi` gibi kaynak anahtarlarına kullanıcı etiketi sözlüğü uygula.
-- [ ] F1.37 Kaynak etiketi ile kaynak metodoloji bağlantısını ilişkilendir.
+- [~] F1.36 Hal sayfasında ham `sourceKey` yerine backend’in mevcut `sourceName/sourceUrl` metadata’sı gösteriliyor; kalan ham-key render yüzeyleri bekliyor.
+- [~] F1.37 Hal sayfasında kaynak adı birincil resmi URL’ye, yanında “Metodoloji” iç bağlantısına bağlandı; diğer içerik aileleri bekliyor.
 
 ### 3.3 Künye ve güven yüzeyleri
 
