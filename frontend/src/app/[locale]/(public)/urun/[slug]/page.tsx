@@ -33,6 +33,7 @@ import SeasonCompare from "@/components/sections/SeasonCompare";
 import RetailComparison from "@/components/sections/RetailComparison";
 import VariantPriceTable from "@/components/sections/VariantPriceTable";
 import { productHref } from "@/lib/product-links";
+import { getProductDisplayName } from "@/lib/product-display-name";
 import FrostRiskBanner from "@/components/sections/FrostRiskBanner";
 import PriceTable from "@/components/ui/PriceTable";
 import FreshnessBadge from "@/components/ui/FreshnessBadge";
@@ -97,36 +98,6 @@ function withBorsaFallbackProducts(products: Product[]): Product[] {
     ...products,
     ...BORSA_FALLBACK_PRODUCTS.filter((p) => !seen.has(p.slug)),
   ];
-}
-
-function titleCaseTr(input: string): string {
-  return input
-    .toLocaleLowerCase("tr-TR")
-    .split(/(\s|\(|\)|-|,)/)
-    .map((part) => {
-      if (!part || /^\s+$/u.test(part) || /^[()\-,]+$/u.test(part)) return part;
-      return part.charAt(0).toLocaleUpperCase("tr-TR") + part.slice(1);
-    })
-    .join("")
-    .replace(/\(\s+/g, "(")
-    .replace(/\s+\)/g, ")")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function getDisplayName(product: { displayName?: string | null; nameTr: string }) {
-  const configured = product.displayName?.trim();
-  // A shortened display_name must not erase a meaningful variant qualifier.
-  // Example: ROKA (BAĞ) and ROKA were both rendered as "Roka", producing two
-  // indexable pages with identical title/description.
-  const nameHasQualifier = /\([^)]{2,}\)/u.test(product.nameTr);
-  const displayHasQualifier = configured ? /\([^)]{2,}\)/u.test(configured) : false;
-  const value = (nameHasQualifier && !displayHasQualifier
-    ? product.nameTr
-    : configured || product.nameTr).trim();
-  const letters = value.replace(/[^A-Za-zÇĞİÖŞÜçğıöşü]/gu, "");
-  const isAllCaps = letters.length > 1 && letters === letters.toLocaleUpperCase("tr-TR");
-  return isAllCaps ? titleCaseTr(value) : value;
 }
 
 // En güncel ortalama fiyat satırı — SERP açıklamasında canlı veri = yüksek CTR.
@@ -201,7 +172,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     permanentRedirect(`/urun/${product.canonicalSlug}`);
   }
 
-  const displayName = getDisplayName(product);
+  const displayName = getProductDisplayName(product);
   const borsaProduct = isBorsaProduct(product);
   const [editorial, priceLine] = await Promise.all([
     getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug }),
@@ -272,7 +243,7 @@ export default async function UrunPage({ params }: Props) {
     permanentRedirect(`/urun/${product.canonicalSlug}`);
   }
 
-  const displayName = getDisplayName(product);
+  const displayName = getProductDisplayName(product);
   const borsaProduct = isBorsaProduct(product);
   // Canonical çocuklar = farklı hal yazımları (merge sonrası fiyatları bu sayfada birleşik).
   // İsme göre tekilleştir + master adıyla aynı olanları ele (mükerrer "Domates" kartları olmasın).
@@ -282,7 +253,7 @@ export default async function UrunPage({ params }: Props) {
     .filter((p) => p.canonicalSlug === slug && p.slug !== slug)
     .map((p) => ({
       slug: p.slug,
-      displayName: getDisplayName(p),
+      displayName: getProductDisplayName(p),
       categorySlug: p.categorySlug,
       unit: p.unit,
     }))
@@ -312,7 +283,7 @@ export default async function UrunPage({ params }: Props) {
   const familyMembers = product.familySlug
     ? products
         .filter((p) => p.familySlug === product.familySlug && !p.canonicalSlug)
-        .sort((a, b) => getDisplayName(a).localeCompare(getDisplayName(b), "tr"))
+        .sort((a, b) => getProductDisplayName(a).localeCompare(getProductDisplayName(b), "tr"))
     : [];
 
   const [history, todayPrices, editorial, borsaPricePage, resmiPrices] = await Promise.all([
@@ -581,7 +552,7 @@ export default async function UrunPage({ params }: Props) {
                 aria-current="page"
                 className="rounded-full bg-brand/10 px-3 py-1 text-sm font-semibold text-brand"
               >
-                {getDisplayName(p)}
+                {getProductDisplayName(p)}
               </span>
             ) : (
               <Link
@@ -589,7 +560,7 @@ export default async function UrunPage({ params }: Props) {
                 href={productHref({ productSlug: p.slug, canonicalSlug: p.canonicalSlug })}
                 className="rounded-full border border-border-soft px-3 py-1 text-sm text-foreground transition-colors hover:border-brand/40 hover:text-brand"
               >
-                {getDisplayName(p)}
+                {getProductDisplayName(p)}
               </Link>
             ),
           )}
@@ -771,7 +742,7 @@ export default async function UrunPage({ params }: Props) {
                 href={productHref({ productSlug: p.slug, canonicalSlug: p.canonicalSlug })}
                 className="rounded-lg border border-border-soft bg-background/40 px-3 py-2 text-sm transition-colors hover:border-brand/40"
               >
-                <span className="font-medium text-foreground">{getDisplayName(p)}</span>
+                <span className="font-medium text-foreground">{getProductDisplayName(p)}</span>
                 <span className="mt-0.5 block text-xs text-muted">güncel hal fiyatı</span>
               </Link>
             ))}

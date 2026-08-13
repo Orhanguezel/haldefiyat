@@ -2,12 +2,11 @@
 
 ## Ortam
 
-- Local HEAD: `60873b3d09f4d5a7999d015b28e76d1b6d303c4d`
-- Origin/main: `60873b3d09f4d5a7999d015b28e76d1b6d303c4d`
-- VPS HEAD: `60873b3d09f4d5a7999d015b28e76d1b6d303c4d`
+- İlk doğrulama HEAD: `60873b3d09f4d5a7999d015b28e76d1b6d303c4d`
+- P0 deploy HEAD: `040eca2a` (`7723e544` uygulama paketi + Fastify route tip düzeltmesi)
 - PM2: `hal-backend`, `hal-frontend`, `hal-admin` online.
 - Browser eklentisi yok; `playwright-cli` normal Chrome fallback’i kullanıldı.
-- WIP koruması: VPS ve localde `core/env.ts`, `etl/fetcher.ts`, `routes/project.ts`, `web-connection/` ve Bursa testi değişiklikleri var. Deploy yapılmadı.
+- WIP koruması: VPS ve localde `core/env.ts`, `etl/fetcher.ts`, `routes/project.ts`, `web-connection/` ve Bursa testi değişiklikleri var. Gelen commit ile kesişim olmadığı makineyle doğrulanıp `git pull --ff-only` uygulandı; WIP korundu.
 
 ## Canlı bulgular
 
@@ -15,12 +14,12 @@
 |---|---|---|
 | Koyu/neon ve yoğun ana sayfa | Devam ediyor | İlk ekran + ticker + emoji özellik satırı; Playwright snapshot/screenshot |
 | Bozuk ürün adı | Devam ediyor | `/urun/domates`: `Domates (...)` title, meta, schema ve içerikte |
-| 546 TL domates | Devam ediyor | `/urun/domates`: `546,21`, türev perakende karşılaştırması |
-| Invalid Date | Devam ediyor | `/analiz/agustos-2-hafta-2026-hal-raporu` |
+| 546 TL domates | P0 kapandı | Deploy sonrası `/urun/domates` HTML’inde `546,21` yok |
+| Invalid Date | P0 kapandı | Deploy sonrası analiz HTML’inde `Invalid Date` yok |
 | Avakado/Avokado | Devam ediyor | Her iki URL 200; ana sayfada `Avokado (Adet)` `/urun/avakado`, birim `/kg` |
 | Sayaç çelişkisi | Devam ediyor | Topbar `1.234 ürün`, `29 aktif il`; harita `19 ilde güncel veri` |
 | Künye | Devam ediyor | Sorumlu yayıncı yalnız “HalDeFiyat” |
-| Açık ilan telefonu | Kritik/devam ediyor | `/api/v1/listings` `contactPhone` alanı ve açıklama içinde ikinci telefon |
+| Açık ilan telefonu | P0 kapandı | Liste/detay API’sinde `contactPhone:null`, `raw:null`; serbest metindeki mobil numara `[telefon gizlendi]`; frontend `tel:` yolu kaldırıldı |
 | Newsletter subscribe 404 | Canlıda kapanmış | Geçersiz email POST’u endpoint’e ulaşıp 422 döndü; 404 değil |
 
 ## SMS/OTP gerçekliği
@@ -44,7 +43,21 @@
 - `newsletter-token-secret`: 2/2 geçti.
 - Tarih yardımcı fonksiyonu Node assertion: geçti.
 - Retail türev guard Node assertion: geçti.
-- Local tam TypeScript/build: local bağımlılıklar kurulu olmadığı ve `bunx` bulunmadığı için henüz çalıştırılmadı. Deploy öncesi temiz bağımlılık ortamında zorunlu.
+- VPS backend `bun run build`: geçti.
+- VPS frontend `bun run build`: ilk deneme canlı ISR fetch-cache yazma yarışı nedeniyle `ENOTEMPTY` ile durdu; tekrar denemesi geçti. Bu bulgu izole release build gereksinimine kanıt olarak kaydedildi.
+- Additive migration uygulandı; `hf_listing_call_requests` tablosunun 12 kolonu doğrulandı.
+- `hal-backend` reload ve `hal-frontend` restart sonrası ikisi de online.
+
+## Deploy sonrası canlı kabul
+
+- Ana sayfa, domates ürün, analiz ve ilan detay rotaları: HTTP 200.
+- Public listing listesi: 2 kayıt, yapılandırılmış/serbest metin satıcı telefonu sızıntısı 0.
+- Maskelenmesi gereken eski serbest metin telefonu: `[telefon gizlendi]` işaretiyle doğrulandı.
+- İlan sayfası: “Satıcıyı ara” CTA görünür; doğrudan satıcı `tel:` bağlantısı yok.
+- Organization JSON-LD içindeki platformun kurumsal telefonu satıcı telefonu değildir ve korunmuştur.
+- Kimliksiz `POST /api/v1/listings/:id/call-requests`: HTTP 401.
+- Domates türev perakende anomali guard: geçti.
+- Analiz tarih guard: geçti.
 
 ## Görsel kanıtlar
 

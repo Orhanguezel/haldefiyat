@@ -59,11 +59,11 @@
 - [x] F0.1 Ana sayfayı masaüstü ve 390 px mobilde canlı kaydet. Kanıt: `output/playwright/faz0/home-desktop.png`, `home-mobile.png`.
 - [ ] F0.2 Açık ve koyu tema davranışı ile ilk ziyaret varsayılanını doğrula.
 - [ ] F0.3 Ana sayfa toplam yüksekliğini, bölüm sayısını ve ilk fiyat sonucuna adım sayısını ölç.
-- [x] F0.4 `Domates (...)`, `Erik (...)` ve diğer şablon artıkları için canlı tarama yap. Kanıt: `artifacts/renewal-2026/faz0-canli-dogrulama-2026-08-13.md`.
+- [x] F0.4 `Domates (...)`, `Erik (...)` ve diğer şablon artıkları için canlı tarama yap; Domates kök nedeni ortak display-name guard ile kapatıldı. Kanıt: Faz 0 raporu ve ürün alias/birim envanteri.
 - [x] F0.5 Domates market karşılaştırmasındaki 546 TL örneğinin güncel durumunu DB/API/canlı sayfada doğrula. Canlı değer 546,21 TL; türev guard eklendi.
 - [x] F0.6 Haftalık raporlarda `Invalid Date`, boş veya yanlış tarih taraması yap. Canlı hata doğrulandı; ortak ISO tarih düzeltmesi eklendi.
-- [~] F0.7 `avakado`/`avokado`, `maydonoz`/`maydanoz` ve benzeri çiftleri canlı/DB’de doğrula. Avakado/Avokado canlı doğrulandı; geniş DB taraması bekliyor.
-- [ ] F0.8 Filtre listesindeki bozuk Türkçe karakter, yanlış kategori ve alakasız ürünleri export et.
+- [~] F0.7 `avakado`/`avokado` ve `maydonoz`/`maydanoz` çiftleri canlı DB’de satır sayısı, tarih ve birimle doğrulandı; geniş alias taraması bekliyor. Birim farkı nedeniyle kör canonical merge yasaklandı.
+- [~] F0.8 Avokado/Maydanoz için bozuk yazım ve birim envanteri export edildi; tüm filtre listesinin geniş taraması bekliyor.
 - [x] F0.9 Ana sayfa, harita, mobil hero ve fiyat sayfalarındaki sayaçları yan yana kaydet. `1.234 ürün / 29 aktif il / 19 güncel il`.
 - [x] F0.10 Sahiplik/finansman ve hakkımızda sayfalarının gerçek muhatap bilgilerini kontrol et. Muhatap yalnız “HalDeFiyat”; eksik devam ediyor.
 - [x] F0.11 İlan detayında telefonun HTML, RSC payload, API, JSON-LD ve `tel:` içinde sızıp sızmadığını kontrol et. API alanı + serbest metin + frontend `tel:` sızıntısı doğrulandı.
@@ -105,10 +105,10 @@
 ### 3.1 Güvenli “Satıcıyı ara” MVP
 
 - [x] F1.1 Public listing tipinden gerçek `contactPhone` alanını ayır; public DTO `contactPhone:null` ve `raw:null` döndürüyor, owner/admin akışı korunuyor.
-- [~] F1.2 Liste ve detay endpoint’lerinin gerçek telefonu hiçbir koşulda public döndürmediğini test et. Unit regresyon testi geçti; deploy sonrası canlı API/HTML tekrarı bekliyor.
+- [x] F1.2 Liste ve detay endpoint’lerinin gerçek telefonu public döndürmediğini unit ve deploy sonrası canlı API/HTML taramasıyla doğrula.
 - [x] F1.3 `hidePhoneIfNeeded` yaklaşımını “varsayılan gizli” modele geçir; opt-in açık telefon bırakma.
 - [x] F1.4 İlan detayındaki doğrudan `tel:` bağlantısı ve açık numara metnini kaldır.
-- [ ] F1.5 JSON-LD, metadata, cache, Sentry breadcrumb ve analytics payload’ında telefon bulunmadığını doğrula.
+- [~] F1.5 Canlı HTML/RSC ve API sızıntı taraması tamamlandı; Organization JSON-LD’deki platform telefonu meşru. Sentry breadcrumb ve analytics payload denetimi bekliyor.
 - [x] F1.6 `call_requests` veri modelini tasarla: listing, buyer, seller, state, preferred slot, note, consent, timestamps.
 - [x] F1.7 Durumları tanımla: `pending`, `notified`, `accepted`, `declined`, `expired`, `cancelled`, `completed`.
 - [x] F1.8 Migration’ı additive ve mevcut ilanlarla uyumlu hazırla; rollback tabloyu düşüreceği için yalnız operasyon onayıyla uygulanır.
@@ -122,7 +122,7 @@
 - [ ] F1.16 Satıcı dashboard’una talep kabul/ret/tamamla kontrolleri ekle.
 - [ ] F1.17 Satıcının uygun saat ve arama talebi kabul ayarını ekle.
 - [ ] F1.18 Alıcı dashboard’una talep durumu ve iptal kontrolü ekle.
-- [~] F1.19 “Satıcıyı ara” CTA/formu desktop ve mobil akışa eklendi; sticky davranış ve canlı mobil kabul bekliyor.
+- [~] F1.19 “Satıcıyı ara” CTA/formu deploy edildi ve canlı desktop HTML’de doğrulandı; sticky davranış ve mobil görsel kabul bekliyor.
 - [x] F1.20 Panel başlığını “Arama talebi gönder” yap; anlık bağlantı vaadi verme.
 - [x] F1.21 “Numaranız ve satıcının numarası açık paylaşılmaz” güven metnini ekle.
 - [x] F1.22 Uygun zaman, kısa not, zorunlu KVKK onayı ve gizlilik bağlantısını erişilebilir form olarak ekle.
@@ -133,7 +133,7 @@
 - [ ] F1.27 KVKK aydınlatma, amaç, saklama, silme ve satıcı tercih metinlerini güncelle.
 - [ ] F1.28 `phone_click` yerine yeni huni eventlerini tanımla.
 - [ ] F1.29 Unit, integration, auth, rate-limit ve data-leak testleri ekle.
-- [ ] F1.30 Canlı deploy sonrası HTML/network/cache/log sızıntı testini tekrar yap.
+- [x] F1.30 Deploy sonrası public liste/detay API, HTML/RSC, `tel:` ve serbest metin sızıntı testini tekrar yap; 2 canlı kayıtta satıcı telefonu sızıntısı 0.
 
 ### 3.2 Invalid Date ve içerik artıklarını kapatma
 
@@ -141,7 +141,7 @@
 - [x] F1.32 ISO date-only değerini timezone kaydırmadan, tam ISO değerini `tr-TR` ile biçimleyen ortak tarih yardımcı katmanı oluşturuldu.
 - [x] F1.33 Geçersiz/boş tarihte alanı saklayan `null` fallback davranışı eklendi.
 - [ ] F1.34 Analiz listesi, analiz detay, yıllık rapor, sitemap ve schema tarihlerini aynı kurala geçir.
-- [~] F1.35 `Invalid Date` için guard testi eklendi; `undefined`, `NaN`, `(...)` ve ham key kapsamı bekliyor.
+- [~] F1.35 `Invalid Date` ve `(...)` için guard testleri eklendi; `undefined`, `NaN` ve ham key kapsamı bekliyor.
 - [ ] F1.36 `tarim_kredi` gibi kaynak anahtarlarına kullanıcı etiketi sözlüğü uygula.
 - [ ] F1.37 Kaynak etiketi ile kaynak metodoloji bağlantısını ilişkilendir.
 
