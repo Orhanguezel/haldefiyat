@@ -35,3 +35,14 @@ Bu laboratuvar ölçümü gerçek kullanıcı CrUX değeri değildir; regression
 - Axe/Lighthouse kritik ihlal listelerinin route bazında kapatılması.
 - Gerçek kullanıcı CrUX/GSC CWV ile laboratuvar sonucunun karşılaştırılması.
 - GTM konteynerindeki iki ayrı GA4 property/tag kararının (`G-YHLL9WK7ML`, `G-9M6GBB11HP`) işletme sahibiyle tekleştirilmesi.
+
+## İlk düzeltme sonrası ölçüm
+
+- Performance **41 → 54**
+- FCP **3,1 → 2,3 sn**
+- LCP **6,8 → 4,0 sn**
+- Speed Index **5,1 → 3,1 sn**
+- Accessibility 96, Best Practices 100, SEO 100
+- Accessible-name ve unsized-image bulguları kapandı; kalan 15 kontrast noktası mobil fiyat değişim etiketlerinde bulundu ve emerald/red 800 tonlarına geçirildi.
+
+TBT ikinci laboratuvar koşusunda dalgalanarak 4.880 ms ölçüldü; üçüncü taraf etiket çalıştırma zamanlaması nedeniyle tek koşu başarı ölçütü yapılmayacak. Medyan 3 koşu ve GTM konteyner denetimi gerekir.
