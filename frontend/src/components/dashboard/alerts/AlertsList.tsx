@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useUserAlerts, type UserAlert } from "@/lib/hooks/useUserAlerts";
 import { AlertEditModal } from "./AlertEditModal";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { formatDateTr } from "@/lib/date-format";
 
 interface Props { locale: string }
 
@@ -65,7 +66,7 @@ export function AlertsList({ locale }: Props) {
                 {alert.contactTelegram && <ChannelBadge label="Telegram" />}
                 {alert.lastTriggered && (
                   <span className="text-[11px] text-(--color-muted)">
-                    {t("lastTriggered")}: {new Date(alert.lastTriggered).toLocaleDateString("tr-TR")}
+                    {t("lastTriggered")}: {formatDateTr(alert.lastTriggered) ?? "—"}
                   </span>
                 )}
               </div>

@@ -13,6 +13,9 @@ describe("date-format", () => {
   it("returns null for invalid or missing values", () => {
     expect(parseIsoDate("not-a-date")).toBeNull();
     expect(formatDateTr("not-a-date")).toBeNull();
+    expect(formatDateTr("Invalid Date")).toBeNull();
+    expect(formatDateTr("undefined")).toBeNull();
+    expect(formatDateTr("NaN")).toBeNull();
     expect(formatDateTr(null)).toBeNull();
   });
 });

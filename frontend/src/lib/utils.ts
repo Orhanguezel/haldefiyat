@@ -1,4 +1,5 @@
 export { cn } from "@agro/shared-ui/public/lib/cn";
+import { formatDateTr } from "@/lib/date-format";
 
 /**
  * Sürücü adını gizler: "Ahmet Hakan" → "A.H."
@@ -15,11 +16,11 @@ export function maskName(fullName: string): string {
  * Tarih formatlar: "2026-03-15" → "15 Mar 2026"
  */
 export function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("tr-TR", {
+  return formatDateTr(iso, {
     day: "numeric",
     month: "short",
     year: "numeric",
-  });
+  }) ?? "—";
 }
 
 /**

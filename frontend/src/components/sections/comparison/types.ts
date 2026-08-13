@@ -1,4 +1,5 @@
 import type { PriceHistoryRow, Product } from "@/lib/api";
+import { formatDateTr } from "@/lib/date-format";
 
 export const PRODUCT_COLORS: ReadonlyArray<string> = [
   "hsl(102 85% 57%)",
@@ -46,26 +47,11 @@ export function toNumber(v: string | number | null | undefined): number {
 }
 
 export function formatShortDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString("tr-TR", {
-      month: "short",
-      day: "numeric",
-    });
-  } catch {
-    return iso;
-  }
+  return formatDateTr(iso, { month: "short", day: "numeric" }) ?? "—";
 }
 
 export function formatLongDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString("tr-TR", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
-  } catch {
-    return iso;
-  }
+  return formatDateTr(iso, { day: "2-digit", month: "long", year: "numeric" }) ?? "—";
 }
 
 export function buildChartPoints(

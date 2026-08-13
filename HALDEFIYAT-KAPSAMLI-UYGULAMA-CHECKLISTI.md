@@ -140,7 +140,7 @@
 - [x] F1.31 Kök neden doğrulandı: tarih alanı koşulsuz `new Date(...).toLocaleDateString()` ile parse ediliyor, geçersiz değer arayüze aynen yansıyordu.
 - [x] F1.32 ISO date-only değerini timezone kaydırmadan, tam ISO değerini `tr-TR` ile biçimleyen ortak tarih yardımcı katmanı oluşturuldu.
 - [x] F1.33 Geçersiz/boş tarihte alanı saklayan `null` fallback davranışı eklendi.
-- [ ] F1.34 Analiz listesi, analiz detay, yıllık rapor, sitemap ve schema tarihlerini aynı kurala geçir.
+- [~] F1.34 Analiz listesi/detayı, freshness badge, karşılaştırma ve dashboard tarihleri ortak güvenli yardımcıya geçirildi; sitemap zaten `validSitemapDate`, schema zaten `schemaDateRange` guard’lı. Yıllık raporun görünür tarih alanı kapsamı bekliyor.
 - [~] F1.35 `Invalid Date` ve `(...)` için guard testleri eklendi; `undefined`, `NaN` ve ham key kapsamı bekliyor.
 - [ ] F1.36 `tarim_kredi` gibi kaynak anahtarlarına kullanıcı etiketi sözlüğü uygula.
 - [ ] F1.37 Kaynak etiketi ile kaynak metodoloji bağlantısını ilişkilendir.

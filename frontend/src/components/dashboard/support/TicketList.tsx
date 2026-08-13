@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { apiGet } from "@/lib/api-client";
 import { TicketDetail } from "./TicketDetail";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { formatDateTr } from "@/lib/date-format";
 
 type Ticket = {
   id: number;
@@ -80,7 +81,7 @@ export function TicketList({ locale }: Props) {
           <div className="min-w-0">
             <p className="truncate text-[13px] font-medium text-(--color-foreground)">{t.subject}</p>
             <p className="mt-0.5 text-[11px] text-(--color-muted)">
-              {new Date(t.updated_at).toLocaleDateString("tr-TR")}
+              {formatDateTr(t.updated_at) ?? "—"}
             </p>
           </div>
           <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${STATUS_COLOR[t.status] ?? ""}`}>

@@ -1,3 +1,5 @@
+import { formatDateTr } from "@/lib/date-format";
+
 function daysSince(iso?: string | null): number | null {
   if (!iso) return null;
   const date = new Date(`${iso.slice(0, 10)}T12:00:00Z`);
@@ -5,12 +7,6 @@ function daysSince(iso?: string | null): number | null {
   const today = new Date();
   const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 12);
   return Math.max(0, Math.floor((todayUtc - date.getTime()) / 86_400_000));
-}
-
-function formatDateTr(iso: string): string {
-  const date = new Date(`${iso.slice(0, 10)}T12:00:00Z`);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
 }
 
 export default function FreshnessBadge({ recordedDate }: { recordedDate?: string | null }) {
@@ -31,7 +27,8 @@ export default function FreshnessBadge({ recordedDate }: { recordedDate?: string
     : days === 1
       ? "Son güncelleme dün"
       : `Son güncelleme ${days} gün önce`;
-  const suffix = days > 0 ? `; en son ${formatDateTr(recordedDate)} tarihli veri gösteriliyor` : "";
+  const formatted = formatDateTr(recordedDate);
+  const suffix = days > 0 && formatted ? `; en son ${formatted} tarihli veri gösteriliyor` : "";
 
   return (
     <span className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${tone}`}>
