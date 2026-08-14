@@ -43,6 +43,7 @@ export default function ProductImage({
           alt={`${name} ürün görseli`}
           width={size}
           height={size}
+          sizes={`${size}px`}
           className="h-full w-full object-cover"
           priority={priority}
         />
@@ -53,9 +54,10 @@ export default function ProductImage({
   const emoji = getEmoji(slug, categorySlug);
   return (
     <span
-      className={`shrink-0 ${className}`}
-      style={{ fontSize: size * 0.6 }}
-      aria-hidden
+      className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-bg-alt) ${className}`}
+      style={{ width: size, height: size, fontSize: size * 0.55 }}
+      role="img"
+      aria-label={`${name} için ürün fotoğrafı bulunmuyor`}
     >
       {emoji}
     </span>

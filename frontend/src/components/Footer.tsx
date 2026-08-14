@@ -121,6 +121,7 @@ export default function Footer({
                     alt={displayName}
                     width={280}
                     height={105}
+                    sizes="(max-width: 640px) 78vw, (max-width: 1024px) 280px, 220px"
                     className={`${logoClassName} dark:hidden`}
                     unoptimized
                   />
@@ -129,6 +130,7 @@ export default function Footer({
                     alt={displayName}
                     width={280}
                     height={105}
+                    sizes="(max-width: 640px) 78vw, (max-width: 1024px) 280px, 220px"
                     className={`hidden ${logoClassName} dark:block`}
                     unoptimized
                   />

@@ -106,6 +106,7 @@ export interface Market {
   hours?: string | null;
   seoIndex?: number | boolean;
   updatedAt?: string;
+  latestRecordedDate?: string | null;
 }
 
 export interface Firm {

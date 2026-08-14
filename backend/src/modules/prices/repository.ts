@@ -1074,6 +1074,13 @@ export async function listMarkets(city?: string, seoIndex?: boolean) {
       hours:       hfMarkets.hours,
       seoIndex:    hfMarkets.seoIndex,
       updatedAt:   hfMarkets.updatedAt,
+      // Sitemap ve schema tarihi teknik hal kaydı güncellemesinden değil,
+      // bu halde gerçekten yayımlanan en son fiyat gününden beslenir.
+      latestRecordedDate: sql<string | Date | null>`(
+        SELECT MAX(ph.recorded_date)
+        FROM hf_price_history ph
+        WHERE ph.market_id = ${hfMarkets.id}
+      )`,
     })
     .from(hfMarkets)
     .where(and(...conds))

@@ -79,17 +79,19 @@ export default function Header({ siteName, logoUrl, logoDarkUrl, logoLightUrl, t
               <>
                 <Image
                   src={lightThemeLogo}
-                  alt={displayName}
-                  width={250}
-                  height={94}
+                    alt={displayName}
+                    width={250}
+                    height={94}
+                    sizes="(max-width: 640px) 196px, 250px"
                   className={`${logoClassName} dark:hidden`}
                   unoptimized
                 />
                 <Image
                   src={darkThemeLogo}
-                  alt={displayName}
-                  width={250}
-                  height={94}
+                    alt={displayName}
+                    width={250}
+                    height={94}
+                    sizes="(max-width: 640px) 196px, 250px"
                   className={`hidden ${logoClassName} dark:block`}
                   unoptimized
                 />

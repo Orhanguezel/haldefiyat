@@ -29,6 +29,7 @@ interface PriceSitemapItem {
   seoIndex?: number | boolean;
   updatedAt?: string;
   updated_at?: string;
+  latestRecordedDate?: string | null;
 }
 
 interface FirmSitemapItem {
@@ -96,6 +97,7 @@ async function fetchMarkets(): Promise<PriceSitemapItem[]> {
       cityName: m.cityName,
       regionSlug: m.regionSlug,
       seoIndex: m.seoIndex,
+      latestRecordedDate: m.latestRecordedDate,
     }));
   } catch {
     return [];
@@ -184,7 +186,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...products.map((item) => item.updatedAt ?? item.updated_at),
   ]);
   const firmLastModified = latestSitemapDate(
-    firms.map((item) => item.updatedAt ?? item.lastSeenAt),
+    firms.map((item) => item.lastSeenAt ?? item.updatedAt),
   );
 
   const publicPages: MetadataRoute.Sitemap = [
@@ -242,14 +244,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       return (market.seoIndex === true || market.seoIndex === 1)
         && editorial.source !== "template";
     })
-    .map((m) => ({
-      url: `${SITE_URL}/hal/${m.slug}`,
-      changeFrequency: "daily" as const,
-      priority: 0.7,
-    }));
+    .map((m) => {
+      const lastModified = validSitemapDate(m.latestRecordedDate) ?? priceLastModified;
+      return {
+        url: `${SITE_URL}/hal/${m.slug}`,
+        ...(lastModified && { lastModified }),
+        changeFrequency: "daily" as const,
+        priority: 0.7,
+      };
+    });
 
   const firmPages: MetadataRoute.Sitemap = firms.map((firm) => {
-    const lastModified = validSitemapDate(firm.updatedAt ?? firm.lastSeenAt);
+    const lastModified = validSitemapDate(firm.lastSeenAt ?? firm.updatedAt);
     return {
       url: `${SITE_URL}/firma/${firm.slug}`,
       ...(lastModified && { lastModified }),
@@ -307,8 +313,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticArticles = getSonMakaleler(100);
   const staticSlugs = new Set(staticArticles.map((m) => m.slug));
   const analysisLastModified = latestSitemapDate([
-    ...staticArticles.map((article) => article.tarih),
-    ...autoReports.map((article) => article.tarih),
+    ...staticArticles.map((article) => article.updatedAt ?? article.tarih),
+    ...autoReports.map((article) => article.updatedAt ?? article.reviewedAt ?? article.tarih),
   ]);
   const analysisIndex = publicPages.find((item) => item.url === `${SITE_URL}/analiz`);
   if (analysisIndex && analysisLastModified) {
@@ -317,7 +323,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const analizPages: MetadataRoute.Sitemap = [
     ...staticArticles.map((m) => {
-      const lastModified = validSitemapDate(m.tarih);
+      const lastModified = validSitemapDate(m.updatedAt ?? m.tarih);
       return {
         url: `${SITE_URL}/analiz/${m.slug}`,
         ...(lastModified && { lastModified }),
@@ -328,7 +334,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...autoReports
       .filter((r) => !staticSlugs.has(r.slug))
       .map((r) => {
-        const lastModified = validSitemapDate(r.tarih);
+        const lastModified = validSitemapDate(r.updatedAt ?? r.reviewedAt ?? r.tarih);
         return {
           url: `${SITE_URL}/analiz/${r.slug}`,
           ...(lastModified && { lastModified }),

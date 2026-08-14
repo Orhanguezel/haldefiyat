@@ -98,7 +98,14 @@ function PopupBody({ popup }: { popup: PublicPopup }) {
     <>
       {popup.image ? (
         <div className="relative h-28 w-full overflow-hidden rounded-md bg-(--color-bg-alt)">
-          <Image src={popup.image} alt={popup.alt || popup.title} fill className="object-cover" unoptimized />
+          <Image
+            src={popup.image}
+            alt={popup.alt || popup.title}
+            fill
+            sizes="(max-width: 640px) calc(100vw - 2rem), 32rem"
+            className="object-cover"
+            unoptimized
+          />
         </div>
       ) : null}
       <div className="min-w-0 flex-1">
