@@ -422,7 +422,9 @@ export {
   useGetHfProductAdminQuery,
   useGetMergeSuggestionsAdminQuery,
   useListHfProductsAdminQuery,
+  useListProductReviewQueueAdminQuery,
   useMergeHfProductsAdminMutation,
+  useReviewProductQueueItemAdminMutation,
   useUpdateHfProductAdminMutation,
 } from "@/integrations/endpoints/hf-products-admin-endpoints";
 export {

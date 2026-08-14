@@ -4,7 +4,7 @@ import { type ReactNode, useMemo, useState } from "react";
 
 import Link from "next/link";
 
-import { Edit, GitMerge, Plus, RefreshCw, Search } from "lucide-react";
+import { ClipboardList, Edit, GitMerge, Plus, RefreshCw, Search } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -231,6 +231,12 @@ export default function Page() {
             )}
           </div>
           <div className="flex items-center gap-2">
+            <Button asChild size="sm" variant="outline">
+              <Link href="/admin/hf-products/review">
+                <ClipboardList className="mr-2 size-4" />
+                Eşleme kuyruğu
+              </Link>
+            </Button>
             <Button
               size="sm"
               variant="outline"

@@ -51,6 +51,34 @@ export type HfProductPayload = {
   isActive?: boolean;
 };
 
+export type ProductReviewStatus = "pending" | "aliased" | "created" | "rejected";
+export type ProductReviewItem = {
+  id: number;
+  sourceApi: string;
+  marketId: number | null;
+  marketName: string | null;
+  rawName: string;
+  normalizedName: string;
+  rawCategory: string | null;
+  suggestedCategory: string;
+  rawUnit: string | null;
+  canonicalUnit: string | null;
+  matchKey: string | null;
+  recordedDate: string;
+  minPrice: string | null;
+  maxPrice: string | null;
+  avgPrice: string | null;
+  reasonCode: "UNKNOWN_PRODUCT" | "UNKNOWN_UNIT";
+  status: ProductReviewStatus;
+  targetProductId: number | null;
+  occurrenceCount: number;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  reviewNote: string | null;
+  reviewedBy: string | null;
+  reviewedAt: string | null;
+};
+
 export type HfProductEditorialItem = {
   productSlug: string;
   aboutMd: string;
@@ -178,7 +206,14 @@ export const hfProductsAdminApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "HfProducts" as const, id: "GSC-SUMMARY" }],
     }),
     runHfSeoMaintenance: builder.mutation<
-      { ok: boolean; flippedUp: number; flippedUpBorsa: number; flippedUpRetail: number; flippedUpNiche: number; demoted: number },
+      {
+        ok: boolean;
+        flippedUp: number;
+        flippedUpBorsa: number;
+        flippedUpRetail: number;
+        flippedUpNiche: number;
+        demoted: number;
+      },
       void
     >({
       query: () => ({ url: "/admin/hal/products/seo-maintenance", method: "POST", body: {} }),
@@ -208,6 +243,50 @@ export const hfProductsAdminApi = baseApi.injectEndpoints({
     >({
       query: () => ({ url: "/admin/hal/products/merge-suggestions" }),
       providesTags: [{ type: "HfProducts" as const, id: "SUGGESTIONS" }],
+    }),
+    listProductReviewQueueAdmin: builder.query<
+      {
+        items: ProductReviewItem[];
+        total: number;
+        limit: number;
+        offset: number;
+        sla: { thresholdHours: number; overdue: number; oldestHours: number };
+      },
+      | {
+          status?: ProductReviewStatus;
+          source?: string;
+          reason?: "UNKNOWN_PRODUCT" | "UNKNOWN_UNIT";
+          q?: string;
+          minAgeHours?: number;
+          limit?: number;
+          offset?: number;
+        }
+      | undefined
+    >({
+      query: (params) => ({
+        url: "/admin/hal/product-review-queue",
+        params: cleanParams(params as Record<string, unknown> | undefined),
+      }),
+      providesTags: [{ type: "HfProducts" as const, id: "REVIEW-QUEUE" }],
+    }),
+    reviewProductQueueItemAdmin: builder.mutation<
+      { ok: boolean; id: number; status: ProductReviewStatus; targetProductId: number | null },
+      {
+        id: number;
+        decision: "alias" | "create" | "reject";
+        note: string;
+        targetProductId?: number;
+        slug?: string;
+        nameTr?: string;
+        categorySlug?: string;
+        unit?: string;
+      }
+    >({
+      query: ({ id, ...body }) => ({ url: `/admin/hal/product-review-queue/${id}/review`, method: "PATCH", body }),
+      invalidatesTags: [
+        { type: "HfProducts" as const, id: "REVIEW-QUEUE" },
+        { type: "HfProducts" as const, id: "LIST" },
+      ],
     }),
   }),
   overrideExisting: false,
@@ -240,4 +319,6 @@ export const {
   useGetHfGscSummaryQuery,
   useBulkRefreshHfGscMutation,
   useRunHfSeoMaintenanceMutation,
+  useListProductReviewQueueAdminQuery,
+  useReviewProductQueueItemAdminMutation,
 } = hfProductsAdminApi;

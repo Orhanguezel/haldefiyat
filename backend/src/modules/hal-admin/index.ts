@@ -59,6 +59,7 @@ import { listProduction } from "@/modules/production/repository";
 import { registerProductGsc } from "@/modules/products/product-gsc";
 import { publicOrigin, readGscCategoriesForUrls } from "@/modules/seo/gsc-index";
 import { unitClass, invalidateAliasCache } from "@/modules/etl/normalizer";
+import { canonicalUnit } from "@/modules/etl/canonical-contract";
 import {
   isOneSignalConfigured,
   sendBroadcast,
@@ -128,6 +129,33 @@ const quarantineReviewBody = z.object({
   }
   if (value.minPrice != null && value.maxPrice != null && value.minPrice > value.maxPrice) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["minPrice"], message: "Minimum fiyat maksimumdan büyük olamaz" });
+  }
+});
+
+const productReviewListQuery = z.object({
+  status: z.enum(["pending", "aliased", "created", "rejected"]).optional().default("pending"),
+  source: z.string().max(64).optional(),
+  reason: z.enum(["UNKNOWN_PRODUCT", "UNKNOWN_UNIT"]).optional(),
+  q: z.string().max(128).optional(),
+  minAgeHours: z.coerce.number().int().min(0).max(8760).optional(),
+  limit: z.coerce.number().int().min(1).max(200).optional().default(50),
+  offset: z.coerce.number().int().min(0).optional().default(0),
+});
+
+const productReviewDecisionBody = z.object({
+  decision: z.enum(["alias", "create", "reject"]),
+  note: z.string().trim().min(3).max(2000),
+  targetProductId: z.coerce.number().int().positive().optional(),
+  slug: z.string().trim().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(128).optional(),
+  nameTr: z.string().trim().min(1).max(255).optional(),
+  categorySlug: z.string().trim().min(1).max(64).optional(),
+  unit: z.string().trim().min(1).max(32).optional(),
+}).superRefine((value, ctx) => {
+  if (value.decision === "alias" && !value.targetProductId) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["targetProductId"], message: "Alias hedef ürünü zorunlu" });
+  }
+  if (value.decision === "create" && (!value.slug || !value.nameTr || !value.categorySlug || !value.unit)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["slug"], message: "Yeni ürün alanları zorunlu" });
   }
 });
 
@@ -329,6 +357,116 @@ export async function registerHalAdmin(app: FastifyInstance) {
       return reply.send({ ok: true, id, status });
     } catch (error) {
       await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  });
+
+  app.get("/hal/product-review-queue", async (req, reply) => {
+    const parsed = productReviewListQuery.safeParse(req.query);
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz sorgu", details: parsed.error.flatten() });
+    const { status, source, reason, q, minAgeHours, limit, offset } = parsed.data;
+    const filters = ["rq.status = ?"];
+    const values: Array<string | number> = [status];
+    if (source) { filters.push("rq.source_api = ?"); values.push(source); }
+    if (reason) { filters.push("rq.reason_code = ?"); values.push(reason); }
+    if (minAgeHours != null) { filters.push("rq.first_seen_at <= DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? HOUR)"); values.push(minAgeHours); }
+    if (q?.trim()) {
+      const term = `%${likeSafe(q) ?? ""}%`;
+      filters.push("(rq.raw_name LIKE ? OR rq.normalized_name LIKE ? OR rq.match_key LIKE ?)");
+      values.push(term, term, term);
+    }
+    const where = filters.join(" AND ");
+    const [items] = await pool.query(
+      `SELECT rq.id, rq.source_api AS sourceApi, rq.market_id AS marketId, m.name AS marketName,
+              rq.raw_name AS rawName, rq.normalized_name AS normalizedName, rq.raw_category AS rawCategory,
+              rq.suggested_category AS suggestedCategory, rq.raw_unit AS rawUnit, rq.canonical_unit AS canonicalUnit,
+              rq.match_key AS matchKey, rq.recorded_date AS recordedDate, rq.min_price AS minPrice,
+              rq.max_price AS maxPrice, rq.avg_price AS avgPrice, rq.reason_code AS reasonCode, rq.status,
+              rq.target_product_id AS targetProductId, rq.occurrence_count AS occurrenceCount,
+              rq.first_seen_at AS firstSeenAt, rq.last_seen_at AS lastSeenAt,
+              rq.review_note AS reviewNote, rq.reviewed_by AS reviewedBy, rq.reviewed_at AS reviewedAt
+       FROM hf_product_review_queue rq LEFT JOIN hf_markets m ON m.id=rq.market_id
+       WHERE ${where} ORDER BY rq.occurrence_count DESC, rq.first_seen_at ASC LIMIT ? OFFSET ?`,
+      [...values, limit, offset],
+    );
+    const [countRows] = await pool.query(`SELECT COUNT(*) AS total FROM hf_product_review_queue rq WHERE ${where}`, values);
+    const [slaRows] = await pool.query(
+      `SELECT COUNT(*) AS overdue, COALESCE(MAX(TIMESTAMPDIFF(HOUR, first_seen_at, UTC_TIMESTAMP())),0) AS oldestHours
+       FROM hf_product_review_queue WHERE status='pending' AND first_seen_at <= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 24 HOUR)`,
+    );
+    const sla = (slaRows as Array<{ overdue: number | string; oldestHours: number | string }>)[0];
+    return reply.send({
+      items,
+      total: Number((countRows as Array<{ total: number | string }>)[0]?.total ?? 0),
+      limit,
+      offset,
+      sla: { thresholdHours: 24, overdue: Number(sla?.overdue ?? 0), oldestHours: Number(sla?.oldestHours ?? 0) },
+    });
+  });
+
+  app.patch<{ Params: { id: string } }>("/hal/product-review-queue/:id/review", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz id" });
+    const parsed = productReviewDecisionBody.safeParse(req.body);
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz karar", details: parsed.error.flatten() });
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      const [queueRows] = await connection.query("SELECT * FROM hf_product_review_queue WHERE id=? FOR UPDATE", [id]);
+      const row = (queueRows as Array<Record<string, unknown>>)[0];
+      if (!row) { await connection.rollback(); return reply.status(404).send({ error: "Inceleme kaydi bulunamadi" }); }
+      if (row.status !== "pending") { await connection.rollback(); return reply.status(409).send({ error: "Kayit daha once incelenmis" }); }
+
+      const reviewer = String((req.user as { id?: string } | undefined)?.id ?? "admin").slice(0, 36);
+      let targetProductId: number | null = null;
+      let status: "aliased" | "created" | "rejected" = "rejected";
+
+      if (parsed.data.decision === "alias") {
+        const [productRows] = await connection.query("SELECT id, unit, aliases FROM hf_products WHERE id=? AND is_active=1 FOR UPDATE", [parsed.data.targetProductId]);
+        const product = (productRows as Array<{ id: number; unit: string; aliases: string[] | string | null }>)[0];
+        if (!product) { await connection.rollback(); return reply.status(404).send({ error: "Hedef urun bulunamadi" }); }
+        const sourceUnit = row.canonical_unit == null ? null : String(row.canonical_unit);
+        const targetUnit = canonicalUnit(product.unit);
+        if (!sourceUnit || !targetUnit || sourceUnit !== targetUnit) {
+          await connection.rollback();
+          return reply.status(400).send({ error: `Birim uyuşmuyor: kaynak ${sourceUnit ?? "bilinmiyor"}, hedef ${targetUnit ?? product.unit}` });
+        }
+        let aliases: string[] = [];
+        if (Array.isArray(product.aliases)) aliases = product.aliases.map(String);
+        else if (typeof product.aliases === "string") {
+          try { aliases = JSON.parse(product.aliases) as string[]; } catch { aliases = []; }
+        }
+        const rawName = String(row.raw_name);
+        if (!aliases.some((alias) => alias.toLocaleLowerCase("tr-TR") === rawName.toLocaleLowerCase("tr-TR"))) aliases.push(rawName);
+        await connection.query("UPDATE hf_products SET aliases=? WHERE id=?", [JSON.stringify(aliases), product.id]);
+        targetProductId = product.id;
+        status = "aliased";
+      } else if (parsed.data.decision === "create") {
+        const unit = canonicalUnit(parsed.data.unit);
+        if (!unit) { await connection.rollback(); return reply.status(400).send({ error: "Canonical birim zorunlu" }); }
+        const [insertResult] = await connection.query(
+          `INSERT INTO hf_products (slug,name_tr,category_slug,unit,aliases,seo_index,is_active,data_quality,search_volume,display_order)
+           VALUES (?,?,?,?,?,0,0,0,0,0)`,
+          [parsed.data.slug, parsed.data.nameTr, parsed.data.categorySlug, unit, JSON.stringify([String(row.raw_name)])],
+        );
+        targetProductId = Number((insertResult as { insertId?: number }).insertId ?? 0);
+        status = "created";
+      }
+
+      await connection.query(
+        `UPDATE hf_product_review_queue SET status=?,target_product_id=?,review_note=?,reviewed_by=?,reviewed_at=CURRENT_TIMESTAMP(3) WHERE id=?`,
+        [status, targetProductId, parsed.data.note, reviewer, id],
+      );
+      await connection.commit();
+      if (status !== "rejected") invalidateAliasCache();
+      return reply.send({ ok: true, id, status, targetProductId });
+    } catch (error) {
+      await connection.rollback();
+      if (error instanceof Error && /ER_DUP_ENTRY|Duplicate entry/i.test(error.message)) {
+        return reply.status(409).send({ error: "Slug veya inceleme karari mevcut bir kayitla cakisiyor" });
+      }
       throw error;
     } finally {
       connection.release();

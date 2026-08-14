@@ -172,12 +172,12 @@
 - [x] F2.1 Canonical ID/slug/display/category/defaultUnit/aliases/canonical/family/variant sözleşmesi `docs/CANONICAL-URUN-VE-BIRIM-SOZLESMESI.md` ve tipli backend modülünde yazıldı.
 - [x] F2.2 Türkçe `tr-TR` casefold, diakritik, boşluk, bilinen yazım ve kullanıcı gösterim kuralları sabitlendi.
 - [x] F2.3 Exact 100, güvenli normalize 95, kayıtlı alias 90, bilinmeyen 0/review eşleme skoru testli tanımlandı; fuzzy otomatik merge yok.
-- [ ] F2.4 Yeni/belirsiz adları otomatik yeni public ürün yapma; review kuyruğuna gönder.
+- [x] F2.4 Yeni/belirsiz adları otomatik yeni public ürün yapma; review kuyruğuna gönder. (Migration 088 ile idempotent ham gözlem kuyruğu kuruldu; ana ETL auto-register yolu kapatıldı. Admin alias/pasif taslak/ret kararı verir; ham kaynak, fiyat, tarih ve tekrar sayısı korunur.)
 - [x] F2.5 Maydanoz/Maydonoz, Avokado/Avakado, Incir/İncir ve Hındıstan/Hindistan fixture'ları canonical contract testine eklendi.
 - [x] F2.6 Format/menşe/grade/renk/çeşit qualifierları anlamlı varyant olarak korunacak şekilde sözleşme ve playbook kuralına bağlandı.
 - [x] F2.7 `Domates Beef != Domates` negatif fixture'ı eklendi; kelime/diakritik benzerliği otomatik merge yetkisi vermiyor.
-- [ ] F2.8 Balık/et/sebze kategori karışımını kaynak ve kategori sözlüğüyle düzelt.
-- [ ] F2.9 Admin merge/alias arayüzünü canonical sözleşmeyle uyumlandır.
+- [x] F2.8 Balık/et/sebze kategori karışımını kaynak ve kategori sözlüğüyle düzelt. (`canonicalProductCategory` kaynak aliaslarını topluyor; açık balık/et/canlı hayvan ürün sinyali yanlış kaynak kategorisini eziyor. Negatif karışım fixture'ları testli.)
+- [x] F2.9 Admin merge/alias arayüzünü canonical sözleşmeyle uyumlandır. (Mevcut aile/merge paneli korunup bilinmeyen ürün kuyruğuna aynı-birim guard'lı alias bağlama ve pasif/noindex taslak oluşturma eklendi; farklı birim alias/merge reddediliyor.)
 - [ ] F2.10 Arama, filtre, fiyat tablosu, rapor, alarm ve API’nin aynı product ID kullanmasını sağla.
 
 ### 4.2 Birim ve varyant güvenliği
@@ -215,7 +215,7 @@
 - [~] F2.32 Mutlak sınır, medyan sapması, önceki güne sıçrama, kaynak farkı ve stale kurallarını ekle. (Mutlak sınır, tarih-yakın emsal, önceki fiyat ve diğer kaynak medyanı canlı yazım yolunda. Donma alarmı mutlak eşikten çıkarılıp kaynak özelinde geçmiş sabit-blok baz çizgisi + 2 gün ve en az 4 gün kuralına geçirildi; karantina aralıkları dışlanıyor. Tarihsel backfill yazımında stale reason uygulaması halen kaynak yayın takvimi bağlamı bekliyor. Commitler: `b5b549f7`, `9612d265`; kabul: `artifacts/renewal-2026/retail-tobb-donma-kabul-2026-08-14.md`.)
 - [x] F2.33 Anomali reason code, severity ve confidence alanlarını tanımla. (`ABSOLUTE_LIMIT`, `PEER_MEDIAN_DEVIATION`, `PREVIOUS_PRICE_JUMP`, `SOURCE_MEDIAN_DEVIATION`, `STALE_SOURCE_RECORD`, yapısal ve birim reason code'ları tipli; warning/critical ve 0–1 confidence karantinaya yazılıyor. 6/6 guard testi geçti.)
 - [x] F2.34 Kuyrukta ürün, kaynak, birim, tarih, önem ve durum filtreleri sun. (Canlı admin kuyruğu: ürün/hal araması, kaynak, birim, tarih aralığı, reason, önem ve durum.)
-- [~] F2.35 Onay, ret, düzelt, alias’a bağla ve toplu işlem aksiyonları ekle. (Admin UI ve API’de tekil onay/ret/düzelterek yayın canlı; alias ve toplu işlem bekliyor.)
+- [~] F2.35 Onay, ret, düzelt, alias’a bağla ve toplu işlem aksiyonları ekle. (Admin UI ve API’de tekil fiyat onay/ret/düzelterek yayın ile bilinmeyen ürünü canonical alias'a bağlama canlı; toplu fiyat kararı bekliyor.)
 - [~] F2.36 Kritik toplu işlem için ön izleme ve çift onay ekle. (Kritik tekil yayın `confirmCritical=true` ikinci onayına bağlı; toplu ön izleme bekliyor.)
 - [x] F2.37 Her kararın önce/sonra değeri, kullanıcı, zaman ve açıklamasını audit et. (Ham karantina değeri korunuyor; status, zorunlu not, reviewer ve reviewed_at transaction içinde yazılıyor.)
 - [~] F2.38 Yanlış kararı geri alıp downstream cache/index/raporu yenile. (Onay/düzeltmede `prices` revalidate var; karar geri alma ve rapor/index yenileme bekliyor.)
@@ -580,9 +580,9 @@
 ### 15.1 Mevcut altyapı eşlemesi — yeniden kurma, üstüne inşa et
 
 - [x] E1 Mevcut karantina altyapısı genişletildi; güvenilmez veri silinmiyor, tarihsel blackout tüm public tüketicilere uygulanıyor ve `sourceApi=*_wayback` kurtarma muafiyeti korunuyor. Canlı kabul sırasında eski tarih normalizasyon hatası da giderildi. Kanıt: `artifacts/renewal-2026/yoy-karantina-kabul-2026-08-14.md`.
-- [ ] E2 Ürün eşleme altyapısı ZATEN VAR: match-key = token-sırala + birim, kg≠adet ayrı ürün; ETL alias haritasında "kendi adı > alias" iki-geçiş kuralı (513 çakışan anahtar sessiz veri kaybı vakası). F2.1 sözleşmesi bu kuralların üstüne yazılır; F2.5 fixture'larına bu vakalar eklenir.
-- [ ] E3 `docs/URUN-BIRLESTIRME-PLAYBOOK.md` + auto-merge önerici mevcut ve aile bazında çalıştı (tamamlanan aileler listesi playbook'ta). F2.18–25 URL göçü, tamamlanmış ailelerle diff'lenerek planlanır; yapılmış iş tekrar planlanmaz.
-- [ ] E4 410 otomatı yanlış pozitif üretti: generic aile-başı slug'lar (biber/lahana/sarımsak…) "ölü ürün" sanılıp Gone yapıldı, doğrusu varyanta 301 (5 kayıt düzeltildi). F2.18 haritasına "410→301 geri alma denetimi" maddesi eklenir.
+- [x] E2 Ürün eşleme altyapısı ZATEN VAR: match-key = token-sırala + birim, kg≠adet ayrı ürün; ETL alias haritasında "kendi adı > alias" iki-geçiş kuralı (513 çakışan anahtar sessiz veri kaybı vakası). Mevcut iki-geçişli normalizer yeniden kullanılip canonical sözleşme ve bilinmeyen ürün kuyruğu üstüne kuruldu; paralel eşleyici oluşturulmadı.
+- [x] E3 `docs/URUN-BIRLESTIRME-PLAYBOOK.md` + auto-merge önerici mevcut ve aile bazında çalıştı (tamamlanan aileler listesi playbook'ta). Mevcut `merge-suggestions` API/paneli korundu; URL göç haritası 601 eşleşmeyle tamamlanmış aileler üzerinden zincir/eksik hedef denetimi yaptı.
+- [x] E4 410 otomatı yanlış pozitif üretti: generic aile-başı slug'lar (biber/lahana/sarımsak…) "ölü ürün" sanılıp Gone yapıldı, doğrusu varyanta 301 (5 kayıt düzeltildi). Canonical URL haritası üretimi canlı 410 çakışmasını ayrıca sayıyor; kabul çıktısında `conflicts410=0` doğrulandı.
 - [ ] E5 Reklam/banner modülü CANLI (9 slot, CTR takibi, image/code tipleri, code-type sanitize → `creativeConfig` kullan; 7/14 pozisyon sayfaya bağlı; Hostinger affiliate 3 slotta yayında). P4.85 ve F10.5 bu modülün üstüne kurulur; `docs/checklists/REKLAM-BANNER-CHECKLIST.md` referans.
 - [ ] E6 Sosyal yayın content-guard + tek-poster politikası mevcut (F10.3 inline düzeltildi); yeni sosyal kart üreticisi de aynı kapıdan geçer.
 - [x] E7 GSC göç/izleme mevcut bulk+cron tek-indiriciyle eşlendi; ikinci URL inspector yazılmadı. Plan: `artifacts/renewal-2026/gsc-2-4-8-hafta-izleme-plani-2026-08-14.md`.

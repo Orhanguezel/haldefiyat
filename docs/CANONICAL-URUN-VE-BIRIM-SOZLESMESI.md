@@ -29,6 +29,8 @@ Her public ürün şu alanlarla tanımlanır: sayısal `id`, değişmez `slug`, 
 
 Skor fuzzy benzerlik değildir. Düşük benzerlikte otomatik ürün açılmaz. Admin onayı alias ekleyebilir, yeni canonical ürün/varyant oluşturabilir veya satırı reddedebilir; karar audit kaydı taşır.
 
+Ana hal ETL'inde eşleşmeyen ad ve bilinmeyen birim `hf_product_review_queue` tablosunda ham ad, kaynak, hal, tarih, fiyat, önerilen kategori ve tekrar sayısıyla tutulur. Admin `/admin/hf-products/review` ekranında kaydı aynı birimli mevcut ürüne alias bağlayabilir, pasif/noindex ürün taslağı oluşturabilir veya gerekçeli reddedebilir. Kaynak kategori yazımları ortak kategori sözlüğünden geçer; açık balık, et ve canlı hayvan ürün sinyalleri yanlış geniş kaynak kategorisini ezer.
+
 ## Tüketici sözleşmesi
 
 Arama, filtre, fiyat tablosu, grafik, alarm, rapor, API, widget, CSV, bülten ve sosyal yayın aynı canonical `productId/slug/unit` üçlüsünü kullanır. Farklı birimler aynı seride ortalanmaz. Kullanıcı etiketinde gerekli ayrım `Limon (Kg)` / `Limon (Kasa)` biçiminde görünür.

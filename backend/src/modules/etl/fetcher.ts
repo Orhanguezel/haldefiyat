@@ -10,7 +10,7 @@
  *   1. Hedef tarih için endpoint çağrılır
  *   2. 204 No Content → `env.ETL.maxDateFallbackDays` kadar geriye tara
  *   3. Yanıt normalize edilir (product name, min/max/avg, unit, category)
- *   4. Bilinmeyen ürün: auto-register açıksa hf_products'a eklenir
+ *   4. Bilinmeyen ürün/birim: public ürün açılmaz, inceleme kuyruğuna alınır
  *   5. hf_price_history'ye upsert
  *   6. hf_etl_runs'a özet kayıt
  */
@@ -23,12 +23,13 @@ import { db } from "@/db/client";
 import { hfMarkets, hfProducts, hfEtlRuns } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { upsertPriceRow } from "@/modules/prices/repository";
-import { resolveProductSlug, turkishToAscii, invalidateAliasCache, normalizeRawProductName } from "./normalizer";
+import { resolveProductSlug, normalizeRawProductName } from "./normalizer";
 import type { EtlSourceConfig } from "@/config/etl-sources";
 import { env } from "@/core/env";
 import { fetchViaScraper, shouldUseScraperFor, shouldUseDynamicFor } from "./scraper-client";
 import { parseTmoAlimResmi } from "./sources/borsa/tmo-alim";
 import { parseBorsaHtml, parseBorsaText, parseItbPamukPdfText, parsePolatliBorsaJson, parseTobbBorsaHtml } from "./sources/borsa/text-parsers";
+import { enqueueUnknownProduct } from "./product-review-queue";
 
 export interface EtlRunResult {
   inserted: number;
@@ -2290,28 +2291,13 @@ function shiftDate(iso: string, deltaDays: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-// ── Product auto-register ───────────────────────────────────────────────────
+// ── Product resolve / review queue ──────────────────────────────────────────
 
-function slugify(raw: string): string {
-  return turkishToAscii(raw)
-    .replace(/['"`]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 128);
-}
-
-function normalizeCategory(raw: string | null, fallback: string): string {
-  if (!raw) return fallback || "diger";
-  const slug = turkishToAscii(raw)
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  if (!slug) return fallback || "diger";
-  // Çok yaygın eş-anlamlıları tek slug'a indirge (API değişirse uzun süre tutar)
-  if (slug.includes("sebze") && slug.includes("meyve")) return "sebze-meyve";
-  return slug;
-}
-
-async function findOrCreateProduct(raw: NormalizedRow, source: EtlSourceConfig): Promise<{ id: number; slug: string } | null> {
+async function findOrQueueProduct(
+  raw: NormalizedRow,
+  source: EtlSourceConfig,
+  context: { marketId: number; recordedDate: string; avgPrice: number },
+): Promise<{ id: number; slug: string } | null> {
   const normalizedName = normalizeRawProductName(raw.name);
   const unit = (raw.unit ?? source.defaultUnit).toLowerCase();
   // Birim-kapsamlı eşleştirme: "Aysberg Marul" ve "Marul Aysberg" (aynı birim) tek ürüne düşer.
@@ -2323,34 +2309,19 @@ async function findOrCreateProduct(raw: NormalizedRow, source: EtlSourceConfig):
       .limit(1);
     if (rows[0]) return { id: rows[0].id, slug };
   }
-  if (!env.ETL.autoRegisterProducts) return null;
-
-  const newSlug = slugify(normalizedName);
-  if (!newSlug) return null;
-
-  // Upsert: slug unique
-  await db.insert(hfProducts).values({
-    slug:         newSlug,
-    nameTr:       normalizedName,
-    categorySlug: normalizeCategory(raw.category, source.defaultCategory),
-    unit,
-    aliases:      Array.from(new Set([raw.name, normalizedName])),
-    isActive:     1,
-  }).onDuplicateKeyUpdate({
-    set: {
-      nameTr:       normalizedName,
-      categorySlug: normalizeCategory(raw.category, source.defaultCategory),
-      unit,
-    },
+  await enqueueUnknownProduct({
+    sourceApi: source.key,
+    marketId: context.marketId,
+    rawName: raw.name,
+    rawCategory: raw.category,
+    rawUnit: raw.unit ?? source.defaultUnit,
+    fallbackCategory: source.defaultCategory,
+    recordedDate: raw.recordedDate ?? context.recordedDate,
+    minPrice: raw.min,
+    maxPrice: raw.max,
+    avgPrice: context.avgPrice,
   });
-
-  invalidateAliasCache();
-
-  const rows = await db.select({ id: hfProducts.id })
-    .from(hfProducts)
-    .where(eq(hfProducts.slug, newSlug))
-    .limit(1);
-  return rows[0] ? { id: rows[0].id, slug: newSlug } : null;
+  return null;
 }
 
 // ── Orchestration ───────────────────────────────────────────────────────────
@@ -2437,7 +2408,11 @@ export async function runSourceFetch(
 
     let product: { id: number; slug: string } | null = null;
     try {
-      product = await findOrCreateProduct(row, source);
+      product = await findOrQueueProduct(row, source, {
+        marketId,
+        recordedDate: outcome.dateUsed,
+        avgPrice: avg,
+      });
     } catch (err) {
       errors.push(`${row.name}: ${err instanceof Error ? err.message : String(err)}`);
       skipped++;
@@ -2590,7 +2565,9 @@ export async function runWaybackBackfill(
       if (priceSanityIssue(row, avg)) { out.skipped++; continue; }
 
       let product: { id: number; slug: string } | null = null;
-      try { product = await findOrCreateProduct(row, source); } catch { out.skipped++; continue; }
+      try {
+        product = await findOrQueueProduct(row, source, { marketId, recordedDate: snap.date, avgPrice: avg });
+      } catch { out.skipped++; continue; }
       if (!product) { out.skipped++; continue; }
 
       try {
