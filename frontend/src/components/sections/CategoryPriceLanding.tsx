@@ -7,6 +7,7 @@ import Breadcrumb from "@/components/seo/Breadcrumb";
 import ProductImage from "@/components/ui/ProductImage";
 import { DATA_LICENSE_URL, ORG_REF } from "@/lib/seo";
 import { schemaDateRange } from "@/lib/schema-dates";
+import { productHref } from "@/lib/product-links";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
@@ -76,7 +77,7 @@ export default async function CategoryPriceLanding({
     hasPart: products.map((product) => ({
       "@type": "Product",
       name: product.displayName || product.nameTr,
-      url: `${SITE_URL}/urun/${product.slug}`,
+      url: `${SITE_URL}${productHref(product)}`,
       category: product.categorySlug,
     })),
   };
@@ -117,7 +118,7 @@ export default async function CategoryPriceLanding({
           {products.map((product) => (
             <Link
               key={product.slug}
-              href={`/urun/${product.slug}`}
+              href={productHref(product)}
               className="group rounded-lg border border-border bg-surface p-4 transition-colors hover:border-brand/50"
             >
               <div className="mb-5 flex items-center justify-between">

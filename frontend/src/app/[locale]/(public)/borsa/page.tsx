@@ -9,6 +9,7 @@ import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import ProductImage from "@/components/ui/ProductImage";
 import { getPageMetadata } from "@/lib/seo";
+import { productHref } from "@/lib/product-links";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -95,7 +96,7 @@ export default async function BorsaPage({ params }: Props) {
     hasPart: mvpProducts.map((product) => ({
       "@type": "Product",
       name: product.displayName || product.nameTr,
-      url: `https://haldefiyat.com/urun/${product.slug}`,
+      url: `https://haldefiyat.com${productHref(product)}`,
       category: product.categorySlug,
     })),
   };
@@ -141,7 +142,7 @@ export default async function BorsaPage({ params }: Props) {
         {mvpProducts.map((product) => (
           <Link
             key={product.slug}
-            href={`/urun/${product.slug}`}
+            href={productHref(product)}
             className="group rounded-lg border border-border bg-surface p-4 transition-colors hover:border-brand/50"
           >
             <div className="mb-5 flex items-center justify-between">

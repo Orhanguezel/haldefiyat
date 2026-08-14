@@ -1,4 +1,4 @@
-import { and, asc, eq, like, or, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, like, or, sql } from "drizzle-orm";
 import { db, pool } from "@/db/client";
 import { hfAdAuditLogs, hfAdPackages, hfAdPackageSlots, hfAdPayments, hfAdPriceOverrides, hfAdSelfServiceRequests, hfAdSlots, hfAdWaitlist, hfBanners, hfBannerConversions, hfBannerDailyMetrics, hfBannerMetricUniques, hfBannerTargets, hfBannerVisitorFrequency, hfFirmDeals, hfFirmMembers, hfFirmSponsorships, hfFirms, hfMarkets, hfProducts } from "@/db/schema";
 import { hfListings } from "@/modules/listings/schema";
@@ -547,7 +547,7 @@ export async function searchBannerTargetOptions(type: BannerScopeType, query = "
   }
   if (type === "product") {
     const rows = await db.select({ value: hfProducts.slug, label: hfProducts.nameTr, reach: hfProducts.searchVolume }).from(hfProducts)
-      .where(and(eq(hfProducts.isActive, 1), q ? or(like(hfProducts.slug, `%${q}%`), like(hfProducts.nameTr, `%${q}%`)) : sql`1=1`)).limit(30);
+      .where(and(eq(hfProducts.isActive, 1), isNull(hfProducts.canonicalSlug), q ? or(like(hfProducts.slug, `%${q}%`), like(hfProducts.nameTr, `%${q}%`)) : sql`1=1`)).limit(30);
     return rows.map((row) => ({ ...row, reach: Number(row.reach ?? 0), exampleUrl: `/urun/${row.value}` }));
   }
   if (type === "category") {

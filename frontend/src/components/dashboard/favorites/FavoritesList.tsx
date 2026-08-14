@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState";
+import { productHref } from "@/lib/product-links";
 
 interface Props { locale: string }
 
@@ -37,7 +38,7 @@ export function FavoritesList({ locale }: Props) {
         >
           <div className="min-w-0">
             <Link
-              href={`/${locale}/urun/${product.slug}`}
+              href={`/${locale}${productHref(product)}`}
               className="truncate text-[13px] font-semibold text-(--color-foreground) hover:text-(--color-brand) transition-colors"
             >
               {product.displayName || product.nameTr}

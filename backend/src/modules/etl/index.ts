@@ -10,6 +10,9 @@ import { activeSources, getSourceByKey } from "@/config/etl-sources";
 import { runSourceFetch, type EtlRunResult } from "./fetcher";
 import { invalidateAliasCache } from "./normalizer";
 import { submitIndexNow } from "./indexnow";
+import { db } from "@/db/client";
+import { hfProducts } from "@/db/schema";
+import { inArray } from "drizzle-orm";
 
 export interface EtlResult extends EtlRunResult {
   source:     string;
@@ -18,7 +21,7 @@ export interface EtlResult extends EtlRunResult {
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? process.env.FRONTEND_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
-function buildIndexNowUrls(results: EtlResult[]): string[] {
+async function buildIndexNowUrls(results: EtlResult[]): Promise<string[]> {
   const productSlugs = new Set<string>();
   const marketSlugs = new Set<string>();
 
@@ -31,8 +34,16 @@ function buildIndexNowUrls(results: EtlResult[]): string[] {
     }
   }
 
+  const slugs = [...productSlugs];
+  const identities = slugs.length
+    ? await db.select({ slug: hfProducts.slug, canonicalSlug: hfProducts.canonicalSlug })
+      .from(hfProducts)
+      .where(inArray(hfProducts.slug, slugs))
+    : [];
+  const canonicalProducts = new Set(identities.map((row) => row.canonicalSlug || row.slug));
+
   return [
-    ...[...productSlugs].map((slug) => `${SITE_URL}/urun/${slug}`),
+    ...[...canonicalProducts].map((slug) => `${SITE_URL}/urun/${slug}`),
     ...[...marketSlugs].map((slug) => `${SITE_URL}/hal/${slug}`),
   ];
 }
@@ -59,7 +70,9 @@ export async function runDailyEtl(targetDate?: string): Promise<EtlResult[]> {
 
   const totalInserted = results.reduce((sum, r) => sum + r.inserted, 0);
   if (totalInserted > 0) {
-    submitIndexNow(buildIndexNowUrls(results)).catch(() => {});
+    buildIndexNowUrls(results)
+      .then((urls) => submitIndexNow(urls))
+      .catch(() => {});
   }
 
   return results;

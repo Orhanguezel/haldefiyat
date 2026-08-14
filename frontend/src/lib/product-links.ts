@@ -1,5 +1,6 @@
 type ProductLinkSource = {
-  productSlug: string;
+  productSlug?: string | null;
+  slug?: string | null;
   canonicalProduct?: string | null;
   canonicalSlug?: string | null;
 };
@@ -24,7 +25,10 @@ const ACTIVE_PRODUCT_REDIRECTS: Readonly<Record<string, string>> = {
 export function productHref(product: ProductLinkSource): string {
   const candidate = product.canonicalProduct?.trim()
     || product.canonicalSlug?.trim()
-    || product.productSlug.trim();
+    || product.productSlug?.trim()
+    || product.slug?.trim()
+    || "";
+  if (!candidate) return "/fiyatlar";
   const slug = ACTIVE_PRODUCT_REDIRECTS[candidate] ?? candidate;
   return `/urun/${encodeURIComponent(slug)}`;
 }

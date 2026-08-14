@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, like, or, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { db } from "@/db/client";
-import { hfFirmClaims, hfFirmDeals, hfFirmPrices, hfFirmProducts, hfFirms, hfFirmSponsorships } from "@/db/schema";
+import { hfFirmClaims, hfFirmDeals, hfFirmPrices, hfFirmProducts, hfFirms, hfFirmSponsorships, hfProducts } from "@/db/schema";
 import { slugifyTr, TURKEY_CITIES } from "@/data/turkey-city-slugs";
 import type { FetchedFirm, FirmListFilters } from "./types";
 
@@ -357,8 +357,19 @@ async function updateFirmFields(id: number, input: FirmPatchInput & {
 
 export async function listFirmProducts(firmId: number) {
   return db
-    .select()
+    .select({
+      id: hfFirmProducts.id,
+      firmId: hfFirmProducts.firmId,
+      productSlug: sql<string | null>`COALESCE(${hfProducts.canonicalSlug}, ${hfFirmProducts.productSlug})`,
+      productName: hfFirmProducts.productName,
+      note: hfFirmProducts.note,
+      price: hfFirmProducts.price,
+      displayOrder: hfFirmProducts.displayOrder,
+      createdAt: hfFirmProducts.createdAt,
+      updatedAt: hfFirmProducts.updatedAt,
+    })
     .from(hfFirmProducts)
+    .leftJoin(hfProducts, eq(hfProducts.slug, hfFirmProducts.productSlug))
     .where(eq(hfFirmProducts.firmId, firmId))
     .orderBy(asc(hfFirmProducts.displayOrder), asc(hfFirmProducts.productName));
 }

@@ -325,7 +325,7 @@ export default async function FirmDetailPage({ params }: Props) {
                   return product.productSlug ? (
                     <Link
                       key={product.id}
-                      href={`/urun/${product.productSlug}`}
+                      href={productHref(product)}
                       className="rounded-[6px] border border-(--color-border-soft) px-3 py-2 text-[12px] font-semibold text-(--color-foreground) hover:border-(--color-brand)/45"
                     >
                       {label}

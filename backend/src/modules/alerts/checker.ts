@@ -27,6 +27,7 @@ type LatestPriceRow = {
   recordedDate: Date | string;
   marketName:   string | null;
   productName:  string;
+  productSlug:  string;
 };
 
 async function fetchActiveAlerts(): Promise<ActiveAlert[]> {
@@ -48,7 +49,12 @@ async function fetchActiveAlerts(): Promise<ActiveAlert[]> {
 }
 
 async function fetchLatestPrice(productId: number, marketId: number | null): Promise<LatestPriceRow | null> {
-  const conds = [eq(hfPriceHistory.productId, productId)];
+  const conds = [
+    sql`(${hfPriceHistory.productId} = ${productId} OR ${hfProducts.canonicalSlug} = (
+      SELECT canonical_product.slug FROM hf_products canonical_product WHERE canonical_product.id = ${productId}
+    ))`,
+    sql`${hfPriceHistory.unit} = ${hfProducts.unit}`,
+  ];
   if (marketId != null) conds.push(eq(hfPriceHistory.marketId, marketId));
   const notBlackouted = await blackoutFilter(
     hfPriceHistory.recordedDate,
@@ -62,6 +68,7 @@ async function fetchLatestPrice(productId: number, marketId: number | null): Pro
       recordedDate: hfPriceHistory.recordedDate,
       marketName:   hfMarkets.name,
       productName:  hfProducts.nameTr,
+      productSlug:  sql<string>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
     })
     .from(hfPriceHistory)
     .innerJoin(hfMarkets,  eq(hfMarkets.id,  hfPriceHistory.marketId))
@@ -162,9 +169,7 @@ async function notifyAlert(a: ActiveAlert, latest: LatestPriceRow, lp: number, t
           await sendToExternalIds([user.id], {
             title:   `${latest.productName} ${dirLabel}`,
             message: `Güncel ${lp.toFixed(2)} TL/kg, eşik ${tp.toFixed(2)} TL${marketLine}`,
-            url:     `https://haldefiyat.com/urun/${encodeURIComponent(
-              latest.productName.toLocaleLowerCase("tr-TR").replace(/[^a-z0-9]+/g, "-"),
-            )}`,
+            url:     `https://haldefiyat.com/urun/${encodeURIComponent(latest.productSlug)}`,
           });
         }
       } catch { /* push hatası alerts'i durdurmasın */ }

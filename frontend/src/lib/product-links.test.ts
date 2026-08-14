@@ -16,4 +16,13 @@ describe("productHref", () => {
     expect(productHref({ productSlug: "biber-kil-aci", canonicalProduct: "biber" }))
       .toBe("/urun/biber-carliston");
   });
+
+  it("accepts API product objects that expose slug", () => {
+    expect(productHref({ slug: "limon-lamas", canonicalSlug: "limon" }))
+      .toBe("/urun/limon");
+  });
+
+  it("falls back to the price list when the source has no identity", () => {
+    expect(productHref({})).toBe("/fiyatlar");
+  });
 });

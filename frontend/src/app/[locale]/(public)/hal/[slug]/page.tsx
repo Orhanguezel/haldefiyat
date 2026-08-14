@@ -21,6 +21,7 @@ import { calculateProductMovers } from "@/lib/citability";
 import BannerSlot from "@/components/ads/BannerSlot";
 import { formatDateTr } from "@/lib/date-format";
 import MarketDataNav from "@/components/sections/MarketDataNav";
+import { productHref } from "@/lib/product-links";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -249,7 +250,7 @@ export default async function HalPage({ params }: Props) {
               {movers.map((mover, index) => (
                 <span key={mover.productSlug}>
                   {index > 0 ? "; " : ""}
-                  <Link href={`/urun/${mover.productSlug}`} className="font-medium text-brand hover:underline">
+                  <Link href={productHref(mover)} className="font-medium text-brand hover:underline">
                     {mover.productName}
                   </Link>{" "}
                   %{Math.abs(mover.changePct).toLocaleString("tr-TR")} {mover.direction}

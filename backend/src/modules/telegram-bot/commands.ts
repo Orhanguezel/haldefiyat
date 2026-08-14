@@ -6,6 +6,7 @@ import { resolveProductSlug } from "@/modules/etl/normalizer";
 import { trendingChanges } from "@/modules/prices/repository";
 import { parseTelegramListing } from "@/modules/listings/telegram";
 import { blackoutFilter } from "@/modules/prices/blackouts";
+import { resolveCanonicalProductBySlug } from "@/modules/products/product-identity";
 
 const SITE_URL = "https://haldefiyat.com";
 
@@ -73,16 +74,13 @@ function helpText(): string {
 
 // Son 3 günde ürün için (slug) min/max/avg fiyat + market dağılımı
 async function fetchLatestPrices(slug: string): Promise<{
+  productSlug: string;
   productName: string;
   unit: string;
   rows: { marketSlug: string; cityName: string | null; avg: number; recordedDate: string }[];
 } | null> {
-  const product = await db
-    .select({ id: hfProducts.id, name: hfProducts.nameTr, unit: hfProducts.unit })
-    .from(hfProducts)
-    .where(and(eq(hfProducts.slug, slug), eq(hfProducts.isActive, 1)))
-    .limit(1);
-  if (!product[0]) return null;
+  const product = await resolveCanonicalProductBySlug(slug);
+  if (!product) return null;
 
   const notBlackouted = await blackoutFilter(
     hfPriceHistory.recordedDate,
@@ -98,8 +96,10 @@ async function fetchLatestPrices(slug: string): Promise<{
     })
     .from(hfPriceHistory)
     .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+    .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
     .where(and(
-      eq(hfPriceHistory.productId, product[0].id),
+      sql`(${hfPriceHistory.productId} = ${product.id} OR ${hfProducts.canonicalSlug} = ${product.slug})`,
+      sql`${hfPriceHistory.unit} = ${hfProducts.unit}`,
       gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 3 DAY)`),
       notBlackouted,
     ))
@@ -107,8 +107,9 @@ async function fetchLatestPrices(slug: string): Promise<{
     .orderBy(desc(sql`MAX(${hfPriceHistory.recordedDate})`));
 
   return {
-    productName: product[0].name,
-    unit: product[0].unit ?? "kg",
+    productSlug: product.slug,
+    productName: product.displayName || product.nameTr,
+    unit: product.unit ?? "kg",
     rows: rows
       .map((r) => ({
         marketSlug:   r.marketSlug,
@@ -121,12 +122,13 @@ async function fetchLatestPrices(slug: string): Promise<{
 }
 
 function formatProductReport(slug: string, data: {
+  productSlug: string;
   productName: string;
   unit: string;
   rows: { marketSlug: string; cityName: string | null; avg: number; recordedDate: string }[];
 }): string {
   if (data.rows.length === 0) {
-    return `📭 <b>${escapeHtml(data.productName)}</b> için son 3 günde veri bulunamadı.\n\n🌐 ${SITE_URL}/urun/${encodeURIComponent(slug)}`;
+    return `📭 <b>${escapeHtml(data.productName)}</b> için son 3 günde veri bulunamadı.\n\n🌐 ${SITE_URL}/urun/${encodeURIComponent(data.productSlug || slug)}`;
   }
   const prices = data.rows.map((r) => r.avg);
   const min = Math.min(...prices);
@@ -147,7 +149,7 @@ function formatProductReport(slug: string, data: {
     lines.push(`<i>… ve ${data.rows.length - 8} hal daha</i>`);
   }
   lines.push("");
-  lines.push(`🔗 ${SITE_URL}/urun/${encodeURIComponent(slug)}`);
+  lines.push(`🔗 ${SITE_URL}/urun/${encodeURIComponent(data.productSlug || slug)}`);
   return lines.join("\n");
 }
 

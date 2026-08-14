@@ -9,6 +9,7 @@ import {
   subscribeFavorites,
 } from "@/lib/favorites";
 import ProductImage from "@/components/ui/ProductImage";
+import { productHref } from "@/lib/product-links";
 
 const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")}/api/v1`
@@ -101,12 +102,14 @@ function FavoriteCard({
   onRemove: (slug: string) => void;
 }) {
   const name = row?.productName ?? humanize(slug);
+  const href = productHref(row ?? { productSlug: slug });
+  const canonicalSlug = row?.canonicalProduct || slug;
 
   return (
     <div className="group relative overflow-hidden rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6 transition-all duration-300 hover:-translate-y-1 hover:border-(--color-brand)/30">
       <div className="mb-4 flex items-start justify-between gap-2">
-        <Link href={`/urun/${slug}`} className="flex items-center gap-2.5">
-          <ProductImage slug={slug} name={name} categorySlug={row?.categorySlug} imageUrl={row?.imageUrl} size={40} />
+        <Link href={href} className="flex items-center gap-2.5">
+          <ProductImage slug={canonicalSlug} name={name} categorySlug={row?.categorySlug} imageUrl={row?.imageUrl} size={40} />
           <div>
             <div className="text-[15px] font-bold text-(--color-foreground)">{name}</div>
             {row ? (
@@ -149,11 +152,11 @@ function FavoriteCard({
       {row ? (
         <div className="mt-3 flex items-center justify-between font-(family-name:--font-mono) text-[11px] text-(--color-muted)">
           <span>min ₺{fmt(row.minPrice)} · max ₺{fmt(row.maxPrice)}</span>
-          <Link href={`/urun/${slug}`} className="text-(--color-brand) hover:underline">Detay →</Link>
+          <Link href={href} className="text-(--color-brand) hover:underline">Detay →</Link>
         </div>
       ) : (
         <div className="mt-3 text-right">
-          <Link href={`/urun/${slug}`} className="font-(family-name:--font-mono) text-[11px] text-(--color-brand) hover:underline">
+          <Link href={href} className="font-(family-name:--font-mono) text-[11px] text-(--color-brand) hover:underline">
             Detay →
           </Link>
         </div>

@@ -6,6 +6,7 @@ import { hfAlerts, hfMarkets, hfProducts } from "@/db/schema";
 import { requireAuth } from "@agro/shared-backend/middleware/auth";
 import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 import type { FastifyRequest } from "fastify";
+import { resolveCanonicalProductBySlug } from "@/modules/products/product-identity";
 
 const createSchema = z.object({
   productSlug:     z.string().min(1),
@@ -40,7 +41,7 @@ export async function registerAlerts(app: FastifyInstance) {
     const d = parsed.data;
 
     // Slug'lari ID'ye cevir
-    const [product] = await db.select({ id: hfProducts.id }).from(hfProducts).where(eq(hfProducts.slug, d.productSlug)).limit(1);
+    const product = await resolveCanonicalProductBySlug(d.productSlug);
     if (!product) return reply.status(404).send({ error: "Urun bulunamadi" });
 
     let marketId: number | null = null;

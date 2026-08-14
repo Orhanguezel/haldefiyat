@@ -172,6 +172,10 @@ const OVERVIEW_CACHE_MS = 5 * 60_000;
 let overviewCache: { value: PriceOverviewStats; expiresAt: number } | null = null;
 let overviewInFlight: Promise<PriceOverviewStats> | null = null;
 
+// Historical rows whose stored unit conflicts with the product contract are
+// preserved for audit, but never enter public prices, charts, counters or SEO.
+const publicUnitIntegrity = sql`${hfPriceHistory.unit} = ${hfProducts.unit}`;
+
 /** Topbar/anasayfa için gerçek özet: kapsam + son veri tarihi (hard-code yerine). */
 async function queryOverviewStats(): Promise<PriceOverviewStats> {
   const notBlackouted = await blackoutFilter(
@@ -192,6 +196,7 @@ async function queryOverviewStats(): Promise<PriceOverviewStats> {
         sql`EXISTS (
           SELECT 1 FROM ${hfPriceHistory}
           WHERE ${hfPriceHistory.productId} = ${hfProducts.id}
+            AND ${hfPriceHistory.unit} = ${hfProducts.unit}
             ${overviewBlackoutSql}
           LIMIT 1
         )`,
@@ -201,6 +206,7 @@ async function queryOverviewStats(): Promise<PriceOverviewStats> {
       .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
       .where(and(
         eq(hfProducts.isActive, 1),
+        publicUnitIntegrity,
         gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 7 DAY)`),
         notBlackouted,
       )),
@@ -212,6 +218,7 @@ async function queryOverviewStats(): Promise<PriceOverviewStats> {
       .where(and(
         eq(hfMarkets.isActive, 1),
         eq(hfProducts.isActive, 1),
+        publicUnitIntegrity,
         gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 30 DAY)`),
         notBlackouted,
       )),
@@ -350,6 +357,7 @@ export async function listPriceRows(params: {
   // filtre yalnizca conds'a eklenir.
   const conds: SQL[] = [...windowConds];
   conds.push(eq(hfProducts.isActive, 1));
+  conds.push(publicUnitIntegrity);
   // Ürün filtresi ailesiyle: master slug + canonical çocukları (varyantlar fiyatını
   // kendi ürününde tutar, master sayfası aileyi gösterimde toplar — her satır kendi adıyla).
   if (params.product)  conds.push(or(eq(hfProducts.slug, params.product), eq(hfProducts.canonicalSlug, params.product))!);
@@ -521,6 +529,7 @@ async function priceQueryContext(params: {
   // filtre yalnizca conds'a eklenir.
   const conds: SQL[] = [...windowConds];
   conds.push(eq(hfProducts.isActive, 1));
+  conds.push(publicUnitIntegrity);
   // Ürün filtresi ailesiyle: master slug + canonical çocukları (varyantlar fiyatını
   // kendi ürününde tutar, master sayfası aileyi gösterimde toplar — her satır kendi adıyla).
   if (params.product)  conds.push(or(eq(hfProducts.slug, params.product), eq(hfProducts.canonicalSlug, params.product))!);
@@ -679,7 +688,7 @@ export async function listPriceRowsPage(params: {
 }
 
 export async function latestPrice(params: { city?: string; product?: string; market?: string }) {
-  const conds: SQL[] = [eq(hfProducts.isActive, 1), eq(hfMarkets.isActive, 1)];
+  const conds: SQL[] = [eq(hfProducts.isActive, 1), eq(hfMarkets.isActive, 1), publicUnitIntegrity];
   const notBlackouted = await blackoutFilter(
     hfPriceHistory.recordedDate,
     hfPriceHistory.marketId,
@@ -958,6 +967,7 @@ export async function variantPricesByMaster(masterSlug: string, range = "7d") {
     INNER JOIN hf_price_history ph ON ph.product_id = p.id
     WHERE p.is_active = 1
       AND p.canonical_slug = ${masterSlug}
+      AND ph.unit = p.unit
       AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)
       ${blackoutSql}
     GROUP BY p.id, p.slug, p.display_name, p.name_tr, p.category_slug, p.unit
@@ -992,7 +1002,7 @@ export async function variantPricesByMaster(masterSlug: string, range = "7d") {
       marketCount: Number(row.marketCount ?? 0),
       observationCount: Number(row.observationCount ?? 0),
       latestRecordedDate,
-      url: `/urun/${row.slug}`,
+      url: `/urun/${masterSlug}`,
     };
   });
 }
@@ -1024,6 +1034,7 @@ export async function listSeoEligibleProducts(days: number) {
     .innerJoin(hfPriceHistory, eq(hfPriceHistory.productId, hfProducts.id))
     .where(and(
       eq(hfProducts.isActive, 1),
+      publicUnitIntegrity,
       gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(safeDays))} DAY)`),
       notBlackouted,
     ))
@@ -1134,9 +1145,11 @@ export async function cityPriceMap(params: {
   const query = sql`
     WITH latest AS (
       SELECT product_id, market_id, MAX(recorded_date) AS rd
-      FROM hf_price_history
+      FROM hf_price_history ph_latest
+      INNER JOIN hf_products p_latest ON p_latest.id = ph_latest.product_id
       WHERE recorded_date >= DATE_SUB(${anchorExpr}, INTERVAL ${sql.raw(String(days))} DAY)
         AND recorded_date <= ${anchorExpr}
+        AND ph_latest.unit = p_latest.unit
         ${latestBlackoutSql}
       GROUP BY product_id, market_id
     ),
@@ -1152,6 +1165,7 @@ export async function cityPriceMap(params: {
       INNER JOIN hf_products p ON p.id = ph.product_id AND p.is_active = 1
       INNER JOIN hf_markets  m ON m.id = ph.market_id  AND m.is_active = 1
       WHERE (m.region_slug IS NULL OR m.region_slug <> 'ulusal')
+        AND ph.unit = p.unit
         ${obsBlackoutSql}
     ),
     city_prod AS (
@@ -1260,8 +1274,10 @@ export async function trendingChanges(limit = 10) {
     })
     .from(hfPriceHistory)
     .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+    .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
     .where(and(
       gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 14 DAY)`),
+      publicUnitIntegrity,
       notBlackouted,
     ));
 
@@ -1459,6 +1475,7 @@ export async function productPriceHistory(
       INNER JOIN hf_products p ON p.id = ph.product_id
       INNER JOIN hf_markets m ON m.id = ph.market_id
       WHERE (p.slug = ${productSlug} OR p.canonical_slug = ${productSlug})
+        AND ph.unit = p.unit
         AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)
         ${marketFilter}
         ${blackoutSql}
@@ -1471,6 +1488,7 @@ export async function productPriceHistory(
   const conds: SQL[] = [
     or(eq(hfProducts.slug, productSlug), eq(hfProducts.canonicalSlug, productSlug))!,
     gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)`),
+    publicUnitIntegrity,
   ];
   if (marketSlug) conds.push(eq(hfMarkets.slug, marketSlug));
   const notBlackouted = await blackoutFilter(
@@ -1527,6 +1545,7 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
     .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
     .where(and(
       gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 3 DAY)`),
+      publicUnitIntegrity,
       notBlackouted,
       ...productConds,
     ))
@@ -1556,6 +1575,7 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
     .where(and(
       gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 14 DAY)`),
       lte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 7 DAY)`),
+      publicUnitIntegrity,
       notBlackouted,
       inArray(hfProducts.slug, latestSlugs),
     ))

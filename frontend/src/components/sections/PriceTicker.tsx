@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { TrendingItem } from "@/lib/api";
 import { getEmoji } from "@/lib/emoji";
+import { productHref } from "@/lib/product-links";
 
 interface Props {
   items: TrendingItem[];
@@ -47,7 +48,7 @@ function TickerEntry({ item, index }: { item: TrendingItem; index: number }) {
   return (
     <>
       <Link
-        href={slug ? `/urun/${slug}` : "/fiyatlar"}
+        href={productHref(item.product ?? {})}
         className="flex shrink-0 items-center gap-2 whitespace-nowrap transition-opacity hover:opacity-80"
         tabIndex={-1}
         title={

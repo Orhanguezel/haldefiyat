@@ -11,6 +11,7 @@ import PriceListNewsletterStrip from "@/components/sections/PriceListNewsletterS
 import BannerSlot from "@/components/ads/BannerSlot";
 import { schemaDateRange } from "@/lib/schema-dates";
 import AnswerBlock from "@/components/seo/AnswerBlock";
+import { productHref } from "@/lib/product-links";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -239,11 +240,11 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
               veri kesitinde <strong className="text-foreground">{currentProductCount} ürün</strong>{" "}
               ve <strong className="text-foreground">{currentMarketCount} hal/kaynak</strong>{" "}
               yer alıyor. Ürün bazında kesin min–maks ve ortalama değerleri görmek için{" "}
-              <Link href="/urun/limon" className="font-medium text-brand hover:underline">
+              <Link href={productHref({ slug: "limon" })} className="font-medium text-brand hover:underline">
                 limon piyasası
               </Link>
               ,{" "}
-              <Link href="/urun/patates" className="font-medium text-brand hover:underline">
+              <Link href={productHref({ slug: "patates" })} className="font-medium text-brand hover:underline">
                 patates fiyatları
               </Link>{" "}
               veya aşağıdaki güncel tabloyu; şehir kapsamı için{" "}
@@ -303,7 +304,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
           {POPULAR_PRODUCTS.map((p) => (
             <Link
               key={p.slug}
-              href={`/urun/${p.slug}`}
+              href={productHref(p)}
               className="rounded-lg border border-border-soft bg-background/40 px-3 py-1.5 text-sm text-foreground transition-colors hover:border-brand/40 hover:text-brand"
             >
               {p.name} fiyatı

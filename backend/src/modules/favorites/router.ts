@@ -5,6 +5,7 @@ import { db } from "@/db/client";
 import { hfUserFavorites, hfProducts } from "@/db/schema";
 import { requireAuth } from "@agro/shared-backend/middleware/auth";
 import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
+import { resolveCanonicalProductBySlug } from "@/modules/products/product-identity";
 
 export async function registerFavorites(app: FastifyInstance) {
   /**
@@ -38,8 +39,7 @@ export async function registerFavorites(app: FastifyInstance) {
     const parsed = z.object({ productSlug: z.string().min(1) }).safeParse(req.body);
     if (!parsed.success) return reply.status(400).send({ error: "productSlug zorunlu" });
 
-    const [product] = await db.select({ id: hfProducts.id })
-      .from(hfProducts).where(eq(hfProducts.slug, parsed.data.productSlug)).limit(1);
+    const product = await resolveCanonicalProductBySlug(parsed.data.productSlug);
     if (!product) return reply.status(404).send({ error: "Urun bulunamadi" });
 
     await db.insert(hfUserFavorites)
@@ -58,10 +58,11 @@ export async function registerFavorites(app: FastifyInstance) {
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz slugs listesi" });
 
     const products = await db
-      .select({ id: hfProducts.id, slug: hfProducts.slug })
+      .select({ id: hfProducts.id, slug: hfProducts.slug, canonicalSlug: hfProducts.canonicalSlug })
       .from(hfProducts)
       .where(eq(hfProducts.isActive, 1));
-    const slugMap = new Map(products.map((p) => [p.slug, p.id]));
+    const idBySlug = new Map(products.map((p) => [p.slug, p.id]));
+    const slugMap = new Map(products.map((p) => [p.slug, p.canonicalSlug ? idBySlug.get(p.canonicalSlug) : p.id]));
 
     let added = 0;
     for (const slug of parsed.data.slugs) {
@@ -83,8 +84,7 @@ export async function registerFavorites(app: FastifyInstance) {
     { onRequest: [requireAuth] },
     async (req, reply) => {
       const userId = getAuthUserId(req);
-      const [product] = await db.select({ id: hfProducts.id })
-        .from(hfProducts).where(eq(hfProducts.slug, req.params.slug)).limit(1);
+      const product = await resolveCanonicalProductBySlug(req.params.slug);
       if (!product) return reply.status(404).send({ error: "Urun bulunamadi" });
 
       await db.delete(hfUserFavorites)
