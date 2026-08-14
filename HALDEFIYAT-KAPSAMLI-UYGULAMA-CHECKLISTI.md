@@ -393,13 +393,13 @@
 
 ### 6.10 Auth ve kullanıcı dashboard’u
 
-- [ ] P4.88 Giriş/kayıt/oturum sayfalarını seçilen temaya geçir; güven mesajlarını sadeleştir.
-- [ ] P4.89 OTP, hata, bekleme ve yeniden gönder durumlarını erişilebilir yap.
-- [ ] P4.90 Dashboard sidebar/mobile nav görsel dilini public kabukla uyumlandır.
-- [ ] P4.91 Hesap özeti, profil, güvenlik, favori, uyarı, ilan ve bildirim boş durumlarını tasarla.
-- [ ] P4.92 Arama talepleri inbox ve tercihlerini dashboard kapsamına ekle.
-- [ ] P4.93 İlanlarım sayfasında talep sayısı/durumu ve iletişim ayarlarını göster.
-- [ ] P4.94 Admin/owner yetkili verisini public component’e yanlışlıkla taşıma.
+- [x] P4.88 Giriş/kayıt paneli Temiz Veri yüzey diline geçti; gerçekleşmemiş entegrasyon iddiası kaldırıldı, parola/public telefon/tercih sınırlarıyla güven mesajları sadeleştirildi. Kanıt: `artifacts/renewal-2026/auth-dashboard-kabul-2026-08-14.md`.
+- [x] P4.89 Auth hatası odaklanan `role=alert`, form/oturum beklemesi erişilebilir status; ilan telefonu OTP'si gönderme, 60 sn bekleme, altı haneli kod, yeniden gönderme, hata ve doğrulandı durumlarıyla tamamlandı.
+- [x] P4.90 Dashboard sidebar Temiz Veri kart/sınır/aktif durum diline hizalandı; public alt barla çakışan fixed mobil bar yatay yerel navigasyona dönüştürüldü, 44 px hedef ve `aria-current` eklendi.
+- [x] P4.91 Hesap özeti ilan/arama sayaçlarıyla genişletildi; profil/güvenlik başlıkları ve uyarı, favori, bildirim, ilan, arama talebi boş durumları açıklayıcı ortak dilde tasarlandı.
+- [x] P4.92 `/hesabim/arama-talepleri` gelen kutusu; gelen/gönderilen filtre, durum aksiyonu, maskeli iletişim özeti ve profil/ilan bazlı tercih yollarıyla dashboard kapsamına eklendi.
+- [x] P4.93 İlanlarım; moderasyon durumu, toplam/açık talep sayısı, talep kabul anahtarı ve geri dönüş saatlerini gösteriyor; sahiplik kontrollü ayar endpoint'i ilanı yeniden moderasyona göndermiyor.
+- [x] P4.94 Dashboard yüzeyleri AuthGuard ve yetkili endpoint arkasında; canlıda oturumsuz 401 kapısı, public DTO'da null telefon/raw ve owner/admin kimlik alanlarının bulunmaması doğrulandı.
 
 ### 6.11 Yasal ve kurumsal sayfalar
 
