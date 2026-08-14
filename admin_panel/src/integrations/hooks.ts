@@ -440,7 +440,10 @@ export {
   useListPriceCategoriesAdminQuery,
   useListPricesAdminQuery,
   useListPriceQuarantineAdminQuery,
+  usePreviewBulkPriceQuarantineAdminMutation,
+  useReviewBulkPriceQuarantineAdminMutation,
   useReviewPriceQuarantineAdminMutation,
+  useRollbackPriceQuarantineAdminMutation,
   useUpdatePriceAdminMutation,
 } from "@/integrations/endpoints/prices-admin-endpoints";
 export {

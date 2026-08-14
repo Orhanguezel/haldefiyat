@@ -215,12 +215,12 @@
 - [~] F2.32 Mutlak sınır, medyan sapması, önceki güne sıçrama, kaynak farkı ve stale kurallarını ekle. (Mutlak sınır, tarih-yakın emsal, önceki fiyat ve diğer kaynak medyanı canlı yazım yolunda. Donma alarmı mutlak eşikten çıkarılıp kaynak özelinde geçmiş sabit-blok baz çizgisi + 2 gün ve en az 4 gün kuralına geçirildi; karantina aralıkları dışlanıyor. Tarihsel backfill yazımında stale reason uygulaması halen kaynak yayın takvimi bağlamı bekliyor. Commitler: `b5b549f7`, `9612d265`; kabul: `artifacts/renewal-2026/retail-tobb-donma-kabul-2026-08-14.md`.)
 - [x] F2.33 Anomali reason code, severity ve confidence alanlarını tanımla. (`ABSOLUTE_LIMIT`, `PEER_MEDIAN_DEVIATION`, `PREVIOUS_PRICE_JUMP`, `SOURCE_MEDIAN_DEVIATION`, `STALE_SOURCE_RECORD`, yapısal ve birim reason code'ları tipli; warning/critical ve 0–1 confidence karantinaya yazılıyor. 6/6 guard testi geçti.)
 - [x] F2.34 Kuyrukta ürün, kaynak, birim, tarih, önem ve durum filtreleri sun. (Canlı admin kuyruğu: ürün/hal araması, kaynak, birim, tarih aralığı, reason, önem ve durum.)
-- [~] F2.35 Onay, ret, düzelt, alias’a bağla ve toplu işlem aksiyonları ekle. (Admin UI ve API’de tekil fiyat onay/ret/düzelterek yayın ile bilinmeyen ürünü canonical alias'a bağlama canlı; toplu fiyat kararı bekliyor.)
-- [~] F2.36 Kritik toplu işlem için ön izleme ve çift onay ekle. (Kritik tekil yayın `confirmCritical=true` ikinci onayına bağlı; toplu ön izleme bekliyor.)
+- [x] F2.35 Onay, ret, düzelt, alias’a bağla ve toplu işlem aksiyonları ekle. (Tekil fiyat onay/ret/düzeltme, bilinmeyen ürünü canonical alias'a bağlama ve en çok 100 kayıtlık toplu onay/ret API+UI akışı tamamlandı.)
+- [x] F2.36 Kritik toplu işlem için ön izleme ve çift onay ekle. (Toplu karar önce server snapshot token'lı ön izleme üretiyor; kuyruk değişirse atomik işlem 409 ile kapanıyor. Genel toplu onay ve kritik kayıtlar için iki ayrı açık onay zorunlu; negatif guard QA'sı geçti.)
 - [x] F2.37 Her kararın önce/sonra değeri, kullanıcı, zaman ve açıklamasını audit et. (Ham karantina değeri korunuyor; status, zorunlu not, reviewer ve reviewed_at transaction içinde yazılıyor.)
-- [~] F2.38 Yanlış kararı geri alıp downstream cache/index/raporu yenile. (Onay/düzeltmede `prices` revalidate var; karar geri alma ve rapor/index yenileme bekliyor.)
-- [ ] F2.39 Kuyruk yaşı ve kritik anomali SLA alarmı oluştur.
-- [~] F2.40 Panel erişimini rol bazlı sınırla; CSRF/auth testlerini ekle. (Rota mevcut admin auth kapsayıcısında ve canlı yetkisiz kabulü 401; rol/CSRF otomasyon testi bekliyor.)
+- [x] F2.38 Yanlış kararı geri alıp downstream cache/index/raporu yenile. (Migration 089 önce/sonra fiyat snapshot audit'ini kurdu; rollback sonraki değişikliği ezmeden önceki satırı geri yüklüyor veya eklenen satırı siliyor ve `prices` revalidate ediyor. Uçtan uca QA geçti.)
+- [x] F2.39 Kuyruk yaşı ve kritik anomali SLA alarmı oluştur. (Admin kuyruğu 24 saat genel/4 saat kritik eşiklerini, geciken sayıyı ve en yaşlı bekleme süresini kırmızı alarm kartında gösteriyor; ürün eşleme kuyruğu da 24 saat SLA özeti taşıyor.)
+- [x] F2.40 Panel erişimini rol bazlı sınırla; CSRF/auth testlerini ekle. (Tüm `/api/v1/admin` rotaları ortak `requireAuth+requireAdmin` kancasında; canlı yetkisiz kabul 401. Cookie mutasyonları cross-site origin/sec-fetch kapısında 403, bearer/same-origin serbest; 5 assertion'lı otomasyon testi geçti.)
 
 ### Faz 2 kabul kapısı
 
@@ -228,7 +228,7 @@
 - [ ] G2.2 Yanlış birim public yüzeye çıkmıyor.
 - [ ] G2.3 Kopya URL canonical/redirect planı canlı doğrulandı.
 - [ ] G2.4 Tüm yüzeylerde aynı tanımlı sayaç aynı değeri gösteriyor.
-- [ ] G2.5 Veri bekçisi audit/rollback ile operasyonel.
+- [x] G2.5 Veri bekçisi audit/rollback ile operasyonel. (Tekil/toplu karar, snapshot token, kritik çift onay, zorunlu not, kullanıcı/zaman/before-after audit, güvenli rollback, SLA alarmı ve cache yenileme aynı transaction akışında; tekrarlanabilir QA scripti: `backend/scripts/qa/price-quarantine-flow.ts`.)
 
 ## 5. Faz 3 — Seçilen konsepte göre frontend tasarım sistemi
 
