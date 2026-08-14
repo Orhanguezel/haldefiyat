@@ -30,6 +30,10 @@ export function parseCallAvailability(value: string | null | undefined): CallSlo
  */
 export function toPublicListing<
   T extends {
+    userId?: string | null;
+    createdBy?: string | null;
+    moderationNote?: string | null;
+    isSuspicious?: number | boolean | null;
     contactName?: string | null;
     contactPhone?: string | null;
     raw?: unknown;
@@ -42,6 +46,10 @@ export function toPublicListing<
 >(item: T) {
   return {
     ...item,
+    userId: undefined,
+    createdBy: undefined,
+    moderationNote: undefined,
+    isSuspicious: undefined,
     contactName: null,
     contactPhone: null,
     raw: null,

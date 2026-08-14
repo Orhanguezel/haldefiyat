@@ -6,6 +6,10 @@ describe("toPublicListing", () => {
     const result = toPublicListing({
       contactName: "Kişisel İsim",
       contactPhone: "0555 111 22 33",
+      userId: "seller-user-uuid",
+      createdBy: "moderator-user-uuid",
+      moderationNote: "İç moderasyon notu",
+      isSuspicious: 1,
       raw: { source: "form" },
       title: "Temiz başlık",
     });
@@ -13,6 +17,10 @@ describe("toPublicListing", () => {
     expect(result.contactName).toBeNull();
     expect(result.contactPhone).toBeNull();
     expect(result.raw).toBeNull();
+    expect(result.userId).toBeUndefined();
+    expect(result.createdBy).toBeUndefined();
+    expect(result.moderationNote).toBeUndefined();
+    expect(result.isSuspicious).toBeUndefined();
   });
 
   it("removes structured and raw phone data from public listings", () => {

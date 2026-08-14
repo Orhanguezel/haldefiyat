@@ -148,10 +148,24 @@ export async function countListings(filters: ListingFilters) {
 export async function getListingBySlug(slug: string, publicOnly = true) {
   const clauses = [eq(hfListings.slug, slug)];
   if (publicOnly) clauses.push(eq(hfListings.status, "approved"), gte(hfListings.validUntil, sql`CURRENT_DATE()`));
-  const [row] = await db.select().from(hfListings).where(and(...clauses)).limit(1);
+  const [row] = await db
+    .select({
+      listing: hfListings,
+      sellerAccountCreatedAt: users.created_at,
+      sellerEmailVerified: users.email_verified,
+    })
+    .from(hfListings)
+    .leftJoin(users, eq(users.id, hfListings.userId))
+    .where(and(...clauses))
+    .limit(1);
   if (!row) return null;
-  const images = (await imagesByListing([row.id])).get(row.id) ?? [];
-  return { ...row, images };
+  const images = (await imagesByListing([row.listing.id])).get(row.listing.id) ?? [];
+  return {
+    ...row.listing,
+    sellerAccountCreatedAt: row.sellerAccountCreatedAt?.toISOString() ?? null,
+    sellerEmailVerified: Boolean(row.sellerEmailVerified),
+    images,
+  };
 }
 
 export async function createListing(input: ListingCreateInput, userId: string | null, opts: { source: "user" | "assisted" | "telegram"; createdBy?: string | null; status?: Status; phoneVerified?: number; raw?: Record<string, unknown> }) {
