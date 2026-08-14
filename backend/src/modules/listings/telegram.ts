@@ -63,6 +63,10 @@ export async function parseTelegramListing(input: {
     validUntil,
     contactName: input.from?.username ?? input.from?.first_name ?? "Telegram",
     hidePhone: false,
+    // Telegram kaynaklı ilanın bağlı satıcı hesabı yok; geri arama talebi
+    // sahipsiz kalmaması için hesapla eşleşene kadar bu kanal kapalıdır.
+    callRequestsEnabled: false,
+    callAvailability: ["asap", "morning", "afternoon", "evening"],
     description: text,
   }, null, {
     source: "telegram",
