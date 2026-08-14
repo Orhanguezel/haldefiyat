@@ -10,6 +10,7 @@ import { provinceBySlug } from "@/data/turkey-cities";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
 import FirmCard from "@/components/firms/FirmCard";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string; slug: string; type: string }> };
 
@@ -122,7 +123,7 @@ function ComboHub({
   } satisfies Record<string, unknown>;
 
   return (
-    <div className="relative z-10 mx-auto max-w-[1400px] px-4 py-10 sm:px-8 sm:py-12">
+    <PageContainer>
       <JsonLd type="ItemList" data={schema} />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
@@ -153,7 +154,7 @@ function ComboHub({
       </div>
 
       <FirmGrid firms={firmPage.items} />
-    </div>
+    </PageContainer>
   );
 }
 

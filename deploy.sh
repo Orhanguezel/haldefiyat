@@ -90,16 +90,14 @@ if [ -d "$SHARED_NM" ] && [ -d "$BUN_STORE" ]; then
   echo "    shared-backend symlink'leri kontrol edildi"
 fi
 
-# PM2: Next standalone icin RELOAD DEGIL RESTART.
-#
-# `pm2 reload` graceful-reload yapar; eski process ayakta kalir ve silinmis chunk'lara
-# isaret eden ESKI HTML'i servis etmeye devam eder → /_next/static 500 / ChunkLoadError.
-# 6 Temmuz 2026'da 33 adet statik 500 tam olarak bundan olustu. Kural CLAUDE.md'de
-# yaziliydi ama script `reload` yapiyordu; insan hatasina birakmamak icin buraya sabitlendi.
+# Frontend iki PM2 cluster worker ile rolling reload edilir. Eski `.next` dizinini
+# overwrite eden tarihsel akisin aksine her deploy izole release dizini kullanir ve
+# eski release'ler rollback icin korunur; bu nedenle eski worker kendi HTML/static
+# ciftini servis ederken yeni worker hazir hale gelebilir.
 echo "==> [6/6] PM2 yayın geçişi"
 cd "$REPO_ROOT"
 pm2 reload hal-backend --update-env || pm2 start ecosystem.config.cjs --only hal-backend
-pm2 restart ecosystem.config.cjs --only hal-frontend --update-env || pm2 start ecosystem.config.cjs --only hal-frontend
+pm2 reload ecosystem.config.cjs --only hal-frontend --update-env || pm2 start ecosystem.config.cjs --only hal-frontend
 # Admin panel ayrı ecosystem ile yönetiliyor
 ADMIN_PANEL_APP_NAME=hal-admin \
 ADMIN_PANEL_CWD="$ADMIN" \
@@ -116,6 +114,19 @@ pm2 restart "$ADMIN/ecosystem.config.cjs" --only hal-admin --update-env \
      ADMIN_PANEL_ERR_LOG="$LOGS/hal-admin-err.log" \
      pm2 start "$ADMIN/ecosystem.config.cjs"
 pm2 save
+
+FRONTEND_HEALTH_OK=0
+for _attempt in 1 2 3 4 5; do
+  if curl --fail --silent --show-error --max-time 10 http://127.0.0.1:3033/ >/dev/null; then
+    FRONTEND_HEALTH_OK=1
+    break
+  fi
+  sleep 2
+done
+if [ "$FRONTEND_HEALTH_OK" -ne 1 ]; then
+  echo "HATA: frontend rolling reload sonrasi health kapisi gecmedi" >&2
+  exit 1
+fi
 
 echo ""
 echo "✓ Deploy tamamlandı"

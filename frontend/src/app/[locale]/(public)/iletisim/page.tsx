@@ -5,6 +5,7 @@ import Breadcrumb from "@/components/seo/Breadcrumb";
 import Link from "next/link";
 import { getPageMetadata } from "@/lib/seo";
 import { fetchSiteSettings } from "@/lib/site-settings";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -30,7 +31,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-(--color-bg) pb-20 pt-24">
-      <div className="container mx-auto px-4">
+      <PageContainer py="none">
         <ScrollReveal>
           <div className="max-w-350 mx-auto">
             <Breadcrumb visible items={[
@@ -87,7 +88,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
             </section>
           </div>
         </ScrollReveal>
-      </div>
+      </PageContainer>
     </div>
   );
 }

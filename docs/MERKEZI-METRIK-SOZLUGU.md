@@ -14,6 +14,7 @@
 | `activeSources` | Yakın dönemde fiyat üreten farklı `sourceApi` | Son 30 gün |
 | `currentCities` / legacy `activeCities` | Aktif hal ve aktif ürün üzerinden yakın dönemde fiyatı olan farklı il | Son 30 gün |
 | `activeMarkets` | Konfigürasyonda aktif işaretli hal/kaynak noktası | Anlık |
+| `activeMarketsByType` | Aktif kaynak noktalarının `hal`, `borsa`, `resmi` ve `kooperatif` kırılımı; eksik tür `0` döner | Anlık |
 | `latestRecordedDate` | Public fiyat tablosundaki en yeni kayıt tarihi | Tüm dönem maksimum |
 | `lastEtlRunAt` | Başarılı ETL run kaydının en yeni teknik zamanı | Tüm dönem maksimum |
 | `freshness` | Son fiyat ≤7 gün `fresh`, daha eski `stale`, yoksa `unknown` | Ölçüm anı |
@@ -26,3 +27,4 @@
 - Fallback sıfırları “canlı” olarak etiketlenmez. Topbar bu nedenle nötr “Veri Özeti” dilini kullanır.
 - `stale/unknown` durumunda son tarih görünür tutulur; eski değer sessizce güncelmiş gibi gösterilmez.
 - Tüm sayaç tüketicileri bu endpoint alanlarını kullanır; sayfa içinde sabit 81/2480/%100 yazılmaz.
+- Meyve-sebze hali, ticaret borsası, resmi alım fiyatı ve kooperatif kapsamı birbirine eklenerek tek bir “hal” sayısı gibi sunulmaz. Dikey ayrımı gereken nav, harita ve kapsam metinleri `activeMarketsByType` alanını kullanır; `activeMarkets` yalnız toplam aktif kaynak noktasıdır.

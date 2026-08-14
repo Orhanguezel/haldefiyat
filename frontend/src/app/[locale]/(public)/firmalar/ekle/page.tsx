@@ -5,6 +5,7 @@ import { AuthGuard } from "@/components/providers/AuthGuard";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import { FirmOwnerForm } from "@/components/firms/owner/FirmOwnerForm";
 import { getPageMetadata } from "@/lib/seo";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -27,14 +28,14 @@ export default async function FirmCreatePage({ params }: Props) {
 
   return (
     <AuthGuard locale={locale}>
-      <div className="relative z-10 mx-auto max-w-[980px] px-4 py-10 sm:px-8 sm:py-12">
+      <PageContainer wide={false}>
         <Breadcrumb items={[
           { name: "Anasayfa", href: "/" },
           { name: "Firmalar", href: "/firmalar" },
           { name: "Firma Ekle", href: "/firmalar/ekle" },
         ]} />
         <FirmOwnerForm mode="create" locale={locale} />
-      </div>
+      </PageContainer>
     </AuthGuard>
   );
 }

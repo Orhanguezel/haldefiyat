@@ -10,6 +10,7 @@ import Breadcrumb from "@/components/seo/Breadcrumb";
 import ProductImage from "@/components/ui/ProductImage";
 import { getPageMetadata } from "@/lib/seo";
 import { productHref } from "@/lib/product-links";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -102,7 +103,7 @@ export default async function BorsaPage({ params }: Props) {
   };
 
   return (
-    <div className="mx-auto max-w-[1400px] px-6 py-10 md:px-8">
+    <PageContainer py="sm">
       <JsonLd type="Dataset" data={collectionSchema} />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
@@ -182,6 +183,6 @@ export default async function BorsaPage({ params }: Props) {
           />
         </div>
       </section>
-    </div>
+    </PageContainer>
   );
 }

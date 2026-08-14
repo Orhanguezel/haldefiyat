@@ -7,6 +7,7 @@ import Breadcrumb from "@/components/seo/Breadcrumb";
 import TurkeyMapNoSsr from "@/components/sections/TurkeyMapNoSsr";
 import MarketDataNav from "@/components/sections/MarketDataNav";
 import { PUBLIC_METRICS, publicFreshnessLabel } from "@/lib/public-metrics";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -32,7 +33,7 @@ export default async function HaritaPage({ params }: Props) {
   ]);
 
   return (
-    <div className="relative z-10 mx-auto max-w-[1400px] px-6 py-12 lg:px-8">
+    <PageContainer>
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Türkiye Fiyat Haritası", href: "/harita" },
@@ -62,6 +63,6 @@ export default async function HaritaPage({ params }: Props) {
       <div className="h-auto min-h-[720px]">
         <TurkeyMapNoSsr markets={markets} cityPrices={cityPriceMap.items} />
       </div>
-    </div>
+    </PageContainer>
   );
 }

@@ -34,6 +34,7 @@ import SeasonCompare from "@/components/sections/SeasonCompare";
 import RetailComparison from "@/components/sections/RetailComparison";
 import VariantPriceTable from "@/components/sections/VariantPriceTable";
 import { productHref } from "@/lib/product-links";
+import PageContainer from "@/components/layout/PageContainer";
 import { getProductDisplayName } from "@/lib/product-display-name";
 import FrostRiskBanner from "@/components/sections/FrostRiskBanner";
 import PriceTable from "@/components/ui/PriceTable";
@@ -489,7 +490,7 @@ export default async function UrunPage({ params }: Props) {
   } satisfies Record<string, unknown>;
 
   return (
-    <div className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+    <PageContainer>
       <JsonLd type="Dataset" data={datasetSchema} />
       <PriceViewTracker productSlug={slug} marketCount={offerCount} sourceCount={sourceNames.length} />
       <Breadcrumb visible items={[
@@ -842,6 +843,6 @@ export default async function UrunPage({ params }: Props) {
         className="mt-8"
         context={{ product: product.slug, category: product.categorySlug }}
       />
-    </div>
+    </PageContainer>
   );
 }

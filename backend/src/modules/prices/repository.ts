@@ -158,6 +158,7 @@ export type PriceOverviewStats = {
   currentCities: number;
   activeCities: number;
   activeMarkets: number;
+  activeMarketsByType: Record<"hal" | "borsa" | "resmi" | "kooperatif", number>;
   targetCoverage: string;
   trackedProducts: number;
   lastSourceDate: string | null;
@@ -184,7 +185,7 @@ async function queryOverviewStats(): Promise<PriceOverviewStats> {
     hfPriceHistory.sourceApi,
   );
   const overviewBlackoutSql = notBlackouted ? sql`AND ${notBlackouted}` : sql``;
-  const [products, pricedProducts, currentProducts, cities, sources, markets, etl, dateBounds] = await Promise.all([
+  const [products, pricedProducts, currentProducts, cities, sources, markets, marketsByType, etl, dateBounds] = await Promise.all([
     db.select({ c: sql<number>`COUNT(*)` }).from(hfProducts).where(eq(hfProducts.isActive, 1)),
     // COUNT(DISTINCT) 1M+ fiyat satirini tarayip canlida ~13 sn suruyordu.
     // 1.235 aktif urunden product-leading unique index'e EXISTS probe yapmak
@@ -230,6 +231,11 @@ async function queryOverviewStats(): Promise<PriceOverviewStats> {
       )),
     db.select({ c: sql<number>`COUNT(*)` }).from(hfMarkets).where(eq(hfMarkets.isActive, 1)),
     db
+      .select({ marketType: hfMarkets.marketType, c: sql<number>`COUNT(*)` })
+      .from(hfMarkets)
+      .where(eq(hfMarkets.isActive, 1))
+      .groupBy(hfMarkets.marketType),
+    db
       .select({ d: sql<string | Date | null>`MAX(${hfEtlRuns.createdAt})` })
       .from(hfEtlRuns)
       .where(eq(hfEtlRuns.status, "ok")),
@@ -245,6 +251,17 @@ async function queryOverviewStats(): Promise<PriceOverviewStats> {
   const latestMs = latest ? new Date(`${latest}T12:00:00Z`).getTime() : Number.NaN;
   const ageDays = Number.isFinite(latestMs) ? Math.floor((Date.now() - latestMs) / 86_400_000) : null;
   const freshness = ageDays == null ? "unknown" : ageDays <= 7 ? "fresh" : "stale";
+  const activeMarketsByType: PriceOverviewStats["activeMarketsByType"] = {
+    hal: 0,
+    borsa: 0,
+    resmi: 0,
+    kooperatif: 0,
+  };
+  for (const row of marketsByType) {
+    if (row.marketType in activeMarketsByType) {
+      activeMarketsByType[row.marketType as keyof typeof activeMarketsByType] = Number(row.c ?? 0);
+    }
+  }
   return {
     totalProducts: Number(products[0]?.c ?? 0),
     pricedProducts: Number(pricedProducts[0]?.c ?? 0),
@@ -253,6 +270,7 @@ async function queryOverviewStats(): Promise<PriceOverviewStats> {
     currentCities: Number(cities[0]?.c ?? 0),
     activeCities: Number(cities[0]?.c ?? 0),
     activeMarkets: Number(markets[0]?.c ?? 0),
+    activeMarketsByType,
     targetCoverage: "81 il hedef",
     trackedProducts: Number(products[0]?.c ?? 0),
     lastSourceDate: latest,

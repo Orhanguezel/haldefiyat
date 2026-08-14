@@ -5,6 +5,7 @@ import { BarChart3, Code2, FileText, Mail, Newspaper, ShieldCheck } from "lucide
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import { getCoverage } from "@/lib/coverage";
 import { getPageMetadata } from "@/lib/seo";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -63,7 +64,7 @@ export default async function PressPage({ params }: Props) {
   ];
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
+    <PageContainer>
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Basın", href: "/basin" },
@@ -159,6 +160,6 @@ export default async function PressPage({ params }: Props) {
           </div>
         </div>
       </section>
-    </div>
+    </PageContainer>
   );
 }

@@ -37,8 +37,11 @@ module.exports = {
       script: "standalone-server.js",
       cwd: "./frontend",
       interpreter: "node",
-      instances: 1,
-      exec_mode: "fork",
+      // Iki worker rolling reload sirasinda en az bir process'i servis verir
+      // halde tutar. Izole release dizinleri eski worker'in chunk'larini da
+      // korudugu icin graceful geciste eski/yeni HTML-static karismaz.
+      instances: 2,
+      exec_mode: "cluster",
       watch: false,
       env: {
         NODE_ENV: "production",

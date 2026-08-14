@@ -7,6 +7,7 @@ import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import HalViewToggle from "@/components/sections/HalViewToggle";
 import MarketDataNav from "@/components/sections/MarketDataNav";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -72,7 +73,7 @@ export default async function HalIndexPage({ params }: Props) {
   const cityCount = new Set(cityMarkets.map((m) => m.cityName)).size;
 
   return (
-    <div className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+    <PageContainer>
       <Breadcrumb visible items={[{ name: "Ana Sayfa", href: "/" }, { name: "Tüm Haller", href: "/hal" }]} />
       <MarketDataNav active="markets" />
       <header className="mb-10">
@@ -180,6 +181,6 @@ export default async function HalIndexPage({ params }: Props) {
           </div>
         </HalViewToggle>
       )}
-    </div>
+    </PageContainer>
   );
 }

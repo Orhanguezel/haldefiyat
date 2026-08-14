@@ -552,6 +552,7 @@ export interface PricesOverview {
   currentCities?: number;
   activeCities?: number;
   activeMarkets?: number;
+  activeMarketsByType?: Record<"hal" | "borsa" | "resmi" | "kooperatif", number>;
   targetCoverage?: string;
   trackedProducts: number;
   lastSourceDate?: string | null;
@@ -566,6 +567,7 @@ export async function fetchPricesOverview(): Promise<PricesOverview> {
   return safeFetch<PricesOverview>("/prices/overview", 300, {
     activeCities: 0,
     activeMarkets: 0,
+    activeMarketsByType: { hal: 0, borsa: 0, resmi: 0, kooperatif: 0 },
     targetCoverage: "81 il hedef",
     trackedProducts: 0,
     totalProducts: 0,

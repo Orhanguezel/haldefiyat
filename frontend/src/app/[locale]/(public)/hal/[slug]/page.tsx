@@ -17,6 +17,7 @@ import { getMarketEditorial } from "@/lib/market-content";
 import FirmCard from "@/components/firms/FirmCard";
 import { ListingCard } from "@/components/listings/ListingCard";
 import AnswerBlock from "@/components/seo/AnswerBlock";
+import PageContainer from "@/components/layout/PageContainer";
 import { calculateProductMovers } from "@/lib/citability";
 import BannerSlot from "@/components/ads/BannerSlot";
 import { formatDateTr } from "@/lib/date-format";
@@ -270,7 +271,7 @@ export default async function HalPage({ params }: Props) {
 
   if (isNational) {
     return (
-      <div className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+      <PageContainer>
         <JsonLd type="Place" data={placeSchema} />
         <JsonLd type="Dataset" data={datasetSchema} />
         <Breadcrumb visible items={breadcrumbItems} />
@@ -314,12 +315,12 @@ export default async function HalPage({ params }: Props) {
           hideMarketColumn
           hideCityColumn
         />
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+    <PageContainer>
       <JsonLd type="Place" data={placeSchema} />
       <JsonLd type="Dataset" data={datasetSchema} />
       <Breadcrumb visible items={breadcrumbItems} />
@@ -478,6 +479,6 @@ export default async function HalPage({ params }: Props) {
         className="mt-8"
         context={{ market: market.slug, city: citySlug(market.cityName) }}
       />
-    </div>
+    </PageContainer>
   );
 }

@@ -7,6 +7,7 @@ import { fetchFirmCities, fetchFirms, fetchFirmTypes, type Firm } from "@/lib/ap
 import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import FirmCard from "@/components/firms/FirmCard";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -124,7 +125,7 @@ export default async function FirmsPage({ params, searchParams }: Props) {
   );
 
   return (
-    <div className="relative z-10 mx-auto max-w-[1400px] px-4 py-10 sm:px-8 sm:py-12">
+    <PageContainer>
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Firmalar", href: "/firmalar" },
@@ -338,6 +339,6 @@ export default async function FirmsPage({ params, searchParams }: Props) {
           )}
         </nav>
       )}
-    </div>
+    </PageContainer>
   );
 }

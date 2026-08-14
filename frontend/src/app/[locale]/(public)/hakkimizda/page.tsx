@@ -9,6 +9,7 @@ import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import { fetchSiteSettings } from "@/lib/site-settings";
 import PolicyLinks from "@/components/PolicyLinks";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -64,7 +65,7 @@ export default async function AboutPage({ params }: Props) {
   ];
 
   return (
-    <div className="mx-auto max-w-350 px-8 py-12">
+    <PageContainer>
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Hakkımızda", href: "/hakkimizda" },
@@ -361,6 +362,6 @@ export default async function AboutPage({ params }: Props) {
 
         </div>
       </ScrollReveal>
-    </div>
+    </PageContainer>
   );
 }

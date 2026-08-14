@@ -12,6 +12,7 @@ import BannerSlot from "@/components/ads/BannerSlot";
 import { schemaDateRange } from "@/lib/schema-dates";
 import AnswerBlock from "@/components/seo/AnswerBlock";
 import { productHref } from "@/lib/product-links";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -198,7 +199,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
   };
 
   return (
-    <div className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+    <PageContainer>
       <JsonLd type="Dataset" data={fiyatlarDataset} />
       <JsonLd type="DataCatalog" data={dataCatalogSchema} />
       <Breadcrumb visible items={[
@@ -356,6 +357,6 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
           </>
         );
       })()}
-    </div>
+    </PageContainer>
   );
 }

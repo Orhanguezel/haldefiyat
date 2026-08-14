@@ -56,7 +56,7 @@
 - [x] F0.4 `Domates (...)`, `Erik (...)` ve diğer şablon artıkları için canlı tarama yap; Domates kök nedeni ortak display-name guard ile kapatıldı. Kanıt: Faz 0 raporu ve ürün alias/birim envanteri.
 - [x] F0.5 Domates market karşılaştırmasındaki 546 TL örneğinin güncel durumunu DB/API/canlı sayfada doğrula. Canlı değer 546,21 TL; türev guard eklendi.
 - [x] F0.6 Haftalık raporlarda `Invalid Date`, boş veya yanlış tarih taraması yap. Canlı hata doğrulandı; ortak ISO tarih düzeltmesi eklendi.
-- [~] F0.7 `avakado`/`avokado` ve `maydonoz`/`maydanoz` çiftleri canlı DB’de satır sayısı, tarih ve birimle doğrulandı; kullanıcı etiketleri `Avokado (Adet/Kg)` ve `Maydanoz (Demet/Bağ)` olarak ayrıldı. Geniş alias taraması bekliyor; kör canonical merge yasak.
+- [x] F0.7 `avakado`/`avokado` ve `maydonoz`/`maydanoz` çiftleri canlı DB’de satır sayısı, tarih ve birimle doğrulandı; kullanıcı etiketleri `Avokado (Adet/Kg)` ve `Maydanoz (Demet/Bağ)` olarak ayrıldı. Geniş canonical audit master duplicate `0`, public variant `0` ve kategori uyumsuzluğu `0` verdi; kör canonical merge yasağı korunuyor. Kanıt: `artifacts/renewal-2026/canonical-urun-birim-kabul-2026-08-14.md`.
 - [x] F0.8 Aktif katalogda farklı birimli 46 aday grup export/tarama ile doğrulandı; merkezi API etiketleyicisi ve canlı kabul örnekleri `coklu-birim-urun-denetimi-2026-08-13.md` içinde.
 - [x] F0.9 Ana sayfa, harita, mobil hero ve fiyat sayfalarındaki sayaçları yan yana kaydet. `1.234 ürün / 29 aktif il / 19 güncel il`.
 - [x] F0.10 Sahiplik/finansman ve hakkımızda sayfalarının gerçek muhatap bilgilerini kontrol et. Muhatap yalnız “HalDeFiyat”; eksik devam ediyor.
@@ -78,9 +78,9 @@
 
 ### 2.3 Baz metrik ve kabul hedefi
 
-- [~] F0.23 Ana sayfa mobile Lighthouse bazı alındı (P41/A96/BP100/SEO100); desktop ve ürün/analiz/ilan/data-health rotaları bekliyor. Kanıt: Faz 0 performans bazı.
-- [~] F0.24 Ana sayfa laboratuvar bazı FCP 3,1 sn, LCP 6,8 sn, CLS 0, TBT 1.610 ms. `/prices/overview` 30–48 sn backend darboğazı 2,56 sn soğuk/3–10 ms sıcak seviyesine indirildi; route bazlı bundle ve gerçek INP/CrUX bekliyor. Kanıt: `artifacts/renewal-2026/prices-overview-performans-kabul-2026-08-14.md`.
-- [~] F0.25 Ana sayfa Lighthouse accessibility 96; kontrast, accessible-name ve unsized-image bulguları düzeltildi. Diğer rotalar ve tekrar ölçüm bekliyor.
+- [~] F0.23 `BLOCKED-EXTERNAL`: Ana sayfa mobile Lighthouse bazı ve çoklu rota ham raporları alındı; ölçüm makinesi CPU doygun, PageSpeed API kotası 429. Stabil bağımsız runner olmadan karşılaştırılabilir performance skoru üretilemez. Accessibility/Best Practices/SEO kabulü tamam.
+- [~] F0.24 `BLOCKED-EXTERNAL`: `/prices/overview` 30–48 sn darboğazı 2,56 sn soğuk/3–10 ms sıcak seviyesine indirildi; gerçek INP/CrUX saha verisi trafik ve 28 günlük pencere gerektiriyor. Kanıt: `artifacts/renewal-2026/prices-overview-performans-kabul-2026-08-14.md`.
+- [~] F0.25 `BLOCKED-EXTERNAL`: Kontrast, accessible-name ve unsized-image bulguları düzeltildi; Chromium axe/Lighthouse erişilebilirlik kabulü geçti. Gerçek NVDA/VoiceOver cihaz matrisi dış test ortamına bağlı.
 - [x] F0.26 GSC bazı: 623 master/183 indexed-benzeri, 612 eski URL/388 redirect, 406 sitemap URL; 2/4/8 haftalık izleme planı ve readonly submit engeli kaydedildi.
 - [x] F0.27 Son 30 gün audit/CTA/iş sonucu bazı kaydedildi; ürün 11.739, fiyat listesi 1.775, ilan detay 58, iletişim 15 görünüm; 12 bülten, 0 ilan/iletişim/arama sonucu. Search event'i yokluğu “ölçülemiyor” olarak açıkça işlendi.
 - [x] F0.28 Veri bazı: 1.055.511 satır, %76,68 midpoint proxy, 0 unknown birim, %13,94 ürün-satır birim inceleme kohortu, 3 akışsız kaynak, karantina kuyrukları 0.
@@ -111,7 +111,7 @@
 - [x] F1.11 Alıcı günlük 5, ilan+alıcı 24 saat, satıcı günlük 25 DB kotası ve IP başına 10/saat route burst limiti eklendi; ham IP saklanmıyor.
 - [x] F1.12 Auth olmayan kullanıcı girişe, giriş yapmış fakat doğrulanmamış kullanıcı güvenli hesap doğrulama paneline yönlendiriliyor. Backend doğrulanmış e-posta veya aynı kullanıcıya bağlı süreli HMAC OTP tokenı olmadan talebi 403 ile reddediyor; SMS pasifken Google doğrulanmış e-posta yolu görünür. Canlı ve mobil kabul: `artifacts/renewal-2026/arama-talebi-kimlik-sms-guvenlik-kabul-2026-08-14.md`.
 - [x] F1.13 Yetkili backend profil özeti tam numarayı sunucuda maskeliyor; form `05** *** ** 67` biçimini veya profil tamamlama linkini gösteriyor. Canlı auth kabulünde tam telefon yanıt gövdesinde yok; kanıt `artifacts/renewal-2026/arama-talebi-maskeli-profil-kabul-2026-08-14.md`.
-- [~] F1.14 İlk MVP bildirimi mevcut Telegram admin kanalına ve alıcı/satıcı paneline bağlandı; satıcıya e-posta teslimi ve retry gözlemi bekliyor. Netgsm canlı provider/credential/flag pasif.
+- [x] F1.14 İlk MVP bildirimi mevcut Telegram admin kanalına, alıcı/satıcı paneline ve doğrulanmış aktif satıcının e-postasına bağlandı. E-posta alıcı PII'si taşımaz, üç denemeyle sınırlıdır; e-posta/Telegram başarılarından biri teslim işaretini yazar. Netgsm provider/credential/flag bilinçli olarak pasif ve fail-closed.
 - [x] F1.15 Telegram bildiriminde alıcının telefonu/e-postası/adı paylaşılmıyor; yalnız ilan, tercih zamanı, not ve talep no gönderiliyor.
 - [x] F1.16 Satıcı dashboard’una talep kabul/ret/tamamla kontrolleri ekle; geçişler backend sahiplik kuralıyla korunuyor.
 - [x] F1.17 Satıcının ilan bazlı arama talebi kabul ayarı ve dört uygun zaman seçeneği forma/API'ye eklendi; backend kapalı ilanı ve seçilmemiş slotu ayrıca reddediyor. Telegram'daki sahipsiz ilanlarda kapalı. Migration, 7/7 test, canlı API ve 390×844 tarayıcı kabulü: `artifacts/renewal-2026/satici-arama-tercihleri-kabul-2026-08-14.md`.
@@ -126,7 +126,7 @@
 - [x] F1.26 Normal kullanıcıya görünmeyen honeypot ve yalnız olağandışı hızlı/user-agent'siz akışta çıkan, 5 dakikalık HMAC imzalı ve kullanıcı+ilan bağlı güvenlik sorusu eklendi. Canlı yan etkisiz kabul 428→challenge→kimlik kapısı, honeypot 400 ve DB satır sayısı 0→0 ile geçti. Kanıt: `artifacts/renewal-2026/arama-risk-kurumsal-guven-kabul-2026-08-14.md`.
 - [x] F1.27 KVKK aydınlatma; veri sorumlusu, işleme amaçları, hukuki sebepler, aktarım, haklar ve açık saklama/silme süreleriyle güncellendi. Terminal arama talepleri 90 gün, OTP süresi +1 gün, audit 30 gün retention altında; canlı iş 4 süresi geçmiş OTP kaydını sildi. Kanıt: `artifacts/renewal-2026/kvkk-kunye-gelir-tema-kabul-2026-08-14.md`.
 - [x] F1.28 `phone_click` yerine `call_request_view/submit/accepted/declined/cancelled/completed` eventlerini mevcut attribution-aware analytics katmanına bağla; parametrelerde telefon/e-posta/not yok.
-- [~] F1.29 DTO data-leak, HMAC secret, consent ve status validation unit testleri eklendi; DB integration/auth/rate-limit uçtan uca fixture’ı bekliyor.
+- [x] F1.29 DTO data-leak, HMAC secret, consent ve status validation testlerine gerçek DB/auth/CSRF/kota/audit fixture'ı eklendi; geçici veriyi temizleyen 22/22 kabul geçti. Kanıt: `artifacts/renewal-2026/kalan-guvenlik-dagitim-tahmin-kabul-2026-08-14.md`.
 - [x] F1.30 Deploy sonrası public liste/detay API, HTML/RSC, `tel:` ve serbest metin sızıntı testini tekrar yap; 2 canlı kayıtta satıcı telefonu sızıntısı 0.
 
 ### 3.2 Invalid Date ve içerik artıklarını kapatma
@@ -141,7 +141,7 @@
 
 ### 3.3 Künye ve güven yüzeyleri
 
-- [~] F1.38 Tüzel kişi GZL Teknoloji, platform sahibi/sektör ağı Atakan Şahin, teknik yürütme Orhan Güzel ve kurumsal e-posta canlıya işlendi; açık adres/şehir doğrulanmış kayıt olmadan üretilmedi ve sahip onayına bağlı tek açık künye alanıdır. Karar: `docs/GELIR-VE-KUNYE-KARAR-KAYDI.md`.
+- [~] F1.38 `BLOCKED-EXTERNAL`: Tüzel kişi GZL Teknoloji, platform sahibi/sektör ağı Atakan Şahin, teknik yürütme Orhan Güzel ve kurumsal e-posta canlıya işlendi. Açık adres/şehir doğrulanmış resmi kayıt ve sahip onayı olmadan üretilemez; tek açık künye alanı budur. Karar: `docs/GELIR-VE-KUNYE-KARAR-KAYDI.md`.
 - [x] F1.39 Sahiplik ve finansman sayfası gerçek rol/işletmeci ayrımı, editoryal bağımsızlık, ilan-hal fiyatı ayrımı ve mock paket fiyatı uyarısıyla canlı güncellendi. Kanıt: `artifacts/renewal-2026/kvkk-kunye-gelir-tema-kabul-2026-08-14.md`.
 - [x] F1.40 Hakkımızda sayfasında GZL Teknoloji, Atakan Şahin ve Orhan Güzel rol ayrımı; platform amacı, veri yaklaşımı ve şeffaflık belgeleri canlı gösteriliyor.
 - [x] F1.41 Ortak `PolicyLinks`; metodoloji, veri kaynağı, editoryal, düzeltme, KVKK, gizlilik, kullanım, API ve sahiplik yüzeylerini tüm legal şablonlarda karşılıklı bağlıyor.
@@ -150,20 +150,20 @@
 
 ### 3.4 Geçici anomali emniyeti
 
-- [~] F1.44 Ürün/birim bazlı geçici makul aralıkları veriyle çıkar. (13 Ağustos: kg/deniz ürünü/koli geçici tavanları ve 869 grupluk dry-run; ürün özel matris bekliyor.)
+- [x] F1.44 Ürün/birim bazlı dinamik aralık matrisi üretildi: 15.000 yakın dönem kayıt, 608 grup, 8 insan-review adayı. Seyrek/mevsimlik ve tarihsel birim karışımı nedeniyle matris kör mutlak blok değil; tarih-yakın/kaynak/önceki değer guard'ına review girdisidir. Kanıt: `artifacts/renewal-2026/kalan-guvenlik-dagitim-tahmin-kabul-2026-08-14.md`.
 - [x] F1.45 Mutlak eşik ve medyan sapmasını birlikte kullanan yayın öncesi guard ekle. (Merkezi `upsertPriceRow`; en az 5 emsal, 4x/0.25x sapma.)
 - [x] F1.46 Şüpheli kayıtları silme; karantinaya ve inceleme kuyruğuna al. (`hf_price_quarantine`: ham değer, reason, severity, confidence, median, review durumu.)
 - [x] F1.47 Karantinalı veriyi page/API/widget/CSV/bülten/sosyal/rapordan hariç tut. Yeni kayıtlar yayın öncesi guard'dan geçiyor; tarihsel `hf_market_blackouts` filtresi fiyat liste/geçmiş/widget/şehir/endeks/haftalık-mevsimsel/yıllık rapor/RSS/Telegram/alarm/ilan tüketicilerine yayıldı, `*_wayback` kurtarma kayıtları korunuyor. Kanıt: `artifacts/renewal-2026/yoy-karantina-kabul-2026-08-14.md`.
 - [x] F1.48 546 TL domates ve yanlış adet/kg vakalarını fixture yap. (Backend hal/retail guard ve frontend türev testlerinde 546; `PRODUCT_UNIT_MISMATCH` adet/kg fixture’ı testli.)
-- [~] F1.49 Guard false-positive oranını örneklemle kontrol et. (Canlı dry-run: 869 grubun 7’si, %0,81 potansiyel karantina; 7 vakanın insan etiketlemesi bekliyor.)
+- [x] F1.49 Guard false-positive örneklemi insan etiketlemesiyle tamamlandı; mercimek/kuşkonmaz/mangostan gibi karma tarihsel kohortlarda statik ürün tavanının false-positive üreteceği kaydedildi. Canlı guard'ın tarih-yakın emsal ve kaynak medyanı otorite bırakıldı. Kanıt: `artifacts/renewal-2026/kalan-guvenlik-dagitim-tahmin-kabul-2026-08-14.md`.
 
 ### Faz 1 kabul kapısı
 
 - [x] G1.1 Public listing API, HTML/RSC ve JSON-LD canlı taramalarında gerçek ilan telefonu sıfır; Organization kurumsal telefonu ayrı ve meşru.
-- [ ] G1.2 Arama talebi uçtan uca, kota ve audit ile çalışıyor.
+- [x] G1.2 Arama talebi uçtan uca, kota, CSRF, rol geçişi, PII redaksiyonu ve audit ile gerçek DB fixture'ında 22/22 çalışıyor.
 - [x] G1.3 Sekiz kritik mobil rotada Invalid Date/undefined/NaN/Lorem/object artığı, görünür ham snake_case anahtar ve yatay taşma sıfır; konsol 0 hata/uyarı. Kanıt: `artifacts/renewal-2026/kaynak-etiketi-sablon-artigi-kabul-2026-08-14.md`.
 - [x] G1.4 Kritik fiyat anomalileri yayın öncesi guard/karantina ile durduruluyor; tarihsel donmuş/anomali aralıkları tüm public tüketicilerde merkezi blackout filtresinden geçiyor. 546 TL türev vaka, 2025 donmuş seri ve blackout tarih-normalizasyon regresyonu testli/canlı kabul edildi.
-- [~] G1.5 Gerçek işletmeci/rol kimliği, KVKK, sahiplik, veri/editoryal/düzeltme ve API lisans politikaları canlı ve çapraz bağlıdır; yalnız doğrulanmış açık adres/şehir dış onayı bekliyor.
+- [~] G1.5 `BLOCKED-EXTERNAL`: Gerçek işletmeci/rol kimliği, KVKK, sahiplik, veri/editoryal/düzeltme ve API lisans politikaları canlı ve çapraz bağlıdır; yalnız doğrulanmış resmi açık adres/şehir kaydı ve sahip onayı bekliyor.
 
 ## 4. Faz 2 — Ürün sözlüğü, birim, metrik ve veri bekçisi
 
@@ -199,7 +199,7 @@
 - [x] F2.22 Sitemap’ten eski/kopya URL’leri çıkar. (`canonicalSlug` dolu ürünler sitemap üretiminde dışlanıyor; canlı sitemap kabulünde dört eski örnek yok, dört nihai master mevcut; toplam 406 URL.)
 - [x] F2.23 Structured data name/url/date/source alanlarını canonical veriden besle. (Ürün Dataset şeması canonical master adı/URL'sini, gerçek gözlem tarih aralığını ve görünür cevap bloğuyla aynı resmi kaynak kümesini `isBasedOn` olarak yayımlıyor.)
 - [x] F2.24 Redirect edilen ürünün geçmiş fiyatlarını hedef sayfada koru. (`productPriceHistory` hem master slug'ını hem `canonical_slug=master` çocuklarını okuyor. Canlı `biber-carliston` kabulü: 28 pazar, 2.337 kova, 2021-08-01→2026-08-13. Commit: `029d1956`.)
-- [~] F2.25 Search Console doğrulama ve sitemap yeniden gönderim planını uygula. (Canlı GSC cache: 623 master/1 denetlenmemiş; 612 varyant/0 denetlenmemiş, 388 redirect. Sitemap submit denemesi mevcut readonly token nedeniyle `403 ACCESS_TOKEN_SCOPE_INSUFFICIENT`; yazma kapsamlı yeniden yetkilendirme sonrası ortak submit fonksiyonu kullanılacak. Kanıt/plan: `artifacts/renewal-2026/gsc-canonical-goc-kabul-2026-08-14.md`.)
+- [~] F2.25 `BLOCKED-EXTERNAL`: Canlı GSC cache 623 master/1 denetlenmemiş, 612 varyant/0 denetlenmemiş ve 388 redirect olarak doğrulandı. Sitemap submit ortak fonksiyonu hazır; mevcut read-only Google token'ı `403 ACCESS_TOKEN_SCOPE_INSUFFICIENT` verdiği için yazma kapsamlı hesap yeniden yetkilendirmesi gerekiyor. Kanıt: `artifacts/renewal-2026/gsc-canonical-goc-kabul-2026-08-14.md`.
 
 ### 4.4 Merkezi metrik sözlüğü
 
@@ -212,7 +212,7 @@
 
 ### 4.5 Veri bekçisi paneli
 
-- [~] F2.32 Mutlak sınır, medyan sapması, önceki güne sıçrama, kaynak farkı ve stale kurallarını ekle. (Mutlak sınır, tarih-yakın emsal, önceki fiyat ve diğer kaynak medyanı canlı yazım yolunda. Donma alarmı mutlak eşikten çıkarılıp kaynak özelinde geçmiş sabit-blok baz çizgisi + 2 gün ve en az 4 gün kuralına geçirildi; karantina aralıkları dışlanıyor. Tarihsel backfill yazımında stale reason uygulaması halen kaynak yayın takvimi bağlamı bekliyor. Commitler: `b5b549f7`, `9612d265`; kabul: `artifacts/renewal-2026/retail-tobb-donma-kabul-2026-08-14.md`.)
+- [x] F2.32 Mutlak sınır, tarih-yakın medyan sapması, önceki güne sıçrama, kaynak farkı ve stale/freeze kuralları canlı yazım ve public okuma yollarında. Tarihsel backfill kasıtlı olarak kayıt tarihini korur ve güncelmiş gibi sunulmaz; kaynak yayın takvimine göre read-time stale etiketi alır, salt yaş nedeniyle veri silinmez. Commitler: `b5b549f7`, `9612d265`; kabul: `artifacts/renewal-2026/retail-tobb-donma-kabul-2026-08-14.md`.
 - [x] F2.33 Anomali reason code, severity ve confidence alanlarını tanımla. (`ABSOLUTE_LIMIT`, `PEER_MEDIAN_DEVIATION`, `PREVIOUS_PRICE_JUMP`, `SOURCE_MEDIAN_DEVIATION`, `STALE_SOURCE_RECORD`, yapısal ve birim reason code'ları tipli; warning/critical ve 0–1 confidence karantinaya yazılıyor. 6/6 guard testi geçti.)
 - [x] F2.34 Kuyrukta ürün, kaynak, birim, tarih, önem ve durum filtreleri sun. (Canlı admin kuyruğu: ürün/hal araması, kaynak, birim, tarih aralığı, reason, önem ve durum.)
 - [x] F2.35 Onay, ret, düzelt, alias’a bağla ve toplu işlem aksiyonları ekle. (Tekil fiyat onay/ret/düzeltme, bilinmeyen ürünü canonical alias'a bağlama ve en çok 100 kayıtlık toplu onay/ret API+UI akışı tamamlandı.)
@@ -245,7 +245,7 @@
 - [x] F3.9 4/8 tabanlı spacing, 1100/1400 container ve responsive 4/6/8 padding `PageContainer` ile tanımlı.
 - [x] F3.10 Radius ve düşük elevation seviyeleri tema kararında ve ortak tokenlarda standardize edildi; neon glow kaldırıldı.
 - [x] F3.11 Grafik serileri/grid, harita low/mid/high/empty/stroke ve tablo header/hover tokenları açık-koyu temaya eklendi; haritadaki runtime hard-coded HSL üretimi kaldırıldı.
-- [ ] F3.12 CSS variable/Tailwind theme kaynağını tekle; hard-coded renkleri aşamalı kaldır.
+- [x] F3.12 CSS variable/Tailwind semantic theme kaynağı tekleştirildi; ana uygulama hard-coded renkleri token/color-mix'e taşındı. Teknik istisnalar `docs/TEMA-RENK-ISTISNALARI.md`, otomatik kapı `bun run check:theme-colors` (140 kullanım, geçti).
 
 ### 5.2 Ortak UI bileşenleri
 
@@ -254,7 +254,7 @@
 - [x] F3.15 Input/TextArea/Combobox label-hint-error-required ve ARIA sözleşmesi birleşti; SearchableSelect ikinci uygulama olmaktan çıkarılıp ortak Combobox adaptörüne dönüştürüldü.
 - [x] F3.16 Ortak `ContentCard` data/editorial/listing/commercial/advertisement türlerini görsel token ve `data-content-type` ile ayırıyor; PriceCard, ListingCard ve editoryal özellik/adım kartları sözleşmeye taşındı. Reklamlar ayrıca semantik `aside` ve görünür sponsor etiketi taşıyor.
 - [x] F3.17 `Badge` semantik token + border + metin/ikon sözleşmesine, `FreshnessBadge` bu ortak bileşene taşındı; durum yalnız renkle anlatılmıyor.
-- [~] F3.18 PriceCard fiyat, birim, tarih ve kaynak gösteriyor; sahte placeholder sparkline kaldırıldı. Örneklem zorunluluğu API'de bulunmadığı kayıtlar için bekliyor.
+- [x] F3.18 PriceCard fiyat, birim, tarih, kaynak ve API `recordCount` değerinden “N kaynak kaydı” örneklemini gösteriyor; sahte placeholder sparkline kaldırıldı.
 - [x] F3.19 `PriceTable` desktop semantik tablo + mobil `<article>/<dl>` kart görünümüne ayrıldı; 390 px canlıda 100 kart, tablo gizli, taşma ve konsol hatası 0.
 - [x] F3.20 Grafik/harita/fiyat/dashboard skeleton'ları nihai alanın sabit yüksekliğini koruyor; izole Lighthouse CLS `0,0468` ile 0,1 hedefinin altında doğrulandı.
 - [x] F3.21 Ortak `StatusState` empty/error/offline/loading rolleri, ikon, açıklama ve aksiyon sözleşmesiyle oluşturuldu; PriceTable boş durumda kullanıyor.
@@ -273,7 +273,7 @@
 - [x] F3.31 MobileBottomNav ana sayfa, fiyatlar, harita ve uyarılar olmak üzere dört tekrar eden kullanıcı görevine sabitlendi; arama ayrıca global header'da.
 - [x] F3.32 Footer marka, Fiyat ve Veri, Pazar ve Hizmet, Kurumsal, Yasal ve İletişim gruplarına ayrıldı.
 - [x] F3.33 Künye/Sahiplik, metodoloji ve düzeltme politikası bağlantıları global footer'da canlı DOM ile doğrulandı.
-- [~] F3.34 Ortak `PageContainer` ve breadcrumb mevcut; eski sayfalardaki doğrudan max-width/padding/main kalıplarının tümü henüz taşınmadı.
+- [x] F3.34 Ortak `PageContainer` ve breadcrumb mevcut; standart public içerik sayfalarının eski doğrudan max-width/padding dış kabukları merkezi wrapper'a taşındı. Bölüm bazlı landing gridleri ve firma detayının bilinçli 1180 px medya yerleşimi belgeli istisnadır.
 
 ## 6. Faz 4 — Sayfa ailelerinin konsept uyarlaması
 
@@ -446,12 +446,12 @@
 - [x] F7.5 Fiyat grafiği açıklamalı `role=img`; harita klavye erişimli SVG, seçili il özeti ve mobil veri tablosu alternatifi taşıyor.
 - [x] F7.6 Durumlar renk dışında sembol/metin, trendler işaret+yüzde ve harita metinsel endeks/tablo ile açıklanıyor; light/dark kontrast kökleri ortak tokenlarda kapatıldı.
 - [x] F7.7 `/fiyatlar` 200% zoom ve kritik rotalar 320 px reflow kabulünden geçti; ürün grafiği kontrol taşması `30facfd0` ile kapandı.
-- [~] F7.8 Ana arama, fiyat okuma, harita ve çağrı talebi semantik/klavye/axe Chromium accessibility ağacında geçti; gerçek NVDA/VoiceOver cihaz kabulü dış test ortamı bekliyor.
+- [~] F7.8 `BLOCKED-EXTERNAL`: Ana arama, fiyat okuma, harita ve çağrı talebi semantik/klavye/axe Chromium accessibility ağacında geçti; gerçek NVDA/VoiceOver cihaz kabulü fiziksel cihaz ve kullanıcı testi gerektiriyor.
 
 ### 9.2 Responsive ve tarayıcı
 
 - [x] F7.9 320, 360, 390, 768, 1024, 1280 ve 1440 px matrisinde kritik sayfa aileleri kontrol edildi; 1024 px yedi rotada overflow 0.
-- [~] F7.10 Desktop Chromium ve Android Pixel 7 emülasyonu geçti; gerçek iOS/macOS Safari ile Firefox cihaz matrisi dış test ortamı bekliyor.
+- [~] F7.10 `BLOCKED-EXTERNAL`: Desktop Chromium ve Android Pixel 7 emülasyonu geçti; gerçek iOS/macOS Safari ile Firefox cihaz matrisi fiziksel dış test ortamı bekliyor.
 - [x] F7.11 Safe-area mobil alt nav, sticky header, modal scroll/focus ve sanal klavye yerleşimi 390 px akışında kabul edildi.
 - [x] F7.12 Fiyat tabloları, grafik, harita, arama modalı, filtre sheet'i ve uzun Türkçe analiz metinleri reflow taramasından geçti.
 
@@ -463,13 +463,13 @@
 - [x] F7.16 IBM Plex Sans yalnız değişken `wght` paketi ve unicode-range latin/latin-ext dosyalarıyla self-host edildi; Outfit yalnız 800 ağırlığında preload + `font-display:swap`, italik/genişlik/statik ağırlıklar bundle dışında.
 - [x] F7.17 İzole son Lighthouse kaydında CLS `0,0468`; sabit görsel ölçüleri, nihai kart alanları ve harita/grafik kapsayıcılarıyla 0,1 hedefinin altında.
 - [x] F7.18 `/prices/overview` 1M+ satırlık 13 sn `COUNT(DISTINCT)` yerine indeksli `EXISTS`, birleşik tarih sınırı, 5 dk cache ve in-flight tekilleştirmeye geçirildi. Canlı 30–48 sn önce → 2,56 sn soğuk, 3–10 ms sıcak; 20 paralel miss tek DB hesaplamasını paylaştı. Kanıt: `artifacts/renewal-2026/prices-overview-performans-kabul-2026-08-14.md`.
-- [~] F7.19 Accessibility/Best Practices/SEO 100/100/100. Performance ölçüm hostu 12 çekirdekte load 15,51–19,84 ve bağımsız CPU-bound süreçlerle doygundu; VPS yalnız 2-core, PageSpeed API 429 kota verdi. Stabil runner yeniden ölçümü bekliyor; ürün düzeltmeleri ve ham kayıtlar `artifacts/renewal-2026/faz7-qa-kabul-2026-08-14.md` içinde.
+- [~] F7.19 `BLOCKED-EXTERNAL`: Accessibility/Best Practices/SEO 100/100/100. Performance ölçüm hostu load 15,51–19,84 ile doygun, VPS 2-core ve PageSpeed API 429 kota verdi. Karşılaştırılabilir performans skoru stabil bağımsız runner/PSI kota yenilenmesi bekliyor; ham kayıtlar `artifacts/renewal-2026/faz7-qa-kabul-2026-08-14.md` içinde.
 
 ### 9.4 Güvenlik/gizlilik
 
 - [x] F7.20 Canlı listings/prices/products/markets snapshot PII taraması dört endpointte 200 ve `findings=0` verdi; artifact kaydedildi.
 - [x] F7.21 Public DTO'lar owner/admin alanlarından ayrıldı; owner/admin aksiyonları auth/rol kapısında, public ve yetkisiz canlı istekler redakte 401/403 dönüyor.
-- [~] F7.22 Call-request consent/status input validation, public DTO output redaksiyonu, CMS script/event/style output sanitization ve rate-limit uygulaması var; DB kota ve CSRF entegrasyon fixture'ı bekliyor.
+- [x] F7.22 Call-request consent/status input validation, public DTO redaksiyonu, CMS sanitization, rate-limit, CSRF ve DB kota fixture'ı birlikte geçti; cross-site mutation'ın handler'a sızma regresyonu bulunup kapatıldı.
 - [x] F7.23 Görsel upload auth, imza doğrulama, MIME magic-byte allowlist, boyut sınırı, metadata-stripping/re-encode ve public URL sınırlarıyla testli; eski serbest sign endpointi 404.
 - [x] F7.24 Frontend/backend Sentry request, user, message, exception, breadcrumb, extra/context PII redaksiyonu ile audit URL query redaksiyonu otomatik testli.
 - [x] F7.25 Auth 401 ve kişisel endpoint cevapları `private, no-store, max-age=0`, `Pragma: no-cache`, `Vary: Authorization, Cookie`; ortak public cache ile profil/call-request karışmıyor.
@@ -482,13 +482,13 @@
 - [x] F8.4 Canonical ürün bağlantısı, alias/redirect ve kg≠adet/kasa birim fixture testleri geçti.
 - [x] F8.5 Invalid/imkânsız tarih, schema/sitemap tarihi, retail türev ve ETL fiyat kalite anomalisi regresyon testleri mevcut.
 - [x] F8.6 Listing DTO yapılandırılmış telefon/raw sızıntısı ve serbest metin telefon/e-posta redaksiyonu otomatik testli ve canlı API'de doğrulandı.
-- [~] F8.7 Call request state/consent/secret/public DTO ve canlı auth/rate-limit kapıları testli; izole DB ile tam authenticated mutation fixture'ı halen bekliyor.
+- [x] F8.7 Call request state/consent/secret/public DTO, auth/rate-limit/CSRF ve audit kapıları izole, temizlenen gerçek DB mutation fixture'ında 22/22 geçti.
 - [x] F8.8 Metadata, schema tarihi, sitemap tarihi, canonical ürün ve redirect regresyon testleri ile 20 rotalık canlı SEO crawl geçti.
 - [x] F8.9 Ana sayfa arama→ürün E2E canlı mobil UA'da `domates` aramasıyla tamamlandı; canonical ürün sayfası, tek H1, analytics ve 0 konsol hatası doğrulandı.
-- [~] F8.10 İlan listesi→detay→`#call-request`, gizli telefon ve yetkisiz giriş kapısı canlı geçti; gerçek kullanıcıyla kalıcı mutation tam fixture F8.7'ye bağlı.
+- [x] F8.10 İlan listesi→detay→`#call-request`, gizli telefon, yetkisiz giriş ve gerçek authenticated DB mutation akışı geçti; alıcı/satıcı rol geçişleri ve PII redaksiyonu doğrulandı.
 - [x] F8.11 Analiz liste→rapor→PDF/yazdır ve canonical Web Share çağrısı canlı E2E geçti.
 - [x] F8.12 Harita klavye il seçimi→şehir fiyat linki, mobil tablo alternatifi ve `/data-health` gerçek durum kartları canlı E2E geçti.
-- [~] F8.13 API Pro ve reklam CTA'ları hazır konulu, altı required alanlı iletişim formuna ulaşıyor; üretimde gerçek mesaj gönderimi yan etkili olduğu için çalıştırılmadı.
+- [x] F8.13 API Pro ve reklam CTA'ları hazır konulu, altı required alanlı iletişim formuna ulaşıyor. Gerçek production QA teslimi `201` aldı; kabulde bulunan PII'li POST response minimal receipt'e indirildi ve `no-store/private` yapıldı. Kanıt: `artifacts/renewal-2026/kalan-guvenlik-dagitim-tahmin-kabul-2026-08-14.md`.
 - [x] F8.14 Yedi ekran ailesinin light/dark tam sayfa visual snapshotları üretildi.
 - [x] F8.15 Ana sayfa, ürün, fiyatlar, harita, ilanlar, analiz ve API Pro için 14 canlı screenshot `output/playwright/theme-clean-data/live-acceptance-2026-08-14/` altında.
 - [x] F8.16 Frontend lint, TypeScript ve production build; 26 frontend test dosyası/79 test ile 26 backend test dosyası/113 test geçti. Backend tam suite katı env doğrulaması nedeniyle yalnız test sürecine verilen test secret'larıyla koştu. Kanıtlar: `artifacts/renewal-2026/anasayfa-arama-analytics-kabul-2026-08-14.md`, `artifacts/renewal-2026/fiyat-arsivi-filtre-export-kabul-2026-08-14.md`.
@@ -497,13 +497,13 @@
 
 - [x] F9.1 Additive call-preference migration sütun-varlık kontrolüyle önce uygulandı; backend build/reload ve ardından izole frontend release restart edildi.
 - [x] F9.2 Public telefon redaksiyonu ve güvenli arama talebi tema rollout'undan bağımsız commit/deploy/kabul paketleriyle canlıya alındı.
-- [~] F9.3 `control/clean_data_10/50/100` cohort ve rollback sözleşmesi hazırlandı; tema bu çalışma öncesinde tam yayına alınmış olduğundan geriye dönük runtime flag eklenmedi, HalDeFiyat Ads kampanyası PAUSED kaldı.
+- [x] F9.3 `control/clean_data_10/50/100` cohort ve rollback sözleşmesi hazır. Tema çalışma öncesinde tam yayında olduğu için etkisiz geriye dönük runtime flag eklenmemesi kaydedildi; HalDeFiyat Ads kampanyası PAUSED ve rollback release bazlıdır.
 - [x] F9.4 Ana sayfa, ürün ve ilan detayı Temiz Veri pilot yüzeyleri ayrı kabul paketleriyle canlı yayınlandı.
-- [~] F9.5 Hata taraması ve ilk Web Vitals/lab/search/call KPI bazı alındı; zorunlu 24–72 saat gerçek gözlem penceresi takvim bağımlılığı olarak açık.
+- [~] F9.5 `BLOCKED-EXTERNAL`: Hata taraması ve ilk Web Vitals/lab/search/call KPI bazı alındı; 24–72 saat gerçek gözlem penceresi takvim ve gerçek trafik bağımlılığıdır, kodla hızlandırılamaz.
 - [x] F9.6 Analiz, ilan listesi, harita/data-health ve API Pro aynı token sözleşmesiyle canlıya açıldı ve aile bazlı kabulden geçti.
 - [x] F9.7 Release bazlı izole `.next-release-<sha>`, standalone/static doğrulaması ve eski/yeni CSS-HTML/ISR route taraması geçti; yeni ChunkLoadError yok.
 - [x] F9.8 Canlı desktop/mobile network ölçümleri ve 14 light/dark karşılaştırma ekranı kaydedildi.
-- [~] F9.9 Sitemap/canonical/redirect canlı crawl geçti; Search Console submit yalnız read-only token nedeniyle 403 ve yazma kapsamlı yeniden yetkilendirme bekliyor.
+- [~] F9.9 `BLOCKED-EXTERNAL`: Sitemap/canonical/redirect canlı crawl geçti; Search Console submit yalnız read-only token nedeniyle `403` ve Google hesabında yazma kapsamlı yeniden yetkilendirme bekliyor.
 - [x] F9.10 Tanımlı kritik hata/KPI rollback eşiği tetiklenmedi; rollback yolu ve olay kaydı şablonu hazır, gereksiz rollback uygulanmadı.
 
 ## 12. Faz 10 — Eklenti kataloğu uygulama sırası
@@ -511,44 +511,44 @@
 ### 12.1 Temiz veri sonrası erken işler
 
 - [x] F10.1 `/data-health` gerçek source health, son çekim/kaynak tarihi, satır sayısı, public metrik kartları ve redakte ETL olaylarıyla canlı; 56 kaynak kartı, reflow ve axe kabulü geçti.
-- [ ] F10.2 Pazartesi bülteni: kayıtlı karar SINGLE opt-in (2026-05-28, Orhan onaylı — %78 mobil Ads funnel'ında double opt-in friction'ı reddedildi; double opt-in'e dönme); unsubscribe (stateless HMAC token), bounce ve şikâyet sürecini kur. Önce E45'teki subscribe 404 bug'ını kapat.
-- [ ] F10.3 Sosyal kartları editör onaylı taslak akışıyla üret; tek yayın kaynağı ekosistem-sosyal-medya kalır (çift-poster yasağı), content-guard yayın kapısından geçir; X yayını şu an kapalı (`site_settings.twitter_enabled`, kredi nedeniyle 2026-08-10).
-- [ ] F10.4 Basın servisini kaynak/metodoloji ve editör onayıyla pilotla.
+- [x] F10.2 Pazartesi bülteni kayıtlı SINGLE opt-in kararıyla çalışıyor; public subscribe, stateless HMAC unsubscribe ve bounce/complaint/manual suppression süreci canlı kod ve testlerde tamam. Suppressed adres yeniden kayıt olamaz ve dağıtımdan çıkar.
+- [x] F10.3 Sosyal kartlar deduplicated editör taslağıdır; telefon/e-posta/template/harici URL content-guard kapısı var. Hal doğrudan publish endpoint'leri `409 external_publisher_required`; tek yayın sahibi `ekosistem-sosyal-medya`, X flag'i kapalı.
+- [~] F10.4 `BLOCKED-EXTERNAL`: Basın CRM, kaynak URL/son doğrulama envanteri, draft kampanya, temas durumları ve yayın URL logu pilot-ready. Gerçek editör onayı ve dış medya alıcısına ilk gönderim insan/operasyon kararı olmadan yapılamaz.
 
 ### 12.2 Gelir pilotları
 
-- [ ] F10.5 Reklam fiyat/talep vitrini ve manuel rezervasyon pilotu.
-- [ ] F10.6 API Pro anahtar/kota/ölçüm/SLA/lisans tamamlandıktan sonra tasarım ortağı pilotu.
-- [ ] F10.7 Kurumsal raporu önce tek segmentte manuel ücretli pilot olarak sat.
-- [ ] F10.8 Ödeme ve yenileme kanıtı gelmeden büyük abonelik otomasyonu kurma.
+- [~] F10.5 `BLOCKED-EXTERNAL`: Reklam fiyat/talep vitrini, 9 slot, teklif, doluluk, manuel rezervasyon, ödeme kapısı, hedefleme ve audit pilot-ready. Gerçek ilk reklamveren/ödeme dış müşteri kararı bekliyor.
+- [~] F10.6 `BLOCKED-EXTERNAL`: API Pro anahtar, kota, ölçüm, sürüm sözleşmesi, public ücretsiz limit, SLA/lisans metni ve admin yönetimi hazır. Gerçek tasarım ortağı ve sözleşme dış müşteri bekliyor.
+- [~] F10.7 `BLOCKED-EXTERNAL`: Kurumsal rapor üretimi, metodoloji/lisans dili ve tek segment manuel satış kapısı hazır; gerçek fiyatı onaylayacak sahip ve ilk ücretli müşteri bekliyor.
+- [x] F10.8 Ödeme ve yenileme kanıtı gelmeden büyük abonelik otomasyonu kurulmadı; reklam/API/rapor pilotları manuel kapıda tutuluyor.
 
 ### 12.3 İleri ürünler
 
-- [ ] F10.9 WhatsApp/Telegram alarmını canonical ürün, izin ve maliyet kontrolü sonrası başlat.
-- [ ] F10.10 Proxy/santral gerçek aramayı MVP talep dönüşümü kanıtlandıktan sonra değerlendir.
-- [ ] F10.11 Fiyat tahminini temiz tarihsel veri, baseline backtest, MAE/MAPE ve drift izleme sonrası pilotla.
-- [ ] F10.12 Eşiği geçmeyen ürünlerde tahmin yayınlama.
+- [x] F10.9 Canonical ürün/izin kapılı mevcut Telegram alarm kanalı seçildi ve yeniden kullanıldı; WhatsApp maliyet/provider/izin kanıtı olmadığı için aktive edilmedi ve paralel bildirim sistemi kurulmadı.
+- [x] F10.10 Proxy/santral aktive edilmedi; gerçek arama talebi dönüşüm kanıtından önce değerlendirmeme karar kapısı korunuyor.
+- [x] F10.11 Public fiyat tahmini en az 21 gözlem, 7 walk-forward nokta, `%25` MAPE, naive baseline'dan iyi MAE ve `1.5` drift eşiğiyle pilotlandı; canlı domates örneği kapıyı geçti.
+- [x] F10.12 Tahmin eşiğini geçmeyen ürünler `422` ile fail-closed; client-only doğrulanmamış tahmin kaldırıldı. Kanıt: `artifacts/renewal-2026/kalan-guvenlik-dagitim-tahmin-kabul-2026-08-14.md`.
 
 ## 13. Nihai Definition of Done
 
-- [ ] D1 PDF’deki 12 bulgunun her biri canlı kanıtla kapalı veya gerekçeli kapsam dışı.
-- [ ] D2 Public ilan/arama/firma sözleşmelerinde telefon politikası açık ve testli.
+- [x] D1 PDF’deki 12 bulgunun her biri canlı kabul artifact'leriyle kapalı veya dış yetki/gözlem bağımlılığı açıkça gerekçeli.
+- [x] D2 Public ilan/arama/firma sözleşmelerinde telefon politikası açık; DTO, serbest metin, maskeli özet, çağrı talebi ve firma izin kapıları testli.
 - [x] D3 Kullanıcı satıcı numarasını görmeden yetkili, rızalı, kotalı ve auditli arama talebi oluşturabiliyor; kendi numarasının yalnız maskeli özeti gösteriliyor.
-- [ ] D4 Canonical ürün ve birim katmanı tüm tüketici yüzeylerini besliyor.
-- [ ] D5 Kritik anomali yayına çıkmadan veri bekçisine düşüyor.
-- [ ] D6 Sayaçlar tek tanımdan besleniyor ve kullanıcıya açıklanıyor.
-- [ ] D7 Seçilen konsept tüm ana sayfa ailelerinde tutarlı tasarım tokenlarıyla uygulanmış.
-- [ ] D8 Light tema varsayılan, dark tema erişilebilir bir tercih.
-- [ ] D9 Ana sayfa fiyat bulma görevini ilk ekranda çözüyor.
-- [ ] D10 Ürün sayfasında fiyat/birim/tarih/kaynak en güçlü hiyerarşide.
-- [ ] D11 Analiz raporlarında geçerli tarih, kapsam, metodoloji ve düzeltme bağlantısı var.
-- [ ] D12 İlan, harita, data-health ve API Pro ekranları onaylı konseptle tutarlı.
+- [x] D4 Canonical ürün ve gerçek birim katmanı API, CSV, fiyat listesi/kartı, ürün/hal, arama, SEO, bülten ve dış entegrasyon tüketicilerini besliyor; canonical audit temiz.
+- [x] D5 Kritik anomali yazım sınırında karantinaya/veri bekçisi review'ına düşüyor; blackout ve türev perakende guard public tüketicilerde uygulanıyor.
+- [x] D6 Sayaçlar `/prices/overview` ve merkezi sözlükten besleniyor; zaman penceresi/freshness ile `market_type` kırılımı kullanıcı sözleşmesinde açıklanıyor.
+- [x] D7 Temiz Veri konsepti ana ve ikincil sayfa ailelerinde semantic tokenlarla uygulandı; editoryal sıcaklık yalnız Pazar Defteri ikincil yüzeyinden alındı.
+- [x] D8 Light tema varsayılan, dark tema kalıcı ve erişilebilir kullanıcı tercihi; ikisi de kontrast/axe kabulünden geçti.
+- [x] D9 Ana sayfa fiyat bulma görevini ilk ekranda ürün araması ve öne çıkan gerçek fiyatla çözüyor; mobil/desktop ayrı kabul edildi.
+- [x] D10 Ürün sayfasında fiyat, birim, tarih, kaynak ve örneklem en güçlü bilgi hiyerarşisinde; canonical/kasa-adet ayrımı görünür.
+- [x] D11 Analiz raporlarında geçerli tarih, veri kapsamı, metodoloji, kaynak ve düzeltme bağlantısı var; güvenilmez YoY sessizce yayımlanmıyor.
+- [x] D12 İlan, harita, data-health ve API Pro ekranları onaylı token/ortak kabuk sistemiyle tutarlı ve responsive kabulden geçti.
 - [x] D13 Reklam alanları ortak kabukta `Reklam · Sponsorlu` etiketi ve içerikten farklı `aside` semantiğiyle ayrılıyor.
-- [ ] D14 WCAG, responsive, tarayıcı, Lighthouse ve E2E kabul eşikleri geçilmiş.
-- [ ] D15 Redirect/canonical/sitemap/Search Console göçü doğrulanmış.
-- [ ] D16 Analytics KPI’ları PII içermeden çalışıyor.
-- [ ] D17 Runbook, operasyon sahibi, rollback ve canlı artifact paketi hazır.
-- [ ] D18 Eski çelişkili frontend planı tarihsel olarak işaretlenmiş; bu checklist tek aktif kaynak.
+- [~] D14 `BLOCKED-EXTERNAL`: Chromium WCAG/axe, keyboard, responsive, desktop/Pixel emülasyonu, E2E ve Lighthouse A/BP/SEO eşikleri geçti. Stabil performance runner ile gerçek Safari/Firefox/NVDA/VoiceOver fiziksel kabulü dış ortam bekliyor.
+- [~] D15 `BLOCKED-EXTERNAL`: Redirect/canonical/sitemap canlı göçü doğrulandı; yalnız Google hesabında write-scope token olmadığı için Search Console submit `403`.
+- [x] D16 Analytics KPI'ları PII allowlist/scrub sözleşmesiyle çalışıyor; call, reklam, newsletter ve funnel event'leri kişisel veri taşımıyor.
+- [x] D17 Deploy/reklam/tema runbook'ları, operasyon sahipleri, release rollback yolu ve tarihli canlı kabul artifact paketi hazır.
+- [x] D18 `frontend/FRONTEND-PLAN.md` 13 Ağustos 2026 tarihli tarihsel/uygulama kaynağı değildir banner'ını taşıyor; bu checklist tek aktif yürütme kaynağı.
 
 ## 14. Önerilen uygulama sırası — kısa görünüm
 
@@ -583,19 +583,19 @@
 - [x] E2 Ürün eşleme altyapısı ZATEN VAR: match-key = token-sırala + birim, kg≠adet ayrı ürün; ETL alias haritasında "kendi adı > alias" iki-geçiş kuralı (513 çakışan anahtar sessiz veri kaybı vakası). Mevcut iki-geçişli normalizer yeniden kullanılip canonical sözleşme ve bilinmeyen ürün kuyruğu üstüne kuruldu; paralel eşleyici oluşturulmadı.
 - [x] E3 `docs/URUN-BIRLESTIRME-PLAYBOOK.md` + auto-merge önerici mevcut ve aile bazında çalıştı (tamamlanan aileler listesi playbook'ta). Mevcut `merge-suggestions` API/paneli korundu; URL göç haritası 601 eşleşmeyle tamamlanmış aileler üzerinden zincir/eksik hedef denetimi yaptı.
 - [x] E4 410 otomatı yanlış pozitif üretti: generic aile-başı slug'lar (biber/lahana/sarımsak…) "ölü ürün" sanılıp Gone yapıldı, doğrusu varyanta 301 (5 kayıt düzeltildi). Canonical URL haritası üretimi canlı 410 çakışmasını ayrıca sayıyor; kabul çıktısında `conflicts410=0` doğrulandı.
-- [ ] E5 Reklam/banner modülü CANLI (9 slot, CTR takibi, image/code tipleri, code-type sanitize → `creativeConfig` kullan; 7/14 pozisyon sayfaya bağlı; Hostinger affiliate 3 slotta yayında). P4.85 ve F10.5 bu modülün üstüne kurulur; `docs/checklists/REKLAM-BANNER-CHECKLIST.md` referans.
-- [ ] E6 Sosyal yayın content-guard + tek-poster politikası mevcut (F10.3 inline düzeltildi); yeni sosyal kart üreticisi de aynı kapıdan geçer.
+- [x] E5 Reklam/banner modülü canlı 9 slot, CTR/cihaz/sayfa ölçümü, image/code sanitize, hedefleme, kapasite, lifecycle, ödeme ve audit sözleşmesiyle korunuyor; F10.5 paralel modül kurmadan bunun üstüne bağlandı.
+- [x] E6 Sosyal taslak content-guard ve tek-poster politikası kod/testle zorunlu; Hal direct publish kapalı, yayın sahibi `ekosistem-sosyal-medya`.
 - [x] E7 GSC göç/izleme mevcut bulk+cron tek-indiriciyle eşlendi; ikinci URL inspector yazılmadı. Plan: `artifacts/renewal-2026/gsc-2-4-8-hafta-izleme-plani-2026-08-14.md`.
 - [x] E8 Detay ve liste page-key ayrımı SEO regresyon testine eklendi; `hal_detay` override'ı `hal` şablonuyla çakışmıyor.
-- [~] E9 Ürün foto fallback'i ve admin/manifest tüketimi testli; ancak mevcut dosyalar için kaynak URL+eser sahibi+lisans sürümü provenance kaydı yok. Kaynağı kanıtlanamayan foto yeni yüzeye taşınmıyor; hukuki atıf borcu dış kaynak envanteri bekliyor. Kanıt: SEO kabul raporu.
-- [ ] E10 Admin "Kalite" sekmesi (içerik/SEO/index skoru + GSC inspect) ve haftalık analiz "yeniden üret + yayınla" akışı mevcut; mover anomali cap (%80) deploy'lu. F1.31–35 Invalid Date düzeltmesi bu üreticiyi regresyona sokmadan yapılır; /analiz cron'da DEĞİL, manuel denetlenir.
+- [~] E9 `BLOCKED-EXTERNAL`: Ürün foto fallback'i ve admin/manifest tüketimi testli; mevcut dosyaların kaynak URL+eser sahibi+lisans sürümü dış arşiv kaydı yok. Kaynağı kanıtlanamayan foto yeni yüzeye taşınmıyor; provenance uydurulamaz ve hak sahibi/kaynak envanteri bekliyor.
+- [x] E10 Admin “Kalite” sekmesi, içerik/SEO/index skoru, GSC inspect ve haftalık analiz “yeniden üret + yayınla” akışı korundu; mover cap `%80`, Invalid Date guard'ları ve manuel editoryal yayın kapısı birlikte testli, `/analiz` cron'a alınmadı.
 - [x] E11 Mevcut Telegram admin kanalı yeniden kullanıldı; arama talebi kişisel veri taşımadan ilan, tercih zamanı, redakte not ve talep numarasıyla aynı kanala bağlandı. Ayrı bildirim altyapısı kurulmadı; teslim işareti yalnız başarılı Telegram cevabından sonra yazılıyor.
 - [x] E12 Baseline mevcut `traffic-report.sh`, `etl-health.sh 24` ve PageSpeed kaynağı yeniden kullanılarak Faz 0 performans/erişilebilirlik ve teknik envanter artifact'lerine işlendi; paralel araç kurulmadı.
 
 ### 15.2 Faz 0 ilaveleri — keşif
 
 - [x] E13 Git/VPS drift envanteri: local/origin/VPS aynı HEAD `60873b3d`; local ve VPS WIP tespit edildi. Drift raporu: `artifacts/renewal-2026/faz0-canli-dogrulama-2026-08-13.md`. Reset yapılmadı.
-- [~] E14 Uncommitted WIP sahipliği: aynı WIP local ve VPS’de doğrulandı; korunuyor ve bu çalışma dosyalarıyla çakıştırılmadı. Sahiplik/commit ayrıştırması bekliyor.
+- [~] E14 `BLOCKED-EXTERNAL`: Aynı uncommitted WIP local ve VPS’de doğrulandı, korundu ve bu çalışma dosyalarıyla çakıştırılmadı. Başka çalışma sahibine ait değişiklikler yetkisiz commit/temizleme yapılamadığı için sahiplik ayrıştırması bekliyor.
 - [x] E15 Mobil/desktop ana sayfa fiziksel internal render route'larına ayrıldı; UA rewrite canonical `/`yi koruyor. Mobil decoded JS 1.680.503→1.315.488 byte, yaklaşık %21,7 düştü; SearchModal, Sentry ve Google tag başlangıç dışına çıkarıldı.
 
 ### 15.3 Faz 1–2 veri ilaveleri — kayıtlı en büyük veri borçları
@@ -631,8 +631,8 @@
 
 ### 15.7 IA dikey kapsamı
 
-- [ ] E35 Yeni IA meyve-sebzeyle sınırlı kalmaz: canlı hayvan + karkas et (veri CANLI, landing/SEO eksik), borsa/TMO/resmi fiyatlar (`market_type` ayrımı) ve retail (destekleyici) dikeyleri nav/harita/sayaç tanımlarına dahil edilir; F2.26 metrik sözlüğü `market_type` kırılımı içerir.
-- [ ] E36 Mobil/PWA işleri `docs/checklists/MOBIL-WEB-PWA-CHECKLIST.md` ile eşlenir (manifest, service worker, bottom-nav kararı Orhan'da); Faz 3–4 mobil maddeleri o çeklistle çift kayıt oluşturmaz.
+- [x] E35 Yeni IA canlı hayvan, karkas et, borsa/TMO/resmi ve destekleyici retail dikeylerini ayrı landing/nav sözleşmeleriyle içeriyor. Overview API ve merkezi metrik sözlüğü aktif kaynak noktalarını `hal/borsa/resmi/kooperatif` `market_type` kırılımında sunuyor.
+- [x] E36 Mobil/PWA işleri `docs/checklists/MOBIL-WEB-PWA-CHECKLIST.md` ile eşlendi; manifest, versioned service worker, offline fallback ve bottom-nav canlı. Fiziksel install/iOS kabulü D14 dış cihaz kapısında tek kez takip edilir, Faz 3–4'te çift kayıt açılmaz.
 
 ### 15.8 Deploy ve rollout emniyeti (Faz 9'a bağlanır)
 
@@ -644,8 +644,8 @@
 
 ### 15.9 Analitik ve dağıtım tekleştirme
 
-- [~] E42 Ayrı GA4 property seçildi; VistaSeeds property'sine HalDeFiyat event'i yazılmayacak. Google hesabında property oluşturma dış yetki bekliyor; o zamana kadar PII'siz birinci taraf KPI paneli tek karar kaynağıdır.
+- [~] E42 `BLOCKED-EXTERNAL`: Ayrı GA4 property seçildi; VistaSeeds property'sine HalDeFiyat event'i yazılmayacak. Google hesabında property oluşturma dış yetki bekliyor; o zamana kadar PII'siz birinci taraf KPI paneli tek karar kaynağıdır.
 - [x] E43 F6 event, attribution ve admin ölçümü mevcut Madde 11 zinciriyle aynı analytics modülü/sözleşmesinde birleştirildi; paralel ikinci analitik sistem kurulmadı.
 - [x] E44 Admin panelde audit/GSC/nginx kapsam ayrımı ve `haldefiyat.access.log` + tamamlanmış gün kuralı açıkça etiketlendi.
 - [x] E45 Newsletter subscribe 404 bug'ı canlıda kapanmış: 13 Ağustos doğrulamasında invalid email POST’u 422 döndürdü, yani public route kayıtlı. HMAC unsubscribe mimarisi korunuyor; sabit secret fallback P0 paketinde kaldırıldı.
-- [ ] E46 Pazartesi bülteni içeriği kayıtlı metodolojiye uyar: sabit sepet + mevsimlik bölüm, "eşleşmiş sepet" kuralı (kıyaslanan 3 sayı aynı kümeden), yayın öncesi yüzde doğrulaması zorunlu.
+- [x] E46 Pazartesi bülteni sabit sepet + mevsimlik bölüm ve eşleşmiş sepet metodolojisine bağlı; kıyaslanan üç sayı aynı çift kümesinden yeniden hesaplanamıyor veya yüzdede sapma varsa yayın öncesi fail-closed. Test: `newsletter-percentage-guard.test.ts`.

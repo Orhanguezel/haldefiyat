@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { setRequestLocale } from "next-intl/server";
 import AlertsClient from "@/components/sections/AlertsClient";
 import { getPageMetadata } from "@/lib/seo";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -22,7 +23,7 @@ export default async function UyarilarPage({ params }: Props) {
   setRequestLocale(locale);
 
   return (
-    <div className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+    <PageContainer>
       <div className="mb-8">
         <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
           Fiyat Takibi
@@ -36,6 +37,6 @@ export default async function UyarilarPage({ params }: Props) {
         </p>
       </div>
       <AlertsClient />
-    </div>
+    </PageContainer>
   );
 }

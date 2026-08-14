@@ -24,11 +24,28 @@ import { registerPopups, registerPopupsAdmin } from "@agro/shared-backend/module
 import { hasContactPrivacyConsent } from "@/modules/contact-consent";
 import { registerSecureStorage, registerSecureStorageAdmin } from "@/modules/storage/secure-storage";
 
+export function sanitizePublicContactResponse(statusCode: number, payload: unknown): unknown {
+  if (statusCode !== 201 || !payload || typeof payload !== "object") return payload;
+  const id = "id" in payload && typeof payload.id === "string" ? payload.id : undefined;
+  return { ok: true, status: "received", ...(id ? { requestId: id } : {}) };
+}
+
 export async function registerSharedPublic(api: FastifyInstance) {
   api.addHook("preValidation", async (req, reply) => {
     if (req.method === "POST" && req.routeOptions.url?.endsWith("/contacts") && !hasContactPrivacyConsent(req.body)) {
       return reply.code(400).send({ error: { message: "privacy_consent_required" } });
     }
+  });
+  api.addHook("onSend", async (req, reply, payload) => {
+    if (req.method === "POST" && req.routeOptions.url?.endsWith("/contacts")) {
+      reply.header("Cache-Control", "no-store, no-cache, must-revalidate, private");
+      reply.header("Pragma", "no-cache");
+    }
+    return payload;
+  });
+  api.addHook("preSerialization", async (req, reply, payload) => {
+    if (req.method !== "POST" || !req.routeOptions.url?.endsWith("/contacts")) return payload;
+    return sanitizePublicContactResponse(reply.statusCode, payload);
   });
   await registerAuth(api);
   await registerHealth(api);

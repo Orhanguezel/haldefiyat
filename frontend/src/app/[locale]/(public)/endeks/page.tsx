@@ -6,6 +6,7 @@ import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import { schemaDateRange } from "@/lib/schema-dates";
 import ReportSummaryGrid from "@/components/reports/ReportSummaryGrid";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -81,7 +82,7 @@ export default async function EndeksPage({ params }: Props) {
   } satisfies Record<string, unknown>;
 
   return (
-    <div className="mx-auto max-w-350 px-8 py-12 space-y-10">
+    <PageContainer className="space-y-10">
       <JsonLd type="Dataset" data={endeksDataset} />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
@@ -310,7 +311,7 @@ export default async function EndeksPage({ params }: Props) {
           </div>
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

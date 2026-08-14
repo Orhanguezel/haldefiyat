@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { setRequestLocale } from "next-intl/server";
 import FavoritesClient from "@/components/sections/FavoritesClient";
+import PageContainer from "@/components/layout/PageContainer";
 import { getPageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -23,7 +24,7 @@ export default async function FavorilerPage({ params }: Props) {
   setRequestLocale(locale);
 
   return (
-    <div className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+    <PageContainer>
       <div className="mb-8">
         <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
           Favorilerim
@@ -37,6 +38,6 @@ export default async function FavorilerPage({ params }: Props) {
         </p>
       </div>
       <FavoritesClient />
-    </div>
+    </PageContainer>
   );
 }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getPageMetadata } from "@/lib/seo";
 import PolicyLinks from "@/components/PolicyLinks";
 import ApiProductNav from "@/components/api/ApiProductNav";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -47,7 +48,7 @@ export default async function ApiPolicyPage({ params }: Props) {
   const rules = policyRules(await fetchAnonymousLimit());
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12">
+    <PageContainer wide={false}>
       <ApiProductNav current="/api-policy" />
       <p className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
         Açık Veri
@@ -97,6 +98,6 @@ export default async function ApiPolicyPage({ params }: Props) {
       </section>
 
       <PolicyLinks className="mt-8" />
-    </div>
+    </PageContainer>
   );
 }

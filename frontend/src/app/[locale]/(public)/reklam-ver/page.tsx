@@ -21,6 +21,7 @@ import {
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
 import { getPageMetadata } from "@/lib/seo";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -102,7 +103,7 @@ export default async function AdvertisePage({ params }: Props) {
   setRequestLocale(locale);
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-8 sm:px-6 lg:px-8">
+    <PageContainer py="sm">
       <JsonLd
         type="Service"
         data={{
@@ -288,6 +289,6 @@ export default async function AdvertisePage({ params }: Props) {
           Teklif isteyin <ArrowRight className="h-4 w-4" />
         </Link>
       </section>
-    </div>
+    </PageContainer>
   );
 }

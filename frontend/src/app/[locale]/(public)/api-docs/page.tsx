@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { DATA_LICENSE_URL, getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import ApiProductNav from "@/components/api/ApiProductNav";
+import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -356,7 +357,7 @@ export default async function ApiDocsPage({ params }: Props) {
   const contract = await fetchPlanContract();
 
   return (
-    <div className="mx-auto max-w-350 px-8 py-12">
+    <PageContainer>
       <JsonLd type="DataFeed" data={dataFeedSchema} />
       <ApiProductNav current="/api-docs" />
       {/* Başlık */}
@@ -551,6 +552,6 @@ export default async function ApiDocsPage({ params }: Props) {
           <li>Yüksek hacimli entegrasyonlar için <a href="/iletisim" className="text-brand underline underline-offset-2">iletişime geçin</a>.</li>
         </ul>
       </section>
-    </div>
+    </PageContainer>
   );
 }
