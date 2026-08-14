@@ -77,7 +77,8 @@ export async function createApp() {
   app.addHook("onSend", async (req, reply, payload) => {
     const isAdmin = req.url.startsWith("/api/v1/admin/");
     const routeRequiresAuth = (req.routeOptions.config as { auth?: boolean } | undefined)?.auth === true;
-    if (isAdmin || routeRequiresAuth || requestUsesPrivateIdentity(req)) {
+    const isPrivateAuthResponse = reply.statusCode === 401 || reply.statusCode === 403;
+    if (isAdmin || routeRequiresAuth || isPrivateAuthResponse || requestUsesPrivateIdentity(req)) {
       reply.header("Cache-Control", "private, no-store, max-age=0");
       reply.header("Pragma", "no-cache");
       reply.header("Vary", "Authorization, Cookie");
