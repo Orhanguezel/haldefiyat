@@ -242,22 +242,22 @@ export default function TurkeyMapClient({ markets, cityPrices = [] }: Props) {
         </summary>
         <p className="mt-2 text-xs leading-5 text-(--color-muted)">{PUBLIC_METRICS.mapCities.note}.</p>
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[440px] border-collapse text-left text-sm">
+          <table className="w-full table-fixed border-collapse text-left text-xs sm:text-sm">
             <thead>
               <tr className="border-b border-(--color-border)">
-                <th scope="col" className="py-2 pr-3">İl</th>
-                <th scope="col" className="px-3 py-2">Endeks</th>
-                <th scope="col" className="px-3 py-2">Hal</th>
-                <th scope="col" className="py-2 pl-3"><span className="sr-only">Fiyat bağlantısı</span></th>
+                <th scope="col" className="w-[38%] py-2 pr-2">İl</th>
+                <th scope="col" className="w-[22%] px-2 py-2">Endeks</th>
+                <th scope="col" className="w-[12%] px-2 py-2">Hal</th>
+                <th scope="col" className="w-[28%] py-2 pl-2"><span className="sr-only">Fiyat bağlantısı</span></th>
               </tr>
             </thead>
             <tbody>
               {[...priced].sort((a, b) => a.name.localeCompare(b.name, "tr")).map((province) => (
                 <tr key={province.code} className="border-b border-(--color-border-soft) last:border-0">
-                  <th scope="row" className="py-3 pr-3 font-semibold text-(--color-foreground)">{province.name}</th>
-                  <td className="px-3 py-3 font-(family-name:--font-mono)">{formatIndex(province.price?.priceIndex)}</td>
-                  <td className="px-3 py-3">{province.price?.marketCount ?? 0}</td>
-                  <td className="py-3 pl-3 text-right">
+                  <th scope="row" className="break-words py-3 pr-2 font-semibold text-(--color-foreground)">{province.name}</th>
+                  <td className="px-2 py-3 font-(family-name:--font-mono)">{formatIndex(province.price?.priceIndex)}</td>
+                  <td className="px-2 py-3">{province.price?.marketCount ?? 0}</td>
+                  <td className="py-3 pl-2 text-right">
                     <Link href={`/fiyatlar?city=${encodeURIComponent(province.name)}`} className="inline-flex min-h-11 items-center font-semibold text-(--color-brand) hover:underline">
                       Fiyatlar
                     </Link>
