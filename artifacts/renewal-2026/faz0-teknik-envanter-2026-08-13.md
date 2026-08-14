@@ -53,6 +53,99 @@ Yüksek tekrar: `Header`, `Footer`, `PageContainer`, `Button`, `Input`, `Badge`,
 - Fallback metinleri görünür `Bilinmiyor`/boş durum şeklinde olmalı; sentetik veya stale değer güncelmiş gibi gösterilmemeli.
 - Revalidate/cache değerleri endpoint bazında sonraki performans ölçümünde doğrulanacaktır; ana sayfa dinamikliği cache ile varsayılmayacaktır.
 
+### Doğrulanmış endpoint/cache/fallback matrisi (14 Ağustos ek denetimi)
+
+Tüm ortak server fetch'leri 15 saniye timeout uygular; başarısız HTTP veya ağ
+hatasını loglayıp aşağıdaki açık boş/unknown durumuna düşer. Boş fallback gerçek
+veri gibi gösterilmemelidir.
+
+| Aile | Public API | Next revalidate | Fallback |
+|---|---|---:|---|
+| Fiyat listesi | `/prices` | 300 sn | boş liste + sıfır meta |
+| Ürün sözlüğü | `/prices/products` | 300 sn | `[]` |
+| Ürün editoryal | `/prices/editorial/:slug` | 300 sn | `null` (404 dahil) |
+| Varyantlar | `/prices/variants/:slug` | 3.600 sn | `[]` |
+| Haller | `/prices/markets` | 300 sn + `markets` tag | `[]` |
+| Genel ölçüler | `/prices/overview` | 300 sn | sıfırlar + `freshness:unknown` |
+| Kaynak sağlığı | `/sources/status` | 120 sn | `items:[]` |
+| Firma liste/detay | `/firms`, `/firms/:slug` | 300 sn | boş envelope / `null` |
+| İlan liste/detay | `/listings`, `/listings/:slug` | 120 / 60 sn | boş envelope / `null` |
+| İlan eşleşme panosu | `/listings/board` | 120 sn | `null` |
+| Şehir haritası | `/prices/city-map` | 300 sn | boş liste + istek bağlamı meta |
+| Trend | `/prices/trending` | 60 sn | `[]` |
+| Fiyat geçmişi | `/prices/history/:slug` | 300 sn | `[]` |
+| Perakende | `/prices/retail/:slug` | 600 sn | `[]` |
+| Widget/haftalık analiz | `/prices/widget`, `/analysis/weekly-reports` | 300 sn | `[]` |
+| Haftalık analiz detay | `/analysis/weekly-reports/:slug` | no-store | `null` |
+| Yıllık rapor yılları/rapor | `/reports/annual/years`, `/reports/annual` | 21.600 sn | `[]` / `null` |
+| Yazar liste/detay | `/authors`, `/authors/:slug` | 300 sn / no-store | `[]` / `null` |
+| Üretim | `/production*` | 3.600 sn | `[]` |
+| Endeks | `/index/latest`, `/index/history` | 300 sn | `null` / `[]` |
+| CMS/yasal | `/custom-pages/by-slug/:slug` | 3.600 sn | `null` |
+| Sosyal akış | `/social/feed` | 300 sn | `[]` |
+
+Backend doğrudan API cache header'ları fiyat çekirdeğinde 120–3.600 sn, yıllık
+raporda 21.600 sn'dir. Örneğin history doğrudan API'de 3.600 sn iken RSC fetch
+katmanı 300 sn'dir; katmanlar farklı tüketicileri hedeflediği için bu fark
+envanterde bilinçli olarak görünür tutulur. `force-dynamic` public sayfalar her
+sayfa isteğinde render edilir; ürün sayfası ISR `revalidate=300` ile 14 fetch'in
+cache sözleşmesini korur.
+
+## Canlı ölçüm bazı — 14 Ağustos 2026
+
+### Trafik ve ürün hunisi
+
+- Dedike nginx logu, 7–13 Ağustos yedi tam gün: 499.625 istek; 468.090 insan
+  isteği; 7.860 gerçek JS pageview (**1.123/gün**); mobil **%77**.
+- 5xx: 718 / 499.625 = **%0,14** (301×504, 216×500, 201×502).
+- Son 30 gün audit (bot/internal hariç): ana sayfa 1.827, ürün detay 11.739,
+  fiyat listesi 1.775, ilan listesi 131, ilan detay 58, iletişim 15 görünüm.
+- Son 30 gün sonuçları: 12 bülten kaydı, 0 ilan mesajı, 0 iletişim mesajı,
+  0 arama talebi. Ürün arama aç/gönder/seç eventleri henüz ayrı ölçülmediği için
+  search-success bazı **ölçülemiyor** olarak kaydedildi; sıfır varsayılmadı.
+- CTA: mobile home sticky 598 gösterim/2 başarı (**%0,33**); fiyat listesi strip
+  toplam 769 gösterim/8 başarı (**%1,04**).
+
+### Veri kalitesi ve ETL
+
+- `hf_price_history`: 1.055.511 satır; son veri tarihi 13 Ağustos 2026.
+- Min/max orta noktasıyla birebir aynı `avg_price`: 809.322 satır (**%76,68**).
+- Boş/unknown birim: 0; ürün ana birimiyle tarihsel satır birimi farklı:
+  147.161 satır (**%13,94**). Bu ikinci sayı yanlışlığın kanıtı değil, inceleme
+  kohortudur; paket/kg tarihçesi ve canonical ürün göçü birlikte değerlendirilir.
+- Fiyat ve retail karantina tablolarında bu ölçüm anında satır yok.
+- 24 saat ETL: "3+ error, 0 ok" kaynak yok; tek son-koşu hatası `izmir_balik`
+  HTTP 500. Yedi günden uzun akışsız: `kocaeli_merkez`, `mersin_resmi`,
+  `canakkale_resmi`.
+
+### Search Console/canonical
+
+- 623 master URL'nin 622'si GSC cache'inde denetlenmiş; 183'ü indexed-benzeri.
+- 612 eski/varyant URL'nin tamamı denetlenmiş; 388'i redirect durumunda.
+- Sitemap 406 URL. Yeniden gönderim, mevcut readonly OAuth kapsamı nedeniyle
+  403 `ACCESS_TOKEN_SCOPE_INSUFFICIENT`; ikinci istemci kurulmadı.
+
+## KPI sahiplik ve hedef tablosu
+
+| KPI | Baz | Hedef/eşik | Ölçüm kaynağı | Sorumlu |
+|---|---:|---:|---|---|
+| Mobil LCP | 4,0 sn ilk düzeltme koşusu | ≤2,5 sn, 3 koşu medyan | Lighthouse + RUM | Frontend/Orhan |
+| CLS | 0 | ≤0,1 | Lighthouse + RUM | Frontend/Orhan |
+| Gerçek JS pageview | 1.123/gün | haftalık >%20 düşüşte inceleme | nginx track beacon | Büyüme/Orhan |
+| 5xx oranı | %0,14 | <%0,10; 502 deploy dışı sıfır | dedike nginx + PM2 | Operasyon/Orhan |
+| Mobil CTA başarı | %0,33 | ilk kontrollü deneyde ≥%1 | `hf_cta_events` | Ürün/Atakan + Orhan |
+| Fiyat strip CTA başarı | %1,04 | ilk kontrollü deneyde ≥%2 | `hf_cta_events` | Ürün/Atakan + Orhan |
+| Arama başarısı | ölçülemiyor | event sözlüğü sonrası baz + hedef | GA4/first-party event | Ürün + Analytics |
+| Sentetik ortalama sınıflaması | %76,68 midpoint proxy | satırların %100'ü gerçek/sentetik işaretli | DB/ETL | Veri/Orhan |
+| Birim inceleme kohortu | %13,94 | kanıtlı kohort tamamlanması; public yanlış birim 0 | DB dry-run + fixture | Veri/Orhan |
+| Kritik karantina SLA | kuyruk 0 | kritik <24 saat, warning <72 saat | quarantine tabloları/admin | Veri operasyonu |
+| Akışsız kaynak | 3 | 0 veya belgeli devre dışı | `etl-health.sh 24` | ETL/Orhan |
+| GSC master indexed-benzeri | 183/623 | 2/4/8 haftada düşüş yok, artış trendi | tek GSC cache/inspector | SEO/Orhan |
+| Arama talebi dönüşümü | 0/0 | ilk 30 geçerli talep sonrası eşik belirle | call-request DB + analytics | Ürün/Atakan |
+
+KPI hedefleri ürün/operasyon inceleme eşikleridir; gelir veya hukuki garanti
+değildir. Ads/GA4 ayrı property ve tüzel kişi kararları sahip onayı gerektirir.
+
 ## Telefon veri akışı
 
 `DB listing/contact fields → repository/model → controller → public DTO sanitizer → list/detail API → ListingCard/detail page`. Public DTO `contactPhone:null`, `raw:null` döndürür; serbest metin telefon/e-posta redaksiyonu API'den önce uygulanır. Yetkili arama talebi ayrı `hf_listing_call_requests` kaydı ve durum makinesi üzerinden yürür. Owner/admin verisi public DTO ile birleştirilmez.

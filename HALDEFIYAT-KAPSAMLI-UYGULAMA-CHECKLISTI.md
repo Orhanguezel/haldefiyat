@@ -72,7 +72,7 @@
 - [x] F0.17 Emoji kullanılan 170 TS/TSX satırı envantere alındı; ikon/dekoratif/içerik sınıflandırma borcu kaydedildi.
 - [x] F0.18 Hard-coded renk, radius, shadow, font ve genişlik borcu ile geçiş sırası raporlandı.
 - [x] F0.19 90 client island ve ağır etkileşim sınırları kaydedildi; ana mobil ağacın UA ile SSR ayrımı doğrulandı.
-- [ ] F0.20 Ana veri endpoint’lerini, cache/revalidate sürelerini ve fallback davranışlarını haritala.
+- [x] F0.20 Ana veri endpoint'leri 60–21.600 sn revalidate/no-store, 15 sn timeout, boş/unknown fallback ve dynamic/ISR farkıyla matrise döküldü: `artifacts/renewal-2026/faz0-teknik-envanter-2026-08-13.md`.
 - [x] F0.21 Public telefonun repository→controller→DTO sanitizer→page akışı Faz 0 envanterinde haritalandı.
 - [x] F0.22 Ürün kaynak→ETL→match/alias→canonical/birim→price→API→display akışı haritalandı.
 
@@ -81,16 +81,16 @@
 - [~] F0.23 Ana sayfa mobile Lighthouse bazı alındı (P41/A96/BP100/SEO100); desktop ve ürün/analiz/ilan/data-health rotaları bekliyor. Kanıt: Faz 0 performans bazı.
 - [~] F0.24 Ana sayfa laboratuvar bazı FCP 3,1 sn, LCP 6,8 sn, CLS 0, TBT 1.610 ms; route bazlı bundle ve gerçek INP/CrUX bekliyor.
 - [~] F0.25 Ana sayfa Lighthouse accessibility 96; kontrast, accessible-name ve unsized-image bulguları düzeltildi. Diğer rotalar ve tekrar ölçüm bekliyor.
-- [ ] F0.26 Search Console’da bozuk/kopya URL, canonical ve indeks bazını kaydet.
-- [ ] F0.27 Analytics’te ürün arama, fiyat görüntüleme, ilan görüntüleme ve iletişim bazını kaydet.
-- [ ] F0.28 Veri kalite bazını kaydet: anomali, alias dışı ad, birim bilinmiyor, stale kaynak.
-- [ ] F0.29 Her KPI için mevcut değer, hedef, ölçüm kaynağı ve sorumlu belirle.
+- [x] F0.26 GSC bazı: 623 master/183 indexed-benzeri, 612 eski URL/388 redirect, 406 sitemap URL; 2/4/8 haftalık izleme planı ve readonly submit engeli kaydedildi.
+- [x] F0.27 Son 30 gün audit/CTA/iş sonucu bazı kaydedildi; ürün 11.739, fiyat listesi 1.775, ilan detay 58, iletişim 15 görünüm; 12 bülten, 0 ilan/iletişim/arama sonucu. Search event'i yokluğu “ölçülemiyor” olarak açıkça işlendi.
+- [x] F0.28 Veri bazı: 1.055.511 satır, %76,68 midpoint proxy, 0 unknown birim, %13,94 ürün-satır birim inceleme kohortu, 3 akışsız kaynak, karantina kuyrukları 0.
+- [x] F0.29 Performans, trafik, 5xx, CTA, search, sentetik ortalama, birim, SLA, ETL, GSC ve call KPI'ları baz+hedef+ölçüm kaynağı+sorumluyla teknik envantere işlendi.
 - [x] F0.30 Canlı kabul kanıtlarının saklanacağı `artifacts/renewal-2026/` yapısını tanımla; ilk Faz 0 raporu eklendi.
 
 ### Faz 0 kabul kapısı
 
 - [x] G0.1 PDF bulgularının tamamı canlı kanıtla sınıflandırıldı; yanlış pozitif yok, kısmi ve dış-onay bağımlı işler açıkça ayrıldı.
-- [ ] G0.2 Teknik envanter ve baz metrik raporu hazır.
+- [x] G0.2 Teknik envanter; route/component/token, endpoint-cache-fallback, canlı trafik/analytics, veri/ETL, GSC ve KPI sahiplik bölümleriyle tamamlandı.
 - [x] G0.3 Başka kişilerin backend WIP değişiklikleri ve doküman taşıma işlemleri korunuyor; kapsam dışı dosyalara dokunulmadı.
 - [x] G0.4 Yedi pano ve 12 ölçütlü karar matrisi hazır; tema kararı kayda alındı.
 
