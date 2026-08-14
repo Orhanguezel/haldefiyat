@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import { apiGet, apiPost, apiDelete } from "@/lib/api-client";
 import {
   getFavorites,
-  isFavorite as localIsFavorite,
   toggleFavorite as localToggle,
   subscribeFavorites,
   FAVORITES_CHANGE_EVENT,
