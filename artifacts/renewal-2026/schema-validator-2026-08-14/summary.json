@@ -1,0 +1,85 @@
+[
+  {
+    "url": "https://haldefiyat.com/",
+    "checkedAt": "2026-08-14T07:12:52.340Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": [
+      "Dataset",
+      "FAQPage",
+      "WebSite"
+    ]
+  },
+  {
+    "url": "https://haldefiyat.com/fiyatlar",
+    "checkedAt": "2026-08-14T07:12:57.728Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": [
+      "BreadcrumbList",
+      "DataCatalog",
+      "Dataset",
+      "FAQPage",
+      "WebSite"
+    ]
+  },
+  {
+    "url": "https://haldefiyat.com/urun/acur",
+    "checkedAt": "2026-08-14T07:13:05.520Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": [
+      "BreadcrumbList",
+      "Dataset",
+      "FAQPage",
+      "WebSite"
+    ]
+  },
+  {
+    "url": "https://haldefiyat.com/hal/izmir-hal",
+    "checkedAt": "2026-08-14T07:13:14.604Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": []
+  },
+  {
+    "url": "https://haldefiyat.com/analiz/hal-fiyati-nasil-belirlenir",
+    "checkedAt": "2026-08-14T07:13:17.433Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": [
+      "BreadcrumbList",
+      "NewsArticle",
+      "WebSite"
+    ]
+  },
+  {
+    "url": "https://haldefiyat.com/rapor/yillik/2025",
+    "checkedAt": "2026-08-14T07:13:26.499Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": []
+  },
+  {
+    "url": "https://haldefiyat.com/metodoloji",
+    "checkedAt": "2026-08-14T07:13:35.805Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": [
+      "Article",
+      "BreadcrumbList",
+      "WebSite"
+    ]
+  },
+  {
+    "url": "https://haldefiyat.com/yazar/orhan-guzel",
+    "checkedAt": "2026-08-14T07:13:37.476Z",
+    "totalNumErrors": 0,
+    "totalNumWarnings": 0,
+    "types": [
+      "BreadcrumbList",
+      "ProfilePage",
+      "WebSite"
+    ]
+  }
+]

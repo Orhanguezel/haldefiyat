@@ -1,5 +1,13 @@
-import { describe, expect, it } from "vitest";
-import { buildMetadata, getLocaleAlternates } from "./seo";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { buildMetadata, getLocaleAlternates, getPageMetadata } from "./seo";
+
+vi.mock("@/i18n/get-request-locale", () => ({
+  getRequestLocale: vi.fn().mockResolvedValue("tr"),
+}));
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("SEO locale alternates", () => {
   it("keeps the default Turkish locale prefixless", () => {
@@ -26,5 +34,31 @@ describe("SEO locale alternates", () => {
       tr: alternates.canonical,
       "x-default": alternates.canonical,
     });
+  });
+
+  it("keeps detail metadata isolated from the list page CMS key", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        value: JSON.stringify({
+          hal: {
+            title: "Tüm Haller",
+            description: "Liste sayfası açıklaması",
+          },
+        }),
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const metadata = await getPageMetadata("hal_detay", {
+      pathname: "/hal/izmir-hal",
+      title: "İzmir Toptancı Hali Fiyatları",
+      description: "İzmir halinin güncel fiyat listesi",
+    });
+
+    expect(metadata.title).toEqual({ absolute: "İzmir Toptancı Hali Fiyatları" });
+    expect(metadata.description).toBe("İzmir halinin güncel fiyat listesi");
+    expect(metadata.alternates?.canonical).toMatch(/\/hal\/izmir-hal$/);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
