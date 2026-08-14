@@ -91,6 +91,8 @@ async function toListingValues(input: ListingCreateInput | ListingPatchInput, ex
     ...(input.districtSlug !== undefined ? { districtSlug: input.districtSlug } : {}),
     ...(input.firmId !== undefined ? { firmId: input.firmId } : {}),
     ...(input.contactName !== undefined ? { contactName: input.contactName } : {}),
+    ...(input.callRequestsEnabled !== undefined ? { callRequestsEnabled: input.callRequestsEnabled ? 1 : 0 } : {}),
+    ...(input.callAvailability !== undefined ? { callAvailability: input.callAvailability.join(",") } : {}),
     ...(input.contactPhone !== undefined ? { contactPhone: input.contactPhone } : {}),
     ...(input.hidePhone !== undefined ? { hidePhone: input.hidePhone ? 1 : 0 } : {}),
     ...(input.validUntil !== undefined ? { validUntil: input.validUntil } : {}),

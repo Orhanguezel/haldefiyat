@@ -208,6 +208,8 @@ export interface Listing {
   contactPhone: string | null;
   phoneVerified: number | boolean;
   hidePhone: number | boolean;
+  callRequestsEnabled: number | boolean;
+  callAvailability: Array<"asap" | "morning" | "afternoon" | "evening">;
   validUntil: string;
   status: "pending" | "approved" | "rejected" | "expired" | "closed";
   isSuspicious: number | boolean;

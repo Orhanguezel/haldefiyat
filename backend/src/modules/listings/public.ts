@@ -14,6 +14,15 @@ export function maskOwnPhone(value: string | null | undefined): string | null {
   return `0${local.slice(0, 1)}** *** ** ${local.slice(-2)}`;
 }
 
+export const CALL_SLOTS = ["asap", "morning", "afternoon", "evening"] as const;
+export type CallSlot = (typeof CALL_SLOTS)[number];
+
+export function parseCallAvailability(value: string | null | undefined): CallSlot[] {
+  const allowed = new Set<string>(CALL_SLOTS);
+  const parsed = String(value ?? "").split(",").map((item) => item.trim()).filter((item): item is CallSlot => allowed.has(item));
+  return parsed.length ? [...new Set(parsed)] : [...CALL_SLOTS];
+}
+
 /**
  * Public ilan cevaplarında telefon hiçbir kanaldan sızmamalı. Yalnız contactPhone
  * alanını boşaltmak yeterli değildir; kullanıcı açıklama/başlık gibi serbest metinlere
@@ -27,6 +36,7 @@ export function toPublicListing<
     description?: string | null;
     quality?: string | null;
     packaging?: string | null;
+    callAvailability?: string | null;
   },
 >(item: T) {
   return {
@@ -37,5 +47,6 @@ export function toPublicListing<
     description: redactContactText(item.description),
     quality: redactContactText(item.quality),
     packaging: redactContactText(item.packaging),
+    callAvailability: parseCallAvailability(item.callAvailability),
   };
 }

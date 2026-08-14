@@ -15,6 +15,13 @@ import { getStoredAccessToken } from "@/lib/auth-token";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "") + "/api/v1";
 const MAX_IMAGES = 6;
+type PreferredSlot = "asap" | "morning" | "afternoon" | "evening";
+const CALL_SLOTS: Array<{ value: PreferredSlot; label: string }> = [
+  { value: "asap", label: "En kısa sürede" },
+  { value: "morning", label: "09:00–12:00" },
+  { value: "afternoon", label: "12:00–17:00" },
+  { value: "evening", label: "17:00–20:00" },
+];
 
 // Native select'in acilan option listesi dark'ta bozulmasin diye option renkleri token'a sabitlenir.
 const SELECT_CLASS =
@@ -40,6 +47,8 @@ export function ListingForm({ products }: { products: Product[] }) {
   const [citySlug, setCitySlug] = useState<string | null>(null);
   const [districtSlug, setDistrictSlug] = useState<string | null>(null);
   const [images, setImages] = useState<string[]>([]);
+  const [callRequestsEnabled, setCallRequestsEnabled] = useState(true);
+  const [callAvailability, setCallAvailability] = useState<PreferredSlot[]>(CALL_SLOTS.map(({ value }) => value));
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState("");
@@ -68,6 +77,7 @@ export function ListingForm({ products }: { products: Product[] }) {
     if (!String(fd.get("validUntil") ?? "")) e.validUntil = "Geçerlilik tarihi gerekli.";
     if (String(fd.get("contactPhone") ?? "").trim().length < 7) e.contactPhone = "Telefon numarası zorunlu.";
     if (String(fd.get("priceType") ?? "") === "sabit" && !String(fd.get("priceMin") ?? "")) e.priceMin = "Sabit fiyat seçtiniz; fiyat girin.";
+    if (callRequestsEnabled && callAvailability.length === 0) e.callAvailability = "En az bir uygun zaman seçin.";
     return e;
   }
 
@@ -91,11 +101,13 @@ export function ListingForm({ products }: { products: Product[] }) {
       const body = Object.fromEntries(fd.entries());
       await apiPost("/listings", {
         ...body, productName, productSlug: productSlug || undefined, citySlug, districtSlug,
-        images, hidePhone: body.hidePhone === "on",
+        images, hidePhone: true, callRequestsEnabled, callAvailability,
       });
       setStatus("İlan moderasyon için alındı. Onaylandıktan sonra yayınlanır.");
       form.reset();
       setImages([]); setProductSlug(""); setProductName(""); setCitySlug(null); setDistrictSlug(null);
+      setCallRequestsEnabled(true);
+      setCallAvailability(CALL_SLOTS.map(({ value }) => value));
     } catch (err) {
       setStatus(isApiError(err) ? `Kaydedilemedi: ${err.message}` : "İlan kaydedilemedi. Lütfen tekrar deneyin.");
     } finally {
@@ -203,9 +215,44 @@ export function ListingForm({ products }: { products: Product[] }) {
           ) : null}
         </div>
       </div>
-      <label className="flex items-center gap-2 text-sm">
-        <input name="hidePhone" type="checkbox" /> Telefonu gizle
-      </label>
+      <fieldset className="rounded-lg border border-(--color-border) bg-(--color-bg-alt) p-4 md:col-span-2">
+        <legend className="px-1 text-sm font-semibold text-(--color-foreground)">Arama talebi tercihleri</legend>
+        <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-(--color-foreground)">
+          <input
+            type="checkbox"
+            checked={callRequestsEnabled}
+            onChange={(event) => setCallRequestsEnabled(event.target.checked)}
+            className="size-4 accent-(--color-brand)"
+          />
+          Bu ilan için arama talebi kabul ediyorum
+        </label>
+        <p className="mt-1 text-xs leading-5 text-(--color-muted)">
+          Telefon numaranız ilanda açık gösterilmez. Alıcı talep gönderir; uygun olduğunuzda geri dönüşü siz yaparsınız.
+        </p>
+        {callRequestsEnabled ? (
+          <div className="mt-3" aria-describedby={errors.callAvailability ? "call-availability-error" : undefined}>
+            <span className="text-xs font-medium text-(--color-foreground)">Geri dönüş yapabileceğiniz zamanlar</span>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {CALL_SLOTS.map((slot) => (
+                <label key={slot.value} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-(--color-border) bg-(--color-surface) px-3 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={callAvailability.includes(slot.value)}
+                    onChange={(event) => {
+                      setCallAvailability((current) => event.target.checked
+                        ? [...new Set([...current, slot.value])]
+                        : current.filter((value) => value !== slot.value));
+                    }}
+                    className="size-4 accent-(--color-brand)"
+                  />
+                  {slot.label}
+                </label>
+              ))}
+            </div>
+            {errors.callAvailability ? <p id="call-availability-error" className="mt-2 text-xs text-(--color-danger)" role="alert">{errors.callAvailability}</p> : null}
+          </div>
+        ) : null}
+      </fieldset>
       <TextArea name="description" label="Açıklama" className="md:col-span-2" />
       <Button loading={loading} className="md:col-span-2">İlanı gönder</Button>
       {status ? <p className="md:col-span-2 text-sm text-(--color-muted)">{status}</p> : null}

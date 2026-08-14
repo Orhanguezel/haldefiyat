@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { TextArea } from "@/components/ui/TextArea";
 import { getStoredAuthUser } from "@/lib/auth";
@@ -10,17 +10,36 @@ import { trackConversion } from "@/lib/analytics";
 
 type PreferredSlot = "asap" | "morning" | "afternoon" | "evening";
 type ContactSummary = { maskedPhone: string | null; phonePresent: boolean; accountVerified: boolean };
+const CALL_SLOTS: Array<{ value: PreferredSlot; label: string }> = [
+  { value: "asap", label: "En kısa sürede" },
+  { value: "morning", label: "09:00–12:00" },
+  { value: "afternoon", label: "12:00–17:00" },
+  { value: "evening", label: "17:00–20:00" },
+];
 
 const STATUS_MESSAGES: Record<string, string> = {
   duplicate: "Bu ilan için yakın zamanda bir arama talebi gönderdiniz.",
   rate_limited: "Günlük arama talebi sınırına ulaştınız. Lütfen daha sonra tekrar deneyin.",
   seller_rate_limited: "Bu satıcı bugün çok sayıda talep aldı. Lütfen daha sonra tekrar deneyin.",
   own_listing: "Kendi ilanınız için arama talebi oluşturamazsınız.",
+  call_requests_disabled: "Satıcı bu ilan için arama talebi kabul etmiyor.",
+  slot_unavailable: "Seçtiğiniz zaman artık uygun değil. Lütfen başka bir zaman seçin.",
 };
 
-export function ListingCallRequest({ listingId }: { listingId: number }) {
+export function ListingCallRequest({
+  listingId,
+  enabled = true,
+  availableSlots,
+}: {
+  listingId: number;
+  enabled?: boolean;
+  availableSlots?: PreferredSlot[];
+}) {
+  const selectableSlots = useMemo(() => availableSlots?.length
+    ? CALL_SLOTS.filter((slot) => availableSlots.includes(slot.value))
+    : CALL_SLOTS, [availableSlots]);
   const [user] = useState(() => getStoredAuthUser());
-  const [preferredSlot, setPreferredSlot] = useState<PreferredSlot>("asap");
+  const [preferredSlot, setPreferredSlot] = useState<PreferredSlot>(selectableSlots[0].value);
   const [note, setNote] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -31,6 +50,12 @@ export function ListingCallRequest({ listingId }: { listingId: number }) {
   useEffect(() => {
     trackConversion("call_request_view", { listing_id: listingId });
   }, [listingId]);
+
+  useEffect(() => {
+    if (!selectableSlots.some((slot) => slot.value === preferredSlot)) {
+      setPreferredSlot(selectableSlots[0].value);
+    }
+  }, [preferredSlot, selectableSlots]);
 
   useEffect(() => {
     if (!user) return;
@@ -55,6 +80,17 @@ export function ListingCallRequest({ listingId }: { listingId: number }) {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (!enabled) {
+    return (
+      <section id="call-request" className="scroll-mt-24 rounded-[10px] border border-(--color-border) bg-(--color-bg-alt) p-4" aria-labelledby="call-request-title">
+        <h2 id="call-request-title" className="font-semibold text-(--color-foreground)">Arama talebi kapalı</h2>
+        <p className="mt-2 text-sm leading-6 text-(--color-muted)">
+          Satıcı bu ilan için arama talebi kabul etmiyor. Aşağıdaki mesaj formunu kullanabilirsiniz.
+        </p>
+      </section>
+    );
   }
 
   if (!user) {
@@ -107,10 +143,7 @@ export function ListingCallRequest({ listingId }: { listingId: number }) {
         onChange={(event) => setPreferredSlot(event.target.value as PreferredSlot)}
         className="mt-1.5 min-h-11 w-full rounded-lg border border-(--color-border) bg-(--color-background) px-3 text-sm text-(--color-foreground) outline-none focus:border-(--color-brand) focus:ring-2 focus:ring-(--color-brand)/20"
       >
-        <option value="asap">En kısa sürede</option>
-        <option value="morning">09:00–12:00</option>
-        <option value="afternoon">12:00–17:00</option>
-        <option value="evening">17:00–20:00</option>
+        {selectableSlots.map((slot) => <option key={slot.value} value={slot.value}>{slot.label}</option>)}
       </select>
 
       <div className="mt-4">

@@ -43,6 +43,8 @@ export const hfListings = mysqlTable("hf_listings", {
   contactPhone: varchar("contact_phone", { length: 128 }),
   phoneVerified: tinyint("phone_verified").notNull().default(0),
   hidePhone: tinyint("hide_phone").notNull().default(0),
+  callRequestsEnabled: tinyint("call_requests_enabled").notNull().default(1),
+  callAvailability: varchar("call_availability", { length: 96 }).notNull().default("asap,morning,afternoon,evening"),
   validUntil: date("valid_until", { mode: "string" }).notNull(),
   status: mysqlEnum("status", ["pending", "approved", "rejected", "expired", "closed"]).notNull().default("pending"),
   moderationNote: text("moderation_note"),

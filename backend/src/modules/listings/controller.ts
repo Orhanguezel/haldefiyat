@@ -39,7 +39,7 @@ import { verifyOtpToken } from "./otp";
 import { notifyMatches, notifyAdminNewListing } from "./matching";
 import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
 import { env } from "@/core/env";
-import { redactContactText, toPublicListing } from "./public";
+import { parseCallAvailability, redactContactText, toPublicListing } from "./public";
 
 function idParam(req: FastifyRequest<{ Params: { id: string } }>) {
   const id = Number(req.params.id);
@@ -94,11 +94,17 @@ export async function createPublicCallRequest(req: FastifyRequest<{ Params: { id
     const id = idParam(req);
     const listing = id ? await getListingById(id) : null;
     if (!listing || listing.status !== "approved") return sendNotFound(reply);
+    if (!listing.callRequestsEnabled) {
+      return reply.code(409).send({ error: { message: "call_requests_disabled" } });
+    }
     const buyerUserId = getAuthUserId(req);
     if (listing.userId && listing.userId === buyerUserId) {
       return reply.code(400).send({ error: { message: "own_listing" } });
     }
     const parsed = callRequestSchema.parse(req.body ?? {});
+    if (!parseCallAvailability(listing.callAvailability).includes(parsed.preferredSlot)) {
+      return reply.code(409).send({ error: { message: "slot_unavailable" } });
+    }
     const safeNote = redactContactText(parsed.note)?.trim() || null;
     const result = await createCallRequest({
       listingId: id,

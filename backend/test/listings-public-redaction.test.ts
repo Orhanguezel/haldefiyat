@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { toPublicListing } from "../src/modules/listings/public";
+import { parseCallAvailability, toPublicListing } from "../src/modules/listings/public";
 
 describe("toPublicListing", () => {
   it("removes structured and raw phone data from public listings", () => {
@@ -59,5 +59,21 @@ describe("toPublicListing", () => {
 
     expect(result.title).toBe("50.000 kg ürün");
     expect(result.description).toBe("Fiyat 7.000 TL, tarih 2026-08-14, kayıt 1234567890");
+  });
+
+  it("normalizes seller call availability without accepting unknown slots", () => {
+    expect(parseCallAvailability("morning,evening,unknown,morning")).toEqual(["morning", "evening"]);
+    expect(parseCallAvailability(null)).toEqual(["asap", "morning", "afternoon", "evening"]);
+
+    const result = toPublicListing({
+      contactPhone: null,
+      raw: null,
+      title: "Domates",
+      description: null,
+      quality: null,
+      packaging: null,
+      callAvailability: "morning,evening",
+    });
+    expect(result.callAvailability).toEqual(["morning", "evening"]);
   });
 });

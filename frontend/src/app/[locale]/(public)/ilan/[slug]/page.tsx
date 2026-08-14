@@ -78,7 +78,11 @@ export default async function ListingDetailPage({ params }: Props) {
           {listing.description ? <p className="mt-6 whitespace-pre-line leading-7 text-(--color-muted)">{listing.description}</p> : null}
         </article>
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <ListingCallRequest listingId={listing.id} />
+          <ListingCallRequest
+            listingId={listing.id}
+            enabled={Boolean(listing.callRequestsEnabled)}
+            availableSlots={listing.callAvailability}
+          />
           <div className="mt-6">
           <ListingInquiryForm listingId={listing.id} />
           </div>
@@ -89,11 +93,13 @@ export default async function ListingDetailPage({ params }: Props) {
           />
         </aside>
       </div>
-      <div className="fixed inset-x-0 bottom-16 z-40 border-y border-(--color-border) bg-(--color-surface)/95 p-3 shadow-[0_-8px_24px_rgba(0,0,0,0.14)] backdrop-blur lg:hidden">
-        <a href="#call-request" className="mx-auto flex min-h-11 max-w-xl items-center justify-center rounded-lg bg-(--color-brand) px-5 text-sm font-semibold text-white">
-          Satıcıya arama talebi gönder
-        </a>
-      </div>
+      {Boolean(listing.callRequestsEnabled) ? (
+        <div className="fixed inset-x-0 bottom-16 z-40 border-y border-(--color-border) bg-(--color-surface)/95 p-3 shadow-[0_-8px_24px_rgba(0,0,0,0.14)] backdrop-blur lg:hidden">
+          <a href="#call-request" className="mx-auto flex min-h-11 max-w-xl items-center justify-center rounded-lg bg-(--color-brand) px-5 text-sm font-semibold text-white">
+            Satıcıya arama talebi gönder
+          </a>
+        </div>
+      ) : null}
     </PageContainer>
   );
 }

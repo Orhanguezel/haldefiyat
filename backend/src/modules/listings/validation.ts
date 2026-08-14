@@ -4,6 +4,7 @@ import { isValidCitySlug, isValidDistrictSlug } from "@/data/turkey-city-slugs";
 const dateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const positiveMoney = z.coerce.number().positive().optional().nullable();
 const positiveAmount = z.coerce.number().positive().optional().nullable();
+const callSlot = z.enum(["asap", "morning", "afternoon", "evening"]);
 
 function validateLocation(data: { citySlug?: string | null; districtSlug?: string | null }, ctx: z.RefinementCtx) {
   if (data.citySlug && !isValidCitySlug(data.citySlug)) {
@@ -55,6 +56,8 @@ const listingFields = z.object({
   contactName: z.string().trim().max(255).optional().nullable(),
   contactPhone: z.string().trim().max(128).optional().nullable(),
   hidePhone: z.coerce.boolean().default(false),
+  callRequestsEnabled: z.boolean().default(true),
+  callAvailability: z.array(callSlot).min(1).max(4).default(["asap", "morning", "afternoon", "evening"]),
   images: z.array(z.string().trim().min(1).max(512)).max(6).optional(),
   validUntil: dateOnly,
 });
