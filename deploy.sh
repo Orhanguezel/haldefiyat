@@ -7,43 +7,51 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 FRONTEND="$REPO_ROOT/frontend"
+BACKEND="$REPO_ROOT/backend"
+ADMIN="$REPO_ROOT/admin_panel"
 LOGS="$REPO_ROOT/logs"
 
-echo "==> [1/5] git pull (fast-forward only)"
+echo "==> [1/6] git pull (fast-forward only)"
 cd "$REPO_ROOT"
 git pull --ff-only origin main
 
 RELEASE_SHA="$(git rev-parse --short=12 HEAD)"
 RELEASE_DIST=".next-release-$RELEASE_SHA"
 
-echo "==> [2/5] frontend izole production build ($RELEASE_DIST)"
+echo "==> [2/6] backend production build"
+if ! (cd "$BACKEND" && bun run build > "/tmp/hal-backend-build-$RELEASE_SHA.log" 2>&1); then
+  tail -80 "/tmp/hal-backend-build-$RELEASE_SHA.log"
+  echo "HATA: backend build başarısız!" && exit 1
+fi
+tail -25 "/tmp/hal-backend-build-$RELEASE_SHA.log"
+
+echo "==> [3/6] frontend izole production build ($RELEASE_DIST)"
 if ! (cd "$FRONTEND" && NEXT_DIST_DIR="$RELEASE_DIST" bun run build > "/tmp/hal-frontend-build-$RELEASE_SHA.log" 2>&1); then
   tail -80 "/tmp/hal-frontend-build-$RELEASE_SHA.log"
   echo "HATA: frontend build başarısız!" && exit 1
 fi
 tail -25 "/tmp/hal-frontend-build-$RELEASE_SHA.log"
 
-echo "==> [3/5] standalone server.js symlink doğrulaması"
-TARGET="$(find "$FRONTEND/$RELEASE_DIST/standalone" \( -path "*/node_modules/*" -o -path "*/.bun/*" \) -prune -o -name "server.js" -print | head -1)"
+echo "==> [4/6] frontend standalone server.js doğrulaması"
+TARGET="$(find "$FRONTEND/$RELEASE_DIST/standalone" \( -path "*/node_modules/*" -o -path "*/.bun/*" \) -prune -o -name "server.js" -print -quit)"
 if [ -z "$TARGET" ]; then
   echo "HATA: frontend server.js bulunamadı!" && exit 1
 fi
 echo "    symlink hedefi: $FRONTEND/standalone-server.js → $(readlink -f "$FRONTEND/standalone-server.js" 2>/dev/null || echo "$TARGET")"
 
-echo "==> [4/5] admin panel standalone kurulumu"
-ADMIN="$REPO_ROOT/admin_panel"
-ADMIN_TARGET="$(find "$ADMIN/.next/standalone" \( -path "*/node_modules/*" -o -path "*/.bun/*" \) -prune -o -name "server.js" -print | head -1)"
-if [ -n "$ADMIN_TARGET" ]; then
-  ln -sf "$ADMIN_TARGET" "$ADMIN/standalone-server.js"
-  ADMIN_SERVER_DIR="$(dirname "$ADMIN_TARGET")"
-  mkdir -p "$ADMIN_SERVER_DIR/.next/static"
-  cp -r "$ADMIN/.next/static/." "$ADMIN_SERVER_DIR/.next/static/"
-  mkdir -p "$ADMIN_SERVER_DIR/public"
-  cp -r "$ADMIN/public/." "$ADMIN_SERVER_DIR/public/" 2>/dev/null || true
-  echo "    admin symlink: $ADMIN/standalone-server.js → $ADMIN_TARGET"
-else
-  echo "    uyari: admin panel .next/standalone yok — ilk kurulumda 'cd admin_panel && bun run build' çalıştır"
+echo "==> [5/6] admin panel izole production build ($RELEASE_DIST)"
+if ! (cd "$ADMIN" && NEXT_DIST_DIR="$RELEASE_DIST" bun run build > "/tmp/hal-admin-build-$RELEASE_SHA.log" 2>&1); then
+  tail -80 "/tmp/hal-admin-build-$RELEASE_SHA.log"
+  echo "HATA: admin panel build başarısız!" && exit 1
 fi
+tail -25 "/tmp/hal-admin-build-$RELEASE_SHA.log"
+
+ADMIN_TARGET="$(find "$ADMIN/$RELEASE_DIST/standalone" \( -path "*/node_modules/*" -o -path "*/.bun/*" \) -prune -o -name "server.js" -print -quit)"
+if [ -z "$ADMIN_TARGET" ]; then
+  echo "HATA: admin panel server.js bulunamadı!" && exit 1
+fi
+ADMIN_SERVER_DIR="$(dirname "$ADMIN_TARGET")"
+echo "    admin server: $ADMIN_TARGET"
 
 mkdir -p "$LOGS"
 
@@ -88,19 +96,20 @@ fi
 # isaret eden ESKI HTML'i servis etmeye devam eder → /_next/static 500 / ChunkLoadError.
 # 6 Temmuz 2026'da 33 adet statik 500 tam olarak bundan olustu. Kural CLAUDE.md'de
 # yaziliydi ama script `reload` yapiyordu; insan hatasina birakmamak icin buraya sabitlendi.
-echo "==> [5/5] PM2 yeniden başlatılıyor (restart — Next standalone reload'u almaz)"
+echo "==> [6/6] PM2 yayın geçişi"
 cd "$REPO_ROOT"
-pm2 restart ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs
+pm2 reload hal-backend --update-env || pm2 start ecosystem.config.cjs --only hal-backend
+pm2 restart ecosystem.config.cjs --only hal-frontend --update-env || pm2 start ecosystem.config.cjs --only hal-frontend
 # Admin panel ayrı ecosystem ile yönetiliyor
 ADMIN_PANEL_APP_NAME=hal-admin \
-ADMIN_PANEL_CWD="$ADMIN/.next/standalone/admin_panel" \
+ADMIN_PANEL_CWD="$ADMIN_SERVER_DIR" \
 ADMIN_PANEL_PORT=3036 \
 ADMIN_PANEL_HOST=127.0.0.1 \
 ADMIN_PANEL_OUT_LOG="$LOGS/hal-admin-out.log" \
 ADMIN_PANEL_ERR_LOG="$LOGS/hal-admin-err.log" \
 pm2 restart "$ADMIN/ecosystem.config.cjs" --only hal-admin --update-env \
   || ADMIN_PANEL_APP_NAME=hal-admin \
-     ADMIN_PANEL_CWD="$ADMIN/.next/standalone/admin_panel" \
+     ADMIN_PANEL_CWD="$ADMIN_SERVER_DIR" \
      ADMIN_PANEL_PORT=3036 \
      ADMIN_PANEL_HOST=127.0.0.1 \
      ADMIN_PANEL_OUT_LOG="$LOGS/hal-admin-out.log" \
@@ -115,7 +124,7 @@ pm2 list
 # ── Opsiyonel seed ───────────────────────────────────────────────────────────
 if [[ "${1:-}" == "--seed" ]]; then
   echo ""
-  echo "==> [5/5] DB seed (DROP öncesi otomatik backup alınacak)..."
+  echo "==> [opsiyonel] DB seed (DROP öncesi otomatik backup alınacak)..."
   cd "$REPO_ROOT/backend"
   ALLOW_DROP=true bun run db:seed
   echo "✓ Seed tamamlandı — backup: /tmp/hal-db-backups/"

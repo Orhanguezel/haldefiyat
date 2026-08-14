@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-
+  // Çalışan standalone çıktıyı build sırasında ezmemek için release dist desteği.
+  distDir: process.env.NEXT_DIST_DIR?.trim() || '.next',
   transpilePackages: ['@agro/shared-ui', '@agro/shared-types'],
   typescript: { ignoreBuildErrors: true },
   experimental: {},
