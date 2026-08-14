@@ -320,15 +320,15 @@
 
 ### 6.4 Hal, harita ve veri durumu — `konsept 06`
 
-- [ ] P4.33 `/hal`, `/hal/[slug]`, `/harita` ve `/data-health` bilgi mimarisini netleştir.
-- [ ] P4.34 Harita sayaçlarını merkezi metrik sözlüğünden besle.
+- [x] P4.33 `/hal`, hal detayları, `/harita` ve `/data-health` ortak “Hal ve veri görünümü” navigasyonuna bağlandı; fiyat, ilan/firma ve iletişim bölgeleri semantik olarak ayrıldı. Kanıt: `artifacts/renewal-2026/hal-harita-veri-sagligi-kabul-2026-08-14.md`.
+- [x] P4.34 Harita ve veri sağlığı sayaç adları/zaman pencereleri merkezi `frontend/src/lib/public-metrics.ts` sözlüğünden besleniyor. Kanıt: `artifacts/renewal-2026/hal-harita-veri-sagligi-kabul-2026-08-14.md`.
 - [x] P4.35 Harita legend'ı tokenlaşmış düşük/orta/yüksek skala yanında “Ucuz”, “Pahalı”, endeks tanımı ve “Veri yok: gri” metnini birlikte gösteriyor.
 - [x] P4.36 “Güncel”, “gecikmeli”, “bakımda”, “veri yok” eşiklerini açıkla. (13 Ağustos: `/data-health` açıklama paneli + API `no_data` durumu.)
 - [x] P4.37 Kaynak tablosunda son başarılı çekim, satır sayısı, tazelik ve durum göster. (13 Ağustos: mobil kart/masaüstü tablo canlı kabul edildi.)
 - [x] P4.38 İç hostname, stack trace veya güvenlik detayını public durum sayfasına sızdırma. (13 Ağustos: ham `errorMsg` public sözleşmeden kaldırıldı; güvenli `statusMessage` eklendi.)
-- [ ] P4.39 Hal detayında iletişim/veri kaynağı ile fiyat verisini birbirine karıştırma.
-- [ ] P4.40 Mobil haritada alternatif erişilebilir kaynak listesi sun.
-- [ ] P4.41 Olay/geçmiş bölümünü gerçek sağlık eventlerinden besle.
+- [x] P4.39 Hal detayında güncel fiyat listesi, ilan/firma katmanı ve “Künye ve İletişim” ayrı başlık ve semantik bölgelerle sunuluyor; Ankara canlı kabulünde doğrulandı. Kanıt: `artifacts/renewal-2026/hal-harita-veri-sagligi-kabul-2026-08-14.md`.
+- [x] P4.40 Mobil haritada endeksli illerin tamamını il/endeks/hal/fiyat bağlantısıyla veren erişilebilir tablo alternatifi var; 19 satır ve taşmasız 390 px kabul edildi. Kanıt: `artifacts/renewal-2026/hal-harita-veri-sagligi-kabul-2026-08-14.md`.
+- [x] P4.41 `/data-health` olay geçmişi son 12 gerçek `hf_etl_runs` kaydından besleniyor; canlı API ve sayfada doğrulandı, ham hata alanı sorguya/public DTO'ya alınmıyor. Kanıt: `artifacts/renewal-2026/hal-harita-veri-sagligi-kabul-2026-08-14.md`.
 
 ### 6.5 Analiz, rapor, endeks ve basın — `konsept 03`
 
