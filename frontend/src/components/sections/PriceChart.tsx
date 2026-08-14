@@ -173,7 +173,7 @@ export default function PriceChart({ history, productName }: PriceChartProps) {
                 type="button"
                 onClick={() => setRange(r.key)}
                 aria-pressed={active}
-                aria-label={`Son ${r.days} günülük fiyat grafiği`}
+                aria-label={`Son ${r.days} günlük fiyat grafiği`}
                 className={
                   "rounded-[7px] px-3 py-1.5 font-(family-name:--font-mono) text-[12px] font-semibold transition-colors " +
                   (active ? "bg-(--color-brand) text-(--color-brand-fg)" : "text-(--color-muted) hover:text-(--color-foreground)")

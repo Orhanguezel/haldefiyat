@@ -305,18 +305,18 @@
 
 ### 6.3 Ürün detay — `konsept 02`
 
-- [ ] P4.21 Ürün adını canonical sözlükten göster; şablon artığına izin verme.
-- [ ] P4.22 Ana fiyat/birim/tarih/kaynak/örneklem bloğunu fold üstüne taşı.
+- [x] P4.21 Ürün adı canonical sözlükten gösteriliyor; başlık, breadcrumb, AnswerBlock ve grafik bağlamı canlı `Domates` kabulünde tutarlı, şablon artığı yok. Kanıt: `artifacts/renewal-2026/urun-detay-etkilesim-kabul-2026-08-14.md`.
+- [x] P4.22 Ana fiyat/birim/tarih/kaynak/örneklem bloğu ürün girişinde birlikte gösteriliyor; canlı kabulde `35,05 TL/kg`, 13 Ağustos 2026, 13 hal ve kaynak/tazelik özeti doğrulandı. Kanıt: `artifacts/renewal-2026/urun-detay-etkilesim-kabul-2026-08-14.md`.
 - [x] P4.23 Min, ortalama ve maks değerlerinin hesap yöntemi açıklandı; sentetik ortalama satır/kart/ürün/perakende yüzeyinde etiketleniyor, endeks ve bültende min–maks orta noktası ile hacim-ağırlıklı-olmama notu var. Kanıt: `artifacts/renewal-2026/sentetik-ortalama-kabul-2026-08-14.md`.
-- [ ] P4.24 7/30/90 günlük grafik seçimlerini erişilebilir toggle yap.
-- [ ] P4.25 Grafik tooltip’lerinde hal, fiyat, birim ve tarih göster.
-- [ ] P4.26 Trend için ok+metin+yüzde kullan; renk tek başına anlam taşımasın.
-- [ ] P4.27 Hal tablosunu önem sırasına göre düzenle ve kaynak tazeliğini satırda göster.
-- [ ] P4.28 Varyantları gerçek çeşit/alias mantığıyla göster; kopya sayfa üretme.
-- [ ] P4.29 Retail comparison anomali guard’ından geçen veriyi göster.
-- [ ] P4.30 Alarm, favori, karşılaştırma ve paylaşımı ikincil CTA olarak düzenle.
-- [ ] P4.31 Ürün açıklaması, sezon, metodoloji ve kaynak bölümlerini okunabilir IA’ya taşı.
-- [ ] P4.32 Reklamı grafik veya fiyat kartı gibi göstermeyecek şekilde ayır.
+- [x] P4.24 7/30/90 günlük seçimler `role=group`, açıklayıcı erişilebilir ad ve tek-seçimli `aria-pressed` durumu taşıyor; canlı etkileşimle doğrulandı. Kanıt: `artifacts/renewal-2026/urun-detay-etkilesim-kabul-2026-08-14.md`.
+- [x] P4.25 Grafik tooltip'i tarih, hal/şehir, fiyat/birim ve mevcut min–maks değerlerini gösteriyor. Kanıt: `frontend/src/components/sections/PriceChart.tsx` ve `artifacts/renewal-2026/urun-detay-etkilesim-kabul-2026-08-14.md`.
+- [x] P4.26 7 ve 30 günlük trendler yön ikonu, “düşüş/yükseliş/yatay” metni ve yüzdeyle gösteriliyor; renk tek başına anlam taşımıyor. Kanıt: `artifacts/renewal-2026/urun-detay-etkilesim-kabul-2026-08-14.md`.
+- [x] P4.27 Hal tablosu en yeni tarih önce isteniyor; her satır tarih, resmi kaynak, tazelik ve kaynak doğrulama bağlantısını gösteriyor. Kanıt: `artifacts/renewal-2026/urun-detay-etkilesim-kabul-2026-08-14.md`.
+- [x] P4.28 Gerçek çeşitler kendi ürün slug'larına bağlanıyor; aynı ürünü ifade eden ham hal adları yeni kopya sayfa açmadan alias bölümünde birleştiriliyor. Kanıt: `artifacts/renewal-2026/urun-detay-etkilesim-kabul-2026-08-14.md`.
+- [x] P4.29 Perakende karşılaştırması türev fiyat guard'ından geçen güncel kayıtları “tahmini perakende” etiketi, kaynak ve tazelikle gösteriyor. Kanıt: `artifacts/renewal-2026/urun-detay-etkilesim-kabul-2026-08-14.md`.
+- [x] P4.30 Alarm, favori, karşılaştırma ve paylaşım ikincil ürün eylemleri olarak gruplanmış; mobil erişilebilir adlar, alarm ön-seçimi ve URL tabanlı karşılaştırma canlıda doğrulandı. Kanıt: `artifacts/renewal-2026/urun-detay-etkilesim-kabul-2026-08-14.md`.
+- [x] P4.31 Ürün açıklaması, sezon, metodoloji/kaynak, SSS ve alias içeriği ayrı okunabilir bölümlere taşındı. Kanıt: `artifacts/renewal-2026/urun-detay-etkilesim-kabul-2026-08-14.md`.
+- [x] P4.32 Tablo sonrasındaki reklam fiyat/grafik kartından ayrıldı; `complementary` “Reklam” alanı ve “Reklam · Sponsorlu” etiketi canlıda doğrulandı. Kanıt: `artifacts/renewal-2026/urun-detay-etkilesim-kabul-2026-08-14.md`.
 
 ### 6.4 Hal, harita ve veri durumu — `konsept 06`
 
