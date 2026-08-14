@@ -13,6 +13,7 @@ type ProductionShape =
 
 export interface ProductionSourceConfig {
   key:              string;
+  name:             string;
   enabled:          boolean;
   shape:            ProductionShape;
   url:              string;
@@ -24,6 +25,7 @@ export interface ProductionSourceConfig {
 
 interface RawSource {
   key: string;
+  name: string;
   defaultEnabled: boolean;
   shape: ProductionShape;
   defaultUrl: string;
@@ -34,6 +36,7 @@ interface RawSource {
 const RAW_SOURCES: RawSource[] = [
   {
     key:             "ibb_istanbul_aquaculture",
+    name:            "İBB Açık Veri — Su Ürünleri Yetiştiriciliği",
     defaultEnabled:  true,
     shape:           "ibb_aquaculture_xlsx",
     defaultUrl:      "https://data.ibb.gov.tr/dataset/8ac37add-fa7c-4abe-9fd7-e04199158ebd/resource/99143f37-9c22-434d-be66-d6c95cb7f2ff/download/su-urunleri-yetitiricilik-uretim-miktar.xlsx",
@@ -65,6 +68,7 @@ export function loadProductionSources(): ProductionSourceConfig[] {
   const timeout = parseEnvInt(process.env.HF_PROD_TIMEOUT_MS, 45_000);
   return RAW_SOURCES.map((s) => ({
     key:          s.key,
+    name:         s.name,
     enabled:      envBool(process.env[envKey(s.key, "ENABLED")], s.defaultEnabled),
     shape:        s.shape,
     url:          envStr(process.env[envKey(s.key, "URL")], s.defaultUrl),

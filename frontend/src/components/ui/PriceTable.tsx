@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useDeferredValue } from "react";
 import Link from "next/link";
 import { productHref } from "@/lib/product-links";
+import { sourceCompactLabel, sourceDisplayName } from "@/lib/source-display";
 import { apiGet } from "@/lib/api-client";
 import type { PriceRow, Market, PriceListResponse, PriceListMeta, FetchPricesParams } from "@/lib/api";
 import Pagination from "@/components/ui/Pagination";
@@ -613,13 +614,13 @@ export default function PriceTable({
                     <td className="px-4 py-3.5">
                       <div className="flex min-w-[132px] flex-wrap gap-1.5">
                         <span
-                          title={row.sourceName ?? row.sourceApi}
+                          title={sourceDisplayName(row.sourceName, row.sourceApi)}
                           className={
                             "inline-flex items-center rounded-[5px] border px-2 py-0.5 font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.05em] " +
                             sourceClass
                           }
                         >
-                          {family}
+                          {sourceCompactLabel(row.sourceName, row.sourceApi)}
                         </span>
                         {row.isOfficialSource && (
                           <span className="inline-flex items-center rounded-[5px] border border-emerald-400/25 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-200">
@@ -641,6 +642,12 @@ export default function PriceTable({
                             Doğrulanabilir
                           </a>
                         )}
+                        <Link
+                          href="/metodoloji"
+                          className="inline-flex items-center text-[10px] font-semibold text-(--color-muted) underline underline-offset-2 hover:text-(--color-brand)"
+                        >
+                          Metodoloji
+                        </Link>
                       </div>
                     </td>
                   </tr>
@@ -741,10 +748,11 @@ function MobilePriceCard({
       <div className="flex flex-wrap items-center gap-2 text-[11px] text-(--color-muted)">
         <time dateTime={row.recordedDate}>{formatDate(row.recordedDate)}</time>
         <span aria-hidden>·</span>
-        <span title={row.sourceName ?? row.sourceApi} className="font-semibold uppercase">{family}</span>
+        <span title={sourceDisplayName(row.sourceName, row.sourceApi)} className="font-semibold">{sourceCompactLabel(row.sourceName, row.sourceApi)}</span>
         {row.isOfficialSource ? <span className="rounded-full border border-(--color-success)/35 bg-(--color-success-bg) px-2 py-0.5 text-(--color-success)">Resmi kaynak</span> : null}
         {row.isStale ? <span className="rounded-full border border-(--color-warning)/40 bg-(--color-warning-bg) px-2 py-0.5 text-(--color-warning)">{isBorsaTable ? "Geçen sezon" : "Gecikmeli"}</span> : null}
         {row.sourceUrl ? <a href={row.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-(--color-info) underline underline-offset-2">Kaynağı doğrula</a> : null}
+        <Link href="/metodoloji" className="font-semibold underline underline-offset-2 hover:text-(--color-brand)">Metodoloji</Link>
       </div>
     </article>
   );

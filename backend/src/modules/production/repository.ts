@@ -2,6 +2,7 @@ import type { SQL } from "drizzle-orm";
 import { and, asc, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfAnnualProduction } from "@/db/schema";
+import { getProductionSourceByKey } from "@/config/production-sources";
 
 export interface ProductionFilters {
   species?:  string;   // slug
@@ -21,7 +22,7 @@ export async function listProduction(params: ProductionFilters) {
   if (params.yearFrom != null) conds.push(gte(hfAnnualProduction.year, params.yearFrom));
   if (params.yearTo   != null) conds.push(lte(hfAnnualProduction.year, params.yearTo));
 
-  return db
+  const rows = await db
     .select({
       id:            hfAnnualProduction.id,
       year:          hfAnnualProduction.year,
@@ -37,6 +38,15 @@ export async function listProduction(params: ProductionFilters) {
     .where(conds.length ? and(...conds) : undefined)
     .orderBy(desc(hfAnnualProduction.year), asc(hfAnnualProduction.speciesSlug))
     .limit(limit);
+
+  return rows.map((row) => {
+    const source = getProductionSourceByKey(row.sourceApi);
+    return {
+      ...row,
+      sourceName: source?.name ?? "Resmî üretim veri kaynağı",
+      sourceUrl: source?.url ?? null,
+    };
+  });
 }
 
 /**

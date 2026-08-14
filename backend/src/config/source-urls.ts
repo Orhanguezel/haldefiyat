@@ -1,3 +1,5 @@
+import { getSourceByKey } from "@/config/etl-sources";
+
 export type SourceType = "municipality" | "exchange" | "official" | "cooperative" | "manual";
 
 export interface SourceInfo {
@@ -164,12 +166,41 @@ export function sourceTypeFromMarketType(marketType: string | null | undefined):
   }
 }
 
-export function sourceInfoFor(sourceApi: string | null | undefined, marketType?: string | null): SourceInfo | null {
+function publicSourceName(sourceApi: string, fallbackName?: string | null): string {
+  const fallback = fallbackName?.trim();
+  if (fallback) return fallback;
+
+  if (sourceApi.startsWith("tobb_borsa_")) {
+    const city = sourceApi.slice("tobb_borsa_".length)
+      .split("_")
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toLocaleUpperCase("tr-TR") + part.slice(1))
+      .join(" ");
+    return `${city} Ticaret Borsası`;
+  }
+
+  const place = sourceApi
+    .replace(/_wayback$/u, "")
+    .split("_")[0];
+  if (place) {
+    const label = place.charAt(0).toLocaleUpperCase("tr-TR") + place.slice(1);
+    return `${label} fiyat kaynağı`;
+  }
+
+  return "Resmî fiyat kaynağı";
+}
+
+export function sourceInfoFor(
+  sourceApi: string | null | undefined,
+  marketType?: string | null,
+  fallbackName?: string | null,
+): SourceInfo | null {
   if (sourceApi && SOURCE_URLS[sourceApi]) return SOURCE_URLS[sourceApi]!;
   if (!sourceApi) return null;
+  const configuredSource = getSourceByKey(sourceApi.replace(/_wayback$/u, ""));
   return {
-    name: sourceApi,
-    url: "",
+    name: publicSourceName(sourceApi, fallbackName),
+    url: configuredSource?.baseUrl ?? "",
     type: sourceTypeFromMarketType(marketType),
     official: marketType === "hal" || marketType === "resmi",
   };

@@ -873,6 +873,8 @@ export interface ProductionRow {
   regionSlug:    string;
   productionTon: string;
   sourceApi:     string;
+  sourceName:    string;
+  sourceUrl:     string | null;
   note:          string | null;
 }
 

@@ -115,7 +115,8 @@ type RawPriceRow = typeof priceColumns extends infer T ? T : never;
 function enrichPriceRow<T extends Record<string, unknown>>(row: T) {
   const marketType = typeof row.marketType === "string" ? row.marketType : null;
   const sourceApi = typeof row.sourceApi === "string" ? row.sourceApi : null;
-  const source = sourceInfoFor(sourceApi, marketType);
+  const marketName = typeof row.marketName === "string" ? row.marketName : null;
+  const source = sourceInfoFor(sourceApi, marketType, marketName);
   const recordedDate = isoDate(row.recordedDate);
   const fetchedAt = isoDateTime(row.fetchedAt);
   const daysSinceRecord = daysSinceIso(recordedDate);
@@ -130,7 +131,7 @@ function enrichPriceRow<T extends Record<string, unknown>>(row: T) {
     recordedDate: recordedDate ?? String(row.recordedDate ?? ""),
     fetchedAt,
     publishedAt: recordedDate,
-    sourceName: source?.name || (typeof row.marketName === "string" ? row.marketName : sourceApi),
+    sourceName: source?.name || marketName || "Resmî fiyat kaynağı",
     sourceUrl: source?.url || null,
     sourceType: source?.type ?? sourceTypeFromMarketType(marketType),
     isStale,
@@ -805,10 +806,10 @@ export async function sourceStatusRows() {
         : lastSourceDate && lastSourceDate < staleIso
           ? "stale"
           : "ok";
-    const info = sourceInfoFor(sourceKey, market?.marketType);
+    const info = sourceInfoFor(sourceKey, market?.marketType, market?.marketName);
     return {
       sourceApi: sourceKey,
-      sourceName: info?.name ?? sourceKey,
+      sourceName: info?.name ?? market?.marketName ?? "Resmî fiyat kaynağı",
       sourceUrl: info?.url || null,
       sourceType: info?.type ?? sourceTypeFromMarketType(market?.marketType),
       city: market?.city ?? null,

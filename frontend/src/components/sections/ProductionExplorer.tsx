@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { ProductionRow, ProductionSpeciesRow } from "@/lib/api";
+import { sourceDisplayName } from "@/lib/source-display";
 
 interface Props {
   initialRows: ProductionRow[];
@@ -157,8 +159,12 @@ export default function ProductionExplorer({ initialRows, species }: Props) {
                       <td className="px-4 py-3 text-right font-(family-name:--font-mono) text-[14px] font-bold text-(--color-foreground)">
                         {fmtTon(r.productionTon)}
                       </td>
-                      <td className="px-4 py-3 font-(family-name:--font-mono) text-[10px] uppercase tracking-[0.05em] text-(--color-muted)">
-                        {r.sourceApi.split("_")[0]}
+                      <td className="px-4 py-3 text-[11px] text-(--color-muted)">
+                        {r.sourceUrl ? (
+                          <a href={r.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-(--color-brand) hover:underline">
+                            {sourceDisplayName(r.sourceName, r.sourceApi)}
+                          </a>
+                        ) : sourceDisplayName(r.sourceName, r.sourceApi)}
                       </td>
                     </tr>
                   ))
@@ -166,6 +172,9 @@ export default function ProductionExplorer({ initialRows, species }: Props) {
               </tbody>
             </table>
           </div>
+          <p className="text-xs leading-5 text-(--color-muted)">
+            Üretim kayıtlarının kapsamı ve normalizasyon ilkeleri için <Link href="/metodoloji" className="font-semibold text-(--color-brand) underline underline-offset-2">Metodoloji</Link> sayfasını inceleyin.
+          </p>
         </>
       )}
     </div>

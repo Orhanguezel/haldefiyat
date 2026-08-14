@@ -6,6 +6,7 @@ import PageContainer from "@/components/layout/PageContainer";
 import { fetchPricesOverview, fetchSourceStatus, type SourceStatusRow } from "@/lib/api";
 import { localePath } from "@/lib/locale-path";
 import { getPageMetadata } from "@/lib/seo";
+import { sourceDisplayName, sourceTypeLabel } from "@/lib/source-display";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -51,8 +52,8 @@ function StatusBadge({ status }: { status: SourceStatusRow["status"] }) {
 function SourceDetails({ item }: { item: SourceStatusRow }) {
   return (
     <>
-      <div className="font-semibold text-(--color-foreground)">{item.sourceName}</div>
-      <div className="mt-0.5 font-(family-name:--font-mono) text-[11px] text-(--color-muted)">{item.sourceApi}</div>
+      <div className="font-semibold text-(--color-foreground)">{sourceDisplayName(item.sourceName, item.sourceApi)}</div>
+      <div className="mt-0.5 text-[11px] text-(--color-muted)">{sourceTypeLabel(item.sourceType)}</div>
       {item.sourceUrl && (
         <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex min-h-11 items-center text-xs font-semibold text-(--color-brand) hover:underline">
           Resmî kaynağı aç <span className="ml-1" aria-hidden>↗</span>
