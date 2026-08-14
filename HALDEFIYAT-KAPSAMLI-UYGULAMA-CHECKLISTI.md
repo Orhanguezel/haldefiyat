@@ -109,7 +109,7 @@
 - [x] F1.9 Yetkili `POST /listings/:id/call-requests` endpoint’i ekle.
 - [x] F1.10 Aynı ilan+alıcı için aktif talebi 24 saat engelleyen idempotency kuralı ekle.
 - [x] F1.11 Alıcı günlük 5, ilan+alıcı 24 saat, satıcı günlük 25 DB kotası ve IP başına 10/saat route burst limiti eklendi; ham IP saklanmıyor.
-- [ ] F1.12 Doğrulanmamış kullanıcının OTP/giriş akışına yönlendirilmesini sağla.
+- [x] F1.12 Auth olmayan kullanıcı girişe, giriş yapmış fakat doğrulanmamış kullanıcı güvenli hesap doğrulama paneline yönlendiriliyor. Backend doğrulanmış e-posta veya aynı kullanıcıya bağlı süreli HMAC OTP tokenı olmadan talebi 403 ile reddediyor; SMS pasifken Google doğrulanmış e-posta yolu görünür. Canlı ve mobil kabul: `artifacts/renewal-2026/arama-talebi-kimlik-sms-guvenlik-kabul-2026-08-14.md`.
 - [x] F1.13 Yetkili backend profil özeti tam numarayı sunucuda maskeliyor; form `05** *** ** 67` biçimini veya profil tamamlama linkini gösteriyor. Canlı auth kabulünde tam telefon yanıt gövdesinde yok; kanıt `artifacts/renewal-2026/arama-talebi-maskeli-profil-kabul-2026-08-14.md`.
 - [~] F1.14 İlk MVP bildirimi mevcut Telegram admin kanalına ve alıcı/satıcı paneline bağlandı; satıcıya e-posta teslimi ve retry gözlemi bekliyor. Netgsm canlı provider/credential/flag pasif.
 - [x] F1.15 Telegram bildiriminde alıcının telefonu/e-postası/adı paylaşılmıyor; yalnız ilan, tercih zamanı, not ve talep no gönderiliyor.
@@ -589,7 +589,7 @@
 - [ ] E8 `getPageMetadata` page-key çakışması tuzağı: DB `seo_pages` template'i sayfa override'ını ezebilir (hal_detay vakası). F5.1 çalışmasında detay sayfası key'lerinin liste key'lerine çarpmadığı test edilir.
 - [ ] E9 Ürün foto altyapısı mevcut: `hf_products.image_url` + admin upload + manifest. 34 ürüne Commons fotoğrafı eklendi, ~110 ürün fotoğrafsız, CC lisans ATIFI YAPILMIYOR (açık hukuki risk). F5.8'den önce atıf borcu kapatılır; Tarladan Sofraya yönü seçilirse bu risk kritikleşir (E27).
 - [ ] E10 Admin "Kalite" sekmesi (içerik/SEO/index skoru + GSC inspect) ve haftalık analiz "yeniden üret + yayınla" akışı mevcut; mover anomali cap (%80) deploy'lu. F1.31–35 Invalid Date düzeltmesi bu üreticiyi regresyona sokmadan yapılır; /analiz cron'da DEĞİL, manuel denetlenir.
-- [ ] E11 Telegram bildirim kanalları canlı (contact / firma-lead / ilan-sorusu / yeni-ilan); satıcı arama-talebi bildirimi (F1.14) aynı kanala eklenir.
+- [x] E11 Mevcut Telegram admin kanalı yeniden kullanıldı; arama talebi kişisel veri taşımadan ilan, tercih zamanı, redakte not ve talep numarasıyla aynı kanala bağlandı. Ayrı bildirim altyapısı kurulmadı; teslim işareti yalnız başarılı Telegram cevabından sonra yazılıyor.
 - [ ] E12 Baseline araçları hazır: `backend/scripts/traffic-report.sh` (elle awk yazma), `backend/scripts/etl-health.sh 24`, PageSpeed API anahtarı backend/.env'de. F0.23–28 bazları bu araçlarla alınır.
 
 ### 15.2 Faz 0 ilaveleri — keşif
@@ -609,9 +609,9 @@
 
 ### 15.4 Güvenli arama MVP — gerçeklik notları
 
-- [ ] E22 SMS/OTP KOD ALTYAPISI VAR: `backend/src/modules/listings/sms.ts` Netgsm gönderimi, `otp.ts` normalize/HMAC/TTL/deneme-günlük limit ve `phase12.controller.ts` send/verify akışını içeriyor. Faz 0'da canlı `SMS_PROVIDER`, `NETGSM_*` credential ve gönderim sonucu doğrulanır; yeni SMS sistemi yazılmaz. Sağlayıcı pasifse MVP Resend+Telegram+panel ile çıkar, SMS aktivasyonu ayrı operasyon kararı olur.
-- [ ] E23 Alıcının "maskeli numaram" gösterimi için telefon OTP veri modeli ve imzalı token altyapısı mevcut. Keşif kapsamı altyapının varlığı değil; `LISTING_REQUIRE_PHONE_OTP`, canlı credential, tokenın call-request yetkilendirmesinde güvenli yeniden kullanımı ve kullanıcı profilindeki verified-phone kalıcılığıdır. Canlı SMS pasifse doğrulanmış e-posta ile MVP alternatifi ayrıca kararlaştırılır.
-- [ ] E24 Yeni `call_requests` endpoint'leri guvenlik-guard hook ve `requireEnv` (secret fallback YASAK) kurallarına tabidir; review'da signup default-admin sınıfı açıklara özel bakılır.
+- [x] E22 Canlıda provider `none`, Netgsm credential ve OTP flag pasif; Telegram+SMTP aktif doğrulandı. Mevcut adapter korundu. Production `none`/eksik credential fail-closed yapıldı, başarısız SMS doğrulama satırı yazmıyor ve telefon/kod loglamıyor; auth + IP/telefon/deneme kotaları canlı 401/503/DB kabulünden geçti. Kanıt: `artifacts/renewal-2026/arama-talebi-kimlik-sms-guvenlik-kabul-2026-08-14.md`.
+- [x] E23 OTP kaydı `user_id` ile kalıcı bağlandı; token `phone+userId+exp` HMAC ve sabit-zamanlı imza doğrulamasıyla call-request yetkisinde güvenle yeniden kullanılıyor. Canlı SMS pasifken doğrulanmış e-posta MVP alternatifi seçildi; maskeli telefon özeti korunuyor, doğrulanmamış hesap 403 ve görünür doğrulama yönlendirmesi alıyor. Kanıt: `artifacts/renewal-2026/arama-talebi-kimlik-sms-guvenlik-kabul-2026-08-14.md`.
+- [x] E24 Call-request ve OTP endpoint'leri global güvenlik/audit hookları, auth, route/IP ve DB kotaları altında. JWT/cookie secret fallback'siz zorunlu; HMAC token boyut/TTL/kullanıcı bağı testli. Public signup yalnız customer/komisyoncu allowlist'inde, admin yalnız sunucu e-posta allowlist'inden atanıyor. Canlı yan etkisiz 401/403/503 kabulü geçti. Kanıt: `artifacts/renewal-2026/arama-talebi-kimlik-sms-guvenlik-kabul-2026-08-14.md`.
 - [ ] E25 KVKK aydınlatma metinleri veri sorumlusu kimliğine bağlıdır (E31 künye kararı); tüzel kişi netleşmeden metin yayınlanmaz.
 - [ ] E26 İlan modülünün kayıtlı kararları korunur: ilan fiyatı hal fiyat verisine KARIŞMAZ; coğrafyalar arası eşleştirme (Antalya karpuzu ↔ Kars alıcısı) ana değer önerisidir; sponsorluk/öne-çıkarma geliri Faz 0'dan açıktır (gated bireysel premium'dan ayrı).
 
