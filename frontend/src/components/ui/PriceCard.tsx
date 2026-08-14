@@ -130,6 +130,8 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
           <span className="font-semibold text-(--color-foreground)">{formatDateTr(row.recordedDate) ?? "Tarih bilinmiyor"}</span>
           <span aria-hidden> · </span>
           <span>{row.sourceName || "Kaynak bilgisi mevcut"}</span>
+          <span aria-hidden> · </span>
+          <span>{Math.max(1, Number(row.recordCount) || 1)} kaynak kaydı</span>
         </div>
 
         <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-(--color-muted)">

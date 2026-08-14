@@ -111,7 +111,10 @@ function MobileMarketsMap({ locale, markets }: { locale: string; markets: Market
           </Link>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-(--color-border-soft) bg-[radial-gradient(circle_at_45%_35%,rgba(132,240,76,0.22),transparent_45%),linear-gradient(135deg,rgba(16,185,129,0.14),rgba(59,130,246,0.10))] p-3">
+        <div
+          className="overflow-hidden rounded-lg border border-(--color-border-soft) p-3"
+          style={{ background: "radial-gradient(circle at 45% 35%, color-mix(in srgb, var(--color-brand) 22%, transparent), transparent 45%), linear-gradient(135deg, color-mix(in srgb, var(--color-brand) 14%, transparent), color-mix(in srgb, var(--color-info) 10%, transparent))" }}
+        >
           <svg
             viewBox={`0 0 ${TURKEY_VIEWBOX.width} ${TURKEY_VIEWBOX.height}`}
             role="img"
@@ -126,7 +129,7 @@ function MobileMarketsMap({ locale, markets }: { locale: string; markets: Market
                   d={province.d}
                   fill={active ? "var(--color-brand)" : "var(--map-empty-fill)"}
                   fillOpacity={active ? 0.92 : 0.74}
-                  stroke={active ? "rgba(255,255,255,0.72)" : "var(--map-stroke)"}
+                  stroke={active ? "var(--color-brand-fg)" : "var(--map-stroke)"}
                   strokeWidth={active ? 1.2 : 0.7}
                 >
                   <title>{active ? `${province.name} - hal verisi var` : province.name}</title>

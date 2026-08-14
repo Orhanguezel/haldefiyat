@@ -197,7 +197,7 @@ export default async function YearlyReportPage({ params }: Props) {
           main { max-width: 100% !important; padding: 0 !important; }
           h1, h2 { page-break-after: avoid; }
           table { page-break-inside: avoid; }
-          .card { border: 1px solid #ddd !important; box-shadow: none !important; }
+          .card { border: 1px solid var(--color-border) !important; box-shadow: none !important; }
         }
       `}</style>
 

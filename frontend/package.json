@@ -7,6 +7,7 @@
     "build": "next build && node scripts/sync-standalone-assets.mjs",
     "start": "next start",
     "lint": "eslint .",
+    "check:theme-colors": "node scripts/check-theme-colors.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },

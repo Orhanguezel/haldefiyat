@@ -240,14 +240,14 @@ function LineChart({
           {p.year}
         </text>
       ))}
-      <path d={pathD} fill="none" stroke="var(--color-brand, #22c55e)" strokeWidth={2} />
+      <path d={pathD} fill="none" stroke="var(--color-brand)" strokeWidth={2} />
       {data.points.map((p) => (
         <circle
           key={p.year}
           cx={x(p.year)}
           cy={y(p.ton)}
           r={3.5}
-          fill="var(--color-brand, #22c55e)"
+          fill="var(--color-brand)"
         />
       ))}
     </svg>

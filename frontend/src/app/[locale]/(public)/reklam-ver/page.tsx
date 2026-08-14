@@ -119,9 +119,9 @@ export default async function AdvertisePage({ params }: Props) {
         { name: "Reklam Ver", href: "/reklam-ver" },
       ]} />
 
-      <section className="relative mt-6 overflow-hidden rounded-[28px] border border-white/10 bg-[#07100f] px-6 py-14 shadow-[0_24px_80px_rgba(4,12,10,.16)] sm:px-10 lg:px-16 lg:py-20">
+      <section className="relative mt-6 overflow-hidden rounded-[28px] border border-(--color-border) bg-(--color-header) px-6 py-14 shadow-[var(--card-shadow)] sm:px-10 lg:px-16 lg:py-20">
         <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-(--color-brand)/15 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 right-0 h-64 w-[45%] bg-[linear-gradient(135deg,transparent,rgba(102,255,0,.08))]" />
+        <div className="pointer-events-none absolute bottom-0 right-0 h-64 w-[45%] bg-[linear-gradient(135deg,transparent,color-mix(in_srgb,var(--color-brand)_8%,transparent))]" />
         <div className="relative max-w-4xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-(--color-brand)/30 bg-(--color-brand)/10 px-3 py-1.5 font-(family-name:--font-mono) text-[11px] font-bold uppercase tracking-[0.14em] text-(--color-brand)">
             <Megaphone className="h-3.5 w-3.5" />
@@ -136,7 +136,7 @@ export default async function AdvertisePage({ params }: Props) {
             uygun zamanda ve ölçümlenebilir reklam alanlarıyla ulaşın.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <Link href="/iletisim?subject=Reklam%20Talebi" className="inline-flex items-center gap-2 rounded-xl bg-(--color-brand) px-5 py-3 text-sm font-bold text-[#07100a] transition hover:brightness-110">
+            <Link href="/iletisim?subject=Reklam%20Talebi" className="inline-flex items-center gap-2 rounded-xl bg-(--color-brand) px-5 py-3 text-sm font-bold text-(--color-brand-fg) transition hover:brightness-110">
               Kampanya teklifi alın <ArrowRight className="h-4 w-4" />
             </Link>
             <Link href="/hesabim/reklamlarim" className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
@@ -279,12 +279,12 @@ export default async function AdvertisePage({ params }: Props) {
         </div>
       </section>
 
-      <section className="my-12 overflow-hidden rounded-[26px] bg-(--color-brand) px-6 py-10 text-[#07100a] sm:px-10 lg:flex lg:items-center lg:justify-between lg:px-14">
+      <section className="my-12 overflow-hidden rounded-[26px] bg-(--color-brand) px-6 py-10 text-(--color-brand-fg) sm:px-10 lg:flex lg:items-center lg:justify-between lg:px-14">
         <div>
           <h2 className="font-(family-name:--font-display) text-3xl font-black sm:text-4xl">Kampanyanız için uygun alanı bulalım.</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#07100a]/70">Hedefinizi, tarih aralığını ve yönlendirmek istediğiniz sayfayı iletin. Doluluk kontrolünden sonra size uygun yerleşim ve yayın planını hazırlayalım.</p>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-(--color-brand-fg)/70">Hedefinizi, tarih aralığını ve yönlendirmek istediğiniz sayfayı iletin. Doluluk kontrolünden sonra size uygun yerleşim ve yayın planını hazırlayalım.</p>
         </div>
-        <Link href="/iletisim?subject=Reklam%20Talebi" className="mt-6 inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#07100a] px-5 py-3 text-sm font-bold text-white lg:mt-0">
+        <Link href="/iletisim?subject=Reklam%20Talebi" className="mt-6 inline-flex shrink-0 items-center gap-2 rounded-xl bg-(--color-header) px-5 py-3 text-sm font-bold text-(--color-header-fg) lg:mt-0">
           Teklif isteyin <ArrowRight className="h-4 w-4" />
         </Link>
       </section>

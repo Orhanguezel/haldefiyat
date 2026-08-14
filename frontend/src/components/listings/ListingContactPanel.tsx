@@ -53,7 +53,7 @@ export function ListingContactPanel({ listingId, enabled, availableSlots }: {
 
   return (
     <>
-      <div className="fixed inset-x-0 bottom-16 z-50 border-t border-(--color-border) bg-(--color-surface)/95 p-3 shadow-[0_-8px_24px_rgba(0,0,0,0.14)] backdrop-blur lg:hidden">
+      <div className="fixed inset-x-0 bottom-16 z-50 border-t border-(--color-border) bg-(--color-surface)/95 p-3 shadow-[var(--mobile-fixed-shadow)] backdrop-blur lg:hidden">
         <div className="mx-auto grid max-w-xl grid-cols-[minmax(0,1fr)_auto] gap-2">
           <button type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" className="min-h-11 rounded-lg bg-(--color-brand) px-5 text-sm font-semibold text-(--color-brand-fg)">
             Satıcıyı ara

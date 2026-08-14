@@ -10,7 +10,7 @@ import HeroSearchButton from "./HeroSearchButton";
  * `initial="hidden"` (opacity:0) ile başlayıp animasyonu JS hydrate olduktan
  * sonra çalıştığı için LCP, bundle'a bağımlı hale gelip 3.5s'e çıkıyordu
  * (FCP 0.6s iken). Ayrıca koşulsuz initial/animate, React 19 + App Router'da
- * SSR≠client style farkı üretip hydration hatası (#418) atıyordu. LCP elementi
+ * SSR≠client style farkı üretip React hydration 418 hatası atıyordu. LCP elementi
  * asla JS ile açılan bir animasyona bağlı olmamalı → statik, anında görünür.
  */
 export default function HeroSectionClient({

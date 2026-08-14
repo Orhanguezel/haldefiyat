@@ -46,6 +46,7 @@
   --header-top:   rgba(247, 249, 248, 0.96);
   --card-bg:      hsl(0 0% 100%);
   --card-shadow:  0 1px 2px rgb(6 35 24 / 0.06), 0 8px 24px rgb(6 35 24 / 0.05);
+  --mobile-fixed-shadow: 0 -8px 24px rgb(6 35 24 / 0.14);
   --orb-opacity:  0;
   --brand-fg:     hsl(0 0% 100%);
 
@@ -111,6 +112,7 @@
   /* Layout specific */
   --header-bg:    rgba(10, 14, 26, 0.85);
   --header-top:   rgba(15, 20, 36, 0.85);
+  --mobile-fixed-shadow: 0 -8px 24px rgb(0 0 0 / 0.34);
   --card-bg:      hsl(225 30% 9%);
   --card-shadow:  0 1px 3px hsl(225 30% 4% / 0.5);
   --orb-opacity:  0.4;

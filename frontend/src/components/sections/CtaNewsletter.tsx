@@ -78,10 +78,10 @@ export default function CtaNewsletter({
   return (
     <section ref={cta.ref} className="relative z-10 px-8 py-24">
       <div
-        className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[28px] border border-[rgba(132,240,76,0.15)] px-6 py-16 text-center sm:px-12 sm:py-20"
+        className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[28px] border border-(--color-brand)/15 px-6 py-16 text-center sm:px-12 sm:py-20"
         style={{
           background:
-            "linear-gradient(135deg, rgba(132,240,76,0.06), rgba(59,130,246,0.04))",
+            "linear-gradient(135deg, color-mix(in srgb, var(--color-brand) 6%, transparent), color-mix(in srgb, var(--color-info) 4%, transparent))",
         }}
       >
         <div
@@ -89,7 +89,7 @@ export default function CtaNewsletter({
           className="pointer-events-none absolute left-1/2 -top-[100px] h-[500px] w-[500px] -translate-x-1/2 rounded-full"
           style={{
             background:
-              "radial-gradient(circle, rgba(132,240,76,0.08), transparent 70%)",
+              "radial-gradient(circle, color-mix(in srgb, var(--color-brand) 8%, transparent), transparent 70%)",
           }}
         />
 
@@ -119,7 +119,7 @@ export default function CtaNewsletter({
             onFocus={() => cta.track("focus")}
             placeholder="E-posta adresiniz"
             aria-label="E-posta adresiniz"
-            className="w-full rounded-[14px] border border-(--color-border) bg-[rgba(255,255,255,0.04)] px-5 py-4 font-(family-name:--font-body) text-[15px] text-(--color-foreground) outline-none transition-all duration-300 placeholder:text-(--color-muted) focus:border-(--color-brand) focus:shadow-[0_0_0_3px_rgba(132,240,76,0.1)] disabled:opacity-60"
+            className="w-full rounded-[14px] border border-(--color-border) bg-(--color-surface)/40 px-5 py-4 font-(family-name:--font-body) text-[15px] text-(--color-foreground) outline-none transition-all duration-300 placeholder:text-(--color-muted) focus:border-(--color-brand) focus:ring-3 focus:ring-(--color-brand)/10 disabled:opacity-60"
           />
           <button
             type="submit"
