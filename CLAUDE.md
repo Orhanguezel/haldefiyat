@@ -5,21 +5,32 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 > ## 🚫 KESIN KURAL — DEPLOY SADECE GIT İLE (rsync/scp YASAK)
 >
 > **Bir daha ASLA rsync veya scp ile VPS'e deploy etme.** Repo GitHub ile takip
-> ediliyor. Deploy akisi TEK yol:
+> ediliyor. Deploy akisi TEK yol (2026-08-14'ten beri release-bazli):
 > 1. Local: `git add . && git commit && git push origin main`
-> 2. VPS: `git fetch origin && git reset --hard origin/main` (temiz, divergence yok)
-> 3. VPS: `bun run build` (gereken: backend/frontend/admin)
-> 4. VPS reload: backend → `pm2 reload hal-backend`. **Frontend/admin → `pm2 RESTART`
->    (reload DEĞİL!)** — Next standalone'da `pm2 reload` yeni build'i almaz, eski
->    process silinmiş chunk'lara işaret eden eski HTML serve eder → `/_next/static`
->    500 / ChunkLoadError. `pm2 restart hal-frontend hal-admin --update-env` şart.
+> 2. VPS: `bash deploy.sh` (repo kokunde) — sunlarin HEPSINI kendisi yapar:
+>    `git pull --ff-only` → backend build → frontend+admin izole release build
+>    (`NEXT_DIST_DIR=.next-release-<sha>`) → `server.js` dogrulama → backend
+>    `pm2 reload` → frontend **2 cluster worker'i sirayla rolling reload** (health
+>    kapili, kesintisiz) → admin restart. `--seed` bayragi DB seed de calistirir
+>    (DROP oncesi otomatik backup).
+> 3. Elle mudahale GEREKMEZ; deploy.sh'in health kapisi fail ederse cikti zaten
+>    sebebi soyler. Elle `pm2 restart/reload` cagirma — worker'lari tek komutla
+>    reload etmek soguk pencere (≈2 sn 502) yaratir, script sirayla yapar.
+>
+> **Eski akis (reset --hard + elle build + pm2 restart) KULLANIMDAN KALKTI.**
+> `git reset --hard` deploy icin artik hic gerekmiyor; VPS'te uncommitted WIP
+> olabilir, reset --hard once drift kontrolu yapilmadan YASAK (2026-08-07 502 vakasi).
 >
 > **⚠️ Build çıktısını ASLA `head`/`grep`'e pipe'lama.** SIGPIPE build'i yarıda
-> keser, `.next` içinde `server.js` hiç yazılmaz, `standalone-server.js` symlink'i
-> boşa bakar → pm2 `waiting restart` + **site 502** (2026-08-10'da 8 dk kesinti).
-> Doğrusu: `bun run build > /tmp/build.log 2>&1; echo "EXIT=$?"; tail -20 /tmp/build.log`
-> Restart'tan ÖNCE hedefi doğrula:
-> `ls -la frontend/.next/standalone/projects/hal-fiyatlari/frontend/server.js`
+> keser → site 502 (2026-08-10'da 8 dk kesinti). deploy.sh zaten log dosyasina
+> yazar; elle build gerekirse:
+> `bun run build > /tmp/build.log 2>&1; echo "EXIT=$?"; tail -20 /tmp/build.log`
+>
+> **PM2 yapisi (2026-08-14):** `hal-frontend` = 2x cluster worker (rolling reload
+> destekler), `hal-backend` = fork (reload yeter), `hal-admin` = fork (release
+> symlink'ine pinli, restart). Frontend build'leri `.next` degil
+> `.next-release-<sha>` dizinlerinde yasar; eski release dizinleri deploy.sh
+> tarafindan temizlenir.
 >
 > **Neden:** rsync ile deploy edince local ve server git'ten ayrisip "anlamsiz
 > coplige" donuyor (commit edilmemis dosyalar, drift, takip edilemez degisiklik).
