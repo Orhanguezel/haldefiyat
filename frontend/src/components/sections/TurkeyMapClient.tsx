@@ -299,9 +299,9 @@ function RankCard({
   const color = tone === "green" ? "text-(--color-success)" : "text-(--color-danger)";
   return (
     <div className="rounded-[18px] border border-(--color-border) bg-(--color-surface) p-5">
-      <h4 className="font-(family-name:--font-display) text-[15px] font-bold text-(--color-foreground)">
+      <h3 className="font-(family-name:--font-display) text-[15px] font-bold text-(--color-foreground)">
         {title}
-      </h4>
+      </h3>
       <div className="mt-3 space-y-2">
         {rows.length === 0 && (
           <p className="text-[12px] text-(--color-muted)">Veri bekleniyor.</p>
