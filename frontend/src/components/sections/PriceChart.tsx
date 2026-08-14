@@ -149,7 +149,7 @@ export default function PriceChart({ history, productName }: PriceChartProps) {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-3 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
             Fiyat Trendi
@@ -164,7 +164,7 @@ export default function PriceChart({ history, productName }: PriceChartProps) {
             {productName}
           </h3>
         </div>
-        <div className="flex items-center gap-1 rounded-[10px] bg-(--color-bg-alt) p-1" role="group" aria-label="Grafik tarih aralığı">
+        <div className="flex shrink-0 items-center gap-1 rounded-[10px] bg-(--color-bg-alt) p-1" role="group" aria-label="Grafik tarih aralığı">
           {RANGES.map((r) => {
             const active = range === r.key;
             return (
