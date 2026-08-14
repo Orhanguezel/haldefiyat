@@ -403,11 +403,11 @@
 
 ### 6.11 Yasal ve kurumsal sayfalar
 
-- [ ] P4.95 LegalPageContent/TransparencyPolicyPage ortak şablonunu seçilen temaya geçir.
-- [ ] P4.96 Uzun metinlerde içerik tablosu, anchor, son güncelleme ve print stilleri ekle.
-- [ ] P4.97 KVKK, gizlilik, kullanım, düzeltme, editoryal ve veri politikalarında çapraz linkleri doğrula.
-- [ ] P4.98 İletişim formunda başarı/hata, spam ve kişisel veri metnini düzelt.
-- [ ] P4.99 Hakkımızda ve sahiplik sayfalarında gerçek kurumsal veriyi ortak ayardan göster.
+- [x] P4.95 LegalPageContent/TransparencyPolicyPage ortak şablonu Temiz Veri yüzey, sınır, radius, tipografi ve token diline geçirildi. Kanıt: `artifacts/renewal-2026/yasal-kurumsal-kabul-2026-08-14.md`.
+- [x] P4.96 Uzun metinlere sanitize sonrası kararlı/benzersiz Türkçe anchor, içindekiler, geçerli son güncelleme ve navigasyonu gizleyen print stilleri eklendi; canlı DOM/print media ile doğrulandı.
+- [x] P4.97 KVKK, gizlilik, kullanım, düzeltme, editoryal, veri, metodoloji, API ve sahiplik politikaları ortak navigasyonda çapraz bağlı; aktif yol `aria-current=page`, hedefler canlıda 200.
+- [x] P4.98 İletişim formunda güvenli başarı/hata ve odak yönetimi, süre garantisi vermeyen metin, erişilebilir ağaçtan gizli honeypot, KVKK/Gizlilik bağlantılı zorunlu onay ve backend boolean onay kapısı tamamlandı.
+- [x] P4.99 Hakkımızda, İletişim ve sahiplik sayfaları ortak `site_settings` kurumsal kaynağını kullanıyor; canlı API ile UI'da GZL Teknoloji/Atakan Şahin/Orhan Güzel/kurumsal e-posta eşleşti.
 
 ## 7. Faz 5 — SEO, içerik ve keşfedilebilirlik
 
