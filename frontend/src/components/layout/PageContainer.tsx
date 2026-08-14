@@ -11,7 +11,8 @@ import type { ReactNode } from "react";
  *   <PageContainer>...sayfa içeriği...</PageContainer>
  *
  * Özel durumlar:
- *   - `as="div"` → main yerine div render (zaten parent main varsa)
+ *   - Public layout ana `<main>` landmark'ını sağlar; varsayılan bu yüzden `div`dir.
+ *   - `as="section"` → yalnızca anlamlı, erişilebilir adı olan bölümler için kullan.
  *   - `wide={false}` → max-w yerine narrow (örn. metin ağırlıklı sayfa)
  *   - `className` → ek class (boşluk vb.)
  */
@@ -27,7 +28,7 @@ interface PageContainerProps {
 
 export default function PageContainer({
   children,
-  as: Tag = "main",
+  as: Tag = "div",
   wide = true,
   py = "md",
   className = "",
