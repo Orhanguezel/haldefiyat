@@ -108,6 +108,12 @@ export const callRequestSchema = z.object({
   note: z.string().trim().max(500).optional().nullable(),
   privacyAccepted: z.literal(true),
   otpToken: z.string().trim().min(16).max(2048).optional(),
+  // Normal kullaniciya gorunmeyen adaptif bot sinyalleri. CAPTCHA benzeri
+  // challenge yalniz bu sinyaller supheli oldugunda istenir.
+  formElapsedMs: z.coerce.number().int().min(0).max(86_400_000).optional(),
+  website: z.string().trim().max(200).optional(),
+  riskChallengeToken: z.string().trim().min(16).max(2048).optional(),
+  riskChallengeAnswer: z.string().trim().regex(/^\d{1,3}$/).optional(),
 });
 
 export const callRequestStatusSchema = z.object({

@@ -41,6 +41,11 @@ import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/t
 import { env } from "@/core/env";
 import { parseCallAvailability, redactContactText, toPublicListing } from "./public";
 import { hasVerifiedCallRequestIdentity } from "./call-request-auth";
+import {
+  assessCallRequestRisk,
+  createCallRequestChallenge,
+  verifyCallRequestChallenge,
+} from "./call-request-risk";
 
 function idParam(req: FastifyRequest<{ Params: { id: string } }>) {
   const id = Number(req.params.id);
@@ -103,6 +108,28 @@ export async function createPublicCallRequest(req: FastifyRequest<{ Params: { id
       return reply.code(400).send({ error: { message: "own_listing" } });
     }
     const parsed = callRequestSchema.parse(req.body ?? {});
+    const risk = assessCallRequestRisk({
+      honeypot: parsed.website,
+      formElapsedMs: parsed.formElapsedMs,
+      userAgent: req.headers["user-agent"],
+    });
+    if (risk === "honeypot") {
+      return reply.code(400).send({ error: { message: "bot_detected" } });
+    }
+    const challengeSupplied = Boolean(parsed.riskChallengeToken || parsed.riskChallengeAnswer);
+    const challengeValid = challengeSupplied && verifyCallRequestChallenge({
+      token: parsed.riskChallengeToken,
+      answer: parsed.riskChallengeAnswer,
+      userId: buyerUserId,
+      listingId: id,
+      secret: env.JWT_SECRET,
+    });
+    if ((risk || challengeSupplied) && !challengeValid) {
+      return reply.code(428).send({
+        error: { message: "risk_challenge_required" },
+        challenge: createCallRequestChallenge(buyerUserId, id, env.JWT_SECRET),
+      });
+    }
     const contactSummary = await getCallRequestContactSummary(buyerUserId);
     const otpIdentity = verifyOtpToken(parsed.otpToken);
     const otpPhone = otpIdentity?.userId === buyerUserId ? otpIdentity.phone : null;

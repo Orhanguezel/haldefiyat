@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { TextArea } from "@/components/ui/TextArea";
 import { getStoredAuthUser } from "@/lib/auth";
@@ -10,6 +10,7 @@ import { trackConversion } from "@/lib/analytics";
 
 type PreferredSlot = "asap" | "morning" | "afternoon" | "evening";
 type ContactSummary = { maskedPhone: string | null; phonePresent: boolean; accountVerified: boolean };
+type RiskChallenge = { token: string; prompt: string; expiresAt: string };
 const CALL_SLOTS: Array<{ value: PreferredSlot; label: string }> = [
   { value: "asap", label: "En kısa sürede" },
   { value: "morning", label: "09:00–12:00" },
@@ -25,6 +26,8 @@ const STATUS_MESSAGES: Record<string, string> = {
   call_requests_disabled: "Satıcı bu ilan için arama talebi kabul etmiyor.",
   slot_unavailable: "Seçtiğiniz zaman artık uygun değil. Lütfen başka bir zaman seçin.",
   account_verification_required: "Arama talebi için doğrulanmış bir hesap gerekiyor.",
+  bot_detected: "Otomatik gönderim şüphesi nedeniyle talep alınamadı.",
+  risk_challenge_required: "Devam etmek için kısa güvenlik sorusunu yanıtlayın.",
 };
 
 export function ListingCallRequest({
@@ -43,11 +46,15 @@ export function ListingCallRequest({
   const [preferredSlot, setPreferredSlot] = useState<PreferredSlot>(selectableSlots[0].value);
   const [note, setNote] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [website, setWebsite] = useState("");
+  const [riskChallenge, setRiskChallenge] = useState<RiskChallenge | null>(null);
+  const [riskAnswer, setRiskAnswer] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [contactSummary, setContactSummary] = useState<ContactSummary | null>(null);
   const [contactSummaryLoaded, setContactSummaryLoaded] = useState(false);
+  const formStartedAt = useRef(Date.now());
 
   useEffect(() => {
     trackConversion("call_request_view", { listing_id: listingId });
@@ -74,11 +81,26 @@ export function ListingCallRequest({
     setLoading(true);
     setError("");
     try {
-      await apiPost(`/listings/${listingId}/call-requests`, { preferredSlot, note, privacyAccepted: true });
+      await apiPost(`/listings/${listingId}/call-requests`, {
+        preferredSlot,
+        note,
+        privacyAccepted: true,
+        website,
+        formElapsedMs: Date.now() - formStartedAt.current,
+        riskChallengeToken: riskChallenge?.token,
+        riskChallengeAnswer: riskChallenge ? riskAnswer : undefined,
+      });
       trackConversion("call_request_submit", { listing_id: listingId, preferred_slot: preferredSlot });
       setSuccess(true);
     } catch (caught) {
       const code = caught instanceof ApiError ? caught.code : "request_failed";
+      if (caught instanceof ApiError && code === "risk_challenge_required") {
+        const challenge = (caught.details as { challenge?: RiskChallenge } | undefined)?.challenge;
+        if (challenge?.token && challenge.prompt) {
+          setRiskChallenge(challenge);
+          setRiskAnswer("");
+        }
+      }
       setError(STATUS_MESSAGES[code] ?? "Arama talebi gönderilemedi. Lütfen daha sonra tekrar deneyin.");
     } finally {
       setLoading(false);
@@ -195,6 +217,40 @@ export function ListingCallRequest({
         />
       </div>
 
+      <div className="absolute -left-[10000px] top-auto size-px overflow-hidden" aria-hidden="true">
+        <label htmlFor="call-request-website">Web sitesi</label>
+        <input
+          id="call-request-website"
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={website}
+          onChange={(event) => setWebsite(event.target.value)}
+        />
+      </div>
+
+      {riskChallenge ? (
+        <div className="mt-4 rounded-lg border border-(--color-warning)/35 bg-(--color-warning-bg) p-3">
+          <label htmlFor="call-request-risk-answer" className="block text-xs font-semibold text-(--color-foreground)">
+            Güvenlik kontrolü: {riskChallenge.prompt}
+          </label>
+          <input
+            id="call-request-risk-answer"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={3}
+            value={riskAnswer}
+            onChange={(event) => setRiskAnswer(event.target.value.replace(/\D/g, "").slice(0, 3))}
+            className="mt-2 min-h-11 w-28 rounded-lg border border-(--color-border) bg-(--color-background) px-3 text-sm text-(--color-foreground) outline-none focus:border-(--color-brand) focus:ring-2 focus:ring-(--color-brand)/20"
+            aria-describedby="call-request-risk-help"
+          />
+          <p id="call-request-risk-help" className="mt-2 text-xs text-(--color-muted)">
+            Bu alan yalnız olağandışı hızlı veya otomatik gönderim şüphesinde gösterilir.
+          </p>
+        </div>
+      ) : null}
+
       <label className="mt-4 flex cursor-pointer items-start gap-3 text-xs leading-5 text-(--color-muted)">
         <input
           type="checkbox"
@@ -208,7 +264,7 @@ export function ListingCallRequest({
         </span>
       </label>
 
-      <Button type="button" loading={loading} disabled={!privacyAccepted} onClick={submit} className="mt-4 min-h-11 w-full">
+      <Button type="button" loading={loading} disabled={!privacyAccepted || Boolean(riskChallenge && !riskAnswer)} onClick={submit} className="mt-4 min-h-11 w-full">
         Talebi gönder
       </Button>
       {error ? <p className="mt-3 text-sm text-(--color-danger)" role="alert">{error}</p> : null}

@@ -25,7 +25,8 @@ class ApiError extends Error {
   constructor(
     public status: number,
     public code: string,
-    message: string
+    message: string,
+    public details?: unknown,
   ) {
     super(message);
     this.name = "ApiError";
@@ -51,9 +52,11 @@ async function request<T>(
 
     if (!res.ok) {
       let code = "request_failed";
+      let details: unknown;
       try {
         const body = await res.json();
         code = body?.error?.message ?? code;
+        details = body;
       } catch {}
 
       if (res.status === 401 && typeof window !== "undefined") {
@@ -61,7 +64,7 @@ async function request<T>(
         setStoredAccessToken(null);
       }
 
-      throw new ApiError(res.status, code, `${res.status} ${code}`);
+      throw new ApiError(res.status, code, `${res.status} ${code}`, details);
     }
 
   // 204 No Content

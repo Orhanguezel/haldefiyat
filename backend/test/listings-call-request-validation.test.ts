@@ -2,6 +2,11 @@ import { describe, expect, it } from "vitest";
 import { callRequestSchema, callRequestStatusSchema } from "../src/modules/listings/validation";
 import { hasVerifiedCallRequestIdentity } from "../src/modules/listings/call-request-auth";
 import { createOtpIdentityToken, readOtpIdentityToken } from "../src/modules/listings/otp-token";
+import {
+  assessCallRequestRisk,
+  createCallRequestChallenge,
+  verifyCallRequestChallenge,
+} from "../src/modules/listings/call-request-risk";
 
 describe("listing call request validation", () => {
   it("requires explicit privacy consent", () => {
@@ -36,5 +41,25 @@ describe("listing call request validation", () => {
     expect(readOtpIdentityToken(`${token.slice(0, -1)}x`, "test-secret", now)).toBeNull();
     expect(readOtpIdentityToken("not-json.invalid-signature", "test-secret", now)).toBeNull();
     expect(readOtpIdentityToken(token, "test-secret", now + 16 * 60_000)).toBeNull();
+  });
+
+  it("only raises an adaptive challenge for suspicious interaction signals", () => {
+    expect(assessCallRequestRisk({ formElapsedMs: 4_000, userAgent: "Mozilla/5.0" })).toBeNull();
+    expect(assessCallRequestRisk({ formElapsedMs: 200, userAgent: "Mozilla/5.0" })).toBe("too_fast");
+    expect(assessCallRequestRisk({ formElapsedMs: 4_000, userAgent: "" })).toBe("missing_user_agent");
+    expect(assessCallRequestRisk({ honeypot: "spam.example", formElapsedMs: 4_000, userAgent: "Mozilla/5.0" })).toBe("honeypot");
+  });
+
+  it("binds a short-lived risk challenge to the buyer and listing", () => {
+    const now = Date.parse("2026-08-14T10:00:00Z");
+    const challenge = createCallRequestChallenge("buyer-1", 42, "test-secret", now, [4, 7]);
+    const base = { token: challenge.token, answer: "11", userId: "buyer-1", listingId: 42, secret: "test-secret", now };
+    expect(challenge.prompt).toBe("4 + 7 kaç eder?");
+    expect(verifyCallRequestChallenge(base)).toBe(true);
+    expect(verifyCallRequestChallenge({ ...base, answer: "12" })).toBe(false);
+    expect(verifyCallRequestChallenge({ ...base, userId: "buyer-2" })).toBe(false);
+    expect(verifyCallRequestChallenge({ ...base, listingId: 43 })).toBe(false);
+    expect(verifyCallRequestChallenge({ ...base, now: now + 6 * 60_000 })).toBe(false);
+    expect(verifyCallRequestChallenge({ ...base, token: `${challenge.token.slice(0, -1)}x` })).toBe(false);
   });
 });
