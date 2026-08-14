@@ -28,7 +28,18 @@ const RANGES: ReadonlyArray<RangeOption> = [
   { key: "7d", label: "7G", days: 7 }, { key: "30d", label: "30G", days: 30 }, { key: "90d", label: "90G", days: 90 },
 ] as const;
 
-interface ChartPoint { date: string; rawDate: string; unit: string; avg?: number; min?: number; max?: number; predicted?: number; isForecast?: boolean; }
+interface ChartPoint {
+  date: string;
+  rawDate: string;
+  unit: string;
+  marketName?: string;
+  cityName?: string;
+  avg?: number;
+  min?: number;
+  max?: number;
+  predicted?: number;
+  isForecast?: boolean;
+}
 
 function toNumber(value: string | number | null | undefined): number {
   if (value == null) return 0;
@@ -65,6 +76,11 @@ function ChartTooltip({ active, payload }: TooltipProps<number, string>) {
       <div className="mb-1 font-(family-name:--font-mono) text-[10px] uppercase tracking-[0.1em] text-(--color-brand)">
         {formatLongDate(point.rawDate)} {point.isForecast ? "· Tahmin" : ""}
       </div>
+      {!point.isForecast && point.marketName ? (
+        <div className="mb-1 text-[11px] font-semibold text-(--color-foreground)">
+          {point.marketName}{point.cityName ? ` · ${point.cityName}` : ""}
+        </div>
+      ) : null}
       {hasAvg ? (
         <div className="font-(family-name:--font-mono) text-[14px] font-bold text-(--color-foreground)">
           ₺{(point.avg ?? 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}/{point.unit}
@@ -102,6 +118,8 @@ export default function PriceChart({ history, productName }: PriceChartProps) {
       rawDate: row.recordedDate,
       date: formatShortDate(row.recordedDate),
       unit: row.unit || "kg",
+      marketName: row.marketName,
+      cityName: row.cityName,
       avg: toNumber(row.avgPrice),
       min: toNumber(row.minPrice),
       max: toNumber(row.maxPrice),
@@ -146,7 +164,7 @@ export default function PriceChart({ history, productName }: PriceChartProps) {
             {productName}
           </h3>
         </div>
-        <div className="flex items-center gap-1 rounded-[10px] bg-(--color-bg-alt) p-1">
+        <div className="flex items-center gap-1 rounded-[10px] bg-(--color-bg-alt) p-1" role="group" aria-label="Grafik tarih aralığı">
           {RANGES.map((r) => {
             const active = range === r.key;
             return (
@@ -154,6 +172,8 @@ export default function PriceChart({ history, productName }: PriceChartProps) {
                 key={r.key}
                 type="button"
                 onClick={() => setRange(r.key)}
+                aria-pressed={active}
+                aria-label={`Son ${r.days} günülük fiyat grafiği`}
                 className={
                   "rounded-[7px] px-3 py-1.5 font-(family-name:--font-mono) text-[12px] font-semibold transition-colors " +
                   (active ? "bg-(--color-brand) text-(--color-brand-fg)" : "text-(--color-muted) hover:text-(--color-foreground)")
@@ -171,7 +191,11 @@ export default function PriceChart({ history, productName }: PriceChartProps) {
           Bu aralık için geçmiş veri yok.
         </div>
       ) : (
-        <div className="h-[280px] w-full">
+        <div
+          className="h-[280px] w-full"
+          role="img"
+          aria-label={`${productName} için son ${RANGES.find((item) => item.key === range)?.days ?? 30} günlük minimum, ortalama ve maksimum hal fiyatı grafiği`}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
               <defs>

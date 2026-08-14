@@ -213,6 +213,7 @@ export default function PriceTable({
 }: PriceTableProps) {
   const initialMeta = initialPricePage?.meta;
   const serverPagination = Boolean(initialPricePage);
+  const extendedFilters = syncUrl || showExport;
   const isBorsaTable = requestParams?.marketType === "borsa";
   const visibleColumnCount =
     8 -
@@ -512,7 +513,10 @@ export default function PriceTable({
       {/* Filtre bar */}
       <div className="flex flex-col gap-3 rounded-[14px] border border-(--color-border) bg-(--color-surface) p-4">
         {/* Üst sıra — arama + hal/il + birim + tarih + sıralama */}
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.4fr)_repeat(5,minmax(135px,1fr))]">
+        <div className={extendedFilters
+          ? "grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.4fr)_repeat(5,minmax(135px,1fr))]"
+          : "grid gap-3 md:grid-cols-[minmax(260px,1fr)_minmax(150px,0.5fr)_minmax(190px,0.6fr)]"}
+        >
           <div className="relative">
             <svg
               aria-hidden
@@ -564,42 +568,46 @@ export default function PriceTable({
             ))}
           </select>
 
-          <select
-            value={market}
-            onChange={(e) => setMarket(e.target.value)}
-            aria-label="Hal veya kaynak"
-            className="min-w-0 rounded-[8px] border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-[13px] text-(--color-foreground) focus:border-(--color-brand) focus:outline-none"
-          >
-            <option value="all">Tüm Haller</option>
-            {marketOptions.map((item) => (
-              <option key={item.slug} value={item.slug}>
-                {item.name}{city === "all" && item.cityName ? ` · ${item.cityName}` : ""}
-              </option>
-            ))}
-          </select>
+          {extendedFilters ? (
+            <>
+              <select
+                value={market}
+                onChange={(e) => setMarket(e.target.value)}
+                aria-label="Hal veya kaynak"
+                className="min-w-0 rounded-[8px] border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-[13px] text-(--color-foreground) focus:border-(--color-brand) focus:outline-none"
+              >
+                <option value="all">Tüm Haller</option>
+                {marketOptions.map((item) => (
+                  <option key={item.slug} value={item.slug}>
+                    {item.name}{city === "all" && item.cityName ? ` · ${item.cityName}` : ""}
+                  </option>
+                ))}
+              </select>
 
-          <select
-            value={unit}
-            onChange={(e) => setUnit(e.target.value)}
-            aria-label="Birim"
-            className="min-w-0 rounded-[8px] border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-[13px] text-(--color-foreground) focus:border-(--color-brand) focus:outline-none"
-          >
-            <option value="all">Tüm Birimler</option>
-            {unitOptions.map((value) => (
-              <option key={value} value={value}>{unitLabel(value)}</option>
-            ))}
-          </select>
+              <select
+                value={unit}
+                onChange={(e) => setUnit(e.target.value)}
+                aria-label="Birim"
+                className="min-w-0 rounded-[8px] border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-[13px] text-(--color-foreground) focus:border-(--color-brand) focus:outline-none"
+              >
+                <option value="all">Tüm Birimler</option>
+                {unitOptions.map((value) => (
+                  <option key={value} value={value}>{unitLabel(value)}</option>
+                ))}
+              </select>
 
-          <select
-            value={range}
-            onChange={(e) => setRange(e.target.value)}
-            aria-label="Tarih aralığı"
-            className="min-w-0 rounded-[8px] border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-[13px] text-(--color-foreground) focus:border-(--color-brand) focus:outline-none"
-          >
-            {RANGE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
+              <select
+                value={range}
+                onChange={(e) => setRange(e.target.value)}
+                aria-label="Tarih aralığı"
+                className="min-w-0 rounded-[8px] border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-[13px] text-(--color-foreground) focus:border-(--color-brand) focus:outline-none"
+              >
+                {RANGE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </>
+          ) : null}
 
           <select
             value={sort}

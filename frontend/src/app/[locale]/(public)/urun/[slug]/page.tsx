@@ -18,6 +18,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
+import { Minus, TrendingDown, TrendingUp } from "lucide-react";
 import {
   fetchPrices,
   fetchPricesPage,
@@ -37,7 +38,6 @@ import { getProductDisplayName } from "@/lib/product-display-name";
 import FrostRiskBanner from "@/components/sections/FrostRiskBanner";
 import PriceTable from "@/components/ui/PriceTable";
 import FreshnessBadge from "@/components/ui/FreshnessBadge";
-import FavoriteButton from "@/components/ui/FavoriteButton";
 import ExportButton from "@/components/ui/ExportButton";
 import { DATA_LICENSE_URL, getPageMetadata } from "@/lib/seo";
 import { schemaDateRange } from "@/lib/schema-dates";
@@ -48,6 +48,7 @@ import { calculateWindowTrend } from "@/lib/citability";
 import BannerSlot from "@/components/ads/BannerSlot";
 import { canShowPublicYoy } from "@/lib/yoy-policy";
 import PriceViewTracker from "@/components/analytics/PriceViewTracker";
+import ProductActions from "@/components/sections/ProductActions";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -69,6 +70,33 @@ function normalizeUnit(value: string | null | undefined): string {
   if (["kg", "kilo", "kilogram"].includes(u)) return "kg";
   if (["adet", "tane"].includes(u)) return "adet";
   return u || "kg";
+}
+
+function ProductTrendBadge({
+  label,
+  trend,
+}: {
+  label: string;
+  trend: ReturnType<typeof calculateWindowTrend>;
+}) {
+  if (!trend) return null;
+  const Icon = trend.direction === "yükseliş" ? TrendingUp : trend.direction === "düşüş" ? TrendingDown : Minus;
+  const tone = trend.direction === "yükseliş"
+    ? "text-(--trend-up)"
+    : trend.direction === "düşüş"
+      ? "text-(--trend-down)"
+      : "text-(--color-muted)";
+  return (
+    <div className="flex min-w-[180px] items-center gap-3 rounded-xl border border-(--color-border-soft) bg-(--color-bg-alt) px-4 py-3">
+      <Icon className={`h-5 w-5 ${tone}`} aria-hidden="true" />
+      <div>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-(--color-muted)">{label}</div>
+        <div className={`mt-0.5 font-(family-name:--font-mono) text-sm font-bold ${tone}`}>
+          %{Math.abs(trend.changePct).toLocaleString("tr-TR")} {trend.direction}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 const SITE_URL_META = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
@@ -506,7 +534,7 @@ export default async function UrunPage({ params }: Props) {
             <div className="mt-2"><FreshnessBadge recordedDate={latestDate} /></div>
           </div>
         </div>
-        <FavoriteButton slug={product.slug} productName={displayName} />
+        <ProductActions slug={product.slug} productName={displayName} />
       </div>
 
       <AnswerBlock
@@ -573,6 +601,13 @@ export default async function UrunPage({ params }: Props) {
           </>
         )}
       </AnswerBlock>
+
+      {(shortTrend || longTrend) ? (
+        <section className="mb-6 grid gap-3 sm:grid-cols-2" aria-label={`${displayName} fiyat trendi özeti`}>
+          <ProductTrendBadge label="Son 7 gün / önceki 7 gün" trend={shortTrend} />
+          <ProductTrendBadge label="Son 30 gün / önceki 30 gün" trend={longTrend} />
+        </section>
+      ) : null}
 
       {familyMembers.length > 1 && (
         <nav aria-label="Çeşit ailesi" className="flex flex-wrap items-center gap-2">
@@ -786,15 +821,19 @@ export default async function UrunPage({ params }: Props) {
 
       {/* Bugunku fiyat tablosu */}
       <div className="mb-4 mt-8 flex items-end justify-between gap-4">
-        <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
-          {borsaProduct ? "Hal Kaynaklı Günlük Fiyat" : "Tüm Hallerde Bugünkü Fiyat"}
-        </h2>
+        <div>
+          <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
+            {borsaProduct ? "Hal Kaynaklı Günlük Fiyat" : "Tüm Hallerde Bugünkü Fiyat"}
+          </h2>
+          <p className="mt-1 text-xs text-(--color-muted)">En yeni kayıtlar önce; kaynak ve tazelik her satırda gösterilir.</p>
+        </div>
         <ExportButton params={{ product: product.slug, range: "7d" }} />
       </div>
       <PriceTable
         key={slug}
         initialPrices={todayPrices}
         markets={[]}
+        requestParams={{ sort: "date-desc" }}
         yoyByMarket={yoyByMarket}
         hideProductColumn
       />

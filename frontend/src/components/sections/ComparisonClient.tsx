@@ -29,10 +29,11 @@ const ComparisonChart = dynamic(() => import("./comparison/ComparisonChart"), {
 interface ComparisonClientProps {
   products: Product[];
   markets: Market[];
+  initialProductSlugs?: string[];
 }
 
-export default function ComparisonClient({ products, markets }: ComparisonClientProps) {
-  const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
+export default function ComparisonClient({ products, markets, initialProductSlugs = [] }: ComparisonClientProps) {
+  const [selectedSlugs, setSelectedSlugs] = useState<string[]>(initialProductSlugs);
   const [selectedMarket, setSelectedMarket] = useState<string | null>(null);
   const [range, setRange] = useState<RangeKey>("30d");
   const [historiesMap, setHistoriesMap] = useState<Map<string, PriceHistoryRow[]>>(new Map());
