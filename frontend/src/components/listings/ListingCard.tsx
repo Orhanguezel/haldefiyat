@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Listing } from "@/lib/api";
 import { districtsOfProvinceSlug, provinceBySlug } from "@/data/turkey-cities";
+import { ContentCard } from "@/components/ui/ContentCard";
 
 function priceText(item: Listing) {
   if (item.priceType === "pazarlik") return "Pazarlık";
@@ -46,12 +47,14 @@ export function ListingCard({ item, compact = false }: { item: Listing; compact?
   const verificationHelpId = `listing-verification-${item.id}`;
 
   return (
-    <article
+    <ContentCard
+      as="article"
+      kind="listing"
       aria-label={item.isFeatured ? `Sponsorlu ilan: ${item.title}` : undefined}
       className={`group flex h-full flex-col rounded-[10px] bg-(--color-surface) p-4 shadow-sm transition hover:shadow-md ${
         item.isFeatured
           ? "border-2 border-(--color-warning) ring-4 ring-(--color-warning-bg)"
-          : "border border-(--color-border) hover:border-(--color-brand)/40"
+          : "hover:border-(--color-brand)/40"
       }`}
     >
       <div className="flex flex-wrap items-center gap-2">
@@ -137,6 +140,6 @@ export function ListingCard({ item, compact = false }: { item: Listing; compact?
       <Link href={`/ilan/${item.slug}`} className="mt-4 inline-flex min-h-11 items-center justify-center rounded-[8px] bg-(--color-brand) px-4 text-sm font-semibold text-(--color-brand-fg) transition hover:opacity-90">
         İlanı incele
       </Link>
-    </article>
+    </ContentCard>
   );
 }

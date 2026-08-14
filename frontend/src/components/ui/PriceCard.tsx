@@ -4,6 +4,7 @@ import ProductImage from "@/components/ui/ProductImage";
 import FavoriteButton from "@/components/ui/FavoriteButton";
 import { productHref } from "@/lib/product-links";
 import { formatDateTr } from "@/lib/date-format";
+import { ContentCard } from "@/components/ui/ContentCard";
 
 interface PriceCardProps {
   row: PriceRow;
@@ -52,7 +53,7 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
   const sign = changePct !== undefined && changePct > 0 ? "+" : "";
 
   return (
-    <div className="group relative overflow-hidden rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6 transition-all duration-300 hover:-translate-y-1 hover:border-(--color-brand)/30 shadow-(--shadow-card)">
+    <ContentCard as="div" kind="data" className="group relative overflow-hidden rounded-[16px] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-(--color-brand)/30">
 
       <span
         aria-hidden
@@ -148,6 +149,6 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
           </div>
         </div>
       </div>
-    </div>
+    </ContentCard>
   );
 }

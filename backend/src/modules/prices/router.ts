@@ -60,6 +60,7 @@ const qProducts = z.object({
   category: z.string().optional(),
   marketType: z.enum(["hal", "borsa", "resmi", "kooperatif"]).optional(),
   seoIndex: boolish,
+  canonicalOnly: boolish,
 });
 
 const qLatest = z.object({
@@ -128,21 +129,21 @@ export async function registerPrices(app: FastifyInstance) {
   app.get("/prices/products", async (req, reply) => {
     const q = qProducts.safeParse(req.query);
     if (!q.success) return reply.status(400).send({ error: "Gecersiz parametre" });
-    const items = await listProducts(q.data.q, q.data.category, q.data.seoIndex, q.data.marketType);
+    const items = await listProducts(q.data.q, q.data.category, q.data.seoIndex, q.data.marketType, q.data.canonicalOnly);
     return reply.send({ items });
   });
 
   app.get("/prices/products/search", async (req, reply) => {
     const q = qProducts.safeParse(req.query);
     if (!q.success) return reply.status(400).send({ error: "Gecersiz parametre" });
-    const items = await listProducts(q.data.q, q.data.category, q.data.seoIndex, q.data.marketType);
+    const items = await listProducts(q.data.q, q.data.category, q.data.seoIndex, q.data.marketType, q.data.canonicalOnly);
     return reply.send({ items });
   });
 
   app.get("/products/search", async (req, reply) => {
     const q = qProducts.safeParse(req.query);
     if (!q.success) return reply.status(400).send({ error: "Gecersiz parametre" });
-    const items = await listProducts(q.data.q, q.data.category, q.data.seoIndex, q.data.marketType);
+    const items = await listProducts(q.data.q, q.data.category, q.data.seoIndex, q.data.marketType, q.data.canonicalOnly);
     return reply.send({ items });
   });
 

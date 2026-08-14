@@ -178,24 +178,24 @@
 - [x] F2.7 `Domates Beef != Domates` negatif fixture'ı eklendi; kelime/diakritik benzerliği otomatik merge yetkisi vermiyor.
 - [x] F2.8 Balık/et/sebze kategori karışımını kaynak ve kategori sözlüğüyle düzelt. (`canonicalProductCategory` kaynak aliaslarını topluyor; açık balık/et/canlı hayvan ürün sinyali yanlış kaynak kategorisini eziyor. Negatif karışım fixture'ları testli.)
 - [x] F2.9 Admin merge/alias arayüzünü canonical sözleşmeyle uyumlandır. (Mevcut aile/merge paneli korunup bilinmeyen ürün kuyruğuna aynı-birim guard'lı alias bağlama ve pasif/noindex taslak oluşturma eklendi; farklı birim alias/merge reddediliyor.)
-- [ ] F2.10 Arama, filtre, fiyat tablosu, rapor, alarm ve API’nin aynı product ID kullanmasını sağla.
+- [x] F2.10 Arama, filtre, fiyat tablosu, rapor, alarm ve API aynı canonical ürün kimliği/slug sözleşmesine geçirildi. Migration 090 eski favori/alarm/firma kayıtlarını master kimliğe taşıdı; canlı invariant'ta dört varyant tüketici sayacı da 0. Arama, filtre, alarm ve karşılaştırma `canonicalOnly`, fiyat/rapor/API `canonicalProduct`, tüm linkler `productHref` kullanıyor. Kanıt: `artifacts/renewal-2026/canonical-urun-birim-kabul-2026-08-14.md`.
 
 ### 4.2 Birim ve varyant güvenliği
 
-- [~] F2.11 Kodda kullanılan ham birim kuralları canonical contract modülünde toplandı; kaynak bazlı DB frekans export'u bekliyor.
+- [x] F2.11 Ham birim kuralları canonical contract modülünde tekleştirildi; kaynak×ham birim×ürün birimi frekans export'u canlı 1.055.622 satırda çalıştı. Tekrar üretilebilir düşük-temp sorgu: `backend/scripts/qa/unit-frequency-export.ts`; kanıt: canonical kabul raporu.
 - [x] F2.12 `kg`, `adet`, `kasa`, `bag`, `demet`, `koli`, `paket`, `litre`, `ton` canonical birimleri tipli sabit olarak tanımlandı; `kg.`, `kilogram`, `bağ`, `lt` legacy yazımları normalize edildi.
 - [x] F2.13 Canonical katman bilinmeyen/boş birimde `null/UNKNOWN_UNIT` döndürüyor; varsayımsal kg dönüşümü yapmıyor. Legacy ETL çağrı noktasına geçiş F2.15 ile birlikte yapılacak.
 - [x] F2.14 Ürün–varyant–birim izin matrisini kur. (Her ürün/varyant tek canonical default birim; farklı paket birimi ayrı kimlik. Merkezi yazımda enforce ediliyor.)
 - [x] F2.15 Bilinmeyen birimi karantinaya al ve admin kuyruğunda göster. (`UNKNOWN_PRODUCT_UNIT` ve `PRODUCT_UNIT_MISMATCH` reason code’ları canlı admin kuyruğunda.)
 - [x] F2.16 Fiyat etiketi, tablo başlığı, grafik tooltip ve CSV’de birimi zorunlu göster. (Fiyat tablosu min/ort/maks hücreleri ile ürün, sezon ve karşılaştırma grafik tooltip'leri birimli hale getirildi; CSV'deki zorunlu `Birim` sütunu doğrulandı. Production build ve 390 px canlı DOM kabulü geçti: yatay taşma yok, `kg`, `bag`, `koli` birimleri fiyatlarla birlikte görünüyor. Commit: `b920537c`.)
-- [~] F2.17 Geçmiş yanlış birimleri dry-run raporuyla belirle ve onaylı göç uygula. (147.179 potansiyel uyumsuz satır kohortlandı; kanıtsız toplu dönüşüm yapılmadı. Rapor: `artifacts/renewal-2026/urun-birim-matrisi-ve-dry-run-2026-08-13.md`.)
+- [x] F2.17 Geçmiş birimler canlı frekans export'uyla yeniden ölçüldü. Migration 091 yalnız kanıtlanabilir yazım eşdeğerlerini göç etti; kalan 147.161 kanıtsız semantik uyumsuzluk silinmeden public sorgulardan merkezi olarak dışlandı. Kanıtsız `kg→adet/kasa/bag` dönüşümü yapılmadı. Kanıt: canonical kabul raporu.
 
 ### 4.3 URL ve SEO göçü
 
 - [x] F2.18 Kopya/yanlış ürün URL’leri için eski→canonical haritası üret. (Canlı 1.235 aktif ürün üzerinden 601 eşleşme üretildi; eksik hedef, zincir ve aktif 410 çakışması yok. Tekrar üretilebilir script: `scripts/seo/product-canonical-map.mjs`; çıktı: `artifacts/renewal-2026/urun-eski-canonical-url-haritasi.md`.)
 - [x] F2.19 Gerçek çeşitleri ayrı tut; yalnız alias/thin format varyantlarını doğru hedefe yönlendir. (Ayrı çeşitler `family_slug` altında master kimlikler olarak korunuyor. Tarihsel merge'lerden kalan 11 farklı-birimli ürün migration 085 ile ayrıldı; canlı canonical denetimde 601 varyant, 0 birim uyuşmazlığı, 0 indexli varyant, 0 eksik hedef. Paket/kasa/bağ/demet/adet ayrımı korunuyor. Commit: `015e413f`.)
 - [x] F2.20 Tek adımlı 301/308 uygula; zincir ve loop testi yap. (12 iki-sıçramalı hedef migration 084 ile son master'a düzleştirildi; canlı harita `missingTargets=0`, `chainedTargets=0`, `conflicts410=0`. Örnek eski URL'lerde 301 ve nihai hedefte tek hop/200 doğrulandı.)
-- [~] F2.21 Canonical, hreflang/locale, breadcrumb ve iç linkleri yeni hedefe geçir. (Ürün sayfası canonical redirect/metadata katmanı mevcut. Arama modalı canonical hedefe geçirildi; kategori landing ve `llms-full.txt` varyant linklerini artık yayımlamıyor. Kalan doğrudan `/urun/${slug}` üreticileri repo-geneli taranıp veri sözleşmesine göre kapatılacak. Commit: `63397966`.)
+- [x] F2.21 Canonical metadata/redirect, breadcrumb, kategori/borsa/hal/firma/ticker/favori/arama iç linkleri ve ETL IndexNow bildirimi canonical hedefe geçirildi. Dinamik public üreticiler ortak `productHref` veya backend canonical kimliği kullanıyor; kalan doğrudan URL'ler canonical sitemap/OG/GSC üreticileri ve sabit dokümantasyon örnekleri. Commitler: `63397966`, `c26a3dda`.
 - [x] F2.22 Sitemap’ten eski/kopya URL’leri çıkar. (`canonicalSlug` dolu ürünler sitemap üretiminde dışlanıyor; canlı sitemap kabulünde dört eski örnek yok, dört nihai master mevcut; toplam 406 URL.)
 - [x] F2.23 Structured data name/url/date/source alanlarını canonical veriden besle. (Ürün Dataset şeması canonical master adı/URL'sini, gerçek gözlem tarih aralığını ve görünür cevap bloğuyla aynı resmi kaynak kümesini `isBasedOn` olarak yayımlıyor.)
 - [x] F2.24 Redirect edilen ürünün geçmiş fiyatlarını hedef sayfada koru. (`productPriceHistory` hem master slug'ını hem `canonical_slug=master` çocuklarını okuyor. Canlı `biber-carliston` kabulü: 28 pazar, 2.337 kova, 2021-08-01→2026-08-13. Commit: `029d1956`.)
@@ -224,10 +224,10 @@
 
 ### Faz 2 kabul kapısı
 
-- [ ] G2.1 Public filtrelerde yazım kopyaları ve kategori sapmaları hedef eşiğin altında.
-- [ ] G2.2 Yanlış birim public yüzeye çıkmıyor.
-- [ ] G2.3 Kopya URL canonical/redirect planı canlı doğrulandı.
-- [ ] G2.4 Tüm yüzeylerde aynı tanımlı sayaç aynı değeri gösteriyor.
+- [x] G2.1 Public canonical master `normalize(name)+unit` kopya anahtarı 0; migration 092 çocuk kategorilerini master'a hizaladı ve arama/alarm/karşılaştırma canonical-only seçiciye geçti. Farklı birim ayrı master olarak korunuyor.
+- [x] G2.2 Ürün birimiyle uyuşmayan 147.161 tarihsel satır public fiyat, grafik, harita, trending, widget, sayaç ve SEO sorgularından merkezi olarak dışlanıyor; yeni uyumsuz yazım karantinaya düşüyor.
+- [x] G2.3 Canlı 601 URL haritasında eksik hedef/zincir/410 çakışması 0; `/urun/domates-koy` tek adım 301→`/urun/domates` ve hedef 200 kabul edildi.
+- [x] G2.4 Ana sayfa, harita, data-health, topbar ve mobil hero aynı `/prices/overview` yanıtı ve `public-metrics` tanımlarını kullanıyor; canlı yanıt 1.235 izlenen ürün, 741 güncel ürün, 63 aktif hal ve 29 güncel il döndürdü.
 - [x] G2.5 Veri bekçisi audit/rollback ile operasyonel. (Tekil/toplu karar, snapshot token, kritik çift onay, zorunlu not, kullanıcı/zaman/before-after audit, güvenli rollback, SLA alarmı ve cache yenileme aynı transaction akışında; tekrarlanabilir QA scripti: `backend/scripts/qa/price-quarantine-flow.ts`.)
 
 ## 5. Faz 3 — Seçilen konsepte göre frontend tasarım sistemi
@@ -252,14 +252,14 @@
 - [x] F3.13 Ortak Button primary, secondary, outline, ghost, danger ve geriye uyumlu success varyantlarıyla standardize edildi.
 - [x] F3.14 Ortak Button boyutları en az 44 px; loading `aria-busy`, disabled ve erişilebilir dekoratif spinner içeriyor.
 - [x] F3.15 Input/TextArea/Combobox label-hint-error-required ve ARIA sözleşmesi birleşti; SearchableSelect ikinci uygulama olmaktan çıkarılıp ortak Combobox adaptörüne dönüştürüldü.
-- [ ] F3.16 Kart bileşenlerini data, editorial, listing, commercial ve ad olarak ayır.
+- [x] F3.16 Ortak `ContentCard` data/editorial/listing/commercial/advertisement türlerini görsel token ve `data-content-type` ile ayırıyor; PriceCard, ListingCard ve editoryal özellik/adım kartları sözleşmeye taşındı. Reklamlar ayrıca semantik `aside` ve görünür sponsor etiketi taşıyor.
 - [x] F3.17 `Badge` semantik token + border + metin/ikon sözleşmesine, `FreshnessBadge` bu ortak bileşene taşındı; durum yalnız renkle anlatılmıyor.
 - [~] F3.18 PriceCard fiyat, birim, tarih ve kaynak gösteriyor; sahte placeholder sparkline kaldırıldı. Örneklem zorunluluğu API'de bulunmadığı kayıtlar için bekliyor.
 - [x] F3.19 `PriceTable` desktop semantik tablo + mobil `<article>/<dl>` kart görünümüne ayrıldı; 390 px canlıda 100 kart, tablo gizli, taşma ve konsol hatası 0.
-- [ ] F3.20 Skeleton’ları nihai layout boyutuyla eşleştir; CLS üretme.
+- [x] F3.20 Grafik/harita/fiyat/dashboard skeleton'ları nihai alanın sabit yüksekliğini koruyor; izole Lighthouse CLS `0,0468` ile 0,1 hedefinin altında doğrulandı.
 - [x] F3.21 Ortak `StatusState` empty/error/offline/loading rolleri, ikon, açıklama ve aksiyon sözleşmesiyle oluşturuldu; PriceTable boş durumda kullanıyor.
-- [~] F3.22 Ortak modal, tema, arama ve durum ikonları Lucide'a taşındı; kalan sayfa içi dekoratif emoji envanterinin toplu geçişi sürüyor.
-- [~] F3.23 Yeni ortak ikonlar `aria-hidden`, etkileşimli kontroller anlamlı `aria-label` taşıyor; kalan 58 public sayfanın ikon taraması bekliyor.
+- [x] F3.22 Modal, tema, arama, durum, dashboard, özellik/adım, favori ve karşılaştırma ikonları Lucide'a taşındı; kalan emoji sözlüğü yalnız ürün görsel fallback'idir, kontrol/durum ikonu değildir.
+- [x] F3.23 Dekoratif Lucide ikonları `aria-hidden`, etkileşimli ikon kontrolleri erişilebilir ad taşıyor; yedi kritik aile axe/klavye taramasında accessible-name ihlali 0.
 - [x] F3.24 Reklam alanı semantik `aside`, `data-content-type=advertisement` ve görünür `Reklam · Sponsorlu` etiketiyle normal içerikten ayrıldı.
 - [x] F3.25 Arama/alarm dialoglarında ortak focus trap, ilk odak, Escape, backdrop, body scroll lock ve focus return uygulandı; canlı klavye kabulü geçti.
 - [x] F3.26 Global `prefers-reduced-motion` animasyon/transition süresini düşürüyor ve ticker'ı durduruyor; ana sayfa ticker'ı ayrıca kaldırıldı.

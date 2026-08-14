@@ -74,7 +74,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     const timer = setTimeout(async () => {
       try {
         const [pRes, mRes] = await Promise.all([
-          fetch(`${API_BASE}/prices/products?q=${encodeURIComponent(q)}`, {
+          fetch(`${API_BASE}/prices/products?q=${encodeURIComponent(q)}&canonicalOnly=true`, {
             signal: ctrl.signal,
           }).then((r) => r.json()),
           fetch(`${API_BASE}/prices/markets`, { signal: ctrl.signal }).then((r) => r.json()),

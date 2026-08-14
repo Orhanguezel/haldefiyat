@@ -500,13 +500,14 @@ export async function fetchPrices(
 export async function fetchProducts(
   q?: string,
   category?: string,
-  options: { seoIndex?: boolean; marketType?: "hal" | "borsa" | "resmi" | "kooperatif" } = {},
+  options: { seoIndex?: boolean; canonicalOnly?: boolean; marketType?: "hal" | "borsa" | "resmi" | "kooperatif" } = {},
 ): Promise<Product[]> {
   const qs = buildQuery({
     q,
     category,
     marketType: options.marketType,
     seoIndex: options.seoIndex == null ? undefined : String(options.seoIndex),
+    canonicalOnly: options.canonicalOnly == null ? undefined : String(options.canonicalOnly),
   });
   return safeFetch<Product[]>(`/prices/products${qs}`, 300, []);
 }

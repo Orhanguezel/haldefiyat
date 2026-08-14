@@ -10,6 +10,7 @@ import {
 } from "@/lib/favorites";
 import ProductImage from "@/components/ui/ProductImage";
 import { productHref } from "@/lib/product-links";
+import { Star } from "lucide-react";
 
 const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")}/api/v1`
@@ -168,7 +169,7 @@ function FavoriteCard({
 function EmptyState() {
   return (
     <div className="rounded-[16px] border border-dashed border-(--color-border) bg-(--color-surface) p-12 text-center">
-      <div className="mx-auto mb-4 text-5xl" aria-hidden>⭐</div>
+      <Star className="mx-auto mb-4 h-12 w-12 text-(--color-brand)" aria-hidden />
       <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
         Henüz favori ürün eklemediniz
       </h2>

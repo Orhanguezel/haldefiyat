@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { apiGet } from "@/lib/api-client";
+import { Bell, ChartNoAxesCombined, Inbox, ListChecks, PhoneCall, Scale, Star, Ticket, type LucideIcon } from "lucide-react";
 
 type Summary = {
   alertCount: number;
@@ -59,39 +60,39 @@ export function DashboardOverview() {
           label={t("activeAlerts")}
           value={summary?.alertCount}
           href="hesabim/uyarilar"
-          icon="🔔"
+          icon={Bell}
         />
         <StatCard
           label="İlanlarım"
           value={summary?.listingCount}
           href="hesabim/ilanlarim"
-          icon="▤"
+          icon={ListChecks}
         />
         <StatCard
           label="Açık arama talebi"
           value={summary?.openCallRequests}
           href="hesabim/arama-talepleri"
-          icon="☎"
+          icon={PhoneCall}
           highlight={Boolean(summary?.openCallRequests)}
         />
         <StatCard
           label={t("favoriteProducts")}
           value={summary?.favoriteCount}
           href="hesabim/favoriler"
-          icon="⭐"
+          icon={Star}
         />
         <StatCard
           label={t("unreadNotifications")}
           value={summary?.unreadNotifications}
           href="hesabim/bildirimler"
-          icon="📥"
+          icon={Inbox}
           highlight={Boolean(summary?.unreadNotifications)}
         />
         <StatCard
           label={t("openTickets")}
           value={summary?.openTickets}
           href="hesabim/destek"
-          icon="🎫"
+          icon={Ticket}
         />
       </div>
 
@@ -105,25 +106,25 @@ export function DashboardOverview() {
             href="uyarilar"
             label={t("addAlert")}
             desc={t("addAlertDesc")}
-            icon="🔔"
+            icon={Bell}
           />
           <QuickAction
             href="fiyatlar"
             label={t("viewPrices")}
             desc={t("viewPricesDesc")}
-            icon="📊"
+            icon={ChartNoAxesCombined}
           />
           <QuickAction
             href="karsilastirma"
             label={t("compare")}
             desc={t("compareDesc")}
-            icon="⚖️"
+            icon={Scale}
           />
           <QuickAction
             href="hesabim/arama-talepleri"
             label="Arama taleplerini yönet"
             desc="Gelen ve gönderilen taleplerin durumunu görün"
-            icon="☎"
+            icon={PhoneCall}
           />
         </div>
       </div>
@@ -141,9 +142,10 @@ function StatCard({
   label: string;
   value: number | undefined;
   href: string;
-  icon: string;
+  icon: LucideIcon;
   highlight?: boolean;
 }) {
+  const Icon = icon;
   return (
     <Link
       href={href}
@@ -153,7 +155,7 @@ function StatCard({
           : "border-(--color-border) bg-(--color-surface)"
       }`}
     >
-      <span className="text-xl">{icon}</span>
+      <Icon className="h-5 w-5 text-(--color-brand)" aria-hidden />
       <span className="font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">
         {value === undefined ? (
           <span className="inline-block h-7 w-8 animate-pulse rounded bg-(--color-border)" />
@@ -173,14 +175,15 @@ function QuickAction({
   href: string;
   label: string;
   desc: string;
-  icon: string;
+  icon: LucideIcon;
 }) {
+  const Icon = icon;
   return (
     <Link
       href={href}
       className="flex items-start gap-3 rounded-xl border border-(--color-border) bg-(--color-surface) p-4 hover:border-(--color-brand)/50 transition-colors"
     >
-      <span className="mt-0.5 text-xl">{icon}</span>
+      <Icon className="mt-0.5 h-5 w-5 shrink-0 text-(--color-brand)" aria-hidden />
       <div>
         <p className="text-[13px] font-semibold text-(--color-foreground)">{label}</p>
         <p className="mt-0.5 text-[12px] text-(--color-muted)">{desc}</p>

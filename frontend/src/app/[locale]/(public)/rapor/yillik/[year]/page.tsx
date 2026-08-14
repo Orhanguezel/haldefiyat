@@ -7,6 +7,7 @@ import PageContainer from "@/components/layout/PageContainer";
 import { formatDateTr } from "@/lib/date-format";
 import ReportActions from "@/components/reports/ReportActions";
 import ReportSummaryGrid from "@/components/reports/ReportSummaryGrid";
+import { TrendingDown, TrendingUp } from "lucide-react";
 
 type Props = { params: Promise<{ locale: string; year: string }> };
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
@@ -236,7 +237,7 @@ export default async function YearlyReportPage({ params }: Props) {
       <section className="mb-12">
         <div className="grid md:grid-cols-2 gap-6">
           <div className="card rounded-xl border border-border bg-card p-5">
-            <h2 className="text-lg font-semibold mb-3 text-rose-600">📈 En Çok Artanlar (Top 10)</h2>
+            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-(--trend-up)"><TrendingUp className="h-5 w-5" aria-hidden />En Çok Artanlar (Top 10)</h2>
             <div className="overflow-x-auto" role="region" aria-label="En çok artan ürünler tablosu" tabIndex={0}>
             <table className="w-full text-xs sm:min-w-[500px] sm:text-sm">
               <caption className="sr-only">{year} yılında en çok artan ürünler; başlangıç, bitiş fiyatı ve değişim yüzdesi</caption>
@@ -254,7 +255,7 @@ export default async function YearlyReportPage({ params }: Props) {
                     <td className="py-1.5">{m.productName}</td>
                     <td className="py-1.5 text-right text-muted-foreground">{fmtPrice(m.startAvg)}</td>
                     <td className="py-1.5 text-right">{fmtPrice(m.endAvg)}</td>
-                    <td className="py-1.5 text-right font-semibold text-rose-600">{fmtPct(m.changePct)}</td>
+                    <td className="py-1.5 text-right font-semibold text-(--trend-up)">{fmtPct(m.changePct)}</td>
                   </tr>
                 ))}
                 {topRisers.length === 0 && (
@@ -266,7 +267,7 @@ export default async function YearlyReportPage({ params }: Props) {
           </div>
 
           <div className="card rounded-xl border border-border bg-card p-5">
-            <h2 className="text-lg font-semibold mb-3 text-emerald-600">📉 En Çok Düşenler (Top 10)</h2>
+            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-(--trend-down)"><TrendingDown className="h-5 w-5" aria-hidden />En Çok Düşenler (Top 10)</h2>
             <div className="overflow-x-auto" role="region" aria-label="En çok düşen ürünler tablosu" tabIndex={0}>
             <table className="w-full text-xs sm:min-w-[500px] sm:text-sm">
               <caption className="sr-only">{year} yılında en çok düşen ürünler; başlangıç, bitiş fiyatı ve değişim yüzdesi</caption>
@@ -284,7 +285,7 @@ export default async function YearlyReportPage({ params }: Props) {
                     <td className="py-1.5">{m.productName}</td>
                     <td className="py-1.5 text-right text-muted-foreground">{fmtPrice(m.startAvg)}</td>
                     <td className="py-1.5 text-right">{fmtPrice(m.endAvg)}</td>
-                    <td className="py-1.5 text-right font-semibold text-emerald-600">{fmtPct(m.changePct)}</td>
+                    <td className="py-1.5 text-right font-semibold text-(--trend-down)">{fmtPct(m.changePct)}</td>
                   </tr>
                 ))}
                 {topFallers.length === 0 && (

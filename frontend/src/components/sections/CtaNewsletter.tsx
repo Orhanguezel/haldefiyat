@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { trackConversion } from "@/lib/analytics";
 import { isValidEmail } from "@/lib/email";
 import { useCtaTracking } from "@/lib/cta-tracking";
+import { AlertTriangle, Bell, CheckCircle2, Mail, Smartphone } from "lucide-react";
 
 type SubmitState =
   | { kind: "idle" }
@@ -140,7 +141,7 @@ export default function CtaNewsletter({
             role="status"
             className="relative z-[2] mb-6 inline-flex items-center gap-2 rounded-[10px] border border-(--color-brand)/30 bg-(--color-brand)/10 px-4 py-2 text-[14px] font-semibold text-(--color-brand)"
           >
-            <span aria-hidden>✅</span> Kaydedildiniz!
+            <CheckCircle2 className="h-4 w-4" aria-hidden /> Kaydedildiniz!
           </div>
         )}
 
@@ -149,7 +150,7 @@ export default function CtaNewsletter({
             role="alert"
             className="relative z-[2] mb-6 inline-flex items-center gap-2 rounded-[10px] border border-(--color-danger)/30 bg-(--color-danger-bg) px-4 py-2 text-[14px] font-semibold text-(--color-danger)"
           >
-            <span aria-hidden>⚠️</span> {state.message}
+            <AlertTriangle className="h-4 w-4" aria-hidden /> {state.message}
           </div>
         )}
 
@@ -161,19 +162,19 @@ export default function CtaNewsletter({
             href="/uyarilar?channel=telegram"
             className="flex items-center gap-1.5 transition-colors duration-200 hover:text-(--color-brand)"
           >
-            <span aria-hidden>📱</span> Telegram
+            <Smartphone className="h-4 w-4" aria-hidden /> Telegram
           </Link>
           <Link
             href="/uyarilar?channel=email"
             className="flex items-center gap-1.5 transition-colors duration-200 hover:text-(--color-brand)"
           >
-            <span aria-hidden>📧</span> E-posta
+            <Mail className="h-4 w-4" aria-hidden /> E-posta
           </Link>
           <Link
             href="/uyarilar?channel=push"
             className="flex items-center gap-1.5 transition-colors duration-200 hover:text-(--color-brand)"
           >
-            <span aria-hidden>🔔</span> Web Push
+            <Bell className="h-4 w-4" aria-hidden /> Web Push
           </Link>
         </div>
 

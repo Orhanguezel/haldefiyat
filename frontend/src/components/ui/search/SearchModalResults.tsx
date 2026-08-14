@@ -2,6 +2,7 @@
 
 import ProductImage from "@/components/ui/ProductImage";
 import type { SearchFlatRow, SearchResults } from "./types";
+import { Store } from "lucide-react";
 
 interface SearchModalResultsProps {
   query: string;
@@ -73,7 +74,7 @@ export default function SearchModalResults({
                 onMouseEnter={() => setActiveIdx(globalIdx)}
                 onClick={() => onNavigate({ kind: "market", item: m })}
               >
-                <span className="text-xl">🏪</span>
+                <Store className="h-5 w-5 text-(--color-brand)" aria-hidden />
                 <span className="flex-1 truncate text-[14px] font-medium text-(--color-foreground)">
                   {m.name}
                 </span>

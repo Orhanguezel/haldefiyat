@@ -18,6 +18,7 @@ import {
   type ChartPoint,
 } from "./types";
 import { getEmoji } from "@/lib/emoji";
+import { BarChart3 } from "lucide-react";
 
 interface ComparisonChartProps {
   data: ChartPoint[];
@@ -62,7 +63,7 @@ export default function ComparisonChart({ data, selectedProducts }: ComparisonCh
   if (selectedProducts.length === 0) {
     return (
       <div className="flex h-[360px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-(--color-border) bg-(--color-surface)/60 px-8 text-center">
-        <div className="text-4xl opacity-40">📊</div>
+        <BarChart3 className="h-10 w-10 text-(--color-muted) opacity-60" aria-hidden />
         <div className="font-(family-name:--font-display) text-[18px] font-semibold text-(--color-foreground)">
           Karşılaştırmak için ürün seçin
         </div>

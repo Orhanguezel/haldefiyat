@@ -1,8 +1,8 @@
-type FeatureColor = "lime" | "blue" | "amber" | "red" | "purple" | "teal";
+import { Bell, ChartNoAxesCombined, Database, Leaf, Smartphone, Store, type LucideIcon } from "lucide-react";
+import { ContentCard } from "@/components/ui/ContentCard";
 
 interface Feature {
-  icon: string;
-  color: FeatureColor;
+  icon: LucideIcon;
   title: string;
   desc: string;
 }
@@ -13,52 +13,37 @@ function buildFeatures(activeCities?: number, targetCoverage = "81 il hedef"): R
     : targetCoverage;
   return [
   {
-    icon: "📊",
-    color: "lime",
+    icon: Database,
     title: "Anlık Fiyat Verileri",
     desc: "Tüm büyük hallerden günde iki kez güncellenen canlı sebze ve meyve fiyatları. Min, max ve ortalama değerler.",
   },
   {
-    icon: "📈",
-    color: "blue",
+    icon: ChartNoAxesCombined,
     title: "Trend Grafikleri",
     desc: "Haftalık, aylık ve yıllık fiyat grafikleri ile piyasa trendlerini analiz edin. Karşılaştırmalı görünüm.",
   },
   {
-    icon: "🔔",
-    color: "amber",
+    icon: Bell,
     title: "Akıllı Fiyat Uyarıları",
     desc: "Hedef fiyat belirleyin, ürün istediğiniz fiyata düştüğünde veya çıktığında anında bildirim alın.",
   },
   {
-    icon: "🏪",
-    color: "red",
+    icon: Store,
     title: coverageTitle,
     desc: `${targetCoverage} doğrultusunda, aktif kaynaklardan gelen bölgesel fiyat farklılıklarını tek ekranda karşılaştırın.`,
   },
   {
-    icon: "📱",
-    color: "purple",
+    icon: Smartphone,
     title: "Mobil Uyumlu",
     desc: "Tarlada, halde veya masabaşında — her cihazdan kesintisiz erişim. PWA desteği ile offline kullanım.",
   },
   {
-    icon: "🌿",
-    color: "teal",
+    icon: Leaf,
     title: "Tamamen Ücretsiz",
     desc: "Hiçbir ücret veya gizli maliyet yok. Çiftçiden tüketiciye herkese açık, bağımsız fiyat platformu.",
   },
   ];
 }
-
-const ICON_CLASSES: Record<FeatureColor, string> = {
-  lime: "bg-[rgba(132,240,76,0.10)] border-[rgba(132,240,76,0.15)]",
-  blue: "bg-[rgba(59,130,246,0.10)] border-[rgba(59,130,246,0.15)]",
-  amber: "bg-[rgba(245,158,11,0.10)] border-[rgba(245,158,11,0.15)]",
-  red: "bg-[rgba(239,68,68,0.10)] border-[rgba(239,68,68,0.12)]",
-  purple: "bg-[rgba(168,130,255,0.10)] border-[rgba(168,130,255,0.12)]",
-  teal: "bg-[rgba(20,184,166,0.10)] border-[rgba(20,184,166,0.12)]",
-};
 
 /**
  * Features grid (server component).
@@ -84,15 +69,16 @@ export default function FeaturesGrid({ activeCities, targetCoverage }: { activeC
         </header>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((feat) => (
-            <article
+          {features.map((feat) => {
+            const Icon = feat.icon;
+            return (
+            <ContentCard
               key={feat.title}
-              className="group relative rounded-[20px] border border-(--color-border) bg-(--color-surface) p-10 transition-all duration-300 hover:-translate-y-1 hover:bg-(--color-bg-alt) hover:shadow-2xl"
+              kind="editorial"
+              className="group relative rounded-[20px] p-10 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
             >
-              <div
-                className={`mb-6 flex h-14 w-14 items-center justify-center rounded-[14px] border text-[26px] ${ICON_CLASSES[feat.color]}`}
-              >
-                {feat.icon}
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-[14px] border border-(--color-brand)/20 bg-(--color-brand-light)">
+                <Icon className="h-7 w-7 text-(--color-brand)" aria-hidden />
               </div>
               <h3 className="mb-2.5 font-(family-name:--font-display) text-[18px] font-bold tracking-[-0.01em] text-(--color-foreground)">
                 {feat.title}
@@ -100,8 +86,8 @@ export default function FeaturesGrid({ activeCities, targetCoverage }: { activeC
               <p className="text-[14px] leading-[1.7] text-(--color-muted)">
                 {feat.desc}
               </p>
-            </article>
-          ))}
+            </ContentCard>
+          );})}
         </div>
       </div>
     </section>

@@ -28,7 +28,7 @@ export default function AlertsClient() {
   const [state, setState] = useState<SubmitState>("idle");
 
   useEffect(() => {
-    fetchProducts().then(setProducts).catch(() => null);
+    fetchProducts(undefined, undefined, { canonicalOnly: true }).then(setProducts).catch(() => null);
     fetchMarkets().then(setMarkets).catch(() => null);
   }, []);
 

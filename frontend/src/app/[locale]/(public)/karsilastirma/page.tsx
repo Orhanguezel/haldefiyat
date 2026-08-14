@@ -25,7 +25,7 @@ export default async function ComparePage({ params, searchParams }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [products, markets] = await Promise.all([fetchProducts(), fetchMarkets()]);
+  const [products, markets] = await Promise.all([fetchProducts(undefined, undefined, { canonicalOnly: true }), fetchMarkets()]);
   const rawProducts = await searchParams;
   const productParam = Array.isArray(rawProducts?.products) ? rawProducts?.products[0] : rawProducts?.products;
   const allowed = new Set(products.map((product) => product.slug));

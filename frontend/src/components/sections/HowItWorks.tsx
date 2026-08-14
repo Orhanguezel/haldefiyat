@@ -1,6 +1,9 @@
+import { Bell, ChartNoAxesCombined, Database, GitMerge, type LucideIcon } from "lucide-react";
+import { ContentCard } from "@/components/ui/ContentCard";
+
 interface Step {
   num: string;
-  icon: string;
+  icon: LucideIcon;
   title: string;
   desc: string;
 }
@@ -8,25 +11,25 @@ interface Step {
 const STEPS: ReadonlyArray<Step> = [
   {
     num: "01",
-    icon: "🌐",
+    icon: Database,
     title: "Hal Verilerini Topla",
     desc: "İstanbul, İzmir ve diğer hallerden günlük fiyat verileri otomatik çekilir.",
   },
   {
     num: "02",
-    icon: "🧹",
+    icon: GitMerge,
     title: "Normalize Et",
     desc: "Farklı formatlar standartlaştırılır. Ürün isimleri eşleştirilir (Havuç/Havuc).",
   },
   {
     num: "03",
-    icon: "📊",
+    icon: ChartNoAxesCombined,
     title: "Analiz Et",
     desc: "Min ve maks korunur. Kaynak ortalama yayımlamıyorsa orta nokta açıkça türetilmiş olarak işaretlenir.",
   },
   {
     num: "04",
-    icon: "🔔",
+    icon: Bell,
     title: "Bildir",
     desc: "Fiyat alarmlı kullanıcılara Telegram ve e-posta bildirimi gönderilir.",
   },
@@ -55,10 +58,13 @@ export default function HowItWorks() {
         </header>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((step) => (
-            <article
+          {STEPS.map((step) => {
+            const Icon = step.icon;
+            return (
+            <ContentCard
               key={step.num}
-              className="group relative overflow-hidden rounded-[20px] border border-(--color-border) bg-(--color-surface) p-9 transition-all duration-300 hover:-translate-y-1 hover:bg-(--color-bg-alt)"
+              kind="editorial"
+              className="group relative overflow-hidden rounded-[20px] p-9 transition-all duration-300 hover:-translate-y-1"
             >
               <span
                 aria-hidden
@@ -66,17 +72,15 @@ export default function HowItWorks() {
               >
                 {step.num}
               </span>
-              <span className="relative mb-5 block text-[32px]">
-                {step.icon}
-              </span>
+              <Icon className="relative mb-5 h-8 w-8 text-(--color-brand)" aria-hidden />
               <h3 className="relative mb-2 font-(family-name:--font-display) text-[17px] font-bold text-(--color-foreground)">
                 {step.title}
               </h3>
               <p className="relative text-[13px] leading-[1.7] text-(--color-muted)">
                 {step.desc}
               </p>
-            </article>
-          ))}
+            </ContentCard>
+          );})}
         </div>
       </div>
     </section>

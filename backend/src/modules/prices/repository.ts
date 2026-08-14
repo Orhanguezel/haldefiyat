@@ -877,7 +877,7 @@ export async function sourceHealthEvents(limit = 12): Promise<PublicSourceHealth
   return rows.map(toPublicSourceHealthEvent);
 }
 
-export async function listProducts(q?: string, category?: string, seoIndex?: boolean, marketType?: MarketType) {
+export async function listProducts(q?: string, category?: string, seoIndex?: boolean, marketType?: MarketType, canonicalOnly = false) {
   const conds: SQL[] = [eq(hfProducts.isActive, 1)];
   if (category?.trim()) conds.push(eq(hfProducts.categorySlug, category));
   if (seoIndex != null) conds.push(eq(hfProducts.seoIndex, seoIndex ? 1 : 0));
@@ -913,7 +913,29 @@ export async function listProducts(q?: string, category?: string, seoIndex?: boo
     .from(hfProducts)
     .where(and(...conds))
     .orderBy(hfProducts.displayOrder, hfProducts.nameTr);
-  return disambiguateProductUnitLabels(rows);
+  if (!canonicalOnly) return disambiguateProductUnitLabels(rows);
+
+  const directMasters = rows.filter((row) => !row.canonicalSlug);
+  const targetSlugs = [...new Set(rows.map((row) => row.canonicalSlug).filter((slug): slug is string => Boolean(slug)))];
+  const targets = targetSlugs.length
+    ? await db.select({
+      id: hfProducts.id,
+      slug: hfProducts.slug,
+      nameTr: hfProducts.nameTr,
+      categorySlug: hfProducts.categorySlug,
+      unit: hfProducts.unit,
+      displayName: hfProducts.displayName,
+      imageUrl: hfProducts.imageUrl,
+      canonicalSlug: hfProducts.canonicalSlug,
+      familySlug: hfProducts.familySlug,
+      seoIndex: hfProducts.seoIndex,
+      dataQuality: hfProducts.dataQuality,
+      searchVolume: hfProducts.searchVolume,
+    }).from(hfProducts).where(and(inArray(hfProducts.slug, targetSlugs), eq(hfProducts.isActive, 1)))
+    : [];
+  const unique = new Map([...directMasters, ...targets].map((row) => [row.slug, row]));
+  return disambiguateProductUnitLabels([...unique.values()].sort((a, b) =>
+    (a.displayName || a.nameTr).localeCompare(b.displayName || b.nameTr, "tr")));
 }
 
 export async function getPublishedProductEditorial(slug: string) {
