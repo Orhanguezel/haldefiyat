@@ -294,14 +294,14 @@
 
 ### 6.2 Fiyat listesi ve canlı fiyatlar
 
-- [ ] P4.13 `/fiyatlar` ve `/canli-hal-fiyatlari` rollerini netleştir; kopya deneyim üretme.
-- [ ] P4.14 Filtreleri ürün, hal/il, kategori, birim ve tarih ekseninde sadeleştir.
-- [ ] P4.15 URL query senkronizasyonu ve paylaşılabilir filtre durumunu koru.
-- [ ] P4.16 Filtre sonucu sayısını ve güncellik bağlamını göster.
+- [x] P4.13 `/canli-hal-fiyatlari` son kesit/bülten özeti; `/fiyatlar` filtreli arşiv olarak ayrıldı ve kapsamlar karşılıklı bağlandı.
+- [x] P4.14 Fiyat arşivi ürün araması, hal/il, kategori, canonical birim ve 1/7/30/90/365 gün tarih eksenleriyle sadeleştirildi.
+- [x] P4.15 Filtre, sıralama, sayfa ve sayfa boyutu istemci URL'siyle senkron; paylaşılan URL sunucuda aynı durumu kuruyor.
+- [x] P4.16 Toplam/gösterilen kayıt, tarih aralığı, son kayıt tarihi ve güncel/gecikmeli dağılımı filtre sonucunda görünür.
 - [x] P4.17 Ortak PriceTable mobilde yatay tablo yerine erişilebilir fiyat kartlarına dönüştü; desktop semantik tablo korunuyor.
-- [ ] P4.18 Sort değerlerini açık yaz; “en güncel”, “en düşük”, “en yüksek” tanımını belirt.
-- [ ] P4.19 CSV/export’ta filtre, birim, tarih ve kaynak metadata’sını dahil et.
-- [ ] P4.20 Empty, stale, partial ve error durumlarını birbirinden ayır.
+- [x] P4.18 Sıralama etiketleri “en yüksek/düşük ortalama fiyat”, “ürün adı” ve “en güncel kayıt tarihi” olarak açık yazıldı.
+- [x] P4.19 Filtreli CSV birim, kayıt tarihi, ortalama yöntemi, public kaynak adı/URL/tür/resmi durum, kaynak kodu, uygulanan filtre ve export zamanı metadata'sı taşıyor.
+- [x] P4.20 Loading, filtresiz veri yok, filtreli sıfır sonuç, tümü gecikmeli, partial güncel/gecikmeli ve API error/retry durumları ayrı. Kanıt: `artifacts/renewal-2026/fiyat-arsivi-filtre-export-kabul-2026-08-14.md`.
 
 ### 6.3 Ürün detay — `konsept 02`
 
@@ -426,7 +426,7 @@
 
 - [x] F6.1 Event isim sözlüğü, payload şeması, allowlist ve PII yasağı `docs/ANALYTICS-EVENT-SOZLESMESI.md` içinde tanımlandı.
 - [x] F6.2 `search_opened`, `search_submitted`, `search_result_selected`, `price_viewed` eventleri eklendi ve canlı zincir kabulü yapıldı.
-- [ ] F6.3 Filtre kullanım ve sıfır sonuç eventlerini ekle.
+- [x] F6.3 `price_filter_changed` ve `price_filter_zero_results` eventleri eklendi; serbest sorgu yerine yalnız uzunluk taşıdığı unit ve canlı kabul ile doğrulandı.
 - [x] F6.4 Eşdeğer ve kayıtlı sözlükle `call_request_view`, `call_request_submit`, `call_request_cancelled` eventleri ilan/slot/ID dışında PII taşımadan çalışıyor.
 - [~] F6.5 Satıcı panelinde `accepted/declined/completed` dönüşümleri ölçülüyor; `notified` backend durum/audit kaydında fakat analytics event'i olarak henüz ayrı ölçülmüyor.
 - [ ] F6.6 Bülten, sosyal, reklam, API ve kurumsal rapor hunilerini ayrı tanımla.
@@ -491,7 +491,7 @@
 - [ ] F8.13 API Pro başvuru ve reklam talep E2E.
 - [ ] F8.14 Light/dark visual regression snapshotları.
 - [ ] F8.15 7 konsept ekran ailesi için canlı sonrası karşılaştırmalı screenshot seti.
-- [x] F8.16 Frontend lint, TypeScript ve production build; 26 frontend test dosyası/76 test ile 25 backend test dosyası/111 test geçti. Backend tam suite katı env doğrulaması nedeniyle yalnız test sürecine verilen test secret'larıyla koştu. Kanıt: `artifacts/renewal-2026/anasayfa-arama-analytics-kabul-2026-08-14.md`.
+- [x] F8.16 Frontend lint, TypeScript ve production build; 26 frontend test dosyası/79 test ile 26 backend test dosyası/113 test geçti. Backend tam suite katı env doğrulaması nedeniyle yalnız test sürecine verilen test secret'larıyla koştu. Kanıtlar: `artifacts/renewal-2026/anasayfa-arama-analytics-kabul-2026-08-14.md`, `artifacts/renewal-2026/fiyat-arsivi-filtre-export-kabul-2026-08-14.md`.
 
 ## 11. Faz 9 — Kademeli yayın ve canlı doğrulama
 
