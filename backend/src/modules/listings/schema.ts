@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  char,
   date,
   datetime,
   decimal,
