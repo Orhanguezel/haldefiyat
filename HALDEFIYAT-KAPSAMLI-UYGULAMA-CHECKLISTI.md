@@ -345,28 +345,28 @@
 
 ### 6.6 İlan listesi — `konsept 04`
 
-- [ ] P4.52 Arama ve filtreleri ürün, il, ilan türü, birim ve tarihle sınırla.
-- [ ] P4.53 Ürün seçeneklerini canonical sözlükten üret.
-- [ ] P4.54 Aktif filtre chip, temizle ve sonuç sayısını göster.
-- [ ] P4.55 İlan kartında başlık, ürün, miktar/birim, fiyat, konum, tarih ve doğrulama göster.
-- [ ] P4.56 İlan kartında telefon veya kişisel veri gösterme.
-- [ ] P4.57 Birincil kart CTA’sını “İlanı incele” yap.
-- [ ] P4.58 Doğrulanmış satıcı rozetinin neyi doğruladığını tooltip ile açıkla.
-- [ ] P4.59 Mobil filtreleri bottom sheet ve sticky filtre butonuyla düzenle.
-- [ ] P4.60 Reklam kartını normal ilan görünümünden açıkça ayır.
-- [ ] P4.61 Empty state’te filtre düzenleme ve ilan talebi alternatifleri sun.
+- [x] P4.52 Arama ve filtreler canonical ürün, il, ilan türü, miktar birimi ve tarih penceresiyle sınırlandı; `q+unit+date` canlı API/sayfa kabulü geçti. Kanıt: `artifacts/renewal-2026/ilan-liste-detay-kabul-2026-08-14.md`.
+- [x] P4.53 Ürün seçenekleri canonical kök sözlükten üretiliyor; 263 benzersiz canlı seçenek ve gerçek `Avokado (Adet)/(Kg)` ayrımı doğrulandı.
+- [x] P4.54 Aktif filtre chip'leri tek tek kaldırma, tümünü temizleme ve canlı sonuç sayısıyla sunuluyor; `1 ilan` ve üç chip kabul edildi.
+- [x] P4.55 Kartlarda başlık, ürün, miktar/birim, fiyat, Türkçe konum, göreli tarih, rol ve kanal doğrulama durumu gösteriliyor.
+- [x] P4.56 Public DTO ve kart satıcı adı/telefonu göstermiyor; kişi adı, telefon ve iç kullanıcı/moderatör kimlikleri canlı API/DOM taramasında yok.
+- [x] P4.57 Her ilan kartının görünür birincil CTA'sı `İlanı incele`; canlı sonuç ve component testiyle doğrulandı.
+- [x] P4.58 Telefon rozeti tooltip'i yalnız kanal kodunun doğrulandığını, kimlik/ticari yetki garantisi olmadığını açıklar; fixture testi geçti.
+- [x] P4.59 Mobil filtreler native dialog bottom sheet ve bottom-nav üstündeki sticky `Filtrele` CTA'sında; altı alan 390 px canlı kabul edildi.
+- [x] P4.60 Öne çıkarılmış yerleşim `Reklam · Sponsorlu` etiketi, ayrı sınır/ring ve erişilebilir sponsor adıyla normal ilandan ayrılıyor.
+- [x] P4.61 Empty state filtre düzenleme, tümünü temizleme ve alım talebi oluşturma alternatiflerini birlikte sunuyor; `0 ilan` canlı kabulü geçti.
 
 ### 6.7 İlan detay ve arama — `konsept 05`
 
-- [ ] P4.62 Fiyat, miktar, birim, konum ve ilan zamanını üst hiyerarşide göster.
-- [ ] P4.63 Görsel galeriye boyut, alt metin ve lazy loading kuralları uygula.
-- [ ] P4.64 Satıcı rozetleri ve hesap yaşını doğru tanımlarla göster.
+- [x] P4.62 Fiyat, miktar/birim, Türkçe konum ve yayın tarihi başlığın hemen altındaki dört alanlı üst özette; canlı değerlerle doğrulandı.
+- [x] P4.63 Galeri görselleri 640x480 intrinsic boyut, sıra belirten alt metin, ilk görsel eager ve sonraki görseller lazy kuralıyla render ediliyor.
+- [x] P4.64 Satıcı rolü, telefon/e-posta kanal rozetleri ve gerçek kullanıcı `created_at` verisinden hesap yaşı açıklamalı sunuluyor; veri yoksa garanti uydurulmadan açıkça belirtiliyor.
 - [x] P4.65 “Satıcıyı ara” birincil, “Mesaj gönder” ikincil CTA; canlı desktop sidebar ve mobil sticky CTA ile doğrulandı.
-- [ ] P4.66 Desktop side panel ve mobil bottom sheet aynı form sözleşmesini kullansın.
+- [x] P4.66 Desktop sticky side panel ve mobil native-dialog bottom sheet aynı `ListingContactPanel`/form sözleşmesini kullanıyor; 1280 px ve 390 px canlı kabulü geçti.
 - [x] P4.67 Yetkili profil özeti yalnız kullanıcının maskeli numarasını/doğrulama durumunu gösteriyor; satıcı numarası public DTO, HTML/RSC ve arayüzde yok.
 - [x] P4.68 Form yalnız satıcının açık bıraktığı uygun saatleri, isteğe bağlı kısa notu, zorunlu gizlilik onayını ve gönder aksiyonunu sunuyor.
 - [x] P4.69 Başarı metni talebin iletildiğini ve satıcının geri dönüş yapabileceğini; form metni anlık görüşme garantisi olmadığını açıkça belirtiyor.
-- [ ] P4.70 Raporla/kaydet/paylaş aksiyonlarını ikincil bölgede tut.
+- [x] P4.70 Raporla/kaydet/paylaş, `İkincil ilan eylemleri` bölgesinde outline stilinde; satıcıyı ara/mesaj CTA'larından ayrı tutuluyor.
 - [x] P4.71 Public listing DTO'sunda `contactPhone:null` ve `raw:null`; serbest metin telefon/e-posta redaksiyonu unit test ve canlı API/HTML taramasıyla doğrulandı.
 
 ### 6.8 Firma rehberi ve firma detayları
