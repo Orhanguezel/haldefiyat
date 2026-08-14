@@ -136,7 +136,7 @@ export default async function AdvertisePage({ params }: Props) {
             uygun zamanda ve ölçümlenebilir reklam alanlarıyla ulaşın.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <Link href="/iletisim?konu=reklam" className="inline-flex items-center gap-2 rounded-xl bg-(--color-brand) px-5 py-3 text-sm font-bold text-[#07100a] transition hover:brightness-110">
+            <Link href="/iletisim?subject=Reklam%20Talebi" className="inline-flex items-center gap-2 rounded-xl bg-(--color-brand) px-5 py-3 text-sm font-bold text-[#07100a] transition hover:brightness-110">
               Kampanya teklifi alın <ArrowRight className="h-4 w-4" />
             </Link>
             <Link href="/hesabim/reklamlarim" className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
@@ -284,7 +284,7 @@ export default async function AdvertisePage({ params }: Props) {
           <h2 className="font-(family-name:--font-display) text-3xl font-black sm:text-4xl">Kampanyanız için uygun alanı bulalım.</h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[#07100a]/70">Hedefinizi, tarih aralığını ve yönlendirmek istediğiniz sayfayı iletin. Doluluk kontrolünden sonra size uygun yerleşim ve yayın planını hazırlayalım.</p>
         </div>
-        <Link href="/iletisim?konu=reklam" className="mt-6 inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#07100a] px-5 py-3 text-sm font-bold text-white lg:mt-0">
+        <Link href="/iletisim?subject=Reklam%20Talebi" className="mt-6 inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#07100a] px-5 py-3 text-sm font-bold text-white lg:mt-0">
           Teklif isteyin <ArrowRight className="h-4 w-4" />
         </Link>
       </section>

@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import DesktopHomePage from "@/components/home/DesktopHomePage";
+import MobileHomePage from "@/components/home/MobileHomePage";
 import { getHomeMetadata } from "@/lib/home-page-data";
 import { setRequestLocale } from "next-intl/server";
 
@@ -10,8 +10,8 @@ export async function generateMetadata({ params }: Props) {
   return getHomeMetadata((await params).locale);
 }
 
-export default async function HomePage({ params }: Props) {
+export default async function InternalMobileHomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <DesktopHomePage locale={locale} />;
+  return <MobileHomePage locale={locale} />;
 }

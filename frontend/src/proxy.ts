@@ -241,6 +241,22 @@ async function managedRedirectResponse(request: NextRequest): Promise<NextRespon
 
 /** Next.js 16+: `proxy.ts` varsayılan dışa aktarımı kullanmalı; aksi halde i18n middleware hiç çalışmaz. */
 export default async function proxy(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // Ana sayfa mobil ve masaüstü client manifestlerini fiziksel olarak ayırır.
+  // Rewrite tarayıcı URL'sini `/` olarak bırakır; doğrudan iç rota istekleri
+  // ise canonical yüzeye geri gönderilir.
+  if (pathname.includes("/home-mobile-render") || pathname.includes("/home-desktop-render")) {
+    return redirectWithPath(request, "/", 308);
+  }
+  if (pathname === "/") {
+    const ua = request.headers.get("user-agent") ?? "";
+    const isMobile = /Android|iPhone|iPod|Mobi|IEMobile|Opera Mini|BlackBerry/i.test(ua);
+    const internal = request.nextUrl.clone();
+    internal.pathname = isMobile ? "/tr/home-mobile-render" : "/tr/home-desktop-render";
+    return NextResponse.rewrite(internal);
+  }
+
   const lowerRedirect = lowercaseSlugRedirect(request);
   if (lowerRedirect) return lowerRedirect;
 
@@ -248,7 +264,6 @@ export default async function proxy(request: NextRequest) {
   const managed = await managedRedirectResponse(request);
   if (managed) return managed;
 
-  const pathname = request.nextUrl.pathname;
   const parts = pathname.split("/");
 
   const canonicalRedirect = await productCanonicalRedirectResponse(request);

@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: Props) {
   return getHomeMetadata((await params).locale);
 }
 
-export default async function HomePage({ params }: Props) {
+export default async function InternalDesktopHomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   return <DesktopHomePage locale={locale} />;
