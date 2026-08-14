@@ -152,6 +152,14 @@ function headingId(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+function reportSectionPriority(heading: string): number {
+  const value = heading.toLocaleLowerCase("tr-TR");
+  if (value.includes("yüksel") || value.includes("artan") || value.includes("artış") || value.includes("ayrıştı")) return 1;
+  if (value.includes("düşen") || value.includes("düşüş") || value.includes("gerileyen") || value.includes("ucuzlayan")) return 2;
+  if (value.includes("endeks")) return 3;
+  return 4;
+}
+
 function orderWeeklyReportContent(content: string): string {
   const blocks = content.split("\n\n").map((block) => block.trim()).filter(Boolean);
   const preamble: string[] = [];
@@ -169,15 +177,23 @@ function orderWeeklyReportContent(content: string): string {
     }
   }
 
-  const priority = (heading: string) => {
-    const value = heading.toLocaleLowerCase("tr-TR");
-    if (value.includes("yükselen") || value.includes("artan")) return 1;
-    if (value.includes("düşen") || value.includes("gerileyen")) return 2;
-    if (value.includes("endeks")) return 3;
-    return 4;
+  return [...preamble, ...sections.sort((a, b) => reportSectionPriority(a.heading) - reportSectionPriority(b.heading)).flatMap((section) => section.blocks)].join("\n\n");
+}
+
+function orderWeeklyHtmlContent(content: string): string {
+  const firstHeading = content.search(/<h2\b/i);
+  if (firstHeading < 0) return content;
+
+  const preamble = content.slice(0, firstHeading);
+  const sections = content.slice(firstHeading).split(/(?=<h2\b)/i).filter(Boolean);
+  const headingText = (section: string) => {
+    const match = section.match(/^<h2\b[^>]*>([\s\S]*?)<\/h2>/i);
+    return match?.[1]?.replace(/<[^>]+>/g, " ") ?? "";
   };
 
-  return [...preamble, ...sections.sort((a, b) => priority(a.heading) - priority(b.heading)).flatMap((section) => section.blocks)].join("\n\n");
+  return preamble + sections
+    .sort((a, b) => reportSectionPriority(headingText(a)) - reportSectionPriority(headingText(b)))
+    .join("");
 }
 
 export default async function AnalizMakalePage({ params }: Props) {
@@ -385,7 +401,11 @@ export default async function AnalizMakalePage({ params }: Props) {
             <div
               id="rapor-icerigi"
               className="report-prose mt-8 max-w-full overflow-x-auto [&_svg]:h-auto [&_svg]:max-w-full [&_table]:w-full"
-              dangerouslySetInnerHTML={{ __html: sanitizeAnalysisHtml(makale.icerik) }}
+              dangerouslySetInnerHTML={{
+                __html: isWeekly
+                  ? orderWeeklyHtmlContent(sanitizeAnalysisHtml(makale.icerik))
+                  : sanitizeAnalysisHtml(makale.icerik),
+              }}
             />
           ) : (
             <div id="rapor-icerigi" className="mt-8 space-y-5">

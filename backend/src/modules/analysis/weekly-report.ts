@@ -377,6 +377,12 @@ export async function persistWeeklyReport(week?: string) {
   const generated = await generateWeeklyReport(isoWeek);
   if (!generated) return null;
 
+  const [teamAuthor] = await db
+    .select({ id: hfAuthors.id })
+    .from(hfAuthors)
+    .where(and(eq(hfAuthors.slug, "haldefiyat-veri-ekibi"), eq(hfAuthors.isActive, 1)))
+    .limit(1);
+
   const [existing] = await db
     .select()
     .from(hfAnalysisReports)
@@ -395,6 +401,7 @@ export async function persistWeeklyReport(week?: string) {
     imageAlt: generated.baslik,
     content: generated.icerik,
     author: generated.yazar,
+    authorId: teamAuthor?.id ?? null,
     tags: generated.etiketler,
     isoWeek: generated.hafta,
     weekStart: dateFromIso(generated.weekStart),
