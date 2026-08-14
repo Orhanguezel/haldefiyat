@@ -134,8 +134,8 @@
 - [x] F1.31 Kök neden doğrulandı: tarih alanı koşulsuz `new Date(...).toLocaleDateString()` ile parse ediliyor, geçersiz değer arayüze aynen yansıyordu.
 - [x] F1.32 ISO date-only değerini timezone kaydırmadan, tam ISO değerini `tr-TR` ile biçimleyen ortak tarih yardımcı katmanı oluşturuldu.
 - [x] F1.33 Geçersiz/boş tarihte alanı saklayan `null` fallback davranışı eklendi.
-- [~] F1.34 Analiz listesi/detayı, freshness badge, karşılaştırma ve dashboard tarihleri ortak güvenli yardımcıya geçirildi; sitemap zaten `validSitemapDate`, schema zaten `schemaDateRange` guard’lı. Yıllık raporun görünür tarih alanı kapsamı bekliyor.
-- [~] F1.35 `Invalid Date` ve `(...)` için guard testleri eklendi; `undefined`, `NaN` ve ham key kapsamı bekliyor.
+- [x] F1.34 Analiz listesi/detayı, freshness badge, karşılaştırma, dashboard ve yıllık rapor görünür tarihleri ortak güvenli yardımcı/guard katmanında; sitemap `validSitemapDate`, schema `schemaDateRange` kullanıyor.
+- [x] F1.35 `Invalid Date`, `undefined`, `NaN`, boş değer ve `2026-02-31` gibi imkânsız tarih fixture'ları ortak parser testinde; şablon artığı guard'ları ayrı regresyon testleriyle korunuyor.
 - [~] F1.36 Hal sayfasında ham `sourceKey` yerine backend’in mevcut `sourceName/sourceUrl` metadata’sı gösteriliyor; kalan ham-key render yüzeyleri bekliyor.
 - [~] F1.37 Hal sayfasında kaynak adı birincil resmi URL’ye, yanında “Metodoloji” iç bağlantısına bağlandı; diğer içerik aileleri bekliyor.
 
@@ -159,7 +159,7 @@
 
 ### Faz 1 kabul kapısı
 
-- [ ] G1.1 Public yüzeylerde gerçek ilan telefonu sıfır.
+- [x] G1.1 Public listing API, HTML/RSC ve JSON-LD canlı taramalarında gerçek ilan telefonu sıfır; Organization kurumsal telefonu ayrı ve meşru.
 - [ ] G1.2 Arama talebi uçtan uca, kota ve audit ile çalışıyor.
 - [ ] G1.3 Invalid Date/ham key/şablon artığı kritik sayfalarda sıfır.
 - [ ] G1.4 Kritik fiyat anomalileri otomatik yayınlanmıyor.
@@ -427,10 +427,10 @@
 - [ ] F6.1 Event isim sözlüğü, payload şeması ve PII yasağını yaz.
 - [ ] F6.2 `search_opened`, `search_submitted`, `search_result_selected`, `price_viewed` eventlerini ekle.
 - [ ] F6.3 Filtre kullanım ve sıfır sonuç eventlerini ekle.
-- [ ] F6.4 `call_request_opened/submitted/cancelled` eventlerini ekle.
-- [ ] F6.5 Satıcı tarafında `notified/accepted/declined/completed` dönüşümünü ölç.
+- [x] F6.4 Eşdeğer ve kayıtlı sözlükle `call_request_view`, `call_request_submit`, `call_request_cancelled` eventleri ilan/slot/ID dışında PII taşımadan çalışıyor.
+- [~] F6.5 Satıcı panelinde `accepted/declined/completed` dönüşümleri ölçülüyor; `notified` backend durum/audit kaydında fakat analytics event'i olarak henüz ayrı ölçülmüyor.
 - [ ] F6.6 Bülten, sosyal, reklam, API ve kurumsal rapor hunilerini ayrı tanımla.
-- [ ] F6.7 Analytics’e telefon, e-posta, not, tam URL query PII veya kullanıcı adı gönderme.
+- [x] F6.7 Arama event payload testleri telefon/e-posta/not taşımadığını doğruluyor; attribution yalnız izinli UTM/gclid alanlarını taşıyor, kişisel form değerleri analytics'e verilmiyor.
 - [ ] F6.8 Tema rollout feature flag/cohort karşılaştırmasını tasarla.
 - [ ] F6.9 Ana KPI dashboard’unu oluştur: fiyat bulma süresi, search success, anomaly rate, call conversion.
 - [ ] F6.10 KPI bozulmasında rollback/inceleme eşiği belirle.
@@ -469,9 +469,9 @@
 
 - [ ] F7.20 Public API response snapshot’larında PII taraması.
 - [ ] F7.21 Authz: owner/admin DTO ve aksiyonlarını public kullanıcıdan ayır.
-- [ ] F7.22 Rate limit, CSRF, input validation ve output encoding testleri.
+- [~] F7.22 Call-request consent/status input validation, public DTO output redaksiyonu, CMS script/event/style output sanitization ve rate-limit uygulaması var; DB kota ve CSRF entegrasyon fixture'ı bekliyor.
 - [ ] F7.23 Görsel upload MIME/boyut/metadata güvenliği.
-- [ ] F7.24 Sentry ve log redaction testi.
+- [x] F7.24 Frontend/backend Sentry request, user, message, exception, breadcrumb, extra/context PII redaksiyonu ile audit URL query redaksiyonu otomatik testli.
 - [ ] F7.25 Cache’in kişiye özel arama talebi/profil verisini kullanıcılar arasında paylaşmadığını test et.
 
 ## 10. Faz 8 — Otomatik test ve kabul paketi
@@ -480,8 +480,8 @@
 - [ ] F8.2 Header, ThemeToggle ve mobile nav testleri.
 - [ ] F8.3 PriceCard/PriceTable/FreshnessBadge testleri.
 - [ ] F8.4 Canonical ürün ve birim fixture testleri.
-- [ ] F8.5 Invalid Date ve anomali regresyon testleri.
-- [ ] F8.6 Listing DTO telefon sızıntısı testleri.
+- [x] F8.5 Invalid/imkânsız tarih, schema/sitemap tarihi, retail türev ve ETL fiyat kalite anomalisi regresyon testleri mevcut.
+- [x] F8.6 Listing DTO yapılandırılmış telefon/raw sızıntısı ve serbest metin telefon/e-posta redaksiyonu otomatik testli ve canlı API'de doğrulandı.
 - [ ] F8.7 Call request state/auth/rate-limit integration testleri.
 - [ ] F8.8 SEO metadata/schema/redirect testleri.
 - [ ] F8.9 Ana sayfa arama→ürün E2E.
@@ -491,12 +491,12 @@
 - [ ] F8.13 API Pro başvuru ve reklam talep E2E.
 - [ ] F8.14 Light/dark visual regression snapshotları.
 - [ ] F8.15 7 konsept ekran ailesi için canlı sonrası karşılaştırmalı screenshot seti.
-- [ ] F8.16 `npm run lint`, `npm test`, `npm run build` başarı çıktısını artifact olarak kaydet.
+- [~] F8.16 Frontend lint exit 0, 23 dosya/68 test, tam TypeScript ve production build; backend hedefli 8 test ve VPS production build yeşil. Sahipliği belirsiz shared-backend/borsa parser WIP'i yerel tam backend suite'i blokluyor. Kanıt: `artifacts/renewal-2026/gizlilik-birim-tarih-qa-kabulu-2026-08-14.md`.
 
 ## 11. Faz 9 — Kademeli yayın ve canlı doğrulama
 
-- [ ] F9.1 DB migration ve backend değişikliklerini frontend’den önce geriye uyumlu yayınla.
-- [ ] F9.2 P0 telefon/gizlilik düzeltmesini tema rollout’undan bağımsız yayınla.
+- [x] F9.1 Additive call-preference migration sütun-varlık kontrolüyle önce uygulandı; backend build/reload ve ardından izole frontend release restart edildi.
+- [x] F9.2 Public telefon redaksiyonu ve güvenli arama talebi tema rollout'undan bağımsız commit/deploy/kabul paketleriyle canlıya alındı.
 - [ ] F9.3 Yeni tema için feature flag veya sınırlı cohort oluştur.
 - [ ] F9.4 Önce ana sayfa + ürün + ilan detayı pilotunu yayınla.
 - [ ] F9.5 Hata, Web Vitals, search success ve call conversion’ı 24–72 saat izle.
@@ -533,7 +533,7 @@
 
 - [ ] D1 PDF’deki 12 bulgunun her biri canlı kanıtla kapalı veya gerekçeli kapsam dışı.
 - [ ] D2 Public ilan/arama/firma sözleşmelerinde telefon politikası açık ve testli.
-- [ ] D3 Kullanıcı numara görmeden güvenli arama talebi oluşturabiliyor.
+- [x] D3 Kullanıcı satıcı numarasını görmeden yetkili, rızalı, kotalı ve auditli arama talebi oluşturabiliyor; kendi numarasının yalnız maskeli özeti gösteriliyor.
 - [ ] D4 Canonical ürün ve birim katmanı tüm tüketici yüzeylerini besliyor.
 - [ ] D5 Kritik anomali yayına çıkmadan veri bekçisine düşüyor.
 - [ ] D6 Sayaçlar tek tanımdan besleniyor ve kullanıcıya açıklanıyor.
@@ -543,7 +543,7 @@
 - [ ] D10 Ürün sayfasında fiyat/birim/tarih/kaynak en güçlü hiyerarşide.
 - [ ] D11 Analiz raporlarında geçerli tarih, kapsam, metodoloji ve düzeltme bağlantısı var.
 - [ ] D12 İlan, harita, data-health ve API Pro ekranları onaylı konseptle tutarlı.
-- [ ] D13 Reklamlar içerikten açıkça ayrılmış.
+- [x] D13 Reklam alanları ortak kabukta `Reklam · Sponsorlu` etiketi ve içerikten farklı `aside` semantiğiyle ayrılıyor.
 - [ ] D14 WCAG, responsive, tarayıcı, Lighthouse ve E2E kabul eşikleri geçilmiş.
 - [ ] D15 Redirect/canonical/sitemap/Search Console göçü doğrulanmış.
 - [ ] D16 Analytics KPI’ları PII içermeden çalışıyor.
