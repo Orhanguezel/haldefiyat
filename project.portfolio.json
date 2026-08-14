@@ -7,7 +7,17 @@
     "description": "Türkiye'de hal fiyatları belediye siteleri, birlik sayfaları ve ulusal portallara dağılmış, standartsız ve zor erişilir durumdaydı. HalDeFiyat bu kaynakları günlük ETL hattıyla (Scrapling TLS-impersonation dahil) tek veritabanında toplar; canonical ürün sözlüğü, birim güvenliği ve karantina/veri bekçisi katmanıyla doğrular; ürün-şehir-hal bazlı fiyat sayfaları, Türkiye fiyat haritası, HalDeFiyat Endeksi ve haftalık analiz raporlarıyla yayınlar. Üretici-alıcı ilan pazarı, numara göstermeyen KVKK-uyumlu 'Satıcıyı ara' akışı, 3.500+ kayıtlı komisyoncu firma rehberi, e-posta bülteni ve ücretli API/kurumsal rapor ürünleriyle sektörün veri altyapısı olmayı hedefler. 1M+ fiyat kaydı, 260+ aktif ürün sayfası ve günlük otomatik veri akışıyla canlıdadır.",
     "category": "AGRITECH PLATFORM",
     "status": "live",
-    "ownership": "partner"
+    "ownership": "partner",
+    "owner": {
+      "id": "gzl-teknoloji",
+      "name": "GZL Teknoloji",
+      "kind": "company"
+    },
+    "group": {
+      "id": "tarim-dijital-ekosistem",
+      "name": "Tarım Dijital Ekosistem"
+    },
+    "productType": "owned-product"
   },
   "services": [
     "Full Stack Development",
@@ -88,7 +98,9 @@
       },
       "listing": {
         "eligible": false,
-        "blockedReasons": ["Ortaklık ürünü — hizmet ilanına dönüştürülmeden önce içerik kararı gerekli"],
+        "blockedReasons": [
+          "Ortaklık ürünü — hizmet ilanına dönüştürülmeden önce içerik kararı gerekli"
+        ],
         "category": "",
         "title": "",
         "description": "",
@@ -101,5 +113,5 @@
     "privacy": "public",
     "displayPermission": true
   },
-  "updatedAt": "2026-08-14T13:00:00.000Z"
+  "updatedAt": "2026-08-14T13:34:56.726Z"
 }
