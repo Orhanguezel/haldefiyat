@@ -244,11 +244,16 @@ export function parseTobbBorsaHtml(raw: string): BorsaPriceRow[] {
       // bakliyat/yağlı tohum kg fiyatı asla bu kadar olmaz) TL/ton kabul edilir.
       const unitRaw = (cells[1] ?? "").trim().toLocaleLowerCase("tr-TR");
       const isTon = /ton/.test(unitRaw);
+      const isExplicitKg = /(^|\W)(kg|kilogram)(\W|$)/.test(unitRaw);
       // Canlı hayvan + karkas et TL/kg yüksektir (150–700); >500 "ton" sezgisi
       // UYGULANMAZ (yoksa 650₺ karkas/kuzu yanlışlıkla /1000 olur). Sadece birim "ton" derse böl.
       const isAnimal = product.category === "canli-hayvan" || product.category === "et";
+      const isHighValueOlive = product.name === "Zeytinyağı" || product.name === "Sofralık Zeytin";
+      // Eksik birim hücresinde >500 sezgisi yalnız bulk emtiada uygulanır. Kaynak açıkça
+      // KG diyorsa 850 TL/kg zeytinyağı gibi gerçek yüksek değerler /1000 yapılmaz.
+      const inferTon = !isExplicitKg && !isAnimal && !isHighValueOlive;
       const toKg = (v: number | null): number | null =>
-        v == null ? null : isTon || (!isAnimal && v > 500) ? v / 1000 : v;
+        v == null ? null : isTon || (inferTon && v > 500) ? v / 1000 : v;
       const min = toKg(rawMin);
       const max = toKg(rawMax);
       const avg = toKg(rawAvg)!;

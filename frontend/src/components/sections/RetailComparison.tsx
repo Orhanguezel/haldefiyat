@@ -1,6 +1,7 @@
 import { fetchRetailPrices } from "@/lib/api";
 import { formatDateTr } from "@/lib/date-format";
 import { plausibleRetailPrices } from "@/lib/retail-price-guard";
+import { retailFreshnessLabel } from "@/lib/retail-freshness";
 
 interface Props {
   productSlug: string;
@@ -46,7 +47,9 @@ export default async function RetailComparison({
       <p className="mb-4 text-xs leading-relaxed text-muted">
         Bu tablo, hal toptan ortalamasıyla seçili büyük zincirlerin etiket fiyatını yan yana
         gösterir. Zincir verisi son 3 günden tek bir günlük örnektir; market fiyatları kampanya,
-        bölge ve tarih farkına göre değişebilir. {derivedAverageCount > 0 ? (
+        bölge ve tarih farkına göre değişebilir. Perakende verisi destekleyicidir; HalDeFiyat
+        Endeksi&apos;ni veya hal ortalamasını sürmez. Kaynak çağrı limiti nedeniyle bazı zincir/ürünler
+        bir gün eksik kalabilir. {derivedAverageCount > 0 ? (
           <>Hal bazının {derivedAverageCount}/{observationCount} kaydı min–maks orta noktasıdır; işlem hacmi ağırlıklı değildir.</>
         ) : null}
       </p>
@@ -72,7 +75,7 @@ export default async function RetailComparison({
                 Tahmini perakende ~₺{formatTr(price)}
               </div>
               <div className="mt-1 text-[11px] text-muted">
-                Son güncelleme: {formatDateTr(row.recordedDate, { day: "numeric", month: "long" }) ?? "Tarih doğrulanamadı"} • Kaynak: {chain.sourceUrl}
+                Veri tazeliği: {retailFreshnessLabel(row.recordedDate)} • {formatDateTr(row.recordedDate, { day: "numeric", month: "long" }) ?? "Tarih doğrulanamadı"} • Kaynak: {chain.sourceUrl}
               </div>
             </div>
           );

@@ -98,7 +98,7 @@ interface MfSearchResponse {
 async function fetchSearchPage(
   keyword: string,
   page: number,
-): Promise<MfSearchResponse | null> {
+): Promise<{ data: MfSearchResponse | null; throttled: boolean }> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
   try {
@@ -108,24 +108,34 @@ async function fetchSearchPage(
       body: JSON.stringify({ keywords: keyword, pages: page, size: PAGE_SIZE }),
       signal: ctrl.signal,
     });
-    if (!res.ok) return null;
-    return (await res.json()) as MfSearchResponse;
+    if (!res.ok) {
+      return { data: null, throttled: res.status === 403 || res.status === 429 };
+    }
+    return { data: (await res.json()) as MfSearchResponse, throttled: false };
   } catch {
-    return null;
+    return { data: null, throttled: false };
   } finally {
     clearTimeout(timer);
   }
 }
 
-async function searchKeyword(keyword: string): Promise<MfProduct[]> {
+async function searchKeyword(keyword: string): Promise<{
+  products: MfProduct[];
+  calls: number;
+  throttled: boolean;
+}> {
   const all: MfProduct[] = [];
+  let calls = 0;
   for (let page = 0; page < MAX_PAGES_PER_KEYWORD; page++) {
-    const data = await fetchSearchPage(keyword, page);
+    const response = await fetchSearchPage(keyword, page);
+    calls++;
+    if (response.throttled) return { products: all, calls, throttled: true };
+    const data = response.data;
     if (!data?.content?.length) break;
     all.push(...data.content);
     if (data.content.length < PAGE_SIZE) break;
   }
-  return all;
+  return { products: all, calls, throttled: false };
 }
 
 // "Patates 1 Kg" → "Patates"; "Markasız Salatalık 1 Kg" → "Salatalık"
@@ -199,6 +209,7 @@ export interface MarketfiyatiEtlResult {
   errors: string[];
   keywordCount: number;
   apiCallCount: number;
+  throttled: boolean;
 }
 
 export async function runMarketfiyatiEtl(
@@ -215,6 +226,7 @@ export async function runMarketfiyatiEtl(
     errors: [],
     keywordCount: 0,
     apiCallCount: 0,
+    throttled: false,
   };
 
   // 1) Keyword listesi: hf_products'taki taze sebze + meyve (kg birimli)
@@ -246,9 +258,16 @@ export async function runMarketfiyatiEtl(
   // 2a) Faz A2/A3: küratörlü perakende dikeyi (süt/et + paketli bakliyat). Fresh-produce
   // döngüsünden ÖNCE çalışır — marketfiyati ~750 çağrıdan sonra IP'yi throttle'layıp boş
   // döndürüyor; kürasyonlu az sayıda keyword taze rate budget ile veri alsın diye başta.
+  let throttleDetected = false;
   for (const x of RETAIL_EXTRA) {
-    const found = await searchKeyword(x.keyword);
-    result.apiCallCount++;
+    const search = await searchKeyword(x.keyword);
+    result.apiCallCount += search.calls;
+    if (search.throttled) {
+      throttleDetected = true;
+      result.throttled = true;
+      result.errors.push(`marketfiyati throttle: kuratorlu dikey ${x.slug} sirasinda durduruldu`);
+    }
+    const found = search.products;
     const productId = await findOrCreateRetailProduct(x);
     for (const p of found) {
       if (p.menu_category !== x.menuCategory) continue;
@@ -266,12 +285,18 @@ export async function runMarketfiyatiEtl(
         else buckets.set(key, { sum: price, count: 1, productNameRaw: p.title, unit: x.unit });
       }
     }
+    if (throttleDetected) break;
   }
 
   // 2b) Fresh produce (sebze-meyve) — çok sayıda keyword; throttle riski en son burada.
-  for (const keyword of keywords) {
-    const found = await searchKeyword(keyword);
-    result.apiCallCount++;
+  for (const keyword of throttleDetected ? [] : keywords) {
+    const search = await searchKeyword(keyword);
+    result.apiCallCount += search.calls;
+    if (search.throttled) {
+      result.throttled = true;
+      result.errors.push(`marketfiyati throttle: fresh-produce ${keyword} sirasinda durduruldu`);
+    }
+    const found = search.products;
 
     for (const p of found) {
       if (p.menu_category !== TARGET_MENU_CATEGORY) continue;
@@ -301,6 +326,7 @@ export async function runMarketfiyatiEtl(
         }
       }
     }
+    if (search.throttled) break;
   }
 
 

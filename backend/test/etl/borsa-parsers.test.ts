@@ -149,7 +149,7 @@ describe("borsa ETL parsers", () => {
         avg: 36.88,
       },
       {
-        name: "Mercimek",
+        name: "Kırmızı Mercimek",
         category: "bakliyat-kuru",
         unit: "kg",
         recordedDate: "2026-06-03",
@@ -157,6 +157,25 @@ describe("borsa ETL parsers", () => {
         max: 92,
         avg: 91.02,
       },
+    ]);
+  });
+
+  it("converts TOBB TL/ton but preserves real high-value olive KG prices", () => {
+    const rows = parseTobbBorsaHtml(`
+      <table class="table">
+        <tr><th>Ürün</th><th>Birim</th><th>Tarih</th><th>En Az</th><th>En Çok</th><th>Ortalama</th></tr>
+        <tr><td>NOHUT</td><td>TL/TON</td><td>13.08.2026</td><td>35.000,00</td><td>37.000,00</td><td>36.000,00</td></tr>
+        <tr><td>BUĞDAY</td><td></td><td>13.08.2026</td><td>11.000,00</td><td>13.000,00</td><td>12.000,00</td></tr>
+        <tr><td>ZEYTİN SİYAH SALAMUR</td><td>KG</td><td>13.08.2026</td><td>100,00</td><td>350,00</td><td>225,00</td></tr>
+        <tr><td>ZEYTİNYAĞI SIZMA</td><td>KG</td><td>13.08.2026</td><td>800,00</td><td>900,00</td><td>850,00</td></tr>
+      </table>
+    `);
+
+    expect(rows.map((row) => ({ name: row.name, min: row.min, max: row.max, avg: row.avg }))).toEqual([
+      { name: "Nohut", min: 35, max: 37, avg: 36 },
+      { name: "Buğday", min: 11, max: 13, avg: 12 },
+      { name: "Sofralık Zeytin", min: 100, max: 350, avg: 225 },
+      { name: "Zeytinyağı", min: 800, max: 900, avg: 850 },
     ]);
   });
 });

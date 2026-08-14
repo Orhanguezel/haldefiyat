@@ -26,11 +26,9 @@
 
 import { sql } from "drizzle-orm";
 import { db } from "@/db/client";
+import { normalizeMysqlDate } from "@/modules/prices/blackout-date";
+import { isStaleAgainstOwnBaseline } from "./freshness-policy";
 
-/** Bu kadar gunden kisa donma hicbir kaynakta alarm sayilmaz (hafta sonu/tatil payi). */
-const MIN_STALE_DAYS = 4;
-/** Kaynagin kendi tarihsel donma suresine eklenen guvenlik payi. */
-const BASELINE_MARGIN = 2;
 /**
  * Sicrama esigi — AKRAN hallerden sapma kati.
  *
@@ -96,7 +94,7 @@ export async function sourceFreshness(windowDays = 180): Promise<StaleSource[]> 
 
   const bySource = new Map<string, Array<{ date: string; fp: string; n: number }>>();
   for (const r of list) {
-    const date = String(r.recorded_date).slice(0, 10);
+    const date = normalizeMysqlDate(r.recorded_date);
     const fp = `${r.n}_${r.s}`;
     const arr = bySource.get(r.source_api);
     if (arr) arr.push({ date, fp, n: Number(r.n) });
@@ -118,15 +116,13 @@ export async function sourceFreshness(windowDays = 180): Promise<StaleSource[]> 
     const current = runs[runs.length - 1]!;
     // Kaynagin KENDI normali: gecmisteki en uzun donma (guncel blok haric).
     const baseline = runs.slice(0, -1).reduce((m, r) => Math.max(m, r.len), 1);
-    const threshold = Math.max(MIN_STALE_DAYS, baseline + BASELINE_MARGIN);
-
     out.push({
       sourceApi:    source,
       staleDays:    current.len,
       baselineDays: baseline,
       lastChanged:  current.from,
       rows:         current.n,
-      isStale:      current.len >= threshold,
+      isStale:      isStaleAgainstOwnBaseline(current.len, baseline),
     });
   }
   return out.sort((a, b) => b.staleDays - a.staleDays);
