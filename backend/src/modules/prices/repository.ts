@@ -1079,7 +1079,7 @@ export async function listMarkets(city?: string, seoIndex?: boolean) {
       latestRecordedDate: sql<string | Date | null>`(
         SELECT MAX(ph.recorded_date)
         FROM hf_price_history ph
-        WHERE ph.market_id = ${hfMarkets.id}
+        WHERE ph.market_id = hf_markets.id
       )`,
     })
     .from(hfMarkets)
