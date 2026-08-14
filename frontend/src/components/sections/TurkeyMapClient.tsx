@@ -123,8 +123,8 @@ export default function TurkeyMapClient({ markets, cityPrices = [] }: Props) {
 
         <svg
           viewBox={`0 0 ${TURKEY_VIEWBOX.width} ${TURKEY_VIEWBOX.height}`}
-          role="img"
-          aria-label="Türkiye il bazlı hal fiyat haritası"
+          role="group"
+          aria-label="Türkiye il bazlı etkileşimli hal fiyat haritası"
           className="h-auto w-full"
         >
           {rows.map((p) => {

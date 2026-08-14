@@ -94,7 +94,7 @@ export default async function RetailComparison({
         })}
       </div>
 
-      <p className="mt-4 text-[11px] leading-relaxed text-muted/80">
+      <p className="mt-4 text-[11px] leading-relaxed text-muted">
         Hal fiyatı toptan ortalamadır; perakende zincir fiyatına ulaşırken nakliye, soğuk
         zincir, fire, paket/gramaj ve marka maliyetleri eklenir. Fark ürün ve döneme göre
         geniş ölçüde değişebilir; bu oran bir piyasa kuralı veya fiyat tahmini değildir.

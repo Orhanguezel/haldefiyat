@@ -5,18 +5,9 @@ import { setRequestLocale } from "next-intl/server";
 import { DATA_LICENSE_URL, getPageMetadata, ORG_REF } from "@/lib/seo";
 import { fetchListings, fetchMarkets, fetchPrices, fetchPricesOverview, fetchProducts, fetchWidget } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
-import HeroSection from "@/components/sections/HeroSection";
-import PriceDashboard from "@/components/sections/PriceDashboard";
-import CitySelector from "@/components/sections/CitySelector";
-import StatsBar from "@/components/sections/StatsBar";
-import CtaNewsletter from "@/components/sections/CtaNewsletter";
-import IndexCta from "@/components/sections/IndexCta";
 import LatestReports from "@/components/sections/LatestReports";
 import HomeFaq from "@/components/sections/HomeFaq";
-import MobileHomeHero from "@/components/sections/MobileHomeHero";
-import BannerSlot from "@/components/ads/BannerSlot";
 import type { Stat } from "@/components/sections/StatsBarClient";
-import { ListingCard } from "@/components/listings/ListingCard";
 import { schemaDateRange } from "@/lib/schema-dates";
 import { fetchSiteSettings } from "@/lib/site-settings";
 
@@ -131,6 +122,7 @@ export default async function HomePage({ params }: Props) {
   ];
 
   if (isMobile) {
+    const { default: MobileHomeHero } = await import("@/components/sections/MobileHomeHero");
     return (
       <>
         <JsonLd type="Dataset" data={datasetSchema} />
@@ -146,6 +138,29 @@ export default async function HomePage({ params }: Props) {
       </>
     );
   }
+
+  // Koşullu sunucu importları mobil yanıtın desktop client adalarını preload
+  // etmesini engeller. Bu sınır UA dalıyla aynı yerde tutulur ki iki ağaç
+  // yeniden tek statik import grafiğinde birleşmesin.
+  const [
+    { default: HeroSection },
+    { default: PriceDashboard },
+    { default: CitySelector },
+    { default: StatsBar },
+    { default: IndexCta },
+    { default: CtaNewsletter },
+    { default: BannerSlot },
+    { ListingCard },
+  ] = await Promise.all([
+    import("@/components/sections/HeroSection"),
+    import("@/components/sections/PriceDashboard"),
+    import("@/components/sections/CitySelector"),
+    import("@/components/sections/StatsBar"),
+    import("@/components/sections/IndexCta"),
+    import("@/components/sections/CtaNewsletter"),
+    import("@/components/ads/BannerSlot"),
+    import("@/components/listings/ListingCard"),
+  ]);
 
   return (
     <>

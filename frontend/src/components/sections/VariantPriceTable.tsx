@@ -44,7 +44,12 @@ export default async function VariantPriceTable({
         </span>
       </div>
 
-      <div className="mt-4 overflow-x-auto">
+      <div
+        className="mt-4 overflow-x-auto"
+        role="region"
+        aria-label={`${productName} çeşit fiyat tablosu`}
+        tabIndex={0}
+      >
         <p className="mb-3 rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100">
           Yıllık değişim, geçmiş serideki veri karantinası nedeniyle Mayıs 2027&apos;ye kadar gösterilmez.
           Güncel 7 günlük fiyatlar karantina dışındaki kayıtlardan hesaplanır.

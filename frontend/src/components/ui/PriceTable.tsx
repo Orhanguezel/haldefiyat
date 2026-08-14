@@ -653,7 +653,7 @@ export default function PriceTable({
                     <span
                       className={
                         "font-(family-name:--font-mono) text-[10px] " +
-                        (active ? "text-(--color-brand-fg)" : "opacity-60")
+                        (active ? "text-(--color-brand-fg)" : "text-(--color-muted)")
                       }
                     >
                       {c.count}
