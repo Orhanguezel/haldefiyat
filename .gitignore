@@ -88,3 +88,6 @@ haldefiyat.com-Coverage-*.zip
 backend/uploads/
 .wayback-state
 .claude/settings.local.json
+
+# GZL private project manifest
+project.portfolio.private.json

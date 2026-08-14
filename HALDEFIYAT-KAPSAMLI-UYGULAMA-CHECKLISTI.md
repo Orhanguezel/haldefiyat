@@ -141,7 +141,7 @@
 
 ### 3.3 Künye ve güven yüzeyleri
 
-- [~] F1.38 `BLOCKED-EXTERNAL`: Tüzel kişi GZL Teknoloji, platform sahibi/sektör ağı Atakan Şahin, teknik yürütme Orhan Güzel ve kurumsal e-posta canlıya işlendi. Açık adres/şehir doğrulanmış resmi kayıt ve sahip onayı olmadan üretilemez; tek açık künye alanı budur. Karar: `docs/GELIR-VE-KUNYE-KARAR-KAYDI.md`.
+- [~] F1.38 `BLOCKED-EXTERNAL`: Tüzel kişi GZL Teknoloji, platform sahibi/sektör ağı Atakan Şahin, teknik yürütme Orhan Güzel ve kurumsal e-posta canlıya işlendi. **2026-08-14: Orhan adres yayınına ONAY verdi**; yalnız adres METNİ bekleniyor (dosyalarda doğrulanmış kayıt yok, uydurulmaz). Metin gelince `site_settings` + seed 087'ye işlenir. Karar: `docs/GELIR-VE-KUNYE-KARAR-KAYDI.md`.
 - [x] F1.39 Sahiplik ve finansman sayfası gerçek rol/işletmeci ayrımı, editoryal bağımsızlık, ilan-hal fiyatı ayrımı ve mock paket fiyatı uyarısıyla canlı güncellendi. Kanıt: `artifacts/renewal-2026/kvkk-kunye-gelir-tema-kabul-2026-08-14.md`.
 - [x] F1.40 Hakkımızda sayfasında GZL Teknoloji, Atakan Şahin ve Orhan Güzel rol ayrımı; platform amacı, veri yaklaşımı ve şeffaflık belgeleri canlı gösteriliyor.
 - [x] F1.41 Ortak `PolicyLinks`; metodoloji, veri kaynağı, editoryal, düzeltme, KVKK, gizlilik, kullanım, API ve sahiplik yüzeylerini tüm legal şablonlarda karşılıklı bağlıyor.
@@ -199,7 +199,7 @@
 - [x] F2.22 Sitemap’ten eski/kopya URL’leri çıkar. (`canonicalSlug` dolu ürünler sitemap üretiminde dışlanıyor; canlı sitemap kabulünde dört eski örnek yok, dört nihai master mevcut; toplam 406 URL.)
 - [x] F2.23 Structured data name/url/date/source alanlarını canonical veriden besle. (Ürün Dataset şeması canonical master adı/URL'sini, gerçek gözlem tarih aralığını ve görünür cevap bloğuyla aynı resmi kaynak kümesini `isBasedOn` olarak yayımlıyor.)
 - [x] F2.24 Redirect edilen ürünün geçmiş fiyatlarını hedef sayfada koru. (`productPriceHistory` hem master slug'ını hem `canonical_slug=master` çocuklarını okuyor. Canlı `biber-carliston` kabulü: 28 pazar, 2.337 kova, 2021-08-01→2026-08-13. Commit: `029d1956`.)
-- [~] F2.25 `BLOCKED-EXTERNAL`: Canlı GSC cache 623 master/1 denetlenmemiş, 612 varyant/0 denetlenmemiş ve 388 redirect olarak doğrulandı. Sitemap submit ortak fonksiyonu hazır; mevcut read-only Google token'ı `403 ACCESS_TOKEN_SCOPE_INSUFFICIENT` verdiği için yazma kapsamlı hesap yeniden yetkilendirmesi gerekiyor. Kanıt: `artifacts/renewal-2026/gsc-canonical-goc-kabul-2026-08-14.md`.
+- [~] F2.25 `BLOCKED-EXTERNAL`: Canlı GSC cache 623 master/1 denetlenmemiş, 612 varyant/0 denetlenmemiş ve 388 redirect olarak doğrulandı. Sitemap submit ortak fonksiyonu hazır. **2026-08-14 akşam: Orhan yazma yetkisine ONAY verdi; `googleConnect` scope'u `webmasters` (yazma) olarak yükseltildi ve VPS'e deploy edildi (shared-backend `b6aa05e`).** Kalan tek adım: Orhan'ın `/admin/google-connect` üzerinden yeniden yetkilendirmesi → ardından `submitSearchConsoleSitemap()` çalıştırılıp `lastSubmitted` doğrulanır. Kanıt: `artifacts/renewal-2026/gsc-canonical-goc-kabul-2026-08-14.md`.
 
 ### 4.4 Merkezi metrik sözlüğü
 
@@ -644,7 +644,7 @@
 
 ### 15.9 Analitik ve dağıtım tekleştirme
 
-- [~] E42 `BLOCKED-EXTERNAL`: Ayrı GA4 property seçildi; VistaSeeds property'sine HalDeFiyat event'i yazılmayacak. Google hesabında property oluşturma dış yetki bekliyor; o zamana kadar PII'siz birinci taraf KPI paneli tek karar kaynağıdır.
+- [~] E42 `BLOCKED-EXTERNAL`: **KARAR (2026-08-14, Orhan):** HalDeFiyat'a AYRI GA4 property açılacak; yönetim ekosistem-sosyal-medya hub'ından (veri ayrı, yönetim merkezi — "ayrı"dan kasıt property/veri ayrımıdır, ayrı yönetim paneli değildir). Property hub'dan açılınca measurement ID `site_settings` analytics ayarına yazılır — frontend GA4 kablosu hazır, kod değişikliği gerekmez. Reauth sonrası `analytics.edit` scope'u property'yi API'den açmaya da yeter. Dönüşümde birinci taraf veri esas: `docs/codex-briefs/donusum-deger-kayip-olcumu.md`.
 - [x] E43 F6 event, attribution ve admin ölçümü mevcut Madde 11 zinciriyle aynı analytics modülü/sözleşmesinde birleştirildi; paralel ikinci analitik sistem kurulmadı.
 - [x] E44 Admin panelde audit/GSC/nginx kapsam ayrımı ve `haldefiyat.access.log` + tamamlanmış gün kuralı açıkça etiketlendi.
 - [x] E45 Newsletter subscribe 404 bug'ı canlıda kapanmış: 13 Ağustos doğrulamasında invalid email POST’u 422 döndürdü, yani public route kayıtlı. HMAC unsubscribe mimarisi korunuyor; sabit secret fallback P0 paketinde kaldırıldı.
