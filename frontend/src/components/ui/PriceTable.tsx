@@ -728,8 +728,8 @@ export default function PriceTable({
             <StatusState
               kind="empty"
               compact
-              title={safePrices.length === 0 ? "Henüz fiyat verisi yok" : "Filtrelere uyan kayıt bulunamadı"}
-              description={safePrices.length === 0 ? "Yeni kaynak verisi geldiğinde bu liste güncellenecek." : "Arama veya filtreleri değiştirerek tekrar deneyin."}
+              title={activeFilterCount > 0 ? "Filtrelere uyan kayıt bulunamadı" : "Henüz fiyat verisi yok"}
+              description={activeFilterCount > 0 ? "Arama veya filtreleri değiştirerek tekrar deneyin." : "Yeni kaynak verisi geldiğinde bu liste güncellenecek."}
             />
           ) : (
             <div className="divide-y divide-(--color-border-soft)">
@@ -790,9 +790,9 @@ export default function PriceTable({
                   colSpan={visibleColumnCount}
                   className="px-4 py-12 text-center text-[13px] text-(--color-muted)"
                 >
-                  {safePrices.length === 0
-                    ? "Henüz fiyat verisi yok. ETL'in çalışmasını bekleyin."
-                    : "Filtrelere uyan kayıt bulunamadı."}
+                  {activeFilterCount > 0
+                    ? "Filtrelere uyan kayıt bulunamadı."
+                    : "Henüz fiyat verisi yok. Yeni kaynak verisi geldiğinde bu liste güncellenecek."}
                 </td>
               </tr>
             ) : (
