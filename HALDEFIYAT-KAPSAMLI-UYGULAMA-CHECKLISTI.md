@@ -123,7 +123,7 @@
 - [x] F1.23 Başarı, yükleniyor, auth, alıcı/satıcı/IP kotası, duplicate, kendi ilanı ve genel servis hatası var; yanıtsız pending/notified talepler 48 saatte idempotent `expired` oluyor.
 - [x] F1.24 Mevcut “Mesaj gönder / teklif ver” formu arama talebinin altında korunuyor.
 - [x] F1.25 Public ilan ve arama-talebi serbest metnindeki telefon/e-posta kayıttan/Telegram'dan önce maskeleniyor; durum/zaman auditleniyor. Audit URL/referrer hassas query anahtarları ve bilinmeyen anahtardaki telefon/e-posta değerleri testli scrub ediliyor; request body kaydedilmiyor.
-- [ ] F1.26 Bot/CAPTCHA veya risk kontrolünü yalnız şüpheli akışta devreye sokacak şekilde tasarla.
+- [x] F1.26 Normal kullanıcıya görünmeyen honeypot ve yalnız olağandışı hızlı/user-agent'siz akışta çıkan, 5 dakikalık HMAC imzalı ve kullanıcı+ilan bağlı güvenlik sorusu eklendi. Canlı yan etkisiz kabul 428→challenge→kimlik kapısı, honeypot 400 ve DB satır sayısı 0→0 ile geçti. Kanıt: `artifacts/renewal-2026/arama-risk-kurumsal-guven-kabul-2026-08-14.md`.
 - [x] F1.27 KVKK aydınlatma; veri sorumlusu, işleme amaçları, hukuki sebepler, aktarım, haklar ve açık saklama/silme süreleriyle güncellendi. Terminal arama talepleri 90 gün, OTP süresi +1 gün, audit 30 gün retention altında; canlı iş 4 süresi geçmiş OTP kaydını sildi. Kanıt: `artifacts/renewal-2026/kvkk-kunye-gelir-tema-kabul-2026-08-14.md`.
 - [x] F1.28 `phone_click` yerine `call_request_view/submit/accepted/declined/cancelled/completed` eventlerini mevcut attribution-aware analytics katmanına bağla; parametrelerde telefon/e-posta/not yok.
 - [~] F1.29 DTO data-leak, HMAC secret, consent ve status validation unit testleri eklendi; DB integration/auth/rate-limit uçtan uca fixture’ı bekliyor.
@@ -143,10 +143,10 @@
 
 - [~] F1.38 Tüzel kişi GZL Teknoloji, platform sahibi/sektör ağı Atakan Şahin, teknik yürütme Orhan Güzel ve kurumsal e-posta canlıya işlendi; açık adres/şehir doğrulanmış kayıt olmadan üretilmedi ve sahip onayına bağlı tek açık künye alanıdır. Karar: `docs/GELIR-VE-KUNYE-KARAR-KAYDI.md`.
 - [x] F1.39 Sahiplik ve finansman sayfası gerçek rol/işletmeci ayrımı, editoryal bağımsızlık, ilan-hal fiyatı ayrımı ve mock paket fiyatı uyarısıyla canlı güncellendi. Kanıt: `artifacts/renewal-2026/kvkk-kunye-gelir-tema-kabul-2026-08-14.md`.
-- [ ] F1.40 Hakkımızda sayfasına ekip/amaç/veri yaklaşımı ekle; anonim marka cümlesiyle bırakma.
-- [ ] F1.41 Metodoloji, veri kaynağı, editoryal, düzeltme, KVKK ve kullanım koşullarını çapraz bağla.
-- [ ] F1.42 Footer, publisher schema, Organization schema ve iletişim sayfasını tek ayar kaynağına bağla.
-- [ ] F1.43 API/veri lisansı ve kurumsal rapor kullanım şartlarını netleştir.
+- [x] F1.40 Hakkımızda sayfasında GZL Teknoloji, Atakan Şahin ve Orhan Güzel rol ayrımı; platform amacı, veri yaklaşımı ve şeffaflık belgeleri canlı gösteriliyor.
+- [x] F1.41 Ortak `PolicyLinks`; metodoloji, veri kaynağı, editoryal, düzeltme, KVKK, gizlilik, kullanım, API ve sahiplik yüzeylerini tüm legal şablonlarda karşılıklı bağlıyor.
+- [x] F1.42 Footer, İletişim ve Organization/publisher schema; `legal_entity_name`, `responsible_publisher_name`, `technical_contact_name` alanlarını tek `site_settings`/`fetchSiteSettings` sözleşmesinden okuyor. Canlı JSON-LD ve üç ayar API'de doğrulandı.
+- [x] F1.43 API/veri lisansı kaynak kurum haklarını yeniden lisanslamıyor; public API SLA vermez. Yüksek hacim, yeniden satış, beyaz etiket, özel SLA ve kurumsal rapor ayrı yazılı lisans/onay kapısına bağlandı; mock fiyatlar teklif değildir. Canlı kabul: `artifacts/renewal-2026/arama-risk-kurumsal-guven-kabul-2026-08-14.md`.
 
 ### 3.4 Geçici anomali emniyeti
 
@@ -163,7 +163,7 @@
 - [ ] G1.2 Arama talebi uçtan uca, kota ve audit ile çalışıyor.
 - [ ] G1.3 Invalid Date/ham key/şablon artığı kritik sayfalarda sıfır.
 - [x] G1.4 Kritik fiyat anomalileri yayın öncesi guard/karantina ile durduruluyor; tarihsel donmuş/anomali aralıkları tüm public tüketicilerde merkezi blackout filtresinden geçiyor. 546 TL türev vaka, 2025 donmuş seri ve blackout tarih-normalizasyon regresyonu testli/canlı kabul edildi.
-- [ ] G1.5 Gerçek künye ve güven politikaları canlı.
+- [~] G1.5 Gerçek işletmeci/rol kimliği, KVKK, sahiplik, veri/editoryal/düzeltme ve API lisans politikaları canlı ve çapraz bağlıdır; yalnız doğrulanmış açık adres/şehir dış onayı bekliyor.
 
 ## 4. Faz 2 — Ürün sözlüğü, birim, metrik ve veri bekçisi
 
