@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Firm } from "@/lib/api";
 
 const TYPE_LABELS: Record<Firm["firmType"], string> = {
@@ -19,6 +20,7 @@ function titleCaseSlug(value?: string | null): string {
 
 export default function FirmCard({ firm, compact = false }: { firm: Firm; compact?: boolean }) {
   const sponsored = Boolean(firm.sponsorshipTier);
+  const verified = firm.claimStatus === "verified";
 
   return (
     <Link
@@ -27,7 +29,7 @@ export default function FirmCard({ firm, compact = false }: { firm: Firm; compac
     >
       <div className="h-20 w-20 shrink-0 overflow-hidden rounded-[6px] border border-(--color-border-soft) bg-(--color-bg-alt)">
         {firm.photoUrl ? (
-          <img src={firm.photoUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
+          <Image src={firm.photoUrl} alt={`${firm.name} firma görseli`} width={160} height={160} sizes="80px" className="h-full w-full object-cover" loading="lazy" unoptimized />
         ) : (
           <div className="flex h-full w-full items-center justify-center font-(family-name:--font-display) text-xl font-bold text-(--color-brand)">
             {firm.name.charAt(0).toLocaleUpperCase("tr")}
@@ -45,6 +47,14 @@ export default function FirmCard({ firm, compact = false }: { firm: Firm; compac
               Sponsorlu
             </span>
           )}
+          {verified && (
+            <span
+              title="Firma profili, yetkili kullanıcı tarafından sahiplenilmiş ve HalDeFiyat incelemesinden geçmiştir; hizmet kalitesi garantisi değildir."
+              className="rounded-full border border-emerald-300 bg-emerald-50 px-2 py-0.5 font-(family-name:--font-mono) text-[10px] font-semibold text-emerald-700"
+            >
+              Doğrulanmış
+            </span>
+          )}
         </div>
         <h3 className="line-clamp-2 font-(family-name:--font-display) text-[17px] font-bold text-(--color-foreground)">
           {firm.name}
@@ -59,7 +69,7 @@ export default function FirmCard({ firm, compact = false }: { firm: Firm; compac
           </p>
         )}
         <span className="mt-3 inline-flex font-(family-name:--font-mono) text-[11px] font-semibold text-(--color-brand)">
-          Profil detayları
+          Firmayı incele
         </span>
       </div>
     </Link>

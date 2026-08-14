@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { productHref } from "@/lib/product-links";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
@@ -10,8 +11,8 @@ import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
 import FirmCard from "@/components/firms/FirmCard";
-import { FirmClaimButton } from "@/components/firms/FirmClaimButton";
 import FirmClaimPrompt from "@/components/firms/FirmClaimPrompt";
+import FirmContactPolicy from "@/components/firms/FirmContactPolicy";
 import BannerSlot from "@/components/ads/BannerSlot";
 import FirmLeadForm from "@/components/firms/FirmLeadForm";
 import { TrackedAdLink } from "@/components/ads/AdConversionTracker";
@@ -135,7 +136,7 @@ export default async function FirmDetailPage({ params }: Props) {
   } satisfies Record<string, unknown>;
 
   return (
-    <main className="relative z-10 mx-auto max-w-[1180px] px-8 py-12">
+    <main className="relative z-10 mx-auto max-w-[1180px] px-4 py-10 sm:px-8 sm:py-12">
       <JsonLd type="LocalBusiness" data={localBusinessSchema} />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
@@ -146,7 +147,7 @@ export default async function FirmDetailPage({ params }: Props) {
       <section className="grid gap-8 lg:grid-cols-[320px_1fr]">
         <div className="overflow-hidden rounded-[8px] border border-(--color-border) bg-(--color-surface)">
           {firm.photoUrl ? (
-            <img src={firm.photoUrl} alt="" className="aspect-[4/3] w-full object-cover" />
+            <Image src={firm.photoUrl} alt={`${firm.name} firma görseli`} width={640} height={480} sizes="(min-width: 1024px) 320px, 100vw" className="aspect-[4/3] w-full object-cover" priority unoptimized />
           ) : (
             <div className="flex aspect-[4/3] w-full items-center justify-center bg-(--color-bg-alt) font-(family-name:--font-display) text-5xl font-bold text-(--color-brand)">
               {firm.name.charAt(0).toLocaleUpperCase("tr")}
@@ -255,8 +256,8 @@ export default async function FirmDetailPage({ params }: Props) {
                 Haritada aç
               </TrackedAdLink>
             )}
-            <FirmClaimButton firmId={firm.id} claimStatus={firm.claimStatus} />
           </div>
+          {(firm.phone || (firm.ocrContacts ?? []).length > 0) && <FirmContactPolicy />}
         </div>
       </section>
 

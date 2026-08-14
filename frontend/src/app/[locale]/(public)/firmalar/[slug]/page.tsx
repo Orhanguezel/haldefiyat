@@ -188,7 +188,7 @@ async function TypeHub({ slug }: { slug: keyof typeof TYPE_SLUGS }) {
   } satisfies Record<string, unknown>;
 
   return (
-    <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+    <main className="relative z-10 mx-auto max-w-[1400px] px-4 py-10 sm:px-8 sm:py-12">
       <JsonLd type="ItemList" data={schema} />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
@@ -242,7 +242,7 @@ function CityHub({
   } satisfies Record<string, unknown>;
 
   return (
-    <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+    <main className="relative z-10 mx-auto max-w-[1400px] px-4 py-10 sm:px-8 sm:py-12">
       <JsonLd type="ItemList" data={schema} />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },

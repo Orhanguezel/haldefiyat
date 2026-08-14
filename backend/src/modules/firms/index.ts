@@ -53,6 +53,7 @@ import {
   syncBannersForSponsorship,
 } from "@/modules/banners/repository";
 import type { BannerInput, BannerTarget } from "@/modules/banners/repository";
+import { claimBodySchema, publicLeadBodySchema } from "./validation";
 
 const firmTypeSchema = z.enum(["komisyoncu", "soguk_hava", "nakliye", "zirai_ilac"]);
 
@@ -124,13 +125,6 @@ const firmAdCampaignSchema = z.object({
   salesOwner: z.string().max(160).optional().nullable(),
 });
 
-const publicLeadBodySchema = z.object({
-  name: z.string().min(2).max(128),
-  phone: z.string().min(5).max(64).optional(),
-  email: z.string().email().optional(),
-  message: z.string().min(5).max(1000),
-});
-
 const firmWriteFieldsSchema = z.object({
   name: z.string().trim().min(2).max(255),
   contactPerson: z.string().trim().max(255).nullable().optional(),
@@ -151,7 +145,14 @@ function refineFirmLocation(data: { citySlug?: string | null; districtSlug?: str
   }
 }
 
-const firmWriteBodySchema = firmWriteFieldsSchema.superRefine(refineFirmLocation);
+const firmWriteBodySchema = firmWriteFieldsSchema.extend({
+  publicationConsent: z.boolean().optional(),
+}).superRefine((data, ctx) => {
+  refineFirmLocation(data, ctx);
+  if (data.phone && data.publicationConsent !== true) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["publicationConsent"], message: "phone_publication_consent_required" });
+  }
+});
 const firmPatchBodySchema = firmWriteFieldsSchema.partial().superRefine(refineFirmLocation);
 
 const firmProductBodySchema = z.object({
@@ -202,10 +203,6 @@ function refineFirmPrice(data: {
 const firmPriceBodySchema = firmPriceFieldsSchema.superRefine(refineFirmPrice);
 const firmPricePatchBodySchema = firmPriceFieldsSchema.partial().superRefine(refineFirmPrice);
 const firmPricesBulkBodySchema = z.object({ prices: z.array(firmPriceBodySchema).max(500) });
-
-const claimBodySchema = z.object({
-  evidence: z.string().trim().max(2000).nullable().optional(),
-});
 
 const moderateFirmBodySchema = z.object({
   status: z.enum(["pending", "approved", "rejected"]).optional(),
@@ -498,12 +495,18 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
     const parsed = claimBodySchema.safeParse(req.body ?? {});
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz claim bilgisi", issues: parsed.error.issues });
-    const id = await createFirmClaim({ firmId, userId, evidence: parsed.data.evidence });
+    const evidence = [
+      parsed.data.evidence,
+      "Yetki beyanı ve gizlilik onayı: kabul edildi",
+    ].filter(Boolean).join("\n");
+    const id = await createFirmClaim({ firmId, userId, evidence });
     if (!id) return reply.status(404).send({ error: "Firma bulunamadi" });
     return reply.status(201).send({ id });
   });
 
-  app.post<{ Params: { slug: string } }>("/firms/:slug/leads", async (req, reply) => {
+  app.post<{ Params: { slug: string } }>("/firms/:slug/leads", {
+    config: { rateLimit: { max: 10, timeWindow: "1 hour" } },
+  }, async (req, reply) => {
     const firm = await getFirmBySlug(req.params.slug);
     if (!firm) return reply.status(404).send({ error: "Firma bulunamadi" });
     const parsed = publicLeadBodySchema.safeParse(req.body ?? {});
@@ -520,6 +523,8 @@ export async function registerFirmsPublic(app: FastifyInstance) {
         `Public lead: ${data.name}`,
         data.phone ? `Telefon: ${data.phone}` : null,
         data.email ? `E-posta: ${data.email}` : null,
+        `Tercih edilen kanal: ${data.preferredChannel}`,
+        "Gizlilik onayı: kabul edildi",
         `Mesaj: ${data.message}`,
       ].filter(Boolean).join("\n"),
     });

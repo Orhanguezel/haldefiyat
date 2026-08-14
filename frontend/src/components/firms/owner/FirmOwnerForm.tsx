@@ -8,6 +8,10 @@ import type { Firm, FirmPrice, Product } from "@/lib/api";
 import { CityDistrictSelect } from "@/components/firms/owner/CityDistrictSelect";
 import { FirmPricesTable } from "@/components/firms/owner/FirmPricesTable";
 import { Combobox } from "@/components/ui/Combobox";
+import { Input } from "@/components/ui/Input";
+import { TextArea } from "@/components/ui/TextArea";
+import { Button } from "@/components/ui/Button";
+import { FirmFormHeader } from "@/components/firms/FirmFormHeader";
 import {
   FIRM_PRICE_UNITS,
   todayDateString,
@@ -77,6 +81,7 @@ export function FirmOwnerForm({ mode, locale }: Props) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [publicationConsent, setPublicationConsent] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -132,9 +137,17 @@ export function FirmOwnerForm({ mode, locale }: Props) {
       setError("İl seçimi zorunludur.");
       return;
     }
+    if (mode === "create" && body.phone && !publicationConsent) {
+      setSaving(false);
+      setError("Ticari telefon hattının profilde yayınlanabilmesi için yayın onayını vermelisiniz.");
+      return;
+    }
     try {
       if (mode === "create") {
-        const res = await apiPost<{ item: Firm }>("/firms", body);
+        const res = await apiPost<{ item: Firm }>("/firms", {
+          ...body,
+          publicationConsent: !body.phone || publicationConsent,
+        });
         const validPrices = draftPrices.map((price) => validateFirmPriceRow(price)).filter((row) => row.ok).map((row) => row.value);
         if (validPrices.length > 0) {
           await apiPost<{ inserted: number; skipped: number }>(`/firms/${res.item.id}/prices/bulk`, { prices: validPrices });
@@ -318,9 +331,12 @@ export function FirmOwnerForm({ mode, locale }: Props) {
       <form onSubmit={submitFirm} className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-5">
         <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">
-              {mode === "create" ? "Firma Başvurusu" : "Firma Bilgilerim"}
-            </h1>
+            <FirmFormHeader
+              eyebrow={mode === "create" ? "Firma rehberi başvurusu" : "Firma yönetimi"}
+              title={mode === "create" ? "Firma başvurusu" : "Firma bilgilerim"}
+              description="Firma, konum ve ticari iletişim bilgilerini eksiksiz girin. Onaylanan kayıtlar firma rehberinde yayınlanır."
+              level="h1"
+            />
             {firm?.status && (
               <p className="mt-1 font-(family-name:--font-mono) text-[11px] text-(--color-muted)">
                 Durum: {statusLabel(firm.status)}
@@ -347,26 +363,42 @@ export function FirmOwnerForm({ mode, locale }: Props) {
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
-          <Field label="Firma adı" value={form.name} onChange={(value) => setField("name", value)} required />
-          <Field label="Yetkili kişi" value={form.contactPerson ?? ""} onChange={(value) => setField("contactPerson", value)} />
-          <Field label="Telefon" value={form.phone ?? ""} onChange={(value) => setField("phone", value)} />
+          <Input label="Firma adı" value={form.name} onChange={(event) => setField("name", event.target.value)} required />
+          <Input label="Yetkili kişi" value={form.contactPerson ?? ""} onChange={(event) => setField("contactPerson", event.target.value)} />
+          <Input type="tel" label="Ticari telefon" hint="Yalnız işletmeye ait ve yayınlama yetkiniz bulunan hattı girin." value={form.phone ?? ""} onChange={(event) => setField("phone", event.target.value)} />
           <CityDistrictSelect
             citySlug={form.citySlug}
             districtSlug={form.districtSlug}
             required={mode === "create"}
             onChange={(value) => setForm((prev) => ({ ...prev, ...value }))}
           />
-          <Field label="Kategoriler" value={categoryText} onChange={setCategoryText} placeholder="domates, narenciye" />
-          <Textarea label="Adres" value={form.address ?? ""} onChange={(value) => setField("address", value)} />
-          <Textarea label="Firma açıklaması" value={form.description ?? ""} onChange={(value) => setField("description", value)} />
+          <Input label="Kategoriler" value={categoryText} onChange={(event) => setCategoryText(event.target.value)} placeholder="domates, narenciye" />
+          <div className="md:col-span-2">
+            <TextArea label="Adres" value={form.address ?? ""} onChange={(event) => setField("address", event.target.value)} />
+          </div>
+          <div className="md:col-span-2">
+            <TextArea label="Firma açıklaması" value={form.description ?? ""} onChange={(event) => setField("description", event.target.value)} />
+          </div>
         </div>
+
+        {mode === "create" && (
+          <label className="mt-4 flex items-start gap-3 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg-alt) p-3 text-xs leading-5 text-(--color-muted)">
+            <input
+              type="checkbox"
+              checked={publicationConsent}
+              onChange={(event) => setPublicationConsent(event.target.checked)}
+              className="mt-1 h-4 w-4 accent-(--color-brand)"
+            />
+            <span>Girdiğim telefonun işletmeye ait ticari iletişim hattı olduğunu ve firma profilinde kamusal olarak yayınlanabileceğini onaylıyorum.</span>
+          </label>
+        )}
 
         {message && <p className="mt-4 rounded-[6px] bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{message}</p>}
         {error && <p className="mt-4 rounded-[6px] bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
-        <button disabled={saving} className="mt-5 rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-white disabled:opacity-60">
+        <Button type="submit" loading={saving} className="mt-5">
           {saving ? "Kaydediliyor..." : mode === "create" ? "Başvuruyu gönder" : "Bilgileri kaydet"}
-        </button>
+        </Button>
       </form>
 
       {(mode === "create" || firm) && (
@@ -550,32 +582,4 @@ function normalizeHeader(value: string): "name" | "unit" | "minPrice" | "avgPric
   if (["tarih", "date", "recordeddate"].includes(key)) return "recordedDate";
   if (["katalogslug", "productslug", "slug"].includes(key)) return "productSlug";
   return key;
-}
-
-function Field({ label, value, onChange, placeholder, required = false }: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  required?: boolean;
-}) {
-  return (
-    <label className="space-y-1 text-sm">
-      <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.08em] text-(--color-muted)">{label}</span>
-      <input required={required} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-h-11 w-full rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm text-(--color-foreground) outline-none focus:border-(--color-brand)" />
-    </label>
-  );
-}
-
-function Textarea({ label, value, onChange }: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="space-y-1 text-sm md:col-span-2">
-      <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.08em] text-(--color-muted)">{label}</span>
-      <textarea value={value} onChange={(event) => onChange(event.target.value)} rows={3} className="w-full rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 py-2 text-sm text-(--color-foreground) outline-none focus:border-(--color-brand)" />
-    </label>
-  );
 }

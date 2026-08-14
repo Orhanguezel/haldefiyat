@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
 import { fetchFirmCities, fetchFirms, fetchFirmTypes, type Firm } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
@@ -123,7 +124,7 @@ export default async function FirmsPage({ params, searchParams }: Props) {
   );
 
   return (
-    <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+    <main className="relative z-10 mx-auto max-w-[1400px] px-4 py-10 sm:px-8 sm:py-12">
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Firmalar", href: "/firmalar" },
@@ -154,7 +155,7 @@ export default async function FirmsPage({ params, searchParams }: Props) {
         <input
           name="q"
           defaultValue={q}
-          placeholder="Firma adı, adres veya telefon"
+          placeholder="Firma adı veya adres"
           className="min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm text-(--color-foreground) outline-none focus:border-(--color-brand)"
         />
         <select
@@ -268,7 +269,7 @@ export default async function FirmsPage({ params, searchParams }: Props) {
             >
               <div className="h-11 w-11 shrink-0 overflow-hidden rounded-[6px] border border-(--color-border-soft) bg-(--color-bg-alt)">
                 {firm.photoUrl ? (
-                  <img src={firm.photoUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
+                  <Image src={firm.photoUrl} alt={`${firm.name} firma görseli`} width={88} height={88} sizes="44px" className="h-full w-full object-cover" loading="lazy" unoptimized />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center font-(family-name:--font-display) text-base font-bold text-(--color-brand)">
                     {firm.name.charAt(0).toLocaleUpperCase("tr")}
@@ -283,6 +284,14 @@ export default async function FirmsPage({ params, searchParams }: Props) {
                       Sponsorlu
                     </span>
                   )}
+                  {firm.claimStatus === "verified" && (
+                    <span
+                      title="Yetkili kullanıcı tarafından sahiplenilmiş profil; hizmet garantisi değildir."
+                      className="ml-2 rounded-full border border-emerald-300 bg-emerald-50 px-2 py-0.5 align-middle font-(family-name:--font-mono) text-[9px] font-semibold text-emerald-700"
+                    >
+                      Doğrulanmış
+                    </span>
+                  )}
                 </p>
                 {firm.address && (
                   <p className="truncate text-[12px] text-(--color-muted)">{firm.address}</p>
@@ -294,6 +303,7 @@ export default async function FirmsPage({ params, searchParams }: Props) {
               <span className="hidden w-28 shrink-0 truncate text-right font-(family-name:--font-mono) text-[11px] text-(--color-muted) md:inline">
                 {firm.citySlug ?? "—"}{firm.districtSlug ? ` / ${firm.districtSlug}` : ""}
               </span>
+              <span className="shrink-0 font-(family-name:--font-mono) text-[11px] font-semibold text-(--color-brand)">İncele</span>
             </Link>
           ))}
         </div>

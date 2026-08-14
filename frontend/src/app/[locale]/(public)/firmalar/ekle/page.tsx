@@ -27,7 +27,7 @@ export default async function FirmCreatePage({ params }: Props) {
 
   return (
     <AuthGuard locale={locale}>
-      <main className="relative z-10 mx-auto max-w-[980px] px-8 py-12">
+      <main className="relative z-10 mx-auto max-w-[980px] px-4 py-10 sm:px-8 sm:py-12">
         <Breadcrumb items={[
           { name: "Anasayfa", href: "/" },
           { name: "Firmalar", href: "/firmalar" },
