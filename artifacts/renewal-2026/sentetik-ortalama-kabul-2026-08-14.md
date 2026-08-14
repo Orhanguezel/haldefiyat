@@ -9,7 +9,9 @@
 - `hf_price_history.avg_price_method` alanı eklendi: `reported`, `midpoint`,
   güvenli geçiş değeri olarak `unknown`.
 - 1.055.511 tarihsel kayıt iki ondalık saklama hassasiyeti korunarak
-  sınıflandı: 809.322 `midpoint` (**%76,68**), 246.189 `reported`; `unknown=0`.
+  sınıflandı: 808.595 `midpoint` (**%76,61**), 246.916 `reported`; `unknown=0`.
+  Faz 0'daki 809.322/%76,68 sayısı daha geniş SQL proxy'siydi; kalıcı alanın
+  dar `≤0,005` iki-ondalık kuralı canlı sınıflandırmanın kaynak gerçeğidir.
 - Yeni kayıtlar merkezi `upsertPriceRow` yolunda sınıflanıyor. TOBB ve Polatlı
   gibi kaynağın ortalamayı açıkça yayımladığı üreticiler `reported` bilgisini
   doğrudan veriyor; diğer entegrasyonlar min/max ve ortalama ilişkisine göre dar
