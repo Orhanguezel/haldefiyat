@@ -1,6 +1,5 @@
 import type { FastifyInstance } from "fastify";
 import { registerAuth, registerUserAdmin } from "@agro/shared-backend/modules/auth";
-import { registerStorage, registerStorageAdmin } from "@agro/shared-backend/modules/storage";
 import { registerProfiles } from "@agro/shared-backend/modules/profiles";
 import { registerSiteSettings, registerSiteSettingsAdmin } from "@agro/shared-backend/modules/siteSettings";
 import { registerUserRoles } from "@agro/shared-backend/modules/userRoles";
@@ -23,6 +22,7 @@ import { registerGoogleConnectAdmin } from "@agro/shared-backend/modules/googleC
 import { registerMetaAdmin } from "@agro/shared-backend/modules/meta";
 import { registerPopups, registerPopupsAdmin } from "@agro/shared-backend/modules/popups";
 import { hasContactPrivacyConsent } from "@/modules/contact-consent";
+import { registerSecureStorage, registerSecureStorageAdmin } from "@/modules/storage/secure-storage";
 
 export async function registerSharedPublic(api: FastifyInstance) {
   api.addHook("preValidation", async (req, reply) => {
@@ -32,7 +32,7 @@ export async function registerSharedPublic(api: FastifyInstance) {
   });
   await registerAuth(api);
   await registerHealth(api);
-  await registerStorage(api);
+  await registerSecureStorage(api);
   await registerSiteSettings(api);
   await registerUserRoles(api);
   await registerTheme(api);
@@ -47,7 +47,7 @@ export async function registerSharedPublic(api: FastifyInstance) {
 export async function registerSharedAdmin(adminApi: FastifyInstance) {
   await registerSiteSettingsAdmin(adminApi);
   await registerUserAdmin(adminApi);
-  await registerStorageAdmin(adminApi);
+  await registerSecureStorageAdmin(adminApi);
   await registerCategoriesAdmin(adminApi);
   await registerThemeAdmin(adminApi);
   await registerNewsletterAdmin(adminApi);

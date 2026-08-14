@@ -1,0 +1,39 @@
+{
+  "generatedAt": "2026-08-14T08:14:42.353Z",
+  "origin": "https://haldefiyat.com",
+  "passed": true,
+  "snapshots": [
+    {
+      "path": "/api/v1/listings?limit=100",
+      "policy": "listing",
+      "status": 200,
+      "bytes": 2485,
+      "durationMs": 307,
+      "findings": []
+    },
+    {
+      "path": "/api/v1/prices?limit=100",
+      "policy": "generic",
+      "status": 200,
+      "bytes": 77035,
+      "durationMs": 1048,
+      "findings": []
+    },
+    {
+      "path": "/api/v1/prices/products?seoIndex=true",
+      "policy": "generic",
+      "status": 200,
+      "bytes": 60300,
+      "durationMs": 59,
+      "findings": []
+    },
+    {
+      "path": "/api/v1/prices/markets?seoIndex=true",
+      "policy": "publicBusiness",
+      "status": 200,
+      "bytes": 19135,
+      "durationMs": 545,
+      "findings": []
+    }
+  ]
+}

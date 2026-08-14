@@ -17,6 +17,7 @@ import { getStorageSettings } from "@agro/shared-backend/modules/siteSettings";
 import { auditRequestLoggerPlugin } from "@/plugins/auditRequestLogger";
 import { registerAllRoutes } from "./routes";
 import { parseCorsOrigins, pickUploadsRoot, pickUploadsPrefix } from "./app.helpers";
+import { isCrossSiteCookieMutation, requestUsesPrivateIdentity } from "@/security/request-security";
 
 export async function createApp() {
   const { default: buildFastify } =
@@ -60,6 +61,30 @@ export async function createApp() {
     },
   });
 
+  app.addHook("onRequest", async (req, reply) => {
+    if (isCrossSiteCookieMutation({
+      method: req.method,
+      authorization: req.headers.authorization,
+      accessCookie: req.cookies?.access_token,
+      secFetchSite: typeof req.headers["sec-fetch-site"] === "string" ? req.headers["sec-fetch-site"] : undefined,
+      origin: req.headers.origin,
+      allowedOrigins: env.CORS_ORIGIN,
+    })) {
+      return reply.code(403).send({ error: { code: "cross_site_cookie_mutation", message: "Cross-site istek reddedildi" } });
+    }
+  });
+
+  app.addHook("onSend", async (req, reply, payload) => {
+    const isAdmin = req.url.startsWith("/api/v1/admin/");
+    const routeRequiresAuth = (req.routeOptions.config as { auth?: boolean } | undefined)?.auth === true;
+    if (isAdmin || routeRequiresAuth || requestUsesPrivateIdentity(req)) {
+      reply.header("Cache-Control", "private, no-store, max-age=0");
+      reply.header("Pragma", "no-cache");
+      reply.header("Vary", "Authorization, Cookie");
+    }
+    return payload;
+  });
+
   await app.register(jwt, {
     secret: env.JWT_SECRET,
     cookie: { cookieName: "access_token", signed: false },
@@ -79,7 +104,7 @@ export async function createApp() {
 
   await app.register(multipart, {
     throwFileSizeLimit: true,
-    limits: { fileSize: 10 * 1024 * 1024 },
+    limits: { fileSize: 8 * 1024 * 1024, files: 12, fields: 20, parts: 32 },
   });
 
   let storageSettings: Awaited<ReturnType<typeof getStorageSettings>> | null = null;

@@ -42,6 +42,7 @@ async function request<T>(
   const bearer = getStoredAccessToken();
   const res = await fetch(url, {
     ...options,
+    cache: "no-store",
     credentials: "include",
     headers: {
       ...(options.body ? { "Content-Type": "application/json" } : {}),
