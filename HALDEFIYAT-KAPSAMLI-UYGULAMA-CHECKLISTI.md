@@ -124,7 +124,7 @@
 - [x] F1.24 Mevcut “Mesaj gönder / teklif ver” formu arama talebinin altında korunuyor.
 - [x] F1.25 Public ilan ve arama-talebi serbest metnindeki telefon/e-posta kayıttan/Telegram'dan önce maskeleniyor; durum/zaman auditleniyor. Audit URL/referrer hassas query anahtarları ve bilinmeyen anahtardaki telefon/e-posta değerleri testli scrub ediliyor; request body kaydedilmiyor.
 - [ ] F1.26 Bot/CAPTCHA veya risk kontrolünü yalnız şüpheli akışta devreye sokacak şekilde tasarla.
-- [ ] F1.27 KVKK aydınlatma, amaç, saklama, silme ve satıcı tercih metinlerini güncelle.
+- [x] F1.27 KVKK aydınlatma; veri sorumlusu, işleme amaçları, hukuki sebepler, aktarım, haklar ve açık saklama/silme süreleriyle güncellendi. Terminal arama talepleri 90 gün, OTP süresi +1 gün, audit 30 gün retention altında; canlı iş 4 süresi geçmiş OTP kaydını sildi. Kanıt: `artifacts/renewal-2026/kvkk-kunye-gelir-tema-kabul-2026-08-14.md`.
 - [x] F1.28 `phone_click` yerine `call_request_view/submit/accepted/declined/cancelled/completed` eventlerini mevcut attribution-aware analytics katmanına bağla; parametrelerde telefon/e-posta/not yok.
 - [~] F1.29 DTO data-leak, HMAC secret, consent ve status validation unit testleri eklendi; DB integration/auth/rate-limit uçtan uca fixture’ı bekliyor.
 - [x] F1.30 Deploy sonrası public liste/detay API, HTML/RSC, `tel:` ve serbest metin sızıntı testini tekrar yap; 2 canlı kayıtta satıcı telefonu sızıntısı 0.
@@ -141,8 +141,8 @@
 
 ### 3.3 Künye ve güven yüzeyleri
 
-- [ ] F1.38 Tüzel kişi, sorumlu yayıncı, adres/şehir ve kurumsal iletişim bilgisini sahibinden onaylat.
-- [ ] F1.39 Sahiplik ve finansman sayfasını gerçek bilgilerle güncelle.
+- [~] F1.38 Tüzel kişi GZL Teknoloji, platform sahibi/sektör ağı Atakan Şahin, teknik yürütme Orhan Güzel ve kurumsal e-posta canlıya işlendi; açık adres/şehir doğrulanmış kayıt olmadan üretilmedi ve sahip onayına bağlı tek açık künye alanıdır. Karar: `docs/GELIR-VE-KUNYE-KARAR-KAYDI.md`.
+- [x] F1.39 Sahiplik ve finansman sayfası gerçek rol/işletmeci ayrımı, editoryal bağımsızlık, ilan-hal fiyatı ayrımı ve mock paket fiyatı uyarısıyla canlı güncellendi. Kanıt: `artifacts/renewal-2026/kvkk-kunye-gelir-tema-kabul-2026-08-14.md`.
 - [ ] F1.40 Hakkımızda sayfasına ekip/amaç/veri yaklaşımı ekle; anonim marka cümlesiyle bırakma.
 - [ ] F1.41 Metodoloji, veri kaynağı, editoryal, düzeltme, KVKK ve kullanım koşullarını çapraz bağla.
 - [ ] F1.42 Footer, publisher schema, Organization schema ve iletişim sayfasını tek ayar kaynağına bağla.
@@ -612,22 +612,22 @@
 - [x] E22 Canlıda provider `none`, Netgsm credential ve OTP flag pasif; Telegram+SMTP aktif doğrulandı. Mevcut adapter korundu. Production `none`/eksik credential fail-closed yapıldı, başarısız SMS doğrulama satırı yazmıyor ve telefon/kod loglamıyor; auth + IP/telefon/deneme kotaları canlı 401/503/DB kabulünden geçti. Kanıt: `artifacts/renewal-2026/arama-talebi-kimlik-sms-guvenlik-kabul-2026-08-14.md`.
 - [x] E23 OTP kaydı `user_id` ile kalıcı bağlandı; token `phone+userId+exp` HMAC ve sabit-zamanlı imza doğrulamasıyla call-request yetkisinde güvenle yeniden kullanılıyor. Canlı SMS pasifken doğrulanmış e-posta MVP alternatifi seçildi; maskeli telefon özeti korunuyor, doğrulanmamış hesap 403 ve görünür doğrulama yönlendirmesi alıyor. Kanıt: `artifacts/renewal-2026/arama-talebi-kimlik-sms-guvenlik-kabul-2026-08-14.md`.
 - [x] E24 Call-request ve OTP endpoint'leri global güvenlik/audit hookları, auth, route/IP ve DB kotaları altında. JWT/cookie secret fallback'siz zorunlu; HMAC token boyut/TTL/kullanıcı bağı testli. Public signup yalnız customer/komisyoncu allowlist'inde, admin yalnız sunucu e-posta allowlist'inden atanıyor. Canlı yan etkisiz 401/403/503 kabulü geçti. Kanıt: `artifacts/renewal-2026/arama-talebi-kimlik-sms-guvenlik-kabul-2026-08-14.md`.
-- [ ] E25 KVKK aydınlatma metinleri veri sorumlusu kimliğine bağlıdır (E31 künye kararı); tüzel kişi netleşmeden metin yayınlanmaz.
-- [ ] E26 İlan modülünün kayıtlı kararları korunur: ilan fiyatı hal fiyat verisine KARIŞMAZ; coğrafyalar arası eşleştirme (Antalya karpuzu ↔ Kars alıcısı) ana değer önerisidir; sponsorluk/öne-çıkarma geliri Faz 0'dan açıktır (gated bireysel premium'dan ayrı).
+- [x] E25 Veri sorumlusu GZL Teknoloji olarak karara bağlandı; KVKK metni kimlik, amaç, hukuki sebep, aktarım, haklar ve gerçek retention süreleriyle canlı yayımlandı. Teknik kabul: `artifacts/renewal-2026/kvkk-kunye-gelir-tema-kabul-2026-08-14.md`.
+- [x] E26 İlan fiyatı `hf_listings`te kalır ve `hf_price_history`/endeks/hal fiyatına karışmaz; coğrafyalar arası eşleştirme ve premium'dan ayrı sponsorlu görünürlük kararları `docs/GELIR-VE-KUNYE-KARAR-KAYDI.md` içinde bağlayıcı kayda alındı.
 
 ### 15.5 Tema/konsept kararına ek girdiler
 
-- [ ] E27 Puanlama matrisine (R1.21) 4 kriter eklenir: (a) foto lisans/atıf yükü — CC borcu E9, (b) LCP maliyeti — trafik %78 mobil, (c) AI-üretimi stok fotoğrafın "gerçek veri" güvenine etkisi, (d) e-ticaret tonu tuzağı — platform satış yapmıyor, "Alışverişe başla" dili markaya aykırı.
-- [ ] E28 Fable 5 puanlama girdisi (bağlayıcı değil; karar R1.21–24'te): baz = Temiz Veri (veri güveni, kontrast, B2B/API uyumu, token uygulanabilirliği en yüksek); analiz/rapor/editoryal sayfalarda Pazar Defteri sıcaklığı; foto yalnız gerçek+lisanslı görsel olan yerde (ürün kartı). Tarladan Sofraya'nın tam seti lisans+LCP+güven riski nedeniyle önerilmez.
-- [ ] E29 Tema rollout'u aktif Google Ads kampanyasıyla (150 TL/gün, brand-awareness fazı) koordine edilir: landing kalite puanı ve conversion tag (AW-18007572524) rollout penceresinde izlenir; pilot cohort Ads trafiğini kapsıyorsa Atakan'a haber verilir.
-- [ ] E30 Tema değişimi OG şablonlarını (T1 `seo_pages`/uploads + T2 `/og/` route) ve yeni font/asset'ler CSP snippet'ini (VPS `deploy/nginx` izlenen kopya) etkiler; rollout PR'ına OG+CSP maddesi eklenir, canlıda pm2 log `csp_violation` sayımıyla doğrulanır.
+- [x] E27 `docs/TEMA-KARAR-KAYDI.md` matrisi görsel lisans borcu, mobil LCP riski, gerçek veri algısı ve e-ticaret algısından uzaklık ölçütlerini içeriyor; toplam 12 ölçüt üzerinden karar verildi.
+- [x] E28 Bağlayıcı karar Temiz Veri baz tema, Pazar Defteri yalnız editoryal ikincil yüzeydir; Tarladan Sofraya tam seti reddedildi, foto yalnız lisans/atıf kayıtlı gerçek ürün yüzeyinde kullanılır. Kayıt: `docs/TEMA-KARAR-KAYDI.md`.
+- [x] E29 Canlı Ads API gerçeğiyle düzeltildi: v21 kapanış hatası ortak pakette v25'e yükseltildi; HalDeFiyat kampanyası `PAUSED`, günlük bütçesi 290 TL ve son 30 gün trafik/harcama/dönüşüm 0. Tema aktif HalDeFiyat Ads trafiğine maruz kalmadı; `AW-18007572524` üç kritik canlı sayfada mevcut. Kanıt: `artifacts/renewal-2026/kvkk-kunye-gelir-tema-kabul-2026-08-14.md`.
+- [x] E30 Statik OG ve dört dinamik OG örneği canlıda 1200×630/675 PNG; enforce CSP başlığı mevcut. Tema release'i sonrasında tema/font/asset kaynaklı ve toplam yeni `csp_violation` sayısı 0. Kanıt: `artifacts/renewal-2026/kvkk-kunye-gelir-tema-kabul-2026-08-14.md`.
 
 ### 15.6 Künye ve gelir gerçekleri
 
-- [ ] E31 Künye/tüzel kişi kayıtlı kararla doldurulur: gelir GZL Teknoloji üzerinden (Adım 0 çözüldü); Atakan = sahip + sektör ağı, teknik yürütme Orhan. F1.38–39 bu mutabakatla, `MONETIZASYON-CHECKLIST.md` Adım 0 çıktısıyla beslenir.
-- [ ] E32 Gelir pilot sırası kayıtlı kanal sırasına uyar: A) ekosistem lead-gen → B) firma dizini claim+öne-çıkarma → C) B2B veri/rapor/API. F10.5–8 buna göre önceliklendirilir; Premium aktivasyon tetiği (10K DAU + 50 makale + 2K abone) geçerli kalır.
-- [ ] E33 Kurumsal rapor pilotu (F10.7) Atakan mutabakatı olmadan satışa çıkmaz; konsept görselindeki ₺1.490/₺4.990 fiyatlar MOCK'tur — P4.80 gereği gerçek fiyat kararı alınmadan siteye yazılmaz.
-- [ ] E34 Firma claim funnel'ı HAZIR ama 0 başvuru — eksik olan promosyon/görünürlük; P4.76'dan önce asıl iş budur. Kanal gerçeği: firma e-postası ~%2, telefon %94; scrape edilmiş telefonlar pazarlama/Customer Match'te KULLANILAMAZ (KVKK) — tek meşru yol claim + açık rıza + İYS.
+- [x] E31 GZL Teknoloji işletmeci/gelir tarafı; Atakan Şahin sahip+sektör ağı, Orhan Güzel teknik yürütme olarak canlı ve `docs/GELIR-VE-KUNYE-KARAR-KAYDI.md` içinde kaydedildi. Adres/şehir F1.38'de dış onay bağımlılığı olarak açıkça ayrıldı.
+- [x] E32 Pilot sıra A lead-gen → B firma claim+öne çıkarma → C B2B veri/rapor/API ve premium tetiği 10K DAU + 50 makale + 2K abone olarak bağlayıcı gelir kararına işlendi.
+- [x] E33 Kurumsal rapor/API satışı Atakan ve gerçek fiyat kararı kapısına bağlandı; 1.490/4.990 TL konsept tutarlarının mock olduğu canlı sahiplik sayfasında ve gelir kararında açıklandı.
+- [x] E34 Canlı gerçek güncellendi: 3 claim'in 3'ü onaylı; 1.335 firmanın 1.333'ü sahipsiz, 2'si doğrulanmış. Eksik iş görünürlük/izinli promosyondur; scrape telefonların pazarlama/Customer Match kullanım yasağı ve claim+açık tercih+İYS yolu gelir kararına işlendi. Kanıt: `artifacts/renewal-2026/kvkk-kunye-gelir-tema-kabul-2026-08-14.md`.
 
 ### 15.7 IA dikey kapsamı
 
