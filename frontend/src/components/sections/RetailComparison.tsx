@@ -17,7 +17,19 @@ const CHAIN_META: Record<string, { label: string; sourceUrl: string }> = {
   bim: { label: "BİM", sourceUrl: "bim.com.tr" },
   sok: { label: "ŞOK", sourceUrl: "sokmarket.com.tr" },
   carrefour: { label: "CarrefourSA", sourceUrl: "carrefoursa.com" },
+  tarim_kredi: { label: "KOOP Market", sourceUrl: "tkkoop.com.tr" },
 };
+
+function retailChainMeta(chainSlug: string) {
+  const known = CHAIN_META[chainSlug];
+  if (known) return known;
+  const publicLabel = chainSlug
+    .split(/[_-]+/u)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toLocaleUpperCase("tr-TR") + part.slice(1))
+    .join(" ");
+  return { label: publicLabel || "Perakende zinciri", sourceUrl: "Perakende zinciri" };
+}
 
 function formatTr(n: number): string {
   return n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -56,7 +68,7 @@ export default async function RetailComparison({
 
       <div className="grid gap-3 sm:grid-cols-2">
         {rows.map((row) => {
-          const chain = CHAIN_META[row.chainSlug] ?? { label: row.chainSlug, sourceUrl: row.chainSlug };
+          const chain = retailChainMeta(row.chainSlug);
           const price = row.numericPrice;
           const markupPct = row.markupPct;
 
