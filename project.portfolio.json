@@ -1,16 +1,22 @@
 {
-  "title": "Hal Fiyatlari",
-  "slug": "hal-fiyatlari",
-  "summary": "Günlük hal ve piyasa fiyatlarını toplayan, çiftçiye ve sektör oyuncularına anlık fiyat takibi sunan tarım veri platformu. Ürün ve şehir bazlı filtreleme, geçmiş fiyat karşılaştırma ve trend analizi.",
-  "category": "AGRICULTURE DATA",
+  "schemaVersion": 2,
+  "project": {
+    "key": "hal-fiyatlari",
+    "title": "HalDeFiyat — Türkiye Hal Fiyatları Platformu",
+    "summary": "Türkiye genelinde 22+ resmi kaynaktan günlük hal fiyatlarını toplayan, doğrulayan ve üretici/komisyoncu/tüketiciye açık sunan tarım veri platformu (haldefiyat.com).",
+    "description": "Türkiye'de hal fiyatları belediye siteleri, birlik sayfaları ve ulusal portallara dağılmış, standartsız ve zor erişilir durumdaydı. HalDeFiyat bu kaynakları günlük ETL hattıyla (Scrapling TLS-impersonation dahil) tek veritabanında toplar; canonical ürün sözlüğü, birim güvenliği ve karantina/veri bekçisi katmanıyla doğrular; ürün-şehir-hal bazlı fiyat sayfaları, Türkiye fiyat haritası, HalDeFiyat Endeksi ve haftalık analiz raporlarıyla yayınlar. Üretici-alıcı ilan pazarı, numara göstermeyen KVKK-uyumlu 'Satıcıyı ara' akışı, 3.500+ kayıtlı komisyoncu firma rehberi, e-posta bülteni ve ücretli API/kurumsal rapor ürünleriyle sektörün veri altyapısı olmayı hedefler. 1M+ fiyat kaydı, 260+ aktif ürün sayfası ve günlük otomatik veri akışıyla canlıdadır.",
+    "category": "AGRITECH PLATFORM",
+    "status": "live",
+    "ownership": "partner"
+  },
   "services": [
     "Full Stack Development",
-    "Backend Development",
-    "Frontend Development",
-    "API Design",
-    "Data Modeling"
+    "Veri Mühendisliği (ETL / scraping)",
+    "API Tasarımı",
+    "Teknik SEO ve GEO",
+    "DevOps (VPS, PM2, Nginx, release-bazlı deploy)"
   ],
-  "techs": [
+  "technologies": [
     "TypeScript",
     "Next.js",
     "React",
@@ -18,35 +24,82 @@
     "Drizzle ORM",
     "MySQL",
     "Bun",
-    "Zod",
-    "Tailwind CSS"
+    "Tailwind CSS",
+    "Playwright",
+    "Scrapling",
+    "PM2",
+    "Nginx"
   ],
   "features": [
-    "Günlük hal fiyatları listeleme",
-    "Ürün ve şehir/hal bazlı filtreleme",
-    "Geçmiş fiyat karşılaştırma ve trend analizi",
-    "Otomatik veri toplama (cron)",
-    "Ekosistem paylaşımlı auth (shared-backend)",
-    "REST API — ekosistem modüllerine fiyat servisi",
-    "Admin paneli — manuel fiyat girişi"
+    "22+ resmi kaynaktan günlük otomatik ETL (belediye halleri, hal.gov.tr, TOBB borsaları, market fiyatları)",
+    "Canonical ürün sözlüğü, birim güvenliği ve alias yönetimi",
+    "Veri bekçisi: anomali guard'ları, karantina kuyruğu, audit ve geri alma",
+    "Ürün/şehir/hal bazlı fiyat sayfaları, trend grafikleri ve CSV export",
+    "Türkiye fiyat haritası, HalDeFiyat Endeksi ve canlı veri durumu sayfası",
+    "Haftalık otomatik analiz raporları + editoryal yayın akışı",
+    "İlan pazarı ve numara göstermeyen güvenli 'Satıcıyı ara' talebi (KVKK uyumlu)",
+    "3.500+ komisyoncu firma rehberi ve sahiplenme (claim) akışı",
+    "API Pro anahtar/kota yönetimi ve kurumsal rapor ürünleşmesi",
+    "Reklam/banner pazaryeri modülü ve bülten otomasyonu"
   ],
-  "designHighlights": [
-    "hf_ prefix ile şema ayrımı",
-    "Tarım Dijital Ekosistemi'nin merkezi fiyat veri servisi"
+  "timeline": {
+    "startedAt": "2026-04-01",
+    "targetEndAt": null,
+    "completedAt": null,
+    "progressPercent": 85
+  },
+  "links": {
+    "website": "https://haldefiyat.com",
+    "demo": null,
+    "repository": "https://github.com/Orhanguezel/haldefiyat"
+  },
+  "media": [
+    {
+      "id": "cover",
+      "role": "cover",
+      "src": "docs/portfolio/assets/00-cover.png",
+      "alt": "HalDeFiyat ana sayfası — ürün arama ve güncel hal fiyatı kartı",
+      "caption": "HalDeFiyat kapak görseli (Temiz Veri teması, 2026-08 yenilemesi)",
+      "displayPermission": false,
+      "rightsConfirmed": false
+    }
   ],
-  "featured": false,
-  "displayOrder": 25,
-  "clientName": "Own Project — Tarım Dijital Ekosistemi",
-  "status": "live",
-  "startDate": "2026-04-01",
-  "completeDate": null,
-  "completionTimeLabel": "Aktif geliştirme",
-  "repoUrl": null,
-  "websiteUrl": "https://haldefiyat.com",
-  "demoUrl": null,
-  "featuredImage": null,
-  "featuredImageAlt": "Hal Fiyatlari",
-  "resumeTitle": "Hal Fiyatlari",
-  "resumeSubtitle": "Günlük Hal ve Piyasa Fiyat Platformu",
-  "excludeFromPortfolio": false
+  "channels": {
+    "website": {
+      "enabled": false,
+      "disabledReason": "2026-08 tema yenilemesi sonrası vitrin görselleri ve web metinleri henüz üretilmedi; görseller hazırlanınca açılacak",
+      "title": "",
+      "summary": "",
+      "description": "",
+      "seoTitle": "",
+      "seoDescription": "",
+      "category": "",
+      "imageIds": []
+    },
+    "bionluk": {
+      "enabled": false,
+      "disabledReason": "Ortaklık ürünü (GZL Teknoloji + saha ortağı); Bionluk showcase kararı ve görselleri hazırlanmadı",
+      "portfolio": {
+        "enabled": false,
+        "category": "",
+        "title": "",
+        "description": "",
+        "imageIds": []
+      },
+      "listing": {
+        "eligible": false,
+        "blockedReasons": ["Ortaklık ürünü — hizmet ilanına dönüştürülmeden önce içerik kararı gerekli"],
+        "category": "",
+        "title": "",
+        "description": "",
+        "requirements": "",
+        "packages": []
+      }
+    }
+  },
+  "publication": {
+    "privacy": "public",
+    "displayPermission": true
+  },
+  "updatedAt": "2026-08-14T13:00:00.000Z"
 }
