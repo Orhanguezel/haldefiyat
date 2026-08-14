@@ -238,7 +238,7 @@ export default async function YearlyReportPage({ params }: Props) {
           <div className="card rounded-xl border border-border bg-card p-5">
             <h2 className="text-lg font-semibold mb-3 text-rose-600">📈 En Çok Artanlar (Top 10)</h2>
             <div className="overflow-x-auto" role="region" aria-label="En çok artan ürünler tablosu" tabIndex={0}>
-            <table className="w-full min-w-[500px] text-sm">
+            <table className="w-full text-xs sm:min-w-[500px] sm:text-sm">
               <caption className="sr-only">{year} yılında en çok artan ürünler; başlangıç, bitiş fiyatı ve değişim yüzdesi</caption>
               <thead>
                 <tr className="text-left border-b border-border text-xs text-muted-foreground">
@@ -268,7 +268,7 @@ export default async function YearlyReportPage({ params }: Props) {
           <div className="card rounded-xl border border-border bg-card p-5">
             <h2 className="text-lg font-semibold mb-3 text-emerald-600">📉 En Çok Düşenler (Top 10)</h2>
             <div className="overflow-x-auto" role="region" aria-label="En çok düşen ürünler tablosu" tabIndex={0}>
-            <table className="w-full min-w-[500px] text-sm">
+            <table className="w-full text-xs sm:min-w-[500px] sm:text-sm">
               <caption className="sr-only">{year} yılında en çok düşen ürünler; başlangıç, bitiş fiyatı ve değişim yüzdesi</caption>
               <thead>
                 <tr className="text-left border-b border-border text-xs text-muted-foreground">
@@ -305,25 +305,25 @@ export default async function YearlyReportPage({ params }: Props) {
             Yıllık ortalamasının üzerinde belirgin sezon farkı gösteren ürünler (yıllık ortalamaya göre kat).
           </p>
           <div className="card overflow-x-auto rounded-xl border border-border bg-card" role="region" aria-label="Sezon pikleri tablosu" tabIndex={0}>
-            <table className="w-full min-w-[620px] text-sm">
+            <table className="w-full table-fixed text-[10px] sm:min-w-[620px] sm:table-auto sm:text-sm">
               <caption className="sr-only">{year} sezon pikleri; ürün, ay, pik fiyat ve yıllık ortalama</caption>
               <thead>
                 <tr className="text-left border-b border-border text-xs text-muted-foreground bg-muted/50">
-                  <th className="py-2.5 px-4">Ürün</th>
-                  <th className="py-2.5 px-4">Pik Ayı</th>
-                  <th className="py-2.5 px-4 text-right">Pik Fiyat</th>
-                  <th className="py-2.5 px-4 text-right">Yıl Ortalaması</th>
-                  <th className="py-2.5 px-4 text-right">Kat</th>
+                  <th className="px-1.5 py-2.5 sm:px-4">Ürün</th>
+                  <th className="px-1.5 py-2.5 sm:px-4">Pik Ayı</th>
+                  <th className="px-1.5 py-2.5 text-right sm:px-4">Pik Fiyat</th>
+                  <th className="px-1.5 py-2.5 text-right sm:px-4">Yıl Ortalaması</th>
+                  <th className="px-1.5 py-2.5 text-right sm:px-4">Kat</th>
                 </tr>
               </thead>
               <tbody>
                 {seasonalPeaks.map((p, i) => (
                   <tr key={`${p.productSlug}-${p.month}`} className={i % 2 ? "bg-muted/20" : ""}>
-                    <td className="py-1.5 px-4">{p.productName}</td>
-                    <td className="py-1.5 px-4 font-medium">{MONTH_NAMES[p.month] ?? "—"}</td>
-                    <td className="py-1.5 px-4 text-right">{fmtPrice(p.monthAvg)} ₺</td>
-                    <td className="py-1.5 px-4 text-right text-muted-foreground">{fmtPrice(p.yearAvg)} ₺</td>
-                    <td className="py-1.5 px-4 text-right font-semibold text-amber-600">{p.peakRatio.toFixed(1)}x</td>
+                    <td className="break-words px-1.5 py-1.5 sm:px-4">{p.productName}</td>
+                    <td className="px-1.5 py-1.5 font-medium sm:px-4">{MONTH_NAMES[p.month] ?? "—"}</td>
+                    <td className="px-1.5 py-1.5 text-right sm:px-4">{fmtPrice(p.monthAvg)} ₺</td>
+                    <td className="px-1.5 py-1.5 text-right text-muted-foreground sm:px-4">{fmtPrice(p.yearAvg)} ₺</td>
+                    <td className="px-1.5 py-1.5 text-right font-semibold text-amber-600 sm:px-4">{p.peakRatio.toFixed(1)}x</td>
                   </tr>
                 ))}
               </tbody>
