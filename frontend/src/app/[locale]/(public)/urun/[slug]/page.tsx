@@ -615,6 +615,8 @@ export default async function UrunPage({ params }: Props) {
         productSlug={slug}
         productName={displayName}
         halAvgPrice={offerAvg}
+        derivedAverageCount={syntheticOfferCount}
+        observationCount={pick.rows.length}
       />
 
       {/* Editoryal içerik — AI alıntılanabilirlik + E-E-A-T */}
@@ -635,7 +637,7 @@ export default async function UrunPage({ params }: Props) {
         <p>
           {borsaProduct
             ? "Bu sayfada gösterilen değerler TMO resmi alım fiyatı, ticaret borsası serbest piyasa fiyatı ve varsa destekleme primi gibi farklı tiplerden gelebilir; her değer kaynak, tip ve tarih etiketiyle ayrı değerlendirilmelidir."
-            : "Bu sayfada gösterilen fiyatlar, Türkiye genelindeki resmi hal müdürlüklerinden günlük olarak derlenmektedir. Minimum, maksimum ve ortalama fiyat değerleri güncel piyasa koşullarını yansıtır."}{" "}
+            : "Bu sayfada gösterilen fiyatlar, Türkiye genelindeki resmi hal müdürlüklerinden günlük olarak derlenmektedir. Kaynak ortalama yayımlamıyorsa minimum ve maksimum fiyatın orta noktası ayrıca işaretlenir; bu değer işlem hacmi ağırlıklı ortalama değildir."}{" "}
           <strong className="text-foreground">Veri kaynağı:</strong>{" "}
           {borsaProduct ? "TMO, ticaret borsaları ve ilgili resmi kurum duyuruları." : "Belediye hal müdürlükleri ve "}
           {!borsaProduct && (
@@ -683,7 +685,7 @@ export default async function UrunPage({ params }: Props) {
           ? ` (en düşük ${fmt(offerLow)} TL, en yüksek ${fmt(offerHigh)} TL)`
           : "";
         const priceAnswer = offerAvg > 0
-          ? `${displayName} bugün Türkiye genelindeki hallerde ortalama ${fmt(offerAvg)} TL/${offerUnit}${rangeText} seviyesinde işlem görüyor. Bu bir toptan hal fiyatıdır; market raf fiyatının altındadır. Fiyat hasat dönemi, üretim bölgesi ve kaliteye göre değişir — güncel değerler bu sayfadaki tabloda gösterilir.`
+          ? `${displayName} bugün Türkiye genelindeki hallerde ortalama ${fmt(offerAvg)} TL/${offerUnit}${rangeText} seviyesinde işlem görüyor. Bu bir toptan hal fiyatıdır; market raf fiyatının altındadır.${syntheticOfferCount > 0 ? ` Örneklemdeki ${syntheticOfferCount}/${pick.rows.length} ortalama min–maks orta noktasıdır; işlem hacmi ağırlıklı değildir.` : ""} Fiyat hasat dönemi, üretim bölgesi ve kaliteye göre değişir — güncel değerler bu sayfadaki tabloda gösterilir.`
           : `${displayName} ${unitWord} fiyatı; hasat dönemi, hava koşulları, üretim bölgesi ve kaliteye göre günlük değişir. Bu sayfadaki tabloda tüm hallerdeki güncel en düşük, ortalama ve en yüksek toptan fiyatları görebilirsiniz.`;
         const faqItems = [
           {

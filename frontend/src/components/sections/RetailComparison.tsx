@@ -6,6 +6,8 @@ interface Props {
   productSlug: string;
   productName: string;
   halAvgPrice: number;
+  derivedAverageCount?: number;
+  observationCount?: number;
 }
 
 const CHAIN_META: Record<string, { label: string; sourceUrl: string }> = {
@@ -20,7 +22,13 @@ function formatTr(n: number): string {
   return n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export default async function RetailComparison({ productSlug, productName, halAvgPrice }: Props) {
+export default async function RetailComparison({
+  productSlug,
+  productName,
+  halAvgPrice,
+  derivedAverageCount = 0,
+  observationCount = 0,
+}: Props) {
   const rows = plausibleRetailPrices(await fetchRetailPrices(productSlug), halAvgPrice);
   if (rows.length === 0) return null;
 
@@ -38,7 +46,9 @@ export default async function RetailComparison({ productSlug, productName, halAv
       <p className="mb-4 text-xs leading-relaxed text-muted">
         Bu tablo, hal toptan ortalamasıyla seçili büyük zincirlerin etiket fiyatını yan yana
         gösterir. Zincir verisi son 3 günden tek bir günlük örnektir; market fiyatları kampanya,
-        bölge ve tarih farkına göre değişebilir.
+        bölge ve tarih farkına göre değişebilir. {derivedAverageCount > 0 ? (
+          <>Hal bazının {derivedAverageCount}/{observationCount} kaydı min–maks orta noktasıdır; işlem hacmi ağırlıklı değildir.</>
+        ) : null}
       </p>
 
       <div className="grid gap-3 sm:grid-cols-2">

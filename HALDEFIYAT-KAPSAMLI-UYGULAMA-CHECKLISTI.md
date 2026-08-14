@@ -307,7 +307,7 @@
 
 - [ ] P4.21 Ürün adını canonical sözlükten göster; şablon artığına izin verme.
 - [ ] P4.22 Ana fiyat/birim/tarih/kaynak/örneklem bloğunu fold üstüne taşı.
-- [ ] P4.23 Min, ortalama, maks değerlerinin hesap yöntemini tooltip/metodolojiyle açıkla.
+- [x] P4.23 Min, ortalama ve maks değerlerinin hesap yöntemi açıklandı; sentetik ortalama satır/kart/ürün/perakende yüzeyinde etiketleniyor, endeks ve bültende min–maks orta noktası ile hacim-ağırlıklı-olmama notu var. Kanıt: `artifacts/renewal-2026/sentetik-ortalama-kabul-2026-08-14.md`.
 - [ ] P4.24 7/30/90 günlük grafik seçimlerini erişilebilir toggle yap.
 - [ ] P4.25 Grafik tooltip’lerinde hal, fiyat, birim ve tarih göster.
 - [ ] P4.26 Trend için ok+metin+yüzde kullan; renk tek başına anlam taşımasın.
@@ -600,7 +600,7 @@
 
 ### 15.3 Faz 1–2 veri ilaveleri — kayıtlı en büyük veri borçları
 
-- [ ] E16 `avg_price` kayıtların ~%79'unda SENTETİK (min–max orta noktası). Çeklistte hiç geçmiyor; sitedeki tüm fiyatları, raporları ve endeksi etkileyen en büyük veri borcu budur. ETL'de gerçek ortalama/sentetik ayrımı (ör. `is_synthetic` bayrağı) + tüketici yüzeylerinde (sayfa/API/bülten/endeks) ayrıştırma. Ref: `docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md`.
+- [x] E16 `avg_price_method` ile 1.055.511 kayıt sınıflandı: 809.322 midpoint (%76,68), 246.189 reported, unknown 0. Merkezi yazım/admin, API+tarihçe, CSV, fiyat kartı/tablosu, ürün/FAQ/perakende, bülten ve endeks metodolojisi ayrımı taşıyor. Canlı mobil/API kabulü geçti. Kanıt: `artifacts/renewal-2026/sentetik-ortalama-kabul-2026-08-14.md`.
 - [ ] E17 2025 tarihsel serisi 3 halde şişik (muhtemel parser regresyonu) — YoY kıyas BLOKLU; 5 düzeltme yöntemi denendi, başarısız. Ürün detaydaki "Yıllık Karşılaştırma" dahil tüm YoY yüzeyleri bu seriyi ya karantinalar ya açıkça işaretler; sessiz YoY yayınlanmaz.
 - [x] E18 546 TL domates kök nedeni ham fiyat değil, "tahmini perakende" TÜREV hesabıdır. 546,21 TL fixture’ı backend retail yazım sınırı ve frontend türev gösteriminde engelleniyor; `%200` iddiası canlı örneklemde yanlışlanıp `%1000` sert anomali eşiğine kalibre edildi. Kanıt: `artifacts/renewal-2026/perakende-guard-kabul-2026-08-13.md`.
 - [ ] E19 marketfiyati RETAIL_EXTRA throttle gerçeği: ~750 fresh çağrı sonrası IP throttle; kürasyonlu dikey fresh-produce'tan ÖNCE çalışmalı; retail destekleyicidir, index'i sürmez. Retail comparison'daki tazelik etiketi bu kısıtı yansıtır.

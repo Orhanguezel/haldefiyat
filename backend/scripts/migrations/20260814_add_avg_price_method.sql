@@ -8,7 +8,7 @@ UPDATE hf_price_history
 SET avg_price_method = CASE
   WHEN min_price IS NOT NULL
     AND max_price IS NOT NULL
-    AND ABS(avg_price - ((min_price + max_price) / 2)) < 0.005
+    AND ABS(avg_price - ((min_price + max_price) / 2)) <= 0.005
     THEN 'midpoint'
   ELSE 'reported'
 END

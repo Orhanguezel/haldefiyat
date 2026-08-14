@@ -27,5 +27,5 @@ export function inferAvgPriceMethod(input: {
   if (min == null || max == null) return input.method ?? "reported";
 
   const midpoint = (min + max) / 2;
-  return Math.abs(avg - midpoint) < 0.005 ? "midpoint" : "reported";
+  return Math.abs(avg - midpoint) <= 0.005 ? "midpoint" : "reported";
 }

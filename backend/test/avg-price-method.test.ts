@@ -6,6 +6,10 @@ describe("inferAvgPriceMethod", () => {
     expect(inferAvgPriceMethod({ minPrice: "10", maxPrice: "20", avgPrice: "15" })).toBe("midpoint");
   });
 
+  it("accepts a midpoint rounded to the stored two-decimal precision", () => {
+    expect(inferAvgPriceMethod({ minPrice: "10.00", maxPrice: "20.01", avgPrice: "15.01" })).toBe("midpoint");
+  });
+
   it("classifies a non-midpoint source average as reported", () => {
     expect(inferAvgPriceMethod({ minPrice: 10, maxPrice: 20, avgPrice: 17 })).toBe("reported");
   });
