@@ -87,6 +87,7 @@ export const env = {
   // API anahtar tier limitleri (gunluk istek sayisi)
   API_KEY_FREE_DAILY_LIMIT: parseEnvInt(process.env.API_KEY_FREE_DAILY_LIMIT, 100),
   API_KEY_PRO_DAILY_LIMIT: parseEnvInt(process.env.API_KEY_PRO_DAILY_LIMIT, 10_000),
+  API_ANON_PER_MINUTE: parseEnvInt(process.env.API_ANON_PER_MINUTE, 600),
   // Anonim (API key'siz) IP basina gunluk CSV export kotasi — public indirme butonu calisir,
   // agir export'cular (or. 879 export ceken) key almaya yonlendirilir
   EXPORT_ANON_DAILY_LIMIT: parseEnvInt(process.env.EXPORT_ANON_DAILY_LIMIT, 10),

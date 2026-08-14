@@ -4,6 +4,9 @@ import { getPageMetadata } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import PageContainer from "@/components/layout/PageContainer";
 import TrackedConversionLink from "@/components/analytics/TrackedConversionLink";
+import ApiProductNav from "@/components/api/ApiProductNav";
+import CopyCodeBlock from "@/components/api/CopyCodeBlock";
+import ApiKeyOnboarding from "@/components/api/ApiKeyOnboarding";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -13,8 +16,7 @@ export async function generateMetadata({ params }: Props) {
     locale,
     pathname: "/pro",
     title: "HaldeFiyat Pro — Yüksek Hacim API",
-    description:
-      "10.000 istek/gün, öncelikli destek, ticari kullanım. API key ile tier-bazlı rate limit. Aylık 2.999 TL.",
+    description: "Türkiye hal fiyatları için API anahtarı, güncel plan/kota bilgisi, ticari kullanım ve manuel onaylı Pro erişimi.",
   });
 }
 
@@ -27,9 +29,16 @@ interface Plan {
 
 interface PlansResponse {
   plans: Plan[];
+  contract: {
+    apiVersion: string;
+    anonymousPerMinute: number;
+    keyedQuotaWindow: string;
+    pricingMode: "manual_approval";
+    publicSla: null;
+  };
 }
 
-async function fetchPlans(): Promise<Plan[] | null> {
+async function fetchPlans(): Promise<PlansResponse | null> {
   try {
     const base = process.env.BACKEND_URL || "http://127.0.0.1:8091";
     const res = await fetch(`${base}/api/v1/keys/plans`, {
@@ -37,7 +46,7 @@ async function fetchPlans(): Promise<Plan[] | null> {
     });
     if (!res.ok) return null;
     const data = (await res.json()) as PlansResponse;
-    return data.plans;
+    return data;
   } catch {
     return null;
   }
@@ -51,29 +60,26 @@ export default async function ProPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const plans = (await fetchPlans()) ?? [
-    {
-      tier: "free",
-      dailyLimit: 100,
-      priceMonthlyTL: 0,
-      features: ["100 istek/gün", "Tüm public endpoint'ler", "API key ile yüksek limit"],
-    },
-    {
-      tier: "pro",
-      dailyLimit: 10000,
-      priceMonthlyTL: 2999,
-      features: [
-        "10.000 istek/gün",
-        "Öncelikli destek",
-        "Yüksek hacim için fiyat indirimi (manuel görüşme)",
-      ],
-    },
-  ];
-  const free = plans.find((p) => p.tier === "free")!;
-  const pro = plans.find((p) => p.tier === "pro")!;
+  const planResponse = await fetchPlans();
+  const free = planResponse?.plans.find((p) => p.tier === "free");
+  const pro = planResponse?.plans.find((p) => p.tier === "pro");
+
+  if (!planResponse?.contract || !free || !pro) {
+    return (
+      <PageContainer>
+        <ApiProductNav current="/pro" />
+        <h1 className="font-(family-name:--font-display) text-3xl font-bold text-(--color-foreground)">HaldeFiyat API Pro</h1>
+        <div role="status" className="mt-6 rounded-[8px] border border-amber-300 bg-amber-50 p-5 text-sm leading-6 text-amber-900">
+          Plan, fiyat ve kota kaynağına şu anda ulaşılamıyor. Eski veya örnek rakam göstermiyoruz; güncel sözleşme geri geldiğinde bu sayfa otomatik yenilenecek.
+        </div>
+        <Link href="/iletisim?subject=API%20plan%20bilgisi" className="mt-5 inline-flex rounded-[6px] border border-(--color-border) px-4 py-2 text-sm font-semibold">Destekle iletişime geç</Link>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
+      <ApiProductNav current="/pro" />
       <JsonLd
         type="Product"
         data={{
@@ -179,15 +185,31 @@ export default async function ProPage({ params }: Props) {
       </section>
 
       <section className="mb-16">
+        <h2 className="text-2xl font-semibold mb-4">Kapsam ve veri güncelliği</h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-xl border border-border bg-card p-5"><strong>API sürümü</strong><p className="mt-2 text-sm text-muted-foreground">{planResponse.contract.apiVersion}; geriye uyumsuz değişiklik yeni ana sürüm gerektirir.</p></div>
+          <div className="rounded-xl border border-border bg-card p-5"><strong>Kapsam</strong><p className="mt-2 text-sm text-muted-foreground">Fiyat, hal, endeks, üretim ve CSV yüzeyleri. Her endpoint gerçek cevap sözleşmesiyle dokümante edilir.</p></div>
+          <div className="rounded-xl border border-border bg-card p-5"><strong>Güncelleme sıklığı</strong><p className="mt-2 text-sm text-muted-foreground">Kaynağa göre değişir. Yanıttaki veri tarihi ve <Link href="/data-health" className="underline">veri sağlığı</Link> durumu esas alınır; anlık güncelleme garantisi yoktur.</p></div>
+        </div>
+        <p className="mt-4 text-sm text-muted-foreground">Anahtarsız ortak sınır: {fmtNumber(planResponse.contract.anonymousPerMinute)} istek/dakika. Anahtarlı günlük kota penceresi: UTC takvim günü.</p>
+      </section>
+
+      <section id="api-key" className="mb-16 scroll-mt-24">
+        <h2 className="text-2xl font-semibold mb-2">API anahtarlarım</h2>
+        <p className="mb-5 text-sm text-muted-foreground">Ücretsiz anahtar oluşturun, aktif tier ve kotayı görün veya kullanılmayan anahtarı iptal edin. Ham anahtar yalnız oluşturulduğu anda gösterilir.</p>
+        <ApiKeyOnboarding />
+      </section>
+
+      <section className="mb-16">
         <h2 className="text-2xl font-semibold mb-4">Örnek kullanım</h2>
-        <pre className="rounded-lg border border-border bg-card p-4 text-xs leading-relaxed text-foreground overflow-x-auto">{`# Yeni anahtar oluştur (JWT auth gerekli)
+        <CopyCodeBlock code={`# Yeni anahtar oluştur (JWT auth gerekli)
 curl -X POST https://haldefiyat.com/api/v1/keys \\
   -H "Authorization: Bearer $JWT" \\
   -H "Content-Type: application/json" \\
   -d '{"name":"Production"}'
 
 # Yanıt:
-# {"key": {"rawKey": "hf_a1b2c3d4...", "tier": "free", "dailyLimit": 100, ...}}
+# {"key": {"rawKey": "hf_a1b2c3d4...", "tier": "free", "dailyLimit": ${free.dailyLimit}, ...}}
 
 # API çağrısı:
 curl https://haldefiyat.com/api/v1/prices/trending \\
@@ -196,7 +218,25 @@ curl https://haldefiyat.com/api/v1/prices/trending \\
 # Yanıt header'ları:
 #   x-ratelimit-tier: pro
 #   x-ratelimit-limit: ${fmtNumber(pro.dailyLimit)}
-#   x-ratelimit-remaining: ${fmtNumber(pro.dailyLimit - 1)}`}</pre>
+#   x-ratelimit-remaining: ${fmtNumber(pro.dailyLimit - 1)}`} />
+      </section>
+
+      <section className="mb-16 grid gap-5 lg:grid-cols-2">
+        <div className="rounded-xl border border-border bg-card p-6">
+          <h2 className="text-xl font-semibold">Sürüm, lisans ve destek</h2>
+          <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+            <li><Link href="/api-docs#changelog" className="underline">v1 changelog ve sürümleme</Link></li>
+            <li><Link href="/api-policy" className="underline">Kullanım, cache, atıf ve lisans politikası</Link></li>
+            <li><Link href="/duzeltme-politikasi" className="underline">Veri düzeltme süreci</Link></li>
+            <li><Link href="/iletisim?subject=API%20destek" className="underline">Teknik destek</Link></li>
+          </ul>
+          <p className="mt-4 text-sm text-muted-foreground">Public API için kurumsal SLA yoktur. Özel SLA yalnız yazılı teklif ve manuel onay sonrası geçerlidir.</p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-6">
+          <h2 className="text-xl font-semibold">Gerçek kurumsal rapor örneği</h2>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">2025 yıllık raporu 1 Ocak–31 Aralık 2025 dönemindeki 167.933 fiyat satırından üretilen onaylı public örnektir. Rapor, gelecek fiyat veya ticari sonuç garantisi değildir.</p>
+          <Link href="/rapor/yillik/2025" className="mt-4 inline-flex rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:border-brand">2025 raporunu incele</Link>
+        </div>
       </section>
 
       <section className="mb-16">
@@ -221,9 +261,9 @@ curl https://haldefiyat.com/api/v1/prices/trending \\
             </p>
           </div>
           <div className="rounded-xl border border-border p-5">
-            <h3 className="font-semibold mb-1">İptal var mı?</h3>
+            <h3 className="font-semibold mb-1">Pro erişimi nasıl başlar?</h3>
             <p className="text-sm text-muted-foreground">
-              Aylık abonelik, istediğiniz zaman iptal — kalan günler için ücret alınmaz.
+              Pro erişimi otomatik satın alma değildir. Talep kapsam, lisans ve kullanım uygunluğu kontrolünden sonra manuel onaylanır; yürürlük ve iptal koşulları yazılı teklifte belirtilir.
             </p>
           </div>
           <div className="rounded-xl border border-border p-5">

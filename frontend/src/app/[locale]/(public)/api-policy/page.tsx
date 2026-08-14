@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import Link from "next/link";
 import { getPageMetadata } from "@/lib/seo";
 import PolicyLinks from "@/components/PolicyLinks";
+import ApiProductNav from "@/components/api/ApiProductNav";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -15,23 +16,39 @@ export async function generateMetadata({ params }: Props) {
   });
 }
 
-const rules = [
+async function fetchAnonymousLimit(): Promise<number | null> {
+  try {
+    const backend = process.env.BACKEND_URL || "http://127.0.0.1:8091";
+    const response = await fetch(`${backend}/api/v1/keys/plans`, { next: { revalidate: 300 } });
+    if (!response.ok) return null;
+    const body = await response.json() as { contract?: { anonymousPerMinute?: number } };
+    return body.contract?.anonymousPerMinute ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function policyRules(anonymousLimit: number | null) {
+  return [
   ["API serbest", "Herkese açık fiyat verisi için /api/v1 endpointlerini kullanabilirsiniz."],
   ["HTML scraping yasak", "Sayfa HTML'ini botla taramak yerine OpenAPI ve JSON endpointlerini kullanın."],
-  ["Limit", "Varsayılan adil kullanım limiti dakikada 120 istektir; yüksek hacim için API anahtarı isteyin."],
+  ["Limit", anonymousLimit ? `Anahtarsız ortak limit dakikada ${anonymousLimit.toLocaleString("tr-TR")} istektir; anahtarlı günlük kota için API Pro sözleşmesini kullanın.` : "Güncel limiti API Dokümantasyonu ve canlı plan sözleşmesinden kontrol edin; eski rakam gösterilmez."],
   ["Cache", "Yanıtları en az 5 dakika cache'leyin; aynı sorguyu saniyelik döngüyle tekrarlamayın."],
   ["Atıf", "Yayınlarda 'Kaynak: HaldeFiyat.com, ilgili belediye/borsa/TMO kaynağı' formatını kullanın."],
   ["Kaynak hakları", "API erişimi kaynak kurum verisinin mülkiyetini veya üçüncü taraf kullanım şartlarını devretmez. Kaynak kurumun şartları ayrıca geçerlidir."],
   ["Hizmet seviyesi", "Public API olduğu gibi sunulur; kesintisiz erişim, geriye dönük eksiksizlik veya kurumsal SLA garantisi vermez."],
   ["Yasak kullanımlar", "Veriyi yanıltıcı fiyat garantisi, manipülasyon, spam, kişisel veri çıkarımı veya kaynak gizleme amacıyla kullanmayın."],
-];
+  ];
+}
 
 export default async function ApiPolicyPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const rules = policyRules(await fetchAnonymousLimit());
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-12">
+      <ApiProductNav current="/api-policy" />
       <p className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
         Açık Veri
       </p>

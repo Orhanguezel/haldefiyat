@@ -60,6 +60,13 @@ export async function registerApiKeysPublic(api: FastifyInstance) {
   // Plan/fiyatlandirma bilgisi — frontend /pro sayfasi icin (auth-free)
   api.get("/keys/plans", async (_req, reply) => {
     return reply.send({
+      contract: {
+        apiVersion: "v1",
+        anonymousPerMinute: env.API_ANON_PER_MINUTE,
+        keyedQuotaWindow: "UTC calendar day",
+        pricingMode: "manual_approval",
+        publicSla: null,
+      },
       plans: [
         {
           tier: "free",

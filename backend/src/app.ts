@@ -34,6 +34,7 @@ export async function createApp() {
       "Prefer",
       "Accept",
       "Accept-Language",
+      "X-API-Key",
       "x-skip-auth",
       "Range",
     ],
@@ -65,7 +66,7 @@ export async function createApp() {
   });
 
   await app.register(rateLimit, {
-    max: 600,
+    max: env.API_ANON_PER_MINUTE,
     timeWindow: "1 minute",
     // Localhost (Next.js SSG + gelistirme) rate-limit'ten muaf
     allowList: ["127.0.0.1", "::1", "::ffff:127.0.0.1"],
@@ -125,9 +126,13 @@ export async function createApp() {
   const { apiKeyAuthHook } = await import("@/modules/api-keys/plugin");
   app.addHook("onRequest", apiKeyAuthHook);
   app.addHook("onRequest", async (_req, reply) => {
-    reply.header("X-RateLimit-Limit", "600");
-    reply.header("X-RateLimit-Remaining", "600");
-    reply.header("X-RateLimit-Reset", "60");
+    // API key hook'u günlük tier header'larını zaten yazdıysa onları ezme.
+    if (!reply.hasHeader("X-RateLimit-Tier")) {
+      reply.header("X-RateLimit-Tier", "anonymous");
+      reply.header("X-RateLimit-Limit", String(env.API_ANON_PER_MINUTE));
+      reply.header("X-RateLimit-Remaining", String(env.API_ANON_PER_MINUTE));
+      reply.header("X-RateLimit-Reset", "60");
+    }
   });
   app.addHook("onRequest", async (req, reply) => {
     reply.header("X-Content-Type-Options", "nosniff");

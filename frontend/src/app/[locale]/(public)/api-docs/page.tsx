@@ -1,6 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { DATA_LICENSE_URL, getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
+import ApiProductNav from "@/components/api/ApiProductNav";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -15,6 +16,18 @@ export async function generateMetadata({ params }: Props) {
 }
 
 const BASE = "https://haldefiyat.com/api/v1";
+
+async function fetchPlanContract(): Promise<{ apiVersion: string; anonymousPerMinute: number } | null> {
+  try {
+    const backend = process.env.BACKEND_URL || "http://127.0.0.1:8091";
+    const response = await fetch(`${backend}/api/v1/keys/plans`, { next: { revalidate: 300 } });
+    if (!response.ok) return null;
+    const body = await response.json() as { contract?: { apiVersion: string; anonymousPerMinute: number } };
+    return body.contract ?? null;
+  } catch {
+    return null;
+  }
+}
 
 type Method = "GET" | "POST" | "DELETE" | "PATCH";
 
@@ -339,10 +352,12 @@ const METHOD_COLORS: Record<Method, string> = {
 export default async function ApiDocsPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const contract = await fetchPlanContract();
 
   return (
     <div className="mx-auto max-w-350 px-8 py-12">
       <JsonLd type="DataFeed" data={dataFeedSchema} />
+      <ApiProductNav current="/api-docs" />
       {/* Başlık */}
       <div className="mb-12 max-w-2xl">
         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-brand/25 bg-brand/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-brand">
@@ -360,7 +375,7 @@ export default async function ApiDocsPage({ params }: Props) {
         {[
           { label: "Base URL", value: BASE },
           { label: "Format", value: "JSON (UTF-8)" },
-          { label: "Rate Limit", value: "600/dk · anahtarsız" },
+          { label: "Rate Limit", value: contract ? `${contract.anonymousPerMinute.toLocaleString("tr-TR")}/dk · anahtarsız` : "Canlı sözleşme geçici olarak alınamıyor" },
         ].map((item) => (
           <div key={item.label} className="rounded-xl border border-border bg-surface p-4">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-faint mb-1">{item.label}</p>
@@ -377,17 +392,17 @@ export default async function ApiDocsPage({ params }: Props) {
           </div>
           <h2 className="font-display text-xl font-bold text-foreground">Yoğun kullanım için API anahtarı alın</h2>
           <p className="mt-2 text-[14px] leading-relaxed text-muted">
-            Anahtarsız erişim, IP başına dakikalık limitle (600/dk) ücretsizdir. Ticari kullanım, yüksek
+            Anahtarsız erişim, IP başına {contract ? `${contract.anonymousPerMinute.toLocaleString("tr-TR")}/dk` : "canlı sözleşmede belirtilen dakikalık limit"} ile ücretsizdir. Ticari kullanım, yüksek
             hacimli entegrasyon veya garantili kota için <code className="text-foreground">X-API-Key</code> ile
-            daha yüksek günlük limit ve öncelikli erişim sunuyoruz. Anahtarlar başvuru üzerine tanımlanır.
+            daha yüksek günlük limit sunuyoruz. Ücretsiz anahtar hesap içinden oluşturulur; Pro tier manuel onaylanır.
           </p>
         </div>
         <div className="mt-4 flex shrink-0 flex-col gap-2 sm:mt-0">
           <a
-            href="/iletisim"
+            href="/pro#api-key"
             className="inline-flex items-center justify-center rounded-xl bg-brand px-5 py-2.5 text-[14px] font-semibold text-brand-fg transition-opacity hover:opacity-90"
           >
-            API Anahtarı Talep Et →
+            API Anahtarı Oluştur →
           </a>
           <a
             href="/pro"
@@ -486,6 +501,17 @@ export default async function ApiDocsPage({ params }: Props) {
           </section>
         ))}
       </div>
+
+      <section id="changelog" className="mt-16 scroll-mt-24 rounded-2xl border border-border bg-surface p-6">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-brand">Sürüm ve değişiklik kaydı</p>
+        <h2 className="mt-2 font-display text-xl font-bold text-foreground">API {contract?.apiVersion ?? "v1"}</h2>
+        <p className="mt-3 text-sm leading-6 text-muted">Geriye uyumlu alan eklemeleri v1 içinde yayınlanır. Alan kaldırma, anlam değiştirme veya zorunlu parametre ekleme yeni ana sürüm ve geçiş duyurusu gerektirir.</p>
+        <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-muted">
+          <li><strong className="text-foreground">2026-08-14:</strong> Plan/kota sözleşmesi backend ayar kaynağına bağlandı; anahtarlı ve anonim rate-limit header rolleri ayrıldı.</li>
+          <li><strong className="text-foreground">2026-08-14:</strong> Fiyat cevaplarında public kaynak, veri tarihi ve kalite alanları; CSV'de filtre metadatası belgelendi.</li>
+        </ul>
+        <p className="mt-4 text-sm text-muted">Lisans, cache ve yeniden dağıtım koşulları için <a href="/api-policy" className="font-semibold text-brand underline">API Kullanım Politikası</a>; destek için <a href="/iletisim?subject=API%20destek" className="font-semibold text-brand underline">İletişim</a>.</p>
+      </section>
 
       {/* Widget embed notu */}
       <section id="widget" className="mt-16 rounded-2xl border border-border bg-surface p-6 space-y-4">

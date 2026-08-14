@@ -164,6 +164,21 @@ export default async function AdvertisePage({ params }: Props) {
         })}
       </section>
 
+      <section className="grid gap-4 pb-12 md:grid-cols-3" aria-label="Reklam ticari koşulları">
+        <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5">
+          <h2 className="font-(family-name:--font-display) text-lg font-bold text-(--color-foreground)">Fiyat nasıl belirlenir?</h2>
+          <p className="mt-2 text-sm leading-6 text-(--color-muted)">Sabit veya örnek liste fiyatı yayınlamıyoruz. Tutar; format, yerleşim, hedefleme, süre, cihaz ve canlı envanter doluluğu kontrolünden sonra yazılı teklifte belirlenir.</p>
+        </div>
+        <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5">
+          <h2 className="font-(family-name:--font-display) text-lg font-bold text-(--color-foreground)">Talep, rezervasyon değildir</h2>
+          <p className="mt-2 text-sm leading-6 text-(--color-muted)">İlk faz tamamen manuel onaylıdır. Talep göndermek alanı ayırmaz; tarih, ödeme, kreatif ve yayın onayı tamamlanmadan kampanya açılmaz.</p>
+        </div>
+        <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5">
+          <h2 className="font-(family-name:--font-display) text-lg font-bold text-(--color-foreground)">Ölçümün sınırı</h2>
+          <p className="mt-2 text-sm leading-6 text-(--color-muted)">Gösterim, tıklama, CTR, cihaz ve dönem raporlanabilir. Satış, erişim, tıklama veya ticari sonuç garantisi verilmez; sahte müşteri logosu ve kanıtsız başarı iddiası kullanılmaz.</p>
+        </div>
+      </section>
+
       <section className="py-10">
         <div className="max-w-3xl">
           <p className="font-(family-name:--font-mono) text-xs font-bold uppercase tracking-[0.14em] text-(--color-brand)">Reklam ürünleri</p>
