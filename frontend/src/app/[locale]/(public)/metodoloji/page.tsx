@@ -5,6 +5,7 @@ import Breadcrumb from "@/components/seo/Breadcrumb";
 import PageContainer from "@/components/layout/PageContainer";
 import { Database, Clock, ShieldCheck, RefreshCw, Globe2, FileText } from "lucide-react";
 import { fetchPricesOverview, fetchSourceStatus } from "@/lib/api";
+import PolicyLinks from "@/components/PolicyLinks";
 
 type Props = { params: Promise<{ locale: string }> };
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
@@ -209,7 +210,7 @@ export default async function MetodolojiPage({ params }: Props) {
         <div className="text-sm text-muted space-y-1">
           <p className="font-semibold text-foreground">Veri Lisansı</p>
           <p>
-            HalDeFiyat verileri{" "}
+            HalDeFiyat'ın kendi ürettiği metodoloji, dokümantasyon ve editoryal açıklamalar{" "}
             <a
               href="https://creativecommons.org/licenses/by/4.0/"
               target="_blank"
@@ -218,11 +219,14 @@ export default async function MetodolojiPage({ params }: Props) {
             >
               Creative Commons Atıf 4.0 (CC BY 4.0)
             </a>{" "}
-            lisansı altında yayınlanmaktadır. Kaynak belirtilerek ticari ve akademik amaçlarla
-            serbestçe kullanılabilir.
+            lisansı altında yayınlanır. Belediye, borsa, TMO veya başka bir üçüncü kaynaktan
+            derlenen ham fiyat kayıtlarının hak ve yeniden kullanım şartları ilgili kaynağa aittir.
+            API erişimi bu üçüncü taraf kayıtlar üzerinde mülkiyet veya sınırsız yeniden satış
+            lisansı vermez; ayrıntılar API Kullanım Politikası'nda açıklanır.
           </p>
         </div>
       </section>
+      <PolicyLinks />
     </PageContainer>
   );
 }

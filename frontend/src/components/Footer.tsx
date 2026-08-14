@@ -9,6 +9,8 @@ type FooterProps = {
   locale?: string;
   contactEmail?: string | null;
   contactPhone?: string | null;
+  legalEntityName?: string | null;
+  responsiblePublisherName?: string | null;
   socialFacebook?: string | null;
   socialInstagram?: string | null;
   socialTwitter?: string | null;
@@ -90,6 +92,9 @@ export default function Footer({
   logoUrl,
   logoDarkUrl,
   logoLightUrl,
+  contactEmail,
+  legalEntityName,
+  responsiblePublisherName,
   socialInstagram,
   socialTwitter,
   socialYoutube,
@@ -208,9 +213,16 @@ export default function Footer({
 
         {/* Alt bar */}
         <div className="flex flex-col items-center justify-between gap-3 text-[13px] sm:flex-row">
-          <p className="text-(--color-muted)">
-            &copy; {year} {displayName}. Tüm hakları saklıdır.
-          </p>
+          <div className="text-center text-(--color-muted) sm:text-left">
+            <p>&copy; {year} {displayName}. Tüm hakları saklıdır.</p>
+            {legalEntityName ? (
+              <p className="mt-1 text-[12px]">
+                İşletmeci: {legalEntityName}
+                {responsiblePublisherName ? ` · Sorumlu: ${responsiblePublisherName}` : ""}
+                {contactEmail ? <> · <a className="hover:text-(--color-brand)" href={`mailto:${contactEmail}`}>{contactEmail}</a></> : null}
+              </p>
+            ) : null}
+          </div>
           <a
             href="https://guezelwebdesign.com"
             target="_blank"

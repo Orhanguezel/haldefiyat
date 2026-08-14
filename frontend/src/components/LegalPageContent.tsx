@@ -1,6 +1,7 @@
 import type { CustomPageData } from "@/lib/api";
 import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 import Breadcrumb from "@/components/seo/Breadcrumb";
+import PolicyLinks from "@/components/PolicyLinks";
 
 interface Props {
   page: CustomPageData | null;
@@ -45,6 +46,7 @@ export default function LegalPageContent({ page, fallbackTitle, pathname }: Prop
         ) : (
           <p className="text-lg text-muted">Bu sayfa yakında güncellenecektir.</p>
         )}
+        <PolicyLinks className="mt-10" />
       </div>
     </div>
   );

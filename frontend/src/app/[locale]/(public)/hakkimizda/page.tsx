@@ -7,6 +7,8 @@ import { getCoverage } from "@/lib/coverage";
 import { getPageMetadata } from "@/lib/seo";
 import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 import Breadcrumb from "@/components/seo/Breadcrumb";
+import { fetchSiteSettings } from "@/lib/site-settings";
+import PolicyLinks from "@/components/PolicyLinks";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -49,9 +51,10 @@ export default async function AboutPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [page, cov] = await Promise.all([
+  const [page, cov, settings] = await Promise.all([
     fetchCustomPageBySlug("hakkimizda", locale),
     getCoverage(),
+    fetchSiteSettings(locale),
   ]);
   const STATS = [
     { label: "İl", value: cov.cities > 0 ? String(cov.cities) : "—", desc: "Veri alınan il sayısı" },
@@ -257,6 +260,18 @@ export default async function AboutPage({ params }: Props) {
                 </p>
               </div>
             </div>
+          </section>
+
+          <section className="rounded-2xl border border-border bg-surface/50 p-8">
+            <h2 className="font-display text-2xl font-bold text-foreground">Ekip ve sorumluluk</h2>
+            <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-muted">
+              HalDeFiyat’ın ticari işletimi <strong className="text-foreground">{settings.legal_entity_name}</strong>
+              {" "}üzerinden yürütülür. <strong className="text-foreground">{settings.responsible_publisher_name}</strong>
+              {" "}platform sahipliği ve sektör ağından; <strong className="text-foreground">{settings.technical_contact_name}</strong>
+              {" "}teknik geliştirme ve işletimden sorumludur. Veri kaynağı, normalizasyon ve düzeltme yaklaşımı
+              aşağıdaki şeffaflık belgelerinde açıkça yayımlanır.
+            </p>
+            <PolicyLinks className="mt-6" />
           </section>
 
           {/* Geliştirici API */}

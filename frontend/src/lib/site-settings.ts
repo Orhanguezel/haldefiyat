@@ -28,6 +28,9 @@ export interface SiteSettings {
   contact_map_lat: string;
   contact_map_lng: string;
   contact_map_iframe: string;
+  legal_entity_name: string;
+  responsible_publisher_name: string;
+  technical_contact_name: string;
   social_facebook: string;
   social_instagram: string;
   social_twitter: string;
@@ -53,6 +56,9 @@ const BRANDING_KEYS = [
   "contact_map_lat",
   "contact_map_lng",
   "contact_map_iframe",
+  "legal_entity_name",
+  "responsible_publisher_name",
+  "technical_contact_name",
   "social_facebook",
   "social_instagram",
   "social_twitter",
@@ -97,6 +103,9 @@ export async function fetchSiteSettings(locale = "tr"): Promise<SiteSettings> {
     contact_map_lat: "",
     contact_map_lng: "",
     contact_map_iframe: "",
+    legal_entity_name: "GZL Teknoloji",
+    responsible_publisher_name: "Atakan Şahin",
+    technical_contact_name: "Orhan Güzel",
     social_facebook: "",
     social_instagram: "",
     social_twitter: "",

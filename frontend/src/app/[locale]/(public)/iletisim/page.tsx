@@ -63,10 +63,15 @@ export default async function ContactPage({ params, searchParams }: Props) {
             <section className="mx-auto mt-12 max-w-3xl rounded-2xl border border-border/50 bg-surface/40 p-6 text-sm leading-relaxed text-muted">
               <h2 className="text-lg font-bold text-foreground">Yayıncı ve sorumluluk bilgisi</h2>
               <p className="mt-3">
-                Sorumlu yayıncı ve platform işletim noktası <strong className="text-foreground">HalDeFiyat</strong>’tır.
-                Veri, içerik, düzeltme, basın ve ticari işbirliği bildirimleri yukarıdaki iletişim
-                kanallarından alınır.
+                Platform işletmecisi <strong className="text-foreground">{settings.legal_entity_name}</strong>,
+                sorumlu yayıncı <strong className="text-foreground">{settings.responsible_publisher_name}</strong> ve
+                teknik yürütme sorumlusu <strong className="text-foreground">{settings.technical_contact_name}</strong>’dir.
+                Veri, içerik, düzeltme, basın ve ticari işbirliği bildirimleri yukarıdaki kurumsal
+                iletişim kanalından alınır.
               </p>
+              {!settings.contact_address ? (
+                <p className="mt-3 text-xs">Açık adres bilgisi doğrulama tamamlanmadan yayımlanmamaktadır.</p>
+              ) : null}
               <p className="mt-3">
                 İçerik ve veri süreçleri için{" "}
                 <Link className="font-semibold text-brand underline underline-offset-2" href="/editoryal-politika">

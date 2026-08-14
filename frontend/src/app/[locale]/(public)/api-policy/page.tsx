@@ -1,5 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
+import Link from "next/link";
 import { getPageMetadata } from "@/lib/seo";
+import PolicyLinks from "@/components/PolicyLinks";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -19,6 +21,8 @@ const rules = [
   ["Limit", "Varsayılan adil kullanım limiti dakikada 120 istektir; yüksek hacim için API anahtarı isteyin."],
   ["Cache", "Yanıtları en az 5 dakika cache'leyin; aynı sorguyu saniyelik döngüyle tekrarlamayın."],
   ["Atıf", "Yayınlarda 'Kaynak: HaldeFiyat.com, ilgili belediye/borsa/TMO kaynağı' formatını kullanın."],
+  ["Kaynak hakları", "API erişimi kaynak kurum verisinin mülkiyetini veya üçüncü taraf kullanım şartlarını devretmez. Kaynak kurumun şartları ayrıca geçerlidir."],
+  ["Hizmet seviyesi", "Public API olduğu gibi sunulur; kesintisiz erişim, geriye dönük eksiksizlik veya kurumsal SLA garantisi vermez."],
   ["Yasak kullanımlar", "Veriyi yanıltıcı fiyat garantisi, manipülasyon, spam, kişisel veri çıkarımı veya kaynak gizleme amacıyla kullanmayın."],
 ];
 
@@ -56,6 +60,26 @@ export default async function ApiPolicyPage({ params }: Props) {
           <li><a className="text-(--color-brand) hover:underline" href="/llms.txt">/llms.txt</a></li>
         </ul>
       </section>
+
+      <section className="mt-8 rounded-[10px] border border-(--color-border) bg-(--color-surface) p-5 text-sm leading-6 text-(--color-muted)">
+        <h2 className="font-semibold text-(--color-foreground)">Ticari veri, kurumsal rapor ve yeniden dağıtım</h2>
+        <p className="mt-2">
+          Yüksek hacimli erişim, veri setinin yeniden satışı, beyaz etiket dağıtım, özel SLA,
+          özel teslimat veya kurumsal rapor kullanımı ayrı yazılı kapsam ve lisans gerektirir.
+          Konsept görsellerindeki fiyatlar teklif değildir; gerçek fiyat ve teslimat kapsamı
+          yetkili ticari onay olmadan yürürlüğe girmez.
+        </p>
+        <p className="mt-2">
+          Raporlar belirli tarihteki kaynaklı veri görünümüdür; yatırım, alım-satım, ürün kalitesi
+          veya gelecek fiyat garantisi değildir. Hata bildirimi ve sürüm düzeltmeleri için{" "}
+          <Link href="/duzeltme-politikasi" className="font-semibold text-(--color-brand) hover:underline">
+            Düzeltme Politikası
+          </Link>
+          {" "}ve <Link href="/iletisim" className="font-semibold text-(--color-brand) hover:underline">İletişim</Link> kanalı kullanılır.
+        </p>
+      </section>
+
+      <PolicyLinks className="mt-8" />
     </main>
   );
 }

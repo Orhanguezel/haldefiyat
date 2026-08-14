@@ -95,7 +95,8 @@ export function ListingCallRequest({
     } catch (caught) {
       const code = caught instanceof ApiError ? caught.code : "request_failed";
       if (caught instanceof ApiError && code === "risk_challenge_required") {
-        const challenge = (caught.details as { challenge?: RiskChallenge } | undefined)?.challenge;
+        const body = caught.details as { error?: { details?: { challenge?: RiskChallenge } } } | undefined;
+        const challenge = body?.error?.details?.challenge;
         if (challenge?.token && challenge.prompt) {
           setRiskChallenge(challenge);
           setRiskAnswer("");

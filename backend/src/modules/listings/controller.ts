@@ -126,8 +126,11 @@ export async function createPublicCallRequest(req: FastifyRequest<{ Params: { id
     });
     if ((risk || challengeSupplied) && !challengeValid) {
       return reply.code(428).send({
-        error: { message: "risk_challenge_required" },
-        challenge: createCallRequestChallenge(buyerUserId, id, env.JWT_SECRET),
+        // Global error normalizer yalniz `error.details` alanini korur.
+        error: {
+          message: "risk_challenge_required",
+          details: { challenge: createCallRequestChallenge(buyerUserId, id, env.JWT_SECRET) },
+        },
       });
     }
     const contactSummary = await getCallRequestContactSummary(buyerUserId);

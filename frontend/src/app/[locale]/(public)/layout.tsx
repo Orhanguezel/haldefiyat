@@ -48,6 +48,7 @@ export default async function PublicLayout({
   const organizationSchema = {
     "@id": orgId,
     name: settings.site_name,
+    legalName: settings.legal_entity_name,
     url: SITE_URL,
     ...(settings.site_logo && {
       logo: settings.site_logo.startsWith("http")
@@ -56,6 +57,9 @@ export default async function PublicLayout({
     }),
     ...(settings.contact_email && { email: settings.contact_email }),
     ...(settings.contact_phone && { telephone: settings.contact_phone }),
+    ...(settings.responsible_publisher_name && {
+      founder: { "@type": "Person", name: settings.responsible_publisher_name },
+    }),
     ...(sameAs.length > 0 && { sameAs }),
   };
 
@@ -103,6 +107,8 @@ export default async function PublicLayout({
         locale={currentLocale}
         contactEmail={settings.contact_email}
         contactPhone={settings.contact_phone}
+        legalEntityName={settings.legal_entity_name}
+        responsiblePublisherName={settings.responsible_publisher_name}
         socialFacebook={settings.social_facebook}
         socialInstagram={settings.social_instagram}
         socialTwitter={settings.social_twitter}

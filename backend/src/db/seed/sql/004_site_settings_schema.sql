@@ -39,6 +39,9 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'public_base_url',      '*', '"https://haldefiyat.com"'),
 (UUID(), 'contact_phone',      '*', '"+90 530 048 41 83"'),
 (UUID(), 'contact_email',      '*', '"iletisim@haldefiyat.com"'),
+(UUID(), 'legal_entity_name',  '*', '"GZL Teknoloji"'),
+(UUID(), 'responsible_publisher_name', '*', '"Atakan Şahin"'),
+(UUID(), 'technical_contact_name', '*', '"Orhan Güzel"'),
 (UUID(), 'social_telegram',    '*', '"https://t.me/haldefiyat"'),
 -- WhatsApp KANALI (grup degil). Kanal linki whatsapp.com/channel/ ile baslar;
 -- chat.whatsapp.com/ ile baslayan link GRUPTUR ve buraya yazilmaz: grupta 1.024 uye
