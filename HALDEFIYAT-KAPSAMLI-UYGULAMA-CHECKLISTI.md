@@ -380,16 +380,16 @@
 
 ### 6.9 API Pro, abonelik, reklam — `konsept 07`
 
-- [ ] P4.78 `/pro`, `/api-docs`, `/api-policy` ve `/abonelik` IA’sını tek ürün hunisi yap.
-- [ ] P4.79 API değer önerisi, kapsama, güncelleme sıklığı ve kullanım limitlerini açık yaz.
-- [ ] P4.80 Paket/fiyat/kota değerlerini backend/ayar kaynağından besle; mock rakam bırakma.
-- [ ] P4.81 Kod örneğini kopyalanabilir, açık tema uyumlu ve gerçek endpoint ile sun.
-- [ ] P4.82 Anahtar başvuru, durum ve onboarding akışlarını tasarla.
-- [ ] P4.83 SLA, sürümleme, changelog, lisans ve destek bağlantılarını görünür yap.
-- [ ] P4.84 Kurumsal rapor örneğini gerçek, onaylı veriyle sun.
-- [ ] P4.85 `/reklam-ver` sayfasında fiyat, format, envanter, ölçüm ve talep akışını açıkla.
-- [ ] P4.86 Reklam rezervasyonunu ilk fazda manuel onaylı talep olarak tut.
-- [ ] P4.87 Sahte müşteri logosu, garanti veya kanıtsız performans iddiası kullanma.
+- [x] P4.78 `/pro`, `/api-docs`, `/api-policy` ve `/abonelik` ortak ürün navigasyonuyla bağlandı; bülten ile API planı ayrımı açıklandı. Kanıt: `artifacts/renewal-2026/api-pro-reklam-kabul-2026-08-14.md`.
+- [x] P4.79 API değer önerisi, kapsam, kaynağa bağlı güncellik, veri sağlığı, anonim limit ve UTC günlük kota penceresi canlı plan sözleşmesiyle görünür.
+- [x] P4.80 Paket/fiyat/kota değerleri backend `env` ve `/api/v1/keys/plans` sözleşmesinden geliyor; sözleşme yoksa mock/eski rakam yerine fail-closed durum gösteriliyor.
+- [x] P4.81 Gerçek `/api/v1/keys` ve `/api/v1/prices/trending` örneği açık tema bileşeninde tek düğmeyle kopyalanıyor; unit ve canlı tarayıcı kabulü geçti.
+- [x] P4.82 Anahtar onboarding'i oturum kapısı, oluşturma, bir kez gösterilen ham anahtar, tier/kota/kullanım durumu ve iptal akışlarını mevcut `/keys` API'si üzerinde sunuyor.
+- [x] P4.83 Public SLA sınırı, v1 sürümleme/changelog, API kullanım-lisans, veri düzeltme ve teknik destek bağlantıları görünür.
+- [x] P4.84 Kurumsal örnek 2025'teki 167.933 fiyat satırına dayanan canlı yıllık rapora bağlı; gelecek fiyat ve ticari sonuç garantisi vermiyor.
+- [x] P4.85 `/reklam-ver`; fiyatın nasıl belirlendiğini, format/yerleşim/hedefleme/süre/cihaz ve canlı envanter girdilerini, yayın kapılarını ve ölçüm sınırlarını açıklıyor.
+- [x] P4.86 Reklam talebi rezervasyon sayılmıyor; yazılı teklif, ödeme, kreatif ve yayın onayından geçen manuel ilk faz olarak tanımlandı.
+- [x] P4.87 Reklam yüzeyinde sahte müşteri logosu ve kanıtsız başarı iddiası yok; satış, erişim, tıklama ve ticari sonuç garantisi verilmediği açıklandı.
 
 ### 6.10 Auth ve kullanıcı dashboard’u
 
