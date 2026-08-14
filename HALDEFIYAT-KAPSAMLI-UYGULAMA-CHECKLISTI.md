@@ -79,7 +79,7 @@
 ### 2.3 Baz metrik ve kabul hedefi
 
 - [~] F0.23 Ana sayfa mobile Lighthouse bazı alındı (P41/A96/BP100/SEO100); desktop ve ürün/analiz/ilan/data-health rotaları bekliyor. Kanıt: Faz 0 performans bazı.
-- [~] F0.24 Ana sayfa laboratuvar bazı FCP 3,1 sn, LCP 6,8 sn, CLS 0, TBT 1.610 ms; route bazlı bundle ve gerçek INP/CrUX bekliyor.
+- [~] F0.24 Ana sayfa laboratuvar bazı FCP 3,1 sn, LCP 6,8 sn, CLS 0, TBT 1.610 ms. `/prices/overview` 30–48 sn backend darboğazı 2,56 sn soğuk/3–10 ms sıcak seviyesine indirildi; route bazlı bundle ve gerçek INP/CrUX bekliyor. Kanıt: `artifacts/renewal-2026/prices-overview-performans-kabul-2026-08-14.md`.
 - [~] F0.25 Ana sayfa Lighthouse accessibility 96; kontrast, accessible-name ve unsized-image bulguları düzeltildi. Diğer rotalar ve tekrar ölçüm bekliyor.
 - [x] F0.26 GSC bazı: 623 master/183 indexed-benzeri, 612 eski URL/388 redirect, 406 sitemap URL; 2/4/8 haftalık izleme planı ve readonly submit engeli kaydedildi.
 - [x] F0.27 Son 30 gün audit/CTA/iş sonucu bazı kaydedildi; ürün 11.739, fiyat listesi 1.775, ilan detay 58, iletişim 15 görünüm; 12 bülten, 0 ilan/iletişim/arama sonucu. Search event'i yokluğu “ölçülemiyor” olarak açıkça işlendi.
@@ -462,7 +462,7 @@
 - [ ] F7.15 Fotoğraf kullanılan konseptte LCP preload/priority kararını doğru uygula.
 - [x] F7.16 IBM Plex Sans yalnız değişken `wght` paketi ve unicode-range latin/latin-ext dosyalarıyla self-host edildi; Outfit yalnız 800 ağırlığında preload + `font-display:swap`, italik/genişlik/statik ağırlıklar bundle dışında.
 - [ ] F7.17 Skeleton/layout ölçüleriyle CLS’yi hedef altında tut.
-- [ ] F7.18 API waterfall, cache ve duplicate fetch’leri azalt.
+- [x] F7.18 `/prices/overview` 1M+ satırlık 13 sn `COUNT(DISTINCT)` yerine indeksli `EXISTS`, birleşik tarih sınırı, 5 dk cache ve in-flight tekilleştirmeye geçirildi. Canlı 30–48 sn önce → 2,56 sn soğuk, 3–10 ms sıcak; 20 paralel miss tek DB hesaplamasını paylaştı. Kanıt: `artifacts/renewal-2026/prices-overview-performans-kabul-2026-08-14.md`.
 - [ ] F7.19 Lighthouse hedefleri: Performance ≥90, Accessibility ≥95, SEO ≥95 (kritik sayfalar).
 
 ### 9.4 Güvenlik/gizlilik
