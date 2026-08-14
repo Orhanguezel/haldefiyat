@@ -125,6 +125,12 @@ export default async function PressPage({ params }: Props) {
             <ShieldCheck className="h-5 w-5 text-brand" />
             <h2 className="font-bold text-foreground text-xl">Basın Bülteni Özeti</h2>
           </div>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-700/25 bg-emerald-600/10 px-3 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300" role="status">
+            <span aria-hidden>✓</span> Onay durumu: Manuel yayımlanmış
+          </div>
+          <p className="mt-2 text-xs leading-5 text-muted">
+            Bu sabit kurumsal metin otomatik üretilmez veya kendiliğinden yayınlanmaz; değişiklikleri editoryal ekip manuel olarak yayımlar.
+          </p>
           <p className="mt-4 text-muted leading-relaxed">
             HaldeFiyat, Türkiye genelindeki resmi hal fiyatlarını tek ekranda izlenebilir hale getiren
             ücretsiz bir platformdur. Günlük fiyat verileri, haftalık analiz yazıları ve endeks görünümüyle

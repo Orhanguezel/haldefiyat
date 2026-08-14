@@ -42,6 +42,8 @@ export type WeeklySummary = {
   topFallers:   WeeklyMovement[];
   avgByCategory: Record<string, number>;
   totalRecords: number;
+  productCount: number;
+  marketCount: number;
 };
 
 type Scored = {
@@ -74,6 +76,8 @@ export async function weeklyPriceSummary(weekStart: string, weekEnd: string): Pr
     topFallers:    fallers,
     avgByCategory: byCategory,
     totalRecords:  rows.length,
+    productCount:  new Set(rows.map((row) => row.masterSlug)).size,
+    marketCount:   new Set(rows.map((row) => row.marketId)).size,
   };
 }
 

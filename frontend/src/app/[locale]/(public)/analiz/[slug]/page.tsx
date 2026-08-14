@@ -4,7 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
-import { getLocaleAlternates, ORG_REF } from "@/lib/seo";
+import { DATA_LICENSE_URL, getLocaleAlternates, ORG_REF } from "@/lib/seo";
 import {
   getHaftalikRaporlar,
   getMakale,
@@ -12,7 +12,7 @@ import {
   isHaftalikRapor,
   readingTimeMinutes,
 } from "@/lib/analiz";
-import { fetchAutoWeeklyReport, fetchAutoWeeklyReports, type AutoWeeklyReport } from "@/lib/api";
+import { fetchAutoWeeklyReport, fetchAutoWeeklyReports, fetchWeeklyPriceSummary, type AutoWeeklyReport } from "@/lib/api";
 import { sanitizeAnalysisHtml } from "@/lib/sanitize-html";
 import { compactMetaDescription, compactMetaTitle } from "@/lib/meta-text";
 import PageContainer from "@/components/layout/PageContainer";
@@ -20,6 +20,8 @@ import BannerSlot from "@/components/ads/BannerSlot";
 import AnswerBlock from "@/components/seo/AnswerBlock";
 import { hasVerifiedHumanReview, isAutomatedAnalysis } from "@/lib/analysis-provenance";
 import { formatDateTr } from "@/lib/date-format";
+import ReportActions from "@/components/reports/ReportActions";
+import ReportSummaryGrid from "@/components/reports/ReportSummaryGrid";
 
 // İçerik HTML ile başlıyorsa zengin rapor (kendi <style> + inline SVG) olarak
 // render edilir; aksi halde markdown-benzeri paragraf render'ı kullanılır.
@@ -115,6 +117,7 @@ function renderContent(icerik: string) {
       return (
         <h2
           key={i}
+          id={headingId(heading)}
           className="mt-8 mb-3 font-display text-[20px] font-bold text-(--color-foreground)"
         >
           {heading}
@@ -140,6 +143,43 @@ function renderContent(icerik: string) {
   });
 }
 
+function headingId(value: string): string {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ğ/g, "g").replace(/ü/g, "u").replace(/ş/g, "s")
+    .replace(/ı/g, "i").replace(/ö/g, "o").replace(/ç/g, "c")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function orderWeeklyReportContent(content: string): string {
+  const blocks = content.split("\n\n").map((block) => block.trim()).filter(Boolean);
+  const preamble: string[] = [];
+  const sections: Array<{ heading: string; blocks: string[] }> = [];
+  let current: { heading: string; blocks: string[] } | null = null;
+
+  for (const block of blocks) {
+    if (block.startsWith("**") && block.endsWith("**")) {
+      current = { heading: block, blocks: [block] };
+      sections.push(current);
+    } else if (current) {
+      current.blocks.push(block);
+    } else {
+      preamble.push(block);
+    }
+  }
+
+  const priority = (heading: string) => {
+    const value = heading.toLocaleLowerCase("tr-TR");
+    if (value.includes("yükselen") || value.includes("artan")) return 1;
+    if (value.includes("düşen") || value.includes("gerileyen")) return 2;
+    if (value.includes("endeks")) return 3;
+    return 4;
+  };
+
+  return [...preamble, ...sections.sort((a, b) => priority(a.heading) - priority(b.heading)).flatMap((section) => section.blocks)].join("\n\n");
+}
+
 export default async function AnalizMakalePage({ params }: Props) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
@@ -147,7 +187,10 @@ export default async function AnalizMakalePage({ params }: Props) {
   const makale = await getMakaleForSlug(slug);
   if (!makale) notFound();
 
-  const autoReports = await fetchAutoWeeklyReports(12);
+  const [autoReports, weeklySummary] = await Promise.all([
+    fetchAutoWeeklyReports(12),
+    makale.hafta ? fetchWeeklyPriceSummary(makale.hafta) : Promise.resolve(null),
+  ]);
   // SEO iç-link: her analiz sayfasından diğer analizlere daha çok link ("discovered
   // — not indexed" kuyruğunu besler). 3 → 6.
   const related = mergeUniqueArticles(autoReports, getSonMakaleler(12)).filter((m) => m.slug !== slug).slice(0, 6);
@@ -164,6 +207,14 @@ export default async function AnalizMakalePage({ params }: Props) {
   const authorTitle = authorProfile?.title ?? null;
   const authorUrl = authorProfile ? `${SITE_URL}/yazar/${authorProfile.slug}` : null;
   const summary = findingSummary(makale.ozet);
+  const totalRecords = weeklySummary?.totalRecords
+    ?? ("totalRecords" in makale && typeof makale.totalRecords === "number" ? makale.totalRecords : null);
+  const coverageValue = weeklySummary
+    ? `${weeklySummary.productCount.toLocaleString("tr-TR")} ürün · ${weeklySummary.marketCount.toLocaleString("tr-TR")} hal`
+    : "İçerikte açıklanır";
+  const periodValue = weeklySummary
+    ? `${formatDateTr(weeklySummary.weekStart) ?? weeklySummary.weekStart} – ${formatDateTr(weeklySummary.weekEnd) ?? weeklySummary.weekEnd}`
+    : formatDateTr(makale.tarih) ?? makale.tarih;
 
   const newsArticleSchema = {
     headline: makale.baslik,
@@ -196,10 +247,28 @@ export default async function AnalizMakalePage({ params }: Props) {
       name: "Türkiye Toptancı Hal Fiyatları",
     },
   } satisfies Record<string, unknown>;
+  const datasetSchema = weeklySummary ? {
+    name: `${makale.baslik} veri kapsamı`,
+    description: `${weeklySummary.productCount} ürün ve ${weeklySummary.marketCount} halden ${weeklySummary.totalRecords} fiyat kaydının haftalık özeti.`,
+    url: `${SITE_URL}/analiz/${makale.slug}`,
+    creator: ORG_REF,
+    license: DATA_LICENSE_URL,
+    temporalCoverage: `${weeklySummary.weekStart}/${weeklySummary.weekEnd}`,
+    dateModified: makale.updatedAt ?? makale.tarih,
+    variableMeasured: ["Toptan hal fiyatı", "Haftalık fiyat değişimi"],
+    spatialCoverage: { "@type": "Place", name: "Türkiye" },
+    isAccessibleForFree: true,
+    distribution: {
+      "@type": "DataDownload",
+      encodingFormat: "application/json",
+      contentUrl: `${SITE_URL}/api/v1/prices/weekly-summary?week=${encodeURIComponent(makale.hafta ?? weeklySummary.week)}`,
+    },
+  } satisfies Record<string, unknown> : null;
 
   return (
     <PageContainer>
       <JsonLd type="NewsArticle" data={newsArticleSchema} />
+      {datasetSchema ? <JsonLd type="Dataset" data={datasetSchema} /> : null}
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Analiz", href: "/analiz" },
@@ -274,11 +343,17 @@ export default async function AnalizMakalePage({ params }: Props) {
             )}
           </header>
 
-          <section className="mt-6 grid gap-3 sm:grid-cols-3">
-            <Metric label="Rapor tarihi" value={formatDateTr(makale.tarih) ?? makale.tarih} />
-            <Metric label="Kapsam" value="aktif haller" />
-            <Metric label="Veri tipi" value="Haftalık fiyat raporu" />
-          </section>
+          <ReportActions title={makale.baslik} pathname={`/analiz/${makale.slug}`} />
+
+          <ReportSummaryGrid
+            className="mt-6"
+            items={[
+              { label: "Rapor tarihi", value: formatDateTr(makale.tarih) ?? makale.tarih, note: makale.updatedAt ? `Son güncelleme: ${formatDateTr(makale.updatedAt) ?? makale.updatedAt.slice(0, 10)}` : undefined },
+              { label: "Veri dönemi", value: periodValue },
+              { label: "Kapsam", value: coverageValue },
+              { label: "Fiyat kaydı", value: totalRecords == null ? "İçerikte açıklanır" : totalRecords.toLocaleString("tr-TR"), note: isWeekly ? "Karantina dışındaki haftalık kayıtlar" : "Rapor kapsamı" },
+            ]}
+          />
 
           <div className="mt-8">
             <AnswerBlock
@@ -308,11 +383,14 @@ export default async function AnalizMakalePage({ params }: Props) {
 
           {isHtml ? (
             <div
-              className="report-prose mt-8 [&_svg]:h-auto [&_svg]:max-w-full"
+              id="rapor-icerigi"
+              className="report-prose mt-8 max-w-full overflow-x-auto [&_svg]:h-auto [&_svg]:max-w-full [&_table]:w-full"
               dangerouslySetInnerHTML={{ __html: sanitizeAnalysisHtml(makale.icerik) }}
             />
           ) : (
-            <div className="mt-8 space-y-5">{renderContent(makale.icerik)}</div>
+            <div id="rapor-icerigi" className="mt-8 space-y-5">
+              {renderContent(isWeekly ? orderWeeklyReportContent(makale.icerik) : makale.icerik)}
+            </div>
           )}
         </article>
 
@@ -421,19 +499,6 @@ export default async function AnalizMakalePage({ params }: Props) {
         </section>
       )}
     </PageContainer>
-  );
-}
-
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[14px] border border-(--color-border-soft) bg-(--color-bg-alt) p-4">
-      <div className="font-(family-name:--font-mono) text-[10px] uppercase tracking-[0.1em] text-(--color-muted)">
-        {label}
-      </div>
-      <div className="mt-1 text-[14px] font-bold text-(--color-foreground)">
-        {value}
-      </div>
-    </div>
   );
 }
 

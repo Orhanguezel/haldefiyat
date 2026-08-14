@@ -5,6 +5,7 @@ import { DATA_LICENSE_URL, getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import { schemaDateRange } from "@/lib/schema-dates";
+import ReportSummaryGrid from "@/components/reports/ReportSummaryGrid";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -121,15 +122,6 @@ export default async function EndeksPage({ params }: Props) {
                   </span>
                 )}
               </div>
-              <p className="mt-1 text-[13px] text-(--color-muted)">
-                Baz hafta: <strong className="text-(--color-foreground)">{latest.baseWeek}</strong>
-                {" · "}Sepet ort.: <strong className="text-(--color-foreground)">
-                  {parseFloat(latest.basketAvg).toFixed(2)} ₺/kg
-                </strong>
-                {" · "}Ürün sayısı: <strong className="text-(--color-foreground)">
-                  {latest.productsCount}
-                </strong>
-              </p>
             </div>
             <div className="flex-shrink-0 text-right">
               <p className="text-[11px] text-(--color-muted)">
@@ -147,13 +139,23 @@ export default async function EndeksPage({ params }: Props) {
         )}
       </div>
 
+      {latest ? (
+        <ReportSummaryGrid items={[
+          { label: "Güncel endeks", value: parseFloat(latest.indexValue).toFixed(2), note: latest.indexWeek },
+          { label: "Baz hafta", value: latest.baseWeek },
+          { label: "Sepet", value: `${parseFloat(latest.basketAvg).toFixed(2)} ₺/kg`, note: `${latest.productsCount} ürün` },
+          { label: "Veri dönemi", value: `${toDateStr(latest.weekStart)} – ${toDateStr(latest.weekEnd)}` },
+        ]} />
+      ) : null}
+
       {/* Trend grafiği */}
       {history.length >= 2 && (
         <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6">
-          <h2 className="font-(family-name:--font-display) text-base font-semibold text-(--color-foreground) mb-5">
+          <h2 id="index-trend-title" className="font-(family-name:--font-display) text-base font-semibold text-(--color-foreground)">
             Haftalık Trend
           </h2>
-          <IndexChart snapshots={history} />
+          <p id="index-trend-desc" className="mb-5 mt-1 text-xs text-(--color-muted)">Son {history.length} haftanın endeks değerleri; ayrıntılı sayılar hemen altındaki tabloda yer alır.</p>
+          <IndexChart snapshots={history} titleId="index-trend-title" descriptionId="index-trend-desc" />
           <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1">
             {history.slice(-6).map((s) => (
               <div key={s.indexWeek} className="flex items-baseline gap-1.5 text-[11px]">
@@ -177,6 +179,7 @@ export default async function EndeksPage({ params }: Props) {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
+              <caption className="sr-only">Haftalık endeks, sepet ortalaması, ürün sayısı ve tarih aralığı</caption>
               <thead>
                 <tr className="border-b border-(--color-border) text-(--color-muted) text-left">
                   <th className="px-5 py-3 font-medium">Hafta</th>
@@ -322,7 +325,7 @@ function EmbedCode({ label, code }: { label: string; code: string }) {
   );
 }
 
-function IndexChart({ snapshots }: { snapshots: IndexSnapshot[] }) {
+function IndexChart({ snapshots, titleId, descriptionId }: { snapshots: IndexSnapshot[]; titleId: string; descriptionId: string }) {
   const values = snapshots.map((s) => parseFloat(s.indexValue));
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -346,7 +349,8 @@ function IndexChart({ snapshots }: { snapshots: IndexSnapshot[] }) {
     <svg
       viewBox={`0 0 ${W} ${H}`}
       className="w-full h-[120px]"
-      aria-hidden="true"
+      role="img"
+      aria-labelledby={`${titleId} ${descriptionId}`}
       preserveAspectRatio="none"
     >
       {/* Baz çizgisi (100) */}

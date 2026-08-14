@@ -607,17 +607,17 @@ function buildContent(summary: WeeklySummary, index: any, prevIndex: any): strin
 
   return `Türkiye genelindeki aktif hal kayıtlarından derlenen ${summary.weekStart} - ${summary.weekEnd} haftası verileri, ürün bazlı fiyat hareketlerinin farklı yönlere ayrıldığını gösteriyor. Bu raporda ${summary.totalRecords} fiyat kaydı üzerinden haftalık hareketler, kategori ortalamaları ve endeks görünümü özetlenmiştir.
 
-**Haftanın Endeks Görünümü**
+**Fiyatı Yükselen Ürünler**
 
-${indexParagraph}
+${riserParagraph}
 
 **Fiyatı Düşen Ürünler**
 
 ${fallerParagraph}
 
-**Fiyatı Yükselen Ürünler**
+**Haftanın Endeks Görünümü**
 
-${riserParagraph}
+${indexParagraph}
 
 **Kategori Ortalamaları**
 

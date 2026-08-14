@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
-import { getPageMetadata, ORG_REF } from "@/lib/seo";
+import { DATA_LICENSE_URL, getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
-import PrintButton from "@/components/PrintButton";
 import PageContainer from "@/components/layout/PageContainer";
 import { formatDateTr } from "@/lib/date-format";
+import ReportActions from "@/components/reports/ReportActions";
+import ReportSummaryGrid from "@/components/reports/ReportSummaryGrid";
 
 type Props = { params: Promise<{ locale: string; year: string }> };
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
@@ -172,6 +172,21 @@ export default async function YearlyReportPage({ params }: Props) {
           },
         }}
       />
+      <JsonLd
+        type="Dataset"
+        data={{
+          name: `Türkiye Hal Fiyatları ${year} yıllık veri kapsamı`,
+          description: `${overview.uniqueProducts} ürün ve ${overview.uniqueMarkets} halden ${overview.totalRows} doğrulanmış fiyat kaydı.`,
+          url: `${SITE_URL}/rapor/yillik/${year}`,
+          creator: ORG_REF,
+          license: DATA_LICENSE_URL,
+          temporalCoverage: `${overview.oldestDate}/${overview.newestDate}`,
+          dateModified: overview.newestDate,
+          variableMeasured: ["Toptan hal fiyatı", "Yıllık ürün değişimi", "Şehir sepet ortalaması"],
+          spatialCoverage: { "@type": "Place", name: "Türkiye" },
+          isAccessibleForFree: true,
+        }}
+      />
 
       {/* Print/PDF için CSS */}
       <style>{`
@@ -197,14 +212,8 @@ export default async function YearlyReportPage({ params }: Props) {
           {" – "}
           <time dateTime={overview.newestDate}>{formatDateTr(overview.newestDate)}</time>
         </p>
-        <div className="mt-6 flex gap-3 justify-center no-print">
-          <PrintButton />
-          <Link
-            href="/"
-            className="rounded-lg border border-border px-5 py-2 text-sm font-medium hover:bg-muted transition"
-          >
-            Ana Sayfa
-          </Link>
+        <div className="no-print flex justify-center">
+          <ReportActions title={`Türkiye Hal Fiyatları ${year} Yıllık Raporu`} pathname={`/rapor/yillik/${year}`} />
         </div>
       </header>
 
@@ -216,38 +225,21 @@ export default async function YearlyReportPage({ params }: Props) {
       </aside>
 
       {/* Özet kartları */}
-      <section className="grid md:grid-cols-3 gap-4 mb-10">
-        <div className="card rounded-xl border border-border bg-card p-5">
-          <p className="text-xs text-muted-foreground mb-1">Toplam Veri</p>
-          <p className="text-2xl font-bold">{fmtNum(overview.totalRows)}</p>
-          <p className="text-xs text-muted-foreground mt-1">fiyat kaydı</p>
-        </div>
-        <div className="card rounded-xl border border-border bg-card p-5">
-          <p className="text-xs text-muted-foreground mb-1">Ürün × Hal</p>
-          <p className="text-2xl font-bold">{overview.uniqueProducts} × {overview.uniqueMarkets}</p>
-          <p className="text-xs text-muted-foreground mt-1">benzersiz ürün × hal</p>
-        </div>
-        <div className="card rounded-xl border border-border bg-card p-5">
-          <p className="text-xs text-muted-foreground mb-1">Yıllık Enflasyon (sepet)</p>
-          <p className={`text-2xl font-bold ${
-            overview.avgInflationPct == null
-              ? "text-muted-foreground"
-              : overview.avgInflationPct > 0
-                ? "text-rose-500"
-                : "text-emerald-500"
-          }`}>
-            {overview.avgInflationPct == null ? "—" : fmtPct(overview.avgInflationPct)}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">Q1 vs Q4 ortalama</p>
-        </div>
-      </section>
+      <ReportSummaryGrid className="mb-10" items={[
+        { label: "Toplam veri", value: fmtNum(overview.totalRows), note: "Doğrulanmış fiyat kaydı" },
+        { label: "Ürün × Hal", value: `${overview.uniqueProducts} × ${overview.uniqueMarkets}`, note: "Benzersiz ürün ve hal" },
+        { label: "Yıllık sepet değişimi", value: overview.avgInflationPct == null ? "—" : fmtPct(overview.avgInflationPct), note: "Q1 ve Q4 ortalaması" },
+        { label: "Veri dönemi", value: `${formatDateTr(overview.oldestDate)} – ${formatDateTr(overview.newestDate)}` },
+      ]} />
 
       {/* Top movers */}
       <section className="mb-12">
         <div className="grid md:grid-cols-2 gap-6">
           <div className="card rounded-xl border border-border bg-card p-5">
             <h2 className="text-lg font-semibold mb-3 text-rose-600">📈 En Çok Artanlar (Top 10)</h2>
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto" role="region" aria-label="En çok artan ürünler tablosu" tabIndex={0}>
+            <table className="w-full min-w-[500px] text-sm">
+              <caption className="sr-only">{year} yılında en çok artan ürünler; başlangıç, bitiş fiyatı ve değişim yüzdesi</caption>
               <thead>
                 <tr className="text-left border-b border-border text-xs text-muted-foreground">
                   <th className="py-2">Ürün</th>
@@ -270,11 +262,14 @@ export default async function YearlyReportPage({ params }: Props) {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
 
           <div className="card rounded-xl border border-border bg-card p-5">
             <h2 className="text-lg font-semibold mb-3 text-emerald-600">📉 En Çok Düşenler (Top 10)</h2>
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto" role="region" aria-label="En çok düşen ürünler tablosu" tabIndex={0}>
+            <table className="w-full min-w-[500px] text-sm">
+              <caption className="sr-only">{year} yılında en çok düşen ürünler; başlangıç, bitiş fiyatı ve değişim yüzdesi</caption>
               <thead>
                 <tr className="text-left border-b border-border text-xs text-muted-foreground">
                   <th className="py-2">Ürün</th>
@@ -297,6 +292,7 @@ export default async function YearlyReportPage({ params }: Props) {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       </section>
@@ -308,8 +304,9 @@ export default async function YearlyReportPage({ params }: Props) {
           <p className="text-sm text-muted-foreground mb-4">
             Yıllık ortalamasının üzerinde belirgin sezon farkı gösteren ürünler (yıllık ortalamaya göre kat).
           </p>
-          <div className="card rounded-xl border border-border bg-card overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="card overflow-x-auto rounded-xl border border-border bg-card" role="region" aria-label="Sezon pikleri tablosu" tabIndex={0}>
+            <table className="w-full min-w-[620px] text-sm">
+              <caption className="sr-only">{year} sezon pikleri; ürün, ay, pik fiyat ve yıllık ortalama</caption>
               <thead>
                 <tr className="text-left border-b border-border text-xs text-muted-foreground bg-muted/50">
                   <th className="py-2.5 px-4">Ürün</th>

@@ -805,6 +805,32 @@ export interface AutoWeeklyReport {
   authorProfile?: PublicAuthor | null;
 }
 
+export interface WeeklyPriceSummary {
+  week: string;
+  weekStart: string;
+  weekEnd: string;
+  totalRecords: number;
+  productCount: number;
+  marketCount: number;
+  topRisers: Array<{
+    productSlug: string;
+    productName: string;
+    marketName: string;
+    changePct: number;
+    latestAvg: number;
+    previousAvg: number;
+  }>;
+  topFallers: Array<{
+    productSlug: string;
+    productName: string;
+    marketName: string;
+    changePct: number;
+    latestAvg: number;
+    previousAvg: number;
+  }>;
+  avgByCategory: Record<string, number>;
+}
+
 export interface PublicAuthor {
   id: number;
   slug: string;
@@ -858,6 +884,11 @@ export async function fetchAutoWeeklyReport(slug: string): Promise<AutoWeeklyRep
     `/analysis/weekly-reports/${encodeURIComponent(slug)}`,
     null,
   );
+}
+
+export async function fetchWeeklyPriceSummary(week: string): Promise<WeeklyPriceSummary | null> {
+  const qs = buildQuery({ week });
+  return safeFetch<WeeklyPriceSummary | null>(`/prices/weekly-summary${qs}`, 600, null);
 }
 
 export interface AnnualReportYear {
