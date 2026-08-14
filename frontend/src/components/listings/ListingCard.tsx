@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Listing } from "@/lib/api";
+import { districtsOfProvinceSlug, provinceBySlug } from "@/data/turkey-cities";
 
 function priceText(item: Listing) {
   if (item.priceType === "pazarlik") return "Pazarlık";
@@ -28,7 +29,7 @@ function relativeDate(iso: string | null | undefined) {
   return d.toLocaleDateString("tr-TR", { day: "numeric", month: "long" });
 }
 
-function locationLabel(value: string | null | undefined) {
+function fallbackLocationLabel(value: string | null | undefined) {
   if (!value) return null;
   return value
     .split("-")
@@ -39,8 +40,9 @@ function locationLabel(value: string | null | undefined) {
 export function ListingCard({ item, compact = false }: { item: Listing; compact?: boolean }) {
   const typeLabel = item.listingType === "satis" ? "Satış ilanı" : "Alım talebi";
   const posted = relativeDate(item.createdAt);
-  const city = locationLabel(item.citySlug) ?? "Türkiye";
-  const district = locationLabel(item.districtSlug);
+  const city = provinceBySlug(item.citySlug)?.label ?? fallbackLocationLabel(item.citySlug) ?? "Türkiye";
+  const district = districtsOfProvinceSlug(item.citySlug).find((option) => option.value === item.districtSlug)?.label
+    ?? fallbackLocationLabel(item.districtSlug);
   const verificationHelpId = `listing-verification-${item.id}`;
 
   return (
