@@ -148,8 +148,7 @@ function enrichPriceRows<T extends Record<string, unknown>>(rows: T[]) {
   return rows.map(enrichPriceRow);
 }
 
-/** Topbar/anasayfa için gerçek özet: kapsam + son veri tarihi (hard-code yerine). */
-export async function overviewStats(): Promise<{
+export type PriceOverviewStats = {
   totalProducts: number;
   pricedProducts: number;
   currentProducts: number;
@@ -165,18 +164,36 @@ export async function overviewStats(): Promise<{
   lastEtlRunAt: string | null;
   measuredAt: string;
   freshness: "fresh" | "stale" | "unknown";
-}> {
+};
+
+const OVERVIEW_CACHE_MS = 5 * 60_000;
+let overviewCache: { value: PriceOverviewStats; expiresAt: number } | null = null;
+let overviewInFlight: Promise<PriceOverviewStats> | null = null;
+
+/** Topbar/anasayfa için gerçek özet: kapsam + son veri tarihi (hard-code yerine). */
+async function queryOverviewStats(): Promise<PriceOverviewStats> {
   const notBlackouted = await blackoutFilter(
     hfPriceHistory.recordedDate,
     hfPriceHistory.marketId,
     hfPriceHistory.sourceApi,
   );
+  const overviewBlackoutSql = notBlackouted ? sql`AND ${notBlackouted}` : sql``;
   const [products, pricedProducts, currentProducts, cities, sources, markets, etl, dateBounds] = await Promise.all([
     db.select({ c: sql<number>`COUNT(*)` }).from(hfProducts).where(eq(hfProducts.isActive, 1)),
-    db.select({ c: sql<number>`COUNT(DISTINCT ${hfPriceHistory.productId})` })
-      .from(hfPriceHistory)
-      .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
-      .where(and(eq(hfProducts.isActive, 1), notBlackouted)),
+    // COUNT(DISTINCT) 1M+ fiyat satirini tarayip canlida ~13 sn suruyordu.
+    // 1.235 aktif urunden product-leading unique index'e EXISTS probe yapmak
+    // ayni sonucu verir ve blacklist kosulunu korur.
+    db.select({ c: sql<number>`COUNT(*)` })
+      .from(hfProducts)
+      .where(and(
+        eq(hfProducts.isActive, 1),
+        sql`EXISTS (
+          SELECT 1 FROM ${hfPriceHistory}
+          WHERE ${hfPriceHistory.productId} = ${hfProducts.id}
+            ${overviewBlackoutSql}
+          LIMIT 1
+        )`,
+      )),
     db.select({ c: sql<number>`COUNT(DISTINCT ${hfPriceHistory.productId})` })
       .from(hfPriceHistory)
       .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
@@ -210,11 +227,12 @@ export async function overviewStats(): Promise<{
     db
       .select({
         earliest: sql<string | Date | null>`MIN(${hfPriceHistory.recordedDate})`,
+        latest: sql<string | Date | null>`MAX(${hfPriceHistory.recordedDate})`,
       })
       .from(hfPriceHistory)
       .where(notBlackouted),
   ]);
-  const latest = await latestRecordedDate();
+  const latest = isoDate(dateBounds[0]?.latest);
   const latestMs = latest ? new Date(`${latest}T12:00:00Z`).getTime() : Number.NaN;
   const ageDays = Number.isFinite(latestMs) ? Math.floor((Date.now() - latestMs) / 86_400_000) : null;
   const freshness = ageDays == null ? "unknown" : ageDays <= 7 ? "fresh" : "stale";
@@ -235,6 +253,26 @@ export async function overviewStats(): Promise<{
     measuredAt: new Date().toISOString(),
     freshness,
   };
+}
+
+export function invalidateOverviewStatsCache(): void {
+  overviewCache = null;
+}
+
+export async function overviewStats(): Promise<PriceOverviewStats> {
+  const now = Date.now();
+  if (overviewCache && overviewCache.expiresAt > now) return overviewCache.value;
+  if (overviewInFlight) return overviewInFlight;
+
+  overviewInFlight = queryOverviewStats()
+    .then((value) => {
+      overviewCache = { value, expiresAt: Date.now() + OVERVIEW_CACHE_MS };
+      return value;
+    })
+    .finally(() => {
+      overviewInFlight = null;
+    });
+  return overviewInFlight;
 }
 
 function likeSafe(raw: string): string {
