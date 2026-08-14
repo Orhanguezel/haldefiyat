@@ -102,14 +102,14 @@ pm2 reload hal-backend --update-env || pm2 start ecosystem.config.cjs --only hal
 pm2 restart ecosystem.config.cjs --only hal-frontend --update-env || pm2 start ecosystem.config.cjs --only hal-frontend
 # Admin panel ayrı ecosystem ile yönetiliyor
 ADMIN_PANEL_APP_NAME=hal-admin \
-ADMIN_PANEL_CWD="$ADMIN_SERVER_DIR" \
+ADMIN_PANEL_CWD="$ADMIN" \
 ADMIN_PANEL_PORT=3036 \
 ADMIN_PANEL_HOST=127.0.0.1 \
 ADMIN_PANEL_OUT_LOG="$LOGS/hal-admin-out.log" \
 ADMIN_PANEL_ERR_LOG="$LOGS/hal-admin-err.log" \
 pm2 restart "$ADMIN/ecosystem.config.cjs" --only hal-admin --update-env \
   || ADMIN_PANEL_APP_NAME=hal-admin \
-     ADMIN_PANEL_CWD="$ADMIN_SERVER_DIR" \
+     ADMIN_PANEL_CWD="$ADMIN" \
      ADMIN_PANEL_PORT=3036 \
      ADMIN_PANEL_HOST=127.0.0.1 \
      ADMIN_PANEL_OUT_LOG="$LOGS/hal-admin-out.log" \
