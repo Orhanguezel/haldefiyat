@@ -35,15 +35,29 @@ export default function ProductActions({
   return (
     <div className="flex flex-wrap items-center justify-end gap-2" aria-label="Ürün eylemleri">
       <FavoriteButton slug={slug} productName={productName} />
-      <button type="button" onClick={() => openAlertModal(slug)} className={itemClass}>
+      <button
+        type="button"
+        onClick={() => openAlertModal(slug)}
+        className={itemClass}
+        aria-label={`${productName} için fiyat alarmı kur`}
+      >
         <Bell className="h-4 w-4" aria-hidden="true" />
         <span className="hidden sm:inline">Alarm kur</span>
       </button>
-      <Link href={`/karsilastirma?products=${encodeURIComponent(slug)}`} className={itemClass}>
+      <Link
+        href={`/karsilastirma?products=${encodeURIComponent(slug)}`}
+        className={itemClass}
+        aria-label={`${productName} fiyatını karşılaştır`}
+      >
         <Scale className="h-4 w-4" aria-hidden="true" />
         <span className="hidden sm:inline">Karşılaştır</span>
       </Link>
-      <button type="button" onClick={() => void share()} className={itemClass}>
+      <button
+        type="button"
+        onClick={() => void share()}
+        className={itemClass}
+        aria-label={`${productName} fiyat sayfasını paylaş`}
+      >
         <Share2 className="h-4 w-4" aria-hidden="true" />
         <span className="hidden sm:inline">Paylaş</span>
       </button>
