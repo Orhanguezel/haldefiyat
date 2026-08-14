@@ -22,6 +22,18 @@ describe("sanitizeCmsHtml", () => {
     expect(sanitized).not.toContain("onerror");
   });
 
+  it("drops embedded style blocks instead of allowing CSS injection", () => {
+    const sanitized = sanitizeCmsHtml(`
+      <style>body { display:none } a { background-image:url(https://attacker.example/track) }</style>
+      <p class="report-lead">Görünür rapor metni</p>
+    `);
+
+    expect(sanitized).toContain('<p class="report-lead">Görünür rapor metni</p>');
+    expect(sanitized).not.toContain("<style");
+    expect(sanitized).not.toContain("attacker.example");
+    expect(sanitized).not.toContain("display:none");
+  });
+
   it("keeps responsive SVG viewports and chart labels", () => {
     const html = `
       <svg viewBox="0 0 720 320" width="100%" role="img" onclick="alert(1)">

@@ -16,7 +16,6 @@ const allowedTags = [
   "img",
   "section",
   "span",
-  "style",
   "svg",
   "path",
   "circle",
