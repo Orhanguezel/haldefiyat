@@ -4,6 +4,7 @@ import type { RowDataPacket } from "mysql2";
 import geoip from "geoip-lite";
 import { isBotUserAgent, isInternalIpValue } from "@agro/shared-backend/modules/audit/helpers";
 import { sanitizeAuditUrl } from "./sanitize-audit-url";
+import { normalizeAuditUser } from "./audit-user";
 
 type RequestWithUser = FastifyRequest & {
   user?: unknown;
@@ -13,8 +14,6 @@ type RequestWithUser = FastifyRequest & {
   auditError?: { message?: string; code?: string };
   auditPageview?: { url: string; path: string; referer: string | null };
 };
-
-type UserRecord = Record<string, unknown>;
 
 const requestStarts = new WeakMap<FastifyRequest, bigint>();
 const ATTRIBUTION_COLUMNS = ["gclid", "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
@@ -102,39 +101,6 @@ function shouldSkip(req: FastifyRequest): boolean {
   if (SKIP_PREFIXES.some((prefix) => path.startsWith(prefix))) return true;
 
   return false;
-}
-
-function userRecord(value: unknown): UserRecord | null {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? (value as UserRecord)
-    : null;
-}
-
-function normalizeUser(req: FastifyRequest): { userId: string | null; isAdmin: number } {
-  const request = req as RequestWithUser;
-  const candidate =
-    request.user ??
-    request.auth?.user ??
-    request.requestContext?.get?.("user") ??
-    null;
-  const user = userRecord(candidate);
-  if (!user) return { userId: null, isAdmin: 0 };
-
-  const roles = Array.isArray(user.roles) ? user.roles.map(String) : [];
-  const role = String(user.role ?? "");
-  const isAdmin =
-    user.is_admin === true ||
-    user.is_admin === 1 ||
-    user.is_admin === "1" ||
-    role === "admin" ||
-    roles.includes("admin")
-      ? 1
-      : 0;
-
-  return {
-    userId: user.id ? String(user.id) : null,
-    isAdmin,
-  };
 }
 
 function attr(searchParams: URLSearchParams, key: string): string | null {
@@ -237,7 +203,7 @@ export const auditRequestLoggerPlugin: FastifyPluginAsync = fp(async (app) => {
     try {
       const { url, path, searchParams } = getUrlParts(req);
       const ip = normalizeClientIp(req);
-      const { userId, isAdmin } = normalizeUser(req);
+      const { userId, isAdmin } = normalizeAuditUser(req);
       const { country, city } = resolveGeo(req, ip);
       const userAgent = firstHeader(req, "user-agent") || null;
       const isBot = isBotUserAgent(userAgent) ? 1 : 0;

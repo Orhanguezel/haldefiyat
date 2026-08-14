@@ -13,7 +13,8 @@
     "db:seed": "bun src/db/seed/index.ts",
     "db:seed:hal:fresh": "ALLOW_DROP=true bun src/db/seed/index.ts",
     "db:seed:nodrop": "bun src/db/seed/index.ts --no-drop",
-    "db:seed:only": "bun src/db/seed/index.ts --only="
+    "db:seed:only": "bun src/db/seed/index.ts --only=",
+    "qa:call-request-db": "QA_ALLOW_MUTATION=1 bun scripts/qa/call-request-db-fixture.ts"
   },
   "dependencies": {
     "@agro/shared-backend": "workspace:*",
