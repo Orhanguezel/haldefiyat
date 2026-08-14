@@ -153,7 +153,7 @@
 - [~] F1.44 Ürün/birim bazlı geçici makul aralıkları veriyle çıkar. (13 Ağustos: kg/deniz ürünü/koli geçici tavanları ve 869 grupluk dry-run; ürün özel matris bekliyor.)
 - [x] F1.45 Mutlak eşik ve medyan sapmasını birlikte kullanan yayın öncesi guard ekle. (Merkezi `upsertPriceRow`; en az 5 emsal, 4x/0.25x sapma.)
 - [x] F1.46 Şüpheli kayıtları silme; karantinaya ve inceleme kuyruğuna al. (`hf_price_quarantine`: ham değer, reason, severity, confidence, median, review durumu.)
-- [x] F1.47 Karantinalı veriyi page/API/widget/CSV/bülten/sosyal/rapordan hariç tut. (Karantina kararı `hf_price_history` yazımından önce veriliyor; downstream yalnız yayın tablosunu okuyor.)
+- [x] F1.47 Karantinalı veriyi page/API/widget/CSV/bülten/sosyal/rapordan hariç tut. Yeni kayıtlar yayın öncesi guard'dan geçiyor; tarihsel `hf_market_blackouts` filtresi fiyat liste/geçmiş/widget/şehir/endeks/haftalık-mevsimsel/yıllık rapor/RSS/Telegram/alarm/ilan tüketicilerine yayıldı, `*_wayback` kurtarma kayıtları korunuyor. Kanıt: `artifacts/renewal-2026/yoy-karantina-kabul-2026-08-14.md`.
 - [x] F1.48 546 TL domates ve yanlış adet/kg vakalarını fixture yap. (Backend hal/retail guard ve frontend türev testlerinde 546; `PRODUCT_UNIT_MISMATCH` adet/kg fixture’ı testli.)
 - [~] F1.49 Guard false-positive oranını örneklemle kontrol et. (Canlı dry-run: 869 grubun 7’si, %0,81 potansiyel karantina; 7 vakanın insan etiketlemesi bekliyor.)
 
@@ -162,7 +162,7 @@
 - [x] G1.1 Public listing API, HTML/RSC ve JSON-LD canlı taramalarında gerçek ilan telefonu sıfır; Organization kurumsal telefonu ayrı ve meşru.
 - [ ] G1.2 Arama talebi uçtan uca, kota ve audit ile çalışıyor.
 - [ ] G1.3 Invalid Date/ham key/şablon artığı kritik sayfalarda sıfır.
-- [ ] G1.4 Kritik fiyat anomalileri otomatik yayınlanmıyor.
+- [x] G1.4 Kritik fiyat anomalileri yayın öncesi guard/karantina ile durduruluyor; tarihsel donmuş/anomali aralıkları tüm public tüketicilerde merkezi blackout filtresinden geçiyor. 546 TL türev vaka, 2025 donmuş seri ve blackout tarih-normalizasyon regresyonu testli/canlı kabul edildi.
 - [ ] G1.5 Gerçek künye ve güven politikaları canlı.
 
 ## 4. Faz 2 — Ürün sözlüğü, birim, metrik ve veri bekçisi
@@ -579,7 +579,7 @@
 
 ### 15.1 Mevcut altyapı eşlemesi — yeniden kurma, üstüne inşa et
 
-- [ ] E1 Karantina altyapısı ZATEN VAR (güvenilmez veri silinmez; karantina + Wayback kurtarma muafiyeti `sourceApi=*_wayback`). F1.46–47 ve F2.15 mevcut mekanizmayı genişletir, sıfırdan tasarlamaz.
+- [x] E1 Mevcut karantina altyapısı genişletildi; güvenilmez veri silinmiyor, tarihsel blackout tüm public tüketicilere uygulanıyor ve `sourceApi=*_wayback` kurtarma muafiyeti korunuyor. Canlı kabul sırasında eski tarih normalizasyon hatası da giderildi. Kanıt: `artifacts/renewal-2026/yoy-karantina-kabul-2026-08-14.md`.
 - [ ] E2 Ürün eşleme altyapısı ZATEN VAR: match-key = token-sırala + birim, kg≠adet ayrı ürün; ETL alias haritasında "kendi adı > alias" iki-geçiş kuralı (513 çakışan anahtar sessiz veri kaybı vakası). F2.1 sözleşmesi bu kuralların üstüne yazılır; F2.5 fixture'larına bu vakalar eklenir.
 - [ ] E3 `docs/URUN-BIRLESTIRME-PLAYBOOK.md` + auto-merge önerici mevcut ve aile bazında çalıştı (tamamlanan aileler listesi playbook'ta). F2.18–25 URL göçü, tamamlanmış ailelerle diff'lenerek planlanır; yapılmış iş tekrar planlanmaz.
 - [ ] E4 410 otomatı yanlış pozitif üretti: generic aile-başı slug'lar (biber/lahana/sarımsak…) "ölü ürün" sanılıp Gone yapıldı, doğrusu varyanta 301 (5 kayıt düzeltildi). F2.18 haritasına "410→301 geri alma denetimi" maddesi eklenir.
@@ -601,7 +601,7 @@
 ### 15.3 Faz 1–2 veri ilaveleri — kayıtlı en büyük veri borçları
 
 - [x] E16 `avg_price_method` ile 1.055.511 kayıt sınıflandı: 808.595 midpoint (%76,61), 246.916 reported, unknown 0. Merkezi yazım/admin, API+tarihçe, CSV, fiyat kartı/tablosu, ürün/FAQ/perakende, bülten ve endeks metodolojisi ayrımı taşıyor. Canlı mobil/API kabulü geçti. Kanıt: `artifacts/renewal-2026/sentetik-ortalama-kabul-2026-08-14.md`.
-- [ ] E17 2025 tarihsel serisi 3 halde şişik (muhtemel parser regresyonu) — YoY kıyas BLOKLU; 5 düzeltme yöntemi denendi, başarısız. Ürün detaydaki "Yıllık Karşılaştırma" dahil tüm YoY yüzeyleri bu seriyi ya karantinalar ya açıkça işaretler; sessiz YoY yayınlanmaz.
+- [x] E17 Bursa/Denizli/Eskişehir donmuş serileri ve aktif Alanya anomalisi merkezi blackout ile tüm public tüketicilerden çıkarıldı; 2025 raporu 282.728 ham satır yerine 167.933 doğrulanmış satır kullanıyor. Wayback kurtarma satırları korunuyor. Public YoY 1 Mayıs 2027 + en az 5 eşleşmiş çift kapısına bağlandı; ürün/varyant/widget/bülten ve güvenilmez eski analizde sessiz YoY yok. Kanıt: `artifacts/renewal-2026/yoy-karantina-kabul-2026-08-14.md`.
 - [x] E18 546 TL domates kök nedeni ham fiyat değil, "tahmini perakende" TÜREV hesabıdır. 546,21 TL fixture’ı backend retail yazım sınırı ve frontend türev gösteriminde engelleniyor; `%200` iddiası canlı örneklemde yanlışlanıp `%1000` sert anomali eşiğine kalibre edildi. Kanıt: `artifacts/renewal-2026/perakende-guard-kabul-2026-08-13.md`.
 - [ ] E19 marketfiyati RETAIL_EXTRA throttle gerçeği: ~750 fresh çağrı sonrası IP throttle; kürasyonlu dikey fresh-produce'tan ÖNCE çalışmalı; retail destekleyicidir, index'i sürmez. Retail comparison'daki tazelik etiketi bu kısıtı yansıtır.
 - [ ] E20 TOBB TL/ton→kg birim vakası (~1000x şişik fiyat; 194 garbage kayıt temizliği + parser fix) F2.13 ve F2.17'nin birincil fixture'ı yapılır; zeytinyağı/zeytin gerçek 100–350 TL bandı negatif test olarak eklenir.
