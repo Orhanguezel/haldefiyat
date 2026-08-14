@@ -175,4 +175,43 @@ describe("attribution and conversion analytics", () => {
     expect(payload).not.toHaveProperty("phone");
     expect(payload).not.toHaveProperty("item_slug");
   });
+
+  it("tracks price filters without sending the typed query", () => {
+    trackDiscoveryEvent("price_filter_changed", {
+      filter_name: "query",
+      filter_value: "7_chars",
+      query_length: 7,
+      active_filter_count: 2,
+      result_count: 12,
+    });
+
+    expect(window.gtag).toHaveBeenCalledWith(
+      "event",
+      "price_filter_changed",
+      expect.objectContaining({
+        event_category: "product_discovery",
+        filter_name: "query",
+        filter_value: "7_chars",
+        query_length: 7,
+        active_filter_count: 2,
+        result_count: 12,
+      }),
+    );
+    const payload = (window.gtag as ReturnType<typeof vi.fn>).mock.calls[0]?.[2];
+    expect(JSON.stringify(payload)).not.toContain("domates");
+  });
+
+  it("drops PII-looking filter values", () => {
+    trackDiscoveryEvent("price_filter_zero_results", {
+      filter_name: "query",
+      filter_value: "orhan@example.com",
+      query_length: 17,
+      result_count: 0,
+      zero_results: true,
+    });
+
+    const payload = (window.gtag as ReturnType<typeof vi.fn>).mock.calls[0]?.[2];
+    expect(payload).not.toHaveProperty("filter_value");
+    expect(payload).toMatchObject({ query_length: 17, result_count: 0, zero_results: true });
+  });
 });

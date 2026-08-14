@@ -133,6 +133,17 @@ export default async function LiveMarketPricesPage({ params }: Props) {
         </div>
       </section>
 
+      <aside className="border-b border-(--color-border) bg-(--color-background)" aria-label="Sayfa kapsamı">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-4 text-sm text-(--color-muted) sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+          <p>
+            Bu sayfa son veri kesitini ve popüler hareketleri özetler. Ayrıntılı arşiv, hal/il, kategori, birim ve tarih filtreleri için fiyat listesini kullanın.
+          </p>
+          <Link href="/fiyatlar" className="shrink-0 font-semibold text-(--color-brand) hover:underline">
+            Filtreli fiyat arşivine git
+          </Link>
+        </div>
+      </aside>
+
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>

@@ -5,9 +5,14 @@ import { useMemo } from "react";
 interface ExportButtonProps {
   params?: {
     product?: string;
+    q?: string;
     city?: string;
+    market?: string;
+    marketType?: "hal" | "borsa" | "resmi" | "kooperatif";
     category?: string;
+    unit?: string;
     range?: string;
+    latestOnly?: boolean;
   };
   label?: string;
 }
@@ -20,9 +25,14 @@ function buildUrl(params: ExportButtonProps["params"]): string {
   const qs = new URLSearchParams();
   qs.set("format", "csv");
   if (params?.product) qs.set("product", params.product);
+  if (params?.q) qs.set("q", params.q);
   if (params?.city) qs.set("city", params.city);
+  if (params?.market) qs.set("market", params.market);
+  if (params?.marketType) qs.set("marketType", params.marketType);
   if (params?.category) qs.set("category", params.category);
+  if (params?.unit) qs.set("unit", params.unit);
   if (params?.range) qs.set("range", params.range);
+  if (params?.latestOnly != null) qs.set("latestOnly", String(params.latestOnly));
   return `${API_BASE}/prices/export?${qs.toString()}`;
 }
 

@@ -295,6 +295,7 @@ export async function listPriceRows(params: {
   market?: string;
   marketType?: MarketType;
   category?: string;
+  unit?: string;
   range?: string;
   limit?: number;
   /**
@@ -354,6 +355,7 @@ export async function listPriceRows(params: {
   if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
   if (params.marketType) conds.push(marketTypeCondition(params.marketType));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
+  if (params.unit?.trim()) conds.push(eq(hfPriceHistory.unit, params.unit.trim()));
   if (params.q?.trim()) {
     const q = likeSafe(params.q.trim());
     if (q) conds.push(or(like(hfProducts.nameTr, `%${q}%`), like(hfProducts.slug, `%${q}%`))!);
@@ -473,6 +475,7 @@ async function priceQueryContext(params: {
   market?: string;
   marketType?: MarketType;
   category?: string;
+  unit?: string;
   range?: string;
 }) {
   const days = parseRangeToDays(params.range);
@@ -517,6 +520,7 @@ async function priceQueryContext(params: {
   if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
   if (params.marketType) conds.push(marketTypeCondition(params.marketType));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
+  if (params.unit?.trim()) conds.push(eq(hfPriceHistory.unit, params.unit.trim()));
   if (params.q?.trim()) {
     const q = likeSafe(params.q.trim());
     if (q) conds.push(or(like(hfProducts.nameTr, `%${q}%`), like(hfProducts.slug, `%${q}%`))!);
@@ -571,6 +575,7 @@ export async function listPriceRowsPage(params: {
   market?: string;
   marketType?: MarketType;
   category?: string;
+  unit?: string;
   range?: string;
   limit?: number;
   page?: number;

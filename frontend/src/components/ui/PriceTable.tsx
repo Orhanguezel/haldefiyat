@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useDeferredValue } from "react";
+import { useEffect, useMemo, useRef, useState, useDeferredValue } from "react";
 import Link from "next/link";
 import { productHref } from "@/lib/product-links";
 import { sourceCompactLabel, sourceDisplayName } from "@/lib/source-display";
@@ -8,15 +8,21 @@ import { apiGet } from "@/lib/api-client";
 import type { PriceRow, Market, PriceListResponse, PriceListMeta, FetchPricesParams } from "@/lib/api";
 import Pagination from "@/components/ui/Pagination";
 import { StatusState } from "@/components/ui/StatusState";
+import ExportButton from "@/components/ui/ExportButton";
+import { trackDiscoveryEvent } from "@/lib/analytics";
 
 interface PriceTableProps {
   initialPrices?: PriceRow[];
   initialPricePage?: PriceListResponse;
   markets: Market[];
-  requestParams?: Pick<FetchPricesParams, "range" | "latestOnly" | "product" | "market" | "marketType" | "sort">;
+  requestParams?: Pick<FetchPricesParams, "range" | "latestOnly" | "product" | "market" | "marketType" | "sort" | "unit">;
   initialCategory?: string;
   initialCity?: string;
+  initialMarket?: string;
+  initialUnit?: string;
   initialQuery?: string;
+  syncUrl?: boolean;
+  showExport?: boolean;
   yoyByMarket?: Record<string, number>;
   hideProductColumn?: boolean;
   hideMarketColumn?: boolean;
@@ -26,11 +32,36 @@ interface PriceTableProps {
 type SortKey = "avg-desc" | "avg-asc" | "name-asc" | "date-desc";
 
 const SORT_OPTIONS: ReadonlyArray<{ key: SortKey; label: string }> = [
-  { key: "avg-desc", label: "Fiyat: Yüksek → Düşük" },
-  { key: "avg-asc", label: "Fiyat: Düşük → Yüksek" },
-  { key: "name-asc", label: "İsim (A-Z)" },
-  { key: "date-desc", label: "Tarih (Yeni → Eski)" },
+  { key: "avg-desc", label: "En yüksek ortalama fiyat" },
+  { key: "avg-asc", label: "En düşük ortalama fiyat" },
+  { key: "name-asc", label: "Ürün adı (A–Z)" },
+  { key: "date-desc", label: "En güncel kayıt tarihi" },
 ] as const;
+
+const RANGE_OPTIONS = [
+  { value: "1d", label: "Son veri günü" },
+  { value: "7d", label: "Son 7 gün" },
+  { value: "30d", label: "Son 30 gün" },
+  { value: "90d", label: "Son 90 gün" },
+  { value: "365d", label: "Son 1 yıl" },
+] as const;
+
+const UNIT_OPTIONS = ["kg", "adet", "bag", "demet", "kasa", "koli", "paket", "ton", "litre"] as const;
+
+function unitLabel(value: string): string {
+  const labels: Record<string, string> = {
+    kg: "Kg",
+    adet: "Adet",
+    bag: "Bağ",
+    demet: "Demet",
+    kasa: "Kasa",
+    koli: "Koli",
+    paket: "Paket",
+    ton: "Ton",
+    litre: "Litre",
+  };
+  return labels[value] ?? humanizeSlug(value);
+}
 
 // Bilinen kategoriler için insan-okunur etiket. Haritada olmayan slug'lar
 // `humanizeSlug()` ile "kebab-case" → "Kebab Case" olur.
@@ -170,7 +201,11 @@ export default function PriceTable({
   requestParams,
   initialCategory,
   initialCity,
+  initialMarket,
+  initialUnit,
   initialQuery,
+  syncUrl = false,
+  showExport = false,
   yoyByMarket,
   hideProductColumn = false,
   hideMarketColumn = false,
@@ -192,38 +227,56 @@ export default function PriceTable({
   const [page, setPage] = useState<number>(initialMeta?.page ?? 1);
   const [pageSize, setPageSize] = useState<number>(initialMeta?.limit ?? 100);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [retryToken, setRetryToken] = useState(0);
   const safePrices = Array.isArray(prices) ? prices : [];
   const safeMarkets = Array.isArray(markets) ? markets : [];
 
   const [city, setCity] = useState<string>(initialCity || "all");
+  const [market, setMarket] = useState<string>(initialMarket || requestParams?.market || "all");
   const [category, setCategory] = useState<string>(initialCategory || "all");
+  const [unit, setUnit] = useState<string>(initialUnit || requestParams?.unit || "all");
+  const [range, setRange] = useState<string>(requestParams?.range || "7d");
   const [sort, setSort] = useState<SortKey>(initialSort);
   const [query, setQuery] = useState<string>(initialQuery || "");
   const deferredQuery = useDeferredValue(query);
+  const previousFilterRef = useRef({
+    queryLength: (initialQuery || "").trim().length,
+    city: initialCity || "all",
+    market: initialMarket || requestParams?.market || "all",
+    category: initialCategory || "all",
+    unit: initialUnit || requestParams?.unit || "all",
+    range: requestParams?.range || "7d",
+    sort: initialSort,
+    pageSize: initialMeta?.limit ?? 100,
+  });
+  const zeroResultSignatureRef = useRef("");
 
   useEffect(() => {
     if (!serverPagination) return;
     setPage(1);
-  }, [serverPagination, city, category, sort, deferredQuery, pageSize]);
+  }, [serverPagination, city, market, category, unit, range, sort, deferredQuery, pageSize]);
 
   useEffect(() => {
     if (!serverPagination) return;
     let cancelled = false;
     const params = {
-      range: requestParams?.range ?? "7d",
       latestOnly: requestParams?.latestOnly ?? true,
       product: requestParams?.product,
-      market: requestParams?.market,
+      market: market === "all" ? requestParams?.market : market,
       marketType: requestParams?.marketType,
       page,
       limit: pageSize,
       sort,
       city: city === "all" ? undefined : city,
       category: category === "all" ? undefined : category,
+      unit: unit === "all" ? undefined : unit,
+      range,
       q: deferredQuery.trim() || undefined,
     };
 
     setLoading(true);
+    setLoadError(false);
     apiGet<PriceListResponse>("/prices", params)
       .then((result) => {
         if (cancelled) return;
@@ -231,7 +284,10 @@ export default function PriceTable({
         setMeta(result.meta ?? null);
       })
       .catch((err) => {
-        if (!cancelled) console.error("[PriceTable] fiyatlar yüklenemedi", err);
+        if (!cancelled) {
+          setLoadError(true);
+          console.error("[PriceTable] fiyatlar yüklenemedi", err);
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -253,6 +309,10 @@ export default function PriceTable({
     requestParams?.product,
     requestParams?.market,
     requestParams?.marketType,
+    market,
+    unit,
+    range,
+    retryToken,
   ]);
 
   const cityOptions = useMemo(() => {
@@ -268,6 +328,19 @@ export default function PriceTable({
     }
     return list.sort((a, b) => a.name.localeCompare(b.name, "tr"));
   }, [safeMarkets, safePrices]);
+
+  const marketOptions = useMemo(() => safeMarkets
+    .filter((item) => city === "all" || item.cityName?.toLocaleLowerCase("tr-TR") === city)
+    .map((item) => ({ slug: item.slug, name: item.name, cityName: item.cityName }))
+    .sort((a, b) => a.name.localeCompare(b.name, "tr")), [safeMarkets, city]);
+
+  const unitOptions = useMemo(() => {
+    const values = new Set<string>(UNIT_OPTIONS);
+    for (const row of safePrices) {
+      if (row.unit?.trim()) values.add(row.unit.trim());
+    }
+    return [...values].sort((a, b) => unitLabel(a).localeCompare(unitLabel(b), "tr"));
+  }, [safePrices]);
 
   // Kategori seçenekleri verideki gerçek dağılımdan türetilir — sayı ile.
   // Böylece balık, ithal, sebze-meyve gibi yeni kategoriler hard-code
@@ -295,33 +368,137 @@ export default function PriceTable({
     const nq = deferredQuery.trim() ? normalize(deferredQuery.trim()) : "";
     const rows = safePrices.filter((row) => {
       if (city !== "all" && row.cityName?.toLowerCase() !== city) return false;
+      if (market !== "all" && row.marketSlug !== market) return false;
       if (category !== "all" && (row.categorySlug || "diger") !== category) return false;
+      if (unit !== "all" && row.unit !== unit) return false;
       if (nq && !normalize(row.productName).includes(nq)) return false;
       return true;
     });
     return sortRows(rows, sort);
-  }, [safePrices, city, category, sort, deferredQuery, serverPagination]);
+  }, [safePrices, city, market, category, unit, sort, deferredQuery, serverPagination]);
 
   const resetFilters = () => {
     setCity("all");
+    setMarket("all");
     setCategory("all");
+    setUnit("all");
+    setRange(requestParams?.range || "7d");
     setQuery("");
     setSort(initialSort);
   };
 
   const hasActiveFilter =
-    city !== "all" || category !== "all" || query.trim() !== "" || sort !== initialSort;
+    city !== "all" || market !== "all" || category !== "all" || unit !== "all" ||
+    range !== (requestParams?.range || "7d") || query.trim() !== "" || sort !== initialSort;
   const total = meta?.total ?? safePrices.length;
   const totalPages = meta?.totalPages ?? 1;
   const currentPage = meta?.page ?? page;
   const showingStart = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const showingEnd = Math.min(total, (currentPage - 1) * pageSize + filtered.length);
+  const activeFilterCount = [
+    deferredQuery.trim() !== "",
+    city !== "all",
+    market !== "all",
+    category !== "all",
+    unit !== "all",
+    range !== (requestParams?.range || "7d"),
+    sort !== initialSort,
+  ].filter(Boolean).length;
+  const staleCount = filtered.filter((row) => row.isStale).length;
+  const freshCount = filtered.length - staleCount;
+
+  useEffect(() => {
+    if (!syncUrl || typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    for (const key of ["q", "city", "market", "category", "unit", "range", "sort", "page", "limit"]) {
+      params.delete(key);
+    }
+    if (deferredQuery.trim()) params.set("q", deferredQuery.trim());
+    if (city !== "all") params.set("city", city);
+    if (market !== "all") params.set("market", market);
+    if (category !== "all") params.set("category", category);
+    if (unit !== "all") params.set("unit", unit);
+    if (range !== (requestParams?.range || "7d")) params.set("range", range);
+    if (sort !== initialSort) params.set("sort", sort);
+    if (page > 1) params.set("page", String(page));
+    if (pageSize !== 100) params.set("limit", String(pageSize));
+    const queryString = params.toString();
+    const nextUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ""}${window.location.hash}`;
+    window.history.replaceState(window.history.state, "", nextUrl);
+
+    const next = {
+      queryLength: deferredQuery.trim().length,
+      city,
+      market,
+      category,
+      unit,
+      range,
+      sort,
+      pageSize,
+    };
+    const previous = previousFilterRef.current;
+    const changed = (Object.keys(next) as Array<keyof typeof next>).find((key) => next[key] !== previous[key]);
+    previousFilterRef.current = next;
+    if (!changed) return;
+    const filterName = changed === "queryLength" ? "query" : changed === "pageSize" ? "page_size" : changed;
+    const rawValue = next[changed];
+    trackDiscoveryEvent("price_filter_changed", {
+      filter_name: filterName,
+      filter_value: changed === "queryLength" ? `${rawValue}_chars` : String(rawValue).slice(0, 100),
+      query_length: deferredQuery.trim().length,
+      active_filter_count: activeFilterCount,
+    });
+  }, [
+    syncUrl,
+    deferredQuery,
+    city,
+    market,
+    category,
+    unit,
+    range,
+    sort,
+    page,
+    pageSize,
+    requestParams?.range,
+    initialSort,
+    activeFilterCount,
+  ]);
+
+  useEffect(() => {
+    if (loading || loadError || total !== 0 || activeFilterCount === 0) return;
+    const signature = [deferredQuery.trim().length, city, market, category, unit, range, sort].join("|");
+    if (zeroResultSignatureRef.current === signature) return;
+    zeroResultSignatureRef.current = signature;
+    const filterName = deferredQuery.trim()
+      ? "query"
+      : market !== "all"
+        ? "market"
+        : city !== "all"
+          ? "city"
+          : category !== "all"
+            ? "category"
+            : unit !== "all"
+              ? "unit"
+              : range !== (requestParams?.range || "7d")
+                ? "range"
+                : "sort";
+    trackDiscoveryEvent("price_filter_zero_results", {
+      filter_name: filterName,
+      query_length: deferredQuery.trim().length,
+      active_filter_count: activeFilterCount,
+      result_count: 0,
+      zero_results: true,
+    });
+  }, [loading, loadError, total, activeFilterCount, deferredQuery, city, market, category, unit, range, sort, requestParams?.range]);
 
   const categoryHref = (slug: string) => {
     const params = new URLSearchParams();
     if (slug !== "all") params.set("category", slug);
     if (city !== "all") params.set("city", city);
+    if (market !== "all") params.set("market", market);
     if (query.trim()) params.set("q", query.trim());
+    if (unit !== "all") params.set("unit", unit);
+    if (range !== (requestParams?.range || "7d")) params.set("range", range);
     if (sort !== initialSort) params.set("sort", sort);
     if (pageSize !== 100) params.set("limit", String(pageSize));
     const qs = params.toString();
@@ -332,9 +509,9 @@ export default function PriceTable({
     <div className="space-y-5">
       {/* Filtre bar */}
       <div className="flex flex-col gap-3 rounded-[14px] border border-(--color-border) bg-(--color-surface) p-4">
-        {/* Üst sıra — arama + şehir + sıralama */}
-        <div className="flex flex-col gap-3 md:flex-row md:items-center">
-          <div className="relative flex-1 md:max-w-md">
+        {/* Üst sıra — arama + hal/il + birim + tarih + sıralama */}
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.4fr)_repeat(5,minmax(135px,1fr))]">
+          <div className="relative">
             <svg
               aria-hidden
               className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-(--color-muted)"
@@ -370,7 +547,10 @@ export default function PriceTable({
 
           <select
             value={city}
-            onChange={(e) => setCity(e.target.value)}
+            onChange={(e) => {
+              setCity(e.target.value);
+              setMarket("all");
+            }}
             aria-label="Şehir"
             className="rounded-[8px] border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-[13px] text-(--color-foreground) focus:border-(--color-brand) focus:outline-none"
           >
@@ -383,10 +563,47 @@ export default function PriceTable({
           </select>
 
           <select
+            value={market}
+            onChange={(e) => setMarket(e.target.value)}
+            aria-label="Hal veya kaynak"
+            className="min-w-0 rounded-[8px] border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-[13px] text-(--color-foreground) focus:border-(--color-brand) focus:outline-none"
+          >
+            <option value="all">Tüm Haller</option>
+            {marketOptions.map((item) => (
+              <option key={item.slug} value={item.slug}>
+                {item.name}{city === "all" && item.cityName ? ` · ${item.cityName}` : ""}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={unit}
+            onChange={(e) => setUnit(e.target.value)}
+            aria-label="Birim"
+            className="min-w-0 rounded-[8px] border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-[13px] text-(--color-foreground) focus:border-(--color-brand) focus:outline-none"
+          >
+            <option value="all">Tüm Birimler</option>
+            {unitOptions.map((value) => (
+              <option key={value} value={value}>{unitLabel(value)}</option>
+            ))}
+          </select>
+
+          <select
+            value={range}
+            onChange={(e) => setRange(e.target.value)}
+            aria-label="Tarih aralığı"
+            className="min-w-0 rounded-[8px] border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-[13px] text-(--color-foreground) focus:border-(--color-brand) focus:outline-none"
+          >
+            {RANGE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+
+          <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortKey)}
             aria-label="Sıralama"
-            className="rounded-[8px] border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-[13px] text-(--color-foreground) focus:border-(--color-brand) focus:outline-none md:ml-auto"
+            className="min-w-0 rounded-[8px] border border-(--color-border) bg-(--color-bg-alt) px-3 py-2 text-[13px] text-(--color-foreground) focus:border-(--color-brand) focus:outline-none"
           >
             {SORT_OPTIONS.map((o) => (
               <option key={o.key} value={o.key}>
@@ -448,6 +665,54 @@ export default function PriceTable({
           )}
         </div>
       </div>
+
+      <div className="flex flex-col gap-3 rounded-[12px] border border-(--color-border-soft) bg-(--color-bg-alt) px-4 py-3 text-xs text-(--color-muted) sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <strong className="text-(--color-foreground)">{total.toLocaleString("tr-TR")} kayıt</strong>
+          <span>{showingStart}–{showingEnd} gösteriliyor</span>
+          <span>{RANGE_OPTIONS.find((option) => option.value === range)?.label ?? range}</span>
+          {meta?.latestRecordedDate ? <span>Son kayıt: {formatDate(meta.latestRecordedDate)}</span> : null}
+          {filtered.length > 0 && staleCount === 0 ? <span className="font-semibold text-(--color-success)">Güncel kayıtlar</span> : null}
+          {freshCount > 0 && staleCount > 0 ? <span className="font-semibold text-(--color-warning)">{staleCount} gecikmeli, {freshCount} güncel</span> : null}
+          {filtered.length > 0 && staleCount === filtered.length ? <span className="font-semibold text-(--color-warning)">Tüm sonuçlar gecikmeli</span> : null}
+        </div>
+        {showExport ? (
+          <ExportButton
+            label="Filtreli CSV indir"
+            params={{
+              product: requestParams?.product,
+              q: deferredQuery.trim() || undefined,
+              city: city === "all" ? undefined : city,
+              market: market === "all" ? requestParams?.market : market,
+              marketType: requestParams?.marketType,
+              category: category === "all" ? undefined : category,
+              unit: unit === "all" ? undefined : unit,
+              range,
+              latestOnly: requestParams?.latestOnly,
+            }}
+          />
+        ) : null}
+      </div>
+
+      {loadError ? (
+        <div className="rounded-[14px] border border-(--color-danger)/30 bg-(--color-surface)">
+          <StatusState
+            kind="error"
+            compact
+            title="Fiyatlar yüklenemedi"
+            description="Mevcut sonuçlar korunuyor. Bağlantıyı denetleyip yeniden deneyin."
+            action={(
+              <button
+                type="button"
+                onClick={() => setRetryToken((value) => value + 1)}
+                className="rounded-lg bg-(--color-brand) px-4 py-2 text-xs font-bold text-(--color-brand-fg)"
+              >
+                Yeniden dene
+              </button>
+            )}
+          />
+        </div>
+      ) : null}
 
       {/* Tablo */}
       <div className="relative overflow-hidden rounded-[14px] border border-(--color-border) bg-(--color-surface)">

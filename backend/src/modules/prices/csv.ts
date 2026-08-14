@@ -16,7 +16,13 @@ export const CSV_HEADERS = [
   "Birim",
   "Para Birimi",
   "Tarih",
-  "Kaynak",
+  "Kaynak Adı",
+  "Kaynak URL",
+  "Kaynak Türü",
+  "Resmi Kaynak",
+  "Kaynak Kodu",
+  "Uygulanan Filtreler",
+  "Dışa Aktarım Zamanı",
 ];
 
 export type PriceExportRow = {
@@ -24,14 +30,23 @@ export type PriceExportRow = {
   categorySlug: string;
   marketName:   string;
   cityName:     string;
-  minPrice:     string | null;
-  maxPrice:     string | null;
-  avgPrice:     string;
+  minPrice:     string | number | null;
+  maxPrice:     string | number | null;
+  avgPrice:     string | number;
   avgPriceMethod: string;
   unit:         string;
   currency:     string;
   recordedDate: Date | string;
   sourceApi:    string;
+  sourceName?:  string | null;
+  sourceUrl?:   string | null;
+  sourceType?:  string | null;
+  isOfficialSource?: boolean;
+};
+
+export type PriceExportMetadata = {
+  filters?: Record<string, string | boolean | null | undefined>;
+  exportedAt?: string;
 };
 
 export function toCsvField(value: string | number | null | undefined): string {
@@ -62,7 +77,28 @@ export function csvFilename(): string {
 }
 
 // Router'in dogrudan cagirdigi yuksek seviyeli helper
-export function toCsvPayload(rows: PriceExportRow[]): string {
+function filterSummary(filters: PriceExportMetadata["filters"]): string {
+  if (!filters) return "Filtre yok";
+  const labels: Record<string, string> = {
+    product: "ürün",
+    q: "arama",
+    city: "şehir",
+    market: "hal",
+    marketType: "kaynak türü",
+    category: "kategori",
+    unit: "birim",
+    range: "tarih aralığı",
+    latestOnly: "yalnız son kayıt",
+  };
+  const entries = Object.entries(filters)
+    .filter(([, value]) => value !== undefined && value !== null && value !== "")
+    .map(([key, value]) => `${labels[key] ?? key}=${String(value)}`);
+  return entries.length ? entries.join("; ") : "Filtre yok";
+}
+
+export function toCsvPayload(rows: PriceExportRow[], metadata: PriceExportMetadata = {}): string {
+  const filters = filterSummary(metadata.filters);
+  const exportedAt = metadata.exportedAt ?? new Date().toISOString();
   const body = rows.map((r) => [
     r.productName,
     r.categorySlug,
@@ -75,7 +111,13 @@ export function toCsvPayload(rows: PriceExportRow[]): string {
     r.unit,
     r.currency,
     toIsoDateOnly(r.recordedDate),
+    r.sourceName ?? "Resmî fiyat kaynağı",
+    r.sourceUrl ?? "",
+    r.sourceType ?? "",
+    r.isOfficialSource ? "Evet" : "Hayır",
     r.sourceApi,
+    filters,
+    exportedAt,
   ]);
   return toCsvDocument(CSV_HEADERS, body);
 }

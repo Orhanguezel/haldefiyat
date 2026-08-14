@@ -440,6 +440,7 @@ export interface FetchPricesParams {
   market?: string;
   marketType?: "hal" | "borsa" | "resmi" | "kooperatif";
   category?: string;
+  unit?: string;
   range?: string;
   limit?: number;
   page?: number;
@@ -472,6 +473,7 @@ export async function fetchPricesPage(
     market:     params.market,
     marketType: params.marketType,
     category:   params.category,
+    unit:       params.unit,
     range:      params.range,
     limit:      params.limit,
     page:       params.page,

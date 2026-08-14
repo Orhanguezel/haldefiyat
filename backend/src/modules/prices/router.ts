@@ -42,6 +42,7 @@ const qList = z.object({
   market:     z.string().optional(),
   marketType: z.enum(["hal", "borsa", "resmi", "kooperatif"]).optional(),
   category:   z.string().optional(),
+  unit:       z.string().max(32).optional(),
   range:      z.string().optional(),
   limit:      z.coerce.number().optional(),
   page:       z.coerce.number().optional(),
@@ -346,14 +347,30 @@ export async function registerPrices(app: FastifyInstance) {
       market:   p.market,
       marketType: p.marketType,
       category: p.category,
+      unit:     p.unit,
       range:    p.range,
       limit:    Math.min(2000, p.limit ?? 2000),
       latestOnly: p.latestOnly,
     });
+    const filterMetadata = {
+      product: p.product,
+      q: p.q,
+      city: p.city,
+      market: p.market,
+      marketType: p.marketType,
+      category: p.category,
+      unit: p.unit,
+      range: p.range,
+      latestOnly: p.latestOnly,
+    };
+    const exportedAt = new Date().toISOString();
     reply.header("Content-Type", "text/csv; charset=utf-8");
     reply.header("Content-Disposition", `attachment; filename="${csvFilename()}"`);
     reply.header("Cache-Control", "no-store");
-    return reply.send(toCsvPayload(rows));
+    reply.header("X-HalDeFiyat-Row-Count", String(rows.length));
+    reply.header("X-HalDeFiyat-Exported-At", exportedAt);
+    reply.header("X-HalDeFiyat-Filters", encodeURIComponent(JSON.stringify(filterMetadata)));
+    return reply.send(toCsvPayload(rows, { filters: filterMetadata, exportedAt }));
   });
 
   /**
@@ -373,6 +390,7 @@ export async function registerPrices(app: FastifyInstance) {
         market:     p.market,
         marketType: p.marketType,
         category:   p.category,
+        unit:       p.unit,
         range:      p.range,
         limit:      p.limit,
         page:       p.page,

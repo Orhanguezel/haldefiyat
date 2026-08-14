@@ -7,7 +7,6 @@ import { DATA_LICENSE_URL, getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceTable from "@/components/ui/PriceTable";
-import ExportButton from "@/components/ui/ExportButton";
 import PriceListNewsletterStrip from "@/components/sections/PriceListNewsletterStrip";
 import BannerSlot from "@/components/ads/BannerSlot";
 import { schemaDateRange } from "@/lib/schema-dates";
@@ -61,6 +60,8 @@ const POPULAR_CITY_SLUGS = [
 
 const SORT_KEYS = new Set(["avg-desc", "avg-asc", "name-asc", "date-desc"]);
 const PRICE_CATEGORY_KEYS = new Set(["sebze-meyve", "sebze", "meyve", "balik", "ithal"]);
+const PRICE_RANGE_KEYS = new Set(["1d", "7d", "30d", "90d", "365d"]);
+const PRICE_UNIT_KEYS = new Set(["kg", "adet", "bag", "demet", "kasa", "koli", "paket", "ton", "litre"]);
 
 function single(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
@@ -73,7 +74,12 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
   const categoryParam = single(query?.category);
   const category = PRICE_CATEGORY_KEYS.has(categoryParam ?? "") ? categoryParam : undefined;
   const city = single(query?.city);
+  const market = single(query?.market);
   const q = single(query?.q);
+  const unitParam = single(query?.unit);
+  const unit = PRICE_UNIT_KEYS.has(unitParam ?? "") ? unitParam : undefined;
+  const rangeParam = single(query?.range);
+  const range = PRICE_RANGE_KEYS.has(rangeParam ?? "") ? rangeParam : "30d";
   const sortParam = single(query?.sort);
   const sort = SORT_KEYS.has(sortParam ?? "") ? sortParam as "avg-desc" | "avg-asc" | "name-asc" | "date-desc" : "date-desc";
   const page = Math.max(1, Number(single(query?.page)) || 1);
@@ -83,14 +89,16 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
     // Tüm geçmiş fiyat kayıtları sayfalanarak gezilir. Tek seferde tüm tabloyu
     // indirmek yerine API meta.total/meta.totalPages ile sayfa sayfa ilerleriz.
     fetchPricesPage({
-      range: "3650d",
+      range,
       limit,
       page,
       sort,
       latestOnly: false,
       category,
       city,
+      market,
       q,
+      unit,
     }),
     fetchPrices({ range: "30d", limit: 1000, latestOnly: true }),
     fetchMarkets(),
@@ -196,7 +204,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
         { name: "Anasayfa", href: "/" },
         { name: "Güncel Hal Fiyatları", href: "/fiyatlar" },
       ]} />
-      <div className="mb-4 flex items-end justify-between gap-4">
+      <div className="mb-4">
         <div>
           <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
             Türkiye Geneli
@@ -205,7 +213,6 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
             Güncel Hal Fiyatları
           </h1>
         </div>
-        <ExportButton params={{ range: "7d" }} />
       </div>
       <p className="mb-8 max-w-3xl text-sm leading-relaxed text-muted">
         Türkiye genelindeki resmi hal müdürlüklerinden derlenen <strong className="text-foreground">güncel sebze, meyve ve bakliyat hal fiyatları</strong>.
@@ -258,10 +265,14 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
       <PriceTable
         initialPricePage={pricePage}
         markets={markets}
-        requestParams={{ range: "3650d", latestOnly: false, sort }}
+        requestParams={{ range, latestOnly: false, sort }}
         initialCategory={category}
         initialCity={city}
+        initialMarket={market}
+        initialUnit={unit}
         initialQuery={q}
+        syncUrl
+        showExport
       />
 
       {/* İç linkler + SEO içerik — yüksek gösterimli /fiyatlar sayfasından

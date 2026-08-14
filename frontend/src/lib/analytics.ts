@@ -27,7 +27,9 @@ export type DiscoveryEventName =
   | "search_opened"
   | "search_submitted"
   | "search_result_selected"
-  | "price_viewed";
+  | "price_viewed"
+  | "price_filter_changed"
+  | "price_filter_zero_results";
 
 export type DiscoveryEventParams = {
   trigger?: "hero" | "header" | "keyboard" | "programmatic";
@@ -42,6 +44,9 @@ export type DiscoveryEventParams = {
   product_slug?: string;
   market_count?: number;
   source_count?: number;
+  filter_name?: "query" | "city" | "market" | "category" | "unit" | "range" | "sort" | "page_size" | "reset";
+  filter_value?: string;
+  active_filter_count?: number;
 };
 
 declare global {
@@ -80,6 +85,9 @@ const DISCOVERY_KEYS = new Set<keyof DiscoveryEventParams>([
   "product_slug",
   "market_count",
   "source_count",
+  "filter_name",
+  "filter_value",
+  "active_filter_count",
 ]);
 
 const PII_VALUE_PATTERN = /(?:@|\b(?:\+?90)?5\d{9}\b)/u;

@@ -22,6 +22,18 @@ Son güncelleme: 14 Ağustos 2026
 
 Temel huni: `search_opened → search_submitted → search_result_selected → price_viewed`.
 
+## Fiyat filtresi hunisi
+
+| Event | Tetik | İzinli alanlar |
+|---|---|---|
+| `price_filter_changed` | Arama, il, hal, kategori, birim, tarih aralığı, sıralama veya sayfa boyutu değişti | `filter_name`, kontrollü public `filter_value`, `query_length`, `active_filter_count` |
+| `price_filter_zero_results` | Aktif filtre bileşimi sıfır kayıt döndürdü | `filter_name`, `query_length`, `active_filter_count`, `result_count=0`, `zero_results=true` |
+
+Serbest arama metni `filter_value` olarak gönderilmez; yalnız `N_chars`
+biçiminde uzunluk kategorisi ve sayısal `query_length` kullanılır. İl, hal,
+kategori, birim, tarih aralığı ve sıralama değerleri yalnız uygulamanın
+kontrollü seçeneklerinden gelir.
+
 ## Çağrı talebi hunisi
 
 | Event | Anlam | İzinli temel alanlar |
