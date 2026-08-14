@@ -201,7 +201,7 @@ export function ContactForm({
             disabled={status === "loading"}
           />
 
-          <div aria-hidden="true" className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden">
+          <div aria-hidden="true" className="hidden">
             <label htmlFor="contact-website">Web sitesi</label>
             <input id="contact-website" type="text" name="website" tabIndex={-1} autoComplete="off" />
           </div>

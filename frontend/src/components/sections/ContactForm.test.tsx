@@ -22,6 +22,8 @@ describe("ContactForm", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<ContactForm />);
 
+    expect(document.querySelector("input[name=website]")?.parentElement).toHaveClass("hidden");
+
     fillRequiredFields();
     fireEvent.submit(screen.getByRole("button", { name: /Mesajı Gönder/ }).closest("form")!);
 

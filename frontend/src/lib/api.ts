@@ -995,6 +995,8 @@ export interface CustomPageData {
   meta_description: string | null;
   module_key: string;
   is_published: number;
+  created_at?: string | null;
+  updated_at?: string | null;
 }
 
 export type IndexSnapshot = {
