@@ -332,16 +332,16 @@
 
 ### 6.5 Analiz, rapor, endeks ve basın — `konsept 03`
 
-- [ ] P4.42 `/analiz` liste sayfasını tarih, kategori ve rapor tipine göre düzenle.
-- [ ] P4.43 Analiz detayında güncelleme tarihi, kapsama, ürün/hal sayısı ve metodolojiyi üstte göster.
-- [ ] P4.44 Editoryal özet, yükselenler, düşenler ve endeks sırasını kullanıcı görevine göre kur.
-- [ ] P4.45 Grafik ve tabloları responsive ve ekran okuyucu açıklamalı yap.
-- [ ] P4.46 Yazar profilini gerçek author verisine bağla.
-- [ ] P4.47 Düzeltme ve geri bildirim bağlantısını her raporda görünür yap.
-- [ ] P4.48 PDF indir, paylaş ve kaynak eylemlerini erişilebilir yap.
-- [ ] P4.49 `/endeks`, yıllık rapor ve haftalık analiz ortak bileşenlerini tekleştir.
-- [ ] P4.50 Basın metnini otomatik yayınlamadan önce editör onay durumunu göster.
-- [ ] P4.51 NewsArticle/Dataset/Breadcrumb schema’larını görünür içerikle uyumlu tut.
+- [x] P4.42 `/analiz` tarih, kategori ve rapor tipi GET filtreleri; aktif filtre sayısı, temizleme, sonuç sayısı ve boş durumla canlı kabul edildi. Kanıt: `artifacts/renewal-2026/analiz-rapor-endeks-kabul-2026-08-14.md`.
+- [x] P4.43 Analiz üst alanı güncelleme tarihi, gerçek haftalık dönem, ürün/hal ve kayıt kapsamı ile metodoloji bağlantısını gösteriyor; canlı değerler `439 ürün · 38 hal`, `10.826` kayıt.
+- [x] P4.44 Düz metin ve eski HTML haftalık raporlar yükselenler → düşenler → endeks sırasına alındı; canlı bölüm konumları `0 < 2 < 3` doğrulandı.
+- [x] P4.45 Haftalık rapor, endeks ve yıllık rapor grafik/tabloları açıklama veya caption ile erişilebilir; 390 px canlı kabulünde doküman taşması yok.
+- [x] P4.46 Yazarlar gerçek `hf_authors` kaydına bağlandı; geçmiş kayıtlar idempotent migration ile dolduruldu, yeni haftalık raporlar ekip yazar ID'sini alıyor ve canlı profil rotası çalışıyor.
+- [x] P4.47 Düzeltme ve geri bildirim e-posta bağlantısı haftalık ve yıllık rapor eylemlerinde görünür ve erişilebilir adla sunuluyor.
+- [x] P4.48 PDF/yazdır, Web Share/clipboard paylaşım ve kaynak/yöntem eylemleri ortak, klavye erişilebilir bileşende toplandı; canlı paylaşım payload'ı doğrulandı.
+- [x] P4.49 Haftalık analiz, yıllık rapor ve endeks özetleri `ReportSummaryGrid`; rapor eylemleri `ReportActions` üzerinden tekleştirildi.
+- [x] P4.50 Basın metni `Onay durumu: Manuel yayımlanmış` durumunu ve otomatik/kendiliğinden yayınlanmadığı açıklamasını görünür gösteriyor.
+- [x] P4.51 Haftalık raporda NewsArticle/Dataset/Breadcrumb, yıllık raporda Article/Dataset/Breadcrumb canlı DOM'da doğrulandı; Dataset kapsamı görünür özetle aynı veri nesnesinden üretiliyor.
 
 ### 6.6 İlan listesi — `konsept 04`
 
