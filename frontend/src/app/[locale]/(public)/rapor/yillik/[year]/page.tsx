@@ -6,6 +6,7 @@ import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PrintButton from "@/components/PrintButton";
 import PageContainer from "@/components/layout/PageContainer";
+import { formatDateTr } from "@/lib/date-format";
 
 type Props = { params: Promise<{ locale: string; year: string }> };
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
@@ -99,8 +100,8 @@ function hasAnnualReport(report: AnnualReport | null): report is AnnualReport {
     report &&
     report.overview.year < new Date().getFullYear() &&
     report.overview.totalRows > 0 &&
-    /^\d{4}-\d{2}-\d{2}$/.test(report.overview.oldestDate) &&
-    /^\d{4}-\d{2}-\d{2}$/.test(report.overview.newestDate),
+    Boolean(formatDateTr(report.overview.oldestDate)) &&
+    Boolean(formatDateTr(report.overview.newestDate)),
   );
 }
 
@@ -187,9 +188,9 @@ export default async function YearlyReportPage({ params }: Props) {
           <b>{overview.uniqueProducts}</b> ürün, <b>{overview.uniqueMarkets}</b> hal.
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
-          Veri dönemi: <time dateTime={overview.oldestDate}>{overview.oldestDate}</time>
+          Veri dönemi: <time dateTime={overview.oldestDate}>{formatDateTr(overview.oldestDate)}</time>
           {" – "}
-          <time dateTime={overview.newestDate}>{overview.newestDate}</time>
+          <time dateTime={overview.newestDate}>{formatDateTr(overview.newestDate)}</time>
         </p>
         <div className="mt-6 flex gap-3 justify-center no-print">
           <PrintButton />

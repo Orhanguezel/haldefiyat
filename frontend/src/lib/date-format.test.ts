@@ -16,6 +16,8 @@ describe("date-format", () => {
     expect(formatDateTr("Invalid Date")).toBeNull();
     expect(formatDateTr("undefined")).toBeNull();
     expect(formatDateTr("NaN")).toBeNull();
+    expect(formatDateTr("2026-02-31")).toBeNull();
+    expect(formatDateTr(undefined)).toBeNull();
     expect(formatDateTr(null)).toBeNull();
   });
 });
