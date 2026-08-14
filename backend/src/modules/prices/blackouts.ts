@@ -17,6 +17,7 @@ import { sql, type SQL } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfMarketBlackouts } from "@/db/schema";
 import { WAYBACK_SOURCE_SUFFIX } from "@/modules/etl/fetcher";
+import { normalizeBlackoutDate } from "./blackout-date";
 
 interface Blackout { marketId: number; from: string; to: string }
 
@@ -43,8 +44,8 @@ async function load(): Promise<Blackout[]> {
 
   _cache = rows.map((r) => ({
     marketId: r.marketId,
-    from: String(r.from).slice(0, 10),
-    to:   String(r.to).slice(0, 10),
+    from: normalizeBlackoutDate(r.from),
+    to:   normalizeBlackoutDate(r.to),
   }));
   _at = now;
   return _cache;
