@@ -27,7 +27,7 @@
 import { sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { normalizeMysqlDate } from "@/modules/prices/blackout-date";
-import { isStaleAgainstOwnBaseline } from "./freshness-policy";
+import { isStaleAgainstOwnBaseline, MIN_STALE_DAYS } from "./freshness-policy";
 
 /**
  * Sicrama esigi — AKRAN hallerden sapma kati.
