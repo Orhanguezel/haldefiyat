@@ -24,6 +24,8 @@ interface ComparisonChartProps {
   selectedProducts: Product[];
 }
 
+const LINE_PATTERNS = [undefined, "8 4", "2 3", "12 4 2 4"] as const;
+
 function ChartTooltip({ active, payload, label, units }: TooltipProps<number, string> & { units: Record<string, string> }) {
   if (!active || !payload || payload.length === 0) return null;
   const point = payload[0]?.payload as ChartPoint | undefined;
@@ -80,7 +82,11 @@ export default function ComparisonChart({ data, selectedProducts }: ComparisonCh
   }
 
   return (
-    <div className="h-[360px] w-full rounded-2xl border border-(--color-border) bg-(--color-surface) p-4">
+    <div
+      className="h-[360px] w-full rounded-2xl border border-(--color-border) bg-(--color-surface) p-4"
+      role="img"
+      aria-label={`${selectedProducts.map((product) => product.displayName || product.nameTr).join(", ")} ürünlerinin tarih bazlı fiyat karşılaştırma grafiği. Sayısal özet grafiğin altında yer alır.`}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
@@ -114,6 +120,7 @@ export default function ComparisonChart({ data, selectedProducts }: ComparisonCh
               dataKey={p.slug}
               name={`${getEmoji(p.slug, p.categorySlug)} ${p.displayName || p.nameTr}`}
               stroke={PRODUCT_COLORS[i % PRODUCT_COLORS.length]}
+              strokeDasharray={LINE_PATTERNS[i % LINE_PATTERNS.length]}
               strokeWidth={2.5}
               dot={false}
               activeDot={{ r: 5 }}

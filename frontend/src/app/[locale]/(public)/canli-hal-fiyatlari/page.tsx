@@ -97,7 +97,7 @@ export default async function LiveMarketPricesPage({ params }: Props) {
   } satisfies Record<string, unknown>;
 
   return (
-    <main className="min-h-screen bg-(--color-background)">
+    <div className="min-h-screen bg-(--color-background)">
       <JsonLd type="Dataset" data={datasetSchema} />
 
       <section className="border-b border-(--color-border) bg-(--color-surface)">
@@ -226,7 +226,7 @@ export default async function LiveMarketPricesPage({ params }: Props) {
           <p className="mt-2 text-[14px] leading-6 text-(--color-muted)">Sebze ve meyvede haftanın öne çıkan fiyat hareketlerini tek ekranda okuyun.</p>
         </Link>
       </section>
-    </main>
+    </div>
   );
 }
 

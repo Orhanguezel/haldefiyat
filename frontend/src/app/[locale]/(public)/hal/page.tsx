@@ -72,7 +72,7 @@ export default async function HalIndexPage({ params }: Props) {
   const cityCount = new Set(cityMarkets.map((m) => m.cityName)).size;
 
   return (
-    <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+    <div className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <Breadcrumb visible items={[{ name: "Ana Sayfa", href: "/" }, { name: "Tüm Haller", href: "/hal" }]} />
       <MarketDataNav active="markets" />
       <header className="mb-10">
@@ -180,6 +180,6 @@ export default async function HalIndexPage({ params }: Props) {
           </div>
         </HalViewToggle>
       )}
-    </main>
+    </div>
   );
 }

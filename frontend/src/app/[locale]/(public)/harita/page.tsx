@@ -32,7 +32,7 @@ export default async function HaritaPage({ params }: Props) {
   ]);
 
   return (
-    <main className="relative z-10 mx-auto max-w-[1400px] px-6 py-12 lg:px-8">
+    <div className="relative z-10 mx-auto max-w-[1400px] px-6 py-12 lg:px-8">
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Türkiye Fiyat Haritası", href: "/harita" },
@@ -62,6 +62,6 @@ export default async function HaritaPage({ params }: Props) {
       <div className="h-auto min-h-[720px]">
         <TurkeyMapNoSsr markets={markets} cityPrices={cityPriceMap.items} />
       </div>
-    </main>
+    </div>
   );
 }

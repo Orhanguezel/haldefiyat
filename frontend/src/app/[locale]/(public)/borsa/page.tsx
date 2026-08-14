@@ -101,7 +101,7 @@ export default async function BorsaPage({ params }: Props) {
   };
 
   return (
-    <main className="mx-auto max-w-[1400px] px-6 py-10 md:px-8">
+    <div className="mx-auto max-w-[1400px] px-6 py-10 md:px-8">
       <JsonLd type="Dataset" data={collectionSchema} />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
@@ -181,6 +181,6 @@ export default async function BorsaPage({ params }: Props) {
           />
         </div>
       </section>
-    </main>
+    </div>
   );
 }

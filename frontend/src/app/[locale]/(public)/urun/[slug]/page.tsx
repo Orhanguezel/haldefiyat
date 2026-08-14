@@ -489,7 +489,7 @@ export default async function UrunPage({ params }: Props) {
   } satisfies Record<string, unknown>;
 
   return (
-    <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+    <div className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <JsonLd type="Dataset" data={datasetSchema} />
       <PriceViewTracker productSlug={slug} marketCount={offerCount} sourceCount={sourceNames.length} />
       <Breadcrumb visible items={[
@@ -842,6 +842,6 @@ export default async function UrunPage({ params }: Props) {
         className="mt-8"
         context={{ product: product.slug, category: product.categorySlug }}
       />
-    </main>
+    </div>
   );
 }

@@ -47,7 +47,7 @@ export default async function ApiPolicyPage({ params }: Props) {
   const rules = policyRules(await fetchAnonymousLimit());
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
+    <div className="mx-auto max-w-4xl px-6 py-12">
       <ApiProductNav current="/api-policy" />
       <p className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
         Açık Veri
@@ -97,6 +97,6 @@ export default async function ApiPolicyPage({ params }: Props) {
       </section>
 
       <PolicyLinks className="mt-8" />
-    </main>
+    </div>
   );
 }

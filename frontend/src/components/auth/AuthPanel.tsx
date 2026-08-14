@@ -160,7 +160,7 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
   const alternateLabel = mode === "login" ? "Hesabın yok mu? Kayıt ol" : "Zaten hesabın var mı? Giriş yap";
 
   return (
-    <main className="relative z-10 mx-auto flex min-h-[70vh] max-w-5xl items-center px-4 py-12 sm:px-6 lg:px-8">
+    <div className="relative z-10 mx-auto flex min-h-[70vh] max-w-5xl items-center px-4 py-12 sm:px-6 lg:px-8">
       <div className="grid w-full overflow-hidden rounded-[12px] border border-(--color-border) bg-(--color-surface) shadow-[0_18px_54px_rgba(13,39,22,0.10)] lg:grid-cols-[0.92fr_1.08fr]">
         <section className="relative overflow-hidden border-b border-(--color-border) bg-(--color-bg-alt) px-7 py-8 sm:px-10 lg:border-b-0 lg:border-r lg:px-12 lg:py-12">
           <span className="inline-flex rounded-full border border-(--color-brand)/25 bg-(--color-brand)/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-(--color-brand)">
@@ -304,6 +304,6 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
           </p>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

@@ -31,7 +31,7 @@ export function GoogleSessionComplete({ locale }: { locale: string }) {
   }, [locale, router, searchParams]);
 
   return (
-    <main className="relative z-10 mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center px-6 text-center">
+    <div className="relative z-10 mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center px-6 text-center">
       {failed ? (
         <p className="text-sm text-(--color-muted)">
           Giriş tamamlanamadı, giriş sayfasına yönlendiriliyorsunuz…
@@ -48,6 +48,6 @@ export function GoogleSessionComplete({ locale }: { locale: string }) {
           <p className="mt-1 text-xs text-(--color-muted)">Hesabınız doğrulanıyor.</p>
         </>
       )}
-    </main>
+    </div>
   );
 }

@@ -269,7 +269,7 @@ export default async function HalPage({ params }: Props) {
 
   if (isNational) {
     return (
-      <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+      <div className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
         <JsonLd type="Place" data={placeSchema} />
         <JsonLd type="Dataset" data={datasetSchema} />
         <Breadcrumb visible items={breadcrumbItems} />
@@ -313,12 +313,12 @@ export default async function HalPage({ params }: Props) {
           hideMarketColumn
           hideCityColumn
         />
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+    <div className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <JsonLd type="Place" data={placeSchema} />
       <JsonLd type="Dataset" data={datasetSchema} />
       <Breadcrumb visible items={breadcrumbItems} />
@@ -477,6 +477,6 @@ export default async function HalPage({ params }: Props) {
         className="mt-8"
         context={{ market: market.slug, city: citySlug(market.cityName) }}
       />
-    </main>
+    </div>
   );
 }

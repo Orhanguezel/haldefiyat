@@ -136,7 +136,7 @@ export default async function FirmDetailPage({ params }: Props) {
   } satisfies Record<string, unknown>;
 
   return (
-    <main className="relative z-10 mx-auto max-w-[1180px] px-4 py-10 sm:px-8 sm:py-12">
+    <div className="relative z-10 mx-auto max-w-[1180px] px-4 py-10 sm:px-8 sm:py-12">
       <JsonLd type="LocalBusiness" data={localBusinessSchema} />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
@@ -382,7 +382,7 @@ export default async function FirmDetailPage({ params }: Props) {
         </section>
       )}
       <BannerSlot position="firm_detail_footer" className="mt-12" context={{ firm: firm.id, city: firm.citySlug }} />
-    </main>
+    </div>
   );
 }
 

@@ -116,7 +116,7 @@ export default async function AuthorPage({ params }: Props) {
           </div>
         </aside>
 
-        <main className="min-w-0">
+        <div className="min-w-0">
           <section className="rounded-[20px] border border-(--color-border) bg-(--color-surface) p-6 sm:p-8">
             <div className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
               HaldeFiyat Yazar Profili
@@ -169,7 +169,7 @@ export default async function AuthorPage({ params }: Props) {
               </ul>
             )}
           </section>
-        </main>
+        </div>
       </section>
     </PageContainer>
   );

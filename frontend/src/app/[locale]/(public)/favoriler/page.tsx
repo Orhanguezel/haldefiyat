@@ -23,7 +23,7 @@ export default async function FavorilerPage({ params }: Props) {
   setRequestLocale(locale);
 
   return (
-    <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+    <div className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <div className="mb-8">
         <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
           Favorilerim
@@ -37,6 +37,6 @@ export default async function FavorilerPage({ params }: Props) {
         </p>
       </div>
       <FavoritesClient />
-    </main>
+    </div>
   );
 }

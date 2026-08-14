@@ -63,7 +63,7 @@ export default async function PressPage({ params }: Props) {
   ];
 
   return (
-    <main className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Basın", href: "/basin" },
@@ -159,6 +159,6 @@ export default async function PressPage({ params }: Props) {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

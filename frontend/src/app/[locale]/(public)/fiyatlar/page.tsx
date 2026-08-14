@@ -197,7 +197,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
   };
 
   return (
-    <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
+    <div className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <JsonLd type="Dataset" data={fiyatlarDataset} />
       <JsonLd type="DataCatalog" data={dataCatalogSchema} />
       <Breadcrumb visible items={[
@@ -355,6 +355,6 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
           </>
         );
       })()}
-    </main>
+    </div>
   );
 }

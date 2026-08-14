@@ -126,7 +126,7 @@ export default function ComparisonClient({ products, markets, initialProductSlug
   const isLoading = loadingSlugs.length > 0;
 
   return (
-    <main className="relative z-10 mx-auto max-w-[1400px] px-6 py-10 md:px-8 md:py-14">
+    <div className="relative z-10 mx-auto max-w-[1400px] px-6 py-10 md:px-8 md:py-14">
       <header className="mb-8">
         <Breadcrumb visible items={[
           { name: "Ana Sayfa", href: "/" },
@@ -169,6 +169,6 @@ export default function ComparisonClient({ products, markets, initialProductSlug
 
         <ComparisonSummary summary={summary} />
       </div>
-    </main>
+    </div>
   );
 }

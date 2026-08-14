@@ -122,7 +122,7 @@ function ComboHub({
   } satisfies Record<string, unknown>;
 
   return (
-    <main className="relative z-10 mx-auto max-w-[1400px] px-4 py-10 sm:px-8 sm:py-12">
+    <div className="relative z-10 mx-auto max-w-[1400px] px-4 py-10 sm:px-8 sm:py-12">
       <JsonLd type="ItemList" data={schema} />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
@@ -153,7 +153,7 @@ function ComboHub({
       </div>
 
       <FirmGrid firms={firmPage.items} />
-    </main>
+    </div>
   );
 }
 

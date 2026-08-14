@@ -24,7 +24,7 @@ export default function LegalPageContent({ page, fallbackTitle, pathname, corpor
   const hasTableOfContents = Boolean(prepared && prepared.headings.length >= 2);
 
   return (
-    <main className="mx-auto max-w-350 px-5 py-12 print:max-w-none print:px-0 print:py-0 sm:px-8">
+    <div className="mx-auto max-w-350 px-5 py-12 print:max-w-none print:px-0 print:py-0 sm:px-8">
       <div className="mx-auto max-w-5xl">
         <Breadcrumb visible items={[
           { name: "Anasayfa", href: "/" },
@@ -80,6 +80,6 @@ export default function LegalPageContent({ page, fallbackTitle, pathname, corpor
         </div>
         <PolicyLinks className="mt-10 print:hidden" currentPath={pathname} />
       </div>
-    </main>
+    </div>
   );
 }

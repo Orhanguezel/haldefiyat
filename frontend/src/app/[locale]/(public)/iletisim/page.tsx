@@ -29,7 +29,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
   const settings = await fetchSiteSettings(locale);
 
   return (
-    <main className="min-h-screen bg-(--color-bg) pb-20 pt-24">
+    <div className="min-h-screen bg-(--color-bg) pb-20 pt-24">
       <div className="container mx-auto px-4">
         <ScrollReveal>
           <div className="max-w-350 mx-auto">
@@ -88,6 +88,6 @@ export default async function ContactPage({ params, searchParams }: Props) {
           </div>
         </ScrollReveal>
       </div>
-    </main>
+    </div>
   );
 }

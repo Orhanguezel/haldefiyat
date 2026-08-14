@@ -198,7 +198,7 @@ export default function SeasonCompareChart({ history, productName }: SeasonCompa
   }
 
   return (
-    <div className="h-[320px] w-full" aria-label={`${productName} yıllık sezon karşılaştırması`}>
+    <div className="h-[320px] w-full" role="img" aria-label={`${productName} yıllık sezon karşılaştırması`}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />

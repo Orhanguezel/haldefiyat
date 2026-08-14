@@ -80,6 +80,13 @@ export default async function PublicLayout({
       <JsonLd type="Organization" data={organizationSchema} />
       <JsonLd type="WebSite" data={webSiteSchema} />
 
+      <a
+        href="#main-content"
+        className="fixed left-3 top-3 z-[300] -translate-y-24 rounded-lg bg-(--color-foreground) px-4 py-3 text-sm font-semibold text-(--color-background) shadow-xl transition-transform focus:translate-y-0"
+      >
+        Ana içeriğe geç
+      </a>
+
       <Header
         siteName={settings.site_name || "HalDeFiyat"}
         siteSubtitle={settings.site_description}
@@ -94,7 +101,13 @@ export default async function PublicLayout({
       />
       <PublicPopups locale={currentLocale} />
 
-      <main className="relative z-10 grow pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">{children}</main>
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="relative z-10 grow pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0"
+      >
+        {children}
+      </main>
 
       {/* Tüm sayfalarda görünen global reklam (footer üstü) */}
       <BannerSlot position="global_footer" />

@@ -124,7 +124,7 @@ export default async function FirmsPage({ params, searchParams }: Props) {
   );
 
   return (
-    <main className="relative z-10 mx-auto max-w-[1400px] px-4 py-10 sm:px-8 sm:py-12">
+    <div className="relative z-10 mx-auto max-w-[1400px] px-4 py-10 sm:px-8 sm:py-12">
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Firmalar", href: "/firmalar" },
@@ -338,6 +338,6 @@ export default async function FirmsPage({ params, searchParams }: Props) {
           )}
         </nav>
       )}
-    </main>
+    </div>
   );
 }
