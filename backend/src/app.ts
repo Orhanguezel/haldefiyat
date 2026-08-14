@@ -70,7 +70,14 @@ export async function createApp() {
       origin: req.headers.origin,
       allowedOrigins: env.CORS_ORIGIN,
     })) {
-      return reply.code(403).send({ error: { code: "cross_site_cookie_mutation", message: "Cross-site istek reddedildi" } });
+      // Hook icinde erken `reply.send()` Fastify'nin sonraki route hooklarini her
+      // surumde kesin olarak durdurmadi; 403 donmus bir istegin handler'i DB
+      // mutasyonuna kadar ilerleyebiliyordu. Status-code'lu hata yasam dongusunu
+      // keser ve ortak error handler ayni guvenli cevabi uretir.
+      const error = new Error("Cross-site istek reddedildi") as Error & { statusCode: number; code: string };
+      error.statusCode = 403;
+      error.code = "cross_site_cookie_mutation";
+      throw error;
     }
   });
 
