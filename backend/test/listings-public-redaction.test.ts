@@ -2,6 +2,19 @@ import { describe, expect, it } from "vitest";
 import { parseCallAvailability, toPublicListing } from "../src/modules/listings/public";
 
 describe("toPublicListing", () => {
+  it("removes owner name together with direct contact fields", () => {
+    const result = toPublicListing({
+      contactName: "Kişisel İsim",
+      contactPhone: "0555 111 22 33",
+      raw: { source: "form" },
+      title: "Temiz başlık",
+    });
+
+    expect(result.contactName).toBeNull();
+    expect(result.contactPhone).toBeNull();
+    expect(result.raw).toBeNull();
+  });
+
   it("removes structured and raw phone data from public listings", () => {
     const result = toPublicListing({
       id: 7,

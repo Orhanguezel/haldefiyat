@@ -652,10 +652,13 @@ export async function fetchFirmTypes(): Promise<FirmTypeAggregate[]> {
 }
 
 export async function fetchListings(params: {
+  q?: string;
   type?: "satis" | "alim";
   product?: string;
   city?: string;
   district?: string;
+  unit?: "kg" | "adet" | "kasa" | "bag" | "demet" | "koli" | "paket" | "ton" | "litre";
+  date?: "today" | "7d" | "30d";
   page?: number;
   limit?: number;
 } = {}): Promise<ListingListResponse> {

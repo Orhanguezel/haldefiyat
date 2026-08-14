@@ -28,13 +28,30 @@ function relativeDate(iso: string | null | undefined) {
   return d.toLocaleDateString("tr-TR", { day: "numeric", month: "long" });
 }
 
+function locationLabel(value: string | null | undefined) {
+  if (!value) return null;
+  return value
+    .split("-")
+    .map((part) => part.charAt(0).toLocaleUpperCase("tr-TR") + part.slice(1))
+    .join(" ");
+}
+
 export function ListingCard({ item, compact = false }: { item: Listing; compact?: boolean }) {
   const typeLabel = item.listingType === "satis" ? "Satış ilanı" : "Alım talebi";
-  const owner = item.contactName?.trim();
   const posted = relativeDate(item.createdAt);
+  const city = locationLabel(item.citySlug) ?? "Türkiye";
+  const district = locationLabel(item.districtSlug);
+  const verificationHelpId = `listing-verification-${item.id}`;
 
   return (
-    <article className="group flex h-full flex-col rounded-[10px] border border-(--color-border) bg-(--color-surface) p-4 shadow-sm transition hover:border-(--color-brand)/40 hover:shadow-md">
+    <article
+      aria-label={item.isFeatured ? `Sponsorlu ilan: ${item.title}` : undefined}
+      className={`group flex h-full flex-col rounded-[10px] bg-(--color-surface) p-4 shadow-sm transition hover:shadow-md ${
+        item.isFeatured
+          ? "border-2 border-(--color-warning) ring-4 ring-(--color-warning-bg)"
+          : "border border-(--color-border) hover:border-(--color-brand)/40"
+      }`}
+    >
       <div className="flex flex-wrap items-center gap-2">
         <span
           className={
@@ -51,7 +68,7 @@ export function ListingCard({ item, compact = false }: { item: Listing; compact?
         {item.isFeatured ? (
           // Onceden bg-amber-100/text-amber-800 sabit acik-tema rengiydi; koyu temada okunmuyordu.
           <span className="rounded-[6px] bg-(--color-warning-bg) px-2 py-1 text-[11px] font-semibold text-(--color-warning)">
-            Öne çıkan
+            Reklam · Sponsorlu
           </span>
         ) : null}
       </div>
@@ -78,8 +95,7 @@ export function ListingCard({ item, compact = false }: { item: Listing; compact?
       </Link>
 
       <p className="mt-1 text-sm text-(--color-muted)">
-        {item.productName} · {item.citySlug ?? "Türkiye"}
-        {item.districtSlug ? ` / ${item.districtSlug}` : ""}
+        {item.productName} · {city}{district ? ` / ${district}` : ""}
       </p>
 
       {!compact && item.description ? (
@@ -99,30 +115,26 @@ export function ListingCard({ item, compact = false }: { item: Listing; compact?
         </div>
       </div>
 
-      {/* İlan sahibi — alıcının "bu ilan kime ait?" sorusunun cevabı kartta olmalı. */}
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-(--color-border) pt-3 text-xs text-(--color-muted)">
-        {owner ? (
-          <span className="inline-flex items-center gap-1.5 font-medium text-(--color-foreground)">
-            <span
-              aria-hidden
-              className="grid size-5 place-items-center rounded-full bg-(--color-brand)/10 text-[10px] font-bold text-(--color-brand)"
-            >
-              {owner.slice(0, 1).toLocaleUpperCase("tr-TR")}
-            </span>
-            {owner}
-          </span>
-        ) : (
-          <span>{ROLE_LABEL[item.partyRole]}</span>
-        )}
+        <span>{ROLE_LABEL[item.partyRole]}</span>
 
         {item.phoneVerified ? (
-          <span className="inline-flex items-center gap-1 text-(--color-success)" title="Telefon numarası doğrulandı">
-            <span aria-hidden>✓</span> Doğrulanmış
+          <span className="group/verify relative inline-flex">
+            <button type="button" aria-describedby={verificationHelpId} className="inline-flex items-center gap-1 font-semibold text-(--color-success) underline decoration-dotted underline-offset-2">
+              <span aria-hidden>✓</span> Telefon doğrulandı
+            </button>
+            <span id={verificationHelpId} role="tooltip" className="pointer-events-none invisible absolute bottom-full left-0 z-20 mb-2 w-64 rounded-lg bg-(--color-foreground) p-3 text-[11px] font-normal leading-5 text-(--color-bg) opacity-0 shadow-xl transition group-hover/verify:visible group-hover/verify:opacity-100 group-focus-within/verify:visible group-focus-within/verify:opacity-100">
+              Bu rozet yalnız ilan sahibinin telefonuna gönderilen kodun onaylandığını gösterir; kimlik veya ticari yetki doğrulaması değildir.
+            </span>
           </span>
         ) : null}
 
         {posted ? <span className="ml-auto">{posted}</span> : null}
       </div>
+
+      <Link href={`/ilan/${item.slug}`} className="mt-4 inline-flex min-h-11 items-center justify-center rounded-[8px] bg-(--color-brand) px-4 text-sm font-semibold text-white transition hover:opacity-90">
+        İlanı incele
+      </Link>
     </article>
   );
 }

@@ -6,6 +6,7 @@ import PageContainer from "@/components/layout/PageContainer";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import { ListingCard } from "@/components/listings/ListingCard";
 import { ListingBoard } from "@/components/listings/ListingBoard";
+import { ListingFilters, type ListingFilterValues } from "@/components/listings/ListingFilters";
 import { fetchListingBoard, fetchListings, fetchProducts } from "@/lib/api";
 import { TURKEY_CITY_OPTIONS } from "@/data/turkey-cities";
 import { getPageMetadata } from "@/lib/seo";
@@ -22,7 +23,7 @@ function one(value: string | string[] | undefined) {
 export async function generateMetadata({ params, searchParams }: Props) {
   const { locale } = await params;
   const query = await searchParams;
-  const hasFilter = Boolean(one(query?.type) || one(query?.product) || one(query?.city) || one(query?.district));
+  const hasFilter = Boolean(one(query?.q) || one(query?.type) || one(query?.product) || one(query?.city) || one(query?.unit) || one(query?.date));
   return getPageMetadata("ilanlar", {
     locale,
     pathname: "/ilanlar",
@@ -32,9 +33,6 @@ export async function generateMetadata({ params, searchParams }: Props) {
   });
 }
 
-const FIELD =
-  "min-h-11 rounded-[6px] border border-(--color-border-soft) bg-(--color-bg) px-3 text-sm text-(--color-foreground)";
-
 export default async function ListingsPage({ params, searchParams }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -42,17 +40,25 @@ export default async function ListingsPage({ params, searchParams }: Props) {
   const page = Math.max(1, Number(one(query?.page)) || 1);
   const typeRaw = one(query?.type);
   const type = typeRaw === "satis" || typeRaw === "alim" ? typeRaw : undefined;
+  const unitRaw = one(query?.unit);
+  const unit = (["kg", "adet", "kasa", "bag", "demet", "koli", "paket", "ton", "litre"] as const).find((value) => value === unitRaw);
+  const dateRaw = one(query?.date);
+  const date = (["today", "7d", "30d"] as const).find((value) => value === dateRaw);
+  const q = one(query?.q)?.trim() || undefined;
   const product = one(query?.product);
   const city = one(query?.city);
-  const hasAnyFilter = Boolean(type || product || city || one(query?.district));
+  const filters: ListingFilterValues = { q, type, product, city, unit, date };
+  const hasAnyFilter = Object.values(filters).some(Boolean);
   const [listings, board, products] = await Promise.all([
     fetchListings({
-    type,
-    product,
-    city,
-    district: one(query?.district),
-    page,
-    limit: 24,
+      q,
+      type,
+      product,
+      city,
+      unit,
+      date,
+      page,
+      limit: 24,
     }),
     fetchListingBoard({ product, city }),
     fetchProducts(undefined, undefined, { seoIndex: true }),
@@ -73,41 +79,13 @@ export default async function ListingsPage({ params, searchParams }: Props) {
         </Link>
       </header>
 
-      {/* Filtreler: onceden ham "slug" yazmasi isteniyordu (urun slug / il slug / ilce slug).
-          Kullanici slug bilemez — gercek secim listesine cevrildi. */}
-      <form className="mb-8 grid gap-3 rounded-[10px] border border-(--color-border) bg-(--color-surface) p-4 md:grid-cols-4">
-        <label className="grid gap-1">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-(--color-faint)">Tip</span>
-          <select name="type" defaultValue={type ?? ""} className={FIELD}>
-            <option value="">Tümü</option>
-            <option value="satis">Satış ilanı</option>
-            <option value="alim">Alım talebi</option>
-          </select>
-        </label>
-        <label className="grid gap-1">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-(--color-faint)">Ürün</span>
-          <select name="product" defaultValue={product ?? ""} className={FIELD}>
-            <option value="">Tüm ürünler</option>
-            {products.map((p) => (
-              <option key={p.slug} value={p.slug}>{p.displayName ?? p.nameTr}</option>
-            ))}
-          </select>
-        </label>
-        <label className="grid gap-1">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-(--color-faint)">İl</span>
-          <select name="city" defaultValue={city ?? ""} className={FIELD}>
-            <option value="">Tüm iller</option>
-            {TURKEY_CITY_OPTIONS.map((c) => (
-              <option key={c.value} value={c.value}>{c.label}</option>
-            ))}
-          </select>
-        </label>
-        <div className="flex items-end">
-          <button className="min-h-11 w-full rounded-[6px] bg-(--color-brand) px-4 text-sm font-semibold text-white transition hover:opacity-90">
-            Filtrele
-          </button>
-        </div>
-      </form>
+      <ListingFilters
+        values={filters}
+        products={products
+          .filter((productOption) => !productOption.canonicalSlug)
+          .map((productOption) => ({ value: productOption.slug, label: productOption.displayName ?? productOption.nameTr }))}
+        cities={TURKEY_CITY_OPTIONS}
+      />
 
       <ListingBoard board={board} />
 
@@ -115,7 +93,7 @@ export default async function ListingsPage({ params, searchParams }: Props) {
         <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
           Aktif ilanlar
         </h2>
-        <span className="text-sm text-(--color-muted)">{listings.meta.total} ilan</span>
+        <span className="text-sm text-(--color-muted)" role="status">{listings.meta.total} ilan</span>
       </div>
 
       {listings.items.length ? (
@@ -136,18 +114,23 @@ export default async function ListingsPage({ params, searchParams }: Props) {
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <Link
-              href="/ilan-ver"
+              href={hasAnyFilter ? "/ilan-ver?type=alim" : "/ilan-ver"}
               className="min-h-11 rounded-[6px] bg-(--color-brand) px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
             >
-              Ücretsiz ilan ver
+              {hasAnyFilter ? "Alım talebi oluştur" : "Ücretsiz ilan ver"}
             </Link>
             {hasAnyFilter ? (
-              <Link
-                href="/ilanlar"
-                className="min-h-11 rounded-[6px] border border-(--color-border) px-5 py-2.5 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface)"
-              >
-                Filtreleri temizle
-              </Link>
+              <>
+                <Link
+                  href="#ilan-filtreleri"
+                  className="min-h-11 rounded-[6px] border border-(--color-border) px-5 py-2.5 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface)"
+                >
+                  Filtreleri düzenle
+                </Link>
+                <Link href="/ilanlar" className="min-h-11 px-3 py-2.5 text-sm font-semibold text-(--color-brand) underline-offset-4 hover:underline">
+                  Tümünü temizle
+                </Link>
+              </>
             ) : null}
           </div>
         </div>

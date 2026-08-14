@@ -87,10 +87,13 @@ export const listingPatchSchema = listingFields.partial().superRefine((data, ctx
 });
 
 export const listingQuerySchema = z.object({
+  q: z.string().trim().max(100).optional(),
   type: z.enum(["satis", "alim"]).optional(),
   product: z.string().trim().max(128).optional(),
   city: z.string().trim().max(96).optional(),
   district: z.string().trim().max(128).optional(),
+  unit: z.enum(["kg", "adet", "kasa", "bag", "demet", "koli", "paket", "ton", "litre"]).optional(),
+  date: z.enum(["today", "7d", "30d"]).optional(),
   status: z.enum(["pending", "approved", "rejected", "expired", "closed", "all"]).optional(),
   page: z.string().optional(),
   limit: z.string().optional(),

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, desc, eq, gte, inArray, or, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, like, or, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfPriceHistory, hfProducts } from "@/db/schema";
 import { buildListingSlug } from "./slug";
@@ -26,10 +26,13 @@ import type { ListingCreateInput, ListingPatchInput } from "./validation";
 type Status = "pending" | "approved" | "rejected" | "expired" | "closed";
 
 export type ListingFilters = {
+  q?: string;
   type?: "satis" | "alim";
   product?: string;
   city?: string;
   district?: string;
+  unit?: "kg" | "adet" | "kasa" | "bag" | "demet" | "koli" | "paket" | "ton" | "litre";
+  date?: "today" | "7d" | "30d";
   status?: Status | "all";
   userId?: string;
   publicOnly?: boolean;
@@ -112,9 +115,17 @@ function whereFor(filters: ListingFilters) {
     clauses.push(eq(hfListings.status, "approved"), gte(hfListings.validUntil, sql`CURRENT_DATE()`));
   } else if (filters.status && filters.status !== "all") clauses.push(eq(hfListings.status, filters.status));
   if (filters.type) clauses.push(eq(hfListings.listingType, filters.type));
+  if (filters.q?.trim()) {
+    const query = `%${filters.q.trim().replace(/[\\%_]/g, "\\$&")}%`;
+    clauses.push(or(like(hfListings.title, query), like(hfListings.productName, query))!);
+  }
   if (filters.product) clauses.push(eq(hfListings.productSlug, filters.product));
   if (filters.city) clauses.push(eq(hfListings.citySlug, filters.city));
   if (filters.district) clauses.push(eq(hfListings.districtSlug, filters.district));
+  if (filters.unit) clauses.push(eq(hfListings.quantityUnit, filters.unit));
+  if (filters.date === "today") clauses.push(gte(hfListings.createdAt, sql`CURRENT_DATE()`));
+  if (filters.date === "7d") clauses.push(gte(hfListings.createdAt, sql`DATE_SUB(CURRENT_TIMESTAMP(3), INTERVAL 7 DAY)`));
+  if (filters.date === "30d") clauses.push(gte(hfListings.createdAt, sql`DATE_SUB(CURRENT_TIMESTAMP(3), INTERVAL 30 DAY)`));
   if (filters.userId) clauses.push(eq(hfListings.userId, filters.userId));
   return clauses.length ? and(...clauses) : undefined;
 }
