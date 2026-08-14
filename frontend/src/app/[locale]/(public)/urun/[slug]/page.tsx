@@ -39,7 +39,7 @@ import PriceTable from "@/components/ui/PriceTable";
 import FreshnessBadge from "@/components/ui/FreshnessBadge";
 import FavoriteButton from "@/components/ui/FavoriteButton";
 import ExportButton from "@/components/ui/ExportButton";
-import { getPageMetadata } from "@/lib/seo";
+import { DATA_LICENSE_URL, getPageMetadata } from "@/lib/seo";
 import { schemaDateRange } from "@/lib/schema-dates";
 import ProductImage from "@/components/ui/ProductImage";
 import { getProductEditorial } from "@/lib/product-content";
@@ -47,6 +47,7 @@ import AnswerBlock from "@/components/seo/AnswerBlock";
 import { calculateWindowTrend } from "@/lib/citability";
 import BannerSlot from "@/components/ads/BannerSlot";
 import { canShowPublicYoy } from "@/lib/yoy-policy";
+import PriceViewTracker from "@/components/analytics/PriceViewTracker";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -434,7 +435,7 @@ export default async function UrunPage({ params }: Props) {
     name: `${displayName} fiyat veri seti`,
     description: `${displayName} için hal, resmi alım ve borsa kaynaklı tarihsel fiyat gözlemleri.`,
     url: `${SITE_URL_META}/urun/${slug}`,
-    license: "https://creativecommons.org/licenses/by/4.0/",
+    license: DATA_LICENSE_URL,
     creator: { "@id": `${SITE_URL_META}/#organization` },
     ...(schemaSources.length > 0 ? { isBasedOn: schemaSources } : {}),
     ...(datasetDates ? {
@@ -462,6 +463,7 @@ export default async function UrunPage({ params }: Props) {
   return (
     <main className="relative z-10 mx-auto max-w-[1400px] px-8 py-12">
       <JsonLd type="Dataset" data={datasetSchema} />
+      <PriceViewTracker productSlug={slug} marketCount={offerCount} sourceCount={sourceNames.length} />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: "Fiyatlar", href: "/fiyatlar" },

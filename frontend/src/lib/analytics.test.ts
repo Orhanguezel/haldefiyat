@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { captureAttribution, getAttribution } from "@/lib/attribution";
-import { type ConversionEventName, trackConversion } from "@/lib/analytics";
+import { type ConversionEventName, trackConversion, trackDiscoveryEvent } from "@/lib/analytics";
 
 function clearCookie(name: string) {
   document.cookie = `${name}=; Path=/; Max-Age=0`;
@@ -145,5 +145,34 @@ describe("attribution and conversion analytics", () => {
         },
       }),
     );
+  });
+
+  it("tracks the search funnel without query text or PII", () => {
+    trackDiscoveryEvent("search_submitted", {
+      query_length: 17,
+      product_results: 3,
+      market_results: 2,
+      result_count: 5,
+      zero_results: false,
+      item_slug: "orhan@example.com",
+    });
+
+    expect(window.gtag).toHaveBeenCalledWith(
+      "event",
+      "search_submitted",
+      expect.objectContaining({
+        event_category: "product_discovery",
+        query_length: 17,
+        product_results: 3,
+        market_results: 2,
+        result_count: 5,
+        zero_results: false,
+      }),
+    );
+    const payload = (window.gtag as ReturnType<typeof vi.fn>).mock.calls[0]?.[2];
+    expect(payload).not.toHaveProperty("query");
+    expect(payload).not.toHaveProperty("email");
+    expect(payload).not.toHaveProperty("phone");
+    expect(payload).not.toHaveProperty("item_slug");
   });
 });

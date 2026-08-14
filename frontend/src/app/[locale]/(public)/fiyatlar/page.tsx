@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import { fetchPrices, fetchPricesPage, fetchMarkets, fetchPricesOverview } from "@/lib/api";
-import { getPageMetadata, ORG_REF } from "@/lib/seo";
+import { DATA_LICENSE_URL, getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceTable from "@/components/ui/PriceTable";
@@ -138,7 +138,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
     description: "Türkiye genelinden sebze, meyve ve bakliyat ürünlerinin günlük hal fiyatları.",
     url: `${SITE_URL}/fiyatlar`,
     creator: ORG_REF,
-    license: "https://creativecommons.org/licenses/by/4.0/",
+    license: DATA_LICENSE_URL,
     ...(datasetDates ? {
       temporalCoverage: datasetDates.temporalCoverage,
       dateModified: datasetDates.latest,
@@ -169,7 +169,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
           : "Türkiye genelindeki hal kaynaklarından toplanan ürünlerin en düşük, ortalama ve en yüksek toptan fiyat verisi.",
         url: `${SITE_URL}/fiyatlar`,
         creator: ORG_REF,
-        license: "https://creativecommons.org/licenses/by/4.0/",
+        license: DATA_LICENSE_URL,
         ...(datasetDates ? {
           temporalCoverage: datasetDates.temporalCoverage,
           dateModified: datasetDates.latest,
@@ -182,7 +182,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
         description: "15 temel tarım ürününden oluşan haftalık sepet endeksi; Türkiye hal fiyatlarının baz haftaya göre bileşik değişimini izleyen fiyat endeksi verisi.",
         url: `${SITE_URL}/endeks`,
         creator: ORG_REF,
-        license: "https://creativecommons.org/licenses/by/4.0/",
+        license: DATA_LICENSE_URL,
         isAccessibleForFree: true,
       },
     ],

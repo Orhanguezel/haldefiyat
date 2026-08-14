@@ -2,13 +2,6 @@ import Link from "next/link";
 import { productHref } from "@/lib/product-links";
 import type { WidgetPrice } from "@/lib/api";
 
-const FALLBACK_PRODUCTS: WidgetPrice[] = [
-  { productSlug: "domates", productName: "Domates", categorySlug: "sebze", avgPrice: 82.5, unit: "kg", changePct: 4.2, yoyChangePct: null },
-  { productSlug: "biber", productName: "Biber", categorySlug: "sebze", avgPrice: 43.6, unit: "kg", changePct: -2.1, yoyChangePct: null },
-  { productSlug: "sogan-kuru", productName: "Soğan Kuru", categorySlug: "sebze", avgPrice: 18.2, unit: "kg", changePct: 1.4, yoyChangePct: null },
-  { productSlug: "patates", productName: "Patates", categorySlug: "sebze", avgPrice: 20.1, unit: "kg", changePct: -1.8, yoyChangePct: null },
-];
-
 function formatPrice(value: number): string {
   return new Intl.NumberFormat("tr-TR", {
     style: "currency",
@@ -18,7 +11,8 @@ function formatPrice(value: number): string {
 }
 
 export default function PopularProductsCarousel({ items }: { items: WidgetPrice[] }) {
-  const products = (items.length ? items : FALLBACK_PRODUCTS).slice(0, 8);
+  const products = items.slice(0, 8);
+  if (products.length === 0) return null;
 
   return (
     <section className="px-4 py-5">

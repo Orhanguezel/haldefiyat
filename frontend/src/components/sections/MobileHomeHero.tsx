@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import type { Market, WidgetPrice } from "@/lib/api";
+import type { Market, PriceRow, WidgetPrice } from "@/lib/api";
 import PopularProductsCarousel from "@/components/sections/PopularProductsCarousel";
 import CityChipsRow from "@/components/sections/CityChipsRow";
 import TopMoversCard from "@/components/sections/TopMoversCard";
 import MobileHomeNewsletterCta from "@/components/sections/MobileHomeNewsletterCta";
 import { localePath } from "@/lib/locale-path";
 import { TURKEY_PROVINCES, TURKEY_VIEWBOX } from "@/lib/turkey-geo";
+import FeaturedHomePrice from "@/components/sections/FeaturedHomePrice";
+import HeroSearchButton from "@/components/sections/HeroSearchButton";
 
 function cityKey(value: string) {
   return value.trim().toLocaleLowerCase("tr-TR").replace(/\s+/g, " ");
@@ -19,6 +21,7 @@ export default async function MobileHomeHero({
   widget,
   activeMarkets,
   freshness,
+  featuredPrice,
 }: {
   locale: string;
   products: number;
@@ -26,6 +29,7 @@ export default async function MobileHomeHero({
   widget: WidgetPrice[];
   activeMarkets?: number;
   freshness?: "fresh" | "stale" | "unknown";
+  featuredPrice?: PriceRow;
 }) {
   const t = await getTranslations({ locale, namespace: "home.hero" });
 
@@ -47,14 +51,13 @@ export default async function MobileHomeHero({
             <Kpi value={activeMarkets || markets.length || "—"} label="Aktif hal" />
             <Kpi value={freshness === "fresh" ? "Güncel" : freshness === "stale" ? "Gecikmeli" : "Bilinmiyor"} label="Veri" />
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <Link href="/fiyatlar" className="inline-flex min-h-11 items-center justify-center rounded-lg bg-(--color-brand) px-4 text-[13px] font-black text-(--color-brand-fg)">
-              Fiyatlara Bak
-            </Link>
+          <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <HeroSearchButton compact />
             <Link href="/uyarilar" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-(--color-border) px-4 text-[13px] font-black text-(--color-foreground)">
               Alarm Kur
             </Link>
           </div>
+          {featuredPrice ? <FeaturedHomePrice row={featuredPrice} freshness={freshness} /> : null}
         </div>
       </section>
 

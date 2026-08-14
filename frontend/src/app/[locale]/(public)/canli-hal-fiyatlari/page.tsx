@@ -3,7 +3,7 @@ import { productHref } from "@/lib/product-links";
 import { setRequestLocale } from "next-intl/server";
 import { Bell, Clock3, MapPin, Newspaper, TrendingDown, TrendingUp } from "lucide-react";
 import { fetchMarkets, fetchPricesOverview, fetchProducts, fetchWidget } from "@/lib/api";
-import { getPageMetadata, ORG_REF } from "@/lib/seo";
+import { DATA_LICENSE_URL, getPageMetadata, ORG_REF } from "@/lib/seo";
 import { schemaDateRange } from "@/lib/schema-dates";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
@@ -79,7 +79,7 @@ export default async function LiveMarketPricesPage({ params }: Props) {
     description: "Türkiye toptancı halleri için günlük sebze ve meyve fiyat verisi.",
     url: `${SITE_URL}/canli-hal-fiyatlari`,
     creator: ORG_REF,
-    license: "https://creativecommons.org/licenses/by/4.0/",
+    license: DATA_LICENSE_URL,
     ...(datasetDates ? {
       temporalCoverage: datasetDates.temporalCoverage,
       dateModified: datasetDates.latest,

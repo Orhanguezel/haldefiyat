@@ -1,7 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { fetchIndexLatest, fetchIndexHistory, type IndexSnapshot } from "@/lib/api";
 import { INDEX_BASKET_LABELS } from "@/lib/index-basket";
-import { getPageMetadata, ORG_REF } from "@/lib/seo";
+import { DATA_LICENSE_URL, getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import { schemaDateRange } from "@/lib/schema-dates";
@@ -69,7 +69,7 @@ export default async function EndeksPage({ params }: Props) {
     description: "15 temel tarım ürününden oluşan haftalık sepet endeksi. Türkiye hal fiyatlarının baz haftaya göre değişimini izler.",
     url: `${SITE_URL}/endeks`,
     creator: ORG_REF,
-    license: "https://creativecommons.org/licenses/by/4.0/",
+    license: DATA_LICENSE_URL,
     ...(datasetDates ? {
       temporalCoverage: datasetDates.temporalCoverage,
       dateModified: datasetDates.latest,

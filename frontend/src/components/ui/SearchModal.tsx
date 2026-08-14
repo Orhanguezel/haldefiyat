@@ -14,6 +14,7 @@ import {
 } from "./search/types";
 import { productHref } from "@/lib/product-links";
 import { useModalA11y } from "@/hooks/useModalA11y";
+import { trackDiscoveryEvent } from "@/lib/analytics";
 
 const API_BASE =
   (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "") +
@@ -34,6 +35,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const lastTrackedQueryRef = useRef("");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SearchResults>({ products: [], markets: [] });
@@ -52,8 +54,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       setQuery("");
       setResults({ products: [], markets: [] });
       setActiveIdx(0);
+      lastTrackedQueryRef.current = "";
       return;
     }
+    trackDiscoveryEvent("search_opened", { trigger: "programmatic" });
     const t = setTimeout(() => inputRef.current?.focus(), 50);
     return () => clearTimeout(t);
   }, [isOpen]);
@@ -83,6 +87,16 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         );
         setResults({ products, markets });
         setActiveIdx(0);
+        if (lastTrackedQueryRef.current !== nq) {
+          lastTrackedQueryRef.current = nq;
+          trackDiscoveryEvent("search_submitted", {
+            query_length: q.length,
+            product_results: products.length,
+            market_results: markets.length,
+            result_count: products.length + markets.length,
+            zero_results: products.length + markets.length === 0,
+          });
+        }
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
           setResults({ products: [], markets: [] });
@@ -102,10 +116,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       const href = row.kind === "product"
         ? productHref({ productSlug: row.item.slug, canonicalSlug: row.item.canonicalSlug })
         : `/hal/${row.item.slug}`;
+      trackDiscoveryEvent("search_result_selected", {
+        result_type: row.kind,
+        result_position: Math.max(1, flat.indexOf(row) + 1),
+        item_slug: row.item.slug,
+      });
       onClose();
       router.push(href);
     },
-    [router, onClose],
+    [flat, router, onClose],
   );
 
   useEffect(() => {

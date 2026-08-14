@@ -19,6 +19,8 @@ const SITE_SETTINGS_BRAND = (process.env.NEXT_PUBLIC_SITE_BRAND || "hal-fiyatlar
  */
 export const ORG_ID = `${SITE_URL}/#organization`;
 export const ORG_REF = { "@id": ORG_ID } as const;
+/** Üçüncü taraf kaynak kayıtlarının yeniden kullanım şartları tek lisans politikasında açıklanır. */
+export const DATA_LICENSE_URL = `${SITE_URL}/api-policy`;
 
 export interface PageSeoData {
   pageKey: string;

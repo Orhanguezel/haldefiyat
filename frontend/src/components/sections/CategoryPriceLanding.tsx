@@ -5,7 +5,7 @@ import PriceTable from "@/components/ui/PriceTable";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import ProductImage from "@/components/ui/ProductImage";
-import { ORG_REF } from "@/lib/seo";
+import { DATA_LICENSE_URL, ORG_REF } from "@/lib/seo";
 import { schemaDateRange } from "@/lib/schema-dates";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
@@ -58,7 +58,7 @@ export default async function CategoryPriceLanding({
     description,
     url: `${SITE_URL}/${slug}`,
     creator: ORG_REF,
-    license: "https://creativecommons.org/licenses/by/4.0/",
+    license: DATA_LICENSE_URL,
     ...(datasetDates ? {
       temporalCoverage: datasetDates.temporalCoverage,
       dateModified: datasetDates.latest,

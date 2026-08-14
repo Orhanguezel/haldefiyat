@@ -2,8 +2,8 @@ export const dynamic = "force-dynamic";
 
 import { headers } from "next/headers";
 import { setRequestLocale } from "next-intl/server";
-import { getPageMetadata, ORG_REF } from "@/lib/seo";
-import { fetchListings, fetchMarkets, fetchPricesOverview, fetchProducts, fetchWidget } from "@/lib/api";
+import { DATA_LICENSE_URL, getPageMetadata, ORG_REF } from "@/lib/seo";
+import { fetchListings, fetchMarkets, fetchPrices, fetchPricesOverview, fetchProducts, fetchWidget } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
 import HeroSection from "@/components/sections/HeroSection";
 import PriceDashboard from "@/components/sections/PriceDashboard";
@@ -45,7 +45,7 @@ const datasetSchemaBase = {
     "Türkiye genelindeki hal ve pazar fiyat verileri. Günlük güncellenir.",
   url: SITE_URL,
   creator: ORG_REF,
-  license: "https://creativecommons.org/licenses/by/4.0/",
+  license: DATA_LICENSE_URL,
   spatialCoverage: { "@type": "Place", name: "Türkiye" },
   variableMeasured: ["MinFiyat", "MaxFiyat", "OrtalamaFiyat"],
   isAccessibleForFree: true,
@@ -80,13 +80,14 @@ export default async function HomePage({ params }: Props) {
   const ua = (await headers()).get("user-agent") ?? "";
   const isMobile = /Android|iPhone|iPod|Mobi|IEMobile|Opera Mini|BlackBerry/i.test(ua);
 
-  const [widget, markets, products, listings, overview, siteSettings] = await Promise.all([
+  const [widget, markets, products, listings, overview, siteSettings, featuredPrices] = await Promise.all([
     fetchWidget({ limit: 30 }),
     fetchMarkets(),
     fetchProducts(undefined, undefined, { seoIndex: true }),
     fetchListings({ limit: 3 }),
     fetchPricesOverview(),
     fetchSiteSettings(locale),
+    fetchPrices({ range: "1d", limit: 1 }),
   ]);
   const cityCount = overview.activeCities || new Set(
     markets
@@ -133,7 +134,7 @@ export default async function HomePage({ params }: Props) {
     return (
       <>
         <JsonLd type="Dataset" data={datasetSchema} />
-        <MobileHomeHero locale={locale} products={overview.trackedProducts || products.length} markets={markets} widget={widget} activeMarkets={overview.activeMarkets} freshness={overview.freshness} />
+        <MobileHomeHero locale={locale} products={overview.trackedProducts || products.length} markets={markets} widget={widget} activeMarkets={overview.activeMarkets} freshness={overview.freshness} featuredPrice={featuredPrices[0]} />
         {/* Ana görevden sonra yalnız güncel içerik ve güven/SSS kalır. */}
         <LatestReports limit={6} />
         <HomeFaq
@@ -149,7 +150,7 @@ export default async function HomePage({ params }: Props) {
   return (
     <>
       <JsonLd type="Dataset" data={datasetSchema} />
-      <HeroSection activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} freshness={overview.freshness} />
+      <HeroSection activeCities={overview.activeCities} targetCoverage={overview.targetCoverage} freshness={overview.freshness} featuredPrice={featuredPrices[0]} />
       <PriceDashboard />
       {/* "Bugünkü Hal Fiyatları" bölümünün hemen altındaki reklam */}
       <BannerSlot position="home_mid" />

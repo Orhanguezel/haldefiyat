@@ -1,4 +1,7 @@
 import Link from "next/link";
+import type { PriceRow } from "@/lib/api";
+import FeaturedHomePrice from "./FeaturedHomePrice";
+import HeroSearchButton from "./HeroSearchButton";
 
 /**
  * Hero içeriği — SAF server component (framer-motion yok).
@@ -16,12 +19,14 @@ export default function HeroSectionClient({
   freshness = "unknown",
   title,
   subtitle,
+  featuredPrice,
 }: {
   activeCities?: number;
   targetCoverage?: string;
   freshness?: "fresh" | "stale" | "unknown";
   title: string;
   subtitle: string;
+  featuredPrice?: PriceRow;
 }) {
   const coverageLabel = activeCities && activeCities > 0
     ? `${activeCities.toLocaleString("tr-TR")} Aktif İl`
@@ -51,12 +56,7 @@ export default function HeroSectionClient({
       </p>
 
       <div className="mx-auto mt-8 grid max-w-[720px] gap-3 rounded-2xl border border-(--color-border) bg-(--color-surface) p-3 shadow-(--shadow-card) sm:grid-cols-[1fr_auto]">
-        <Link
-          href="/fiyatlar"
-          className="inline-flex min-h-12 items-center justify-start rounded-xl border border-(--color-border) bg-(--color-background) px-5 font-semibold text-(--color-muted) transition-colors hover:border-(--color-brand) hover:text-(--color-foreground)"
-        >
-          Ürün veya hal ara
-        </Link>
+        <HeroSearchButton />
         <Link
           href="/fiyatlar"
           className="inline-flex min-h-12 items-center justify-center rounded-xl bg-(--color-brand) px-7 font-(family-name:--font-display) text-[15px] font-bold text-(--color-brand-fg) transition-colors hover:bg-(--color-brand-dark)"
@@ -64,6 +64,8 @@ export default function HeroSectionClient({
           Fiyatları incele
         </Link>
       </div>
+
+      {featuredPrice ? <FeaturedHomePrice row={featuredPrice} freshness={freshness} /> : null}
 
       <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap sm:gap-8">
         {features.map((label) => (

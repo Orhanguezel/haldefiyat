@@ -4,6 +4,7 @@ import nextTs from "eslint-config-next/typescript";
 const ignoredPaths = [
   ".next/**",
   ".next-release-*/**",
+  ".next-source-*/**",
   "next-env.d.ts",
   "node_modules/**",
   "standalone-server.js",

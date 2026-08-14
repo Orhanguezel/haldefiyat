@@ -23,6 +23,27 @@ type ConversionOptions = {
   email?: string | null;
 };
 
+export type DiscoveryEventName =
+  | "search_opened"
+  | "search_submitted"
+  | "search_result_selected"
+  | "price_viewed";
+
+export type DiscoveryEventParams = {
+  trigger?: "hero" | "header" | "keyboard" | "programmatic";
+  query_length?: number;
+  product_results?: number;
+  market_results?: number;
+  result_count?: number;
+  zero_results?: boolean;
+  result_type?: "product" | "market";
+  result_position?: number;
+  item_slug?: string;
+  product_slug?: string;
+  market_count?: number;
+  source_count?: number;
+};
+
 declare global {
   interface Window {
     dataLayer?: unknown[];
@@ -45,6 +66,59 @@ const EVENT_VALUE: Record<ConversionEventName, number> = {
   call_request_completed: 90,
   whatsapp_channel_follow: 30,
 };
+
+const DISCOVERY_KEYS = new Set<keyof DiscoveryEventParams>([
+  "trigger",
+  "query_length",
+  "product_results",
+  "market_results",
+  "result_count",
+  "zero_results",
+  "result_type",
+  "result_position",
+  "item_slug",
+  "product_slug",
+  "market_count",
+  "source_count",
+]);
+
+const PII_VALUE_PATTERN = /(?:@|\b(?:\+?90)?5\d{9}\b)/u;
+
+export function trackDiscoveryEvent(
+  eventName: DiscoveryEventName,
+  params: DiscoveryEventParams = {},
+): void {
+  if (typeof window === "undefined" || typeof window.gtag !== "function") return;
+
+  const safeParams: Record<string, string | number | boolean> = {
+    event_category: "product_discovery",
+  };
+  for (const [rawKey, rawValue] of Object.entries(params)) {
+    const key = rawKey as keyof DiscoveryEventParams;
+    if (!DISCOVERY_KEYS.has(key) || rawValue == null) continue;
+    if (typeof rawValue === "string") {
+      const value = rawValue.trim().slice(0, 100);
+      if (!value || PII_VALUE_PATTERN.test(value)) continue;
+      safeParams[key] = value;
+    } else if (typeof rawValue === "number" && Number.isFinite(rawValue)) {
+      safeParams[key] = rawValue;
+    } else if (typeof rawValue === "boolean") {
+      safeParams[key] = rawValue;
+    }
+  }
+
+  const attribution = getAttribution();
+  window.gtag("event", eventName, {
+    ...safeParams,
+    ...(attribution ? {
+      gclid: attribution.gclid,
+      utm_source: attribution.utm_source,
+      utm_medium: attribution.utm_medium,
+      utm_campaign: attribution.utm_campaign,
+      first_path: attribution.first_path,
+    } : {}),
+  });
+}
 
 function eventCategory(eventName: ConversionEventName): "conversion" | "engagement" {
   return ["urun_favorited", "call_request_view", "call_request_declined", "call_request_cancelled"].includes(eventName)

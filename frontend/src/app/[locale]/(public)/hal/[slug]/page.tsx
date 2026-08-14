@@ -11,7 +11,7 @@ import PriceTable from "@/components/ui/PriceTable";
 import FreshnessBadge from "@/components/ui/FreshnessBadge";
 import WeatherWidget from "@/components/sections/WeatherWidget";
 import { cityToWeatherSlug } from "@/lib/weather";
-import { getPageMetadata } from "@/lib/seo";
+import { DATA_LICENSE_URL, getPageMetadata } from "@/lib/seo";
 import { schemaDateRange } from "@/lib/schema-dates";
 import { getMarketEditorial } from "@/lib/market-content";
 import FirmCard from "@/components/firms/FirmCard";
@@ -188,7 +188,7 @@ export default async function HalPage({ params }: Props) {
     name: `${market.name} fiyat veri seti`,
     description: `${market.name} için ürün bazlı min, ortalama ve maksimum toptancı hal fiyatları.`,
     url: `${SITE_URL}/hal/${slug}`,
-    license: "https://creativecommons.org/licenses/by/4.0/",
+    license: DATA_LICENSE_URL,
     creator: { "@id": `${SITE_URL}/#organization` },
     ...(datasetDates ? {
       temporalCoverage: datasetDates.temporalCoverage,
