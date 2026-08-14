@@ -97,6 +97,7 @@ CREATE TABLE IF NOT EXISTS hf_listing_inquiries (
 -- Şu an projede OTP altyapısı yok; mobil-öncelikli "çok kişi girsin" hedefi için eklenir.
 CREATE TABLE IF NOT EXISTS hf_phone_verifications (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id CHAR(36) NULL,
   phone VARCHAR(32) NOT NULL,
   code VARCHAR(8) NOT NULL,
   purpose ENUM('listing','signup','claim') NOT NULL DEFAULT 'listing',
@@ -104,5 +105,6 @@ CREATE TABLE IF NOT EXISTS hf_phone_verifications (
   verified_at DATETIME(3) NULL,
   expires_at DATETIME(3) NOT NULL,
   created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
-  KEY hf_phone_verifications_phone_idx (phone, purpose, expires_at)
+  KEY hf_phone_verifications_phone_idx (phone, purpose, expires_at),
+  KEY hf_phone_verifications_user_idx (user_id, purpose, expires_at)
 );

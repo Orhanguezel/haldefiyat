@@ -1,12 +1,12 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { handleRouteError, sendNotFound } from "@agro/shared-backend/modules/_shared";
+import { getAuthUserId, handleRouteError, sendNotFound } from "@agro/shared-backend/modules/_shared";
 import { getListingBoard } from "./board";
 import { sendOtp, verifyOtp } from "./otp";
 
 export async function sendListingOtp(req: FastifyRequest, reply: FastifyReply) {
   try {
     const phone = (req.body as { phone?: string } | undefined)?.phone ?? "";
-    const result = await sendOtp(phone);
+    const result = await sendOtp(phone, getAuthUserId(req));
     if (!result.ok) return reply.code(result.code).send({ error: result.error });
     return reply.send({ ok: true });
   } catch (err) {
@@ -17,7 +17,7 @@ export async function sendListingOtp(req: FastifyRequest, reply: FastifyReply) {
 export async function verifyListingOtp(req: FastifyRequest, reply: FastifyReply) {
   try {
     const body = (req.body ?? {}) as { phone?: string; code?: string };
-    const result = await verifyOtp(body.phone ?? "", body.code ?? "");
+    const result = await verifyOtp(body.phone ?? "", body.code ?? "", getAuthUserId(req));
     if (!result.ok) return reply.code(result.code).send({ error: result.error });
     return reply.send({ token: result.token, phone: result.phone });
   } catch (err) {

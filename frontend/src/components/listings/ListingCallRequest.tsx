@@ -24,6 +24,7 @@ const STATUS_MESSAGES: Record<string, string> = {
   own_listing: "Kendi ilanınız için arama talebi oluşturamazsınız.",
   call_requests_disabled: "Satıcı bu ilan için arama talebi kabul etmiyor.",
   slot_unavailable: "Seçtiğiniz zaman artık uygun değil. Lütfen başka bir zaman seçin.",
+  account_verification_required: "Arama talebi için doğrulanmış bir hesap gerekiyor.",
 };
 
 export function ListingCallRequest({
@@ -46,6 +47,7 @@ export function ListingCallRequest({
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [contactSummary, setContactSummary] = useState<ContactSummary | null>(null);
+  const [contactSummaryLoaded, setContactSummaryLoaded] = useState(false);
 
   useEffect(() => {
     trackConversion("call_request_view", { listing_id: listingId });
@@ -62,7 +64,8 @@ export function ListingCallRequest({
     let cancelled = false;
     apiGet<ContactSummary>("/listings/call-requests/contact-summary")
       .then((summary) => { if (!cancelled) setContactSummary(summary); })
-      .catch(() => { if (!cancelled) setContactSummary(null); });
+      .catch(() => { if (!cancelled) setContactSummary(null); })
+      .finally(() => { if (!cancelled) setContactSummaryLoaded(true); });
     return () => { cancelled = true; };
   }, [user]);
 
@@ -114,6 +117,40 @@ export function ListingCallRequest({
         <p className="mt-2 text-sm leading-6 text-(--color-muted)">
           Satıcı uygun olduğunda geri dönüş yapabilir. Tarafların telefon numaraları bu sayfada açık paylaşılmaz.
         </p>
+      </section>
+    );
+  }
+
+  if (!contactSummaryLoaded) {
+    return (
+      <section id="call-request" className="scroll-mt-24 rounded-[10px] border border-(--color-border) bg-(--color-bg-alt) p-4" aria-busy="true">
+        <h2 className="font-semibold text-(--color-foreground)">Hesap doğrulanıyor</h2>
+        <p className="mt-2 text-sm text-(--color-muted)">Güvenli arama talebi bilgileri hazırlanıyor…</p>
+      </section>
+    );
+  }
+
+  if (!contactSummary) {
+    return (
+      <section id="call-request" className="scroll-mt-24 rounded-[10px] border border-(--color-danger)/25 bg-(--color-danger)/5 p-4" role="alert">
+        <h2 className="font-semibold text-(--color-foreground)">Hesap doğrulanamadı</h2>
+        <p className="mt-2 text-sm text-(--color-muted)">Lütfen yeniden giriş yapıp arama talebini tekrar deneyin.</p>
+        <Link href="/giris" className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-(--color-brand) px-5 text-sm font-semibold text-white">Yeniden giriş yap</Link>
+      </section>
+    );
+  }
+
+  if (contactSummary && !contactSummary.accountVerified) {
+    return (
+      <section id="call-request" className="scroll-mt-24 rounded-[10px] border border-(--color-brand)/25 bg-(--color-brand)/8 p-4" aria-labelledby="call-request-title">
+        <h2 id="call-request-title" className="font-semibold text-(--color-foreground)">Hesabınızı doğrulayın</h2>
+        <p className="mt-2 text-sm leading-6 text-(--color-muted)">
+          Satıcıya güvenli arama talebi göndermek için doğrulanmış bir hesap gerekir. SMS doğrulaması
+          şu anda kapalıdır; doğrulanmış Google hesabınızla yeniden giriş yapabilirsiniz.
+        </p>
+        <Link href="/giris" className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-(--color-brand) px-5 text-sm font-semibold text-white hover:bg-(--color-brand-dark)">
+          Güvenli girişe git
+        </Link>
       </section>
     );
   }

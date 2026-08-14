@@ -113,6 +113,7 @@ export const hfListingImages = mysqlTable("hf_listing_images", {
 
 export const hfPhoneVerifications = mysqlTable("hf_phone_verifications", {
   id: int("id").autoincrement().primaryKey(),
+  userId: char("user_id", { length: 36 }),
   phone: varchar("phone", { length: 32 }).notNull(),
   code: varchar("code", { length: 8 }).notNull(),
   purpose: mysqlEnum("purpose", ["listing", "signup", "claim"]).notNull().default("listing"),
@@ -122,4 +123,5 @@ export const hfPhoneVerifications = mysqlTable("hf_phone_verifications", {
   createdAt: datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
 }, (t) => [
   index("hf_phone_verifications_phone_idx").on(t.phone, t.purpose, t.expiresAt),
+  index("hf_phone_verifications_user_idx").on(t.userId, t.purpose, t.expiresAt),
 ]);

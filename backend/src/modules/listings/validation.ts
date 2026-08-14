@@ -107,6 +107,7 @@ export const callRequestSchema = z.object({
   preferredSlot: z.enum(["asap", "morning", "afternoon", "evening"]).default("asap"),
   note: z.string().trim().max(500).optional().nullable(),
   privacyAccepted: z.literal(true),
+  otpToken: z.string().trim().min(16).max(2048).optional(),
 });
 
 export const callRequestStatusSchema = z.object({

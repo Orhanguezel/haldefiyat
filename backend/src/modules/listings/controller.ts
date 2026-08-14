@@ -40,6 +40,7 @@ import { notifyMatches, notifyAdminNewListing } from "./matching";
 import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
 import { env } from "@/core/env";
 import { parseCallAvailability, redactContactText, toPublicListing } from "./public";
+import { hasVerifiedCallRequestIdentity } from "./call-request-auth";
 
 function idParam(req: FastifyRequest<{ Params: { id: string } }>) {
   const id = Number(req.params.id);
@@ -102,6 +103,12 @@ export async function createPublicCallRequest(req: FastifyRequest<{ Params: { id
       return reply.code(400).send({ error: { message: "own_listing" } });
     }
     const parsed = callRequestSchema.parse(req.body ?? {});
+    const contactSummary = await getCallRequestContactSummary(buyerUserId);
+    const otpIdentity = verifyOtpToken(parsed.otpToken);
+    const otpPhone = otpIdentity?.userId === buyerUserId ? otpIdentity.phone : null;
+    if (!hasVerifiedCallRequestIdentity({ accountVerified: contactSummary.accountVerified, otpPhone })) {
+      return reply.code(403).send({ error: { message: "account_verification_required" } });
+    }
     if (!parseCallAvailability(listing.callAvailability).includes(parsed.preferredSlot)) {
       return reply.code(409).send({ error: { message: "slot_unavailable" } });
     }
@@ -189,7 +196,8 @@ export async function createOwnerListing(req: FastifyRequest, reply: FastifyRepl
   try {
     const userId = getAuthUserId(req);
     const parsed = listingCreateSchema.parse(req.body ?? {});
-    const otpPhone = verifyOtpToken((req.body as { otpToken?: string } | undefined)?.otpToken);
+    const otpIdentity = verifyOtpToken((req.body as { otpToken?: string } | undefined)?.otpToken);
+    const otpPhone = otpIdentity?.userId === userId ? otpIdentity.phone : null;
     // Telefon OTP zorunlulugu config'den (varsayilan kapali). Acilirsa dogrulanmamis telefon reddedilir.
     if (env.LISTING_REQUIRE_PHONE_OTP && !otpPhone) {
       return reply.status(400).send({ error: { message: "Telefon doğrulaması gerekli. Lütfen SMS kodunu doğrulayın." } });

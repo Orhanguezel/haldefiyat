@@ -29,8 +29,14 @@ import { getFeaturedPricing, updateFeaturedPricing } from "./pricing";
 export async function registerListingsPublic(app: FastifyInstance) {
   app.get("/listings", listPublicListings);
   app.get("/listings/board", listingBoard);
-  app.post("/listings/otp/send", sendListingOtp);
-  app.post("/listings/otp/verify", verifyListingOtp);
+  app.post("/listings/otp/send", {
+    onRequest: [requireAuth],
+    config: { rateLimit: { max: 10, timeWindow: "1 hour" } },
+  }, sendListingOtp);
+  app.post("/listings/otp/verify", {
+    onRequest: [requireAuth],
+    config: { rateLimit: { max: 20, timeWindow: "1 hour" } },
+  }, verifyListingOtp);
   app.get("/listings/me", { onRequest: [requireAuth] }, listMyListings);
   app.get("/listings/call-requests/me", { onRequest: [requireAuth] }, listMyCallRequests);
   app.get("/listings/call-requests/contact-summary", { onRequest: [requireAuth] }, getMyCallRequestContactSummary);
