@@ -371,12 +371,12 @@
 
 ### 6.8 Firma rehberi ve firma detayları
 
-- [ ] P4.72 `/firmalar`, kategori/şehir hub’ları ve `/firma/[slug]` tasarımını ilanlarla tutarlı yap.
-- [ ] P4.73 Firma kartlarında doğrulama, kategori, konum ve aksiyonları sadeleştir.
-- [ ] P4.74 Firma telefon politikasını ilan telefon politikasından ayrı ve hukuken açık tanımla.
-- [ ] P4.75 Firma iletişim CTA’larında tracking ve gizlilik metnini güncelle.
-- [ ] P4.76 Claim/lead/ekle formlarını ortak form tasarım sistemine geçir.
-- [ ] P4.77 Kopya `/firma` ve `/firmalar` rota rollerini SEO açısından netleştir.
+- [x] P4.72 `/firmalar`, şehir/tür hub'ları ve `/firma/[slug]` ortak kart, responsive boşluk ve Temiz Veri yüzey diliyle ilan deneyimine hizalandı; 390/1280 px canlı kabul geçti. Kanıt: `artifacts/renewal-2026/firma-rehberi-kabul-2026-08-14.md`.
+- [x] P4.73 Firma kartları tür, Türkçe konum, sınırlı doğrulama anlamı ve tek `Firmayı incele` aksiyonuna indirildi; telefon karttan çıkarıldı, sponsorlu/doğrulanmış durumları ayrıldı.
+- [x] P4.74 Public ticari firma hattının ilan sahibinin özel telefonundan farkı, kaynak/yayın niteliği, garanti sınırı ve düzeltme kanalı `Firma iletişim bilgisi politikası` bloğunda hukuken açıklandı.
+- [x] P4.75 Telefon, WhatsApp, harita ve form dönüşümleri mevcut ölçüm hattında; lead formu açık gizlilik onayı, kanal tercihi, geri dönüş garantisi vermeyen metin ve saatlik API sınırıyla güncellendi.
+- [x] P4.76 Sahiplenme, lead ve firma ekleme akışları ortak `FirmFormHeader` ile `Input/TextArea/Button` parçalarına geçti; yetki/gizlilik ve ticari telefon yayın onayları API sınırında da zorunlu.
+- [x] P4.77 `/firma` canlıda kalıcı 308 ile `/firmalar`a yönleniyor; çoğul dizin/hub ve tekil `/firma/[slug]` profil rolleri ayrı canonical'larla doğrulandı.
 
 ### 6.9 API Pro, abonelik, reklam — `konsept 07`
 
