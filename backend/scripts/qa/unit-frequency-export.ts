@@ -6,35 +6,34 @@ type FrequencyRow = {
   rawUnit: string;
   productUnit: string;
   rowCount: number | string;
-  productCount: number | string;
-  firstDate: string | Date;
-  lastDate: string | Date;
 };
 
-const [rawRows] = await pool.query(`
-  SELECT
-    ph.source_api AS sourceApi,
-    ph.unit AS rawUnit,
-    p.unit AS productUnit,
-    COUNT(*) AS rowCount,
-    COUNT(DISTINCT ph.product_id) AS productCount,
-    MIN(ph.recorded_date) AS firstDate,
-    MAX(ph.recorded_date) AS lastDate
-  FROM hf_price_history ph
-  INNER JOIN hf_products p ON p.id = ph.product_id
-  GROUP BY ph.source_api, ph.unit, p.unit
-  ORDER BY COUNT(*) DESC
-`);
+// Source-by-source aggregation deliberately uses the source index. A single
+// global GROUP BY on the million-row history can create a very large MySQL
+// temporary file on small production hosts.
+const [sourceRows] = await pool.query("SELECT DISTINCT source_api AS sourceApi FROM hf_price_history ORDER BY source_api");
+const rawRows: FrequencyRow[] = [];
+for (const source of sourceRows as Array<{ sourceApi: string }>) {
+  const [rows] = await pool.query(`
+    SELECT
+      ph.source_api AS sourceApi,
+      ph.unit AS rawUnit,
+      p.unit AS productUnit,
+      COUNT(*) AS rowCount
+    FROM hf_price_history ph FORCE INDEX (hf_ph_source_api)
+    INNER JOIN hf_products p ON p.id = ph.product_id
+    WHERE ph.source_api = ?
+    GROUP BY ph.unit, p.unit
+  `, [source.sourceApi]);
+  rawRows.push(...rows as FrequencyRow[]);
+}
 
-const rows = (rawRows as FrequencyRow[]).map((row) => {
+const rows = rawRows.map((row) => {
   const observed = canonicalUnit(row.rawUnit) ?? row.rawUnit.trim().toLocaleLowerCase("tr");
   const expected = canonicalUnit(row.productUnit) ?? row.productUnit.trim().toLocaleLowerCase("tr");
   return {
     ...row,
     rowCount: Number(row.rowCount),
-    productCount: Number(row.productCount),
-    firstDate: row.firstDate instanceof Date ? row.firstDate.toISOString().slice(0, 10) : String(row.firstDate).slice(0, 10),
-    lastDate: row.lastDate instanceof Date ? row.lastDate.toISOString().slice(0, 10) : String(row.lastDate).slice(0, 10),
     normalizedObservedUnit: observed,
     normalizedProductUnit: expected,
     publicEligible: observed === expected,
