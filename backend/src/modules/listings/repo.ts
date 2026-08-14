@@ -335,6 +335,15 @@ export async function getCallRequestContactSummary(userId: string) {
   };
 }
 
+export async function getVerifiedSellerEmail(userId?: string | null): Promise<string | null> {
+  if (!userId) return null;
+  const [row] = await db.select({ email: users.email })
+    .from(users)
+    .where(and(eq(users.id, userId), eq(users.email_verified, 1), eq(users.is_active, 1)))
+    .limit(1);
+  return row?.email?.trim() || null;
+}
+
 export async function markCallRequestNotified(id: number) {
   await db.update(hfListingCallRequests)
     .set({ status: "notified", notifiedAt: new Date() })

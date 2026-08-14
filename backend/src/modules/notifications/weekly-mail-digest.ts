@@ -27,6 +27,7 @@ import { weeklyBasket, type BasketRow } from "@/modules/prices/basket";
 import { seasonalProducts, type SeasonalRow } from "@/modules/prices/seasonal";
 import { unsubUrl, unsubHeaders } from "@/modules/newsletter/token";
 import { getSend, markSent, recordSend } from "./newsletter-archive";
+import { suppressedEmailSet } from "@/modules/newsletter/suppression";
 
 // Newsletter aboneleri tablosu (shared-backend schemasi yerine local proxy)
 const newsletterSubscribers = mysqlTable("newsletter_subscribers", {
@@ -134,9 +135,29 @@ function buildSubject(basket: BasketRow[]): string {
     : "Hal fiyatlari haftalik ozet";
 }
 
+export function validateBasketPercentages(rows: BasketRow[]): string[] {
+  const issues: string[] = [];
+  for (const row of rows) {
+    if (row.weeklyPct == null) continue;
+    if (row.weekCurrent == null || row.prevPrice == null || row.prevPrice <= 0 || !row.weeklyPairs) {
+      issues.push(`${row.productSlug}:missing_matched_basket`);
+      continue;
+    }
+    const expected = ((row.weekCurrent - row.prevPrice) / row.prevPrice) * 100;
+    if (!Number.isFinite(expected) || Math.abs(expected - row.weeklyPct) > 0.15) {
+      issues.push(`${row.productSlug}:percentage_mismatch`);
+    }
+  }
+  return issues;
+}
+
 async function buildHtml(): Promise<{ html: string; subject: string; movers: number } | null> {
   const [basket, seasonal] = await Promise.all([weeklyBasket(), seasonalProducts(8)]);
   if (basket.length === 0) return null;
+  const percentageIssues = validateBasketPercentages(basket);
+  if (percentageIssues.length) {
+    throw new Error(`newsletter_percentage_validation_failed:${percentageIssues.join(",")}`);
+  }
 
   const subject = buildSubject(basket);
 
@@ -237,24 +258,26 @@ export async function createWeeklyDraft(): Promise<{ ok: boolean; id?: string; s
 async function deliver(subject: string, html: string): Promise<{ recipients: number; successes: number; failures: number } | { reason: string }> {
   // Single opt-in: explicit form girişi = açık rıza. is_verified şartı yok,
   // sadece unsubscribe etmemiş aboneler. (Bkz. newsletter-activation.md)
-  const subs = await db
+  const [subs, suppressed] = await Promise.all([db
     .select({ email: newsletterSubscribers.email })
     .from(newsletterSubscribers)
-    .where(isNull(newsletterSubscribers.unsubscribedAt));
+    .where(isNull(newsletterSubscribers.unsubscribedAt)), suppressedEmailSet()]);
 
-  if (subs.length === 0) return { reason: "no-active-subscribers" };
+  const eligible = subs.filter((subscriber) => !suppressed.has(subscriber.email.toLocaleLowerCase("tr")));
+
+  if (eligible.length === 0) return { reason: "no-active-subscribers" };
 
   let successes = 0;
   let failures = 0;
-  for (let i = 0; i < subs.length; i += SEND_CONCURRENCY) {
-    const batch = subs.slice(i, i + SEND_CONCURRENCY);
+  for (let i = 0; i < eligible.length; i += SEND_CONCURRENCY) {
+    const batch = eligible.slice(i, i + SEND_CONCURRENCY);
     const results = await Promise.all(batch.map((s) => sendToOne(s.email, subject, html)));
     for (const ok of results) {
       if (ok) successes++;
       else failures++;
     }
   }
-  return { recipients: subs.length, successes, failures };
+  return { recipients: eligible.length, successes, failures };
 }
 
 /** Arsivdeki bir taslagi — panelde incelenmis/duzenlenmis haliyle — gonderir. */

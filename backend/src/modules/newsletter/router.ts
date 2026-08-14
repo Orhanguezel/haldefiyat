@@ -10,6 +10,14 @@ import { telegramNotify } from "@agro/shared-backend/modules/telegram/helpers/te
 import { decodeEmail, verifyUnsubToken, unsubHeaders } from "./token";
 import { buildWelcomeEmail } from "./welcome-email";
 import { isValidEmail, normalizeEmail } from "@agro/shared-backend/core/email-validate";
+import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
+import {
+  isEmailSuppressed,
+  isSuppressionReason,
+  listSuppressions,
+  removeSuppression,
+  suppressEmail,
+} from "./suppression";
 
 // Ortak `newsletter_subscribers` tablosu icin local proxy (digest ile ayni tablo).
 const subscribers = mysqlTable("newsletter_subscribers", {
@@ -30,6 +38,9 @@ async function subscribe(req: FastifyRequest, reply: FastifyReply) {
   const clean = normalizeEmail(email);
   if (!isValidEmail(clean)) {
     return reply.code(422).send({ error: { message: "invalid_email" } });
+  }
+  if (await isEmailSuppressed(clean)) {
+    return reply.code(409).send({ error: { message: "email_suppressed" } });
   }
 
   const meta = JSON.stringify({ source: source || "hal-local", optin: "single" });
@@ -136,5 +147,37 @@ export async function registerHalNewsletterAdmin(app: FastifyInstance) {
         })),
       },
     });
+  });
+
+  app.get("/newsletter/suppressions", async (req, reply) => {
+    const limit = Number((req.query as { limit?: string } | undefined)?.limit ?? 200);
+    return reply.send({ items: await listSuppressions(limit) });
+  });
+
+  app.post("/newsletter/suppressions", async (req, reply) => {
+    const body = (req.body ?? {}) as {
+      email?: string;
+      reason?: string;
+      provider?: string;
+      providerEventId?: string;
+      detail?: string;
+    };
+    if (!isValidEmail(normalizeEmail(body.email)) || !isSuppressionReason(body.reason)) {
+      return reply.code(422).send({ error: { message: "invalid_suppression" } });
+    }
+    const item = await suppressEmail({
+      email: body.email!,
+      reason: body.reason,
+      provider: body.provider,
+      providerEventId: body.providerEventId,
+      detail: body.detail,
+      createdBy: getAuthUserId(req),
+    });
+    return reply.code(201).send({ item });
+  });
+
+  app.delete<{ Params: { email: string } }>("/newsletter/suppressions/:email", async (req, reply) => {
+    const removed = await removeSuppression(decodeURIComponent(req.params.email));
+    return reply.send({ removed });
   });
 }

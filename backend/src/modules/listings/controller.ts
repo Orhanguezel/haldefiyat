@@ -12,6 +12,7 @@ import {
   getListingById,
   getListingBySlug,
   getCallRequestContactSummary,
+  getVerifiedSellerEmail,
   incrementListingView,
   listingSummary,
   listInquiries,
@@ -48,6 +49,7 @@ import {
   createCallRequestChallenge,
   verifyCallRequestChallenge,
 } from "./call-request-risk";
+import { sendSellerCallRequestEmail } from "./call-request-email";
 
 function idParam(req: FastifyRequest<{ Params: { id: string } }>) {
   const id = Number(req.params.id);
@@ -169,6 +171,21 @@ export async function createPublicCallRequest(req: FastifyRequest<{ Params: { id
       ].filter(Boolean).join("\n");
       const notified = await telegramSendRaw({ chatId: env.TELEGRAM_ADMIN_CHAT_ID, text }).then(() => true).catch(() => false);
       if (notified) {
+        await markCallRequestNotified(result.id);
+        deliveryStatus = "notified";
+      }
+    }
+    const sellerEmail = await getVerifiedSellerEmail(listing.userId);
+    if (sellerEmail) {
+      const emailed = await sendSellerCallRequestEmail({
+        to: sellerEmail,
+        listingTitle: listing.title,
+        listingSlug: listing.slug,
+        preferredSlot: parsed.preferredSlot,
+        note: safeNote,
+        requestId: result.id,
+      });
+      if (emailed && deliveryStatus !== "notified") {
         await markCallRequestNotified(result.id);
         deliveryStatus = "notified";
       }
