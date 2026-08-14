@@ -81,7 +81,7 @@ export function ListingCallRequest({
     setLoading(true);
     setError("");
     try {
-      await apiPost(`/listings/${listingId}/call-requests`, {
+      const response = await apiPost<{ status: "pending" | "notified" }>(`/listings/${listingId}/call-requests`, {
         preferredSlot,
         note,
         privacyAccepted: true,
@@ -91,6 +91,9 @@ export function ListingCallRequest({
         riskChallengeAnswer: riskChallenge ? riskAnswer : undefined,
       });
       trackConversion("call_request_submit", { listing_id: listingId, preferred_slot: preferredSlot });
+      if (response.status === "notified") {
+        trackConversion("call_request_notified", { listing_id: listingId });
+      }
       setSuccess(true);
     } catch (caught) {
       const code = caught instanceof ApiError ? caught.code : "request_failed";

@@ -19,6 +19,7 @@ import { useEffect, useRef, type RefObject } from "react";
 
 export type CtaPlacement = "mobile_home_sticky" | "home_bottom" | "price_list_strip" | "live_price";
 export type CtaEvent = "impression" | "focus" | "submit" | "success" | "invalid" | "error";
+export type ProductJourneyEvent = "opened" | "submitted" | "selected" | "price_viewed" | "zero_results";
 
 const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")}/api/v1`
@@ -29,7 +30,7 @@ function device(): "mobile" | "desktop" {
   return window.matchMedia("(max-width: 767px)").matches ? "mobile" : "desktop";
 }
 
-export function trackCta(placement: CtaPlacement, event: CtaEvent): void {
+function sendTrackingEvent(placement: CtaPlacement | "product_search", event: CtaEvent | ProductJourneyEvent): void {
   if (typeof window === "undefined") return;
 
   const payload = JSON.stringify({
@@ -55,6 +56,25 @@ export function trackCta(placement: CtaPlacement, event: CtaEvent): void {
   }).catch(() => {
     /* olcum, olctugu isi cokertmemeli */
   });
+}
+
+export function trackCta(placement: CtaPlacement, event: CtaEvent): void {
+  sendTrackingEvent(placement, event);
+}
+
+/**
+ * Ürün bulma KPI'sının birinci taraf, PII'siz olay kaydı. Günlük tuzlu ziyaretçi
+ * özeti yalnız kullanıcı analytics izni verdiyse yazılır; sorgu veya ürün adı
+ * payload'a alınmaz.
+ */
+export function trackProductJourney(event: ProductJourneyEvent): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (window.localStorage.getItem("hf_cookie_consent") !== "accepted") return;
+  } catch {
+    return;
+  }
+  sendTrackingEvent("product_search", event);
 }
 
 /**

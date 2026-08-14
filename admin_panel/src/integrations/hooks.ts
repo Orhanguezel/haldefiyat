@@ -382,6 +382,7 @@ export {
   useGetAnalyticsOverviewAdminQuery,
   useGetAnalyticsRetentionAdminQuery,
   useGetCtaFunnelAdminQuery,
+  useGetProductKpisAdminQuery,
 } from "@/integrations/endpoints/analytics-admin-endpoints";
 export {
   useCreateAuthorAdminMutation,

@@ -14,7 +14,7 @@
  *   submit var success yok   -> teknik hata (dogrulama, endpoint)
  */
 
-import { and, gte, sql } from "drizzle-orm";
+import { and, gte, inArray, sql } from "drizzle-orm";
 import { createHash } from "node:crypto";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { env } from "@/core/env";
@@ -23,7 +23,8 @@ import { hfCtaEvents } from "@/db/schema";
 
 /** Huninin adimlari — sirali. Bilinmeyen event adi kabul edilmez. */
 export const CTA_EVENTS = ["impression", "focus", "submit", "success", "invalid", "error"] as const;
-type CtaEvent = (typeof CTA_EVENTS)[number];
+export const PRODUCT_JOURNEY_EVENTS = ["opened", "submitted", "selected", "price_viewed", "zero_results"] as const;
+type CtaEvent = (typeof CTA_EVENTS)[number] | (typeof PRODUCT_JOURNEY_EVENTS)[number];
 
 /** Bilinen yerlesimler. Serbest metin kabul edilirse tablo cop olur. */
 export const CTA_PLACEMENTS = [
@@ -32,6 +33,9 @@ export const CTA_PLACEMENTS = [
   "price_list_strip",
   "live_price",
 ] as const;
+export const PRODUCT_JOURNEY_PLACEMENT = "product_search" as const;
+const TRACKING_PLACEMENTS = [...CTA_PLACEMENTS, PRODUCT_JOURNEY_PLACEMENT] as const;
+const TRACKING_EVENTS = [...CTA_EVENTS, ...PRODUCT_JOURNEY_EVENTS] as const;
 
 interface CtaBody {
   placement: string;
@@ -69,8 +73,8 @@ export async function registerCtaTracking(app: FastifyInstance) {
           type: "object",
           required: ["placement", "event"],
           properties: {
-            placement: { type: "string", enum: [...CTA_PLACEMENTS] },
-            event: { type: "string", enum: [...CTA_EVENTS] },
+            placement: { type: "string", enum: [...TRACKING_PLACEMENTS] },
+            event: { type: "string", enum: [...TRACKING_EVENTS] },
             path: { type: "string", maxLength: 255 },
             device: { type: "string", enum: ["mobile", "desktop"] },
           },
@@ -124,7 +128,10 @@ export async function ctaFunnel(days = 30): Promise<CtaFunnelRow[]> {
       n:         sql<number>`COUNT(DISTINCT ${hfCtaEvents.visitorHash})`,
     })
     .from(hfCtaEvents)
-    .where(and(gte(hfCtaEvents.createdAt, since)))
+    .where(and(
+      gte(hfCtaEvents.createdAt, since),
+      inArray(hfCtaEvents.placement, [...CTA_PLACEMENTS]),
+    ))
     .groupBy(hfCtaEvents.placement, hfCtaEvents.device, hfCtaEvents.event)) as Array<{
     placement: string; device: string; event: string; n: number;
   }>;

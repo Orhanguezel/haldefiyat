@@ -20,6 +20,7 @@ import {
   useGetAnalyticsOverviewAdminQuery,
   useGetAnalyticsRetentionAdminQuery,
   useGetCtaFunnelAdminQuery,
+  useGetProductKpisAdminQuery,
 } from "@/integrations/hooks";
 
 type TabKey = "overview" | "retention" | "ads" | "device" | "cta";
@@ -69,6 +70,7 @@ export default function AdminAnalyticsClient() {
   );
   const heatmapQ = useGetAnalyticsHeatmapAdminQuery({ range }, { skip: tab !== "device", refetchOnFocus: true });
   const ctaQ = useGetCtaFunnelAdminQuery({ days: 30 }, { skip: tab !== "cta", refetchOnFocus: true });
+  const productKpiQ = useGetProductKpisAdminQuery({ days: range === "7d" ? 7 : 30 }, { refetchOnFocus: true });
 
   const overview = overviewQ.data;
   const retention = retentionQ.data;
@@ -78,6 +80,7 @@ export default function AdminAnalyticsClient() {
   const deviceDaily = deviceDailyQ.data;
   const heatmap = heatmapQ.data;
   const cta = ctaQ.data?.data;
+  const productKpis = productKpiQ.data;
 
   const loading =
     overviewQ.isFetching ||
@@ -86,12 +89,14 @@ export default function AdminAnalyticsClient() {
     adsDailyQ.isFetching ||
     funnelQ.isFetching ||
     deviceDailyQ.isFetching ||
-    heatmapQ.isFetching;
+    heatmapQ.isFetching ||
+    productKpiQ.isFetching;
 
   async function refresh() {
     try {
       await Promise.all([
         overviewQ.refetch(),
+        productKpiQ.refetch(),
         retentionQ.refetch(),
         tab === "ads" ? adsQ.refetch() : Promise.resolve(),
         tab === "ads" ? adsDailyQ.refetch() : Promise.resolve(),
@@ -154,6 +159,40 @@ export default function AdminAnalyticsClient() {
           sub={`${fmtNumber(overview?.summary?.b2bIntentIps)} yüksek niyet`}
         />
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Ana Ürün KPI Kapısı</CardTitle>
+          <CardDescription>
+            Günlük tuzlu, PII içermeyen birinci taraf arama hunisi; veri karantinası ve arama talebi durumları.
+            Örneklem eşiğine ulaşmayan değerler sıfır kabul edilmez.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <MetricCard
+              title="Fiyat bulma süresi"
+              value={productKpis?.priceFind.averageMs == null ? "Veri birikiyor" : `${(productKpis.priceFind.averageMs / 1000).toLocaleString("tr-TR", { maximumFractionDigits: 1 })} sn`}
+              sub={`${fmtNumber(productKpis?.priceFind.measuredJourneys)} yolculuk · eşik ≤15 sn / en az 30`}
+            />
+            <MetricCard
+              title="Arama başarısı"
+              value={productKpis?.search.successPct == null ? "Veri birikiyor" : fmtPct(productKpis.search.successPct)}
+              sub={`${fmtNumber(productKpis?.search.submitted)} arama · hedef ≥%40 / en az 100`}
+            />
+            <MetricCard
+              title="Toptan anomali oranı"
+              value={productKpis?.anomalies.ratePct == null ? "Kayıt yok" : fmtPct(productKpis.anomalies.ratePct)}
+              sub={`${fmtNumber(productKpis?.anomalies.quarantined)} karantina · uyarı %1 / durdur %3`}
+            />
+            <MetricCard
+              title="Arama talebi kabulü"
+              value={productKpis?.calls.acceptedPct == null ? "Veri birikiyor" : fmtPct(productKpis.calls.acceptedPct)}
+              sub={`${fmtNumber(productKpis?.calls.accepted)}/${fmtNumber(productKpis?.calls.total)} · anlamlı baz en az 30 talep`}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <Tabs value={tab} onValueChange={(value) => setTab(value as TabKey)}>
         <TabsList className="flex w-full flex-wrap justify-start">

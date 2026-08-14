@@ -90,6 +90,7 @@ describe("attribution and conversion analytics", () => {
       "urun_favorited",
       "call_request_view",
       "call_request_submit",
+      "call_request_notified",
       "call_request_accepted",
       "call_request_declined",
       "call_request_cancelled",

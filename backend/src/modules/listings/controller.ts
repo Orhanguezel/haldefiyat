@@ -157,6 +157,7 @@ export async function createPublicCallRequest(req: FastifyRequest<{ Params: { id
       return reply.code(status).send({ error: { message: result.reason } });
     }
 
+    let deliveryStatus: "pending" | "notified" = "pending";
     if (env.TELEGRAM_ADMIN_CHAT_ID) {
       const slotLabels = { asap: "En kısa sürede", morning: "09:00–12:00", afternoon: "12:00–17:00", evening: "17:00–20:00" };
       const text = [
@@ -167,9 +168,12 @@ export async function createPublicCallRequest(req: FastifyRequest<{ Params: { id
         `Talep no: ${result.id}`,
       ].filter(Boolean).join("\n");
       const notified = await telegramSendRaw({ chatId: env.TELEGRAM_ADMIN_CHAT_ID, text }).then(() => true).catch(() => false);
-      if (notified) await markCallRequestNotified(result.id);
+      if (notified) {
+        await markCallRequestNotified(result.id);
+        deliveryStatus = "notified";
+      }
     }
-    return reply.code(201).send({ ok: true, id: result.id, status: "pending" });
+    return reply.code(201).send({ ok: true, id: result.id, status: deliveryStatus });
   } catch (err) {
     return handleRouteError(reply, req, err, "create_listing_call_request");
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import { getAttribution } from "@/lib/attribution";
+import { trackProductJourney, type ProductJourneyEvent } from "@/lib/cta-tracking";
 
 export type ConversionEventName =
   | "newsletter_signup"
@@ -11,6 +12,7 @@ export type ConversionEventName =
   | "embed_inquiry"
   | "call_request_view"
   | "call_request_submit"
+  | "call_request_notified"
   | "call_request_accepted"
   | "call_request_declined"
   | "call_request_cancelled"
@@ -65,6 +67,7 @@ const EVENT_VALUE: Record<ConversionEventName, number> = {
   embed_inquiry: 35,
   call_request_view: 5,
   call_request_submit: 45,
+  call_request_notified: 55,
   call_request_accepted: 70,
   call_request_declined: 0,
   call_request_cancelled: 0,
@@ -96,6 +99,19 @@ export function trackDiscoveryEvent(
   eventName: DiscoveryEventName,
   params: DiscoveryEventParams = {},
 ): void {
+  const journeyEvent: Partial<Record<DiscoveryEventName, ProductJourneyEvent>> = {
+    search_opened: "opened",
+    search_submitted: params.zero_results ? "zero_results" : "submitted",
+    search_result_selected: "selected",
+    price_viewed: "price_viewed",
+  };
+  const firstPartyEvent = journeyEvent[eventName];
+  if (firstPartyEvent) {
+    trackProductJourney(firstPartyEvent);
+    // Sıfır sonuç da bir gönderimdir; paydanın eksilmemesi için iki olay yazılır.
+    if (eventName === "search_submitted" && params.zero_results) trackProductJourney("submitted");
+  }
+
   if (typeof window === "undefined" || typeof window.gtag !== "function") return;
 
   const safeParams: Record<string, string | number | boolean> = {

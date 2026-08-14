@@ -123,6 +123,27 @@ export interface CtaFunnelResponse {
   data: { days: number; rows: CtaFunnelRow[] };
 }
 
+export interface ProductKpiResponse {
+  days: number;
+  generatedAt: string;
+  priceFind: { averageMs: number | null; measuredJourneys: number; state: 'measured' | 'collecting' };
+  search: {
+    opened: number; submitted: number; selected: number; priceViewed: number; zeroResults: number;
+    successPct: number | null; priceViewPct: number | null; zeroResultsPct: number | null;
+    state: 'measured' | 'collecting';
+  };
+  anomalies: { published: number; quarantined: number; pending: number; retailQuarantined: number; ratePct: number | null };
+  calls: {
+    total: number; notified: number; accepted: number; completed: number;
+    notifiedPct: number | null; acceptedPct: number | null; completedPct: number | null;
+    byStatus: Record<string, number>; state: 'measured' | 'collecting';
+  };
+  thresholds: {
+    priceFindAverageMs: number; searchSuccessPct: number; anomalyWarningPct: number; anomalyStopPct: number;
+    minimumJourneySample: number; minimumSearchSample: number; minimumCallSample: number;
+  };
+}
+
 export const analyticsAdminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getAnalyticsOverviewAdmin: builder.query<AnalyticsOverview, { range?: AnalyticsRange } | undefined>({
@@ -157,6 +178,10 @@ export const analyticsAdminApi = baseApi.injectEndpoints({
       query: (params) => ({ url: `/admin/analytics/cta-funnel?days=${params?.days ?? 30}` }),
       providesTags: [{ type: 'AuditMetric' as const, id: 'CTA_FUNNEL' }],
     }),
+    getProductKpisAdmin: builder.query<ProductKpiResponse, { days?: number } | undefined>({
+      query: (params) => ({ url: `/admin/analytics/product-kpis?days=${params?.days ?? 30}` }),
+      providesTags: [{ type: 'AuditMetric' as const, id: 'PRODUCT_KPIS' }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -170,4 +195,5 @@ export const {
   useGetAnalyticsRetentionAdminQuery,
   useGetAnalyticsHeatmapAdminQuery,
   useGetCtaFunnelAdminQuery,
+  useGetProductKpisAdminQuery,
 } = analyticsAdminApi;
