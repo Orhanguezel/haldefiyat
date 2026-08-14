@@ -277,7 +277,9 @@ export default async function EndeksPage({ params }: Props) {
           <p>
             <strong className="text-(--color-foreground)">Hesaplama:</strong> Her haftanın endeks değeri,
             sepet ürünlerinin o haftaki tüm hallerdeki ortalama fiyatlarının aritmetik ortalamasının,
-            baz hafta ortalamasına oranıyla hesaplanır.
+            baz hafta ortalamasına oranıyla hesaplanır. Bir kaynak ortalama fiyat yayımlamıyorsa
+            minimum ve maksimum fiyatın orta noktası kullanılır; bu değer işlem hacmi ağırlıklı
+            ortalama değildir.
           </p>
           <p>
             <strong className="text-(--color-foreground)">Yorum:</strong> 100 üzeri değerler, baz haftaya

@@ -12,6 +12,7 @@ export const CSV_HEADERS = [
   "Min Fiyat",
   "Maks Fiyat",
   "Ort Fiyat",
+  "Ortalama Yöntemi",
   "Birim",
   "Para Birimi",
   "Tarih",
@@ -26,6 +27,7 @@ export type PriceExportRow = {
   minPrice:     string | null;
   maxPrice:     string | null;
   avgPrice:     string;
+  avgPriceMethod: string;
   unit:         string;
   currency:     string;
   recordedDate: Date | string;
@@ -69,6 +71,7 @@ export function toCsvPayload(rows: PriceExportRow[]): string {
     r.minPrice ?? "",
     r.maxPrice ?? "",
     r.avgPrice,
+    r.avgPriceMethod,
     r.unit,
     r.currency,
     toIsoDateOnly(r.recordedDate),

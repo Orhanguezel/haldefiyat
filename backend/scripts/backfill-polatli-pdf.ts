@@ -230,6 +230,7 @@ async function main() {
             minPrice: null,
             maxPrice: null,
             avgPrice: row.avgPrice,
+            avgPriceMethod: "reported",
             recordedDate: row.recordedDate,
             sourceApi: SOURCE_API,
           });

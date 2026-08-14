@@ -172,7 +172,7 @@ async function main() {
       const mkt = await ensureMarket(r.marketCode, r.marketName, marketCache);
       await upsertPriceRow({
         productId, marketId: mkt.id, minPrice: String(r.min), maxPrice: String(r.max),
-        avgPrice: String(r.avg), recordedDate: r.date, sourceApi: mkt.sourceKey,
+        avgPrice: String(r.avg), avgPriceMethod: "reported", recordedDate: r.date, sourceApi: mkt.sourceKey,
       });
       totalWritten++;
     }

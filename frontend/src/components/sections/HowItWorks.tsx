@@ -22,7 +22,7 @@ const STEPS: ReadonlyArray<Step> = [
     num: "03",
     icon: "📊",
     title: "Analiz Et",
-    desc: "Min, max, ortalama hesaplanır. Trend yüzdeleri ve değişim oranları belirlenir.",
+    desc: "Min ve maks korunur. Kaynak ortalama yayımlamıyorsa orta nokta açıkça türetilmiş olarak işaretlenir.",
   },
   {
     num: "04",

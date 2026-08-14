@@ -141,6 +141,7 @@ export const hfPriceHistory = mysqlTable(
     minPrice:     decimal("min_price", { precision: 12, scale: 2 }),
     maxPrice:     decimal("max_price", { precision: 12, scale: 2 }),
     avgPrice:     decimal("avg_price", { precision: 12, scale: 2 }).notNull(),
+    avgPriceMethod: varchar("avg_price_method", { length: 16 }).notNull().default("unknown"),
     currency:     varchar("currency", { length: 8 }).notNull().default("TRY"),
     unit:         varchar("unit", { length: 32 }).notNull().default("kg"),
     recordedDate: date("recorded_date").notNull(),

@@ -104,6 +104,12 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
           </span>
         </div>
 
+        {row.isSynthetic || row.avgPriceMethod === "midpoint" ? (
+          <p className="mb-3 text-[11px] text-(--color-muted)" title="Kaynak yalnız minimum ve maksimum fiyat yayımladığı için orta nokta hesaplandı.">
+            Min–maks orta noktası · hacim ağırlıklı değildir
+          </p>
+        ) : null}
+
         {changePct !== undefined && changePct !== 0 ? (
           <div
             className={

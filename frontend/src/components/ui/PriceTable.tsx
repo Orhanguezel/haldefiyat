@@ -585,6 +585,11 @@ export default function PriceTable({
                           ₺{fmt(row.avgPrice)}
                           <span className="ml-1 text-[10px] font-medium text-(--color-muted)">/{row.unit}</span>
                         </span>
+                        {row.isSynthetic || row.avgPriceMethod === "midpoint" ? (
+                          <span className="text-[10px] text-(--color-muted)" title="Kaynak yalnız minimum ve maksimum fiyat yayımladığı için orta nokta hesaplandı; hacim ağırlıklı ortalama değildir.">
+                            min–maks orta noktası
+                          </span>
+                        ) : null}
                         {yoyPct !== null && (
                           <span
                             title={`Geçen yıl aynı dönem: ₺${yearAgoAvg!.toFixed(2)}`}
@@ -716,6 +721,9 @@ function MobilePriceCard({
         <div className="shrink-0 text-right">
           <p className="font-(family-name:--font-mono) text-lg font-bold text-(--color-foreground)">₺{fmt(row.avgPrice)}</p>
           <p className="text-[11px] text-(--color-muted)">/{row.unit}</p>
+          {row.isSynthetic || row.avgPriceMethod === "midpoint" ? (
+            <p className="mt-1 max-w-32 text-[10px] text-(--color-muted)">min–maks orta noktası</p>
+          ) : null}
           {yoyPct !== null ? (
             <p className={`mt-1 text-[10px] font-semibold ${yoyPct > 0 ? "text-(--trend-up)" : "text-(--trend-down)"}`}>
               {yoyPct > 0 ? "↑" : "↓"} %{Math.abs(yoyPct).toFixed(1)} geçen yıla

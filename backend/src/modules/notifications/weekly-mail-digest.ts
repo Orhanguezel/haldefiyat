@@ -164,7 +164,9 @@ async function buildHtml(): Promise<{ html: string; subject: string; movers: num
       <p style="margin:0 0 12px;color:#6b7280;font-size:12px;line-height:1.6;">
         En cok tuketilen urunler, her hafta ayni sirada. Bir onceki haftayla karsilastirma;
         yalnizca <strong>ayni halde ve ayni urun kaydiyla</strong> iki haftada da olculmus
-        fiyatlar kiyaslanir. Fiyatlar haller arasindaki medyandir (₺/kg).
+        fiyatlar kiyaslanir. Fiyatlar haller arasindaki medyandir (₺/kg). Kaynak ortalama
+        yayimlamiyorsa kaydin min–maks orta noktasi kullanilir; bu deger islem hacmi
+        agirlikli ortalama degildir.
       </p>
       ${basketTable(basket)}
       ${seasonalSection}

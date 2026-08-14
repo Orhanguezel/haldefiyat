@@ -65,6 +65,8 @@ CREATE TABLE IF NOT EXISTS `hf_price_history` (
   `min_price`     DECIMAL(12,2)    DEFAULT NULL,
   `max_price`     DECIMAL(12,2)    DEFAULT NULL,
   `avg_price`     DECIMAL(12,2)    NOT NULL,
+  `avg_price_method` VARCHAR(16)   NOT NULL DEFAULT 'unknown'
+                                   COMMENT 'reported | midpoint | unknown',
   `currency`      VARCHAR(8)       NOT NULL DEFAULT 'TRY',
   `unit`          VARCHAR(32)      NOT NULL DEFAULT 'kg',
   `recorded_date` DATE             NOT NULL,

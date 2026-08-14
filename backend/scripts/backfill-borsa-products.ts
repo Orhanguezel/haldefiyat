@@ -499,6 +499,7 @@ async function backfillTobbProduct(product: TobbProduct, args: Args): Promise<{ 
         minPrice: String(row.min),
         maxPrice: String(row.max),
         avgPrice: String(row.avg),
+        avgPriceMethod: "reported",
         recordedDate: row.recordedDate,
         sourceApi: market.sourceKey,
       });

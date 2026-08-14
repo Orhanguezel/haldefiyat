@@ -22,6 +22,8 @@ export interface PriceRow {
   minPrice: number | string | null;
   maxPrice: number | string | null;
   avgPrice: number | string;
+  avgPriceMethod?: "reported" | "midpoint" | "unknown" | "mixed";
+  isSynthetic?: boolean;
   currency: string;
   unit: string;
   recordedDate: string;
@@ -287,6 +289,7 @@ export interface PriceHistoryRow {
   minPrice: number | string | null;
   maxPrice: number | string | null;
   avgPrice: number | string;
+  avgPriceMethod?: "reported" | "midpoint" | "unknown" | "mixed";
   unit: string;
   marketSlug: string;
   marketName: string;

@@ -9,6 +9,7 @@ import { disambiguateProductUnitLabels } from "./product-unit-labels";
 import { assessPriceQuality } from "@/modules/etl/price-quality-guard";
 import { assessRetailPriceQuality } from "@/modules/etl/retail-price-quality-guard";
 import { canonicalUnit } from "@/modules/etl/canonical-contract";
+import { inferAvgPriceMethod, type AvgPriceMethod } from "./avg-price-method";
 
 export function parseRangeToDays(range?: string): number {
   if (!range) return 7;
@@ -116,6 +117,8 @@ function enrichPriceRow<T extends Record<string, unknown>>(row: T) {
     minPrice: toNumber(row.minPrice),
     maxPrice: toNumber(row.maxPrice),
     avgPrice: toNumber(row.avgPrice) ?? 0,
+    avgPriceMethod: typeof row.avgPriceMethod === "string" ? row.avgPriceMethod : "unknown",
+    isSynthetic: row.avgPriceMethod === "midpoint",
     recordedDate: recordedDate ?? String(row.recordedDate ?? ""),
     fetchedAt,
     publishedAt: recordedDate,
@@ -318,6 +321,7 @@ export async function listPriceRows(params: {
         minPrice:     hfPriceHistory.minPrice,
         maxPrice:     hfPriceHistory.maxPrice,
         avgPrice:     hfPriceHistory.avgPrice,
+        avgPriceMethod: hfPriceHistory.avgPriceMethod,
         currency:     hfPriceHistory.currency,
         unit:         hfPriceHistory.unit,
         recordedDate: hfPriceHistory.recordedDate,
@@ -356,6 +360,7 @@ export async function listPriceRows(params: {
       minPrice:     hfPriceHistory.minPrice,
       maxPrice:     hfPriceHistory.maxPrice,
       avgPrice:     hfPriceHistory.avgPrice,
+      avgPriceMethod: hfPriceHistory.avgPriceMethod,
       currency:     hfPriceHistory.currency,
       unit:         hfPriceHistory.unit,
       recordedDate: hfPriceHistory.recordedDate,
@@ -457,6 +462,7 @@ const priceColumns = {
   minPrice:     hfPriceHistory.minPrice,
   maxPrice:     hfPriceHistory.maxPrice,
   avgPrice:     hfPriceHistory.avgPrice,
+  avgPriceMethod: hfPriceHistory.avgPriceMethod,
   currency:     hfPriceHistory.currency,
   unit:         hfPriceHistory.unit,
   recordedDate: hfPriceHistory.recordedDate,
@@ -1260,6 +1266,7 @@ export interface PriceHistoryRow {
   minPrice: string;
   maxPrice: string;
   avgPrice: string;
+  avgPriceMethod: AvgPriceMethod | "mixed";
   unit: string;
   marketSlug: string;
   marketName: string;
@@ -1281,6 +1288,12 @@ export async function productPriceHistory(
         MIN(ph.min_price) AS minPrice,
         MAX(ph.max_price) AS maxPrice,
         AVG(ph.avg_price) AS avgPrice,
+        CASE
+          WHEN SUM(ph.avg_price_method = 'midpoint') = COUNT(*) THEN 'midpoint'
+          WHEN SUM(ph.avg_price_method = 'reported') = COUNT(*) THEN 'reported'
+          WHEN SUM(ph.avg_price_method = 'unknown') = COUNT(*) THEN 'unknown'
+          ELSE 'mixed'
+        END AS avgPriceMethod,
         ph.unit AS unit,
         m.slug AS marketSlug,
         m.name AS marketName,
@@ -1309,6 +1322,7 @@ export async function productPriceHistory(
       minPrice:     hfPriceHistory.minPrice,
       maxPrice:     hfPriceHistory.maxPrice,
       avgPrice:     hfPriceHistory.avgPrice,
+      avgPriceMethod: hfPriceHistory.avgPriceMethod,
       unit:         hfPriceHistory.unit,
       marketSlug:   hfMarkets.slug,
       marketName:   hfMarkets.name,
@@ -1489,6 +1503,7 @@ export async function upsertPriceRow(input: {
   minPrice?:   string | null;
   maxPrice?:   string | null;
   avgPrice:    string;
+  avgPriceMethod?: AvgPriceMethod;
   recordedDate: string;
   sourceApi:   string;
   unit?:       string | null;   // koli/kasa gibi paket birimleri; verilmezse kg
@@ -1505,6 +1520,12 @@ export async function upsertPriceRow(input: {
   const avg = Number(input.avgPrice);
   const min = input.minPrice == null ? null : Number(input.minPrice);
   const max = input.maxPrice == null ? null : Number(input.maxPrice);
+  const avgPriceMethod = inferAvgPriceMethod({
+    avgPrice: input.avgPrice,
+    minPrice: input.minPrice,
+    maxPrice: input.maxPrice,
+    method: input.avgPriceMethod,
+  });
   const [peerRows] = await pool.query(
     `SELECT ph.avg_price AS price
      FROM hf_price_history ph
@@ -1565,6 +1586,7 @@ export async function upsertPriceRow(input: {
       minPrice:     input.minPrice ?? null,
       maxPrice:     input.maxPrice ?? null,
       avgPrice:     input.avgPrice,
+      avgPriceMethod,
       currency:     "TRY",
       unit,
       recordedDate: new Date(`${input.recordedDate}T12:00:00`),
@@ -1575,6 +1597,7 @@ export async function upsertPriceRow(input: {
         minPrice:  input.minPrice ?? null,
         maxPrice:  input.maxPrice ?? null,
         avgPrice:  input.avgPrice,
+        avgPriceMethod,
         unit,
         sourceApi: input.sourceApi,
       },

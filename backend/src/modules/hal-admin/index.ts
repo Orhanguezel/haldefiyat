@@ -54,6 +54,7 @@ import {
   parseRangeToDays,
   upsertPriceRow,
 } from "@/modules/prices/repository";
+import { inferAvgPriceMethod } from "@/modules/prices/avg-price-method";
 import { listProduction } from "@/modules/production/repository";
 import { registerProductGsc } from "@/modules/products/product-gsc";
 import { publicOrigin, readGscCategoriesForUrls } from "@/modules/seo/gsc-index";
@@ -311,10 +312,12 @@ export async function registerHalAdmin(app: FastifyInstance) {
         const min = status === "corrected" ? (parsed.data.minPrice ?? null) : row.min_price;
         const max = status === "corrected" ? (parsed.data.maxPrice ?? null) : row.max_price;
         await connection.query(
-          `INSERT INTO hf_price_history (product_id,market_id,min_price,max_price,avg_price,currency,unit,recorded_date,source_api)
-           VALUES (?,?,?,?,?,'TRY',?,?,?) ON DUPLICATE KEY UPDATE min_price=VALUES(min_price),max_price=VALUES(max_price),
-           avg_price=VALUES(avg_price),unit=VALUES(unit),source_api=VALUES(source_api)`,
-          [row.product_id, row.market_id, min, max, avg, row.unit, row.recorded_date, `${String(row.source_api)}:reviewed`.slice(0, 64)],
+          `INSERT INTO hf_price_history (product_id,market_id,min_price,max_price,avg_price,avg_price_method,currency,unit,recorded_date,source_api)
+           VALUES (?,?,?,?,?,?,'TRY',?,?,?) ON DUPLICATE KEY UPDATE min_price=VALUES(min_price),max_price=VALUES(max_price),
+           avg_price=VALUES(avg_price),avg_price_method=VALUES(avg_price_method),unit=VALUES(unit),source_api=VALUES(source_api)`,
+          [row.product_id, row.market_id, min, max, avg,
+           inferAvgPriceMethod({ minPrice: min as number | string | null, maxPrice: max as number | string | null, avgPrice: avg as number | string, method: status === "corrected" ? "reported" : undefined }),
+           row.unit, row.recorded_date, `${String(row.source_api)}:reviewed`.slice(0, 64)],
         );
       }
       await connection.query(
@@ -416,6 +419,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
       maxPrice: b.maxPrice != null ? b.maxPrice.toFixed(2) : null,
       recordedDate: b.recordedDate,
       sourceApi: b.sourceApi ?? "manual",
+      avgPriceMethod: "reported",
     });
 
     const created = await db
@@ -451,6 +455,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
           maxPrice: b.maxPrice != null ? b.maxPrice.toFixed(2) : null,
           recordedDate: b.recordedDate,
           sourceApi: b.sourceApi ?? "manual",
+          avgPriceMethod: "reported",
         });
         const row = await db
           .select({ id: hfPriceHistory.id })
@@ -513,6 +518,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
         productId: b.productId,
         marketId: b.marketId,
         avgPrice: b.avgPrice.toFixed(2),
+        avgPriceMethod: "reported",
         minPrice: b.minPrice != null ? b.minPrice.toFixed(2) : null,
         maxPrice: b.maxPrice != null ? b.maxPrice.toFixed(2) : null,
         recordedDate: new Date(`${b.recordedDate}T12:00:00`),

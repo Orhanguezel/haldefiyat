@@ -366,6 +366,8 @@ export default async function UrunPage({ params }: Props) {
       sourceName?: string | null;
       sourceUrl?: string | null;
       marketName?: string | null;
+      avgPriceMethod?: "reported" | "midpoint" | "unknown" | "mixed";
+      isSynthetic?: boolean;
     }>,
   ) => {
     const valid = rows.filter((row) => toNumberSafe(row.avgPrice as never) > 0);
@@ -396,6 +398,9 @@ export default async function UrunPage({ params }: Props) {
     : 0;
   /** Orneklem = fiyat bildiren benzersiz pazar/hal sayisi. */
   const offerCount = new Set(offerRows.map((r) => r.market).filter(Boolean)).size;
+  const syntheticOfferCount = pick.rows.filter(
+    (row) => row.isSynthetic || row.avgPriceMethod === "midpoint",
+  ).length;
   const sourceNames = [...new Set(
     pick.rows
       .map((row) => row.sourceName?.trim() || row.marketName?.trim())
@@ -534,6 +539,12 @@ export default async function UrunPage({ params }: Props) {
                 </strong>
               </>
             )}. Örneklem {offerCount} halden oluşuyor.{" "}
+            {syntheticOfferCount > 0 && (
+              <>
+                Bu örneklemde {syntheticOfferCount}/{pick.rows.length} ortalama, kaynağın min–maks
+                aralığının orta noktasından türetilmiştir; işlem hacmi ağırlıklı ortalama değildir.{" "}
+              </>
+            )}
             {(shortTrend || longTrend) && (
               <>
                 {displayName} piyasası{" "}
