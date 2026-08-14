@@ -107,3 +107,17 @@ HalDeFiyat route katmanında yanıt sözleşmesi `{ ok, status, requestId }` ile
 - Frontend ESLint: `0 error` (mevcut warning'ler bloklayıcı değil).
 - Frontend Vitest: `41 files`, `116 tests`, tamamı geçti.
 - Tema renk denetimi: geçti.
+
+## 10. Borsa sorgusu ve sıfır-502 rollout kabulü
+
+Canlı `/borsa` taraması sırasında `marketType=borsa&range=1825d&latestOnly=false` API çağrısının 60 saniyeyi aştığı bulundu. Market türü filtresi milyon satırlı fiyat tablosunda join üzerinden çözülüyordu. Küçük `hf_markets` tablosundan ID kapsamı önceden çıkarılıp `(market_id, recorded_date, product_id)` indeksine bağlandı; count ve ilk sayfa sorgusu paralel çalıştırıldı.
+
+Canlı sonrası süreler:
+
+- API soğuk: `1.32 sn`; sıcak: `0.60 sn`, sonra `0.46 sn`;
+- `/borsa` SSR: `1.15 sn`, sonra `1.07 sn`;
+- önceki API sonucu: `>60 sn timeout`, önceki sayfa sonucu: yaklaşık `15.25 sn`.
+
+Frontend tek fork process'ten iki PM2 cluster worker'a geçirildi. İlk mimari geçiş sırasında process silme nedeniyle yaklaşık 7 saniyelik bir defalık kesinti ölçüldü ve saklanıyor. PM2'nin iki ID'yi tek reload komutuna vermesi 5xx üretmedi ancak cold-start timeout bıraktı. Worker ID'lerini ayrı ayrı reload edip her adım arasında hızlı statik health kapısı kullanan nihai akışta canlı monitör `200/200 HTTP 200`, `0 timeout`, `0 5xx` verdi. `deploy.sh` bu sırayı zorunlu kılar ve tek-worker durumda kesintili otomatik dönüşümü reddeder.
+
+İki QA iletişim kaydı kabul sonrasında exact ID ile silindi; production tablosunda geçici test verisi bırakılmadı.

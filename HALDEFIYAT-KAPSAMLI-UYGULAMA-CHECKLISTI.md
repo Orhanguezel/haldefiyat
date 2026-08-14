@@ -640,7 +640,7 @@
 - [x] E38 Build çıktısı pipe edilmiyor ve log dosyasına yazılıyor. Canlı ISR ile üç kez görülen `.next/cache ENOTEMPTY` yarışı release bazlı `NEXT_DIST_DIR=.next-release-<sha>` ile kapandı; VPS ilk-deneme build ve dört rota kabulü geçti.
 - [x] E39 Deploylarda backend `pm2 reload`, değişen frontend `pm2 restart --update-env` kullanılıyor; `.next-release-<sha>/standalone/.../server.js` ve release static dizini restart öncesi doğrulanıyor. Admin değişmediği deployda gereksiz restart edilmedi.
 - [x] E40 Ürün ISR sayfası ve diğer kritik aileler release geçişlerinde cache-bypass/normal fetch ile tarandı; yeni HTML/CSS/static chunk karışımı ve ChunkLoadError görülmedi, release dizinleri geri dönüş için korunuyor.
-- [~] E41 Rollout sonrası nginx/PM2 taraması yapıldı; yeni release’de ChunkLoadError yok, standalone script doğru. Ancak tek-instance restart anında 20:14:04–20:14:06 UTC arasında yaklaşık 2 saniyelik 502 görüldü; cluster rolling reload veya blue/green switch bekliyor.
+- [x] E41 Frontend iki PM2 cluster worker'a geçirildi; izole release dizinleri eski/yeni HTML-static çiftini koruyor. Deploy her worker'ı ayrı reload edip arada statik health kapısı çalıştırıyor ve tek-worker otomatik geçişini reddediyor. Canlı nihai monitör 200/200 HTTP 200, sıfır timeout/5xx verdi; ilk mimari dönüşümdeki tek seferlik kesinti artifact'te saklandı.
 
 ### 15.9 Analitik ve dağıtım tekleştirme
 

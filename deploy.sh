@@ -97,7 +97,46 @@ fi
 echo "==> [6/6] PM2 yayın geçişi"
 cd "$REPO_ROOT"
 pm2 reload hal-backend --update-env || pm2 start ecosystem.config.cjs --only hal-backend
-pm2 reload ecosystem.config.cjs --only hal-frontend --update-env || pm2 start ecosystem.config.cjs --only hal-frontend
+
+_frontend_worker_health() {
+  local ok=0
+  for _health_attempt in 1 2 3 4 5; do
+    if curl --fail --silent --show-error --max-time 10 \
+      http://127.0.0.1:3033/.well-known/security.txt >/dev/null; then
+      ok=1
+      break
+    fi
+    sleep 2
+  done
+  [ "$ok" -eq 1 ]
+}
+
+mapfile -t FRONTEND_WORKER_IDS < <(
+  pm2 jlist | node -e '
+    let raw = "";
+    process.stdin.on("data", (chunk) => { raw += chunk; });
+    process.stdin.on("end", () => {
+      for (const proc of JSON.parse(raw)) {
+        if (proc.name === "hal-frontend") console.log(proc.pm_id);
+      }
+    });
+  '
+)
+
+if [ "${#FRONTEND_WORKER_IDS[@]}" -eq 0 ]; then
+  pm2 start ecosystem.config.cjs --only hal-frontend
+  _frontend_worker_health
+elif [ "${#FRONTEND_WORKER_IDS[@]}" -lt 2 ]; then
+  echo "HATA: hal-frontend cluster iki worker degil; kesintili otomatik gecis reddedildi" >&2
+  exit 1
+else
+  # PM2'ye iki ID'yi tek reload komutunda vermek kisa soguk pencere yaratti.
+  # Her worker'i ayri yenile ve digerine gecmeden once ortak portu dogrula.
+  for worker_id in "${FRONTEND_WORKER_IDS[@]}"; do
+    pm2 reload "$worker_id" --update-env
+    _frontend_worker_health
+  done
+fi
 # Admin panel ayrı ecosystem ile yönetiliyor
 ADMIN_PANEL_APP_NAME=hal-admin \
 ADMIN_PANEL_CWD="$ADMIN" \
