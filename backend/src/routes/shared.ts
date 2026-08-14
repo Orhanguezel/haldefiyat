@@ -26,7 +26,7 @@ import { hasContactPrivacyConsent } from "@/modules/contact-consent";
 
 export async function registerSharedPublic(api: FastifyInstance) {
   api.addHook("preValidation", async (req, reply) => {
-    if (req.method === "POST" && req.routeOptions.url.endsWith("/contacts") && !hasContactPrivacyConsent(req.body)) {
+    if (req.method === "POST" && req.routeOptions.url?.endsWith("/contacts") && !hasContactPrivacyConsent(req.body)) {
       return reply.code(400).send({ error: { message: "privacy_consent_required" } });
     }
   });
