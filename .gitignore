@@ -6,6 +6,7 @@ node_modules/
 # Build çıktıları
 backend/dist/
 frontend/.next/
+frontend/.next-release-*/
 frontend/out/
 packages/shared-backend/dist/
 packages/shared-ui/dist/
