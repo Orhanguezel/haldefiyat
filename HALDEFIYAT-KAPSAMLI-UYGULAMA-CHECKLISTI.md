@@ -114,7 +114,7 @@
 - [~] F1.14 İlk MVP bildirimi mevcut Telegram admin kanalına ve alıcı/satıcı paneline bağlandı; satıcıya e-posta teslimi ve retry gözlemi bekliyor. Netgsm canlı provider/credential/flag pasif.
 - [x] F1.15 Telegram bildiriminde alıcının telefonu/e-postası/adı paylaşılmıyor; yalnız ilan, tercih zamanı, not ve talep no gönderiliyor.
 - [x] F1.16 Satıcı dashboard’una talep kabul/ret/tamamla kontrolleri ekle; geçişler backend sahiplik kuralıyla korunuyor.
-- [ ] F1.17 Satıcının uygun saat ve arama talebi kabul ayarını ekle.
+- [x] F1.17 Satıcının ilan bazlı arama talebi kabul ayarı ve dört uygun zaman seçeneği forma/API'ye eklendi; backend kapalı ilanı ve seçilmemiş slotu ayrıca reddediyor. Telegram'daki sahipsiz ilanlarda kapalı. Migration, 7/7 test, canlı API ve 390×844 tarayıcı kabulü: `artifacts/renewal-2026/satici-arama-tercihleri-kabul-2026-08-14.md`.
 - [x] F1.18 Alıcı dashboard’una talep durumu ve yalnız açık talepte iptal kontrolü ekle.
 - [x] F1.19 “Satıcıyı ara” CTA/formu deploy edildi; desktop sidebar sticky, mobil CTA alt navigasyonun üstünde 390×844 canlı Playwright görüntüsüyle doğrulandı.
 - [x] F1.20 Panel başlığını “Arama talebi gönder” yap; anlık bağlantı vaadi verme.
@@ -361,13 +361,13 @@
 - [ ] P4.62 Fiyat, miktar, birim, konum ve ilan zamanını üst hiyerarşide göster.
 - [ ] P4.63 Görsel galeriye boyut, alt metin ve lazy loading kuralları uygula.
 - [ ] P4.64 Satıcı rozetleri ve hesap yaşını doğru tanımlarla göster.
-- [ ] P4.65 “Satıcıyı ara” birincil, “Mesaj gönder” ikincil CTA olsun.
+- [x] P4.65 “Satıcıyı ara” birincil, “Mesaj gönder” ikincil CTA; canlı desktop sidebar ve mobil sticky CTA ile doğrulandı.
 - [ ] P4.66 Desktop side panel ve mobil bottom sheet aynı form sözleşmesini kullansın.
-- [ ] P4.67 Maskeli kullanıcı numarası ve doğrulama durumunu göster; satıcı numarasını gösterme.
-- [ ] P4.68 Uygun saat, kısa not, gizlilik ve gönder aksiyonunu minimum alanla sun.
-- [ ] P4.69 Talebin iletildiğini ve geri dönüş garantisi olmadığını açıkça belirt.
+- [x] P4.67 Yetkili profil özeti yalnız kullanıcının maskeli numarasını/doğrulama durumunu gösteriyor; satıcı numarası public DTO, HTML/RSC ve arayüzde yok.
+- [x] P4.68 Form yalnız satıcının açık bıraktığı uygun saatleri, isteğe bağlı kısa notu, zorunlu gizlilik onayını ve gönder aksiyonunu sunuyor.
+- [x] P4.69 Başarı metni talebin iletildiğini ve satıcının geri dönüş yapabileceğini; form metni anlık görüşme garantisi olmadığını açıkça belirtiyor.
 - [ ] P4.70 Raporla/kaydet/paylaş aksiyonlarını ikincil bölgede tut.
-- [ ] P4.71 Listing schema’da public telefon bulunmadığını test et.
+- [x] P4.71 Public listing DTO'sunda `contactPhone:null` ve `raw:null`; serbest metin telefon/e-posta redaksiyonu unit test ve canlı API/HTML taramasıyla doğrulandı.
 
 ### 6.8 Firma rehberi ve firma detayları
 
@@ -638,7 +638,7 @@
 
 - [x] E37 Deploy scripti git-only ve `git pull --ff-only`: local commit+push → VPS drift/kesişim kontrolü → build. rsync/scp ve `reset --hard` normal akışta yok.
 - [x] E38 Build çıktısı pipe edilmiyor ve log dosyasına yazılıyor. Canlı ISR ile üç kez görülen `.next/cache ENOTEMPTY` yarışı release bazlı `NEXT_DIST_DIR=.next-release-<sha>` ile kapandı; VPS ilk-deneme build ve dört rota kabulü geçti.
-- [ ] E39 Frontend/admin için `pm2 restart hal-frontend hal-admin --update-env` (reload DEĞİL — standalone eski HTML/chunk servis eder); restart öncesi `.next/standalone/.../server.js` varlığı doğrulanır; backend'de `pm2 reload hal-backend` yeterli.
+- [x] E39 Deploylarda backend `pm2 reload`, değişen frontend `pm2 restart --update-env` kullanılıyor; `.next-release-<sha>/standalone/.../server.js` ve release static dizini restart öncesi doğrulanıyor. Admin değişmediği deployda gereksiz restart edilmedi.
 - [ ] E40 Ürün sayfaları ISR'da: tema rollout'unda revalidate/cache purge planı yapılır; F9.7 eski/yeni CSS-HTML karışımı testi ISR sayfalarını da kapsar.
 - [~] E41 Rollout sonrası nginx/PM2 taraması yapıldı; yeni release’de ChunkLoadError yok, standalone script doğru. Ancak tek-instance restart anında 20:14:04–20:14:06 UTC arasında yaklaşık 2 saniyelik 502 görüldü; cluster rolling reload veya blue/green switch bekliyor.
 
