@@ -77,6 +77,7 @@ CREATE TABLE IF NOT EXISTS `hf_price_history` (
   UNIQUE KEY `hf_ph_product_market_date_uq` (`product_id`, `market_id`, `recorded_date`),
   KEY `hf_ph_recorded_date` (`recorded_date`),
   KEY `hf_ph_source_api` (`source_api`),
+  KEY `idx_ph_market_date_product` (`market_id`, `recorded_date`, `product_id`),
   CONSTRAINT `fk_hf_ph_product` FOREIGN KEY (`product_id`) REFERENCES `hf_products` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_hf_ph_market`  FOREIGN KEY (`market_id`)  REFERENCES `hf_markets` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

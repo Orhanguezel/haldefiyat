@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS hf_listings (
   contact_phone VARCHAR(128) NULL,
   phone_verified TINYINT(1) NOT NULL DEFAULT 0,
   hide_phone TINYINT(1) NOT NULL DEFAULT 0,
+  call_requests_enabled TINYINT NOT NULL DEFAULT 1,
+  call_availability VARCHAR(96) NOT NULL DEFAULT 'asap,morning,afternoon,evening',
 
   valid_until DATE NOT NULL,
   status ENUM('pending','approved','rejected','expired','closed') NOT NULL DEFAULT 'pending',
@@ -91,6 +93,26 @@ CREATE TABLE IF NOT EXISTS hf_listing_inquiries (
   CONSTRAINT hf_listing_inquiries_listing_fk FOREIGN KEY (listing_id) REFERENCES hf_listings(id) ON DELETE CASCADE,
   KEY hf_listing_inquiries_listing_idx (listing_id),
   KEY hf_listing_inquiries_status_idx (status, created_at)
+);
+
+-- Güvenli "Satıcıyı ara" talepleri — public'te numara göstermeden aracılı arama akışı.
+-- Şema, backend/scripts/migrations/20260813_add_listing_call_requests.sql ile birebir aynıdır.
+CREATE TABLE IF NOT EXISTS hf_listing_call_requests (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  listing_id INT NOT NULL,
+  buyer_user_id VARCHAR(36) NOT NULL,
+  seller_user_id VARCHAR(36) NULL,
+  preferred_slot ENUM('asap','morning','afternoon','evening') NOT NULL DEFAULT 'asap',
+  note VARCHAR(500) NULL,
+  status ENUM('pending','notified','accepted','declined','expired','cancelled','completed') NOT NULL DEFAULT 'pending',
+  consent_at DATETIME(3) NOT NULL,
+  notified_at DATETIME(3) NULL,
+  resolved_at DATETIME(3) NULL,
+  created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  KEY hf_call_requests_listing_status_idx (listing_id, status, created_at),
+  KEY hf_call_requests_buyer_idx (buyer_user_id, created_at),
+  KEY hf_call_requests_seller_idx (seller_user_id, status, created_at)
 );
 
 -- Telefon OTP doğrulama — düşük sürtünmeli ilan girişi + güven dengesi.
