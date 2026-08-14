@@ -60,7 +60,7 @@ export default async function BannerSlot({
   }
 
   return (
-    <aside className={className} aria-label="Reklam" data-content-type="advertisement">
+    <aside className={className} aria-label={`Reklam alanı: ${position}`} data-content-type="advertisement">
       <div className={`mx-auto my-5 ${sidebar ? "max-w-[336px]" : "max-w-6xl"} px-4`}>
         <SponsorLabel />
         <div className="space-y-4">

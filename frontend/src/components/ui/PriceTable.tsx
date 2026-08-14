@@ -105,15 +105,15 @@ const CATEGORY_DOT: Record<string, string> = {
 
 // Source key "izmir_sebzemeyve" → "izmir"; renklendirme familiyaya göre.
 const SOURCE_FAMILY_BADGE: Record<string, string> = {
-  izmir:     "bg-green-500/15 text-green-300 border-green-500/30",
-  konya:     "bg-amber-500/15 text-amber-300 border-amber-500/30",
-  kayseri:   "bg-red-500/15 text-red-300 border-red-500/30",
-  eskisehir: "bg-indigo-500/15 text-indigo-300 border-indigo-500/30",
-  denizli:   "bg-pink-500/15 text-pink-300 border-pink-500/30",
-  antalya:   "bg-orange-500/15 text-orange-300 border-orange-500/30",
-  ibb:       "bg-blue-500/15 text-blue-300 border-blue-500/30",
-  hal:       "bg-teal-500/15 text-teal-300 border-teal-500/30",
-  manual:    "bg-white/10 text-(--color-muted) border-white/10",
+  izmir:     "border-green-300 bg-green-100 text-green-900 dark:border-green-500/30 dark:bg-green-500/15 dark:text-green-200",
+  konya:     "border-amber-300 bg-amber-100 text-amber-950 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-200",
+  kayseri:   "border-red-300 bg-red-100 text-red-900 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-200",
+  eskisehir: "border-indigo-300 bg-indigo-100 text-indigo-900 dark:border-indigo-500/30 dark:bg-indigo-500/15 dark:text-indigo-200",
+  denizli:   "border-pink-300 bg-pink-100 text-pink-900 dark:border-pink-500/30 dark:bg-pink-500/15 dark:text-pink-200",
+  antalya:   "border-orange-300 bg-orange-100 text-orange-950 dark:border-orange-500/30 dark:bg-orange-500/15 dark:text-orange-200",
+  ibb:       "border-blue-300 bg-blue-100 text-blue-900 dark:border-blue-500/30 dark:bg-blue-500/15 dark:text-blue-200",
+  hal:       "border-teal-300 bg-teal-100 text-teal-900 dark:border-teal-500/30 dark:bg-teal-500/15 dark:text-teal-200",
+  manual:    "border-slate-300 bg-slate-100 text-slate-900 dark:border-white/10 dark:bg-white/10 dark:text-(--color-muted)",
 };
 
 function humanizeSlug(slug: string): string {
@@ -898,12 +898,12 @@ export default function PriceTable({
                           {sourceCompactLabel(row.sourceName, row.sourceApi)}
                         </span>
                         {row.isOfficialSource && (
-                          <span className="inline-flex items-center rounded-[5px] border border-emerald-400/25 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-200">
+                          <span className="inline-flex items-center rounded-[5px] border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-900 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-200">
                             Resmi kaynak
                           </span>
                         )}
                         {row.isStale && (
-                          <span className="inline-flex items-center rounded-[5px] border border-amber-400/25 bg-amber-400/10 px-2 py-0.5 text-[10px] font-semibold text-amber-200">
+                          <span className="inline-flex items-center rounded-[5px] border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-950 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-200">
                             {isBorsaTable ? "Geçen sezon" : "Gecikmeli"}
                           </span>
                         )}
@@ -912,7 +912,7 @@ export default function PriceTable({
                             href={row.sourceUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center rounded-[5px] border border-sky-400/25 bg-sky-400/10 px-2 py-0.5 text-[10px] font-semibold text-sky-200 hover:border-sky-300/50"
+                            className="inline-flex items-center rounded-[5px] border border-sky-300 bg-sky-100 px-2 py-0.5 text-[10px] font-semibold text-sky-900 hover:border-sky-500 dark:border-sky-400/25 dark:bg-sky-400/10 dark:text-sky-200 dark:hover:border-sky-300/50"
                           >
                             Doğrulanabilir
                           </a>

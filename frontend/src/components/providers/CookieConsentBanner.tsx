@@ -46,7 +46,11 @@ export function CookieConsentBanner() {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-x-3 bottom-3 z-[300] mx-auto max-w-4xl rounded-lg border border-(--color-border) bg-(--color-surface) p-4 shadow-2xl sm:inset-x-6 sm:bottom-6">
+    <div
+      role="region"
+      aria-label="Çerez tercihleri"
+      className="fixed inset-x-3 bottom-3 z-[300] mx-auto max-w-4xl rounded-lg border border-(--color-border) bg-(--color-surface) p-4 shadow-2xl sm:inset-x-6 sm:bottom-6"
+    >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0 text-[13px] leading-5 text-(--color-muted)">
           <strong className="text-(--color-foreground)">Çerez tercihi:</strong>{" "}
