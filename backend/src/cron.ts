@@ -18,7 +18,7 @@ import { syncInflation } from "@/modules/inflation";
 import { env } from "@/core/env";
 import { runFirmDirectoryEtl } from "@/modules/firms/service";
 import { runFirmDailyPriceReminders } from "@/modules/firms/reminders";
-import { expireListings, sendListingExpiryReminders } from "@/modules/listings";
+import { expireListings, purgeListingPersonalData, sendListingExpiryReminders } from "@/modules/listings";
 import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
 import { submitToIndexNow } from "@/modules/indexnow";
 import { cleanupOldEtlRuns } from "@/modules/etl/maintenance";
@@ -77,6 +77,7 @@ export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] }
     { name: "search-volume-sync", schedule: E.searchVolumeSchedule,     category: "seo",      description: "GSC gosterimlerinden arama hacmi doldur (haftalik)" },
     { name: "etl-retention",      schedule: E.runRetentionSchedule,     category: "bakim",    description: "Eski ETL run loglarini buda (aylik, son 90 gun tutulur)" },
     { name: "audit-retention",    schedule: E.auditRetentionSchedule,   category: "bakim",    description: "Eski audit loglarini buda (gunluk)" },
+    { name: "listing-privacy-retention", schedule: E.auditRetentionSchedule, category: "bakim", description: "Cozulmus arama talebi ve suresi gecmis OTP verisini buda" },
     { name: "social-queue",       schedule: S.queueSchedule,            category: "sosyal",   description: "Sosyal medya yayin kuyrugunu isle" },
     { name: "social-daily-movers", schedule: S.dailyMoversSchedule,     category: "sosyal",   description: "Gunun en cok degisen fiyatlarini tweet et" },
     { name: "banner-lifecycle",   schedule: "*/5 * * * *",              category: "reklam",   description: "Reklam kampanya durumlari + hedef denetimi + odeme hatirlatma" },
@@ -106,6 +107,7 @@ export function startCron(app: FastifyInstance): void {
     { name: "etl-retention",    schedule: env.ETL.runRetentionSchedule,    handler: () => runEtlRetentionJob(app) },
     // Günlük audit log retention — tablo ~67K satir/gun büyüyor, pencere dışını buda
     { name: "audit-retention",  schedule: env.ETL.auditRetentionSchedule,   handler: () => runAuditRetentionJob(app) },
+    { name: "listing-privacy-retention", schedule: env.ETL.auditRetentionSchedule, handler: () => runListingPrivacyRetentionJob(app) },
     // Haftalık erken uyarı — fırlayan temel gıdaları (soğan imzası) proaktif bildir
     { name: "early-warning",    schedule: env.ETL.earlyWarningSchedule,     handler: () => runEarlyWarningJob(app) },
     // ANTKOMDER fiyatları öğleden sonra yayınlandığı için ikinci çalıştırma
@@ -279,6 +281,17 @@ async function runListingsExpireJob(app: FastifyInstance): Promise<void> {
     app.log.info({ expired, durationMs: Date.now() - t0 }, "[cron:listings-expire] tamamlandi");
   } catch (err) {
     app.log.error({ err }, "[cron:listings-expire] hata");
+  }
+}
+
+async function runListingPrivacyRetentionJob(app: FastifyInstance): Promise<void> {
+  try {
+    const result = await purgeListingPersonalData();
+    if (result.callRequestsDeleted || result.otpDeleted) {
+      app.log.info(result, "[cron:listing-privacy-retention] tamamlandi");
+    }
+  } catch (err) {
+    app.log.error({ err }, "[cron:listing-privacy-retention] hata");
   }
 }
 
