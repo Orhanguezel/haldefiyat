@@ -5,11 +5,12 @@
 // ===================================================================
 
 import { randomUUID } from "crypto";
-import { queueTweet, repoInsertTweet } from "@agro/shared-backend/modules/twitter";
+import { repoExistsTweetBySourceRef, repoInsertTweet } from "@agro/shared-backend/modules/twitter";
 import { trendingChanges, widgetPrices } from "@/modules/prices/repository";
 import { getProductEmoji } from "@/modules/telegram-channel/emoji-map";
 import { isPlanSlotActive } from "./repository";
 import { buildMoversChartUrl, buildStaplesChartUrl, type ChartRow, type StapleRow } from "./chart";
+import { assertSocialDraft } from "./content-guard";
 
 // Popüler / mevsim ürünleri — günün fiyat tablosu için.
 const POPULAR_SLUGS = [
@@ -93,30 +94,25 @@ export async function buildTodayChartUrl(): Promise<string | null> {
 }
 
 /**
- * Günlük "Günün hareketi" tweet'ini bir sonraki 09:00 TR'ye PLANLAR (kuyruğa ileri tarihli ekler).
- * Taslak & Kuyruk'ta görünür; dispatcher vakti gelince yayınlar. sourceRef ile tekilleştirilir.
+ * Günlük "Günün hareketi" içeriğini editör onaylı TASLAK olarak üretir.
+ * Gerçek yayın yalnız ekosistem-sosyal-medya tarafından yapılır.
  */
 export async function runDailyMoversJob(): Promise<{ ok: boolean; reason?: string }> {
   if (!(await isPlanSlotActive("twitter", "morning"))) return { ok: false, reason: "slot_inactive" };
   const trending = await trendingChanges(10);
-  const scheduledAt = nextUtcHour(6); // 09:00 TR
-  const dateLabel = istanbulDateLabel(scheduledAt);
-  const dateIso = istanbulIso(scheduledAt);
+  const targetDate = nextUtcHour(6); // Taslak etiketi: sonraki 09:00 TR
+  const dateLabel = istanbulDateLabel(targetDate);
+  const dateIso = istanbulIso(targetDate);
 
   const text = buildTextFromTrend(trending, dateLabel);
   if (!text) return { ok: false, reason: "no_data" };
 
   const mediaUrl = await buildMoversChartUrl(chartRowsFrom(trending), dateLabel, dateIso);
 
-  const res = await queueTweet({
-    text,
-    platform: "twitter",
-    source: "auto",
-    sourceRef: `daily_movers:${dateIso}`,
-    scheduledAt,
-    mediaUrl,
-  });
-  return res.ok ? { ok: true } : { ok: false, reason: res.reason };
+  const sourceRef = `daily_movers:${dateIso}`;
+  if (await repoExistsTweetBySourceRef(sourceRef)) return { ok: false, reason: "duplicate" };
+  await createDraftTweet(text, "auto", mediaUrl, sourceRef);
+  return { ok: true };
 }
 
 // ── Popüler ürün fiyatları (2. günlük içerik tipi) ─────────────────────────────
@@ -146,7 +142,7 @@ function buildStaplesText(
 // (ör. limon ₺615, muz ₺449). Public tweet'e hatalı fiyat gitmesin.
 const MAX_STAPLE_PRICE = 300;
 
-/** Popüler ürün fiyatlarını bir sonraki 13:00 TR'ye planlar (tablo grafiği ile). */
+/** Popüler ürün fiyatlarını editör onaylı taslak olarak hazırlar. */
 export async function runStaplesJob(): Promise<{ ok: boolean; reason?: string }> {
   if (!(await isPlanSlotActive("twitter", "popular"))) return { ok: false, reason: "slot_inactive" };
   const raw = await widgetPrices(POPULAR_SLUGS, undefined, POPULAR_SLUGS.length);
@@ -157,9 +153,9 @@ export async function runStaplesJob(): Promise<{ ok: boolean; reason?: string }>
     .sort((a, b) => (order.get(a.productSlug) ?? 99) - (order.get(b.productSlug) ?? 99));
   if (!items.length) return { ok: false, reason: "no_data" };
 
-  const scheduledAt = nextUtcHour(10); // 13:00 TR
-  const dateLabel = istanbulDateLabel(scheduledAt);
-  const dateIso = istanbulIso(scheduledAt);
+  const targetDate = nextUtcHour(10); // Taslak etiketi: sonraki 13:00 TR
+  const dateLabel = istanbulDateLabel(targetDate);
+  const dateIso = istanbulIso(targetDate);
 
   const text = buildStaplesText(items, dateLabel);
   if (!text) return { ok: false, reason: "no_data" };
@@ -167,19 +163,15 @@ export async function runStaplesJob(): Promise<{ ok: boolean; reason?: string }>
   const chartRows: StapleRow[] = items.slice(0, 10).map((i) => ({ name: i.productName, price: i.avgPrice, changePct: i.changePct }));
   const mediaUrl = await buildStaplesChartUrl(chartRows, dateLabel, dateIso);
 
-  const res = await queueTweet({
-    text,
-    platform: "twitter",
-    source: "auto",
-    sourceRef: `staples:${dateIso}`,
-    scheduledAt,
-    mediaUrl,
-  });
-  return res.ok ? { ok: true } : { ok: false, reason: res.reason };
+  const sourceRef = `staples:${dateIso}`;
+  if (await repoExistsTweetBySourceRef(sourceRef)) return { ok: false, reason: "duplicate" };
+  await createDraftTweet(text, "auto", mediaUrl, sourceRef);
+  return { ok: true };
 }
 
 /** Yayınlanmamış TASLAK tweet oluşturur (dispatcher 'draft' statüsünü almaz). */
-export async function createDraftTweet(text: string, source = "manual", mediaUrl?: string | null): Promise<string> {
+export async function createDraftTweet(text: string, source = "manual", mediaUrl?: string | null, sourceRef?: string | null): Promise<string> {
+  assertSocialDraft(text);
   const id = randomUUID();
   await repoInsertTweet({
     id,
@@ -187,6 +179,7 @@ export async function createDraftTweet(text: string, source = "manual", mediaUrl
     content: text.slice(0, MAX_LEN),
     status: "draft",
     source,
+    source_ref: sourceRef ?? null,
     media_url: mediaUrl ?? null,
     post_format: "post",
     retry_count: 0,

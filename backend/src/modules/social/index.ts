@@ -1,24 +1,21 @@
 import type { FastifyInstance, FastifyReply } from "fastify";
 import {
   getSocialPlatformStatus,
-  sendTweet,
-  queueTweet,
   cancelQueuedTweet,
   repoListTweets,
   repoListContentPlans,
-  repoMarkTweetSent,
   type TweetRow,
   type SocialPlatform,
 } from "@agro/shared-backend/modules/twitter";
 import {
   listSocialPosts,
   listSocialTemplates,
-  getTweetById,
   setPlanActive,
   isSocialPlatform,
   type SocialPlatformKey,
 } from "./repository";
 import { createDraftTweet, buildTodayChartUrl, runDailyMoversJob, runStaplesJob } from "./daily-content";
+import { socialDraftIssues } from "./content-guard";
 
 function resolvePlatform(raw: unknown): SocialPlatformKey {
   return isSocialPlatform(raw) ? raw : "twitter";
@@ -176,63 +173,42 @@ export async function registerSocialAdmin(adminApi: FastifyInstance) {
     const text = [body.caption?.trim(), body.hashtags?.trim()].filter(Boolean).join("\n\n");
     if (!body.caption?.trim()) return reply.status(400).send({ success: false, error: "Metin boş olamaz" });
     try {
-      // Tarih varsa kuyruğa (dispatcher o zaman yayınlar); yoksa gerçek TASLAK (yayınlanmaz).
-      if (body.scheduledAt) {
-        const res = await queueTweet({
-          text,
-          platform: platform as SocialPlatform,
-          scheduledAt: new Date(body.scheduledAt),
-          mediaUrl: body.mediaUrls?.[0] ?? null,
-          source: "manual",
-        });
-        if (!res.ok) return reply.status(400).send({ success: false, error: res.reason });
-        return reply.send({ success: true, id: res.id });
-      }
+      const issues = socialDraftIssues(text);
+      if (issues.length) return reply.status(422).send({ success: false, error: "content_guard", issues });
       const id = await createDraftTweet(text, "manual", body.mediaUrls?.[0] ?? null);
-      return reply.send({ success: true, id });
+      return reply.send({
+        success: true,
+        id,
+        status: "draft",
+        requestedSchedule: body.scheduledAt ?? null,
+        publisher: "ekosistem-sosyal-medya",
+      });
     } catch (err) {
       return fail(reply, err, req.log, "admin_social_save_failed");
     }
   });
 
-  // Manuel gönderi — anında yayınla (@haldefiyat, hal publisher).
+  // HalDeFiyat gerçek yayıncı değildir. Çift-poster riskini önlemek için bu
+  // eski endpoint yalnız dış yayın kapısına yönlendiren kontrollü cevap verir.
   adminApi.post("/social/send", async (req, reply) => {
-    const body = (req.body ?? {}) as { platform?: string; caption?: string; hashtags?: string; mediaUrls?: string[] };
-    const platform = resolvePlatform(body.platform);
-    const text = [body.caption?.trim(), body.hashtags?.trim()].filter(Boolean).join("\n\n");
-    if (!body.caption?.trim()) return reply.status(400).send({ success: false, error: "Metin boş olamaz" });
-    try {
-      const res = await sendTweet({
-        text,
-        platform: platform as SocialPlatform,
-        mediaUrl: body.mediaUrls?.[0] ?? null,
-        source: "manual",
-      });
-      return reply.send({ success: true, id: res.tweet_id });
-    } catch (err) {
-      return fail(reply, err, req.log, "admin_social_send_failed");
-    }
+    return reply.status(409).send({
+      success: false,
+      error: "external_publisher_required",
+      publisher: "ekosistem-sosyal-medya",
+      action: "Taslağı kaydedip merkezi yayın kuyruğunda onaylayın.",
+    });
   });
 
   // Taslak/kuyruk kaydını ŞİMDİ yayınla (@haldefiyat).
   adminApi.post("/social/posts/:id/publish", async (req, reply) => {
     const id = String((req.params as { id?: string })?.id ?? "");
     if (!id) return reply.status(400).send({ success: false, error: "Geçersiz id" });
-    try {
-      const row = await getTweetById(id);
-      if (!row) return reply.status(404).send({ success: false, error: "Kayıt yok" });
-      if (row.status === "sent") return reply.status(400).send({ success: false, error: "Zaten yayınlandı" });
-      const res = await sendTweet({
-        text: row.content,
-        platform: row.platform as SocialPlatform,
-        mediaUrl: row.mediaUrl,
-        source: "manual",
-      });
-      await repoMarkTweetSent(id, res.tweet_id, row.platform);
-      return reply.send({ success: true, id });
-    } catch (err) {
-      return fail(reply, err, req.log, "admin_social_publish_failed");
-    }
+    return reply.status(409).send({
+      success: false,
+      id,
+      error: "external_publisher_required",
+      publisher: "ekosistem-sosyal-medya",
+    });
   });
 
   // Plan slotu aç/kapa — otomasyonu (günlük/haftalık) kontrol eder.

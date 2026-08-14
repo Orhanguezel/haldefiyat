@@ -26,7 +26,7 @@ import { cleanupOldAuditLogs } from "@/modules/audit-consumers/retention";
 import { checkAndNotifyEarlyWarning } from "@/modules/etl/early-warning";
 import { runGscBulkRefresh } from "@/modules/seo/gsc-bulk";
 import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
-import { listEnabledQueuePlatforms, processSocialQueueOnce } from "@agro/shared-backend/modules/twitter";
+import { listEnabledQueuePlatforms } from "@agro/shared-backend/modules/twitter";
 import { runDailyMoversJob, runStaplesJob, createWeeklyAnalysisDraft } from "@/modules/social/daily-content";
 import { archiveExpiredBanners, auditBannerTargets, auditLiveBannerSources, optimizeBannerPerformance, processAdPaymentReminders, sendScheduledCampaignReports, syncBannerLifecycle } from "@/modules/banners/repository";
 
@@ -133,7 +133,6 @@ export function startCron(app: FastifyInstance): void {
     { name: "gsc-index-refresh",  schedule: env.ETL.gscIndexSchedule,       handler: () => runGscIndexJob(app) },
     // search_volume'u GSC gösterimlerinden doldur — haftalık (talep yavaş değişir)
     { name: "search-volume-sync", schedule: env.ETL.searchVolumeSchedule,   handler: () => runSearchVolumeJob(app) },
-    { name: "social-queue",       schedule: env.SOCIAL.queueSchedule,        handler: () => runSocialQueueJob(app) },
     { name: "social-daily-movers", schedule: env.SOCIAL.dailyMoversSchedule,  handler: () => runDailyMoversTweetJob(app) },
     // Zamanlanmış yayın — publish_at zamanı gelen taslakları yayınlar + IndexNow ping
     { name: "scheduled-publish",  schedule: env.ETL.scheduledPublishSchedule, handler: () => runScheduledPublishJob(app) },
@@ -220,23 +219,8 @@ async function runEtlJob(app: FastifyInstance): Promise<void> {
   }
 }
 
-// Planli/zamanlanmis sosyal gönderileri yayinlar. Yayin kapisi site_settings'teki
-// twitter_enabled (env TWITTER_ENABLED DEGIL); kapaliysa processSocialQueueOnce
-// 'disabled' döner ve sessizce atlar.
-async function runSocialQueueJob(app: FastifyInstance): Promise<void> {
-  try {
-    for (let i = 0; i < 10; i++) {
-      const r = await processSocialQueueOnce();
-      if (!r.processed) break;
-      app.log.info({ id: r.id, platform: r.platform, status: r.status }, "[cron:social-queue] gönderildi");
-    }
-  } catch (err) {
-    app.log.error({ err }, "[cron:social-queue] hata");
-  }
-}
-
-// Günlük tweetleri hazırlar: movers (09:00 TR) + popüler ürün fiyatları (13:00 TR).
-// İkisi de ileri tarihli kuyruğa eklenir; dispatcher vakti gelince yayınlar.
+// Günlük sosyal kartları hazırlar: movers + popüler ürün fiyatları.
+// İkisi de taslak kalır; gerçek yayın yalnız ekosistem-sosyal-medya'dadır.
 //
 // Hazirlik, yayin kapisina bagli: hicbir platform aktif degilse tweet URETILMEZ.
 // Aksi halde dispatcher kapaliyken kuyruk her gun buyur ve platform tekrar

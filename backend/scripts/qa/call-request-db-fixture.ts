@@ -36,7 +36,7 @@ try {
     await connection.execute(
       `INSERT INTO users (id, email, password_hash, full_name, is_active, email_verified)
        VALUES (?, ?, 'qa-not-a-login-password', 'QA Call Buyer', 1, 1),
-              (?, ?, 'qa-not-a-login-password', 'QA Call Seller', 1, 1)`,
+              (?, ?, 'qa-not-a-login-password', 'QA Call Seller', 1, 0)`,
       [buyerId, buyerEmail, sellerId, sellerEmail],
     );
 
