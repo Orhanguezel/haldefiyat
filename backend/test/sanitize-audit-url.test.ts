@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { sanitizeAuditUrl } from "../src/plugins/sanitize-audit-url";
 
 describe("sanitizeAuditUrl", () => {

@@ -1,6 +1,7 @@
 import fp from "fastify-plugin";
 import * as Sentry from "@sentry/node";
 import { env } from "@/core/env";
+import { scrubBackendSentryEvent } from "./sentry-privacy";
 
 let sentryEnabled = false;
 
@@ -23,20 +24,7 @@ export default fp(async (app) => {
     dsn: env.SENTRY_DSN,
     environment: env.NODE_ENV,
     sendDefaultPii: false,
-    beforeSend(event) {
-      if (event.request) {
-        event.request.data = undefined;
-        event.request.cookies = undefined;
-        event.request.headers = undefined;
-        if (event.request.url) event.request.url = event.request.url.split("?")[0];
-      }
-      if (event.user) {
-        delete event.user.email;
-        delete event.user.ip_address;
-        delete event.user.username;
-      }
-      return event;
-    },
+    beforeSend: scrubBackendSentryEvent,
   });
   sentryEnabled = true;
   app.log.info("Sentry initialized");

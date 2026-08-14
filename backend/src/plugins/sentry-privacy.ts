@@ -1,4 +1,4 @@
-import type { ErrorEvent } from "@sentry/nextjs";
+import type { ErrorEvent } from "@sentry/node";
 
 const SENSITIVE_KEY = /(?:authorization|cookie|phone|telefon|email|mail|note|message|name|token|otp|password|secret)/i;
 const EMAIL = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
@@ -20,23 +20,13 @@ function scrubRecord(value: Record<string, unknown> | undefined): Record<string,
   if (!value) return value;
   return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, scrubValue(key, item)]));
 }
-/** Sentry keeps diagnostics, never form/contact payloads or auth headers. */
-export function scrubSentryEvent<T extends ErrorEvent>(event: T): T {
+
+export function scrubBackendSentryEvent<T extends ErrorEvent>(event: T): T {
   if (event.request) {
     event.request.data = undefined;
     event.request.cookies = undefined;
-    event.request.headers = scrubRecord(event.request.headers as Record<string, unknown>) as Record<string, string>;
-    if (event.request.url) {
-      try {
-        const url = new URL(event.request.url, "https://haldefiyat.com");
-        for (const [key, value] of [...url.searchParams.entries()]) {
-          url.searchParams.set(key, SENSITIVE_KEY.test(key) ? "[redacted]" : redactText(value));
-        }
-        event.request.url = url.toString();
-      } catch {
-        event.request.url = event.request.url.split("?")[0];
-      }
-    }
+    event.request.headers = undefined;
+    if (event.request.url) event.request.url = event.request.url.split("?")[0];
   }
   if (event.user) {
     delete event.user.email;
