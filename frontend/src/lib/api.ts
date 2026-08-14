@@ -287,6 +287,7 @@ export interface PriceHistoryRow {
   minPrice: number | string | null;
   maxPrice: number | string | null;
   avgPrice: number | string;
+  unit: string;
   marketSlug: string;
   marketName: string;
   cityName: string;

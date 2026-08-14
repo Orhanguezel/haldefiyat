@@ -15,6 +15,7 @@ export type FavoriteProduct = {
   productId: number;
   slug: string;
   nameTr: string;
+  displayName?: string | null;
   categorySlug: string;
   unit: string;
 };

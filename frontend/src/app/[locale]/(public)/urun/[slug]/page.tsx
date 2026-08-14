@@ -364,6 +364,7 @@ export default async function UrunPage({ params }: Props) {
       avgPrice: unknown;
       unit?: string | null;
       sourceName?: string | null;
+      sourceUrl?: string | null;
       marketName?: string | null;
     }>,
   ) => {

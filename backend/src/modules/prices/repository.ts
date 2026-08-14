@@ -1260,6 +1260,7 @@ export interface PriceHistoryRow {
   minPrice: string;
   maxPrice: string;
   avgPrice: string;
+  unit: string;
   marketSlug: string;
   marketName: string;
   cityName: string | null;
@@ -1280,6 +1281,7 @@ export async function productPriceHistory(
         MIN(ph.min_price) AS minPrice,
         MAX(ph.max_price) AS maxPrice,
         AVG(ph.avg_price) AS avgPrice,
+        ph.unit AS unit,
         m.slug AS marketSlug,
         m.name AS marketName,
         m.city_name AS cityName
@@ -1289,7 +1291,7 @@ export async function productPriceHistory(
       WHERE (p.slug = ${productSlug} OR p.canonical_slug = ${productSlug})
         AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)
         ${marketFilter}
-      GROUP BY m.id, m.slug, m.name, m.city_name, recordedDate
+      GROUP BY m.id, m.slug, m.name, m.city_name, ph.unit, recordedDate
       ORDER BY recordedDate, m.display_order
     `);
     return (Array.isArray(result) ? result[0] : result) as unknown as PriceHistoryRow[];
@@ -1307,6 +1309,7 @@ export async function productPriceHistory(
       minPrice:     hfPriceHistory.minPrice,
       maxPrice:     hfPriceHistory.maxPrice,
       avgPrice:     hfPriceHistory.avgPrice,
+      unit:         hfPriceHistory.unit,
       marketSlug:   hfMarkets.slug,
       marketName:   hfMarkets.name,
       cityName:     hfMarkets.cityName,

@@ -18,6 +18,7 @@ export async function registerFavorites(app: FastifyInstance) {
         productId:   hfUserFavorites.productId,
         slug:        hfProducts.slug,
         nameTr:      hfProducts.nameTr,
+        displayName: hfProducts.displayName,
         categorySlug: hfProducts.categorySlug,
         unit:        hfProducts.unit,
         createdAt:   hfUserFavorites.createdAt,
