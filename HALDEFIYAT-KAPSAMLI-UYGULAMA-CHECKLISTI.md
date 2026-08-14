@@ -279,18 +279,18 @@
 
 ### 6.1 Ana sayfa — `konsept 01`
 
-- [ ] P4.1 İlk ekranın tek görevini “ürün/hal ara ve bugünkü fiyatı gör” olarak sabitle.
-- [ ] P4.2 Ürün arama ve hal/konum seçiciyi hero’nun ana kontrolü yap.
-- [ ] P4.3 Örnek/kişiselleştirilmiş bugünkü fiyat kartında fiyatı görsel kahraman yap.
-- [ ] P4.4 Fiyat yanında birim, tarih, kaynak sayısı ve tazelik durumunu göster.
-- [ ] P4.5 Son eklenen/popüler ürünleri kısa, taranabilir bir sıra olarak tut.
-- [ ] P4.6 PriceTicker’ı kaldır veya hareket etmeyen kısa “öne çıkanlar” bileşenine dönüştür.
-- [ ] P4.7 Harita, endeks, ilan, analiz, alarm, SSS bölümlerini kısa özet + ilgili rotaya taşı.
-- [ ] P4.8 Aynı bilgiyi farklı bölümlerde tekrar etme.
-- [ ] P4.9 İlk reklamı temel fiyat görevinden sonra yerleştir ve açık etiketle.
-- [ ] P4.10 Mobilde fiyat sonucuna 1–1,5 ekran içinde ulaşılmasını doğrula.
-- [ ] P4.11 Ana sayfa yapılandırılmış verisini görünür içerikle tutarlı yap.
-- [ ] P4.12 Search→result→product event hunisini ölç.
+- [x] P4.1 İlk ekranın tek görevi “ürün/hal ara ve güncel fiyatı gör” olarak sabitlendi; mobil ve masaüstü canlı kabul edildi.
+- [x] P4.2 Ürün ve hal araması birleşik hero ana kontrolüne taşındı.
+- [x] P4.3 Hero, gerçek API satırından gelen öne çıkan son fiyatı görsel kahraman olarak gösteriyor; sahte fallback yok.
+- [x] P4.4 Hero fiyatı birim, kayıt tarihi, public kaynak adı, bir doğrulanabilir kaynak ve tazelik durumuyla gösteriyor.
+- [x] P4.5 Popüler ürünler API verisinden kısa, taranabilir sıra olarak gösteriliyor; boş veride bileşen sahte satır üretmiyor.
+- [x] P4.6 Kayan PriceTicker ana sayfa ağacından kaldırıldı; mobilde hareket etmeyen kısa fiyat sırası kullanılıyor.
+- [x] P4.7 Harita/endeks, ilan, analiz, alarm ve SSS fiyat görevinden sonra kısa özet ve ilgili rota bağlantılarıyla sunuluyor.
+- [x] P4.8 Ana sayfa bilgi mimarisi hero fiyatı, güncel fiyatlar, bölge, endeks, ilan ve analiz olarak ayrı görevlere indirildi; aynı blok tekrarlanmıyor.
+- [x] P4.9 İlk reklam hero ve temel fiyat panosundan sonra, açık etiketli ayrı slotta; mobil ana görev öncesinde reklam yok.
+- [x] P4.10 Android mobil UA ve `390x844` viewport'ta fiyat kartına 1–1,5 ekran içinde ulaşıldı; yatay taşma ve konsol hatası yok.
+- [x] P4.11 Ana sayfa Dataset schema'sı görünür veri/metodolojiyle uyumlu; lisans `https://haldefiyat.com/api-policy`.
+- [x] P4.12 `search_opened → search_submitted → search_result_selected → price_viewed` hunisi canlıda PII'siz doğrulandı. Kanıt: `artifacts/renewal-2026/anasayfa-arama-analytics-kabul-2026-08-14.md`.
 
 ### 6.2 Fiyat listesi ve canlı fiyatlar
 
@@ -424,8 +424,8 @@
 
 ## 8. Faz 6 — Analitik ve deney ölçümü
 
-- [ ] F6.1 Event isim sözlüğü, payload şeması ve PII yasağını yaz.
-- [ ] F6.2 `search_opened`, `search_submitted`, `search_result_selected`, `price_viewed` eventlerini ekle.
+- [x] F6.1 Event isim sözlüğü, payload şeması, allowlist ve PII yasağı `docs/ANALYTICS-EVENT-SOZLESMESI.md` içinde tanımlandı.
+- [x] F6.2 `search_opened`, `search_submitted`, `search_result_selected`, `price_viewed` eventleri eklendi ve canlı zincir kabulü yapıldı.
 - [ ] F6.3 Filtre kullanım ve sıfır sonuç eventlerini ekle.
 - [x] F6.4 Eşdeğer ve kayıtlı sözlükle `call_request_view`, `call_request_submit`, `call_request_cancelled` eventleri ilan/slot/ID dışında PII taşımadan çalışıyor.
 - [~] F6.5 Satıcı panelinde `accepted/declined/completed` dönüşümleri ölçülüyor; `notified` backend durum/audit kaydında fakat analytics event'i olarak henüz ayrı ölçülmüyor.
@@ -484,14 +484,14 @@
 - [x] F8.6 Listing DTO yapılandırılmış telefon/raw sızıntısı ve serbest metin telefon/e-posta redaksiyonu otomatik testli ve canlı API'de doğrulandı.
 - [ ] F8.7 Call request state/auth/rate-limit integration testleri.
 - [ ] F8.8 SEO metadata/schema/redirect testleri.
-- [ ] F8.9 Ana sayfa arama→ürün E2E.
+- [x] F8.9 Ana sayfa arama→ürün E2E canlı mobil UA'da `domates` aramasıyla tamamlandı; canonical ürün sayfası, tek H1, analytics ve 0 konsol hatası doğrulandı.
 - [ ] F8.10 İlan listesi→detay→arama talebi E2E.
 - [ ] F8.11 Analiz liste→rapor→PDF/paylaş E2E.
 - [~] F8.12 Harita/data-health filtre ve status E2E. (`/data-health`: 390 px, taşma yok, 56 kart, konsol 0 hata; harita bekliyor.)
 - [ ] F8.13 API Pro başvuru ve reklam talep E2E.
 - [ ] F8.14 Light/dark visual regression snapshotları.
 - [ ] F8.15 7 konsept ekran ailesi için canlı sonrası karşılaştırmalı screenshot seti.
-- [~] F8.16 Frontend lint exit 0, 23 dosya/68 test, tam TypeScript ve production build; backend hedefli 8 test ve VPS production build yeşil. Sahipliği belirsiz shared-backend/borsa parser WIP'i yerel tam backend suite'i blokluyor. Kanıt: `artifacts/renewal-2026/gizlilik-birim-tarih-qa-kabulu-2026-08-14.md`.
+- [x] F8.16 Frontend lint, TypeScript ve production build; 26 frontend test dosyası/76 test ile 25 backend test dosyası/111 test geçti. Backend tam suite katı env doğrulaması nedeniyle yalnız test sürecine verilen test secret'larıyla koştu. Kanıt: `artifacts/renewal-2026/anasayfa-arama-analytics-kabul-2026-08-14.md`.
 
 ## 11. Faz 9 — Kademeli yayın ve canlı doğrulama
 
