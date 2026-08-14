@@ -33,6 +33,7 @@ export function CookieConsentBanner() {
   function accept() {
     persistConsent("accepted");
     updateGoogleConsent(true);
+    (window as Window & { __hfLoadAnalytics?: () => void }).__hfLoadAnalytics?.();
     captureAttribution();
     setVisible(false);
   }
