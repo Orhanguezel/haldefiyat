@@ -314,6 +314,15 @@ function marketTypeCondition(marketType: MarketType): SQL {
 
 const marketTypeSql = sql<MarketType>`${hfMarkets.marketType}`;
 
+async function resolveMarketScopeIds(params: { market?: string; marketType?: MarketType }): Promise<number[] | null> {
+  if (!params.market && !params.marketType) return null;
+  const conditions: SQL[] = [];
+  if (params.market) conditions.push(eq(hfMarkets.slug, params.market));
+  if (params.marketType) conditions.push(marketTypeCondition(params.marketType));
+  const rows = await db.select({ id: hfMarkets.id }).from(hfMarkets).where(and(...conditions));
+  return rows.map((row) => Number(row.id)).filter(Number.isFinite);
+}
+
 export async function listPriceRows(params: {
   product?: string;
   q?: string;
@@ -339,20 +348,19 @@ export async function listPriceRows(params: {
     hfPriceHistory.marketId,
     hfPriceHistory.sourceApi,
   );
+  const marketScopeIds = await resolveMarketScopeIds(params);
+  if (marketScopeIds?.length === 0) return [];
 
   // Market bazlı anchor: belirli bir hal seçiliyse o halin son tarihi kullanılır.
   // Global anchor kullansaydık, en yeni güncellenen hal tüm pencerenin referansı
   // olurdu — güncel olmayan haller boş görünürdü.
   let anchor: string | null;
-  if (params.market || params.marketType) {
-    const marketConds: SQL[] = [];
-    if (params.market) marketConds.push(eq(hfMarkets.slug, params.market));
-    if (params.marketType) marketConds.push(marketTypeCondition(params.marketType));
+  if (marketScopeIds) {
+    const marketConds: SQL[] = [inArray(hfPriceHistory.marketId, marketScopeIds)];
     if (notBlackouted) marketConds.push(notBlackouted);
     const mRows = await db
       .select({ d: sql<string | null>`MAX(${hfPriceHistory.recordedDate})` })
       .from(hfPriceHistory)
-      .innerJoin(hfMarkets, eq(hfPriceHistory.marketId, hfMarkets.id))
       .where(and(...marketConds));
     const raw: unknown = mRows[0]?.d;
     anchor = raw ? (raw instanceof Date ? (raw as Date).toISOString().slice(0, 10) : String(raw).slice(0, 10)) : null;
@@ -379,8 +387,7 @@ export async function listPriceRows(params: {
   // Ürün filtresi ailesiyle: master slug + canonical çocukları (varyantlar fiyatını
   // kendi ürününde tutar, master sayfası aileyi gösterimde toplar — her satır kendi adıyla).
   if (params.product)  conds.push(or(eq(hfProducts.slug, params.product), eq(hfProducts.canonicalSlug, params.product))!);
-  if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
-  if (params.marketType) conds.push(marketTypeCondition(params.marketType));
+  if (marketScopeIds) conds.push(inArray(hfPriceHistory.marketId, marketScopeIds));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
   if (params.unit?.trim()) conds.push(eq(hfPriceHistory.unit, params.unit.trim()));
   if (params.q?.trim()) {
@@ -517,17 +524,18 @@ async function priceQueryContext(params: {
     hfPriceHistory.marketId,
     hfPriceHistory.sourceApi,
   );
+  const marketScopeIds = await resolveMarketScopeIds(params);
+  if (marketScopeIds?.length === 0) {
+    return { days, windowConds: [sql`FALSE`] as SQL[], conds: [sql`FALSE`] as SQL[] };
+  }
 
   let anchor: string | null;
-  if (params.market || params.marketType) {
-    const marketConds: SQL[] = [];
-    if (params.market) marketConds.push(eq(hfMarkets.slug, params.market));
-    if (params.marketType) marketConds.push(marketTypeCondition(params.marketType));
+  if (marketScopeIds) {
+    const marketConds: SQL[] = [inArray(hfPriceHistory.marketId, marketScopeIds)];
     if (notBlackouted) marketConds.push(notBlackouted);
     const mRows = await db
       .select({ d: sql<string | null>`MAX(${hfPriceHistory.recordedDate})` })
       .from(hfPriceHistory)
-      .innerJoin(hfMarkets, eq(hfPriceHistory.marketId, hfMarkets.id))
       .where(and(...marketConds));
     const raw: unknown = mRows[0]?.d;
     anchor = raw ? (raw instanceof Date ? raw.toISOString().slice(0, 10) : String(raw).slice(0, 10)) : null;
@@ -551,8 +559,7 @@ async function priceQueryContext(params: {
   // Ürün filtresi ailesiyle: master slug + canonical çocukları (varyantlar fiyatını
   // kendi ürününde tutar, master sayfası aileyi gösterimde toplar — her satır kendi adıyla).
   if (params.product)  conds.push(or(eq(hfProducts.slug, params.product), eq(hfProducts.canonicalSlug, params.product))!);
-  if (params.market)   conds.push(eq(hfMarkets.slug, params.market));
-  if (params.marketType) conds.push(marketTypeCondition(params.marketType));
+  if (marketScopeIds) conds.push(inArray(hfPriceHistory.marketId, marketScopeIds));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
   if (params.unit?.trim()) conds.push(eq(hfPriceHistory.unit, params.unit.trim()));
   if (params.q?.trim()) {
@@ -684,22 +691,23 @@ export async function listPriceRowsPage(params: {
     return { items: enrichPriceRows(items), total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
   }
 
-  const totalRows = await db
-    .select({ total: sql<number>`COUNT(*)` })
-    .from(hfPriceHistory)
-    .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
-    .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
-    .where(and(...conds));
-
-  const items = await db
-    .select(priceColumns)
-    .from(hfPriceHistory)
-    .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
-    .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
-    .where(and(...conds))
-    .orderBy(...order)
-    .limit(limit)
-    .offset(offset);
+  const [totalRows, items] = await Promise.all([
+    db
+      .select({ total: sql<number>`COUNT(*)` })
+      .from(hfPriceHistory)
+      .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+      .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+      .where(and(...conds)),
+    db
+      .select(priceColumns)
+      .from(hfPriceHistory)
+      .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+      .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+      .where(and(...conds))
+      .orderBy(...order)
+      .limit(limit)
+      .offset(offset),
+  ]);
 
   const total = Number(totalRows[0]?.total ?? 0);
   return { items: enrichPriceRows(items), total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
