@@ -6,6 +6,7 @@ import { sendEmailAlert, buildAlertEmailHtml } from "./email";
 import { sendToExternalIds, isOneSignalConfigured } from "@/modules/notifications/onesignal";
 import { repoGetUserByEmail } from "@agro/shared-backend/modules/auth/repository";
 import { createUserNotification } from "@agro/shared-backend/modules/notifications/service";
+import { blackoutFilter } from "@/modules/prices/blackouts";
 
 const RETRIGGER_COOLDOWN_HOURS = 24;
 
@@ -49,6 +50,11 @@ async function fetchActiveAlerts(): Promise<ActiveAlert[]> {
 async function fetchLatestPrice(productId: number, marketId: number | null): Promise<LatestPriceRow | null> {
   const conds = [eq(hfPriceHistory.productId, productId)];
   if (marketId != null) conds.push(eq(hfPriceHistory.marketId, marketId));
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
 
   const rows = await db
     .select({
@@ -60,7 +66,7 @@ async function fetchLatestPrice(productId: number, marketId: number | null): Pro
     .from(hfPriceHistory)
     .innerJoin(hfMarkets,  eq(hfMarkets.id,  hfPriceHistory.marketId))
     .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
-    .where(and(...conds))
+    .where(and(...conds, notBlackouted))
     .orderBy(desc(hfPriceHistory.recordedDate))
     .limit(1);
 

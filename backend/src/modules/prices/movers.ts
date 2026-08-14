@@ -10,6 +10,8 @@
 import { and, between, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfPriceHistory, hfProducts } from "@/db/schema";
+import { blackoutFilter } from "./blackouts";
+import { canPublishYoy } from "./yoy-policy";
 
 // Hareket listesinde fiyat düzeyi kıyaslanabilir olmayan kategoriler yer almaz
 // (kategori ortalaması tablolarında yine görünürler).
@@ -75,6 +77,11 @@ function median(nums: number[]): number {
  * dışla" listesi yerine istatistiksel dayanıklılık — yeni bozuk kaynak çıkarsa da korur.
  */
 export async function windowByMaster(from: string, to: string): Promise<Map<string, Agg>> {
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   const rows = await db
     .select({
       masterSlug:  sql<string>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
@@ -88,6 +95,7 @@ export async function windowByMaster(from: string, to: string): Promise<Map<stri
     .where(
       and(
         between(hfPriceHistory.recordedDate, sql`${from}`, sql`${to}`),
+        notBlackouted,
         eq(hfProducts.isActive, 1),
         eq(hfPriceHistory.unit, "kg"),
         sql`${hfPriceHistory.avgPrice} > 0`,
@@ -198,6 +206,7 @@ export async function nationalMovers(limit = 10): Promise<NationalMover[]> {
   ]);
 
   const scored: NationalMover[] = [];
+  const allowYoy = canPublishYoy(latest);
   for (const [slug, c] of cur) {
     const p = prev.get(slug);
     if (!p) continue;
@@ -209,7 +218,7 @@ export async function nationalMovers(limit = 10): Promise<NationalMover[]> {
     if (Math.abs(changePct) > 80) continue;
 
     const ly = lastYear.get(slug);
-    const yoy = ly ? matchedChange(c, ly) : null;
+    const yoy = allowYoy && ly ? matchedChange(c, ly) : null;
 
     scored.push({
       productSlug: slug,

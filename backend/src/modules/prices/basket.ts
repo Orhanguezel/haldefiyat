@@ -20,6 +20,7 @@ import {
   MIN_MARKETS,
   type Agg,
 } from "./movers";
+import { canPublishYoy } from "./yoy-policy";
 
 export interface BasketRow {
   productSlug: string;
@@ -85,6 +86,7 @@ export async function weeklyBasket(): Promise<BasketRow[]> {
   const loaded = await loadWindows();
   if (!loaded) return [];
   const { cur, prev, lastYear } = loaded.w;
+  const allowYoy = canPublishYoy(loaded.latest);
 
   const basket = await db
     .select({ slug: hfBasketProducts.slug })
@@ -101,7 +103,7 @@ export async function weeklyBasket(): Promise<BasketRow[]> {
     const week = p ? matchedChange(c, p) : null;
 
     const ly = lastYear.get(b.slug);
-    const yoy = ly ? matchedChange(c, ly) : null;
+    const yoy = allowYoy && ly ? matchedChange(c, ly) : null;
 
     rows.push({
       productSlug: b.slug,
@@ -131,6 +133,7 @@ export async function weeklyBasket(): Promise<BasketRow[]> {
 export async function yearlyMovers(limit = 10): Promise<{ up: YearlyMove[]; down: YearlyMove[] }> {
   const loaded = await loadWindows();
   if (!loaded) return { up: [], down: [] };
+  if (!canPublishYoy(loaded.latest)) return { up: [], down: [] };
   const { cur, lastYear } = loaded.w;
 
   const scored: YearlyMove[] = [];

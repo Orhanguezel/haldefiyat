@@ -66,7 +66,7 @@ export async function blackoutFilter(
   // icin var, gercek veriyi degil. Boylece Wayback backfill ilerledikce o gunler
   // kendiliginden gorunur hale gelir — blackout kaydini elle daraltmak gerekmez.
   const rescued = sourceCol
-    ? sql` AND ${sourceCol} NOT LIKE ${"%" + WAYBACK_SOURCE_SUFFIX}`
+    ? sql` AND COALESCE(${sourceCol}, '') NOT LIKE ${"%" + WAYBACK_SOURCE_SUFFIX}`
     : sql``;
 
   const parts = list.map(

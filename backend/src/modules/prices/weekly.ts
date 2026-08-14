@@ -1,7 +1,8 @@
-import { between, eq, inArray, sql } from "drizzle-orm";
+import { and, between, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfPriceHistory, hfProducts } from "@/db/schema";
 import { toIsoWeekOfRange } from "./iso-week";
+import { blackoutFilter } from "./blackouts";
 
 // Haftalık hareket metodolojisi (yayınlanan raporlarla birebir aynı):
 // - Ürün AİLESİ (kanonik master) düzeyinde — aynı ürünün farklı hal yazımları tek başlıkta.
@@ -77,6 +78,11 @@ export async function weeklyPriceSummary(weekStart: string, weekEnd: string): Pr
 }
 
 async function fetchWeekRows(weekStart: string, weekEnd: string): Promise<Row[]> {
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   const rows = await db
     .select({
       productId:    hfPriceHistory.productId,
@@ -89,7 +95,10 @@ async function fetchWeekRows(weekStart: string, weekEnd: string): Promise<Row[]>
     })
     .from(hfPriceHistory)
     .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
-    .where(between(hfPriceHistory.recordedDate, sql`${weekStart}`, sql`${weekEnd}`));
+    .where(and(
+      between(hfPriceHistory.recordedDate, sql`${weekStart}`, sql`${weekEnd}`),
+      notBlackouted,
+    ));
   return rows as Row[];
 }
 

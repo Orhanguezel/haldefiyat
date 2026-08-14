@@ -18,6 +18,7 @@ import type { FastifyInstance } from "fastify";
 import { db } from "@/db/client";
 import { hfMarkets, hfPriceHistory, hfProducts } from "@/db/schema";
 import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { blackoutFilter } from "@/modules/prices/blackouts";
 
 const SITE_URL = "https://haldefiyat.com";
 
@@ -61,6 +62,11 @@ function fmtDate(iso: string): string {
  * trending API'sinden daha hafif (RSS sık çağrılır, IFTTT 15dk'da bir poll).
  */
 async function fetchLastNDaysHighlights(days = 7): Promise<DailyHighlight[]> {
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   const rows = await db
     .select({
       productSlug: hfProducts.slug,
@@ -75,6 +81,7 @@ async function fetchLastNDaysHighlights(days = 7): Promise<DailyHighlight[]> {
       gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days + 1))} DAY)`),
       eq(hfProducts.isActive, 1),
       sql`${hfMarkets.slug} NOT IN ('ulusal-hal-gov-tr')`,
+      notBlackouted,
     ))
     .groupBy(hfProducts.slug, hfProducts.nameTr, hfPriceHistory.recordedDate)
     .orderBy(desc(hfPriceHistory.recordedDate));

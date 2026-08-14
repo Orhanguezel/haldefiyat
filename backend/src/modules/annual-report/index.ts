@@ -16,6 +16,7 @@ import type { FastifyInstance } from "fastify";
 import { db } from "@/db/client";
 import { hfMarkets, hfPriceHistory, hfProducts } from "@/db/schema";
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { blackoutFilter } from "@/modules/prices/blackouts";
 
 const EXCLUDED_MARKET_SLUGS = ["ulusal-hal-gov-tr"]; // aggregate, gun ici varyans yuksek
 
@@ -60,6 +61,11 @@ interface AnnualReport {
   seasonalPeaks: SeasonalPeak[];
   cityCheapest: CityRank[];
   cityMostExpensive: CityRank[];
+  dataQuality: {
+    frozenSeriesExcluded: true;
+    affectedMarkets: string[];
+    note: string;
+  };
 }
 
 function startOfYear(year: number): string {
@@ -70,6 +76,11 @@ function endOfYear(year: number): string {
 }
 
 async function fetchOverview(year: number): Promise<YearOverview> {
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   const rows = await db
     .select({
       uniqueProducts: sql<number>`COUNT(DISTINCT product_id)`,
@@ -82,6 +93,7 @@ async function fetchOverview(year: number): Promise<YearOverview> {
     .where(and(
       gte(hfPriceHistory.recordedDate, sql`${startOfYear(year)}`),
       lte(hfPriceHistory.recordedDate, sql`${endOfYear(year)}`),
+      notBlackouted,
     ));
   const r = rows[0]!;
   // Yillik ortalama enflasyon: Q1 (Oca-Mar) AVG vs Q4 (Eki-Ara) AVG (ulusal hariç)
@@ -97,6 +109,7 @@ async function fetchOverview(year: number): Promise<YearOverview> {
       sql`${hfMarkets.slug} NOT IN ('ulusal-hal-gov-tr')`,
       gte(hfPriceHistory.recordedDate, sql`${`${year}-01-01`}`),
       lte(hfPriceHistory.recordedDate, sql`${`${year}-12-31`}`),
+      notBlackouted,
     ));
   let avgInf: number | null = null;
   const s = Number(startEndRows[0]?.startAvg);
@@ -116,6 +129,11 @@ async function fetchOverview(year: number): Promise<YearOverview> {
 }
 
 async function fetchMovers(year: number, direction: "up" | "down", limit = 10): Promise<MoverRow[]> {
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   // Yilin ilk + son 30 gun AVG'leri (cross-market median, ulusal hariç)
   const rows = await db
     .select({
@@ -132,6 +150,7 @@ async function fetchMovers(year: number, direction: "up" | "down", limit = 10): 
       lte(hfPriceHistory.recordedDate, sql`${endOfYear(year)}`),
       sql`${hfMarkets.slug} NOT IN ('ulusal-hal-gov-tr')`,
       eq(hfProducts.isActive, 1),
+      notBlackouted,
     ))
     .groupBy(hfProducts.slug, hfProducts.nameTr);
 
@@ -157,6 +176,11 @@ async function fetchMovers(year: number, direction: "up" | "down", limit = 10): 
 }
 
 async function fetchSeasonalPeaks(year: number, limit = 8): Promise<SeasonalPeak[]> {
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   // En yuksek ay (urun bazinda) — monthAvg / yearAvg orani
   const rows = await db
     .select({
@@ -173,6 +197,7 @@ async function fetchSeasonalPeaks(year: number, limit = 8): Promise<SeasonalPeak
       lte(hfPriceHistory.recordedDate, sql`${endOfYear(year)}`),
       sql`${hfMarkets.slug} NOT IN ('ulusal-hal-gov-tr')`,
       eq(hfProducts.isActive, 1),
+      notBlackouted,
     ))
     .groupBy(hfProducts.slug, hfProducts.nameTr, sql`MONTH(${hfPriceHistory.recordedDate})`);
 
@@ -210,6 +235,11 @@ async function fetchSeasonalPeaks(year: number, limit = 8): Promise<SeasonalPeak
 }
 
 async function fetchCityRanks(year: number): Promise<{ cheapest: CityRank[]; mostExpensive: CityRank[] }> {
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   // Sehir basina yillik basket AVG (tum urunlerin yillik ortalama AVG'si)
   const rows = await db
     .select({
@@ -224,6 +254,7 @@ async function fetchCityRanks(year: number): Promise<{ cheapest: CityRank[]; mos
       gte(hfPriceHistory.recordedDate, sql`${startOfYear(year)}`),
       lte(hfPriceHistory.recordedDate, sql`${endOfYear(year)}`),
       sql`${hfMarkets.slug} NOT IN ('ulusal-hal-gov-tr')`,
+      notBlackouted,
     ))
     .groupBy(hfMarkets.slug, hfMarkets.cityName)
     .having(sql`COUNT(*) > 100`); // yeterli veri olan sehirler
@@ -257,11 +288,21 @@ async function buildReport(year: number): Promise<AnnualReport> {
     seasonalPeaks,
     cityCheapest:       cityRanks.cheapest,
     cityMostExpensive:  cityRanks.mostExpensive,
+    dataQuality: {
+      frozenSeriesExcluded: true,
+      affectedMarkets: ["Bursa", "Denizli", "Eskişehir", "Alanya"],
+      note: "Aktif hal-tarih karantinalarındaki donmuş veya anomali kayıtları hariç tutuldu; yalnız arşivden doğrulanan kurtarma kayıtları korunur.",
+    },
   };
 }
 
 export async function registerAnnualReport(api: FastifyInstance) {
   api.get("/reports/annual/years", async (_req, reply) => {
+    const notBlackouted = await blackoutFilter(
+      hfPriceHistory.recordedDate,
+      hfPriceHistory.marketId,
+      hfPriceHistory.sourceApi,
+    );
     const rows = await db
       .select({
         year: sql<number>`YEAR(${hfPriceHistory.recordedDate})`,
@@ -270,6 +311,7 @@ export async function registerAnnualReport(api: FastifyInstance) {
         newestDate: sql<string>`MAX(${hfPriceHistory.recordedDate})`,
       })
       .from(hfPriceHistory)
+      .where(notBlackouted)
       .groupBy(sql`YEAR(${hfPriceHistory.recordedDate})`)
       .orderBy(desc(sql`YEAR(${hfPriceHistory.recordedDate})`));
 

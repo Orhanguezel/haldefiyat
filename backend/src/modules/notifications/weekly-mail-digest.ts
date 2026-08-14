@@ -3,7 +3,7 @@
  * abonelere SMTP uzerinden HTML mail gonderir.
  *
  * Icerik:
- *  - Temel urunler: sabit sepet, gecen yilin ayni haftasina gore degisim
+ *  - Temel urunler: sabit sepet, bir onceki haftaya gore eslesmis-sepet degisimi
  *  - Mevsimin urunleri: su an sezonunda olanlar, sezon basina gore seyir
  *
  * Neden bu ikisi: haftalik degisim cogu hafta gurultudur (bu hafta domates -%2,3,

@@ -5,6 +5,7 @@ import { and, desc, eq, gte, sql } from "drizzle-orm";
 import { resolveProductSlug } from "@/modules/etl/normalizer";
 import { trendingChanges } from "@/modules/prices/repository";
 import { parseTelegramListing } from "@/modules/listings/telegram";
+import { blackoutFilter } from "@/modules/prices/blackouts";
 
 const SITE_URL = "https://haldefiyat.com";
 
@@ -83,6 +84,11 @@ async function fetchLatestPrices(slug: string): Promise<{
     .limit(1);
   if (!product[0]) return null;
 
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   const rows = await db
     .select({
       marketSlug:   hfMarkets.slug,
@@ -95,6 +101,7 @@ async function fetchLatestPrices(slug: string): Promise<{
     .where(and(
       eq(hfPriceHistory.productId, product[0].id),
       gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 3 DAY)`),
+      notBlackouted,
     ))
     .groupBy(hfMarkets.slug, hfMarkets.cityName)
     .orderBy(desc(sql`MAX(${hfPriceHistory.recordedDate})`));

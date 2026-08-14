@@ -52,7 +52,7 @@ export const MAKALELER: AnalizMakale[] = [
 
 **Çilek ve Kiraz: Sezon Açılışı Fiyatları Bastırdı**
 
-Amasya, Balıkesir ve Bursa'dan gelen çilek hasadı pazara girmeye başladığından bu yana ortalama çilek fiyatı ₺35'ten ₺27'ye indi. Yüzde 22'lik bu düşüş, geçen yılın aynı dönemine göre de ₺8 daha ucuz olduğunu gösteriyor. Kiraz cephesinde İzmir Ödemiş ve Isparta kaynaklı erken hasat başlangıcı fiyatları ₺60-65 bandından ₺48-52 aralığına çekti. Haziran ortasında sezon doruk noktasına ulaşacağından önümüzdeki haftalarda daha da gerileme bekleniyor.
+Amasya, Balıkesir ve Bursa'dan gelen çilek hasadı pazara girmeye başladığından bu yana ortalama çilek fiyatı ₺35'ten ₺27'ye indi. Yüzde 22'lik bu dönem içi düşüş, haftalık arz artışıyla birlikte okunmalıdır. Geçen-yıl kıyası, tarihsel serideki veri karantinası nedeniyle bu raporda kullanılmamıştır. Kiraz cephesinde İzmir Ödemiş ve Isparta kaynaklı erken hasat başlangıcı fiyatları ₺60-65 bandından ₺48-52 aralığına çekti. Haziran ortasında sezon doruk noktasına ulaşacağından önümüzdeki haftalarda daha da gerileme bekleniyor.
 
 **Domates ve Patlıcanda Hafif Artış**
 

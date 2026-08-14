@@ -52,6 +52,11 @@ interface AnnualReport {
   seasonalPeaks: SeasonalPeak[];
   cityCheapest: CityRank[];
   cityMostExpensive: CityRank[];
+  dataQuality?: {
+    frozenSeriesExcluded: boolean;
+    affectedMarkets: string[];
+    note: string;
+  };
 }
 
 const MONTH_NAMES = [
@@ -202,6 +207,13 @@ export default async function YearlyReportPage({ params }: Props) {
           </Link>
         </div>
       </header>
+
+      <aside className="mb-8 rounded-xl border border-amber-300/60 bg-amber-50 px-5 py-4 text-sm leading-relaxed text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100">
+        <strong>Veri kapsamı:</strong>{" "}
+        {report.dataQuality?.note ?? "Aktif hal-tarih karantinalarındaki doğrulanmamış donmuş veya anomali kayıtları rapor hesaplarından çıkarıldı."}{" "}
+        Bu nedenle satır sayıları ham arşiv
+        toplamını değil, raporlamaya uygun doğrulanmış kapsamı gösterir.
+      </aside>
 
       {/* Özet kartları */}
       <section className="grid md:grid-cols-3 gap-4 mb-10">
@@ -364,6 +376,7 @@ export default async function YearlyReportPage({ params }: Props) {
           <li>Sezon pikleri: ürünün herhangi bir ay ortalaması yıllık ortalamadan ≥1.5x ise listelenir.</li>
           <li>Şehir karşılaştırması: sadece kg-bazlı ürünler, en az 50 kayıt olan haller.</li>
           <li>Veri kaynağı: rapor kapsamındaki resmi ve açık fiyat kaynakları; ETL ve normalizasyon ayrıntıları metodoloji sayfasındadır.</li>
+          <li>Aktif hal-tarih karantinaları tüm hesaplara uygulanmış; doğrulanmış Wayback kurtarma günleri korunmuştur.</li>
         </ul>
       </section>
 

@@ -85,6 +85,7 @@ export interface VariantPriceRow {
   unit: string;
   avgPrice: number;
   yoyPct: number | null;
+  yoyStatus?: "available" | "insufficient_history" | "insufficient_pairs";
   marketCount: number;
   observationCount: number;
   latestRecordedDate: string;
@@ -757,6 +758,7 @@ export interface WidgetPrice {
   unit: string;
   changePct: number | null;
   yoyChangePct: number | null;
+  yoyStatus?: "available" | "insufficient_history" | "insufficient_pairs";
 }
 
 export interface AutoWeeklyReport {

@@ -510,7 +510,7 @@ VALUES ('elma-fiyat-analizi-mayis-2026','Elma Fiyat Analizi — Mayıs 2026: Don
   </div>
 
 </article>','HaldeFiyat Veri Ekibi',
-  JSON_ARRAY('elma','analiz','don','fiyat makası','ihracat','mevsim','TZOB'),'2026-W21','2026-05-18','2026-05-24','2026-05-18','manual','published',0,NOW(3))
+  JSON_ARRAY('elma','analiz','don','fiyat makası','ihracat','mevsim','TZOB'),'2026-W21','2026-05-18','2026-05-24','2026-05-18','manual','draft',0,NOW(3))
 ON DUPLICATE KEY UPDATE title=VALUES(title),summary=VALUES(summary),
   content=VALUES(content),tags=VALUES(tags),iso_week=VALUES(iso_week),
   week_start=VALUES(week_start),week_end=VALUES(week_end),

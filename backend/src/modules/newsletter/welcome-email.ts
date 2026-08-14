@@ -17,7 +17,7 @@ export function buildWelcomeEmail(email: string): { subject: string; html: strin
     </div>
     <div style="padding:24px;color:#374151;font-size:14px;line-height:1.6;">
       <p style="margin:0 0 14px;">Her <strong>Pazartesi sabahı</strong> Türkiye hallerinden haftalık fiyat özetini sana göndereceğiz:
-      en çok değişen ürünler, geçen yıla göre karşılaştırma ve hal notları.</p>
+      en çok değişen ürünler, karşılaştırılabilir haftalık fiyatlar ve hal notları.</p>
       <p style="margin:0;">
         <a href="${site}/canli-hal-fiyatlari" style="display:inline-block;margin-top:6px;padding:10px 18px;background:#16a34a;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:13px;">Canlı fiyatlara göz at →</a>
       </p>

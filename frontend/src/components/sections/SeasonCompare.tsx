@@ -51,13 +51,13 @@ export default function SeasonCompare({ history, productName }: SeasonComparePro
       <header className="mb-6 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-end">
         <div>
           <div className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
-            Sezon Karşılaştırması
+            Mevsim Görünümü
           </div>
           <h3 className="mt-1 font-(family-name:--font-display) text-[18px] font-bold text-(--color-foreground)">
-            Yıllık Karşılaştırma
+            Yıllara Göre Sezon Eğrileri
           </h3>
           <p className="mt-1 text-[12px] text-(--color-muted)">
-            {productName} — aynı takvim günlerinde geçmiş yıllarla karşılaştırın.
+            {productName} fiyatlarının yıl içindeki seyrini ayrı eğrilerde inceleyin.
           </p>
         </div>
         {hasMultipleYears && (
@@ -82,11 +82,18 @@ export default function SeasonCompare({ history, productName }: SeasonComparePro
         )}
       </header>
 
+      <div className="mb-5 rounded-[10px] border border-amber-300/60 bg-amber-50 px-4 py-3 text-[12px] leading-relaxed text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100">
+        Aktif hal-tarih karantinalarındaki donmuş veya anomali kayıtları grafikten çıkarıldı;
+        arşivden doğrulanan seyrek günler korundu. Özellikle Bursa, Denizli ve Eskişehir&apos;in
+        2023–Nisan 2026 kapsamı eksiktir. Kapsamlar henüz eşit olmadığı için doğrudan
+        geçen-yıl yüzdesi Mayıs 2027&apos;ye kadar yayınlanmaz.
+      </div>
+
       {hasMultipleYears ? (
         <SeasonCompareChart history={history} productName={productName} />
       ) : (
         <div className="flex h-[180px] items-center justify-center rounded-[12px] border border-dashed border-(--color-border-soft) bg-(--color-bg-alt) px-6 text-center text-[13px] text-(--color-muted)">
-          Geçen yıl verisi henüz yok. Sezon karşılaştırması için en az iki yıllık fiyat geçmişi gerekir.
+          Karşılaştırılabilir sezon görünümü için en az iki yıllık doğrulanmış fiyat geçmişi gerekir.
         </div>
       )}
     </section>

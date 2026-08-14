@@ -10,6 +10,8 @@ import { assessPriceQuality } from "@/modules/etl/price-quality-guard";
 import { assessRetailPriceQuality } from "@/modules/etl/retail-price-quality-guard";
 import { canonicalUnit } from "@/modules/etl/canonical-contract";
 import { inferAvgPriceMethod, type AvgPriceMethod } from "./avg-price-method";
+import { blackoutFilter } from "./blackouts";
+import { publicYoyStatus } from "./yoy-policy";
 
 export function parseRangeToDays(range?: string): number {
   if (!range) return 7;
@@ -29,9 +31,15 @@ let latestRecordedDateCache: { value: string | null; expiresAt: number } | null 
 let latestRecordedDateInFlight: Promise<string | null> | null = null;
 
 async function queryLatestRecordedDate(): Promise<string | null> {
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   const rows = await db
     .select({ d: sql<string | Date | null>`MAX(${hfPriceHistory.recordedDate})` })
-    .from(hfPriceHistory);
+    .from(hfPriceHistory)
+    .where(notBlackouted);
   const raw: unknown = rows[0]?.d;
   if (!raw) return null;
   if (raw instanceof Date) return raw.toISOString().slice(0, 10);
@@ -158,18 +166,24 @@ export async function overviewStats(): Promise<{
   measuredAt: string;
   freshness: "fresh" | "stale" | "unknown";
 }> {
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   const [products, pricedProducts, currentProducts, cities, sources, markets, etl, dateBounds] = await Promise.all([
     db.select({ c: sql<number>`COUNT(*)` }).from(hfProducts).where(eq(hfProducts.isActive, 1)),
     db.select({ c: sql<number>`COUNT(DISTINCT ${hfPriceHistory.productId})` })
       .from(hfPriceHistory)
       .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
-      .where(eq(hfProducts.isActive, 1)),
+      .where(and(eq(hfProducts.isActive, 1), notBlackouted)),
     db.select({ c: sql<number>`COUNT(DISTINCT ${hfPriceHistory.productId})` })
       .from(hfPriceHistory)
       .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
       .where(and(
         eq(hfProducts.isActive, 1),
         gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 7 DAY)`),
+        notBlackouted,
       )),
     db
       .select({ c: sql<number>`COUNT(DISTINCT ${hfMarkets.cityName})` })
@@ -180,10 +194,14 @@ export async function overviewStats(): Promise<{
         eq(hfMarkets.isActive, 1),
         eq(hfProducts.isActive, 1),
         gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 30 DAY)`),
+        notBlackouted,
       )),
     db.select({ c: sql<number>`COUNT(DISTINCT ${hfPriceHistory.sourceApi})` })
       .from(hfPriceHistory)
-      .where(gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 30 DAY)`)),
+      .where(and(
+        gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 30 DAY)`),
+        notBlackouted,
+      )),
     db.select({ c: sql<number>`COUNT(*)` }).from(hfMarkets).where(eq(hfMarkets.isActive, 1)),
     db
       .select({ d: sql<string | Date | null>`MAX(${hfEtlRuns.createdAt})` })
@@ -193,7 +211,8 @@ export async function overviewStats(): Promise<{
       .select({
         earliest: sql<string | Date | null>`MIN(${hfPriceHistory.recordedDate})`,
       })
-      .from(hfPriceHistory),
+      .from(hfPriceHistory)
+      .where(notBlackouted),
   ]);
   const latest = await latestRecordedDate();
   const latestMs = latest ? new Date(`${latest}T12:00:00Z`).getTime() : Number.NaN;
@@ -249,6 +268,11 @@ export async function listPriceRows(params: {
   const days = parseRangeToDays(params.range);
   const limit = Math.min(2000, Math.max(1, params.limit ?? 500));
   const latestOnly = params.latestOnly !== false;
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
 
   // Market bazlı anchor: belirli bir hal seçiliyse o halin son tarihi kullanılır.
   // Global anchor kullansaydık, en yeni güncellenen hal tüm pencerenin referansı
@@ -258,6 +282,7 @@ export async function listPriceRows(params: {
     const marketConds: SQL[] = [];
     if (params.market) marketConds.push(eq(hfMarkets.slug, params.market));
     if (params.marketType) marketConds.push(marketTypeCondition(params.marketType));
+    if (notBlackouted) marketConds.push(notBlackouted);
     const mRows = await db
       .select({ d: sql<string | null>`MAX(${hfPriceHistory.recordedDate})` })
       .from(hfPriceHistory)
@@ -275,6 +300,7 @@ export async function listPriceRows(params: {
   const windowConds: SQL[] = [
     gte(hfPriceHistory.recordedDate, sql`DATE_SUB(${anchorSql}, INTERVAL ${sql.raw(String(days))} DAY)`),
     lte(hfPriceHistory.recordedDate, anchorSql),
+    ...(notBlackouted ? [notBlackouted] : []),
   ];
 
   // Pasif urunler (is_active=0) public fiyat sorgularindan gizlenir: aksi halde
@@ -411,12 +437,18 @@ async function priceQueryContext(params: {
   range?: string;
 }) {
   const days = parseRangeToDays(params.range);
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
 
   let anchor: string | null;
   if (params.market || params.marketType) {
     const marketConds: SQL[] = [];
     if (params.market) marketConds.push(eq(hfMarkets.slug, params.market));
     if (params.marketType) marketConds.push(marketTypeCondition(params.marketType));
+    if (notBlackouted) marketConds.push(notBlackouted);
     const mRows = await db
       .select({ d: sql<string | null>`MAX(${hfPriceHistory.recordedDate})` })
       .from(hfPriceHistory)
@@ -432,6 +464,7 @@ async function priceQueryContext(params: {
   const windowConds: SQL[] = [
     gte(hfPriceHistory.recordedDate, sql`DATE_SUB(${anchorSql}, INTERVAL ${sql.raw(String(days))} DAY)`),
     lte(hfPriceHistory.recordedDate, anchorSql),
+    ...(notBlackouted ? [notBlackouted] : []),
   ];
   // Pasif urunler (is_active=0) public fiyat sorgularindan gizlenir: aksi halde
   // /fiyatlar linki uretir ama /urun/[slug] (listProducts is_active=1 filtreli)
@@ -594,6 +627,12 @@ export async function listPriceRowsPage(params: {
 
 export async function latestPrice(params: { city?: string; product?: string; market?: string }) {
   const conds: SQL[] = [eq(hfProducts.isActive, 1), eq(hfMarkets.isActive, 1)];
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
+  if (notBlackouted) conds.push(notBlackouted);
   if (params.product?.trim()) {
     const p = likeSafe(params.product.trim());
     conds.push(or(eq(hfProducts.slug, p), like(hfProducts.nameTr, `%${p}%`), like(hfProducts.slug, `%${p}%`))!);
@@ -665,6 +704,11 @@ export async function productAliases(slug: string) {
 export async function sourceStatusRows() {
   const sources = activeSources();
   const sourceKeys = sources.map((s) => s.key);
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   const [runRows, priceRows, marketRows] = await Promise.all([
     db.execute(sql`
       SELECT r.source_api AS sourceApi, r.run_date AS runDate, r.rows_inserted AS rowsInserted,
@@ -683,6 +727,7 @@ export async function sourceStatusRows() {
         lastSourceDate: sql<string | Date>`MAX(${hfPriceHistory.recordedDate})`,
       })
       .from(hfPriceHistory)
+      .where(notBlackouted)
       .groupBy(hfPriceHistory.sourceApi),
     db
       .select({
@@ -821,6 +866,12 @@ export async function getPublishedProductEditorial(slug: string) {
 
 export async function variantPricesByMaster(masterSlug: string, range = "7d") {
   const days = Math.min(30, parseRangeToDays(range));
+  const notBlackouted = await blackoutFilter(
+    sql`ph.recorded_date`,
+    sql`ph.market_id`,
+    sql`ph.source_api`,
+  );
+  const blackoutSql = notBlackouted ? sql`AND ${notBlackouted}` : sql``;
   const result = await db.execute(sql`
     SELECT
       p.slug AS slug,
@@ -830,19 +881,13 @@ export async function variantPricesByMaster(masterSlug: string, range = "7d") {
       AVG(ph.avg_price) AS avgPrice,
       COUNT(DISTINCT ph.market_id) AS marketCount,
       COUNT(*) AS observationCount,
-      MAX(ph.recorded_date) AS latestRecordedDate,
-      (
-        SELECT AVG(ph2.avg_price)
-        FROM hf_price_history ph2
-        WHERE ph2.product_id = p.id
-          AND ph2.recorded_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 372 DAY)
-                                    AND DATE_SUB(CURDATE(), INTERVAL 358 DAY)
-      ) AS avgYoy
+      MAX(ph.recorded_date) AS latestRecordedDate
     FROM hf_products p
     INNER JOIN hf_price_history ph ON ph.product_id = p.id
     WHERE p.is_active = 1
       AND p.canonical_slug = ${masterSlug}
       AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)
+      ${blackoutSql}
     GROUP BY p.id, p.slug, p.display_name, p.name_tr, p.category_slug, p.unit
     ORDER BY avgPrice DESC, displayName ASC
     LIMIT 80
@@ -856,26 +901,25 @@ export async function variantPricesByMaster(masterSlug: string, range = "7d") {
     marketCount: string | number;
     observationCount: string | number;
     latestRecordedDate: string | Date;
-    avgYoy: string | number | null;
   }>;
 
   return rows.map((row) => {
     const avgPrice = Number(row.avgPrice ?? 0);
-    const avgYoy = row.avgYoy == null ? null : Number(row.avgYoy);
+    const latestRecordedDate = row.latestRecordedDate instanceof Date
+      ? row.latestRecordedDate.toISOString().slice(0, 10)
+      : String(row.latestRecordedDate).slice(0, 10);
+    const yoyStatus = publicYoyStatus(latestRecordedDate);
     return {
       slug: row.slug,
       displayName: row.displayName,
       categorySlug: row.categorySlug,
       unit: row.unit,
       avgPrice,
-      yoyPct: avgYoy && avgYoy > 0
-        ? Math.round(((avgPrice - avgYoy) / avgYoy) * 10_000) / 100
-        : null,
+      yoyPct: null,
+      yoyStatus,
       marketCount: Number(row.marketCount ?? 0),
       observationCount: Number(row.observationCount ?? 0),
-      latestRecordedDate: row.latestRecordedDate instanceof Date
-        ? row.latestRecordedDate.toISOString().slice(0, 10)
-        : String(row.latestRecordedDate).slice(0, 10),
+      latestRecordedDate,
       url: `/urun/${row.slug}`,
     };
   });
@@ -889,6 +933,11 @@ function isSeoEligibleProductName(name: string): boolean {
 
 export async function listSeoEligibleProducts(days: number) {
   const safeDays = Math.min(365, Math.max(1, Math.floor(days)));
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   const rows = await db
     .select({
       id:           hfProducts.id,
@@ -904,6 +953,7 @@ export async function listSeoEligibleProducts(days: number) {
     .where(and(
       eq(hfProducts.isActive, 1),
       gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(safeDays))} DAY)`),
+      notBlackouted,
     ))
     .groupBy(
       hfProducts.id,
@@ -984,6 +1034,18 @@ export async function cityPriceMap(params: {
     INDEX_BASKET_SLUGS.map((s) => sql`${s}`),
     sql`, `,
   );
+  const latestNotBlackouted = await blackoutFilter(
+    sql`recorded_date`,
+    sql`market_id`,
+    sql`source_api`,
+  );
+  const obsNotBlackouted = await blackoutFilter(
+    sql`ph.recorded_date`,
+    sql`ph.market_id`,
+    sql`ph.source_api`,
+  );
+  const latestBlackoutSql = latestNotBlackouted ? sql`AND ${latestNotBlackouted}` : sql``;
+  const obsBlackoutSql = obsNotBlackouted ? sql`AND ${obsNotBlackouted}` : sql``;
 
   // NEDEN raw SQL: CTE + self-join (Drizzle builder CTE sql-alias kolonu yanlış
   // çözümlüyor). Ayrıca priceIndex: iller farklı ürün karışımı raporladığı için
@@ -996,6 +1058,7 @@ export async function cityPriceMap(params: {
       FROM hf_price_history
       WHERE recorded_date >= DATE_SUB(${anchorExpr}, INTERVAL ${sql.raw(String(days))} DAY)
         AND recorded_date <= ${anchorExpr}
+        ${latestBlackoutSql}
       GROUP BY product_id, market_id
     ),
     obs AS (
@@ -1010,6 +1073,7 @@ export async function cityPriceMap(params: {
       INNER JOIN hf_products p ON p.id = ph.product_id AND p.is_active = 1
       INNER JOIN hf_markets  m ON m.id = ph.market_id  AND m.is_active = 1
       WHERE (m.region_slug IS NULL OR m.region_slug <> 'ulusal')
+        ${obsBlackoutSql}
     ),
     city_prod AS (
       -- base = slug'ın ilk segmenti: "elma-golden","elma-starking" → "elma".
@@ -1102,6 +1166,11 @@ const WIDGET_MAX_ABS_CHANGE_PCT = 100;
 const TRENDING_EXCLUDE_SLUGS = new Set(["ulusal-hal-gov-tr"]);
 
 export async function trendingChanges(limit = 10) {
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   const rows = await db
     .select({
       productId:    hfPriceHistory.productId,
@@ -1112,7 +1181,10 @@ export async function trendingChanges(limit = 10) {
     })
     .from(hfPriceHistory)
     .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
-    .where(gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 14 DAY)`));
+    .where(and(
+      gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 14 DAY)`),
+      notBlackouted,
+    ));
 
   const byKey = new Map<string, Obs[]>();
   for (const r of rows) {
@@ -1282,6 +1354,12 @@ export async function productPriceHistory(
   if (bucket !== "daily") {
     const bucketExpr = bucketDateSql(bucket);
     const marketFilter = marketSlug ? sql`AND m.slug = ${marketSlug}` : sql``;
+    const notBlackouted = await blackoutFilter(
+      sql`ph.recorded_date`,
+      sql`ph.market_id`,
+      sql`ph.source_api`,
+    );
+    const blackoutSql = notBlackouted ? sql`AND ${notBlackouted}` : sql``;
     const result = await db.execute(sql`
       SELECT
         ${bucketExpr} AS recordedDate,
@@ -1304,6 +1382,7 @@ export async function productPriceHistory(
       WHERE (p.slug = ${productSlug} OR p.canonical_slug = ${productSlug})
         AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)
         ${marketFilter}
+        ${blackoutSql}
       GROUP BY m.id, m.slug, m.name, m.city_name, ph.unit, recordedDate
       ORDER BY recordedDate, m.display_order
     `);
@@ -1315,6 +1394,12 @@ export async function productPriceHistory(
     gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)`),
   ];
   if (marketSlug) conds.push(eq(hfMarkets.slug, marketSlug));
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
+  if (notBlackouted) conds.push(notBlackouted);
 
   const rows = await db
     .select({
@@ -1344,6 +1429,11 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
   const productConds: SQL[] = [eq(hfProducts.isActive, 1)];
   if (slugs?.length) productConds.push(inArray(hfProducts.slug, slugs));
   if (category) productConds.push(eq(hfProducts.categorySlug, category));
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
 
   const latestRows = await db
     .select({
@@ -1358,6 +1448,7 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
     .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
     .where(and(
       gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 3 DAY)`),
+      notBlackouted,
       ...productConds,
     ))
     .groupBy(
@@ -1386,38 +1477,18 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
     .where(and(
       gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 14 DAY)`),
       lte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 7 DAY)`),
-      inArray(hfProducts.slug, latestSlugs),
-    ))
-    .groupBy(hfProducts.slug);
-
-  // Gecen yil ayni hafta (-365 ±7 gun) ortalama — yoyChangePct icin
-  // Genis pencere: 335-395 gun, sezon kaymasini absorbe etmek icin 30 gun radius
-  const yoyRows = await db
-    .select({
-      productSlug: hfProducts.slug,
-      avgPrice:    sql<string>`AVG(${hfPriceHistory.avgPrice})`,
-    })
-    .from(hfPriceHistory)
-    .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
-    .where(and(
-      gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 395 DAY)`),
-      lte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 335 DAY)`),
+      notBlackouted,
       inArray(hfProducts.slug, latestSlugs),
     ))
     .groupBy(hfProducts.slug);
 
   const prevMap = new Map(prevRows.map((r) => [r.productSlug, Number(r.avgPrice)]));
-  const yoyMap = new Map(yoyRows.map((r) => [r.productSlug, Number(r.avgPrice)]));
 
   return latestRows.map((r) => {
     const latest = Number(r.avgPrice);
     const prev = prevMap.get(r.productSlug);
-    const yoy = yoyMap.get(r.productSlug);
     const rawPct = prev && prev > 0 ? Math.round((10000 * (latest - prev)) / prev) / 100 : null;
     const changePct = rawPct !== null && Math.abs(rawPct) <= WIDGET_MAX_ABS_CHANGE_PCT ? rawPct : null;
-    // YoY icin daha genis tolerans — sezon kaymalari ve enflasyon nedeniyle 300% gorulebilir
-    const rawYoy = yoy && yoy > 0 ? Math.round((10000 * (latest - yoy)) / yoy) / 100 : null;
-    const yoyChangePct = rawYoy !== null && Math.abs(rawYoy) <= 400 ? rawYoy : null;
     return {
       productSlug:  r.productSlug,
       canonicalProduct: r.canonicalProduct,
@@ -1426,7 +1497,10 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
       avgPrice:     latest,
       unit:         r.unit ?? "kg",
       changePct,
-      yoyChangePct,
+      // Frozen 2023-April 2026 series makes public YoY non-comparable. Keep the
+      // field nullable for API compatibility and expose the reason explicitly.
+      yoyChangePct: null,
+      yoyStatus: "insufficient_history" as const,
     };
   });
 }

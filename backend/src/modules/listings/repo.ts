@@ -6,6 +6,7 @@ import { buildListingSlug } from "./slug";
 import { hfListingCallRequests, hfListingImages, hfListingInquiries, hfListings } from "./schema";
 import { users } from "@agro/shared-backend/modules/auth/schema";
 import { profiles } from "@agro/shared-backend/modules/profiles/schema";
+import { blackoutFilter } from "@/modules/prices/blackouts";
 import { maskOwnPhone } from "./public";
 
 async function imagesByListing(ids: number[]): Promise<Map<number, string[]>> {
@@ -45,10 +46,15 @@ async function resolveProduct(slug?: string | null, fallback?: string) {
 
 async function isSuspiciousPrice(productId: number | null, priceType?: string | null, priceMin?: number | null) {
   if (!productId || priceType !== "sabit" || priceMin == null) return 0;
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   const [row] = await db
     .select({ avgPrice: hfPriceHistory.avgPrice })
     .from(hfPriceHistory)
-    .where(eq(hfPriceHistory.productId, productId))
+    .where(and(eq(hfPriceHistory.productId, productId), notBlackouted))
     .orderBy(desc(hfPriceHistory.recordedDate))
     .limit(1);
   const avg = Number(row?.avgPrice ?? 0);

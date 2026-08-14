@@ -46,6 +46,7 @@ import { getProductEditorial } from "@/lib/product-content";
 import AnswerBlock from "@/components/seo/AnswerBlock";
 import { calculateWindowTrend } from "@/lib/citability";
 import BannerSlot from "@/components/ads/BannerSlot";
+import { canShowPublicYoy } from "@/lib/yoy-policy";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -303,7 +304,12 @@ export default async function UrunPage({ params }: Props) {
 
 
   const now = Date.now();
+  const latestHistoryDate = history.reduce<string | null>((latest, row) => {
+    const iso = String(row.recordedDate).slice(0, 10);
+    return !latest || iso > latest ? iso : latest;
+  }, null);
   const yoyByMarket: Record<string, number> = (() => {
+    if (!canShowPublicYoy(latestHistoryDate)) return {};
     const buckets: Record<string, { sum: number; count: number }> = {};
     for (const h of history) {
       const daysAgo = Math.round(

@@ -19,6 +19,7 @@ import { and, between, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfBasketProducts, hfPriceHistory, hfProducts } from "@/db/schema";
 import { isoShift, latestRecordedDate, MAX_MINMAX_SPREAD, MIN_MARKETS, MOVER_EXCLUDED_CATEGORIES } from "./movers";
+import { blackoutFilter } from "./blackouts";
 
 /** Yilin bu kadar ayri haftasindan azinda gorulen urun mevsimlik sayilir. */
 const YEAR_ROUND_WEEKS = 44;
@@ -48,6 +49,11 @@ type WeekKey = number;
  * fiyati ayni veriden cikar; ikinci sorgu gerekmez.
  */
 async function weeklyGrid(fromIso: string, toIso: string): Promise<Map<string, Map<WeekKey, WeekCell>>> {
+  const notBlackouted = await blackoutFilter(
+    hfPriceHistory.recordedDate,
+    hfPriceHistory.marketId,
+    hfPriceHistory.sourceApi,
+  );
   const rows = await db
     .select({
       masterSlug: sql<string>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
@@ -61,6 +67,7 @@ async function weeklyGrid(fromIso: string, toIso: string): Promise<Map<string, M
     .where(
       and(
         between(hfPriceHistory.recordedDate, sql`${fromIso}`, sql`${toIso}`),
+        notBlackouted,
         eq(hfProducts.isActive, 1),
         eq(hfPriceHistory.unit, "kg"),
         sql`${hfPriceHistory.avgPrice} > 0`,
