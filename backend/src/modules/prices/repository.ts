@@ -378,7 +378,13 @@ export async function listPriceRows(params: {
           rd:        sql<string>`MAX(${hfPriceHistory.recordedDate})`.as("rd"),
         })
         .from(hfPriceHistory)
-        .where(and(...windowConds))
+        // Ürün/hal/kategori filtrelerini CTE'nin dışında bırakmak özellikle hal
+        // detayında her istek için 10 yıllık tablonun tamamını taratıyordu.
+        // Aynı join ve filtreleri CTE'ye iterek yalnız istenen kapsamın son
+        // (ürün, hal) tarihini hesapla; dış sorgudaki tekrar savunma amaçlıdır.
+        .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+        .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+        .where(and(...conds))
         .groupBy(hfPriceHistory.productId, hfPriceHistory.marketId),
     );
 
@@ -594,7 +600,7 @@ export async function listPriceRowsPage(params: {
   const cappedParams = !latestOnly
     ? { ...params, range: capRange(params.range, historyMaxDays) }
     : params;
-  const { windowConds, conds } = await priceQueryContext(cappedParams);
+  const { conds } = await priceQueryContext(cappedParams);
   const order = priceOrder(params.sort);
 
   if (latestOnly) {
@@ -606,7 +612,9 @@ export async function listPriceRowsPage(params: {
           rd:        sql<string>`MAX(${hfPriceHistory.recordedDate})`.as("rd"),
         })
         .from(hfPriceHistory)
-        .where(and(...windowConds))
+        .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
+        .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
+        .where(and(...conds))
         .groupBy(hfPriceHistory.productId, hfPriceHistory.marketId),
     );
 

@@ -7,25 +7,28 @@ const origin = new URL(process.argv[2] ?? "https://haldefiyat.com").origin;
 const outputDir = process.argv[3] ?? "artifacts/seo/live-crawl-2026-07-26";
 const concurrency = Math.max(1, Math.min(4, Number(process.env.CRAWL_CONCURRENCY ?? 1)));
 const crawlDelayMs = Math.max(0, Number(process.env.CRAWL_DELAY_MS ?? 500));
+const crawlMaxUrls = Math.max(0, Number(process.env.CRAWL_MAX_URLS ?? 0));
+const fetchTimeoutMs = Math.max(3_000, Number(process.env.CRAWL_FETCH_TIMEOUT_MS ?? 45_000));
+const fetchAttempts = Math.max(1, Math.min(3, Number(process.env.CRAWL_FETCH_ATTEMPTS ?? 3)));
 const userAgent = "HalDeFiyat-SEO-Audit/1.0 (+https://haldefiyat.com/security.txt)";
 
 async function fetchText(url, redirect = "follow") {
   let lastError;
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 1; attempt <= fetchAttempts; attempt++) {
     try {
       const response = await fetch(url, {
         redirect,
         headers: { "user-agent": userAgent, accept: "text/html,application/xml;q=0.9,*/*;q=0.8" },
-        signal: AbortSignal.timeout(45_000),
+        signal: AbortSignal.timeout(fetchTimeoutMs),
       });
       const text = await response.text();
-      if (![404, 429, 500, 502, 503, 504].includes(response.status) || attempt === 3) {
+      if (![404, 429, 500, 502, 503, 504].includes(response.status) || attempt === fetchAttempts) {
         return { response, text, attempts: attempt };
       }
       lastError = new Error(`retryable HTTP ${response.status}`);
     } catch (error) {
       lastError = error;
-      if (attempt === 3) throw error;
+      if (attempt === fetchAttempts) throw error;
     }
     await new Promise((resolve) => setTimeout(resolve, attempt * 750));
   }
@@ -206,14 +209,57 @@ function calculateAnchorDistribution(pages) {
   return { total, empty, generic, uniqueTexts: values.size, top };
 }
 
+function representativeSample(urls, limit) {
+  if (!limit || urls.length <= limit) return urls;
+  const families = new Map();
+  for (const url of urls) {
+    const path = new URL(url).pathname;
+    const first = path.split("/").filter(Boolean)[0] ?? "home";
+    const family = ["urun", "hal", "firma", "firmalar", "analiz", "rapor", "yazar"].includes(first)
+      ? first
+      : "static";
+    const list = families.get(family) ?? [];
+    list.push(url);
+    families.set(family, list);
+  }
+
+  const selected = [];
+  const seen = new Set();
+  const add = (url) => {
+    if (!url || seen.has(url) || selected.length >= limit) return;
+    seen.add(url);
+    selected.push(url);
+  };
+  add(`${origin}/`);
+
+  // Her dinamik aileden örnek almadan statik sayfaların limiti tüketmesine izin verme.
+  const familyOrder = ["urun", "hal", "firma", "firmalar", "analiz", "rapor", "yazar", "static"];
+  let cursor = 0;
+  while (selected.length < limit) {
+    let added = false;
+    for (const family of familyOrder) {
+      const url = families.get(family)?.[cursor];
+      if (!url) continue;
+      const before = selected.length;
+      add(url);
+      added ||= selected.length > before;
+      if (selected.length >= limit) break;
+    }
+    if (!added) break;
+    cursor++;
+  }
+  return selected;
+}
+
 function markdown(report) {
   const s = report.summary;
   const lines = [
-    "# HalDeFiyat Canlı SEO Crawl — 2026-07-26",
+    `# HalDeFiyat Canlı SEO Crawl — ${report.generatedAt.slice(0, 10)}`,
     "",
     `- Origin: \`${origin}\``,
     `- Eşzamanlılık: **${report.crawl.concurrency}**; istek aralığı: **${report.crawl.delayMs} ms**`,
     `- Sitemap URL: **${s.total}**`,
+    `- Sitemap toplamı: **${report.crawl.sitemapTotal}**; tarama modu: **${report.crawl.sampled ? "temsili örneklem" : "tam"}**`,
     `- HTTP 200: **${s.status200}**`,
     `- Hatalı/redirect yanıt: **${s.non200}**`,
     `- Noindex: **${s.noindex}**`,
@@ -256,12 +302,15 @@ function markdown(report) {
   if (!report.orphanCandidates.length) lines.push("- Yok.");
   for (const url of report.orphanCandidates) lines.push(`- ${url}`);
   lines.push("", "## Not", "",
-    "Bu tarama sitemap tabanlıdır. GSC indeksleme nedenleri ve dış validator sonuçları ayrı veri kaynaklarıdır.");
+    report.crawl.sampled
+      ? "Bu çalışma sitemap'ten sayfa ailelerine dengeli temsili örnek alır; orphan sayısı yalnız örneklem içi bağlantı grafiğidir. Tam orphan bazı için son tam crawl ayrıca değerlendirilmelidir."
+      : "Bu tarama sitemap tabanlıdır. GSC indeksleme nedenleri ve dış validator sonuçları ayrı veri kaynaklarıdır.");
   return `${lines.join("\n")}\n`;
 }
 
 await mkdir(outputDir, { recursive: true });
-const urls = [...new Set(await loadSitemap())];
+const sitemapUrls = [...new Set(await loadSitemap())];
+const urls = representativeSample(sitemapUrls, crawlMaxUrls);
 const pages = await pool(urls, inspectPage);
 const validPages = pages.filter((page) => !page.error);
 const depths = calculateDepth(validPages);
@@ -293,7 +342,16 @@ const summary = {
 const report = {
   generatedAt: new Date().toISOString(),
   origin,
-  crawl: { concurrency, delayMs: crawlDelayMs, userAgent },
+  crawl: {
+    concurrency,
+    delayMs: crawlDelayMs,
+    userAgent,
+    sitemapTotal: sitemapUrls.length,
+    sampled: urls.length < sitemapUrls.length,
+    requestedLimit: crawlMaxUrls || null,
+    fetchTimeoutMs,
+    fetchAttempts,
+  },
   summary,
   duplicates,
   anchorDistribution,
