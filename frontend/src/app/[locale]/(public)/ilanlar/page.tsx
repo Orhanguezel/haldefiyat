@@ -74,7 +74,7 @@ export default async function ListingsPage({ params, searchParams }: Props) {
             Resmi hal fiyatından ayrı, üretici ve alıcıları buluşturan ilan/teklif havuzu.
           </p>
         </div>
-        <Link href="/ilan-ver" className="rounded-[6px] bg-(--color-brand) px-4 py-2 text-sm font-semibold text-white">
+        <Link href="/ilan-ver" className="rounded-[6px] bg-(--color-brand) px-4 py-2 text-sm font-semibold text-(--color-brand-fg)">
           İlan ver
         </Link>
       </header>
@@ -115,7 +115,7 @@ export default async function ListingsPage({ params, searchParams }: Props) {
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <Link
               href={hasAnyFilter ? "/ilan-ver?type=alim" : "/ilan-ver"}
-              className="min-h-11 rounded-[6px] bg-(--color-brand) px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+              className="min-h-11 rounded-[6px] bg-(--color-brand) px-5 py-2.5 text-sm font-semibold text-(--color-brand-fg) transition hover:opacity-90"
             >
               {hasAnyFilter ? "Alım talebi oluştur" : "Ücretsiz ilan ver"}
             </Link>
@@ -149,7 +149,7 @@ export default async function ListingsPage({ params, searchParams }: Props) {
           </div>
           <Link
             href="/ilan-ver"
-            className="mt-4 inline-flex min-h-11 items-center rounded-[6px] bg-(--color-brand) px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 sm:mt-0 sm:shrink-0"
+            className="mt-4 inline-flex min-h-11 items-center rounded-[6px] bg-(--color-brand) px-5 py-2.5 text-sm font-semibold text-(--color-brand-fg) transition hover:opacity-90 sm:mt-0 sm:shrink-0"
           >
             İlan ver
           </Link>

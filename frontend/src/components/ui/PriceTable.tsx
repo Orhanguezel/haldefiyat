@@ -810,7 +810,7 @@ export default function PriceTable({
                 const family = sourceFamily(row.sourceApi);
                 const sourceClass =
                   SOURCE_FAMILY_BADGE[family] ??
-                  "bg-white/10 text-(--color-muted) border-white/10";
+                  "border-slate-300 bg-slate-100 text-slate-900 dark:border-white/10 dark:bg-white/10 dark:text-slate-200";
                 const yearAgoAvg = yoyByMarket?.[row.marketSlug];
                 const currentAvg = toPriceNumber(row.avgPrice);
                 const yoyPct =

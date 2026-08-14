@@ -194,7 +194,7 @@ export default function CtaNewsletter({
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackConversion("whatsapp_channel_follow")}
-              className="inline-flex items-center gap-2 rounded-[10px] border border-(--color-brand)/30 px-4 py-2 text-[14px] font-semibold text-(--color-brand) transition-colors duration-200 hover:bg-(--color-brand) hover:text-white"
+              className="inline-flex items-center gap-2 rounded-[10px] border border-(--color-brand)/30 px-4 py-2 text-[14px] font-semibold text-(--color-brand) transition-colors duration-200 hover:bg-(--color-brand) hover:text-(--color-brand-fg)"
             >
               <span aria-hidden>💬</span> WhatsApp kanalını takip et
             </a>

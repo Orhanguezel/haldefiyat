@@ -134,7 +134,7 @@ export function ListingCard({ item, compact = false }: { item: Listing; compact?
         {posted ? <span className="ml-auto">{posted}</span> : null}
       </div>
 
-      <Link href={`/ilan/${item.slug}`} className="mt-4 inline-flex min-h-11 items-center justify-center rounded-[8px] bg-(--color-brand) px-4 text-sm font-semibold text-white transition hover:opacity-90">
+      <Link href={`/ilan/${item.slug}`} className="mt-4 inline-flex min-h-11 items-center justify-center rounded-[8px] bg-(--color-brand) px-4 text-sm font-semibold text-(--color-brand-fg) transition hover:opacity-90">
         İlanı incele
       </Link>
     </article>

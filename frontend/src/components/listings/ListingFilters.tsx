@@ -111,7 +111,7 @@ export function ListingFilters({ values, products, cities }: {
     <>
       <FilterFields values={values} products={products} cities={cities} />
       <div className="flex items-end gap-2 md:col-span-2">
-        <button className="min-h-11 flex-1 rounded-[8px] bg-(--color-brand) px-4 text-sm font-semibold text-white transition hover:opacity-90">
+        <button className="min-h-11 flex-1 rounded-[8px] bg-(--color-brand) px-4 text-sm font-semibold text-(--color-brand-fg) transition hover:opacity-90">
           Sonuçları göster
         </button>
         {activeEntries.length ? (
@@ -142,7 +142,7 @@ export function ListingFilters({ values, products, cities }: {
       ) : null}
 
       <div className="fixed inset-x-0 bottom-16 z-50 border-t border-(--color-border) bg-(--color-surface)/95 p-3 shadow-[0_-8px_24px_rgba(0,0,0,0.14)] backdrop-blur md:hidden">
-        <button type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" className="mx-auto flex min-h-11 w-full max-w-xl items-center justify-center rounded-[8px] bg-(--color-brand) px-5 text-sm font-semibold text-white">
+        <button type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" className="mx-auto flex min-h-11 w-full max-w-xl items-center justify-center rounded-[8px] bg-(--color-brand) px-5 text-sm font-semibold text-(--color-brand-fg)">
           Filtrele{activeEntries.length ? ` (${activeEntries.length})` : ""}
         </button>
       </div>

@@ -35,7 +35,7 @@ export function DashboardMobileNav({ locale }: Props) {
             href={full}
             className={`flex min-h-11 shrink-0 items-center gap-2 rounded-[7px] px-3 text-xs font-semibold transition-colors ${
               active
-                ? "bg-(--color-brand) text-white"
+                ? "bg-(--color-brand) text-(--color-brand-fg)"
                 : "text-(--color-muted) hover:bg-(--color-bg-alt) hover:text-(--color-foreground)"
             }`}
             aria-current={active ? "page" : undefined}

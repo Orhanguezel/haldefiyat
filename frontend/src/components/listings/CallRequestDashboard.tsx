@@ -86,7 +86,7 @@ export function CallRequestDashboard() {
       {!loading && items.length ? (
         <div className="flex flex-wrap gap-2" role="group" aria-label="Arama taleplerini filtrele">
           {([ ["all", "Tümü"], ["seller", "Gelen"], ["buyer", "Gönderilen"] ] as const).map(([value, label]) => (
-            <button key={value} type="button" aria-pressed={filter === value} onClick={() => setFilter(value)} className={`min-h-11 rounded-[7px] border px-4 text-xs font-semibold ${filter === value ? "border-(--color-brand) bg-(--color-brand) text-white" : "border-(--color-border) bg-(--color-surface) text-(--color-muted)"}`}>{label} ({value === "all" ? items.length : items.filter((item) => item.role === value).length})</button>
+            <button key={value} type="button" aria-pressed={filter === value} onClick={() => setFilter(value)} className={`min-h-11 rounded-[7px] border px-4 text-xs font-semibold ${filter === value ? "border-(--color-brand) bg-(--color-brand) text-(--color-brand-fg)" : "border-(--color-border) bg-(--color-surface) text-(--color-muted)"}`}>{label} ({value === "all" ? items.length : items.filter((item) => item.role === value).length})</button>
           ))}
         </div>
       ) : null}

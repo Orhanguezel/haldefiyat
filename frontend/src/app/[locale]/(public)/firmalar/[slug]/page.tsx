@@ -269,7 +269,7 @@ function CityHub({
                 {priceDate ? `${priceDate}: ` : ""}{topProducts.join(" · ")}
               </p>
             )}
-            <Link href={marketHref} className="mt-4 inline-flex rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-white">
+            <Link href={marketHref} className="mt-4 inline-flex rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand-fg)">
               {cityName} hal fiyatlarına bak
             </Link>
           </div>

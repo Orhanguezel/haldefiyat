@@ -66,7 +66,7 @@ export default function ApiKeyOnboarding() {
         <h3 className="font-bold text-(--color-foreground)">Anahtar oluşturmak için giriş yapın</h3>
         <p className="mt-2 text-sm leading-6 text-(--color-muted)">Ücretsiz hesapla anahtarınızı kendiniz oluşturabilir, durumunu görebilir ve iptal edebilirsiniz.</p>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Link href="/giris?next=%2Fpro%23api-key" className="rounded-[6px] bg-(--color-brand) px-4 py-2 text-sm font-semibold text-white">Giriş yap</Link>
+          <Link href="/giris?next=%2Fpro%23api-key" className="rounded-[6px] bg-(--color-brand) px-4 py-2 text-sm font-semibold text-(--color-brand-fg)">Giriş yap</Link>
           <Link href="/kayit" className="rounded-[6px] border border-(--color-border) px-4 py-2 text-sm font-semibold text-(--color-foreground)">Hesap oluştur</Link>
         </div>
       </div>

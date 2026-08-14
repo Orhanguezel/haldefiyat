@@ -99,8 +99,8 @@
 
   /* Neutral — Dark mode defaults */
   --foreground:   hsl(225 30% 95%);
-  --muted:        hsl(225 20% 55%);
-  --faint:        hsl(225 16% 56%);
+  --muted:        hsl(225 20% 70%);
+  --faint:        hsl(225 16% 67%);
   --border:       hsl(225 20% 44%);
   --border-soft:  hsl(225 20% 14%);
   --surface:      hsl(225 28% 9%);

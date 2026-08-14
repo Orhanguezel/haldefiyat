@@ -219,7 +219,7 @@ export default async function FirmDetailPage({ params }: Props) {
                 entityType="firm"
                 entityId={firm.id}
                 href={`tel:${firm.phone.replace(/[^\d+]/g, "")}`}
-                className="rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-white"
+                className="rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand-fg)"
               >
                 Telefonla ara
               </TrackedAdLink>
@@ -409,7 +409,7 @@ function CityMarketPricesBlock({
             Firma görüşmesi öncesinde {marketName} için yayınlanan ürün fiyatlarını kontrol edebilirsiniz.
           </p>
         </div>
-        <Link href={`/hal/${marketSlug}`} className="rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-white">
+        <Link href={`/hal/${marketSlug}`} className="rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand-fg)">
           Hal fiyatları
         </Link>
       </div>

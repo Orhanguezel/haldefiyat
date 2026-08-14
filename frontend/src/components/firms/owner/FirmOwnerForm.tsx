@@ -319,7 +319,7 @@ export function FirmOwnerForm({ mode, locale }: Props) {
       <div className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-6">
         <h1 className="font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">Firma Kaydı</h1>
         <p className="mt-2 text-sm leading-6 text-(--color-muted)">Henüz hesabınıza bağlı bir firma yok.</p>
-        <Link href={`/${locale}/firmalar/ekle`} className="mt-5 inline-flex rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-white">
+        <Link href={`/${locale}/firmalar/ekle`} className="mt-5 inline-flex rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand-fg)">
           Firma ekle
         </Link>
       </div>
@@ -459,7 +459,7 @@ export function FirmOwnerForm({ mode, locale }: Props) {
                 <p className="text-sm font-semibold text-(--color-foreground)">
                   {previewRows.filter((row) => row.ok).length} geçerli, {previewRows.filter((row) => !row.ok).length} hatalı satır
                 </p>
-                <button type="button" onClick={importValidRows} disabled={saving || previewRows.every((row) => !row.ok)} className="rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-white disabled:opacity-60">
+                <button type="button" onClick={importValidRows} disabled={saving || previewRows.every((row) => !row.ok)} className="rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand-fg) disabled:opacity-60">
                   Geçerli satırları ekle
                 </button>
               </div>

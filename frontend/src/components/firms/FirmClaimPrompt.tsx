@@ -77,7 +77,7 @@ export default function FirmClaimPrompt({ firmId, firmSlug, firmName, claimStatu
           ) : !loading && !user ? (
             <Link
               href={`/giris?next=${encodeURIComponent(`/firma/${firmSlug}`)}`}
-              className="rounded-[8px] bg-(--color-brand) px-5 py-3 text-center font-(family-name:--font-mono) text-[13px] font-semibold text-white"
+              className="rounded-[8px] bg-(--color-brand) px-5 py-3 text-center font-(family-name:--font-mono) text-[13px] font-semibold text-(--color-brand-fg)"
             >
               Doğrula ve öne çık
             </Link>
@@ -96,7 +96,7 @@ export default function FirmClaimPrompt({ firmId, firmSlug, firmName, claimStatu
               <button
                 type="submit"
                 disabled={loading || sending || !authorityConfirmed}
-                className="rounded-[8px] bg-(--color-brand) px-5 py-3 text-center font-(family-name:--font-mono) text-[13px] font-semibold text-white disabled:opacity-60"
+                className="rounded-[8px] bg-(--color-brand) px-5 py-3 text-center font-(family-name:--font-mono) text-[13px] font-semibold text-(--color-brand-fg) disabled:opacity-60"
               >
                 {sending ? "Gönderiliyor..." : "Firmayı doğrula"}
               </button>

@@ -149,7 +149,7 @@ export function Combobox({
               onClick={() => select(option)}
               className={`block w-full rounded-[4px] px-3 py-2 text-left text-sm ${
                 index === activeIndex
-                  ? "bg-(--color-brand) text-white"
+                  ? "bg-(--color-brand) text-(--color-brand-fg)"
                   : "text-(--color-foreground) hover:bg-(--color-bg-alt)"
               }`}
             >

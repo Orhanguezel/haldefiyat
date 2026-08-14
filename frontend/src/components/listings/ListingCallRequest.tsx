@@ -129,7 +129,7 @@ export function ListingCallRequest({
         <p className="mt-2 text-sm leading-6 text-(--color-muted)">
           Satıcının numarası açık paylaşılmaz. Güvenli bir arama talebi göndermek için giriş yapın.
         </p>
-        <Link href="/giris" className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-(--color-brand) px-5 text-sm font-semibold text-white hover:bg-(--color-brand-dark)">
+        <Link href="/giris" className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-(--color-brand) px-5 text-sm font-semibold text-(--color-brand-fg) hover:bg-(--color-brand-dark)">
           Giriş yap ve talep gönder
         </Link>
       </section>
@@ -161,7 +161,7 @@ export function ListingCallRequest({
       <section id="call-request" className="scroll-mt-24 rounded-[10px] border border-(--color-danger)/25 bg-(--color-danger)/5 p-4" role="alert">
         <h2 className="font-semibold text-(--color-foreground)">Hesap doğrulanamadı</h2>
         <p className="mt-2 text-sm text-(--color-muted)">Lütfen yeniden giriş yapıp arama talebini tekrar deneyin.</p>
-        <Link href="/giris" className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-(--color-brand) px-5 text-sm font-semibold text-white">Yeniden giriş yap</Link>
+        <Link href="/giris" className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-(--color-brand) px-5 text-sm font-semibold text-(--color-brand-fg)">Yeniden giriş yap</Link>
       </section>
     );
   }
@@ -174,7 +174,7 @@ export function ListingCallRequest({
           Satıcıya güvenli arama talebi göndermek için doğrulanmış bir hesap gerekir. SMS doğrulaması
           şu anda kapalıdır; doğrulanmış Google hesabınızla yeniden giriş yapabilirsiniz.
         </p>
-        <Link href="/giris" className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-(--color-brand) px-5 text-sm font-semibold text-white hover:bg-(--color-brand-dark)">
+        <Link href="/giris" className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-(--color-brand) px-5 text-sm font-semibold text-(--color-brand-fg) hover:bg-(--color-brand-dark)">
           Güvenli girişe git
         </Link>
       </section>

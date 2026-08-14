@@ -144,7 +144,7 @@ export default async function FirmsPage({ params, searchParams }: Props) {
         </div>
         <Link
           href="/firmalar/ekle"
-          className="rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-white"
+          className="rounded-[6px] bg-(--color-brand) px-4 py-2 font-(family-name:--font-mono) text-[12px] font-semibold text-(--color-brand-fg)"
         >
           Firmamı ekle
         </Link>
@@ -178,7 +178,7 @@ export default async function FirmsPage({ params, searchParams }: Props) {
             <option key={item.value} value={item.value}>{item.label}</option>
           ))}
         </select>
-        <button className="min-h-11 rounded-[6px] bg-(--color-brand) px-5 font-(family-name:--font-mono) text-[12px] font-semibold uppercase tracking-[0.08em] text-white">
+        <button className="min-h-11 rounded-[6px] bg-(--color-brand) px-5 font-(family-name:--font-mono) text-[12px] font-semibold uppercase tracking-[0.08em] text-(--color-brand-fg)">
           Filtrele
         </button>
       </form>
@@ -242,7 +242,7 @@ export default async function FirmsPage({ params, searchParams }: Props) {
                 href={toPageUrl({ q, city, district, type, view: value })}
                 className={`rounded-[4px] px-3 py-1 font-(family-name:--font-mono) text-[11px] font-semibold ${
                   view === value
-                    ? "bg-(--color-brand) text-white"
+                    ? "bg-(--color-brand) text-(--color-brand-fg)"
                     : "text-(--color-muted) hover:text-(--color-foreground)"
                 }`}
               >
