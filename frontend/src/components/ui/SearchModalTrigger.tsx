@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import SearchModal from "./SearchModal";
+import dynamic from "next/dynamic";
+
+const SearchModal = dynamic(() => import("./SearchModal"), { ssr: false });
 
 /**
  * Global search modal launcher.
@@ -21,5 +23,5 @@ export default function SearchModalTrigger() {
     return () => document.removeEventListener("open-search", handleOpen);
   }, []);
 
-  return <SearchModal isOpen={isOpen} onClose={() => setIsOpen(false)} />;
+  return isOpen ? <SearchModal isOpen onClose={() => setIsOpen(false)} /> : null;
 }
