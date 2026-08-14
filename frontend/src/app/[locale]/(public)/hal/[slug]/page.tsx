@@ -20,6 +20,7 @@ import AnswerBlock from "@/components/seo/AnswerBlock";
 import { calculateProductMovers } from "@/lib/citability";
 import BannerSlot from "@/components/ads/BannerSlot";
 import { formatDateTr } from "@/lib/date-format";
+import MarketDataNav from "@/components/sections/MarketDataNav";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -272,6 +273,7 @@ export default async function HalPage({ params }: Props) {
         <JsonLd type="Place" data={placeSchema} />
         <JsonLd type="Dataset" data={datasetSchema} />
         <Breadcrumb visible items={breadcrumbItems} />
+        <MarketDataNav active="markets" />
         <div className="mb-8">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
@@ -320,6 +322,7 @@ export default async function HalPage({ params }: Props) {
       <JsonLd type="Place" data={placeSchema} />
       <JsonLd type="Dataset" data={datasetSchema} />
       <Breadcrumb visible items={breadcrumbItems} />
+      <MarketDataNav active="markets" />
       <div className="mb-8">
         <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
           {market.cityName}
@@ -365,14 +368,17 @@ export default async function HalPage({ params }: Props) {
         </div>
       )}
 
-      <PriceTable
-        key={slug}
-        initialPrices={prices}
-        markets={markets}
-        requestParams={{ market: slug, range: MARKET_PRICE_RANGE }}
-        hideMarketColumn
-        hideCityColumn
-      />
+      <section aria-labelledby="hal-price-list-title">
+        <h2 id="hal-price-list-title" className="sr-only">{market.name} güncel fiyat listesi</h2>
+        <PriceTable
+          key={slug}
+          initialPrices={prices}
+          markets={markets}
+          requestParams={{ market: slug, range: MARKET_PRICE_RANGE }}
+          hideMarketColumn
+          hideCityColumn
+        />
+      </section>
 
       {marketFirms.items.length > 0 && (
         <section className="mt-8">
@@ -413,7 +419,7 @@ export default async function HalPage({ params }: Props) {
         </section>
       )}
 
-      {/* Hal künyesi — DB (admin) öncelikli, doğrulanmış konum/telefon/kuruluş + harita */}
+      {/* İletişim/künye, resmî fiyat veri setinden ayrı bir bilgi bölgesidir. */}
       {(halInfo.location || halInfo.phone || halInfo.founded || halInfo.hours) && (
         <section className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5">
           <h2 className="text-base font-semibold text-foreground">{market.name} — Künye ve İletişim</h2>

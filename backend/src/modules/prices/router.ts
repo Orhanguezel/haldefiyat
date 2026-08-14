@@ -14,6 +14,7 @@ import {
   overviewStats,
   productAliases,
   sourceStatusRows,
+  sourceHealthEvents,
   widgetPrices,
   retailPricesByProduct,
   cityPriceMap,
@@ -306,9 +307,9 @@ export async function registerPrices(app: FastifyInstance) {
   });
 
   app.get("/sources/status", async (_req, reply) => {
-    const items = await sourceStatusRows();
+    const [items, events] = await Promise.all([sourceStatusRows(), sourceHealthEvents()]);
     reply.header("Cache-Control", "public, max-age=120, s-maxage=120");
-    return reply.send({ items });
+    return reply.send({ items, events });
   });
 
   app.get("/prices/latest", async (req, reply) => {

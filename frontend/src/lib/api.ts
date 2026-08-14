@@ -594,9 +594,28 @@ export interface SourceStatusRow {
   statusMessage: string | null;
 }
 
+export interface SourceHealthEvent {
+  id: number;
+  sourceApi: string;
+  sourceName: string;
+  status: "ok" | "partial" | "error";
+  runDate: string | null;
+  occurredAt: string | null;
+  rowsInserted: number;
+  message: string;
+}
+
+export interface SourceHealthResponse {
+  items: SourceStatusRow[];
+  events: SourceHealthEvent[];
+}
+
+export async function fetchSourceHealth(): Promise<SourceHealthResponse> {
+  return safeFetchRaw<SourceHealthResponse>("/sources/status", 120, { items: [], events: [] });
+}
+
 export async function fetchSourceStatus(): Promise<SourceStatusRow[]> {
-  const data = await safeFetchRaw<{ items: SourceStatusRow[] }>("/sources/status", 120, { items: [] });
-  return data.items;
+  return (await fetchSourceHealth()).items;
 }
 
 export async function fetchFirms(params: {

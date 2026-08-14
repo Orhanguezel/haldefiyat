@@ -5,6 +5,8 @@ import { fetchCityPriceMap, fetchMarkets, fetchPricesOverview } from "@/lib/api"
 import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import TurkeyMapNoSsr from "@/components/sections/TurkeyMapNoSsr";
+import MarketDataNav from "@/components/sections/MarketDataNav";
+import { PUBLIC_METRICS, publicFreshnessLabel } from "@/lib/public-metrics";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -35,6 +37,7 @@ export default async function HaritaPage({ params }: Props) {
         { name: "Anasayfa", href: "/" },
         { name: "Türkiye Fiyat Haritası", href: "/harita" },
       ]} />
+      <MarketDataNav active="map" />
 
       <header className="mb-8 flex flex-col gap-3 border-b border-(--color-border-soft) pb-8">
         <div className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
@@ -51,7 +54,7 @@ export default async function HaritaPage({ params }: Props) {
             kapsamı ve endeksini inceleyebilirsiniz.
           </p>
           <p className="mt-3 font-(family-name:--font-mono) text-xs text-(--color-muted)">
-            {overview.currentCities?.toLocaleString("tr-TR") ?? "—"} güncel şehir · {overview.activeMarkets?.toLocaleString("tr-TR") ?? "—"} aktif hal · {overview.freshness === "fresh" ? "veri güncel" : overview.freshness === "stale" ? "veri gecikmeli" : "tazelik bilinmiyor"} · <a href="/metodoloji" className="text-(--color-brand) hover:underline">metodoloji</a>
+            {overview.currentCities?.toLocaleString("tr-TR") ?? "—"} {PUBLIC_METRICS.currentCities.label.toLocaleLowerCase("tr-TR")} · {overview.activeMarkets?.toLocaleString("tr-TR") ?? "—"} {PUBLIC_METRICS.activeMarkets.label.toLocaleLowerCase("tr-TR")} · {publicFreshnessLabel(overview.freshness).toLocaleLowerCase("tr-TR")} · <a href="/metodoloji" className="text-(--color-brand) hover:underline">metodoloji</a>
           </p>
         </div>
       </header>

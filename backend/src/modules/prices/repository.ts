@@ -12,6 +12,7 @@ import { canonicalUnit } from "@/modules/etl/canonical-contract";
 import { inferAvgPriceMethod, type AvgPriceMethod } from "./avg-price-method";
 import { blackoutFilter } from "./blackouts";
 import { publicYoyStatus } from "./yoy-policy";
+import { toPublicSourceHealthEvent, type PublicSourceHealthEvent } from "./source-health";
 
 export function parseRangeToDays(range?: string): number {
   if (!range) return 7;
@@ -838,6 +839,25 @@ export async function sourceStatusRows() {
             : null,
     };
   });
+}
+
+/**
+ * Public olay geçmişi yalnız hf_etl_runs'taki gerçek çalışmaları özetler.
+ * error_msg özellikle seçilmez: sağlayıcı cevabı, hostname veya dosya yolu
+ * public sözleşmeye taşınamaz.
+ */
+export async function sourceHealthEvents(limit = 12): Promise<PublicSourceHealthEvent[]> {
+  const safeLimit = Math.min(30, Math.max(1, Math.trunc(limit)));
+  const result = await db.execute(sql`
+    SELECT id, source_api AS sourceApi, run_date AS runDate,
+           rows_inserted AS rowsInserted, status, created_at AS occurredAt
+    FROM hf_etl_runs
+    ORDER BY id DESC
+    LIMIT ${safeLimit}
+  `);
+  const rows = (Array.isArray(result) ? result[0] : result) as unknown as Array<Record<string, unknown>>;
+
+  return rows.map(toPublicSourceHealthEvent);
 }
 
 export async function listProducts(q?: string, category?: string, seoIndex?: boolean, marketType?: MarketType) {

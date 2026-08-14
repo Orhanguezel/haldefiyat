@@ -3,10 +3,12 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import PageContainer from "@/components/layout/PageContainer";
-import { fetchPricesOverview, fetchSourceStatus, type SourceStatusRow } from "@/lib/api";
+import { fetchPricesOverview, fetchSourceHealth, type SourceStatusRow } from "@/lib/api";
 import { localePath } from "@/lib/locale-path";
 import { getPageMetadata } from "@/lib/seo";
 import { sourceDisplayName, sourceTypeLabel } from "@/lib/source-display";
+import MarketDataNav from "@/components/sections/MarketDataNav";
+import { PUBLIC_METRICS, publicFreshnessLabel } from "@/lib/public-metrics";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -66,16 +68,18 @@ function SourceDetails({ item }: { item: SourceStatusRow }) {
 export default async function DataHealthPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [items, overview] = await Promise.all([fetchSourceStatus(), fetchPricesOverview()]);
+  const [sourceHealth, overview] = await Promise.all([fetchSourceHealth(), fetchPricesOverview()]);
+  const { items, events } = sourceHealth;
   const metricCards = [
-    { label: "Güncel ürün", value: overview.currentProducts, note: "Son 7 günde fiyatı olan" },
-    { label: "Aktif kaynak", value: overview.activeSources, note: "Son 30 günde veri sağlayan" },
-    { label: "Güncel şehir", value: overview.currentCities, note: "Son 30 günde verisi olan" },
-    { label: "Son veri tarihi", value: formatDate(overview.latestRecordedDate), note: overview.freshness === "fresh" ? "Veri güncel" : overview.freshness === "stale" ? "Veri gecikmeli" : "Tazelik bilinmiyor" },
+    { ...PUBLIC_METRICS.currentProducts, value: overview.currentProducts },
+    { ...PUBLIC_METRICS.activeSources, value: overview.activeSources },
+    { ...PUBLIC_METRICS.currentCities, value: overview.currentCities },
+    { ...PUBLIC_METRICS.latestRecordedDate, value: formatDate(overview.latestRecordedDate), note: `${PUBLIC_METRICS.latestRecordedDate.note} · ${publicFreshnessLabel(overview.freshness)}` },
   ];
 
   return (
     <PageContainer className="space-y-8">
+      <MarketDataNav active="health" />
       <header className="max-w-3xl">
         <p className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">Veri altyapısı</p>
         <h1 className="mt-2 font-(family-name:--font-display) text-3xl font-bold text-(--color-foreground)">Veri Sağlığı</h1>
@@ -143,6 +147,36 @@ export default async function DataHealthPage({ params }: Props) {
           </div>
         </section>
       )}
+
+      <section aria-labelledby="health-events-title" className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 sm:p-6">
+        <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+          <div>
+            <p className="font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.1em] text-(--color-brand)">Gerçek ETL kayıtları</p>
+            <h2 id="health-events-title" className="mt-1 font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">Son veri olayları</h2>
+          </div>
+          <p className="text-xs text-(--color-muted)">En yeni olay önce · ham sistem hataları yayınlanmaz</p>
+        </div>
+        {events.length === 0 ? (
+          <p role="status" className="mt-5 rounded-xl border border-dashed border-(--color-border) p-4 text-sm text-(--color-muted)">Henüz yayınlanabilir veri olayı bulunmuyor.</p>
+        ) : (
+          <ol className="mt-5 divide-y divide-(--color-border-soft)">
+            {events.map((event) => (
+              <li key={event.id} className="grid gap-2 py-4 first:pt-0 last:pb-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold text-(--color-foreground)">{event.sourceName}</span>
+                    <StatusBadge status={event.status} />
+                  </div>
+                  <p className="mt-1 text-sm text-(--color-muted)">{event.message}</p>
+                </div>
+                <time dateTime={event.occurredAt ?? event.runDate ?? undefined} className="font-(family-name:--font-mono) text-xs text-(--color-muted)">
+                  {formatDate(event.occurredAt ?? event.runDate)}
+                </time>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
     </PageContainer>
   );
 }

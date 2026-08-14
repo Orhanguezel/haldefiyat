@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { CityPriceMapItem, Market } from "@/lib/api";
 import { TURKEY_PROVINCES, TURKEY_VIEWBOX } from "@/lib/turkey-geo";
+import { PUBLIC_METRICS } from "@/lib/public-metrics";
 
 interface Props {
   markets: Market[];
@@ -116,7 +117,7 @@ export default function TurkeyMapClient({ markets, cityPrices = [] }: Props) {
             Türkiye Fiyat Haritası
           </div>
           <div className="mt-1 text-[12px] text-(--color-muted)">
-            {priced.length} ilde güncel veri · {rows.length} il
+            {priced.length} {PUBLIC_METRICS.mapCities.label.toLocaleLowerCase("tr-TR")} · {rows.length} il
           </div>
         </div>
 
@@ -234,6 +235,39 @@ export default function TurkeyMapClient({ markets, cityPrices = [] }: Props) {
         <RankCard title="En Uygun Ortalama" rows={cheapest} tone="green" onSelect={setActiveName} />
         <RankCard title="En Yüksek Ortalama" rows={expensive} tone="red" onSelect={setActiveName} />
       </aside>
+
+      <details className="rounded-[18px] border border-(--color-border) bg-(--color-surface) p-4 lg:hidden">
+        <summary className="min-h-11 cursor-pointer font-semibold text-(--color-foreground)">
+          Harita verilerini liste olarak aç ({priced.length} il)
+        </summary>
+        <p className="mt-2 text-xs leading-5 text-(--color-muted)">{PUBLIC_METRICS.mapCities.note}.</p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[440px] border-collapse text-left text-sm">
+            <thead>
+              <tr className="border-b border-(--color-border)">
+                <th scope="col" className="py-2 pr-3">İl</th>
+                <th scope="col" className="px-3 py-2">Endeks</th>
+                <th scope="col" className="px-3 py-2">Hal</th>
+                <th scope="col" className="py-2 pl-3"><span className="sr-only">Fiyat bağlantısı</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...priced].sort((a, b) => a.name.localeCompare(b.name, "tr")).map((province) => (
+                <tr key={province.code} className="border-b border-(--color-border-soft) last:border-0">
+                  <th scope="row" className="py-3 pr-3 font-semibold text-(--color-foreground)">{province.name}</th>
+                  <td className="px-3 py-3 font-(family-name:--font-mono)">{formatIndex(province.price?.priceIndex)}</td>
+                  <td className="px-3 py-3">{province.price?.marketCount ?? 0}</td>
+                  <td className="py-3 pl-3 text-right">
+                    <Link href={`/fiyatlar?city=${encodeURIComponent(province.name)}`} className="inline-flex min-h-11 items-center font-semibold text-(--color-brand) hover:underline">
+                      Fiyatlar
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </details>
     </div>
   );
 }
