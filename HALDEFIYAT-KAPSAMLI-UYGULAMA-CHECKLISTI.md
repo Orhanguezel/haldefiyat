@@ -136,8 +136,8 @@
 - [x] F1.33 Geçersiz/boş tarihte alanı saklayan `null` fallback davranışı eklendi.
 - [x] F1.34 Analiz listesi/detayı, freshness badge, karşılaştırma, dashboard ve yıllık rapor görünür tarihleri ortak güvenli yardımcı/guard katmanında; sitemap `validSitemapDate`, schema `schemaDateRange` kullanıyor.
 - [x] F1.35 `Invalid Date`, `undefined`, `NaN`, boş değer ve `2026-02-31` gibi imkânsız tarih fixture'ları ortak parser testinde; şablon artığı guard'ları ayrı regresyon testleriyle korunuyor.
-- [~] F1.36 Hal sayfasında ham `sourceKey` yerine backend’in mevcut `sourceName/sourceUrl` metadata’sı gösteriliyor; kalan ham-key render yüzeyleri bekliyor.
-- [~] F1.37 Hal sayfasında kaynak adı birincil resmi URL’ye, yanında “Metodoloji” iç bağlantısına bağlandı; diğer içerik aileleri bekliyor.
+- [x] F1.36 Public fiyat, üretim ve veri sağlığı yüzeylerinde ham `sourceKey/sourceApi` gösterimi kaldırıldı; sekiz kritik mobil rotada snake_case görünür anahtar sıfırlandı. Kanıt: `artifacts/renewal-2026/kaynak-etiketi-sablon-artigi-kabul-2026-08-14.md`.
+- [x] F1.37 Fiyat/hal/üretim/veri sağlığı kaynak adları birincil resmî URL'ye ve ilgili yüzeyler “Metodoloji” iç bağlantısına bağlandı; eksik katalog kaynakları market metadata'sı + ETL base URL fallback'iyle kapatıldı. Kanıt: `artifacts/renewal-2026/kaynak-etiketi-sablon-artigi-kabul-2026-08-14.md`.
 
 ### 3.3 Künye ve güven yüzeyleri
 
@@ -161,7 +161,7 @@
 
 - [x] G1.1 Public listing API, HTML/RSC ve JSON-LD canlı taramalarında gerçek ilan telefonu sıfır; Organization kurumsal telefonu ayrı ve meşru.
 - [ ] G1.2 Arama talebi uçtan uca, kota ve audit ile çalışıyor.
-- [ ] G1.3 Invalid Date/ham key/şablon artığı kritik sayfalarda sıfır.
+- [x] G1.3 Sekiz kritik mobil rotada Invalid Date/undefined/NaN/Lorem/object artığı, görünür ham snake_case anahtar ve yatay taşma sıfır; konsol 0 hata/uyarı. Kanıt: `artifacts/renewal-2026/kaynak-etiketi-sablon-artigi-kabul-2026-08-14.md`.
 - [x] G1.4 Kritik fiyat anomalileri yayın öncesi guard/karantina ile durduruluyor; tarihsel donmuş/anomali aralıkları tüm public tüketicilerde merkezi blackout filtresinden geçiyor. 546 TL türev vaka, 2025 donmuş seri ve blackout tarih-normalizasyon regresyonu testli/canlı kabul edildi.
 - [~] G1.5 Gerçek işletmeci/rol kimliği, KVKK, sahiplik, veri/editoryal/düzeltme ve API lisans politikaları canlı ve çapraz bağlıdır; yalnız doğrulanmış açık adres/şehir dış onayı bekliyor.
 
