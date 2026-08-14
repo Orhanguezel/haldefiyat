@@ -199,7 +199,7 @@
 - [x] F2.22 Sitemap’ten eski/kopya URL’leri çıkar. (`canonicalSlug` dolu ürünler sitemap üretiminde dışlanıyor; canlı sitemap kabulünde dört eski örnek yok, dört nihai master mevcut; toplam 406 URL.)
 - [x] F2.23 Structured data name/url/date/source alanlarını canonical veriden besle. (Ürün Dataset şeması canonical master adı/URL'sini, gerçek gözlem tarih aralığını ve görünür cevap bloğuyla aynı resmi kaynak kümesini `isBasedOn` olarak yayımlıyor.)
 - [x] F2.24 Redirect edilen ürünün geçmiş fiyatlarını hedef sayfada koru. (`productPriceHistory` hem master slug'ını hem `canonical_slug=master` çocuklarını okuyor. Canlı `biber-carliston` kabulü: 28 pazar, 2.337 kova, 2021-08-01→2026-08-13. Commit: `029d1956`.)
-- [~] F2.25 `BLOCKED-EXTERNAL`: Canlı GSC cache 623 master/1 denetlenmemiş, 612 varyant/0 denetlenmemiş ve 388 redirect olarak doğrulandı. Sitemap submit ortak fonksiyonu hazır. **2026-08-14 akşam: Orhan yazma yetkisine ONAY verdi; `googleConnect` scope'u `webmasters` (yazma) olarak yükseltildi ve VPS'e deploy edildi (shared-backend `b6aa05e`).** Kalan tek adım: Orhan'ın `/admin/google-connect` üzerinden yeniden yetkilendirmesi → ardından `submitSearchConsoleSitemap()` çalıştırılıp `lastSubmitted` doğrulanır. Kanıt: `artifacts/renewal-2026/gsc-canonical-goc-kabul-2026-08-14.md`.
+- [x] F2.25 TAMAMLANDI (2026-08-14 akşam): scope `webmasters` yazmaya yükseltildi + deploy (shared `b6aa05e`); Orhan Google Cloud'a haldefiyat callback URI'sini ekleyip telefondan yeniden yetkilendirdi; `POST /api/v1/admin/search-console/sitemaps` ile sitemap gönderildi. Canlı doğrulama: `connected:true`, `sc-domain:haldefiyat.com`, `last_submitted: 2026-08-14T14:17:39Z`, 585 URL, 0 hata/0 uyarı, `is_pending:true`. 2/4/8 haftalık izleme F5.10 planıyla sürüyor. Kanıt: `artifacts/renewal-2026/gsc-canonical-goc-kabul-2026-08-14.md`.
 
 ### 4.4 Merkezi metrik sözlüğü
 
@@ -503,7 +503,7 @@
 - [x] F9.6 Analiz, ilan listesi, harita/data-health ve API Pro aynı token sözleşmesiyle canlıya açıldı ve aile bazlı kabulden geçti.
 - [x] F9.7 Release bazlı izole `.next-release-<sha>`, standalone/static doğrulaması ve eski/yeni CSS-HTML/ISR route taraması geçti; yeni ChunkLoadError yok.
 - [x] F9.8 Canlı desktop/mobile network ölçümleri ve 14 light/dark karşılaştırma ekranı kaydedildi.
-- [~] F9.9 `BLOCKED-EXTERNAL`: Sitemap/canonical/redirect canlı crawl geçti; Search Console submit yalnız read-only token nedeniyle `403` ve Google hesabında yazma kapsamlı yeniden yetkilendirme bekliyor.
+- [x] F9.9 TAMAMLANDI (2026-08-14 akşam): Sitemap/canonical/redirect canlı crawl geçti; yazma yetkilendirmesi sonrası sitemap Search Console'a gönderildi (`last_submitted 2026-08-14T14:17Z`, 585 URL, 0 hata). Google işleme sonucu (`is_pending`) F5.10 izleme planında takip edilir.
 - [x] F9.10 Tanımlı kritik hata/KPI rollback eşiği tetiklenmedi; rollback yolu ve olay kaydı şablonu hazır, gereksiz rollback uygulanmadı.
 
 ## 12. Faz 10 — Eklenti kataloğu uygulama sırası
