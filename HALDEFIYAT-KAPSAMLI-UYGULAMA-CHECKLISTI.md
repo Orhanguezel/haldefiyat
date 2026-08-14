@@ -439,78 +439,78 @@
 
 ### 9.1 Erişilebilirlik
 
-- [ ] F7.1 Tüm sayfalarda tek mantıklı H1 ve doğru heading sırası.
-- [ ] F7.2 Skip link, landmark ve klavye navigasyonu.
-- [ ] F7.3 Focus görünürlüğü ve modal focus restore.
-- [ ] F7.4 Form label/help/error ilişkilendirmesi.
-- [ ] F7.5 Grafik ve haritalar için metinsel alternatif/tablo.
-- [ ] F7.6 Renk körlüğü simülasyonu; renk dışı göstergeler.
-- [ ] F7.7 200% zoom ve 320 px reflow testi.
-- [ ] F7.8 Screen reader ile ana arama, fiyat okuma ve çağrı talebi akışı.
+- [x] F7.1 Yedi kritik canlı ailede tek `main`, tek H1 ve heading sırası axe ile doğrulandı; harita H2→H4 atlaması H3'e çekildi.
+- [x] F7.2 Skip link, benzersiz landmark adları, 81 il için klavye seçimi ve nav akışları canlı kabulden geçti.
+- [x] F7.3 Global focus-visible sözleşmesi ve lazy arama modalında input odağı→Escape→tetikleyici focus restore canlı doğrulandı.
+- [x] F7.4 Kritik formlarda label/required ilişkileri ve yedi aile axe form kuralları ihlalsiz; Pro/reklam iletişim formları altı required alanla kabul edildi.
+- [x] F7.5 Fiyat grafiği açıklamalı `role=img`; harita klavye erişimli SVG, seçili il özeti ve mobil veri tablosu alternatifi taşıyor.
+- [x] F7.6 Durumlar renk dışında sembol/metin, trendler işaret+yüzde ve harita metinsel endeks/tablo ile açıklanıyor; light/dark kontrast kökleri ortak tokenlarda kapatıldı.
+- [x] F7.7 `/fiyatlar` 200% zoom ve kritik rotalar 320 px reflow kabulünden geçti; ürün grafiği kontrol taşması `30facfd0` ile kapandı.
+- [~] F7.8 Ana arama, fiyat okuma, harita ve çağrı talebi semantik/klavye/axe Chromium accessibility ağacında geçti; gerçek NVDA/VoiceOver cihaz kabulü dış test ortamı bekliyor.
 
 ### 9.2 Responsive ve tarayıcı
 
-- [ ] F7.9 320, 360, 390, 768, 1024, 1280 ve 1440 px kontrolleri.
-- [ ] F7.10 iOS Safari, Android Chrome, desktop Chrome/Firefox/Safari.
-- [ ] F7.11 Safe-area, sticky header/bottom CTA ve sanal klavye davranışı.
-- [ ] F7.12 Tablo, grafik, modal, sheet ve uzun Türkçe metin taşma testleri.
+- [x] F7.9 320, 360, 390, 768, 1024, 1280 ve 1440 px matrisinde kritik sayfa aileleri kontrol edildi; 1024 px yedi rotada overflow 0.
+- [~] F7.10 Desktop Chromium ve Android Pixel 7 emülasyonu geçti; gerçek iOS/macOS Safari ile Firefox cihaz matrisi dış test ortamı bekliyor.
+- [x] F7.11 Safe-area mobil alt nav, sticky header, modal scroll/focus ve sanal klavye yerleşimi 390 px akışında kabul edildi.
+- [x] F7.12 Fiyat tabloları, grafik, harita, arama modalı, filtre sheet'i ve uzun Türkçe analiz metinleri reflow taramasından geçti.
 
 ### 9.3 Performans
 
-- [ ] F7.13 Route bazlı client JS ve hydration sınırlarını ölç.
-- [ ] F7.14 Ağır grafik/harita bileşenlerini görünürlük veya dynamic import ile yükle.
-- [ ] F7.15 Fotoğraf kullanılan konseptte LCP preload/priority kararını doğru uygula.
+- [x] F7.13 Route client JS ölçüldü: ana sayfa masaüstü 1.678.802, mobil 1.315.488 decoded byte; mobil paket yaklaşık %21,6 küçüldü.
+- [x] F7.14 Mobil/desktop ana sayfa fiziksel render paketlerine ayrıldı; global SearchModal/Framer Motion yalnız açılışta indiriliyor, Sentry ve Google tag başlangıç işi dışına alındı.
+- [x] F7.15 Temiz Veri ilk ekranında foto hero yok; ürün görselleri sabit ölçü/`sizes`/format pazarlığı ve yalnız gerçek LCP kararında priority kullanıyor.
 - [x] F7.16 IBM Plex Sans yalnız değişken `wght` paketi ve unicode-range latin/latin-ext dosyalarıyla self-host edildi; Outfit yalnız 800 ağırlığında preload + `font-display:swap`, italik/genişlik/statik ağırlıklar bundle dışında.
-- [ ] F7.17 Skeleton/layout ölçüleriyle CLS’yi hedef altında tut.
+- [x] F7.17 İzole son Lighthouse kaydında CLS `0,0468`; sabit görsel ölçüleri, nihai kart alanları ve harita/grafik kapsayıcılarıyla 0,1 hedefinin altında.
 - [x] F7.18 `/prices/overview` 1M+ satırlık 13 sn `COUNT(DISTINCT)` yerine indeksli `EXISTS`, birleşik tarih sınırı, 5 dk cache ve in-flight tekilleştirmeye geçirildi. Canlı 30–48 sn önce → 2,56 sn soğuk, 3–10 ms sıcak; 20 paralel miss tek DB hesaplamasını paylaştı. Kanıt: `artifacts/renewal-2026/prices-overview-performans-kabul-2026-08-14.md`.
-- [ ] F7.19 Lighthouse hedefleri: Performance ≥90, Accessibility ≥95, SEO ≥95 (kritik sayfalar).
+- [~] F7.19 Accessibility/Best Practices/SEO 100/100/100. Performance ölçüm hostu 12 çekirdekte load 15,51–19,84 ve bağımsız CPU-bound süreçlerle doygundu; VPS yalnız 2-core, PageSpeed API 429 kota verdi. Stabil runner yeniden ölçümü bekliyor; ürün düzeltmeleri ve ham kayıtlar `artifacts/renewal-2026/faz7-qa-kabul-2026-08-14.md` içinde.
 
 ### 9.4 Güvenlik/gizlilik
 
-- [ ] F7.20 Public API response snapshot’larında PII taraması.
-- [ ] F7.21 Authz: owner/admin DTO ve aksiyonlarını public kullanıcıdan ayır.
+- [x] F7.20 Canlı listings/prices/products/markets snapshot PII taraması dört endpointte 200 ve `findings=0` verdi; artifact kaydedildi.
+- [x] F7.21 Public DTO'lar owner/admin alanlarından ayrıldı; owner/admin aksiyonları auth/rol kapısında, public ve yetkisiz canlı istekler redakte 401/403 dönüyor.
 - [~] F7.22 Call-request consent/status input validation, public DTO output redaksiyonu, CMS script/event/style output sanitization ve rate-limit uygulaması var; DB kota ve CSRF entegrasyon fixture'ı bekliyor.
-- [ ] F7.23 Görsel upload MIME/boyut/metadata güvenliği.
+- [x] F7.23 Görsel upload auth, imza doğrulama, MIME magic-byte allowlist, boyut sınırı, metadata-stripping/re-encode ve public URL sınırlarıyla testli; eski serbest sign endpointi 404.
 - [x] F7.24 Frontend/backend Sentry request, user, message, exception, breadcrumb, extra/context PII redaksiyonu ile audit URL query redaksiyonu otomatik testli.
-- [ ] F7.25 Cache’in kişiye özel arama talebi/profil verisini kullanıcılar arasında paylaşmadığını test et.
+- [x] F7.25 Auth 401 ve kişisel endpoint cevapları `private, no-store, max-age=0`, `Pragma: no-cache`, `Vary: Authorization, Cookie`; ortak public cache ile profil/call-request karışmıyor.
 
 ## 10. Faz 8 — Otomatik test ve kabul paketi
 
-- [ ] F8.1 Token ve temel UI component unit testleri.
-- [ ] F8.2 Header, ThemeToggle ve mobile nav testleri.
-- [ ] F8.3 PriceCard/PriceTable/FreshnessBadge testleri.
-- [ ] F8.4 Canonical ürün ve birim fixture testleri.
+- [x] F8.1 Semantic tema tokenı, Badge ve ortak UI component unit testleri eklendi ve geçti.
+- [x] F8.2 Header sözleşmesi, ThemeToggle ve MobileBottomNav current/safe-area testleri geçti.
+- [x] F8.3 PriceCard/PriceTable, kaynak rozeti, sentetik ortalama ve FreshnessBadge regresyon testleri geçti.
+- [x] F8.4 Canonical ürün bağlantısı, alias/redirect ve kg≠adet/kasa birim fixture testleri geçti.
 - [x] F8.5 Invalid/imkânsız tarih, schema/sitemap tarihi, retail türev ve ETL fiyat kalite anomalisi regresyon testleri mevcut.
 - [x] F8.6 Listing DTO yapılandırılmış telefon/raw sızıntısı ve serbest metin telefon/e-posta redaksiyonu otomatik testli ve canlı API'de doğrulandı.
-- [ ] F8.7 Call request state/auth/rate-limit integration testleri.
-- [ ] F8.8 SEO metadata/schema/redirect testleri.
+- [~] F8.7 Call request state/consent/secret/public DTO ve canlı auth/rate-limit kapıları testli; izole DB ile tam authenticated mutation fixture'ı halen bekliyor.
+- [x] F8.8 Metadata, schema tarihi, sitemap tarihi, canonical ürün ve redirect regresyon testleri ile 20 rotalık canlı SEO crawl geçti.
 - [x] F8.9 Ana sayfa arama→ürün E2E canlı mobil UA'da `domates` aramasıyla tamamlandı; canonical ürün sayfası, tek H1, analytics ve 0 konsol hatası doğrulandı.
-- [ ] F8.10 İlan listesi→detay→arama talebi E2E.
-- [ ] F8.11 Analiz liste→rapor→PDF/paylaş E2E.
-- [~] F8.12 Harita/data-health filtre ve status E2E. (`/data-health`: 390 px, taşma yok, 56 kart, konsol 0 hata; harita bekliyor.)
-- [ ] F8.13 API Pro başvuru ve reklam talep E2E.
-- [ ] F8.14 Light/dark visual regression snapshotları.
-- [ ] F8.15 7 konsept ekran ailesi için canlı sonrası karşılaştırmalı screenshot seti.
+- [~] F8.10 İlan listesi→detay→`#call-request`, gizli telefon ve yetkisiz giriş kapısı canlı geçti; gerçek kullanıcıyla kalıcı mutation tam fixture F8.7'ye bağlı.
+- [x] F8.11 Analiz liste→rapor→PDF/yazdır ve canonical Web Share çağrısı canlı E2E geçti.
+- [x] F8.12 Harita klavye il seçimi→şehir fiyat linki, mobil tablo alternatifi ve `/data-health` gerçek durum kartları canlı E2E geçti.
+- [~] F8.13 API Pro ve reklam CTA'ları hazır konulu, altı required alanlı iletişim formuna ulaşıyor; üretimde gerçek mesaj gönderimi yan etkili olduğu için çalıştırılmadı.
+- [x] F8.14 Yedi ekran ailesinin light/dark tam sayfa visual snapshotları üretildi.
+- [x] F8.15 Ana sayfa, ürün, fiyatlar, harita, ilanlar, analiz ve API Pro için 14 canlı screenshot `output/playwright/theme-clean-data/live-acceptance-2026-08-14/` altında.
 - [x] F8.16 Frontend lint, TypeScript ve production build; 26 frontend test dosyası/79 test ile 26 backend test dosyası/113 test geçti. Backend tam suite katı env doğrulaması nedeniyle yalnız test sürecine verilen test secret'larıyla koştu. Kanıtlar: `artifacts/renewal-2026/anasayfa-arama-analytics-kabul-2026-08-14.md`, `artifacts/renewal-2026/fiyat-arsivi-filtre-export-kabul-2026-08-14.md`.
 
 ## 11. Faz 9 — Kademeli yayın ve canlı doğrulama
 
 - [x] F9.1 Additive call-preference migration sütun-varlık kontrolüyle önce uygulandı; backend build/reload ve ardından izole frontend release restart edildi.
 - [x] F9.2 Public telefon redaksiyonu ve güvenli arama talebi tema rollout'undan bağımsız commit/deploy/kabul paketleriyle canlıya alındı.
-- [ ] F9.3 Yeni tema için feature flag veya sınırlı cohort oluştur.
-- [ ] F9.4 Önce ana sayfa + ürün + ilan detayı pilotunu yayınla.
-- [ ] F9.5 Hata, Web Vitals, search success ve call conversion’ı 24–72 saat izle.
-- [ ] F9.6 Ardından analiz, ilan listesi, harita/data-health ve API Pro’yu kademeli aç.
-- [ ] F9.7 CDN/cache temizliğini kontrollü yap; eski CSS/HTML karışımını test et.
-- [ ] F9.8 Canlıda desktop/mobile screenshot ve network kanıtlarını kaydet.
-- [ ] F9.9 Sitemap/canonical/redirect ve Search Console doğrulamasını yap.
-- [ ] F9.10 Kritik KPI veya hata eşiği aşılırsa rollback’i uygula ve olay kaydı aç.
+- [~] F9.3 `control/clean_data_10/50/100` cohort ve rollback sözleşmesi hazırlandı; tema bu çalışma öncesinde tam yayına alınmış olduğundan geriye dönük runtime flag eklenmedi, HalDeFiyat Ads kampanyası PAUSED kaldı.
+- [x] F9.4 Ana sayfa, ürün ve ilan detayı Temiz Veri pilot yüzeyleri ayrı kabul paketleriyle canlı yayınlandı.
+- [~] F9.5 Hata taraması ve ilk Web Vitals/lab/search/call KPI bazı alındı; zorunlu 24–72 saat gerçek gözlem penceresi takvim bağımlılığı olarak açık.
+- [x] F9.6 Analiz, ilan listesi, harita/data-health ve API Pro aynı token sözleşmesiyle canlıya açıldı ve aile bazlı kabulden geçti.
+- [x] F9.7 Release bazlı izole `.next-release-<sha>`, standalone/static doğrulaması ve eski/yeni CSS-HTML/ISR route taraması geçti; yeni ChunkLoadError yok.
+- [x] F9.8 Canlı desktop/mobile network ölçümleri ve 14 light/dark karşılaştırma ekranı kaydedildi.
+- [~] F9.9 Sitemap/canonical/redirect canlı crawl geçti; Search Console submit yalnız read-only token nedeniyle 403 ve yazma kapsamlı yeniden yetkilendirme bekliyor.
+- [x] F9.10 Tanımlı kritik hata/KPI rollback eşiği tetiklenmedi; rollback yolu ve olay kaydı şablonu hazır, gereksiz rollback uygulanmadı.
 
 ## 12. Faz 10 — Eklenti kataloğu uygulama sırası
 
 ### 12.1 Temiz veri sonrası erken işler
 
-- [ ] F10.1 Canlı veri durumu sayfasını gerçek health metrikleriyle tamamla.
+- [x] F10.1 `/data-health` gerçek source health, son çekim/kaynak tarihi, satır sayısı, public metrik kartları ve redakte ETL olaylarıyla canlı; 56 kaynak kartı, reflow ve axe kabulü geçti.
 - [ ] F10.2 Pazartesi bülteni: kayıtlı karar SINGLE opt-in (2026-05-28, Orhan onaylı — %78 mobil Ads funnel'ında double opt-in friction'ı reddedildi; double opt-in'e dönme); unsubscribe (stateless HMAC token), bounce ve şikâyet sürecini kur. Önce E45'teki subscribe 404 bug'ını kapat.
 - [ ] F10.3 Sosyal kartları editör onaylı taslak akışıyla üret; tek yayın kaynağı ekosistem-sosyal-medya kalır (çift-poster yasağı), content-guard yayın kapısından geçir; X yayını şu an kapalı (`site_settings.twitter_enabled`, kredi nedeniyle 2026-08-10).
 - [ ] F10.4 Basın servisini kaynak/metodoloji ve editör onayıyla pilotla.
@@ -596,7 +596,7 @@
 
 - [x] E13 Git/VPS drift envanteri: local/origin/VPS aynı HEAD `60873b3d`; local ve VPS WIP tespit edildi. Drift raporu: `artifacts/renewal-2026/faz0-canli-dogrulama-2026-08-13.md`. Reset yapılmadı.
 - [~] E14 Uncommitted WIP sahipliği: aynı WIP local ve VPS’de doğrulandı; korunuyor ve bu çalışma dosyalarıyla çakıştırılmadı. Sahiplik/commit ayrıştırması bekliyor.
-- [ ] E15 Ana sayfa mobil LCP kökü BİLİNİYOR: masaüstü ağacı `hidden md:block` ile mobilde de hydrate oluyor (~505KB RSC); analytics lazyOnload ile Perf 57→80 alındı. F7.13–14'ün ilk somut işi viewport-gated dynamic import; Lighthouse bazı bu bilinen bulgu notuyla kaydedilir.
+- [x] E15 Mobil/desktop ana sayfa fiziksel internal render route'larına ayrıldı; UA rewrite canonical `/`yi koruyor. Mobil decoded JS 1.680.503→1.315.488 byte, yaklaşık %21,7 düştü; SearchModal, Sentry ve Google tag başlangıç dışına çıkarıldı.
 
 ### 15.3 Faz 1–2 veri ilaveleri — kayıtlı en büyük veri borçları
 
@@ -639,7 +639,7 @@
 - [x] E37 Deploy scripti git-only ve `git pull --ff-only`: local commit+push → VPS drift/kesişim kontrolü → build. rsync/scp ve `reset --hard` normal akışta yok.
 - [x] E38 Build çıktısı pipe edilmiyor ve log dosyasına yazılıyor. Canlı ISR ile üç kez görülen `.next/cache ENOTEMPTY` yarışı release bazlı `NEXT_DIST_DIR=.next-release-<sha>` ile kapandı; VPS ilk-deneme build ve dört rota kabulü geçti.
 - [x] E39 Deploylarda backend `pm2 reload`, değişen frontend `pm2 restart --update-env` kullanılıyor; `.next-release-<sha>/standalone/.../server.js` ve release static dizini restart öncesi doğrulanıyor. Admin değişmediği deployda gereksiz restart edilmedi.
-- [ ] E40 Ürün sayfaları ISR'da: tema rollout'unda revalidate/cache purge planı yapılır; F9.7 eski/yeni CSS-HTML karışımı testi ISR sayfalarını da kapsar.
+- [x] E40 Ürün ISR sayfası ve diğer kritik aileler release geçişlerinde cache-bypass/normal fetch ile tarandı; yeni HTML/CSS/static chunk karışımı ve ChunkLoadError görülmedi, release dizinleri geri dönüş için korunuyor.
 - [~] E41 Rollout sonrası nginx/PM2 taraması yapıldı; yeni release’de ChunkLoadError yok, standalone script doğru. Ancak tek-instance restart anında 20:14:04–20:14:06 UTC arasında yaklaşık 2 saniyelik 502 görüldü; cluster rolling reload veya blue/green switch bekliyor.
 
 ### 15.9 Analitik ve dağıtım tekleştirme
