@@ -123,6 +123,11 @@ export const callRequestStatusSchema = z.object({
   status: z.enum(["accepted", "declined", "cancelled", "completed"]),
 });
 
+export const listingCallSettingsSchema = z.object({
+  callRequestsEnabled: z.boolean(),
+  callAvailability: z.array(callSlot).min(1).max(4),
+});
+
 export const moderateSchema = z.object({
   status: z.enum(["approved", "rejected"]),
   moderationNote: z.string().trim().max(2000).optional().nullable(),

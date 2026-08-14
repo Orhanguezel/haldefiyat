@@ -2,11 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import Link from "next/link";
 import { useUserAlerts, type UserAlert } from "@/lib/hooks/useUserAlerts";
 import { AlertEditModal } from "./AlertEditModal";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatDateTr } from "@/lib/date-format";
+import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState";
 
 interface Props { locale: string }
 
@@ -29,17 +29,7 @@ export function AlertsList({ locale }: Props) {
   }
 
   if (items.length === 0) {
-    return (
-      <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-8 text-center">
-        <p className="text-[13px] text-(--color-muted)">{t("empty")}</p>
-        <Link
-          href={`/${locale}/uyarilar`}
-          className="mt-3 inline-block rounded-lg bg-(--color-brand) px-4 py-2 text-[13px] font-semibold text-(--color-navy)"
-        >
-          {commonT("addAlert")}
-        </Link>
-      </div>
-    );
+    return <DashboardEmptyState title={t("empty")} description="Ürün ve hal bazında hedef fiyat belirleyin; koşul gerçekleştiğinde seçtiğiniz kanaldan bildirim alın." action={{ href: `/${locale}/uyarilar`, label: commonT("addAlert") }} />;
   }
 
   return (

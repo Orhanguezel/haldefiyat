@@ -11,9 +11,7 @@ export default async function GuvenlikPage({ params }: Props) {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">
-        Güvenlik
-      </h1>
+      <div><p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--color-brand)">Oturum güvenliği</p><h1 className="mt-2 font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">Güvenlik</h1><p className="mt-2 text-sm text-(--color-muted)">Parolanızı güncelleyin. HaldeFiyat ekibi parolanızı e-posta, SMS veya telefonla istemez.</p></div>
       <ChangePasswordForm />
     </div>
   );

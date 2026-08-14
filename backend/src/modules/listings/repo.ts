@@ -239,6 +239,19 @@ export async function closeOwnerListing(id: number, userId: string) {
   return Number(result[0]?.affectedRows ?? 0);
 }
 
+/** İletişim tercihleri moderasyon içeriğini değiştirmez; ilanı yeniden pending'e çekmez. */
+export async function updateOwnerListingCallSettings(
+  id: number,
+  userId: string,
+  input: { callRequestsEnabled: boolean; callAvailability: Array<"asap" | "morning" | "afternoon" | "evening"> },
+) {
+  const result = await db.update(hfListings).set({
+    callRequestsEnabled: input.callRequestsEnabled ? 1 : 0,
+    callAvailability: input.callAvailability.join(","),
+  }).where(and(eq(hfListings.id, id), eq(hfListings.userId, userId)));
+  return Number(result[0]?.affectedRows ?? 0);
+}
+
 export async function incrementListingView(id: number) {
   await db.update(hfListings).set({ viewCount: sql`${hfListings.viewCount} + 1` }).where(eq(hfListings.id, id));
 }

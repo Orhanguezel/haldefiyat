@@ -12,9 +12,7 @@ export default async function ProfilPage({ params }: Props) {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">
-        Profilim
-      </h1>
+      <div><p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--color-brand)">Hesap bilgileri</p><h1 className="mt-2 font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">Profilim</h1><p className="mt-2 text-sm text-(--color-muted)">İletişim ve profil bilgilerinizi güncelleyin; public yayın izinleri ilgili ilan veya firma akışında ayrıca alınır.</p></div>
       <AvatarUpload />
       <ProfileForm />
     </div>

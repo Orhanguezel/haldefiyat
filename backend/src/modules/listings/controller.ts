@@ -21,6 +21,7 @@ import {
   moderateListing,
   updateListingAdmin,
   updateOwnerListing,
+  updateOwnerListingCallSettings,
   updateCallRequestStatus,
 } from "./repo";
 import {
@@ -29,6 +30,7 @@ import {
   inquirySchema,
   callRequestSchema,
   callRequestStatusSchema,
+  listingCallSettingsSchema,
   listingCreateSchema,
   listingPatchSchema,
   listingQuerySchema,
@@ -177,9 +179,23 @@ export async function listMyListings(req: FastifyRequest, reply: FastifyReply) {
   try {
     const userId = getAuthUserId(req);
     const items = await listListings({ userId, status: "all", limit: 100, offset: 0 });
-    return reply.send({ items });
+    return reply.send({ items: items.map((item) => ({ ...item, callAvailability: parseCallAvailability(item.callAvailability) })) });
   } catch (err) {
     return handleRouteError(reply, req, err, "list_my_listings");
+  }
+}
+
+export async function patchMyListingCallSettings(
+  req: FastifyRequest<{ Params: { id: string } }>,
+  reply: FastifyReply,
+) {
+  try {
+    const parsed = listingCallSettingsSchema.parse(req.body ?? {});
+    const affected = await updateOwnerListingCallSettings(idParam(req), getAuthUserId(req), parsed);
+    if (!affected) return sendNotFound(reply);
+    return reply.send({ ok: true, ...parsed });
+  } catch (err) {
+    return handleRouteError(reply, req, err, "patch_my_listing_call_settings");
   }
 }
 

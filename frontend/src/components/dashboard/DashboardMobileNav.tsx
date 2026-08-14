@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
   { href: "hesabim",             key: "overview",      icon: GridIcon },
+  { href: "hesabim/ilanlarim",   key: "listings",      icon: ListIcon },
+  { href: "hesabim/arama-talepleri", key: "callRequests", icon: PhoneIcon },
   { href: "hesabim/firmam",      key: "myFirm",        icon: BriefcaseIcon },
   { href: "hesabim/reklamlarim", key: "ads",           icon: MegaphoneIcon },
   { href: "hesabim/uyarilar",    key: "alerts",        icon: BellIcon },
@@ -23,24 +25,23 @@ export function DashboardMobileNav({ locale }: Props) {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-16 border-t border-(--color-border-soft) bg-(--color-surface)/80 backdrop-blur-xl md:hidden">
+    <nav aria-label="Hesap bölümleri" className="mb-6 flex gap-2 overflow-x-auto rounded-[10px] border border-(--color-border) bg-(--color-surface) p-2 lg:hidden">
       {NAV_ITEMS.map(({ href, key, icon: Icon }) => {
         const full = `/${locale}/${href}`;
-        const active = pathname === full || pathname.startsWith(`${full}/`);
+        const active = href === "hesabim" ? pathname === full : pathname === full || pathname.startsWith(`${full}/`);
         return (
           <Link
             key={href}
             href={full}
-            className={`flex flex-1 flex-col items-center justify-center gap-1 transition-all duration-200 ${
-              active 
-                ? "text-brand scale-110" 
-                : "text-(--color-muted) hover:text-(--color-foreground)"
+            className={`flex min-h-11 shrink-0 items-center gap-2 rounded-[7px] px-3 text-xs font-semibold transition-colors ${
+              active
+                ? "bg-(--color-brand) text-white"
+                : "text-(--color-muted) hover:bg-(--color-bg-alt) hover:text-(--color-foreground)"
             }`}
+            aria-current={active ? "page" : undefined}
           >
-            <div className={`p-1.5 rounded-xl transition-colors ${active ? "bg-brand/10" : ""}`}>
-              <Icon size={20} />
-            </div>
-            <span className="text-[9px] font-bold uppercase tracking-wider">{key === "ads" ? "Reklamlar" : t(`nav.${key}`)}</span>
+            <Icon size={17} />
+            <span>{key === "ads" ? "Reklamlar" : t(`nav.${key}`)}</span>
           </Link>
         );
       })}
@@ -55,6 +56,12 @@ function GridIcon({ size }: { size: number }) {
       <rect x="2" y="11" width="7" height="7" rx="1.5" /><rect x="11" y="11" width="7" height="7" rx="1.5" />
     </svg>
   );
+}
+function ListIcon({ size }: { size: number }) {
+  return <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden><path d="M6 5h11M6 10h11M6 15h11" strokeLinecap="round"/><circle cx="3" cy="5" r=".7" fill="currentColor"/><circle cx="3" cy="10" r=".7" fill="currentColor"/><circle cx="3" cy="15" r=".7" fill="currentColor"/></svg>;
+}
+function PhoneIcon({ size }: { size: number }) {
+  return <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden><path d="M5 3h3l1 4-2 1.5a12 12 0 0 0 4.5 4.5L13 11l4 1v3c0 1.1-.9 2-2 2A12 12 0 0 1 3 5c0-1.1.9-2 2-2Z" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
 function BellIcon({ size }: { size: number }) {
   return (

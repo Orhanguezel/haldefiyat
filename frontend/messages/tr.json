@@ -75,6 +75,8 @@
   "dashboard": {
     "nav": {
       "overview":      "Genel Bakış",
+      "listings":      "İlanlarım",
+      "callRequests":  "Arama Talepleri",
       "myFirm":        "Firmam",
       "profile":       "Profilim",
       "alerts":        "Uyarılarım",

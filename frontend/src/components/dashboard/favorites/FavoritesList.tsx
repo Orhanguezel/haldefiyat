@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState";
 
 interface Props { locale: string }
 
@@ -24,17 +25,7 @@ export function FavoritesList({ locale }: Props) {
   }
 
   if (remoteItems.length === 0) {
-    return (
-      <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-8 text-center">
-        <p className="text-[13px] text-(--color-muted)">{t("empty")}</p>
-        <Link
-          href={`/${locale}/fiyatlar`}
-          className="mt-3 inline-block rounded-lg bg-(--color-brand) px-4 py-2 text-[13px] font-semibold text-(--color-navy)"
-        >
-          {commonT("viewPrices")}
-        </Link>
-      </div>
-    );
+    return <DashboardEmptyState title={t("empty")} description="Sık izlediğiniz ürünleri favoriye ekleyerek fiyat sayfalarına hesabınızdan hızlıca ulaşın." action={{ href: `/${locale}/fiyatlar`, label: commonT("viewPrices") }} />;
   }
 
   return (

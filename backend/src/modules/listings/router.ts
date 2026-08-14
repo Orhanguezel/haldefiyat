@@ -18,6 +18,7 @@ import {
   moderateAdminListing,
   patchOwnerListing,
   patchMyCallRequest,
+  patchMyListingCallSettings,
   updateAdminListing,
   unfeatureAdminListing,
 } from "./controller";
@@ -54,6 +55,7 @@ export async function registerListingsPublic(app: FastifyInstance) {
   }, createPublicCallRequest);
   app.post("/listings/feature/callback", featureCallback);
   app.patch<{ Params: { id: string } }>("/listings/:id", { onRequest: [requireAuth] }, patchOwnerListing);
+  app.patch<{ Params: { id: string } }>("/listings/:id/call-settings", { onRequest: [requireAuth] }, patchMyListingCallSettings);
   app.post<{ Params: { id: string } }>("/listings/:id/close", { onRequest: [requireAuth] }, closeListing);
   app.post<{ Params: { id: string } }>("/listings/:id/feature-checkout", { onRequest: [requireAuth] }, featureCheckout);
 }

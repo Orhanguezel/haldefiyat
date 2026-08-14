@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
@@ -12,6 +12,7 @@ import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { apiPost } from "@/lib/api-client";
 import { isApiError } from "@/lib/auth";
 import { getStoredAccessToken } from "@/lib/auth-token";
+import { PhoneOtpVerification } from "./PhoneOtpVerification";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "") + "/api/v1";
 const MAX_IMAGES = 6;
@@ -49,10 +50,20 @@ export function ListingForm({ products }: { products: Product[] }) {
   const [images, setImages] = useState<string[]>([]);
   const [callRequestsEnabled, setCallRequestsEnabled] = useState(true);
   const [callAvailability, setCallAvailability] = useState<PreferredSlot[]>(CALL_SLOTS.map(({ value }) => value));
+  const [contactPhone, setContactPhone] = useState(user?.phone ?? "");
+  const [otpToken, setOtpToken] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+  const initializedUserId = useRef<string | null>(null);
+  const handlePhoneVerified = useCallback((token: string | null) => setOtpToken(token), []);
+  useEffect(() => {
+    if (user?.id && initializedUserId.current !== user.id) {
+      initializedUserId.current = user.id;
+      setContactPhone(user.phone ?? "");
+    }
+  }, [user]);
   async function uploadImages(files: FileList | null) {
     if (!files?.length) return;
     setUploading(true);
@@ -101,13 +112,14 @@ export function ListingForm({ products }: { products: Product[] }) {
       const body = Object.fromEntries(fd.entries());
       await apiPost("/listings", {
         ...body, productName, productSlug: productSlug || undefined, citySlug, districtSlug,
-        images, hidePhone: true, callRequestsEnabled, callAvailability,
+        images, hidePhone: true, callRequestsEnabled, callAvailability, otpToken: otpToken || undefined,
       });
       setStatus("İlan moderasyon için alındı. Onaylandıktan sonra yayınlanır.");
       form.reset();
       setImages([]); setProductSlug(""); setProductName(""); setCitySlug(null); setDistrictSlug(null);
       setCallRequestsEnabled(true);
       setCallAvailability(CALL_SLOTS.map(({ value }) => value));
+      setContactPhone(user?.phone ?? "");
     } catch (err) {
       setStatus(isApiError(err) ? `Kaydedilemedi: ${err.message}` : "İlan kaydedilemedi. Lütfen tekrar deneyin.");
     } finally {
@@ -192,10 +204,12 @@ export function ListingForm({ products }: { products: Product[] }) {
         inputMode="tel"
         autoComplete="tel"
         placeholder="05XX XXX XX XX"
-        defaultValue={user.phone ?? ""}
+        value={contactPhone}
+        onChange={(event) => setContactPhone(event.target.value)}
         required
         error={errors.contactPhone}
       />
+      <PhoneOtpVerification phone={contactPhone} onVerified={handlePhoneVerified} />
       <div className="md:col-span-2">
         <span className="text-xs font-medium text-foreground">Görseller ({images.length}/{MAX_IMAGES})</span>
         <div className="mt-1.5 flex flex-wrap items-center gap-2">

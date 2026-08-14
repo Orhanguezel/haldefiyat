@@ -2,6 +2,7 @@
 
 import { useNotifications } from "@/lib/hooks/useNotifications";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState";
 
 export function NotificationList() {
   const { items, loading, error, unreadCount, markRead, markAllRead } = useNotifications();
@@ -19,11 +20,7 @@ export function NotificationList() {
   }
 
   if (items.length === 0) {
-    return (
-      <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-8 text-center">
-        <p className="text-[13px] text-(--color-muted)">Bildirim bulunmuyor.</p>
-      </div>
-    );
+    return <DashboardEmptyState title="Henüz bildirim yok" description="Fiyat alarmı, ilan ve hesap işlemlerinden doğan bildirimler burada kronolojik olarak görünür." />;
   }
 
   return (

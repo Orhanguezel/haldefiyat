@@ -11,6 +11,8 @@ type Summary = {
   favoriteCount: number;
   unreadNotifications: number;
   openTickets: number;
+  listingCount: number;
+  openCallRequests: number;
 };
 
 export function DashboardOverview() {
@@ -26,8 +28,12 @@ export function DashboardOverview() {
       apiGet<{ items: { status: string }[] }>("/support/tickets/my")
         .then((r) => r.items.filter((t) => t.status === "open").length)
         .catch(() => 0),
-    ]).then(([alertCount, favoriteCount, unreadNotifications, openTickets]) => {
-      setSummary({ alertCount, favoriteCount, unreadNotifications, openTickets });
+      apiGet<{ items: unknown[] }>("/listings/me").then((r) => r.items.length).catch(() => 0),
+      apiGet<{ items: { status: string }[] }>("/listings/call-requests/me")
+        .then((r) => r.items.filter((item) => ["pending", "notified", "accepted"].includes(item.status)).length)
+        .catch(() => 0),
+    ]).then(([alertCount, favoriteCount, unreadNotifications, openTickets, listingCount, openCallRequests]) => {
+      setSummary({ alertCount, favoriteCount, unreadNotifications, openTickets, listingCount, openCallRequests });
     });
   }, []);
 
@@ -48,12 +54,25 @@ export function DashboardOverview() {
       </div>
 
       {/* Özet kartlar */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <StatCard
           label={t("activeAlerts")}
           value={summary?.alertCount}
           href="hesabim/uyarilar"
           icon="🔔"
+        />
+        <StatCard
+          label="İlanlarım"
+          value={summary?.listingCount}
+          href="hesabim/ilanlarim"
+          icon="▤"
+        />
+        <StatCard
+          label="Açık arama talebi"
+          value={summary?.openCallRequests}
+          href="hesabim/arama-talepleri"
+          icon="☎"
+          highlight={Boolean(summary?.openCallRequests)}
         />
         <StatCard
           label={t("favoriteProducts")}
@@ -99,6 +118,12 @@ export function DashboardOverview() {
             label={t("compare")}
             desc={t("compareDesc")}
             icon="⚖️"
+          />
+          <QuickAction
+            href="hesabim/arama-talepleri"
+            label="Arama taleplerini yönet"
+            desc="Gelen ve gönderilen taleplerin durumunu görün"
+            icon="☎"
           />
         </div>
       </div>

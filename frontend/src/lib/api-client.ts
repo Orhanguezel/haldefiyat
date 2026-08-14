@@ -55,7 +55,7 @@ async function request<T>(
       let details: unknown;
       try {
         const body = await res.json();
-        code = body?.error?.message ?? code;
+        code = typeof body?.error === "string" ? body.error : body?.error?.message ?? code;
         details = body;
       } catch {}
 

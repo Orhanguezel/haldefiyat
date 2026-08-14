@@ -8,6 +8,8 @@ import { useProfile } from "@/lib/hooks/useProfile";
 
 const NAV_ITEMS = [
   { href: "hesabim",             key: "overview",      icon: GridIcon },
+  { href: "hesabim/ilanlarim",   key: "listings",      icon: ListIcon },
+  { href: "hesabim/arama-talepleri", key: "callRequests", icon: PhoneIcon },
   { href: "hesabim/firmam",      key: "myFirm",        icon: BriefcaseIcon },
   { href: "hesabim/reklamlarim", key: "ads",           icon: MegaphoneIcon },
   { href: "hesabim/profil",      key: "profile",       icon: UserIcon },
@@ -53,11 +55,12 @@ export function DashboardSidebar({ locale }: Props) {
       <nav className="flex-1 space-y-1 px-3 py-5">
         {NAV_ITEMS.map(({ href, key, icon: Icon }) => {
           const full = `/${locale}/${href}`;
-          const active = pathname === full || pathname.startsWith(`${full}/`);
+          const active = href === "hesabim" ? pathname === full : pathname === full || pathname.startsWith(`${full}/`);
           return (
             <Link
               key={href}
               href={`/${locale}/${href}`}
+              aria-current={active ? "page" : undefined}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-medium transition-all duration-200 ${
                 active
                   ? "bg-brand text-white shadow-md shadow-brand/10"
@@ -101,6 +104,12 @@ function UserIcon({ size }: { size: number }) {
       <circle cx="10" cy="7" r="3.5" /><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6" strokeLinecap="round" />
     </svg>
   );
+}
+function ListIcon({ size }: { size: number }) {
+  return <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden><path d="M6 5h11M6 10h11M6 15h11" strokeLinecap="round"/><circle cx="3" cy="5" r=".7" fill="currentColor"/><circle cx="3" cy="10" r=".7" fill="currentColor"/><circle cx="3" cy="15" r=".7" fill="currentColor"/></svg>;
+}
+function PhoneIcon({ size }: { size: number }) {
+  return <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden><path d="M5 3h3l1 4-2 1.5a12 12 0 0 0 4.5 4.5L13 11l4 1v3c0 1.1-.9 2-2 2A12 12 0 0 1 3 5c0-1.1.9-2 2-2Z" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
 function BriefcaseIcon({ size }: { size: number }) {
   return (
@@ -147,13 +156,6 @@ function LockIcon({ size }: { size: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
       <rect x="4" y="9" width="12" height="9" rx="2" /><path d="M7 9V6a3 3 0 0 1 6 0v3" />
-    </svg>
-  );
-}
-function ArrowLeftIcon({ size }: { size: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
-      <path d="M13 10H4m0 0 4-4m-4 4 4 4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
@@ -88,6 +88,7 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
   const [signupRole, setSignupRole] = useState<"customer" | "komisyoncu">("customer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const errorRef = useRef<HTMLDivElement>(null);
 
   const nextParam = searchParams.get("next");
   const safeNext = nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/";
@@ -99,6 +100,10 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
       setError(ERROR_LABELS[errorCode] ?? ERROR_LABELS.request_failed);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
 
   useEffect(() => {
     let active = true;
@@ -155,44 +160,35 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
   const alternateLabel = mode === "login" ? "Hesabın yok mu? Kayıt ol" : "Zaten hesabın var mı? Giriş yap";
 
   return (
-    <main className="relative z-10 mx-auto flex min-h-[70vh] max-w-5xl items-center px-4 py-14 sm:px-6 lg:px-8">
-      <div className="grid w-full overflow-hidden rounded-[32px] border border-(--color-border) bg-(--color-surface)/95 shadow-[0_32px_80px_rgba(6,18,10,0.18)] backdrop-blur xl:grid-cols-[1.1fr_0.9fr]">
-        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(132,240,76,0.24),transparent_42%),linear-gradient(160deg,rgba(12,26,16,0.94),rgba(18,40,22,0.92))] px-8 py-10 text-white sm:px-10 lg:px-12">
-          <div className="absolute inset-y-0 right-0 w-px bg-white/10" />
-          <span className="inline-flex rounded-full border border-white/15 bg-white/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
+    <main className="relative z-10 mx-auto flex min-h-[70vh] max-w-5xl items-center px-4 py-12 sm:px-6 lg:px-8">
+      <div className="grid w-full overflow-hidden rounded-[12px] border border-(--color-border) bg-(--color-surface) shadow-[0_18px_54px_rgba(13,39,22,0.10)] lg:grid-cols-[0.92fr_1.08fr]">
+        <section className="relative overflow-hidden border-b border-(--color-border) bg-(--color-bg-alt) px-7 py-8 sm:px-10 lg:border-b-0 lg:border-r lg:px-12 lg:py-12">
+          <span className="inline-flex rounded-full border border-(--color-brand)/25 bg-(--color-brand)/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-(--color-brand)">
             HaldeFiyat Hesabı
           </span>
-          <h1 className="mt-5 max-w-md font-(family-name:--font-display) text-3xl font-bold leading-tight sm:text-4xl">
+          <h1 className="mt-5 max-w-md font-(family-name:--font-display) text-3xl font-bold leading-tight text-(--color-foreground) sm:text-4xl">
             {title}
           </h1>
-          <p className="mt-4 max-w-md text-sm leading-7 text-white/74">
+          <p className="mt-4 max-w-md text-sm leading-7 text-(--color-muted)">
             {subtitle}
           </p>
 
-          <div className="mt-10 grid gap-4">
-            <div className="rounded-2xl border border-white/12 bg-white/7 p-4">
-              <p className="text-xs uppercase tracking-[0.16em] text-white/55">Avantajlar</p>
-              <p className="mt-2 text-sm text-white/84">
-                Favori ürünlerini senkronize et, fiyat alarmı kur, Google ile tek tıkla giriş yap.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/12 bg-white/7 p-4">
-              <p className="text-xs uppercase tracking-[0.16em] text-white/55">Bildirim</p>
-              <p className="mt-2 text-sm text-white/84">
-                OneSignal entegrasyonu aktif olduğunda tarayıcı bildirimleri hesabına otomatik bağlanır.
-              </p>
-            </div>
+          <div className="mt-8 space-y-3 text-sm text-(--color-muted)">
+            <p className="flex gap-3"><span aria-hidden className="font-bold text-(--color-brand)">✓</span><span>Favori ürün, fiyat alarmı ve ilan işlemlerini tek yerde yönetin.</span></p>
+            <p className="flex gap-3"><span aria-hidden className="font-bold text-(--color-brand)">✓</span><span>Telefon bilgisi açık yayın onayı olmadan public kartlara taşınmaz.</span></p>
+            <p className="flex gap-3"><span aria-hidden className="font-bold text-(--color-brand)">✓</span><span>Hesap ve bildirim tercihlerinizi panelden değiştirebilirsiniz.</span></p>
           </div>
+          <p className="mt-8 border-t border-(--color-border) pt-5 text-xs leading-5 text-(--color-muted)">Parolanızı kimseyle paylaşmayın. HaldeFiyat ekibi e-posta veya telefonla parolanızı istemez.</p>
         </section>
 
-        <section className="px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
+        <section className="px-6 py-8 sm:px-10 lg:px-12 lg:py-12">
           {error ? (
-            <div className="mb-5 rounded-2xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-700">
+            <div ref={errorRef} role="alert" aria-live="assertive" tabIndex={-1} className="mb-5 rounded-[8px] border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 outline-none focus:ring-2 focus:ring-red-300">
               {error}
             </div>
           ) : null}
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="space-y-4" onSubmit={handleSubmit} aria-busy={formLoading || undefined}>
             {mode === "register" ? (
               <>
                 <Input
@@ -223,6 +219,7 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
                         key={option.value}
                         type="button"
                         onClick={() => setSignupRole(option.value as "customer" | "komisyoncu")}
+                        aria-pressed={signupRole === option.value}
                         className={[
                           "h-11 rounded-xl border px-3 text-[13px] font-semibold transition-colors",
                           signupRole === option.value
@@ -256,7 +253,8 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
               onChange={(event) => setPassword(event.target.value)}
               autoComplete={mode === "login" ? "current-password" : "new-password"}
               required
-              hint={mode === "register" ? "Hesabın oluşturulması için koşulları kabul etmiş sayılırsın." : undefined}
+              minLength={6}
+              hint={mode === "register" ? "En az 6 karakter kullanın; parolanızı başka hizmetlerle paylaşmayın." : undefined}
             />
 
             <Button type="submit" className="w-full justify-center" loading={formLoading}>

@@ -12,9 +12,7 @@ export default async function UyarilarPage({ params }: Props) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">
-          Uyarılarım
-        </h1>
+        <div><p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--color-brand)">Fiyat takibi</p><h1 className="mt-2 font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">Uyarılarım</h1></div>
       </div>
       <AlertsList locale={locale} />
     </div>

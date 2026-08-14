@@ -6,6 +6,7 @@ import { apiGet, apiPatch, ApiError } from "@/lib/api-client";
 import { Button } from "@/components/ui/Button";
 import { formatDateTr } from "@/lib/date-format";
 import { trackConversion, type ConversionEventName } from "@/lib/analytics";
+import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState";
 
 type CallRequestStatus = "pending" | "notified" | "accepted" | "declined" | "expired" | "cancelled" | "completed";
 type CallRequest = {
@@ -41,6 +42,7 @@ export function CallRequestDashboard() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [filter, setFilter] = useState<"all" | "seller" | "buyer">("all");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -81,10 +83,17 @@ export function CallRequestDashboard() {
         <h2 id="call-requests-heading" className="text-xl font-bold text-(--color-foreground)">Arama talepleri</h2>
         <p className="mt-1 text-sm text-(--color-muted)">Telefon numaraları açık paylaşılmadan alıcı ve satıcı talebi burada yönetir.</p>
       </div>
+      {!loading && items.length ? (
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Arama taleplerini filtrele">
+          {([ ["all", "Tümü"], ["seller", "Gelen"], ["buyer", "Gönderilen"] ] as const).map(([value, label]) => (
+            <button key={value} type="button" aria-pressed={filter === value} onClick={() => setFilter(value)} className={`min-h-11 rounded-[7px] border px-4 text-xs font-semibold ${filter === value ? "border-(--color-brand) bg-(--color-brand) text-white" : "border-(--color-border) bg-(--color-surface) text-(--color-muted)"}`}>{label} ({value === "all" ? items.length : items.filter((item) => item.role === value).length})</button>
+          ))}
+        </div>
+      ) : null}
       {loading ? <p className="text-sm text-(--color-muted)" role="status">Talepler yükleniyor...</p> : null}
       {error ? <p className="text-sm text-(--color-danger)" role="alert">{error}</p> : null}
-      {!loading && !items.length ? <p className="rounded-lg border border-(--color-border) p-4 text-sm text-(--color-muted)">Henüz arama talebi yok.</p> : null}
-      {items.map((item) => {
+      {!loading && !items.length ? <DashboardEmptyState title="Henüz arama talebi yok" description="Bir ilan için geri arama istediğinizde veya ilanınıza talep geldiğinde durum ve işlem adımları burada görünür." action={{ href: "/ilanlar", label: "İlanları incele" }} /> : null}
+      {items.filter((item) => filter === "all" || item.role === filter).map((item) => {
         const open = item.status === "pending" || item.status === "notified";
         return (
           <article key={item.id} className="rounded-xl border border-(--color-border) bg-(--color-surface) p-4">

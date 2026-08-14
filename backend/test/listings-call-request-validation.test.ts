@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { callRequestSchema, callRequestStatusSchema } from "../src/modules/listings/validation";
+import { callRequestSchema, callRequestStatusSchema, listingCallSettingsSchema } from "../src/modules/listings/validation";
 import { hasVerifiedCallRequestIdentity } from "../src/modules/listings/call-request-auth";
 import { createOtpIdentityToken, readOtpIdentityToken } from "../src/modules/listings/otp-token";
 import {
@@ -20,6 +20,12 @@ describe("listing call request validation", () => {
     }
     expect(callRequestStatusSchema.safeParse({ status: "notified" }).success).toBe(false);
     expect(callRequestStatusSchema.safeParse({ status: "pending" }).success).toBe(false);
+  });
+
+  it("requires a bounded listing contact schedule", () => {
+    expect(listingCallSettingsSchema.safeParse({ callRequestsEnabled: true, callAvailability: ["morning", "evening"] }).success).toBe(true);
+    expect(listingCallSettingsSchema.safeParse({ callRequestsEnabled: true, callAvailability: [] }).success).toBe(false);
+    expect(listingCallSettingsSchema.safeParse({ callRequestsEnabled: true, callAvailability: ["night"] }).success).toBe(false);
   });
 
   it("requires a verified email account or a valid OTP identity", () => {
