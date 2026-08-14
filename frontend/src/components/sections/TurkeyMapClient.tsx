@@ -173,15 +173,15 @@ export default function TurkeyMapClient({ markets, cityPrices = [] }: Props) {
         </div>
       </div>
 
-      <aside className="flex min-h-0 flex-col gap-4">
+      <section aria-label="Seçili il fiyat özeti" className="flex min-h-0 flex-col gap-4">
         {active && (
           <div className="rounded-[18px] border border-(--color-border) bg-(--color-surface) p-5">
             <div className="font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
               Seçili İl
             </div>
-            <h3 className="mt-1 font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">
+            <h2 className="mt-1 font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">
               {active.name}
-            </h3>
+            </h2>
             {active.price ? (
               <div className="mt-4 space-y-3">
                 {active.price.priceIndex != null && (
@@ -234,7 +234,7 @@ export default function TurkeyMapClient({ markets, cityPrices = [] }: Props) {
 
         <RankCard title="En Uygun Ortalama" rows={cheapest} tone="green" onSelect={setActiveName} />
         <RankCard title="En Yüksek Ortalama" rows={expensive} tone="red" onSelect={setActiveName} />
-      </aside>
+      </section>
 
       <details className="rounded-[18px] border border-(--color-border) bg-(--color-surface) p-4 lg:hidden">
         <summary className="min-h-11 cursor-pointer font-semibold text-(--color-foreground)">
