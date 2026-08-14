@@ -34,6 +34,7 @@ export interface SiteSettings {
   social_linkedin: string;
   social_youtube: string;
   social_telegram: string;
+  social_whatsapp: string;
   whatsapp_number: string;
 }
 
@@ -58,6 +59,7 @@ const BRANDING_KEYS = [
   "social_linkedin",
   "social_youtube",
   "social_telegram",
+  "social_whatsapp",
   "whatsapp_number",
 ];
 
@@ -101,6 +103,7 @@ export async function fetchSiteSettings(locale = "tr"): Promise<SiteSettings> {
     social_linkedin: "",
     social_youtube: "",
     social_telegram: "",
+    social_whatsapp: "",
     whatsapp_number: "",
   };
 

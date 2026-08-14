@@ -27,12 +27,16 @@ export default async function PublicLayout({
     fetchPricesOverview(),
   ]);
 
+  // Telegram ve WhatsApp kanali da sameAs'e girer: ikisi de markanin dogrulanabilir
+  // profilleri ve varlik taninmasinda (entity recognition) sayiliyor.
   const sameAs = [
     settings.social_facebook,
     settings.social_instagram,
     settings.social_twitter,
     settings.social_linkedin,
     settings.social_youtube,
+    settings.social_telegram,
+    settings.social_whatsapp,
   ].filter(Boolean);
 
   // Kanonik @id capalari: tum sayfalardaki schema'lar (Dataset.creator,
@@ -105,6 +109,7 @@ export default async function PublicLayout({
         socialLinkedin={settings.social_linkedin}
         socialYoutube={settings.social_youtube}
         socialTelegram={settings.social_telegram}
+        socialWhatsapp={settings.social_whatsapp}
       />
 
       <AlertModalProvider />

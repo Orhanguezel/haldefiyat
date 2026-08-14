@@ -39,7 +39,11 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'public_base_url',      '*', '"https://haldefiyat.com"'),
 (UUID(), 'contact_phone',      '*', '"+90 530 048 41 83"'),
 (UUID(), 'contact_email',      '*', '"iletisim@haldefiyat.com"'),
-(UUID(), 'social_telegram',    '*', '"https://t.me/haldefiyat"');
+(UUID(), 'social_telegram',    '*', '"https://t.me/haldefiyat"'),
+-- WhatsApp KANALI (grup degil). Kanal linki whatsapp.com/channel/ ile baslar;
+-- chat.whatsapp.com/ ile baslayan link GRUPTUR ve buraya yazilmaz: grupta 1.024 uye
+-- tavani var ve her uye digerlerinin telefon numarasini gorur.
+(UUID(), 'social_whatsapp',    '*', '"https://whatsapp.com/channel/0029VbDeApA47XeAxvhDTn3G"');
 
 -- Global SEO defaults — frontend layout.tsx fetchGlobalSeo bunlari ister;
 -- yoksa her sayfa render'inda 404 dongusu + SEO meta uretilmemesi olusur.

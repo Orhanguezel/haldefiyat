@@ -23,7 +23,12 @@ const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
  * NEDEN: Form state ve fetch islemi tarayici tarafinda. Discriminated union
  * ile state yonetilir — hicbir bool flag karmasasi yok.
  */
-export default function CtaNewsletter() {
+export default function CtaNewsletter({
+  whatsappChannelUrl,
+}: {
+  /** WhatsApp KANAL adresi (whatsapp.com/channel/...). site_settings.social_whatsapp. */
+  whatsappChannelUrl?: string | null;
+} = {}) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<SubmitState>({ kind: "idle" });
 
@@ -171,6 +176,30 @@ export default function CtaNewsletter() {
             <span aria-hidden>🔔</span> Web Push
           </Link>
         </div>
+
+        {/*
+          WhatsApp KANALI bilincli olarak yukaridaki listede DEGIL. O liste
+          kisiye ozel hedef-fiyat uyarisinin nasil teslim edilecegini seciyor;
+          WhatsApp Kanallari ise tek yonlu yayin ve API'si yok — kisiye ozel
+          bildirim gonderilemez. Ayri bir teklif olarak sunulur: gunluk kart.
+        */}
+        {whatsappChannelUrl && (
+          <div className="relative z-[2] mt-8 border-t border-(--color-border) pt-6">
+            <p className="mb-3 text-[13px] text-(--color-muted)">
+              Her sabah günlük fiyat kartı için WhatsApp kanalımızı takip et —
+              kayıt gerekmez, numaran görünmez.
+            </p>
+            <a
+              href={whatsappChannelUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackConversion("whatsapp_channel_follow")}
+              className="inline-flex items-center gap-2 rounded-[10px] border border-(--color-brand)/30 px-4 py-2 text-[14px] font-semibold text-(--color-brand) transition-colors duration-200 hover:bg-(--color-brand) hover:text-white"
+            >
+              <span aria-hidden>💬</span> WhatsApp kanalını takip et
+            </a>
+          </div>
+        )}
       </div>
     </section>
   );

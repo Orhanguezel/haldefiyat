@@ -18,6 +18,7 @@ import BannerSlot from "@/components/ads/BannerSlot";
 import type { Stat } from "@/components/sections/StatsBarClient";
 import { ListingCard } from "@/components/listings/ListingCard";
 import { schemaDateRange } from "@/lib/schema-dates";
+import { fetchSiteSettings } from "@/lib/site-settings";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -79,12 +80,13 @@ export default async function HomePage({ params }: Props) {
   const ua = (await headers()).get("user-agent") ?? "";
   const isMobile = /Android|iPhone|iPod|Mobi|IEMobile|Opera Mini|BlackBerry/i.test(ua);
 
-  const [widget, markets, products, listings, overview] = await Promise.all([
+  const [widget, markets, products, listings, overview, siteSettings] = await Promise.all([
     fetchWidget({ limit: 30 }),
     fetchMarkets(),
     fetchProducts(undefined, undefined, { seoIndex: true }),
     fetchListings({ limit: 3 }),
     fetchPricesOverview(),
+    fetchSiteSettings(locale),
   ]);
   const cityCount = overview.activeCities || new Set(
     markets
@@ -175,7 +177,7 @@ export default async function HomePage({ params }: Props) {
         trackedProducts={overview.trackedProducts || products.length}
         latestRecordedDate={latestMarketUpdate}
       />
-      <CtaNewsletter />
+      <CtaNewsletter whatsappChannelUrl={siteSettings.social_whatsapp} />
     </>
   );
 }

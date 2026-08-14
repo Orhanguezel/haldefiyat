@@ -14,7 +14,8 @@ export type ConversionEventName =
   | "call_request_accepted"
   | "call_request_declined"
   | "call_request_cancelled"
-  | "call_request_completed";
+  | "call_request_completed"
+  | "whatsapp_channel_follow";
 
 type ConversionParams = Record<string, string | number | boolean | null | undefined>;
 
@@ -42,6 +43,7 @@ const EVENT_VALUE: Record<ConversionEventName, number> = {
   call_request_declined: 0,
   call_request_cancelled: 0,
   call_request_completed: 90,
+  whatsapp_channel_follow: 30,
 };
 
 function eventCategory(eventName: ConversionEventName): "conversion" | "engagement" {
