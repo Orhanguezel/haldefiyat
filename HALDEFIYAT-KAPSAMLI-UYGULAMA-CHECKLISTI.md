@@ -411,16 +411,16 @@
 
 ## 7. Faz 5 — SEO, içerik ve keşfedilebilirlik
 
-- [ ] F5.1 Her public sayfa ailesi için title/description/canonical standardı oluştur.
-- [ ] F5.2 Ürün/hal/firma/analiz sayfalarında veri varlığına göre index/noindex kararını uygula.
-- [ ] F5.3 Sitemap üretimini canonical ürün, aktif hal, yayınlanmış analiz ve gerçek lastmod ile besle.
-- [ ] F5.4 Teknik `updated_at` yerine editoryal/veri anlamlı tarih kullan.
-- [ ] F5.5 Breadcrumb UI ve schema URL’lerinin aynı olduğunu test et.
-- [ ] F5.6 Product/Dataset/Article/Organization/LocalBusiness schema sınırlarını doğru uygula.
-- [ ] F5.7 Görsel konsept uygulamasında hero/LCP görselleri için WebP/AVIF ve responsive sizes kullan.
-- [ ] F5.8 Ürün görseli yoksa stabil, erişilebilir ve hafif fallback kullan.
-- [ ] F5.9 Kopya içerik, thin sayfa ve redirect sonrası orphan link taraması yap.
-- [ ] F5.10 GSC bazına göre 2, 4 ve 8 haftalık izleme planı kur.
+- [x] F5.1 Public sayfa ailelerinin title/description/canonical standardı `docs/SEO-PUBLIC-SAYFA-STANDARDI.md` içinde tekleştirildi; kabul: `artifacts/renewal-2026/seo-kesfedilebilirlik-kabul-2026-08-14.md`.
+- [x] F5.2 Ürün/hal/firma/analiz ve yıllık raporda veri/içerik tabanlı index kapısı; auth/hesap/formlarda noindex+sitemap dışı politika uygulandı.
+- [x] F5.3 Sitemap canonical ürün, özgün editoryalli aktif hal, SEO uygun firma/hub, yayınlanmış analiz ve gerçek yıllık rapor verisiyle 407 URL üretiyor.
+- [x] F5.4 Ürün/hal fiyat kayıt tarihi, firma son görülme ve analiz editoryal/yayın tarihi lastmod kaynağı; geçersiz/gelecek teknik tarihler filtreli.
+- [x] F5.5 Breadcrumb UI/schema ortak öğe dizisi regresyon testinden geçti.
+- [x] F5.6 Schema sınırları 8 canlı URL'de dış validator ile 0 hata/0 uyarı; satış olmayan ürün sayfasında Product/Offer yok.
+- [x] F5.7 Temiz Veri ilk ekranında dekoratif hero/LCP fotoğrafı yok; ürün fotoğrafları Next Image format pazarlığı, sabit ölçü ve doğru `sizes` kullanıyor.
+- [x] F5.8 Eksik/hatalı ürün görselinde sabit ölçülü, erişilebilir ve hafif fallback testli. Dosya bazlı foto lisans atfı ayrı E9 borcudur.
+- [x] F5.9 Temmuz tam crawl bazı 316/316 temiz ve orphan 0; 14 Ağustos aile örneklemi düzeltme sonrası 20/20 200, metadata/schema/duplicate hatası 0. Kanıt kabul raporunda.
+- [x] F5.10 GSC 2/4/8 haftalık izleme planı, sahip, ölçüm penceresi ve rollback tetikleriyle oluşturuldu.
 
 ## 8. Faz 6 — Analitik ve deney ölçümü
 
@@ -428,12 +428,12 @@
 - [x] F6.2 `search_opened`, `search_submitted`, `search_result_selected`, `price_viewed` eventleri eklendi ve canlı zincir kabulü yapıldı.
 - [x] F6.3 `price_filter_changed` ve `price_filter_zero_results` eventleri eklendi; serbest sorgu yerine yalnız uzunluk taşıdığı unit ve canlı kabul ile doğrulandı.
 - [x] F6.4 Eşdeğer ve kayıtlı sözlükle `call_request_view`, `call_request_submit`, `call_request_cancelled` eventleri ilan/slot/ID dışında PII taşımadan çalışıyor.
-- [~] F6.5 Satıcı panelinde `accepted/declined/completed` dönüşümleri ölçülüyor; `notified` backend durum/audit kaydında fakat analytics event'i olarak henüz ayrı ölçülmüyor.
-- [ ] F6.6 Bülten, sosyal, reklam, API ve kurumsal rapor hunilerini ayrı tanımla.
+- [x] F6.5 `notified` yalnız gerçek Telegram teslimi+DB yazımı sonrası; `accepted/declined/completed` ile ayrı analytics dönüşümleri ve KPI oranları çalışıyor.
+- [x] F6.6 Bülten, sosyal, reklam, API ve kurumsal rapor hunileri tek conversion toplamına karıştırılmadan ayrı tanımlandı.
 - [x] F6.7 Arama event payload testleri telefon/e-posta/not taşımadığını doğruluyor; attribution yalnız izinli UTM/gclid alanlarını taşıyor, kişisel form değerleri analytics'e verilmiyor.
-- [ ] F6.8 Tema rollout feature flag/cohort karşılaştırmasını tasarla.
-- [ ] F6.9 Ana KPI dashboard’unu oluştur: fiyat bulma süresi, search success, anomaly rate, call conversion.
-- [ ] F6.10 KPI bozulmasında rollback/inceleme eşiği belirle.
+- [x] F6.8 `control/clean_data_10/50/100` cohort, minimum bekleme ve Ads koordinasyonu `docs/TEMA-ROLLOUT-VE-KPI-KAPISI.md` içinde tasarlandı.
+- [x] F6.9 Admin KPI dashboard'u fiyat bulma süresi, search success, anomaly rate ve call conversion'ı örneklem durumuyla gösteriyor.
+- [x] F6.10 İnceleme/rollback eşikleri sözleşmeye ve panele işlendi. Kanıt: `artifacts/renewal-2026/analitik-kpi-kabul-2026-08-14.md`.
 
 ## 9. Faz 7 — Erişilebilirlik, performans ve güvenlik QA
 
@@ -585,12 +585,12 @@
 - [ ] E4 410 otomatı yanlış pozitif üretti: generic aile-başı slug'lar (biber/lahana/sarımsak…) "ölü ürün" sanılıp Gone yapıldı, doğrusu varyanta 301 (5 kayıt düzeltildi). F2.18 haritasına "410→301 geri alma denetimi" maddesi eklenir.
 - [ ] E5 Reklam/banner modülü CANLI (9 slot, CTR takibi, image/code tipleri, code-type sanitize → `creativeConfig` kullan; 7/14 pozisyon sayfaya bağlı; Hostinger affiliate 3 slotta yayında). P4.85 ve F10.5 bu modülün üstüne kurulur; `docs/checklists/REKLAM-BANNER-CHECKLIST.md` referans.
 - [ ] E6 Sosyal yayın content-guard + tek-poster politikası mevcut (F10.3 inline düzeltildi); yeni sosyal kart üreticisi de aynı kapıdan geçer.
-- [ ] E7 GSC tek-indirici mimarisi: URL inspection SADECE hal-fiyatlari bulk+cron'da yaşar. F2.25 ve F5.10 göç doğrulaması mevcut bulk inspector ile yapılır; ikinci inspector yazılmaz.
-- [ ] E8 `getPageMetadata` page-key çakışması tuzağı: DB `seo_pages` template'i sayfa override'ını ezebilir (hal_detay vakası). F5.1 çalışmasında detay sayfası key'lerinin liste key'lerine çarpmadığı test edilir.
-- [ ] E9 Ürün foto altyapısı mevcut: `hf_products.image_url` + admin upload + manifest. 34 ürüne Commons fotoğrafı eklendi, ~110 ürün fotoğrafsız, CC lisans ATIFI YAPILMIYOR (açık hukuki risk). F5.8'den önce atıf borcu kapatılır; Tarladan Sofraya yönü seçilirse bu risk kritikleşir (E27).
+- [x] E7 GSC göç/izleme mevcut bulk+cron tek-indiriciyle eşlendi; ikinci URL inspector yazılmadı. Plan: `artifacts/renewal-2026/gsc-2-4-8-hafta-izleme-plani-2026-08-14.md`.
+- [x] E8 Detay ve liste page-key ayrımı SEO regresyon testine eklendi; `hal_detay` override'ı `hal` şablonuyla çakışmıyor.
+- [~] E9 Ürün foto fallback'i ve admin/manifest tüketimi testli; ancak mevcut dosyalar için kaynak URL+eser sahibi+lisans sürümü provenance kaydı yok. Kaynağı kanıtlanamayan foto yeni yüzeye taşınmıyor; hukuki atıf borcu dış kaynak envanteri bekliyor. Kanıt: SEO kabul raporu.
 - [ ] E10 Admin "Kalite" sekmesi (içerik/SEO/index skoru + GSC inspect) ve haftalık analiz "yeniden üret + yayınla" akışı mevcut; mover anomali cap (%80) deploy'lu. F1.31–35 Invalid Date düzeltmesi bu üreticiyi regresyona sokmadan yapılır; /analiz cron'da DEĞİL, manuel denetlenir.
 - [x] E11 Mevcut Telegram admin kanalı yeniden kullanıldı; arama talebi kişisel veri taşımadan ilan, tercih zamanı, redakte not ve talep numarasıyla aynı kanala bağlandı. Ayrı bildirim altyapısı kurulmadı; teslim işareti yalnız başarılı Telegram cevabından sonra yazılıyor.
-- [ ] E12 Baseline araçları hazır: `backend/scripts/traffic-report.sh` (elle awk yazma), `backend/scripts/etl-health.sh 24`, PageSpeed API anahtarı backend/.env'de. F0.23–28 bazları bu araçlarla alınır.
+- [x] E12 Baseline mevcut `traffic-report.sh`, `etl-health.sh 24` ve PageSpeed kaynağı yeniden kullanılarak Faz 0 performans/erişilebilirlik ve teknik envanter artifact'lerine işlendi; paralel araç kurulmadı.
 
 ### 15.2 Faz 0 ilaveleri — keşif
 
@@ -644,8 +644,8 @@
 
 ### 15.9 Analitik ve dağıtım tekleştirme
 
-- [ ] E42 GA4 hal-fiyatlari için AYRI property yok (VistaSeeds property'si altında). F6.1'den önce karar: ayrı GA4 property mi, mevcut mu? Event sözlüğü bu karara göre yazılır.
-- [ ] E43 F6 event işleri `ADS-SETUP-CHECKLIST.md` Madde 11 zinciriyle (11.1 audit log fix → 11.2 conversion event'ler → 11.3 gclid/UTM cookie → 11.5 admin analytics) TEK plana birleştirilir; iki paralel analitik işi yürütülmez.
-- [ ] E44 KPI panosunda GSC(yalnız organik arama, ~10 tık/gün) ile nginx(tüm istekler, ~19K/gün) ayrımı açıkça etiketlenir; trafik kıyasında dedike `haldefiyat.access.log` + "günü bitmemiş kısmi gün dahil edilmez" kuralı.
+- [~] E42 Ayrı GA4 property seçildi; VistaSeeds property'sine HalDeFiyat event'i yazılmayacak. Google hesabında property oluşturma dış yetki bekliyor; o zamana kadar PII'siz birinci taraf KPI paneli tek karar kaynağıdır.
+- [x] E43 F6 event, attribution ve admin ölçümü mevcut Madde 11 zinciriyle aynı analytics modülü/sözleşmesinde birleştirildi; paralel ikinci analitik sistem kurulmadı.
+- [x] E44 Admin panelde audit/GSC/nginx kapsam ayrımı ve `haldefiyat.access.log` + tamamlanmış gün kuralı açıkça etiketlendi.
 - [x] E45 Newsletter subscribe 404 bug'ı canlıda kapanmış: 13 Ağustos doğrulamasında invalid email POST’u 422 döndürdü, yani public route kayıtlı. HMAC unsubscribe mimarisi korunuyor; sabit secret fallback P0 paketinde kaldırıldı.
 - [ ] E46 Pazartesi bülteni içeriği kayıtlı metodolojiye uyar: sabit sepet + mevsimlik bölüm, "eşleşmiş sepet" kuralı (kıyaslanan 3 sayı aynı kümeden), yayın öncesi yüzde doğrulaması zorunlu.

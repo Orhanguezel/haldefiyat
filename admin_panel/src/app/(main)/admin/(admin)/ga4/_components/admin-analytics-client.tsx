@@ -160,6 +160,14 @@ export default function AdminAnalyticsClient() {
         />
       </div>
 
+      <p className="rounded-lg border border-border bg-muted/40 px-4 py-3 text-xs leading-5 text-muted-foreground">
+        <strong className="text-foreground">Kaynak sınırı:</strong> Bu paneldeki trafik ve pageview değerleri
+        uygulama audit kayıtlarından gelir. GSC yalnız Google organik arama tıklamalarını; dedike
+        <code className="mx-1 rounded bg-background px-1">haldefiyat.access.log</code> ise bot, asset ve API dahil tüm nginx
+        isteklerini gösterir. Bu üç sayı birbirinin yerine kullanılmaz. Günlük trafik kıyasında içinde bulunulan
+        kısmi gün rapora alınmaz.
+      </p>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Ana Ürün KPI Kapısı</CardTitle>
