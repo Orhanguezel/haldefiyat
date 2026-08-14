@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { productPriceHistory } from "./repository";
-import { aggregateByDay, buildForecast } from "./forecast";
+import { aggregateByDay, buildForecast, validateForecastSeries } from "./forecast";
 
 const qForecast = z.object({
   market: z.string().optional(),
@@ -25,7 +25,7 @@ export async function registerPricesForecast(app: FastifyInstance) {
       const { market, days } = parsed.data;
       const horizon = days ?? 7;
 
-      const history = await productPriceHistory(req.params.productSlug, market, 30);
+      const history = await productPriceHistory(req.params.productSlug, market, 45);
       if (!history.length) {
         return reply.status(404).send({
           error: "Bu urun icin yeterli fiyat verisi bulunamadi",
@@ -41,6 +41,23 @@ export async function registerPricesForecast(app: FastifyInstance) {
         });
       }
 
+      const validation = validateForecastSeries(series);
+      if (!validation.publishable) {
+        return reply.status(422).send({
+          error: "forecast_not_publishable",
+          productSlug: req.params.productSlug,
+          marketSlug: market ?? null,
+          validation,
+          policy: {
+            minimumHistoryPoints: 21,
+            minimumBacktestPoints: 7,
+            maximumMapePct: 25,
+            mustBeatNaiveBaseline: true,
+            maximumRecentDriftRatio: 1.5,
+          },
+        });
+      }
+
       const lastDate = series[series.length - 1]!.date;
       const result = buildForecast(series, lastDate, horizon);
 
@@ -53,6 +70,7 @@ export async function registerPricesForecast(app: FastifyInstance) {
         slope:       result.slope,
         intercept:   result.intercept,
         predictions: result.predictions,
+        validation,
         disclaimer:  "Tahminler bilgilendirme amaçlıdır; tek başına ticari karar için kullanılmamalıdır.",
       });
     },

@@ -160,16 +160,17 @@ const GROUPS: Group[] = [
       {
         method: "GET",
         path: "/prices/forecast/:productSlug",
-        desc: "Yapay zeka destekli 7 günlük fiyat tahmini.",
+        desc: "Yürüyen backtest, MAE/MAPE, naif baz çizgi ve drift kapısını geçen seriler için 7 günlük deneysel fiyat tahmini; eşik geçilmezse 422 döner.",
         params: [
           { name: "productSlug", type: "string", required: true, desc: "URL'de ürün slug'ı" },
         ],
         example: `curl "${BASE}/prices/forecast/domates"`,
         response: `{
   "productSlug": "domates",
-  "forecast": [
-    { "date": "2026-04-22", "predictedAvg": 10.8, "confidence": 0.74 }
-  ]
+  "predictions": [
+    { "date": "2026-04-22", "predicted": 10.8 }
+  ],
+  "validation": { "modelMape": 8.4, "baselineMape": 11.2, "publishable": true }
 }`,
       },
     ],

@@ -14,6 +14,22 @@ export type ForecastResult = {
   sampleSize:  number;
 };
 
+export type ForecastValidation = {
+  publishable: boolean;
+  reasons: string[];
+  validationPoints: number;
+  modelMae: number | null;
+  modelMape: number | null;
+  baselineMae: number | null;
+  baselineMape: number | null;
+  driftRatio: number | null;
+};
+
+const MIN_FORECAST_POINTS = 21;
+const MIN_VALIDATION_POINTS = 7;
+const MAX_MAPE_PCT = 25;
+const MAX_DRIFT_RATIO = 1.5;
+
 function linearRegression(points: ForecastInput[]): { slope: number; intercept: number } {
   const n = points.length;
   if (n < 2) {
@@ -69,6 +85,68 @@ export function buildForecast(
     slope:      Math.round(slope * 10000) / 10000,
     intercept:  Math.round(intercept * 100) / 100,
     sampleSize: n,
+  };
+}
+
+function roundedMetric(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+/**
+ * Walk-forward kabul kapisi. Her validasyon noktasinda yalniz o tarihten onceki
+ * en fazla 14 gozlem kullanilir; boylece gelecek veri egitime sizmaz. Lineer
+ * model, "son fiyat aynen devam eder" baz cizgisini gecmeden public olmaz.
+ */
+export function validateForecastSeries(series: { date: string; avgPrice: number }[]): ForecastValidation {
+  const clean = series.filter((point) => Number.isFinite(point.avgPrice) && point.avgPrice > 0);
+  const reasons: string[] = [];
+  if (clean.length < MIN_FORECAST_POINTS) reasons.push("insufficient_history");
+
+  const start = Math.max(14, clean.length - MIN_VALIDATION_POINTS);
+  const modelErrors: number[] = [];
+  const modelPctErrors: number[] = [];
+  const baselineErrors: number[] = [];
+  const baselinePctErrors: number[] = [];
+
+  for (let index = start; index < clean.length; index += 1) {
+    const train = clean.slice(Math.max(0, index - 14), index);
+    const actual = clean[index]!.avgPrice;
+    const previous = train.at(-1);
+    if (train.length < 10 || !previous) continue;
+    const predicted = buildForecast(train, previous.date, 1).predictions[0]?.predicted;
+    if (predicted == null || !Number.isFinite(predicted)) continue;
+    const modelError = Math.abs(predicted - actual);
+    const baselineError = Math.abs(previous.avgPrice - actual);
+    modelErrors.push(modelError);
+    baselineErrors.push(baselineError);
+    modelPctErrors.push((modelError / actual) * 100);
+    baselinePctErrors.push((baselineError / actual) * 100);
+  }
+
+  const mean = (values: number[]) => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+  const modelMaeRaw = mean(modelErrors);
+  const modelMapeRaw = mean(modelPctErrors);
+  const baselineMaeRaw = mean(baselineErrors);
+  const baselineMapeRaw = mean(baselinePctErrors);
+  const recentMae = mean(modelErrors.slice(-3));
+  const driftRatioRaw = modelMaeRaw != null && recentMae != null
+    ? modelMaeRaw === 0 ? 0 : recentMae / modelMaeRaw
+    : null;
+
+  if (modelErrors.length < MIN_VALIDATION_POINTS) reasons.push("insufficient_backtest");
+  if (modelMapeRaw == null || modelMapeRaw > MAX_MAPE_PCT) reasons.push("mape_threshold");
+  if (modelMaeRaw == null || baselineMaeRaw == null || modelMaeRaw > baselineMaeRaw) reasons.push("baseline_not_beaten");
+  if (driftRatioRaw == null || driftRatioRaw > MAX_DRIFT_RATIO) reasons.push("recent_drift");
+
+  return {
+    publishable: reasons.length === 0,
+    reasons,
+    validationPoints: modelErrors.length,
+    modelMae: modelMaeRaw == null ? null : roundedMetric(modelMaeRaw),
+    modelMape: modelMapeRaw == null ? null : roundedMetric(modelMapeRaw),
+    baselineMae: baselineMaeRaw == null ? null : roundedMetric(baselineMaeRaw),
+    baselineMape: baselineMapeRaw == null ? null : roundedMetric(baselineMapeRaw),
+    driftRatio: driftRatioRaw == null ? null : roundedMetric(driftRatioRaw),
   };
 }
 

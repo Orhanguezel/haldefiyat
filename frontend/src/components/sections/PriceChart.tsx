@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import {
   ComposedChart,
   Area,
-  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -13,7 +12,6 @@ import {
   type TooltipProps,
 } from "recharts";
 import type { PriceHistoryRow } from "@/lib/api";
-import { predictNextDays } from "@/lib/trend";
 
 interface PriceChartProps {
   history: PriceHistoryRow[];
@@ -37,8 +35,6 @@ interface ChartPoint {
   avg?: number;
   min?: number;
   max?: number;
-  predicted?: number;
-  isForecast?: boolean;
 }
 
 function toNumber(value: string | number | null | undefined): number {
@@ -69,14 +65,13 @@ function ChartTooltip({ active, payload }: TooltipProps<number, string>) {
   if (!point) return null;
 
   const hasAvg = typeof point.avg === "number";
-  const hasForecast = typeof point.predicted === "number";
 
   return (
     <div className="rounded-[10px] border border-(--color-brand) bg-(--color-header) px-3 py-2 backdrop-blur-md">
       <div className="mb-1 font-(family-name:--font-mono) text-[10px] uppercase tracking-[0.1em] text-(--color-brand)">
-        {formatLongDate(point.rawDate)} {point.isForecast ? "· Tahmin" : ""}
+        {formatLongDate(point.rawDate)}
       </div>
-      {!point.isForecast && point.marketName ? (
+      {point.marketName ? (
         <div className="mb-1 text-[11px] font-semibold text-(--color-foreground)">
           {point.marketName}{point.cityName ? ` · ${point.cityName}` : ""}
         </div>
@@ -84,11 +79,6 @@ function ChartTooltip({ active, payload }: TooltipProps<number, string>) {
       {hasAvg ? (
         <div className="font-(family-name:--font-mono) text-[14px] font-bold text-(--color-foreground)">
           ₺{(point.avg ?? 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}/{point.unit}
-        </div>
-      ) : null}
-      {hasForecast ? (
-        <div className="font-(family-name:--font-mono) text-[13px] font-semibold text-(--color-brand)/80">
-          tahmin ₺{(point.predicted ?? 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}/{point.unit}
         </div>
       ) : null}
       {hasAvg && typeof point.min === "number" && typeof point.max === "number" ? (
@@ -104,7 +94,7 @@ function ChartTooltip({ active, payload }: TooltipProps<number, string>) {
 export default function PriceChart({ history, productName }: PriceChartProps) {
   const [range, setRange] = useState<RangeKey>("30d");
 
-  const { data, hasForecast } = useMemo(() => {
+  const data = useMemo(() => {
     const days = RANGES.find((r) => r.key === range)?.days ?? 30;
     const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
 
@@ -126,25 +116,11 @@ export default function PriceChart({ history, productName }: PriceChartProps) {
     }));
 
     if (real.length < 5) {
-      return { data: real, hasForecast: false };
+      return real;
     }
-
-    const forecasts = predictNextDays(filtered, 7);
-    const forecastUnit = real.at(-1)?.unit ?? "kg";
-    const forecastPoints: ChartPoint[] = forecasts.map((p) => ({
-      rawDate: p.date,
-      date: formatShortDate(p.date),
-      unit: forecastUnit,
-      predicted: p.predicted,
-      isForecast: true,
-    }));
-
-    // Seamless join: son gercek noktaya predicted degerini de ekle
-    if (real.length > 0 && forecastPoints.length > 0) {
-      real[real.length - 1] = { ...real[real.length - 1]!, predicted: real[real.length - 1]!.avg };
-    }
-
-    return { data: [...real, ...forecastPoints], hasForecast: forecastPoints.length > 0 };
+    // Public grafikte istemci tarafli, backtest edilmemis tahmin uretilmez.
+    // Tahmin ancak backend kabul kapisini gecen urunlerde ayri API ile sunulur.
+    return real;
   }, [history, range]);
 
   return (
@@ -153,12 +129,6 @@ export default function PriceChart({ history, productName }: PriceChartProps) {
         <div>
           <div className="flex items-center gap-3 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-brand)">
             Fiyat Trendi
-            {hasForecast ? (
-              <span className="inline-flex items-center gap-1.5 rounded-[5px] border border-(--color-brand)/40 bg-(--color-brand)/5 px-2 py-0.5 text-[10px] font-semibold text-(--color-brand)/80">
-                <span className="h-[2px] w-3 border-t border-dashed border-(--color-brand)/70" aria-hidden />
-                Tahmin 7G
-              </span>
-            ) : null}
           </div>
           <h3 className="mt-1 font-(family-name:--font-display) text-[18px] font-bold text-(--color-foreground)">
             {productName}
@@ -209,9 +179,6 @@ export default function PriceChart({ history, productName }: PriceChartProps) {
               <YAxis stroke="var(--muted)" tick={{ fontSize: 11, fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} tickFormatter={(value: number) => `₺${value}`} width={50} />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: "var(--brand)", strokeWidth: 1, strokeDasharray: "3 3" }} />
               <Area type="monotone" dataKey="avg" stroke="var(--brand)" strokeWidth={2.5} fill="url(#halBrandFill)" connectNulls />
-              {hasForecast ? (
-                <Line type="monotone" dataKey="predicted" stroke="var(--brand)" strokeWidth={2} strokeDasharray="4 4" dot={false} connectNulls isAnimationActive={false} opacity={0.6} />
-              ) : null}
             </ComposedChart>
           </ResponsiveContainer>
         </div>
