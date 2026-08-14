@@ -220,6 +220,8 @@ export default function PriceTable({
     Number(hideMarketColumn) -
     Number(hideCityColumn);
   const initialSort = requestParams?.sort ?? "avg-desc";
+  const defaultSort: SortKey = syncUrl ? "date-desc" : initialSort;
+  const defaultRange = syncUrl ? "30d" : (requestParams?.range || "7d");
   const [prices, setPrices] = useState<PriceRow[]>(
     initialPricePage?.items ?? (Array.isArray(initialPrices) ? initialPrices : []),
   );
@@ -382,14 +384,14 @@ export default function PriceTable({
     setMarket("all");
     setCategory("all");
     setUnit("all");
-    setRange(requestParams?.range || "7d");
+    setRange(defaultRange);
     setQuery("");
-    setSort(initialSort);
+    setSort(defaultSort);
   };
 
   const hasActiveFilter =
     city !== "all" || market !== "all" || category !== "all" || unit !== "all" ||
-    range !== (requestParams?.range || "7d") || query.trim() !== "" || sort !== initialSort;
+    range !== defaultRange || query.trim() !== "" || sort !== defaultSort;
   const total = meta?.total ?? safePrices.length;
   const totalPages = meta?.totalPages ?? 1;
   const currentPage = meta?.page ?? page;
@@ -401,8 +403,8 @@ export default function PriceTable({
     market !== "all",
     category !== "all",
     unit !== "all",
-    range !== (requestParams?.range || "7d"),
-    sort !== initialSort,
+    range !== defaultRange,
+    sort !== defaultSort,
   ].filter(Boolean).length;
   const staleCount = filtered.filter((row) => row.isStale).length;
   const freshCount = filtered.length - staleCount;
@@ -418,8 +420,8 @@ export default function PriceTable({
     if (market !== "all") params.set("market", market);
     if (category !== "all") params.set("category", category);
     if (unit !== "all") params.set("unit", unit);
-    if (range !== (requestParams?.range || "7d")) params.set("range", range);
-    if (sort !== initialSort) params.set("sort", sort);
+    if (range !== defaultRange) params.set("range", range);
+    if (sort !== defaultSort) params.set("sort", sort);
     if (page > 1) params.set("page", String(page));
     if (pageSize !== 100) params.set("limit", String(pageSize));
     const queryString = params.toString();
@@ -459,8 +461,8 @@ export default function PriceTable({
     sort,
     page,
     pageSize,
-    requestParams?.range,
-    initialSort,
+    defaultRange,
+    defaultSort,
     activeFilterCount,
   ]);
 
@@ -479,7 +481,7 @@ export default function PriceTable({
             ? "category"
             : unit !== "all"
               ? "unit"
-              : range !== (requestParams?.range || "7d")
+              : range !== defaultRange
                 ? "range"
                 : "sort";
     trackDiscoveryEvent("price_filter_zero_results", {
@@ -489,7 +491,7 @@ export default function PriceTable({
       result_count: 0,
       zero_results: true,
     });
-  }, [loading, loadError, total, activeFilterCount, deferredQuery, city, market, category, unit, range, sort, requestParams?.range]);
+  }, [loading, loadError, total, activeFilterCount, deferredQuery, city, market, category, unit, range, sort, defaultRange]);
 
   const categoryHref = (slug: string) => {
     const params = new URLSearchParams();
@@ -498,8 +500,8 @@ export default function PriceTable({
     if (market !== "all") params.set("market", market);
     if (query.trim()) params.set("q", query.trim());
     if (unit !== "all") params.set("unit", unit);
-    if (range !== (requestParams?.range || "7d")) params.set("range", range);
-    if (sort !== initialSort) params.set("sort", sort);
+    if (range !== defaultRange) params.set("range", range);
+    if (sort !== defaultSort) params.set("sort", sort);
     if (pageSize !== 100) params.set("limit", String(pageSize));
     const qs = params.toString();
     return qs ? `/fiyatlar?${qs}` : "/fiyatlar";
