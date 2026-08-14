@@ -82,7 +82,7 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
       </nav>
 
       {/* Search bar */}
-      <div className="hidden lg:flex items-center w-full max-w-[240px] min-w-[140px] h-10 px-3 rounded-xl bg-(--color-bg-alt) border border-(--color-border-soft) hover:border-(--color-brand)/30 hover:bg-(--color-background) transition-all group">
+      <div className="hidden xl:flex items-center w-full max-w-[240px] min-w-[140px] h-10 px-3 rounded-xl bg-(--color-bg-alt) border border-(--color-border-soft) hover:border-(--color-brand)/30 hover:bg-(--color-background) transition-all group">
         <svg
           width="14"
           height="14"

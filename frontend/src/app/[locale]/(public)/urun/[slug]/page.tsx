@@ -685,7 +685,7 @@ export default async function UrunPage({ params }: Props) {
           {borsaProduct ? "TMO, ticaret borsaları ve ilgili resmi kurum duyuruları." : "Belediye hal müdürlükleri ve "}
           {!borsaProduct && (
             <>
-          <a href="https://hal.gov.tr" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">hal.gov.tr</a>{" "}
+          <a href="https://hal.gov.tr" target="_blank" rel="noopener noreferrer" className="text-brand underline underline-offset-2">hal.gov.tr</a>{" "}
           ulusal ortalamaları. Kayıtlar kaynakların resmi yayın takvimine göre güncellenir.
             </>
           )}

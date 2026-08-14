@@ -32,7 +32,7 @@ function fmt(value: string | number | null | undefined): string {
 const BADGE_CLASS: Record<Trend, string> = {
   up:     "bg-(--trend-bg) text-(--trend-up)",
   down:   "bg-(--trend-bg) text-(--trend-down)",
-  stable: "bg-(--color-info-bg) text-(--color-info)",
+  stable: "bg-(--color-info-bg) text-(--color-foreground)",
 };
 
 const BADGE_LABEL: Record<Trend, string> = {

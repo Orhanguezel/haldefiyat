@@ -54,7 +54,7 @@ export default async function HaritaPage({ params }: Props) {
             kapsamı ve endeksini inceleyebilirsiniz.
           </p>
           <p className="mt-3 font-(family-name:--font-mono) text-xs text-(--color-muted)">
-            {overview.currentCities?.toLocaleString("tr-TR") ?? "—"} {PUBLIC_METRICS.currentCities.label.toLocaleLowerCase("tr-TR")} · {overview.activeMarkets?.toLocaleString("tr-TR") ?? "—"} {PUBLIC_METRICS.activeMarkets.label.toLocaleLowerCase("tr-TR")} · {publicFreshnessLabel(overview.freshness).toLocaleLowerCase("tr-TR")} · <a href="/metodoloji" className="text-(--color-brand) hover:underline">metodoloji</a>
+            {overview.currentCities?.toLocaleString("tr-TR") ?? "—"} {PUBLIC_METRICS.currentCities.label.toLocaleLowerCase("tr-TR")} · {overview.activeMarkets?.toLocaleString("tr-TR") ?? "—"} {PUBLIC_METRICS.activeMarkets.label.toLocaleLowerCase("tr-TR")} · {publicFreshnessLabel(overview.freshness).toLocaleLowerCase("tr-TR")} · <a href="/metodoloji" className="text-(--color-brand) underline underline-offset-2">metodoloji</a>
           </p>
         </div>
       </header>

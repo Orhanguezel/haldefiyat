@@ -18,11 +18,11 @@
   /* Semantic */
   --success:      hsl(145 72% 27%);
   --success-bg:   hsl(142 76% 95%);
-  --warning:      hsl(38 92% 50%);
+  --warning:      hsl(32 88% 29%);
   --warning-bg:   hsl(38 92% 95%);
-  --danger:       hsl(0 84% 60%);
+  --danger:       hsl(0 72% 42%);
   --danger-bg:    hsl(0 84% 95%);
-  --info:         hsl(213 94% 50%);
+  --info:         hsl(213 92% 38%);
   --info-bg:      hsl(213 94% 95%);
   /* Directional, not semantic: fiyat artışı başarı; düşüş hata değildir. */
   --trend-up:     hsl(272 55% 42%);
@@ -48,6 +48,13 @@
   --card-shadow:  0 1px 2px rgb(6 35 24 / 0.06), 0 8px 24px rgb(6 35 24 / 0.05);
   --orb-opacity:  0;
   --brand-fg:     hsl(0 0% 100%);
+
+  /* Shared token paketindeki genel tonları ürün temasında WCAG-AA tonlarıyla ez. */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger:  var(--danger);
+  --color-info:    var(--info);
+  --color-navy:    var(--brand-fg);
 
   /* Map (Turkey choropleth) — kontrast ayarlari */
   --map-low:        hsl(132 70% 38%);

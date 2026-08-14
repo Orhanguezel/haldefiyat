@@ -637,10 +637,10 @@ export default function PriceTable({
                   className={
                     "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors " +
                     (active
-                      ? "border-(--color-brand) bg-(--color-brand) text-(--color-navy)"
+                      ? "border-(--color-brand) bg-(--color-brand) text-(--color-brand-fg)"
                       : "border-(--color-border) bg-(--color-bg-alt) text-(--color-muted) hover:text-(--color-foreground)")
                   }
-                  aria-pressed={active}
+                  aria-current={active ? "page" : undefined}
                 >
                   {dot && (
                     <span
@@ -653,7 +653,7 @@ export default function PriceTable({
                     <span
                       className={
                         "font-(family-name:--font-mono) text-[10px] " +
-                        (active ? "text-(--color-navy)/70" : "opacity-60")
+                        (active ? "text-(--color-brand-fg)" : "opacity-60")
                       }
                     >
                       {c.count}
