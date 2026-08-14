@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
@@ -27,6 +28,11 @@ export function ContactForm({
 }: ContactFormProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const statusRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "success" || status === "error") statusRef.current?.focus();
+  }, [status]);
   const contactInfo = [
     {
       icon: Mail,
@@ -58,7 +64,10 @@ export function ContactForm({
     setErrorMessage("");
 
     const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
+    const data = {
+      ...Object.fromEntries(formData.entries()),
+      privacyAccepted: formData.get("privacyAccepted") === "on",
+    };
 
     try {
       const res = await fetch("/api/v1/contacts", {
@@ -67,10 +76,7 @@ export function ContactForm({
         body: JSON.stringify(data),
       });
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Bir hata oluştu");
-      }
+      if (!res.ok) throw new Error(res.status === 429 ? "rate_limited" : res.status === 400 ? "invalid_request" : "request_failed");
 
       setStatus("success");
       if (conversionEventName) {
@@ -78,19 +84,24 @@ export function ContactForm({
       }
     } catch (err) {
       setStatus("error");
-      setErrorMessage(err instanceof Error ? err.message : "Mesaj gönderilemedi");
+      const code = err instanceof Error ? err.message : "request_failed";
+      setErrorMessage(code === "rate_limited"
+        ? "Kısa sürede çok fazla deneme yapıldı. Lütfen birkaç dakika sonra yeniden deneyin."
+        : code === "invalid_request"
+          ? "Bilgileri ve kişisel veri onayını kontrol edip yeniden deneyin."
+          : "Mesaj şu anda gönderilemedi. Lütfen daha sonra yeniden deneyin veya e-posta kanalını kullanın.");
     }
   }
 
   if (status === "success") {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center animate-in fade-in zoom-in duration-500">
+      <div ref={statusRef} tabIndex={-1} role="status" className="flex flex-col items-center justify-center py-12 text-center outline-none animate-in fade-in zoom-in duration-500">
         <div className="rounded-full bg-success/10 p-6 text-success mb-6">
           <CheckCircle2 className="h-16 w-16" />
         </div>
         <h2 className="text-3xl font-bold text-foreground mb-4">Mesajınız Alındı!</h2>
         <p className="text-muted max-w-md mx-auto mb-8">
-          Bize ulaştığınız için teşekkür ederiz. Ekibimiz en kısa sürede size geri dönüş yapacaktır.
+          Bize ulaştığınız için teşekkür ederiz. Mesajınız inceleme sırasına alındı; gerektiğinde verdiğiniz iletişim bilgileri üzerinden sizinle bağlantı kuracağız.
         </p>
         <Button onClick={() => setStatus("idle")} variant="secondary">
           Yeni Mesaj Gönder
@@ -139,13 +150,11 @@ export function ContactForm({
       </div>
 
       {/* Sağ taraf: Form */}
-      <div className="relative group">
-        {/* Dekoratif Işıklar */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-brand/40 to-success/40 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-1000" />
-        
+      <div>
         <form 
           onSubmit={handleSubmit}
-          className="relative bg-surface/80 backdrop-blur-md border border-border p-8 sm:p-10 rounded-3xl space-y-6"
+          aria-busy={status === "loading" || undefined}
+          className="space-y-6 rounded-[10px] border border-border bg-surface p-6 sm:p-8"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <Input
@@ -192,13 +201,30 @@ export function ContactForm({
             disabled={status === "loading"}
           />
 
-          {/* Honeypot */}
-          <div className="hidden">
-            <input type="text" name="website" />
+          <div aria-hidden="true" className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden">
+            <label htmlFor="contact-website">Web sitesi</label>
+            <input id="contact-website" type="text" name="website" tabIndex={-1} autoComplete="off" />
           </div>
 
+          <label className="flex items-start gap-3 text-sm leading-relaxed text-muted">
+            <input
+              type="checkbox"
+              name="privacyAccepted"
+              required
+              disabled={status === "loading"}
+              className="mt-1 h-4 w-4 shrink-0 accent-(--color-brand)"
+            />
+            <span>
+              İletişim talebimin yanıtlanması amacıyla verdiğim bilgilerin işlenmesine ilişkin{" "}
+              <Link href="/kvkk" className="font-semibold text-brand underline underline-offset-2">KVKK Aydınlatma Metni</Link>
+              {" "}ve{" "}
+              <Link href="/gizlilik-politikasi" className="font-semibold text-brand underline underline-offset-2">Gizlilik Politikası</Link>
+              ’nı okudum ve kabul ediyorum.
+            </span>
+          </label>
+
           {status === "error" && (
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-danger/10 text-danger animate-shake">
+            <div ref={statusRef} tabIndex={-1} role="alert" className="flex items-center gap-3 rounded-xl bg-danger/10 p-4 text-danger outline-none animate-shake">
               <AlertCircle className="h-5 w-5 flex-shrink-0" />
               <p className="text-sm font-medium">{errorMessage}</p>
             </div>
@@ -207,10 +233,10 @@ export function ContactForm({
           <Button
             type="submit"
             className="w-full h-14 text-lg font-semibold rounded-xl gap-2 shadow-xl shadow-brand/20"
-            disabled={status === "loading"}
+            loading={status === "loading"}
           >
-            {status === "loading" ? "Gönderiliyor..." : "Mesajı Gönder"}
-            <Send className={cn("h-5 w-5", status === "loading" && "animate-pulse")} />
+            Mesajı Gönder
+            {status !== "loading" ? <Send className="h-5 w-5" /> : null}
           </Button>
         </form>
       </div>

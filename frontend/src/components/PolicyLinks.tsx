@@ -12,7 +12,7 @@ const POLICY_LINKS = [
   ["Sahiplik", "/sahiplik-finansman"],
 ] as const;
 
-export default function PolicyLinks({ className = "" }: { className?: string }) {
+export default function PolicyLinks({ className = "", currentPath }: { className?: string; currentPath?: string }) {
   return (
     <nav
       aria-label="Şeffaflık ve politika bağlantıları"
@@ -24,6 +24,7 @@ export default function PolicyLinks({ className = "" }: { className?: string }) 
           <li key={href}>
             <Link
               href={href}
+              aria-current={currentPath === href ? "page" : undefined}
               className="inline-flex min-h-9 items-center rounded-lg border border-(--color-border) bg-(--color-surface) px-3 text-xs font-medium text-(--color-foreground) transition-colors hover:border-(--color-brand)/45 hover:text-(--color-brand)"
             >
               {label}

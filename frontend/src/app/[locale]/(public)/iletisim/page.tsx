@@ -1,6 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
 import { ContactForm } from "@/components/sections/ContactForm";
-import AmbientBackground from "@/components/ui/AmbientBackground";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import Link from "next/link";
@@ -30,10 +29,8 @@ export default async function ContactPage({ params, searchParams }: Props) {
   const settings = await fetchSiteSettings(locale);
 
   return (
-    <main className="relative min-h-screen overflow-hidden pt-24 pb-20">
-      <AmbientBackground />
-      
-      <div className="container relative z-10 mx-auto px-4">
+    <main className="min-h-screen bg-(--color-bg) pb-20 pt-24">
+      <div className="container mx-auto px-4">
         <ScrollReveal>
           <div className="max-w-350 mx-auto">
             <Breadcrumb visible items={[
@@ -46,8 +43,8 @@ export default async function ContactPage({ params, searchParams }: Props) {
                 Size Nasıl <span className="text-brand">Yardımcı</span> Olabiliriz?
               </h1>
               <p className="text-lg sm:text-xl text-muted leading-relaxed">
-                Her türlü soru, görüş ve önerileriniz için yanınızdayız. 
-                Mesajınızı iletin, en kısa sürede size dönüş yapalım.
+                Soru, görüş ve önerilerinizi güvenli iletişim formuyla iletebilirsiniz.
+                Mesajlar sırayla incelenir; gerekli olduğunda sizinle bağlantı kurulur.
               </p>
             </header>
 

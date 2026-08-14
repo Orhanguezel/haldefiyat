@@ -22,8 +22,14 @@ import { registerGoogleAdsAdmin } from "@agro/shared-backend/modules/googleAds";
 import { registerGoogleConnectAdmin } from "@agro/shared-backend/modules/googleConnect";
 import { registerMetaAdmin } from "@agro/shared-backend/modules/meta";
 import { registerPopups, registerPopupsAdmin } from "@agro/shared-backend/modules/popups";
+import { hasContactPrivacyConsent } from "@/modules/contact-consent";
 
 export async function registerSharedPublic(api: FastifyInstance) {
+  api.addHook("preValidation", async (req, reply) => {
+    if (req.method === "POST" && req.routeOptions.url.endsWith("/contacts") && !hasContactPrivacyConsent(req.body)) {
+      return reply.code(400).send({ error: { message: "privacy_consent_required" } });
+    }
+  });
   await registerAuth(api);
   await registerHealth(api);
   await registerStorage(api);
