@@ -1,0 +1,79 @@
+ihracat|Akdeniz İhracatçı Birlikleri (AKİB)|akib.org.tr
+ihracat|Ege İhracatçı Birlikleri (EİB)|eib.org.tr
+ihracat|Uludağ İhracatçı Birlikleri (UİB)|uib.org.tr
+ihracat|İstanbul İhracatçı Birlikleri (İİB)|iib.org.tr
+ihracat|Doğu Anadolu İhracatçılar Birliği (DAİB)|daib.org.tr
+ihracat|Orta Anadolu İhracatçı Birlikleri (OAİB)|oaib.org.tr
+ihracat|Karadeniz İhracatçı Birlikleri (KİB)|kib.org.tr
+ihracat|Batı Akdeniz İhracatçılar Birliği (BAİB)|baib.org.tr
+ihracat|Doğu Karadeniz İhracatçılar Birliği (DKİB)|dkib.org.tr
+ihracat|Güneydoğu Anadolu İhracatçı Birlikleri (GAİB)|gaib.org.tr
+ihracat|Türkiye İhracatçılar Meclisi (TİM)|tim.org.tr
+kurum|Toprak Mahsulleri Ofisi (TMO)|tmo.gov.tr
+kurum|Tarım Kredi Kooperatifleri|tarimkredi.org.tr
+kurum|Türkiye Ziraat Odaları Birliği (TZOB)|tzob.org.tr
+kurum|Et ve Süt Kurumu (ESK)|esk.gov.tr
+kurum|TİGEM|tigem.gov.tr
+kurum|Tarım ve Orman Bakanlığı|tarimorman.gov.tr
+kurum|TOBB|tobb.org.tr
+kurum|TÜİK|tuik.gov.tr
+kurum|Ziraat Bankası|ziraatbank.com.tr
+meslek|TMMOB Ziraat Mühendisleri Odası|zmo.org.tr
+meslek|TMMOB Gıda Mühendisleri Odası|gidamo.org.tr
+meslek|Türkiye Tohumcular Birliği (TÜRKTOB)|turktob.org.tr
+meslek|Tohum Sanayicileri Alt Birliği (TSÜAB)|tsuab.org.tr
+meslek|Fidan Üreticileri Alt Birliği|fuab.org.tr
+meslek|Süs Bitkileri Alt Birliği|susbir.org.tr
+sektor|Setbir (Süt Et Sanayicileri)|setbir.org.tr
+sektor|Beyaz Et Sanayicileri (BESD-BİR)|besd-bir.org
+sektor|Yumurta Üreticileri (YUM-BİR)|yum-bir.org
+sektor|Ulusal Süt Konseyi|ulusalsutkonseyi.org.tr
+sektor|Ulusal Kırmızı Et Konseyi|ukon.org.tr
+sektor|Pankobirlik|pankobirlik.com.tr
+sektor|Türkiye Yaş Meyve Sebze İhracatçıları|ymsib.org.tr
+sektor|Zeytindostu Derneği|zeytindostu.org.tr
+sektor|Ulusal Zeytin Konseyi|uzk.org.tr
+sektor|Türkiye Gıda Sanayi İşverenleri|tgsd.org.tr
+sektor|Gıda Güvenliği Derneği|ggd.org.tr
+sektor|Tarım Makineleri Birliği (TARMAKBİR)|tarmakbir.org
+sektor|Gübre Üreticileri (GÜİD)|guid.org.tr
+sektor|Zirai İlaç Sanayicileri (ZİMİD)|zimid.org.tr
+sektor|Türkiye Sulama Kooperatifleri|tuskoopbir.org.tr
+sektor|Tarımsal Sulama Derneği|tarimsalsulama.org.tr
+borsa|Adana Ticaret Borsası|adanatb.org.tr
+borsa|Ankara Ticaret Borsası|ankaratb.org.tr
+borsa|Konya Ticaret Borsası|ktb.org.tr
+borsa|İzmir Ticaret Borsası|itb.org.tr
+borsa|Antalya Ticaret Borsası|antalyatb.org.tr
+borsa|Gaziantep Ticaret Borsası|gtb.org.tr
+borsa|Şanlıurfa Ticaret Borsası|surfatb.org.tr
+borsa|Edirne Ticaret Borsası|edirnetb.org.tr
+borsa|Eskişehir Ticaret Borsası|etb.org.tr
+borsa|Aydın Ticaret Borsası|aytb.org.tr
+borsa|Denizli Ticaret Borsası|dtb.org.tr
+borsa|Bursa Ticaret Borsası|btb.org.tr
+borsa|Kayseri Ticaret Borsası|kayseritb.org.tr
+borsa|Samsun Ticaret Borsası|samsuntb.org.tr
+borsa|Ordu Ticaret Borsası|ordutb.org.tr
+borsa|Trabzon Ticaret Borsası|ttb.org.tr
+borsa|Malatya Ticaret Borsası|malatyatb.org.tr
+borsa|Mersin Ticaret Borsası|mtb.org.tr
+borsa|Manisa Ticaret Borsası|manisatb.org.tr
+borsa|Balıkesir Ticaret Borsası|balikesirtb.org.tr
+borsa|Polatlı Ticaret Borsası|polatlitb.org.tr
+borsa|Karaman Ticaret Borsası|karamantb.org.tr
+borsa|Nevşehir Ticaret Borsası|nevsehirtb.org.tr
+borsa|Yozgat Ticaret Borsası|yozgattb.org.tr
+borsa|Çorum Ticaret Borsası|corumtb.org.tr
+borsa|Erzurum Ticaret Borsası|erzurumtb.org.tr
+borsa|Kütahya Ticaret Borsası|kutahyatb.org.tr
+komisyoncu|ANTKOMDER Antalya Komisyoncular Derneği|antkomder.org.tr
+komisyoncu|İstanbul Hal Komisyoncuları Derneği|istanbulhalkomisyonculari.org
+fakulte|Ankara Ü. Ziraat Fakültesi|ziraat.ankara.edu.tr
+fakulte|Ege Ü. Ziraat Fakültesi|ziraat.ege.edu.tr
+fakulte|Çukurova Ü. Ziraat Fakültesi|ziraat.cu.edu.tr
+fakulte|Akdeniz Ü. Ziraat Fakültesi|ziraat.akdeniz.edu.tr
+fakulte|Uludağ Ü. Ziraat Fakültesi|ziraat.uludag.edu.tr
+fakulte|Ondokuz Mayıs Ü. Ziraat Fakültesi|ziraat.omu.edu.tr
+fakulte|Selçuk Ü. Ziraat Fakültesi|ziraat.selcuk.edu.tr
+fakulte|Atatürk Ü. Ziraat Fakültesi|ziraat.atauni.edu.tr

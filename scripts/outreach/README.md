@@ -41,3 +41,27 @@ yalnız HTML'de bulunur).
 
 Toplu gönderim `noreply@haldefiyat.com` üzerinden **yapılmamalı**: bültenin
 gönderim itibarını riske atar.
+
+## Hedef listesi
+
+`kurum-adaylari.txt` — `kategori|kurum adı|alan adı` biçiminde Türkiye tarım
+ekosistemi kurumları. Kategoriler: `ihracat`, `borsa`, `meslek`, `sektor`,
+`kurum`, `komisyoncu`, `fakulte`.
+
+Akış:
+1. Adayları DNS ile ele (A veya MX kaydı yoksa alan adı yanlış demektir)
+2. Kalanları toplayıcıdan geçir
+3. `kurum-adres-db-ekle.py` ile `hf_press_contacts`'a yaz (kategori `tags`'te)
+
+2026-08-18 ilk turda: 79 aday → 61 DNS geçerli → 44 adres bulundu.
+Basın turuyla birlikte toplam **61 gerçek adres**.
+
+## Neden bazıları bulunamıyor
+
+- Alan adı tahmini yanlış (ör. `antalyatb.org.tr` yok, gerçeği farklı)
+- Site iletişimi yalnız form ile veriyor, e-posta yayımlamıyor
+- Adres görsel içinde veya JS ile gizlenmiş
+- Site 500/timeout veriyor
+
+Bunlar elle bir kez doğrulanıp `kurum-adaylari.txt`'ye doğru alan adıyla
+yazılırsa sonraki turda otomatik gelir.
