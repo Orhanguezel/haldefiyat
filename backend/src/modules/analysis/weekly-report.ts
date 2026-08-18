@@ -7,6 +7,16 @@ import { repoGetSnapshotHistory } from "@/modules/index/repository";
 import { resolveWeekRange } from "@/modules/prices/iso-week";
 import { weeklyPriceSummary, type WeeklySummary } from "@/modules/prices/weekly";
 import { registerAnalysisQuality } from "./quality";
+import {
+  buildMetaDescriptionFrom, buildMetaTitleFor, buildReportTitle, indexStatusOf,
+  trNum, trPct, trPctSigned, trPeriod, trPeriodShort, trPriceUnit,
+  type IndexPoint,
+} from "./report-format";
+import {
+  buildWatchlist, buildWeeklyReportHtml, evaluateWatchlist, type WatchItem,
+} from "./report-html";
+import { INDEX_BASKET_SLUGS } from "@/modules/index/calculator";
+import { MIN_MOVER_MARKETS } from "@/modules/prices/weekly";
 import { submitToIndexNow } from "@/modules/indexnow";
 import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 
@@ -57,6 +67,7 @@ export type AutoWeeklyReport = {
   imageAlt?: string | null;
   authorId?: number | null;
   authorProfile?: PublicAuthorProfile | null;
+  watchlist?: WatchItem[] | null;
 };
 
 type PublicAuthorProfile = {
@@ -395,8 +406,8 @@ export async function persistWeeklyReport(week?: string) {
     slug: generated.slug,
     title: generated.baslik,
     summary: generated.ozet,
-    metaTitle: buildMetaTitle(generated.baslik),
-    metaDescription: buildMetaDescription(generated.ozet),
+    metaTitle: generated.metaTitle ?? buildMetaTitle(generated.baslik),
+    metaDescription: generated.metaDescription ?? buildMetaDescription(generated.ozet),
     ogImage: "/og-default.png",
     imageAlt: generated.baslik,
     content: generated.icerik,
@@ -410,6 +421,7 @@ export async function persistWeeklyReport(week?: string) {
     source: "auto" as const,
     status: "draft" as const,
     totalRecords: generated.totalRecords,
+    watchlist: generated.watchlist ?? null,
     publishedAt: null,
   };
 
@@ -429,33 +441,75 @@ async function generateWeeklyReport(week: string): Promise<AutoWeeklyReport | nu
   const summary = await weeklyPriceSummary(weekStart, weekEnd);
   if (summary.totalRecords < 10) return null;
 
-  const indexHistory = await repoGetSnapshotHistory(26);
-  const index = indexHistory.find((row) => row.indexWeek === isoWeek);
-  const prevIndex = index
-    ? indexHistory.slice(0, indexHistory.findIndex((row) => row.indexWeek === isoWeek)).at(-1)
-    : null;
+  const history = await repoGetSnapshotHistory(26);
+  const points: IndexPoint[] = history.map((row) => ({
+    indexWeek: row.indexWeek,
+    indexValue: Number(row.indexValue),
+    basketAvg: Number(row.basketAvg),
+    weekStart: String(row.weekStart).slice(0, 10),
+    weekEnd: String(row.weekEnd).slice(0, 10),
+  }));
+  const status = indexStatusOf(points, isoWeek);
+  const currentIdx = points.findIndex((row) => row.indexWeek === isoWeek);
+  const indexRows = currentIdx >= 0 ? points.slice(Math.max(0, currentIdx - 4), currentIdx + 1) : [];
+  const current = currentIdx >= 0 ? points[currentIdx]! : null;
+  const baseRow = currentIdx >= 0 ? history[currentIdx] : null;
+  const basePoint = baseRow ? points.find((row) => row.indexWeek === baseRow.baseWeek) : null;
 
-  const date = weekEnd;
-  const slug = slugForWeek(weekStart);
-  const titleProduct = summary.topFallers[0]?.productName || summary.topRisers[0]?.productName || "Hal Fiyatları";
-  const movement = summary.topFallers[0] ?? summary.topRisers[0] ?? null;
-  const movementText = movement
-    ? `${titleProduct} ${movement.changePct < 0 ? "fiyatlarında düşüş" : "fiyatlarında artış"}`
-    : "hal fiyatlarında haftalık görünüm";
+  const periodLabel = trPeriod(weekStart, weekEnd);
+  const monthWeekLabel = `${monthLabel(weekStart)} ${weekOfMonthLabel(weekStart)} Hafta`;
+  const ranked = [...summary.topFallers, ...summary.topRisers]
+    .sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct));
+  const lead = ranked[0] ?? null;
+
+  const baslik = buildReportTitle(monthWeekLabel, status, lead);
+  const previousWatchlist = await readPreviousWatchlist(weekStart);
+  const watchResults = evaluateWatchlist(previousWatchlist, summary, status);
+
+  const icerik = buildWeeklyReportHtml({
+    periodLabel,
+    isoWeek,
+    summary,
+    status,
+    indexRows,
+    basketAvg: current?.basketAvg ?? null,
+    basketSize: INDEX_BASKET_SLUGS.length,
+    baseWeekLabel: basePoint ? trPeriod(basePoint.weekStart, basePoint.weekEnd) : null,
+    watchResults,
+    minMarkets: MIN_MOVER_MARKETS,
+  });
+
+  const ozet = buildAutoSummary(summary, status, periodLabel);
 
   return {
-    slug,
-    baslik: `${monthLabel(weekStart)} ${weekOfMonthLabel(weekStart)} Hafta Hal Raporu: ${capitalizeSentence(movementText)}`,
-    ozet: buildSummary(summary, index, prevIndex),
-    icerik: buildContent(summary, index, prevIndex),
+    slug: slugForWeek(weekStart),
+    baslik,
+    ozet,
+    icerik,
     yazar: "HaldeFiyat Veri Ekibi",
-    tarih: date,
+    tarih: weekEnd,
     hafta: isoWeek,
     weekStart,
     weekEnd,
     totalRecords: summary.totalRecords,
     etiketler: buildTags(summary),
+    watchlist: buildWatchlist(summary, status),
+    metaTitle: buildMetaTitleFor(monthWeekLabel, status, new Date(`${weekStart}T12:00:00Z`).getUTCFullYear(), baslik),
+    metaDescription: buildMetaDescriptionFrom(ozet),
   };
+}
+
+/** Bir onceki haftanin raporundaki takip listesi (varsa) — "gecen hafta ne oldu" bolumu icin. */
+async function readPreviousWatchlist(weekStart: string): Promise<WatchItem[] | null> {
+  const previousMonday = new Date(`${weekStart}T12:00:00Z`);
+  previousMonday.setUTCDate(previousMonday.getUTCDate() - 7);
+  const [row] = await db
+    .select({ watchlist: hfAnalysisReports.watchlist })
+    .from(hfAnalysisReports)
+    .where(eq(hfAnalysisReports.weekStart, previousMonday))
+    .limit(1);
+  const value = row?.watchlist;
+  return Array.isArray(value) ? (value as WatchItem[]) : null;
 }
 
 async function setReportStatus(idRaw: string, status: AnalysisReportStatus, reviewerId?: string | null) {
@@ -577,62 +631,25 @@ function toDateOnly(value: Date | string): string {
   return value.toISOString().slice(0, 10);
 }
 
-function buildSummary(summary: WeeklySummary, index: any, prevIndex: any): string {
+/** Ozet: tr-TR bicimli, ham ISO tarih icermeyen 2 cumle. */
+function buildAutoSummary(
+  summary: WeeklySummary,
+  status: ReturnType<typeof indexStatusOf>,
+  periodLabel: string,
+): string {
   const riser = summary.topRisers[0];
   const faller = summary.topFallers[0];
-  const indexText = index
-    ? `HaldeFiyat Endeksi haftayı ${Number(index.indexValue).toFixed(2)} puanda kapattı.`
+  const moves: string[] = [];
+  if (faller) moves.push(`${faller.productName} ${faller.marketCount} halde ${trPct(faller.changePct)} geriledi`);
+  if (riser) moves.push(`${riser.productName} ${trPct(riser.changePct)} yükseldi`);
+  const movesText = moves.length ? moves.join("; ") : "belirgin bir ürün hareketi oluşmadı";
+  const indexText = status
+    ? `${status.sentence}.`
     : "HaldeFiyat Endeksi için bu haftaya ait hesap bekleniyor.";
-  const fallerText = faller ? `${faller.productName} ${fmtPct(faller.changePct)} geriledi` : "düşüş tarafında belirgin veri oluşmadı";
-  const riserText = riser ? `${riser.productName} ${fmtPct(riser.changePct)} yükseldi` : "artış tarafında belirgin veri oluşmadı";
-  void prevIndex;
-  return `${summary.weekStart} - ${summary.weekEnd} haftasında ${fallerText}; ${riserText}. ${indexText}`;
-}
-
-function buildContent(summary: WeeklySummary, index: any, prevIndex: any): string {
-  const risers = summary.topRisers.slice(0, 3);
-  const fallers = summary.topFallers.slice(0, 3);
-  const categoryRows = Object.entries(summary.avgByCategory)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 4);
-
-  const indexParagraph = index
-    ? `HaldeFiyat Endeksi bu haftayı ${Number(index.indexValue).toFixed(2)} puanda tamamladı.${prevIndex ? ` Bir önceki hesaplanan hafta ${Number(prevIndex.indexValue).toFixed(2)} puandaydı.` : ""} Sepet ortalaması ${Number(index.basketAvg).toFixed(2)} TL/kg olarak ölçüldü.`
-    : "Bu hafta için endeks hesaplaması henüz oluşmadı; fiyat hareketleri ürün ve hal bazlı kayıtlar üzerinden yorumlandı.";
-
-  const fallerParagraph = fallers.length
-    ? fallers.map((m) => `${m.productName} (${m.marketName}) ${fmtPrice(m.previousAvg)} seviyesinden ${fmtPrice(m.latestAvg)} seviyesine indi; haftalık değişim ${fmtPct(m.changePct)}.`).join(" ")
-    : "Düşüş tarafında istatistiksel olarak öne çıkan güçlü bir ürün/hal çifti oluşmadı.";
-
-  const riserParagraph = risers.length
-    ? risers.map((m) => `${m.productName} (${m.marketName}) ${fmtPrice(m.previousAvg)} seviyesinden ${fmtPrice(m.latestAvg)} seviyesine çıktı; haftalık değişim ${fmtPct(m.changePct)}.`).join(" ")
-    : "Artış tarafında istatistiksel olarak öne çıkan güçlü bir ürün/hal çifti oluşmadı.";
-
-  const categoryParagraph = categoryRows.length
-    ? categoryRows.map(([cat, avg]) => `${cat}: ${fmtPrice(avg)}`).join(", ")
-    : "Kategori bazlı ortalama üretmek için yeterli veri oluşmadı.";
-
-  return `Türkiye genelindeki aktif hal kayıtlarından derlenen ${summary.weekStart} - ${summary.weekEnd} haftası verileri, ürün bazlı fiyat hareketlerinin farklı yönlere ayrıldığını gösteriyor. Bu raporda ${summary.totalRecords} fiyat kaydı üzerinden haftalık hareketler, kategori ortalamaları ve endeks görünümü özetlenmiştir.
-
-**Fiyatı Yükselen Ürünler**
-
-${riserParagraph}
-
-**Fiyatı Düşen Ürünler**
-
-${fallerParagraph}
-
-**Haftanın Endeks Görünümü**
-
-${indexParagraph}
-
-**Kategori Ortalamaları**
-
-Bu haftanın kategori bazlı ortalama fiyat görünümü şöyle: ${categoryParagraph}. Bu değerler farklı ürün ve hallerin ağırlıksız ortalamasıdır; tek bir ürün fiyatı gibi yorumlanmamalıdır.
-
-**Önümüzdeki Hafta İçin Takip Başlıkları**
-
-Önümüzdeki hafta özellikle hızlı değişim gösteren ürünlerde yeni arz girişleri, hava koşulları ve büyük tüketim merkezleri ile üretim bölgeleri arasındaki fiyat farkı izlenmelidir. Günlük min, max ve ortalama fiyatlar için HaldeFiyat fiyat tablosu ve ürün detay grafikleri kullanılabilir.`;
+  const breadth = summary.breadth?.measured
+    ? ` Ölçüt karşılayan ${summary.breadth.measured} üründe medyan değişim ${trPctSigned(summary.breadth.medianChangePct ?? 0)}.`
+    : "";
+  return `${periodLabel} haftasında ${movesText}. ${indexText}${breadth}`;
 }
 
 function buildTags(summary: WeeklySummary): string[] {
@@ -710,15 +727,5 @@ function isoWeekFromMonday(monday: Date): string {
   return `${d.getUTCFullYear()}-${String(week).padStart(2, "0")}`;
 }
 
-function fmtPct(value: number): string {
-  return `%${Math.abs(value).toFixed(1)}`;
-}
 
-function fmtPrice(value: number): string {
-  return `${value.toFixed(2)} TL/kg`;
-}
 
-function capitalizeSentence(value: string): string {
-  if (!value) return value;
-  return value.charAt(0).toLocaleUpperCase("tr-TR") + value.slice(1);
-}

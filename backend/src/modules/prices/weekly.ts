@@ -10,7 +10,8 @@ import { blackoutFilter } from "./blackouts";
 // - En az MIN_MARKETS ayrı halde gözlem şartı → tek halin glitch'i "haftanın hareketi" olmaz.
 // - Fiyatı kg cinsinden olmayan ve fiyat düzeyi kıyaslanamayan kategoriler (balık/et/hububat)
 //   hareket listesinden çıkarılır; kategori ortalaması tablosunda yine görünürler.
-const MIN_MARKETS = 6;
+export const MIN_MOVER_MARKETS = 6;
+const MIN_MARKETS = MIN_MOVER_MARKETS;
 const MOVER_EXCLUDED_CATEGORIES = new Set([
   "balik-deniz", "balik-ithal", "balik-kultur", "et", "canli-hayvan", "hububat", "bakliyat",
 ]);
@@ -23,6 +24,7 @@ type Row = {
   recordedDate: Date | string;
   categorySlug: string;
   masterSlug:   string;
+  familySlug:   string | null;
 };
 
 type WeeklyMovement = {
@@ -32,6 +34,27 @@ type WeeklyMovement = {
   changePct:   number;
   latestAvg:   number;
   previousAvg: number;
+  // Tablo/uyari uretimi icin: "6 hal ortalamasi" metnini parse etmek zorunda kalma.
+  marketCount:  number;
+  categorySlug: string;
+  familySlug:   string | null;
+};
+
+// Piyasa genisligi: "kac urun yukseldi/dustu" + medyan degisim. Kategori ortalamasinin
+// (et 660 TL, balik 470 TL) aksine sebze-meyve raporunda anlami olan olcut budur.
+export type WeeklyBreadth = {
+  measured:        number;
+  up:              number;
+  down:            number;
+  flat:            number;
+  medianChangePct: number | null;
+};
+
+export type WeeklyMovementRef = {
+  changePct:   number;
+  latestAvg:   number;
+  previousAvg: number;
+  marketCount: number;
 };
 
 export type WeeklySummary = {
@@ -41,17 +64,22 @@ export type WeeklySummary = {
   topRisers:    WeeklyMovement[];
   topFallers:   WeeklyMovement[];
   avgByCategory: Record<string, number>;
+  breadth:      WeeklyBreadth;
+  // Olcut karsilayan TUM urunler — gecen haftanin takip listesini ek sorgu olmadan cozer.
+  movementBySlug: Record<string, WeeklyMovementRef>;
   totalRecords: number;
   productCount: number;
   marketCount: number;
 };
 
 type Scored = {
-  masterSlug:  string;
-  marketCount: number;
-  changePct:   number;
-  latest:      number;
-  previous:    number;
+  masterSlug:   string;
+  marketCount:  number;
+  changePct:    number;
+  latest:       number;
+  previous:     number;
+  categorySlug: string;
+  familySlug:   string | null;
 };
 
 function toDateStr(d: Date | string): string {
@@ -75,6 +103,13 @@ export async function weeklyPriceSummary(weekStart: string, weekEnd: string): Pr
     topRisers:     risers,
     topFallers:    fallers,
     avgByCategory: byCategory,
+    breadth:       breadthOf(movements),
+    movementBySlug: Object.fromEntries(movements.map((m) => [m.masterSlug, {
+      changePct:   m.changePct,
+      latestAvg:   m.latest,
+      previousAvg: m.previous,
+      marketCount: m.marketCount,
+    }])),
     totalRecords:  rows.length,
     productCount:  new Set(rows.map((row) => row.masterSlug)).size,
     marketCount:   new Set(rows.map((row) => row.marketId)).size,
@@ -96,6 +131,7 @@ async function fetchWeekRows(weekStart: string, weekEnd: string): Promise<Row[]>
       recordedDate: hfPriceHistory.recordedDate,
       categorySlug: hfProducts.categorySlug,
       masterSlug:   sql<string>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
+      familySlug:   hfProducts.familySlug,
     })
     .from(hfPriceHistory)
     .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
@@ -120,7 +156,7 @@ function scoreMovements(rows: Row[]): Scored[] {
   // (master, hal) → pencere içi ortalama. Ulusal fiyat bunların MEDYANI olur: bazı kaynaklar
   // (hal.gov.tr agregatörü) ara sıra çöp basıyor (turp 507 TL/kg gibi); düz ortalama zehirlenir,
   // medyan tek bozuk kaynaktan etkilenmez.
-  const agg = new Map<string, { start: Map<number, number[]>; end: Map<number, number[]> }>();
+  const agg = new Map<string, { start: Map<number, number[]>; end: Map<number, number[]>; categorySlug: string; familySlug: string | null }>();
   const push = (m: Map<number, number[]>, marketId: number, p: number) => {
     const arr = m.get(marketId);
     if (arr) arr.push(p);
@@ -136,7 +172,7 @@ function scoreMovements(rows: Row[]): Scored[] {
     if (!isStart && !isEnd) continue;
     let a = agg.get(r.masterSlug);
     if (!a) {
-      a = { start: new Map(), end: new Map() };
+      a = { start: new Map(), end: new Map(), categorySlug: r.categorySlug || "diger", familySlug: r.familySlug ?? null };
       agg.set(r.masterSlug, a);
     }
     push(isStart ? a.start : a.end, r.marketId, p);
@@ -159,15 +195,31 @@ function scoreMovements(rows: Row[]): Scored[] {
     if (Math.abs(pct) > 80) continue;
     scored.push({
       masterSlug,
-      marketCount: Math.min(a.start.size, a.end.size),
-      changePct:   pct,
-      latest:      lp,
-      previous:    pp,
+      marketCount:  Math.min(a.start.size, a.end.size),
+      changePct:    pct,
+      latest:       lp,
+      previous:     pp,
+      categorySlug: a.categorySlug,
+      familySlug:   a.familySlug,
     });
   }
 
   scored.sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct));
   return scored;
+}
+
+function breadthOf(scored: Scored[]): WeeklyBreadth {
+  if (!scored.length) return { measured: 0, up: 0, down: 0, flat: 0, medianChangePct: null };
+  const pcts = scored.map((row) => row.changePct).sort((a, b) => a - b);
+  const mid = Math.floor(pcts.length / 2);
+  const median = pcts.length % 2 ? pcts[mid]! : (pcts[mid - 1]! + pcts[mid]!) / 2;
+  return {
+    measured:        scored.length,
+    up:              scored.filter((row) => row.changePct > 0).length,
+    down:            scored.filter((row) => row.changePct < 0).length,
+    flat:            scored.filter((row) => row.changePct === 0).length,
+    medianChangePct: Math.round(median * 100) / 100,
+  };
 }
 
 function avgByCategoryFromRows(rows: Row[]): Record<string, number> {
@@ -206,9 +258,12 @@ async function enrichMovements(scored: Scored[]): Promise<WeeklyMovement[]> {
     productSlug: t.masterSlug,
     productName: pMap.get(t.masterSlug) ?? t.masterSlug,
     // Hareket artık tek hal değil, ulusal ortalama — kaç halde gözlendiği güveni gösterir.
-    marketName:  `${t.marketCount} hal ortalaması`,
-    changePct:   t.changePct,
-    latestAvg:   t.latest,
-    previousAvg: t.previous,
+    marketName:   `${t.marketCount} hal ortalaması`,
+    changePct:    t.changePct,
+    latestAvg:    t.latest,
+    previousAvg:  t.previous,
+    marketCount:  t.marketCount,
+    categorySlug: t.categorySlug,
+    familySlug:   t.familySlug,
   }));
 }

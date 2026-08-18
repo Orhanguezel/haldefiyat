@@ -250,6 +250,16 @@ export const hfIndexSnapshots = mysqlTable(
   (t) => [uniqueIndex("hf_idx_week_uq").on(t.indexWeek)],
 );
 
+/** Haftalik raporun "onumuzdeki hafta ne izlenmeli" maddeleri; bir sonraki rapor
+ *  bunlari okuyup "gecen hafta ne oldu" bolumunu otomatik uretir. */
+export type AnalysisWatchItem = {
+  kind: "product" | "index";
+  slug: string | null;
+  name: string;
+  value: number;
+  question: string;
+};
+
 export const hfAnalysisReports = mysqlTable(
   "hf_analysis_reports",
   {
@@ -272,6 +282,7 @@ export const hfAnalysisReports = mysqlTable(
     source:       mysqlEnum("source", ["auto", "manual"]).notNull().default("auto"),
     status:       mysqlEnum("status", ["draft", "published", "archived"]).notNull().default("draft"),
     totalRecords: int("total_records").notNull().default(0),
+    watchlist:    json("watchlist").$type<AnalysisWatchItem[]>(),
     reviewedBy:   varchar("reviewed_by", { length: 36 }),
     reviewedAt:   datetime("reviewed_at", { fsp: 3 }),
     publishedAt:  datetime("published_at", { fsp: 3 }),

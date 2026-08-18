@@ -18,6 +18,10 @@ CREATE TABLE IF NOT EXISTS hf_analysis_reports (
   source ENUM('auto','manual') NOT NULL DEFAULT 'auto',
   status ENUM('draft','published','archived') NOT NULL DEFAULT 'draft',
   total_records INT NOT NULL DEFAULT 0,
+  -- Gelecek haftanin otomatik "gecen hafta ne oldu" bolumu icin saklanan takip listesi.
+  watchlist JSON NULL,
+  reviewed_by VARCHAR(36) NULL,
+  reviewed_at DATETIME(3) NULL,
   published_at DATETIME(3) NULL,
   created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
   updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
