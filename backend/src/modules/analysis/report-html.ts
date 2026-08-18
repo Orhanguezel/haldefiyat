@@ -170,26 +170,31 @@ function watchlistSection(results: WatchResult[]): string {
     + `<p>Geçen raporda işaretlediğimiz başlıkların bu haftaki durumu:</p>\n${items}\n`;
 }
 
+const ORDINALS = ["İlk", "İkinci", "Üçüncü", "Dördüncü"];
+
 function outlookSection(summary: WeeklySummary, status: IndexStatus | null): string {
   const lines: string[] = [];
+  // Sira sozcugu maddenin gercek konumundan turetilir: endeks maddesi atlandiginda
+  // liste "Ikinci baslik" diye baslamaz.
+  const ord = () => ORDINALS[lines.length] ?? "Bir diğer";
   if (status) {
     const q = status.isNewLow
       ? "yeni bir dip mi geleceği yoksa serinin taban mı yapacağı"
       : status.changePct != null && Math.abs(status.changePct) < 1
         ? "yataylaşmanın bir dönüşün ilk adımı mı yoksa düşüşün molası mı olduğu"
         : "hareketin önümüzdeki hafta da sürüp sürmediği";
-    lines.push(`<p>İlk başlık endeksin yönü: ${q} izlenmeli. `
+    lines.push(`<p>${ord()} başlık endeksin yönü: ${q} izlenmeli. `
       + `Sepet ortalamasının bu seviyede tutunması, haftalık hareketin kalıcılığı hakkında ilk sinyali verecek.</p>`);
   }
   const lead = [...summary.topFallers, ...summary.topRisers]
     .sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct))[0];
   if (lead) {
-    lines.push(`<p>İkinci başlık ${esc(lead.productName)}: ${trPriceUnit(lead.latestAvg)} seviyesi `
+    lines.push(`<p>${ord()} başlık ${esc(lead.productName)}: ${trPriceUnit(lead.latestAvg)} seviyesi `
       + `${lead.marketCount} hallik tabanda oluştu; bu seviyenin tutup tutmadığı hareketin kalıcı olup olmadığını gösterecek.</p>`);
   }
   const narrow = [...summary.topRisers, ...summary.topFallers].find((m) => m.marketCount <= NARROW_BASE_MARKETS);
   if (narrow) {
-    lines.push(`<p>Üçüncü başlık ${esc(narrow.productName)}: gözlem tabanının ${narrow.marketCount} halin üzerine çıkıp `
+    lines.push(`<p>${ord()} başlık ${esc(narrow.productName)}: gözlem tabanının ${narrow.marketCount} halin üzerine çıkıp `
       + `çıkmadığı, buradaki fiyat oluşumunun ülke geneline yayılıp yayılmadığını netleştirecek.</p>`);
   }
   lines.push(`<p>Günlük minimum, ortalama ve maksimum fiyatlar HaldeFiyat fiyat tablosu ile `

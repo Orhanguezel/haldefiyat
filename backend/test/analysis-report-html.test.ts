@@ -172,3 +172,19 @@ describe("takip listesi süreklilik", () => {
     expect(out).toContain("yeterli gözlem oluşmadığı");
   });
 });
+
+describe("izleme listesi sıralaması", () => {
+  it("endeks maddesi varken İlk ile başlar", () => {
+    expect(html()).toContain("İlk başlık endeksin yönü");
+  });
+
+  it("endeks yoksa numaralandırma yine İlk ile başlar", () => {
+    const out = buildWeeklyReportHtml({
+      periodLabel: "17 – 23 Ağustos 2026", isoWeek: "2026-34", summary: summary(),
+      status: null, indexRows: [], basketAvg: null, basketSize: 15,
+      baseWeekLabel: null, watchResults: [], minMarkets: 6,
+    });
+    expect(out).toContain("İlk başlık");
+    expect(out).not.toContain("İkinci başlık Fasulye");
+  });
+});
