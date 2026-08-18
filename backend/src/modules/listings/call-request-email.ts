@@ -1,4 +1,5 @@
 import { sendBereketMail } from "@agro/shared-backend/core/mail";
+import { env } from "@/core/env";
 
 const SLOT_LABELS = {
   asap: "En kısa sürede",
@@ -37,6 +38,8 @@ export async function sendSellerCallRequestEmail(input: {
   const safeNote = input.note ? escapeHtml(input.note) : null;
   return retryCallRequestDelivery(() => sendBereketMail({
     to: input.to,
+    // Gonderen adresinin posta kutusu yok; satici yaniti gercek kutuya dussun.
+    replyTo: env.CONTACT_EMAIL,
     subject: `Arama talebi: ${input.listingTitle.slice(0, 120)}`,
     text: `İlanınız için ${SLOT_LABELS[input.preferredSlot]} zaman tercihiyle arama talebi geldi. Talep no: ${input.requestId}. ${dashboardUrl}`,
     html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#17211b">
