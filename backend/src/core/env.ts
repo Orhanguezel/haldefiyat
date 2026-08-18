@@ -82,8 +82,6 @@ export const env = {
   TELEGRAM_WEBHOOK_SECRET: process.env.TELEGRAM_WEBHOOK_SECRET || "",
   // setWebhook çağrısında kullanılır (varsayılan webhook URL'sinin tabanı)
   PUBLIC_BASE_URL: process.env.PUBLIC_BASE_URL || "",
-  // Tanitio tenant web-connection v1. Yalniz sunucular arasi kullanilir.
-  TANITIO_CONTENT_API_KEY: process.env.TANITIO_CONTENT_API_KEY || "",
   // TCMB EVDS API key — aylık TÜFE/Yİ-ÜFE çekimi için (https://evds2.tcmb.gov.tr)
   EVDS_API_KEY: process.env.EVDS_API_KEY || "",
   // API anahtar tier limitleri (gunluk istek sayisi)

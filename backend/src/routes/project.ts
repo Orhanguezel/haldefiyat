@@ -31,7 +31,6 @@ import { registerBanners, registerBannersAdmin } from "@/modules/banners";
 import { registerGscPublic } from "@/modules/seo/gsc-export";
 import { registerCspReports } from "@/modules/csp-reports";
 import { registerMailAccountsPublic, registerMailAccountsUser } from "@/modules/mailAccounts";
-import { registerWebConnection } from "@/modules/web-connection";
 
 export async function registerProjectPublic(api: FastifyInstance) {
   await registerMarkets(api);
@@ -60,7 +59,6 @@ export async function registerProjectPublic(api: FastifyInstance) {
   await registerCspReports(api);
   // OAuth callback — auth yok, state HMAC ile dogrulanir
   await registerMailAccountsPublic(api);
-  await api.register(registerWebConnection, { prefix: "/integrations/tanitio" });
 
   // P2: SSO entegrasyonu icin frontend'in auth durumunu dogrulayabilecegi stub endpoint.
   // Gercek /auth endpoint'leri shared-backend auth modulunde zaten kayitli (registerAuth).
