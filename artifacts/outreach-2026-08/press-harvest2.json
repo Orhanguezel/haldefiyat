@@ -1,0 +1,608 @@
+[
+ {
+  "id": 1,
+  "org": "Ekonomim (eski Dünya Gazetesi)",
+  "domain": "ekonomim.com",
+  "emails": [
+   {
+    "email": "ekonomim@nbe.com.tr",
+    "kind": "editoryal",
+    "score": 3,
+    "src": "https://www.ekonomim.com/p/kunye",
+    "mx": true
+   },
+   {
+    "email": "nbe@nbe.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.ekonomim.com/iletisim",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 2,
+  "org": "Bloomberg HT",
+  "domain": "bloomberght.com",
+  "emails": [
+   {
+    "email": "editor@bloomberght.com",
+    "kind": "editoryal",
+    "score": 3,
+    "src": "https://www.bloomberght.com/kunye",
+    "mx": true
+   },
+   {
+    "email": "adincer@bloomberght.com",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.bloomberght.com/kunye",
+    "mx": true
+   },
+   {
+    "email": "asezen@bloomberght.com",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.bloomberght.com/kunye",
+    "mx": true
+   },
+   {
+    "email": "bgorgu@bloomberght.com",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.bloomberght.com/kunye",
+    "mx": true
+   },
+   {
+    "email": "dijitalreklam@cyh.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.bloomberght.com/kunye",
+    "mx": true
+   },
+   {
+    "email": "egulmez@bloomberght.com",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.bloomberght.com/kunye",
+    "mx": true
+   },
+   {
+    "email": "eyuksel@bloomberght.com",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.bloomberght.com/kunye",
+    "mx": true
+   },
+   {
+    "email": "izleyicitemsilcisi@bloomberght.com",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.bloomberght.com/kunye",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 3,
+  "org": "Anadolu Ajansı — Ekonomi",
+  "domain": "aa.com.tr",
+  "emails": [
+   {
+    "email": "anadoluajansi@hs01.kep.tr\\\\\\",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://aa.com.tr/en/p/contact",
+    "mx": false
+   },
+   {
+    "email": "anadoluajansi@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://aa.com.tr/en/p/contact",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 4,
+  "org": "DHA — Ekonomi",
+  "domain": "dha.com.tr",
+  "emails": [
+   {
+    "email": "projesatis@medyanet.com.tr",
+    "kind": "editoryal",
+    "score": 3,
+    "src": "https://www.dha.com.tr/iletisim/",
+    "mx": true
+   },
+   {
+    "email": "booking@dha.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.dha.com.tr/",
+    "mx": true
+   },
+   {
+    "email": "dhadis@dha.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.dha.com.tr/",
+    "mx": true
+   },
+   {
+    "email": "dhaistanbul@dha.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.dha.com.tr/",
+    "mx": true
+   },
+   {
+    "email": "dhaspor@dha.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.dha.com.tr/",
+    "mx": true
+   },
+   {
+    "email": "dhayurt@dha.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.dha.com.tr/",
+    "mx": true
+   },
+   {
+    "email": "internet@dha.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.dha.com.tr/iletisim/",
+    "mx": true
+   },
+   {
+    "email": "satis@medyanet.com.tr",
+    "kind": "ilgisiz",
+    "score": 0,
+    "src": "https://www.dha.com.tr/iletisim/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 5,
+  "org": "İHA — Ekonomi",
+  "domain": "iha.com.tr",
+  "emails": []
+ },
+ {
+  "id": 6,
+  "org": "Dünya Gazetesi",
+  "domain": "dunya.com",
+  "emails": [
+   {
+    "email": "dunya@dunya.com",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.dunya.com/p/kunye",
+    "mx": true
+   },
+   {
+    "email": "dunyagrupmedya@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://www.dunya.com/p/kunye",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 7,
+  "org": "Tarım Türk",
+  "domain": "tarimturk.com.tr",
+  "emails": [
+   {
+    "email": "tarimturk@gmail.com",
+    "kind": "editoryal",
+    "score": 3,
+    "src": "https://www.tarimturk.com.tr/iletisim",
+    "mx": true
+   },
+   {
+    "email": "tarimturkdergisi@gmail.com",
+    "kind": "editoryal",
+    "score": 3,
+    "src": "https://www.tarimturk.com.tr/iletisim",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 8,
+  "org": "Tarımdan Haber",
+  "domain": "tarimdanhaber.com",
+  "emails": [
+   {
+    "email": "iletisim@tarimdanhaber.com",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://www.tarimdanhaber.com/",
+    "mx": true
+   },
+   {
+    "email": "yusuf@tarimdanhaber.com",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.tarimdanhaber.com/kunye",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 9,
+  "org": "Agro Haber",
+  "domain": "agrohaber.com",
+  "emails": []
+ },
+ {
+  "id": 10,
+  "org": "Hasat Yayıncılık",
+  "domain": "hasad.com.tr",
+  "emails": [
+   {
+    "email": "kitap@hasad.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.hasad.com.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 11,
+  "org": "Çiftçi TV",
+  "domain": "ciftcitv.com",
+  "emails": [
+   {
+    "email": "bilgi@ciftcitv.com",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://ciftcitv.com/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 12,
+  "org": "Tarım Pusulası",
+  "domain": "tarimpusulasi.com",
+  "emails": [
+   {
+    "email": "haber@tarimpusulasi.com",
+    "kind": "editoryal",
+    "score": 3,
+    "src": "https://www.tarimpusulasi.com/sayfa/kunye-1",
+    "mx": true
+   },
+   {
+    "email": "iletisim@tarimpusulasi.com",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://www.tarimpusulasi.com/sayfa/kunye-1",
+    "mx": true
+   },
+   {
+    "email": "cenap.karahan@tarimpusulasi.com",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.tarimpusulasi.com/sayfa/kunye-1",
+    "mx": true
+   },
+   {
+    "email": "ender.karahan@tarimpusulasi.com",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.tarimpusulasi.com/sayfa/kunye-1",
+    "mx": true
+   },
+   {
+    "email": "gazi.kutlu@tarimpusulasi.com",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.tarimpusulasi.com/sayfa/kunye-1",
+    "mx": true
+   },
+   {
+    "email": "reklam@tarimpusulasi.com",
+    "kind": "ilgisiz",
+    "score": 0,
+    "src": "https://www.tarimpusulasi.com/sayfa/kunye-1",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 13,
+  "org": "Antalya Körfez Gazetesi",
+  "domain": "antalyakorfez.com",
+  "emails": [
+   {
+    "email": "info@antalyakorfez.com",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://www.antalyakorfez.com/kunye",
+    "mx": true
+   },
+   {
+    "email": "|tel:|javascript:)/i.test(href))",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.antalyakorfez.com/",
+    "mx": false
+   },
+   {
+    "email": "|tel:|javascript:)/i.test(url))",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.antalyakorfez.com/",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 14,
+  "org": "Mersin Zamanı",
+  "domain": null,
+  "emails": []
+ },
+ {
+  "id": 15,
+  "org": "İzmir Ege Telgraf",
+  "domain": "egetelgraf.com",
+  "emails": [
+   {
+    "email": "info@egetelgraf.com",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://www.egetelgraf.com/iletisim",
+    "mx": true
+   },
+   {
+    "email": "egetelgraf1960@gmail.com",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.egetelgraf.com/kunye",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 16,
+  "org": "Bursa Olay",
+  "domain": "olay.com.tr",
+  "emails": [
+   {
+    "email": "ekonomi@olaygazetesi.com.tr",
+    "kind": "editoryal",
+    "score": 3,
+    "src": "https://www.olay.com.tr/iletisim",
+    "mx": true
+   },
+   {
+    "email": "yaziisleri@olaygazetesi.com.tr",
+    "kind": "editoryal",
+    "score": 3,
+    "src": "https://www.olay.com.tr/iletisim",
+    "mx": true
+   },
+   {
+    "email": "alikemalaksakal@olay.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.olay.com.tr/kunye",
+    "mx": true
+   },
+   {
+    "email": "bircanorsel@olay.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.olay.com.tr/kunye",
+    "mx": true
+   },
+   {
+    "email": "bolge@olaygazetesi.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.olay.com.tr/iletisim",
+    "mx": true
+   },
+   {
+    "email": "busrakavanoz@olay.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.olay.com.tr/kunye",
+    "mx": true
+   },
+   {
+    "email": "dilekozyer@olay.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.olay.com.tr/kunye",
+    "mx": true
+   },
+   {
+    "email": "ebrunarin@olay.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.olay.com.tr/kunye",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 17,
+  "org": "Konya Yenigün",
+  "domain": "konyayenigun.com",
+  "emails": [
+   {
+    "email": "haber@konyayenigun.com",
+    "kind": "editoryal",
+    "score": 3,
+    "src": "https://www.konyayenigun.com/",
+    "mx": true
+   },
+   {
+    "email": "muhasebe@konyayenigun.com",
+    "kind": "ilgisiz",
+    "score": 0,
+    "src": "https://www.konyayenigun.com/kunye",
+    "mx": true
+   },
+   {
+    "email": "yenibahar@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://www.konyayenigun.com/kunye",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 18,
+  "org": "Adana 5 Ocak",
+  "domain": null,
+  "emails": []
+ },
+ {
+  "id": 19,
+  "org": "Türkiye Ziraat Odaları Birliği (TZOB)",
+  "domain": null,
+  "emails": []
+ },
+ {
+  "id": 20,
+  "org": "İstanbul Ticaret Borsası",
+  "domain": "istib.org.tr",
+  "emails": []
+ },
+ {
+  "id": 21,
+  "org": "Antalya Ticaret Borsası",
+  "domain": "atb.org.tr",
+  "emails": [
+   {
+    "email": "alasehirtb@tobb.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://atb.org.tr/iletisim.asp",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 22,
+  "org": "ANTKOMDER",
+  "domain": null,
+  "emails": []
+ },
+ {
+  "id": 23,
+  "org": "Toprak Mahsulleri Ofisi (TMO)",
+  "domain": null,
+  "emails": []
+ },
+ {
+  "id": 24,
+  "org": "Habertürk — Ekonomi",
+  "domain": "haberturk.com",
+  "emails": [
+   {
+    "email": "buraya%20gönderilecek%20adresi%20giriniz.",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.haberturk.com/magazin/foto/deniz-seki-den-saglik-durumu-hakkinda-yeni-aciklama-bu-sureci-yasamak-kolay-degil-3906451",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 25,
+  "org": "Sözcü — Ekonomi",
+  "domain": "sozcu.com.tr",
+  "emails": [
+   {
+    "email": "hukuk@sozcu.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.sozcu.com.tr/iletisim-pg14",
+    "mx": true
+   },
+   {
+    "email": "musteridestek@sozcu.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.sozcu.com.tr/iletisim-pg14",
+    "mx": true
+   },
+   {
+    "email": "net@sozcu.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.sozcu.com.tr/iletisim-pg14",
+    "mx": true
+   },
+   {
+    "email": "megaajans@hs03.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://www.sozcu.com.tr/kunye-pg6",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 26,
+  "org": "T24",
+  "domain": "t24.com.tr",
+  "emails": [
+   {
+    "email": "bilgi@t24.com.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://t24.com.tr/hakkimizda",
+    "mx": true
+   },
+   {
+    "email": "ankara@t24.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://t24.com.tr/hakkimizda",
+    "mx": true
+   },
+   {
+    "email": "reklam@t24.com.tr",
+    "kind": "ilgisiz",
+    "score": 0,
+    "src": "https://t24.com.tr/kunye",
+    "mx": true
+   },
+   {
+    "email": "t24@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://t24.com.tr/kunye",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 27,
+  "org": "Gazete Duvar",
+  "domain": "gazeteduvar.com.tr",
+  "emails": []
+ },
+ {
+  "id": 28,
+  "org": "BBC Türkçe",
+  "domain": "bbc.com/turkce",
+  "emails": []
+ }
+]

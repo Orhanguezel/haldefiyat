@@ -1,0 +1,62 @@
+﻿id;kategori;kurum;tur;e-posta;sehir;durum;alternatif adresler;kaynak
+1;Basın;Ekonomim (eski Dünya Gazetesi);newspaper;ekonomim@nbe.com.tr;İstanbul;target;nbe@nbe.com.tr;https://www.ekonomim.com/p/kunye
+2;Basın;Bloomberg HT;website;editor@bloomberght.com;İstanbul;target;adincer@bloomberght.com, asezen@bloomberght.com, bgorgu@bloomberght.com;https://www.bloomberght.com/kunye
+3;Basın;Anadolu Ajansı — Ekonomi;agency;kurumsaliletisim@aa.com.tr;Ankara;target;;https://aa.com.tr/tr/p/iletisim
+4;Basın;DHA — Ekonomi;agency;dhaistanbul@dha.com.tr;İstanbul;target;dhadis@dha.com.tr, dhaspor@dha.com.tr, dhayurt@dha.com.tr;https://www.dha.com.tr/
+5;Basın;İHA — Ekonomi;agency;yayinyonetmeni@iha.com.tr;İstanbul;target;kurumsal@iha.com.tr, halklailiskiler@iha.com.tr;https://www.iha.com.tr/iletisim
+6;Basın;Dünya Gazetesi;newspaper;dunya@dunya.com;İstanbul;target;;https://www.dunya.com/p/kunye
+7;Sektör Birliği;Tarım Türk;website;tarimturk@gmail.com;;target;tarimturkdergisi@gmail.com;https://www.tarimturk.com.tr/iletisim
+8;Basın;Tarımdan Haber;website;iletisim@tarimdanhaber.com;;target;yusuf@tarimdanhaber.com;https://www.tarimdanhaber.com/
+11;Basın;Çiftçi TV;website;bilgi@ciftcitv.com;;target;;https://ciftcitv.com/
+12;Basın;Tarım Pusulası;website;haber@tarimpusulasi.com;;target;iletisim@tarimpusulasi.com, cenap.karahan@tarimpusulasi.com, ender.karahan@tarimpusulasi.com;https://www.tarimpusulasi.com/sayfa/kunye-1
+13;Basın;Antalya Körfez Gazetesi;newspaper;info@antalyakorfez.com;Antalya;target;;https://www.antalyakorfez.com/kunye
+15;Basın;İzmir Ege Telgraf;newspaper;info@egetelgraf.com;İzmir;target;egetelgraf1960@gmail.com;https://www.egetelgraf.com/iletisim
+16;Basın;Bursa Olay;newspaper;ekonomi@olaygazetesi.com.tr;Bursa;target;yaziisleri@olaygazetesi.com.tr, alikemalaksakal@olay.com.tr, bircanorsel@olay.com.tr;https://www.olay.com.tr/iletisim
+17;Basın;Konya Yenigün;newspaper;haber@konyayenigun.com;Konya;target;;https://www.konyayenigun.com/
+19;Basın;Türkiye Ziraat Odaları Birliği (TZOB);association;ziraatodalari@tzob.org.tr;Ankara;target;;https://www.tzob.org.tr/iletisim/
+20;Ticaret Borsası;İstanbul Ticaret Borsası;chamber;gensek@istib.org.tr;İstanbul;target;;https://istib.org.tr/iletisim
+25;Basın;Sözcü — Ekonomi;website;net@sozcu.com.tr;İstanbul;target;;https://www.sozcu.com.tr/iletisim-pg14
+26;Basın;T24;website;bilgi@t24.com.tr;İstanbul;target;ankara@t24.com.tr;https://t24.com.tr/hakkimizda
+29;İhracatçı Birliği;Akdeniz İhracatçı Birlikleri (AKİB);association;info@akib.org.tr;;target;;https://akib.org.tr/en/contact.html
+30;İhracatçı Birliği;Uludağ İhracatçı Birlikleri (UİB);association;uludag@uib.org.tr;;target;;https://uib.org.tr/en/contact-contact-info
+31;İhracatçı Birliği;Doğu Anadolu İhracatçılar Birliği (DAİB);association;bilgi@daib.org.tr;;target;;https://daib.org.tr/
+32;İhracatçı Birliği;Doğu Karadeniz İhracatçılar Birliği (DKİB);association;dkib@dkib.org.tr;;target;;https://dkib.org.tr/tr/default.html
+33;İhracatçı Birliği;Güneydoğu Anadolu İhracatçı Birlikleri (GAİB);association;gaib@gaib.org.tr;;target;;https://gaib.org.tr/
+34;İhracatçı Birliği;Türkiye İhracatçılar Meclisi (TİM);association;tim@tim.org.tr;;target;;https://tim.org.tr/tr/
+35;Kamu/Kurum;TİGEM;other;info@tigem.gov.tr;;target;;https://tigem.gov.tr/
+36;Kamu/Kurum;Tarım ve Orman Bakanlığı;other;contact@tarim.gov.tr;;target;info@tarim.gov.tr, info@tarimorman.gov.tr;https://www.tarimorman.gov.tr/
+37;Meslek Örgütü;TMMOB Ziraat Mühendisleri Odası;association;zmo@zmo.org.tr;;target;;https://www.zmo.org.tr/
+38;Meslek Örgütü;TMMOB Gıda Mühendisleri Odası;association;gidamo@gidamo.org.tr;;target;;https://www.gidamo.org.tr/
+39;Meslek Örgütü;Türkiye Tohumcular Birliği (TÜRKTOB);association;iletisim@turktob.org.tr;;target;etiket@turktob.org.tr;https://turktob.org.tr/
+40;Meslek Örgütü;Tohum Sanayicileri Alt Birliği (TSÜAB);association;tsuab@tsuab.org.tr;;target;;https://www.tsuab.org.tr/
+41;Meslek Örgütü;Fidan Üreticileri Alt Birliği;association;fuab@fuab.org.tr;;target;;https://fuab.org.tr/
+42;Sektör Birliği;Setbir (Süt Et Sanayicileri);association;setbir@setbir.org.tr;;target;;https://www.setbir.org.tr/
+43;Sektör Birliği;Beyaz Et Sanayicileri (BESD-BİR);association;besd-bir@besd-bir.org;;target;;https://besd-bir.org/tr/
+44;Sektör Birliği;Yumurta Üreticileri (YUM-BİR);association;bilgi@yum-bir.org;;target;;https://yum-bir.org/
+45;Sektör Birliği;Ulusal Süt Konseyi;association;info@ulusalsutkonseyi.org.tr;;target;;https://ulusalsutkonseyi.org.tr/
+46;Sektör Birliği;Ulusal Kırmızı Et Konseyi;association;info@ukon.org.tr;;target;;https://ukon.org.tr/
+47;Sektör Birliği;Pankobirlik;association;panko@pankobirlik.com.tr;;target;;https://pankobirlik.com.tr/
+48;Sektör Birliği;Zeytindostu Derneği;association;zeytindostudernek@gmail.com;;target;;https://zeytindostu.org.tr/iletisim
+49;Sektör Birliği;Gıda Güvenliği Derneği;association;ege@ggd.org.tr;;target;ggd@ggd.org.tr;https://ggd.org.tr/en/contact/
+50;Sektör Birliği;Tarım Makineleri Birliği (TARMAKBİR);association;tarmakbir@tarmakbir.org;;target;;https://tarmakbir.org/
+51;Sektör Birliği;Gübre Üreticileri (GÜİD);association;info@guid.org.tr;;target;;https://guid.org.tr/en/home-2/
+52;Ticaret Borsası;Ankara Ticaret Borsası;chamber;info@ankaratb.org.tr;;target;;https://ankaratb.org.tr/
+53;Ticaret Borsası;Konya Ticaret Borsası;chamber;bilgi@ktb.org.tr;;target;;https://ktb.org.tr/iletisim
+54;Ticaret Borsası;İzmir Ticaret Borsası;chamber;info@itb.org.tr;;target;;https://itb.org.tr/Iletisim
+55;Ticaret Borsası;Gaziantep Ticaret Borsası;chamber;gtb@gtb.org.tr;;target;;https://www.gtb.org.tr/
+56;Ticaret Borsası;Eskişehir Ticaret Borsası;chamber;etb@etb.org.tr;;target;;https://etb.org.tr/
+57;Ticaret Borsası;Denizli Ticaret Borsası;chamber;info@dtb.org.tr;;target;;https://dtb.org.tr/
+58;Ticaret Borsası;Bursa Ticaret Borsası;chamber;btb@btb.org.tr;;target;;https://btb.org.tr/
+59;Ticaret Borsası;Kayseri Ticaret Borsası;chamber;info@kayseritb.org.tr;;target;;https://kayseritb.org.tr/
+60;Ticaret Borsası;Samsun Ticaret Borsası;chamber;samsuntb@tobb.org.tr;;target;;https://samsuntb.org.tr/
+61;Ticaret Borsası;Ordu Ticaret Borsası;chamber;ordutb@tobb.org.tr;;target;;https://www.ordutb.org.tr/
+62;Ticaret Borsası;Trabzon Ticaret Borsası;chamber;ttb@ttb.org.tr;;target;;https://ttb.org.tr/
+63;Ticaret Borsası;Malatya Ticaret Borsası;chamber;info@malatyatb.org.tr;;target;;https://malatyatb.org.tr/Contact
+65;Ticaret Borsası;Manisa Ticaret Borsası;chamber;info@manisatb.org.tr;;target;;https://manisatb.org.tr/
+66;Ticaret Borsası;Karaman Ticaret Borsası;chamber;bilgi@karamantb.org.tr;;target;;https://www.karamantb.org.tr/
+67;Ticaret Borsası;Yozgat Ticaret Borsası;chamber;info@yozgattb.org.tr;;target;yozgattb@tobb.org.tr;https://www.yozgattb.org.tr/#googtrans(en
+68;Ticaret Borsası;Çorum Ticaret Borsası;chamber;corumtb@tobb.org.tr;;target;;https://corumtb.org.tr/
+69;Ticaret Borsası;Erzurum Ticaret Borsası;chamber;bilgi@etb.org.tr;;target;uye@etb.org.tr;https://erzurumtb.org.tr/
+70;Akademi;Çukurova Ü. Ziraat Fakültesi;other;ziraat@cu.edu.tr;;target;;https://ziraat.cu.edu.tr/
+71;Akademi;Akdeniz Ü. Ziraat Fakültesi;other;info@akdeniz.edu.tr;;target;ziraat@akdeniz.edu.tr;https://www.akdeniz.edu.tr/tr/haber/akdeniz_universitesi%E2%80%99nden_iletisim_s%C3%BBrasi%E2%80%99na_akademik_katki-442
+72;Akademi;Ondokuz Mayıs Ü. Ziraat Fakültesi;other;ziraat@omu.edu.tr;;target;;https://ziraat.omu.edu.tr/tr

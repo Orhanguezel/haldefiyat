@@ -1,0 +1,959 @@
+[
+ {
+  "id": 1000,
+  "org": "Akdeniz İhracatçı Birlikleri (AKİB)",
+  "domain": "akib.org.tr",
+  "emails": [
+   {
+    "email": "info@akib.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://akib.org.tr/en/contact.html",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1001,
+  "org": "Ege İhracatçı Birlikleri (EİB)",
+  "domain": "eib.org.tr",
+  "emails": []
+ },
+ {
+  "id": 1002,
+  "org": "Uludağ İhracatçı Birlikleri (UİB)",
+  "domain": "uib.org.tr",
+  "emails": [
+   {
+    "email": "uludag@uib.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://uib.org.tr/en/contact-contact-info",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1003,
+  "org": "İstanbul İhracatçı Birlikleri (İİB)",
+  "domain": "iib.org.tr",
+  "emails": []
+ },
+ {
+  "id": 1004,
+  "org": "Doğu Anadolu İhracatçılar Birliği (DAİB)",
+  "domain": "daib.org.tr",
+  "emails": [
+   {
+    "email": "bilgi@daib.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://daib.org.tr/",
+    "mx": true
+   },
+   {
+    "email": "daib@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://daib.org.tr/",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1005,
+  "org": "Orta Anadolu İhracatçı Birlikleri (OAİB)",
+  "domain": "oaib.org.tr",
+  "emails": []
+ },
+ {
+  "id": 1006,
+  "org": "Karadeniz İhracatçı Birlikleri (KİB)",
+  "domain": "kib.org.tr",
+  "emails": []
+ },
+ {
+  "id": 1007,
+  "org": "Batı Akdeniz İhracatçılar Birliği (BAİB)",
+  "domain": null,
+  "emails": []
+ },
+ {
+  "id": 1008,
+  "org": "Doğu Karadeniz İhracatçılar Birliği (DKİB)",
+  "domain": "dkib.org.tr",
+  "emails": [
+   {
+    "email": "dkib@dkib.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://dkib.org.tr/tr/default.html",
+    "mx": true
+   },
+   {
+    "email": "dkib.evrak@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://dkib.org.tr/tr/default.html",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1009,
+  "org": "Güneydoğu Anadolu İhracatçı Birlikleri (GAİB)",
+  "domain": "gaib.org.tr",
+  "emails": [
+   {
+    "email": "gaib@gaib.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://gaib.org.tr/",
+    "mx": true
+   },
+   {
+    "email": "gaib@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://gaib.org.tr/",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1010,
+  "org": "Türkiye İhracatçılar Meclisi (TİM)",
+  "domain": "tim.org.tr",
+  "emails": [
+   {
+    "email": "tim@tim.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://tim.org.tr/tr/",
+    "mx": true
+   },
+   {
+    "email": "turkiyeihracatcilarmeclisi@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://tim.org.tr/tr/",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1011,
+  "org": "Toprak Mahsulleri Ofisi (TMO)",
+  "domain": null,
+  "emails": []
+ },
+ {
+  "id": 1012,
+  "org": "Tarım Kredi Kooperatifleri",
+  "domain": null,
+  "emails": []
+ },
+ {
+  "id": 1013,
+  "org": "Türkiye Ziraat Odaları Birliği (TZOB)",
+  "domain": "tzob.org.tr",
+  "emails": []
+ },
+ {
+  "id": 1014,
+  "org": "Et ve Süt Kurumu (ESK)",
+  "domain": "esk.gov.tr",
+  "emails": [
+   {
+    "email": "esk@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://www.esk.gov.tr/en",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1015,
+  "org": "TİGEM",
+  "domain": "tigem.gov.tr",
+  "emails": [
+   {
+    "email": "info@tigem.gov.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://tigem.gov.tr/",
+    "mx": true
+   },
+   {
+    "email": "hukuk@tigem.gov.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://tigem.gov.tr/",
+    "mx": true
+   },
+   {
+    "email": "tigem@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://tigem.gov.tr/",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1016,
+  "org": "Tarım ve Orman Bakanlığı",
+  "domain": "tarimorman.gov.tr",
+  "emails": [
+   {
+    "email": "contact@tarim.gov.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://www.tarimorman.gov.tr/",
+    "mx": true
+   },
+   {
+    "email": "info@tarim.gov.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://www.tarimorman.gov.tr/",
+    "mx": true
+   },
+   {
+    "email": "info@tarimorman.gov.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://www.tarimorman.gov.tr/",
+    "mx": true
+   },
+   {
+    "email": "abuse@tarim.gov.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.tarimorman.gov.tr/",
+    "mx": true
+   },
+   {
+    "email": "abuse@tarimorman.gov.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.tarimorman.gov.tr/",
+    "mx": true
+   },
+   {
+    "email": "sales@tarimorman.gov.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.tarimorman.gov.tr/",
+    "mx": true
+   },
+   {
+    "email": "hr@tarim.gov.tr",
+    "kind": "ilgisiz",
+    "score": 0,
+    "src": "https://www.tarimorman.gov.tr/",
+    "mx": true
+   },
+   {
+    "email": "ik@tarim.gov.tr",
+    "kind": "ilgisiz",
+    "score": 0,
+    "src": "https://www.tarimorman.gov.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1017,
+  "org": "TOBB",
+  "domain": null,
+  "emails": []
+ },
+ {
+  "id": 1018,
+  "org": "TÜİK",
+  "domain": null,
+  "emails": []
+ },
+ {
+  "id": 1019,
+  "org": "Ziraat Bankası",
+  "domain": "ziraatbank.com.tr",
+  "emails": []
+ },
+ {
+  "id": 1020,
+  "org": "TMMOB Ziraat Mühendisleri Odası",
+  "domain": "zmo.org.tr",
+  "emails": [
+   {
+    "email": "zmo@zmo.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.zmo.org.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1021,
+  "org": "TMMOB Gıda Mühendisleri Odası",
+  "domain": "gidamo.org.tr",
+  "emails": [
+   {
+    "email": "gidamo@gidamo.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.gidamo.org.tr/",
+    "mx": true
+   },
+   {
+    "email": "gidamo@hs02.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://www.gidamo.org.tr/",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1022,
+  "org": "Türkiye Tohumcular Birliği (TÜRKTOB)",
+  "domain": "turktob.org.tr",
+  "emails": [
+   {
+    "email": "iletisim@turktob.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://turktob.org.tr/",
+    "mx": true
+   },
+   {
+    "email": "etiket@turktob.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://turktob.org.tr/",
+    "mx": true
+   },
+   {
+    "email": "turktob@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://turktob.org.tr/",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1023,
+  "org": "Tohum Sanayicileri Alt Birliği (TSÜAB)",
+  "domain": "tsuab.org.tr",
+  "emails": [
+   {
+    "email": "tsuab@tsuab.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.tsuab.org.tr/",
+    "mx": true
+   },
+   {
+    "email": "tsuab@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://www.tsuab.org.tr/",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1024,
+  "org": "Fidan Üreticileri Alt Birliği",
+  "domain": "fuab.org.tr",
+  "emails": [
+   {
+    "email": "fuab@fuab.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://fuab.org.tr/",
+    "mx": true
+   },
+   {
+    "email": "fidanureticilerialtbirligi@hs05.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://fuab.org.tr/",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1025,
+  "org": "Süs Bitkileri Alt Birliği",
+  "domain": "susbir.org.tr",
+  "emails": []
+ },
+ {
+  "id": 1026,
+  "org": "Setbir (Süt Et Sanayicileri)",
+  "domain": "setbir.org.tr",
+  "emails": [
+   {
+    "email": "setbir@setbir.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.setbir.org.tr/",
+    "mx": true
+   },
+   {
+    "email": "setbir@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://www.setbir.org.tr/",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1027,
+  "org": "Beyaz Et Sanayicileri (BESD-BİR)",
+  "domain": "besd-bir.org",
+  "emails": [
+   {
+    "email": "besd-bir@besd-bir.org",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://besd-bir.org/tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1028,
+  "org": "Yumurta Üreticileri (YUM-BİR)",
+  "domain": "yum-bir.org",
+  "emails": [
+   {
+    "email": "bilgi@yum-bir.org",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://yum-bir.org/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1029,
+  "org": "Ulusal Süt Konseyi",
+  "domain": "ulusalsutkonseyi.org.tr",
+  "emails": [
+   {
+    "email": "info@ulusalsutkonseyi.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://ulusalsutkonseyi.org.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1030,
+  "org": "Ulusal Kırmızı Et Konseyi",
+  "domain": "ukon.org.tr",
+  "emails": [
+   {
+    "email": "info@ukon.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://ukon.org.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1031,
+  "org": "Pankobirlik",
+  "domain": "pankobirlik.com.tr",
+  "emails": [
+   {
+    "email": "panko@pankobirlik.com.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://pankobirlik.com.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1032,
+  "org": "Zeytindostu Derneği",
+  "domain": "zeytindostu.org.tr",
+  "emails": [
+   {
+    "email": "zeytindostudernek@gmail.com",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://zeytindostu.org.tr/iletisim",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1033,
+  "org": "Türkiye Gıda Sanayi İşverenleri",
+  "domain": "tgsd.org.tr",
+  "emails": []
+ },
+ {
+  "id": 1034,
+  "org": "Gıda Güvenliği Derneği",
+  "domain": "ggd.org.tr",
+  "emails": [
+   {
+    "email": "ege@ggd.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://ggd.org.tr/en/contact/",
+    "mx": true
+   },
+   {
+    "email": "ggd@ggd.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://ggd.org.tr/en/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1035,
+  "org": "Tarım Makineleri Birliği (TARMAKBİR)",
+  "domain": "tarmakbir.org",
+  "emails": [
+   {
+    "email": "tarmakbir@tarmakbir.org",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://tarmakbir.org/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1036,
+  "org": "Gübre Üreticileri (GÜİD)",
+  "domain": "guid.org.tr",
+  "emails": [
+   {
+    "email": "info@guid.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://guid.org.tr/en/home-2/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1037,
+  "org": "Adana Ticaret Borsası",
+  "domain": "adanatb.org.tr",
+  "emails": []
+ },
+ {
+  "id": 1038,
+  "org": "Ankara Ticaret Borsası",
+  "domain": "ankaratb.org.tr",
+  "emails": [
+   {
+    "email": "info@ankaratb.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://ankaratb.org.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1039,
+  "org": "Konya Ticaret Borsası",
+  "domain": "ktb.org.tr",
+  "emails": [
+   {
+    "email": "bilgi@ktb.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://ktb.org.tr/iletisim",
+    "mx": true
+   },
+   {
+    "email": "konyaticaretborsasi@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://ktb.org.tr/iletisim",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1040,
+  "org": "İzmir Ticaret Borsası",
+  "domain": "itb.org.tr",
+  "emails": [
+   {
+    "email": "info@itb.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://itb.org.tr/Iletisim",
+    "mx": true
+   },
+   {
+    "email": "izmirticaretborsasi@hs03.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://itb.org.tr/Iletisim",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1041,
+  "org": "Gaziantep Ticaret Borsası",
+  "domain": "gtb.org.tr",
+  "emails": [
+   {
+    "email": "gtb@gtb.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.gtb.org.tr/",
+    "mx": true
+   },
+   {
+    "email": "gantepticborsasi@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://www.gtb.org.tr/",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1042,
+  "org": "Eskişehir Ticaret Borsası",
+  "domain": "etb.org.tr",
+  "emails": [
+   {
+    "email": "etb@etb.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://etb.org.tr/",
+    "mx": true
+   },
+   {
+    "email": "etb@hs03.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://etb.org.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1043,
+  "org": "Denizli Ticaret Borsası",
+  "domain": "dtb.org.tr",
+  "emails": [
+   {
+    "email": "info@dtb.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://dtb.org.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1044,
+  "org": "Bursa Ticaret Borsası",
+  "domain": "btb.org.tr",
+  "emails": [
+   {
+    "email": "btb@btb.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://btb.org.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1045,
+  "org": "Kayseri Ticaret Borsası",
+  "domain": "kayseritb.org.tr",
+  "emails": [
+   {
+    "email": "info@kayseritb.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://kayseritb.org.tr/",
+    "mx": true
+   },
+   {
+    "email": "kayseriticaretborsasi@hs03.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://kayseritb.org.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1046,
+  "org": "Samsun Ticaret Borsası",
+  "domain": "samsuntb.org.tr",
+  "emails": [
+   {
+    "email": "samsuntb@tobb.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://samsuntb.org.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1047,
+  "org": "Ordu Ticaret Borsası",
+  "domain": "ordutb.org.tr",
+  "emails": [
+   {
+    "email": "ordutb@tobb.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.ordutb.org.tr/",
+    "mx": true
+   },
+   {
+    "email": "ordutb@hs03.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://www.ordutb.org.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1048,
+  "org": "Trabzon Ticaret Borsası",
+  "domain": "ttb.org.tr",
+  "emails": [
+   {
+    "email": "ttb@ttb.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://ttb.org.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1049,
+  "org": "Malatya Ticaret Borsası",
+  "domain": "malatyatb.org.tr",
+  "emails": [
+   {
+    "email": "info@malatyatb.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://malatyatb.org.tr/Contact",
+    "mx": true
+   },
+   {
+    "email": "malatyatb@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://malatyatb.org.tr/Contact",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1050,
+  "org": "Mersin Ticaret Borsası",
+  "domain": "mtb.org.tr",
+  "emails": [
+   {
+    "email": "info@malatyatb.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://malatyatb.org.tr/Contact",
+    "mx": true
+   },
+   {
+    "email": "malatyatb@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://malatyatb.org.tr/Contact",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1051,
+  "org": "Manisa Ticaret Borsası",
+  "domain": "manisatb.org.tr",
+  "emails": [
+   {
+    "email": "info@manisatb.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://manisatb.org.tr/",
+    "mx": true
+   },
+   {
+    "email": "manisaborsa@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://manisatb.org.tr/",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1052,
+  "org": "Karaman Ticaret Borsası",
+  "domain": "karamantb.org.tr",
+  "emails": [
+   {
+    "email": "bilgi@karamantb.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://www.karamantb.org.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1053,
+  "org": "Yozgat Ticaret Borsası",
+  "domain": "yozgattb.org.tr",
+  "emails": [
+   {
+    "email": "info@yozgattb.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://www.yozgattb.org.tr/#googtrans(en|en)",
+    "mx": true
+   },
+   {
+    "email": "yozgattb@tobb.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://www.yozgattb.org.tr/#googtrans(en|en)",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1054,
+  "org": "Çorum Ticaret Borsası",
+  "domain": "corumtb.org.tr",
+  "emails": [
+   {
+    "email": "corumtb@tobb.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://corumtb.org.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1055,
+  "org": "Erzurum Ticaret Borsası",
+  "domain": "erzurumtb.org.tr",
+  "emails": [
+   {
+    "email": "bilgi@etb.org.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://erzurumtb.org.tr/",
+    "mx": true
+   },
+   {
+    "email": "uye@etb.org.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://erzurumtb.org.tr/iletisim",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1056,
+  "org": "Ege Ü. Ziraat Fakültesi",
+  "domain": null,
+  "emails": []
+ },
+ {
+  "id": 1057,
+  "org": "Çukurova Ü. Ziraat Fakültesi",
+  "domain": "ziraat.cu.edu.tr",
+  "emails": [
+   {
+    "email": "ziraat@cu.edu.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://ziraat.cu.edu.tr/",
+    "mx": true
+   },
+   {
+    "email": "cukurovauniversitesi@hs01.kep.tr",
+    "kind": "KEP (resmi tebligat)",
+    "score": 0,
+    "src": "https://ziraat.cu.edu.tr/",
+    "mx": false
+   }
+  ]
+ },
+ {
+  "id": 1058,
+  "org": "Akdeniz Ü. Ziraat Fakültesi",
+  "domain": "ziraat.akdeniz.edu.tr",
+  "emails": [
+   {
+    "email": "info@akdeniz.edu.tr",
+    "kind": "genel",
+    "score": 2,
+    "src": "https://www.akdeniz.edu.tr/tr/haber/akdeniz_universitesi%E2%80%99nden_iletisim_s%C3%BBrasi%E2%80%99na_akademik_katki-4424",
+    "mx": true
+   },
+   {
+    "email": "ziraat@akdeniz.edu.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://ziraat.akdeniz.edu.tr/",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1059,
+  "org": "Ondokuz Mayıs Ü. Ziraat Fakültesi",
+  "domain": "ziraat.omu.edu.tr",
+  "emails": [
+   {
+    "email": "ziraat@omu.edu.tr",
+    "kind": "diğer",
+    "score": 1,
+    "src": "https://ziraat.omu.edu.tr/tr",
+    "mx": true
+   }
+  ]
+ },
+ {
+  "id": 1060,
+  "org": "Selçuk Ü. Ziraat Fakültesi",
+  "domain": null,
+  "emails": []
+ }
+]
