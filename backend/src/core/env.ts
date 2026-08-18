@@ -129,7 +129,13 @@ export const env = {
   SMTP_PORT: parseEnvInt(process.env.SMTP_PORT, 587),
   SMTP_USER: process.env.SMTP_USER || "",
   SMTP_PASS: process.env.SMTP_PASS || "",
+  // Gonderen kimligi: Resend'de DKIM/SPF/DMARC haldefiyat.com icin dogrulandi; posta
+  // kutusu DEGIL, yalniz imzali gonderim adresi. Degistirmeden once Resend domain
+  // dogrulamasi yapilmali, yoksa tum giden posta durur.
   SMTP_FROM: process.env.SMTP_FROM || "noreply@haldefiyat.com",
+  // Yanit adresi: @haldefiyat.com'da gercek posta kutusu yok, kullanici yaniti
+  // bosluga gitmesin diye tum giden postada Reply-To olarak kullanilir.
+  CONTACT_EMAIL: process.env.CONTACT_EMAIL || "info@gzlteknoloji.com",
   SMS: {
     provider: (process.env.SMS_PROVIDER || "none").toLowerCase() as "none" | "netgsm" | "iletimerkezi" | string,
     apiKey: process.env.SMS_API_KEY || "",

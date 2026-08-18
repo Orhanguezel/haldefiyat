@@ -38,7 +38,7 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'gsc_site_url',         '*', '"sc-domain:haldefiyat.com"'),
 (UUID(), 'public_base_url',      '*', '"https://haldefiyat.com"'),
 (UUID(), 'contact_phone',      '*', '"+90 530 048 41 83"'),
-(UUID(), 'contact_email',      '*', '"iletisim@haldefiyat.com"'),
+(UUID(), 'contact_email',      '*', '"info@gzlteknoloji.com"'),
 (UUID(), 'legal_entity_name',  '*', '"GZL Teknoloji"'),
 (UUID(), 'responsible_publisher_name', '*', '"Atakan Şahin"'),
 (UUID(), 'technical_contact_name', '*', '"Orhan Güzel"'),

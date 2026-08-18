@@ -20,7 +20,7 @@ interface ContactFormProps {
 
 export function ContactForm({
   defaultSubject = "",
-  contactEmail = "iletisim@haldefiyat.com",
+  contactEmail = "info@gzlteknoloji.com",
   contactPhone,
   contactAddress,
   conversionEventName,

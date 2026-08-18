@@ -36,6 +36,8 @@ export async function sendEmailAlert(to: string, subject: string, html: string):
   try {
     await transporter.sendMail({
       from: env.SMTP_FROM,
+      // Gonderen adresinin posta kutusu yok; yanitlar gercek kutuya dussun.
+      replyTo: env.CONTACT_EMAIL,
       to,
       subject,
       html,

@@ -19,6 +19,6 @@ export default async function TransparencyPolicyPage({
     legalEntity: settings.legal_entity_name || "GZL Teknoloji",
     responsiblePublisher: settings.responsible_publisher_name || "Atakan Şahin",
     technicalContact: settings.technical_contact_name || "Orhan Güzel",
-    email: settings.contact_email || "iletisim@haldefiyat.com",
+    email: settings.contact_email || "info@gzlteknoloji.com",
   } : undefined} />;
 }

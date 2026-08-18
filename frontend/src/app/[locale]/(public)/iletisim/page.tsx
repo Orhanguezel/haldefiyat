@@ -52,7 +52,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
             {/* İletişim Formu ve Bilgiler */}
             <ContactForm
               defaultSubject={subject}
-              contactEmail={settings.contact_email || "iletisim@haldefiyat.com"}
+              contactEmail={settings.contact_email || "info@gzlteknoloji.com"}
               contactPhone={settings.contact_phone}
               contactAddress={settings.contact_address}
               conversionEventName={isProInquiry ? "pro_upgrade" : undefined}

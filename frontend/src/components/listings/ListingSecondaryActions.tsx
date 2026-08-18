@@ -32,7 +32,7 @@ export function ListingSecondaryActions({ listingId, title, pathname }: {
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={save} className={BUTTON}><Bookmark className="size-4" aria-hidden="true" />Kaydet</button>
         <button type="button" onClick={() => void share()} className={BUTTON}><Share2 className="size-4" aria-hidden="true" />Paylaş</button>
-        <a href={`mailto:iletisim@haldefiyat.com?subject=${encodeURIComponent(`İlan bildirimi: ${title}`)}&body=${encodeURIComponent(`${pathname}\n\nBildirim nedeni:`)}`} className={BUTTON}>
+        <a href={`mailto:info@gzlteknoloji.com?subject=${encodeURIComponent(`İlan bildirimi: ${title}`)}&body=${encodeURIComponent(`${pathname}\n\nBildirim nedeni:`)}`} className={BUTTON}>
           <Flag className="size-4" aria-hidden="true" />Raporla
         </a>
       </div>

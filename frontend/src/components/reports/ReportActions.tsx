@@ -44,7 +44,7 @@ export default function ReportActions({
         Kaynak ve yöntem
       </Link>
       <a
-        href={`mailto:iletisim@haldefiyat.com?subject=${encodeURIComponent(`Düzeltme bildirimi: ${title}`)}`}
+        href={`mailto:info@gzlteknoloji.com?subject=${encodeURIComponent(`Düzeltme bildirimi: ${title}`)}`}
         className={itemClass}
       >
         <MessageSquareWarning className="h-4 w-4" aria-hidden="true" />

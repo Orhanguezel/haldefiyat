@@ -150,8 +150,8 @@ export default async function PressPage({ params }: Props) {
           </div>
           <div className="mt-4 space-y-3 text-muted">
             <p>Basın talepleri, veri soruları ve röportaj istekleri için:</p>
-            <a className="font-semibold text-brand hover:underline" href="mailto:iletisim@haldefiyat.com">
-              iletisim@haldefiyat.com
+            <a className="font-semibold text-brand hover:underline" href="mailto:info@gzlteknoloji.com">
+              info@gzlteknoloji.com
             </a>
             <p className="text-sm">
               Yayınlarda HaldeFiyat'a kaynak verirken ilgili ürün, şehir veya analiz sayfasına bağlantı
