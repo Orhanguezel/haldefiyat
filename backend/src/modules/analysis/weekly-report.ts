@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, pool } from "@/db/client";
 import { hfAnalysisReports, hfAuthors } from "@/db/schema";
@@ -503,10 +503,13 @@ async function generateWeeklyReport(week: string): Promise<AutoWeeklyReport | nu
 async function readPreviousWatchlist(weekStart: string): Promise<WatchItem[] | null> {
   const previousMonday = new Date(`${weekStart}T12:00:00Z`);
   previousMonday.setUTCDate(previousMonday.getUTCDate() - 7);
+  // DATE kolonuna JS Date verilirse surucu tam datetime gonderir ve DATE ile hic eslesmez;
+  // karsilastirma her zaman 'YYYY-MM-DD' metniyle yapilir.
+  const previousIso = previousMonday.toISOString().slice(0, 10);
   const [row] = await db
     .select({ watchlist: hfAnalysisReports.watchlist })
     .from(hfAnalysisReports)
-    .where(eq(hfAnalysisReports.weekStart, previousMonday))
+    .where(sql`${hfAnalysisReports.weekStart} = ${previousIso}`)
     .limit(1);
   const value = row?.watchlist;
   return Array.isArray(value) ? (value as WatchItem[]) : null;
