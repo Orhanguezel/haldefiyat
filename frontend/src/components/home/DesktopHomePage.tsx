@@ -8,6 +8,7 @@ import HomeFaq from "@/components/sections/HomeFaq";
 import IndexCta from "@/components/sections/IndexCta";
 import LatestReports from "@/components/sections/LatestReports";
 import PriceDashboard from "@/components/sections/PriceDashboard";
+import SeasonGuides from "@/components/sections/SeasonGuides";
 import StatsBar from "@/components/sections/StatsBar";
 import { loadHomePageData } from "@/lib/home-page-data";
 
@@ -36,6 +37,7 @@ export default async function DesktopHomePage({ locale }: { locale: string }) {
           </div>
         </section>
       ) : null}
+      <SeasonGuides />
       <LatestReports limit={6} />
       <HomeFaq
         activeCities={data.cityCount}

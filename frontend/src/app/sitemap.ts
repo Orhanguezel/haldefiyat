@@ -7,6 +7,7 @@ import { fetchAnnualReportYears, fetchAuthors, fetchAutoWeeklyReports } from "@/
 import { latestSitemapDate, validSitemapDate } from "@/lib/sitemap-date";
 import { getMarketEditorial } from "@/lib/market-content";
 import { PIYASA_PAGES } from "@/lib/piyasa";
+import { REHBER_PAGES } from "@/lib/rehber";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033").replace(/\/$/, "");
 // SSR'da BACKEND_URL (internal) kullan; yoksa NEXT_PUBLIC_API_URL'ye düş
@@ -198,6 +199,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...(priceLastModified && { lastModified: priceLastModified }),
       changeFrequency: "daily" as const,
       priority: 0.85,
+    })),
+    { url: `${SITE_URL}/rehber`, changeFrequency: "weekly" as const, priority: 0.8 },
+    ...Object.keys(REHBER_PAGES).map((slug) => ({
+      url: `${SITE_URL}/rehber/${slug}`,
+      ...(priceLastModified && { lastModified: priceLastModified }),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
     })),
     { url: `${SITE_URL}/fiyatlar`, ...(priceLastModified && { lastModified: priceLastModified }), changeFrequency: "daily", priority: 0.95 },
     { url: `${SITE_URL}/borsa`, changeFrequency: "daily", priority: 0.85 },

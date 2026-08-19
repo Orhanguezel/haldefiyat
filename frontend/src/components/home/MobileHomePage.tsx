@@ -3,6 +3,7 @@ import CtaNewsletter from "@/components/sections/CtaNewsletter";
 import HomeFaq from "@/components/sections/HomeFaq";
 import LatestReports from "@/components/sections/LatestReports";
 import MobileHomeHero from "@/components/sections/MobileHomeHero";
+import SeasonGuides from "@/components/sections/SeasonGuides";
 import { loadHomePageData } from "@/lib/home-page-data";
 
 export default async function MobileHomePage({ locale }: { locale: string }) {
@@ -19,6 +20,7 @@ export default async function MobileHomePage({ locale }: { locale: string }) {
         freshness={data.overview.freshness}
         featuredPrice={data.featuredPrice}
       />
+      <SeasonGuides />
       <LatestReports limit={6} />
       {/* %78 mobil trafik CTA'yi hic gormuyordu — masaustundeki blok mobile de acildi */}
       <CtaNewsletter whatsappChannelUrl={data.siteSettings.social_whatsapp} placement="home_mobile" />
