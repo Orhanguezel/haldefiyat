@@ -7,14 +7,20 @@ import type { Product, Market } from "@/lib/api";
 import SearchModalHeader from "./search/SearchModalHeader";
 import SearchModalResults from "./search/SearchModalResults";
 import {
+  cleanVoiceQuery,
+  getRecentSearches,
   normalizeSearch,
+  pushRecentSearch,
+  removeRecentSearch,
   unwrapArray,
   type SearchFlatRow,
   type SearchResults,
 } from "./search/types";
 import { productHref } from "@/lib/product-links";
 import { useModalA11y } from "@/hooks/useModalA11y";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { trackDiscoveryEvent } from "@/lib/analytics";
+import { Mic } from "lucide-react";
 
 const API_BASE =
   (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "") +
@@ -40,7 +46,16 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SearchResults>({ products: [], markets: [] });
   const [activeIdx, setActiveIdx] = useState(0);
+  const [recents, setRecents] = useState<string[]>([]);
   useModalA11y(isOpen, onClose, dialogRef, inputRef);
+
+  // Sesli arama: soylenen cumle dolgu kelimelerden arindirilip sorguya yazilir
+  // ("domates fiyatlari bugun" -> "domates"); sonuclar mevcut debounce'la akar.
+  const voice = useVoiceSearch((transcript) => setQuery(cleanVoiceQuery(transcript)));
+
+  useEffect(() => {
+    if (voice.interim) setQuery(voice.interim);
+  }, [voice.interim]);
 
   const flat = useMemo<SearchFlatRow[]>(() => {
     const rows: SearchFlatRow[] = [];
@@ -55,11 +70,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       setResults({ products: [], markets: [] });
       setActiveIdx(0);
       lastTrackedQueryRef.current = "";
+      voice.stop();
       return;
     }
+    setRecents(getRecentSearches());
     trackDiscoveryEvent("search_opened", { trigger: "programmatic" });
     const t = setTimeout(() => inputRef.current?.focus(), 50);
     return () => clearTimeout(t);
+    // voice.stop referansi stabil (useCallback []); dep'e eklemek gereksiz re-run yaratir
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   useEffect(() => {
@@ -121,10 +140,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         result_position: Math.max(1, flat.indexOf(row) + 1),
         item_slug: row.item.slug,
       });
+      pushRecentSearch(query);
       onClose();
       router.push(href);
     },
-    [flat, router, onClose],
+    [flat, router, onClose, query],
   );
 
   useEffect(() => {
@@ -184,7 +204,19 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               inputRef={inputRef}
               loading={loading}
               onClose={onClose}
+              voiceSupported={voice.supported}
+              listening={voice.listening}
+              onVoiceToggle={voice.listening ? voice.stop : voice.start}
             />
+            {voice.listening ? (
+              <div className="flex items-center gap-2 border-b border-(--color-border) bg-red-500/10 px-4 py-2 text-sm font-medium text-red-600">
+                <Mic className="h-4 w-4 animate-pulse" /> Dinleniyor… şimdi konuşun
+              </div>
+            ) : voice.error ? (
+              <div className="border-b border-(--color-border) bg-amber-500/10 px-4 py-2 text-xs text-amber-700">
+                {voice.error}
+              </div>
+            ) : null}
             <SearchModalResults
               query={query}
               results={results}
@@ -192,6 +224,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               activeIdx={activeIdx}
               setActiveIdx={setActiveIdx}
               onNavigate={handleNavigate}
+              recents={recents}
+              onPickRecent={setQuery}
+              onRemoveRecent={(q) => setRecents(removeRecentSearch(q))}
             />
           </motion.div>
         </motion.div>

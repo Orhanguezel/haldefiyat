@@ -2,7 +2,7 @@
 
 import ProductImage from "@/components/ui/ProductImage";
 import type { SearchFlatRow, SearchResults } from "./types";
-import { Store } from "lucide-react";
+import { Clock3, Store, X } from "lucide-react";
 
 interface SearchModalResultsProps {
   query: string;
@@ -11,6 +11,9 @@ interface SearchModalResultsProps {
   activeIdx: number;
   setActiveIdx: (i: number) => void;
   onNavigate: (row: SearchFlatRow) => void;
+  recents?: string[];
+  onPickRecent?: (q: string) => void;
+  onRemoveRecent?: (q: string) => void;
 }
 
 export default function SearchModalResults({
@@ -20,13 +23,48 @@ export default function SearchModalResults({
   activeIdx,
   setActiveIdx,
   onNavigate,
+  recents = [],
+  onPickRecent,
+  onRemoveRecent,
 }: SearchModalResultsProps) {
   const hasQuery = query.trim().length > 0;
 
   if (!hasQuery) {
+    if (recents.length && onPickRecent) {
+      return (
+        <div className="px-4 py-4">
+          <div className="pb-2 font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.12em] text-(--color-muted)">
+            Son aramalar
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {recents.map((term) => (
+              <span key={term} className="inline-flex items-center overflow-hidden rounded-full border border-(--color-border) bg-(--color-bg-alt) text-[13px]">
+                <button
+                  type="button"
+                  onClick={() => onPickRecent(term)}
+                  className="inline-flex items-center gap-1.5 py-1 pl-3 pr-1 font-medium text-(--color-foreground) hover:text-(--color-brand)"
+                >
+                  <Clock3 className="h-3.5 w-3.5 text-(--color-muted)" /> {term}
+                </button>
+                {onRemoveRecent ? (
+                  <button
+                    type="button"
+                    onClick={() => onRemoveRecent(term)}
+                    aria-label={`${term} aramasını sil`}
+                    className="px-1.5 py-1 text-(--color-muted) hover:text-red-500"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                ) : null}
+              </span>
+            ))}
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="px-4 py-8 text-center text-[13px] text-(--color-muted)">
-        Aramaya başlamak için bir şey yaz...
+        Ürün veya hal ara — mikrofon simgesiyle sesli arayabilirsin.
       </div>
     );
   }

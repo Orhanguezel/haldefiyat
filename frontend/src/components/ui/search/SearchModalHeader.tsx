@@ -1,6 +1,7 @@
 "use client";
 
 import type { RefObject } from "react";
+import { Mic } from "lucide-react";
 
 interface SearchModalHeaderProps {
   query: string;
@@ -9,6 +10,9 @@ interface SearchModalHeaderProps {
   inputRef: RefObject<HTMLInputElement | null>;
   loading: boolean;
   onClose: () => void;
+  voiceSupported?: boolean;
+  listening?: boolean;
+  onVoiceToggle?: () => void;
 }
 
 export default function SearchModalHeader({
@@ -18,6 +22,9 @@ export default function SearchModalHeader({
   inputRef,
   loading,
   onClose,
+  voiceSupported = false,
+  listening = false,
+  onVoiceToggle,
 }: SearchModalHeaderProps) {
   return (
     <div className="flex items-center gap-3 border-b border-(--color-border) px-4 py-3">
@@ -49,6 +56,21 @@ export default function SearchModalHeader({
           className="h-4 w-4 animate-spin rounded-full border-2 border-(--color-brand) border-t-transparent"
           aria-hidden
         />
+      ) : null}
+      {voiceSupported && onVoiceToggle ? (
+        <button
+          type="button"
+          onClick={onVoiceToggle}
+          aria-label={listening ? "Sesli aramayı durdur" : "Sesli arama"}
+          title="Sesli arama"
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
+            listening
+              ? "animate-pulse bg-red-500 text-white"
+              : "text-(--color-muted) hover:bg-(--color-bg-alt) hover:text-(--color-foreground)"
+          }`}
+        >
+          <Mic className="h-4 w-4" />
+        </button>
       ) : null}
       <button
         type="button"
