@@ -55,12 +55,13 @@ function formatItem(
   item: {
     latest: number;
     changePct: number;
-    product?: { nameTr?: string; categorySlug?: string } | null;
+    product?: { nameTr?: string; displayName?: string | null; categorySlug?: string } | null;
     market?: { cityName?: string } | null;
   },
 ): string {
   const emoji = getProductEmoji(item.product?.nameTr ?? "", item.product?.categorySlug ?? "");
-  const name = item.product?.nameTr ?? "—";
+  // Gorunen ad: ham ETL adi CILEK gibi BUYUK HARF olabiliyor — display_name tercih edilir.
+  const name = item.product?.displayName || item.product?.nameTr || "—";
   const city = item.market?.cityName ?? "";
   const prev = item.latest / (1 + item.changePct / 100);
   return (
