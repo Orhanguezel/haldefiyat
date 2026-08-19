@@ -1,20 +1,17 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
+import { isInternalIpValue } from "@agro/shared-backend/modules/audit/helpers";
+
 import { pool } from "@/db/client";
 import { env } from "@/core/env";
 import { normalizeClientIp } from "@/plugins/auditRequestLogger";
 
-// Kendi SSR/internal trafigimiz (localhost + ozel aglar) kotadan muaf.
+// Kendi SSR/internal trafigimiz kotadan muaf. Shared isInternalIpValue,
+// ANALYTICS_INTERNAL_IP_PREFIXES env'ini de okur — VPS'in kendi public egress
+// IP'si (SSR fetch'leri nginx uzerinden donunce o IP ile gelir) oraya eklenir;
+// aksi halde sitenin kendi SSR'i anonim kotaya carpip 429 yiyebilirdi.
 export function isInternalIp(ip: string): boolean {
-  return (
-    !ip ||
-    ip === "127.0.0.1" ||
-    ip === "::1" ||
-    ip.startsWith("::ffff:127.") ||
-    ip.startsWith("192.168.") ||
-    ip.startsWith("10.") ||
-    ip.startsWith("172.")
-  );
+  return !ip || ip.startsWith("172.") || isInternalIpValue(ip);
 }
 
 // /prices/export icin anonim (API key'siz) IP basina gunluk CSV indirme kotasi.

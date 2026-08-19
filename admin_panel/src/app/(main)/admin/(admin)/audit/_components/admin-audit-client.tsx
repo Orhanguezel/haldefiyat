@@ -23,7 +23,6 @@ import {
   Trash2,
   BarChart3,
   KeyRound,
-  MousePointerClick,
   Smartphone,
 } from 'lucide-react';
 
@@ -86,10 +85,7 @@ import {
   useGetAuditGeoStatsAdminQuery,
   useClearAuditLogsAdminMutation,
   useGetAnalyticsOverviewAdminQuery,
-  useGetAnalyticsAdsAttributionAdminQuery,
-  useGetAnalyticsAdsDailyAdminQuery,
   useGetAnalyticsDeviceDailyAdminQuery,
-  useGetAnalyticsFunnelAdminQuery,
   useGetAnalyticsHeatmapAdminQuery,
   useGetAnalyticsRetentionAdminQuery,
   useAdminGetApiKeyDailyUsageQuery,
@@ -459,21 +455,6 @@ export default function AdminAuditClient() {
     { skip: tab !== 'general', refetchOnFocus: true } as any,
   ) as any;
 
-  const adsQ = useGetAnalyticsAdsAttributionAdminQuery(
-    tab === 'ads' ? { range } : undefined,
-    { skip: tab !== 'ads', refetchOnFocus: true } as any,
-  ) as any;
-
-  const adsDailyQ = useGetAnalyticsAdsDailyAdminQuery(
-    tab === 'ads' ? { range } : undefined,
-    { skip: tab !== 'ads', refetchOnFocus: true } as any,
-  ) as any;
-
-  const funnelQ = useGetAnalyticsFunnelAdminQuery(
-    tab === 'ads' ? { range } : undefined,
-    { skip: tab !== 'ads', refetchOnFocus: true } as any,
-  ) as any;
-
   const deviceDailyQ = useGetAnalyticsDeviceDailyAdminQuery(
     tab === 'device' ? { range } : undefined,
     { skip: tab !== 'device', refetchOnFocus: true } as any,
@@ -523,9 +504,6 @@ export default function AdminAuditClient() {
   );
   const geoCitiesTR = geoCitiesData.filter((r: any) => r.country === 'TR');
   const overviewData = analyticsOverviewQ.data;
-  const adsData = adsQ.data;
-  const adsDailyData = adsDailyQ.data;
-  const funnelData = funnelQ.data;
   const retentionData = retentionQ.data;
   const deviceDailyData = deviceDailyQ.data;
   const heatmapData = heatmapQ.data;
@@ -538,7 +516,6 @@ export default function AdminAuditClient() {
   const authLoading = authQ.isLoading || authQ.isFetching;
   const geoLoading = geoQ.isLoading || geoQ.isFetching || geoCitiesQ.isLoading || geoCitiesQ.isFetching;
   const overviewLoading = analyticsOverviewQ.isLoading || analyticsOverviewQ.isFetching || retentionQ.isLoading || retentionQ.isFetching;
-  const adsLoading = adsQ.isLoading || adsQ.isFetching || adsDailyQ.isLoading || adsDailyQ.isFetching || funnelQ.isLoading || funnelQ.isFetching;
   const deviceLoading = analyticsOverviewQ.isLoading || analyticsOverviewQ.isFetching || deviceDailyQ.isLoading || deviceDailyQ.isFetching || heatmapQ.isLoading || heatmapQ.isFetching;
   const consumersLoading = apiKeysQ.isLoading || apiKeysQ.isFetching || apiKeyDailyUsageQ.isLoading || apiKeyDailyUsageQ.isFetching || widgetEmbeddersQ.isLoading || widgetEmbeddersQ.isFetching || dataPullersQ.isLoading || dataPullersQ.isFetching || apiKeyTierState.isLoading || revokeApiKeyState.isLoading;
 
@@ -560,11 +537,6 @@ export default function AdminAuditClient() {
       if (tab === 'requests') await reqQ.refetch();
       if (tab === 'auth') await authQ.refetch();
       if (tab === 'daily') await analyticsOverviewQ.refetch();
-      if (tab === 'ads') {
-        await adsQ.refetch();
-        await adsDailyQ.refetch();
-        await funnelQ.refetch();
-      }
       if (tab === 'device') {
         await analyticsOverviewQ.refetch();
         await deviceDailyQ.refetch();
@@ -668,9 +640,6 @@ export default function AdminAuditClient() {
           <TabsTrigger value="daily">
             <ShieldCheck className="mr-2 h-4 w-4" /> {t('tabs.daily')}
           </TabsTrigger>
-          <TabsTrigger value="ads">
-            <MousePointerClick className="mr-2 h-4 w-4" /> {t('tabs.ads')}
-          </TabsTrigger>
           <TabsTrigger value="device">
             <Smartphone className="mr-2 h-4 w-4" /> {t('tabs.device')}
           </TabsTrigger>
@@ -685,6 +654,21 @@ export default function AdminAuditClient() {
         {/* ==================== GENERAL TAB ==================== */}
         <TabsContent value="general" className="space-y-4">
           <RangeControls range={range} onChange={(next) => apply({ tab: 'general', range: next })} />
+          {analyticsOverviewQ.error && (
+            <Card className="border-destructive/40 bg-destructive/5">
+              <CardContent className="flex flex-wrap items-center justify-between gap-3 pt-6">
+                <div className="text-sm">
+                  <strong>Genel metrikler yüklenemedi.</strong>{' '}
+                  <span className="text-muted-foreground">
+                    {getErrorMessage(analyticsOverviewQ.error, t('error'))} — kartlardaki sıfırlar veri değil, bu hatadır.
+                  </span>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => analyticsOverviewQ.refetch()}>
+                  <RefreshCcw className="mr-2 h-4 w-4" /> Tekrar dene
+                </Button>
+              </CardContent>
+            </Card>
+          )}
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
             <MetricCard title="İnsan Trafiği" value={fmtNumber(overviewData?.summary?.humanRequests)} sub={`${fmtNumber(overviewData?.summary?.pageviews)} pageview`} />
             <MetricCard title="Bot Trafiği" value={fmtNumber(overviewData?.summary?.botRequests)} sub={`${fmtNumber(overviewData?.summary?.totalRequests)} toplam request`} />
@@ -1237,112 +1221,6 @@ export default function AdminAuditClient() {
               <AuditDailyChart rows={(overviewData?.daily ?? []) as any} loading={overviewLoading} />
             </CardContent>
           </Card>
-        </TabsContent>
-
-        {/* ==================== ADS TAB ==================== */}
-        <TabsContent value="ads" className="space-y-4">
-          <RangeControls range={range} onChange={(next) => apply({ tab: 'ads', range: next })} />
-          <Tabs defaultValue="attribution" className="space-y-2">
-            <TabsList>
-              <TabsTrigger value="attribution">Attribution & Funnel</TabsTrigger>
-              <TabsTrigger value="daily">Gün Gün Kampanya</TabsTrigger>
-            </TabsList>
-            <TabsContent value="attribution">
-          <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Ads Attribution</CardTitle>
-                <CardDescription>Kampanya, source/medium, pageview ve unique IP kırılımı.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Kampanya</TableHead>
-                      <TableHead>Source / Medium</TableHead>
-                      <TableHead className="text-right">Pageview</TableHead>
-                      <TableHead className="text-right">Unique IP</TableHead>
-                      <TableHead className="text-right">İstekler</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {(adsData?.items ?? []).map((row: any) => (
-                      <TableRow key={`${row.campaign}-${row.source}-${row.medium}`}>
-                        <TableCell className="font-medium">{row.campaign || '-'}</TableCell>
-                        <TableCell className="text-muted-foreground text-sm">{row.source || '-'} / {row.medium || '-'}</TableCell>
-                        <TableCell className="text-right">{fmtNumber(row.pageviews)}</TableCell>
-                        <TableCell className="text-right">{fmtNumber(row.uniqueIps)}</TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => apply({ tab: 'requests', q: row.campaign && row.campaign !== 'unknown' ? row.campaign : 'gclid=', offset: 0 })}
-                          >
-                            Aç
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    {!adsLoading && (adsData?.items?.length ?? 0) === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={5}>{t('common.noRecords')}</TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-            <SimpleRowsCard title="Ads Funnel" rows={funnelData?.items ?? []} loading={adsLoading} />
-          </div>
-            </TabsContent>
-            <TabsContent value="daily">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Gün Gün Kampanya Trafiği</CardTitle>
-              <CardDescription>gclid taşıyan isteklerde tarih ve kampanya bazlı pageview / unique IP.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                    <TableRow>
-                      <TableHead>Tarih</TableHead>
-                      <TableHead>Kampanya</TableHead>
-                      <TableHead>Source / Medium</TableHead>
-                      <TableHead className="text-right">Pageview</TableHead>
-                      <TableHead className="text-right">Unique IP</TableHead>
-                      <TableHead className="text-right">İstekler</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                  {(adsDailyData?.items ?? []).map((row: any) => (
-                    <TableRow key={`${row.date}-${row.campaign}-${row.source}-${row.medium}`}>
-                      <TableCell>{row.date}</TableCell>
-                      <TableCell className="font-medium">{row.campaign || '-'}</TableCell>
-                      <TableCell className="text-muted-foreground text-sm">{row.source || '-'} / {row.medium || '-'}</TableCell>
-                      <TableCell className="text-right">{fmtNumber(row.pageviews)}</TableCell>
-                      <TableCell className="text-right">{fmtNumber(row.uniqueIps)}</TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => apply({ tab: 'requests', q: row.campaign && row.campaign !== 'unknown' ? row.campaign : 'gclid=', offset: 0 })}
-                        >
-                          Aç
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {!adsLoading && (adsDailyData?.items?.length ?? 0) === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={6}>{t('common.noRecords')}</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-            </TabsContent>
-          </Tabs>
         </TabsContent>
 
         {/* ==================== DEVICE TAB ==================== */}
