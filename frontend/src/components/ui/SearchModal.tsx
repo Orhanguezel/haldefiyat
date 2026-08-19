@@ -98,7 +98,17 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           }).then((r) => r.json()),
           fetch(`${API_BASE}/prices/markets`, { signal: ctrl.signal }).then((r) => r.json()),
         ]);
-        const products = unwrapArray<Product>(pRes);
+        let products = unwrapArray<Product>(pRes);
+        // "domates fiyatlari bugun kac lira" gibi cumleler LIKE'ta 0 sonuc verir;
+        // dolgu kelimeler atilip bir kez daha denenir (sesli+yazili ayni yol).
+        const cleaned = cleanVoiceQuery(q);
+        if (products.length === 0 && cleaned !== q.toLocaleLowerCase("tr-TR").trim()) {
+          const retry = await fetch(
+            `${API_BASE}/prices/products?q=${encodeURIComponent(cleaned)}&canonicalOnly=true`,
+            { signal: ctrl.signal },
+          ).then((r) => r.json());
+          products = unwrapArray<Product>(retry);
+        }
         const allMarkets = unwrapArray<Market>(mRes);
         const nq = normalizeSearch(q);
         const markets = allMarkets.filter(
