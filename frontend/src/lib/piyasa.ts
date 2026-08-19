@@ -94,6 +94,10 @@ export const PIYASA_BY_PRODUCT: Record<string, PiyasaPageConfig> = Object.fromEn
   Object.values(PIYASA_PAGES).map((page) => [page.productSlug, page]),
 );
 
+// hal.gov.tr ulusal kaydi "Türkiye" sehri olarak gelir; sehir kiyasina ve
+// hal-basi medyana katilirsa (bircok halin ortalamasi oldugu icin) cift sayilir.
+const isCityRow = (row: PriceRow) => row.cityName !== "Türkiye";
+
 const toNum = (v: number | string | null | undefined): number | null => {
   if (v == null) return null;
   const n = typeof v === "number" ? v : Number(v);
@@ -120,7 +124,7 @@ export interface CitySummaryRow {
 export function summarizeByCity(rows: PriceRow[]): CitySummaryRow[] {
   const byCity = new Map<string, PriceRow[]>();
   for (const row of rows) {
-    if (toNum(row.avgPrice) == null) continue;
+    if (!isCityRow(row) || toNum(row.avgPrice) == null) continue;
     const list = byCity.get(row.cityName) ?? [];
     list.push(row);
     byCity.set(row.cityName, list);
@@ -155,8 +159,9 @@ export interface DailySnapshot {
 
 /** Gunluk yorum cumlesinin veri tarafi: bugunku medyan + 7 gun oncesine kiyas. */
 export function buildDailySnapshot(latestRows: PriceRow[], history: PriceHistoryRow[]): DailySnapshot {
-  const cities = summarizeByCity(latestRows);
-  const perMarket = latestRows
+  const cityRows = latestRows.filter(isCityRow);
+  const cities = summarizeByCity(cityRows);
+  const perMarket = cityRows
     .map((r) => toNum(r.avgPrice))
     .filter((n): n is number => n != null);
   const medianPrice = median(perMarket);
@@ -182,11 +187,11 @@ export function buildDailySnapshot(latestRows: PriceRow[], history: PriceHistory
   }
 
   return {
-    marketCount: new Set(latestRows.map((r) => r.marketSlug)).size,
+    marketCount: new Set(cityRows.map((r) => r.marketSlug)).size,
     medianPrice,
     weekChangePct,
     cheapest: cities[0] ?? null,
     priciest: cities.at(-1) ?? null,
-    latestDate: latestRows.map((r) => r.recordedDate).sort().at(-1) ?? null,
+    latestDate: cityRows.map((r) => r.recordedDate).sort().at(-1) ?? null,
   };
 }
