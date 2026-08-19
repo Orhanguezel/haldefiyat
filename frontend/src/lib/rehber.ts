@@ -235,13 +235,22 @@ export function buildSeasonality(history: PriceHistoryRow[], now: Date): Seasona
     });
   }
 
-  const candidates: Array<{ label: string; year: number; price: number; marketCount: number }> = [];
+  // Rozet/"en uygun donem" SON 12 AYDAN secilir: 24 aylik nominal dip enflasyon
+  // yuzunden bu yilin her ayini "pahali" gosterir. Grafik yine iki yili cizer.
+  const rolling: Array<{ label: string; year: number; price: number; marketCount: number }> = [];
+  const all: Array<{ price: number }> = [];
   for (const cell of cells) {
-    if (cell.lastYear.price != null) candidates.push({ label: cell.label, year: lastYearLabel, price: cell.lastYear.price, marketCount: cell.lastYear.marketCount });
-    if (cell.thisYear.price != null) candidates.push({ label: cell.label, year: thisYearLabel, price: cell.thisYear.price, marketCount: cell.thisYear.marketCount });
+    if (cell.lastYear.price != null) {
+      all.push({ price: cell.lastYear.price });
+      if (cell.month > currentMonth) rolling.push({ label: cell.label, year: lastYearLabel, price: cell.lastYear.price, marketCount: cell.lastYear.marketCount });
+    }
+    if (cell.thisYear.price != null) {
+      all.push({ price: cell.thisYear.price });
+      rolling.push({ label: cell.label, year: thisYearLabel, price: cell.thisYear.price, marketCount: cell.thisYear.marketCount });
+    }
   }
-  const broadBase = candidates.filter((c) => c.marketCount >= 3);
-  const pool = broadBase.length ? broadBase : candidates;
+  const broadBase = rolling.filter((c) => c.marketCount >= 3);
+  const pool = broadBase.length ? broadBase : rolling;
   const cheapest = pool.length ? pool.reduce((best, c) => (c.price < best.price ? c : best)) : null;
   const currentCell = cells[currentMonth];
 
@@ -249,7 +258,7 @@ export function buildSeasonality(history: PriceHistoryRow[], now: Date): Seasona
     cells,
     cheapest: cheapest ? { label: cheapest.label, year: cheapest.year, price: cheapest.price } : null,
     current: { label: currentCell.label, price: currentCell.thisYear.price, marketCount: currentCell.thisYear.marketCount },
-    maxPrice: Math.max(1, ...candidates.map((c) => c.price)),
+    maxPrice: Math.max(1, ...all.map((c) => c.price)),
     thisYearLabel,
     lastYearLabel,
   };

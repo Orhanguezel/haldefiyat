@@ -102,7 +102,7 @@ function BasketRow({ item, season }: { item: RehberBasketItem; season: Seasonali
             <span className="inline-flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-(--color-brand)" /> {season.thisYearLabel}</span>
           </div>
           <p className="mt-3 text-sm text-(--color-muted)">
-            En uygun dönem (kayıtlarda): <strong className="text-(--color-brand)">{cheapest.label} — {fmt(cheapest.price)} ₺/kg ({cheapest.year})</strong>
+            En uygun dönem (son 12 ay): <strong className="text-(--color-brand)">{cheapest.label} — {fmt(cheapest.price)} ₺/kg ({cheapest.year})</strong>
             {current?.price ? (
               <> · Şu an ({current.label} {season.thisYearLabel}): <strong className="text-(--color-foreground)">{fmt(current.price)} ₺/kg</strong> · {current.marketCount} hal</>
             ) : null}
