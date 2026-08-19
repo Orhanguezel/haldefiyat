@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import { fetchPrices, fetchPricesPage, fetchMarkets, fetchPricesOverview } from "@/lib/api";
+import { fetchSiteSettings } from "@/lib/site-settings";
 import { DATA_LICENSE_URL, getPageMetadata, ORG_REF } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
@@ -87,7 +88,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
   const page = Math.max(1, Number(single(query?.page)) || 1);
   const limit = Math.min(250, Math.max(50, Number(single(query?.limit)) || 100));
 
-  const [pricePage, latestPrices, markets, overview] = await Promise.all([
+  const [pricePage, latestPrices, markets, overview, siteSettings] = await Promise.all([
     // Tüm geçmiş fiyat kayıtları sayfalanarak gezilir. Tek seferde tüm tabloyu
     // indirmek yerine API meta.total/meta.totalPages ile sayfa sayfa ilerleriz.
     fetchPricesPage({
@@ -105,6 +106,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
     fetchPrices({ range: "30d", limit: 1000, latestOnly: true }),
     fetchMarkets(),
     fetchPricesOverview(),
+    fetchSiteSettings(locale),
   ]);
 
   // İç link için popüler şehir halleri: GSC tık sırasına göre öne al, indexli hal'lerle sınırla.
@@ -262,7 +264,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
           )}
         </AnswerBlock>
       </div>
-      <PriceListNewsletterStrip />
+      <PriceListNewsletterStrip whatsappChannelUrl={siteSettings.social_whatsapp} />
       <BannerSlot position="prices_top" />
       <PriceTable
         initialPricePage={pricePage}

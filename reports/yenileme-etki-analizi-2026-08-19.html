@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>HalDeFiyat — Site Yenilemesi Etki Analizi (19 Ağustos 2026)</title>
+<style>
+  @page {
+    size: A4;
+    margin: 22mm 16mm 20mm 16mm;
+    @bottom-left { content: "HaldeFiyat · Site Yenilemesi Etki Analizi · 19 Ağustos 2026"; font-size: 8px; color: #6b7280; }
+    @bottom-right { content: "Sayfa " counter(page) " / " counter(pages); font-size: 8px; color: #6b7280; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Noto Sans", "DejaVu Sans", sans-serif; font-size: 10.2px; line-height: 1.62; color: #1f2937; }
+  .brandbar { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px solid #15803d; padding-bottom: 6px; margin-bottom: 14px; }
+  .brand { font-size: 17px; font-weight: 700; color: #15803d; }
+  .brand small { color: #6b7280; font-weight: 400; font-size: 9px; margin-left: 6px; }
+  .repno { font-size: 9px; color: #6b7280; }
+  h1 { font-size: 19px; line-height: 1.25; color: #111827; margin: 4px 0 10px; }
+  .kicker { text-transform: uppercase; letter-spacing: 1.4px; font-size: 9px; color: #15803d; font-weight: 700; margin-bottom: 4px; }
+  .dek { font-size: 11.4px; color: #374151; margin-bottom: 12px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 8.8px; color: #4b5563; background: #f3f6f4; border: 1px solid #e2e8e4; border-radius: 6px; padding: 7px 10px; margin-bottom: 14px; }
+  .kpis { display: flex; gap: 8px; margin: 0 0 16px; }
+  .kpi { flex: 1; border: 1px solid #e5e7eb; border-left: 3px solid #15803d; border-radius: 6px; padding: 7px 9px; }
+  .kpi.red { border-left-color: #b91c1c; }
+  .kpi.amber { border-left-color: #b45309; }
+  .kpi.gray { border-left-color: #6b7280; }
+  .kpi b { display: block; font-size: 14px; color: #111827; }
+  .kpi span { font-size: 8.1px; color: #6b7280; }
+  h2 { font-size: 13.2px; color: #14532d; margin: 15px 0 6px; padding-top: 6px; border-top: 1px solid #eef1ee; page-break-after: avoid; }
+  h2:first-of-type { border-top: none; }
+  p { margin: 0 0 8px; text-align: justify; }
+  .note { font-size: 8.8px; color: #6b7280; background: #f9fafb; border-left: 3px solid #d1d5db; padding: 6px 9px; border-radius: 0 5px 5px 0; margin: 8px 0; text-align: left; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; font-size: 9.3px; page-break-inside: avoid; }
+  th { background: #14532d; color: #fff; text-align: left; padding: 5px 8px; font-weight: 600; }
+  td { padding: 4.5px 8px; border-bottom: 1px solid #eceff1; }
+  tbody tr:nth-child(even) td { background: #f8faf9; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  th.num { text-align: right; }
+  .down { color: #b91c1c; font-weight: 600; }
+  .up { color: #15803d; font-weight: 600; }
+  .neut { color: #6b7280; font-weight: 600; }
+  .oklist, .warnlist { list-style: none; margin: 4px 0 10px; }
+  .oklist li { padding: 3px 0 3px 12px; border-left: 3px solid #15803d; margin-bottom: 5px; font-size: 9.6px; }
+  .warnlist li { padding: 3px 0 3px 12px; border-left: 3px solid #b45309; margin-bottom: 5px; font-size: 9.6px; }
+  .pagebreak { page-break-before: always; }
+  .footer-note { margin-top: 14px; font-size: 8.4px; color: #9ca3af; border-top: 1px solid #eef1ee; padding-top: 6px; }
+</style>
+</head>
+<body>
+
+<div class="brandbar">
+  <div class="brand">HaldeFiyat<small>haldefiyat.com · Site Yenilemesi Etki Analizi</small></div>
+  <div class="repno">Hazırlık: 19 Ağustos 2026 · Kaynak: nginx erişim logları + Lighthouse laboratuvar ölçümleri</div>
+</div>
+
+<p class="kicker">Yenileme Değerlendirmesi · 14–16 Ağustos Yenilemesi Öncesi ve Sonrası</p>
+<h1>Yenileme İlk Haftasında Ne Değişti: İstikrar Sıçradı, AI Görünürlüğü 6,7 Kat Arttı, Trafik Nötr Bantta</h1>
+<p class="dek">12 Ağustos durum raporunun işaret ettiği sorunların bir bölümü 14–16 Ağustos'ta uygulandı (açık temaya geçiş, mobil sadeleştirme, hız çalışması, kesintisiz dağıtım). Bu analiz, yenilemenin ilk günlerini <strong>aynı haftanın günleriyle eşleştirilmiş pencerede</strong> (8–11 Ağu Cmt–Sal vs 15–18 Ağu Cmt–Sal) karşılaştırır ve Mayıs'tan bu yana süren büyüme çizgisine oturtur.</p>
+<div class="meta"><span><strong>Önce:</strong> 8–11 Ağustos (Cmt–Sal, 4 gün)</span><span><strong>Sonra:</strong> 15–18 Ağustos (Cmt–Sal, 4 gün)</span><span><strong>Bağlam raporları:</strong> Durum Raporu v2 (12 Ağu) · Eklenti Kataloğu (12 Ağu) · Ziyaretçi Baseline (18 May)</span></div>
+
+<div class="kpis">
+  <div class="kpi"><b>−%97</b><span>Sunucu hatası (5xx): 337 → 10 istek</span></div>
+  <div class="kpi"><b>6,7×</b><span>AI arama botu ilgisi: 354 → 2.373 istek</span></div>
+  <div class="kpi gray"><b>−%6</b><span>İnsan istek/gün: 64.484 → 60.584 (nötr bant)</span></div>
+  <div class="kpi amber"><b>3,1×</b><span>404: 430 → 1.339 (crawler dalgası — izlemede)</span></div>
+  <div class="kpi gray"><b>7/8</b><span>Reklam slotu canlı — dış ücretli reklamveren: 0</span></div>
+</div>
+
+<h2>1 · Uzun Çizgi: Mayıs Baseline'ından Bugüne</h2>
+<p>18 Mayıs'taki yapılandırma-öncesi raporda sitenin konservatif temiz trafiği <strong>haftada 1.053 sayfa görüntüleme</strong> (~150/gün) idi. Haziran ortasında günlük insan istek 41.210'a, gerçek ölçümlü sayfa görüntüleme ~614/güne çıkmıştı. Yenileme haftasına gelindiğinde site <strong>günde ~63.700 insan isteği ve ~1.130 gerçek sayfa görüntüleme</strong> ile çalışıyor. Üç ayda gerçek kullanım yaklaşık <strong>7,5 kat</strong> büyüdü; yenileme bu büyümenin üzerine, temeli sağlamlaştırmak için geldi.</p>
+<table>
+<thead><tr><th>Dönem</th><th class="num">İnsan istek/gün</th><th class="num">Gerçek pageview/gün</th><th class="num">Mobil oran</th></tr></thead>
+<tbody>
+<tr><td>12–18 Mayıs (baseline, konservatif)</td><td class="num">—</td><td class="num">~150</td><td class="num">—</td></tr>
+<tr><td>1–8 Haziran</td><td class="num">25.570</td><td class="num">~425</td><td class="num">%70</td></tr>
+<tr><td>16–23 Haziran</td><td class="num">41.210</td><td class="num">~614</td><td class="num">%64</td></tr>
+<tr><td>10–16 Ağustos (yenileme haftası)</td><td class="num">63.687</td><td class="num">~1.130</td><td class="num">%78</td></tr>
+</tbody>
+</table>
+
+<h2>2 · Yenilemede Ne Yapıldı (Durum Raporuna Karşılık)</h2>
+<p>12 Ağustos durum raporu 12 madde saymıştı: 4 tasarım/kullanım, 8 veri/teknik. Yenileme haftasında bunların şu bölümü hayata geçti:</p>
+<ul class="oklist">
+  <li><strong>Görünüm:</strong> "Kripto borsası gibi karanlık varsayılan" eleştirisine karşılık açık/temiz tema çalışması yapıldı; ana sayfa, ürün, harita ve kurumsal sayfaların mobil görünümleri elden geçirildi (14 Ağu ekran doğrulamaları).</li>
+  <li><strong>Hız:</strong> Ana sayfa mobil laboratuvar ölçümünde ana iş parçacığı tıkanması (TBT) <strong>3.730 ms'den 1.910 ms'ye (−%49)</strong> indi; analitik betikleri ertelemeli yüklemeye alındı. Performans puanı 54→57 bandında; CLS 0,047 ile stabil.</li>
+  <li><strong>İstikrar:</strong> Kesintisiz, sürüm-bazlı dağıtım devreye girdi (sağlık kontrollü sıralı yeniden yükleme, iki kopyalı frontend). Somut karşılığı aşağıdaki 5xx tablosunda.</li>
+</ul>
+<p>Raporun kalan maddeleri (veri güveni sunumu, vitrin metinleri vb.) ve 12 Ağustos eklenti kataloğundaki 10 parça (WhatsApp/Telegram fiyat hattı, yapay zekâ fiyat tahmini, sponsorluk araçları...) bu yenilemenin kapsamı dışında, "temiz zemin üstüne kurulacaklar" listesinde duruyor.</p>
+
+<h2>3 · Önce / Sonra: Eşleştirilmiş Günler (Cmt–Sal)</h2>
+<table>
+<thead><tr><th>Metrik</th><th class="num">Önce (8–11 Ağu)</th><th class="num">Sonra (15–18 Ağu)</th><th class="num">Değişim</th></tr></thead>
+<tbody>
+<tr><td>İnsan istek (4 gün)</td><td class="num">257.934</td><td class="num">242.337</td><td class="num neut">−%6,0</td></tr>
+<tr><td>Gerçek pageview (4 gün)</td><td class="num">4.374</td><td class="num">4.019</td><td class="num neut">−%8,1</td></tr>
+<tr><td>Mobil oran</td><td class="num">%79,7</td><td class="num">%77,7</td><td class="num neut">−2,0 puan</td></tr>
+<tr><td><strong>5xx sunucu hatası</strong></td><td class="num">337</td><td class="num"><strong>10</strong></td><td class="num up">−%97</td></tr>
+<tr><td>499 (istemci vazgeçti)</td><td class="num">994</td><td class="num">651</td><td class="num up">−%35</td></tr>
+<tr><td>404</td><td class="num">430</td><td class="num">1.339</td><td class="num down">3,1×</td></tr>
+<tr><td>AI botları (ClaudeBot+OpenAI)</td><td class="num">354</td><td class="num">2.373</td><td class="num up">6,7×</td></tr>
+<tr><td>Googlebot</td><td class="num">3.671</td><td class="num">3.143</td><td class="num neut">−%14</td></tr>
+<tr><td>AhrefsBot (SEO tarayıcı)</td><td class="num">420</td><td class="num">1.757</td><td class="num up">4,2×</td></tr>
+
+</tbody>
+</table>
+<p><strong>Trafik nötr bantta.</strong> −%6'lık fark, önceki pencerenin 10 Ağustos'taki zirve gününü (77.955 insan isteği — dönemin en yüksek günü) içermesinden geliyor; dört günlük pencerede bu tek gün farkı kapatıyor. Gerçek pageview tarafındaki −%8 de aynı etkinin izinde. Yenilemenin trafiği kırdığına dair işaret yok; büyüttüğüne dair işaret için ise henüz erken — kullanıcı tarafı etkisi (yeni tema + hız) organik döngüde haftalar içinde görünür.</p>
+<p><strong>En somut kazanç istikrar:</strong> önceki pencerede 337 sunucu hatası vardı (10 Ağustos'taki dağıtım kazası dahil); yeni dağıtım mimarisinin ilk dört gününde bu sayı <strong>10'a</strong> indi. İstemcinin sayfayı beklerken vazgeçtiği 499'ların üçte bir azalması da hız/istikrar çalışmasının dolaylı göstergesi.</p>
+<p><strong>AI görünürlüğü sıçradı:</strong> ClaudeBot'un istekleri 260'tan 2.082'ye çıktı; OpenAI arama botu 86→284. Fiyat uçlarının AI botlarına bilinçli açık tutulması karşılık buluyor — AI aramalarında kaynak olarak görünme stratejisinin ham maddesi bu taramalar. (19 Ağustos'ta CSV export ucu kota israfını önlemek için botlara kapatıldı; JSON uçları açık.)</p>
+
+<h2>4 · Dikkat İsteyen İki Başlık</h2>
+<ul class="warnlist">
+  <li><strong>404 sıçraması (430 → 1.339):</strong> Zamanlaması crawler dalgasıyla (Ahrefs 4,2×, ClaudeBot 8×) örtüşüyor — botlar tarihteki ölü URL'leri yeniden yokluyor. 19 Ağustos'ta yapılan büyük slug birleştirme/301 turu bu kuyruğu eritmeye başladı; bir sonraki raporda 404'ün gerilemesi beklenir. Gerilemezse yenilemede kırılan bir iç bağlantı aranmalı.</li>
+  <li><strong>Reklam geliri henüz açılmadı:</strong> Trafik tamamen organik tabanda 63,7K/gün seviyesinde — bu, reklam <em>satmak</em> için doğru zemin. Banner envanteri canlı ama slotlar kendi markalarımız ve affiliate ile dolu; ilk dış ücretli reklamveren için firma dizini sahiplenme + sponsorluk funnel'ı işletilmeli.</li>
+</ul>
+
+<h2>5 · Sonuç ve Sıradaki Adımlar</h2>
+<p><strong>Değerlendirme:</strong> Yenilemenin ilk haftası "trafik patlaması" değil "zemin sağlamlaşması" haftası oldu — ki durum raporunun hedefi de buydu. Sunucu istikrarı ölçülebilir biçimde düzeldi, hız metriklerinde ilk kademe alındı, AI/SEO tarayıcı ilgisi belirgin arttı, trafik tabanı korundu. Görsel yenilemenin kullanıcı davranışına etkisi (dönüş oranı, sayfa/oturum) için 2–3 haftalık veri gerekiyor.</p>
+<table>
+<thead><tr><th>Aksiyon</th><th>Neden</th><th>Öncelik</th></tr></thead>
+<tbody>
+<tr><td>İlk dış reklamvereni kazan (envanter satışı)</td><td>Organik 63,7K istek/gün + ölçülü CTR raporlaması hazır ürün</td><td>P1</td></tr>
+<tr><td>404 eğrisini haftalık izle</td><td>301 turunun etkisini teyit; kırık iç bağlantı ihtimalini ele</td><td>P1</td></tr>
+<tr><td>Hız ikinci kademe (perf 57 → 80 hedefi)</td><td>Bilinen kalem: masaüstü ağacının mobilde gereksiz yüklenmesi</td><td>P2</td></tr>
+<tr><td>Eklenti kataloğundan seçim (öneri: WhatsApp/Telegram fiyat hattı)</td><td>63,7K istek/gün + %78 mobil taban, cebe taşınmaya hazır</td><td>P2</td></tr>
+<tr><td>Yenileme etkisini 2 hafta sonra tekrar ölç</td><td>Tema/hız etkisinin davranış metriklerine yansıması gecikmeli</td><td>P2</td></tr>
+</tbody>
+</table>
+
+<p class="note"><strong>Metodoloji:</strong> Trafik verileri dedike nginx erişim logundan (haldefiyat.access.log) çıkarılmıştır; "insan istek" bilinen bot imzası taşımayan HTTP istekleri, "gerçek pageview" tarayıcıda çalışan ölçüm sinyalidir. Önce/sonra karşılaştırması, haftanın aynı günlerini (Cumartesi–Salı) eşleştirir; yenileme 14 Ağustos'ta devreye girdiği için 12–14 Ağustos geçiş günleri iki pencereye de dahil edilmemiştir. Hız değerleri 14 Ağustos Lighthouse laboratuvar koşularıdır (mobil, ana sayfa); alan verisi (CrUX) gecikmeli yayımlanır. Mayıs baseline değeri, log ayrıştırması öncesi konservatif filtreyle hesaplandığı için sonraki dönemlerle birebir kıyaslanamaz, yalnızca mertebe gösterir.</p>
+
+<p class="footer-note">© 2026 HaldeFiyat · haldefiyat.com — Bu analiz; 18 Mayıs ziyaretçi raporu, 16–24 Haziran trafik analizi, 12 Ağustos durum raporu v2 ve 12 Ağustos eklenti kataloğu belgeleriyle birlikte okunmalıdır.</p>
+
+</body>
+</html>

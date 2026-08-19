@@ -1,4 +1,5 @@
 import JsonLd from "@/components/seo/JsonLd";
+import CtaNewsletter from "@/components/sections/CtaNewsletter";
 import HomeFaq from "@/components/sections/HomeFaq";
 import LatestReports from "@/components/sections/LatestReports";
 import MobileHomeHero from "@/components/sections/MobileHomeHero";
@@ -19,6 +20,8 @@ export default async function MobileHomePage({ locale }: { locale: string }) {
         featuredPrice={data.featuredPrice}
       />
       <LatestReports limit={6} />
+      {/* %78 mobil trafik CTA'yi hic gormuyordu — masaustundeki blok mobile de acildi */}
+      <CtaNewsletter whatsappChannelUrl={data.siteSettings.social_whatsapp} placement="home_mobile" />
       <HomeFaq
         activeCities={data.cityCount}
         activeMarkets={data.overview.activeMarkets || data.markets.length}

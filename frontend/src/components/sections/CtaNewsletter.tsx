@@ -26,14 +26,17 @@ const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
  */
 export default function CtaNewsletter({
   whatsappChannelUrl,
+  placement = "home_bottom",
 }: {
   /** WhatsApp KANAL adresi (whatsapp.com/channel/...). site_settings.social_whatsapp. */
   whatsappChannelUrl?: string | null;
+  /** CTA olcum anahtari — hangi yuzey donusturuyor gorunsun (admin cta-funnel). */
+  placement?: string;
 } = {}) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<SubmitState>({ kind: "idle" });
 
-  const cta = useCtaTracking<HTMLElement>("home_bottom");
+  const cta = useCtaTracking<HTMLElement>(placement);
   const isLoading = state.kind === "loading";
   const isSuccess = state.kind === "success";
 
@@ -76,7 +79,7 @@ export default function CtaNewsletter({
   }
 
   return (
-    <section ref={cta.ref} className="relative z-10 px-8 py-24">
+    <section ref={cta.ref} className="relative z-10 px-4 py-14 sm:px-8 sm:py-24">
       <div
         className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[28px] border border-(--color-brand)/15 px-6 py-16 text-center sm:px-12 sm:py-20"
         style={{
