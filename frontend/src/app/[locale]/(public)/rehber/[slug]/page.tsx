@@ -5,7 +5,8 @@ import { ArrowRight, CalendarDays } from "lucide-react";
 
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PageContainer from "@/components/layout/PageContainer";
-import { fetchPriceHistory } from "@/lib/api";
+import FreshnessBadge from "@/components/ui/FreshnessBadge";
+import { fetchPriceHistory, fetchPricesOverview } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
 import { REHBER_PAGES, buildSeasonality, type RehberBasketItem, type Seasonality } from "@/lib/rehber";
 
@@ -137,12 +138,15 @@ export default async function RehberPage({ params }: Props) {
   setRequestLocale(locale);
 
   const now = new Date();
-  const seasons = await Promise.all(
-    config.basket.map(async (item) => ({
-      item,
-      season: buildSeasonality(await fetchPriceHistory(item.slug, undefined, "730d", "monthly"), now),
-    })),
-  );
+  const [seasons, overview] = await Promise.all([
+    Promise.all(
+      config.basket.map(async (item) => ({
+        item,
+        season: buildSeasonality(await fetchPriceHistory(item.slug, undefined, "730d", "monthly"), now),
+      })),
+    ),
+    fetchPricesOverview(),
+  ]);
 
   return (
     <PageContainer py="sm">
@@ -156,9 +160,19 @@ export default async function RehberPage({ params }: Props) {
       />
 
       <header className="mt-6 max-w-3xl">
-        <p className="inline-flex items-center gap-2 rounded-full border border-(--color-brand)/25 bg-(--color-brand)/10 px-3 py-1.5 font-(family-name:--font-mono) text-[11px] font-bold uppercase tracking-[0.14em] text-(--color-brand)">
-          <CalendarDays className="h-3.5 w-3.5" /> Sezon: {config.seasonWindow}
-        </p>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <p className="inline-flex items-center gap-2 rounded-full border border-(--color-brand)/25 bg-(--color-brand)/10 px-3 py-1.5 font-(family-name:--font-mono) text-[11px] font-bold uppercase tracking-[0.14em] text-(--color-brand)">
+            <CalendarDays className="h-3.5 w-3.5" /> Sezon: {config.seasonWindow}
+          </p>
+          <span className="inline-flex items-center gap-2 rounded-full border border-(--color-border) bg-(--color-surface) px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-(--color-foreground)">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-(--color-brand) opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-(--color-brand)" />
+            </span>
+            Canlı veri
+          </span>
+          <FreshnessBadge recordedDate={overview.lastSourceDate} />
+        </div>
         <h1 className="mt-5 font-(family-name:--font-display) text-4xl font-black leading-tight text-(--color-foreground) sm:text-5xl">
           {config.emoji} {config.h1}
         </h1>

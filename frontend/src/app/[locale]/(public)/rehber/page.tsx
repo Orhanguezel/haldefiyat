@@ -4,6 +4,8 @@ import { ArrowRight, CalendarDays } from "lucide-react";
 
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PageContainer from "@/components/layout/PageContainer";
+import FreshnessBadge from "@/components/ui/FreshnessBadge";
+import { fetchPricesOverview } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
 import { REHBER_LIST } from "@/lib/rehber";
 
@@ -25,6 +27,7 @@ export async function generateMetadata({ params }: Props) {
 export default async function RehberIndexPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const overview = await fetchPricesOverview();
 
   return (
     <PageContainer py="sm">
@@ -34,7 +37,17 @@ export default async function RehberIndexPage({ params }: Props) {
       ]} />
 
       <header className="mt-6 max-w-3xl">
-        <h1 className="font-(family-name:--font-display) text-4xl font-black leading-tight text-(--color-foreground) sm:text-5xl">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="inline-flex items-center gap-2 rounded-full border border-(--color-border) bg-(--color-surface) px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-(--color-foreground)">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-(--color-brand) opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-(--color-brand)" />
+            </span>
+            Canlı veri
+          </span>
+          <FreshnessBadge recordedDate={overview.lastSourceDate} />
+        </div>
+        <h1 className="mt-5 font-(family-name:--font-display) text-4xl font-black leading-tight text-(--color-foreground) sm:text-5xl">
           Sezon Rehberleri
         </h1>
         <p className="mt-4 leading-8 text-(--color-muted)">
