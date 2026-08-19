@@ -207,7 +207,10 @@ export const auditRequestLoggerPlugin: FastifyPluginAsync = fp(async (app) => {
       const { country, city } = resolveGeo(req, ip);
       const userAgent = firstHeader(req, "user-agent") || null;
       const isBot = isBotUserAgent(userAgent) ? 1 : 0;
-      const isInternal = isInternalIpValue(ip, country) ? 1 : 0;
+      // hf_self çerezi: admin paneline girmiş tarayıcı kalıcı işaretlenir — sahibin
+      // ev/mobil IP'si değişse de kendi gezinmesi analitiğe "internal" düşer.
+      const hasSelfCookie = (firstHeader(req, "cookie") ?? "").includes("hf_self=1");
+      const isInternal = isInternalIpValue(ip, country) || hasSelfCookie || isAdmin ? 1 : 0;
       const auditError = (req as RequestWithUser).auditError;
       const statusCode = Number(reply.statusCode || reply.raw.statusCode || 0);
       const errorMessage =

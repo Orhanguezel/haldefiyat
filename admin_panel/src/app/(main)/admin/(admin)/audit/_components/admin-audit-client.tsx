@@ -692,11 +692,19 @@ export default function AdminAuditClient() {
             <MetricCard title="Direct Trafik" value={fmtPct(overviewData?.summary?.directTrafficPct)} sub={`${fmtNumber(overviewData?.summary?.returningIps)} returning IP`} />
             <MetricCard title="B2B-like IP" value={fmtNumber(overviewData?.summary?.b2bLikeIps)} sub={`${fmtNumber(overviewData?.summary?.b2bIntentIps)} yüksek niyet`} />
           </div>
+          <Tabs defaultValue="sources" className="space-y-2">
+            <TabsList>
+              <TabsTrigger value="sources">Kaynaklar</TabsTrigger>
+              <TabsTrigger value="cohort">Cohort Retention</TabsTrigger>
+            </TabsList>
+            <TabsContent value="sources">
           <div className="grid gap-4 xl:grid-cols-3">
             <SimpleRowsCard title="Top Landing Page" rows={overviewData?.topLandingPages ?? []} loading={overviewLoading} />
             <SimpleRowsCard title="Top Referrer" rows={overviewData?.topReferrers ?? []} loading={overviewLoading} />
             <SimpleRowsCard title="Cihaz Dağılımı" rows={(overviewData?.devices ?? []).map((row: any) => ({ name: deviceLabel(row.device), count: row.count }))} loading={overviewLoading} />
           </div>
+            </TabsContent>
+            <TabsContent value="cohort">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Cohort Retention</CardTitle>
@@ -738,6 +746,8 @@ export default function AdminAuditClient() {
               </Table>
             </CardContent>
           </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         {/* ==================== REQUESTS TAB ==================== */}
@@ -1232,6 +1242,12 @@ export default function AdminAuditClient() {
         {/* ==================== ADS TAB ==================== */}
         <TabsContent value="ads" className="space-y-4">
           <RangeControls range={range} onChange={(next) => apply({ tab: 'ads', range: next })} />
+          <Tabs defaultValue="attribution" className="space-y-2">
+            <TabsList>
+              <TabsTrigger value="attribution">Attribution & Funnel</TabsTrigger>
+              <TabsTrigger value="daily">Gün Gün Kampanya</TabsTrigger>
+            </TabsList>
+            <TabsContent value="attribution">
           <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
             <Card>
               <CardHeader>
@@ -1278,6 +1294,8 @@ export default function AdminAuditClient() {
             </Card>
             <SimpleRowsCard title="Ads Funnel" rows={funnelData?.items ?? []} loading={adsLoading} />
           </div>
+            </TabsContent>
+            <TabsContent value="daily">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Gün Gün Kampanya Trafiği</CardTitle>
@@ -1323,11 +1341,19 @@ export default function AdminAuditClient() {
               </Table>
             </CardContent>
           </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         {/* ==================== DEVICE TAB ==================== */}
         <TabsContent value="device" className="space-y-4">
           <RangeControls range={range} onChange={(next) => apply({ tab: 'device', range: next })} />
+          <Tabs defaultValue="dist" className="space-y-2">
+            <TabsList>
+              <TabsTrigger value="dist">Dağılım & Heatmap</TabsTrigger>
+              <TabsTrigger value="trend">Günlük Trend</TabsTrigger>
+            </TabsList>
+            <TabsContent value="dist">
           <div className="grid gap-4 xl:grid-cols-[0.8fr_1.2fr]">
             <SimpleRowsCard title="Cihaz Dağılımı" rows={(overviewData?.devices ?? []).map((row: any) => ({ name: deviceLabel(row.device), count: row.count }))} loading={deviceLoading} />
             <Card>
@@ -1364,6 +1390,8 @@ export default function AdminAuditClient() {
               </CardContent>
             </Card>
           </div>
+            </TabsContent>
+            <TabsContent value="trend">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Cihaz Günlük Trend</CardTitle>
@@ -1401,11 +1429,20 @@ export default function AdminAuditClient() {
               </Table>
             </CardContent>
           </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         {/* ==================== CONSUMERS TAB ==================== */}
         <TabsContent value="consumers" className="space-y-4">
           <RangeControls range={range} onChange={(next) => apply({ tab: 'consumers', range: next })} />
+          <Tabs defaultValue="keys" className="space-y-2">
+            <TabsList>
+              <TabsTrigger value="keys">API Anahtarları</TabsTrigger>
+              <TabsTrigger value="widget">Widget Gömenler</TabsTrigger>
+              <TabsTrigger value="pullers">Yoğun Çekenler</TabsTrigger>
+            </TabsList>
+            <TabsContent value="keys" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
@@ -1531,6 +1568,8 @@ export default function AdminAuditClient() {
               </Table>
             </CardContent>
           </Card>
+            </TabsContent>
+            <TabsContent value="widget">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Widget Gömen Siteler</CardTitle>
@@ -1570,6 +1609,8 @@ export default function AdminAuditClient() {
               </Table>
             </CardContent>
           </Card>
+            </TabsContent>
+            <TabsContent value="pullers">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Yoğun Veri Çekenler</CardTitle>
@@ -1624,6 +1665,8 @@ export default function AdminAuditClient() {
               </Table>
             </CardContent>
           </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         {/* ==================== MAP TAB ==================== */}
@@ -1647,6 +1690,13 @@ export default function AdminAuditClient() {
               ))}
             </div>
           </div>
+          <Tabs defaultValue="harita" className="space-y-2">
+            <TabsList>
+              <TabsTrigger value="harita">Türkiye Haritası</TabsTrigger>
+              <TabsTrigger value="ulke">Ülke Kırılımı</TabsTrigger>
+              <TabsTrigger value="sehir">Şehir / Ülke</TabsTrigger>
+            </TabsList>
+            <TabsContent value="harita">
           {/* Primary: Türkiye il bazında choropleth (ülke değil, şehir bazlı) */}
           <Card>
             <CardHeader>
@@ -1675,6 +1725,8 @@ export default function AdminAuditClient() {
               <AuditTurkeyMap cities={geoCitiesTR} loading={geoLoading} />
             </CardContent>
           </Card>
+            </TabsContent>
+            <TabsContent value="ulke">
           {/* Secondary: ülke kırılımı (yurtdışı trafik referansı) */}
           <Card>
             <CardHeader>
@@ -1689,6 +1741,8 @@ export default function AdminAuditClient() {
               <AuditGeoMap items={geoItemsVisible} loading={geoLoading} />
             </CardContent>
           </Card>
+            </TabsContent>
+            <TabsContent value="sehir">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Şehir / Ülke Kırılımı</CardTitle>
@@ -1724,6 +1778,8 @@ export default function AdminAuditClient() {
               </Table>
             </CardContent>
           </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
     </div>

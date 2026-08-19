@@ -19,10 +19,12 @@ import { ThemeSwitcher } from './_components/sidebar/theme-switcher';
 
 import AdminAuthGate from './_components/admin-auth-gate';
 import { AdminSettingsProvider } from './_components/admin-settings-provider';
+import { SelfTrafficCookie } from './_components/self-traffic-cookie';
 
 export default function Layout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <AdminAuthGate>
+      <SelfTrafficCookie />
       <AdminSettingsProvider>
         {/* Gate inside; when ok, render layout */}
         <SidebarProvider defaultOpen>
