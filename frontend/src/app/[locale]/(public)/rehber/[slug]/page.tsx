@@ -66,22 +66,25 @@ function BasketRow({ item, season }: { item: RehberBasketItem; season: Seasonali
 
       {cheapest?.medianPrice ? (
         <>
-          <div className="mt-4 flex h-20 items-end gap-1" aria-hidden>
+          <div className="mt-4 flex gap-1" aria-hidden>
             {season.months.map((month) => {
               const value = month.medianPrice;
-              const height = value ? Math.max(8, Math.round((value / season.maxPrice) * 100)) : 0;
+              // Yuzde yukseklik auto-yukseklikli flex kapsayicida 0'a coker; piksel kullan.
+              const barPx = value ? Math.max(6, Math.round((value / season.maxPrice) * 64)) : 0;
               const isCheapest = month.ym === cheapest.ym;
               const isCurrent = month.ym === current?.ym;
               return (
                 <div key={month.ym} className="flex flex-1 flex-col items-center gap-1" title={value ? `${month.label}: ${fmt(value)} ₺ (${month.marketCount} hal)` : `${month.label}: kayıt yok`}>
-                  {value ? (
-                    <div
-                      className={`w-full rounded-t ${isCheapest ? "bg-(--color-brand)" : "bg-(--color-brand)/25"} ${isCurrent ? "ring-2 ring-(--color-foreground)/60" : ""}`}
-                      style={{ height: `${height}%` }}
-                    />
-                  ) : (
-                    <div className="h-1 w-full rounded bg-(--color-border)" />
-                  )}
+                  <div className="flex h-16 w-full items-end">
+                    {value ? (
+                      <div
+                        className={`w-full rounded-t ${isCheapest ? "bg-(--color-brand)" : "bg-(--color-brand)/25"} ${isCurrent ? "ring-2 ring-(--color-foreground)/60" : ""}`}
+                        style={{ height: `${barPx}px` }}
+                      />
+                    ) : (
+                      <div className="h-1 w-full rounded bg-(--color-border)" />
+                    )}
+                  </div>
                   <span className={`text-[9px] leading-none ${isCurrent ? "font-bold text-(--color-foreground)" : "text-(--color-muted)"}`}>{month.label}</span>
                 </div>
               );
