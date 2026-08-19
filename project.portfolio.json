@@ -5,7 +5,7 @@
     "title": "HalDeFiyat — Türkiye Hal Fiyatları Platformu",
     "summary": "Türkiye genelinde 22+ resmi kaynaktan günlük hal fiyatlarını toplayan, doğrulayan ve üretici/komisyoncu/tüketiciye açık sunan tarım veri platformu (haldefiyat.com).",
     "description": "Türkiye'de hal fiyatları belediye siteleri, birlik sayfaları ve ulusal portallara dağılmış, standartsız ve zor erişilir durumdaydı. HalDeFiyat bu kaynakları günlük ETL hattıyla (Scrapling TLS-impersonation dahil) tek veritabanında toplar; canonical ürün sözlüğü, birim güvenliği ve karantina/veri bekçisi katmanıyla doğrular; ürün-şehir-hal bazlı fiyat sayfaları, Türkiye fiyat haritası, HalDeFiyat Endeksi ve haftalık analiz raporlarıyla yayınlar. Üretici-alıcı ilan pazarı, numara göstermeyen KVKK-uyumlu 'Satıcıyı ara' akışı, 3.500+ kayıtlı komisyoncu firma rehberi, e-posta bülteni ve ücretli API/kurumsal rapor ürünleriyle sektörün veri altyapısı olmayı hedefler. 1M+ fiyat kaydı, 260+ aktif ürün sayfası ve günlük otomatik veri akışıyla canlıdadır.",
-    "category": "AGRITECH PLATFORM",
+    "category": "data-automation",
     "status": "live",
     "ownership": "partner",
     "owner": {
@@ -53,10 +53,10 @@
     "Reklam/banner pazaryeri modülü ve bülten otomasyonu"
   ],
   "timeline": {
-    "startedAt": "2026-04-01",
+    "startedAt": null,
     "targetEndAt": null,
     "completedAt": null,
-    "progressPercent": 85
+    "progressPercent": 100
   },
   "links": {
     "website": "https://haldefiyat.com",
@@ -70,8 +70,8 @@
       "src": "docs/portfolio/assets/00-cover.png",
       "alt": "HalDeFiyat ana sayfası — ürün arama ve güncel hal fiyatı kartı",
       "caption": "HalDeFiyat kapak görseli (Temiz Veri teması, 2026-08 yenilemesi)",
-      "displayPermission": false,
-      "rightsConfirmed": false
+      "displayPermission": true,
+      "rightsConfirmed": true
     }
   ],
   "channels": {
@@ -113,5 +113,10 @@
     "privacy": "public",
     "displayPermission": true
   },
-  "updatedAt": "2026-08-14T13:34:56.726Z"
+  "updatedAt": "2026-08-16T13:25:49.531Z",
+  "management": {
+    "controlPlane": "gzl-gelir-crm",
+    "lastChangedBy": "orhan",
+    "priority": "normal"
+  }
 }

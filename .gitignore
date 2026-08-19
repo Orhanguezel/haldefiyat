@@ -91,3 +91,7 @@ backend/uploads/
 
 # GZL private project manifest
 project.portfolio.private.json
+
+# Arac cache + build kabul dizini
+.playwright-cli/
+frontend/.next-source-accept/

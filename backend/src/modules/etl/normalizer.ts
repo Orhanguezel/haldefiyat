@@ -35,7 +35,9 @@ export function turkishToAscii(str: string): string {
 const UNIT_CLASS: ReadonlyArray<[RegExp, string]> = [
   [/^(kg|kilo|kilogram)\b/i, "kg"],
   [/^(adet|tane|ad)\b/i, "adet"],
-  [/^(demet)\b/i, "demet"],
+  // bağ = demet (ikisi de "bunch"); ayrı sınıf olmaları aynı ürünü ikiye bölüyordu
+  // (maydonoz[bağ] vs maydanoz[demet], roka vs roka-bag). turkishToAscii "bağ"ı "bag" yapar.
+  [/^(demet|bag)\b/i, "demet"],
   [/^(kasa)\b/i, "kasa"],
   // koli SART: fiyat gecmisinde fiilen kullanilan iki birimden biri (digeri kg).
   // Listede olmasaydi asagidaki "kg" varsayimina duser ve koli fiyatlari kg

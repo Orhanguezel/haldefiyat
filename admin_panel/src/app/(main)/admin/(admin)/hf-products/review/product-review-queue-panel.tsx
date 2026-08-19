@@ -4,7 +4,7 @@ import * as React from "react";
 
 import Link from "next/link";
 
-import { AlertTriangle, ArrowLeft, Link2, PackagePlus, RefreshCw, XCircle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Info, Link2, PackagePlus, RefreshCw, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -124,6 +124,54 @@ export default function ProductReviewQueuePanel() {
           </Link>
         </Button>
       </div>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Info className="size-4" />
+            Nasıl karar verilir?
+          </CardTitle>
+          <CardDescription>
+            ETL, ham adı mevcut ürün adı/alias&apos;ıyla (isim + birim anahtarı) eşleştiremeyince satır buraya düşer.
+            Karar verilene kadar o adın fiyat satırları <strong>kaydedilmez</strong> — kuyruk bekledikçe veri kaybolur.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <div className="flex gap-2">
+            <Link2 className="mt-0.5 size-4 shrink-0 text-primary" />
+            <p>
+              <strong>Alias bağla</strong> — ham ad mevcut bir ürünün farklı yazımı/kısaltmasıysa (örn. &quot;ÜÇBURUN KÖY
+              B.&quot; → Uçburun Köy Biberi). Ham ad hedef ürünün alias listesine eklenir, sonraki ETL koşusundan itibaren
+              fiyatlar o ürüne akar. Birim sınıfı aynı olmalı (kg↔kg; kg↔adet reddedilir).
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <PackagePlus className="mt-0.5 size-4 shrink-0 text-primary" />
+            <p>
+              <strong>Pasif taslak</strong> — ad gerçek ama katalogda karşılığı olmayan yeni bir çeşitse (örn. &quot;ÜZÜM
+              KAVACIK&quot;). Ürün pasif + noindex açılır. <strong>Pasif ürün ETL eşleşmesine girmez</strong> — verinin
+              akması için taslağı ürün düzenleme ekranından aktifleştirin ve tek başına sayfa olmaması için canonical
+              (birleştirme) ile ailesine bağlayın; böylece master sayfada kendi satırıyla görünür.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <XCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
+            <p>
+              <strong>Reddet</strong> — ad çöpse (sütun başlığı sızıntısı, çözülemeyen kısaltma). Satırlar sessizce
+              atlanmaya devam eder, kuyruğa tekrar düşmez. Anlamı sonradan çözülürse alias&apos;ı ürün düzenleme
+              ekranından elle ekleyin (karar burada tekrar açılamaz).
+            </p>
+          </div>
+          <div className="flex gap-2 rounded-md border border-amber-500/40 bg-amber-500/5 p-2">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600" />
+            <p>
+              <strong>Alias tuzağı:</strong> kaynak aynı gün hem genel adı hem çeşidi gönderiyorsa (İzmir: &quot;ÜZÜM&quot; +
+              &quot;ÜZÜM KAVACIK&quot;) çeşidi genel ürüne alias&apos;lamayın — iki satır aynı ürün+hal+tarihe düşer ve son
+              satır öncekini ezer. Bu durumda Taslak kullanın. &quot;Birim bilinmiyor&quot; rozetiyse parser işidir:
+              reddedip kaynağı geliştirme notuna ekleyin.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
       {data?.sla && data.sla.overdue > 0 && (
         <Card className="border-amber-500/50 bg-amber-500/5">
           <CardContent className="flex items-center gap-3 pt-6">

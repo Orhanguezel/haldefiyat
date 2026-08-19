@@ -652,7 +652,7 @@ function parseGaziantepHtml(html: string): NormalizedRow[] {
  * FİYAT formatı: "100,00 - 400,00 TL" (min - max) veya tekli fiyat.
  * Sayfa tarih parametresi almaz, daima güncel fiyatı döndürür.
  */
-function parseBursaHtml(html: string): NormalizedRow[] {
+export function parseBursaHtml(html: string): NormalizedRow[] {
   const out: NormalizedRow[] = [];
   const tables = extractTables(html);
   for (const table of tables) {
@@ -660,8 +660,9 @@ function parseBursaHtml(html: string): NormalizedRow[] {
       if (row.length < 3) continue;
       const name = row[0]!.trim();
       if (!name || /^(ürün|br|fiyat)$/i.test(name)) continue;
-      const divisor = packageDivisor(row[1] ?? "");
-      const unit = divisor > 1 ? "kg" : normalizeUnit(row[1] ?? "");
+      const rawUnit = row[1]?.trim() ?? "";
+      const divisor = packageDivisor(rawUnit);
+      const unit = divisor > 1 ? "kg" : normalizeUnit(rawUnit);
       // FİYAT: "100,00 - 400,00 TL" veya "150 TL"
       const priceRaw = (row[2] ?? "").replace(/&#8378;|TL|₺/gi, "").trim();
       const dashMatch = /^(.+?)\s*[-–]\s*(.+)$/.exec(priceRaw);
@@ -676,7 +677,15 @@ function parseBursaHtml(html: string): NormalizedRow[] {
       }
       if (min == null && max == null) continue;
       const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
-      out.push({ name, category: null, unit, avg, min, max });
+      // Bursa aynı ürünü aynı gün hem kg hem paket birimiyle yayımlayabiliyor
+      // (örn. "Limon | Kg." ve "Limon | Sandık"). Ürün eşleştirmesi yalnız ada
+      // bakarsa paket satırı unique (product, market, date) anahtarında kg satırının
+      // üstüne yazar. Paket birimini isme taşıyarak ayrı ürün kimliğine çözülmesini sağla.
+      const packageLabel = normalizeUnit(rawUnit) ?? "";
+      const productName = /\b(koli|kasa|sandik|cuval)\b/.test(packageLabel)
+        ? `${name} (${rawUnit})`
+        : name;
+      out.push({ name: productName, category: null, unit, avg, min, max });
     }
   }
   return out;
