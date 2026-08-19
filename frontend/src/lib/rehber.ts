@@ -45,7 +45,7 @@ export const REHBER_PAGES: Record<string, RehberPageConfig> = {
       {
         heading: "Grafik nasıl okunur?",
         paragraphs: [
-          "Her satırdaki çubuklar son 12 ayın ulusal hal medyanıdır (önce hal ortalaması, sonra haller arası medyan). Yeşil çubuk kayıtlardaki en düşük ayı, koyu çerçeve içinde bulunduğumuz ayı gösterir. Tek yılın kaydı olduğu için bunlar kesin takvim değil güçlü ipucudur; kaynak kapsamı ay içinde değişebilir.",
+          "Her ay için iki çubuk vardır: açık ton geçen yılın, koyu ton bu yılın ulusal hal medyanı (önce hal ortalaması, sonra haller arası medyan). İki yılın deseni yan yana okununca mevsim tekrarı görünür; “en uygun dönem” iki yılın geniş tabanlı (≥3 hal) kayıtlarından seçilir ve ay etiketi yeşil yazılır. Kaynak kapsamı yıldan yıla değiştiği için bu kesin yüzde kıyası değil eğilim bilgisidir.",
           "Turşuluk sınıfı (kornişon, yeşil domates) az sayıda halde ayrı etiketle kayda girer; bu satırlarda fiyat referans niteliğindedir. Geniş tabanlı satırlarda (10+ hal) medyan güvenilirdir.",
         ],
       },
@@ -88,7 +88,7 @@ export const REHBER_PAGES: Record<string, RehberPageConfig> = {
       {
         heading: "Grafik nasıl okunur?",
         paragraphs: [
-          "Çubuklar son 12 ayın ulusal hal medyanı; yeşil çubuk en düşük ay, koyu çerçeve içinde bulunduğumuz ay. Salçalık sınıfı (domates-salçalık, kapya) sofralıktan ayrı kayda girer — salça maliyeti hesaplarken sofralık domates fiyatına değil bu satırlara bakılmalıdır.",
+          "Her ayda açık ton geçen yılın, koyu ton bu yılın hal medyanıdır; “en uygun dönem” iki yılın geniş tabanlı kayıtlarından seçilir. Salçalık sınıfı (domates-salçalık, kapya) sofralıktan ayrı kayda girer — salça maliyeti hesaplarken sofralık domates fiyatına değil bu satırlara bakılmalıdır.",
         ],
       },
       {
@@ -128,7 +128,7 @@ export const REHBER_PAGES: Record<string, RehberPageConfig> = {
       {
         heading: "Grafik nasıl okunur?",
         paragraphs: [
-          "Çubuklar son 12 ayın ulusal hal medyanı; yeşil çubuk en düşük ay, koyu çerçeve bulunduğumuz ay. Meyvede boy ve kalite sınıfı fiyatı sofralık-sanayilik ekseninde ayrıştırır: reçel için birinci sınıf sofralık şart değildir, aralığın alt ucundaki kayıtlar çoğu zaman reçellik iş görür.",
+          "Her ayda açık ton geçen yılın, koyu ton bu yılın hal medyanıdır; “en uygun dönem” iki yılın geniş tabanlı kayıtlarından seçilir. Meyvede boy ve kalite sınıfı fiyatı sofralık-sanayilik ekseninde ayrıştırır: reçel için birinci sınıf sofralık şart değildir, aralığın alt ucundaki kayıtlar çoğu zaman reçellik iş görür.",
         ],
       },
       {
@@ -171,63 +171,86 @@ const median = (values: number[]): number | null => {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 };
 
-export interface SeasonalityMonth {
-  ym: string;
-  label: string;
-  medianPrice: number | null;
+export interface SeasonPoint {
+  price: number | null;
   marketCount: number;
 }
 
-export interface Seasonality {
-  months: SeasonalityMonth[];
-  cheapest: SeasonalityMonth | null;
-  current: SeasonalityMonth | null;
-  maxPrice: number;
+export interface CalendarCell {
+  month: number;
+  label: string;
+  lastYear: SeasonPoint;
+  thisYear: SeasonPoint;
 }
 
-/** Aylik bucket'li history'den 12 aylik mevsimsellik: hal-basi medyan / ay. */
+export interface Seasonality {
+  cells: CalendarCell[];
+  /** Iki serinin ≥3 hallik degerleri arasindaki en dusuk nokta. */
+  cheapest: { label: string; year: number; price: number } | null;
+  current: { label: string; price: number | null; marketCount: number } | null;
+  maxPrice: number;
+  thisYearLabel: number;
+  lastYearLabel: number;
+}
+
+/**
+ * Aylik bucket'li history'den (≤24 ay) takvim-hizali cift seri mevsimsellik:
+ * gecen yilin egrisi + bu yilin egrisi yan yana, "en ucuz donem" iki yilin
+ * ≥3 hallik degerlerinden secilir (tek-hal ayi yaniltir).
+ */
 export function buildSeasonality(history: PriceHistoryRow[], now: Date): Seasonality {
-  const byMonth = new Map<string, Map<string, number[]>>();
+  const byYearMonth = new Map<string, Map<string, number[]>>();
   for (const row of history) {
     if (row.cityName === "Türkiye") continue;
     const value = toNum(row.avgPrice);
     if (value == null) continue;
     const ym = row.recordedDate.slice(0, 7);
-    const markets = byMonth.get(ym) ?? new Map<string, number[]>();
+    const markets = byYearMonth.get(ym) ?? new Map<string, number[]>();
     const list = markets.get(row.marketSlug) ?? [];
     list.push(value);
     markets.set(row.marketSlug, list);
-    byMonth.set(ym, markets);
+    byYearMonth.set(ym, markets);
   }
 
-  const months: SeasonalityMonth[] = [];
-  for (let i = 11; i >= 0; i -= 1) {
-    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
-    const ym = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-    const markets = byMonth.get(ym);
+  const pointFor = (year: number, month: number): SeasonPoint => {
+    const ym = `${year}-${String(month + 1).padStart(2, "0")}`;
+    const markets = byYearMonth.get(ym);
     const marketAvgs = markets
       ? [...markets.values()].map((values) => values.reduce((a, b) => a + b, 0) / values.length)
       : [];
-    months.push({
-      ym,
-      label: AY_KISA[d.getUTCMonth()],
-      medianPrice: median(marketAvgs),
-      marketCount: marketAvgs.length,
+    return { price: median(marketAvgs), marketCount: marketAvgs.length };
+  };
+
+  const thisYearLabel = now.getUTCFullYear();
+  const lastYearLabel = thisYearLabel - 1;
+  const currentMonth = now.getUTCMonth();
+
+  const cells: CalendarCell[] = [];
+  for (let month = 0; month < 12; month += 1) {
+    cells.push({
+      month,
+      label: AY_KISA[month],
+      lastYear: pointFor(lastYearLabel, month),
+      thisYear: month <= currentMonth ? pointFor(thisYearLabel, month) : { price: null, marketCount: 0 },
     });
   }
 
-  const withData = months.filter((m) => m.medianPrice != null);
-  // Tek halin kaydettigi ay "en ucuz" secilirse genis tabanli aylari yaniltir;
-  // en dusuk ay ≥3 hallik aylardan secilir, oyle ay yoksa eldekiyle yetinilir.
-  const broadBase = withData.filter((m) => m.marketCount >= 3);
-  const pool = broadBase.length ? broadBase : withData;
-  const cheapest = pool.length
-    ? pool.reduce((best, m) => ((m.medianPrice as number) < (best.medianPrice as number) ? m : best))
-    : null;
+  const candidates: Array<{ label: string; year: number; price: number; marketCount: number }> = [];
+  for (const cell of cells) {
+    if (cell.lastYear.price != null) candidates.push({ label: cell.label, year: lastYearLabel, price: cell.lastYear.price, marketCount: cell.lastYear.marketCount });
+    if (cell.thisYear.price != null) candidates.push({ label: cell.label, year: thisYearLabel, price: cell.thisYear.price, marketCount: cell.thisYear.marketCount });
+  }
+  const broadBase = candidates.filter((c) => c.marketCount >= 3);
+  const pool = broadBase.length ? broadBase : candidates;
+  const cheapest = pool.length ? pool.reduce((best, c) => (c.price < best.price ? c : best)) : null;
+  const currentCell = cells[currentMonth];
+
   return {
-    months,
-    cheapest,
-    current: months.at(-1) ?? null,
-    maxPrice: Math.max(1, ...withData.map((m) => m.medianPrice as number)),
+    cells,
+    cheapest: cheapest ? { label: cheapest.label, year: cheapest.year, price: cheapest.price } : null,
+    current: { label: currentCell.label, price: currentCell.thisYear.price, marketCount: currentCell.thisYear.marketCount },
+    maxPrice: Math.max(1, ...candidates.map((c) => c.price)),
+    thisYearLabel,
+    lastYearLabel,
   };
 }

@@ -34,9 +34,9 @@ export async function generateMetadata({ params }: Props) {
 
 function verdictFor(season: Seasonality): { text: string; tone: "green" | "amber" | "neutral" } | null {
   const { cheapest, current } = season;
-  if (!cheapest?.medianPrice) return null;
-  if (!current?.medianPrice) return { text: "Bu ay kayıt yok", tone: "neutral" };
-  const ratio = current.medianPrice / cheapest.medianPrice;
+  if (!cheapest) return null;
+  if (!current?.price) return { text: "Bu ay kayıt yok", tone: "neutral" };
+  const ratio = current.price / cheapest.price;
   if (ratio <= 1.15) return { text: "Uygun dönem", tone: "green" };
   if (ratio >= 2) return { text: "Pahalı dönem", tone: "amber" };
   return { text: "Orta seviye", tone: "neutral" };
@@ -64,41 +64,52 @@ function BasketRow({ item, season }: { item: RehberBasketItem; season: Seasonali
         {verdict ? <span className={`rounded-full px-3 py-1 text-xs font-bold ${toneClass}`}>{verdict.text}</span> : null}
       </div>
 
-      {cheapest?.medianPrice ? (
+      {cheapest ? (
         <>
           <div className="mt-4 flex gap-1" aria-hidden>
-            {season.months.map((month) => {
-              const value = month.medianPrice;
+            {season.cells.map((cell) => {
               // Yuzde yukseklik auto-yukseklikli flex kapsayicida 0'a coker; piksel kullan.
-              const barPx = value ? Math.max(6, Math.round((value / season.maxPrice) * 64)) : 0;
-              const isCheapest = month.ym === cheapest.ym;
-              const isCurrent = month.ym === current?.ym;
+              const px = (v: number | null) => (v ? Math.max(6, Math.round((v / season.maxPrice) * 64)) : 0);
+              const isCheapestMonth = cell.label === cheapest.label;
+              const isCurrent = cell.month === (current ? season.cells.findIndex((c) => c.label === current.label) : -1);
+              const tip = [
+                cell.lastYear.price ? `${season.lastYearLabel}: ${fmt(cell.lastYear.price)} ₺ (${cell.lastYear.marketCount} hal)` : null,
+                cell.thisYear.price ? `${season.thisYearLabel}: ${fmt(cell.thisYear.price)} ₺ (${cell.thisYear.marketCount} hal)` : null,
+              ].filter(Boolean).join(" · ") || `${cell.label}: kayıt yok`;
               return (
-                <div key={month.ym} className="flex flex-1 flex-col items-center gap-1" title={value ? `${month.label}: ${fmt(value)} ₺ (${month.marketCount} hal)` : `${month.label}: kayıt yok`}>
-                  <div className="flex h-16 w-full items-end">
-                    {value ? (
-                      <div
-                        className={`w-full rounded-t ${isCheapest ? "bg-(--color-brand)" : "bg-(--color-brand)/25"} ${isCurrent ? "ring-2 ring-(--color-foreground)/60" : ""}`}
-                        style={{ height: `${barPx}px` }}
-                      />
+                <div key={cell.month} className="flex flex-1 flex-col items-center gap-1" title={`${cell.label} — ${tip}`}>
+                  <div className="flex h-16 w-full items-end justify-center gap-px">
+                    {cell.lastYear.price ? (
+                      <div className="w-1/2 rounded-t bg-(--color-brand)/25" style={{ height: `${px(cell.lastYear.price)}px` }} />
                     ) : (
-                      <div className="h-1 w-full rounded bg-(--color-border)" />
+                      <div className="h-1 w-1/2 rounded bg-(--color-border)" />
+                    )}
+                    {cell.thisYear.price ? (
+                      <div className="w-1/2 rounded-t bg-(--color-brand)" style={{ height: `${px(cell.thisYear.price)}px` }} />
+                    ) : (
+                      <div className="h-1 w-1/2 rounded bg-(--color-border)/60" />
                     )}
                   </div>
-                  <span className={`text-[9px] leading-none ${isCurrent ? "font-bold text-(--color-foreground)" : "text-(--color-muted)"}`}>{month.label}</span>
+                  <span className={`text-[9px] leading-none ${isCheapestMonth ? "font-bold text-(--color-brand)" : isCurrent ? "font-bold text-(--color-foreground)" : "text-(--color-muted)"}`}>
+                    {cell.label}
+                  </span>
                 </div>
               );
             })}
           </div>
+          <div className="mt-2 flex items-center gap-4 text-[11px] text-(--color-muted)">
+            <span className="inline-flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-(--color-brand)/25" /> {season.lastYearLabel}</span>
+            <span className="inline-flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-(--color-brand)" /> {season.thisYearLabel}</span>
+          </div>
           <p className="mt-3 text-sm text-(--color-muted)">
-            En düşük: <strong className="text-(--color-brand)">{cheapest.label} — {fmt(cheapest.medianPrice)} ₺/kg</strong>
-            {current?.medianPrice ? (
-              <> · Şu an ({current.label}): <strong className="text-(--color-foreground)">{fmt(current.medianPrice)} ₺/kg</strong> · {current.marketCount} hal</>
+            En uygun dönem (kayıtlarda): <strong className="text-(--color-brand)">{cheapest.label} — {fmt(cheapest.price)} ₺/kg ({cheapest.year})</strong>
+            {current?.price ? (
+              <> · Şu an ({current.label} {season.thisYearLabel}): <strong className="text-(--color-foreground)">{fmt(current.price)} ₺/kg</strong> · {current.marketCount} hal</>
             ) : null}
           </p>
         </>
       ) : (
-        <p className="mt-3 text-sm text-(--color-muted)">Son 12 ayda bu ürün için yeterli hal kaydı oluşmadı.</p>
+        <p className="mt-3 text-sm text-(--color-muted)">Son iki yılda bu ürün için yeterli hal kaydı oluşmadı.</p>
       )}
     </div>
   );
@@ -114,7 +125,7 @@ export default async function RehberPage({ params }: Props) {
   const seasons = await Promise.all(
     config.basket.map(async (item) => ({
       item,
-      season: buildSeasonality(await fetchPriceHistory(item.slug, undefined, "365d", "monthly"), now),
+      season: buildSeasonality(await fetchPriceHistory(item.slug, undefined, "730d", "monthly"), now),
     })),
   );
 
