@@ -120,6 +120,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name="theme-color" content="#10b981" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#0c5e3a" media="(prefers-color-scheme: dark)" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="HaldeFiyat" />

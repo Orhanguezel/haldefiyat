@@ -13,6 +13,11 @@ import { pool } from "@/db/client";
 
 const HAL_INTENT_PATHS = ["/pro", "/embed", "/api-docs"];
 
+// 3.9M satirli audit tablosunda planlayici created index'ini atlayip tam tarama
+// yapiyor (overview cold 100+ sn olculdu; ayni sorun data-pullers'ta FORCE INDEX
+// ile cozulmustu). Index adi hal semasinin bilgisi — audit-consumers ile ayni.
+const HAL_AUDIT_INDEX_HINT = "FORCE INDEX (audit_request_logs_created_idx)";
+
 const HAL_FUNNEL_STEPS: AnalyticsFunnelStep[] = [
   { key: "landing_pageviews", path: "/canli-hal-fiyatlari" },
   { key: "alerts_pageviews", path: "/uyarilar" },
@@ -141,10 +146,10 @@ async function productKpis(days: number) {
 export async function warmAnalyticsCache(): Promise<void> {
   const { repoGetAnalyticsOverview } = await import("@agro/shared-backend/modules/analytics/repo-overview");
   const { repoGetRetention } = await import("@agro/shared-backend/modules/analytics/repo-extra");
-  const options = { intentPaths: HAL_INTENT_PATHS, funnelSteps: HAL_FUNNEL_STEPS };
+  const options = { intentPaths: HAL_INTENT_PATHS, funnelSteps: HAL_FUNNEL_STEPS, auditIndexHint: HAL_AUDIT_INDEX_HINT };
   for (const range of ["7d", "30d"] as const) {
     await repoGetAnalyticsOverview(options, range);
-    await repoGetRetention(range);
+    await repoGetRetention(range, true, HAL_AUDIT_INDEX_HINT);
   }
 }
 
@@ -152,6 +157,7 @@ export async function registerAnalyticsAdmin(adminApi: FastifyInstance) {
   await registerSharedAnalyticsAdmin(adminApi, {
     intentPaths: HAL_INTENT_PATHS,
     funnelSteps: HAL_FUNNEL_STEPS,
+    auditIndexHint: HAL_AUDIT_INDEX_HINT,
   });
 
   // CTA huni ozeti — hal'e ozgu oldugu icin ortak modulde degil burada.

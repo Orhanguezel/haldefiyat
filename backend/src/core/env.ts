@@ -193,9 +193,9 @@ export const env = {
     // Audit log retention — ~67K satir/gun; analitik UI max 30 gun gosterir, o pencereyi koru
     auditRetentionSchedule: process.env.AUDIT_RETENTION_CRON_SCHEDULE || "30 3 * * *",
     // Analitik cache isiticisi: overview/retention sorgulari 3.9M satirli log
-    // tablosunda cold-cache'te 1+ dk suruyor; cron cache'i once isitir, panel
-    // hep sicak cache'ten okur. TTL 15 dk — 10 dk'lik isitma bosluk birakmaz.
-    analyticsWarmSchedule: process.env.ANALYTICS_WARM_CRON_SCHEDULE || "*/10 * * * *",
+    // tablosunda pahali; cron cache'i once isitir, panel hep sicak okur.
+    // TTL 40 dk — 30 dk'lik isitma bosluk birakmaz, DB'yi de bogmaz.
+    analyticsWarmSchedule: process.env.ANALYTICS_WARM_CRON_SCHEDULE || "*/30 * * * *",
     auditRetentionDays: parseEnvInt(process.env.AUDIT_RETENTION_DAYS, 30),
     // Erken uyari — firlaan temel gida tespiti; pazartesi 06:00 UTC (haftalik veri oturunca)
     earlyWarningSchedule: process.env.EARLY_WARNING_CRON_SCHEDULE || "0 6 * * 1",
