@@ -217,8 +217,12 @@ export function buildSeasonality(history: PriceHistoryRow[], now: Date): Seasona
   }
 
   const withData = months.filter((m) => m.medianPrice != null);
-  const cheapest = withData.length
-    ? withData.reduce((best, m) => ((m.medianPrice as number) < (best.medianPrice as number) ? m : best))
+  // Tek halin kaydettigi ay "en ucuz" secilirse genis tabanli aylari yaniltir;
+  // en dusuk ay ≥3 hallik aylardan secilir, oyle ay yoksa eldekiyle yetinilir.
+  const broadBase = withData.filter((m) => m.marketCount >= 3);
+  const pool = broadBase.length ? broadBase : withData;
+  const cheapest = pool.length
+    ? pool.reduce((best, m) => ((m.medianPrice as number) < (best.medianPrice as number) ? m : best))
     : null;
   return {
     months,
