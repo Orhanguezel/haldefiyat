@@ -1519,6 +1519,13 @@ export async function registerHalAdmin(app: FastifyInstance) {
     });
   });
 
+  /** WhatsApp kanal taslagini istege bagli yeniden uret — admin Telegram sohbetine duser. */
+  app.post("/hal/whatsapp/draft", async (_req, reply) => {
+    const { publishWhatsappDraft } = await import("@/modules/whatsapp-channel/publisher");
+    const result = await publishWhatsappDraft();
+    return reply.send({ ok: result.sent, ...result });
+  });
+
   /** Saglik denetimini elle calistir. ?notify=1 ise Telegram/e-posta uyarisi da gonderir. */
   app.post<{ Querystring: { notify?: string } }>("/hal/etl/health-check", async (req, reply) => {
     if (req.query?.notify === "1") {

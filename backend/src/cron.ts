@@ -7,6 +7,7 @@ import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
 import { checkAndNotifyEtlHealth } from "@/modules/etl/health";
 import { runCompetitorCheck } from "@/modules/competitor-monitor";
 import { publishDailyReport } from "@/modules/telegram-channel/publisher";
+import { publishWhatsappDraft } from "@/modules/whatsapp-channel/publisher";
 import { runAllProductionSources } from "@/modules/etl/production-fetcher";
 import { getSourceByKey } from "@/config/etl-sources";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
@@ -520,6 +521,15 @@ async function runChannelPublishJob(app: FastifyInstance): Promise<void> {
     app.log.info("[cron:channel-publish] tamamlandı");
   } catch (err) {
     app.log.error({ err }, "[cron:channel-publish] hata");
+  }
+  // WhatsApp kanalina resmi API yok — ayni icerigin WhatsApp-formatli taslagi
+  // admin Telegram sohbetine duser (kopyala -> kanala yapistir). Telegram
+  // paylasimi patlasa bile taslak bagimsiz denenir.
+  try {
+    const r = await publishWhatsappDraft();
+    app.log.info(r, "[cron:channel-publish] whatsapp taslagi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:channel-publish] whatsapp taslagi hata");
   }
 }
 
