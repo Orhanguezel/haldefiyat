@@ -48,16 +48,18 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 > **GERÇEK İSTİSNA — git'te OLMAYAN:** `/home/orhan/Documents/Projeler/wiribude`
 > GitHub'da takip edilmiyor. Sadece bu tür repolar git akışı dışında.
 
-> **➡️ Sonraki oturumda yapilacak isler:** [`KALAN-ISLER.md`](./KALAN-ISLER.md)
+> **➡️ Sonraki oturumda yapilacak isler:**
+> [`HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md` **§16 Oturum kuyrugu (2026-08-19)**](./HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md)
+> — KALAN-ISLER.md kaldirildi, tek yurutme kaynagi kok checklist. Sira: S1 reklam
+> medya kiti → S2 Mersin/Erdemli limon sayfasi → S3 nar / S4 tursuluk (mevsim
+> penceresi) → S5 audit rollup tablosu → S6 deploy OOM → S7 Kayseri ETL → S8
+> haftalik WhatsApp koprusu. Tarihli kontroller: S11 (26 Agu CTA+404), S12
+> (2 Eyl yenileme etkisi), S13 (Kasim AI-crawler karari).
 >
-> **🔴 2026-07-20 oturumu — VERI KALITESI acik isleri KALAN-ISLER.md'nin BASINDA.**
-> En buyugu: `avg_price` kayitlarin %79'unda SENTETIK (min-max orta noktasi). Bulten icin
-> makas filtresi kondu ama asil cozum ETL'de; sitedeki tum fiyatlari ve raporlari etkiliyor.
+> **🔴 VERI KALITESI acik isi (2026-07-20'den beri):** `avg_price` kayitlarin
+> %79'unda SENTETIK (min-max orta noktasi). Bulten icin makas filtresi kondu ama
+> asil cozum ETL'de; sitedeki tum fiyatlari ve raporlari etkiliyor.
 > Detay: [`docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md`](./docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md)
->
-> Hizli baslangic siralamasi: #60 (changePct dogrulama) → #62 (competitor admin
-> UI) → #34 (Turkiye haritasi) → #41 (embed widget). Diger acik isler ve
-> beklemeler bu dosyada kategorize.
 
 > **🎯 Google Ads kurulum + 2-gun analiz optimizasyon:** [`ADS-SETUP-CHECKLIST.md`](./docs/checklists/ADS-SETUP-CHECKLIST.md)
 >

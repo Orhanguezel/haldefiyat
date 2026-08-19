@@ -673,3 +673,35 @@
 - [X] E49 Üretici çalışırken çıkan iki gerçek hata düzeltildi: (1) Drizzle `date` kolonuna JS `Date` verilince sürücü tam datetime gönderiyor, DATE ile hiç eşleşmiyordu → takip listesi bölümü sessizce hiç üretilmiyordu (karşılaştırma artık `'YYYY-MM-DD'` metniyle); (2) −%0,2'lik hareket teknik olarak yeni dip olduğu için "Yeni Dipte" etiketleniyordu → yataylaşma kontrolü yeni-dip'ten öne alındı. Ayrıca seed 026'da eksik olan `reviewed_by`/`reviewed_at` eklendi (canlı tabloda vardı, fresh seed yayın akışını kırardı).
 - [X] E48 Türkçe İ-casefold artığı temizliği (2026-08-18): kaynak ALL-CAPS verinin hatalı küçültülmesinden gelen görünen ad hataları düzeltildi — `İncir` (id 413) + 8 balık/ithal ürünü (İskorpit, İsparoz, İstavrit ×2, İthal Uskumru, İzmarit, İskatarya, İspari) ve `hf_product_editorial` id 30 `about_md` metni. `Ispanak`/`Isırgan` aileleri DOĞRU olduğu için dokunulmadı (ıspanak/ısırgan gerçekten dotless). Tespit yöntemi: `LIKE BINARY` — ci collation İ/I/ı'yı eşitlediği için normal `LIKE` yanlış pozitif verir.
 - [X] E50 İletişim e-postası düzeltildi (2026-08-18): `@haldefiyat.com`'da gerçek posta kutusu olmadığı için kullanıcıya gösterilen tüm adresler `info@gzlteknoloji.com` oldu — KVKK, gizlilik, kullanım koşulları, şeffaflık/düzeltme/editoryal/sahiplik sayfaları, iletişim formu, basın sayfası, ilan şikâyet + rapor düzeltme `mailto:` bağlantıları, `site_settings.contact_email` ve Organization JSON-LD. Kod+seed (25 yer) ve canlı DB (1 ayar + 6 sayfa) birlikte güncellendi; 8 politika sayfası ve 15 rota canlıda tarandı, eski adresten iz yok. **`SMTP_FROM` DEĞİŞTİRİLMEDİ:** `noreply@haldefiyat.com` Resend'de DKIM/SPF/DMARC ile doğrulanmış *gönderim kimliği*, posta kutusu değil; değiştirmek tüm giden postayı durdururdu. Bunun yerine her iki gönderim yoluna da (`alerts/email.ts` + shared `sendBereketMail` kullanan `call-request-email.ts`) `Reply-To: CONTACT_EMAIL` eklendi, böylece kullanıcı yanıtı gerçek kutuya düşer. Basın seed'indeki `dogrulanacak+<slug>@haldefiyat.com` adresleri bilinçli placeholder olduğu için korundu.
+
+## 16. Oturum kuyruğu — 2026-08-19 (gelir + içerik + teknik borç)
+
+19 Ağustos oturumunun ürettiği iş kuyruğu. §0 kuralları geçerlidir; her madde kapanırken kanıt (commit, canlı URL, ölçüm) bu satıra işlenir. Öncelik sırası: S1 → S2 → S3/S4 → S5 → geri kalan.
+
+### 16.1 Gelir — reklam envanterini satışa çıkarma
+
+- [ ] S1 **Reklam satış sayfası + PDF medya kiti.** F10.5'teki pilot-ready vitrin satılabilir malzemeye çevrilir: tek sayfalık "HaldeFiyat'ta Reklam" public sayfası + PDF medya kiti. Gerçek, ölçülmüş rakamlarla: ~1,86M istek/ay (61,9K/gün insan), %78 mobil, 52.102 aylık banner gösterimi, slot bazlı CTR tablosu, hedefli firma-detay/ürün sayfası envanteri. Fiyat alanları BOŞ bırakılır (Orhan/Atakan doldurur). Çıktı Atakan'ın 250+ kişilik sektör ağına gönderilecek somut satış aracıdır; ilk dış reklamveren kapısı (F10.5 `BLOCKED-EXTERNAL`) bu malzeme olmadan açılamıyor.
+
+### 16.2 İçerik fırsatları (GSC ölçümlü, mevsim pencereli)
+
+- [ ] S2 **Mersin/Erdemli günlük limon piyasası sayfası.** Ayda 11.000+ gösterimli "mersin limon / erdemli limon piyasası" sorgu ailesi neredeyse tıksız; "günlük" varyantı %6,3 CTR ile talebin şeklini gösteriyor → canlı veri + günlük tek cümle yorumlu KALICI şehir-ürün sayfası (haber makalesi değil). Ham veri: `scripts/seo/limon-opportunity-data.mjs` + `reports/limon-fiyatlari-2026-mersin-erdemli-piyasa-analizi.html`. Şablon nar/mandalina'ya genişleyecek şekilde kurulur.
+- [ ] S3 **Nar sezon açılışı analizi.** Mevsim penceresi açık (Ağu sonu–Eyl); sezon açılış fiyatları + geçmiş yıl karşılaştırma + hal bazlı tablo. Pencere kaçarsa değeri düşer — S2 ile aynı hafta.
+- [ ] S4 **Turşuluk sezonu rehberi.** 19 Ağu'da indexe giren turşuluk biber/salatalık sayfalarının üstüne rehber içerik (turşuluk ürün seçimi + güncel hal fiyatları + bölge farkları); mevcut indexli sayfalara iç link verir.
+
+### 16.3 Teknik borç
+
+- [ ] S5 **Audit rollup tablosu.** `audit_request_logs` 3,9M satır; overview/retention cold sorgular ~200 sn (FORCE INDEX hint'i kazanç vermedi — ölçüldü). Kalıcı çözüm: günlük per-day/per-segment rollup tablosu (yeni CREATE, seed dosyasına — ALTER yok); overview/retention rollup'tan okur, canlı tabloya yalnız bugün için iner. Alternatif/tamamlayıcı: audit-retention cron penceresini 90 güne çekip tabloyu budamak. Bugünkü geçici çözüm (analytics-warm cron */30 + TTL 40 dk) bu iş bitince sadeleştirilir.
+- [ ] S6 **deploy.sh admin-build OOM koruması.** Turbopack admin build'i (2,2 GB) 7,9 GB RAM kutuda iki kez OOM'landı (ikincisinde pm2 daemon dahil düştü, ~30 sn 502). Yapısal öneri: admin build adımına `NODE_OPTIONS=--max-old-space-size` sınırı VEYA build sırasında 1 frontend worker'ı geçici durdurup sonra geri açma. Kural şimdiden geçerli: admin build'i art arda tekrar DENEME; admin'de değişiklik yoksa düşen admin adımı zararsız.
+- [ ] S7 **Kayseri ETL kaynağı.** AngularJS sayfa, AJAX endpoint reverse-engineering gerekli (browser Network sekmesi ile). 1.177 gösterimlik "kayseri hal fiyatları" sorgu ailesi veri beklediği için içerik tarafı da bu kaynağa bağlı.
+- [ ] S8 **Haftalık WhatsApp köprüsü.** Günlük taslak köprüsü canlı (`whatsapp-channel/publisher.ts` → Telegram admin sohbeti); haftalık analiz raporunun WhatsApp-formatlı ikizi henüz yok. Haftalık rapor yayınlandığında aynı köprüden özet taslak düşürülür.
+
+### 16.4 Karar bekleyenler (Orhan/Atakan — kod işi değil)
+
+- [ ] S9 Eklenti kataloğundan sıradaki gelir pilotu seçimi (ör. WhatsApp 1:1 fiyat hattı). Katalog: `haldefiyat-eklenti-katalogu.pdf`. Seçim yapılınca ilgili faz maddesi açılır.
+- [ ] S10 S1 medya kiti hazır olunca fiyatlama + ilk temas listesi (Atakan ağı) — F10.5 kapısının insan tarafı.
+
+### 16.5 Takvimli ölçümler (iş değil, tarihli kontrol)
+
+- [ ] S11 **26 Ağustos:** CTA yüzey dönüşümleri (admin cta-funnel: `home_mobile` CtaNewsletter + /fiyatlar WhatsApp butonu ilk hafta verisi) + GSC 404/index eğrisi kontrolü (19 Ağu merge turlarının etkisi).
+- [ ] S12 **2 Eylül:** site yenilemesinin davranış etkisi yeniden ölçümü (bounce/derinlik/dönüş — yenileme-etki raporundaki 2 haftalık bekleme).
+- [ ] S13 **Kasım başı:** AI crawler kanalı tut/kıs kararı — llms.txt/AI görünürlüğü ölçülebilir trafik veya gelir getirmediyse export dışı JSON uçları da AI botlarına kapatılır (bugünkü durum: ~8,7K istek/ay, gelir 0, maliyet ihmal edilebilir).
