@@ -680,7 +680,7 @@
 
 ### 16.1 Gelir — reklam envanterini satışa çıkarma
 
-- [ ] S1 **Reklam satış sayfası + PDF medya kiti.** F10.5'teki pilot-ready vitrin satılabilir malzemeye çevrilir: tek sayfalık "HaldeFiyat'ta Reklam" public sayfası + PDF medya kiti. Gerçek, ölçülmüş rakamlarla: ~1,86M istek/ay (61,9K/gün insan), %78 mobil, 52.102 aylık banner gösterimi, slot bazlı CTR tablosu, hedefli firma-detay/ürün sayfası envanteri. Fiyat alanları BOŞ bırakılır (Orhan/Atakan doldurur). Çıktı Atakan'ın 250+ kişilik sektör ağına gönderilecek somut satış aracıdır; ilk dış reklamveren kapısı (F10.5 `BLOCKED-EXTERNAL`) bu malzeme olmadan açılamıyor.
+- [X] S1 **Reklam satış sayfası + PDF medya kiti.** TAMAMLANDI (2026-08-19, commit a25a9805, canlı doğrulandı): `reports/haldefiyat-medya-kiti-2026-08.pdf` (4 sayfa; ölçülmüş trafik/kitle/slot CTR tabloları, fiyat alanları boş) + canlı indirme `haldefiyat.com/files/haldefiyat-medya-kiti-2026-08.pdf` (200, application/pdf) + `/reklam-ver`'e canlı overview rakam şeridi ve indirme butonları. Sayfaya sabit trafik sayısı yazılmadı (R1.12); tarihli sayılar PDF'te. Yan kazanım: CTA ölçüm enum bug'ı düzeltildi (home_mobile/whatsapp sessiz 400 yiyordu; artık 204 + funnel'da WhatsApp kolonu). Orijinal kapsam: F10.5'teki pilot-ready vitrin satılabilir malzemeye çevrilir: tek sayfalık "HaldeFiyat'ta Reklam" public sayfası + PDF medya kiti. Gerçek, ölçülmüş rakamlarla: ~1,86M istek/ay (61,9K/gün insan), %78 mobil, 52.102 aylık banner gösterimi, slot bazlı CTR tablosu, hedefli firma-detay/ürün sayfası envanteri. Fiyat alanları BOŞ bırakılır (Orhan/Atakan doldurur). Çıktı Atakan'ın 250+ kişilik sektör ağına gönderilecek somut satış aracıdır; ilk dış reklamveren kapısı (F10.5 `BLOCKED-EXTERNAL`) bu malzeme olmadan açılamıyor.
 
 ### 16.2 İçerik fırsatları (GSC ölçümlü, mevsim pencereli)
 
@@ -702,6 +702,6 @@
 
 ### 16.5 Takvimli ölçümler (iş değil, tarihli kontrol)
 
-- [ ] S11 **26 Ağustos:** CTA yüzey dönüşümleri (admin cta-funnel: `home_mobile` CtaNewsletter + /fiyatlar WhatsApp butonu ilk hafta verisi) + GSC 404/index eğrisi kontrolü (19 Ağu merge turlarının etkisi).
+- [ ] S11 **26 Ağustos:** CTA yüzey dönüşümleri (admin cta-funnel: `home_mobile` CtaNewsletter + /fiyatlar WhatsApp butonu ilk hafta verisi) + GSC 404/index eğrisi kontrolü (19 Ağu merge turlarının etkisi). NOT: home_mobile/whatsapp ölçümü enum bug'ı yüzünden 19 Ağu gecesine kadar kayıt DÜŞMEDİ (a25a9805 ile düzeldi) — hafta verisini 20 Ağu'dan başlat.
 - [ ] S12 **2 Eylül:** site yenilemesinin davranış etkisi yeniden ölçümü (bounce/derinlik/dönüş — yenileme-etki raporundaki 2 haftalık bekleme).
 - [ ] S13 **Kasım başı:** AI crawler kanalı tut/kıs kararı — llms.txt/AI görünürlüğü ölçülebilir trafik veya gelir getirmediyse export dışı JSON uçları da AI botlarına kapatılır (bugünkü durum: ~8,7K istek/ay, gelir 0, maliyet ihmal edilebilir).
