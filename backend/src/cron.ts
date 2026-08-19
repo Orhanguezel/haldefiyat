@@ -20,6 +20,7 @@ import { runFirmDirectoryEtl } from "@/modules/firms/service";
 import { runFirmDailyPriceReminders } from "@/modules/firms/reminders";
 import { expireListings, purgeListingPersonalData, sendListingExpiryReminders } from "@/modules/listings";
 import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
+import { warmAnalyticsCache } from "@/modules/analytics";
 import { submitToIndexNow } from "@/modules/indexnow";
 import { cleanupOldEtlRuns } from "@/modules/etl/maintenance";
 import { cleanupOldAuditLogs } from "@/modules/audit-consumers/retention";
@@ -77,6 +78,7 @@ export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] }
     { name: "search-volume-sync", schedule: E.searchVolumeSchedule,     category: "seo",      description: "GSC gosterimlerinden arama hacmi doldur (haftalik)" },
     { name: "etl-retention",      schedule: E.runRetentionSchedule,     category: "bakim",    description: "Eski ETL run loglarini buda (aylik, son 90 gun tutulur)" },
     { name: "audit-retention",    schedule: E.auditRetentionSchedule,   category: "bakim",    description: "Eski audit loglarini buda (gunluk)" },
+    { name: "analytics-warm",     schedule: E.analyticsWarmSchedule,    category: "bakim",    description: "Analitik overview/retention cache isiticisi (panel cold-cache beklemesin)" },
     { name: "listing-privacy-retention", schedule: E.auditRetentionSchedule, category: "bakim", description: "Cozulmus arama talebi ve suresi gecmis OTP verisini buda" },
     { name: "social-queue",       schedule: S.queueSchedule,            category: "sosyal",   description: "Sosyal medya yayin kuyrugunu isle" },
     { name: "social-daily-movers", schedule: S.dailyMoversSchedule,     category: "sosyal",   description: "Gunun en cok degisen fiyatlarini tweet et" },
@@ -107,6 +109,7 @@ export function startCron(app: FastifyInstance): void {
     { name: "etl-retention",    schedule: env.ETL.runRetentionSchedule,    handler: () => runEtlRetentionJob(app) },
     // Günlük audit log retention — tablo ~67K satir/gun büyüyor, pencere dışını buda
     { name: "audit-retention",  schedule: env.ETL.auditRetentionSchedule,   handler: () => runAuditRetentionJob(app) },
+    { name: "analytics-warm",   schedule: env.ETL.analyticsWarmSchedule,    handler: () => runAnalyticsWarmJob(app) },
     { name: "listing-privacy-retention", schedule: env.ETL.auditRetentionSchedule, handler: () => runListingPrivacyRetentionJob(app) },
     // Haftalık erken uyarı — fırlayan temel gıdaları (soğan imzası) proaktif bildir
     { name: "early-warning",    schedule: env.ETL.earlyWarningSchedule,     handler: () => runEarlyWarningJob(app) },
@@ -360,6 +363,16 @@ async function runWeeklyAnalysisJob(app: FastifyInstance): Promise<void> {
     );
   } catch (err) {
     app.log.error({ err }, "[cron:weekly-analysis] hata");
+  }
+}
+
+async function runAnalyticsWarmJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  try {
+    await warmAnalyticsCache();
+    app.log.info({ durationMs: Date.now() - t0 }, "[cron:analytics-warm] cache isitildi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:analytics-warm] hata");
   }
 }
 

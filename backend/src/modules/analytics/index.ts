@@ -135,6 +135,19 @@ async function productKpis(days: number) {
   };
 }
 
+// Cron isiticisi: shared repo fonksiyonlarini ayni process-ici cache'i doldurmak
+// icin cagirir (route handler'larla ayni modul singleton'i). Panel boylece hicbir
+// zaman cold-cache sorgusuna (1+ dk) carpmaz.
+export async function warmAnalyticsCache(): Promise<void> {
+  const { repoGetAnalyticsOverview } = await import("@agro/shared-backend/modules/analytics/repo-overview");
+  const { repoGetRetention } = await import("@agro/shared-backend/modules/analytics/repo-extra");
+  const options = { intentPaths: HAL_INTENT_PATHS, funnelSteps: HAL_FUNNEL_STEPS };
+  for (const range of ["7d", "30d"] as const) {
+    await repoGetAnalyticsOverview(options, range);
+    await repoGetRetention(range);
+  }
+}
+
 export async function registerAnalyticsAdmin(adminApi: FastifyInstance) {
   await registerSharedAnalyticsAdmin(adminApi, {
     intentPaths: HAL_INTENT_PATHS,
