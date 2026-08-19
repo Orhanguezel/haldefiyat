@@ -1585,6 +1585,7 @@ export default function AdminAuditClient() {
                     <TableHead className="text-right">Hit</TableHead>
                     <TableHead className="text-right">Path</TableHead>
                     <TableHead className="text-right">Export</TableHead>
+                    <TableHead className="text-right">429</TableHead>
                     <TableHead>Son Görülme</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -1604,12 +1605,19 @@ export default function AdminAuditClient() {
                       <TableCell className="text-right">{fmtNumber(row.hits)}</TableCell>
                       <TableCell className="text-right">{fmtNumber(row.uniquePaths)}</TableCell>
                       <TableCell className="text-right">{fmtNumber(row.exportHits)}</TableCell>
+                      <TableCell className="text-right">
+                        {row.blockedHits > 0 ? (
+                          <Badge variant="destructive">{fmtNumber(row.blockedHits)}</Badge>
+                        ) : (
+                          fmtNumber(row.blockedHits ?? 0)
+                        )}
+                      </TableCell>
                       <TableCell>{formatApiKeyDate(row.lastSeen)}</TableCell>
                     </TableRow>
                   ))}
                   {!consumersLoading && dataPullersData.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={7}>{t('common.noRecords')}</TableCell>
+                      <TableCell colSpan={8}>{t('common.noRecords')}</TableCell>
                     </TableRow>
                   )}
                 </TableBody>

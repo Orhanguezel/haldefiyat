@@ -21,6 +21,7 @@ export interface AuditDataPullerDto {
   hits: number;
   uniquePaths: number;
   exportHits: number;
+  blockedHits: number;
   lastSeen: string | null;
   bot: boolean;
 }
