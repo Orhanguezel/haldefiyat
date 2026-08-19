@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import type { RowDataPacket } from "mysql2";
+import { isBotUserAgent } from "@agro/shared-backend/modules/audit/helpers";
 
 interface WidgetEmbedderRow extends RowDataPacket {
   host: string | null;
@@ -21,7 +22,8 @@ interface DataPullerRow extends RowDataPacket {
 }
 
 const INTERNAL_HOST_RE = /(haldefiyat|bereketfide|vistaseed|vistaseeds)/i;
-const BOT_UA_RE = /bot|crawl|spider|python|curl|wget|http|axios|go-http/i;
+// Bot tespiti tek kaynaktan: shared BOT_UA_PATTERN (analytics metrikleriyle tutarli).
+// Yerel regex "powershell" gibi desenleri kacirip scraper'i "Insan?" gosteriyordu.
 
 function parseDays(value: unknown): number {
   const raw = Number(value ?? 30);
@@ -127,7 +129,7 @@ export async function registerAuditConsumersAdmin(adminApi: FastifyInstance) {
           exportHits: n(row.exportHits),
           blockedHits: n(row.blockedHits),
           lastSeen: toIso(row.lastSeen),
-          bot: BOT_UA_RE.test(userAgent),
+          bot: isBotUserAgent(userAgent),
         };
       }),
     });
