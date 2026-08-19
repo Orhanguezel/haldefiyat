@@ -16,6 +16,7 @@ interface DataPullerRow extends RowDataPacket {
   hits: number | string;
   uniquePaths: number | string;
   exportHits: number | string;
+  blockedHits: number | string;
   lastSeen: string | Date | null;
 }
 
@@ -97,6 +98,7 @@ export async function registerAuditConsumersAdmin(adminApi: FastifyInstance) {
          COUNT(*) AS hits,
          COUNT(DISTINCT path) AS uniquePaths,
          SUM(CASE WHEN path LIKE '/api/v1/prices%export%' OR path = '/api/v1/prices/export' THEN 1 ELSE 0 END) AS exportHits,
+         SUM(CASE WHEN status_code = 429 THEN 1 ELSE 0 END) AS blockedHits,
          MAX(created_at) AS lastSeen
        FROM audit_request_logs FORCE INDEX (audit_request_logs_created_idx)
        WHERE path LIKE '/api/v1/prices%'
@@ -123,6 +125,7 @@ export async function registerAuditConsumersAdmin(adminApi: FastifyInstance) {
           hits: n(row.hits),
           uniquePaths: n(row.uniquePaths),
           exportHits: n(row.exportHits),
+          blockedHits: n(row.blockedHits),
           lastSeen: toIso(row.lastSeen),
           bot: BOT_UA_RE.test(userAgent),
         };

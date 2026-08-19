@@ -93,6 +93,9 @@ export const env = {
   // Anonim (API key'siz) IP basina gunluk CSV export kotasi — public indirme butonu calisir,
   // agir export'cular (or. 879 export ceken) key almaya yonlendirilir
   EXPORT_ANON_DAILY_LIMIT: parseEnvInt(process.env.EXPORT_ANON_DAILY_LIMIT, 10),
+  // Anonim (API key'siz) /api/v1/prices* istekleri icin IP basina gunluk kota.
+  // Normal kullanici + AI botu (~100/gun) rahat sigar; script scraper'lari keser.
+  PRICES_ANON_DAILY_LIMIT: parseEnvInt(process.env.PRICES_ANON_DAILY_LIMIT, 300),
   // Per-kullanici Gmail/Takvim token sifreleme anahtari — lazy getter (yalniz kullanildiginda),
   // fail-closed, fallback YOK (CLAUDE.md). openssl rand -hex 40 ile uretilir.
   get MAIL_ENCRYPTION_KEY(): string {

@@ -5,7 +5,7 @@ import { env } from "@/core/env";
 import { normalizeClientIp } from "@/plugins/auditRequestLogger";
 
 // Kendi SSR/internal trafigimiz (localhost + ozel aglar) kotadan muaf.
-function isInternalIp(ip: string): boolean {
+export function isInternalIp(ip: string): boolean {
   return (
     !ip ||
     ip === "127.0.0.1" ||

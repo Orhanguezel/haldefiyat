@@ -25,6 +25,7 @@ import { resolveWeekRange } from "./iso-week";
 import { weeklyPriceSummary } from "./weekly";
 import { toCsvPayload, csvFilename } from "./csv";
 import { exportQuotaGuard } from "./export-guard";
+import { pricesAnonQuotaGuard } from "./anon-quota-guard";
 
 const boolish = z.preprocess((v) => {
   if (typeof v === "boolean") return v;
@@ -112,6 +113,10 @@ function setPublicWidgetHeaders(reply: FastifyReply) {
 }
 
 export async function registerPrices(app: FastifyInstance) {
+  // Anonim IP basina gunluk kota — kapsam /api/v1 olsa da guard kendi icinde
+  // path'i /api/v1/prices* ile sinirlar (registerPrices encapsulation'siz cagriliyor).
+  app.addHook("preHandler", pricesAnonQuotaGuard);
+
   /**
    * GET /api/v1/prices/trending
    * En cok degisen fiyatlar (7 gunluk % degisim)
