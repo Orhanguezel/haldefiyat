@@ -21,8 +21,8 @@ import { env } from "@/core/env";
 import { db } from "@/db/client";
 import { hfCtaEvents } from "@/db/schema";
 
-/** Huninin adimlari — sirali. Bilinmeyen event adi kabul edilmez. */
-export const CTA_EVENTS = ["impression", "focus", "submit", "success", "invalid", "error"] as const;
+/** Huninin adimlari — sirali; "whatsapp" huni disi tek tik olayidir. Bilinmeyen event adi kabul edilmez. */
+export const CTA_EVENTS = ["impression", "focus", "submit", "success", "invalid", "error", "whatsapp"] as const;
 export const PRODUCT_JOURNEY_EVENTS = ["opened", "submitted", "selected", "price_viewed", "zero_results"] as const;
 type CtaEvent = (typeof CTA_EVENTS)[number] | (typeof PRODUCT_JOURNEY_EVENTS)[number];
 
@@ -30,6 +30,7 @@ type CtaEvent = (typeof CTA_EVENTS)[number] | (typeof PRODUCT_JOURNEY_EVENTS)[nu
 export const CTA_PLACEMENTS = [
   "mobile_home_sticky",
   "home_bottom",
+  "home_mobile",
   "price_list_strip",
   "live_price",
 ] as const;
@@ -107,6 +108,8 @@ export interface CtaFunnelRow {
   focus:       number;
   submit:      number;
   success:     number;
+  /** Huni disi: WhatsApp kanal butonu tiki (price_list_strip). */
+  whatsapp:    number;
   /** Goren kisilerin yuzde kaci abone oldu. Asil optimize edilecek sayi. */
   conversionPct: number | null;
   /** Gorenlerin yuzde kaci yazmaya basladi — teklif/metin ilgisinin olcusu. */
@@ -143,7 +146,7 @@ export async function ctaFunnel(days = 30): Promise<CtaFunnelRow[]> {
     if (!row) {
       row = {
         placement: r.placement, device: r.device,
-        impression: 0, focus: 0, submit: 0, success: 0,
+        impression: 0, focus: 0, submit: 0, success: 0, whatsapp: 0,
         conversionPct: null, engagePct: null,
       };
       byKey.set(key, row);

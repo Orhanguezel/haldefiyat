@@ -38,6 +38,7 @@ function fmtPct(value: number | null | undefined): string {
 const CTA_LABEL: Record<string, string> = {
   mobile_home_sticky: "Anasayfa mobil (sticky)",
   home_bottom: "Anasayfa alt",
+  home_mobile: "Anasayfa mobil (CTA bloğu)",
   price_list_strip: "/fiyatlar şerit",
   live_price: "Canlı fiyat landing",
 };
@@ -243,6 +244,7 @@ export default function AdminAnalyticsClient() {
                     <TableHead className="text-right">İlgilendi</TableHead>
                     <TableHead className="text-right">Gönderdi</TableHead>
                     <TableHead className="text-right">Abone</TableHead>
+                    <TableHead className="text-right">WhatsApp</TableHead>
                     <TableHead className="text-right">İlgi %</TableHead>
                     <TableHead className="text-right">Dönüşüm %</TableHead>
                   </TableRow>
@@ -256,13 +258,14 @@ export default function AdminAnalyticsClient() {
                       <TableCell className="text-right">{fmtNumber(row.focus)}</TableCell>
                       <TableCell className="text-right">{fmtNumber(row.submit)}</TableCell>
                       <TableCell className="text-right font-semibold">{fmtNumber(row.success)}</TableCell>
+                      <TableCell className="text-right">{fmtNumber(row.whatsapp)}</TableCell>
                       <TableCell className="text-right">{fmtPct(row.engagePct)}</TableCell>
                       <TableCell className="text-right font-semibold">{fmtPct(row.conversionPct)}</TableCell>
                     </TableRow>
                   ))}
                   {!cta?.rows?.length ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-muted-foreground">
+                      <TableCell colSpan={9} className="text-muted-foreground">
                         Henüz veri yok. Ölçüm 20 Temmuz 2026&apos;da açıldı; anlamlı karşılaştırma için
                         birkaç yüz gösterim birikmesini bekleyin.
                       </TableCell>

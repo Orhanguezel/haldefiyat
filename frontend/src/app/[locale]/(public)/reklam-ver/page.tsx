@@ -7,6 +7,7 @@ import {
   CalendarCheck2,
   Check,
   Eye,
+  FileDown,
   FileImage,
   LayoutDashboard,
   LineChart,
@@ -20,8 +21,11 @@ import {
 
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
+import { fetchPricesOverview } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
 import PageContainer from "@/components/layout/PageContainer";
+
+const MEDIA_KIT_PATH = "/files/haldefiyat-medya-kiti-2026-08.pdf";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -101,6 +105,23 @@ export async function generateMetadata({ params }: Props) {
 export default async function AdvertisePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const overview = await fetchPricesOverview();
+  const marketsByType = overview.activeMarketsByType;
+  const archiveYear = overview.earliestRecordedDate
+    ? new Date(overview.earliestRecordedDate).getFullYear()
+    : null;
+
+  const LIVE_STATS = [
+    {
+      value: overview.activeMarkets ? String(overview.activeMarkets) : "—",
+      label: marketsByType
+        ? `Aktif veri noktası — ${marketsByType.hal} hal, ${marketsByType.borsa} borsa`
+        : "Aktif veri noktası",
+    },
+    { value: overview.totalProducts ? overview.totalProducts.toLocaleString("tr-TR") : "—", label: "Takip edilen ürün" },
+    { value: overview.activeCities ? `${overview.activeCities} il` : "—", label: "Canlı fiyat verisi gelen şehir" },
+    { value: archiveYear ? `${archiveYear}'ten` : "—", label: "Bu yana fiyat arşivi" },
+  ] as const;
 
   return (
     <PageContainer py="sm">
@@ -140,6 +161,9 @@ export default async function AdvertisePage({ params }: Props) {
             <Link href="/iletisim?subject=Reklam%20Talebi" className="inline-flex items-center gap-2 rounded-xl bg-(--color-brand) px-5 py-3 text-sm font-bold text-(--color-brand-fg) transition hover:brightness-110">
               Kampanya teklifi alın <ArrowRight className="h-4 w-4" />
             </Link>
+            <a href={MEDIA_KIT_PATH} download className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+              <FileDown className="h-4 w-4" /> Medya kiti (PDF)
+            </a>
             <Link href="/hesabim/reklamlarim" className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
               <LayoutDashboard className="h-4 w-4" /> Reklamveren paneli
             </Link>
@@ -163,6 +187,32 @@ export default async function AdvertisePage({ params }: Props) {
             </div>
           );
         })}
+      </section>
+
+      <section className="pb-12" aria-label="Rakamlarla HalDeFiyat">
+        <div className="rounded-[26px] border border-(--color-border) bg-(--color-bg-alt) p-6 sm:p-9">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="font-(family-name:--font-mono) text-xs font-bold uppercase tracking-[0.14em] text-(--color-brand)">Rakamlarla HalDeFiyat</p>
+              <h2 className="mt-3 font-(family-name:--font-display) text-3xl font-black text-(--color-foreground)">Karar anındaki kitleye canlı veriyle ulaşın</h2>
+            </div>
+            <a href={MEDIA_KIT_PATH} download className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-(--color-brand) px-4 py-2.5 text-sm font-bold text-(--color-brand-fg) transition hover:brightness-110">
+              <FileDown className="h-4 w-4" /> Medya kitini indirin
+            </a>
+          </div>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {LIVE_STATS.map((stat) => (
+              <div key={stat.label} className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5">
+                <div className="font-(family-name:--font-display) text-3xl font-black text-(--color-brand)">{stat.value}</div>
+                <p className="mt-2 text-sm leading-6 text-(--color-muted)">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-5 text-sm leading-6 text-(--color-muted)">
+            Yukarıdaki sayılar platformun canlı verisinden gelir. Aylık ziyaret hacmi, kitle profili, arama görünürlüğü ve
+            reklam alanlarının ölçülmüş tıklama performansı, tarih damgalı <a href={MEDIA_KIT_PATH} download className="font-semibold text-(--color-brand) underline underline-offset-2">medya kiti PDF&#39;inde</a> yer alır.
+          </p>
+        </div>
       </section>
 
       <section className="grid gap-4 pb-12 md:grid-cols-3" aria-label="Reklam ticari koşulları">

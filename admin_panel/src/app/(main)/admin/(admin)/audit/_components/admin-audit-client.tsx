@@ -570,7 +570,7 @@ export default function AdminAuditClient() {
     }
   }
 
-  const anyLoading = reqLoading || authLoading || geoLoading || overviewLoading || adsLoading || deviceLoading || consumersLoading || isClearing;
+  const anyLoading = reqLoading || authLoading || geoLoading || overviewLoading || deviceLoading || consumersLoading || isClearing;
 
   async function onSetApiKeyTier(key: AdminApiKeyDto, tier: ApiKeyTier) {
     if (key.tier === tier) return;

@@ -114,6 +114,7 @@ export interface CtaFunnelRow {
   focus: number;
   submit: number;
   success: number;
+  whatsapp: number;
   conversionPct: number | null;
   engagePct: number | null;
 }

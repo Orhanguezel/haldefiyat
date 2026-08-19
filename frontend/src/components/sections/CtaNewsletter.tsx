@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { trackConversion } from "@/lib/analytics";
 import { isValidEmail } from "@/lib/email";
-import { useCtaTracking } from "@/lib/cta-tracking";
+import { useCtaTracking, type CtaPlacement } from "@/lib/cta-tracking";
 import { AlertTriangle, Bell, CheckCircle2, Mail, Smartphone } from "lucide-react";
 
 type SubmitState =
@@ -31,7 +31,7 @@ export default function CtaNewsletter({
   /** WhatsApp KANAL adresi (whatsapp.com/channel/...). site_settings.social_whatsapp. */
   whatsappChannelUrl?: string | null;
   /** CTA olcum anahtari — hangi yuzey donusturuyor gorunsun (admin cta-funnel). */
-  placement?: string;
+  placement?: CtaPlacement;
 } = {}) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<SubmitState>({ kind: "idle" });

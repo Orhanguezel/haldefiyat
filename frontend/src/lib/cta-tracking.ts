@@ -17,8 +17,8 @@
 
 import { useEffect, useRef, type RefObject } from "react";
 
-export type CtaPlacement = "mobile_home_sticky" | "home_bottom" | "price_list_strip" | "live_price";
-export type CtaEvent = "impression" | "focus" | "submit" | "success" | "invalid" | "error";
+export type CtaPlacement = "mobile_home_sticky" | "home_bottom" | "home_mobile" | "price_list_strip" | "live_price";
+export type CtaEvent = "impression" | "focus" | "submit" | "success" | "invalid" | "error" | "whatsapp";
 export type ProductJourneyEvent = "opened" | "submitted" | "selected" | "price_viewed" | "zero_results";
 
 const API_BASE: string = process.env.NEXT_PUBLIC_API_URL
