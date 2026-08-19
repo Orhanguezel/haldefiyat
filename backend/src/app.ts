@@ -171,7 +171,9 @@ export async function createApp() {
     reply.header("X-Content-Type-Options", "nosniff");
     reply.header("X-Frame-Options", "DENY");
     reply.header("Referrer-Policy", "strict-origin-when-cross-origin");
-    reply.header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    // microphone=(self): sesli arama (Web Speech) izin istegi acilabilsin;
+    // () olursa tarayici hic sormadan reddediyor (2026-08-19 sesli arama vakasi).
+    reply.header("Permissions-Policy", "camera=(), microphone=(self), geolocation=()");
     if (env.NODE_ENV === "production") {
       reply.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
     }
