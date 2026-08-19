@@ -1,4 +1,6 @@
-export const revalidate = 300;
+// headers() kullanımı sayfayı dinamik yapar (gömen sitenin referer'ını okumak için
+// şart); veri fetch'i lib/api içinde 300s revalidate ile cache'lenmeye devam eder.
+import { headers } from "next/headers";
 
 import { fetchWidget } from "@/lib/api";
 
@@ -36,10 +38,12 @@ export default async function FiyatlarWidget({ searchParams }: Props) {
     .filter(Boolean);
   const title = params.title?.trim() || "Güncel Hal Fiyatları";
 
+  const requestHeaders = await headers();
   const items = await fetchWidget({
     category: params.category,
     slugs,
     limit,
+    referer: requestHeaders.get("referer"),
   });
 
   const isDark = theme === "dark";

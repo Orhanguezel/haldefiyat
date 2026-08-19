@@ -19,7 +19,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: ["GPTBot", "ChatGPT-User", "ClaudeBot", "PerplexityBot", "Google-Extended"],
         allow: ["/", ...AI_PUBLIC_API_PATHS],
-        disallow: ["/api/", "/_next/"],
+        // export CSV anonim kotaya (10/gün) çarpıp 429 üretiyor — botlara kapalı,
+        // JSON fiyat endpoint'leri (üstteki allow) açık kalır.
+        disallow: ["/api/", "/_next/", "/api/v1/prices/export"],
       },
       {
         userAgent: "Bytespider",
@@ -32,7 +34,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "CCBot",
         allow: ["/", ...AI_PUBLIC_API_PATHS],
-        disallow: ["/api/", "/_next/"],
+        disallow: ["/api/", "/_next/", "/api/v1/prices/export"],
       },
     ],
     sitemap: [`${SITE_URL}/sitemap.xml`, `${SITE_URL}/news-sitemap.xml`],

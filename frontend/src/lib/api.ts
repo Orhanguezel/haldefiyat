@@ -343,6 +343,7 @@ async function safeFetch<T>(
   revalidate: number,
   fallback: T,
   tags?: string[],
+  extraHeaders?: Record<string, string>,
 ): Promise<T> {
   try {
     // Build-time (next build) sırasında backend ulaşılamazsa Next.js worker
@@ -350,7 +351,7 @@ async function safeFetch<T>(
     // bail-out; catch'e düşer, fallback döner, sayfa yine prerender olur.
     const res = await fetch(`${API}${path}`, {
       next: { revalidate, ...(tags ? { tags } : {}) },
-      headers: { Accept: "application/json" },
+      headers: { Accept: "application/json", ...(extraHeaders ?? {}) },
       signal: AbortSignal.timeout(15_000),
     });
     if (!res.ok) {
@@ -874,13 +875,22 @@ export async function fetchAuthors(limit = 100): Promise<PublicAuthor[]> {
   return response.items;
 }
 
-export async function fetchWidget(params: { slugs?: string[]; category?: string; limit?: number }): Promise<WidgetPrice[]> {
+export async function fetchWidget(params: {
+  slugs?: string[];
+  category?: string;
+  limit?: number;
+  referer?: string | null;
+}): Promise<WidgetPrice[]> {
   const qs = buildQuery({
     slugs: params.slugs?.join(","),
     category: params.category,
     limit: params.limit,
   });
-  return safeFetch<WidgetPrice[]>(`/prices/widget${qs}`, 300, []);
+  // Widget SSR ile render edildiğinden gömen sitenin referer'ı backend'e normalde
+  // ulaşmaz; admin "Widget Gömen Siteler" bölümü bu yüzden kördü. Sayfa isteğindeki
+  // referer buraya taşınıp backend'e Referer olarak iletilir (audit loguna düşer).
+  const headers = params.referer ? { Referer: params.referer } : undefined;
+  return safeFetch<WidgetPrice[]>(`/prices/widget${qs}`, 300, [], undefined, headers);
 }
 
 export async function fetchAutoWeeklyReports(limit = 8): Promise<AutoWeeklyReport[]> {
