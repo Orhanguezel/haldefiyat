@@ -18,7 +18,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import { Minus, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowRight, Minus, TrendingDown, TrendingUp } from "lucide-react";
+import { PIYASA_BY_PRODUCT } from "@/lib/piyasa";
 import {
   fetchPrices,
   fetchPricesPage,
@@ -296,6 +297,7 @@ export default async function UrunPage({ params }: Props) {
     })
     .sort((a, b) => a.displayName.localeCompare(b.displayName, "tr"));
   const isClusterMaster = variants.length >= 5;
+  const piyasaPage = PIYASA_BY_PRODUCT[slug];
 
   // İç linkleme: aynı kategoriden indexlenebilir kardeş ürünler. Rotasyonlu pencere
   // (her ürün kendinden sonraki 12'yi linkler) → link eşit dağılır, az-linkli niş
@@ -608,6 +610,21 @@ export default async function UrunPage({ params }: Props) {
           <ProductTrendBadge label="Son 7 gün / önceki 7 gün" trend={shortTrend} />
           <ProductTrendBadge label="Son 30 gün / önceki 30 gün" trend={longTrend} />
         </section>
+      ) : null}
+
+      {piyasaPage ? (
+        <Link
+          href={`/piyasa/${piyasaPage.slug}`}
+          className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-(--color-brand)/30 bg-(--color-brand)/5 px-5 py-4 transition hover:border-(--color-brand)/60"
+        >
+          <span>
+            <span className="block font-(family-name:--font-display) font-bold text-(--color-foreground)">{piyasaPage.h1}</span>
+            <span className="mt-1 block text-sm text-(--color-muted)">
+              {piyasaPage.region} bölge bağlamı, şehir karşılaştırması ve günlük piyasa yorumu
+            </span>
+          </span>
+          <ArrowRight className="h-5 w-5 shrink-0 text-(--color-brand)" />
+        </Link>
       ) : null}
 
       {familyMembers.length > 1 && (
