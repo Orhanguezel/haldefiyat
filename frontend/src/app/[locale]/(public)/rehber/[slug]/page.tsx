@@ -66,40 +66,55 @@ function BasketRow({ item, season }: { item: RehberBasketItem; season: Seasonali
 
       {cheapest ? (
         <>
-          <div className="mt-4 flex gap-1" aria-hidden>
+          <div className="mt-4 flex gap-1.5 border-b border-(--color-border) pb-px" aria-hidden>
             {season.cells.map((cell) => {
               // Yuzde yukseklik auto-yukseklikli flex kapsayicida 0'a coker; piksel kullan.
-              const px = (v: number | null) => (v ? Math.max(6, Math.round((v / season.maxPrice) * 64)) : 0);
-              const isCheapestMonth = cell.label === cheapest.label;
-              const isCurrent = cell.month === (current ? season.cells.findIndex((c) => c.label === current.label) : -1);
+              const px = (v: number | null) => (v ? Math.max(6, Math.round((v / season.maxPrice) * 80)) : 0);
+              const isCurrent = current ? cell.label === current.label : false;
+              const cheapestBar =
+                cell.label === cheapest.label
+                  ? cheapest.year === season.thisYearLabel ? "thisYear" : "lastYear"
+                  : null;
               const tip = [
                 cell.lastYear.price ? `${season.lastYearLabel}: ${fmt(cell.lastYear.price)} ₺ (${cell.lastYear.marketCount} hal)` : null,
                 cell.thisYear.price ? `${season.thisYearLabel}: ${fmt(cell.thisYear.price)} ₺ (${cell.thisYear.marketCount} hal)` : null,
               ].filter(Boolean).join(" · ") || `${cell.label}: kayıt yok`;
               return (
-                <div key={cell.month} className="flex flex-1 flex-col items-center gap-1" title={`${cell.label} — ${tip}`}>
-                  <div className="flex h-16 w-full items-end justify-center gap-px">
+                <div
+                  key={cell.month}
+                  className={`flex flex-1 flex-col items-center gap-1.5 rounded-lg pt-1 ${isCurrent ? "bg-(--color-bg-alt)" : ""}`}
+                  title={`${cell.label} — ${tip}`}
+                >
+                  <div className="flex h-20 w-full items-end justify-center gap-[2px] px-0.5">
                     {cell.lastYear.price ? (
-                      <div className="w-1/2 rounded-t bg-(--color-brand)/25" style={{ height: `${px(cell.lastYear.price)}px` }} />
+                      <div
+                        className={`w-1/2 rounded-t-sm bg-(--color-muted)/45 ${cheapestBar === "lastYear" ? "ring-2 ring-(--color-brand)" : ""}`}
+                        style={{ height: `${px(cell.lastYear.price)}px` }}
+                      />
                     ) : (
-                      <div className="h-1 w-1/2 rounded bg-(--color-border)" />
+                      <div className="h-0.5 w-1/2 rounded bg-(--color-border)" />
                     )}
                     {cell.thisYear.price ? (
-                      <div className="w-1/2 rounded-t bg-(--color-brand)" style={{ height: `${px(cell.thisYear.price)}px` }} />
+                      <div
+                        className={`w-1/2 rounded-t-sm bg-(--color-brand) ${cheapestBar === "thisYear" ? "ring-2 ring-(--color-foreground)/50" : ""}`}
+                        style={{ height: `${px(cell.thisYear.price)}px` }}
+                      />
                     ) : (
-                      <div className="h-1 w-1/2 rounded bg-(--color-border)/60" />
+                      <div className="h-0.5 w-1/2 rounded bg-(--color-border)" />
                     )}
                   </div>
-                  <span className={`text-[9px] leading-none ${isCheapestMonth ? "font-bold text-(--color-brand)" : isCurrent ? "font-bold text-(--color-foreground)" : "text-(--color-muted)"}`}>
+                  <span className={`pb-1 text-[9px] leading-none ${cheapestBar ? "font-bold text-(--color-brand)" : isCurrent ? "font-bold text-(--color-foreground)" : "text-(--color-muted)"}`}>
                     {cell.label}
                   </span>
                 </div>
               );
             })}
           </div>
-          <div className="mt-2 flex items-center gap-4 text-[11px] text-(--color-muted)">
-            <span className="inline-flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-(--color-brand)/25" /> {season.lastYearLabel}</span>
+          <div className="mt-2 flex flex-wrap items-center gap-4 text-[11px] text-(--color-muted)">
+            <span className="inline-flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-(--color-muted)/45" /> {season.lastYearLabel}</span>
             <span className="inline-flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-(--color-brand)" /> {season.thisYearLabel}</span>
+            <span className="inline-flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm ring-2 ring-(--color-brand)" /> en düşük kayıt</span>
+            <span className="inline-flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-(--color-bg-alt) ring-1 ring-(--color-border)" /> içinde bulunduğumuz ay</span>
           </div>
           <p className="mt-3 text-sm text-(--color-muted)">
             En uygun dönem (son 12 ay): <strong className="text-(--color-brand)">{cheapest.label} — {fmt(cheapest.price)} ₺/kg ({cheapest.year})</strong>
