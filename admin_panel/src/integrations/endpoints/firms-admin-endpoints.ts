@@ -117,6 +117,19 @@ export type FirmProductInput = {
   displayOrder?: number;
 };
 
+export type FirmLeadItem = {
+  id: number;
+  firmId: number;
+  firmName: string;
+  firmSlug: string;
+  citySlug: string | null;
+  status: string;
+  dealType: string;
+  owner: string | null;
+  notes: string | null;
+  createdAt: string | null;
+};
+
 export type FirmsAdminResponse = {
   items: FirmAdminItem[];
   meta: { total: number; limit: number; offset: number };
@@ -238,6 +251,13 @@ export const firmsAdminApi = baseApi.injectEndpoints({
         params: cleanParams(params as Record<string, unknown> | undefined),
       }),
       providesTags: [{ type: 'Firms' as const, id: 'LIST' }],
+    }),
+    listFirmLeadsAdmin: builder.query<
+      { items: FirmLeadItem[]; meta: { total: number; limit: number; offset: number } },
+      { status?: string; limit?: number; offset?: number } | void
+    >({
+      query: (params) => ({ url: '/admin/firms/leads', params: cleanParams(params as Record<string, unknown> | undefined) }),
+      providesTags: [{ type: 'Firms' as const, id: 'LEADS' }],
     }),
     getFirmManage: builder.query<{ item: FirmManageItem }, { firmId: number }>({
       query: ({ firmId }) => ({ url: `/firms/${firmId}/manage` }),
@@ -364,6 +384,7 @@ export const firmsAdminApi = baseApi.injectEndpoints({
 
 export const {
   useListFirmsAdminQuery,
+  useListFirmLeadsAdminQuery,
   useGetFirmManageQuery,
   useGetFirmPriceHistoryQuery,
   useCreateFirmProductAdminMutation,

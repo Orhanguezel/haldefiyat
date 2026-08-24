@@ -24,6 +24,7 @@ import {
   getFirmForManage,
   getFirmPriceHistory,
   recentDuplicateLeadExists,
+  listRecentFirmDeals,
   getMyFirm,
   getFirmPricesByDate,
   getLatestFirmPrices,
@@ -642,6 +643,15 @@ export async function registerFirmsAdmin(app: FastifyInstance) {
   app.post("/firms/seo-index/sync", async (_req, reply) => {
     const result = await syncFirmSeoIndex();
     return reply.send(result);
+  });
+
+  app.get<{ Querystring: { status?: string; limit?: string; offset?: string } }>("/firms/leads", async (req, reply) => {
+    const result = await listRecentFirmDeals({
+      status: req.query.status,
+      limit: Number(req.query.limit) || 50,
+      offset: Number(req.query.offset) || 0,
+    });
+    return reply.send({ items: result.items, meta: { total: result.total, limit: result.limit, offset: result.offset } });
   });
 
   app.get("/firms/claims", async (req, reply) => {

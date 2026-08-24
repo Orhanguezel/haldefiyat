@@ -810,6 +810,44 @@ export async function recentDuplicateLeadExists(firmId: number, needle: string, 
   return Boolean(row);
 }
 
+/**
+ * Tum firmalardaki talepleri tek listede toplar.
+ *
+ * Oncesinde talepler yalnizca firma detay sayfasinda goruluyordu; 1.335
+ * firmayi tek tek acmak gerektigi icin 2 gercek lead aylarca fark edilmedi.
+ */
+export async function listRecentFirmDeals(opts: { status?: string; limit?: number; offset?: number } = {}) {
+  const limit = Math.min(200, Math.max(1, opts.limit ?? 50));
+  const offset = Math.max(0, opts.offset ?? 0);
+  const where = opts.status && opts.status !== "all"
+    ? and(eq(hfFirmDeals.status, opts.status as "lead"), sql`1=1`)
+    : sql`1=1`;
+
+  const [items, countRows] = await Promise.all([
+    db.select({
+      id: hfFirmDeals.id,
+      firmId: hfFirmDeals.firmId,
+      firmName: hfFirms.name,
+      firmSlug: hfFirms.slug,
+      citySlug: hfFirms.citySlug,
+      status: hfFirmDeals.status,
+      dealType: hfFirmDeals.dealType,
+      owner: hfFirmDeals.owner,
+      notes: hfFirmDeals.notes,
+      createdAt: hfFirmDeals.createdAt,
+    })
+      .from(hfFirmDeals)
+      .innerJoin(hfFirms, eq(hfFirms.id, hfFirmDeals.firmId))
+      .where(where)
+      .orderBy(desc(hfFirmDeals.createdAt))
+      .limit(limit)
+      .offset(offset),
+    db.select({ total: sql<number>`COUNT(*)` }).from(hfFirmDeals).where(where),
+  ]);
+
+  return { items, total: Number(countRows[0]?.total ?? 0), limit, offset };
+}
+
 export async function createFirmDeal(input: {
   firmId: number;
   status?: "lead" | "contacted" | "negotiating" | "won" | "lost";

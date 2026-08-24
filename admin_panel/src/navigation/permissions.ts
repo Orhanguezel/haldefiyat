@@ -44,6 +44,7 @@ export type AdminNavKey =
   | 'hf_products'
   | 'markets'
   | 'firms'
+  | 'firm_leads'
   | 'listings'
   | 'etl_logs'
   | 'alerts'
@@ -126,6 +127,7 @@ const ADMIN_NAV_PERMISSION_MAP: Partial<Record<AdminNavKey, AdminPermissionKey>>
   hf_products: 'admin.hf_products',
   markets: 'admin.markets',
   firms: 'admin.firms',
+  firm_leads: 'admin.firms',
   listings: 'admin.listings',
   etl_logs: 'admin.etl_logs',
   alerts: 'admin.alerts',

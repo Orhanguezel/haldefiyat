@@ -413,6 +413,7 @@ export {
   useModerateFirmClaimAdminMutation,
   useRunFirmsEtlAdminMutation,
   useGetFirmAdminQuery,
+  useListFirmLeadsAdminQuery,
   useGetFirmManageQuery,
   useGetFirmPriceHistoryQuery,
   useCreateFirmProductAdminMutation,
