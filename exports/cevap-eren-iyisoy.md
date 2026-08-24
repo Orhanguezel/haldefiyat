@@ -11,44 +11,54 @@ nedenle size doğrudan bir numara iletemiyoruz. Firma sayfası:
 https://haldefiyat.com/firma/2225-durmazlar-komisyonevi
 
 
-ÜRÜNÜNÜZÜ SATIYORSANIZ — İLAN VEREBİLİRSİNİZ
+KENDİ FİRMA SAYFANIZI AÇABİLİRSİNİZ — ÜCRETSİZ
 
-Mantar üretiyor veya satıyorsanız, ilan vererek alıcı komisyoncu ve
-toptancıların size ulaşmasını sağlayabilirsiniz:
-
-https://haldefiyat.com/ilan-ver
-
-İlanınız ürün ve il bazında aranabilir olur; ilgilenen alıcı doğrudan size
-ulaşır.
-
-
-İŞLETMENİZ VARSA — KENDİ FİRMA SAYFANIZ
-
-Kayıtlı bir işletmeniz varsa firma rehberimize ücretsiz katılabilirsiniz:
+Komisyon eviyseniz veya kayıtlı bir işletmeniz varsa, firma rehberimize
+ücretsiz katılabilirsiniz. Haldefiyat.com Türkiye genelinde hal fiyatlarını
+yayınlayan bir platform; rehberimizde şu an 1.300'ü aşkın komisyoncu
+listeleniyor. Sizin kaydınızı göremedik:
 
 https://haldefiyat.com/firmalar/ekle
 
-Kendi sayfanızda:
+Kendi sayfanızda neler yapabilirsiniz:
 
-- Firma bilgilerinizi doğrudan siz yönetirsiniz.
-- Ürünlerinizi fotoğraflarıyla listeleyebilirsiniz.
-- Günlük fiyatlarınızı her gün kendiniz girebilir, geçmiş kayıtlarınızı
-  tarih tarih tutabilirsiniz.
-- Logonuzu yükleyebilirsiniz.
+- Firma bilgilerinizi (ad, yetkili, telefon, adres, çalışma alanı) doğrudan
+  siz yönetirsiniz; biz araya girmeyiz.
+- Çalıştığınız ürünleri fotoğraflarıyla listeleyebilirsiniz.
+- Günlük fiyatlarınızı her gün kendiniz girebilirsiniz; geçmiş kayıtlarınız
+  sayfanızda tarih tarih durur.
+- Firma logonuzu yükleyebilirsiniz.
+- Alıcılar sizi il ve ürün bazında arayarak bulur, doğrudan size ulaşır.
 
 Girdiğiniz fiyatlar yalnızca kendi sayfanızda yayımlanır; sitedeki genel hal
-ortalamalarını ve endeksi etkilemez.
+ortalamalarını ve endeksi etkilemez. Yani orası tamamen size ait bir alandır.
+
+Mantar özelinde şunu da belirtelim: sitede ürün bazlı sayfalarımız var ve
+istiridye mantarı için ayrı bir sayfa bulunuyor:
+https://haldefiyat.com/urun/mantar-istiridye
+Kendi fiyatınızı girdiğinizde bu ürün üzerinden aranırken görünür olursunuz.
+
+
+TEK SEFERLİK ALIM-SATIM İÇİN İLAN
+
+Kayıtlı bir işletmeniz yoksa ya da yalnızca eldeki ürünü satmak
+istiyorsanız, firma açmadan ilan da verebilirsiniz:
+
+https://haldefiyat.com/ilan-ver
 
 
 TANITIM VE REKLAM
 
-Ürününüzü veya işletmenizi öne çıkarmak isterseniz sponsorluk/reklam
-alanlarımız mevcut: https://haldefiyat.com/reklam-ver
+Firmanızı veya ürününüzü öne çıkarmak isterseniz il ve kategori bazlı
+sponsorluk/reklam alanlarımız var: https://haldefiyat.com/reklam-ver
 
-Dilerseniz taahhütsüz, deneme amaçlı kısa süreli bir yayınla başlayabiliriz.
+Dilerseniz taahhütsüz, deneme amaçlı kısa süreli bir yayınla başlayabiliriz;
+sonucunu birlikte değerlendirir, devam edip etmemeye ondan sonra karar
+verirsiniz.
 
-Hangi yol size uygunsa bu e-postayı yanıtlamanız yeterli; gerekirse kaydınızı
-sizin adınıza biz hazırlayalım.
+Kaydınızı kendiniz açmak istemezseniz, bilgilerinizi (ticari telefon, açık
+adres, çalıştığınız ürünler) bu e-postayı yanıtlayarak iletmeniz yeterli;
+sayfanızı sizin adınıza biz hazırlayalım.
 
 Saygılarımızla,
 Haldefiyat.com

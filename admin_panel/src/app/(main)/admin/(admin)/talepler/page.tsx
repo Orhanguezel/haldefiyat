@@ -106,12 +106,12 @@ export default function FirmLeadsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tarih</TableHead>
-                  <TableHead>Gönderen</TableHead>
-                  <TableHead>İletişim</TableHead>
-                  <TableHead>Mesaj</TableHead>
-                  <TableHead>Firma</TableHead>
-                  <TableHead className="text-right">İşlem</TableHead>
+                  <TableHead className="w-[110px]">Tarih</TableHead>
+                  <TableHead className="w-[160px]">Gönderen</TableHead>
+                  <TableHead className="w-[200px]">İletişim</TableHead>
+                  <TableHead className="min-w-[280px]">Mesaj</TableHead>
+                  <TableHead className="w-[190px]">Firma</TableHead>
+                  <TableHead className="w-[250px] text-right">İşlem</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -119,24 +119,28 @@ export default function FirmLeadsPage() {
                 {(data?.items ?? []).map((lead: FirmLeadItem) => {
                   const p = parseLead(lead.notes);
                   return (
-                    <TableRow key={lead.id}>
+                    <TableRow key={lead.id} className="[&>td]:align-top">
                       <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
                         {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString('tr-TR') : '-'}
                       </TableCell>
-                      <TableCell className="font-medium">{p.name || '-'}</TableCell>
+                      <TableCell className="font-medium whitespace-normal">{p.name || '-'}</TableCell>
                       <TableCell className="whitespace-nowrap text-sm">
                         <div>{p.phone || '-'}</div>
                         <div className="text-xs text-muted-foreground">{p.email || ''}</div>
                       </TableCell>
-                      <TableCell className="max-w-[380px] text-sm">{p.message || '-'}</TableCell>
-                      <TableCell className="text-sm">
+                      <TableCell className="min-w-[280px] text-sm whitespace-normal">
+                        <p className="line-clamp-2 leading-5" title={p.message || ''}>
+                          {p.message || '-'}
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-sm whitespace-normal">
                         <Link href={`/admin/firmalar/${lead.firmId}`} className="text-primary hover:underline">
                           {lead.firmName}
                         </Link>
                         <div className="text-xs text-muted-foreground">{lead.citySlug || ''}</div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
+                        <div className="flex flex-wrap justify-end gap-2">
                           {telHref(p.phone) && (
                             <Button asChild size="sm" variant="outline">
                               <a href={telHref(p.phone)!}>Ara</a>
