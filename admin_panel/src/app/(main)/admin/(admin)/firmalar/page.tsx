@@ -358,6 +358,47 @@ function FirmCrmPanel({ firm, onClose }: { firm: FirmAdminItem; onClose: () => v
   const [placementSlug, setPlacementSlug] = useState(firm.citySlug || '');
   const [days, setDays] = useState('30');
   const [description, setDescription] = useState(firm.description || '');
+  const [edit, setEdit] = useState({
+    name: firm.name || '',
+    contactPerson: firm.contactPerson || '',
+    phone: firm.phone || '',
+    address: firm.address || '',
+    citySlug: firm.citySlug || '',
+    districtSlug: firm.districtSlug || '',
+    categories: (firm.categories || []).join(', '),
+    firmType: firm.firmType,
+  });
+  const [seoIndex, setSeoIndex] = useState(firm.seoIndex === true || firm.seoIndex === 1);
+  const [editError, setEditError] = useState('');
+  const [editSaved, setEditSaved] = useState(false);
+
+  async function handleSaveFirm() {
+    setEditError('');
+    setEditSaved(false);
+    try {
+      await updateFirm({
+        firmId: firm.id,
+        body: {
+          name: edit.name.trim(),
+          contactPerson: edit.contactPerson.trim() || null,
+          phone: edit.phone.trim() || null,
+          address: edit.address.trim() || null,
+          citySlug: edit.citySlug.trim() || null,
+          districtSlug: edit.districtSlug.trim() || null,
+          categories: edit.categories.split(',').map((item) => item.trim()).filter(Boolean),
+          firmType: edit.firmType,
+          description,
+          seoIndex,
+        },
+      }).unwrap();
+      setEditSaved(true);
+    } catch (error) {
+      const apiError = error as { data?: { error?: string; issues?: Array<{ path?: string[]; message?: string }> } };
+      const issue = apiError.data?.issues?.[0];
+      setEditError(issue ? `${issue.path?.join('.')}: ${issue.message}` : apiError.data?.error || 'Firma kaydedilemedi.');
+    }
+  }
+
   const [campaignSlot, setCampaignSlot] = useState('global_footer');
   const [campaignTitle, setCampaignTitle] = useState(firm.name);
   const [campaignCaption, setCampaignCaption] = useState('');
@@ -460,6 +501,64 @@ function FirmCrmPanel({ firm, onClose }: { firm: FirmAdminItem; onClose: () => v
         <Button variant="outline" size="sm" onClick={onClose}>Kapat</Button>
       </CardHeader>
       <CardContent className="grid gap-6 xl:grid-cols-2">
+        <section className="space-y-3 xl:col-span-2">
+          <h3 className="text-sm font-semibold">Firma Bilgileri</h3>
+          <div className="grid gap-2 md:grid-cols-2">
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Firma adı</label>
+              <Input value={edit.name} onChange={(event) => setEdit({ ...edit, name: event.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Yetkili kişi</label>
+              <Input value={edit.contactPerson} onChange={(event) => setEdit({ ...edit, contactPerson: event.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Telefon</label>
+              <Input value={edit.phone} onChange={(event) => setEdit({ ...edit, phone: event.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Firma tipi</label>
+              <Select value={edit.firmType} onValueChange={(value) => setEdit({ ...edit, firmType: value as FirmAdminItem['firmType'] })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="komisyoncu">Komisyoncu</SelectItem>
+                  <SelectItem value="soguk_hava">Soğuk Hava</SelectItem>
+                  <SelectItem value="nakliye">Nakliye</SelectItem>
+                  <SelectItem value="zirai_ilac">Zirai İlaç</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">İl slug</label>
+              <Input value={edit.citySlug} onChange={(event) => setEdit({ ...edit, citySlug: event.target.value })} placeholder="antalya" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">İlçe slug</label>
+              <Input value={edit.districtSlug} onChange={(event) => setEdit({ ...edit, districtSlug: event.target.value })} placeholder="kumluca" />
+              {edit.districtSlug.trim() !== '' && !/^[a-z0-9-]+$/.test(edit.districtSlug.trim()) && (
+                <p className="text-xs text-amber-600">Slug biçimi bozuk (küçük harf, rakam ve tire olmalı).</p>
+              )}
+            </div>
+            <div className="space-y-1 md:col-span-2">
+              <label className="text-xs text-muted-foreground">Adres</label>
+              <Textarea value={edit.address} onChange={(event) => setEdit({ ...edit, address: event.target.value })} rows={2} />
+            </div>
+            <div className="space-y-1 md:col-span-2">
+              <label className="text-xs text-muted-foreground">Kategoriler (virgülle ayır)</label>
+              <Input value={edit.categories} onChange={(event) => setEdit({ ...edit, categories: event.target.value })} placeholder="Domates, Salatalık" />
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="flex items-center gap-2 text-xs">
+              <input type="checkbox" checked={seoIndex} onChange={(event) => setSeoIndex(event.target.checked)} />
+              Google&apos;a aç (sitemap + index)
+            </label>
+            <Button size="sm" onClick={handleSaveFirm} disabled={isUpdatingFirm}>Firma bilgilerini kaydet</Button>
+            {editSaved && <span className="text-xs text-emerald-600">Kaydedildi.</span>}
+            {editError && <span className="text-xs text-red-600">{editError}</span>}
+          </div>
+        </section>
+
         <section className="space-y-3 xl:col-span-2">
           <h3 className="text-sm font-semibold">Moderasyon</h3>
           <div className="grid gap-2 md:grid-cols-[1fr_auto_auto]">

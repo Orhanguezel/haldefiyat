@@ -315,11 +315,7 @@ export async function releaseFirmOwnership(id: number, userId: string): Promise<
   return true;
 }
 
-export async function adminUpdateFirm(id: number, input: FirmPatchInput & {
-  status?: "pending" | "approved" | "rejected";
-  claimStatus?: "unclaimed" | "pending" | "verified";
-  ownerUserId?: string | null;
-}) {
+export async function adminUpdateFirm(id: number, input: FirmPatchInput & AdminFirmFields) {
   await updateFirmFields(id, input);
   return getFirmById(id);
 }
@@ -335,11 +331,16 @@ type FirmPatchInput = {
   categories?: string[];
 };
 
-async function updateFirmFields(id: number, input: FirmPatchInput & {
+type AdminFirmFields = {
   status?: "pending" | "approved" | "rejected";
   claimStatus?: "unclaimed" | "pending" | "verified";
   ownerUserId?: string | null;
-}) {
+  firmType?: "komisyoncu" | "soguk_hava" | "nakliye" | "zirai_ilac";
+  seoIndex?: boolean;
+  isActive?: boolean;
+};
+
+async function updateFirmFields(id: number, input: FirmPatchInput & AdminFirmFields) {
   await db.update(hfFirms).set({
     ...(input.name !== undefined ? { name: input.name } : {}),
     ...(input.contactPerson !== undefined ? { contactPerson: input.contactPerson } : {}),
@@ -352,6 +353,9 @@ async function updateFirmFields(id: number, input: FirmPatchInput & {
     ...(input.status !== undefined ? { status: input.status } : {}),
     ...(input.claimStatus !== undefined ? { claimStatus: input.claimStatus } : {}),
     ...(input.ownerUserId !== undefined ? { ownerUserId: input.ownerUserId } : {}),
+    ...(input.firmType !== undefined ? { firmType: input.firmType } : {}),
+    ...(input.seoIndex !== undefined ? { seoIndex: input.seoIndex ? 1 : 0 } : {}),
+    ...(input.isActive !== undefined ? { isActive: input.isActive ? 1 : 0 } : {}),
   }).where(eq(hfFirms.id, id));
 }
 

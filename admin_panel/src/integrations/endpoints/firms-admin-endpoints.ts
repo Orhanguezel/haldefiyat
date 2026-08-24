@@ -21,6 +21,7 @@ export type FirmAdminItem = {
   firmType: 'komisyoncu' | 'soguk_hava' | 'nakliye' | 'zirai_ilac';
   categories: string[] | null;
   isActive: number | boolean;
+  seoIndex?: number | boolean;
   lastSeenAt: string | null;
   sponsorshipTier?: string | null;
 };
@@ -43,6 +44,16 @@ export type FirmAdminPatchPayload = {
   claimStatus?: FirmAdminItem['claimStatus'];
   ownerUserId?: string | null;
   description?: string | null;
+  name?: string;
+  contactPerson?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  citySlug?: string | null;
+  districtSlug?: string | null;
+  categories?: string[];
+  firmType?: FirmAdminItem['firmType'];
+  seoIndex?: boolean;
+  isActive?: boolean;
 };
 
 export type FirmSummary = {

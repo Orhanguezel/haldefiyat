@@ -204,11 +204,21 @@ const firmPriceBodySchema = firmPriceFieldsSchema.superRefine(refineFirmPrice);
 const firmPricePatchBodySchema = firmPriceFieldsSchema.partial().superRefine(refineFirmPrice);
 const firmPricesBulkBodySchema = z.object({ prices: z.array(firmPriceBodySchema).max(500) });
 
-const moderateFirmBodySchema = z.object({
+const moderateFirmBodySchema = firmWriteFieldsSchema.partial().extend({
   status: z.enum(["pending", "approved", "rejected"]).optional(),
   claimStatus: z.enum(["unclaimed", "pending", "verified"]).optional(),
   ownerUserId: z.string().trim().max(36).nullable().optional(),
-  description: z.string().trim().max(5000).nullable().optional(),
+  firmType: z.enum(["komisyoncu", "soguk_hava", "nakliye", "zirai_ilac"]).optional(),
+  seoIndex: z.boolean().optional(),
+  isActive: z.boolean().optional(),
+}).superRefine((data, ctx) => {
+  // Admin scraped veriyi duzeltmek icin buraya gelir: il katı dogrulanir, ilce
+  // dogrulanmaz. 1335 firmanin ~%38'inde ETL'den gelmis gecersiz ilce var
+  // ("merkez", hatta urun adi kacmis "karpuz"/"sogan"); katı dogrulama bu
+  // kayitlarda telefon duzeltmeyi bile bloklardi.
+  if (data.citySlug && !isValidCitySlug(data.citySlug)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["citySlug"], message: "invalid_city" });
+  }
 });
 
 const moderateClaimBodySchema = z.object({
