@@ -206,7 +206,7 @@ function methodologyNote(input: WeeklyReportHtmlInput): string {
   const base = input.baseWeekLabel ? ` HaldeFiyat Endeksi, ${input.basketSize} temel üründen oluşan sabit sepeti `
     + `${input.baseWeekLabel} baz haftasına göre izler.` : "";
   return `<p class="note"><strong>Metodoloji:</strong> Rapor, ${input.periodLabel} arasında `
-    + `${trNum(input.summary.marketCount, 0)} toptancı halinden derlenen ${trNum(input.summary.totalRecords, 0)} `
+    + `${trNum(input.summary.marketCount, 0)} veri kaynağından (toptancı halleri ve ticaret borsaları) derlenen ${trNum(input.summary.totalRecords, 0)} `
     + `fiyat gözlemine dayanır. Aynı ürünün farklı yazımları kanonik ürün ailesinde birleştirilir. `
     + `En az ${input.minMarkets} ayrı halde görülen kilogram bazlı ürünlerde, haftanın ilk iki günü ile son iki günündeki `
     + `her-hal ortalamaları karşılaştırılır; ulusal değer olarak haller arası medyan kullanılır. Bu yöntem tek bir `
@@ -244,7 +244,7 @@ export function buildWeeklyReportHtml(input: WeeklyReportHtmlInput): string {
     `<p class="dek">${dekParts.join(" ")}</p>`,
     `<div class="meta"><span><strong>Dönem:</strong> ${esc(periodLabel)} (ISO ${esc(input.isoWeek)})</span>`
       + `<span><strong>Kayıt:</strong> ${trNum(summary.totalRecords, 0)} fiyat gözlemi</span>`
-      + `<span><strong>Hal:</strong> ${trNum(summary.marketCount, 0)} toptancı hali</span>`
+      + `<span><strong>Kaynak sayısı:</strong> ${trNum(summary.marketCount, 0)} hal ve borsa</span>`
       + `<span><strong>Kaynak:</strong> Belediye halleri + HKS (Ticaret Bakanlığı)</span></div>`,
     "",
     `<h2>${esc(status?.label ?? "Haftanın Endeks Görünümü")}</h2>`,
