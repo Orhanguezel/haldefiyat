@@ -13,11 +13,19 @@ export type IndexSnapshotRow = {
   createdAt:     Date | null;
 };
 
+// Drizzle `date()` kolonu Date nesnesi dondurur; String(date) yerel bicim verir
+// ("Mon Aug 17 2026...") ve ilk 10 karakter ISO tarih DEGILDIR. Rapor tarafinda
+// bu sessizce bos donem etiketi ("2026-30 ()") uretiyordu.
+function toIsoDate(value: Date | string): string {
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  return String(value).slice(0, 10);
+}
+
 function normalizeRow(row: IndexSnapshotRow): IndexSnapshotRow {
   return {
     ...row,
-    weekStart: String(row.weekStart).slice(0, 10),
-    weekEnd:   String(row.weekEnd).slice(0, 10),
+    weekStart: toIsoDate(row.weekStart),
+    weekEnd:   toIsoDate(row.weekEnd),
   };
 }
 

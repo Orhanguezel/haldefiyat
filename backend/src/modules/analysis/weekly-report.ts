@@ -446,8 +446,8 @@ async function generateWeeklyReport(week: string): Promise<AutoWeeklyReport | nu
     indexWeek: row.indexWeek,
     indexValue: Number(row.indexValue),
     basketAvg: Number(row.basketAvg),
-    weekStart: String(row.weekStart).slice(0, 10),
-    weekEnd: String(row.weekEnd).slice(0, 10),
+    weekStart: toDateOnly(row.weekStart),
+    weekEnd: toDateOnly(row.weekEnd),
   }));
   const status = indexStatusOf(points, isoWeek);
   const currentIdx = points.findIndex((row) => row.indexWeek === isoWeek);
