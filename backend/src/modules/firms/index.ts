@@ -592,6 +592,14 @@ export async function registerFirmsAdmin(app: FastifyInstance) {
     return reply.send({ items: await listStaleFirms(Number.isFinite(days) ? days : 45) });
   });
 
+  app.get<{ Params: { id: string } }>("/firms/:id", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const firm = await getFirmById(id);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi" });
+    return reply.send({ item: firm });
+  });
+
   app.patch<{ Params: { id: string } }>("/firms/:id", async (req, reply) => {
     const id = Number(req.params.id);
     if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });

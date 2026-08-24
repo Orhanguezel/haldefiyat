@@ -188,6 +188,10 @@ export const firmsAdminApi = baseApi.injectEndpoints({
       }),
       providesTags: [{ type: 'Firms' as const, id: 'LIST' }],
     }),
+    getFirmAdmin: builder.query<{ item: FirmAdminItem }, { firmId: number }>({
+      query: ({ firmId }) => ({ url: `/admin/firms/${firmId}` }),
+      providesTags: (_r, _e, arg) => [{ type: 'Firms' as const, id: arg.firmId }],
+    }),
     updateFirmAdmin: builder.mutation<{ item: FirmAdminItem }, { firmId: number; body: FirmAdminPatchPayload }>({
       query: ({ firmId, body }) => ({ url: `/admin/firms/${firmId}`, method: 'PATCH', body }),
       invalidatesTags: [{ type: 'Firms' as const, id: 'LIST' }],
@@ -268,6 +272,7 @@ export const firmsAdminApi = baseApi.injectEndpoints({
 
 export const {
   useListFirmsAdminQuery,
+  useGetFirmAdminQuery,
   useUpdateFirmAdminMutation,
   useClearFirmContactsAdminMutation,
   useListFirmClaimsAdminQuery,

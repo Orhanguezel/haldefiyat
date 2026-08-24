@@ -412,6 +412,7 @@ export {
   useListStaleFirmsAdminQuery,
   useModerateFirmClaimAdminMutation,
   useRunFirmsEtlAdminMutation,
+  useGetFirmAdminQuery,
   useUpdateFirmAdminMutation,
   useClearFirmContactsAdminMutation,
   useUpdateFirmDealAdminMutation,

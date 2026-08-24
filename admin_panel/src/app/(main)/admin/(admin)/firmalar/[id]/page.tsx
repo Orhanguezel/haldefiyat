@@ -4,18 +4,22 @@ import { use } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
-import { useListFirmsAdminQuery } from '@/integrations/hooks';
+import { useGetFirmAdminQuery } from '@/integrations/hooks';
 import { FirmCrmPanel } from '../_components/firm-crm-panel';
 
 // Detay artik listenin en altinda acilan panel degil, kendi sayfasi.
-// Liste sorgusu RTK cache'inde oldugu icin firma cogunlukla aninda gelir.
+// Firma tekil uctan cekilir: liste sorgusundan turetmek, sayfalandirma
+// nedeniyle ilk N kaydin disindaki firmalarda "bulunamadi" verirdi.
 export default function FirmDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const firmId = Number(id);
   const router = useRouter();
 
-  const { data, isLoading } = useListFirmsAdminQuery({ limit: 500 });
-  const firm = data?.items.find((item) => item.id === firmId);
+  const { data, isLoading } = useGetFirmAdminQuery(
+    { firmId },
+    { skip: !Number.isFinite(firmId) || firmId <= 0 },
+  );
+  const firm = data?.item;
 
   if (isLoading && !firm) {
     return <div className="p-6 text-sm text-muted-foreground">Yükleniyor...</div>;
