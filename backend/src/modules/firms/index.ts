@@ -23,6 +23,7 @@ import {
   getFirmById,
   getFirmForManage,
   getFirmPriceHistory,
+  recentDuplicateLeadExists,
   getMyFirm,
   getFirmPricesByDate,
   getLatestFirmPrices,
@@ -561,6 +562,14 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     const parsed = publicLeadBodySchema.safeParse(req.body ?? {});
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz lead parametreleri", issues: parsed.error.issues });
     const data = parsed.data;
+
+    // Tekrar gonderim sessizce yutulur: kullaniciya basari donulur (butona
+    // tekrar basmasin diye) ama ikinci kayit acilmaz.
+    const identity = (data.phone || data.email || "").trim();
+    if (identity && await recentDuplicateLeadExists(firm.id, identity)) {
+      return reply.status(201).send({ ok: true, duplicate: true });
+    }
+
     const newId = await createFirmDeal({
       firmId: firm.id,
       status: "lead",

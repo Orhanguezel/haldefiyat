@@ -790,6 +790,26 @@ export async function listFirmDeals(firmId: number) {
     .orderBy(desc(hfFirmDeals.updatedAt));
 }
 
+/**
+ * Ayni firmaya, ayni kisiden, kisa sure icinde gelen tekrar gonderimi yakalar.
+ * 2026-07'de tek bir ziyaretci gonder butonuna arka arkaya basip 4 kopya
+ * lead uretmisti; alici tarafta bu gurultu gercek talebi gizliyor.
+ */
+export async function recentDuplicateLeadExists(firmId: number, needle: string, withinMinutes = 10): Promise<boolean> {
+  if (!needle) return false;
+  const [row] = await db
+    .select({ id: hfFirmDeals.id })
+    .from(hfFirmDeals)
+    .where(and(
+      eq(hfFirmDeals.firmId, firmId),
+      eq(hfFirmDeals.owner, "public-form"),
+      like(hfFirmDeals.notes, `%${needle}%`),
+      sql`${hfFirmDeals.createdAt} >= DATE_SUB(NOW(), INTERVAL ${sql.raw(String(Math.max(1, Math.min(1440, withinMinutes))))} MINUTE)`,
+    ))
+    .limit(1);
+  return Boolean(row);
+}
+
 export async function createFirmDeal(input: {
   firmId: number;
   status?: "lead" | "contacted" | "negotiating" | "won" | "lost";
