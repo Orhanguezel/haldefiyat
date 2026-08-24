@@ -1,6 +1,7 @@
 import { desc } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfIndexSnapshots } from "@/db/schema";
+import { normalizeMysqlDate } from "@/modules/prices/blackout-date";
 
 export type IndexSnapshotRow = {
   indexWeek:     string;
@@ -16,16 +17,11 @@ export type IndexSnapshotRow = {
 // Drizzle `date()` kolonu Date nesnesi dondurur; String(date) yerel bicim verir
 // ("Mon Aug 17 2026...") ve ilk 10 karakter ISO tarih DEGILDIR. Rapor tarafinda
 // bu sessizce bos donem etiketi ("2026-30 ()") uretiyordu.
-function toIsoDate(value: Date | string): string {
-  if (value instanceof Date) return value.toISOString().slice(0, 10);
-  return String(value).slice(0, 10);
-}
-
 function normalizeRow(row: IndexSnapshotRow): IndexSnapshotRow {
   return {
     ...row,
-    weekStart: toIsoDate(row.weekStart),
-    weekEnd:   toIsoDate(row.weekEnd),
+    weekStart: normalizeMysqlDate(row.weekStart),
+    weekEnd:   normalizeMysqlDate(row.weekEnd),
   };
 }
 
