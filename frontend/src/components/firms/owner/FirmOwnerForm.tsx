@@ -39,6 +39,9 @@ type ProductOption = { value: string; label: string; unit?: string };
 type Props = {
   mode: "create" | "manage";
   locale: string;
+  /** Admin baska bir firmayi yonetirken doldurulur; bos ise kullanicinin kendi firmasi. */
+  adminFirmId?: number;
+  adminFirmName?: string;
 };
 
 const emptyFirm: FirmPayload = {
@@ -64,7 +67,9 @@ function emptyPriceDraft(): PriceDraft {
   };
 }
 
-export function FirmOwnerForm({ mode, locale }: Props) {
+export function FirmOwnerForm({ mode, locale, adminFirmId, adminFirmName }: Props) {
+  // Admin modunda kendi firmasi yerine hedef firma yuklenir; yetkiyi sunucu dogrular.
+  const firmEndpoint = adminFirmId ? `/firms/${adminFirmId}/manage` : "/firms/me";
   const router = useRouter();
   const [firm, setFirm] = useState<Firm | null>(null);
   const [form, setForm] = useState<FirmPayload>(emptyFirm);
@@ -103,7 +108,7 @@ export function FirmOwnerForm({ mode, locale }: Props) {
   useEffect(() => {
     if (mode !== "manage") return;
     let alive = true;
-    apiGet<{ item: Firm | null }>("/firms/me")
+    apiGet<{ item: Firm | null }>(firmEndpoint)
       .then((res) => {
         if (!alive) return;
         if (res.item) {
@@ -120,7 +125,7 @@ export function FirmOwnerForm({ mode, locale }: Props) {
         if (alive) setLoading(false);
       });
     return () => { alive = false; };
-  }, [mode]);
+  }, [mode, firmEndpoint]);
 
   function setField<K extends keyof FirmPayload>(key: K, value: FirmPayload[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -194,7 +199,7 @@ export function FirmOwnerForm({ mode, locale }: Props) {
       } else {
         await apiPost<{ id: number }>(`/firms/${firm.id}/prices`, validation.value);
       }
-      const res = await apiGet<{ item: Firm | null }>("/firms/me");
+      const res = await apiGet<{ item: Firm | null }>(firmEndpoint);
       setPrices(res.item?.prices ?? []);
       setEditingPriceId(null);
       setPriceDraft(emptyPriceDraft());
@@ -235,7 +240,7 @@ export function FirmOwnerForm({ mode, locale }: Props) {
     setError(null);
     try {
       const result = await apiPost<{ inserted: number; skipped: number }>(`/firms/${firm.id}/prices/bulk`, { prices: valid });
-      const res = await apiGet<{ item: Firm | null }>("/firms/me");
+      const res = await apiGet<{ item: Firm | null }>(firmEndpoint);
       setPrices(res.item?.prices ?? []);
       setPreviewRows(null);
       setMessage(`${result.inserted} fiyat satırı işlendi${result.skipped ? `, ${result.skipped} satır atlandı` : ""}.`);
@@ -328,6 +333,18 @@ export function FirmOwnerForm({ mode, locale }: Props) {
 
   return (
     <div className="space-y-6">
+      {adminFirmId && (
+        <div className="rounded-[8px] border-2 border-amber-500/60 bg-amber-500/10 p-4">
+          <p className="font-(family-name:--font-display) text-sm font-bold text-amber-700 dark:text-amber-400">
+            Yönetici modu — bu firma size ait değil
+          </p>
+          <p className="mt-1 text-sm leading-6 text-(--color-muted)">
+            {adminFirmName ? <strong>{adminFirmName}</strong> : "Bu firma"} kaydını firma
+            sahibinin gördüğü ekrandan düzenliyorsunuz. Yaptığınız değişiklikler
+            doğrudan yayına gider ve sizin yönetici hesabınıza kaydedilir.
+          </p>
+        </div>
+      )}
       <form onSubmit={submitFirm} className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-5">
         <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
           <div>

@@ -307,6 +307,19 @@ export async function getMyFirm(userId: string) {
   return { ...firm, products: await listFirmProducts(firm.id), prices: await getFirmPricesByDate(firm.id, todayDateString()), ocrContacts: extractOcrContacts(firm.raw) };
 }
 
+/** getMyFirm ile AYNI sekil, ama sahip yerine firma id'sine gore. Yetki
+ *  cagiran tarafta (requireManageableFirm) denetlenir. */
+export async function getFirmForManage(firmId: number) {
+  const firm = await getFirmById(firmId);
+  if (!firm) return null;
+  return {
+    ...firm,
+    products: await listFirmProducts(firm.id),
+    prices: await getFirmPricesByDate(firm.id, todayDateString()),
+    ocrContacts: extractOcrContacts(firm.raw),
+  };
+}
+
 export async function createUserFirm(input: {
   ownerUserId: string;
   name: string;

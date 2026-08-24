@@ -1,5 +1,6 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 import { requireAuth } from "@agro/shared-backend/middleware/auth";
+import { hasAnyRole } from "@agro/shared-backend/middleware/roles";
 import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
 import { z } from "zod";
@@ -20,6 +21,7 @@ import {
   deleteFirmSponsorship,
   firmDashboardSummary,
   getFirmById,
+  getFirmForManage,
   getMyFirm,
   getFirmPricesByDate,
   getLatestFirmPrices,
@@ -281,9 +283,20 @@ function toFirmPriceInput(data: z.infer<typeof firmPriceBodySchema>, firmId: num
   };
 }
 
-async function requireOwnedFirm(firmId: number, userId: string) {
+/**
+ * Firmayi yonetme yetkisi: ya sahibi ya da admin.
+ *
+ * Admin, sahibin gordugu ekrani /hesabim/firmam?firma=<slug> uzerinden acar.
+ * Impersonation (sahibin adina token uretme) BILEREK yapilmadi: oturum calma
+ * yuzeyi acar ve islemleri sahibin ustune yazip denetim izini bozar. Admin
+ * kendi JWT'siyle girer, rol sunucu tarafinda dogrulanir — query parametresine
+ * guvenilmez.
+ */
+async function requireManageableFirm(req: FastifyRequest, firmId: number) {
   const firm = await getFirmById(firmId);
-  return firm && firm.ownerUserId === userId ? firm : null;
+  if (!firm) return null;
+  if (firm.ownerUserId === getAuthUserId(req)) return firm;
+  return hasAnyRole(req, ["admin"]) ? firm : null;
 }
 
 export async function registerFirmsPublic(app: FastifyInstance) {
@@ -324,6 +337,14 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     return reply.send({ items: latest.items, date: latest.date });
   });
 
+  app.get<{ Params: { id: string } }>("/firms/:id/manage", { onRequest: [requireAuth] }, async (req, reply) => {
+    const firmId = Number(req.params.id);
+    if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const allowed = await requireManageableFirm(req, firmId);
+    if (!allowed) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    return reply.send({ item: await getFirmForManage(firmId) });
+  });
+
   app.post("/firms", { onRequest: [requireAuth] }, async (req, reply) => {
     const userId = getAuthUserId(req);
     const parsed = firmWriteBodySchema.safeParse(req.body ?? {});
@@ -341,7 +362,11 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
     const parsed = firmPatchBodySchema.safeParse(req.body ?? {});
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz firma bilgileri", issues: parsed.error.issues });
-    const firm = await updateFirmByOwner(id, userId, parsed.data);
+    const manageable = await requireManageableFirm(req, id);
+    if (!manageable) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const firm = manageable.ownerUserId === userId
+      ? await updateFirmByOwner(id, userId, parsed.data)
+      : await adminUpdateFirm(id, parsed.data);
     if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
     return reply.send({ item: firm });
   });
@@ -350,8 +375,8 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     const userId = getAuthUserId(req);
     const firmId = Number(req.params.id);
     if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
-    const firm = await getFirmById(firmId);
-    if (!firm || firm.ownerUserId !== userId) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const firm = await requireManageableFirm(req, firmId);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
     const parsed = firmProductBodySchema.safeParse(req.body ?? {});
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz urun bilgileri", issues: parsed.error.issues });
     const id = await createFirmProduct({ ...parsed.data, firmId });
@@ -365,8 +390,8 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     const userId = getAuthUserId(req);
     const firmId = Number(req.params.id);
     if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
-    const firm = await getFirmById(firmId);
-    if (!firm || firm.ownerUserId !== userId) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const firm = await requireManageableFirm(req, firmId);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
     const bulkParsed = firmProductsBulkBodySchema.safeParse(req.body ?? {});
     const incoming = Array.isArray((req.body as { products?: unknown[] } | undefined)?.products)
       ? ((req.body as { products?: unknown[] }).products ?? []).slice(0, 500)
@@ -389,7 +414,7 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     const userId = getAuthUserId(req);
     const firmId = Number(req.params.id);
     if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
-    const firm = await requireOwnedFirm(firmId, userId);
+    const firm = await requireManageableFirm(req, firmId);
     if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
     const date = req.query.date && /^\d{4}-\d{2}-\d{2}$/.test(req.query.date) ? req.query.date : new Date().toISOString().slice(0, 10);
     return reply.send({ items: await getFirmPricesByDate(firmId, date), date });
@@ -402,7 +427,7 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     const userId = getAuthUserId(req);
     const firmId = Number(req.params.id);
     if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
-    const firm = await requireOwnedFirm(firmId, userId);
+    const firm = await requireManageableFirm(req, firmId);
     if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
     const parsed = firmPriceBodySchema.safeParse(req.body ?? {});
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz fiyat bilgileri", issues: parsed.error.issues });
@@ -417,7 +442,7 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     const userId = getAuthUserId(req);
     const firmId = Number(req.params.id);
     if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
-    const firm = await requireOwnedFirm(firmId, userId);
+    const firm = await requireManageableFirm(req, firmId);
     if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
     const body = req.body as { prices?: unknown[] } | undefined;
     const bulkParsed = firmPricesBulkBodySchema.safeParse(req.body ?? {});
@@ -441,7 +466,7 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     const firmId = Number(req.params.id);
     const priceId = Number(req.params.priceId);
     if (!Number.isFinite(firmId) || !Number.isFinite(priceId)) return reply.status(400).send({ error: "Gecersiz id" });
-    const firm = await requireOwnedFirm(firmId, userId);
+    const firm = await requireManageableFirm(req, firmId);
     if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
     const parsed = firmPricePatchBodySchema.safeParse(req.body ?? {});
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz fiyat bilgileri", issues: parsed.error.issues });
@@ -459,7 +484,7 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     const firmId = Number(req.params.id);
     const priceId = Number(req.params.priceId);
     if (!Number.isFinite(firmId) || !Number.isFinite(priceId)) return reply.status(400).send({ error: "Gecersiz id" });
-    const firm = await requireOwnedFirm(firmId, userId);
+    const firm = await requireManageableFirm(req, firmId);
     if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
     const affected = await deleteFirmPrice(priceId, firmId);
     if (!affected) return reply.status(404).send({ error: "Fiyat bulunamadi" });
@@ -471,8 +496,8 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     const firmId = Number(req.params.id);
     const productId = Number(req.params.productId);
     if (!Number.isFinite(firmId) || !Number.isFinite(productId)) return reply.status(400).send({ error: "Gecersiz id" });
-    const firm = await getFirmById(firmId);
-    if (!firm || firm.ownerUserId !== userId) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const firm = await requireManageableFirm(req, firmId);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
     const parsed = firmProductPatchBodySchema.safeParse(req.body ?? {});
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz urun bilgileri", issues: parsed.error.issues });
     const affected = await updateFirmProduct(productId, { ...parsed.data, firmId });
@@ -485,8 +510,8 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     const firmId = Number(req.params.id);
     const productId = Number(req.params.productId);
     if (!Number.isFinite(firmId) || !Number.isFinite(productId)) return reply.status(400).send({ error: "Gecersiz id" });
-    const firm = await getFirmById(firmId);
-    if (!firm || firm.ownerUserId !== userId) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const firm = await requireManageableFirm(req, firmId);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
     const affected = await deleteFirmProduct(productId, firmId);
     if (!affected) return reply.status(404).send({ error: "Urun bulunamadi" });
     return reply.send({ ok: true });

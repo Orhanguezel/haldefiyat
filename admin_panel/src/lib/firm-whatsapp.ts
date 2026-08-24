@@ -2,7 +2,9 @@
 // İNSAN-TETİKLİ: operatör butona basınca WhatsApp önceden-doldurulmuş mesajla açılır;
 // toplu/otomatik gönderim DEĞİL. KVKK/İYS: mesajda gönderen kimliği + kaynak + ret (opt-out) var.
 
-const SITE = "https://haldefiyat.com";
+import { PUBLIC_SITE_URL } from "@/lib/public-site";
+
+const SITE = PUBLIC_SITE_URL;
 
 type FirmLite = {
   slug: string;

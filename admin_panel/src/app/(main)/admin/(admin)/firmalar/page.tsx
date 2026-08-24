@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { buildFirmWhatsappLink } from '@/lib/firm-whatsapp';
+import { publicSiteLink } from '@/lib/public-site';
 import {
   useCreateFirmDealAdminMutation,
   useCreateFirmAdCampaignAdminMutation,
@@ -226,6 +227,25 @@ export default function FirmsAdminPage() {
                         disabled={isUpdatingFirm}
                       >
                         Sahipliği kaldır
+                      </Button>
+                    )}
+                    {publicSiteLink(`/firma/${item.slug}`) && (
+                      <Button asChild size="sm" variant="outline">
+                        <a href={publicSiteLink(`/firma/${item.slug}`)!} target="_blank" rel="noopener noreferrer">
+                          Sayfayı gör
+                        </a>
+                      </Button>
+                    )}
+                    {publicSiteLink(`/hesabim/firmam?firma=${item.slug}`) && (
+                      <Button
+                        asChild
+                        size="sm"
+                        variant="outline"
+                        className="border-amber-300 text-amber-700 hover:bg-amber-50"
+                      >
+                        <a href={publicSiteLink(`/hesabim/firmam?firma=${item.slug}`)!} target="_blank" rel="noopener noreferrer">
+                          Sahip gözüyle düzenle
+                        </a>
                       </Button>
                     )}
                     {item.claimStatus !== 'verified' && buildFirmWhatsappLink(item) && (
