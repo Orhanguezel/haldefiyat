@@ -33,7 +33,10 @@ function scoreContent(report: ReportRow): { score: number; breakdown: BreakItem[
   const h2 = countMatches(html, /<h2[\s>]/gi);
   const tables = countMatches(html, /<table[\s>]/gi);
   const hasMethodology = /hdf-note|metodoloji/i.test(html);
-  const hasDek = /hdf-dek|hdf-kicker/i.test(html);
+  // Uretici `class="kicker"` / `class="dek"` basiyor; eski `hdf-` onekli
+  // secici hicbir otomatik raporda eslesmiyordu (her rapor sahip oldugu
+  // blok icin 10 puan kaybediyordu).
+  const hasDek = /class="(?:[^"]*\s)?(?:hdf-)?(?:dek|kicker)(?:\s[^"]*)?"/i.test(html);
   const summaryLen = (report.summary ?? "").trim().length;
 
   const wordPts = wordCount >= 600 ? 30 : wordCount >= 350 ? 18 : wordCount >= 150 ? 8 : 0;
