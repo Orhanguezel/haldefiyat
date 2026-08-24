@@ -27,6 +27,7 @@ import {
   useModerateFirmClaimAdminMutation,
   useRunFirmsEtlAdminMutation,
   useUpdateFirmAdminMutation,
+  useClearFirmContactsAdminMutation,
   useUpdateFirmDealAdminMutation,
   useUpdateFirmSponsorshipAdminMutation,
 } from '@/integrations/hooks';
@@ -344,6 +345,7 @@ function FirmCrmPanel({ firm, onClose }: { firm: FirmAdminItem; onClose: () => v
   const [updateSponsor] = useUpdateFirmSponsorshipAdminMutation();
   const [deleteSponsor] = useDeleteFirmSponsorshipAdminMutation();
   const [updateFirm, { isLoading: isUpdatingFirm }] = useUpdateFirmAdminMutation();
+  const [clearContacts, { isLoading: isClearingContacts }] = useClearFirmContactsAdminMutation();
 
   const [dealStatus, setDealStatus] = useState<FirmDeal['status']>('lead');
   const [dealType, setDealType] = useState<FirmDeal['dealType']>('reklam');
@@ -554,6 +556,18 @@ function FirmCrmPanel({ firm, onClose }: { firm: FirmAdminItem; onClose: () => v
               Google&apos;a aç (sitemap + index)
             </label>
             <Button size="sm" onClick={handleSaveFirm} disabled={isUpdatingFirm}>Firma bilgilerini kaydet</Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={isClearingContacts}
+              onClick={async () => {
+                if (!window.confirm(`"${firm.name}" firmasının yayındaki telefon ve OCR iletişim kayıtları kaldırılacak. KVKK/düzeltme talebi için kullanın. Onaylıyor musunuz?`)) return;
+                await clearContacts({ firmId: firm.id }).unwrap();
+                setEdit((prev) => ({ ...prev, phone: '' }));
+              }}
+            >
+              İletişim bilgisini kaldır (KVKK)
+            </Button>
             {editSaved && <span className="text-xs text-emerald-600">Kaydedildi.</span>}
             {editError && <span className="text-xs text-red-600">{editError}</span>}
           </div>

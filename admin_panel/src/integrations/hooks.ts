@@ -413,6 +413,7 @@ export {
   useModerateFirmClaimAdminMutation,
   useRunFirmsEtlAdminMutation,
   useUpdateFirmAdminMutation,
+  useClearFirmContactsAdminMutation,
   useUpdateFirmDealAdminMutation,
   useUpdateFirmSponsorshipAdminMutation,
 } from "@/integrations/endpoints/firms-admin-endpoints";

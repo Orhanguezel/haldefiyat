@@ -199,6 +199,10 @@ export const firmsAdminApi = baseApi.injectEndpoints({
       }),
       providesTags: [{ type: 'Firms' as const, id: 'CLAIMS' }],
     }),
+    clearFirmContactsAdmin: builder.mutation<{ ok: boolean }, { firmId: number }>({
+      query: ({ firmId }) => ({ url: `/admin/firms/${firmId}/clear-contacts`, method: 'POST' }),
+      invalidatesTags: [{ type: 'Firms' as const, id: 'LIST' }],
+    }),
     moderateFirmClaimAdmin: builder.mutation<{ item: FirmClaimAdminItem }, { claimId: number; status: 'approved' | 'rejected' }>({
       query: ({ claimId, status }) => ({ url: `/admin/firms/claims/${claimId}/moderate`, method: 'POST', body: { status } }),
       invalidatesTags: [{ type: 'Firms' as const, id: 'CLAIMS' }, { type: 'Firms' as const, id: 'LIST' }],
@@ -265,6 +269,7 @@ export const firmsAdminApi = baseApi.injectEndpoints({
 export const {
   useListFirmsAdminQuery,
   useUpdateFirmAdminMutation,
+  useClearFirmContactsAdminMutation,
   useListFirmClaimsAdminQuery,
   useModerateFirmClaimAdminMutation,
   useListStaleFirmsAdminQuery,

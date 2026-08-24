@@ -67,7 +67,8 @@ import {
   useReplyContactAdminMutation,
 } from '@/integrations/hooks';
 
-const DEFAULT_REPLY_TO = 'info@vistaseeds.com.tr';
+// Marka/alan adi koda gomulmez — dagitim ortaminin .env'inden gelir.
+const DEFAULT_REPLY_TO = process.env.NEXT_PUBLIC_CONTACT_REPLY_TO ?? '';
 
 export default function AdminContactsClient() {
   const t = useAdminT('admin.contacts');

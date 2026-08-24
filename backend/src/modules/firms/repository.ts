@@ -315,6 +315,27 @@ export async function releaseFirmOwnership(id: number, userId: string): Promise<
   return true;
 }
 
+/**
+ * KVKK/duzeltme talebi uzerine bir firmanin yayindaki iletisim bilgisini kaldirir.
+ *
+ * Numara uc yerde birden durur: `phone` kolonu, `raw.ocr_phones` ve
+ * `raw.ocr_contacts`. Sayfa ocr_contacts blogunu ayrica render ettigi icin
+ * yalnizca kolonu bosaltmak yetmez.
+ *
+ * `phone` NULL degil bos string yapilir: upsertFirm re-scrape'te
+ * COALESCE(phone, scraped) uyguluyor; NULL birakilirsa numara bir sonraki
+ * halkatalogu taramasinda geri gelir, bos string ise korunur.
+ */
+export async function clearFirmContacts(id: number): Promise<boolean> {
+  const firm = await getFirmById(id);
+  if (!firm) return false;
+  await db.update(hfFirms).set({
+    phone: "",
+    raw: sql`JSON_SET(COALESCE(${hfFirms.raw}, JSON_OBJECT()), '$.ocr_phones', JSON_ARRAY(), '$.ocr_contacts', JSON_ARRAY())`,
+  }).where(eq(hfFirms.id, id));
+  return true;
+}
+
 export async function adminUpdateFirm(id: number, input: FirmPatchInput & AdminFirmFields) {
   await updateFirmFields(id, input);
   return getFirmById(id);

@@ -24,6 +24,7 @@ import {
   getFirmPricesByDate,
   getLatestFirmPrices,
   adminUpdateFirm,
+  clearFirmContacts,
   getFirmBySlug,
   listFirmCityAggregates,
   listFirmClaims,
@@ -573,6 +574,14 @@ export async function registerFirmsAdmin(app: FastifyInstance) {
     const firm = await adminUpdateFirm(id, parsed.data);
     if (!firm) return reply.status(404).send({ error: "Firma bulunamadi" });
     return reply.send({ item: firm });
+  });
+
+  app.post<{ Params: { id: string } }>("/firms/:id/clear-contacts", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const ok = await clearFirmContacts(id);
+    if (!ok) return reply.status(404).send({ error: "Firma bulunamadi" });
+    return reply.send({ ok: true });
   });
 
   app.get("/firms/claims", async (req, reply) => {
