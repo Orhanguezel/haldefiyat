@@ -167,6 +167,26 @@ if [ "$FRONTEND_HEALTH_OK" -ne 1 ]; then
   exit 1
 fi
 
+# ── Eski release dizinlerini temizle ────────────────────────────────────────
+# Calisan release + bir onceki (rollback icin) saklanir, gerisi silinir.
+# Bu adim yoktu; 2026-08-24'te 146 bayat dizin ~28GB yer tutup diski %90'a
+# cikarmis ve admin build'ini OOM ile dusurmustu.
+echo "==> eski release dizinleri temizleniyor"
+for app_dir in "$FRONTEND" "$ADMIN"; do
+  live_dist="$(readlink -f "$app_dir/standalone-server.js" 2>/dev/null | grep -o '\.next-release-[a-f0-9]*' | head -1 || true)"
+  removed=0
+  for dist in "$app_dir"/.next-release-*; do
+    [ -d "$dist" ] || continue
+    base="$(basename "$dist")"
+    [ "$base" = "$RELEASE_DIST" ] && continue
+    [ -n "$live_dist" ] && [ "$base" = "$live_dist" ] && continue
+    rm -rf "$dist"
+    removed=$((removed + 1))
+  done
+  echo "    $(basename "$app_dir"): $removed eski dizin silindi"
+done
+df -h / | tail -1
+
 echo ""
 echo "✓ Deploy tamamlandı"
 pm2 list
