@@ -18,6 +18,7 @@ import { generateLatestWeeklyAnalysisReport, publishScheduledReports } from "@/m
 import { syncInflation } from "@/modules/inflation";
 import { env } from "@/core/env";
 import { runFirmDirectoryEtl } from "@/modules/firms/service";
+import { syncFirmSeoIndex } from "@/modules/firms/repository";
 import { runFirmDailyPriceReminders } from "@/modules/firms/reminders";
 import { expireListings, purgeListingPersonalData, sendListingExpiryReminders } from "@/modules/listings";
 import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
@@ -623,6 +624,10 @@ async function runFirmsJob(app: FastifyInstance, full: boolean): Promise<void> {
       delayMs: 750,
     });
     app.log.info({ ...result, durationMs: Date.now() - t0 }, "[cron:firms] tamamlandi");
+    const seo = await syncFirmSeoIndex();
+    if (seo.promoted > 0) {
+      app.log.info(seo, "[cron:firms] seo_index havuzuna eklenen firma");
+    }
   } catch (err) {
     app.log.error({ err }, "[cron:firms] hata");
   }

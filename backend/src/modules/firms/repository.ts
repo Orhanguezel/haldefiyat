@@ -227,6 +227,50 @@ export async function listFirmSeoCandidates(limit = 500) {
     .limit(Math.min(limit, 1000));
 }
 
+/**
+ * Yeterli ozgun icerigi olan firmalari sitemap/index havuzuna alir.
+ *
+ * Firma sayfalarinin varsayilani noindex (seo_index=0): 1.300+ kayit ayni
+ * sablonu paylasiyor ve Google bunlari ince icerik olarak reddediyor. Bir sayfa
+ * ancak baska hicbir sayfada olmayan bir seye sahipse indexlenmeye deger.
+ *
+ * Taban sart: aktif + onayli + il + adres. Ustune en az bir guclu sinyal:
+ * dogrulanmis sahiplik, dolu aciklama, urun listesi veya kendi fiyat girisi.
+ *
+ * Yalnizca YUKSELTIR (0 -> 1). Otomatik dusurme yok: admin panelden elle
+ * kapatilan bir firmayi bir sonraki kosuda geri acmasin. Kalici cozum icin
+ * ayri bir "manuel override" kolonu gerekir.
+ */
+export async function syncFirmSeoIndex(): Promise<{ promoted: number }> {
+  const result = await db.execute(sql`
+    UPDATE hf_firms f
+    LEFT JOIN (
+      SELECT firm_id, COUNT(*) AS product_count
+      FROM hf_firm_products GROUP BY firm_id
+    ) p ON p.firm_id = f.id
+    LEFT JOIN (
+      SELECT firm_id, COUNT(*) AS price_count
+      FROM hf_firm_prices
+      WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+      GROUP BY firm_id
+    ) pr ON pr.firm_id = f.id
+    SET f.seo_index = 1
+    WHERE f.seo_index = 0
+      AND f.is_active = 1
+      AND f.status = 'approved'
+      AND f.city_slug IS NOT NULL AND f.city_slug <> ''
+      AND COALESCE(f.address, '') <> ''
+      AND (
+        f.claim_status = 'verified'
+        OR CHAR_LENGTH(COALESCE(f.description, '')) >= 120
+        OR COALESCE(p.product_count, 0) >= 3
+        OR COALESCE(pr.price_count, 0) >= 1
+      )
+  `);
+  const info = (Array.isArray(result) ? result[0] : result) as unknown as { affectedRows?: number };
+  return { promoted: Number(info?.affectedRows ?? 0) };
+}
+
 export async function getFirmBySlug(slug: string) {
   const includeSeoIndex = await hasFirmSeoIndexColumn();
   const rows = await db

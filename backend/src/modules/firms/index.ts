@@ -25,6 +25,7 @@ import {
   getLatestFirmPrices,
   adminUpdateFirm,
   clearFirmContacts,
+  syncFirmSeoIndex,
   getFirmBySlug,
   listFirmCityAggregates,
   listFirmClaims,
@@ -582,6 +583,11 @@ export async function registerFirmsAdmin(app: FastifyInstance) {
     const ok = await clearFirmContacts(id);
     if (!ok) return reply.status(404).send({ error: "Firma bulunamadi" });
     return reply.send({ ok: true });
+  });
+
+  app.post("/firms/seo-index/sync", async (_req, reply) => {
+    const result = await syncFirmSeoIndex();
+    return reply.send(result);
   });
 
   app.get("/firms/claims", async (req, reply) => {

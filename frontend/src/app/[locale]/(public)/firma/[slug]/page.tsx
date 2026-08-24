@@ -274,14 +274,19 @@ export default async function FirmDetailPage({ params }: Props) {
             <section className="rounded-[8px] border border-(--color-border) bg-(--color-surface) p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
-                  Günlük Hal Fiyatları
+                  Firmanın Bildirdiği Fiyatlar
                 </h2>
                 {firm.latestPriceDate && (
                   <span className="rounded-full border border-(--color-brand)/25 px-3 py-1 font-(family-name:--font-mono) text-[11px] font-semibold text-(--color-brand)">
-                    Veri tarihi: {firm.latestPriceDate}
+                    Firma beyanı · {firm.latestPriceDate}
                   </span>
                 )}
               </div>
+              <p className="mt-2 text-sm leading-6 text-(--color-muted)">
+                Bu fiyatlar firmanın kendi girdiği değerlerdir; hal kayıtlarından
+                derlenen resmî veri değildir ve site genelindeki hal ortalamalarına
+                veya HaldeFiyat Endeksi&apos;ne dahil edilmez.
+              </p>
               <div className="mt-4 overflow-x-auto rounded-[8px] border border-(--color-border-soft)">
                 <table className="min-w-[420px] w-full text-left text-sm">
                   <thead className="bg-(--color-bg-alt) font-(family-name:--font-mono) text-[11px] uppercase tracking-[0.08em] text-(--color-muted)">
