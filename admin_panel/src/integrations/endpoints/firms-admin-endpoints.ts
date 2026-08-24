@@ -54,6 +54,7 @@ export type FirmAdminPatchPayload = {
   firmType?: FirmAdminItem['firmType'];
   seoIndex?: boolean;
   isActive?: boolean;
+  photoUrl?: string | null;
 };
 
 export type FirmSummary = {
@@ -64,6 +65,56 @@ export type FirmSummary = {
   wonValue: number;
   pipelineValue: number;
   dealsByStatus: Record<string, number>;
+};
+
+
+export type FirmProduct = {
+  id: number;
+  productSlug: string | null;
+  productName: string;
+  note: string | null;
+  price: string | null;
+  imageUrl: string | null;
+  displayOrder: number;
+};
+
+export type FirmPriceRow = {
+  id: number;
+  productSlug: string | null;
+  productName: string;
+  unit: string;
+  minPrice: string | null;
+  maxPrice: string | null;
+  avgPrice: string;
+  recordedDate: string;
+};
+
+export type FirmManageItem = FirmAdminItem & {
+  photoUrl: string | null;
+  description: string | null;
+  products: FirmProduct[];
+  prices: FirmPriceRow[];
+};
+
+export type FirmPriceHistoryDay = { date: string; items: FirmPriceRow[] };
+
+export type FirmPriceInput = {
+  productSlug?: string | null;
+  productName: string;
+  unit: string;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  avgPrice: number;
+  recordedDate: string;
+};
+
+export type FirmProductInput = {
+  productSlug?: string | null;
+  productName: string;
+  note?: string | null;
+  price?: string | null;
+  imageUrl?: string | null;
+  displayOrder?: number;
 };
 
 export type FirmsAdminResponse = {
@@ -188,6 +239,47 @@ export const firmsAdminApi = baseApi.injectEndpoints({
       }),
       providesTags: [{ type: 'Firms' as const, id: 'LIST' }],
     }),
+    getFirmManage: builder.query<{ item: FirmManageItem }, { firmId: number }>({
+      query: ({ firmId }) => ({ url: `/firms/${firmId}/manage` }),
+      providesTags: (_r, _e, arg) => [{ type: 'Firms' as const, id: `MANAGE-${arg.firmId}` }],
+    }),
+    getFirmPriceHistory: builder.query<{ days: number; items: FirmPriceHistoryDay[] }, { firmId: number; days?: number }>({
+      query: ({ firmId, days }) => ({ url: `/firms/${firmId}/price-history`, params: days ? { days } : undefined }),
+      providesTags: (_r, _e, arg) => [{ type: 'Firms' as const, id: `HISTORY-${arg.firmId}` }],
+    }),
+    createFirmProductAdmin: builder.mutation<{ id: number }, { firmId: number; body: FirmProductInput }>({
+      query: ({ firmId, body }) => ({ url: `/firms/${firmId}/products`, method: 'POST', body }),
+      invalidatesTags: (_r, _e, arg) => [{ type: 'Firms' as const, id: `MANAGE-${arg.firmId}` }],
+    }),
+    updateFirmProductAdmin: builder.mutation<{ ok: boolean }, { firmId: number; productId: number; body: Partial<FirmProductInput> }>({
+      query: ({ firmId, productId, body }) => ({ url: `/firms/${firmId}/products/${productId}`, method: 'PATCH', body }),
+      invalidatesTags: (_r, _e, arg) => [{ type: 'Firms' as const, id: `MANAGE-${arg.firmId}` }],
+    }),
+    deleteFirmProductAdmin: builder.mutation<{ ok: boolean }, { firmId: number; productId: number }>({
+      query: ({ firmId, productId }) => ({ url: `/firms/${firmId}/products/${productId}`, method: 'DELETE' }),
+      invalidatesTags: (_r, _e, arg) => [{ type: 'Firms' as const, id: `MANAGE-${arg.firmId}` }],
+    }),
+    upsertFirmPriceAdmin: builder.mutation<{ id: number }, { firmId: number; body: FirmPriceInput }>({
+      query: ({ firmId, body }) => ({ url: `/firms/${firmId}/prices`, method: 'POST', body }),
+      invalidatesTags: (_r, _e, arg) => [
+        { type: 'Firms' as const, id: `MANAGE-${arg.firmId}` },
+        { type: 'Firms' as const, id: `HISTORY-${arg.firmId}` },
+      ],
+    }),
+    deleteFirmPriceAdmin: builder.mutation<{ ok: boolean }, { firmId: number; priceId: number }>({
+      query: ({ firmId, priceId }) => ({ url: `/firms/${firmId}/prices/${priceId}`, method: 'DELETE' }),
+      invalidatesTags: (_r, _e, arg) => [
+        { type: 'Firms' as const, id: `MANAGE-${arg.firmId}` },
+        { type: 'Firms' as const, id: `HISTORY-${arg.firmId}` },
+      ],
+    }),
+    uploadFirmImage: builder.mutation<{ url: string }, { file: File }>({
+      query: ({ file }) => {
+        const form = new FormData();
+        form.append('file', file);
+        return { url: '/storage/firms/upload', method: 'POST', body: form };
+      },
+    }),
     getFirmAdmin: builder.query<{ item: FirmAdminItem }, { firmId: number }>({
       query: ({ firmId }) => ({ url: `/admin/firms/${firmId}` }),
       providesTags: (_r, _e, arg) => [{ type: 'Firms' as const, id: arg.firmId }],
@@ -272,6 +364,14 @@ export const firmsAdminApi = baseApi.injectEndpoints({
 
 export const {
   useListFirmsAdminQuery,
+  useGetFirmManageQuery,
+  useGetFirmPriceHistoryQuery,
+  useCreateFirmProductAdminMutation,
+  useUpdateFirmProductAdminMutation,
+  useDeleteFirmProductAdminMutation,
+  useUpsertFirmPriceAdminMutation,
+  useDeleteFirmPriceAdminMutation,
+  useUploadFirmImageMutation,
   useGetFirmAdminQuery,
   useUpdateFirmAdminMutation,
   useClearFirmContactsAdminMutation,

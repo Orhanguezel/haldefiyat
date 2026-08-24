@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useGetFirmAdminQuery } from '@/integrations/hooks';
 import { FirmCrmPanel } from '../_components/firm-crm-panel';
+import { FirmWorkspace } from '../_components/firm-workspace';
 
 // Detay artik listenin en altinda acilan panel degil, kendi sayfasi.
 // Firma tekil uctan cekilir: liste sorgusundan turetmek, sayfalandirma
@@ -41,6 +42,7 @@ export default function FirmDetailPage({ params }: { params: Promise<{ id: strin
       <Button variant="outline" size="sm" onClick={() => router.push('/admin/firmalar')}>
         ← Firma listesi
       </Button>
+      <FirmWorkspace firm={firm} />
       <FirmCrmPanel firm={firm} onClose={() => router.push('/admin/firmalar')} />
     </div>
   );
