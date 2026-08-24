@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { requireAuth } from "@agro/shared-backend/middleware/auth";
 import { hasAnyRole } from "@agro/shared-backend/middleware/roles";
+import { sendMailRaw, escapeMailHtml, wrapMailBody } from "@agro/shared-backend/modules/mail";
 import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
 import { z } from "zod";
@@ -25,6 +26,8 @@ import {
   getFirmPriceHistory,
   recentDuplicateLeadExists,
   listRecentFirmDeals,
+  getFirmDealById,
+  appendFirmDealNote,
   getMyFirm,
   getFirmPricesByDate,
   getLatestFirmPrices,
@@ -228,6 +231,12 @@ const moderateFirmBodySchema = firmWriteFieldsSchema.partial().extend({
   if (data.citySlug && !isValidCitySlug(data.citySlug)) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["citySlug"], message: "invalid_city" });
   }
+});
+
+const leadReplyBodySchema = z.object({
+  subject: z.string().trim().min(2).max(255),
+  message: z.string().trim().min(10).max(10000),
+  replyTo: z.string().trim().email().max(255).optional().nullable(),
 });
 
 const moderateClaimBodySchema = z.object({
@@ -652,6 +661,37 @@ export async function registerFirmsAdmin(app: FastifyInstance) {
       offset: Number(req.query.offset) || 0,
     });
     return reply.send({ items: result.items, meta: { total: result.total, limit: result.limit, offset: result.offset } });
+  });
+
+  app.post<{ Params: { dealId: string } }>("/firms/leads/:dealId/reply", async (req, reply) => {
+    const dealId = Number(req.params.dealId);
+    if (!Number.isFinite(dealId) || dealId <= 0) return reply.status(400).send({ error: "Gecersiz talep id" });
+    const parsed = leadReplyBodySchema.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz cevap alanlari", issues: parsed.error.issues });
+
+    const deal = await getFirmDealById(dealId);
+    if (!deal) return reply.status(404).send({ error: "Talep bulunamadi" });
+
+    // E-posta serbest metin notlarin icinde duruyor ("E-posta: x@y.z").
+    const match = /E-posta:\s*([^\s\n]+@[^\s\n]+)/i.exec(deal.notes ?? "");
+    const to = match?.[1]?.trim();
+    if (!to) return reply.status(422).send({ error: "Bu talepte e-posta adresi yok; telefonla ulasin" });
+
+    const safeBody = escapeMailHtml(parsed.data.message).replace(/\n/g, "<br/>");
+    const html = wrapMailBody(`<div style="white-space:pre-wrap">${safeBody}</div>`);
+
+    await sendMailRaw({
+      to,
+      subject: parsed.data.subject,
+      html,
+      text: parsed.data.message,
+      ...(parsed.data.replyTo ? { replyTo: parsed.data.replyTo } : {}),
+    });
+
+    const stamp = new Date().toISOString().replace("T", " ").slice(0, 19);
+    await appendFirmDealNote(dealId, `[${stamp}] Cevap gonderildi (${to}): ${parsed.data.subject}`);
+
+    return reply.send({ ok: true, to });
   });
 
   app.get("/firms/claims", async (req, reply) => {

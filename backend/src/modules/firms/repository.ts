@@ -816,6 +816,31 @@ export async function recentDuplicateLeadExists(firmId: number, needle: string, 
  * Oncesinde talepler yalnizca firma detay sayfasinda goruluyordu; 1.335
  * firmayi tek tek acmak gerektigi icin 2 gercek lead aylarca fark edilmedi.
  */
+export async function getFirmDealById(dealId: number) {
+  const [row] = await db
+    .select({
+      id: hfFirmDeals.id,
+      firmId: hfFirmDeals.firmId,
+      firmName: hfFirms.name,
+      firmSlug: hfFirms.slug,
+      status: hfFirmDeals.status,
+      notes: hfFirmDeals.notes,
+      createdAt: hfFirmDeals.createdAt,
+    })
+    .from(hfFirmDeals)
+    .innerJoin(hfFirms, eq(hfFirms.id, hfFirmDeals.firmId))
+    .where(eq(hfFirmDeals.id, dealId))
+    .limit(1);
+  return row ?? null;
+}
+
+/** Gonderilen cevabi talebin notlarina denetim satiri olarak ekler. */
+export async function appendFirmDealNote(dealId: number, line: string) {
+  await db.update(hfFirmDeals)
+    .set({ notes: sql`CONCAT(COALESCE(${hfFirmDeals.notes}, ''), '\n', ${line})` })
+    .where(eq(hfFirmDeals.id, dealId));
+}
+
 export async function listRecentFirmDeals(opts: { status?: string; limit?: number; offset?: number } = {}) {
   const limit = Math.min(200, Math.max(1, opts.limit ?? 50));
   const offset = Math.max(0, opts.offset ?? 0);

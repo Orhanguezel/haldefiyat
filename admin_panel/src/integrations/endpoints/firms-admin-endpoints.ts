@@ -252,6 +252,13 @@ export const firmsAdminApi = baseApi.injectEndpoints({
       }),
       providesTags: [{ type: 'Firms' as const, id: 'LIST' }],
     }),
+    replyFirmLeadAdmin: builder.mutation<
+      { ok: boolean; to: string },
+      { dealId: number; body: { subject: string; message: string; replyTo?: string | null } }
+    >({
+      query: ({ dealId, body }) => ({ url: `/admin/firms/leads/${dealId}/reply`, method: 'POST', body }),
+      invalidatesTags: [{ type: 'Firms' as const, id: 'LEADS' }],
+    }),
     listFirmLeadsAdmin: builder.query<
       { items: FirmLeadItem[]; meta: { total: number; limit: number; offset: number } },
       { status?: string; limit?: number; offset?: number } | void
@@ -384,6 +391,7 @@ export const firmsAdminApi = baseApi.injectEndpoints({
 
 export const {
   useListFirmsAdminQuery,
+  useReplyFirmLeadAdminMutation,
   useListFirmLeadsAdminQuery,
   useGetFirmManageQuery,
   useGetFirmPriceHistoryQuery,
