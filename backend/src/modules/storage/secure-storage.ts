@@ -18,7 +18,7 @@ import {
   uploadBufferAuto,
 } from "@agro/shared-backend/modules/storage";
 
-const PUBLIC_UPLOAD_BUCKETS = new Set(["avatars", "listings"]);
+const PUBLIC_UPLOAD_BUCKETS = new Set(["avatars", "listings", "firms"]);
 const ALLOWED_DECLARED_MIME = new Map([
   ["image/jpeg", "jpeg"],
   ["image/jpg", "jpeg"],

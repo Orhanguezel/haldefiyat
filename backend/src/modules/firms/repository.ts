@@ -4,6 +4,7 @@ import { db } from "@/db/client";
 import { hfFirmClaims, hfFirmDeals, hfFirmPrices, hfFirmProducts, hfFirms, hfFirmSponsorships, hfProducts } from "@/db/schema";
 import { slugifyTr, TURKEY_CITIES } from "@/data/turkey-city-slugs";
 import type { FetchedFirm, FirmListFilters } from "./types";
+import { normalizeMysqlDate } from "@/modules/prices/blackout-date";
 
 type FirmType = "komisyoncu" | "soguk_hava" | "nakliye" | "zirai_ilac";
 
@@ -105,7 +106,9 @@ export async function upsertFirm(firm: FetchedFirm): Promise<"inserted" | "updat
         address: values.address,
         citySlug: values.citySlug,
         districtSlug: values.districtSlug,
-        photoUrl: values.photoUrl,
+        // Yuklenen logo korunur: scrape fotosu daima halkatalogu'ndan gelir,
+        // kullanici/admin yuklemesi ezilmemeli (telefon COALESCE'i ile ayni fikir).
+        photoUrl: sql`CASE WHEN ${hfFirms.photoUrl} IS NULL OR ${hfFirms.photoUrl} = '' OR ${hfFirms.photoUrl} LIKE '%halkatalogu.com%' THEN ${values.photoUrl} ELSE ${hfFirms.photoUrl} END`,
         sourceUrl: values.sourceUrl,
         firmType: values.firmType,
         categories: values.categories,
@@ -407,6 +410,7 @@ type FirmPatchInput = {
   districtSlug?: string | null;
   description?: string | null;
   categories?: string[];
+  photoUrl?: string | null;
 };
 
 type AdminFirmFields = {
@@ -428,6 +432,7 @@ async function updateFirmFields(id: number, input: FirmPatchInput & AdminFirmFie
     ...(input.districtSlug !== undefined ? { districtSlug: input.districtSlug } : {}),
     ...(input.description !== undefined ? { description: input.description } : {}),
     ...(input.categories !== undefined ? { categories: input.categories } : {}),
+    ...(input.photoUrl !== undefined ? { photoUrl: input.photoUrl } : {}),
     ...(input.status !== undefined ? { status: input.status } : {}),
     ...(input.claimStatus !== undefined ? { claimStatus: input.claimStatus } : {}),
     ...(input.ownerUserId !== undefined ? { ownerUserId: input.ownerUserId } : {}),
@@ -446,6 +451,7 @@ export async function listFirmProducts(firmId: number) {
       productName: hfFirmProducts.productName,
       note: hfFirmProducts.note,
       price: hfFirmProducts.price,
+      imageUrl: hfFirmProducts.imageUrl,
       displayOrder: hfFirmProducts.displayOrder,
       createdAt: hfFirmProducts.createdAt,
       updatedAt: hfFirmProducts.updatedAt,
@@ -462,6 +468,7 @@ export async function createFirmProduct(input: {
   productName: string;
   note?: string | null;
   price?: string | null;
+  imageUrl?: string | null;
   displayOrder?: number;
 }) {
   const result = await db.insert(hfFirmProducts).values({
@@ -470,6 +477,7 @@ export async function createFirmProduct(input: {
     productName: input.productName,
     note: input.note ?? null,
     price: input.price ?? null,
+    imageUrl: input.imageUrl ?? null,
     displayOrder: input.displayOrder ?? 100,
   });
   return Number(result[0]?.insertId ?? 0);
@@ -502,6 +510,7 @@ export async function updateFirmProduct(id: number, input: {
   productName?: string;
   note?: string | null;
   price?: string | null;
+  imageUrl?: string | null;
   displayOrder?: number;
 }) {
   const result = await db.update(hfFirmProducts).set({
@@ -509,6 +518,7 @@ export async function updateFirmProduct(id: number, input: {
     ...(input.productName !== undefined ? { productName: input.productName } : {}),
     ...(input.note !== undefined ? { note: input.note } : {}),
     ...(input.price !== undefined ? { price: input.price } : {}),
+    ...(input.imageUrl !== undefined ? { imageUrl: input.imageUrl } : {}),
     ...(input.displayOrder !== undefined ? { displayOrder: input.displayOrder } : {}),
   }).where(input.firmId ? and(eq(hfFirmProducts.id, id), eq(hfFirmProducts.firmId, input.firmId)) : eq(hfFirmProducts.id, id));
   return Number(result[0]?.affectedRows ?? 0);
@@ -635,6 +645,35 @@ export async function getFirmPricesByDate(firmId: number, recordedDate = todayDa
   return db.select().from(hfFirmPrices)
     .where(and(eq(hfFirmPrices.firmId, firmId), eq(hfFirmPrices.recordedDate, recordedDate)))
     .orderBy(asc(hfFirmPrices.productName));
+}
+
+/** Firmanin kendi girdigi fiyatlarin gecmisi — gun gun, en yeni once. */
+export async function getFirmPriceHistory(firmId: number, days = 30) {
+  const rows = await db
+    .select({
+      id: hfFirmPrices.id,
+      productSlug: hfFirmPrices.productSlug,
+      productName: hfFirmPrices.productName,
+      unit: hfFirmPrices.unit,
+      minPrice: hfFirmPrices.minPrice,
+      maxPrice: hfFirmPrices.maxPrice,
+      avgPrice: hfFirmPrices.avgPrice,
+      recordedDate: hfFirmPrices.recordedDate,
+    })
+    .from(hfFirmPrices)
+    .where(and(
+      eq(hfFirmPrices.firmId, firmId),
+      sql`${hfFirmPrices.recordedDate} >= DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(Math.min(365, Math.max(1, days))))} DAY)`,
+    ))
+    .orderBy(desc(hfFirmPrices.recordedDate), asc(hfFirmPrices.productName));
+
+  const byDate = new Map<string, typeof rows>();
+  for (const row of rows) {
+    const key = normalizeMysqlDate(row.recordedDate as unknown as Date | string);
+    if (!byDate.has(key)) byDate.set(key, [] as unknown as typeof rows);
+    byDate.get(key)!.push(row);
+  }
+  return Array.from(byDate.entries()).map(([date, items]) => ({ date, items }));
 }
 
 export async function getLatestFirmPrices(firmId: number) {

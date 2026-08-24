@@ -22,6 +22,7 @@ import {
   firmDashboardSummary,
   getFirmById,
   getFirmForManage,
+  getFirmPriceHistory,
   getMyFirm,
   getFirmPricesByDate,
   getLatestFirmPrices,
@@ -138,6 +139,7 @@ const firmWriteFieldsSchema = z.object({
   districtSlug: z.string().trim().max(128).nullable().optional(),
   description: z.string().trim().max(5000).nullable().optional(),
   categories: z.array(z.string().trim().min(1).max(80)).max(30).optional(),
+  photoUrl: z.string().trim().max(512).nullable().optional(),
 });
 
 function refineFirmLocation(data: { citySlug?: string | null; districtSlug?: string | null }, ctx: z.RefinementCtx) {
@@ -164,6 +166,7 @@ const firmProductBodySchema = z.object({
   productName: z.string().trim().min(1).max(255),
   note: z.string().trim().max(500).nullable().optional(),
   price: z.string().trim().max(128).nullable().optional(),
+  imageUrl: z.string().trim().max(512).nullable().optional(),
   displayOrder: z.coerce.number().int().optional(),
 });
 
@@ -418,6 +421,15 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
     const date = req.query.date && /^\d{4}-\d{2}-\d{2}$/.test(req.query.date) ? req.query.date : new Date().toISOString().slice(0, 10);
     return reply.send({ items: await getFirmPricesByDate(firmId, date), date });
+  });
+
+  app.get<{ Params: { id: string }; Querystring: { days?: string } }>("/firms/:id/price-history", { onRequest: [requireAuth] }, async (req, reply) => {
+    const firmId = Number(req.params.id);
+    if (!Number.isFinite(firmId) || firmId <= 0) return reply.status(400).send({ error: "Gecersiz firma id" });
+    const firm = await requireManageableFirm(req, firmId);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi veya yetki yok" });
+    const days = Number(req.query.days);
+    return reply.send({ days: Number.isFinite(days) ? days : 30, items: await getFirmPriceHistory(firmId, Number.isFinite(days) ? days : 30) });
   });
 
   app.post<{ Params: { id: string } }>("/firms/:id/prices", {

@@ -420,6 +420,7 @@ export const hfFirmProducts = mysqlTable(
     productName:  varchar("product_name", { length: 255 }).notNull(),
     note:         varchar("note", { length: 500 }),
     price:        varchar("price", { length: 128 }),
+    imageUrl:     varchar("image_url", { length: 512 }),
     displayOrder: int("display_order").notNull().default(100),
     createdAt:    datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
     updatedAt:    datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
