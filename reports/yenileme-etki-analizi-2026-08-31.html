@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>HaldeFiyat — Site Yenilemesi Etki Analizi · 2. Ölçüm (31 Ağustos 2026)</title>
+<style>
+  @page {
+    size: A4;
+    margin: 22mm 16mm 20mm 16mm;
+    @bottom-left { content: "HaldeFiyat · Site Yenilemesi Etki Analizi · 2. Ölçüm · 31 Ağustos 2026"; font-size: 8px; color: #6b7280; }
+    @bottom-right { content: "Sayfa " counter(page) " / " counter(pages); font-size: 8px; color: #6b7280; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Noto Sans", "DejaVu Sans", sans-serif; font-size: 10.2px; line-height: 1.62; color: #1f2937; }
+  .brandbar { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px solid #15803d; padding-bottom: 6px; margin-bottom: 14px; }
+  .brand { font-size: 17px; font-weight: 700; color: #15803d; }
+  .brand small { color: #6b7280; font-weight: 400; font-size: 9px; margin-left: 6px; }
+  .repno { font-size: 9px; color: #6b7280; }
+  h1 { font-size: 19px; line-height: 1.25; color: #111827; margin: 4px 0 10px; }
+  .kicker { text-transform: uppercase; letter-spacing: 1.4px; font-size: 9px; color: #15803d; font-weight: 700; margin-bottom: 4px; }
+  .dek { font-size: 11.4px; color: #374151; margin-bottom: 12px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 8.8px; color: #4b5563; background: #f3f6f4; border: 1px solid #e2e8e4; border-radius: 6px; padding: 7px 10px; margin-bottom: 14px; }
+  .kpis { display: flex; gap: 8px; margin: 0 0 16px; }
+  .kpi { flex: 1; border: 1px solid #e5e7eb; border-left: 3px solid #15803d; border-radius: 6px; padding: 7px 9px; }
+  .kpi.red { border-left-color: #b91c1c; }
+  .kpi.amber { border-left-color: #b45309; }
+  .kpi.gray { border-left-color: #6b7280; }
+  .kpi b { display: block; font-size: 14px; color: #111827; }
+  .kpi span { font-size: 8.1px; color: #6b7280; }
+  h2 { font-size: 13.2px; color: #14532d; margin: 15px 0 6px; padding-top: 6px; border-top: 1px solid #eef1ee; page-break-after: avoid; }
+  h2:first-of-type { border-top: none; }
+  h3 { font-size: 10.8px; color: #166534; margin: 10px 0 4px; page-break-after: avoid; }
+  p { margin: 0 0 8px; text-align: justify; }
+  .note { font-size: 8.8px; color: #6b7280; background: #f9fafb; border-left: 3px solid #d1d5db; padding: 6px 9px; border-radius: 0 5px 5px 0; margin: 8px 0; text-align: left; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; font-size: 9.3px; page-break-inside: avoid; }
+  th { background: #14532d; color: #fff; text-align: left; padding: 5px 8px; font-weight: 600; }
+  td { padding: 4.5px 8px; border-bottom: 1px solid #eceff1; }
+  tbody tr:nth-child(even) td { background: #f8faf9; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  th.num { text-align: right; }
+  .down { color: #b91c1c; font-weight: 600; }
+  .up { color: #15803d; font-weight: 600; }
+  .neut { color: #6b7280; font-weight: 600; }
+  .oklist, .warnlist { list-style: none; margin: 4px 0 10px; }
+  .oklist li { padding: 3px 0 3px 12px; border-left: 3px solid #15803d; margin-bottom: 5px; font-size: 9.6px; }
+  .warnlist li { padding: 3px 0 3px 12px; border-left: 3px solid #b45309; margin-bottom: 5px; font-size: 9.6px; }
+  .badge { display: inline-block; font-size: 8px; font-weight: 700; padding: 1px 5px; border-radius: 3px; vertical-align: middle; }
+  .b-ok { background: #dcfce7; color: #15803d; }
+  .b-no { background: #fee2e2; color: #b91c1c; }
+  .b-mid { background: #fef3c7; color: #b45309; }
+  .pagebreak { page-break-before: always; }
+  .footer-note { margin-top: 14px; font-size: 8.4px; color: #9ca3af; border-top: 1px solid #eef1ee; padding-top: 6px; }
+</style>
+</head>
+<body>
+
+<div class="brandbar">
+  <div class="brand">HaldeFiyat<small>haldefiyat.com · Yenileme Etki Analizi · 2. Ölçüm</small></div>
+  <div class="repno">31 Ağustos 2026 · nginx logları + Search Console + GA4 + canlı veritabanı</div>
+</div>
+
+<p class="kicker">Yenileme Değerlendirmesi · İki Hafta Sonraki Takip Ölçümü</p>
+<h1>Yenileme İkinci Haftada Karşılığını Verdi: Gerçek Kullanım %34, Organik Arama %10 Arttı; 404 Kuyruğunun Sebebi Bulundu</h1>
+<p class="dek">19 Ağustos raporu, yenilemenin kullanıcı tarafındaki etkisinin "organik döngüde haftalar içinde" görüneceğini yazmış ve iki hafta sonra yeniden ölçüm istemişti. Bu rapor o ölçümdür. Aynı haftanın günleriyle eşleştirilmiş <strong>üç pencereyi</strong> (8–11 / 15–18 / 22–25 Ağustos, hepsi Cmt–Sal) <strong>üç bağımsız ölçüm sisteminden</strong> okur, 19–30 Ağustos'un tamamını değerlendirir ve önceki raporun beş öngörüsünün hangisinin tuttuğunu tek tek işaretler.</p>
+<div class="meta"><span><strong>Ana dönem:</strong> 19–30 Ağustos (12 tam gün)</span><span><strong>Eşleştirilmiş pencereler:</strong> 8–11 · 15–18 · 22–25 Ağustos (Cmt–Sal)</span><span><strong>Ölçüm kaynakları:</strong> nginx erişim logu · Search Console · Analytics 4 · Tag Manager · canlı veritabanı · PageSpeed</span><span><strong>Bağlam:</strong> Yenileme Etki Analizi 1. Ölçüm (19 Ağu) · Durum Raporu v2 (12 Ağu)</span></div>
+
+<div class="kpis">
+  <div class="kpi"><b>+%34</b><span>Gerçek kullanım: 1.005 → 1.345 sayfa/gün (1. hafta → 2. hafta)</span></div>
+  <div class="kpi"><b>57 → 91</b><span>Mobil hız puanı — 80 hedefi aşıldı, TBT 0 ms</span></div>
+  <div class="kpi"><b>+%10,5</b><span>Organik tıklama (Search Console, 11 günlük eşit pencere)</span></div>
+  <div class="kpi amber"><b>1.765</b><span>Googlebot 404'ü — sebebi bulundu, 301 bekliyor</span></div>
+  <div class="kpi red"><b>0 TL</b><span>Reklam geliri — 35.447 gösterime karşılık</span></div>
+</div>
+
+<h2>1 · Üç Pencere: Yenilemenin Etkisi İkinci Haftada Göründü</h2>
+<p>19 Ağustos raporu, yenilemenin ilk haftasını "trafik nötr, istikrar sıçradı" diye özetlemiş ve kullanıcı tarafı etkisi için erken olduğunu söylemişti. Aynı yöntemle (haftanın aynı günleri, Cumartesi–Salı) üçüncü pencere eklendiğinde tablo tamamlanıyor:</p>
+<table>
+<thead><tr><th>Metrik (4 gün)</th><th class="num">Yenileme öncesi<br>8–11 Ağu</th><th class="num">1. hafta<br>15–18 Ağu</th><th class="num">2. hafta<br>22–25 Ağu</th><th class="num">2. hafta vs<br>yenileme öncesi</th></tr></thead>
+<tbody>
+<tr><td>İnsan istek</td><td class="num">257.934</td><td class="num">242.337</td><td class="num">282.482</td><td class="num up">+%9,5</td></tr>
+<tr><td><strong>Gerçek pageview</strong></td><td class="num">4.374</td><td class="num">4.019</td><td class="num"><strong>5.381</strong></td><td class="num up">+%23,0</td></tr>
+<tr><td>Gerçek pageview / gün</td><td class="num">1.094</td><td class="num">1.005</td><td class="num"><strong>1.345</strong></td><td class="num up">+%23,0</td></tr>
+<tr><td>Mobil oran</td><td class="num">%79,7</td><td class="num">%77,7</td><td class="num">%78,4</td><td class="num neut">−1,3 puan</td></tr>
+<tr><td><strong>5xx sunucu hatası</strong></td><td class="num">337</td><td class="num">10</td><td class="num">105</td><td class="num up">−%69</td></tr>
+<tr><td>499 (istemci vazgeçti)</td><td class="num">994</td><td class="num">651</td><td class="num">832</td><td class="num up">−%16</td></tr>
+<tr><td>404</td><td class="num">430</td><td class="num">1.339</td><td class="num">2.609</td><td class="num down">6,1×</td></tr>
+<tr><td>AI botları (ClaudeBot+OpenAI)</td><td class="num">354</td><td class="num">2.373</td><td class="num">485</td><td class="num neut">+%37</td></tr>
+<tr><td>Googlebot</td><td class="num">3.671</td><td class="num">3.143</td><td class="num">5.519</td><td class="num up">+%50</td></tr>
+<tr><td>AhrefsBot (SEO tarayıcı)</td><td class="num">420</td><td class="num">1.757</td><td class="num">513</td><td class="num neut">+%22</td></tr>
+</tbody>
+</table>
+<p><strong>Gecikmeli etki doğrulandı.</strong> Yenilemenin ilk haftasında gerçek sayfa görüntüleme günde 1.005'e gerilemişti (yenileme öncesi 1.094). İkinci haftada 1.345'e çıktı — birinci haftaya göre <strong>+%34</strong>, yenileme öncesine göre <strong>+%23</strong>. İnsan istek hacmi de aynı yönde ama daha ölçülü (+%9,5) hareket etti; aradaki fark, gelen kullanıcının <em>daha fazla sayfa gezdiğini</em> gösteriyor. Açık tema + hız çalışmasının beklenen davranış etkisi budur.</p>
+<p><strong>İstikrar kazancı korundu ama koşullu.</strong> Yenileme öncesi penceredeki 337 sunucu hatası ikinci haftada 105'e indi (−%69). Ancak bu 105 hatanın tamamı 24 Ağustos'taki tek dağıtım gününde oluştu. Dönemin tamamına bakıldığında tablo daha net: 12 günde 463 sunucu hatası var, bunun <strong>456'sı dört dağıtım gününde</strong> (19, 24, 27, 30 Ağustos), kalan sekiz günde toplam <strong>7</strong>. Altyapı stabil; sorun dağıtım prosedüründe.</p>
+
+<h2>2 · 19 Ağustos Raporunun Öngörüleri — Karne</h2>
+<table>
+<thead><tr><th>Önceki raporun beklentisi</th><th>Sonuç</th><th class="num">Durum</th></tr></thead>
+<tbody>
+<tr><td>"Kullanıcı tarafı etkisi organik döngüde haftalar içinde görünür"</td><td>2. haftada gerçek pageview +%34 / +%23</td><td class="num"><span class="badge b-ok">TUTTU</span></td></tr>
+<tr><td>"Hız ikinci kademe — perf 57 → 80 hedefi"</td><td>Mobil 91, masaüstü 100; TBT 1.910 → 0 ms</td><td class="num"><span class="badge b-ok">AŞILDI</span></td></tr>
+<tr><td>"404'ün gerilemesi beklenir; gerilemezse kırılan bir iç bağlantı aranmalı"</td><td>Gerilemedi, ikiye katlandı — aranan sebep bu raporda bulundu</td><td class="num"><span class="badge b-no">TUTMADI</span></td></tr>
+<tr><td>"İlk dış reklamvereni kazan (envanter satışı)"</td><td>0 dış reklamveren, 0 TL, 0 self-service talebi</td><td class="num"><span class="badge b-no">OLMADI</span></td></tr>
+<tr><td>"AI/SEO tarayıcı ilgisi belirgin arttı" (kalıcılık varsayımı)</td><td>Sıçrama dalgaydı: 2.373 → 485 (−%80); Googlebot +%76</td><td class="num"><span class="badge b-mid">KISMİ</span></td></tr>
+</tbody>
+</table>
+
+<h2>3 · Uzun Çizgi: Mayıs'tan Bugüne</h2>
+<table>
+<thead><tr><th>Dönem</th><th class="num">İnsan istek/gün</th><th class="num">Gerçek pageview/gün</th><th class="num">Mobil oran</th></tr></thead>
+<tbody>
+<tr><td>12–18 Mayıs (baseline, konservatif)</td><td class="num">—</td><td class="num">~150</td><td class="num">—</td></tr>
+<tr><td>1–8 Haziran</td><td class="num">25.570</td><td class="num">~425</td><td class="num">%70</td></tr>
+<tr><td>16–23 Haziran</td><td class="num">41.210</td><td class="num">~614</td><td class="num">%64</td></tr>
+<tr><td>10–16 Ağustos (yenileme haftası)</td><td class="num">63.687</td><td class="num">~1.130</td><td class="num">%78</td></tr>
+<tr><td><strong>19–30 Ağustos (bu rapor)</strong></td><td class="num"><strong>69.519</strong></td><td class="num"><strong>~1.247</strong></td><td class="num">%77</td></tr>
+</tbody>
+</table>
+<p>Mayıs baseline'ından bu yana gerçek ölçümlü kullanım yaklaşık <strong>8,3 kat</strong> büyüdü. Bu büyümenin arkasında organik arama da var: Search Console'a göre günlük organik tıklama Temmuz ortalaması <strong>388'den Ağustos'ta 521'e</strong> çıktı (+%34,2). Ayrıntısı aşağıdaki bölümde.</p>
+
+<h2>4 · Üç Bağımsız Ölçüm Sistemi Aynı Şeyi Söylüyor</h2>
+<p>Yenilemenin etkisini tek bir sayaca dayandırmamak için aynı eşleştirilmiş pencereleri üç ayrı sistemden okudum: kendi ölçüm sinyalimiz, Google Analytics 4 ve Search Console. Üçü de aynı şekli veriyor — <strong>birinci haftada hafif düşüş, ikinci haftada belirgin sıçrama</strong>:</p>
+<table>
+<thead><tr><th>Ölçüm sistemi (4 günlük pencere)</th><th class="num">Yenileme öncesi<br>8–11 Ağu</th><th class="num">1. hafta<br>15–18 Ağu</th><th class="num">2. hafta<br>22–25 Ağu</th><th class="num">2. hafta vs<br>1. hafta</th></tr></thead>
+<tbody>
+<tr><td>Kendi ölçüm sinyalimiz (pageview)</td><td class="num">4.374</td><td class="num">4.019</td><td class="num">5.381</td><td class="num up">+%33,9</td></tr>
+<tr><td>Google Analytics 4 (sayfa görüntüleme)</td><td class="num">761</td><td class="num">658</td><td class="num">777</td><td class="num up">+%18,1</td></tr>
+<tr><td>Search Console (organik tıklama)</td><td class="num">2.049</td><td class="num">1.961</td><td class="num">2.317</td><td class="num up">+%18,2</td></tr>
+</tbody>
+</table>
+<p>Mutlak sayılar birbirinden çok farklı — üç sistem farklı şeyler sayıyor ve farklı oranlarda yakalıyor (aşağıda "ölçüm boşluğu"). Ama <strong>yön ve zamanlama üçünde de aynı</strong>. Tek bir sayacın gürültüsü olma ihtimali bu kadar tutarlı bir örüntüde düşük: yenilemenin kullanıcı tarafı etkisi gerçek.</p>
+
+<h2>5 · Arama Performansı: Organik Büyüme Sürüyor</h2>
+<p>Search Console verisi, trafiğin nereden geldiği sorusunu net cevaplıyor. Eşit uzunlukta iki 11 günlük pencerede:</p>
+<table>
+<thead><tr><th>Search Console</th><th class="num">8–18 Ağu</th><th class="num">19–29 Ağu</th><th class="num">Değişim</th></tr></thead>
+<tbody>
+<tr><td>Organik tıklama</td><td class="num">5.539</td><td class="num"><strong>6.120</strong></td><td class="num up">+%10,5</td></tr>
+<tr><td>Gösterim</td><td class="num">191.110</td><td class="num">198.046</td><td class="num up">+%3,6</td></tr>
+<tr><td>Tıklama oranı (CTR)</td><td class="num">%2,90</td><td class="num">%3,09</td><td class="num up">+0,19 puan</td></tr>
+<tr><td>Ortalama pozisyon</td><td class="num">6,40</td><td class="num">6,36</td><td class="num neut">yatay</td></tr>
+</tbody>
+</table>
+<p><strong>Aylık resim daha çarpıcı:</strong> günlük organik tıklama Temmuz ortalaması <strong>388</strong> iken Ağustos'ta <strong>521</strong> oldu — <strong>+%34,2</strong>. Gösterim büyümesi (+%3,6) tıklama büyümesinin çok altında; yani kazanç yeni gösterimden değil, <strong>aynı gösterimin daha iyi tıklanmasından</strong> geliyor. Bu, başlık/açıklama ve sayfa kalitesi çalışmasının doğrudan karşılığıdır.</p>
+<p>Mobil ile masaüstü arasındaki fark keskin: mobilde CTR %3,32, masaüstünde %1,83. Organik tıklamaların <strong>%91,2'si mobil</strong> — mobil öncelikli çalışmanın neden doğru karar olduğunu tek başına gösteren rakam.</p>
+
+<h3>En çok tıklanan sorgular (19–28 Ağustos)</h3>
+<table>
+<thead><tr><th>Sorgu</th><th class="num">Tıklama</th><th class="num">Gösterim</th><th class="num">CTR</th><th class="num">Pozisyon</th></tr></thead>
+<tbody>
+<tr><td>istanbul hal fiyatları</td><td class="num">66</td><td class="num">2.191</td><td class="num">%3,01</td><td class="num">4,5</td></tr>
+<tr><td>patates fiyatları</td><td class="num">61</td><td class="num">947</td><td class="num">%6,44</td><td class="num">7,0</td></tr>
+<tr><td>bayrampaşa meyve sebze hali fiyat listesi</td><td class="num">46</td><td class="num">593</td><td class="num">%7,76</td><td class="num">3,9</td></tr>
+<tr><td>bursa hal fiyatları</td><td class="num">45</td><td class="num">710</td><td class="num">%6,34</td><td class="num">2,8</td></tr>
+<tr><td>kahramanmaraş hal fiyatları</td><td class="num">44</td><td class="num">666</td><td class="num">%6,61</td><td class="num">2,9</td></tr>
+<tr><td>limon piyasası</td><td class="num">40</td><td class="num">1.385</td><td class="num">%2,89</td><td class="num">5,8</td></tr>
+<tr><td>hal fiyatları</td><td class="num">38</td><td class="num">1.146</td><td class="num">%3,32</td><td class="num">7,3</td></tr>
+<tr><td>konya hal fiyatları</td><td class="num">32</td><td class="num">682</td><td class="num">%4,69</td><td class="num">2,9</td></tr>
+<tr><td>limon fiyatları</td><td class="num">30</td><td class="num">1.824</td><td class="num">%1,64</td><td class="num">5,8</td></tr>
+<tr><td>malatya hal komisyoncuları</td><td class="num">22</td><td class="num">46</td><td class="num"><strong>%47,83</strong></td><td class="num">1,0</td></tr>
+<tr><td>polatlı soğan fiyatları</td><td class="num">16</td><td class="num">59</td><td class="num">%27,12</td><td class="num">3,7</td></tr>
+</tbody>
+</table>
+<p>Örüntü açık: <strong>şehir + ürün özgüllüğü arttıkça tıklama oranı fırlıyor.</strong> Genel "limon fiyatları" %1,64 CTR verirken "malatya hal komisyoncuları" %47,83 veriyor. Sıradaki içerik yatırımı bu yöne yapılmalı — geniş ürün sayfalarına değil, şehir-ürün kesişimlerine.</p>
+
+<h3>Bölüm bazında organik tıklama (19–30 Ağustos)</h3>
+<table>
+<thead><tr><th>Bölüm</th><th class="num">Tıklama</th><th class="num">Gösterim</th><th class="num">CTR</th></tr></thead>
+<tbody>
+<tr><td>/urun/*</td><td class="num">3.257</td><td class="num">123.908</td><td class="num">%2,63</td></tr>
+<tr><td>/hal/*</td><td class="num">1.685</td><td class="num">45.784</td><td class="num">%3,68</td></tr>
+<tr><td>/firmalar/*</td><td class="num">1.084</td><td class="num">24.789</td><td class="num">%4,37</td></tr>
+<tr><td>/ (ana sayfa)</td><td class="num">187</td><td class="num">8.815</td><td class="num">%2,12</td></tr>
+<tr><td>/analiz/*</td><td class="num">91</td><td class="num">8.022</td><td class="num">%1,13</td></tr>
+<tr><td>/piyasa/* (bu dönem açıldı)</td><td class="num">24</td><td class="num">1.077</td><td class="num">%2,23</td></tr>
+<tr><td>/borsa · /et-fiyatlari · /canli-hayvan-fiyatlari</td><td class="num">10</td><td class="num">1.855</td><td class="num">%0,54</td></tr>
+</tbody>
+</table>
+<p>Üç şey dikkat çekiyor. Birincisi <strong>/firmalar en yüksek CTR'ye sahip bölüm (%4,37)</strong> — firma dizini SEO'da beklenenden çok daha iyi çalışıyor; tıklamalar şehir listeleme sayfalarına geliyor (firma detay sayfaları kasıtlı olarak indekslenmiyor). İkincisi <strong>/analiz bölümü 8.022 gösterime karşılık yalnızca 91 tıklama alıyor (%1,13)</strong> — analiz içerikleri aranıyor ama tıklanmıyor, başlık/açıklama sorunu. Üçüncüsü yeni açılan dikeyler (borsa, et, canlı hayvan) 1.855 gösterim alıp 10 tıklama getiriyor: görünürlük var, çekicilik yok.</p>
+
+<h3>Arama sonuçlarındaki kapsam</h3>
+<p>Dönemde <strong>439 farklı sayfa</strong> arama sonuçlarında gösterim aldı, bunların <strong>282'si en az bir tıklama</strong> getirdi. Site <strong>5.211 farklı sorguda</strong> göründü; 928'i tıklama üretti, 1.453'ünde ortalama pozisyon ilk üçte. Sitemap'te bildirilen 394 URL'e karşılık 439 sayfanın görünmesi, <code>/firmalar?city=…&amp;page=…</code> gibi <strong>60'tan fazla parametreli URL'in ayrı ayrı indekslenmesinden</strong> kaynaklanıyor — kanonikleştirme ve tarama bütçesi açısından temizlenmesi gereken bir kalem.</p>
+
+<h2>6 · 404 Kuyruğu: Aranan İç Bağlantı Bulundu</h2>
+<p>19 Ağustos raporu 404 sıçramasını crawler dalgasına bağlamış, "301 turu bu kuyruğu eritmeye başladı, bir sonraki raporda gerilemesi beklenir; gerilemezse yenilemede kırılan bir iç bağlantı aranmalı" demişti. Gerilemedi — eşleştirilmiş pencerede 1.339'dan 2.609'a çıktı, 25 Ağustos'ta günlük 1.493'e vurdu. Aranan sebep bulundu.</p>
+<table>
+<thead><tr><th>404 ön-eki (12 gün)</th><th class="num">İstek</th><th class="num">Bot payı</th><th>Ne olduğu</th></tr></thead>
+<tbody>
+<tr><td><strong>/firma/*</strong></td><td class="num">1.116</td><td class="num">%99,6</td><td>Birleştirmede silinen kopya kayıtlar</td></tr>
+<tr><td><strong>/urun/*</strong></td><td class="num">640</td><td class="num">%92,8</td><td>Aynı desen, ürün tarafı</td></tr>
+<tr><td>/.well-known/traffic-advice</td><td class="num">281</td><td class="num">%0</td><td>Chrome özel isteği — zararsız</td></tr>
+<tr><td>/analiz/elma-fiyat-analizi-mayis-2026</td><td class="num">219</td><td class="num">%98,6</td><td>Kaldırılmış tek içerik URL'i</td></tr>
+<tr><td>/wp-admin/* + /admin/*</td><td class="num">299</td><td class="num">%0</td><td>Saldırı taraması (tarayıcı UA'lı)</td></tr>
+</tbody>
+</table>
+<p><strong>Kök neden:</strong> 404'lerin <strong>1.765'i <code>-2</code> son ekli URL'lere gidiyor ve bunların 1.756'sı (%99,5) Googlebot.</strong> Örnek: <code>/firma/3208-haktan-komisyon-evi-2</code> → 404, ama kanonik <code>/firma/3208-haktan-komisyon-evi</code> → 200. Ürün tarafında aynısı: <code>/urun/elma-2</code> → 404, <code>/urun/elma</code> → 200.</p>
+<p>Bunlar <strong>slug birleştirme turunun artığı</strong>. Benzersiz-slug çakışma çözümüyle <code>-2</code> eki almış kopya kayıtlar bir süre yayında durdu, Google onları tarayıp indeksine aldı, sonra birleştirmede silindiler. Bugün veritabanında sadece 2 firma + 1 ürün <code>-2</code> slug'lu ve sitemap tertemiz (394 URL, sıfır <code>-2</code>). Yani <strong>sorun canlı değil, tarihsel</strong> — ama Googlebot ölü URL'leri yoklamayı sürdürüyor ve o URL'lere birikmiş link değeri her seferinde 404'te yanıyor. Zaman çizgisi de tutarlı: /firma <code>-2</code> hataları 24 Ağustos'a kadar günde 0–2 iken 25 Ağustos'ta 406'ya fırladı.</p>
+<p><strong>Doğru karşılık 404 değil 301:</strong> <code>{slug}-2</code> istendiğinde, <code>{slug}</code> kaydı varsa ve <code>-2</code> kaydı yoksa kanonik adrese kalıcı yönlendirme yapılmalı. Hâlâ yaşayan üç <code>-2</code> slug'u kuralın dışında tutulur. Bu tek kural 1.765 kayıp taramayı link değerini koruyan yönlendirmeye çevirir.</p>
+
+<h2>7 · Ölçüm Dürüstlüğü: "Sayfa İsteği" Sandığımız Şeyin %91'i Prefetch'miş</h2>
+<p>Bu dönemde ilk kez sayfa isteklerini Next.js ön-yükleme (RSC prefetch) ve gerçek sayfa yüklemesi olarak ayırdım. Sonuç, önceki raporların "en çok ziyaret edilen sayfalar" tablolarını geçersiz kılıyor.</p>
+<table>
+<thead><tr><th>Katman</th><th class="num">12 gün</th><th class="num">Günlük</th><th>Ne ölçer</th></tr></thead>
+<tbody>
+<tr><td>İnsan istek (tüm HTTP)</td><td class="num">834.227</td><td class="num">69.519</td><td>Bot imzası taşımayan her istek</td></tr>
+<tr><td>İnsan sayfa yolu isteği</td><td class="num">520.699</td><td class="num">43.392</td><td>Varlık/API hariç</td></tr>
+<tr><td>→ RSC prefetch</td><td class="num">475.582</td><td class="num">39.632</td><td><strong>Kullanıcı görmedi</strong> — bağlantı ön-yüklemesi</td></tr>
+<tr><td><strong>→ Gerçek tam sayfa yüklemesi</strong></td><td class="num"><strong>45.117</strong></td><td class="num"><strong>3.760</strong></td><td>Tarayıcının gerçekten açtığı sayfa</td></tr>
+<tr><td>★ JS pageview beacon</td><td class="num">14.968</td><td class="num">1.247</td><td>Ölçüm betiği çalışacak kadar kalan ziyaretçi</td></tr>
+</tbody>
+</table>
+<p>Menü ve altbilgi bağlantılarında oran uçlaşıyor: <strong>/harita 15.810 ön-yükleme / 43 gerçek ziyaret</strong> (368:1), /uyarilar 496:1, /gizlilik-politikasi 502:1. Haziran raporunda "/gizlilik-politikasi 2.817 ziyaret" yazmasının sebebi buydu — ziyaret değil, her sayfada tetiklenen altbilgi ön-yüklemesiydi.</p>
+<p>Bunun iki sonucu var. Birincisi <strong>ölçüm</strong>: bundan sonra sayfa popülerliği yalnızca gerçek yüklemeden okunmalı. İkincisi <strong>maliyet</strong>: günde ~39,6 bin istek hiçbir kullanıcıya karşılık gelmeden sunucudan geçiyor. Menü/altbilgi bağlantılarında ön-yüklemenin kapatılması sunucu yükünü tek hamlede bir mertebe düşürür.</p>
+
+<h3>Google Analytics gerçeğin yalnızca sekizde birini görüyor</h3>
+<p>Aynı 12 günde Search Console <strong>6.350 organik tıklama</strong> raporlarken Google Analytics yalnızca <strong>735 organik oturum</strong> görüyor — yakalama oranı <strong>%11,6</strong>. Kendi ölçüm sinyalimiz (14.968 pageview) ise GA4'ün gördüğünün (2.436) <strong>altı katı</strong>. Üç sayaç arasındaki bu makas ölçüm hatası değil, her sistemin farklı bir yerde durmasının sonucu:</p>
+<table>
+<thead><tr><th>Sayaç</th><th class="num">12 günlük değer</th><th>Neyi kaçırır</th></tr></thead>
+<tbody>
+<tr><td>Search Console (organik tıklama)</td><td class="num">6.350</td><td>Doğrudan/referanslı trafiği hiç görmez; yalnız Google araması</td></tr>
+<tr><td>Kendi beacon'ımız (pageview)</td><td class="num">14.968</td><td>Reklam engelleyiciler + erken ayrılan ziyaretçi</td></tr>
+<tr><td>Google Analytics 4 (sayfa görüntüleme)</td><td class="num">2.436</td><td>Yukarıdakiler + çerez onayı + ertelenmiş yükleme</td></tr>
+</tbody>
+</table>
+<p><strong>Pratik kural:</strong> bu üç sayının toplamı alınmaz, biri diğerinin yerine kullanılmaz. Hacim için nginx logu ve kendi beacon'ımız, arama performansı için Search Console, kullanıcı <em>davranışı</em> için GA4 okunur — GA4'ün mutlak sayıları değil, oranları anlamlıdır.</p>
+<p>O oranlar da bir uyarı taşıyor. GA4'e göre dönemde etkin kullanıcı %17,1 ve yeni kullanıcı %15,7 arttı; ama <strong>etkileşim oranı %67,0'dan %56,6'ya düştü</strong>, hemen çıkma %33,0'dan %43,4'e yükseldi, ortalama oturum süresi 179,5 saniyeden 168,3'e indi. Kullanıcıların <strong>%88,6'sı yeni</strong>. Yani site giderek daha fazla insana ulaşıyor ama gelen kişiyi elde tutamıyor — bu, "yenileme kullanıcıyı derinleştirdi" okumasının karşı ağırlığıdır ve abonelik/bildirim gibi geri getirme mekanizmalarının neden öncelik olduğunu gösterir.</p>
+<p>Dönüşüm tarafında ise iyileşme var: GA4 anahtar olayı (<code>form_submit</code>) 7'den <strong>16'ya</strong> çıktı (+%129); forma başlayanların %72,7'si tamamlıyor. Sorun formun kendisinde değil, forma gelen kişi sayısında.</p>
+
+<h2>8 · Yenilemeden Bu Yana Yapılan İşler ve Ölçülen Karşılıkları</h2>
+<ul class="oklist">
+  <li><strong>Sesli arama + 0-sonuç kurtarma</strong> (19 Ağu) — arama modalında fiyat görüntüleme 214'ten <strong>532'ye</strong> (2,5×), sonuçsuz arama oranı %39'dan <strong>%23'e</strong> indi. Dönemin en net ürün kazancı.</li>
+  <li><strong>Hız ikinci kademe</strong> — mobil performans 57 → <strong>91</strong>, TBT 1.910 → <strong>0 ms</strong>, alan verisinde LCP 2.337 ms ile artık <code>FAST</code> bandında. Masaüstü 100. Kalan tek zayıflık sunucu yanıt süresi (TTFB 1,3 s, <code>AVERAGE</code>).</li>
+  <li><strong>İçerik genişlemesi</strong> — /rehber sezon rehberleri ailesi (turşu, salça-konserve, reçel; çift-yıl mevsimsellik grafiğiyle), /piyasa/erdemli-limon bölgesel şablonu, nar (20 Ağu) ve turşuluk (21 Ağu) sezon analizleri yayında.</li>
+  <li><strong>Ürün fotoğrafı kapsaması</strong> — 30 Ağustos'ta 19 partide <strong>159'dan 420 slug'a</strong> çıkarıldı (+261, %164). SEO indeksli 243 ürünün %72'sinin artık gerçek fotoğrafı var.</li>
+  <li><strong>API kota bekçisi</strong> — anonim fiyat ucuna günlük IP kotası kondu. Suistimal blokları <strong>591'den 10'a</strong> düştü; 15–17 Ağustos'ta tek bir IP'nin export ucunu yoran çekimi tamamen durdu.</li>
+  <li><strong>Satış malzemesi</strong> — PDF medya kiti + /reklam-ver sayfasına canlı rakam şeridi. Malzeme hazır; kullanılmadı.</li>
+  <li><strong>Firma operasyonu</strong> — firma çalışma alanı, merkezi "Gelen Talepler" ekranı, lead'lere panelden e-posta ile yanıt (24 Ağu'da bekleyen 2 lead'e yanıt gönderildi).</li>
+</ul>
+
+<h2>9 · Gelir Tarafı: Zemin Hazır, Temas Yok</h2>
+<table>
+<thead><tr><th>Gelir göstergesi</th><th class="num">19–30 Ağu</th><th class="num">7–18 Ağu</th><th class="num">Değişim</th></tr></thead>
+<tbody>
+<tr><td>Banner gösterimi</td><td class="num">35.447</td><td class="num">24.404</td><td class="num up">+%45</td></tr>
+<tr><td>Banner tıklaması (CTR)</td><td class="num">36 (%0,10)</td><td class="num">25 (%0,10)</td><td class="num neut">sabit</td></tr>
+<tr><td><strong>Reklam geliri</strong></td><td class="num"><strong>0 TL</strong></td><td class="num">0 TL</td><td class="num neut">—</td></tr>
+<tr><td>Dış ücretli reklamveren</td><td class="num">0</td><td class="num">0</td><td class="num neut">—</td></tr>
+<tr><td>Dolu reklam slotu</td><td class="num">7 / 14</td><td class="num">7 / 14</td><td class="num neut">hepsi kendi marka + affiliate</td></tr>
+<tr><td>Self-service reklam talebi / bekleme listesi</td><td class="num">0 / 0</td><td class="num">0 / 0</td><td class="num neut">—</td></tr>
+<tr><td>Firma sahiplenme talebi</td><td class="num">0</td><td class="num">2</td><td class="num down">−2</td></tr>
+<tr><td>Newsletter — yeni abone</td><td class="num">2</td><td class="num">4</td><td class="num down">−%50</td></tr>
+<tr><td>Newsletter CTA dönüşümü</td><td class="num">2 / 636 = %0,31</td><td class="num">6 / 757 = %0,79</td><td class="num down">−%61</td></tr>
+<tr><td>Aktif ilan</td><td class="num">0 (5'i de süresi dolmuş)</td><td class="num">2 yeni</td><td class="num down">modül karanlık</td></tr>
+</tbody>
+</table>
+<p><strong>Değerlendirme:</strong> Envanter tarafında her şey hazır — 14 slotluk katalog, fiyatlandırma, canlı CTR raporlaması, PDF medya kiti, ölçülü trafik. Buna karşılık 12 günde tek bir dış temas gerçekleşmedi. Bu artık bir ürün eksiği değil, <strong>satış eksiği</strong>: malzeme Atakan'ın sektör ağına gönderilmediği sürece rakamlar kendiliğinden reklamveren getirmiyor.</p>
+<p>Newsletter tarafındaki gerileme ayrı bir uyarı. Gösterim %16 azalırken dönüşüm %61 düştü; 636 gösterimde yalnızca 8 kişi forma odaklandı, 2'si tamamladı. Sorun görünürlük değil — CTA gösteriliyor, kimse istemiyor. Verilen sözün (ne alacağı, ne sıklıkta) yeniden yazılması gerekiyor.</p>
+
+<h2>10 · Dikkat İsteyen Başlıklar</h2>
+<ul class="warnlist">
+  <li><strong>Dağıtım günleri tek kesinti kaynağı.</strong> 12 günün 4'ünde 456 sunucu hatası, kalan 8 günde 7. 30 Ağustos'taki 19 ardışık fotoğraf dağıtımı 106 hata + 810 vazgeçilen istek üretti. Bilinen açık iş (admin build bellek taşması); ardışık dağıtımların tek seferde toplanması bile ölçülebilir kazanç sağlar.</li>
+  <li><strong>AI tarama sıçraması kalıcı olmadı.</strong> 19 Ağustos raporunun kutladığı 6,7 kat artış bir dalgaydı: eşleştirilmiş pencerede 2.373'ten 485'e (−%80) döndü. Aynı anda Googlebot %76 arttı — tarama bütçesi AI'dan Google'a kaydı. Kasım başındaki "AI kanalını açık tut / kıs" kararı bu veriyle alınmalı: bugünkü seviye ayda ~9 bin istek, ölçülebilir gelir katkısı sıfır.</li>
+  <li><strong>Veri kalitesi borcu duruyor.</strong> Ortalama fiyatların <strong>%69,5'i hâlâ sentetik</strong> (min–maks orta noktası) — %79'dan iyileşti ama sitedeki her ortalama ve her yüzde değişim bu belirsizliği taşıyor. Ayrıca 10 ETL kaynağı <code>ok</code> statüsü dönüp sıfır satır üretiyor (sessiz başarısızlık); sağlık raporu bunları hatalı göstermiyor, dolayısıyla "12 günde 5 hata" rakamı iyimser.</li>
+  <li><strong>Analiz içerikleri aranıyor ama tıklanmıyor.</strong> /analiz bölümü 8.022 gösterime karşılık 91 tıklama alıyor (%1,13) — site ortalamasının (%3,09) üçte biri. İçerik üretiliyor, arama sonucunda görünüyor, ama başlık ve açıklama tıklamaya ikna etmiyor. Aynı sorun yeni dikeylerde daha keskin: borsa + et + canlı hayvan sayfaları 1.855 gösterimde toplam 10 tıklama.</li>
+  <li><strong>Kullanıcı elde tutulamıyor.</strong> Ziyaretçilerin %88,6'sı yeni; etkileşim oranı %67'den %56,6'ya, ortalama oturum süresi 179,5 sn'den 168,3'e indi. Erişim büyüyor, bağlılık değil. Bülten/bildirim gibi geri getirme mekanizmalarının önceliği bu rakamdan geliyor — ki bülten dönüşümü aynı anda %0,79'dan %0,31'e düşmüş durumda.</li>
+  <li><strong>AI görünürlük skoru düşük.</strong> 30 Ağustos denetiminde geleneksel SEO skoru 90,7 iken üretken-arama (GEO) skoru <strong>46/100</strong>. AI tarayıcı trafiği de kalıcı olmadığına göre, bu kanal bugün ne ölçülebilir trafik ne gelir üretiyor. Kasım kararı için veri birikiyor.</li>
+</ul>
+
+<h2>11 · Sonuç ve Sıradaki Adımlar</h2>
+<p><strong>Değerlendirme:</strong> Yenileme ikinci haftada beklenen karşılığı verdi ve bunu üç bağımsız ölçüm sistemi birbirinden habersiz doğruluyor. Gerçek kullanım yenileme öncesine göre %23, ilk haftaya göre %34 arttı; organik arama tıklaması eşit pencerelerde %10,5, aylık ortalamada %34 büyüdü; hız hedefi aşıldı ve alan verisinde LCP ilk kez <code>FAST</code> bandına geçti; sesli arama ölçülebilir kullanım üretti. İstikrar kazancı korundu ama dağıtım günlerine sıkışmış bir kesinti örüntüsü var. Teknik borç artık iyi tanımlı ve küçük: <code>-2</code> yönlendirmeleri, prefetch kısıtı, dağıtım koruması.</p>
+<p>İki açık kalıyor. Birincisi <strong>ticari</strong>: site reklam <em>satmak</em> için gereken her şeye sahip — ölçülmüş trafik, canlı envanter, CTR raporlaması, medya kiti — ama iki haftadır sıfır dış temas var. İkincisi <strong>elde tutma</strong>: erişim büyürken bağlılık gerilliyor (yeni kullanıcı payı %88,6, etkileşim oranı %67 → %56,6). Sıradaki dönemin başarı ölçütü trafik değil; <strong>ilk ücretli reklamveren</strong> ve <strong>geri dönen ziyaretçi</strong> olmalı.</p>
+<table>
+<thead><tr><th>Aksiyon</th><th>Neden</th><th class="num">Öncelik</th></tr></thead>
+<tbody>
+<tr><td>Kopya <code>-2</code> slug'ları için 301 kuralı</td><td>1.765 Googlebot 404'ü; link değeri her taramada yanıyor</td><td class="num">P0</td></tr>
+<tr><td>Menü/altbilgi bağlantılarında ön-yüklemeyi kapat</td><td>Günde ~39,6 bin karşılıksız istek; sunucu yükünü mertebe düşürür</td><td class="num">P0</td></tr>
+<tr><td>Medya kitini sektör ağına gönder (ilk temas turu)</td><td>Malzeme 19 Ağustos'tan beri hazır, kullanılmadı; gelir kapısı burada</td><td class="num">P1</td></tr>
+<tr><td>/analiz başlık + açıklamalarını yeniden yaz</td><td>8.022 gösterim, 91 tıklama (%1,13) — site ortalamasının üçte biri</td><td class="num">P1</td></tr>
+<tr><td>Dağıtım kesinti koruması (bellek sınırı / worker yönetimi)</td><td>Kesintilerin %98'i 4 dağıtım gününde toplanıyor</td><td class="num">P1</td></tr>
+<tr><td>Bülten teklifini yeniden yaz (metin + vaat)</td><td>Gösterim var, istek yok: 636 gösterimde 8 odak, 2 kayıt</td><td class="num">P1</td></tr>
+<tr><td>Şehir–ürün kesişim sayfalarını çoğalt</td><td>"malatya hal komisyoncuları" %47,8 CTR; genel ürün sayfaları %1,6</td><td class="num">P2</td></tr>
+<tr><td><code>/firmalar?…</code> parametreli URL'leri kanonikleştir</td><td>60'tan fazla varyant ayrı ayrı indeksleniyor, tarama bütçesi yiyor</td><td class="num">P2</td></tr>
+<tr><td>Süresi dolmuş ilanları yenile veya bölümü gizle</td><td>Boş ilan bölümü ziyaretçiye "burası ölü" mesajı veriyor</td><td class="num">P2</td></tr>
+<tr><td>Sessiz ETL başarısızlıklarını hata olarak işaretle</td><td>10 kaynak <code>ok</code> dönüp 0 satır üretiyor; sağlık raporu yanıltıyor</td><td class="num">P2</td></tr>
+<tr><td>Sunucu yanıt süresi (TTFB 1,3 s)</td><td>Alan verisinde kalan tek <code>AVERAGE</code> metrik</td><td class="num">P2</td></tr>
+</tbody>
+</table>
+
+<p class="note"><strong>Metodoloji:</strong> Trafik verileri dedike nginx erişim logundan (<code>haldefiyat.access.log</code>) çıkarılmıştır. "İnsan istek" bilinen bot imzası taşımayan HTTP istekleridir; "gerçek tam sayfa yüklemesi" RSC ön-yükleme parametresi taşımayan sayfa isteği; "gerçek pageview" tarayıcıda çalışan ölçüm sinyalidir. Bu üç katman arasındaki fark ilk kez bu raporda ayrıştırıldı, dolayısıyla önceki raporların sayfa bazlı tabloları bu ölçütle karşılaştırılamaz — dönemler arası <em>toplam</em> karşılaştırmalar geçerlidir, aynı yöntemle üretilmiştir. Pencere karşılaştırmaları haftanın aynı günlerini (Cumartesi–Salı) eşleştirir. İş/funnel rakamları canlı <code>hal_fiyatlari</code> veritabanından salt-okuma sorgularıyla alınmıştır. Arama performansı Search Console API'sinden (<code>sc-domain:haldefiyat.com</code>), davranış metrikleri Google Analytics 4'ten (property 538279658) alınmıştır. <strong>Search Console'un nihai verisi 28 Ağustos'ta bitiyor</strong>; 29–30 Ağustos taze/kısmi veridir, bu yüzden dönem kıyaslarında eşit uzunlukta ve tamamı nihai olan 11 günlük pencereler (8–18 vs 19–29) kullanılmıştır; sorgu ve sayfa tabloları yalnız nihai veriye (19–28) dayanır. Hız değerleri 31 Ağustos PageSpeed Insights koşusudur; laboratuvar (Lighthouse) ve alan (CrUX) verisi ayrı belirtilmiştir — alan verisi 28 günlük kayan pencere olduğu için yenileme etkisini gecikmeli yansıtır. Mayıs baseline değeri konservatif filtreyle hesaplandığından yalnızca mertebe gösterir.</p>
+
+<p class="footer-note">© 2026 HaldeFiyat · haldefiyat.com — Bu analiz; 19 Ağustos yenileme etki analizi (1. ölçüm), 12 Ağustos durum raporu v2, 19–30 Ağustos trafik analizi ve 2026-08 medya kiti belgeleriyle birlikte okunmalıdır.</p>
+
+</body>
+</html>

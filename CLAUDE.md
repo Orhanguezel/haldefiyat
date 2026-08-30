@@ -49,12 +49,15 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 > GitHub'da takip edilmiyor. Sadece bu tür repolar git akışı dışında.
 
 > **➡️ Sonraki oturumda yapilacak isler:**
-> [`HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md` **§16 Oturum kuyrugu (2026-08-19)**](./HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md)
-> — KALAN-ISLER.md kaldirildi, tek yurutme kaynagi kok checklist. Sira: S1 reklam
-> medya kiti → S2 Mersin/Erdemli limon sayfasi → S3 nar / S4 tursuluk (mevsim
-> penceresi) → S5 audit rollup tablosu → S6 deploy OOM → S7 Kayseri ETL → S8
-> haftalik WhatsApp koprusu. Tarihli kontroller: S11 (26 Agu CTA+404), S12
-> (2 Eyl yenileme etkisi), S13 (Kasim AI-crawler karari).
+> [`HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md` **§16.6 Oturum kuyrugu (2026-08-31)**](./HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md)
+> — tek yurutme kaynagi kok checklist. Guncel sira: **S16 kopya `-2` slug 301 kurali
+> (P0)** → **S17 menu/altbilgi prefetch kapatma (P0)** → S18 /analiz baslik-aciklama
+> → S19 bulten teklifi → S20 sehir-urun sayfalari → S21 /firmalar param kanonik →
+> S22 sessiz ETL hatalari → S23 karantina siçramasi. §16.3'ten devam eden teknik borc:
+> S5 audit rollup, S6 deploy OOM, S7 Kayseri ETL, S8 haftalik WhatsApp koprusu.
+> Tarihli: S13 (Kasim AI-crawler karari, girdi S24'te). S11 ve S12 **31 Agu'da olculdu
+> ve kapatildi** — bkz. `reports/yenileme-etki-analizi-2026-08-31.pdf` +
+> `reports/analiz-19-30-agustos-2026.pdf`.
 >
 > **🔴 VERI KALITESI acik isi (2026-07-20'den beri):** `avg_price` kayitlarin
 > %79'unda SENTETIK (min-max orta noktasi). Bulten icin makas filtresi kondu ama
