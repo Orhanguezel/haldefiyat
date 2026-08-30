@@ -49,14 +49,17 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 > GitHub'da takip edilmiyor. Sadece bu tür repolar git akışı dışında.
 
 > **➡️ Sonraki oturumda yapilacak isler:**
-> [`HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md` **§16.6 Oturum kuyrugu (2026-08-31)**](./HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md)
-> — tek yurutme kaynagi kok checklist. Guncel sira: **S16 kopya `-2` slug 301 kurali
-> (P0)** → **S17 menu/altbilgi prefetch kapatma (P0)** → S18 /analiz baslik-aciklama
-> → S19 bulten teklifi → S20 sehir-urun sayfalari → S21 /firmalar param kanonik →
-> S22 sessiz ETL hatalari → S23 karantina siçramasi. §16.3'ten devam eden teknik borc:
-> S5 audit rollup, S6 deploy OOM, S7 Kayseri ETL, S8 haftalik WhatsApp koprusu.
-> Tarihli: S13 (Kasim AI-crawler karari, girdi S24'te). S11 ve S12 **31 Agu'da olculdu
-> ve kapatildi** — bkz. `reports/yenileme-etki-analizi-2026-08-31.pdf` +
+> Kuyruk: [`HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md` **§16.6 (2026-08-31)**](./HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md) ·
+> Uygulama detayi: [`HALDEFIYAT-AKSIYON-CHECKLISTI-2026-08-31.md`](./HALDEFIYAT-AKSIYON-CHECKLISTI-2026-08-31.md)
+> (kanit tablosu, dogrulanmis dosya yollari, sayisal kabul kriteri, dogrulama komutu, tuzaklar).
+> **Sira:** S16 kopya `-2` slug 301 kurali (P0) → S17 menu/altbilgi prefetch kapatma (P0) →
+> S6 deploy kesinti korumasi → S25 ilk dis reklamveren (Orhan/Atakan) → S18 /analiz
+> baslik-aciklama → S19 bulten teklifi → S20 sehir-urun sayfalari → S21 /firmalar param
+> kanonik → S26 suresi dolmus ilanlar → S22 sessiz ETL hatalari → S27 bayat kaynaklar →
+> S28 TTFB → S23 karantina siçramasi.
+> §16.3'ten devam eden teknik borc: S5 audit rollup, S7 Kayseri ETL, S8 haftalik WhatsApp.
+> Tarihli: S13 (Kasim AI-crawler karari, girdi S24'te). S11 ve S12 **31 Agu'da olculdu ve
+> kapatildi** — bkz. `reports/yenileme-etki-analizi-2026-08-31.pdf` +
 > `reports/analiz-19-30-agustos-2026.pdf`.
 >
 > **🔴 VERI KALITESI acik isi (2026-07-20'den beri):** `avg_price` kayitlarin
