@@ -9,6 +9,8 @@ interface ProductImageProps {
   categorySlug?: string;
   /** Admin panelden yüklenen gerçek foto (DB, hf_products.image_url). Varsa manifest.json'dan önce kullanılır. */
   imageUrl?: string | null;
+  /** Varyantta fotoğraf yoksa güvenli biçimde master ürünün fotoğrafını kullanır. */
+  canonicalSlug?: string | null;
   /** Görüntü boyutu (px). Default 80. */
   size?: number;
   className?: string;
@@ -26,11 +28,12 @@ export default function ProductImage({
   name,
   categorySlug,
   imageUrl,
+  canonicalSlug,
   size = 80,
   className = "",
   priority = false,
 }: ProductImageProps) {
-  const src = (imageUrl ? resolveImageUrl(imageUrl, "") : "") || getProductImage(slug);
+  const src = (imageUrl ? resolveImageUrl(imageUrl, "") : "") || getProductImage(slug, canonicalSlug);
 
   if (src) {
     return (

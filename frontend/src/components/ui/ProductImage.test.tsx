@@ -17,4 +17,11 @@ describe("ProductImage", () => {
 
     expect(screen.getByRole("img", { name: "Acur ürün görseli" })).toHaveAttribute("sizes", "80px");
   });
+
+  it("inherits the canonical product photo for a variant without an exact image", () => {
+    render(<ProductImage slug="acur-test-varyanti" canonicalSlug="acur" name="Acur Varyantı" size={48} />);
+
+    const image = screen.getByRole("img", { name: "Acur Varyantı ürün görseli" });
+    expect(decodeURIComponent(image.getAttribute("src") || "")).toContain("/images/urunler/acur.jpg");
+  });
 });

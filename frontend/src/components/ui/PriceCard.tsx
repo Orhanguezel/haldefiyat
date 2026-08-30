@@ -71,6 +71,7 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
               name={row.productName}
               categorySlug={row.categorySlug}
               imageUrl={row.imageUrl}
+              canonicalSlug={row.canonicalProduct}
               size={40}
             />
             <div className="min-w-0">

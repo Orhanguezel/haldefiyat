@@ -268,7 +268,13 @@ export default function Page() {
         <CardHeader className="flex flex-row items-center justify-between gap-3">
           <div className="flex items-start gap-3">
             {!isNew && (
-              <ProductThumb slug={form.slug} name={form.displayName || form.nameTr} imageUrl={form.imageUrl} size={48} />
+              <ProductThumb
+                slug={form.slug}
+                canonicalSlug={form.canonicalSlug}
+                name={form.displayName || form.nameTr}
+                imageUrl={form.imageUrl}
+                size={48}
+              />
             )}
             <div>
               <CardTitle className="text-base">

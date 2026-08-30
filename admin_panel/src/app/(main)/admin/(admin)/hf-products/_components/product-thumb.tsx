@@ -24,8 +24,16 @@ function loadManifest(): Promise<Record<string, string>> {
 
 // frontend/src/lib/product-images.ts'teki getProductImage ile birebir aynı mantık —
 // veri kaynağı (manifest.json) tek, sadece bu küçük eşleştirme adımı iki uygulamada var.
-function resolveImage(manifest: Record<string, string>, slug: string): string | null {
+function resolveImage(manifest: Record<string, string>, slug: string, canonicalSlug?: string | null): string | null {
   if (manifest[slug]) return manifest[slug]!;
+  if (canonicalSlug && manifest[canonicalSlug]) return manifest[canonicalSlug]!;
+  if (canonicalSlug) {
+    const canonicalParts = canonicalSlug.split("-");
+    for (let i = canonicalParts.length - 1; i >= 1; i--) {
+      const prefix = canonicalParts.slice(0, i).join("-");
+      if (manifest[prefix]) return manifest[prefix]!;
+    }
+  }
   const parts = slug.split("-");
   for (let i = parts.length - 1; i >= 1; i--) {
     const prefix = parts.slice(0, i).join("-");
@@ -34,18 +42,20 @@ function resolveImage(manifest: Record<string, string>, slug: string): string | 
   return null;
 }
 
-export function useProductImage(slug: string): string | null | undefined {
-  const [path, setPath] = useState<string | null | undefined>(manifestCache ? resolveImage(manifestCache, slug) : undefined);
+export function useProductImage(slug: string, canonicalSlug?: string | null): string | null | undefined {
+  const [path, setPath] = useState<string | null | undefined>(
+    manifestCache ? resolveImage(manifestCache, slug, canonicalSlug) : undefined,
+  );
 
   useEffect(() => {
     let cancelled = false;
     loadManifest().then((manifest) => {
-      if (!cancelled) setPath(resolveImage(manifest, slug));
+      if (!cancelled) setPath(resolveImage(manifest, slug, canonicalSlug));
     });
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [slug, canonicalSlug]);
 
   return path;
 }
@@ -54,14 +64,16 @@ export function ProductThumb({
   slug,
   name,
   imageUrl,
+  canonicalSlug,
   size = 32,
 }: {
   slug: string;
   name: string;
   imageUrl?: string | null;
+  canonicalSlug?: string | null;
   size?: number;
 }) {
-  const manifestPath = useProductImage(slug);
+  const manifestPath = useProductImage(slug, canonicalSlug);
   const path = imageUrl || (manifestPath === undefined ? undefined : manifestPath ? manifestPath : null);
 
   if (path === undefined) {

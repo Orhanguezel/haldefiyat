@@ -440,7 +440,12 @@ export default function Page() {
                     />
                   </TableCell>
                   <TableCell>
-                    <ProductThumb slug={item.slug} name={item.displayName || item.nameTr} imageUrl={item.imageUrl} />
+                    <ProductThumb
+                      slug={item.slug}
+                      canonicalSlug={item.canonicalSlug}
+                      name={item.displayName || item.nameTr}
+                      imageUrl={item.imageUrl}
+                    />
                   </TableCell>
                   <TableCell className="max-w-[190px]">
                     <Link

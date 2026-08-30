@@ -126,6 +126,7 @@ export default async function CategoryPriceLanding({
                   slug={product.slug}
                   name={product.displayName || product.nameTr}
                   categorySlug={product.categorySlug}
+                  canonicalSlug={product.canonicalSlug}
                   size={44}
                   className="rounded-lg"
                 />
