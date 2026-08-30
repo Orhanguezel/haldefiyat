@@ -92,9 +92,13 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import WebVitals from "@/components/analytics/WebVitals";
 
 export const viewport: Viewport = {
+  // Marka renkleri logodan olculdu (logohaldefiyat_light.png piksel sayimi):
+  // turuncu #FE7107 (baskin isaret rengi) + lacivert #01142A (yazi rengi).
+  // Onceki #10b981/#0c5e3a zumrut cifti NE logoyla NE de globals.css'teki
+  // --brand tonuyla (hsl 157 85% 20%) eslesiyordu — hicbir marka kaynagi yoktu.
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#10b981" },
-    { media: "(prefers-color-scheme: dark)", color: "#0c5e3a" },
+    { media: "(prefers-color-scheme: light)", color: "#FE7107" },
+    { media: "(prefers-color-scheme: dark)", color: "#01142A" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -116,9 +120,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#10b981" />
-        <meta name="theme-color" content="#10b981" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#0c5e3a" media="(prefers-color-scheme: dark)" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
