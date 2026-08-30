@@ -184,7 +184,7 @@ ssh vps-vistainsaat 'mysql -u haldefiyat -pHal2026\!secure hal_fiyatlari -e "SEL
 
 **Eslik kontrol — VPS scraper-service istek sayisi:**
 ```bash
-ssh orhan@72.61.93.212 'echo "14604925" | sudo -S docker logs scraper-service-api-1 --since 168h 2>&1 | grep -E "POST.*/api/v1/scrape" | wc -l'
+ssh vps-guezel 'docker logs scraper-service-api-1 --since 168h 2>&1 | grep -E "POST.*/api/v1/scrape" | wc -l'
 ```
 
 ### 🔔 2026-05-12 civari — Asama 3: scraper-service'e session/cookie API
