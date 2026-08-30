@@ -120,6 +120,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
+        {/* Tema-dinamik favicon: SVG icinde prefers-color-scheme ile acik/koyu
+            mark degisir (kaynak: logohaldefiyat_light + _dark_theme). PNG/ICO
+            fallback'lar metadata.icons'tan (site_settings) gelmeye devam eder. */}
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
