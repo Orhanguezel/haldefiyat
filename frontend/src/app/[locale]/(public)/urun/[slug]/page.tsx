@@ -48,6 +48,7 @@ import { getProductEditorial } from "@/lib/product-content";
 import AnswerBlock from "@/components/seo/AnswerBlock";
 import { calculateWindowTrend } from "@/lib/citability";
 import BannerSlot from "@/components/ads/BannerSlot";
+import SellPrompt from "@/components/listings/SellPrompt";
 import { canShowPublicYoy } from "@/lib/yoy-policy";
 import PriceViewTracker from "@/components/analytics/PriceViewTracker";
 import ProductActions from "@/components/sections/ProductActions";
@@ -640,6 +641,8 @@ export default async function UrunPage({ params }: Props) {
           <ArrowRight className="h-5 w-5 shrink-0 text-(--color-brand)" />
         </Link>
       ) : null}
+
+      <SellPrompt productName={displayName} productSlug={product.slug} className="mb-6" />
 
       {familyMembers.length > 1 && (
         <nav aria-label="Çeşit ailesi" className="flex flex-wrap items-center gap-2">

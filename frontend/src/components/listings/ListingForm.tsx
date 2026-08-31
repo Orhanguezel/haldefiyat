@@ -43,7 +43,12 @@ export function ListingForm({ products }: { products: Product[] }) {
     () => products.map((product) => ({ value: product.slug, label: product.displayName || product.nameTr })),
     [products],
   );
-  const [productSlug, setProductSlug] = useState("");
+  // Urun sayfasindaki "satiyor musunuz?" cagrisi ?product=<slug> ile geliyor —
+  // kullanici formda ayni urunu tekrar aramasin.
+  const presetProduct = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("product") ?? ""
+    : "";
+  const [productSlug, setProductSlug] = useState(presetProduct);
   const [productName, setProductName] = useState("");
   const [citySlug, setCitySlug] = useState<string | null>(null);
   const [districtSlug, setDistrictSlug] = useState<string | null>(null);
@@ -58,6 +63,12 @@ export function ListingForm({ products }: { products: Product[] }) {
   const [loading, setLoading] = useState(false);
   const initializedUserId = useRef<string | null>(null);
   const handlePhoneVerified = useCallback((token: string | null) => setOtpToken(token), []);
+
+  useEffect(() => {
+    if (!productSlug || productName) return;
+    const hit = productOptions.find((option) => option.value === productSlug);
+    if (hit) setProductName(hit.label);
+  }, [productSlug, productName, productOptions]);
   useEffect(() => {
     if (user?.id && initializedUserId.current !== user.id) {
       initializedUserId.current = user.id;

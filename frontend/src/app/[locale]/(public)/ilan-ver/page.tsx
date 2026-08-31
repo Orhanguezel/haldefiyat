@@ -15,10 +15,12 @@ export async function generateMetadata({ params }: Props) {
     ...getPageMetadata("ilan_ver", {
       locale,
       pathname: "/ilan-ver",
-      title: "İlan Ver | HalDeFiyat",
-      description: "HalDeFiyat üzerinde tarım ürünü ilanınızı oluşturun.",
+      title: "Ücretsiz İlan Ver — Tarım Ürünü Alım Satım İlanı",
+      description: "Ürününüzü hal fiyatlarını takip eden alıcılara ücretsiz duyurun. Komisyon yok, üyelik ücretsiz; ilan moderasyondan sonra yayınlanır.",
     }),
-    robots: { index: false, follow: false },
+    // 31 Agustos 2026: sayfa noindex'ti — ilan kazanmanin TEK yuzeyi aramada
+    // gorunmuyordu. Modul icerik uretmiyorsa sebebi talep degil gorunmezlikti.
+    robots: { index: true, follow: true },
   };
 }
 
@@ -30,8 +32,14 @@ export default async function CreateListingPage({ params }: Props) {
   return (
     <PageContainer wide={false}>
       <Breadcrumb items={[{ name: "Anasayfa", href: "/" }, { name: "İlan ver", href: "/ilan-ver" }]} />
-      <h1 className="mb-2 font-(family-name:--font-display) text-3xl font-bold text-(--color-foreground)">İlan ver</h1>
-      <p className="mb-6 text-sm text-(--color-muted)">İlanlar moderasyon sonrası yayınlanır; fiyatlar resmi hal verisine yazılmaz.</p>
+      <h1 className="mb-2 font-(family-name:--font-display) text-3xl font-bold text-(--color-foreground)">Ücretsiz ilan ver</h1>
+      <p className="mb-2 text-sm leading-6 text-(--color-muted)">
+        Ürününüzü, her gün hal fiyatlarına bakan alıcılara duyurun. <strong className="text-(--color-foreground)">Ücretsiz ve komisyonsuz</strong> —
+        satıştan pay alınmaz. İlanınız moderasyondan sonra yayınlanır.
+      </p>
+      <p className="mb-6 text-xs text-(--color-muted)">
+        İlan fiyatları resmi hal verisine karışmaz; site tablolarını etkilemez.
+      </p>
       <ListingForm products={products.slice(0, 500)} />
     </PageContainer>
   );

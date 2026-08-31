@@ -2,8 +2,26 @@ import { z } from "zod";
 import { isValidCitySlug, isValidDistrictSlug } from "@/data/turkey-city-slugs";
 
 const dateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
-const positiveMoney = z.coerce.number().positive().optional().nullable();
-const positiveAmount = z.coerce.number().positive().optional().nullable();
+
+/**
+ * Bos string'i "deger yok" sayar.
+ *
+ * Web formu FormData'yi `Object.fromEntries` ile gonderiyor: doldurulmayan her
+ * alan `undefined` degil BOS STRING olarak geliyor. `z.coerce.number()` bos
+ * string'i 0'a cevirdigi icin `.positive()` patliyor ve ISTEGE BAGLI bir alani
+ * bos birakan HERKES 400 aliyordu.
+ *
+ * 27 Agustos 2026: tek kullanici 16 kez ilan vermeyi denedi, 16'sinda da bu
+ * yuzden reddedildi (fotograflarini bile yuklemisti). Modulun "talep yok"
+ * sanilan olu hali buydu.
+ */
+const emptyToUndefined = (value: unknown) =>
+  value === "" || value === null || value === undefined ? undefined : value;
+
+const optionalNumber = (schema: z.ZodTypeAny) => z.preprocess(emptyToUndefined, schema.optional());
+
+const positiveMoney = optionalNumber(z.coerce.number().positive());
+const positiveAmount = optionalNumber(z.coerce.number().positive());
 const callSlot = z.enum(["asap", "morning", "afternoon", "evening"]);
 
 function validateLocation(data: { citySlug?: string | null; districtSlug?: string | null }, ctx: z.RefinementCtx) {
@@ -48,11 +66,11 @@ const listingFields = z.object({
   priceMin: positiveMoney,
   priceMax: positiveMoney,
   priceUnit: z.string().trim().min(1).max(32).default("kg"),
-  halIndexPct: z.coerce.number().min(-100).max(300).optional().nullable(),
+  halIndexPct: optionalNumber(z.coerce.number().min(-100).max(300)),
   currency: z.string().trim().min(3).max(8).default("TRY"),
   citySlug: z.string().trim().max(96).optional().nullable(),
   districtSlug: z.string().trim().max(128).optional().nullable(),
-  firmId: z.coerce.number().int().positive().optional().nullable(),
+  firmId: optionalNumber(z.coerce.number().int().positive()),
   contactName: z.string().trim().max(255).optional().nullable(),
   contactPhone: z.string().trim().max(128).optional().nullable(),
   hidePhone: z.coerce.boolean().default(false),

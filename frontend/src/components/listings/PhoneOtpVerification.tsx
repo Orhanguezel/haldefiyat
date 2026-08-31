@@ -24,6 +24,7 @@ export function PhoneOtpVerification({ phone, onVerified }: Props) {
   const [phase, setPhase] = useState<"idle" | "sending" | "sent" | "verifying" | "verified">("idle");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [unavailable, setUnavailable] = useState(false);
   const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
@@ -57,6 +58,13 @@ export function PhoneOtpVerification({ phone, onVerified }: Props) {
       setMessage("Altı haneli kod gönderildi. Kod 5 dakika geçerlidir.");
     } catch (caught) {
       setPhase("idle");
+      // SMS saglayici yapilandirilmamis (prod'da provider=none -> 503). Dogrulama
+      // zaten ZORUNLU DEGIL (LISTING_REQUIRE_PHONE_OTP=false); calismayan bir
+      // butonu formda tutmak ilan verecek kisiyi tereddute dusuruyor.
+      if (caught instanceof ApiError && caught.code === "sms_unavailable") {
+        setUnavailable(true);
+        return;
+      }
       setError(errorMessage(caught));
       if (caught instanceof ApiError && caught.code === "rate_limited") setCooldown(60);
     }
@@ -78,6 +86,9 @@ export function PhoneOtpVerification({ phone, onVerified }: Props) {
 
   const validPhone = phone.replace(/\D/g, "").length >= 10;
   const busy = phase === "sending" || phase === "verifying";
+
+  // Servis yoksa blogu tamamen kaldir — ilan vermeyi engellemiyor.
+  if (unavailable) return null;
 
   return (
     <fieldset className="rounded-[8px] border border-(--color-border) bg-(--color-bg-alt) p-4 md:col-span-2" aria-describedby="phone-otp-help">

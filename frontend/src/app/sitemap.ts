@@ -216,6 +216,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/embed`, changeFrequency: "monthly", priority: 0.75 },
     { url: `${SITE_URL}/basin`, changeFrequency: "monthly", priority: 0.65 },
     { url: `${SITE_URL}/reklam-ver`, changeFrequency: "monthly", priority: 0.7 },
+    // 31 Agu 2026: noindex kaldirildi — ilan kazanmanin tek yuzeyi aramada gorunsun.
+    { url: `${SITE_URL}/ilan-ver`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${SITE_URL}/hal`, ...(priceLastModified && { lastModified: priceLastModified }), changeFrequency: "weekly", priority: 0.85 },
     { url: `${SITE_URL}/firmalar`, ...(firmLastModified && { lastModified: firmLastModified }), changeFrequency: "weekly", priority: 0.78 },
     { url: `${SITE_URL}/karsilastirma`, ...(priceLastModified && { lastModified: priceLastModified }), changeFrequency: "weekly", priority: 0.8 },
