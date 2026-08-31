@@ -1,0 +1,5 @@
+# Test kosumu env'i: JWT_SECRET / COOKIE_SECRET uretimde fail-closed (fallback
+# YASAK), bu yuzden testlere atilabilir degerleri preload ile veriyoruz.
+# Ayrinti: test-setup.ts
+[test]
+preload = ["./test-setup.ts"]
