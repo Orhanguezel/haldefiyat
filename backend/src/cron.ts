@@ -22,7 +22,7 @@ import { syncFirmSeoIndex } from "@/modules/firms/repository";
 import { runFirmDailyPriceReminders } from "@/modules/firms/reminders";
 import { expireListings, purgeListingPersonalData, sendListingExpiryReminders } from "@/modules/listings";
 import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
-import { warmAnalyticsCache } from "@/modules/analytics";
+import { refreshAuditRollup, warmAnalyticsCache } from "@/modules/analytics";
 import { submitToIndexNow } from "@/modules/indexnow";
 import { cleanupOldEtlRuns } from "@/modules/etl/maintenance";
 import { cleanupOldAuditLogs } from "@/modules/audit-consumers/retention";
@@ -371,7 +371,13 @@ async function runWeeklyAnalysisJob(app: FastifyInstance): Promise<void> {
 async function runAnalyticsWarmJob(app: FastifyInstance): Promise<void> {
   const t0 = Date.now();
   try {
-    await warmAnalyticsCache();
+    // Once ozet tablolarini tazele, sonra cache'i isit — isitma ozetten okusun.
+  try {
+    await refreshAuditRollup(3);
+  } catch (err) {
+    app.log.error({ err }, "[cron:analytics-warm] rollup tazeleme hatasi");
+  }
+  await warmAnalyticsCache();
     app.log.info({ durationMs: Date.now() - t0 }, "[cron:analytics-warm] cache isitildi");
   } catch (err) {
     app.log.error({ err }, "[cron:analytics-warm] hata");

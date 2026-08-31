@@ -143,6 +143,16 @@ async function productKpis(days: number) {
 // Cron isiticisi: shared repo fonksiyonlarini ayni process-ici cache'i doldurmak
 // icin cagirir (route handler'larla ayni modul singleton'i). Panel boylece hicbir
 // zaman cold-cache sorgusuna (1+ dk) carpmaz.
+/**
+ * Gunluk ozet tablolarini tazeler (S5). Ozet, overview'in ~9 tam taramasini
+ * gunde bir kez yapilan bir ise indiriyor. Son 3 gun yeniden hesaplanir:
+ * bugun gun icinde degisiyor, dun/onceki gun gec gelen kayitlara karsi sigorta.
+ */
+export async function refreshAuditRollup(days = 3): Promise<void> {
+  const { runAuditRollup } = await import("@agro/shared-backend/modules/analytics/rollup");
+  await runAuditRollup(days, { intentPaths: HAL_INTENT_PATHS });
+}
+
 export async function warmAnalyticsCache(): Promise<void> {
   const { repoGetAnalyticsOverview } = await import("@agro/shared-backend/modules/analytics/repo-overview");
   const { repoGetRetention } = await import("@agro/shared-backend/modules/analytics/repo-extra");
