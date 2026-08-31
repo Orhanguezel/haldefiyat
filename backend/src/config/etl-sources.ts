@@ -499,7 +499,14 @@ const RAW_SOURCES: RawSource[] = [
   // Fiyat formatı "140 TL". Scrapling gerekiyor (TLS korumalı).
   {
     key:               "tekirdag_resmi",
-    defaultEnabled:    true,
+    // 2026-08-31: Kaynak site 1 Agustos'tan beri yeni liste yayinlamiyor ve sunucu
+    // erisilemez durumda. DNS cozuluyor (176.236.128.133) ama hem VPS'ten hem
+    // lokalden HTTP 000; Scrapling uzerinden de HTTP 500. Bize-ozel blok degil,
+    // sunucu kapali. Bu arada ETL her gun 1 Agustos anlik goruntusunu yeniden
+    // isliyor, 'partial' statusu uretiyor ve saglik metriklerini kirletiyordu
+    // (14 gunde 630 "rows_inserted" ama price_history'ye dusen: 1 satir).
+    // Site geri gelince true cevir; 'id:NNN' backfill formati hazir.
+    defaultEnabled:    false,
     defaultMarketSlug: "tekirdag-hal",
     defaultBaseUrl:    "https://www.tekirdag.bel.tr",
     defaultEndpoint:   "/hal_fiyat_gunluk",

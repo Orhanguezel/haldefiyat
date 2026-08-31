@@ -4,9 +4,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { productHref } from "@/lib/product-links";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { fetchFirm, fetchFirms, fetchMarkets, fetchPrices, type PriceRow } from "@/lib/api";
+import { resolveCanonicalFallback } from "@/lib/slug-fallback";
 import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
@@ -78,7 +79,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // notFound() BURADA cagrilmaz: generateMetadata icinde cagrilirsa Next
   // render agacini kurmadan kisa devre yapar ve stillendirilmis not-found.tsx
   // yerine ciplak hata kabugu doner. 404'u page component'i veriyor.
-  if (!firm) return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
+  if (!firm) {
+    const canonical = await resolveCanonicalFallback(slug, async (c) => Boolean(await fetchFirm(c)));
+    if (canonical) permanentRedirect(`/firma/${canonical}`);
+    return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
+  }
 
   const city = titleCaseSlug(firm.citySlug);
   return getPageMetadata(["firma_detay", "firma"], {
@@ -101,7 +106,11 @@ export default async function FirmDetailPage({ params }: Props) {
   setRequestLocale(locale);
 
   const firm = await fetchFirm(slug);
-  if (!firm) notFound();
+  if (!firm) {
+    const canonical = await resolveCanonicalFallback(slug, async (c) => Boolean(await fetchFirm(c)));
+    if (canonical) permanentRedirect(`/firma/${canonical}`);
+    notFound();
+  }
 
   const [related, cityMarket] = await Promise.all([
     firm.citySlug

@@ -11,6 +11,20 @@ BACKEND="$REPO_ROOT/backend"
 ADMIN="$REPO_ROOT/admin_panel"
 LOGS="$REPO_ROOT/logs"
 
+# Build bellek tavanlari (2026-08-31, A3/S6).
+# Kutu 7,9 GB RAM + 8 GB swap; deploy aninda tipik bos alan ~3 GB. Admin
+# (Turbopack) build'i 2,2 GB'a kadar cikip iki kez OOM'landi, ikincisinde pm2
+# daemon'i da dusurdu (~30 sn 502). Tavan koyunca V8 daha agresif GC yapar;
+# gercekten yetmezse build TEMIZ hata verir — kutuyu dusurmek yerine.
+# Admin daha dar: admin build'inin dusmesi tolere edilebilir, frontend'inki degil.
+FRONTEND_BUILD_MEM="${FRONTEND_BUILD_MEM:-3072}"
+ADMIN_BUILD_MEM="${ADMIN_BUILD_MEM:-2048}"
+
+# Dagitim penceresini olcmek icin log satir ofseti (tarih karsilastirmasi ay
+# sinirinda sozluksel olarak bozulur: "01/Sep" < "30/Aug"). Ofset her zaman dogru.
+ACCESS_LOG="/var/log/nginx/haldefiyat.access.log"
+DEPLOY_LOG_OFFSET="$( [ -r "$ACCESS_LOG" ] && wc -l < "$ACCESS_LOG" || echo 0 )"
+
 echo "==> [1/6] git pull (fast-forward only)"
 cd "$REPO_ROOT"
 git pull --ff-only origin main
@@ -26,7 +40,7 @@ fi
 tail -25 "/tmp/hal-backend-build-$RELEASE_SHA.log"
 
 echo "==> [3/6] frontend izole production build ($RELEASE_DIST)"
-if ! (cd "$FRONTEND" && NEXT_DIST_DIR="$RELEASE_DIST" bun run build > "/tmp/hal-frontend-build-$RELEASE_SHA.log" 2>&1); then
+if ! (cd "$FRONTEND" && NEXT_DIST_DIR="$RELEASE_DIST" NODE_OPTIONS="--max-old-space-size=$FRONTEND_BUILD_MEM" bun run build > "/tmp/hal-frontend-build-$RELEASE_SHA.log" 2>&1); then
   tail -80 "/tmp/hal-frontend-build-$RELEASE_SHA.log"
   echo "HATA: frontend build başarısız!" && exit 1
 fi
@@ -40,7 +54,7 @@ fi
 echo "    symlink hedefi: $FRONTEND/standalone-server.js → $(readlink -f "$FRONTEND/standalone-server.js" 2>/dev/null || echo "$TARGET")"
 
 echo "==> [5/6] admin panel izole production build ($RELEASE_DIST)"
-if ! (cd "$ADMIN" && NEXT_DIST_DIR="$RELEASE_DIST" bun run build > "/tmp/hal-admin-build-$RELEASE_SHA.log" 2>&1); then
+if ! (cd "$ADMIN" && NEXT_DIST_DIR="$RELEASE_DIST" NODE_OPTIONS="--max-old-space-size=$ADMIN_BUILD_MEM" bun run build > "/tmp/hal-admin-build-$RELEASE_SHA.log" 2>&1); then
   tail -80 "/tmp/hal-admin-build-$RELEASE_SHA.log"
   echo "HATA: admin panel build başarısız!" && exit 1
 fi
@@ -186,6 +200,21 @@ for app_dir in "$FRONTEND" "$ADMIN"; do
   echo "    $(basename "$app_dir"): $removed eski dizin silindi"
 done
 df -h / | tail -1
+
+# ── Dagitim penceresi 5xx sayaci (2026-08-31, A3/S6) ────────────────────────
+# 19-30 Agustos olcumu: 463 sunucu hatasinin 456'si DORT dagitim gununde olustu,
+# kalan sekiz gunde toplam 7. Regresyon sessiz kalmasin diye dagitimin kendi
+# penceresindeki 5xx burada raporlanir.
+if [ -r "$ACCESS_LOG" ]; then
+  DEPLOY_5XX="$(tail -n "+$((DEPLOY_LOG_OFFSET + 1))" "$ACCESS_LOG" 2>/dev/null | awk -F'"' '
+    { st = $3; gsub(/^ +/, "", st); split(st, a, " "); if (a[1] ~ /^5/) n++ }
+    END { print n + 0 }' || echo "?")"
+  echo ""
+  echo "==> dagitim penceresi ($DEPLOY_LOG_OFFSET. satirdan sonra): 5xx = $DEPLOY_5XX"
+  if [ "$DEPLOY_5XX" != "?" ] && [ "$DEPLOY_5XX" -gt 20 ] 2>/dev/null; then
+    echo "    ⚠ 20 esigi asildi — kesinti yasandi, pm2 loglarina bak."
+  fi
+fi
 
 echo ""
 echo "✓ Deploy tamamlandı"

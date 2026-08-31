@@ -72,13 +72,30 @@ const CITY_OPTIONS: Array<{ slug: string; label: string }> = [
   { slug: "zonguldak", label: "Zonguldak" },
 ];
 
-export async function generateMetadata({ params }: Props) {
+// Parametreli varyantlar (?city, ?type, ?page, ?view) ayri ayri indeksleniyordu:
+// 19-30 Agustos'ta sitemap 394 URL bildirirken 439 sayfa arama sonuclarinda gorundu.
+// Icerik ureten parametreler kalici yola (/firmalar/{sehir}/{tip}) kanoniklestirilir;
+// sunum parametreleri (sayfalama, gorunum) indeks disi birakilir.
+export async function generateMetadata({ params, searchParams }: Props) {
   const { locale } = await params;
+  const query = await searchParams;
+  const city = single(query?.city);
+  const typeRaw = single(query?.type);
+  const type = FIRM_TYPES.some((item) => item.value === typeRaw) ? typeRaw : undefined;
+  const paged = Number(single(query?.page) ?? 1) > 1;
+  const listView = single(query?.view) === "list";
+  const searched = Boolean(single(query?.q) || single(query?.district));
+
+  const canonicalPath = city
+    ? (type ? `/firmalar/${city}/${FIRM_TYPE_SLUGS[type as Firm["firmType"]] ?? type}` : `/firmalar/${city}`)
+    : "/firmalar";
+
   return getPageMetadata(["firmalar_liste", "firmalar"], {
     locale,
-    pathname: "/firmalar",
+    pathname: canonicalPath,
     title: "Hal Firmaları ve Komisyoncu Rehberi",
     description: "Türkiye'deki hal komisyoncuları, soğuk hava depoları, nakliyeciler ve zirai ilaç firmaları rehberi.",
+    ...(paged || listView || searched ? { robots: { index: false, follow: true } } : {}),
   });
 }
 

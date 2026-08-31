@@ -24,6 +24,7 @@ export default function PolicyLinks({ className = "", currentPath }: { className
           <li key={href}>
             <Link
               href={href}
+              prefetch={false}
               aria-current={currentPath === href ? "page" : undefined}
               className="inline-flex min-h-9 items-center rounded-lg border border-(--color-border) bg-(--color-surface) px-3 text-xs font-medium text-(--color-foreground) transition-colors hover:border-(--color-brand)/45 hover:text-(--color-brand)"
             >

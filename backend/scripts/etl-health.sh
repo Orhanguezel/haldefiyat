@@ -31,6 +31,7 @@ DB_USER="$(grep -E '^DB_USER=' "$ENV_FILE" | cut -d= -f2)"
 DB_PASSWORD="$(grep -E '^DB_PASSWORD=' "$ENV_FILE" | cut -d= -f2)"
 DB_NAME="$(grep -E '^DB_NAME=' "$ENV_FILE" | cut -d= -f2)"
 SCRAPER_SOURCES="$(grep -E '^HF_SCRAPER_SOURCES=' "$ENV_FILE" | cut -d= -f2)"
+IGNORE_EMPTY="$(grep -E '^ETL_HEALTH_IGNORE_EMPTY_SOURCES=' "$ENV_FILE" | cut -d= -f2)"
 
 echo "═══════════════════════════════════════════════════════════════════════"
 echo "  ETL Saglik Raporu — son $WINDOW_HOURS saat"
@@ -68,6 +69,27 @@ WHERE created_at >= NOW() - INTERVAL $WINDOW_HOURS HOUR
 GROUP BY source_api
 HAVING hata_sayisi >= 3 AND ok_sayisi = 0
 ORDER BY hata_sayisi DESC;
+" 2>&1 | grep -v "Using a password" || true
+
+echo
+echo "── SESSIZ BASARISIZLIK — status=ok ama 0 satir (son $WINDOW_HOURS saat) ──"
+echo "   'ok' donen her calisma veri getirdi demek DEGIL. Bu kaynaklar hatasiz"
+echo "   gorunup hic satir uretmiyor; hata sayaci bunlari yakalamaz."
+echo "   Muaf (by-design bos): ${IGNORE_EMPTY:-(yok)}"
+mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" --table -e "
+SELECT
+  source_api,
+  COUNT(*) AS ok_calisma,
+  SUM(rows_inserted) AS toplam_satir,
+  MAX(created_at) AS son_calisma,
+  CASE WHEN source_api IN ($(echo "${IGNORE_EMPTY:-none}" | sed "s/[^,]*/'&'/g"))
+       THEN 'muaf (by-design)' ELSE '⚠ INCELE' END AS durum
+FROM hf_etl_runs
+WHERE created_at >= NOW() - INTERVAL $WINDOW_HOURS HOUR
+  AND status = 'ok'
+GROUP BY source_api
+HAVING COALESCE(toplam_satir, 0) = 0
+ORDER BY durum DESC, ok_calisma DESC;
 " 2>&1 | grep -v "Using a password" || true
 
 echo

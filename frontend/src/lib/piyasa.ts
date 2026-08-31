@@ -94,6 +94,34 @@ export const PIYASA_BY_PRODUCT: Record<string, PiyasaPageConfig> = Object.fromEn
   Object.values(PIYASA_PAGES).map((page) => [page.productSlug, page]),
 );
 
+/**
+ * Bir analiz makalesini, ayni arama niyetine hizmet eden piyasa sayfasiyla eslestirir.
+ *
+ * Neden: 19-28 Agustos GSC olcumu, tarihli analiz makalesinin gunluk guncellenen
+ * piyasa sayfasini yediligini gosterdi. "mersin limon fiyatlari" sorgusunda makale
+ * 1.035 gosterim / %0,58 CTR alirken piyasa sayfasi 189 gosterim / %1,06; "erdemli
+ * limon piyasasi"nda makale %0,50, piyasa sayfasi %2,53. Piyasa sayfasi her gorundugu
+ * yerde 2-5 kat daha iyi tiklaniyor ama gosterimin kucuk kismini aliyor.
+ *
+ * Fiyat niyetli okuyucu tarihli bir analize dusunce geri donuyor; bu eslestirme
+ * makalenin basindan canli sayfaya kopru kurar.
+ */
+export function findPiyasaForArticle(
+  articleSlug: string,
+  tags: readonly string[] = [],
+): PiyasaPageConfig | null {
+  const haystack = [articleSlug, ...tags].join(" ").toLocaleLowerCase("tr-TR");
+  for (const page of Object.values(PIYASA_PAGES)) {
+    const product = page.productSlug.toLocaleLowerCase("tr-TR");
+    // Bolge adi slug'da gecen ilk kelimeden alinir ("erdemli-limon" -> "erdemli").
+    const regionToken = page.slug.split("-")[0]?.toLocaleLowerCase("tr-TR") ?? "";
+    if (haystack.includes(product) && regionToken && haystack.includes(regionToken)) {
+      return page;
+    }
+  }
+  return null;
+}
+
 // hal.gov.tr ulusal kaydi "Türkiye" sehri olarak gelir; sehir kiyasina ve
 // hal-basi medyana katilirsa (bircok halin ortalamasi oldugu icin) cift sayilir.
 const isCityRow = (row: PriceRow) => row.cityName !== "Türkiye";

@@ -97,10 +97,11 @@ export default function CtaNewsletter({
         />
 
         <h2 className="relative z-[2] mb-4 font-(family-name:--font-display) text-[32px] font-black tracking-[-0.03em] text-(--color-foreground) sm:text-[44px]">
-          Fiyat Alarmı Kur
+          Bu Hafta Ne Ucuzladı?
         </h2>
         <p className="relative z-[2] mx-auto mb-9 max-w-[480px] text-[15px] leading-[1.7] text-(--color-muted) sm:text-[17px]">
-          Seçtiğin ürün hedef fiyata gelince anında bildirim al.
+          Her pazartesi sabahı tek e-posta: haftanın en çok düşen ve yükselen ürünleri,
+          Türkiye genelindeki hallerden derlenmiş fiyatlarla. Ücretsiz, istediğin an çıkarsın.
         </p>
 
         <form
@@ -135,7 +136,7 @@ export default function CtaNewsletter({
                 className="h-4 w-4 animate-spin rounded-full border-2 border-(--color-brand-fg) border-t-transparent"
               />
             )}
-            {isLoading ? "Kaydediliyor" : "Kayıt Ol"}
+            {isLoading ? "Kaydediliyor" : "Ücretsiz abone ol"}
           </button>
         </form>
 

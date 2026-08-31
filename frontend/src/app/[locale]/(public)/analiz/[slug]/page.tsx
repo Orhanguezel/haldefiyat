@@ -22,6 +22,7 @@ import { hasVerifiedHumanReview, isAutomatedAnalysis } from "@/lib/analysis-prov
 import { formatDateTr } from "@/lib/date-format";
 import ReportActions from "@/components/reports/ReportActions";
 import ReportSummaryGrid from "@/components/reports/ReportSummaryGrid";
+import { findPiyasaForArticle } from "@/lib/piyasa";
 
 // İçerik HTML ile başlıyorsa zengin rapor (kendi <style> + inline SVG) olarak
 // render edilir; aksi halde markdown-benzeri paragraf render'ı kullanılır.
@@ -223,6 +224,7 @@ export default async function AnalizMakalePage({ params }: Props) {
   const authorTitle = authorProfile?.title ?? null;
   const authorUrl = authorProfile ? `${SITE_URL}/yazar/${authorProfile.slug}` : null;
   const summary = findingSummary(makale.ozet);
+  const piyasaPage = findPiyasaForArticle(makale.slug, makale.etiketler ?? []);
   const totalRecords = weeklySummary?.totalRecords
     ?? ("totalRecords" in makale && typeof makale.totalRecords === "number" ? makale.totalRecords : null);
   const coverageValue = weeklySummary
@@ -394,6 +396,29 @@ export default async function AnalizMakalePage({ params }: Props) {
               </p>
             </AnswerBlock>
           </div>
+
+          {piyasaPage && (
+            /* Fiyat niyetli okuyucu tarihli analize dusuyor (GSC 19-28 Agu: makale
+               %0,58 CTR, ayni sorguda gunluk piyasa sayfasi %1,06-4,21). Kopruyu
+               govdeden ONCE kur — okuyucu asagi inmeden canli sayfaya gecebilsin. */
+            <aside className="mt-6 rounded-[10px] border border-(--color-brand)/30 bg-(--color-brand)/6 p-4 sm:flex sm:items-center sm:justify-between sm:gap-5">
+              <div className="min-w-0">
+                <p className="text-[13px] font-semibold text-(--color-foreground)">
+                  Bugünkü {piyasaPage.productName.toLocaleLowerCase("tr-TR")} fiyatlarını mı arıyorsunuz?
+                </p>
+                <p className="mt-1 text-[13px] leading-5 text-(--color-muted)">
+                  Bu analiz {formatDateTr(makale.tarih) ?? makale.tarih} tarihli bir değerlendirmedir.
+                  Güncel fiyatlar için her gün yenilenen {piyasaPage.region} sayfasına bakın.
+                </p>
+              </div>
+              <Link
+                href={`/piyasa/${piyasaPage.slug}`}
+                className="mt-3 inline-flex min-h-11 shrink-0 items-center rounded-[6px] bg-(--color-brand) px-5 text-[13px] font-bold text-(--color-brand-fg) transition hover:opacity-90 sm:mt-0"
+              >
+                Güncel {piyasaPage.productName.toLocaleLowerCase("tr-TR")} piyasası
+              </Link>
+            </aside>
+          )}
 
           <BannerSlot position="analiz_inline" />
 

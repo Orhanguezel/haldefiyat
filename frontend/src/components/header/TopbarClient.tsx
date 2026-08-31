@@ -43,7 +43,7 @@ export default function TopbarClient({ trackedProducts, activeCities, targetCove
   return (
     <div className="hidden md:flex h-12 items-center justify-between text-[12px] text-(--color-muted)">
       <div className="flex items-center gap-5">
-        <Link href="/metodoloji" className={`flex items-center gap-2 font-mono hover:underline ${freshnessClass}`} title="Veri tazeliği metodolojisi">
+        <Link href="/metodoloji" prefetch={false} className={`flex items-center gap-2 font-mono hover:underline ${freshnessClass}`} title="Veri tazeliği metodolojisi">
           <span className="live-dot" aria-hidden />
           {freshnessLabel}
         </Link>

@@ -113,7 +113,7 @@ export default function Footer({
         <div className="mb-7 grid grid-cols-1 gap-10 border-b border-(--color-border) pb-12 sm:grid-cols-2 lg:grid-cols-[1.7fr_repeat(4,minmax(0,1fr))]">
           {/* Sutun 1 — Brand */}
           <div className="space-y-4">
-            <Link href="/" className="inline-flex max-w-full">
+            <Link href="/" prefetch={false} className="inline-flex max-w-full">
               {lightThemeLogo ? (
                 <>
                   <Image
@@ -202,6 +202,7 @@ export default function Footer({
                   <li key={link.href}>
                     <Link
                       href={link.href}
+                      prefetch={false}
                       className="text-[13px] text-(--color-muted) transition-colors hover:text-(--color-brand)"
                     >
                       {link.label}

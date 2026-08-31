@@ -68,6 +68,7 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
             <Link
               key={entry.key}
               href={entry.href}
+              prefetch={false}
               className={clsx(
                 "px-3 py-2 rounded-md text-[13px] font-medium transition-colors",
                 isActive(entry.href)
@@ -121,7 +122,7 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
           <>
             <NotificationBell locale={locale} />
             <Link
-              href={localePath(locale, "/hesabim")}
+              href={localePath(locale, "/hesabim")} prefetch={false}
               className="inline-flex h-10 items-center gap-2 rounded-xl border border-border px-3 text-[13px] font-medium text-foreground bg-bg-alt/50 hover:border-brand/40 transition-colors"
             >
               {profile?.avatar_url ? (
@@ -156,13 +157,13 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
         ) : (
           <>
             <Link
-              href={localePath(locale, "/giris")}
+              href={localePath(locale, "/giris")} prefetch={false}
               className="h-10 px-5 inline-flex items-center justify-center rounded-xl border border-(--color-border) text-[13px] font-semibold text-(--color-foreground) hover:bg-(--color-bg-alt) hover:text-(--color-brand) transition-all active:scale-95 whitespace-nowrap"
             >
               Giriş Yap
             </Link>
             <Link
-              href={localePath(locale, "/kayit")}
+              href={localePath(locale, "/kayit")} prefetch={false}
               className="h-10 px-5 inline-flex items-center justify-center rounded-xl bg-(--color-brand) text-(--color-brand-fg) text-[13px] font-bold hover:bg-(--color-brand-dark) hover:scale-[1.02] transition-all active:scale-95 shadow-lg shadow-(--color-brand)/20 whitespace-nowrap"
             >
               Ücretsiz Başla
@@ -212,6 +213,7 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
                     <Link
                       key={item.key}
                       href={item.href}
+                      prefetch={false}
                       className={clsx(
                         "block px-3 py-3 rounded-md text-sm font-medium",
                         isActive(item.href)
@@ -227,6 +229,7 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
                 <Link
                   key={entry.key}
                   href={entry.href}
+                  prefetch={false}
                   className={clsx(
                     "px-3 py-3 rounded-md text-sm font-medium",
                     isActive(entry.href)
@@ -240,7 +243,7 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
             )}
             {user && (
               <Link
-                href={localePath(locale, "/hesabim")}
+                href={localePath(locale, "/hesabim")} prefetch={false}
                 className={clsx(
                   "px-3 py-3 rounded-md text-sm font-medium",
                   isActive("/hesabim")
@@ -272,13 +275,13 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
               ) : (
                 <>
                   <Link
-                    href={localePath(locale, "/giris")}
+                    href={localePath(locale, "/giris")} prefetch={false}
                     className="flex-1 h-11 inline-flex items-center justify-center rounded-xl border border-(--color-border) text-sm font-semibold hover:bg-(--color-bg-alt) transition-all active:scale-95"
                   >
                     Giriş Yap
                   </Link>
                   <Link
-                    href={localePath(locale, "/kayit")}
+                    href={localePath(locale, "/kayit")} prefetch={false}
                     className="flex-1 h-11 inline-flex items-center justify-center rounded-xl bg-(--color-brand) text-(--color-brand-fg) text-sm font-bold shadow-md shadow-(--color-brand)/10 active:scale-95 transition-all"
                   >
                     Ücretsiz Başla

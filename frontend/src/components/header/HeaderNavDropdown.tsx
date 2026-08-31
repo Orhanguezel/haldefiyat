@@ -73,6 +73,7 @@ export function HeaderNavDropdown({ group, isActive }: Props) {
               <Link
                 key={item.key}
                 href={item.href}
+                prefetch={false}
                 role="menuitem"
                 onClick={() => setOpen(false)}
                 className={clsx(

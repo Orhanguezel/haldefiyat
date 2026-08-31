@@ -45,7 +45,10 @@ export default function MobileHomeNewsletterCta() {
   return (
     <section ref={cta.ref} className="sticky bottom-3 z-30 px-4 py-4">
       <form onSubmit={submit} className="rounded-lg border border-(--color-brand)/35 bg-(--color-surface)/95 p-3 shadow-xl backdrop-blur">
-        <div className="mb-2 text-[13px] font-black text-(--color-foreground)">Haftalık fiyat bültenini al</div>
+        <div className="mb-2">
+          <div className="text-[13px] font-black text-(--color-foreground)">Bu hafta ne ucuzladı?</div>
+          <div className="text-[11px] font-medium text-(--color-muted)">Pazartesi sabahı tek e-posta · ücretsiz</div>
+        </div>
         <div className="flex gap-2">
           <input
             type="email"
@@ -67,7 +70,7 @@ export default function MobileHomeNewsletterCta() {
             disabled={state === "loading" || state === "success"}
             className="min-h-11 rounded-md bg-(--color-brand) px-4 text-[13px] font-black text-(--color-brand-fg) disabled:opacity-70"
           >
-            {state === "success" ? "Alındı" : state === "loading" ? "..." : "Kaydol"}
+            {state === "success" ? "Alındı" : state === "loading" ? "..." : "Abone ol"}
           </button>
         </div>
         {state === "error" ? <p className="mt-2 text-[12px] font-semibold text-(--color-danger)">Kayıt alınamadı. E-postayı kontrol edin.</p> : null}

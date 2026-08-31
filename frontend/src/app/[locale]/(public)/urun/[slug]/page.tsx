@@ -37,6 +37,7 @@ import VariantPriceTable from "@/components/sections/VariantPriceTable";
 import { productHref } from "@/lib/product-links";
 import PageContainer from "@/components/layout/PageContainer";
 import { getProductDisplayName } from "@/lib/product-display-name";
+import { resolveCanonicalFallback } from "@/lib/slug-fallback";
 import FrostRiskBanner from "@/components/sections/FrostRiskBanner";
 import PriceTable from "@/components/ui/PriceTable";
 import FreshnessBadge from "@/components/ui/FreshnessBadge";
@@ -197,6 +198,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // agacini kurmadan kisa devre yapar ve stillendirilmis not-found.tsx yerine
   // duz metin "Not Found" doner. 404'u page component'i veriyor (asagida).
   if (!product) {
+    const canonical = await resolveCanonicalFallback(slug, (c) => products.some((p) => p.slug === c));
+    if (canonical) permanentRedirect(`/urun/${canonical}`);
     return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
   }
 
@@ -268,6 +271,8 @@ export default async function UrunPage({ params }: Props) {
   const product = products.find((p) => p.slug === slug);
 
   if (!product) {
+    const canonical = await resolveCanonicalFallback(slug, (c) => products.some((p) => p.slug === c));
+    if (canonical) permanentRedirect(`/urun/${canonical}`);
     notFound();
   }
 

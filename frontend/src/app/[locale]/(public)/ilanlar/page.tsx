@@ -24,12 +24,17 @@ export async function generateMetadata({ params, searchParams }: Props) {
   const { locale } = await params;
   const query = await searchParams;
   const hasFilter = Boolean(one(query?.q) || one(query?.type) || one(query?.product) || one(query?.city) || one(query?.unit) || one(query?.date));
+  // Aktif ilan yokken sayfa indekslenmez: bos liste ince icerik olarak degerlendirilir
+  // (19-30 Agustos: 5 ilanin tamami suresi dolmus, GSC'de 3 gosterim / 1 tiklama).
+  // Sayfa ve gezinme yerinde kalir — bos durum bilincli bir ilan-verme davetidir.
+  const active = await fetchListings({ limit: 1 }).catch(() => null);
+  const hasActiveListing = (active?.meta.total ?? 0) > 0;
   return getPageMetadata("ilanlar", {
     locale,
     pathname: "/ilanlar",
     title: "Hal İlanları ve Alım Talepleri",
     description: "Üretici, komisyoncu ve alıcı ilanlarını ürün ve bölgeye göre keşfedin.",
-    robots: hasFilter ? { index: false, follow: true } : { index: true, follow: true },
+    robots: hasFilter || !hasActiveListing ? { index: false, follow: true } : { index: true, follow: true },
   });
 }
 
