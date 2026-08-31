@@ -93,6 +93,30 @@ ORDER BY durum DESC, ok_calisma DESC;
 " 2>&1 | grep -v "Using a password" || true
 
 echo
+echo "── KARANTINA KUYRUGU — kimse incelemezse veri kaybi ──"
+echo "   'partial' statusu = bazi satirlar karantinaya alindi. Kural 15 Agu 2026'da"
+echo "   devreye girdi; bekleyen kayitlar incelenene kadar sitede GORUNMEZ."
+echo "   Inceleme ekrani: /admin/prices/quarantine"
+mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" --table -e "
+SELECT
+  reason_code,
+  severity,
+  COUNT(*) AS bekleyen,
+  COUNT(DISTINCT source_api) AS kaynak,
+  MIN(DATE(created_at)) AS en_eski,
+  TIMESTAMPDIFF(DAY, MIN(created_at), NOW()) AS en_eski_gun
+FROM hf_price_quarantine
+WHERE status = 'pending'
+GROUP BY reason_code, severity
+ORDER BY FIELD(severity,'critical','warning'), bekleyen DESC;
+" 2>&1 | grep -v "Using a password" || true
+PENDING="$(mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" -N -e \
+  "SELECT COUNT(*) FROM hf_price_quarantine WHERE status='pending';" 2>/dev/null | tr -d '[:space:]')"
+if [ -n "${PENDING:-}" ] && [ "$PENDING" -gt 300 ] 2>/dev/null; then
+  echo "   ⚠ $PENDING kayit bekliyor (esik 300) — kuyruk birikiyor, inceleme gerekiyor."
+fi
+
+echo
 echo "── Veri Akisi Yok (son ok > 7 gun once) ──"
 mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" --table -e "
 SELECT

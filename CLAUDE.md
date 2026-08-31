@@ -205,7 +205,7 @@ hal-fiyatlari tarafi:
 2. fetcher.ts'in fetchHalGovTrDated icine multi-step Scrapling: GET ViewState → POST'lar
 
 ### 🔔 Bonus: Kayseri/Istanbul IBB AJAX endpoint reverse engineering
-- **Kayseri**: hal-fiyatlari sayfasi AngularJS, browser'da Network sekmesi acip AJAX call'lari yakalamak gerek. Muhtemelen `/api/hal-fiyatlari` veya benzeri JSON endpoint var.
+- ~~**Kayseri**~~: ✅ COZULDU — kaynak calisiyor (2026-08-31 dogrulamasi). Bu maddenin geregi kalmadi.
 - **Istanbul IBB**: dropdown + GUID secim, kullanici "Domates" secince fiyat gelir. Network sekmesinde AJAX cagrisini yakala. URL pattern ya `/Hal/UrunFiyat?id={GUID}` ya da benzeri olmali.
 - Bunlar bulununca: yeni `responseShape` (`kayseri_json`, `ibb_json`) ekle, parser yaz, source ekle.
 
@@ -254,7 +254,6 @@ hal-fiyatlari tarafi:
 ### Disabled (kaynak veya parser sorunu — Asama 3+ icin)
 - `antalya_serik_antkomder`, `antalya_kumluca_antkomder` — config'de `defaultEnabled: false` (sayt fiyat yayinlamiyor)
 - `mersin_resmi` — kaynak siteye baglanti yok (`fetch failed`/timeout) — site genel sorun, Scrapling de cevap alamiyor
-- `kayseri_resmi` — AngularJS JS-render, dynamic mode bile tbody dolu donmuyor (AJAX endpoint reverse engineering gerek)
 - `gaziantep_resmi` — div-based veri, parser yenileme gerek
 - `balikesir_resmi` — 2-step CSRF + POST, scraper-service'e session/cookie API gerekli
 - ~~`hal_gov_tr_ulusal`~~ — ✅ Asama 3 ile cozuldu (cookies forward + multi-step POST)
@@ -274,7 +273,7 @@ hal-fiyatlari tarafi:
 | antalya_merkez_antkomder | HTTP 200 bos | ✅ Scrapling cozdu |
 | antalya_serik_antkomder | HTTP 200 bos | ✅ Scrapling (kanitsiz, URL pattern ayni) |
 | antalya_kumluca_antkomder | HTTP 200 bos | ✅ Scrapling (kanitsiz, URL pattern ayni) |
-| kayseri_resmi | HTTP 200 bos | ⚠️ Scrapling cevap aldi ama parser 0 row, debug bekliyor |
+| kayseri_resmi | ~~HTTP 200 bos~~ | ✅ **COZULDU** (2026-08-31 dogrulandi): 30 gunde 3.460 satir, 30 farkli gun, son veri bugun. Canli sayfada 116 urun. Bu satirlardaki "AngularJS cozulmedi" notu BAYATTI. |
 | gaziantep_resmi | HTTP 200 bos | ⏸️ Scrapling html geliyor (258KB) ama tablo yok — parser yenilemeli |
 | kocaeli_merkez | Site sunucu DOWN (timeout) | 🚫 defaultEnabled: false (2026-05-13) + HF_SCRAPER_SOURCES'tan da çıkarıldı (2026-05-18). 5+ gün down. Site geri gelince ikisini de geri al |
 | yalova_resmi | socket closed (2026-05-18) | ✅ HF_SCRAPER_SOURCES'a eklendi, Scrapling ile 66 inserted. (.env'de ETL_HEALTH_IGNORE_EMPTY_SOURCES=antalya_serik_antkomder,antalya_kumluca_antkomder — by-design 0 satır uyarısı susturuldu) |
