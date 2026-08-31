@@ -1424,7 +1424,15 @@ export async function trendingChanges(limit = 10) {
   const mktIds  = [...new Set(top.map((t) => t.marketId))];
 
   const [products, markets] = await Promise.all([
-    db.select({ id: hfProducts.id, slug: hfProducts.slug, nameTr: hfProducts.nameTr, displayName: hfProducts.displayName, categorySlug: hfProducts.categorySlug })
+    db.select({
+      id: hfProducts.id,
+      slug: hfProducts.slug,
+      nameTr: hfProducts.nameTr,
+      displayName: hfProducts.displayName,
+      categorySlug: hfProducts.categorySlug,
+      imageUrl: hfProducts.imageUrl,
+      canonicalSlug: hfProducts.canonicalSlug,
+    })
       .from(hfProducts).where(inArray(hfProducts.id, prodIds)),
     db.select({ id: hfMarkets.id, slug: hfMarkets.slug, name: hfMarkets.name, cityName: hfMarkets.cityName })
       .from(hfMarkets).where(inArray(hfMarkets.id, mktIds)),

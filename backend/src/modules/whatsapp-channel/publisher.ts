@@ -1,7 +1,7 @@
 import { pool } from "@/db/client";
 import { env } from "@/core/env";
 import { trendingChanges } from "@/modules/prices/repository";
-import { getProductEmoji } from "@/modules/telegram-channel/emoji-map";
+import { buildDailyReportImageUrl } from "@/modules/telegram-channel/report-image";
 
 // WhatsApp KANALLARINA resmi API ile gonderim YOK (Meta, 2026 itibariyla kanal
 // otomasyonu sunmuyor; gayriresmi web-protokol araclari numara/kanal bani riski
@@ -46,12 +46,11 @@ function formatItemWa(i: number, item: {
   product?: { nameTr?: string; displayName?: string | null; categorySlug?: string } | null;
   market?: { cityName?: string } | null;
 }): string {
-  const emoji = getProductEmoji(item.product?.nameTr ?? "", item.product?.categorySlug ?? "");
   const name = item.product?.displayName || item.product?.nameTr || "—";
   const city = item.market?.cityName ?? "";
   const prev = item.latest / (1 + item.changePct / 100);
   return (
-    `${i}. ${emoji} *${name}* — ₺${fmtPrice(item.latest)} (${fmtPct(item.changePct)}, önceki ₺${fmtPrice(prev)})` +
+    `${i}. *${name}* — ₺${fmtPrice(item.latest)} (${fmtPct(item.changePct)}, önceki ₺${fmtPrice(prev)})` +
     (city ? ` · ${city}` : "")
   );
 }
@@ -110,6 +109,21 @@ async function sendTelegram(chatId: string, text: string, html: boolean): Promis
   return res.ok;
 }
 
+async function sendTelegramPhoto(chatId: string, photo: string, caption: string): Promise<boolean> {
+  const token = env.TELEGRAM_BOT_TOKEN;
+  if (!token || !chatId) return false;
+  const res = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chatId, photo, caption }),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    console.warn(`[whatsapp-bridge] Telegram foto HTTP ${res.status} — ${body.slice(0, 200)}`);
+  }
+  return res.ok;
+}
+
 /**
  * Gunluk WhatsApp taslagini admin sohbetine dusurur: (1) yonerge basligi,
  * (2) TEMIZ payload mesaji — uzun-bas kopyala, kanala yapistir.
@@ -122,6 +136,12 @@ export async function publishWhatsappDraft(): Promise<{ sent: boolean; reason?: 
   const text = await buildWhatsappDailyText();
   if (!text) return { sent: false, reason: "trending veri yok" };
 
+  const trending = await trendingChanges(10);
+  const now = new Date();
+  const dateLabel = fmtDate(now);
+  const dateSlug = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(now);
+  const imageUrl = await buildDailyReportImageUrl(trending, dateLabel, dateSlug);
+
   const channelUrl = await getWhatsappChannelUrl();
   const header =
     `📲 <b>WhatsApp kanalı için günlük gönderi hazır</b>\n` +
@@ -129,6 +149,9 @@ export async function publishWhatsappDraft(): Promise<{ sent: boolean; reason?: 
     (channelUrl ? `\n➡️ <a href="${channelUrl}">Kanalı aç</a>` : "");
 
   const okHeader = await sendTelegram(adminChat, header, true);
-  const okPayload = await sendTelegram(adminChat, text, false);
+  let okPayload = imageUrl
+    ? await sendTelegramPhoto(adminChat, imageUrl, text)
+    : await sendTelegram(adminChat, text, false);
+  if (imageUrl && !okPayload) okPayload = await sendTelegram(adminChat, text, false);
   return { sent: okHeader && okPayload };
 }

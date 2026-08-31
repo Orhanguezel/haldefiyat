@@ -1,6 +1,6 @@
 import { env } from "@/core/env";
 import { trendingChanges } from "@/modules/prices/repository";
-import { getProductEmoji } from "./emoji-map";
+import { buildDailyReportImageUrl } from "./report-image";
 
 const SITE_URL = "https://haldefiyat.com";
 
@@ -23,7 +23,7 @@ function fmtDate(d: Date): string {
   });
 }
 
-async function postToChannel(text: string): Promise<void> {
+async function postToChannel(text: string, photoUrl?: string | null): Promise<void> {
   const token = env.TELEGRAM_BOT_TOKEN;
   const channelId = env.TELEGRAM_CHANNEL_ID;
   if (!token || !channelId) {
@@ -31,20 +31,23 @@ async function postToChannel(text: string): Promise<void> {
     return;
   }
 
-  const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+  const useCaption = Boolean(photoUrl) && text.length <= 1024;
+  const method = useCaption ? "sendPhoto" : "sendMessage";
+  const res = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: channelId,
-      text,
+      ...(useCaption ? { photo: photoUrl, caption: text } : { text }),
       parse_mode: "HTML",
-      disable_web_page_preview: true,
+      ...(!useCaption ? { disable_web_page_preview: true } : {}),
     }),
   });
 
   const body = await res.text().catch(() => "");
   if (!res.ok) {
     console.warn(`[channel-publisher] Telegram API hatası HTTP ${res.status} — ${body.slice(0, 200)}`);
+    if (useCaption) await postToChannel(text, null);
   } else {
     console.log("[channel-publisher] Kanal paylaşımı başarılı");
   }
@@ -59,13 +62,12 @@ function formatItem(
     market?: { cityName?: string } | null;
   },
 ): string {
-  const emoji = getProductEmoji(item.product?.nameTr ?? "", item.product?.categorySlug ?? "");
   // Gorunen ad: ham ETL adi CILEK gibi BUYUK HARF olabiliyor — display_name tercih edilir.
   const name = item.product?.displayName || item.product?.nameTr || "—";
   const city = item.market?.cityName ?? "";
   const prev = item.latest / (1 + item.changePct / 100);
   return (
-    `${i}. ${emoji} <b>${name}</b>\n` +
+    `${i}. <b>${name}</b>\n` +
     `   ₺${fmtPrice(item.latest)} <i>(önceki: ₺${fmtPrice(prev)})</i>` +
     ` · <code>${fmtPct(item.changePct)}</code>` +
     (city ? `\n   📍 ${city}` : "")
@@ -109,7 +111,9 @@ export async function publishDailyReport(): Promise<void> {
   lines.push(`\n─────────────────────────`);
   lines.push(`🌐 <a href="${SITE_URL}/fiyatlar">Tüm hal fiyatları → haldefiyat.com</a>`);
 
-  await postToChannel(lines.join("\n"));
+  const dateSlug = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date());
+  const imageUrl = await buildDailyReportImageUrl(trending, today, dateSlug);
+  await postToChannel(lines.join("\n"), imageUrl);
 }
 
 export async function publishWeeklySummary(
@@ -126,9 +130,8 @@ export async function publishWeeklySummary(
   if (risers.length) {
     lines.push(`\n🔺 <b>Haftanın En Çok Artanları</b>`);
     for (const [i, r] of risers.entries()) {
-      const emoji = getProductEmoji(r.name, r.categorySlug);
       lines.push(
-        `${i + 1}. ${emoji} <b>${r.name}</b>\n` +
+        `${i + 1}. <b>${r.name}</b>\n` +
         `   ₺${fmtPrice(r.latestAvg)} · <code>${fmtPct(r.changePct)}</code>` +
         (r.city ? `\n   📍 ${r.city}` : ""),
       );
@@ -138,9 +141,8 @@ export async function publishWeeklySummary(
   if (fallers.length) {
     lines.push(`\n🔻 <b>Haftanın En Çok Düşenleri</b>`);
     for (const [i, f] of fallers.entries()) {
-      const emoji = getProductEmoji(f.name, f.categorySlug);
       lines.push(
-        `${i + 1}. ${emoji} <b>${f.name}</b>\n` +
+        `${i + 1}. <b>${f.name}</b>\n` +
         `   ₺${fmtPrice(f.latestAvg)} · <code>${fmtPct(f.changePct)}</code>` +
         (f.city ? `\n   📍 ${f.city}` : ""),
       );
