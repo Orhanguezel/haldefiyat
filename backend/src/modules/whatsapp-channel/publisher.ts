@@ -155,3 +155,71 @@ export async function publishWhatsappDraft(): Promise<{ sent: boolean; reason?: 
   if (imageUrl && !okPayload) okPayload = await sendTelegram(adminChat, text, false);
   return { sent: okHeader && okPayload };
 }
+
+/**
+ * Haftalik analiz raporunun WhatsApp kanal formati.
+ *
+ * Gunluk kopru (buildWhatsappDailyText) fiyat hareketlerini veriyor; bu ise
+ * yayinlanan HAFTALIK raporu duyuruyor — okuyucuyu makaleye goturur.
+ * Ozet cok uzun olabildigi icin ilk cumleye kirpiliyor: WhatsApp'ta uzun
+ * mesajin sonu "devamini oku" arkasinda kaliyor ve link gorunmuyor.
+ */
+export async function buildWhatsappWeeklyText(): Promise<string | null> {
+  const [rows] = await pool.query(
+    `SELECT slug, title, summary, week_start, week_end, published_at
+       FROM hf_analysis_reports
+      WHERE status = 'published' AND published_at IS NOT NULL
+      ORDER BY published_at DESC
+      LIMIT 1`,
+  );
+  const report = (rows as Array<{
+    slug: string; title: string; summary: string | null;
+    week_start: Date | string | null; week_end: Date | string | null;
+    published_at: Date | string;
+  }>)[0];
+  if (!report) return null;
+
+  // Yalniz TAZE rapor duyurulur; cron kacirilirsa haftalar sonra eski rapor
+  // "yeni" gibi paylasilmasin.
+  const publishedAt = new Date(report.published_at);
+  const ageDays = (Date.now() - publishedAt.getTime()) / 86_400_000;
+  if (!Number.isFinite(ageDays) || ageDays > 8) return null;
+
+  const firstSentence = (report.summary ?? "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(/(?<=[.!?])\s/)[0] ?? "";
+
+  const period = report.week_start && report.week_end
+    ? `${fmtDate(new Date(report.week_start))} – ${fmtDate(new Date(report.week_end))}`
+    : fmtDate(publishedAt);
+
+  const lines: string[] = [
+    `🗞️ *HaldeFiyat — Haftalık Hal Raporu*`,
+    `📅 ${period}`,
+    ``,
+    `*${report.title}*`,
+  ];
+  if (firstSentence) lines.push(``, firstSentence);
+  lines.push(``, `📖 Raporun tamamı: ${SITE_URL}/analiz/${report.slug}`);
+  return lines.join("\n");
+}
+
+/** Haftalik raporun WhatsApp taslagini admin sohbetine duser. */
+export async function publishWhatsappWeeklyDraft(): Promise<{ sent: boolean; reason?: string }> {
+  const adminChat = env.TELEGRAM_ADMIN_CHAT_ID;
+  if (!adminChat) return { sent: false, reason: "TELEGRAM_ADMIN_CHAT_ID eksik" };
+
+  const text = await buildWhatsappWeeklyText();
+  if (!text) return { sent: false, reason: "son 8 gunde yayinlanmis rapor yok" };
+
+  const channelUrl = await getWhatsappChannelUrl();
+  const header =
+    `📲 <b>WhatsApp kanalı için HAFTALIK gönderi hazır</b>\n` +
+    `Aşağıdaki mesajı uzun basıp kopyala → kanala yapıştır` +
+    (channelUrl ? `\n➡️ <a href="${channelUrl}">Kanalı aç</a>` : "");
+
+  const okHeader = await sendTelegram(adminChat, header, true);
+  const okPayload = await sendTelegram(adminChat, text, false);
+  return { sent: okHeader && okPayload };
+}

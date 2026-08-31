@@ -7,7 +7,7 @@ import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
 import { checkAndNotifyEtlHealth } from "@/modules/etl/health";
 import { runCompetitorCheck } from "@/modules/competitor-monitor";
 import { publishDailyReport } from "@/modules/telegram-channel/publisher";
-import { publishWhatsappDraft } from "@/modules/whatsapp-channel/publisher";
+import { publishWhatsappDraft, publishWhatsappWeeklyDraft } from "@/modules/whatsapp-channel/publisher";
 import { runAllProductionSources } from "@/modules/etl/production-fetcher";
 import { getSourceByKey } from "@/config/etl-sources";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
@@ -415,11 +415,24 @@ async function runGscIndexJob(app: FastifyInstance): Promise<void> {
 }
 
 async function runScheduledPublishJob(app: FastifyInstance): Promise<void> {
+  let publishedCount = 0;
   try {
-    const n = await publishScheduledReports();
-    if (n > 0) app.log.info({ published: n }, "[cron:scheduled-publish] rapor yayinlandi");
+    publishedCount = await publishScheduledReports();
+    if (publishedCount > 0) app.log.info({ published: publishedCount }, "[cron:scheduled-publish] rapor yayinlandi");
   } catch (err) {
     app.log.error({ err }, "[cron:scheduled-publish] hata");
+  }
+
+  // Rapor YAYINLANDIGI anda WhatsApp taslagini duser. Bu is */10 calisiyor;
+  // kosul olmadan her turda taslak gonderirdi. Yayin patlasa bile taslak
+  // denenmez (publishedCount 0 kalir) — yanlis duyuru olmaz.
+  if (publishedCount > 0) {
+    try {
+      const r = await publishWhatsappWeeklyDraft();
+      app.log.info(r, "[cron:scheduled-publish] whatsapp haftalik taslagi");
+    } catch (err) {
+      app.log.error({ err }, "[cron:scheduled-publish] whatsapp haftalik taslagi hata");
+    }
   }
 }
 
