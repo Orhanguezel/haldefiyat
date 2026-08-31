@@ -262,6 +262,8 @@ export type AnalysisWatchItem = {
   focus?: "direction" | "level" | "base";
   /** Madde yazildiginda gecerli olan hal sayisi. Eski kayitlarda yok. */
   marketCount?: number | null;
+  /** Sorunun "ne izlenmeli" bolumu icin uzun hali. Eski kayitlarda yok. */
+  outlookQuestion?: string;
 };
 
 export const hfAnalysisReports = mysqlTable(

@@ -22,6 +22,13 @@ export type WatchItem = {
   focus?: "direction" | "level" | "base";
   /** Madde yazilirken gecerli olan hal sayisi; gelecek hafta tabanin genisleyip genislemedigi buna gore olculur. */
   marketCount?: number | null;
+  /**
+   * Ayni sorunun "onumuzdeki hafta ne izlenmeli" bolumu icin uzun hali.
+   * question kisa tutulur cunku gelecek hafta cumle ortasina giriyor
+   * ("... — 70,68 puandan 67,32 puana geriledi"); bu bolumde ise cumleyi
+   * kendisi tasiyor. Yoksa question'a duser.
+   */
+  outlookQuestion?: string;
 };
 
 export type WatchResult = WatchItem & {
@@ -217,7 +224,7 @@ function outlookSection(watchlist: WatchItem[]): string {
   const lines = watchlist.map((item, i) => {
     const ord = ORDINALS[i] ?? "Bir diğer";
     if (item.kind === "index" || item.focus === "direction") {
-      return `<p>${ord} başlık endeksin yönü: ${esc(item.question)} izlenmeli. `
+      return `<p>${ord} başlık endeksin yönü: ${esc(item.outlookQuestion ?? item.question)} izlenmeli. `
         + `Sepet ortalamasının bu seviyede tutunması, haftalık hareketin kalıcılığı hakkında ilk sinyali verecek.</p>`;
     }
     if (item.focus === "base") {
@@ -310,6 +317,11 @@ export function buildWatchlist(summary: WeeklySummary, status: IndexStatus | nul
       kind: "index", slug: null, name: "HaldeFiyat Endeksi", value: status.value,
       focus: "direction", marketCount: null,
       question: status.isNewLow ? "yeni dip mi taban mı" : "yönün sürüp sürmediği",
+      outlookQuestion: status.isNewLow
+        ? "yeni bir dip mi geleceği yoksa serinin taban mı yapacağı"
+        : status.changePct != null && Math.abs(status.changePct) < 1
+          ? "yataylaşmanın bir dönüşün ilk adımı mı yoksa düşüşün molası mı olduğu"
+          : "hareketin önümüzdeki hafta da sürüp sürmediği",
     });
   }
   const ranked = [...summary.topFallers, ...summary.topRisers]
