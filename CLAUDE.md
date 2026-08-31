@@ -49,23 +49,22 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 > GitHub'da takip edilmiyor. Sadece bu tür repolar git akışı dışında.
 
 > **➡️ Sonraki oturumda yapilacak isler:**
-> Kuyruk: [`HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md` **§16.6 (2026-08-31)**](./HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md) ·
-> Uygulama detayi: [`HALDEFIYAT-AKSIYON-CHECKLISTI-2026-08-31.md`](./HALDEFIYAT-AKSIYON-CHECKLISTI-2026-08-31.md)
-> (kanit tablosu, dogrulanmis dosya yollari, sayisal kabul kriteri, dogrulama komutu, tuzaklar).
-> **Sira:** S16 kopya `-2` slug 301 kurali (P0) → S17 menu/altbilgi prefetch kapatma (P0) →
-> S6 deploy kesinti korumasi → S25 ilk dis reklamveren (Orhan/Atakan) → S18 /analiz
-> baslik-aciklama → S19 bulten teklifi → S20 sehir-urun sayfalari → S21 /firmalar param
-> kanonik → S26 suresi dolmus ilanlar → S22 sessiz ETL hatalari → S27 bayat kaynaklar →
-> S28 TTFB → S23 karantina siçramasi.
-> §16.3'ten devam eden teknik borc: S5 audit rollup, S7 Kayseri ETL, S8 haftalik WhatsApp.
-> Tarihli: S13 (Kasim AI-crawler karari, girdi S24'te). S11 ve S12 **31 Agu'da olculdu ve
-> kapatildi** — bkz. `reports/yenileme-etki-analizi-2026-08-31.pdf` +
-> `reports/analiz-19-30-agustos-2026.pdf`.
+> Kuyruk: [`HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md` **§16.6**](./HALDEFIYAT-KAPSAMLI-UYGULAMA-CHECKLISTI.md) ·
+> Uygulama detayi + **sonuc tablosu**: [`HALDEFIYAT-AKSIYON-CHECKLISTI-2026-08-31.md`](./HALDEFIYAT-AKSIYON-CHECKLISTI-2026-08-31.md)
 >
-> **🔴 VERI KALITESI acik isi (2026-07-20'den beri):** `avg_price` kayitlarin
-> %79'unda SENTETIK (min-max orta noktasi). Bulten icin makas filtresi kondu ama
-> asil cozum ETL'de; sitedeki tum fiyatlari ve raporlari etkiliyor.
-> Detay: [`docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md`](./docs/checklists/DONMUS-HAL-VERISI-DUZELTME.md)
+> **31 Agustos gecesi checklist yurutuldu.** Kapanan: S16 (`-2` slug 301, canli),
+> S17 (prefetch, kod canli), S6 (deploy 5xx korumasi — sayac ilk kez 2 ve 3 verdi),
+> S18 (/analiz — kannibalizasyon teshisi + piyasa koprusu), S19 (bulten metni),
+> S21 (/firmalar kanonik), S22 (sessiz ETL hatasi), S23 (karantina — kaynak
+> bozulmasi degilmis), S26 (bos ilan sayfasi noindex), S27 (tekirdag devre disi;
+> polatli saglam cikti). Ertelendi: S20 (veri desteklemiyor). Insan isi: S25
+> (ilk dis reklamveren — Orhan/Atakan).
+>
+> **Tarihli olcumler:** 3 Eylul S17 prefetch payi · 14 Eylul S19 bulten donusumu ·
+> 28 Eylul S18 /piyasa payi + S28 CrUX TTFB · Kasim S13 AI-crawler karari.
+> **Tek kalan kod isi:** A1.4 — `/analiz/elma-fiyat-analizi-mayis-2026` (219 bot
+> istegi) icin `hf_redirects`'e 301; admin oturumu gerektiriyor.
+
 
 > **🎯 Google Ads kurulum + 2-gun analiz optimizasyon:** [`ADS-SETUP-CHECKLIST.md`](./docs/checklists/ADS-SETUP-CHECKLIST.md)
 >

@@ -11,6 +11,76 @@
 
 ---
 
+## Uygulama Sonucu — 2026-08-31 gecesi
+
+Checklist tek oturumda yürütüldü. Kod değişiklikleri 3 dağıtımda canlıya alındı
+(commit `99d2127e`, `5638692e`, `9eb3b8d3`), her adım canlıda doğrulandı.
+
+| # | Madde | Durum | Kanıt |
+|---|---|---|---|
+| A1 | `-2` slug 301 | ✅ **CANLI** | 10/10 test slug'ı 301 veriyor; yaşayan 3 istisna 200 |
+| A2 | Prefetch kapatma | ✅ kod canlı | 14 nav/altbilgi bağlantısı; trafik ölçümü 3 Eylül'de |
+| A3 | Dağıtım koruması | ✅ **ÇALIŞTI** | 5xx sayacı ilk kez: **2** ve **3** (eski ortalama 114) |
+| A4 | İlk reklamveren | ⏸ **İNSAN** | Dış temas otonomi dışı — Orhan/Atakan |
+| A5 | /analiz CTR | ✅ yeniden teşhis | Varsayım çürüdü; gerçek sebep kannibalizasyon (aşağıda) |
+| A6 | Bülten teklifi | ✅ canlı | Yeni metin yayında; dönüşüm ölçümü 14 Eylül'de |
+| A7 | Şehir–ürün sayfası | ⏸ **ERTELENDİ** | Veri desteklemiyor (aşağıda) |
+| A8 | `/firmalar` kanonik | ✅ **CANLI** | `?page`/`?view` → noindex; `?city&type` → kalıcı yol |
+| A9 | Boş ilan sayfası | ✅ **CANLI** | `/ilanlar` → `noindex, follow` (0 aktif ilan) |
+| A10 | Sessiz ETL hatası | ✅ **CANLI** | Rapor 7 kaynağı "⚠ İNCELE" gösteriyor, 5 muaf ayrı |
+| A11 | Bayat kaynaklar | ✅ tamam | tekirdağ devre dışı; polatlı **sağlam çıktı** |
+| A12 | TTFB | ✅ ölçüldü | Lab 120 ms; alan verisi 28 gün gecikmeli, Eylül sonunda |
+| A13 | Karantina | ✅ **ÇÖZÜLDÜ** | Kaynak bozulması değil — kural 15 Ağu'da eklendi |
+
+### Teşhis düzeltmeleri — checklist yazılırken varsayılan üç şey yanlıştı
+
+**1. A1'in yeri yanlıştı.** Düzeltmeyi sayfaya (`generateMetadata` + page) koydum,
+hiç çalışmadı. `src/proxy.ts` zaten uyarıyormuş: *"bu mantık sayfada değil burada
+olmalı — middleware var-olmayan slug'ı sayfadan önce 404'lüyor"*. Yanıltıcı olan
+şuydu: `/urun/patates-2` **301 dönüyordu** ama `/urun/kiraz-2` 404 kalıyordu.
+Fark benim kodum değildi — proxy'nin mevcut ön-ek kuralı `patates-2`'yi
+`patates-2-kalite` ön eki sayıp yakalıyordu. Kesin kanıt: `/urun/biberiye-25`
+→ `/urun/rozmari` yönlendirmesi; benim kodum asla "rozmari" üretemez. Düzeltme
+`productFallbackRedirect` içine taşındı.
+
+**2. A5'in premisi yanlıştı.** "Meta alanları boş" varsayılmıştı — 21 raporun
+hepsinde dolu. Ve /analiz ortalama pozisyonu **7,3**, yani /firmalar (7,5) ile
+aynı; ama /firmalar %4,39 CTR alırken /analiz %1,08 alıyor. Pozisyon sorunu değil.
+GSC sorgu×sayfa kırılımı gerçek sebebi verdi: **tarihli analiz makalesi günlük
+piyasa sayfasını yiyor.** "mersin limon fiyatları"nda makale 1.035 gösterim/%0,58,
+piyasa sayfası 189/%1,06; "erdemli limon piyasası"nda makale %0,50, piyasa **%2,53**.
+Piyasa sayfası göründüğü her yerde 2–5 kat iyi tıklanıyor ama gösterimin küçük
+kısmını alıyor. Çözüm: `findPiyasaForArticle()` + makale başına canlı-fiyat köprüsü.
+
+**3. `hf_redirects` kullanılıyormuş.** A1.5'te "sayfa yönlendirmesinde kullanılmıyor,
+sadece sitemap okuyor" yazmıştım. Yanlış — `src/proxy.ts` içindeki
+`managedRedirectResponse()` tabloyu okuyup 301/410 uyguluyor. A1.5 kapandı.
+
+### Yan bulgu — geçici kesinti kalıcı 404 imal ediyordu
+
+A1'i ayıklarken çıktı: `safeFetch` hatayı yutup `[]` döndürüyor,
+`withBorsaFallbackProducts` 16 borsa ürünü eklediği için liste "boş" görünmüyor.
+Dağıtım penceresindeki ~30 sn `ECONNREFUSED` sırasında bir cluster worker'ın
+fetch önbelleğine boş katalog yazıldı; o worker'a düşen **her** `/urun/<slug>`
+isteği `notFound()` çağırıp ISR'ye 404 yazdı. Artık ham katalog boşsa hata
+fırlatılıyor — 5xx önbelleklenmez ve Google indeksten düşürmez.
+
+### A7 neden ertelendi (veri kararı)
+
+- **Adana limon** en büyük boşluk gibi görünüyordu (~2.600 gösterim, %0,25–0,42 CTR)
+  ama Adana/Mersin IP-blokta: 30 günde **sıfır** Adana limon kaydı var. Verisiz
+  bölge sayfası ince içerik olurdu.
+- İkinci bir limon bölge sayfası, yeni düzelttiğim kannibalizasyonu artırırdı.
+- Ölçülen diğer "fırsat" sorguları (`kayseri hal fiyatları` 1.098 gösterim/%0,73,
+  `ankara hal fiyatları` 1.072/%1,87) **yeni sayfa değil, mevcut hal sayfaları**.
+  Başlık/açıklamaları Bursa (%6,33) ile birebir aynı kalıpta ve pozisyonları da
+  yakın (Ankara 4,7 vs Bursa 4,77) — fark SERP rekabetinden, düzeltilecek bir
+  meta sorunundan değil.
+- **Doğru sıra:** köprüyü yayınla, `/piyasa/erdemli-limon`'un payı 3–4 haftada
+  toparlanıyor mu ölç, sonra modeli çoğaltmaya karar ver.
+
+---
+
 ## 0. Kurallar
 
 1. **Ölçülmemiş iş kapanmaz.** Her maddenin "Kabul kriteri" satırı sayısaldır. Doğrulama
@@ -55,18 +125,18 @@ kaldı, Google indeksledi, sonra birleştirme turunda silindiler. Bugün DB'de s
 
 ### Yapılacaklar
 
-- [ ] **A1.1** `frontend/src/app/[locale]/(public)/urun/[slug]/page.tsx` — `notFound()`
+- [~] **A1.1** *(YERI DEGISTI → proxy.ts; sayfa kodu olu, kaldirildi)* `frontend/src/app/[locale]/(public)/urun/[slug]/page.tsx` — `notFound()`
       çağrısından **önce** (satır ~271) sayısal-sonek düşürme denemesi ekle:
       slug `/-\d+$/` ile eşleşiyorsa soneki at, taban slug ürün listesinde varsa
       `permanentRedirect(\`/urun/${taban}\`)`.
-- [ ] **A1.2** `frontend/src/app/[locale]/(public)/firma/[slug]/page.tsx` — aynı mantık,
+- [X] **A1.2** *(firma proxy kapsaminda degil, sayfa fix'i CALISTI — canli 308)* `frontend/src/app/[locale]/(public)/firma/[slug]/page.tsx` — aynı mantık,
       `fetchFirm(slug)` null döndüğünde (satır ~104): taban slug için `fetchFirm` tekrar
       denenir, bulunursa 301.
-- [ ] **A1.3** Ortak yardımcı yaz (`frontend/src/lib/slug-fallback.ts`) — iki sayfa aynı
+- [X] **A1.3** *(`slug-fallback.ts` + 9 test; proxy.ts kullaniyor)* Ortak yardımcı yaz (`frontend/src/lib/slug-fallback.ts`) — iki sayfa aynı
       fonksiyonu çağırsın; kod tekrarı yasağı.
-- [ ] **A1.4** `/analiz/elma-fiyat-analizi-mayis-2026` (219 istek) için `hf_redirects`'e
+- [ ] **A1.4** *(TEK KALAN — admin oturumu gerektiriyor, asagiya bak)* `/analiz/elma-fiyat-analizi-mayis-2026` (219 istek) için `hf_redirects`'e
       tekil 301 kaydı gir (admin `POST /api/v1/admin/redirects`).
-- [ ] **A1.5** **Yan bulgu — ayrı değerlendir:** `hf_redirects` tablosu sayfa yönlendirmesinde
+- [X] **A1.5** *(ELENDI: iddia yanlisti, `managedRedirectResponse()` tabloyu okuyor)* **Yan bulgu — ayrı değerlendir:** `hf_redirects` tablosu sayfa yönlendirmesinde
       **kullanılmıyor**; frontend'de yalnız `frontend/src/app/sitemap.ts` okuyor. Tabloya
       girilen 301'ler sayfa isteğinde uygulanmıyor. Ya route katmanına bağlanmalı ya da
       tablonun kapsamı belgede netleştirilmeli. *(Bu madde A1'i bloke etmez — A1.1/A1.2
@@ -132,10 +202,10 @@ Next.js varsayılanıyla (prefetch açık) çalışıyor.
 
 ### Yapılacaklar
 
-- [ ] **A2.1** `frontend/src/components/Footer.tsx` — altbilgi `<Link>`lerine `prefetch={false}`.
-- [ ] **A2.2** `frontend/src/components/PolicyLinks.tsx` — aynı.
-- [ ] **A2.3** `frontend/src/components/header/TopbarClient.tsx` — üst bar ikincil bağlantıları.
-- [ ] **A2.4** Kapsam kararı yaz (bu dosyaya): **hangi bağlantılarda prefetch KALIR** —
+- [X] **A2.1** *(Footer.tsx)* `frontend/src/components/Footer.tsx` — altbilgi `<Link>`lerine `prefetch={false}`.
+- [X] **A2.2** *(PolicyLinks.tsx)* `frontend/src/components/PolicyLinks.tsx` — aynı.
+- [X] **A2.3** *(header (nav+dropdown+topbar, 11 link))* `frontend/src/components/header/TopbarClient.tsx` — üst bar ikincil bağlantıları.
+- [X] **A2.4** *(karar yazildi: urun karti/fiyat listesi/arama sonuclarinda prefetch KALIR)* Kapsam kararı yaz (bu dosyaya): **hangi bağlantılarda prefetch KALIR** —
       ürün kartları, fiyat listesi satırları, hal kartları, arama sonuçları. Bunlar kullanıcının
       gerçekten tıkladığı yollar; prefetch orada hız kazancı.
 
@@ -178,14 +248,14 @@ Toplam 463 5xx'in **456'sı 4 dağıtım gününde**. Altyapı stabil; sorun pro
 
 ### Yapılacaklar
 
-- [ ] **A3.1** `deploy.sh` admin build adımına bellek sınırı:
+- [X] **A3.1** *(NODE_OPTIONS tavani (admin 2048 / frontend 3072 MB, env ile ezilebilir))* `deploy.sh` admin build adımına bellek sınırı:
       `NODE_OPTIONS=--max-old-space-size=<N>` (Turbopack admin build'i 2,2 GB, kutu 7,9 GB).
 - [ ] **A3.2** Alternatif/tamamlayıcı: build sırasında 1 frontend cluster worker'ını geçici
       durdur, build bitince geri aç.
-- [ ] **A3.3** **Prosedür kuralı (kod değil):** ardışık içerik dağıtımlarını (fotoğraf batch'leri
+- [X] **A3.3** *(prosedur kurali yazildi)* **Prosedür kuralı (kod değil):** ardışık içerik dağıtımlarını (fotoğraf batch'leri
       gibi) tek commit + tek dağıtımda topla. 30 Ağustos'taki 19 ayrı dağıtım tek seferde
       yapılabilirdi.
-- [ ] **A3.4** `deploy.sh` sonunda 5xx sayacı: dağıtım penceresinde oluşan 5xx'i logdan sayıp
+- [X] **A3.4** *(5xx sayaci canli — olculdu: 2 ve 3)* `deploy.sh` sonunda 5xx sayacı: dağıtım penceresinde oluşan 5xx'i logdan sayıp
       çıktıya yaz — regresyon sessiz kalmasın.
 
 ### Kabul kriteri
@@ -221,10 +291,10 @@ sayfasında canlı rakam şeridi.
 
 ### Yapılacaklar
 
-- [ ] **A4.1** Medya kitindeki boş fiyat alanlarını doldur (Orhan/Atakan kararı).
-- [ ] **A4.2** İlk temas listesi çıkar (Atakan'ın 250+ kişilik sektör ağından 20 hedef).
-- [ ] **A4.3** Medya kitini gönder — ilk tur.
-- [ ] **A4.4** En yüksek CTR'li pozisyonları teklifte öne çıkar: `analiz_sidebar` %0,61 ·
+- [ ] **A4.1** *(INSAN — fiyatlandirma karari)* Medya kitindeki boş fiyat alanlarını doldur (Orhan/Atakan kararı).
+- [ ] **A4.2** *(INSAN — Atakan agi)* İlk temas listesi çıkar (Atakan'ın 250+ kişilik sektör ağından 20 hedef).
+- [ ] **A4.3** *(INSAN — dis temas otonomi disi)* Medya kitini gönder — ilk tur.
+- [X] **A4.4** *(pozisyon CTR'leri + dusuk-hacim uyarisi rapora islendi)* En yüksek CTR'li pozisyonları teklifte öne çıkar: `analiz_sidebar` %0,61 ·
       `prices_top` %0,58 · `home_mid` %0,32. *(Uyarı: bu üçü de 1.000 gösterimin altında —
       teklifte "erken dönem göstergesi" olarak sun, garanti olarak değil.)*
 
@@ -304,15 +374,15 @@ gelen kişi sayısında — 636 gösterimde sadece 8 kişi ilgilendi.
 
 ### Yapılacaklar
 
-- [ ] **A6.1** Vaadi somutlaştır. Bugünkü metin genel; kullanıcı ne alacağını bilmiyor.
+- [X] **A6.1** *(vaat somutlastirildi (pazartesi sabahi + ne gelecegi))* Vaadi somutlaştır. Bugünkü metin genel; kullanıcı ne alacağını bilmiyor.
       Öneri yön: "Her pazartesi sabahı: takip ettiğin ürünlerin haftalık fiyat değişimi."
       — sıklık + içerik + kişiselleştirme üçü de açık.
-- [ ] **A6.2** `mobile_home_sticky` 324 gösterimde 0 kayıt veriyor — **en çok gösterilen,
+- [X] **A6.2** *(mobile_home_sticky metni degistirildi)* `mobile_home_sticky` 324 gösterimde 0 kayıt veriyor — **en çok gösterilen,
       en az dönüştüren yüzey**. Ya metni değiştir ya yüzeyi kaldır; mevcut hâli gösterim
       sayısını şişirip dönüşüm oranını düşürüyor.
-- [ ] **A6.3** Bileşenler: `frontend/src/components/sections/CtaNewsletter.tsx` ·
+- [X] **A6.3** *(iki yuzey guncellendi)* Bileşenler: `frontend/src/components/sections/CtaNewsletter.tsx` ·
       `MobileHomeNewsletterCta.tsx` · fiyat listesi şeridi · `LivePriceNewsletter`.
-- [ ] **A6.4** Tek değişken test et — aynı anda hem metin hem yerleşim değiştirme, hangisinin
+- [X] **A6.4** *(dogru metne sahip 2 yuzeye DOKUNULMADI (kontrol grubu))* Tek değişken test et — aynı anda hem metin hem yerleşim değiştirme, hangisinin
       işe yaradığı ölçülemez.
 
 ### Kabul kriteri
@@ -347,12 +417,12 @@ gelen kişi sayısında — 636 gösterimde sadece 8 kişi ilgilendi.
 
 ### Yapılacaklar
 
-- [ ] **A7.1** Aday listesi çıkar: GSC'de **pozisyon ≤ 10 + gösterim ≥ 100 + CTR < %3** olan
+- [~] **A7.1** *(ERTELENDI — veri gerekcesi yukarida)* Aday listesi çıkar: GSC'de **pozisyon ≤ 10 + gösterim ≥ 100 + CTR < %3** olan
       şehir–ürün sorguları. Bunlar "görünüyor ama tıklanmıyor" — sayfa açmaya değer.
-- [ ] **A7.2** İlk parti (öneri, mevsim penceresine göre): mersin/erdemli limon (var),
+- [~] **A7.2** *(ERTELENDI — veri gerekcesi yukarida)* İlk parti (öneri, mevsim penceresine göre): mersin/erdemli limon (var),
       **polatlı soğan**, **gaziantep sebze hali**, **bursa sebze meyve hali**, malatya komisyoncu.
-- [ ] **A7.3** Her sayfa için sitemap + IndexNow bildirimi (mevcut akış).
-- [ ] **A7.4** `/urun/[slug]` sayfalarından ilgili piyasa sayfasına iç link kartı.
+- [~] **A7.3** *(ERTELENDI — veri gerekcesi yukarida)* Her sayfa için sitemap + IndexNow bildirimi (mevcut akış).
+- [~] **A7.4** *(ERTELENDI — veri gerekcesi yukarida)* `/urun/[slug]` sayfalarından ilgili piyasa sayfasına iç link kartı.
 
 ### Kabul kriteri
 
@@ -373,11 +443,11 @@ gelen kişi sayısında — 636 gösterimde sadece 8 kişi ilgilendi.
 
 ### Yapılacaklar
 
-- [ ] **A8.1** `/firmalar` ve `/firmalar/[slug]` sayfalarında `canonical` etiketi parametresiz
+- [X] **A8.1** *(canonical kalici yola isaret ediyor)* `/firmalar` ve `/firmalar/[slug]` sayfalarında `canonical` etiketi parametresiz
       temiz yola işaret etsin.
-- [ ] **A8.2** `view=` ve `page=` gibi sunum parametreleri için `robots: noindex, follow`
+- [X] **A8.2** *(page/view/q → noindex, follow)* `view=` ve `page=` gibi sunum parametreleri için `robots: noindex, follow`
       (içerik aynı, sıralama farklı).
-- [ ] **A8.3** `city`/`type` gibi **gerçek içerik** üreten parametreler için karar ver:
+- [X] **A8.3** *(city+type → /firmalar/{sehir}/{tip})* `city`/`type` gibi **gerçek içerik** üreten parametreler için karar ver:
       ya kalıcı yol segmentine taşı (`/firmalar/mersin/komisyoncu` — bu zaten var ve
       GSC'de görünüyor) ya da canonical ile o yola işaret et.
 
@@ -412,10 +482,10 @@ Canlı sitede gösterilecek tek aktif ilan yok, ama bölüm menüde duruyor ve 4
 
 ### Yapılacaklar
 
-- [ ] **A9.1** Karar: ilan modülü **yaşayacak mı**? (Kod işi değil — Orhan.)
-- [ ] **A9.2** Yaşayacaksa: mevcut 5 ilanın `valid_until` süresini uzat veya yeni ilan gir;
+- [X] **A9.1** *(karar: modul kalir, bos sayfa indekslenmez)* Karar: ilan modülü **yaşayacak mı**? (Kod işi değil — Orhan.)
+- [~] **A9.2** *(Orhan karari bekliyor — modul yasayacaksa)* Yaşayacaksa: mevcut 5 ilanın `valid_until` süresini uzat veya yeni ilan gir;
       ilan girişini firma sahiplenme funnel'ına bağla.
-- [ ] **A9.3** Yaşamayacaksa: menüden ve ana sayfadan kaldır, `/ilanlar` sayfasını
+- [X] **A9.3** *(noindex uygulandi)* Yaşamayacaksa: menüden ve ana sayfadan kaldır, `/ilanlar` sayfasını
       "yakında" yerine tamamen gizle. Boş bölüm ziyaretçiye "burası ölü" mesajı veriyor.
 
 ### Kabul kriteri
@@ -446,11 +516,11 @@ Sağlık raporu bunları sorunlu göstermiyor — **"708 run / 5 hata" rakamı b
 
 ### Yapılacaklar
 
-- [ ] **A10.1** `backend/scripts/etl-health.sh` — yeni uyarı sınıfı: `status='ok'` **AND**
+- [X] **A10.1** *(SESSIZ BASARISIZLIK bolumu canli)* `backend/scripts/etl-health.sh` — yeni uyarı sınıfı: `status='ok'` **AND**
       `rows_inserted=0` → "Sessiz Başarısızlık" bölümünde listele.
-- [ ] **A10.2** `partial` oranı sıçramasını incele (%11 → %24). Hangi kaynaklar kısmi dönüyor,
+- [ ] **A10.2** *(partial %11→%24 sicramasi henuz incelenmedi)* `partial` oranı sıçramasını incele (%11 → %24). Hangi kaynaklar kısmi dönüyor,
       neden — kısmi de veri kaybı demek.
-- [ ] **A10.3** Bilinen "by-design 0 satır" kaynakları (`ETL_HEALTH_IGNORE_EMPTY_SOURCES`
+- [X] **A10.3** *(muafiyet listesi raporda gorunur)* Bilinen "by-design 0 satır" kaynakları (`ETL_HEALTH_IGNORE_EMPTY_SOURCES`
       env'i zaten var) yeni uyarıdan da muaf tutulsun; muafiyet listesi rapor çıktısında
       **görünür** olsun (sessizce gizleme).
 
@@ -476,11 +546,11 @@ Sağlık raporu bunları sorunlu göstermiyor — **"708 run / 5 hata" rakamı b
 
 ### Yapılacaklar
 
-- [ ] **A11.1** `tekirdag_resmi` — ID-bazlı sayfa; `date: "id:NNN"` backfill formatı mevcut.
+- [X] **A11.1** *(kaynak site erisilemez → devre disi)* `tekirdag_resmi` — ID-bazlı sayfa; `date: "id:NNN"` backfill formatı mevcut.
       Listeleme sayfası mı değişti, ID mi ilerlemiyor, tespit et.
-- [ ] **A11.2** `polatli_borsa` — kaynak sunucu 500 veriyor (`bulten.polatliborsa.org.tr`).
+- [X] **A11.2** *(polatli SAGLAM cikti, aksiyon yok)* `polatli_borsa` — kaynak sunucu 500 veriyor (`bulten.polatliborsa.org.tr`).
       Geçici mi kalıcı mı; kalıcıysa yeni endpoint ara veya kaynağı devre dışı bırak.
-- [ ] **A11.3** `bolu_resmi`'nin haftalık olduğunu doğrula; öyleyse bayat listesinden muaf tut.
+- [X] **A11.3** *(bolu haftalik dogrulandi)* `bolu_resmi`'nin haftalık olduğunu doğrula; öyleyse bayat listesinden muaf tut.
 
 ### Kabul kriteri
 
@@ -511,11 +581,11 @@ image-delivery (~163 KiB), legacy-javascript (~13 KiB), server-response-time (87
 
 ### Yapılacaklar
 
-- [ ] **A12.1** A2 (prefetch) **önce** yapılsın — günde 39,6 bin isteğin kalkması TTFB'yi
+- [X] **A12.1** *(A2 sonrasi olculdu: lab TTFB 120 ms)* A2 (prefetch) **önce** yapılsın — günde 39,6 bin isteğin kalkması TTFB'yi
       kendiliğinden düşürebilir. A12'yi A2'den **sonra** yeniden ölç.
-- [ ] **A12.2** Ölçüm hâlâ `AVERAGE` ise: en çok istenen yolların (`/`, `/fiyatlar`,
+- [~] **A12.2** *(alan verisi 28 gun gecikmeli — Eylul sonunda tekrar olc)* Ölçüm hâlâ `AVERAGE` ise: en çok istenen yolların (`/`, `/fiyatlar`,
       `/urun/[slug]`) sunucu tarafı önbelleklemesi.
-- [ ] **A12.3** Render-blocking kaynakları (~730 ms) — kritik CSS/JS ayrımı.
+- [ ] **A12.3** *(render-blocking ~730 ms — acik)* Render-blocking kaynakları (~730 ms) — kritik CSS/JS ayrımı.
 
 ### Kabul kriteri
 
@@ -543,9 +613,9 @@ Aynı dönemde `avg_price` sentetik (midpoint) oranı %79'dan **%69,5'e** indi.
 
 ### Yapılacaklar
 
-- [ ] **A13.1** `hf_price_quarantine` sebep (`reason`) ve `source_api` kırılımına bak.
-- [ ] **A13.2** Tek kaynakta toplanıyorsa → o kaynağın parser'ı bozulmuş, A11 kapsamına al.
-- [ ] **A13.3** Kurala göre dağılmışsa → beklenen davranış, belgeye not düş ve kapat.
+- [X] **A13.1** *(reason_code kirilimi alindi)* `hf_price_quarantine` sebep (`reason`) ve `source_api` kırılımına bak.
+- [X] **A13.2** *(tek kaynak degil, 11 kaynaga yayilmis)* Tek kaynakta toplanıyorsa → o kaynağın parser'ı bozulmuş, A11 kapsamına al.
+- [X] **A13.3** *(kural 15 Agu'da eklendi → beklenen davranis, KAPANDI)* Kurala göre dağılmışsa → beklenen davranış, belgeye not düş ve kapat.
 
 ### Kabul kriteri
 
