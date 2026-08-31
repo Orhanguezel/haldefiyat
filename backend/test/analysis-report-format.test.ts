@@ -80,9 +80,16 @@ describe("başlık ve meta", () => {
   ];
   const status = indexStatusOf(history, "2026-33");
 
-  it("başlığı endeks-öncelikli kurar", () => {
+  it("başlığı endeks-öncelikli ve tek kancalı kurar", () => {
     const title = buildReportTitle("Ağustos 3. Hafta", status, { productName: "Fasulye", changePct: -20 });
-    expect(title).toBe("Ağustos 3. Hafta Hal Raporu: Endeks 74,3 ile Yataylaştı; Fasulye %20,0 Geriledi");
+    expect(title).toBe("Ağustos 3. Hafta Hal Raporu: Endeks 74,3 ile Yataylaştı");
+  });
+
+  it("başlığı 60 karakterin altında tutar ve hareket parçasını eklemez", () => {
+    const title = buildReportTitle("Ağustos 5. Hafta", status, { productName: "İncir Siyah", changePct: -39.5 });
+    expect(title.length).toBeLessThanOrEqual(60);
+    expect(title).not.toContain(";");
+    expect(title).not.toContain("İncir Siyah");
   });
 
   it("endeks yoksa yalnız hareket parçasını kullanır", () => {

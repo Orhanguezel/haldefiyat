@@ -86,6 +86,13 @@ export interface AnalysisReportCreate {
   status?: AnalysisReportStatus;
 }
 
+/** Telegram kanal gonderisi + WhatsApp kopyala-yapistir taslagi; biri patlasa digeri denenir. */
+export interface AnnounceResult {
+  ok: boolean;
+  telegram: { sent: boolean; reason?: string; slug?: string };
+  whatsapp: { sent: boolean; reason?: string };
+}
+
 export const analysisReportsAdminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     listAnalysisReportsAdmin: builder.query<
@@ -139,6 +146,9 @@ export const analysisReportsAdminApi = baseApi.injectEndpoints({
       query: ({ id }) => ({ url: `/admin/analysis/reports/${id}/archive`, method: 'POST' }),
       invalidatesTags: [{ type: 'AnalysisReports' as const, id: 'LIST' }],
     }),
+    announceAnalysisReportAdmin: builder.mutation<AnnounceResult, { id: number }>({
+      query: ({ id }) => ({ url: `/admin/analysis/reports/${id}/announce`, method: 'POST' }),
+    }),
     getAnalysisReportQualityAdmin: builder.query<AnalysisReportQuality, { id: number | string }>({
       query: ({ id }) => ({ url: `/admin/analysis/reports/${id}/quality` }),
       transformResponse: (response: { data: AnalysisReportQuality }) => response.data,
@@ -162,6 +172,7 @@ export const {
   usePublishAnalysisReportAdminMutation,
   useDraftAnalysisReportAdminMutation,
   useArchiveAnalysisReportAdminMutation,
+  useAnnounceAnalysisReportAdminMutation,
   useGetAnalysisReportQualityAdminQuery,
   useInspectAnalysisReportAdminMutation,
 } = analysisReportsAdminApi;

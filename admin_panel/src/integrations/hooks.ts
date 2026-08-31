@@ -332,6 +332,7 @@ export {
   useCreateAnalysisReportAdminMutation,
   useDraftAnalysisReportAdminMutation,
   useGenerateAnalysisReportAdminMutation,
+  useAnnounceAnalysisReportAdminMutation,
   useGetAnalysisReportAdminQuery,
   useGetAnalysisReportQualityAdminQuery,
   useInspectAnalysisReportAdminMutation,

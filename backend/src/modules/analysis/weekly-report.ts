@@ -18,6 +18,8 @@ import {
 import { INDEX_BASKET_SLUGS } from "@/modules/index/calculator";
 import { MIN_MOVER_MARKETS } from "@/modules/prices/weekly";
 import { submitToIndexNow } from "@/modules/indexnow";
+import { announceWeeklyReportToChannel } from "@/modules/telegram-channel/publisher";
+import { publishWhatsappWeeklyDraft } from "@/modules/whatsapp-channel/publisher";
 import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 
 // Rapor yayina alininca IndexNow'a (Bing/Yandex) aninda bildir — fire-and-forget,
@@ -303,6 +305,30 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
     return reply.send({ data: reportRowToAdmin(row) });
   });
 
+  /**
+   * Yayinlanmis raporu sosyal kanallara duyurur: Telegram KANALINA gonderi +
+   * WhatsApp kanali icin admin sohbetine kopyala-yapistir taslagi (WhatsApp
+   * Channels'in resmi API'si yok).
+   *
+   * Yayin akisina bilincli olarak baglanmadi: kanala giden gonderi geri
+   * alinamiyor, rapor metni ise yayindan sonra da duzeltilebiliyor. Duyuru
+   * editorun ayri ve acik kararidir.
+   */
+  app.post<{ Params: { id: string } }>("/analysis/reports/:id/announce", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return reply.status(400).send({ error: "Gecersiz id" });
+    const [row] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.id, id)).limit(1);
+    if (!row) return reply.status(404).send({ error: "Rapor bulunamadi" });
+    if (row.status !== "published") return reply.status(409).send({ error: "Yalniz yayinlanmis rapor duyurulur" });
+
+    // Biri patlarsa digeri yine denensin — kismi basari da bildirilir.
+    const [telegram, whatsapp] = await Promise.all([
+      announceWeeklyReportToChannel(id).catch((err) => ({ sent: false, reason: String(err?.message ?? err) })),
+      publishWhatsappWeeklyDraft().catch((err) => ({ sent: false, reason: String(err?.message ?? err) })),
+    ]);
+    return reply.send({ ok: telegram.sent || whatsapp.sent, telegram, whatsapp });
+  });
+
   app.post<{ Params: { id: string } }>("/analysis/reports/:id/archive", async (req, reply) => {
     const row = await setReportStatus(req.params.id, "archived");
     if (!row) return reply.status(404).send({ error: "Rapor bulunamadi" });
@@ -465,6 +491,8 @@ async function generateWeeklyReport(week: string): Promise<AutoWeeklyReport | nu
   const baslik = buildReportTitle(monthWeekLabel, status, lead);
   const previousWatchlist = await readPreviousWatchlist(weekStart);
   const watchResults = evaluateWatchlist(previousWatchlist, summary, status);
+  // Tek kaynak: ayni liste hem "ne izlenmeli" bolumunu yazar hem DB'ye saklanir.
+  const watchlist = buildWatchlist(summary, status);
 
   const icerik = buildWeeklyReportHtml({
     periodLabel,
@@ -476,6 +504,7 @@ async function generateWeeklyReport(week: string): Promise<AutoWeeklyReport | nu
     basketSize: INDEX_BASKET_SLUGS.length,
     baseWeekLabel: basePoint ? trPeriod(basePoint.weekStart, basePoint.weekEnd) : null,
     watchResults,
+    watchlist,
     minMarkets: MIN_MOVER_MARKETS,
   });
 
@@ -493,7 +522,7 @@ async function generateWeeklyReport(week: string): Promise<AutoWeeklyReport | nu
     weekEnd,
     totalRecords: summary.totalRecords,
     etiketler: buildTags(summary),
-    watchlist: buildWatchlist(summary, status),
+    watchlist,
     metaTitle: buildMetaTitleFor(monthWeekLabel, status, new Date(`${weekStart}T12:00:00Z`).getUTCFullYear(), baslik),
     metaDescription: buildMetaDescriptionFrom(ozet),
   };

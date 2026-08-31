@@ -1,4 +1,5 @@
 import { env } from "@/core/env";
+import { pool } from "@/db/client";
 import { trendingChanges } from "@/modules/prices/repository";
 import { buildDailyReportImageUrl } from "./report-image";
 
@@ -153,4 +154,82 @@ export async function publishWeeklySummary(
   lines.push(`🌐 <a href="${SITE_URL}/fiyatlar">Detaylı analiz → haldefiyat.com</a>`);
 
   await postToChannel(lines.join("\n"));
+}
+
+/** Kanala duyurulacak yayinlanmis rapor; taze degilse (8 gunden eski) duyurulmaz. */
+type AnnounceableReport = {
+  slug: string; title: string; summary: string | null;
+  week_start: Date | string | null; week_end: Date | string | null;
+  published_at: Date | string;
+};
+
+const FRESH_REPORT_DAYS = 8;
+
+async function latestFreshReport(reportId?: number): Promise<AnnounceableReport | null> {
+  const [rows] = reportId
+    ? await pool.query(
+        `SELECT slug, title, summary, week_start, week_end, published_at
+           FROM hf_analysis_reports
+          WHERE id = ? AND status = 'published' AND published_at IS NOT NULL
+          LIMIT 1`,
+        [reportId],
+      )
+    : await pool.query(
+        `SELECT slug, title, summary, week_start, week_end, published_at
+           FROM hf_analysis_reports
+          WHERE status = 'published' AND published_at IS NOT NULL
+          ORDER BY published_at DESC
+          LIMIT 1`,
+      );
+  const report = (rows as AnnounceableReport[])[0];
+  if (!report) return null;
+
+  // Taze olmayan rapor "yeni" gibi duyurulmasin — cron kacirildiginda haftalar
+  // once yayinlanmis rapor kanala dusmesin diye WhatsApp koprusuyle ayni kural.
+  const ageDays = (Date.now() - new Date(report.published_at).getTime()) / 86_400_000;
+  if (!Number.isFinite(ageDays) || ageDays > FRESH_REPORT_DAYS) return null;
+  return report;
+}
+
+/**
+ * Yayinlanan haftalik analiz raporunu Telegram KANALINA duyurur.
+ *
+ * Gunluk rapor (publishDailyReport) fiyat hareketlerini veriyor; bu ise makaleye
+ * goturur. Bilincli olarak otomatik DEGIL: yayin akisina baglanmadi, admin ucundan
+ * acikca tetiklenir — kanala giden her gonderi disariya aciliyor ve rapor metni
+ * yayindan sonra da duzeltilebiliyor.
+ */
+export async function announceWeeklyReportToChannel(
+  reportId?: number,
+): Promise<{ sent: boolean; reason?: string; slug?: string }> {
+  if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHANNEL_ID) {
+    return { sent: false, reason: "TELEGRAM_BOT_TOKEN veya TELEGRAM_CHANNEL_ID eksik" };
+  }
+  const report = await latestFreshReport(reportId);
+  if (!report) return { sent: false, reason: `son ${FRESH_REPORT_DAYS} gunde yayinlanmis rapor yok` };
+
+  const period = report.week_start && report.week_end
+    ? `${fmtDate(new Date(report.week_start))} – ${fmtDate(new Date(report.week_end))}`
+    : fmtDate(new Date(report.published_at));
+
+  // Ozet cok uzun olabiliyor; caption 1024 karakteri asarsa gorsel dusuyor.
+  const firstSentence = (report.summary ?? "").replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s/)[0] ?? "";
+
+  const lines = [
+    `🗞️ <b>HaldeFiyat — Haftalık Hal Raporu</b>`,
+    `🗓 ${period}`,
+    `─────────────────────────`,
+    ``,
+    `<b>${escapeHtml(report.title)}</b>`,
+  ];
+  if (firstSentence) lines.push(``, escapeHtml(firstSentence));
+  lines.push(``, `📖 <a href="${SITE_URL}/analiz/${report.slug}">Raporun tamamı → haldefiyat.com</a>`);
+
+  await postToChannel(lines.join("\n"), `${SITE_URL}/og/analiz/${report.slug}`);
+  return { sent: true, slug: report.slug };
+}
+
+/** Telegram parse_mode=HTML yalniz bir avuc etikete izin verir; govde metni kacirilir. */
+function escapeHtml(value: string): string {
+  return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }

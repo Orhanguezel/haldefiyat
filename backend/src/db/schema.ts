@@ -258,6 +258,10 @@ export type AnalysisWatchItem = {
   name: string;
   value: number;
   question: string;
+  /** Maddenin ne sordugu — bkz. modules/analysis/report-html.ts WatchItem. Eski kayitlarda yok. */
+  focus?: "direction" | "level" | "base";
+  /** Madde yazildiginda gecerli olan hal sayisi. Eski kayitlarda yok. */
+  marketCount?: number | null;
 };
 
 export const hfAnalysisReports = mysqlTable(

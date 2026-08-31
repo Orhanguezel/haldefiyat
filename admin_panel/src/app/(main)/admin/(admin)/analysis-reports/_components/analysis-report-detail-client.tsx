@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Eye, FileUp, Globe, Save, Send, Sparkles } from 'lucide-react';
+import { ArrowLeft, Eye, FileUp, Globe, Megaphone, Save, Send, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
 import RichContentEditor from '@/app/(main)/admin/_components/common/rich-content-editor';
@@ -20,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import type { AnalysisReportAdmin, AnalysisReportStatus } from '@/integrations/endpoints/analysis-reports-admin-endpoints';
 import {
+  useAnnounceAnalysisReportAdminMutation,
   useCreateAnalysisReportAdminMutation,
   useGetAnalysisReportAdminQuery,
   useListAuthorsAdminQuery,
@@ -208,6 +209,7 @@ export function AnalysisReportDetailClient({ id }: Props) {
     setEditor(toEditor(report));
   }, [isNew, report]);
 
+  const [announceReport, { isLoading: isAnnouncing }] = useAnnounceAnalysisReportAdminMutation();
   const isSaving = isCreating || isUpdating;
   const status = report?.status ?? 'draft';
   const previewUrl = editor.slug ? `https://haldefiyat.com/analiz/${editor.slug}` : '';
@@ -248,6 +250,23 @@ export function AnalysisReportDetailClient({ id }: Props) {
     initializedRef.current = null;
     await refetch();
     toast.success(nextStatus === 'published' ? 'Kaydedildi ve yayınlandı' : 'Analiz kaydedildi');
+  }
+
+  // Duyuru yayindan AYRI bir adim: kanala giden gonderi geri alinamiyor, rapor
+  // metni ise yayindan sonra da duzeltilebiliyor.
+  async function handleAnnounce() {
+    if (!report) return;
+    const result = await announceReport({ id: report.id }).unwrap();
+    const ok: string[] = [];
+    const failed: string[] = [];
+    (result.telegram.sent ? ok : failed).push(
+      result.telegram.sent ? 'Telegram kanalı' : `Telegram: ${result.telegram.reason ?? 'gönderilemedi'}`,
+    );
+    (result.whatsapp.sent ? ok : failed).push(
+      result.whatsapp.sent ? 'WhatsApp taslağı' : `WhatsApp: ${result.whatsapp.reason ?? 'gönderilemedi'}`,
+    );
+    if (ok.length) toast.success(`Paylaşıldı: ${ok.join(' · ')}`);
+    if (failed.length) toast.error(failed.join(' · '));
   }
 
   async function handleAIAction(action: AIAction) {
@@ -313,6 +332,12 @@ export function AnalysisReportDetailClient({ id }: Props) {
             <Button size="sm" onClick={() => handleSave('published')} disabled={isSaving}>
               <Send className="mr-1.5 h-4 w-4" />
               Onayla
+            </Button>
+          )}
+          {status === 'published' && !isNew && (
+            <Button size="sm" variant="outline" onClick={handleAnnounce} disabled={isAnnouncing}>
+              <Megaphone className="mr-1.5 h-4 w-4" />
+              {isAnnouncing ? 'Paylaşılıyor...' : 'Sosyalde paylaş'}
             </Button>
           )}
         </div>

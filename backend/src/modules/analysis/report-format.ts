@@ -135,16 +135,38 @@ export function indexStatusOf(history: IndexPoint[], isoWeek: string): IndexStat
 export type TitleMover = { productName: string; changePct: number };
 
 /**
- * Baslik: "{Ay} {N}. Hafta Hal Raporu: {endeks durumu}; {en guclu hareket}".
- * Endeks yoksa yalniz hareket parcasi kullanilir (eski davranisa duser).
+ * Baslik icin ust sinir. Iki gerekcesi var: SERP basligi ~60 karakterden sonra
+ * kirpiliyor, ve noktali virgullu uzun baslik listede/kartta iki satira tasip
+ * okunmuyor. Sinir asilinca baslik KIRPILMAZ — daha kisa bir aday secilir.
+ */
+const TITLE_MAX = 60;
+
+/**
+ * Baslik: "{Ay} {N}. Hafta Hal Raporu: {tek kanca}".
+ *
+ * Kanca TEK parcadir. Eskiden endeks durumu ve en guclu hareket noktali virgulle
+ * birlestiriliyordu; cikan baslik 80+ karaktere ulasiyor, SERP'te kirpiliyor ve
+ * kartlarda iki satira tasiyordu. Iki parca TITLE_MAX'e pratikte hicbir hafta
+ * sigmiyor (yalniz "{donem} Hal Raporu: {endeks etiketi}" zaten ~55 karakter),
+ * bu yuzden birlesik bicim hic denenmiyor.
+ *
+ * Endeks parcasi hareketten once gelir: sabit sepet genis tabanli, haftanin en
+ * sert hareketi ise cogu zaman az sayida halde olusuyor (rapor govdesinde zaten
+ * "dar taban" uyarisi basiliyor) — H1'de one cikan sayinin genis tabanli olani
+ * olmasi dogru. Basliga girmeyen hareket kaybolmuyor: dek, ozet, etiketler ve
+ * meta aciklama onu tasiyor.
  */
 export function buildReportTitle(periodLabel: string, status: IndexStatus | null, mover: TitleMover | null): string {
+  const prefix = `${periodLabel} Hal Raporu`;
   const moverPart = mover
     ? `${mover.productName} ${trPct(mover.changePct)} ${mover.changePct < 0 ? "Geriledi" : "Yükseldi"}`
     : null;
-  const parts = [status?.label, moverPart].filter(Boolean);
-  if (!parts.length) return `${periodLabel} Hal Raporu`;
-  return `${periodLabel} Hal Raporu: ${parts.join("; ")}`;
+  const candidates = [
+    status?.label ? `${prefix}: ${status.label}` : null,
+    moverPart ? `${prefix}: ${moverPart}` : null,
+    prefix,
+  ].filter((value): value is string => Boolean(value));
+  return candidates.find((value) => value.length <= TITLE_MAX) ?? candidates[candidates.length - 1]!;
 }
 
 const META_TITLE_MAX = 60;

@@ -51,6 +51,7 @@ const html = (over: Partial<WeeklySummary> = {}, watchResults: any[] = []) => bu
   basketSize: 15,
   baseWeekLabel: "11 – 17 Mayıs 2026",
   watchResults,
+  watchlist: buildWatchlist(summary(over), indexStatusOf(points, "2026-33")),
   minMarkets: 6,
 });
 
@@ -128,7 +129,7 @@ describe("findFamilyDivergence", () => {
     expect(buildWeeklyReportHtml({
       periodLabel: "10 – 16 Ağustos 2026", isoWeek: "2026-33", summary: s,
       status: indexStatusOf(points, "2026-33"), indexRows: points, basketAvg: 41.33,
-      basketSize: 15, baseWeekLabel: null, watchResults: [], minMarkets: 6,
+      basketSize: 15, baseWeekLabel: null, watchResults: [], watchlist: [], minMarkets: 6,
     })).toContain("genellemesi doğru olmaz");
   });
 
@@ -178,11 +179,40 @@ describe("izleme listesi sıralaması", () => {
     expect(html()).toContain("İlk başlık endeksin yönü");
   });
 
+  // 2026-35 taslagindaki gercek hata: en sert hareket de en dar tabanli urun de ayni
+  // urundu, bolum onu iki paragrafta tekrarladi; buna karsilik saklanan takip listesinde
+  // yer alan iki urun metinde hic gecmedi. Bolum artik saklanan listeden yaziliyor.
+  it("aynı ürünü iki maddede tekrarlamaz", () => {
+    const narrow = mover({
+      productSlug: "incir-siyah", productName: "İncir Siyah",
+      changePct: -39.5, latestAvg: 89.21, previousAvg: 147.5, marketCount: 6, categorySlug: "meyve",
+    });
+    const s = summary({
+      topFallers: [narrow],
+      topRisers: [mover({ productSlug: "kirmizi-lahana", productName: "Kırmızı Lahana", changePct: 35.2, latestAvg: 35, previousAvg: 25.89, marketCount: 9 })],
+    });
+    const list = buildWatchlist(s, indexStatusOf(points, "2026-33"));
+    const out = buildWeeklyReportHtml({
+      periodLabel: "24 – 30 Ağustos 2026", isoWeek: "2026-33", summary: s,
+      status: indexStatusOf(points, "2026-33"), indexRows: points, basketAvg: 41.33,
+      basketSize: 15, baseWeekLabel: null, watchResults: [], watchlist: list, minMarkets: 6,
+    });
+    const outlook = out.split("Önümüzdeki Hafta Ne İzlenmeli?")[1] ?? "";
+    expect(outlook.split("İncir Siyah").length - 1).toBe(1);
+    // Saklanan liste ile metin ayni maddeleri anlatmali — gelecek hafta bu liste
+    // "gecen hafta isaretledigimiz basliklar" diye degerlendiriliyor. (Endeks maddesi
+    // adiyla degil "endeksin yonu" diye anilir, o yuzden urun maddeleri kontrol edilir.)
+    for (const item of list.filter((i) => i.kind === "product")) {
+      expect(outlook).toContain(item.name);
+    }
+  });
+
   it("endeks yoksa numaralandırma yine İlk ile başlar", () => {
     const out = buildWeeklyReportHtml({
       periodLabel: "17 – 23 Ağustos 2026", isoWeek: "2026-34", summary: summary(),
       status: null, indexRows: [], basketAvg: null, basketSize: 15,
-      baseWeekLabel: null, watchResults: [], minMarkets: 6,
+      baseWeekLabel: null, watchResults: [],
+      watchlist: buildWatchlist(summary(), null), minMarkets: 6,
     });
     expect(out).toContain("İlk başlık");
     expect(out).not.toContain("İkinci başlık Fasulye");

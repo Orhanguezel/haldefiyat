@@ -14,12 +14,23 @@ export type WatchItem = {
   name: string;
   value: number;
   question: string;
+  /**
+   * Maddenin ne sordugu. Metni string olarak ayristirmak yerine burada tasinir:
+   * "level" = fiyat seviyesi tutuyor mu, "base" = gozlem tabani genisliyor mu,
+   * "direction" = endeksin yonu. Eski kayitlarda yok — okurken "level" varsayilir.
+   */
+  focus?: "direction" | "level" | "base";
+  /** Madde yazilirken gecerli olan hal sayisi; gelecek hafta tabanin genisleyip genislemedigi buna gore olculur. */
+  marketCount?: number | null;
 };
 
 export type WatchResult = WatchItem & {
   current: number | null;
   changePct: number | null;
+  /** Urunun BU haftaki hal sayisi. */
   marketCount: number | null;
+  /** Madde yazildiginda gecerli olan hal sayisi — taban genisledi mi sorusu bununla cevaplanir. */
+  previousMarketCount: number | null;
 };
 
 export type WeeklyReportHtmlInput = {
@@ -32,6 +43,8 @@ export type WeeklyReportHtmlInput = {
   basketSize:    number;
   baseWeekLabel: string | null;
   watchResults:  WatchResult[];
+  /** Bu haftanin takip listesi — "ne izlenmeli" bolumu bundan yazilir, DB'ye de bu saklanir. */
+  watchlist:     WatchItem[];
   minMarkets:    number;
 };
 
@@ -149,6 +162,16 @@ function breadthSection(summary: WeeklySummary): string {
     + `hareket ölçümünün dışındadır.</p>\n`;
 }
 
+/**
+ * Gecen raporun takip listesinin bu haftaki durumu.
+ *
+ * DIKKAT — olcum tabani bu bolumde farklidir: burada gecen raporun KAPANIS degeri
+ * bu haftanin KAPANIS degeriyle karsilastirilir. Yukaridaki hareket tablolari ise
+ * haftanin kendi icindeki basi–sonu farkini olcer. Ayni urun icin iki bolumde
+ * farkli yuzde cikmasi normaldir, bu yuzden burada "haftalik degisim" denmez ve
+ * bolumun altina okuma notu basilir — aksi halde sayfa kendi kendisiyle celisiyor
+ * gorunuyor (ornek: 2026-35 haftasinda Salatalik tabloda +%20,5, burada %0,0).
+ */
 function watchlistSection(results: WatchResult[]): string {
   if (!results.length) return "";
   const items = results.map((r) => {
@@ -162,41 +185,49 @@ function watchlistSection(results: WatchResult[]): string {
     const base = r.kind === "index"
       ? `${trNum(r.value, 2)} ${unit} seviyesinden ${trNum(r.current, 2)} ${unit} seviyesine`
       : `${trPriceUnit(r.value)} seviyesinden ${trPriceUnit(r.current)} seviyesine`;
+    // Taban sorusu sorulmussa cevabi hal sayisidir, fiyat degil — soruyu cevapsiz birakma.
+    const baseAnswer = r.focus === "base" && r.marketCount != null && r.previousMarketCount != null
+      ? ` Gözlem tabanı ${r.previousMarketCount} haldan ${r.marketCount} hale ${
+          r.marketCount > r.previousMarketCount ? "genişledi" : r.marketCount < r.previousMarketCount ? "daraldı" : "değişmedi"
+        }.`
+      : "";
     const halls = r.marketCount ? ` (${r.marketCount} hal)` : "";
     return `<p><strong>${esc(r.name)}:</strong> ${esc(r.question)} — ${base} ${dirWord}; `
-      + `haftalık değişim <strong>${trPctSigned(r.changePct)}</strong>${halls}.</p>`;
+      + `geçen raporun kapanışına göre <strong>${trPctSigned(r.changePct)}</strong>${halls}.${baseAnswer}</p>`;
   }).join("\n");
   return `<h2>Geçen Haftanın Takip Listesi Ne Söyledi?</h2>\n`
-    + `<p>Geçen raporda işaretlediğimiz başlıkların bu haftaki durumu:</p>\n${items}\n`;
+    + `<p>Geçen raporda işaretlediğimiz başlıkların bu haftaki durumu:</p>\n${items}\n`
+    + `<p class="note"><strong>Okuma notu:</strong> Bu bölüm geçen raporun kapanış seviyesini bu haftanın `
+    + `kapanışıyla karşılaştırır. Yukarıdaki hareket tabloları ise haftanın kendi içindeki başı–sonu farkını `
+    + `ölçer. İki ölçüm farklı aralıkları kapsadığı için aynı ürün için farklı yüzdeler görülebilir.</p>\n`;
 }
 
 const ORDINALS = ["İlk", "İkinci", "Üçüncü", "Dördüncü"];
 
-function outlookSection(summary: WeeklySummary, status: IndexStatus | null): string {
-  const lines: string[] = [];
-  // Sira sozcugu maddenin gercek konumundan turetilir: endeks maddesi atlandiginda
-  // liste "Ikinci baslik" diye baslamaz.
-  const ord = () => ORDINALS[lines.length] ?? "Bir diğer";
-  if (status) {
-    const q = status.isNewLow
-      ? "yeni bir dip mi geleceği yoksa serinin taban mı yapacağı"
-      : status.changePct != null && Math.abs(status.changePct) < 1
-        ? "yataylaşmanın bir dönüşün ilk adımı mı yoksa düşüşün molası mı olduğu"
-        : "hareketin önümüzdeki hafta da sürüp sürmediği";
-    lines.push(`<p>${ord()} başlık endeksin yönü: ${q} izlenmeli. `
-      + `Sepet ortalamasının bu seviyede tutunması, haftalık hareketin kalıcılığı hakkında ilk sinyali verecek.</p>`);
-  }
-  const lead = [...summary.topFallers, ...summary.topRisers]
-    .sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct))[0];
-  if (lead) {
-    lines.push(`<p>${ord()} başlık ${esc(lead.productName)}: ${trPriceUnit(lead.latestAvg)} seviyesi `
-      + `${lead.marketCount} hallik tabanda oluştu; bu seviyenin tutup tutmadığı hareketin kalıcı olup olmadığını gösterecek.</p>`);
-  }
-  const narrow = [...summary.topRisers, ...summary.topFallers].find((m) => m.marketCount <= NARROW_BASE_MARKETS);
-  if (narrow) {
-    lines.push(`<p>${ord()} başlık ${esc(narrow.productName)}: gözlem tabanının ${narrow.marketCount} halin üzerine çıkıp `
-      + `çıkmadığı, buradaki fiyat oluşumunun ülke geneline yayılıp yayılmadığını netleştirecek.</p>`);
-  }
+/**
+ * "Onumuzdeki hafta ne izlenmeli" bolumu, DB'ye saklanan takip listesinin ta kendisinden
+ * yazilir. Onceden bu bolum kendi secimini yapiyordu ve buildWatchlist ayri bir secim
+ * yapiyordu; ikisi ayrisiyordu. Somut sonuc (2026-35 taslagi): en sert hareket de en dar
+ * tabanli urun de Incir Siyah'ti, bolum ayni urunu iki paragrafta tekrar etti — ustelik
+ * saklanan listede olan Kirmizi Lahana ile Patlican Bostan hic gorunmedi, yani gelecek
+ * hafta okuyucunun hic gormedigi maddeler "gecen hafta isaretledigimiz basliklar" diye
+ * degerlendirilecekti. Tek kaynak: buildWatchlist.
+ */
+function outlookSection(watchlist: WatchItem[]): string {
+  const lines = watchlist.map((item, i) => {
+    const ord = ORDINALS[i] ?? "Bir diğer";
+    if (item.kind === "index" || item.focus === "direction") {
+      return `<p>${ord} başlık endeksin yönü: ${esc(item.question)} izlenmeli. `
+        + `Sepet ortalamasının bu seviyede tutunması, haftalık hareketin kalıcılığı hakkında ilk sinyali verecek.</p>`;
+    }
+    if (item.focus === "base") {
+      return `<p>${ord} başlık ${esc(item.name)}: ${esc(item.question)}, buradaki fiyat oluşumunun `
+        + `ülke geneline yayılıp yayılmadığını netleştirecek.</p>`;
+    }
+    const base = item.marketCount ? ` ${item.marketCount} hallik tabanda oluştu;` : ";";
+    return `<p>${ord} başlık ${esc(item.name)}: ${trPriceUnit(item.value)} seviyesi${base} `
+      + `bu seviyenin tutup tutmadığı hareketin kalıcı olup olmadığını gösterecek.</p>`;
+  });
   lines.push(`<p>Günlük minimum, ortalama ve maksimum fiyatlar HaldeFiyat fiyat tablosu ile `
     + `ürün detay grafiklerinden takip edilebilir.</p>`);
   return `<h2>Önümüzdeki Hafta Ne İzlenmeli?</h2>\n${lines.join("\n")}\n`;
@@ -263,7 +294,7 @@ export function buildWeeklyReportHtml(input: WeeklyReportHtmlInput): string {
     "",
     watchlistSection(input.watchResults),
     "",
-    outlookSection(summary, status),
+    outlookSection(input.watchlist),
     "",
     methodologyNote(input),
   ];
@@ -277,6 +308,7 @@ export function buildWatchlist(summary: WeeklySummary, status: IndexStatus | nul
   if (status) {
     out.push({
       kind: "index", slug: null, name: "HaldeFiyat Endeksi", value: status.value,
+      focus: "direction", marketCount: null,
       question: status.isNewLow ? "yeni dip mi taban mı" : "yönün sürüp sürmediği",
     });
   }
@@ -285,6 +317,7 @@ export function buildWatchlist(summary: WeeklySummary, status: IndexStatus | nul
   for (const m of ranked.slice(0, 2)) {
     out.push({
       kind: "product", slug: m.productSlug, name: m.productName, value: m.latestAvg,
+      focus: "level", marketCount: m.marketCount,
       question: `${trPriceUnit(m.latestAvg)} seviyesinin tutup tutmadığı`,
     });
   }
@@ -292,6 +325,7 @@ export function buildWatchlist(summary: WeeklySummary, status: IndexStatus | nul
   if (narrow) {
     out.push({
       kind: "product", slug: narrow.productSlug, name: narrow.productName, value: narrow.latestAvg,
+      focus: "base", marketCount: narrow.marketCount,
       question: `gözlem tabanının ${narrow.marketCount} halin üzerine çıkıp çıkmadığı`,
     });
   }
@@ -311,13 +345,14 @@ export function evaluateWatchlist(
       const changePct = current != null && item.value > 0
         ? Math.round(((current - item.value) / item.value) * 10000) / 100
         : null;
-      return { ...item, current, changePct, marketCount: null };
+      return { ...item, current, changePct, marketCount: null, previousMarketCount: null };
     }
+    const previousMarketCount = item.marketCount ?? null;
     const ref = item.slug ? summary.movementBySlug[item.slug] : undefined;
-    if (!ref) return { ...item, current: null, changePct: null, marketCount: null };
+    if (!ref) return { ...item, current: null, changePct: null, marketCount: null, previousMarketCount };
     const changePct = item.value > 0
       ? Math.round(((ref.latestAvg - item.value) / item.value) * 10000) / 100
       : ref.changePct;
-    return { ...item, current: ref.latestAvg, changePct, marketCount: ref.marketCount };
+    return { ...item, current: ref.latestAvg, changePct, marketCount: ref.marketCount, previousMarketCount };
   });
 }
