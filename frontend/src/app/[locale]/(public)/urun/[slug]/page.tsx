@@ -191,13 +191,21 @@ function isBorsaProduct(product: { categorySlug?: string; slug?: string }) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
-  const products = withBorsaFallbackProducts(await fetchProducts());
+  const catalog = await fetchProducts();
+  const products = withBorsaFallbackProducts(catalog);
   const product = products.find((p) => p.slug === slug);
 
   // notFound() BURADA cagrilmaz: generateMetadata icinde cagrilirsa Next render
   // agacini kurmadan kisa devre yapar ve stillendirilmis not-found.tsx yerine
   // duz metin "Not Found" doner. 404'u page component'i veriyor (asagida).
   if (!product) {
+    // Bos katalog = urun yok DEGIL, veri cekimi basarisiz. safeFetch hatayi
+    // yutup [] donduruyor; bu durumda notFound() cagirmak gecici bir backend
+    // kesintisini KALICI, onbellege alinmis 404'e cevirir (31 Agu 2026: dagitim
+    // sirasindaki ~30 sn ECONNREFUSED, cluster worker'lardan birinin fetch
+    // onbellegine bos liste yazdi; o worker'a dusen /urun/* istekleri 404
+    // uretip ISR'ye kaydetti). Hata firlat — 404 degil 500, ve onbelleklenmez.
+    if (catalog.length === 0) throw new Error("urun katalogu bos dondu (veri kaynagi erisilemiyor)");
     const canonical = await resolveCanonicalFallback(slug, (c) => products.some((p) => p.slug === c));
     if (canonical) permanentRedirect(`/urun/${canonical}`);
     return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
@@ -267,10 +275,12 @@ export default async function UrunPage({ params }: Props) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const products = withBorsaFallbackProducts(await fetchProducts());
+  const catalog = await fetchProducts();
+  const products = withBorsaFallbackProducts(catalog);
   const product = products.find((p) => p.slug === slug);
 
   if (!product) {
+    if (catalog.length === 0) throw new Error("urun katalogu bos dondu (veri kaynagi erisilemiyor)");
     const canonical = await resolveCanonicalFallback(slug, (c) => products.some((p) => p.slug === c));
     if (canonical) permanentRedirect(`/urun/${canonical}`);
     notFound();
