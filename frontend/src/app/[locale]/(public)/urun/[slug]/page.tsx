@@ -37,7 +37,6 @@ import VariantPriceTable from "@/components/sections/VariantPriceTable";
 import { productHref } from "@/lib/product-links";
 import PageContainer from "@/components/layout/PageContainer";
 import { getProductDisplayName } from "@/lib/product-display-name";
-import { resolveCanonicalFallback } from "@/lib/slug-fallback";
 import FrostRiskBanner from "@/components/sections/FrostRiskBanner";
 import PriceTable from "@/components/ui/PriceTable";
 import FreshnessBadge from "@/components/ui/FreshnessBadge";
@@ -206,8 +205,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // onbellegine bos liste yazdi; o worker'a dusen /urun/* istekleri 404
     // uretip ISR'ye kaydetti). Hata firlat — 404 degil 500, ve onbelleklenmez.
     if (catalog.length === 0) throw new Error("urun katalogu bos dondu (veri kaynagi erisilemiyor)");
-    const canonical = await resolveCanonicalFallback(slug, (c) => products.some((p) => p.slug === c));
-    if (canonical) permanentRedirect(`/urun/${canonical}`);
     return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
   }
 
@@ -280,9 +277,10 @@ export default async function UrunPage({ params }: Props) {
   const product = products.find((p) => p.slug === slug);
 
   if (!product) {
+    // Kopya '-2' slug'lari icin yonlendirme BURADA degil src/proxy.ts'te:
+    // proxy var-olmayan slug'i sayfadan once 404'luyor, sayfa-ici redirect
+    // hic calismiyor (proxy.ts'teki ayni uyariya bak).
     if (catalog.length === 0) throw new Error("urun katalogu bos dondu (veri kaynagi erisilemiyor)");
-    const canonical = await resolveCanonicalFallback(slug, (c) => products.some((p) => p.slug === c));
-    if (canonical) permanentRedirect(`/urun/${canonical}`);
     notFound();
   }
 

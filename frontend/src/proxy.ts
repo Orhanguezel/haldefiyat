@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { stripNumericSuffix } from "@/lib/slug-fallback";
 import createMiddleware from "next-intl/middleware";
 import { isAppLocale, routing } from "@/i18n/routing";
 import { MAKALELER } from "@/lib/analiz";
@@ -153,6 +154,27 @@ async function productFallbackRedirect(request: NextRequest, slug: string): Prom
     const target =
       typeof prefix.canonicalSlug === "string" && prefix.canonicalSlug ? prefix.canonicalSlug : (prefix.slug as string);
     return redirectWithPath(request, `/urun/${target}`, 308);
+  }
+
+  // Birlestirme turunda silinen kopya kayitlar: benzersiz-slug cakismasi bunlara
+  // sayisal sonek vermisti (`elma-2`). Kayit silinince URL 404 dondu ama Google
+  // indeksinde tutup yoklamaya devam etti — 19-30 Agustos 2026'da 1.765 istek,
+  // %99,5'i Googlebot. Sonegi dusurup tabani dene; taban VARSA link degerini
+  // koruyan 301 ver, yoksa 404 kalsin.
+  //
+  // Yukaridaki prefix kurali bunu yakalamaz: o, slug'in var olan bir urunun
+  // ON EKI olmasini arar (`patates-2` -> `patates-2-kalite`). `elma-2` gibi
+  // hicbir urune on ek olmayan kopyalar oraya takilmiyordu.
+  const base = stripNumericSuffix(slug);
+  if (base) {
+    const baseCandidates = await fetchItems(`/api/v1/prices/products?q=${encodeURIComponent(base)}`);
+    const baseProduct = baseCandidates?.find((p) => p.slug === base);
+    if (baseProduct) {
+      const target = typeof baseProduct.canonicalSlug === "string" && baseProduct.canonicalSlug
+        ? baseProduct.canonicalSlug
+        : base;
+      return redirectWithPath(request, `/urun/${target}`, 301);
+    }
   }
 
   if (KNOWN_BROKEN_PRODUCT_SLUGS.has(slug)) {
