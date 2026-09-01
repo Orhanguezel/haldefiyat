@@ -1,0 +1,799 @@
+<title>Search Console Okuma Kılavuzu</title>
+
+<style>
+  :root {
+    --paper:   #f4f4f1;
+    --surface: #ffffff;
+    --sunken:  #eceeea;
+    --ink:     #16191a;
+    --muted:   #5f6768;
+    --faint:   #8d9496;
+    --line:    #dcded9;
+    --accent:  #2b4a63;
+    --accent-soft: #e4ebf1;
+    --good:    #2c7a52;
+    --good-soft: #e2efe7;
+    --warn:    #a86a14;
+    --warn-soft: #f4ebda;
+    --bad:     #a03a2c;
+    --bad-soft: #f5e5e1;
+    --shadow:  0 1px 2px rgba(22,25,26,.06), 0 8px 24px -18px rgba(22,25,26,.35);
+
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:   #14161a;
+      --surface: #1b1e23;
+      --sunken:  #202429;
+      --ink:     #e8eae7;
+      --muted:   #99a2a4;
+      --faint:   #6d7679;
+      --line:    #2b3036;
+      --accent:  #8fb4d4;
+      --accent-soft: #1e2c39;
+      --good:    #5fb488;
+      --good-soft: #17281f;
+      --warn:    #d99a3f;
+      --warn-soft: #2b2214;
+      --bad:     #d9806e;
+      --bad-soft: #2e1c19;
+      --shadow:  0 1px 2px rgba(0,0,0,.4), 0 8px 24px -18px rgba(0,0,0,.8);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:   #14161a;
+    --surface: #1b1e23;
+    --sunken:  #202429;
+    --ink:     #e8eae7;
+    --muted:   #99a2a4;
+    --faint:   #6d7679;
+    --line:    #2b3036;
+    --accent:  #8fb4d4;
+    --accent-soft: #1e2c39;
+    --good:    #5fb488;
+    --good-soft: #17281f;
+    --warn:    #d99a3f;
+    --warn-soft: #2b2214;
+    --bad:     #d9806e;
+    --bad-soft: #2e1c19;
+    --shadow:  0 1px 2px rgba(0,0,0,.4), 0 8px 24px -18px rgba(0,0,0,.8);
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.7;
+    margin: 0;
+    padding: 0 20px 96px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; }
+  .prose { max-width: 68ch; }
+
+  /* ---- header ---- */
+  header.top {
+    padding: 64px 0 40px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 44px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 18px;
+  }
+  h1 {
+    font-size: clamp(30px, 5vw, 44px);
+    line-height: 1.1;
+    letter-spacing: -.025em;
+    font-weight: 800;
+    margin: 0 0 16px;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 18px;
+    color: var(--muted);
+    margin: 0 0 24px;
+    max-width: 60ch;
+  }
+  .meta {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--faint);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin: 0;
+  }
+
+  /* ---- index ---- */
+  nav.index {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 22px;
+    margin-bottom: 56px;
+  }
+  nav.index h2 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 0 0 12px;
+    font-weight: 600;
+  }
+  nav.index ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 2px 28px;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    counter-reset: idx;
+  }
+  nav.index li { counter-increment: idx; }
+  nav.index a {
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 14.5px;
+    display: block;
+    padding: 3px 0;
+    border-bottom: 1px solid transparent;
+  }
+  nav.index a::before {
+    content: counter(idx, decimal-leading-zero);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    margin-right: 10px;
+  }
+  nav.index a:hover, nav.index a:focus-visible { border-bottom-color: var(--accent); }
+
+  /* ---- sections ---- */
+  section { margin-bottom: 68px; scroll-margin-top: 24px; }
+  h2 {
+    font-size: 25px;
+    font-weight: 750;
+    letter-spacing: -.02em;
+    line-height: 1.25;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  h2 .num {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .1em;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 8px;
+  }
+  h3 {
+    font-size: 16.5px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    margin: 34px 0 8px;
+  }
+  p { margin: 0 0 16px; }
+  .lede { color: var(--muted); font-size: 17px; margin-bottom: 26px; }
+  strong { font-weight: 680; }
+  code {
+    font-family: var(--mono);
+    font-size: .87em;
+    background: var(--sunken);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: .1em .38em;
+  }
+  a { color: var(--accent); }
+
+  /* ---- tables ---- */
+  .tablewrap { overflow-x: auto; margin: 0 0 20px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  caption {
+    caption-side: top;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding: 0 0 9px;
+  }
+  th, td {
+    padding: 9px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+  thead th {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+  .num, td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tbody th { font-weight: 550; }
+  tr.hi td, tr.hi th { background: var(--accent-soft); }
+  .tag-good { color: var(--good); font-weight: 650; }
+  .tag-warn { color: var(--warn); font-weight: 650; }
+  .tag-bad  { color: var(--bad);  font-weight: 650; }
+
+  /* ---- chart ---- */
+  figure { margin: 0 0 22px; }
+  .chart {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 22px 22px 16px;
+  }
+  figcaption {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-top: 12px;
+    max-width: 62ch;
+  }
+  .bar-row { display: grid; grid-template-columns: 96px 1fr 76px; align-items: center; gap: 14px; margin-bottom: 10px; }
+  .bar-label { font-family: var(--mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .bar-track { background: var(--sunken); border-radius: 4px; height: 26px; position: relative; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; }
+  .bar-val { font-family: var(--mono); font-size: 13px; font-weight: 650; font-variant-numeric: tabular-nums; text-align: right; }
+
+  /* ---- pattern cards ---- */
+  .cards { display: grid; gap: 16px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--edge, var(--accent));
+    border-radius: 8px;
+    padding: 20px 22px;
+  }
+  .card.good { --edge: var(--good); }
+  .card.warn { --edge: var(--warn); }
+  .card.bad  { --edge: var(--bad); }
+  .card.acc  { --edge: var(--accent); }
+  .card h3 { margin: 0 0 4px; font-size: 17px; }
+  .card .verdict { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--edge, var(--accent)); margin: 0 0 12px; font-weight: 600; }
+  .card p { margin: 0 0 12px; font-size: 15px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .do {
+    background: var(--sunken);
+    border-radius: 6px;
+    padding: 11px 14px;
+    font-size: 14.5px;
+    margin-top: 14px;
+  }
+  .card .do b { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); display: block; margin-bottom: 3px; font-weight: 600; }
+
+  /* ---- callout ---- */
+  .callout {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 0 0 20px;
+    background: var(--sunken);
+    font-size: 15px;
+  }
+  .callout.warnbox { background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 30%, var(--line)); }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--warn); font-weight: 650; display: block; margin-bottom: 5px; }
+
+  ul.checks { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 9px; }
+  ul.checks li { padding-left: 26px; position: relative; font-size: 15px; }
+  ul.checks li::before {
+    content: "";
+    position: absolute; left: 2px; top: .62em;
+    width: 8px; height: 8px; border-radius: 2px;
+    background: var(--accent);
+  }
+
+  pre {
+    background: var(--sunken);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 15px 17px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    margin: 0 0 18px;
+  }
+  pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+
+  footer.end {
+    border-top: 1px solid var(--line);
+    padding-top: 22px;
+    font-size: 13.5px;
+    color: var(--faint);
+  }
+
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  @media (max-width: 560px) {
+    .bar-row { grid-template-columns: 78px 1fr 62px; gap: 9px; }
+    header.top { padding-top: 40px; }
+  }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">Ölçüm kılavuzu · her siteye uygulanır</p>
+  <h1>Search Console nasıl okunur, neye göre aksiyon alınır</h1>
+  <p class="standfirst">Dört metrik, altı sayaç katmanı, dört örüntü ve bir karar tablosu. Örnekler haldefiyat.com'un gerçek verisinden; yöntem her site için aynı.</p>
+  <p class="meta">
+    <span>Hazırlanma: 2 Eylül 2026</span>
+    <span>Veri: 15–29 Ağustos 2026, 1.000 sorgu</span>
+    <span>Kaynak: GSC API + nginx logu + GA4</span>
+  </p>
+</header>
+
+<nav class="index" aria-label="İçindekiler">
+  <h2>İçindekiler</h2>
+  <ol>
+    <li><a href="#metrikler">Dört temel metrik</a></li>
+    <li><a href="#sayaclar">Sayaçlar toplanmaz</a></li>
+    <li><a href="#egri">Pozisyon–CTR eğrisi</a></li>
+    <li><a href="#kader">Pozisyon kader değil</a></li>
+    <li><a href="#oruntuler">Dört örüntü ve aksiyonu</a></li>
+    <li><a href="#karar">Karar tablosu</a></li>
+    <li><a href="#vaka">Vaka: salçalık domates</a></li>
+    <li><a href="#tuzaklar">Sekiz tuzak</a></li>
+    <li><a href="#veri">Veriyi nasıl çekersin</a></li>
+    <li><a href="#yeni-site">Yeni siteye uygulama listesi</a></li>
+  </ol>
+</nav>
+
+<!-- 1 -->
+<section id="metrikler">
+  <h2><span class="num">01</span>Dört temel metrik</h2>
+  <div class="prose">
+    <p class="lede">Biri Google'da <em>“bursa hal fiyatları”</em> arıyor ve senin sayfan sonuçlarda çıkıyor. Dört sayı bu tek olayı tarif eder.</p>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <caption>Tek örnek üzerinden — bursa hal fiyatları, 15–29 Ağustos</caption>
+      <thead>
+        <tr><th>Metrik</th><th>Ne ölçer</th><th class="num">Değer</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>Gösterim</th><td>Sayfan sonuç listesinde <strong>göründü</strong></td><td class="num">1.034</td></tr>
+        <tr><th>Tıklama</th><td>Biri <strong>tıkladı</strong>, siteye geldi</td><td class="num">66</td></tr>
+        <tr><th>CTR</th><td>Tıklama ÷ Gösterim — “görenlerin yüzde kaçı tıkladı”</td><td class="num">%6,38</td></tr>
+        <tr><th>Pozisyon</th><td>Listede kaçıncı sıradasın — <strong>ortalama</strong></td><td class="num">3,0</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="prose">
+    <p>İki cümlede özet: <strong>pozisyon seni listeye sokar, CTR tıklattırır.</strong> İkisi ayrı kaldıraç ve ayrı işle düzeltilir — pozisyon içerik/otorite işi, CTR başlık/açıklama işi.</p>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="sayaclar">
+  <h2><span class="num">02</span>Sayaçlar birbirinin yerine geçmez, toplanmaz</h2>
+  <div class="prose">
+    <p class="lede">En sık yapılan hata: “günde 100 bin istek alıyoruz” demek. O sayı ziyaretçi değil, hatta sayfa görüntüleme bile değil.</p>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <caption>haldefiyat.com — 1 Eylül 2026, tam gün</caption>
+      <thead>
+        <tr><th>Katman</th><th class="num">Sayı</th><th>Gerçekte ne</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>Toplam HTTP isteği</th><td class="num">101.530</td><td>Her dosya: resim, CSS, JS, API çağrısı</td></tr>
+        <tr><th>İnsan isteği</th><td class="num">97.734</td><td>Bot olmayan</td></tr>
+        <tr><th>Bot isteği</th><td class="num">3.796</td><td>Googlebot, ClaudeBot, tarayıcılar</td></tr>
+        <tr><th>Sayfa isteği</th><td class="num">55.653</td><td>Sadece sayfa adresleri</td></tr>
+        <tr><td style="padding-left:32px">↳ prefetch</td><td class="num tag-bad">51.985</td><td>Framework önden indirdi — <strong>kullanıcı görmedi</strong></td></tr>
+        <tr class="hi"><td style="padding-left:32px">↳ <strong>gerçek sayfa yüklemesi</strong></td><td class="num"><strong>3.668</strong></td><td>Kullanıcının gerçekten açtığı sayfa</td></tr>
+        <tr><th>JS beacon (pageview)</th><td class="num">1.946</td><td>JS'i çalışan gerçek görüntüleme</td></tr>
+        <tr><th>Tekil IP (insan)</th><td class="num">1.742</td><td>Kabaca “kaç cihaz”</td></tr>
+        <tr><th>GA4 etkin kullanıcı</th><td class="num">≈54</td><td>Gerçeğin yalnızca <strong>%11,6</strong>'sı</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout warnbox">
+    <span class="label">Prefetch tuzağı</span>
+    <p>Modern framework'ler (Next.js, Nuxt, SvelteKit) kullanıcı tıklamadan önce sayfayı arka planda indirir. Sunucu logunda bu tıpkı bir ziyaret gibi görünür. Bu sitede sayfa isteklerinin <strong>%93,4'ü</strong> buydu. Menü ve altbilgi linklerinde oran uçlaşır: <code>/gizlilik-politikasi</code> 14.554 prefetch aldı, <strong>29</strong> gerçek ziyaret. “En çok ziyaret edilen sayfalar” tablonu bu ayrımı yapmadan kurma.</p>
+  </div>
+
+  <div class="prose">
+    <h3>Hangi soruyu hangi sayaç cevaplar</h3>
+    <ul class="checks">
+      <li><strong>Hacim ve trend</strong> → sunucu logu (prefetch ayıklanmış) veya kendi beacon'ın</li>
+      <li><strong>Aramada ne oluyor</strong> → Search Console. Tek gerçek arama kaynağı budur.</li>
+      <li><strong>Davranış</strong> (oturum süresi, çıkış oranı) → GA4 — ama <strong>mutlak değil, oransal</strong> oku</li>
+      <li><strong>Kaç kişi</strong> → hiçbiri tam söylemez; tekil IP ve gerçek sayfa yüklemesinden aralık tahmin et</li>
+    </ul>
+    <p>Bu sitede GSC 12 günde 6.350 organik tıklama görürken GA4 yalnızca 735 organik oturum gördü. Reklam engelleyici, çerez onayı ve ertelenmiş betik yüklemesi arayı açıyor. <strong>Üç sayaç asla toplanmaz</strong> ve biri diğerinin doğrulaması değildir.</p>
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="egri">
+  <h2><span class="num">03</span>Pozisyon–CTR eğrisi: sıra neden bu kadar önemli</h2>
+  <div class="prose">
+    <p class="lede">Genel geçer “sektör ortalaması” tablolarına bakma; kendi sitenin eğrisini çıkar. Aşağıdaki 1.000 sorgunun pozisyona göre gruplanmış hâli.</p>
+  </div>
+
+  <figure>
+    <div class="chart">
+      <div class="bar-row">
+        <span class="bar-label">1,0 – 1,9</span>
+        <div class="bar-track"><div class="bar-fill" style="width:100%"><title>1. sıra — %23,73 CTR, 708 gösterim</title></div></div>
+        <span class="bar-val">%23,73</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">2,0 – 2,9</span>
+        <div class="bar-track"><div class="bar-fill" style="width:32.8%"></div></div>
+        <span class="bar-val">%7,78</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">3,0 – 3,9</span>
+        <div class="bar-track"><div class="bar-fill" style="width:32.7%"></div></div>
+        <span class="bar-val">%7,76</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">4,0 – 5,9</span>
+        <div class="bar-track"><div class="bar-fill" style="width:17.0%"></div></div>
+        <span class="bar-val">%4,04</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">6,0 – 10,9</span>
+        <div class="bar-track"><div class="bar-fill" style="width:10.2%"></div></div>
+        <span class="bar-val">%2,43</span>
+      </div>
+    </div>
+    <figcaption>Ortalama pozisyon aralığına göre CTR. 11. sıradan sonraki gruplar çok az veri içerdiği için hesaba katılmadı.</figcaption>
+  </figure>
+
+  <div class="tablewrap">
+    <table>
+      <caption>Aynı veri, ham hâliyle</caption>
+      <thead>
+        <tr><th>Pozisyon</th><th class="num">Gösterim</th><th class="num">Tıklama</th><th class="num">CTR</th></tr>
+      </thead>
+      <tbody>
+        <tr class="hi"><th>1,0 – 1,9</th><td class="num">708</td><td class="num">168</td><td class="num">%23,73</td></tr>
+        <tr><th>2,0 – 2,9</th><td class="num">7.593</td><td class="num">591</td><td class="num">%7,78</td></tr>
+        <tr><th>3,0 – 3,9</th><td class="num">7.775</td><td class="num">603</td><td class="num">%7,76</td></tr>
+        <tr><th>4,0 – 5,9</th><td class="num">33.460</td><td class="num">1.353</td><td class="num">%4,04</td></tr>
+        <tr><th>6,0 – 10,9</th><td class="num">43.577</td><td class="num">1.058</td><td class="num">%2,43</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="prose">
+    <p><strong>Birinci sıra, 6–10. sıranın yaklaşık on katı tıklama getiriyor.</strong> Aynı gösterim, aynı içerik — sadece sıra farkı.</p>
+    <p>Somut hesap: <code>/urun/limon</code> pozisyon 6,9'da, 22.005 gösterim, %2,02 CTR, 445 tıklama. Aynı sayfa 3. sıra grubuna çıksa (%7,76) → <strong>1.708 tıklama</strong>. Üç kat, tek satır içerik eklemeden.</p>
+    <p>Bu eğri her sitede farklıdır. Markanı arayan çoksa 1. sıra %40'a çıkar; rekabetin yoğun olduğu bilgi sorgularında 1. sıra %15'te kalır. <strong>Kendi eğrini çıkarmadan “CTR'ımız düşük” deme.</strong></p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="kader">
+  <h2><span class="num">04</span>Pozisyon kader değil</h2>
+  <div class="prose">
+    <p class="lede">Aynı sırada olup iki kat farklı CTR alan sorgular, sıranın hikâyenin yarısı olduğunu gösterir.</p>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <caption>Birebir aynı pozisyon, iki kat CTR farkı</caption>
+      <thead>
+        <tr><th>Sorgu</th><th class="num">Pozisyon</th><th class="num">Gösterim</th><th class="num">CTR</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>limon <strong>piyasası</strong></th><td class="num">5,7</td><td class="num">2.216</td><td class="num tag-good">%3,02</td></tr>
+        <tr><th>limon <strong>fiyatları</strong></th><td class="num">5,7</td><td class="num">2.730</td><td class="num tag-bad">%1,65</td></tr>
+        <tr><th><strong>gaziantep</strong> hal fiyatları</th><td class="num">4,7</td><td class="num">633</td><td class="num tag-good">%6,32</td></tr>
+        <tr><th><strong>istanbul</strong> hal fiyatları</th><td class="num">4,7</td><td class="num">3.164</td><td class="num tag-bad">%2,91</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="prose">
+    <p>İstanbul aramasında CTR yarı yarıya düşük çünkü o sonuç sayfasında rakip çok — başlığın kalabalıkta kayboluyor. Gaziantep'te rakip az, aynı sıra iki katı tıklanıyor.</p>
+    <p><strong>Kural:</strong> pozisyonu sabit tutup CTR'ı yükseltmek, sıra yükseltmekten <em>çok daha ucuzdur</em>. Başlık ve meta açıklama değişikliği bir saatlik iş; sıra yükseltmek haftalar sürer.</p>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="oruntuler">
+  <h2><span class="num">05</span>Dört örüntü ve her birinin aksiyonu</h2>
+  <div class="prose">
+    <p class="lede">Her sorgu bu dört kutudan birine düşer. Kutuyu bulduğunda ne yapacağın da belli olur.</p>
+  </div>
+
+  <div class="cards">
+
+    <article class="card good">
+      <p class="verdict">Örüntü A · Koru ve çoğalt</p>
+      <h3>Gösterim düşük + CTR yüksek</h3>
+      <p>Doğru kitleyi bulmuşsun. Arayan tam olarak seni arıyor. Az trafik ama <strong>en kaliteli trafik</strong> bu.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Sorgu</th><th class="num">Gösterim</th><th class="num">CTR</th><th class="num">Poz.</th></tr></thead>
+          <tbody>
+            <tr><th>salçalık domates fiyatı 2026</th><td class="num">22</td><td class="num tag-good">%18,18</td><td class="num">2,3</td></tr>
+            <tr><th>soğan fiyatları 2026</th><td class="num">185</td><td class="num tag-good">%17,30</td><td class="num">3,6</td></tr>
+            <tr><th>çorum hal fiyatları</th><td class="num">213</td><td class="num tag-good">%16,43</td><td class="num">2,6</td></tr>
+            <tr><th>armut domates fiyatı</th><td class="num">24</td><td class="num tag-good">%12,50</td><td class="num">3,5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="do"><b>Aksiyon</b>Kalıbı çoğalt. “Çorum hal fiyatları” %16 veriyorsa aynı şablonun her il için hazır olması gerekir. Bu sayfaları bozma — başlığını “iyileştirmeye” kalkma.</div>
+    </article>
+
+    <article class="card warn">
+      <p class="verdict">Örüntü B · En ucuz kazanç burada</p>
+      <h3>Gösterim yüksek + CTR düşük</h3>
+      <p>Görünüyorsun ama ikna etmiyorsun. Sayfa var, sıra fena değil, insanlar görüp geçiyor. <strong>Yeni içerik gerekmiyor</strong> — başlık ve açıklama işi.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Sorgu</th><th class="num">Gösterim</th><th class="num">CTR</th><th class="num">Poz.</th></tr></thead>
+          <tbody>
+            <tr><th>mersin limon fiyatları</th><td class="num">4.563</td><td class="num tag-bad">%0,79</td><td class="num">6,8</td></tr>
+            <tr><th>adana limon fiyatları</th><td class="num">3.801</td><td class="num tag-bad">%0,68</td><td class="num">7,7</td></tr>
+            <tr><th>ankara hal fiyatları</th><td class="num">3.217</td><td class="num tag-bad">%1,99</td><td class="num">4,8</td></tr>
+            <tr><th>limon fiyatları</th><td class="num">6.568</td><td class="num tag-bad">%2,09</td><td class="num">5,6</td></tr>
+            <tr><th>salçalık domates fiyatları</th><td class="num">1.447</td><td class="num tag-bad">%2,35</td><td class="num">8,0</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><code>mersin limon fiyatları</code>: 4.563 kez göründün, 36 tıklama. <strong>4.527 kişi görüp geçti.</strong></p>
+      <div class="do"><b>Aksiyon</b>Sorgunun kelimelerini başlığa geçir; açıklamaya somut bir sayı veya tarih koy (“1 Eylül 2026 · 32,73 TL/kg”). Sonucu 14 gün sonra ölç — CTR değişimi hızlı görünür.</div>
+    </article>
+
+    <article class="card bad">
+      <p class="verdict">Örüntü C · Sayfa güçlendirme işi</p>
+      <h3>Pozisyon 6 ve altı</h3>
+      <p>Tıklama neredeyse yok. Bu sitede 6–10. sıranın CTR'ı <strong>%2,43</strong>. Başlık düzeltmesi buradan çıkarmaz; sayfanın kendisi güçlenmeli.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Sorgu</th><th class="num">Poz.</th><th class="num">Gösterim</th><th class="num">CTR</th></tr></thead>
+          <tbody>
+            <tr><th>domates fiyatı</th><td class="num">9,4</td><td class="num">637</td><td class="num">%1,57</td></tr>
+            <tr><th>salçalık domates kg fiyatı</th><td class="num">8,5</td><td class="num">226</td><td class="num">%1,33</td></tr>
+            <tr><th>mersin hal fiyatları</th><td class="num">8,3</td><td class="num">2.035</td><td class="num">%2,21</td></tr>
+            <tr><th>salçalık domates fiyatları</th><td class="num">8,0</td><td class="num">1.447</td><td class="num">%2,35</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="do"><b>Aksiyon</b>Sorguya <em>ayrı</em> ve daha derin bir sayfa aç, ya da mevcut sayfaya o sorgunun cevabını birebir veren bir bölüm ekle. İç linklerle o sayfayı besle. Aylar süren iş — önce B örüntüsünü bitir.</div>
+    </article>
+
+    <article class="card acc">
+      <p class="verdict">Örüntü D · Dokunma, izle</p>
+      <h3>Pozisyon 1–3</h3>
+      <p>Sitenin en verimli varlığı. Trafiğinin orantısız bir kısmı bu avuç dolusu sorgudan gelir.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Sorgu</th><th class="num">Poz.</th><th class="num">CTR</th></tr></thead>
+          <tbody>
+            <tr><th>salçalık domates fiyatı 2026</th><td class="num">2,3</td><td class="num tag-good">%18,18</td></tr>
+            <tr><th>çorum hal fiyatları</th><td class="num">2,6</td><td class="num tag-good">%16,43</td></tr>
+            <tr><th>konya hal fiyatları</th><td class="num">2,8</td><td class="num tag-good">%4,51</td></tr>
+            <tr><th>bursa hal fiyatları</th><td class="num">3,0</td><td class="num tag-good">%6,38</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="do"><b>Aksiyon</b>Bu sayfaların URL'sini, başlığını ve içerik yapısını değiştirme. Site geneli bir yenilemede bunları listeye alıp <strong>önce/sonra ölç</strong>. Kayıp olursa en pahalı kayıp budur.</div>
+    </article>
+
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="karar">
+  <h2><span class="num">06</span>Karar tablosu</h2>
+  <div class="prose">
+    <p class="lede">Elindeki üç sayıya bak, satırı bul, işi al.</p>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th class="num">Gösterim</th><th class="num">CTR</th><th class="num">Pozisyon</th><th>Teşhis</th><th>Yapılacak iş</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="num">Yüksek</td><td class="num tag-bad">Düşük</td><td class="num">1–5</td><td>Başlık ikna etmiyor</td><td><strong>Başlık + açıklama</strong> — en ucuz kazanç</td></tr>
+        <tr><td class="num">Yüksek</td><td class="num tag-bad">Düşük</td><td class="num">6+</td><td>Hem sıra hem sunum zayıf</td><td>Önce başlık, sonra sayfa güçlendirme</td></tr>
+        <tr><td class="num">Düşük</td><td class="num tag-good">Yüksek</td><td class="num">1–3</td><td>Niyeti tam tutturmuşsun</td><td><strong>Kalıbı çoğalt</strong> — aynı şablon, başka il/ürün</td></tr>
+        <tr><td class="num">Düşük</td><td class="num tag-bad">Düşük</td><td class="num">6+</td><td>Bu sorguda yoksun</td><td>Değer varsa yeni sayfa; yoksa bırak</td></tr>
+        <tr><td class="num">Yüksek</td><td class="num tag-good">Yüksek</td><td class="num">1–3</td><td>Kazanan</td><td>Dokunma, izlemeye al</td></tr>
+        <tr><td class="num">Artıyor</td><td class="num">Sabit</td><td class="num">Düşüyor</td><td>Sıra kaybediyorsun</td><td>Rakip kontrolü — acil</td></tr>
+        <tr><td class="num">Sabit</td><td class="num tag-bad">Düşüyor</td><td class="num">Sabit</td><td>SERP'e yeni blok girmiş<br>(AI özeti, alışveriş, video)</td><td>Sonuç sayfasını gözle incele</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="prose">
+    <h3>Sıralama ölçütü</h3>
+    <p>Hangi işe önce başlanacağına <strong>kayıp tıklama</strong> ile karar ver:</p>
+    <pre><code>kayıp = gösterim × (hedef CTR − mevcut CTR)
+
+mersin limon fiyatları
+  4.563 × (%4,04 − %0,79) = ~148 tıklama/ay  ← 1. sıra
+
+limon fiyatları
+  6.568 × (%4,04 − %2,09) = ~128 tıklama/ay  ← 2. sıra
+
+adana limon fiyatları
+  3.801 × (%4,04 − %0,68) = ~128 tıklama/ay  ← 3. sıra</code></pre>
+    <p>Hedef CTR olarak <em>kendi eğrindeki</em> aynı pozisyon grubunun ortalamasını al. Böylece “ulaşılabilir” bir hedefle çalışırsın, sektör efsanesiyle değil.</p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="vaka">
+  <h2><span class="num">07</span>Vaka: aynı ürün, dört yazılış, dört farklı sonuç</h2>
+
+  <div class="tablewrap">
+    <table>
+      <caption>Salçalık domates — tek ürün, tek sayfa</caption>
+      <thead>
+        <tr><th>Sorgu</th><th class="num">Gösterim</th><th class="num">CTR</th><th class="num">Pozisyon</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>salçalık domates <strong>fiyatları</strong></th><td class="num">1.447</td><td class="num tag-bad">%2,35</td><td class="num tag-bad">8,0</td></tr>
+        <tr><th>salçalık domates fiyatı <strong>2026</strong></th><td class="num">22</td><td class="num tag-good">%18,18</td><td class="num tag-good">2,3</td></tr>
+        <tr><th><strong>2026</strong> salçalık domates fiyatları</th><td class="num">136</td><td class="num tag-good">%9,56</td><td class="num tag-good">2,6</td></tr>
+        <tr><th>salcalik domates fiyati <strong>2026</strong></th><td class="num">293</td><td class="num tag-good">%8,53</td><td class="num tag-good">2,6</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="prose">
+    <p>Fark tek kelime: <strong>“2026”</strong>. Yıl geçen aramalarda 2–3. sıradasın ve %8–18 tıklanıyorsun; yıl geçmeyende 8. sıradasın ve %2,35.</p>
+    <p>Google seni <em>“güncel fiyat”</em> niyetinde güçlü, <em>“genel bilgi”</em> niyetinde zayıf görüyor. Bu doğru bir teşhis — günlük fiyat sitesisin. Ama 1.447 gösterimli “salçalık domates fiyatları” sorgusu, o niyeti de karşılayabilecekken 8. sırada duruyor.</p>
+    <p><strong>Genelleştirilebilir ders:</strong> aynı içeriğin farklı ifade biçimleri bambaşka performans gösterir. Tek bir sayfayı “o ürünün sayfası” sanma; hangi <em>ifadelerde</em> güçlü olduğuna bak. Zayıf ifadeler ya ayrı sayfa ister ya da mevcut sayfada o ifadeyi karşılayan bir bölüm.</p>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="tuzaklar">
+  <h2><span class="num">08</span>Sekiz tuzak</h2>
+
+  <div class="prose">
+    <h3>1 · Kendi ekranın kanıt değil</h3>
+    <p>Google'a girişlisin ve kendi siteni her gün ziyaret ediyorsun; Google sana onu yukarı çeker. <code>domates fiyatı</code> aramasında sayfa 2. sırada göründü ama GSC'deki ortalama pozisyon <strong>9,4</strong>. Kontrol için gizli sekme + çıkış yapmış hâl, ya da doğrudan GSC.</p>
+
+    <h3>2 · Pozisyon bir ortalamadır</h3>
+    <p>“9,4” demek bazen 3., bazen 15. çıktın demek. Tek bir ekran görüntüsü ortalamayı yalanlamaz.</p>
+
+    <h3>3 · Görsel sıra ≠ GSC sırası</h3>
+    <p>Sonuç sayfasında “Diğer sorular”, alışveriş kutusu, AI özeti gibi bloklar var. Gözünle 2. organik sonuç görünen şey GSC'de 8–10 olabilir.</p>
+
+    <h3>4 · GSC verisi 3 gün geriden gelir</h3>
+    <p>Son 2–3 günün verisi eksiktir. Karşılaştırma yaparken <strong>eşit uzunlukta ve tamamlanmış</strong> pencereler seç; “son 7 gün” ile “önceki 7 gün” kıyaslarken bugünü dışarıda bırak.</p>
+
+    <h3>5 · Prefetch'i ziyaret sanmak</h3>
+    <p>Bölüm 02'de anlatıldı. Log tabanlı “en popüler sayfalar” tablosu, prefetch ayıklanmadan yanlıştır.</p>
+
+    <h3>6 · GA4'ü mutlak sanmak</h3>
+    <p>Bu sitede gerçeğin %11,6'sını yakalıyor. GA4'ü <strong>oran</strong> için kullan (mobil payı, çıkış oranı trendi), <strong>sayı</strong> için değil.</p>
+
+    <h3>7 · Parametreli URL'ler kapsamı şişirir</h3>
+    <p>Sitemap 394 URL bildirirken GSC 439 farklı sayfada gösterim gördü. Fark <code>?city=…&amp;page=…</code> gibi parametreli adreslerin ayrı indekslenmesinden. Kapsam sayarken bunları ayır.</p>
+
+    <h3>8 · Favicon önbelleği aylarca bayat kalır</h3>
+    <p>Arama sonucundaki ikon yanlışsa önce siteyi test et (<code>/favicon.ico</code> 200 mü, 48px'in katı mı, robots engelli mi). Hepsi doğruysa sorun Google'ın önbelleğidir; tek hızlandırma yolu Search Console'dan <strong>ana sayfanın yeniden dizine eklenmesini istemek</strong>. Google ana sayfayı yeniden taradığında ikonu da tazeler.</p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="veri">
+  <h2><span class="num">09</span>Veriyi nasıl çekersin</h2>
+  <div class="prose">
+    <p class="lede">Arayüzden bakmak keşif için iyi; karar için API'den çek ve tabloyu kendin kur.</p>
+
+    <h3>Neden arayüz yetmez</h3>
+    <p>Search Console arayüzü sorgu × sayfa kırılımını sınırlı verir ve pozisyon gruplaması yapmaz. Yukarıdaki eğriyi arayüzden çıkaramazsın.</p>
+
+    <h3>Çağrı</h3>
+    <pre><code>POST https://searchconsole.googleapis.com/webmasters/v3/sites/{ENCODED_SITE}/searchAnalytics/query
+
+{
+  "startDate": "2026-08-15",
+  "endDate":   "2026-08-29",
+  "dimensions": ["query"],
+  "rowLimit": 1000
+}</code></pre>
+    <p><code>dimensions</code> için üç ayrı çağrı yap ve üçünü de sakla:</p>
+    <ul class="checks">
+      <li><code>["query"]</code> — hangi kelimeler; örüntü analizinin temeli</li>
+      <li><code>["page"]</code> — hangi sayfalar; iş listesini buradan çıkarırsın</li>
+      <li><code>["query","page"]</code> — hangi kelime hangi sayfaya düşüyor; yanlış eşleşmeleri yakalar</li>
+    </ul>
+
+    <h3>Pozisyon eğrisini kurma</h3>
+    <p>1.000 satırı çektikten sonra pozisyona göre grupla ve <strong>her grubun toplam tıklamasını toplam gösterimine böl</strong>. Satır bazında CTR ortalaması alma — düşük gösterimli satırlar sonucu bozar.</p>
+    <pre><code>grup = 1 | 2 | 3 | 4-5 | 6-10 | 11+
+CTR(grup) = Σ tıklama(grup) / Σ gösterim(grup)</code></pre>
+
+    <h3>Yetkilendirme</h3>
+    <p>Site zaten GSC'ye bağlıysa OAuth refresh token'ı vardır. haldefiyat'ta bu değerler <code>site_settings</code> tablosunda duruyor ve GA4 ile aynı token'ı paylaşıyor. Yeni bir sitede: Google Cloud'da proje → Search Console API'yi aç → OAuth istemcisi → <code>webmasters.readonly</code> kapsamı.</p>
+
+    <div class="callout">
+      <p><strong>Not:</strong> secret değerlerini ekrana basma; script içinde değişkene alıp doğrudan isteğe geçir. Çıktıda yalnızca toplu veri olsun.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section id="yeni-site">
+  <h2><span class="num">10</span>Yeni bir siteye uygularken</h2>
+  <div class="prose">
+    <p class="lede">Sıra önemli. Ölçmeden düzeltmeye başlarsan neyin işe yaradığını asla bilemezsin.</p>
+
+    <h3>Kurulum</h3>
+    <ul class="checks">
+      <li>Search Console'da <strong>domain property</strong> (URL prefix değil) — alt alan adları ve protokoller tek yerde toplanır</li>
+      <li>Sitemap gönderildi ve <code>robots.txt</code>'te bildirildi</li>
+      <li>API erişimi hazır (yukarıdaki OAuth)</li>
+      <li>Sunucu logu <strong>o siteye özel</strong> bir dosyaya yazıyor — paylaşılan <code>access.log</code>'tan site ayıklamak mümkün değil</li>
+    </ul>
+
+    <h3>İlk ölçüm (düzeltmeye başlamadan önce)</h3>
+    <ul class="checks">
+      <li>28 günlük sorgu ve sayfa verisini çek, sakla — bu senin <strong>referans noktan</strong></li>
+      <li>Kendi pozisyon–CTR eğrini kur</li>
+      <li>Sayaç katmanlarını ayır: toplam istek / prefetch / gerçek yükleme / GSC tıklama</li>
+      <li>Prefetch oranını ölç — %90 üstüyse eski trafik raporların geçersizdir</li>
+    </ul>
+
+    <h3>İlk iş turu</h3>
+    <ul class="checks">
+      <li><strong>Örüntü B</strong> ile başla: kayıp tıklama hesabına göre ilk 10 sorgu, başlık + açıklama</li>
+      <li>Değişiklikleri <strong>tek seferde</strong> yap ve tarihi not et</li>
+      <li>14 gün bekle, aynı pencereyi tekrar çek, CTR değişimini ölç</li>
+      <li>Sonra <strong>Örüntü A</strong>: en yüksek CTR'lı kalıbı bul, şablonu çoğalt</li>
+      <li><strong>Örüntü C</strong> en sona — en pahalı ve en yavaş iş</li>
+    </ul>
+
+    <h3>Sürekli izleme</h3>
+    <ul class="checks">
+      <li>Aylık: pozisyon 1–3 listesini karşılaştır — kaybedilen var mı</li>
+      <li>Aylık: yeni giren sorgular (geçen ay yoktu, bu ay gösterim aldı) — içerik fırsatı</li>
+      <li>Site yenilemesi sonrası: <strong>önce/sonra</strong> aynı pencere uzunluğuyla; URL değiştiyse 301 kontrolü</li>
+      <li>404 kuyruğunu tara: eski/silinmiş URL'ler 404 yerine <strong>301</strong> almalı — link değeri 404'te yanar</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="end">
+  <p>Örnek veriler haldefiyat.com'un Search Console ve sunucu kayıtlarından, 15–29 Ağustos ve 1 Eylül 2026. Yöntem site bağımsızdır; sayılar değil, <strong>okuma biçimi</strong> taşınır.</p>
+</footer>
+
+</div>
