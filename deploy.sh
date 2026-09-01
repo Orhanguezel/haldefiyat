@@ -181,6 +181,45 @@ if [ "$FRONTEND_HEALTH_OK" -ne 1 ]; then
   exit 1
 fi
 
+# ── Onbellek isitma ─────────────────────────────────────────────────────────
+# Her release YENI bir .next-release-<sha> dizini kullaniyor, yani Next'in fetch
+# onbellegi her dagitimda SIFIRDAN basliyor. Olcum (2026-09-01, dagitimdan hemen
+# sonra): /fiyatlar 3,3 sn ve /borsa 2,9 sn; isindiktan sonra ayni sayfalar
+# 0,15-0,30 sn. Yani her dagitimdan sonra ilk ziyaretciler 10x yavas sayfa
+# goruyor ve bu tam olarak CrUX'un p75 TTFB'sini besleyen kuyruk.
+#
+# Burada yalniz gezinti yuzeyleri isitiliyor; urun slug'lari sabit yazilmaz,
+# API'den arama hacmine gore alinir. Adim dagitimi ASLA dusurmez.
+echo "==> onbellek isitiliyor"
+warm_urls() {
+  local ua="$1"; shift
+  for u in "$@"; do
+    curl -s -o /dev/null --max-time 12 -H "Host: haldefiyat.com" -A "$ua" "http://127.0.0.1:3033$u" || true
+  done
+}
+UA_DESKTOP="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36"
+UA_MOBILE="Mozilla/5.0 (Linux; Android 13; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Mobile Safari/537.36"
+NAV_PATHS="/ /fiyatlar /borsa /ilanlar /analiz /hal /firmalar"
+TOP_PRODUCTS="$(curl -s --max-time 12 "http://127.0.0.1:8091/api/v1/prices/products?seoIndex=true" \
+  | python3 -c 'import json,sys
+try:
+    d = json.load(sys.stdin)
+except Exception:
+    raise SystemExit
+items = d.get("items", d) if isinstance(d, dict) else d
+items = [p for p in items if isinstance(p, dict) and p.get("slug")]
+items.sort(key=lambda p: p.get("searchVolume") or 0, reverse=True)
+print(" ".join("/urun/" + p["slug"] for p in items[:12]))' 2>/dev/null || true)"
+
+# Iki pm2 cluster worker var; her URL iki kez cagriliyor ki ikisi de isinsin.
+for _pass in 1 2; do
+  # shellcheck disable=SC2086
+  warm_urls "$UA_DESKTOP" $NAV_PATHS $TOP_PRODUCTS
+done
+warm_urls "$UA_MOBILE" "/"
+warm_urls "$UA_MOBILE" "/"
+echo "    isitildi: $(printf '%s' "$NAV_PATHS" | wc -w) gezinti + $(printf '%s' "$TOP_PRODUCTS" | wc -w) urun sayfasi"
+
 # ── Eski release dizinlerini temizle ────────────────────────────────────────
 # Calisan release + bir onceki (rollback icin) saklanir, gerisi silinir.
 # Bu adim yoktu; 2026-08-24'te 146 bayat dizin ~28GB yer tutup diski %90'a
