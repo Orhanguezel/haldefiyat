@@ -21,6 +21,23 @@ describe("product image resolution", () => {
     expect(new Set(images).size).toBe(tomatoSlugs.length);
   });
 
+  it("returns a dedicated image for every visible pepper family member", () => {
+    const pepperSlugs = [
+      "biber-carliston",
+      "biber-maras",
+      "biber-cin",
+      "biber-dolma",
+      "biber-kapya",
+      "biber-kil-sivri",
+      "biber-sivri",
+      "ucburun-koy-biberi",
+    ];
+
+    const images = pepperSlugs.map((slug) => getExactProductImage(slug));
+    expect(images.every(Boolean)).toBe(true);
+    expect(new Set(images).size).toBe(pepperSlugs.length);
+  });
+
   it("keeps exact-image checks separate from the family fallback", () => {
     expect(getExactProductImage("domates-eksik-varyant")).toBeNull();
     expect(getProductImage("domates-eksik-varyant")).toBe("/images/urunler/domates.jpg");
