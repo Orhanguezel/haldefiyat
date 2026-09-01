@@ -43,7 +43,17 @@ const nextConfig: NextConfig = {
     root: path.resolve(process.cwd(), "../../.."),
   },
   images: {
-    unoptimized: true,
+    // `unoptimized: true` ilk commit'ten beri duruyordu, gerekcesi yazili
+    // degil ve bu kurulumda gecerli degil: `output: "standalone"` ile Node
+    // sunucusu calisiyor ve sharp (0.33.5) monorepo'da kurulu. Kapali oldugu
+    // surece her urun fotografi HAM dosya olarak iniyordu — PSI mobil olcumu
+    // (2026-09-01) hero'daki 96px kavun gorseli icin 795x795 / 235 KB, tek
+    // basina 231 KB israf raporladi; footer logosu 137 KB. Acildiginda ayni
+    // gorseller ~5-10 KB webp'e dusuyor.
+    formats: ["image/webp"],
+    // AVIF daha kucuk ama kutu bellek olarak dar (bkz. deploy OOM gecmisi);
+    // webp kazancin buyuk kismini cok daha ucuza veriyor.
+    minimumCacheTTL: 2_592_000,
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "**.halfiyatlari.com" },
