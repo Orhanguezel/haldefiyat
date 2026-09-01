@@ -31,15 +31,24 @@ const MARKET_PRICE_RANGE = "3650d";
 // En güncel listede kaç ayrı ürün var + verinin gerçek tarihi — meta açıklamasında
 // canlı veri için. ETL T-1 yayınlayabilir, tarih recordedDate'ten alınır.
 // Hata/timeout durumunda boş döner; açıklama sessizce statik kalır.
-async function fetchLatestPriceSummary(slug: string): Promise<{ count: number; date: string }> {
+/**
+ * `samples` 2026-09-02'de eklendi: aciklama yalniz "Son listede 8 urun" diyordu.
+ * Az bir sayi, arayan icin zayif bir vaat — sayfada ne bulacagini soylemiyor.
+ * Somut urun adi + fiyat, tiklamadan once degeri gosterir.
+ */
+async function fetchLatestPriceSummary(slug: string): Promise<{ count: number; date: string; samples: string[] }> {
   try {
     const prices = await fetchPrices({ market: slug, range: "1d", limit: 500 });
-    if (prices.length === 0) return { count: 0, date: "" };
+    if (prices.length === 0) return { count: 0, date: "", samples: [] };
     const latestDate = prices.reduce((max, p) => (p.recordedDate > max ? p.recordedDate : max), "");
     const dayRows = prices.filter((p) => p.recordedDate === latestDate);
-    return { count: new Set(dayRows.map((p) => p.productSlug)).size, date: latestDate };
+    const samples = dayRows
+      .filter((row) => Number(row.avgPrice) > 0 && row.productName)
+      .slice(0, 3)
+      .map((row) => `${row.productName} ${Number(row.avgPrice).toLocaleString("tr-TR", { maximumFractionDigits: 2 })} TL/${row.unit || "kg"}`);
+    return { count: new Set(dayRows.map((p) => p.productSlug)).size, date: latestDate, samples };
   } catch {
-    return { count: 0, date: "" };
+    return { count: 0, date: "", samples: [] };
   }
 }
 
@@ -87,7 +96,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : "";
 
   const liveLine = summary.count > 0 && dateTr
-    ? `Son listede ${summary.count} ürün (${dateTr}). `
+    ? summary.samples.length
+      ? `${dateTr}: ${summary.samples.join(", ")} — toplam ${summary.count} ürün. `
+      : `Son listede ${summary.count} ürün (${dateTr}). `
     : "";
 
   const title = `${market.name} Fiyatları ${yearTr} — Güncel Toptan Liste`;

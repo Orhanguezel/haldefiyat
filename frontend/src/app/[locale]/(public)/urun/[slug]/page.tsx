@@ -160,24 +160,45 @@ async function fetchRetailPriceLine(slug: string, fallbackUnit: string): Promise
   }
 }
 
-async function fetchTodayPriceLine(slug: string, fallbackUnit: string): Promise<string> {
+/**
+ * SERP aciklamasi icin canli ozet.
+ *
+ * `cityLine` 2026-09-02'de eklendi: aciklama "sehir bazli karsilastirma" diye
+ * SOYUT bir vaat veriyordu. Somut sehir adi + hal sayisi hem sorgu eslesmesini
+ * artiriyor hem de tiklamadan once ne bulacagini soyluyor. Sehirler UYDURULMAZ,
+ * o gun gercekten veri olan hallerden gelir — olmayan sehri yazmak CTR'i
+ * yukseltip kullaniciyi bos sayfaya dusurur, uzun vadede sira kaybettirir.
+ */
+async function fetchTodayPriceSummary(slug: string, fallbackUnit: string): Promise<{ priceLine: string; cityLine: string }> {
   try {
     const prices = await fetchPrices({ product: slug, range: "1d", limit: 50 });
-    if (prices.length === 0) return fetchRetailPriceLine(slug, fallbackUnit);
+    if (prices.length === 0) return { priceLine: await fetchRetailPriceLine(slug, fallbackUnit), cityLine: "" };
     const latestDate = prices.reduce((max, p) => (p.recordedDate > max ? p.recordedDate : max), "");
     const dayRows = prices.filter((p) => p.recordedDate === latestDate);
+
+    // Ulusal ortalama bir sehir degil; sehir listesinden dislanir ama hal sayisina girer.
+    const cities = [...new Set(
+      dayRows
+        .map((row) => (row.cityName ?? "").trim())
+        .filter((city) => city && city.toLocaleLowerCase("tr-TR") !== "türkiye"),
+    )];
+    const marketCount = new Set(dayRows.map((row) => row.marketSlug).filter(Boolean)).size;
+    const cityLine = cities.length >= 2 && marketCount >= 2
+      ? `${cities.slice(0, 3).join(", ")} dahil ${marketCount} halden güncel veri. `
+      : "";
+
     const avgs = dayRows
       .map((p) => toNumberSafe(p.avgPrice))
       .filter((n) => Number.isFinite(n) && n > 0);
-    if (avgs.length === 0) return "";
+    if (avgs.length === 0) return { priceLine: "", cityLine };
     const avg = avgs.reduce((a, b) => a + b, 0) / avgs.length;
     const avgTr = avg.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const unit = dayRows.find((p) => p.unit)?.unit ?? fallbackUnit;
     const dateTr = formatDateTr(latestDate);
     const dateSuffix = dateTr ? ` (${dateTr})` : "";
-    return `Ortalama ${avgTr} TL/${unit}${dateSuffix}. `;
+    return { priceLine: `Ortalama ${avgTr} TL/${unit}${dateSuffix}. `, cityLine };
   } catch {
-    return "";
+    return { priceLine: "", cityLine: "" };
   }
 }
 
@@ -216,10 +237,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const displayName = getProductDisplayName(product);
   const borsaProduct = isBorsaProduct(product);
-  const [editorial, priceLine] = await Promise.all([
+  const [editorial, summary] = await Promise.all([
     getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug }),
-    fetchTodayPriceLine(slug, product.unit),
+    fetchTodayPriceSummary(slug, product.unit),
   ]);
+  const { priceLine, cityLine } = summary;
   // Index: seoIndex açık VE özgün içerik var (DB editoryel veya elle yazılmış statik).
   // Yalnızca kategori-şablon fallback (thin/duplicate) noindex kalır.
   const shouldIndex = isSeoIndexed(product) && editorial.source !== "template";
@@ -248,10 +270,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     title: borsaProduct
       ? `${displayName} Fiyatları ${year} — Güncel TMO Alım & Borsa Fiyatı`
-      : `${displayName} Hal Fiyatı ${year} — Toptan & Piyasa Fiyatları`,
+      : `${displayName} Fiyatları ${year} — Güncel Hal ve Toptan Fiyat`,
     description: borsaProduct
       ? `${displayName} için TMO resmi alım fiyatı ve ticaret borsası serbest piyasa fiyatları. ${priceLine}Kaynak, fiyat tipi ve tarih ayrı gösterilir.`
-      : `${displayName} güncel hal, toptan ve piyasa fiyatları. ${priceLine}Türkiye geneli günlük ortalama, 5 yıllık trend grafiği ve şehir bazlı karşılaştırma.`,
+      : `${displayName} güncel hal, toptan ve piyasa fiyatları. ${priceLine}${cityLine}Günlük ortalama, min–maks aralık ve 5 yıllık trend grafiği.`,
     robots: shouldIndex
       ? { index: true, follow: true }
       : { index: false, follow: true },
