@@ -456,7 +456,7 @@ export async function listPriceRows(params: {
       .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
       .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
       .where(and(...conds))
-      .orderBy(desc(hfPriceHistory.recordedDate), hfProducts.displayOrder)
+      .orderBy(desc(hfPriceHistory.recordedDate), desc(hfProducts.searchVolume), hfProducts.displayOrder, hfProducts.nameTr, hfPriceHistory.id)
       .limit(limit);
     return enrichPriceRows(rows);
   }
@@ -487,24 +487,38 @@ export async function listPriceRows(params: {
     .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))
     .innerJoin(hfMarkets, eq(hfMarkets.id, hfPriceHistory.marketId))
     .where(and(...conds))
-    .orderBy(desc(hfPriceHistory.recordedDate), hfProducts.displayOrder)
+    .orderBy(desc(hfPriceHistory.recordedDate), desc(hfProducts.searchVolume), hfProducts.displayOrder, hfProducts.nameTr, hfPriceHistory.id)
     .limit(limit);
   return enrichPriceRows(rows);
 }
 
 type PriceSortKey = "avg-desc" | "avg-asc" | "name-asc" | "date-desc";
 
+/**
+ * Esitlik bozucular tam siralama vermeli. Eskiden tarihten sonra tek kriter
+ * `display_order` idi; ama 1229 urunun 1229'unda deger 0 (yalniz 19 tahil/borsa
+ * urununde 101-109 kurasyonu var). Yani hem liste sirasi MySQL'in plan sirasina
+ * kaliyordu hem de LIMIT/OFFSET sayfalamasi satir tekrarlayabiliyordu.
+ * `search_volume` 1229 urunun tamamini kapsayan gercek talep sinyali; kurasyon
+ * onun icinde esitlik bozucu olarak korunur, `id` ile siralama tamamlanir.
+ */
 function priceOrder(sort?: PriceSortKey) {
   switch (sort) {
     case "avg-asc":
-      return [asc(hfPriceHistory.avgPrice), hfProducts.displayOrder, hfProducts.nameTr] as const;
+      return [asc(hfPriceHistory.avgPrice), hfProducts.displayOrder, hfProducts.nameTr, hfPriceHistory.id] as const;
     case "avg-desc":
-      return [desc(hfPriceHistory.avgPrice), hfProducts.displayOrder, hfProducts.nameTr] as const;
+      return [desc(hfPriceHistory.avgPrice), hfProducts.displayOrder, hfProducts.nameTr, hfPriceHistory.id] as const;
     case "name-asc":
-      return [hfProducts.nameTr, hfMarkets.name] as const;
+      return [hfProducts.nameTr, hfMarkets.name, hfPriceHistory.id] as const;
     case "date-desc":
     default:
-      return [desc(hfPriceHistory.recordedDate), hfProducts.displayOrder] as const;
+      return [
+        desc(hfPriceHistory.recordedDate),
+        desc(hfProducts.searchVolume),
+        hfProducts.displayOrder,
+        hfProducts.nameTr,
+        hfPriceHistory.id,
+      ] as const;
   }
 }
 
