@@ -227,12 +227,12 @@ export default function Footer({
             ) : null}
           </div>
           <a
-            href="https://guezelwebdesign.com"
+            href="https://gzlteknoloji.com/tr"
             target="_blank"
             rel="noopener noreferrer"
             className="text-(--color-muted) transition-colors hover:text-(--color-brand)"
           >
-            Tasarım Dizayn GWD
+            Site tasarımı GZLTeknoloji
           </a>
         </div>
       </div>

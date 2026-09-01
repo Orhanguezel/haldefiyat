@@ -521,13 +521,26 @@ export default async function UrunPage({ params }: Props) {
       {/* Baslik */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
+          {/* Sayfanin tek buyuk gorseli — LCP adayi oldugu icin priority. */}
           <ProductImage
             slug={slug}
             name={displayName}
             categorySlug={product.categorySlug}
             imageUrl={product.imageUrl}
             canonicalSlug={product.canonicalSlug}
-            size={80}
+            size={128}
+            priority
+            className="hidden sm:block"
+          />
+          <ProductImage
+            slug={slug}
+            name={displayName}
+            categorySlug={product.categorySlug}
+            imageUrl={product.imageUrl}
+            canonicalSlug={product.canonicalSlug}
+            size={72}
+            priority
+            className="sm:hidden"
           />
           <div>
             <h1 className="font-(family-name:--font-display) text-3xl font-bold text-(--color-foreground)">
@@ -646,22 +659,40 @@ export default async function UrunPage({ params }: Props) {
 
       {familyMembers.length > 1 && (
         <nav aria-label="Çeşit ailesi" className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-muted">Çeşitler:</span>
+          <span className="w-full text-sm font-medium text-muted sm:w-auto">Çeşitler:</span>
+          {/* Cesitler birbirine cok benzeyen adlardan olusuyor (salkim / pembe /
+              koktely domates). Fotograf, metin okumadan ayirt ettiriyor. */}
           {familyMembers.map((p) =>
             p.slug === slug ? (
               <span
                 key={p.slug}
                 aria-current="page"
-                className="rounded-full bg-brand/10 px-3 py-1 text-sm font-semibold text-brand"
+                className="flex items-center gap-2 rounded-full bg-brand/10 py-1 pl-1 pr-3 text-sm font-semibold text-brand"
               >
+                <ProductImage
+                  slug={p.slug}
+                  name={getProductDisplayName(p)}
+                  categorySlug={p.categorySlug}
+                  canonicalSlug={p.canonicalSlug}
+                  size={32}
+                  className="rounded-full"
+                />
                 {getProductDisplayName(p)}
               </span>
             ) : (
               <Link
                 key={p.slug}
                 href={productHref({ productSlug: p.slug, canonicalSlug: p.canonicalSlug })}
-                className="rounded-full border border-border-soft px-3 py-1 text-sm text-foreground transition-colors hover:border-brand/40 hover:text-brand"
+                className="flex items-center gap-2 rounded-full border border-border-soft py-1 pl-1 pr-3 text-sm text-foreground transition-colors hover:border-brand/40 hover:text-brand"
               >
+                <ProductImage
+                  slug={p.slug}
+                  name={getProductDisplayName(p)}
+                  categorySlug={p.categorySlug}
+                  canonicalSlug={p.canonicalSlug}
+                  size={32}
+                  className="rounded-full"
+                />
                 {getProductDisplayName(p)}
               </Link>
             ),

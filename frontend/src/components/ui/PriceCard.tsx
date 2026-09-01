@@ -65,14 +65,15 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
       />
       <div className="relative">
         <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             <ProductImage
               slug={row.productSlug}
               name={row.productName}
               categorySlug={row.categorySlug}
               imageUrl={row.imageUrl}
               canonicalSlug={row.canonicalProduct}
-              size={40}
+              size={64}
+              className="transition-transform duration-300 group-hover:scale-[1.04]"
             />
             <div className="min-w-0">
               <Link href={productHref(row)} className="block truncate text-[15px] font-bold text-(--color-foreground) hover:text-(--color-brand) transition-colors">

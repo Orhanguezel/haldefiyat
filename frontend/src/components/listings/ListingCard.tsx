@@ -1,5 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Listing } from "@/lib/api";
+import { getProductImage } from "@/lib/product-images";
 import { districtsOfProvinceSlug, provinceBySlug } from "@/data/turkey-cities";
 import { ContentCard } from "@/components/ui/ContentCard";
 
@@ -45,6 +47,11 @@ export function ListingCard({ item, compact = false }: { item: Listing; compact?
   const district = districtsOfProvinceSlug(item.citySlug).find((option) => option.value === item.districtSlug)?.label
     ?? fallbackLocationLabel(item.districtSlug);
   const verificationHelpId = `listing-verification-${item.id}`;
+  // Ilan sahibi foto yuklemediginde kart tamamen metindi. Urun gorsel kapsami
+  // %100 oldugu icin urunun kendi fotografi gosterilebiliyor — ama satilan mali
+  // degil urun turunu anlattigi icin "temsilî" etiketiyle, yaniltmadan.
+  const ownPhoto = item.images?.[0] ?? null;
+  const stockPhoto = ownPhoto ? null : (item.productSlug ? getProductImage(item.productSlug) : null);
 
   return (
     <ContentCard
@@ -78,18 +85,34 @@ export function ListingCard({ item, compact = false }: { item: Listing; compact?
         ) : null}
       </div>
 
-      {item.images?.[0] ? (
+      {ownPhoto ? (
         <Link
           href={`/ilan/${item.slug}`}
           className="mt-3 block overflow-hidden rounded-[6px] border border-(--color-border)"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={item.images[0]}
+            src={ownPhoto}
             alt={item.title}
             className="h-40 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
             loading="lazy"
           />
+        </Link>
+      ) : stockPhoto ? (
+        <Link
+          href={`/ilan/${item.slug}`}
+          className="relative mt-3 block h-40 overflow-hidden rounded-[6px] border border-(--color-border)"
+        >
+          <Image
+            src={stockPhoto}
+            alt={`${item.productName} temsilî ürün görseli`}
+            fill
+            sizes="(max-width: 768px) 100vw, 380px"
+            className="object-cover transition duration-300 group-hover:scale-[1.03]"
+          />
+          <span className="absolute bottom-1.5 right-1.5 rounded-[4px] bg-(--color-background)/85 px-1.5 py-0.5 text-[10px] font-semibold text-(--color-muted)">
+            Temsilî görsel
+          </span>
         </Link>
       ) : null}
 
