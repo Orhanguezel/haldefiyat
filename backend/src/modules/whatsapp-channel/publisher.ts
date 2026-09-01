@@ -1,6 +1,6 @@
 import { pool } from "@/db/client";
 import { env } from "@/core/env";
-import { trendingChanges } from "@/modules/prices/repository";
+import { overviewStats, trendingChanges } from "@/modules/prices/repository";
 import { buildDailyReportImageUrl } from "@/modules/telegram-channel/report-image";
 
 // WhatsApp KANALLARINA resmi API ile gonderim YOK (Meta, 2026 itibariyla kanal
@@ -89,6 +89,46 @@ export async function buildWhatsappDailyText(): Promise<string | null> {
   return lines.join("\n");
 }
 
+/**
+ * Gorsel gonderisinin altyazisi. Uzun metin (buildWhatsappDailyText) altyazi
+ * olarak kullanilamiyor: WhatsApp resim altyazisini birkac satir sonra
+ * "Devamini oku" arkasina katliyor ve en sondaki link katlanan kisimda kaliyor
+ * — yani link teknik olarak var ama kimse gormuyor. Bu yuzden altyazi kisa ve
+ * link IKINCI satirda: gorselin hemen altinda, tiklanabilir, katlanmadan.
+ * Zaten listenin tamami gorselin icinde; altyazida tekrar etmenin degeri yok.
+ */
+export async function buildWhatsappDailyCaption(): Promise<string | null> {
+  const trending = await trendingChanges(10);
+  if (!trending.length) return null;
+
+  const top = trending.filter((t) => t.changePct > 0)[0];
+  const bottom = trending.filter((t) => t.changePct < 0)[0];
+  const label = (item: typeof top) => {
+    const name = item?.product?.displayName || item?.product?.nameTr || "";
+    const city = item?.market?.cityName ?? "";
+    return name ? `*${name}* %${Math.abs(item!.changePct).toFixed(1)}${city ? ` · ${city}` : ""}` : "";
+  };
+
+  const lines: string[] = [
+    `📊 *HaldeFiyat — Günlük Fiyat Raporu* · ${fmtDate(new Date())}`,
+    `🌐 ${SITE_URL}/fiyatlar`,
+  ];
+  const up = top ? label(top) : "";
+  const down = bottom ? label(bottom) : "";
+  if (up || down) lines.push(``);
+  if (up) lines.push(`🔺 Günün en çok artanı: ${up}`);
+  if (down) lines.push(`🔻 Günün en çok düşeni: ${down}`);
+
+  const cities = await overviewStats().then((s) => s.activeCities).catch(() => 0);
+  lines.push(
+    ``,
+    cities > 0
+      ? `Görseldeki ürünlerin tamamı ve ${cities} ilin güncel hal fiyatları sitede.`
+      : `Görseldeki ürünlerin tamamı ve tüm illerin güncel hal fiyatları sitede.`,
+  );
+  return lines.join("\n");
+}
+
 async function sendTelegram(chatId: string, text: string, html: boolean): Promise<boolean> {
   const token = env.TELEGRAM_BOT_TOKEN;
   if (!token || !chatId) return false;
@@ -133,7 +173,7 @@ export async function publishWhatsappDraft(): Promise<{ sent: boolean; reason?: 
   const adminChat = env.TELEGRAM_ADMIN_CHAT_ID;
   if (!adminChat) return { sent: false, reason: "TELEGRAM_ADMIN_CHAT_ID eksik" };
 
-  const text = await buildWhatsappDailyText();
+  const [text, caption] = await Promise.all([buildWhatsappDailyText(), buildWhatsappDailyCaption()]);
   if (!text) return { sent: false, reason: "trending veri yok" };
 
   const trending = await trendingChanges(10);
@@ -145,14 +185,24 @@ export async function publishWhatsappDraft(): Promise<{ sent: boolean; reason?: 
   const channelUrl = await getWhatsappChannelUrl();
   const header =
     `📲 <b>WhatsApp kanalı için günlük gönderi hazır</b>\n` +
-    `Aşağıdaki mesajı uzun basıp kopyala → kanala yapıştır` +
+    (imageUrl
+      ? `1) Görseli kaydet → kanala ekle\n` +
+        `2) Görselin altındaki KISA metni uzun basıp kopyala → açıklama olarak yapıştır\n` +
+        `Link ikinci satırda: WhatsApp altyazıyı katlasa bile tıklanabilir kalır.\n` +
+        `Uzun liste ayrı mesajda — görselsiz paylaşmak istersen onu kullan.`
+      : `Aşağıdaki mesajı uzun basıp kopyala → kanala yapıştır`) +
     (channelUrl ? `\n➡️ <a href="${channelUrl}">Kanalı aç</a>` : "");
 
   const okHeader = await sendTelegram(adminChat, header, true);
-  let okPayload = imageUrl
-    ? await sendTelegramPhoto(adminChat, imageUrl, text)
-    : await sendTelegram(adminChat, text, false);
-  if (imageUrl && !okPayload) okPayload = await sendTelegram(adminChat, text, false);
+
+  // Gorsel gonderisi ASIL gonderi: altyazisi kisa, link katlanma cizgisinin
+  // ustunde. Uzun liste yalnizca metin-only alternatif olarak ardindan gider.
+  let okPayload = imageUrl && caption
+    ? await sendTelegramPhoto(adminChat, imageUrl, caption)
+    : false;
+  if (!okPayload) okPayload = await sendTelegram(adminChat, text, false);
+  else await sendTelegram(adminChat, text, false);
+
   return { sent: okHeader && okPayload };
 }
 

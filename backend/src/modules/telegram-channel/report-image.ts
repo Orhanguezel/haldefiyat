@@ -83,7 +83,13 @@ function imageFor(item: ReportItem, manifest: Manifest): string | null {
   return path ? absoluteUrl(path) : null;
 }
 
-/** Günlük rapor için gerçek ürün fotoğraflı dikey Telegram/WhatsApp kartı üretir. */
+/**
+ * Günlük rapor için gerçek ürün fotoğraflı dikey Telegram/WhatsApp kartı üretir.
+ *
+ * Alt bant (adres seridi) suslemek icin degil: gorsel WhatsApp'ta paylasildiginda
+ * ve oradan ileriye iletildiginde altyazi tasinmaz — link kaybolur. Adres
+ * gorselin kendisinde durursa gorsel nereye giderse gitsin siteyi soyler.
+ */
 export async function buildDailyReportImageUrl(
   items: ReportItem[],
   dateLabel: string,
@@ -145,8 +151,11 @@ export async function buildDailyReportImageUrl(
       <text x="1136" y="118" text-anchor="end" font-size="25" fill="#64748b">${escapeXml(dateLabel)}</text>
       <line x1="64" y1="172" x2="1136" y2="172" stroke="#dbe7df" stroke-width="2"/>
       ${rows.join("\n")}
-      <text x="64" y="1730" font-size="27" font-weight="900" fill="#16834b">haldefiyat.com</text>
-      <text x="1136" y="1730" text-anchor="end" font-size="21" fill="#94a3b8">Resmî hal verileri</text>
+      <rect x="52" y="1556" width="1096" height="136" rx="26" fill="#15803d"/>
+      <text x="600" y="1610" text-anchor="middle" font-size="26" font-weight="700" fill="#cfe9d9">Tüm hal fiyatları, şehir karşılaştırması ve grafikler</text>
+      <text x="600" y="1662" text-anchor="middle" font-size="42" font-weight="900" fill="#ffffff">haldefiyat.com/fiyatlar</text>
+      <text x="64" y="1738" font-size="25" font-weight="900" fill="#16834b">HaldeFiyat</text>
+      <text x="1136" y="1738" text-anchor="end" font-size="21" fill="#94a3b8">Resmî hal verileri · Günlük güncellenir</text>
     </svg>`;
 
     const png = await sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
