@@ -129,6 +129,29 @@ cd "$REPO_ROOT"
 pm2 reload "$REPO_ROOT/ecosystem.config.cjs" --only hal-backend --update-env \
   || pm2 start "$REPO_ROOT/ecosystem.config.cjs" --only hal-backend
 
+# Backend reload'undan sonra saglik kapisi YOKTU; script hemen frontend'e geciyordu.
+# Olculdu (1 Eylul 2026): backend fork modunda, reload = tam yeniden baslatma ve
+# acilis 7 sn (bos kutu) ile 21 sn (bellek baskisi altinda) arasinda degisiyor —
+# SIGINT ile dinlemeyi birakma anlik (0,4 sn), suren tamami modul yukleme.
+# O pencerede frontend'i reload etmek belgeli bir vakaya yol acmisti: 31 Agustos
+# 2026'da ~30 sn ECONNREFUSED sirasinda bir cluster worker'in fetch onbellegine
+# BOS urun listesi yazildi, o worker'a dusen /urun/* istekleri 404 uretip ISR'ye
+# kaydetti. Kapi, frontend'in olu backend'e acilmasini engeller.
+echo "    backend health bekleniyor"
+BACKEND_HEALTH_OK=0
+for _attempt in $(seq 1 45); do
+  if curl --fail --silent --max-time 3 http://127.0.0.1:8091/api/health >/dev/null 2>&1; then
+    BACKEND_HEALTH_OK=1
+    echo "    backend hazir ($_attempt sn)"
+    break
+  fi
+  sleep 1
+done
+if [ "$BACKEND_HEALTH_OK" -ne 1 ]; then
+  echo "HATA: backend reload sonrasi 45 sn icinde health kapisi gecmedi" >&2
+  exit 1
+fi
+
 _frontend_worker_health() {
   local ok=0
   for _health_attempt in 1 2 3 4 5; do
