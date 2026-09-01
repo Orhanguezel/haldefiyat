@@ -64,6 +64,13 @@ describe("product image resolution", () => {
     ["broad bean", ["bakla", "bakla-taze-sakiz"]],
     ["carrot", ["havuc", "havuc-beypazari", "havuc-kirmizi", "havuc-siyah"]],
     ["blueberry", ["yaban-mersini-kg", "yaban-mersini"]],
+    ["raspberry", ["ahududu", "ahududu-frambuaz"]],
+    ["pineapple", ["ananas", "ananas-normal"]],
+    ["cabbage", ["bruksel-lahana", "kirmizi-lahana", "lahana-beyaz", "lahana-beyaz-adet", "lahana-bruksel", "lahana-kara"]],
+    ["bean", ["fasulye", "fasulye-ayse-kadin", "fasulye-cali", "fasulye-sirik", "kuru-fasulye"]],
+    ["basil", ["feslegen", "feslegen-25-gr", "feslegen-reyhan"]],
+    ["celery", ["kereviz", "kereviz-sap"]],
+    ["radish", ["turp", "turp-beyaz", "turp-findik", "turp-kirmizi", "turp-otu", "turp-siyah"]],
   ])("returns unique dedicated images for the %s family", (_family, slugs) => {
     const images = slugs.map((slug) => getExactProductImage(slug));
     expect(images.every(Boolean)).toBe(true);
