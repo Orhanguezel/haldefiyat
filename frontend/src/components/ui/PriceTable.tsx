@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useDeferredValue } from "react";
+import ProductImage from "@/components/ui/ProductImage";
 import Link from "next/link";
 import { productHref } from "@/lib/product-links";
 import { sourceCompactLabel, sourceDisplayName } from "@/lib/source-display";
@@ -826,14 +827,27 @@ export default function PriceTable({
                       <td className="px-4 py-3.5">
                         <Link
                           href={productHref(row)}
-                          className="flex items-center gap-2 text-[14px] font-semibold text-(--color-foreground) hover:text-(--color-brand)"
+                          className="flex items-center gap-2.5 text-[14px] font-semibold text-(--color-foreground) hover:text-(--color-brand)"
                         >
+                          {/* Kucuk fotograf: ayni ad farkli hallerde tekrar
+                              ederken satirlari gozle taramayi hizlandiriyor.
+                              Kategori noktasi kaliyor — filtre cipleriyle ayni
+                              renk kodunu tasiyor, fotograf onun yerine gecmez. */}
+                          <ProductImage
+                            slug={row.productSlug}
+                            name={row.productName}
+                            categorySlug={row.categorySlug}
+                            imageUrl={row.imageUrl}
+                            canonicalSlug={row.canonicalProduct}
+                            size={28}
+                            className="rounded-lg"
+                          />
                           <span
                             aria-hidden
                             title={humanizeSlug(categoryKey)}
-                            className={`h-2 w-2 rounded-full ${dotClass}`}
+                            className={`h-1.5 w-1.5 shrink-0 rounded-full ${dotClass}`}
                           />
-                          {row.productName}
+                          <span className="truncate">{row.productName}</span>
                         </Link>
                       </td>
                     )}
@@ -987,7 +1001,18 @@ function MobilePriceCard({
   return (
     <article className="space-y-3 p-4">
       <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
+        {!hideProduct ? (
+          <ProductImage
+            slug={row.productSlug}
+            name={row.productName}
+            categorySlug={row.categorySlug}
+            imageUrl={row.imageUrl}
+            canonicalSlug={row.canonicalProduct}
+            size={40}
+            className="mt-0.5 rounded-lg"
+          />
+        ) : null}
+        <div className="min-w-0 flex-1">
           {!hideProduct ? (
             <Link href={productHref(row)} className="block truncate text-sm font-bold text-(--color-foreground) hover:text-(--color-brand)">
               {row.productName}
