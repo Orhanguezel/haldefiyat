@@ -5,6 +5,18 @@
 #   bash deploy.sh --seed    → yukarıdakiler + db:seed (DROP öncesi otomatik backup alır)
 set -euo pipefail
 
+# ── Tek dagitim kilidi ──────────────────────────────────────────────────────
+# Codex ve Claude ayni repoda paralel calisiyor; 2026-09-01'de iki dagitim
+# cakisti: once baslayan dagitimin "eski release dizinleri temizleniyor" adimi,
+# sonra baslayanin HALA YAZILMAKTA OLAN .next-release-<sha> dizinini sildi ve
+# build `ENOENT ... _buildManifest.js.tmp` ile dustu. Kilit, ikinci dagitimin
+# yarismasi yerine beklemesini saglar.
+exec 9>"/tmp/hal-deploy.lock"
+if ! flock -w 1200 9; then
+  echo "HATA: baska bir deploy 20 dakikadir devam ediyor, kilit alinamadi" >&2
+  exit 1
+fi
+
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 FRONTEND="$REPO_ROOT/frontend"
 BACKEND="$REPO_ROOT/backend"
