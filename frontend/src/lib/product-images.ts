@@ -1,6 +1,16 @@
 import PRODUCT_IMAGES from "../../public/images/urunler/manifest.json";
 
 /**
+ * Yalnizca urunun kendi slug'ina atanmis fotografi dondurur.
+ * Cesit secici gibi tekrarli yuzeylerde aile/canonical fallback kullanmak,
+ * farkli cesitlerde ayni fotografi gosterecegi icin uygun degildir.
+ */
+export function getExactProductImage(slug: string): string | null {
+  const images: Record<string, string> = PRODUCT_IMAGES;
+  return images[slug] ?? null;
+}
+
+/**
  * Ürün slug'ına göre fotoğraf yolunu döndürür.
  * Önce tam eşleşme, sonra varsa canonical ürün eşleşmesi denenir. Kalan eski
  * kayıtlar için prefix fallback geçici olarak korunur; manifest tamamlandığında
@@ -19,7 +29,8 @@ import PRODUCT_IMAGES from "../../public/images/urunler/manifest.json";
  */
 export function getProductImage(slug: string, canonicalSlug?: string | null): string | null {
   const images: Record<string, string> = PRODUCT_IMAGES;
-  if (images[slug]) return images[slug]!;
+  const exactImage = getExactProductImage(slug);
+  if (exactImage) return exactImage;
 
   if (canonicalSlug && images[canonicalSlug]) return images[canonicalSlug]!;
 

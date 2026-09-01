@@ -44,6 +44,7 @@ import ExportButton from "@/components/ui/ExportButton";
 import { DATA_LICENSE_URL, getPageMetadata } from "@/lib/seo";
 import { schemaDateRange } from "@/lib/schema-dates";
 import ProductImage from "@/components/ui/ProductImage";
+import { getExactProductImage } from "@/lib/product-images";
 import { getProductEditorial } from "@/lib/product-content";
 import AnswerBlock from "@/components/seo/AnswerBlock";
 import { calculateWindowTrend } from "@/lib/citability";
@@ -332,6 +333,11 @@ export default async function UrunPage({ params }: Props) {
         .filter((p) => p.familySlug === product.familySlug && !p.canonicalSlug)
         .sort((a, b) => getProductDisplayName(a).localeCompare(getProductDisplayName(b), "tr"))
     : [];
+  // Fotografli rozet ancak ailenin HER uyesinde kendi slug'ina atanmis bir
+  // gorsel varsa acilir. Boylece prefix/canonical fallback ayni aile fotografini
+  // birden fazla cesitte tekrar edemez. Admin gorseli de urune ozel kabul edilir.
+  const familyHasDedicatedImages = familyMembers.length > 1
+    && familyMembers.every((p) => Boolean(p.imageUrl || getExactProductImage(p.slug)));
 
   const [history, todayPrices, editorial, borsaPricePage, resmiPrices] = await Promise.all([
     // 5 yıl history — PriceChart kendi içinde 7G/30G/90G filtreler;
@@ -659,26 +665,48 @@ export default async function UrunPage({ params }: Props) {
 
       {familyMembers.length > 1 && (
         <nav aria-label="Çeşit ailesi" className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-muted">Çeşitler:</span>
-          {/* Rozetlere fotograf KOYMUYORUZ: cesitlerin cogu (20 domates cesidinin
-              16'si) manifest'te kendi fotografina sahip degil, aile fotografina
-              dusuyor. Ayni resmi 16 kez gostermek ayirt etmiyor, gurultu yapiyor.
-              Cesit fotograflari tamamlanirsa burasi fotografli hale getirilebilir. */}
+          <span className="w-full text-sm font-medium text-muted sm:w-auto">Çeşitler:</span>
           {familyMembers.map((p) =>
             p.slug === slug ? (
               <span
                 key={p.slug}
                 aria-current="page"
-                className="rounded-full bg-brand/10 px-3 py-1 text-sm font-semibold text-brand"
+                className={familyHasDedicatedImages
+                  ? "flex items-center gap-2 rounded-full bg-brand/10 py-1 pl-1 pr-3 text-sm font-semibold text-brand"
+                  : "rounded-full bg-brand/10 px-3 py-1 text-sm font-semibold text-brand"}
               >
+                {familyHasDedicatedImages ? (
+                  <ProductImage
+                    slug={p.slug}
+                    name={getProductDisplayName(p)}
+                    categorySlug={p.categorySlug}
+                    imageUrl={p.imageUrl}
+                    canonicalSlug={p.canonicalSlug}
+                    size={32}
+                    className="rounded-full"
+                  />
+                ) : null}
                 {getProductDisplayName(p)}
               </span>
             ) : (
               <Link
                 key={p.slug}
                 href={productHref({ productSlug: p.slug, canonicalSlug: p.canonicalSlug })}
-                className="rounded-full border border-border-soft px-3 py-1 text-sm text-foreground transition-colors hover:border-brand/40 hover:text-brand"
+                className={familyHasDedicatedImages
+                  ? "flex items-center gap-2 rounded-full border border-border-soft py-1 pl-1 pr-3 text-sm text-foreground transition-colors hover:border-brand/40 hover:text-brand"
+                  : "rounded-full border border-border-soft px-3 py-1 text-sm text-foreground transition-colors hover:border-brand/40 hover:text-brand"}
               >
+                {familyHasDedicatedImages ? (
+                  <ProductImage
+                    slug={p.slug}
+                    name={getProductDisplayName(p)}
+                    categorySlug={p.categorySlug}
+                    imageUrl={p.imageUrl}
+                    canonicalSlug={p.canonicalSlug}
+                    size={32}
+                    className="rounded-full"
+                  />
+                ) : null}
                 {getProductDisplayName(p)}
               </Link>
             ),
