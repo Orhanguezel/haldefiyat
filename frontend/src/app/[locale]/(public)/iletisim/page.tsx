@@ -54,6 +54,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
               defaultSubject={subject}
               contactEmail={settings.contact_email || "info@gzlteknoloji.com"}
               contactPhone={settings.contact_phone}
+              contactWhatsapp="+49 172 3846068"
               contactAddress={settings.contact_address}
               conversionEventName={isProInquiry ? "pro_upgrade" : undefined}
               conversionParams={isProInquiry ? { source_page: "pro", value: 99 } : undefined}

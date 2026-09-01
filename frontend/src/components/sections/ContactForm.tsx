@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
-import { Mail, MapPin, Phone, Send, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, MapPin, MessageCircle, Phone, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type ConversionEventName, trackConversion } from "@/lib/analytics";
 
@@ -13,6 +13,7 @@ interface ContactFormProps {
   defaultSubject?: string;
   contactEmail?: string;
   contactPhone?: string;
+  contactWhatsapp?: string;
   contactAddress?: string;
   conversionEventName?: Extract<ConversionEventName, "embed_inquiry" | "pro_upgrade">;
   conversionParams?: Record<string, string | number | boolean | null | undefined>;
@@ -22,6 +23,7 @@ export function ContactForm({
   defaultSubject = "",
   contactEmail = "info@gzlteknoloji.com",
   contactPhone,
+  contactWhatsapp,
   contactAddress,
   conversionEventName,
   conversionParams,
@@ -46,6 +48,14 @@ export function ContactForm({
           label: "Telefon",
           value: contactPhone,
           href: `tel:${contactPhone.replace(/[^\d+]/g, "")}`,
+        }]
+      : []),
+    ...(contactWhatsapp
+      ? [{
+          icon: MessageCircle,
+          label: "WhatsApp",
+          value: contactWhatsapp,
+          href: `https://wa.me/${contactWhatsapp.replace(/\D/g, "")}`,
         }]
       : []),
     ...(contactAddress
