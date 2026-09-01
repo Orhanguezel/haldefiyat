@@ -659,40 +659,26 @@ export default async function UrunPage({ params }: Props) {
 
       {familyMembers.length > 1 && (
         <nav aria-label="Çeşit ailesi" className="flex flex-wrap items-center gap-2">
-          <span className="w-full text-sm font-medium text-muted sm:w-auto">Çeşitler:</span>
-          {/* Cesitler birbirine cok benzeyen adlardan olusuyor (salkim / pembe /
-              koktely domates). Fotograf, metin okumadan ayirt ettiriyor. */}
+          <span className="text-sm font-medium text-muted">Çeşitler:</span>
+          {/* Rozetlere fotograf KOYMUYORUZ: cesitlerin cogu (20 domates cesidinin
+              16'si) manifest'te kendi fotografina sahip degil, aile fotografina
+              dusuyor. Ayni resmi 16 kez gostermek ayirt etmiyor, gurultu yapiyor.
+              Cesit fotograflari tamamlanirsa burasi fotografli hale getirilebilir. */}
           {familyMembers.map((p) =>
             p.slug === slug ? (
               <span
                 key={p.slug}
                 aria-current="page"
-                className="flex items-center gap-2 rounded-full bg-brand/10 py-1 pl-1 pr-3 text-sm font-semibold text-brand"
+                className="rounded-full bg-brand/10 px-3 py-1 text-sm font-semibold text-brand"
               >
-                <ProductImage
-                  slug={p.slug}
-                  name={getProductDisplayName(p)}
-                  categorySlug={p.categorySlug}
-                  canonicalSlug={p.canonicalSlug}
-                  size={32}
-                  className="rounded-full"
-                />
                 {getProductDisplayName(p)}
               </span>
             ) : (
               <Link
                 key={p.slug}
                 href={productHref({ productSlug: p.slug, canonicalSlug: p.canonicalSlug })}
-                className="flex items-center gap-2 rounded-full border border-border-soft py-1 pl-1 pr-3 text-sm text-foreground transition-colors hover:border-brand/40 hover:text-brand"
+                className="rounded-full border border-border-soft px-3 py-1 text-sm text-foreground transition-colors hover:border-brand/40 hover:text-brand"
               >
-                <ProductImage
-                  slug={p.slug}
-                  name={getProductDisplayName(p)}
-                  categorySlug={p.categorySlug}
-                  canonicalSlug={p.canonicalSlug}
-                  size={32}
-                  className="rounded-full"
-                />
                 {getProductDisplayName(p)}
               </Link>
             ),

@@ -64,8 +64,10 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
         }}
       />
       <div className="relative">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="mb-4 flex items-center justify-between gap-2">
+          {/* min-w-0 olmadan sol blok kucululmuyor, trend rozetini kartin
+              disina itiyordu (64px fotografla gorunur hale geldi). */}
+          <div className="flex min-w-0 items-center gap-3">
             <ProductImage
               slug={row.productSlug}
               name={row.productName}
@@ -90,7 +92,7 @@ export default function PriceCard({ row, changePct }: PriceCardProps) {
           </div>
           <span
             className={
-              "rounded-[5px] px-2 py-0.5 font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.05em] " +
+              "shrink-0 rounded-[5px] px-2 py-0.5 font-(family-name:--font-mono) text-[10px] font-semibold uppercase tracking-[0.05em] " +
               BADGE_CLASS[trend]
             }
           >
