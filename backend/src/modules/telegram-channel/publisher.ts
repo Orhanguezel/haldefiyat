@@ -9,9 +9,11 @@ function fmtPrice(n: number): string {
   return n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+/** TR yazimi: isaret + %% + ondalik virgul — "+%77,4". */
 function fmtPct(n: number): string {
-  const sign = n > 0 ? "+" : "";
-  return `${sign}${n.toFixed(1)}%`;
+  const sign = n > 0 ? "+" : n < 0 ? "-" : "";
+  const abs = Math.abs(n).toLocaleString("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  return `${sign}%${abs}`;
 }
 
 function fmtDate(d: Date): string {

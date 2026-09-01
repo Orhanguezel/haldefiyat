@@ -30,6 +30,11 @@ function fmtPrice(value: number): string {
   return value.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+/** Yuzde de fiyat gibi TR ondalik ayraciyla: gorselde "%54.5" degil "%54,5". */
+function fmtPctTr(value: number): string {
+  return Math.abs(value).toLocaleString("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+}
+
 function clip(value: string, max = 26): string {
   return value.length > max ? `${value.slice(0, max - 1)}…` : value;
 }
@@ -138,7 +143,7 @@ export async function buildDailyReportImageUrl(
         <text x="202" y="${y + 43}" font-size="30" font-weight="800" fill="#172033">${escapeXml(clip(name))}</text>
         <text x="202" y="${y + 82}" font-size="23" fill="#64748b">${escapeXml(city)}</text>
         <text x="1118" y="${y + 43}" text-anchor="end" font-size="31" font-weight="800" fill="#0f172a">₺${escapeXml(fmtPrice(item.latest))}</text>
-        <text x="1118" y="${y + 83}" text-anchor="end" font-size="25" font-weight="800" fill="${color}">${arrow} %${Math.abs(item.changePct).toFixed(1)}</text>
+        <text x="1118" y="${y + 83}" text-anchor="end" font-size="25" font-weight="800" fill="${color}">${arrow} %${fmtPctTr(item.changePct)}</text>
       `);
       y += rowHeight + rowGap;
     });
