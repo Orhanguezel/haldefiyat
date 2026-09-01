@@ -30,6 +30,9 @@ module.exports = {
       restart_delay: 3000,
       max_restarts: 10,
       min_uptime: "10s",
+      // pm2 varsayilani 1600 ms: SIGINT'ten 1,6 sn sonra SIGKILL. Devam eden
+      // istekler ortasindan kesiliyordu (bkz. index.ts kapanma kancasi).
+      kill_timeout: 10000,
     },
     {
       name: "hal-frontend",
@@ -60,6 +63,10 @@ module.exports = {
       restart_delay: 3000,
       max_restarts: 10,
       min_uptime: "10s",
+      // Rolling reload sirasinda eski worker'in acik HTTP/2 baglantilari
+      // 1,6 sn'de kesiliyordu; bir kopan baglanti o sayfanin tum alt
+      // kaynaklarini birden 500 yapiyor.
+      kill_timeout: 10000,
     },
   ],
 };
