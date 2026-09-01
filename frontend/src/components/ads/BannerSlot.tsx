@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { fetchBanners, type BannerContext, type PublicBanner } from "@/lib/banners";
 import { headers } from "next/headers";
 import { resolveImageUrl } from "@/lib/utils";
@@ -35,15 +36,32 @@ function inferredPageType(position: string) {
   return "global";
 }
 
-export default async function BannerSlot({
-  position,
-  className = "",
-  context = {},
-}: {
+type BannerSlotProps = {
   position: string;
   className?: string;
   context?: BannerContext;
-}) {
+};
+
+/**
+ * Banner cagrisi istek basina ONBELLEKLENEMEZ: hedefleme icin client IP ve UA
+ * ileri gonderiliyor. Suspense olmadan bu cagri sayfanin ILK BAYTINI bekletiyordu
+ * — layout'ta da kullanildigi icin sitedeki her sayfa iki backend gidis-donusu
+ * kadar gec basliyordu. Suspense ile kabuk hemen akiyor, reklam arkadan geliyor;
+ * reklamlar zaten katlamanin altinda.
+ */
+export default function BannerSlot(props: BannerSlotProps) {
+  return (
+    <Suspense fallback={null}>
+      <BannerSlotContent {...props} />
+    </Suspense>
+  );
+}
+
+async function BannerSlotContent({
+  position,
+  className = "",
+  context = {},
+}: BannerSlotProps) {
   const incoming = await headers();
   const forwarded = new Headers();
   const clientIp = incoming.get("x-forwarded-for");
