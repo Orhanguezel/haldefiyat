@@ -122,7 +122,12 @@ fi
 # ciftini servis ederken yeni worker hazir hale gelebilir.
 echo "==> [6/6] PM2 yayın geçişi"
 cd "$REPO_ROOT"
-pm2 reload hal-backend --update-env || pm2 start ecosystem.config.cjs --only hal-backend
+# Ecosystem DOSYASI ile reload: "pm2 reload hal-backend" kayitli tanimi tekrar
+# kullanir ve ecosystem.config.cjs'teki degisiklikleri (ornegin kill_timeout)
+# HIC okumaz — 1 Eylul 2026'da kill_timeout eklenmis ama uygulanmamisti.
+# Admin zaten bu bicimde reload ediliyordu; backend ve frontend de oyle olsun.
+pm2 reload "$REPO_ROOT/ecosystem.config.cjs" --only hal-backend --update-env \
+  || pm2 start "$REPO_ROOT/ecosystem.config.cjs" --only hal-backend
 
 _frontend_worker_health() {
   local ok=0
@@ -158,6 +163,11 @@ elif [ "${#FRONTEND_WORKER_IDS[@]}" -lt 2 ]; then
 else
   # PM2'ye iki ID'yi tek reload komutunda vermek kisa soguk pencere yaratti.
   # Her worker'i ayri yenile ve digerine gecmeden once ortak portu dogrula.
+  #
+  # DIKKAT: ID ile reload ecosystem.config.cjs'i OKUMAZ. hal-frontend icin
+  # ecosystem ayari degistirildiginde (kill_timeout, env, instances...) bir kez
+  #   pm2 reload "$REPO_ROOT/ecosystem.config.cjs" --only hal-frontend --update-env && pm2 save
+  # calistirilmalidir; PM2 bunu kendi rolling reload'uyla yapar.
   for worker_id in "${FRONTEND_WORKER_IDS[@]}"; do
     pm2 reload "$worker_id" --update-env
     _frontend_worker_health
