@@ -71,6 +71,20 @@ describe("product image resolution", () => {
     ["basil", ["feslegen", "feslegen-25-gr", "feslegen-reyhan"]],
     ["celery", ["kereviz", "kereviz-sap"]],
     ["radish", ["turp", "turp-beyaz", "turp-findik", "turp-kirmizi", "turp-otu", "turp-siyah"]],
+    ["trout", ["alabalik", "alabalik-donuk"]],
+    ["grape leaf", ["asma-yapragi", "yaprak", "yaprak-salamura"]],
+    ["whiting", ["ciplak-mezgit", "mezgit", "mezgit-donuk"]],
+    ["meagre", ["granyoz", "granyoz-kultur"]],
+    ["horse mackerel", ["istavrit", "istavrit-donuk"]],
+    ["mackerel", ["ithal-uskumru", "ithal-uskumru-donuk", "uskumru", "uskumru-donuk"]],
+    ["shrimp", ["karides", "karides-donuk"]],
+    ["mullet", ["kefal", "kefal-donuk"]],
+    ["swordfish", ["kilic", "kilic-donuk"]],
+    ["chub mackerel", ["kolyoz", "kolyoz-donuk"]],
+    ["bogue", ["kupez", "kupez-donuk"]],
+    ["chard", ["pazi", "pazi-kg"]],
+    ["red mullet", ["tekir", "tekir-donuk"]],
+    ["shad", ["tirsi", "tirsi-donuk"]],
   ])("returns unique dedicated images for the %s family", (_family, slugs) => {
     const images = slugs.map((slug) => getExactProductImage(slug));
     expect(images.every(Boolean)).toBe(true);
