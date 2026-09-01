@@ -35,29 +35,37 @@ export default async function MobileHomeHero({
 
   return (
     <div>
-      <section className="px-4 pb-5 pt-7">
+      <section className="px-4 pb-5 pt-4">
         <div className="rounded-lg border border-(--color-border) bg-(--color-surface) p-4">
-          <div className="font-(family-name:--font-mono) text-[10px] font-bold uppercase tracking-[0.12em] text-(--color-brand)">
-            {freshness === "fresh" ? "Güncel" : freshness === "stale" ? "Gecikmeli" : "Tarihli"} veri akışı
-          </div>
-          <h1 className="mt-3 text-[32px] font-black leading-[1.05] text-(--color-foreground)">
-            {t("title")} — {t("subtitle")}
+          {/* Baslik + alt baslik tek H1 iken 390px genislikte 32px'te UC satir
+              doluyordu; alt baslik paragrafa indi. Ayni kelimeler sayfada
+              duruyor, uc satir ikiye dustu. */}
+          <h1 className="text-[28px] font-black leading-[1.1] text-(--color-foreground)">
+            {t("title")}
           </h1>
-          <p className="mt-3 text-[14px] leading-6 text-(--color-muted)">
-            Güncel sebze-meyve fiyatlarını şehir, ürün ve değişim yüzdesiyle hızlıca takip edin.
+          <p className="mt-2 text-[13px] leading-5 text-(--color-muted)">
+            {t("subtitle")} — şehir, ürün ve değişim yüzdesiyle.
           </p>
-          <div className="mt-4 grid grid-cols-3 gap-2">
-            <Kpi value={products || "—"} label="Ürün" />
-            <Kpi value={activeMarkets || markets.length || "—"} label="Aktif hal" />
-            <Kpi value={freshness === "fresh" ? "Güncel" : freshness === "stale" ? "Gecikmeli" : "Bilinmiyor"} label="Veri" />
-          </div>
-          <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <div className="mt-3">
             <HeroSearchButton compact />
-            <Link href="/uyarilar" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-(--color-border) px-4 text-[13px] font-black text-(--color-foreground)">
-              Alarm Kur
-            </Link>
           </div>
+          {/* Gercek bir fiyat, sayfanin en degerli icerigi: eskiden KPI kutulari
+              ve iki butonun altinda, katlama cizgisinin ALTINDA kaliyordu —
+              mobil ziyaretcinin cogu hic gormeden ayriliyordu. */}
           {featuredPrice ? <FeaturedHomePrice row={featuredPrice} freshness={freshness} /> : null}
+          {/* Uc KPI kutusu ~74px yer kapliyordu; ayni uc sayi tek seritte. */}
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-(--color-border) bg-(--color-background) px-3 py-2 font-(family-name:--font-mono) text-[11px] font-bold text-(--color-muted)">
+            <span><span className="text-(--color-foreground)">{products || "—"}</span> ürün</span>
+            <span aria-hidden>·</span>
+            <span><span className="text-(--color-foreground)">{activeMarkets || markets.length || "—"}</span> aktif hal</span>
+            <span aria-hidden>·</span>
+            <span className="text-(--color-brand)">
+              {freshness === "fresh" ? "Güncel veri" : freshness === "stale" ? "Gecikmeli veri" : "Tarihli veri"}
+            </span>
+          </div>
+          <Link href="/uyarilar" className="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-(--color-border) px-4 text-[13px] font-black text-(--color-foreground)">
+            Alarm Kur
+          </Link>
         </div>
       </section>
 
@@ -68,15 +76,6 @@ export default async function MobileHomeHero({
       <MobileMarketsMap locale={locale} markets={markets} />
 
       <MobileHomeNewsletterCta />
-    </div>
-  );
-}
-
-function Kpi({ value, label }: { value: number | string; label: string }) {
-  return (
-    <div className="rounded-lg border border-(--color-border) bg-(--color-background) p-3">
-      <div className="text-[20px] font-black text-(--color-foreground)">{value}</div>
-      <div className="mt-1 text-[10px] font-bold uppercase text-(--color-muted)">{label}</div>
     </div>
   );
 }

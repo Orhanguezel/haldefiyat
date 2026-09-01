@@ -45,6 +45,7 @@ export default function FeaturedHomePrice({
         categorySlug={row.categorySlug}
         canonicalSlug={row.canonicalProduct}
         size={96}
+        priority
         className="transition-transform duration-300 group-hover:scale-[1.03]"
       />
       <div className="min-w-0">
