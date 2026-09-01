@@ -26,7 +26,7 @@ export default function FeaturedHomePrice({
       : "text-(--color-brand)";
   const changeLabel = change == null
     ? null
-    : `${change > 0 ? "▲" : change < 0 ? "▼" : "▬"} %${formatPrice(Math.abs(change))} haftalık`;
+    : `${change > 0 ? "▲" : change < 0 ? "▼" : "▬"} %${Math.abs(change).toLocaleString("tr-TR", { maximumFractionDigits: 1 })} haftalık`;
   const scope = row.cityCount > 1 ? `${row.marketCount} hal · ${row.cityCount} il` : `${row.marketCount} hal`;
 
   return (
