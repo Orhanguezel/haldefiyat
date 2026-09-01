@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { PriceRow } from "@/lib/api";
+import type { FeaturedPrice } from "@/lib/api";
 import FeaturedHomePrice from "./FeaturedHomePrice";
 import HeroSearchButton from "./HeroSearchButton";
 
@@ -26,7 +26,7 @@ export default function HeroSectionClient({
   freshness?: "fresh" | "stale" | "unknown";
   title: string;
   subtitle: string;
-  featuredPrice?: PriceRow;
+  featuredPrice?: FeaturedPrice;
 }) {
   const coverageLabel = activeCities && activeCities > 0
     ? `${activeCities.toLocaleString("tr-TR")} Aktif İl`

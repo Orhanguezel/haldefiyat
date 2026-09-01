@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import HeroSectionClient from "./HeroSectionClient";
-import type { PriceRow } from "@/lib/api";
+import type { FeaturedPrice } from "@/lib/api";
 
 /**
  * Hero — server wrapper.
@@ -17,7 +17,7 @@ export default async function HeroSection({
   activeCities?: number;
   targetCoverage?: string;
   freshness?: "fresh" | "stale" | "unknown";
-  featuredPrice?: PriceRow;
+  featuredPrice?: FeaturedPrice;
 }) {
   const t = await getTranslations("home.hero");
 

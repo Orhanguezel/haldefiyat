@@ -1,4 +1,4 @@
-import { fetchListings, fetchMarkets, fetchPrices, fetchPricesOverview, fetchProducts, fetchWidget } from "@/lib/api";
+import { fetchFeaturedPrice, fetchListings, fetchMarkets, fetchPricesOverview, fetchProducts, fetchWidget } from "@/lib/api";
 import { fetchSiteSettings } from "@/lib/site-settings";
 import { DATA_LICENSE_URL, getPageMetadata, ORG_REF } from "@/lib/seo";
 import { schemaDateRange } from "@/lib/schema-dates";
@@ -40,14 +40,14 @@ export function getHomeMetadata(locale: string) {
 }
 
 export async function loadHomePageData(locale: string) {
-  const [widget, markets, products, listings, overview, siteSettings, featuredPrices] = await Promise.all([
+  const [widget, markets, products, listings, overview, siteSettings, featuredPrice] = await Promise.all([
     fetchWidget({ limit: 30 }),
     fetchMarkets(),
     fetchProducts(undefined, undefined, { seoIndex: true }),
     fetchListings({ limit: 3 }),
     fetchPricesOverview(),
     fetchSiteSettings(locale),
-    fetchPrices({ range: "1d", limit: 1 }),
+    fetchFeaturedPrice(),
   ]);
   const cityCount = overview.activeCities || new Set(
     markets
@@ -77,7 +77,7 @@ export async function loadHomePageData(locale: string) {
     listings,
     overview,
     siteSettings,
-    featuredPrice: featuredPrices[0],
+    featuredPrice: featuredPrice ?? undefined,
     cityCount,
     latestMarketUpdate,
     trackedProducts: overview.trackedProducts || products.length,

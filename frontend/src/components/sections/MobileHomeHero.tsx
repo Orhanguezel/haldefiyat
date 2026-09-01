@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import type { Market, PriceRow, WidgetPrice } from "@/lib/api";
+import type { FeaturedPrice, Market, WidgetPrice } from "@/lib/api";
 import PopularProductsCarousel from "@/components/sections/PopularProductsCarousel";
 import CityChipsRow from "@/components/sections/CityChipsRow";
 import TopMoversCard from "@/components/sections/TopMoversCard";
@@ -29,7 +29,7 @@ export default async function MobileHomeHero({
   widget: WidgetPrice[];
   activeMarkets?: number;
   freshness?: "fresh" | "stale" | "unknown";
-  featuredPrice?: PriceRow;
+  featuredPrice?: FeaturedPrice;
 }) {
   const t = await getTranslations({ locale, namespace: "home.hero" });
 

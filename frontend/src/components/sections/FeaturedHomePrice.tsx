@@ -1,13 +1,11 @@
 import Link from "next/link";
-import type { PriceRow } from "@/lib/api";
+import type { FeaturedPrice } from "@/lib/api";
 import { formatDateTr } from "@/lib/date-format";
 import { productHref } from "@/lib/product-links";
-import { sourceDisplayName } from "@/lib/source-display";
 
-function formatPrice(value: string | number | null | undefined): string {
-  const number = Number(value);
-  return Number.isFinite(number)
-    ? number.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+function formatPrice(value: number | null | undefined): string {
+  return Number.isFinite(Number(value))
+    ? Number(value).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     : "—";
 }
 
@@ -15,25 +13,35 @@ export default function FeaturedHomePrice({
   row,
   freshness = "unknown",
 }: {
-  row: PriceRow;
+  row: FeaturedPrice;
   freshness?: "fresh" | "stale" | "unknown";
 }) {
   const date = formatDateTr(row.recordedDate, { day: "numeric", month: "short", year: "numeric" }) ?? "Tarih bilinmiyor";
   const freshnessLabel = freshness === "fresh" ? "Güncel" : freshness === "stale" ? "Gecikmeli" : "Tarihli";
+  const change = row.changePct;
+  const changeTone = change == null || Math.abs(change) < 0.5
+    ? "text-(--color-muted)"
+    : change > 0
+      ? "text-(--color-danger)"
+      : "text-(--color-brand)";
+  const changeLabel = change == null
+    ? null
+    : `${change > 0 ? "▲" : change < 0 ? "▼" : "▬"} %${formatPrice(Math.abs(change))} haftalık`;
+  const scope = row.cityCount > 1 ? `${row.marketCount} hal · ${row.cityCount} il` : `${row.marketCount} hal`;
 
   return (
     <Link
       href={productHref(row)}
       className="group mt-4 grid gap-3 rounded-xl border border-(--color-border) bg-(--color-background) p-4 text-left shadow-(--shadow-card) sm:grid-cols-[1fr_auto] sm:items-center"
-      aria-label={`${row.productName} son fiyat kaydını incele`}
+      aria-label={`${row.productName} Türkiye hal fiyatı ortalamasını incele`}
     >
       <div className="min-w-0">
         <div className="font-(family-name:--font-mono) text-[10px] font-bold uppercase tracking-[0.12em] text-(--color-brand)">
-          Öne çıkan son fiyat · {freshnessLabel}
+          Günün öne çıkan fiyatı · {freshnessLabel}
         </div>
         <div className="mt-1 truncate text-base font-black text-(--color-foreground)">{row.productName}</div>
         <div className="mt-1 text-xs leading-5 text-(--color-muted)">
-          <time dateTime={row.recordedDate}>{date}</time> · {sourceDisplayName(row.sourceName, row.sourceApi)} · 1 doğrulanabilir kaynak
+          <time dateTime={row.recordedDate}>{date}</time> · {scope} ortalaması · ₺{formatPrice(row.minPrice)} – ₺{formatPrice(row.maxPrice)} aralığı
         </div>
       </div>
       <div className="shrink-0 sm:text-right">
@@ -41,6 +49,9 @@ export default function FeaturedHomePrice({
           ₺{formatPrice(row.avgPrice)}
         </div>
         <div className="text-xs font-semibold text-(--color-muted)">/{row.unit}</div>
+        {changeLabel ? (
+          <div className={`font-(family-name:--font-mono) text-[11px] font-bold ${changeTone}`}>{changeLabel}</div>
+        ) : null}
       </div>
     </Link>
   );

@@ -498,6 +498,49 @@ export async function fetchPrices(
   return result.items;
 }
 
+/**
+ * Ana sayfa hero karti. Eski secim `/prices?range=1d&limit=1` idi ve sirasiz
+ * doner (display_order her urunde 0) — kart rastgele bir egzotik urune
+ * dusuyordu. Backend artik cok halde dogrulanan urun havuzundan gunluk secer.
+ */
+export interface FeaturedPrice {
+  productSlug: string;
+  canonicalProduct: string;
+  productName: string;
+  categorySlug: string;
+  unit: string;
+  currency: string;
+  avgPrice: number;
+  minPrice: number;
+  maxPrice: number;
+  recordedDate: string;
+  marketCount: number;
+  cityCount: number;
+  changePct: number | null;
+  pinned: boolean;
+}
+
+export async function fetchFeaturedPrice(): Promise<FeaturedPrice | null> {
+  const path = "/prices/featured";
+  try {
+    const res = await fetch(`${API}${path}`, {
+      next: { revalidate: 300 },
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) {
+      console.error(`[api] ${path} → ${res.status} ${res.statusText}`);
+      return null;
+    }
+    const json = (await res.json()) as ItemEnvelope<FeaturedPrice>;
+    return json.item ?? null;
+  } catch (err) {
+    console.error(`[api] ${path} → fetch error`, err);
+    return null;
+  }
+}
+
 export async function fetchProducts(
   q?: string,
   category?: string,

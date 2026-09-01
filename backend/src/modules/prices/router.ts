@@ -26,6 +26,7 @@ import { weeklyPriceSummary } from "./weekly";
 import { toCsvPayload, csvFilename } from "./csv";
 import { exportQuotaGuard } from "./export-guard";
 import { pricesAnonQuotaGuard } from "./anon-quota-guard";
+import { featuredPrice } from "./featured";
 
 const boolish = z.preprocess((v) => {
   if (typeof v === "boolean") return v;
@@ -303,6 +304,18 @@ export async function registerPrices(app: FastifyInstance) {
 
     const items = await widgetPrices(slugs, category, limit);
     return reply.send({ items, meta: { limit, category: category ?? null, slugs: slugs ?? null } });
+  });
+
+  /**
+   * GET /api/v1/prices/featured
+   * Ana sayfa hero karti. Cok halde dogrulanan, aramasi olan urunler havuzundan
+   * gunluk rotasyon; `home_featured_product` site ayari varsa o urun pinlenir.
+   */
+  app.get("/prices/featured", async (_req, reply) => {
+    setPublicWidgetHeaders(reply);
+    const item = await featuredPrice();
+    if (!item) return reply.status(404).send({ error: "One cikarilacak fiyat bulunamadi" });
+    return reply.send({ item });
   });
 
   /** GET /api/v1/prices/overview — topbar gerçek özeti (izlenen ürün + son veri tarihi) */
