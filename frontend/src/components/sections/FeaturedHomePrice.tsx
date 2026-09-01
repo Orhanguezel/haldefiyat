@@ -50,7 +50,7 @@ export default function FeaturedHomePrice({
       />
       <div className="min-w-0">
         <div className="font-(family-name:--font-mono) text-[10px] font-bold uppercase tracking-[0.12em] text-(--color-brand)">
-          Günün öne çıkan fiyatı · {freshnessLabel}
+          Günün fiyatı · {freshnessLabel}
         </div>
         <div className="mt-1 truncate text-lg font-black text-(--color-foreground)">{row.productName}</div>
         <div className="mt-1 text-xs leading-5 text-(--color-muted)">
@@ -58,8 +58,10 @@ export default function FeaturedHomePrice({
           <span className="hidden sm:inline"> · ₺{formatPrice(row.minPrice)} – ₺{formatPrice(row.maxPrice)} aralığı</span>
         </div>
       </div>
-      <div className="col-span-2 shrink-0 border-t border-(--color-border) pt-3 sm:col-span-1 sm:border-0 sm:pt-0 sm:text-right">
-        <div className="font-(family-name:--font-mono) text-3xl font-black tracking-tight text-(--color-foreground)">
+      {/* Mobilde fiyat/birim/degisim ust uste ~90px yer kapliyordu; tek satira
+          alinca kart katlama cizgisinin ustunde rahat sigiyor. */}
+      <div className="col-span-2 flex shrink-0 flex-wrap items-baseline gap-x-2 border-t border-(--color-border) pt-2 sm:col-span-1 sm:block sm:border-0 sm:pt-0 sm:text-right">
+        <div className="font-(family-name:--font-mono) text-[28px] font-black tracking-tight text-(--color-foreground) sm:text-3xl">
           ₺{formatPrice(row.avgPrice)}
         </div>
         <div className="text-xs font-semibold text-(--color-muted)">/{row.unit}</div>
