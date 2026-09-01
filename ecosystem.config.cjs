@@ -33,6 +33,12 @@ module.exports = {
       // pm2 varsayilani 1600 ms: SIGINT'ten 1,6 sn sonra SIGKILL. Devam eden
       // istekler ortasindan kesiliyordu (bkz. index.ts kapanma kancasi).
       kill_timeout: 10000,
+      // Kacak buyume sigortasi. 2026-09-01: agrodukkan-frontend'in hicbir
+      // ustsiniri yoktu ve 12 gunde 160 MB yerine 2,3 GB'a cikip kutunun
+      // bos RAM'ini bitirdi — hal-backend'in acilisi 7 sn'den 21 sn'ye
+      // uzadi, admin build'i segfault etti. Esik normalin (~520 MB) uzerinde:
+      // gunluk ETL'in mesru sicramasini kesmesin, kacagi kessin.
+      max_memory_restart: "900M",
     },
     {
       name: "hal-frontend",
@@ -67,6 +73,9 @@ module.exports = {
       // 1,6 sn'de kesiliyordu; bir kopan baglanti o sayfanin tum alt
       // kaynaklarini birden 500 yapiyor.
       kill_timeout: 10000,
+      // Worker basina kacak buyume sigortasi (normal ~340 MB). PM2 cluster'da
+      // tek worker yeniden baslatilir, digeri servis vermeye devam eder.
+      max_memory_restart: "700M",
     },
   ],
 };
