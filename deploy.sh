@@ -200,16 +200,25 @@ warm_urls() {
 UA_DESKTOP="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36"
 UA_MOBILE="Mozilla/5.0 (Linux; Android 13; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Mobile Safari/537.36"
 NAV_PATHS="/ /fiyatlar /borsa /ilanlar /analiz /hal /firmalar"
-TOP_PRODUCTS="$(curl -s --max-time 12 "http://127.0.0.1:8091/api/v1/prices/products?seoIndex=true" \
-  | python3 -c 'import json,sys
-try:
-    d = json.load(sys.stdin)
-except Exception:
-    raise SystemExit
+# Backend reload'dan hemen sonra calisiyor; ilk deneme bos donebiliyor
+# (2026-09-01'de "0 urun sayfasi" ciktisi bu yuzdendi). Hatalar bastirilmaz —
+# sessiz kalirsa adim calisiyor gorunup hicbir sey isitmez.
+top_products() {
+  curl -s --max-time 12 "http://127.0.0.1:8091/api/v1/prices/products?seoIndex=true" \
+    | python3 -c 'import json,sys
+d = json.load(sys.stdin)
 items = d.get("items", d) if isinstance(d, dict) else d
 items = [p for p in items if isinstance(p, dict) and p.get("slug")]
 items.sort(key=lambda p: p.get("searchVolume") or 0, reverse=True)
-print(" ".join("/urun/" + p["slug"] for p in items[:12]))' 2>/dev/null || true)"
+print(" ".join("/urun/" + p["slug"] for p in items[:12]))'
+}
+TOP_PRODUCTS=""
+for _try in 1 2 3; do
+  TOP_PRODUCTS="$(top_products || true)"
+  [ -n "$TOP_PRODUCTS" ] && break
+  echo "    urun listesi bos, backend isiniyor olabilir — tekrar deneniyor ($_try/3)"
+  sleep 3
+done
 
 # Iki pm2 cluster worker var; her URL iki kez cagriliyor ki ikisi de isinsin.
 for _pass in 1 2; do
