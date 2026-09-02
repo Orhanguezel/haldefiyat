@@ -14,7 +14,7 @@ import { registerAnalysis, registerAnalysisAdmin } from "@/modules/analysis";
 import { registerInflationPublic, registerInflationAdmin } from "@/modules/inflation";
 import { registerPressPrAdmin } from "@/modules/press-pr";
 import { registerApiKeysPublic, registerApiKeysAdmin } from "@/modules/api-keys";
-import { registerBillingPublic } from "@/modules/billing";
+import { registerBillingPublic, registerBillingAdmin } from "@/modules/billing";
 import { registerFeeds } from "@/modules/feeds";
 import { registerAnnualReport } from "@/modules/annual-report";
 import { registerAnalyticsAdmin } from "@/modules/analytics";
@@ -83,6 +83,7 @@ export async function registerProjectAdmin(adminApi: FastifyInstance) {
   await registerTelegramBotAdmin(adminApi);
   await registerInflationAdmin(adminApi);
   await registerApiKeysAdmin(adminApi);
+  await registerBillingAdmin(adminApi);
   await registerAnalyticsAdmin(adminApi);
   await registerAuditConsumersAdmin(adminApi);
   await registerSeoOpsAdmin(adminApi);

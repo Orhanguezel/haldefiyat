@@ -14,6 +14,18 @@ import type { RowDataPacket, ResultSetHeader } from "mysql2";
 /** Pro erisimi saglayan Stripe durumlari. Digerleri (past_due, unpaid...) vermez. */
 const ENTITLING_STATUSES = new Set(["trialing", "active"]);
 
+/**
+ * Elle verilen denemelerde Stripe musterisi YOKTUR. stripe_customer_id NOT NULL
+ * oldugu icin bu on ek ile isaretlenir; boylece kaydin kaynagi belli olur ve
+ * Stripe uclarina yanlislikla gecmesi engellenir (checkout/portal bunu kontrol eder).
+ */
+export const MANUAL_CUSTOMER_PREFIX = "manual:";
+
+/** Gercek bir Stripe musterisi mi? Stripe musteri id'leri daima "cus_" ile baslar. */
+export function isStripeCustomer(customerId: string | null | undefined): boolean {
+  return typeof customerId === "string" && customerId.startsWith("cus_");
+}
+
 export interface SubscriptionRecord {
   userId: string;
   stripeCustomerId: string;
@@ -104,6 +116,60 @@ export async function syncKeyTiers(userId: string): Promise<number> {
     [tier, limit, userId],
   );
   return result.affectedRows;
+}
+
+/**
+ * Elle deneme tanimlar — odeme alinmadan, belirli gun sayisi icin Pro erisimi.
+ *
+ * Stripe aboneligi olan kullaniciya deneme verilmez: canli abonelik yerel kayitla
+ * ezilirse Stripe'in bir sonraki olayi durumu geri alir ve iki kaynak catisir.
+ */
+export async function grantManualTrial(userId: string, days: number): Promise<SubscriptionRecord> {
+  const existing = await getSubscription(userId);
+  if (existing && isStripeCustomer(existing.stripeCustomerId)) {
+    throw new Error("stripe_subscription_exists");
+  }
+  const endsAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+  await upsertSubscription({
+    userId,
+    stripeCustomerId: `${MANUAL_CUSTOMER_PREFIX}${userId}`,
+    stripeSubscriptionId: null,
+    status: "trialing",
+    currentPeriodEnd: endsAt,
+    cancelAtPeriodEnd: true,
+  });
+  const created = await getSubscription(userId);
+  if (!created) throw new Error("trial_not_created");
+  return created;
+}
+
+/**
+ * Suresi dolmus abonelikleri kapatir — deneme sonsuza kadar Pro kalmasin.
+ *
+ * Anahtar tier'i yalnizca webhook'ta senkronlaniyordu; elle verilen denemede
+ * webhook hic gelmez, dolayisiyla sure dolsa da anahtar pro kalirdi. Bu is
+ * gecelik calisir.
+ *
+ * Stripe kayitlarinin STATUSU degistirilmez — orasi Stripe'in sorumlulugu ve
+ * gecikmis bir webhook durumu geri alabilir. Yalnizca anahtarlar mevcut duruma
+ * esitlenir (sure gectigi icin hasProAccess zaten false doner). Elle denemede
+ * ise Stripe yok, durum "canceled" yazilir ki her gece yeniden islenmesin.
+ */
+export async function expireLapsedSubscriptions(): Promise<{ checked: number; downgraded: number }> {
+  const [rows] = await pool.query<SubscriptionRow[]>(
+    `SELECT * FROM hf_api_subscriptions
+     WHERE status IN ('trialing','active')
+       AND current_period_end IS NOT NULL AND current_period_end <= NOW()`,
+  );
+  let downgraded = 0;
+  for (const row of rows) {
+    if (!isStripeCustomer(row.stripe_customer_id)) {
+      await pool.query("UPDATE hf_api_subscriptions SET status='canceled' WHERE user_id = ?", [row.user_id]);
+    }
+    const affected = await syncKeyTiers(row.user_id);
+    if (affected > 0) downgraded += 1;
+  }
+  return { checked: rows.length, downgraded };
 }
 
 /**

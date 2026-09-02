@@ -31,6 +31,8 @@ import {
   upsertSubscription,
   recordStripeEvent,
   syncKeyTiers,
+  grantManualTrial,
+  isStripeCustomer,
 } from "./repository";
 
 const TOLERANCE_SECONDS = 5 * 60;
@@ -88,6 +90,8 @@ export async function registerBillingPublic(api: FastifyInstance) {
     return reply.send({
       configured: isStripeConfigured(),
       tier: sub?.active ? "pro" : "free",
+      // Deneme erisiminde odeme/fatura ekrani yoktur; on yuz buna gore davranir.
+      isTrial: Boolean(sub?.active && !isStripeCustomer(sub.stripeCustomerId)),
       subscription: sub,
       priceMonthlyTL: env.PRO_PRICE_MONTHLY_TL,
       dailyLimit: sub?.active ? env.API_KEY_PRO_DAILY_LIMIT : env.API_KEY_FREE_DAILY_LIMIT,
@@ -112,9 +116,10 @@ export async function registerBillingPublic(api: FastifyInstance) {
         const session = await createSubscriptionCheckout({
           userId,
           email: await userEmail(userId),
-          // Daha once musteri olusmussa ayni musteriye bagla — Stripe'ta
-          // kullanici basina ikinci bir musteri kaydi olusmasin.
-          customerId: existing?.stripeCustomerId ?? null,
+          // Daha once GERCEK bir Stripe musterisi olusmussa ayni musteriye bagla;
+          // elle verilen denemenin sentinel id'si ("manual:...") Stripe'a gecerse
+          // 400 doner. Deneme sonrasi odemeye gecis bu yuzden filtrelenir.
+          customerId: isStripeCustomer(existing?.stripeCustomerId) ? existing!.stripeCustomerId : null,
           successUrl: `${base}/hesabim/api?odeme=basarili`,
           cancelUrl: `${base}/pro?odeme=iptal`,
           locale: req.body?.locale ?? "tr",
@@ -142,6 +147,12 @@ export async function registerBillingPublic(api: FastifyInstance) {
     if (!sub?.stripeCustomerId) {
       return reply.status(404).send({ error: { code: "no_subscription", message: "Aboneliğiniz bulunamadı." } });
     }
+    // Elle verilen denemenin Stripe karsiligi yok — portal acilamaz, acilmamali.
+    if (!isStripeCustomer(sub.stripeCustomerId)) {
+      return reply.status(409).send({
+        error: { code: "manual_trial", message: "Deneme erişiminde fatura yönetimi bulunmuyor." },
+      });
+    }
     try {
       const session = await createBillingPortalSession(sub.stripeCustomerId, `${siteBase()}/hesabim/api`);
       return reply.send({ ok: true, url: session.url });
@@ -157,6 +168,45 @@ export async function registerBillingPublic(api: FastifyInstance) {
       });
     }
   });
+}
+
+export async function registerBillingAdmin(adminApi: FastifyInstance) {
+  /**
+   * Elle deneme tanimlama — satis gorusmesi sonrasi musteriye odeme almadan
+   * sureli Pro erisimi vermek icin. Sure dolunca gecelik is anahtarlari duserur.
+   */
+  adminApi.post<{ Body: { email?: string; userId?: string; days?: number } }>(
+    "/api-keys/trial",
+    async (req, reply) => {
+      const days = Number(req.body?.days ?? 10);
+      if (!Number.isFinite(days) || days < 1 || days > 90) {
+        return reply.status(400).send({ error: { code: "invalid_days", message: "Gün sayısı 1-90 arasında olmalı." } });
+      }
+      let userId = (req.body?.userId ?? "").trim();
+      const email = (req.body?.email ?? "").trim();
+      if (!userId && email) {
+        const [rows] = await pool.query<RowDataPacket[]>("SELECT id FROM users WHERE email = ? LIMIT 1", [email]);
+        userId = String(rows[0]?.id ?? "");
+      }
+      if (!userId) {
+        return reply.status(404).send({ error: { code: "user_not_found", message: "Kullanıcı bulunamadı." } });
+      }
+      try {
+        const sub = await grantManualTrial(userId, days);
+        const synced = await syncKeyTiers(userId);
+        return reply.send({ ok: true, userId, days, subscription: sub, syncedKeys: synced });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "trial_failed";
+        if (message === "stripe_subscription_exists") {
+          return reply.status(409).send({
+            error: { code: "stripe_subscription_exists", message: "Kullanıcının Stripe aboneliği var; deneme verilemez." },
+          });
+        }
+        req.log.error({ err, userId }, "manual_trial_failed");
+        return reply.status(500).send({ error: { code: "trial_failed", message: "Deneme tanımlanamadı." } });
+      }
+    },
+  );
 }
 
 /**

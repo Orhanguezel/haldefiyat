@@ -1,6 +1,7 @@
 import * as cron from "node-cron";
 import type { FastifyInstance } from "fastify";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
+import { expireLapsedSubscriptions } from "@/modules/billing/repository";
 import { rebuildProductFamilies } from "@/modules/prices/family-service";
 import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
@@ -60,6 +61,7 @@ export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] }
     { name: "etl-daily",          schedule: E.cronSchedule,             category: "etl",      description: "Gunluk hal fiyati ETL — tum resmi belediye + antkomder kaynaklari" },
     { name: "etl-antkomder-pm",   schedule: E.antkomderSchedule,        category: "etl",      description: "ANTKOMDER ogleden sonra ikinci cekim (fiyatlar gec yayinlaniyor)" },
     { name: "etl-istanbul-pm",    schedule: E.istanbulPmSchedule,       category: "etl",      description: "Istanbul IBB aksam cekimi — bugunun verisi gun icinde doluyor" },
+    { name: "subscription-expiry", schedule: E.subscriptionExpirySchedule, category: "bildirim", description: "Suresi dolan Pro abonelik/denemelerinde API anahtarlarini free'ye dusurur" },
     { name: "etl-health",         schedule: E.healthSchedule,           category: "bildirim", description: "ETL saglik kontrolu — sorunlu/durmus kaynaklari Telegram'a bildirir" },
     { name: "production-etl",     schedule: E.productionSchedule,       category: "etl",      description: "Uretim/borsa kaynaklari (aylik)" },
     { name: "migros-daily",       schedule: E.migrosSchedule,           category: "etl",      description: "Migros perakende fiyat ETL" },
@@ -120,6 +122,8 @@ export function startCron(app: FastifyInstance): void {
     { name: "etl-antkomder-pm",   schedule: env.ETL.antkomderSchedule,   handler: () => runAntkomderJob(app) },
     // Istanbul IBB gun icinde doluyor — aksam ikinci cekim BUGUNU ister
     { name: "etl-istanbul-pm",    schedule: env.ETL.istanbulPmSchedule,  handler: () => runIstanbulPmJob(app) },
+    // Suresi dolan Pro abonelikleri/denemeleri kapat
+    { name: "subscription-expiry", schedule: env.ETL.subscriptionExpirySchedule, handler: () => runSubscriptionExpiryJob(app) },
     // Rakip izleme — haftalık
     { name: "competitor-monitor", schedule: env.ETL.competitorSchedule,  handler: () => runCompetitorJob(app) },
     // Telegram kanal günlük paylaşımı — 08:00 UTC = 11:00 TRT
@@ -514,6 +518,23 @@ async function runAuditRetentionJob(app: FastifyInstance): Promise<void> {
     );
   } catch (err) {
     app.log.error({ err }, "[cron:audit-retention] hata");
+  }
+}
+
+/**
+ * Suresi dolan abonelik ve denemeleri kapatir.
+ *
+ * hf_api_keys.tier abonelikten TURETILIR ama senkron yalnizca Stripe webhook'unda
+ * calisiyordu. Elle verilen denemede webhook hic gelmez; bu is olmadan 10 gunluk
+ * deneme SONSUZA KADAR Pro kalirdi. Stripe kayitlarinda da gecikmis/kayip webhook
+ * icin ikinci savunma hatti.
+ */
+async function runSubscriptionExpiryJob(app: FastifyInstance): Promise<void> {
+  try {
+    const r = await expireLapsedSubscriptions();
+    if (r.checked > 0) app.log.info(r, "[cron:subscription-expiry] tamamlandi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:subscription-expiry] hata");
   }
 }
 

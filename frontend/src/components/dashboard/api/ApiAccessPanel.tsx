@@ -30,6 +30,8 @@ interface Subscription {
 interface BillingState {
   configured: boolean;
   tier: "free" | "pro";
+  /** Elle verilen deneme erisimi — odeme yok, fatura ekrani da yok. */
+  isTrial?: boolean;
   subscription: Subscription | null;
   priceMonthlyTL: number;
   dailyLimit: number;
@@ -148,6 +150,7 @@ export default function ApiAccessPanel({ locale }: { locale: string }) {
 
   const active = keys.filter((k) => !k.revoked);
   const pro = billing?.tier === "pro";
+  const trial = Boolean(billing?.isTrial);
   const paymentJustCompleted = params.get("odeme") === "basarili";
 
   return (
@@ -168,7 +171,11 @@ export default function ApiAccessPanel({ locale }: { locale: string }) {
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--color-muted)">Mevcut plan</p>
             <p className="mt-1 flex items-center gap-2 font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">
               {pro ? "Pro" : "Ücretsiz"}
-              {pro && <span className="rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-semibold text-white">Etkin</span>}
+              {pro && (
+                <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold text-white ${trial ? "bg-sky-500" : "bg-emerald-500"}`}>
+                  {trial ? "Deneme" : "Etkin"}
+                </span>
+              )}
             </p>
             <p className="mt-1 text-sm text-(--color-muted)">
               Günlük kota: <strong className="tabular-nums text-(--color-foreground)">{fmtNumber(billing?.dailyLimit ?? 0)}</strong> istek
@@ -176,7 +183,7 @@ export default function ApiAccessPanel({ locale }: { locale: string }) {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {pro ? (
+            {pro && !trial ? (
               <Button type="button" variant="secondary" disabled={busy} onClick={() => void goToStripe("/billing/portal")}>
                 Aboneliği yönet
               </Button>
@@ -197,7 +204,10 @@ export default function ApiAccessPanel({ locale }: { locale: string }) {
           <dl className="mt-5 grid gap-4 border-t border-(--color-border-soft) pt-5 sm:grid-cols-3">
             <div><dt className="text-xs text-(--color-muted)">Durum</dt><dd className="mt-0.5 text-sm font-semibold">{statusLabel(billing.subscription)}</dd></div>
             <div><dt className="text-xs text-(--color-muted)">{billing.subscription.cancelAtPeriodEnd ? "Erişim bitiş" : "Sonraki yenileme"}</dt><dd className="mt-0.5 text-sm font-semibold tabular-nums">{fmtDate(billing.subscription.currentPeriodEnd)}</dd></div>
-            <div><dt className="text-xs text-(--color-muted)">Fatura ve iptal</dt><dd className="mt-0.5 text-sm text-(--color-muted)">Stripe müşteri portalinden</dd></div>
+            <div>
+              <dt className="text-xs text-(--color-muted)">Fatura ve iptal</dt>
+              <dd className="mt-0.5 text-sm text-(--color-muted)">{trial ? "Deneme erişiminde ödeme alınmaz" : "Stripe müşteri portalinden"}</dd>
+            </div>
           </dl>
         )}
       </section>

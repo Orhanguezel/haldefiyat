@@ -206,6 +206,9 @@ export const env = {
     // gosterir ama yeni tarih gelmez. 2026-09-02'de veri bu yuzden 6 gun bayatti.
     // Aksam ikinci kosu BUGUNU ister (14:00 UTC = 17:00 TRT).
     istanbulPmSchedule: process.env.ISTANBUL_PM_CRON_SCHEDULE || "0 14 * * *",
+    // Suresi dolan abonelik/denemeleri kapatir. Gece yarisindan hemen sonra:
+    // gun sinirini gecen kayitlar ayni gun icinde dusurulur.
+    subscriptionExpirySchedule: process.env.SUBSCRIPTION_EXPIRY_CRON_SCHEDULE || "10 0 * * *",
     // Rakip izleme — her pazartesi 07:00 UTC (ETL sona erdikten sonra)
     competitorSchedule: process.env.COMPETITOR_CRON_SCHEDULE || "0 7 * * 1",
     // Telegram kanal günlük paylaşımı — her gün 08:00 UTC = 11:00 TRT (ETL bittikten sonra)
