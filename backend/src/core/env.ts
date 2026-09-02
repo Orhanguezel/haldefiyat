@@ -201,6 +201,11 @@ export const env = {
     earlyWarningSchedule: process.env.EARLY_WARNING_CRON_SCHEDULE || "0 6 * * 1",
     // ANTKOMDER (Antalya) fiyatları öğleden sonra yayınlanıyor — 10:30 UTC = 13:30 TRT
     antkomderSchedule: process.env.ANTKOMDER_CRON_SCHEDULE || "30 10 * * *",
+    // Istanbul IBB gunun verisini gun ICINDE dolduruyor. Sabahki kosu T-1 ister,
+    // bulamayinca 7 gun geriye yuruyup eski gunu tekrar yazar — sayac "92 satir"
+    // gosterir ama yeni tarih gelmez. 2026-09-02'de veri bu yuzden 6 gun bayatti.
+    // Aksam ikinci kosu BUGUNU ister (14:00 UTC = 17:00 TRT).
+    istanbulPmSchedule: process.env.ISTANBUL_PM_CRON_SCHEDULE || "0 14 * * *",
     // Rakip izleme — her pazartesi 07:00 UTC (ETL sona erdikten sonra)
     competitorSchedule: process.env.COMPETITOR_CRON_SCHEDULE || "0 7 * * 1",
     // Telegram kanal günlük paylaşımı — her gün 08:00 UTC = 11:00 TRT (ETL bittikten sonra)

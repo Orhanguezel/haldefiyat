@@ -59,6 +59,7 @@ export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] }
   const tasks: CronCatalogItem[] = [
     { name: "etl-daily",          schedule: E.cronSchedule,             category: "etl",      description: "Gunluk hal fiyati ETL — tum resmi belediye + antkomder kaynaklari" },
     { name: "etl-antkomder-pm",   schedule: E.antkomderSchedule,        category: "etl",      description: "ANTKOMDER ogleden sonra ikinci cekim (fiyatlar gec yayinlaniyor)" },
+    { name: "etl-istanbul-pm",    schedule: E.istanbulPmSchedule,       category: "etl",      description: "Istanbul IBB aksam cekimi — bugunun verisi gun icinde doluyor" },
     { name: "etl-health",         schedule: E.healthSchedule,           category: "bildirim", description: "ETL saglik kontrolu — sorunlu/durmus kaynaklari Telegram'a bildirir" },
     { name: "production-etl",     schedule: E.productionSchedule,       category: "etl",      description: "Uretim/borsa kaynaklari (aylik)" },
     { name: "migros-daily",       schedule: E.migrosSchedule,           category: "etl",      description: "Migros perakende fiyat ETL" },
@@ -117,6 +118,8 @@ export function startCron(app: FastifyInstance): void {
     { name: "early-warning",    schedule: env.ETL.earlyWarningSchedule,     handler: () => runEarlyWarningJob(app) },
     // ANTKOMDER fiyatları öğleden sonra yayınlandığı için ikinci çalıştırma
     { name: "etl-antkomder-pm",   schedule: env.ETL.antkomderSchedule,   handler: () => runAntkomderJob(app) },
+    // Istanbul IBB gun icinde doluyor — aksam ikinci cekim BUGUNU ister
+    { name: "etl-istanbul-pm",    schedule: env.ETL.istanbulPmSchedule,  handler: () => runIstanbulPmJob(app) },
     // Rakip izleme — haftalık
     { name: "competitor-monitor", schedule: env.ETL.competitorSchedule,  handler: () => runCompetitorJob(app) },
     // Telegram kanal günlük paylaşımı — 08:00 UTC = 11:00 TRT
@@ -511,6 +514,34 @@ async function runAuditRetentionJob(app: FastifyInstance): Promise<void> {
     );
   } catch (err) {
     app.log.error({ err }, "[cron:audit-retention] hata");
+  }
+}
+
+/**
+ * Istanbul IBB aksam cekimi.
+ *
+ * Sabahki genel kosu T-1 ister; IBB gunun verisini gun ICINDE doldurdugu icin
+ * o sirada bos doner ve fetchWithFallback 7 gun geriye yuruyup ESKI bir gunu
+ * yeniden yazar. Sonuc: kosu "92 satir" raporlar, hf_etl_runs 'partial' gorunur,
+ * ama en yeni recorded_date ilerlemez. 2026-09-02 olcumunde veri 6 gun bayatti
+ * ve hicbir alarm calmadi (donma dedektoru sabit DEGER arar, eksik GUN degil).
+ *
+ * Bu kosu acikca BUGUNUN tarihini ister; veri henuz yoksa satir yazilmaz ve
+ * ertesi sabahki T-1 kosusu zaten yakalar.
+ */
+async function runIstanbulPmJob(app: FastifyInstance): Promise<void> {
+  const key = "istanbul_ibb";
+  const source = getSourceByKey(key);
+  if (!source?.enabled) {
+    app.log.info({ key }, "[cron:istanbul-pm] kaynak devre disi, atlandi");
+    return;
+  }
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    const r = await runSingleSource(key, today);
+    app.log.info({ key, date: today, inserted: r.inserted, skipped: r.skipped }, "[cron:istanbul-pm] tamamlandi");
+  } catch (err) {
+    app.log.error({ key, date: today, err }, "[cron:istanbul-pm] hata");
   }
 }
 
