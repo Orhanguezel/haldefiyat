@@ -128,6 +128,36 @@ export async function createApp() {
     decorateReply: false,
   });
 
+  /**
+   * Bos govdeli JSON istegi 400 vermesin.
+   *
+   * Fastify varsayilani, `Content-Type: application/json` gonderilip govde
+   * bos birakildiginda FST_ERR_CTP_EMPTY_JSON_BODY firlatir. Cogu HTTP
+   * istemcisi (axios, .NET HttpClient) DELETE isteklerinde bu basligi
+   * VARSAYILAN OLARAK ekler — sonuc: entegrasyon gelistiricisi silme ucunda
+   * aciklamasiz "Bad Request" aliyordu (2026-09-02'de yetki geri alma ucunda
+   * yakalandi; ucun kendisi calisiyordu).
+   *
+   * Bos govde `{}` kabul edilir; gecerli JSON eskisi gibi ayristirilir, bozuk
+   * JSON yine 400 verir. Stripe webhook'u KENDI kapsaminda ham govde parser'i
+   * kullanir, buradan etkilenmez.
+   */
+  app.addContentTypeParser(
+    "application/json",
+    { parseAs: "string" },
+    (_req, body, done) => {
+      const raw = typeof body === "string" ? body.trim() : "";
+      if (!raw) return done(null, {});
+      try {
+        done(null, JSON.parse(raw));
+      } catch (err) {
+        const error = err as Error & { statusCode?: number };
+        error.statusCode = 400;
+        done(error, undefined);
+      }
+    },
+  );
+
   app.addContentTypeParser(
     "application/x-www-form-urlencoded",
     { parseAs: "string" },
