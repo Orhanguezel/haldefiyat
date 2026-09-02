@@ -135,7 +135,7 @@ function fmtDate(iso: string | null): string {
  * Veri, bolum ACILINCA cekilir: her ilan icin pesin istek atmak, teklif
  * beklemeyen ilanlarda bosuna sorgu demek olurdu.
  */
-function ListingOffersPanel({ listingId }: { listingId: number }) {
+function ListingOffersPanel({ listingId, priceUnit }: { listingId: number; priceUnit?: string | null }) {
   const [data, setData] = useState<OffersResponse | null>(null);
   const [state, setState] = useState<"idle" | "loading" | "error">("idle");
 
@@ -184,7 +184,11 @@ function ListingOffersPanel({ listingId }: { listingId: number }) {
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <strong className="text-sm text-(--color-foreground)">{offer.name || "İsimsiz"}</strong>
                     <span className="font-semibold tabular-nums text-(--color-foreground)">
-                      {offer.offerPrice == null ? "Fiyat belirtilmedi" : `${offer.offerPrice.toLocaleString("tr-TR")} ₺`}
+                      {offer.offerPrice == null
+                        ? "Fiyat belirtilmedi"
+                        // Kurus daima yazilir: "19,9 ₺" fiyat gibi degil, yarim yazilmis gibi durur.
+                        // Birim de eklenir — teklif karsilastirmasinda belirsiz birim kabul edilemez.
+                        : `${offer.offerPrice.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺${priceUnit ? ` / ${priceUnit}` : ""}`}
                     </span>
                   </div>
                   {offer.message && <p className="mt-1 text-sm leading-6 text-(--color-muted)">{offer.message}</p>}
@@ -225,7 +229,7 @@ function ListingManagementCard({ item, requestCount, saving, onClose, onSave }: 
         <div><span className="block text-xs text-(--color-muted)">Arama talebi</span><strong className="text-sm text-(--color-foreground)">{requestCount.total} toplam · {requestCount.open} açık</strong></div>
         <div className="flex items-center justify-start sm:justify-end">{item.status !== "closed" ? <Button variant="secondary" size="sm" loading={saving} onClick={onClose}>İlanı kapat</Button> : null}</div>
       </div>
-      <ListingOffersPanel listingId={item.id} />
+      <ListingOffersPanel listingId={item.id} priceUnit={item.priceUnit} />
       <details className="border-t border-(--color-border-soft) p-4">
         <summary className="cursor-pointer text-sm font-semibold text-(--color-foreground)">İletişim ve geri dönüş ayarları</summary>
         <div className="mt-4 space-y-3">
