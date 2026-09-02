@@ -120,6 +120,8 @@ export type HfGscSummary = {
   indexed: number;
   issue: number;
   realIssue: number;
+  /** Google'in son taramasi urunun son degisikliginden ESKI: sayfa duzgun, verdikt bayat. */
+  awaitingRecrawl: number;
   expectedExcluded: number;
   lastChecked: string | null;
   running: boolean;

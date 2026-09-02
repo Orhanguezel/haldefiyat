@@ -223,6 +223,9 @@ export default function Page() {
                 <span className={gscSummary.realIssue > 0 ? "font-medium text-amber-600" : ""}>
                   {gscSummary.realIssue} gerçek sorun (indexlenebilir)
                 </span>{" "}
+                <span title="Google en son sayfayı biz index'e almadan önce taramış. Sayfa canlıda doğru; yeniden taranmasını bekliyor.">
+                  · {gscSummary.awaitingRecrawl ?? 0} yeniden tarama bekliyor
+                </span>{" "}
                 · {gscSummary.expectedExcluded} beklenen exclusion (noindex/varyant)
                 {gscSummary.lastChecked
                   ? ` · son: ${gscSummary.lastChecked.replace("T", " ").slice(0, 16)}`

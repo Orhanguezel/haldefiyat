@@ -921,36 +921,51 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const gscMap = await readGscCategoriesForUrls(items.map((it) => `${origin}/urun/${it.slug}`));
 
     // Aksiyon sınıflandırması için ürün başı sinyaller: hal/borsa market sayısı, veri günü,
-    // yayınlı editöryel. Tek sorguda (id -> sinyal) toplanıp merge edilir.
+    // yayınlı editöryel.
     // DISTINCT market sayımı (satır değil) — runSeoIndexMaintenance ile birebir hizalı.
     // mcTotal = tüm distinct market (hal UP kriteri mc>=3), halMarkets/borsaMarkets = tip bazlı.
+    //
+    // SORGU YONU FIYAT GECMISINDEN URUNE DOGRUDUR, tersi degil. Onceki hali
+    // urunden baslayip `ON (v.id = p.id OR v.canonical_slug = p.slug)` ile aileyi
+    // buluyordu; JOIN icindeki OR indeks kullanimini imkansiz kilar (EXPLAIN:
+    // type=ALL, "Range checked for each record") ve 1.248 x 1.248 tarama uretirdi
+    // — uc 22 saniye suruyordu. Aile eslesmesi artik CTE'de tek yonlu iki dala
+    // ayrildi; ana sorgu 30 gunluk fiyat dilimini (recorded_date indeksi) surer.
+    // Olculdu: 22,4sn -> 0,58sn, 937 satirin tamami birebir ayni (2026-09-03).
     const sigRes = await db.execute(sql`
-      SELECT p.id,
+      WITH fam AS (
+        SELECT id AS pid, id AS vid, unit FROM hf_products WHERE is_active = 1
+        UNION
+        SELECT p.id, v.id, v.unit FROM hf_products p
+          JOIN hf_products v ON v.canonical_slug = p.slug AND v.is_active = 1
+      )
+      SELECT f.pid AS id,
         COUNT(DISTINCT ph.market_id) AS mcTotal,
         COUNT(DISTINCT CASE WHEN m.market_type = 'hal' THEN ph.market_id END) AS halMarkets,
         COUNT(DISTINCT CASE WHEN m.market_type IN ('borsa','resmi') THEN ph.market_id END) AS borsaMarkets,
-        COUNT(DISTINCT ph.recorded_date) AS days30,
-        MAX(ed.published_at IS NOT NULL) AS hasEditorial
-      FROM hf_products p
-      -- KANONIK AILE: urunun kendisi + ona baglanan varyantlar. Urun sayfasi da
-      -- boyle topluyor (slug = X VEYA canonical_slug = X), dolayisiyla indeks
-      -- hazirlik olcumu SAYFAYLA AYNI kurali kullanmali. Aksi halde verisi
-      -- varyanttan gelen urun "veri bekliyor" gorunup noindex kaliyordu:
-      -- MUZ (İTHAL) sayfasinda 7 halden 110,71 TL/kg yaziyordu ama kendi
-      -- satiri olmadigi icin indekslenmiyordu (2026-09-02, 1.683 aylik arama).
-      LEFT JOIN hf_products v ON (v.id = p.id OR v.canonical_slug = p.slug) AND v.is_active = 1
+        COUNT(DISTINCT ph.recorded_date) AS days30
+      FROM hf_price_history ph
       -- Birim butunlugu: sayfa da yalnizca urunun kendi birimindeki satirlari
       -- gosterir. Bu filtre olmadan bayat koli satirlari kapsam sayiliyordu.
-      LEFT JOIN hf_price_history ph ON ph.product_id = v.id AND ph.unit = v.unit
-        AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-      LEFT JOIN hf_markets m ON m.id = ph.market_id
-      LEFT JOIN hf_product_editorial ed ON ed.product_slug = p.slug
-      GROUP BY p.id
+      JOIN fam f ON f.vid = ph.product_id AND f.unit = ph.unit
+      JOIN hf_markets m ON m.id = ph.market_id
+      WHERE ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+      GROUP BY f.pid
     `);
     const sigRows = (Array.isArray(sigRes) ? sigRes[0] : sigRes) as unknown as Array<{
-      id: number; mcTotal: number; halMarkets: number; borsaMarkets: number; days30: number; hasEditorial: number;
+      id: number; mcTotal: number; halMarkets: number; borsaMarkets: number; days30: number;
     }>;
+    // Fiyat satiri olmayan urun sonuc kumesinde yok; okuyucular zaten 0'a dusuyor
+    // (eski LEFT JOIN'in NULL -> 0 davranisiyla ayni).
     const sigMap = new Map(sigRows.map((r) => [r.id, r]));
+
+    // Editoryel ayri ve ucuz sorgu (456 satir, ~0,02sn) — sinyal sorgusuna
+    // baglandiginda gruplamayi buyutmekten baska is yapmiyordu.
+    const edRes = await db.execute(sql`
+      SELECT product_slug FROM hf_product_editorial WHERE published_at IS NOT NULL
+    `);
+    const edRows = (Array.isArray(edRes) ? edRes[0] : edRes) as unknown as Array<{ product_slug: string }>;
+    const editorialSlugs = new Set(edRows.map((r) => r.product_slug));
 
     const classifyAction = (it: (typeof items)[number], gsc: string | null): string => {
       if (it.canonicalSlug) return "variant";
@@ -959,7 +974,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
       const hal = Number(s?.halMarkets ?? 0);
       const borsa = Number(s?.borsaMarkets ?? 0);
       const days = Number(s?.days30 ?? 0);
-      const ed = Number(s?.hasEditorial ?? 0) > 0;
+      const ed = editorialSlugs.has(it.slug);
       const dq = Number(it.dataQuality ?? 0);
       if (it.seoIndex) return gsc === "indexed" ? "indexed" : "recrawl_pending";
       // maintenance ile aynı: hal UP = hal_rows>=1 AND mc>=3 AND dq>=70; borsa UP = hal=0 AND borsa>=1 AND days>=3 AND dq>=60
@@ -977,7 +992,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
         ...it,
         gscCategory: g?.category ?? null,
         gscLabel: g?.label ?? null,
-        hasEditorial: Number(s?.hasEditorial ?? 0) > 0,
+        hasEditorial: editorialSlugs.has(it.slug),
         halMarkets30d: Number(s?.halMarkets ?? 0),
         borsaMarkets30d: Number(s?.borsaMarkets ?? 0),
         action: classifyAction(it, g?.category ?? null),

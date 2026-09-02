@@ -52,8 +52,17 @@ export async function registerProductGsc(app: FastifyInstance) {
     );
     // Gerçek aksiyon gereken: indexlenebilir ürün + GSC'de indexli değil.
     // (noindex/varyant exclusion'ları beklenen, "sorun" sayılmaz.)
+    //
+    // ANCAK bunlarin cogu SORUN DEGIL, BAYAT VERDIKT: Google sayfaya en son biz
+    // index'e almadan ONCE ugramissa hala eski "noindex" kararini gosterir. Sayfa
+    // canlida duzgundur; yapilacak tek sey yeniden taranmasini beklemektir.
+    // 2026-09-03'te 67 "gercek sorun"un 64'u boyleydi — 62'sinin canli HTML'i elle
+    // kontrol edildi, hepsi "index, follow" donuyordu. Ayrimi yapmayan sayac
+    // olmayan bir isi her gun listeliyordu.
     const [realRows] = await pool.query<any[]>(
-      `SELECT COUNT(*) AS realIssue
+      `SELECT
+         SUM(g.last_crawl IS NOT NULL AND g.last_crawl < p.updated_at) AS awaitingRecrawl,
+         SUM(NOT (g.last_crawl IS NOT NULL AND g.last_crawl < p.updated_at)) AS realIssue
        FROM hf_products p JOIN gsc_url_index g ON g.url = CONCAT(?, '/urun/', p.slug)
        WHERE p.seo_index = 1
          AND NOT (g.coverage_state LIKE 'Submitted and indexed%' OR g.verdict = 'PASS')`,
@@ -62,13 +71,15 @@ export async function registerProductGsc(app: FastifyInstance) {
     const s = rows?.[0] ?? {};
     const issue = Number(s.issue ?? 0);
     const realIssue = Number(realRows?.[0]?.realIssue ?? 0);
+    const awaitingRecrawl = Number(realRows?.[0]?.awaitingRecrawl ?? 0);
     return reply.send({
       data: {
         total: Number(s.total ?? 0),
         indexed: Number(s.indexed ?? 0),
         issue,
         realIssue,
-        expectedExcluded: Math.max(0, issue - realIssue),
+        awaitingRecrawl,
+        expectedExcluded: Math.max(0, issue - realIssue - awaitingRecrawl),
         lastChecked: s.lastChecked ? new Date(s.lastChecked).toISOString() : null,
         running: isGscBulkRunning(),
       },
