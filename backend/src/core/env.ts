@@ -12,6 +12,12 @@ function parseEnvList(v: string | undefined): string[] {
 
 const NODE_ENV = process.env.NODE_ENV ?? "development";
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3033";
+/**
+ * Onbellek dusurme icin frontend'e DOGRUDAN erisim (nginx baypas).
+ * Public adres uzerinden /api/* nginx tarafindan BACKEND'e yonlendirildigi icin
+ * revalidate cagrisi frontend'e hic ulasmiyor ve 404 aliyordu.
+ */
+const FRONTEND_INTERNAL_URL = process.env.FRONTEND_INTERNAL_URL || "http://127.0.0.1:3033";
 const DEV_LOCAL_CORS_ORIGINS = [
   "http://localhost:3031",
   "http://127.0.0.1:3031",
@@ -67,6 +73,7 @@ export const env = {
 
   PUBLIC_URL: process.env.PUBLIC_URL || "http://localhost:8088",
   FRONTEND_URL,
+  FRONTEND_INTERNAL_URL,
   // Frontend on-demand cache revalidation icin paylasimli secret (frontend .env ile ayni).
   REVALIDATE_SECRET: process.env.REVALIDATE_SECRET || "",
 

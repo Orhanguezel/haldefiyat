@@ -12,7 +12,14 @@ import { env } from "@/core/env";
  */
 export async function revalidateFrontendTag(tag: string): Promise<void> {
   const secret = env.REVALIDATE_SECRET;
-  const base = env.FRONTEND_URL?.replace(/\/$/, "");
+  // nginx `/api/*` isteklerini BACKEND'e yonlendiriyor; public adres uzerinden
+  // cagirinca istek frontend'e hic ulasmiyor ve 404 doner. Cagri hatayi sessizce
+  // yuttugu icin bu FARK EDILMEDEN calisiyordu — fiyat, karantina ve urun
+  // guncellemelerinin hicbiri onbellegi dusuremiyordu (2026-09-02).
+  //
+  // FRONTEND_URL public kalmali (odeme donus adresi, OAuth yonlendirmesi onu
+  // kullaniyor); revalidate icin AYRI bir ic adres var.
+  const base = (env.FRONTEND_INTERNAL_URL || env.FRONTEND_URL || "").replace(/\/$/, "");
   if (!secret || !base) return;
 
   try {
