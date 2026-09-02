@@ -40,18 +40,22 @@ async function fetchLatestPriceSummary(slug: string): Promise<{ count: number; d
   try {
     const prices = await fetchPrices({ market: slug, range: "1d", limit: 500 });
     if (prices.length === 0) return { count: 0, date: "", samples: [] };
-    const latestDate = prices.reduce((max, p) => (p.recordedDate > max ? p.recordedDate : max), "");
-    const dayRows = prices.filter((p) => p.recordedDate === latestDate);
-    // Ilk 3 satiri almak yanlis sinyal veriyordu: Ankara'da liste balikla basliyor
-    // ("Barbun 900 TL/kg") ve "ankara hal fiyatlari" arayan sebze-meyve bekliyor.
-    // Sebze/meyve once; o kadar satir yoksa kalanla tamamlanir.
+    const isProduce = (row: (typeof prices)[number]) => /sebze|meyve/.test(row.categorySlug ?? "");
+
+    // EN SON tarih her zaman temsil etmiyor: Ankara 1 Eylul'de yalniz 8 BALIK
+    // satiri yayimlamis, 89 sebze-meyve satiri bir onceki gunden. O gunu almak
+    // "ankara hal fiyatlari" arayana "Barbun 900 TL/kg" gosteriyordu. Sebze-meyve
+    // iceren en son gunu sec; hicbiri yoksa en son gune don.
+    const dates = [...new Set(prices.map((row) => row.recordedDate))].sort().reverse();
+    const chosenDate = dates.find((date) => prices.some((row) => row.recordedDate === date && isProduce(row))) ?? dates[0] ?? "";
+    const dayRows = prices.filter((p) => p.recordedDate === chosenDate);
+
     const priced = dayRows.filter((row) => Number(row.avgPrice) > 0 && row.productName);
-    const isProduce = (row: (typeof priced)[number]) => /sebze|meyve/.test(row.categorySlug ?? "");
     const ordered = [...priced.filter(isProduce), ...priced.filter((row) => !isProduce(row))];
     const samples = ordered
       .slice(0, 3)
       .map((row) => `${row.productName} ${Number(row.avgPrice).toLocaleString("tr-TR", { maximumFractionDigits: 2 })} TL/${row.unit || "kg"}`);
-    return { count: new Set(dayRows.map((p) => p.productSlug)).size, date: latestDate, samples };
+    return { count: new Set(dayRows.map((p) => p.productSlug)).size, date: chosenDate, samples };
   } catch {
     return { count: 0, date: "", samples: [] };
   }
