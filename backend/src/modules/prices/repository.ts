@@ -1,5 +1,6 @@
 import type { SQL } from "drizzle-orm";
 import { and, asc, desc, eq, gte, lte, sql, or, like, inArray, isNotNull } from "drizzle-orm";
+import { alias } from "drizzle-orm/mysql-core";
 import { db, pool } from "@/db/client";
 import { hfEtlRuns, hfMarkets, hfPriceHistory, hfProductEditorial, hfProducts, hfRetailPrices } from "@/db/schema";
 import { activeSources } from "@/config/etl-sources";
@@ -1075,6 +1076,9 @@ function isSeoEligibleProductName(name: string): boolean {
   return trimmed !== trimmed.toLocaleUpperCase("tr");
 }
 
+/** listSeoEligibleProducts icin kanonik-aile self-join takma adi. */
+const variantOfSameFamily = alias(hfProducts, "variant_family");
+
 export async function listSeoEligibleProducts(days: number) {
   const safeDays = Math.min(365, Math.max(1, Math.floor(days)));
   const notBlackouted = await blackoutFilter(
@@ -1093,10 +1097,20 @@ export async function listSeoEligibleProducts(days: number) {
       marketCount:  sql<number>`COUNT(DISTINCT ${hfPriceHistory.marketId})`,
     })
     .from(hfProducts)
-    .innerJoin(hfPriceHistory, eq(hfPriceHistory.productId, hfProducts.id))
+    // Kanonik aile uzerinden sayilir — urun sayfasi da varyantlari toplar.
+    // Yalniz kendi satirina bakmak, verisi varyanttan gelen urunu sitemap
+    // disinda birakiyordu (2026-09-02).
+    .innerJoin(variantOfSameFamily, or(
+      eq(variantOfSameFamily.id, hfProducts.id),
+      eq(variantOfSameFamily.canonicalSlug, hfProducts.slug),
+    ))
+    .innerJoin(hfPriceHistory, and(
+      eq(hfPriceHistory.productId, variantOfSameFamily.id),
+      eq(hfPriceHistory.unit, variantOfSameFamily.unit),
+    ))
     .where(and(
       eq(hfProducts.isActive, 1),
-      publicUnitIntegrity,
+      eq(variantOfSameFamily.isActive, 1),
       gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(safeDays))} DAY)`),
       notBlackouted,
     ))

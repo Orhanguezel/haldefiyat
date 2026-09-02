@@ -932,7 +932,17 @@ export async function registerHalAdmin(app: FastifyInstance) {
         COUNT(DISTINCT ph.recorded_date) AS days30,
         MAX(ed.published_at IS NOT NULL) AS hasEditorial
       FROM hf_products p
-      LEFT JOIN hf_price_history ph ON ph.product_id = p.id AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+      -- KANONIK AILE: urunun kendisi + ona baglanan varyantlar. Urun sayfasi da
+      -- boyle topluyor (slug = X VEYA canonical_slug = X), dolayisiyla indeks
+      -- hazirlik olcumu SAYFAYLA AYNI kurali kullanmali. Aksi halde verisi
+      -- varyanttan gelen urun "veri bekliyor" gorunup noindex kaliyordu:
+      -- MUZ (İTHAL) sayfasinda 7 halden 110,71 TL/kg yaziyordu ama kendi
+      -- satiri olmadigi icin indekslenmiyordu (2026-09-02, 1.683 aylik arama).
+      LEFT JOIN hf_products v ON (v.id = p.id OR v.canonical_slug = p.slug) AND v.is_active = 1
+      -- Birim butunlugu: sayfa da yalnizca urunun kendi birimindeki satirlari
+      -- gosterir. Bu filtre olmadan bayat koli satirlari kapsam sayiliyordu.
+      LEFT JOIN hf_price_history ph ON ph.product_id = v.id AND ph.unit = v.unit
+        AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
       LEFT JOIN hf_markets m ON m.id = ph.market_id
       LEFT JOIN hf_product_editorial ed ON ed.product_slug = p.slug
       GROUP BY p.id
