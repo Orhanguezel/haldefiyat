@@ -308,7 +308,8 @@ const RAW_SOURCES: RawSource[] = [
   // Fiyat formatı "160,00 ₺". Sayfa tarih parametresi almaz.
   {
     key:               "corum_resmi",
-    defaultEnabled:    true,
+    // 2026-09-02: SafeLine WAF (HTTP 468) — Scrapling stealthy+dynamic 94sn bekleyerek de asamadi
+    defaultEnabled:    false,
     defaultMarketSlug: "corum-hal",
     defaultBaseUrl:    "https://www.corum.bel.tr",
     defaultEndpoint:   "/hal-fiyatlari",
@@ -408,7 +409,8 @@ const RAW_SOURCES: RawSource[] = [
   // Aynı parser tüm halleri karşılar; source key farklı → market slug farklı.
   {
     key:               "serik_batiakdeniz",
-    defaultEnabled:    true,
+    // 2026-09-02: kaynak 42 gundur ayni fiyatlari yayinliyor (kendi ritmi 13 gun) — donmus veri yaziyorduk
+    defaultEnabled:    false,
     defaultMarketSlug: "antalya-hal-serik",
     defaultBaseUrl:    "https://www.batiakdeniztv.com",
     defaultEndpoint:   "/serik-hal-fiyatlari",
@@ -418,7 +420,8 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "kumluca_batiakdeniz",
-    defaultEnabled:    true,
+    // 2026-09-02: kaynak 42 gundur donmus (bkz. serik_batiakdeniz)
+    defaultEnabled:    false,
     defaultMarketSlug: "antalya-hal-kumluca",
     defaultBaseUrl:    "https://www.batiakdeniztv.com",
     defaultEndpoint:   "/kumluca-hal-fiyatlari",
@@ -428,7 +431,8 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "gazipasa_batiakdeniz",
-    defaultEnabled:    true,
+    // 2026-09-02: kaynak 42 gundur donmus (bkz. serik_batiakdeniz)
+    defaultEnabled:    false,
     defaultMarketSlug: "gazipasa-hal",
     defaultBaseUrl:    "https://www.batiakdeniztv.com",
     defaultEndpoint:   "/gazipasa-hal-fiyatlari",
@@ -438,7 +442,8 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "alanya_batiakdeniz",
-    defaultEnabled:    true,
+    // 2026-09-02: kaynak 70 gundur donmus (24 Haziran'dan beri tek fiyat kumesi)
+    defaultEnabled:    false,
     defaultMarketSlug: "alanya-hal",
     defaultBaseUrl:    "https://www.batiakdeniztv.com",
     defaultEndpoint:   "/alanya-hal-fiyatlari",
@@ -458,7 +463,8 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "finike_batiakdeniz",
-    defaultEnabled:    true,
+    // 2026-09-02: kaynak 42 gundur donmus (bkz. serik_batiakdeniz)
+    defaultEnabled:    false,
     defaultMarketSlug: "finike-hal",
     defaultBaseUrl:    "https://www.batiakdeniztv.com",
     defaultEndpoint:   "/finike-hal-fiyatlari",
@@ -588,7 +594,8 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "tobb_borsa_sanliurfa",
-    defaultEnabled:    true,
+    // 2026-09-02: eklendiginden beri tek satir uretmedi — borsa gunluk bulten yayinlamiyor
+    defaultEnabled:    false,
     defaultMarketSlug: "sanliurfa-ticaret-borsasi",
     defaultBaseUrl:    "https://borsa.tobb.org.tr",
     defaultEndpoint:   "/fiyat_borsa.php?borsakod=5UR10",
@@ -608,7 +615,8 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "tobb_borsa_yozgat",
-    defaultEnabled:    true,
+    // 2026-09-02: eklendiginden beri tek satir uretmedi
+    defaultEnabled:    false,
     defaultMarketSlug: "yozgat-ticaret-borsasi",
     defaultBaseUrl:    "https://borsa.tobb.org.tr",
     defaultEndpoint:   "/fiyat_borsa.php?borsakod=5YO10",
@@ -763,7 +771,8 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "tobb_borsa_nevsehir",
-    defaultEnabled:    true,
+    // 2026-09-02: eklendiginden beri tek satir uretmedi
+    defaultEnabled:    false,
     defaultMarketSlug: "nevsehir-ticaret-borsasi",
     defaultBaseUrl:    "https://borsa.tobb.org.tr",
     defaultEndpoint:   "/fiyat_borsa.php?borsakod=5NE10",
@@ -773,7 +782,8 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "tobb_borsa_adana",
-    defaultEnabled:    true,
+    // 2026-09-02: eklendiginden beri tek satir uretmedi
+    defaultEnabled:    false,
     defaultMarketSlug: "adana-ticaret-borsasi",
     defaultBaseUrl:    "https://borsa.tobb.org.tr",
     defaultEndpoint:   "/fiyat_borsa.php?borsakod=5AD10",
@@ -783,7 +793,8 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "tobb_borsa_ordu",
-    defaultEnabled:    true,
+    // 2026-09-02: eklendiginden beri tek satir uretmedi
+    defaultEnabled:    false,
     defaultMarketSlug: "ordu-ticaret-borsasi",
     defaultBaseUrl:    "https://borsa.tobb.org.tr",
     defaultEndpoint:   "/fiyat_borsa.php?borsakod=5OR10",

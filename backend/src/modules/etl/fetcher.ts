@@ -258,7 +258,7 @@ function stripTags(s: string): string {
   return decodeEntities(s.replace(/<[^>]+>/g, "")).replace(/\s+/g, " ").trim();
 }
 
-function parsePriceTry(raw: string): number | null {
+function parsePriceTry(raw: string, opts?: { packageRow?: boolean }): number | null {
   if (!raw) return null;
   // "₺ Fiyat Bekleniyor", "Mevcut Değil ₺", "-", boş → null
   const cleaned = raw.replace(/₺/g, "").replace(/\s+/g, " ").trim();
@@ -266,13 +266,18 @@ function parsePriceTry(raw: string): number | null {
   if (/bekleniyor|mevcut de[ğg]il|veri yok|^-+$/i.test(cleaned)) return null;
   // Bazı belediye HTML'lerinde maske/format kaybıyla "80,00" değeri "8000"
   // olarak gelebiliyor. Ayırıcı içermeyen 4-5 haneli değerleri kuruş kabul et.
-  if (/^\d{4,5}$/.test(cleaned)) {
-    const cents = parseInt(cleaned, 10) / 100;
-    return Number.isFinite(cents) && cents > 0 ? cents : null;
-  }
-  if (/^\d{6}$/.test(cleaned)) {
-    const cents = parseInt(cleaned, 10) / 1000;
-    return Number.isFinite(cents) && cents > 0 ? cents : null;
+  // Paket satırlarında (Koli/Kasa/Sandık) dört hane NORMALDİR — orada uygulanmaz:
+  // Kayseri "Muz İthal (18kg) | Koli | 2300 ₺" bu sezgisel yüzünden 23 ₺ oluyordu
+  // (2026-09-02). Aynı hata Bursa için 2026-06-09'da CENT_SCALED_SOURCES'ta görülmüştü.
+  if (!opts?.packageRow) {
+    if (/^\d{4,5}$/.test(cleaned)) {
+      const cents = parseInt(cleaned, 10) / 100;
+      return Number.isFinite(cents) && cents > 0 ? cents : null;
+    }
+    if (/^\d{6}$/.test(cleaned)) {
+      const cents = parseInt(cleaned, 10) / 1000;
+      return Number.isFinite(cents) && cents > 0 ? cents : null;
+    }
   }
   // "80.00", "80,00", "2.700,00", "1,000.50"
   const normalized =
@@ -309,15 +314,15 @@ function parseAnkaraHtml(raw: unknown): NormalizedRow[] {
       if (row.length < 6) continue;
       const name = row[0]!.trim();
       if (!name || /^(ürün adı|ürün|birim|en düşük fiyat|en yüksek fiyat|tarih)$/i.test(name)) continue;
-      const divisor = packageDivisor(row[2] ?? "");
-      const min = scaleByPackage(parsePriceTry(row[3] ?? ""), divisor);
-      const max = scaleByPackage(parsePriceTry(row[4] ?? ""), divisor);
+      const pkg = packageAwarePrice(row[2], name);
+      const min = pkg.price(row[3]);
+      const max = pkg.price(row[4]);
       const recordedDate = parseTrDate(row[5] ?? "");
       if (min == null && max == null) continue;
       out.push({
         name,
         category,
-        unit: divisor > 1 ? "kg" : normalizeUnit(row[2] ?? ""),
+        unit: pkg.unit,
         avg: min != null && max != null ? (min + max) / 2 : (min ?? max),
         min,
         max,
@@ -351,10 +356,10 @@ function parseMersinHtml(raw: unknown): NormalizedRow[] {
       if (!product || /^(şube|ürün|cinsi|türü|min\. fiyat|mak\. fiyat|ort\. fiyat|birim)$/i.test(product)) {
         continue;
       }
-      const divisor = packageDivisor(row[7] ?? "");
-      const min = scaleByPackage(parsePriceTry(row[4] ?? ""), divisor);
-      const max = scaleByPackage(parsePriceTry(row[5] ?? ""), divisor);
-      const avg = scaleByPackage(parsePriceTry(row[6] ?? ""), divisor);
+      const pkg = packageAwarePrice(row[7], product);
+      const min = pkg.price(row[4]);
+      const max = pkg.price(row[5]);
+      const avg = pkg.price(row[6]);
       if (min == null && max == null && avg == null) continue;
 
       const displayName = kind && kind.toLocaleLowerCase("tr-TR") !== product.toLocaleLowerCase("tr-TR")
@@ -364,7 +369,7 @@ function parseMersinHtml(raw: unknown): NormalizedRow[] {
       out.push({
         name: displayName,
         category,
-        unit: divisor > 1 ? "kg" : normalizeUnit(row[7] ?? ""),
+        unit: pkg.unit,
         avg: avg ?? (min != null && max != null ? (min + max) / 2 : (min ?? max)),
         min,
         max,
@@ -417,11 +422,44 @@ function normalizeUnit(raw: string | null | undefined): string | null {
     .replace(/ı/g, "i").replace(/ö/g, "o").replace(/ç/g, "c");
 }
 
-function packageDivisor(rawUnit: string | null | undefined): number {
+/** Birim hücresi paket (koli/kasa/sandık/çuval) mi? */
+function isPackageUnit(rawUnit: string | null | undefined): boolean {
   const unit = normalizeUnit(rawUnit) ?? "";
-  const m = /\((\d+(?:[.,]\d+)?)\s*k(?:g|g|ğ)\)/i.exec(unit);
+  return /\b(koli|kasa|sandik|cuval)\b/.test(unit);
+}
+
+const PACKAGE_KG_RE = /\((\d+(?:[.,]\d+)?)\s*k(?:g|ğ)\)/i;
+
+/** Urun adinda paket gostergesi ("Muz Ithal (Koli)", "Limon Sandik"). */
+const PACKAGE_HINT_RE = /\b(koli|kasa|sandık|sandik|çuval|cuval)\b|\((?:koli|kasa)\)/i;
+
+/**
+ * Paket ağırlığını bulur; TL/paket → TL/kg çevriminde bölen olarak kullanılır.
+ * Ağırlık birim hücresinde olabilir ("Koli (18 kg)") ya da ürün adında
+ * ("Muz İthal (18kg) | Koli"). Ad yalnız birim hücresi paket derse okunur —
+ * aksi halde "Elma 15kg" gibi kg fiyatlı bir satır yanlışlıkla bölünürdü.
+ */
+function packageDivisor(rawUnit: string | null | undefined, name?: string | null): number {
+  const unit = normalizeUnit(rawUnit) ?? "";
+  const source = PACKAGE_KG_RE.test(unit) || !isPackageUnit(rawUnit) ? unit : (name ?? "");
+  const m = PACKAGE_KG_RE.exec(source);
   const kg = m ? parseFloat(m[1]!.replace(",", ".")) : NaN;
   return Number.isFinite(kg) && kg > 1 ? kg : 1;
+}
+
+/**
+ * Birim hücresi olan tablolarda fiyat okumanın tek girişi: paket tespiti,
+ * kg'a çevrim ve birim adlandırması tek yerde kalsın diye toplandı.
+ */
+function packageAwarePrice(rawUnit: string | null | undefined, name?: string | null) {
+  const divisor = packageDivisor(rawUnit, name);
+  const packageRow = divisor > 1 || isPackageUnit(rawUnit);
+  return {
+    divisor,
+    unit: divisor > 1 ? "kg" : normalizeUnit(rawUnit),
+    price: (cell: string | null | undefined): number | null =>
+      scaleByPackage(parsePriceTry(cell ?? "", { packageRow }), divisor),
+  };
 }
 
 function scaleByPackage(price: number | null, divisor: number): number | null {
@@ -447,8 +485,11 @@ function scaleSuspiciousCents(price: number | null, source: EtlSourceConfig): nu
   return Math.round((price / 100) * 100) / 100;
 }
 
-function normalizePriceRow(row: NormalizedRow, source: EtlSourceConfig): NormalizedRow {
-  let next = CENT_SCALED_SOURCES.has(source.key)
+export function normalizePriceRow(row: NormalizedRow, source: EtlSourceConfig): NormalizedRow {
+  // Paket satirinda dort haneli fiyat gercektir; kurus duzeltmesi orada uygulanmaz
+  // (Manisa "MUZ ITHAL KOLI | 1800-2000 TL" 18-20 TL'ye dusuyordu).
+  const packageRow = isPackageUnit(row.unit) || PACKAGE_HINT_RE.test(row.name ?? "");
+  let next = CENT_SCALED_SOURCES.has(source.key) && !packageRow
     ? {
         ...row,
         avg: scaleSuspiciousCents(row.avg, source),
@@ -468,11 +509,18 @@ function normalizePriceRow(row: NormalizedRow, source: EtlSourceConfig): Normali
   // Birim sütununda (örn. Bursa "Limon | Sandık", "Muz | Koli") veya üründe ("Muz İthal (Koli)")
   // paket göstergesi varsa birimi "koli" yap → kg-tavanlı sıhhat filtresine takılmaz + TL/koli gösterilir.
   // (normalizeUnit Türkçe sadeleştirir: sandık→sandik, çuval→cuval.)
-  const unitStr = (next.unit ?? "").toLowerCase();
-  if (next.unit !== "koli" &&
-      (/\b(koli|kasa|sandik|cuval)\b/.test(unitStr) ||
-       /\b(koli|kasa|sandık|çuval)\b|\((?:koli|kasa)\)/i.test(next.name ?? ""))) {
-    next = { ...next, unit: "koli" };
+  // Birim sutunu paket diyorsa soz onundur. Ad ipucu (ornegin "Domates Kasa
+  // Salkim") ise ambalaj TURUNU anlatiyor olabilir — Kayseri o satiri "Kg"
+  // birimiyle 30-50 TL yayinliyor ve kg emsali 39,4 TL. Bu yuzden ad ipucu
+  // yalnizca fiyat kg tavanini asiyorsa paket sayilir; aksi halde satir her gun
+  // PRODUCT_UNIT_MISMATCH karantinasina dusuyordu (2026-09-02).
+  if (next.unit !== "koli") {
+    const rep = next.avg ?? (next.min != null && next.max != null ? (next.min + next.max) / 2 : (next.min ?? next.max));
+    const nameSuggestsPackage = PACKAGE_HINT_RE.test(next.name ?? "")
+      && rep != null && rep > env.ETL.priceSanityMaxProduce;
+    if (isPackageUnit(next.unit) || nameSuggestsPackage) {
+      next = { ...next, unit: "koli" };
+    }
   }
 
   // Etiketsiz koli tespiti: bazı haller paket fiyatını "koli" yazmadan verir
@@ -532,15 +580,15 @@ function parseKonyaHtml(html: string): NormalizedRow[] {
       const name = row[0]!.trim();
       // Başlık ve başlık-benzeri satırları atla
       if (!name || /^(ürün|cinsi|ürün adı|fiyatları)$/i.test(name)) continue;
-      const divisor = packageDivisor(row[1] ?? "");
-      const min = scaleByPackage(parsePriceTry(row[2] ?? ""), divisor);
-      const max = scaleByPackage(parsePriceTry(row[3] ?? ""), divisor);
+      const pkg = packageAwarePrice(row[1], name);
+      const min = pkg.price(row[2]);
+      const max = pkg.price(row[3]);
       if (min == null && max == null) continue;
       const avg = min != null && max != null ? (min + max) / 2 : (min ?? max);
       out.push({
         name,
         category: categories[i]!,
-        unit:     divisor > 1 ? "kg" : normalizeUnit(row[1] ?? ""),
+        unit:     pkg.unit,
         avg,
         min,
         max,
@@ -661,18 +709,18 @@ export function parseBursaHtml(html: string): NormalizedRow[] {
       const name = row[0]!.trim();
       if (!name || /^(ürün|br|fiyat)$/i.test(name)) continue;
       const rawUnit = row[1]?.trim() ?? "";
-      const divisor = packageDivisor(rawUnit);
-      const unit = divisor > 1 ? "kg" : normalizeUnit(rawUnit);
+      const pkg = packageAwarePrice(rawUnit, name);
+      const unit = pkg.unit;
       // FİYAT: "100,00 - 400,00 TL" veya "150 TL"
       const priceRaw = (row[2] ?? "").replace(/&#8378;|TL|₺/gi, "").trim();
       const dashMatch = /^(.+?)\s*[-–]\s*(.+)$/.exec(priceRaw);
       let min: number | null = null;
       let max: number | null = null;
       if (dashMatch) {
-        min = scaleByPackage(parsePriceTry(dashMatch[1] ?? ""), divisor);
-        max = scaleByPackage(parsePriceTry(dashMatch[2] ?? ""), divisor);
+        min = pkg.price(dashMatch[1]);
+        max = pkg.price(dashMatch[2]);
       } else {
-        const single = scaleByPackage(parsePriceTry(priceRaw), divisor);
+        const single = pkg.price(priceRaw);
         min = single; max = single;
       }
       if (min == null && max == null) continue;
@@ -708,9 +756,9 @@ function parseBalikesirHtml(html: string): NormalizedRow[] {
     if (row.length < 5) continue;
     const name = row[0]!.trim();
     if (!name || /^(ürün|ürün\/tür|birimi|hal\/pazar|en düşük|en yüksek|başlangıç)$/i.test(name)) continue;
-    const divisor = packageDivisor(row[1] ?? "");
-    const min = scaleByPackage(parsePriceTry(row[3] ?? ""), divisor);
-    const max = scaleByPackage(parsePriceTry(row[4] ?? ""), divisor);
+    const pkg = packageAwarePrice(row[1], name);
+    const min = pkg.price(row[3]);
+    const max = pkg.price(row[4]);
     if (min == null && max == null) continue;
     const recordedDate = parseTrDate(row[5] ?? "");
     const key = `${name}|${recordedDate ?? ""}`;
@@ -721,7 +769,7 @@ function parseBalikesirHtml(html: string): NormalizedRow[] {
     } else {
       agg.set(key, {
         name,
-        unit:  divisor > 1 ? "kg" : normalizeUnit(row[1] ?? ""),
+        unit:  pkg.unit,
         min:   min ?? max!,
         max:   max ?? min!,
         date:  recordedDate,
@@ -774,7 +822,7 @@ function parseKocaeliHtml(html: string): NormalizedRow[] {
  * Tek tablo, kolonlar: [CİNSİ, BİRİMİ, EN YÜKSEK, EN DÜŞÜK].
  * DİKKAT: Kayseri kolon sırası ters — önce MAX, sonra MIN.
  */
-function parseKayseriHtml(html: string): NormalizedRow[] {
+export function parseKayseriHtml(html: string): NormalizedRow[] {
   const out: NormalizedRow[] = [];
   const tables = extractTables(html);
   if (tables.length === 0) return out;
@@ -782,15 +830,15 @@ function parseKayseriHtml(html: string): NormalizedRow[] {
     if (row.length < 4) continue;
     const name = row[0]!.trim();
     if (!name || /^(cinsi|ürün|ürün adı)$/i.test(name)) continue;
-    const divisor = packageDivisor(row[1] ?? "");
-    const max = scaleByPackage(parsePriceTry(row[2] ?? ""), divisor);
-    const min = scaleByPackage(parsePriceTry(row[3] ?? ""), divisor);
+    const pkg = packageAwarePrice(row[1], name);
+    const max = pkg.price(row[2]);
+    const min = pkg.price(row[3]);
     if (min == null && max == null) continue;
     const avg = min != null && max != null ? (min + max) / 2 : (max ?? min);
     out.push({
       name,
       category: null,   // Kayseri kategori vermiyor — config.defaultCategory
-      unit:     divisor > 1 ? "kg" : normalizeUnit(row[1] ?? ""),
+      unit:     pkg.unit,
       avg,
       min,
       max,
@@ -1006,15 +1054,15 @@ async function fetchDated(
   const url = source.baseUrl + template.replace("{date}", date);
   const isHtml = HTML_SHAPES.has(source.responseShape);
   const isText = TEXT_SHAPES.has(source.responseShape);
-  const res = await fetch(url, {
-    headers: {
+  const res = await fetchWithServerRetry(
+    url,
+    {
       Accept:      isHtml || isText ? "text/plain,text/html,application/pdf,*/*" : "application/json",
       "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
     },
-    signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
     // @ts-expect-error Bun-specific TLS option — ignored by Node
-    tls: { rejectUnauthorized: false },
-  });
+    { tls: { rejectUnauthorized: false } },
+  );
 
   if (res.status === 204) return { rows: [], dateUsed: date, httpStatus: 204 };
   if (!res.ok) throw new Error(`HTTP ${res.status} @ ${url}`);
@@ -1033,6 +1081,32 @@ async function fetchDated(
   return { rows: parseResponse(source.responseShape, json, source), dateUsed: date, httpStatus: res.status };
 }
 
+/**
+ * Kaynak sunucusunun gecici 5xx'i tum kosuyu dusurmesin. Polatli Borsa 21 gunde
+ * 5 kez HTTP 500 verip hemen ardindan normale donuyordu (2026-09-02 olcumu);
+ * tek denemede kosu "error" yaziliyor, o gunun verisi hic alinmiyordu.
+ * Yalniz 5xx yeniden denenir — 4xx kalicidir, tekrar zaman kaybidir.
+ */
+async function fetchWithServerRetry(
+  url: string,
+  headers: Record<string, string>,
+  extra: RequestInit = {},
+  attempts = 3,
+): Promise<Response> {
+  let last: Response | null = null;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const res = await fetch(url, {
+      ...extra,
+      headers,
+      signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+    });
+    if (res.status < 500) return res;
+    last = res;
+    if (attempt < attempts) await new Promise((resolve) => setTimeout(resolve, attempt * 2_000));
+  }
+  return last!;
+}
+
 async function fetchPolatliBorsaDated(
   source: EtlSourceConfig,
   date: string,
@@ -1042,12 +1116,9 @@ async function fetchPolatliBorsaDated(
   const requestDate = formatDateTr(date);
   const endpoint = template.includes("{date}") ? template.replace("{date}", encodeURIComponent(requestDate)) : template;
   const url = source.baseUrl + endpoint;
-  const res = await fetch(url, {
-    headers: {
-      Accept: "application/json,text/plain,*/*",
-      "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
-    },
-    signal: AbortSignal.timeout(env.ETL.requestTimeoutMs),
+  const res = await fetchWithServerRetry(url, {
+    Accept: "application/json,text/plain,*/*",
+    "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)",
   });
 
   if (res.status === 204) return { rows: [], dateUsed: date, httpStatus: 204 };
@@ -1528,15 +1599,15 @@ function parseManisaHtml(html: string): NormalizedRow[] {
     const name   = (row[1] ?? "").trim();
     if (!name || /^(tip|adı|birim|en az|en çok)$/i.test(name)) continue;
     const category = tipRaw === "meyve" ? "meyve" : tipRaw === "sebze" ? "sebze" : null;
-    const divisor  = packageDivisor(row[2] ?? "");
-    const min = scaleByPackage(parsePriceTry(row[3] ?? ""), divisor);
-    const max = scaleByPackage(parsePriceTry(row[4] ?? ""), divisor);
+    const pkg = packageAwarePrice(row[2], name);
+    const min = pkg.price(row[3]);
+    const max = pkg.price(row[4]);
     if (min == null && max == null) continue;
     const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
     out.push({
       name,
       category,
-      unit: divisor > 1 ? "kg" : normalizeUnit(row[2] ?? ""),
+      unit: pkg.unit,
       avg,
       min,
       max,

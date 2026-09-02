@@ -284,6 +284,34 @@ hal-fiyatlari tarafi:
 | **istanbul_ibb_anadolu** | **YENI EKLENECEK** | URL: tarim.ibb.istanbul/tr/istatistik/124/hal-fiyatlari.html — parser yok |
 | **istanbul_ibb_avrupa** | **YENI EKLENECEK** | URL: tarim.ibb.istanbul/avrupa-yakasi-hal-mudurlugu/hal-fiyatlari.html — parser yok |
 
+### 2026-09-02 denetimi — 11 kaynak kapatildi, 2 ayristirma hatasi duzeltildi
+
+| Source | Bulgu | Aksiyon |
+|---|---|---|
+| corum_resmi | SafeLine WAF (Chaitin) HTTP 468 — challenge JS. Scrapling `stealthy` **ve** `dynamic` (94sn bekleyerek) asamadi; ag erisimi saglam, WAF headless tarayiciyi taniyor | `defaultEnabled: false` + HF_SCRAPER_SOURCES'tan cikarildi. Son veri 2026-08-12. Scraper-service challenge destegi gelirse tekrar dene |
+| serik/kumluca/gazipasa/finike_batiakdeniz | Kaynak site 22 Temmuz'dan beri ayni fiyatlari yayinliyor (Serik'te 42 gun gunluk toplam kurusu kurusuna 395,00). ETL her gun bayat veriyi yeniden yaziyordu | `defaultEnabled: false` + `hf_market_blackouts` kaydi (seed 048) — satirlar silinmedi, toplamalardan dislandi |
+| alanya_batiakdeniz | 70 gundur donmus (24 Haziran) | Ayni. Blackout zaten canlida vardi ama **seed'de yoktu** — seed'e eklendi |
+| demre_batiakdeniz | 13 gun donuk = kendi normal ritmi | **Kapatilmadi**, izlemede |
+| tobb_borsa_{sanliurfa,yozgat,nevsehir,adana,ordu} | Eklendiklerinden beri **tek satir uretmediler** — bu borsalar gunluk bulten yayinlamiyor | `defaultEnabled: false` |
+| tobb_borsa_eskisehir | Mevsimlik tahil borsasi; 16 Mart–7 Agustos arasi uretti, hasat disi bos | Acik birakildi, `ETL_HEALTH_IGNORE_EMPTY_SOURCES`'a eklendi |
+| polatli_borsa | 21 gunde 5 kez gecici HTTP 500; hemen ardindan normal | `fetchWithServerRetry` — yalniz 5xx, 3 deneme, artan bekleme |
+
+**Iki ayristirma hatasi (fiyat verisini bozuyordu):**
+
+1. `parsePriceTry`'in "ayirici icermeyen 4-5 hane = kurus" sezgiseli **gercek paket
+   fiyatlarini 100'e boluyordu**: Kayseri "Muz Ithal (18kg) | Koli | 2300 ₺" → 23 ₺.
+   Ayni hata 2026-06-09'da Bursa icin gorulup o kaynak CENT_SCALED_SOURCES'tan
+   cikarilmis ama genel kural kalmisti. Artik paket satirlarinda uygulanmiyor;
+   paket agirligi ad icinde yaziliysa ("(18kg)") TL/kg'a cevriliyor → 2300/18 = 127,78
+   (Ankara ithal muz 85-130 TL/kg ile tutarli).
+2. Ad temelli koli tespiti ambalaj TURUNU anlatan urun adlarini yanlis yakaliyordu:
+   "Domates Kasa Salkim" Kayseri'de **kg** fiyatiyla (30-50 TL, kg emsali 39,4)
+   yayinlaniyor ama adindaki "Kasa" yuzunden koli sayilip her gun karantinaya
+   dusuyordu. Ad ipucu artik yalniz fiyat kg tavanini asiyorsa paket sayiliyor;
+   birim sutunu paket diyorsa (Bursa "Limon | Sandik") eskisi gibi soz onunde.
+
+Regresyon testi: `backend/test/etl-package-price.test.ts` (8 test).
+
 ## Onemli Dosya Yollari
 
 - ETL config: `backend/src/config/etl-sources.ts` (22+ kaynak)
