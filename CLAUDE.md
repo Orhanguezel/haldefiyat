@@ -241,7 +241,7 @@ hal-fiyatlari tarafi:
 - `trabzon_resmi` (✅ Oturum 3: HF_SCRAPER_DYNAMIC, div kart yapısı tablo yok, **68 inserted**, resimler /public/images/urunler/ indirildi)
 
 ### Direct Fetch Source'lar (Scrapling kullanmiyor)
-- `istanbul_ibb` (Anadolu Yakasi) (✅ Asama 4: 97 satir/gun, 1.1s, 3 paralel kategori AJAX endpoint)
+- `istanbul_ibb` (**Istanbul geneli** — Anadolu/Avrupa ayrimi YOK, bkz. 2026-09-02 notu) (✅ Asama 4: 97 satir/gun, 1.1s, 3 paralel kategori AJAX endpoint)
   - URL: `tarim.ibb.istanbul/inc/halfiyatlari/gunluk_fiyatlar.asp`
   - Auth: tUsr/tPas/tVal hardcoded inline JS'ten
   - T-1 gun verisi (bugun gece dolar)
@@ -281,8 +281,7 @@ hal-fiyatlari tarafi:
 | mersin_resmi | socket closed | 🔜 Asama 2 |
 | balikesir_resmi | socket closed | 🔜 Asama 2: 2-step CSRF + POST |
 | hal_gov_tr_ulusal | timeout / multi-step ASP.NET | 🔜 Asama 2: hibrit (GET Scrapling + POST local) |
-| **istanbul_ibb_anadolu** | **YENI EKLENECEK** | URL: tarim.ibb.istanbul/tr/istatistik/124/hal-fiyatlari.html — parser yok |
-| **istanbul_ibb_avrupa** | **YENI EKLENECEK** | URL: tarim.ibb.istanbul/avrupa-yakasi-hal-mudurlugu/hal-fiyatlari.html — parser yok |
+| ~~istanbul_ibb_anadolu~~ / ~~istanbul_ibb_avrupa~~ | Ayri kaynak GEREKMIYOR | 2026-09-02: iki sayfanin inline parametreleri birebir ayni (tUsr/tPas/tVal/HalTurId=2) — IBB **tek** Istanbul veri seti yayinliyor. Mevcut `istanbul_ibb` zaten Istanbul genelini kapsiyor. HalTurId 1/3/4 bos doner. |
 
 ### 2026-09-02 denetimi — 11 kaynak kapatildi, 2 ayristirma hatasi duzeltildi
 

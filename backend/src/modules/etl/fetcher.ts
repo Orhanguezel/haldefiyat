@@ -1394,7 +1394,10 @@ async function fetchGaziantepDated(
  *
  * 3 kategori paralel cekilir: 5 (Meyve), 6 (Sebze), 7 (Ithal).
  * tUsr/tPas/tVal sayfaya inline embedded auth — kaynaktan alindi.
- * HalTurId=2 hem Anadolu hem Avrupa sayfasinda kullaniliyor (site ayrim yapmiyor).
+ * HalTurId=2 hem Anadolu hem Avrupa sayfasinda kullaniliyor. 2026-09-02'de iki
+ * sayfanin inline parametreleri BIREBIR karsilastirildi: tUsr/tPas/tVal/HalTurId
+ * ayni. Yani IBB tek bir Istanbul veri seti yayinliyor — "Anadolu Yakasi verisi"
+ * demek YANLIS, kapsam Istanbul geneli. HalTurId 1/3/4 bos donuyor.
  * T-1 gun verisi (bugun gece dolar — endpoint bugun icin bos doner).
  */
 const ISTANBUL_IBB_AUTH = {
