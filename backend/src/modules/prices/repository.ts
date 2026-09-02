@@ -966,7 +966,10 @@ export async function listProducts(q?: string, category?: string, seoIndex?: boo
         SELECT MAX(ph.recorded_date)
         FROM hf_price_history ph
         INNER JOIN hf_products v ON v.id = ph.product_id AND v.is_active = 1
-        WHERE (v.id = ${hfProducts.id} OR v.canonical_slug = ${hfProducts.slug})
+        -- Dis tabloya TAM NITELIKLI referans sart: drizzle ${hfProducts.id}'i
+        -- niteliksiz \`id\` olarak basiyor ve alt sorgudaki v.id ile cakisip
+        -- "Column 'id' in where clause is ambiguous" hatasi veriyor.
+        WHERE (v.id = hf_products.id OR v.canonical_slug = hf_products.slug)
           AND ph.unit = v.unit
       )`,
     })
