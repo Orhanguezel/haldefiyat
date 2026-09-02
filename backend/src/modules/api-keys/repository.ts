@@ -12,6 +12,7 @@ import { hfApiKeys } from "@/db/schema";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { env } from "@/core/env";
 import { users } from "@agro/shared-backend/modules/auth/schema";
+import { hasProAccess } from "@/modules/billing/repository";
 
 const KEY_PREFIX = "hf_";
 
@@ -93,14 +94,18 @@ export async function issueKey(userId: string, name?: string): Promise<IssuedApi
     throw new Error("Maksimum 3 aktif API anahtarina sahip olabilirsiniz.");
   }
 
+  // Yeni anahtar kullanicinin MEVCUT plan durumunu devralir. Aksi halde Pro
+  // abonesi anahtar actiginda free limitiyle basliyor ve neden 100 istekte
+  // durdugunu anlamiyordu.
+  const pro = await hasProAccess(userId);
   const { raw, hash, prefix } = generateRawKey();
   await db.insert(hfApiKeys).values({
     userId,
     keyHash:           hash,
     keyPrefix:         prefix,
     name:              (name ?? "My API Key").slice(0, 128),
-    tier:              "free",
-    dailyLimit:        env.API_KEY_FREE_DAILY_LIMIT,
+    tier:              pro ? "pro" : "free",
+    dailyLimit:        pro ? env.API_KEY_PRO_DAILY_LIMIT : env.API_KEY_FREE_DAILY_LIMIT,
     usedToday:         0,
     usageWindowStart:  todayIso(),
   });

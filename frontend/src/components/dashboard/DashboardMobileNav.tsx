@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "hesabim/reklamlarim", key: "ads",           icon: MegaphoneIcon },
   { href: "hesabim/uyarilar",    key: "alerts",        icon: BellIcon },
   { href: "hesabim/favoriler",   key: "favorites",     icon: StarIcon },
+  { href: "hesabim/api",         key: "api",           icon: KeyIcon },
   { href: "hesabim/profil",      key: "profile",       icon: UserIcon },
   { href: "hesabim/bildirimler", key: "notifications", icon: InboxIcon },
 ];
@@ -85,6 +86,13 @@ function StarIcon({ size }: { size: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" aria-hidden>
       <path d="M10 2.5l2.4 5 5.5.8-4 3.9.95 5.5L10 15l-4.85 2.7.95-5.5-4-3.9 5.5-.8z" />
+    </svg>
+  );
+}
+function KeyIcon({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
+      <circle cx="6.5" cy="6.5" r="3.5" /><path d="M9 9l7.5 7.5M14 14l1.5-1.5M16 16l1.5-1.5" strokeLinecap="round" />
     </svg>
   );
 }

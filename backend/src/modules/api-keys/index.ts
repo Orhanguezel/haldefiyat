@@ -22,6 +22,7 @@ import type { RowDataPacket } from "mysql2";
 import { requireAuth } from "@agro/shared-backend/middleware/auth";
 import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 import { env } from "@/core/env";
+import { isStripeConfigured } from "@/modules/billing/stripe-client";
 import {
   issueKey,
   listUserKeys,
@@ -59,12 +60,16 @@ async function auditApiKeyIdColumnExists(api: FastifyInstance): Promise<boolean>
 export async function registerApiKeysPublic(api: FastifyInstance) {
   // Plan/fiyatlandirma bilgisi — frontend /pro sayfasi icin (auth-free)
   api.get("/keys/plans", async (_req, reply) => {
+    // Odeme yapilandirildiysa Pro self-service satin alinir; degilse eski
+    // manuel onay akisina duseriz. Sayfa buna gore CTA gosterir — "Pro'ya Gec"
+    // dugmesi calismayacak bir yere goturmez.
+    const selfServe = isStripeConfigured();
     return reply.send({
       contract: {
         apiVersion: "v1",
         anonymousPerMinute: env.API_ANON_PER_MINUTE,
         keyedQuotaWindow: "UTC calendar day",
-        pricingMode: "manual_approval",
+        pricingMode: selfServe ? "self_service" : "manual_approval",
         publicSla: null,
       },
       plans: [

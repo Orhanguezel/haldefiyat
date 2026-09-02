@@ -3,7 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import { getPageMetadata } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 import PageContainer from "@/components/layout/PageContainer";
-import TrackedConversionLink from "@/components/analytics/TrackedConversionLink";
+import ProUpgradeCta from "@/components/api/ProUpgradeCta";
 import ApiProductNav from "@/components/api/ApiProductNav";
 import CopyCodeBlock from "@/components/api/CopyCodeBlock";
 import ApiKeyOnboarding from "@/components/api/ApiKeyOnboarding";
@@ -33,7 +33,7 @@ interface PlansResponse {
     apiVersion: string;
     anonymousPerMinute: number;
     keyedQuotaWindow: string;
-    pricingMode: "manual_approval";
+    pricingMode: "manual_approval" | "self_service";
     publicSla: null;
   };
 }
@@ -142,14 +142,11 @@ export default async function ProPage({ params }: Props) {
               </li>
             ))}
           </ul>
-          <TrackedConversionLink
-            href={`/${locale}/iletisim?subject=Pro%20Plan%20Talebi`}
-            eventName="pro_inquiry"
-            eventLabel="pro_main_cta"
-            className="block text-center rounded-lg bg-emerald-500 text-white px-4 py-2.5 text-sm font-medium hover:bg-emerald-600 transition"
-          >
-            Pro&apos;ya Geç
-          </TrackedConversionLink>
+          <ProUpgradeCta
+            locale={locale}
+            selfServe={planResponse.contract.pricingMode === "self_service"}
+            priceLabel={`${fmtNumber(pro.priceMonthlyTL)} ₺/ay`}
+          />
         </div>
       </section>
 
@@ -165,7 +162,7 @@ export default async function ProPage({ params }: Props) {
             {
               n: 2,
               t: "API key oluştur",
-              d: "Hesap panelinizden API anahtarınızı oluşturun. Maksimum 3 aktif anahtar.",
+              d: "Hesap panelinizdeki API erişimi sayfasından anahtarınızı oluşturun. Maksimum 3 aktif anahtar.",
             },
             {
               n: 3,
@@ -263,7 +260,9 @@ curl https://haldefiyat.com/api/v1/prices/trending \\
           <div className="rounded-xl border border-border p-5">
             <h3 className="font-semibold mb-1">Pro erişimi nasıl başlar?</h3>
             <p className="text-sm text-muted-foreground">
-              Pro erişimi otomatik satın alma değildir. Talep kapsam, lisans ve kullanım uygunluğu kontrolünden sonra manuel onaylanır; yürürlük ve iptal koşulları yazılı teklifte belirtilir.
+              {planResponse.contract.pricingMode === "self_service"
+                ? <>Kartla abone olduğunuzda erişim anında açılır. Anahtarlarınız otomatik Pro limitine geçer; iptal, kart değişikliği ve faturalar <Link href={`/${locale}/hesabim/api`} className="text-emerald-600 underline">hesap panelinizden</Link> yönetilir. İptal ettiğinizde erişim ödenmiş dönemin sonuna kadar sürer.</>
+                : "Pro erişimi şu an otomatik satın alma değildir. Talep kapsam, lisans ve kullanım uygunluğu kontrolünden sonra manuel onaylanır; yürürlük ve iptal koşulları yazılı teklifte belirtilir."}
             </p>
           </div>
           <div className="rounded-xl border border-border p-5">
