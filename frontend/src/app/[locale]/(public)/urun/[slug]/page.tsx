@@ -267,6 +267,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       slug,
       year,
       priceLine,
+      cityLine,
     },
     title: borsaProduct
       ? `${displayName} Fiyatları ${year} — Güncel TMO Alım & Borsa Fiyatı`

@@ -42,8 +42,13 @@ async function fetchLatestPriceSummary(slug: string): Promise<{ count: number; d
     if (prices.length === 0) return { count: 0, date: "", samples: [] };
     const latestDate = prices.reduce((max, p) => (p.recordedDate > max ? p.recordedDate : max), "");
     const dayRows = prices.filter((p) => p.recordedDate === latestDate);
-    const samples = dayRows
-      .filter((row) => Number(row.avgPrice) > 0 && row.productName)
+    // Ilk 3 satiri almak yanlis sinyal veriyordu: Ankara'da liste balikla basliyor
+    // ("Barbun 900 TL/kg") ve "ankara hal fiyatlari" arayan sebze-meyve bekliyor.
+    // Sebze/meyve once; o kadar satir yoksa kalanla tamamlanir.
+    const priced = dayRows.filter((row) => Number(row.avgPrice) > 0 && row.productName);
+    const isProduce = (row: (typeof priced)[number]) => /sebze|meyve/.test(row.categorySlug ?? "");
+    const ordered = [...priced.filter(isProduce), ...priced.filter((row) => !isProduce(row))];
+    const samples = ordered
       .slice(0, 3)
       .map((row) => `${row.productName} ${Number(row.avgPrice).toLocaleString("tr-TR", { maximumFractionDigits: 2 })} TL/${row.unit || "kg"}`);
     return { count: new Set(dayRows.map((p) => p.productSlug)).size, date: latestDate, samples };
