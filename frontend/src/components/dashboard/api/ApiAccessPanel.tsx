@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
-import { apiDelete, apiGet, apiPost } from "@/lib/api-client";
+import { apiDelete, apiGet, apiPost, ApiError } from "@/lib/api-client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
@@ -117,11 +117,13 @@ export default function ApiAccessPanel({ locale }: { locale: string }) {
       const result = await apiPost<{ url: string }>(path, { locale });
       window.location.href = result.url;
     } catch (err) {
-      const message = err instanceof Error ? err.message : "";
+      // Durum kodu ile ayirt ediyoruz; mesaj metnine bakmak kirilgan olurdu.
+      const status = err instanceof ApiError ? err.status : 0;
       setError(
-        message.includes("503") || message.includes("yapilandirilmamis")
-          ? "Ödeme altyapısı henüz etkin değil. Pro talebi için bizimle iletişime geçin."
-          : "Ödeme sayfası açılamadı. Lütfen tekrar deneyin.",
+        status === 503 ? "Ödeme altyapısı henüz etkin değil. Pro talebi için bizimle iletişime geçin."
+        : status === 409 ? "Zaten etkin bir Pro aboneliğiniz var. Sayfayı yenileyin."
+        : status === 404 ? "Aboneliğiniz bulunamadı."
+        : "Ödeme sayfası açılamadı. Lütfen tekrar deneyin.",
       );
       setBusy(false);
     }

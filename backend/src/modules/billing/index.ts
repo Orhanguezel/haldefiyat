@@ -103,7 +103,9 @@ export async function registerBillingPublic(api: FastifyInstance) {
 
       const existing = await getSubscription(userId);
       if (existing?.active) {
-        return reply.status(409).send({ error: "already_subscribed" });
+        return reply.status(409).send({
+          error: { code: "already_subscribed", message: "Zaten etkin bir Pro aboneliğiniz var." },
+        });
       }
       try {
         const base = siteBase();
@@ -121,10 +123,14 @@ export async function registerBillingPublic(api: FastifyInstance) {
       } catch (err) {
         if (err instanceof StripeNotConfiguredError) {
           req.log.error({ err: err.message }, "stripe_not_configured");
-          return reply.status(503).send({ error: "odeme_yapilandirilmamis" });
+          return reply.status(503).send({
+            error: { code: "payment_not_configured", message: "Ödeme altyapısı henüz etkin değil." },
+          });
         }
         req.log.error({ err }, "stripe_checkout_failed");
-        return reply.status(502).send({ error: "odeme_saglayici_hatasi" });
+        return reply.status(502).send({
+          error: { code: "payment_provider_error", message: "Ödeme sağlayıcısına ulaşılamadı." },
+        });
       }
     },
   );
@@ -133,14 +139,22 @@ export async function registerBillingPublic(api: FastifyInstance) {
     const userId = getAuthUserId(req);
     if (!userId) return reply.status(401).send({ error: "auth_required" });
     const sub = await getSubscription(userId);
-    if (!sub?.stripeCustomerId) return reply.status(404).send({ error: "abonelik_yok" });
+    if (!sub?.stripeCustomerId) {
+      return reply.status(404).send({ error: { code: "no_subscription", message: "Aboneliğiniz bulunamadı." } });
+    }
     try {
       const session = await createBillingPortalSession(sub.stripeCustomerId, `${siteBase()}/hesabim/api`);
       return reply.send({ ok: true, url: session.url });
     } catch (err) {
-      if (err instanceof StripeNotConfiguredError) return reply.status(503).send({ error: "odeme_yapilandirilmamis" });
+      if (err instanceof StripeNotConfiguredError) {
+        return reply.status(503).send({
+          error: { code: "payment_not_configured", message: "Ödeme altyapısı henüz etkin değil." },
+        });
+      }
       req.log.error({ err }, "stripe_portal_failed");
-      return reply.status(502).send({ error: "odeme_saglayici_hatasi" });
+      return reply.status(502).send({
+        error: { code: "payment_provider_error", message: "Ödeme sağlayıcısına ulaşılamadı." },
+      });
     }
   });
 }

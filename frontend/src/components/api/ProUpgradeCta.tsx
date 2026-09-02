@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
-import { apiPost } from "@/lib/api-client";
+import { apiPost, ApiError } from "@/lib/api-client";
 import { trackConversion } from "@/lib/analytics";
 
 /**
@@ -43,8 +43,15 @@ export default function ProUpgradeCta({
     try {
       const result = await apiPost<{ url: string }>("/billing/checkout", { locale });
       window.location.href = result.url;
-    } catch {
-      setError("Ödeme sayfası açılamadı. Bizimle iletişime geçebilirsiniz.");
+    } catch (err) {
+      const status = err instanceof ApiError ? err.status : 0;
+      setError(
+        status === 409
+          ? "Zaten Pro abonesisiniz."
+          : status === 503
+            ? "Ödeme altyapısı henüz etkin değil."
+            : "Ödeme sayfası açılamadı.",
+      );
       setBusy(false);
     }
   }
