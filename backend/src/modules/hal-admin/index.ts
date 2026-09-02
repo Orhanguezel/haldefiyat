@@ -167,14 +167,40 @@ const productReviewDecisionBody = z.object({
   if (value.decision === "alias" && !value.targetProductId) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["targetProductId"], message: "Alias hedef ürünü zorunlu" });
   }
+  if (value.decision === "create" && value.nameTr) {
+    const issue = productNameIssue(value.nameTr);
+    if (issue) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["nameTr"], message: issue });
+  }
   if (value.decision === "create" && (!value.slug || !value.nameTr || !value.categorySlug || !value.unit)) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["slug"], message: "Yeni ürün alanları zorunlu" });
   }
 });
 
+/**
+ * Urun adi saglik kontrolu — bozuk ad SITEDE gorunur.
+ *
+ * 2026-09-02'de canlida bulundu: "DOMATES (...)", "SALATALIK (...)",
+ * "PORTAKAL (...)", "Pazı)". Ucu de indeksli ve en cok arananlar arasindaydi;
+ * urun sayfasi editoryal adi kullandigi icin temiz gorunuyordu ama urun listesi
+ * ucu (/prices/products) ham adi donduruyor — otomatik tamamlama, dropdown ve
+ * ilan kayitlarina bu bozuk ad giriyordu.
+ *
+ * Parantezli nitelendirme mesrudur ("Domates (Salkım)"); yasak olan DENGESIZ
+ * parantez ve icerigi olmayan/elips parantez.
+ */
+export function productNameIssue(name: string): string | null {
+  const open = (name.match(/\(/g) ?? []).length;
+  const close = (name.match(/\)/g) ?? []).length;
+  if (open !== close) return "Ürün adında parantezler dengesiz.";
+  if (/\(\s*\.*\s*\)/.test(name)) return "Ürün adında içi boş veya '...' içeren parantez olamaz.";
+  return null;
+}
+
 const productBody = z.object({
   slug: z.string().min(1).max(128),
-  nameTr: z.string().min(1).max(255),
+  nameTr: z.string().min(1).max(255).refine((v) => productNameIssue(v) === null, {
+    message: "Ürün adında dengesiz veya boş parantez var",
+  }),
   categorySlug: z.string().min(1).max(64).default("diger"),
   unit: z.string().min(1).max(32).default("kg"),
   aliases: z.array(z.string().min(1)).optional().default([]),
