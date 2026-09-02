@@ -9,10 +9,11 @@ import { API_SCOPES, isApiScope } from "@/modules/api-keys/scopes";
 describe("api anahtari yetkileri", () => {
   it("yalnizca tanimli yetkiler kabul edilir", () => {
     expect(isApiScope("listings:write")).toBe(true);
+    expect(isApiScope("listings:read")).toBe(true);
   });
 
   it("tanimsiz yetki reddedilir", () => {
-    for (const kotu of ["", "admin", "*", "listings:*", "listings:read", "prices:write", "LISTINGS:WRITE"]) {
+    for (const kotu of ["", "admin", "*", "listings:*", "prices:write", "LISTINGS:WRITE", "listings"]) {
       expect(isApiScope(kotu)).toBe(false);
     }
   });
@@ -20,6 +21,6 @@ describe("api anahtari yetkileri", () => {
   it("yetki listesi dar tutulur — her yeni yetki bilincli karardir", () => {
     // Liste buyudukce sizan anahtarin yapabilecegi is artar. Bu test, yetki
     // eklerken birinin durup dusunmesini saglamak icin var.
-    expect(API_SCOPES).toEqual(["listings:write"]);
+    expect(API_SCOPES).toEqual(["listings:write", "listings:read"]);
   });
 });

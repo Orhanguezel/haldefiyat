@@ -65,7 +65,9 @@ export async function registerListingsPublic(app: FastifyInstance) {
   app.patch<{ Params: { id: string } }>("/listings/:id", { onRequest: [requireAuth] }, patchOwnerListing);
   app.patch<{ Params: { id: string } }>("/listings/:id/call-settings", { onRequest: [requireAuth] }, patchMyListingCallSettings);
   // Ihale sahibinin kendi tekliflerini gormesi — kapali zarf kuralina tabi
-  app.get<{ Params: { id: string } }>("/listings/:id/offers", { onRequest: [requireAuth] }, getMyListingOffers);
+  app.get<{ Params: { id: string } }>("/listings/:id/offers", {
+    onRequest: [requireAuthOrApiScope("listings:read")],
+  }, getMyListingOffers);
   app.post<{ Params: { id: string } }>("/listings/:id/close", { onRequest: [requireAuth] }, closeListing);
   app.post<{ Params: { id: string } }>("/listings/:id/feature-checkout", { onRequest: [requireAuth] }, featureCheckout);
 }

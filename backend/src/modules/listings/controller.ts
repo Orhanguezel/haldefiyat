@@ -218,7 +218,9 @@ export async function getMyListingOffers(
   reply: FastifyReply,
 ) {
   try {
-    const result = await ownerListingOffers(idParam(req), getAuthUserId(req));
+    const actorId = resolveActorId(req);
+    if (!actorId) return reply.status(401).send({ error: { code: "auth_required", message: "Kimlik doğrulanamadı." } });
+    const result = await ownerListingOffers(idParam(req), actorId);
     if (!result) return sendNotFound(reply);
     return reply.send(result);
   } catch (err) {

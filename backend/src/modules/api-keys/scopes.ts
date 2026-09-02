@@ -9,8 +9,16 @@
 import { pool } from "@/db/client";
 import type { RowDataPacket, ResultSetHeader } from "mysql2";
 
-/** Tanimli yetkiler — bu listenin disindaki bir deger kabul edilmez. */
-export const API_SCOPES = ["listings:write"] as const;
+/**
+ * Tanimli yetkiler — bu listenin disindaki bir deger kabul edilmez.
+ *
+ * Liste buyudukce sizan anahtarin yapabilecegi is artar; her ekleme bilincli
+ * bir karardir. `listings:read` 2026-09-02'de eklendi: ihaleyi API'den acip
+ * gelen teklifleri gormek icin panele girmek zorunda kalmak entegrasyonu yarim
+ * birakiyordu. Okuma yalnizca ANAHTAR SAHIBININ kendi ilanlarini kapsar ve
+ * kapali zarf kurali orada da aynen isler.
+ */
+export const API_SCOPES = ["listings:write", "listings:read"] as const;
 export type ApiScope = (typeof API_SCOPES)[number];
 
 export function isApiScope(value: string): value is ApiScope {
