@@ -95,3 +95,6 @@ project.portfolio.private.json
 # Arac cache + build kabul dizini
 .playwright-cli/
 frontend/.next-source-accept/
+
+# Next.js uretir, her build yeniden yazar (Next varsayilan .gitignore ile ayni)
+next-env.d.ts

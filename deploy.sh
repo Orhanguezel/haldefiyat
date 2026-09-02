@@ -39,6 +39,14 @@ DEPLOY_LOG_OFFSET="$( [ -r "$ACCESS_LOG" ] && wc -l < "$ACCESS_LOG" || echo 0 )"
 
 echo "==> [1/6] git pull (fast-forward only)"
 cd "$REPO_ROOT"
+# Release build'i `next-env.d.ts` ve `tsconfig.json`'i KENDISI yeniden yaziyor:
+# NEXT_DIST_DIR her deploy'da degistigi icin Next her seferinde tsconfig
+# include'una bir `.next-release-<sha>/types/**` satiri EKLIYOR ve hic
+# silmiyordu (VPS'te 300+ satir birikmisti). Ikisi de uretilmis dosya; pull'u
+# bloke etmesinler diye once atilir. Gercek config degisikligi commit'ten gelir.
+git checkout -- \
+  frontend/next-env.d.ts frontend/tsconfig.json \
+  admin_panel/next-env.d.ts admin_panel/tsconfig.json 2>/dev/null || true
 git pull --ff-only origin main
 
 RELEASE_SHA="$(git rev-parse --short=12 HEAD)"
