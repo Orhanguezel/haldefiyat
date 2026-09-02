@@ -7,7 +7,8 @@
  */
 
 import { createHash, randomBytes } from "crypto";
-import { db } from "@/db/client";
+import { db, pool } from "@/db/client";
+import type { RowDataPacket } from "mysql2";
 import { hfApiKeys } from "@/db/schema";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { env } from "@/core/env";
@@ -141,6 +142,17 @@ export interface KeyValidation {
 /**
  * Header'dan gelen ham anahtari dogrula + tier limitini kontrol et.
  * Basariliysa usedToday'i 1 arttir (atomic, optimistik).
+ *
+ * KOTA KULLANICI BASINADIR, anahtar basina degil.
+ *
+ * Neden: sayac anahtar basina tutulunca kotayi sifirlamak serbest kaliyordu —
+ * anahtari sil, yenisini olustur, sayac 0'dan basliyor. 2026-09-02'de kanitlandi:
+ * gunluk limit 3 iken 6 istek gecti (3 + anahtar degistir + 3). Ayrica ayni anda
+ * 3 anahtar acilabildigi icin kota zaten uc katina cikiyordu.
+ *
+ * Cozum: gunun tuketimi kullanicinin TUM anahtarlarindan toplanir — iptal
+ * edilmis olanlar dahil. Boylece anahtar dongusu ya da coklu anahtar kotayi
+ * buyutmez; anahtar bir kimlik bilgisidir, kota hakki degil.
  */
 export async function validateAndConsume(rawKey: string): Promise<KeyValidation> {
   if (!rawKey.startsWith(KEY_PREFIX) || rawKey.length !== KEY_PREFIX.length + 32) {
@@ -157,11 +169,10 @@ export async function validateAndConsume(rawKey: string): Promise<KeyValidation>
   if (row.revokedAt) return { ok: false, reason: "revoked", record: toRecord(row) };
 
   const today = todayIso();
-  const isNewWindow = String(row.usageWindowStart).slice(0, 10) !== today;
-  const currentUsed = isNewWindow ? 0 : row.usedToday;
+  const currentUsed = await userUsedToday(row.userId, today);
 
   if (currentUsed >= row.dailyLimit) {
-    return { ok: false, reason: "limit_exceeded", record: toRecord(row) };
+    return { ok: false, reason: "limit_exceeded", record: { ...toRecord(row), usedToday: currentUsed } };
   }
 
   // Atomic increment (window kaymasi varsa reset)
@@ -175,6 +186,21 @@ export async function validateAndConsume(rawKey: string): Promise<KeyValidation>
     .where(eq(hfApiKeys.id, row.id));
 
   return { ok: true, record: { ...toRecord(row), usedToday: currentUsed + 1 } };
+}
+
+/**
+ * Kullanicinin BUGUN tukettigi istek sayisi — iptal edilmis anahtarlar dahil.
+ * Iptal edilenler sayilir, cunku amac anahtar degistirerek sayac sifirlamayi
+ * engellemek.
+ */
+export async function userUsedToday(userId: string, today = todayIso()): Promise<number> {
+  const [rows] = await pool.query<(RowDataPacket & { total: number | string | null })[]>(
+    `SELECT COALESCE(SUM(used_today), 0) AS total
+     FROM hf_api_keys
+     WHERE user_id = ? AND usage_window_start = ?`,
+    [userId, today],
+  );
+  return Number(rows[0]?.total ?? 0);
 }
 
 /**
