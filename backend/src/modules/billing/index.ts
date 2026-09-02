@@ -83,7 +83,7 @@ function toDate(seconds: unknown): Date | null {
 export async function registerBillingPublic(api: FastifyInstance) {
   api.get("/billing/subscription", { onRequest: [requireAuth] }, async (req, reply) => {
     const userId = getAuthUserId(req);
-    if (!userId) return reply.status(401).send({ error: "auth_required" });
+    if (!userId) return reply.status(401).send({ error: { code: "auth_required", message: "Giriş gerekli." } });
     const sub = await getSubscription(userId);
     return reply.send({
       configured: isStripeConfigured(),
@@ -99,7 +99,7 @@ export async function registerBillingPublic(api: FastifyInstance) {
     { onRequest: [requireAuth] },
     async (req, reply) => {
       const userId = getAuthUserId(req);
-      if (!userId) return reply.status(401).send({ error: "auth_required" });
+      if (!userId) return reply.status(401).send({ error: { code: "auth_required", message: "Giriş gerekli." } });
 
       const existing = await getSubscription(userId);
       if (existing?.active) {
@@ -137,7 +137,7 @@ export async function registerBillingPublic(api: FastifyInstance) {
 
   api.post("/billing/portal", { onRequest: [requireAuth] }, async (req, reply) => {
     const userId = getAuthUserId(req);
-    if (!userId) return reply.status(401).send({ error: "auth_required" });
+    if (!userId) return reply.status(401).send({ error: { code: "auth_required", message: "Giriş gerekli." } });
     const sub = await getSubscription(userId);
     if (!sub?.stripeCustomerId) {
       return reply.status(404).send({ error: { code: "no_subscription", message: "Aboneliğiniz bulunamadı." } });
@@ -173,21 +173,21 @@ export async function registerStripeWebhook(app: FastifyInstance) {
     const secret = (process.env.STRIPE_WEBHOOK_SECRET ?? "").trim();
     if (!secret) {
       req.log.error("STRIPE_WEBHOOK_SECRET yok — webhook fail-closed");
-      return reply.status(503).send({ error: "webhook_disabled" });
+      return reply.status(503).send({ error: { code: "webhook_disabled", message: "Webhook yapılandırılmamış." } });
     }
     const rawBody = req.body as Buffer;
     const signature = req.headers["stripe-signature"];
     if (!Buffer.isBuffer(rawBody) || typeof signature !== "string") {
-      return reply.status(400).send({ error: "invalid_payload" });
+      return reply.status(400).send({ error: { code: "invalid_payload", message: "Geçersiz istek gövdesi." } });
     }
     if (!verifyStripeSignature(rawBody, signature, secret)) {
-      return reply.status(400).send({ error: "invalid_signature" });
+      return reply.status(400).send({ error: { code: "invalid_signature", message: "İmza doğrulanamadı." } });
     }
 
     let event: Record<string, unknown>;
     try { event = JSON.parse(rawBody.toString("utf8")) as Record<string, unknown>; }
-    catch { return reply.status(400).send({ error: "invalid_json" }); }
-    if (!event.id || !event.type) return reply.status(400).send({ error: "invalid_event" });
+    catch { return reply.status(400).send({ error: { code: "invalid_json", message: "Gövde JSON değil." } }); }
+    if (!event.id || !event.type) return reply.status(400).send({ error: { code: "invalid_event", message: "Eksik olay alanları." } });
 
     const fresh = await recordStripeEvent({
       id: String(event.id),
@@ -204,7 +204,7 @@ export async function registerStripeWebhook(app: FastifyInstance) {
       // Olay defterinden de silinir ki tekrar islenebilsin.
       await pool.query("DELETE FROM hf_stripe_events WHERE id = ?", [String(event.id)]);
       req.log.error({ err, type: event.type }, "stripe_event_handling_failed");
-      return reply.status(500).send({ error: "handling_failed" });
+      return reply.status(500).send({ error: { code: "handling_failed", message: "Olay işlenemedi." } });
     }
     return reply.send({ received: true });
   });
