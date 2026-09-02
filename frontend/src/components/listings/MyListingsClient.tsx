@@ -105,6 +105,104 @@ export function MyListingsClient() {
   );
 }
 
+
+interface OwnerOffer {
+  id: number;
+  name: string | null;
+  phone: string | null;
+  message: string | null;
+  offerPrice: number | null;
+  createdAt: string | null;
+}
+
+interface OffersResponse {
+  sealed: boolean;
+  validUntil: string | null;
+  count: number;
+  offers: OwnerOffer[];
+}
+
+function fmtDate(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+}
+
+/**
+ * Gelen teklifler — kapali zarf kurali arka ucta uygulanir (offersAreOpen).
+ * Burada YALNIZCA gosterim var: muhurluyken sunucu zaten bos dizi doner,
+ * arayuz "gizlemek" ile gorevli degil. Boylece kural tek yerde kalir.
+ *
+ * Veri, bolum ACILINCA cekilir: her ilan icin pesin istek atmak, teklif
+ * beklemeyen ilanlarda bosuna sorgu demek olurdu.
+ */
+function ListingOffersPanel({ listingId }: { listingId: number }) {
+  const [data, setData] = useState<OffersResponse | null>(null);
+  const [state, setState] = useState<"idle" | "loading" | "error">("idle");
+
+  async function load() {
+    if (data || state === "loading") return;
+    setState("loading");
+    try {
+      setData(await apiGet<OffersResponse>(`/listings/${listingId}/offers`));
+      setState("idle");
+    } catch {
+      setState("error");
+    }
+  }
+
+  return (
+    <details className="border-t border-(--color-border-soft) p-4" onToggle={(e) => { if ((e.currentTarget as HTMLDetailsElement).open) void load(); }}>
+      <summary className="cursor-pointer text-sm font-semibold text-(--color-foreground)">
+        Gelen teklifler{data ? ` (${data.count})` : ""}
+      </summary>
+      <div className="mt-4">
+        {state === "loading" && <p className="text-sm text-(--color-muted)">Yükleniyor…</p>}
+        {state === "error" && <p role="alert" className="text-sm text-(--color-danger)">Teklifler alınamadı.</p>}
+        {data && data.count === 0 && (
+          <p className="text-sm text-(--color-muted)">Bu ilana henüz teklif gelmedi.</p>
+        )}
+        {data && data.count > 0 && data.sealed && (
+          <div className="rounded-[8px] border border-sky-300 bg-sky-50 p-4">
+            <p className="text-sm font-semibold text-sky-900">
+              {data.count} teklif geldi — kapalı zarfta bekliyor
+            </p>
+            <p className="mt-1 text-sm leading-6 text-sky-900/80">
+              Teklifler <strong>{fmtDate(data.validUntil)}</strong> tarihinden sonra açılır. Son teklif
+              gününe kadar fiyatlar ve teklif sahipleri size de gösterilmez; ilanda verilen gizlilik
+              sözü böyle tutulur.
+            </p>
+          </div>
+        )}
+        {data && !data.sealed && data.offers.length > 0 && (
+          <>
+            <p className="mb-3 text-xs text-(--color-muted)">
+              Teklif süresi doldu, zarflar açıldı. En uygun fiyat en üstte.
+            </p>
+            <ul className="space-y-2">
+              {data.offers.map((offer) => (
+                <li key={offer.id} className="rounded-[8px] border border-(--color-border) p-3">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <strong className="text-sm text-(--color-foreground)">{offer.name || "İsimsiz"}</strong>
+                    <span className="font-semibold tabular-nums text-(--color-foreground)">
+                      {offer.offerPrice == null ? "Fiyat belirtilmedi" : `${offer.offerPrice.toLocaleString("tr-TR")} ₺`}
+                    </span>
+                  </div>
+                  {offer.message && <p className="mt-1 text-sm leading-6 text-(--color-muted)">{offer.message}</p>}
+                  {offer.phone && (
+                    <a href={`tel:${offer.phone}`} className="mt-2 inline-block text-sm font-semibold text-(--color-brand) underline">
+                      {offer.phone}
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+    </details>
+  );
+}
+
 function ListingManagementCard({ item, requestCount, saving, onClose, onSave }: {
   item: Listing;
   requestCount: { total: number; open: number };
@@ -127,6 +225,7 @@ function ListingManagementCard({ item, requestCount, saving, onClose, onSave }: 
         <div><span className="block text-xs text-(--color-muted)">Arama talebi</span><strong className="text-sm text-(--color-foreground)">{requestCount.total} toplam · {requestCount.open} açık</strong></div>
         <div className="flex items-center justify-start sm:justify-end">{item.status !== "closed" ? <Button variant="secondary" size="sm" loading={saving} onClick={onClose}>İlanı kapat</Button> : null}</div>
       </div>
+      <ListingOffersPanel listingId={item.id} />
       <details className="border-t border-(--color-border-soft) p-4">
         <summary className="cursor-pointer text-sm font-semibold text-(--color-foreground)">İletişim ve geri dönüş ayarları</summary>
         <div className="mt-4 space-y-3">
