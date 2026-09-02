@@ -41,6 +41,7 @@ import {
 import { readFeaturedPricing } from "./settings";
 import { verifyOtpToken } from "./otp";
 import { apiKeyContext, resolveActorId } from "@/modules/api-keys/require-scope";
+import { isSyntheticUser } from "@/modules/notifications/synthetic-user";
 import { lookupIdempotent, rememberIdempotent } from "@/modules/api-keys/scopes";
 import { notifyMatches, notifyAdminNewListing } from "./matching";
 import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
@@ -89,7 +90,8 @@ export async function createPublicInquiry(req: FastifyRequest<{ Params: { id: st
     if (!listing) return sendNotFound(reply);
     const parsed = inquirySchema.parse(req.body ?? {});
     const inquiryId = await createInquiry({ listingId: id, ...parsed });
-    if (env.TELEGRAM_ADMIN_CHAT_ID) {
+    // Test hesabinin ilanina gelen teklif de operasyon kanalina dusmez.
+    if (env.TELEGRAM_ADMIN_CHAT_ID && !(await isSyntheticUser(listing.userId))) {
       const text =
         `💬 Yeni ilan mesajı\nİlan: ${listing.title}\nAd: ${parsed.name} · Tel: ${parsed.phone}\n` +
         (parsed.offerPrice != null ? `Teklif: ${parsed.offerPrice}\n` : "") +

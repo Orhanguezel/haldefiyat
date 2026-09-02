@@ -4,6 +4,7 @@ import { sendBereketMail } from "@agro/shared-backend/core/mail";
 import { users } from "@agro/shared-backend/modules/auth/schema";
 import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
 import { env } from "@/core/env";
+import { isSyntheticUser } from "@/modules/notifications/synthetic-user";
 import { db } from "@/db/client";
 import { hfListings } from "./schema";
 
@@ -11,6 +12,8 @@ import { hfListings } from "./schema";
 export async function notifyAdminNewListing(listing: typeof hfListings.$inferSelect) {
   const adminChat = env.TELEGRAM_ADMIN_CHAT_ID;
   if (!adminChat) return;
+  // Test hesabindan acilan ilan operasyon kanalini mesgul etmez.
+  if (await isSyntheticUser(listing.userId)) return;
   const type = listing.listingType === "alim" ? "Alım talebi" : "Satış ilanı";
   const text =
     `🆕 Yeni ilan (moderasyon bekliyor)\n${type}: ${listing.title}\n` +
