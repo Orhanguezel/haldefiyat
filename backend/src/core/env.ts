@@ -233,11 +233,15 @@ export const env = {
     // Koli/kasa (paket) fiyatlı ürünler kg değil — örn. Muz İthal (Koli) ~25kg → ayrı yüksek tavan.
     priceSanityMaxKoli: parseEnvInt(process.env.ETL_PRICE_SANITY_MAX_KOLI, 15000),
     // hal.gov.tr ulusal ortalamasinin temsil esigi (kg). Belgelenen butik satislar
-    // 4-45 kg; gercek toptan islemler on binlerce kg. 100 kg en buyuk butik satisin
-    // iki kati — absurt degerleri eler ama nis ama GERCEK urunleri (tarhun gibi,
-    // baska kaynagi olmayan indeksli urunler) kaybetmez. 500'de olculdu: tarhun ve
-    // bakla dahil 12 urun tamamen dusuyordu.
-    halGovTrMinVolumeKg: parseEnvInt(process.env.ETL_HAL_GOV_TR_MIN_VOLUME_KG, 100),
+    // 4-45 kg; gercek toptan islemler on binlerce kg.
+    //
+    // 500 ile 100 arasinda olculdu (2026-09-02). Esigin dusurulmesi 20 satir daha
+    // geciriyor ama o satirlar fiyat serisi degil GURULTU: 45 gunluk degisim
+    // katsayilari TARHUN 0,82 (10,6-830,9 TL), MELISA 1,15 (10,7-894,5),
+    // KARAMBOLA 0,78 (10,4-995,4), ADACAYI 0,70 (10,5-810,5). Boyle bir seriyi
+    // yayinlamak, urun sayfasini bos birakmaktan daha kotudur — dun 10 TL bugun
+    // 830 TL yazar. Bu yuzden 500'de kalindi.
+    halGovTrMinVolumeKg: parseEnvInt(process.env.ETL_HAL_GOV_TR_MIN_VOLUME_KG, 500),
     healthSchedule: process.env.ETL_HEALTH_CRON_SCHEDULE || "0 8 * * *",
     healthStaleHours: parseEnvInt(process.env.ETL_HEALTH_STALE_HOURS, 30),
     healthEmptyRunThreshold: parseEnvInt(process.env.ETL_HEALTH_EMPTY_RUN_THRESHOLD, 3),
