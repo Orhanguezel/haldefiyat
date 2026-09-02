@@ -28,6 +28,7 @@ import { sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { normalizeMysqlDate } from "@/modules/prices/blackout-date";
 import { isStaleAgainstOwnBaseline, MIN_STALE_DAYS } from "./freshness-policy";
+import { activeSources } from "@/config/etl-sources";
 
 /**
  * Sicrama esigi — AKRAN hallerden sapma kati.
@@ -135,9 +136,18 @@ export async function sourceFreshness(windowDays = 180): Promise<StaleSource[]> 
   return out.sort((a, b) => b.staleDays - a.staleDays);
 }
 
-/** Yalnizca kendi tabanini asan (donmus) kaynaklar — uyari zinciri bunu kullanir. */
+/**
+ * Yalnizca kendi tabanini asan (donmus) kaynaklar — uyari zinciri bunu kullanir.
+ *
+ * KAPALI kaynaklar elenir: kapatilan bir kaynak tanim geregi yeni veri uretmez,
+ * son gunu oldugu yerde kalir ve her gun "N gundur donmus" alarmi uretir. Donma
+ * uyarisinin amaci "kaynak calisiyor gorunup bayat veri yaziyor" durumunu
+ * yakalamak; kapali kaynakta boyle bir risk yoktur (2026-09-02: kapatilan bes
+ * batiakdeniz kaynagi kapatildiktan sonra da alarm uretmeye devam etti).
+ */
 export async function detectStaleSources(windowDays = 180): Promise<StaleSource[]> {
-  return (await sourceFreshness(windowDays)).filter((s) => s.isStale);
+  const enabled = new Set(activeSources().map((s) => s.key));
+  return (await sourceFreshness(windowDays)).filter((s) => s.isStale && enabled.has(s.sourceApi));
 }
 
 /**
