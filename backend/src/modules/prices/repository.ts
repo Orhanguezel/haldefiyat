@@ -950,6 +950,25 @@ export async function listProducts(q?: string, category?: string, seoIndex?: boo
       seoIndex:     hfProducts.seoIndex,
       dataQuality:  hfProducts.dataQuality,
       searchVolume: hfProducts.searchVolume,
+      /**
+       * Sayfanin icerigi en son ne zaman degisti — sitemap `lastmod` alani.
+       *
+       * Sitemap kodu bu alani bekliyordu ama uc DONDURMUYORDU; sonuc olarak
+       * 244 urun URL'sinin hicbirinde <lastmod> yoktu ve Google'in yeniden
+       * tarama sinyali eksikti. 2026-09-02'de "noindex yuzunden haric" kararli
+       * 62 urunun bir kismi 97 gundur yeniden taranmamisti — sayfalar coktan
+       * duzelmis olmasina ragmen.
+       *
+       * Kanonik aile uzerinden hesaplanir: urun sayfasi varyantlarin fiyatini
+       * da gosterir, dolayisiyla varyanta gelen yeni fiyat sayfayi da degistirir.
+       */
+      updatedAt: sql<string | null>`(
+        SELECT MAX(ph.recorded_date)
+        FROM hf_price_history ph
+        INNER JOIN hf_products v ON v.id = ph.product_id AND v.is_active = 1
+        WHERE (v.id = ${hfProducts.id} OR v.canonical_slug = ${hfProducts.slug})
+          AND ph.unit = v.unit
+      )`,
     })
     .from(hfProducts)
     .where(and(...conds))
