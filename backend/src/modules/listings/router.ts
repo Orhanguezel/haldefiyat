@@ -21,6 +21,7 @@ import {
   patchMyListingCallSettings,
   updateAdminListing,
   unfeatureAdminListing,
+  getMyListingOffers,
 } from "./controller";
 import { featureCallback, featureCheckout } from "./checkout";
 import { getListingAnalytics } from "./analytics";
@@ -56,6 +57,8 @@ export async function registerListingsPublic(app: FastifyInstance) {
   app.post("/listings/feature/callback", featureCallback);
   app.patch<{ Params: { id: string } }>("/listings/:id", { onRequest: [requireAuth] }, patchOwnerListing);
   app.patch<{ Params: { id: string } }>("/listings/:id/call-settings", { onRequest: [requireAuth] }, patchMyListingCallSettings);
+  // Ihale sahibinin kendi tekliflerini gormesi — kapali zarf kuralina tabi
+  app.get<{ Params: { id: string } }>("/listings/:id/offers", { onRequest: [requireAuth] }, getMyListingOffers);
   app.post<{ Params: { id: string } }>("/listings/:id/close", { onRequest: [requireAuth] }, closeListing);
   app.post<{ Params: { id: string } }>("/listings/:id/feature-checkout", { onRequest: [requireAuth] }, featureCheckout);
 }

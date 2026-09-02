@@ -24,6 +24,7 @@ import {
   updateOwnerListing,
   updateOwnerListingCallSettings,
   updateCallRequestStatus,
+  ownerListingOffers,
 } from "./repo";
 import {
   adminCreateSchema,
@@ -203,6 +204,23 @@ export async function listMyListings(req: FastifyRequest, reply: FastifyReply) {
     return reply.send({ items: items.map((item) => ({ ...item, callAvailability: parseCallAvailability(item.callAvailability) })) });
   } catch (err) {
     return handleRouteError(reply, req, err, "list_my_listings");
+  }
+}
+
+/**
+ * Ihale sahibinin kendi ilanina gelen teklifler — kapali zarf kuralina tabi.
+ * Kural repo.offersAreOpen()'da; burada tekrar edilmez.
+ */
+export async function getMyListingOffers(
+  req: FastifyRequest<{ Params: { id: string } }>,
+  reply: FastifyReply,
+) {
+  try {
+    const result = await ownerListingOffers(idParam(req), getAuthUserId(req));
+    if (!result) return sendNotFound(reply);
+    return reply.send(result);
+  } catch (err) {
+    return handleRouteError(reply, req, err, "get_my_listing_offers");
   }
 }
 

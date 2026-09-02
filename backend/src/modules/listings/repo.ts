@@ -444,3 +444,79 @@ export async function expireListings() {
   const result = await db.update(hfListings).set({ status: "expired" }).where(and(eq(hfListings.status, "approved"), sql`${hfListings.validUntil} < CURRENT_DATE()`));
   return Number(result[0]?.affectedRows ?? 0);
 }
+
+/**
+ * Kapali zarf kurali (A secenegi, Orhan karari 2026-09-02):
+ * teklifler TEKLIF SON TARIHI (valid_until) gecene kadar hic kimseye —
+ * ilan sahibine bile — gosterilmez. Boylece fiyat kirma yarisi olusmaz ve
+ * "teklifiniz gizli kalacak" vaadi tek bir yerde uygulanir.
+ *
+ * Son tarihten ONCE sahibe yalnizca SAYI doner: kac teklif geldigini bilmek
+ * rekabet bilgisi sizdirmaz (fiyat ve kimlik yok) ama sahibin ihalenin
+ * isledigini gormesini saglar.
+ *
+ * Kural burada, tek fonksiyonda durur — cagiran taraflarda tekrar edilmez.
+ */
+export function offersAreOpen(validUntil: string | null | undefined, today = new Date()): boolean {
+  if (!validUntil) return false;
+  return today.toISOString().slice(0, 10) > validUntil;
+}
+
+export interface OwnerOffer {
+  id: number;
+  name: string | null;
+  phone: string | null;
+  message: string | null;
+  offerPrice: number | null;
+  status: string;
+  createdAt: string | null;
+}
+
+/**
+ * Ilan sahibinin kendi ihalesine gelen teklifleri. Sahiplik DOGRULANIR;
+ * baskasinin ilani icin null doner (404'e cevrilir).
+ */
+export async function ownerListingOffers(
+  listingId: number,
+  userId: string,
+): Promise<{ sealed: boolean; validUntil: string | null; count: number; offers: OwnerOffer[] } | null> {
+  const [listing] = await db
+    .select({ id: hfListings.id, validUntil: hfListings.validUntil })
+    .from(hfListings)
+    .where(and(eq(hfListings.id, listingId), eq(hfListings.userId, userId)))
+    .limit(1);
+  if (!listing) return null;
+
+  const rows = await db
+    .select({
+      id: hfListingInquiries.id,
+      name: hfListingInquiries.name,
+      phone: hfListingInquiries.phone,
+      message: hfListingInquiries.message,
+      offerPrice: hfListingInquiries.offerPrice,
+      status: hfListingInquiries.status,
+      createdAt: hfListingInquiries.createdAt,
+    })
+    .from(hfListingInquiries)
+    .where(eq(hfListingInquiries.listingId, listingId))
+    .orderBy(hfListingInquiries.offerPrice);
+
+  const open = offersAreOpen(listing.validUntil);
+  return {
+    sealed: !open,
+    validUntil: listing.validUntil ?? null,
+    count: rows.length,
+    // Muhurlu donemde SIFIR teklif doner — sayim disinda hicbir alan sizmaz.
+    offers: open
+      ? rows.map((row) => ({
+          id: row.id,
+          name: row.name,
+          phone: row.phone,
+          message: row.message,
+          offerPrice: row.offerPrice == null ? null : Number(row.offerPrice),
+          status: row.status,
+          createdAt: row.createdAt ? new Date(row.createdAt).toISOString() : null,
+        }))
+      : [],
+  };
+}
