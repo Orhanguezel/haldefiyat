@@ -10,21 +10,37 @@ import { cn } from "@/lib/utils";
 import { type ConversionEventName, trackConversion } from "@/lib/analytics";
 
 interface ContactFormProps {
+  defaultName?: string;
+  defaultEmail?: string;
+  defaultPhone?: string;
   defaultSubject?: string;
+  defaultMessage?: string;
   contactEmail?: string;
   contactPhone?: string;
   contactWhatsapp?: string;
   contactAddress?: string;
+  embedded?: boolean;
+  submitLabel?: string;
+  successTitle?: string;
+  successMessage?: string;
   conversionEventName?: Extract<ConversionEventName, "embed_inquiry" | "pro_upgrade">;
   conversionParams?: Record<string, string | number | boolean | null | undefined>;
 }
 
 export function ContactForm({
+  defaultName = "",
+  defaultEmail = "",
+  defaultPhone = "",
   defaultSubject = "",
+  defaultMessage = "",
   contactEmail = "info@gzlteknoloji.com",
   contactPhone,
   contactWhatsapp,
   contactAddress,
+  embedded = false,
+  submitLabel = "Mesajı Gönder",
+  successTitle = "Mesajınız Alındı!",
+  successMessage = "Bize ulaştığınız için teşekkür ederiz. Mesajınız inceleme sırasına alındı; gerektiğinde verdiğiniz iletişim bilgileri üzerinden sizinle bağlantı kuracağız.",
   conversionEventName,
   conversionParams,
 }: ContactFormProps) {
@@ -109,9 +125,9 @@ export function ContactForm({
         <div className="rounded-full bg-success/10 p-6 text-success mb-6">
           <CheckCircle2 className="h-16 w-16" />
         </div>
-        <h2 className="text-3xl font-bold text-foreground mb-4">Mesajınız Alındı!</h2>
+        <h2 className="text-3xl font-bold text-foreground mb-4">{successTitle}</h2>
         <p className="text-muted max-w-md mx-auto mb-8">
-          Bize ulaştığınız için teşekkür ederiz. Mesajınız inceleme sırasına alındı; gerektiğinde verdiğiniz iletişim bilgileri üzerinden sizinle bağlantı kuracağız.
+          {successMessage}
         </p>
         <Button onClick={() => setStatus("idle")} variant="secondary">
           Yeni Mesaj Gönder
@@ -121,9 +137,9 @@ export function ContactForm({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+    <div className={cn("grid grid-cols-1 items-start", embedded ? "gap-0" : "gap-12 lg:grid-cols-2")}>
       {/* Sol taraf: Bilgiler */}
-      <div className="space-y-8">
+      {!embedded && <div className="space-y-8">
         <div>
           <h2 className="text-3xl font-bold text-foreground">Bizimle İletişime Geçin</h2>
           <p className="mt-4 text-muted leading-relaxed">
@@ -156,21 +172,24 @@ export function ContactForm({
             </a>
           ))}
         </div>
-
-      </div>
+      </div>}
 
       {/* Sağ taraf: Form */}
       <div>
         <form 
           onSubmit={handleSubmit}
           aria-busy={status === "loading" || undefined}
-          className="space-y-6 rounded-[10px] border border-border bg-surface p-6 sm:p-8"
+          className={cn(
+            "space-y-6",
+            embedded ? "border-0 bg-transparent p-0" : "rounded-[10px] border border-border bg-surface p-6 sm:p-8",
+          )}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <Input
               name="name"
               label="Adınız Soyadınız"
               placeholder="Örn: Ahmet Yılmaz"
+              defaultValue={defaultName}
               required
               disabled={status === "loading"}
             />
@@ -179,6 +198,7 @@ export function ContactForm({
               type="email"
               label="E-posta Adresi"
               placeholder="ahmet@example.com"
+              defaultValue={defaultEmail}
               required
               disabled={status === "loading"}
             />
@@ -189,6 +209,7 @@ export function ContactForm({
               name="phone"
               label="Telefon Numarası"
               placeholder="+90 5XX XXX XX XX"
+              defaultValue={defaultPhone}
               required
               disabled={status === "loading"}
             />
@@ -206,6 +227,7 @@ export function ContactForm({
             name="message"
             label="Mesajınız"
             placeholder="Size nasıl yardımcı olabiliriz?"
+            defaultValue={defaultMessage}
             required
             rows={5}
             disabled={status === "loading"}
@@ -245,7 +267,7 @@ export function ContactForm({
             className="w-full h-14 text-lg font-semibold rounded-xl gap-2 shadow-xl shadow-brand/20"
             loading={status === "loading"}
           >
-            Mesajı Gönder
+            {submitLabel}
             {status !== "loading" ? <Send className="h-5 w-5" /> : null}
           </Button>
         </form>

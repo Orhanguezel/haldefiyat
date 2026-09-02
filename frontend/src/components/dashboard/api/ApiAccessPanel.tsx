@@ -7,6 +7,7 @@ import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { apiDelete, apiGet, apiPost, ApiError } from "@/lib/api-client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { ContactForm } from "@/components/sections/ContactForm";
 
 interface KeyItem {
   id: number;
@@ -71,6 +72,7 @@ export default function ApiAccessPanel({ locale }: { locale: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [showProRequest, setShowProRequest] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -192,9 +194,14 @@ export default function ApiAccessPanel({ locale }: { locale: string }) {
                 Pro&apos;ya geç — {fmtNumber(billing.priceMonthlyTL)} ₺/ay
               </Button>
             ) : (
-              <Link href={`/${locale}/iletisim?subject=Pro%20Plan%20Talebi`} className="rounded-lg bg-(--color-brand) px-4 py-2 text-sm font-semibold text-(--color-brand-fg)">
+              <Button
+                type="button"
+                aria-expanded={showProRequest}
+                aria-controls="pro-request-form"
+                onClick={() => setShowProRequest((current) => !current)}
+              >
                 Pro talebi gönder
-              </Link>
+              </Button>
             )}
             <Link href={`/${locale}/api-docs`} className="rounded-lg border border-(--color-border) px-4 py-2 text-sm font-semibold">Dokümantasyon</Link>
           </div>
@@ -209,6 +216,28 @@ export default function ApiAccessPanel({ locale }: { locale: string }) {
               <dd className="mt-0.5 text-sm text-(--color-muted)">{trial ? "Deneme erişiminde ödeme alınmaz" : "Stripe müşteri portalinden"}</dd>
             </div>
           </dl>
+        )}
+
+        {!pro && !billing?.configured && showProRequest && (
+          <div id="pro-request-form" className="mt-6 border-t border-(--color-border-soft) pt-6">
+            <h2 className="font-(family-name:--font-display) text-lg font-bold text-(--color-foreground)">Pro plan talebi</h2>
+            <p className="mb-5 mt-1 text-sm leading-6 text-(--color-muted)">
+              Üyelik bilgileriniz otomatik dolduruldu. Eksik veya güncel olmayan bir alan varsa göndermeden önce düzenleyebilirsiniz.
+            </p>
+            <ContactForm
+              embedded
+              defaultName={user.full_name ?? ""}
+              defaultEmail={user.email ?? ""}
+              defaultPhone={user.phone ?? ""}
+              defaultSubject="Pro Plan Talebi"
+              defaultMessage="API Pro planı hakkında bilgi ve teklif almak istiyorum."
+              submitLabel="Pro talebini gönder"
+              successTitle="Pro talebiniz alındı"
+              successMessage="Talebinizi inceleyip hesabınızdaki iletişim bilgileri üzerinden sizinle bağlantı kuracağız."
+              conversionEventName="pro_upgrade"
+              conversionParams={{ source_page: "account_api", value: 99 }}
+            />
+          </div>
         )}
       </section>
 

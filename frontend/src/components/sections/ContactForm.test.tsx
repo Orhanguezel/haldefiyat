@@ -17,6 +17,28 @@ function fillRequiredFields() {
 }
 
 describe("ContactForm", () => {
+  it("prefills member data in the embedded Pro request form", () => {
+    render(
+      <ContactForm
+        embedded
+        defaultName="Ayşe Üye"
+        defaultEmail="ayse@example.com"
+        defaultPhone="+49 172 123 45 67"
+        defaultSubject="Pro Plan Talebi"
+        defaultMessage="API Pro planı hakkında bilgi almak istiyorum."
+        submitLabel="Pro talebini gönder"
+      />,
+    );
+
+    expect(screen.getByLabelText(/Adınız Soyadınız/)).toHaveValue("Ayşe Üye");
+    expect(screen.getByLabelText(/E-posta Adresi/)).toHaveValue("ayse@example.com");
+    expect(screen.getByLabelText(/Telefon Numarası/)).toHaveValue("+49 172 123 45 67");
+    expect(screen.getByLabelText(/Konu/)).toHaveValue("Pro Plan Talebi");
+    expect(screen.getByLabelText(/Mesajınız/)).toHaveValue("API Pro planı hakkında bilgi almak istiyorum.");
+    expect(screen.getByRole("button", { name: /Pro talebini gönder/ })).toBeInTheDocument();
+    expect(screen.queryByText("Bizimle İletişime Geçin")).not.toBeInTheDocument();
+  });
+
   it("sends explicit privacy consent and shows a safe success message", async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 201 });
     vi.stubGlobal("fetch", fetchMock);
