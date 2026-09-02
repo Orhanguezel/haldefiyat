@@ -57,6 +57,18 @@ describe("alisilmis akran konumu", () => {
     expect(d.reason).toBe("SOURCE_MEDIAN_DEVIATION");
   });
 
+  it("esigin ICINDE yasayan hal disari cikarsa yakalanir", () => {
+    // Bursa bezelyesi alisilmis olarak akranlarin %46,6'si (esik %25'in USTUNDE,
+    // yani kronik olarak isaretlenen bir hal degil). %25'e dusmesi gercek kaymadir.
+    const d = assessPriceQuality({
+      avg: 10, min: 10, max: 10, unit: "kg", expectedUnit: "kg", categorySlug: "sebze",
+      sourcePeerPrices: [38, 40, 41, 42, 43],
+      habitualPeerRatio: 0.466,
+    });
+    expect(d.publish).toBe(false);
+    expect(d.reason).toBe("SOURCE_MEDIAN_DEVIATION");
+  });
+
   it("alisilmis orandan kopan deger yine yakalanir", () => {
     // Hep akranlarin %15'i olan hal birden %90'ina cikarsa bu GERCEK bir kayma.
     const d = assessPriceQuality({

@@ -53,12 +53,26 @@ function median(values: readonly number[]): number | null {
  * (2026-09-02: bekleyen 285 SOURCE_MEDIAN_DEVIATION kaydinin buyuk kismi buydu).
  *
  * Anlamli sinyal oranin KAYMASIDIR — freshness.ts/detectPriceJumps ayni ilkeyi
- * kullanir. Alisilmis konumun iki kati / yarisi icinde kalan degerler yayinlanir.
+ * kullanir.
+ *
+ * Muafiyet iki sarta birden baglidir:
+ *  1) Hal KRONIK olarak esigin disinda oturuyor olmali. Esigin icinde yasayan bir
+ *     halin birden disari cikmasi gercek bir kaymadir ve yakalanmalidir — Bursa
+ *     bezelyesi alisilmis %46,6 iken %25'e dustu; gevsek bir bant bunu yanlislikla
+ *     geciriyordu.
+ *  2) Guncel deger alisilmis konumun yakininda olmali (±%67). Kronik ucuz bir hal
+ *     bile alisilmis oranindan koparsa karantinaya girer.
  */
-function matchesHabitualPosition(currentRatio: number, habitual: number | null | undefined): boolean {
+function matchesHabitualPosition(
+  currentRatio: number,
+  habitual: number | null | undefined,
+  lowThreshold: number,
+  highThreshold: number,
+): boolean {
   if (habitual == null || !Number.isFinite(habitual) || habitual <= 0) return false;
+  if (habitual >= lowThreshold && habitual <= highThreshold) return false;
   const shift = currentRatio / habitual;
-  return shift >= 0.5 && shift <= 2;
+  return shift >= 0.6 && shift <= 1.67;
 }
 
 function absoluteLimit(input: Pick<PriceQualityInput, "unit" | "categorySlug">): number {
@@ -101,7 +115,8 @@ export function assessPriceQuality(input: PriceQualityInput): PriceQualityDecisi
   const sourceMedian = sourcePeers.length >= 3 ? median(sourcePeers) : null;
   if (sourceMedian) {
     const sourceRatio = input.avg / sourceMedian;
-    if ((sourceRatio > 4 || sourceRatio < 0.25) && !matchesHabitualPosition(sourceRatio, input.habitualPeerRatio)) {
+    if ((sourceRatio > 4 || sourceRatio < 0.25)
+        && !matchesHabitualPosition(sourceRatio, input.habitualPeerRatio, 0.25, 4)) {
       return decision("SOURCE_MEDIAN_DEVIATION", "warning", Math.min(0.99, 0.8 + sourcePeers.length / 100));
     }
   }
@@ -109,7 +124,7 @@ export function assessPriceQuality(input: PriceQualityInput): PriceQualityDecisi
   // En az 5 tarih-yakın emsal olmadan medyan kararı verilmez. Dört kat üstü veya
   // dörtte bir altı sapma karantinaya gider; mevsimsel hareketlere geniş marj bırakır.
   if (deviationRatio != null && (deviationRatio > 4 || deviationRatio < 0.25)
-      && !matchesHabitualPosition(deviationRatio, input.habitualPeerRatio)) {
+      && !matchesHabitualPosition(deviationRatio, input.habitualPeerRatio, 0.25, 4)) {
     return decision("PEER_MEDIAN_DEVIATION", "warning", Math.min(0.99, 0.75 + peers.length / 100));
   }
 
