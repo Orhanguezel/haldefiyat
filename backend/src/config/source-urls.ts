@@ -190,16 +190,27 @@ function publicSourceName(sourceApi: string, fallbackName?: string | null): stri
   return "Resmî fiyat kaynağı";
 }
 
+/**
+ * ETL disi yazicilar kaynak anahtarina ek koyar: arsivden kurtarma `_wayback`,
+ * yonetici karantina onayi `:reviewed`. Kaynagin kimligi degismedigi icin ad ve
+ * URL cozumlemesi taban anahtar uzerinden yapilir — aksi halde onaylanan satirlar
+ * kaynak baglantisiz kaliyordu (2026-09-02).
+ */
+export function baseSourceKey(sourceApi: string): string {
+  return sourceApi.replace(/:reviewed$/u, "").replace(/_wayback$/u, "");
+}
+
 export function sourceInfoFor(
   sourceApi: string | null | undefined,
   marketType?: string | null,
   fallbackName?: string | null,
 ): SourceInfo | null {
-  if (sourceApi && SOURCE_URLS[sourceApi]) return SOURCE_URLS[sourceApi]!;
   if (!sourceApi) return null;
-  const configuredSource = getSourceByKey(sourceApi.replace(/_wayback$/u, ""));
+  const key = baseSourceKey(sourceApi);
+  if (SOURCE_URLS[key]) return SOURCE_URLS[key]!;
+  const configuredSource = getSourceByKey(key);
   return {
-    name: publicSourceName(sourceApi, fallbackName),
+    name: publicSourceName(key, fallbackName),
     url: configuredSource?.baseUrl ?? "",
     type: sourceTypeFromMarketType(marketType),
     official: marketType === "hal" || marketType === "resmi",

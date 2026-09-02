@@ -84,6 +84,13 @@ export async function sourceFreshness(windowDays = 180): Promise<StaleSource[]> 
         WHERE b.market_id = ph.market_id
           AND ph.recorded_date BETWEEN b.from_date AND b.to_date
       )
+      -- Yonetici onayindan gecen (kaynak + :reviewed) ve arsivden kurtarilan
+      -- (kaynak + _wayback) satirlar CANLI besleme DEGILDIR: tek urunluk, seyrek
+      -- backfill kayitlaridir, parmak izleri dogal olarak sabit gorunur. Denetime
+      -- girerlerse kendi basina "kaynak donmus" alarmi uretirler — 32 karantina
+      -- onayi 2026-09-02 tarihinde manisa_resmi:reviewed diye kritik alarm cikardi.
+      AND RIGHT(ph.source_api, 9) <> ':reviewed'
+      AND RIGHT(ph.source_api, 8) <> '_wayback'
     GROUP BY ph.source_api, ph.recorded_date
     ORDER BY ph.source_api, ph.recorded_date
   `);

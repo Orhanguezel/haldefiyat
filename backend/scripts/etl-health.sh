@@ -161,7 +161,16 @@ mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" --table -e "
 WITH daily AS (
   SELECT source_api, recorded_date AS d,
          CONCAT(COUNT(*), '_', ROUND(SUM(avg_price),2)) AS fp, COUNT(*) AS n
-  FROM hf_price_history WHERE recorded_date >= CURDATE() - INTERVAL 60 DAY
+  FROM hf_price_history ph WHERE recorded_date >= CURDATE() - INTERVAL 60 DAY
+    -- freshness.ts ile ayni muafiyetler: bilincli karantinaya alinmis (hal x tarih)
+    -- araliklar ve CANLI besleme olmayan yazicilar (yonetici onayi :reviewed,
+    -- arsiv kurtarma _wayback) donma denetimine girmez.
+    AND NOT EXISTS (
+      SELECT 1 FROM hf_market_blackouts b
+      WHERE b.market_id = ph.market_id AND ph.recorded_date BETWEEN b.from_date AND b.to_date
+    )
+    AND RIGHT(ph.source_api, 9) <> ':reviewed'
+    AND RIGHT(ph.source_api, 8) <> '_wayback'
   GROUP BY source_api, recorded_date
 ),
 cur AS (
