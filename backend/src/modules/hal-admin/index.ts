@@ -1056,6 +1056,11 @@ export async function registerHalAdmin(app: FastifyInstance) {
           isActive: parsed.data.isActive ? 1 : 0,
         })
         .where(eq(hfProducts.id, id));
+      // Urun sayfasi ISR ile 5 dk onbellekli. seo_index veya ad degistiginde
+      // onbellek dusurulmezse degisiklik yayina gecmiyormus gibi gorunur
+      // (2026-09-02: muz-ithal indekse alindi ama sayfa noindex gostermeye
+      // devam etti). Fiyat uclari zaten bunu yapiyordu, urun ucu yapmiyordu.
+      void revalidateFrontendTag("prices");
       return reply.send({ ok: true });
     } catch (err) {
       // Slug benzersiz — başka üründe varsa rename çakışır. Rename yerine merge önerilir.
