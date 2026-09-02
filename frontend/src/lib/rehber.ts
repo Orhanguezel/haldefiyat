@@ -17,6 +17,8 @@ export interface RehberBasketItem {
 export interface RehberPageConfig {
   slug: string;
   emoji: string;
+  /** Rehber kartlarında kullanılan gerçek, yerel ürün fotoğrafı. */
+  coverImageSlug: string;
   title: string;
   description: string;
   h1: string;
@@ -32,6 +34,7 @@ export const REHBER_PAGES: Record<string, RehberPageConfig> = {
   tursu: {
     slug: "tursu",
     emoji: "🥒",
+    coverImageSlug: "salatalik-tursuluk",
     title: "Turşu Rehberi — Sepet Fiyatları ve En Uygun Alım Zamanı",
     description:
       "Turşu sepetinin (kornişon, acur, sivri biber, lahana, sarımsak...) güncel hal fiyatları ve son 12 ayın fiyat eğrisi: her ürün için en ucuz ay kayıtlardan.",
@@ -39,20 +42,20 @@ export const REHBER_PAGES: Record<string, RehberPageConfig> = {
     tagline: "Kornişonu şimdi mi almalı? Sepetin her ürünü için en ucuz ay, kayıtlardan.",
     seasonWindow: "Ağustos – Kasım",
     intro: [
-      "Turşu maliyetinin büyük bölümü zamanlamadır: aynı ürün, hasat penceresi ile talep zirvesi arasında birkaç kat fiyat değiştirebilir. Bu rehber, turşu sepetindeki her ürün için son 12 ayın hal kayıtlarını çizer ve en düşük fiyatlı ayı veriden gösterir.",
+      "Turşuluk ürünlerin fiyatı ay ay değişir. Aşağıdaki kartlar, bugünkü fiyatın geçmişteki en uygun aya ne kadar yakın olduğunu gösterir. Böylece uzun grafikleri çözmeden şimdi almak mı, biraz beklemek mi daha avantajlı görebilirsiniz.",
     ],
     sections: [
       {
         heading: "Grafik nasıl okunur?",
         paragraphs: [
-          "Her ay için iki çubuk vardır: açık ton geçen yılın, koyu ton bu yılın ulusal hal medyanı (önce hal ortalaması, sonra haller arası medyan). İki yılın deseni yan yana okununca mevsim tekrarı görünür; “en uygun dönem” iki yılın geniş tabanlı (≥3 hal) kayıtlarından seçilir ve ay etiketi yeşil yazılır. Kaynak kapsamı yıldan yıla değiştiği için bu kesin yüzde kıyası değil eğilim bilgisidir.",
-          "Turşuluk sınıfı (kornişon, yeşil domates) az sayıda halde ayrı etiketle kayda girer; bu satırlarda fiyat referans niteliğindedir. Geniş tabanlı satırlarda (10+ hal) medyan güvenilirdir.",
+          "Gri çubuk geçen yılın, yeşil çubuk bu yılın ortanca hal fiyatını gösterir. Kartın üstündeki üç kutu daha kısa cevaptır: bugünkü fiyat, kayıtlardaki en uygun ay ve bugünkü fiyat farkı.",
+          "Kornişon ve yeşil domates bazı hallerde ayrı ürün adıyla kaydedilmez. Bu nedenle az sayıda hal görünen ürünleri kesin fiyat değil, yaklaşık yön bilgisi olarak değerlendirin.",
         ],
       },
       {
         heading: "Kısa özet: neyi ne zaman?",
         paragraphs: [
-          "Kayıtların söylediği kaba takvim: kornişon ve acur hasat penceresi kısa olduğu için ağustosta, herkes turşu kurarken değil; yeşil domates sezon sonunda (ekim–kasım) dibi görür; lahana kış çeşidi bollaşınca sonbahar sonunda alınır. Ayrıntılı gerekçe için sezon açılış analizimize bakın.",
+          "Genel eğilim şöyle: kornişon ve acur yaz sonunda, yeşil domates ekim–kasım döneminde, beyaz lahana ise sonbaharın sonunda daha avantajlı olur. Yine de alışveriş kararında her ürün kartındaki güncel özeti esas alın; fiyatlar yeni hal kayıtları geldikçe değişir.",
         ],
       },
     ],
@@ -75,6 +78,7 @@ export const REHBER_PAGES: Record<string, RehberPageConfig> = {
   "salca-konserve": {
     slug: "salca-konserve",
     emoji: "🍅",
+    coverImageSlug: "domates-salcalik",
     title: "Salça ve Kışlık Konserve Rehberi — Hal Fiyatları ve Alım Zamanı",
     description:
       "Salçalık domates, kapya biber ve kışlık konserve sepetinin güncel hal fiyatları; son 12 ayın fiyat eğrisiyle her ürün için en ucuz ay.",
@@ -115,6 +119,7 @@ export const REHBER_PAGES: Record<string, RehberPageConfig> = {
   recel: {
     slug: "recel",
     emoji: "🍓",
+    coverImageSlug: "cilek",
     title: "Reçel ve Marmelat Rehberi — Meyve Hal Fiyatları ve Alım Zamanı",
     description:
       "Reçellik meyvelerin (çilek, kayısı, vişne, şeftali, incir, ayva...) güncel hal fiyatları ve son 12 ayın eğrisi: hangi meyvenin reçeli hangi ay kurulur?",

@@ -1680,7 +1680,12 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
       hfProducts.categorySlug,
       hfProducts.unit,
     )
-    .orderBy(hfProducts.displayOrder)
+    // Once ARAMA HACMI. `display_order` tek basina siralama degildi: 1.229
+    // urunde 0 oldugu icin MySQL'in esitlik bozumu neyi one atarsa o
+    // geliyordu — mobil anasayfada "Bugun en cok bakilanlar" basligi altinda
+    // Bakla / Bamya / Barbunya siralaniyordu (2026-09-03). display_order
+    // esitlik bozucu olarak korunur: elle sira verilen urun yine one gecer.
+    .orderBy(desc(hfProducts.searchVolume), hfProducts.displayOrder, hfProducts.nameTr)
     .limit(limit);
 
   if (!latestRows.length) return [];

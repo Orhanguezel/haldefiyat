@@ -26,7 +26,7 @@ import { weeklyPriceSummary } from "./weekly";
 import { toCsvPayload, csvFilename } from "./csv";
 import { exportQuotaGuard } from "./export-guard";
 import { pricesAnonQuotaGuard } from "./anon-quota-guard";
-import { featuredPrice } from "./featured";
+import { featuredList, featuredPrice } from "./featured";
 
 const boolish = z.preprocess((v) => {
   if (typeof v === "boolean") return v;
@@ -63,6 +63,11 @@ const qProducts = z.object({
   marketType: z.enum(["hal", "borsa", "resmi", "kooperatif"]).optional(),
   seoIndex: boolish,
   canonicalOnly: boolish,
+});
+
+const qFeaturedList = z.object({
+  limit:   z.coerce.number().int().min(1).max(24).optional(),
+  exclude: z.string().optional(),
 });
 
 const qLatest = z.object({
@@ -321,6 +326,19 @@ export async function registerPrices(app: FastifyInstance) {
     const item = await featuredPrice();
     if (!item) return reply.status(404).send({ error: "One cikarilacak fiyat bulunamadi" });
     return reply.send({ item });
+  });
+
+  /**
+   * GET /api/v1/prices/featured-list?limit=8&exclude=<slug>
+   * Ana sayfa izgarasi: kart basina bir URUN, en cok arananlardan. `exclude`
+   * hero'nun urunudur — ayni urun ustuste iki kez gorunmesin.
+   */
+  app.get("/prices/featured-list", async (req, reply) => {
+    const parsed = qFeaturedList.safeParse(req.query);
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz sorgu parametreleri" });
+    setPublicWidgetHeaders(reply);
+    const items = await featuredList(parsed.data.limit ?? 8, parsed.data.exclude);
+    return reply.send({ items });
   });
 
   /** GET /api/v1/prices/overview — topbar gerçek özeti (izlenen ürün + son veri tarihi) */

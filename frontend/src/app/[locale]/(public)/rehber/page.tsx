@@ -5,6 +5,7 @@ import { ArrowRight, CalendarDays } from "lucide-react";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PageContainer from "@/components/layout/PageContainer";
 import FreshnessBadge from "@/components/ui/FreshnessBadge";
+import ProductImage from "@/components/ui/ProductImage";
 import { fetchPricesOverview } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
 import { REHBER_LIST } from "@/lib/rehber";
@@ -63,7 +64,7 @@ export default async function RehberIndexPage({ params }: Props) {
             href={`/rehber/${guide.slug}`}
             className="group rounded-[22px] border border-(--color-border) bg-(--color-surface) p-6 transition hover:border-(--color-brand)/50"
           >
-            <div className="text-4xl">{guide.emoji}</div>
+            <ProductImage slug={guide.coverImageSlug} name={guide.h1} size={88} className="rounded-2xl" />
             <h2 className="mt-4 font-(family-name:--font-display) text-xl font-bold text-(--color-foreground) group-hover:text-(--color-brand)">
               {guide.h1}
             </h2>

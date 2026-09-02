@@ -1,30 +1,24 @@
 import Link from "next/link";
-import { fetchPrices, fetchTrending } from "@/lib/api";
-import PriceCard from "@/components/ui/PriceCard";
+import { fetchFeaturedList } from "@/lib/api";
+import ProductPriceCard from "@/components/ui/ProductPriceCard";
 
 const CARD_LIMIT = 8;
 
 /**
  * Anasayfa fiyat dashboard'u (server component).
  *
- * NEDEN: Server component sayesinde fetchPrices/fetchTrending RSC cache
- * katmaninda cache'lenir ve tarayicida JS bundle'a girmez.
+ * Kart basina bir URUN gosterir, en cok arananlardan. Onceki hali
+ * `fetchPrices({ range: "1d", limit: 8 })` idi ve satir bazliydi: siralama
+ * `recorded_date DESC, search_volume DESC` oldugu icin en cok aranan urun once
+ * kendi TUM hallerini doldurup izgarayi bitiriyordu (2026-09-03'te dort Limon +
+ * dort Sogan). Ayrica tek halin fiyatini anasayfada "bugunun fiyati" diye
+ * gostermek yaniltiyordu — o gun Limon Istanbul'da 42,50, Yalova'da 90,00 idi.
+ *
+ * NEDEN server component: fetch RSC cache katmaninda cache'lenir ve tarayicida
+ * JS bundle'a girmez.
  */
-export default async function PriceDashboard() {
-  const [prices, trending] = await Promise.all([
-    fetchPrices({ range: "1d", limit: CARD_LIMIT }),
-    fetchTrending(20),
-  ]);
-
-  // productSlug:marketSlug → changePct hizli lookup map'i
-  const changeMap = new Map<string, number>();
-  for (const t of trending) {
-    const productSlug = t.product?.slug;
-    const marketSlug = t.market?.slug;
-    if (productSlug && marketSlug) {
-      changeMap.set(`${productSlug}:${marketSlug}`, t.changePct);
-    }
-  }
+export default async function PriceDashboard({ excludeSlug }: { excludeSlug?: string }) {
+  const prices = await fetchFeaturedList(CARD_LIMIT, excludeSlug);
 
   return (
     <section
@@ -40,6 +34,9 @@ export default async function PriceDashboard() {
             <h2 className="font-(family-name:--font-display) text-[28px] font-extrabold tracking-[-0.03em] text-(--color-foreground) sm:text-[32px]">
               Bugünkü Hal Fiyatları
             </h2>
+            <p className="mt-2 text-[13px] text-(--color-muted)">
+              En çok aranan ürünlerin Türkiye geneli hal ortalaması.
+            </p>
           </div>
           <Link
             href="/fiyatlar"
@@ -61,17 +58,9 @@ export default async function PriceDashboard() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {prices.slice(0, CARD_LIMIT).map((row) => {
-              const key = `${row.productSlug}:${row.marketSlug}`;
-              const changePct = changeMap.get(key);
-              return (
-                <PriceCard
-                  key={`${row.id}`}
-                  row={row}
-                  changePct={changePct}
-                />
-              );
-            })}
+            {prices.map((row) => (
+              <ProductPriceCard key={row.productSlug} row={row} />
+            ))}
           </div>
         )}
       </div>

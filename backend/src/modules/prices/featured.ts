@@ -100,7 +100,7 @@ async function readPin(): Promise<string | null> {
   return slug ? slug : null;
 }
 
-async function candidates(anchor: string, onlySlug?: string): Promise<CandidateRow[]> {
+async function candidates(anchor: string, onlySlug?: string, poolSize = POOL_SIZE): Promise<CandidateRow[]> {
   const notBlackouted = await blackoutFilter(
     hfPriceHistory.recordedDate,
     hfPriceHistory.marketId,
@@ -152,13 +152,26 @@ async function candidates(anchor: string, onlySlug?: string): Promise<CandidateR
     GROUP BY p.id
     ${floor}
     ORDER BY p.search_volume DESC
-    LIMIT ${sql.raw(String(POOL_SIZE))}
+    LIMIT ${sql.raw(String(Math.max(1, Math.trunc(poolSize))))}
   `);
   return rows<CandidateRow>(result);
 }
 
-/** Ayni hallerin bir hafta onceki fiyatina gore degisim. Ortak hal yoksa null. */
-async function weeklyChangePct(productSlug: string, anchor: string): Promise<number | null> {
+/**
+ * Ayni hallerin bir hafta onceki fiyatina gore degisim. Ortak hal yoksa null.
+ *
+ * Toplu calisir: sekiz kartlik izgara icin urun basina ayri sorgu acmak sekiz
+ * gidis-donus demekti. Tek sorgu, JS'te slug'a gore ayristirma.
+ */
+async function weeklyChangePctMany(
+  productSlugs: string[],
+  anchor: string,
+): Promise<Map<string, number | null>> {
+  const out = new Map<string, number | null>();
+  const slugs = [...new Set(productSlugs)].filter(Boolean);
+  for (const slug of slugs) out.set(slug, null);
+  if (!slugs.length) return out;
+
   const notBlackouted = await blackoutFilter(
     hfPriceHistory.recordedDate,
     hfPriceHistory.marketId,
@@ -167,45 +180,60 @@ async function weeklyChangePct(productSlug: string, anchor: string): Promise<num
   const blackout = notBlackouted ? sql` AND ${notBlackouted}` : sql``;
   const result = await db.execute(sql`
     SELECT
+      p.slug AS productSlug,
       hf_price_history.market_id AS marketId,
       hf_price_history.recorded_date AS recordedDate,
       hf_price_history.avg_price AS avgPrice
     FROM hf_price_history
     INNER JOIN hf_products p ON p.id = hf_price_history.product_id
-    WHERE p.slug = ${productSlug}
+    WHERE p.slug IN (${sql.join(slugs.map((s) => sql`${s}`), sql`, `)})
       AND hf_price_history.unit = p.unit
       AND hf_price_history.avg_price > 0
       AND hf_price_history.recorded_date
             BETWEEN DATE_SUB(${anchor}, INTERVAL 9 DAY) AND ${anchor}${blackout}
     ORDER BY hf_price_history.recorded_date ASC
   `);
-  const list = rows<{ marketId: number; recordedDate: string | Date; avgPrice: string | number }>(result);
-  if (!list.length) return null;
+  const list = rows<{
+    productSlug: string; marketId: number; recordedDate: string | Date; avgPrice: string | number;
+  }>(result);
+  if (!list.length) return out;
 
   const anchorMs = Date.parse(`${anchor}T00:00:00Z`);
   const dayGap = (value: string | Date) => Math.round((anchorMs - Date.parse(`${toDateStr(value)}T00:00:00Z`)) / 86_400_000);
 
-  const current = new Map<number, number>();
-  const previous = new Map<number, number>();
+  const bySlug = new Map<string, { current: Map<number, number>; previous: Map<number, number> }>();
   for (const row of list) {
-    const gap = dayGap(row.recordedDate);
     const price = toNumber(row.avgPrice);
     if (price <= 0) continue;
-    if (gap <= WINDOW_DAYS) current.set(row.marketId, price);
-    else if (gap >= 7 && gap <= 9) previous.set(row.marketId, price);
+    const gap = dayGap(row.recordedDate);
+    let bucket = bySlug.get(row.productSlug);
+    if (!bucket) {
+      bucket = { current: new Map(), previous: new Map() };
+      bySlug.set(row.productSlug, bucket);
+    }
+    if (gap <= WINDOW_DAYS) bucket.current.set(row.marketId, price);
+    else if (gap >= 7 && gap <= 9) bucket.previous.set(row.marketId, price);
   }
 
-  const shared = [...current.keys()].filter((marketId) => previous.has(marketId));
-  if (shared.length < MIN_MARKETS) return null;
+  for (const [slug, { current, previous }] of bySlug) {
+    // Esitlenmis sepet: yalniz IKI donemde de fiyat veren hallerin ortalamasi
+    // kiyaslanir. Aksi halde bir halin o gun yayin yapmamasi "fiyat degisimi"
+    // gibi gorunurdu.
+    const shared = [...current.keys()].filter((marketId) => previous.has(marketId));
+    if (shared.length < MIN_MARKETS) continue;
+    const mean = (source: Map<number, number>) =>
+      shared.reduce((sum, marketId) => sum + source.get(marketId)!, 0) / shared.length;
+    const before = mean(previous);
+    if (before <= 0) continue;
+    const pct = ((mean(current) - before) / before) * 100;
+    if (!Number.isFinite(pct) || Math.abs(pct) > MAX_CHANGE_PCT) continue;
+    out.set(slug, Math.round(pct * 10) / 10);
+  }
+  return out;
+}
 
-  const mean = (source: Map<number, number>) =>
-    shared.reduce((sum, marketId) => sum + source.get(marketId)!, 0) / shared.length;
-  const before = mean(previous);
-  if (before <= 0) return null;
-
-  const pct = ((mean(current) - before) / before) * 100;
-  if (!Number.isFinite(pct) || Math.abs(pct) > MAX_CHANGE_PCT) return null;
-  return Math.round(pct * 10) / 10;
+async function weeklyChangePct(productSlug: string, anchor: string): Promise<number | null> {
+  return (await weeklyChangePctMany([productSlug], anchor)).get(productSlug) ?? null;
 }
 
 function toFeatured(row: CandidateRow, pinned: boolean, changePct: number | null): FeaturedPrice {
@@ -245,4 +273,26 @@ export async function featuredPrice(): Promise<FeaturedPrice | null> {
   const ordered = [...pool].sort((a, b) => a.productSlug.localeCompare(b.productSlug, "tr"));
   const picked = ordered[rotationIndex(istanbulDayIndex(), ordered.length)]!;
   return toFeatured(picked, false, await weeklyChangePct(picked.productSlug, anchor));
+}
+
+/**
+ * Ana sayfa izgarasi. Onceki hali `/prices?range=1d&limit=8` idi: siralama
+ * `recorded_date DESC, search_volume DESC` oldugu icin EN COK ARANAN URUN once
+ * TUM hallerini doldurup izgarayi bitiriyordu — 2026-09-03'te sekiz kartin
+ * dordu Limon, dordu Sogan'di. Kart basina bir URUN gosterilir; fiyat hero ile
+ * ayni sekilde haller arasi ortalamadir (tek halin fiyati Turkiye fiyati diye
+ * sunulamaz; Limon o gun Istanbul'da 42,50 iken Yalova'da 90,00'di).
+ */
+export async function featuredList(limit: number, excludeSlug?: string): Promise<FeaturedPrice[]> {
+  const anchor = await latestRecordedDate();
+  if (!anchor) return [];
+
+  const want = Math.min(24, Math.max(1, Math.trunc(limit) || 1));
+  // Hero urunu disarida biraktigimiz icin bir fazla cekilir.
+  const pool = await candidates(anchor, undefined, want + 1);
+  const picked = pool.filter((row) => row.productSlug !== excludeSlug).slice(0, want);
+  if (!picked.length) return [];
+
+  const changes = await weeklyChangePctMany(picked.map((row) => row.productSlug), anchor);
+  return picked.map((row) => toFeatured(row, false, changes.get(row.productSlug) ?? null));
 }

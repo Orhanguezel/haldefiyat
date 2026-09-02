@@ -541,6 +541,35 @@ export async function fetchFeaturedPrice(): Promise<FeaturedPrice | null> {
   }
 }
 
+/**
+ * Ana sayfa izgarasi: kart basina bir URUN. Eskiden `/prices?range=1d&limit=8`
+ * kullaniliyordu; siralama once arama hacmine baktigi icin en cok aranan urun
+ * tum hallerini doldurup izgarayi bitiriyordu (4 Limon + 4 Sogan).
+ */
+export async function fetchFeaturedList(
+  limit = 8,
+  excludeSlug?: string,
+): Promise<FeaturedPrice[]> {
+  const qs = buildQuery({ limit, exclude: excludeSlug });
+  const path = `/prices/featured-list${qs}`;
+  try {
+    const res = await fetch(`${API}${path}`, {
+      next: { revalidate: 300 },
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!res.ok) {
+      console.error(`[api] ${path} → ${res.status} ${res.statusText}`);
+      return [];
+    }
+    const json = (await res.json()) as { items?: FeaturedPrice[] };
+    return json.items ?? [];
+  } catch (err) {
+    console.error(`[api] ${path} → fetch error`, err);
+    return [];
+  }
+}
+
 export async function fetchProducts(
   q?: string,
   category?: string,
