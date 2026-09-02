@@ -32,3 +32,43 @@ describe("price quality guard", () => {
     expect(assessPriceQuality({ avg: 20, unit: "kg", expectedUnit: "kg", sourceRecordAgeDays: 401 }).reason).toBe("STALE_SOURCE_RECORD");
   });
 });
+
+/**
+ * 2026-09-02: uretim bolgesi halleri her gun karantinaya dusuyordu. Demre salkim
+ * domatesi 33 gunluk gecmiste akran ortalamasinin %15,6'si; karantinaya dusen
+ * degerlerin orani da %13-15 idi — yani hicbir sey degismemisti. Sinyal "farkli
+ * olmak" degil, "orani kaydirmak".
+ */
+describe("alisilmis akran konumu", () => {
+  const demre = {
+    avg: 6, min: 6, max: 6, unit: "kg", expectedUnit: "kg", categorySlug: "sebze",
+    sourcePeerPrices: [38, 40, 42, 44, 45],
+  };
+
+  it("kalici ucuz hal, alisilmis oraninda kalirsa yayinlanir", () => {
+    const d = assessPriceQuality({ ...demre, habitualPeerRatio: 0.156 });
+    expect(d.publish).toBe(true);
+    expect(d.reason).toBeNull();
+  });
+
+  it("gecmis oran bilinmiyorsa eski davranis korunur (karantina)", () => {
+    const d = assessPriceQuality(demre);
+    expect(d.publish).toBe(false);
+    expect(d.reason).toBe("SOURCE_MEDIAN_DEVIATION");
+  });
+
+  it("alisilmis orandan kopan deger yine yakalanir", () => {
+    // Hep akranlarin %15'i olan hal birden %90'ina cikarsa bu GERCEK bir kayma.
+    const d = assessPriceQuality({
+      ...demre, avg: 300, min: 300, max: 300, habitualPeerRatio: 0.156,
+    });
+    expect(d.publish).toBe(false);
+    expect(d.reason).toBe("SOURCE_MEDIAN_DEVIATION");
+  });
+
+  it("alisilmis oran birim uyusmazligini ortmez", () => {
+    const d = assessPriceQuality({ ...demre, unit: "koli", habitualPeerRatio: 0.156 });
+    expect(d.publish).toBe(false);
+    expect(d.reason).toBe("PRODUCT_UNIT_MISMATCH");
+  });
+});

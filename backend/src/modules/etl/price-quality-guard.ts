@@ -21,6 +21,11 @@ export interface PriceQualityInput {
   previousPrice?: number | null;
   sourcePeerPrices?: readonly number[];
   sourceRecordAgeDays?: number | null;
+  /**
+   * Bu (hal x urun) serisinin akranlarina gore ALISILMIS konumu: gecmis pencerede
+   * "kendi ortalamasi / diger hallerin ortalamasi". Bilinmiyorsa null.
+   */
+  habitualPeerRatio?: number | null;
 }
 
 export interface PriceQualityDecision {
@@ -38,6 +43,22 @@ function median(values: readonly number[]): number | null {
   if (clean.length === 0) return null;
   const middle = Math.floor(clean.length / 2);
   return clean.length % 2 === 0 ? (clean[middle - 1]! + clean[middle]!) / 2 : clean[middle]!;
+}
+
+/**
+ * Bir halin akranlarindan KALICI olarak ucuz ya da pahali olmasi sinyal DEGILDIR:
+ * uretim bolgesi hali dogal olarak ucuzdur. Demre salkim domatesi 33 gunluk
+ * gecmiste akran ortalamasinin %15,6'si; karantinaya dusen degerlerin orani da
+ * %13-15 — yani hicbir sey degismemisti ama sapma kurali her gun tetikleniyordu
+ * (2026-09-02: bekleyen 285 SOURCE_MEDIAN_DEVIATION kaydinin buyuk kismi buydu).
+ *
+ * Anlamli sinyal oranin KAYMASIDIR — freshness.ts/detectPriceJumps ayni ilkeyi
+ * kullanir. Alisilmis konumun iki kati / yarisi icinde kalan degerler yayinlanir.
+ */
+function matchesHabitualPosition(currentRatio: number, habitual: number | null | undefined): boolean {
+  if (habitual == null || !Number.isFinite(habitual) || habitual <= 0) return false;
+  const shift = currentRatio / habitual;
+  return shift >= 0.5 && shift <= 2;
 }
 
 function absoluteLimit(input: Pick<PriceQualityInput, "unit" | "categorySlug">): number {
@@ -78,13 +99,17 @@ export function assessPriceQuality(input: PriceQualityInput): PriceQualityDecisi
     if (previousRatio > 5 || previousRatio < 0.2) return decision("PREVIOUS_PRICE_JUMP", "warning", 0.95);
   }
   const sourceMedian = sourcePeers.length >= 3 ? median(sourcePeers) : null;
-  if (sourceMedian && (input.avg / sourceMedian > 4 || input.avg / sourceMedian < 0.25)) {
-    return decision("SOURCE_MEDIAN_DEVIATION", "warning", Math.min(0.99, 0.8 + sourcePeers.length / 100));
+  if (sourceMedian) {
+    const sourceRatio = input.avg / sourceMedian;
+    if ((sourceRatio > 4 || sourceRatio < 0.25) && !matchesHabitualPosition(sourceRatio, input.habitualPeerRatio)) {
+      return decision("SOURCE_MEDIAN_DEVIATION", "warning", Math.min(0.99, 0.8 + sourcePeers.length / 100));
+    }
   }
 
   // En az 5 tarih-yakın emsal olmadan medyan kararı verilmez. Dört kat üstü veya
   // dörtte bir altı sapma karantinaya gider; mevsimsel hareketlere geniş marj bırakır.
-  if (deviationRatio != null && (deviationRatio > 4 || deviationRatio < 0.25)) {
+  if (deviationRatio != null && (deviationRatio > 4 || deviationRatio < 0.25)
+      && !matchesHabitualPosition(deviationRatio, input.habitualPeerRatio)) {
     return decision("PEER_MEDIAN_DEVIATION", "warning", Math.min(0.99, 0.75 + peers.length / 100));
   }
 

@@ -1739,6 +1739,41 @@ export async function upsertRetailPriceRow(input: {
   }).onDuplicateKeyUpdate({ set: { price: input.price.toFixed(2), productNameRaw: input.productNameRaw ?? null, productUrl: input.productUrl ?? null } });
 }
 
+/**
+ * Bir (hal x urun) serisinin akranlarina gore ALISILMIS konumu: gecmis pencerede
+ * "bu halin gunluk ortalamasi / AYNI GUN diger hallerin ortalamasi".
+ *
+ * Son iki hafta disarida birakilir — bugunku anormallik kendi referansini
+ * olusturmasin. En az 10 gozlem yoksa null doner ve sapma kurallari eskisi gibi
+ * calisir; az veriyle "bu hal zaten boyle" demek guvenli degildir.
+ */
+async function habitualPeerRatioFor(
+  productId: number,
+  marketId: number,
+  unit: string,
+  recordedDate: string,
+): Promise<number | null> {
+  const [rows] = await pool.query(
+    `SELECT AVG(own.avg_price / peers.ort) AS ratio, COUNT(*) AS n
+     FROM hf_price_history own
+     JOIN (
+       SELECT recorded_date, AVG(avg_price) AS ort
+       FROM hf_price_history
+       WHERE product_id = ? AND unit = ? AND market_id <> ?
+         AND recorded_date BETWEEN DATE_SUB(?, INTERVAL 150 DAY) AND DATE_SUB(?, INTERVAL 14 DAY)
+       GROUP BY recorded_date
+     ) peers ON peers.recorded_date = own.recorded_date AND peers.ort > 0
+     WHERE own.product_id = ? AND own.market_id = ? AND own.unit = ?
+       AND own.recorded_date BETWEEN DATE_SUB(?, INTERVAL 150 DAY) AND DATE_SUB(?, INTERVAL 14 DAY)`,
+    [productId, unit, marketId, recordedDate, recordedDate,
+     productId, marketId, unit, recordedDate, recordedDate],
+  );
+  const row = (rows as Array<{ ratio: number | string | null; n: number }>)[0];
+  if (!row || Number(row.n) < 10) return null;
+  const ratio = Number(row.ratio);
+  return Number.isFinite(ratio) && ratio > 0 ? ratio : null;
+}
+
 // ETL: tek satır upsert (DUPLICATE KEY UPDATE)
 export async function upsertPriceRow(input: {
   productId:   number;
@@ -1794,7 +1829,7 @@ export async function upsertPriceRow(input: {
   ]);
   const previous = (previousRow as Array<{ price: number | string }>)[0];
   const sourcePeers = sourcePeerRows as Array<{ price: number | string }>;
-  const quality = assessPriceQuality({
+  const assessInput = {
     avg,
     min,
     max,
@@ -1804,7 +1839,17 @@ export async function upsertPriceRow(input: {
     peerPrices: typedPeers.map((row) => Number(row.price)).filter((value) => value > 0),
     previousPrice: previous ? Number(previous.price) : null,
     sourcePeerPrices: sourcePeers.map((row) => Number(row.price)).filter((value) => value > 0),
-  });
+  };
+  let quality = assessPriceQuality(assessInput);
+
+  // Sapma kararlari, halin akranlarina gore ALISILMIS konumu bilinmeden verilemez:
+  // uretim bolgesi halleri kalici olarak ucuzdur ve her gun karantinaya duserler.
+  // Gecmis oran sorgusu pahali oldugu icin yalnizca sapma tetiklendiginde calisir
+  // (gunluk satirlarin ~%1'i), sonra karar bir kez daha degerlendirilir.
+  if (!quality.publish && (quality.reason === "SOURCE_MEDIAN_DEVIATION" || quality.reason === "PEER_MEDIAN_DEVIATION")) {
+    const habitualPeerRatio = await habitualPeerRatioFor(input.productId, input.marketId, unit, input.recordedDate);
+    if (habitualPeerRatio != null) quality = assessPriceQuality({ ...assessInput, habitualPeerRatio });
+  }
 
   if (!quality.publish) {
     await pool.query(
