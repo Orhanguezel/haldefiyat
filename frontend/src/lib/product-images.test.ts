@@ -129,4 +129,20 @@ describe("product image resolution", () => {
     expect(getExactProductImage("domates-eksik-varyant")).toBeNull();
     expect(getProductImage("domates-eksik-varyant")).toBe("/images/urunler/domates.jpg");
   });
+
+  it("returns unique dedicated images for the remaining standalone products", () => {
+    const standaloneSlugs = [
+      "dereotu-yas-taze",
+      "e-kulak",
+      "mercan-kosk",
+      "salatalik-silor",
+      "salatalik-cengelkoy",
+      "salatalik-tursuluk",
+      "yeni-dunya-malta-erigi",
+    ];
+
+    const images = standaloneSlugs.map((slug) => getExactProductImage(slug));
+    expect(images.every(Boolean)).toBe(true);
+    expect(new Set(images).size).toBe(standaloneSlugs.length);
+  });
 });
