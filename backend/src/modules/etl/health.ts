@@ -125,7 +125,12 @@ export async function checkEtlHealth(): Promise<EtlHealthIssue[]> {
     const [stale, jumps] = await Promise.all([detectStaleSources(), detectPriceJumps()]);
 
     // DONMA = kesin sessiz hata -> kritik (push edilir).
-    // Devlet-set/mevsimlik sabit kaynaklar (TMO vb.) muaf — bilincli sabit veri.
+    //
+    // Iki muafiyet var, karistirma:
+    //  - KALICI olan, kaynagin dogasindan gelen sabitlik (TMO alim ilani gibi):
+    //    etl-sources.ts'te `announcedPrice: true`. detectStaleSources zaten eler,
+    //    boylece sebep kaynak tanimindan okunur.
+    //  - GECICI susturma (bilinen bir arizayi kapatirken): asagidaki env listesi.
     const ignoreFrozen = new Set(env.ETL.healthIgnoreFrozenSources);
     for (const s of stale) {
       if (ignoreFrozen.has(s.sourceApi)) continue;
