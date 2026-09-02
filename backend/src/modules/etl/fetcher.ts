@@ -2226,8 +2226,16 @@ function parseHalGovTrPage(html: string, gvId: string): NormalizedRow[] {
  * Cozum: urun basina HACIM AGIRLIKLI ortalama. Piyasanin fiilen olustugu fiyat
  * budur; 224 bin kg'lik islem, 45 kg'lik butik satisi bogar. Hacim yoksa (0)
  * duz ortalamaya duseriz — eskisinden kotu degil.
+ *
+ * Agirliklandirma TEK satirlik gunleri kurtarmaz: o gun urunun yalnizca 4 kg'lik
+ * ozel satisi varsa o fiyat dogrudan "Turkiye ulusal ortalamasi" olarak
+ * yayinlaniyordu. BIBER SIVRI CIN normalde 57-95 TL iken 18 Agustos'ta 404 TL,
+ * 26 Agustos'ta 209 TL yazildi; bekleyen karantina kuyrugunun %70'i (317 kayit)
+ * bu kaynaktan geliyordu. Artik urun-gunun toplam hacmi esigin altindaysa satir
+ * hic yayinlanmaz: dort kilogramlik islem bir ulusal ortalama degildir.
+ * Hacmi bildirilmemis satirlar (toplam 0) eskisi gibi gecer — orada yargi yok.
  */
-function mergeHalGovTrByVolume(rows: NormalizedRow[]): NormalizedRow[] {
+export function mergeHalGovTrByVolume(rows: NormalizedRow[]): NormalizedRow[] {
   const groups = new Map<string, NormalizedRow[]>();
   for (const r of rows) {
     const key = r.name.toLowerCase();
@@ -2236,9 +2244,11 @@ function mergeHalGovTrByVolume(rows: NormalizedRow[]): NormalizedRow[] {
 
   const out: NormalizedRow[] = [];
   for (const group of groups.values()) {
+    const totalW = group.reduce((s, r) => s + (r.weight ?? 0), 0);
+    // Hacim biliniyor ama temsil gucu yoksa urun o gun atlanir.
+    if (totalW > 0 && totalW < env.ETL.halGovTrMinVolumeKg) continue;
     if (group.length === 1) { out.push(group[0]!); continue; }
 
-    const totalW = group.reduce((s, r) => s + (r.weight ?? 0), 0);
     const avg = totalW > 0
       ? group.reduce((s, r) => s + (r.avg ?? 0) * (r.weight ?? 0), 0) / totalW
       : group.reduce((s, r) => s + (r.avg ?? 0), 0) / group.length;

@@ -232,6 +232,9 @@ export const env = {
     priceSanityMaxSeafood: parseEnvInt(process.env.ETL_PRICE_SANITY_MAX_SEAFOOD, 12000),
     // Koli/kasa (paket) fiyatlı ürünler kg değil — örn. Muz İthal (Koli) ~25kg → ayrı yüksek tavan.
     priceSanityMaxKoli: parseEnvInt(process.env.ETL_PRICE_SANITY_MAX_KOLI, 15000),
+    // hal.gov.tr ulusal ortalamasinin temsil esigi (kg). Gercek toptan islemler
+    // on binlerce kg; butik satislar 4-45 kg araliginda. 500 kg ikisini net ayirir.
+    halGovTrMinVolumeKg: parseEnvInt(process.env.ETL_HAL_GOV_TR_MIN_VOLUME_KG, 500),
     healthSchedule: process.env.ETL_HEALTH_CRON_SCHEDULE || "0 8 * * *",
     healthStaleHours: parseEnvInt(process.env.ETL_HEALTH_STALE_HOURS, 30),
     healthEmptyRunThreshold: parseEnvInt(process.env.ETL_HEALTH_EMPTY_RUN_THRESHOLD, 3),
