@@ -1746,6 +1746,13 @@ export async function upsertRetailPriceRow(input: {
  * Son iki hafta disarida birakilir — bugunku anormallik kendi referansini
  * olusturmasin. En az 10 gozlem yoksa null doner ve sapma kurallari eskisi gibi
  * calisir; az veriyle "bu hal zaten boyle" demek guvenli degildir.
+ *
+ * SERI CANLI OLMALI (>=5 farkli deger): DONMUS bir serinin akranlara orani da
+ * sabit gorunur, dolayisiyla "bu hal hep boyle" muafiyetini hak ediyormus gibi
+ * cikar. Olcum: Kutahya kestanesi 69 gun boyunca tam 200,00; Bursa arpacik
+ * sogani 57 gun 13,00; Demre salkim domatesi 38 gun 6,00 — hepsi oranca
+ * "tutarli" ama seri olu. Canlilik sarti olmadan bu muafiyet bayat veriyi
+ * yayina sokardi (2026-09-02).
  */
 async function habitualPeerRatioFor(
   productId: number,
@@ -1754,7 +1761,8 @@ async function habitualPeerRatioFor(
   recordedDate: string,
 ): Promise<number | null> {
   const [rows] = await pool.query(
-    `SELECT AVG(own.avg_price / peers.ort) AS ratio, COUNT(*) AS n
+    `SELECT AVG(own.avg_price / peers.ort) AS ratio, COUNT(*) AS n,
+            COUNT(DISTINCT own.avg_price) AS farkli
      FROM hf_price_history own
      JOIN (
        SELECT recorded_date, AVG(avg_price) AS ort
@@ -1768,8 +1776,8 @@ async function habitualPeerRatioFor(
     [productId, unit, marketId, recordedDate, recordedDate,
      productId, marketId, unit, recordedDate, recordedDate],
   );
-  const row = (rows as Array<{ ratio: number | string | null; n: number }>)[0];
-  if (!row || Number(row.n) < 10) return null;
+  const row = (rows as Array<{ ratio: number | string | null; n: number; farkli: number }>)[0];
+  if (!row || Number(row.n) < 10 || Number(row.farkli) < 5) return null;
   const ratio = Number(row.ratio);
   return Number.isFinite(ratio) && ratio > 0 ? ratio : null;
 }
