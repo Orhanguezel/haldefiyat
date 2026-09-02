@@ -23,6 +23,7 @@ import {
   unfeatureAdminListing,
   getMyListingOffers,
 } from "./controller";
+import { requireAuthOrApiScope } from "@/modules/api-keys/require-scope";
 import { featureCallback, featureCheckout } from "./checkout";
 import { getListingAnalytics } from "./analytics";
 import { listingBoard, sendListingOtp, verifyListingOtp } from "./phase12.controller";
@@ -44,7 +45,13 @@ export async function registerListingsPublic(app: FastifyInstance) {
   app.get("/listings/call-requests/contact-summary", { onRequest: [requireAuth] }, getMyCallRequestContactSummary);
   app.patch<{ Params: { id: string } }>("/listings/call-requests/:id", { onRequest: [requireAuth] }, patchMyCallRequest);
   app.get("/listings/:slug", getPublicListing);
-  app.post("/listings", { onRequest: [requireAuth] }, createOwnerListing);
+  // JWT veya `listings:write` yetkili API anahtari kabul eder. Yazma kotasi
+  // okuma kotasindan AYRIDIR: gunde 10.000 fiyat sorgusu makul, 10.000 ihale
+  // degil. Sizan bir anahtarin acabilecegi ilan sayisi boylece sinirli kalir.
+  app.post("/listings", {
+    onRequest: [requireAuthOrApiScope("listings:write")],
+    config: { rateLimit: { max: 60, timeWindow: "1 hour" } },
+  }, createOwnerListing);
   app.post("/listings/:id/inquiry", createPublicInquiry);
   app.post<{ Params: { id: string } }>("/listings/:id/call-requests", {
     onRequest: [requireAuth],

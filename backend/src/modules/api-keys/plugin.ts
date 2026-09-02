@@ -9,6 +9,7 @@
 
 import type { FastifyRequest, FastifyReply } from "fastify";
 import { validateAndConsume } from "./repository";
+import { keyScopes } from "./scopes";
 
 const SKIP_PATHS = [
   "/api/health",
@@ -45,7 +46,22 @@ export async function apiKeyAuthHook(req: FastifyRequest, reply: FastifyReply): 
     }) as unknown as void;
   }
 
-  (req as FastifyRequest & { auditApiKeyId?: number }).auditApiKeyId = result.record!.id;
+  const record = result.record!;
+  const typed = req as FastifyRequest & {
+    auditApiKeyId?: number;
+    apiKey?: { id: number; userId: string; tier: string; scopes: string[] };
+  };
+  typed.auditApiKeyId = record.id;
+
+  // Anahtarin YETKILERI istege baglanir. Kimlik ENJEKTE EDILMEZ: requireAuth
+  // hala JWT bekler. Yazma yapan rotalar bu alani acikca okur (requireApiScope),
+  // boylece bir anahtarin yanlislikla tum auth'lu uclari acmasi imkansiz olur.
+  typed.apiKey = {
+    id: record.id,
+    userId: record.userId,
+    tier: record.tier,
+    scopes: await keyScopes(record.id),
+  };
 
   // Basarili: header'larla bilgi don, limit muafiyetini isaretle
   reply.header("X-RateLimit-Tier", result.record!.tier);

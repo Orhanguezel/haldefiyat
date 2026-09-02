@@ -23,6 +23,7 @@ import { requireAuth } from "@agro/shared-backend/middleware/auth";
 import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 import { env } from "@/core/env";
 import { isStripeConfigured } from "@/modules/billing/stripe-client";
+import { API_SCOPES, grantScope, isApiScope, keyScopes, revokeScope } from "./scopes";
 import {
   issueKey,
   listUserKeys,
@@ -156,6 +157,37 @@ export async function registerApiKeysAdmin(adminApi: FastifyInstance) {
       }
       await upgradeTier(id, tier);
       return reply.send({ ok: true });
+    },
+  );
+
+  /**
+   * Yazma yetkisi verme/alma — SELF-SERVICE DEGIL, bilincli olarak admin isi.
+   * Anahtara yazma yetkisi vermek, o anahtarin sizmasi halinde musteri adina
+   * islem yapilabilmesi demektir; bu karar bir insan tarafindan verilmelidir.
+   */
+  adminApi.post<{ Params: { id: string }; Body: { scope?: string } }>(
+    "/api-keys/:id/scopes",
+    async (req, reply) => {
+      const id = parseInt(req.params.id, 10);
+      const scope = String(req.body?.scope ?? "");
+      if (!Number.isFinite(id)) return reply.status(400).send({ error: { code: "invalid_id", message: "Geçersiz anahtar." } });
+      if (!isApiScope(scope)) {
+        return reply.status(400).send({
+          error: { code: "invalid_scope", message: `Tanımlı yetkiler: ${API_SCOPES.join(", ")}` },
+        });
+      }
+      await grantScope(id, scope, getAuthUserId(req) ?? null);
+      return reply.send({ ok: true, id, scopes: await keyScopes(id) });
+    },
+  );
+
+  adminApi.delete<{ Params: { id: string; scope: string } }>(
+    "/api-keys/:id/scopes/:scope",
+    async (req, reply) => {
+      const id = parseInt(req.params.id, 10);
+      if (!Number.isFinite(id)) return reply.status(400).send({ error: { code: "invalid_id", message: "Geçersiz anahtar." } });
+      await revokeScope(id, decodeURIComponent(req.params.scope));
+      return reply.send({ ok: true, id, scopes: await keyScopes(id) });
     },
   );
 

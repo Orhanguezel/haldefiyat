@@ -40,6 +40,8 @@ import {
 } from "./validation";
 import { readFeaturedPricing } from "./settings";
 import { verifyOtpToken } from "./otp";
+import { apiKeyContext, resolveActorId } from "@/modules/api-keys/require-scope";
+import { lookupIdempotent, rememberIdempotent } from "@/modules/api-keys/scopes";
 import { notifyMatches, notifyAdminNewListing } from "./matching";
 import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
 import { env } from "@/core/env";
@@ -279,7 +281,25 @@ export async function patchMyCallRequest(
 
 export async function createOwnerListing(req: FastifyRequest, reply: FastifyReply) {
   try {
-    const userId = getAuthUserId(req);
+    // Kimlik JWT'den ya da yetkili API anahtarindan gelir; anahtarla acilan ilan
+    // anahtar SAHIBININ ilanidir.
+    const userId = resolveActorId(req);
+    if (!userId) return reply.status(401).send({ error: { code: "auth_required", message: "Kimlik doğrulanamadı." } });
+    const key = apiKeyContext(req);
+
+    // ERP entegrasyonlari basarisiz istegi tekrar dener. Idempotency-Key varsa
+    // ayni istek ikinci kez ilan ACMAZ; ilk ilanin kimligi doner.
+    const idemKey = typeof req.headers["idempotency-key"] === "string"
+      ? req.headers["idempotency-key"].slice(0, 128)
+      : null;
+    if (key && idemKey) {
+      const existing = await lookupIdempotent(key.id, idemKey);
+      if (existing) {
+        const item = await getListingById(Number(existing));
+        return reply.status(200).send({ item, idempotent: true });
+      }
+    }
+
     const parsed = listingCreateSchema.parse(req.body ?? {});
     const otpIdentity = verifyOtpToken((req.body as { otpToken?: string } | undefined)?.otpToken);
     const otpPhone = otpIdentity?.userId === userId ? otpIdentity.phone : null;
@@ -288,9 +308,12 @@ export async function createOwnerListing(req: FastifyRequest, reply: FastifyRepl
       return reply.status(400).send({ error: { message: "Telefon doğrulaması gerekli. Lütfen SMS kodunu doğrulayın." } });
     }
     const item = await createListing({ ...parsed, contactPhone: otpPhone ?? parsed.contactPhone }, userId, {
+      // API'den acilan ilan da MODERASYONA girer (createListing pending yazar):
+      // sizan bir anahtar dogrudan yayina spam sokamaz.
       source: "user",
       phoneVerified: otpPhone ? 1 : 0,
     });
+    if (item && key && idemKey) await rememberIdempotent(key.id, idemKey, "POST /listings", String(item.id));
     if (item) void notifyAdminNewListing(item);
     return reply.status(201).send({ item });
   } catch (err) {
