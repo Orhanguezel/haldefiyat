@@ -64,7 +64,9 @@ interface ActiveRedirect {
 
 async function fetchActiveProducts(): Promise<PriceSitemapItem[]> {
   try {
-    const res = await fetch(`${API_URL}/api/v1/prices/products?seoIndex=true`, {
+    // withUpdatedAt: lastmod icin gereken tarih. Uc tarafinda pahali oldugu icin
+    // istege bagli; sitemap saatte bir yenilendigi icin maliyeti kabul edilebilir.
+    const res = await fetch(`${API_URL}/api/v1/prices/products?seoIndex=true&withUpdatedAt=true`, {
       next: { revalidate },
       signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });

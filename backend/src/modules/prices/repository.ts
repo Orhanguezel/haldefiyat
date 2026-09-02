@@ -1,6 +1,7 @@
 import type { SQL } from "drizzle-orm";
 import { and, asc, desc, eq, gte, lte, sql, or, like, inArray, isNotNull } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
+import type { RowDataPacket } from "mysql2";
 import { db, pool } from "@/db/client";
 import { hfEtlRuns, hfMarkets, hfPriceHistory, hfProductEditorial, hfProducts, hfRetailPrices } from "@/db/schema";
 import { activeSources } from "@/config/etl-sources";
@@ -918,7 +919,38 @@ export async function sourceHealthEvents(limit = 12): Promise<PublicSourceHealth
   return rows.map(toPublicSourceHealthEvent);
 }
 
-export async function listProducts(q?: string, category?: string, seoIndex?: boolean, marketType?: MarketType, canonicalOnly = false) {
+/**
+ * Kanonik aile basina en son fiyat tarihi — sitemap `lastmod` icin.
+ *
+ * ISTEGE BAGLI cunku PAHALI (~2,7 sn): urun listesine korele alt sorgu olarak
+ * eklemek 1.248 satirin her biri icin ayri tarama demekti ve 2026-09-02'de
+ * /prices/products'i yanit veremez hale getirdi. Tek GROUP BY ile alinip JS'te
+ * eslestirilir; yalnizca sitemap ister, o da saatte bir yenilenir.
+ */
+async function lastPriceDateByCanonicalSlug(): Promise<Map<string, string>> {
+  const [rows] = await pool.query<(RowDataPacket & { kanonik: string; son: string | Date })[]>(
+    `SELECT COALESCE(v.canonical_slug, v.slug) AS kanonik, MAX(ph.recorded_date) AS son
+     FROM hf_price_history ph
+     INNER JOIN hf_products v ON v.id = ph.product_id AND v.is_active = 1 AND ph.unit = v.unit
+     WHERE ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 400 DAY)
+     GROUP BY COALESCE(v.canonical_slug, v.slug)`,
+  );
+  const map = new Map<string, string>();
+  for (const row of rows) {
+    const iso = row.son instanceof Date ? row.son.toISOString().slice(0, 10) : String(row.son).slice(0, 10);
+    if (iso) map.set(row.kanonik, iso);
+  }
+  return map;
+}
+
+export async function listProducts(
+  q?: string,
+  category?: string,
+  seoIndex?: boolean,
+  marketType?: MarketType,
+  canonicalOnly = false,
+  withUpdatedAt = false,
+) {
   const conds: SQL[] = [eq(hfProducts.isActive, 1)];
   if (category?.trim()) conds.push(eq(hfProducts.categorySlug, category));
   if (seoIndex != null) conds.push(eq(hfProducts.seoIndex, seoIndex ? 1 : 0));
@@ -954,10 +986,17 @@ export async function listProducts(q?: string, category?: string, seoIndex?: boo
     .from(hfProducts)
     .where(and(...conds))
     .orderBy(hfProducts.displayOrder, hfProducts.nameTr);
-  if (!canonicalOnly) return disambiguateProductUnitLabels(rows);
+  const withDates = withUpdatedAt
+    ? await (async () => {
+        const dates = await lastPriceDateByCanonicalSlug();
+        return rows.map((row) => ({ ...row, updatedAt: dates.get(row.canonicalSlug ?? row.slug) ?? null }));
+      })()
+    : rows;
 
-  const directMasters = rows.filter((row) => !row.canonicalSlug);
-  const targetSlugs = [...new Set(rows.map((row) => row.canonicalSlug).filter((slug): slug is string => Boolean(slug)))];
+  if (!canonicalOnly) return disambiguateProductUnitLabels(withDates);
+
+  const directMasters = withDates.filter((row) => !row.canonicalSlug);
+  const targetSlugs = [...new Set(withDates.map((row) => row.canonicalSlug).filter((slug): slug is string => Boolean(slug)))];
   const targets = targetSlugs.length
     ? await db.select({
       id: hfProducts.id,

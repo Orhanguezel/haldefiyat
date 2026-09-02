@@ -135,7 +135,12 @@ export async function registerPrices(app: FastifyInstance) {
   app.get("/prices/products", async (req, reply) => {
     const q = qProducts.safeParse(req.query);
     if (!q.success) return reply.status(400).send({ error: "Gecersiz parametre" });
-    const items = await listProducts(q.data.q, q.data.category, q.data.seoIndex, q.data.marketType, q.data.canonicalOnly);
+    // withUpdatedAt PAHALI (~2,7 sn) — yalnizca sitemap ister, o da saatte bir
+    // yenilenir. Varsayilan yol degismedi.
+    const items = await listProducts(
+      q.data.q, q.data.category, q.data.seoIndex, q.data.marketType, q.data.canonicalOnly,
+      String((req.query as Record<string, unknown>)?.withUpdatedAt ?? "") === "true",
+    );
     return reply.send({ items });
   });
 
