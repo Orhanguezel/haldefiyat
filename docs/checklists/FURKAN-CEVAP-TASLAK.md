@@ -50,8 +50,17 @@ konuşmasını "kaç şube/müşteri görecek" sorusuna bağlayalım.**
 >   -H "X-API-Key: hf_..."
 > ```
 > Bu tek çağrı günün **tüm İstanbul fiyatlarını** getirir (94–105 ürün).
-> Tek ürün için `&product=domates`, geçmiş için `&range=30d`.
+> Tek ürün için `&product=domates`.
 > Yanıt başlıklarında kalan kotanız görünür (`x-ratelimit-remaining`).
+>
+> **Geçmiş seri** (ERP tarafında trend/ortalama için):
+> ```
+> curl "https://haldefiyat.com/api/v1/prices/history/domates?market=istanbul-hal-ibb&days=30" \
+>   -H "X-API-Key: hf_..."
+> ```
+> Gün gün `minPrice` / `maxPrice` / `avgPrice` döner. Not: dönen gün sayısı
+> takvim günü sayısından az olabilir — İBB'nin yayın yapmadığı günler seride
+> yoktur (aşağıdaki maddeye bakın).
 >
 > Dokümantasyon: **haldefiyat.com/api-docs** · Kullanım şartları: **/api-policy**
 >
