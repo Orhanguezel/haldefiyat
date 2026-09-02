@@ -672,7 +672,7 @@ export default function AdminAuditClient() {
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
             <MetricCard title="İnsan Trafiği" value={fmtNumber(overviewData?.summary?.humanRequests)} sub={`${fmtNumber(overviewData?.summary?.pageviews)} pageview`} />
             <MetricCard title="Bot Trafiği" value={fmtNumber(overviewData?.summary?.botRequests)} sub={`${fmtNumber(overviewData?.summary?.totalRequests)} toplam request`} />
-            <MetricCard title="Ads Unique IP" value={fmtNumber(overviewData?.summary?.adsUniqueIps)} sub={`${fmtNumber(overviewData?.summary?.adsPageviews)} Ads pageview`} />
+            <MetricCard title="Ads Tekil IP" value={fmtNumber(overviewData?.summary?.adsUniqueIps)} sub={`${fmtNumber(overviewData?.summary?.adsPageviews)} Ads pageview`} />
             <MetricCard title="Direct Trafik" value={fmtPct(overviewData?.summary?.directTrafficPct)} sub={`${fmtNumber(overviewData?.summary?.returningIps)} returning IP`} />
             <MetricCard title="B2B-like IP" value={fmtNumber(overviewData?.summary?.b2bLikeIps)} sub={`${fmtNumber(overviewData?.summary?.b2bIntentIps)} yüksek niyet`} />
           </div>
@@ -1178,7 +1178,7 @@ export default function AdminAuditClient() {
                     <TableHead className="text-right">İnsan</TableHead>
                     <TableHead className="text-right">Bot</TableHead>
                     <TableHead className="text-right">Ads</TableHead>
-                    <TableHead className="text-right">Unique IP</TableHead>
+                    <TableHead className="text-right">Tekil IP</TableHead>
                     <TableHead className="text-right">Hata</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -1246,7 +1246,7 @@ export default function AdminAuditClient() {
                       <TableHead>Gün</TableHead>
                       <TableHead>Saat</TableHead>
                       <TableHead className="text-right">İnsan</TableHead>
-                      <TableHead className="text-right">Unique IP</TableHead>
+                      <TableHead className="text-right">Tekil IP</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1282,9 +1282,9 @@ export default function AdminAuditClient() {
                     <TableHead>Tarih</TableHead>
                     <TableHead>Cihaz</TableHead>
                     <TableHead className="text-right">Request</TableHead>
-                    <TableHead className="text-right">Unique IP</TableHead>
+                    <TableHead className="text-right">Tekil IP</TableHead>
                     <TableHead className="text-right">Ads Request</TableHead>
-                    <TableHead className="text-right">Ads Unique IP</TableHead>
+                    <TableHead className="text-right">Ads Tekil IP</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1324,17 +1324,17 @@ export default function AdminAuditClient() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <KeyRound className="h-4 w-4" /> API Key Sahipleri
+                <KeyRound className="h-4 w-4" /> API Anahtarı Sahipleri
               </CardTitle>
-              <CardDescription>Kullanıcı, tier, günlük limit ve revoke yönetimi.</CardDescription>
+              <CardDescription>Kullanıcı, plan, günlük kota ve anahtar iptali. Kota kullanıcı başınadır; anahtar değiştirmek sayacı sıfırlamaz.</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Kullanıcı</TableHead>
-                    <TableHead>Key</TableHead>
-                    <TableHead>Tier</TableHead>
+                    <TableHead>Anahtar</TableHead>
+                    <TableHead>Plan</TableHead>
                     <TableHead>Kullanım</TableHead>
                     <TableHead>Son Kullanım</TableHead>
                     <TableHead>Durum</TableHead>
@@ -1349,7 +1349,7 @@ export default function AdminAuditClient() {
                         <div className="text-muted-foreground text-xs">{key.userFullName || key.name || key.userId}</div>
                       </TableCell>
                       <TableCell className="font-mono">{key.keyPrefix}</TableCell>
-                      <TableCell><Badge variant={key.tier === 'pro' ? 'default' : 'outline'}>{key.tier}</Badge></TableCell>
+                      <TableCell><Badge variant={key.tier === 'pro' ? 'default' : 'outline'}>{key.tier === 'pro' ? 'Pro' : 'Ücretsiz'}</Badge></TableCell>
                       <TableCell>
                         <div className="font-medium">{formatApiKeyUsage(key)}</div>
                         <div className="mt-1 h-1.5 rounded-full bg-muted">
@@ -1357,7 +1357,7 @@ export default function AdminAuditClient() {
                         </div>
                       </TableCell>
                       <TableCell>{formatApiKeyDate(key.lastUsedAt)}</TableCell>
-                      <TableCell>{key.revoked ? <Badge variant="destructive">Revoked</Badge> : <Badge>Aktif</Badge>}</TableCell>
+                      <TableCell>{key.revoked ? <Badge variant="destructive">İptal edildi</Badge> : <Badge>Aktif</Badge>}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           {API_KEY_TIERS.map((tier) => (
@@ -1368,7 +1368,7 @@ export default function AdminAuditClient() {
                               disabled={consumersLoading || key.revoked || key.tier === tier}
                               onClick={() => onSetApiKeyTier(key, tier)}
                             >
-                              {tier === 'pro' ? 'Pro yap' : 'Free yap'}
+                              {tier === 'pro' ? 'Pro yap' : 'Ücretsize al'}
                             </Button>
                           ))}
                           <Button
@@ -1377,7 +1377,7 @@ export default function AdminAuditClient() {
                             disabled={consumersLoading || key.revoked}
                             onClick={() => onRevokeApiKey(key)}
                           >
-                            Revoke
+                            İptal et
                           </Button>
                         </div>
                       </TableCell>
@@ -1394,17 +1394,17 @@ export default function AdminAuditClient() {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Per-key Günlük Kullanım</CardTitle>
-              <CardDescription>Audit loglarında `api_key_id` dolu olan isteklerin gün bazlı grafiği.</CardDescription>
+              <CardTitle className="text-base">Anahtar Bazında Günlük Kullanım</CardTitle>
+              <CardDescription>Anahtarla yapılan isteklerin gün bazlı dağılımı.</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Key</TableHead>
+                    <TableHead>Anahtar</TableHead>
                     <TableHead>Günlük Grafik</TableHead>
                     <TableHead className="text-right">Toplam</TableHead>
-                    <TableHead className="text-right">Unique IP</TableHead>
+                    <TableHead className="text-right">Tekil IP</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1460,7 +1460,7 @@ export default function AdminAuditClient() {
                     <TableHead>Host</TableHead>
                     <TableHead>Tip</TableHead>
                     <TableHead className="text-right">Hit</TableHead>
-                    <TableHead className="text-right">Unique IP</TableHead>
+                    <TableHead className="text-right">Tekil IP</TableHead>
                     <TableHead>Son Görülme</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -1633,7 +1633,7 @@ export default function AdminAuditClient() {
                     <TableHead>Şehir</TableHead>
                     <TableHead>Ülke</TableHead>
                     <TableHead className="text-right">İstek</TableHead>
-                    <TableHead className="text-right">Unique IP</TableHead>
+                    <TableHead className="text-right">Tekil IP</TableHead>
                     <TableHead className="text-right">Bot</TableHead>
                   </TableRow>
                 </TableHeader>
