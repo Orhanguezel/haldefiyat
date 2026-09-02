@@ -65,6 +65,12 @@ export interface EtlSourceConfig {
   responseShape:    ResponseShape;   // yanıtın nasıl parse edileceği
   defaultUnit:      string;          // kaynak birim vermiyorsa (örn. HTML scrape)
   defaultCategory:  string;          // kaynak kategori vermiyorsa auto-register fallback
+  /**
+   * Fiyat gunluk piyasada olusmaz, RESMI ILANLA belirlenir (TMO alim fiyati gibi):
+   * bir hasat sezonu boyunca ayni deger tekrarlanir. Donma denetimi bu kaynaklari
+   * atlar — sabit kalmalari dogru davranistir, arizasi degil.
+   */
+  announcedPrice:   boolean;
 }
 
 interface RawSource {
@@ -77,6 +83,7 @@ interface RawSource {
   responseShape:     ResponseShape;
   defaultUnit:       string;
   defaultCategory:   string;
+  announcedPrice?:   boolean;
 }
 
 const RAW_SOURCES: RawSource[] = [
@@ -523,6 +530,8 @@ const RAW_SOURCES: RawSource[] = [
   {
     key:               "tmo_alim_resmi",
     defaultEnabled:    true,
+    // Piyasa fiyati degil, TMO'nun sezonluk alim ilani — sezon boyunca sabittir.
+    announcedPrice:    true,
     defaultMarketSlug: "tmo-resmi-alim",
     defaultBaseUrl:    "https://www.tmo.gov.tr",
     defaultEndpoint:   "/",
@@ -842,6 +851,7 @@ export function loadEtlSources(): EtlSourceConfig[] {
     responseShape:    s.responseShape,
     defaultUnit:      envStr(process.env[envKey(s.key, "DEFAULT_UNIT")], s.defaultUnit),
     defaultCategory:  envStr(process.env[envKey(s.key, "DEFAULT_CATEGORY")], s.defaultCategory),
+    announcedPrice:   s.announcedPrice ?? false,
   }));
 }
 

@@ -144,10 +144,14 @@ export async function sourceFreshness(windowDays = 180): Promise<StaleSource[]> 
  * uyarisinin amaci "kaynak calisiyor gorunup bayat veri yaziyor" durumunu
  * yakalamak; kapali kaynakta boyle bir risk yoktur (2026-09-02: kapatilan bes
  * batiakdeniz kaynagi kapatildiktan sonra da alarm uretmeye devam etti).
+ *
+ * ILAN fiyatli kaynaklar da elenir (TMO alim fiyati): deger bir hasat sezonu
+ * boyunca sabit kalir, donma dogru davranistir. Oradaki gercek risk sezon
+ * degisiminde degerin eskimesidir — onu parser'in gecerlilik tarihi yakalar.
  */
 export async function detectStaleSources(windowDays = 180): Promise<StaleSource[]> {
-  const enabled = new Set(activeSources().map((s) => s.key));
-  return (await sourceFreshness(windowDays)).filter((s) => s.isStale && enabled.has(s.sourceApi));
+  const watched = new Set(activeSources().filter((s) => !s.announcedPrice).map((s) => s.key));
+  return (await sourceFreshness(windowDays)).filter((s) => s.isStale && watched.has(s.sourceApi));
 }
 
 /**
