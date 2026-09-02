@@ -17,19 +17,35 @@ import type { FirmLeadItem } from '@/integrations/endpoints/firms-admin-endpoint
 const PAGE_SIZE = 50;
 
 /** "Public lead: Ad | Telefon: X | E-posta: Y | ... | Mesaj: Z" seklindeki
- *  serbest metni okunur alanlara ayirir. */
+ *  serbest metni okunur alanlara ayirir.
+ *
+ *  `Mesaj:` satirindan SONRASI tumuyle mesajdir. Onceki surum her satiri
+ *  `anahtar: deger` olarak eslemeye calisiyordu; cok satirli mesajlarda ilk
+ *  satirdan sonrasi hicbir kalibi tutmadigi icin SESSIZCE DUSUYORDU
+ *  (1 Eylul 2026: "Elimde urunler" gorunuyor, alttaki dort satir kayip). */
 function parseLead(notes: string | null) {
   const out: Record<string, string> = {};
-  for (const line of (notes ?? '').split('\n')) {
-    const m = /^([^:]+):\s*(.*)$/.exec(line.trim());
+  const lines = (notes ?? '').split('\n');
+  let messageFrom = -1;
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const m = /^([^:]+):\s*(.*)$/.exec(lines[i]!.trim());
     if (!m) continue;
     const key = m[1]!.trim().toLowerCase();
     const value = m[2]!.trim();
     if (key.startsWith('public lead')) out.name = value;
     else if (key.startsWith('telefon')) out.phone = value;
     else if (key.startsWith('e-posta')) out.email = value;
-    else if (key.startsWith('mesaj')) out.message = value;
     else if (key.startsWith('tercih')) out.channel = value;
+    else if (key.startsWith('gizlilik')) out.consent = value;
+    else if (key.startsWith('mesaj')) { messageFrom = i; out.message = value; break; }
+  }
+
+  if (messageFrom >= 0) {
+    out.message = [out.message ?? '', ...lines.slice(messageFrom + 1)]
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
   }
   return out;
 }
@@ -50,6 +66,7 @@ function waHref(phone?: string) {
 export default function FirmLeadsPage() {
   const [page, setPage] = useState(0);
   const [replyTarget, setReplyTarget] = useState<{ lead: FirmLeadItem; parsed: Record<string, string> } | null>(null);
+  const [detail, setDetail] = useState<{ lead: FirmLeadItem; parsed: Record<string, string> } | null>(null);
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [replyError, setReplyError] = useState('');
@@ -129,9 +146,19 @@ export default function FirmLeadsPage() {
                         <div className="text-xs text-muted-foreground">{p.email || ''}</div>
                       </TableCell>
                       <TableCell className="min-w-[280px] text-sm whitespace-normal">
-                        <p className="line-clamp-2 leading-5" title={p.message || ''}>
-                          {p.message || '-'}
-                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setDetail({ lead, parsed: p })}
+                          className="w-full text-left"
+                          title="Tam mesajı aç"
+                        >
+                          <p className="line-clamp-2 whitespace-pre-line leading-5 hover:text-primary">
+                            {p.message || '-'}
+                          </p>
+                          {(p.message ?? '').includes('\n') && (
+                            <span className="mt-0.5 inline-block text-xs text-primary">Devamını gör →</span>
+                          )}
+                        </button>
                       </TableCell>
                       <TableCell className="text-sm whitespace-normal">
                         <Link href={`/admin/firmalar/${lead.firmId}`} className="text-primary hover:underline">
@@ -141,6 +168,9 @@ export default function FirmLeadsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex flex-wrap justify-end gap-2">
+                          <Button size="sm" variant="ghost" onClick={() => setDetail({ lead, parsed: p })}>
+                            Detay
+                          </Button>
                           {telHref(p.phone) && (
                             <Button asChild size="sm" variant="outline">
                               <a href={telHref(p.phone)!}>Ara</a>
@@ -216,6 +246,63 @@ export default function FirmLeadsPage() {
             <Button onClick={sendReply} disabled={isReplying || subject.trim().length < 2 || message.trim().length < 10}>
               {isReplying ? 'Gonderiliyor...' : 'Gonder'}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!detail} onOpenChange={(open) => !open && setDetail(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{detail?.parsed.name || 'Talep detayı'}</DialogTitle>
+            <DialogDescription>
+              {detail?.lead.firmName} · {detail?.lead.createdAt ? new Date(detail.lead.createdAt).toLocaleString('tr-TR') : ''}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 text-sm">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <div className="text-xs text-muted-foreground">Telefon</div>
+                <div className="font-medium">{detail?.parsed.phone || '-'}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">E-posta</div>
+                <div className="font-medium break-all">{detail?.parsed.email || '-'}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Tercih edilen kanal</div>
+                <div className="font-medium">{detail?.parsed.channel || '-'}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Gizlilik onayı</div>
+                <div className="font-medium">{detail?.parsed.consent || '-'}</div>
+              </div>
+            </div>
+            <div>
+              <div className="mb-1 text-xs text-muted-foreground">Mesaj</div>
+              <div className="whitespace-pre-line rounded-md border bg-muted/40 p-3 leading-6">
+                {detail?.parsed.message || '-'}
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="flex-wrap gap-2 sm:justify-between">
+            <div className="flex flex-wrap gap-2">
+              {telHref(detail?.parsed.phone) && (
+                <Button asChild size="sm" variant="outline"><a href={telHref(detail!.parsed.phone)!}>Ara</a></Button>
+              )}
+              {waHref(detail?.parsed.phone) && (
+                <Button asChild size="sm" variant="outline" className="border-emerald-300 text-emerald-700 hover:bg-emerald-50">
+                  <a href={waHref(detail!.parsed.phone)!} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                </Button>
+              )}
+            </div>
+            <div className="flex gap-2">
+              {detail?.parsed.email && (
+                <Button size="sm" onClick={() => { const d = detail!; setDetail(null); openReply(d.lead, d.parsed); }}>
+                  Cevap yaz
+                </Button>
+              )}
+              <Button size="sm" variant="outline" onClick={() => setDetail(null)}>Kapat</Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
