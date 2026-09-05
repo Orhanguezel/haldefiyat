@@ -32,6 +32,7 @@ export default function Page() {
   const [filters, setFilters] = useState<DomainFilters>(EMPTY_DOMAIN_FILTERS);
   const [openDomain, setOpenDomain] = useState<string | null>(null);
   const [manual, setManual] = useState('');
+  const [engine, setEngine] = useState<'brave' | 'yandex' | 'bing'>('brave');
   const running = Boolean(data?.running) || data?.run?.status === 'running';
   // Kosu surerken 5 sn'de bir yenile; bitince dur.
   useEffect(() => { if (!running) return; const id = setInterval(() => void refetch(), 5000); return () => clearInterval(id); }, [running, refetch]);
@@ -49,7 +50,7 @@ export default function Page() {
   async function launch(queriesText?: string) {
     const list = queriesText?.split('\n').map((s) => s.trim()).filter(Boolean);
     try {
-      await start(list?.length ? { queries: list, pages: 2 } : { limit: 30, pages: 2 }).unwrap();
+      await start(list?.length ? { queries: list, engine, depth: 20 } : { limit: 30, engine, depth: 20 }).unwrap();
       toast.success(t('discovery.started'));
       setRunId(undefined);
       setTimeout(() => void refetch(), 1500);
@@ -73,6 +74,10 @@ export default function Page() {
               <SelectContent>{data?.runs.map((r) => <SelectItem key={r.id} value={String(r.id)}>{formatDateTime(r.started_at)} · {r.queries_done} {t('discovery.queriesShort')}</SelectItem>)}</SelectContent>
             </Select>
           ) : null}
+          <Select value={engine} onValueChange={(v) => setEngine(v as typeof engine)}>
+            <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+            <SelectContent>{(['brave', 'yandex', 'bing'] as const).map((e) => <SelectItem key={e} value={e}>{t(`engines.${e}`)}</SelectItem>)}</SelectContent>
+          </Select>
           <Popover>
             <PopoverTrigger asChild><Button variant="outline" disabled={running}>{t('discovery.manual')}</Button></PopoverTrigger>
             <PopoverContent className="w-96 space-y-2" align="end">

@@ -1,7 +1,7 @@
 {
   "title": "Rakip İzleme",
   "subtitle": "Son keşif {date} · sorgu kaynağı {source} · motor {engine} · {status}",
-  "subtitleEmpty": "Henüz keşif çalışmadı. GSC'de en çok gösterim alan aramalarımızda ilk iki sayfada kim çıkıyor, tek tuşla tarayın.",
+  "subtitleEmpty": "Henüz keşif çalışmadı. GSC'de en çok gösterim alan aramalarımızda ilk 20 sonuçta kim çıkıyor, tek tuşla tarayın.",
   "sources": {
     "gsc": "Search Console",
     "products": "ürün listesi",
@@ -43,10 +43,10 @@
   "discovery": {
     "start": "Keşfi başlat",
     "running": "Taranıyor {done}/{total}",
-    "started": "Keşif arka planda başladı; sorgu başına iki sayfa çekilir, birkaç dakika sürer.",
+    "started": "Keşif arka planda başladı; sorgu başına ilk 20 sonuç çekilir, birkaç dakika sürer.",
     "startFailed": "Keşif başlatılamadı.",
     "manual": "Kendi sorgularım",
-    "manualHint": "Her satıra bir arama sorgusu. Boş bırakılırsa GSC'nin en çok gösterim alan 30 sorgusu kullanılır.",
+    "manualHint": "Her satıra bir arama sorgusu. Boş bırakılırsa GSC'nin en çok gösterim alan 30 sorgusu kullanılır. Google VPS'e captcha verdiği için motor Brave ya da Yandex; Bing Türkçe uzun sorgularda alakasız sonuç veriyor.",
     "manualPlaceholder": "antalya hal fiyatları\\ndomates fiyatı",
     "startManual": "Bu sorgularla tara",
     "queriesShort": "sorgu",
@@ -111,5 +111,10 @@
       "change": "Değişiklik",
       "status": "Durum"
     }
+  },
+  "engines": {
+    "brave": "Brave",
+    "yandex": "Yandex",
+    "bing": "Bing"
   }
 }

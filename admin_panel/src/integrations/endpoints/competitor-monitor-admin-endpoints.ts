@@ -45,7 +45,7 @@ export const competitorMonitorAdminApi = baseApi.injectEndpoints({
     getCompetitorDiscoveryResultsAdmin: builder.query<{ items: DiscoveryResultRow[] }, { runId: number; domain?: string; query?: string }>({
       query: ({ runId, domain, query }) => ({ url: `/admin/competitor-monitor/discovery/results?runId=${runId}${domain ? `&domain=${encodeURIComponent(domain)}` : ''}${query ? `&query=${encodeURIComponent(query)}` : ''}` }),
     }),
-    startCompetitorDiscoveryAdmin: builder.mutation<{ ok: boolean; started: boolean }, { queries?: string[]; limit?: number; pages?: 1 | 2 }>({
+    startCompetitorDiscoveryAdmin: builder.mutation<{ ok: boolean; started: boolean }, { queries?: string[]; limit?: number; engine?: 'brave' | 'yandex' | 'bing'; depth?: number }>({
       query: (body) => ({ url: '/admin/competitor-monitor/discover', method: 'POST', body }),
       invalidatesTags: [{ type: 'CompetitorSites' as const, id: 'DISCOVERY' }],
     }),

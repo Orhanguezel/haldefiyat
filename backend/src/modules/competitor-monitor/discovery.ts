@@ -3,10 +3,12 @@ import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfCompetitorSerpResults, hfCompetitorSerpRuns, hfProducts } from "@/db/schema";
 import { publicOrigin } from "@/modules/seo/gsc-index";
-import { domainOf, fetchBingPage } from "./serp-bing";
+import { domainOf } from "./serp-bing";
+import { fetchSerpPage, PAGE_SIZE, SERP_ENGINES, type SerpEngine } from "./serp-engines";
 
 export interface DiscoveryQuery { query: string; clicks: number; impressions: number }
-export interface DiscoveryOptions { queries?: string[]; limit?: number; pages?: 1 | 2 }
+export interface DiscoveryOptions { queries?: string[]; limit?: number; engine?: SerpEngine; depth?: number }
+export const DEFAULT_DEPTH = 20; // "ilk iki sayfa" = ilk 20 sonuc
 
 // Rakip degil, her aramada cikan platformlar: sonuc listesine yazilmaz.
 const SKIP_DOMAINS = /(^|\.)(google\.[a-z.]+|bing\.com|youtube\.com|facebook\.com|instagram\.com|twitter\.com|x\.com|linkedin\.com|tiktok\.com|wikipedia\.org|apple\.com|pinterest\.[a-z]+|eksisozluk\.com)$/i;
@@ -69,21 +71,23 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export async function runCompetitorDiscovery(opts: DiscoveryOptions) {
   if (running) throw new Error("discovery_running");
   running = true;
-  const pages = opts.pages ?? 2;
+  const engine: SerpEngine = SERP_ENGINES.includes(opts.engine as SerpEngine) ? (opts.engine as SerpEngine) : "brave";
+  const depth = Math.max(10, Math.min(opts.depth ?? DEFAULT_DEPTH, 40));
+  const pages = Math.ceil(depth / PAGE_SIZE[engine]);
   const ours = ourHost();
   try {
     const { list, source } = await resolveQueries(opts);
-    const [ins] = await db.insert(hfCompetitorSerpRuns).values({ engine: "bing", querySource: source, queriesTotal: list.length });
+    const [ins] = await db.insert(hfCompetitorSerpRuns).values({ engine, querySource: source, queriesTotal: list.length });
     const runId = Number((ins as { insertId: number }).insertId);
     let done = 0;
     let results = 0;
     let failures = 0;
     for (const q of list) {
-      for (const page of ([1, 2] as const).slice(0, pages)) {
-        const { hits, error } = await fetchBingPage(q.query, page);
+      for (let page = 1; page <= pages; page += 1) {
+        const { hits, error } = await fetchSerpPage(engine, q.query, page);
         if (error) failures += 1;
         const rows = hits
-          .filter((h) => !SKIP_DOMAINS.test(h.domain))
+          .filter((h) => h.position <= depth && !SKIP_DOMAINS.test(h.domain))
           .map((h) => ({ runId, query: q.query, queryClicks: q.clicks, queryImpressions: q.impressions, position: h.position, page: h.page, url: h.url, domain: h.domain, title: h.title, snippet: h.snippet, isOurs: h.domain === ours || h.domain.endsWith(`.${ours}`) ? 1 : 0 }));
         if (rows.length) await db.insert(hfCompetitorSerpResults).values(rows);
         results += rows.length;
@@ -94,7 +98,7 @@ export async function runCompetitorDiscovery(opts: DiscoveryOptions) {
     }
     const status = failures === 0 ? "ok" : failures >= list.length * pages ? "error" : "partial";
     await db.update(hfCompetitorSerpRuns).set({ status, finishedAt: sql`NOW(3)`, errorMsg: failures ? `${failures} sayfa alinamadi` : null }).where(eq(hfCompetitorSerpRuns.id, runId));
-    return { id: runId, status, queriesDone: done, resultsTotal: results, source };
+    return { id: runId, status, queriesDone: done, resultsTotal: results, source, engine };
   } finally {
     running = false;
   }

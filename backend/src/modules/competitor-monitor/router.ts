@@ -98,10 +98,10 @@ export async function registerCompetitorMonitor(app: FastifyInstance) {
   // ─── Rakip kesfi (arama sonucu taramasi) ────────────────────────────────
 
   /** POST /competitor-monitor/discover — arka planda kosu baslatir. Body: { queries?, limit?, pages? } */
-  app.post<{ Body: { queries?: string[]; limit?: number; pages?: 1 | 2 } }>("/competitor-monitor/discover", async (req, reply) => {
+  app.post<{ Body: { queries?: string[]; limit?: number; engine?: string; depth?: number } }>("/competitor-monitor/discover", async (req, reply) => {
     const body = req.body ?? {};
     const queries = Array.isArray(body.queries) ? body.queries.filter((q) => typeof q === "string" && q.trim()).slice(0, 100) : undefined;
-    const started = startDiscoveryBackground({ queries, limit: body.limit, pages: body.pages });
+    const started = startDiscoveryBackground({ queries, limit: body.limit, engine: body.engine as never, depth: body.depth });
     if (!started) return reply.status(409).send({ error: "Kesif zaten calisiyor" });
     return reply.send({ ok: true, started: true });
   });
