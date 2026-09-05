@@ -66,7 +66,10 @@ export function isScraperEnabled(): boolean {
  * Kaynak bazli scraper uc noktasi. Bazi siteler (Canakkale) bu VPS'in IP'sini
  * tamamen engelliyor ama baska sunucudan aciliyor. HF_SCRAPER_OVERRIDES ile
  * belirli bir kaynak farkli bir scraper-service'e yonlendirilir:
- *   HF_SCRAPER_OVERRIDES=canakkale_resmi=https://scraper.example.com|<api_key>,other=...
+ *   HF_SCRAPER_OVERRIDES='canakkale_resmi=https://scraper.example.com|<api_key>,other=...'
+ * DIKKAT: .env dosyasi PM2 baslangicinda KABUK tarafindan source edilir; "|" komut
+ * ayraci sayilir. Deger mutlaka tek tirnak icinde yazilir — 2026-09-05'te tirnaksiz
+ * yazildi, backend 172 kez cokup 10 dk API'siz kaldi.
  * HF_SCRAPER_FAST_SOURCES listesindeki kaynaklar tarayici yerine curl-cffi ("fast")
  * moduyla cekilir — JS gerektirmeyen duz HTML icin yeterli ve 50x hizli.
  */
