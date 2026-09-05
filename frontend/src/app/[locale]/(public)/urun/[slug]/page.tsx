@@ -31,6 +31,7 @@ import {
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceChart from "@/components/sections/PriceChartLazy";
+import CityProductLinks from "@/components/sections/CityProductLinks";
 import SeasonCompare from "@/components/sections/SeasonCompare";
 import RetailComparison from "@/components/sections/RetailComparison";
 import VariantPriceTable from "@/components/sections/VariantPriceTable";
@@ -794,6 +795,8 @@ export default async function UrunPage({ params }: Props) {
           )}
         </p>
       </div>
+
+      {!borsaProduct && <CityProductLinks product={slug} productName={displayName} />}
 
       {borsaProduct && (
         <section className="mt-8 grid gap-8">

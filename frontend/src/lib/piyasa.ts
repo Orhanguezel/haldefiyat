@@ -143,8 +143,10 @@ export const PIYASA_PAGES: Record<string, PiyasaPageConfig> = {
 };
 
 /** Urun slug'indan piyasa sayfasina erisim (urun sayfasindaki ic link icin). */
+// Ayni urunun birden cok bolge sayfasi olabilir (limon: erdemli, adana, mersin); urun
+// sayfasindaki tek link ILK tanimlanana gider (Object.entries sirasi).
 export const PIYASA_BY_PRODUCT: Record<string, PiyasaPageConfig> = Object.fromEntries(
-  Object.values(PIYASA_PAGES).map((page) => [page.productSlug, page]),
+  Object.values(PIYASA_PAGES).reverse().map((page) => [page.productSlug, page]),
 );
 
 /**

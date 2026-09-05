@@ -162,6 +162,20 @@ async function fetchFirmTypes(): Promise<FirmTypeSitemapItem[]> {
   }
 }
 
+interface CityProductSitemapItem { citySlug: string; productSlug: string; lastDate: string }
+
+// Sehir x urun sayfalari: yalniz kapi kosulunu gecen ciftler (eligible=1).
+async function fetchCityProductPairs(): Promise<CityProductSitemapItem[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/prices/city-products?eligible=1`, { next: { revalidate }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.items ?? []) as CityProductSitemapItem[];
+  } catch {
+    return [];
+  }
+}
+
 async function fetchActiveRedirects(): Promise<ActiveRedirect[]> {
   try {
     const res = await fetch(`${API_URL}/api/v1/redirects`, {
@@ -177,13 +191,14 @@ async function fetchActiveRedirects(): Promise<ActiveRedirect[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, markets, firms, firmCities, firmTypes, activeRedirects] = await Promise.all([
+  const [products, markets, firms, firmCities, firmTypes, activeRedirects, cityProducts] = await Promise.all([
     fetchActiveProducts(),
     fetchMarkets(),
     fetchFirms(),
     fetchFirmCities(),
     fetchFirmTypes(),
     fetchActiveRedirects(),
+    fetchCityProductPairs(),
   ]);
   const redirectSourcePaths = new Set(activeRedirects.map((redirect) => redirect.sourcePath));
   const priceLastModified = latestSitemapDate([
@@ -201,6 +216,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...(priceLastModified && { lastModified: priceLastModified }),
       changeFrequency: "daily" as const,
       priority: 0.85,
+    })),
+    ...cityProducts.map((pair) => ({
+      url: `${SITE_URL}/fiyat/${pair.citySlug}/${pair.productSlug}`,
+      ...(validSitemapDate(pair.lastDate) && { lastModified: validSitemapDate(pair.lastDate) }),
+      changeFrequency: "daily" as const,
+      priority: 0.8,
     })),
     { url: `${SITE_URL}/rehber`, changeFrequency: "weekly" as const, priority: 0.8 },
     ...Object.keys(REHBER_PAGES).map((slug) => ({

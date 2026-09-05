@@ -22,6 +22,7 @@ import { calculateProductMovers } from "@/lib/citability";
 import BannerSlot from "@/components/ads/BannerSlot";
 import { formatDateTr } from "@/lib/date-format";
 import MarketDataNav from "@/components/sections/MarketDataNav";
+import CityProductLinks from "@/components/sections/CityProductLinks";
 import { productHref } from "@/lib/product-links";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -440,6 +441,8 @@ export default async function HalPage({ params }: Props) {
           </div>
         </section>
       )}
+
+      {!isNational && <CityProductLinks city={citySlug(market.cityName)} cityName={market.cityName} />}
 
       {/* İletişim/künye, resmî fiyat veri setinden ayrı bir bilgi bölgesidir. */}
       {(halInfo.location || halInfo.phone || halInfo.founded || halInfo.hours) && (

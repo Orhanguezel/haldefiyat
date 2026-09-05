@@ -1134,3 +1134,38 @@ export interface SocialTweet {
 export async function fetchSocialFeed(limit = 30): Promise<SocialTweet[]> {
   return safeFetch<SocialTweet[]>(`/social/feed?limit=${limit}`, 300, []);
 }
+
+// ─── Sehir x urun sayfalari (/fiyat/<sehir>/<urun>) ─────────────────────────
+export interface CityProductPair {
+  citySlug: string; cityName: string; productSlug: string; productName: string; unit: string;
+  marketSlug: string; marketName: string; days90: number; lastDate: string; searchVolume: number; eligible: boolean;
+}
+export interface CityProductDetail {
+  pair: CityProductPair;
+  latest: { recordedDate: string; avgPrice: number; minPrice: number | null; maxPrice: number | null } | null;
+  weekAgoAvg: number | null;
+  history: PriceHistoryRow[];
+  cities: Array<{ citySlug: string; cityName: string; marketSlug: string; avgPrice: number; recordedDate: string; eligible: boolean }>;
+  nationalMedian: number | null;
+  rank: number | null;
+  movers: Array<{ productSlug: string; productName: string; avgPrice: number; prevPrice: number; changePct: number; citySlug: string; eligible: boolean }>;
+}
+
+export async function fetchCityProductPairs(params: { eligible?: boolean; city?: string; product?: string } = {}): Promise<CityProductPair[]> {
+  const qs = buildQuery({ eligible: params.eligible ? "1" : undefined, city: params.city, product: params.product });
+  return safeFetch<CityProductPair[]>(`/prices/city-products${qs}`, 1800, [], ["prices"]);
+}
+
+export async function fetchCityProduct(citySlug: string, productSlug: string): Promise<CityProductDetail | null> {
+  const path = `/prices/city-products/${encodeURIComponent(citySlug)}/${encodeURIComponent(productSlug)}`;
+  try {
+    const res = await fetch(`${API}${path}`, { next: { revalidate: 1800, tags: ["prices"] }, headers: { Accept: "application/json" }, signal: AbortSignal.timeout(20_000) });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`${path} → ${res.status}`);
+    const json = (await res.json()) as ItemEnvelope<CityProductDetail>;
+    return json.item ?? null;
+  } catch (err) {
+    console.error(`[api] ${path} → fetch error`, err);
+    throw err;
+  }
+}
