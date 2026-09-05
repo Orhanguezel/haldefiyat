@@ -7,16 +7,55 @@ export type PriceAdminItem = {
   marketId: number;
   productSlug: string;
   productName: string;
+  productNameTr?: string;
+  productUnit?: string;
+  productImage?: string | null;
+  canonicalSlug?: string | null;
+  categorySlug?: string;
+  productActive?: boolean;
   marketSlug: string;
   marketName: string;
+  marketType?: string;
+  marketActive?: boolean;
   cityName: string;
   minPrice: string | null;
   maxPrice: string | null;
   avgPrice: string;
+  avgPriceMethod?: string;
   currency?: string;
   unit?: string;
   recordedDate: string;
   sourceApi: string;
+  createdAt?: string | null;
+  unitMismatch?: boolean;
+  quarantined?: boolean;
+  quarantineReason?: string | null;
+  quarantineSeverity?: string | null;
+};
+
+export type PriceHistoryPoint = {
+  id: number; recordedDate: string; minPrice: string | null; avgPrice: string;
+  maxPrice: string | null; unit: string; sourceApi: string; avgPriceMethod: string;
+};
+
+export type PricePeerRow = {
+  id: number; avgPrice: string; minPrice: string | null; maxPrice: string | null;
+  unit: string; sourceApi: string; recordedDate: string;
+  marketName: string; cityName: string; marketSlug: string;
+};
+
+export type PriceQuarantineTrace = {
+  id: number; recordedDate: string; reasonCode: string; severity: string; status: string;
+  avgPrice: string; peerMedian: string | null; deviationRatio: string | null;
+  reviewNote: string | null; reviewedAt: string | null; createdAt: string;
+};
+
+export type PriceAdminDetail = {
+  item: PriceAdminItem;
+  history: PriceHistoryPoint[];
+  peers: PricePeerRow[];
+  quarantine: PriceQuarantineTrace[];
+  stats: { rows30: number; min30: string | null; max30: string | null; avg30: string | null } | null;
 };
 
 export type PriceAdminPayload = {
@@ -75,6 +114,11 @@ export const pricesAdminApi = baseApi.injectEndpoints({
         city?: string;
         market?: string;
         category?: string;
+        unit?: string;
+        source?: string;
+        issue?: 'unit_mismatch' | 'inactive_product' | 'inactive_market' | 'quarantined' | 'any';
+        sort?: 'date_desc' | 'date_asc' | 'price_desc' | 'price_asc' | 'product';
+        days?: number;
         range?: string;
         limit?: number;
         page?: number;
@@ -86,6 +130,14 @@ export const pricesAdminApi = baseApi.injectEndpoints({
         params: cleanParams(params as Record<string, unknown> | undefined),
       }),
       providesTags: [{ type: "Prices" as const, id: "LIST" }],
+    }),
+    getPriceDetailAdmin: builder.query<PriceAdminDetail, number | string>({
+      query: (id) => ({ url: `/admin/hal/prices/${id}/detail` }),
+      providesTags: (_r, _e, id) => [{ type: "Prices" as const, id: `detail-${id}` }],
+    }),
+    listPriceSourcesAdmin: builder.query<{ items: { source: string; count: number; lastDate: string }[] }, void>({
+      query: () => ({ url: "/admin/hal/price-sources" }),
+      providesTags: [{ type: "Prices" as const, id: "SOURCES" }],
     }),
     listPriceCategoriesAdmin: builder.query<{ items: { slug: string; count: number }[] }, void>({
       query: () => ({ url: "/admin/hal/price-categories" }),
@@ -210,6 +262,8 @@ export const pricesAdminApi = baseApi.injectEndpoints({
 
 export const {
   useListPricesAdminQuery,
+  useGetPriceDetailAdminQuery,
+  useListPriceSourcesAdminQuery,
   useListPriceCategoriesAdminQuery,
   useGetPriceAdminQuery,
   useCreatePriceAdminMutation,

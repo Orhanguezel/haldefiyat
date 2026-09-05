@@ -203,13 +203,27 @@ export async function getAdminPriceDetail(id: number) {
   };
 }
 
-/** Filtre acilir listesi icin kaynak listesi (74 farkli source_api var). */
-export async function listPriceSources() {
+type SourceFacet = { source: string; count: number; lastDate: string };
+let sourceCache: { at: number; items: SourceFacet[] } | null = null;
+const SOURCE_TTL_MS = 15 * 60 * 1000;
+
+/**
+ * Filtre acilir listesi icin kaynak dokumu. Kaynak bazli gruplama 1M satirin
+ * tamamini tariyor (~5,6 sn) — indeks yardim etmiyor, cunku her kaynagin tum
+ * satirlari sayiliyor. Dropdown'un taze olmasi gerekmedigi icin sonuc 15 dakika
+ * onbellekte tutulur.
+ */
+export async function listPriceSources(): Promise<SourceFacet[]> {
+  if (sourceCache && Date.now() - sourceCache.at < SOURCE_TTL_MS) return sourceCache.items;
   const [rows] = await pool.query<RowDataPacket[]>(
     `SELECT source_api AS source, COUNT(*) AS count, MAX(recorded_date) AS lastDate
-     FROM hf_price_history
-     WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 400 DAY)
-     GROUP BY source_api ORDER BY count DESC`,
+     FROM hf_price_history GROUP BY source_api ORDER BY count DESC`,
   );
-  return rows.map((row) => ({ ...row, lastDate: isoDay(row.lastDate) }));
+  const items = rows.map((row) => ({
+    source: String(row.source),
+    count: Number(row.count),
+    lastDate: isoDay(row.lastDate),
+  }));
+  sourceCache = { at: Date.now(), items };
+  return items;
 }

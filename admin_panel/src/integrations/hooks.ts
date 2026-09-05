@@ -450,7 +450,9 @@ export {
 export {
   useCreatePriceAdminMutation,
   useGetPriceAdminQuery,
+  useGetPriceDetailAdminQuery,
   useListPriceCategoriesAdminQuery,
+  useListPriceSourcesAdminQuery,
   useListPricesAdminQuery,
   useListPriceQuarantineAdminQuery,
   usePreviewBulkPriceQuarantineAdminMutation,
