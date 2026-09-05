@@ -86,5 +86,8 @@
   "actions": {
     "reply": "Cevapla"
   },
-  "confirmDelete": "Bu iletişim mesajını silmek üzeresin.\n\nİsim: {name}\nE-posta: {email}\nKonu: {subject}\nID: {id}\n\nDevam etmek istiyor musun?"
+  "confirmDelete": "Bu iletişim mesajını silmek üzeresin.\n\nİsim: {name}\nE-posta: {email}\nKonu: {subject}\nID: {id}\n\nDevam etmek istiyor musun?",
+  "tiles": {
+    "total": "Mesaj"
+  }
 }

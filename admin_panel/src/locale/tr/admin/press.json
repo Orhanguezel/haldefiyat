@@ -1,0 +1,135 @@
+{
+  "title": "Basın",
+  "subtitle": "{contacts} medya kişisi · {campaigns} kampanya · {links} yayın linki",
+  "search": "Kurum, kişi, e-posta, şehir veya etiket ara",
+  "allStatuses": "Tüm durumlar",
+  "allTypes": "Tüm yayın tipleri",
+  "tabs": {
+    "contacts": "Medya kişileri",
+    "campaigns": "Kampanyalar",
+    "import": "Ekle / CSV"
+  },
+  "chips": {
+    "hasPhone": "Telefonu olan"
+  },
+  "statuses": {
+    "target": "Hedef",
+    "contacted": "Gönderildi",
+    "replied": "Cevap geldi",
+    "published": "Yayınlandı",
+    "blocked": "Engelli"
+  },
+  "types": {
+    "newspaper": "Gazete",
+    "website": "Web sitesi",
+    "association": "Dernek",
+    "chamber": "Oda / birlik",
+    "agency": "Ajans",
+    "other": "Diğer"
+  },
+  "logStatuses": {
+    "planned": "Planlandı",
+    "sent": "Gönderildi",
+    "replied": "Cevap",
+    "published": "Yayınlandı",
+    "bounced": "Döndü",
+    "rejected": "Olumsuz"
+  },
+  "tiles": {
+    "contacts": "Medya kişisi",
+    "contactsHint": "tüm liste",
+    "targetHint": "henüz ulaşılmadı",
+    "contactedHint": "bülten gitti, cevap yok",
+    "repliedHint": "takip et",
+    "publishedHint": "{links} yayın linki",
+    "campaigns": "Kampanya",
+    "activeCampaign": "seçili: {name}",
+    "noCampaign": "kampanya seçilmedi"
+  },
+  "table": {
+    "organization": "Kurum",
+    "contact": "Kişi",
+    "type": "Tip",
+    "tags": "Etiketler",
+    "lastContact": "Son temas",
+    "status": "Durum",
+    "noName": "isim yok",
+    "summary": "{count} kişi"
+  },
+  "fields": {
+    "organization": "Kurum",
+    "contactName": "Kişi adı",
+    "email": "E-posta",
+    "phone": "Telefon",
+    "city": "Şehir",
+    "type": "Yayın tipi",
+    "status": "Durum",
+    "tags": "Etiketler (virgülle)",
+    "notes": "Not"
+  },
+  "sheet": {
+    "tabs": {
+      "outreach": "Temas",
+      "edit": "Düzenle"
+    },
+    "lastContact": "son temas {date}",
+    "mail": "E-posta yaz",
+    "call": "Ara",
+    "activeCampaign": "Seçili kampanya",
+    "noCampaign": "Temas kaydı için Kampanyalar sekmesinden bir kampanya seçin ya da oluşturun.",
+    "publishedUrl": "Yayın linki",
+    "logNote": "{campaign} kampanyası için {status} olarak işlendi.",
+    "logged": "Temas kaydedildi: {status}",
+    "saved": "Medya kişisi güncellendi."
+  },
+  "mail": {
+    "defaultSubject": "{site} basın bilgilendirmesi",
+    "defaultBody": "Merhaba, {site} medya kiti ve güncel analizleri hakkında bilgi paylaşmak isteriz."
+  },
+  "campaigns": {
+    "table": {
+      "name": "Kampanya",
+      "status": "Durum",
+      "tags": "Segment",
+      "created": "Oluşturma"
+    },
+    "statuses": {
+      "draft": "Taslak",
+      "active": "Aktif",
+      "completed": "Tamamlandı",
+      "archived": "Arşiv"
+    },
+    "empty": "Henüz kampanya yok.",
+    "logsTitle": "{name} · temas geçmişi",
+    "note": "Not / link",
+    "noLogs": "Bu kampanya için temas kaydı yok.",
+    "newTitle": "Yeni kampanya",
+    "name": "Kampanya adı",
+    "subject": "Mail konusu",
+    "tags": "Segment etiketleri (virgülle)",
+    "fromTemplate": "E-posta şablonundan doldur",
+    "pitch": "Basın bülteni kısa metni",
+    "create": "Kampanya oluştur",
+    "creating": "Oluşturuluyor...",
+    "required": "Kampanya adı, konu ve metin zorunlu.",
+    "created": "Kampanya oluşturuldu.",
+    "weekTitleFallback": "Bu haftanın {site} endeks görünümü"
+  },
+  "add": {
+    "title": "Medya kişisi ekle",
+    "required": "Kurum ve e-posta zorunlu.",
+    "created": "Medya kişisi eklendi.",
+    "adding": "Ekleniyor...",
+    "submit": "Kişi ekle"
+  },
+  "csv": {
+    "title": "CSV içe / dışa aktarım",
+    "hint": "Desteklenen başlıklar: {columns}",
+    "export": "CSV indir",
+    "preparing": "Hazırlanıyor...",
+    "import": "CSV içe aktar",
+    "importing": "Aktarılıyor...",
+    "importFailed": "CSV içe aktarılamadı.",
+    "result": "{imported} kayıt içe aktarıldı/güncellendi, {skipped} satır atlandı."
+  }
+}

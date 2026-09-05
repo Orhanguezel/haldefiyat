@@ -16,6 +16,8 @@ import leads from "./leads.json";
 import etl from "./etl.json";
 import analysis from "./analysis.json";
 import authors from "./authors.json";
+import banners from "./banners.json";
+import press from "./press.json";
 import hfProducts from "./hf-products.json";
 import firms from "./firms.json";
 import markets from "./markets.json";
@@ -53,6 +55,8 @@ const adminMessages = {
   etl: etl,
   analysis: analysis,
   authors: authors,
+  banners: banners,
+  press: press,
   "hf-products": hfProducts,
   firms: firms,
   meta: meta,

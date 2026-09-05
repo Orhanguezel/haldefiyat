@@ -18,6 +18,10 @@ import {
   useGetAuthorAdminQuery,
   useUpdateAuthorAdminMutation,
 } from '@/integrations/hooks';
+import { BASE_URL } from '@/integrations/api-base';
+import { useAdminT } from '@/app/(main)/admin/_components/common/use-admin-t';
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? BASE_URL.replace(/\/api\/v1\/?$/, '')).replace(/\/$/, '');
 
 type AuthorForm = {
   slug: string;
@@ -113,6 +117,8 @@ function socialLinksFromForm(form: AuthorForm): Record<string, string> {
 
 export function AuthorDetailClient({ id }: { id: string }) {
   const router = useRouter();
+  const t = useAdminT('admin.authors.detail');
+  const tc = useAdminT('admin.common');
   const isNew = id === 'new';
   const { data: author, isFetching } = useGetAuthorAdminQuery({ id }, { skip: isNew });
   const [createAuthor, { isLoading: isCreating }] = useCreateAuthorAdminMutation();
@@ -134,11 +140,11 @@ export function AuthorDetailClient({ id }: { id: string }) {
   }, [author, isNew]);
 
   const isSaving = isCreating || isUpdating;
-  const publicUrl = form.slug ? `https://haldefiyat.com/yazar/${form.slug}` : '';
+  const publicUrl = form.slug ? `${SITE_URL}/yazar/${form.slug}` : '';
 
   async function handleSave() {
     if (!form.fullName.trim()) {
-      toast.error('Yazar adı zorunlu.');
+      toast.error(t('toasts.nameRequired'));
       return;
     }
 
@@ -159,14 +165,16 @@ export function AuthorDetailClient({ id }: { id: string }) {
     try {
       if (isNew) {
         const result = await createAuthor(payload).unwrap();
-        toast.success('Yazar oluşturuldu');
+        toast.success(t('toasts.created'));
         router.replace(`/admin/authors/${result.data.id}`);
       } else if (author) {
         await updateAuthor({ id: author.id, patch: payload }).unwrap();
-        toast.success('Yazar güncellendi');
+        toast.success(t('toasts.updated'));
       }
-    } catch (error: any) {
-      toast.error(error?.data?.error || error?.message || 'Kaydetme hatası');
+    } catch (error) {
+      const e = error as { data?: { error?: { message?: string } | string }; message?: string };
+      const msg = typeof e.data?.error === 'string' ? e.data.error : e.data?.error?.message;
+      toast.error(msg || e.message || tc('saveFailed'));
     }
   }
 
@@ -176,12 +184,12 @@ export function AuthorDetailClient({ id }: { id: string }) {
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => router.push('/admin/authors')}>
             <ArrowLeft className="mr-1.5 h-4 w-4" />
-            Liste
+            {t('back')}
           </Button>
           <div>
-            <h1 className="font-semibold text-lg">{isNew ? 'Yeni Yazar' : 'Yazarı Düzenle'}</h1>
+            <h1 className="font-semibold text-lg">{isNew ? t('newTitle') : t('editTitle')}</h1>
             <p className="text-muted-foreground text-xs">
-              {isNew ? 'Yeni profil aktif olarak oluşturulur.' : isFetching ? 'Kayıt yenileniyor...' : `/yazar/${form.slug}`}
+              {isNew ? t('newHint') : isFetching ? t('refreshing') : `/yazar/${form.slug}`}
             </p>
           </div>
         </div>
@@ -189,12 +197,12 @@ export function AuthorDetailClient({ id }: { id: string }) {
           <Button size="sm" variant="outline" asChild disabled={!publicUrl}>
             <a href={publicUrl} target="_blank" rel="noreferrer">
               <ExternalLink className="mr-1.5 h-4 w-4" />
-              Public
+              {tc('openPage')}
             </a>
           </Button>
           <Button size="sm" onClick={handleSave} disabled={isSaving}>
             <Save className="mr-1.5 h-4 w-4" />
-            {isSaving ? 'Kaydediliyor...' : 'Kaydet'}
+            {isSaving ? tc('saving') : tc('save')}
           </Button>
         </div>
       </div>
@@ -202,12 +210,12 @@ export function AuthorDetailClient({ id }: { id: string }) {
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Profil Bilgileri</CardTitle>
-            <CardDescription>Bu bilgiler public yazar sayfasında ve analiz structured data içinde kullanılır.</CardDescription>
+            <CardTitle className="text-base">{t('profile.title')}</CardTitle>
+            <CardDescription>{t('profile.hint')}</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="author-name">Ad Soyad</Label>
+              <Label htmlFor="author-name">{t('fields.fullName')}</Label>
               <Input
                 id="author-name"
                 value={form.fullName}
@@ -224,23 +232,23 @@ export function AuthorDetailClient({ id }: { id: string }) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="author-title">Ünvan</Label>
+              <Label htmlFor="author-title">{t('fields.title')}</Label>
               <Input id="author-title" value={form.title} onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="author-email">E-posta</Label>
+              <Label htmlFor="author-email">{t('fields.email')}</Label>
               <Input id="author-email" value={form.email} onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))} />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="author-bio">Biyografi</Label>
+              <Label htmlFor="author-bio">{t('fields.bio')}</Label>
               <Textarea id="author-bio" className="min-h-32" value={form.bio} onChange={(event) => setForm((prev) => ({ ...prev, bio: event.target.value }))} />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="author-expertise">Uzmanlıklar</Label>
+              <Label htmlFor="author-expertise">{t('fields.expertise')}</Label>
               <Input id="author-expertise" value={form.expertise} onChange={(event) => setForm((prev) => ({ ...prev, expertise: event.target.value }))} />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="author-credentials">Yetkinlik / deneyim</Label>
+              <Label htmlFor="author-credentials">{t('fields.credentials')}</Label>
               <Input id="author-credentials" value={form.credentials} onChange={(event) => setForm((prev) => ({ ...prev, credentials: event.target.value }))} />
             </div>
           </CardContent>
@@ -248,11 +256,11 @@ export function AuthorDetailClient({ id }: { id: string }) {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Görsel ve Durum</CardTitle>
+            <CardTitle className="text-base">{t('visual.title')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <AdminImageUploadField
-              label="Profil görseli"
+              label={t('visual.avatar')}
               value={form.avatarUrl}
               onChange={(url) => setForm((prev) => ({ ...prev, avatarUrl: url }))}
               folder="uploads/authors"
@@ -260,11 +268,11 @@ export function AuthorDetailClient({ id }: { id: string }) {
               previewObjectFit="cover"
             />
             <div className="space-y-2">
-              <Label htmlFor="author-order">Sıra</Label>
+              <Label htmlFor="author-order">{t('fields.order')}</Label>
               <Input id="author-order" value={form.displayOrder} onChange={(event) => setForm((prev) => ({ ...prev, displayOrder: event.target.value }))} />
             </div>
             <div className="flex items-center justify-between rounded-lg border p-3">
-              <Label htmlFor="author-active">Aktif</Label>
+              <Label htmlFor="author-active">{t('fields.active')}</Label>
               <Switch id="author-active" checked={form.isActive} onCheckedChange={(checked) => setForm((prev) => ({ ...prev, isActive: checked }))} />
             </div>
           </CardContent>
@@ -272,11 +280,11 @@ export function AuthorDetailClient({ id }: { id: string }) {
 
         <Card className="xl:col-span-2">
           <CardHeader>
-            <CardTitle className="text-base">Sosyal Medya</CardTitle>
-            <CardDescription>Boş bırakılan sosyal alanlar public profilde gösterilmez.</CardDescription>
+            <CardTitle className="text-base">{t('social.title')}</CardTitle>
+            <CardDescription>{t('social.hint')}</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2"><Label htmlFor="author-website">Web sitesi</Label><Input id="author-website" value={form.website} onChange={(event) => setForm((prev) => ({ ...prev, website: event.target.value }))} /></div>
+            <div className="space-y-2"><Label htmlFor="author-website">{t('fields.website')}</Label><Input id="author-website" value={form.website} onChange={(event) => setForm((prev) => ({ ...prev, website: event.target.value }))} /></div>
             <div className="space-y-2"><Label htmlFor="author-linkedin">LinkedIn</Label><Input id="author-linkedin" value={form.linkedin} onChange={(event) => setForm((prev) => ({ ...prev, linkedin: event.target.value }))} /></div>
             <div className="space-y-2"><Label htmlFor="author-instagram">Instagram</Label><Input id="author-instagram" value={form.instagram} onChange={(event) => setForm((prev) => ({ ...prev, instagram: event.target.value }))} /></div>
             <div className="space-y-2"><Label htmlFor="author-x">X / Twitter</Label><Input id="author-x" value={form.x} onChange={(event) => setForm((prev) => ({ ...prev, x: event.target.value }))} /></div>

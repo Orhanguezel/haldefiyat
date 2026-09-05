@@ -42,6 +42,8 @@ import { resolveMediaUrl } from '@/lib/media-url';
 import { BASE_URL } from '@/integrations/api-base';
 import { tokenStore } from '@/integrations/core/token';
 import { VistaSeedsPreview } from './vistaseeds-preview';
+import { useAdminT } from '../../../_components/common/use-admin-t';
+import { errorMessage } from '../_lib/banner-meta';
 
 type FormState = {
   position: BannerPosition;
@@ -268,6 +270,9 @@ interface Props {
 
 export function BannerDetailClient({ id }: Props) {
   const router = useRouter();
+  const t = useAdminT('admin.banners.detail');
+  const tb = useAdminT('admin.banners');
+  const tc = useAdminT('admin.common');
   const isNew = id === 'new';
   const { data: banner, refetch } = useGetBannerAdminQuery({ id }, { skip: isNew });
   const { data: quality, refetch: refetchQuality } = useGetBannerQualityAdminQuery({ id }, { skip: isNew });
@@ -389,23 +394,23 @@ export function BannerDetailClient({ id }: Props) {
 
   async function handleSave() {
     if (!form.title.trim()) {
-      toast.error('Başlık zorunlu.');
+      toast.error(t('toasts.titleRequired'));
       return;
     }
     if (form.type === 'image' && form.sourceType === 'custom' && !form.imageUrl.trim() && !vistaVariant) {
-      toast.error('Görsel tipinde kapak görseli zorunlu.');
+      toast.error(t('toasts.imageRequired'));
       return;
     }
     if (form.sourceType === 'listing' && !form.listingId) {
-      toast.error('İlan kaynağı seçin.');
+      toast.error(t('toasts.listingRequired'));
       return;
     }
     if (form.type === 'code' && !form.code.trim()) {
-      toast.error('Kod tipinde HTML/kod zorunlu.');
+      toast.error(t('toasts.codeRequired'));
       return;
     }
     if (form.targetType !== 'global' && !form.targetValues.trim()) {
-      toast.error('Seçilen hedefleme için en az bir değer girin.');
+      toast.error(t('toasts.targetRequired'));
       return;
     }
 
@@ -483,24 +488,27 @@ export function BannerDetailClient({ id }: Props) {
           })),
     };
 
-    if (isNew) {
-      const result = await createBanner(payload).unwrap();
-      toast.success('Banner oluşturuldu');
-      router.replace(`/admin/banners/${result.data.id}`);
-      return;
+    try {
+      if (isNew) {
+        const result = await createBanner(payload).unwrap();
+        toast.success(t('toasts.created'));
+        router.replace(`/admin/banners/${result.data.id}`);
+        return;
+      }
+      if (!banner) return;
+      await updateBanner({ id: banner.id, patch: payload }).unwrap();
+      initializedRef.current = null;
+      await refetch();
+      await refetchQuality();
+      toast.success(t('toasts.saved'));
+    } catch (error) {
+      toast.error(errorMessage(error, tc('saveFailed')));
     }
-
-    if (!banner) return;
-    await updateBanner({ id: banner.id, patch: payload }).unwrap();
-    initializedRef.current = null;
-    await refetch();
-    await refetchQuality();
-    toast.success('Banner kaydedildi');
   }
 
   async function handleCreatePayment() {
     if (isNew || !banner || Number(paymentForm.amount) <= 0) {
-      toast.error('Geçerli bir işlem tutarı girin.');
+      toast.error(t('toasts.amountInvalid'));
       return;
     }
     try {
@@ -516,10 +524,9 @@ export function BannerDetailClient({ id }: Props) {
       setPaymentForm((prev) => ({ ...prev, amount: '', referenceNumber: '', notes: '' }));
       initializedRef.current = null;
       await refetch();
-      toast.success(paymentForm.transactionType === 'refund' ? 'İade kaydedildi.' : 'Ödeme kaydedildi.');
+      toast.success(paymentForm.transactionType === 'refund' ? t('toasts.refundSaved') : t('toasts.paymentSaved'));
     } catch (error) {
-      const message = (error as { data?: { error?: string } })?.data?.error;
-      toast.error(message ?? 'İşlem kaydedilemedi.');
+      toast.error(errorMessage(error, t('toasts.txFailed')));
     }
   }
 
@@ -531,7 +538,7 @@ export function BannerDetailClient({ id }: Props) {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     if (!response.ok) {
-      toast.error('Teklif PDF’i oluşturulamadı.');
+      toast.error(t('toasts.proposalFailed'));
       return;
     }
     const url = URL.createObjectURL(await response.blob());
@@ -551,7 +558,7 @@ export function BannerDetailClient({ id }: Props) {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     if (!response.ok) {
-      toast.error('Performans raporu oluşturulamadı.');
+      toast.error(t('toasts.reportFailed'));
       return;
     }
     const url = URL.createObjectURL(await response.blob());
@@ -598,21 +605,21 @@ export function BannerDetailClient({ id }: Props) {
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => router.push('/admin/banners')}>
             <ArrowLeft className="mr-1.5 h-4 w-4" />
-            Liste
+            {t('back')}
           </Button>
           <div>
             <h1 className="flex items-center gap-2 font-semibold text-lg">
               <Megaphone className="h-5 w-5" />
-              {isNew ? 'Yeni Banner' : 'Banner Düzenle'}
+              {isNew ? t('newTitle') : t('editTitle')}
             </h1>
             <p className="text-muted-foreground text-xs">
-              {isNew ? 'Yeni reklam pasif olarak oluşturulur.' : `Gösterim: ${banner?.impressions ?? 0} · Tıklama: ${banner?.clicks ?? 0}`}
+              {isNew ? t('newHint') : t('counters', { impressions: banner?.impressions ?? 0, clicks: banner?.clicks ?? 0 })}
             </p>
           </div>
         </div>
         <Button size="sm" onClick={handleSave} disabled={isSaving}>
           <Save className="mr-1.5 h-4 w-4" />
-          {isSaving ? 'Kaydediliyor...' : 'Kaydet'}
+          {isSaving ? tc('saving') : tc('save')}
         </Button>
       </div>
 
@@ -620,15 +627,15 @@ export function BannerDetailClient({ id }: Props) {
         <Card className={quality.status === 'error' ? 'border-red-300' : quality.status === 'warning' ? 'border-amber-300' : 'border-emerald-300'}>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center justify-between gap-3 text-base">
-              <span>Yayın Öncesi Kreatif Kalite Kontrolü</span>
-              <Badge variant={quality.status === 'error' ? 'destructive' : quality.status === 'warning' ? 'secondary' : 'default'}>{quality.status === 'error' ? 'Kritik hata' : quality.status === 'warning' ? 'Uyarı var' : 'Kontroller geçti'}</Badge>
+              <span>{t('quality.title')}</span>
+              <Badge variant={quality.status === 'error' ? 'destructive' : quality.status === 'warning' ? 'secondary' : 'default'}>{t(`quality.${quality.status}`)}</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {quality.items.map((item) => <div key={item.code} className={`rounded border px-3 py-2 text-sm ${item.severity === 'error' ? 'border-red-200 bg-red-50 text-red-800' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>{item.message}</div>)}
-            {!quality.items.length ? <p className="text-sm text-emerald-700">Çözünürlük, oran, boyut, alt metin, kontrast, mobil düzen ve animasyon kontrolleri uygun.</p> : null}
-            {quality.status === 'warning' ? <Input value={form.qualityOverrideReason} onChange={(event) => set('qualityOverrideReason', event.target.value)} placeholder="Uyarılara rağmen yayınlama gerekçesi (zorunlu)" /> : null}
-            {form.imageWidth ? <p className="text-xs text-muted-foreground">Algılanan görsel: {form.imageWidth}×{form.imageHeight} · {form.imageBytes ? `${(form.imageBytes / 1024).toFixed(0)} KB` : 'dosya boyutu okunamadı'}</p> : null}
+            {!quality.items.length ? <p className="text-sm text-emerald-700">{t('quality.allGood')}</p> : null}
+            {quality.status === 'warning' ? <Input value={form.qualityOverrideReason} onChange={(event) => set('qualityOverrideReason', event.target.value)} placeholder={t('quality.overridePlaceholder')} /> : null}
+            {form.imageWidth ? <p className="text-xs text-muted-foreground">{t('quality.detected', { w: form.imageWidth, h: form.imageHeight, size: form.imageBytes ? `${(form.imageBytes / 1024).toFixed(0)} KB` : t('quality.sizeUnknown') })}</p> : null}
           </CardContent>
         </Card>
       ) : null}
@@ -637,12 +644,12 @@ export function BannerDetailClient({ id }: Props) {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex flex-wrap items-center justify-between gap-3 text-base">
-              <span>Kampanya Performansı</span>
+              <span>{t('perf.title')}</span>
               <div className="flex flex-wrap gap-2">
                 <Input className="h-8 w-36" type="date" value={reportRange.from} onChange={(event) => setReportRange((value) => ({ ...value, from: event.target.value }))} />
                 <Input className="h-8 w-36" type="date" value={reportRange.to} onChange={(event) => setReportRange((value) => ({ ...value, to: event.target.value }))} />
-                <Button type="button" size="sm" variant="outline" onClick={() => downloadPerformance('csv')}>CSV indir</Button>
-                <Button type="button" size="sm" variant="outline" onClick={() => downloadPerformance('pdf')}>Sponsor PDF</Button>
+                <Button type="button" size="sm" variant="outline" onClick={() => downloadPerformance('csv')}>{t('perf.csv')}</Button>
+                <Button type="button" size="sm" variant="outline" onClick={() => downloadPerformance('pdf')}>{t('perf.pdf')}</Button>
               </div>
             </CardTitle>
           </CardHeader>
@@ -651,29 +658,29 @@ export function BannerDetailClient({ id }: Props) {
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-8">
                   {[
-                    ['Gösterim', performance.totals.impressions.toLocaleString('tr-TR')],
-                    ['Tekil', performance.totals.uniqueImpressions.toLocaleString('tr-TR')],
-                    ['Tıklama', performance.totals.clicks.toLocaleString('tr-TR')],
+                    [tb('revenue.impressions'), performance.totals.impressions.toLocaleString('tr-TR')],
+                    [tb('revenue.uniqueImpressions'), performance.totals.uniqueImpressions.toLocaleString('tr-TR')],
+                    [tb('revenue.clicks'), performance.totals.clicks.toLocaleString('tr-TR')],
                     ['CTR', `%${(performance.totals.ctr * 100).toFixed(2)}`],
-                    ['Dönüşüm', performance.totals.conversions.toLocaleString('tr-TR')],
+                    [tb('revenue.conversions'), performance.totals.conversions.toLocaleString('tr-TR')],
                     ['CPM', performance.totals.cpm?.toFixed(2) ?? '—'],
                     ['CPC', performance.totals.cpc?.toFixed(2) ?? '—'],
                     ['CPA', performance.totals.cpa?.toFixed(2) ?? '—'],
                   ].map(([label, value]) => <div key={label} className="rounded-md border p-2"><div className="text-xs text-muted-foreground">{label}</div><strong className="text-sm">{value}</strong></div>)}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Kampanya bedeli: {performance.totals.revenue.toLocaleString('tr-TR')} ₺ · Tahsilat: {performance.totals.collected.toLocaleString('tr-TR')} ₺
-                  {Object.entries(performance.devices).map(([device, value]) => ` · ${device}: ${value.impressions} gösterim / ${value.clicks} tıklama`).join('')}
+                  {t('perf.money', { revenue: performance.totals.revenue.toLocaleString('tr-TR'), collected: performance.totals.collected.toLocaleString('tr-TR') })}
+                  {Object.entries(performance.devices).map(([device, value]) => ` · ${tb(`devices.${device}`, undefined, device)}: ${value.impressions} / ${value.clicks}`).join('')}
                 </p>
               </div>
-            ) : <p className="text-sm text-muted-foreground">{isPerformanceLoading ? 'Rapor hazırlanıyor…' : 'Seçili dönemde performans verisi yok.'}</p>}
+            ) : <p className="text-sm text-muted-foreground">{isPerformanceLoading ? t('perf.loading') : t('perf.empty')}</p>}
           </CardContent>
         </Card>
       ) : null}
 
       {!isNew ? (
         <Card>
-          <CardHeader className="pb-3"><CardTitle className="text-base">Denetim Geçmişi</CardTitle></CardHeader>
+          <CardHeader className="pb-3"><CardTitle className="text-base">{t('audit.title')}</CardTitle></CardHeader>
           <CardContent className="space-y-2">
             {(auditData?.items ?? []).map((item) => {
               const keys = [...new Set([...Object.keys(item.beforeData ?? {}), ...Object.keys(item.afterData ?? {})])]
@@ -681,14 +688,14 @@ export function BannerDetailClient({ id }: Props) {
                 .slice(0, 12);
               return (
                 <div key={item.id} className="rounded-md border p-3 text-xs">
-                  <div className="flex flex-wrap items-center justify-between gap-2"><strong>{item.action}</strong><span className="text-muted-foreground">{new Date(item.createdAt).toLocaleString('tr-TR')} · {item.actorUserId || 'sistem'}</span></div>
-                  {item.reason ? <p className="mt-1">Gerekçe: {item.reason}</p> : null}
-                  {item.isFinancial ? <Badge className="mt-2" variant="secondary">Finansal değişiklik</Badge> : null}
-                  {keys.length ? <p className="mt-2 text-muted-foreground">Değişen alanlar: {keys.join(', ')}</p> : null}
+                  <div className="flex flex-wrap items-center justify-between gap-2"><strong>{item.action}</strong><span className="text-muted-foreground">{new Date(item.createdAt).toLocaleString('tr-TR')} · {item.actorUserId || t('audit.system')}</span></div>
+                  {item.reason ? <p className="mt-1">{t('audit.reason', { reason: item.reason })}</p> : null}
+                  {item.isFinancial ? <Badge className="mt-2" variant="secondary">{t('audit.financial')}</Badge> : null}
+                  {keys.length ? <p className="mt-2 text-muted-foreground">{t('audit.changed', { list: keys.join(', ') })}</p> : null}
                 </div>
               );
             })}
-            {!auditData?.items.length ? <p className="text-sm text-muted-foreground">Bu kampanya için henüz alan bazlı denetim kaydı yok.</p> : null}
+            {!auditData?.items.length ? <p className="text-sm text-muted-foreground">{t('audit.empty')}</p> : null}
           </CardContent>
         </Card>
       ) : null}
@@ -696,19 +703,19 @@ export function BannerDetailClient({ id }: Props) {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Reklam Bilgileri</CardTitle>
+            <CardTitle className="text-base">{t('info.title')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-2">
-              <Label>Başlık (iç ad / alt metin)</Label>
+              <Label>{t('info.name')}</Label>
               <Input value={form.title} onChange={(e) => set('title', e.target.value)} />
             </div>
             <div className="grid gap-2">
-              <Label>Reklam veren</Label>
-              <Input value={form.advertiser} placeholder="VistaSeeds" onChange={(e) => set('advertiser', e.target.value)} />
+              <Label>{t('info.advertiser')}</Label>
+              <Input value={form.advertiser} placeholder={t('info.advertiserPlaceholder')} onChange={(e) => set('advertiser', e.target.value)} />
             </div>
             <div className="grid gap-2">
-              <Label>Slot (pozisyon)</Label>
+              <Label>{t('info.slot')}</Label>
               <Select value={form.position} onValueChange={(v) => set('position', v as BannerPosition)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -717,126 +724,126 @@ export function BannerDetailClient({ id }: Props) {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-muted-foreground text-xs">Önerilen ölçü: {positionSize(form.position)}</p>
+              <p className="text-muted-foreground text-xs">{t('info.recommended', { size: positionSize(form.position) })}</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-2">
-                <Label>Tip</Label>
+                <Label>{t('info.type')}</Label>
                 <Select value={form.type} onValueChange={(v) => set('type', v as BannerType)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {BANNER_TYPES.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                    {BANNER_TYPES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{tb(`types.${opt.value}`)}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label>Cihaz</Label>
+                <Label>{t('info.device')}</Label>
                 <Select value={form.device} onValueChange={(v) => set('device', v as BannerDevice)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {BANNER_DEVICES.map((d) => <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>)}
+                    {BANNER_DEVICES.map((d) => <SelectItem key={d.value} value={d.value}>{tb(`devices.${d.value}`)}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div className="grid gap-2">
-                <Label>Toplam gösterim limiti</Label>
-                <Input type="number" min={1} placeholder="Limitsiz" value={form.impressionLimit} onChange={(e) => set('impressionLimit', e.target.value)} />
+                <Label>{t('info.impressionLimit')}</Label>
+                <Input type="number" min={1} placeholder={t('info.unlimited')} value={form.impressionLimit} onChange={(e) => set('impressionLimit', e.target.value)} />
               </div>
               <div className="grid gap-2">
-                <Label>Tıklama limiti</Label>
-                <Input type="number" min={1} placeholder="Limitsiz" value={form.clickLimit} onChange={(e) => set('clickLimit', e.target.value)} />
+                <Label>{t('info.clickLimit')}</Label>
+                <Input type="number" min={1} placeholder={t('info.unlimited')} value={form.clickLimit} onChange={(e) => set('clickLimit', e.target.value)} />
               </div>
               <div className="grid gap-2">
-                <Label>Günlük gösterim kotası</Label>
-                <Input type="number" min={1} placeholder="Limitsiz" value={form.dailyImpressionLimit} onChange={(e) => set('dailyImpressionLimit', e.target.value)} />
+                <Label>{t('info.dailyLimit')}</Label>
+                <Input type="number" min={1} placeholder={t('info.unlimited')} value={form.dailyImpressionLimit} onChange={(e) => set('dailyImpressionLimit', e.target.value)} />
               </div>
             </div>
             {banner ? (
               <p className="text-muted-foreground text-xs">
-                Gerçekleşen: {banner.impressions.toLocaleString('tr-TR')} gösterim · {banner.clicks.toLocaleString('tr-TR')} tıklama
-                {banner.dailyImpressionsDate ? ` · Bugünkü sayaç: ${banner.dailyImpressions.toLocaleString('tr-TR')}` : ''}
+                {t('info.realized', { impressions: banner.impressions.toLocaleString('tr-TR'), clicks: banner.clicks.toLocaleString('tr-TR') })}
+                {banner.dailyImpressionsDate ? ` · ${t('info.todayCounter', { count: banner.dailyImpressions.toLocaleString('tr-TR') })}` : ''}
               </p>
             ) : null}
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-2">
-                <Label>Ziyaretçi başına günlük sınır</Label>
+                <Label>{t('info.visitorDaily')}</Label>
                 <Input type="number" min={1} value={form.visitorDailyImpressionLimit} onChange={(e) => set('visitorDailyImpressionLimit', e.target.value)} />
               </div>
               <div className="grid gap-2">
-                <Label>Ziyaretçi başına kampanya sınırı</Label>
+                <Label>{t('info.visitorCampaign')}</Label>
                 <Input type="number" min={1} value={form.visitorCampaignImpressionLimit} onChange={(e) => set('visitorCampaignImpressionLimit', e.target.value)} />
               </div>
             </div>
             <div className="rounded-md border p-3">
               <div className="mb-3 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium">A/B kreatif optimizasyonu</p>
-                  <p className="text-muted-foreground text-xs">Aynı deney anahtarındaki varyantlar CTR ile karşılaştırılır.</p>
+                  <p className="text-sm font-medium">{t('ab.title')}</p>
+                  <p className="text-muted-foreground text-xs">{t('ab.hint')}</p>
                 </div>
-                {banner ? <Badge variant={banner.performanceStatus === 'low' ? 'destructive' : banner.performanceStatus === 'winner' ? 'default' : 'secondary'}>{banner.performanceStatus}</Badge> : null}
+                {banner ? <Badge variant={banner.performanceStatus === 'low' ? 'destructive' : banner.performanceStatus === 'winner' ? 'default' : 'secondary'}>{tb(`performance.${banner.performanceStatus}`)}</Badge> : null}
               </div>
               <div className="grid grid-cols-3 gap-3">
-                <div className="grid gap-2"><Label>Deney anahtarı</Label><Input placeholder="erik-kreatif" value={form.experimentKey} onChange={(e) => set('experimentKey', e.target.value)} /></div>
-                <div className="grid gap-2"><Label>Varyant</Label><Input placeholder="A / B" value={form.creativeVariant} onChange={(e) => set('creativeVariant', e.target.value)} /></div>
-                <div className="grid gap-2"><Label>Minimum gösterim</Label><Input type="number" min={100} value={form.minimumOptimizationImpressions} onChange={(e) => set('minimumOptimizationImpressions', e.target.value)} /></div>
+                <div className="grid gap-2"><Label>{t('ab.key')}</Label><Input placeholder={t('ab.keyPlaceholder')} value={form.experimentKey} onChange={(e) => set('experimentKey', e.target.value)} /></div>
+                <div className="grid gap-2"><Label>{t('ab.variant')}</Label><Input placeholder="A / B" value={form.creativeVariant} onChange={(e) => set('creativeVariant', e.target.value)} /></div>
+                <div className="grid gap-2"><Label>{t('ab.minImpressions')}</Label><Input type="number" min={100} value={form.minimumOptimizationImpressions} onChange={(e) => set('minimumOptimizationImpressions', e.target.value)} /></div>
               </div>
               <label className="mt-3 flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={form.autoOptimize} onChange={(e) => set('autoOptimize', e.target.checked)} />
-                Kazanan kreatife ağırlığı otomatik aktar
+                {t('ab.auto')}
               </label>
             </div>
 
             <div className="grid gap-2">
-              <Label>Reklam kaynağı</Label>
+              <Label>{t('source.title')}</Label>
               <Select value={form.sourceType} onValueChange={(v) => set('sourceType', v as BannerSourceType)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="custom">Serbest banner</SelectItem>
-                  <SelectItem value="listing">Onaylı ilandan banner</SelectItem>
-                  <SelectItem value="firm">Firma / komisyoncu sponsoru</SelectItem>
-                  <SelectItem value="code">Harici reklam kodu</SelectItem>
+                  <SelectItem value="custom">{t('source.custom')}</SelectItem>
+                  <SelectItem value="listing">{t('source.listing')}</SelectItem>
+                  <SelectItem value="firm">{t('source.firm')}</SelectItem>
+                  <SelectItem value="code">{t('source.code')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="grid gap-3 rounded-lg border p-3">
-              <div><Label>Hazır kreatif şablonu</Label><p className="mt-1 text-xs text-muted-foreground">Grafik dosyası olmadan slot yapısına uygun reklam oluşturur.</p></div>
+              <div><Label>{t('template.title')}</Label><p className="mt-1 text-xs text-muted-foreground">{t('template.hint')}</p></div>
               <Select value={form.creativeTemplate} onValueChange={(value) => set('creativeTemplate', value as BannerAdmin['creativeTemplate'])}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="image">Standart görsel</SelectItem>
-                  <SelectItem value="firm">Firma tanıtım bannerı</SelectItem>
-                  <SelectItem value="listing">İlan reklamı</SelectItem>
-                  <SelectItem value="sponsorship">Ürün / kategori sponsorluğu</SelectItem>
-                  <SelectItem value="leaderboard">Yatay leaderboard</SelectItem>
-                  <SelectItem value="split">İki hücreli reklam kartı</SelectItem>
-                  <SelectItem value="mpu">Yan sütun MPU</SelectItem>
-                  <SelectItem value="mobile">Mobil reklam kartı</SelectItem>
+                  <SelectItem value="image">{t('template.options.image')}</SelectItem>
+                  <SelectItem value="firm">{t('template.options.firm')}</SelectItem>
+                  <SelectItem value="listing">{t('template.options.listing')}</SelectItem>
+                  <SelectItem value="sponsorship">{t('template.options.sponsorship')}</SelectItem>
+                  <SelectItem value="leaderboard">{t('template.options.leaderboard')}</SelectItem>
+                  <SelectItem value="split">{t('template.options.split')}</SelectItem>
+                  <SelectItem value="mpu">{t('template.options.mpu')}</SelectItem>
+                  <SelectItem value="mobile">{t('template.options.mobile')}</SelectItem>
                 </SelectContent>
               </Select>
               <div className="grid grid-cols-3 gap-2">
-                <label className="text-xs">Arka plan<Input className="mt-1 h-9 p-1" type="color" value={form.backgroundColor} onChange={(event) => set('backgroundColor', event.target.value)} /></label>
-                <label className="text-xs">Metin<Input className="mt-1 h-9 p-1" type="color" value={form.textColor} onChange={(event) => set('textColor', event.target.value)} /></label>
-                <label className="text-xs">Vurgu<Input className="mt-1 h-9 p-1" type="color" value={form.accentColor} onChange={(event) => set('accentColor', event.target.value)} /></label>
+                <label className="text-xs">{t('template.bg')}<Input className="mt-1 h-9 p-1" type="color" value={form.backgroundColor} onChange={(event) => set('backgroundColor', event.target.value)} /></label>
+                <label className="text-xs">{t('template.text')}<Input className="mt-1 h-9 p-1" type="color" value={form.textColor} onChange={(event) => set('textColor', event.target.value)} /></label>
+                <label className="text-xs">{t('template.accent')}<Input className="mt-1 h-9 p-1" type="color" value={form.accentColor} onChange={(event) => set('accentColor', event.target.value)} /></label>
               </div>
               <div className="grid gap-2 md:grid-cols-2">
-                <Input value={form.logoUrl} onChange={(event) => set('logoUrl', event.target.value)} placeholder="Firma logo URL’si" />
-                <Input value={form.backgroundImageUrl} onChange={(event) => set('backgroundImageUrl', event.target.value)} placeholder="Arka plan görsel URL’si" />
+                <Input value={form.logoUrl} onChange={(event) => set('logoUrl', event.target.value)} placeholder={t('template.logoUrl')} />
+                <Input value={form.backgroundImageUrl} onChange={(event) => set('backgroundImageUrl', event.target.value)} placeholder={t('template.bgUrl')} />
               </div>
-              <Textarea className="min-h-16" maxLength={240} value={form.description} onChange={(event) => set('description', event.target.value)} placeholder="Kısa reklam açıklaması" />
+              <Textarea className="min-h-16" maxLength={240} value={form.description} onChange={(event) => set('description', event.target.value)} placeholder={t('template.description')} />
               <div className="grid gap-3 md:grid-cols-3">
-                <label className="text-xs">Yatay odak: %{form.focalX}<input className="mt-2 w-full" type="range" min={0} max={100} value={form.focalX} onChange={(event) => set('focalX', event.target.value)} /></label>
-                <label className="text-xs">Dikey odak: %{form.focalY}<input className="mt-2 w-full" type="range" min={0} max={100} value={form.focalY} onChange={(event) => set('focalY', event.target.value)} /></label>
-                <div><Label className="text-xs">Görsel yerleşimi</Label><Select value={form.imageFit} onValueChange={(value) => set('imageFit', value as 'cover' | 'contain')}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="cover">Alanı doldur / kırp</SelectItem><SelectItem value="contain">Tamamını göster</SelectItem></SelectContent></Select></div>
+                <label className="text-xs">{t('template.focalX', { value: form.focalX })}<input className="mt-2 w-full" type="range" min={0} max={100} value={form.focalX} onChange={(event) => set('focalX', event.target.value)} /></label>
+                <label className="text-xs">{t('template.focalY', { value: form.focalY })}<input className="mt-2 w-full" type="range" min={0} max={100} value={form.focalY} onChange={(event) => set('focalY', event.target.value)} /></label>
+                <div><Label className="text-xs">{t('template.fit')}</Label><Select value={form.imageFit} onValueChange={(value) => set('imageFit', value as 'cover' | 'contain')}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="cover">{t('template.cover')}</SelectItem><SelectItem value="contain">{t('template.contain')}</SelectItem></SelectContent></Select></div>
               </div>
-              <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={form.animation} onChange={(event) => set('animation', event.target.checked)} />Yumuşak animasyonu etkinleştir</label>
+              <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={form.animation} onChange={(event) => set('animation', event.target.checked)} />{t('template.animation')}</label>
             </div>
 
             <div className="grid gap-3 rounded-lg border p-3">
               <div>
-                <Label>Hedefleme kapsamı</Label>
-                <p className="mt-1 text-xs text-muted-foreground">Dar hedefler global reklamlardan önce seçilir. Aynı türde birden fazla değeri virgülle ayırabilirsiniz.</p>
+                <Label>{t('target.title')}</Label>
+                <p className="mt-1 text-xs text-muted-foreground">{t('target.hint')}</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <Select value={form.targetType} onValueChange={(value) => {
@@ -846,19 +853,19 @@ export function BannerDetailClient({ id }: Props) {
                 }}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="global">Global — tüm uygun sayfalar</SelectItem>
-                    <SelectItem value="page_type">Sayfa türü</SelectItem>
-                    <SelectItem value="city">İl slug</SelectItem>
-                    <SelectItem value="district">İlçe slug</SelectItem>
-                    <SelectItem value="product">Ürün slug</SelectItem>
-                    <SelectItem value="category">Kategori slug</SelectItem>
-                    <SelectItem value="market">Hal slug</SelectItem>
-                    <SelectItem value="firm">Firma ID</SelectItem>
-                    <SelectItem value="listing">İlan ID</SelectItem>
+                    <SelectItem value="global">{t('target.types.global')}</SelectItem>
+                    <SelectItem value="page_type">{t('target.types.page_type')}</SelectItem>
+                    <SelectItem value="city">{t('target.types.city')}</SelectItem>
+                    <SelectItem value="district">{t('target.types.district')}</SelectItem>
+                    <SelectItem value="product">{t('target.types.product')}</SelectItem>
+                    <SelectItem value="category">{t('target.types.category')}</SelectItem>
+                    <SelectItem value="market">{t('target.types.market')}</SelectItem>
+                    <SelectItem value="firm">{t('target.types.firm')}</SelectItem>
+                    <SelectItem value="listing">{t('target.types.listing')}</SelectItem>
                   </SelectContent>
                 </Select>
                 {form.targetType !== 'global' && (
-                  <Input value={targetSearch} onChange={(event) => setTargetSearch(event.target.value)} placeholder="İl, ürün, firma veya ilan ara…" />
+                  <Input value={targetSearch} onChange={(event) => setTargetSearch(event.target.value)} placeholder={t('target.search')} />
                 )}
               </div>
               {form.targetType !== 'global' && (
@@ -885,10 +892,10 @@ export function BannerDetailClient({ id }: Props) {
                     })}
                   </div>
                   <div className="rounded-md bg-muted/50 p-2 text-xs">
-                    <span className="font-medium">Seçilen:</span> {selectedTargetValues.join(', ') || 'Henüz hedef seçilmedi'}
-                    <span className="ml-3 text-muted-foreground">Tahmini erişim: {estimatedReach ? estimatedReach.toLocaleString('tr-TR') : 'hesaplanıyor'}</span>
+                    <span className="font-medium">{t('target.selected')}</span> {selectedTargetValues.join(', ') || t('target.none')}
+                    <span className="ml-3 text-muted-foreground">{t('target.reach', { value: estimatedReach ? estimatedReach.toLocaleString('tr-TR') : t('target.computing') })}</span>
                     {selectedTargetValues.length === 1 && ['firm', 'listing', 'district'].includes(form.targetType) && (
-                      <p className="mt-1 font-medium text-amber-700">Bu hedef oldukça dar. Kampanya erişimi sınırlı olabilir.</p>
+                      <p className="mt-1 font-medium text-amber-700">{t('target.narrow')}</p>
                     )}
                   </div>
                   <div className="flex flex-wrap gap-3 text-xs">
@@ -896,7 +903,7 @@ export function BannerDetailClient({ id }: Props) {
                       const option = targetOptions.find((item) => item.value === value);
                       return option?.exampleUrl ? (
                         <a key={value} href={option.exampleUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">
-                          Örnek sayfa: {option.label}
+                          {t('target.example', { label: option.label })}
                         </a>
                       ) : null;
                     })}
@@ -907,9 +914,9 @@ export function BannerDetailClient({ id }: Props) {
 
             {form.sourceType === 'listing' && (
               <div className="grid gap-2">
-                <Label>İlan seçimi</Label>
+                <Label>{t('listing.title')}</Label>
                 <Select value={form.listingId} onValueChange={(v) => set('listingId', v)}>
-                  <SelectTrigger><SelectValue placeholder="Onaylı ilan seçin" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t('listing.placeholder')} /></SelectTrigger>
                   <SelectContent>
                     {listingOptions.map((item) => (
                       <SelectItem key={item.id} value={String(item.id)}>
@@ -918,7 +925,7 @@ export function BannerDetailClient({ id }: Props) {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-muted-foreground text-xs">Sadece onaylı ve süresi geçmemiş ilanlar canlıda gösterilir.</p>
+                <p className="text-muted-foreground text-xs">{t('listing.hint')}</p>
               </div>
             )}
 
@@ -926,54 +933,54 @@ export function BannerDetailClient({ id }: Props) {
               <>
                 {vistaVariant ? (
                   <div className="rounded-md border border-emerald-600/30 bg-emerald-500/5 p-3 text-xs">
-                    <p className="font-semibold">VistaSeeds animasyonlu özel tasarım</p>
+                    <p className="font-semibold">{t('creative.vistaTitle')}</p>
                     <p className="mt-1 text-muted-foreground">
-                      Ürün görselleri tasarıma sabittir. Aşağıdaki ana metin ve CTA değişiklikleri canlı bannera yansır.
+                      {t('creative.vistaHint')}
                     </p>
                   </div>
                 ) : (
                   <AdminImageUploadField
-                    label="Banner görseli"
-                    helperText={`Önerilen ölçü: ${positionSize(form.position)}`}
+                    label={t('creative.image')}
+                    helperText={t('info.recommended', { size: positionSize(form.position) })}
                     value={form.imageUrl}
                     onChange={(url) => set('imageUrl', url ?? '')}
                     folder="uploads/banners"
                   />
                 )}
                 <div className="grid gap-2">
-                  <Label>Görsel alt metni</Label>
+                  <Label>{t('creative.alt')}</Label>
                   <Input value={form.alt} placeholder={form.title} onChange={(e) => set('alt', e.target.value)} />
                 </div>
                 <div className="grid gap-2">
-                  <Label>Hedef link (URL)</Label>
-                  <Input value={form.linkUrl} placeholder="https://vistaseeds.com.tr" onChange={(e) => set('linkUrl', e.target.value)} />
+                  <Label>{t('creative.link')}</Label>
+                  <Input value={form.linkUrl} placeholder="https://" onChange={(e) => set('linkUrl', e.target.value)} />
                 </div>
                 <div className="grid gap-2">
-                  <Label>{vistaVariant ? 'Banner ana başlığı' : 'Reklam metni (caption)'}</Label>
+                  <Label>{vistaVariant ? t('creative.headline') : t('creative.caption')}</Label>
                   <Input
                     value={form.caption}
-                    placeholder={vistaVariant === 'sidebar' ? 'Verimin rengi değişir.' : vistaVariant === 'leaderboard' ? 'Her hasatta güçlü performans.' : "Sertifikalı hibrit tohumda Türkiye'nin güveni"}
+                    placeholder={t('creative.captionPlaceholder')}
                     onChange={(e) => set('caption', e.target.value)}
                   />
                   <p className="text-muted-foreground text-xs">
-                    {vistaVariant ? 'Animasyonlu tasarımın ana mesajı.' : 'Görselin yanında/altında görünen kısa reklam metni (opsiyonel).'}
+                    {vistaVariant ? t('creative.headlineHint') : t('creative.captionHint')}
                   </p>
                 </div>
                 <div className="grid gap-2">
-                  <Label>CTA buton metni</Label>
-                  <Input value={form.ctaLabel} placeholder="Tohumları Keşfet" onChange={(e) => set('ctaLabel', e.target.value)} />
+                  <Label>{t('creative.cta')}</Label>
+                  <Input value={form.ctaLabel} placeholder={t('creative.ctaPlaceholder')} onChange={(e) => set('ctaLabel', e.target.value)} />
                 </div>
               </>
             ) : (
               <div className="grid gap-2">
-                <Label>HTML / Kod (AdSense vb.)</Label>
+                <Label>{t('creative.code')}</Label>
                 <Textarea
                   className="min-h-40 font-mono text-xs"
                   value={form.code}
                   onChange={(e) => set('code', e.target.value)}
-                  placeholder="<script>...</script> veya <ins class='adsbygoogle' ...></ins>"
+                  placeholder={t('creative.codePlaceholder')}
                 />
-                <p className="text-muted-foreground text-xs">Kod doğrudan sayfaya gömülür — yalnızca güvenilir reklam kodu girin.</p>
+                <p className="text-muted-foreground text-xs">{t('creative.codeHint')}</p>
               </div>
             )}
           </CardContent>
@@ -981,183 +988,167 @@ export function BannerDetailClient({ id }: Props) {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Yayın & Zamanlama</CardTitle>
+            <CardTitle className="text-base">{t('schedule.title')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-2 rounded-md border p-3">
-              <Label>Yayın durumu</Label>
+              <Label>{t('schedule.status')}</Label>
               <Select value={form.lifecycleStatus} onValueChange={(value) => set('lifecycleStatus', value as BannerLifecycleStatus)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="draft">Taslak</SelectItem>
-                  <SelectItem value="proposal">Teklif verildi</SelectItem>
-                  <SelectItem value="reserved">Rezerve</SelectItem>
-                  <SelectItem value="payment_pending">Ödeme bekliyor</SelectItem>
-                  <SelectItem value="scheduled">Planlandı</SelectItem>
-                  <SelectItem value="live">Yayında</SelectItem>
-                  <SelectItem value="completed">Tamamlandı</SelectItem>
-                  <SelectItem value="cancelled">İptal edildi</SelectItem>
-                  <SelectItem value="problem">Sorunlu</SelectItem>
-                  <SelectItem value="archived">Arşivlendi</SelectItem>
+                  {(['draft', 'proposal', 'reserved', 'payment_pending', 'scheduled', 'live', 'completed', 'cancelled', 'problem', 'archived'] as BannerLifecycleStatus[]).map((k) => <SelectItem key={k} value={k}>{tb(`lifecycles.${k}`)}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <p className="text-muted-foreground text-xs">Rezerve, ödeme bekliyor, planlandı ve yayında durumları slot kapasitesini tutar.</p>
+              <p className="text-muted-foreground text-xs">{t('schedule.statusHint')}</p>
             </div>
             {form.lifecycleStatus === 'reserved' ? (
               <div className="grid gap-2">
-                <Label>Rezervasyon son geçerlilik zamanı (boşsa süreye göre otomatik)</Label>
+                <Label>{t('schedule.reservationExpires')}</Label>
                 <Input type="datetime-local" value={form.reservationExpiresAt} onChange={(e) => set('reservationExpiresAt', e.target.value)} />
-                <div><Label className="text-xs">Ödeme bekleme süresi (saat)</Label><Input className="mt-1" type="number" min={1} max={720} value={form.paymentGraceHours} onChange={(e) => set('paymentGraceHours', e.target.value)} /></div>
+                <div><Label className="text-xs">{t('schedule.graceHours')}</Label><Input className="mt-1" type="number" min={1} max={720} value={form.paymentGraceHours} onChange={(e) => set('paymentGraceHours', e.target.value)} /></div>
               </div>
             ) : null}
             <div className="grid gap-2">
-              <Label>Satış sorumlusu</Label>
-              <Input value={form.salesOwner} onChange={(e) => set('salesOwner', e.target.value)} placeholder="Ad soyad" />
+              <Label>{t('schedule.salesOwner')}</Label>
+              <Input value={form.salesOwner} onChange={(e) => set('salesOwner', e.target.value)} placeholder={t('schedule.salesOwnerPlaceholder')} />
             </div>
             <div className="grid gap-2 rounded-md border p-3">
-              <Label>Ödeme durumu</Label>
+              <Label>{t('payment.title')}</Label>
               <div className="grid grid-cols-2 gap-2">
-                <div><Label className="text-xs">Toplam kampanya tutarı (₺)</Label><Input className="mt-1" type="number" min={0} value={form.totalAmount} onChange={(event) => set('totalAmount', event.target.value)} /></div>
-                <div><Label className="text-xs">Son ödeme tarihi</Label><Input className="mt-1" type="datetime-local" value={form.paymentDueAt} onChange={(event) => set('paymentDueAt', event.target.value)} /></div>
+                <div><Label className="text-xs">{t('payment.total')}</Label><Input className="mt-1" type="number" min={0} value={form.totalAmount} onChange={(event) => set('totalAmount', event.target.value)} /></div>
+                <div><Label className="text-xs">{t('payment.due')}</Label><Input className="mt-1" type="datetime-local" value={form.paymentDueAt} onChange={(event) => set('paymentDueAt', event.target.value)} /></div>
               </div>
               <Select value={form.paymentStatus} onValueChange={(value) => set('paymentStatus', value as BannerPaymentStatus)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="unpaid">Ödenmedi</SelectItem>
-                  <SelectItem value="partial">Kısmi ödeme</SelectItem>
-                  <SelectItem value="paid">Ödendi</SelectItem>
-                  <SelectItem value="waived">Ücretsiz / feragat</SelectItem>
-                  <SelectItem value="refunded">İade edildi</SelectItem>
-                  <SelectItem value="cancelled">Ödeme iptal</SelectItem>
+                  {(['unpaid', 'partial', 'paid', 'waived', 'refunded', 'cancelled'] as BannerPaymentStatus[]).map((k) => <SelectItem key={k} value={k}>{tb(`payments.${k}`)}</SelectItem>)}
                 </SelectContent>
               </Select>
               <label className="flex items-center gap-2 text-xs">
                 <input type="checkbox" checked={form.paymentOverride} onChange={(event) => set('paymentOverride', event.target.checked)} />
-                Ödeme tamamlanmadan yetkili istisnasıyla yayınla
+                {t('payment.override')}
               </label>
               {form.paymentOverride ? (
-                <Input value={form.paymentOverrideReason} onChange={(event) => set('paymentOverrideReason', event.target.value)} placeholder="İstisna gerekçesi (zorunlu)" />
+                <Input value={form.paymentOverrideReason} onChange={(event) => set('paymentOverrideReason', event.target.value)} placeholder={t('payment.overrideReason')} />
               ) : null}
-              <p className="text-muted-foreground text-xs">Ödenmemiş veya kısmi ödemeli reklam, gerekçeli istisna olmadan planlanamaz ve yayına alınamaz.</p>
+              <p className="text-muted-foreground text-xs">{t('payment.hint')}</p>
               {!isNew && payments ? (
                 <div className="space-y-3 border-t pt-3">
                   <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                    <div className="rounded bg-muted p-2"><div className="text-muted-foreground">Toplam</div><strong>{payments.totalAmount.toLocaleString('tr-TR')} ₺</strong></div>
-                    <div className="rounded bg-emerald-50 p-2 text-emerald-800"><div>Tahsil edilen</div><strong>{payments.collectedAmount.toLocaleString('tr-TR')} ₺</strong></div>
-                    <div className="rounded bg-amber-50 p-2 text-amber-800"><div>Kalan</div><strong>{payments.remainingAmount.toLocaleString('tr-TR')} ₺</strong></div>
+                    <div className="rounded bg-muted p-2"><div className="text-muted-foreground">{t('payment.sumTotal')}</div><strong>{payments.totalAmount.toLocaleString('tr-TR')} ₺</strong></div>
+                    <div className="rounded bg-emerald-50 p-2 text-emerald-800"><div>{t('payment.collected')}</div><strong>{payments.collectedAmount.toLocaleString('tr-TR')} ₺</strong></div>
+                    <div className="rounded bg-amber-50 p-2 text-amber-800"><div>{t('payment.remaining')}</div><strong>{payments.remainingAmount.toLocaleString('tr-TR')} ₺</strong></div>
                   </div>
                   <div className="grid gap-2 md:grid-cols-2">
-                    <Select value={paymentForm.transactionType} onValueChange={(value) => setPaymentForm((prev) => ({ ...prev, transactionType: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="payment">Tahsilat</SelectItem><SelectItem value="refund">İade</SelectItem></SelectContent></Select>
-                    <Input type="number" min={0.01} step="0.01" value={paymentForm.amount} onChange={(event) => setPaymentForm((prev) => ({ ...prev, amount: event.target.value }))} placeholder="Tutar ₺" />
-                    <Select value={paymentForm.paymentMethod} onValueChange={(value) => setPaymentForm((prev) => ({ ...prev, paymentMethod: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="bank_transfer">Havale/EFT</SelectItem><SelectItem value="card">Kart</SelectItem><SelectItem value="cash">Nakit</SelectItem><SelectItem value="other">Diğer</SelectItem></SelectContent></Select>
+                    <Select value={paymentForm.transactionType} onValueChange={(value) => setPaymentForm((prev) => ({ ...prev, transactionType: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="payment">{t('payment.tx.payment')}</SelectItem><SelectItem value="refund">{t('payment.tx.refund')}</SelectItem></SelectContent></Select>
+                    <Input type="number" min={0.01} step="0.01" value={paymentForm.amount} onChange={(event) => setPaymentForm((prev) => ({ ...prev, amount: event.target.value }))} placeholder={t('payment.amount')} />
+                    <Select value={paymentForm.paymentMethod} onValueChange={(value) => setPaymentForm((prev) => ({ ...prev, paymentMethod: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(['bank_transfer', 'card', 'cash', 'other'] as const).map((k) => <SelectItem key={k} value={k}>{t(`payment.methods.${k}`)}</SelectItem>)}</SelectContent></Select>
                     <Input type="datetime-local" value={paymentForm.paidAt} onChange={(event) => setPaymentForm((prev) => ({ ...prev, paidAt: event.target.value }))} />
-                    <Input value={paymentForm.referenceNumber} onChange={(event) => setPaymentForm((prev) => ({ ...prev, referenceNumber: event.target.value }))} placeholder="Referans / dekont no" />
-                    <Input value={paymentForm.notes} onChange={(event) => setPaymentForm((prev) => ({ ...prev, notes: event.target.value }))} placeholder="Ödeme notu" />
+                    <Input value={paymentForm.referenceNumber} onChange={(event) => setPaymentForm((prev) => ({ ...prev, referenceNumber: event.target.value }))} placeholder={t('payment.reference')} />
+                    <Input value={paymentForm.notes} onChange={(event) => setPaymentForm((prev) => ({ ...prev, notes: event.target.value }))} placeholder={t('payment.note')} />
                   </div>
-                  <Button type="button" size="sm" onClick={handleCreatePayment} disabled={isCreatingPayment}>{paymentForm.transactionType === 'refund' ? 'İadeyi kaydet' : 'Ödemeyi kaydet'}</Button>
+                  <Button type="button" size="sm" onClick={handleCreatePayment} disabled={isCreatingPayment}>{paymentForm.transactionType === 'refund' ? t('payment.saveRefund') : t('payment.savePayment')}</Button>
                   <div className="max-h-40 space-y-1 overflow-y-auto">
                     {payments.transactions.map((item) => (
                       <div key={item.id} className="flex items-center justify-between gap-2 rounded border px-2 py-1.5 text-xs">
-                        <span>{new Date(item.paidAt).toLocaleDateString('tr-TR')} · {item.paymentMethod}{item.referenceNumber ? ` · ${item.referenceNumber}` : ''}{item.notes ? ` · ${item.notes}` : ''}</span>
+                        <span>{new Date(item.paidAt).toLocaleDateString('tr-TR')} · {t(`payment.methods.${item.paymentMethod}`, undefined, item.paymentMethod)}{item.referenceNumber ? ` · ${item.referenceNumber}` : ''}{item.notes ? ` · ${item.notes}` : ''}</span>
                         <strong className={item.transactionType === 'refund' ? 'text-red-600' : 'text-emerald-700'}>{item.transactionType === 'refund' ? '−' : '+'}{Number(item.amount).toLocaleString('tr-TR')} ₺</strong>
                       </div>
                     ))}
-                    {!payments.transactions.length ? <p className="text-xs text-muted-foreground">Henüz ödeme hareketi yok.</p> : null}
+                    {!payments.transactions.length ? <p className="text-xs text-muted-foreground">{t('payment.noTx')}</p> : null}
                   </div>
                 </div>
               ) : null}
             </div>
             <div className="grid gap-3 rounded-md border p-3">
               <div className="flex items-center justify-between gap-2">
-                <div><Label>Belgeler ve anlaşma özeti</Label><p className="text-xs text-muted-foreground">Dosya bağlantıları yalnız admin kampanya detayında gösterilir.</p></div>
-                {!isNew ? <Button type="button" size="sm" variant="outline" onClick={downloadProposal}>Teklif PDF indir</Button> : null}
+                <div><Label>{t('docs.title')}</Label><p className="text-xs text-muted-foreground">{t('docs.hint')}</p></div>
+                {!isNew ? <Button type="button" size="sm" variant="outline" onClick={downloadProposal}>{t('docs.proposal')}</Button> : null}
               </div>
               {!isNew && banner ? (
                 <div className="rounded bg-muted/40 p-2 text-xs">
-                  <strong>HF-REK-{String(banner.id).padStart(6, '0')}</strong> · {form.advertiser || 'Reklam veren yok'} · {positionSize(form.position)} · {form.device} · {form.startAt || 'başlangıç yok'} / {form.endAt || 'bitiş yok'}
+                  <strong>HF-REK-{String(banner.id).padStart(6, '0')}</strong> · {form.advertiser || tb('table.noAdvertiser')} · {positionSize(form.position)} · {tb(`devices.${form.device}`)} · {form.startAt || t('docs.noStart')} / {form.endAt || t('docs.noEnd')}
                 </div>
               ) : null}
               <div className="grid gap-2 md:grid-cols-2">
-                <Input value={form.invoiceNumber} onChange={(event) => set('invoiceNumber', event.target.value)} placeholder="Fatura numarası" />
-                <Input value={form.invoiceUrl} onChange={(event) => set('invoiceUrl', event.target.value)} placeholder="Harici fatura bağlantısı" />
-                <Input value={form.contractFileUrl} onChange={(event) => set('contractFileUrl', event.target.value)} placeholder="Sözleşme dosyası bağlantısı" />
-                <Input value={form.creativeFileUrl} onChange={(event) => set('creativeFileUrl', event.target.value)} placeholder="Kreatif kaynak dosyası bağlantısı" />
+                <Input value={form.invoiceNumber} onChange={(event) => set('invoiceNumber', event.target.value)} placeholder={t('docs.invoiceNumber')} />
+                <Input value={form.invoiceUrl} onChange={(event) => set('invoiceUrl', event.target.value)} placeholder={t('docs.invoiceUrl')} />
+                <Input value={form.contractFileUrl} onChange={(event) => set('contractFileUrl', event.target.value)} placeholder={t('docs.contractUrl')} />
+                <Input value={form.creativeFileUrl} onChange={(event) => set('creativeFileUrl', event.target.value)} placeholder={t('docs.creativeUrl')} />
               </div>
               <div className="grid gap-2 border-t pt-3 md:grid-cols-2">
-                <div><Label className="text-xs">Sponsor rapor e-postası</Label><Input className="mt-1" type="email" value={form.reportEmail} onChange={(event) => set('reportEmail', event.target.value)} placeholder="reklamveren@firma.com" /></div>
-                <label className="flex items-center gap-2 self-end rounded border px-3 py-2 text-xs"><input type="checkbox" checked={form.weeklyReportEnabled} onChange={(event) => set('weeklyReportEnabled', event.target.checked)} />Haftalık performans raporu gönder</label>
-                {!isNew && banner?.weeklyReportSentAt ? <p className="text-xs text-muted-foreground">Son haftalık gönderim: {new Date(banner.weeklyReportSentAt).toLocaleString('tr-TR')}</p> : null}
-                {!isNew && banner?.closingReportSentAt ? <p className="text-xs text-muted-foreground">Kapanış raporu: {new Date(banner.closingReportSentAt).toLocaleString('tr-TR')}</p> : null}
+                <div><Label className="text-xs">{t('docs.reportEmail')}</Label><Input className="mt-1" type="email" value={form.reportEmail} onChange={(event) => set('reportEmail', event.target.value)} placeholder="ornek@firma.com" /></div>
+                <label className="flex items-center gap-2 self-end rounded border px-3 py-2 text-xs"><input type="checkbox" checked={form.weeklyReportEnabled} onChange={(event) => set('weeklyReportEnabled', event.target.checked)} />{t('docs.weekly')}</label>
+                {!isNew && banner?.weeklyReportSentAt ? <p className="text-xs text-muted-foreground">{t('docs.lastWeekly', { date: new Date(banner.weeklyReportSentAt).toLocaleString('tr-TR') })}</p> : null}
+                {!isNew && banner?.closingReportSentAt ? <p className="text-xs text-muted-foreground">{t('docs.closing', { date: new Date(banner.closingReportSentAt).toLocaleString('tr-TR') })}</p> : null}
               </div>
               <div className="flex flex-wrap gap-2">
-                {form.invoiceUrl ? <Button type="button" size="sm" variant="ghost" asChild><a href={form.invoiceUrl} target="_blank" rel="noopener noreferrer">Faturayı aç</a></Button> : null}
-                {form.contractFileUrl ? <Button type="button" size="sm" variant="ghost" asChild><a href={form.contractFileUrl} target="_blank" rel="noopener noreferrer">Sözleşmeyi aç</a></Button> : null}
-                {form.creativeFileUrl ? <Button type="button" size="sm" variant="ghost" asChild><a href={form.creativeFileUrl} target="_blank" rel="noopener noreferrer">Kreatif dosyayı aç</a></Button> : null}
+                {form.invoiceUrl ? <Button type="button" size="sm" variant="ghost" asChild><a href={form.invoiceUrl} target="_blank" rel="noopener noreferrer">{t('docs.openInvoice')}</a></Button> : null}
+                {form.contractFileUrl ? <Button type="button" size="sm" variant="ghost" asChild><a href={form.contractFileUrl} target="_blank" rel="noopener noreferrer">{t('docs.openContract')}</a></Button> : null}
+                {form.creativeFileUrl ? <Button type="button" size="sm" variant="ghost" asChild><a href={form.creativeFileUrl} target="_blank" rel="noopener noreferrer">{t('docs.openCreative')}</a></Button> : null}
               </div>
             </div>
             {form.lifecycleStatus === 'cancelled' ? (
               <div className="grid gap-2">
-                <Label>İptal nedeni</Label>
+                <Label>{t('schedule.cancelReason')}</Label>
                 <Input value={form.cancellationReason} onChange={(e) => set('cancellationReason', e.target.value)} />
               </div>
             ) : null}
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-2">
-                <Label>Başlangıç</Label>
+                <Label>{t('schedule.start')}</Label>
                 <Input type="datetime-local" value={form.startAt} onChange={(e) => set('startAt', e.target.value)} />
               </div>
               <div className="grid gap-2">
-                <Label>Bitiş</Label>
+                <Label>{t('schedule.end')}</Label>
                 <Input type="datetime-local" value={form.endAt} onChange={(e) => set('endAt', e.target.value)} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-2">
-                <Label>Satır</Label>
+                <Label>{t('schedule.row')}</Label>
                 <Input type="number" min={1} max={20} value={form.desktopRow} onChange={(e) => set('desktopRow', e.target.value)} />
               </div>
               <div className="grid gap-2">
-                <Label>Satır kapasitesi</Label>
+                <Label>{t('schedule.columns')}</Label>
                 <Select value={form.desktopColumns} onValueChange={(v) => set('desktopColumns', v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">1 reklam</SelectItem>
-                    <SelectItem value="2">2 reklam</SelectItem>
-                    <SelectItem value="3">3 reklam</SelectItem>
+                    {['1', '2', '3'].map((k) => <SelectItem key={k} value={k}>{t('schedule.adsPerRow', { count: k })}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="flex items-center justify-between gap-3 rounded-md border bg-muted/30 p-3">
-              <p className="text-muted-foreground text-xs">Aynı slot ve satırdaki reklamlar yan yana dizilir. Dolu satır kaydedilemez.</p>
+              <p className="text-muted-foreground text-xs">{t('schedule.rowHint')}</p>
               <Badge variant={selectedInventory?.available === 0 ? 'destructive' : 'secondary'}>
                 {selectedInventory
-                  ? `${selectedInventory.active}/${selectedInventory.columns} dolu`
-                  : 'Boş satır'}
+                  ? t('schedule.rowFull', { active: selectedInventory.active, columns: selectedInventory.columns })
+                  : t('schedule.rowEmpty')}
               </Badge>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-2">
-                <Label>Sıra (display_order)</Label>
+                <Label>{t('schedule.order')}</Label>
                 <Input type="number" value={form.displayOrder} onChange={(e) => set('displayOrder', e.target.value)} />
               </div>
               <div className="grid gap-2">
-                <Label>Ağırlık (rotasyon)</Label>
+                <Label>{t('schedule.weight')}</Label>
                 <Input type="number" value={form.weight} onChange={(e) => set('weight', e.target.value)} />
               </div>
             </div>
             <div className="grid gap-2">
-              <Label>Not</Label>
+              <Label>{t('schedule.note')}</Label>
               <Input value={form.notes} onChange={(e) => set('notes', e.target.value)} />
             </div>
 
             <div className="rounded-md border p-4">
               <div className="mb-2 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                Sponsorlu · Önizleme
+                {t('preview.title')}
               </div>
               <div className="flex justify-center">
                 {form.type === 'code' ? (
-                  <div className="text-muted-foreground text-xs">Kod tipi — canlı sayfada render edilir.</div>
+                  <div className="text-muted-foreground text-xs">{t('preview.codeNote')}</div>
                 ) : form.creativeTemplate !== 'image' ? (
                   <div
                     className={`flex min-h-32 w-full overflow-hidden rounded-xl border shadow-sm ${['mpu', 'mobile'].includes(form.creativeTemplate) ? 'max-w-72 flex-col' : 'items-stretch'} ${form.animation ? 'animate-pulse' : ''}`}
@@ -1173,10 +1164,10 @@ export function BannerDetailClient({ id }: Props) {
                     <div className="flex min-w-0 flex-1 flex-col justify-center p-4">
                       {form.logoUrl ? <img src={resolveMediaUrl(form.logoUrl)} alt="" className="mb-2 max-h-8 max-w-28 object-contain object-left" /> : null}
                       <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: form.accentColor }}>Sponsorlu · {form.creativeTemplate}</span>
-                      <strong className="mt-1 text-lg">{form.caption || form.title || 'Kampanya başlığı'}</strong>
+                      <strong className="mt-1 text-lg">{form.caption || form.title || t('preview.titleFallback')}</strong>
                       {form.description ? <span className="mt-1 text-xs opacity-75">{form.description}</span> : null}
                       {form.advertiser ? <span className="mt-1 text-xs opacity-70">{form.advertiser}</span> : null}
-                      <span className="mt-3 w-fit rounded-full px-3 py-1 text-xs font-bold text-black" style={{ backgroundColor: form.accentColor }}>{form.ctaLabel || 'İncele'} →</span>
+                      <span className="mt-3 w-fit rounded-full px-3 py-1 text-xs font-bold text-black" style={{ backgroundColor: form.accentColor }}>{form.ctaLabel || t('creative.ctaPlaceholder')} →</span>
                     </div>
                   </div>
                 ) : vistaVariant ? (
@@ -1185,18 +1176,18 @@ export function BannerDetailClient({ id }: Props) {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={previewImg} alt={form.alt || form.title} className="max-h-40 max-w-full rounded border object-contain" />
                 ) : (
-                  <div className="text-muted-foreground text-xs">Görsel seçilmedi.</div>
+                  <div className="text-muted-foreground text-xs">{t('preview.noImage')}</div>
                 )}
               </div>
               <div className="mt-4 border-t pt-4">
                 <div className="mb-3 flex flex-wrap items-center justify-center gap-2">
-                  {(['desktop', 'tablet', 'mobile'] as const).map((device) => <Button key={device} type="button" size="sm" variant={previewDevice === device ? 'default' : 'outline'} onClick={() => setPreviewDevice(device)}>{device === 'desktop' ? 'Masaüstü' : device === 'tablet' ? 'Tablet' : 'Mobil'}</Button>)}
-                  <Button type="button" size="sm" variant="outline" onClick={() => setPreviewTheme((value) => value === 'dark' ? 'light' : 'dark')}>{previewTheme === 'dark' ? 'Koyu tema' : 'Açık tema'}</Button>
-                  <Button type="button" size="sm" variant={previewReducedMotion ? 'default' : 'outline'} onClick={() => setPreviewReducedMotion((value) => !value)}>Azaltılmış hareket</Button>
-                  <Button type="button" size="sm" variant="ghost" asChild><a href={livePreviewUrl} target="_blank" rel="noopener noreferrer">Gerçek sayfada aç</a></Button>
+                  {(['desktop', 'tablet', 'mobile'] as const).map((device) => <Button key={device} type="button" size="sm" variant={previewDevice === device ? 'default' : 'outline'} onClick={() => setPreviewDevice(device)}>{t(`preview.devices.${device}`)}</Button>)}
+                  <Button type="button" size="sm" variant="outline" onClick={() => setPreviewTheme((value) => value === 'dark' ? 'light' : 'dark')}>{previewTheme === 'dark' ? t('preview.dark') : t('preview.light')}</Button>
+                  <Button type="button" size="sm" variant={previewReducedMotion ? 'default' : 'outline'} onClick={() => setPreviewReducedMotion((value) => !value)}>{t('preview.reducedMotion')}</Button>
+                  <Button type="button" size="sm" variant="ghost" asChild><a href={livePreviewUrl} target="_blank" rel="noopener noreferrer">{t('preview.openLive')}</a></Button>
                 </div>
                 <div className="mx-auto overflow-hidden rounded-lg border bg-muted transition-[width]" style={{ width: previewDevice === 'desktop' ? '100%' : previewDevice === 'tablet' ? '768px' : '390px', maxWidth: '100%' }}>
-                  <iframe key={livePreviewUrl} src={livePreviewUrl} title="Canlı banner önizlemesi" className="h-72 w-full border-0" />
+                  <iframe key={livePreviewUrl} src={livePreviewUrl} title={t('preview.iframeTitle')} className="h-72 w-full border-0" />
                 </div>
               </div>
             </div>

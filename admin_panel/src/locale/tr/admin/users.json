@@ -38,6 +38,16 @@
       "limit": "Limit: {limit}",
       "previous": "Önceki",
       "next": "Sonraki"
+    },
+    "tiles": {
+      "loaded": "Kullanıcı",
+      "loadedHint": "bu sayfada (sayfa boyu {limit})",
+      "active": "Aktif",
+      "admins": "Yönetici",
+      "unverified": "Doğrulanmamış",
+      "unverifiedHint": "e-posta onayı yok",
+      "recent": "Son 7 gün giriş",
+      "recentHint": "aktif kullanım"
     }
   },
   "detail": {

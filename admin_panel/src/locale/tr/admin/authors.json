@@ -3,8 +3,73 @@
   "subtitle": "Google News ve E-E-A-T için analiz yazılarına bağlanan yazar profilleri.",
   "new": "Yeni yazar",
   "search": "Ad, slug, unvan veya uzmanlık ara",
-  "chips": { "all": "Tümü", "active": "Aktif", "passive": "Pasif", "thin": "Eksik profil" },
-  "tiles": { "total": "Yazar", "active": "Aktif", "activeHint": "yazılara bağlanabilir", "thin": "Eksik profil", "thinHint": "biyografi, unvan ya da uzmanlık yok" },
-  "table": { "author": "Yazar", "expertise": "Uzmanlık", "profile": "Profil", "status": "Durum", "bio": "biyografi", "credentials": "yetkinlik", "social": "{count} sosyal", "thin": "eksik", "summary": "{count} yazar" },
-  "sheet": { "bio": "Biyografi", "credentials": "Yetkinlik / kimlik bilgisi", "expertise": "Uzmanlık alanları", "social": "Sosyal bağlantılar", "email": "E-posta", "missing": "eksik — E-E-A-T için doldurun", "edit": "Düzenle" }
+  "chips": {
+    "all": "Tümü",
+    "active": "Aktif",
+    "passive": "Pasif",
+    "thin": "Eksik profil"
+  },
+  "tiles": {
+    "total": "Yazar",
+    "active": "Aktif",
+    "activeHint": "yazılara bağlanabilir",
+    "thin": "Eksik profil",
+    "thinHint": "biyografi, unvan ya da uzmanlık yok"
+  },
+  "table": {
+    "author": "Yazar",
+    "expertise": "Uzmanlık",
+    "profile": "Profil",
+    "status": "Durum",
+    "bio": "biyografi",
+    "credentials": "yetkinlik",
+    "social": "{count} sosyal",
+    "thin": "eksik",
+    "summary": "{count} yazar"
+  },
+  "sheet": {
+    "bio": "Biyografi",
+    "credentials": "Yetkinlik / kimlik bilgisi",
+    "expertise": "Uzmanlık alanları",
+    "social": "Sosyal bağlantılar",
+    "email": "E-posta",
+    "missing": "eksik — E-E-A-T için doldurun",
+    "edit": "Düzenle"
+  },
+  "detail": {
+    "toasts": {
+      "nameRequired": "Yazar adı zorunlu.",
+      "created": "Yazar oluşturuldu.",
+      "updated": "Yazar güncellendi."
+    },
+    "back": "Liste",
+    "newTitle": "Yeni yazar",
+    "editTitle": "Yazarı düzenle",
+    "newHint": "Yeni profil aktif olarak oluşturulur.",
+    "refreshing": "Kayıt yenileniyor...",
+    "public": "Public sayfa",
+    "profile": {
+      "title": "Profil bilgileri",
+      "hint": "Bu bilgiler public yazar sayfasında ve analiz structured data içinde kullanılır."
+    },
+    "fields": {
+      "fullName": "Ad Soyad",
+      "title": "Ünvan",
+      "email": "E-posta",
+      "bio": "Biyografi",
+      "expertise": "Uzmanlıklar",
+      "credentials": "Yetkinlik / deneyim",
+      "order": "Sıra",
+      "active": "Aktif",
+      "website": "Web sitesi"
+    },
+    "visual": {
+      "title": "Görsel ve durum",
+      "avatar": "Profil görseli"
+    },
+    "social": {
+      "title": "Sosyal medya",
+      "hint": "Boş bırakılan sosyal alanlar public profilde gösterilmez."
+    }
+  }
 }

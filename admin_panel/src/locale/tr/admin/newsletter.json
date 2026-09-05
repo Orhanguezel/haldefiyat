@@ -6,7 +6,9 @@
   "stats": {
     "total": "Toplam abone",
     "active": "Aktif",
-    "unsubscribed": "İptal etti"
+    "unsubscribed": "İptal etti",
+    "unverified": "Doğrulanmamış",
+    "unverifiedHint": "onay bekleyen e-posta"
   },
   "search": {
     "placeholder": "E-posta ile ara..."
@@ -87,6 +89,31 @@
       "deleted": "Taslak silindi.",
       "sent": "Bülten gönderildi: {count} alıcı.",
       "sendFailed": "Gönderilemedi."
+    }
+  },
+  "tabs": {
+    "subscribers": "Aboneler",
+    "digest": "Haftalık bülten",
+    "sends": "Gönderimler",
+    "funnel": "Kaynaklar"
+  },
+  "funnel": {
+    "title": "Abone kaynakları",
+    "hint": "Hangi çağrı/sayfa kaç abone getiriyor, son 30 gün akışı. Dönüşen kaynağa yatırım yapılır.",
+    "bySource": "Kaynak bazında (dönüşen çağrı)",
+    "byDay": "Son 30 gün abone akışı",
+    "noRecent": "Son 30 günde yeni abone yok.",
+    "last7": "Son 7 gün",
+    "last30Hint": "son 30 gün: {count}",
+    "sources": {
+      "pricesStrip": "/fiyatlar şeridi",
+      "homeStrip": "Ana sayfa şeridi",
+      "productPage": "Ürün sayfası",
+      "marketPage": "Hal sayfası",
+      "stickyMobile": "Mobil sabit bar",
+      "legacy": "Eski (genel)",
+      "test": "Test",
+      "unknown": "Kaynak yok"
     }
   }
 }

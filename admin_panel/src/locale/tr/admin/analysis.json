@@ -7,23 +7,156 @@
   "search": "Başlık, slug, hafta, yazar veya etiket ara",
   "allStatuses": "Tüm durumlar",
   "allSources": "Tüm kaynaklar",
-  "statuses": { "draft": "Taslak", "published": "Yayında", "archived": "Arşiv" },
-  "sources": { "auto": "Otomatik", "manual": "Elle" },
-  "sort": { "newest": "En yeni", "published": "Yayın tarihi", "records": "En çok kayıt", "title": "Başlık" },
-  "tiles": {
-    "total": "Yazı", "totalHint": "{auto} otomatik üretilmiş",
-    "published": "Yayında", "publishedHint": "public /analiz'de görünür",
-    "draft": "Taslak", "draftHint": "yayın onayı bekliyor",
-    "archived": "Arşiv", "archivedHint": "yayından kaldırıldı",
-    "thin": "İnce yayın", "thinHint": "yayında ama 300 kelimenin altında"
+  "statuses": {
+    "draft": "Taslak",
+    "published": "Yayında",
+    "archived": "Arşiv"
   },
-  "table": { "title": "Başlık", "week": "Hafta", "records": "Kayıt", "words": "Kelime", "status": "Durum", "published": "Yayın", "summary": "{count} yazı" },
-  "actions": { "publish": "Yayınla", "draft": "Taslağa al", "archive": "Arşivle" },
-  "toasts": { "publish": "Analiz yayına alındı.", "draft": "Analiz taslağa alındı.", "archive": "Analiz arşivlendi.", "generated": "Haftalık taslak oluşturuldu.", "generateFailed": "Taslak üretilemedi." },
+  "sources": {
+    "auto": "Otomatik",
+    "manual": "Elle"
+  },
+  "sort": {
+    "newest": "En yeni",
+    "published": "Yayın tarihi",
+    "records": "En çok kayıt",
+    "title": "Başlık"
+  },
+  "tiles": {
+    "total": "Yazı",
+    "totalHint": "{auto} otomatik üretilmiş",
+    "published": "Yayında",
+    "publishedHint": "public /analiz'de görünür",
+    "draft": "Taslak",
+    "draftHint": "yayın onayı bekliyor",
+    "archived": "Arşiv",
+    "archivedHint": "yayından kaldırıldı",
+    "thin": "İnce yayın",
+    "thinHint": "yayında ama 300 kelimenin altında"
+  },
+  "table": {
+    "title": "Başlık",
+    "week": "Hafta",
+    "records": "Kayıt",
+    "words": "Kelime",
+    "status": "Durum",
+    "published": "Yayın",
+    "summary": "{count} yazı"
+  },
+  "actions": {
+    "publish": "Yayınla",
+    "draft": "Taslağa al",
+    "archive": "Arşivle"
+  },
+  "toasts": {
+    "publish": "Analiz yayına alındı.",
+    "draft": "Analiz taslağa alındı.",
+    "archive": "Analiz arşivlendi.",
+    "generated": "Haftalık taslak oluşturuldu.",
+    "generateFailed": "Taslak üretilemedi."
+  },
   "sheet": {
-    "records": "Kayıt", "words": "Kelime", "tags": "Etiket", "published": "Yayın",
-    "slug": "Adres", "period": "Dönem", "author": "Yazar", "date": "Tarih", "updated": "Güncelleme",
-    "metaTitle": "Meta başlık", "metaDescription": "Meta açıklama", "ogImage": "OG görsel", "chars": "karakter", "missing": "eksik",
-    "summary": "Özet", "edit": "Düzenle / önizle"
+    "records": "Kayıt",
+    "words": "Kelime",
+    "tags": "Etiket",
+    "published": "Yayın",
+    "slug": "Adres",
+    "period": "Dönem",
+    "author": "Yazar",
+    "date": "Tarih",
+    "updated": "Güncelleme",
+    "metaTitle": "Meta başlık",
+    "metaDescription": "Meta açıklama",
+    "ogImage": "OG görsel",
+    "chars": "karakter",
+    "missing": "eksik",
+    "summary": "Özet",
+    "edit": "Düzenle / önizle"
+  },
+  "detail": {
+    "toasts": {
+      "required": "Başlık, özet ve içerik alanları zorunlu.",
+      "createdPublished": "Analiz oluşturuldu ve yayınlandı.",
+      "created": "Analiz oluşturuldu.",
+      "savedPublished": "Kaydedildi ve yayınlandı.",
+      "saved": "Analiz kaydedildi.",
+      "imported": "İçerik içe aktarıldı."
+    },
+    "announce": {
+      "telegram": "Telegram kanalı",
+      "whatsapp": "WhatsApp taslağı",
+      "failed": "gönderilemedi",
+      "shared": "Paylaşıldı: {list}"
+    },
+    "back": "Liste",
+    "newTitle": "Yeni analiz yazısı",
+    "editTitle": "Analiz yazısını düzenle",
+    "newHint": "Yeni kayıt taslak olarak oluşturulur.",
+    "statusLine": "Durum: {status} · {date}",
+    "preview": "Önizle",
+    "approve": "Onayla",
+    "announcing": "Paylaşılıyor...",
+    "announceBtn": "Sosyalde paylaş",
+    "cardTitle": "Editoryal onay",
+    "refreshing": "Kayıt yenileniyor...",
+    "tabs": {
+      "content": "İçerik",
+      "preview": "Önizleme",
+      "seo": "SEO",
+      "image": "Görsel",
+      "quality": "Kalite"
+    },
+    "fields": {
+      "title": "Başlık",
+      "author": "Yazar",
+      "defaultAuthor": "Veri ekibi",
+      "summary": "Özet",
+      "content": "İçerik",
+      "tags": "Etiketler",
+      "metaTitle": "Meta başlık",
+      "metaDescription": "Meta açıklama",
+      "imageAlt": "Görsel alt metni"
+    },
+    "import": "İçe aktar",
+    "editorHint": "Görsel sekmesinde kod yazmadan biçimlendirin; Kaynak sekmesinde HTML'i düzenleyin. Tablo renk kodu için hücreye ekleyin:",
+    "editorHint2": "Stil otomatik gelir, gömülü <style> gerekmez.",
+    "publicLink": "Public bağlantı",
+    "afterSave": "Kaydedince oluşur",
+    "open": "Aç",
+    "seoHint": "AI menüsünden \"SEO Meta Oluştur\" seçeneği bu alanları doldurur. Boş bırakılırsa public sayfa başlık ve özet alanlarını kullanır.",
+    "googlePreview": "Google önizleme",
+    "coverShown": "Public sayfada görünen kapak",
+    "cover": {
+      "label": "Özel kapak / OG görseli",
+      "hint": "Boş bırakılırsa public analiz sayfasında dinamik rapor kapağı kullanılır. Görsel yüklerseniz sayfa, sosyal medya ve arama önizlemesi bu görseli kullanır."
+    }
+  },
+  "quality": {
+    "score": {
+      "good": "İyi",
+      "mid": "Orta",
+      "weak": "Zayıf"
+    },
+    "gsc": {
+      "title": "Google Search Console indexlenme",
+      "inspecting": "Denetleniyor...",
+      "inspect": "Google'da denetle",
+      "verdict": "Sonuç",
+      "coverage": "Kapsam durumu",
+      "lastCrawl": "Son tarama (Google)",
+      "lastCheck": "Son denetim",
+      "open": "Aç",
+      "publishFirst": "Denetim için yazı yayında olmalı. Yeni yayınlanan yazılar Google tarafından birkaç gün içinde taranır."
+    },
+    "afterSave": "Kalite ve indexlenme ölçümü, yazı kaydedildikten sonra hesaplanır.",
+    "computing": "Kalite hesaplanıyor...",
+    "noData": "Kalite verisi yok.",
+    "toasts": {
+      "updated": "Google indexlenme durumu güncellendi.",
+      "failed": "Denetim başarısız. GSC yetkilendirme/kotayı kontrol edin."
+    },
+    "readiness": "Index hazırlığı",
+    "contentScore": "İçerik kalitesi · {score}/100",
+    "seoScore": "SEO kalitesi · {score}/100"
   }
 }

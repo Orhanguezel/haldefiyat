@@ -39,7 +39,7 @@ import {
 } from '@/integrations/hooks';
 import { useAdminT } from '@/app/(main)/admin/_components/common/use-admin-t';
 
-export default function UserDetailClient({ id }: { id: string }) {
+export default function UserDetailClient({ id, embedded = false }: { id: string; embedded?: boolean }) {
   const router = useRouter();
   const t = useAdminT();
 
@@ -191,7 +191,7 @@ export default function UserDetailClient({ id }: { id: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className={`flex flex-col gap-3 md:flex-row md:items-center md:justify-between ${embedded ? 'hidden' : ''}`}>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => router.back()} disabled={busy}>

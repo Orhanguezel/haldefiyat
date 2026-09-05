@@ -92,7 +92,13 @@
     "updated": "Talep güncellendi.",
     "deleted": "Talep silindi.",
     "actions": "İşlemler",
-    "view": "Görüntüle"
+    "view": "Görüntüle",
+    "tiles": {
+      "total": "Talep",
+      "urgent": "Acil / yüksek",
+      "urgentHint": "açık ve öncelikli",
+      "resolved": "Çözüldü"
+    }
   },
   "table": {
     "order": "Sıra",
