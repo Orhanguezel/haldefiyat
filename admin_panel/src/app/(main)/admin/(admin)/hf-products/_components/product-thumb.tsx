@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-const SITE = "https://haldefiyat.com";
+import { BASE_URL } from "@/integrations/api-base";
+
+// Site adresi API adresinden turetilir; marka/alan adi koda yazilmaz.
+const SITE = BASE_URL.replace(/\/api\/v1\/?$/, "");
 const MANIFEST_URL = `${SITE}/images/urunler/manifest.json`;
 
 let manifestCache: Record<string, string> | null = null;

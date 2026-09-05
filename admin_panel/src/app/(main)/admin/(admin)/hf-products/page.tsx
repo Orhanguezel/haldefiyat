@@ -1,550 +1,138 @@
 "use client";
 
-import { type ReactNode, useMemo, useState } from "react";
-
-import Link from "next/link";
-
-import { ClipboardList, Edit, GitMerge, Plus, RefreshCw, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useListHfProductsAdminQuery, useMergeHfProductsAdminMutation } from "@/integrations/hooks";
 import {
-  type HfProductAction,
+  type HfProductItem,
   useBulkRefreshHfGscMutation,
   useGetHfGscSummaryQuery,
   useRunHfSeoMaintenanceMutation,
 } from "@/integrations/endpoints/hf-products-admin-endpoints";
-
+import { MergeBar } from "./_components/merge-bar";
 import { MergeSuggestionsPanel } from "./_components/merge-suggestions-panel";
-import { GSC_SHORT_LABEL, ProductGscBadge } from "./_components/product-gsc-panel";
-import { ProductThumb } from "./_components/product-thumb";
+import { ProductSheet } from "./_components/product-sheet";
+import { ProductsOverview } from "./_components/products-overview";
+import { ProductsTable } from "./_components/products-table";
+import { ProductsToolbar } from "./_components/products-toolbar";
+import { ALL, applyLocalFilters, EMPTY_FILTERS, type Filters, sortItems, summarize } from "./_lib/product-meta";
 
-const ALL = "all";
+const PAGE_SIZE = 50;
 
-function qualityVariant(score: number): "default" | "secondary" | "destructive" | "outline" {
-  if (score >= 75) return "default";
-  if (score >= 45) return "secondary";
-  return "destructive";
+function useDebounced<T>(value: T, ms: number) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => { const t = setTimeout(() => setDebounced(value), ms); return () => clearTimeout(t); }, [value, ms]);
+  return debounced;
 }
 
-// Her ürün için "sonraki adım" — backend'in market/editöryel sinyallerinden türettiği
-// action koduna göre okunur etiket + renk. Panel böylece kendini belgeler.
-const ACTION_META: Record<
-  HfProductAction,
-  { label: string; variant: "default" | "secondary" | "destructive" | "outline"; hint: string }
-> = {
-  indexed: { label: "İndexli ✓", variant: "default", hint: "Google'da indexli, aksiyon yok" },
-  recrawl_pending: { label: "Recrawl bekliyor", variant: "secondary", hint: "Index'e alındı; Google yeniden taramalı" },
-  ready_editorial: { label: "Editoryel yaz →", variant: "destructive", hint: "Veri yeterli; editöryel yazınca index'lenir" },
-  maintenance_pending: { label: "Bakım bekliyor", variant: "secondary", hint: "Kriterleri karşılıyor; SEO bakımı çalıştır" },
-  needs_coverage: { label: "Veri bekliyor", variant: "outline", hint: "Editöryel var ama hal/veri kapsamı yetersiz" },
-  seasonal_dry: { label: "Sezon/veri yok", variant: "outline", hint: "Son 30g fiyat yok; sezon dönünce açılır" },
-  variant: { label: "—", variant: "outline", hint: "Varyant (301) — aksiyon yok" },
-};
-
-// Fırsat sırası: hangi aksiyon en yüksek getirili (yaz→hemen index) → en düşük.
-// Aynı aksiyon içinde çok aranan (searchVolume) öne gelir.
-const ACTION_RANK: Record<HfProductAction, number> = {
-  ready_editorial: 0,
-  maintenance_pending: 1,
-  needs_coverage: 2,
-  recrawl_pending: 3,
-  seasonal_dry: 4,
-  indexed: 5,
-  variant: 6,
-};
-
 export default function Page() {
-  const [q, setQ] = useState("");
-  const [category, setCategory] = useState(ALL);
-  const [isActive, setIsActive] = useState(ALL);
-  const [seoIndex, setSeoIndex] = useState(ALL);
-  const [variantFilter, setVariantFilter] = useState(ALL);
-  const [gscFilter, setGscFilter] = useState(ALL);
-  const [sortKey, setSortKey] = useState<"opportunity" | "name" | "category" | "quality" | "search">("opportunity");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+  const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<number>>(new Set());
-  const [masterId, setMasterId] = useState<string>("");
-  const [merge, mergeState] = useMergeHfProductsAdminMutation();
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [actionFilter, setActionFilter] = useState(ALL);
+  const [masterId, setMasterId] = useState("");
+  const [open, setOpen] = useState<HfProductItem | null>(null);
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+
+  const q = useDebounced(filters.q, 300);
+  const { data, isLoading } = useListHfProductsAdminQuery({
+    q: q.trim() || undefined,
+    category: filters.category === ALL ? undefined : filters.category,
+    isActive: filters.status === ALL ? undefined : filters.status === "active",
+    seoIndex: filters.seo === ALL ? undefined : filters.seo === "index",
+  });
   const { data: gscSummary } = useGetHfGscSummaryQuery(undefined, { pollingInterval: 20000 });
+  const [merge, mergeState] = useMergeHfProductsAdminMutation();
   const [bulkRefreshGsc, bulkState] = useBulkRefreshHfGscMutation();
   const [runMaintenance, maintenanceState] = useRunHfSeoMaintenanceMutation();
 
-  const handleMaintenance = async () => {
-    try {
-      const r = await runMaintenance().unwrap();
-      toast.success(
-        `SEO bakımı: ${r.flippedUp} hal + ${r.flippedUpBorsa} borsa + ${r.flippedUpRetail} market + ${r.flippedUpNiche} niş index'e alındı, ${r.demoted} düşürüldü.`,
-      );
-    } catch {
-      toast.error("SEO bakımı çalıştırılamadı.");
-    }
-  };
-
-  const handleBulkGsc = async () => {
-    try {
-      await bulkRefreshGsc({}).unwrap();
-      toast.success("Toplu Google denetimi başladı (arka planda). Birkaç dakika sonra liste dolar.");
-    } catch {
-      toast.error("Toplu denetim başlatılamadı (zaten çalışıyor olabilir).");
-    }
-  };
-
-  const query = {
-    q: q.trim() || undefined,
-    category: category === ALL ? undefined : category,
-    isActive: isActive === ALL ? undefined : isActive === "active",
-    seoIndex: seoIndex === ALL ? undefined : seoIndex === "index",
-  };
-  const { data, isLoading, isFetching } = useListHfProductsAdminQuery(query);
   const items = data?.items ?? [];
-  const categories = useMemo(
-    () => Array.from(new Set(items.map((item) => item.categorySlug).filter(Boolean))).sort(),
-    [items],
-  );
-  const stats = useMemo(() => {
-    const indexed = items.filter((item) => Boolean(item.seoIndex)).length;
-    const active = items.filter((item) => Boolean(item.isActive)).length;
-    const variants = items.filter((item) => Boolean(item.canonicalSlug)).length;
-    const avgQuality = items.length
-      ? Math.round(items.reduce((sum, item) => sum + Number(item.dataQuality ?? 0), 0) / items.length)
-      : 0;
-    // Aksiyon gerektiren: indexlenebilir (seoIndex) AMA Google'da olmayan/sorunlu.
-    // Noindex/varyantların GSC'de "excluded" olması beklenir → sayma.
-    const gscProblem = items.filter(
-      (item) => Boolean(item.seoIndex) && (item.gscCategory === "not_indexed" || item.gscCategory === "issue"),
-    ).length;
-    return { indexed, active, variants, avgQuality, gscProblem };
-  }, [items]);
+  const categories = useMemo(() => Array.from(new Set(items.map((i) => i.categorySlug).filter(Boolean))).sort(), [items]);
+  const bySlug = useMemo(() => new Map(items.map((i) => [i.slug, i])), [items]);
+  const stats = useMemo(() => summarize(items), [items]);
+  const visible = useMemo(() => sortItems(applyLocalFilters(items, filters), filters.sort), [items, filters]);
 
-  // slug → ürün (varyantın master'ına admin linki için)
-  const bySlug = useMemo(() => new Map(items.map((item) => [item.slug, item])), [items]);
+  useEffect(() => { setPage(1); }, [filters, q]);
 
-  const sortedItems = useMemo(() => {
-    const arr = items.filter((item) => {
-      if (variantFilter === "variant" && !item.canonicalSlug) return false;
-      if (variantFilter === "master" && item.canonicalSlug) return false;
-      if (
-        gscFilter === "actionable" &&
-        !(Boolean(item.seoIndex) && (item.gscCategory === "not_indexed" || item.gscCategory === "issue"))
-      )
-        return false;
-      if (gscFilter === "indexed" && item.gscCategory !== "indexed") return false;
-      if (gscFilter === "not_indexed" && item.gscCategory !== "not_indexed" && item.gscCategory !== "issue")
-        return false;
-      if (gscFilter === "issue" && item.gscCategory !== "issue") return false;
-      if (gscFilter === "unchecked" && item.gscCategory) return false;
-      if (actionFilter !== ALL && item.action !== actionFilter) return false;
-      return true;
-    });
-    arr.sort((a, b) => {
-      if (sortKey === "opportunity") {
-        // Önce aksiyon önceliği, eşitlikte çok aranan üste. sortDir tüm sırayı çevirir.
-        const rankCmp = ACTION_RANK[a.action ?? "variant"] - ACTION_RANK[b.action ?? "variant"];
-        const cmp = rankCmp !== 0 ? rankCmp : Number(b.searchVolume ?? 0) - Number(a.searchVolume ?? 0);
-        return sortDir === "asc" ? cmp : -cmp;
-      }
-      let cmp = 0;
-      if (sortKey === "name")
-        cmp = (a.displayName || a.nameTr || "").localeCompare(b.displayName || b.nameTr || "", "tr");
-      else if (sortKey === "category") cmp = (a.categorySlug || "").localeCompare(b.categorySlug || "", "tr");
-      else if (sortKey === "quality") cmp = Number(a.dataQuality ?? 0) - Number(b.dataQuality ?? 0);
-      else cmp = Number(a.searchVolume ?? 0) - Number(b.searchVolume ?? 0);
-      return sortDir === "asc" ? cmp : -cmp;
-    });
-    return arr;
-  }, [items, sortKey, sortDir, variantFilter, gscFilter, actionFilter]);
+  const patch = (next: Partial<Filters>) => setFilters((prev) => ({ ...prev, ...next }));
+  const selectedItems = items.filter((i) => selected.has(i.id));
 
-  const toggleSort = (key: typeof sortKey) => {
-    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    else {
-      setSortKey(key);
-      setSortDir(key === "quality" || key === "search" ? "desc" : "asc");
-    }
-  };
-  const SortHead = ({ k, children, className }: { k: typeof sortKey; children: ReactNode; className?: string }) => (
-    <TableHead className={className}>
-      <button
-        type="button"
-        onClick={() => toggleSort(k)}
-        className="inline-flex items-center gap-1 hover:text-foreground"
-      >
-        {children}
-        <span className="text-muted-foreground text-xs">{sortKey === k ? (sortDir === "asc" ? "▲" : "▼") : "↕"}</span>
-      </button>
-    </TableHead>
-  );
-
-  const toggleSelect = (id: number) =>
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  const selectedList = items.filter((item) => selected.has(item.id));
-  const masterOptions = selectedList.filter((item) => !item.canonicalSlug);
-  const handleMerge = async () => {
+  async function handleMerge() {
     const mid = Number(masterId);
     if (!mid || selected.size < 2) return;
-    const variantIds = [...selected].filter((id) => id !== mid);
     try {
-      const res = await merge({ masterId: mid, variantIds }).unwrap();
-      toast.success(`${res.merged.length} ürün "${res.master}" altında birleştirildi`);
-      setSelected(new Set());
-      setMasterId("");
-    } catch {
-      toast.error("Birleştirme başarısız");
-    }
-  };
+      const res = await merge({ masterId: mid, variantIds: [...selected].filter((id) => id !== mid) }).unwrap();
+      toast.success(`${res.merged.length} ürün "${res.master}" altında birleştirildi.`);
+      setSelected(new Set()); setMasterId("");
+    } catch { toast.error("Birleştirme başarısız."); }
+  }
+
+  async function handleMaintenance() {
+    try {
+      const r = await runMaintenance().unwrap();
+      toast.success(`SEO bakımı: ${r.flippedUp} hal + ${r.flippedUpBorsa} borsa + ${r.flippedUpRetail} market + ${r.flippedUpNiche} niş index'e alındı, ${r.demoted} düşürüldü.`);
+    } catch { toast.error("SEO bakımı çalıştırılamadı."); }
+  }
+
+  async function handleBulkGsc() {
+    try {
+      await bulkRefreshGsc({}).unwrap();
+      toast.success("Toplu Google denetimi arka planda başladı. Birkaç dakika sonra liste dolar.");
+    } catch { toast.error("Toplu denetim başlatılamadı, zaten çalışıyor olabilir."); }
+  }
 
   return (
-    <Card className="rounded-lg">
-      <CardHeader className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <CardTitle className="text-base">Hal ürünleri</CardTitle>
-            <p className="mt-1 text-muted-foreground text-sm">
-              {items.length} ürün · {stats.active} aktif · {stats.indexed} index · {stats.variants} varyant · ortalama
-              kalite {stats.avgQuality} · {stats.gscProblem} Google’da indexsiz
-            </p>
-            {gscSummary && (
-              <p className="mt-0.5 text-muted-foreground text-xs">
-                GSC önbelleği: {gscSummary.total} URL · {gscSummary.indexed} indexli ·{" "}
-                <span className={gscSummary.realIssue > 0 ? "font-medium text-amber-600" : ""}>
-                  {gscSummary.realIssue} gerçek sorun (indexlenebilir)
-                </span>{" "}
-                <span title="Google en son sayfayı biz index'e almadan önce taramış. Sayfa canlıda doğru; yeniden taranmasını bekliyor.">
-                  · {gscSummary.awaitingRecrawl ?? 0} yeniden tarama bekliyor
-                </span>{" "}
-                · {gscSummary.expectedExcluded} beklenen exclusion (noindex/varyant)
-                {gscSummary.lastChecked
-                  ? ` · son: ${gscSummary.lastChecked.replace("T", " ").slice(0, 16)}`
-                  : ""}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <Button asChild size="sm" variant="outline">
-              <Link href="/admin/hf-products/review">
-                <ClipboardList className="mr-2 size-4" />
-                Eşleme kuyruğu
-              </Link>
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleBulkGsc}
-              disabled={bulkState.isLoading || gscSummary?.running}
-              title="Tüm hal URL'lerini Google Search Console'da denetle (tek indirici; sonuç ürün listesine yansır)"
-            >
-              <RefreshCw className={`mr-2 size-4 ${gscSummary?.running ? "animate-spin" : ""}`} />
-              {gscSummary?.running ? "Google denetimi sürüyor…" : "Google: tümünü denetle"}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleMaintenance}
-              disabled={maintenanceState.isLoading}
-              title="dataQuality yeniden hesapla + kriteri karşılayan ürünleri index'e al / veri kuruyanı düşür"
-            >
-              <RefreshCw className={`mr-2 size-4 ${maintenanceState.isLoading ? "animate-spin" : ""}`} />
-              SEO bakımı
-            </Button>
-            <Button
-              size="sm"
-              variant={showSuggestions ? "secondary" : "outline"}
-              onClick={() => setShowSuggestions((v) => !v)}
-            >
-              <GitMerge className="mr-2 size-4" />
-              Birleştirme önerileri
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/admin/hf-products/new">
-                <Plus className="mr-2 size-4" />
-                Yeni ürün
-              </Link>
-            </Button>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-[220px] flex-1">
-            <Search className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-3 size-4 text-muted-foreground" />
-            <Input
-              className="pl-9"
-              placeholder="Ad, slug veya görünen ad ara"
-              value={q}
-              onChange={(event) => setQ(event.target.value)}
-            />
-          </div>
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Kategori" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>Tüm kategoriler</SelectItem>
-              {categories.map((value) => (
-                <SelectItem key={value} value={value}>
-                  {value}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={isActive} onValueChange={setIsActive}>
-            <SelectTrigger className="w-[130px]">
-              <SelectValue placeholder="Durum" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>Tüm durumlar</SelectItem>
-              <SelectItem value="active">Aktif</SelectItem>
-              <SelectItem value="passive">Pasif</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={seoIndex} onValueChange={setSeoIndex}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="SEO" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>Index + noindex</SelectItem>
-              <SelectItem value="index">Index</SelectItem>
-              <SelectItem value="noindex">Noindex</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={variantFilter} onValueChange={setVariantFilter}>
-            <SelectTrigger className="w-[185px]">
-              <SelectValue placeholder="Varyant" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>Tümü</SelectItem>
-              <SelectItem value="master">Bağımsız / master</SelectItem>
-              <SelectItem value="variant">Sadece varyantlar (301)</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={gscFilter} onValueChange={setGscFilter}>
-            <SelectTrigger className="w-[190px]">
-              <SelectValue placeholder="Google" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>Google: tümü</SelectItem>
-              <SelectItem value="actionable">⚠ İndexlenebilir ama Google’da yok</SelectItem>
-              <SelectItem value="indexed">İndexli</SelectItem>
-              <SelectItem value="not_indexed">İndexsiz / sorun</SelectItem>
-              <SelectItem value="issue">Sadece sorun</SelectItem>
-              <SelectItem value="unchecked">Denetlenmemiş</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={actionFilter} onValueChange={setActionFilter}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Aksiyon" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>Aksiyon: tümü</SelectItem>
-              <SelectItem value="ready_editorial">✍ Editoryel yaz → index</SelectItem>
-              <SelectItem value="maintenance_pending">Bakım bekliyor</SelectItem>
-              <SelectItem value="recrawl_pending">Recrawl bekliyor</SelectItem>
-              <SelectItem value="needs_coverage">Veri bekliyor</SelectItem>
-              <SelectItem value="seasonal_dry">Sezon/veri yok</SelectItem>
-              <SelectItem value="indexed">İndexli</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button
-            size="sm"
-            variant={sortKey === "opportunity" ? "secondary" : "outline"}
-            onClick={() => {
-              setSortKey("opportunity");
-              setSortDir("asc");
-            }}
-            title="Aksiyon gerektiren + çok aranan ürünler en üstte (yaz→index olacak fırsatlar)"
-          >
-            🎯 Fırsat sırası
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {showSuggestions && <MergeSuggestionsPanel onClose={() => setShowSuggestions(false)} />}
-        {selected.size >= 2 && (
-          <div className="mb-3 flex flex-wrap items-center gap-2 rounded-md border bg-muted/40 p-2">
-            <span className="font-medium text-sm">{selected.size} ürün seçili → birleştir</span>
-            <Select value={masterId} onValueChange={setMasterId}>
-              <SelectTrigger className="w-72">
-                <SelectValue placeholder="Ana ürün (master) seç" />
-              </SelectTrigger>
-              <SelectContent>
-                {masterOptions.map((item) => (
-                  <SelectItem key={item.id} value={String(item.id)}>
-                    {item.displayName || item.nameTr} ({item.slug})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button size="sm" onClick={handleMerge} disabled={!masterId || mergeState.isLoading}>
-              Birleştir
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                setSelected(new Set());
-                setMasterId("");
-              }}
-            >
-              İptal
-            </Button>
-            <span className="text-muted-foreground text-xs">
-              Seçilenler master'a canonical+noindex bağlanır (301 yönlenir), isimleri alias olur.
-            </span>
-          </div>
-        )}
-        <div className="w-full overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-8" />
-                <TableHead className="w-10">Görsel</TableHead>
-                <SortHead k="name">Ad</SortHead>
-                <TableHead>Slug</TableHead>
-                <SortHead k="category">Kategori</SortHead>
-                <TableHead>Birim</TableHead>
-                <SortHead k="quality">Kalite</SortHead>
-                <SortHead k="search">Arama</SortHead>
-                <TableHead>SEO</TableHead>
-                <TableHead>Google</TableHead>
-                <TableHead>Aksiyon</TableHead>
-                <TableHead className="w-24 text-right">İşlem</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {(isLoading || isFetching) && (
-                <TableRow>
-                  <TableCell colSpan={12}>Yükleniyor...</TableCell>
-                </TableRow>
-              )}
-              {!isLoading && items.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={12}>Kayıt bulunamadı.</TableCell>
-                </TableRow>
-              )}
-              {sortedItems.map((item) => (
-                <TableRow key={item.id} data-state={selected.has(item.id) ? "selected" : undefined}>
-                  <TableCell>
-                    <Checkbox
-                      checked={selected.has(item.id)}
-                      onCheckedChange={() => toggleSelect(item.id)}
-                      aria-label="Seç"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <ProductThumb
-                      slug={item.slug}
-                      canonicalSlug={item.canonicalSlug}
-                      name={item.displayName || item.nameTr}
-                      imageUrl={item.imageUrl}
-                    />
-                  </TableCell>
-                  <TableCell className="max-w-[190px]">
-                    <Link
-                      className="block truncate text-primary"
-                      href={`/admin/hf-products/${item.id}`}
-                      title={item.displayName || item.nameTr}
-                    >
-                      {item.displayName || item.nameTr}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="max-w-[130px] truncate text-muted-foreground" title={item.slug}>
-                    {item.slug}
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap">{item.categorySlug}</TableCell>
-                  <TableCell className="max-w-[110px] truncate" title={item.unit ?? ""}>
-                    {item.unit}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={qualityVariant(Number(item.dataQuality ?? 0))}>{item.dataQuality ?? 0}</Badge>
-                  </TableCell>
-                  <TableCell>{item.searchVolume ?? 0}</TableCell>
-                  <TableCell className="max-w-[170px]">
-                    <div className="flex items-center gap-1">
-                      {item.canonicalSlug ? (
-                        <span className="inline-flex min-w-0 items-center gap-1">
-                          <Badge variant="secondary">Varyant</Badge>
-                          <Link
-                            className="min-w-0 truncate text-primary text-xs"
-                            href={
-                              bySlug.get(item.canonicalSlug)
-                                ? `/admin/hf-products/${bySlug.get(item.canonicalSlug)?.id}`
-                                : "/admin/hf-products"
-                            }
-                            title={`Master: ${item.canonicalSlug}`}
-                          >
-                            301 → {item.canonicalSlug}
-                          </Link>
-                        </span>
-                      ) : (
-                        <Badge variant={item.seoIndex ? "default" : "outline"}>
-                          {item.seoIndex ? "Index" : "Noindex"}
-                        </Badge>
-                      )}
-                      {!item.isActive && <Badge variant="secondary">Pasif</Badge>}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {item.gscCategory ? (
-                      <Link
-                        href={`/admin/hf-products/${item.id}?tab=gsc`}
-                        title="Google indexlenme detayına git"
-                        className="inline-flex"
-                      >
-                        {/* Noindex/varyant ürünün GSC'de excluded olması BEKLENEN durum —
-                            kırmızı "Sorun" basmak paneli gürültüye boğar. Gerçek sorun =
-                            indexlenebilir (seoIndex, master) ama Google'da yok. */}
-                        {!item.seoIndex || item.canonicalSlug ? (
-                          item.gscCategory === "indexed" ? (
-                            <ProductGscBadge category="indexed" label={GSC_SHORT_LABEL.indexed} />
-                          ) : (
-                            <Badge variant="outline" className="text-muted-foreground">
-                              Beklenen
-                            </Badge>
-                          )
-                        ) : (
-                          <ProductGscBadge category={item.gscCategory} label={GSC_SHORT_LABEL[item.gscCategory]} />
-                        )}
-                      </Link>
-                    ) : (
-                      <span className="text-muted-foreground text-xs">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {(() => {
-                      const meta = ACTION_META[item.action ?? "variant"];
-                      if (item.action === "variant") return <span className="text-muted-foreground text-xs">—</span>;
-                      return (
-                        <Badge variant={meta.variant} title={meta.hint} className="whitespace-nowrap">
-                          {meta.label}
-                        </Badge>
-                      );
-                    })()}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button asChild variant="ghost" size="icon">
-                      <Link href={`/admin/hf-products/${item.id}`} aria-label="Düzenle">
-                        <Edit className="size-4" />
-                      </Link>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="space-y-4 pb-24">
+      <div>
+        <h1 className="text-xl font-semibold">Hal ürünleri</h1>
+        <p className="text-sm text-muted-foreground">
+          {isLoading ? "Yükleniyor…" : `${stats.total.toLocaleString("tr-TR")} ürün · ${stats.withEditorial} editoryel yayında · ortalama kalite ${Math.round(items.reduce((s, i) => s + Number(i.dataQuality ?? 0), 0) / (items.length || 1))}`}
+        </p>
+      </div>
+
+      <ProductsOverview stats={stats} filters={filters} onFilter={patch} gsc={gscSummary} />
+
+      <ProductsToolbar
+        filters={filters}
+        onChange={patch}
+        categories={categories}
+        onBulkGsc={handleBulkGsc}
+        onMaintenance={handleMaintenance}
+        onSuggestions={() => setSuggestionsOpen(true)}
+        gscRunning={Boolean(bulkState.isLoading || gscSummary?.running)}
+        maintenanceRunning={maintenanceState.isLoading}
+      />
+
+      <ProductsTable
+        items={visible}
+        loading={isLoading}
+        selected={selected}
+        onToggle={(id) => setSelected((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; })}
+        onToggleAll={(ids, checked) => setSelected((prev) => { const n = new Set(prev); ids.forEach((id) => (checked ? n.add(id) : n.delete(id))); return n; })}
+        onOpen={setOpen}
+        bySlug={bySlug}
+        page={page}
+        pageSize={PAGE_SIZE}
+        onPage={setPage}
+      />
+
+      <MergeBar
+        selected={selectedItems}
+        masterId={masterId}
+        onMaster={setMasterId}
+        onMerge={handleMerge}
+        onClear={() => { setSelected(new Set()); setMasterId(""); }}
+        busy={mergeState.isLoading}
+      />
+
+      <ProductSheet item={open} categories={categories} onClose={() => setOpen(null)} />
+
+      <Sheet open={suggestionsOpen} onOpenChange={setSuggestionsOpen}>
+        <SheetContent side="right" className="w-full overflow-y-auto p-4 sm:max-w-3xl">
+          <SheetHeader className="sr-only"><SheetTitle>Birleştirme önerileri</SheetTitle></SheetHeader>
+          <MergeSuggestionsPanel onClose={() => setSuggestionsOpen(false)} />
+        </SheetContent>
+      </Sheet>
+    </div>
   );
 }
