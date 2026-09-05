@@ -73,13 +73,13 @@ export async function buildWhatsappDailyText(): Promise<string | null> {
 
   if (risers.length) {
     lines.push(`🔺 *En Çok Artanlar*`);
-    risers.forEach((t, i) => lines.push(formatItemWa(i + 1, t)));
+    risers.forEach((t, i) => { lines.push(formatItemWa(i + 1, t)); });
     lines.push(``);
   }
 
   if (fallers.length) {
     lines.push(`🔻 *En Çok Düşenler*`);
-    fallers.forEach((t, i) => lines.push(formatItemWa(i + 1, t)));
+    fallers.forEach((t, i) => { lines.push(formatItemWa(i + 1, t)); });
     lines.push(``);
   } else if (risers.length) {
     lines.push(`🔻 *En Çok Düşenler*`);

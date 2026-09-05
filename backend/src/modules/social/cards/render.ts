@@ -23,8 +23,8 @@ interface Geometry {
 
 const GEOMETRY: Record<CardSize, Geometry> = {
   tg:   { width: 1200, height: 1800, pad: 52, rowH: 112, rowGap: 12, thumb: 112, titleSize: 46, nameSize: 30, priceSize: 31, metaSize: 23, perSide: 5, basketCols: 2, basketRows: 5 },
-  ig:   { width: 1080, height: 1350, pad: 44, rowH: 96,  rowGap: 10, thumb: 96,  titleSize: 42, nameSize: 28, priceSize: 29, metaSize: 21, perSide: 3, basketCols: 2, basketRows: 4 },
-  wide: { width: 1200, height: 675,  pad: 40, rowH: 74,  rowGap: 8,  thumb: 74,  titleSize: 36, nameSize: 24, priceSize: 25, metaSize: 18, perSide: 3, basketCols: 2, basketRows: 3 },
+  ig:   { width: 1080, height: 1350, pad: 44, rowH: 104, rowGap: 12, thumb: 104, titleSize: 42, nameSize: 28, priceSize: 29, metaSize: 21, perSide: 4, basketCols: 2, basketRows: 5 },
+  wide: { width: 1200, height: 675,  pad: 36, rowH: 68,  rowGap: 6,  thumb: 68,  titleSize: 34, nameSize: 23, priceSize: 24, metaSize: 17, perSide: 3, basketCols: 2, basketRows: 3 },
 };
 
 type Manifest = Record<string, string>;
@@ -153,7 +153,8 @@ export async function renderBasketCard(items: BasketRow[], size: CardSize, dateL
     const x = g.pad + col * (colW + 24);
     const y = top + row * (cellH + g.rowGap);
     const dir = item.weekChangePct == null ? 0 : item.weekChangePct >= 0 ? 1 : -1;
-    const color = dir > 0 ? "#dc2626" : dir < 0 ? "#16a34a" : "#64748b";
+    // K1 ile ayni okuma: yukari ok yesil, asagi ok kirmizi — iki kart yan yana gorulur.
+    const color = dir > 0 ? "#16a34a" : dir < 0 ? "#dc2626" : "#64748b";
     const clipId = `b${index}`;
     const photo = thumbs[index]
       ? `<defs><clipPath id="${clipId}"><rect x="${x + 12}" y="${y + 12}" width="${g.thumb - 8}" height="${g.thumb - 8}" rx="20"/></clipPath></defs><image href="${thumbs[index]}" x="${x + 12}" y="${y + 12}" width="${g.thumb - 8}" height="${g.thumb - 8}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clipId})"/>`
@@ -162,7 +163,7 @@ export async function renderBasketCard(items: BasketRow[], size: CardSize, dateL
     return `
       <rect x="${x}" y="${y}" width="${colW}" height="${cellH}" rx="24" fill="#f8fafc" stroke="#e2e8f0"/>
       ${photo}
-      <text x="${textX}" y="${y + cellH * 0.42}" font-size="${g.nameSize - 2}" font-weight="800" fill="#172033">${escapeXml(clip(item.productName, 15))}</text>
+      <text x="${textX}" y="${y + cellH * 0.42}" font-size="${g.nameSize - 2}" font-weight="800" fill="#172033">${escapeXml(clip(item.productName, 18))}</text>
       <text x="${textX}" y="${y + cellH * 0.74}" font-size="${g.priceSize - 2}" font-weight="800" fill="#0f172a">₺${escapeXml(fmtPrice(item.price))}</text>
       <text x="${x + colW - 18}" y="${y + cellH * 0.74}" text-anchor="end" font-size="${g.metaSize}" font-weight="800" fill="${color}">${item.weekChangePct == null ? "—" : `${dir > 0 ? "▲" : dir < 0 ? "▼" : ""} %${fmtPctTr(item.weekChangePct)}`}</text>`;
   }).join("\n");
