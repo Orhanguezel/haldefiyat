@@ -26,7 +26,7 @@ import { upsertPriceRow } from "@/modules/prices/repository";
 import { resolveProductSlug, normalizeRawProductName } from "./normalizer";
 import type { EtlSourceConfig } from "@/config/etl-sources";
 import { env } from "@/core/env";
-import { fetchViaScraper, shouldUseScraperFor, shouldUseDynamicFor } from "./scraper-client";
+import { fetchViaScraper, shouldUseScraperFor, shouldUseDynamicFor, scraperEndpointFor, shouldUseFastFor } from "./scraper-client";
 import { parseTmoAlimResmi } from "./sources/borsa/tmo-alim";
 import { parseBorsaHtml, parseBorsaText, parseItbPamukPdfText, parsePolatliBorsaJson, parseTobbBorsaHtml } from "./sources/borsa/text-parsers";
 import { enqueueUnknownProduct } from "./product-review-queue";
@@ -939,10 +939,12 @@ async function tryFetchViaScraper(
   const builder = SCRAPER_POST_BUILDERS[source.key];
   let url: string;
   const scrapeOpts: Parameters<typeof fetchViaScraper>[1] = {
-    mode: shouldUseDynamicFor(source.key) ? "dynamic" : "stealthy",
+    mode: shouldUseDynamicFor(source.key) ? "dynamic" : shouldUseFastFor(source.key) ? "fast" : "stealthy",
     // Yavas-ama-erisilebilir kaynaklar icin 90s (scraper-client +30s abort = 120s tavan).
-    // Tamamen down/hanging siteler (canakkale gibi) timeout artisindan faydalanmaz → disable edilir.
+    // Bu VPS'in IP'sini engelleyen siteler (Canakkale) HF_SCRAPER_OVERRIDES ile baska
+    // sunucudaki scraper'a yonlendirilir; 2026-09-05'ten beri o yoldan geliyor.
     timeoutSeconds: 90,
+    endpoint: scraperEndpointFor(source.key),
   };
 
   if (builder) {

@@ -36,6 +36,8 @@ export interface ScrapeOptions {
   solveCloudflare?: boolean;
   /** HTTP method. Default "GET". POST sadece "fast" mode'da. */
   method?: "GET" | "POST";
+  /** Kaynak bazli farkli scraper-service (HF_SCRAPER_OVERRIDES). Bos ise SCRAPER_URL. */
+  endpoint?: ScraperEndpoint | null;
   /** application/x-www-form-urlencoded body (POST icin). */
   formData?: Record<string, string>;
   /** Extra HTTP headers (UA disinda). */
@@ -60,7 +62,33 @@ export function isScraperEnabled(): boolean {
   return envBool("SCRAPER_ENABLED", true);
 }
 
+/**
+ * Kaynak bazli scraper uc noktasi. Bazi siteler (Canakkale) bu VPS'in IP'sini
+ * tamamen engelliyor ama baska sunucudan aciliyor. HF_SCRAPER_OVERRIDES ile
+ * belirli bir kaynak farkli bir scraper-service'e yonlendirilir:
+ *   HF_SCRAPER_OVERRIDES=canakkale_resmi=https://scraper.example.com|<api_key>,other=...
+ * HF_SCRAPER_FAST_SOURCES listesindeki kaynaklar tarayici yerine curl-cffi ("fast")
+ * moduyla cekilir — JS gerektirmeyen duz HTML icin yeterli ve 50x hizli.
+ */
+export interface ScraperEndpoint { baseUrl: string; apiKey: string }
+
+export function scraperEndpointFor(sourceKey: string): ScraperEndpoint | null {
+  const raw = process.env.HF_SCRAPER_OVERRIDES ?? "";
+  for (const part of raw.split(",")) {
+    const [key, rest] = part.trim().split("=", 2);
+    if (!key || key !== sourceKey || !rest) continue;
+    const [baseUrl, apiKey] = rest.split("|", 2);
+    if (baseUrl && apiKey) return { baseUrl: baseUrl.replace(/\/$/, ""), apiKey };
+  }
+  return null;
+}
+
+export function shouldUseFastFor(sourceKey: string): boolean {
+  return envList("HF_SCRAPER_FAST_SOURCES").has(sourceKey);
+}
+
 export function shouldUseScraperFor(sourceKey: string): boolean {
+  if (scraperEndpointFor(sourceKey)) return isScraperEnabled();
   if (!isScraperEnabled()) return false;
   return envList("HF_SCRAPER_SOURCES").has(sourceKey);
 }
@@ -122,8 +150,8 @@ export async function fetchViaScraper(
   url: string,
   options: ScrapeOptions = {},
 ): Promise<ScraperResult> {
-  const baseUrl = (process.env.SCRAPER_URL ?? "").replace(/\/$/, "");
-  const apiKey  = process.env.SCRAPER_API_KEY ?? "";
+  const baseUrl = (options.endpoint?.baseUrl ?? process.env.SCRAPER_URL ?? "").replace(/\/$/, "");
+  const apiKey  = options.endpoint?.apiKey ?? process.env.SCRAPER_API_KEY ?? "";
   if (!baseUrl || !apiKey) {
     return { ok: false, status: null, html: null, durationMs: null, error: "scraper_disabled" };
   }

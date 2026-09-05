@@ -376,7 +376,11 @@ const RAW_SOURCES: RawSource[] = [
     // (07.07 tarihli, seyrek guncelleniyor). VPS datacenter IP'si sessizce DUSURULUYOR
     // (silent drop = timeout). Kocaeli gibi olu DEGIL → residential proxy ile geri acilir.
     key:               "canakkale_resmi",
-    defaultEnabled:    false,
+    // 2026-09-05: Site yayinda (son liste 01.09) ama bu VPS'in IP'sini tamamen
+    // engelliyor (root dahil http=000; ayni kutudaki scraper da ulasamiyor).
+    // vps-guezel'den aciliyor → HF_SCRAPER_OVERRIDES ile oradaki scraper-service'e
+    // yonlendirildi (fast mod, duz HTML 150 satir). Yeniden acildi.
+    defaultEnabled:    true,
     defaultMarketSlug: "canakkale-hal",
     defaultBaseUrl:    "https://www.canakkale.bel.tr",
     defaultEndpoint:   "/tr/sayfa/1481-hal-fiyat-listesi",
