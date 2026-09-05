@@ -1,0 +1,39 @@
+{
+  "title": "Gelen Talepler",
+  "subtitle": "{total} talep · bugün {today} · son 7 gün {week}. Firma sayfalarındaki iletişim formundan gelir, Telegram'a da bildirilir.",
+  "search": "Ad, telefon, e-posta, mesaj veya firma ara",
+  "allStatuses": "Tüm durumlar",
+  "allTypes": "Tüm türler",
+  "statuses": { "lead": "Yeni", "contacted": "İletişime geçildi", "negotiating": "Görüşülüyor", "won": "Kazanıldı", "lost": "Kaybedildi" },
+  "dealTypes": { "reklam": "Reklam", "sponsorluk": "Sponsorluk", "premium": "Premium", "diger": "Diğer" },
+  "chips": { "all": "Tümü", "phone": "Telefonu olan", "email": "E-postası olan", "none": "İletişimsiz" },
+  "tiles": {
+    "total": "Talep", "totalHint": "{count} yüklendi",
+    "open": "Yeni", "openHint": "henüz dönüş yapılmadı",
+    "today": "Bugün", "todayHint": "son 24 saat",
+    "week": "Son 7 gün", "weekHint": "haftalık akış",
+    "phone": "Telefonlu", "phoneHint": "ara / WhatsApp",
+    "email": "E-postalı", "emailHint": "panelden cevap yazılır"
+  },
+  "table": {
+    "date": "Tarih", "sender": "Gönderen", "message": "Mesaj", "firm": "Firma", "status": "Durum",
+    "anonymous": "İsimsiz", "noContact": "iletişim bilgisi yok",
+    "summary": "{count} talep", "total": "toplam {count} talep"
+  },
+  "actions": { "call": "Ara", "whatsapp": "WhatsApp", "reply": "Cevap yaz", "firm": "Firma" },
+  "sheet": {
+    "tabs": { "overview": "Özet", "reply": "Cevap" },
+    "phone": "Telefon", "email": "E-posta", "channel": "Tercih edilen kanal", "consent": "Gizlilik onayı",
+    "firm": "Firma", "dealType": "Tür", "message": "Mesaj",
+    "noContactHint": "Bu talepte telefon ya da e-posta yok; dönüş yapılamaz."
+  },
+  "reply": {
+    "subject": "{site}{firm} sayfasından gönderdiğiniz mesaj",
+    "greeting": "Sayın {name},\n\n",
+    "to": "Alıcı: {email}",
+    "replyTo": "yanıtlar {email} adresine gider",
+    "subjectLabel": "Konu", "messageLabel": "Mesaj",
+    "send": "Gönder", "sending": "Gönderiliyor...",
+    "sent": "Cevap gönderildi: {to}", "failed": "Cevap gönderilemedi."
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "title": "Analiz Yazıları",
+  "subtitle": "{total} yazı · {published} yayında · {draft} taslak. Düzenleme, önizleme ve kalite paneli tam sayfada.",
+  "new": "Yeni analiz",
+  "generate": "Haftalık taslak üret",
+  "generating": "Üretiliyor...",
+  "search": "Başlık, slug, hafta, yazar veya etiket ara",
+  "allStatuses": "Tüm durumlar",
+  "allSources": "Tüm kaynaklar",
+  "statuses": { "draft": "Taslak", "published": "Yayında", "archived": "Arşiv" },
+  "sources": { "auto": "Otomatik", "manual": "Elle" },
+  "sort": { "newest": "En yeni", "published": "Yayın tarihi", "records": "En çok kayıt", "title": "Başlık" },
+  "tiles": {
+    "total": "Yazı", "totalHint": "{auto} otomatik üretilmiş",
+    "published": "Yayında", "publishedHint": "public /analiz'de görünür",
+    "draft": "Taslak", "draftHint": "yayın onayı bekliyor",
+    "archived": "Arşiv", "archivedHint": "yayından kaldırıldı",
+    "thin": "İnce yayın", "thinHint": "yayında ama 300 kelimenin altında"
+  },
+  "table": { "title": "Başlık", "week": "Hafta", "records": "Kayıt", "words": "Kelime", "status": "Durum", "published": "Yayın", "summary": "{count} yazı" },
+  "actions": { "publish": "Yayınla", "draft": "Taslağa al", "archive": "Arşivle" },
+  "toasts": { "publish": "Analiz yayına alındı.", "draft": "Analiz taslağa alındı.", "archive": "Analiz arşivlendi.", "generated": "Haftalık taslak oluşturuldu.", "generateFailed": "Taslak üretilemedi." },
+  "sheet": {
+    "records": "Kayıt", "words": "Kelime", "tags": "Etiket", "published": "Yayın",
+    "slug": "Adres", "period": "Dönem", "author": "Yazar", "date": "Tarih", "updated": "Güncelleme",
+    "metaTitle": "Meta başlık", "metaDescription": "Meta açıklama", "ogImage": "OG görsel", "chars": "karakter", "missing": "eksik",
+    "summary": "Özet", "edit": "Düzenle / önizle"
+  }
+}

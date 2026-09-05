@@ -12,6 +12,10 @@ import googleAds from "./google-ads.json";
 import googleConnect from "./google-connect.json";
 import gtm from "./gtm.json";
 import listings from "./listings.json";
+import leads from "./leads.json";
+import etl from "./etl.json";
+import analysis from "./analysis.json";
+import authors from "./authors.json";
 import hfProducts from "./hf-products.json";
 import firms from "./firms.json";
 import markets from "./markets.json";
@@ -45,6 +49,10 @@ const adminMessages = {
   gtm: gtm,
   markets: markets,
   listings: listings,
+  leads: leads,
+  etl: etl,
+  analysis: analysis,
+  authors: authors,
   "hf-products": hfProducts,
   firms: firms,
   meta: meta,

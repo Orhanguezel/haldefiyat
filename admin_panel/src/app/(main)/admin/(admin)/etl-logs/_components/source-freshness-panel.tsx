@@ -3,14 +3,11 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import type { TranslateFn } from '@/i18n';
 import { useEtlFreshnessAdminQuery } from '@/integrations/hooks';
 
-/**
- * Kaynak tazeligi — "basarili calisti" ile "yeni veri geldi" ayni sey degil.
- * ETL loglari kac satir islendigini gosterir; bir kaynak her gun AYNI degerleri
- * yazarsa loglar 'ok' gorunur. Bu panel son degisim tarihini one cikarir.
- */
-export function SourceFreshnessPanel() {
+/** "Basarili calisti" ile "yeni veri geldi" ayni sey degil: gunluk parmak izi degismiyorsa kaynak donmustur. */
+export function SourceFreshnessPanel({ t, tc }: { t: TranslateFn; tc: TranslateFn }) {
   const { data, isLoading } = useEtlFreshnessAdminQuery();
   const sources = data?.sources ?? [];
   const jumps = data?.priceJumps ?? [];
@@ -20,56 +17,33 @@ export function SourceFreshnessPanel() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Kaynak Tazeligi</CardTitle>
-          <CardDescription>
-            Gunluk parmak izi (satir sayisi + fiyat toplami) degismiyorsa kaynak taze veri
-            uretmiyordur. Esik mutlak degil, her kaynagin kendi tarihsel tabanina gore —
-            bazi haller kronik yapiskan fiyatlidir.
-            {staleCount > 0 && <strong> {staleCount} kaynak donmus.</strong>}
-          </CardDescription>
+          <CardTitle className="text-base">{t('freshness.title')}</CardTitle>
+          <CardDescription>{t('freshness.hint')}{staleCount > 0 ? <strong> {t('freshness.staleCount', { count: staleCount })}</strong> : null}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Kaynak</TableHead>
-                  <TableHead>Son degisim</TableHead>
-                  <TableHead className="text-right">Gun sabit</TableHead>
-                  <TableHead className="text-right">Kendi tabani</TableHead>
-                  <TableHead className="text-right">Satir</TableHead>
-                  <TableHead>Durum</TableHead>
+                  <TableHead>{t('freshness.source')}</TableHead>
+                  <TableHead>{t('freshness.lastChanged')}</TableHead>
+                  <TableHead className="text-right">{t('freshness.staleDays')}</TableHead>
+                  <TableHead className="text-right">{t('freshness.baseline')}</TableHead>
+                  <TableHead className="text-right">{t('freshness.rows')}</TableHead>
+                  <TableHead>{t('freshness.status')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading && (
-                  <TableRow>
-                    <TableCell colSpan={6}>Yukleniyor...</TableCell>
-                  </TableRow>
-                )}
-                {!isLoading && sources.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-muted-foreground">
-                      Veri yok.
-                    </TableCell>
-                  </TableRow>
-                )}
+                {isLoading ? <TableRow><TableCell colSpan={6}>{tc('loading')}</TableCell></TableRow> : null}
+                {!isLoading && sources.length === 0 ? <TableRow><TableCell colSpan={6} className="text-muted-foreground">{tc('noData')}</TableCell></TableRow> : null}
                 {sources.map((s) => (
                   <TableRow key={s.sourceApi}>
-                    <TableCell className="font-medium">{s.sourceApi}</TableCell>
+                    <TableCell className="font-mono text-xs font-medium">{s.sourceApi}</TableCell>
                     <TableCell className="whitespace-nowrap">{s.lastChanged}</TableCell>
                     <TableCell className="text-right tabular-nums">{s.staleDays}</TableCell>
-                    <TableCell className="text-right tabular-nums text-muted-foreground">
-                      {s.baselineDays}
-                    </TableCell>
+                    <TableCell className="text-right tabular-nums text-muted-foreground">{s.baselineDays}</TableCell>
                     <TableCell className="text-right tabular-nums">{s.rows}</TableCell>
-                    <TableCell>
-                      {s.isStale ? (
-                        <Badge variant="destructive">Donmus</Badge>
-                      ) : (
-                        <Badge variant="secondary">Normal</Badge>
-                      )}
-                    </TableCell>
+                    <TableCell>{s.isStale ? <Badge variant="destructive">{t('freshness.frozen')}</Badge> : <Badge variant="secondary">{t('freshness.normal')}</Badge>}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -78,25 +52,22 @@ export function SourceFreshnessPanel() {
         </CardContent>
       </Card>
 
-      {jumps.length > 0 && (
+      {jumps.length > 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Akran Sapmasi</CardTitle>
-            <CardDescription>
-              Bir (hal x urun) serisinin akranlarina gore KONUMU kaydi. Bolgesel fiyat farki
-              normaldir; anlamli olan oranin degismesi — genelde yanlis urun eslesmesi belirtisi.
-            </CardDescription>
+            <CardTitle className="text-base">{t('freshness.peerTitle')}</CardTitle>
+            <CardDescription>{t('freshness.peerHint')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Hal</TableHead>
-                    <TableHead>Urun</TableHead>
-                    <TableHead className="text-right">Deger</TableHead>
-                    <TableHead className="text-right">Akran medyani</TableHead>
-                    <TableHead className="text-right">Kayma</TableHead>
+                    <TableHead>{t('freshness.market')}</TableHead>
+                    <TableHead>{t('freshness.product')}</TableHead>
+                    <TableHead className="text-right">{t('freshness.value')}</TableHead>
+                    <TableHead className="text-right">{t('freshness.peerMedian')}</TableHead>
+                    <TableHead className="text-right">{t('freshness.ratio')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -105,12 +76,8 @@ export function SourceFreshnessPanel() {
                       <TableCell>{j.marketName}</TableCell>
                       <TableCell className="font-medium">{j.productSlug}</TableCell>
                       <TableCell className="text-right tabular-nums">{j.value}</TableCell>
-                      <TableCell className="text-right tabular-nums text-muted-foreground">
-                        {j.peerMedian}
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums font-semibold">
-                        {j.ratio}x
-                      </TableCell>
+                      <TableCell className="text-right tabular-nums text-muted-foreground">{j.peerMedian}</TableCell>
+                      <TableCell className="text-right font-semibold tabular-nums">{j.ratio}x</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -118,7 +85,7 @@ export function SourceFreshnessPanel() {
             </div>
           </CardContent>
         </Card>
-      )}
+      ) : null}
     </div>
   );
 }

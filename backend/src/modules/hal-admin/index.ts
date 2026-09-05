@@ -279,6 +279,13 @@ const productionBody = z.object({
   note: z.string().max(255).optional().nullable(),
 });
 
+const etlLogsQuery = z.object({
+  limit: z.coerce.number().int().min(1).max(500).default(200),
+  source: z.string().trim().max(64).optional(),
+  status: z.enum(["ok", "partial", "error"]).optional(),
+  days: z.coerce.number().int().min(1).max(365).default(14),
+});
+
 const etlBody = z.object({
   source: z.string().min(1).max(64).optional().default("all"),
   date: z.string().regex(/^(\d{4}-\d{2}-\d{2}|id:\d+)$/).optional(),
@@ -1709,13 +1716,20 @@ export async function registerHalAdmin(app: FastifyInstance) {
     }
   });
 
-  app.get("/hal/etl/logs", async (_req, reply) => {
+  app.get("/hal/etl/logs", async (req, reply) => {
+    const parsed = etlLogsQuery.safeParse(req.query ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz sorgu" });
+    const { limit, source, status, days } = parsed.data;
+    const conds = [sql`${hfEtlRuns.createdAt} >= DATE_SUB(NOW(), INTERVAL ${days} DAY)`];
+    if (source) conds.push(eq(hfEtlRuns.sourceApi, source));
+    if (status) conds.push(eq(hfEtlRuns.status, status));
     const logs = await db
       .select()
       .from(hfEtlRuns)
+      .where(and(...conds))
       .orderBy(desc(hfEtlRuns.createdAt))
-      .limit(100);
-    return reply.send({ logs });
+      .limit(limit);
+    return reply.send({ logs, days, limit });
   });
 
   // Scraper mikroservis (hal-scraper 8201) canli durum + source konfigurasyonu

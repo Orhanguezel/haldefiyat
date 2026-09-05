@@ -397,7 +397,7 @@ export {
   useRunCompetitorCheckAdminMutation,
   useToggleCompetitorSiteAdminMutation,
 } from "@/integrations/endpoints/competitor-monitor-admin-endpoints";
-export { useListEtlLogsAdminQuery, useEarlyWarningAdminQuery, useScraperStatusAdminQuery, useCronCatalogAdminQuery } from "@/integrations/endpoints/etl-logs-admin-endpoints";
+export { useListEtlLogsAdminQuery, useListEtlSourcesAdminQuery, useRunEtlAdminMutation, useEarlyWarningAdminQuery, useScraperStatusAdminQuery, useCronCatalogAdminQuery } from "@/integrations/endpoints/etl-logs-admin-endpoints";
 export { useEtlFreshnessAdminQuery } from "@/integrations/endpoints/etl-freshness-admin-endpoints";
 export {
   useCreateFirmDealAdminMutation,

@@ -1,0 +1,63 @@
+{
+  "title": "ETL & Otomasyon",
+  "subtitle": "Veri çekme çalışmaları, kaynak tazeliği, erken uyarı, scraper mikroservisi ve zamanlanmış görevler.",
+  "tabs": { "runs": "Çalışmalar", "freshness": "Kaynak tazeliği", "warning": "Erken uyarı", "scraper": "Scraper", "cron": "Cron" },
+  "search": "Kaynak, tarih veya hata metni ara",
+  "allSources": "Tüm kaynaklar",
+  "lastDays": "Son {count} gün",
+  "statuses": { "ok": "Başarılı", "partial": "Kısmi", "error": "Hata" },
+  "chips": { "all": "Tümü" },
+  "sort": { "newest": "En yeni", "inserted": "En çok eklenen", "duration": "En uzun süren", "source": "Kaynak adı" },
+  "tiles": {
+    "total": "Çalışma", "totalHint": "{sources} kaynak · son {days} gün",
+    "error": "Hata", "errorHint": "kaynak yanıt vermedi ya da ayrıştırma düştü",
+    "partial": "Kısmi", "partialHint": "bir bölümü yazıldı",
+    "emptyOk": "Boş başarılı", "emptyOkHint": "çalıştı ama satır eklemedi",
+    "ok": "Başarılı", "okHint": "satır eklendi",
+    "inserted": "Eklenen satır", "insertedHint": "seçili pencerede toplam"
+  },
+  "table": {
+    "source": "Kaynak", "runDate": "Veri günü", "rows": "Eklenen / çekilen", "duration": "Süre", "note": "Not",
+    "skipped": "{count} atlandı", "emptyOk": "yeni veri yok", "summary": "{count} çalışma"
+  },
+  "sheet": {
+    "runDate": "veri günü {date}",
+    "fetched": "Çekilen", "inserted": "Eklenen", "skipped": "Atlanan", "duration": "Süre",
+    "message": "Mesaj", "noMessage": "Mesaj yok.",
+    "sourceEnabled": "Kaynak açık", "market": "Hal", "noSource": "Bu anahtar ETL yapılandırmasında yok (eski ya da özel kaynak).",
+    "history": "Bu kaynağın son çalışmaları ({count})",
+    "retry": "Aynı günü yeniden çek", "runForDate": "Bu tarih için çek", "running": "Çekiliyor...",
+    "runDone": "ETL çalıştı; liste yenileniyor.", "runFailed": "ETL çalıştırılamadı."
+  },
+  "freshness": {
+    "title": "Kaynak tazeliği",
+    "hint": "Günlük parmak izi (satır sayısı + fiyat toplamı) değişmiyorsa kaynak taze veri üretmiyordur. Eşik mutlak değil, her kaynağın kendi tarihsel tabanına göre; bazı haller kronik yapışkan fiyatlıdır.",
+    "staleCount": "{count} kaynak donmuş.",
+    "source": "Kaynak", "lastChanged": "Son değişim", "staleDays": "Gün sabit", "baseline": "Kendi tabanı", "rows": "Satır", "status": "Durum",
+    "frozen": "Donmuş", "normal": "Normal",
+    "peerTitle": "Akran sapması",
+    "peerHint": "Bir (hal × ürün) serisinin akranlarına göre konumu kaydı. Bölgesel fiyat farkı normaldir; anlamlı olan oranın değişmesi, genelde yanlış ürün eşleşmesi belirtisi.",
+    "market": "Hal", "product": "Ürün", "value": "Değer", "peerMedian": "Akran medyanı", "ratio": "Kayma"
+  },
+  "warning": {
+    "title": "🚨 Erken uyarı — fırlayan temel gıdalar",
+    "hint": "4 hafta kesintisiz tırmanan (soğan imzası), geniş ve kararlı kapsamlı önemli ürünler. Viral haber olmadan ~2 hafta önce yakalar; döngüsel/mevsimsel gürültü elenir.",
+    "product": "Ürün", "trend": "4 hafta trend (TL/kg)", "total": "Toplam", "lastWeek": "Son hafta", "markets": "Hal", "signal": "Sinyal",
+    "empty": "Şu an fırlayan temel gıda yok.", "strong": "🔴 Güçlü", "watch": "🟡 İzle"
+  },
+  "scraper": {
+    "title": "Scraper mikroservisi",
+    "failed": "Scraper durumu alınamadı.",
+    "online": "● Çalışıyor", "unreachable": "● Erişilemiyor", "disabled": "○ Kapalı",
+    "enabled": "Etkin (SCRAPER_ENABLED)", "reach": "Erişim", "connected": "Bağlı", "noReach": "Yok", "latency": "Gecikme",
+    "routed": "Scraper'a yönlenen kaynaklar", "dynamic": "Dynamic mode (JS render)", "emptyList": "Liste boş ({env})."
+  },
+  "cron": {
+    "failed": "Cron kataloğu alınamadı.",
+    "summary": "{count} zamanlanmış görev · zaman dilimi {tz} · saatler TRT (UTC+3) gösterilir",
+    "categories": { "etl": "ETL / veri çekme", "seo": "SEO / indeksleme", "icerik": "İçerik / yayın", "sosyal": "Sosyal medya", "bildirim": "Bildirim / uyarı", "bakim": "Bakım / temizlik", "reklam": "Reklam / sponsor" },
+    "everyMinutes": "Her {count} dakikada", "everyHours": "Her {count} saatte",
+    "daily": "Her gün {time} (TRT)", "weekly": "{day} {time} (TRT)", "monthly": "Her ayın {day}. günü {time} (TRT)",
+    "days": { "0": "Pazar", "1": "Pazartesi", "2": "Salı", "3": "Çarşamba", "4": "Perşembe", "5": "Cuma", "6": "Cumartesi" }
+  }
+}

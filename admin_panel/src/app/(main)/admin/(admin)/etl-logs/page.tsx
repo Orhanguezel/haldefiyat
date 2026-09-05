@@ -1,48 +1,36 @@
 'use client';
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EarlyWarningPanel } from '@/components/common/early-warning-panel';
-import { SourceFreshnessPanel } from './_components/source-freshness-panel';
-import { LogsPanel } from './_components/logs-panel';
-import { ScraperPanel } from './_components/scraper-panel';
+import { useAdminT } from '../../_components/common/use-admin-t';
 import { CronPanel } from './_components/cron-panel';
+import { RunsPanel } from './_components/runs-panel';
+import { ScraperPanel } from './_components/scraper-panel';
+import { SourceFreshnessPanel } from './_components/source-freshness-panel';
 
 export default function Page() {
+  const t = useAdminT('admin.etl');
+  const tc = useAdminT('admin.common');
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-semibold">ETL & Otomasyon</h1>
-        <p className="text-sm text-muted-foreground">
-          Veri çekme çalışmaları, kaynak tazeliği, scraper mikroservisi ve zamanlanmış görevler.
-        </p>
+        <h1 className="text-xl font-semibold">{t('title')}</h1>
+        <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
       </div>
 
-      <EarlyWarningPanel />
-
-      <Tabs defaultValue="logs">
+      <Tabs defaultValue="runs">
         <TabsList className="w-full justify-start overflow-x-auto">
-          <TabsTrigger value="logs">Loglar</TabsTrigger>
-          <TabsTrigger value="errors">Hatalar</TabsTrigger>
-          <TabsTrigger value="freshness">Kaynak Tazeliği</TabsTrigger>
-          <TabsTrigger value="scraper">Scraper</TabsTrigger>
-          <TabsTrigger value="cron">Cron</TabsTrigger>
+          <TabsTrigger value="runs">{t('tabs.runs')}</TabsTrigger>
+          <TabsTrigger value="freshness">{t('tabs.freshness')}</TabsTrigger>
+          <TabsTrigger value="warning">{t('tabs.warning')}</TabsTrigger>
+          <TabsTrigger value="scraper">{t('tabs.scraper')}</TabsTrigger>
+          <TabsTrigger value="cron">{t('tabs.cron')}</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="logs" className="mt-4">
-          <LogsPanel />
-        </TabsContent>
-        <TabsContent value="errors" className="mt-4">
-          <LogsPanel onlyErrors />
-        </TabsContent>
-        <TabsContent value="freshness" className="mt-4">
-          <SourceFreshnessPanel />
-        </TabsContent>
-        <TabsContent value="scraper" className="mt-4">
-          <ScraperPanel />
-        </TabsContent>
-        <TabsContent value="cron" className="mt-4">
-          <CronPanel />
-        </TabsContent>
+        <TabsContent value="runs" className="mt-4"><RunsPanel t={t} tc={tc} /></TabsContent>
+        <TabsContent value="freshness" className="mt-4"><SourceFreshnessPanel t={t} tc={tc} /></TabsContent>
+        <TabsContent value="warning" className="mt-4"><EarlyWarningPanel /></TabsContent>
+        <TabsContent value="scraper" className="mt-4"><ScraperPanel t={t} tc={tc} /></TabsContent>
+        <TabsContent value="cron" className="mt-4"><CronPanel t={t} tc={tc} /></TabsContent>
       </Tabs>
     </div>
   );

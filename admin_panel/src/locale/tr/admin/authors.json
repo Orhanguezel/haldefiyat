@@ -1,0 +1,10 @@
+{
+  "title": "Yazarlar",
+  "subtitle": "Google News ve E-E-A-T için analiz yazılarına bağlanan yazar profilleri.",
+  "new": "Yeni yazar",
+  "search": "Ad, slug, unvan veya uzmanlık ara",
+  "chips": { "all": "Tümü", "active": "Aktif", "passive": "Pasif", "thin": "Eksik profil" },
+  "tiles": { "total": "Yazar", "active": "Aktif", "activeHint": "yazılara bağlanabilir", "thin": "Eksik profil", "thinHint": "biyografi, unvan ya da uzmanlık yok" },
+  "table": { "author": "Yazar", "expertise": "Uzmanlık", "profile": "Profil", "status": "Durum", "bio": "biyografi", "credentials": "yetkinlik", "social": "{count} sosyal", "thin": "eksik", "summary": "{count} yazar" },
+  "sheet": { "bio": "Biyografi", "credentials": "Yetkinlik / kimlik bilgisi", "expertise": "Uzmanlık alanları", "social": "Sosyal bağlantılar", "email": "E-posta", "missing": "eksik — E-E-A-T için doldurun", "edit": "Düzenle" }
+}

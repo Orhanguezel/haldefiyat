@@ -1,311 +1,80 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
-
+import { Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from '@/components/ui/dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useListFirmLeadsAdminQuery, useReplyFirmLeadAdminMutation } from '@/integrations/hooks';
-import type { FirmLeadItem } from '@/integrations/endpoints/firms-admin-endpoints';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useListFirmLeadsAdminQuery } from '@/integrations/hooks';
+import { Pager } from '../../_components/common/pager';
+import { SummaryTiles } from '../../_components/common/summary-tiles';
+import { useAdminT } from '../../_components/common/use-admin-t';
+import { LeadSheet } from './_components/lead-sheet';
+import { LeadsTable } from './_components/leads-table';
+import { ALL, applyFilters, DEAL_STATUSES, DEAL_TYPES, EMPTY_FILTERS, enrich, type Filters, PAGE_SIZE, summarize } from './_lib/lead-meta';
 
-const PAGE_SIZE = 50;
-
-/** "Public lead: Ad | Telefon: X | E-posta: Y | ... | Mesaj: Z" seklindeki
- *  serbest metni okunur alanlara ayirir.
- *
- *  `Mesaj:` satirindan SONRASI tumuyle mesajdir. Onceki surum her satiri
- *  `anahtar: deger` olarak eslemeye calisiyordu; cok satirli mesajlarda ilk
- *  satirdan sonrasi hicbir kalibi tutmadigi icin SESSIZCE DUSUYORDU
- *  (1 Eylul 2026: "Elimde urunler" gorunuyor, alttaki dort satir kayip). */
-function parseLead(notes: string | null) {
-  const out: Record<string, string> = {};
-  const lines = (notes ?? '').split('\n');
-  let messageFrom = -1;
-
-  for (let i = 0; i < lines.length; i += 1) {
-    const m = /^([^:]+):\s*(.*)$/.exec(lines[i]!.trim());
-    if (!m) continue;
-    const key = m[1]!.trim().toLowerCase();
-    const value = m[2]!.trim();
-    if (key.startsWith('public lead')) out.name = value;
-    else if (key.startsWith('telefon')) out.phone = value;
-    else if (key.startsWith('e-posta')) out.email = value;
-    else if (key.startsWith('tercih')) out.channel = value;
-    else if (key.startsWith('gizlilik')) out.consent = value;
-    else if (key.startsWith('mesaj')) { messageFrom = i; out.message = value; break; }
-  }
-
-  if (messageFrom >= 0) {
-    out.message = [out.message ?? '', ...lines.slice(messageFrom + 1)]
-      .join('\n')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
-  }
-  return out;
-}
-
-function telHref(phone?: string) {
-  const digits = (phone ?? '').replace(/\D/g, '');
-  return digits ? `tel:${digits}` : null;
-}
-
-function waHref(phone?: string) {
-  let d = (phone ?? '').replace(/\D/g, '');
-  if (!d) return null;
-  if (d.startsWith('0')) d = `90${d.slice(1)}`;
-  else if (!d.startsWith('90')) d = `90${d}`;
-  return `https://wa.me/${d}`;
-}
+const CONTACT_CHIPS = ['all', 'phone', 'email', 'none'] as const;
 
 export default function FirmLeadsPage() {
+  const t = useAdminT('admin.leads');
+  const tc = useAdminT('admin.common');
   const [page, setPage] = useState(0);
-  const [replyTarget, setReplyTarget] = useState<{ lead: FirmLeadItem; parsed: Record<string, string> } | null>(null);
-  const [detail, setDetail] = useState<{ lead: FirmLeadItem; parsed: Record<string, string> } | null>(null);
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
-  const [replyError, setReplyError] = useState('');
-  const [replySent, setReplySent] = useState('');
-  const [replyLead, { isLoading: isReplying }] = useReplyFirmLeadAdminMutation();
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+  const [openId, setOpenId] = useState<number | null>(null);
+  // Durum filtresi sunucuda; arama ve iletisim filtreleri yuklenen sayfa icinde.
+  const { data, isLoading } = useListFirmLeadsAdminQuery({ status: filters.status, limit: PAGE_SIZE, offset: page * PAGE_SIZE });
 
-  const REPLY_TO = process.env.NEXT_PUBLIC_CONTACT_REPLY_TO ?? '';
-
-  function openReply(lead: FirmLeadItem, parsed: Record<string, string>) {
-    setReplyTarget({ lead, parsed });
-    setSubject(`Haldefiyat.com — ${lead.firmName} sayfasindan gonderdiginiz mesaj`);
-    setMessage(`Sayin ${parsed.name || ''},\n\n`);
-    setReplyError('');
-    setReplySent('');
-  }
-
-  async function sendReply() {
-    if (!replyTarget) return;
-    setReplyError('');
-    try {
-      const res = await replyLead({
-        dealId: replyTarget.lead.id,
-        body: { subject, message, replyTo: REPLY_TO || null },
-      }).unwrap();
-      setReplySent(`Cevap gonderildi: ${res.to}`);
-      setReplyTarget(null);
-    } catch (err) {
-      const e = err as { data?: { error?: string } };
-      setReplyError(e.data?.error || 'Cevap gonderilemedi.');
-    }
-  }
-  const params = useMemo(() => ({ limit: PAGE_SIZE, offset: page * PAGE_SIZE }), [page]);
-  const { data, isLoading } = useListFirmLeadsAdminQuery(params);
-
+  const rows = useMemo(() => enrich(data?.items ?? []), [data]);
+  const stats = useMemo(() => summarize(rows), [rows]);
+  const visible = useMemo(() => applyFilters(rows, filters), [rows, filters]);
+  const open = useMemo(() => rows.find((r) => r.id === openId) ?? null, [rows, openId]);
   const total = data?.meta?.total ?? 0;
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const patch = (p: Partial<Filters>) => { setFilters((prev) => ({ ...prev, ...p })); if (p.status !== undefined) setPage(0); };
+  const dirty = filters.q || filters.status !== ALL || filters.dealType !== ALL || filters.contact !== ALL;
 
   return (
-    <div className="min-w-0 space-y-4">
-      {replySent && (
-        <div className="rounded-md border border-emerald-300 px-3 py-2 text-sm text-emerald-700">{replySent}</div>
-      )}
+    <div className="space-y-4">
+      <div>
+        <h1 className="text-xl font-semibold">{t('title')}</h1>
+        <p className="text-sm text-muted-foreground">{isLoading ? tc('loading') : t('subtitle', { total, today: stats.today, week: stats.week })}</p>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Gelen Talepler</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Firma sayfalarındaki iletişim formundan gelen mesajlar. Yeni mesajlar
-            ayrıca Telegram&apos;a bildirilir.
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="w-full overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[110px]">Tarih</TableHead>
-                  <TableHead className="w-[160px]">Gönderen</TableHead>
-                  <TableHead className="w-[200px]">İletişim</TableHead>
-                  <TableHead className="min-w-[280px]">Mesaj</TableHead>
-                  <TableHead className="w-[190px]">Firma</TableHead>
-                  <TableHead className="w-[250px] text-right">İşlem</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading && <TableRow><TableCell colSpan={6}>Yükleniyor...</TableCell></TableRow>}
-                {(data?.items ?? []).map((lead: FirmLeadItem) => {
-                  const p = parseLead(lead.notes);
-                  return (
-                    <TableRow key={lead.id} className="[&>td]:align-top">
-                      <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-                        {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString('tr-TR') : '-'}
-                      </TableCell>
-                      <TableCell className="font-medium whitespace-normal">{p.name || '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap text-sm">
-                        <div>{p.phone || '-'}</div>
-                        <div className="text-xs text-muted-foreground">{p.email || ''}</div>
-                      </TableCell>
-                      <TableCell className="min-w-[280px] text-sm whitespace-normal">
-                        <button
-                          type="button"
-                          onClick={() => setDetail({ lead, parsed: p })}
-                          className="w-full text-left"
-                          title="Tam mesajı aç"
-                        >
-                          <p className="line-clamp-2 whitespace-pre-line leading-5 hover:text-primary">
-                            {p.message || '-'}
-                          </p>
-                          {(p.message ?? '').includes('\n') && (
-                            <span className="mt-0.5 inline-block text-xs text-primary">Devamını gör →</span>
-                          )}
-                        </button>
-                      </TableCell>
-                      <TableCell className="text-sm whitespace-normal">
-                        <Link href={`/admin/firmalar/${lead.firmId}`} className="text-primary hover:underline">
-                          {lead.firmName}
-                        </Link>
-                        <div className="text-xs text-muted-foreground">{lead.citySlug || ''}</div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex flex-wrap justify-end gap-2">
-                          <Button size="sm" variant="ghost" onClick={() => setDetail({ lead, parsed: p })}>
-                            Detay
-                          </Button>
-                          {telHref(p.phone) && (
-                            <Button asChild size="sm" variant="outline">
-                              <a href={telHref(p.phone)!}>Ara</a>
-                            </Button>
-                          )}
-                          {p.email && (
-                            <Button size="sm" variant="outline" onClick={() => openReply(lead, p)}>
-                              Cevap yaz
-                            </Button>
-                          )}
-                          {waHref(p.phone) && (
-                            <Button asChild size="sm" variant="outline" className="border-emerald-300 text-emerald-700 hover:bg-emerald-50">
-                              <a href={waHref(p.phone)!} target="_blank" rel="noopener noreferrer">WhatsApp</a>
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-                {!isLoading && (data?.items ?? []).length === 0 && (
-                  <TableRow><TableCell colSpan={6}>Henüz talep yok.</TableCell></TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+      <SummaryTiles tiles={[
+        { key: 'total', label: t('tiles.total'), value: total, hint: t('tiles.totalHint', { count: stats.loaded }), active: filters.status === ALL && filters.contact === ALL, onClick: () => patch({ status: ALL, contact: ALL }) },
+        { key: 'open', label: t('tiles.open'), value: stats.open, hint: t('tiles.openHint'), tone: stats.open ? 'text-amber-600' : '', active: filters.status === 'lead', onClick: () => patch({ status: 'lead' }) },
+        { key: 'today', label: t('tiles.today'), value: stats.today, hint: t('tiles.todayHint'), tone: stats.today ? 'text-emerald-600' : '' },
+        { key: 'week', label: t('tiles.week'), value: stats.week, hint: t('tiles.weekHint') },
+        { key: 'phone', label: t('tiles.phone'), value: stats.phone, hint: t('tiles.phoneHint'), active: filters.contact === 'phone', onClick: () => patch({ contact: 'phone' }) },
+        { key: 'email', label: t('tiles.email'), value: stats.email, hint: t('tiles.emailHint'), active: filters.contact === 'email', onClick: () => patch({ contact: 'email' }) },
+      ]} />
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
-            <p className="text-sm text-muted-foreground">{total.toLocaleString('tr-TR')} talep</p>
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant="outline" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0}>
-                ‹ Önceki
-              </Button>
-              <span className="px-2 text-sm text-muted-foreground">Sayfa {page + 1} / {pageCount}</span>
-              <Button size="sm" variant="outline" onClick={() => setPage((p) => p + 1)} disabled={page + 1 >= pageCount}>
-                Sonraki ›
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative min-w-[220px] flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input className="pl-9" placeholder={t('search')} value={filters.q} onChange={(e) => patch({ q: e.target.value })} />
+        </div>
+        <Select value={filters.status} onValueChange={(v) => patch({ status: v })}>
+          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+          <SelectContent><SelectItem value={ALL}>{t('allStatuses')}</SelectItem>{DEAL_STATUSES.map((k) => <SelectItem key={k} value={k}>{t(`statuses.${k}`)}</SelectItem>)}</SelectContent>
+        </Select>
+        <Select value={filters.dealType} onValueChange={(v) => patch({ dealType: v })}>
+          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectContent><SelectItem value={ALL}>{t('allTypes')}</SelectItem>{DEAL_TYPES.map((k) => <SelectItem key={k} value={k}>{t(`dealTypes.${k}`)}</SelectItem>)}</SelectContent>
+        </Select>
+        {dirty ? <Button variant="ghost" size="sm" onClick={() => { setFilters(EMPTY_FILTERS); setPage(0); }}><X className="size-3.5" /> {tc('clear')}</Button> : null}
+      </div>
 
-      <Dialog open={Boolean(replyTarget)} onOpenChange={(open) => { if (!open) setReplyTarget(null); }}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Cevap yaz</DialogTitle>
-            <DialogDescription>
-              {replyTarget?.parsed.name} · {replyTarget?.parsed.email}
-              {REPLY_TO ? ` · Yanitlar ${REPLY_TO} adresine gider` : ''}
-            </DialogDescription>
-          </DialogHeader>
+      <div className="flex flex-wrap gap-1.5">
+        {CONTACT_CHIPS.map((k) => (
+          <Button key={k} size="sm" variant={filters.contact === k ? 'default' : 'outline'} onClick={() => patch({ contact: k })}>{t(`chips.${k}`)}</Button>
+        ))}
+        <span className="ml-auto self-center text-sm text-muted-foreground">{t('table.summary', { count: visible.length })}</span>
+      </div>
 
-          {replyTarget && (
-            <div className="space-y-3">
-              <div className="rounded-md border bg-muted/40 p-3 text-sm">
-                <div className="text-xs text-muted-foreground">Orijinal mesaj · {replyTarget.lead.firmName}</div>
-                <div className="mt-1">{replyTarget.parsed.message || '-'}</div>
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Konu</label>
-                <Input value={subject} onChange={(e) => setSubject(e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Mesaj</label>
-                <Textarea rows={12} value={message} onChange={(e) => setMessage(e.target.value)} />
-              </div>
-              {replyError && <p className="text-sm text-red-600">{replyError}</p>}
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setReplyTarget(null)}>Vazgec</Button>
-            <Button onClick={sendReply} disabled={isReplying || subject.trim().length < 2 || message.trim().length < 10}>
-              {isReplying ? 'Gonderiliyor...' : 'Gonder'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={!!detail} onOpenChange={(open) => !open && setDetail(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{detail?.parsed.name || 'Talep detayı'}</DialogTitle>
-            <DialogDescription>
-              {detail?.lead.firmName} · {detail?.lead.createdAt ? new Date(detail.lead.createdAt).toLocaleString('tr-TR') : ''}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 text-sm">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <div className="text-xs text-muted-foreground">Telefon</div>
-                <div className="font-medium">{detail?.parsed.phone || '-'}</div>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">E-posta</div>
-                <div className="font-medium break-all">{detail?.parsed.email || '-'}</div>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">Tercih edilen kanal</div>
-                <div className="font-medium">{detail?.parsed.channel || '-'}</div>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">Gizlilik onayı</div>
-                <div className="font-medium">{detail?.parsed.consent || '-'}</div>
-              </div>
-            </div>
-            <div>
-              <div className="mb-1 text-xs text-muted-foreground">Mesaj</div>
-              <div className="whitespace-pre-line rounded-md border bg-muted/40 p-3 leading-6">
-                {detail?.parsed.message || '-'}
-              </div>
-            </div>
-          </div>
-          <DialogFooter className="flex-wrap gap-2 sm:justify-between">
-            <div className="flex flex-wrap gap-2">
-              {telHref(detail?.parsed.phone) && (
-                <Button asChild size="sm" variant="outline"><a href={telHref(detail!.parsed.phone)!}>Ara</a></Button>
-              )}
-              {waHref(detail?.parsed.phone) && (
-                <Button asChild size="sm" variant="outline" className="border-emerald-300 text-emerald-700 hover:bg-emerald-50">
-                  <a href={waHref(detail!.parsed.phone)!} target="_blank" rel="noopener noreferrer">WhatsApp</a>
-                </Button>
-              )}
-            </div>
-            <div className="flex gap-2">
-              {detail?.parsed.email && (
-                <Button size="sm" onClick={() => { const d = detail!; setDetail(null); openReply(d.lead, d.parsed); }}>
-                  Cevap yaz
-                </Button>
-              )}
-              <Button size="sm" variant="outline" onClick={() => setDetail(null)}>Kapat</Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <LeadsTable rows={visible} loading={isLoading} activeId={openId ?? undefined} onSelect={(r) => setOpenId(r.id)} t={t} tc={tc} />
+      {pageCount > 1 ? <Pager page={page} pageCount={pageCount} onChange={setPage} summary={t('table.total', { count: total })} tc={tc} /> : null}
+      <LeadSheet row={open} onClose={() => setOpenId(null)} t={t} tc={tc} />
     </div>
   );
 }

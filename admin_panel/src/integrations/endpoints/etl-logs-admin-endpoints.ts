@@ -48,11 +48,29 @@ export type PriceSurgeItem = {
   tier: 'güçlü' | 'izle';
 };
 
+export type EtlLogsParams = { limit?: number; source?: string; status?: EtlLogItem['status']; days?: number };
+export type EtlSourceItem = { key: string; enabled: boolean; marketSlug: string; baseUrl: string };
+export type EtlRunResult = { ok: boolean; source?: string; result?: unknown; results?: unknown; error?: string };
+
+function toQuery(params?: Record<string, unknown>) {
+  const search = new URLSearchParams();
+  for (const [k, v] of Object.entries(params ?? {})) if (v !== undefined && v !== '' && v !== null) search.set(k, String(v));
+  const qs = search.toString();
+  return qs ? `?${qs}` : '';
+}
+
 export const etlLogsAdminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    listEtlLogsAdmin: builder.query<{ logs: EtlLogItem[] }, void>({
-      query: () => ({ url: '/admin/hal/etl/logs' }),
+    listEtlLogsAdmin: builder.query<{ logs: EtlLogItem[]; days?: number; limit?: number }, EtlLogsParams | void>({
+      query: (params) => ({ url: `/admin/hal/etl/logs${toQuery(params ?? undefined)}` }),
       providesTags: [{ type: 'EtlLogs' as const, id: 'LIST' }],
+    }),
+    listEtlSourcesAdmin: builder.query<{ sources: EtlSourceItem[] }, void>({
+      query: () => ({ url: '/admin/hal/etl/sources' }),
+    }),
+    runEtlAdmin: builder.mutation<EtlRunResult, { source: string; date?: string }>({
+      query: (body) => ({ url: '/admin/hal/etl/run', method: 'POST', body }),
+      invalidatesTags: [{ type: 'EtlLogs' as const, id: 'LIST' }],
     }),
     earlyWarningAdmin: builder.query<{ items: PriceSurgeItem[]; generatedAt: string }, void>({
       query: () => ({ url: '/admin/early-warning' }),
@@ -69,6 +87,8 @@ export const etlLogsAdminApi = baseApi.injectEndpoints({
 
 export const {
   useListEtlLogsAdminQuery,
+  useListEtlSourcesAdminQuery,
+  useRunEtlAdminMutation,
   useEarlyWarningAdminQuery,
   useScraperStatusAdminQuery,
   useCronCatalogAdminQuery,
