@@ -12,6 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { PersonalGoogleEvent } from '@/integrations/endpoints/admin/mail-accounts-admin-endpoints';
+import { useAdminT } from '@/app/(main)/admin/_components/common/use-admin-t';
+import { SummaryTiles } from '@/app/(main)/admin/_components/common/summary-tiles';
 import {
   useDeleteMailAccountMutation,
   useGoogleCalendarStatusQuery,
@@ -24,8 +26,8 @@ import {
   useSyncGoogleTasksMutation,
 } from '@/integrations/hooks';
 
-const formatDate = (value: string | null | undefined) =>
-  value ? new Date(value).toLocaleString('tr-TR') : 'Henüz senkronlanmadı';
+const formatDate = (value: string | null | undefined, never = 'Henüz senkronlanmadı') =>
+  value ? new Date(value).toLocaleString('tr-TR') : never;
 
 const monthKey = (value: Date) => `${value.getFullYear()}-${value.getMonth()}`;
 const sameDay = (left: Date, right: Date) =>
@@ -33,9 +35,9 @@ const sameDay = (left: Date, right: Date) =>
   && left.getMonth() === right.getMonth()
   && left.getDate() === right.getDate();
 
-const weekdays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+const WEEKDAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
 
-function MonthlyCalendar({ events }: { events: PersonalGoogleEvent[] }) {
+function MonthlyCalendar({ events, t }: { events: PersonalGoogleEvent[]; t: ReturnType<typeof useAdminT> }) {
   const today = React.useMemo(() => new Date(), []);
   const firstAllowed = React.useMemo(() => new Date(today.getFullYear(), today.getMonth() - 12, 1), [today]);
   const lastAllowed = React.useMemo(() => new Date(today.getFullYear(), today.getMonth() + 12, 1), [today]);
@@ -60,24 +62,24 @@ function MonthlyCalendar({ events }: { events: PersonalGoogleEvent[] }) {
           <CardTitle className="text-base">
             {month.toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' })}
           </CardTitle>
-          <CardDescription>Takvim, bugünden 12 ay önce ile 12 ay sonrası arasında görüntülenir.</CardDescription>
+          <CardDescription>{t('calendar.rangeHint')}</CardDescription>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => move(-1)} disabled={monthKey(month) === monthKey(firstAllowed)}>
-            <ChevronLeft /> Önceki
+            <ChevronLeft /> {t('calendar.prev')}
           </Button>
           <Button variant="outline" size="sm" onClick={() => setMonth(new Date(today.getFullYear(), today.getMonth(), 1))}>
-            Bu ay
+            {t('calendar.thisMonth')}
           </Button>
           <Button variant="outline" size="sm" onClick={() => move(1)} disabled={monthKey(month) === monthKey(lastAllowed)}>
-            Sonraki <ChevronRight />
+            {t('calendar.next')} <ChevronRight />
           </Button>
         </div>
       </CardHeader>
       <CardContent className="overflow-x-auto">
         <div className="min-w-[760px] overflow-hidden rounded-xl border">
           <div className="grid grid-cols-7 border-b bg-muted/40 text-center text-xs font-semibold text-muted-foreground">
-            {weekdays.map((day) => <div key={day} className="p-3">{day}</div>)}
+            {WEEKDAY_KEYS.map((day) => <div key={day} className="p-3">{t(`calendar.weekdays.${day}`)}</div>)}
           </div>
           <div className="grid grid-cols-7">
             {days.map((day) => {
@@ -109,6 +111,8 @@ function MonthlyCalendar({ events }: { events: PersonalGoogleEvent[] }) {
 }
 
 export default function Page() {
+  const t = useAdminT('admin.integrations');
+  const tc = useAdminT('admin.common');
   const accounts = useListMailAccountsQuery();
   const tasks = useGoogleTasksStatusQuery();
   const calendar = useGoogleCalendarStatusQuery();
@@ -124,22 +128,22 @@ export default function Page() {
     try {
       const result = await connect().unwrap();
       window.location.assign(result.url);
-    } catch { toast.error('Google bağlantısı başlatılamadı.'); }
+    } catch { toast.error(t('toasts.connectFailed')); }
   }
 
   async function disconnect() {
     if (!account) return;
     try {
       await remove(account.id).unwrap();
-      toast.success('Google hesabı bağlantısı kesildi.');
-    } catch { toast.error('Bağlantı kesilemedi.'); }
+      toast.success(t('toasts.disconnected'));
+    } catch { toast.error(t('toasts.disconnectFailed')); }
   }
 
   async function runSync(kind: 'tasks' | 'calendar') {
     try {
       const result = kind === 'tasks' ? await syncTasks().unwrap() : await syncCalendar().unwrap();
-      toast.success(`${result.imported} yeni, ${result.updated} güncel, ${result.exported} Google'a aktarıldı.`);
-    } catch { toast.error('Senkronizasyon tamamlanamadı. Google izinlerini kontrol edin.'); }
+      toast.success(t('toasts.synced', { imported: result.imported, updated: result.updated, exported: result.exported }));
+    } catch { toast.error(t('toasts.syncFailed')); }
   }
 
   const loading = accounts.isLoading || tasks.isLoading || calendar.isLoading;
@@ -147,18 +151,22 @@ export default function Page() {
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Kişisel bağlantılar</p>
-        <h1 className="text-2xl font-semibold">Google Entegrasyonları</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Basın ve iletişim süreçleri için Gmail gönderimi, Google Görevler ve Takvim erişimini buradan yönetin.
-        </p>
+        <h1 className="text-xl font-semibold">{t('title')}</h1>
+        <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
       </div>
+
+      <SummaryTiles columns="sm:grid-cols-2 xl:grid-cols-4" tiles={[
+        { key: 'account', label: t('tiles.account'), value: account ? t('tiles.connected') : t('tiles.notConnected'), hint: account?.email ?? t('tiles.accountHint'), tone: account ? 'text-emerald-600' : 'text-amber-600' },
+        { key: 'tasks', label: t('tiles.tasks'), value: ownTasks.data?.length ?? 0, hint: t('tiles.lastSync', { date: formatDate(tasks.data?.last_synced_at, t('tiles.never')) }) },
+        { key: 'events', label: t('tiles.events'), value: ownEvents.data?.length ?? 0, hint: t('tiles.lastSync', { date: formatDate(calendar.data?.last_synced_at, t('tiles.never')) }) },
+        { key: 'openTasks', label: t('tiles.openTasks'), value: (ownTasks.data ?? []).filter((task) => task.status !== 'done').length, hint: t('tiles.openTasksHint') },
+      ]} />
 
       <Tabs defaultValue="baglanti" className="space-y-5">
         <TabsList className="grid h-auto w-full grid-cols-3">
-          <TabsTrigger value="baglanti"><Mail /> Bağlantı</TabsTrigger>
-          <TabsTrigger value="gorevler"><ListTodo /> Görevler</TabsTrigger>
-          <TabsTrigger value="takvim"><CalendarDays /> Takvim</TabsTrigger>
+          <TabsTrigger value="baglanti"><Mail /> {t('tabs.connection')}</TabsTrigger>
+          <TabsTrigger value="gorevler"><ListTodo /> {t('tabs.tasks')}</TabsTrigger>
+          <TabsTrigger value="takvim"><CalendarDays /> {t('tabs.calendar')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="baglanti" className="space-y-5">
@@ -170,51 +178,51 @@ export default function Page() {
                 {account ? <CheckCircle2 className="size-6" /> : <Unplug className="size-6" />}
               </div>
               <div>
-                <div className="font-semibold">{account ? 'Google hesabınız bağlı' : 'Google hesabı bağlı değil'}</div>
+                <div className="font-semibold">{account ? t('connection.connected') : t('connection.notConnected')}</div>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {account
-                    ? `${account.email} · Görev ve takvim teslimatları etkin.`
-                    : 'Otomatik görev ve takvim teslimatlarını kullanmak için hesabınızı bağlayın.'}
+                    ? t('connection.connectedHint', { email: account.email })
+                    : t('connection.notConnectedHint')}
                 </p>
               </div>
             </div>
             {account
-              ? <Button variant="outline" onClick={disconnect} disabled={removeState.isLoading}><Unplug /> Bağlantıyı kes</Button>
-              : <Button onClick={beginConnect} disabled={connectState.isFetching}><CheckCircle2 /> Google hesabını bağla</Button>}
+              ? <Button variant="outline" onClick={disconnect} disabled={removeState.isLoading}><Unplug /> {t('connection.disconnect')}</Button>
+              : <Button onClick={beginConnect} disabled={connectState.isFetching}><CheckCircle2 /> {t('connection.connect')}</Button>}
           </div>
 
           {loading ? <Loader2 className="mx-auto size-8 animate-spin" /> : (
             <div className="grid gap-4 lg:grid-cols-3">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Gmail Gönderim</CardTitle>
-                  <CardDescription>{account ? `${account.email} bağlı` : 'Bağlantı gerekir.'}</CardDescription>
+                  <CardTitle className="text-base">{t('cards.gmail')}</CardTitle>
+                  <CardDescription>{account ? t('cards.bound', { email: account.email }) : t('cards.needsConnection')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Mail className="size-9 text-sky-600" />
                   <p className="text-sm text-muted-foreground">
-                    Basın bültenleri ve sistem bildirimleri bağlı hesabınızdan gönderilir.
+                    {t('cards.gmailHint')}
                   </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Google Görevler</CardTitle>
-                  <CardDescription>{tasks.data?.connected ? 'Otomatik görev teslimatı etkin.' : 'Bağlantı gerekir.'}</CardDescription>
+                  <CardTitle className="text-base">{t('cards.tasks')}</CardTitle>
+                  <CardDescription>{tasks.data?.connected ? t('cards.tasksOn') : t('cards.needsConnection')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <ListTodo className="size-9 text-emerald-600" />
-                  <p className="text-sm text-muted-foreground">Son senkron: {formatDate(tasks.data?.last_synced_at)}</p>
+                  <p className="text-sm text-muted-foreground">{t('cards.lastSync', { date: formatDate(tasks.data?.last_synced_at, t('tiles.never')) })}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Google Takvim</CardTitle>
-                  <CardDescription>{calendar.data?.connected ? 'Tarihli takip teslimatı etkin.' : 'Bağlantı gerekir.'}</CardDescription>
+                  <CardTitle className="text-base">{t('cards.calendar')}</CardTitle>
+                  <CardDescription>{calendar.data?.connected ? t('cards.calendarOn') : t('cards.needsConnection')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <CalendarDays className="size-9 text-violet-600" />
-                  <p className="text-sm text-muted-foreground">Son senkron: {formatDate(calendar.data?.last_synced_at)}</p>
+                  <p className="text-sm text-muted-foreground">{t('cards.lastSync', { date: formatDate(calendar.data?.last_synced_at, t('tiles.never')) })}</p>
                 </CardContent>
               </Card>
             </div>
@@ -222,17 +230,17 @@ export default function Page() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Veritabanı ve token güvenliği</CardTitle>
-              <CardDescription>Google bağlantısının yenilenebilmesi için yalnız gerekli bağlantı bilgileri tutulur.</CardDescription>
+              <CardTitle className="text-base">{t('security.title')}</CardTitle>
+              <CardDescription>{t('security.hint')}</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3 text-sm md:grid-cols-2">
               <div className="flex gap-3 rounded-xl border p-4">
                 <Database className="mt-0.5 size-5 shrink-0 text-sky-600" />
-                <p>Hesap adresi, izinler, token bitişi ve son senkron gibi secretsız bağlantı bilgileri veritabanında tutulur.</p>
+                <p>{t('security.db')}</p>
               </div>
               <div className="flex gap-3 rounded-xl border p-4">
                 <ShieldCheck className="mt-0.5 size-5 shrink-0 text-emerald-600" />
-                <p>Tokenlar AES-256-GCM şifreli özel kasadadır. Gelen kutusu ve mesaj içeriği saklanmaz.</p>
+                <p>{t('security.token')}</p>
               </div>
             </CardContent>
           </Card>
@@ -242,19 +250,19 @@ export default function Page() {
           <Card>
             <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <CardTitle className="text-base">Görevlerim</CardTitle>
-                <CardDescription>Basın takipleri ve Google görevleriniz.</CardDescription>
+                <CardTitle className="text-base">{t('tasks.title')}</CardTitle>
+                <CardDescription>{t('tasks.hint')}</CardDescription>
               </div>
               {account && (
                 <Button variant="outline" onClick={() => runSync('tasks')} disabled={taskSyncState.isLoading}>
-                  <RefreshCw /> Şimdi eşitle
+                  <RefreshCw /> {t('tasks.sync')}
                 </Button>
               )}
             </CardHeader>
             <CardContent className="space-y-2">
               {!account && (
                 <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-                  Görevleri görüntülemek için Bağlantı sekmesinden Google hesabınızı bağlayın.
+                  {t('tasks.needsConnection')}
                 </p>
               )}
               {account && ownTasks.data?.map((task) => (
@@ -262,16 +270,16 @@ export default function Page() {
                   <div>
                     <div className={task.status === 'done' ? 'text-muted-foreground line-through' : 'font-medium'}>{task.subject}</div>
                     <div className="mt-1 text-xs text-muted-foreground">
-                      {task.due_at ? formatDate(task.due_at) : 'Son tarih yok'}
+                      {task.due_at ? formatDate(task.due_at) : t('tasks.noDue')}
                     </div>
                   </div>
                   <Badge variant={task.status === 'done' ? 'secondary' : 'outline'}>
-                    {task.status === 'done' ? 'Tamamlandı' : 'Açık'}
+                    {task.status === 'done' ? t('tasks.done') : t('tasks.open')}
                   </Badge>
                 </div>
               ))}
               {account && !ownTasks.isLoading && !ownTasks.data?.length && (
-                <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">Görev bulunamadı.</p>
+                <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">{t('tasks.empty')}</p>
               )}
             </CardContent>
           </Card>
@@ -281,16 +289,16 @@ export default function Page() {
           <div className="flex justify-end">
             {account && (
               <Button variant="outline" onClick={() => runSync('calendar')} disabled={calendarSyncState.isLoading}>
-                <RefreshCw /> Şimdi eşitle
+                <RefreshCw /> {t('tasks.sync')}
               </Button>
             )}
           </div>
           {account
-            ? <MonthlyCalendar events={ownEvents.data || []} />
+            ? <MonthlyCalendar events={ownEvents.data || []} t={t} />
             : (
               <Card>
                 <CardContent className="p-10 text-center text-sm text-muted-foreground">
-                  Takvimi görüntülemek için Bağlantı sekmesinden Google hesabınızı bağlayın.
+                  {t('calendar.needsConnection')}
                 </CardContent>
               </Card>
             )}

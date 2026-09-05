@@ -116,5 +116,21 @@
     "statusChanged": "Popup durumu güncellendi.",
     "reorderSuccess": "Sıralama güncellendi.",
     "aiApplied": "AI içerik uygulandı."
+  },
+  "tiles": {
+    "total": "Popup",
+    "live": "Yayında",
+    "liveHint": "şu an gösteriliyor",
+    "active": "Yayında",
+    "scheduled": "Planlı",
+    "scheduledHint": "başlangıcı bekliyor",
+    "expired": "Süresi doldu",
+    "expiredHint": "aktif ama tarihi geçmiş",
+    "always": "Süresiz",
+    "link": "Bağlantı",
+    "paths": "Sayfalar",
+    "allPaths": "tüm sayfalar",
+    "delay": "Gecikme",
+    "noLink": "bağlantı yok"
   }
 }

@@ -1,0 +1,79 @@
+{
+  "calendar": {
+    "rangeHint": "Takvim, bugünden 12 ay önce ile 12 ay sonrası arasında görüntülenir.",
+    "prev": "Önceki",
+    "thisMonth": "Bu ay",
+    "next": "Sonraki",
+    "needsConnection": "Takvimi görüntülemek için Bağlantı sekmesinden Google hesabınızı bağlayın.",
+    "weekdays": {
+      "mon": "Pazartesi",
+      "tue": "Salı",
+      "wed": "Çarşamba",
+      "thu": "Perşembe",
+      "fri": "Cuma",
+      "sat": "Cumartesi",
+      "sun": "Pazar"
+    }
+  },
+  "toasts": {
+    "connectFailed": "Google bağlantısı başlatılamadı.",
+    "disconnected": "Google hesabı bağlantısı kesildi.",
+    "disconnectFailed": "Bağlantı kesilemedi.",
+    "synced": "{imported} yeni, {updated} güncel, {exported} Google'a aktarıldı.",
+    "syncFailed": "Senkronizasyon tamamlanamadı. Google izinlerini kontrol edin."
+  },
+  "title": "Google Entegrasyonları",
+  "subtitle": "Basın ve iletişim süreçleri için Gmail gönderimi, Google Görevler ve Takvim erişimini buradan yönetin.",
+  "tiles": {
+    "account": "Hesap",
+    "connected": "Bağlı",
+    "notConnected": "Bağlı değil",
+    "accountHint": "Gmail, Görevler ve Takvim tek bağlantı",
+    "tasks": "Görev",
+    "events": "Etkinlik",
+    "lastSync": "son eşitleme {date}",
+    "never": "hiç",
+    "openTasks": "Açık görev",
+    "openTasksHint": "tamamlanmamış"
+  },
+  "tabs": {
+    "connection": "Bağlantı",
+    "tasks": "Görevler",
+    "calendar": "Takvim"
+  },
+  "connection": {
+    "connected": "Google hesabınız bağlı",
+    "notConnected": "Google hesabı bağlı değil",
+    "connectedHint": "{email} · Görev ve takvim teslimatları etkin.",
+    "notConnectedHint": "Otomatik görev ve takvim teslimatlarını kullanmak için hesabınızı bağlayın.",
+    "disconnect": "Bağlantıyı kes",
+    "connect": "Google hesabını bağla"
+  },
+  "cards": {
+    "gmail": "Gmail Gönderim",
+    "bound": "{email} bağlı",
+    "needsConnection": "Bağlantı gerekir.",
+    "gmailHint": "Basın bültenleri ve sistem bildirimleri bağlı hesabınızdan gönderilir.",
+    "tasks": "Google Görevler",
+    "tasksOn": "Otomatik görev teslimatı etkin.",
+    "calendar": "Google Takvim",
+    "calendarOn": "Tarihli takip teslimatı etkin.",
+    "lastSync": "Son eşitleme: {date}"
+  },
+  "security": {
+    "title": "Veritabanı ve token güvenliği",
+    "hint": "Google bağlantısının yenilenebilmesi için yalnız gerekli bağlantı bilgileri tutulur.",
+    "db": "Hesap adresi, izinler, token bitişi ve son senkron gibi secretsız bağlantı bilgileri veritabanında tutulur.",
+    "token": "Tokenlar AES-256-GCM şifreli özel kasadadır. Gelen kutusu ve mesaj içeriği saklanmaz."
+  },
+  "tasks": {
+    "title": "Görevlerim",
+    "hint": "Basın takipleri ve Google görevleriniz.",
+    "sync": "Şimdi eşitle",
+    "needsConnection": "Görevleri görüntülemek için Bağlantı sekmesinden Google hesabınızı bağlayın.",
+    "noDue": "Son tarih yok",
+    "done": "Tamamlandı",
+    "open": "Açık",
+    "empty": "Görev bulunamadı."
+  }
+}

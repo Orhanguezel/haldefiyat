@@ -51,6 +51,16 @@
       "templateFallback": "Bu şablon",
       "cancel": "İptal",
       "delete": "Sil"
+    },
+    "tiles": {
+      "total": "Şablon",
+      "totalHint": "{count} aile",
+      "withVars": "Değişkenli",
+      "withVarsHint": "{{ad}} gibi alan içerir",
+      "noSubject": "Konusuz",
+      "noSubjectHint": "konu satırı boş",
+      "allFamilies": "Tüm aileler",
+      "preview": "Önizleme"
     }
   },
   "detail": {

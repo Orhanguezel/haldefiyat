@@ -52,7 +52,19 @@
     "confirmDelete": "Bu soruyu silmek istediğinize emin misiniz?",
     "created": "Soru oluşturuldu.",
     "updated": "Soru güncellendi.",
-    "deleted": "Soru silindi."
+    "deleted": "Soru silindi.",
+    "tiles": {
+      "total": "SSS",
+      "published": "Yayında",
+      "publishedHint": "public SSS sayfasında",
+      "draft": "Taslak",
+      "thin": "İnce cevap",
+      "thinHint": "120 karakterin altında",
+      "length": "Uzunluk",
+      "lengthHint": "{count} karakter"
+    },
+    "searchPlaceholder": "Soru veya cevapta ara",
+    "allCategories": "Tüm kategoriler"
   },
   "detail": {
     "newTitle": "Yeni SSS Kaydı",
