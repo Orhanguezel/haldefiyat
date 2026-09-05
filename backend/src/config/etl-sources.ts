@@ -273,7 +273,9 @@ const RAW_SOURCES: RawSource[] = [
     // 2026-07-27 dogrulama: Anthropic infra da ECONNREFUSED 195.142.243.21:443
     // aldi → sunucu GERCEKTEN kapali/443 reddediyor, bize-ozel blok DEGIL.
     // Proxy cozmez; belediye sunucusunu duzeltene kadar bekle.
-    defaultEnabled:    false,
+    // 2026-09-05: Site geri geldi (VPS'ten 200). Fiyat sayfasi artik tarihli GET
+    // adresinde (fetchKocaeliDated guncellendi); 127 satir/gun. Yeniden acildi.
+    defaultEnabled:    true,
     defaultMarketSlug: "kocaeli-hal-merkez",
     defaultBaseUrl:    "https://www.kocaeli.bel.tr",
     defaultEndpoint:   "1",

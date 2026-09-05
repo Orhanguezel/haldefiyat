@@ -2443,6 +2443,9 @@ async function logEtlRun(params: {
   } catch { /* log hatası ETL'i durdurmamalı */ }
 }
 
+/** Gunluk calismada bundan eski "en yeni satir" = kaynak durmus; satir yazilmaz. */
+const STALE_BULLETIN_DAYS = 30;
+
 export async function runSourceFetch(
   source: EtlSourceConfig,
   targetDate?: string,
@@ -2486,9 +2489,33 @@ export async function runSourceFetch(
     throw err;
   }
 
+  // ESKI BULTEN KORUMASI — kaynak aylardir ayni sayfayi servis ediyorsa (Konya
+  // borsasi 14.05'te, Tekirdag 01.08'de durdu) her gun ayni satirlar yeniden
+  // upsert edilip "ok, N satir eklendi" raporlaniyordu; saglik metrikleri ve
+  // hal listesi bunu canli veri sanıyordu. Gunluk calismada en yeni satir
+  // tarihi hedef tarihten STALE_BULLETIN_DAYS'ten eskiyse hic yazma, calismayi
+  // 0 satirla "kaynak yeni bulten yayinlamadi" diye kapat. Backfill etkilenmez.
+  const normalizedRows = outcome.rows.map((rawRow) => normalizePriceRow(rawRow, source));
+  if (!isBackfill && normalizedRows.length > 0) {
+    const newest = normalizedRows
+      .map((r) => r.recordedDate ?? outcome.dateUsed)
+      .filter(Boolean)
+      .sort()
+      .at(-1);
+    const ageDays = newest ? Math.round((Date.parse(startDate) - Date.parse(newest)) / 86_400_000) : 0;
+    if (newest && ageDays > STALE_BULLETIN_DAYS) {
+      const msg = `Kaynak yeni bulten yayinlamadi (son: ${newest}, ${ageDays} gun once)`;
+      await logEtlRun({
+        sourceKey: source.key, runDate: startDate, rowsFetched: outcome.rows.length,
+        rowsInserted: 0, rowsSkipped: outcome.rows.length, durationMs: Date.now() - t0,
+        status: "ok", errorMsg: msg,
+      });
+      return { inserted: 0, skipped: outcome.rows.length, errors: [], touchedProductSlugs: [], touchedMarketSlug: source.marketSlug };
+    }
+  }
+
   // Upsert satırları
-  for (const rawRow of outcome.rows) {
-    const row = normalizePriceRow(rawRow, source);
+  for (const row of normalizedRows) {
     const avg = row.avg ?? (row.min != null && row.max != null ? (row.min + row.max) / 2 : null);
     if (avg == null || !Number.isFinite(avg) || avg <= 0) { skipped++; continue; }
 
