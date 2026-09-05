@@ -1145,7 +1145,7 @@ export interface CityProductDetail {
   latest: { recordedDate: string; avgPrice: number; minPrice: number | null; maxPrice: number | null } | null;
   weekAgoAvg: number | null;
   history: PriceHistoryRow[];
-  cities: Array<{ citySlug: string; cityName: string; marketSlug: string; avgPrice: number; recordedDate: string; eligible: boolean }>;
+  cities: Array<{ citySlug: string; cityName: string; marketSlug: string; marketName: string; avgPrice: number; recordedDate: string; eligible: boolean }>;
   nationalMedian: number | null;
   rank: number | null;
   movers: Array<{ productSlug: string; productName: string; avgPrice: number; prevPrice: number; changePct: number; citySlug: string; eligible: boolean }>;

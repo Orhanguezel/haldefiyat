@@ -47,7 +47,7 @@ export function CityCompareTable({ d }: { d: CityProductDetail }) {
                   <td className="px-4 py-3 font-semibold text-(--color-foreground)">
                     {c.eligible && !me ? <Link href={cityProductHref(c.citySlug, pair.productSlug)} className="text-(--color-brand) underline underline-offset-2">{c.cityName}</Link> : c.cityName}
                   </td>
-                  <td className="px-4 py-3 text-(--color-muted)"><Link href={`/hal/${c.marketSlug}`} className="hover:underline">{c.marketSlug.replace(/-/g, " ")}</Link></td>
+                  <td className="px-4 py-3 text-(--color-muted)"><Link href={`/hal/${c.marketSlug}`} className="hover:underline">{c.marketName}</Link></td>
                   <td className="px-4 py-3 text-right font-bold text-(--color-brand)">{fmtTl(c.avgPrice)}</td>
                   <td className="px-4 py-3 text-right text-(--color-muted)">{formatDateTr(c.recordedDate)}</td>
                 </tr>

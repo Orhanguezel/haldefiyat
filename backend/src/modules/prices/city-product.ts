@@ -78,7 +78,7 @@ export interface CityProductDetail {
   latest: { recordedDate: string; avgPrice: number; minPrice: number | null; maxPrice: number | null } | null;
   weekAgoAvg: number | null;
   history: Array<{ recordedDate: string; avgPrice: number; minPrice: number | null; maxPrice: number | null; unit: string; marketSlug: string; marketName: string; cityName: string }>;
-  cities: Array<{ citySlug: string; cityName: string; marketSlug: string; avgPrice: number; recordedDate: string; eligible: boolean }>;
+  cities: Array<{ citySlug: string; cityName: string; marketSlug: string; marketName: string; avgPrice: number; recordedDate: string; eligible: boolean }>;
   nationalMedian: number | null;
   rank: number | null;
   movers: Array<{ productSlug: string; productName: string; avgPrice: number; prevPrice: number; changePct: number; citySlug: string; eligible: boolean }>;
@@ -123,16 +123,16 @@ export async function getCityProductDetail(citySlug: string, productSlug: string
        SELECT ph.market_id, MAX(ph.recorded_date) AS rd FROM hf_price_history ph JOIN fam f ON f.pid = ph.product_id
        JOIN hf_products p ON p.id = f.master_id WHERE p.slug = ? AND ph.recorded_date >= CURDATE() - INTERVAL 7 DAY GROUP BY ph.market_id
      )
-     SELECT mk.city_name, mk.slug AS market_slug, l.rd, AVG(ph.avg_price) AS avg_price
+     SELECT mk.city_name, mk.slug AS market_slug, mk.name AS market_name, l.rd, AVG(ph.avg_price) AS avg_price
      FROM latest l JOIN hf_markets mk ON mk.id = l.market_id AND mk.is_active = 1 AND mk.market_type = 'hal' AND mk.city_name <> 'Türkiye'
      JOIN hf_price_history ph ON ph.market_id = l.market_id AND ph.recorded_date = l.rd
      JOIN fam f ON f.pid = ph.product_id JOIN hf_products p ON p.id = f.master_id AND p.slug = ? AND ph.unit = p.unit
-     GROUP BY mk.city_name, mk.slug, l.rd ORDER BY avg_price`,
+     GROUP BY mk.city_name, mk.slug, mk.name, l.rd ORDER BY avg_price`,
     [productSlug, productSlug],
   );
   const cities = (cityRows ?? []).map((r) => {
     const cs = citySlugTr(String(r.city_name));
-    return { citySlug: cs, cityName: String(r.city_name), marketSlug: String(r.market_slug), avgPrice: Number(r.avg_price), recordedDate: isoDate(r.rd), eligible: eligibleKeys.has(`${cs}/${productSlug}`) };
+    return { citySlug: cs, cityName: String(r.city_name), marketSlug: String(r.market_slug), marketName: String(r.market_name), avgPrice: Number(r.avg_price), recordedDate: isoDate(r.rd), eligible: eligibleKeys.has(`${cs}/${productSlug}`) };
   });
   const nationalMedian = median(cities.map((c) => c.avgPrice));
   const rank = latest ? cities.findIndex((c) => c.citySlug === citySlug) + 1 || null : null;

@@ -13,7 +13,10 @@ describe("findPiyasaForArticle", () => {
   });
 
   it("urun eslesip bolge eslesmezse null — yanlis sayfaya yonlendirme", () => {
-    expect(findPiyasaForArticle("limon-fiyatlari-adana-analizi")).toBeNull();
+    // Antalya icin bolge sayfasi yok → null. Adana icin artik var → o sayfaya gider.
+    expect(findPiyasaForArticle("limon-fiyatlari-antalya-analizi")).toBeNull();
+    expect(findPiyasaForArticle("limon-fiyatlari-adana-analizi")?.slug).toBe("adana-limon");
+    expect(findPiyasaForArticle("adana-mayer-limon-sezon-acilisi")?.slug).toBe("adana-mayer-limon");
   });
 
   it("alakasiz makale icin null", () => {

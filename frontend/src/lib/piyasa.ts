@@ -150,26 +150,26 @@ export const PIYASA_PAGES: Record<string, PiyasaPageConfig> = {
       "Adana limon piyasası için günlük güncellenen sayfa: Türkiye hallerindeki güncel limon fiyatları, Mayer, Lamas ve yatak limon ayrımı, şehir karşılaştırması ve sezon takvimi.",
     h1: "Adana Limon Fiyatları",
     intro: [
-      "Adana, Mersin ile birlikte Türkiye limon üretiminin iki merkezinden biridir; Çukurova bahçelerinden çıkan ürün ülke hallerinin tamamına dağılır. Bu yüzden 'Adana limon fiyatı' tek bir halin listesi değil, Adana ürününün Türkiye'de hangi fiyattan el değiştirdiğinin özetidir.",,
+      "Adana, Mersin ile birlikte Türkiye limon üretiminin iki merkezinden biridir; Çukurova bahçelerinden çıkan ürün ülke hallerinin tamamına dağılır. Bu yüzden 'Adana limon fiyatı' tek bir halin listesi değil, Adana ürününün Türkiye'de hangi fiyattan el değiştirdiğinin özetidir.",
       "Sayfa her gün otomatik güncellenir: belediye halleri ve HKS kayıtlarından güncel limon fiyatlarını, çeşit farkını ve şehirler arası aralığı tek yerde gösterir. Adana Toptancı Hali kendi listesini çevrimiçi yayınlamadığı için tablo diğer illerin hal kayıtlarına dayanır.",
     ],
     regionSections: [
-      { heading: "Adana'da limon fiyatı neden tek rakam değil?", paragraphs: ["Bahçe (üretici) fiyatı, hal fiyatı ve market rafı aynı zincirin farklı halkalarıdır. Çeşit de ayrıştırır: sezonu açan Mayer, kışın Lamas ve Enterdonat, yazın depodan çıkan yatak limon aynı gün farklı fiyatlanır. Doğru cevap bir aralıktır; tablodaki min–maks sütunları onu gösterir."] },,
+      { heading: "Adana'da limon fiyatı neden tek rakam değil?", paragraphs: ["Bahçe (üretici) fiyatı, hal fiyatı ve market rafı aynı zincirin farklı halkalarıdır. Çeşit de ayrıştırır: sezonu açan Mayer, kışın Lamas ve Enterdonat, yazın depodan çıkan yatak limon aynı gün farklı fiyatlanır. Doğru cevap bir aralıktır; tablodaki min–maks sütunları onu gösterir."] },
       { heading: "Hangi çeşit ne zaman piyasada?", paragraphs: ["Eylül–Ekim erkenci Mayer, Kasım–Nisan Lamas ve Enterdonat, Mayıs–Ağustos depodan çıkan yatak limon. Çukurova'da hasat takvimi Mersin'den birkaç gün önce başlar; sezon başı fiyatı bu yüzden önce Adana ürününde görülür."] },
     ],
     seasonCalendar: [
-      { period: "Eylül – Ekim", note: "Erkenci Mayer hasadı; taze ürünün ilk ve en pahalı dönemi." },,
-      { period: "Kasım – Nisan", note: "Lamas ve Enterdonat; arz en geniş, fiyat en dengeli dönem." },,
+      { period: "Eylül – Ekim", note: "Erkenci Mayer hasadı; taze ürünün ilk ve en pahalı dönemi." },
+      { period: "Kasım – Nisan", note: "Lamas ve Enterdonat; arz en geniş, fiyat en dengeli dönem." },
       { period: "Mayıs – Ağustos", note: "Taze hasat yok; depodan çıkan yatak limon piyasayı taşır, kalite sınıfı fiyatı belirler." },
     ],
     faq: [
-      { q: "Adana'da limonun kilosu kaç lira?", a: "Tek resmi Adana günlük fiyatı yayınlanmaz. Bu sayfa, Adana ürününün satıldığı Türkiye hallerindeki güncel kayıtları ve şehir medyanını gösterir; bahçe fiyatı hal fiyatının altında kalır." },,
-      { q: "Adana limonu ile Mersin limonu arasında fiyat farkı var mı?", a: "İki bölge aynı çeşitleri yetiştirir ve aynı hallere satar; fiyat farkı bölgeden değil çeşit, boy ve kalite sınıfından gelir." },,
+      { q: "Adana'da limonun kilosu kaç lira?", a: "Tek resmi Adana günlük fiyatı yayınlanmaz. Bu sayfa, Adana ürününün satıldığı Türkiye hallerindeki güncel kayıtları ve şehir medyanını gösterir; bahçe fiyatı hal fiyatının altında kalır." },
+      { q: "Adana limonu ile Mersin limonu arasında fiyat farkı var mı?", a: "İki bölge aynı çeşitleri yetiştirir ve aynı hallere satar; fiyat farkı bölgeden değil çeşit, boy ve kalite sınıfından gelir." },
       { q: "Fiyatlar nereden geliyor?", a: "Belediye toptancı halleri ve HKS (Ticaret Bakanlığı) günlük kayıtlarından otomatik derlenir; sayfa her gün yenilenir." },
     ],
     related: [
-      { href: "/urun/limon", label: "Limon fiyatları — tüm haller ve geçmiş" },,
-      { href: "/piyasa/adana-mayer-limon", label: "Adana Mayer limon fiyatları" },,
+      { href: "/urun/limon", label: "Limon fiyatları — tüm haller ve geçmiş" },
+      { href: "/piyasa/adana-mayer-limon", label: "Adana Mayer limon fiyatları" },
       { href: "/piyasa/erdemli-limon", label: "Erdemli günlük limon piyasası" },
     ],
   },
@@ -183,26 +183,26 @@ export const PIYASA_PAGES: Record<string, PiyasaPageConfig> = {
       "Mersin limon piyasası için günlük güncellenen sayfa: Mersin ve Türkiye hallerindeki güncel limon fiyatları, Erdemli–Silifke–Tarsus üretim bölgeleri, çeşit ayrımı ve sezon takvimi.",
     h1: "Mersin Limon Fiyatları",
     intro: [
-      "Türkiye limonunun yarıdan fazlası Mersin'den çıkar; Erdemli, Silifke ve Tarsus bahçeleri hem taze hasadı hem de depoya alınan yatak limonu besler. Mersin fiyatı, ülkedeki bütün hallerin limon fiyatının referansıdır.",,
+      "Türkiye limonunun yarıdan fazlası Mersin'den çıkar; Erdemli, Silifke ve Tarsus bahçeleri hem taze hasadı hem de depoya alınan yatak limonu besler. Mersin fiyatı, ülkedeki bütün hallerin limon fiyatının referansıdır.",
       "Bu sayfa her gün otomatik güncellenir: hal ve HKS kayıtlarındaki güncel limon fiyatlarını, Mersin Toptancı Hali verisinin yayınlandığı günlerdeki yerel satırı ve şehirler arası farkı bir arada gösterir. Mersin hali kaynağı zaman zaman erişilemez oluyor; o günlerde tablo diğer illerle devam eder.",
     ],
     regionSections: [
-      { heading: "Mersin'de bahçe fiyatı ile hal fiyatı neden farklı?", paragraphs: ["Üreticinin bahçede aldığı fiyat ile İstanbul veya Ankara halindeki toptan fiyat arasında nakliye, ayıklama, ambalaj, depolama ve komisyon vardır. Sezon dışında depodan çıkan yatak limonun fiyatına aylarca depolama ve fire maliyeti eklenir."] },,
+      { heading: "Mersin'de bahçe fiyatı ile hal fiyatı neden farklı?", paragraphs: ["Üreticinin bahçede aldığı fiyat ile İstanbul veya Ankara halindeki toptan fiyat arasında nakliye, ayıklama, ambalaj, depolama ve komisyon vardır. Sezon dışında depodan çıkan yatak limonun fiyatına aylarca depolama ve fire maliyeti eklenir."] },
       { heading: "Erdemli, Silifke, Tarsus: fark var mı?", paragraphs: ["Erdemli erkenci ve sofralık çeşitlerde, Silifke ve Tarsus depo çeşitlerinde öne çıkar. Hal kayıtları ilçe ayrımı yapmaz; ilçe farkı çeşit ve çıkış zamanı üzerinden fiyata yansır."] },
     ],
     seasonCalendar: [
-      { period: "Eylül – Kasım", note: "Yeni sezon; erkenci Mayer ile başlar, Kasım'da Lamas girer." },,
-      { period: "Aralık – Nisan", note: "Kış çeşitleri ve depoya alınan ürün birlikte; arzın en geniş dönemi." },,
+      { period: "Eylül – Kasım", note: "Yeni sezon; erkenci Mayer ile başlar, Kasım'da Lamas girer." },
+      { period: "Aralık – Nisan", note: "Kış çeşitleri ve depoya alınan ürün birlikte; arzın en geniş dönemi." },
       { period: "Mayıs – Ağustos", note: "Yatak limon dönemi; depo çıkışı kontrollü, kalite sınıfları ayrışır." },
     ],
     faq: [
-      { q: "Mersin'de limonun kilosu kaç lira?", a: "Tablo Mersin hali ve diğer illerin güncel kayıtlarını gösterir; Mersin satırı kaynak yayınladığı günlerde görünür. Bahçe fiyatı bu değerlerin altında seyreder." },,
-      { q: "Yatak limon nedir?", a: "Hasattan sonra depolanarak sezon dışına taşınan limondur; yaz aylarında piyasadaki ürünün büyük bölümüdür ve depo maliyeti fiyatına eklenir." },,
+      { q: "Mersin'de limonun kilosu kaç lira?", a: "Tablo Mersin hali ve diğer illerin güncel kayıtlarını gösterir; Mersin satırı kaynak yayınladığı günlerde görünür. Bahçe fiyatı bu değerlerin altında seyreder." },
+      { q: "Yatak limon nedir?", a: "Hasattan sonra depolanarak sezon dışına taşınan limondur; yaz aylarında piyasadaki ürünün büyük bölümüdür ve depo maliyeti fiyatına eklenir." },
       { q: "Fiyatlar nereden geliyor?", a: "Belediye toptancı halleri ve HKS günlük kayıtlarından otomatik derlenir." },
     ],
     related: [
-      { href: "/urun/limon", label: "Limon fiyatları — tüm haller ve geçmiş" },,
-      { href: "/piyasa/erdemli-limon", label: "Erdemli günlük limon piyasası" },,
+      { href: "/urun/limon", label: "Limon fiyatları — tüm haller ve geçmiş" },
+      { href: "/piyasa/erdemli-limon", label: "Erdemli günlük limon piyasası" },
       { href: "/hal/mersin-hal", label: "Mersin Toptancı Hali" },
     ],
   },
@@ -216,23 +216,23 @@ export const PIYASA_PAGES: Record<string, PiyasaPageConfig> = {
       "Adana mandalina piyasası için günlük güncellenen sayfa: Türkiye hallerindeki güncel mandalina fiyatları, Satsuma–Klemantin–Fremont çeşitleri, şehir karşılaştırması ve sezon takvimi.",
     h1: "Adana Mandalina Fiyatları",
     intro: [
-      "Çukurova, Türkiye mandalina üretiminin ana bölgesidir; Adana ve çevresinden çıkan Satsuma, Klemantin ve Fremont çeşitleri Ekim'den Şubat'a kadar hallerin en çok işlem gören meyvesidir.",,
+      "Çukurova, Türkiye mandalina üretiminin ana bölgesidir; Adana ve çevresinden çıkan Satsuma, Klemantin ve Fremont çeşitleri Ekim'den Şubat'a kadar hallerin en çok işlem gören meyvesidir.",
       "Sayfa her gün otomatik güncellenir: hal ve HKS kayıtlarındaki güncel mandalina fiyatlarını, çeşit farkını ve şehirler arası aralığı gösterir. Adana hali çevrimiçi liste yayınlamadığı için tablo diğer illerin kayıtlarına dayanır.",
     ],
     regionSections: [
       { heading: "Mandalina fiyatını ne belirler?", paragraphs: ["Çeşit ve çıkış zamanı: sezonu açan Satsuma Ekim'de yüksek açar, Kasım'da Klemantin girince fiyat geriler, Ocak–Şubat'ta Fremont ve depo ürünü piyasayı taşır. Boy, kabuk kalitesi ve ihracat talebi aynı gün içinde fiyatı ayrıştırır."] },
     ],
     seasonCalendar: [
-      { period: "Ekim – Kasım", note: "Satsuma ile sezon açılır; ilk haftalar en pahalı dönem." },,
-      { period: "Aralık – Ocak", note: "Klemantin bolluğu; arz en geniş, fiyat en düşük bant." },,
+      { period: "Ekim – Kasım", note: "Satsuma ile sezon açılır; ilk haftalar en pahalı dönem." },
+      { period: "Aralık – Ocak", note: "Klemantin bolluğu; arz en geniş, fiyat en düşük bant." },
       { period: "Şubat – Mart", note: "Fremont ve depo ürünü; arz daralır, fiyat yeniden yükselir." },
     ],
     faq: [
-      { q: "Adana'da mandalinanın kilosu kaç lira?", a: "Tek resmi Adana günlük fiyatı yayınlanmaz; sayfa Adana ürününün satıldığı hallerdeki güncel kayıtları ve şehir medyanını gösterir." },,
+      { q: "Adana'da mandalinanın kilosu kaç lira?", a: "Tek resmi Adana günlük fiyatı yayınlanmaz; sayfa Adana ürününün satıldığı hallerdeki güncel kayıtları ve şehir medyanını gösterir." },
       { q: "Hangi mandalina çeşidi ne zaman çıkar?", a: "Satsuma Ekim, Klemantin Kasım–Ocak, Fremont Şubat–Mart. Fiyat her çeşidin sezon başında yüksek, bollukta düşük seyreder." },
     ],
     related: [
-      { href: "/urun/mandalina", label: "Mandalina fiyatları — tüm haller ve geçmiş" },,
+      { href: "/urun/mandalina", label: "Mandalina fiyatları — tüm haller ve geçmiş" },
       { href: "/urun/limon", label: "Limon fiyatları" },
     ],
   },
@@ -262,17 +262,19 @@ export function findPiyasaForArticle(
   tags: readonly string[] = [],
 ): PiyasaPageConfig | null {
   const haystack = [articleSlug, ...tags].join(" ").toLocaleLowerCase("tr-TR");
+  let best: { page: PiyasaPageConfig; score: number } | null = null;
   for (const page of Object.values(PIYASA_PAGES)) {
     // Urun slug'i cok parcali olabilir ("limon-mayer"); makale "adana-mayer-limon" derse
     // sira farkli ama her parca gecer — parca parca aranir.
     const productTokens = page.productSlug.toLocaleLowerCase("tr-TR").split("-").filter(Boolean);
     // Bolge adi slug'da gecen ilk kelimeden alinir ("erdemli-limon" -> "erdemli").
     const regionToken = page.slug.split("-")[0]?.toLocaleLowerCase("tr-TR") ?? "";
-    if (productTokens.every((tok) => haystack.includes(tok)) && regionToken && haystack.includes(regionToken)) {
-      return page;
-    }
+    if (!regionToken || !haystack.includes(regionToken) || !productTokens.every((tok) => haystack.includes(tok))) continue;
+    // En ozgul eslesme kazanir: "adana-mayer-limon" makalesi adana-limon degil adana-mayer-limon sayfasina gider.
+    const score = productTokens.length;
+    if (!best || score > best.score) best = { page, score };
   }
-  return null;
+  return best?.page ?? null;
 }
 
 // hal.gov.tr ulusal kaydi "Türkiye" sehri olarak gelir; sehir kiyasina ve
