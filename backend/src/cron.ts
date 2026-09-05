@@ -7,6 +7,7 @@ import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
 import { checkAndNotifyEtlHealth } from "@/modules/etl/health";
 import { runCompetitorCheck } from "@/modules/competitor-monitor";
+import { runCompetitorDiscovery } from "@/modules/competitor-monitor/discovery";
 import { publishDailyReport } from "@/modules/telegram-channel/publisher";
 import { publishWhatsappDraft, publishWhatsappWeeklyDraft } from "@/modules/whatsapp-channel/publisher";
 import { runAllProductionSources } from "@/modules/etl/production-fetcher";
@@ -72,6 +73,7 @@ export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] }
     { name: "alerts-check",       schedule: E.alertsSchedule,           category: "bildirim", description: "Kullanici fiyat alarmlarini kontrol et + bildir" },
     { name: "early-warning",      schedule: E.earlyWarningSchedule,     category: "bildirim", description: "Firlayan temel gida erken uyarisi (sogan imzasi)" },
     { name: "competitor-monitor", schedule: E.competitorSchedule,       category: "bildirim", description: "Rakip site izleme (haftalik)" },
+    { name: "competitor-discovery", schedule: E.competitorDiscoverySchedule, category: "bildirim", description: "Rakip kesfi — GSC sorgularinda arama sonucu ilk 2 sayfa taramasi (haftalik)" },
     { name: "index-weekly",       schedule: E.indexSchedule,            category: "icerik",   description: "Haftalik fiyat endeksi hesaplama" },
     { name: "weekly-analysis",    schedule: E.weeklyAnalysisSchedule,   category: "icerik",   description: "Haftalik analiz raporu taslagi olustur" },
     { name: "weekly-digest",      schedule: E.weeklyDigestSchedule,     category: "bildirim", description: "Haftalik ozet bildirim" },
@@ -126,6 +128,7 @@ export function startCron(app: FastifyInstance): void {
     { name: "subscription-expiry", schedule: env.ETL.subscriptionExpirySchedule, handler: () => runSubscriptionExpiryJob(app) },
     // Rakip izleme — haftalık
     { name: "competitor-monitor", schedule: env.ETL.competitorSchedule,  handler: () => runCompetitorJob(app) },
+    { name: "competitor-discovery", schedule: env.ETL.competitorDiscoverySchedule, handler: () => runCompetitorDiscoveryJob(app) },
     // Telegram kanal günlük paylaşımı — 08:00 UTC = 11:00 TRT
     { name: "channel-publish",    schedule: env.ETL.channelPublishSchedule, handler: () => runChannelPublishJob(app) },
     // Migros perakende ETL — 09:00 UTC = 12:00 TRT
@@ -682,6 +685,17 @@ async function runCompetitorJob(app: FastifyInstance): Promise<void> {
     );
   } catch (err) {
     app.log.error({ err }, "[cron:competitor] hata");
+  }
+}
+
+async function runCompetitorDiscoveryJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:competitor-discovery] rakip kesfi baslatiliyor");
+  try {
+    const run = await runCompetitorDiscovery({});
+    app.log.info({ runId: run.id, queries: run.queriesDone, results: run.resultsTotal, durationMs: Date.now() - t0 }, "[cron:competitor-discovery] tamamlandi");
+  } catch (err) {
+    app.log.error({ err }, "[cron:competitor-discovery] hata");
   }
 }
 

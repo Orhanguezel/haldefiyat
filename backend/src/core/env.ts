@@ -218,6 +218,8 @@ export const env = {
     subscriptionExpirySchedule: process.env.SUBSCRIPTION_EXPIRY_CRON_SCHEDULE || "10 0 * * *",
     // Rakip izleme — her pazartesi 07:00 UTC (ETL sona erdikten sonra)
     competitorSchedule: process.env.COMPETITOR_CRON_SCHEDULE || "0 7 * * 1",
+    // Rakip kesfi (arama sonucu taramasi) — her sali 06:00 UTC; GSC verisi 2 gun geriden gelir
+    competitorDiscoverySchedule: process.env.COMPETITOR_DISCOVERY_CRON_SCHEDULE || "0 6 * * 2",
     // Telegram kanal günlük paylaşımı — her gün 08:00 UTC = 11:00 TRT (ETL bittikten sonra)
     channelPublishSchedule: process.env.CHANNEL_PUBLISH_CRON_SCHEDULE || "0 8 * * *",
     // Migros perakende fiyat ETL — her gün 09:00 UTC = 12:00 TRT (hal ETL sonrası, kanal paylaşımı sonrası)

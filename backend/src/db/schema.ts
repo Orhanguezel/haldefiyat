@@ -663,6 +663,43 @@ export const hfCompetitorSites = mysqlTable(
   (t) => [uniqueIndex("uq_site_key").on(t.siteKey)],
 );
 
+export const hfCompetitorSerpRuns = mysqlTable(
+  "hf_competitor_serp_runs",
+  {
+    id:           int("id").autoincrement().primaryKey(),
+    engine:       varchar("engine", { length: 16 }).notNull().default("bing"),
+    status:       mysqlEnum("status", ["running", "ok", "partial", "error"]).notNull().default("running"),
+    querySource:  varchar("query_source", { length: 32 }).notNull().default("gsc"),
+    queriesTotal: int("queries_total").notNull().default(0),
+    queriesDone:  int("queries_done").notNull().default(0),
+    resultsTotal: int("results_total").notNull().default(0),
+    errorMsg:     varchar("error_msg", { length: 512 }),
+    startedAt:    datetime("started_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    finishedAt:   datetime("finished_at", { fsp: 3 }),
+  },
+  (t) => [index("idx_serp_runs_started").on(t.startedAt)],
+);
+
+export const hfCompetitorSerpResults = mysqlTable(
+  "hf_competitor_serp_results",
+  {
+    id:               int("id").autoincrement().primaryKey(),
+    runId:            int("run_id").notNull(),
+    query:            varchar("query", { length: 255 }).notNull(),
+    queryClicks:      int("query_clicks").notNull().default(0),
+    queryImpressions: int("query_impressions").notNull().default(0),
+    position:         int("position").notNull(),
+    page:             tinyint("page").notNull().default(1),
+    url:              varchar("url", { length: 1024 }).notNull(),
+    domain:           varchar("domain", { length: 255 }).notNull(),
+    title:            varchar("title", { length: 512 }),
+    snippet:          text("snippet"),
+    isOurs:           tinyint("is_ours").notNull().default(0),
+    checkedAt:        datetime("checked_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [index("idx_serp_run").on(t.runId), index("idx_serp_domain").on(t.domain), index("idx_serp_query").on(t.query)],
+);
+
 export const hfCompetitorSnapshots = mysqlTable(
   "hf_competitor_snapshots",
   {

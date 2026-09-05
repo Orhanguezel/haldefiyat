@@ -18,6 +18,7 @@ import analysis from "./analysis.json";
 import authors from "./authors.json";
 import banners from "./banners.json";
 import press from "./press.json";
+import competitor from "./competitor.json";
 import hfProducts from "./hf-products.json";
 import firms from "./firms.json";
 import markets from "./markets.json";
@@ -57,6 +58,7 @@ const adminMessages = {
   authors: authors,
   banners: banners,
   press: press,
+  competitor: competitor,
   "hf-products": hfProducts,
   firms: firms,
   meta: meta,

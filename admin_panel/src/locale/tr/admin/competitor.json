@@ -1,0 +1,115 @@
+{
+  "title": "Rakip İzleme",
+  "subtitle": "Son keşif {date} · sorgu kaynağı {source} · motor {engine} · {status}",
+  "subtitleEmpty": "Henüz keşif çalışmadı. GSC'de en çok gösterim alan aramalarımızda ilk iki sayfada kim çıkıyor, tek tuşla tarayın.",
+  "sources": {
+    "gsc": "Search Console",
+    "products": "ürün listesi",
+    "manual": "elle girilen"
+  },
+  "runStatus": {
+    "running": "çalışıyor",
+    "ok": "tamamlandı",
+    "partial": "kısmen tamamlandı",
+    "error": "hata"
+  },
+  "tabs": {
+    "discovery": "Keşif",
+    "queries": "Sorgular",
+    "sites": "İzlenen siteler"
+  },
+  "kinds": {
+    "all": "Tüm türler",
+    "official": "Resmî kaynak",
+    "retail": "Perakende",
+    "news": "Haber",
+    "other": "Diğer"
+  },
+  "tiles": {
+    "domains": "Rakip alan adı",
+    "domainsHint": "{official} resmî kaynak dahil",
+    "ahead": "Önümüzde",
+    "aheadHint": "en az bir sorguda bizden üstte",
+    "tracked": "İzlenen",
+    "trackedHint": "{total} izleme kaydı",
+    "queries": "Sorgu",
+    "queriesHint": "son keşifte taranan",
+    "weRank": "Yer aldığımız",
+    "weRankHint": "ort. #{avg} · ilk 3: {top3}",
+    "weRankNone": "henüz veri yok",
+    "missing": "Görünmediğimiz",
+    "missingHint": "ilk 2 sayfada yokuz"
+  },
+  "discovery": {
+    "start": "Keşfi başlat",
+    "running": "Taranıyor {done}/{total}",
+    "started": "Keşif arka planda başladı; sorgu başına iki sayfa çekilir, birkaç dakika sürer.",
+    "startFailed": "Keşif başlatılamadı.",
+    "manual": "Kendi sorgularım",
+    "manualHint": "Her satıra bir arama sorgusu. Boş bırakılırsa GSC'nin en çok gösterim alan 30 sorgusu kullanılır.",
+    "manualPlaceholder": "antalya hal fiyatları\\ndomates fiyatı",
+    "startManual": "Bu sorgularla tara",
+    "queriesShort": "sorgu",
+    "search": "Alan adı veya başlık ara",
+    "chipAhead": "Önümüzde olanlar",
+    "chipHideTracked": "İzlenenleri gizle",
+    "count": "{count} alan adı",
+    "empty": "Bu keşifte gösterilecek alan adı yok.",
+    "delta": "Önceki keşfe göre:",
+    "track": "İzlemeye al",
+    "tracked": "{domain} izlemeye alındı; haftalık kontrol listesine girdi.",
+    "table": {
+      "domain": "Alan adı",
+      "coverage": "Kapsam",
+      "queriesOf": "{count} / {total} sorgu",
+      "avgPosition": "Ort. pozisyon",
+      "best": "en iyi #{pos}",
+      "top3": "İlk 3 / ilk 10",
+      "ahead": "Bizden önde",
+      "status": "Durum",
+      "tracked": "İzleniyor",
+      "untracked": "İzlenmiyor"
+    },
+    "sheet": {
+      "queries": "Sorgu",
+      "perQuery": "Sorgu bazında pozisyonlar",
+      "us": "biz",
+      "notRanked": "yok",
+      "impressions": "{count} gösterim"
+    }
+  },
+  "queries": {
+    "query": "Sorgu",
+    "impressions": "Gösterim",
+    "clicks": "Tıklama",
+    "ourPosition": "Bizim pozisyon",
+    "topDomains": "İlk 5 rakip",
+    "notRanked": "İlk 20'de yok",
+    "us": "Biz",
+    "page2": "2. sayfa",
+    "impressionsLine": "{impressions} gösterim · {clicks} tıklama (GSC, 28 gün)"
+  },
+  "sites": {
+    "checkAll": "Tümünü kontrol et",
+    "checkOne": "Şimdi kontrol et",
+    "checking": "Kontrol ediliyor...",
+    "checked": "Kontrol tamamlandı.",
+    "pause": "İzlemeyi durdur",
+    "resume": "İzlemeyi başlat",
+    "error": "Hata",
+    "empty": "İzlenen site yok. Keşif sekmesinden alan adı seçip izlemeye alın.",
+    "historyTitle": "Son kontroller",
+    "historyLoading": "Geçmiş yükleniyor…",
+    "noHistory": "Bu site için henüz kayıt yok.",
+    "products": "{count} ürün",
+    "markets": "{count} hal",
+    "table": {
+      "site": "Site",
+      "lastCheck": "Son kontrol",
+      "products": "Ürün",
+      "features": "Özellikler",
+      "change": "Değişiklik",
+      "status": "Durum"
+    }
+  }
+}

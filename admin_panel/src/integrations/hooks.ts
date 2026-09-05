@@ -393,6 +393,10 @@ export {
 } from "@/integrations/endpoints/authors-admin-endpoints";
 export {
   useGetCompetitorHistoryAdminQuery,
+  useGetCompetitorDiscoveryAdminQuery,
+  useGetCompetitorDiscoveryResultsAdminQuery,
+  useStartCompetitorDiscoveryAdminMutation,
+  useAddCompetitorSiteAdminMutation,
   useListCompetitorSitesAdminQuery,
   useRunCompetitorCheckAdminMutation,
   useToggleCompetitorSiteAdminMutation,
