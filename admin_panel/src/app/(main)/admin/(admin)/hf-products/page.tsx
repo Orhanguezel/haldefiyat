@@ -31,7 +31,7 @@ export default function Page() {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [masterId, setMasterId] = useState("");
-  const [open, setOpen] = useState<HfProductItem | null>(null);
+  const [openId, setOpenId] = useState<number | null>(null);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
 
   const q = useDebounced(filters.q, 300);
@@ -51,6 +51,8 @@ export default function Page() {
   const bySlug = useMemo(() => new Map(items.map((i) => [i.slug, i])), [items]);
   const stats = useMemo(() => summarize(items), [items]);
   const visible = useMemo(() => sortItems(applyLocalFilters(items, filters), filters.sort), [items, filters]);
+  // Panel, liste yeniden cekildiginde guncel satiri gostersin (kayit sonrasi rozetler eskimesin).
+  const open = useMemo(() => (openId == null ? null : items.find((i) => i.id === openId) ?? null), [items, openId]);
 
   useEffect(() => { setPage(1); }, [filters, q]);
 
@@ -109,7 +111,7 @@ export default function Page() {
         selected={selected}
         onToggle={(id) => setSelected((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; })}
         onToggleAll={(ids, checked) => setSelected((prev) => { const n = new Set(prev); ids.forEach((id) => (checked ? n.add(id) : n.delete(id))); return n; })}
-        onOpen={setOpen}
+        onOpen={(item: HfProductItem) => setOpenId(item.id)}
         bySlug={bySlug}
         page={page}
         pageSize={PAGE_SIZE}
@@ -125,7 +127,7 @@ export default function Page() {
         busy={mergeState.isLoading}
       />
 
-      <ProductSheet item={open} categories={categories} onClose={() => setOpen(null)} />
+      <ProductSheet item={open} categories={categories} onClose={() => setOpenId(null)} />
 
       <Sheet open={suggestionsOpen} onOpenChange={setSuggestionsOpen}>
         <SheetContent side="right" className="w-full overflow-y-auto p-4 sm:max-w-3xl">

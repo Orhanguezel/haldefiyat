@@ -87,7 +87,15 @@ export function ProductSheet({ item, categories, onClose }: Props) {
   const [update, updateState] = useUpdateHfProductAdminMutation();
   const [form, setForm] = useState(() => (item ? toForm(item) : null));
 
-  useEffect(() => { setForm(item ? toForm(detail && detail.id === item.id ? detail : item) : null); }, [item, detail]);
+  const itemId = item?.id ?? null;
+  const detailId = detail?.id ?? null;
+  // Form yalniz urun degisince ya da detay ilk gelince dolar; liste tazelenince
+  // kullanicinin henuz kaydetmedigi degisiklikler silinmez.
+  useEffect(() => {
+    if (!item) { setForm(null); return; }
+    setForm(toForm(detail && detail.id === item.id ? detail : item));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemId, detailId]);
 
   const set = <K extends keyof NonNullable<typeof form>>(key: K, value: NonNullable<typeof form>[K]) =>
     setForm((prev) => (prev ? { ...prev, [key]: value } : prev));

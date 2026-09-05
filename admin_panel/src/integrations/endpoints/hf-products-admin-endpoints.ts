@@ -162,9 +162,11 @@ export const hfProductsAdminApi = baseApi.injectEndpoints({
     }),
     updateHfProductAdmin: builder.mutation<{ ok: boolean }, { id: number | string; body: HfProductPayload }>({
       query: ({ id, body }) => ({ url: `/admin/hal/products/${id}`, method: "PATCH", body }),
+      // GSC paneli "SEO index karari"ni kendi sorgusundan okur; guncelleme onu da tazelemeli.
       invalidatesTags: (_r, _e, { id }) => [
         { type: "HfProducts" as const, id: "LIST" },
         { type: "HfProducts" as const, id },
+        { type: "HfProducts" as const, id: `GSC-${id}` },
       ],
     }),
     deleteHfProductAdmin: builder.mutation<{ ok: boolean }, number | string>({
