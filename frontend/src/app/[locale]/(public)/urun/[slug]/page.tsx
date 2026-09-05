@@ -170,10 +170,10 @@ async function fetchRetailPriceLine(slug: string, fallbackUnit: string): Promise
  * o gun gercekten veri olan hallerden gelir — olmayan sehri yazmak CTR'i
  * yukseltip kullaniciyi bos sayfaya dusurur, uzun vadede sira kaybettirir.
  */
-async function fetchTodayPriceSummary(slug: string, fallbackUnit: string): Promise<{ priceLine: string; cityLine: string }> {
+async function fetchTodayPriceSummary(slug: string, fallbackUnit: string): Promise<{ priceLine: string; cityLine: string; dateTr: string }> {
   try {
     const prices = await fetchPrices({ product: slug, range: "1d", limit: 50 });
-    if (prices.length === 0) return { priceLine: await fetchRetailPriceLine(slug, fallbackUnit), cityLine: "" };
+    if (prices.length === 0) return { priceLine: await fetchRetailPriceLine(slug, fallbackUnit), cityLine: "", dateTr: "" };
     const latestDate = prices.reduce((max, p) => (p.recordedDate > max ? p.recordedDate : max), "");
     const dayRows = prices.filter((p) => p.recordedDate === latestDate);
 
@@ -191,15 +191,15 @@ async function fetchTodayPriceSummary(slug: string, fallbackUnit: string): Promi
     const avgs = dayRows
       .map((p) => toNumberSafe(p.avgPrice))
       .filter((n) => Number.isFinite(n) && n > 0);
-    if (avgs.length === 0) return { priceLine: "", cityLine };
+    if (avgs.length === 0) return { priceLine: "", cityLine, dateTr: formatDateTr(latestDate) ?? "" };
     const avg = avgs.reduce((a, b) => a + b, 0) / avgs.length;
     const avgTr = avg.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const unit = dayRows.find((p) => p.unit)?.unit ?? fallbackUnit;
     const dateTr = formatDateTr(latestDate);
     const dateSuffix = dateTr ? ` (${dateTr})` : "";
-    return { priceLine: `Ortalama ${avgTr} TL/${unit}${dateSuffix}. `, cityLine };
+    return { priceLine: `Ortalama ${avgTr} TL/${unit}${dateSuffix}. `, cityLine, dateTr: dateTr ?? "" };
   } catch {
-    return { priceLine: "", cityLine: "" };
+    return { priceLine: "", cityLine: "", dateTr: "" };
   }
 }
 
@@ -242,7 +242,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug }),
     fetchTodayPriceSummary(slug, product.unit),
   ]);
-  const { priceLine, cityLine } = summary;
+  const { priceLine, cityLine, dateTr } = summary;
+  // Baslikta birim parantezi ("Limon (Kg)") arama diliyle uyusmaz; aile icinde koli/sandik
+  // varyanti oldugu icin API ekliyor. Baslik icin atilir, sayfa govdesinde kalir.
+  const nameClean = displayName.replace(/\s*\((kg|kilogram|koli|kasa|adet|bağ|demet|sandık|çuval|paket)\)\s*$/iu, "").trim() || displayName;
   // Index: seoIndex açık VE özgün içerik var (DB editoryel veya elle yazılmış statik).
   // Yalnızca kategori-şablon fallback (thin/duplicate) noindex kalır.
   const shouldIndex = isSeoIndexed(product) && editorial.source !== "template";
@@ -269,10 +272,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       year,
       priceLine,
       cityLine,
+      dateTr: dateTr || year,
+      nameClean,
+      kind: borsaProduct ? "TMO ve Borsa" : "Hal ve Toptan",
     },
     title: borsaProduct
-      ? `${displayName} Fiyatları ${year} — Güncel TMO Alım & Borsa Fiyatı`
-      : `${displayName} Fiyatları ${year} — Güncel Hal ve Toptan Fiyat`,
+      ? `${nameClean} Fiyatları ${year} — Güncel TMO Alım & Borsa Fiyatı`
+      : `${nameClean} Fiyatları Bugün Kaç TL? ${dateTr || year} — Hal ve Toptan`,
     description: borsaProduct
       ? `${displayName} için TMO resmi alım fiyatı ve ticaret borsası serbest piyasa fiyatları. ${priceLine}Kaynak, fiyat tipi ve tarih ayrı gösterilir.`
       : `${displayName} güncel hal, toptan ve piyasa fiyatları. ${priceLine}${cityLine}Günlük ortalama, min–maks aralık ve 5 yıllık trend grafiği.`,

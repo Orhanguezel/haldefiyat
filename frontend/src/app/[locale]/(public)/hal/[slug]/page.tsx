@@ -111,9 +111,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       : `Son listede ${summary.count} ürün (${dateTr}). `
     : "";
 
-  const title = `${market.name} Fiyatları ${yearTr} — Güncel Toptan Liste`;
+  // Arama dili "ankara hal fiyatlari (bugun)": rakip (harmanapps) basligi bu sirayla ve
+  // gunluk tarihle kuruyor; bizim eski "Toptanci Hali Fiyatlari 2026" kalibi sorgu
+  // ifadesini hic tasimiyordu (6 Eyl 2026 analizi). Tarih = son veri gunu, tazelik sinyali.
+  const isNationalTitle = market.cityName.toLocaleLowerCase("tr-TR") === "türkiye";
+  const title = isNationalTitle
+    ? `Türkiye Hal Fiyatları Bugün ${dateTr || yearTr} — ${market.name}`
+    : `${market.cityName} Hal Fiyatları Bugün ${dateTr || yearTr} — ${market.name}`;
   // market.name zaten şehri içerir ("Antalya Toptancı Hali ...") → cityName tekrarı yok.
-  const description = `${market.name} güncel hal fiyatları. ${liveLine}Sebze, meyve ve bakliyat için min/ort/maks toptan fiyat. Kaynağın resmi yayın takvimine göre güncellenir.`;
+  const description = `${market.name} güncel meyve sebze hali fiyatları. ${liveLine}Sebze, meyve ve bakliyat için min/ort/maks toptan fiyat. Kaynağın resmi yayın takvimine göre güncellenir.`;
 
   // page key "hal_detay": DB seo_pages'teki liste-sayfası "hal" (Tüm Haller)
   // template'i detay sayfalarını ezmesin diye ayrı anahtar kullanılır.
