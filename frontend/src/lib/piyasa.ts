@@ -165,10 +165,12 @@ export function findPiyasaForArticle(
 ): PiyasaPageConfig | null {
   const haystack = [articleSlug, ...tags].join(" ").toLocaleLowerCase("tr-TR");
   for (const page of Object.values(PIYASA_PAGES)) {
-    const product = page.productSlug.toLocaleLowerCase("tr-TR");
+    // Urun slug'i cok parcali olabilir ("limon-mayer"); makale "adana-mayer-limon" derse
+    // sira farkli ama her parca gecer — parca parca aranir.
+    const productTokens = page.productSlug.toLocaleLowerCase("tr-TR").split("-").filter(Boolean);
     // Bolge adi slug'da gecen ilk kelimeden alinir ("erdemli-limon" -> "erdemli").
     const regionToken = page.slug.split("-")[0]?.toLocaleLowerCase("tr-TR") ?? "";
-    if (haystack.includes(product) && regionToken && haystack.includes(regionToken)) {
+    if (productTokens.every((tok) => haystack.includes(tok)) && regionToken && haystack.includes(regionToken)) {
       return page;
     }
   }

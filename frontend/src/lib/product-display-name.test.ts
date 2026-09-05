@@ -13,4 +13,10 @@ describe("getProductDisplayName", () => {
   it("keeps a meaningful variant qualifier", () => {
     expect(getProductDisplayName({ nameTr: "ROKA (BAĞ)", displayName: "Roka" })).toBe("Roka (Bağ)");
   });
+
+  it("accepts a configured name that carries the qualifier without parentheses", () => {
+    // Arama dili "salçalık domates"; niteleyici korunuyor, parantez sart degil.
+    expect(getProductDisplayName({ nameTr: "DOMATES (SALÇALIK)", displayName: "Salçalık Domates" })).toBe("Salçalık Domates");
+    expect(getProductDisplayName({ nameTr: "DOMATES (SALÇALIK)", displayName: "Domates" })).toBe("Domates (Salçalık)");
+  });
 });

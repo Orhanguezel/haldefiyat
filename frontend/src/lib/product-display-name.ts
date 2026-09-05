@@ -17,10 +17,25 @@ function hasMeaningfulQualifier(value: string) {
   return /\([^)]*[0-9A-Za-zÇĞİÖŞÜçğıöşü][^)]*\)/u.test(value);
 }
 
+/** Parantez icindeki niteleyici kelimeler ("DOMATES (SALÇALIK)" → ["salçalık"]). */
+function qualifierWords(value: string): string[] {
+  return [...value.matchAll(/\(([^)]*)\)/gu)]
+    .flatMap((m) => m[1].split(/[\s,/-]+/u))
+    .map((w) => w.toLocaleLowerCase("tr-TR"))
+    .filter((w) => w.length > 1);
+}
+
+/** Elle verilen ad, ETL adinin niteleyicisini parantezsiz de tasiyorsa ("Salçalık Domates") anlamlidir. */
+function keepsQualifier(configured: string, nameTr: string) {
+  const words = qualifierWords(nameTr);
+  const lower = configured.toLocaleLowerCase("tr-TR");
+  return words.length > 0 && words.every((w) => lower.includes(w));
+}
+
 export function getProductDisplayName(product: { displayName?: string | null; nameTr: string }) {
   const configured = product.displayName?.trim();
   // Anlamlı varyantı koru; ETL placeholder'ını temiz display_name'in üzerine yazma.
-  const value = (hasMeaningfulQualifier(product.nameTr) && !(configured && hasMeaningfulQualifier(configured))
+  const value = (hasMeaningfulQualifier(product.nameTr) && !(configured && (hasMeaningfulQualifier(configured) || keepsQualifier(configured, product.nameTr)))
     ? product.nameTr
     : configured || product.nameTr)
     .replace(/\s*\(\s*\.{3}\s*\)\s*/gu, " ")
