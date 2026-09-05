@@ -60,7 +60,7 @@ export async function listCityProductPairs(): Promise<CityProductPair[]> {
     const key = `${citySlug}/${r.product_slug}`;
     if (seen.has(key)) continue; // ayni sehirde ikinci hal: en cok gunlu (siralama) kazanir
     seen.add(key);
-    const lastDate = String(r.last_date).slice(0, 10);
+    const lastDate = isoDate(r.last_date);
     const staleDays = Math.round((Date.now() - new Date(`${lastDate}T00:00:00Z`).getTime()) / 86_400_000);
     const eligible = Number(r.seo_index) === 1 && Number(r.days90) >= GATE.minDays90
       && Number(r.search_volume) >= GATE.minSearchVolume && staleDays <= GATE.maxStaleDays;
@@ -85,6 +85,12 @@ export interface CityProductDetail {
 }
 
 const num = (v: unknown) => (v == null ? null : Number(v));
+/** mysql2 DATE kolonunu JS Date olarak verir; String() ile kesmek gecersiz tarih uretir. */
+function isoDate(v: unknown): string {
+  if (v instanceof Date) return v.toISOString().slice(0, 10);
+  const s = String(v ?? "");
+  return /^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) : new Date(s).toISOString().slice(0, 10);
+}
 const median = (xs: number[]) => { if (!xs.length) return null; const s = [...xs].sort((a, b) => a - b); const m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 
 export async function getCityProductDetail(citySlug: string, productSlug: string): Promise<CityProductDetail | null> {
@@ -103,7 +109,7 @@ export async function getCityProductDetail(citySlug: string, productSlug: string
     [productSlug, pair.marketSlug],
   );
   const history = (hist ?? []).map((r) => ({
-    recordedDate: String(r.recorded_date).slice(0, 10), avgPrice: Number(r.avg_price), minPrice: num(r.min_price), maxPrice: num(r.max_price),
+    recordedDate: isoDate(r.recorded_date), avgPrice: Number(r.avg_price), minPrice: num(r.min_price), maxPrice: num(r.max_price),
     unit: pair.unit, marketSlug: pair.marketSlug, marketName: pair.marketName, cityName: pair.cityName,
   }));
   const latestRow = history.at(-1) ?? null;
@@ -126,7 +132,7 @@ export async function getCityProductDetail(citySlug: string, productSlug: string
   );
   const cities = (cityRows ?? []).map((r) => {
     const cs = citySlugTr(String(r.city_name));
-    return { citySlug: cs, cityName: String(r.city_name), marketSlug: String(r.market_slug), avgPrice: Number(r.avg_price), recordedDate: String(r.rd).slice(0, 10), eligible: eligibleKeys.has(`${cs}/${productSlug}`) };
+    return { citySlug: cs, cityName: String(r.city_name), marketSlug: String(r.market_slug), avgPrice: Number(r.avg_price), recordedDate: isoDate(r.rd), eligible: eligibleKeys.has(`${cs}/${productSlug}`) };
   });
   const nationalMedian = median(cities.map((c) => c.avgPrice));
   const rank = latest ? cities.findIndex((c) => c.citySlug === citySlug) + 1 || null : null;
