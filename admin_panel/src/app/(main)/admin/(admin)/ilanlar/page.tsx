@@ -246,7 +246,7 @@ export default function ListingsAdminPage() {
         pending: summary.pending,
         approved: summary.active,
         rejected: summary.rejected,
-        all: summary.pending + summary.active + summary.rejected,
+        all: null,
       }
     : { pending: null, approved: null, rejected: null, all: null };
 

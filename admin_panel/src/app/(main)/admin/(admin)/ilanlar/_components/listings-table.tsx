@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { daysLeft, formatDate, imageSrc, STATUS_LABEL, TYPE_LABEL } from '../_lib/api';
-import { isLiveAd } from '../_lib/ads';
+import { isLiveAd, isPendingAd } from '../_lib/ads';
 import type { AdRow, Listing } from '../_lib/types';
 
 function StatusBadge({ status }: { status: string }) {
@@ -90,7 +90,7 @@ export function ListingsTable({ items, ads, busy, onEdit, onModerate, onDelete }
                         {item.images?.length ? <span className="text-muted-foreground/70">· {item.images.length} görsel</span> : null}
                         {item.isSuspicious ? <Badge variant="destructive" className="font-normal">Şüpheli fiyat</Badge> : null}
                         {isLiveAd(ad) ? <Badge className="font-normal">Reklamda</Badge>
-                          : ad ? <Badge variant="outline" className="font-normal">Reklam bekliyor</Badge>
+                          : isPendingAd(ad) ? <Badge variant="outline" className="font-normal">Reklam bekliyor</Badge>
                           : item.isFeatured ? <Badge variant="secondary" className="font-normal">Öne çıkan</Badge> : null}
                       </div>
                     </div>

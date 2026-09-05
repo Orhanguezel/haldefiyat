@@ -7,6 +7,13 @@ export function isLiveAd(ad?: AdRow) {
   return Boolean(ad?.isActive && (!ad.endAt || new Date(ad.endAt).getTime() >= Date.now()));
 }
 
+/** Odemesi/yayini bekleyen, slotu tutan reklam. Biten veya iptal olan sayilmaz. */
+export function isPendingAd(ad?: AdRow) {
+  if (!ad || isLiveAd(ad) || ad.archivedAt) return false;
+  if (ad.endAt && new Date(ad.endAt).getTime() < Date.now()) return false;
+  return OCCUPYING_STATUSES.has(ad.lifecycleStatus ?? '');
+}
+
 function devicesOverlap(requested: AdDevice, existing: AdDevice) {
   return requested === 'all' || existing === 'all' || requested === existing;
 }
