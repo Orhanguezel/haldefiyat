@@ -1,0 +1,151 @@
+{
+  "title": "Firma rehberi",
+  "subtitle": "{total} firma · {active} aktif · {stale} durgun · {sponsored} sponsorlu",
+  "tabs": {
+    "list": "Firmalar",
+    "claims": "Sahiplenme talepleri",
+    "stale": "Durgun kayıtlar",
+    "etl": "Veri toplama"
+  },
+  "search": "Firma adı, adres veya telefon ara",
+  "allCities": "Tüm iller",
+  "allTypes": "Tüm türler",
+  "types": {
+    "komisyoncu": "Komisyoncu",
+    "soguk_hava": "Soğuk hava",
+    "nakliye": "Nakliye",
+    "zirai_ilac": "Zirai ilaç"
+  },
+  "status": {
+    "all": "Tümü",
+    "pending": "Bekleyen",
+    "approved": "Onaylı",
+    "rejected": "Reddedilen"
+  },
+  "claim": {
+    "unclaimed": "Sahipsiz",
+    "pending": "Sahiplenme bekliyor",
+    "verified": "Sahipli"
+  },
+  "source": {
+    "halkatalogu": "Katalog",
+    "user": "Üye kaydı"
+  },
+  "filters": {
+    "claim": "Sahiplik",
+    "source": "Kaynak",
+    "phone": "Telefon",
+    "phoneYes": "Telefonu var",
+    "phoneNo": "Telefonu yok",
+    "sponsored": "Yalnız sponsorlu",
+    "stale": "45+ gün görülmemiş"
+  },
+  "sort": {
+    "default": "Varsayılan (sponsorlu önce)",
+    "name": "Ad",
+    "city": "İl",
+    "lastSeen": "En eski görülme",
+    "newest": "En yeni kayıt"
+  },
+  "tiles": {
+    "total": "Firma",
+    "totalHint": "{active} aktif",
+    "pending": "Onay bekleyen",
+    "pendingHint": "moderasyon",
+    "claims": "Sahiplenme talebi",
+    "claimsHint": "karar bekliyor",
+    "sponsored": "Sponsorlu",
+    "sponsoredHint": "aktif paket",
+    "stale": "Durgun",
+    "staleHint": "45+ gün görülmemiş",
+    "pipeline": "Pipeline",
+    "pipelineHint": "açık fırsat değeri"
+  },
+  "table": {
+    "firm": "Firma",
+    "type": "Tür",
+    "location": "İl / ilçe",
+    "phone": "Telefon",
+    "status": "Durum",
+    "lastSeen": "Son görülme",
+    "empty": "Bu filtrede firma yok.",
+    "summary": "{from}-{to} / {total} firma",
+    "noRecords": "Kayıt yok",
+    "member": "Üye kaydı",
+    "sponsor": "Sponsor",
+    "claimPending": "Sahiplenme bekliyor",
+    "owned": "Sahipli"
+  },
+  "sheet": {
+    "tabs": {
+      "overview": "Özet",
+      "edit": "Düzenle",
+      "workspace": "Çalışma alanı",
+      "crm": "CRM",
+      "claims": "Talepler"
+    },
+    "fields": {
+      "externalId": "Katalog no",
+      "slug": "Slug",
+      "type": "Tür",
+      "source": "Kaynak",
+      "status": "Durum",
+      "claim": "Sahiplik",
+      "owner": "Sahip kullanıcı",
+      "contact": "İlgili kişi",
+      "phone": "Telefon",
+      "address": "Adres",
+      "city": "İl",
+      "district": "İlçe",
+      "categories": "Kategoriler",
+      "categoriesHint": "Virgülle ayırın.",
+      "description": "Açıklama",
+      "firstSeen": "İlk görülme",
+      "lastSeen": "Son görülme",
+      "seoIndex": "SEO index",
+      "seoIndexHint": "Firma sayfası indexlenebilir olsun.",
+      "active": "Aktif",
+      "sponsorTier": "Sponsorluk"
+    },
+    "moderation": "Moderasyon",
+    "approve": "Onayla",
+    "reject": "Reddet",
+    "releaseOwnership": "Sahipliği kaldır",
+    "releaseConfirm": "“{name}” firmasının sahipliği kaldırılsın mı? Firma kaydı silinmez; tekrar sahiplenilebilir olur.",
+    "clearContacts": "İletişim bilgilerini sil",
+    "publicPage": "Firma sayfası",
+    "whatsapp": "WhatsApp",
+    "noClaims": "Bu firma için talep yok.",
+    "saved": "Firma kaydedildi.",
+    "saveFailed": "Firma kaydedilemedi."
+  },
+  "claims": {
+    "firm": "Firma",
+    "user": "Kullanıcı",
+    "evidence": "Kanıt / not",
+    "status": "Durum",
+    "action": "İşlem",
+    "empty": "Talep yok.",
+    "approved": "Talep onaylandı.",
+    "rejected": "Talep reddedildi."
+  },
+  "stale": {
+    "title": "Durgun firma raporu",
+    "hint": "{days} günden uzun süredir kaynakta görülmeyen firmalar.",
+    "firm": "Firma",
+    "city": "İl",
+    "lastSeen": "Son görülme",
+    "empty": "Durgun kayıt yok."
+  },
+  "etl": {
+    "title": "Kaynaktan veri toplama",
+    "hint": "Seçili il ve tür için katalog taranır. Kuru çalıştırma hiçbir şey yazmaz.",
+    "city": "İl (slug)",
+    "type": "Tür",
+    "dryRun": "Kuru çalıştır",
+    "run": "İl için çalıştır",
+    "running": "Çalışıyor…",
+    "dryResult": "Kuru çalıştırma: {discovered} firma bulundu.",
+    "result": "Tarama: {discovered} bulundu, {inserted} yeni, {updated} güncel, {skipped} atlandı."
+  }
+}

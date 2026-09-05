@@ -11,6 +11,7 @@ import {
   useInspectHfProductGscAdminMutation,
 } from "@/integrations/endpoints/hf-products-admin-endpoints";
 import { trGscCoverage, trGscVerdict } from "@/integrations/shared";
+import { useAdminT } from "../../../_components/common/use-admin-t";
 
 const gscMeta: Record<
   GscIndexCategory,
@@ -22,20 +23,23 @@ const gscMeta: Record<
   unknown: { variant: "outline", Icon: HelpCircle },
 };
 
+/** Kisa rozet etiketi locale'den gelir (admin.hf-products.gsc.labels.*). */
 export const GSC_SHORT_LABEL: Record<GscIndexCategory, string> = {
-  indexed: "İndexli",
-  not_indexed: "İndexsiz",
-  issue: "Sorun",
-  unknown: "Bilinmiyor",
+  indexed: "gsc.labels.indexed",
+  not_indexed: "gsc.labels.not_indexed",
+  issue: "gsc.labels.issue",
+  unknown: "gsc.labels.unknown",
 };
 
 export function ProductGscBadge({ category, label }: { category: GscIndexCategory; label: string }) {
+  const t = useAdminT("admin.hf-products");
   const meta = gscMeta[category];
   const Icon = meta.Icon;
+  const text = label.startsWith("gsc.labels.") ? t(label) : label;
   return (
     <Badge variant={meta.variant} className="gap-1">
       <Icon className="h-3.5 w-3.5" />
-      {label}
+      {text}
     </Badge>
   );
 }
@@ -46,13 +50,14 @@ function formatDateTime(value: string | null): string {
 }
 
 export function ProductGscPanel({ id, isNew }: { id: string; isNew: boolean }) {
+  const t = useAdminT("admin.hf-products.gsc");
   const { data, isFetching, refetch } = useGetHfProductGscAdminQuery({ id }, { skip: isNew });
   const [inspect, { isLoading: inspecting }] = useInspectHfProductGscAdminMutation();
 
   if (isNew) {
     return (
       <div className="rounded-md border bg-muted/30 p-4 text-sm text-muted-foreground">
-        İndexlenme durumu, ürün kaydedildikten sonra görüntülenir.
+        {t("afterSave")}
       </div>
     );
   }
@@ -60,7 +65,7 @@ export function ProductGscPanel({ id, isNew }: { id: string; isNew: boolean }) {
   if (!data) {
     return (
       <div className="rounded-md border p-4 text-sm text-muted-foreground">
-        {isFetching ? "İndexlenme durumu yükleniyor..." : "Veri yok."}
+        {isFetching ? t("loading") : t("noData")}
       </div>
     );
   }
@@ -72,9 +77,9 @@ export function ProductGscPanel({ id, isNew }: { id: string; isNew: boolean }) {
     try {
       await inspect({ id }).unwrap();
       await refetch();
-      toast.success("Google indexlenme durumu güncellendi");
+      toast.success(t("updated"));
     } catch {
-      toast.error("Denetim başarısız. GSC yetkilendirme/kotayı kontrol edin.");
+      toast.error(t("failed"));
     }
   }
 
@@ -83,11 +88,11 @@ export function ProductGscPanel({ id, isNew }: { id: string; isNew: boolean }) {
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 font-medium text-sm">
           <Search className="h-4 w-4" />
-          Google Search Console indexlenme
+          {t("title")}
         </div>
         <Button size="sm" variant="outline" onClick={handleInspect} disabled={inspecting}>
           <RefreshCw className={`mr-1.5 h-4 w-4 ${inspecting ? "animate-spin" : ""}`} />
-          {inspecting ? "Denetleniyor..." : "Google'da Denetle"}
+          {inspecting ? t("inspecting") : t("inspect")}
         </Button>
       </div>
 
@@ -101,35 +106,32 @@ export function ProductGscPanel({ id, isNew }: { id: string; isNew: boolean }) {
         >
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
-            <strong>{gsc.category === "issue" ? "Index sorunu" : "Henüz indexlenmedi"}:</strong>{" "}
+            <strong>{gsc.category === "issue" ? t("issue") : t("notIndexed")}:</strong>{" "}
             {trGscCoverage(gsc.label)}
-            {!seoIndex && " · Bu ürün noindex işaretli; Google'ın indexlememesi beklenir."}
+            {!seoIndex && t("noindexNote")}
           </span>
         </div>
       )}
 
       {seoIndex && (gsc.category === "issue" || gsc.category === "not_indexed") && (
         <div className="mb-3 rounded-md border border-sky-500/40 bg-sky-500/10 p-3 text-sm text-sky-700 dark:text-sky-300">
-          ℹ️ Bu ürün <strong>indexlenebilir</strong> ayarlı. Bu durum, Google’ın <strong>son taramasına</strong>
-          {gsc.lastCrawl ? ` (${formatDateTime(gsc.lastCrawl)})` : ""} dayanır — sayfa o tarihten sonra düzeltildiyse
-          (örn. editöryel eklendiyse) Google yeniden tarayana kadar eski durumu gösterir. Canlı sayfa doğruysa sorun
-          yoktur; hızlandırmak için GSC’de “İndexlenmeyi iste”.
+          ℹ️ {t("staleVerdict", { when: gsc.lastCrawl ? ` (${formatDateTime(gsc.lastCrawl)})` : "" })}
         </div>
       )}
 
       <ProductGscBadge category={gsc.category} label={trGscCoverage(gsc.label)} />
 
       <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-muted-foreground text-xs">
-        <dt>Sonuç</dt>
+        <dt>{t("verdict")}</dt>
         <dd className="text-right text-foreground">{trGscVerdict(gsc.verdict)}</dd>
-        <dt>Kapsam durumu</dt>
+        <dt>{t("coverage")}</dt>
         <dd className="text-right text-foreground">{trGscCoverage(gsc.coverageState)}</dd>
-        <dt>Son tarama (Google)</dt>
+        <dt>{t("lastCrawl")}</dt>
         <dd className="text-right text-foreground">{formatDateTime(gsc.lastCrawl)}</dd>
-        <dt>Son denetim</dt>
+        <dt>{t("lastCheck")}</dt>
         <dd className="text-right text-foreground">{formatDateTime(gsc.checkedAt)}</dd>
-        <dt>SEO index kararı</dt>
-        <dd className="text-right text-foreground">{seoIndex ? "Açık (indexlenebilir)" : "Kapalı (noindex)"}</dd>
+        <dt>{t("seoDecision")}</dt>
+        <dd className="text-right text-foreground">{seoIndex ? t("seoOn") : t("seoOff")}</dd>
       </dl>
 
       <div className="mt-3 flex items-center justify-between gap-2 rounded-md bg-muted/30 p-2 text-xs">
@@ -140,14 +142,13 @@ export function ProductGscPanel({ id, isNew }: { id: string; isNew: boolean }) {
           rel="noreferrer"
           className="flex shrink-0 items-center gap-1 text-foreground hover:underline"
         >
-          <Globe className="h-3.5 w-3.5" /> Aç
+          <Globe className="h-3.5 w-3.5" /> {t("open")}
         </a>
       </div>
 
       {!gsc.checked && (
         <p className="mt-2 text-muted-foreground text-xs">
-          Bu URL henüz Google'da denetlenmedi. "Google'da Denetle" ile canlı durumu çekebilirsiniz (GSC kotası
-          kullanılır).
+          {t("unchecked")}
         </p>
       )}
     </div>

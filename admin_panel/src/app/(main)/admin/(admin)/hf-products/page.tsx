@@ -17,6 +17,7 @@ import { ProductsOverview } from "./_components/products-overview";
 import { ProductsTable } from "./_components/products-table";
 import { ProductsToolbar } from "./_components/products-toolbar";
 import { ALL, applyLocalFilters, EMPTY_FILTERS, type Filters, sortItems, summarize } from "./_lib/product-meta";
+import { useAdminT } from "../../_components/common/use-admin-t";
 
 const PAGE_SIZE = 50;
 
@@ -27,6 +28,8 @@ function useDebounced<T>(value: T, ms: number) {
 }
 
 export default function Page() {
+  const t = useAdminT("admin.hf-products");
+  const tc = useAdminT("admin.common");
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -64,35 +67,35 @@ export default function Page() {
     if (!mid || selected.size < 2) return;
     try {
       const res = await merge({ masterId: mid, variantIds: [...selected].filter((id) => id !== mid) }).unwrap();
-      toast.success(`${res.merged.length} ürün "${res.master}" altında birleştirildi.`);
+      toast.success(t("merge.success", { count: res.merged.length, master: res.master }));
       setSelected(new Set()); setMasterId("");
-    } catch { toast.error("Birleştirme başarısız."); }
+    } catch { toast.error(t("merge.failed")); }
   }
 
   async function handleMaintenance() {
     try {
       const r = await runMaintenance().unwrap();
-      toast.success(`SEO bakımı: ${r.flippedUp} hal + ${r.flippedUpBorsa} borsa + ${r.flippedUpRetail} market + ${r.flippedUpNiche} niş index'e alındı, ${r.demoted} düşürüldü.`);
-    } catch { toast.error("SEO bakımı çalıştırılamadı."); }
+      toast.success(t("toasts.maintenance", { hal: r.flippedUp, borsa: r.flippedUpBorsa, retail: r.flippedUpRetail, niche: r.flippedUpNiche, demoted: r.demoted }));
+    } catch { toast.error(t("toasts.maintenanceFailed")); }
   }
 
   async function handleBulkGsc() {
     try {
       await bulkRefreshGsc({}).unwrap();
-      toast.success("Toplu Google denetimi arka planda başladı. Birkaç dakika sonra liste dolar.");
-    } catch { toast.error("Toplu denetim başlatılamadı, zaten çalışıyor olabilir."); }
+      toast.success(t("toasts.gscStarted"));
+    } catch { toast.error(t("toasts.gscFailed")); }
   }
 
   return (
     <div className="space-y-4 pb-24">
       <div>
-        <h1 className="text-xl font-semibold">Hal ürünleri</h1>
+        <h1 className="text-xl font-semibold">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">
-          {isLoading ? "Yükleniyor…" : `${stats.total.toLocaleString("tr-TR")} ürün · ${stats.withEditorial} editoryel yayında · ortalama kalite ${Math.round(items.reduce((s, i) => s + Number(i.dataQuality ?? 0), 0) / (items.length || 1))}`}
+          {isLoading ? tc("loading") : t("summary", { total: stats.total.toLocaleString("tr-TR"), editorial: stats.withEditorial, quality: Math.round(items.reduce((s, i) => s + Number(i.dataQuality ?? 0), 0) / (items.length || 1)) })}
         </p>
       </div>
 
-      <ProductsOverview stats={stats} filters={filters} onFilter={patch} gsc={gscSummary} />
+      <ProductsOverview stats={stats} filters={filters} onFilter={patch} gsc={gscSummary} t={t} />
 
       <ProductsToolbar
         filters={filters}
@@ -103,6 +106,8 @@ export default function Page() {
         onSuggestions={() => setSuggestionsOpen(true)}
         gscRunning={Boolean(bulkState.isLoading || gscSummary?.running)}
         maintenanceRunning={maintenanceState.isLoading}
+        t={t}
+        tc={tc}
       />
 
       <ProductsTable
@@ -116,6 +121,8 @@ export default function Page() {
         page={page}
         pageSize={PAGE_SIZE}
         onPage={setPage}
+        t={t}
+        tc={tc}
       />
 
       <MergeBar
@@ -125,13 +132,15 @@ export default function Page() {
         onMerge={handleMerge}
         onClear={() => { setSelected(new Set()); setMasterId(""); }}
         busy={mergeState.isLoading}
+        t={t}
+        tc={tc}
       />
 
       <ProductSheet item={open} categories={categories} onClose={() => setOpenId(null)} />
 
       <Sheet open={suggestionsOpen} onOpenChange={setSuggestionsOpen}>
         <SheetContent side="right" className="w-full overflow-y-auto p-4 sm:max-w-3xl">
-          <SheetHeader className="sr-only"><SheetTitle>Birleştirme önerileri</SheetTitle></SheetHeader>
+          <SheetHeader className="sr-only"><SheetTitle>{t("suggestionsTitle")}</SheetTitle></SheetHeader>
           <MergeSuggestionsPanel onClose={() => setSuggestionsOpen(false)} />
         </SheetContent>
       </Sheet>

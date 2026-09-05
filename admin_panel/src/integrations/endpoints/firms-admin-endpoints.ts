@@ -130,6 +130,15 @@ export type FirmLeadItem = {
   createdAt: string | null;
 };
 
+export type FirmFacetEntry = { key: string; count: number };
+export type FirmFacets = {
+  cities: FirmFacetEntry[];
+  types: FirmFacetEntry[];
+  statuses: FirmFacetEntry[];
+  claimStatuses: FirmFacetEntry[];
+  sources: FirmFacetEntry[];
+};
+
 export type FirmsAdminResponse = {
   items: FirmAdminItem[];
   meta: { total: number; limit: number; offset: number };
@@ -245,7 +254,11 @@ export type FirmAdCampaignPayload = {
 
 export const firmsAdminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    listFirmsAdmin: builder.query<FirmsAdminResponse, { q?: string; city?: string; type?: string; status?: string; limit?: number; offset?: number } | void>({
+    listFirmsAdmin: builder.query<FirmsAdminResponse, {
+      q?: string; city?: string; type?: string; status?: string;
+      claimStatus?: string; source?: string; hasPhone?: 'true' | 'false'; sponsored?: 'true';
+      staleDays?: number; sort?: string; limit?: number; offset?: number;
+    } | void>({
       query: (params) => ({
         url: '/admin/firms',
         params: cleanParams(params as Record<string, unknown> | undefined),
@@ -329,6 +342,10 @@ export const firmsAdminApi = baseApi.injectEndpoints({
     moderateFirmClaimAdmin: builder.mutation<{ item: FirmClaimAdminItem }, { claimId: number; status: 'approved' | 'rejected' }>({
       query: ({ claimId, status }) => ({ url: `/admin/firms/claims/${claimId}/moderate`, method: 'POST', body: { status } }),
       invalidatesTags: [{ type: 'Firms' as const, id: 'CLAIMS' }, { type: 'Firms' as const, id: 'LIST' }],
+    }),
+    getFirmFacetsAdmin: builder.query<FirmFacets, void>({
+      query: () => ({ url: '/admin/firms/facets' }),
+      providesTags: [{ type: 'Firms' as const, id: 'FACETS' }],
     }),
     listStaleFirmsAdmin: builder.query<{ items: FirmAdminItem[] }, { days?: number } | void>({
       query: (params) => ({
@@ -418,4 +435,5 @@ export const {
   useDeleteFirmSponsorshipAdminMutation,
   useListFirmAdCampaignsAdminQuery,
   useCreateFirmAdCampaignAdminMutation,
+  useGetFirmFacetsAdminQuery,
 } = firmsAdminApi;

@@ -1,4 +1,107 @@
 {
-  "title": "Hal Yonetimi",
-  "subtitle": "Hal, sehir ve kaynak alanlarini yonetin."
+  "title": "Haller",
+  "subtitle": "{count} kaynak · {cities} şehir · {live} canlı veri · {dry} kurumuş",
+  "new": "Yeni hal",
+  "search": "Hal adı veya şehir ara",
+  "allTypes": "Tüm türler",
+  "allCities": "Tüm şehirler",
+  "types": {
+    "hal": "Hal",
+    "borsa": "Borsa",
+    "resmi": "Resmî",
+    "kooperatif": "Kooperatif"
+  },
+  "chips": {
+    "all": "Tümü",
+    "live": "Canlı (7 gün)",
+    "stale": "Durgun (7-30 gün)",
+    "dry": "Kurumuş (30+ gün)",
+    "noData": "Hiç veri yok",
+    "passive": "Pasif",
+    "noIndex": "Noindex"
+  },
+  "sort": {
+    "order": "Görünüm sırası",
+    "name": "Ad",
+    "city": "Şehir",
+    "lastDate": "Son veri",
+    "rows30": "30 gün satır",
+    "products30": "30 gün ürün"
+  },
+  "table": {
+    "market": "Hal",
+    "type": "Tür",
+    "lastData": "Son veri",
+    "coverage30": "Kapsam (30g)",
+    "rows30": "{count} satır",
+    "products30": "{count} ürün",
+    "days30": "{count} gün",
+    "source": "Kaynak",
+    "contact": "İletişim",
+    "empty": "Bu filtrede hal yok.",
+    "summary": "{count} hal",
+    "passive": "pasif",
+    "noindex": "noindex",
+    "noData": "veri yok"
+  },
+  "tiles": {
+    "total": "Hal",
+    "totalHint": "{active} aktif",
+    "live": "Canlı",
+    "liveHint": "son 7 günde veri",
+    "stale": "Durgun",
+    "staleHint": "7-30 gün",
+    "dry": "Kurumuş",
+    "dryHint": "30+ gün veri yok",
+    "noData": "Hiç veri yok",
+    "noDataHint": "kayıt üretmemiş",
+    "borsa": "Borsa / resmî",
+    "borsaHint": "hal dışı kaynak"
+  },
+  "sheet": {
+    "tabs": {
+      "overview": "Özet",
+      "edit": "Düzenle",
+      "contact": "İletişim"
+    },
+    "lastData": "Son veri",
+    "firstData": "İlk veri",
+    "rows30": "Son 30 gün satır",
+    "products30": "Son 30 gün ürün",
+    "days30": "Son 30 gün veri günü",
+    "rowsAll": "Tüm zamanlar satır",
+    "health": {
+      "live": "Canlı",
+      "stale": "Durgun",
+      "dry": "Kurumuş",
+      "noData": "Veri yok"
+    },
+    "fields": {
+      "name": "Ad",
+      "slug": "Slug",
+      "city": "Şehir",
+      "region": "Bölge",
+      "type": "Tür",
+      "sourceKey": "Kaynak anahtarı",
+      "sourceHint": "ETL kaynak tanımındaki anahtar. Boşsa bu hal otomatik veri almaz.",
+      "order": "Görünüm sırası",
+      "address": "Adres / konum",
+      "addressPlaceholder": "Mah., Cad. No, İlçe/İl — yalnızca doğrulanmış",
+      "phone": "Telefon",
+      "phonePlaceholder": "0XXX XXX XX XX — resmi hal müdürlüğü",
+      "founded": "Kuruluş yılı",
+      "foundedPlaceholder": "örn. 1977",
+      "hours": "Satış saatleri",
+      "hoursPlaceholder": "örn. 04:00 – 13:00",
+      "active": "Aktif",
+      "activeHint": "Pasif hal public sitede ve fiyat sorgularında görünmez.",
+      "seoIndex": "SEO index",
+      "seoIndexHint": "Hal sayfası sitemap ve index kararında kullanılır."
+    },
+    "publicPage": "Hal sayfası",
+    "pricesLink": "Fiyat kayıtları",
+    "saved": "Hal güncellendi.",
+    "created": "Hal oluşturuldu.",
+    "saveFailed": "Hal kaydedilemedi."
+  }
 }

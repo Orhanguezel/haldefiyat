@@ -9,7 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGetPriceDetailAdminQuery } from '@/integrations/hooks';
 import type { PriceAdminItem } from '@/integrations/endpoints/prices-admin-endpoints';
-import { AVG_METHOD_LABEL, ageLabel, MARKET_TYPE_LABEL, money, percentDiff, shortDate } from '../_lib/format';
+import { ageLabel, money, percentDiff, shortDate } from '../_lib/format';
+import { useAdminT } from '../../../_components/common/use-admin-t';
 import { useProductImage } from '../_lib/product-images';
 import { PriceSparkline } from './price-sparkline';
 
@@ -22,10 +23,10 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function PriceBlock({ item }: { item: PriceAdminItem }) {
+function PriceBlock({ item, labels }: { item: PriceAdminItem; labels: [string, string, string] }) {
   return (
     <div className="grid grid-cols-3 gap-3">
-      {([['En düşük', item.minPrice], ['Ortalama', item.avgPrice], ['En yüksek', item.maxPrice]] as const).map(([label, value], index) => (
+      {([[labels[0], item.minPrice], [labels[1], item.avgPrice], [labels[2], item.maxPrice]] as const).map(([label, value], index) => (
         <div key={label} className={`rounded-lg border p-3 ${index === 1 ? 'bg-primary/5' : ''}`}>
           <div className="text-xs text-muted-foreground">{label}</div>
           <div className="text-xl font-semibold tabular-nums">{money(value)}</div>
@@ -37,6 +38,8 @@ function PriceBlock({ item }: { item: PriceAdminItem }) {
 }
 
 export function PriceDetailSheet({ item, onClose }: { item: PriceAdminItem | null; onClose: () => void }) {
+  const t = useAdminT('admin.prices.detail');
+  const tc = useAdminT('admin.common');
   const { data, isFetching } = useGetPriceDetailAdminQuery(item?.id ?? 0, { skip: !item });
   const detail = data?.item?.id === item?.id ? data : undefined;
   const productImage = useProductImage();
@@ -58,10 +61,10 @@ export function PriceDetailSheet({ item, onClose }: { item: PriceAdminItem | nul
                 <SheetDescription className="flex flex-wrap items-center gap-1.5">
                   <span>{item.marketName} · {item.cityName}</span>
                   <span aria-hidden>·</span>
-                  <span>{shortDate(item.recordedDate)} ({ageLabel(item.recordedDate)})</span>
-                  {item.unitMismatch ? <Badge variant="outline" className="border-amber-500/50 font-normal text-amber-700">birim uyuşmuyor</Badge> : null}
-                  {item.quarantined ? <Badge variant="destructive" className="font-normal">karantinada</Badge> : null}
-                  {item.productActive === false ? <Badge variant="outline" className="font-normal">pasif ürün</Badge> : null}
+                  <span>{shortDate(item.recordedDate)} ({ageLabel(item.recordedDate, tc)})</span>
+                  {item.unitMismatch ? <Badge variant="outline" className="border-amber-500/50 font-normal text-amber-700">{t('unitMismatch')}</Badge> : null}
+                  {item.quarantined ? <Badge variant="destructive" className="font-normal">{t('inQuarantine')}</Badge> : null}
+                  {item.productActive === false ? <Badge variant="outline" className="font-normal">{t('passiveProduct')}</Badge> : null}
                 </SheetDescription>
                 </div>
               </div>
@@ -70,84 +73,84 @@ export function PriceDetailSheet({ item, onClose }: { item: PriceAdminItem | nul
             <Tabs defaultValue="summary" className="flex min-h-0 flex-1 flex-col">
               <div className="border-b px-6 pt-3">
                 <TabsList>
-                  <TabsTrigger value="summary">Özet</TabsTrigger>
-                  <TabsTrigger value="history">Geçmiş {detail ? `(${detail.history.length})` : ''}</TabsTrigger>
-                  <TabsTrigger value="peers">Aynı gün {detail ? `(${detail.peers.length})` : ''}</TabsTrigger>
-                  <TabsTrigger value="quarantine">Karantina {detail?.quarantine.length ? `(${detail.quarantine.length})` : ''}</TabsTrigger>
+                  <TabsTrigger value="summary">{t('tabs.summary')}</TabsTrigger>
+                  <TabsTrigger value="history">{t('tabs.history')} {detail ? `(${detail.history.length})` : ''}</TabsTrigger>
+                  <TabsTrigger value="peers">{t('tabs.peers')} {detail ? `(${detail.peers.length})` : ''}</TabsTrigger>
+                  <TabsTrigger value="quarantine">{t('tabs.quarantine')} {detail?.quarantine.length ? `(${detail.quarantine.length})` : ''}</TabsTrigger>
                 </TabsList>
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
                 <TabsContent value="summary" className="mt-0 space-y-5">
-                  <PriceBlock item={item} />
+                  <PriceBlock item={item} labels={[t('min'), t('avg'), t('max')]} />
 
                   {detail?.stats ? (
                     <div className="rounded-lg border p-3">
-                      <div className="mb-2 text-sm font-medium">Bu üründe bu halde son 30 gün</div>
+                      <div className="mb-2 text-sm font-medium">{t('last30')}</div>
                       <dl className="grid grid-cols-4 gap-3">
-                        <Field label="Kayıt">{detail.stats.rows30}</Field>
-                        <Field label="En düşük">{money(detail.stats.min30)}</Field>
-                        <Field label="Ortalama">{money(detail.stats.avg30)}</Field>
-                        <Field label="En yüksek">{money(detail.stats.max30)}</Field>
+                        <Field label={t('rows')}>{detail.stats.rows30}</Field>
+                        <Field label={t('min')}>{money(detail.stats.min30)}</Field>
+                        <Field label={t('avg')}>{money(detail.stats.avg30)}</Field>
+                        <Field label={t('max')}>{money(detail.stats.max30)}</Field>
                       </dl>
                     </div>
                   ) : null}
 
                   {detail?.history.length ? (
                     <div className="rounded-lg border p-3">
-                      <div className="mb-2 text-sm font-medium">Fiyat eğrisi</div>
-                      <PriceSparkline points={detail.history} />
+                      <div className="mb-2 text-sm font-medium">{t('curve')}</div>
+                      <PriceSparkline points={detail.history} t={t} />
                     </div>
                   ) : null}
 
                   <div>
-                    <div className="mb-2 text-sm font-medium">Kayıt</div>
+                    <div className="mb-2 text-sm font-medium">{t('record')}</div>
                     <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
-                      <Field label="Kayıt no">#{item.id}</Field>
-                      <Field label="Kaynak"><span className="font-mono text-xs">{item.sourceApi}</span></Field>
-                      <Field label="Ortalama yöntemi">{AVG_METHOD_LABEL[item.avgPriceMethod ?? 'unknown'] ?? item.avgPriceMethod}</Field>
-                      <Field label="Birim">{item.unit}</Field>
-                      <Field label="Para birimi">{item.currency ?? 'TRY'}</Field>
-                      <Field label="Sisteme giriş">{item.createdAt ? new Date(item.createdAt).toLocaleString('tr-TR') : '—'}</Field>
+                      <Field label={t('recordNo')}>#{item.id}</Field>
+                      <Field label={t('source')}><span className="font-mono text-xs">{item.sourceApi}</span></Field>
+                      <Field label={t('avgMethod')}>{t(`avgMethods.${item.avgPriceMethod ?? 'unknown'}`, undefined, item.avgPriceMethod)}</Field>
+                      <Field label={t('unit')}>{item.unit}</Field>
+                      <Field label={t('currency')}>{item.currency ?? 'TRY'}</Field>
+                      <Field label={t('createdAt')}>{item.createdAt ? new Date(item.createdAt).toLocaleString('tr-TR') : '—'}</Field>
                     </dl>
                   </div>
 
                   <div>
-                    <div className="mb-2 text-sm font-medium">Ürün</div>
+                    <div className="mb-2 text-sm font-medium">{t('product')}</div>
                     <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
-                      <Field label="Ürün no">#{item.productId}</Field>
-                      <Field label="Slug"><span className="font-mono text-xs">{item.productSlug}</span></Field>
-                      <Field label="Adı (TR)">{item.productNameTr ?? '—'}</Field>
-                      <Field label="Kategori">{item.categorySlug ?? '—'}</Field>
-                      <Field label="Ürün birimi">{item.productUnit ?? '—'}</Field>
-                      <Field label="Kanonik">{item.canonicalSlug ?? 'kendisi'}</Field>
-                      <Field label="Durum">{item.productActive === false ? 'pasif' : 'aktif'}</Field>
+                      <Field label={t('productNo')}>#{item.productId}</Field>
+                      <Field label={t('slug')}><span className="font-mono text-xs">{item.productSlug}</span></Field>
+                      <Field label={t('nameTr')}>{item.productNameTr ?? '—'}</Field>
+                      <Field label={t('category')}>{item.categorySlug ?? '—'}</Field>
+                      <Field label={t('productUnit')}>{item.productUnit ?? '—'}</Field>
+                      <Field label={t('canonical')}>{item.canonicalSlug ?? t('self')}</Field>
+                      <Field label={t('status')}>{item.productActive === false ? t('passive') : t('active')}</Field>
                     </dl>
                   </div>
 
                   <div>
-                    <div className="mb-2 text-sm font-medium">Hal</div>
+                    <div className="mb-2 text-sm font-medium">{t('market')}</div>
                     <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
-                      <Field label="Hal no">#{item.marketId}</Field>
-                      <Field label="Slug"><span className="font-mono text-xs">{item.marketSlug}</span></Field>
-                      <Field label="Şehir">{item.cityName}</Field>
-                      <Field label="Tür">{MARKET_TYPE_LABEL[item.marketType ?? 'hal'] ?? item.marketType}</Field>
-                      <Field label="Durum">{item.marketActive === false ? 'pasif' : 'aktif'}</Field>
+                      <Field label={t('marketNo')}>#{item.marketId}</Field>
+                      <Field label={t('slug')}><span className="font-mono text-xs">{item.marketSlug}</span></Field>
+                      <Field label={t('city')}>{item.cityName}</Field>
+                      <Field label={t('type')}>{t(`marketTypes.${item.marketType ?? 'hal'}`, undefined, item.marketType)}</Field>
+                      <Field label={t('status')}>{item.marketActive === false ? t('passive') : t('active')}</Field>
                     </dl>
                   </div>
                 </TabsContent>
 
                 <TabsContent value="history" className="mt-0">
-                  {isFetching && !detail ? <p className="text-sm text-muted-foreground">Yükleniyor…</p> : (
+                  {isFetching && !detail ? <p className="text-sm text-muted-foreground">{tc('loading')}</p> : (
                     <div className="overflow-hidden rounded-lg border">
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/40 hover:bg-muted/40">
-                            <TableHead>Tarih</TableHead>
-                            <TableHead className="text-right">Min</TableHead>
-                            <TableHead className="text-right">Ort</TableHead>
-                            <TableHead className="text-right">Maks</TableHead>
-                            <TableHead>Kaynak</TableHead>
+                            <TableHead>{tc('date', undefined, 'Tarih')}</TableHead>
+                            <TableHead className="text-right">{t('min')}</TableHead>
+                            <TableHead className="text-right">{t('avg')}</TableHead>
+                            <TableHead className="text-right">{t('max')}</TableHead>
+                            <TableHead>{t('source')}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -168,19 +171,19 @@ export function PriceDetailSheet({ item, onClose }: { item: PriceAdminItem | nul
 
                 <TabsContent value="peers" className="mt-0 space-y-2">
                   <p className="text-xs text-muted-foreground">
-                    {shortDate(item.recordedDate)} tarihinde aynı ürünün diğer hallerdeki fiyatı. Yüzde, bu kaydın ortalamasına göre.
+                    {t('peersHint', { date: shortDate(item.recordedDate) })}
                   </p>
                   {!detail?.peers.length ? (
-                    <p className="py-8 text-center text-sm text-muted-foreground">O gün başka halde kayıt yok.</p>
+                    <p className="py-8 text-center text-sm text-muted-foreground">{t('peersEmpty')}</p>
                   ) : (
                     <div className="overflow-hidden rounded-lg border">
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/40 hover:bg-muted/40">
-                            <TableHead>Hal</TableHead>
-                            <TableHead className="text-right">Ort</TableHead>
-                            <TableHead className="text-right">Fark</TableHead>
-                            <TableHead>Birim</TableHead>
+                            <TableHead>{t('market')}</TableHead>
+                            <TableHead className="text-right">{t('avg')}</TableHead>
+                            <TableHead className="text-right">{t('diff')}</TableHead>
+                            <TableHead>{t('unit')}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -208,7 +211,7 @@ export function PriceDetailSheet({ item, onClose }: { item: PriceAdminItem | nul
 
                 <TabsContent value="quarantine" className="mt-0 space-y-2">
                   {!detail?.quarantine.length ? (
-                    <p className="py-8 text-center text-sm text-muted-foreground">Bu ürün-hal çiftinde karantina kaydı yok.</p>
+                    <p className="py-8 text-center text-sm text-muted-foreground">{t('quarantineEmpty')}</p>
                   ) : detail.quarantine.map((entry) => (
                     <div key={entry.id} className="rounded-lg border p-3 text-sm">
                       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -219,8 +222,8 @@ export function PriceDetailSheet({ item, onClose }: { item: PriceAdminItem | nul
                         </div>
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        kayıt {money(entry.avgPrice)} · emsal ortancası {money(entry.peerMedian)}
-                        {entry.deviationRatio ? ` · sapma ${Number(entry.deviationRatio).toFixed(2)}x` : ''}
+                        {t('quarantineLine', { price: money(entry.avgPrice), median: money(entry.peerMedian) })}
+                        {entry.deviationRatio ? ` · ${t('deviation', { ratio: Number(entry.deviationRatio).toFixed(2) })}` : ''}
                       </div>
                       {entry.reviewNote ? <p className="mt-1 text-muted-foreground">{entry.reviewNote}</p> : null}
                     </div>
@@ -233,11 +236,11 @@ export function PriceDetailSheet({ item, onClose }: { item: PriceAdminItem | nul
               <div className="flex justify-end gap-2">
                 <Button asChild variant="outline">
                   <Link href={`https://haldefiyat.com/urun/${item.productSlug}`} target="_blank" rel="noreferrer">
-                    <ExternalLink className="size-4" /> Ürün sayfası
+                    <ExternalLink className="size-4" /> {t('productPage')}
                   </Link>
                 </Button>
                 <Button asChild>
-                  <Link href={`/admin/prices/${item.id}`}><Pencil className="size-4" /> Kaydı düzenle</Link>
+                  <Link href={`/admin/prices/${item.id}`}><Pencil className="size-4" /> {t('editRecord')}</Link>
                 </Button>
               </div>
             </SheetFooter>

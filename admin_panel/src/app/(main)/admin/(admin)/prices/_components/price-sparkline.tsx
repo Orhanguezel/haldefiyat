@@ -3,14 +3,16 @@
 type Point = { recordedDate: string; avgPrice: string };
 
 /** Kucuk fiyat egrisi — kutuphane yok, dogrudan SVG. Girdi tarihe gore artan siralanir. */
-export function PriceSparkline({ points, height = 56 }: { points: Point[]; height?: number }) {
+type T = (key: string, params?: Record<string, string | number>) => string;
+
+export function PriceSparkline({ points, height = 56, t }: { points: Point[]; height?: number; t: T }) {
   const series = [...points]
     .sort((a, b) => a.recordedDate.localeCompare(b.recordedDate))
     .map((point) => Number(point.avgPrice))
     .filter((value) => Number.isFinite(value));
 
   if (series.length < 2) {
-    return <div className="text-xs text-muted-foreground">Eğri için yeterli kayıt yok.</div>;
+    return <div className="text-xs text-muted-foreground">{t('curveEmpty')}</div>;
   }
 
   const min = Math.min(...series);
@@ -32,9 +34,9 @@ export function PriceSparkline({ points, height = 56 }: { points: Point[]; heigh
         <polyline points={coords.join(' ')} fill="none" stroke={stroke} strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
       </svg>
       <div className="flex justify-between text-xs text-muted-foreground">
-        <span>en düşük {min.toFixed(2)}</span>
-        <span>{series.length} kayıt</span>
-        <span>en yüksek {max.toFixed(2)}</span>
+        <span>{t('curveMin', { value: min.toFixed(2) })}</span>
+        <span>{t('curveCount', { count: series.length })}</span>
+        <span>{t('curveMax', { value: max.toFixed(2) })}</span>
       </div>
     </div>
   );

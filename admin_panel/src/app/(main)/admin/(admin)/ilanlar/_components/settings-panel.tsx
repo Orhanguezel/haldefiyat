@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { PKG_LABEL } from '../_lib/api';
+import { PACKAGES } from '../_lib/api';
+type T = (key: string, params?: Record<string, string | number>, fallback?: string) => string;
 import { listingSlots, rowOccupants, slotRowPlan } from '../_lib/ads';
 import type { AdRow, AdSlot, PackageKey, Pricing } from '../_lib/types';
 
@@ -16,26 +17,28 @@ type Props = {
   saving: boolean;
   slots: AdSlot[];
   ads: AdRow[];
+  t: T;
+  tc: T;
 };
 
-export function SettingsPanel({ pricing, onPricingChange, onSave, saving, slots, ads }: Props) {
+export function SettingsPanel({ pricing, onPricingChange, onSave, saving, slots, ads, t, tc }: Props) {
   const available = listingSlots(slots);
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <div>
-            <CardTitle className="text-base">Öne çıkarma paket fiyatları</CardTitle>
-            <p className="text-sm text-muted-foreground">Reklam sekmesinde bu tutarlar gösterilir.</p>
+            <CardTitle className="text-base">{t('settings.pricingTitle')}</CardTitle>
+            <p className="text-sm text-muted-foreground">{t('settings.pricingHint')}</p>
           </div>
-          <Button onClick={onSave} disabled={!pricing || saving}>{saving ? 'Kaydediliyor…' : 'Kaydet'}</Button>
+          <Button onClick={onSave} disabled={!pricing || saving}>{saving ? tc('saving') : tc('save')}</Button>
         </CardHeader>
         <CardContent>
-          {!pricing ? <p className="text-sm text-muted-foreground">Yükleniyor…</p> : (
+          {!pricing ? <p className="text-sm text-muted-foreground">{tc('loading')}</p> : (
             <div className="grid gap-4 sm:grid-cols-3">
-              {(['daily', 'weekly', 'monthly'] as PackageKey[]).map((key) => (
+              {(PACKAGES as readonly PackageKey[]).map((key) => (
                 <div key={key} className="space-y-1.5">
-                  <Label className="text-sm">{PKG_LABEL[key]} · {pricing[key].days} gün</Label>
+                  <Label className="text-sm">{t(`ad.packages.${key}`)} · {pricing[key].days} {tc('days')}</Label>
                   <div className="relative">
                     <Input
                       type="number"
@@ -55,11 +58,11 @@ export function SettingsPanel({ pricing, onPricingChange, onSave, saving, slots,
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Reklam yeri doluluk durumu</CardTitle>
-          <p className="text-sm text-muted-foreground">İlan reklamı alabilen slotlar ve boş yerleri.</p>
+          <CardTitle className="text-base">{t('settings.slotsTitle')}</CardTitle>
+          <p className="text-sm text-muted-foreground">{t('settings.slotsHint')}</p>
         </CardHeader>
         <CardContent className="space-y-2">
-          {available.length === 0 ? <p className="text-sm text-muted-foreground">İlan reklamına açık slot yok.</p> : available.map((slot) => {
+          {available.length === 0 ? <p className="text-sm text-muted-foreground">{t('settings.noSlots')}</p> : available.map((slot) => {
             const plans = slotRowPlan(ads, slot, 'all');
             const free = plans.reduce((total, plan) => total + (plan.mixedLayout && plan.occupants.length ? 0 : plan.free), 0);
             const used = rowOccupants(ads, slot.slotKey, 1, 'all').length;
@@ -68,11 +71,11 @@ export function SettingsPanel({ pricing, onPricingChange, onSave, saving, slots,
                 <div>
                   <div className="text-sm font-medium">{slot.label}</div>
                   <div className="text-xs text-muted-foreground">
-                    Satır başına {slot.desktopCapacity} reklam · 1. satırda {used} dolu
+                    {t('settings.slotMeta', { capacity: slot.desktopCapacity, used })}
                   </div>
                 </div>
                 <Badge variant={free > 0 ? 'secondary' : 'outline'} className="font-normal">
-                  {free > 0 ? `${free} boş yer` : 'boş yer yok'}
+                  {free > 0 ? t('settings.freeSlots', { count: free }) : t('settings.noFree')}
                 </Badge>
               </div>
             );

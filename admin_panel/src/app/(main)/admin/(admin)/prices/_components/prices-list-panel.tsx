@@ -17,6 +17,7 @@ import type { PriceAdminItem } from '@/integrations/endpoints/prices-admin-endpo
 import { ALL, PriceFilters, type FilterState } from './price-filters';
 import { PriceDetailSheet } from './price-detail-sheet';
 import { PricesTable } from './prices-table';
+import { useAdminT } from '../../../_components/common/use-admin-t';
 
 const PAGE_SIZES = [25, 50, 100, 250];
 
@@ -39,6 +40,8 @@ interface Props {
 }
 
 export default function PricesListPanel({ initialFilters }: Props) {
+  const t = useAdminT('admin.prices.list');
+  const tc = useAdminT('admin.common');
   const [filters, setFilters] = React.useState<FilterState>({
     ...EMPTY,
     q: initialFilters?.q ?? '',
@@ -88,18 +91,18 @@ export default function PricesListPanel({ initialFilters }: Props) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold">Fiyat kayıtları</h1>
+          <h1 className="text-xl font-semibold">{t('title')}</h1>
           <p className="text-sm text-muted-foreground">
-            {isLoading ? 'Yükleniyor…' : `${total.toLocaleString('tr-TR')} kayıt`}
-            {isFetching && !isLoading ? ' · güncelleniyor' : ''}
-            {data?.meta?.latestRecordedDate ? ` · en son veri ${String(data.meta.latestRecordedDate).slice(0, 10)}` : ''}
+            {isLoading ? tc('loading') : t('count', { count: total.toLocaleString('tr-TR') })}
+            {isFetching && !isLoading ? ` · ${tc('updating')}` : ''}
+            {data?.meta?.latestRecordedDate ? ` · ${t('latest', { date: String(data.meta.latestRecordedDate).slice(0, 10) })}` : ''}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
-            <Link href="/admin/prices/quarantine"><ShieldAlert className="size-4" /> İnceleme kuyruğu</Link>
+            <Link href="/admin/prices/quarantine"><ShieldAlert className="size-4" /> {t('reviewQueue')}</Link>
           </Button>
-          <Button asChild size="sm"><Link href="/admin/prices/new"><Plus className="size-4" /> Yeni fiyat</Link></Button>
+          <Button asChild size="sm"><Link href="/admin/prices/new"><Plus className="size-4" /> {t('new')}</Link></Button>
         </div>
       </div>
 
@@ -112,6 +115,8 @@ export default function PricesListPanel({ initialFilters }: Props) {
         markets={markets}
         sources={sourcesData?.items ?? []}
         dirty={dirty}
+        t={t}
+        tc={tc}
       />
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/30 px-3 py-2">
@@ -119,11 +124,11 @@ export default function PricesListPanel({ initialFilters }: Props) {
           <Switch checked={latestOnly} onCheckedChange={setLatestOnly} />
           <span className="flex items-center gap-1.5">
             <ListFilter className="size-3.5 text-muted-foreground" />
-            Her ürün-hal çifti için yalnız son kayıt
+            {t('latestOnly')}
           </span>
         </label>
         <div className="flex items-center gap-2">
-          <Label className="text-xs text-muted-foreground">Sayfa boyutu</Label>
+          <Label className="text-xs text-muted-foreground">{tc('pageSize')}</Label>
           <Select value={String(pageSize)} onValueChange={(value) => setPageSize(Number(value))}>
             <SelectTrigger className="h-8 w-20"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -133,16 +138,16 @@ export default function PricesListPanel({ initialFilters }: Props) {
         </div>
       </div>
 
-      <PricesTable items={items} loading={isLoading} activeId={selected?.id} onSelect={setSelected} />
+      <PricesTable items={items} loading={isLoading} activeId={selected?.id} onSelect={setSelected} t={t} tc={tc} />
 
       <div className="flex items-center justify-between gap-3">
-        <span className="text-sm text-muted-foreground">Sayfa {page} / {totalPages}</span>
+        <span className="text-sm text-muted-foreground">{tc('pageOf', { page, total: totalPages })}</span>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" disabled={page <= 1 || isFetching} onClick={() => setPage((prev) => Math.max(1, prev - 1))}>
-            <ChevronLeft className="size-4" /> Önceki
+            <ChevronLeft className="size-4" /> {tc('previous')}
           </Button>
           <Button variant="outline" size="sm" disabled={page >= totalPages || isFetching} onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}>
-            Sonraki <ChevronRight className="size-4" />
+            {tc('next')} <ChevronRight className="size-4" />
           </Button>
         </div>
       </div>

@@ -244,6 +244,8 @@ const marketBody = z.object({
   phone: z.string().max(64).optional().nullable(),
   founded: z.string().max(32).optional().nullable(),
   hours: z.string().max(64).optional().nullable(),
+  marketType: z.enum(["hal", "borsa", "resmi", "kooperatif"]).optional(),
+  seoIndex: boolish.optional(),
   isActive: boolish.default(true),
 });
 
@@ -1337,6 +1339,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
       .object({
         q: z.string().optional(),
         city: z.string().optional(),
+        marketType: z.enum(["hal", "borsa", "resmi", "kooperatif"]).optional(),
         isActive: boolish,
       })
       .safeParse(req.query);
@@ -1347,6 +1350,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const city = likeSafe(query.data.city);
     if (q) conds.push(like(hfMarkets.name, `%${q}%`));
     if (city) conds.push(like(hfMarkets.cityName, `%${city}%`));
+    if (query.data.marketType) conds.push(eq(hfMarkets.marketType, query.data.marketType));
     if (query.data.isActive != null) conds.push(eq(hfMarkets.isActive, query.data.isActive ? 1 : 0));
 
     const items = await db
@@ -1356,6 +1360,38 @@ export async function registerHalAdmin(app: FastifyInstance) {
       .orderBy(asc(hfMarkets.displayOrder), asc(hfMarkets.name));
 
     return reply.send({ items });
+  });
+
+  /**
+   * Hal basina kapsam: son 30 gunde satir/urun/gun sayisi, tum zamanlar satir
+   * ve son veri tarihi. Tek GROUP BY (market_id, recorded_date indeksli) — hal
+   * listesi "hangi hal canli, hangisi kurudu" sorusunu sayfayi acar acmaz
+   * cevaplasin diye.
+   */
+  app.get("/hal/markets/stats", async (_req, reply) => {
+    const res = await db.execute(sql`
+      SELECT market_id AS marketId,
+        SUM(recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)) AS rows30,
+        COUNT(DISTINCT CASE WHEN recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN product_id END) AS products30,
+        COUNT(DISTINCT CASE WHEN recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN recorded_date END) AS days30,
+        COUNT(*) AS rowsAll,
+        MAX(recorded_date) AS lastDate,
+        MIN(recorded_date) AS firstDate
+      FROM hf_price_history GROUP BY market_id
+    `);
+    const rows = (Array.isArray(res) ? res[0] : res) as unknown as Array<Record<string, unknown>>;
+    const iso = (v: unknown) => (v instanceof Date ? v.toISOString().slice(0, 10) : v ? String(v).slice(0, 10) : null);
+    return reply.send({
+      items: rows.map((r) => ({
+        marketId: Number(r.marketId),
+        rows30: Number(r.rows30 ?? 0),
+        products30: Number(r.products30 ?? 0),
+        days30: Number(r.days30 ?? 0),
+        rowsAll: Number(r.rowsAll ?? 0),
+        lastDate: iso(r.lastDate),
+        firstDate: iso(r.firstDate),
+      })),
+    });
   });
 
   app.get<{ Params: { id: string } }>("/hal/markets/:id", async (req, reply) => {
@@ -1379,6 +1415,8 @@ export async function registerHalAdmin(app: FastifyInstance) {
       phone: parsed.data.phone ?? null,
       founded: parsed.data.founded ?? null,
       hours: parsed.data.hours ?? null,
+      marketType: parsed.data.marketType ?? "hal",
+      seoIndex: parsed.data.seoIndex == null ? 1 : parsed.data.seoIndex ? 1 : 0,
       isActive: parsed.data.isActive ? 1 : 0,
     });
     const id = Number((result as unknown as Array<{ insertId?: number }>)[0]?.insertId ?? 0);
@@ -1403,6 +1441,8 @@ export async function registerHalAdmin(app: FastifyInstance) {
         phone: parsed.data.phone ?? null,
         founded: parsed.data.founded ?? null,
         hours: parsed.data.hours ?? null,
+        ...(parsed.data.marketType ? { marketType: parsed.data.marketType } : {}),
+        ...(parsed.data.seoIndex == null ? {} : { seoIndex: parsed.data.seoIndex ? 1 : 0 }),
         isActive: parsed.data.isActive ? 1 : 0,
       })
       .where(eq(hfMarkets.id, id));

@@ -51,22 +51,9 @@ export function toEditForm(item: Listing): EditForm {
   };
 }
 
-export const PRICE_TYPE_OPTIONS = [
-  { value: 'sabit', label: 'Sabit fiyat' },
-  { value: 'pazarlik', label: 'Pazarlık' },
-  { value: 'hal_endeksli', label: 'Hal endeksli' },
-] as const;
-
-export const PKG_LABEL: Record<'daily' | 'weekly' | 'monthly', string> = {
-  daily: 'Günlük', weekly: 'Haftalık', monthly: 'Aylık',
-};
-
-export const STATUS_LABEL: Record<string, string> = {
-  pending: 'Bekleyen', approved: 'Onaylı', rejected: 'Reddedilen',
-  expired: 'Süresi doldu', closed: 'Kapalı', all: 'Tümü',
-};
-
-export const TYPE_LABEL: Record<string, string> = { satis: 'Satış', alim: 'Alım' };
+export const PRICE_TYPES = ['sabit', 'pazarlik', 'hal_endeksli'] as const;
+export const PACKAGES = ['daily', 'weekly', 'monthly'] as const;
+export const STATUSES = ['pending', 'approved', 'rejected', 'all'] as const;
 
 export function formatDate(value?: string | null) {
   if (!value) return '—';

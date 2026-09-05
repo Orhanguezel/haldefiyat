@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useGetMergeSuggestionsAdminQuery, useMergeHfProductsAdminMutation } from "@/integrations/hooks";
+import { useAdminT } from "../../../_components/common/use-admin-t";
 
 type MergeCandidate = {
   id: number;
@@ -32,6 +33,7 @@ type Cluster = {
 // olabilir (marul → kıvırcık/aysberg/lolorosso). Bu yüzden tek seferde değil, tekrarlı
 // alt-birleştirme: bir çeşit grubunu seç + master belirle + birleştir; kalanlar listede durur.
 function MergeFamily({ cluster }: { cluster: Cluster }) {
+  const t = useAdminT("admin.hf-products.suggestions");
   const [members, setMembers] = useState<MergeCandidate[]>(() => [cluster.master, ...cluster.variants]);
   const [selected, setSelected] = useState<Set<number>>(() => new Set());
   const [masterId, setMasterId] = useState<number | null>(null);
@@ -67,9 +69,9 @@ function MergeFamily({ cluster }: { cluster: Cluster }) {
       setMembers((prev) => prev.filter((m) => !mergedSet.has(m.id))); // master kalır, varyantlar düşer
       setMergedCount((c) => c + res.merged.length);
       clearAll();
-      toast.success(`${res.merged.length} ürün "${res.master}" altında birleştirildi`);
+      toast.success(t("admin.hf-products.merge.success", { count: res.merged.length, master: res.master }));
     } catch {
-      toast.error("Birleştirme başarısız");
+      toast.error(t("failed"));
     }
   };
 
@@ -77,21 +79,21 @@ function MergeFamily({ cluster }: { cluster: Cluster }) {
     <div className="rounded-md border p-3">
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <span className="font-mono text-muted-foreground text-xs">[{cluster.signature}]</span>
-        <span className="text-muted-foreground text-xs">{members.length} üye kaldı</span>
+        <span className="text-muted-foreground text-xs">{t("membersLeft", { count: members.length })}</span>
         {mergedCount > 0 && (
-          <span className="text-emerald-600 text-xs dark:text-emerald-400">✓ {mergedCount} birleşti</span>
+          <span className="text-emerald-600 text-xs dark:text-emerald-400">{t("merged", { count: mergedCount })}</span>
         )}
         <div className="ml-auto flex items-center gap-1.5">
           <Button size="sm" variant="ghost" onClick={selected.size ? clearAll : selectAll}>
-            {selected.size ? "Temizle" : "Tümünü seç"}
+            {selected.size ? t("clear") : t("selectAll")}
           </Button>
           <Button size="sm" onClick={handleMerge} disabled={variantIds.length < 1 || mergeState.isLoading}>
-            Birleştir ({variantIds.length})
+            {t("merge", { count: variantIds.length })}
           </Button>
         </div>
       </div>
       {members.length < 2 ? (
-        <p className="text-muted-foreground text-sm">Aile temiz — tek master kaldı.</p>
+        <p className="text-muted-foreground text-sm">{t("clean")}</p>
       ) : (
         <ul className="space-y-1">
           {members.map((m) => {
@@ -102,22 +104,22 @@ function MergeFamily({ cluster }: { cluster: Cluster }) {
                 <Checkbox
                   checked={isChecked}
                   onCheckedChange={() => toggle(m.id)}
-                  aria-label="Birleştirmeye dahil et"
+                  aria-label={t("include")}
                 />
                 <button
                   type="button"
                   onClick={() => isChecked && setMasterId(m.id)}
                   className={`rounded px-1.5 py-0.5 text-xs ${isMaster ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
-                  title="Ana ürün (master) yap — seçili üyeler buna 301'lenir"
+                  title={t("makeMasterHint")}
                 >
-                  {isMaster ? "★ master" : "master yap"}
+                  {isMaster ? t("master") : t("makeMaster")}
                 </button>
                 <span className={isMaster ? "font-medium" : ""}>{m.displayName || m.nameTr}</span>
                 <span className="text-muted-foreground text-xs">/{m.slug}</span>
                 <span className="ml-auto flex items-center gap-1.5 text-muted-foreground text-xs">
-                  <span title="Son 30 günde fiyat veren hal sayısı">{m.hal} hal</span>
+                  <span title={t("halHint")}>{t("halCount", { count: m.hal })}</span>
                   <Badge variant={m.seoIndex ? "default" : "outline"} className="text-[10px]">
-                    {m.seoIndex ? "index" : "noindex"}
+                    {m.seoIndex ? t("index") : t("noindex")}
                   </Badge>
                 </span>
               </li>
@@ -130,6 +132,8 @@ function MergeFamily({ cluster }: { cluster: Cluster }) {
 }
 
 export function MergeSuggestionsPanel({ onClose }: { onClose: () => void }) {
+  const t = useAdminT("admin.hf-products.suggestions");
+  const tc = useAdminT("admin.common");
   const { data, isLoading, isFetching } = useGetMergeSuggestionsAdminQuery();
   const clusters = data?.clusters ?? [];
 
@@ -137,21 +141,18 @@ export function MergeSuggestionsPanel({ onClose }: { onClose: () => void }) {
     <Card className="mb-4 rounded-lg border-amber-300 dark:border-amber-800">
       <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
         <div>
-          <CardTitle className="text-base">Birleştirme önerileri</CardTitle>
+          <CardTitle className="text-base">{t("title")}</CardTitle>
           <p className="mt-1 text-muted-foreground text-sm">
-            Kök isme göre <b>aile</b> bazında gruplanmış varyantlar (marul → kıvırcık/aysberg/lolorosso hepsi tek
-            ailede). Bir ailede birden çok çeşit olabilir: aynı çeşidi/dublikeleri seç, en çok hal'liyi master yap,
-            birleştir; kalanlar listede durur, başka bir çeşidi ayrıca birleştir. Farklı çeşitleri aynı master altında
-            <b> toplama</b> (örn. fuji ≠ granny, aysberg ≠ kıvırcık).
+            {t("hint")}
           </p>
         </div>
         <Button size="sm" variant="ghost" onClick={onClose}>
-          Kapat
+          {tc("close")}
         </Button>
       </CardHeader>
       <CardContent className="space-y-3">
-        {(isLoading || isFetching) && <p className="text-muted-foreground text-sm">Aileler hesaplanıyor...</p>}
-        {!isLoading && clusters.length === 0 && <p className="text-muted-foreground text-sm">Aile bulunamadı.</p>}
+        {(isLoading || isFetching) && <p className="text-muted-foreground text-sm">{t("computing")}</p>}
+        {!isLoading && clusters.length === 0 && <p className="text-muted-foreground text-sm">{t("none")}</p>}
         {clusters.map((cluster) => (
           <MergeFamily key={cluster.signature} cluster={cluster} />
         ))}

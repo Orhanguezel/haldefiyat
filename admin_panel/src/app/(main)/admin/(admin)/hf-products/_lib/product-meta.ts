@@ -4,16 +4,12 @@ export const ALL = "all";
 
 export type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
-/** Backend'in urettigi "sonraki adim" kodu icin etiket, renk ve aciklama. */
-export const ACTION_META: Record<HfProductAction, { label: string; variant: BadgeVariant; hint: string }> = {
-  indexed: { label: "İndexli", variant: "default", hint: "Google'da indexli, aksiyon yok" },
-  recrawl_pending: { label: "Yeniden tarama bekliyor", variant: "secondary", hint: "Index'e alındı; Google yeniden taramalı" },
-  ready_editorial: { label: "Editoryel yaz", variant: "destructive", hint: "Veri yeterli; editöryel yazınca index'lenir" },
-  maintenance_pending: { label: "Bakım bekliyor", variant: "secondary", hint: "Kriterleri karşılıyor; SEO bakımı çalıştır" },
-  needs_coverage: { label: "Veri bekliyor", variant: "outline", hint: "Editöryel var ama hal kapsamı yetersiz" },
-  seasonal_dry: { label: "Sezon dışı", variant: "outline", hint: "Son 30 günde fiyat yok; sezon dönünce açılır" },
-  variant: { label: "Varyant", variant: "outline", hint: "Master'a 301 yönlenir, aksiyon yok" },
+/** Backend'in urettigi "sonraki adim" kodu icin rozet rengi; etiket ve aciklama locale'den (actions.*, actionHints.*). */
+export const ACTION_VARIANT: Record<HfProductAction, BadgeVariant> = {
+  indexed: "default", recrawl_pending: "secondary", ready_editorial: "destructive",
+  maintenance_pending: "secondary", needs_coverage: "outline", seasonal_dry: "outline", variant: "outline",
 };
+export const ACTION_KEYS = Object.keys(ACTION_VARIANT) as HfProductAction[];
 
 /** Firsat sirasi: en yuksek getirili aksiyon en ustte. */
 export const ACTION_RANK: Record<HfProductAction, number> = {
@@ -50,14 +46,7 @@ export function isGscActionable(item: HfProductItem) {
 
 export type SortKey = "opportunity" | "name" | "category" | "quality" | "search" | "coverage";
 
-export const SORT_OPTIONS: Array<{ value: SortKey; label: string }> = [
-  { value: "opportunity", label: "Fırsat sırası" },
-  { value: "search", label: "En çok aranan" },
-  { value: "quality", label: "Kalite puanı" },
-  { value: "coverage", label: "Hal kapsamı" },
-  { value: "name", label: "Ad (A→Z)" },
-  { value: "category", label: "Kategori" },
-];
+export const SORT_KEYS: SortKey[] = ["opportunity", "search", "quality", "coverage", "name", "category"];
 
 export type Filters = {
   q: string;
@@ -74,19 +63,6 @@ export const EMPTY_FILTERS: Filters = {
   q: "", category: ALL, status: ALL, seo: ALL, variant: ALL, gsc: ALL, action: ALL, sort: "opportunity",
 };
 
-export const FILTER_LABELS: Record<string, Record<string, string>> = {
-  status: { active: "Aktif", passive: "Pasif" },
-  seo: { index: "Index", noindex: "Noindex" },
-  variant: { master: "Bağımsız / master", variant: "Sadece varyantlar" },
-  gsc: {
-    actionable: "Google'da yok (indexlenebilir)",
-    indexed: "Google: indexli",
-    not_indexed: "Google: indexsiz / sorun",
-    issue: "Google: sadece sorun",
-    unchecked: "Google: denetlenmemiş",
-  },
-  action: Object.fromEntries(Object.entries(ACTION_META).map(([key, meta]) => [key, meta.label])),
-};
 
 export function applyLocalFilters(items: HfProductItem[], f: Filters) {
   return items.filter((item) => {
@@ -137,19 +113,17 @@ export function summarize(items: HfProductItem[]) {
 
 /** Editoryel alanlar — tam sayfa editoru ile panel ayni listeyi kullanir. */
 export const EDITORIAL_FIELDS = [
-  { key: "aboutMd", label: "Hakkında", required: true },
-  { key: "priceFactorsMd", label: "Fiyat faktörleri", required: true },
-  { key: "seasonMd", label: "Sezon", required: true },
-  { key: "productionRegionMd", label: "Üretim bölgeleri", required: true },
-  { key: "qualityIndicatorsMd", label: "Kalite göstergeleri", required: false },
-  { key: "culinaryUsesMd", label: "Kullanım alanları", required: false },
+  { key: "aboutMd", required: true },
+  { key: "priceFactorsMd", required: true },
+  { key: "seasonMd", required: true },
+  { key: "productionRegionMd", required: true },
+  { key: "qualityIndicatorsMd", required: false },
+  { key: "culinaryUsesMd", required: false },
 ] as const;
 
 export type EditorialFieldKey = (typeof EDITORIAL_FIELDS)[number]["key"];
 
-export const EDITORIAL_SOURCE_LABEL: Record<"manual" | "ai_draft" | "ai_reviewed", string> = {
-  manual: "Manuel", ai_draft: "AI taslak", ai_reviewed: "AI incelenmiş",
-};
+export const EDITORIAL_SOURCES = ["manual", "ai_draft", "ai_reviewed"] as const;
 
 export function splitCsv(value: string) {
   return value.split(",").map((item) => item.trim()).filter(Boolean);

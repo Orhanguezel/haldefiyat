@@ -1,361 +1,187 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-
+import { useEffect, useMemo, useState } from 'react';
+import { ChevronLeft, ChevronRight, Play, TestTube2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { buildFirmWhatsappLink } from '@/lib/firm-whatsapp';
-import { publicSiteLink } from '@/lib/public-site';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { FirmAdminItem } from '@/integrations/endpoints/firms-admin-endpoints';
 import {
-  useListFirmClaimsAdminQuery,
-  useListFirmsAdminQuery,
-  useListStaleFirmsAdminQuery,
-  useModerateFirmClaimAdminMutation,
-  useRunFirmsEtlAdminMutation,
-  useUpdateFirmAdminMutation,
+  useGetFirmFacetsAdminQuery, useListFirmClaimsAdminQuery, useListFirmsAdminQuery, useListStaleFirmsAdminQuery,
+  useModerateFirmClaimAdminMutation, useRunFirmsEtlAdminMutation,
 } from '@/integrations/hooks';
-import type { FirmAdminItem, FirmClaimAdminItem } from '@/integrations/endpoints/firms-admin-endpoints';
+import { useAdminT } from '../../_components/common/use-admin-t';
+import { FirmSheet } from './_components/firm-sheet';
+import { FirmsTable } from './_components/firms-table';
+import { FirmsToolbar } from './_components/firms-toolbar';
+import { ALL, EMPTY_FILTERS, FIRM_TYPES, type Filters, isDirty, PAGE_SIZE, toQuery } from './_lib/firm-meta';
 
-const TYPE_LABELS: Record<string, string> = {
-  komisyoncu: 'Komisyoncu',
-  soguk_hava: 'Soğuk Hava',
-  nakliye: 'Nakliye',
-  zirai_ilac: 'Zirai İlaç',
-};
-
-const FIRM_STATUS_LABELS: Record<string, string> = {
-  all: 'Tümü',
-  pending: 'Bekleyen',
-  approved: 'Onaylı',
-  rejected: 'Reddedilen',
-};
+function useDebounced<T>(value: T, ms: number) {
+  const [d, setD] = useState(value);
+  useEffect(() => { const h = setTimeout(() => setD(value), ms); return () => clearTimeout(h); }, [value, ms]);
+  return d;
+}
 
 export default function FirmsAdminPage() {
-  // Filtre degisince ilk sayfaya don; yoksa 5. sayfada bos liste gorunur.
-  const [q, setQ] = useState('');
-  const [city, setCity] = useState('');
-  const [type, setType] = useState('all');
-  const [status, setStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
-  const [claimStatus, setClaimStatus] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending');
-  const [lastRun, setLastRun] = useState<string>('');
+  const t = useAdminT('admin.firms');
+  const tc = useAdminT('admin.common');
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [page, setPage] = useState(0);
-  const router = useRouter();
-  const PAGE_SIZE = 50;
+  const [openId, setOpenId] = useState<number | null>(null);
+  const [claimStatus, setClaimStatus] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending');
+  const [etl, setEtl] = useState({ city: '', type: 'komisyoncu' });
+  const [lastRun, setLastRun] = useState('');
 
-  const filters = useMemo(() => ({
-    q: q || undefined,
-    city: city || undefined,
-    type: type === 'all' ? undefined : type,
-    status,
-    limit: PAGE_SIZE,
-    offset: page * PAGE_SIZE,
-  }), [q, city, type, status, page]);
-
-  const { data, isLoading, refetch } = useListFirmsAdminQuery(filters);
-  const { data: staleData } = useListStaleFirmsAdminQuery({ days: 45 });
+  const q = useDebounced(filters.q, 300);
+  const query = useMemo(() => toQuery({ ...filters, q }, page), [filters, q, page]);
+  const { data, isLoading, isFetching } = useListFirmsAdminQuery(query);
+  const { data: facets } = useGetFirmFacetsAdminQuery();
   const { data: claimsData } = useListFirmClaimsAdminQuery({ status: claimStatus });
-  const [runEtl, { isLoading: isRunning }] = useRunFirmsEtlAdminMutation();
-  const [updateFirm, { isLoading: isUpdatingFirm }] = useUpdateFirmAdminMutation();
-  const [moderateClaim, { isLoading: isModeratingClaim }] = useModerateFirmClaimAdminMutation();
+  const { data: allClaims } = useListFirmClaimsAdminQuery({ status: 'all' });
+  const { data: staleData } = useListStaleFirmsAdminQuery({ days: 45 });
+  const [moderateClaim, claimState] = useModerateFirmClaimAdminMutation();
+  const [runEtl, etlState] = useRunFirmsEtlAdminMutation();
 
-  async function handleDryRun() {
-    const result = await runEtl({
-      city: city || 'adana',
-      type: type === 'all' ? 'komisyoncu' : type as any,
-      dryRun: true,
-      limit: 100,
-      delayMs: 0,
-      includeDetails: false,
-    }).unwrap();
-    setLastRun(`Dry-run: ${result.discovered} firma bulundu.`);
-  }
+  useEffect(() => { setPage(0); }, [q, filters.city, filters.type, filters.status, filters.claim, filters.source, filters.phone, filters.sponsored, filters.stale, filters.sort]);
 
-  async function handleRunCity() {
-    const result = await runEtl({
-      city: city || 'adana',
-      type: type === 'all' ? 'komisyoncu' : type as any,
-      limit: 250,
-      delayMs: 750,
-      includeDetails: true,
-    }).unwrap();
-    setLastRun(`ETL: ${result.discovered} bulundu, ${result.inserted ?? 0} yeni, ${result.updated ?? 0} güncel, ${result.skipped ?? 0} atlandı.`);
-    await refetch();
-  }
-
+  const items = data?.items ?? [];
   const total = data?.meta?.total ?? 0;
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const rangeStart = total === 0 ? 0 : page * PAGE_SIZE + 1;
-  const rangeEnd = Math.min(total, (page + 1) * PAGE_SIZE);
-
   const summary = data?.summary;
-  const pendingCount = data?.items.filter((item) => item.status === 'pending').length ?? 0;
+  const open = useMemo(() => items.find((i) => i.id === openId) ?? null, [items, openId]);
+  const patch = (p: Partial<Filters>) => setFilters((prev) => ({ ...prev, ...p }));
+  const pendingClaims = (allClaims?.items ?? []).filter((c) => c.status === 'pending').length;
+  const pendingFirms = facets?.statuses.find((s) => s.key === 'pending')?.count ?? 0;
 
-  async function setFirmStatus(item: FirmAdminItem, nextStatus: 'approved' | 'rejected' | 'pending') {
-    await updateFirm({
-      firmId: item.id,
-      body: {
-        status: nextStatus,
-        claimStatus: nextStatus === 'approved' ? (item.claimStatus === 'pending' ? 'verified' : item.claimStatus) : item.claimStatus,
-      },
-    }).unwrap();
-  }
+  const tiles: Array<{ key: string; value: number | string; hint: string; filter?: Partial<Filters>; tone?: string }> = [
+    { key: 'total', value: summary?.total ?? 0, hint: t('tiles.totalHint', { active: summary?.active ?? 0 }), filter: { status: 'all', claim: ALL, sponsored: false, stale: false } },
+    { key: 'pending', value: pendingFirms, hint: t('tiles.pendingHint'), filter: { status: 'pending' }, tone: pendingFirms ? 'text-amber-600' : '' },
+    { key: 'claims', value: pendingClaims, hint: t('tiles.claimsHint'), filter: { claim: 'pending', status: 'all' }, tone: pendingClaims ? 'text-amber-600' : '' },
+    { key: 'sponsored', value: summary?.activeSponsorships ?? 0, hint: t('tiles.sponsoredHint'), filter: { sponsored: true, status: 'all' }, tone: 'text-primary' },
+    { key: 'stale', value: summary?.stale ?? 0, hint: t('tiles.staleHint'), filter: { stale: true, status: 'all' } },
+    { key: 'pipeline', value: `${Math.round(summary?.pipelineValue ?? 0).toLocaleString('tr-TR')} ₺`, hint: t('tiles.pipelineHint') },
+  ];
 
-  async function releaseOwnership(item: FirmAdminItem) {
-    if (!window.confirm(`"${item.name}" firmasının sahipliğini kaldırmak istiyor musunuz? Firma kaydı silinmez; tekrar sahiplenilebilir olur.`)) return;
-    await updateFirm({ firmId: item.id, body: { claimStatus: 'unclaimed', ownerUserId: null } }).unwrap();
+  async function handleEtl(dryRun: boolean) {
+    try {
+      const r = await runEtl({ city: etl.city || undefined, type: etl.type as FirmAdminItem['firmType'], dryRun, limit: dryRun ? 100 : 250, delayMs: dryRun ? 0 : 750, includeDetails: !dryRun }).unwrap();
+      setLastRun(dryRun ? t('etl.dryResult', { discovered: r.discovered }) : t('etl.result', { discovered: r.discovered, inserted: r.inserted ?? 0, updated: r.updated ?? 0, skipped: r.skipped ?? 0 }));
+    } catch { toast.error(tc('error')); }
   }
 
   return (
-    <div className="min-w-0 space-y-4">
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Metric title="Toplam" value={summary?.total ?? 0} />
-        <Metric title="Aktif" value={summary?.active ?? 0} />
-        <Metric title="Stale" value={summary?.stale ?? staleData?.items?.length ?? 0} />
-        <Metric title="Bekleyen" value={pendingCount} />
+    <div className="space-y-4">
+      <div>
+        <h1 className="text-xl font-semibold">{t('title')}</h1>
+        <p className="text-sm text-muted-foreground">{summary ? t('subtitle', { total: summary.total.toLocaleString('tr-TR'), active: summary.active, stale: summary.stale, sponsored: summary.activeSponsorships }) : tc('loading')}</p>
       </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-3">
-          <CardTitle className="text-base">Firma Rehberi</CardTitle>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button size="sm" variant="outline" onClick={handleDryRun} disabled={isRunning}>
-              Dry-run
-            </Button>
-            <Button size="sm" onClick={handleRunCity} disabled={isRunning}>
-              İl ETL Çalıştır
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-wrap gap-2">
-            {(['all', 'pending', 'approved', 'rejected'] as const).map((item) => (
-              <Button
-                key={item}
-                size="sm"
-                variant={status === item ? 'default' : 'outline'}
-                onClick={() => { setStatus(item); setPage(0); }}
-              >
-                {FIRM_STATUS_LABELS[item]}
-              </Button>
-            ))}
-          </div>
+      <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-6">
+        {tiles.map((tile) => (
+          <button key={tile.key} type="button" disabled={!tile.filter} onClick={() => tile.filter && patch(tile.filter)} className="rounded-lg border bg-background p-3 text-left transition enabled:hover:border-primary/40 disabled:cursor-default">
+            <div className="text-xs text-muted-foreground">{t(`tiles.${tile.key}`)}</div>
+            <div className={`text-2xl font-semibold tabular-nums ${tile.tone ?? ''}`}>{tile.value}</div>
+            <div className="truncate text-xs text-muted-foreground">{tile.hint}</div>
+          </button>
+        ))}
+      </div>
 
-          <div className="grid gap-3 md:grid-cols-[1fr_180px_180px]">
-            <Input value={q} onChange={(event) => { setQ(event.target.value); setPage(0); }} placeholder="Firma adı, adres, telefon" />
-            <Input value={city} onChange={(event) => { setCity(event.target.value); setPage(0); }} placeholder="İl slug (adana)" />
-            <Select value={type} onValueChange={(value) => { setType(value); setPage(0); }}>
-              <SelectTrigger><SelectValue placeholder="Tür" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tüm türler</SelectItem>
-                <SelectItem value="komisyoncu">Komisyoncu</SelectItem>
-                <SelectItem value="soguk_hava">Soğuk Hava</SelectItem>
-                <SelectItem value="nakliye">Nakliye</SelectItem>
-                <SelectItem value="zirai_ilac">Zirai İlaç</SelectItem>
-              </SelectContent>
+      <Tabs defaultValue="list" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="list">{t('tabs.list')}</TabsTrigger>
+          <TabsTrigger value="claims">{t('tabs.claims')} {pendingClaims ? `(${pendingClaims})` : ''}</TabsTrigger>
+          <TabsTrigger value="stale">{t('tabs.stale')}</TabsTrigger>
+          <TabsTrigger value="etl">{t('tabs.etl')}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="list" className="space-y-3">
+          <FirmsToolbar filters={filters} onChange={patch} facets={facets} t={t} tc={tc} />
+          {isDirty(filters) ? <Button size="sm" variant="ghost" onClick={() => setFilters(EMPTY_FILTERS)}>{tc('clearFilters')}</Button> : null}
+          <FirmsTable items={items} loading={isLoading} activeId={openId ?? undefined} onSelect={(i) => setOpenId(i.id)} t={t} tc={tc} />
+          <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+            <span>{total ? t('table.summary', { from: page * PAGE_SIZE + 1, to: Math.min(total, (page + 1) * PAGE_SIZE), total: total.toLocaleString('tr-TR') }) : t('table.noRecords')}{isFetching && !isLoading ? ` · ${tc('updating')}` : ''}</span>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}><ChevronLeft className="size-4" /> {tc('previous')}</Button>
+              <span>{tc('pageOf', { page: page + 1, total: pageCount })}</span>
+              <Button size="sm" variant="outline" disabled={page + 1 >= pageCount} onClick={() => setPage((p) => p + 1)}>{tc('next')} <ChevronRight className="size-4" /></Button>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="claims" className="space-y-3">
+          <div className="flex justify-end">
+            <Select value={claimStatus} onValueChange={(v) => setClaimStatus(v as typeof claimStatus)}>
+              <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+              <SelectContent>{(['pending', 'approved', 'rejected', 'all'] as const).map((k) => <SelectItem key={k} value={k}>{t(`status.${k}`)}</SelectItem>)}</SelectContent>
             </Select>
           </div>
-
-          {lastRun && (
-            <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-              {lastRun}
-            </div>
-          )}
-
-          <div className="w-full overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Firma</TableHead>
-                <TableHead>Durum</TableHead>
-                <TableHead>Tür</TableHead>
-                <TableHead>İl / İlçe</TableHead>
-                <TableHead>Telefon</TableHead>
-                <TableHead className="text-right">İşlem</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading && <TableRow><TableCell colSpan={6}>Yükleniyor...</TableCell></TableRow>}
-              {(data?.items || []).map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <div className="font-medium">{item.name}</div>
-                    <Link href={`/admin/firmalar/${item.id}`} className="text-xs text-primary hover:underline">
-                      {item.slug}
-                    </Link>
-                    {item.source === 'user' && <div className="text-xs text-muted-foreground">Üye kaydı</div>}
-                  </TableCell>
-                  <TableCell>
-                    <span className="rounded-md border px-2 py-1 text-xs">{FIRM_STATUS_LABELS[item.status ?? 'approved'] ?? item.status}</span>
-                    {item.claimStatus === 'pending' && <div className="mt-1 text-xs text-amber-600">Sahiplenme bekliyor</div>}
-                  </TableCell>
-                  <TableCell>{TYPE_LABELS[item.firmType] ?? item.firmType}</TableCell>
-                  <TableCell>{item.citySlug || '-'}{item.districtSlug ? ` / ${item.districtSlug}` : ''}</TableCell>
-                  <TableCell>{item.phone || '-'}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center justify-end gap-2">
-                      <Button asChild size="sm" variant="outline">
-                        <Link href={`/admin/firmalar/${item.id}`}>Detay</Link>
-                      </Button>
-                      {publicSiteLink(`/firma/${item.slug}`) && (
-                        <Button asChild size="sm" variant="ghost">
-                          <a href={publicSiteLink(`/firma/${item.slug}`)!} target="_blank" rel="noopener noreferrer" title="Public firma sayfasi">
-                            Gör
-                          </a>
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {!isLoading && (data?.items || []).length === 0 && (
-                <TableRow><TableCell colSpan={6}>Kayıt bulunamadı.</TableCell></TableRow>
-              )}
-            </TableBody>
-          </Table>
+          <div className="overflow-x-auto rounded-lg border">
+            <Table>
+              <TableHeader><TableRow className="bg-muted/40 hover:bg-muted/40"><TableHead>{t('claims.firm')}</TableHead><TableHead>{t('claims.user')}</TableHead><TableHead>{t('claims.evidence')}</TableHead><TableHead>{t('claims.status')}</TableHead><TableHead className="text-right">{t('claims.action')}</TableHead></TableRow></TableHeader>
+              <TableBody>
+                {(claimsData?.items ?? []).map((c) => (
+                  <TableRow key={c.id}>
+                    <TableCell><div className="font-medium">{c.firmName || `#${c.firmId}`}</div><button type="button" className="font-mono text-xs text-primary hover:underline" onClick={() => setOpenId(c.firmId)}>{c.firmSlug || '—'}</button></TableCell>
+                    <TableCell className="font-mono text-xs">{c.userId}</TableCell>
+                    <TableCell className="max-w-[360px] whitespace-pre-wrap text-sm text-muted-foreground">{c.evidence || '—'}</TableCell>
+                    <TableCell><Badge variant={c.status === 'approved' ? 'default' : c.status === 'rejected' ? 'destructive' : 'secondary'} className="font-normal">{t(`status.${c.status}`)}</Badge></TableCell>
+                    <TableCell className="text-right">
+                      {c.status === 'pending' ? (
+                        <div className="flex justify-end gap-2">
+                          <Button size="sm" disabled={claimState.isLoading} onClick={() => moderateClaim({ claimId: c.id, status: 'approved' })}>{tc('approve')}</Button>
+                          <Button size="sm" variant="outline" disabled={claimState.isLoading} onClick={() => moderateClaim({ claimId: c.id, status: 'rejected' })}>{tc('reject')}</Button>
+                        </div>
+                      ) : '—'}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {!(claimsData?.items ?? []).length ? <TableRow><TableCell colSpan={5} className="text-muted-foreground">{t('claims.empty')}</TableCell></TableRow> : null}
+              </TableBody>
+            </Table>
           </div>
+        </TabsContent>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
-            <p className="text-sm text-muted-foreground">
-              {total > 0
-                ? `${rangeStart}-${rangeEnd} / ${total.toLocaleString('tr-TR')} firma`
-                : 'Kayıt yok'}
-            </p>
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant="outline" onClick={() => setPage(0)} disabled={page === 0}>
-                ‹‹ İlk
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0}>
-                ‹ Önceki
-              </Button>
-              <span className="px-2 text-sm text-muted-foreground">
-                Sayfa {page + 1} / {pageCount}
-              </span>
-              <Button size="sm" variant="outline" onClick={() => setPage((p) => p + 1)} disabled={page + 1 >= pageCount}>
-                Sonraki ›
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => setPage(pageCount - 1)} disabled={page + 1 >= pageCount}>
-                Son ››
-              </Button>
-            </div>
+        <TabsContent value="stale" className="space-y-3">
+          <p className="text-sm text-muted-foreground">{t('stale.hint', { days: 45 })}</p>
+          <div className="overflow-x-auto rounded-lg border">
+            <Table>
+              <TableHeader><TableRow className="bg-muted/40 hover:bg-muted/40"><TableHead>{t('stale.firm')}</TableHead><TableHead>{t('stale.city')}</TableHead><TableHead>{t('stale.lastSeen')}</TableHead></TableRow></TableHeader>
+              <TableBody>
+                {(staleData?.items ?? []).map((i) => (
+                  <TableRow key={i.id} className="cursor-pointer" onClick={() => setOpenId(i.id)}>
+                    <TableCell className="font-medium">{i.name}</TableCell><TableCell>{i.citySlug || '—'}</TableCell>
+                    <TableCell>{i.lastSeenAt ? new Date(i.lastSeenAt).toLocaleDateString('tr-TR') : '—'}</TableCell>
+                  </TableRow>
+                ))}
+                {!(staleData?.items ?? []).length ? <TableRow><TableCell colSpan={3} className="text-muted-foreground">{t('stale.empty')}</TableCell></TableRow> : null}
+              </TableBody>
+            </Table>
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-3">
-          <CardTitle className="text-base">Sahiplenme Talepleri</CardTitle>
-          <Select value={claimStatus} onValueChange={(value) => setClaimStatus(value as typeof claimStatus)}>
-            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pending">Bekleyen</SelectItem>
-              <SelectItem value="approved">Onaylı</SelectItem>
-              <SelectItem value="rejected">Reddedilen</SelectItem>
-              <SelectItem value="all">Tümü</SelectItem>
-            </SelectContent>
-          </Select>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Firma</TableHead>
-                <TableHead>Kullanıcı</TableHead>
-                <TableHead>Kanıt/Not</TableHead>
-                <TableHead>Durum</TableHead>
-                <TableHead>İşlem</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {(claimsData?.items || []).map((claim) => (
-                <ClaimRow
-                  key={claim.id}
-                  claim={claim}
-                  disabled={isModeratingClaim}
-                  onModerate={(nextStatus) => moderateClaim({ claimId: claim.id, status: nextStatus })}
-                />
-              ))}
-              {(claimsData?.items || []).length === 0 && (
-                <TableRow><TableCell colSpan={5}>Talep yok.</TableCell></TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+        <TabsContent value="etl" className="space-y-3">
+          <div className="rounded-lg border p-4">
+            <div className="mb-1 text-sm font-medium">{t('etl.title')}</div>
+            <p className="mb-3 text-xs text-muted-foreground">{t('etl.hint')}</p>
+            <div className="grid gap-3 sm:grid-cols-[1fr_200px_auto_auto]">
+              <div className="space-y-1.5"><Label className="text-xs">{t('etl.city')}</Label><Input value={etl.city} className="font-mono" placeholder="adana" onChange={(e) => setEtl({ ...etl, city: e.target.value })} /></div>
+              <div className="space-y-1.5"><Label className="text-xs">{t('etl.type')}</Label>
+                <Select value={etl.type} onValueChange={(v) => setEtl({ ...etl, type: v })}><SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{FIRM_TYPES.map((k) => <SelectItem key={k} value={k}>{t(`types.${k}`)}</SelectItem>)}</SelectContent></Select></div>
+              <Button variant="outline" className="self-end" disabled={etlState.isLoading} onClick={() => handleEtl(true)}><TestTube2 className="size-4" /> {t('etl.dryRun')}</Button>
+              <Button className="self-end" disabled={etlState.isLoading} onClick={() => handleEtl(false)}><Play className="size-4" /> {etlState.isLoading ? t('etl.running') : t('etl.run')}</Button>
+            </div>
+            {lastRun ? <div className="mt-3 rounded-md border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">{lastRun}</div> : null}
+          </div>
+        </TabsContent>
+      </Tabs>
 
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Stale Firma Raporu</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Firma</TableHead>
-                <TableHead>İl</TableHead>
-                <TableHead>Son Görülme</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {(staleData?.items || []).slice(0, 20).map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.citySlug || '-'}</TableCell>
-                  <TableCell>{item.lastSeenAt ? new Date(item.lastSeenAt).toLocaleDateString('tr-TR') : '-'}</TableCell>
-                </TableRow>
-              ))}
-              {(staleData?.items || []).length === 0 && (
-                <TableRow><TableCell colSpan={3}>Stale kayıt yok.</TableCell></TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-
-function ClaimRow({
-  claim,
-  disabled,
-  onModerate,
-}: {
-  claim: FirmClaimAdminItem;
-  disabled: boolean;
-  onModerate: (status: 'approved' | 'rejected') => void;
-}) {
-  return (
-    <TableRow>
-      <TableCell>
-        <div className="font-medium">{claim.firmName || `#${claim.firmId}`}</div>
-        <div className="text-xs text-muted-foreground">{claim.firmSlug || '-'}</div>
-      </TableCell>
-      <TableCell className="font-mono text-xs">{claim.userId}</TableCell>
-      <TableCell className="max-w-[360px] whitespace-pre-wrap text-sm text-muted-foreground">{claim.evidence || '-'}</TableCell>
-      <TableCell>{claim.status}</TableCell>
-      <TableCell className="space-x-2">
-        {claim.status === 'pending' ? (
-          <>
-            <Button size="sm" onClick={() => onModerate('approved')} disabled={disabled}>Onayla</Button>
-            <Button size="sm" variant="outline" onClick={() => onModerate('rejected')} disabled={disabled}>Reddet</Button>
-          </>
-        ) : '-'}
-      </TableCell>
-    </TableRow>
-  );
-}
-
-function Metric({ title, value }: { title: string; value: number }) {
-  return (
-    <div className="rounded-lg border px-4 py-3">
-      <p className="text-xs font-medium text-muted-foreground">{title}</p>
-      <p className="mt-0.5 text-xl font-semibold">{value.toLocaleString('tr-TR')}</p>
+      <FirmSheet firm={open ?? (openId ? (staleData?.items ?? []).find((i) => i.id === openId) as FirmAdminItem | undefined ?? null : null)} claims={allClaims?.items ?? []} onClose={() => setOpenId(null)} t={t} tc={tc} />
     </div>
   );
 }

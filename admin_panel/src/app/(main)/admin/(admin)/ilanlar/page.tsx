@@ -15,7 +15,8 @@ import { ListingSheet } from './_components/listing-sheet';
 import { ListingsTable } from './_components/listings-table';
 import { SettingsPanel } from './_components/settings-panel';
 import { TrafficPanel } from './_components/traffic-panel';
-import { api, MAX_IMAGES, STATUS_LABEL, toEditForm, uploadListingImage } from './_lib/api';
+import { api, MAX_IMAGES, STATUSES, toEditForm, uploadListingImage } from './_lib/api';
+import { useAdminT } from '../../_components/common/use-admin-t';
 import { buildBannerPayload, firstFreeRow, isLiveAd, listingSlots, slotRowPlan } from './_lib/ads';
 import type {
   AdForm, AdRow, AdSlot, EditForm, Inquiry, Listing, ListingAnalytics, ListingResponse, PackageKey, Pricing,
@@ -27,6 +28,8 @@ const EMPTY_AD: AdForm = {
 };
 
 export default function ListingsAdminPage() {
+  const t = useAdminT('admin.listings');
+  const tc = useAdminT('admin.common');
   const [status, setStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
   const [query, setQuery] = useState('');
   const [data, setData] = useState<ListingResponse>({ items: [] });
@@ -115,8 +118,8 @@ export default function ListingsAdminPage() {
       method: 'PATCH',
       body: JSON.stringify({ status: next, moderationNote: note?.trim() || null }),
     });
-    if (!res.ok) { toast.error('Durum güncellenemedi.'); return; }
-    toast.success(next === 'approved' ? 'İlan onaylandı.' : 'İlan reddedildi.');
+    if (!res.ok) { toast.error(t('toasts.statusFailed')); return; }
+    toast.success(next === 'approved' ? t('toasts.approved') : t('toasts.rejected'));
     if (editing?.id === id) closeEdit();
     await load();
   }
@@ -125,8 +128,8 @@ export default function ListingsAdminPage() {
     if (!pendingDelete) return;
     const res = await api(`/admin/listings/${pendingDelete.id}`, { method: 'DELETE' });
     setPendingDelete(null);
-    if (!res.ok) { toast.error('İlan silinemedi.'); return; }
-    toast.success('İlan silindi.');
+    if (!res.ok) { toast.error(t('toasts.deleteFailed')); return; }
+    toast.success(t('toasts.deleted'));
     await load();
   }
 
@@ -137,7 +140,7 @@ export default function ListingsAdminPage() {
     for (const file of Array.from(files).slice(0, Math.max(0, room))) {
       const url = await uploadListingImage(file);
       if (url) setImages((prev) => [...prev, url]);
-      else toast.error(`${file.name} yüklenemedi.`);
+      else toast.error(t('images.uploadFailed', { name: file.name }));
     }
     setUploading(false);
   }
@@ -164,14 +167,14 @@ export default function ListingsAdminPage() {
     if (!res.ok) {
       const body = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
       setSaving(false);
-      setEditError(body.error?.message ?? 'Kaydedilemedi. Geçerlilik tarihi yarından itibaren olmalı.');
+      setEditError(body.error?.message ?? t('toasts.saveFailed'));
       return;
     }
 
     if (adForm.enabled) {
       if (editing.status !== 'approved') {
         setSaving(false);
-        setEditError('Reklam yalnızca onaylı ilan için açılabilir. Önce ilanı onaylayın.');
+        setEditError(t('ad.onlyApproved'));
         return;
       }
       const payload = buildBannerPayload({
@@ -194,9 +197,9 @@ export default function ListingsAdminPage() {
         setSaving(false);
         const blockers = body.conflicts?.map((entry) => `#${entry.id} ${entry.title}`).join(', ');
         setEditError([
-          body.error ?? 'Reklam slotu kaydedilemedi.',
-          blockers ? `Satırı dolduran reklamlar: ${blockers}.` : '',
-          'İlan kaydedildi; yalnız reklam yerleşimi uygulanmadı.',
+          body.error ?? t('ad.saveFailed'),
+          blockers ? t('ad.blockers', { list: blockers }) : '',
+          t('ad.listingSavedAdNot'),
         ].filter(Boolean).join(' '));
         await load();
         return;
@@ -212,7 +215,7 @@ export default function ListingsAdminPage() {
     }
 
     setSaving(false);
-    toast.success('İlan kaydedildi.');
+    toast.success(t('toasts.saved'));
     closeEdit();
     await load();
   }
@@ -222,8 +225,8 @@ export default function ListingsAdminPage() {
     setSavingPricing(true);
     const res = await api('/admin/listings/featured-pricing', { method: 'PUT', body: JSON.stringify(pricing) });
     setSavingPricing(false);
-    if (res.ok) toast.success('Paket fiyatları kaydedildi.');
-    else toast.error('Fiyatlar kaydedilemedi.');
+    if (res.ok) toast.success(t('settings.pricingSaved'));
+    else toast.error(t('settings.pricingFailed'));
   }
 
   useEffect(() => { void load(); }, [status]);
@@ -254,30 +257,30 @@ export default function ListingsAdminPage() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold">İlanlar</h1>
+          <h1 className="text-xl font-semibold">{t('title')}</h1>
           <p className="text-sm text-muted-foreground">
-            {summary ? `${summary.active} aktif · ${summary.pending} bekleyen · ${summary.rejected} reddedilen` : 'Yükleniyor…'}
+            {summary ? t('summary', { active: summary.active, pending: summary.pending, rejected: summary.rejected }) : tc('loading')}
           </p>
         </div>
         <Button variant="outline" onClick={load} disabled={busy}>
-          <RefreshCw className={`size-4 ${busy ? 'animate-spin' : ''}`} /> Yenile
+          <RefreshCw className={`size-4 ${busy ? 'animate-spin' : ''}`} /> {tc('refresh')}
         </Button>
       </div>
 
       <Tabs defaultValue="listings" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="listings">İlan listesi</TabsTrigger>
-          <TabsTrigger value="traffic">Trafik</TabsTrigger>
-          <TabsTrigger value="inquiries">Teklifler {inquiries.length ? `(${inquiries.length})` : ''}</TabsTrigger>
-          <TabsTrigger value="settings">Reklam ayarları</TabsTrigger>
+          <TabsTrigger value="listings">{t('tabs.list')}</TabsTrigger>
+          <TabsTrigger value="traffic">{t('tabs.traffic')}</TabsTrigger>
+          <TabsTrigger value="inquiries">{t('tabs.inquiries')} {inquiries.length ? `(${inquiries.length})` : ''}</TabsTrigger>
+          <TabsTrigger value="settings">{t('tabs.settings')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="listings" className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex flex-wrap gap-1.5">
-              {(['pending', 'approved', 'rejected', 'all'] as const).map((item) => (
+              {STATUSES.map((item) => (
                 <Button key={item} size="sm" variant={status === item ? 'default' : 'outline'} onClick={() => setStatus(item)}>
-                  {STATUS_LABEL[item]}
+                  {t(`status.${item}`)}
                   {counts[item] == null ? null : <span className="ml-1 tabular-nums opacity-70">{counts[item]}</span>}
                 </Button>
               ))}
@@ -286,7 +289,7 @@ export default function ListingsAdminPage() {
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="pl-9"
-                placeholder="Başlık, ürün, il veya telefon ara"
+                placeholder={t('search')}
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
               />
@@ -304,21 +307,23 @@ export default function ListingsAdminPage() {
               void moderate(id, next);
             }}
             onDelete={setPendingDelete}
+            t={t}
+            tc={tc}
           />
         </TabsContent>
 
         <TabsContent value="traffic">
-          <TrafficPanel analytics={analytics} days={analyticsDays} onDaysChange={setAnalyticsDays} />
+          <TrafficPanel analytics={analytics} days={analyticsDays} onDaysChange={setAnalyticsDays} t={t} tc={tc} />
         </TabsContent>
 
         <TabsContent value="inquiries" className="space-y-2">
           {inquiries.length === 0 ? (
-            <div className="rounded-lg border border-dashed py-16 text-center text-sm text-muted-foreground">Henüz teklif yok.</div>
+            <div className="rounded-lg border border-dashed py-16 text-center text-sm text-muted-foreground">{t('inquiries.empty')}</div>
           ) : inquiries.map((item) => (
             <div key={item.id} className="rounded-lg border p-3 text-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="font-medium">#{item.listingId} · {item.name ?? 'İsimsiz'}</span>
-                <span className="text-xs text-muted-foreground">{item.phone ?? 'telefon yok'} · {item.offerPrice ? `${item.offerPrice} ₺` : 'teklif yok'}</span>
+                <span className="font-medium">#{item.listingId} · {item.name ?? t('sheet.noName')}</span>
+                <span className="text-xs text-muted-foreground">{item.phone ?? t('sheet.noPhone')} · {item.offerPrice ? `${item.offerPrice} ₺` : t('sheet.noOffer')}</span>
               </div>
               {item.message ? <p className="mt-1 text-muted-foreground">{item.message}</p> : null}
             </div>
@@ -333,6 +338,8 @@ export default function ListingsAdminPage() {
             saving={savingPricing}
             slots={slots}
             ads={ads}
+            t={t}
+            tc={tc}
           />
         </TabsContent>
       </Tabs>
@@ -362,24 +369,26 @@ export default function ListingsAdminPage() {
           void moderate(editing.id, next);
         }}
         onClose={closeEdit}
+        t={t}
+        tc={tc}
       />
 
       <AlertDialog open={Boolean(pendingReject)} onOpenChange={(open) => { if (!open) setPendingReject(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>İlan reddedilsin mi?</AlertDialogTitle>
+            <AlertDialogTitle>{t('dialogs.rejectTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              “{pendingReject?.title}” yayından kaldırılır. İsterseniz gerekçe yazın, kayda geçer.
+              {t('dialogs.rejectBody', { title: pendingReject?.title ?? '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <Textarea
             rows={3}
-            placeholder="Moderasyon notu (opsiyonel)"
+            placeholder={t('dialogs.rejectNote')}
             value={rejectNote}
             onChange={(event) => setRejectNote(event.target.value)}
           />
           <AlertDialogFooter>
-            <AlertDialogCancel>Vazgeç</AlertDialogCancel>
+            <AlertDialogCancel>{tc('giveUp')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 const target = pendingReject;
@@ -387,7 +396,7 @@ export default function ListingsAdminPage() {
                 if (target) void moderate(target.id, 'rejected', rejectNote);
               }}
             >
-              Reddet
+              {tc('reject')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -396,14 +405,14 @@ export default function ListingsAdminPage() {
       <AlertDialog open={Boolean(pendingDelete)} onOpenChange={(open) => { if (!open) setPendingDelete(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>İlan silinsin mi?</AlertDialogTitle>
+            <AlertDialogTitle>{t('dialogs.deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              “{pendingDelete?.title}” kalıcı olarak silinecek. Bu işlem geri alınamaz.
+              {t('dialogs.deleteBody', { title: pendingDelete?.title ?? '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Vazgeç</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>Sil</AlertDialogAction>
+            <AlertDialogCancel>{tc('giveUp')}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>{tc('delete')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

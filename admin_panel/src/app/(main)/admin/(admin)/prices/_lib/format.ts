@@ -21,12 +21,13 @@ export function dayDiff(value?: string | null) {
   return Math.round((today.getTime() - date) / 86400000);
 }
 
-export function ageLabel(value?: string | null) {
+export function ageLabel(value?: string | null, tc?: (key: string, params?: Record<string, string | number>) => string) {
   const days = dayDiff(value);
   if (days == null) return '';
-  if (days <= 0) return 'bugün';
-  if (days === 1) return 'dün';
-  return `${days} gün önce`;
+  if (!tc) return days <= 0 ? 'bugün' : days === 1 ? 'dün' : `${days} gün önce`;
+  if (days <= 0) return tc('today');
+  if (days === 1) return tc('yesterday');
+  return tc('daysAgo', { count: days });
 }
 
 export function percentDiff(a: string | number | null, b: string | number | null) {
@@ -36,13 +37,3 @@ export function percentDiff(a: string | number | null, b: string | number | null
   return ((left - right) / right) * 100;
 }
 
-export const MARKET_TYPE_LABEL: Record<string, string> = {
-  hal: 'Hal', borsa: 'Borsa', resmi: 'Resmî', kooperatif: 'Kooperatif',
-};
-
-export const AVG_METHOD_LABEL: Record<string, string> = {
-  reported: 'kaynaktan geldi',
-  midpoint: 'min-maks ortası',
-  single: 'tek fiyat',
-  unknown: 'bilinmiyor',
-};

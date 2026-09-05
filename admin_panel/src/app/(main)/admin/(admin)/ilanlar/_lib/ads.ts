@@ -72,6 +72,7 @@ export function buildBannerPayload(input: {
   return {
     position: input.position,
     title: `${input.title} · sponsorlu ilan`,
+    // Bu iki metin yonetim paneli metni degil, PUBLIC sitede banner icinde gorunen icerik; kayitla birlikte saklanir.
     advertiser: 'Sponsorlu İlan',
     type: 'image',
     sourceType: 'listing',

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { BASE_URL } from "@/integrations/api-base";
+import { useAdminT } from "../../../_components/common/use-admin-t";
 
 // Site adresi API adresinden turetilir; marka/alan adi koda yazilmaz.
 const SITE = BASE_URL.replace(/\/api\/v1\/?$/, "");
@@ -77,6 +78,7 @@ export function ProductThumb({
   size?: number;
 }) {
   const manifestPath = useProductImage(slug, canonicalSlug);
+  const t = useAdminT("admin.hf-products.thumb");
   const path = imageUrl || (manifestPath === undefined ? undefined : manifestPath ? manifestPath : null);
 
   if (path === undefined) {
@@ -88,9 +90,9 @@ export function ProductThumb({
       <span
         className="flex shrink-0 items-center justify-center rounded-md border border-dashed text-[8px] text-muted-foreground"
         style={{ width: size, height: size }}
-        title="Fotoğraf yok"
+        title={t("noPhoto")}
       >
-        yok
+        {t("none")}
       </span>
     );
   }

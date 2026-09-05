@@ -26,6 +26,13 @@ export type FirmListFilters = {
   q?: string;
   activeOnly?: boolean;
   status?: "pending" | "approved" | "rejected" | "all";
+  claimStatus?: "unclaimed" | "pending" | "verified";
+  source?: "halkatalogu" | "user";
+  hasPhone?: boolean;
+  sponsored?: boolean;
+  /** Yalniz su kadar gundur gorulmeyen (stale) firmalar. */
+  staleDays?: number;
+  sort?: "default" | "name" | "city" | "lastSeen" | "newest";
   limit?: number;
   offset?: number;
 };

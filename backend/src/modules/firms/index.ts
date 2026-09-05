@@ -50,6 +50,7 @@ import {
   updateFirmProduct,
   updateFirmSponsorship,
   upsertFirmPrice,
+  firmFacets,
 } from "./repository";
 import { runFirmDirectoryEtl } from "./service";
 import { runFirmDailyPriceReminders } from "./reminders";
@@ -75,6 +76,12 @@ const listQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(200).optional(),
   offset: z.coerce.number().int().min(0).optional(),
   status: z.enum(["pending", "approved", "rejected", "all"]).optional(),
+  claimStatus: z.enum(["unclaimed", "pending", "verified"]).optional(),
+  source: z.enum(["halkatalogu", "user"]).optional(),
+  hasPhone: z.enum(["true", "false"]).transform((v) => v === "true").optional(),
+  sponsored: z.enum(["true"]).transform(() => true).optional(),
+  staleDays: z.coerce.number().int().min(1).max(3650).optional(),
+  sort: z.enum(["default", "name", "city", "lastSeen", "newest"]).optional(),
 });
 
 const etlBodySchema = z.object({
@@ -616,6 +623,10 @@ export async function registerFirmsAdmin(app: FastifyInstance) {
       firmDashboardSummary(),
     ]);
     return reply.send({ items, meta: { total, limit: parsed.data.limit ?? 50, offset: parsed.data.offset ?? 0 }, summary });
+  });
+
+  app.get("/firms/facets", async (_req, reply) => {
+    return reply.send(await firmFacets());
   });
 
   app.get("/firms/stale", async (req, reply) => {

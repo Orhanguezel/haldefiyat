@@ -13,6 +13,7 @@ import {
   useListRedirectsAdminQuery,
   useUpsertRedirectsAdminMutation,
 } from "@/integrations/endpoints/admin/redirects-admin-endpoints";
+import { useAdminT } from "../../../_components/common/use-admin-t";
 
 // Hedefi normalize et: tam URL ya da "/" ile başlıyorsa olduğu gibi; aksi halde ürün slug → /urun/<slug>.
 function normalizeTarget(input: string): string {
@@ -23,6 +24,7 @@ function normalizeTarget(input: string): string {
 }
 
 export function ProductRedirectPanel({ slug, isNew }: { slug: string; isNew: boolean }) {
+  const t = useAdminT("admin.hf-products.redirect");
   const sourcePath = `/urun/${slug}`;
   const { data } = useListRedirectsAdminQuery({ search: sourcePath }, { skip: isNew || !slug });
   const [upsert, { isLoading: saving }] = useUpsertRedirectsAdminMutation();
@@ -32,7 +34,7 @@ export function ProductRedirectPanel({ slug, isNew }: { slug: string; isNew: boo
   if (isNew || !slug) {
     return (
       <div className="rounded-md border bg-muted/30 p-4 text-muted-foreground text-sm">
-        Yönlendirme, ürün kaydedildikten sonra tanımlanabilir.
+        {t("afterSave")}
       </div>
     );
   }
@@ -42,15 +44,15 @@ export function ProductRedirectPanel({ slug, isNew }: { slug: string; isNew: boo
   async function apply(type: "301" | "410") {
     const targetUrl = type === "301" ? normalizeTarget(target) : null;
     if (type === "301" && !targetUrl) {
-      toast.error("301 için hedef girin (ör. bugday ya da /urun/bugday).");
+      toast.error(t("needTarget"));
       return;
     }
     try {
       await upsert({ sourcePath, type, targetUrl }).unwrap();
-      toast.success(type === "301" ? `301 yönlendirme tanımlandı → ${targetUrl}` : "Sayfa 410 (kaldırıldı) olarak işaretlendi.");
+      toast.success(type === "301" ? t("set301", { target: targetUrl ?? "" }) : t("set410"));
       setTarget("");
     } catch {
-      toast.error("İşlem başarısız.");
+      toast.error(t("failed"));
     }
   }
 
@@ -58,9 +60,9 @@ export function ProductRedirectPanel({ slug, isNew }: { slug: string; isNew: boo
     if (!existing) return;
     try {
       await remove(existing.id).unwrap();
-      toast.success("Yönlendirme kaldırıldı; sayfa normale döndü.");
+      toast.success(t("cleared"));
     } catch {
-      toast.error("Kaldırılamadı.");
+      toast.error(t("clearFailed"));
     }
   }
 
@@ -68,11 +70,10 @@ export function ProductRedirectPanel({ slug, isNew }: { slug: string; isNew: boo
     <div className="rounded-md border p-4">
       <div className="mb-1 flex items-center gap-2 font-medium text-sm">
         <CornerUpRight className="h-4 w-4" />
-        Yönlendirme / Kaldırma (301 · 410)
+        {t("title")}
       </div>
       <p className="mb-3 text-muted-foreground text-xs">
-        301 = sayfa kalıcı taşındı (SEO değeri hedefe aktarılır). 410 = sayfa kalıcı kaldırıldı (Google index’ten
-        düşürür). İşlem <code className="rounded bg-muted px-1">{sourcePath}</code> yolunu etkiler.
+        {t("hint", { path: sourcePath })}
       </p>
 
       {existing ? (
@@ -81,42 +82,41 @@ export function ProductRedirectPanel({ slug, isNew }: { slug: string; isNew: boo
             <Badge variant={existing.type === "410" ? "destructive" : "secondary"}>{existing.type}</Badge>
             {existing.type === "301" ? (
               <span>
-                Şu an yönlendiriyor → <span className="font-medium">{existing.targetUrl}</span>
+                {t("redirecting")} <span className="font-medium">{existing.targetUrl}</span>
               </span>
             ) : (
-              <span>Sayfa “kaldırıldı (410)” olarak işaretli.</span>
+              <span>{t("gone")}</span>
             )}
           </div>
           <Button size="sm" variant="outline" onClick={clear} disabled={removing}>
             <Trash2 className="mr-1.5 h-4 w-4" />
-            Kaldır (normale döndür)
+            {t("clear")}
           </Button>
         </div>
       ) : (
         <div className="space-y-3">
           <div className="flex flex-wrap items-end gap-2">
             <div className="min-w-[220px] flex-1">
-              <label className="mb-1 block text-muted-foreground text-xs">301 hedefi (slug veya tam URL)</label>
-              <Input placeholder="ör. bugday  ·  /fiyatlar  ·  https://…" value={target} onChange={(e) => setTarget(e.target.value)} />
+              <label className="mb-1 block text-muted-foreground text-xs">{t("targetLabel")}</label>
+              <Input placeholder={t("targetPlaceholder")} value={target} onChange={(e) => setTarget(e.target.value)} />
             </div>
             <Button size="sm" onClick={() => apply("301")} disabled={saving}>
               <CornerUpRight className="mr-1.5 h-4 w-4" />
-              301 Yönlendir
+              {t("do301")}
             </Button>
           </div>
           <div className="flex items-center justify-between gap-2 rounded-md border border-destructive/30 p-2">
-            <span className="text-muted-foreground text-xs">Ürün kalıcı kaldırıldıysa (artık satılmıyor/yok):</span>
+            <span className="text-muted-foreground text-xs">{t("goneHint")}</span>
             <Button size="sm" variant="destructive" onClick={() => apply("410")} disabled={saving}>
               <XOctagon className="mr-1.5 h-4 w-4" />
-              410 — Kaldırıldı
+              {t("do410")}
             </Button>
           </div>
         </div>
       )}
 
       <p className="mt-3 text-muted-foreground text-xs">
-        İpucu: 301/410 sonrası ürünü sitemap’ten çıkarmak için SEO sekmesinden “noindex” yapabilirsiniz (otomatik
-        değiştirilmez).
+        {t("tip")}
       </p>
     </div>
   );

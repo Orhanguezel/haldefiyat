@@ -139,7 +139,7 @@ export async function listFirms(filters: FirmListFilters = {}) {
       sql`${hfFirmSponsorships.endsAt} >= CURRENT_TIMESTAMP(3)`,
     ))
     .where(where)
-    .orderBy(desc(hfFirmSponsorships.isActive), asc(hfFirms.citySlug), asc(hfFirms.name))
+    .orderBy(...firmOrder(filters.sort))
     .limit(Math.min(filters.limit ?? 50, 200))
     .offset(filters.offset ?? 0);
 }
@@ -1039,7 +1039,40 @@ function buildFirmWhere(filters: FirmListFilters) {
     const q = `%${filters.q.replace(/[%_\\]/g, "")}%`;
     clauses.push(or(like(hfFirms.name, q), like(hfFirms.address, q), like(hfFirms.phone, q)));
   }
+  if (filters.claimStatus) clauses.push(eq(hfFirms.claimStatus, filters.claimStatus));
+  if (filters.source) clauses.push(eq(hfFirms.source, filters.source));
+  if (filters.hasPhone === true) clauses.push(sql`${hfFirms.phone} IS NOT NULL AND ${hfFirms.phone} <> ''`);
+  if (filters.hasPhone === false) clauses.push(sql`(${hfFirms.phone} IS NULL OR ${hfFirms.phone} = '')`);
+  if (filters.staleDays) clauses.push(sql`${hfFirms.lastSeenAt} < DATE_SUB(CURRENT_TIMESTAMP(3), INTERVAL ${filters.staleDays} DAY)`);
+  if (filters.sponsored === true) {
+    clauses.push(sql`EXISTS (SELECT 1 FROM hf_firm_sponsorships fs WHERE fs.firm_id = ${hfFirms.id} AND fs.is_active = 1
+      AND fs.starts_at <= CURRENT_TIMESTAMP(3) AND fs.ends_at >= CURRENT_TIMESTAMP(3))`);
+  }
   return clauses.length ? and(...clauses) : undefined;
+}
+
+function firmOrder(sort: FirmListFilters["sort"]) {
+  switch (sort) {
+    case "name": return [asc(hfFirms.name)];
+    case "city": return [asc(hfFirms.citySlug), asc(hfFirms.name)];
+    case "lastSeen": return [asc(hfFirms.lastSeenAt)];
+    case "newest": return [desc(hfFirms.createdAt)];
+    default: return [desc(hfFirmSponsorships.isActive), asc(hfFirms.citySlug), asc(hfFirms.name)];
+  }
+}
+
+/** Filtre acilir listeleri icin sayimlar — tum firmalar uzerinden (durum/aktiflik suzgeci yok). */
+export async function firmFacets() {
+  const [cities, types, statuses, claims, sources] = await Promise.all([
+    db.select({ key: hfFirms.citySlug, count: sql<number>`count(*)` }).from(hfFirms).groupBy(hfFirms.citySlug).orderBy(desc(sql`count(*)`)),
+    db.select({ key: hfFirms.firmType, count: sql<number>`count(*)` }).from(hfFirms).groupBy(hfFirms.firmType),
+    db.select({ key: hfFirms.status, count: sql<number>`count(*)` }).from(hfFirms).groupBy(hfFirms.status),
+    db.select({ key: hfFirms.claimStatus, count: sql<number>`count(*)` }).from(hfFirms).groupBy(hfFirms.claimStatus),
+    db.select({ key: hfFirms.source, count: sql<number>`count(*)` }).from(hfFirms).groupBy(hfFirms.source),
+  ]);
+  const norm = (rows: Array<{ key: unknown; count: number }>) =>
+    rows.filter((r) => r.key != null && r.key !== "").map((r) => ({ key: String(r.key), count: Number(r.count) }));
+  return { cities: norm(cities), types: norm(types), statuses: norm(statuses), claimStatuses: norm(claims), sources: norm(sources) };
 }
 
 async function ensureUniqueFirmSlug(name: string) {

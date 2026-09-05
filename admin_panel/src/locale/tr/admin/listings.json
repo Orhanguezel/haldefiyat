@@ -1,0 +1,181 @@
+{
+  "title": "İlanlar",
+  "summary": "{active} aktif · {pending} bekleyen · {rejected} reddedilen",
+  "tabs": {
+    "list": "İlan listesi",
+    "traffic": "Trafik",
+    "inquiries": "Teklifler",
+    "settings": "Reklam ayarları"
+  },
+  "status": {
+    "pending": "Bekleyen",
+    "approved": "Onaylı",
+    "rejected": "Reddedilen",
+    "expired": "Süresi doldu",
+    "closed": "Kapalı",
+    "all": "Tümü"
+  },
+  "type": {
+    "satis": "Satış",
+    "alim": "Alım",
+    "satisLong": "Satış ilanı",
+    "alimLong": "Alım talebi"
+  },
+  "search": "Başlık, ürün, il veya telefon ara",
+  "table": {
+    "listing": "İlan",
+    "type": "Tip",
+    "status": "Durum",
+    "validity": "Geçerlilik",
+    "phone": "Telefon",
+    "action": "İşlem",
+    "images": "{count} görsel",
+    "empty": "Bu filtrede ilan yok."
+  },
+  "badges": {
+    "suspicious": "Şüpheli fiyat",
+    "inAd": "Reklamda",
+    "adPending": "Reklam bekliyor",
+    "featured": "Öne çıkan"
+  },
+  "sheet": {
+    "listingNo": "#{id}",
+    "validUntil": "{date} sonuna kadar",
+    "tabs": {
+      "details": "Detaylar",
+      "images": "Görseller",
+      "ad": "Reklam",
+      "inquiries": "Teklifler"
+    },
+    "noInquiries": "Bu ilana gelen teklif yok.",
+    "noName": "İsimsiz",
+    "noPhone": "telefon yok",
+    "offer": "{price} ₺ teklif",
+    "noOffer": "teklif yok"
+  },
+  "details": {
+    "listingNo": "İlan no",
+    "product": "Ürün",
+    "city": "İl",
+    "type": "Tip",
+    "title": "Başlık",
+    "validUntil": "Geçerlilik tarihi",
+    "validHint": "Yarından itibaren bir tarih seçin.",
+    "phone": "Telefon",
+    "quantity": "Miktar",
+    "quantityUnit": "Miktar birimi",
+    "priceType": "Fiyat tipi",
+    "priceMin": "Fiyat (min)",
+    "priceMax": "Fiyat (maks)",
+    "description": "Açıklama",
+    "priceTypes": {
+      "sabit": "Sabit fiyat",
+      "pazarlik": "Pazarlık",
+      "hal_endeksli": "Hal endeksli"
+    }
+  },
+  "images": {
+    "title": "Görseller",
+    "hint": "İlk görsel kapak olur; listede ve reklamda o görünür. En fazla {max} görsel.",
+    "cover": "Kapak",
+    "makeCover": "Kapak yap",
+    "remove": "Kaldır",
+    "add": "Görsel ekle",
+    "uploading": "Yükleniyor…",
+    "alt": "İlan görseli",
+    "uploadFailed": "{name} yüklenemedi."
+  },
+  "ad": {
+    "toggleTitle": "Bu ilanı reklamda yayınla",
+    "toggleHint": "Açıldığında ilan sponsorlu banner olarak gösterilir ve öne çıkan işareti alır.",
+    "step1": "1 · Süre paketi",
+    "step2": "2 · Reklam yeri",
+    "step3": "3 · Yerleşim",
+    "step4": "4 · Ödeme ve yayın",
+    "packages": {
+      "daily": "Günlük",
+      "weekly": "Haftalık",
+      "monthly": "Aylık"
+    },
+    "daysUnit": "{count} gün",
+    "perRow": "satır başına {count} reklam",
+    "selectSlot": "Slot seçin",
+    "devices": {
+      "all": "Tüm cihazlar",
+      "desktop": "Masaüstü",
+      "mobile": "Mobil"
+    },
+    "placementHint": "Boş bir hücreye tıklayın. Dolu hücreler başka reklamlara ait.",
+    "row": "Satır {row}",
+    "full": "dolu",
+    "free": "{free} / {total} yer boş",
+    "here": "Bu ilan burada",
+    "pick": "Boş · seç",
+    "mixedLayout": "Bu satır {columns} sütunlu farklı bir düzenle kurulmuş, karışık yerleşim yapılamaz.",
+    "paymentTitle": "Ödeme alındı",
+    "paymentOn": "Reklam kaydedildiği anda yayına girer.",
+    "paymentOff": "Kapalıyken slot rezerve edilir, reklam yayınlanmaz.",
+    "willPublish": "Yayına alınacak",
+    "willReserve": "Rezerve edilecek",
+    "place": "Yer",
+    "position": "Konum",
+    "positionValue": "Satır {row} · {columns} sütunlu",
+    "duration": "Süre",
+    "durationValue": "{days} gün · {date} sonuna kadar",
+    "amount": "Tutar",
+    "noImage": "görsel yok",
+    "sponsored": "Sponsorlu",
+    "cta": "İlanı İncele →",
+    "noImageWarn": "Görseller sekmesinden en az bir görsel ekleyin, reklam görselsiz zayıf görünür.",
+    "noSlots": "İlan reklamına açık bir slot bulunamadı. Reklam ayarları sekmesinden slot durumunu kontrol edin.",
+    "onlyApproved": "Reklam yalnızca onaylı ilan için açılabilir. Önce ilanı onaylayın.",
+    "saveFailed": "Reklam slotu kaydedilemedi.",
+    "blockers": "Satırı dolduran reklamlar: {list}.",
+    "listingSavedAdNot": "İlan kaydedildi; yalnız reklam yerleşimi uygulanmadı.",
+    "titleFallback": "İlan başlığı"
+  },
+  "settings": {
+    "pricingTitle": "Öne çıkarma paket fiyatları",
+    "pricingHint": "Reklam sekmesinde bu tutarlar gösterilir.",
+    "pricingSaved": "Paket fiyatları kaydedildi.",
+    "pricingFailed": "Fiyatlar kaydedilemedi.",
+    "slotsTitle": "Reklam yeri doluluk durumu",
+    "slotsHint": "İlan reklamı alabilen slotlar ve boş yerleri.",
+    "noSlots": "İlan reklamına açık slot yok.",
+    "slotMeta": "Satır başına {capacity} reklam · 1. satırda {used} dolu",
+    "freeSlots": "{count} boş yer",
+    "noFree": "boş yer yok"
+  },
+  "traffic": {
+    "title": "İlan trafiği · son {days} gün",
+    "listViews": "Liste görüntüleme",
+    "detailViews": "İlan detay tıklama",
+    "ilanVerViews": "İlan ver ziyareti",
+    "inquiries": "Teklif / iletişim",
+    "topListings": "En çok görüntülenen ilanlar",
+    "views": "Görüntüleme",
+    "offers": "Teklif",
+    "topProducts": "En çok aranan ürünler",
+    "topCities": "En çok aranan iller",
+    "noData": "Veri yok."
+  },
+  "inquiries": {
+    "empty": "Henüz teklif yok."
+  },
+  "dialogs": {
+    "rejectTitle": "İlan reddedilsin mi?",
+    "rejectBody": "“{title}” yayından kaldırılır. İsterseniz gerekçe yazın, kayda geçer.",
+    "rejectNote": "Moderasyon notu (opsiyonel)",
+    "deleteTitle": "İlan silinsin mi?",
+    "deleteBody": "“{title}” kalıcı olarak silinecek. Bu işlem geri alınamaz."
+  },
+  "toasts": {
+    "approved": "İlan onaylandı.",
+    "rejected": "İlan reddedildi.",
+    "statusFailed": "Durum güncellenemedi.",
+    "deleted": "İlan silindi.",
+    "deleteFailed": "İlan silinemedi.",
+    "saved": "İlan kaydedildi.",
+    "saveFailed": "Kaydedilemedi. Geçerlilik tarihi yarından itibaren olmalı."
+  }
+}

@@ -410,6 +410,7 @@ export {
   useListFirmDealsAdminQuery,
   useListFirmSponsorshipsAdminQuery,
   useListFirmsAdminQuery,
+  useGetFirmFacetsAdminQuery,
   useListStaleFirmsAdminQuery,
   useModerateFirmClaimAdminMutation,
   useRunFirmsEtlAdminMutation,
@@ -445,6 +446,7 @@ export {
   useDeleteMarketAdminMutation,
   useGetMarketAdminQuery,
   useListMarketsAdminQuery,
+  useListMarketStatsAdminQuery,
   useUpdateMarketAdminMutation,
 } from "@/integrations/endpoints/markets-admin-endpoints";
 export {

@@ -11,6 +11,9 @@ import ga4 from "./ga4.json";
 import googleAds from "./google-ads.json";
 import googleConnect from "./google-connect.json";
 import gtm from "./gtm.json";
+import listings from "./listings.json";
+import hfProducts from "./hf-products.json";
+import firms from "./firms.json";
 import markets from "./markets.json";
 import meta from "./meta.json";
 import newsletter from "./newsletter.json";
@@ -41,6 +44,9 @@ const adminMessages = {
   googleConnect: googleConnect,
   gtm: gtm,
   markets: markets,
+  listings: listings,
+  "hf-products": hfProducts,
+  firms: firms,
   meta: meta,
   newsletter: newsletter,
   popups: popups,

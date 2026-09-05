@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { HfProductItem } from "@/integrations/endpoints/hf-products-admin-endpoints";
-import { ACTION_META, productName, qualityTone } from "../_lib/product-meta";
+import { ACTION_VARIANT, productName, qualityTone } from "../_lib/product-meta";
+type T = (key: string, params?: Record<string, string | number>, fallback?: string) => string;
 import { GSC_SHORT_LABEL, ProductGscBadge } from "./product-gsc-panel";
 import { ProductThumb } from "./product-thumb";
 
@@ -22,15 +23,15 @@ function QualityCell({ score }: { score: number }) {
   );
 }
 
-function StatusCell({ item, masterId }: { item: HfProductItem; masterId?: number }) {
+function StatusCell({ item, masterId, t }: { item: HfProductItem; masterId?: number; t: T }) {
   if (item.canonicalSlug) {
     return (
       <div className="flex flex-wrap items-center gap-1">
-        <Badge variant="outline" className="font-normal">Varyant</Badge>
+        <Badge variant="outline" className="font-normal">{t("table.variant")}</Badge>
         <Link
           className="max-w-[140px] truncate text-xs text-primary hover:underline"
           href={masterId ? `/admin/hf-products/${masterId}` : "/admin/hf-products"}
-          title={`Master: ${item.canonicalSlug}`}
+          title={t("table.master", { slug: item.canonicalSlug })}
           onClick={(event) => event.stopPropagation()}
         >
           → {item.canonicalSlug}
@@ -41,10 +42,10 @@ function StatusCell({ item, masterId }: { item: HfProductItem; masterId?: number
   const expectedExcluded = !item.seoIndex;
   return (
     <div className="flex flex-wrap items-center gap-1">
-      <Badge variant={item.seoIndex ? "default" : "outline"} className="font-normal">{item.seoIndex ? "Index" : "Noindex"}</Badge>
+      <Badge variant={item.seoIndex ? "default" : "outline"} className="font-normal">{item.seoIndex ? t("table.index") : t("table.noindex")}</Badge>
       {item.gscCategory ? (
         expectedExcluded && item.gscCategory !== "indexed"
-          ? <Badge variant="outline" className="font-normal text-muted-foreground">Google: beklenen</Badge>
+          ? <Badge variant="outline" className="font-normal text-muted-foreground">{t("table.gscExpected")}</Badge>
           : <ProductGscBadge category={item.gscCategory} label={GSC_SHORT_LABEL[item.gscCategory]} />
       ) : null}
     </div>
@@ -62,15 +63,17 @@ type Props = {
   page: number;
   pageSize: number;
   onPage: (page: number) => void;
+  t: T;
+  tc: T;
 };
 
-export function ProductsTable({ items, loading, selected, onToggle, onToggleAll, onOpen, bySlug, page, pageSize, onPage }: Props) {
+export function ProductsTable({ items, loading, selected, onToggle, onToggleAll, onOpen, bySlug, page, pageSize, onPage, t, tc }: Props) {
   const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
   const slice = items.slice((page - 1) * pageSize, page * pageSize);
   const allChecked = slice.length > 0 && slice.every((item) => selected.has(item.id));
 
-  if (loading) return <div className="rounded-lg border border-dashed py-16 text-center text-sm text-muted-foreground">Yükleniyor…</div>;
-  if (!items.length) return <div className="rounded-lg border border-dashed py-16 text-center text-sm text-muted-foreground">Bu filtrede ürün yok.</div>;
+  if (loading) return <div className="rounded-lg border border-dashed py-16 text-center text-sm text-muted-foreground">{tc("loading")}</div>;
+  if (!items.length) return <div className="rounded-lg border border-dashed py-16 text-center text-sm text-muted-foreground">{t("table.empty")}</div>;
 
   return (
     <div className="space-y-3">
@@ -79,19 +82,18 @@ export function ProductsTable({ items, loading, selected, onToggle, onToggleAll,
           <TableHeader>
             <TableRow className="bg-muted/40 hover:bg-muted/40">
               <TableHead className="w-10">
-                <Checkbox checked={allChecked} onCheckedChange={(checked) => onToggleAll(slice.map((item) => item.id), Boolean(checked))} aria-label="Sayfadakileri seç" />
+                <Checkbox checked={allChecked} onCheckedChange={(checked) => onToggleAll(slice.map((item) => item.id), Boolean(checked))} aria-label={t("table.selectPage")} />
               </TableHead>
-              <TableHead className="min-w-[280px]">Ürün</TableHead>
-              <TableHead className="w-28">Kalite</TableHead>
-              <TableHead className="w-20 text-right">Arama</TableHead>
-              <TableHead className="w-28">Kapsam (30g)</TableHead>
-              <TableHead className="min-w-[200px]">SEO · Google</TableHead>
-              <TableHead className="min-w-[160px]">Sonraki adım</TableHead>
+              <TableHead className="min-w-[280px]">{t("table.product")}</TableHead>
+              <TableHead className="w-28">{t("table.quality")}</TableHead>
+              <TableHead className="w-20 text-right">{t("table.search")}</TableHead>
+              <TableHead className="w-28">{t("table.coverage")}</TableHead>
+              <TableHead className="min-w-[200px]">{t("table.seoGoogle")}</TableHead>
+              <TableHead className="min-w-[160px]">{t("table.nextStep")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {slice.map((item) => {
-              const action = ACTION_META[item.action ?? "variant"];
               return (
                 <TableRow
                   key={item.id}
@@ -100,7 +102,7 @@ export function ProductsTable({ items, loading, selected, onToggle, onToggleAll,
                   onClick={() => onOpen(item)}
                 >
                   <TableCell onClick={(event) => event.stopPropagation()}>
-                    <Checkbox checked={selected.has(item.id)} onCheckedChange={() => onToggle(item.id)} aria-label="Seç" />
+                    <Checkbox checked={selected.has(item.id)} onCheckedChange={() => onToggle(item.id)} aria-label={t("table.select")} />
                   </TableCell>
                   <TableCell className="py-2.5">
                     <div className="flex items-center gap-3">
@@ -108,8 +110,8 @@ export function ProductsTable({ items, loading, selected, onToggle, onToggleAll,
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
                           <span className="truncate font-medium">{productName(item)}</span>
-                          {!item.isActive ? <Badge variant="secondary" className="font-normal">pasif</Badge> : null}
-                          {item.hasEditorial ? <span className="text-xs text-emerald-600" title="Editoryel yayında">✎</span> : null}
+                          {!item.isActive ? <Badge variant="secondary" className="font-normal">{t("table.passive")}</Badge> : null}
+                          {item.hasEditorial ? <span className="text-xs text-emerald-600" title={t("table.editorialLive")}>✎</span> : null}
                         </div>
                         <div className="truncate text-xs text-muted-foreground">
                           <span className="font-mono">{item.slug}</span> · {item.categorySlug} · {item.unit}
@@ -120,13 +122,13 @@ export function ProductsTable({ items, loading, selected, onToggle, onToggleAll,
                   <TableCell><QualityCell score={Number(item.dataQuality ?? 0)} /></TableCell>
                   <TableCell className="text-right tabular-nums">{Number(item.searchVolume ?? 0).toLocaleString("tr-TR")}</TableCell>
                   <TableCell className="text-sm">
-                    <span className={Number(item.halMarkets30d ?? 0) >= 3 ? "" : "text-muted-foreground"}>{item.halMarkets30d ?? 0} hal</span>
-                    {Number(item.borsaMarkets30d ?? 0) > 0 ? <span className="text-muted-foreground"> · {item.borsaMarkets30d} borsa</span> : null}
+                    <span className={Number(item.halMarkets30d ?? 0) >= 3 ? "" : "text-muted-foreground"}>{t("table.hal", { count: item.halMarkets30d ?? 0 })}</span>
+                    {Number(item.borsaMarkets30d ?? 0) > 0 ? <span className="text-muted-foreground"> · {t("table.borsa", { count: item.borsaMarkets30d ?? 0 })}</span> : null}
                   </TableCell>
-                  <TableCell><StatusCell item={item} masterId={item.canonicalSlug ? bySlug.get(item.canonicalSlug)?.id : undefined} /></TableCell>
+                  <TableCell><StatusCell item={item} masterId={item.canonicalSlug ? bySlug.get(item.canonicalSlug)?.id : undefined} t={t} /></TableCell>
                   <TableCell>
                     {item.action === "variant" ? <span className="text-xs text-muted-foreground">—</span> : (
-                      <Badge variant={action.variant} title={action.hint} className="whitespace-nowrap font-normal">{action.label}</Badge>
+                      <Badge variant={ACTION_VARIANT[item.action ?? "variant"]} title={t(`actionHints.${item.action}`)} className="whitespace-nowrap font-normal">{t(`actions.${item.action}`)}</Badge>
                     )}
                   </TableCell>
                 </TableRow>
@@ -137,10 +139,10 @@ export function ProductsTable({ items, loading, selected, onToggle, onToggleAll,
       </div>
 
       <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
-        <span>{items.length.toLocaleString("tr-TR")} ürün · sayfa {page} / {totalPages}</span>
+        <span>{t("table.summary", { count: items.length.toLocaleString("tr-TR"), page, total: totalPages })}</span>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => onPage(page - 1)}><ChevronLeft className="size-4" /> Önceki</Button>
-          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => onPage(page + 1)}>Sonraki <ChevronRight className="size-4" /></Button>
+          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => onPage(page - 1)}><ChevronLeft className="size-4" /> {tc("previous")}</Button>
+          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => onPage(page + 1)}>{tc("next")} <ChevronRight className="size-4" /></Button>
         </div>
       </div>
     </div>
