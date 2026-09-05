@@ -60,6 +60,7 @@ type Pricing = Record<'daily' | 'weekly' | 'monthly', { days: number; price: num
 type ListingAd = {
   id: number; listingId: number | null; position: string; desktopRow: number; desktopColumns: number;
   device: 'all' | 'desktop' | 'mobile'; isActive: number | boolean; endAt: string | null;
+  title?: string; lifecycleStatus?: string; archivedAt?: string | null;
 };
 type AdForm = {
   enabled: boolean; position: string; desktopRow: string; desktopColumns: string;
@@ -73,6 +74,40 @@ const AD_POSITIONS = [
   { value: 'listing_detail_sidebar', label: 'İlan detay · yan sütun' },
   { value: 'firm_detail_footer', label: 'Firma detay · içerik altı' },
 ] as const;
+const OCCUPYING_STATUSES = new Set(['reserved', 'payment_pending', 'scheduled', 'live']);
+const MAX_AD_ROW = 20;
+
+function devicesOverlap(requested: AdForm['device'], existing: ListingAd['device']) {
+  if (requested === 'all' || existing === 'all') return true;
+  return requested === existing;
+}
+
+function rowOccupants(ads: ListingAd[], position: string, row: number, device: AdForm['device'], excludeId?: number) {
+  const now = Date.now();
+  return ads.filter((ad) => {
+    if (excludeId && ad.id === excludeId) return false;
+    if (ad.position !== position || Number(ad.desktopRow ?? 1) !== row) return false;
+    if (ad.archivedAt) return false;
+    const status = ad.lifecycleStatus ?? (ad.isActive ? 'live' : 'draft');
+    if (!OCCUPYING_STATUSES.has(status)) return false;
+    if (ad.endAt && new Date(ad.endAt).getTime() < now) return false;
+    return devicesOverlap(device, ad.device);
+  });
+}
+
+function rowBlockers(ads: ListingAd[], position: string, row: number, columns: number, device: AdForm['device'], excludeId?: number) {
+  const occupants = rowOccupants(ads, position, row, device, excludeId);
+  if (occupants.some((ad) => Number(ad.desktopColumns ?? 1) !== columns)) return occupants;
+  return occupants.length >= columns ? occupants : [];
+}
+
+function firstFreeRow(ads: ListingAd[], position: string, columns: number, device: AdForm['device'], excludeId?: number) {
+  for (let row = 1; row <= MAX_AD_ROW; row += 1) {
+    if (!rowBlockers(ads, position, row, columns, device, excludeId).length) return row;
+  }
+  return 1;
+}
+
 const PKG_LABEL: Record<'daily' | 'weekly' | 'monthly', string> = { daily: 'Günlük', weekly: 'Haftalık', monthly: 'Aylık' };
 const STATUS_LABEL: Record<string, string> = { pending: 'Bekleyen', approved: 'Onaylı', rejected: 'Reddedilen', expired: 'Süresi doldu', closed: 'Kapalı', all: 'Tümü' };
 const TYPE_LABEL: Record<string, string> = { satis: 'Satış ilanı', alim: 'Alım talebi' };
@@ -109,7 +144,20 @@ export default function ListingsAdminPage() {
   const [analytics, setAnalytics] = useState<ListingAnalytics | null>(null);
   const [analyticsDays, setAnalyticsDays] = useState(30);
   const [listingAds, setListingAds] = useState<ListingAd[]>([]);
+  const [allAds, setAllAds] = useState<ListingAd[]>([]);
+
   const [adForm, setAdForm] = useState<AdForm>({ enabled: false, position: 'global_footer', desktopRow: '1', desktopColumns: '2', device: 'all', package: 'weekly', paymentConfirmed: false });
+
+  const currentListingAd = editId ? listingAds.find((entry) => entry.listingId === editId) : undefined;
+  const selectedRowBlockers = rowBlockers(
+    allAds,
+    adForm.position,
+    Number(adForm.desktopRow) || 1,
+    Number(adForm.desktopColumns) || 1,
+    adForm.device,
+    currentListingAd?.id,
+  );
+  const suggestedFreeRow = firstFreeRow(allAds, adForm.position, Number(adForm.desktopColumns) || 1, adForm.device, currentListingAd?.id);
 
   async function load() {
     setBusy(true);
@@ -120,7 +168,9 @@ export default function ListingsAdminPage() {
     ]);
     setData(listRes.ok ? await listRes.json() as ListingResponse : { items: [] });
     setInquiries(inquiryRes.ok ? ((await inquiryRes.json()) as { items?: Inquiry[] }).items ?? [] : []);
-    setListingAds(adsRes.ok ? ((await adsRes.json()) as { items?: ListingAd[] }).items?.filter((item) => item.listingId != null) ?? [] : []);
+    const adItems = adsRes.ok ? ((await adsRes.json()) as { items?: ListingAd[] }).items ?? [] : [];
+    setAllAds(adItems);
+    setListingAds(adItems.filter((item) => item.listingId != null));
     setBusy(false);
   }
 
@@ -143,12 +193,15 @@ export default function ListingsAdminPage() {
     setForm(toEditForm(item));
     setEditImages(item.images ?? []);
     const ad = listingAds.find((entry) => entry.listingId === item.id);
+    const position = ad?.position ?? 'global_footer';
+    const device = ad?.device ?? 'all';
+    const columns = Number(ad?.desktopColumns ?? 2);
     setAdForm({
       enabled: isLiveAd(ad),
-      position: ad?.position ?? 'global_footer',
-      desktopRow: String(ad?.desktopRow ?? 1),
-      desktopColumns: String(ad?.desktopColumns ?? 2),
-      device: ad?.device ?? 'all',
+      position,
+      desktopRow: String(ad?.desktopRow ?? firstFreeRow(allAds, position, columns, device)),
+      desktopColumns: String(columns),
+      device,
       package: 'weekly',
       paymentConfirmed: isLiveAd(ad),
     });
@@ -242,6 +295,7 @@ export default function ListingsAdminPage() {
         lifecycleStatus: adForm.paymentConfirmed ? 'live' : 'payment_pending',
         paymentStatus: adForm.paymentConfirmed ? 'paid' : 'unpaid',
         isActive: adForm.paymentConfirmed,
+        startAt: new Date().toISOString(),
         endAt,
       };
       const adRes = await api(currentAd ? `/admin/banners/${currentAd.id}` : '/admin/banners', {
@@ -249,9 +303,15 @@ export default function ListingsAdminPage() {
         body: JSON.stringify(bannerPayload),
       });
       if (!adRes.ok) {
-        const body = (await adRes.json().catch(() => ({}))) as { error?: string };
+        const body = (await adRes.json().catch(() => ({}))) as { error?: string; conflicts?: Array<{ id: number; title: string }> };
         setSavingEdit(false);
-        setEditError(body.error ?? 'Reklam slotu kaydedilemedi. Seçilen satır dolu olabilir.');
+        const blockers = body.conflicts?.map((entry) => `#${entry.id} ${entry.title}`).join(', ');
+        const freeRow = firstFreeRow(allAds, adForm.position, Number(adForm.desktopColumns) || 1, adForm.device);
+        setEditError([
+          body.error ?? 'Reklam slotu kaydedilemedi.',
+          blockers ? `Satırı dolduran reklamlar: ${blockers}.` : '',
+          body.conflicts?.length ? `Boş görünen ilk satır: ${freeRow}.` : '',
+        ].filter(Boolean).join(' '));
         return;
       }
       if (adForm.paymentConfirmed) {
@@ -473,7 +533,7 @@ export default function ListingsAdminPage() {
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     <label className="space-y-1 block sm:col-span-2">
                       <span className="text-sm text-muted-foreground">Reklam yeri</span>
-                      <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={adForm.position} onChange={(e) => setAdForm((prev) => ({ ...prev, position: e.target.value }))}>
+                      <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={adForm.position} onChange={(e) => setAdForm((prev) => ({ ...prev, position: e.target.value, desktopRow: String(firstFreeRow(allAds, e.target.value, Number(prev.desktopColumns) || 1, prev.device, currentListingAd?.id)) }))}>
                         {AD_POSITIONS.map((position) => <option key={position.value} value={position.value}>{position.label}</option>)}
                       </select>
                     </label>
@@ -490,10 +550,17 @@ export default function ListingsAdminPage() {
                     <label className="space-y-1 block">
                       <span className="text-sm text-muted-foreground">Satır</span>
                       <Input type="number" min={1} max={20} value={adForm.desktopRow} onChange={(e) => setAdForm((prev) => ({ ...prev, desktopRow: e.target.value }))} />
+                      {selectedRowBlockers.length ? (
+                        <span className="block text-xs text-destructive">
+                          Bu satır dolu: {selectedRowBlockers.map((ad) => `#${ad.id} ${ad.title ?? 'reklam'}`).join(', ')}. Boş ilk satır: {suggestedFreeRow}.
+                        </span>
+                      ) : (
+                        <span className="block text-xs text-muted-foreground">Satır uygun.</span>
+                      )}
                     </label>
                     <label className="space-y-1 block">
                       <span className="text-sm text-muted-foreground">Satır kapasitesi</span>
-                      <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={adForm.desktopColumns} onChange={(e) => setAdForm((prev) => ({ ...prev, desktopColumns: e.target.value }))}>
+                      <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={adForm.desktopColumns} onChange={(e) => setAdForm((prev) => ({ ...prev, desktopColumns: e.target.value, desktopRow: String(firstFreeRow(allAds, prev.position, Number(e.target.value) || 1, prev.device, currentListingAd?.id)) }))}>
                         <option value="1">1 reklam</option><option value="2">2 reklam</option><option value="3">3 reklam</option>
                       </select>
                     </label>
