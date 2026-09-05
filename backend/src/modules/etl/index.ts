@@ -9,7 +9,7 @@
 import { activeSources, getSourceByKey } from "@/config/etl-sources";
 import { runSourceFetch, type EtlRunResult } from "./fetcher";
 import { invalidateAliasCache } from "./normalizer";
-import { submitIndexNow } from "./indexnow";
+import { submitToIndexNow } from "@/modules/indexnow";
 import { db } from "@/db/client";
 import { hfProducts } from "@/db/schema";
 import { inArray } from "drizzle-orm";
@@ -70,8 +70,9 @@ export async function runDailyEtl(targetDate?: string): Promise<EtlResult[]> {
 
   const totalInserted = results.reduce((sum, r) => sum + r.inserted, 0);
   if (totalInserted > 0) {
+    // Tek IndexNow uygulamasi (modules/indexnow): env anahtari + /indexnow-key.txt. Hub sayfalari da eklenir.
     buildIndexNowUrls(results)
-      .then((urls) => submitIndexNow(urls))
+      .then((urls) => submitToIndexNow([...urls, "/", "/fiyatlar", "/endeks", "/hal"]))
       .catch(() => {});
   }
 
