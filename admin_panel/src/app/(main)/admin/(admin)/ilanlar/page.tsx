@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { RefreshCw, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -47,6 +47,7 @@ export default function ListingsAdminPage() {
   const [saving, setSaving] = useState(false);
   const [editError, setEditError] = useState('');
   const [pendingDelete, setPendingDelete] = useState<Listing | null>(null);
+  const autoSwitched = useRef(false);
   const [pendingReject, setPendingReject] = useState<Listing | null>(null);
   const [rejectNote, setRejectNote] = useState('');
 
@@ -68,7 +69,12 @@ export default function ListingsAdminPage() {
       api('/admin/banners?limit=500'),
       api('/admin/banners/slots'),
     ]);
-    setData(listRes.ok ? ((await listRes.json()) as ListingResponse) : { items: [] });
+    const listBody = listRes.ok ? ((await listRes.json()) as ListingResponse) : { items: [] };
+    setData(listBody);
+    if (!autoSwitched.current && status === 'pending' && (listBody.summary?.pending ?? 0) === 0) {
+      autoSwitched.current = true;
+      setStatus('all');
+    }
     setInquiries(inquiryRes.ok ? ((await inquiryRes.json()) as { items?: Inquiry[] }).items ?? [] : []);
     setAds(adsRes.ok ? ((await adsRes.json()) as { items?: AdRow[] }).items ?? [] : []);
     setSlots(slotRes.ok ? ((await slotRes.json()) as { items?: AdSlot[] }).items ?? [] : []);
@@ -235,6 +241,14 @@ export default function ListingsAdminPage() {
   }, []);
 
   const summary = data.summary;
+  const counts: Record<'pending' | 'approved' | 'rejected' | 'all', number | null> = summary
+    ? {
+        pending: summary.pending,
+        approved: summary.active,
+        rejected: summary.rejected,
+        all: summary.pending + summary.active + summary.rejected,
+      }
+    : { pending: null, approved: null, rejected: null, all: null };
 
   return (
     <div className="space-y-4">
@@ -264,6 +278,7 @@ export default function ListingsAdminPage() {
               {(['pending', 'approved', 'rejected', 'all'] as const).map((item) => (
                 <Button key={item} size="sm" variant={status === item ? 'default' : 'outline'} onClick={() => setStatus(item)}>
                   {STATUS_LABEL[item]}
+                  {counts[item] == null ? null : <span className="ml-1 tabular-nums opacity-70">{counts[item]}</span>}
                 </Button>
               ))}
             </div>
