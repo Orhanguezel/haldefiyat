@@ -42,7 +42,7 @@ type Props = {
   categories: Array<{ slug: string; count: number }>;
   cities: string[];
   markets: Array<{ slug: string; name: string }>;
-  sources: Array<{ source: string; count: number }>;
+  sources: Array<{ source: string; count: number; recentlyActive: boolean }>;
   dirty: boolean;
 };
 
@@ -91,7 +91,9 @@ export function PriceFilters({ value, onChange, onReset, categories, cities, mar
           <SelectContent>
             <SelectItem value={ALL}>Tüm kaynaklar</SelectItem>
             {sources.map((entry) => (
-              <SelectItem key={entry.source} value={entry.source}>{entry.source} ({entry.count})</SelectItem>
+              <SelectItem key={entry.source} value={entry.source}>
+                {entry.source} {entry.recentlyActive ? `(${entry.count})` : '· pasif'}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>

@@ -135,7 +135,7 @@ export const pricesAdminApi = baseApi.injectEndpoints({
       query: (id) => ({ url: `/admin/hal/prices/${id}/detail` }),
       providesTags: (_r, _e, id) => [{ type: "Prices" as const, id: `detail-${id}` }],
     }),
-    listPriceSourcesAdmin: builder.query<{ items: { source: string; count: number; lastDate: string }[] }, void>({
+    listPriceSourcesAdmin: builder.query<{ items: { source: string; count: number; lastDate: string | null; recentlyActive: boolean }[] }, void>({
       query: () => ({ url: "/admin/hal/price-sources" }),
       providesTags: [{ type: "Prices" as const, id: "SOURCES" }],
     }),

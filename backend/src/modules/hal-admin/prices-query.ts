@@ -203,27 +203,38 @@ export async function getAdminPriceDetail(id: number) {
   };
 }
 
-type SourceFacet = { source: string; count: number; lastDate: string };
-let sourceCache: { at: number; items: SourceFacet[] } | null = null;
-const SOURCE_TTL_MS = 15 * 60 * 1000;
+type SourceFacet = { source: string; count: number; lastDate: string | null; recentlyActive: boolean };
+
+const RECENT_SOURCE_DAYS = 45;
 
 /**
- * Filtre acilir listesi icin kaynak dokumu. Kaynak bazli gruplama 1M satirin
- * tamamini tariyor (~5,6 sn) — indeks yardim etmiyor, cunku her kaynagin tum
- * satirlari sayiliyor. Dropdown'un taze olmasi gerekmedigi icin sonuc 15 dakika
- * onbellekte tutulur.
+ * Filtre acilir listesi icin kaynak dokumu. Tum zamanlar icin COUNT/MAX almak
+ * 1M satirin tamamini tariyor (~6 sn). Bunun yerine kaynak listesi source_api
+ * indeksinden DISTINCT ile (27 ms), sayim ve son tarih ise son 45 gunluk
+ * pencereden (187 ms) okunur. Penceresi bos kalan kaynak "pasif" isaretlenir.
  */
 export async function listPriceSources(): Promise<SourceFacet[]> {
-  if (sourceCache && Date.now() - sourceCache.at < SOURCE_TTL_MS) return sourceCache.items;
-  const [rows] = await pool.query<RowDataPacket[]>(
-    `SELECT source_api AS source, COUNT(*) AS count, MAX(recorded_date) AS lastDate
-     FROM hf_price_history GROUP BY source_api ORDER BY count DESC`,
-  );
-  const items = rows.map((row) => ({
-    source: String(row.source),
-    count: Number(row.count),
-    lastDate: isoDay(row.lastDate),
-  }));
-  sourceCache = { at: Date.now(), items };
-  return items;
+  const [allRows, recentRows] = await Promise.all([
+    pool.query<RowDataPacket[]>("SELECT DISTINCT source_api AS source FROM hf_price_history"),
+    pool.query<RowDataPacket[]>(
+      `SELECT source_api AS source, COUNT(*) AS count, MAX(recorded_date) AS lastDate
+       FROM hf_price_history
+       WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL ${RECENT_SOURCE_DAYS} DAY)
+       GROUP BY source_api`,
+    ),
+  ]);
+
+  const recent = new Map(recentRows[0].map((row) => [String(row.source), row]));
+  return allRows[0]
+    .map((row) => {
+      const source = String(row.source);
+      const hit = recent.get(source);
+      return {
+        source,
+        count: hit ? Number(hit.count) : 0,
+        lastDate: hit ? isoDay(hit.lastDate) : null,
+        recentlyActive: Boolean(hit),
+      };
+    })
+    .sort((a, b) => b.count - a.count || a.source.localeCompare(b.source, "tr"));
 }
