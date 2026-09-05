@@ -87,6 +87,59 @@ export const PIYASA_PAGES: Record<string, PiyasaPageConfig> = {
       { href: "/fiyatlar?urun=limon", label: "Canlı fiyat tablosunda limonu filtrele" },
     ],
   },
+  "adana-mayer-limon": {
+    slug: "adana-mayer-limon",
+    productSlug: "limon-mayer",
+    productName: "Mayer Limon",
+    region: "Adana / Çukurova",
+    title: "Adana Mayer Limon Fiyatları — Günlük Mayer Limon Piyasası",
+    description:
+      "Adana ve Çukurova Mayer limon piyasası için günlük güncellenen sayfa: Türkiye hallerindeki güncel Mayer limon fiyatları, şehir karşılaştırması, erkenci sezon takvimi ve fiyatı belirleyen etkenler.",
+    h1: "Adana Mayer Limon Fiyatları",
+    intro: [
+      "Mayer, Türkiye'de sezonu açan erkenci limon çeşididir; Adana ve Çukurova bahçeleri Mersin ile birlikte bu çeşidin ana üretim alanıdır. Sezonun ilk haftalarında piyasadaki taze limonun büyük bölümü Mayer olduğu için Adana Mayer fiyatı ülke genelindeki limon fiyatının öncü göstergesi sayılır.",
+      "Bu sayfa her gün otomatik güncellenir: belediye halleri ve HKS (Ticaret Bakanlığı) kayıtlarında Mayer olarak ayrı yazılan satırları toplar, şehirler arası farkı ve haftalık yönü tek yerde gösterir. Adana hali fiyatını yayınlayan resmi bir günlük kaynak bulunmadığı için tablo, Adana ürününün satıldığı diğer illerin hal kayıtlarına dayanır.",
+    ],
+    regionSections: [
+      {
+        heading: "Adana Mayer fiyatı ile hal fiyatı aynı şey mi?",
+        paragraphs: [
+          "Hayır. Üreticinin Adana'da bahçede aldığı fiyat, ürünün hal veya toptancı fiyatı ve marketteki raf fiyatı aynı zincirin üç farklı halkasıdır. Aşağıdaki tablo hal ve HKS kayıtlarını gösterir; bahçe fiyatı genellikle bu değerlerin altında, market fiyatı üstünde seyreder.",
+          "Mayer erkenci olduğu için sezon başında az sayıda hal kayıt üretir; tek bir günün tek bir hal satırı bütün piyasayı temsil etmez. Şehir tablosundaki hal sayısı ve minimum–maksimum aralığı bu yüzden fiyatın kendisi kadar önemlidir.",
+        ],
+      },
+      {
+        heading: "Mayer neden diğer limonlardan farklı fiyatlanır?",
+        paragraphs: [
+          "Mayer, kabuğu ince, suyu bol ve asidi görece düşük bir çeşittir; raf ömrü Lamas ve Enterdonat gibi depo çeşitlerinden kısadır. Bu yüzden depolanmaz, hasat edildiği haftalarda tüketilir. Sezon başında rakipsiz olduğu için yüksek açar, diğer çeşitler piyasaya girdikçe geriler.",
+          "Aynı gün Mayer ile Lamas veya yatak limon arasında büyük fark görülmesi normaldir; ürün sayfasındaki çeşit tablosu bu farkı yan yana gösterir.",
+        ],
+      },
+      {
+        heading: "Şehirler arası fark neden var?",
+        paragraphs: [
+          "Adana ve Mersin'e yakın hallerde nakliye payı düşüktür; İstanbul, Ankara ve Karadeniz hallerinde taşıma ve ara kademe maliyeti eklenir. Ayrıca her hal aynı boy ve kalite sınıfını kayda geçirmez; kalın kabuklu ve küçük boy ürün aynı gün farklı fiyatlanır.",
+        ],
+      },
+    ],
+    seasonCalendar: [
+      { period: "Eylül – Ekim", note: "Mayer hasadı başlar; Adana ve Mersin bahçelerinden ilk erkenci ürün hallere iner, fiyat sezonun en yüksek bandındadır." },
+      { period: "Kasım – Aralık", note: "Arz genişler, Lamas ve Enterdonat piyasaya girer; Mayer fiyatı geriler ve çeşitler arası fark açılır." },
+      { period: "Ocak – Ağustos", note: "Mayer taze arzı biter; piyasayı depo çeşitleri ve yatak limon taşır, Mayer satırı hallerde nadiren görünür." },
+    ],
+    faq: [
+      { q: "Adana'da Mayer limonun kilosu kaç lira?", a: "Tek bir resmi Adana günlük fiyatı yayınlanmaz. Bu sayfadaki tablo, Adana ürününün satıldığı Türkiye hallerindeki güncel Mayer kayıtlarını ve şehir medyanını gösterir; bahçe fiyatı bu değerlerin altında kalır." },
+      { q: "Mayer limon ne zaman çıkar?", a: "Eylül ayında hasat başlar; Ekim ve Kasım en yoğun dönemdir. Aralık'tan sonra taze Mayer azalır, yerini depolanabilen çeşitler alır." },
+      { q: "Mayer ile Lamas limon arasındaki fark ne?", a: "Mayer erkenci, ince kabuklu ve düşük asitli bir sofralık çeşittir; Lamas kalın kabuklu, yüksek asitli ve depoya uygundur. Fiyatları aynı gün farklı seyreder; depo maliyeti Lamas'a, erkencilik primi Mayer'e yansır." },
+      { q: "Bu fiyatlar nereden geliyor?", a: "Belediye toptancı halleri ve HKS (Ticaret Bakanlığı) günlük kayıtlarından otomatik derlenir; sayfa her gün yenilenir. Adana Toptancı Hali kendi listesini çevrimiçi yayınlamadığı için tabloda Adana satırı görünmez." },
+    ],
+    related: [
+      { href: "/urun/limon-mayer", label: "Mayer limon fiyatları — tüm haller ve geçmiş" },
+      { href: "/urun/limon", label: "Limon fiyatları — tüm çeşitler" },
+      { href: "/piyasa/erdemli-limon", label: "Erdemli günlük limon piyasası" },
+      { href: "/fiyatlar?urun=limon-mayer", label: "Canlı fiyat tablosunda Mayer limonu filtrele" },
+    ],
+  },
 };
 
 /** Urun slug'indan piyasa sayfasina erisim (urun sayfasindaki ic link icin). */
