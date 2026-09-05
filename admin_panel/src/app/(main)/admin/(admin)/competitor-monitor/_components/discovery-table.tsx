@@ -21,7 +21,7 @@ export function DiscoveryTable({ rows, totalQueries, loading, activeKey, onSelec
             <TableHead className="w-32 text-right">{t('discovery.table.avgPosition')}</TableHead>
             <TableHead className="w-28 text-right">{t('discovery.table.top3')}</TableHead>
             <TableHead className="w-32 text-right">{t('discovery.table.ahead')}</TableHead>
-            <TableHead className="w-28">{t('discovery.table.status')}</TableHead>
+            <TableHead className="w-32">{t('discovery.table.status')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
