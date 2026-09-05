@@ -1,7 +1,7 @@
 import { env } from "@/core/env";
 import { pool } from "@/db/client";
 import { trendingChanges } from "@/modules/prices/repository";
-import { buildDailyReportImageUrl } from "./report-image";
+import { buildCard } from "@/modules/social/cards";
 
 const SITE_URL = "https://haldefiyat.com";
 
@@ -78,45 +78,26 @@ function formatItem(
 }
 
 export async function publishDailyReport(): Promise<void> {
-  // trendingChanges(10) → 5 artan + 5 düşen döner
-  const trending = await trendingChanges(10);
-  if (!trending.length) {
-    console.warn("[channel-publisher] Trending veri yok, paylaşım atlandı");
+  // Secim ve gorsel artik ortak kart modulunde (modules/social/cards): temel gida
+  // bandi, en az 2 hal, sezon kapisi. Eski `trendingChanges` secimi Eylul'de kiraz,
+  // rambutan gibi UC kayitlari one cikariyordu.
+  const card = await buildCard("k1", "tg");
+  if (!card) {
+    console.warn("[channel-publisher] Kart uretilemedi, paylasim atlandi");
     return;
   }
-
-  const risers = trending.filter((t) => t.changePct > 0).slice(0, 5);
-  const fallers = trending.filter((t) => t.changePct < 0).slice(0, 5);
-
   const today = fmtDate(new Date());
-
-  const lines: string[] = [
+  const lines = [
     `📊 <b>HaldeFiyat — Günlük Fiyat Raporu</b>`,
     `📅 ${today}`,
     `─────────────────────────`,
+    "",
+    card.caption,
+    "",
+    `─────────────────────────`,
+    `🌐 <a href="${SITE_URL}/fiyatlar">Tüm hal fiyatları → haldefiyat.com</a>`,
   ];
-
-  if (risers.length) {
-    lines.push(`\n🔺 <b>En Çok Artan Fiyatlar</b>`);
-    risers.forEach((t, i) => lines.push(formatItem(i + 1, t)));
-  }
-
-  if (fallers.length) {
-    lines.push(`\n🔻 <b>En Çok Düşen Fiyatlar</b>`);
-    fallers.forEach((t, i) => lines.push(formatItem(i + 1, t)));
-  }
-
-  if (!fallers.length && risers.length) {
-    lines.push(`\n🔻 <b>En Çok Düşen Fiyatlar</b>`);
-    lines.push(`<i>Bugün belirgin bir fiyat düşüşü tespit edilmedi.</i>`);
-  }
-
-  lines.push(`\n─────────────────────────`);
-  lines.push(`🌐 <a href="${SITE_URL}/fiyatlar">Tüm hal fiyatları → haldefiyat.com</a>`);
-
-  const dateSlug = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date());
-  const imageUrl = await buildDailyReportImageUrl(trending, today, dateSlug);
-  await postToChannel(lines.join("\n"), imageUrl);
+  await postToChannel(lines.join("\n"), card.imageUrl);
 }
 
 export async function publishWeeklySummary(

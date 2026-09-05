@@ -1,7 +1,7 @@
 import { pool } from "@/db/client";
 import { env } from "@/core/env";
 import { overviewStats, trendingChanges } from "@/modules/prices/repository";
-import { buildDailyReportImageUrl } from "@/modules/telegram-channel/report-image";
+import { buildCard } from "@/modules/social/cards";
 
 // WhatsApp KANALLARINA resmi API ile gonderim YOK (Meta, 2026 itibariyla kanal
 // otomasyonu sunmuyor; gayriresmi web-protokol araclari numara/kanal bani riski
@@ -179,11 +179,9 @@ export async function publishWhatsappDraft(): Promise<{ sent: boolean; reason?: 
   const [text, caption] = await Promise.all([buildWhatsappDailyText(), buildWhatsappDailyCaption()]);
   if (!text) return { sent: false, reason: "trending veri yok" };
 
-  const trending = await trendingChanges(10);
-  const now = new Date();
-  const dateLabel = fmtDate(now);
-  const dateSlug = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(now);
-  const imageUrl = await buildDailyReportImageUrl(trending, dateLabel, dateSlug);
+  // Gorsel ortak kart modulunden (Telegram ile ayni kart): tek secim kurali, tek tasarim.
+  const card = await buildCard("k1", "tg");
+  const imageUrl = card?.imageUrl ?? null;
 
   const channelUrl = await getWhatsappChannelUrl();
   const header =

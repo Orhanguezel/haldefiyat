@@ -1,0 +1,177 @@
+/**
+ * Sosyal kart icerik secimi.
+ *
+ * Neden ayri modul: Telegram karti ve Tanitio'nun FB/IG uretimi ayni `trendingChanges`
+ * havuzunu kullaniyordu ve ikisi de "en buyuk degisim" diyerek UC kayitlari seciyordu —
+ * 5 Eylul kartinda Eylul'de kiraz, deniz borulcesi, rambutan cikti. Kart artik
+ * TEMEL GIDA anlatir: kurallar burada, tek yerde.
+ *
+ * Kurallar (docs/HALDEFIYAT-SOSYAL-ICERIK-PLANI-2026-09-06.md §3.2):
+ *   - yalniz seo_index=1 master urun (varyant/koli degil)
+ *   - degisim bandi %8–%45 (usttekiler veri hatasi olasiligi tasir)
+ *   - o gun en az 2 halde kayit (tek hal sicramasi kart olmaz)
+ *   - son 14 gunde en az 5 halde kayit (sezon disi urun elenir)
+ *   - ayni urun karta bir kez girer
+ */
+import type { RowDataPacket } from "mysql2/promise";
+import { pool } from "@/db/client";
+
+type Row = RowDataPacket & Record<string, unknown>;
+
+export const RULES = {
+  minChangePct: 8,
+  maxChangePct: 45,
+  minMarketsToday: 2,
+  minMarkets14d: 5,
+  maxPrice: 500,
+} as const;
+
+/** Sepet karti icin sabit liste — arama hacmi yuksek, herkesin bildigi urunler. */
+export const BASKET_SLUGS = [
+  "domates", "biber-carliston", "patlican", "salatalik", "patates", "sogan-kuru",
+  "limon", "elma", "muz", "havuc",
+] as const;
+
+export interface MoverRow {
+  productSlug: string; productName: string; canonicalSlug: string | null; imageUrl: string | null;
+  cityName: string; marketName: string; unit: string;
+  latest: number; previous: number; changePct: number; marketsToday: number; recordedDate: string;
+}
+
+export interface BasketRow {
+  productSlug: string; productName: string; canonicalSlug: string | null; imageUrl: string | null;
+  unit: string; price: number; weekChangePct: number | null; markets: number; recordedDate: string;
+}
+
+const iso = (v: unknown) => (v instanceof Date ? v.toISOString().slice(0, 10) : String(v ?? "").slice(0, 10));
+
+// Master urun + ona bagli varyantlar; birim esitligi ile (kg varyanti koli ile karismaz).
+const FAMILY = `fam AS (
+  SELECT id AS pid, id AS master_id, unit FROM hf_products WHERE is_active = 1 AND canonical_slug IS NULL
+  UNION ALL
+  SELECT v.id, m.id, m.unit FROM hf_products v JOIN hf_products m ON m.slug = v.canonical_slug WHERE v.is_active = 1 AND v.unit = m.unit
+)`;
+
+/** Karantinaya alinmis (guvenilmez) satirlar karta girmez. */
+const NOT_QUARANTINED = `NOT EXISTS (
+  SELECT 1 FROM hf_price_quarantine q
+  WHERE q.product_id = ph.product_id AND q.market_id = ph.market_id AND q.recorded_date = ph.recorded_date
+    AND q.status <> 'rejected'
+)`;
+
+const NOT_BLACKOUT = `NOT EXISTS (
+  SELECT 1 FROM hf_market_blackouts b
+  WHERE b.market_id = ph.market_id AND ph.recorded_date BETWEEN b.from_date AND b.to_date
+)`;
+
+/** K1 — gunun hareketleri: temel gida bandinda, en cok artan ve dusen urunler. */
+export async function selectMovers(perSide = 4): Promise<{ risers: MoverRow[]; fallers: MoverRow[]; date: string }> {
+  const [rows] = await pool.query<Row[]>(
+    `WITH ${FAMILY},
+     obs AS (
+       SELECT f.master_id, ph.market_id, ph.recorded_date, AVG(ph.avg_price) AS price
+       FROM hf_price_history ph
+       JOIN fam f ON f.pid = ph.product_id AND ph.unit = f.unit
+       JOIN hf_markets mk ON mk.id = ph.market_id AND mk.is_active = 1 AND mk.market_type = 'hal' AND mk.city_name <> 'Türkiye'
+       WHERE ph.recorded_date >= CURDATE() - INTERVAL 14 DAY AND ${NOT_QUARANTINED} AND ${NOT_BLACKOUT}
+       GROUP BY f.master_id, ph.market_id, ph.recorded_date
+     ),
+     ranked AS (
+       SELECT o.*, ROW_NUMBER() OVER (PARTITION BY o.master_id, o.market_id ORDER BY o.recorded_date DESC) AS rn
+       FROM obs o
+     ),
+     paired AS (
+       SELECT c.master_id, c.market_id, c.recorded_date, c.price AS latest, p.price AS previous
+       FROM ranked c JOIN ranked p ON p.master_id = c.master_id AND p.market_id = c.market_id AND p.rn = 2
+       WHERE c.rn = 1 AND p.price > 0
+     ),
+     reach AS (
+       SELECT master_id, COUNT(DISTINCT market_id) AS markets14d, MAX(recorded_date) AS last_date FROM obs GROUP BY master_id
+     ),
+     today AS (
+       SELECT o.master_id, COUNT(DISTINCT o.market_id) AS markets_today
+       FROM obs o JOIN reach r ON r.master_id = o.master_id AND o.recorded_date = r.last_date
+       GROUP BY o.master_id
+     )
+     SELECT p.slug AS product_slug, COALESCE(NULLIF(p.display_name, ''), p.name_tr) AS product_name,
+            p.canonical_slug, p.image_url, p.unit, mk.city_name, mk.name AS market_name,
+            pr.latest, pr.previous, pr.recorded_date, t.markets_today,
+            ((pr.latest - pr.previous) / pr.previous) * 100 AS change_pct
+     FROM paired pr
+     JOIN hf_products p ON p.id = pr.master_id
+     JOIN hf_markets mk ON mk.id = pr.market_id
+     JOIN reach r ON r.master_id = pr.master_id
+     JOIN today t ON t.master_id = pr.master_id
+     WHERE p.seo_index = 1 AND r.markets14d >= ? AND t.markets_today >= ?
+       AND pr.latest BETWEEN 1 AND ? AND pr.recorded_date >= CURDATE() - INTERVAL 3 DAY
+       AND ABS(((pr.latest - pr.previous) / pr.previous) * 100) BETWEEN ? AND ?
+     ORDER BY ABS(((pr.latest - pr.previous) / pr.previous) * 100) DESC`,
+    [RULES.minMarkets14d, RULES.minMarketsToday, RULES.maxPrice, RULES.minChangePct, RULES.maxChangePct],
+  );
+
+  const seen = new Set<string>();
+  const risers: MoverRow[] = [];
+  const fallers: MoverRow[] = [];
+  let date = "";
+  for (const r of rows ?? []) {
+    const slug = String(r.product_slug);
+    if (seen.has(slug)) continue; // ayni urun ikinci sehirle tekrar etmesin
+    const row: MoverRow = {
+      productSlug: slug, productName: String(r.product_name), canonicalSlug: r.canonical_slug ? String(r.canonical_slug) : null,
+      imageUrl: r.image_url ? String(r.image_url) : null, cityName: String(r.city_name), marketName: String(r.market_name),
+      unit: String(r.unit), latest: Number(r.latest), previous: Number(r.previous), changePct: Number(r.change_pct),
+      marketsToday: Number(r.markets_today), recordedDate: iso(r.recorded_date),
+    };
+    const target = row.changePct >= 0 ? risers : fallers;
+    if (target.length >= perSide) continue;
+    seen.add(slug);
+    target.push(row);
+    if (row.recordedDate > date) date = row.recordedDate;
+    if (risers.length >= perSide && fallers.length >= perSide) break;
+  }
+  return { risers, fallers, date };
+}
+
+/** K2 — mutfak sepeti: sabit temel urunler, bugunku ulusal ortalama + haftalik degisim. */
+export async function selectBasket(): Promise<{ items: BasketRow[]; date: string }> {
+  const slugs = [...BASKET_SLUGS];
+  const [rows] = await pool.query<Row[]>(
+    `WITH ${FAMILY},
+     obs AS (
+       SELECT f.master_id, ph.market_id, ph.recorded_date, AVG(ph.avg_price) AS price
+       FROM hf_price_history ph
+       JOIN fam f ON f.pid = ph.product_id AND ph.unit = f.unit
+       JOIN hf_markets mk ON mk.id = ph.market_id AND mk.is_active = 1 AND mk.market_type = 'hal' AND mk.city_name <> 'Türkiye'
+       WHERE ph.recorded_date >= CURDATE() - INTERVAL 10 DAY AND ${NOT_QUARANTINED} AND ${NOT_BLACKOUT}
+       GROUP BY f.master_id, ph.market_id, ph.recorded_date
+     ),
+     last_day AS (SELECT master_id, MAX(recorded_date) AS d FROM obs GROUP BY master_id),
+     cur AS (
+       SELECT o.master_id, AVG(o.price) AS price, COUNT(DISTINCT o.market_id) AS markets, l.d AS recorded_date
+       FROM obs o JOIN last_day l ON l.master_id = o.master_id AND o.recorded_date = l.d
+       GROUP BY o.master_id, l.d
+     ),
+     week_day AS (
+       SELECT o.master_id, MAX(o.recorded_date) AS d FROM obs o JOIN last_day l ON l.master_id = o.master_id
+       WHERE o.recorded_date <= l.d - INTERVAL 6 DAY GROUP BY o.master_id
+     ),
+     prev AS (
+       SELECT o.master_id, AVG(o.price) AS price FROM obs o JOIN week_day w ON w.master_id = o.master_id AND o.recorded_date = w.d
+       GROUP BY o.master_id
+     )
+     SELECT p.slug AS product_slug, COALESCE(NULLIF(p.display_name, ''), p.name_tr) AS product_name,
+            p.canonical_slug, p.image_url, p.unit, c.price, c.markets, c.recorded_date, pv.price AS prev_price
+     FROM cur c JOIN hf_products p ON p.id = c.master_id LEFT JOIN prev pv ON pv.master_id = c.master_id
+     WHERE p.slug IN (${slugs.map(() => "?").join(",")}) AND c.price BETWEEN 1 AND ?
+     ORDER BY FIELD(p.slug, ${slugs.map(() => "?").join(",")})`,
+    [...slugs, RULES.maxPrice, ...slugs],
+  );
+  const items = (rows ?? []).map((r) => ({
+    productSlug: String(r.product_slug), productName: String(r.product_name),
+    canonicalSlug: r.canonical_slug ? String(r.canonical_slug) : null, imageUrl: r.image_url ? String(r.image_url) : null,
+    unit: String(r.unit), price: Number(r.price), markets: Number(r.markets), recordedDate: iso(r.recorded_date),
+    weekChangePct: r.prev_price && Number(r.prev_price) > 0 ? (Number(r.price) / Number(r.prev_price) - 1) * 100 : null,
+  }));
+  const date = items.map((i) => i.recordedDate).sort().at(-1) ?? "";
+  return { items, date };
+}

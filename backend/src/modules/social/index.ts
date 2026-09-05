@@ -1,3 +1,4 @@
+import { registerSocialCards } from "./cards/router";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import {
   getSocialPlatformStatus,
@@ -67,6 +68,7 @@ function fail(reply: FastifyReply, err: unknown, log: FastifyInstance["log"], ms
 }
 
 export async function registerSocial(app: FastifyInstance) {
+  await registerSocialCards(app);
   // Public besleme — geriye dönük uyumlu (varsayılan twitter), opsiyonel ?platform=
   app.get("/social/feed", async (req, reply) => {
     const q = req.query as { limit?: string; platform?: string };
