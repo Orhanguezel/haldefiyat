@@ -26,6 +26,7 @@ import { AdminImageUploadField } from "@/components/common/admin-image-upload-fi
 import { ProductGscBadge, ProductGscPanel } from "../_components/product-gsc-panel";
 import { ProductRedirectPanel } from "../_components/product-redirect-panel";
 import { ProductThumb } from "../_components/product-thumb";
+import { countWords, scoreEditorial, splitCsv } from "../_lib/product-meta";
 import {
   useCreateHfProductAdminMutation,
   useGetHfProductAdminQuery,
@@ -61,29 +62,6 @@ const emptyEditorial = {
   reviewedBy: "",
   published: false,
 };
-
-function splitCsv(value: string) {
-  return value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
-function countWords(value: string) {
-  return value.trim().split(/\s+/).filter(Boolean).length;
-}
-
-function scoreEditorial(form: typeof emptyEditorial) {
-  const required = [form.aboutMd, form.priceFactorsMd, form.seasonMd, form.productionRegionMd];
-  const optional = [form.qualityIndicatorsMd, form.culinaryUsesMd];
-  const requiredScore = required.reduce(
-    (sum, value) => sum + (countWords(value) >= 35 ? 15 : countWords(value) >= 15 ? 8 : 0),
-    0,
-  );
-  const optionalScore = optional.reduce((sum, value) => sum + (countWords(value) >= 15 ? 8 : value.trim() ? 4 : 0), 0);
-  const relationScore = splitCsv(form.relatedSlugs).length > 0 ? 8 : 0;
-  return Math.min(100, requiredScore + optionalScore + relationScore);
-}
 
 function errorMessage(error: unknown, fallback: string) {
   if (typeof error === "object" && error && "data" in error) {

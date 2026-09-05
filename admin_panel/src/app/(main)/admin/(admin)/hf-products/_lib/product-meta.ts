@@ -134,3 +134,36 @@ export function summarize(items: HfProductItem[]) {
     withEditorial: count((i) => Boolean(i.hasEditorial)),
   };
 }
+
+/** Editoryel alanlar — tam sayfa editoru ile panel ayni listeyi kullanir. */
+export const EDITORIAL_FIELDS = [
+  { key: "aboutMd", label: "Hakkında", required: true },
+  { key: "priceFactorsMd", label: "Fiyat faktörleri", required: true },
+  { key: "seasonMd", label: "Sezon", required: true },
+  { key: "productionRegionMd", label: "Üretim bölgeleri", required: true },
+  { key: "qualityIndicatorsMd", label: "Kalite göstergeleri", required: false },
+  { key: "culinaryUsesMd", label: "Kullanım alanları", required: false },
+] as const;
+
+export type EditorialFieldKey = (typeof EDITORIAL_FIELDS)[number]["key"];
+
+export const EDITORIAL_SOURCE_LABEL: Record<"manual" | "ai_draft" | "ai_reviewed", string> = {
+  manual: "Manuel", ai_draft: "AI taslak", ai_reviewed: "AI incelenmiş",
+};
+
+export function splitCsv(value: string) {
+  return value.split(",").map((item) => item.trim()).filter(Boolean);
+}
+
+export function countWords(value: string) {
+  return value.trim().split(/\s+/).filter(Boolean).length;
+}
+
+/** Editoryel kalite puani: 4 zorunlu alan x15, 2 istege bagli x8, iliskili urun 8. */
+export function scoreEditorial(form: Record<EditorialFieldKey, string> & { relatedSlugs: string }) {
+  const required = EDITORIAL_FIELDS.filter((f) => f.required).map((f) => form[f.key]);
+  const optional = EDITORIAL_FIELDS.filter((f) => !f.required).map((f) => form[f.key]);
+  const requiredScore = required.reduce((sum, v) => sum + (countWords(v) >= 35 ? 15 : countWords(v) >= 15 ? 8 : 0), 0);
+  const optionalScore = optional.reduce((sum, v) => sum + (countWords(v) >= 15 ? 8 : v.trim() ? 4 : 0), 0);
+  return Math.min(100, requiredScore + optionalScore + (splitCsv(form.relatedSlugs).length ? 8 : 0));
+}

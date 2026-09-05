@@ -16,6 +16,7 @@ import { BASE_URL } from "@/integrations/api-base";
 import type { HfProductItem } from "@/integrations/endpoints/hf-products-admin-endpoints";
 import { useGetHfProductAdminQuery, useUpdateHfProductAdminMutation } from "@/integrations/hooks";
 import { ACTION_META, productName, qualityTone } from "../_lib/product-meta";
+import { ProductEditorialTab } from "./product-editorial-tab";
 import { ProductGscPanel } from "./product-gsc-panel";
 import { ProductRedirectPanel } from "./product-redirect-panel";
 import { ProductThumb } from "./product-thumb";
@@ -158,6 +159,7 @@ export function ProductSheet({ item, categories, onClose }: Props) {
                   <TabsTrigger value="overview">Özet</TabsTrigger>
                   <TabsTrigger value="edit">Düzenle</TabsTrigger>
                   <TabsTrigger value="seo">SEO</TabsTrigger>
+                  <TabsTrigger value="editorial">Editoryel {item.hasEditorial ? "·" : ""}</TabsTrigger>
                   <TabsTrigger value="google">Google</TabsTrigger>
                 </TabsList>
               </div>
@@ -232,6 +234,10 @@ export function ProductSheet({ item, categories, onClose }: Props) {
                   <Field label="Arama hacmi"><Input type="number" min={0} value={form.searchVolume} onChange={(e) => set("searchVolume", e.target.value)} /></Field>
                 </TabsContent>
 
+                <TabsContent value="editorial" className="mt-0">
+                  <ProductEditorialTab productId={item.id} />
+                </TabsContent>
+
                 <TabsContent value="google" className="mt-0 space-y-4">
                   <ProductGscPanel id={String(item.id)} isNew={false} />
                   <ProductRedirectPanel slug={item.slug} isNew={false} />
@@ -246,7 +252,7 @@ export function ProductSheet({ item, categories, onClose }: Props) {
                     <a href={`${SITE}/urun/${item.slug}`} target="_blank" rel="noreferrer"><ExternalLink className="size-4" /> Sayfayı aç</a>
                   </Button>
                   <Button asChild variant="outline" size="sm">
-                    <Link href={`/admin/hf-products/${item.id}?tab=editorial`}><PenLine className="size-4" /> Editoryel içerik</Link>
+                    <Link href={`/admin/hf-products/${item.id}`}><PenLine className="size-4" /> Tam sayfa</Link>
                   </Button>
                 </div>
                 <Button onClick={save} disabled={updateState.isLoading}><Save className="size-4" /> {updateState.isLoading ? "Kaydediliyor…" : "Kaydet"}</Button>
