@@ -17,15 +17,20 @@ const SITE_URL = "https://haldefiyat.com";
 export type CardSize = "tg" | "ig" | "wide";
 
 interface Geometry {
-  width: number; height: number; pad: number; rowH: number; rowGap: number; thumb: number;
+  width: number; height: number; pad: number; rowGap: number; maxRow: number; headerH: number; footerH: number;
   titleSize: number; nameSize: number; priceSize: number; metaSize: number; perSide: number; basketCols: number; basketRows: number;
 }
 
 const GEOMETRY: Record<CardSize, Geometry> = {
-  tg:   { width: 1200, height: 1800, pad: 52, rowH: 112, rowGap: 12, thumb: 112, titleSize: 46, nameSize: 30, priceSize: 31, metaSize: 23, perSide: 5, basketCols: 2, basketRows: 5 },
-  ig:   { width: 1080, height: 1350, pad: 44, rowH: 104, rowGap: 12, thumb: 104, titleSize: 42, nameSize: 28, priceSize: 29, metaSize: 21, perSide: 4, basketCols: 2, basketRows: 5 },
-  wide: { width: 1200, height: 675,  pad: 36, rowH: 68,  rowGap: 6,  thumb: 68,  titleSize: 34, nameSize: 23, priceSize: 24, metaSize: 17, perSide: 3, basketCols: 2, basketRows: 3 },
+  tg:   { width: 1200, height: 1800, pad: 52, rowGap: 12, maxRow: 124, headerH: 166, footerH: 129, titleSize: 46, nameSize: 30, priceSize: 31, metaSize: 23, perSide: 5, basketCols: 2, basketRows: 5 },
+  ig:   { width: 1080, height: 1350, pad: 44, rowGap: 12, maxRow: 118, headerH: 166, footerH: 120, titleSize: 42, nameSize: 28, priceSize: 29, metaSize: 21, perSide: 4, basketCols: 2, basketRows: 5 },
+  wide: { width: 1200, height: 675,  pad: 36, rowGap: 8,  maxRow: 92,  headerH: 154, footerH: 78,  titleSize: 34, nameSize: 23, priceSize: 24, metaSize: 17, perSide: 2, basketCols: 2, basketRows: 3 },
 };
+
+/** Icerik alani: baslik seridi ile alt bant arasi. Satir yuksekligi buradan turetilir — sabit sayi tuvale sigmayabilir. */
+function contentTop(g: Geometry): number { return g.pad + g.headerH; }
+function contentBottom(g: Geometry): number { return g.height - g.pad - g.footerH - 52; }
+function contentHeight(g: Geometry): number { return contentBottom(g) - contentTop(g); }
 
 type Manifest = Record<string, string>;
 
@@ -79,8 +84,8 @@ async function loadThumbs(items: Thumbable[], size: number): Promise<(string | n
 
 function frame(g: Geometry, title: string, subtitle: string, dateLabel: string, body: string, footerTop: string, footerBottom: string): string {
   const inner = g.width - g.pad * 2;
-  const footerH = Math.round(g.rowH * 1.15);
-  const footerY = g.height - g.pad - footerH - 34;
+  const footerH = g.footerH;
+  const footerY = contentBottom(g) + 18;
   return `<svg width="${g.width}" height="${g.height}" viewBox="0 0 ${g.width} ${g.height}" xmlns="http://www.w3.org/2000/svg">
     <rect width="${g.width}" height="${g.height}" fill="#edf4ef"/>
     <rect x="${g.pad - 24}" y="${g.pad - 24}" width="${inner + 48}" height="${g.height - (g.pad - 24) * 2}" rx="34" fill="#ffffff" stroke="#d8e5dc"/>
@@ -103,10 +108,14 @@ export async function renderMoversCard(
 ): Promise<Buffer> {
   const g = GEOMETRY[size];
   const selected = [...risers.slice(0, g.perSide), ...fallers.slice(0, g.perSide)];
-  const thumbs = await loadThumbs(selected, g.thumb);
-  const sectionGap = Math.round(g.rowH * 0.55);
+  const n = selected.length || 1;
+  // Iki bolum basligi + n satir icerik alanini tam doldursun: alt bantla cakisma ve alt bosluk ikisi de olmaz.
+  const rowH = Math.min(g.maxRow, Math.floor((contentHeight(g) - (n - 1) * g.rowGap) / (n + 0.55)));
+  const thumb = rowH;
+  const thumbs = await loadThumbs(selected, thumb);
+  const sectionGap = Math.round(rowH * 0.55);
   const nameMax = size === "wide" ? 20 : 24;
-  let y = g.pad + 166;
+  let y = contentTop(g);
   const rows: string[] = [];
   let prevDir = 0;
 
@@ -120,18 +129,18 @@ export async function renderMoversCard(
     const color = dir > 0 ? "#16a34a" : "#dc2626";
     const clipId = `p${index}`;
     const photo = thumbs[index]
-      ? `<defs><clipPath id="${clipId}"><rect x="${g.pad}" y="${y}" width="${g.thumb}" height="${g.thumb}" rx="22"/></clipPath></defs><image href="${thumbs[index]}" x="${g.pad}" y="${y}" width="${g.thumb}" height="${g.thumb}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clipId})"/>`
+      ? `<defs><clipPath id="${clipId}"><rect x="${g.pad}" y="${y}" width="${thumb}" height="${thumb}" rx="22"/></clipPath></defs><image href="${thumbs[index]}" x="${g.pad}" y="${y}" width="${thumb}" height="${thumb}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clipId})"/>`
       : "";
-    const textX = g.pad + g.thumb + 26;
+    const textX = g.pad + thumb + 26;
     const rightX = g.width - g.pad;
     rows.push(`
-      <rect x="${g.pad - 12}" y="${y - 8}" width="${g.width - (g.pad - 12) * 2}" height="${g.thumb + 16}" rx="24" fill="#f8fafc" stroke="#e2e8f0"/>
+      <rect x="${g.pad - 12}" y="${y - 8}" width="${g.width - (g.pad - 12) * 2}" height="${thumb + 16}" rx="24" fill="#f8fafc" stroke="#e2e8f0"/>
       ${photo}
-      <text x="${textX}" y="${y + g.thumb * 0.4}" font-size="${g.nameSize}" font-weight="800" fill="#172033">${escapeXml(clip(item.productName, nameMax))}</text>
-      <text x="${textX}" y="${y + g.thumb * 0.75}" font-size="${g.metaSize}" fill="#64748b">${escapeXml(item.cityName)} · ${item.marketsToday} hal</text>
-      <text x="${rightX}" y="${y + g.thumb * 0.4}" text-anchor="end" font-size="${g.priceSize}" font-weight="800" fill="#0f172a">₺${escapeXml(fmtPrice(item.latest))}</text>
-      <text x="${rightX}" y="${y + g.thumb * 0.76}" text-anchor="end" font-size="${g.metaSize + 2}" font-weight="800" fill="${color}">${dir > 0 ? "▲" : "▼"} %${fmtPctTr(item.changePct)}</text>`);
-    y += g.rowH + g.rowGap;
+      <text x="${textX}" y="${y + thumb * 0.4}" font-size="${g.nameSize}" font-weight="800" fill="#172033">${escapeXml(clip(item.productName, nameMax))}</text>
+      <text x="${textX}" y="${y + thumb * 0.75}" font-size="${g.metaSize}" fill="#64748b">${escapeXml(item.cityName)} · ${item.marketsToday} hal</text>
+      <text x="${rightX}" y="${y + thumb * 0.4}" text-anchor="end" font-size="${g.priceSize}" font-weight="800" fill="#0f172a">₺${escapeXml(fmtPrice(item.latest))}</text>
+      <text x="${rightX}" y="${y + thumb * 0.76}" text-anchor="end" font-size="${g.metaSize + 2}" font-weight="800" fill="${color}">${dir > 0 ? "▲" : "▼"} %${fmtPctTr(item.changePct)}</text>`);
+    y += rowH + g.rowGap;
   });
 
   const svg = frame(g, "Günün Hal Hareketleri", `${selected.length} ürün · TL/kg`, dateLabel, rows.join("\n"),
@@ -143,10 +152,12 @@ export async function renderBasketCard(items: BasketRow[], size: CardSize, dateL
   const g = GEOMETRY[size];
   const max = g.basketCols * g.basketRows;
   const selected = items.slice(0, max);
-  const thumbs = await loadThumbs(selected, g.thumb);
+  const rowCount = Math.max(1, Math.ceil(selected.length / g.basketCols));
+  const cellH = Math.floor((contentHeight(g) - (rowCount - 1) * g.rowGap) / rowCount);
+  const thumb = Math.min(Math.round(g.maxRow * 1.4), cellH - 32);
+  const thumbs = await loadThumbs(selected, thumb);
   const colW = Math.round((g.width - g.pad * 2 - 24) / g.basketCols);
-  const cellH = g.thumb + 24;
-  const top = g.pad + 166;
+  const top = contentTop(g);
   const cells = selected.map((item, index) => {
     const col = index % g.basketCols;
     const row = Math.floor(index / g.basketCols);
@@ -156,10 +167,11 @@ export async function renderBasketCard(items: BasketRow[], size: CardSize, dateL
     // K1 ile ayni okuma: yukari ok yesil, asagi ok kirmizi — iki kart yan yana gorulur.
     const color = dir > 0 ? "#16a34a" : dir < 0 ? "#dc2626" : "#64748b";
     const clipId = `b${index}`;
+    const photoY = y + Math.round((cellH - thumb) / 2);
     const photo = thumbs[index]
-      ? `<defs><clipPath id="${clipId}"><rect x="${x + 12}" y="${y + 12}" width="${g.thumb - 8}" height="${g.thumb - 8}" rx="20"/></clipPath></defs><image href="${thumbs[index]}" x="${x + 12}" y="${y + 12}" width="${g.thumb - 8}" height="${g.thumb - 8}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clipId})"/>`
+      ? `<defs><clipPath id="${clipId}"><rect x="${x + 14}" y="${photoY}" width="${thumb}" height="${thumb}" rx="20"/></clipPath></defs><image href="${thumbs[index]}" x="${x + 14}" y="${photoY}" width="${thumb}" height="${thumb}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clipId})"/>`
       : "";
-    const textX = x + g.thumb + 16;
+    const textX = x + thumb + 30;
     return `
       <rect x="${x}" y="${y}" width="${colW}" height="${cellH}" rx="24" fill="#f8fafc" stroke="#e2e8f0"/>
       ${photo}
