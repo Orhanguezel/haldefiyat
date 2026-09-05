@@ -701,6 +701,8 @@ export async function registerFirmsAdmin(app: FastifyInstance) {
 
     const stamp = new Date().toISOString().replace("T", " ").slice(0, 19);
     await appendFirmDealNote(dealId, `[${stamp}] Cevap gonderildi (${to}): ${parsed.data.subject}`);
+    // Cevap yazilan talep artik "yeni" degil; panelin "henuz donus yapilmadi" sayaci gercegi gostersin.
+    if (deal.status === "lead") await updateFirmDeal(dealId, { status: "contacted" });
 
     return reply.send({ ok: true, to });
   });
