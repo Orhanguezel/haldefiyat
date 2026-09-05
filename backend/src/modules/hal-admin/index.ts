@@ -17,6 +17,7 @@ import {
   hfProductEditorial,
   hfProducts,
 } from "@/db/schema";
+import { getAdminPriceDetail, listAdminPrices, listPriceSources } from "./prices-query";
 import { loadEtlSources, getSourceByKey } from "@/config/etl-sources";
 import { loadProductionSources } from "@/config/production-sources";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
@@ -51,7 +52,6 @@ import { publishDailyReport } from "@/modules/telegram-channel/publisher";
 import {
   latestRecordedDate,
   listPriceCategories,
-  listPriceRowsPage,
   parseRangeToDays,
   upsertPriceRow,
 } from "@/modules/prices/repository";
@@ -84,7 +84,12 @@ const listPricesQuery = z.object({
   city: z.string().optional(),
   market: z.string().optional(),
   category: z.string().optional(),
+  unit: z.string().optional(),
+  source: z.string().optional(),
+  issue: z.enum(["unit_mismatch", "inactive_product", "inactive_market", "quarantined", "any"]).optional(),
+  days: z.coerce.number().int().min(1).max(9000).optional(),
   range: z.string().optional(),
+  sort: z.enum(["date_desc", "date_asc", "price_desc", "price_asc", "product"]).optional(),
   limit: z.coerce.number().optional(),
   page: z.coerce.number().optional(),
   latestOnly: boolish,
@@ -726,13 +731,16 @@ export async function registerHalAdmin(app: FastifyInstance) {
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz sorgu parametreleri" });
     const p = parsed.data;
     const [page, latestDate] = await Promise.all([
-      listPriceRowsPage({
-        product: p.product,
-        q: p.q,
+      listAdminPrices({
+        q: p.q ?? p.product,
         city: p.city,
         market: p.market,
         category: p.category,
-        range: p.range,
+        unit: p.unit,
+        source: p.source,
+        issue: p.issue,
+        sort: p.sort,
+        days: p.days ?? parseRangeToDays(p.range),
         limit: p.limit ?? 50,
         page: p.page,
         latestOnly: p.latestOnly,
@@ -746,11 +754,12 @@ export async function registerHalAdmin(app: FastifyInstance) {
       page: page.page,
       limit: page.limit,
       totalPages: page.totalPages,
-      meta: {
-        latestRecordedDate: latestDate,
-        rangeDays: parseRangeToDays(p.range),
-      },
+      meta: { latestRecordedDate: latestDate },
     });
+  });
+
+  app.get("/hal/price-sources", async (_req, reply) => {
+    return reply.send({ items: await listPriceSources() });
   });
 
   app.get("/hal/price-categories", async (_req, reply) => {
@@ -763,6 +772,15 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const item = await getPriceDetail(id);
     if (!item) return reply.status(404).send({ error: "Kayit bulunamadi" });
     return reply.send(item);
+  });
+
+  /** Sag panel: kayit + ciftin gecmisi + ayni gun diger haller + karantina gecmisi. */
+  app.get<{ Params: { id: string } }>("/hal/prices/:id/detail", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz id" });
+    const detail = await getAdminPriceDetail(id);
+    if (!detail) return reply.status(404).send({ error: "Kayit bulunamadi" });
+    return reply.send(detail);
   });
 
   app.post("/hal/prices", async (req, reply) => {
