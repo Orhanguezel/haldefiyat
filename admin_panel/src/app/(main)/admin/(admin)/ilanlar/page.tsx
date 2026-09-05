@@ -17,14 +17,16 @@ import { SettingsPanel } from './_components/settings-panel';
 import { TrafficPanel } from './_components/traffic-panel';
 import { api, MAX_IMAGES, STATUSES, toEditForm, uploadListingImage } from './_lib/api';
 import { useAdminT } from '../../_components/common/use-admin-t';
-import { buildBannerPayload, firstFreeRow, isLiveAd, listingSlots, slotRowPlan } from './_lib/ads';
+import {
+  adEndDate, buildBannerPayload, firstFreeRow, isLiveAd, listingCoversAd, listingSlots, parseAdError, paymentOf, slotRowPlan,
+} from './_lib/ads';
 import type {
-  AdForm, AdRow, AdSlot, EditForm, Inquiry, Listing, ListingAnalytics, ListingResponse, PackageKey, Pricing,
+  AdError, AdForm, AdRow, AdSlot, EditForm, Inquiry, Listing, ListingAnalytics, ListingResponse, PackageKey, Pricing,
 } from './_lib/types';
 
 const EMPTY_AD: AdForm = {
   enabled: false, position: '', desktopRow: 1, desktopColumns: 1,
-  device: 'all', package: 'weekly', paymentConfirmed: false,
+  device: 'all', package: 'weekly', payment: 'pending', overrideWarnings: false,
 };
 
 export default function ListingsAdminPage() {
@@ -49,6 +51,7 @@ export default function ListingsAdminPage() {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editError, setEditError] = useState('');
+  const [adError, setAdError] = useState<AdError | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Listing | null>(null);
   const autoSwitched = useRef(false);
   const [pendingReject, setPendingReject] = useState<Listing | null>(null);
@@ -102,8 +105,10 @@ export default function ListingsAdminPage() {
       desktopColumns: Number(ad?.desktopColumns ?? plans.find((plan) => plan.row === row)?.columns ?? slot?.desktopCapacity ?? 1),
       device: ad?.device ?? 'all',
       package: 'weekly',
-      paymentConfirmed: isLiveAd(ad),
+      payment: isLiveAd(ad) ? paymentOf(ad) : 'pending',
+      overrideWarnings: false,
     });
+    setAdError(null);
   }
 
   function closeEdit() {
@@ -111,6 +116,7 @@ export default function ListingsAdminPage() {
     setForm(null);
     setImages([]);
     setEditError('');
+    setAdError(null);
   }
 
   async function moderate(id: number, next: 'approved' | 'rejected', note?: string) {
@@ -149,11 +155,18 @@ export default function ListingsAdminPage() {
     if (!editing || !form) return;
     setSaving(true);
     setEditError('');
+    setAdError(null);
+    const days = pricing?.[adForm.package].days ?? 7;
+    const publish = adForm.enabled && adForm.payment !== 'pending';
+    // Yayinlanan reklam ilandan uzun yasayamaz (backend listing_duration): ilan gecerliligi reklam bitisine cekilir.
+    const validUntil = publish && !listingCoversAd(form.validUntil, adEndDate(days))
+      ? adEndDate(days).slice(0, 10)
+      : form.validUntil;
     const res = await api(`/admin/listings/${editing.id}`, {
       method: 'PATCH',
       body: JSON.stringify({
         title: form.title.trim(),
-        validUntil: form.validUntil,
+        validUntil,
         contactPhone: form.contactPhone.trim() || null,
         quantity: form.quantity.trim() === '' ? null : Number(form.quantity),
         quantityUnit: form.quantityUnit.trim() || 'kg',
@@ -185,26 +198,30 @@ export default function ListingsAdminPage() {
         device: adForm.device,
         desktopRow: adForm.desktopRow,
         desktopColumns: adForm.desktopColumns,
-        paymentConfirmed: adForm.paymentConfirmed,
-        days: pricing?.[adForm.package].days ?? 7,
+        payment: adForm.payment,
+        days,
+        overrideReason: adForm.overrideWarnings ? t('ad.overrideReason') : null,
       });
       const adRes = await api(currentAd ? `/admin/banners/${currentAd.id}` : '/admin/banners', {
         method: currentAd ? 'PATCH' : 'POST',
         body: JSON.stringify(payload),
       });
       if (!adRes.ok) {
-        const body = (await adRes.json().catch(() => ({}))) as { error?: string; conflicts?: Array<{ id: number; title: string }> };
+        const parsed = parseAdError(await adRes.json().catch(() => ({})), t('ad.saveFailed'));
         setSaving(false);
-        const blockers = body.conflicts?.map((entry) => `#${entry.id} ${entry.title}`).join(', ');
+        setAdError(parsed);
+        const blockers = parsed.conflicts.map((entry) => `#${entry.id} ${entry.title}`).join(', ');
+        const quality = parsed.quality.map((item) => item.message).join(' ');
         setEditError([
-          body.error ?? t('ad.saveFailed'),
+          parsed.message,
           blockers ? t('ad.blockers', { list: blockers }) : '',
+          quality,
           t('ad.listingSavedAdNot'),
         ].filter(Boolean).join(' '));
         await load();
         return;
       }
-      await api(`/admin/listings/${editing.id}/feature`, adForm.paymentConfirmed
+      await api(`/admin/listings/${editing.id}/feature`, publish
         ? { method: 'PATCH', body: JSON.stringify({ package: adForm.package }) }
         : { method: 'DELETE' });
     } else {
@@ -215,7 +232,7 @@ export default function ListingsAdminPage() {
     }
 
     setSaving(false);
-    toast.success(t('toasts.saved'));
+    toast.success(publish ? t('toasts.published') : t('toasts.saved'));
     closeEdit();
     await load();
   }
@@ -359,6 +376,7 @@ export default function ListingsAdminPage() {
         ads={ads}
         currentAdId={currentAd?.id}
         pricing={pricing}
+        adError={adError}
         inquiries={inquiries.filter((item) => item.listingId === editing?.id)}
         error={editError}
         saving={saving}

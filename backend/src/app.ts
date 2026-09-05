@@ -236,11 +236,14 @@ export async function createApp() {
             : reply.statusCode === 400
               ? "BAD_REQUEST"
               : "INTERNAL_SERVER_ERROR";
+    // Rota kendi ek alanlarini (conflicts, quality, issues...) ust duzeyde gonderir;
+    // zarf onlari yutmasin, panel sebebi gostersin.
+    const { error: _error, details: _details, ...extras } = obj;
     const normalized = {
       error: {
         code,
         message: typeof errorObj.message === "string" ? errorObj.message : code,
-        details: errorObj.details ?? obj.details ?? null,
+        details: errorObj.details ?? obj.details ?? (Object.keys(extras).length ? extras : null),
         requestId: String(req.id),
       },
     };

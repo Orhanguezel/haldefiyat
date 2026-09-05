@@ -1,4 +1,4 @@
-import type { AdDevice, AdRow, AdSlot } from './types';
+import type { AdDevice, AdError, AdPayment, AdRow, AdSlot } from './types';
 
 const OCCUPYING_STATUSES = new Set(['reserved', 'payment_pending', 'scheduled', 'live']);
 export const MAX_AD_ROW = 12;
@@ -64,11 +64,43 @@ export function listingSlots(slots: AdSlot[]) {
   return slots.filter((slot) => slot.isActive && slot.sourceTypes?.includes('listing'));
 }
 
+export function adEndDate(days: number) {
+  return new Date(Date.now() + days * 86400000).toISOString();
+}
+
+/** Ilan, reklam bitisinden once bitiyorsa backend "listing_duration" ile yayini reddeder. */
+export function listingCoversAd(validUntil: string, adEnd: string) {
+  return Boolean(validUntil) && validUntil.slice(0, 10) >= adEnd.slice(0, 10);
+}
+
+export function paymentOf(ad?: AdRow): AdPayment {
+  if (ad?.paymentStatus === 'paid') return 'paid';
+  if (ad?.paymentStatus === 'waived') return 'waived';
+  return 'pending';
+}
+
+/** Zarflanmis hata govdesini ({error:{message,details}}) panelin gosterecegi parcalara ayirir. */
+export function parseAdError(body: unknown, fallback: string): AdError {
+  const root = (body ?? {}) as { error?: unknown };
+  const err = root.error;
+  const message = typeof err === 'string' ? err
+    : err && typeof err === 'object' && typeof (err as { message?: unknown }).message === 'string'
+      ? (err as { message: string }).message : fallback;
+  const details = (err && typeof err === 'object' ? (err as { details?: unknown }).details : null) as
+    | { conflicts?: AdError['conflicts']; quality?: { items?: AdError['quality'] } } | null;
+  return {
+    message,
+    conflicts: details?.conflicts ?? [],
+    quality: details?.quality?.items ?? [],
+  };
+}
+
 export function buildBannerPayload(input: {
   title: string; description: string; listingId: number;
   position: string; device: AdDevice; desktopRow: number; desktopColumns: number;
-  paymentConfirmed: boolean; days: number;
+  payment: AdPayment; days: number; overrideReason: string | null;
 }) {
+  const publish = input.payment !== 'pending';
   return {
     position: input.position,
     title: `${input.title} · sponsorlu ilan`,
@@ -80,17 +112,18 @@ export function buildBannerPayload(input: {
     alt: input.title,
     linkTarget: '_self',
     rel: 'sponsored nofollow noopener',
-    caption: input.description.slice(0, 300) || null,
+    caption: input.description.slice(0, 90) || null,
     ctaLabel: 'İlanı İncele',
     device: input.device,
     desktopRow: input.desktopRow,
     desktopColumns: input.desktopColumns,
     displayOrder: 1,
     weight: 1,
-    lifecycleStatus: input.paymentConfirmed ? 'live' : 'payment_pending',
-    paymentStatus: input.paymentConfirmed ? 'paid' : 'unpaid',
-    isActive: input.paymentConfirmed,
+    lifecycleStatus: publish ? 'live' : 'payment_pending',
+    paymentStatus: publish ? input.payment : 'unpaid',
+    isActive: publish,
+    qualityOverrideReason: input.overrideReason,
     startAt: new Date().toISOString(),
-    endAt: new Date(Date.now() + input.days * 86400000).toISOString(),
+    endAt: adEndDate(input.days),
   };
 }

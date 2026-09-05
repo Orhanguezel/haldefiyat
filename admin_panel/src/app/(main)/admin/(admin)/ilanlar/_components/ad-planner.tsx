@@ -7,10 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { formatDate, formatPrice, imageSrc, PACKAGES } from '../_lib/api';
 type T = (key: string, params?: Record<string, string | number>, fallback?: string) => string;
-import { firstFreeRow, listingSlots, slotRowPlan, type RowPlan } from '../_lib/ads';
-import type { AdDevice, AdForm, AdRow, AdSlot, PackageKey, Pricing } from '../_lib/types';
+import { adEndDate, firstFreeRow, listingCoversAd, listingSlots, slotRowPlan, type RowPlan } from '../_lib/ads';
+import type { AdDevice, AdError, AdForm, AdPayment, AdRow, AdSlot, PackageKey, Pricing } from '../_lib/types';
 
 const DEVICES: AdDevice[] = ['all', 'desktop', 'mobile'];
+const PAYMENTS: AdPayment[] = ['pending', 'paid', 'waived'];
 
 type Props = {
   value: AdForm;
@@ -20,7 +21,9 @@ type Props = {
   currentAdId?: number;
   pricing: Pricing | null;
   listingTitle: string;
+  listingValidUntil: string;
   coverImage?: string;
+  lastError: AdError | null;
   t: T;
 };
 
@@ -72,14 +75,17 @@ function RowStrip({ plan, selected, onSelect, t }: {
   );
 }
 
-export function AdPlanner({ value, onChange, slots, ads, currentAdId, pricing, listingTitle, coverImage, t }: Props) {
+export function AdPlanner({ value, onChange, slots, ads, currentAdId, pricing, listingTitle, listingValidUntil, coverImage, lastError, t }: Props) {
   const available = listingSlots(slots);
   const slot = available.find((entry) => entry.slotKey === value.position) ?? available[0];
   const plans = slotRowPlan(ads, slot, value.device, currentAdId);
   const activePlan = plans.find((plan) => plan.row === value.desktopRow);
   const days = pricing?.[value.package].days ?? { daily: 1, weekly: 7, monthly: 30 }[value.package];
   const price = pricing?.[value.package].price ?? 0;
-  const endDate = new Date(Date.now() + days * 86400000).toISOString();
+  const endDate = adEndDate(days);
+  const publish = value.payment !== 'pending';
+  const extendsListing = !listingCoversAd(listingValidUntil, endDate);
+  const warnings = lastError?.quality.filter((item) => item.severity === 'warning') ?? [];
 
   function selectSlot(slotKey: string) {
     const nextSlot = available.find((entry) => entry.slotKey === slotKey);
@@ -174,21 +180,42 @@ export function AdPlanner({ value, onChange, slots, ads, currentAdId, pricing, l
 
           <section className="space-y-2">
             <h4 className="text-sm font-medium">{t('ad.step4')}</h4>
+            <div className="grid gap-2 sm:grid-cols-3">
+              {PAYMENTS.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => onChange({ payment: key })}
+                  className={`rounded-lg border p-3 text-left transition ${value.payment === key ? 'border-primary bg-primary/5' : 'hover:border-primary/40'}`}
+                >
+                  <div className="text-sm font-medium">{t(`ad.payment.${key}`)}</div>
+                  <div className="text-xs text-muted-foreground">{t(`ad.paymentHint.${key}`)}</div>
+                </button>
+              ))}
+            </div>
+            {publish && extendsListing ? (
+              <p className="rounded-md border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-700 dark:text-amber-400">
+                {t('ad.extendValidity', { from: formatDate(listingValidUntil), to: formatDate(endDate) })}
+              </p>
+            ) : null}
             <div className="flex items-start justify-between gap-4 rounded-lg border p-3">
               <div>
-                <div className="text-sm font-medium">{t('ad.paymentTitle')}</div>
-                <p className="text-xs text-muted-foreground">
-                  {value.paymentConfirmed ? t('ad.paymentOn') : t('ad.paymentOff')}
-                </p>
+                <div className="text-sm font-medium">{t('ad.overrideTitle')}</div>
+                <p className="text-xs text-muted-foreground">{t('ad.overrideHint')}</p>
+                {warnings.length ? (
+                  <ul className="mt-1.5 list-disc pl-4 text-xs text-amber-700 dark:text-amber-400">
+                    {warnings.map((item) => <li key={item.code}>{item.message}</li>)}
+                  </ul>
+                ) : null}
               </div>
-              <Switch checked={value.paymentConfirmed} onCheckedChange={(paymentConfirmed) => onChange({ paymentConfirmed })} />
+              <Switch checked={value.overrideWarnings} onCheckedChange={(overrideWarnings) => onChange({ overrideWarnings })} />
             </div>
           </section>
 
           <section className="rounded-lg border bg-muted/30 p-4">
             <div className="mb-3 flex items-center gap-2 text-sm font-medium">
-              <CircleDot className={`size-3.5 ${value.paymentConfirmed ? 'text-emerald-600' : 'text-amber-500'}`} />
-              {value.paymentConfirmed ? t('ad.willPublish') : t('ad.willReserve')}
+              <CircleDot className={`size-3.5 ${publish ? 'text-emerald-600' : 'text-amber-500'}`} />
+              {publish ? t('ad.willPublish') : t('ad.willReserve')}
             </div>
             <dl className="grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
               <div className="flex justify-between gap-2"><dt className="text-muted-foreground">{t('ad.place')}</dt><dd className="text-right">{slot?.label ?? '—'}</dd></div>

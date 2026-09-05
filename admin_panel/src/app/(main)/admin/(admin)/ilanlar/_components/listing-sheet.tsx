@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatDate } from '../_lib/api';
 type T = (key: string, params?: Record<string, string | number>, fallback?: string) => string;
-import type { AdForm, AdRow, AdSlot, EditForm, Inquiry, Listing, Pricing } from '../_lib/types';
+import type { AdError, AdForm, AdRow, AdSlot, EditForm, Inquiry, Listing, Pricing } from '../_lib/types';
 import { AdPlanner } from './ad-planner';
 import { ListingDetails } from './listing-details';
 import { ListingImages } from './listing-images';
@@ -27,6 +27,7 @@ type Props = {
   ads: AdRow[];
   currentAdId?: number;
   pricing: Pricing | null;
+  adError: AdError | null;
   inquiries: Inquiry[];
   error: string;
   saving: boolean;
@@ -105,7 +106,9 @@ export function ListingSheet(props: Props) {
                     currentAdId={props.currentAdId}
                     pricing={props.pricing}
                     listingTitle={form.title}
+                    listingValidUntil={form.validUntil}
                     coverImage={props.images[0]}
+                    lastError={props.adError}
                     t={t}
                   />
                 </TabsContent>

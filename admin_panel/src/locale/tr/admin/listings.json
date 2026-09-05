@@ -112,9 +112,6 @@
     "here": "Bu ilan burada",
     "pick": "Boş · seç",
     "mixedLayout": "Bu satır {columns} sütunlu farklı bir düzenle kurulmuş, karışık yerleşim yapılamaz.",
-    "paymentTitle": "Ödeme alındı",
-    "paymentOn": "Reklam kaydedildiği anda yayına girer.",
-    "paymentOff": "Kapalıyken slot rezerve edilir, reklam yayınlanmaz.",
     "willPublish": "Yayına alınacak",
     "willReserve": "Rezerve edilecek",
     "place": "Yer",
@@ -132,7 +129,21 @@
     "saveFailed": "Reklam slotu kaydedilemedi.",
     "blockers": "Satırı dolduran reklamlar: {list}.",
     "listingSavedAdNot": "İlan kaydedildi; yalnız reklam yerleşimi uygulanmadı.",
-    "titleFallback": "İlan başlığı"
+    "titleFallback": "İlan başlığı",
+    "payment": {
+      "pending": "Ödeme bekleniyor",
+      "paid": "Ödeme alındı",
+      "waived": "Ücretsiz / istisna"
+    },
+    "paymentHint": {
+      "pending": "Slot rezerve edilir, reklam yayınlanmaz.",
+      "paid": "Reklam kaydedildiği anda yayına girer.",
+      "waived": "Ücret alınmadan yayına girer; muhasebede istisna olarak görünür."
+    },
+    "extendValidity": "İlan {from} tarihinde bitiyor; reklam süresi kadar ({to}) uzatılacak.",
+    "overrideTitle": "Kalite uyarılarını yönetici onayıyla geç",
+    "overrideHint": "Telefon eksik gibi uyarılar yayını durdurur. Açıksa uyarı gerekçeli olarak geçilir; kritik hatalar yine engeller.",
+    "overrideReason": "Yönetici panelinden ilan reklamı: uyarılar görüldü, yayın onaylandı."
   },
   "settings": {
     "pricingTitle": "Öne çıkarma paket fiyatları",
@@ -176,6 +187,7 @@
     "deleted": "İlan silindi.",
     "deleteFailed": "İlan silinemedi.",
     "saved": "İlan kaydedildi.",
-    "saveFailed": "Kaydedilemedi. Geçerlilik tarihi yarından itibaren olmalı."
+    "saveFailed": "Kaydedilemedi. Geçerlilik tarihi yarından itibaren olmalı.",
+    "published": "İlan kaydedildi ve reklam yayına alındı."
   }
 }

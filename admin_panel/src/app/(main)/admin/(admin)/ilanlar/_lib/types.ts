@@ -36,7 +36,7 @@ export type AdDevice = 'all' | 'desktop' | 'mobile';
 export type AdRow = {
   id: number; listingId: number | null; position: string; desktopRow: number; desktopColumns: number;
   device: AdDevice; isActive: number | boolean; endAt: string | null;
-  title?: string; lifecycleStatus?: string; archivedAt?: string | null;
+  title?: string; lifecycleStatus?: string; paymentStatus?: string; archivedAt?: string | null;
 };
 
 export type AdSlot = {
@@ -44,7 +44,16 @@ export type AdSlot = {
   desktopCapacity: number; sourceTypes: string[]; recommendedSize?: string | null;
 };
 
+/** pending = slot rezerve, yayin yok · paid = odeme alindi · waived = ucretsiz/istisna yayin */
+export type AdPayment = 'pending' | 'paid' | 'waived';
+
 export type AdForm = {
   enabled: boolean; position: string; desktopRow: number; desktopColumns: number;
-  device: AdDevice; package: PackageKey; paymentConfirmed: boolean;
+  device: AdDevice; package: PackageKey; payment: AdPayment; overrideWarnings: boolean;
+};
+
+export type AdError = {
+  message: string;
+  conflicts: Array<{ id: number; title: string }>;
+  quality: Array<{ code: string; message: string; severity: 'error' | 'warning' }>;
 };
