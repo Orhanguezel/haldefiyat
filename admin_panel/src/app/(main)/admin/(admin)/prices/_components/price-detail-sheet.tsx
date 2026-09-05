@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGetPriceDetailAdminQuery } from '@/integrations/hooks';
 import type { PriceAdminItem } from '@/integrations/endpoints/prices-admin-endpoints';
 import { AVG_METHOD_LABEL, ageLabel, MARKET_TYPE_LABEL, money, percentDiff, shortDate } from '../_lib/format';
+import { useProductImage } from '../_lib/product-images';
 import { PriceSparkline } from './price-sparkline';
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -38,6 +39,8 @@ function PriceBlock({ item }: { item: PriceAdminItem }) {
 export function PriceDetailSheet({ item, onClose }: { item: PriceAdminItem | null; onClose: () => void }) {
   const { data, isFetching } = useGetPriceDetailAdminQuery(item?.id ?? 0, { skip: !item });
   const detail = data?.item?.id === item?.id ? data : undefined;
+  const productImage = useProductImage();
+  const cover = item ? productImage(item.productSlug, item.canonicalSlug) : null;
 
   return (
     <Sheet open={Boolean(item)} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -45,7 +48,12 @@ export function PriceDetailSheet({ item, onClose }: { item: PriceAdminItem | nul
         {item ? (
           <>
             <SheetHeader className="border-b px-6 py-4">
-              <div className="pr-8">
+              <div className="flex items-start gap-3 pr-8">
+                {cover ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={cover} alt="" className="size-12 shrink-0 rounded-lg border object-cover" />
+                ) : null}
+                <div className="min-w-0">
                 <SheetTitle className="truncate text-base">{item.productName}</SheetTitle>
                 <SheetDescription className="flex flex-wrap items-center gap-1.5">
                   <span>{item.marketName} · {item.cityName}</span>
@@ -55,6 +63,7 @@ export function PriceDetailSheet({ item, onClose }: { item: PriceAdminItem | nul
                   {item.quarantined ? <Badge variant="destructive" className="font-normal">karantinada</Badge> : null}
                   {item.productActive === false ? <Badge variant="outline" className="font-normal">pasif ürün</Badge> : null}
                 </SheetDescription>
+                </div>
               </div>
             </SheetHeader>
 

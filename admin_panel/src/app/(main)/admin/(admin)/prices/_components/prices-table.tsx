@@ -5,13 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { PriceAdminItem } from '@/integrations/endpoints/prices-admin-endpoints';
 import { ageLabel, MARKET_TYPE_LABEL, money, shortDate } from '../_lib/format';
+import { useProductImage } from '../_lib/product-images';
 
-function ProductCell({ item }: { item: PriceAdminItem }) {
+function ProductCell({ item, image }: { item: PriceAdminItem; image: string | null }) {
   return (
     <div className="flex items-center gap-3">
-      {item.productImage ? (
+      {image ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={item.productImage} alt="" className="size-9 shrink-0 rounded-md border object-cover" />
+        <img src={image} alt="" loading="lazy" className="size-9 shrink-0 rounded-md border object-cover" />
       ) : (
         <div className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-muted/40 text-muted-foreground">
           <ImageOff className="size-3.5" />
@@ -49,6 +50,8 @@ type Props = {
 };
 
 export function PricesTable({ items, loading, activeId, onSelect }: Props) {
+  const productImage = useProductImage();
+
   if (loading) {
     return <div className="rounded-lg border border-dashed py-16 text-center text-sm text-muted-foreground">Yükleniyor…</div>;
   }
@@ -78,7 +81,9 @@ export function PricesTable({ items, loading, activeId, onSelect }: Props) {
               onClick={() => onSelect(item)}
               className={`cursor-pointer ${activeId === item.id ? 'bg-primary/5' : ''}`}
             >
-              <TableCell className="py-2.5"><ProductCell item={item} /></TableCell>
+              <TableCell className="py-2.5">
+                <ProductCell item={item} image={productImage(item.productSlug, item.canonicalSlug)} />
+              </TableCell>
               <TableCell>
                 <div className="text-sm">{item.marketName}</div>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
