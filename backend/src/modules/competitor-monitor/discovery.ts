@@ -11,8 +11,10 @@ export interface DiscoveryOptions { queries?: string[]; limit?: number; engine?:
 export const DEFAULT_DEPTH = 20; // "ilk iki sayfa" = ilk 20 sonuc
 
 // Rakip degil, her aramada cikan platformlar: sonuc listesine yazilmaz.
-const SKIP_DOMAINS = /(^|\.)(google\.[a-z.]+|bing\.com|youtube\.com|facebook\.com|instagram\.com|twitter\.com|x\.com|linkedin\.com|tiktok\.com|wikipedia\.org|apple\.com|pinterest\.[a-z]+|eksisozluk\.com)$/i;
-const DELAY_MS = 1500;
+const SKIP_DOMAINS = /(^|\.)(google\.[a-z.]+|bing\.com|yandex\.[a-z.]+|brave\.com|youtube\.com|facebook\.com|instagram\.com|twitter\.com|x\.com|linkedin\.com|tiktok\.com|wikipedia\.org|apple\.com|pinterest\.[a-z]+|eksisozluk\.com)$/i;
+// Brave ~20 ardisik istekten sonra bos donmeye basliyor: aralik + basarisizlikta bekleyip yeniden dene, olmazsa Yandex.
+const DELAY_MS = 2500;
+const RETRY_WAIT_MS = 8000;
 let running = false;
 
 export function isDiscoveryRunning(): boolean {
@@ -82,10 +84,20 @@ export async function runCompetitorDiscovery(opts: DiscoveryOptions) {
     let done = 0;
     let results = 0;
     let failures = 0;
+    let fallbacks = 0;
     for (const q of list) {
       for (let page = 1; page <= pages; page += 1) {
-        const { hits, error } = await fetchSerpPage(engine, q.query, page);
-        if (error) failures += 1;
+        let { hits, error } = await fetchSerpPage(engine, q.query, page);
+        if (!hits.length) {
+          await sleep(RETRY_WAIT_MS);
+          ({ hits, error } = await fetchSerpPage(engine, q.query, page));
+        }
+        if (!hits.length && engine !== "yandex") {
+          ({ hits, error } = await fetchSerpPage("yandex", q.query, page));
+          if (hits.length) fallbacks += 1;
+        }
+        if (!hits.length) failures += 1;
+        void error;
         const rows = hits
           .filter((h) => h.position <= depth && !SKIP_DOMAINS.test(h.domain))
           .map((h) => ({ runId, query: q.query, queryClicks: q.clicks, queryImpressions: q.impressions, position: h.position, page: h.page, url: h.url, domain: h.domain, title: h.title, snippet: h.snippet, isOurs: h.domain === ours || h.domain.endsWith(`.${ours}`) ? 1 : 0 }));
@@ -97,7 +109,7 @@ export async function runCompetitorDiscovery(opts: DiscoveryOptions) {
       await db.update(hfCompetitorSerpRuns).set({ queriesDone: done, resultsTotal: results }).where(eq(hfCompetitorSerpRuns.id, runId));
     }
     const status = failures === 0 ? "ok" : failures >= list.length * pages ? "error" : "partial";
-    await db.update(hfCompetitorSerpRuns).set({ status, finishedAt: sql`NOW(3)`, errorMsg: failures ? `${failures} sayfa alinamadi` : null }).where(eq(hfCompetitorSerpRuns.id, runId));
+    await db.update(hfCompetitorSerpRuns).set({ status, finishedAt: sql`NOW(3)`, errorMsg: [failures ? `${failures} sayfa alinamadi` : "", fallbacks ? `${fallbacks} sayfa Yandex yedeginden` : ""].filter(Boolean).join("; ") || null }).where(eq(hfCompetitorSerpRuns.id, runId));
     return { id: runId, status, queriesDone: done, resultsTotal: results, source, engine };
   } finally {
     running = false;
