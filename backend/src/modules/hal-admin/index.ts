@@ -1025,9 +1025,17 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const rows = await db.select().from(hfProducts).where(eq(hfProducts.id, id)).limit(1);
     if (!rows[0]) return reply.status(404).send({ error: "Kayit bulunamadi" });
     // Kalite gerekçesi: data_quality formülünün bileşen sinyalleri (son 30g fiyat/hal + editöryel)
+    // Aile bazli (varyant satirlari dahil, birim butunlugu ile) — liste ucu ve bakim
+    // isiyle ayni sayim; aksi halde panel "10 hal" derken gerekce "1 hal" diyordu.
     const statsRes = await db.execute(sql`
-      SELECT COUNT(*) AS pr, COUNT(DISTINCT market_id) AS mc
-      FROM hf_price_history WHERE product_id = ${id} AND recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+      SELECT COUNT(*) AS pr, COUNT(DISTINCT ph.market_id) AS mc
+      FROM hf_price_history ph
+      JOIN (
+        SELECT id AS vid, unit FROM hf_products WHERE id = ${id}
+        UNION
+        SELECT v.id, v.unit FROM hf_products v WHERE v.canonical_slug = ${rows[0].slug} AND v.is_active = 1
+      ) f ON f.vid = ph.product_id AND f.unit = ph.unit
+      WHERE ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
     `);
     const edRes = await db.execute(sql`
       SELECT 1 AS ok FROM hf_product_editorial WHERE product_slug = ${rows[0].slug} AND published_at IS NOT NULL LIMIT 1

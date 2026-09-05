@@ -395,8 +395,18 @@ export async function runSeoIndexMaintenance() {
   await db.execute(sql`
     UPDATE hf_products p
     LEFT JOIN (
-      SELECT product_id, COUNT(*) pr, COUNT(DISTINCT market_id) mc
-      FROM hf_price_history WHERE recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY product_id
+      -- AILE bazli: master'in kapsami varyantlarinin (canonical_slug -> master) satirlarini
+      -- da icerir; birim butunlugu (f.unit = ph.unit) ile. Admin liste ucu ile birebir ayni.
+      -- Onceki hal yalniz product_id'ye bakiyordu: verisi varyantta duran master
+      -- (muz-ithal: kendi 1 hal, ailesi 10 hal) 25 puan kapsam bonusunu alamiyordu.
+      SELECT f.pid AS product_id, COUNT(*) pr, COUNT(DISTINCT ph.market_id) mc
+      FROM hf_price_history ph
+      JOIN (
+        SELECT id AS pid, id AS vid, unit FROM hf_products WHERE is_active = 1
+        UNION
+        SELECT m.id, v.id, v.unit FROM hf_products m JOIN hf_products v ON v.canonical_slug = m.slug AND v.is_active = 1
+      ) f ON f.vid = ph.product_id AND f.unit = ph.unit
+      WHERE ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY f.pid
     ) s ON s.product_id = p.id
     LEFT JOIN (
       SELECT product_id, COUNT(DISTINCT chain_slug) chains
@@ -419,16 +429,26 @@ export async function runSeoIndexMaintenance() {
   // market_type kırılımlı sinyal alt-sorgusu. hf ürünleri hal'de, tahıl/bakliyat
   // (buğday, pirinç, mercimek...) borsa/resmi kaynakta fiyatlanır. Aynı ≥3 hal şartı
   // borsa ürününe yapısal olarak uymaz (borsa kaynağı az) → ayrı kriter gerekir.
+  // AILE bazli sinyal: master'in kapsamina varyantlarinin satirlari da girer (birim
+  // butunlugu ile). Admin liste ucu 2026-09-03'ten beri boyle sayiyordu, burasi
+  // yalniz product_id'ye bakiyordu -> panel "10 hal, indexlenebilir" derken bakim
+  // "1 hal, dusur" diyordu ve elle acilan index haftalik geri kapaniyordu (muz-ithal).
   const signals = sql`(
-    SELECT ph.product_id,
+    SELECT f.pid AS product_id,
       COUNT(*) pr,
       COUNT(DISTINCT ph.market_id) mc,
       COUNT(DISTINCT ph.recorded_date) days,
       SUM(m.market_type = 'hal') hal_rows,
       SUM(m.market_type IN ('borsa','resmi')) borsa_rows
-    FROM hf_price_history ph JOIN hf_markets m ON m.id = ph.market_id
+    FROM hf_price_history ph
+    JOIN (
+      SELECT id AS pid, id AS vid, unit FROM hf_products WHERE is_active = 1
+      UNION
+      SELECT mp.id, v.id, v.unit FROM hf_products mp JOIN hf_products v ON v.canonical_slug = mp.slug AND v.is_active = 1
+    ) f ON f.vid = ph.product_id AND f.unit = ph.unit
+    JOIN hf_markets m ON m.id = ph.market_id
     WHERE ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-    GROUP BY ph.product_id
+    GROUP BY f.pid
   )`;
 
   // Perakende (market zinciri) sinyali — hal/borsa'sı olmayan paketli staple (pirinç,
