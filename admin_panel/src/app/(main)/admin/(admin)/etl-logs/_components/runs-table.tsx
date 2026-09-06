@@ -19,7 +19,7 @@ export function RunsTable({ rows, loading, activeId, onSelect, t, tc }: Props) {
             <TableHead className="w-28">{t('table.runDate')}</TableHead>
             <TableHead className="w-40 text-right">{t('table.rows')}</TableHead>
             <TableHead className="w-24 text-right">{t('table.duration')}</TableHead>
-            <TableHead className="min-w-[260px]">{t('table.note')}</TableHead>
+            <TableHead className="w-[38%] min-w-[240px]">{t('table.note')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -29,7 +29,7 @@ export function RunsTable({ rows, loading, activeId, onSelect, t, tc }: Props) {
                 <div className="flex items-center gap-2.5">
                   <span className={`size-2.5 shrink-0 rounded-full ${STATUS_TONE[r.status]} ${isEmptyOk(r) ? 'opacity-40' : ''}`} title={t(`statuses.${r.status}`)} />
                   <div className="min-w-0">
-                    <div className="truncate font-mono text-xs font-medium">{r.sourceApi}</div>
+                    <div className="break-words font-mono text-xs font-medium">{r.sourceApi}</div>
                     <div className="text-xs text-muted-foreground">{formatDateTime(r.createdAt)}</div>
                   </div>
                 </div>
@@ -42,7 +42,10 @@ export function RunsTable({ rows, loading, activeId, onSelect, t, tc }: Props) {
               </TableCell>
               <TableCell className="text-right text-sm tabular-nums">{formatDuration(r.durationMs)}</TableCell>
               <TableCell className={`text-xs ${r.status === 'error' ? 'text-rose-600' : 'text-muted-foreground'}`}>
-                <span className="line-clamp-1">{r.errorMsg || (isEmptyOk(r) ? t('table.emptyOk') : '—')}</span>
+                {/* Karantina notlari uzun; tek satirda tutulunca satir sayfa disina tasiyordu. */}
+                <span className="line-clamp-3 break-words whitespace-normal" title={r.errorMsg ?? ''}>
+                  {r.errorMsg || (isEmptyOk(r) ? t('table.emptyOk') : '—')}
+                </span>
               </TableCell>
             </TableRow>
           ))}

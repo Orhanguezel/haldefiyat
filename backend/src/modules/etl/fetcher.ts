@@ -968,7 +968,36 @@ async function tryFetchViaScraper(
   if (!result.ok || !result.html) return null;
 
   const rows = parseResponse(source.responseShape, result.html, source);
-  return { rows, dateUsed: date, httpStatus: result.status ?? 200 };
+  // Kaynak kendi yayin tarihini yaziyorsa O tarih kullanilir: aksi halde donmus
+  // bir liste her gun BUGUNUN tarihiyle yeniden yaziliyor ve olmayan gunluk
+  // gozlem uretiliyor (Kutahya, 24 Agustos listesi 12 gun boyunca).
+  const pageDate = extractSourcePageDate(source.key, result.html);
+  return { rows, dateUsed: pageDate ?? date, httpStatus: result.status ?? 200 };
+}
+
+/**
+ * Sayfanin uzerinde yazan yayin tarihi (yalniz tanimli kaynaklarda).
+ * Gelecege veya cok eskiye dusen degerler yok sayilir — bozuk tarih ETL'i kilitlemesin.
+ */
+const PAGE_DATE_PATTERNS: Record<string, RegExp> = {
+  // "24.8.2026" — gun/ay tek haneli olabiliyor.
+  kutahya_resmi: /(\d{1,2})[.](\d{1,2})[.](20\d{2})/,
+};
+
+export function extractSourcePageDate(sourceKey: string, html: string): string | null {
+  const pattern = PAGE_DATE_PATTERNS[sourceKey];
+  if (!pattern) return null;
+  const text = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<[^>]+>/g, " ");
+  const match = text.match(pattern);
+  if (!match) return null;
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = Number(match[3]);
+  if (!day || !month || day > 31 || month > 12) return null;
+  const iso = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  const today = new Date().toISOString().slice(0, 10);
+  const floor = new Date(Date.now() - 120 * 86_400_000).toISOString().slice(0, 10);
+  return iso <= today && iso >= floor ? iso : null;
 }
 
 /**
