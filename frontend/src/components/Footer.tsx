@@ -123,7 +123,6 @@ export default function Footer({
                     height={105}
                     sizes="(max-width: 640px) 78vw, (max-width: 1024px) 280px, 220px"
                     className={`${logoClassName} dark:hidden`}
-                    unoptimized
                   />
                   <Image
                     src={darkThemeLogo}
@@ -132,7 +131,6 @@ export default function Footer({
                     height={105}
                     sizes="(max-width: 640px) 78vw, (max-width: 1024px) 280px, 220px"
                     className={`hidden ${logoClassName} dark:block`}
-                    unoptimized
                   />
                 </>
               ) : (
