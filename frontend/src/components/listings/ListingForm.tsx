@@ -13,6 +13,7 @@ import { apiPost } from "@/lib/api-client";
 import { isApiError } from "@/lib/auth";
 import { getStoredAccessToken } from "@/lib/auth-token";
 import { PhoneOtpVerification } from "./PhoneOtpVerification";
+import { listingImageUploadError, validateListingImage } from "./listing-image-upload";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "") + "/api/v1";
 const MAX_IMAGES = 6;
@@ -61,6 +62,7 @@ export function ListingForm({ products }: { products: Product[] }) {
   const [contactPhone, setContactPhone] = useState(user?.phone ?? "");
   const [otpToken, setOtpToken] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
@@ -81,17 +83,33 @@ export function ListingForm({ products }: { products: Product[] }) {
   async function uploadImages(files: FileList | null) {
     if (!files?.length) return;
     setUploading(true);
-    const token = getStoredAccessToken();
-    for (const file of Array.from(files).slice(0, MAX_IMAGES - images.length)) {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch(`${API_BASE}/storage/listings/upload`, {
-        method: "POST", headers: token ? { Authorization: `Bearer ${token}` } : {}, body: fd,
-      });
-      const json = await res.json().catch(() => ({}));
-      if (res.ok && json.url) setImages((prev) => [...prev, json.url as string]);
+    setImageUploadError("");
+    const failures: string[] = [];
+    try {
+      const token = getStoredAccessToken();
+      for (const file of Array.from(files).slice(0, MAX_IMAGES - images.length)) {
+        const validationError = validateListingImage(file);
+        if (validationError) {
+          failures.push(validationError);
+          continue;
+        }
+        const fd = new FormData();
+        fd.append("file", file);
+        try {
+          const res = await fetch(`${API_BASE}/storage/listings/upload`, {
+            method: "POST", headers: token ? { Authorization: `Bearer ${token}` } : {}, body: fd,
+          });
+          const json = await res.json().catch(() => ({})) as { url?: string; error?: { code?: string; message?: string } };
+          if (res.ok && json.url) setImages((prev) => [...prev, json.url as string]);
+          else failures.push(listingImageUploadError(file.name, res.status, json));
+        } catch {
+          failures.push(listingImageUploadError(file.name, null, {}));
+        }
+      }
+    } finally {
+      setImageUploadError(failures.join(" "));
+      setUploading(false);
     }
-    setUploading(false);
   }
 
   function validate(fd: FormData): Record<string, string> {
@@ -131,6 +149,7 @@ export function ListingForm({ products }: { products: Product[] }) {
       setStatus("İlan moderasyon için alındı. Onaylandıktan sonra yayınlanır.");
       form.reset();
       setImages([]); setProductSlug(""); setProductName(""); setCitySlug(null); setDistrictSlug(null);
+      setImageUploadError("");
       setCallRequestsEnabled(true);
       setCallAvailability(CALL_SLOTS.map(({ value }) => value));
       setContactPhone(user?.phone ?? "");
@@ -236,6 +255,7 @@ export function ListingForm({ products }: { products: Product[] }) {
       <PhoneOtpVerification phone={contactPhone} onVerified={handlePhoneVerified} />
       <div className="md:col-span-2">
         <span className="text-xs font-medium text-foreground">Görseller ({images.length}/{MAX_IMAGES})</span>
+        <p className="mt-1 text-xs text-(--color-muted)">JPG, PNG veya WebP · Görsel başına en fazla 5 MB</p>
         <div className="mt-1.5 flex flex-wrap items-center gap-2">
           {images.map((url) => (
             <div key={url} className="relative h-20 w-20 overflow-hidden rounded-lg border border-(--color-border)">
@@ -248,10 +268,26 @@ export function ListingForm({ products }: { products: Product[] }) {
           {images.length < MAX_IMAGES ? (
             <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-lg border border-dashed border-(--color-border) text-xs text-(--color-muted) hover:border-(--color-brand)">
               {uploading ? "…" : "+ Ekle"}
-              <input type="file" accept="image/*" multiple className="hidden" onChange={(event) => uploadImages(event.target.files)} />
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                disabled={uploading}
+                className="hidden"
+                onChange={(event) => {
+                  const selected = event.currentTarget.files;
+                  void uploadImages(selected);
+                  event.currentTarget.value = "";
+                }}
+              />
             </label>
           ) : null}
         </div>
+        {imageUploadError ? (
+          <p className="mt-2 rounded-lg border border-(--color-danger)/30 bg-(--color-danger)/10 px-3 py-2 text-sm text-(--color-danger)" role="alert" aria-live="assertive">
+            {imageUploadError}
+          </p>
+        ) : null}
       </div>
       <fieldset className="rounded-lg border border-(--color-border) bg-(--color-bg-alt) p-4 md:col-span-2">
         <legend className="px-1 text-sm font-semibold text-(--color-foreground)">Arama talebi tercihleri</legend>
@@ -292,7 +328,9 @@ export function ListingForm({ products }: { products: Product[] }) {
         ) : null}
       </fieldset>
       <TextArea name="description" label="Açıklama" className="md:col-span-2" />
-      <Button loading={loading} className="md:col-span-2">İlanı gönder</Button>
+      <Button loading={loading} disabled={uploading} className="md:col-span-2">
+        {uploading ? "Görseller yükleniyor…" : "İlanı gönder"}
+      </Button>
       {status ? <p className="md:col-span-2 text-sm text-(--color-muted)">{status}</p> : null}
     </form>
   );
