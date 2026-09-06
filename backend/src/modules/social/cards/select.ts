@@ -340,6 +340,34 @@ export async function selectHalToMarket(limit = 8): Promise<{ items: GapRow[]; d
 }
 
 
+/** Turkce slug: "Kırşehir" → "kirsehir". Ilan tablosu slug, hal tablosu ad tutuyor. */
+function slugifyTr(value: string): string {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ç/g, "c").replace(/ğ/g, "g").replace(/ı/g, "i")
+    .replace(/ö/g, "o").replace(/ş/g, "s").replace(/ü/g, "u")
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+/**
+ * Sehir adi: ilan kaydinda yalniz ASCII slug var ("kirsehir"). Dogru yazimi
+ * sabit listeden degil, hal tablosundaki gercek sehir adlarindan turetiriz —
+ * yeni sehir eklendiginde liste guncellemek gerekmez.
+ */
+let cityNameCache: { at: number; map: Map<string, string> } | null = null;
+
+async function cityNames(): Promise<Map<string, string>> {
+  if (cityNameCache && Date.now() - cityNameCache.at < 3_600_000) return cityNameCache.map;
+  const [rows] = await pool.query<Row[]>("SELECT DISTINCT city_name FROM hf_markets WHERE city_name <> ''");
+  const map = new Map<string, string>();
+  for (const row of rows ?? []) {
+    const name = String(row.city_name ?? "").trim();
+    if (name) map.set(slugifyTr(name), name);
+  }
+  cityNameCache = { at: Date.now(), map };
+  return map;
+}
+
 /** Birim alanina rakam kacmis olabilir ("kg45"): kartta fiyat iki kez gorunmesin. */
 function tidyUnit(value: string, fallback: string): string {
   const clean = value.replace(/[0-9.,]/g, "").trim();
@@ -372,6 +400,7 @@ export async function selectListings(limit = 6): Promise<{ items: ListingRow[]; 
     [Math.max(3, Math.min(limit, 10))],
   );
 
+  const cities = await cityNames();
   const items: ListingRow[] = (rows ?? []).map((r) => {
     const qty = r.quantity == null ? null : Number(r.quantity);
     const unit = tidyUnit(String(r.quantity_unit ?? ""), "kg");
@@ -390,7 +419,8 @@ export async function selectListings(limit = 6): Promise<{ items: ListingRow[]; 
       productSlug: r.product_slug ? String(r.product_slug) : null,
       imageUrl: r.image_url ? String(r.image_url) : null,
       kind: String(r.listing_type) === "alim" ? "alim" : "satis",
-      cityName: String(r.city_slug ?? "").replace(/-/g, " ").replace(/(^|\s)(\p{L})/gu, (_m, pre: string, ch: string) => pre + ch.toLocaleUpperCase("tr-TR")),
+      cityName: cities.get(String(r.city_slug ?? "")) ?? String(r.city_slug ?? "").replace(/-/g, " ")
+        .replace(/(^|\s)(\p{L})/gu, (_m, pre: string, ch: string) => pre + ch.toLocaleUpperCase("tr-TR")),
       quantity: qty != null && qty > 0 ? `${TR_QTY(qty)} ${unit}` : null,
       price,
     };
