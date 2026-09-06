@@ -5,11 +5,11 @@
  * metin sablonludur, LLM yoktur — onceki AI metinleri "Limon Konya'da %60 dustu"
  * gibi tek hal kaydini ulusal gercek gibi sunuyordu.
  */
-import { renderBasketCard, renderCityCard, renderMoversCard, uploadCard, type CardSize } from "./render";
-import { selectBasket, selectCityCompare, selectMovers, type BasketRow, type CityCompare, type MoverRow } from "./select";
+import { renderBasketCard, renderCityCard, renderGapCard, renderMoversCard, uploadCard, type CardSize } from "./render";
+import { selectBasket, selectCityCompare, selectHalToMarket, selectMovers, type BasketRow, type CityCompare, type GapRow, type MoverRow } from "./select";
 
-export type CardSeries = "k1" | "k2" | "k3";
-export const CARD_SERIES: CardSeries[] = ["k1", "k2", "k3"];
+export type CardSeries = "k1" | "k2" | "k3" | "k4";
+export const CARD_SERIES: CardSeries[] = ["k1", "k2", "k3", "k4"];
 
 export interface CardPayload {
   series: CardSeries; size: CardSize; imageUrl: string | null;
@@ -95,6 +95,22 @@ function cityCaption(data: CityCompare): string {
   ].join("\n");
 }
 
+
+function gapCaption(items: GapRow[], date: string, retailDate: string): string {
+  const lead = items[0];
+  const head = lead
+    ? `${lead.productName} halde ₺${fmtPrice(lead.halPrice)}, ${lead.retailChain} rafında ₺${fmtPrice(lead.retailPrice)}.`
+    : "Hal fiyatı ile market rafı arasındaki fark.";
+  return [
+    head,
+    `Bugünün hal fiyatları → ${SITE}/fiyatlar`,
+    "",
+    ...items.slice(0, 6).map((i) => `${i.productName}: hal ₺${fmtPrice(i.halPrice)} → ${i.retailChain} ₺${fmtPrice(i.retailPrice)} (+%${fmtPct(i.gapPct)})`),
+    "",
+    `Hal ${dateLabel(date)}, market ${dateLabel(retailDate)}. Market fiyatı, o üründe bulunan zincirler arasındaki en düşük raf fiyatıdır; hal fiyatı toptan seviyedir.`,
+  ].join("\n");
+}
+
 export async function buildCard(series: CardSeries, size: CardSize): Promise<CardPayload | null> {
   if (series === "k1") {
     const { risers, fallers, date } = await selectMovers(5);
@@ -119,6 +135,18 @@ export async function buildCard(series: CardSeries, size: CardSize): Promise<Car
     };
   }
 
+  if (series === "k4") {
+    const { items, date, retailDate } = await selectHalToMarket(8);
+    if (items.length < 3) return null;
+    const png = await renderGapCard(items, size, dateLabel(date));
+    const imageUrl = await uploadCard(png, `k4-${date}-${size}`);
+    return {
+      series, size, imageUrl, caption: gapCaption(items, date, retailDate),
+      hashtags: `${HASHTAGS} #HaldenMarkete`, link: `${SITE}/fiyatlar`,
+      contentKey: `k4:${date}`, recordedDate: date, itemCount: items.length,
+    };
+  }
+
   const { items, date } = await selectBasket();
   if (!items.length) return null;
   const png = await renderBasketCard(items, size, dateLabel(date));
@@ -130,5 +158,5 @@ export async function buildCard(series: CardSeries, size: CardSize): Promise<Car
   };
 }
 
-export { selectBasket, selectCityCompare, selectMovers } from "./select";
+export { selectBasket, selectCityCompare, selectHalToMarket, selectMovers } from "./select";
 export type { CardSize } from "./render";

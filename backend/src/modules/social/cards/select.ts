@@ -49,7 +49,7 @@ export interface CityCompare {
 
 export interface GapRow {
   productSlug: string; productName: string; canonicalSlug: string | null; imageUrl: string | null;
-  halPrice: number; retailPrice: number; retailChain: string; gapPct: number; markets: number;
+  halPrice: number; retailPrice: number; retailChain: string; gapPct: number; markets: number; chains: number;
 }
 
 export interface BasketRow {
@@ -300,19 +300,20 @@ export async function selectHalToMarket(limit = 8): Promise<{ items: GapRow[]; d
      ),
      retail AS (
        SELECT rp.product_id, rp.chain_slug, rp.price, rd.d AS recorded_date,
-              ROW_NUMBER() OVER (PARTITION BY rp.product_id ORDER BY rp.price ASC) AS rn
+              ROW_NUMBER() OVER (PARTITION BY rp.product_id ORDER BY rp.price ASC) AS rn,
+              COUNT(*) OVER (PARTITION BY rp.product_id) AS chains
        FROM hf_retail_prices rp
        JOIN retail_day rd ON rd.product_id = rp.product_id AND rp.recorded_date = rd.d
        WHERE rp.price > 0
      )
      SELECT p.slug AS product_slug, COALESCE(NULLIF(p.display_name, ''), p.name_tr) AS product_name,
             p.canonical_slug, p.image_url, h.price AS hal_price, h.markets, h.recorded_date,
-            r.price AS retail_price, r.chain_slug, r.recorded_date AS retail_date
+            r.price AS retail_price, r.chain_slug, r.chains, r.recorded_date AS retail_date
      FROM hal h
      JOIN hf_products p ON p.id = h.master_id
      JOIN retail r ON r.product_id = h.master_id AND r.rn = 1
      WHERE p.seo_index = 1 AND h.price > 0 AND h.markets >= 3 AND r.price > h.price
-     ORDER BY (r.price / h.price) DESC
+     ORDER BY COALESCE(p.search_volume, 0) DESC, (r.price / h.price) DESC
      LIMIT ?`,
     [Math.max(3, Math.min(limit, 12))],
   );
@@ -322,9 +323,10 @@ export async function selectHalToMarket(limit = 8): Promise<{ items: GapRow[]; d
     canonicalSlug: r.canonical_slug ? String(r.canonical_slug) : null,
     imageUrl: r.image_url ? String(r.image_url) : null,
     halPrice: Number(r.hal_price), retailPrice: Number(r.retail_price),
-    retailChain: chainLabel(String(r.chain_slug)), markets: Number(r.markets),
+    retailChain: chainLabel(String(r.chain_slug)), markets: Number(r.markets), chains: Number(r.chains ?? 1),
     gapPct: (Number(r.retail_price) / Number(r.hal_price) - 1) * 100,
   }));
+  items.sort((a, b) => b.gapPct - a.gapPct);
   return {
     items,
     date: items.length ? iso((rows ?? [])[0]!.recorded_date) : "",

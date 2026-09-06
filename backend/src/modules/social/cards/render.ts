@@ -11,7 +11,7 @@
  */
 import sharp from "sharp";
 import { getCloudinaryConfig, uploadBufferAuto } from "@agro/shared-backend/modules/storage";
-import type { BasketRow, CityCompare, MoverRow } from "./select";
+import type { BasketRow, CityCompare, GapRow, MoverRow } from "./select";
 
 const SITE_URL = "https://haldefiyat.com";
 export type CardSize = "tg" | "ig" | "wide";
@@ -228,6 +228,49 @@ export async function renderCityCard(data: CityCompare, size: CardSize, dateLabe
 
   const svg = frame(g, "Şehir Şehir Hal", `${data.productName} · TL/kg`, dateLabel, parts.join("\n"),
     "Kendi şehrinin hal fiyatını karşılaştır", "haldefiyat.com/fiyatlar");
+  return sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
+}
+
+
+/**
+ * K4 — halden markete: ayni urunun hal fiyati ve market rafi yan yana.
+ * Iki fiyat ve makas tek satirda; tuketici kartina bakip "aradaki fark bu" der.
+ */
+export async function renderGapCard(items: GapRow[], size: CardSize, dateLabel: string): Promise<Buffer> {
+  const g = GEOMETRY[size];
+  const n = items.length || 1;
+  const rowH = Math.min(g.maxRow, Math.floor((contentHeight(g) - 40 - (n - 1) * g.rowGap) / n));
+  const thumbs = await loadThumbs(items, rowH);
+
+  let y = contentTop(g) + 40;
+  const rows: string[] = [];
+  const colHal = g.width - g.pad - Math.round(g.width * 0.30);
+  const colMarket = g.width - g.pad - Math.round(g.width * 0.14);
+  const rightX = g.width - g.pad;
+
+  rows.push(`<text x="${colHal}" y="${contentTop(g) + 14}" text-anchor="end" font-size="${g.metaSize}" font-weight="800" fill="#15803d">HAL</text>`);
+  rows.push(`<text x="${colMarket}" y="${contentTop(g) + 14}" text-anchor="end" font-size="${g.metaSize}" font-weight="800" fill="#b91c1c">MARKET</text>`);
+  rows.push(`<text x="${rightX}" y="${contentTop(g) + 14}" text-anchor="end" font-size="${g.metaSize}" font-weight="800" fill="#64748b">FARK</text>`);
+
+  items.forEach((item, index) => {
+    const clipId = `g${index}`;
+    const photo = thumbs[index]
+      ? `<defs><clipPath id="${clipId}"><rect x="${g.pad}" y="${y}" width="${rowH}" height="${rowH}" rx="20"/></clipPath></defs><image href="${thumbs[index]}" x="${g.pad}" y="${y}" width="${rowH}" height="${rowH}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clipId})"/>`
+      : "";
+    const textX = g.pad + rowH + 22;
+    rows.push(`
+      <rect x="${g.pad - 12}" y="${y - 8}" width="${g.width - (g.pad - 12) * 2}" height="${rowH + 16}" rx="22" fill="#f8fafc" stroke="#e2e8f0"/>
+      ${photo}
+      <text x="${textX}" y="${y + rowH * 0.44}" font-size="${g.nameSize - 1}" font-weight="800" fill="#172033">${escapeXml(clip(item.productName, 16))}</text>
+      <text x="${textX}" y="${y + rowH * 0.8}" font-size="${g.metaSize - 1}" fill="#64748b">${escapeXml(item.retailChain)} rafı</text>
+      <text x="${colHal}" y="${y + rowH * 0.62}" text-anchor="end" font-size="${g.priceSize - 2}" font-weight="800" fill="#15803d">₺${escapeXml(fmtPrice(item.halPrice))}</text>
+      <text x="${colMarket}" y="${y + rowH * 0.62}" text-anchor="end" font-size="${g.priceSize - 2}" font-weight="800" fill="#b91c1c">₺${escapeXml(fmtPrice(item.retailPrice))}</text>
+      <text x="${rightX}" y="${y + rowH * 0.62}" text-anchor="end" font-size="${g.metaSize + 2}" font-weight="800" fill="#0f172a">${item.gapPct >= 1000 ? "10x+" : `+%${fmtPctTr(item.gapPct)}`}</text>`);
+    y += rowH + g.rowGap;
+  });
+
+  const svg = frame(g, "Halden Markete", `${items.length} ürün · TL/kg`, dateLabel, rows.join("\n"),
+    "Hal fiyatını gör, market rafıyla karşılaştır", "haldefiyat.com/fiyatlar");
   return sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
 }
 
