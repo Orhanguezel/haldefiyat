@@ -143,6 +143,7 @@ export async function publishWeeklySummary(
 type AnnounceableReport = {
   slug: string; title: string; summary: string | null;
   week_start: Date | string | null; week_end: Date | string | null;
+  iso_week: string | null;
   published_at: Date | string;
 };
 
@@ -151,14 +152,14 @@ const FRESH_REPORT_DAYS = 8;
 async function latestFreshReport(reportId?: number): Promise<AnnounceableReport | null> {
   const [rows] = reportId
     ? await pool.query(
-        `SELECT slug, title, summary, week_start, week_end, published_at
+        `SELECT slug, title, summary, week_start, week_end, iso_week, published_at
            FROM hf_analysis_reports
           WHERE id = ? AND status = 'published' AND published_at IS NOT NULL
           LIMIT 1`,
         [reportId],
       )
     : await pool.query(
-        `SELECT slug, title, summary, week_start, week_end, published_at
+        `SELECT slug, title, summary, week_start, week_end, iso_week, published_at
            FROM hf_analysis_reports
           WHERE status = 'published' AND published_at IS NOT NULL
           ORDER BY published_at DESC
@@ -198,8 +199,10 @@ export async function announceWeeklyReportToChannel(
   // Ozet cok uzun olabiliyor; caption 1024 karakteri asarsa gorsel dusuyor.
   const firstSentence = (report.summary ?? "").replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s/)[0] ?? "";
 
+  // Aylik degerlendirme ayni tabloda durur; basligi haftalik rapor gibi atmasin.
+  const monthly = /^\d{4}-M\d{2}$/.test(report.iso_week ?? "");
   const lines = [
-    `🗞️ <b>HaldeFiyat — Haftalık Hal Raporu</b>`,
+    `🗞️ <b>HaldeFiyat — ${monthly ? "Aylık Hal Değerlendirmesi" : "Haftalık Hal Raporu"}</b>`,
     `🗓 ${period}`,
     `─────────────────────────`,
     ``,
