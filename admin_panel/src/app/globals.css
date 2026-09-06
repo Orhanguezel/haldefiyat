@@ -270,6 +270,20 @@ html {
     visibility: hidden !important;
   }
 
+  body.banner-report-printing [data-slot="sidebar"] {
+    display: none !important;
+  }
+
+  body.banner-report-printing [data-slot="sidebar-wrapper"] {
+    display: block !important;
+  }
+
+  body.banner-report-printing [data-slot="sidebar-inset"] {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
   body.banner-report-printing .banner-report-print-root,
   body.banner-report-printing .banner-report-print-root * {
     visibility: visible !important;
