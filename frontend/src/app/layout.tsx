@@ -19,7 +19,9 @@ import { PageviewTracker } from "@/components/providers/PageviewTracker";
 import "./globals.css";
 
 const outfit = localFont({
-  src: "../../public/fonts/Outfit-800.ttf",
+  // WOFF2: ayni yuz, 47 KB yerine 17 KB. TTF surumu OG gorsel uretiminde (Satori)
+  // kullanilmaya devam eder — orada woff2 desteklenmiyor.
+  src: "../../public/fonts/Outfit-800.woff2",
   // Tailwind temasindaki --font-display bu degiskeni sarar; ikisi ayni ada sahip olunca
   // tema degeri kazanip yuklenen yuzu ezerdi (dosya on-yuklenip hic kullanilmiyordu).
   variable: "--font-outfit",
