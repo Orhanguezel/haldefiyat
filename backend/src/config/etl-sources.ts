@@ -790,7 +790,7 @@ const RAW_SOURCES: RawSource[] = [
   {
     key:               "tobb_borsa_nevsehir",
     // 2026-09-02: eklendiginden beri tek satir uretmedi
-    defaultEnabled:    false,
+    defaultEnabled:    true, // 2026-09-06 yoklama: 5 satir, son bulten 02.09.2026 — yeniden yayinda
     defaultMarketSlug: "nevsehir-ticaret-borsasi",
     defaultBaseUrl:    "https://borsa.tobb.org.tr",
     defaultEndpoint:   "/fiyat_borsa.php?borsakod=5NE10",
@@ -812,7 +812,7 @@ const RAW_SOURCES: RawSource[] = [
   {
     key:               "tobb_borsa_ordu",
     // 2026-09-02: eklendiginden beri tek satir uretmedi
-    defaultEnabled:    false,
+    defaultEnabled:    true, // 2026-09-06 yoklama: seyrek ama gercek bulten (son 09.07.2026)
     defaultMarketSlug: "ordu-ticaret-borsasi",
     defaultBaseUrl:    "https://borsa.tobb.org.tr",
     defaultEndpoint:   "/fiyat_borsa.php?borsakod=5OR10",
