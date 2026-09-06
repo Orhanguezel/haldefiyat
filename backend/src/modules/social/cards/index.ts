@@ -7,6 +7,7 @@
  */
 import { renderBasketCard, renderCityCard, renderGapCard, renderListingCard, renderMoversCard, uploadCard, type CardSize } from "./render";
 import { selectBasket, selectCityCompare, selectHalToMarket, selectListings, selectMovers, type BasketRow, type CityCompare, type GapRow, type ListingRow, type MoverRow } from "./select";
+import { listWantedProducts } from "@/modules/listings/wanted";
 
 export type CardSeries = "k1" | "k2" | "k3" | "k4" | "k5";
 export const CARD_SERIES: CardSeries[] = ["k1", "k2", "k3", "k4", "k5"];
@@ -112,7 +113,7 @@ function gapCaption(items: GapRow[], date: string, retailDate: string): string {
 }
 
 
-function listingCaption(items: ListingRow[]): string {
+function listingCaption(items: ListingRow[], wanted: string[] = []): string {
   const sale = items.filter((item) => item.kind === "satis").length;
   const buy = items.length - sale;
   const head = buy
@@ -124,8 +125,9 @@ function listingCaption(items: ListingRow[]): string {
     "",
     ...items.map((item) => `${item.kind === "alim" ? "ALIM" : "SATIŞ"} · ${item.productName} · ${item.cityName}${item.quantity ? ` · ${item.quantity}` : ""}${item.price ? ` · ${item.price}` : ""}`),
     "",
+    wanted.length ? `Bu hafta aranan ama panoda satıcısı olmayan ürünler: ${wanted.join(", ")}.` : "",
     `Ürününü ilana çevirmek ücretsiz: ${SITE}/ilan-ver`,
-  ].join("\n");
+  ].filter((line, index, all) => !(line === "" && all[index - 1] === "")).join("\n");
 }
 
 export async function buildCard(series: CardSeries, size: CardSize): Promise<CardPayload | null> {
@@ -167,10 +169,13 @@ export async function buildCard(series: CardSeries, size: CardSize): Promise<Car
   if (series === "k5") {
     const { items, date } = await selectListings(6);
     if (items.length < 3) return null;
+    // Kart yalniz mevcut ilanlari degil, ARANIP bulunamayan urunleri de soyler:
+    // panonun buyumesi arz tarafindan gelir.
+    const wanted = (await listWantedProducts(3).catch(() => [])).map((item) => item.name);
     const png = await renderListingCard(items, size, dateLabel(date));
     const imageUrl = await uploadCard(png, `k5-${date}-${size}`);
     return {
-      series, size, imageUrl, caption: listingCaption(items),
+      series, size, imageUrl, caption: listingCaption(items, wanted),
       hashtags: `${HASHTAGS} #İlan`, link: `${SITE}/ilanlar`,
       contentKey: `k5:${date}:${items.length}`, recordedDate: date, itemCount: items.length,
     };
