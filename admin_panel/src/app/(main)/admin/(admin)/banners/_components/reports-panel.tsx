@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AlertCircle, Download, Printer, TrendingDown, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -153,7 +153,12 @@ function printReport(range: ReportRange) {
 
 export function ReportsPanel({ slots, t }: { slots: AdSlotAdmin[]; t: TranslateFn }) {
   const [preset, setPreset] = useState<ReportPreset>('current_month');
-  const [range, setRange] = useState<ReportRange>(() => reportPresetRange('current_month'));
+  const [range, setRange] = useState<ReportRange>({ from: '', to: '' });
+  const [generatedAt, setGeneratedAt] = useState('');
+  useEffect(() => {
+    setRange(reportPresetRange('current_month'));
+    setGeneratedAt(new Date().toLocaleString('tr-TR'));
+  }, []);
   const valid = isValidReportRange(range);
   const previousRange = useMemo(() => previousComparableRange(range), [range]);
   const queryOptions = { skip: !valid };
@@ -161,7 +166,7 @@ export function ReportsPanel({ slots, t }: { slots: AdSlotAdmin[]; t: TranslateF
   const previousRevenue = useBannerRevenueAdminQuery(previousRange, queryOptions);
   const metrics = useBannerMetricsAdminQuery(range, queryOptions);
   const conversions = useBannerConversionsAdminQuery(range, queryOptions);
-  const loading = currentRevenue.isFetching || metrics.isFetching || conversions.isFetching;
+  const loading = currentRevenue.isFetching || previousRevenue.isFetching || metrics.isFetching || conversions.isFetching;
   const failed = currentRevenue.isError || previousRevenue.isError || metrics.isError || conversions.isError;
   const report = currentRevenue.data?.data;
   const previous = previousRevenue.data?.data;
@@ -179,11 +184,15 @@ export function ReportsPanel({ slots, t }: { slots: AdSlotAdmin[]; t: TranslateF
 
   const onPresetChange = (value: ReportPreset) => {
     setPreset(value);
-    if (value !== 'custom') setRange(reportPresetRange(value));
+    if (value !== 'custom') {
+      setRange(reportPresetRange(value));
+      setGeneratedAt(new Date().toLocaleString('tr-TR'));
+    }
   };
   const setCustomDate = (field: keyof ReportRange, value: string) => {
     setPreset('custom');
     setRange((current) => ({ ...current, [field]: value }));
+    setGeneratedAt(new Date().toLocaleString('tr-TR'));
   };
 
   return (
@@ -237,7 +246,7 @@ export function ReportsPanel({ slots, t }: { slots: AdSlotAdmin[]; t: TranslateF
           </div>
           <div className="text-right text-xs text-muted-foreground">
             <p>{t('reports.generatedAt')}</p>
-            <p className="font-medium text-foreground">{new Date().toLocaleString('tr-TR')}</p>
+            <p className="font-medium text-foreground">{generatedAt || '—'}</p>
           </div>
         </header>
 
