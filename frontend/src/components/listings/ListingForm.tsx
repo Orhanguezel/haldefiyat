@@ -25,6 +25,9 @@ const CALL_SLOTS: Array<{ value: PreferredSlot; label: string }> = [
 ];
 
 // Native select'in acilan option listesi dark'ta bozulmasin diye option renkleri token'a sabitlenir.
+// Serbest metin birim alanina fiyat yazilip kaydediliyordu ("kg45"): birim artik listeden secilir.
+const UNIT_OPTIONS = ["kg", "ton", "kasa", "koli", "çuval", "adet", "demet"] as const;
+
 const SELECT_CLASS =
   "min-h-11 rounded-lg border border-(--color-border) bg-(--color-bg) px-3 text-sm text-(--color-foreground) [&_option]:bg-(--color-surface) [&_option]:text-(--color-foreground)";
 
@@ -199,14 +202,24 @@ export function ListingForm({ products }: { products: Product[] }) {
         error={errors.validUntil}
       />
       <Input name="quantity" label="Miktar" type="number" step="0.01" />
-      <Input name="quantityUnit" label="Miktar birimi" defaultValue="kg" />
+      <label className="flex flex-col gap-1 text-xs font-medium text-foreground">
+        Miktar birimi
+        <select name="quantityUnit" defaultValue="kg" className={SELECT_CLASS}>
+          {UNIT_OPTIONS.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
+        </select>
+      </label>
       <select name="priceType" className={SELECT_CLASS}>
         <option value="sabit">Sabit fiyat</option>
         <option value="pazarlik">Pazarlık</option>
         <option value="hal_endeksli">Hal endeksli</option>
       </select>
       <Input name="priceMin" label="Fiyat" type="number" step="0.01" error={errors.priceMin} />
-      <Input name="priceUnit" label="Fiyat birimi" defaultValue="kg" />
+      <label className="flex flex-col gap-1 text-xs font-medium text-foreground">
+        Fiyat birimi
+        <select name="priceUnit" defaultValue="kg" className={SELECT_CLASS}>
+          {UNIT_OPTIONS.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
+        </select>
+      </label>
       <Input name="contactName" label="İletişim adı" defaultValue={user.full_name ?? ""} />
       <Input
         name="contactPhone"

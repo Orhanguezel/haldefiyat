@@ -279,7 +279,8 @@ export async function renderGapCard(items: GapRow[], size: CardSize, dateLabel: 
 export async function renderListingCard(items: ListingRow[], size: CardSize, dateLabel: string): Promise<Buffer> {
   const g = GEOMETRY[size];
   const n = items.length || 1;
-  const rowH = Math.min(Math.round(g.maxRow * 1.25), Math.floor((contentHeight(g) - (n - 1) * g.rowGap) / n));
+  // Ilan sayisi degisken: az ilan varsa satirlar bir miktar buyur, alt bosluk kalmasin.
+  const rowH = Math.min(Math.round(g.maxRow * 1.75), Math.floor((contentHeight(g) - (n - 1) * g.rowGap) / n));
   const thumbs = await loadThumbs(
     items.map((item) => ({ productSlug: item.productSlug ?? "", canonicalSlug: null, imageUrl: item.imageUrl })),
     rowH - 16,

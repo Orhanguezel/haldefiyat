@@ -340,6 +340,12 @@ export async function selectHalToMarket(limit = 8): Promise<{ items: GapRow[]; d
 }
 
 
+/** Birim alanina rakam kacmis olabilir ("kg45"): kartta fiyat iki kez gorunmesin. */
+function tidyUnit(value: string, fallback: string): string {
+  const clean = value.replace(/[0-9.,]/g, "").trim();
+  return clean || fallback;
+}
+
 /** ETL adlari bazen tumu buyuk harf geliyor ("HÜNNAP"); kartta bagirmasin. */
 function tidyName(value: string): string {
   const clean = value.replace(/\s+/g, " ").trim();
@@ -368,10 +374,10 @@ export async function selectListings(limit = 6): Promise<{ items: ListingRow[]; 
 
   const items: ListingRow[] = (rows ?? []).map((r) => {
     const qty = r.quantity == null ? null : Number(r.quantity);
-    const unit = String(r.quantity_unit ?? "").trim();
+    const unit = tidyUnit(String(r.quantity_unit ?? ""), "kg");
     const min = r.price_min == null ? null : Number(r.price_min);
     const max = r.price_max == null ? null : Number(r.price_max);
-    const priceUnit = String(r.price_unit ?? "kg").trim() || "kg";
+    const priceUnit = tidyUnit(String(r.price_unit ?? ""), "kg");
     const price = min == null && max == null
       ? null
       : min != null && max != null && max > min
@@ -385,7 +391,7 @@ export async function selectListings(limit = 6): Promise<{ items: ListingRow[]; 
       imageUrl: r.image_url ? String(r.image_url) : null,
       kind: String(r.listing_type) === "alim" ? "alim" : "satis",
       cityName: String(r.city_slug ?? "").replace(/-/g, " ").replace(/(^|\s)(\p{L})/gu, (_m, pre: string, ch: string) => pre + ch.toLocaleUpperCase("tr-TR")),
-      quantity: qty != null && qty > 0 ? `${TR_QTY(qty)} ${unit || "kg"}` : null,
+      quantity: qty != null && qty > 0 ? `${TR_QTY(qty)} ${unit}` : null,
       price,
     };
   });
