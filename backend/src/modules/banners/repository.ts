@@ -1188,13 +1188,38 @@ export async function validateBannerSource(input: {
   });
 }
 
-async function linkReachable(url: string) {
-  try {
-    const response = await fetch(url, { method: "HEAD", redirect: "follow", signal: AbortSignal.timeout(6000) });
-    return response.status < 400;
-  } catch {
-    return false;
+/**
+ * Reklam hedefinin erisilebilirligi.
+ *
+ * Tek denemede "erisilemiyor" demek reklami oldurur: 5 Eylul 04:15'te anlik bir
+ * kesinti VistaSeeds afisini kapatti, oysa adres saglamdi (307 -> 200, 190 ms).
+ * Bu yuzden: tarayici kimligi gonderilir, HEAD reddedilirse GET denenir ve
+ * basarisizlik kisa araliklarla IKI KEZ dogrulanir.
+ */
+async function linkReachable(url: string): Promise<boolean> {
+  const attempt = async (method: "HEAD" | "GET"): Promise<number | null> => {
+    try {
+      const response = await fetch(url, {
+        method,
+        redirect: "follow",
+        headers: { "user-agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)", accept: "*/*" },
+        signal: AbortSignal.timeout(12_000),
+      });
+      return response.status;
+    } catch {
+      return null;
+    }
+  };
+
+  for (let round = 0; round < 2; round += 1) {
+    const head = await attempt("HEAD");
+    if (head != null && head < 400) return true;
+    // Bazi sunucular HEAD'i 405 ile reddeder ama sayfa gayet ayakta.
+    const get = await attempt("GET");
+    if (get != null && get < 400) return true;
+    if (round === 0) await new Promise((resolve) => setTimeout(resolve, 3000));
   }
+  return false;
 }
 
 export async function auditLiveBannerSources() {
