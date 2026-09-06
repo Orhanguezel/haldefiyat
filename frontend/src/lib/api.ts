@@ -775,6 +775,25 @@ export async function fetchListingBoard(params: {
   return safeFetchRaw<ListingBoard | null>(`/listings/board${qs}`, 120, null);
 }
 
+
+export interface WantedProduct {
+  slug: string;
+  name: string;
+  imageUrl: string | null;
+  buyers: number;
+  watchers: number;
+  searchVolume: number;
+  price: number | null;
+  markets: number;
+  priceDate: string | null;
+}
+
+/** Talebi olculebilen ama satis ilani olmayan urunler — ilan cagrisini besler. */
+export async function fetchWantedProducts(limit = 6): Promise<WantedProduct[]> {
+  const data = await safeFetchRaw<{ items?: WantedProduct[] } | null>(`/listings/wanted?limit=${limit}`, 1800, null);
+  return data?.items ?? [];
+}
+
 export async function fetchFirm(slug: string): Promise<Firm | null> {
   const path = `/firms/${encodeURIComponent(slug)}`;
   try {

@@ -7,7 +7,8 @@ import Breadcrumb from "@/components/seo/Breadcrumb";
 import { ListingCard } from "@/components/listings/ListingCard";
 import { ListingBoard } from "@/components/listings/ListingBoard";
 import { ListingFilters, type ListingFilterValues } from "@/components/listings/ListingFilters";
-import { fetchListingBoard, fetchListings, fetchProducts } from "@/lib/api";
+import { WantedProducts } from "@/components/listings/WantedProducts";
+import { fetchListingBoard, fetchListings, fetchProducts, fetchWantedProducts } from "@/lib/api";
 import { TURKEY_CITY_OPTIONS } from "@/data/turkey-cities";
 import { getPageMetadata } from "@/lib/seo";
 
@@ -54,7 +55,7 @@ export default async function ListingsPage({ params, searchParams }: Props) {
   const city = one(query?.city);
   const filters: ListingFilterValues = { q, type, product, city, unit, date };
   const hasAnyFilter = Object.values(filters).some(Boolean);
-  const [listings, board, products] = await Promise.all([
+  const [listings, board, products, wanted] = await Promise.all([
     fetchListings({
       q,
       type,
@@ -67,6 +68,7 @@ export default async function ListingsPage({ params, searchParams }: Props) {
     }),
     fetchListingBoard({ product, city }),
     fetchProducts(undefined, undefined, { seoIndex: true }),
+    fetchWantedProducts(6),
   ]);
 
   return (
@@ -93,6 +95,8 @@ export default async function ListingsPage({ params, searchParams }: Props) {
       />
 
       <ListingBoard board={board} />
+
+      <WantedProducts items={wanted} />
 
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-(family-name:--font-display) text-xl font-bold text-(--color-foreground)">
