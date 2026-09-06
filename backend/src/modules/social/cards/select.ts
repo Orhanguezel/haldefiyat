@@ -47,6 +47,11 @@ export interface CityCompare {
   national: number; rows: CityCompareRow[]; date: string;
 }
 
+export interface GapRow {
+  productSlug: string; productName: string; canonicalSlug: string | null; imageUrl: string | null;
+  halPrice: number; retailPrice: number; retailChain: string; gapPct: number; markets: number;
+}
+
 export interface BasketRow {
   productSlug: string; productName: string; canonicalSlug: string | null; imageUrl: string | null;
   unit: string; price: number; weekChangePct: number | null; markets: number; recordedDate: string;
@@ -253,5 +258,76 @@ export async function selectCityCompare(maxCities = 8): Promise<CityCompare | nu
       ...row,
       diffPct: national > 0 ? (row.price / national - 1) * 100 : null,
     })),
+  };
+}
+
+
+/** Perakende zincir adlari — kart ve altyazida gorunen etiket. */
+const CHAIN_LABELS: Record<string, string> = {
+  a101: "A101", bim: "BİM", sok: "ŞOK", migros: "Migros", carrefour: "Carrefour", tarim_kredi: "Tarım Kredi",
+};
+
+export function chainLabel(slug: string): string {
+  return CHAIN_LABELS[slug] ?? slug.replace(/_/g, " ");
+}
+
+/**
+ * K4 — halden markete: ayni urunun hal fiyati ile marketteki EN UCUZ rafi.
+ * Makas tuketicinin sordugu tek soru; rakiplerin hicbirinde iki taraf da yok.
+ */
+export async function selectHalToMarket(limit = 8): Promise<{ items: GapRow[]; date: string; retailDate: string }> {
+  const [rows] = await pool.query<Row[]>(
+    `WITH ${FAMILY},
+     obs AS (
+       SELECT f.master_id, ph.market_id, ph.recorded_date, AVG(ph.avg_price) AS price
+       FROM hf_price_history ph
+       JOIN fam f ON f.pid = ph.product_id AND ph.unit = f.unit
+       JOIN hf_markets mk ON mk.id = ph.market_id AND mk.is_active = 1 AND mk.market_type = 'hal' AND mk.city_name <> 'Türkiye'
+       WHERE ph.recorded_date >= CURDATE() - INTERVAL 5 DAY AND ph.unit = 'kg' AND ${NOT_QUARANTINED} AND ${NOT_BLACKOUT}
+       GROUP BY f.master_id, ph.market_id, ph.recorded_date
+     ),
+     hal_day AS (SELECT master_id, MAX(recorded_date) AS d FROM obs GROUP BY master_id),
+     hal AS (
+       SELECT o.master_id, AVG(o.price) AS price, COUNT(DISTINCT o.market_id) AS markets, h.d AS recorded_date
+       FROM obs o JOIN hal_day h ON h.master_id = o.master_id AND o.recorded_date = h.d
+       GROUP BY o.master_id, h.d
+     ),
+     retail_day AS (
+       SELECT rp.product_id, MAX(rp.recorded_date) AS d
+       FROM hf_retail_prices rp
+       WHERE rp.recorded_date >= CURDATE() - INTERVAL 5 DAY AND rp.unit IN ('kg', 'KG', 'kilogram')
+       GROUP BY rp.product_id
+     ),
+     retail AS (
+       SELECT rp.product_id, rp.chain_slug, rp.price, rd.d AS recorded_date,
+              ROW_NUMBER() OVER (PARTITION BY rp.product_id ORDER BY rp.price ASC) AS rn
+       FROM hf_retail_prices rp
+       JOIN retail_day rd ON rd.product_id = rp.product_id AND rp.recorded_date = rd.d
+       WHERE rp.price > 0
+     )
+     SELECT p.slug AS product_slug, COALESCE(NULLIF(p.display_name, ''), p.name_tr) AS product_name,
+            p.canonical_slug, p.image_url, h.price AS hal_price, h.markets, h.recorded_date,
+            r.price AS retail_price, r.chain_slug, r.recorded_date AS retail_date
+     FROM hal h
+     JOIN hf_products p ON p.id = h.master_id
+     JOIN retail r ON r.product_id = h.master_id AND r.rn = 1
+     WHERE p.seo_index = 1 AND h.price > 0 AND h.markets >= 3 AND r.price > h.price
+     ORDER BY (r.price / h.price) DESC
+     LIMIT ?`,
+    [Math.max(3, Math.min(limit, 12))],
+  );
+
+  const items: GapRow[] = (rows ?? []).map((r) => ({
+    productSlug: String(r.product_slug), productName: String(r.product_name),
+    canonicalSlug: r.canonical_slug ? String(r.canonical_slug) : null,
+    imageUrl: r.image_url ? String(r.image_url) : null,
+    halPrice: Number(r.hal_price), retailPrice: Number(r.retail_price),
+    retailChain: chainLabel(String(r.chain_slug)), markets: Number(r.markets),
+    gapPct: (Number(r.retail_price) / Number(r.hal_price) - 1) * 100,
+  }));
+  return {
+    items,
+    date: items.length ? iso((rows ?? [])[0]!.recorded_date) : "",
+    retailDate: items.length ? iso((rows ?? [])[0]!.retail_date) : "",
   };
 }
