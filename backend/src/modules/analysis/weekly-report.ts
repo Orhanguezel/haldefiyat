@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
+import { env } from "@/core/env";
 import { db, pool } from "@/db/client";
 import { hfAnalysisReports, hfAuthors } from "@/db/schema";
 import { repoGetSnapshotHistory } from "@/modules/index/repository";
@@ -28,6 +29,27 @@ import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 function pingReportIndexNow(slug: string | null | undefined): void {
   if (!slug) return;
   void submitToIndexNow([`/analiz/${slug}`]).catch(() => {});
+}
+
+/**
+ * Kapak gorselini goruntu iyilestiricide ONDEN isitir.
+ *
+ * Analiz sayfasinin en buyuk oge (LCP) beklemesi buradan geliyordu: kapak
+ * /og/analiz/<slug> yolundaki 680 KB'lik PNG'den uretiliyor ve onbellek sogukken
+ * ilk okuyucu ~2 sn bekliyordu. Yayin aninda sayfanin kullandigi genislikler
+ * cagrilirsa ilk ziyaretci sicak onbellege duser.
+ */
+function warmReportCover(slug: string | null | undefined): void {
+  if (!slug) return;
+  const base = (env.FRONTEND_INTERNAL_URL || env.FRONTEND_URL || "").replace(/\/$/, "");
+  if (!base) return;
+  const source = encodeURIComponent(`/og/analiz/${slug}`);
+  for (const width of [640, 750, 828, 1080, 1200]) {
+    void fetch(`${base}/_next/image?url=${source}&w=${width}&q=75`, {
+      headers: { accept: "image/webp,image/*" },
+      signal: AbortSignal.timeout(20_000),
+    }).catch(() => {});
+  }
 }
 
 // Zamanı gelen (publish_at <= NOW) taslakları yayınlar + IndexNow ping'ler.
@@ -286,6 +308,7 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
     const row = await setReportStatus(req.params.id, "published", getAuthUserId(req));
     if (!row) return reply.status(404).send({ error: "Rapor bulunamadi" });
     pingReportIndexNow(row.slug);
+    warmReportCover(row.slug);
     return reply.send({ data: reportRowToAdmin(row) });
   });
 
