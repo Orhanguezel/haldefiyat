@@ -8,10 +8,37 @@ const PRODUCT_NAME_SPELLING_FIXES: ReadonlyArray<{ pattern: RegExp; replacement:
   { pattern: /\bhındıstan\b/giu, replacement: "Hindistan" },
 ];
 
+/**
+ * Bazi kaynaklar ad hucresini iki kez basiyor: "YENİ DÜNYA(MALTA ERİĞİ) YENİ DÜNYA
+ * (MALTA ERİĞİ)". Tekrar temizlenmezse ad eslesmesi tutmaz ve katalogda mevcut
+ * urunun kopyasi acilir (2026-09-06'da uc urunde gorulmustu).
+ */
+function collapseRepeatedName(value: string): string {
+  const isSignificant = (ch: string) => /[\p{L}\p{N}]/u.test(ch);
+  const letters = [...value].filter(isSignificant).map((ch) => ch.toLocaleLowerCase("tr-TR"));
+  const half = letters.length / 2;
+  if (!Number.isInteger(half) || half < 3) return value;
+  for (let i = 0; i < half; i += 1) {
+    if (letters[i] !== letters[i + half]) return value;
+  }
+  // Ilk yarinin bittigi noktayi ORIJINAL metinde bul (noktalama/bosluk sayilmaz).
+  let seen = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    if (isSignificant(value[index]!)) seen += 1;
+    if (seen === half) {
+      // Yarim noktasindan sonraki kapatma isaretleri ilk yariya aittir: ")" disarida kalmasin.
+      let end = index + 1;
+      while (end < value.length && !isSignificant(value[end]!) && !/\s/.test(value[end]!)) end += 1;
+      return value.slice(0, end).trim();
+    }
+  }
+  return value;
+}
+
 export function normalizeRawProductName(rawName: string): string {
   return PRODUCT_NAME_SPELLING_FIXES.reduce(
     (value, rule) => value.replace(rule.pattern, rule.replacement),
-    rawName.replace(/\s+/g, " ").trim(),
+    collapseRepeatedName(rawName.replace(/\s+/g, " ").trim()),
   );
 }
 

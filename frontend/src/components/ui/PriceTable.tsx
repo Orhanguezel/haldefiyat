@@ -78,6 +78,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   bakliyat: "Bakliyat",
   hububat: "Hububat",
   "yagli-tohum": "Yağlı Tohum",
+  "sert-kabuklu": "Sert Kabuklu",
   "sanayi-bitkisi": "Sanayi Bitkisi",
   diger: "Diğer",
 };

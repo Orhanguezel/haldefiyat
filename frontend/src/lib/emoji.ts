@@ -123,6 +123,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
   bakliyat: "🫘",
   "bakliyat-kuru": "🫘",
   "yagli-tohum": "🌻",
+  "sert-kabuklu": "🌰",
   "sanayi-bitkisi": "🌱",
   "canli-hayvan": "🐄",
   et: "🥩",
