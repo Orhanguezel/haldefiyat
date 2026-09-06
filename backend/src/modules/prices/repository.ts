@@ -440,6 +440,9 @@ export async function listPriceRows(params: {
         fetchedAt:    hfPriceHistory.createdAt,
         productSlug:  hfProducts.slug,
         productName:  sql<string>`COALESCE(NULLIF(${hfProducts.displayName}, ''), ${hfProducts.nameTr})`,
+        // Ham ad: niteleyiciyi koruyan gorunen ad kurali istemcide uygulanir. Yoksa
+        // aile toplandiginda "Domates (1.sınıf)" ile "DOMATES II" ayni satir gibi gorunuyor.
+        productNameTr: hfProducts.nameTr,
         canonicalProduct: sql<string | null>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
         categorySlug: hfProducts.categorySlug,
         imageUrl:     hfProducts.imageUrl,
@@ -479,6 +482,7 @@ export async function listPriceRows(params: {
       fetchedAt:    hfPriceHistory.createdAt,
       productSlug:  hfProducts.slug,
       productName:  sql<string>`COALESCE(NULLIF(${hfProducts.displayName}, ''), ${hfProducts.nameTr})`,
+      productNameTr: hfProducts.nameTr,
       canonicalProduct: sql<string | null>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
       categorySlug: hfProducts.categorySlug,
       imageUrl:     hfProducts.imageUrl,
@@ -605,6 +609,7 @@ const priceColumns = {
   fetchedAt:    hfPriceHistory.createdAt,
   productSlug:  hfProducts.slug,
   productName:  sql<string>`COALESCE(NULLIF(${hfProducts.displayName}, ''), ${hfProducts.nameTr})`,
+  productNameTr: hfProducts.nameTr,
   canonicalProduct: sql<string | null>`COALESCE(${hfProducts.canonicalSlug}, ${hfProducts.slug})`,
   categorySlug: hfProducts.categorySlug,
   marketSlug:   hfMarkets.slug,

@@ -43,6 +43,8 @@ export interface PriceRow {
   varietySlug?: string;
   productSlug: string;
   productName: string;
+  /** Ham ETL adi; gorunen ad kurali (niteleyiciyi koru) istemcide uygulanir. */
+  productNameTr?: string;
   categorySlug: string;
   imageUrl?: string | null;
   marketSlug: string;

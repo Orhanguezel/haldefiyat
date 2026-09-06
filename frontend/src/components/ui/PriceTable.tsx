@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useDeferredValue } from "react";
+import { getProductDisplayName } from "@/lib/product-display-name";
 import ProductImage from "@/components/ui/ProductImage";
 import Link from "next/link";
 import { productHref } from "@/lib/product-links";
@@ -217,11 +218,6 @@ export default function PriceTable({
   const serverPagination = Boolean(initialPricePage);
   const extendedFilters = syncUrl || showExport;
   const isBorsaTable = requestParams?.marketType === "borsa";
-  const visibleColumnCount =
-    8 -
-    Number(hideProductColumn) -
-    Number(hideMarketColumn) -
-    Number(hideCityColumn);
   const initialSort = requestParams?.sort ?? "avg-desc";
   const defaultSort: SortKey = syncUrl ? "date-desc" : initialSort;
   const defaultRange = syncUrl ? "30d" : (requestParams?.range || "7d");
@@ -229,6 +225,21 @@ export default function PriceTable({
     initialPricePage?.items ?? (Array.isArray(initialPrices) ? initialPrices : []),
   );
   const [meta, setMeta] = useState<PriceListMeta | null>(initialMeta ?? null);
+  // Urun sayfasi aileyi toplar: ayni hal ayni gun birden fazla cesit yayinlayabilir
+  // (Kayseri'de "Domates" 31, "Domates Organik Siyah" 90, "Domates Yerli" 17,50).
+  // Urun sutunu gizliyken bu satirlar ayirt edilemiyordu; birden fazla cesit varsa
+  // sutun "Cesit" basligiyla geri gelir.
+  const multiVariant = useMemo(
+    () => new Set(prices.map((row) => row.productSlug)).size > 1,
+    [prices],
+  );
+  const hideProduct = hideProductColumn && !multiVariant;
+  const visibleColumnCount =
+    8 -
+    Number(hideProduct) -
+    Number(hideMarketColumn) -
+    Number(hideCityColumn);
+
   const [page, setPage] = useState<number>(initialMeta?.page ?? 1);
   const [pageSize, setPageSize] = useState<number>(initialMeta?.limit ?? 100);
   const [loading, setLoading] = useState(false);
@@ -749,7 +760,7 @@ export default function PriceTable({
                   row={row}
                   isBorsaTable={isBorsaTable}
                   yearAgoAvg={yoyByMarket?.[row.marketSlug]}
-                  hideProduct={hideProductColumn}
+                  hideProduct={hideProduct}
                   hideMarket={hideMarketColumn}
                   hideCity={hideCityColumn}
                 />
@@ -761,9 +772,9 @@ export default function PriceTable({
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-(--color-border) text-left">
-              {!hideProductColumn && (
+              {!hideProduct && (
                 <th className="px-4 py-3 font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.1em] text-(--color-muted)">
-                  Ürün
+                  {hideProductColumn ? "Çeşit" : "Ürün"}
                 </th>
               )}
               {!hideMarketColumn && (
@@ -824,7 +835,7 @@ export default function PriceTable({
                     key={row.id}
                     className="border-b border-(--color-border)/50 transition-colors last:border-b-0 hover:bg-(--color-bg-alt)"
                   >
-                    {!hideProductColumn && (
+                    {!hideProduct && (
                       <td className="px-4 py-3.5">
                         <Link
                           href={productHref(row)}
@@ -848,7 +859,7 @@ export default function PriceTable({
                             title={humanizeSlug(categoryKey)}
                             className={`h-1.5 w-1.5 shrink-0 rounded-full ${dotClass}`}
                           />
-                          <span className="truncate">{row.productName}</span>
+                          <span className="truncate">{getProductDisplayName({ displayName: row.productName, nameTr: row.productNameTr ?? row.productName })}</span>
                         </Link>
                       </td>
                     )}
@@ -1016,7 +1027,7 @@ function MobilePriceCard({
         <div className="min-w-0 flex-1">
           {!hideProduct ? (
             <Link href={productHref(row)} className="block truncate text-sm font-bold text-(--color-foreground) hover:text-(--color-brand)">
-              {row.productName}
+              {getProductDisplayName({ displayName: row.productName, nameTr: row.productNameTr ?? row.productName })}
             </Link>
           ) : null}
           {!hideMarket ? (
