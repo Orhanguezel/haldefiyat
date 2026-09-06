@@ -46,8 +46,9 @@ export default async function BannerPreviewPage({ params, searchParams }: Props)
 
   return (
     <div className="p-3" style={{ maxWidth: mobile ? 390 : 1100, margin: "0 auto" }}>
-      {/* Cihaz sınıfları (hidden md:block) önizlemede reklamı gizlemesin: sarmalayıcı zorlar. */}
-      <div className={mobile ? "[&_.hidden]:!block [&_.md\\:hidden]:!block" : ""}>
+      {/* Önizlemede tıklama sayaca yazılmasın: bağlantılar devre dışı, görüntü aynı.
+          Cihaz sınıfları (hidden md:block) reklamı gizlemesin diye de sarmalayıcı zorlar. */}
+      <div className={`pointer-events-none select-none ${mobile ? "[&_.hidden]:!block [&_.md\\:hidden]:!block" : ""}`}>
         <BannerCreative banner={banner} sidebar={sidebar || mobile ? sidebar : false} />
       </div>
     </div>

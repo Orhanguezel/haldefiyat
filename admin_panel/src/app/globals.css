@@ -258,6 +258,48 @@ html {
 .report-prose h3 { font-size: 1.1rem; font-weight: 600; margin: 1.4rem 0 0.5rem; color: var(--foreground); }
 .report-prose p { margin: 0 0 1rem; }
 .report-prose strong { font-weight: 700; color: var(--foreground); }
+
+@media print {
+  @page { size: A4 landscape; margin: 10mm; }
+
+  body.banner-report-printing {
+    background: #fff !important;
+  }
+
+  body.banner-report-printing * {
+    visibility: hidden !important;
+  }
+
+  body.banner-report-printing .banner-report-print-root,
+  body.banner-report-printing .banner-report-print-root * {
+    visibility: visible !important;
+  }
+
+  body.banner-report-printing .banner-report-print-root {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    color: #111827 !important;
+    padding: 0 !important;
+  }
+
+  body.banner-report-printing .banner-report-print-root table {
+    min-width: 0 !important;
+    font-size: 9px !important;
+  }
+
+  body.banner-report-printing .banner-report-print-root tr {
+    break-inside: avoid;
+  }
+
+  body.banner-report-printing .banner-report-no-print {
+    display: none !important;
+  }
+}
 .report-prose a { color: var(--primary); text-decoration: underline; }
 .report-prose ul, .report-prose ol { margin: 0 0 1rem; padding-left: 1.5rem; }
 .report-prose ul { list-style: disc; } .report-prose ol { list-style: decimal; }

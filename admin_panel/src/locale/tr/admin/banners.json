@@ -10,6 +10,7 @@
     "campaigns": "Kampanyalar",
     "alerts": "Müdahale",
     "revenue": "Gelir & performans",
+    "reports": "Raporlar",
     "calendar": "Takvim",
     "slots": "Slotlar",
     "waitlist": "Bekleme listesi",
@@ -196,6 +197,55 @@
     "bySlot": "Slot bazında gelir",
     "breakdown": "Cihaz / il / kategori kırılımı",
     "noData": "Veri yok."
+  },
+  "reports": {
+    "title": "Reklam Performans Raporu",
+    "controlsTitle": "Rapor dönemi ve çıktı",
+    "controlsHint": "Aylık veya özel tarih aralıklı raporu inceleyin, yazdırın ya da CSV olarak dışa aktarın.",
+    "period": "Hazır dönem",
+    "from": "Başlangıç",
+    "to": "Bitiş",
+    "presets": {
+      "currentMonth": "Bu ay",
+      "previousMonth": "Geçen ay",
+      "last30Days": "Son 30 gün",
+      "custom": "Özel tarih aralığı"
+    },
+    "print": "Yazdır / PDF",
+    "csv": "CSV indir",
+    "invalidRange": "Başlangıç tarihi bitiş tarihinden sonra olamaz.",
+    "loadFailed": "Rapor verileri alınamadı. Bağlantıyı kontrol edip yeniden deneyin.",
+    "loading": "Rapor hazırlanıyor…",
+    "generatedAt": "Oluşturulma zamanı",
+    "noComparison": "önceki dönem verisi yok",
+    "vsPrevious": "önceki döneme göre",
+    "summaryTitle": "Yönetici özeti",
+    "summary": "{campaigns} kampanya, {impressions} gösterim ve {clicks} tıklama üretti. Toplam CTR {ctr}.",
+    "leader": "En çok gösterim alan kampanya “{title}” oldu ({impressions}).",
+    "contractNote": "Finansal tutarlar, seçili döneme denk gelen kampanyaların toplam sözleşme bedelidir; aya göre bölüştürülmüş tahakkuk değildir.",
+    "campaignBreakdown": "Kampanya kırılımı",
+    "deviceBreakdown": "Cihaz kırılımı",
+    "slotBreakdown": "Slot kırılımı",
+    "rowCount": "{count} kampanya",
+    "noAdvertiser": "Reklam veren belirtilmedi",
+    "shortImpressions": "gösterim",
+    "empty": "Seçili dönemde raporlanacak reklam verisi yok.",
+    "footer": "Kaynak: HaldeFiyat reklam gösterim, tıklama, dönüşüm ve tahsilat kayıtları.",
+    "previousPeriod": "Karşılaştırma dönemi: {from} – {to}",
+    "uniqueClickNote": "Seçili dönemde {count} tekil tıklama kaydedildi.",
+    "metrics": {
+      "campaigns": "Kampanya",
+      "impressions": "Gösterim",
+      "uniqueImpressions": "Tekil gösterim",
+      "clicks": "Tıklama",
+      "conversions": "Dönüşüm",
+      "contractValue": "Kampanya bedeli",
+      "collected": "Tahsilat"
+    },
+    "columns": {
+      "campaign": "Kampanya / reklam veren",
+      "slot": "Slot"
+    }
   },
   "slots": {
     "open": "Satışa açık",

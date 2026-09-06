@@ -16,6 +16,7 @@ import { CampaignSheet } from './_components/campaign-sheet';
 import { CampaignsTable } from './_components/campaigns-table';
 import { PackagesPanel } from './_components/packages-panel';
 import { RevenuePanel } from './_components/revenue-panel';
+import { ReportsPanel } from './_components/reports-panel';
 import { SlotsPanel } from './_components/slots-panel';
 import { WaitlistPanel } from './_components/waitlist-panel';
 import { ALL, applyFilters, EMPTY_FILTERS, type Filters, LIFECYCLES, money, SORT_KEYS, type SortKey, SOURCE_TYPES, summarize } from './_lib/banner-meta';
@@ -67,6 +68,7 @@ export default function Page() {
           <TabsTrigger value="campaigns">{t('tabs.campaigns')}</TabsTrigger>
           <TabsTrigger value="alerts">{t('tabs.alerts')}{attention ? <span className="ml-1 rounded-full bg-rose-500 px-1.5 text-[10px] text-white">{attention}</span> : null}</TabsTrigger>
           <TabsTrigger value="revenue">{t('tabs.revenue')}</TabsTrigger>
+          <TabsTrigger value="reports">{t('tabs.reports')}</TabsTrigger>
           <TabsTrigger value="calendar">{t('tabs.calendar')}</TabsTrigger>
           <TabsTrigger value="slots">{t('tabs.slots')}</TabsTrigger>
           <TabsTrigger value="waitlist">{t('tabs.waitlist')}</TabsTrigger>
@@ -105,6 +107,7 @@ export default function Page() {
         </TabsContent>
         <TabsContent value="alerts" className="mt-4"><AlertsPanel banners={banners} t={t} tc={tc} /></TabsContent>
         <TabsContent value="revenue" className="mt-4"><RevenuePanel banners={banners} slots={slots} t={t} /></TabsContent>
+        <TabsContent value="reports" className="mt-4"><ReportsPanel slots={slots} t={t} /></TabsContent>
         <TabsContent value="calendar" className="mt-4"><CalendarPanel slots={slots} t={t} tc={tc} /></TabsContent>
         <TabsContent value="slots" className="mt-4"><SlotsPanel slots={slots} availability={availability?.items ?? []} t={t} /></TabsContent>
         <TabsContent value="waitlist" className="mt-4"><WaitlistPanel slots={slots} t={t} tc={tc} /></TabsContent>
