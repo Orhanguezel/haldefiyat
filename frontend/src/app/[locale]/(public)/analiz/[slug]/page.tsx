@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
@@ -46,6 +47,16 @@ function coverImageUrl(makale: { ogImage?: string | null }, slug: string): strin
   const raw = makale.ogImage?.trim();
   const custom = raw && !/og-default/.test(raw) ? raw : null;
   return custom ? absoluteUrl(custom) : `${SITE_URL}/og/analiz/${slug}`;
+}
+
+/**
+ * Sayfa icindeki kapak icin goreceli yol — next/image optimize edip webp'e cevirir.
+ * Meta etiketleri mutlak PNG adresini kullanmaya devam eder (sosyal platformlar icin).
+ */
+function coverImagePath(makale: { ogImage?: string | null }, slug: string): string {
+  const raw = makale.ogImage?.trim();
+  const custom = raw && !/og-default/.test(raw) ? raw : null;
+  return custom ?? `/og/analiz/${slug}`;
 }
 
 function articleImages(makale: { ogImage?: string | null }, slug: string): string[] {
@@ -295,12 +306,13 @@ export default async function AnalizMakalePage({ params }: Props) {
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
         <article className="min-w-0 rounded-[20px] border border-(--color-border) bg-(--color-surface) p-6 sm:p-8 lg:p-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={cover}
+          <Image
+            src={coverImagePath(makale, makale.slug)}
             alt={coverAlt}
             width={1200}
             height={630}
+            priority
+            sizes="(max-width: 1024px) 100vw, 760px"
             className="mb-7 aspect-[1200/630] w-full rounded-[16px] border border-(--color-border-soft) object-cover"
           />
           <div className="mb-5 flex flex-wrap gap-2">
