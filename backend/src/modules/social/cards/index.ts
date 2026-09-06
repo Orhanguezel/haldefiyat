@@ -5,11 +5,11 @@
  * metin sablonludur, LLM yoktur — onceki AI metinleri "Limon Konya'da %60 dustu"
  * gibi tek hal kaydini ulusal gercek gibi sunuyordu.
  */
-import { renderBasketCard, renderMoversCard, uploadCard, type CardSize } from "./render";
-import { selectBasket, selectMovers, type BasketRow, type MoverRow } from "./select";
+import { renderBasketCard, renderCityCard, renderMoversCard, uploadCard, type CardSize } from "./render";
+import { selectBasket, selectCityCompare, selectMovers, type BasketRow, type CityCompare, type MoverRow } from "./select";
 
-export type CardSeries = "k1" | "k2";
-export const CARD_SERIES: CardSeries[] = ["k1", "k2"];
+export type CardSeries = "k1" | "k2" | "k3";
+export const CARD_SERIES: CardSeries[] = ["k1", "k2", "k3"];
 
 export interface CardPayload {
   series: CardSeries; size: CardSize; imageUrl: string | null;
@@ -61,6 +61,23 @@ function basketCaption(items: BasketRow[], date: string): string {
   ].join("\n");
 }
 
+
+function cityCaption(data: CityCompare): string {
+  const cheapest = data.rows[0];
+  const priciest = data.rows[data.rows.length - 1];
+  const head = cheapest && priciest && cheapest.cityName !== priciest.cityName
+    ? `${data.productName} ${cheapest.cityName}'de ₺${fmtPrice(cheapest.price)}, ${priciest.cityName}'de ₺${fmtPrice(priciest.price)}.`
+    : `${data.productName} şehir şehir hal fiyatları.`;
+  return [
+    head,
+    `Kendi şehrini karşılaştır → ${SITE}/fiyatlar`,
+    "",
+    ...data.rows.map((row) => `${row.cityName}: ₺${fmtPrice(row.price)}/kg${row.diffPct == null ? "" : ` (${row.diffPct > 0 ? "+" : ""}%${fmtPct(row.diffPct)})`}`),
+    "",
+    `Ülke medyanı ₺${fmtPrice(data.national)}/kg · ${dateLabel(data.date)}`,
+  ].join("\n");
+}
+
 export async function buildCard(series: CardSeries, size: CardSize): Promise<CardPayload | null> {
   if (series === "k1") {
     const { risers, fallers, date } = await selectMovers(5);
@@ -73,6 +90,18 @@ export async function buildCard(series: CardSeries, size: CardSize): Promise<Car
       contentKey: `k1:${date}`, recordedDate: date, itemCount: risers.length + fallers.length,
     };
   }
+  if (series === "k3") {
+    const data = await selectCityCompare(8);
+    if (!data) return null;
+    const png = await renderCityCard(data, size, dateLabel(data.date));
+    const imageUrl = await uploadCard(png, `k3-${data.productSlug}-${data.date}-${size}`);
+    return {
+      series, size, imageUrl, caption: cityCaption(data),
+      hashtags: `${HASHTAGS} #ŞehirŞehirHal`, link: `${SITE}/urun/${data.productSlug}`,
+      contentKey: `k3:${data.productSlug}:${data.date}`, recordedDate: data.date, itemCount: data.rows.length,
+    };
+  }
+
   const { items, date } = await selectBasket();
   if (!items.length) return null;
   const png = await renderBasketCard(items, size, dateLabel(date));
@@ -84,5 +113,5 @@ export async function buildCard(series: CardSeries, size: CardSize): Promise<Car
   };
 }
 
-export { selectBasket, selectMovers } from "./select";
+export { selectBasket, selectCityCompare, selectMovers } from "./select";
 export type { CardSize } from "./render";

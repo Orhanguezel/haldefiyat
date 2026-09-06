@@ -11,7 +11,7 @@
  */
 import sharp from "sharp";
 import { getCloudinaryConfig, uploadBufferAuto } from "@agro/shared-backend/modules/storage";
-import type { BasketRow, MoverRow } from "./select";
+import type { BasketRow, CityCompare, MoverRow } from "./select";
 
 const SITE_URL = "https://haldefiyat.com";
 export type CardSize = "tg" | "ig" | "wide";
@@ -182,6 +182,49 @@ export async function renderBasketCard(items: BasketRow[], size: CardSize, dateL
 
   const svg = frame(g, "Mutfak Sepeti", "haftalık değişim · TL/kg", dateLabel, cells,
     "Bugünün tüm hal fiyatları ve şehir karşılaştırması", "haldefiyat.com/fiyatlar");
+  return sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
+}
+
+
+/**
+ * K3 — sehir sehir hal: tek urun, sehirlere gore fiyat ve ulusal medyandan sapma.
+ * Satirlarda urun fotografi tekrar etmez; tek buyuk gorsel baslikta durur.
+ */
+export async function renderCityCard(data: CityCompare, size: CardSize, dateLabel: string): Promise<Buffer> {
+  const g = GEOMETRY[size];
+  const n = data.rows.length || 1;
+  const rowH = Math.min(g.maxRow, Math.floor((contentHeight(g) - 96 - (n - 1) * g.rowGap) / n));
+  const thumbs = await loadThumbs([{ productSlug: data.productSlug, imageUrl: data.imageUrl, canonicalSlug: null }], Math.round(rowH * 1.6));
+  const hero = thumbs[0];
+  const heroSize = Math.round(rowH * 1.6);
+
+  let y = contentTop(g) + 96;
+  const parts: string[] = [];
+
+  const headline = `${data.productName} · ₺${fmtPrice(data.national)}/kg`;
+  parts.push(`<text x="${g.pad + (hero ? heroSize + 24 : 0)}" y="${contentTop(g) + 34}" font-size="${g.nameSize + 6}" font-weight="800" fill="#172033">${escapeXml(clip(headline, 30))}</text>`);
+  parts.push(`<text x="${g.pad + (hero ? heroSize + 24 : 0)}" y="${contentTop(g) + 70}" font-size="${g.metaSize + 1}" fill="#64748b">Ülke medyanı · ${data.rows.length} şehir karşılaştırması</text>`);
+  if (hero) {
+    parts.push(`<defs><clipPath id="hero"><rect x="${g.pad}" y="${contentTop(g) - 26}" width="${heroSize}" height="${heroSize}" rx="24"/></clipPath></defs>`
+      + `<image href="${hero}" x="${g.pad}" y="${contentTop(g) - 26}" width="${heroSize}" height="${heroSize}" preserveAspectRatio="xMidYMid slice" clip-path="url(#hero)"/>`);
+    y = Math.max(y, contentTop(g) - 26 + heroSize + 20);
+  }
+
+  data.rows.forEach((row) => {
+    const dir = row.diffPct == null ? 0 : row.diffPct > 1 ? 1 : row.diffPct < -1 ? -1 : 0;
+    // Ucuz sehir yesil, pahali sehir kirmizi: okur "nerede ucuz" diye bakar.
+    const color = dir > 0 ? "#dc2626" : dir < 0 ? "#16a34a" : "#64748b";
+    const rightX = g.width - g.pad;
+    parts.push(`
+      <rect x="${g.pad - 12}" y="${y}" width="${g.width - (g.pad - 12) * 2}" height="${rowH}" rx="20" fill="#f8fafc" stroke="#e2e8f0"/>
+      <text x="${g.pad + 14}" y="${y + rowH * 0.62}" font-size="${g.nameSize}" font-weight="800" fill="#172033">${escapeXml(clip(row.cityName, 18))}</text>
+      <text x="${rightX - 150}" y="${y + rowH * 0.62}" text-anchor="end" font-size="${g.priceSize}" font-weight="800" fill="#0f172a">₺${escapeXml(fmtPrice(row.price))}</text>
+      <text x="${rightX}" y="${y + rowH * 0.62}" text-anchor="end" font-size="${g.metaSize + 2}" font-weight="800" fill="${color}">${row.diffPct == null ? "—" : `${row.diffPct > 0 ? "+" : ""}%${fmtPctTr(row.diffPct)}`}</text>`);
+    y += rowH + g.rowGap;
+  });
+
+  const svg = frame(g, "Şehir Şehir Hal", `${data.productName} · TL/kg`, dateLabel, parts.join("\n"),
+    "Kendi şehrinin hal fiyatını karşılaştır", "haldefiyat.com/fiyatlar");
   return sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
 }
 

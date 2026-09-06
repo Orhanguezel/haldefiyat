@@ -38,6 +38,15 @@ export interface MoverRow {
   latest: number; previous: number; changePct: number; marketsToday: number; recordedDate: string;
 }
 
+export interface CityCompareRow {
+  cityName: string; price: number; markets: number; diffPct: number | null;
+}
+
+export interface CityCompare {
+  productSlug: string; productName: string; imageUrl: string | null; unit: string;
+  national: number; rows: CityCompareRow[]; date: string;
+}
+
 export interface BasketRow {
   productSlug: string; productName: string; canonicalSlug: string | null; imageUrl: string | null;
   unit: string; price: number; weekChangePct: number | null; markets: number; recordedDate: string;
@@ -174,4 +183,75 @@ export async function selectBasket(): Promise<{ items: BasketRow[]; date: string
   }));
   const date = items.map((i) => i.recordedDate).sort().at(-1) ?? "";
   return { items, date };
+}
+
+
+/** K3 — sehir sehir hal: bir urunun ayni gunde sehirlere gore fiyati. */
+export async function selectCityCompare(maxCities = 8): Promise<CityCompare | null> {
+  const [picks] = await pool.query<Row[]>(
+    `WITH ${FAMILY},
+     obs AS (
+       SELECT f.master_id, mk.city_name, ph.recorded_date, AVG(ph.avg_price) AS price
+       FROM hf_price_history ph
+       JOIN fam f ON f.pid = ph.product_id AND ph.unit = f.unit
+       JOIN hf_markets mk ON mk.id = ph.market_id AND mk.is_active = 1 AND mk.market_type = 'hal' AND mk.city_name <> 'Türkiye'
+       WHERE ph.recorded_date >= CURDATE() - INTERVAL 3 DAY AND ph.unit = 'kg' AND ${NOT_QUARANTINED} AND ${NOT_BLACKOUT}
+       GROUP BY f.master_id, mk.city_name, ph.recorded_date
+     ),
+     last_day AS (SELECT master_id, MAX(recorded_date) AS d FROM obs GROUP BY master_id),
+     spread AS (
+       SELECT o.master_id, l.d AS recorded_date, COUNT(DISTINCT o.city_name) AS cities
+       FROM obs o JOIN last_day l ON l.master_id = o.master_id AND o.recorded_date = l.d
+       GROUP BY o.master_id, l.d
+     )
+     SELECT p.id AS product_id, p.slug AS product_slug, COALESCE(NULLIF(p.display_name, ''), p.name_tr) AS product_name,
+            p.image_url, p.unit, s.recorded_date, s.cities, COALESCE(p.search_volume, 0) AS search_volume
+     FROM spread s JOIN hf_products p ON p.id = s.master_id
+     WHERE p.seo_index = 1 AND s.cities >= ?
+     ORDER BY search_volume DESC, s.cities DESC
+     LIMIT 1`,
+    [Math.max(4, Math.min(maxCities, 6))],
+  );
+  const pick = (picks ?? [])[0];
+  if (!pick) return null;
+
+  const [rows] = await pool.query<Row[]>(
+    `WITH ${FAMILY}
+     SELECT mk.city_name, AVG(ph.avg_price) AS price, COUNT(DISTINCT ph.market_id) AS markets
+     FROM hf_price_history ph
+     JOIN fam f ON f.pid = ph.product_id AND ph.unit = f.unit
+     JOIN hf_markets mk ON mk.id = ph.market_id AND mk.is_active = 1 AND mk.market_type = 'hal' AND mk.city_name <> 'Türkiye'
+     WHERE f.master_id = ? AND ph.recorded_date = ? AND ph.unit = 'kg' AND ${NOT_QUARANTINED} AND ${NOT_BLACKOUT}
+     GROUP BY mk.city_name
+     ORDER BY price ASC`,
+    [Number(pick.product_id), iso(pick.recorded_date)],
+  );
+
+  const all = (rows ?? []).map((r) => ({
+    cityName: String(r.city_name), price: Number(r.price), markets: Number(r.markets),
+  })).filter((row) => Number.isFinite(row.price) && row.price > 0);
+  if (all.length < 4) return null;
+
+  // Ulusal deger: sehir ortalamalarinin MEDYANI — tek sehirdeki uc fiyat gostergeyi bozmasin.
+  const sorted = [...all].map((row) => row.price).sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  const national = sorted.length % 2 ? sorted[mid]! : (sorted[mid - 1]! + sorted[mid]!) / 2;
+
+  // En ucuz ve en pahali uclar korunur; ortadan doldurulur — kart "makasi" anlatir.
+  const picked = all.length <= maxCities
+    ? all
+    : [...all.slice(0, Math.ceil(maxCities / 2)), ...all.slice(-Math.floor(maxCities / 2))];
+
+  return {
+    productSlug: String(pick.product_slug),
+    productName: String(pick.product_name),
+    imageUrl: pick.image_url ? String(pick.image_url) : null,
+    unit: String(pick.unit),
+    national,
+    date: iso(pick.recorded_date),
+    rows: picked.map((row) => ({
+      ...row,
+      diffPct: national > 0 ? (row.price / national - 1) * 100 : null,
+    })),
+  };
 }
