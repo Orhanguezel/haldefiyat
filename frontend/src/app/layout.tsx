@@ -20,7 +20,9 @@ import "./globals.css";
 
 const outfit = localFont({
   src: "../../public/fonts/Outfit-800.ttf",
-  variable: "--font-display",
+  // Tailwind temasindaki --font-display bu degiskeni sarar; ikisi ayni ada sahip olunca
+  // tema degeri kazanip yuklenen yuzu ezerdi (dosya on-yuklenip hic kullanilmiyordu).
+  variable: "--font-outfit",
   display: "swap",
   weight: "800",
   preload: true,

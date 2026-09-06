@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 
 import { BannerCreative } from "@/components/ads/BannerSlot";
+import ReportHeight from "./report-height";
 import type { PublicBanner } from "@/lib/banners";
 
 /**
@@ -51,6 +52,7 @@ export default async function BannerPreviewPage({ params, searchParams }: Props)
       <div className={`pointer-events-none select-none ${mobile ? "[&_.hidden]:!block [&_.md\\:hidden]:!block" : ""}`}>
         <BannerCreative banner={banner} sidebar={sidebar || mobile ? sidebar : false} />
       </div>
+      <ReportHeight />
     </div>
   );
 }

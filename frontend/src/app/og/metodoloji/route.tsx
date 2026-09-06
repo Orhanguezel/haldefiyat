@@ -77,6 +77,11 @@ export async function GET(req: Request) {
     ),
     {
       ...size,
+      headers: {
+        // Kapak gorseli her istekte yeniden uretiliyordu (~680 KB, ~1 sn). Icerik
+        // slug'a bagli; tarayici ve ara katman onbellege alsin, arka planda tazelensin.
+        "cache-control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+      },
       fonts: font ? [{ name: "Outfit", data: font, weight: 800, style: "normal" }] : [],
     },
   );

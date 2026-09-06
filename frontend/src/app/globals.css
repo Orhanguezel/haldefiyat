@@ -172,7 +172,7 @@
   --color-brand-fg:    var(--brand-fg);
 
   /* Font stacks */
-  --font-display: "Outfit", system-ui, sans-serif;
+  --font-display: var(--font-outfit, "Outfit"), system-ui, sans-serif;
   --font-sans:    "IBM Plex Sans Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono:    "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 

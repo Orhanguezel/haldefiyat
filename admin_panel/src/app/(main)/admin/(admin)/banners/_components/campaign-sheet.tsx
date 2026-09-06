@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Copy, Edit, ExternalLink, Monitor, Smartphone, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -22,7 +22,22 @@ import { ctr, errorMessage, fmtCtr, LIFECYCLE_VARIANT, money, positionLabel, sho
  */
 function CreativePreview({ id, sidebar, t }: { id: number; sidebar: boolean; t: TranslateFn }) {
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop');
+  // Yukseklik icerikten gelir: sabit olcu yan sutun reklamlarini kesiyordu.
+  const [height, setHeight] = useState(280);
+  const frame = useRef<HTMLIFrameElement | null>(null);
   const src = `/reklam-onizleme/${id}?device=${device}${sidebar ? '&sidebar=1' : ''}`;
+
+  useEffect(() => {
+    function onMessage(event: MessageEvent) {
+      if (event.origin !== window.location.origin) return;
+      const data = event.data as { type?: string; height?: number } | null;
+      if (data?.type !== 'hf-ad-preview-height' || typeof data.height !== 'number') return;
+      if (event.source !== frame.current?.contentWindow) return;
+      setHeight(Math.min(900, Math.max(160, Math.ceil(data.height) + 8)));
+    }
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
@@ -42,11 +57,12 @@ function CreativePreview({ id, sidebar, t }: { id: number; sidebar: boolean; t: 
       </div>
       <div className="overflow-hidden rounded-lg border bg-muted/20">
         <iframe
+          ref={frame}
           key={`${id}-${device}`}
           src={src}
           title={t('sheet.preview')}
           className="block w-full"
-          style={{ height: device === 'mobile' ? 420 : 260, width: device === 'mobile' ? 400 : '100%', margin: device === 'mobile' ? '0 auto' : undefined }}
+          style={{ height, width: device === 'mobile' ? 400 : '100%', margin: device === 'mobile' ? '0 auto' : undefined }}
         />
       </div>
     </div>
