@@ -1870,11 +1870,19 @@ export async function upsertPriceRow(input: {
     maxPrice: input.maxPrice,
     method: input.avgPriceMethod,
   });
+  // Karartilmis (donmus kaynak) gunler emsal medyanina GIRMEZ: Demre'nin Temmuz'da
+  // donmus 6 TL salkim domatesi medyani asagi cekip diger hallerin gercek fiyatini
+  // karantinaya dusuruyordu (2026-09-06 teshisi).
+  const BLACKOUT_EXCLUDED = `NOT EXISTS (
+       SELECT 1 FROM hf_market_blackouts b
+       WHERE b.market_id = ph.market_id AND ph.recorded_date BETWEEN b.from_date AND b.to_date
+     )`;
   const [peerRows] = await pool.query(
     `SELECT ph.avg_price AS price
      FROM hf_price_history ph
      WHERE ph.product_id = ? AND ph.unit = ?
        AND ABS(DATEDIFF(ph.recorded_date, ?)) <= 45
+       AND ${BLACKOUT_EXCLUDED}
      ORDER BY ph.recorded_date DESC LIMIT 30`,
     [input.productId, unit, input.recordedDate],
   );
@@ -1887,9 +1895,10 @@ export async function upsertPriceRow(input: {
       [input.productId, input.marketId, unit, input.recordedDate],
     ),
     pool.query(
-      `SELECT avg_price AS price FROM hf_price_history
-       WHERE product_id=? AND market_id<>? AND unit=? AND ABS(DATEDIFF(recorded_date, ?)) <= 3
-       ORDER BY recorded_date DESC LIMIT 30`,
+      `SELECT ph.avg_price AS price FROM hf_price_history ph
+       WHERE ph.product_id=? AND ph.market_id<>? AND ph.unit=? AND ABS(DATEDIFF(ph.recorded_date, ?)) <= 3
+         AND ${BLACKOUT_EXCLUDED}
+       ORDER BY ph.recorded_date DESC LIMIT 30`,
       [input.productId, input.marketId, unit, input.recordedDate],
     ),
   ]);

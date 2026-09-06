@@ -466,7 +466,7 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "demre_batiakdeniz",
-    defaultEnabled:    true,
+    defaultEnabled:    false, // 2026-09-06: kaynak 24 Agustos listesini yayinlamaya devam ediyor (kardes ilcelerle ayni donma)
     defaultMarketSlug: "demre-hal",
     defaultBaseUrl:    "https://www.batiakdeniztv.com",
     defaultEndpoint:   "/demre-hal-fiyatlari",
