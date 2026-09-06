@@ -82,7 +82,7 @@ async function loadThumbs(items: Thumbable[], size: number): Promise<(string | n
   }));
 }
 
-function frame(g: Geometry, title: string, subtitle: string, dateLabel: string, body: string, footerTop: string, footerBottom: string): string {
+function frame(g: Geometry, title: string, subtitle: string, dateLabel: string, body: string, footerTop: string, footerBottom: string, sourceLabel = "Belediye halleri + HKS · Günlük güncellenir"): string {
   const inner = g.width - g.pad * 2;
   const footerH = g.footerH;
   const footerY = contentBottom(g) + 18;
@@ -99,7 +99,7 @@ function frame(g: Geometry, title: string, subtitle: string, dateLabel: string, 
     <text x="${g.width / 2}" y="${footerY + footerH * 0.38}" text-anchor="middle" font-size="${g.metaSize + 3}" font-weight="700" fill="#cfe9d9">${escapeXml(footerTop)}</text>
     <text x="${g.width / 2}" y="${footerY + footerH * 0.78}" text-anchor="middle" font-size="${Math.round(g.titleSize * 0.86)}" font-weight="900" fill="#ffffff">${escapeXml(footerBottom)}</text>
     <text x="${g.pad}" y="${g.height - 34}" font-size="${g.metaSize + 2}" font-weight="900" fill="#16834b">HaldeFiyat</text>
-    <text x="${g.width - g.pad}" y="${g.height - 34}" text-anchor="end" font-size="${g.metaSize - 2}" fill="#94a3b8">Belediye halleri + HKS · Günlük güncellenir</text>
+    <text x="${g.width - g.pad}" y="${g.height - 34}" text-anchor="end" font-size="${g.metaSize - 2}" fill="#94a3b8">${escapeXml(sourceLabel)}</text>
   </svg>`;
 }
 
@@ -270,7 +270,8 @@ export async function renderGapCard(items: GapRow[], size: CardSize, dateLabel: 
   });
 
   const svg = frame(g, "Halden Markete", `${items.length} ürün · TL/kg · Aynı kaynak günü`, dateLabel, rows.join("\n"),
-    "Seçili raf örnekleri · Fark kâr marjı değildir", "haldefiyat.com/fiyatlar");
+    "Seçili raf örnekleri · Fark kâr marjı değildir", "haldefiyat.com/fiyatlar",
+    "Belediye halleri · marketfiyati.org.tr / Migros");
   return sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
 }
 
