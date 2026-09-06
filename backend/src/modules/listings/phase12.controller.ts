@@ -1,6 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { getAuthUserId, handleRouteError, sendNotFound } from "@agro/shared-backend/modules/_shared";
 import { getListingBoard } from "./board";
+import { listWantedProducts } from "./wanted";
 import { sendOtp, verifyOtp } from "./otp";
 
 export async function sendListingOtp(req: FastifyRequest, reply: FastifyReply) {
@@ -34,5 +35,18 @@ export async function listingBoard(req: FastifyRequest, reply: FastifyReply) {
     return reply.send(board);
   } catch (err) {
     return handleRouteError(reply, req, err, "listing_board");
+  }
+}
+
+/** GET /listings/wanted — talebi olan ama satis ilani olmayan urunler. */
+export async function listWantedProductsRoute(req: FastifyRequest, reply: FastifyReply) {
+  try {
+    const q = (req.query ?? {}) as { limit?: string };
+    const limit = Number(q.limit ?? 8);
+    const items = await listWantedProducts(Number.isFinite(limit) ? limit : 8);
+    reply.header("Cache-Control", "public, max-age=1800, s-maxage=1800");
+    return reply.send({ items });
+  } catch (err) {
+    return handleRouteError(reply, req, err, "listings_wanted");
   }
 }

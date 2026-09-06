@@ -26,12 +26,13 @@ import {
 import { requireAuthOrApiScope } from "@/modules/api-keys/require-scope";
 import { featureCallback, featureCheckout } from "./checkout";
 import { getListingAnalytics } from "./analytics";
-import { listingBoard, sendListingOtp, verifyListingOtp } from "./phase12.controller";
+import { listingBoard, listWantedProductsRoute, sendListingOtp, verifyListingOtp } from "./phase12.controller";
 import { getFeaturedPricing, updateFeaturedPricing } from "./pricing";
 
 export async function registerListingsPublic(app: FastifyInstance) {
   app.get("/listings", listPublicListings);
   app.get("/listings/board", listingBoard);
+  app.get("/listings/wanted", listWantedProductsRoute);
   app.post("/listings/otp/send", {
     onRequest: [requireAuth],
     config: { rateLimit: { max: 10, timeWindow: "1 hour" } },
