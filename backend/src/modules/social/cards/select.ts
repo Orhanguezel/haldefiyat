@@ -360,7 +360,7 @@ export async function selectListings(limit = 6): Promise<{ items: ListingRow[]; 
             DATE(l.created_at) AS published_date
      FROM hf_listings l
      LEFT JOIN hf_products p ON p.id = l.product_id
-     WHERE l.status = 'approved' AND (l.expires_at IS NULL OR l.expires_at > NOW())
+     WHERE l.status = 'approved' AND (l.valid_until IS NULL OR l.valid_until >= CURDATE())
      ORDER BY l.created_at DESC, l.id DESC
      LIMIT ?`,
     [Math.max(3, Math.min(limit, 10))],
