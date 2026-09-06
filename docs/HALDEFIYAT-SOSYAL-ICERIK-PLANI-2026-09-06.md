@@ -62,7 +62,9 @@ Hepsi aynı şablon: üstte logo + seri adı + tarih, gövde, altta zümrüt ban
 - Hashtag seti sabit 4: #HalFiyatları #HaldeFiyat #SebzeMeyve #{ürün}.
 - Tekrar koruması **içerik anahtarıyla** (rapor slug + tarih), sourceRef'le değil.
 
-### 3.4 Mimari
+### 3.4 İlk mimari taslağı (tarihsel)
+
+Aşağıdaki tasarım notları canlı durum iddiası değildir. Güncel kart ucu public fiyat verisi döndürür; depolama ortak storage adaptörünü kullanır. Gerçek Tanitio/kanal akışı C1 envanterinde doğrulanacak.
 1. hal-fiyatlari: `modules/social/cards/` — mevcut `report-image.ts` genelleştirilir (boyut/oran parametreli, seri şablonları K1–K6), `GET /api/v1/social/cards/today?series=K1&size=ig` (imzalı, anonim değil) JSON: `{imageUrl, caption, hashtags, link, contentKey, recordedDate}`. Cron 08:45 TR üretir, storage `uploads/social-cards/` (Cloudinary değil; **deploy.sh yedeklemez, uploads git-ignore + `rsync --exclude` korunur** — 04.09 vakası hal tarafında yaşanmasın diye kontrol edilir).
 2. Tanitio `data-content.ts` haldefiyat dalı: mevcut şablonlar kapatılır; yeni `CardFeed` şablonu hal ucundan kartı çeker, `social_posts`'a **draft** yazar (onay modu ilk 2 hafta), `platform:'both'`, medya = hal URL'si (Tanitio'ya kopyalanmaz → 404 riski biter; `absoluteUrl` kuralı sağlanır).
 3. Telegram/WhatsApp yayıncıları aynı `cards` modülünden beslenir (kod tekrarı kalkar).

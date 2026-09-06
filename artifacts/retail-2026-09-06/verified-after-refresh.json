@@ -1,0 +1,266 @@
+{
+  "checkedAt": "2026-09-06T15:08:28.739Z",
+  "card": {
+    "items": [
+      {
+        "productSlug": "seftali",
+        "productName": "Şeftali",
+        "canonicalSlug": null,
+        "imageUrl": null,
+        "halPrice": 37.6666666667,
+        "retailPrice": 89.5,
+        "retailChain": "Migros",
+        "markets": 3,
+        "chains": 1,
+        "recordedDate": "2026-09-06",
+        "sourceUrl": "https://www.migros.com.tr/seftali-kg-p-1a0b7b0",
+        "productNameRaw": "Şeftali Kg",
+        "gapPct": 137.61061946881625
+      },
+      {
+        "productSlug": "incir-siyah",
+        "productName": "İncir Siyah",
+        "canonicalSlug": null,
+        "imageUrl": null,
+        "halPrice": 81.6666666667,
+        "retailPrice": 109.95,
+        "retailChain": "Migros",
+        "markets": 3,
+        "chains": 1,
+        "recordedDate": "2026-09-06",
+        "sourceUrl": "https://www.migros.com.tr/incir-siyah-kg-p-19ec3b9",
+        "productNameRaw": "İncir Siyah  Kg",
+        "gapPct": 34.632653061169535
+      },
+      {
+        "productSlug": "uzum-cekirdeksiz",
+        "productName": "Üzüm Çekirdeksiz",
+        "canonicalSlug": null,
+        "imageUrl": null,
+        "halPrice": 41.25,
+        "retailPrice": 59.95,
+        "retailChain": "Migros",
+        "markets": 4,
+        "chains": 1,
+        "recordedDate": "2026-09-06",
+        "sourceUrl": "https://www.migros.com.tr/uzum-cekirdeksiz-kg-p-1a10da0",
+        "productNameRaw": "Üzüm Çekirdeksiz Kg",
+        "gapPct": 45.333333333333336
+      }
+    ],
+    "date": "2026-09-06",
+    "retailDate": "2026-09-06"
+  },
+  "products": {
+    "domates": [
+      {
+        "productSlug": "domates",
+        "productUnit": "kg",
+        "chainSlug": "sok",
+        "price": "39.00",
+        "unit": "kg",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Domates 1 Kg",
+        "productUrl": "https://marketfiyati.org.tr/"
+      }
+    ],
+    "patates": [
+      {
+        "productSlug": "patates",
+        "productUnit": "kg",
+        "chainSlug": "a101",
+        "price": "29.90",
+        "unit": "kg",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Patates 1 Kg",
+        "productUrl": "https://marketfiyati.org.tr/"
+      },
+      {
+        "productSlug": "patates",
+        "productUnit": "kg",
+        "chainSlug": "bim",
+        "price": "29.50",
+        "unit": "kg",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Patates 1 Kg",
+        "productUrl": "https://marketfiyati.org.tr/"
+      },
+      {
+        "productSlug": "patates",
+        "productUnit": "kg",
+        "chainSlug": "sok",
+        "price": "29.90",
+        "unit": "kg",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Patates 1 Kg",
+        "productUrl": "https://marketfiyati.org.tr/"
+      },
+      {
+        "productSlug": "patates",
+        "productUnit": "kg",
+        "chainSlug": "tarim_kredi",
+        "price": "27.50",
+        "unit": "kg",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Patates 1 Kg",
+        "productUrl": "https://marketfiyati.org.tr/"
+      }
+    ],
+    "limon": [
+      {
+        "productSlug": "limon",
+        "productUnit": "kg",
+        "chainSlug": "a101",
+        "price": "65.90",
+        "unit": "kg",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Limon 1 Kg",
+        "productUrl": "https://marketfiyati.org.tr/"
+      },
+      {
+        "productSlug": "limon",
+        "productUnit": "kg",
+        "chainSlug": "bim",
+        "price": "65.00",
+        "unit": "kg",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Limon 1 Kg",
+        "productUrl": "https://marketfiyati.org.tr/"
+      },
+      {
+        "productSlug": "limon",
+        "productUnit": "kg",
+        "chainSlug": "migros",
+        "price": "70.95",
+        "unit": "kg",
+        "recordedDate": "2026-09-06",
+        "productNameRaw": "Limon Kg",
+        "productUrl": "https://www.migros.com.tr/limon-kg-p-19ff462"
+      },
+      {
+        "productSlug": "limon",
+        "productUnit": "kg",
+        "chainSlug": "sok",
+        "price": "79.00",
+        "unit": "kg",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Limon 1 Kg",
+        "productUrl": "https://marketfiyati.org.tr/"
+      },
+      {
+        "productSlug": "limon",
+        "productUnit": "kg",
+        "chainSlug": "tarim_kredi",
+        "price": "64.90",
+        "unit": "kg",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Limon 1 Kg",
+        "productUrl": "https://marketfiyati.org.tr/"
+      }
+    ],
+    "yogurt": [
+      {
+        "productSlug": "yogurt",
+        "productUnit": "kg",
+        "chainSlug": "a101",
+        "price": "51.80",
+        "unit": "kg",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Torku Homojenize Yoğurt 5 Kg",
+        "productUrl": "https://marketfiyati.org.tr/"
+      },
+      {
+        "productSlug": "yogurt",
+        "productUnit": "kg",
+        "chainSlug": "bim",
+        "price": "43.00",
+        "unit": "kg",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Dost %0.6 Az Yağlı Yoğurt 3 Kg",
+        "productUrl": "https://marketfiyati.org.tr/"
+      },
+      {
+        "productSlug": "yogurt",
+        "productUnit": "kg",
+        "chainSlug": "carrefour",
+        "price": "74.97",
+        "unit": "kg",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Yörüksüt Bidon Yoğurt 2 Kg",
+        "productUrl": "https://marketfiyati.org.tr/"
+      },
+      {
+        "productSlug": "yogurt",
+        "productUnit": "kg",
+        "chainSlug": "tarim_kredi",
+        "price": "79.90",
+        "unit": "kg",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Sütaş Kaymaksız Yoğurt 1 Kg",
+        "productUrl": "https://marketfiyati.org.tr/"
+      }
+    ],
+    "sut": [
+      {
+        "productSlug": "sut",
+        "productUnit": "litre",
+        "chainSlug": "a101",
+        "price": "55.00",
+        "unit": "litre",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Sek Yağlı Süt 1 Lt",
+        "productUrl": "https://marketfiyati.org.tr/"
+      },
+      {
+        "productSlug": "sut",
+        "productUnit": "litre",
+        "chainSlug": "bim",
+        "price": "32.50",
+        "unit": "litre",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Dost %0.5 Yağlı Süt 1 Lt",
+        "productUrl": "https://marketfiyati.org.tr/"
+      },
+      {
+        "productSlug": "sut",
+        "productUnit": "litre",
+        "chainSlug": "carrefour",
+        "price": "52.75",
+        "unit": "litre",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Carrefour Yağlı Süt 1 Lt",
+        "productUrl": "https://marketfiyati.org.tr/"
+      },
+      {
+        "productSlug": "sut",
+        "productUnit": "litre",
+        "chainSlug": "migros",
+        "price": "64.90",
+        "unit": "litre",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "İçim Light Süt 1 Lt",
+        "productUrl": "https://marketfiyati.org.tr/"
+      },
+      {
+        "productSlug": "sut",
+        "productUnit": "litre",
+        "chainSlug": "sok",
+        "price": "43.50",
+        "unit": "litre",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Mis Yarım Yağlı Uht Süt 1 Lt",
+        "productUrl": "https://marketfiyati.org.tr/"
+      },
+      {
+        "productSlug": "sut",
+        "productUnit": "litre",
+        "chainSlug": "tarim_kredi",
+        "price": "45.90",
+        "unit": "litre",
+        "recordedDate": "2026-09-05",
+        "productNameRaw": "Tarım Kredi Yağlı Süt %3.1 1 Lt",
+        "productUrl": "https://marketfiyati.org.tr/"
+      }
+    ]
+  }
+}

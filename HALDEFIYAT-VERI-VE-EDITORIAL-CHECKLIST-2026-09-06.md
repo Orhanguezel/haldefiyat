@@ -25,21 +25,23 @@ Kanıt: [DB sayımı](artifacts/retail-2026-09-06/baseline.json),
 | Kaynak çalışması | PM2 `hal-backend` online; 09:30 UTC cron, 09:32 bitiş, 833 arama çağrısı, 166 yazım, 6 atlama |
 
 Bu sayımlar çekim öncesi durumdur. `recorded_date` hatası nedeniyle geçmiş etiketler
-sağlayıcının gerçek gününü kanıtlamaz. Eksik güne sahte backfill yapılmaz.
+sağlayıcının gerçek gözlem/indexleme gününü kanıtlamaz. Eksik güne sahte backfill yapılmaz.
 
 ## 2. Faz A — Market verisi ve Halden Markete (öncelikli uygulama)
 
 - [x] A1 Canlı DB + sağlayıcı JSON + gerçek cron loguyla kaynağı doğrula.
-- [~] A2 Kaynak tarihini `indexTime` üzerinden doğrula; geçersiz, gelecekteki veya üç günden eski gözlemi dışla. Çekim gününü kaynak günü diye yazma.
-- [~] A3 `unitPrice` birimini doğrula; adet/paket fiyatını kg sanma; litre eşanlamlılarını birleştir. Koşullu kampanyayı dışla.
-- [~] A4 Ürün adının ön sözcüklerini kırparak genel ürüne zorla eşlemeyi kaldır. Bilinen çeşit/işlenmiş ürün ve süt/et varyant yanlışlarını engelle.
-- [~] A5 Bir zincir/gün için gerçek, en düşük doğrulanmış teklif sakla; ortalamaya ilk SKU adını takma. Kaynak URL'sini koru. Tarihsel ham satırları silme.
-- [~] A6 Ürün API'sinde her zincirin son doğrulanmış tek günlük fiyatını döndür. Atıfsız eski aggregate kayıtları ve karantina kayıtlarını public karşılaştırmadan dışla.
-- [~] A7 K4: aynı ürün kimliği, kg, TRY, aynı gün; en az üç hal ve kartta en az üç ürün. Bütün kart için tek ortak gün yoksa kart üretme.
-- [~] A8 Pozitif, sıfır ve negatif farkı kapsa; ürün sırası arama ilgisiyle, farkın yönünden bağımsız olsun. Yüzdenin işaretini görselde ve altyazıda koru.
-- [~] A9 Kaynak, birim, örneklem ve kâr marjı olmadığı açıklaması görsel/altyazı/API'de tutarlı olsun. Eski kartla karışmayı önlemek için K4 v2 içerik anahtarı kullan.
-- [ ] A10 Test, typecheck, build; tek normal deploy; yeni ETL ile doğrulanmış gözlemleri çek; public API ve K4 sonucunu canlı doğrula.
+- [x] A2 Kaynak tarihini `indexTime` üzerinden doğrula; geçersiz, gelecekteki veya üç günden eski gözlemi dışla. Çekim gününü kaynak günü diye yazma.
+- [x] A3 `unitPrice` birimini doğrula; adet/paket fiyatını kg sanma; litre eşanlamlılarını birleştir. Koşullu kampanyayı dışla.
+- [x] A4 Ürün adının ön sözcüklerini kırparak genel ürüne zorla eşlemeyi kaldır. Bilinen çeşit/işlenmiş ürün ve süt/et varyant yanlışlarını engelle.
+- [x] A5 Bir zincir/gün için gerçek, en düşük doğrulanmış teklif sakla; ortalamaya ilk SKU adını takma. Kaynak URL'sini koru. Tarihsel ham satırları silme.
+- [x] A6 Ürün API'sinde her zincirin son doğrulanmış tek günlük fiyatını döndür. Atıfsız eski aggregate kayıtları ve karantina kayıtlarını public karşılaştırmadan dışla.
+- [x] A7 K4: aynı ürün kimliği, kg, TRY, aynı gün; en az üç hal ve kartta en az üç ürün. Bütün kart için tek ortak gün yoksa kart üretme.
+- [x] A8 Pozitif, sıfır ve negatif farkı kapsa; ürün sırası arama ilgisiyle, farkın yönünden bağımsız olsun. Yüzdenin işaretini görselde ve altyazıda koru.
+- [x] A9 Kaynak, birim, örneklem ve kâr marjı olmadığı açıklaması görsel/altyazı/API'de tutarlı olsun. Eski kartla karışmayı önlemek için K4 v2 içerik anahtarı kullan.
+- [x] A10 Test, typecheck, build; tek normal deploy; yeni ETL ile doğrulanmış gözlemleri çek; public API ve K4 sonucunu canlı doğrula.
 - [ ] A11 Sonraki üç gerçek zamanlanmış çalışmayı ölç: sıfır veri ve kapsam düşüşü nedenleri, yazılan/doğrulanamayan gözlem, kaynak günleri. Geçmiş 1 Eylül boşluğunun nedeni ayrıca logdan araştırılacak.
+
+- [ ] A12 Süt yağ oranı, yoğurt türü/gramajı ve diğer çeşitlerin daha ayrıntılı sınıflandırması; doğrulanmamış eski perakende tarihçesinin kalite referansına etkisi. Yeni ham ürün adı görünür; geniş kategori tek kalite değildir.
 
 **A kabulü:** farklı gün ve birim eşleşmesi 0; doğrulanmayan kaynaktan yayın 0;
 negatif/sıfır fark testleri geçer; API çok günlük ortalama üretmez; yeterli ortak veri
@@ -47,12 +49,12 @@ yoksa K4 404 verir. Doğru kaynak tarihi nedeniyle görünür kapsam daralması 
 
 ## 3. Faz B — Editoryal doğruluk ve tek plan
 
-- [~] B1 Aylık raporun otomatik başlığını “kayıtlarda görünürlük” olarak düzelt. Kaynak kesintisinden sezon bitişi çıkarma.
+- [x] B1 Aylık raporun otomatik başlığını “kayıtlarda görünürlük” olarak düzelt. Kaynak kesintisinden sezon bitişi çıkarma.
 - [ ] B2 Gerçek sezon yorumu için ortak çalışan kaynak grubu, yayın günü kapsamı ve editör kontrolü ekle. Mevcut aylık taslağı onaydan önce yeniden gözden geçir.
-- [~] B3 K1–K5 adları, saat dilimi, üretim/yayın ayrımı ve aylık çıktı hesabını aylık ve sosyal planlarda tekleştir.
-- [~] B4 Ocak sonu–Şubat 2027 Ramazan hazırlığı; 8 Şubat başlangıç, 9 Mart bayram. Nisan kaydını düzelt.
-- [~] B5 “Rakiplerde hiç yok”, “videoyla büyüdü”, “yalnız video kaldı” gibi kanıtı aşan cümleleri kaldır.
-- [ ] B6 Yeni kartlar için “Verinin Kaynağı”, firma rehberi ve doğrulanmış kullanım örneği içerik briefləri hazırla. K1–K5'i yeniden kurma.
+- [x] B3 K1–K5 adları, saat dilimi, üretim/yayın ayrımı ve aylık çıktı hesabını aylık ve sosyal planlarda tekleştir.
+- [x] B4 Ocak sonu–Şubat 2027 Ramazan hazırlığı; 8 Şubat başlangıç, 9 Mart bayram. Nisan kaydını düzelt.
+- [x] B5 “Rakiplerde hiç yok”, “videoyla büyüdü”, “yalnız video kaldı” gibi kanıtı aşan cümleleri kaldır.
+- [ ] B6 Yeni kartlar için “Verinin Kaynağı”, firma rehberi ve doğrulanmış kullanım örneği içerik briefleri hazırla. K1–K5'i yeniden kurma.
 
 **B kabulü:** iki aktif planda seri adı/takvim çelişkisi yok; sezon iddiası insan
 doğrulaması gerektirir; mevcut URL'ler korunur. Kaynak:
@@ -84,4 +86,18 @@ Normal ETL üzerinden doğrulanmış yeniden çekim: `bun scripts/qa/retail-refr
 Test: `bun test test/retail-comparison-evidence.test.ts test/etl/retail-price-quality-guard.test.ts`.
 Deploy: commit + push → VPS `bash deploy.sh`; canlıda elle SQL/şema değişikliği yok.
 
-Kod/test/deploy kanıtları ve son açık işler bu dosyada güncellenecek.
+### Bu turda kapanan uygulama ve canlı kabul
+
+- Kod: `75dd7569`; görsel kaynak dipnotu: `6ed03fd8`.
+- İlk build denemesi servis geçişinden önce durduruldu; son commit tek servis geçişiyle normal `deploy.sh` üzerinden yayınlandı. Dağıtım penceresinde **5xx = 0**.
+- 49 test / 132 assertion; backend typecheck/build, frontend typecheck ve hedefli lint geçti (api.ts:332'de önceden var olan kullanılmayan ApiEnvelope uyarısı). VPS frontend/admin production build ve health kapıları geçti.
+- Üç boyutta görsel üretimi: IG 1080×1350, geniş 1200×675, TG 1200×1800; K4 IG kaynak/tarih/fiyat dipnotu görüntüden kontrol edildi.
+- Gerçek ETL yeniden çekimi: **149 doğrulanmış teklif, 143 yazım, 6 atlama**. Kaynak gözlem günü **5 Eylül**. **305 çağrıda 53 arama hatası** var: dış kaynak bütünüyle sağlıklı değildir, A11 açık kalır. Atlanan yazımların ayrıntılı neden kırılımı takipte doğrulanacak.
+- [Canlı yeniden çekim sonucu](artifacts/retail-2026-09-06/refresh-live.json), [DB seçim/API doğrulaması](artifacts/retail-2026-09-06/verified-after-refresh.json).
+- [Domates API](https://haldefiyat.com/api/v1/prices/retail/domates): **ŞOK 39 TL/kg, 5 Eylül**, ham ad `Domates 1 Kg`, kaynak marketfiyati.org.tr. Eski birkaç gün ortalaması yok. [Kaydedilen cevap](artifacts/retail-2026-09-06/public-domates.json).
+- [Domates sayfası](https://haldefiyat.com/urun/domates) aynı 39 TL/kg ve 5 Eylül tarihiyle HTTP 200. [HTTP/HTML kabulü](artifacts/retail-2026-09-06/http-check.json).
+- [K4 JSON](https://haldefiyat.com/api/v1/social/cards/today?series=k4&size=ig): `k4:v2:2026-09-06`, aynı gün üç ürün, ürün başına 3–4 hal. Bugünkü ortak kapsam yalnız Migros: bu durum altyazıda **1 zincir** diye açıkça yazıyor. 5 Eylül market örnekleri 6 Eylül hal fiyatına eklenmedi. [Kaydedilen cevap](artifacts/retail-2026-09-06/public-k4.json).
+- [Üretilmiş K4 görseli](https://haldefiyat.com/uploads/social-cards/k4-v2-2026-09-06-ig.png) HTTP 200. Sosyal hesaba yayın yapılmadı.
+- Takvim toplamı düzeltildi: 30 + 5 + 4 + 1 + 1 = **41 kart**. Önceki konuşmadaki 42 hesabı aritmetik hatasıydı.
+
+**Sıradaki adım:** A11/A12 kaynak sürekliliği ve sınıflandırma; B2 eski aylık taslak kontrolü; ardından C1/C2 yayın envanteri ve eski K4 taslaklarının yenilenmesi. Tarihli ölçümler ve insan/operasyon işleri kapanmış sayılmadı.

@@ -739,4 +739,4 @@
 
 - [~] S29 Market verisi ve K4 aynı gün/birim/eşleme güvenliği, API günlük fiyat düzeltmesi, plan takvimi ve ölçüm revizyonu.
   Yürütme ve kanıt: [HALDEFIYAT-VERI-VE-EDITORIAL-CHECKLIST-2026-09-06.md](HALDEFIYAT-VERI-VE-EDITORIAL-CHECKLIST-2026-09-06.md).
-  Önce Faz A/B sistem düzeltmesi; sonra C yayın/ölçüm ve D ilan/gelir pilotları. Eski 31 Ağustos bazları güncel kabul edilmez.
+  A2–A10 sistem düzeltmeleri ve B1/B3–B5 plan düzeltmeleri `75dd7569` + `6ed03fd8` ile canlı; 49 test, deploy 5xx=0, domates API 39 TL/kg / 5 Eylül doğrulandı. A11/A12 izlem/sınıflandırma, B2 taslak kontrolü ve C/D işleri açık. Eski 31 Ağustos bazları güncel kabul edilmez.

@@ -1,0 +1,156 @@
+{
+  "inserted": 143,
+  "skipped": 6,
+  "searchFailures": 53,
+  "unmatched": 115,
+  "unmatchedNames": [
+    "Santa Maria Armut 1 Kg",
+    "Deveci Armut 1 Kg",
+    "Armut Naşi 1 Kg",
+    "Kurutulmuş Dolmalık Biber 18 Adet",
+    "Kırmızı Biber Paket 300 Gr",
+    "Kapya Biber 1 Kg",
+    "Kırmızı Biber 1 Kg",
+    "Biber Jalapeno 1 Kg",
+    "Yeşil Biber 1 Kg",
+    "Top Biber 1 Kg",
+    "Kokteyl Domates 1 Kg",
+    "Rio Tarla Domates 1 Kg",
+    "Sivri Domates 1 Kg",
+    "Şeker Domates 250 Gr",
+    "Eko Domates 1 Kg",
+    "Erüst Salkım Çeri Domates 250 Gr",
+    "Kahvaltılık Domates 1 Kg",
+    "Tarla Domates 1 Kg",
+    "Atıştırmalık Domates 1 Kg",
+    "Kokteyl Domates 500 Gr",
+    "Turşuluk Domates 1 Kg",
+    "Tat Kurutulmuş Domates 200 Gr",
+    "Gurumen Domates Kurusu 290 Gr",
+    "Domates Kurusu 1 Kg",
+    "Deli Chef Kurutulmuş Domates 280 Gr",
+    "Kokteyl Domates 500 Gr",
+    "Kokteyl Domates 1 Kg",
+    "Golden Elma 1 Kg",
+    "Starking Elma 1 Kg",
+    "Mürdüm Erik 1 Kg"
+  ],
+  "errors": [
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR"
+  ],
+  "keywordCount": 216,
+  "apiCallCount": 305,
+  "throttled": false,
+  "sourceDates": [
+    "2026-09-05"
+  ],
+  "rejectedEvidence": 0,
+  "verifiedOffers": 149,
+  "sample": [
+    {
+      "productId": 10365,
+      "chain": "migros",
+      "price": 697.5,
+      "productNameRaw": "Uzman Kasap Dana Kıyma 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10365,
+      "chain": "a101",
+      "price": 697.5,
+      "productNameRaw": "Dana Kıyma 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10365,
+      "chain": "sok",
+      "price": 825,
+      "productNameRaw": "Lezzetlim Dana Kıyma 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10365,
+      "chain": "bim",
+      "price": 825,
+      "productNameRaw": "Emin %20 Yağlı Dana Kıyma 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10365,
+      "chain": "tarim_kredi",
+      "price": 600,
+      "productNameRaw": "Et Ve Süt Kurumu Kıyma 1 Kg",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10365,
+      "chain": "carrefour",
+      "price": 699.9,
+      "productNameRaw": "Dana Kıyma Map 1 Kg",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10366,
+      "chain": "bim",
+      "price": 737.5,
+      "productNameRaw": "Emin Dana Kuşbaşı Et 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10366,
+      "chain": "migros",
+      "price": 737.5,
+      "productNameRaw": "Uzman Kasap Dana Kuşbaşı 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10366,
+      "chain": "a101",
+      "price": 747.5,
+      "productNameRaw": "Dana Kuşbaşı 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10366,
+      "chain": "sok",
+      "price": 997.5,
+      "productNameRaw": "Lezzetlim Dana Kuşbaşı 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10366,
+      "chain": "carrefour",
+      "price": 899.8,
+      "productNameRaw": "Dana Kuşbaşı 500 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10367,
+      "chain": "bim",
+      "price": 189,
+      "productNameRaw": "Tazem Piliç Bütün Göğüs 1 Kg",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    }
+  ]
+}

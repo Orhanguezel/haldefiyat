@@ -97,9 +97,9 @@ Her ay bir rehber; verisi zaten hesaplanıyor (aylık raporun "Sezon Değişimi"
 
 | Ay | Rehber | Veri kancası |
 |---|---|---|
-| Eylül | Sonbahar geçişi: incir kapanıyor, nar/ayva/mandalina açılıyor | Sezona giren/çıkan ürünler |
+| Eylül | Sonbahar geçişinde incir, nar, ayva ve mandalina görünürlüğü | Sezona giren/çıkan ürünler |
 | Ekim | Turşu ve kış hazırlığı: lahana, turşuluk biber, sirke sezonu | Turşuluk domates/biber hareketi |
-| Kasım | Narenciye sezonu açılışı: limon, mandalina, portakal | Mersin/Adana limon serisi |
+| Kasım | Narenciye sezonu açılışı: limon, mandalina, portakal | Yerel veri varsa Mersin/Adana; ulusal seri yerel fiyat diye sunulmaz |
 | Aralık | Kış sebzeleri ve fiyat zirvesi: pırasa, kereviz, lahana | Endeks zirve/dip analizi |
 | Ocak 2027 | Yıllık karşılaştırma + ay sonunda Ramazan hazırlığı | Endeks ve aynı ürün sepeti |
 | Şubat 2027 | Ramazan sepeti — 8 Şubat başlangıç; sera ürünleri | Ortak ürün/kaynak grubu |

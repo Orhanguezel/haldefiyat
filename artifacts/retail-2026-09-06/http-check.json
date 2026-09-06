@@ -1,0 +1,18 @@
+{
+  "/api/health": {
+    "status": 200,
+    "bytes": 37,
+    "contentType": "application/json; charset=utf-8"
+  },
+  "/urun/domates": {
+    "status": 200,
+    "bytes": 803267,
+    "contentType": "text/html; charset=utf-8",
+    "retailText": "Hal vs Market Seçili raf fiyatları Her zincir için son 3 gün içindeki en yeni doğrulanmış günlük raf örneği gösterilir; farklı günlerin fiyatları ortalanmaz. Market örnekleri tüm şubeleri veya Türkiye genelini temsil etmez. Hal bazının günü, kalite ve ambalaj farklı olabilir. Perakende verisi destekleyicidir; HalDeFiyat Endeksi'ni veya hal ortalamasını sürmez. Kaynak çağrı limiti nedeniyle bazı zincir/ürünler bir gün eksik kalabilir. Hal bazının 13 / 16 kaydı min–maks orta noktasıdır; işlem hacmi ağırlıklı değildir. ŞOK +%8 ₺ 39,00 / kg Domates 1 Kg Veri tazeliği: 1 gün önce güncellendi • 5 Eylül • Kaynak: marketfiyati.org.tr Hal fiyatı toptan ortalamadır; perakende zincir fiyatına ulaşırken nakliye, soğuk zincir, fire, paket/gramaj ve marka maliyetleri eklenir. Fark ürün ve döneme göre geniş ölçüde değişebilir; bu oran kâr marjı veya fiyat tahmini değildir. Domates Hakkında Domates, Türkiye'nin en önemli sebze ürünlerinden biridir. Yıllık üretim 12-13 milyon ton civarında olup, dünya üretiminde dördüncü sırada yer almaktadır. Akdeniz iklimi ve Anadolu'nun uygun toprak koşulları, domatesin geniş çaplı yetiştirilmesini sağlamıştır. Türk mutfağında temel bir malzeme olarak, taze tüketimden endüstriyel işlemeye kadar geniş bir kullanım alanı vardır. Fiyatı etkileyen faktörler: Domates fiyatları mevsimsel arz dalgalanmalarına duyarlıdır. Kış aylarında sera üretiminin sınırlı olması fiyatları yükseltir. Hastalık baskısı, özellikle Phytophthora ve Alternaria, verim kaybına neden olarak fiyatları etkiler. Depolama kapasitesi ve ihracat talebindeki değişimler toptancı halı fiyatlarını belirler. Hava koşulları, çiçeklenme döneminde donla karşılaşılması arz kısıtlığı yaratır. Hasat"
+  },
+  "/uploads/social-cards/k4-v2-2026-09-06-ig.png": {
+    "status": 200,
+    "bytes": 221701,
+    "contentType": "image/png"
+  }
+}
