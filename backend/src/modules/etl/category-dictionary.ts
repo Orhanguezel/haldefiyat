@@ -15,7 +15,9 @@ const CATEGORY_ALIASES: ReadonlyArray<[RegExp, string]> = [
   [/^(bakliyat|kuru bakliyat)/, "bakliyat-kuru"],
 ];
 
-const FISH_NAMES = /\b(hamsi|istavrit|palamut|levrek|cipura|sardalya|uskumru|mezgit|barbun|kalkan|somon|alabalik|karides|kalamar|ahtapot|midye|istakoz)\b/;
+// 2026-09-06: "fener" ve "bakalyaro/berlam" listede olmadigi icin sebze-meyve
+// kategorisinde indexlenmislerdi. Balik adlari tek yerde tutulur.
+const FISH_NAMES = /\b(hamsi|istavrit|palamut|levrek|cipura|sardalya|uskumru|mezgit|barbun|kalkan|somon|alabalik|karides|kalamar|ahtapot|midye|istakoz|fener|bakalyaro|berlam|lidaki|lahoz|lagos|lufer|kolyoz|kefal|mercan|sarpa|zargana|tirsi|torik|izmarit|ispari|karagoz|kupez|minekop|mirlan|sudak|sazan|tekir|kilic|kotek|kolorit|sarikanat|pisi|yayin)\b/;
 const MEAT_NAMES = /\b(karkas|dana eti|kuzu eti|koyun eti|keci eti|bonfile|antrikot|pirzola)\b/;
 const LIVE_ANIMAL_NAMES = /\b(canli dana|canli kuzu|canli koyun|canli keci|tosun|duve)\b/;
 
