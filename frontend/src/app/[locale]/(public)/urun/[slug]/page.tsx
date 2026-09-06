@@ -152,10 +152,11 @@ async function fetchRetailPriceLine(slug: string, fallbackUnit: string): Promise
     const rows = await fetchRetailPrices(slug);
     const vals = rows.map((r) => toNumberSafe(r.price)).filter((n) => Number.isFinite(n) && n > 0);
     if (vals.length === 0) return "";
-    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
-    const avgTr = avg.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const format = (value: number) => value.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const low = Math.min(...vals), high = Math.max(...vals);
+    const range = low === high ? format(low) : `${format(low)}–${format(high)}`;
     const unit = rows.find((r) => r.unit)?.unit ?? fallbackUnit;
-    return `Market rafı ortalaması ${avgTr} TL/${unit} (${vals.length} zincir). `;
+    return `Seçili market rafı örnekleri ${range} TL/${unit} (${vals.length} zincir; kalite ve ambalaj farklı olabilir). `;
   } catch {
     return "";
   }

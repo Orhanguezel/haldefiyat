@@ -49,13 +49,14 @@ export default async function RetailComparison({
     <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5">
       <div className="mb-3 flex items-baseline justify-between gap-4">
         <h2 className="text-base font-semibold text-foreground">
-          {productName} — Hal vs Market
+          {productName} — {halAvgPrice > 0 ? "Hal ve Market" : "Seçili Market Fiyatları"}
         </h2>
         <span className="text-[11px] uppercase tracking-[0.1em] text-muted">
           Seçili raf fiyatları
         </span>
       </div>
 
+      {!(halAvgPrice > 0) ? <p className="mb-2 text-xs text-muted">Karşılaştırılabilir hal bazı yok; hal/market farkı hesaplanmıyor.</p> : null}
       <p className="mb-4 text-xs leading-relaxed text-muted">
         Her zincir için son 3 gün içindeki en yeni doğrulanmış günlük raf örneği gösterilir;
         farklı günlerin fiyatları ortalanmaz. Market örnekleri tüm şubeleri veya Türkiye genelini
@@ -79,9 +80,9 @@ export default async function RetailComparison({
             >
               <div className="flex items-baseline justify-between gap-3">
                 <span className="text-sm font-semibold text-foreground">{chain.label}</span>
-                <span className="font-(family-name:--font-mono) text-[11px] font-semibold text-(--color-brand)">
+                {markupPct != null ? <span className="font-(family-name:--font-mono) text-[11px] font-semibold text-(--color-brand)">
                   {markupPct > 0 ? `+%${markupPct}` : `%${markupPct}`}
-                </span>
+                </span> : null}
               </div>
               <div className="mt-1 font-(family-name:--font-mono) text-lg font-bold text-foreground">
                 ₺{formatTr(price)}/{row.unit}

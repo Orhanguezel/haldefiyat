@@ -20,8 +20,8 @@ describe("plausibleRetailPrices", () => {
     expect(plausibleRetailPrices([row("546.21")], 36.3)).toEqual([]);
   });
 
-  it("blocks invalid inputs or a missing wholesale baseline", () => {
+  it("blocks invalid quotes while retaining verified retail quotes without inventing a wholesale gap", () => {
     expect(plausibleRetailPrices([row("NaN"), row("0")], 40)).toEqual([]);
-    expect(plausibleRetailPrices([row("90")], 0)).toEqual([]);
+    expect(plausibleRetailPrices([row("90")], 0)).toEqual([expect.objectContaining({ numericPrice: 90, markupPct: null })]);
   });
 });

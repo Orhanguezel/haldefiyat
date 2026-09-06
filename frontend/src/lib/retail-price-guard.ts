@@ -4,7 +4,7 @@ export const MAX_RETAIL_MARKUP_PCT = 1_000;
 
 export type PlausibleRetailPrice = RetailPriceRow & {
   numericPrice: number;
-  markupPct: number;
+  markupPct: number | null;
 };
 
 /**
@@ -13,13 +13,13 @@ export type PlausibleRetailPrice = RetailPriceRow & {
  * anomalilerini yayınlamaz. Olağan raf marjı için dar ve yanıltıcı bir tavan varsaymaz.
  */
 export function plausibleRetailPrices(rows: RetailPriceRow[], halAvgPrice: number): PlausibleRetailPrice[] {
-  if (!Number.isFinite(halAvgPrice) || halAvgPrice <= 0) return [];
+  const hasWholesale = Number.isFinite(halAvgPrice) && halAvgPrice > 0;
 
   return rows.flatMap((row) => {
     const numericPrice = Number.parseFloat(row.price);
     if (!Number.isFinite(numericPrice) || numericPrice <= 0) return [];
-    const markupPct = Math.round(((numericPrice - halAvgPrice) / halAvgPrice) * 100);
-    if (markupPct > MAX_RETAIL_MARKUP_PCT) return [];
+    const markupPct = hasWholesale ? Math.round(((numericPrice - halAvgPrice) / halAvgPrice) * 100) : null;
+    if (markupPct != null && markupPct > MAX_RETAIL_MARKUP_PCT) return [];
     return [{ ...row, numericPrice, markupPct }];
   });
 }
