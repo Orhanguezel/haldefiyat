@@ -6,7 +6,7 @@
  * satirin aylik oldugu iso_week alanindaki "YYYY-Mmm" bicimiyle bellidir, sema
  * degismez.
  */
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfAnalysisReports, hfAuthors } from "@/db/schema";
 import { repoGetSnapshotHistory } from "@/modules/index/repository";
@@ -16,6 +16,9 @@ import {
   MONTH_LABELS, MONTH_SLUGS, indexStatusOf, trNum, trPct, trPctSigned, trPeriod, trPriceUnit,
   type IndexPoint,
 } from "./report-format";
+import { blackoutFilter } from "@/modules/prices/blackouts";
+import { classifyMonthlyVisibility, selectMonthlyCohort, MIN_COHORT_MARKETS } from "./monthly-cohort";
+import type { SourceCoverage, VisibilityItem } from "./monthly-cohort";
 import { esc, indexTable, moverTable } from "./report-html";
 
 /** Ay basi ilk 5 gun ile ay sonu son 5 gun kiyaslanir: 2 gunluk pencere aylik yorumda gurultu. */
@@ -68,38 +71,38 @@ function previousMonthOf(range: MonthRange): MonthRange {
   return resolveMonthRange(`${previous.getUTCFullYear()}-${String(previous.getUTCMonth() + 1).padStart(2, "0")}`);
 }
 
-/**
- * Sezon gecisi: bu ay kaydi olan ama gecen ay olmayan urunler (sezona giren) ve tersi.
- * Yorum degil olculen veri — "sezon basladi" cumlesi kaynaksiz kurulmaz.
- */
-async function seasonShift(range: MonthRange, previous: MonthRange, limit = 8) {
-  const rows = await db.execute(sql`
-    SELECT p.slug AS slug,
-           COALESCE(NULLIF(p.display_name, ''), p.name_tr) AS name,
-           COUNT(DISTINCT CASE WHEN ph.recorded_date BETWEEN ${range.monthStart} AND ${range.monthEnd}
-                THEN ph.recorded_date END) AS now_days,
-           COUNT(DISTINCT CASE WHEN ph.recorded_date BETWEEN ${previous.monthStart} AND ${previous.monthEnd}
-                THEN ph.recorded_date END) AS prev_days
-    FROM hf_price_history ph
-    JOIN hf_products p ON p.id = ph.product_id
-    WHERE ph.recorded_date BETWEEN ${previous.monthStart} AND ${range.monthEnd}
-      AND p.is_active = 1
-      AND p.unit = 'kg' 
-    GROUP BY p.slug, name
-    HAVING now_days >= 15 OR prev_days >= 15
-  `);
-  const list = (Array.isArray(rows) ? rows[0] : (rows as { rows?: unknown[] }).rows) as
-    Array<{ slug: string; name: string; now_days: number; prev_days: number }> | undefined;
-  const items = (list ?? []).map((row) => ({
-    slug: String(row.slug),
-    name: String(row.name || row.slug),
-    now: Number(row.now_days || 0),
-    prev: Number(row.prev_days || 0),
-  }));
-  return {
-    entering: items.filter((item) => item.prev < 4 && item.now >= 15).slice(0, limit),
-    leaving: items.filter((item) => item.now < 4 && item.prev >= 15).slice(0, limit),
-  };
+/** Both months use the same market AND source identity, after quality exclusions. */
+export async function seasonShift(range: MonthRange, previous: MonthRange, limit = 8) {
+  const blackout = await blackoutFilter(sql`ph.recorded_date`, sql`ph.market_id`, sql`ph.source_api`);
+  const eligible = sql`ph.recorded_date BETWEEN ${previous.monthStart} AND ${range.monthEnd}
+    AND ph.unit = 'kg' AND ph.avg_price > 0 AND p.unit = 'kg' AND p.is_active = 1
+    AND p.category_slug IN ('sebze', 'meyve', 'sebze-meyve')
+    AND mk.is_active = 1 AND mk.market_type = 'hal' AND mk.city_name <> 'Türkiye'
+    AND ${blackout ?? sql`1 = 1`}
+    AND NOT EXISTS (SELECT 1 FROM hf_price_quarantine q WHERE q.product_id = ph.product_id
+      AND q.market_id = ph.market_id AND q.recorded_date = ph.recorded_date AND q.status <> 'rejected')`;
+  const [coverageRows] = await db.execute(sql`
+    SELECT ph.market_id AS marketId, COALESCE(ph.source_api, '') AS source, mk.name AS name,
+      COUNT(DISTINCT CASE WHEN ph.recorded_date BETWEEN ${range.monthStart} AND ${range.monthEnd} THEN ph.recorded_date END) AS nowDays,
+      COUNT(DISTINCT CASE WHEN ph.recorded_date BETWEEN ${previous.monthStart} AND ${previous.monthEnd} THEN ph.recorded_date END) AS prevDays
+    FROM hf_price_history ph JOIN hf_products p ON p.id = ph.product_id JOIN hf_markets mk ON mk.id = ph.market_id
+    WHERE ${eligible} GROUP BY ph.market_id, COALESCE(ph.source_api, ''), mk.name`);
+  const sources = selectMonthlyCohort((coverageRows as unknown as SourceCoverage[]).map(r => ({ ...r,
+    marketId: Number(r.marketId), nowDays: Number(r.nowDays), prevDays: Number(r.prevDays),
+  })), Number(range.monthEnd.slice(-2)), Number(previous.monthEnd.slice(-2)));
+  if (new Set(sources.map(s => s.marketId)).size < MIN_COHORT_MARKETS) return classifyMonthlyVisibility([], sources, limit);
+  const cohort = sql.join(sources.map(s => sql`(ph.market_id = ${s.marketId} AND COALESCE(ph.source_api, '') = ${s.source})`), sql` OR `);
+  const [productRows] = await db.execute(sql`
+    SELECT p.slug, COALESCE(NULLIF(p.display_name, ''), p.name_tr) AS name,
+      COUNT(DISTINCT CASE WHEN ph.recorded_date BETWEEN ${range.monthStart} AND ${range.monthEnd} THEN ph.recorded_date END) AS now,
+      COUNT(DISTINCT CASE WHEN ph.recorded_date BETWEEN ${previous.monthStart} AND ${previous.monthEnd} THEN ph.recorded_date END) AS prev,
+      COUNT(DISTINCT CASE WHEN ph.recorded_date BETWEEN ${range.monthStart} AND ${range.monthEnd} THEN ph.market_id END) AS nowMarkets,
+      COUNT(DISTINCT CASE WHEN ph.recorded_date BETWEEN ${previous.monthStart} AND ${previous.monthEnd} THEN ph.market_id END) AS prevMarkets
+    FROM hf_price_history ph JOIN hf_products p ON p.id = ph.product_id JOIN hf_markets mk ON mk.id = ph.market_id
+    WHERE ${eligible} AND (${cohort}) GROUP BY p.slug, name`);
+  return classifyMonthlyVisibility((productRows as unknown as VisibilityItem[]).map(r => ({ ...r,
+    now: Number(r.now), prev: Number(r.prev), nowMarkets: Number(r.nowMarkets), prevMarkets: Number(r.prevMarkets),
+  })), sources, limit);
 }
 
 function categoryTable(summary: WeeklySummary): string {
@@ -115,8 +118,12 @@ function categoryTable(summary: WeeklySummary): string {
 }
 
 function seasonSection(shift: Awaited<ReturnType<typeof seasonShift>>): string {
-  if (!shift.entering.length && !shift.leaving.length) return "";
+
   const parts: string[] = [`<h2>Hal Kayıtlarında Görünürlük Değişimi</h2>`];
+  parts.push(`<p>Her iki ayda aynı hal ve veri kaynağından, takvim günlerinin en az %65’inde geçerli sebze-meyve kaydı aranır; aylık kapsam farkı en fazla 15 yüzde puandır. Karantina ve kaynak kesintisi aralıkları dışarıda tutulur.</p>`);
+  if (!shift.qualified) parts.push(`<p>En az ${MIN_COHORT_MARKETS} ortak hal koşulu sağlanmadığından ürün görünürlük karşılaştırması üretilmedi.</p>`);
+  if (shift.sources.length) parts.push(`<table><thead><tr><th>Ortak hal / kaynak</th><th>Önceki ay gözlem günü</th><th>Bu ay gözlem günü</th></tr></thead><tbody>${shift.sources.map(s => `<tr><td>${esc(s.name)} / ${esc(s.source || "kaynak belirtilmemiş")}</td><td>${s.prevDays}</td><td>${s.nowDays}</td></tr>`).join("")}</tbody></table>`);
+  if (shift.qualified && !shift.entering.length && !shift.leaving.length) parts.push(`<p>Ortak kaynak grubunda görünürlük değişimi eşiklerini karşılayan ürün yok.</p>`);
   if (shift.entering.length) {
     parts.push(`<p><strong>Bu ay kayıtlarda daha sık görünen ürünler:</strong> `
       + shift.entering.map((item) => `${esc(item.name)} (ayın ${item.now} günü listelerde)`).join(", ") + ".</p>");
@@ -126,7 +133,7 @@ function seasonSection(shift: Awaited<ReturnType<typeof seasonShift>>): string {
       + shift.leaving.map((item) => `${esc(item.name)} (geçen ay ${item.prev} gün listelerdeydi, bu ay yok denecek kadar az)`).join(", ") + ".</p>");
   }
   parts.push(`<p class="note">Bu sayım tek başına sezon başlangıcını veya bitişini kanıtlamaz. Bir ürünün kaç ayrı günde `
-    + `hal listelerinde göründüğü sayılır. Kaynak yayınını kestiğinde veya ürün eşlemesi değiştiğinde de sayı değişir; sezon yorumu editör doğrulaması gerektirir.</p>`);
+    + `hal listelerinde göründüğü sayılır. Kaynak yayınını kestiğinde veya ürün eşlemesi değiştiğinde de sayı değişir; Gözlem günü, kaynağın gerçekten yayın yaptığı gün için bir göstergedir; boş yayın ile veri çekme hatası burada ayrılamaz. Bu bölüm hasat/sezon takvimi değildir. Sezon yorumu için editörün ayrıca tarihli tarımsal kaynak doğrulaması gerekir.</p>`);
   return parts.join("\n");
 }
 
@@ -274,7 +281,7 @@ export async function generateMonthlyReport(month?: string): Promise<MonthlyRepo
     ? ((monthCloseIndex.indexValue - monthOpenIndex.indexValue) / monthOpenIndex.indexValue) * 100
     : null;
 
-  const shift = await seasonShift(range, previous).catch(() => ({ entering: [], leaving: [] }));
+  const shift = await seasonShift(range, previous);
   const status = monthCloseIndex ? indexStatusOf(points, monthCloseIndex.indexWeek) : null;
 
   const content = buildMonthlyHtml({
@@ -311,7 +318,7 @@ export async function persistMonthlyReport(month?: string) {
     .limit(1);
 
   const [existing] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.slug, draft.slug)).limit(1);
-  if (existing?.status === "published") return existing;
+  if (existing && existing.status !== "draft") return existing;
 
   const reportDate = new Date(`${draft.monthEnd}T12:00:00Z`);
   const values = {
@@ -334,10 +341,12 @@ export async function persistMonthlyReport(month?: string) {
     status: "draft" as const,
     totalRecords: draft.totalRecords,
     publishedAt: null,
+    reviewedBy: null,
+    reviewedAt: null,
   };
 
   if (existing) {
-    await db.update(hfAnalysisReports).set(values).where(eq(hfAnalysisReports.id, existing.id));
+    await db.update(hfAnalysisReports).set(values).where(and(eq(hfAnalysisReports.id, existing.id), eq(hfAnalysisReports.status, "draft")));
     const [updated] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.id, existing.id)).limit(1);
     return updated ?? existing;
   }

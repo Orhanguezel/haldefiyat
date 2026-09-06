@@ -1,3 +1,4 @@
+import { canScheduleReport } from "./monthly-cohort";
 import type { FastifyInstance } from "fastify";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -61,10 +62,14 @@ export async function publishScheduledReports(): Promise<number> {
   let published = 0;
   for (const r of due ?? []) {
     const [rep] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.id, r.report_id)).limit(1);
-    if (rep && rep.status !== "published") {
-      await db.update(hfAnalysisReports).set({ status: "published", publishedAt: new Date() }).where(eq(hfAnalysisReports.id, rep.id));
-      pingReportIndexNow(rep.slug);
-      published++;
+    if (rep && canScheduleReport(rep)) {
+      const [result] = await db.update(hfAnalysisReports)
+        .set({ status: "published", publishedAt: new Date() })
+        .where(and(
+          eq(hfAnalysisReports.id, rep.id), eq(hfAnalysisReports.status, "draft"),
+          eq(hfAnalysisReports.reviewedAt, rep.reviewedAt!), eq(hfAnalysisReports.updatedAt, rep.updatedAt!),
+        ));
+      if (result.affectedRows) { pingReportIndexNow(rep.slug); published++; }
     }
     await pool.execute("DELETE FROM hf_scheduled_publishes WHERE report_id = ?", [r.report_id]);
   }
@@ -456,6 +461,8 @@ export async function persistWeeklyReport(week?: string) {
     totalRecords: generated.totalRecords,
     watchlist: generated.watchlist ?? null,
     publishedAt: null,
+    reviewedBy: null,
+    reviewedAt: null,
   };
 
   if (existing) {
