@@ -1,3 +1,4 @@
+import { recordScheduledRetailRun } from "@/modules/etl/retail-run-evidence";
 import * as cron from "node-cron";
 import type { FastifyInstance } from "fastify";
 import { runDailyEtl, runSingleSource } from "@/modules/etl";
@@ -648,11 +649,13 @@ async function runMarketfiyatiJob(app: FastifyInstance): Promise<void> {
   app.log.info("[cron:marketfiyati] coklu zincir ETL baslatiliyor");
   try {
     const result = await runMarketfiyatiEtl();
+    const warnings = await recordScheduledRetailRun(result, t0);
     app.log[result.errors.length || !result.inserted ? "warn" : "info"](
-      { ...result, durationMs: Date.now() - t0 },
+      { ...result, warnings, durationMs: Date.now() - t0 },
       result.errors.length || !result.inserted ? "[cron:marketfiyati] kismi veya bos aktarim" : "[cron:marketfiyati] tamamlandi",
     );
   } catch (err) {
+    await recordScheduledRetailRun(null, t0).catch(journalError => app.log.error({ err: journalError }, "[cron:marketfiyati] evidence write failed"));
     app.log.error({ err }, "[cron:marketfiyati] hata");
   }
 }

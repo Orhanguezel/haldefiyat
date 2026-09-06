@@ -87,6 +87,10 @@ export default async function RetailComparison({
                 ₺{formatTr(price)}/{row.unit}
               </div>
               {row.productNameRaw ? <p className="mt-1 text-xs text-muted">{row.productNameRaw}</p> : null}
+              {row.variant ? <p className="mt-1 text-xs text-muted">
+                {[row.variant.kind, row.variant.fat ? `Yağ: ${row.variant.fat}` : null,
+                  row.variant.packageAmount ? `Paket: ${row.variant.packageAmount} ${row.variant.packageUnit}` : "Paket miktarı belirtilmemiş"].filter(Boolean).join(" · ")}
+              </p> : null}
               <div className="mt-1 text-[11px] text-muted">
                 Veri tazeliği: {retailFreshnessLabel(row.recordedDate)} • {formatDateTr(row.recordedDate, { day: "numeric", month: "long" }) ?? "Tarih doğrulanamadı"} • Kaynak: {row.productUrl?.includes("marketfiyati.org.tr") ? "marketfiyati.org.tr" : chain.sourceUrl}
               </div>

@@ -216,3 +216,30 @@ describe("attribution and conversion analytics", () => {
     expect(payload).toMatchObject({ query_length: 17, result_count: 0, zero_results: true });
   });
 });
+
+describe("editorial series attribution", () => {
+  it("labels only canonical card keys and counts one consented 7-day return", async () => {
+    const { contentSeries, trackSeriesReturn } = await import("@/lib/analytics");
+    expect(contentSeries("k4:v2:2026-09-06")).toBe("k4");
+    expect(contentSeries("contact@example.com")).toBeUndefined();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-06T10:00:00Z"));
+    window.localStorage.clear();
+    clearCookie("hf_attr");
+    window.localStorage.setItem("hf_cookie_consent", "accepted");
+    window.history.replaceState(null, "", "/?utm_source=instagram&utm_campaign=editorial&utm_content=k4:v2:2026-09-06");
+    window.gtag = vi.fn();
+    captureAttribution();
+    trackSeriesReturn();
+    expect(window.gtag).not.toHaveBeenCalled();
+    vi.setSystemTime(new Date("2026-09-07T10:00:00Z"));
+    trackSeriesReturn();
+    trackSeriesReturn();
+    expect(window.gtag).toHaveBeenCalledTimes(1);
+    expect(window.gtag).toHaveBeenCalledWith("event", "series_return_7d", expect.objectContaining({content_series:"k4",value:0}));
+    window.localStorage.setItem("hf_cookie_consent", "rejected");
+    trackSeriesReturn();
+    expect(window.gtag).toHaveBeenCalledTimes(1);
+    clearCookie("hf_attr"); window.localStorage.clear(); delete window.gtag; vi.useRealTimers();
+  });
+});

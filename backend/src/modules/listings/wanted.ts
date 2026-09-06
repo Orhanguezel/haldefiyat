@@ -1,3 +1,4 @@
+import { realListingSql } from "./evidence-policy";
 /**
  * "Bu hafta aranan ürünler" — ilan ARZINI artirmak icin talep-arz bosluk listesi.
  *
@@ -21,6 +22,7 @@ export interface WantedProduct {
   buyers: number;
   /** Takip + fiyat alarmi kuran kullanici sayisi. */
   watchers: number;
+  contactedOffers: number;
   /** Aylik arama hacmi (0 = veri yok). */
   searchVolume: number;
   /** Bugunun hal fiyati (yalniz hal kaynaklari) — ilan verecek uretici referans alsin. */
@@ -37,15 +39,15 @@ export async function listWantedProducts(limit = 8): Promise<WantedProduct[]> {
     `WITH open_listings AS (
        SELECT product_id, listing_type, COUNT(*) AS n
        FROM hf_listings
-       WHERE status = 'approved' AND is_suspicious = 0
+       WHERE status = 'approved' AND is_suspicious = 0 AND ${realListingSql()}
          AND (valid_until IS NULL OR valid_until >= CURRENT_DATE())
        GROUP BY product_id, listing_type
      ),
      watchers AS (
        SELECT product_id, COUNT(*) AS n FROM (
-         SELECT product_id FROM hf_user_favorites
-         UNION ALL
-         SELECT product_id FROM hf_alerts WHERE is_active = 1
+         SELECT product_id, user_id FROM hf_user_favorites
+         UNION
+         SELECT product_id, user_id FROM hf_alerts WHERE is_active = 1 AND user_id IS NOT NULL
        ) w GROUP BY product_id
      ),
      obs AS (
@@ -65,6 +67,8 @@ export async function listWantedProducts(limit = 8): Promise<WantedProduct[]> {
             COALESCE(p.search_volume, 0) AS search_volume,
             COALESCE(buy.n, 0) AS buyers,
             COALESCE(w.n, 0) AS watchers,
+            (SELECT COUNT(*) FROM hf_listing_inquiries i JOIN hf_listings l ON l.id=i.listing_id
+              WHERE l.product_id=p.id AND ${realListingSql('l')} AND i.status='contacted') AS contacted_offers,
             pr.price, pr.markets, pr.d AS price_date
      FROM hf_products p
      LEFT JOIN open_listings sell ON sell.product_id = p.id AND sell.listing_type = 'satis'
@@ -87,6 +91,7 @@ export async function listWantedProducts(limit = 8): Promise<WantedProduct[]> {
     imageUrl: r.image_url ? String(r.image_url) : null,
     buyers: Number(r.buyers ?? 0),
     watchers: Number(r.watchers ?? 0),
+    contactedOffers: Number(r.contacted_offers ?? 0),
     searchVolume: Number(r.search_volume ?? 0),
     price: r.price != null ? Number(r.price) : null,
     markets: Number(r.markets ?? 0),

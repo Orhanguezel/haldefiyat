@@ -1,4 +1,5 @@
 import { fetchVariantPrices } from "@/lib/api";
+import { getProductDisplayName } from "@/lib/product-display-name";
 
 interface VariantPriceTableProps {
   masterSlug: string;
@@ -68,7 +69,7 @@ export default async function VariantPriceTable({
               <tr key={row.slug} className="border-b border-border-soft">
                 <td className="border-b border-border-soft py-2 pr-4">
                   <span className="font-medium text-foreground">
-                    {row.displayName}
+                    {getProductDisplayName({ displayName: row.displayName, nameTr: row.nameTr ?? row.displayName })}
                   </span>
                   <span className="ml-2 text-xs text-muted">/{row.unit}</span>
                 </td>

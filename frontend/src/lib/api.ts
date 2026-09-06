@@ -81,6 +81,8 @@ export interface ProductEditorial {
 export interface VariantPriceRow {
   slug: string;
   displayName: string;
+  /** Ham ETL adi — gorunen ad kurali (niteleyiciyi koru) bunu da ister. */
+  nameTr?: string;
   categorySlug: string;
   unit: string;
   avgPrice: number;
@@ -789,6 +791,7 @@ export interface WantedProduct {
   price: number | null;
   markets: number;
   priceDate: string | null;
+  contactedOffers?: number;
 }
 
 /** Talebi olculebilen ama satis ilani olmayan urunler — ilan cagrisini besler. */
@@ -866,6 +869,7 @@ export interface RetailPriceRow {
   recordedDate: string;
   productNameRaw?: string | null;
   productUrl?: string | null;
+  variant?: { fat: string | null; kind: string | null; packageAmount: number | null; packageUnit: string | null };
 }
 
 export async function fetchRetailPrices(productSlug: string): Promise<RetailPriceRow[]> {

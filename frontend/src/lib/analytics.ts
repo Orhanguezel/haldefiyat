@@ -4,6 +4,9 @@ import { getAttribution } from "@/lib/attribution";
 import { trackProductJourney, type ProductJourneyEvent } from "@/lib/cta-tracking";
 
 export type ConversionEventName =
+  | "listing_created"
+  | "inquiry_created"
+  | "series_return_7d"
   | "newsletter_signup"
   | "price_alert_created"
   | "pro_inquiry"
@@ -59,6 +62,9 @@ declare global {
 }
 
 const EVENT_VALUE: Record<ConversionEventName, number> = {
+  listing_created: 0,
+  inquiry_created: 0,
+  series_return_7d: 0,
   price_alert_created: 50,
   newsletter_signup: 30,
   pro_inquiry: 40,
@@ -139,13 +145,15 @@ export function trackDiscoveryEvent(
       utm_source: attribution.utm_source,
       utm_medium: attribution.utm_medium,
       utm_campaign: attribution.utm_campaign,
+      utm_content: attribution.utm_content,
+      content_series: contentSeries(attribution.utm_content),
       first_path: attribution.first_path,
     } : {}),
   });
 }
 
 function eventCategory(eventName: ConversionEventName): "conversion" | "engagement" {
-  return ["urun_favorited", "call_request_view", "call_request_declined", "call_request_cancelled"].includes(eventName)
+  return ["urun_favorited", "call_request_view", "call_request_declined", "call_request_cancelled", "series_return_7d"].includes(eventName)
     ? "engagement"
     : "conversion";
 }
@@ -185,6 +193,7 @@ export function trackConversion(
     eventParams.utm_medium = attribution.utm_medium;
     eventParams.utm_campaign = attribution.utm_campaign;
     eventParams.utm_content = attribution.utm_content;
+    eventParams.content_series = contentSeries(attribution.utm_content);
     eventParams.utm_term = attribution.utm_term;
     eventParams.landed_at = attribution.landed_at;
     eventParams.first_path = attribution.first_path;
@@ -202,4 +211,26 @@ export function trackConversion(
   }
 
   window.gtag("event", eventName, eventParams);
+}
+
+/** Stable series label from our content key; arbitrary query text is never a label. */
+export function contentSeries(content: string | undefined): string | undefined {
+  return content?.toLowerCase().match(/^(k[1-5])(?:[:_-]|$)/u)?.[1];
+}
+
+/** One consented browser return, a later calendar day within 7 elapsed days. */
+export function trackSeriesReturn(): void {
+  if (typeof window === "undefined" || typeof window.gtag !== "function") return;
+  try {
+    if (window.localStorage.getItem("hf_cookie_consent") !== "accepted") return;
+    const attribution = getAttribution();
+    if (!attribution || !contentSeries(attribution.utm_content)) return;
+    const now = new Date();
+    const age = (now.getTime() - Date.parse(attribution.landed_at)) / 86_400_000;
+    if (!(age > 0 && age <= 7) || now.toISOString().slice(0, 10) === attribution.landed_at.slice(0, 10)) return;
+    const key = "hf_series_return_7d";
+    if (window.localStorage.getItem(key) === attribution.landed_at) return;
+    trackConversion("series_return_7d", { value: 0, days_since_landing: Math.floor(age) });
+    window.localStorage.setItem(key, attribution.landed_at);
+  } catch { /* browser storage unavailable */ }
 }

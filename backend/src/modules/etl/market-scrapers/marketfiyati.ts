@@ -18,7 +18,7 @@ import { db } from "@/db/client";
 import { hfProducts } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { turkishToAscii, getAliasMap, invalidateAliasCache } from "../normalizer";
-import { MARKETFIYATI_SOURCE, retailTitleMatches, retailUnit, verifiedDepot, type DepotEvidence } from "../retail-source-policy";
+import { MARKETFIYATI_SOURCE, retailTitleMatches, retailUnit, verifiedDepot, depotRejectionReason, type DepotEvidence } from "../retail-source-policy";
 import { upsertRetailPriceRow } from "@/modules/prices/repository";
 
 const API_BASE = "https://api.marketfiyati.org.tr/api/v2";
@@ -202,6 +202,7 @@ export interface MarketfiyatiEtlResult {
   inserted: number;
   skipped: number;
   searchFailures: number;
+  searchFailuresByKeyword: Record<string, string[]>;
   unmatched: number;
   unmatchedNames: string[];
   errors: string[];
@@ -210,6 +211,9 @@ export interface MarketfiyatiEtlResult {
   throttled: boolean;
   sourceDates: string[];
   rejectedEvidence: number;
+  rejectionReasons: Record<string, number>;
+  writeFailures: Record<string, number>;
+  offersByChain: Record<string, number>;
   verifiedOffers: number;
   sample: Array<{ productId: number; chain: string; price: number; unit: string; recordedDate: string; productNameRaw: string }>;
 }
@@ -226,6 +230,7 @@ export async function runMarketfiyatiEtl(
     inserted: 0,
     skipped: 0,
     searchFailures: 0,
+    searchFailuresByKeyword: {},
     unmatched: 0,
     unmatchedNames: [],
     errors: [],
@@ -234,6 +239,9 @@ export async function runMarketfiyatiEtl(
     throttled: false,
     sourceDates: [],
     rejectedEvidence: 0,
+    rejectionReasons: {},
+    writeFailures: {},
+    offersByChain: {},
     verifiedOffers: 0,
     sample: [],
   };
@@ -266,7 +274,12 @@ export async function runMarketfiyatiEtl(
   // Keep one real offer, not an average labelled with the first SKU's title.
   const collect = (chain: ChainSlug, productId: number, title: string, d: DepotInfo, unit: string) => {
     const offer = verifiedDepot(d, unit, today);
-    if (!offer) { result.skipped++; result.rejectedEvidence++; return; }
+    if (!offer) {
+      result.skipped++; result.rejectedEvidence++;
+      const reason = depotRejectionReason(d, unit, today) ?? "UNVERIFIED";
+      result.rejectionReasons[reason] = (result.rejectionReasons[reason] ?? 0) + 1;
+      return;
+    }
     const key = bucketKey(chain, productId);
     const existing = buckets.get(key);
     if (!existing || offer.date > existing.recordedDate ||
@@ -283,6 +296,7 @@ export async function runMarketfiyatiEtl(
     const search = await searchKeyword(x.keyword);
     result.apiCallCount += search.calls;
     result.searchFailures += search.errors.length;
+    if (search.errors.length) result.searchFailuresByKeyword[x.keyword] = search.errors;
     for (const error of search.errors) if (result.errors.length < 10) result.errors.push(error);
     if (search.throttled) {
       throttleDetected = true;
@@ -311,6 +325,7 @@ export async function runMarketfiyatiEtl(
     const search = await searchKeyword(keyword);
     result.apiCallCount += search.calls;
     result.searchFailures += search.errors.length;
+    if (search.errors.length) result.searchFailuresByKeyword[keyword] = search.errors;
     for (const error of search.errors) if (result.errors.length < 10) result.errors.push(error);
     if (search.throttled) {
       result.throttled = true;
@@ -346,6 +361,7 @@ export async function runMarketfiyatiEtl(
     const productId = Number(productIdStr);
 
     result.verifiedOffers++;
+    result.offersByChain[chain!] = (result.offersByChain[chain!] ?? 0) + 1;
     if (result.sample.length < 12) result.sample.push({ productId, chain: chain!, ...b });
     if (options.dryRun) continue;
     try {
@@ -354,9 +370,10 @@ export async function runMarketfiyatiEtl(
       result.inserted++;
     } catch (err) {
       result.skipped++;
-      if (result.errors.length < 5) {
-        result.errors.push(err instanceof Error ? err.message : String(err));
-      }
+      const message = err instanceof Error ? err.message : String(err);
+      const reason = message.startsWith("RETAIL_PRICE_QUARANTINED:") ? message : "RETAIL_WRITE_ERROR";
+      result.writeFailures[reason] = (result.writeFailures[reason] ?? 0) + 1;
+      if (!result.errors.includes(reason)) result.errors.push(reason);
     }
   }
 

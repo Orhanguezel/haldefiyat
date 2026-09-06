@@ -11,16 +11,18 @@ import type { WantedProduct } from "@/lib/api";
  * geldiğini söyler; uydurma "popüler" iddiası yok.
  */
 function demandLabel(item: WantedProduct): string {
-  if (item.buyers > 0) return `${item.buyers} alım talebi açık`;
-  if (item.watchers > 1) return `${item.watchers} kişi fiyatını takip ediyor`;
-  if (item.watchers === 1) return "1 kişi fiyatını takip ediyor";
-  return `Ayda ${item.searchVolume.toLocaleString("tr-TR")} arama`;
+  return [
+    item.buyers > 0 ? `${item.buyers} açık alım ilanı` : null,
+    item.watchers > 0 ? `${item.watchers} fiyat takipçisi` : null,
+    item.searchVolume > 0 ? `Aylık arama ilgisi: ${item.searchVolume.toLocaleString("tr-TR")}` : null,
+    item.contactedOffers ? `${item.contactedOffers} teklifte iletişime geçildi` : null,
+  ].filter(Boolean).join(" · ");
 }
 
 function priceLabel(item: WantedProduct): string | null {
   if (item.price == null || item.price <= 0) return null;
   const price = item.price.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return `Bugünkü hal fiyatı ${price} ₺/kg${item.markets ? ` · ${item.markets} hal` : ""}`;
+  return `Son hal gözlemi (${item.priceDate ?? "tarih yok"}): ${price} ₺/kg${item.markets ? ` · ${item.markets} hal` : ""}`;
 }
 
 export function WantedProducts({ items }: { items: WantedProduct[] }) {
@@ -33,7 +35,7 @@ export function WantedProducts({ items }: { items: WantedProduct[] }) {
           Bu hafta aranan ürünler
         </h2>
         <p className="text-sm text-(--color-muted)">
-          Talep var, panoda satış ilanı yok. Ürününüz varsa ilanı dakikalar içinde açabilirsiniz.
+          Arama ve fiyat takibi ilgi sinyalidir; satın alma taahhüdü değildir. Ürününüz varsa ilan açabilirsiniz.
         </p>
       </div>
 
@@ -47,7 +49,7 @@ export function WantedProducts({ items }: { items: WantedProduct[] }) {
               <ProductImage slug={item.slug} name={item.name} imageUrl={item.imageUrl} size={48} className="h-12 w-12 shrink-0 rounded-[6px] object-cover" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-semibold text-(--color-foreground)">{item.name}</span>
-                <span className="block truncate text-xs text-(--color-muted)">{demandLabel(item)}</span>
+                <span className="block text-xs text-(--color-muted)">{demandLabel(item)}</span>
                 {priceLabel(item) ? (
                   <span className="block truncate text-xs text-(--color-muted)">{priceLabel(item)}</span>
                 ) : null}

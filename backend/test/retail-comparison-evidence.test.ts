@@ -51,7 +51,8 @@ describe("published retail data", () => {
     const rows = latestRetailByChain([observation,
       { ...observation, price: "900", productUrl: null, recordedDate: "2026-09-06" },
       { ...observation, unit: "adet", recordedDate: "2026-09-06" }]);
-    expect(rows).toEqual([observation]);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject(observation);
   });
   it("never mixes card dates to reach the three-product minimum", () => {
     expect(chooseGapCandidates([group()[0]!, ...group("2026-09-06").slice(1)], 6)).toEqual([]);

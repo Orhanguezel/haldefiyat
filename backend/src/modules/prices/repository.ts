@@ -1,4 +1,5 @@
-import { ELIGIBLE_RETAIL, latestRetailByChain, type RetailObservation } from "./retail-observations";
+import { sameRetailOffer } from "@/modules/etl/retail-source-policy";
+import { ELIGIBLE_RETAIL, latestRetailByChain, isVerifiedRetail, type RetailObservation } from "./retail-observations";
 import type { SQL } from "drizzle-orm";
 import { and, asc, desc, eq, gte, lte, sql, or, like, inArray, isNotNull } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
@@ -1060,6 +1061,9 @@ export async function variantPricesByMaster(masterSlug: string, range = "7d") {
     SELECT
       p.slug AS slug,
       COALESCE(NULLIF(p.display_name, ''), p.name_tr) AS displayName,
+      -- Ham ad da doner: gorunen ad kurali (niteleyiciyi koru) istemcide uygulanir,
+      -- yoksa "Domates (1.sınıf)" ve "Domates (2.Sınıf)" tabloda ayni satir gibi gorunuyor.
+      p.name_tr AS nameTr,
       p.category_slug AS categorySlug,
       p.unit AS unit,
       AVG(ph.avg_price) AS avgPrice,
@@ -1080,6 +1084,7 @@ export async function variantPricesByMaster(masterSlug: string, range = "7d") {
   const rows = (Array.isArray(result) ? result[0] : result) as unknown as Array<{
     slug: string;
     displayName: string;
+    nameTr: string;
     categorySlug: string;
     unit: string;
     avgPrice: string | number;
@@ -1097,6 +1102,7 @@ export async function variantPricesByMaster(masterSlug: string, range = "7d") {
     return {
       slug: row.slug,
       displayName: row.displayName,
+      nameTr: row.nameTr,
       categorySlug: row.categorySlug,
       unit: row.unit,
       avgPrice,
@@ -1757,13 +1763,21 @@ export async function upsertRetailPriceRow(input: {
       [input.productId, input.unit, input.recordedDate],
     ),
     pool.query(
-      `SELECT price FROM hf_retail_prices WHERE product_id=? AND chain_slug=? AND unit=?
-       AND ABS(DATEDIFF(recorded_date, ?)) <= 45 ORDER BY recorded_date DESC LIMIT 30`,
-      [input.productId, input.chainSlug, input.unit, input.recordedDate],
+      `SELECT rp.price, rp.unit, rp.chain_slug AS chainSlug, p.slug AS productSlug, p.unit AS productUnit,
+         rp.product_name_raw AS productNameRaw, rp.product_url AS productUrl,
+         DATE_FORMAT(rp.recorded_date, '%Y-%m-%d') AS recordedDate
+       FROM hf_retail_prices rp JOIN hf_products p ON p.id=rp.product_id
+       WHERE rp.product_id=? AND rp.chain_slug=? AND rp.unit=? AND rp.currency='TRY'
+         AND rp.recorded_date BETWEEN DATE_SUB(?, INTERVAL 45 DAY) AND ?
+         AND rp.product_url IS NOT NULL AND rp.product_url <> ''
+         AND NOT EXISTS (SELECT 1 FROM hf_retail_price_quarantine rq WHERE rq.product_id=rp.product_id
+           AND rq.chain_slug=rp.chain_slug AND rq.recorded_date=rp.recorded_date AND rq.status <> 'rejected')
+       ORDER BY rp.recorded_date DESC LIMIT 30`,
+      [input.productId, input.chainSlug, input.unit, input.recordedDate, input.recordedDate],
     ),
   ]);
   const prices = (result: unknown) => ((result as [Array<{ price: number | string }>])[0] ?? []).map(row => Number(row.price)).filter(value => value > 0);
-  const quality = assessRetailPriceQuality({ price: input.price, wholesalePeers: prices(wholesaleRows), retailPeers: prices(retailRows) });
+  const quality = assessRetailPriceQuality({ price: input.price, wholesalePeers: prices(wholesaleRows), retailPeers: (retailRows[0] as RetailObservation[]).filter(row => isVerifiedRetail(row) && sameRetailOffer(input.productNameRaw, row.productNameRaw)).map(row => Number(row.price)) });
   if (!quality.publish) {
     await pool.query(
       `INSERT INTO hf_retail_price_quarantine

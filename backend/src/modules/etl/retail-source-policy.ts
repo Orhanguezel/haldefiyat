@@ -64,3 +64,37 @@ export function trustedRetailSource(url: string | null | undefined): boolean {
       ["marketfiyati.org.tr", "www.marketfiyati.org.tr", "www.migros.com.tr"].includes(parsed.hostname);
   } catch { return false; }
 }
+
+/** Descriptive evidence only: unknown attributes never imply equivalent quality. */
+export function retailVariant(slug: string, raw: string) {
+  const title = raw.toLocaleLowerCase("tr-TR");
+  const name = plainRetailTitle(raw);
+  const size = [...title.matchAll(/(\d+(?:[.,]\d+)?)\s*(kg|gr|g|ml|lt|l)\b/gu)].at(-1);
+  const quantity = size ? Number(size[1]!.replace(",", ".")) : null;
+  const unit = size?.[2];
+  const count = Number(title.match(/(\d+)\s*[x×]\s*\d/u)?.[1] ?? 1);
+  const packageAmount = quantity == null ? null : quantity * count / (unit === "g" || unit === "gr" || unit === "ml" ? 1000 : 1);
+  const packageUnit = unit ? (unit === "ml" || unit === "lt" || unit === "l" ? "litre" : "kg") : null;
+  const percent = title.match(/%\s*(\d+(?:[.,]\d+)?)/u)?.[1];
+  const fat = percent ? `%${percent}` : /yarim yagli/.test(name) ? "Yarım yağlı"
+    : /tam yagli/.test(name) ? "Tam yağlı" : /yagsiz|light|az yagli/.test(name) ? "Az yağlı/yağsız" : "Belirtilmemiş";
+  const kind = slug === "sut" ? (/uht/.test(name) ? "UHT süt" : /pastorize|gunluk/.test(name) ? "Pastörize/günlük süt" : "Süt; işlem türü belirtilmemiş")
+    : slug === "yogurt" ? (/suzme/.test(name) ? "Süzme yoğurt" : /kaymaksiz/.test(name) ? "Kaymaksız yoğurt" : /kaymakli/.test(name) ? "Kaymaklı yoğurt" : "Yoğurt; türü belirtilmemiş")
+    : null;
+  return { fat: slug === "sut" || slug === "yogurt" || slug === "beyaz-peynir" ? fat : null, kind, packageAmount, packageUnit };
+}
+
+/** Historical peers must describe the same branded offer, including pack size. */
+export function sameRetailOffer(a: string | null | undefined, b: string | null | undefined): boolean {
+  const normalize = (s: string) => s.toLocaleLowerCase("tr-TR").replace(/\s+/gu, " ").trim();
+  return !!a?.trim() && !!b?.trim() && normalize(a) === normalize(b);
+}
+
+export function depotRejectionReason(depot: DepotEvidence, expectedUnit: string, today: string): string | null {
+  if (depot.discount || depot.promotionText?.trim()) return "PROMOTION";
+  if (!sourceDate(depot.indexTime, today)) return "SOURCE_DATE_INVALID_OR_STALE";
+  const unit = retailUnit(depot.unitPrice?.split("/").at(-1) ?? "");
+  if (!unit || unit !== retailUnit(expectedUnit)) return "UNIT_MISSING_OR_MISMATCH";
+  if (!Number.isFinite(Number(depot.unitPriceValue)) || Number(depot.unitPriceValue) <= 0) return "PRICE_INVALID";
+  return null;
+}

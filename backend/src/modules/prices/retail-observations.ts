@@ -1,4 +1,4 @@
-import { retailTitleMatches, retailUnit, trustedRetailSource } from "@/modules/etl/retail-source-policy";
+import { retailTitleMatches, retailUnit, trustedRetailSource, retailVariant } from "@/modules/etl/retail-source-policy";
 
 // Alias rp/p required. Old, unattributed aggregates remain in storage but cannot
 // be presented as verified current quotes. A valid re-fetch restores coverage.
@@ -27,5 +27,5 @@ export function latestRetailByChain(rows: RetailObservation[]): RetailObservatio
     const current = chains.get(row.chainSlug);
     if (!current || row.recordedDate > current.recordedDate) chains.set(row.chainSlug, row);
   }
-  return [...chains.values()].sort((a, b) => a.chainSlug.localeCompare(b.chainSlug));
+  return [...chains.values()].map(row => ({ ...row, variant: retailVariant(row.productSlug, row.productNameRaw!) })).sort((a, b) => a.chainSlug.localeCompare(b.chainSlug));
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
+import { trackConversion } from "@/lib/analytics";
 import { trackAdConversion } from "@/lib/ad-conversions";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "") + "/api/v1";
@@ -22,7 +23,10 @@ export function ListingInquiryForm({ listingId }: { listingId: number }) {
       body: JSON.stringify(body),
     });
     setLoading(false);
-    if (res.ok) trackAdConversion("offer_submit", "listing", listingId);
+    if (res.ok) {
+      trackAdConversion("offer_submit", "listing", listingId);
+      trackConversion("inquiry_created", { listing_id: listingId, value: 0 });
+    }
     setStatus(res.ok ? "Teklifiniz alındı." : "Teklif gönderilemedi.");
   }
 

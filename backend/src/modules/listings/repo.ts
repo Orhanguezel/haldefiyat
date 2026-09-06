@@ -1,3 +1,4 @@
+import { realListingSql } from "./evidence-policy";
 import { randomUUID } from "node:crypto";
 import { and, desc, eq, gte, inArray, like, or, sql } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -112,7 +113,7 @@ async function toListingValues(input: ListingCreateInput | ListingPatchInput, ex
 function whereFor(filters: ListingFilters) {
   const clauses = [];
   if (filters.publicOnly) {
-    clauses.push(eq(hfListings.status, "approved"), gte(hfListings.validUntil, sql`CURRENT_DATE()`));
+    clauses.push(sql.raw(realListingSql()), eq(hfListings.status, "approved"), gte(hfListings.validUntil, sql`CURRENT_DATE()`));
   } else if (filters.status && filters.status !== "all") clauses.push(eq(hfListings.status, filters.status));
   if (filters.type) clauses.push(eq(hfListings.listingType, filters.type));
   if (filters.q?.trim()) {
@@ -147,7 +148,7 @@ export async function countListings(filters: ListingFilters) {
 
 export async function getListingBySlug(slug: string, publicOnly = true) {
   const clauses = [eq(hfListings.slug, slug)];
-  if (publicOnly) clauses.push(eq(hfListings.status, "approved"), gte(hfListings.validUntil, sql`CURRENT_DATE()`));
+  if (publicOnly) clauses.push(sql.raw(realListingSql()), eq(hfListings.status, "approved"), gte(hfListings.validUntil, sql`CURRENT_DATE()`));
   const [row] = await db
     .select({
       listing: hfListings,
@@ -413,7 +414,7 @@ export async function updateCallRequestStatus(
 
 export async function listingSummary() {
   const [row] = await db.select({
-    active: sql<number>`SUM(status='approved')`,
+    active: sql<number>`SUM(status='approved' AND valid_until >= CURRENT_DATE() AND ${sql.raw(realListingSql())})`,
     pending: sql<number>`SUM(status='pending')`,
     rejected: sql<number>`SUM(status='rejected')`,
   }).from(hfListings);

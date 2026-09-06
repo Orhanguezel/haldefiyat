@@ -9,6 +9,7 @@ import { TextArea } from "@/components/ui/TextArea";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { CityDistrictSelect } from "@/components/firms/owner/CityDistrictSelect";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
+import { trackConversion } from "@/lib/analytics";
 import { apiPost } from "@/lib/api-client";
 import { isApiError } from "@/lib/auth";
 import { getStoredAccessToken } from "@/lib/auth-token";
@@ -146,6 +147,7 @@ export function ListingForm({ products }: { products: Product[] }) {
         ...body, productName, productSlug: productSlug || undefined, citySlug, districtSlug,
         images, hidePhone: true, callRequestsEnabled, callAvailability, otpToken: otpToken || undefined,
       });
+      trackConversion("listing_created", { product_slug: productSlug, listing_type: String(body.listingType ?? "satis"), value: 0 });
       setStatus("İlan moderasyon için alındı. Onaylandıktan sonra yayınlanır.");
       form.reset();
       setImages([]); setProductSlug(""); setProductName(""); setCitySlug(null); setDistrictSlug(null);
