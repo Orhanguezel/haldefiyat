@@ -11,6 +11,7 @@
  *   SCRAPER_ENABLED  = true (varsayılan)
  */
 
+import { retailTitleMatches } from "../retail-source-policy";
 import { db } from "@/db/client";
 import { hfProducts } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -84,7 +85,7 @@ export async function resolveMigrosProductId(nameRaw: string): Promise<number | 
   }
 
   const slug = aliasMap.get(turkishToAscii(cleaned));
-  if (!slug) return null;
+  if (!slug || !retailTitleMatches(slug, nameRaw)) return null;
 
   const rows = await db
     .select({ id: hfProducts.id })

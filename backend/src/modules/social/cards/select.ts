@@ -14,6 +14,8 @@
  *   - ayni urun karta bir kez girer
  */
 import type { RowDataPacket } from "mysql2/promise";
+import { ELIGIBLE_RETAIL } from "@/modules/prices/retail-observations";
+import { chooseGapCandidates, type GapCandidate } from "./gap-policy";
 import { pool } from "@/db/client";
 
 type Row = RowDataPacket & Record<string, unknown>;
@@ -49,6 +51,7 @@ export interface CityCompare {
 
 export interface GapRow {
   productSlug: string; productName: string; canonicalSlug: string | null; imageUrl: string | null;
+  recordedDate: string; sourceUrl: string; productNameRaw: string;
   halPrice: number; retailPrice: number; retailChain: string; gapPct: number; markets: number; chains: number;
 }
 
@@ -276,67 +279,43 @@ export function chainLabel(slug: string): string {
   return CHAIN_LABELS[slug] ?? slug.replace(/_/g, " ");
 }
 
-/**
- * K4 — halden markete: ayni urunun hal fiyati ile marketteki EN UCUZ rafi.
- * Makas tuketicinin sordugu tek soru; rakiplerin hicbirinde iki taraf da yok.
- */
+/** K4: same product, kg, common source date; all spread signs are eligible. */
 export async function selectHalToMarket(limit = 8): Promise<{ items: GapRow[]; date: string; retailDate: string }> {
   const [rows] = await pool.query<Row[]>(
-    `WITH ${FAMILY},
-     obs AS (
-       SELECT f.master_id, ph.market_id, ph.recorded_date, AVG(ph.avg_price) AS price
+    `WITH obs AS (
+       SELECT ph.product_id,ph.market_id,ph.recorded_date,AVG(ph.avg_price) AS price
        FROM hf_price_history ph
-       JOIN fam f ON f.pid = ph.product_id AND ph.unit = f.unit
-       JOIN hf_markets mk ON mk.id = ph.market_id AND mk.is_active = 1 AND mk.market_type = 'hal' AND mk.city_name <> 'Türkiye'
-       WHERE ph.recorded_date >= CURDATE() - INTERVAL 5 DAY AND ph.unit = 'kg' AND ${NOT_QUARANTINED} AND ${NOT_BLACKOUT}
-       GROUP BY f.master_id, ph.market_id, ph.recorded_date
-     ),
-     hal_day AS (SELECT master_id, MAX(recorded_date) AS d FROM obs GROUP BY master_id),
-     hal AS (
-       SELECT o.master_id, AVG(o.price) AS price, COUNT(DISTINCT o.market_id) AS markets, h.d AS recorded_date
-       FROM obs o JOIN hal_day h ON h.master_id = o.master_id AND o.recorded_date = h.d
-       GROUP BY o.master_id, h.d
-     ),
-     retail_day AS (
-       SELECT rp.product_id, MAX(rp.recorded_date) AS d
-       FROM hf_retail_prices rp
-       WHERE rp.recorded_date >= CURDATE() - INTERVAL 5 DAY AND rp.unit IN ('kg', 'KG', 'kilogram')
-       GROUP BY rp.product_id
-     ),
-     retail AS (
-       SELECT rp.product_id, rp.chain_slug, rp.price, rd.d AS recorded_date,
-              ROW_NUMBER() OVER (PARTITION BY rp.product_id ORDER BY rp.price ASC) AS rn,
-              COUNT(*) OVER (PARTITION BY rp.product_id) AS chains
-       FROM hf_retail_prices rp
-       JOIN retail_day rd ON rd.product_id = rp.product_id AND rp.recorded_date = rd.d
-       WHERE rp.price > 0
+       JOIN hf_markets mk ON mk.id=ph.market_id AND mk.is_active=1
+         AND mk.market_type='hal' AND mk.city_name <> 'Türkiye'
+       WHERE ph.recorded_date BETWEEN CURDATE() - INTERVAL 3 DAY AND CURDATE()
+         AND ph.unit='kg' AND ph.avg_price>0 AND ${NOT_QUARANTINED} AND ${NOT_BLACKOUT}
+       GROUP BY ph.product_id,ph.market_id,ph.recorded_date
+     ), hal AS (
+       SELECT product_id,recorded_date,AVG(price) AS price,COUNT(DISTINCT market_id) AS markets
+       FROM obs GROUP BY product_id,recorded_date HAVING markets>=3
      )
-     SELECT p.slug AS product_slug, COALESCE(NULLIF(p.display_name, ''), p.name_tr) AS product_name,
-            p.canonical_slug, p.image_url, h.price AS hal_price, h.markets, h.recorded_date,
-            r.price AS retail_price, r.chain_slug, r.chains, r.recorded_date AS retail_date
-     FROM hal h
-     JOIN hf_products p ON p.id = h.master_id
-     JOIN retail r ON r.product_id = h.master_id AND r.rn = 1
-     WHERE p.seo_index = 1 AND h.price > 0 AND h.markets >= 3 AND r.price > h.price
-     ORDER BY COALESCE(p.search_volume, 0) DESC, (r.price / h.price) DESC
-     LIMIT ?`,
-    [Math.max(3, Math.min(limit, 12))],
+     SELECT p.slug AS productSlug,p.unit AS productUnit,
+       COALESCE(NULLIF(p.display_name,''),p.name_tr) AS productName,
+       p.canonical_slug AS canonicalSlug,p.image_url AS imageUrl,
+       COALESCE(p.search_volume,0) AS searchVolume,h.price AS halPrice,h.markets,
+       rp.chain_slug AS chainSlug,rp.price,rp.unit,
+       DATE_FORMAT(rp.recorded_date,'%Y-%m-%d') AS recordedDate,
+       rp.product_name_raw AS productNameRaw,rp.product_url AS productUrl
+     FROM hf_retail_prices rp JOIN hf_products p ON p.id=rp.product_id
+     JOIN hal h ON h.product_id=rp.product_id AND h.recorded_date=rp.recorded_date
+     WHERE p.seo_index=1 AND p.canonical_slug IS NULL AND p.unit='kg' AND rp.unit='kg'
+       AND ${ELIGIBLE_RETAIL}`,
   );
-
-  const items: GapRow[] = (rows ?? []).map((r) => ({
-    productSlug: String(r.product_slug), productName: String(r.product_name),
-    canonicalSlug: r.canonical_slug ? String(r.canonical_slug) : null,
-    imageUrl: r.image_url ? String(r.image_url) : null,
-    halPrice: Number(r.hal_price), retailPrice: Number(r.retail_price),
-    retailChain: chainLabel(String(r.chain_slug)), markets: Number(r.markets), chains: Number(r.chains ?? 1),
-    gapPct: (Number(r.retail_price) / Number(r.hal_price) - 1) * 100,
+  const selected = chooseGapCandidates(rows as unknown as GapCandidate[], limit);
+  const items = selected.map(r => ({
+    productSlug: r.productSlug, productName: r.productName, canonicalSlug: r.canonicalSlug,
+    imageUrl: r.imageUrl, halPrice: Number(r.halPrice), retailPrice: Number(r.price),
+    retailChain: chainLabel(r.chainSlug), markets: Number(r.markets), chains: r.chains,
+    recordedDate: r.recordedDate, sourceUrl: r.productUrl!, productNameRaw: r.productNameRaw!,
+    gapPct: (Number(r.price) / Number(r.halPrice) - 1) * 100,
   }));
-  items.sort((a, b) => b.gapPct - a.gapPct);
-  return {
-    items,
-    date: items.length ? iso((rows ?? [])[0]!.recorded_date) : "",
-    retailDate: items.length ? iso((rows ?? [])[0]!.retail_date) : "",
-  };
+  const date = items[0]?.recordedDate ?? ""; // policy guarantees every row uses this date
+  return { items, date, retailDate: date };
 }
 
 

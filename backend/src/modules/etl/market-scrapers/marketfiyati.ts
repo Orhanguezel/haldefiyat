@@ -3,12 +3,12 @@
  *
  * Yöntem: REST API (auth-free, sadece UA gerekli).
  * Endpoint: POST /api/v2/search { keywords, pages, size }
- * 5 zincir aynı response içinde: a101, bim, carrefour, migros, tarim_kredi
- * Bir ürünün her zincirde birden fazla şube fiyatı dönebilir → AVG ile aggregate edilir.
+ * İzlenen altı zincir: a101, bim, carrefour, migros, tarim_kredi, sok
+ * Bir ürünün her zincirde birden fazla şube fiyatı dönebilir → aynı kaynak günündeki en düşük doğrulanmış teklif seçilir.
  *
  * Kapsam: menu_category === "Meyve ve Sebze" + Kg-bazlı taze ürünler.
- * Lokasyon: API IP-geolocation ile çalışır, koordinat parametresi yok sayılır
- * → tüm sonuçlar İstanbul depot'larından. UI tarafında "(İstanbul depot ortalaması)" not.
+ * Lokasyon: 6 Eylül örneklemi İstanbul şubelerini döndürdü. Sonuçlar tüm
+ * şubeleri/ülkeyi temsil etmez; konumdan bağımsız ulusal raf fiyatı iddiası yok.
  *
  * Kayıt: hf_retail_prices (chain_slug = "a101" | "bim" | "carrefour" | "migros" | "tarim_kredi")
  * UNIQUE (product_id, chain_slug, recorded_date) → ON DUPLICATE KEY UPDATE
@@ -18,6 +18,7 @@ import { db } from "@/db/client";
 import { hfProducts } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { turkishToAscii, getAliasMap, invalidateAliasCache } from "../normalizer";
+import { MARKETFIYATI_SOURCE, retailTitleMatches, retailUnit, verifiedDepot, type DepotEvidence } from "../retail-source-policy";
 import { upsertRetailPriceRow } from "@/modules/prices/repository";
 
 const API_BASE = "https://api.marketfiyati.org.tr/api/v2";
@@ -76,7 +77,7 @@ const RETAIL_EXTRA: RetailExtra[] = [
     exclude: /ORGAN[İI]K|[ÇC][İI][ĞG]|ESMER|S[İI]YAH|A[ŞS]UREL[İI]K/i },
 ];
 
-interface DepotInfo {
+interface DepotInfo extends DepotEvidence {
   marketAdi: string;
   unitPriceValue: number;
   price: number;
@@ -98,7 +99,7 @@ interface MfSearchResponse {
 async function fetchSearchPage(
   keyword: string,
   page: number,
-): Promise<{ data: MfSearchResponse | null; throttled: boolean }> {
+): Promise<{ data: MfSearchResponse | null; throttled: boolean; error?: string }> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
   try {
@@ -109,11 +110,11 @@ async function fetchSearchPage(
       signal: ctrl.signal,
     });
     if (!res.ok) {
-      return { data: null, throttled: res.status === 403 || res.status === 429 };
+      return { data: null, throttled: res.status === 403 || res.status === 429, error: `SEARCH_HTTP_${res.status}` };
     }
     return { data: (await res.json()) as MfSearchResponse, throttled: false };
   } catch {
-    return { data: null, throttled: false };
+    return { data: null, throttled: false, error: "SEARCH_NETWORK_ERROR" };
   } finally {
     clearTimeout(timer);
   }
@@ -121,21 +122,24 @@ async function fetchSearchPage(
 
 async function searchKeyword(keyword: string): Promise<{
   products: MfProduct[];
+  errors: string[];
   calls: number;
   throttled: boolean;
 }> {
   const all: MfProduct[] = [];
+  const errors: string[] = [];
   let calls = 0;
   for (let page = 0; page < MAX_PAGES_PER_KEYWORD; page++) {
     const response = await fetchSearchPage(keyword, page);
     calls++;
-    if (response.throttled) return { products: all, calls, throttled: true };
+    if (response.error) errors.push(response.error);
+    if (response.throttled) return { products: all, calls, errors, throttled: true };
     const data = response.data;
     if (!data?.content?.length) break;
     all.push(...data.content);
     if (data.content.length < PAGE_SIZE) break;
   }
-  return { products: all, calls, throttled: false };
+  return { products: all, calls, errors, throttled: false };
 }
 
 // "Patates 1 Kg" → "Patates"; "Markasız Salatalık 1 Kg" → "Salatalık"
@@ -147,6 +151,7 @@ function cleanTitle(raw: string): string {
       .replace(/\s+\d+(?:[.,]\d+)?\s*[Gg][Rr]?\s*$/u, "")
       .replace(/\s+\d+(?:[.,]\d+)?\s*[Mm][Ll]\s*$/u, "")
       .replace(/\s+\d+(?:[.,]\d+)?\s*[Ll]\s*$/u, "")
+      .replace(/\s+[Kk][Gg]\s*$/u, "")
       .replace(/\s+[Aa]det\s*$/u, "")
       .replace(/\s+[Pp]aket\s*$/u, "")
       .replace(/\s+[Dd]emet\s*$/u, "")
@@ -163,35 +168,27 @@ function cleanTitle(raw: string): string {
 async function resolveProductId(rawTitle: string): Promise<number | null> {
   const aliasMap = await getAliasMap();
   const cleaned = cleanTitle(rawTitle);
-  let slug = aliasMap.get(turkishToAscii(cleaned));
+  const exactOverrides: Record<string, string> = { "sogan": "sogan-kuru", "kuru sogan": "sogan-kuru" };
+  const slug = exactOverrides[turkishToAscii(cleaned)] ?? aliasMap.get(turkishToAscii(cleaned));
 
-  // Cleaning yetmediyse word-by-word ilk eşleşeni dene (örn. "Kızartmalık Patates" → "Patates")
-  if (!slug) {
-    const words = cleaned.split(/\s+/);
-    for (let cut = 1; cut < words.length; cut++) {
-      const candidate = words.slice(cut).join(" ");
-      slug = aliasMap.get(turkishToAscii(candidate));
-      if (slug) break;
-    }
-  }
-
-  if (!slug) return null;
+  if (!slug || !retailTitleMatches(slug, rawTitle)) return null;
   const rows = await db
-    .select({ id: hfProducts.id })
+    .select({ id: hfProducts.id, unit: hfProducts.unit })
     .from(hfProducts)
     .where(eq(hfProducts.slug, slug))
     .limit(1);
-  return rows[0]?.id ?? null;
+  return rows[0] && retailUnit(rows[0].unit) === "kg" ? rows[0].id : null;
 }
 
-// (chain, productId) → tüm depot unitPriceValue'larını topla
-type Bucket = { sum: number; count: number; productNameRaw: string; unit: string };
+// (chain, productId) → en yeni kaynak günündeki en düşük doğrulanmış teklif
+type Bucket = { price: number; productNameRaw: string; unit: string; recordedDate: string };
 const bucketKey = (chain: ChainSlug, productId: number) => `${chain}::${productId}`;
 
 // Küratörlü perakende ürünü (süt/et) — yoksa oluştur, id döndür.
-async function findOrCreateRetailProduct(x: RetailExtra): Promise<number> {
+async function findOrCreateRetailProduct(x: RetailExtra, dryRun = false): Promise<number | null> {
   const rows = await db.select({ id: hfProducts.id }).from(hfProducts).where(eq(hfProducts.slug, x.slug)).limit(1);
   if (rows[0]) return rows[0].id;
+  if (dryRun) return null;
   await db.insert(hfProducts).values({
     slug: x.slug, nameTr: x.name, categorySlug: x.category, unit: x.unit,
     aliases: [x.name, x.keyword], isActive: 1, seoIndex: 0,
@@ -204,40 +201,52 @@ async function findOrCreateRetailProduct(x: RetailExtra): Promise<number> {
 export interface MarketfiyatiEtlResult {
   inserted: number;
   skipped: number;
+  searchFailures: number;
   unmatched: number;
   unmatchedNames: string[];
   errors: string[];
   keywordCount: number;
   apiCallCount: number;
   throttled: boolean;
+  sourceDates: string[];
+  rejectedEvidence: number;
+  verifiedOffers: number;
+  sample: Array<{ productId: number; chain: string; price: number; unit: string; recordedDate: string; productNameRaw: string }>;
 }
 
 export async function runMarketfiyatiEtl(
   targetDate?: string,
+  options: { dryRun?: boolean } = {},
 ): Promise<MarketfiyatiEtlResult> {
   invalidateAliasCache();
 
-  const recordedDate = targetDate ?? new Date().toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0, 10);
+  if (targetDate && targetDate !== today) throw new Error("Marketfiyati historical backfill is not supported");
   const result: MarketfiyatiEtlResult = {
     inserted: 0,
     skipped: 0,
+    searchFailures: 0,
     unmatched: 0,
     unmatchedNames: [],
     errors: [],
     keywordCount: 0,
     apiCallCount: 0,
     throttled: false,
+    sourceDates: [],
+    rejectedEvidence: 0,
+    verifiedOffers: 0,
+    sample: [],
   };
 
   // 1) Keyword listesi: hf_products'taki taze sebze + meyve (kg birimli)
   const products = await db
-    .select({ slug: hfProducts.slug, nameTr: hfProducts.nameTr, unit: hfProducts.unit })
+    .select({ slug: hfProducts.slug, nameTr: hfProducts.nameTr, unit: hfProducts.unit, category: hfProducts.categorySlug, canonical: hfProducts.canonicalSlug })
     .from(hfProducts)
     .where(eq(hfProducts.isActive, 1));
 
   const keywords = new Set<string>();
   for (const p of products) {
-    if (p.unit !== "kg") continue;
+    if (p.unit !== "kg" || p.canonical || !["sebze", "meyve", "sebze-meyve"].includes(p.category ?? "")) continue;
     const base = p.nameTr
       .replace(/\(.*?\)/g, "")
       .replace(/\s+/g, " ")
@@ -254,6 +263,17 @@ export async function runMarketfiyatiEtl(
 
   // 2) Her keyword için search → menu_category filter → bucket
   const buckets = new Map<string, Bucket>();
+  // Keep one real offer, not an average labelled with the first SKU's title.
+  const collect = (chain: ChainSlug, productId: number, title: string, d: DepotInfo, unit: string) => {
+    const offer = verifiedDepot(d, unit, today);
+    if (!offer) { result.skipped++; result.rejectedEvidence++; return; }
+    const key = bucketKey(chain, productId);
+    const existing = buckets.get(key);
+    if (!existing || offer.date > existing.recordedDate ||
+        (offer.date === existing.recordedDate && offer.price < existing.price)) {
+      buckets.set(key, { price: offer.price, productNameRaw: title, unit: offer.unit, recordedDate: offer.date });
+    }
+  };
 
   // 2a) Faz A2/A3: küratörlü perakende dikeyi (süt/et + paketli bakliyat). Fresh-produce
   // döngüsünden ÖNCE çalışır — marketfiyati ~750 çağrıdan sonra IP'yi throttle'layıp boş
@@ -262,27 +282,25 @@ export async function runMarketfiyatiEtl(
   for (const x of RETAIL_EXTRA) {
     const search = await searchKeyword(x.keyword);
     result.apiCallCount += search.calls;
+    result.searchFailures += search.errors.length;
+    for (const error of search.errors) if (result.errors.length < 10) result.errors.push(error);
     if (search.throttled) {
       throttleDetected = true;
       result.throttled = true;
       result.errors.push(`marketfiyati throttle: kuratorlu dikey ${x.slug} sirasinda durduruldu`);
     }
     const found = search.products;
-    const productId = await findOrCreateRetailProduct(x);
+    const productId = await findOrCreateRetailProduct(x, options.dryRun);
+    if (productId == null) continue;
     for (const p of found) {
       if (p.menu_category !== x.menuCategory) continue;
       // Türkçe büyütme (ı→I, i→İ) — JS /i flag'i Türkçe katlamaz; uppercased başlıkta eşleştir.
       const title = (p.title ?? "").toLocaleUpperCase("tr-TR");
-      if (!x.include.test(title) || x.exclude.test(title)) continue;
+      if (!x.include.test(title) || x.exclude.test(title) || !retailTitleMatches(x.slug, p.title)) continue;
       for (const d of p.productDepotInfoList ?? []) {
         const chain = d.marketAdi as ChainSlug;
         if (!SUPPORTED_CHAINS.includes(chain)) continue;
-        const price = Number(d.unitPriceValue);
-        if (!Number.isFinite(price) || price <= 0) continue;
-        const key = bucketKey(chain, productId);
-        const existing = buckets.get(key);
-        if (existing) { existing.sum += price; existing.count += 1; }
-        else buckets.set(key, { sum: price, count: 1, productNameRaw: p.title, unit: x.unit });
+        collect(chain, productId, p.title, d, x.unit);
       }
     }
     if (throttleDetected) break;
@@ -292,6 +310,8 @@ export async function runMarketfiyatiEtl(
   for (const keyword of throttleDetected ? [] : keywords) {
     const search = await searchKeyword(keyword);
     result.apiCallCount += search.calls;
+    result.searchFailures += search.errors.length;
+    for (const error of search.errors) if (result.errors.length < 10) result.errors.push(error);
     if (search.throttled) {
       result.throttled = true;
       result.errors.push(`marketfiyati throttle: fresh-produce ${keyword} sirasinda durduruldu`);
@@ -313,31 +333,24 @@ export async function runMarketfiyatiEtl(
       for (const d of depots) {
         const chain = d.marketAdi as ChainSlug;
         if (!SUPPORTED_CHAINS.includes(chain)) continue;
-        const price = Number(d.unitPriceValue);
-        if (!Number.isFinite(price) || price <= 0) continue;
-
-        const key = bucketKey(chain, productId);
-        const existing = buckets.get(key);
-        if (existing) {
-          existing.sum += price;
-          existing.count += 1;
-        } else {
-          buckets.set(key, { sum: price, count: 1, productNameRaw: p.title, unit: "kg" });
-        }
+        collect(chain, productId, p.title, d, "kg");
       }
     }
     if (search.throttled) break;
   }
 
 
-  // 3) Bucket → hf_retail_prices upsert (AVG)
+  // 3) Kaynak tarihli, gerçek tek teklif → mevcut retail tablosu
   for (const [key, b] of buckets.entries()) {
     const [chain, productIdStr] = key.split("::");
     const productId = Number(productIdStr);
-    const avg = b.sum / b.count;
+
+    result.verifiedOffers++;
+    if (result.sample.length < 12) result.sample.push({ productId, chain: chain!, ...b });
+    if (options.dryRun) continue;
     try {
-      await upsertRetailPriceRow({ productId, chainSlug: chain!, price: avg, unit: b.unit,
-        productNameRaw: b.productNameRaw, productUrl: null, recordedDate });
+      await upsertRetailPriceRow({ productId, chainSlug: chain!, price: b.price, unit: b.unit,
+        productNameRaw: b.productNameRaw, productUrl: MARKETFIYATI_SOURCE, recordedDate: b.recordedDate });
       result.inserted++;
     } catch (err) {
       result.skipped++;
@@ -347,5 +360,7 @@ export async function runMarketfiyatiEtl(
     }
   }
 
+  result.sourceDates = [...new Set([...buckets.values()].map(b => b.recordedDate))].sort();
+  if (result.verifiedOffers === 0) result.errors.push("NO_VERIFIED_RETAIL_OBSERVATIONS");
   return result;
 }

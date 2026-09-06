@@ -648,9 +648,9 @@ async function runMarketfiyatiJob(app: FastifyInstance): Promise<void> {
   app.log.info("[cron:marketfiyati] coklu zincir ETL baslatiliyor");
   try {
     const result = await runMarketfiyatiEtl();
-    app.log.info(
+    app.log[result.errors.length || !result.inserted ? "warn" : "info"](
       { ...result, durationMs: Date.now() - t0 },
-      "[cron:marketfiyati] tamamlandi",
+      result.errors.length || !result.inserted ? "[cron:marketfiyati] kismi veya bos aktarim" : "[cron:marketfiyati] tamamlandi",
     );
   } catch (err) {
     app.log.error({ err }, "[cron:marketfiyati] hata");

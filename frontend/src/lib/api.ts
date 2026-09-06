@@ -861,6 +861,8 @@ export interface RetailPriceRow {
   price: string;
   unit: string;
   recordedDate: string;
+  productNameRaw?: string | null;
+  productUrl?: string | null;
 }
 
 export async function fetchRetailPrices(productSlug: string): Promise<RetailPriceRow[]> {

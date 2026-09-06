@@ -52,14 +52,14 @@ export default async function RetailComparison({
           {productName} — Hal vs Market
         </h2>
         <span className="text-[11px] uppercase tracking-[0.1em] text-muted">
-          Tahmini perakende karşılaştırması
+          Seçili raf fiyatları
         </span>
       </div>
 
       <p className="mb-4 text-xs leading-relaxed text-muted">
-        Bu tablo, hal toptan ortalamasıyla seçili büyük zincirlerin etiket fiyatını yan yana
-        gösterir. Zincir verisi son 3 günden tek bir günlük örnektir; market fiyatları kampanya,
-        bölge ve tarih farkına göre değişebilir. Perakende verisi destekleyicidir; HalDeFiyat
+        Her zincir için son 3 gün içindeki en yeni doğrulanmış günlük raf örneği gösterilir;
+        farklı günlerin fiyatları ortalanmaz. Market örnekleri tüm şubeleri veya Türkiye genelini
+        temsil etmez. Hal bazının günü, kalite ve ambalaj farklı olabilir. Perakende verisi destekleyicidir; HalDeFiyat
         Endeksi&apos;ni veya hal ortalamasını sürmez. Kaynak çağrı limiti nedeniyle bazı zincir/ürünler
         bir gün eksik kalabilir. {derivedAverageCount > 0 ? (
           <>Hal bazının {derivedAverageCount}/{observationCount} kaydı min–maks orta noktasıdır; işlem hacmi ağırlıklı değildir.</>
@@ -84,10 +84,11 @@ export default async function RetailComparison({
                 </span>
               </div>
               <div className="mt-1 font-(family-name:--font-mono) text-lg font-bold text-foreground">
-                Tahmini perakende ~₺{formatTr(price)}
+                ₺{formatTr(price)}/{row.unit}
               </div>
+              {row.productNameRaw ? <p className="mt-1 text-xs text-muted">{row.productNameRaw}</p> : null}
               <div className="mt-1 text-[11px] text-muted">
-                Veri tazeliği: {retailFreshnessLabel(row.recordedDate)} • {formatDateTr(row.recordedDate, { day: "numeric", month: "long" }) ?? "Tarih doğrulanamadı"} • Kaynak: {chain.sourceUrl}
+                Veri tazeliği: {retailFreshnessLabel(row.recordedDate)} • {formatDateTr(row.recordedDate, { day: "numeric", month: "long" }) ?? "Tarih doğrulanamadı"} • Kaynak: {row.productUrl?.includes("marketfiyati.org.tr") ? "marketfiyati.org.tr" : chain.sourceUrl}
               </div>
             </div>
           );
@@ -97,7 +98,7 @@ export default async function RetailComparison({
       <p className="mt-4 text-[11px] leading-relaxed text-muted">
         Hal fiyatı toptan ortalamadır; perakende zincir fiyatına ulaşırken nakliye, soğuk
         zincir, fire, paket/gramaj ve marka maliyetleri eklenir. Fark ürün ve döneme göre
-        geniş ölçüde değişebilir; bu oran bir piyasa kuralı veya fiyat tahmini değildir.
+        geniş ölçüde değişebilir; bu oran kâr marjı veya fiyat tahmini değildir.
       </p>
     </div>
   );

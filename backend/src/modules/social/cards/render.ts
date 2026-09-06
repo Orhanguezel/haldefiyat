@@ -265,12 +265,12 @@ export async function renderGapCard(items: GapRow[], size: CardSize, dateLabel: 
       <text x="${textX}" y="${y + rowH * 0.8}" font-size="${g.metaSize - 1}" fill="#64748b">${escapeXml(item.retailChain)} rafı</text>
       <text x="${colHal}" y="${y + rowH * 0.62}" text-anchor="end" font-size="${g.priceSize - 2}" font-weight="800" fill="#15803d">₺${escapeXml(fmtPrice(item.halPrice))}</text>
       <text x="${colMarket}" y="${y + rowH * 0.62}" text-anchor="end" font-size="${g.priceSize - 2}" font-weight="800" fill="#b91c1c">₺${escapeXml(fmtPrice(item.retailPrice))}</text>
-      <text x="${rightX}" y="${y + rowH * 0.62}" text-anchor="end" font-size="${g.metaSize + 2}" font-weight="800" fill="#0f172a">${item.gapPct >= 1000 ? "10x+" : `+%${fmtPctTr(item.gapPct)}`}</text>`);
+      <text x="${rightX}" y="${y + rowH * 0.62}" text-anchor="end" font-size="${g.metaSize + 2}" font-weight="800" fill="#0f172a">${item.gapPct > 0 ? "+" : item.gapPct < 0 ? "−" : ""}%${fmtPctTr(item.gapPct)}</text>`);
     y += rowH + g.rowGap;
   });
 
-  const svg = frame(g, "Halden Markete", `${items.length} ürün · TL/kg`, dateLabel, rows.join("\n"),
-    "Hal fiyatını gör, market rafıyla karşılaştır", "haldefiyat.com/fiyatlar");
+  const svg = frame(g, "Halden Markete", `${items.length} ürün · TL/kg · Aynı kaynak günü`, dateLabel, rows.join("\n"),
+    "Seçili raf örnekleri · Fark kâr marjı değildir", "haldefiyat.com/fiyatlar");
   return sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
 }
 

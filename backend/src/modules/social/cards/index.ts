@@ -97,7 +97,8 @@ function cityCaption(data: CityCompare): string {
 }
 
 
-function gapCaption(items: GapRow[], date: string, retailDate: string): string {
+export function gapCaption(items: GapRow[], date: string, retailDate: string): string {
+  if (date !== retailDate || items.some(item => item.recordedDate !== date)) throw new Error("K4_DATE_MISMATCH");
   const lead = items[0];
   const head = lead
     ? `${lead.productName} halde ₺${fmtPrice(lead.halPrice)}, ${lead.retailChain} rafında ₺${fmtPrice(lead.retailPrice)}.`
@@ -106,9 +107,13 @@ function gapCaption(items: GapRow[], date: string, retailDate: string): string {
     head,
     `Bugünün hal fiyatları → ${SITE}/fiyatlar`,
     "",
-    ...items.slice(0, 6).map((i) => `${i.productName}: hal ₺${fmtPrice(i.halPrice)} → ${i.retailChain} ₺${fmtPrice(i.retailPrice)} (+%${fmtPct(i.gapPct)})`),
+    ...items.slice(0, 6).map((i) => `${i.productName}: hal ₺${fmtPrice(i.halPrice)} → ${i.retailChain} ₺${fmtPrice(i.retailPrice)} (${signed(i.gapPct)}) · ${i.markets} hal / ${i.chains} zincir`),
     "",
-    `Hal ${dateLabel(date)}, market ${dateLabel(retailDate)}. Market fiyatı, o üründe bulunan zincirler arasındaki en düşük raf fiyatıdır; hal fiyatı toptan seviyedir.`,
+    `Hal ve market aynı kaynak günü: ${dateLabel(date)}. Birim: TL/kg.`,
+    "Hal: en az 3 halin eşit ağırlıklı ortalaması; işlem hacmi ağırlıklı değildir.",
+    "Market: izlenen zincirlerin doğrulanmış örnekleri içindeki en düşük fiyat; ülke geneli en ucuz fiyat iddiası değildir.",
+    "Kaynak: belediye halleri, marketfiyati.org.tr / Migros. Şube, kalite ve ambalaj farklı olabilir; fark kâr marjı değildir.",
+    "Ürünler arama ilgisine göre seçilir; negatif ve sıfır farklar da kapsamdadır.",
   ].join("\n");
 }
 
@@ -155,14 +160,14 @@ export async function buildCard(series: CardSeries, size: CardSize): Promise<Car
   }
 
   if (series === "k4") {
-    const { items, date, retailDate } = await selectHalToMarket(8);
+    const { items, date, retailDate } = await selectHalToMarket(size === "wide" ? 3 : 6);
     if (items.length < 3) return null;
     const png = await renderGapCard(items, size, dateLabel(date));
-    const imageUrl = await uploadCard(png, `k4-${date}-${size}`);
+    const imageUrl = await uploadCard(png, `k4-v2-${date}-${size}`);
     return {
       series, size, imageUrl, caption: gapCaption(items, date, retailDate),
       hashtags: `${HASHTAGS} #HaldenMarkete`, link: `${SITE}/fiyatlar`,
-      contentKey: `k4:${date}`, recordedDate: date, itemCount: items.length,
+      contentKey: `k4:v2:${date}`, recordedDate: date, itemCount: items.length,
     };
   }
 

@@ -1,0 +1,2378 @@
+{
+  "clock": [
+    {
+      "observed_at": "2026-09-06T14:43:36.000Z",
+      "database_date": "2026-09-06T00:00:00.000Z"
+    }
+  ],
+  "chains": [
+    {
+      "chain_slug": "a101",
+      "records": 2779,
+      "products": 40,
+      "first_date": "2026-05-14T00:00:00.000Z",
+      "last_date": "2026-09-06T00:00:00.000Z",
+      "recent_records": "170"
+    },
+    {
+      "chain_slug": "bim",
+      "records": 3256,
+      "products": 40,
+      "first_date": "2026-05-14T00:00:00.000Z",
+      "last_date": "2026-09-06T00:00:00.000Z",
+      "recent_records": "169"
+    },
+    {
+      "chain_slug": "carrefour",
+      "records": 3570,
+      "products": 67,
+      "first_date": "2026-05-14T00:00:00.000Z",
+      "last_date": "2026-09-06T00:00:00.000Z",
+      "recent_records": "175"
+    },
+    {
+      "chain_slug": "migros",
+      "records": 4861,
+      "products": 96,
+      "first_date": "2026-05-13T00:00:00.000Z",
+      "last_date": "2026-09-06T00:00:00.000Z",
+      "recent_records": "228"
+    },
+    {
+      "chain_slug": "sok",
+      "records": 1833,
+      "products": 35,
+      "first_date": "2026-06-18T00:00:00.000Z",
+      "last_date": "2026-09-06T00:00:00.000Z",
+      "recent_records": "139"
+    },
+    {
+      "chain_slug": "tarim_kredi",
+      "records": 1722,
+      "products": 29,
+      "first_date": "2026-05-14T00:00:00.000Z",
+      "last_date": "2026-09-06T00:00:00.000Z",
+      "recent_records": "92"
+    }
+  ],
+  "daily": [
+    {
+      "recorded_date": "2026-08-23T00:00:00.000Z",
+      "records": 209,
+      "products": 76,
+      "chains": 6
+    },
+    {
+      "recorded_date": "2026-08-24T00:00:00.000Z",
+      "records": 41,
+      "products": 41,
+      "chains": 1
+    },
+    {
+      "recorded_date": "2026-08-25T00:00:00.000Z",
+      "records": 173,
+      "products": 45,
+      "chains": 6
+    },
+    {
+      "recorded_date": "2026-08-26T00:00:00.000Z",
+      "records": 213,
+      "products": 77,
+      "chains": 6
+    },
+    {
+      "recorded_date": "2026-08-27T00:00:00.000Z",
+      "records": 211,
+      "products": 77,
+      "chains": 6
+    },
+    {
+      "recorded_date": "2026-08-28T00:00:00.000Z",
+      "records": 210,
+      "products": 77,
+      "chains": 6
+    },
+    {
+      "recorded_date": "2026-08-29T00:00:00.000Z",
+      "records": 185,
+      "products": 76,
+      "chains": 5
+    },
+    {
+      "recorded_date": "2026-08-30T00:00:00.000Z",
+      "records": 164,
+      "products": 57,
+      "chains": 6
+    },
+    {
+      "recorded_date": "2026-08-31T00:00:00.000Z",
+      "records": 150,
+      "products": 45,
+      "chains": 6
+    },
+    {
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "records": 200,
+      "products": 73,
+      "chains": 6
+    },
+    {
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "records": 207,
+      "products": 80,
+      "chains": 6
+    },
+    {
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "records": 208,
+      "products": 83,
+      "chains": 6
+    },
+    {
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "records": 179,
+      "products": 55,
+      "chains": 6
+    },
+    {
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "records": 179,
+      "products": 55,
+      "chains": 6
+    }
+  ],
+  "units": [
+    {
+      "unit": "kg",
+      "product_unit": "kg",
+      "records": 943
+    },
+    {
+      "unit": "lt",
+      "product_unit": "litre",
+      "records": 30
+    }
+  ],
+  "samples": [
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "a101",
+      "price": "697.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "a101",
+      "price": "697.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "a101",
+      "price": "697.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "a101",
+      "price": "825.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "a101",
+      "price": "825.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "bim",
+      "price": "825.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Emin %20 Yağlı Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "bim",
+      "price": "825.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Emin %20 Yağlı Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "bim",
+      "price": "825.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Emin %20 Yağlı Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "bim",
+      "price": "825.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Emin %20 Yağlı Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "bim",
+      "price": "825.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Emin %20 Yağlı Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "carrefour",
+      "price": "699.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Dana Kıyma Map 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "carrefour",
+      "price": "699.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Dana Kıyma Map 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "carrefour",
+      "price": "699.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Dana Kıyma Map 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "carrefour",
+      "price": "699.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Dana Kıyma Map 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "carrefour",
+      "price": "699.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Dana Kıyma Map 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "migros",
+      "price": "697.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Uzman Kasap Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "migros",
+      "price": "697.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Uzman Kasap Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "migros",
+      "price": "698.97",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Uzman Kasap Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "migros",
+      "price": "737.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Uzman Kasap Dana Kuzu Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "migros",
+      "price": "737.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Uzman Kasap Dana Kuzu Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "sok",
+      "price": "825.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Lezzetlim Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "sok",
+      "price": "825.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Lezzetlim Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "sok",
+      "price": "825.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Lezzetlim Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "sok",
+      "price": "825.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Lezzetlim Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "sok",
+      "price": "825.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Lezzetlim Dana Kıyma 400 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "tarim_kredi",
+      "price": "600.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Et Ve Süt Kurumu Kıyma 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "tarim_kredi",
+      "price": "600.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Et Ve Süt Kurumu Kıyma 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "tarim_kredi",
+      "price": "600.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Et Ve Süt Kurumu Kıyma 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "tarim_kredi",
+      "price": "600.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Et Ve Süt Kurumu Kıyma 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "tarim_kredi",
+      "price": "600.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Et Ve Süt Kurumu Kıyma 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "a101",
+      "price": "86.74",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Şeker Domates 250 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "a101",
+      "price": "86.74",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Şeker Domates 250 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "a101",
+      "price": "86.74",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Şeker Domates 250 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "a101",
+      "price": "131.24",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Şeker Domates 250 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "a101",
+      "price": "131.24",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Şeker Domates 250 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "bim",
+      "price": "63.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Kokteyl Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "bim",
+      "price": "63.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Kokteyl Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "bim",
+      "price": "63.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Kokteyl Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "bim",
+      "price": "63.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Kokteyl Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "bim",
+      "price": "63.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Kokteyl Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "carrefour",
+      "price": "146.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Eko Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "carrefour",
+      "price": "146.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Eko Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "carrefour",
+      "price": "176.37",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Eko Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "carrefour",
+      "price": "144.21",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Kokteyl Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "carrefour",
+      "price": "144.21",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Kokteyl Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "sok",
+      "price": "29.45",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "sok",
+      "price": "29.45",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "sok",
+      "price": "31.20",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "sok",
+      "price": "31.20",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "sok",
+      "price": "31.20",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "tarim_kredi",
+      "price": "24.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Tagem Turuncu Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "tarim_kredi",
+      "price": "24.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Tagem Turuncu Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "tarim_kredi",
+      "price": "24.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Tagem Turuncu Domates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "a101",
+      "price": "65.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "a101",
+      "price": "65.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "a101",
+      "price": "79.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "a101",
+      "price": "79.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "a101",
+      "price": "79.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "bim",
+      "price": "65.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "bim",
+      "price": "65.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "bim",
+      "price": "65.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "bim",
+      "price": "79.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "bim",
+      "price": "79.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "migros",
+      "price": "70.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Limon Kg",
+      "product_url": "https://www.migros.com.tr/limon-kg-p-19ff462"
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "migros",
+      "price": "70.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Limon Kg",
+      "product_url": "https://www.migros.com.tr/limon-kg-p-19ff462"
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "migros",
+      "price": "92.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Limon Kg",
+      "product_url": "https://www.migros.com.tr/limon-kg-p-19ff462"
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "migros",
+      "price": "92.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Limon Kg",
+      "product_url": "https://www.migros.com.tr/limon-kg-p-19ff462"
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "migros",
+      "price": "94.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Limon Kg",
+      "product_url": "https://www.migros.com.tr/limon-kg-p-19ff462"
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "sok",
+      "price": "79.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "sok",
+      "price": "79.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "sok",
+      "price": "79.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "sok",
+      "price": "79.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "sok",
+      "price": "79.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "tarim_kredi",
+      "price": "64.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "limon",
+      "chain_slug": "tarim_kredi",
+      "price": "64.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Limon 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "muz",
+      "chain_slug": "migros",
+      "price": "115.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Muz İthal Kg",
+      "product_url": "https://www.migros.com.tr/muz-ithal-kg-p-1a01f58"
+    },
+    {
+      "slug": "muz",
+      "chain_slug": "migros",
+      "price": "167.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Muz Organik Kg",
+      "product_url": "https://www.migros.com.tr/muz-organik-kg-p-1a02340"
+    },
+    {
+      "slug": "muz",
+      "chain_slug": "migros",
+      "price": "167.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Muz Organik Kg",
+      "product_url": "https://www.migros.com.tr/muz-organik-kg-p-1a02340"
+    },
+    {
+      "slug": "muz",
+      "chain_slug": "migros",
+      "price": "146.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Muz İthal Kg",
+      "product_url": "https://www.migros.com.tr/muz-ithal-kg-p-1a01f58"
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "a101",
+      "price": "29.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "a101",
+      "price": "29.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "a101",
+      "price": "35.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "a101",
+      "price": "35.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "a101",
+      "price": "35.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "bim",
+      "price": "28.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Kızartmalık Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "bim",
+      "price": "28.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Kızartmalık Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "bim",
+      "price": "28.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Kızartmalık Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "bim",
+      "price": "31.25",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Kızartmalık Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "bim",
+      "price": "31.25",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Kızartmalık Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "carrefour",
+      "price": "67.40",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Baby Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "carrefour",
+      "price": "67.40",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Baby Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "carrefour",
+      "price": "67.40",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Baby Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "carrefour",
+      "price": "62.40",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Baby Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "carrefour",
+      "price": "62.40",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Baby Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "migros",
+      "price": "99.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Torpat Parmak Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "migros",
+      "price": "99.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Torpat Parmak Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "migros",
+      "price": "99.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Torpat Parmak Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "migros",
+      "price": "99.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Torpat Parmak Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "migros",
+      "price": "99.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Torpat Parmak Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "sok",
+      "price": "29.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "sok",
+      "price": "29.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "sok",
+      "price": "35.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "sok",
+      "price": "35.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "sok",
+      "price": "35.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "tarim_kredi",
+      "price": "27.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "tarim_kredi",
+      "price": "27.50",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "tarim_kredi",
+      "price": "29.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "tarim_kredi",
+      "price": "29.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "patates",
+      "chain_slug": "tarim_kredi",
+      "price": "29.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Patates 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "a101",
+      "price": "46.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Çengelköy Salatalık 500 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "a101",
+      "price": "46.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Çengelköy Salatalık 500 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "a101",
+      "price": "46.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Çengelköy Salatalık 500 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "a101",
+      "price": "59.25",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Çengelköy Salatalık 500 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "a101",
+      "price": "59.25",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Çengelköy Salatalık 500 Gr",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "bim",
+      "price": "56.75",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Çengelköy Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "bim",
+      "price": "56.75",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Çengelköy Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "bim",
+      "price": "56.75",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Çengelköy Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "bim",
+      "price": "59.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Çengelköy Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "bim",
+      "price": "59.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Çengelköy Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "carrefour",
+      "price": "29.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "carrefour",
+      "price": "29.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "carrefour",
+      "price": "29.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "carrefour",
+      "price": "29.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "carrefour",
+      "price": "29.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "migros",
+      "price": "34.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Hıyar 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "migros",
+      "price": "34.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Hıyar 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "migros",
+      "price": "34.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Hıyar 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "migros",
+      "price": "34.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Hıyar 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "migros",
+      "price": "34.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Hıyar 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "sok",
+      "price": "49.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "sok",
+      "price": "49.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "sok",
+      "price": "49.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "sok",
+      "price": "49.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "sok",
+      "price": "49.90",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "tarim_kredi",
+      "price": "39.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "tarim_kredi",
+      "price": "39.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "tarim_kredi",
+      "price": "39.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "tarim_kredi",
+      "price": "39.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "tarim_kredi",
+      "price": "39.00",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Salatalık 1 Kg",
+      "product_url": null
+    },
+    {
+      "slug": "sogan-kuru",
+      "chain_slug": "migros",
+      "price": "27.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Soğan Kuru (Yeni Mahsul) Kg",
+      "product_url": "https://www.migros.com.tr/sogan-kuru-yeni-mahsul-kg-p-1b13277"
+    },
+    {
+      "slug": "sogan-kuru",
+      "chain_slug": "migros",
+      "price": "27.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Soğan Kuru (Yeni Mahsul) Kg",
+      "product_url": "https://www.migros.com.tr/sogan-kuru-yeni-mahsul-kg-p-1b13277"
+    },
+    {
+      "slug": "sogan-kuru",
+      "chain_slug": "migros",
+      "price": "36.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Soğan Kuru (Yeni Mahsul) Kg",
+      "product_url": "https://www.migros.com.tr/sogan-kuru-yeni-mahsul-kg-p-1b13277"
+    },
+    {
+      "slug": "sogan-kuru",
+      "chain_slug": "migros",
+      "price": "36.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Soğan Kuru (Yeni Mahsul) Kg",
+      "product_url": "https://www.migros.com.tr/sogan-kuru-yeni-mahsul-kg-p-1b13277"
+    },
+    {
+      "slug": "sogan-kuru",
+      "chain_slug": "migros",
+      "price": "41.95",
+      "unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Soğan Kuru (Yeni Mahsul) Kg",
+      "product_url": "https://www.migros.com.tr/sogan-kuru-yeni-mahsul-kg-p-1b13277"
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "a101",
+      "price": "70.64",
+      "unit": "lt",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Sek Yağlı Süt 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "a101",
+      "price": "70.64",
+      "unit": "lt",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Sek Yağlı Süt 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "a101",
+      "price": "70.64",
+      "unit": "lt",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Sek Yağlı Süt 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "a101",
+      "price": "67.01",
+      "unit": "lt",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Sek Yağlı Süt 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "a101",
+      "price": "67.01",
+      "unit": "lt",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Sek Yağlı Süt 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "bim",
+      "price": "50.83",
+      "unit": "lt",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Aynes %1.5 Yağlı Süt 200 Ml",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "bim",
+      "price": "50.83",
+      "unit": "lt",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Aynes %1.5 Yağlı Süt 200 Ml",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "bim",
+      "price": "50.83",
+      "unit": "lt",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Dost %0.5 Yağlı Süt 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "bim",
+      "price": "50.38",
+      "unit": "lt",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Dost %0.5 Yağlı Süt 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "bim",
+      "price": "50.38",
+      "unit": "lt",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Dost %0.5 Yağlı Süt 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "carrefour",
+      "price": "91.21",
+      "unit": "lt",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Sek Süt 200 Ml",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "carrefour",
+      "price": "91.21",
+      "unit": "lt",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Sek Süt 200 Ml",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "carrefour",
+      "price": "90.54",
+      "unit": "lt",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Sek Süt 200 Ml",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "carrefour",
+      "price": "87.19",
+      "unit": "lt",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Sek Süt 200 Ml",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "carrefour",
+      "price": "87.19",
+      "unit": "lt",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Sek Süt 200 Ml",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "migros",
+      "price": "106.38",
+      "unit": "lt",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Sek Süt 200 Ml",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "migros",
+      "price": "106.38",
+      "unit": "lt",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Sek Süt 200 Ml",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "migros",
+      "price": "106.38",
+      "unit": "lt",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Sek Süt 200 Ml",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "migros",
+      "price": "104.18",
+      "unit": "lt",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Sek Süt 200 Ml",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "migros",
+      "price": "104.18",
+      "unit": "lt",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Sek Süt 200 Ml",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "sok",
+      "price": "61.67",
+      "unit": "lt",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Mis Bakraçlık Süt Tam Yağlı 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "sok",
+      "price": "61.67",
+      "unit": "lt",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Mis Bakraçlık Süt Tam Yağlı 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "sok",
+      "price": "61.67",
+      "unit": "lt",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Mis Bakraçlık Süt Tam Yağlı 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "sok",
+      "price": "63.33",
+      "unit": "lt",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Mis Bakraçlık Süt Tam Yağlı 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "sok",
+      "price": "63.33",
+      "unit": "lt",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Mis Bakraçlık Süt Tam Yağlı 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "tarim_kredi",
+      "price": "75.04",
+      "unit": "lt",
+      "recorded_date": "2026-09-06T00:00:00.000Z",
+      "product_name_raw": "Tarım Kredi Yağlı Süt %3.1 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "tarim_kredi",
+      "price": "75.04",
+      "unit": "lt",
+      "recorded_date": "2026-09-05T00:00:00.000Z",
+      "product_name_raw": "Tarım Kredi Yağlı Süt %3.1 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "tarim_kredi",
+      "price": "67.94",
+      "unit": "lt",
+      "recorded_date": "2026-09-04T00:00:00.000Z",
+      "product_name_raw": "Tarım Kredi Yağlı Süt %3.1 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "tarim_kredi",
+      "price": "67.94",
+      "unit": "lt",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Tarım Kredi Yağlı Süt %3.1 1 Lt",
+      "product_url": null
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "tarim_kredi",
+      "price": "67.94",
+      "unit": "lt",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Tarım Kredi Yağlı Süt %3.1 1 Lt",
+      "product_url": null
+    }
+  ],
+  "suspicious_names": [
+    {
+      "slug": "havuc",
+      "chain_slug": "migros",
+      "price": "68.50",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Havuç Beypazarı Paket Kg"
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "migros",
+      "price": "737.50",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Uzman Kasap Dana Kuzu Kıyma 400 Gr"
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "sok",
+      "price": "825.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Lezzetlim Dana Kıyma 400 Gr"
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "a101",
+      "price": "825.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Dana Kıyma 400 Gr"
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "bim",
+      "price": "825.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Emin %20 Yağlı Dana Kıyma 400 Gr"
+    },
+    {
+      "slug": "dana-kusbasi",
+      "chain_slug": "migros",
+      "price": "850.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Uzman Kasap Dana Kuşbaşı 400 Gr"
+    },
+    {
+      "slug": "dana-kusbasi",
+      "chain_slug": "a101",
+      "price": "875.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Dana Kuşbaşı 400 Gr"
+    },
+    {
+      "slug": "dana-kusbasi",
+      "chain_slug": "bim",
+      "price": "875.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Emin Dana Kuşbaşı Et 400 Gr"
+    },
+    {
+      "slug": "dana-kusbasi",
+      "chain_slug": "sok",
+      "price": "997.50",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Lezzetlim Dana Kuşbaşı 400 Gr"
+    },
+    {
+      "slug": "dana-kusbasi",
+      "chain_slug": "carrefour",
+      "price": "899.80",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Dana Kuşbaşı 500 Gr"
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "migros",
+      "price": "104.18",
+      "unit": "lt",
+      "product_unit": "litre",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Sek Süt 200 Ml"
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "carrefour",
+      "price": "87.19",
+      "unit": "lt",
+      "product_unit": "litre",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Sek Süt 200 Ml"
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "bim",
+      "price": "50.38",
+      "unit": "lt",
+      "product_unit": "litre",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Dost %0.5 Yağlı Süt 1 Lt"
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "a101",
+      "price": "67.01",
+      "unit": "lt",
+      "product_unit": "litre",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Sek Yağlı Süt 1 Lt"
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "tarim_kredi",
+      "price": "67.94",
+      "unit": "lt",
+      "product_unit": "litre",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Tarım Kredi Yağlı Süt %3.1 1 Lt"
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "sok",
+      "price": "63.33",
+      "unit": "lt",
+      "product_unit": "litre",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Mis Bakraçlık Süt Tam Yağlı 1 Lt"
+    },
+    {
+      "slug": "beyaz-peynir",
+      "chain_slug": "sok",
+      "price": "321.30",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Mis Yarım Yağlı Süzme Beyaz Peynir 500 Gr"
+    },
+    {
+      "slug": "beyaz-peynir",
+      "chain_slug": "bim",
+      "price": "355.29",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Torku Beyaz Peynir 500 Gr"
+    },
+    {
+      "slug": "beyaz-peynir",
+      "chain_slug": "migros",
+      "price": "555.16",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "İçim Tam Yağlı Beyaz Peynir 500 Gr"
+    },
+    {
+      "slug": "beyaz-peynir",
+      "chain_slug": "carrefour",
+      "price": "655.32",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Ekici Beyaz Peynir 500 Gr"
+    },
+    {
+      "slug": "beyaz-peynir",
+      "chain_slug": "a101",
+      "price": "344.64",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Ahir Beyaz Peynir 750 Gr"
+    },
+    {
+      "slug": "beyaz-peynir",
+      "chain_slug": "tarim_kredi",
+      "price": "453.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Tarım Kredi Tam Yağlı Taze Beyaz Peynir 500 Gr"
+    },
+    {
+      "slug": "yogurt",
+      "chain_slug": "carrefour",
+      "price": "166.21",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Eker İncirli Yulaflı Probiyotik Yoğurt 125 Gr"
+    },
+    {
+      "slug": "yogurt",
+      "chain_slug": "a101",
+      "price": "116.86",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Eker Çırpılmış Yoğurt 500 Gr"
+    },
+    {
+      "slug": "yogurt",
+      "chain_slug": "migros",
+      "price": "836.60",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Eker Çırpılmış Yoğurt 500 Gr"
+    },
+    {
+      "slug": "kuru-fasulye",
+      "chain_slug": "sok",
+      "price": "64.06",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Bizim Vatan Haşlanmış Kuru Fasulye 800 Gr"
+    },
+    {
+      "slug": "kuru-fasulye",
+      "chain_slug": "carrefour",
+      "price": "190.62",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Duru Haşlanmış Fasulye 400 Gr"
+    },
+    {
+      "slug": "kuru-fasulye",
+      "chain_slug": "migros",
+      "price": "244.97",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Yurt Kuru Fasulye 400 Gr"
+    },
+    {
+      "slug": "kuru-fasulye",
+      "chain_slug": "a101",
+      "price": "113.75",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Yurt Kuru Fasulye 400 Gr"
+    },
+    {
+      "slug": "nohut",
+      "chain_slug": "sok",
+      "price": "56.56",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Bizim Vatan Haşlanmış Nohut 800 Gr"
+    },
+    {
+      "slug": "nohut",
+      "chain_slug": "carrefour",
+      "price": "328.30",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Duru Haşlanmış Nohut 400 Gr"
+    },
+    {
+      "slug": "biber",
+      "chain_slug": "a101",
+      "price": "131.67",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Kırmızı Biber Paket 300 Gr"
+    },
+    {
+      "slug": "domates",
+      "chain_slug": "a101",
+      "price": "131.24",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Şeker Domates 250 Gr"
+    },
+    {
+      "slug": "salkim-domates",
+      "chain_slug": "a101",
+      "price": "129.80",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Salkım Domates Paket 500 Gr"
+    },
+    {
+      "slug": "havuc",
+      "chain_slug": "a101",
+      "price": "91.14",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Havuç Paket 350 Gr"
+    },
+    {
+      "slug": "mantar",
+      "chain_slug": "carrefour",
+      "price": "233.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Mantar 300 Gr"
+    },
+    {
+      "slug": "mantar",
+      "chain_slug": "sok",
+      "price": "249.67",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Mantar 300 Gr"
+    },
+    {
+      "slug": "mantar",
+      "chain_slug": "bim",
+      "price": "197.50",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Mantar 400 Gr"
+    },
+    {
+      "slug": "salatalik",
+      "chain_slug": "a101",
+      "price": "59.25",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Çengelköy Salatalık 500 Gr"
+    },
+    {
+      "slug": "sarimsak",
+      "chain_slug": "a101",
+      "price": "247.50",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "File Sarımsak 200 Gr"
+    },
+    {
+      "slug": "sarimsak",
+      "chain_slug": "tarim_kredi",
+      "price": "199.60",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Sarımsak File 250 Gr"
+    },
+    {
+      "slug": "zencefil",
+      "chain_slug": "bim",
+      "price": "196.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-02T00:00:00.000Z",
+      "product_name_raw": "Zencefil 250 Gr"
+    },
+    {
+      "slug": "havuc",
+      "chain_slug": "migros",
+      "price": "68.50",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Havuç Beypazarı Paket Kg"
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "migros",
+      "price": "737.50",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Uzman Kasap Dana Kuzu Kıyma 400 Gr"
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "sok",
+      "price": "825.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Lezzetlim Dana Kıyma 400 Gr"
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "a101",
+      "price": "825.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Dana Kıyma 400 Gr"
+    },
+    {
+      "slug": "dana-kiyma",
+      "chain_slug": "bim",
+      "price": "825.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Emin %20 Yağlı Dana Kıyma 400 Gr"
+    },
+    {
+      "slug": "dana-kusbasi",
+      "chain_slug": "migros",
+      "price": "850.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Uzman Kasap Dana Kuşbaşı 400 Gr"
+    },
+    {
+      "slug": "dana-kusbasi",
+      "chain_slug": "a101",
+      "price": "875.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Dana Kuşbaşı 400 Gr"
+    },
+    {
+      "slug": "dana-kusbasi",
+      "chain_slug": "bim",
+      "price": "875.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Emin Dana Kuşbaşı Et 400 Gr"
+    },
+    {
+      "slug": "dana-kusbasi",
+      "chain_slug": "sok",
+      "price": "997.50",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Lezzetlim Dana Kuşbaşı 400 Gr"
+    },
+    {
+      "slug": "dana-kusbasi",
+      "chain_slug": "carrefour",
+      "price": "899.80",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Dana Kuşbaşı 500 Gr"
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "migros",
+      "price": "104.18",
+      "unit": "lt",
+      "product_unit": "litre",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Sek Süt 200 Ml"
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "carrefour",
+      "price": "87.19",
+      "unit": "lt",
+      "product_unit": "litre",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Sek Süt 200 Ml"
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "bim",
+      "price": "50.38",
+      "unit": "lt",
+      "product_unit": "litre",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Dost %0.5 Yağlı Süt 1 Lt"
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "a101",
+      "price": "67.01",
+      "unit": "lt",
+      "product_unit": "litre",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Sek Yağlı Süt 1 Lt"
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "tarim_kredi",
+      "price": "67.94",
+      "unit": "lt",
+      "product_unit": "litre",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Tarım Kredi Yağlı Süt %3.1 1 Lt"
+    },
+    {
+      "slug": "sut",
+      "chain_slug": "sok",
+      "price": "63.33",
+      "unit": "lt",
+      "product_unit": "litre",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Mis Bakraçlık Süt Tam Yağlı 1 Lt"
+    },
+    {
+      "slug": "beyaz-peynir",
+      "chain_slug": "sok",
+      "price": "321.30",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Mis Yarım Yağlı Süzme Beyaz Peynir 500 Gr"
+    },
+    {
+      "slug": "beyaz-peynir",
+      "chain_slug": "bim",
+      "price": "355.29",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Torku Beyaz Peynir 500 Gr"
+    },
+    {
+      "slug": "beyaz-peynir",
+      "chain_slug": "migros",
+      "price": "555.16",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "İçim Tam Yağlı Beyaz Peynir 500 Gr"
+    },
+    {
+      "slug": "beyaz-peynir",
+      "chain_slug": "carrefour",
+      "price": "655.32",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Ekici Beyaz Peynir 500 Gr"
+    },
+    {
+      "slug": "beyaz-peynir",
+      "chain_slug": "a101",
+      "price": "344.64",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Ahir Beyaz Peynir 750 Gr"
+    },
+    {
+      "slug": "beyaz-peynir",
+      "chain_slug": "tarim_kredi",
+      "price": "453.00",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Tarım Kredi Tam Yağlı Taze Beyaz Peynir 500 Gr"
+    },
+    {
+      "slug": "yogurt",
+      "chain_slug": "carrefour",
+      "price": "166.21",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Eker İncirli Yulaflı Probiyotik Yoğurt 125 Gr"
+    },
+    {
+      "slug": "yogurt",
+      "chain_slug": "a101",
+      "price": "116.86",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Eker Çırpılmış Yoğurt 500 Gr"
+    },
+    {
+      "slug": "yogurt",
+      "chain_slug": "migros",
+      "price": "836.60",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Eker Çırpılmış Yoğurt 500 Gr"
+    },
+    {
+      "slug": "kuru-fasulye",
+      "chain_slug": "sok",
+      "price": "64.06",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Bizim Vatan Haşlanmış Kuru Fasulye 800 Gr"
+    },
+    {
+      "slug": "kuru-fasulye",
+      "chain_slug": "carrefour",
+      "price": "190.62",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Duru Haşlanmış Fasulye 400 Gr"
+    },
+    {
+      "slug": "kuru-fasulye",
+      "chain_slug": "migros",
+      "price": "244.97",
+      "unit": "kg",
+      "product_unit": "kg",
+      "recorded_date": "2026-09-03T00:00:00.000Z",
+      "product_name_raw": "Yurt Kuru Fasulye 400 Gr"
+    }
+  ],
+  "quarantine": [
+    {
+      "reason_code": "RETAIL_PEER_DEVIATION",
+      "status": "pending",
+      "records": 54,
+      "last_date": "2026-09-06T00:00:00.000Z"
+    },
+    {
+      "reason_code": "WHOLESALE_MARKUP_LIMIT",
+      "status": "pending",
+      "records": 77,
+      "last_date": "2026-09-06T00:00:00.000Z"
+    }
+  ],
+  "provenance": [
+    {
+      "records": 973,
+      "missing_url": "825",
+      "unmatched": "0",
+      "future_date": "0"
+    }
+  ]
+}

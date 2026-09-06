@@ -1,0 +1,259 @@
+{
+  "retrievedAt": "2026-09-06",
+  "endpoint": "https://api.marketfiyati.org.tr/api/v2/search",
+  "rows": [
+    {
+      "keyword": "domates",
+      "title": "Tukaş Domates Salçası 700 Gr",
+      "sourceProductId": "2614",
+      "chain": "bim",
+      "price": 32.75,
+      "unitPrice": "46,79 ₺/Kg",
+      "unitPriceValue": 46.785717,
+      "indexTime": "05.09.2026 07:54",
+      "depotName": "Çiçekçi  Üsküdar"
+    },
+    {
+      "keyword": "domates",
+      "title": "Tat Cam Domates Salçası 360 Gr",
+      "sourceProductId": "1ZZK",
+      "chain": "carrefour",
+      "price": 69.95,
+      "unitPrice": "194,31 ₺/Kg",
+      "unitPriceValue": 194.30556,
+      "indexTime": "05.09.2026 07:56",
+      "depotName": "Istanbul Acıbadem Hıper"
+    },
+    {
+      "keyword": "domates",
+      "title": "Kazova Cam Domates Salçası 720 Gr",
+      "sourceProductId": "08IJ",
+      "chain": "hakmar",
+      "price": 79.5,
+      "unitPrice": "110,42 ₺/Kg",
+      "unitPriceValue": 110.416664,
+      "indexTime": "05.09.2026 07:56",
+      "depotName": "Ahmediye  Üsküdar"
+    },
+    {
+      "keyword": "domates",
+      "title": "Tamek Domates Salçası 1.5 Kg",
+      "sourceProductId": "1UKT",
+      "chain": "bim",
+      "price": 129.0,
+      "unitPrice": "86,00 ₺/Kg",
+      "unitPriceValue": 86.0,
+      "indexTime": "05.09.2026 07:55",
+      "depotName": "Çiçekçi  Üsküdar"
+    },
+    {
+      "keyword": "domates",
+      "title": "Tukaş Domates Salçası 1.65 Kg",
+      "sourceProductId": "20PN",
+      "chain": "bim",
+      "price": 135.0,
+      "unitPrice": "81,82 ₺/Kg",
+      "unitPriceValue": 81.81818,
+      "indexTime": "05.09.2026 07:54",
+      "depotName": "Çiçekçi  Üsküdar"
+    },
+    {
+      "keyword": "domates",
+      "title": "Tukaş Domates Salçası 1.65 Kg",
+      "sourceProductId": "20PN",
+      "chain": "migros",
+      "price": 174.95,
+      "unitPrice": "106,03 ₺/Kg",
+      "unitPriceValue": 106.030304,
+      "indexTime": "05.09.2026 07:54",
+      "depotName": "Çiçekçi M Migros"
+    },
+    {
+      "keyword": "yogurt",
+      "title": "Danone Kıtırlı Meyveli Yoğurt 90 Gr",
+      "sourceProductId": "0TJ3",
+      "chain": "a101",
+      "price": 29.5,
+      "unitPrice": "327,78 ₺/Kg",
+      "unitPriceValue": 327.77777,
+      "indexTime": "05.09.2026 07:51",
+      "depotName": "Kostak Ümraniye"
+    },
+    {
+      "keyword": "yogurt",
+      "title": "Danino Hüpper Çilekli Yoğurt 67 Gr",
+      "sourceProductId": "1W7E",
+      "chain": "carrefour",
+      "price": 32.5,
+      "unitPrice": "485,07 ₺/Kg",
+      "unitPriceValue": 485.07465,
+      "indexTime": "05.09.2026 07:55",
+      "depotName": "Istanbul Üsküdar Salacak Mını"
+    },
+    {
+      "keyword": "yogurt",
+      "title": "Danino Hüpper Çilekli Yoğurt 67 Gr",
+      "sourceProductId": "1W7E",
+      "chain": "sok",
+      "price": 39.0,
+      "unitPrice": "582,09 ₺/Kg",
+      "unitPriceValue": 582.08954,
+      "indexTime": "05.09.2026 07:55",
+      "depotName": "Şok Minifevziçakmak"
+    },
+    {
+      "keyword": "yogurt",
+      "title": "Danino Hüpper Çilekli Yoğurt 67 Gr",
+      "sourceProductId": "1W7E",
+      "chain": "migros",
+      "price": 39.0,
+      "unitPrice": "582,09 ₺/Kg",
+      "unitPriceValue": 582.08954,
+      "indexTime": "05.09.2026 07:55",
+      "depotName": "Kadıköy Caferağa M Migros"
+    },
+    {
+      "keyword": "yogurt",
+      "title": "Eker Çilekli Yoğurt 65 Gr",
+      "sourceProductId": "216L",
+      "chain": "carrefour",
+      "price": 35.0,
+      "unitPrice": "538,46 ₺/Kg",
+      "unitPriceValue": 538.46155,
+      "indexTime": "05.09.2026 07:54",
+      "depotName": "Istanbul Acıbadem Hıper"
+    },
+    {
+      "keyword": "yogurt",
+      "title": "Eker Çırpılmış Yoğurt 500 Gr",
+      "sourceProductId": "20X1",
+      "chain": "a101",
+      "price": 65.0,
+      "unitPrice": "130,00 ₺/Kg",
+      "unitPriceValue": 130.0,
+      "indexTime": "05.09.2026 07:54",
+      "depotName": "Rıhtım Kadıköy Istanbul"
+    },
+    {
+      "keyword": "yogurt",
+      "title": "Eker Çırpılmış Yoğurt 500 Gr",
+      "sourceProductId": "20X1",
+      "chain": "migros",
+      "price": 84.95,
+      "unitPrice": "169,90 ₺/Kg",
+      "unitPriceValue": 169.9,
+      "indexTime": "05.09.2026 07:54",
+      "depotName": "Kadıköy Caferağa M Migros"
+    },
+    {
+      "keyword": "yogurt",
+      "title": "Eker Çırpılmış Yoğurt 500 Gr",
+      "sourceProductId": "20X1",
+      "chain": "carrefour",
+      "price": 84.95,
+      "unitPrice": "169,90 ₺/Kg",
+      "unitPriceValue": 169.9,
+      "indexTime": "05.09.2026 07:54",
+      "depotName": "Istanbul Acıbadem Hıper"
+    },
+    {
+      "keyword": "yogurt",
+      "title": "Kebir Yoğurt Bidon 1.5 Kg",
+      "sourceProductId": "06ZP",
+      "chain": "a101",
+      "price": 155.0,
+      "unitPrice": "103,33 ₺/Kg",
+      "unitPriceValue": 103.33333,
+      "indexTime": "05.09.2026 07:56",
+      "depotName": "Şahap Gürler Kadıköy Istanbul"
+    },
+    {
+      "keyword": "sut",
+      "title": "Sek Süt 200 Ml",
+      "sourceProductId": "1YG9",
+      "chain": "carrefour",
+      "price": 18.95,
+      "unitPrice": "94,75 ₺/Lt",
+      "unitPriceValue": 94.75,
+      "indexTime": "05.09.2026 07:56",
+      "depotName": "Istanbul Üsküdar Salacak Mını"
+    },
+    {
+      "keyword": "sut",
+      "title": "Sek Süt 200 Ml",
+      "sourceProductId": "1YG9",
+      "chain": "migros",
+      "price": 22.5,
+      "unitPrice": "112,50 ₺/Lt",
+      "unitPriceValue": 112.5,
+      "indexTime": "05.09.2026 07:56",
+      "depotName": "Çiçekçi M Migros"
+    },
+    {
+      "keyword": "sut",
+      "title": "Pınar Süt 200 Ml",
+      "sourceProductId": "1YXB",
+      "chain": "migros",
+      "price": 28.0,
+      "unitPrice": "140,00 ₺/Lt",
+      "unitPriceValue": 140.0,
+      "indexTime": "05.09.2026 07:56",
+      "depotName": "Çiçekçi M Migros"
+    },
+    {
+      "keyword": "sut",
+      "title": "Pınar Süt 200 Ml",
+      "sourceProductId": "1YXB",
+      "chain": "carrefour",
+      "price": 30.75,
+      "unitPrice": "153,75 ₺/Lt",
+      "unitPriceValue": 153.75,
+      "indexTime": "05.09.2026 07:56",
+      "depotName": "Istanbul Acıbadem Hıper"
+    },
+    {
+      "keyword": "sut",
+      "title": "Sek Yağlı Süt 1 Lt",
+      "sourceProductId": "225R",
+      "chain": "a101",
+      "price": 55.0,
+      "unitPrice": "55,00 ₺/Lt",
+      "unitPriceValue": 55.0,
+      "indexTime": "05.09.2026 07:54",
+      "depotName": "Doğanevler Ümraniye Istanbul"
+    },
+    {
+      "keyword": "sut",
+      "title": "İçim Süt 1 Lt",
+      "sourceProductId": "1T9S",
+      "chain": "migros",
+      "price": 69.5,
+      "unitPrice": "69,50 ₺/Lt",
+      "unitPriceValue": 69.5,
+      "indexTime": "05.09.2026 07:54",
+      "depotName": "Çiçekçi M Migros"
+    },
+    {
+      "keyword": "sut",
+      "title": "İçim Süt 1 Lt",
+      "sourceProductId": "1T9S",
+      "chain": "carrefour",
+      "price": 74.95,
+      "unitPrice": "74,95 ₺/Lt",
+      "unitPriceValue": 74.95,
+      "indexTime": "05.09.2026 07:54",
+      "depotName": "Istanbul Acıbadem Hıper"
+    },
+    {
+      "keyword": "sut",
+      "title": "Danone Çilekli Süt 1.08 Lt",
+      "sourceProductId": "21OB",
+      "chain": "a101",
+      "price": 135.0,
+      "unitPrice": "125,00 ₺/Lt",
+      "unitPriceValue": 125.0,
+      "indexTime": "05.09.2026 07:54",
+      "depotName": "Şahap Gürler Kadıköy Istanbul"
+    }
+  ]
+}

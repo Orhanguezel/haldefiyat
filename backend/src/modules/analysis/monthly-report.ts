@@ -116,17 +116,17 @@ function categoryTable(summary: WeeklySummary): string {
 
 function seasonSection(shift: Awaited<ReturnType<typeof seasonShift>>): string {
   if (!shift.entering.length && !shift.leaving.length) return "";
-  const parts: string[] = [`<h2>Sezon Değişimi</h2>`];
+  const parts: string[] = [`<h2>Hal Kayıtlarında Görünürlük Değişimi</h2>`];
   if (shift.entering.length) {
-    parts.push(`<p><strong>Bu ay tezgâha giren ürünler:</strong> `
+    parts.push(`<p><strong>Bu ay kayıtlarda daha sık görünen ürünler:</strong> `
       + shift.entering.map((item) => `${esc(item.name)} (ayın ${item.now} günü listelerde)`).join(", ") + ".</p>");
   }
   if (shift.leaving.length) {
-    parts.push(`<p><strong>Sezonu kapanan ürünler:</strong> `
+    parts.push(`<p><strong>Kayıtlarda görünürlüğü azalan ürünler:</strong> `
       + shift.leaving.map((item) => `${esc(item.name)} (geçen ay ${item.prev} gün listelerdeydi, bu ay yok denecek kadar az)`).join(", ") + ".</p>");
   }
-  parts.push(`<p class="note">Sezon değerlendirmesi yorum değil kayıt sayımıdır: bir ürünün kaç ayrı günde `
-    + `hal listelerinde göründüğü sayılır. Kaynak yayınını kestiğinde de bu sayı düşer.</p>`);
+  parts.push(`<p class="note">Bu sayım tek başına sezon başlangıcını veya bitişini kanıtlamaz. Bir ürünün kaç ayrı günde `
+    + `hal listelerinde göründüğü sayılır. Kaynak yayınını kestiğinde veya ürün eşlemesi değiştiğinde de sayı değişir; sezon yorumu editör doğrulaması gerektirir.</p>`);
   return parts.join("\n");
 }
 

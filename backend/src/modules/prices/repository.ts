@@ -1,3 +1,4 @@
+import { ELIGIBLE_RETAIL, latestRetailByChain, type RetailObservation } from "./retail-observations";
 import type { SQL } from "drizzle-orm";
 import { and, asc, desc, eq, gte, lte, sql, or, like, inArray, isNotNull } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
@@ -1732,32 +1733,17 @@ export async function widgetPrices(slugs?: string[], category?: string, limit = 
   });
 }
 
-/**
- * Ürün slug için son 3 gündeki perakende zincir fiyatları.
- * Bir zincirde birden fazla kayıt varsa ortalama alınır.
- */
+/** Latest verified daily quote per chain; never average dates under MAX(date). */
 export async function retailPricesByProduct(productSlug: string) {
-  const product = await db
-    .select({ id: hfProducts.id })
-    .from(hfProducts)
-    .where(and(eq(hfProducts.slug, productSlug), eq(hfProducts.isActive, 1)))
-    .limit(1);
-
-  if (!product[0]) return [];
-
-  return db
-    .select({
-      chainSlug:    hfRetailPrices.chainSlug,
-      price:        sql<string>`AVG(${hfRetailPrices.price})`,
-      unit:         hfRetailPrices.unit,
-      recordedDate: sql<string>`MAX(${hfRetailPrices.recordedDate})`,
-    })
-    .from(hfRetailPrices)
-    .where(and(
-      eq(hfRetailPrices.productId, product[0].id),
-      gte(hfRetailPrices.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL 3 DAY)`),
-    ))
-    .groupBy(hfRetailPrices.chainSlug, hfRetailPrices.unit);
+  const [rows] = await pool.query(
+    `SELECT p.slug AS productSlug,p.unit AS productUnit,rp.chain_slug AS chainSlug,
+      rp.price,rp.unit,DATE_FORMAT(rp.recorded_date, '%Y-%m-%d') AS recordedDate,
+      rp.product_name_raw AS productNameRaw,rp.product_url AS productUrl
+     FROM hf_retail_prices rp JOIN hf_products p ON p.id=rp.product_id
+     WHERE p.slug=? AND ${ELIGIBLE_RETAIL}`,
+    [productSlug],
+  );
+  return latestRetailByChain(rows as RetailObservation[]);
 }
 
 export async function upsertRetailPriceRow(input: {
@@ -1794,7 +1780,7 @@ export async function upsertRetailPriceRow(input: {
     productId: input.productId, chainSlug: input.chainSlug, price: input.price.toFixed(2), currency: "TRY",
     unit: input.unit, productNameRaw: input.productNameRaw ?? null, productUrl: input.productUrl ?? null,
     recordedDate: new Date(`${input.recordedDate}T12:00:00`),
-  }).onDuplicateKeyUpdate({ set: { price: input.price.toFixed(2), productNameRaw: input.productNameRaw ?? null, productUrl: input.productUrl ?? null } });
+  }).onDuplicateKeyUpdate({ set: { price: input.price.toFixed(2), unit: input.unit, productNameRaw: input.productNameRaw ?? null, productUrl: input.productUrl ?? null } });
 }
 
 /**

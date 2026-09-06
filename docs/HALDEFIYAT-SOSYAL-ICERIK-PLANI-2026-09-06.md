@@ -1,5 +1,7 @@
 # HaldeFiyat Sosyal İçerik Planı — Tanitio denetimi ve yeniden kurulum (2026-09-06)
 
+> **Güncel karar:** Aşağıdaki ilk denetim tarihsel bulgudur. Aktif seri/takvim [aylık plan](AYLIK-ICERIK-PLANI-2026-09.md), uygulama ve kabul [kök checklist](../HALDEFIYAT-VERI-VE-EDITORIAL-CHECKLIST-2026-09-06.md) üzerinden yürür. Eski faz tablosundaki öneriler yeniden kurulum veya yayın izni değildir.
+
 Kapsam: Facebook (Haldefiyat), Instagram (@halde_fiyat), Telegram kanalı, WhatsApp kanalı, X (@haldefiyat).
 Denetim kaynağı: `ekosistem_sosyal` DB (social_posts, platform_accounts, post_analytics), Tanitio kodu
 (`cron/data-content.ts`, `source-connectors/{profiles,x-charts,instagram-frame,haldefiyat-meta-card}.ts`),
@@ -35,12 +37,14 @@ Telegram kartının da bir zaafı var: seçim aynı `trendingChanges` ile yapıl
 
 | Kod | Seri | Ne gösterir | Gün/saat (TR) |
 |---|---|---|---|
-| K1 | **Günün Hareketleri** | 4 artan + 4 düşen, fotoğraf, şehir, ₺, % (Telegram kartının aynısı) | her gün 09:30 |
-| K2 | **Mutfak Sepeti** | 8–10 temel ürün (domates, biber, patlıcan, salatalık, patates, soğan, limon, elma, muz, marul) fotoğraflı ızgara, bugün ₺ + hafta oku | her gün 13:00 |
-| K3 | **Şehir Şehir** | tek ürün, 6–8 şehirde bugünkü fiyat, en ucuz/en pahalı vurgusu; ürün rotasyonla (sezon + GSC talebi) | Sal-Per 18:30 |
-| K4 | **Haftalık Sinyal** | endeks değeri + haftalık %, 3 yükselen 3 düşen, analiz linki | Pazar 19:00 (tek sefer) |
-| K5 | **Sezon / Rehber** | rehber sayfalarından (turşuluk, salçalık, kışlık) tek kart | Cuma 12:30, 2 haftada bir |
-| K6 | **Güven** | "bu rakam nereden geliyor" metodoloji kartı | ayda 1 |
+| K1 | **Günün Hareketleri** | Temel ürün hareketleri | her gün 09:30 |
+| K2 | **Mutfak Sepeti** | Temel ürün sepeti | Çarşamba 12:00 |
+| K3 | **Şehir Şehir Hal** | Aynı ürünün şehir karşılaştırması | Cuma 17:00 |
+| K4 | **Halden Markete** | Aynı gün/birim hal ve doğrulanmış raf örnekleri | ayın 25'i; veri kapılı |
+| K5 | **İlan Panosu** | Gerçek aktif ilanlar | ayın 15'i |
+
+Üretim ve yayın ayrıdır; IG/FB taslak modu sürer. Haftalık sinyal, sezon ve güven
+metinleri ayrı editoryal içeriktir; K4/K5 kodları bunlar için kullanılmaz.
 
 Hepsi aynı şablon: üstte logo + seri adı + tarih, gövde, altta zümrüt bant `haldefiyat.com/...` (WhatsApp ileri iletme dersi), kaynak satırı "Belediye halleri + HKS · {tarih}".
 
@@ -79,8 +83,8 @@ Hepsi aynı şablon: üstte logo + seri adı + tarih, gövde, altta zümrüt ban
 | 1 | hal `cards` modülü: K1 + K2 üç boyutta, seçim kuralları, caption şablonu, endpoint, cron | Claude tasarım → Codex | 2 gün | 3 gün üst üste doğru kart, uç kayıt yok |
 | 1 | Telegram/WhatsApp yayıncıları `cards`'a taşınır | Codex | 0,5 gün | Telegram kartı değişmeden aynı çıktı |
 | 2 | Tanitio `CardFeed` şablonu (draft, both), 2 hafta onaylı yayın | Claude | 1 gün | draft'lar panelde görünür, Orhan onaylar |
-| 2 | K3 Şehir Şehir + K4 Haftalık (analiz duyurusu ile birleşir, tekrar biter) | Codex | 1 gün | Pazar tek gönderi |
-| 3 | Otomatik yayına geçiş (onay kaldırılır), UTM + GA4 raporu, K5/K6 | Claude | 1 gün | 4 haftalık ölçüm raporu |
+| 2 | K3 Şehir Şehir + ayrı haftalık analiz duyurusu (tarihsel öneri; mevcut K4 Halden Markete) | Codex | 1 gün | Pazar tek gönderi |
+| 3 | Veri/yayın kabulünden sonra otomatik yayın kararı; UTM + GA4 raporu, ayrı güven içeriği | Claude | 1 gün | 4 haftalık ölçüm raporu |
 | 3 | X'i aynı karttan besleme (kredi açılırsa) | Orhan karar | — | — |
 
 ## 5. Yapılmayacaklar

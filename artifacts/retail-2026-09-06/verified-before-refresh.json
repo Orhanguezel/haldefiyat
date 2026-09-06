@@ -1,0 +1,72 @@
+{
+  "checkedAt": "2026-09-06T14:59:03.176Z",
+  "card": {
+    "items": [
+      {
+        "productSlug": "seftali",
+        "productName": "Şeftali",
+        "canonicalSlug": null,
+        "imageUrl": null,
+        "halPrice": 37.6666666667,
+        "retailPrice": 89.5,
+        "retailChain": "Migros",
+        "markets": 3,
+        "chains": 1,
+        "recordedDate": "2026-09-06",
+        "sourceUrl": "https://www.migros.com.tr/seftali-kg-p-1a0b7b0",
+        "productNameRaw": "Şeftali Kg",
+        "gapPct": 137.61061946881625
+      },
+      {
+        "productSlug": "incir-siyah",
+        "productName": "İncir Siyah",
+        "canonicalSlug": null,
+        "imageUrl": null,
+        "halPrice": 81.6666666667,
+        "retailPrice": 109.95,
+        "retailChain": "Migros",
+        "markets": 3,
+        "chains": 1,
+        "recordedDate": "2026-09-06",
+        "sourceUrl": "https://www.migros.com.tr/incir-siyah-kg-p-19ec3b9",
+        "productNameRaw": "İncir Siyah  Kg",
+        "gapPct": 34.632653061169535
+      },
+      {
+        "productSlug": "uzum-cekirdeksiz",
+        "productName": "Üzüm Çekirdeksiz",
+        "canonicalSlug": null,
+        "imageUrl": null,
+        "halPrice": 41.25,
+        "retailPrice": 59.95,
+        "retailChain": "Migros",
+        "markets": 4,
+        "chains": 1,
+        "recordedDate": "2026-09-06",
+        "sourceUrl": "https://www.migros.com.tr/uzum-cekirdeksiz-kg-p-1a10da0",
+        "productNameRaw": "Üzüm Çekirdeksiz Kg",
+        "gapPct": 45.333333333333336
+      }
+    ],
+    "date": "2026-09-06",
+    "retailDate": "2026-09-06"
+  },
+  "products": {
+    "domates": [],
+    "patates": [],
+    "limon": [
+      {
+        "productSlug": "limon",
+        "productUnit": "kg",
+        "chainSlug": "migros",
+        "price": "70.95",
+        "unit": "kg",
+        "recordedDate": "2026-09-06",
+        "productNameRaw": "Limon Kg",
+        "productUrl": "https://www.migros.com.tr/limon-kg-p-19ff462"
+      }
+    ],
+    "yogurt": [],
+    "sut": []
+  }
+}
