@@ -77,10 +77,11 @@ function moverRow(m: Mover): string {
     + `<td class="num">${m.marketCount}</td></tr>`;
 }
 
-export function moverTable(rows: Mover[]): string {
+/** @param labels Donem sutun basliklari — aylik raporda "Ay başı / Ay sonu" olur. */
+export function moverTable(rows: Mover[], labels: { start: string; end: string } = { start: "Hafta başı", end: "Hafta sonu" }): string {
   if (!rows.length) return "";
   return `<div class="overflow-x"><table>\n`
-    + `<thead><tr><th>Ürün</th><th class="num">Hafta başı</th><th class="num">Hafta sonu</th>`
+    + `<thead><tr><th>Ürün</th><th class="num">${esc(labels.start)}</th><th class="num">${esc(labels.end)}</th>`
     + `<th class="num">Değişim</th><th class="num">Hal</th></tr></thead>\n<tbody>\n`
     + rows.map(moverRow).join("\n")
     + `\n</tbody>\n</table></div>`;

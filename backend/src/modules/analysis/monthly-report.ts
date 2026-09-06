@@ -21,6 +21,7 @@ import { esc, indexTable, moverTable } from "./report-html";
 /** Ay basi ilk 5 gun ile ay sonu son 5 gun kiyaslanir: 2 gunluk pencere aylik yorumda gurultu. */
 const MONTH_WINDOW_DAYS = 5;
 const MIN_MONTH_RECORDS = 200;
+const MONTH_COLS = { start: "Ay başı", end: "Ay sonu" };
 
 export interface MonthRange {
   monthStart: string;
@@ -75,14 +76,17 @@ async function seasonShift(range: MonthRange, previous: MonthRange, limit = 8) {
   const rows = await db.execute(sql`
     SELECT p.slug AS slug,
            COALESCE(NULLIF(p.display_name, ''), p.name_tr) AS name,
-           SUM(ph.recorded_date BETWEEN ${range.monthStart} AND ${range.monthEnd}) AS now_days,
-           SUM(ph.recorded_date BETWEEN ${previous.monthStart} AND ${previous.monthEnd}) AS prev_days
+           COUNT(DISTINCT CASE WHEN ph.recorded_date BETWEEN ${range.monthStart} AND ${range.monthEnd}
+                THEN ph.recorded_date END) AS now_days,
+           COUNT(DISTINCT CASE WHEN ph.recorded_date BETWEEN ${previous.monthStart} AND ${previous.monthEnd}
+                THEN ph.recorded_date END) AS prev_days
     FROM hf_price_history ph
     JOIN hf_products p ON p.id = ph.product_id
     WHERE ph.recorded_date BETWEEN ${previous.monthStart} AND ${range.monthEnd}
       AND p.is_active = 1
+      AND p.unit = 'kg' 
     GROUP BY p.slug, name
-    HAVING now_days >= 20 OR prev_days >= 20
+    HAVING now_days >= 15 OR prev_days >= 15
   `);
   const list = (Array.isArray(rows) ? rows[0] : (rows as { rows?: unknown[] }).rows) as
     Array<{ slug: string; name: string; now_days: number; prev_days: number }> | undefined;
@@ -93,8 +97,8 @@ async function seasonShift(range: MonthRange, previous: MonthRange, limit = 8) {
     prev: Number(row.prev_days || 0),
   }));
   return {
-    entering: items.filter((item) => item.prev < 5 && item.now >= 20).slice(0, limit),
-    leaving: items.filter((item) => item.now < 5 && item.prev >= 20).slice(0, limit),
+    entering: items.filter((item) => item.prev < 4 && item.now >= 15).slice(0, limit),
+    leaving: items.filter((item) => item.now < 4 && item.prev >= 15).slice(0, limit),
   };
 }
 
@@ -115,11 +119,11 @@ function seasonSection(shift: Awaited<ReturnType<typeof seasonShift>>): string {
   const parts: string[] = [`<h2>Sezon Değişimi</h2>`];
   if (shift.entering.length) {
     parts.push(`<p><strong>Bu ay tezgâha giren ürünler:</strong> `
-      + shift.entering.map((item) => `${esc(item.name)} (${item.now} gün kayıt)`).join(", ") + ".</p>");
+      + shift.entering.map((item) => `${esc(item.name)} (ayın ${item.now} günü listelerde)`).join(", ") + ".</p>");
   }
   if (shift.leaving.length) {
     parts.push(`<p><strong>Sezonu kapanan ürünler:</strong> `
-      + shift.leaving.map((item) => `${esc(item.name)} (geçen ay ${item.prev} gün kayıt, bu ay yok denecek kadar az)`).join(", ") + ".</p>");
+      + shift.leaving.map((item) => `${esc(item.name)} (geçen ay ${item.prev} gün listelerdeydi, bu ay yok denecek kadar az)`).join(", ") + ".</p>");
   }
   parts.push(`<p class="note">Sezon değerlendirmesi yorum değil kayıt sayımıdır: bir ürünün kaç ayrı günde `
     + `hal listelerinde göründüğü sayılır. Kaynak yayınını kestiğinde de bu sayı düşer.</p>`);
@@ -178,9 +182,9 @@ function buildMonthlyHtml(input: {
       ? indexTable(input.indexRows)
       : `<p>Bu ay için haftalık endeks hesabı oluşmadı; değerlendirme ürün ve hal kayıtları üzerinden yapıldı.</p>`,
     "",
-    summary.topRisers.length ? `<h2>Ay Boyunca En Çok Yükselenler</h2>\n${moverTable(summary.topRisers)}` : "",
+    summary.topRisers.length ? `<h2>Ay Boyunca En Çok Yükselenler</h2>\n${moverTable(summary.topRisers, MONTH_COLS)}` : "",
     "",
-    summary.topFallers.length ? `<h2>Ay Boyunca En Çok Gerileyenler</h2>\n${moverTable(summary.topFallers)}` : "",
+    summary.topFallers.length ? `<h2>Ay Boyunca En Çok Gerileyenler</h2>\n${moverTable(summary.topFallers, MONTH_COLS)}` : "",
     "",
     summary.breadth?.measured
       ? `<h2>Piyasa Genişliği</h2>\n<p>Ölçüt karşılayan ${summary.breadth.measured} üründen `
