@@ -1,0 +1,45 @@
+{
+  "checkedAt": "2026-09-06T15:50:13.114503+00:00",
+  "health": {
+    "path": "/api/v1/health",
+    "status": 200
+  },
+  "milk": {
+    "path": "/api/v1/prices/retail/sut",
+    "status": 200,
+    "count": 6,
+    "allClassified": true,
+    "sourceDates": [
+      "2026-09-05"
+    ]
+  },
+  "listings": {
+    "path": "/api/v1/listings?limit=100",
+    "status": 200,
+    "total": null,
+    "ids": [
+      20,
+      32,
+      31,
+      30
+    ],
+    "rehearsalExcluded": true
+  },
+  "rehearsal": {
+    "path": "/ilan/domates-istanbul-21",
+    "status": 404
+  },
+  "k4": {
+    "path": "/api/v1/social/cards/today?series=k4&size=ig",
+    "status": 200,
+    "contentKey": null,
+    "itemCount": null,
+    "date": null
+  },
+  "milkPage": {
+    "path": "/urun/sut",
+    "status": 200,
+    "variantVisible": false,
+    "packageVisible": false
+  }
+}

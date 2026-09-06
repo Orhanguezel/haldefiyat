@@ -1,0 +1,23 @@
+{
+  "apply": true,
+  "sourceRef": "card-k4-2026-09-06-both",
+  "contentKey": "k4:v2:2026-09-06",
+  "action": "create-draft",
+  "existing": null,
+  "olderDraftsToCancel": [],
+  "payload": {
+    "tenantKey": "haldefiyat",
+    "postType": "haber",
+    "title": "Halden markete 2026-09-06",
+    "caption": "Şeftali halde ₺37,67, Migros rafında ₺89,50.\nBugünün hal fiyatları → https://haldefiyat.com/fiyatlar?utm_source=meta&utm_medium=social&utm_campaign=haldefiyat-editorial-2026-09&utm_content=k4%3Av2%3A2026-09-06\n\nŞeftali: hal ₺37,67 → Migros ₺89,50 (+%137,6) · 3 hal / 1 zincir\nİncir Siyah: hal ₺81,67 → Migros ₺109,95 (+%34,6) · 3 hal / 1 zincir\nÜzüm Çekirdeksiz: hal ₺41,25 → Migros ₺59,95 (+%45,3) · 4 hal / 1 zincir\n\nHal ve market aynı kaynak günü: 6 Eylül 2026. Birim: TL/kg.\nHal: en az 3 halin eşit ağırlıklı ortalaması; işlem hacmi ağırlıklı değildir.\nMarket: izlenen zincirlerin doğrulanmış örnekleri içindeki en düşük fiyat; ülke geneli en ucuz fiyat iddiası değildir.\nKaynak: belediye halleri, marketfiyati.org.tr / Migros. Şube, kalite ve ambalaj farklı olabilir; fark kâr marjı değildir.\nÜrünler arama ilgisine göre seçilir; negatif ve sıfır farklar da kapsamdadır.",
+    "hashtags": "#HalFiyatları #HaldeFiyat #SebzeMeyve #HaldenMarkete",
+    "platform": "both",
+    "mediaUrls": [
+      "https://haldefiyat.com/uploads/social-cards/k4-v2-2026-09-06-ig.png"
+    ],
+    "linkUrl": "https://haldefiyat.com/fiyatlar?utm_source=meta&utm_medium=social&utm_campaign=haldefiyat-editorial-2026-09&utm_content=k4%3Av2%3A2026-09-06",
+    "sourceType": "template",
+    "sourceRef": "card-k4-2026-09-06-both",
+    "notes": "card-content:gap:k4:v2:2026-09-06:3 kayit"
+  }
+}

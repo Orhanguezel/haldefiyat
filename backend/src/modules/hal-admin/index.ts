@@ -1201,6 +1201,94 @@ export async function registerHalAdmin(app: FastifyInstance) {
     return reply.send({ ok: true, master: master.slug, merged: variants.map((v) => v.slug), editorialMovedFrom });
   });
 
+  // Dublike YUTMA: merge'den farkli. Merge, gercekten farkli cesitleri (1.sinif / 2.sinif)
+  // tek aile altinda toplar ve HER BIRI kendi satirini korur. Burada ise iki kayit AYNI
+  // urundur; sadece kaynaklar farkli yaziyor ("KIR. PANCAR" = "KIRMIZI PANCAR",
+  // "Soğan (Beyaz) (kg)" = "SOĞAN (BEYAZ)"). Iki kayit birakilinca cesit tablosunda ayni
+  // adla iki satir farkli fiyatla goruntuleniyor. Cozum: gecmisi hayatta kalan kayda tasi,
+  // adlari alias'a kat, dubleyi pasiflestir.
+  app.post<{ Body: { survivorId?: number; duplicateIds?: number[]; force?: boolean } }>(
+    "/hal/products/absorb",
+    async (req, reply) => {
+      const survivorId = Number(req.body?.survivorId);
+      const duplicateIds = (Array.isArray(req.body?.duplicateIds) ? req.body.duplicateIds : [])
+        .map(Number)
+        .filter((id) => Number.isFinite(id) && id > 0 && id !== survivorId);
+      if (!Number.isFinite(survivorId) || survivorId <= 0 || duplicateIds.length === 0) {
+        return reply.status(400).send({ error: "survivorId ve en az 1 duplicateId gerekli" });
+      }
+      const survivorRows = await db.select().from(hfProducts).where(eq(hfProducts.id, survivorId)).limit(1);
+      const survivor = survivorRows[0];
+      if (!survivor) return reply.status(404).send({ error: "Hayatta kalan urun bulunamadi" });
+
+      const duplicates = await db.select().from(hfProducts).where(inArray(hfProducts.id, duplicateIds));
+      if (duplicates.length === 0) return reply.status(404).send({ error: "Dublike urun bulunamadi" });
+
+      const survivorUnit = unitClass(survivor.unit);
+      const badUnit = duplicates.filter((d) => unitClass(d.unit) !== survivorUnit);
+      if (badUnit.length > 0) {
+        return reply.status(400).send({
+          error: `Birim uyusmuyor: ${badUnit.map((d) => `${d.slug} (${d.unit})`).join(", ")} → hedef birim "${survivor.unit}". Farkli birim ayri urundur.`,
+        });
+      }
+
+      // Ayni hal ayni gun ikisini birden yayinliyorsa bunlar AYNI urun degildir.
+      const dupIdList = sql.join(duplicates.map((d) => sql`${d.id}`), sql`, `);
+      const overlapRes = await db.execute(sql`
+        SELECT COUNT(*) AS n FROM hf_price_history a
+        JOIN hf_price_history b
+          ON b.market_id = a.market_id AND b.recorded_date = a.recorded_date AND b.product_id = ${survivorId}
+        WHERE a.product_id IN (${dupIdList})
+      `);
+      const overlapRows = (Array.isArray(overlapRes) ? overlapRes[0] : overlapRes) as unknown as Array<{ n: number }>;
+      const overlap = Number(overlapRows[0]?.n ?? 0);
+      if (overlap > 0 && !req.body?.force) {
+        return reply.status(409).send({
+          error: `${overlap} satirda ayni hal ayni gun her iki kaydi da yayinlamis — muhtemelen farkli urunler. Yine de yutmak icin force=true gonderin (cakisan satirlar atilir).`,
+          details: { overlap },
+        });
+      }
+
+      // UPDATE IGNORE: (product_id, market_id, recorded_date) benzersiz; cakisan satir atlanir.
+      await db.execute(sql`UPDATE IGNORE hf_price_history SET product_id = ${survivorId} WHERE product_id IN (${dupIdList})`);
+      await db.execute(sql`UPDATE IGNORE hf_price_quarantine SET product_id = ${survivorId} WHERE product_id IN (${dupIdList})`);
+      await db.execute(sql`UPDATE IGNORE hf_alerts SET product_id = ${survivorId} WHERE product_id IN (${dupIdList})`);
+      await db.execute(sql`UPDATE IGNORE hf_user_favorites SET product_id = ${survivorId} WHERE product_id IN (${dupIdList})`);
+      await db.execute(sql`UPDATE hf_listings SET product_id = ${survivorId}, product_slug = ${survivor.slug} WHERE product_id IN (${dupIdList})`);
+      const leftoverRes = await db.execute(sql`SELECT COUNT(*) AS n FROM hf_price_history WHERE product_id IN (${dupIdList})`);
+      const leftoverRows = (Array.isArray(leftoverRes) ? leftoverRes[0] : leftoverRes) as unknown as Array<{ n: number }>;
+      const droppedRows = Number(leftoverRows[0]?.n ?? 0);
+      if (droppedRows > 0) {
+        await db.execute(sql`DELETE FROM hf_price_history WHERE product_id IN (${dupIdList})`);
+      }
+
+      // Dublikenin yazimlari alias'a girsin ki ETL yeni satiri hayatta kalan kayda dussun.
+      const aliasSet = new Set<string>([
+        ...(Array.isArray(survivor.aliases) ? (survivor.aliases as string[]) : []),
+        ...duplicates.flatMap((d) => [
+          d.nameTr,
+          ...(Array.isArray(d.aliases) ? (d.aliases as string[]) : []),
+        ]),
+      ].map((v) => String(v ?? "").trim()).filter(Boolean));
+      await db.update(hfProducts).set({ aliases: [...aliasSet] }).where(eq(hfProducts.id, survivorId));
+
+      await db
+        .update(hfProducts)
+        .set({ isActive: 0, seoIndex: 0, canonicalSlug: survivor.slug, familySlug: null, aliases: [] })
+        .where(inArray(hfProducts.id, duplicates.map((d) => d.id)));
+
+      invalidateAliasCache();
+      void revalidateFrontendTag("prices");
+      return reply.send({
+        ok: true,
+        survivor: survivor.slug,
+        absorbed: duplicates.map((d) => d.slug),
+        droppedRows,
+        aliases: [...aliasSet],
+      });
+    },
+  );
+
   // Auto-merge önerici: ürünleri KÖK İSME göre aileler halinde kümeler (dağınık varyantlar
   // — "Kırmızı Marul", "Aysberg Marul", bozuk ETL isimleri — tek ailede toplanır). Kök isim =
   // ürün isim token'ları içinden global frekansı en yüksek olan (marul/fasulye/elma her varyantta

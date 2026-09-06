@@ -4,7 +4,7 @@ Güncelleme: 6 Eylül 2026. Kullanıcı kararı: önce veri/hesaplama sistemini 
 sonra içerik ve büyüme planını doğrulanmış adımlarla yürüt.
 
 Bu kuyruk, 31 Ağustos aksiyonları ile 6 Eylül aylık/sosyal planlarının yeni kesişimidir.
-Eski uygulamaları yeniden yapma. `[x]` tamam, `[~]` uygulanıyor, `[ ]` sırada.
+Eski uygulamaları yeniden yapma. `[x]` tamam, `[~]` teknik hazırlığı tamam, gerçek ölçüm/operasyon bekleniyor, `[ ]` sırada.
 Kodun varlığı, yayının gerçekleştiği veya ticari sonuç alındığı anlamına gelmez.
 
 ## 1. Canlı baz çizgisi — 6 Eylül 14:43 UTC
@@ -39,9 +39,9 @@ sağlayıcının gerçek gözlem/indexleme gününü kanıtlamaz. Eksik güne sa
 - [x] A8 Pozitif, sıfır ve negatif farkı kapsa; ürün sırası arama ilgisiyle, farkın yönünden bağımsız olsun. Yüzdenin işaretini görselde ve altyazıda koru.
 - [x] A9 Kaynak, birim, örneklem ve kâr marjı olmadığı açıklaması görsel/altyazı/API'de tutarlı olsun. Eski kartla karışmayı önlemek için K4 v2 içerik anahtarı kullan.
 - [x] A10 Test, typecheck, build; tek normal deploy; yeni ETL ile doğrulanmış gözlemleri çek; public API ve K4 sonucunu canlı doğrula.
-- [ ] A11 Sonraki üç gerçek zamanlanmış çalışmayı ölç: sıfır veri ve kapsam düşüşü nedenleri, yazılan/doğrulanamayan gözlem, kaynak günleri. Geçmiş 1 Eylül boşluğunun nedeni ayrıca logdan araştırılacak.
+- [~] A11 Sonraki üç gerçek zamanlanmış çalışmayı ölç: sıfır veri ve kapsam düşüşü nedenleri, yazılan/doğrulanamayan gözlem, kaynak günleri. Geçmiş 1 Eylül boşluğunun nedeni ayrıca logdan araştırılacak.
 
-- [ ] A12 Süt yağ oranı, yoğurt türü/gramajı ve diğer çeşitlerin daha ayrıntılı sınıflandırması; doğrulanmamış eski perakende tarihçesinin kalite referansına etkisi. Yeni ham ürün adı görünür; geniş kategori tek kalite değildir.
+- [x] A12 Süt yağ oranı, yoğurt türü/gramajı ve diğer çeşitlerin daha ayrıntılı sınıflandırması; doğrulanmamış eski perakende tarihçesinin kalite referansına etkisi. Yeni ham ürün adı görünür; geniş kategori tek kalite değildir.
 
 **A kabulü:** farklı gün ve birim eşleşmesi 0; doğrulanmayan kaynaktan yayın 0;
 negatif/sıfır fark testleri geçer; API çok günlük ortalama üretmez; yeterli ortak veri
@@ -50,11 +50,11 @@ yoksa K4 404 verir. Doğru kaynak tarihi nedeniyle görünür kapsam daralması 
 ## 3. Faz B — Editoryal doğruluk ve tek plan
 
 - [x] B1 Aylık raporun otomatik başlığını “kayıtlarda görünürlük” olarak düzelt. Kaynak kesintisinden sezon bitişi çıkarma.
-- [ ] B2 Gerçek sezon yorumu için ortak çalışan kaynak grubu, yayın günü kapsamı ve editör kontrolü ekle. Mevcut aylık taslağı onaydan önce yeniden gözden geçir.
+- [x] B2 Gerçek sezon yorumu için ortak çalışan kaynak grubu, yayın günü kapsamı ve editör kontrolü ekle. Mevcut aylık taslağı onaydan önce yeniden gözden geçir.
 - [x] B3 K1–K5 adları, saat dilimi, üretim/yayın ayrımı ve aylık çıktı hesabını aylık ve sosyal planlarda tekleştir.
 - [x] B4 Ocak sonu–Şubat 2027 Ramazan hazırlığı; 8 Şubat başlangıç, 9 Mart bayram. Nisan kaydını düzelt.
 - [x] B5 “Rakiplerde hiç yok”, “videoyla büyüdü”, “yalnız video kaldı” gibi kanıtı aşan cümleleri kaldır.
-- [ ] B6 Yeni kartlar için “Verinin Kaynağı”, firma rehberi ve doğrulanmış kullanım örneği içerik briefleri hazırla. K1–K5'i yeniden kurma.
+- [x] B6 Yeni kartlar için “Verinin Kaynağı”, firma rehberi ve doğrulanmış kullanım örneği içerik briefleri hazırla. K1–K5'i yeniden kurma.
 
 **B kabulü:** iki aktif planda seri adı/takvim çelişkisi yok; sezon iddiası insan
 doğrulaması gerektirir; mevcut URL'ler korunur. Kaynak:
@@ -62,21 +62,21 @@ doğrulaması gerektirir; mevcut URL'ler korunur. Kaynak:
 
 ## 4. Faz C — Gerçek yayın ve ölçüm (A/B sonrası)
 
-- [ ] C1 Tanitio'da seri bazında son üretim, onay, yayın URL'si ve ölçüm tarihi envanteri çıkar. Telegram/WhatsApp'ın otomatik veya elle yayın durumunu ayrıca doğrula.
-- [ ] C2 Eski K4 taslaklarını yeni veriyle tekrar üret; eski içerik anahtarlarını mükerrer yayın oluşturmayacak şekilde eşleştir. Bu görev yayın izni değildir.
-- [ ] C3 Onay sahibi ve zamanını belirle; geciken taslağı eski tarihiyle otomatik yayımlama. IG/FB taslak modu mevcut kararda kalır.
-- [ ] C4 20 Eylül: yalnız erişim değil, en az 10 kontrol edilmiş kartta tarih/birim/anlam hatası 0 ve planlanan/başarılı yayın oranı değerlendirilsin. Otomatik yayın ayrı karar.
-- [ ] C5 UTM ve mevcut analitik üzerinden ürün takibi, alarm, 7 günlük geri dönüş, ilan/teklif ve ödeme sonuçlarını seri bazında bağla.
-- [ ] C6 3 Ekim SEO: mevcut pilotun URL listesini sabitle; indekslenebilir uygun URL payı, sorgu/pozisyon kırılımı ve mevcut ürün sayfalarındaki tıklama kaybını ölç. %4 CTR bütün URL'lere kör eşik değildir.
-- [ ] C7 Aylık/haftalık yazıları ilk 28 günlük eşit pencerelerde karşılaştır. Rehber başına 300 oturum doğrulanmış beklenti değil deney hedefidir.
+- [x] C1 Tanitio'da seri bazında son üretim, onay, yayın URL'si ve ölçüm tarihi envanteri çıkar. Telegram/WhatsApp'ın otomatik veya elle yayın durumunu ayrıca doğrula.
+- [x] C2 Eski K4 taslaklarını yeni veriyle tekrar üret; eski içerik anahtarlarını mükerrer yayın oluşturmayacak şekilde eşleştir. Bu görev yayın izni değildir.
+- [~] C3 Onay sahibi ve zamanını belirle; geciken taslağı eski tarihiyle otomatik yayımlama. IG/FB taslak modu mevcut kararda kalır.
+- [~] C4 20 Eylül: yalnız erişim değil, en az 10 kontrol edilmiş kartta tarih/birim/anlam hatası 0 ve planlanan/başarılı yayın oranı değerlendirilsin. Otomatik yayın ayrı karar.
+- [~] C5 UTM ve mevcut analitik üzerinden ürün takibi, alarm, 7 günlük geri dönüş, ilan/teklif ve ödeme sonuçlarını seri bazında bağla.
+- [~] C6 3 Ekim SEO: mevcut pilotun URL listesini sabitle; indekslenebilir uygun URL payı, sorgu/pozisyon kırılımı ve mevcut ürün sayfalarındaki tıklama kaybını ölç. %4 CTR bütün URL'lere kör eşik değildir.
+- [~] C7 Aylık/haftalık yazıları ilk 28 günlük eşit pencerelerde karşılaştır. Rehber başına 300 oturum doğrulanmış beklenti değil deney hedefidir.
 
 ## 5. Faz D — İlan ve gelir (sonraki uygulama)
 
-- [ ] D1 Prova alım ilanını gerçek ilan sayımından ve normal vitrinden ayır; mevcut gerçek aktif ilan bazını çıkar.
-- [ ] D2 Arama hacmi, fiyat takipçisi, alım ilanı ve yanıtlanan teklif ayrı sinyallerle etiketlensin. Arama ilgisi satın alma talebi diye sunulmasın.
-- [ ] D3 Tek ürün/bölgede pilot: firma erişimi → sahiplenme → gerçek ilan → yanıtlanan talep → doğrulanmış görüşme. 15 Ekim hedefi 25 gerçek aktif ilan; tek başına sayı başarı değildir.
-- [ ] D4 İlk ücretli reklam/API pilotunda teklif, tahsilat, kullanım ve yenileme kanıtını kaydet. Yeni abonelik sistemi kurma.
-- [ ] D5 İki kısa video denemesi: aynı ürün/mesajı kartla eşit süreli karşılaştır; erişim, kaydetme ve site eylemlerini ölç.
+- [x] D1 Prova alım ilanını gerçek ilan sayımından ve normal vitrinden ayır; mevcut gerçek aktif ilan bazını çıkar.
+- [x] D2 Arama hacmi, fiyat takipçisi, alım ilanı ve yanıtlanan teklif ayrı sinyallerle etiketlensin. Arama ilgisi satın alma talebi diye sunulmasın.
+- [~] D3 Tek ürün/bölgede pilot: firma erişimi → sahiplenme → gerçek ilan → yanıtlanan talep → doğrulanmış görüşme. 15 Ekim hedefi 25 gerçek aktif ilan; tek başına sayı başarı değildir.
+- [~] D4 İlk ücretli reklam/API pilotunda teklif, tahsilat, kullanım ve yenileme kanıtını kaydet. Yeni abonelik sistemi kurma.
+- [~] D5 İki kısa video denemesi: aynı ürün/mesajı kartla eşit süreli karşılaştır; erişim, kaydetme ve site eylemlerini ölç.
 
 ## 6. Çalıştırma ve kapanış
 
@@ -100,4 +100,24 @@ Deploy: commit + push → VPS `bash deploy.sh`; canlıda elle SQL/şema değişi
 - [Üretilmiş K4 görseli](https://haldefiyat.com/uploads/social-cards/k4-v2-2026-09-06-ig.png) HTTP 200. Sosyal hesaba yayın yapılmadı.
 - Takvim toplamı düzeltildi: 30 + 5 + 4 + 1 + 1 = **41 kart**. Önceki konuşmadaki 42 hesabı aritmetik hatasıydı.
 
-**Sıradaki adım:** A11/A12 kaynak sürekliliği ve sınıflandırma; B2 eski aylık taslak kontrolü; ardından C1/C2 yayın envanteri ve eski K4 taslaklarının yenilenmesi. Tarihli ölçümler ve insan/operasyon işleri kapanmış sayılmadı.
+## 7. Checklist uygulama turu — 6 Eylül
+
+Bu bölüm ilk dağıtımdan sonraki devam işidir. Teknik tamamlanma, ölçüm ve insan kararı ayrı izlenir.
+
+- **A11:** Cron artık yalnız gerçek zamanlanmış çalışmaları `backend/logs/retail-scheduled-runs.jsonl` dosyasına ekler. Zincir kapsamı, önceki koşuya göre %30'dan fazla düşüş, sıfır yazım, arama hataları (anahtar kelime bazında), birim/tarih/kampanya ret nedenleri ve karantina/yazım hataları ayrı kaydedilir. Elle ETL üç günlük kabulü doldurmaz. `bun scripts/qa/retail-scheduled-evidence.ts` gerçek gün sayısını döndürür. 1 Eylül retained PM2 loglarında marketfiyati kaydı bulunamadı; neden kesinleştirilmedi.
+- **A12:** API ve ürün sayfasında süt yağ oranı/işlem türü, yoğurt türü ve paket miktarı ayrıdır. Bilinmeyen alan “belirtilmemiş”tir. Tarihsel perakende kalite referansı yalnız güvenilir kaynaklı, birimi ve ürün adı doğrulanmış, aynı markalı ürün/paket adını taşıyan, gelecekten gelmeyen gözlemlerden alınır. Eski karantina kayıtları topluca açılmaz.
+- **B2:** Ağustos taslağı eski 8 giren + 8 çıkan sezon iddiasıyla kalmıştı. Aynı kaynakta her iki ay en az %65 takvim günü ve en fazla 15 puan kapsam farkı; en az üç ayrı hal kapısı eklendi. Sekiz ortak kaynakla hesaplanan yeni metinde bu iddialar desteklenmedi. Kaynak günleri tabloda görünür. Yenileme editör onayını siler; onaysız taslak zamanlanmış yayınla çıkamaz.
+- **B6:** [Üç içerik briefi ve uygulama paketi](docs/EDITORIAL-UYGULAMA-PAKETI-2026-09-06.md) hazır. Doğrulanmış teknik kullanım örneği müşteri başarısı olarak sunulmaz.
+- **C1/C2:** [Canlı Tanitio başlangıç envanteri](artifacts/checklist-closeout-2026-09-06/tanitio-before.json): 15 posted, 20 cancelled, eski K4 yok. K1 6 Eylül 07:35 UTC otomatik yayınlanmış; planla çelişen durum HaldeFiyat'a özel zorunlu taslak kuralıyla düzeltildi. Diğer tenantların global ayarı değişmedi. K4 v2, `social_posts.id=1621`, `status=draft`, `scheduled_at/posted_at/IG/FB kimlikleri=null` olarak hazırlandı; ikinci önizleme `refresh-draft` döndü, ikinci kayıt oluşturulmadı. Sabit seri/gün/platform anahtarı korunur; eski/yayımlanmış kaydı ikinci kez yayınlama yolu kapalıdır. Platform kimliği açık permalink veya editör onayı değildir; IG permalink kanıtı eksik olarak envanterde kalır. Telegram otomatik kanal paylaşımı; WhatsApp son adımı manueldir (Telegram yönetici taslağı).
+- **C3:** Teknik kapı hazır: üç günden eski/gelecek tarihli kart ve v2 öncesi K4 zamanlamada ve gerçek gönderim aşamasında engellenir. İnsan onay sahibi/zamanı henüz atanmış değil. Öneri: Orhan, günlük 18:00 Europe/Istanbul; görevlendirme onayı bekliyor. Gerçek kart üretim saati Eylül'de 09:30 Berlin = 10:30 İstanbul; planın 09:30 İstanbul hedefiyle karıştırılmaz.
+- **C4:** 20 Eylül için [10 kart inceleme formu](artifacts/editorial-ops-2026-09-06/card-review.csv) hazır; boş satırlar kontrol edilmiş kart sayılmaz.
+- **C5:** Meta kart linki ve altyazısında seri/gün/kanal UTM; fiyat takibi/alarm mevcut dönüşüm hattı; yeni başarılı ilan/teklif olayları; izinli tarayıcıda ilk gelişten sonraki farklı bir günde, en fazla 7 gün içinde tek geri dönüş olayı hazır. `content_series=k1..k5`. İlk temas atfı korunur; çoklu cihaz veya çerez reddi ölçülmez. Gerçek ödeme ile seri eşleştirme ve analitik alım kanıtı henüz kapanmadı; model dönüşüm değeri tahsilat değildir.
+- **C6:** [241 canlı eligible URL](artifacts/editorial-ops-2026-09-06/seo-pilot-urls.txt) SHA256 ile sabitlendi. Eligible olmak Google indekslendi demek değildir. 3 Ekim GSC URL/sorgu/pozisyon ve mevcut ürün sayfası kayıp ölçümü bekleniyor.
+- **C7:** İlk 28 günlük eşit pencere yöntemi ve [ölçüm formu](artifacts/editorial-ops-2026-09-06/content-28day.csv) hazır; gerçek yayın tarihinden önce sayaç başlamaz.
+- **D1/D2:** Açıkça “PROVA ILANI — gerçek bir alım değildir” yazan #21; liste, detay, sayım, talep sinyali ve K5 seçkisinden dışlanır. Canlı baz: 5 aktif onaylı kaydın 1’i prova; gerçek public aktif ilan **4**. Salt okunur detay kontrolünde #21 public değil. İç yönetim kaydı silinmez. Takipçi sayısında aynı kişinin favori+alarmı iki kişi sayılmaz; alım ilanı, fiyat takipçisi, arama ilgisi ve iletişime geçilen teklif ayrı etiketlerdir. “Bugünkü” fiyat yerine gerçek son gözlem tarihi gösterilir.
+- **D3:** Demre/domates, 10 public firma adayı, hazır ilk temas metni ve huni defteri. Mesaj gönderilmedi; firma sahiplenmesi/görüşme/25 gerçek aktif ilan hedefi operasyon bekler.
+- **D4:** Mevcut reklam/API billing akışına bağlı teklif–tahsilat–kullanım–yenileme defteri hazır. Trial, satış ve ödeme diye sayılmadı; gerçek ücretli pilot bekleniyor.
+- **D5:** İki 20 saniyelik 1080×1920 [video taslağı](artifacts/editorial-ops-2026-09-06/video-experiment.json), kaynak kart ve eşit 7 günlük kontrol yöntemi hazır. 6 Eylül arşiv verisidir; yayın gününde yeniden üretilecek. Yayın/erişim/kaydetme sonuçları henüz yok.
+
+**Zamanlı kalanlar:** A11 üç gerçek cron günü; C3 editör görevlendirmesi; C4 20 Eylül kalite/yayın sonucu; C6 3 Ekim SEO; C7 gerçek yayınlardan sonra 28 gün; D3/D4 müşteri ve ödeme kanıtları; D5 onaylı yayın sonrası 7 günlük deney. Bunlar tamamlandı diye işaretlenmez.
+

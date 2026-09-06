@@ -7,6 +7,8 @@ canlı veritabanı sayımları. Rakip verileri 6 Eylül 2026'da yeniden topland�
 
 ---
 
+**6 Eylül canlı doğrulama:** Tanitio global ayarı otomatik yayındı; HaldeFiyat kartlarına özel zorunlu taslak kapısı eklendi. Bu tablodaki TR saatleri editoryal hedeftir. Mevcut günlük üretim 09:30 Europe/Berlin, Eylül'de 10:30 Europe/Istanbul; diğer tenantların cron saatine dokunulmadı. Orhan/18:00 TR editör görevlendirmesi öneridir. Teknik kapanış ve gerçek ölçüm bekleyen işler [ana checklist](../HALDEFIYAT-VERI-VE-EDITORIAL-CHECKLIST-2026-09-06.md) ile izlenir.
+
 ## 1. Elimizde ne var (sayımla)
 
 | Varlık | Durum |

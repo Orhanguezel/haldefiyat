@@ -1,3 +1,5 @@
+> Devam uygulaması: HaldeFiyat kartları Tanitio'da zorunlu taslak; üç günden eski/gelecek veri ve eski K4 yayın kapısında engellenir. Günlük runtime 09:30 Berlin = Eylül'de 10:30 İstanbul; 09:30 TR editoryal hedeftir. Güncel uygulama/operasyon ayrımı kök checklist §7 ve `docs/EDITORIAL-UYGULAMA-PAKETI-2026-09-06.md` içindedir.
+
 # HaldeFiyat Sosyal İçerik Planı — Tanitio denetimi ve yeniden kurulum (2026-09-06)
 
 > **Güncel karar:** Aşağıdaki ilk denetim tarihsel bulgudur. Aktif seri/takvim [aylık plan](AYLIK-ICERIK-PLANI-2026-09.md), uygulama ve kabul [kök checklist](../HALDEFIYAT-VERI-VE-EDITORIAL-CHECKLIST-2026-09-06.md) üzerinden yürür. Eski faz tablosundaki öneriler yeniden kurulum veya yayın izni değildir.

@@ -1,0 +1,39 @@
+{
+  "observedDate": "2026-09-06",
+  "host": "vps-vistainsaat",
+  "endpoint": "https://api.marketfiyati.org.tr/api/v2/search",
+  "method": "POST",
+  "controlQuery": {
+    "keywords": "domates",
+    "pages": 0,
+    "size": 25
+  },
+  "observations": [
+    {
+      "transport": "Bun fetch",
+      "userAgent": "original Chrome/120.0 Safari/537.36",
+      "result": "ECONNRESET"
+    },
+    {
+      "transport": "node:https under Bun",
+      "userAgent": "original Chrome/120.0 Safari/537.36",
+      "result": "ECONNRESET"
+    },
+    {
+      "transport": "Bun fetch",
+      "userAgent": "Mozilla/5.0",
+      "status": 200
+    },
+    {
+      "transport": "Bun fetch",
+      "userAgent": "HaldeFiyat/1.0 (+https://haldefiyat.com/metodoloji)",
+      "status": 200,
+      "queries": {
+        "domates": 90,
+        "mangostan": 0,
+        "adaçayı": 10
+      }
+    }
+  ],
+  "interpretation": "The observed failures depend on the request user agent; the provider internal cause is not known. Full ETL validation follows."
+}

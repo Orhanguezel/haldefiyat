@@ -1,0 +1,79 @@
+{
+  "month": "2026-08",
+  "existing": {
+    "id": 28,
+    "status": "draft",
+    "reviewedAt": null
+  },
+  "coverage": {
+    "qualified": true,
+    "sources": [
+      {
+        "marketId": 15,
+        "source": "konya_resmi",
+        "name": "Konya Toptancı Hali",
+        "nowDays": 31,
+        "prevDays": 31
+      },
+      {
+        "marketId": 16,
+        "source": "kayseri_resmi",
+        "name": "Kayseri Toptancı Hali",
+        "nowDays": 30,
+        "prevDays": 31
+      },
+      {
+        "marketId": 21,
+        "source": "eskisehir_resmi",
+        "name": "Eskişehir Toptancı Hali",
+        "nowDays": 29,
+        "prevDays": 31
+      },
+      {
+        "marketId": 22,
+        "source": "denizli_resmi",
+        "name": "Denizli Toptancı Hali",
+        "nowDays": 30,
+        "prevDays": 31
+      },
+      {
+        "marketId": 26,
+        "source": "bursa_resmi",
+        "name": "Bursa Toptancı Hali",
+        "nowDays": 30,
+        "prevDays": 31
+      },
+      {
+        "marketId": 27,
+        "source": "kocaeli_merkez",
+        "name": "Kocaeli Merkez Sebze Meyve Hali",
+        "nowDays": 31,
+        "prevDays": 28
+      },
+      {
+        "marketId": 46,
+        "source": "yalova_resmi",
+        "name": "Yalova Toptancı Hali",
+        "nowDays": 30,
+        "prevDays": 31
+      },
+      {
+        "marketId": 48,
+        "source": "trabzon_resmi",
+        "name": "Trabzon Toptancı Hali",
+        "nowDays": 30,
+        "prevDays": 31
+      }
+    ],
+    "entering": [],
+    "leaving": []
+  },
+  "title": "Ağustos 2026 Hal Fiyatları: Endeks %12,2 geriledi",
+  "content": "<p class=\"kicker\">Aylık Hal Değerlendirmesi · Ağustos 2026</p>\n<p class=\"dek\">HaldeFiyat Endeksi ayı 67,32 puanda kapattı; ay başına göre değişim <strong>−%12,2</strong>. Ayın en sert hareketi İncir tarafında: 10 halin ortalaması <strong>−%54,8</strong> değişti. Ölçüt karşılayan 81 üründe medyan değişim −%10,6.</p>\n<div class=\"meta\"><span><strong>Dönem:</strong> 1 – 31 Ağustos 2026</span><span><strong>Kayıt:</strong> 43.225 fiyat gözlemi</span><span><strong>Ürün:</strong> 387</span><span><strong>Kaynak sayısı:</strong> 40 hal ve borsa</span></div>\n\n<h2>Ayın Endeks Seyri</h2>\n<div class=\"overflow-x\"><table>\n<thead><tr><th>Hafta</th><th class=\"num\">Endeks</th><th class=\"num\">Sepet (TL/kg)</th><th class=\"num\">Haftalık değişim</th></tr></thead>\n<tbody>\n<tr><td>2026-31 (27 Tem–2 Ağu)</td><td class=\"num\">76,65</td><td class=\"num\">42,62</td><td class=\"num\">—</td></tr>\n<tr><td>2026-32 (3–9 Ağu)</td><td class=\"num\">74,48</td><td class=\"num\">41,41</td><td class=\"num\"><span class=\"down\">−%2,8</span></td></tr>\n<tr><td>2026-33 (10–16 Ağu)</td><td class=\"num\">74,32</td><td class=\"num\">41,33</td><td class=\"num\"><span class=\"down\">−%0,2</span></td></tr>\n<tr><td>2026-34 (17–23 Ağu)</td><td class=\"num\">70,68</td><td class=\"num\">39,30</td><td class=\"num\"><span class=\"down\">−%4,9</span></td></tr>\n<tr><td><strong>2026-35 (24–30 Ağu)</strong></td><td class=\"num\"><strong>67,32</strong></td><td class=\"num\"><strong>37,43</strong></td><td class=\"num\"><span class=\"down\"><strong>−%4,8</strong></span></td></tr>\n</tbody>\n</table></div>\n\n<h2>Ay Boyunca En Çok Yükselenler</h2>\n<div class=\"overflow-x\"><table>\n<thead><tr><th>Ürün</th><th class=\"num\">Ay başı</th><th class=\"num\">Ay sonu</th><th class=\"num\">Değişim</th><th class=\"num\">Hal</th></tr></thead>\n<tbody>\n<tr><td>Kivi</td><td class=\"num\">134,75 ₺</td><td class=\"num\">173,25 ₺</td><td class=\"num up\">+%28,6</td><td class=\"num\">14</td></tr>\n</tbody>\n</table></div>\n\n<h2>Ay Boyunca En Çok Gerileyenler</h2>\n<div class=\"overflow-x\"><table>\n<thead><tr><th>Ürün</th><th class=\"num\">Ay başı</th><th class=\"num\">Ay sonu</th><th class=\"num\">Değişim</th><th class=\"num\">Hal</th></tr></thead>\n<tbody>\n<tr><td>İncir</td><td class=\"num\">171,50 ₺</td><td class=\"num\">77,50 ₺</td><td class=\"num down\">−%54,8</td><td class=\"num\">10</td></tr>\n<tr><td>Yeşil Soğan</td><td class=\"num\">55,00 ₺</td><td class=\"num\">35,20 ₺</td><td class=\"num down\">−%36,0</td><td class=\"num\">11</td></tr>\n<tr><td>Biber Cin</td><td class=\"num\">125,00 ₺</td><td class=\"num\">82,50 ₺</td><td class=\"num down\">−%34,0</td><td class=\"num\">7</td></tr>\n<tr><td>Biber Sivri</td><td class=\"num\">70,00 ₺</td><td class=\"num\">48,13 ₺</td><td class=\"num down\">−%31,3</td><td class=\"num\">16</td></tr>\n<tr><td>Fasulye (Çalı)</td><td class=\"num\">87,05 ₺</td><td class=\"num\">60,00 ₺</td><td class=\"num down\">−%31,1</td><td class=\"num\">7</td></tr>\n</tbody>\n</table></div>\n\n<h2>Piyasa Genişliği</h2>\n<p>Ölçüt karşılayan 81 üründen 19 tanesi yükseldi, 60 tanesi geriledi, 2 tanesi yatay kaldı. Medyan değişim −%10,6.</p><p>Bir önceki ayda ölçüt karşılayan 96 üründe medyan değişim −%4,1 idi; 38 ürün yükselmiş, 55 ürün gerilemişti.</p>\n\n<h2>Kategori Ortalamaları</h2>\n<table><thead><tr><th>Kategori</th><th>Ay ortalaması</th></tr></thead><tbody>\n<tr><td>et</td><td>671,61 TL/kg</td></tr>\n<tr><td>balik deniz</td><td>507,94 TL/kg</td></tr>\n<tr><td>balik donuk</td><td>369,00 TL/kg</td></tr>\n<tr><td>canli hayvan</td><td>323,87 TL/kg</td></tr>\n<tr><td>balik tatlisu</td><td>271,38 TL/kg</td></tr>\n<tr><td>balik</td><td>259,58 TL/kg</td></tr>\n<tr><td>balik ithal</td><td>230,00 TL/kg</td></tr>\n<tr><td>meyve</td><td>111,55 TL/kg</td></tr>\n<tr><td>ithal</td><td>107,80 TL/kg</td></tr>\n<tr><td>sanayi bitkisi</td><td>89,83 TL/kg</td></tr>\n</tbody></table>\n\n<h2>Hal Kayıtlarında Görünürlük Değişimi</h2>\n<p>Her iki ayda aynı hal ve veri kaynağından, takvim günlerinin en az %65’inde geçerli sebze-meyve kaydı aranır; aylık kapsam farkı en fazla 15 yüzde puandır. Karantina ve kaynak kesintisi aralıkları dışarıda tutulur.</p>\n<table><thead><tr><th>Ortak hal / kaynak</th><th>Önceki ay gözlem günü</th><th>Bu ay gözlem günü</th></tr></thead><tbody><tr><td>Konya Toptancı Hali / konya_resmi</td><td>31</td><td>31</td></tr><tr><td>Kayseri Toptancı Hali / kayseri_resmi</td><td>31</td><td>30</td></tr><tr><td>Eskişehir Toptancı Hali / eskisehir_resmi</td><td>31</td><td>29</td></tr><tr><td>Denizli Toptancı Hali / denizli_resmi</td><td>31</td><td>30</td></tr><tr><td>Bursa Toptancı Hali / bursa_resmi</td><td>31</td><td>30</td></tr><tr><td>Kocaeli Merkez Sebze Meyve Hali / kocaeli_merkez</td><td>28</td><td>31</td></tr><tr><td>Yalova Toptancı Hali / yalova_resmi</td><td>31</td><td>30</td></tr><tr><td>Trabzon Toptancı Hali / trabzon_resmi</td><td>31</td><td>30</td></tr></tbody></table>\n<p>Ortak kaynak grubunda görünürlük değişimi eşiklerini karşılayan ürün yok.</p>\n<p class=\"note\">Bu sayım tek başına sezon başlangıcını veya bitişini kanıtlamaz. Bir ürünün kaç ayrı günde hal listelerinde göründüğü sayılır. Kaynak yayınını kestiğinde veya ürün eşlemesi değiştiğinde de sayı değişir; Gözlem günü, kaynağın gerçekten yayın yaptığı gün için bir göstergedir; boş yayın ile veri çekme hatası burada ayrılamaz. Bu bölüm hasat/sezon takvimi değildir. Sezon yorumu için editörün ayrıca tarihli tarımsal kaynak doğrulaması gerekir.</p>\n\n<p class=\"note\"><strong>Metodoloji:</strong> Değerlendirme, 1 – 31 Ağustos 2026 arasında 40 kaynaktan derlenen 43.225 fiyat gözlemine dayanır. Ay başındaki ilk 5 gün ile ay sonundaki son 5 günün her-hal ortalamaları karşılaştırılır; ulusal değer haller arası medyandır. En az 6 ayrı halde görülen kilogram bazlı ürünler değerlendirmeye girer. HaldeFiyat Endeksi 15 üründen oluşan sabit sepeti izler. Fiyatlar toptan hal seviyesidir, perakende etiketi değildir.</p>",
+  "saved": {
+    "id": 28,
+    "status": "draft",
+    "reviewedAt": null,
+    "publishedAt": null
+  }
+}

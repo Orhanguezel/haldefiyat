@@ -35,10 +35,34 @@ function collapseRepeatedName(value: string): string {
   return value;
 }
 
+/**
+ * Bazi kaynaklar birim adini urun adinin icine de yaziyor: "Soğan (Beyaz) (kg)",
+ * "SOĞAN (Taze (Kg.))". Birim zaten ayri sutunda; parantez icinde YALNIZ birim
+ * varsa kimlik tasimaz ve ayni urunun ikinci bir kaydini acar. Sayi iceren
+ * parantezler ("(18 kg)") paket agirligidir — onlara dokunulmaz.
+ */
+const BARE_UNIT_QUALIFIER = /\(\s*(?:kg|kg\.|kilo|adet|adet\.)\s*\)/giu;
+
+function stripRedundantUnitQualifier(value: string): string {
+  let previous = value;
+  for (let round = 0; round < 3; round += 1) {
+    const next = previous
+      .replace(BARE_UNIT_QUALIFIER, "")
+      .replace(/\(\s*\)/gu, "")
+      .replace(/\s+\)/gu, ")")
+      .replace(/\(\s+/gu, "(")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (next === previous) break;
+    previous = next;
+  }
+  return previous;
+}
+
 export function normalizeRawProductName(rawName: string): string {
   return PRODUCT_NAME_SPELLING_FIXES.reduce(
     (value, rule) => value.replace(rule.pattern, rule.replacement),
-    collapseRepeatedName(rawName.replace(/\s+/g, " ").trim()),
+    stripRedundantUnitQualifier(collapseRepeatedName(rawName.replace(/\s+/g, " ").trim())),
   );
 }
 

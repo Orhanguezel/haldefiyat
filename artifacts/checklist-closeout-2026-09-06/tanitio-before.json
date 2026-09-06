@@ -1,0 +1,679 @@
+{
+  "capturedAt": "2026-09-06T15:28:55.247Z",
+  "posts": [
+    {
+      "id": 1206,
+      "title": "Ağustos 4. Hafta Hal Raporu",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "agustos-4-hafta-2026-hal-raporu-both",
+      "notes": "analiz-arsiv:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-08-31T14:08:04.768Z",
+      "scheduled_at": "2026-08-31T22:45:27.000Z",
+      "posted_at": null,
+      "fb_post_id": null,
+      "ig_media_id": null
+    },
+    {
+      "id": 1207,
+      "title": "Turşuluk Sezonu 2026: Sepet Fiyatları",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "tursuluk-sezonu-2026-tursu-sepeti-hal-fiyatlari-both",
+      "notes": "analiz-arsiv:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-08-31T14:08:11.451Z",
+      "scheduled_at": "2026-08-31T21:55:27.000Z",
+      "posted_at": null,
+      "fb_post_id": null,
+      "ig_media_id": null
+    },
+    {
+      "id": 1208,
+      "title": "Nar Fiyatları 2026 Sezon Açılışı Thread",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "nar-fiyatlari-2026-sezon-acilisi-analizi-both",
+      "notes": "analiz-arsiv:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-08-31T14:08:23.312Z",
+      "scheduled_at": "2026-08-31T21:05:27.000Z",
+      "posted_at": null,
+      "fb_post_id": null,
+      "ig_media_id": null
+    },
+    {
+      "id": 1209,
+      "title": "Ağustos 3. Hafta Hal Raporu Thread",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "agustos-3-hafta-2026-hal-raporu-both",
+      "notes": "analiz-arsiv:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-08-31T14:08:30.275Z",
+      "scheduled_at": "2026-08-31T20:15:27.000Z",
+      "posted_at": null,
+      "fb_post_id": null,
+      "ig_media_id": null
+    },
+    {
+      "id": 1210,
+      "title": "Limon Fiyatları 2026 Yaz Düşüşü",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "limon-fiyatlari-2026-mersin-erdemli-piyasa-analizi-both",
+      "notes": "analiz-arsiv:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-08-31T14:08:36.746Z",
+      "scheduled_at": "2026-08-31T19:25:27.000Z",
+      "posted_at": null,
+      "fb_post_id": null,
+      "ig_media_id": null
+    },
+    {
+      "id": 1211,
+      "title": "Ağustos 2. Hafta Hal Raporu Thread",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "agustos-2-hafta-2026-hal-raporu-both",
+      "notes": "analiz-arsiv:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-08-31T14:08:43.003Z",
+      "scheduled_at": "2026-08-31T18:35:27.000Z",
+      "posted_at": null,
+      "fb_post_id": null,
+      "ig_media_id": null
+    },
+    {
+      "id": 1212,
+      "title": "Temmuz 2026 Hal Raporu Thread",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "temmuz-2026-aylik-hal-raporu-both",
+      "notes": "analiz-arsiv:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-08-31T14:08:49.067Z",
+      "scheduled_at": "2026-08-31T17:45:27.000Z",
+      "posted_at": null,
+      "fb_post_id": null,
+      "ig_media_id": null
+    },
+    {
+      "id": 1213,
+      "title": "Temmuz 4. Hafta: Endeks 82,3'le Seri Dipte",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "temmuz-4-hafta-2026-hal-raporu-both",
+      "notes": "analiz-arsiv:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-08-31T14:08:55.460Z",
+      "scheduled_at": "2026-08-31T16:55:27.000Z",
+      "posted_at": "2026-08-31T17:00:14.000Z",
+      "fb_post_id": "1093315187207024_122136200865353707",
+      "ig_media_id": null
+    },
+    {
+      "id": 1214,
+      "title": "Gunun Hareketi 2026-08-31",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "haldefiyat-daily_movers-2026-08-31-morning-both",
+      "notes": "data-content:morning:daily_movers:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-08-31T14:09:46.233Z",
+      "scheduled_at": "2026-08-31T07:00:00.000Z",
+      "posted_at": "2026-08-31T14:10:16.000Z",
+      "fb_post_id": "1093315187207024_122136167937353707",
+      "ig_media_id": null
+    },
+    {
+      "id": 1216,
+      "title": "Gunun Hareketi 2026-08-31 (duzeltilmis grafik)",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "haldefiyat-daily_movers-2026-08-31-morning-both-v2",
+      "notes": "manuel: duzeltilmis grafikle yeniden paylasim",
+      "created_by": "system",
+      "created_at": "2026-08-31T16:30:51.466Z",
+      "scheduled_at": null,
+      "posted_at": "2026-08-31T16:31:25.000Z",
+      "fb_post_id": "1093315187207024_122136197259353707",
+      "ig_media_id": "18145181242559679"
+    },
+    {
+      "id": 1217,
+      "title": "Günlük Hal Sinyali 2026-08-31",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "haldefiyat-daily-meta-2026-08-31",
+      "notes": "haldefiyat-meta-card:daily-signal",
+      "created_by": "system",
+      "created_at": "2026-08-31T17:26:40.583Z",
+      "scheduled_at": null,
+      "posted_at": "2026-08-31T17:27:49.000Z",
+      "fb_post_id": "1093315187207024_122136204729353707",
+      "ig_media_id": "18105116234224875"
+    },
+    {
+      "id": 1218,
+      "title": "HaldeFiyat Nedir",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "haldefiyat-warmup-warmup-01-nedir",
+      "notes": "haldefiyat-meta-card:warmup",
+      "created_by": "system",
+      "created_at": "2026-08-31T17:32:49.581Z",
+      "scheduled_at": null,
+      "posted_at": "2026-08-31T17:33:47.000Z",
+      "fb_post_id": "1093315187207024_122136206007353707",
+      "ig_media_id": "18058479764716523"
+    },
+    {
+      "id": 1219,
+      "title": "Kimler Kullanıyor",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "haldefiyat-warmup-warmup-02-kimin-icin",
+      "notes": "haldefiyat-meta-card:warmup",
+      "created_by": "system",
+      "created_at": "2026-08-31T17:32:50.193Z",
+      "scheduled_at": null,
+      "posted_at": "2026-08-31T17:34:02.000Z",
+      "fb_post_id": "1093315187207024_122136206115353707",
+      "ig_media_id": "18090741641553661"
+    },
+    {
+      "id": 1220,
+      "title": "Günlük Hal Sinyali 2026-08-31",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "haldefiyat-daily-meta-2026-08-31",
+      "notes": "haldefiyat-meta-card:daily-signal",
+      "created_by": "system",
+      "created_at": "2026-08-31T17:34:17.249Z",
+      "scheduled_at": null,
+      "posted_at": "2026-08-31T17:34:40.000Z",
+      "fb_post_id": "1093315187207024_122136206487353707",
+      "ig_media_id": "18055185347551888"
+    },
+    {
+      "id": 1221,
+      "title": "HaldeFiyat Nedir",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "haldefiyat-warmup-warmup-01-nedir",
+      "notes": "haldefiyat-meta-card:warmup",
+      "created_by": "system",
+      "created_at": "2026-08-31T17:38:05.085Z",
+      "scheduled_at": null,
+      "posted_at": null,
+      "fb_post_id": null,
+      "ig_media_id": null
+    },
+    {
+      "id": 1222,
+      "title": "Kimler Kullanıyor",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "haldefiyat-warmup-warmup-02-kimin-icin",
+      "notes": "haldefiyat-meta-card:warmup",
+      "created_by": "system",
+      "created_at": "2026-08-31T17:38:05.886Z",
+      "scheduled_at": null,
+      "posted_at": "2026-08-31T17:39:07.000Z",
+      "fb_post_id": "1093315187207024_122136207297353707",
+      "ig_media_id": "17870547873637249"
+    },
+    {
+      "id": 1223,
+      "title": "Günlük Hal Sinyali 2026-08-31",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "haldefiyat-daily-meta-2026-08-31",
+      "notes": "haldefiyat-meta-card:daily-signal",
+      "created_by": "system",
+      "created_at": "2026-08-31T17:38:20.899Z",
+      "scheduled_at": null,
+      "posted_at": "2026-08-31T17:39:22.000Z",
+      "fb_post_id": "1093315187207024_122136207381353707",
+      "ig_media_id": "17981275335078795"
+    },
+    {
+      "id": 1224,
+      "title": "HaldeFiyat Nedir",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "haldefiyat-warmup-warmup-01-nedir",
+      "notes": "haldefiyat-meta-card:warmup",
+      "created_by": "system",
+      "created_at": "2026-08-31T18:34:35.705Z",
+      "scheduled_at": null,
+      "posted_at": "2026-08-31T18:35:51.000Z",
+      "fb_post_id": "1093315187207024_122136220497353707",
+      "ig_media_id": "18120664456914434"
+    },
+    {
+      "id": 1225,
+      "title": "Kimler Kullanıyor",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "haldefiyat-warmup-warmup-02-kimin-icin",
+      "notes": "haldefiyat-meta-card:warmup",
+      "created_by": "system",
+      "created_at": "2026-08-31T18:34:36.237Z",
+      "scheduled_at": null,
+      "posted_at": "2026-08-31T18:36:07.000Z",
+      "fb_post_id": "1093315187207024_122136220539353707",
+      "ig_media_id": "18108848573029977"
+    },
+    {
+      "id": 1226,
+      "title": "Günlük Hal Sinyali 2026-08-31",
+      "platform": "both",
+      "status": "cancelled",
+      "source_ref": "haldefiyat-daily-meta-2026-08-31",
+      "notes": "haldefiyat-meta-card:daily-signal",
+      "created_by": "system",
+      "created_at": "2026-08-31T18:34:51.405Z",
+      "scheduled_at": null,
+      "posted_at": "2026-08-31T18:36:21.000Z",
+      "fb_post_id": "1093315187207024_122136220659353707",
+      "ig_media_id": "18112446557284975"
+    },
+    {
+      "id": 1227,
+      "title": "HaldeFiyat Nedir",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "haldefiyat-warmup-warmup-01-nedir",
+      "notes": "haldefiyat-meta-card:warmup",
+      "created_by": "system",
+      "created_at": "2026-08-31T18:43:33.127Z",
+      "scheduled_at": null,
+      "posted_at": "2026-08-31T18:45:22.000Z",
+      "fb_post_id": "122136222015353707",
+      "ig_media_id": "17992265114837199"
+    },
+    {
+      "id": 1228,
+      "title": "Kimler Kullanıyor",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "haldefiyat-warmup-warmup-02-kimin-icin",
+      "notes": "haldefiyat-meta-card:warmup",
+      "created_by": "system",
+      "created_at": "2026-08-31T18:43:34.246Z",
+      "scheduled_at": null,
+      "posted_at": "2026-08-31T18:45:38.000Z",
+      "fb_post_id": "122136222123353707",
+      "ig_media_id": "18087186590235277"
+    },
+    {
+      "id": 1229,
+      "title": "Günlük Hal Sinyali 2026-08-31",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "haldefiyat-daily-meta-2026-08-31",
+      "notes": "haldefiyat-meta-card:daily-signal",
+      "created_by": "system",
+      "created_at": "2026-08-31T18:43:38.589Z",
+      "scheduled_at": null,
+      "posted_at": "2026-08-31T18:45:53.000Z",
+      "fb_post_id": "122136222231353707",
+      "ig_media_id": "18095219105647134"
+    },
+    {
+      "id": 1230,
+      "title": "Gunun Hareketi 2026-09-01",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "haldefiyat-daily_movers-2026-09-01-morning-both",
+      "notes": "data-content:morning:daily_movers:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-09-01T07:00:18.053Z",
+      "scheduled_at": "2026-09-01T07:00:00.000Z",
+      "posted_at": "2026-09-01T07:05:22.000Z",
+      "fb_post_id": "122136345741353707",
+      "ig_media_id": "18124131625857524"
+    },
+    {
+      "id": 1231,
+      "title": "Liste / Siralama 2026-09-01",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "haldefiyat-ranking_list-2026-09-01-evening-both",
+      "notes": "data-content:evening:ranking_list:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-09-01T16:00:18.894Z",
+      "scheduled_at": "2026-09-01T16:00:00.000Z",
+      "posted_at": "2026-09-01T16:05:20.000Z",
+      "fb_post_id": "122136462351353707",
+      "ig_media_id": "18146296534527285"
+    },
+    {
+      "id": 1232,
+      "title": "Ağustos 5. Hafta: Endeks 67,3'e Geriledi",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "agustos-5-hafta-2026-hal-raporu-both",
+      "notes": "data-content:midday:analysis_visual:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-09-02T11:00:17.773Z",
+      "scheduled_at": "2026-09-02T11:00:00.000Z",
+      "posted_at": "2026-09-02T11:05:25.000Z",
+      "fb_post_id": "122136719337353707",
+      "ig_media_id": "18374888860234876"
+    },
+    {
+      "id": 1233,
+      "title": "Liste / Siralama 2026-09-02",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "haldefiyat-ranking_list-2026-09-02-evening-both",
+      "notes": "data-content:evening:ranking_list:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-09-02T16:00:13.874Z",
+      "scheduled_at": "2026-09-02T16:00:00.000Z",
+      "posted_at": "2026-09-02T16:05:39.000Z",
+      "fb_post_id": "122136792243353707",
+      "ig_media_id": "18622655644005102"
+    },
+    {
+      "id": 1234,
+      "title": "Gunun Hareketi 2026-09-03",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "haldefiyat-daily_movers-2026-09-03-morning-both",
+      "notes": "data-content:morning:daily_movers:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-09-03T07:00:18.404Z",
+      "scheduled_at": "2026-09-03T07:00:00.000Z",
+      "posted_at": "2026-09-03T07:10:24.000Z",
+      "fb_post_id": "122136962673353707",
+      "ig_media_id": "17954392341249736"
+    },
+    {
+      "id": 1235,
+      "title": "Liste / Siralama 2026-09-03",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "haldefiyat-ranking_list-2026-09-03-evening-both",
+      "notes": "data-content:evening:ranking_list:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-09-03T16:00:19.145Z",
+      "scheduled_at": "2026-09-03T16:00:00.000Z",
+      "posted_at": "2026-09-03T16:05:20.000Z",
+      "fb_post_id": "122137087785353707",
+      "ig_media_id": "17967436800154106"
+    },
+    {
+      "id": 1451,
+      "title": "Gunun Hareketi 2026-09-04",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "haldefiyat-daily_movers-2026-09-04-morning-both",
+      "notes": "data-content:morning:daily_movers:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-09-04T07:00:13.499Z",
+      "scheduled_at": "2026-09-04T07:00:00.000Z",
+      "posted_at": "2026-09-04T07:05:16.000Z",
+      "fb_post_id": "122137247733353707",
+      "ig_media_id": "17906809839499090"
+    },
+    {
+      "id": 1452,
+      "title": "Ağustos 5. Hafta Hal Raporu Thread",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "agustos-5-hafta-2026-hal-raporu-both",
+      "notes": "data-content:midday:analysis_visual:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-09-04T11:00:11.972Z",
+      "scheduled_at": "2026-09-04T11:00:00.000Z",
+      "posted_at": "2026-09-04T11:05:23.000Z",
+      "fb_post_id": "122137295235353707",
+      "ig_media_id": "18101628161357500"
+    },
+    {
+      "id": 1453,
+      "title": "Liste / Siralama 2026-09-04",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "haldefiyat-ranking_list-2026-09-04-evening-both",
+      "notes": "data-content:evening:ranking_list:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-09-04T16:00:13.747Z",
+      "scheduled_at": "2026-09-04T16:00:00.000Z",
+      "posted_at": "2026-09-04T16:05:14.000Z",
+      "fb_post_id": "122137350777353707",
+      "ig_media_id": "17862468762675242"
+    },
+    {
+      "id": 1601,
+      "title": "Gunun Hareketi 2026-09-05",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "haldefiyat-daily_movers-2026-09-05-morning-both",
+      "notes": "data-content:morning:daily_movers:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-09-05T07:00:16.317Z",
+      "scheduled_at": "2026-09-05T07:00:00.000Z",
+      "posted_at": "2026-09-05T07:05:23.000Z",
+      "fb_post_id": "122137590753353707",
+      "ig_media_id": "18152309962519447"
+    },
+    {
+      "id": 1613,
+      "title": "Ağustos 5. Hafta Endeks 67,3",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "agustos-5-hafta-2026-hal-raporu-both",
+      "notes": "data-content:midday:analysis_visual:anthropic/claude-sonnet-4-5",
+      "created_by": "system",
+      "created_at": "2026-09-05T11:00:09.703Z",
+      "scheduled_at": "2026-09-05T11:00:00.000Z",
+      "posted_at": "2026-09-05T11:05:15.000Z",
+      "fb_post_id": "122137638501353707",
+      "ig_media_id": "18088474628439775"
+    },
+    {
+      "id": 1620,
+      "title": "Günün hal hareketleri 2026-09-05",
+      "platform": "both",
+      "status": "posted",
+      "source_ref": "card-k1-2026-09-05-both",
+      "notes": "card-content:movers:k1:2026-09-05:10 kayit",
+      "created_by": "system",
+      "created_at": "2026-09-06T07:30:05.688Z",
+      "scheduled_at": "2026-09-06T07:30:00.000Z",
+      "posted_at": "2026-09-06T07:35:20.000Z",
+      "fb_post_id": "122137932639353707",
+      "ig_media_id": "18337841485257004"
+    }
+  ],
+  "analytics": [
+    {
+      "id": 1206,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1207,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1208,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1209,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1210,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1211,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1212,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1213,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1214,
+      "measurements": 1,
+      "latest_measurement": "2026-08-31T16:09:37.059Z"
+    },
+    {
+      "id": 1216,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1217,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1218,
+      "measurements": 2,
+      "latest_measurement": "2026-08-31T18:00:40.314Z"
+    },
+    {
+      "id": 1219,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1220,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1221,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1222,
+      "measurements": 2,
+      "latest_measurement": "2026-08-31T18:00:42.407Z"
+    },
+    {
+      "id": 1223,
+      "measurements": 2,
+      "latest_measurement": "2026-08-31T18:00:44.323Z"
+    },
+    {
+      "id": 1224,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1225,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1226,
+      "measurements": 0,
+      "latest_measurement": null
+    },
+    {
+      "id": 1227,
+      "measurements": 20,
+      "latest_measurement": "2026-09-06T12:00:17.074Z"
+    },
+    {
+      "id": 1228,
+      "measurements": 20,
+      "latest_measurement": "2026-09-06T12:00:20.393Z"
+    },
+    {
+      "id": 1229,
+      "measurements": 20,
+      "latest_measurement": "2026-09-06T12:00:22.466Z"
+    },
+    {
+      "id": 1230,
+      "measurements": 16,
+      "latest_measurement": "2026-09-05T18:00:26.442Z"
+    },
+    {
+      "id": 1231,
+      "measurements": 15,
+      "latest_measurement": "2026-09-05T18:00:28.063Z"
+    },
+    {
+      "id": 1232,
+      "measurements": 12,
+      "latest_measurement": "2026-09-05T18:00:30.320Z"
+    },
+    {
+      "id": 1233,
+      "measurements": 11,
+      "latest_measurement": "2026-09-05T18:00:31.951Z"
+    },
+    {
+      "id": 1234,
+      "measurements": 9,
+      "latest_measurement": "2026-09-05T18:00:33.801Z"
+    },
+    {
+      "id": 1235,
+      "measurements": 8,
+      "latest_measurement": "2026-09-05T18:00:35.223Z"
+    },
+    {
+      "id": 1451,
+      "measurements": 6,
+      "latest_measurement": "2026-09-05T18:00:36.880Z"
+    },
+    {
+      "id": 1452,
+      "measurements": 6,
+      "latest_measurement": "2026-09-05T18:00:38.504Z"
+    },
+    {
+      "id": 1453,
+      "measurements": 5,
+      "latest_measurement": "2026-09-05T18:00:40.085Z"
+    },
+    {
+      "id": 1601,
+      "measurements": 2,
+      "latest_measurement": "2026-09-05T18:00:41.782Z"
+    },
+    {
+      "id": 1613,
+      "measurements": 4,
+      "latest_measurement": "2026-09-06T12:00:32.918Z"
+    },
+    {
+      "id": 1620,
+      "measurements": 1,
+      "latest_measurement": "2026-09-06T12:00:34.767Z"
+    }
+  ],
+  "config": {
+    "DATA_CONTENT_TENANTS": "bereketfide",
+    "CARD_CONTENT_TENANTS": "haldefiyat",
+    "CARD_CONTENT_FEED_HALDEFIYAT": "https://haldefiyat.com/api/v1/social/cards/today",
+    "CARD_CONTENT_SCHEDULE": "1"
+  },
+  "approvalAudit": "No dedicated editorial approval actor/time fields in social_posts; scheduled_at is not proof of approval."
+}

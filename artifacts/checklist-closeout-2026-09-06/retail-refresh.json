@@ -1,0 +1,327 @@
+{
+  "inserted": 149,
+  "skipped": 0,
+  "searchFailures": 53,
+  "searchFailuresByKeyword": {
+    "mangostan": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "yeşil kabuklu fındık": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "rakula": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "adaçayı": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "papaya": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "hindiba radika": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "mizuna otu": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "kivano": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "bergamot": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "hardal otu": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "yıldız meyvesi": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "tamarillo": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "kumkat": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "uçburun köy biberi": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "ısırgan": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "kaya koruğu": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "melisa": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "mercan köşk diğer": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "defne yaprağı": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "üvez": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "ananas": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "maydanoz": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "pomelo meyvesi": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "ankara armudu": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "hindistan cevizi": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "mango": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "üç burun köy": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "jalapeno": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "yeşil kapya": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "şili kırmızı": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "şili yeşil": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "macar çarli": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "macar dolma": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "yeşil kampari": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "californiya sarı": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "california kırmızı": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "kiriş": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "ampul kabak": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "salata": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "kudret narı": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "iğde": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "döngel": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "sofralık zeytin": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "ejder meyvesi kg": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "kıska": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "mazak": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "kadife": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "granyoz kültür": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "dülger": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "lolorossa": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "frenk incir": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "fejoya": [
+      "SEARCH_NETWORK_ERROR"
+    ],
+    "curuba": [
+      "SEARCH_NETWORK_ERROR"
+    ]
+  },
+  "unmatched": 115,
+  "unmatchedNames": [
+    "Santa Maria Armut 1 Kg",
+    "Deveci Armut 1 Kg",
+    "Armut Naşi 1 Kg",
+    "Kurutulmuş Dolmalık Biber 18 Adet",
+    "Kırmızı Biber Paket 300 Gr",
+    "Kapya Biber 1 Kg",
+    "Kırmızı Biber 1 Kg",
+    "Biber Jalapeno 1 Kg",
+    "Yeşil Biber 1 Kg",
+    "Top Biber 1 Kg",
+    "Kokteyl Domates 1 Kg",
+    "Rio Tarla Domates 1 Kg",
+    "Sivri Domates 1 Kg",
+    "Şeker Domates 250 Gr",
+    "Eko Domates 1 Kg",
+    "Erüst Salkım Çeri Domates 250 Gr",
+    "Kahvaltılık Domates 1 Kg",
+    "Tarla Domates 1 Kg",
+    "Atıştırmalık Domates 1 Kg",
+    "Kokteyl Domates 500 Gr",
+    "Turşuluk Domates 1 Kg",
+    "Tat Kurutulmuş Domates 200 Gr",
+    "Gurumen Domates Kurusu 290 Gr",
+    "Domates Kurusu 1 Kg",
+    "Deli Chef Kurutulmuş Domates 280 Gr",
+    "Kokteyl Domates 500 Gr",
+    "Kokteyl Domates 1 Kg",
+    "Golden Elma 1 Kg",
+    "Starking Elma 1 Kg",
+    "Mürdüm Erik 1 Kg"
+  ],
+  "errors": [
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR",
+    "SEARCH_NETWORK_ERROR"
+  ],
+  "keywordCount": 216,
+  "apiCallCount": 305,
+  "throttled": false,
+  "sourceDates": [
+    "2026-09-05"
+  ],
+  "rejectedEvidence": 0,
+  "rejectionReasons": {},
+  "writeFailures": {},
+  "offersByChain": {
+    "migros": 14,
+    "a101": 30,
+    "sok": 24,
+    "bim": 28,
+    "tarim_kredi": 20,
+    "carrefour": 33
+  },
+  "verifiedOffers": 149,
+  "sample": [
+    {
+      "productId": 10365,
+      "chain": "migros",
+      "price": 697.5,
+      "productNameRaw": "Uzman Kasap Dana Kıyma 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10365,
+      "chain": "a101",
+      "price": 697.5,
+      "productNameRaw": "Dana Kıyma 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10365,
+      "chain": "sok",
+      "price": 825,
+      "productNameRaw": "Lezzetlim Dana Kıyma 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10365,
+      "chain": "bim",
+      "price": 825,
+      "productNameRaw": "Emin %20 Yağlı Dana Kıyma 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10365,
+      "chain": "tarim_kredi",
+      "price": 600,
+      "productNameRaw": "Et Ve Süt Kurumu Kıyma 1 Kg",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10365,
+      "chain": "carrefour",
+      "price": 699.9,
+      "productNameRaw": "Dana Kıyma Map 1 Kg",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10366,
+      "chain": "bim",
+      "price": 737.5,
+      "productNameRaw": "Emin Dana Kuşbaşı Et 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10366,
+      "chain": "migros",
+      "price": 737.5,
+      "productNameRaw": "Uzman Kasap Dana Kuşbaşı 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10366,
+      "chain": "a101",
+      "price": 747.5,
+      "productNameRaw": "Dana Kuşbaşı 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10366,
+      "chain": "sok",
+      "price": 997.5,
+      "productNameRaw": "Lezzetlim Dana Kuşbaşı 400 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10366,
+      "chain": "carrefour",
+      "price": 899.8,
+      "productNameRaw": "Dana Kuşbaşı 500 Gr",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    },
+    {
+      "productId": 10367,
+      "chain": "bim",
+      "price": 189,
+      "productNameRaw": "Tazem Piliç Bütün Göğüs 1 Kg",
+      "unit": "kg",
+      "recordedDate": "2026-09-05"
+    }
+  ]
+}
