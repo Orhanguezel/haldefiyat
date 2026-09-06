@@ -354,6 +354,17 @@ function slugifyTr(value: string): string {
  * sabit listeden degil, hal tablosundaki gercek sehir adlarindan turetiriz —
  * yeni sehir eklendiginde liste guncellemek gerekmez.
  */
+/** Hal'i olmayan iller icin yedek: yalnizca ASCII sluguyla ayni yazilmayanlar. */
+const CITY_FALLBACK: Record<string, string> = {
+  adiyaman: "Adıyaman", agri: "Ağrı", aydin: "Aydın", balikesir: "Balıkesir", bartin: "Bartın",
+  bingol: "Bingöl", canakkale: "Çanakkale", cankiri: "Çankırı", corum: "Çorum", diyarbakir: "Diyarbakır",
+  duzce: "Düzce", elazig: "Elazığ", eskisehir: "Eskişehir", gumushane: "Gümüşhane", hakkari: "Hakkâri",
+  igdir: "Iğdır", istanbul: "İstanbul", izmir: "İzmir", kahramanmaras: "Kahramanmaraş", karabuk: "Karabük",
+  kirikkale: "Kırıkkale", kirklareli: "Kırklareli", kirsehir: "Kırşehir", kutahya: "Kütahya",
+  mugla: "Muğla", mus: "Muş", nevsehir: "Nevşehir", nigde: "Niğde", sanliurfa: "Şanlıurfa",
+  sirnak: "Şırnak", tekirdag: "Tekirdağ", usak: "Uşak",
+};
+
 let cityNameCache: { at: number; map: Map<string, string> } | null = null;
 
 async function cityNames(): Promise<Map<string, string>> {
@@ -419,7 +430,7 @@ export async function selectListings(limit = 6): Promise<{ items: ListingRow[]; 
       productSlug: r.product_slug ? String(r.product_slug) : null,
       imageUrl: r.image_url ? String(r.image_url) : null,
       kind: String(r.listing_type) === "alim" ? "alim" : "satis",
-      cityName: cities.get(String(r.city_slug ?? "")) ?? String(r.city_slug ?? "").replace(/-/g, " ")
+      cityName: cities.get(String(r.city_slug ?? "")) ?? CITY_FALLBACK[String(r.city_slug ?? "")] ?? String(r.city_slug ?? "").replace(/-/g, " ")
         .replace(/(^|\s)(\p{L})/gu, (_m, pre: string, ch: string) => pre + ch.toLocaleUpperCase("tr-TR")),
       quantity: qty != null && qty > 0 ? `${TR_QTY(qty)} ${unit}` : null,
       price,
