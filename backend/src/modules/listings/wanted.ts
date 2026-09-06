@@ -23,7 +23,7 @@ export interface WantedProduct {
   watchers: number;
   /** Aylik arama hacmi (0 = veri yok). */
   searchVolume: number;
-  /** Bugunun hal fiyati — ilan verecek uretici referans alsin. */
+  /** Bugunun hal fiyati (yalniz hal kaynaklari) — ilan verecek uretici referans alsin. */
   price: number | null;
   markets: number;
   priceDate: string | null;
@@ -48,18 +48,18 @@ export async function listWantedProducts(limit = 8): Promise<WantedProduct[]> {
          SELECT product_id FROM hf_alerts WHERE is_active = 1
        ) w GROUP BY product_id
      ),
-     latest AS (
-       SELECT ph.product_id, MAX(ph.recorded_date) AS d
+     obs AS (
+       SELECT ph.product_id, ph.recorded_date, ph.market_id, ph.avg_price
        FROM hf_price_history ph
-       WHERE ph.recorded_date >= CURDATE() - INTERVAL 7 DAY
-       GROUP BY ph.product_id
+       JOIN hf_markets mk ON mk.id = ph.market_id AND mk.is_active = 1
+         AND mk.market_type = 'hal' AND mk.city_name <> 'Türkiye'
+       WHERE ph.recorded_date >= CURDATE() - INTERVAL 7 DAY AND ph.unit = 'kg' AND ph.avg_price > 0
      ),
+     latest AS (SELECT product_id, MAX(recorded_date) AS d, COUNT(DISTINCT recorded_date) AS days FROM obs GROUP BY product_id),
      price AS (
-       SELECT ph.product_id, AVG(ph.avg_price) AS price, COUNT(DISTINCT ph.market_id) AS markets, l.d
-       FROM hf_price_history ph
-       JOIN latest l ON l.product_id = ph.product_id AND ph.recorded_date = l.d
-       JOIN hf_markets mk ON mk.id = ph.market_id AND mk.is_active = 1 AND mk.city_name <> 'Türkiye'
-       GROUP BY ph.product_id, l.d
+       SELECT o.product_id, AVG(o.avg_price) AS price, COUNT(DISTINCT o.market_id) AS markets, l.d, l.days
+       FROM obs o JOIN latest l ON l.product_id = o.product_id AND o.recorded_date = l.d
+       GROUP BY o.product_id, l.d, l.days
      )
      SELECT p.slug, COALESCE(NULLIF(p.display_name, ''), p.name_tr) AS name, p.image_url,
             COALESCE(p.search_volume, 0) AS search_volume,
@@ -71,8 +71,10 @@ export async function listWantedProducts(limit = 8): Promise<WantedProduct[]> {
      LEFT JOIN open_listings buy ON buy.product_id = p.id AND buy.listing_type = 'alim'
      LEFT JOIN watchers w ON w.product_id = p.id
      LEFT JOIN price pr ON pr.product_id = p.id
-     WHERE p.is_active = 1 AND p.canonical_slug IS NULL AND p.seo_index = 1
+     WHERE p.is_active = 1 AND p.canonical_slug IS NULL AND p.seo_index = 1 AND p.unit = 'kg'
        AND sell.n IS NULL
+       -- Mevsim disi urun ilana cagrilmaz: son haftada en az 3 gun ve 3 halde kayit sarti.
+       AND pr.markets >= 3 AND pr.days >= 3
        AND (COALESCE(buy.n, 0) > 0 OR COALESCE(w.n, 0) > 0 OR COALESCE(p.search_volume, 0) >= 500)
      ORDER BY COALESCE(buy.n, 0) DESC, COALESCE(w.n, 0) DESC, COALESCE(p.search_volume, 0) DESC
      LIMIT ?`,
