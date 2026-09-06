@@ -1884,14 +1884,22 @@ export async function upsertPriceRow(input: {
        SELECT 1 FROM hf_markets mk
        WHERE mk.id = ph.market_id AND mk.city_name <> 'Türkiye'
      )`;
+  // HER HALDEN TEK deger: gunluk tekrar eden satirlar ayri emsal sayiliyordu.
+  // Bursa'nin 12 gundur ayni kalan 11,50 TL palamutu "uc emsal" gibi gorunup
+  // Ankara'nin gercek 110 TL palamutunu karantinaya dusuruyordu (2026-09-06).
   const [peerRows] = await pool.query(
     `SELECT ph.avg_price AS price
      FROM hf_price_history ph
+     JOIN (
+       SELECT market_id, MAX(recorded_date) AS d
+       FROM hf_price_history
+       WHERE product_id = ? AND unit = ? AND ABS(DATEDIFF(recorded_date, ?)) <= 45
+       GROUP BY market_id
+     ) son ON son.market_id = ph.market_id AND son.d = ph.recorded_date
      WHERE ph.product_id = ? AND ph.unit = ?
-       AND ABS(DATEDIFF(ph.recorded_date, ?)) <= 45
        AND ${BLACKOUT_EXCLUDED} AND ${PEER_MARKET_SCOPE}
      ORDER BY ph.recorded_date DESC LIMIT 30`,
-    [input.productId, unit, input.recordedDate],
+    [input.productId, unit, input.recordedDate, input.productId, unit],
   );
   const typedPeers = peerRows as Array<{ price: number | string }>;
   const [[previousRow], [sourcePeerRows]] = await Promise.all([
@@ -1903,10 +1911,16 @@ export async function upsertPriceRow(input: {
     ),
     pool.query(
       `SELECT ph.avg_price AS price FROM hf_price_history ph
-       WHERE ph.product_id=? AND ph.market_id<>? AND ph.unit=? AND ABS(DATEDIFF(ph.recorded_date, ?)) <= 3
+       JOIN (
+         SELECT market_id, MAX(recorded_date) AS d
+         FROM hf_price_history
+         WHERE product_id=? AND market_id<>? AND unit=? AND ABS(DATEDIFF(recorded_date, ?)) <= 3
+         GROUP BY market_id
+       ) son ON son.market_id = ph.market_id AND son.d = ph.recorded_date
+       WHERE ph.product_id=? AND ph.market_id<>? AND ph.unit=?
          AND ${BLACKOUT_EXCLUDED} AND ${PEER_MARKET_SCOPE}
        ORDER BY ph.recorded_date DESC LIMIT 30`,
-      [input.productId, input.marketId, unit, input.recordedDate],
+      [input.productId, input.marketId, unit, input.recordedDate, input.productId, input.marketId, unit],
     ),
   ]);
   const previous = (previousRow as Array<{ price: number | string }>)[0];
