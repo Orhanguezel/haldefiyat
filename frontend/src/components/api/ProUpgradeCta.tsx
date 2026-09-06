@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { getCheckoutAttribution } from "@/lib/attribution";
 import { useState } from "react";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { apiPost, ApiError } from "@/lib/api-client";
@@ -41,7 +42,7 @@ export default function ProUpgradeCta({
     setBusy(true); setError(null);
     trackConversion("pro_inquiry", { event_label: "pro_checkout_start" });
     try {
-      const result = await apiPost<{ url: string }>("/billing/checkout", { locale });
+      const result = await apiPost<{ url: string }>("/billing/checkout", { locale, attribution: getCheckoutAttribution() });
       window.location.href = result.url;
     } catch (err) {
       const status = err instanceof ApiError ? err.status : 0;

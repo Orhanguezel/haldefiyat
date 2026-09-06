@@ -80,3 +80,15 @@ export function captureAttribution(): void {
     ATTRIBUTION_MAX_AGE_SECONDS,
   );
 }
+
+/** Existing consent applies to downstream payment attribution, including after revocation. */
+export function getCheckoutAttribution(): Record<string, string> | undefined {
+  if (!canUseBrowser()) return undefined;
+  try {
+    if (window.localStorage.getItem(CONSENT_KEY) !== "accepted") return undefined;
+    const attribution = getAttribution();
+    if (!attribution) return undefined;
+    return Object.fromEntries(["utm_source", "utm_medium", "utm_campaign", "utm_content"]
+      .flatMap(key => { const value = attribution[key as keyof AttributionData]; return value ? [[key, value]] : []; }));
+  } catch { return undefined; }
+}

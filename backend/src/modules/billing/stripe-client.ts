@@ -1,3 +1,4 @@
+import { checkoutAttributionMetadata } from "./attribution";
 /**
  * Stripe HTTP istemcisi — SDK YOK, tek bagimlilik fetch.
  *
@@ -85,6 +86,7 @@ export interface CheckoutArgs {
   successUrl: string;
   cancelUrl: string;
   locale?: string;
+  attribution?: unknown;
 }
 
 /**
@@ -106,8 +108,7 @@ export async function createSubscriptionCheckout(args: CheckoutArgs): Promise<{ 
     success_url: args.successUrl,
     cancel_url: args.cancelUrl,
     line_items: [{ price: priceId, quantity: 1 }],
-    metadata: { user_id: args.userId },
-    subscription_data: { metadata: { user_id: args.userId } },
+    ...checkoutAttributionMetadata(args.userId, args.attribution),
     allow_promotion_codes: true,
   };
   // Mevcut musteri varsa ona bagla; yoksa e-posta ile yeni musteri acilir.

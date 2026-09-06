@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { getCheckoutAttribution } from "@/lib/attribution";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
@@ -118,7 +119,7 @@ export default function ApiAccessPanel({ locale }: { locale: string }) {
   async function goToStripe(path: "/billing/checkout" | "/billing/portal") {
     setBusy(true); setError(null);
     try {
-      const result = await apiPost<{ url: string }>(path, { locale });
+      const result = await apiPost<{ url: string }>(path, { locale, ...(path === "/billing/checkout" ? { attribution: getCheckoutAttribution() } : {}) });
       window.location.href = result.url;
     } catch (err) {
       // Durum kodu ile ayirt ediyoruz; mesaj metnine bakmak kirilgan olurdu.

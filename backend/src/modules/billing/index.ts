@@ -1,3 +1,4 @@
+import { editorialPaymentEvidence } from "./attribution";
 /**
  * Pro abonelik uclari.
  *
@@ -98,7 +99,7 @@ export async function registerBillingPublic(api: FastifyInstance) {
     });
   });
 
-  api.post<{ Body: { locale?: string } }>(
+  api.post<{ Body: { locale?: string; attribution?: unknown } }>(
     "/billing/checkout",
     { onRequest: [requireAuth] },
     async (req, reply) => {
@@ -123,6 +124,7 @@ export async function registerBillingPublic(api: FastifyInstance) {
           successUrl: `${base}/hesabim/api?odeme=basarili`,
           cancelUrl: `${base}/pro?odeme=iptal`,
           locale: req.body?.locale ?? "tr",
+          attribution: req.body?.attribution,
         });
         return reply.send({ ok: true, url: session.url });
       } catch (err) {
@@ -249,6 +251,8 @@ export async function registerStripeWebhook(app: FastifyInstance) {
 
     try {
       await handleStripeEvent(event, req);
+      const evidence = editorialPaymentEvidence(event);
+      if (evidence) req.log.info(evidence, "editorial_payment_verified");
     } catch (err) {
       // Islem hatasinda 500 doneriz: Stripe tekrar dener ve olay kaybolmaz.
       // Olay defterinden de silinir ki tekrar islenebilsin.
