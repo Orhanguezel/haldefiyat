@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Copy, Edit, ExternalLink, Trash2 } from 'lucide-react';
+import { Copy, Edit, ExternalLink, Monitor, Smartphone, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -14,6 +14,44 @@ import type { TranslateFn } from '@/i18n';
 import type { AdSlotAdmin, BannerAdmin } from '@/integrations/endpoints/banners-admin-endpoints';
 import { useDeleteBannerAdminMutation, useDuplicateBannerAdminMutation } from '@/integrations/hooks';
 import { ctr, errorMessage, fmtCtr, LIFECYCLE_VARIANT, money, positionLabel, shortDate } from '../_lib/banner-meta';
+
+/**
+ * Reklamin YAYINDAKI hali — panelde gorsel dosyasi olmayan sablon reklamlar
+ * (Hostinger gibi) hic gorunmuyordu. Onizleme sitedeki bilesenin kendisini
+ * cizer; iframe ayni alan adindaki /reklam-onizleme yolunu acar.
+ */
+function CreativePreview({ id, sidebar, t }: { id: number; sidebar: boolean; t: TranslateFn }) {
+  const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop');
+  const src = `/reklam-onizleme/${id}?device=${device}${sidebar ? '&sidebar=1' : ''}`;
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <div className="inline-flex overflow-hidden rounded-md border">
+          <button type="button" onClick={() => setDevice('desktop')}
+            className={`flex items-center gap-1.5 px-2.5 py-1 text-xs ${device === 'desktop' ? 'bg-primary text-primary-foreground' : 'bg-background'}`}>
+            <Monitor className="size-3.5" /> {t('sheet.previewDesktop')}
+          </button>
+          <button type="button" onClick={() => setDevice('mobile')}
+            className={`flex items-center gap-1.5 border-l px-2.5 py-1 text-xs ${device === 'mobile' ? 'bg-primary text-primary-foreground' : 'bg-background'}`}>
+            <Smartphone className="size-3.5" /> {t('sheet.previewMobile')}
+          </button>
+        </div>
+        <a href={src} target="_blank" rel="noreferrer" className="text-xs text-muted-foreground hover:underline">
+          {t('sheet.previewOpen')}
+        </a>
+      </div>
+      <div className="overflow-hidden rounded-lg border bg-muted/20">
+        <iframe
+          key={`${id}-${device}`}
+          src={src}
+          title={t('sheet.preview')}
+          className="block w-full"
+          style={{ height: device === 'mobile' ? 420 : 260, width: device === 'mobile' ? 400 : '100%', margin: device === 'mobile' ? '0 auto' : undefined }}
+        />
+      </div>
+    </div>
+  );
+}
 
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">{label}</div><div className="text-lg font-semibold tabular-nums">{value}</div></div>;
@@ -63,10 +101,8 @@ export function CampaignSheet({ row, slots, onClose, t, tc }: Props) {
               </SheetDescription>
             </SheetHeader>
             <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-5">
-              {row.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={row.imageUrl} alt={row.alt ?? ''} className="max-h-40 w-full rounded-lg border object-contain bg-muted/30" />
-              ) : row.code ? <pre className="max-h-32 overflow-auto rounded-lg border bg-muted/40 p-3 text-[11px]">{row.code.slice(0, 600)}</pre> : null}
+              <CreativePreview id={row.id} sidebar={row.position.includes('sidebar')} t={t} />
+              {row.code ? <pre className="max-h-32 overflow-auto rounded-lg border bg-muted/40 p-3 text-[11px]">{row.code.slice(0, 600)}</pre> : null}
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <Stat label={t('sheet.impressions')} value={row.impressions.toLocaleString('tr-TR')} />
                 <Stat label={t('sheet.clicks')} value={row.clicks.toLocaleString('tr-TR')} />

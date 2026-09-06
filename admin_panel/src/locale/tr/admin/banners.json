@@ -131,7 +131,11 @@
     "edit": "Düzenle (tam sayfa)",
     "duplicate": "Taslak kopya",
     "deleteTitle": "Reklam silinsin mi?",
-    "deleteHint": "\"{title}\" kalıcı olarak silinir; ölçüm geçmişi de gider."
+    "deleteHint": "\"{title}\" kalıcı olarak silinir; ölçüm geçmişi de gider.",
+    "preview": "Önizleme",
+    "previewDesktop": "Masaüstü",
+    "previewMobile": "Mobil",
+    "previewOpen": "Yeni sekmede aç"
   },
   "toasts": {
     "duplicated": "Reklam güvenli bir taslak kopya olarak oluşturuldu.",

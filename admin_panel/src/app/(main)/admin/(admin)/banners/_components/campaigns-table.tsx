@@ -16,7 +16,7 @@ export function CampaignsTable({ rows, slots, loading, activeId, onSelect, t, tc
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/40 hover:bg-muted/40">
-            <TableHead className="min-w-[300px]">{t('table.campaign')}</TableHead>
+            <TableHead className="w-[38%] min-w-[260px]">{t('table.campaign')}</TableHead>
             <TableHead className="min-w-[180px]">{t('table.slot')}</TableHead>
             <TableHead className="w-40">{t('table.period')}</TableHead>
             <TableHead className="w-36 text-right">{t('table.performance')}</TableHead>
@@ -37,11 +37,11 @@ export function CampaignsTable({ rows, slots, loading, activeId, onSelect, t, tc
                       <img src={b.previewImageUrl || b.imageUrl || ''} alt="" className="h-9 w-14 shrink-0 rounded border object-cover" />
                     ) : <div className={`h-9 w-14 shrink-0 rounded border bg-muted text-center text-[10px] leading-9 text-muted-foreground`}>{t(`types.${b.type}`)}</div>}
                     <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className={`size-2 shrink-0 rounded-full ${LIFECYCLE_TONE[b.lifecycleStatus]}`} />
-                        <span className="truncate font-medium">{b.title}</span>
+                      <div className="flex items-start gap-1.5">
+                        <span className={`mt-1.5 size-2 shrink-0 rounded-full ${LIFECYCLE_TONE[b.lifecycleStatus]}`} />
+                        <span className="line-clamp-2 break-words font-medium leading-snug">{b.title}</span>
                       </div>
-                      <div className="truncate text-xs text-muted-foreground">{b.advertiser || t('table.noAdvertiser')} · {t(`sources.${b.sourceType}`)} · {t(`devices.${b.device}`)}</div>
+                      <div className="break-words text-xs text-muted-foreground">{b.advertiser || t('table.noAdvertiser')} · {t(`sources.${b.sourceType}`)} · {t(`devices.${b.device}`)}</div>
                     </div>
                   </div>
                 </TableCell>

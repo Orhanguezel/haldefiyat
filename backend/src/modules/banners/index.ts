@@ -621,6 +621,35 @@ export async function registerBanners(app: FastifyInstance) {
     return reply.send({ data: enriched });
   });
 
+  /**
+   * Onizleme: reklami YAYINDAKI haliyle dondurur, gosterim SAYMAZ.
+   *
+   * Panelde her reklamin (sablonla cizilenler dahil) masaustu ve mobil goruntusunu
+   * gorebilmek icin var; taslak/duraklatilmis kayitlar da onizlenebilir.
+   */
+  app.get<{ Params: { id: string } }>("/banners/:id/preview", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return reply.status(400).send({ error: "Gecersiz id" });
+    const row = await getBannerById(id);
+    if (!row || row.archivedAt) return reply.status(404).send({ error: "Bulunamadi" });
+    const base = publicBanner(row);
+    if (row.sourceType !== "listing" || !row.listingId) {
+      reply.header("Cache-Control", "private, no-store");
+      return reply.send({ data: base });
+    }
+    const listing = await getListingCreative(row.listingId).catch(() => null);
+    reply.header("Cache-Control", "private, no-store");
+    return reply.send({
+      data: listing
+        ? { ...base, listing: {
+            id: listing.id, slug: listing.slug, title: listing.title, productName: listing.productName,
+            citySlug: listing.citySlug, priceMin: listing.priceMin, priceMax: listing.priceMax,
+            priceUnit: listing.priceUnit, currency: listing.currency, imageUrl: listing.images[0] ?? null,
+          } }
+        : base,
+    });
+  });
+
   // Tıklama sayar + hedefe 302 yönlendirir (görünür <a href> bu endpoint'e gider).
   app.get<{ Params: { id: string } }>("/banners/:id/click", {
     config: { rateLimit: { max: 30, timeWindow: "1 minute" } },
