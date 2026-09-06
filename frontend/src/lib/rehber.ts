@@ -157,6 +157,130 @@ export const REHBER_PAGES: Record<string, RehberPageConfig> = {
       { href: "/fiyatlar", label: "Canlı fiyat tablosu" },
     ],
   },
+  "sonbahar-meyveleri": {
+    slug: "sonbahar-meyveleri",
+    emoji: "🍇",
+    coverImageSlug: "nar",
+    title: "Sonbahar Meyveleri Rehberi — Nar, Ayva, Üzüm Hal Fiyatları",
+    description:
+      "Sonbaharda tezgâha gelen meyvelerin (nar, ayva, üzüm, incir, elma, armut, kivi) güncel hal fiyatları ve son 12 ayın eğrisi: her ürün için en uygun ay kayıtlardan.",
+    h1: "Sonbahar Meyveleri Rehberi",
+    tagline: "İncir kapanırken nar ve ayva açılıyor. Hangi meyve ne zaman ucuzluyor?",
+    seasonWindow: "Eylül – Kasım",
+    intro: [
+      "Sonbahar, hal tezgâhının en hızlı değiştiği dönemdir: yaz meyveleri birkaç hafta içinde çekilir, yerine nar, ayva ve kışlık elma gelir. Aşağıdaki kartlar her meyvenin bugünkü fiyatını, son 12 ayın en uygun ayıyla karşılaştırır.",
+    ],
+    sections: [
+      {
+        heading: "Sezon nasıl dönüyor?",
+        paragraphs: [
+          "İncir ve üzüm eylül boyunca bollaşır, ekimde kayıt sayısı hızla düşer. Nar ve ayva ise eylülde girer ve kasım–aralıkta en geniş hal tabanına ulaşır. Bir meyvenin kaç ayrı halde göründüğü, fiyatın ne kadar güvenilir olduğunu da söyler.",
+          "Kartlarda \"az hal\" uyarısı gördüğünüz üründe fiyatı kesin değer değil, yön bilgisi olarak okuyun: sezonun başında ve sonunda kayıt tabanı daralır.",
+        ],
+      },
+      {
+        heading: "Alım için pratik kural",
+        paragraphs: [
+          "Sezona yeni giren meyvede ilk iki hafta fiyat yüksektir; hal sayısı artmaya başladığında fiyat oturur. Kışlık alım (nar, ayva, elma) için bu geniş taban dönemi beklenir. Sezonu kapanan meyvede ise beklemek pahalıya gelir.",
+        ],
+      },
+    ],
+    basket: [
+      { slug: "nar", label: "Nar" },
+      { slug: "ayva", label: "Ayva", note: "dar kayıt tabanı" },
+      { slug: "uzum", label: "Üzüm" },
+      { slug: "incir", label: "İncir" },
+      { slug: "elma", label: "Elma" },
+      { slug: "armut", label: "Armut" },
+      { slug: "kivi", label: "Kivi" },
+      { slug: "kestane", label: "Kestane", note: "dar kayıt tabanı" },
+    ],
+    related: [
+      { href: "/urun/nar", label: "Nar fiyat sayfası" },
+      { href: "/fiyatlar", label: "Canlı fiyat tablosu" },
+    ],
+  },
+  narenciye: {
+    slug: "narenciye",
+    emoji: "🍊",
+    coverImageSlug: "mandalina",
+    title: "Narenciye Rehberi — Limon, Mandalina, Portakal Hal Fiyatları",
+    description:
+      "Narenciye sezonunun hal fiyatları: limon, mandalina, portakal ve greyfurtun güncel toptan fiyatı, son 12 ayın eğrisi ve kayıtlardan çıkan en uygun ay.",
+    h1: "Narenciye Rehberi",
+    tagline: "Mandalina ne zaman ucuzlar, limon ne zaman zirve yapar? Cevap kayıtlarda.",
+    seasonWindow: "Kasım – Mart",
+    intro: [
+      "Narenciye, yılın en belirgin fiyat döngüsüne sahip gruptur: sezon açılışında yüksek, hasat yayıldıkça düşen, sezon sonunda depodan satılırken yeniden yükselen bir eğri izler. Kartlar bu eğriyi ürün ürün gösterir.",
+    ],
+    sections: [
+      {
+        heading: "Limon neden farklı davranır?",
+        paragraphs: [
+          "Limon depolanabildiği için diğer narenciyeden ayrışır: hasat dışı aylarda da satılır ve fiyatı depo maliyetiyle yükselir. Mandalina ve portakalda ise fiyat, hasadın yayılmasıyla birlikte kasım–ocak arasında en uygun seviyeye iner.",
+        ],
+      },
+      {
+        heading: "Şehir farkı en çok burada görünür",
+        paragraphs: [
+          "Narenciyede üretim bölgesi ile tüketim bölgesi arasındaki fark fiyata net yansır. Aynı gün Mersin ile Karadeniz halleri arasında belirgin fark oluşabilir; şehir karşılaştırmasını fiyat sayfasından kontrol edin.",
+        ],
+      },
+    ],
+    basket: [
+      { slug: "limon", label: "Limon" },
+      { slug: "mandalina", label: "Mandalina" },
+      { slug: "portakal", label: "Portakal" },
+      { slug: "greyfurt", label: "Greyfurt" },
+    ],
+    related: [
+      { href: "/urun/limon", label: "Limon fiyat sayfası" },
+      { href: "/piyasa/erdemli-limon", label: "Erdemli limon piyasası" },
+      { href: "/fiyatlar", label: "Canlı fiyat tablosu" },
+    ],
+  },
+  "kislik-sebze": {
+    slug: "kislik-sebze",
+    emoji: "🥬",
+    coverImageSlug: "pirasa",
+    title: "Kışlık Sebze Rehberi — Pırasa, Lahana, Kereviz Hal Fiyatları",
+    description:
+      "Kış sebzelerinin hal fiyatları: pırasa, lahana, kereviz, ıspanak, karnabahar ve brokolinin güncel toptan fiyatı ve son 12 ayın en uygun ayı.",
+    h1: "Kışlık Sebze Rehberi",
+    tagline: "Kış sebzesi soğukla ucuzlar mı, pahalanır mı? Kayıtlar ay ay gösteriyor.",
+    seasonWindow: "Kasım – Şubat",
+    intro: [
+      "Kış sebzeleri yaz ürünlerinin tersine çalışır: hava soğudukça arz artar ve fiyat oturur. Ancak don olayları birkaç gün içinde sert sıçrama yaratabilir. Kartlar hem normal seyri hem bugünkü sapmayı gösterir.",
+    ],
+    sections: [
+      {
+        heading: "Don riski fiyata nasıl yansır?",
+        paragraphs: [
+          "Yaprak sebzelerde (ıspanak, pazı, marul) don sonrası birkaç gün içinde hal fiyatı sıçrar, arz normale dönünce geri iner. Pırasa, lahana ve kereviz gibi dayanıklı ürünlerde bu sıçrama daha sınırlıdır.",
+        ],
+      },
+      {
+        heading: "Kışlık alım için ne zaman?",
+        paragraphs: [
+          "Depolanabilen kök ve baş sebzelerde (kereviz, lahana, havuç) en uygun dönem genellikle aralık–ocak arasıdır. Yaprak sebzeler depolanmadığı için toplu alım yerine haftalık alım daha mantıklıdır.",
+        ],
+      },
+    ],
+    basket: [
+      { slug: "pirasa", label: "Pırasa" },
+      { slug: "lahana-beyaz", label: "Beyaz lahana", note: "dar kayıt tabanı" },
+      { slug: "kereviz", label: "Kereviz" },
+      { slug: "ispanak", label: "Ispanak" },
+      { slug: "karnabahar", label: "Karnabahar" },
+      { slug: "brokoli", label: "Brokoli" },
+      { slug: "havuc", label: "Havuç" },
+      { slug: "pazi", label: "Pazı" },
+    ],
+    related: [
+      { href: "/urun/pirasa", label: "Pırasa fiyat sayfası" },
+      { href: "/fiyatlar", label: "Canlı fiyat tablosu" },
+    ],
+  },
 };
 
 export const REHBER_LIST: RehberPageConfig[] = Object.values(REHBER_PAGES);
