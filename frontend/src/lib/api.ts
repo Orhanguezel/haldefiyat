@@ -582,7 +582,10 @@ export async function fetchProducts(
     seoIndex: options.seoIndex == null ? undefined : String(options.seoIndex),
     canonicalOnly: options.canonicalOnly == null ? undefined : String(options.canonicalOnly),
   });
-  return safeFetch<Product[]>(`/prices/products${qs}`, 300, []);
+  // "prices" tag'i: urun birlestirme/duzenleme sonrasi backend on-demand revalidate
+  // tetikler. Tag olmadan liste 300 sn boyunca eski kaliyordu — birlestirilen cesit
+  // sayfada gorunmeye devam ediyordu (2026-09-06 domates-sera).
+  return safeFetch<Product[]>(`/prices/products${qs}`, 300, [], ["prices"]);
 }
 
 export async function fetchProductEditorial(slug: string): Promise<ProductEditorial | null> {
