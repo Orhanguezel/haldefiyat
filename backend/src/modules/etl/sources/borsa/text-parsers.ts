@@ -149,6 +149,28 @@ function toTobbProduct(rawName: string): { name: string; category: string } | nu
   // Keçiboynuzu (harnup) bir MEYVEdir; aşağıdaki "keçi" eşlemesine düşmesin.
   if (/KE[ÇC][İI]\s*BOYNUZ/.test(name)) return { name: "Keçiboynuzu", category: "sebze-meyve" };
 
+  // Borsada islem goren yas urun ve sert kabuklular. Nevsehir patatesi ve Ordu findigi
+  // eslesmedigi icin iki borsa "veri uretmiyor" sanilmisti (2026-09-06 yoklamasi).
+  if (/PATATES\b/.test(name)) {
+    if (/TOHUMLUK/.test(name)) return null; // tohumluk ayri emtia, yemeklik fiyatiyla karismaz
+    return { name: "Patates", category: "sebze" };
+  }
+  if (/SO[ĞG]AN\b/.test(name) && !/TOHUM/.test(name)) return { name: "Soğan", category: "sebze" };
+  if (/FINDIK\b|FIND[İI]K\b/.test(name)) {
+    if (/(?:^|\s)[İI][ÇC](?:\s|$)/.test(name)) return { name: "Fındık (İç)", category: "sert-kabuklu" };
+    return { name: "Fındık (Kabuklu)", category: "sert-kabuklu" };
+  }
+  if (/CEV[İI]Z\b/.test(name)) {
+    if (/(?:^|\s)[İI][ÇC](?:\s|$)/.test(name)) return { name: "Ceviz (İç)", category: "sert-kabuklu" };
+    return { name: "Ceviz (Kabuklu)", category: "sert-kabuklu" };
+  }
+  if (/BADEM\b/.test(name)) return { name: "Badem", category: "sert-kabuklu" };
+  if (/ANTEP\s*FISTI[ĞG]I|F[İI]STIK\b/.test(name)) return { name: "Antep Fıstığı", category: "sert-kabuklu" };
+  if (/KABAK\s*[ÇC]EK[İI]RDE[ĞG][İI]/.test(name)) return { name: "Kabak Çekirdeği", category: "sert-kabuklu" };
+  if (/[ÜU]Z[ÜU]M\b/.test(name) && /KURU/.test(name)) return { name: "Kuru Üzüm", category: "sebze-meyve" };
+  if (/KAYISI\b/.test(name) && /KURU/.test(name)) return { name: "Kuru Kayısı", category: "sebze-meyve" };
+  if (/[İI]NC[İI]R\b/.test(name) && /KURU/.test(name)) return { name: "Kuru İncir", category: "sebze-meyve" };
+
   // Kırmızı et (karkas + parça) — "ET/ETİ", "KARKAS" veya parça adı (but/kol/pirzola...)
   // geçen satırlar → "et" kategorisi. Canlı ağırlıktan AYRI; ÖNCE et yakalanır.
   const isMeat = /KARKAS\b/.test(name) || /\bET[İI]?\b/.test(name) || /ET\s*\(/.test(name)
@@ -229,7 +251,10 @@ export function parseTobbBorsaHtml(raw: string): BorsaPriceRow[] {
     const trBlocks = scope.match(/<tr\b[^>]*>[\s\S]*?<\/tr>/gi) ?? [];
     for (const tr of trBlocks) {
       const cells = Array.from(tr.matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi), (match) => decodeHtmlText(match[1] ?? ""));
-      if (cells.length < 6 || /ürün/i.test(cells[0] ?? "")) continue;
+      // Baslik satiri tespiti "ürün" iceren HER hucreyi eliyordu; "PATATES YENİ ÜRÜN"
+      // gibi gercek urun adlari da dusuyordu (Nevsehir, 2026-09-06).
+      const firstCell = (cells[0] ?? "").trim();
+      if (cells.length < 6 || /^ürün(\s+adı)?$/i.test(firstCell)) continue;
 
       const product = toTobbProduct(cells[0] ?? "");
       if (!product) continue;

@@ -179,3 +179,33 @@ describe("borsa ETL parsers", () => {
     ]);
   });
 });
+
+describe("TOBB borsa — yas urun ve sert kabuklu eslemesi", () => {
+  const row = (name: string, unit: string, date: string, min: string, max: string, avg: string) =>
+    `<tr><td>${name}</td><td>${unit}</td><td>${date}</td><td>${min}</td><td>${max}</td><td>${avg}</td><td>1.000</td></tr>`;
+  const page = (rows: string) => `<table><thead><tr><th>Ürün Adı</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+  it("Nevsehir patatesi eslesir (borsa 'veri uretmiyor' sanilmisti)", () => {
+    const rows = parseTobbBorsaHtml(page(row("PATATES YENİ ÜRÜN", "KG", "02.09.2026 10:18", "2,000", "50,000", "14,930")));
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.name).toBe("Patates");
+    expect(rows[0]!.category).toBe("sebze");
+    expect(rows[0]!.avg).toBeCloseTo(14.93, 2);
+  });
+
+  it("Ordu findigi kabuklu/ic ayrimiyla eslesir", () => {
+    const rows = parseTobbBorsaHtml(page(
+      row("FINDIK KABUKLU TOMBUL (LEVANT)", "KG", "09.07.2026 16:29", "170,000", "170,000", "170,000")
+      + row("FINDIK İÇ TOMBUL", "KG", "09.07.2026 16:29", "300,000", "320,000", "310,000"),
+    ));
+    expect(rows.map((r) => r.name).sort()).toEqual(["Fındık (Kabuklu)", "Fındık (İç)"].sort());
+  });
+
+  it("tohumluk patates yemeklik fiyatina karismaz", () => {
+    expect(parseTobbBorsaHtml(page(row("PATATES TOHUMLUK", "KG", "02.09.2026 10:18", "20,000", "30,000", "25,000")))).toHaveLength(0);
+  });
+
+  it("un hala elenir (islenmis urun ham fiyatina karismaz)", () => {
+    expect(parseTobbBorsaHtml(page(row("BUĞDAY UNU TİP 2", "KG", "02.09.2026 10:18", "669,190", "1.119,640", "913,480")))).toHaveLength(0);
+  });
+});
