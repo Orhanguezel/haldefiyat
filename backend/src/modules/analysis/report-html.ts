@@ -59,7 +59,7 @@ export type WeeklyReportHtmlInput = {
 export const NARROW_BASE_MARKETS = 7;
 const DIVERGENCE_PCT = 10;
 
-function esc(value: string): string {
+export function esc(value: string): string {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -77,7 +77,7 @@ function moverRow(m: Mover): string {
     + `<td class="num">${m.marketCount}</td></tr>`;
 }
 
-function moverTable(rows: Mover[]): string {
+export function moverTable(rows: Mover[]): string {
   if (!rows.length) return "";
   return `<div class="overflow-x"><table>\n`
     + `<thead><tr><th>Ürün</th><th class="num">Hafta başı</th><th class="num">Hafta sonu</th>`
@@ -86,7 +86,7 @@ function moverTable(rows: Mover[]): string {
     + `\n</tbody>\n</table></div>`;
 }
 
-function indexTable(rows: IndexPoint[]): string {
+export function indexTable(rows: IndexPoint[]): string {
   if (rows.length < 2) return "";
   const body = rows.map((row, i) => {
     const prev = i > 0 ? rows[i - 1]! : null;

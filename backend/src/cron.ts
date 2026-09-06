@@ -13,6 +13,7 @@ import { publishWhatsappDraft, publishWhatsappWeeklyDraft } from "@/modules/what
 import { runAllProductionSources } from "@/modules/etl/production-fetcher";
 import { getSourceByKey } from "@/config/etl-sources";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
+import { persistMonthlyReport } from "@/modules/analysis/monthly-report";
 import { runWeeklyDigest } from "@/modules/notifications/weekly-digest";
 import { runWeeklyMailDigest } from "@/modules/notifications/weekly-mail-digest";
 import { calculateWeeklyIndex } from "@/modules/index";
@@ -76,6 +77,7 @@ export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] }
     { name: "competitor-discovery", schedule: E.competitorDiscoverySchedule, category: "bildirim", description: "Rakip kesfi — GSC sorgularinda arama sonucu ilk 2 sayfa taramasi (haftalik)" },
     { name: "index-weekly",       schedule: E.indexSchedule,            category: "icerik",   description: "Haftalik fiyat endeksi hesaplama" },
     { name: "weekly-analysis",    schedule: E.weeklyAnalysisSchedule,   category: "icerik",   description: "Haftalik analiz raporu taslagi olustur" },
+    { name: "monthly-analysis",   schedule: E.monthlyAnalysisSchedule,  category: "icerik",   description: "Aylik hal degerlendirmesi taslagi olustur (ayin 2. gunu)" },
     { name: "weekly-digest",      schedule: E.weeklyDigestSchedule,     category: "bildirim", description: "Haftalik ozet bildirim" },
     { name: "weekly-mail",        schedule: E.weeklyMailSchedule,       category: "bildirim", description: "Haftalik e-posta bulteni (Pazartesi)" },
     { name: "channel-publish",    schedule: E.channelPublishSchedule,   category: "sosyal",   description: "Telegram kanal gunluk fiyat paylasimi" },
@@ -110,6 +112,7 @@ export function startCron(app: FastifyInstance): void {
     { name: "weekly-digest",    schedule: env.ETL.weeklyDigestSchedule,  handler: () => runWeeklyDigestJob(app) },
     { name: "index-weekly",     schedule: env.ETL.indexSchedule,         handler: () => runIndexJob(app) },
     { name: "weekly-analysis",  schedule: env.ETL.weeklyAnalysisSchedule, handler: () => runWeeklyAnalysisJob(app) },
+    { name: "monthly-analysis", schedule: env.ETL.monthlyAnalysisSchedule, handler: () => runMonthlyAnalysisJob(app) },
     // Haftalık SEO auto-recovery — sezonsal ürünler verisi dönünce otomatik index/çıkış
     { name: "seo-maintenance",  schedule: env.ETL.seoMaintenanceSchedule, handler: () => runSeoMaintenanceJob(app) },
     // Aylık ETL run log retention — dashboard için son 90 gün yeterli
@@ -346,6 +349,24 @@ async function runIndexJob(app: FastifyInstance): Promise<void> {
     }
   } catch (err) {
     app.log.error({ err }, "[cron:index] hata");
+  }
+}
+
+async function runMonthlyAnalysisJob(app: FastifyInstance): Promise<void> {
+  const t0 = Date.now();
+  app.log.info("[cron:monthly-analysis] aylik degerlendirme uretiliyor");
+  try {
+    const row = await persistMonthlyReport();
+    if (!row) {
+      app.log.warn({ durationMs: Date.now() - t0 }, "[cron:monthly-analysis] yeterli veri yok");
+      return;
+    }
+    app.log.info(
+      { slug: row.slug, month: row.isoWeek, records: row.totalRecords, durationMs: Date.now() - t0 },
+      "[cron:monthly-analysis] taslak hazir",
+    );
+  } catch (err) {
+    app.log.error({ err }, "[cron:monthly-analysis] hata");
   }
 }
 

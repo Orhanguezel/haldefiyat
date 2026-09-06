@@ -87,9 +87,13 @@ function toDateStr(d: Date | string): string {
   return String(d).slice(0, 10);
 }
 
-export async function weeklyPriceSummary(weekStart: string, weekEnd: string): Promise<WeeklySummary> {
+/**
+ * @param opts.windowDays Karsilastirma penceresi (gun). Aylik raporda 2 gun cok gurultulu:
+ * ay basi ilk 5 gun ile ay sonu son 5 gun kiyaslanir.
+ */
+export async function weeklyPriceSummary(weekStart: string, weekEnd: string, opts: { windowDays?: number } = {}): Promise<WeeklySummary> {
   const rows       = await fetchWeekRows(weekStart, weekEnd);
-  const movements  = scoreMovements(rows);
+  const movements  = scoreMovements(rows, opts.windowDays);
   const byCategory = avgByCategoryFromRows(rows);
   const enriched   = await enrichMovements(movements);
 
@@ -142,14 +146,16 @@ async function fetchWeekRows(weekStart: string, weekEnd: string): Promise<Row[]>
   return rows as Row[];
 }
 
-function scoreMovements(rows: Row[]): Scored[] {
+function scoreMovements(rows: Row[], windowDays?: number): Scored[] {
   const usable = rows.filter(
     (r) => r.unit === "kg" && !MOVER_EXCLUDED_CATEGORIES.has(r.categorySlug || ""),
   );
   const dates = [...new Set(usable.map((r) => toDateStr(r.recordedDate)))].sort();
   if (dates.length < 2) return [];
   // 4+ günlük haftada ilk/son 2 gün; kısa haftada tek gün — pencerelerin çakışmaması şart.
-  const span = dates.length >= 4 ? 2 : 1;
+  const defaultSpan = dates.length >= 4 ? 2 : 1;
+  // Pencereler cakisamaz: iki pencere toplami gun sayisini gecemez.
+  const span = windowDays ? Math.max(1, Math.min(windowDays, Math.floor(dates.length / 2))) : defaultSpan;
   const startDates = new Set(dates.slice(0, span));
   const endDates   = new Set(dates.slice(-span));
 

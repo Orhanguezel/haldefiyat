@@ -7,9 +7,10 @@ import { repoGetSnapshotHistory } from "@/modules/index/repository";
 import { resolveWeekRange } from "@/modules/prices/iso-week";
 import { weeklyPriceSummary, type WeeklySummary } from "@/modules/prices/weekly";
 import { registerAnalysisQuality } from "./quality";
+import { persistMonthlyReport } from "./monthly-report";
 import {
   buildMetaDescriptionFrom, buildMetaTitleFor, buildReportTitle, indexStatusOf,
-  trNum, trPct, trPctSigned, trPeriod, trPeriodShort, trPriceUnit,
+  MONTH_LABELS, MONTH_SLUGS, trNum, trPct, trPctSigned, trPeriod, trPeriodShort, trPriceUnit,
   type IndexPoint,
 } from "./report-format";
 import {
@@ -98,6 +99,10 @@ const bodyGenerate = z.object({
   week: z.string().regex(/^\d{4}-\d{2}$/).optional(),
 });
 
+const bodyGenerateMonth = z.object({
+  month: z.string().regex(/^\d{4}-\d{2}$/).optional(),
+});
+
 const bodyCreate = z.object({
   title: z.string().trim().min(3).max(500),
   slug: z.string().trim().max(180).optional(),
@@ -126,35 +131,6 @@ const bodyPatch = z.object({
   status: z.enum(["draft", "published", "archived"]).optional(),
 });
 
-const MONTH_SLUGS = [
-  "ocak",
-  "subat",
-  "mart",
-  "nisan",
-  "mayis",
-  "haziran",
-  "temmuz",
-  "agustos",
-  "eylul",
-  "ekim",
-  "kasim",
-  "aralik",
-];
-
-const MONTH_LABELS = [
-  "Ocak",
-  "Şubat",
-  "Mart",
-  "Nisan",
-  "Mayıs",
-  "Haziran",
-  "Temmuz",
-  "Ağustos",
-  "Eylül",
-  "Ekim",
-  "Kasım",
-  "Aralık",
-];
 
 export async function registerAnalysis(app: FastifyInstance) {
   app.get("/analysis/weekly-reports", async (req, reply) => {
@@ -187,6 +163,14 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz hafta formati" });
     const report = await persistWeeklyReport(parsed.data.week);
     if (!report) return reply.status(422).send({ error: "Bu hafta icin yeterli fiyat kaydi yok" });
+    return reply.send({ data: reportRowToAdmin(report) });
+  });
+
+  app.post("/analysis/reports/generate-monthly", async (req, reply) => {
+    const parsed = bodyGenerateMonth.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz ay formati (YYYY-MM)" });
+    const report = await persistMonthlyReport(parsed.data.month);
+    if (!report) return reply.status(422).send({ error: "Bu ay icin yeterli fiyat kaydi yok" });
     return reply.send({ data: reportRowToAdmin(report) });
   });
 

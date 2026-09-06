@@ -221,3 +221,14 @@ export function looksLikeCasefoldArtifact(displayName: string | null | undefined
   if (first === "I" && /^[a-zçğıöşü]/.test(rest)) return true;
   return /[a-zçğöşü]ı[a-zçğöşü]*$/.test(value) && /I/.test(first);
 }
+
+/** Ay adlari — hem haftalik hem aylik rapor slug/basliklarinda kullanilir. */
+export const MONTH_SLUGS = [
+  "ocak", "subat", "mart", "nisan", "mayis", "haziran",
+  "temmuz", "agustos", "eylul", "ekim", "kasim", "aralik",
+];
+
+export const MONTH_LABELS = [
+  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
+];
