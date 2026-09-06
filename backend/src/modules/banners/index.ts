@@ -65,6 +65,7 @@ import {
   recordAdAudit,
 } from "./repository";
 import { getListingCreative } from "@/modules/listings/repo";
+import { getFirmById } from "@/modules/firms/repository";
 
 // Kanonik reklam pozisyonları (frontend slot key'leri ile birebir).
 export const BANNER_POSITIONS = [
@@ -582,13 +583,17 @@ export async function registerBanners(app: FastifyInstance) {
     });
     const [row] = selection.rows;
     if (!row) return reply.send({ data: null });
+    // Ilan kaynakli reklamin gorseli ilanin kendisinde durur. Bu uc onu cozmuyordu:
+    // tekil slotta reklam GORSELSIZ kaliyor, frontend de gorselsiz ilani hic cizmiyordu.
+    const enrichedRow = await publicBannerWithSource(row);
+    if (!enrichedRow) return reply.send({ data: null });
     if (!isNonHumanTraffic(req)) {
       void incImpression(row.id);
       void recordVisitorImpression(row.id, selection.visitorHash, selection.pageHash);
       void recordBannerMetric(row.id, "impression", selection.visitorHash, requestDevice(req), adMetricScope(parsed.data));
     }
     reply.header("Cache-Control", "private, no-store");
-    return reply.send({ data: publicBanner(row) });
+    return reply.send({ data: enrichedRow });
   });
 
   app.get("/banners/grid", async (req, reply) => {
@@ -708,7 +713,21 @@ export async function registerBannersAdmin(app: FastifyInstance) {
       limit,
       offset,
     });
-    return reply.send({ items, positions: BANNER_POSITIONS });
+    // Ilan/firma kaynakli reklamin gorseli banner satirinda tutulmaz; panelde
+    // "Görsel" yazan gri kutu cikiyordu. Onizleme kaynagindan cozulur (kaydedilmez).
+    const withPreview = await Promise.all(items.map(async (item) => {
+      if (item.imageUrl) return { ...item, previewImageUrl: item.imageUrl };
+      if (item.sourceType === "listing" && item.listingId) {
+        const listing = await getListingCreative(item.listingId).catch(() => null);
+        return { ...item, previewImageUrl: listing?.images?.[0] ?? null };
+      }
+      if (item.sourceType === "firm" && item.firmId) {
+        const firm = await getFirmById(item.firmId).catch(() => null);
+        return { ...item, previewImageUrl: firm?.photoUrl ?? null };
+      }
+      return { ...item, previewImageUrl: null };
+    }));
+    return reply.send({ items: withPreview, positions: BANNER_POSITIONS });
   });
 
   app.get("/banners/stats", async (_req, reply) => {
