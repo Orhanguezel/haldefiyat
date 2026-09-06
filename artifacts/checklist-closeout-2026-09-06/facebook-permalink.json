@@ -1,0 +1,14 @@
+{
+  "observedDate": "2026-09-06",
+  "method": "Authenticated read-only Graph GET; credentials excluded",
+  "storedFbPostId": "122137932639353707",
+  "objectType": "Photo",
+  "permalinkRequest": {"fields": "id,link,created_time", "status": 200},
+  "permalink": "https://www.facebook.com/photo.php?fbid=122137932639353707&set=a.122136222033353707&type=3",
+  "createdTime": "2026-09-06T07:35:00+0000",
+  "metricsRequest": {"fields": "id,name,link,likes.summary(true).limit(0),comments.summary(true).limit(0)", "status": 200},
+  "likes": 0,
+  "comments": 0,
+  "unavailable": ["shares", "reach", "impressions", "clicks", "saves", "commentDetails"],
+  "cause": "Photo publishing returned Photo id while collectors assumed a Post node; Photo does not expose message/permalink_url Post fields. New responses prefer post_id; legacy reads retry only explicit Photo field mismatch."
+}

@@ -1,0 +1,19 @@
+{
+  "checkedAt": "2026-09-06T16:12:45.156Z",
+  "postId": 1620,
+  "facebookRowsBefore": 0,
+  "facebookRowsAfter": 0,
+  "partialMetrics": [],
+  "analyticsPlatforms": [
+    "instagram"
+  ],
+  "remotes": [
+    {
+      "platform": "instagram",
+      "permalink": "https://www.instagram.com/p/Dc8Azg1Fn0Z/"
+    }
+  ],
+  "errors": [
+    "facebook: (#100) Tried accessing nonexisting field (message)"
+  ]
+}
