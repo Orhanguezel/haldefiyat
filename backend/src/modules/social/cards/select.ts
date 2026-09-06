@@ -357,11 +357,11 @@ export async function selectListings(limit = 6): Promise<{ items: ListingRow[]; 
     `SELECT l.slug, l.title, l.product_name, l.product_slug, l.listing_type, l.city_slug,
             l.quantity, l.quantity_unit, l.price_min, l.price_max, l.price_unit, l.price_type,
             p.image_url, COALESCE(NULLIF(p.display_name, ''), p.name_tr) AS master_name,
-            DATE(l.published_at) AS published_date
+            DATE(l.created_at) AS published_date
      FROM hf_listings l
      LEFT JOIN hf_products p ON p.id = l.product_id
      WHERE l.status = 'approved' AND (l.expires_at IS NULL OR l.expires_at > NOW())
-     ORDER BY l.published_at DESC, l.id DESC
+     ORDER BY l.created_at DESC, l.id DESC
      LIMIT ?`,
     [Math.max(3, Math.min(limit, 10))],
   );
