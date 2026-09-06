@@ -193,12 +193,15 @@ export async function renderBasketCard(items: BasketRow[], size: CardSize, dateL
 export async function renderCityCard(data: CityCompare, size: CardSize, dateLabel: string): Promise<Buffer> {
   const g = GEOMETRY[size];
   const n = data.rows.length || 1;
-  const rowH = Math.min(g.maxRow, Math.floor((contentHeight(g) - 96 - (n - 1) * g.rowGap) / n));
-  const thumbs = await loadThumbs([{ productSlug: data.productSlug, imageUrl: data.imageUrl, canonicalSlug: null }], Math.round(rowH * 1.6));
+  // Basliktaki buyuk gorsel satir yuksekliginden BAGIMSIZ olcuye sahip; yoksa hesap
+  // kendi kendine dayanir ve son satir alt bandin altinda kalir.
+  const heroSize = Math.round(g.maxRow * 1.15);
+  const headBlock = heroSize + 24;
+  const rowH = Math.min(g.maxRow, Math.floor((contentHeight(g) - headBlock - (n - 1) * g.rowGap) / n));
+  const thumbs = await loadThumbs([{ productSlug: data.productSlug, imageUrl: data.imageUrl, canonicalSlug: null }], heroSize);
   const hero = thumbs[0];
-  const heroSize = Math.round(rowH * 1.6);
 
-  let y = contentTop(g) + 96;
+  let y = contentTop(g) + headBlock;
   const parts: string[] = [];
 
   const headline = `${data.productName} · ₺${fmtPrice(data.national)}/kg`;
@@ -207,7 +210,7 @@ export async function renderCityCard(data: CityCompare, size: CardSize, dateLabe
   if (hero) {
     parts.push(`<defs><clipPath id="hero"><rect x="${g.pad}" y="${contentTop(g) - 26}" width="${heroSize}" height="${heroSize}" rx="24"/></clipPath></defs>`
       + `<image href="${hero}" x="${g.pad}" y="${contentTop(g) - 26}" width="${heroSize}" height="${heroSize}" preserveAspectRatio="xMidYMid slice" clip-path="url(#hero)"/>`);
-    y = Math.max(y, contentTop(g) - 26 + heroSize + 20);
+    y = Math.max(y, contentTop(g) - 26 + heroSize + 24);
   }
 
   data.rows.forEach((row) => {
