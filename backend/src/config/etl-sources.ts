@@ -524,8 +524,11 @@ const RAW_SOURCES: RawSource[] = [
     // sunucu kapali. Bu arada ETL her gun 1 Agustos anlik goruntusunu yeniden
     // isliyor, 'partial' statusu uretiyor ve saglik metriklerini kirletiyordu
     // (14 gunde 630 "rows_inserted" ama price_history'ye dusen: 1 satir).
-    // Site geri gelince true cevir; 'id:NNN' backfill formati hazir.
-    defaultEnabled:    false,
+    // 2026-09-06: Site AYAKTA. Dogrudan istek TLS zinciri eksik oldugu icin
+    // "unable to verify the first certificate" veriyor; scraper stealthy modunda
+    // HTTP 200 (listing 89 KB, detay id 2208, sayfada 06.09.2026 tarihi var).
+    // Kaynak HF_SCRAPER_SOURCES uzerinden cekilir.
+    defaultEnabled:    true,
     defaultMarketSlug: "tekirdag-hal",
     defaultBaseUrl:    "https://www.tekirdag.bel.tr",
     defaultEndpoint:   "/hal_fiyat_gunluk",

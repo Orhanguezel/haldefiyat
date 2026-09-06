@@ -1852,18 +1852,17 @@ async function fetchBoluDated(
   if (!homeRes.ok) throw new Error(`Bolu kategori HTTP ${homeRes.status}`);
   const homeHtml = await decodeResponseBody(homeRes);
 
-  const pattern = /href="(https?:\/\/www\.bolu\.bel\.tr\/(\d{2})-(\d{2})-(\d{4})-(?:toptanci-hal-fiyat-listesi|haftalik-fiyat-listesi)\/?)"[^>]*>/gi;
+  // Ay ile yil arasindaki tire kaynakta bazen DUSUYOR ("28-082026-haftalik-fiyat-listesi").
+  // Katı desen bu haftalari gormedigi icin ETL 14 Agustos'ta takili kaldi: 23 Agustos,
+  // 28 Agustos ve 4 Eylul listeleri atlandi.
+  const pattern = /href="(https?:\/\/www\.bolu\.bel\.tr\/(\d{2})-(\d{2})-?(\d{4})-(?:toptanci-hal-fiyat-listesi|haftalik-fiyat-listesi|bolu-belediyesi-toptanci-hali-sebze-ve-meyve-fiyatlari)\/?)"[^>]*>/gi;
   const matches = [...homeHtml.matchAll(pattern)];
   if (matches.length === 0) throw new Error("Bolu: listing URL kategori sayfasinda bulunamadı");
 
-  // En güncel tarihi seç
-  const best = matches.reduce<{ url: string; iso: string }>(
-    (prev, m) => {
-      const iso = `${m[4]}-${m[3]}-${m[2]}`;
-      return iso > prev.iso ? { url: m[1]!, iso } : prev;
-    },
-    { url: matches[0]![1]!, iso: "" },
-  );
+  const candidates = matches.map((m) => ({ url: m[1]!, iso: `${m[4]}-${m[3]}-${m[2]}` }));
+  // Belirli bir gun istendiyse onun listesi; yoksa en guncel olan (geriye backfill mumkun olsun).
+  const requested = candidates.find((item) => item.iso === date);
+  const best = requested ?? candidates.reduce((prev, item) => (item.iso > prev.iso ? item : prev), candidates[0]!);
 
   const priceRes = await fetch(best.url, {
     headers: { Accept: "text/html", "User-Agent": "HaldeFiyatBot/1.0 (+https://haldefiyat.com)" },
