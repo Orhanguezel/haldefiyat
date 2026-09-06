@@ -420,7 +420,7 @@ export async function listingSummary() {
   return { active: Number(row?.active ?? 0), pending: Number(row?.pending ?? 0), rejected: Number(row?.rejected ?? 0) };
 }
 
-export async function moderateListing(id: number, status: "approved" | "rejected", moderationNote?: string | null) {
+export async function moderateListing(id: number, status: "pending" | "approved" | "rejected", moderationNote?: string | null) {
   await db.update(hfListings).set({ status, moderationNote: moderationNote ?? null }).where(eq(hfListings.id, id));
   return getListingById(id);
 }

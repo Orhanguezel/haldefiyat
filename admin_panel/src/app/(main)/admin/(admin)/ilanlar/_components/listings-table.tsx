@@ -1,6 +1,6 @@
 'use client';
 
-import { MoreHorizontal, Check, X, Trash2, Pencil, ImageOff } from 'lucide-react';
+import { MoreHorizontal, Check, Clock3, X, Trash2, Pencil, ImageOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -48,7 +48,7 @@ type Props = {
   ads: AdRow[];
   busy: boolean;
   onEdit: (item: Listing) => void;
-  onModerate: (id: number, status: 'approved' | 'rejected') => void;
+  onModerate: (id: number, status: 'pending' | 'approved' | 'rejected') => void;
   onDelete: (item: Listing) => void;
   t: T;
   tc: T;
@@ -115,6 +115,11 @@ export function ListingsTable({ items, ads, busy, onEdit, onModerate, onDelete, 
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        {item.status !== 'pending' ? (
+                          <DropdownMenuItem onClick={() => onModerate(item.id, 'pending')}>
+                            <Clock3 className="size-4" /> {t('actions.returnPending')}
+                          </DropdownMenuItem>
+                        ) : null}
                         <DropdownMenuItem disabled={item.status === 'approved'} onClick={() => onModerate(item.id, 'approved')}>
                           <Check className="size-4" /> {tc('approve')}
                         </DropdownMenuItem>

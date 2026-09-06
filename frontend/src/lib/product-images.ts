@@ -50,3 +50,23 @@ export function getProductImage(slug: string, canonicalSlug?: string | null): st
 
   return null;
 }
+
+/**
+ * İlan kartında, satıcı fotoğraf yüklemediyse gösterilecek ürün görseli.
+ *
+ * Genel `fasulye.jpg` dosyası kuru beyaz fasulye gösteriyor. Hal ürünündeki
+ * `fasulye` ise taze fasulye; kuru ürün zaten `kuru-fasulye` olarak ayrı bir
+ * slug'a sahip. Katalog varlığını değiştirmeden ilan yüzeyindeki yanıltıcı
+ * eşleşmeyi burada, dar kapsamlı bir doğrulanmış eşlemeyle düzeltiyoruz.
+ */
+const LISTING_REPRESENTATIVE_IMAGE_OVERRIDES: Readonly<Record<string, string>> = {
+  fasulye: "/images/urunler/fasulye-cali.jpg",
+};
+
+export function getListingRepresentativeImage(
+  slug: string,
+  canonicalSlug?: string | null,
+): string | null {
+  return LISTING_REPRESENTATIVE_IMAGE_OVERRIDES[slug]
+    ?? getProductImage(slug, canonicalSlug);
+}

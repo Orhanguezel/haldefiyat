@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertCircle, Check, X } from 'lucide-react';
+import { AlertCircle, Check, Clock3, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -32,7 +32,7 @@ type Props = {
   error: string;
   saving: boolean;
   onSave: () => void;
-  onModerate: (status: 'approved' | 'rejected') => void;
+  onModerate: (status: 'pending' | 'approved' | 'rejected') => void;
   onClose: () => void;
   t: T;
   tc: T;
@@ -63,6 +63,11 @@ export function ListingSheet(props: Props) {
                   </SheetDescription>
                 </div>
                 <div className="flex shrink-0 gap-1.5">
+                  {listing.status !== 'pending' ? (
+                    <Button size="sm" variant="outline" onClick={() => props.onModerate('pending')}>
+                      <Clock3 className="size-3.5" /> {t('actions.returnPending')}
+                    </Button>
+                  ) : null}
                   <Button size="sm" variant="outline" disabled={listing.status === 'approved'} onClick={() => props.onModerate('approved')}>
                     <Check className="size-3.5" /> {tc('approve')}
                   </Button>

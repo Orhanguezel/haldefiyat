@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { getExactProductImage, getProductImage } from "./product-images";
+import {
+  getExactProductImage,
+  getListingRepresentativeImage,
+  getProductImage,
+} from "./product-images";
 
 describe("product image resolution", () => {
   it("returns a dedicated image for every visible tomato family member", () => {
@@ -128,6 +132,13 @@ describe("product image resolution", () => {
   it("keeps exact-image checks separate from the family fallback", () => {
     expect(getExactProductImage("domates-eksik-varyant")).toBeNull();
     expect(getProductImage("domates-eksik-varyant")).toBe("/images/urunler/domates.jpg");
+  });
+
+  it("uses a fresh green-bean image for generic bean listings", () => {
+    expect(getListingRepresentativeImage("fasulye"))
+      .toBe("/images/urunler/fasulye-cali.jpg");
+    expect(getListingRepresentativeImage("kuru-fasulye"))
+      .toBe("/images/urunler/kuru-fasulye.jpg");
   });
 
   it("returns unique dedicated images for the remaining standalone products", () => {

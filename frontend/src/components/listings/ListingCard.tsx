@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Listing } from "@/lib/api";
-import { getProductImage } from "@/lib/product-images";
+import { getListingRepresentativeImage } from "@/lib/product-images";
 import { districtsOfProvinceSlug, provinceBySlug } from "@/data/turkey-cities";
 import { ContentCard } from "@/components/ui/ContentCard";
 
@@ -51,7 +51,9 @@ export function ListingCard({ item, compact = false }: { item: Listing; compact?
   // %100 oldugu icin urunun kendi fotografi gosterilebiliyor — ama satilan mali
   // degil urun turunu anlattigi icin "temsilî" etiketiyle, yaniltmadan.
   const ownPhoto = item.images?.[0] ?? null;
-  const stockPhoto = ownPhoto ? null : (item.productSlug ? getProductImage(item.productSlug) : null);
+  const stockPhoto = ownPhoto
+    ? null
+    : (item.productSlug ? getListingRepresentativeImage(item.productSlug) : null);
 
   return (
     <ContentCard

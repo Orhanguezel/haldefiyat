@@ -147,7 +147,7 @@ export const listingCallSettingsSchema = z.object({
 });
 
 export const moderateSchema = z.object({
-  status: z.enum(["approved", "rejected"]),
+  status: z.enum(["pending", "approved", "rejected"]),
   moderationNote: z.string().trim().max(2000).optional().nullable(),
 });
 

@@ -119,13 +119,19 @@ export default function ListingsAdminPage() {
     setAdError(null);
   }
 
-  async function moderate(id: number, next: 'approved' | 'rejected', note?: string) {
+  async function moderate(id: number, next: 'pending' | 'approved' | 'rejected', note?: string) {
     const res = await api(`/admin/listings/${id}/moderate`, {
       method: 'PATCH',
       body: JSON.stringify({ status: next, moderationNote: note?.trim() || null }),
     });
     if (!res.ok) { toast.error(t('toasts.statusFailed')); return; }
-    toast.success(next === 'approved' ? t('toasts.approved') : t('toasts.rejected'));
+    toast.success(
+      next === 'approved'
+        ? t('toasts.approved')
+        : next === 'rejected'
+          ? t('toasts.rejected')
+          : t('toasts.returnedPending'),
+    );
     if (editing?.id === id) closeEdit();
     await load();
   }

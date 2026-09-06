@@ -38,6 +38,9 @@
     "adPending": "Reklam bekliyor",
     "featured": "Öne çıkan"
   },
+  "actions": {
+    "returnPending": "Beklemeye al"
+  },
   "sheet": {
     "listingNo": "#{id}",
     "validUntil": "{date} sonuna kadar",
@@ -183,6 +186,7 @@
   "toasts": {
     "approved": "İlan onaylandı.",
     "rejected": "İlan reddedildi.",
+    "returnedPending": "İlan yeniden beklemeye alındı.",
     "statusFailed": "Durum güncellenemedi.",
     "deleted": "İlan silindi.",
     "deleteFailed": "İlan silinemedi.",
