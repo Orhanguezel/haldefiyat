@@ -57,23 +57,23 @@ type Props = {
 export function ListingsTable({ items, ads, busy, onEdit, onModerate, onDelete, t, tc }: Props) {
   if (!items.length) {
     return (
-      <div className="rounded-lg border border-dashed py-16 text-center text-sm text-muted-foreground">
+      <div className="rounded-lg border border-dashed py-16 text-center text-muted-foreground text-sm">
         {busy ? tc('loading') : t('table.empty')}
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border">
-      <Table>
+    <div className="overflow-hidden rounded-lg border [&_[data-slot=table-container]]:overflow-x-hidden">
+      <Table className="table-fixed">
         <TableHeader>
           <TableRow className="bg-muted/40 hover:bg-muted/40">
-            <TableHead className="w-[45%]">{t('table.listing')}</TableHead>
-            <TableHead className="w-24">{t('table.type')}</TableHead>
+            <TableHead className="w-[68%] sm:w-[56%] lg:w-[45%]">{t('table.listing')}</TableHead>
+            <TableHead className="hidden w-24 lg:table-cell">{t('table.type')}</TableHead>
             <TableHead className="w-28">{t('table.status')}</TableHead>
-            <TableHead className="w-36">{t('table.validity')}</TableHead>
-            <TableHead className="w-36">{t('table.phone')}</TableHead>
-            <TableHead className="w-32 text-right">{t('table.action')}</TableHead>
+            <TableHead className="hidden w-36 sm:table-cell">{t('table.validity')}</TableHead>
+            <TableHead className="hidden w-36 xl:table-cell">{t('table.phone')}</TableHead>
+            <TableHead className="hidden w-32 text-right xl:table-cell">{t('table.action')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -81,13 +81,13 @@ export function ListingsTable({ items, ads, busy, onEdit, onModerate, onDelete, 
             const ad = ads.find((entry) => entry.listingId === item.id);
             return (
               <TableRow key={item.id} className="group cursor-pointer" onClick={() => onEdit(item)}>
-                <TableCell className="py-3">
-                  <div className="flex items-center gap-3">
+                <TableCell className="whitespace-normal py-3">
+                  <div className="flex min-w-0 items-start gap-3">
                     <Thumb item={item} />
-                    <div className="min-w-0">
-                      <div className="truncate font-medium">{item.title}</div>
-                      <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-                        <span className="truncate">{item.productName}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="whitespace-normal break-words font-medium leading-5 [overflow-wrap:anywhere]">{item.title}</div>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-muted-foreground text-xs">
+                        <span className="min-w-0 max-w-full truncate">{item.productName}</span>
                         <span aria-hidden>·</span>
                         <span>{item.citySlug ?? 'TR'}</span>
                         {item.images?.length ? <span className="text-muted-foreground/70">· {t('table.images', { count: item.images.length })}</span> : null}
@@ -99,11 +99,11 @@ export function ListingsTable({ items, ads, busy, onEdit, onModerate, onDelete, 
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-sm text-muted-foreground">{t(`type.${item.listingType}`, undefined, item.listingType)}</TableCell>
+                <TableCell className="hidden text-muted-foreground text-sm lg:table-cell">{t(`type.${item.listingType}`, undefined, item.listingType)}</TableCell>
                 <TableCell><StatusBadge status={item.status} t={t} /></TableCell>
-                <TableCell><Validity value={item.validUntil} tc={tc} /></TableCell>
-                <TableCell className="font-mono text-xs text-muted-foreground">{item.contactPhone ?? '—'}</TableCell>
-                <TableCell className="text-right" onClick={(event) => event.stopPropagation()}>
+                <TableCell className="hidden sm:table-cell"><Validity value={item.validUntil} tc={tc} /></TableCell>
+                <TableCell className="hidden overflow-hidden text-ellipsis font-mono text-muted-foreground text-xs xl:table-cell">{item.contactPhone ?? '—'}</TableCell>
+                <TableCell className="hidden text-right xl:table-cell" onClick={(event) => event.stopPropagation()}>
                   <div className="flex items-center justify-end gap-1">
                     <Button size="sm" variant="outline" onClick={() => onEdit(item)}>
                       <Pencil className="size-3.5" /> {tc('edit')}
