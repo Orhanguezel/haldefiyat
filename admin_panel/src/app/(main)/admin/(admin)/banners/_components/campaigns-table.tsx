@@ -31,9 +31,10 @@ export function CampaignsTable({ rows, slots, loading, activeId, onSelect, t, tc
               <TableRow key={b.id} onClick={() => onSelect(b)} className={`cursor-pointer ${activeId === b.id ? 'bg-primary/5' : ''}`}>
                 <TableCell className="py-2.5">
                   <div className="flex items-center gap-3">
-                    {b.imageUrl ? (
+                    {/* Ilan/firma kaynakli reklamin gorseli banner satirinda durmaz; onizleme kaynagindan gelir. */}
+                    {(b.previewImageUrl || b.imageUrl) ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={b.imageUrl} alt="" className="h-9 w-14 shrink-0 rounded border object-cover" />
+                      <img src={b.previewImageUrl || b.imageUrl || ''} alt="" className="h-9 w-14 shrink-0 rounded border object-cover" />
                     ) : <div className={`h-9 w-14 shrink-0 rounded border bg-muted text-center text-[10px] leading-9 text-muted-foreground`}>{t(`types.${b.type}`)}</div>}
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">

@@ -223,6 +223,8 @@ export interface BannerAdmin {
   firmId: number | null;
   sponsorshipId: number | null;
   imageUrl: string | null;
+  /** Kendi gorseli olmayan reklamin (ilan/firma kaynakli) kaynagindan cozulen onizlemesi. */
+  previewImageUrl?: string | null;
   alt: string | null;
   linkUrl: string | null;
   linkTarget: string;
