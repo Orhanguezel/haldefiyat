@@ -931,6 +931,11 @@ async function tryFetchViaScraper(
   // Bu helper'da bypass et, fetchDated dispatch'inde fetchHalGovTrDated cagirilir.
   if (source.responseShape === "hal_gov_tr_html") return null;
 
+  // Tekirdag iki adimli (listing -> detay id) ve kendi icinde zaten Scrapling
+  // kullaniyor. Buradan gecerse yalnizca LISTING sayfasi cekilir, fiyat tablosu
+  // hic gorulmez ve kaynak "veri yayinlamadi" sanilir.
+  if (source.responseShape === "tekirdag_html") return null;
+
   // Multi-step source'lar (Mersin: 4 paralel POST/kategori) icin ozel handler.
   if (source.key === "mersin_resmi") {
     return tryFetchMersinViaScraper(source, date);
