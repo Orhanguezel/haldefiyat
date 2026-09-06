@@ -105,7 +105,7 @@ async function fetchSearchPage(
   try {
     const res = await fetch(`${API_BASE}/search`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "User-Agent": UA, "Connection": "close" },
+      headers: { "Content-Type": "application/json", "User-Agent": UA },
       body: JSON.stringify({ keywords: keyword, pages: page, size: PAGE_SIZE }),
       signal: ctrl.signal,
     });

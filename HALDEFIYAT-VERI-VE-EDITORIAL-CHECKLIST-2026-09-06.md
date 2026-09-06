@@ -121,3 +121,9 @@ Bu bölüm ilk dağıtımdan sonraki devam işidir. Teknik tamamlanma, ölçüm 
 
 **Zamanlı kalanlar:** A11 üç gerçek cron günü; C3 editör görevlendirmesi; C4 20 Eylül kalite/yayın sonucu; C6 3 Ekim SEO; C7 gerçek yayınlardan sonra 28 gün; D3/D4 müşteri ve ödeme kanıtları; D5 onaylı yayın sonrası 7 günlük deney. Bunlar tamamlandı diye işaretlenmez.
 
+### Son kabul ve açık kaynak riski
+
+- Perakende tekrar çekimi: **149 doğrulanmış teklif / 149 yazım / 0 yazım hatası**; altı zincir, kaynak günü 5 Eylül. İkinci çekimde 305 çağrıda **56 ECONNRESET** görüldü. Tekil isteklerde istemci kimliğiyle sonuç değişti, fakat tam çekimde düzelme kanıtlanmadı; sağlayıcının iç nedeni bilinmiyor. İstemci artık kendini doğru tanıtıyor ve bağlantı hata kodları kaybolmuyor. `Connection: close` denemesi de çözmedi ve kaldırıldı. A11 dış kaynak sürekliliği açık kalır.
+- Süt gibi hal bazı olmayan ürünlerde raf bölümü yanlışlıkla tamamen gizleniyordu. Doğrulanmış fiyatlar artık gösterilir; hal bazı yokken yüzde farkı NULL'dır. Farklı marka/yağ/paket örnekleri meta metninde de tek ortalama diye sunulmaz.
+- [Market API ve ilan kabulü](artifacts/checklist-closeout-2026-09-06/http-acceptance.json), [canlı sistem sayımı](artifacts/checklist-closeout-2026-09-06/system-audit.json), [aylık taslak kaydı](artifacts/checklist-closeout-2026-09-06/monthly-apply.json), [K4 taslak/idempotency](artifacts/checklist-closeout-2026-09-06/tanitio-k4-idempotency.json).
+- Üç gerçek cron günü: [henüz 0/3](artifacts/checklist-closeout-2026-09-06/scheduled-evidence.json). Bu turdaki manuel çekimler zamanlanmış koşu diye sayılmadı.
