@@ -5,11 +5,11 @@
  * metin sablonludur, LLM yoktur — onceki AI metinleri "Limon Konya'da %60 dustu"
  * gibi tek hal kaydini ulusal gercek gibi sunuyordu.
  */
-import { renderBasketCard, renderCityCard, renderGapCard, renderMoversCard, uploadCard, type CardSize } from "./render";
-import { selectBasket, selectCityCompare, selectHalToMarket, selectMovers, type BasketRow, type CityCompare, type GapRow, type MoverRow } from "./select";
+import { renderBasketCard, renderCityCard, renderGapCard, renderListingCard, renderMoversCard, uploadCard, type CardSize } from "./render";
+import { selectBasket, selectCityCompare, selectHalToMarket, selectListings, selectMovers, type BasketRow, type CityCompare, type GapRow, type ListingRow, type MoverRow } from "./select";
 
-export type CardSeries = "k1" | "k2" | "k3" | "k4";
-export const CARD_SERIES: CardSeries[] = ["k1", "k2", "k3", "k4"];
+export type CardSeries = "k1" | "k2" | "k3" | "k4" | "k5";
+export const CARD_SERIES: CardSeries[] = ["k1", "k2", "k3", "k4", "k5"];
 
 export interface CardPayload {
   series: CardSeries; size: CardSize; imageUrl: string | null;
@@ -111,6 +111,23 @@ function gapCaption(items: GapRow[], date: string, retailDate: string): string {
   ].join("\n");
 }
 
+
+function listingCaption(items: ListingRow[]): string {
+  const sale = items.filter((item) => item.kind === "satis").length;
+  const buy = items.length - sale;
+  const head = buy
+    ? `Panoda ${sale} satış, ${buy} alım ilanı açık.`
+    : `Panoda ${sale} satış ilanı açık.`;
+  return [
+    head,
+    `İlanlar ve iletişim → ${SITE}/ilanlar`,
+    "",
+    ...items.map((item) => `${item.kind === "alim" ? "ALIM" : "SATIŞ"} · ${item.productName} · ${item.cityName}${item.quantity ? ` · ${item.quantity}` : ""}${item.price ? ` · ${item.price}` : ""}`),
+    "",
+    `Ürününü ilana çevirmek ücretsiz: ${SITE}/ilan-ver`,
+  ].join("\n");
+}
+
 export async function buildCard(series: CardSeries, size: CardSize): Promise<CardPayload | null> {
   if (series === "k1") {
     const { risers, fallers, date } = await selectMovers(5);
@@ -147,6 +164,18 @@ export async function buildCard(series: CardSeries, size: CardSize): Promise<Car
     };
   }
 
+  if (series === "k5") {
+    const { items, date } = await selectListings(6);
+    if (items.length < 3) return null;
+    const png = await renderListingCard(items, size, dateLabel(date));
+    const imageUrl = await uploadCard(png, `k5-${date}-${size}`);
+    return {
+      series, size, imageUrl, caption: listingCaption(items),
+      hashtags: `${HASHTAGS} #İlan`, link: `${SITE}/ilanlar`,
+      contentKey: `k5:${date}:${items.length}`, recordedDate: date, itemCount: items.length,
+    };
+  }
+
   const { items, date } = await selectBasket();
   if (!items.length) return null;
   const png = await renderBasketCard(items, size, dateLabel(date));
@@ -158,5 +187,5 @@ export async function buildCard(series: CardSeries, size: CardSize): Promise<Car
   };
 }
 
-export { selectBasket, selectCityCompare, selectHalToMarket, selectMovers } from "./select";
+export { selectBasket, selectCityCompare, selectHalToMarket, selectListings, selectMovers } from "./select";
 export type { CardSize } from "./render";

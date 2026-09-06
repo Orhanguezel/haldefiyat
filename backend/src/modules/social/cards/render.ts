@@ -11,7 +11,7 @@
  */
 import sharp from "sharp";
 import { getCloudinaryConfig, uploadBufferAuto } from "@agro/shared-backend/modules/storage";
-import type { BasketRow, CityCompare, GapRow, MoverRow } from "./select";
+import type { BasketRow, CityCompare, GapRow, ListingRow, MoverRow } from "./select";
 
 const SITE_URL = "https://haldefiyat.com";
 export type CardSize = "tg" | "ig" | "wide";
@@ -271,6 +271,44 @@ export async function renderGapCard(items: GapRow[], size: CardSize, dateLabel: 
 
   const svg = frame(g, "Halden Markete", `${items.length} ürün · TL/kg`, dateLabel, rows.join("\n"),
     "Hal fiyatını gör, market rafıyla karşılaştır", "haldefiyat.com/fiyatlar");
+  return sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
+}
+
+
+/** K5 — ilan panosu: yayindaki satis/alim ilanlari, urun fotografiyla. */
+export async function renderListingCard(items: ListingRow[], size: CardSize, dateLabel: string): Promise<Buffer> {
+  const g = GEOMETRY[size];
+  const n = items.length || 1;
+  const rowH = Math.min(Math.round(g.maxRow * 1.25), Math.floor((contentHeight(g) - (n - 1) * g.rowGap) / n));
+  const thumbs = await loadThumbs(
+    items.map((item) => ({ productSlug: item.productSlug ?? "", canonicalSlug: null, imageUrl: item.imageUrl })),
+    rowH - 16,
+  );
+
+  let y = contentTop(g);
+  const rows: string[] = [];
+  items.forEach((item, index) => {
+    const badge = item.kind === "alim" ? "ALIM" : "SATIŞ";
+    const badgeFill = item.kind === "alim" ? "#1d4ed8" : "#15803d";
+    const photoSize = rowH - 16;
+    const clipId = `l${index}`;
+    const photo = thumbs[index]
+      ? `<defs><clipPath id="${clipId}"><rect x="${g.pad}" y="${y + 8}" width="${photoSize}" height="${photoSize}" rx="20"/></clipPath></defs><image href="${thumbs[index]}" x="${g.pad}" y="${y + 8}" width="${photoSize}" height="${photoSize}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clipId})"/>`
+      : "";
+    const textX = g.pad + photoSize + 24;
+    const detail = [item.quantity, item.price].filter(Boolean).join(" · ");
+    rows.push(`
+      <rect x="${g.pad - 12}" y="${y}" width="${g.width - (g.pad - 12) * 2}" height="${rowH}" rx="24" fill="#f8fafc" stroke="#e2e8f0"/>
+      ${photo}
+      <rect x="${textX}" y="${y + 14}" width="${badge.length * (g.metaSize * 0.66) + 22}" height="${g.metaSize + 12}" rx="8" fill="${badgeFill}"/>
+      <text x="${textX + 11}" y="${y + 14 + g.metaSize + 2}" font-size="${g.metaSize - 2}" font-weight="800" fill="#ffffff">${badge}</text>
+      <text x="${textX}" y="${y + rowH * 0.56}" font-size="${g.nameSize}" font-weight="800" fill="#172033">${escapeXml(clip(item.productName, 20))}</text>
+      <text x="${textX}" y="${y + rowH * 0.8}" font-size="${g.metaSize}" fill="#64748b">${escapeXml(item.cityName)}${detail ? ` · ${escapeXml(detail)}` : ""}</text>`);
+    y += rowH + g.rowGap;
+  });
+
+  const svg = frame(g, "İlan Panosu", `${items.length} açık ilan`, dateLabel, rows.join("\n"),
+    "Ürününü ilana çevir, alıcıya doğrudan ulaş", "haldefiyat.com/ilanlar");
   return sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
 }
 

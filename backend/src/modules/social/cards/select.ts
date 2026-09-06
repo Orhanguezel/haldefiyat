@@ -52,6 +52,11 @@ export interface GapRow {
   halPrice: number; retailPrice: number; retailChain: string; gapPct: number; markets: number; chains: number;
 }
 
+export interface ListingRow {
+  slug: string; title: string; productName: string; productSlug: string | null; imageUrl: string | null;
+  kind: "satis" | "alim"; cityName: string; quantity: string | null; price: string | null;
+}
+
 export interface BasketRow {
   productSlug: string; productName: string; canonicalSlug: string | null; imageUrl: string | null;
   unit: string; price: number; weekChangePct: number | null; markets: number; recordedDate: string;
@@ -332,4 +337,59 @@ export async function selectHalToMarket(limit = 8): Promise<{ items: GapRow[]; d
     date: items.length ? iso((rows ?? [])[0]!.recorded_date) : "",
     retailDate: items.length ? iso((rows ?? [])[0]!.retail_date) : "",
   };
+}
+
+
+/** ETL adlari bazen tumu buyuk harf geliyor ("HÜNNAP"); kartta bagirmasin. */
+function tidyName(value: string): string {
+  const clean = value.replace(/\s+/g, " ").trim();
+  if (clean !== clean.toLocaleUpperCase("tr-TR")) return clean;
+  return clean
+    .toLocaleLowerCase("tr-TR")
+    .replace(/(^|[\s(])([\p{L}])/gu, (_m, pre: string, ch: string) => pre + ch.toLocaleUpperCase("tr-TR"));
+}
+
+const TR_QTY = (value: number) => value.toLocaleString("tr-TR", { maximumFractionDigits: 0 });
+
+/** K5 — ilan panosu: yayindaki satis ve alim ilanlari. */
+export async function selectListings(limit = 6): Promise<{ items: ListingRow[]; date: string }> {
+  const [rows] = await pool.query<Row[]>(
+    `SELECT l.slug, l.title, l.product_name, l.product_slug, l.listing_type, l.city_slug,
+            l.quantity, l.quantity_unit, l.price_min, l.price_max, l.price_unit, l.price_type,
+            p.image_url, COALESCE(NULLIF(p.display_name, ''), p.name_tr) AS master_name,
+            DATE(l.published_at) AS published_date
+     FROM hf_listings l
+     LEFT JOIN hf_products p ON p.id = l.product_id
+     WHERE l.status = 'approved' AND (l.expires_at IS NULL OR l.expires_at > NOW())
+     ORDER BY l.published_at DESC, l.id DESC
+     LIMIT ?`,
+    [Math.max(3, Math.min(limit, 10))],
+  );
+
+  const items: ListingRow[] = (rows ?? []).map((r) => {
+    const qty = r.quantity == null ? null : Number(r.quantity);
+    const unit = String(r.quantity_unit ?? "").trim();
+    const min = r.price_min == null ? null : Number(r.price_min);
+    const max = r.price_max == null ? null : Number(r.price_max);
+    const priceUnit = String(r.price_unit ?? "kg").trim() || "kg";
+    const price = min == null && max == null
+      ? null
+      : min != null && max != null && max > min
+        ? `${TR_QTY(min)}–${TR_QTY(max)} ₺/${priceUnit}`
+        : `${TR_QTY((min ?? max)!)} ₺/${priceUnit}`;
+    return {
+      slug: String(r.slug),
+      title: tidyName(String(r.title ?? r.product_name ?? "")),
+      productName: tidyName(String(r.master_name ?? r.product_name ?? "")),
+      productSlug: r.product_slug ? String(r.product_slug) : null,
+      imageUrl: r.image_url ? String(r.image_url) : null,
+      kind: String(r.listing_type) === "alim" ? "alim" : "satis",
+      cityName: String(r.city_slug ?? "").replace(/-/g, " ").replace(/(^|\s)(\p{L})/gu, (_m, pre: string, ch: string) => pre + ch.toLocaleUpperCase("tr-TR")),
+      quantity: qty != null && qty > 0 ? `${TR_QTY(qty)} ${unit || "kg"}` : null,
+      price,
+    };
+  });
+
+  const dates = (rows ?? []).map((r) => iso(r.published_date)).filter(Boolean).sort();
+  return { items, date: dates.at(-1) ?? new Date().toISOString().slice(0, 10) };
 }
