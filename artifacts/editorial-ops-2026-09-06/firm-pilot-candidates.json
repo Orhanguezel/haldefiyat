@@ -1,0 +1,108 @@
+{
+  "source": "https://haldefiyat.com/api/v1/firms?city=antalya&district=demre&limit=10",
+  "capturedAt": "2026-09-06T15:26:02.605574+00:00",
+  "total": null,
+  "candidates": [
+    {
+      "id": 272,
+      "slug": "387-akdem-komisyon-evi",
+      "name": "Akdem Komisyon evi",
+      "citySlug": "antalya",
+      "districtSlug": "demre",
+      "claimStatus": "unclaimed",
+      "sourceUrl": "https://halkatalogu.com/hal/387-akdem-komisyon-evi",
+      "lastSeenAt": "2026-09-01T02:26:25.421Z"
+    },
+    {
+      "id": 265,
+      "slug": "389-avcilar-hal-komisyon-evi",
+      "name": "Avcılar Hal Komisyon evi",
+      "citySlug": "antalya",
+      "districtSlug": "demre",
+      "claimStatus": "unclaimed",
+      "sourceUrl": "https://halkatalogu.com/hal/389-avcilar-hal-komisyon-evi",
+      "lastSeenAt": "2026-09-01T02:26:18.542Z"
+    },
+    {
+      "id": 266,
+      "slug": "390-babacanlar-komisyon-evi",
+      "name": "Babacanlar Komisyon evi",
+      "citySlug": "antalya",
+      "districtSlug": "demre",
+      "claimStatus": "unclaimed",
+      "sourceUrl": "https://halkatalogu.com/hal/390-babacanlar-komisyon-evi",
+      "lastSeenAt": "2026-09-01T02:26:19.524Z"
+    },
+    {
+      "id": 273,
+      "slug": "391-ismail-sarier-komisyon-evi",
+      "name": "İsmail Sarıer Komisyon evi",
+      "citySlug": "antalya",
+      "districtSlug": "demre",
+      "claimStatus": "unclaimed",
+      "sourceUrl": "https://halkatalogu.com/hal/391-ismail-sarier-komisyon-evi",
+      "lastSeenAt": "2026-09-01T02:26:26.393Z"
+    },
+    {
+      "id": 270,
+      "slug": "393-koreliler-komisyon-evi",
+      "name": "Koreliler Komisyon evi",
+      "citySlug": "antalya",
+      "districtSlug": "demre",
+      "claimStatus": "unclaimed",
+      "sourceUrl": "https://halkatalogu.com/hal/393-koreliler-komisyon-evi",
+      "lastSeenAt": "2026-09-01T02:26:23.461Z"
+    },
+    {
+      "id": 269,
+      "slug": "394-metin-mantar-komisyon-evi",
+      "name": "Metin Mantar Komisyon evi",
+      "citySlug": "antalya",
+      "districtSlug": "demre",
+      "claimStatus": "unclaimed",
+      "sourceUrl": "https://halkatalogu.com/hal/394-metin-mantar-komisyon-evi",
+      "lastSeenAt": "2026-09-01T02:26:22.453Z"
+    },
+    {
+      "id": 268,
+      "slug": "395-musti-komisyon-evi",
+      "name": "Musti Komisyon evi",
+      "citySlug": "antalya",
+      "districtSlug": "demre",
+      "claimStatus": "unclaimed",
+      "sourceUrl": "https://halkatalogu.com/hal/395-musti-komisyon-evi",
+      "lastSeenAt": "2026-09-01T02:26:21.474Z"
+    },
+    {
+      "id": 274,
+      "slug": "397-onaran-komisyon-evi",
+      "name": "Onaran Komisyon evi",
+      "citySlug": "antalya",
+      "districtSlug": "demre",
+      "claimStatus": "unclaimed",
+      "sourceUrl": "https://halkatalogu.com/hal/397-onaran-komisyon-evi",
+      "lastSeenAt": "2026-09-01T02:26:27.362Z"
+    },
+    {
+      "id": 271,
+      "slug": "398-ramazan-sahin-komisyon-evi",
+      "name": "Ramazan Şahin Komisyon evi",
+      "citySlug": "antalya",
+      "districtSlug": "demre",
+      "claimStatus": "unclaimed",
+      "sourceUrl": "https://halkatalogu.com/hal/398-ramazan-sahin-komisyon-evi",
+      "lastSeenAt": "2026-09-01T02:26:24.447Z"
+    },
+    {
+      "id": 267,
+      "slug": "401-turallar-tarim-urunleri-tic-ltd-sti",
+      "name": "Turallar Tarım Ürünleri Tic.Ltd.Şti",
+      "citySlug": "antalya",
+      "districtSlug": "demre",
+      "claimStatus": "unclaimed",
+      "sourceUrl": "https://halkatalogu.com/hal/401-turallar-tarim-urunleri-tic-ltd-sti",
+      "lastSeenAt": "2026-09-01T02:26:20.495Z"
+    }
+  ],
+  "note": "Public directory candidates only. No contact verification or tomato trade claim; no outreach sent."
+}

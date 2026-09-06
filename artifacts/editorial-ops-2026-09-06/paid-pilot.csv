@@ -1,0 +1,1 @@
+pilot_id,firm_id,type,owner,quote_deal_id,quote_accepted_at,invoice_payment_ref,paid_at,paid_amount,currency,refund_amount,campaign_or_api_key_id,period_start,period_end,usage_success_count,active_days,usage_evidence_ref,renewal_accepted_at,renewal_payment_ref,status

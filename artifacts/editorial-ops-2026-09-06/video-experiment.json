@@ -1,0 +1,43 @@
+{
+  "status": "draft_unpublished",
+  "sourceDate": "2026-09-06",
+  "contentKey": "k4:v2:2026-09-06",
+  "sourceCard": "video-source-card.png",
+  "requiresFreshSourceBeforeFuturePublication": true,
+  "experimentWindow": "first 7 days after each actual publication",
+  "approvalOwner": null,
+  "experiments": [
+    {
+      "id": "k4-video-01",
+      "productMessage": "Same complete K4 card, source date, sample and caveats",
+      "control": "video-source-card.png",
+      "treatment": "video-01.mp4",
+      "durationSeconds": 20,
+      "campaign": "k4-video-pilot",
+      "utmContents": {
+        "control": "k4-video-01-card",
+        "treatment": "k4-video-01-video"
+      },
+      "publishedAt": null,
+      "publishedUrls": null,
+      "measuredAt": null,
+      "results": null
+    },
+    {
+      "id": "k4-video-02",
+      "productMessage": "Same complete K4 card, source date, sample and caveats",
+      "control": "video-source-card.png",
+      "treatment": "video-02.mp4",
+      "durationSeconds": 20,
+      "campaign": "k4-video-pilot",
+      "utmContents": {
+        "control": "k4-video-02-card",
+        "treatment": "k4-video-02-video"
+      },
+      "publishedAt": null,
+      "publishedUrls": null,
+      "measuredAt": null,
+      "results": null
+    }
+  ]
+}

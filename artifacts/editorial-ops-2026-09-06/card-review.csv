@@ -1,0 +1,11 @@
+slot_id,series,content_key,source_date,unit,raw_product_variant,price_check,source_url,caption_image_match,reviewer,reviewed_at,first_review_errors,remaining_errors,approval_status,published_url,published_at,measured_at,reach_7d,skip_reason
+1,k1,,,,,,,,,,,,not_reviewed,,,,,
+2,k1,,,,,,,,,,,,not_reviewed,,,,,
+3,k1,,,,,,,,,,,,not_reviewed,,,,,
+4,k1,,,,,,,,,,,,not_reviewed,,,,,
+5,k2,,,,,,,,,,,,not_reviewed,,,,,
+6,k2,,,,,,,,,,,,not_reviewed,,,,,
+7,k3,,,,,,,,,,,,not_reviewed,,,,,
+8,k3,,,,,,,,,,,,not_reviewed,,,,,
+9,k4,,,,,,,,,,,,not_reviewed,,,,,
+10,k5,,,,,,,,,,,,not_reviewed,,,,,

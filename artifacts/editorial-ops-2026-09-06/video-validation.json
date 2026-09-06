@@ -1,0 +1,41 @@
+{
+  "sourceSha256": "a79d18086fd1df174d721d0b50fc1c8317837d15fd367e5e432c56edd7ca356b",
+  "items": [
+    {
+      "file": "video-01.mp4",
+      "sha256": "b58545c6a49c79927b30679d098392534da32cef71240ad3b08ca833d6245cf9",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1080,
+            "height": 1920
+          }
+        ],
+        "format": {
+          "duration": "20.000000",
+          "size": "174652"
+        }
+      }
+    },
+    {
+      "file": "video-02.mp4",
+      "sha256": "72f8f03d6bea8557cf1530beb00013034d3dbacd5efce6c5475394032bdb899e",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1080,
+            "height": 1920
+          }
+        ],
+        "format": {
+          "duration": "20.000000",
+          "size": "142125"
+        }
+      }
+    }
+  ]
+}
