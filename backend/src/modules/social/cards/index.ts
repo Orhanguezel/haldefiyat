@@ -21,6 +21,23 @@ const SITE = "https://haldefiyat.com";
 const HASHTAGS = "#HalFiyatları #HaldeFiyat #SebzeMeyve";
 const fmtPrice = (v: number) => v.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtPct = (v: number) => Math.abs(v).toLocaleString("tr-TR", { maximumFractionDigits: 1 });
+/** Isaretli yuzde: eksi degerlerde de isaret gorunur ("−%12,4"). */
+const signed = (v: number) => `${v > 0 ? "+" : v < 0 ? "−" : ""}%${fmtPct(v)}`;
+
+/**
+ * Bulunma eki: "Konya'da", "Denizli'de", "Tokat'ta".
+ * Sehir adini duz metne gomerken tek tek yazmak yerine ses uyumundan turetilir.
+ */
+export function locative(name: string): string {
+  const clean = name.trim();
+  const lower = clean.toLocaleLowerCase("tr-TR");
+  const vowels = [...lower].filter((ch) => "aeıioöuü".includes(ch));
+  const last = vowels[vowels.length - 1] ?? "a";
+  const back = "aıou".includes(last);
+  const voiceless = "fstkçşhp".includes(lower[lower.length - 1] ?? "");
+  const suffix = voiceless ? (back ? "ta" : "te") : (back ? "da" : "de");
+  return `${clean}'${suffix}`;
+}
 
 function dateLabel(iso: string): string {
   if (!iso) return "";
@@ -55,7 +72,7 @@ function basketCaption(items: BasketRow[], date: string): string {
     summary,
     `Günlük fiyatlar → ${SITE}/fiyatlar`,
     "",
-    ...items.slice(0, 6).map((i) => `${i.productName}: ₺${fmtPrice(i.price)}/kg${i.weekChangePct == null ? "" : ` (${i.weekChangePct > 0 ? "+" : ""}%${fmtPct(i.weekChangePct)})`}`),
+    ...items.slice(0, 6).map((i) => `${i.productName}: ₺${fmtPrice(i.price)}/kg${i.weekChangePct == null ? "" : ` (${signed(i.weekChangePct)})`}`),
     "",
     `${dateLabel(date)} · ${items[0]?.markets ?? 0}+ halden ortalama`,
   ].join("\n");
@@ -66,13 +83,13 @@ function cityCaption(data: CityCompare): string {
   const cheapest = data.rows[0];
   const priciest = data.rows[data.rows.length - 1];
   const head = cheapest && priciest && cheapest.cityName !== priciest.cityName
-    ? `${data.productName} ${cheapest.cityName}'de ₺${fmtPrice(cheapest.price)}, ${priciest.cityName}'de ₺${fmtPrice(priciest.price)}.`
+    ? `${data.productName} ${locative(cheapest.cityName)} ₺${fmtPrice(cheapest.price)}, ${locative(priciest.cityName)} ₺${fmtPrice(priciest.price)}.`
     : `${data.productName} şehir şehir hal fiyatları.`;
   return [
     head,
     `Kendi şehrini karşılaştır → ${SITE}/fiyatlar`,
     "",
-    ...data.rows.map((row) => `${row.cityName}: ₺${fmtPrice(row.price)}/kg${row.diffPct == null ? "" : ` (${row.diffPct > 0 ? "+" : ""}%${fmtPct(row.diffPct)})`}`),
+    ...data.rows.map((row) => `${row.cityName}: ₺${fmtPrice(row.price)}/kg${row.diffPct == null ? "" : ` (${signed(row.diffPct)})`}`),
     "",
     `Ülke medyanı ₺${fmtPrice(data.national)}/kg · ${dateLabel(data.date)}`,
   ].join("\n");

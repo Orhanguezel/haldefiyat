@@ -219,7 +219,7 @@ export async function renderCityCard(data: CityCompare, size: CardSize, dateLabe
       <rect x="${g.pad - 12}" y="${y}" width="${g.width - (g.pad - 12) * 2}" height="${rowH}" rx="20" fill="#f8fafc" stroke="#e2e8f0"/>
       <text x="${g.pad + 14}" y="${y + rowH * 0.62}" font-size="${g.nameSize}" font-weight="800" fill="#172033">${escapeXml(clip(row.cityName, 18))}</text>
       <text x="${rightX - 150}" y="${y + rowH * 0.62}" text-anchor="end" font-size="${g.priceSize}" font-weight="800" fill="#0f172a">₺${escapeXml(fmtPrice(row.price))}</text>
-      <text x="${rightX}" y="${y + rowH * 0.62}" text-anchor="end" font-size="${g.metaSize + 2}" font-weight="800" fill="${color}">${row.diffPct == null ? "—" : `${row.diffPct > 0 ? "+" : ""}%${fmtPctTr(row.diffPct)}`}</text>`);
+      <text x="${rightX}" y="${y + rowH * 0.62}" text-anchor="end" font-size="${g.metaSize + 2}" font-weight="800" fill="${color}">${row.diffPct == null ? "—" : `${row.diffPct > 0 ? "+" : "−"}%${fmtPctTr(row.diffPct)}`}</text>`);
     y += rowH + g.rowGap;
   });
 
