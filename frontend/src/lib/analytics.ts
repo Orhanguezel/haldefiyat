@@ -137,6 +137,7 @@ export function trackDiscoveryEvent(
     }
   }
 
+  trackSeriesReturn();
   const attribution = getAttribution();
   window.gtag("event", eventName, {
     ...safeParams,

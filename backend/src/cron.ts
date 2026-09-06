@@ -650,9 +650,9 @@ async function runMarketfiyatiJob(app: FastifyInstance): Promise<void> {
   try {
     const result = await runMarketfiyatiEtl();
     const warnings = await recordScheduledRetailRun(result, t0);
-    app.log[result.errors.length || !result.inserted ? "warn" : "info"](
+    app.log[warnings.length ? "warn" : "info"](
       { ...result, warnings, durationMs: Date.now() - t0 },
-      result.errors.length || !result.inserted ? "[cron:marketfiyati] kismi veya bos aktarim" : "[cron:marketfiyati] tamamlandi",
+      warnings.length ? "[cron:marketfiyati] kismi veya bos aktarim" : "[cron:marketfiyati] tamamlandi",
     );
   } catch (err) {
     await recordScheduledRetailRun(null, t0).catch(journalError => app.log.error({ err: journalError }, "[cron:marketfiyati] evidence write failed"));
