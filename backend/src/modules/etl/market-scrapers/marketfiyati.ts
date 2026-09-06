@@ -23,7 +23,7 @@ import { upsertRetailPriceRow } from "@/modules/prices/repository";
 
 const API_BASE = "https://api.marketfiyati.org.tr/api/v2";
 const UA =
-  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36";
+  "HaldeFiyat/1.0 (+https://haldefiyat.com/metodoloji)";
 const TARGET_MENU_CATEGORY = "Meyve ve Sebze";
 const PAGE_SIZE = 25;
 const MAX_PAGES_PER_KEYWORD = 4;
@@ -113,8 +113,10 @@ async function fetchSearchPage(
       return { data: null, throttled: res.status === 403 || res.status === 429, error: `SEARCH_HTTP_${res.status}` };
     }
     return { data: (await res.json()) as MfSearchResponse, throttled: false };
-  } catch {
-    return { data: null, throttled: false, error: "SEARCH_NETWORK_ERROR" };
+  } catch (error) {
+    const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+    const category = ["ECONNRESET", "ETIMEDOUT", "ECONNREFUSED", "ENOTFOUND"].includes(code) ? code : "NETWORK_OR_RESPONSE";
+    return { data: null, throttled: false, error: `SEARCH_${category}_ERROR` };
   } finally {
     clearTimeout(timer);
   }
