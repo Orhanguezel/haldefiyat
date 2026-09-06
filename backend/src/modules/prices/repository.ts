@@ -1877,12 +1877,19 @@ export async function upsertPriceRow(input: {
        SELECT 1 FROM hf_market_blackouts b
        WHERE b.market_id = ph.market_id AND ph.recorded_date BETWEEN b.from_date AND b.to_date
      )`;
+  // Ulusal ortalama (hal.gov.tr) bir HAL degil, toplulastirmadir; ince urunlerde
+  // birkac kiloluk satistan cikan degeri yayinliyor (Domates Ayas 5,98 TL iken
+  // Balikesir 45 TL). Emsal kumesi gercek hallerden olusur.
+  const PEER_MARKET_SCOPE = `EXISTS (
+       SELECT 1 FROM hf_markets mk
+       WHERE mk.id = ph.market_id AND mk.city_name <> 'Türkiye'
+     )`;
   const [peerRows] = await pool.query(
     `SELECT ph.avg_price AS price
      FROM hf_price_history ph
      WHERE ph.product_id = ? AND ph.unit = ?
        AND ABS(DATEDIFF(ph.recorded_date, ?)) <= 45
-       AND ${BLACKOUT_EXCLUDED}
+       AND ${BLACKOUT_EXCLUDED} AND ${PEER_MARKET_SCOPE}
      ORDER BY ph.recorded_date DESC LIMIT 30`,
     [input.productId, unit, input.recordedDate],
   );
@@ -1897,7 +1904,7 @@ export async function upsertPriceRow(input: {
     pool.query(
       `SELECT ph.avg_price AS price FROM hf_price_history ph
        WHERE ph.product_id=? AND ph.market_id<>? AND ph.unit=? AND ABS(DATEDIFF(ph.recorded_date, ?)) <= 3
-         AND ${BLACKOUT_EXCLUDED}
+         AND ${BLACKOUT_EXCLUDED} AND ${PEER_MARKET_SCOPE}
        ORDER BY ph.recorded_date DESC LIMIT 30`,
       [input.productId, input.marketId, unit, input.recordedDate],
     ),
