@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { comparisonIssue } from '../src/modules/competitor-monitor/comparison';
-import { parseCompetitorHtml, buildDiffSummary } from '../src/modules/competitor-monitor/parser';
+import { parseCompetitorHtml, buildDiffSummary, measuredSnapshot } from '../src/modules/competitor-monitor/parser';
 import { domainOf } from '../src/modules/competitor-monitor/serp-bing';
 const ok = { status: 'ok', depth: 20, queries_total: 2, queries_done: 2, actual_engines: 1, unknown_engines: 0, actual_engine: 'brave', query_count: 2 };
 test('partial/unknown/mixed/incomplete evidence never becomes a loss', () => {
@@ -23,4 +23,11 @@ test('structured entities deduplicate and retain page scope', () => {
  expect(curr.productCount).toBeNull(); expect(curr.rawMetrics.pageProductEntities).toBe(2);
  const broken = parseCompetitorHtml('any', '<script type="application/ld+json">oops</script>');
  expect(broken.rawMetrics.pageProductEntities).toBeNull();
+});
+
+test('legacy DOM counts are retained in storage but not exposed as verified totals', () => {
+ const old={productCount:40,marketCount:3,diffSummary:'Değişiklik yok.',rawMetrics:{tableRowCount:42}};
+ const output=measuredSnapshot(old);
+ expect(output.productCount).toBeNull(); expect(output.marketCount).toBeNull();
+ expect(output.diffSummary).toContain('Eski sezgisel'); expect(old.productCount).toBe(40);
 });

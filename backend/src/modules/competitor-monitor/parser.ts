@@ -81,3 +81,13 @@ export function buildDiffSummary(
   if (!added.length && !removed.length) lines.push('İzlenen HTML özellik sinyallerinde değişiklik yok; işlev doğrulaması yapılmadı.');
   return lines.join('\n');
 }
+
+/** Legacy DOM heuristics remain in storage, but are not published as verified totals. */
+export function measuredSnapshot<T extends { productCount: number | null; marketCount: number | null; rawMetrics?: unknown; diffSummary?: string | null }>(snapshot: T): T {
+  const raw = snapshot.rawMetrics as Record<string, unknown> | null;
+  return {
+    ...snapshot, productCount: null, marketCount: null,
+    diffSummary: raw?.method === 'jsonld-page-v1' ? snapshot.diffSummary :
+      'Eski sezgisel ölçüm; doğrulanmış ürün/hal sayısı veya değişiklik kanıtı değildir.',
+  };
+}

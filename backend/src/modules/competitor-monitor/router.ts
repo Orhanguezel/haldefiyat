@@ -1,3 +1,4 @@
+import { measuredSnapshot } from "./parser";
 import { googlePerformance } from "./google-performance";
 import type { FastifyInstance } from "fastify";
 import { db } from "@/db/client";
@@ -23,6 +24,7 @@ export async function registerCompetitorMonitor(app: FastifyInstance) {
       sites.map(async (site) => {
         const [lastSnap] = await db
           .select({
+            rawMetrics: hfCompetitorSnapshots.rawMetrics,
             productCount: hfCompetitorSnapshots.productCount,
             marketCount: hfCompetitorSnapshots.marketCount,
             detectedFeatures: hfCompetitorSnapshots.detectedFeatures,
@@ -35,7 +37,7 @@ export async function registerCompetitorMonitor(app: FastifyInstance) {
           .orderBy(desc(hfCompetitorSnapshots.checkedAt))
           .limit(1);
 
-        return { ...site, lastSnapshot: lastSnap ?? null };
+        return { ...site, lastSnapshot: lastSnap ? measuredSnapshot(lastSnap) : null };
       }),
     );
 
@@ -59,7 +61,7 @@ export async function registerCompetitorMonitor(app: FastifyInstance) {
         .orderBy(desc(hfCompetitorSnapshots.checkedAt))
         .limit(limit);
 
-      return reply.send({ siteKey, items: rows });
+      return reply.send({ siteKey, items: rows.map(measuredSnapshot) });
     },
   );
 
