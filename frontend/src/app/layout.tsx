@@ -3,7 +3,6 @@ export const revalidate = 300;
 import { cookies } from "next/headers";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import "@fontsource-variable/ibm-plex-sans/wght.css";
 import { NextIntlClientProvider } from "next-intl";
 import { Suspense } from "react";
 import { defaultLocale } from "@/i18n/routing";
@@ -29,6 +28,17 @@ const outfit = localFont({
   display: "swap",
   weight: "800",
   preload: true,
+});
+
+// Preload both existing subsets directly; Turkish glyphs need latin-ext.
+// CSS-discovered body fonts were the last dependency of the mobile LCP text.
+const ibmLatin = localFont({
+  src: "../../public/fonts/ibm-plex-sans-latin.woff2",
+  variable: "--font-ibm-latin", display: "optional", weight: "100 700", preload: true, adjustFontFallback: false,
+});
+const ibmLatinExt = localFont({
+  src: "../../public/fonts/ibm-plex-sans-latin-ext.woff2",
+  variable: "--font-ibm-latin-ext", display: "optional", weight: "100 700", preload: true, adjustFontFallback: false,
 });
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3033").replace(/\/$/, "");
@@ -122,7 +132,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       lang="tr"
       data-brand="hal-fiyatlari"
       suppressHydrationWarning
-      className={`${outfit.variable} font-sans`}
+      className={`${outfit.variable} ${ibmLatin.variable} ${ibmLatinExt.variable} font-sans`}
     >
       <head>
         <link rel="manifest" href="/manifest.json" />

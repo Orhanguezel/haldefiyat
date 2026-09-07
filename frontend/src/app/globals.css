@@ -173,7 +173,7 @@
 
   /* Font stacks */
   --font-display: var(--font-outfit, "Outfit"), system-ui, sans-serif;
-  --font-sans:    "IBM Plex Sans Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans:    var(--font-ibm-latin), var(--font-ibm-latin-ext), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono:    "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 
   /* Responsive type scale: sayfa ici rastgele px degerleri yerine ortak ritim. */
