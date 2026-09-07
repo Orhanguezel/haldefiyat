@@ -1,0 +1,39 @@
+                           İZMİR TİCARET BORSASI AYLIK PAMUK BÜLTENİ
+                            İZMİR COMMODITY EXCHANGE MONHTLY COTTON BULLETIN
+                                                                                                                                       Ocak 22
+                                                               En Düşük         En Yüksek        Ortalama        Ayın İlk Günü Ayın Son
+                                                               Minimum          Maximum          Average            Değeri    Günü Değeri
+
+TCMB DÖVİZ KURLARI / CBRT EXCHANGE RATES
+ABD Doları / US $ (TCMB Satış/CBRT Sales)                          13,3910          14,2580           13,6457          14,0648            13,4257
+EURO / € (TCMB Satış/CBRT Sales)                                   14,9946          15,9914           15,4717          15,7380            14,9946
+
+
+İTB KAPANIŞ FİYATLARI / ICE COTTON CLOSING PRICES * / (TL/Kg)
+31 Renk / 31 Colour Grd.                                              41,00            44,00            42,27                     --               --
+41 Renk / 41 Colour Grd.                                              39,00            42,00            41,12             39,00                    --
+(*) Hazır Peşin fiyatların ortalaması alınarak hesaplanmıştır.
+NOT: İTB kapanış fiyatlarında ayın ilk ve son günü fiyat bilgileri, ayın ilk ve son günü en düşük fiyatları olarak verilmiştir.
+
+
+DÜNYA PİYASALARI / WORLD MARKET (USC/Lb)
+Cotlook A Endeks / A Index                                           134,65           141,50           138,41           141,10             134,65
+Memphis                                                              137,50           144,50           141,30           144,50             137,50
+ABD Ort. / USA Average (*)                                           119,58           126,82           123,19           126,82             120,07
+(*) ABD'deki 7 emtia piyasasının MIDDLING 1-3/32 pamuk için ortalama fiyatıdır (It's the average value of MIDDLING 1-3/32 Cotton from
+7 merchandise market in USA)
+
+
+TÜRKİYE PAMUK DIŞ TİCARETİ / COTTON FOREIGN TRADE OF TURKEY*
+                                                                 2020/21           6 Aylık (6 Months)               Aralık                Ocak
+                                                                 (Sezon /                                        (December)            (January)
+                                                                 Season)         2020/21          2021/22           2021                  2022
+TR Pamuk İthalatı (Ton)                                           1.167.113         521.721           549.147           96.698             84.295
+TR Pamuk İthalatı (000 $)                                         2.014.653         880.885        1.282.104           243.206            216.409
+Ortalama İthal Fiyatı ($/Kg)                                            1,73             1,69             2,33             2,52               2,57
+TR Pamuk İhracatı (Ton)                                            122.509            54.468           66.453           15.432              9.844
+TR Pamuk İhracatı (000 $)                                            49.685           97.695          178.526           45.525             28.386
+Ortalama İhraç Fiyatı ($/Kg)                                            0,41             1,79             2,69             2,95               2,88
+(*) Pamuk dış ticaretinde sezon 1 Ağustos - 31 Temmuz olarak alınmıştır.
+Not: Ortalama ithal ve ihraç fiyatı değerin miktara bölünmesi ile hesaplanmıştır.
+

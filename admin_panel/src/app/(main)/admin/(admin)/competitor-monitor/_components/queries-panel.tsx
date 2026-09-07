@@ -30,6 +30,9 @@ export function QueriesPanel({ rows, runId, loading, t, tc }: Props) {
             <TableHead className="w-32 text-right">{t('queries.impressions')}</TableHead>
             <TableHead className="w-24 text-right">{t('queries.clicks')}</TableHead>
             <TableHead className="w-28">{t('queries.ourPosition')}</TableHead>
+            <TableHead className="w-32">Google ort. konum</TableHead>
+            <TableHead className="w-32">Google gösterim / tıklama</TableHead>
+            <TableHead className="min-w-[240px]">Google açılış sayfası</TableHead>
             <TableHead className="min-w-[320px]">{t('queries.topDomains')}</TableHead>
           </TableRow></TableHeader>
           <TableBody>
@@ -39,6 +42,9 @@ export function QueriesPanel({ rows, runId, loading, t, tc }: Props) {
                 <TableCell className="text-right text-sm tabular-nums">{Number(q.impressions).toLocaleString('tr-TR')}</TableCell>
                 <TableCell className="text-right text-sm tabular-nums">{Number(q.clicks).toLocaleString('tr-TR')}</TableCell>
                 <TableCell><PosBadge pos={q.our_position} t={t} /></TableCell>
+                <TableCell>{q.google ? q.google.position.toLocaleString('tr-TR', { maximumFractionDigits: 2 }) : 'Veri yok'}</TableCell>
+                <TableCell>{q.google ? `${q.google.impressions.toLocaleString('tr-TR')} / ${q.google.clicks.toLocaleString('tr-TR')}` : '—'}</TableCell>
+                <TableCell>{q.google?.page ? <a href={q.google.page} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="break-all text-xs underline">{q.google.page.replace(/^https?:\/\/[^/]+/, '') || '/'}</a> : '—'}</TableCell>
                 <TableCell><div className="flex flex-wrap gap-1">{(q.top_domains ?? '').split(',').filter(Boolean).map((d, i) => <Badge key={`${d}-${i}`} variant="outline" className="font-normal">{i + 1}. {d}</Badge>)}</div></TableCell>
               </TableRow>
             ))}

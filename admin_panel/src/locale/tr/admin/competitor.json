@@ -37,8 +37,8 @@
     "weRank": "Yer aldığımız",
     "weRankHint": "ort. #{avg} · ilk 3: {top3}",
     "weRankNone": "henüz veri yok",
-    "missing": "Görünmediğimiz",
-    "missingHint": "ilk 2 sayfada yokuz"
+    "missing": "Taramada görülmeyen",
+    "missingHint": "taranan sonuçlarda görülmedi"
   },
   "discovery": {
     "start": "Keşfi başlat",
@@ -62,7 +62,7 @@
       "domain": "Alan adı",
       "coverage": "Kapsam",
       "queriesOf": "{count} / {total} sorgu",
-      "avgPosition": "Ort. pozisyon",
+      "avgPosition": "Ort. tarama konumu",
       "best": "en iyi #{pos}",
       "top3": "İlk 3 / ilk 10",
       "ahead": "Bizden önde",
@@ -72,19 +72,19 @@
     },
     "sheet": {
       "queries": "Sorgu",
-      "perQuery": "Sorgu bazında pozisyonlar",
+      "perQuery": "Sorgu başına en iyi tarama sonucu",
       "us": "biz",
-      "notRanked": "yok",
-      "impressions": "{count} gösterim"
+      "notRanked": "taramada görülmedi",
+      "impressions": "{count} bizim GSC gösterimimiz"
     }
   },
   "queries": {
     "query": "Sorgu",
-    "impressions": "Gösterim",
-    "clicks": "Tıklama",
-    "ourPosition": "Bizim pozisyon",
+    "impressions": "Tarama GSC gösterimi",
+    "clicks": "Tarama GSC tıklaması",
+    "ourPosition": "Tarama konumumuz",
     "topDomains": "İlk 5 rakip",
-    "notRanked": "İlk 20'de yok",
+    "notRanked": "Taramada görülmedi",
     "us": "Biz",
     "page2": "2. sayfa",
     "impressionsLine": "{impressions} gösterim · {clicks} tıklama (GSC, 28 gün)"
@@ -116,5 +116,8 @@
     "brave": "Brave",
     "yandex": "Yandex",
     "bing": "Bing"
-  }
+  },
+  "measurementNote": "Tarama konumları seçili arama motoruna aittir; Google sıralaması değildir. Taramada görünmemek, sayfanın Google’da bulunmadığı anlamına gelmez. Tarama gösterimleri keşif anındaki bizim GSC verimizdir; arama hacmi veya rakip trafiği değildir. Google sütunları aşağıdaki ayrı dönemi gösterir.",
+  "googleReady": "kesinleşmiş web verisi; en yüksek gösterimli açılış sayfası",
+  "googleUnavailable": "veri alınamadı; tarama konumu yerine kullanılmaz"
 }

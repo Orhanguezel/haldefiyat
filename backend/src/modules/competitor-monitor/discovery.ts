@@ -3,6 +3,7 @@ import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfCompetitorSerpResults, hfCompetitorSerpRuns, hfProducts } from "@/db/schema";
 import { publicOrigin } from "@/modules/seo/gsc-index";
+import { detectSocialRef } from "./social-handle";
 import { domainOf } from "./serp-bing";
 import { fetchSerpPage, PAGE_SIZE, SERP_ENGINES, type SerpEngine } from "./serp-engines";
 
@@ -11,8 +12,8 @@ export interface DiscoveryOptions { queries?: string[]; limit?: number; engine?:
 export const DEFAULT_DEPTH = 20; // "ilk iki sayfa" = ilk 20 sonuc
 
 // Rakip degil, her aramada cikan platformlar: sonuc listesine yazilmaz.
-const SKIP_DOMAINS = /(^|\.)(google\.[a-z.]+|bing\.com|yandex\.[a-z.]+|brave\.com|youtube\.com|facebook\.com|instagram\.com|twitter\.com|x\.com|linkedin\.com|tiktok\.com|wikipedia\.org|apple\.com|pinterest\.[a-z]+|eksisozluk\.com)$/i;
-// Brave ~20 ardisik istekten sonra bos donmeye basliyor: aralik + basarisizlikta bekleyip yeniden dene, olmazsa Yandex.
+const SKIP_DOMAINS = /(^|\.)(google\.[a-z.]+|bing\.com|yandex\.[a-z.]+|brave\.com|wikipedia\.org|apple\.com|pinterest\.[a-z]+|eksisozluk\.com)$/i;
+// Brave ~20 ardisik istekten sonra bos donmeye basliyor: aralik + basarisizlikta ayni motorda yeniden dene.
 const DELAY_MS = 2500;
 const RETRY_WAIT_MS = 8000;
 let running = false;
@@ -36,7 +37,7 @@ export async function queriesFromGsc(limit: number): Promise<DiscoveryQuery[]> {
   // gsc_site_url ayari tirnakli saklanabiliyor.
   const site = (await resolveGscSite()).replace(/^"+|"+$/g, "");
   const { startDate, endDate } = getGscDateRange("LAST_28_DAYS");
-  const rows = await queryGsc(site, headers, { startDate, endDate, dimensions: ["query"], rowLimit: Math.min(limit * 3, 500), type: "web" });
+  const rows = await queryGsc(site, headers, { startDate, endDate, dimensions: ["query"], rowLimit: Math.min(limit * 3, 500), type: "web", dataState: "final" });
   return rows
     .map((r) => ({ query: String((r.keys as string[] | undefined)?.[0] ?? "").trim(), clicks: Number(r.clicks ?? 0), impressions: Number(r.impressions ?? 0) }))
     .filter((r) => r.query && !isBrandQuery(r.query))
@@ -58,7 +59,7 @@ export async function queriesFromProducts(limit: number): Promise<DiscoveryQuery
 
 async function resolveQueries(opts: DiscoveryOptions): Promise<{ list: DiscoveryQuery[]; source: string }> {
   const limit = Math.max(1, Math.min(opts.limit ?? 30, 100));
-  if (opts.queries?.length) return { list: opts.queries.slice(0, limit).map((q) => ({ query: q.trim(), clicks: 0, impressions: 0 })).filter((q) => q.query), source: "manual" };
+  if (opts.queries?.length) return { list: [...new Set(opts.queries.map(q => q.trim()).filter(Boolean))].slice(0, limit).map(query => ({ query, clicks: 0, impressions: 0 })), source: "manual" };
   try {
     const list = await queriesFromGsc(limit);
     if (list.length) return { list, source: "gsc" };
@@ -79,12 +80,11 @@ export async function runCompetitorDiscovery(opts: DiscoveryOptions) {
   const ours = ourHost();
   try {
     const { list, source } = await resolveQueries(opts);
-    const [ins] = await db.insert(hfCompetitorSerpRuns).values({ engine, querySource: source, queriesTotal: list.length });
+    const [ins] = await db.insert(hfCompetitorSerpRuns).values({ engine, depth, ...(source === "gsc" ? { gscStartDate: new Date(getGscDateRange("LAST_28_DAYS").startDate), gscEndDate: new Date(getGscDateRange("LAST_28_DAYS").endDate) } : {}), querySource: source, queriesTotal: list.length });
     const runId = Number((ins as { insertId: number }).insertId);
     let done = 0;
     let results = 0;
     let failures = 0;
-    let fallbacks = 0;
     for (const q of list) {
       for (let page = 1; page <= pages; page += 1) {
         let { hits, error } = await fetchSerpPage(engine, q.query, page);
@@ -92,15 +92,12 @@ export async function runCompetitorDiscovery(opts: DiscoveryOptions) {
           await sleep(RETRY_WAIT_MS);
           ({ hits, error } = await fetchSerpPage(engine, q.query, page));
         }
-        if (!hits.length && engine !== "yandex") {
-          ({ hits, error } = await fetchSerpPage("yandex", q.query, page));
-          if (hits.length) fallbacks += 1;
-        }
+        // Keep one engine per run. Missing pages are partial coverage, not another engine.
         if (!hits.length) failures += 1;
         void error;
         const rows = hits
-          .filter((h) => h.position <= depth && !SKIP_DOMAINS.test(h.domain))
-          .map((h) => ({ runId, query: q.query, queryClicks: q.clicks, queryImpressions: q.impressions, position: h.position, page: h.page, url: h.url, domain: h.domain, title: h.title, snippet: h.snippet, isOurs: h.domain === ours || h.domain.endsWith(`.${ours}`) ? 1 : 0 }));
+          .filter((h) => h.position <= depth && !SKIP_DOMAINS.test(h.domain) && detectSocialRef(h.url)?.kind !== "platform_page")
+          .map((h) => ({ runId, actualEngine: engine, query: q.query, queryClicks: q.clicks, queryImpressions: q.impressions, position: h.position, page: h.page, url: h.url, domain: h.domain, title: h.title, snippet: h.snippet, isOurs: h.domain === ours || h.domain.endsWith(`.${ours}`) ? 1 : 0 }));
         if (rows.length) await db.insert(hfCompetitorSerpResults).values(rows);
         results += rows.length;
         await sleep(DELAY_MS);
@@ -109,7 +106,7 @@ export async function runCompetitorDiscovery(opts: DiscoveryOptions) {
       await db.update(hfCompetitorSerpRuns).set({ queriesDone: done, resultsTotal: results }).where(eq(hfCompetitorSerpRuns.id, runId));
     }
     const status = failures === 0 ? "ok" : failures >= list.length * pages ? "error" : "partial";
-    await db.update(hfCompetitorSerpRuns).set({ status, finishedAt: sql`NOW(3)`, errorMsg: [failures ? `${failures} sayfa alinamadi` : "", fallbacks ? `${fallbacks} sayfa Yandex yedeginden` : ""].filter(Boolean).join("; ") || null }).where(eq(hfCompetitorSerpRuns.id, runId));
+    await db.update(hfCompetitorSerpRuns).set({ status, finishedAt: sql`NOW(3)`, errorMsg: failures ? `${failures} sayfa alinamadi` : null }).where(eq(hfCompetitorSerpRuns.id, runId));
     return { id: runId, status, queriesDone: done, resultsTotal: results, source, engine };
   } finally {
     running = false;

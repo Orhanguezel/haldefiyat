@@ -32,122 +32,52 @@ function detectFeatures(html: string): string[] {
     .map(({ label }) => label);
 }
 
-// Sayfa üzerindeki olası ürün sayısı (tablo satırı, kart, liste öğesi sayısı)
-function heuristicCount(html: string, patterns: RegExp[]): number | null {
-  for (const p of patterns) {
-    const matches = html.match(p);
-    if (matches && matches.length > 3) return matches.length;
+/** Only count explicit JSON-LD Product entities on this fetched page. */
+export function parseCompetitorHtml(_siteKey: string, html: string): CompetitorMetrics {
+  const products = new Set<string>();
+  let blocks = 0, malformed = 0;
+  function visit(value: unknown): void {
+    if (Array.isArray(value)) { value.forEach(visit); return; }
+    if (!value || typeof value !== 'object') return;
+    const node = value as Record<string, unknown>;
+    const types = [node['@type']].flat();
+    if (types.some(t => typeof t === 'string' && /(?:^|[/#])Product$/.test(t))) {
+      const identity = node['@id'] ?? node.url ?? node.sku ?? node.name;
+      if (typeof identity === 'string' && identity.trim()) products.add(identity.trim());
+    }
+    Object.values(node).forEach(visit);
   }
-  return null;
-}
-
-// ─── Site-spesifik parser'lar ─────────────────────────────────────────────
-
-function parseTarimpiyasa(html: string): CompetitorMetrics {
-  // Ürün kartları: <div class="product-card"> veya data-product
-  const productMatches = html.match(/class="[^"]*product[^"]*"/gi) ?? [];
-  const productCount = productMatches.length > 0 ? productMatches.length : null;
-
-  // Hal sayısı: "X hal" veya "X piyasa" metni
-  const marketMatch = html.match(/(\d+)\s*(?:hal|piyasa|market)/i);
-  const marketCount = marketMatch ? parseInt(marketMatch[1], 10) : null;
-
-  // Ürün sayısı metin olarak da olabilir
-  const countTextMatch = html.match(/(\d+)\s*(?:ürün|urun)/i);
-  const countFromText = countTextMatch ? parseInt(countTextMatch[1], 10) : null;
-
+  for (const match of html.matchAll(/<script\b[^>]*type\s*=\s*['"]application\/ld\+json['"][^>]*>([\s\S]*?)<\/script>/gi)) {
+    blocks++;
+    try { visit(JSON.parse(match[1])); } catch { malformed++; }
+  }
   return {
-    productCount: countFromText ?? productCount,
-    marketCount,
+    // Page entities are not the site's catalog; unknown totals stay NULL.
+    productCount: null, marketCount: null,
     detectedFeatures: detectFeatures(html),
-    rawMetrics: {
-      productCardMatches: productMatches.length,
-      countFromText,
-      marketTextMatch: marketMatch?.[0] ?? null,
-    },
-  };
-}
-
-function parseGuncelfiyatlari(html: string): CompetitorMetrics {
-  // Tablo satırları veya fiyat listesi
-  const rowMatches = html.match(/<tr[^>]*>/gi) ?? [];
-  const productCount = rowMatches.length > 5 ? rowMatches.length - 2 : null;
-
-  const marketMatch = html.match(/(\d+)\s*(?:hal|şehir|sehir)/i);
-  const marketCount = marketMatch ? parseInt(marketMatch[1], 10) : null;
-
-  return {
-    productCount,
-    marketCount,
-    detectedFeatures: detectFeatures(html),
-    rawMetrics: { tableRowCount: rowMatches.length },
-  };
-}
-
-function parseHalfiyatVercel(html: string): CompetitorMetrics {
-  // Next.js JSON data içinde ürün sayısı arayabiliriz
-  const jsonMatch = html.match(/"products?\s*":\s*\[([^\]]*)\]/i);
-  const productCount = jsonMatch
-    ? (jsonMatch[1].match(/\{/g) ?? []).length
-    : heuristicCount(html, [/<li[^>]*>/gi, /<tr[^>]*>/gi]);
-
-  return {
-    productCount,
-    marketCount: null,
-    detectedFeatures: detectFeatures(html),
-    rawMetrics: { hasJsonData: !!jsonMatch },
-  };
-}
-
-// ─── Ana dispatch ─────────────────────────────────────────────────────────
-
-const PARSERS: Record<string, (html: string) => CompetitorMetrics> = {
-  tarimpiyasa: parseTarimpiyasa,
-  guncelfiyatlari: parseGuncelfiyatlari,
-  halfiyat_vercel: parseHalfiyatVercel,
-};
-
-export function parseCompetitorHtml(siteKey: string, html: string): CompetitorMetrics {
-  const parser = PARSERS[siteKey];
-  if (parser) return parser(html);
-
-  // Genel fallback
-  return {
-    productCount: heuristicCount(html, [/<tr[^>]*>/gi, /<li[^>]*>/gi]),
-    marketCount: null,
-    detectedFeatures: detectFeatures(html),
-    rawMetrics: { htmlLength: html.length },
+    rawMetrics: { method: 'jsonld-page-v1', scope: 'fetched_page', htmlLength: html.length,
+      jsonLdBlocks: blocks, malformedBlocks: malformed,
+      pageProductEntities: blocks > 0 && malformed === 0 ? products.size : null },
   };
 }
 
 export function buildDiffSummary(
-  prev: { productCount: number | null; marketCount: number | null; detectedFeatures: string[] | null } | null,
+  prev: { productCount: number | null; marketCount: number | null; detectedFeatures: string[] | null; rawMetrics?: Record<string, unknown> | null } | null,
   curr: CompetitorMetrics,
 ): string | null {
-  if (!prev) return "İlk snapshot — karşılaştırma yok.";
-
+  if (!prev) return 'İlk snapshot — karşılaştırma yok; toplam ürün/hal sayısı bilinmiyor.';
   const lines: string[] = [];
-
-  if (prev.productCount !== null && curr.productCount !== null) {
-    const delta = curr.productCount - prev.productCount;
-    if (delta !== 0) {
-      lines.push(`Ürün sayısı: ${prev.productCount} → ${curr.productCount} (${delta > 0 ? "+" : ""}${delta})`);
-    }
+  const before = prev.rawMetrics;
+  if (before && before.method === curr.rawMetrics.method && typeof before.pageProductEntities === 'number' && typeof curr.rawMetrics.pageProductEntities === 'number') {
+    lines.push(`Bu sayfada JSON-LD ürün kaydı: ${before.pageProductEntities} → ${curr.rawMetrics.pageProductEntities}. Site toplamı değildir.`);
+  } else {
+    lines.push('Ürün/hal sayısı karşılaştırılamıyor: aynı yöntemle ölçülmüş yapısal kanıt yok.');
   }
-
-  if (prev.marketCount !== null && curr.marketCount !== null) {
-    const delta = curr.marketCount - prev.marketCount;
-    if (delta !== 0) {
-      lines.push(`Hal sayısı: ${prev.marketCount} → ${curr.marketCount} (${delta > 0 ? "+" : ""}${delta})`);
-    }
-  }
-
   const prevFeatures = new Set(prev.detectedFeatures ?? []);
-  const newFeatures = curr.detectedFeatures.filter((f) => !prevFeatures.has(f));
-  const removedFeatures = [...prevFeatures].filter((f) => !curr.detectedFeatures.includes(f));
-
-  if (newFeatures.length > 0) lines.push(`Yeni özellik: ${newFeatures.join(", ")}`);
-  if (removedFeatures.length > 0) lines.push(`Kaldırılan özellik: ${removedFeatures.join(", ")}`);
-
-  return lines.length > 0 ? lines.join("\n") : "Değişiklik yok.";
+  const added = curr.detectedFeatures.filter(f => !prevFeatures.has(f));
+  const removed = [...prevFeatures].filter(f => !curr.detectedFeatures.includes(f));
+  if (added.length) lines.push(`Yeni özellik sinyali: ${added.join(', ')}`);
+  if (removed.length) lines.push(`Kaybolan özellik sinyali: ${removed.join(', ')}`);
+  if (!added.length && !removed.length) lines.push('İzlenen HTML özellik sinyallerinde değişiklik yok; işlev doğrulaması yapılmadı.');
+  return lines.join('\n');
 }

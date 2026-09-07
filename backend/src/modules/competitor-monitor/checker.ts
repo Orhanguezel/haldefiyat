@@ -20,7 +20,7 @@ export interface CompetitorCheckResult {
 async function fetchHtml(url: string): Promise<{ html: string | null; error?: string }> {
   if (isScraperEnabled()) {
     const result = await fetchViaScraper(url, { mode: "stealthy", timeoutSeconds: 45 });
-    if (result.ok && result.html) return { html: result.html };
+    if (result.ok && result.status === 200 && result.html) return { html: result.html };
   }
 
   // Scraper devre dışı veya başarısız → direct fetch
@@ -39,6 +39,7 @@ async function fetchHtml(url: string): Promise<{ html: string | null; error?: st
 async function getLastSnapshot(siteKey: string) {
   const rows = await db
     .select({
+      rawMetrics: hfCompetitorSnapshots.rawMetrics,
       productCount: hfCompetitorSnapshots.productCount,
       marketCount: hfCompetitorSnapshots.marketCount,
       detectedFeatures: hfCompetitorSnapshots.detectedFeatures,

@@ -13,3 +13,9 @@
 ## Canli Erisim Notu
 
 Canli servis `vps-vistainsaat` sunucusundadir. SSH erisimi key ile yapilir: `ssh vps-vistainsaat`.
+
+## Pamuk fiyat analizi
+
+Pamuk geçmişi ve fiyat karşılaştırmalarında resmî borsa serisi esas alınır;
+haber aktarımı sayısal kanıtın yerine geçmez. Veri, kalite ve yayın kuralları:
+[`backend/scripts/cotton-series/README.md`](./backend/scripts/cotton-series/README.md).

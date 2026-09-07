@@ -90,6 +90,12 @@ export default function Page() {
         </div>
       </div>
 
+      <div className="rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
+        <p>{t('measurementNote')}</p>
+        {data?.delta?.reason ? <p className="mt-1">Karşılaştırma yapılmadı: {data.delta.reason}</p> : null}
+        {data?.run?.error_msg ? <p className="mt-1">{data.run.error_msg}</p> : null}
+        {data?.google ? <p className="mt-1">Google Search Console: {data.google.startDate} – {data.google.endDate} · {data.google.status === 'ok' ? t('googleReady') : t('googleUnavailable')}</p> : null}
+      </div>
       <SummaryTiles tiles={[
         { key: 'domains', label: t('tiles.domains'), value: stats.domains, hint: t('tiles.domainsHint', { official: stats.official }), active: !dirty, onClick: () => setFilters(EMPTY_DOMAIN_FILTERS) },
         { key: 'ahead', label: t('tiles.ahead'), value: domains.filter((d) => !d.isOurs && Number(d.ahead_of_us) > 0).length, hint: t('tiles.aheadHint'), tone: 'text-rose-600', active: filters.onlyAhead, onClick: () => patch({ onlyAhead: !filters.onlyAhead }) },
@@ -111,6 +117,7 @@ export default function Page() {
         <TabsList className="w-full justify-start overflow-x-auto">
           <TabsTrigger value="discovery">{t('tabs.discovery')}</TabsTrigger>
           <TabsTrigger value="queries">{t('tabs.queries')}</TabsTrigger>
+          <TabsTrigger value="social">Sosyal hesaplar ve kitle fırsatları ({data?.social?.length ?? 0})</TabsTrigger>
           <TabsTrigger value="sites">{t('tabs.sites')}{siteStats.failing ? <span className="ml-1 rounded-full bg-rose-500 px-1.5 text-[10px] text-white">{siteStats.failing}</span> : null}</TabsTrigger>
         </TabsList>
         <TabsContent value="discovery" className="mt-4 space-y-3">
@@ -131,6 +138,16 @@ export default function Page() {
           <DiscoveryTable rows={visible} totalQueries={stats.queries} loading={isLoading} activeKey={openDomain ?? undefined} onSelect={(d: DiscoveryDomain) => setOpenDomain(d.domain)} t={t} tc={tc} />
         </TabsContent>
         <TabsContent value="queries" className="mt-4"><QueriesPanel rows={queries} runId={data?.run?.id ?? null} loading={isLoading} t={t} tc={tc} /></TabsContent>
+        <TabsContent value="social" className="mt-4 space-y-4">
+          <p className="text-sm text-muted-foreground">Hesaplar, gönderiler ve gruplar ayrı gösterilir. Gruplar rakip sayısına katılmaz. Eski taramalarda elenen sosyal sonuçlar geriye dönük bilinmez.</p>
+          {(['account', 'group', 'content'] as const).map(kind => <section key={kind} className="rounded-lg border p-4">
+            <h2 className="font-medium">{{ account: 'Sosyal hesaplar', group: 'Kitle fırsatları: gruplar', content: 'Gönderi ve video kanıtları' }[kind]}</h2>
+            <ul className="mt-2 space-y-2 text-sm">{(data?.social ?? []).filter(r => r.kind === kind).map((r, i) => <li key={`${r.url}-${r.query}-${i}`}>
+              <a className="underline break-all" href={r.url} target="_blank" rel="noopener noreferrer">{r.title || r.handle || r.url}</a>
+              <span className="text-muted-foreground"> · {r.platform} · {r.query} · #{r.position}</span>
+            </li>)}</ul>
+          </section>)}
+        </TabsContent>
         <TabsContent value="sites" className="mt-4"><SitesPanel sites={sites} loading={sitesLoading} t={t} tc={tc} /></TabsContent>
       </Tabs>
 

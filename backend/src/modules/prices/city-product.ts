@@ -28,9 +28,15 @@ export interface CityProductPair {
 // Urun ailesi: master + canonical_slug ile ona bagli varyantlar (kg birimi esit).
 const FAMILY_CTE = `fam AS (
   SELECT id AS pid, id AS master_id FROM hf_products WHERE is_active = 1 AND canonical_slug IS NULL
-  UNION ALL
+  UNION
   SELECT v.id, m.id FROM hf_products v JOIN hf_products m ON m.slug = v.canonical_slug WHERE v.is_active = 1
+  UNION
+  SELECT v.id, m.id FROM hf_products v JOIN hf_products m ON m.slug = 'limon'
+  WHERE v.is_active = 1 AND v.family_slug = 'limon' AND v.unit = m.unit
 )`;
+// Shared quality boundary for every series, coverage gate and comparison query.
+const VALID_PRICE = `ph.avg_price > 0 AND ph.recorded_date <= CURDATE()
+  AND NOT EXISTS (SELECT 1 FROM hf_market_blackouts b WHERE b.market_id = ph.market_id AND ph.recorded_date BETWEEN b.from_date AND b.to_date)`;
 
 let indexCache: { at: number; items: CityProductPair[] } | null = null;
 
@@ -43,7 +49,8 @@ export async function listCityProductPairs(): Promise<CityProductPair[]> {
        SELECT f.master_id, ph.market_id, COUNT(DISTINCT ph.recorded_date) AS days90, MAX(ph.recorded_date) AS last_date
        FROM hf_price_history ph JOIN fam f ON f.pid = ph.product_id
        JOIN hf_markets mk ON mk.id = ph.market_id AND mk.is_active = 1 AND mk.market_type = 'hal' AND mk.city_name <> 'Türkiye'
-       WHERE ph.recorded_date >= CURDATE() - INTERVAL 90 DAY
+       JOIN hf_products master ON master.id = f.master_id AND master.unit = ph.unit
+       WHERE ${VALID_PRICE} AND ph.recorded_date >= CURDATE() - INTERVAL 90 DAY
        GROUP BY f.master_id, ph.market_id
      )
      SELECT mk.city_name, mk.slug AS market_slug, mk.name AS market_name, p.slug AS product_slug,
@@ -104,7 +111,7 @@ export async function getCityProductDetail(citySlug: string, productSlug: string
      SELECT ph.recorded_date, AVG(ph.avg_price) AS avg_price, MIN(ph.min_price) AS min_price, MAX(ph.max_price) AS max_price
      FROM hf_price_history ph JOIN fam f ON f.pid = ph.product_id JOIN hf_markets mk ON mk.id = ph.market_id
      JOIN hf_products p ON p.id = f.master_id
-     WHERE p.slug = ? AND mk.slug = ? AND ph.unit = p.unit AND ph.recorded_date >= CURDATE() - INTERVAL 90 DAY
+     WHERE ${VALID_PRICE} AND p.slug = ? AND mk.slug = ? AND ph.unit = p.unit AND ph.recorded_date >= CURDATE() - INTERVAL 90 DAY
      GROUP BY ph.recorded_date ORDER BY ph.recorded_date`,
     [productSlug, pair.marketSlug],
   );
@@ -121,12 +128,13 @@ export async function getCityProductDetail(citySlug: string, productSlug: string
     `WITH ${FAMILY_CTE},
      latest AS (
        SELECT ph.market_id, MAX(ph.recorded_date) AS rd FROM hf_price_history ph JOIN fam f ON f.pid = ph.product_id
-       JOIN hf_products p ON p.id = f.master_id WHERE p.slug = ? AND ph.recorded_date >= CURDATE() - INTERVAL 7 DAY GROUP BY ph.market_id
+       JOIN hf_products p ON p.id = f.master_id WHERE ${VALID_PRICE} AND ph.unit = p.unit AND p.slug = ? AND ph.recorded_date >= CURDATE() - INTERVAL 7 DAY GROUP BY ph.market_id
      )
      SELECT mk.city_name, mk.slug AS market_slug, mk.name AS market_name, l.rd, AVG(ph.avg_price) AS avg_price
      FROM latest l JOIN hf_markets mk ON mk.id = l.market_id AND mk.is_active = 1 AND mk.market_type = 'hal' AND mk.city_name <> 'Türkiye'
      JOIN hf_price_history ph ON ph.market_id = l.market_id AND ph.recorded_date = l.rd
      JOIN fam f ON f.pid = ph.product_id JOIN hf_products p ON p.id = f.master_id AND p.slug = ? AND ph.unit = p.unit
+     WHERE ${VALID_PRICE}
      GROUP BY mk.city_name, mk.slug, mk.name, l.rd ORDER BY avg_price`,
     [productSlug, productSlug],
   );
@@ -142,15 +150,17 @@ export async function getCityProductDetail(citySlug: string, productSlug: string
     `WITH ${FAMILY_CTE},
      cur AS (
        SELECT f.master_id, AVG(ph.avg_price) AS price FROM hf_price_history ph JOIN fam f ON f.pid = ph.product_id
-       JOIN hf_markets mk ON mk.id = ph.market_id WHERE mk.slug = ? AND ph.recorded_date = ? GROUP BY f.master_id
+       JOIN hf_markets mk ON mk.id = ph.market_id JOIN hf_products master ON master.id = f.master_id AND master.unit = ph.unit WHERE ${VALID_PRICE} AND mk.slug = ? AND ph.recorded_date = ? GROUP BY f.master_id
      ),
      prev AS (
        SELECT f.master_id, MAX(ph.recorded_date) AS rd FROM hf_price_history ph JOIN fam f ON f.pid = ph.product_id
-       JOIN hf_markets mk ON mk.id = ph.market_id WHERE mk.slug = ? AND ph.recorded_date < ? AND ph.recorded_date >= ? - INTERVAL 14 DAY GROUP BY f.master_id
+       JOIN hf_markets mk ON mk.id = ph.market_id JOIN hf_products master ON master.id = f.master_id AND master.unit = ph.unit WHERE ${VALID_PRICE} AND mk.slug = ? AND ph.recorded_date < ? AND ph.recorded_date >= ? - INTERVAL 14 DAY GROUP BY f.master_id
      ),
      prevp AS (
        SELECT pr.master_id, AVG(ph.avg_price) AS price FROM prev pr JOIN fam f ON f.master_id = pr.master_id
        JOIN hf_price_history ph ON ph.product_id = f.pid AND ph.recorded_date = pr.rd JOIN hf_markets mk ON mk.id = ph.market_id AND mk.slug = ?
+       JOIN hf_products master ON master.id = pr.master_id AND master.unit = ph.unit
+       WHERE ${VALID_PRICE}
        GROUP BY pr.master_id
      )
      SELECT p.slug, COALESCE(p.display_name, p.name_tr) AS name, c.price, pp.price AS prev_price
@@ -164,7 +174,10 @@ export async function getCityProductDetail(citySlug: string, productSlug: string
     changePct: (Number(r.price) / Number(r.prev_price) - 1) * 100, citySlug, eligible: eligibleKeys.has(`${citySlug}/${r.slug}`),
   }));
 
-  return { pair, latest, weekAgoAvg: weekAgo?.avgPrice ?? null, history, cities, nationalMedian, rank, movers };
+  // Limon umbrella spans changing varieties. Do not claim an apples-to-apples
+  // weekly move or a city discount from differently composed baskets.
+  const comparable = productSlug !== "limon";
+  return { pair, latest, weekAgoAvg: comparable ? weekAgo?.avgPrice ?? null : null, history, cities, nationalMedian: comparable ? nationalMedian : null, rank: comparable ? rank : null, movers };
 }
 
 function shiftDays(iso: string, days: number): string {

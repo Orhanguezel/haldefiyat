@@ -1,0 +1,31 @@
+-- Official cotton series at bulletin-period × source × exact grade × trade/payment/method grain.
+-- Does not merge monthly records into daily hf_price_history.
+CREATE TABLE IF NOT EXISTS hf_cotton_observations (
+ observation_id CHAR(64) PRIMARY KEY,
+ series_id CHAR(24) NOT NULL,
+ source VARCHAR(20) NOT NULL,
+ period_start DATE NOT NULL,
+ period_end DATE NOT NULL,
+ period_complete TINYINT NOT NULL,
+ product VARCHAR(255) NOT NULL,
+ cotton_form VARCHAR(32) NOT NULL,
+ sale_type VARCHAR(64) NOT NULL,
+ payment_type VARCHAR(64) NOT NULL,
+ price_basis VARCHAR(64) NOT NULL,
+ unit VARCHAR(16) NOT NULL,
+ average_method VARCHAR(64) NOT NULL,
+ min_price DECIMAL(18,6) NOT NULL,
+ max_price DECIMAL(18,6) NOT NULL,
+ avg_price DECIMAL(18,6) NOT NULL,
+ quantity_kg DECIMAL(22,6) NULL,
+ turnover_try DECIMAL(24,6) NULL,
+ transaction_count INT NULL,
+ derived_weighted_price DECIMAL(18,6) NULL,
+ source_url TEXT NOT NULL,
+ source_sha256 CHAR(64) NOT NULL,
+ raw_line TEXT NOT NULL,
+ parser_version VARCHAR(64) NOT NULL,
+ imported_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+ KEY idx_cotton_series_period (series_id,period_start,period_end),
+ KEY idx_cotton_source_period (source,period_start)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

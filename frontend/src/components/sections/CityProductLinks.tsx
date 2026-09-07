@@ -8,7 +8,7 @@ import { cityProductHref } from "@/lib/city-product";
  */
 export default async function CityProductLinks({ product, productName, city, cityName }: { product?: string; productName?: string; city?: string; cityName?: string }) {
   const pairs = await fetchCityProductPairs({ eligible: true, product, city });
-  if (pairs.length < 2) return null;
+  if (pairs.length === 0) return null;
   const title = product ? `Şehir şehir ${(productName ?? "").toLocaleLowerCase("tr-TR")} fiyatları` : `${cityName ?? ""} hal fiyatları — ürün sayfaları`;
   return (
     <section className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5" aria-label={title}>

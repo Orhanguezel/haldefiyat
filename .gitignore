@@ -98,3 +98,11 @@ frontend/.next-source-accept/
 
 # Next.js uretir, her build yeniden yazar (Next varsayilan .gitignore ile ayni)
 next-env.d.ts
+
+# Runtime archives and private recovery evidence stay on disk, outside source control.
+admin_panel/.next-release-*/
+backend/logs/
+backend/.env.bak*
+backend/.env.yedek*
+data/cotton-series/
+**/__pycache__/

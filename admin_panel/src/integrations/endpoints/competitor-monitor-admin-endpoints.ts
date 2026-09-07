@@ -22,6 +22,7 @@ export interface CompetitorSite {
 }
 
 export interface DiscoveryRun {
+  depth?: number | null; gsc_start_date?: string | null; gsc_end_date?: string | null;
   id: number; engine: string; status: 'running' | 'ok' | 'partial' | 'error'; query_source: string;
   queries_total: number; queries_done: number; results_total: number; error_msg: string | null; started_at: string; finished_at: string | null;
 }
@@ -29,11 +30,13 @@ export interface DiscoveryDomain {
   domain: string; queries: number; avg_position: number | string; best_position: number; top3: number | string; page1: number | string;
   ahead_of_us: number | string; impressions: number | string; sample_title: string | null; sample_url: string | null; tracked: number; isOurs: boolean;
 }
-export interface DiscoveryQuery { query: string; impressions: number; clicks: number; our_position: number | null; results: number; top_domains: string | null }
+export interface DiscoveryQuery { google?: { position: number; impressions: number; clicks: number; page: string | null } | null; query: string; impressions: number; clicks: number; our_position: number | null; results: number; top_domains: string | null }
 export interface DiscoveryResultRow { position: number; page?: number; url: string; domain?: string; title: string | null; snippet?: string | null; is_ours?: number; query?: string; impressions?: number; our_position?: number | null }
 export interface DiscoveryPayload {
+  google?: { startDate: string; endDate: string; status: string };
   run: DiscoveryRun | null; running: boolean; domains: DiscoveryDomain[]; queries: DiscoveryQuery[]; runs: DiscoveryRun[];
-  delta: { appeared: string[]; disappeared: string[]; previousRunId: number | null } | null;
+  social?: Array<{ query: string; position: number; url: string; title: string | null; platform: string; handle: string | null; kind: 'account' | 'group' | 'content' }> ;
+  delta: { reason?: string | null; appeared: string[]; disappeared: string[]; previousRunId: number | null } | null;
 }
 
 export const competitorMonitorAdminApi = baseApi.injectEndpoints({

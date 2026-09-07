@@ -14,9 +14,9 @@ interface MarketContent {
 
 const MARKET_CONTENT: Record<string, MarketContent> = {
   "istanbul-hal-ibb": {
-    description: "İstanbul Toptancı Hali, İBB'ye bağlı olarak Türkiye'nin en büyük ve en yüksek hacimli sebze-meyve hal kompleksidir. İstanbul'un 15 milyonu aşkın nüfusuna hizmet eden hal, günlük binlerce ton ürünün el değiştirdiği kritik bir dağıtım merkezi konumundadır.",
-    coverage: "İstanbul'un tüm ilçeleri ile çevre il ve ilçeler (Kocaeli, Tekirdağ, Edirne, Kırklareli). Anadolu ve Avrupa yakası için ayrı bölümler mevcuttur.",
-    specialties: "Türkiye'nin dört bir yanından ve ithal kaynaklı ürünler bir arada işlem görür; özellikle egzotik meyveler ve ithal ürünlerde fiyat belirleyici işlev üstlenir.",
+    description: "Bayrampaşa meyve sebze hali fiyat listesi, İstanbul Büyükşehir Belediyesi kaynağındaki tarihli kayıtları gösterir. İstanbul ve Bayrampaşa sorguları için aynı yerel fiyat tablosu kullanılır.",
+    coverage: "En yeni kayıtlar önce gösterilir. Eski tarihli satırlar arşiv bilgisidir; bugünün fiyatı değildir.",
+    specialties: "Ürün adı, çeşit, kilogram/adet/paket birimi ve kaynak tarihi birlikte karşılaştırılmalıdır.",
   },
   "ankara-hal": {
     description: "Ankara Toptancı Hali, İç Anadolu'nun en önemli tarımsal dağıtım noktasıdır. Başkentin yaklaşık 5,5 milyon kişilik nüfusu ile çevre illerin büyük bölümünü besleyen hal, günlük yüksek işlem hacmine sahiptir.",
@@ -53,14 +53,14 @@ const MARKET_CONTENT: Record<string, MarketContent> = {
     specialties: "Şeftali (özellikle Bursa şeftalisi), kiraz, domates ve sofralık sebzeler.",
   },
   "kocaeli-hal-merkez": {
-    description: "Kocaeli Merkez Sebze Meyve Hali, Türkiye'nin en yoğun sanayi illerinden birinde tüketici fiyatlarını dengeleyen kritik bir haldir. İstanbul ve Sakarya ile bağlantılı coğrafi konumu, fiyat oluşumunda göçeri bir rol üstlenir.",
-    coverage: "Kocaeli merkez ve ilçeleri; Sakarya'nın bir bölümü.",
-    specialties: "Genel sebze-meyve çeşit yelpazesi; bölgeye yakın Marmara üretimi.",
+    description: "Kocaeli hal fiyatları, Kocaeli Merkez Sebze Meyve Hali kaynağında yayımlanan alt ve üst fiyatlarla izlenir. Güncel liste ve daha eski ürün kayıtları tarihleriyle ayrılır.",
+    coverage: "Karşılaştırmada önce kayıt tarihini kontrol edin. Eski ürünlerin yüksek fiyatları bugünkü listeyi temsil etmez.",
+    specialties: "Sebze ve meyveleri kategoriyle filtreleyin; kilogram, adet ve paket birimlerini birbirinin yerine kullanmayın.",
   },
   "mersin-hal": {
-    description: "Mersin Toptancı Hali, narenciye ihracatının en önemli çıkış noktalarından birinde yer alır. Limon, portakal ve mandalinada dünya pazarlarıyla entegre fiyat oluşumu söz konusudur.",
-    coverage: "Mersin merkez ve ilçeleri; Tarsus, Silifke, Mut.",
-    specialties: "Narenciye (limon, portakal, mandalina, greyfurt) ile kışlık sebzeler.",
+    description: "Mersin hal fiyatları bu sayfada belediye kaynağından doğrulanmış son kayıt tarihiyle gösterilir. Yeni bültene erişilemediğinde eski liste korunur; bu arşiv bugünkü Mersin fiyatı olarak kullanılamaz.",
+    coverage: "Yerel kaydın tarihi esastır. Türkiye ortalaması veya başka şehirdeki güncel kayıt Mersin fiyatının yerine geçmez.",
+    specialties: "Limon ve diğer narenciye çeşitlerinde ürün adı, birim ve gerçek yayın tarihi birlikte kontrol edilmelidir.",
     location: "Hal Mahallesi, Akdeniz/Mersin",
   },
   "adana-hal": {

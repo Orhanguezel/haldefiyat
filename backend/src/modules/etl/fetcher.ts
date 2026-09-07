@@ -1,3 +1,4 @@
+import { fetchAdanaBulletin } from "./sources/municipality/adana";
 /**
  * Jenerik ETL fetcher.
  *
@@ -1002,7 +1003,7 @@ export function extractSourcePageDate(sourceKey: string, html: string): string |
 
 /**
  * Mersin: 4 kategori (vegetable/fruit/fish/imported) icin paralel POST.
- * parseMersinHtml `pages: Array<{html, type}>` formatinda input bekler.
+ * parseMersinHtml `pages: Array<{html, category}>` formatinda input bekler.
  * Tum POST'lar fail olursa null doner; en az bir basari varsa pages liste
  * birlestirilip parse edilir.
  */
@@ -1011,22 +1012,22 @@ async function tryFetchMersinViaScraper(
   date: string,
 ): Promise<FetchOutcome | null> {
   const url = source.baseUrl + source.endpointTemplate;
-  const requestDate = formatDateTr(date);
-  const categories = ["vegetable", "fruit", "fish", "imported"] as const;
+  const categories = ["3", "4"] as const;
 
   const settled = await Promise.all(
-    categories.map(async (type) => {
+    categories.map(async (category) => {
       const r = await fetchViaScraper(url, {
         mode: "fast",
         method: "POST",
-        formData: { date: requestDate, type },
+        formData: { published: date, product_category: category },
+        endpoint: scraperEndpointFor(source.key),
         timeoutSeconds: 30,
       });
-      return r.ok && r.html ? { html: r.html, type: type as string } : null;
+      return r.ok && r.status === 200 && r.html ? { html: r.html, category: category as string } : null;
     }),
   );
 
-  const pages = settled.filter((p): p is { html: string; type: string } => p !== null);
+  const pages = settled.filter((p): p is { html: string; category: string } => p !== null);
   if (pages.length === 0) return null;
 
   const rows = parseResponse(source.responseShape, pages, source);
@@ -1038,6 +1039,10 @@ async function fetchDated(
   date: string,
   isBackfill = false,
 ): Promise<FetchOutcome | null> {
+  if (source.responseShape === "adana_html") {
+    const rows = await fetchAdanaBulletin(source.baseUrl, isBackfill ? source.backfillEndpoint : source.endpointTemplate, date, isBackfill);
+    return { rows, dateUsed: rows[0]!.recordedDate, httpStatus: 200 };
+  }
   // Merkezi Scrapling servisi: HF_SCRAPER_SOURCES listesindeki kaynaklar
   // anti-bot bypass icin scraper.guezelwebdesign.com uzerinden cekilir.
   // Backfill (gecmis tarih) destegi yok — null donerse mevcut akis devam eder.

@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const dateTr = d.latest ? (formatDateTr(d.latest.recordedDate) ?? "") : "";
   const title = `${d.pair.cityName} ${d.pair.productName} Fiyatları ${year} — ${d.pair.marketName}`;
   const live = d.latest ? `${dateTr}: ortalama ${d.latest.avgPrice.toLocaleString("tr-TR", { maximumFractionDigits: 2 })} TL/${d.pair.unit}. ` : "";
-  const description = `${d.pair.cityName} ${d.pair.productName.toLocaleLowerCase("tr-TR")} hal fiyatı. ${live}${d.pair.marketName} günlük kaydı, 90 günlük seyir, haftalık değişim ve diğer şehirlerle karşılaştırma.`;
+  const description = `${d.pair.cityName} ${d.pair.productName.toLocaleLowerCase("tr-TR")} hal fiyatı. ${live}${d.pair.marketName} günlük kaydı, 90 günlük fiyat seyri, çeşit ve kaynak bilgisi.`;
   return getPageMetadata("fiyat_sehir_urun", {
     locale, pathname: `/fiyat/${sehir}/${urun}`, title, description,
     robots: d.pair.eligible ? { index: true, follow: true } : { index: false, follow: true },
@@ -76,6 +76,10 @@ export default async function CityProductPage({ params }: Props) {
         </AnswerBlock>
       </div>
 
+      <p className="mt-4 text-sm text-(--color-muted)">
+        Bu bir toptan hal kaydıdır; bahçede alım fiyatı değildir. Kaynak alt–üst fiyat veriyorsa ortalama bu aralığın orta noktasından türetilir; işlem miktarına göre ağırlıklandırılmaz.
+        {pair.productSlug === 'limon' && <> Genel limon görünümü aynı haldeki limon çeşitlerinin ağırlıksız örneklemidir. Çeşit bileşimi günlere göre değişebilir; tek bir çeşidin fiyat değişimi olarak okunmamalıdır. <Link href={`/hal/${pair.marketSlug}`} className="underline">Çeşitleri hal tablosunda ayrı inceleyin.</Link></>}
+      </p>
       <CityProductKeyNumbers d={d} />
 
       <section className="mt-12" aria-label="Fiyat geçmişi">

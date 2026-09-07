@@ -115,9 +115,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // gunluk tarihle kuruyor; bizim eski "Toptanci Hali Fiyatlari 2026" kalibi sorgu
   // ifadesini hic tasimiyordu (6 Eyl 2026 analizi). Tarih = son veri gunu, tazelik sinyali.
   const isNationalTitle = market.cityName.toLocaleLowerCase("tr-TR") === "türkiye";
+  const isFreshSummary = summary.date && Date.now() - Date.parse(`${summary.date.slice(0, 10)}T12:00:00Z`) <= 7 * 86400000;
   const title = isNationalTitle
     ? `Türkiye Hal Fiyatları Bugün ${dateTr || yearTr} — ${market.name}`
-    : `${market.cityName} Hal Fiyatları Bugün ${dateTr || yearTr} — ${market.name}`;
+    : `${market.cityName} Hal Fiyatları ${isFreshSummary ? "Bugün" : "— Son Liste"} ${dateTr || yearTr} — ${market.name}`;
   // market.name zaten şehri içerir ("Antalya Toptancı Hali ...") → cityName tekrarı yok.
   const description = `${market.name} güncel meyve sebze hali fiyatları. ${liveLine}Sebze, meyve ve bakliyat için min/ort/maks toptan fiyat. Kaynağın resmi yayın takvimine göre güncellenir.`;
 
@@ -247,12 +248,13 @@ export default async function HalPage({ params }: Props) {
   const primarySource = latestRows.find((price) => price.sourceName || price.sourceUrl) ?? prices[0];
   const sourceLabel = primarySource?.sourceName || market.name;
   const sourceUrl = primarySource?.sourceUrl;
-  const movers = calculateProductMovers(trendHistory, 3);
+  const staleBulletin = !latestDate || Date.now() - Date.parse(`${latestDate.slice(0, 10)}T12:00:00Z`) > 7 * 86400000;
+  const movers = staleBulletin ? [] : calculateProductMovers(trendHistory, 3);
   const latestDateTr = formatDateTr(latestDate);
   const answerBlock = (
     <AnswerBlock
       id="bugunun-hal-fiyatlari"
-      title={`${market.name} fiyatları bugün ne durumda?`}
+      title={staleBulletin ? `${market.name} — son yayımlanan fiyat listesi` : `${market.name} fiyatları bugün ne durumda?`}
       meta={
         <>
           <strong className="text-foreground">Kaynak:</strong>{" "}
@@ -272,6 +274,7 @@ export default async function HalPage({ params }: Props) {
           <time dateTime={latestDate ?? undefined}>{latestDateTr}</time> tarihli son
           listede <strong className="text-foreground">{latestProductCount} ürün</strong>{" "}
           kapsanıyor.
+          {staleBulletin && <strong> Bu kayıt güncel değildir; bugünkü yerel fiyat olarak kullanılmamalıdır.</strong>}
           {movers.length > 0 && (
             <>
               {" "}Öne çıkan değişimler:{" "}
@@ -338,7 +341,7 @@ export default async function HalPage({ params }: Props) {
           key={slug}
           initialPrices={prices}
           markets={markets}
-          requestParams={{ market: slug, range: MARKET_PRICE_RANGE }}
+          requestParams={{ market: slug, range: MARKET_PRICE_RANGE, sort: "date-desc" }}
           hideMarketColumn
           hideCityColumn
         />
@@ -398,12 +401,13 @@ export default async function HalPage({ params }: Props) {
       )}
 
       <section aria-labelledby="hal-price-list-title">
-        <h2 id="hal-price-list-title" className="sr-only">{market.name} güncel fiyat listesi</h2>
+        <h2 id="hal-price-list-title" className="mb-3 text-xl font-semibold">{slug === "istanbul-hal-ibb" ? "Bayrampaşa meyve sebze hali fiyat listesi" : `${market.name} — tarihli fiyat listesi`}</h2>
+        <p className="mb-4 text-sm text-muted">En yeni kayıtlar önce gösterilir. Her satırın tarihini ve birimini kontrol edin; eski kayıtlar bugünün fiyatı değildir. Alt–üst aralığın orta noktası işlem hacmi ağırlıklı satış ortalaması değildir.</p>
         <PriceTable
           key={slug}
           initialPrices={prices}
           markets={markets}
-          requestParams={{ market: slug, range: MARKET_PRICE_RANGE }}
+          requestParams={{ market: slug, range: MARKET_PRICE_RANGE, sort: "date-desc" }}
           hideMarketColumn
           hideCityColumn
         />

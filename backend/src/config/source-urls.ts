@@ -28,6 +28,7 @@ const SOURCE_URLS: Record<string, SourceInfo> = {
     type: "municipality",
     official: true,
   },
+  adana_resmi: { name: "Adana Büyükşehir Belediyesi Hal Raiç Bedelleri", url: "https://www.adana.bel.tr/tr/hal-fiyat-listesi", type: "municipality", official: true },
   mersin_resmi: {
     name: "Mersin Büyükşehir Belediyesi Hal Fiyatları",
     url: "https://www.mersin.bel.tr/hal-fiyatlari",

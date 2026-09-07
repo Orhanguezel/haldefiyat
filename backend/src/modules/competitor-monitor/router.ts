@@ -1,10 +1,11 @@
+import { googlePerformance } from "./google-performance";
 import type { FastifyInstance } from "fastify";
 import { db } from "@/db/client";
 import { hfCompetitorSites, hfCompetitorSnapshots } from "@/db/schema";
 import { desc, eq, sql } from "drizzle-orm";
 import { runCompetitorCheck } from "./checker";
 import { isDiscoveryRunning, startDiscoveryBackground } from "./discovery";
-import { discoveryDelta, discoveryDomainResults, discoveryDomains, discoveryQueries, discoveryQueryResults, getLatestRun, listRuns } from "./discovery-read";
+import { discoverySocial, discoveryDelta, discoveryDomainResults, discoveryDomains, discoveryQueries, discoveryQueryResults, getLatestRun, listRuns } from "./discovery-read";
 
 export async function registerCompetitorMonitor(app: FastifyInstance) {
   /**
@@ -111,9 +112,9 @@ export async function registerCompetitorMonitor(app: FastifyInstance) {
     const latest = await getLatestRun();
     const runId = req.query.runId ? Number(req.query.runId) : latest ? Number(latest.id) : null;
     if (!runId) return reply.send({ run: null, running: isDiscoveryRunning(), domains: [], queries: [], runs: [], delta: null });
-    const [runs, domains, queries, delta] = await Promise.all([listRuns(), discoveryDomains(runId), discoveryQueries(runId), discoveryDelta(runId)]);
+    const [runs, domains, queries, delta, google, social] = await Promise.all([listRuns(), discoveryDomains(runId), discoveryQueries(runId), discoveryDelta(runId), googlePerformance(), discoverySocial(runId)]);
     const run = runs.find((r) => Number(r.id) === runId) ?? latest;
-    return reply.send({ run, running: isDiscoveryRunning(), domains, queries, runs, delta });
+    return reply.send({ run, running: isDiscoveryRunning(), domains, queries: queries.map(q => ({ ...q, google: google.queries[String(q.query)] ?? null })), runs, delta, social, google: { startDate: google.startDate, endDate: google.endDate, status: google.status } });
   });
 
   app.get<{ Querystring: { runId: string; domain?: string; query?: string } }>("/competitor-monitor/discovery/results", async (req, reply) => {

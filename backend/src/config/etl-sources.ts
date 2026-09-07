@@ -20,6 +20,7 @@ type ResponseShape =
   | "ibb"
   | "antkomder_html"
   | "ankara_html"
+  | "adana_html"
   | "mersin_html"
   | "konya_html"
   | "kayseri_html"
@@ -157,6 +158,11 @@ const RAW_SOURCES: RawSource[] = [
     responseShape:     "ankara_html",
     defaultUnit:       "kg",
     defaultCategory:   "sebze-meyve",
+  },
+  {
+    key: "adana_resmi", defaultEnabled: true, defaultMarketSlug: "adana-hal",
+    defaultBaseUrl: "https://www.adana.bel.tr", defaultEndpoint: "/tr/hal-fiyat-listesi",
+    responseShape: "adana_html", defaultUnit: "kg", defaultCategory: "sebze-meyve",
   },
   {
     key:               "mersin_resmi",
