@@ -19,7 +19,7 @@ kısmı geçersizleşebilir.
 
 | # | Bulgu | Önem | Durum |
 |---|---|---|---|
-| 1 | Seed 099 `ALTER TABLE` kullanıyor — workspace kuralı ihlali, `--no-drop` seed'ini kırar | **Yüksek** | Açık |
+| 1 | Seed 099 `ALTER TABLE` kullanıyor — ikinci seed koşusunu kırar, arkasındaki `100_adana_hal_source.sql` hiç çalışmaz | **Yüksek** | Açık |
 | 2 | Yandex yedeği kaldırıldı + delta kapısı `status='ok'` istiyor → delta pratikte hiç çalışmayabilir | **Yüksek** | Açık |
 | 3 | `fallbacks` ölü değişken — kaldırılmış davranışı reklam eden metin | Orta | Açık |
 | 4 | Delta kapısı `error_msg` metnine ve `engine` (seçilen) alanına bağlı | Orta | Açık |
@@ -30,31 +30,59 @@ kısmı geçersizleşebilir.
 
 ---
 
-## 1. Seed 099 `ALTER TABLE` kullanıyor — `--no-drop` seed'ini kırar
+## 1. Seed 099 `ALTER TABLE` kullanıyor — ikinci seed koşusunu kırar
 
 **Yüksek.** `backend/src/db/seed/sql/099_competitor_measurement.sql` dört kolonu
-`ALTER TABLE ... ADD COLUMN` ile ekliyor. Workspace `CLAUDE.md` bunu açıkça
-yasaklıyor: *"`ALTER TABLE` lokal ortamda KESİNLİKLE KULLANILAMAZ."*
+`ALTER TABLE ... ADD COLUMN` ile ekliyor (dosyada `IF NOT EXISTS` **yok**, düz
+`ADD COLUMN`). Workspace `CLAUDE.md` bunu açıkça yasaklıyor: *"`ALTER TABLE`
+lokal ortamda KESİNLİKLE KULLANILAMAZ."*
 
-Somut sonuç, kuralın gerekçesinden biraz farklı ama daha yakıcı:
+**Ölçüldü** (MySQL 8.0.46, boş bir sonda tablosunda, 2026-09-08):
 
-- `backend/src/db/seed/sql/097_competitor_discovery_schema.sql` içindeki
-  `CREATE TABLE` tanımlarında bu dört kolon **yok** (kontrol edildi: 0 eşleşme).
-- Seed çalıştırıcısı (`backend/src/db/seed/index.ts:145-147`) her ifadeyi
-  `await conn.query(stmt)` ile çalıştırıyor, **hata toleransı yok**; hata
+| İfade | Kolon yokken | Kolon varken |
+|---|---|---|
+| `ADD COLUMN depth INT NULL` — 099'daki gerçek ifade | başarılı | **hata 1060 `ER_DUP_FIELDNAME`** |
+| `ADD COLUMN IF NOT EXISTS ...` — "idempotent" varyant | **hata 1064 `ER_PARSE_ERROR`** | — |
+
+İkinci satır, bu dosyanın idempotent hale **getirilemeyeceğini** gösteriyor:
+MySQL 8 `ADD COLUMN` için `IF NOT EXISTS` sözdizimini parse etmiyor (MariaDB
+eder, MySQL etmez), dolayısıyla sözdizimi hatası kolonun varlığına bakmadan her
+koşuda düşer. Yani "başına `IF NOT EXISTS` ekleyelim" bir çözüm değil, daha
+kötüsü — 099'u **sıfırdan seed dahil her koşuda** patlatır.
+
+Zincirin tamamı:
+
+- `097_competitor_discovery_schema.sql` içindeki `CREATE TABLE` tanımlarında bu
+  dört kolon **yok** (kontrol edildi: 0 eşleşme).
+- Seed dosyaları elle kaydedilmiyor, **dizin otomatik taranıyor**
+  (`backend/src/db/seed/index.ts:174-178`, `readdirSync(...).filter(f => f.endsWith(".sql"))`,
+  sayısal sıralama). Yani 099 dizine konduğu anda sıraya giriyor.
+- Çalıştırıcıda **hata toleransı yok** (`index.ts:145-147`,
+  `for (const stmt of statements) await conn.query(stmt)`); ilk hata
   `main().catch` ile sürecin tamamını düşürüyor.
-- Varsayılan yol DROP+CREATE olduğu için sıfırdan seed **çalışır** (097 kolonsuz
-  tablo kurar, 099 ALTER'lar ekler).
-- Ama `--no-drop` ile (yani VPS'te veri kaybetmeden yeniden seed) 097
-  `CREATE TABLE IF NOT EXISTS` no-op olur, 099 ALTER'ı **ER_DUP_FIELDNAME (1060)**
-  verir ve **seed 099'da durur** — 100 ve sonrasındaki hiçbir dosya çalışmaz.
 
-MySQL 8 `ADD COLUMN IF NOT EXISTS` desteklemiyor, dolayısıyla bunu "idempotent
-ALTER" ile kurtarmak mümkün değil.
+Sonuç:
+
+- **Sıfırdan seed (varsayılan, DROP+CREATE):** 097 kolonsuz tablo kurar, 099
+  ALTER'ları ekler → çalışır.
+- **`--no-drop` ile yeniden seed** (VPS'te veri kaybetmeden seed etmenin yolu):
+  097 `CREATE TABLE IF NOT EXISTS` no-op olur, 099 **1060** verir ve **seed
+  099'da durur**.
+
+Durmanın bedeli soyut değil: 099'dan sonra **`100_adana_hal_source.sql`** var ve
+o koşuda hiç çalışmaz. Yani şu an aktif yazılmakta olan Adana kaynağı, kendi
+önündeki bir bariyer yüzünden yeniden seed'de kurulmuyor.
 
 **Önerilen düzeltme:** dört kolonu 097'deki `CREATE TABLE` gövdelerine taşıyıp
-099'u silmek. Kural zaten bunu söylüyor ve fresh seed varsayılan yol olduğu için
+099'u silmek. Kural zaten bunu söylüyor, fresh seed varsayılan yol olduğu için
 maliyeti yok.
+
+**Canlı ortam için not:** kolonlar canlıda hâlihazırda varsa (fresh seed ya da
+elle ALTER ile) bu değişiklik canlıda ek bir işlem gerektirmez; yalnız seed ile
+canlı şema hizalanmış olur. Kolonların canlıya **nasıl** girdiği bu belgeden
+tespit edilemez — 099 sıfırdan seed'de başarıyla çalıştığı için "seed yaratamaz,
+demek ki elle ALTER edilmiş" çıkarımı **kurmaz**; drift iddiası için ayrı kanıt
+gerekir.
 
 ## 2. Yedek kaldırıldı + delta kapısı katı → fark pratikte hiç üretilmeyebilir
 
