@@ -1,5 +1,6 @@
 export const revalidate = 300;
 
+import { cookies } from "next/headers";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "@fontsource-variable/ibm-plex-sans/wght.css";
@@ -110,9 +111,10 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [, analytics] = await Promise.all([
+  const [, analytics, cookieStore] = await Promise.all([
     fetchSiteSettings(defaultLocale),
     fetchAnalyticsConfig(),
+    cookies(),
   ]);
 
   return (
@@ -150,7 +152,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   <PageviewTracker />
                 </Suspense>
                 {children}
-                <CookieConsentBanner />
+                <CookieConsentBanner initialVisible={!["accepted", "rejected"].includes(cookieStore.get("hf_cookie_consent")?.value ?? "")} />
               </ToastProvider>
             </AuthSessionProvider>
           </NextIntlClientProvider>

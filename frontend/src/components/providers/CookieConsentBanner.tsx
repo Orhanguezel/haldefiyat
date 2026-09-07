@@ -19,15 +19,19 @@ function updateGoogleConsent(granted: boolean) {
 }
 
 function persistConsent(value: ConsentValue) {
-  localStorage.setItem(CONSENT_KEY, value);
+  try { localStorage.setItem(CONSENT_KEY, value); } catch { /* The cookie still persists the explicit choice. */ }
   document.cookie = `${CONSENT_KEY}=${value}; Path=/; Max-Age=${60 * 60 * 24 * 180}; SameSite=Lax`;
 }
 
-export function CookieConsentBanner() {
-  const [visible, setVisible] = useState(false);
+export function CookieConsentBanner({ initialVisible = true }: { initialVisible?: boolean }) {
+  const [visible, setVisible] = useState(initialVisible);
 
   useEffect(() => {
-    setVisible(!localStorage.getItem(CONSENT_KEY));
+    try {
+      const stored = localStorage.getItem(CONSENT_KEY);
+      // Only explicit choices count. The cookie already determined SSR visibility.
+      if (stored === "accepted" || stored === "rejected") setVisible(false);
+    } catch { /* Storage may be unavailable; retain the server's cookie decision. */ }
   }, []);
 
   function accept() {
