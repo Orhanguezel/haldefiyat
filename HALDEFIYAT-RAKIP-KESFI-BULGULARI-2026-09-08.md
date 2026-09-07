@@ -19,6 +19,7 @@ kısmı geçersizleşebilir.
 
 | # | Bulgu | Önem | Durum |
 |---|---|---|---|
+| 0 | İzlenen kod, git'te **izlenmeyen** dosyalara bağlı — yarısı commit'lenirse derleme kırılır | **EN ACİL** | Açık |
 | 1 | Seed 099 `ALTER TABLE` kullanıyor — ikinci seed koşusunu kırar, arkasındaki `100_adana_hal_source.sql` hiç çalışmaz | **Yüksek** | Açık |
 | 2 | Yandex yedeği kaldırıldı + delta kapısı `status='ok'` istiyor → delta pratikte hiç çalışmayabilir | **Yüksek** | Açık |
 | 3 | `fallbacks` ölü değişken — kaldırılmış davranışı reklam eden metin | Orta | Açık |
@@ -29,6 +30,64 @@ kısmı geçersizleşebilir.
 | 8 | `getLastSnapshot`, `google-performance.ts`, `measurementNote` | — | **Doğru yapılmış** |
 
 ---
+
+## 0. EN ACİL — izlenen kod, izlenmeyen dosyalara bağlı
+
+**Bu, madde 1'den önce gelir:** madde 1 ancak yeniden seed edilince ısırır, bu
+ise **bir sonraki commit'te** ısırır.
+
+Modülün yeni işi git'te iki gruba bölünmüş durumda:
+
+| Dosya | Git durumu |
+|---|---|
+| `modules/competitor-monitor/router.ts` | izleniyor (değişmiş) |
+| `modules/competitor-monitor/discovery.ts` | izleniyor (değişmiş) |
+| `modules/competitor-monitor/discovery-read.ts` | izleniyor (değişmiş) |
+| `db/schema.ts` | izleniyor (değişmiş) |
+| `modules/competitor-monitor/google-performance.ts` | **izlenmiyor** |
+| `db/seed/sql/099_competitor_measurement.sql` | **izlenmiyor** |
+| `db/seed/sql/098_cotton_monthly_series.sql` | **izlenmiyor** |
+| `db/seed/sql/100_adana_hal_source.sql` | **izlenmiyor** |
+
+Bağımlılık tek yönlü ve kırılgan:
+
+- `router.ts:1` → `import { googlePerformance } from "./google-performance";`
+  İçe aktardığı dosya **git'te yok.**
+- `discovery.ts` `actualEngine`, `depth`, `gscStartDate`, `gscEndDate` alanlarına
+  yazıyor (6 gönderme). Bu kolonları yaratan tek yer 099 — **git'te yok.**
+  `097` (izleniyor) bu kolonları tanımlamıyor.
+- `schema.ts` (izleniyor) kolonları Drizzle tarafında ilan ediyor (`:672`,
+  `:673`, `:694`) — yani izlenen şema, izlenmeyen bir DDL'e dayanıyor.
+
+**Yalnız izlenen dosyalar commit'lenirse ne olur:**
+
+1. **Derleme anında kırılır** — `router.ts` var olmayan bir modülü içe aktarır.
+2. Derleme geçse bile, temiz bir kurulumda keşif çalıştığı anda
+   **`ER_BAD_FIELD_ERROR (1054) Unknown column 'actual_engine'`** alınır: 097
+   kolonsuz tablo kurar, 099 repoda olmadığı için hiç çalışmaz.
+
+Aynı sebeple, bu dosyalar bugün **yalnız bu makinede** var: temiz bir klon ya da
+VPS'e git ile giden bir dağıtım 098/099/100 ve `google-performance.ts`'i hiç
+görmez. `git clean -fd` de onları sessizce siler.
+
+**Yapılması gereken:** bu yedi dosya tek bir atomik birim; **birlikte**
+commit'lenmeli. Workspace kuralı gereği `git add -A` kullanılmamalı (başka
+aracın işini süpürür) ama hedefli ekleme yaparken bu listenin tamamı verilmeli:
+
+```
+git add backend/src/modules/competitor-monitor/{router,discovery,discovery-read,google-performance}.ts \
+        backend/src/db/schema.ts \
+        backend/src/db/seed/sql/{098_cotton_monthly_series,099_competitor_measurement,100_adana_hal_source}.sql
+```
+
+(099'un içeriği commit'lenmeden önce madde 1'e göre düzeltilmeli — kolonlar
+097'ye taşınıp 099 silinmeli. O zaman bu listeden 099 düşer.)
+
+**Ek uyarı — dosya oynak:** 099 git'te izlenmediği için karşılaştırılacak bir
+sürüm yok ve tek bir çalışma oturumu içinde iki farklı içerikte gözlendi (bir
+okumada `ADD COLUMN IF NOT EXISTS ...`, sonraki okumada düz `ADD COLUMN`;
+mtime 00:34:51). Hangisinin önce geldiği kanıtlanamıyor. Bu dosya hakkında
+karar verecek olan, **karardan hemen önce yeniden okumalı.**
 
 ## 1. Seed 099 `ALTER TABLE` kullanıyor — ikinci seed koşusunu kırar
 
@@ -70,7 +129,8 @@ Sonuç:
   099'da durur**.
 
 Durmanın bedeli soyut değil: 099'dan sonra **`100_adana_hal_source.sql`** var ve
-o koşuda hiç çalışmaz. Yani şu an aktif yazılmakta olan Adana kaynağı, kendi
+o koşuda hiç çalışmaz (her iki dosya da şu an git'te izlenmiyor — bkz. madde 0 —
+yani bu senaryo bugün yalnız bu makinede geçerli). Yani şu an aktif yazılmakta olan Adana kaynağı, kendi
 önündeki bir bariyer yüzünden yeniden seed'de kurulmuyor.
 
 **Önerilen düzeltme:** dört kolonu 097'deki `CREATE TABLE` gövdelerine taşıyıp
