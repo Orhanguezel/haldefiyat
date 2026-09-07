@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { hfCompetitorSites, hfCompetitorSnapshots } from "@/db/schema";
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { fetchViaScraper, isScraperEnabled } from "@/modules/etl/scraper-client";
 import { parseCompetitorHtml, buildDiffSummary } from "./parser";
 import { env } from "@/core/env";
@@ -44,7 +44,9 @@ async function getLastSnapshot(siteKey: string) {
       detectedFeatures: hfCompetitorSnapshots.detectedFeatures,
     })
     .from(hfCompetitorSnapshots)
-    .where(eq(hfCompetitorSnapshots.siteKey, siteKey))
+    // Basarisiz cekim satirinda detected_features NULL kalir; onu "onceki" saymak
+    // sonraki basarili cekimde tum ozellikleri "yeni" gosterip sahte alarm uretir.
+    .where(and(eq(hfCompetitorSnapshots.siteKey, siteKey), eq(hfCompetitorSnapshots.scrapeOk, 1)))
     .orderBy(desc(hfCompetitorSnapshots.checkedAt))
     .limit(1);
 
