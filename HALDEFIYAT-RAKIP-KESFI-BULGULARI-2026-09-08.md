@@ -19,15 +19,49 @@ kısmı geçersizleşebilir.
 
 | # | Bulgu | Önem | Durum |
 |---|---|---|---|
-| 0 | İzlenen kod, git'te **izlenmeyen** dosyalara bağlı; ayrıca prod'a git dışından (rsync/scp) kopyalanmış — prod ile git ayrışmış | **EN ACİL** | Açık |
-| 1 | Seed 099 `ALTER TABLE` kullanıyor — ikinci seed koşusunu kırar, arkasındaki `100_adana_hal_source.sql` hiç çalışmaz | **Yüksek** | Açık |
-| 2 | Yandex yedeği kaldırıldı + delta kapısı `status='ok'` istiyor → delta pratikte hiç çalışmayabilir | **Yüksek** | Açık |
-| 3 | `fallbacks` ölü değişken — kaldırılmış davranışı reklam eden metin | Orta | Açık |
-| 4 | Delta kapısı `error_msg` metnine ve `engine` (seçilen) alanına bağlı | Orta | Açık |
-| 5 | `tracked` eşleşmesi `LIKE '%domain%'` — özensiz alt dize | Orta | Açık |
-| 6 | `SKIP_DOMAINS` sosyal sonuçları atıyor; ölçüm bunun en yoğun sinyal olduğunu gösterdi | Fırsat | Açık |
+| 0 | İzlenen kod, git'te **izlenmeyen** dosyalara bağlı — yarısı commit'lenirse derleme kırılır | **EN ACİL** | Açık |
+| 0b | Prod'a git dışından (rsync/scp) kopyalanmış — prod ile git ayrışmış | **EN ACİL** | Ölçüldü, uygulama bekliyor |
+| 1 | Seed 099 `ALTER TABLE` kullanıyor — ikinci seed koşusunu kırar | **Yüksek** | ✅ **Düzeltildi** |
+| 2 | Yandex yedeği kaldırıldı + delta kapısı katı → delta pratikte hiç çalışmayabilir | **Yüksek** | ✅ **Düzeltildi** |
+| 3 | `fallbacks` ölü değişken | Orta | ✅ **Düzeltildi** |
+| 4 | Delta kapısı `error_msg` metnine ve `engine` (seçilen) alanına bağlı | Orta | ✅ **Düzeltildi** |
+| 5 | `tracked` eşleşmesi `LIKE '%domain%'` | Orta | ✅ **Düzeltildi** |
+| 6 | `SKIP_DOMAINS` sosyal sonuçları atıyor | Fırsat | ✅ **Düzeltildi** |
 | 7 | `parser.ts` sezgiselleri ölçülebilir değer üretmiyor | Düşük | Açık |
 | 8 | `getLastSnapshot`, `google-performance.ts`, `measurementNote` | — | **Doğru yapılmış** |
+
+
+---
+
+## Durum — 2026-09-08 01:20
+
+Belge yazıldıktan sonra `competitor-monitor` üzerinde çalışan araç (Codex)
+maddeleri hızla kapattı. Aşağıdakiler **çalışma ağacında doğrulandı** (okundu,
+değiştirilmedi):
+
+| # | Ne yapılmış | Doğrulama |
+|---|---|---|
+| 1 | Dört kolon `097`'nin `CREATE TABLE`'ına taşınmış; `099` no-op'a indirilmiş (`SELECT 1;` + mevcut kurulumlar için `scripts/seo/competitor-recovery/migrate.ts` işaret ediliyor) | `097:7-9,27` kolonlar var; `099` artık DDL içermiyor |
+| 2+4 | Delta kapısı ölçüme bağlanmış ve **benim önerimden ileri gitmiş** | `comparison.ts` |
+| 3 | `fallbacks` değişkeni ve metni silinmiş | `discovery.ts`'te 0 eşleşme |
+| 5 | `tracked` artık host normalize edilip **eşitlikle** karşılaştırılıyor (`domainOf()` + `Set`) | `discovery-read.ts:51-52` |
+| 6 | Sosyal alan adları `SKIP_DOMAINS`'ten çıkarılmış; `detectSocialRef` ile sınıflandırılıyor, `platform_page` eleniyor | `discovery.ts:6,15,99` |
+
+**Madde 2+4'ün çözümü özellikle iyi oldu**, iki noktada önerilenden ileri:
+
+- `comparison.ts` → `comparisonIssue()` beş şart arıyor: `status='ok'`,
+  `queries_done = queries_total`, `depth` bilinir, **`actual_engines = 1` ve
+  `unknown_engines = 0`**, ve `query_count = queries_total`. Sonuncusu benim
+  listemde yoktu: her sorgunun gerçekten sonucu olması şartı.
+- `discoveryDelta` yalnız **bir önceki** koşuya bakmıyor; karşılaştırılabilir
+  bir koşu bulana kadar **geriye doğru tarıyor**. Madde 2'nin asıl derdi
+  ("kapı hiç açılmaz") bununla çözülüyor — bir koşu kirliyse fark tamamen
+  kaybolmuyor, daha eski temiz bir koşuyla karşılaştırılıyor.
+- `unknown_engines = 0` şartı, iki koşunun da `actual_engine`'i NULL olduğunda
+  JS'te `null !== null` yanlış olacağı için oluşabilecek "ikisi de bilinmiyor,
+  demek ki aynı" boşluğunu kapatıyor. Kontrol edildi: kapalı.
+
+**Kalan:** madde 0 (atomik commit), 0b (prod hizalaması), madde 7 (parser).
 
 ---
 
@@ -116,20 +150,68 @@ Kuralın gerekçesi de aynı dosyada yazıyor (`CLAUDE.md:35`): *"rsync ile depl
 edince local ve server git'ten ayrisip 'anlamsiz' hale gelir."* Tam olarak
 gerçekleşen bu.
 
-**Madde 0'daki çözüm bu yüzden eksik.** Atomik commit doğru ama tek başına
-yetmiyor; ardından prod'un git'e geri hizalanması gerekiyor ve **sıra önemli:**
+### Prod'da kaybolacak iş var mı? — ölçüldü, **yok**
 
-1. Önce prod'daki 50 değişikliğin git'e alınması (neyin kaldığı, neyin
-   atılacağı kararı verilerek).
-2. Sonra normal `deploy.sh` akışı.
+Hizalama planlamadan önce asıl soru şuydu: prod'da lokalde **olmayan** bir iş
+var mı? 50 değişikliğin tamamı sınıflandırıldı ve kaynak dosyalar lokalle
+sağlama toplamı düzeyinde karşılaştırıldı (2026-09-08 01:15).
 
-Tersi sıra veri kaybettirir. Özellikle `git reset --hard` refleksi prod'daki 50
-değişikliğin hepsini siler; `CLAUDE.md:21` bunu ayrıca uyarıyor ve bu repoda
-2026-08-10'da yaşanmış 8 dakikalık bir kesinti kayıtlı. **Prod'da körlemesine
-`git pull` / `reset --hard` yapılmamalı.**
+**Kaynak kodda prod'a özel hiçbir şey yok.** 20 kaynak dosyanın 12'si birebir
+aynı; farklı olan 8'inin farkları incelendi ve **hepsi lokalin çoktan yeniden
+yazdığı ESKİ sürümler**. Örnek olarak prod'daki `discovery-read.ts` hâlâ eski
+`LIKE CONCAT('%', domain, '%')` eşleşmesini ve eski `discoveryDelta`'yı
+taşıyor; `discovery.ts` hâlâ `SKIP_DOMAINS`'te sosyal alan adlarını ve ölü
+`fallbacks` değişkenini içeriyor. Yani prod, lokalin geçmişteki bir
+fotoğrafı — kurtarılacak bir şey yok.
 
-Bu bulgu seed sırasından (madde 1) önceliklidir: madde 1 bir geliştirme
-rahatsızlığı, bu ise prod'un git'ten yeniden üretilememesi demek.
+50 değişikliğin dökümü:
+
+| Kategori | İçerik | Karar |
+|---|---|---|
+| Eski kaynak kopyaları | competitor-monitor, admin_panel, frontend, `schema.ts`, seed 098/099/100, `google-performance.ts` | git'ten gelen sürüm bunları geçerli olarak ezer — **kayıp yok** |
+| Derleme gürültüsü | `admin_panel/tsconfig.json`, `frontend/tsconfig.json` — Next.js her derlemede `include`'a `.next-release-<sha>/types/**` ekliyor; prod'da **~180 satır** birikmiş | commit edilmemeli |
+| Derleme çıktısı | `.next-release-*/` dizinleri | `deploy.sh` yönetiyor |
+| Çalışma anı verisi | `backend/logs/`, `data/cotton-series/` | git'e girmemeli; `git clean` bunları siler |
+| **Gizli bilgi** | `backend/.env.bak-etl-2026-09-06`, `.env.bak-reval-2026-09-06`, `.env.yedek-2026-09-02` | **ASLA commit edilmemeli**; ayrıca prod'da duran bayat env yedekleri temizlenmeli |
+| İkili varlıklar | `backend/uploads/og/*.png`, `uploads/brand/*.png` | aşağıya bakın |
+
+**Tek gerçek kayıp riski `backend/uploads/`.** Ölçüldü: lokal ve git aynı,
+**prod farklı** (ör. `og/home.png` git `f3cae0a6` ↔ prod `a5986359`). Yani bu
+görseller prod'da çalışma anında yeniden üretiliyor. Bunlar git'te **izlendiği**
+için sert bir git dağıtımı canlıdaki OG görsellerini git'teki sürüme geri
+döndürür. Yeniden üretilebilir oldukları için felaket değil, ama bilinmeli.
+
+### Asıl sebep: prod'un çalışma ağacı kalıcı olarak kirli
+
+`uploads/**` (çalışma anında üretiliyor) ve `tsconfig.json` (her derlemede
+uzuyor) **izlenen** dosyalar. Bu ikisi yüzünden prod'un çalışma ağacı hiçbir
+zaman temiz olamıyor. Kirli ağaç `git pull`'u zorlaştırıyor, bu da insanı
+`reset --hard` refleksine ya da rsync'e itiyor — ayrışmanın kaynağı bu döngü.
+
+Kalıcı çözüm, ayrışmayı kapatmakla birlikte yapılmalı:
+`backend/uploads/`, `backend/logs/`, `.env.bak*`, `.env.yedek*` `.gitignore`'a
+alınmalı ve `uploads` `git rm --cached` ile izlemeden çıkarılmalı. Bu
+yapılmazsa prod birkaç deploy sonra yeniden kirlenir ve aynı yere gelinir.
+
+### Güvenli sıra
+
+Ölçüm sonucunda sıra **basitleşti** — prod'dan kurtarılacak iş olmadığı için
+"önce prod'u git'e al" adımı gereksiz:
+
+1. **Madde 0'daki atomik commit** (lokalde, yedi dosya birlikte) + push.
+2. `.gitignore` düzeltmesi + `git rm --cached backend/uploads` aynı commit'te.
+3. Prod'da **normal `deploy.sh`** — `CLAUDE.md`'nin tarif ettiği tek yol.
+4. Deploy öncesi prod'daki üç `.env` yedeği elle silinmeli (gizli bilgi,
+   git'e girmemeli, orada da durmamalı).
+
+**Yine de körlemesine `git reset --hard` / `git pull` yapılmamalı.** Ölçüm
+"kaynak kodda kayıp yok" diyor; `logs/`, `data/cotton-series/` ve `uploads/`
+için aynı şey geçerli değil. `CLAUDE.md:21` bunu zaten uyarıyor ve bu repoda
+2026-08-10'da yaşanmış 8 dakikalık bir kesinti kayıtlı.
+
+> Bu bölümdeki karşılaştırmalar bu belgeyi yazan oturum tarafından yapıldı
+> (prod'da yalnız **okuma**: `git status`, `md5sum`, `cat`). Prod'a hiçbir
+> yazma, silme ya da git komutu uygulanmadı.
 
 **Ek uyarı — dosya oynak:** 099 git'te izlenmediği için karşılaştırılacak bir
 sürüm yok ve tek bir çalışma oturumu içinde iki farklı içerikte gözlendi (bir
