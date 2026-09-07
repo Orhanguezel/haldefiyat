@@ -19,7 +19,7 @@ kısmı geçersizleşebilir.
 
 | # | Bulgu | Önem | Durum |
 |---|---|---|---|
-| 0 | İzlenen kod, git'te **izlenmeyen** dosyalara bağlı — yarısı commit'lenirse derleme kırılır | **EN ACİL** | Açık |
+| 0 | İzlenen kod, git'te **izlenmeyen** dosyalara bağlı; ayrıca prod'a git dışından (rsync/scp) kopyalanmış — prod ile git ayrışmış | **EN ACİL** | Açık |
 | 1 | Seed 099 `ALTER TABLE` kullanıyor — ikinci seed koşusunu kırar, arkasındaki `100_adana_hal_source.sql` hiç çalışmaz | **Yüksek** | Açık |
 | 2 | Yandex yedeği kaldırıldı + delta kapısı `status='ok'` istiyor → delta pratikte hiç çalışmayabilir | **Yüksek** | Açık |
 | 3 | `fallbacks` ölü değişken — kaldırılmış davranışı reklam eden metin | Orta | Açık |
@@ -82,6 +82,54 @@ git add backend/src/modules/competitor-monitor/{router,discovery,discovery-read,
 
 (099'un içeriği commit'lenmeden önce madde 1'e göre düzeltilmeli — kolonlar
 097'ye taşınıp 099 silinmeli. O zaman bu listeden 099 düşer.)
+
+### 0b. Prod ile git birbirinden ayrılmış
+
+Yukarıdaki bölünmenin prod'da bir karşılığı **yok** — çünkü prod'a her şey git
+dışından gitmiş.
+
+> **Kaynak:** aşağıdaki prod ölçümü bu belgeyi yazan oturuma ait değildir;
+> hal-fiyatlari tarafında çalışan başka bir oturum tarafından **salt-okuma**
+> olarak yapıldı (vps-vistainsaat / srv1493379, DB `hal_fiyatlari`). Bu belgeyi
+> yazan taraf prod'a erişmedi. Lokal zaman damgaları burada bağımsız olarak
+> doğrulandı ve bildirilen değerle birebir tutuyor.
+
+Ölçülen:
+
+- `099_competitor_measurement.sql` ve `google-performance.ts` **prod'da var.**
+- Prod git HEAD'i `7ce015e`; bu dosyalar orada **hiçbir commit'te yok.**
+- Prod'da `git status` **50 değişiklik** gösteriyor; competitor-monitor işinin
+  tamamı orada izlenmeden duruyor.
+- Zaman damgaları saniyesi saniyesine aynı:
+  `099` → lokal ve prod, ikisi de `2026-09-07 22:34:51` (UTC).
+
+Son madde belirleyici: `git checkout` dosyanın mtime'ını **korumaz**, checkout
+anını yazar. Zaman damgasının saniyesine kadar korunması, dosyaların
+**kopyalandığını** gösterir (rsync/scp).
+
+Bu, bu reponun kendi `CLAUDE.md`'sinin **en tepesindeki** kuralın ihlali
+(`CLAUDE.md:5`):
+
+> 🚫 KESIN KURAL — DEPLOY SADECE GIT İLE (rsync/scp YASAK)
+
+Kuralın gerekçesi de aynı dosyada yazıyor (`CLAUDE.md:35`): *"rsync ile deploy
+edince local ve server git'ten ayrisip 'anlamsiz' hale gelir."* Tam olarak
+gerçekleşen bu.
+
+**Madde 0'daki çözüm bu yüzden eksik.** Atomik commit doğru ama tek başına
+yetmiyor; ardından prod'un git'e geri hizalanması gerekiyor ve **sıra önemli:**
+
+1. Önce prod'daki 50 değişikliğin git'e alınması (neyin kaldığı, neyin
+   atılacağı kararı verilerek).
+2. Sonra normal `deploy.sh` akışı.
+
+Tersi sıra veri kaybettirir. Özellikle `git reset --hard` refleksi prod'daki 50
+değişikliğin hepsini siler; `CLAUDE.md:21` bunu ayrıca uyarıyor ve bu repoda
+2026-08-10'da yaşanmış 8 dakikalık bir kesinti kayıtlı. **Prod'da körlemesine
+`git pull` / `reset --hard` yapılmamalı.**
+
+Bu bulgu seed sırasından (madde 1) önceliklidir: madde 1 bir geliştirme
+rahatsızlığı, bu ise prod'un git'ten yeniden üretilememesi demek.
 
 **Ek uyarı — dosya oynak:** 099 git'te izlenmediği için karşılaştırılacak bir
 sürüm yok ve tek bir çalışma oturumu içinde iki farklı içerikte gözlendi (bir
