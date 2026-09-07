@@ -68,7 +68,7 @@ doğrulaması gerektirir; mevcut URL'ler korunur. Kaynak:
 - [~] C4 20 Eylül: yalnız erişim değil, en az 10 kontrol edilmiş kartta tarih/birim/anlam hatası 0 ve planlanan/başarılı yayın oranı değerlendirilsin. Otomatik yayın ayrı karar.
 - [~] C5 UTM ve mevcut analitik üzerinden ürün takibi, alarm, 7 günlük geri dönüş, ilan/teklif ve ödeme sonuçlarını seri bazında bağla.
 - [~] C6 3 Ekim SEO: mevcut pilotun URL listesini sabitle; indekslenebilir uygun URL payı, sorgu/pozisyon kırılımı ve mevcut ürün sayfalarındaki tıklama kaybını ölç. %4 CTR bütün URL'lere kör eşik değildir.
-- [~] C7 Aylık/haftalık yazıları ilk 28 günlük eşit pencerelerde karşılaştır. Rehber başına 300 oturum doğrulanmış beklenti değil deney hedefidir.
+- [x] C7 Aylık/haftalık yazıları ilk 28 günlük eşit pencerelerde karşılaştır. Rehber başına 300 oturum doğrulanmış beklenti değil deney hedefidir.
 
 ## 5. Faz D — İlan ve gelir (sonraki uygulama)
 
@@ -134,3 +134,16 @@ Bu bölüm ilk dağıtımdan sonraki devam işidir. Teknik tamamlanma, ölçüm 
 - Hedefli Hal backend testleri **59**, frontend testleri **16** geçti; backend/frontend typecheck ve production build başarılı. Editoryal paket doğrulaması 241 URL, 10 boş inceleme satırı, 10 firma adayı ve iki çözümlenebilir videoyu kontrol etti.
 - [Stripe canlı yapılandırma kontrolü](artifacts/checklist-closeout-2026-09-06/stripe-webhook-audit.json): yapılandırma yok. Tahsilat veya gerçek ödeme denemesi yapılmadı; ödeme ölçümünün çalışır olduğu ileri sürülmez.
 - Tanitio `ffa92b8` backend build ve kontrollü reload sonrası sağlık kontrolü geçti. Facebook fotoğraf kimliğinin gönderi alanlarıyla sorgulanmasından doğan hata giderildi. Gerçek #1620 yenilemesinde iki platformun permalinkleri alındı; Facebook yalnız doğrulanmış beğeni/yorum toplamını kısmi sonuç olarak döndürdü. Erişim/gösterim gibi sağlanmayan ölçümler sıfır yazılmadı; Facebook analitik satırı önce/sonra **0 → 0**. [Canlı metrik kabulü](artifacts/checklist-closeout-2026-09-06/meta-metrics-acceptance.json). Fotoğraf regresyonları: **6 test / 18 assertion**, typecheck başarılı.
+
+
+## 8 Eylül 2026 — takip kabulü
+
+- **A11:** yalnız **1/3 gerçek cron günü** birikti: 7 Eylül 09:30 UTC, 149 doğrulanmış teklif / 149 yazım, altı zincir, kaynak günü 7 Eylül, 50 arama bağlantı hatası, yazım hatası yok. Manuel çekimler sayılmadı. İlk Eylül boşluğu için mevcut loglar kesin iç neden kanıtlamıyor. Kaynak sürekliliği açık.
+- **C7:** ilk 28 günü dolmuş **15 yazı** mevcut `published_at` tarihinden başlayan eşit pencerelerde GSC’den ölçüldü; **10 yazı** süre beklediği için karşılaştırma dışında. Dosya: [28 günlük ölçüm](artifacts/checklist-closeout-2026-09-08/editorial-28day.json). Sıfır dönen satırlar veri toplama eksiksizliği veya formatın etkisizliği kanıtı değildir. Format, slug’dan sınıflandırıldı; yayın tarihleri ve konu etkisi nedeniyle nedensel sonuç çıkarılmaz.
+- GA4 property/akış canlı doğrulandı; 4–6 Eylül üç günlük trafik ölçüldü. Bu sonuç C5’in gerçek ödeme kanıtını kapatmaz.
+- C3 sorumlu/saat ve resmî künye adresi kullanıcıdan istendi; yanıtsız alanlar atanmış veya doğrulanmış sayılmaz.
+- C4 20 Eylül, C6 3 Ekim; D3/D4 gerçek müşteri ve ödeme, D5 onaylı yayın sonrası deney bekler. Hazır formlara sahte sonuç doldurulmadı; IG/FB taslak kuralı korundu.
+
+[Toplu uygulama ve kalan bağımlılıklar](artifacts/checklist-closeout-2026-09-08/README.md).
+
+**Güncel ilan bazı:** 8 Eylül public aktif gerçek ilan 5, prova 1 ve public dışı. Önceki 6 Eylül 4 gerçek ilan sayısı tarihsel baz olarak korunur.

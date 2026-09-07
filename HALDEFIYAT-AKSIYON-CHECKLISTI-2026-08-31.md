@@ -125,7 +125,7 @@ kaldı, Google indeksledi, sonra birleştirme turunda silindiler. Bugün DB'de s
 
 ### Yapılacaklar
 
-- [~] **A1.1** *(YERI DEGISTI → proxy.ts; sayfa kodu olu, kaldirildi)* `frontend/src/app/[locale]/(public)/urun/[slug]/page.tsx` — `notFound()`
+- [x] **A1.1** *(YERI DEGISTI → proxy.ts; sayfa kodu olu, kaldirildi)* `frontend/src/app/[locale]/(public)/urun/[slug]/page.tsx` — `notFound()`
       çağrısından **önce** (satır ~271) sayısal-sonek düşürme denemesi ekle:
       slug `/-\d+$/` ile eşleşiyorsa soneki at, taban slug ürün listesinde varsa
       `permanentRedirect(\`/urun/${taban}\`)`.
@@ -134,7 +134,7 @@ kaldı, Google indeksledi, sonra birleştirme turunda silindiler. Bugün DB'de s
       denenir, bulunursa 301.
 - [X] **A1.3** *(`slug-fallback.ts` + 9 test; proxy.ts kullaniyor)* Ortak yardımcı yaz (`frontend/src/lib/slug-fallback.ts`) — iki sayfa aynı
       fonksiyonu çağırsın; kod tekrarı yasağı.
-- [ ] **A1.4** *(TEK KALAN — admin oturumu gerektiriyor, asagiya bak)* `/analiz/elma-fiyat-analizi-mayis-2026` (219 istek) için `hf_redirects`'e
+- [x] **A1.4** *(TEK KALAN — admin oturumu gerektiriyor, asagiya bak)* `/analiz/elma-fiyat-analizi-mayis-2026` (219 istek) için `hf_redirects`'e
       tekil 301 kaydı gir (admin `POST /api/v1/admin/redirects`).
 - [X] **A1.5** *(ELENDI: iddia yanlisti, `managedRedirectResponse()` tabloyu okuyor)* **Yan bulgu — ayrı değerlendir:** `hf_redirects` tablosu sayfa yönlendirmesinde
       **kullanılmıyor**; frontend'de yalnız `frontend/src/app/sitemap.ts` okuyor. Tabloya
@@ -250,7 +250,7 @@ Toplam 463 5xx'in **456'sı 4 dağıtım gününde**. Altyapı stabil; sorun pro
 
 - [X] **A3.1** *(NODE_OPTIONS tavani (admin 2048 / frontend 3072 MB, env ile ezilebilir))* `deploy.sh` admin build adımına bellek sınırı:
       `NODE_OPTIONS=--max-old-space-size=<N>` (Turbopack admin build'i 2,2 GB, kutu 7,9 GB).
-- [ ] **A3.2** Alternatif/tamamlayıcı: build sırasında 1 frontend cluster worker'ını geçici
+- [-] **A3.2** Alternatif/tamamlayıcı: build sırasında 1 frontend cluster worker'ını geçici
       durdur, build bitince geri aç.
 - [X] **A3.3** *(prosedur kurali yazildi)* **Prosedür kuralı (kod değil):** ardışık içerik dağıtımlarını (fotoğraf batch'leri
       gibi) tek commit + tek dağıtımda topla. 30 Ağustos'taki 19 ayrı dağıtım tek seferde
@@ -326,14 +326,14 @@ Sayfa `frontend/src/app/[locale]/(public)/analiz/[slug]/page.tsx:77-78` şunu ku
 
 ### Yapılacaklar
 
-- [ ] **A5.1** 21 yayınlanmış raporun `meta_title`/`meta_description` alanlarını doldur.
+- [x] **A5.1** 21 yayınlanmış raporun `meta_title`/`meta_description` alanlarını doldur.
       Ölçüt: başlık 50–60 karakter, içinde **sayı veya tarih** (CTR'yi en çok bu yükseltiyor —
       bkz. "salcalik domates fiyati 2026" %8,37).
-- [ ] **A5.2** Aynısını yeni dikeyler için: `/borsa`, `/et-fiyatlari`, `/canli-hayvan-fiyatlari`
+- [x] **A5.2** Aynısını yeni dikeyler için: `/borsa`, `/et-fiyatlari`, `/canli-hayvan-fiyatlari`
       sayfa metadata'sı (bunlar DB'de değil, `seo_pages` katmanında — page-key çakışmasına dikkat).
-- [ ] **A5.3** Haftalık otomatik rapor üreticisine `meta_title` üretimi ekle
+- [x] **A5.3** Haftalık otomatik rapor üreticisine `meta_title` üretimi ekle
       (`backend/scripts/seo/generate-weekly-report.ts`) — yeni raporlar boş gelmesin.
-- [ ] **A5.4** **Ayrı bulgu:** 31 Ağustos haftalık raporu (`agustos-5-hafta`) üretilmemiş;
+- [x] **A5.4** **Ayrı bulgu:** 31 Ağustos haftalık raporu (`agustos-5-hafta`) üretilmemiş;
       son yayın 24 Ağustos. Cron'u kontrol et.
 
 ### Kabul kriteri
@@ -417,12 +417,12 @@ gelen kişi sayısında — 636 gösterimde sadece 8 kişi ilgilendi.
 
 ### Yapılacaklar
 
-- [~] **A7.1** *(ERTELENDI — veri gerekcesi yukarida)* Aday listesi çıkar: GSC'de **pozisyon ≤ 10 + gösterim ≥ 100 + CTR < %3** olan
+- [x] **A7.1** *(ERTELENDI — veri gerekcesi yukarida)* Aday listesi çıkar: GSC'de **pozisyon ≤ 10 + gösterim ≥ 100 + CTR < %3** olan
       şehir–ürün sorguları. Bunlar "görünüyor ama tıklanmıyor" — sayfa açmaya değer.
 - [~] **A7.2** *(ERTELENDI — veri gerekcesi yukarida)* İlk parti (öneri, mevsim penceresine göre): mersin/erdemli limon (var),
       **polatlı soğan**, **gaziantep sebze hali**, **bursa sebze meyve hali**, malatya komisyoncu.
-- [~] **A7.3** *(ERTELENDI — veri gerekcesi yukarida)* Her sayfa için sitemap + IndexNow bildirimi (mevcut akış).
-- [~] **A7.4** *(ERTELENDI — veri gerekcesi yukarida)* `/urun/[slug]` sayfalarından ilgili piyasa sayfasına iç link kartı.
+- [x] **A7.3** *(ERTELENDI — veri gerekcesi yukarida)* Her sayfa için sitemap + IndexNow bildirimi (mevcut akış).
+- [x] **A7.4** *(ERTELENDI — veri gerekcesi yukarida)* `/urun/[slug]` sayfalarından ilgili piyasa sayfasına iç link kartı.
 
 ### Kabul kriteri
 
@@ -483,7 +483,7 @@ Canlı sitede gösterilecek tek aktif ilan yok, ama bölüm menüde duruyor ve 4
 ### Yapılacaklar
 
 - [X] **A9.1** *(karar: modul kalir, bos sayfa indekslenmez)* Karar: ilan modülü **yaşayacak mı**? (Kod işi değil — Orhan.)
-- [~] **A9.2** *(Orhan karari bekliyor — modul yasayacaksa)* Yaşayacaksa: mevcut 5 ilanın `valid_until` süresini uzat veya yeni ilan gir;
+- [x] **A9.2** *(Orhan karari bekliyor — modul yasayacaksa)* Yaşayacaksa: mevcut 5 ilanın `valid_until` süresini uzat veya yeni ilan gir;
       ilan girişini firma sahiplenme funnel'ına bağla.
 - [X] **A9.3** *(noindex uygulandi)* Yaşamayacaksa: menüden ve ana sayfadan kaldır, `/ilanlar` sayfasını
       "yakında" yerine tamamen gizle. Boş bölüm ziyaretçiye "burası ölü" mesajı veriyor.
@@ -518,7 +518,7 @@ Sağlık raporu bunları sorunlu göstermiyor — **"708 run / 5 hata" rakamı b
 
 - [X] **A10.1** *(SESSIZ BASARISIZLIK bolumu canli)* `backend/scripts/etl-health.sh` — yeni uyarı sınıfı: `status='ok'` **AND**
       `rows_inserted=0` → "Sessiz Başarısızlık" bölümünde listele.
-- [ ] **A10.2** *(partial %11→%24 sicramasi henuz incelenmedi)* `partial` oranı sıçramasını incele (%11 → %24). Hangi kaynaklar kısmi dönüyor,
+- [x] **A10.2** *(partial %11→%24 sicramasi henuz incelenmedi)* `partial` oranı sıçramasını incele (%11 → %24). Hangi kaynaklar kısmi dönüyor,
       neden — kısmi de veri kaybı demek.
 - [X] **A10.3** *(muafiyet listesi raporda gorunur)* Bilinen "by-design 0 satır" kaynakları (`ETL_HEALTH_IGNORE_EMPTY_SOURCES`
       env'i zaten var) yeni uyarıdan da muaf tutulsun; muafiyet listesi rapor çıktısında
@@ -585,7 +585,7 @@ image-delivery (~163 KiB), legacy-javascript (~13 KiB), server-response-time (87
       kendiliğinden düşürebilir. A12'yi A2'den **sonra** yeniden ölç.
 - [~] **A12.2** *(alan verisi 28 gun gecikmeli — Eylul sonunda tekrar olc)* Ölçüm hâlâ `AVERAGE` ise: en çok istenen yolların (`/`, `/fiyatlar`,
       `/urun/[slug]`) sunucu tarafı önbelleklemesi.
-- [ ] **A12.3** *(render-blocking ~730 ms — acik)* Render-blocking kaynakları (~730 ms) — kritik CSS/JS ayrımı.
+- [x] **A12.3** *(render-blocking ~730 ms — acik)* Render-blocking kaynakları (~730 ms) — kritik CSS/JS ayrımı.
 
 ### Kabul kriteri
 
@@ -667,3 +667,27 @@ curl -s "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A
 | Kayseri ETL (S7) | AngularJS AJAX reverse-engineering; tarayıcı oturumu gerektiriyor. |
 | GEO skoru 46/100 | Kasım'daki AI-kanal kararının girdisi (S24); şimdi aksiyon değil, veri toplama dönemi. |
 | Elde tutma / geri getirme mekanizması | A6 bunun ilk adımı. Bildirim/push stratejisi ayrı bir tasarım işi — bülten dönüşümü düzelmeden açılmamalı. |
+
+
+## 8 Eylül 2026 — canlı kayıtlarla yeniden değerlendirme
+
+Bu bölüm önceki tarihlerdeki açık durumların güncel karşılığıdır. Kapanış kanıtları: [uygulama raporu](artifacts/checklist-closeout-2026-09-08/README.md).
+
+- **A1.1/A1.4:** eski ürün URL’si kanonik ürüne gidiyor. Taslak durumundaki eski Mayıs elma analizi yeniden yayımlanmadı; yönetilen 301 ile `/urun/elma` fiyat/tarihçe merkezine bağlandı. Canlı yanıt 301.
+- **A5.1–A5.4:** 25 yayımlanmış yazıda meta başlık/açıklama dolu; üç dikeyin canlı metadata’sı mevcut. Üretici `buildMetaTitle` kullanıyor; Ağustos 5. hafta ve 31 Ağustos–6 Eylül raporları yayımlanmış. Eski “21 boş meta” ve “rapor üretilmedi” durumları geçersiz. CTR hedefi bir uygulama kabulü veya gerçekleşmiş sonuç değildir.
+- **A7.1:** 10 Ağustos–6 Eylül GSC verisinde pozisyon ≤10, gösterim ≥100, CTR <%3 koşulunu sağlayan **232 sorgu** CSV’ye çıkarıldı. Her sorgu yeni URL anlamına gelmez.
+- **A7.2:** Adana genel limon 90 günlük resmî veriyle açıldı. Mayer 22 gün olduğu için noindex; Mersin hâlâ 403. Bu kaynak/seri koşulları açık.
+- **A7.3/A7.4:** canlı sitemap’te uygun şehir–ürün modeli ve mevcut ürün sayfalarında veri koşullu iç link var; yedi öncelikli URL IndexNow 200. Tek uygun şehir olması linki gizlemeyecek şekilde düzeltildi.
+- **A10.2:** eşit 12 günlük gerçek çalışma zamanına göre 7–18 Ağustos **59/659 = %8,95**, 19–30 Ağustos **169/710 = %23,80** kısmi koşu. Eski %11 hesabı yanlıştı. Kaynak bazında artış, hata örnekleri ve paket/birim düzeltmelerinin durumu raporda; karantina koruması kaldırılmadı. Sonradan yapılan Adana arşiv çekimleri geçmiş çalışma dönemine yazılmadı.
+- **A3.2:** bellek sınırı ve seri derleme seçeneği mevcut; çalışan frontend işçisini ayrıca durdurma alternatifi uygulanmayacak. S6’nın üç dağıtım gününde <20 hata kabulü henüz sağlanmış sayılmaz.
+- **A12:** ana sayfada tüm fetch önbelleklerini kapatan `force-dynamic` kaldırıldı; mevcut 300 saniye/revalidation yolu kullanılıyor. Yerel mobil ölçümde 730 ms CSS kazancı yeniden görülmedi (Lighthouse tahmini 0 ms); performans skoru 52 olduğu için performans işi tamamlandı denmedi. Bağımsız anahtarsız PSI tekrar 429; saha p75/28 günlük kabul açık.
+
+**Dış karar/kanıt bekleyenler:** A4 fiyatlama ve Atakan’ın gerçek temas listesi; dış gönderim; A7.2 Mersin erişimi/Mayer yeterli seri; A12 saha performansı. İlan süreleri gerçek teyit olmadan uzatılmadı.
+
+**A9.2 canlı kabul:** 8 Eylül ölçümünde 6 onaylı/geçerli kaydın 1’i prova, **5’i gerçek public aktif ilan**. ≥3 gerçek aktif ilan koşulu sağlandı; eski “0 aktif” engeli kalkmış. İlan süreleri yapay uzatılmadı. Firma→görüşme ticari hunisi veri/editoryal D3 altında ölçülmeye devam eder.
+
+**Son performans kabulü (`986aed44`):** mevcut gövde fontlarının Latin/Türkçe alt kümeleri `next/font/local` ile önceden yükleniyor; geç font değişimi engelleniyor. Çerez tercih kutusu ilk HTML’de doğru durumda, kabul/ret çerezi varsa gizli. Mobil 390 px’de taşma ve konsol hatası yok. Aynı yerel Lighthouse yapılandırmasında ilk→son: skor **52→72**, simüle FCP **3,68→2,33 sn**, simüle LCP **6,04→4,69 sn**, gözlenen LCP **2,43→1,01 sn**, CLS **0**. Simülasyon ile doğrudan gözlem aynı metrik diye birleştirilmez. Performans hedefi veya gerçek kullanıcı CrUX kabulü tamamlanmış sayılmıyor; bağımsız ölçüm ve saha penceresi açık. Dört normal dağıtım penceresinde 5xx: **0, 0, 2, 0**; ara dağıtımdaki iki hata gizlenmedi.
+
+**A12.3 kapsamı:** render-blocking incelemesi ve font keşfi/çerez ilk render düzeltmeleri uygulandı. Kalan genel performans/CrUX hedefi A12.2 ve kapsamlı F0.23/S28 altında açık; A12.3’ün kapanışı 90+ Lighthouse skoru veya CrUX FAST iddiası değildir.
+
+**A7.3 toplu son bildirim:** 224 uygun şehir–ürün URL’si (Adana: 16) IndexNow’a gönderildi; HTTP 200. Noindex Mayer ve verisiz Mersin bu listeye katılmadı.

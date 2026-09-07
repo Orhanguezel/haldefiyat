@@ -19,15 +19,15 @@ kısmı geçersizleşebilir.
 
 | # | Bulgu | Önem | Durum |
 |---|---|---|---|
-| 0 | İzlenen kod, git'te **izlenmeyen** dosyalara bağlı — yarısı commit'lenirse derleme kırılır | **EN ACİL** | Açık |
-| 0b | Prod'a git dışından (rsync/scp) kopyalanmış — prod ile git ayrışmış | **EN ACİL** | Ölçüldü, uygulama bekliyor |
+| 0 | İzlenen kod, git'te **izlenmeyen** dosyalara bağlı — yarısı commit'lenirse derleme kırılır | **EN ACİL** | ✅ Bağımlılıklarıyla commit/push yapıldı |
+| 0b | Prod'a git dışından (rsync/scp) kopyalanmış — prod ile git ayrışmış | **EN ACİL** | ✅ Git hizalaması ve normal dağıtım yapıldı |
 | 1 | Seed 099 `ALTER TABLE` kullanıyor — ikinci seed koşusunu kırar | **Yüksek** | ✅ **Düzeltildi** |
 | 2 | Yandex yedeği kaldırıldı + delta kapısı katı → delta pratikte hiç çalışmayabilir | **Yüksek** | ✅ **Düzeltildi** |
 | 3 | `fallbacks` ölü değişken | Orta | ✅ **Düzeltildi** |
 | 4 | Delta kapısı `error_msg` metnine ve `engine` (seçilen) alanına bağlı | Orta | ✅ **Düzeltildi** |
 | 5 | `tracked` eşleşmesi `LIKE '%domain%'` | Orta | ✅ **Düzeltildi** |
 | 6 | `SKIP_DOMAINS` sosyal sonuçları atıyor | Fırsat | ✅ **Düzeltildi** |
-| 7 | `parser.ts` sezgiselleri ölçülebilir değer üretmiyor | Düşük | Açık |
+| 7 | `parser.ts` sezgiselleri ölçülebilir değer üretmiyor | Düşük | ✅ Yapısal ölçüm ve eski kayıt etiketi düzeltildi |
 | 8 | `getLastSnapshot`, `google-performance.ts`, `measurementNote` | — | **Doğru yapılmış** |
 
 
@@ -460,3 +460,16 @@ Tanitio tarafındaki karşılık dosyalar:
 `ekosistem-sosyal-medya/backend/src/modules/competitor-discovery/` ve
 `dashboard/src/app/rakip-kesfi/page.tsx`. Buradaki bir düzeltme oraya da
 uygulanabilir; tersi de geçerli.
+
+
+## Codex uygulama kabulü — 8 Eylül 2026
+
+- **0/0b:** kaynak ve yeni bağımlılıklar `6cdaf140` ile birlikte Git’e alındı; main’e push ve normal `deploy.sh` tamamlandı. Prod’a özgü iş kaybedilmedi. Daha önce izlenen 19 logo/OG dosyası Git’ten çıkarıldı, canlı byte içerikleri SHA-256 ile korunarak doğrulandı. Yüklemeler, loglar, release çıktıları, env yedekleri ve ham pamuk arşivi kaynak kontrolünden ayrıldı. Env yedekleri silinmek yerine erişimi sınırlı özel yedeğe taşındı. İlk hizalama denemesi Git’in ignored dosya korumasında durdu; özel yedek ve hedefli geri alma sonrası normal akış tamamlandı. Genel reset/clean uygulanmadı.
+- **1:** MySQL **8.0.46** üzerinde bağlantıya özel geçici tablolarla 097+099 iki kez çalıştırıldı. İkinci koşu geçti; dört alan nullable. Canlı tablolar drop/seed edilmedi.
+- **2/4:** eski, kısmi, karışık/bilinmeyen motor ve farklı sorgu kümesi sahte kayıp üretmiyor. Uygun geçmiş koşu aranıyor; bulunamazsa gerekçe panelde görünüyor.
+- **3/5:** ölü yedek değişkeni kaldırıldı; takip eşleşmesi URL hostname eşitliğiyle yapılıyor.
+- **6:** yeni **#6** taraması **30/30**, **570 sonuç**, tek motor Brave. **187 web alan adı**; ayrıca **3 hesap + 17 grup + 7 gönderi** ayrı sosyal sekmede. Gruplar web rakibi toplamına katılmıyor. Google dönemi ayrıca gösteriliyor. #5 ile ölçülebilir kıyas: 2 yeni/1 kaybolan alan adı; bu Google sıralama değişimi değildir.
+- **7:** DOM satırı/kart regex’i site toplamı diye kullanılmıyor. JSON-LD ürün varlıkları yalnız çekilen sayfa kapsamında ve yöntem sürümüyle tutuluyor; toplam ürün/hal bilinmiyorsa NULL. Geçmiş sezgisel rakamlar DB’de korunuyor fakat API’de doğrulanmış toplam olarak sunulmuyor; eski “değişiklik yok” metni doğrulanmamış ölçüm etiketi alıyor (`0fbbeaad`).
+- **8:** başarılı önceki snapshot sınırı ve GSC/SERP ayrımı korundu.
+
+Testler: 23 Bun testi (59 assertion), ayrıca 8 pamuk parser testi; backend/frontend/admin typecheck ve production build. [Kanıtlar ve açık dış bağımlılıklar](artifacts/checklist-closeout-2026-09-08/README.md).
