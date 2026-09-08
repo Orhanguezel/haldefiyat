@@ -42,6 +42,8 @@ export function readingTimeMinutes(icerik: string): number {
 export const MAKALELER: AnalizMakale[] = [
   {
     slug: "mayis-2-hafta-2026-hal-raporu",
+    ogImage: "/uploads/analysis-covers/2026-09-08/berries.webp",
+    imageAlt: "İlkbahar hasadından kiraz ve çilek kasaları — yapay zekâ ile oluşturulmuş temsili görsel",
     baslik: "Mayıs 2. Hafta Hal Raporu: Çilek ve Kiraz Fiyatlarında Belirgin Düşüş",
     ozet: "Sezonun erken gelmesiyle birlikte çilek ve kiraz fiyatları geçen haftaya kıyasla yüzde 15-22 geriledi. Domates, salatalık ve patlıcanda ise hafif artış var.",
     tarih: "2026-05-12",
@@ -68,6 +70,8 @@ Sıcaklıkların mevsim normali üzerinde seyretmesi durumunda domates açık al
   },
   {
     slug: "mayis-1-hafta-2026-hal-raporu",
+    ogImage: "/uploads/analysis-covers/2026-09-08/tomato.webp",
+    imageAlt: "Toptancı halinde salkım ve sofralık domates kasaları — yapay zekâ ile oluşturulmuş temsili görsel",
     baslik: "Mayıs 1. Hafta Hal Raporu: Domates Fiyatlarında Yüzde 12 Düşüş",
     ozet: "Antalya seralarının tam kapasiteye geçmesiyle domates ortalama fiyatı hızla geriledi. Narenciye cephesinde ise sezon sonu etkisi belirgin.",
     tarih: "2026-05-05",
@@ -94,6 +98,8 @@ Temel mutfak malzemeleri olan patates ve soğanda bu hafta kayda değer bir hare
   },
   {
     slug: "nisan-son-hafta-2026-hal-raporu",
+    ogImage: "/uploads/analysis-covers/2026-09-08/eggplant.webp",
+    imageAlt: "Kasalar içinde kabak ve patlıcan — yapay zekâ ile oluşturulmuş temsili görsel",
     baslik: "Nisan Son Hafta: Sezonluk Sebzeler Piyasaya Girdi, Fiyatlarda İkiye Bölünme",
     ozet: "Erken hasat bölgelerinde fiyatlar düşerken büyük tüketim merkezlerinde gecikmeli etki yaşanıyor. Ispanak ve brokoli ise sezon sonu ile birlikte pahalanmaya başladı.",
     tarih: "2026-04-28",
@@ -120,6 +126,8 @@ Bu hafta için HaldeFiyat Endeksi yayımlanmıyor. Endeks serisi 11–17 Mayıs 
   },
   {
     slug: "nisan-3-hafta-2026-endeks-analizi",
+    ogImage: "/uploads/analysis-covers/2026-09-08/summer-market.webp",
+    imageAlt: "Toptancı halinde kasalarla yaz sebzeleri ve meyveleri — yapay zekâ ile oluşturulmuş temsili görsel",
     baslik: "HaldeFiyat Endeksi Nasıl Hesaplanır? Sepet, Baz Hafta ve Okuma Kılavuzu",
     ozet: "HaldeFiyat Endeksi 15 temel üründen oluşan bir sepeti izler ve 11–17 Mayıs 2026 haftasını 100 puan kabul eder. Sepette ne var, neden medyan kullanılıyor ve endeks değeri nasıl okunmalı?",
     tarih: "2026-04-21",
@@ -154,6 +162,8 @@ Endeks toptan hal fiyatlarını ölçer, perakendeyi değil. Mevsimsel ürünler
   },
   {
     slug: "turkiye-domates-fiyati-neden-degisir",
+    ogImage: "/uploads/analysis-covers/2026-09-08/tomato.webp",
+    imageAlt: "Toptancı halinde salkım ve sofralık domates kasaları — yapay zekâ ile oluşturulmuş temsili görsel",
     baslik: "Türkiye'de Domates Fiyatı Neden Bu Kadar Değişken? 5 Yıllık Veri Analizi",
     ozet: "2021-2026 yılları arasındaki domates fiyat verisi incelendiğinde, her yıl aynı dönemlerde benzer örüntüler ortaya çıkıyor. Mevsimsel döngü, sera-açık alan geçişi ve ihracat etkisi mercek altında.",
     tarih: "2026-04-14",
@@ -184,6 +194,8 @@ Domates fiyatları için en güvenli alım dönemi Temmuz-Ağustos, en riskli d�
   },
   {
     slug: "hal-fiyati-nasil-belirlenir",
+    ogImage: "/uploads/analysis-covers/2026-09-08/summer-market.webp",
+    imageAlt: "Toptancı halinde kasalarla yaz sebzeleri ve meyveleri — yapay zekâ ile oluşturulmuş temsili görsel",
     baslik: "Hal Fiyatı Nasıl Belirlenir? Komisyon, Arz-Talep ve Nakliyenin Rolü",
     ozet: "Toptancı hallerinde bir sebzenin veya meyvenin fiyatı tek bir kuralla değil; arz-talep dengesi, komisyon oranı, nakliye, kalite ve mevsim gibi faktörlerin bileşkesiyle oluşur. Bu rehberde fiyatın perde arkasını açıklıyoruz.",
     tarih: "2026-05-29",
@@ -219,6 +231,8 @@ Hal fiyatı; arz-talep dengesi üzerine komisyon, nakliye, kalite ve mevsim katm
   },
   {
     slug: "sebze-meyve-fiyatlari-neden-sehirden-sehire-degisir",
+    ogImage: "/uploads/analysis-covers/2026-09-08/summer-market.webp",
+    imageAlt: "Toptancı halinde kasalarla yaz sebzeleri ve meyveleri — yapay zekâ ile oluşturulmuş temsili görsel",
     baslik: "Sebze ve Meyve Fiyatları Neden Şehirden Şehire Değişir?",
     ozet: "Aynı domates İstanbul'da ile Antalya'da farklı fiyata satılır. Bu farkın arkasında nakliye, üretim bölgesine yakınlık, yerel arz ve hal komisyon yapısı vardır. Şehirler arası fiyat farkını veriyle açıklıyoruz.",
     tarih: "2026-05-28",
@@ -254,6 +268,8 @@ Toptan alım yapan bir işletmeyseniz, ürünü üretim bölgesine en yakın hal
   },
   {
     slug: "sera-mi-tarla-mi-mevsimsel-fiyat-farki",
+    ogImage: "/uploads/analysis-covers/2026-09-08/greenhouse.webp",
+    imageAlt: "Domates yetiştirilen serada bitki sıraları — yapay zekâ ile oluşturulmuş temsili görsel",
     baslik: "Sera mı Tarla mı? Sebze Fiyatlarında Mevsimsel Farkın Nedeni",
     ozet: "Kışın domates neden pahalı, yazın neden ucuz? Cevap sera ile açık alan (tarla) üretimi arasındaki maliyet farkında. Mevsimsel fiyat döngüsünü ve en uygun alım dönemlerini açıklıyoruz.",
     tarih: "2026-05-27",

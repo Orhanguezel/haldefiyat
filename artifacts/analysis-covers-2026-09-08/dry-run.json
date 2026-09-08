@@ -1,0 +1,170 @@
+{
+  "apply": false,
+  "changed": 27,
+  "verifiedAssets": 19,
+  "contentAndStatusPreserved": true,
+  "changes": [
+    {
+      "id": 31,
+      "slug": "pamuk-fiyatlari-gecmisi-2013-2026-borsa-serisi",
+      "before": "/uploads/cotton-series/2026-09-07/pamuk-aylik-seri.png",
+      "after": "/uploads/analysis-covers/2026-09-08/cotton-bales.webp"
+    },
+    {
+      "id": 30,
+      "slug": "pamuk-sezonu-2026-acilis-fiyati-2025-karsilastirmasi",
+      "before": "/uploads/cotton-series/2026-09-07/pamuk-aylik-seri.png",
+      "after": "/uploads/analysis-covers/2026-09-08/cotton-field.webp"
+    },
+    {
+      "id": 29,
+      "slug": "31-agustos-6-eylul-2026-haftalik-hal-raporu",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/fig-tomato.webp"
+    },
+    {
+      "id": 28,
+      "slug": "agustos-2026-aylik-hal-degerlendirmesi",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/fig-tomato.webp"
+    },
+    {
+      "id": 27,
+      "slug": "agustos-5-hafta-2026-hal-raporu",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/black-fig.webp"
+    },
+    {
+      "id": 24,
+      "slug": "agustos-4-hafta-2026-hal-raporu",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/cucumber.webp"
+    },
+    {
+      "id": 26,
+      "slug": "tursuluk-sezonu-2026-tursu-sepeti-hal-fiyatlari",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/pickle.webp"
+    },
+    {
+      "id": 25,
+      "slug": "nar-fiyatlari-2026-sezon-acilisi-analizi",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/pomegranate.webp"
+    },
+    {
+      "id": 23,
+      "slug": "agustos-3-hafta-2026-hal-raporu",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/beans.webp"
+    },
+    {
+      "id": 22,
+      "slug": "limon-fiyatlari-2026-mersin-erdemli-piyasa-analizi",
+      "before": null,
+      "after": "/uploads/analysis-covers/2026-09-08/lemon.webp"
+    },
+    {
+      "id": 21,
+      "slug": "agustos-2-hafta-2026-hal-raporu",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/peppers.webp"
+    },
+    {
+      "id": 20,
+      "slug": "temmuz-2026-aylik-hal-raporu",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/onion.webp"
+    },
+    {
+      "id": 19,
+      "slug": "temmuz-4-hafta-2026-hal-raporu",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/summer-market.webp"
+    },
+    {
+      "id": 18,
+      "slug": "kuru-sogan-fiyat-analizi-temmuz-2026",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/onion.webp"
+    },
+    {
+      "id": 17,
+      "slug": "temmuz-3-hafta-2026-hal-raporu",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/peppers.webp"
+    },
+    {
+      "id": 16,
+      "slug": "temmuz-2-hafta-2026-hal-raporu",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/peppers.webp"
+    },
+    {
+      "id": 14,
+      "slug": "haziran-2026-aylik-hal-raporu",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/summer-market.webp"
+    },
+    {
+      "id": 13,
+      "slug": "zeytinyagi-ihracati-coktu-ic-fiyat-yukseldi",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/olive.webp"
+    },
+    {
+      "id": 12,
+      "slug": "temmuz-1-hafta-2026-hal-raporu",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/tomato.webp"
+    },
+    {
+      "id": 11,
+      "slug": "haziran-4-hafta-2026-hal-raporu",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/peppers.webp"
+    },
+    {
+      "id": 10,
+      "slug": "haziran-3-hafta-2026-hal-raporu",
+      "before": "/og-default.png",
+      "after": "/uploads/analysis-covers/2026-09-08/greens.webp"
+    },
+    {
+      "id": 9,
+      "slug": "haziran-2-hafta-2026-hal-raporu",
+      "before": "/sosialmedia/assets/analiz/haziran-2-hafta-2026-hal-raporu-v4.jpg",
+      "after": "/uploads/analysis-covers/2026-09-08/roots.webp"
+    },
+    {
+      "id": 8,
+      "slug": "haziran-1-hafta-2026-hal-raporu",
+      "before": "/sosialmedia/assets/analiz/haziran-1-hafta-2026-hal-raporu-v4.jpg",
+      "after": "/uploads/analysis-covers/2026-09-08/eggplant.webp"
+    },
+    {
+      "id": 7,
+      "slug": "mayis-5-hafta-2026-hal-raporu",
+      "before": "/sosialmedia/assets/analiz/mayis-5-hafta-2026-hal-raporu-v4.jpg",
+      "after": "/uploads/analysis-covers/2026-09-08/tomato.webp"
+    },
+    {
+      "id": 6,
+      "slug": "mayis-4-hafta-2026-hal-raporu",
+      "before": "/sosialmedia/assets/analiz/mayis-4-hafta-2026-hal-raporu-v4.jpg",
+      "after": "/uploads/analysis-covers/2026-09-08/cucumber.webp"
+    },
+    {
+      "id": 3,
+      "slug": "mayis-3-hafta-2026-hal-raporu",
+      "before": "/sosialmedia/assets/analiz/mayis-3-hafta-2026-hal-raporu-v4.jpg",
+      "after": "/uploads/analysis-covers/2026-09-08/berries.webp"
+    },
+    {
+      "id": 1,
+      "slug": "elma-fiyat-analizi-mayis-2026",
+      "before": "/sosialmedia/assets/analiz/elma-fiyat-analizi-mayis-2026-v4.jpg",
+      "after": "/uploads/analysis-covers/2026-09-08/apple.webp"
+    }
+  ]
+}
