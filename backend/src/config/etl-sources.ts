@@ -22,6 +22,7 @@ type ResponseShape =
   | "ankara_html"
   | "adana_html"
   | "antalya_hal_pdf"
+  | "elazig_html"
   | "mersin_html"
   | "konya_html"
   | "kayseri_html"
@@ -73,6 +74,13 @@ export interface EtlSourceConfig {
    * atlar — sabit kalmalari dogru davranistir, arizasi degil.
    */
   announcedPrice:   boolean;
+  /**
+   * Sayfa hicbir tarih yayimlamiyor (Elazig). "Tarih belgeden gelir" ilkesi
+   * uygulanamadigi icin eski-bulten korumasi da devre disi kalir: donmus sayfa
+   * her gun bugunun tarihiyle yeniden yazilirdi. Bu kaynaklarda bunun yerine
+   * ICERIK karsilastirmasi yapilir (bkz. runSourceFetch icerik parmak izi).
+   */
+  datelessPage:     boolean;
 }
 
 interface RawSource {
@@ -86,6 +94,7 @@ interface RawSource {
   defaultUnit:       string;
   defaultCategory:   string;
   announcedPrice?:   boolean;
+  datelessPage?:     boolean;
 }
 
 const RAW_SOURCES: RawSource[] = [
@@ -172,6 +181,16 @@ const RAW_SOURCES: RawSource[] = [
     key: "antalya_resmi", defaultEnabled: true, defaultMarketSlug: "antalya-hal-merkez",
     defaultBaseUrl: "https://gezipanel.antalya.bel.tr", defaultEndpoint: "/hal-gunluk-fiyat",
     responseShape: "antalya_hal_pdf", defaultUnit: "kg", defaultCategory: "sebze-meyve",
+  },
+  // Elazig Belediyesi — duz GET, cerez/JS yok, veri <ul id="halfiyat"> icinde.
+  // 2026-09-08 il taramasinda bulundu: "elazig hal fiyatlari" ayda ~1.219
+  // gosterim aliyordu ve hic kaynagimiz yoktu.
+  // datelessPage: sayfa tarih yayimlamiyor → icerik parmak izi ile donma denetimi.
+  {
+    key: "elazig_resmi", defaultEnabled: true, defaultMarketSlug: "elazig-hal",
+    defaultBaseUrl: "https://www.elazig.bel.tr", defaultEndpoint: "/hal-fiyatlari/",
+    responseShape: "elazig_html", defaultUnit: "kg", defaultCategory: "sebze-meyve",
+    datelessPage: true,
   },
   {
     key: "adana_resmi", defaultEnabled: true, defaultMarketSlug: "adana-hal",
@@ -888,6 +907,7 @@ export function loadEtlSources(): EtlSourceConfig[] {
     defaultUnit:      envStr(process.env[envKey(s.key, "DEFAULT_UNIT")], s.defaultUnit),
     defaultCategory:  envStr(process.env[envKey(s.key, "DEFAULT_CATEGORY")], s.defaultCategory),
     announcedPrice:   s.announcedPrice ?? false,
+    datelessPage:     s.datelessPage ?? false,
   }));
 }
 

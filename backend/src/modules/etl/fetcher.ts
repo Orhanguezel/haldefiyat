@@ -1,5 +1,6 @@
 import { fetchAdanaBulletin } from "./sources/municipality/adana";
 import { fetchAntalyaHalBulletin } from "./sources/municipality/antalya";
+import { fetchElazigHal, priceFingerprint } from "./sources/municipality/elazig";
 /**
  * Jenerik ETL fetcher.
  *
@@ -22,8 +23,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawn } from "node:child_process";
 import { db } from "@/db/client";
-import { hfMarkets, hfProducts, hfEtlRuns } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { hfMarkets, hfProducts, hfEtlRuns, hfPriceHistory } from "@/db/schema";
+import { and, desc, eq } from "drizzle-orm";
 import { upsertPriceRow } from "@/modules/prices/repository";
 import { resolveProductSlug, normalizeRawProductName } from "./normalizer";
 import type { EtlSourceConfig } from "@/config/etl-sources";
@@ -1040,6 +1041,12 @@ async function fetchDated(
   date: string,
   isBackfill = false,
 ): Promise<FetchOutcome | null> {
+  if (source.responseShape === "elazig_html") {
+    const rows = await fetchElazigHal(source.baseUrl, source.endpointTemplate);
+    // Sayfada tarih yok: dateUsed istek tarihidir. Donma denetimi asagida
+    // (runSourceFetch) icerik parmak iziyle yapilir.
+    return { rows, dateUsed: date, httpStatus: 200 };
+  }
   if (source.responseShape === "antalya_hal_pdf") {
     // Kaynak o gun yayin yapmadiysa null → cagiran "veri yayinlamadi" olarak kapatir,
     // eski bulten bugunun tarihiyle yeniden yazilmaz.
@@ -2559,6 +2566,37 @@ export async function runSourceFetch(
         status: "ok", errorMsg: msg,
       });
       return { inserted: 0, skipped: outcome.rows.length, errors: [], touchedProductSlugs: [], touchedMarketSlug: source.marketSlug };
+    }
+  }
+
+  // TARIHSIZ SAYFA KORUMASI — Elazig gibi kaynaklar hicbir tarih yayimlamiyor,
+  // dolayisiyla yukaridaki eski-bulten korumasi devreye giremez (dateUsed hep
+  // "bugun" olur). Donmus bir sayfa boylece her gun bugunun tarihiyle yeniden
+  // yazilir ve olmayan gunluk gozlem uretir. Cozum: fiyat kumesinin parmak izi
+  // en son kaydedilen gunle ayniysa yeni bulten yok say.
+  if (source.datelessPage && !isBackfill && normalizedRows.length > 0) {
+    const [latest] = await db
+      .select({ recordedDate: hfPriceHistory.recordedDate })
+      .from(hfPriceHistory)
+      .where(eq(hfPriceHistory.marketId, marketId))
+      .orderBy(desc(hfPriceHistory.recordedDate))
+      .limit(1);
+    if (latest?.recordedDate) {
+      const stored = await db
+        .select({ min: hfPriceHistory.minPrice, max: hfPriceHistory.maxPrice })
+        .from(hfPriceHistory)
+        .where(and(eq(hfPriceHistory.marketId, marketId), eq(hfPriceHistory.recordedDate, latest.recordedDate)));
+      const storedPrint = priceFingerprint(stored.map((r) => ({ min: Number(r.min), max: Number(r.max) })));
+      const freshPrint = priceFingerprint(normalizedRows.map((r) => ({ min: r.min, max: r.max })));
+      if (storedPrint === freshPrint) {
+        const msg = `Kaynak yeni bulten yayinlamadi (icerik ${String(latest.recordedDate).slice(0, 10)} ile ayni)`;
+        await logEtlRun({
+          sourceKey: source.key, runDate: startDate, rowsFetched: outcome.rows.length,
+          rowsInserted: 0, rowsSkipped: outcome.rows.length, durationMs: Date.now() - t0,
+          status: "ok", errorMsg: msg,
+        });
+        return { inserted: 0, skipped: outcome.rows.length, errors: [], touchedProductSlugs: [], touchedMarketSlug: source.marketSlug };
+      }
     }
   }
 

@@ -35,6 +35,9 @@ const REGION_LABELS: Record<string, string> = {
   "ic-anadolu": "İç Anadolu",
   "karadeniz": "Karadeniz",
   "dogu-anadolu": "Doğu Anadolu",
+  // DB'de slug "guneydogu" olarak yaziliyor; "-anadolu" eki yalniz haritada
+  // vardi ve o bolge basliksiz kalip "Guneydogu" diye gorunuyordu.
+  guneydogu: "Güneydoğu Anadolu",
   "guneydogu-anadolu": "Güneydoğu Anadolu",
 };
 
