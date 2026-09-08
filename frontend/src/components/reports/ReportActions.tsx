@@ -43,13 +43,13 @@ export default function ReportActions({
         <ExternalLink className="h-4 w-4" aria-hidden="true" />
         Kaynak ve yöntem
       </Link>
-      <a
-        href={`mailto:info@gzlteknoloji.com?subject=${encodeURIComponent(`Düzeltme bildirimi: ${title}`)}`}
+      <Link
+        href={{ pathname: "/iletisim", query: { subject: `Düzeltme bildirimi: ${title}`, message: `İlgili analiz: ${pathname}\n\nDüzeltme / geri bildirimim:\n` } }}
         className={itemClass}
       >
         <MessageSquareWarning className="h-4 w-4" aria-hidden="true" />
         Düzeltme / geri bildirim
-      </a>
+      </Link>
       <span className="sr-only" aria-live="polite">{status}</span>
     </div>
   );

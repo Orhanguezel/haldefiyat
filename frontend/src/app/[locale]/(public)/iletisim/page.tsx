@@ -9,7 +9,7 @@ import PageContainer from "@/components/layout/PageContainer";
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams?: Promise<{ subject?: string }>;
+  searchParams?: Promise<{ subject?: string; message?: string }>;
 };
 
 export async function generateMetadata({ params }: Props) {
@@ -24,7 +24,9 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function ContactPage({ params, searchParams }: Props) {
   const { locale } = await params;
-  const subject = (await searchParams)?.subject ?? "";
+  const query = await searchParams;
+  const subject = query?.subject ?? "";
+  const message = query?.message ?? "";
   const isProInquiry = subject.toLocaleLowerCase("tr-TR").includes("pro");
   setRequestLocale(locale);
   const settings = await fetchSiteSettings(locale);
@@ -52,6 +54,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
             {/* İletişim Formu ve Bilgiler */}
             <ContactForm
               defaultSubject={subject}
+              defaultMessage={message}
               contactEmail={settings.contact_email || "info@gzlteknoloji.com"}
               contactPhone={settings.contact_phone}
               contactWhatsapp="+49 172 3846068"
