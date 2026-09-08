@@ -1,3 +1,4 @@
+import SocialFollowCards from "@/components/sections/SocialFollowCards";
 import BannerSlot from "@/components/ads/BannerSlot";
 import { ListingCard } from "@/components/listings/ListingCard";
 import JsonLd from "@/components/seo/JsonLd";
@@ -37,6 +38,7 @@ export default async function DesktopHomePage({ locale }: { locale: string }) {
           </div>
         </section>
       ) : null}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6"><SocialFollowCards whatsappUrl={data.siteSettings.social_whatsapp} facebookUrl={data.siteSettings.social_facebook} placement="home" /></div>
       <SeasonGuides />
       <LatestReports limit={6} />
       <HomeFaq
