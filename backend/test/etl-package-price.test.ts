@@ -93,3 +93,51 @@ describe("paket tespitinde ad ipucu", () => {
     expect(row.avg).toBe(1900);
   });
 });
+
+/**
+ * Kurus duzeltmesi iki ayri hata uretiyordu:
+ * 1) Esik her degere AYRI uygulaninca 1000'i capraz gecen satir kendi icinde
+ *    tutarsiz kaliyordu — Istanbul IBB Ahududu "avg (891) > max (774)".
+ * 2) IBB zaten TL yayimliyor; heuristic yalnizca pahali ithal urunde tetiklenip
+ *    dogru fiyati 100'e boluyordu.
+ */
+const IBB = { key: "istanbul_ibb", defaultUnit: "kg" } as never;
+const ULUSAL = { key: "hal_gov_tr_ulusal", defaultUnit: "kg" } as never;
+
+describe("kurus duzeltmesi satir butunlugu", () => {
+  test("IBB'ye kurus duzeltmesi UYGULANMAZ — pahali urunun gercek fiyati korunur", () => {
+    // Ahududu: ayni gun Antalya bulteninde 800–1.040 TL/kg. Bolunmemeli.
+    const row = normalizePriceRow(
+      { name: "Ahududu", category: null, unit: "kg", avg: 891, min: 774, max: 1008 } as never,
+      IBB,
+    );
+    expect([row.min, row.avg, row.max]).toEqual([774, 891, 1008]);
+  });
+
+  test("kurus kaynaginda 1000'i capraz gecen satir tutarli kalir", () => {
+    // Ham kolonlar ters (min 1008 / max 774); uc deger ayni olcekte islenir,
+    // ters kolon duzeltmesi devreye girer ve avg araliga duser.
+    const row = normalizePriceRow(
+      { name: "Ahududu", category: null, unit: "kg", avg: 891, min: 1008, max: 774 } as never,
+      ULUSAL,
+    );
+    expect(row.avg!).toBeGreaterThanOrEqual(row.min!);
+    expect(row.avg!).toBeLessThanOrEqual(row.max!);
+  });
+
+  test("gercekten kurus olan satir ucu birden bolunur", () => {
+    const row = normalizePriceRow(
+      { name: "Elma", category: null, unit: "kg", avg: 1000, min: 800, max: 1200 } as never,
+      ULUSAL,
+    );
+    expect([row.min, row.avg, row.max]).toEqual([8, 10, 12]);
+  });
+
+  test("kurus olmayan satira dokunulmaz", () => {
+    const row = normalizePriceRow(
+      { name: "Domates", category: null, unit: "kg", avg: 40, min: 30, max: 50 } as never,
+      ULUSAL,
+    );
+    expect([row.min, row.avg, row.max]).toEqual([30, 40, 50]);
+  });
+});

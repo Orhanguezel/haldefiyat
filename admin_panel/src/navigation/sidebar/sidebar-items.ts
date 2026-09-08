@@ -5,14 +5,11 @@
 
 import {
   Bell,
-  BarChart3,
   Building2,
   Contact2,
   Database,
-  Facebook,
   FileText,
   Factory,
-  Instagram,
   HardDrive,
   HelpCircle,
   LayoutDashboard,
@@ -25,7 +22,6 @@ import {
   Search,
   Send,
   Settings,
-  Tags,
   TrendingUp,
   Users,
   type LucideIcon,
@@ -158,7 +154,7 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
       { key: 'contacts', url: '/admin/contacts', icon: Contact2 },
       { key: 'email_templates', url: '/admin/email-templates', icon: Mail },
       { key: 'newsletter', url: '/admin/newsletter', icon: Mail },
-      // X / Facebook / Instagram panelleri kaldirildi — yayin ve takip Tanitio'da.
+      // Sosyal platform panelleri kaldirildi — yayin ve takip Tanitio'da.
     ],
   },
   {

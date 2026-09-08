@@ -476,28 +476,56 @@ const CENT_SCALED_SOURCES = new Set([
   // kuruş değil. ≥1000 ÷100 heuristic'i sadece yüksek paket fiyatlarını (Sandık/Koli 2340→23.4)
   // bozup min/max/avg tutarsızlığı + sahte rejection üretiyordu.
   "hal_gov_tr_ulusal",
-  "istanbul_ibb",
+  // istanbul_ibb CIKARILDI (2026-09-08): IBB TL yayimliyor, kurus degil.
+  // Kanit: kendi kayitlarimizda IBB fiyatlari 5 TL (Dereotu) ile 980 TL
+  // (Yaban Mersini) arasinda; kurus olsa Dereotu 0,05 TL olurdu. Ustelik ham
+  // Ahududu degeri 774–1008, ayni gun Antalya bulteninde 800–1.040 TL/kg —
+  // yani gercek TL fiyati. Heuristic yalnizca pahali ithal urunlerde (>1000 TL)
+  // tetikleniyor ve dogru fiyati 100'e bolerek yok ediyordu. Bursa da ayni
+  // sebeple 2026-06-09'da cikarilmisti.
   "kayseri_resmi",
   "mersin_resmi",
 ]);
 
-function scaleSuspiciousCents(price: number | null, source: EtlSourceConfig): number | null {
+/**
+ * Kurus duzeltmesi karari SATIR BASINA BIR KEZ verilir.
+ *
+ * NEDEN: esik her degere ayri uygulaninca 1000'i "capraz gecen" satirlar
+ * kendi icinde tutarsiz hale geliyordu. Istanbul IBB Ahududu (8 Eyl 2026):
+ * ham min 1008, ham max 774 → min ≥1000 oldugu icin 10,08'e bolundu, max
+ * oldugu gibi kaldi, avg ise ham degerlerden (1008+774)/2 = 891 hesaplandi.
+ * Sonuc "avg (891) > max (774)" — matematiksel olarak imkansiz bir satir,
+ * her gun sihhat reddine dusuyordu. Ayni tuzak Yaban Mersini'nde de vardi
+ * (ham min 1092 / max 798 → avg 945).
+ *
+ * Karar satirin EN BUYUK degerine bakar: kaynak o satiri kurusla yayimliyorsa
+ * en buyuk deger de kurustur. Boylece ya ucu birden olceklenir ya hicbiri;
+ * min/max/avg arasindaki iliski her durumda korunur.
+ */
+function centScaleFactor(row: NormalizedRow, source: EtlSourceConfig): 1 | 100 {
+  if (!CENT_SCALED_SOURCES.has(source.key)) return 1;
+  const values = [row.avg, row.min, row.max].filter((v): v is number => v != null);
+  if (values.length === 0) return 1;
+  return Math.max(...values) >= 1000 ? 100 : 1;
+}
+
+function applyScale(price: number | null, factor: 1 | 100): number | null {
   if (price == null) return null;
-  if (!CENT_SCALED_SOURCES.has(source.key)) return price;
-  if (price < 1000) return price;
-  return Math.round((price / 100) * 100) / 100;
+  if (factor === 1) return price;
+  return Math.round((price / factor) * 100) / 100;
 }
 
 export function normalizePriceRow(row: NormalizedRow, source: EtlSourceConfig): NormalizedRow {
   // Paket satirinda dort haneli fiyat gercektir; kurus duzeltmesi orada uygulanmaz
   // (Manisa "MUZ ITHAL KOLI | 1800-2000 TL" 18-20 TL'ye dusuyordu).
   const packageRow = isPackageUnit(row.unit) || PACKAGE_HINT_RE.test(row.name ?? "");
-  let next = CENT_SCALED_SOURCES.has(source.key) && !packageRow
+  const factor = packageRow ? 1 : centScaleFactor(row, source);
+  let next = factor === 100
     ? {
         ...row,
-        avg: scaleSuspiciousCents(row.avg, source),
-        min: scaleSuspiciousCents(row.min, source),
-        max: scaleSuspiciousCents(row.max, source),
+        avg: applyScale(row.avg, factor),
+        min: applyScale(row.min, factor),
+        max: applyScale(row.max, factor),
       }
     : row;
 
