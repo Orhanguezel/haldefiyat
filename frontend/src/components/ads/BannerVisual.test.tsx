@@ -1,9 +1,12 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, test } from "vitest";
 import type { PublicBanner } from "@/lib/banners";
 import { bannerColumnsClass } from "./BannerSlot";
 import ResilientAdImage from "./ResilientAdImage";
 import TemplateBanner from "./TemplateBanner";
+import SeedSponsorBanner from "./SeedSponsorBanner";
+
+afterEach(cleanup);
 
 const banner = (patch: Partial<PublicBanner> = {}): PublicBanner => ({
   id: 99,
@@ -43,6 +46,18 @@ describe("banner responsive düzeni", () => {
 });
 
 describe("banner görsel dayanıklılığı", () => {
+  test("genel fide reklamı gösterilmeyen belirli bir ürünü vadetmez", () => {
+    render(<SeedSponsorBanner banner={banner({ advertiser: "Bereket Fide", caption: "Bu ürünün fidesi bizde" })} href="/api/v1/banners/16/click" sidebar />);
+    expect(screen.queryByText("Bu ürünün fidesi bizde")).not.toBeInTheDocument();
+    expect(screen.getByText("Sebze fidesi için Bereket Fide")).toBeInTheDocument();
+    expect(screen.getByRole("link")).toHaveAttribute("href", "/api/v1/banners/16/click");
+  });
+
+  test("VistaSeeds reklamında logo yanında gerçek çeşit görseli vardır", () => {
+    render(<SeedSponsorBanner banner={banner({ advertiser: "VistaSeeds" })} href={null} sidebar />);
+    expect(screen.getByAltText("CANKAN F1 — VistaSeeds biber çeşidi")).toHaveAttribute("src", "/assets/ads/vistaseeds/cankan-f1.webp");
+    expect(screen.getByAltText("VistaSeeds")).toBeInTheDocument();
+  });
   test("kırık görsel yerine erişilebilir fallback gösterir", () => {
     render(<ResilientAdImage src="/broken.webp" alt="Erik kampanyası" />);
     fireEvent.error(screen.getByAltText("Erik kampanyası"));

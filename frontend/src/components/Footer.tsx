@@ -112,7 +112,7 @@ export default function Footer({
   return (
     <footer className="border-t border-(--color-border) bg-(--color-header) px-5 py-12 sm:px-8 sm:py-16">
       <div className="mx-auto max-w-[1400px]">
-        <SocialFollowCards whatsappUrl={socialWhatsapp} facebookUrl={socialFacebook} placement="footer" />
+        <SocialFollowCards whatsappUrl={socialWhatsapp} facebookUrl={socialFacebook} telegramUrl={socialTelegram} placement="footer" />
         <div className="mb-7 grid grid-cols-1 gap-10 border-b border-(--color-border) pb-12 sm:grid-cols-2 lg:grid-cols-[1.7fr_repeat(4,minmax(0,1fr))]">
           {/* Sutun 1 — Brand */}
           <div className="space-y-4">

@@ -21,7 +21,7 @@ export default async function MobileHomePage({ locale }: { locale: string }) {
         freshness={data.overview.freshness}
         featuredPrice={data.featuredPrice}
       />
-      <div className="mx-auto max-w-7xl px-4 sm:px-6"><SocialFollowCards whatsappUrl={data.siteSettings.social_whatsapp} facebookUrl={data.siteSettings.social_facebook} placement="home" /></div>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6"><SocialFollowCards whatsappUrl={data.siteSettings.social_whatsapp} facebookUrl={data.siteSettings.social_facebook} telegramUrl={data.siteSettings.social_telegram} placement="home" /></div>
       <SeasonGuides />
       <LatestReports limit={6} />
       {/* %78 mobil trafik CTA'yi hic gormuyordu — masaustundeki blok mobile de acildi */}

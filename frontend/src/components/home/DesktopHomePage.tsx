@@ -38,7 +38,7 @@ export default async function DesktopHomePage({ locale }: { locale: string }) {
           </div>
         </section>
       ) : null}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6"><SocialFollowCards whatsappUrl={data.siteSettings.social_whatsapp} facebookUrl={data.siteSettings.social_facebook} placement="home" /></div>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6"><SocialFollowCards whatsappUrl={data.siteSettings.social_whatsapp} facebookUrl={data.siteSettings.social_facebook} telegramUrl={data.siteSettings.social_telegram} placement="home" /></div>
       <SeasonGuides />
       <LatestReports limit={6} />
       <HomeFaq
