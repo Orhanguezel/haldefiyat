@@ -17,7 +17,7 @@ export default async function CityProductLinks({ product, productName, city, cit
         {pairs.slice(0, 40).map((p) => (
           <li key={`${p.citySlug}/${p.productSlug}`}>
             <Link href={cityProductHref(p.citySlug, p.productSlug)} className="inline-block rounded-full border border-border px-3 py-1 text-sm text-foreground hover:border-(--color-brand) hover:text-(--color-brand)">
-              {product ? p.cityName : p.productName}
+              {`${p.cityName} ${p.productName.toLocaleLowerCase("tr-TR")} fiyatları`}
             </Link>
           </li>
         ))}

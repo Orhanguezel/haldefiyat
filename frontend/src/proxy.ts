@@ -12,6 +12,7 @@ const intlMiddleware = createMiddleware({
 
 const LOWERCASE_SLUG_SECTIONS = new Set(["urun", "hal", "analiz"]);
 const BORSA_PRODUCT_SLUGS = new Set([
+  "kuru-uzum", // Dedicated source-backed registration page; no hal-product alias.
   "bugday",
   "bugday-ekmeklik",
   "bugday-makarnalik",

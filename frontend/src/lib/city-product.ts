@@ -94,7 +94,7 @@ export function buildCityProductFaq(d: CityProductDetail, dateTr: string): Array
 
   items.push({
     question: `Bu fiyat market rafındaki fiyat mı?`,
-    answer: `Hayır. Buradaki rakam ${pair.marketName}'nde oluşan toptan hal fiyatıdır; market raf fiyatının altındadır ve bahçede üreticiye ödenen alım fiyatı da değildir. Kaynak alt–üst fiyat veriyorsa ortalama bu aralığın orta noktasından türetilir, işlem miktarına göre ağırlıklandırılmaz.`,
+    answer: `Hayır. Buradaki rakam ${pair.marketName}'nde oluşan toptan hal fiyatıdır; perakende veya bahçede üreticiye ödenen alım fiyatı değildir. Bu fiyat türleri arasında sabit bir sıralama varsayılmaz. Kaynak alt–üst fiyat veriyorsa ortalama bu aralığın orta noktasından türetilir, işlem miktarına göre ağırlıklandırılmaz.`,
   });
 
   return items;

@@ -1,0 +1,38 @@
+product,date,label,sale,unit,min,max,average,quantity,value,transactions,sourceUrl
+kekik,2026-08-18,Kekik Naturel,MS,kg,175.0,175.0,175.0,23000.0,4025000.0,1,https://itb.org.tr/dosya/bulten/20260818-tescil-bulteni-1.pdf
+kuru-uzum,2026-08-19,Çek.siz Kuru Üzüm Naturel,MS,kg,90.63,97.04,92.72,22760.0,2110293.96,2,https://itb.org.tr/dosya/bulten/20260819-tescil-bulteni-1.pdf
+kekik,2026-08-19,Kekik Naturel Sivri,HŞ,kg,277.75,277.75,277.75,54340.0,15092935.0,6,https://itb.org.tr/dosya/bulten/20260819-tescil-bulteni-1.pdf
+kekik,2026-08-19,Kekik İşlenmiş,HŞ,kg,424.2,725.0,425.29,32366.0,13764850.8,3,https://itb.org.tr/dosya/bulten/20260819-tescil-bulteni-1.pdf
+kuru-uzum,2026-08-20,Çek.siz Kuru Üzüm 9 (Std) (Std),HŞ,kg,90.0,90.0,90.0,38972.0,3507480.0,1,https://itb.org.tr/dosya/bulten/20260820-tescil-bulteni-1.pdf
+kekik,2026-08-20,Kekik Tozu,MS,kg,35.97,35.97,35.97,7837.0,281886.83,1,https://itb.org.tr/dosya/bulten/20260820-tescil-bulteni-1.pdf
+kuru-uzum,2026-08-21,Çek.siz Kuru Üzüm Organik,HŞ,kg,102.04,102.04,102.04,5112.0,521628.48,1,https://itb.org.tr/dosya/bulten/20260821-tescil-bulteni-1.pdf
+kuru-uzum,2026-08-21,Çek.siz Kuru Üzüm İşlenmiş,THŞ,kg,133.91,233.17,146.57,41385.0,6065755.23,7,https://itb.org.tr/dosya/bulten/20260821-tescil-bulteni-1.pdf
+kuru-uzum,2026-08-21,Çek.siz Kuru Üzüm İşlenmiş Eski Mahsul,THŞGT,kg,112.5,145.0,124.8,251928.68,31441143.4,13,https://itb.org.tr/dosya/bulten/20260821-tescil-bulteni-1.pdf
+kekik,2026-08-24,Kekik Naturel,HŞ,kg,159.0,159.0,159.0,7020.0,1116180.0,1,https://itb.org.tr/dosya/bulten/20260824-tescil-bulteni-1.pdf
+kekik,2026-08-24,Kekik Naturel,MS,kg,230.34,230.34,230.34,32540.0,7495130.0,1,https://itb.org.tr/dosya/bulten/20260824-tescil-bulteni-1.pdf
+kekik,2026-08-24,Kekik Tozu,HŞ,kg,37.0,37.0,37.0,10070.0,372590.0,1,https://itb.org.tr/dosya/bulten/20260824-tescil-bulteni-1.pdf
+kekik,2026-08-25,Kekik Naturel,GT,kg,225.0,225.0,225.0,716.0,161100.0,1,https://itb.org.tr/dosya/bulten/20260825-tescil-bulteni-1.pdf
+kekik,2026-08-25,Kekik Naturel,MGT,kg,224.4,224.4,224.4,716.0,160670.4,1,https://itb.org.tr/dosya/bulten/20260825-tescil-bulteni-1.pdf
+kekik,2026-08-26,Kekik Naturel ARALIK 2026,AVSAGT,kg,150.06,150.06,150.06,2040.0,306122.45,1,https://itb.org.tr/dosya/bulten/20260826-tescil-bulteni-1.pdf
+kekik,2026-08-26,Kekik Naturel,GT,kg,170.0,240.0,214.36,4243.0,909510.0,3,https://itb.org.tr/dosya/bulten/20260826-tescil-bulteni-1.pdf
+kekik,2026-08-26,Kekik Naturel,HŞ,kg,240.0,240.0,240.0,1260.0,302400.0,1,https://itb.org.tr/dosya/bulten/20260826-tescil-bulteni-1.pdf
+kekik,2026-08-26,Kekik Naturel,MGT,kg,150.93,221.5,192.23,22864.0,4395168.76,4,https://itb.org.tr/dosya/bulten/20260826-tescil-bulteni-1.pdf
+kekik,2026-08-26,Kekik Naturel,MS,kg,201.5,250.96,245.73,375412.08,92251718.54,4,https://itb.org.tr/dosya/bulten/20260826-tescil-bulteni-1.pdf
+kekik,2026-08-26,Kekik Naturel Sivri,GT,kg,260.14,260.14,260.14,47426.45,12337499.25,1,https://itb.org.tr/dosya/bulten/20260826-tescil-bulteni-1.pdf
+kekik,2026-08-26,Kekik Naturel Sivri,HŞ,kg,269.12,269.12,269.12,109763.8,29539791.0,1,https://itb.org.tr/dosya/bulten/20260826-tescil-bulteni-1.pdf
+kekik,2026-08-26,Kekik Naturel Sivri,MGT,kg,236.5,407.6,305.88,95085.45,29084551.91,5,https://itb.org.tr/dosya/bulten/20260826-tescil-bulteni-1.pdf
+kekik,2026-08-26,Kekik Naturel Sivri,MS,kg,236.5,427.0,277.03,121003.8,33521261.05,3,https://itb.org.tr/dosya/bulten/20260826-tescil-bulteni-1.pdf
+kekik,2026-08-26,Kekik İşlenmiş,GT,kg,415.8,440.0,432.08,29166.0,12602172.0,2,https://itb.org.tr/dosya/bulten/20260826-tescil-bulteni-1.pdf
+kekik,2026-08-26,Kekik İşlenmiş,HŞ,kg,435.6,435.6,435.6,9980.0,4347288.0,1,https://itb.org.tr/dosya/bulten/20260826-tescil-bulteni-1.pdf
+kekik,2026-08-27,Kekik Naturel Sivri,HŞ,kg,277.75,277.75,277.75,7800.0,2166450.0,1,https://itb.org.tr/dosya/bulten/20260827-tescil-bulteni-1.pdf
+kekik,2026-08-27,Kekik İşlenmiş,HŞ,kg,404.0,404.0,404.0,33294.0,13450776.0,2,https://itb.org.tr/dosya/bulten/20260827-tescil-bulteni-1.pdf
+kekik,2026-08-28,Kekik İşlenmiş,GT,kg,447.76,447.76,447.76,3000.0,1343289.0,1,https://itb.org.tr/dosya/bulten/20260828-tescil-bulteni-1.pdf
+kuru-uzum,2026-09-01,Çek.siz Kuru Üzüm Ambalajlı,HŞ,kg,251.92,258.5,258.33,380.0,98164.2,5,https://itb.org.tr/dosya/bulten/20260901-tescil-bulteni-1.pdf
+kuru-uzum,2026-09-01,Çek.siz Kuru Üzüm Naturel,MS,kg,90.0,90.0,90.0,28586.0,2572740.0,1,https://itb.org.tr/dosya/bulten/20260901-tescil-bulteni-1.pdf
+kuru-uzum,2026-09-01,Çek.siz Kuru Üzüm İşlenmiş,HŞ,kg,136.0,246.28,142.38,19602.0,2790902.08,41,https://itb.org.tr/dosya/bulten/20260901-tescil-bulteni-1.pdf
+kuru-uzum,2026-09-01,Çek.siz Kuru Üzüm 9 (Std) (Std),HŞ,kg,72.0,72.0,72.0,20626.0,1485072.0,1,https://itb.org.tr/dosya/bulten/20260901-tescil-bulteni-1.pdf
+kuru-uzum,2026-09-01,Çek.siz Kuru Üzüm 10 (Std) (Std),HŞ,kg,80.0,80.0,80.0,16910.0,1352800.0,1,https://itb.org.tr/dosya/bulten/20260901-tescil-bulteni-1.pdf
+kuru-uzum,2026-09-02,Çek.siz Kuru Üzüm Eski Mahsul,MS,kg,86.72,86.72,86.72,22290.0,1932880.0,1,https://itb.org.tr/dosya/bulten/20260902-tescil-bulteni-1.pdf
+kekik,2026-09-02,Kekik İşlenmiş,HŞ,kg,404.0,444.4,416.5,24525.0,10214574.4,2,https://itb.org.tr/dosya/bulten/20260902-tescil-bulteni-1.pdf
+kuru-uzum,2026-09-03,Çek.siz Kuru Üzüm Organik Eski Mahsul,HŞ,kg,96.94,96.94,96.94,17930.0,1738112.23,1,https://itb.org.tr/dosya/bulten/20260903-tescil-bulteni-1.pdf
+kuru-uzum,2026-09-03,Çek.siz Kuru Üzüm Organik Eski Mahsul,MS,kg,96.94,96.94,96.94,17930.0,1738112.25,1,https://itb.org.tr/dosya/bulten/20260903-tescil-bulteni-1.pdf

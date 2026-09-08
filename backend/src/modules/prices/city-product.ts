@@ -176,7 +176,7 @@ export async function getCityProductDetail(citySlug: string, productSlug: string
 
   // Limon umbrella spans changing varieties. Do not claim an apples-to-apples
   // weekly move or a city discount from differently composed baskets.
-  const comparable = productSlug !== "limon";
+  const comparable = !["limon", "mandalina", "kekik", "uzum"].includes(productSlug);
   return { pair, latest, weekAgoAvg: comparable ? weekAgo?.avgPrice ?? null : null, history, cities, nationalMedian: comparable ? nationalMedian : null, rank: comparable ? rank : null, movers };
 }
 

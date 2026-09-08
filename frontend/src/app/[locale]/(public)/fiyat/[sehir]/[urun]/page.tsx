@@ -57,6 +57,7 @@ export default async function CityProductPage({ params }: Props) {
   const { pair } = d;
   const editorial = await fetchProductEditorial(pair.productSlug);
   const dateTr = d.latest ? (formatDateTr(d.latest.recordedDate) ?? "") : "";
+  const stale = Date.now() - Date.parse(pair.lastDate) > 14 * 86400000;
   const lower = pair.productName.toLocaleLowerCase("tr-TR");
   const piyasa = PIYASA_BY_PRODUCT[pair.productSlug];
   const faqItems = buildCityProductFaq(d, dateTr);
@@ -82,13 +83,13 @@ export default async function CityProductPage({ params }: Props) {
 
       <header className="mt-6 max-w-3xl">
         <p className="inline-flex items-center gap-2 rounded-full border border-(--color-brand)/25 bg-(--color-brand)/10 px-3 py-1.5 font-(family-name:--font-mono) text-[11px] font-bold uppercase tracking-[0.14em] text-(--color-brand)">
-          <MapPin className="h-3.5 w-3.5" /> {pair.cityName} · {pair.marketName} · Günlük güncellenir
+          <MapPin className="h-3.5 w-3.5" /> {pair.cityName} · {pair.marketName} · Kaynak bültenine göre güncellenir
         </p>
         <h1 className="mt-5 font-(family-name:--font-display) text-4xl font-black leading-tight text-(--color-foreground) sm:text-5xl">
           {pair.cityName} {pair.productName} Fiyatları
         </h1>
         <p className="mt-4 leading-8 text-(--color-muted)">
-          Bu sayfa <Link href={`/hal/${pair.marketSlug}`} className="font-semibold text-(--color-brand) underline underline-offset-2">{pair.marketName}</Link> kayıtlarındaki {lower} fiyatını her gün günceller: günün ortalaması ve aralığı, son 90 günün seyri, haftalık değişim ve aynı ürünün diğer şehirlerdeki hal fiyatıyla karşılaştırma. Son 90 günde {pair.days90} gün veri var.
+          Bu sayfa <Link href={`/hal/${pair.marketSlug}`} className="font-semibold text-(--color-brand) underline underline-offset-2">{pair.marketName}</Link> kayıtlarındaki {lower} fiyatının son yayımlanan aralığını ve geçmişini gösterir. Gösterilen dönemde {pair.days90} kayıt günü var; boş günlere fiyat eklenmez. Diğer şehirlerin kayıtları tarih ve çeşit kapsamıyla birlikte okunmalıdır.
         </p>
       </header>
 
@@ -102,6 +103,7 @@ export default async function CityProductPage({ params }: Props) {
         Bu bir toptan hal kaydıdır; bahçede alım fiyatı değildir. Kaynak alt–üst fiyat veriyorsa ortalama bu aralığın orta noktasından türetilir; işlem miktarına göre ağırlıklandırılmaz.
         {pair.productSlug === 'limon' && <> Genel limon görünümü aynı haldeki limon çeşitlerinin ağırlıksız örneklemidir. Çeşit bileşimi günlere göre değişebilir; tek bir çeşidin fiyat değişimi olarak okunmamalıdır. <Link href={`/hal/${pair.marketSlug}`} className="underline">Çeşitleri hal tablosunda ayrı inceleyin.</Link></>}
       </p>
+      {stale && <p className="my-4 rounded-xl border border-border p-4 font-semibold">Bu kayıt güncel değildir. Son kaynak tarihi {dateTr}; yeni fiyat doğrulanana kadar arşiv olarak gösterilir.</p>}
       <CityProductKeyNumbers d={d} />
 
       <section className="mt-12" aria-label="Fiyat geçmişi">

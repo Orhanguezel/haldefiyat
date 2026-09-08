@@ -1,0 +1,7 @@
+# Sorgu niyeti ve kaynak onarımı — 8 Eylül 2026
+
+- `adana-mandalina.ts <archive-dir>` önce checksum/tarih/fiyat doğrulamalı kuru çalışır. `--apply` yalnız iki kaynak adı için ayrı ürün kaydı açar ve mevcut `upsertPriceRow` kalite hattından geçirir. Genel mandalina veya Murcott varyantı üzerine yazmaz. Kaynak yazımı korunur. Tekrar çalışması fiyat satırı çoğaltmaz. Sıfır fiyatlar ithal edilmez. Arşiv dizini önceki `competitor-recovery` manifest sözleşmesini kullanır.
+- `python3 backend/scripts/seo/intent-recovery/itb-specialty.py --download`: 8 Eylül 2026 kesimine kadar son 15 resmî İTB tescil bültenini indirir; sistemde `pdftotext` gerekir. `--download` olmadan özel ham arşivden tekrar üretir. Dosya ve belge tarihi eşleşmeli; sınıf, satış şekli, birim, min/maks/ortalama, miktar ve kaynak korunur. Sıfır/miktarsız fiyat farkı satırları dışarıda tutulur. Çıktı günlük hal tablosuna yazılmaz.
+- Yeni tarihli kesim için tarih, arşiv seçimi ve sayfa açıklaması birlikte incelenmelidir. Bu tarihli arşiv için otomatik fiyat güncellemesi/cron kurulmadı. Kapsam büyürken eski ham dosyaları yeni 15 günlük kesitle yanlışlıkla birleştirmeyin; ayrı arşiv dizini kullanın.
+- `python3 -m unittest discover -s backend/scripts/seo/intent-recovery -p 'test_*.py' -v`: gerçek kaynaktan kısaltılmış fixture; Türkçe sayılar, işlem şekli ayrımı, sıfır fiyat farkı ve yanlış belge tarihi.
+- Kamuya açık CSV yalnız seçili ürünlerin sayısal olgularını ve belge URL’sini içerir; ham PDF ve tüm metinler yayın dizinine konulmaz.

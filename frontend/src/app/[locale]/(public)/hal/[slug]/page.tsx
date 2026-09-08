@@ -402,13 +402,6 @@ export default async function HalPage({ params }: Props) {
 
       <div className="mb-8">{answerBlock}</div>
 
-      {/* Hava durumu — sadece eslesen sehirler icin */}
-      {weatherSlug && (
-        <div className="mb-8">
-          <WeatherWidget citySlug={weatherSlug} cityName={market.cityName} />
-        </div>
-      )}
-
       {prices.length === 0 && (
         <div className="mb-6 rounded-[14px] border border-amber-400/30 bg-amber-400/8 p-5 text-sm text-amber-100">
           <p className="font-semibold text-amber-50">Bu hal için kaynak bugün fiyat yayınlamıyor.</p>
@@ -441,6 +434,13 @@ export default async function HalPage({ params }: Props) {
           hideCityColumn
         />
       </section>
+
+      {/* Hava durumu — sadece eslesen sehirler icin */}
+      {weatherSlug && (
+        <div className="mb-8">
+          <WeatherWidget citySlug={weatherSlug} cityName={market.cityName} />
+        </div>
+      )}
 
       {marketFirms.items.length > 0 && (
         <section className="mt-8">

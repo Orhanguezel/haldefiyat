@@ -9,7 +9,7 @@ import AnswerBlock from "@/components/seo/AnswerBlock";
 import PriceChart from "@/components/sections/PriceChartLazy";
 import VariantPriceTable from "@/components/sections/VariantPriceTable";
 import PageContainer from "@/components/layout/PageContainer";
-import { fetchPriceHistory, fetchPrices, fetchVariantPrices } from "@/lib/api";
+import { fetchCityProduct, fetchPriceHistory, fetchPrices, fetchVariantPrices } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
 import { formatDateTr } from "@/lib/date-format";
 import { PIYASA_PAGES, buildDailySnapshot, summarizeByCity } from "@/lib/piyasa";
@@ -43,29 +43,21 @@ export default async function PiyasaPage({ params }: Props) {
   if (!config) notFound();
   setRequestLocale(locale);
 
-  const [latestRows, history, variants] = await Promise.all([
+  const city = slug.startsWith("adana-") ? "adana" : "mersin";
+  const [latestRows, history, variants, local] = await Promise.all([
     fetchPrices({ product: config.productSlug, latestOnly: true, unit: "kg", range: "7d", limit: 200 }),
     fetchPriceHistory(config.productSlug, undefined, "90d", "daily"),
     fetchVariantPrices(config.productSlug, "7d"),
+    fetchCityProduct(city, config.productSlug),
   ]);
   const halRows = latestRows.filter((row) => (row.marketType ?? "hal") === "hal");
   const snapshot = buildDailySnapshot(halRows, history);
   const cities = summarizeByCity(halRows);
 
-  const changeText =
-    snapshot.weekChangePct == null
-      ? ""
-      : Math.abs(snapshot.weekChangePct) < 1
-        ? " Fiyat bir hafta öncesine göre yatay seyrediyor."
-        : ` Bir hafta öncesine göre %${Math.abs(snapshot.weekChangePct).toLocaleString("tr-TR")} ${snapshot.weekChangePct > 0 ? "yukarıda" : "aşağıda"}.`;
-  const dailyComment =
-    snapshot.medianPrice != null && snapshot.latestDate
-      ? `${formatDateTr(snapshot.latestDate)} itibarıyla ${config.productName.toLocaleLowerCase("tr-TR")} ${snapshot.marketCount} halde işlem gördü; hal ortalamalarının medyanı ${fmt(snapshot.medianPrice)} TL/kg.${changeText}${
-          snapshot.cheapest && snapshot.priciest && snapshot.cheapest.city !== snapshot.priciest.city
-            ? ` En düşük şehir ortalaması ${snapshot.cheapest.city} (${fmt(snapshot.cheapest.medianPrice)} TL/kg), en yüksek ${snapshot.priciest.city} (${fmt(snapshot.priciest.medianPrice)} TL/kg).`
-            : ""
-        }`
-      : `Bugün için yeterli güncel kayıt henüz oluşmadı; tablo son yayınlanan hal kayıtlarını gösterir.`;
+  const localCurrent = local?.latest && Date.now() - Date.parse(local.latest.recordedDate) <= 14 * 86400000;
+  const dailyComment = snapshot.latestDate
+    ? `Türkiye hal tablosundaki en yeni kayıt ${formatDateTr(snapshot.latestDate)} tarihlidir. Her satırın tarihi ve ürün kapsamı farklı olabilir. Bu tablo ${config.region} bahçe veya yerel satış fiyatı değildir; çeşit bileşimi değiştiği için tek bir haftalık değişim hesaplanmaz.`
+    : 'Türkiye tablosunda yeterli kayıt bulunamadı; fiyat üretilmedi.';
 
   return (
     <PageContainer py="sm">
@@ -90,7 +82,7 @@ export default async function PiyasaPage({ params }: Props) {
 
       <header className="mt-6 max-w-3xl">
         <p className="inline-flex items-center gap-2 rounded-full border border-(--color-brand)/25 bg-(--color-brand)/10 px-3 py-1.5 font-(family-name:--font-mono) text-[11px] font-bold uppercase tracking-[0.14em] text-(--color-brand)">
-          <MapPin className="h-3.5 w-3.5" /> {config.region} · Günlük güncellenir
+          <MapPin className="h-3.5 w-3.5" /> {config.region} · Yerel ve ulusal kapsam ayrı
         </p>
         <h1 className="mt-5 font-(family-name:--font-display) text-4xl font-black leading-tight text-(--color-foreground) sm:text-5xl">
           {config.h1}
@@ -100,10 +92,15 @@ export default async function PiyasaPage({ params }: Props) {
         ))}
       </header>
 
+      <section className="mt-6 rounded-xl border border-border p-5" aria-label="Yerel veri durumu">
+        <h2 className="text-xl font-bold">{config.region} yerel kayıt durumu</h2>
+        {local?.latest ? <><p className="mt-2">{local.pair.marketName}: son kayıt {formatDateTr(local.latest.recordedDate)}. {localCurrent ? 'Kaynak bültenindeki fiyat aralığı yerel sayfada gösterilir.' : 'Bu tarihli kayıt güncel fiyat değildir; yeni bülten doğrulanmadan bugünün fiyatı olarak kullanılmaz.'}</p><Link className="mt-2 inline-block underline" href={`/fiyat/${city}/${config.productSlug}`}>Tarihli yerel {config.productName.toLocaleLowerCase('tr-TR')} kaydını inceleyin</Link></> : <p className="mt-2">Bu ürün için doğrulanmış yeterli yerel seri bulunmuyor. <Link className="underline" href={`/hal/${city}-hal`}>Hal sayfasındaki kaynak ve son kayıt durumunu inceleyin.</Link> Türkiye tablosu yerel fiyatın yerine geçmez.</p>}
+      </section>
+
       <div className="mt-8">
         <AnswerBlock
           id="gunluk-ozet"
-          title={`Bugün ${config.productName.toLocaleLowerCase("tr-TR")} piyasası ne durumda?`}
+          title={`Türkiye ${config.productName.toLocaleLowerCase("tr-TR")} hal kayıtlarının kapsamı`}
           meta={snapshot.latestDate ? `Son kayıt: ${formatDateTr(snapshot.latestDate)}` : undefined}
         >
           {dailyComment}
@@ -115,8 +112,7 @@ export default async function PiyasaPage({ params }: Props) {
           Şehir şehir güncel {config.productName.toLocaleLowerCase("tr-TR")} fiyatları
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-(--color-muted)">
-          Her satır o şehirdeki hal kayıtlarının özetidir (hal ortalamalarının medyanı ve günün min–maks aralığı).
-          Ucuzdan pahalıya sıralıdır; hal bazlı tam tablo için{" "}
+          Her satır o şehirde bulunan kayıtların özetidir; tarihler ve çeşitler farklı olabilir. Sıralama bir ucuzluk karşılaştırması değildir. Hal bazlı tam tablo için{" "}
           <Link href={`/urun/${config.productSlug}`} className="font-semibold text-(--color-brand) underline underline-offset-2">
             ürün sayfasına
           </Link>{" "}bakın.
@@ -133,7 +129,7 @@ export default async function PiyasaPage({ params }: Props) {
               </tr>
             </thead>
             <tbody>
-              {cities.map((row) => (
+              {[...cities].sort((a, b) => a.city.localeCompare(b.city, "tr")).map((row) => (
                 <tr key={row.city} className="border-t border-(--color-border)">
                   <td className="px-4 py-3 font-semibold text-(--color-foreground)">{row.city}</td>
                   <td className="px-4 py-3 text-right font-bold text-(--color-brand)">{fmt(row.medianPrice)}</td>
@@ -172,7 +168,7 @@ export default async function PiyasaPage({ params }: Props) {
         </section>
       ))}
 
-      <section className="mt-12" aria-label="Sezon takvimi">
+      {config.seasonCalendar.length > 0 && <section className="mt-12" aria-label="Sezon takvimi">
         <h2 className="flex items-center gap-2 font-(family-name:--font-display) text-2xl font-black text-(--color-foreground)">
           <CalendarDays className="h-6 w-6 text-(--color-brand)" /> Sezon takvimi
         </h2>
@@ -184,7 +180,7 @@ export default async function PiyasaPage({ params }: Props) {
             </div>
           ))}
         </div>
-      </section>
+      </section>}
 
       <section className="mt-12 max-w-3xl" aria-label="Sık sorulanlar">
         <h2 className="font-(family-name:--font-display) text-2xl font-black text-(--color-foreground)">Sık sorulanlar</h2>

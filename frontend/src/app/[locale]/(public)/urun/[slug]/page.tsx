@@ -1,3 +1,4 @@
+import SpecialtyBorsaTable from '@/components/sections/SpecialtyBorsaTable';
 /**
  * ISR — force-dynamic DEGIL.
  *
@@ -189,6 +190,7 @@ async function fetchTodayPriceSummary(slug: string, fallbackUnit: string): Promi
       ? `${cities.slice(0, 3).join(", ")} dahil ${marketCount} halden güncel veri. `
       : "";
 
+    if (slug === "kekik") return { priceLine: "Demet hal fiyatları ve kg borsa kayıtları ayrı gösterilir. ", cityLine, dateTr: formatDateTr(latestDate) ?? "" };
     const avgs = dayRows
       .map((p) => toNumberSafe(p.avgPrice))
       .filter((n) => Number.isFinite(n) && n > 0);
@@ -263,7 +265,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
   ];
 
-  return getPageMetadata("urun", {
+  const metadata = await getPageMetadata("urun", {
     locale,
     pathname: `/urun/${slug}`,
     vars: {
@@ -299,6 +301,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
     },
   });
+  // Two predeclared CTR pilots; preserve canonical/robots and other products.
+  if (slug === "limon" || slug === "mandalina") {
+    const title = `${nameClean} Fiyatları — Hal Listesi ve Çeşitler`;
+    const description = `${nameClean} hal fiyatlarını şehir, çeşit, tarih ve birimiyle inceleyin. ${cityLine}Yerel kayıtlar ve geçmiş fiyatlar; bahçe ve perakende fiyatından ayrı.`;
+    return { ...metadata, title, description, openGraph: { ...metadata.openGraph, title, description }, twitter: { ...metadata.twitter, title, description } };
+  }
+  return metadata;
 }
 
 export default async function UrunPage({ params }: Props) {
@@ -506,8 +515,8 @@ export default async function UrunPage({ params }: Props) {
       }];
     }),
   ).values()];
-  const shortTrend = calculateWindowTrend(history, 7);
-  const longTrend = calculateWindowTrend(history, 30);
+  const shortTrend = slug === "kekik" ? null : calculateWindowTrend(history, 7);
+  const longTrend = slug === "kekik" ? null : calculateWindowTrend(history, 30);
 
   const datasetDates = schemaDateRange(
     [...todayPrices, ...borsaPrices, ...resmiPrices, ...history].map((row) => row.recordedDate),
@@ -607,7 +616,7 @@ export default async function UrunPage({ params }: Props) {
 
       <AnswerBlock
         id="ortalama-fiyat"
-        title={`Bugün ${displayName} Türkiye ortalama hal fiyatı ne kadar?`}
+        title={slug === "kekik" ? "Kekik fiyatında hangi birim kullanılıyor?" : `Bugün ${displayName} Türkiye ortalama hal fiyatı ne kadar?`}
         meta={
           <>
             <strong className="text-foreground">Kaynak:</strong>{" "}
@@ -624,7 +633,7 @@ export default async function UrunPage({ params }: Props) {
           </>
         }
       >
-        {offerAvg > 0 && latestDate ? (
+        {slug === "kekik" ? <p>Hal kayıtlarında demet ve farklı ambalaj etiketleri bulunur. Bunlardan tek bir Türkiye kilogram fiyatı hesaplanmaz. <a href="#borsa-kayitlari" className="underline">Kilogram üzerinden borsa kayıtları</a> aşağıda sınıf ve satış şekliyle ayrı gösterilir.</p> : offerAvg > 0 && latestDate ? (
           <>
             <time dateTime={latestDate}>{formatDateTr(latestDate)}</time> tarihli verilere göre{" "}
             <strong className="text-foreground">{displayName}</strong> Türkiye ortalama toptan hal
@@ -745,13 +754,15 @@ export default async function UrunPage({ params }: Props) {
         </nav>
       )}
 
+      {!borsaProduct && <CityProductLinks product={slug} productName={displayName} />}
+
       {/* Grafik */}
-      <div className="rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6">
+      {slug !== "kekik" && <div className="rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6">
         <PriceChart history={history} productName={displayName} />
-      </div>
+      </div>}
 
       {/* Sezon karsilastirma */}
-      <SeasonCompare history={history} productName={displayName} />
+      {slug !== "kekik" && <SeasonCompare history={history} productName={displayName} />}
 
       {isClusterMaster && (
         <VariantPriceTable
@@ -803,7 +814,9 @@ export default async function UrunPage({ params }: Props) {
         </p>
       </div>
 
-      {!borsaProduct && <CityProductLinks product={slug} productName={displayName} />}
+      {slug === "uzum" && <section className="my-6 rounded-xl border border-border p-5"><h2 className="text-xl font-bold">Kuru üzüm fiyatı mı arıyorsunuz?</h2><p className="mt-2">Bu sayfadaki hal kayıtları yaş ve sofralık üzüm içindir. Kurutulmuş ürünün sınıf ve satış şekline göre fiyatlarını <Link href="/urun/kuru-uzum" className="underline">kuru üzüm borsa kayıtlarında</Link> inceleyin.</p></section>}
+      {slug === "kekik" && <><section className="my-6 rounded-xl border border-border p-5"><h2 className="text-xl font-bold">Taze kekik, demet ve kilogram ayrımı</h2><p className="mt-2">Hal tablosundaki demet fiyatları kilogram fiyatı değildir. “25 gr” gibi ambalaj bilgisi taşıyan satırlarda kaynak birimi ayrıca kontrol edilmelidir; ambalaj bilgisi tek başına kg dönüşümü için kullanılmaz. Aşağıdaki borsa kayıtları naturel, işlenmiş ve diğer sınıfları kendi etiketleriyle TL/kg olarak gösterir.</p></section><SpecialtyBorsaTable product="kekik" /></>}
+
 
       {borsaProduct && (
         <section className="mt-8 grid gap-8">
