@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props) {
   return getPageMetadata(`piyasa-${slug}`, {
     locale,
     pathname: `/piyasa/${slug}`,
-    title: `${config.title} | HalDeFiyat`,
+    title: config.title,
     description: config.description,
   });
 }
