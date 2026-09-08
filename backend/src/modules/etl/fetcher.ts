@@ -1,4 +1,5 @@
 import { fetchAdanaBulletin } from "./sources/municipality/adana";
+import { fetchAntalyaHalBulletin } from "./sources/municipality/antalya";
 /**
  * Jenerik ETL fetcher.
  *
@@ -1039,6 +1040,13 @@ async function fetchDated(
   date: string,
   isBackfill = false,
 ): Promise<FetchOutcome | null> {
+  if (source.responseShape === "antalya_hal_pdf") {
+    // Kaynak o gun yayin yapmadiysa null → cagiran "veri yayinlamadi" olarak kapatir,
+    // eski bulten bugunun tarihiyle yeniden yazilmaz.
+    const rows = await fetchAntalyaHalBulletin(source.baseUrl, date);
+    if (!rows) return { rows: [], dateUsed: date, httpStatus: 200 };
+    return { rows, dateUsed: rows[0]!.recordedDate, httpStatus: 200 };
+  }
   if (source.responseShape === "adana_html") {
     const rows = await fetchAdanaBulletin(source.baseUrl, isBackfill ? source.backfillEndpoint : source.endpointTemplate, date, isBackfill);
     return { rows, dateUsed: rows[0]!.recordedDate, httpStatus: 200 };

@@ -21,6 +21,7 @@ type ResponseShape =
   | "antkomder_html"
   | "ankara_html"
   | "adana_html"
+  | "antalya_hal_pdf"
   | "mersin_html"
   | "konya_html"
   | "kayseri_html"
@@ -112,9 +113,14 @@ const RAW_SOURCES: RawSource[] = [
   // HTML tablo: bugün + dün fiyatı. Tek sayfada iki gün veri gelir; fetcher
   // başlıktan tarihleri okur ve her ürün/gün için ayrı kayıt üretir.
   // URL pattern'i hal id'sine göre — Merkez=1, Serik=3, Kumluca=4.
+  // 2026-09-08: KAPATILDI. Dernek 23 Haziran'dan beri her urunde "Fiyat
+  // Bekleniyor" yaziyor (HTTP 200, 0 satir). Ayni hal artik belediyenin resmi
+  // gunluk PDF bulteninden besleniyor (`antalya_resmi`). Ikisi acik kalirsa ayni
+  // hale iki farkli adlandirmayla yazip Antalya urun listesini sisirirler.
+  // Dernek yayina donerse geri acilabilir.
   {
     key:               "antalya_merkez_antkomder",
-    defaultEnabled:    true,
+    defaultEnabled:    false,
     defaultMarketSlug: "antalya-hal-merkez",
     defaultBaseUrl:    "https://antalyakomisyonculardernegi.com",
     defaultEndpoint:   "/hal-fiyatlari/1",
@@ -158,6 +164,14 @@ const RAW_SOURCES: RawSource[] = [
     responseShape:     "ankara_html",
     defaultUnit:       "kg",
     defaultCategory:   "sebze-meyve",
+  },
+  // Antalya Buyuksehir gunluk hal bulteni (PDF). ANTKOMDER dernek yayini
+  // 23 Haziran 2026'da durdu; belediye ayni veriyi kendi panelinden yayimliyor.
+  // JSON ucu tarih alip PDF adresi doner, oturum/cerez istemez, gecmis tarih kabul eder.
+  {
+    key: "antalya_resmi", defaultEnabled: true, defaultMarketSlug: "antalya-hal-merkez",
+    defaultBaseUrl: "https://gezipanel.antalya.bel.tr", defaultEndpoint: "/hal-gunluk-fiyat",
+    responseShape: "antalya_hal_pdf", defaultUnit: "kg", defaultCategory: "sebze-meyve",
   },
   {
     key: "adana_resmi", defaultEnabled: true, defaultMarketSlug: "adana-hal",
