@@ -1,0 +1,35 @@
+{
+  "pages": [
+    {
+      "slug": "adana-limon",
+      "status": 200,
+      "title": "Adana Limon Piyasası — Kaynak ve Fiyat Kapsamı"
+    },
+    {
+      "slug": "adana-mayer-limon",
+      "status": 200,
+      "title": "Adana Mayer Limon Piyasası — Kaynak ve Fiyat Kapsamı"
+    },
+    {
+      "slug": "adana-mandalina",
+      "status": 200,
+      "title": "Adana Mandalina Piyasası — Kaynak ve Fiyat Kapsamı"
+    },
+    {
+      "slug": "mersin-limon",
+      "status": 200,
+      "title": "Mersin Limon Piyasası — Kaynak ve Fiyat Kapsamı"
+    },
+    {
+      "slug": "erdemli-limon",
+      "status": 200,
+      "title": "Erdemli Limon Piyasası — Kaynak ve Fiyat Kapsamı"
+    }
+  ],
+  "health": {
+    "status": "ok",
+    "db": "ok",
+    "redis": "disabled",
+    "uptime": 65.403616206
+  }
+}

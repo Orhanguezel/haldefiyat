@@ -1,0 +1,206 @@
+[
+  {
+    "path": "/urun/limon",
+    "status": 200,
+    "title": "Limon Fiyatları — Hal Listesi ve Çeşitler | HaldeFiyat",
+    "robots": "<meta content=\"index, follow\" name=\"robots\"/>",
+    "canonical": "<link href=\"https://haldefiyat.com/urun/limon\" rel=\"canonical\"/>",
+    "h1": [
+      "Limon (Kg)"
+    ],
+    "localBox": false,
+    "oldClaim": false,
+    "stale": false,
+    "rows": 0,
+    "csv": false,
+    "titleTrial": true,
+    "priceBeforeWeather": null
+  },
+  {
+    "path": "/urun/mandalina",
+    "status": 200,
+    "title": "Mandalina Fiyatları — Hal Listesi ve Çeşitler | HaldeFiyat",
+    "robots": "<meta content=\"index, follow\" name=\"robots\"/>",
+    "canonical": "<link href=\"https://haldefiyat.com/urun/mandalina\" rel=\"canonical\"/>",
+    "h1": [
+      "Mandalina"
+    ],
+    "localBox": false,
+    "oldClaim": false,
+    "stale": false,
+    "rows": 0,
+    "csv": false,
+    "titleTrial": true,
+    "priceBeforeWeather": null
+  },
+  {
+    "path": "/urun/kekik",
+    "status": 200,
+    "title": "Kekik Fiyatları Bugün Kaç TL? 8 Eylül 2026 — Hal ve Toptan",
+    "robots": "<meta content=\"index, follow\" name=\"robots\"/>",
+    "canonical": "<link href=\"https://haldefiyat.com/urun/kekik\" rel=\"canonical\"/>",
+    "h1": [
+      "Kekik"
+    ],
+    "localBox": false,
+    "oldClaim": false,
+    "stale": false,
+    "rows": 24,
+    "csv": true,
+    "titleTrial": false,
+    "priceBeforeWeather": null
+  },
+  {
+    "path": "/urun/uzum",
+    "status": 200,
+    "title": "Üzüm Fiyatları Bugün Kaç TL? 8 Eylül 2026 — Hal ve Toptan",
+    "robots": "<meta content=\"index, follow\" name=\"robots\"/>",
+    "canonical": "<link href=\"https://haldefiyat.com/urun/uzum\" rel=\"canonical\"/>",
+    "h1": [
+      "Üzüm"
+    ],
+    "localBox": false,
+    "oldClaim": false,
+    "stale": false,
+    "rows": 0,
+    "csv": false,
+    "titleTrial": false,
+    "priceBeforeWeather": null
+  },
+  {
+    "path": "/urun/kuru-uzum",
+    "status": 200,
+    "title": "Kuru Üzüm Fiyatları 2026 — Sınıf Bazında İTB Kayıtları",
+    "robots": "None",
+    "canonical": "<link href=\"https://haldefiyat.com/urun/kuru-uzum\" rel=\"canonical\"/>",
+    "h1": [
+      "Kuru Üzüm Fiyatları 2026"
+    ],
+    "localBox": false,
+    "oldClaim": false,
+    "stale": false,
+    "rows": 13,
+    "csv": true,
+    "titleTrial": false,
+    "priceBeforeWeather": null
+  },
+  {
+    "path": "/fiyat/adana/limon",
+    "status": 200,
+    "title": "Adana Limon Fiyatları 8 Eylül 2026",
+    "robots": "<meta content=\"index, follow\" name=\"robots\"/>",
+    "canonical": "<link href=\"https://haldefiyat.com/fiyat/adana/limon\" rel=\"canonical\"/>",
+    "h1": [
+      "Adana Limon Fiyatları"
+    ],
+    "localBox": false,
+    "oldClaim": false,
+    "stale": false,
+    "rows": 0,
+    "csv": false,
+    "titleTrial": false,
+    "priceBeforeWeather": null
+  },
+  {
+    "path": "/fiyat/adana/mandalina",
+    "status": 200,
+    "title": "Adana Mandalina Fiyatları 22 Haziran 2026",
+    "robots": "<meta content=\"noindex, follow\" name=\"robots\"/>",
+    "canonical": "<link href=\"https://haldefiyat.com/fiyat/adana/mandalina\" rel=\"canonical\"/>",
+    "h1": [
+      "Adana Mandalina Fiyatları"
+    ],
+    "localBox": false,
+    "oldClaim": false,
+    "stale": true,
+    "rows": 0,
+    "csv": false,
+    "titleTrial": false,
+    "priceBeforeWeather": null
+  },
+  {
+    "path": "/piyasa/adana-mayer-limon",
+    "status": 200,
+    "title": "Adana Mayer Limon Piyasası — Kaynak ve Fiyat Kapsamı |…",
+    "robots": "None",
+    "canonical": "<link href=\"https://haldefiyat.com/piyasa/adana-mayer-limon\" rel=\"canonical\"/>",
+    "h1": [
+      "Adana Mayer Limon Piyasası"
+    ],
+    "localBox": true,
+    "oldClaim": false,
+    "stale": false,
+    "rows": 0,
+    "csv": false,
+    "titleTrial": false,
+    "priceBeforeWeather": null
+  },
+  {
+    "path": "/piyasa/adana-mandalina",
+    "status": 200,
+    "title": "Adana Mandalina Piyasası — Kaynak ve Fiyat Kapsamı |…",
+    "robots": "None",
+    "canonical": "<link href=\"https://haldefiyat.com/piyasa/adana-mandalina\" rel=\"canonical\"/>",
+    "h1": [
+      "Adana Mandalina Piyasası"
+    ],
+    "localBox": true,
+    "oldClaim": false,
+    "stale": false,
+    "rows": 0,
+    "csv": false,
+    "titleTrial": false,
+    "priceBeforeWeather": null
+  },
+  {
+    "path": "/piyasa/erdemli-limon",
+    "status": 200,
+    "title": "Erdemli Limon Piyasası — Kaynak ve Fiyat Kapsamı |…",
+    "robots": "None",
+    "canonical": "<link href=\"https://haldefiyat.com/piyasa/erdemli-limon\" rel=\"canonical\"/>",
+    "h1": [
+      "Erdemli Limon Piyasası"
+    ],
+    "localBox": true,
+    "oldClaim": false,
+    "stale": false,
+    "rows": 0,
+    "csv": false,
+    "titleTrial": false,
+    "priceBeforeWeather": null
+  },
+  {
+    "path": "/hal/izmir-hal",
+    "status": 200,
+    "title": "İzmir Hal Fiyatları Bugün 8 Eylül 2026",
+    "robots": "<meta content=\"index, follow\" name=\"robots\"/>",
+    "canonical": "<link href=\"https://haldefiyat.com/hal/izmir-hal\" rel=\"canonical\"/>",
+    "h1": [
+      "İzmir Toptancı Hali"
+    ],
+    "localBox": false,
+    "oldClaim": false,
+    "stale": false,
+    "rows": 0,
+    "csv": false,
+    "titleTrial": false,
+    "priceBeforeWeather": true
+  },
+  {
+    "path": "/hal/kayseri-hal",
+    "status": 200,
+    "title": "Kayseri Hal Fiyatları Bugün 8 Eylül 2026",
+    "robots": "<meta content=\"index, follow\" name=\"robots\"/>",
+    "canonical": "<link href=\"https://haldefiyat.com/hal/kayseri-hal\" rel=\"canonical\"/>",
+    "h1": [
+      "Kayseri Toptancı Hali"
+    ],
+    "localBox": false,
+    "oldClaim": false,
+    "stale": false,
+    "rows": 0,
+    "csv": false,
+    "titleTrial": false,
+    "priceBeforeWeather": true
+  }
+]
