@@ -1,0 +1,11 @@
+### Result
+{"cards":2,"errors":[],"overflow":false}
+### Ran Playwright code
+```js
+await (async(page)=>{const errors=[];page.on("pageerror",e=>errors.push(e.message));await page.goto("https://haldefiyat.com/fiyatlar");await page.locator("[data-social-follow=footer]").waitFor();return {cards:await page.locator("[data-social-follow=footer] a").count(),errors,overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)};})(page);
+```
+### Page
+- Page URL: https://haldefiyat.com/fiyatlar
+- Page Title: Hal Fiyatları Bugün 2026 — Güncel Toptan Sebze & Meyve…
+### Events
+- New console entries: .playwright-cli/console-2026-09-08T11-44-07-997Z.log#L4-L9

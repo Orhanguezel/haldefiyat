@@ -1,0 +1,8 @@
+### Result
+{"cards":2,"overflow":false}
+### Ran Playwright code
+```js
+await (async(page)=>{await page.setViewportSize({width:1440,height:1000});await page.reload();const c=page.locator("[data-social-follow=footer]");await c.screenshot({path:"output/playwright/social-visibility/live-desktop.png"});return {cards:await c.locator("a").count(),overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)};})(page);
+```
+### Events
+- New console entries: .playwright-cli/console-2026-09-08T11-44-07-997Z.log#L1-L3

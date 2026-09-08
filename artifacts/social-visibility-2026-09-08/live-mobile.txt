@@ -1,0 +1,6 @@
+### Result
+{"cards":[{"href":"https://whatsapp.com/channel/0029VbDeApA47XeAxvhDTn3G","text":"WHATSAPP KANALI\nHal fiyatları cebinde.\n\nHal fiyatlarını ve kaynaklı piyasa analizlerini kanalımızdan takip et.\n\nWhatsApp kanalını takip et"},{"href":"https://www.facebook.com/1093315187207024","text":"FACEBOOK SAYFAMIZ\nPiyasayı birlikte takip edelim.\n\nFiyat paylaşımlarını incele, yorumunla HaldeFiyat topluluğuna katıl.\n\nFacebook’ta takip et"}],"overflow":false}
+### Ran Playwright code
+```js
+await (async(page)=>{await page.evaluate(()=>localStorage.setItem("hf_cookie_consent","rejected"));await page.setViewportSize({width:390,height:844});await page.reload();const c=page.locator("[data-social-follow=home]");await c.waitFor();await c.screenshot({path:"output/playwright/social-visibility/live-mobile.png"});return {cards:await c.locator("a").evaluateAll(es=>es.map(e=>({href:e.href,text:e.innerText}))),overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)};})(page);
+```
