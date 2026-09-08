@@ -129,12 +129,13 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
     id: 5,
     key: 'marketing',
     items: [
+      // GA4 / Google Ads / GTM / Meta Pixel panelleri 2026-09-08'de kaldirildi:
+      // pazarlama ve sosyal takip tek yerden, Tanitio'dan yurutuluyor. Burada
+      // yalniz Search Console kaldi — onu SILME: rakip kesfi, analiz kalitesi,
+      // SEO index ve seo-volume modulleri GSC API'sini programatik kullaniyor,
+      // google-connect de o API'nin yetkilendirme kapisi.
       { key: 'google_connect', url: '/admin/google-connect', icon: MousePointerClick },
-      { key: 'ga4', url: '/admin/ga4', icon: BarChart3 },
       { key: 'search_console', url: '/admin/search-console', icon: Search },
-      { key: 'google_ads', url: '/admin/google-ads', icon: TrendingUp },
-      { key: 'gtm', url: '/admin/gtm', icon: Tags },
-      { key: 'meta', url: '/admin/meta', icon: MousePointerClick },
       { key: 'banners', url: '/admin/banners', icon: Megaphone },
     ],
   },
@@ -157,9 +158,7 @@ export const adminNavConfig: AdminNavConfigGroup[] = [
       { key: 'contacts', url: '/admin/contacts', icon: Contact2 },
       { key: 'email_templates', url: '/admin/email-templates', icon: Mail },
       { key: 'newsletter', url: '/admin/newsletter', icon: Mail },
-      { key: 'twitter', url: '/admin/twitter', icon: Send },
-      { key: 'facebook', url: '/admin/facebook', icon: Facebook },
-      { key: 'instagram', url: '/admin/instagram', icon: Instagram },
+      // X / Facebook / Instagram panelleri kaldirildi — yayin ve takip Tanitio'da.
     ],
   },
   {
@@ -210,11 +209,7 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   alerts: 'Uyari Listesi',
   production: 'Yillik Uretim',
   google_connect: 'Google Bağlantısı',
-  ga4: 'GA4 Analytics',
   search_console: 'Search Console',
-  google_ads: 'Google Ads',
-  gtm: 'Google Tag Manager',
-  meta: 'Meta Pixel + CAPI',
   banners: 'Reklam / Bannerlar',
   custom_pages: 'Sayfalar',
   analysis_reports: 'Analiz Yazilari',
@@ -224,9 +219,6 @@ const FALLBACK_TITLES: Record<AdminNavItemKey, string> = {
   email_templates: 'E-posta Sablonlari',
   contacts: 'İletişim Mesajları',
   newsletter: 'Bülten',
-  twitter: 'X / Twitter',
-  facebook: 'Facebook',
-  instagram: 'Instagram',
   popups: 'Popup Yönetimi',
   users: 'Kullanicilar',
   site_settings: 'Site Ayarlari',

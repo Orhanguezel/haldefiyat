@@ -25,14 +25,7 @@ export type AdminPermissionKey =
   | 'admin.audit'
   | 'admin.competitor_monitor'
   | 'admin.google_connect'
-  | 'admin.ga4'
   | 'admin.search_console'
-  | 'admin.google_ads'
-  | 'admin.gtm'
-  | 'admin.meta'
-  | 'admin.twitter'
-  | 'admin.facebook'
-  | 'admin.instagram'
   | 'admin.popups'
   | 'admin.banners'
   | 'admin.entegrasyonlar';
@@ -64,14 +57,7 @@ export type AdminNavKey =
   | 'audit'
   | 'competitor_monitor'
   | 'google_connect'
-  | 'ga4'
   | 'search_console'
-  | 'google_ads'
-  | 'gtm'
-  | 'meta'
-  | 'twitter'
-  | 'facebook'
-  | 'instagram'
   | 'popups'
   | 'banners'
   | 'entegrasyonlar';
@@ -103,14 +89,7 @@ const ADMIN_PERMISSION_ROLE_MAP: Record<AdminPermissionKey, PanelRole[]> = {
   'admin.audit': ADMIN_ONLY,
   'admin.competitor_monitor': ADMIN_ONLY,
   'admin.google_connect': ADMIN_ONLY,
-  'admin.ga4': ADMIN_ONLY,
   'admin.search_console': ADMIN_ONLY,
-  'admin.google_ads': ADMIN_ONLY,
-  'admin.gtm': ADMIN_ONLY,
-  'admin.meta': ADMIN_ONLY,
-  'admin.twitter': ADMIN_ONLY,
-  'admin.facebook': ADMIN_ONLY,
-  'admin.instagram': ADMIN_ONLY,
   'admin.popups': ADMIN_ONLY,
   'admin.banners': ADMIN_ONLY,
   'admin.entegrasyonlar': ADMIN_ONLY,
@@ -147,14 +126,7 @@ const ADMIN_NAV_PERMISSION_MAP: Partial<Record<AdminNavKey, AdminPermissionKey>>
   audit: 'admin.audit',
   competitor_monitor: 'admin.competitor_monitor',
   google_connect: 'admin.google_connect',
-  ga4: 'admin.ga4',
   search_console: 'admin.search_console',
-  google_ads: 'admin.google_ads',
-  gtm: 'admin.gtm',
-  meta: 'admin.meta',
-  twitter: 'admin.twitter',
-  facebook: 'admin.facebook',
-  instagram: 'admin.instagram',
   popups: 'admin.popups',
   banners: 'admin.banners',
   entegrasyonlar: 'admin.entegrasyonlar',
@@ -191,14 +163,7 @@ const ADMIN_PERMISSION_PATHS: Record<AdminPermissionKey, string[]> = {
   'admin.audit': ['/admin/audit'],
   'admin.competitor_monitor': ['/admin/competitor-monitor'],
   'admin.google_connect': ['/admin/google-connect'],
-  'admin.ga4': ['/admin/ga4'],
   'admin.search_console': ['/admin/search-console'],
-  'admin.google_ads': ['/admin/google-ads'],
-  'admin.gtm': ['/admin/gtm'],
-  'admin.meta': ['/admin/meta'],
-  'admin.twitter': ['/admin/twitter'],
-  'admin.facebook': ['/admin/facebook'],
-  'admin.instagram': ['/admin/instagram'],
   'admin.popups': ['/admin/popups'],
   'admin.banners': ['/admin/banners'],
   'admin.entegrasyonlar': ['/admin/entegrasyonlar'],
