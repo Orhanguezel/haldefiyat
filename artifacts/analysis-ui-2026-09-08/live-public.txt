@@ -1,0 +1,12 @@
+### Result
+{"url":"https://haldefiyat.com/analiz","cards":20,"firstCover":{"loaded":false,"fit":"contain"},"overflow":false}
+### Ran Playwright code
+```js
+await (async page=>{await page.goto("https://haldefiyat.com/analiz");await page.setViewportSize({width:390,height:844});await page.getByRole("button",{name:"Reddet",exact:true}).click({timeout:2000}).catch(()=>{});const card=page.locator("li a[href*=pamuk]").first();await card.scrollIntoViewIfNeeded();await page.waitForTimeout(1200);await page.screenshot({path:"output/playwright/report-ui/live-public-mobile.png"});return {url:page.url(),cards:await page.locator("li a[href^=\"/analiz/\"] img").count(),firstCover:await card.locator("img").evaluate(x=>({loaded:x.naturalWidth>0,fit:getComputedStyle(x).objectFit})),overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)};})(page);
+```
+### Page
+- Page URL: https://haldefiyat.com/analiz
+- Page Title: Hal Fiyatı Analizleri & Haftalık Raporlar | HalDeFiyat
+- Console: 1 errors, 0 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-09-08T13-36-58-290Z.log#L2

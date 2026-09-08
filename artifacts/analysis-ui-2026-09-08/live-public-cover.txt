@@ -1,0 +1,6 @@
+### Result
+{"loaded":true,"overflow":false}
+### Ran Playwright code
+```js
+await (async page=>{const img=page.locator("li a[href*=pamuk] img").first();await img.scrollIntoViewIfNeeded();await page.waitForFunction(()=>{const x=document.querySelector("li a[href*=pamuk] img");return x&&x.complete&&x.naturalWidth>0;},{},{timeout:20000});await page.screenshot({path:"output/playwright/report-ui/live-public-mobile.png"});return {loaded:await img.evaluate(x=>x.naturalWidth>0),overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)};})(page);
+```
