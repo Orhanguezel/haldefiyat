@@ -114,12 +114,13 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'twitter_api_secret', '*', '""'),
 (UUID(), 'twitter_access_token', '*', '""'),
 (UUID(), 'twitter_access_token_secret', '*', '""'),
-(UUID(), 'facebook_enabled', '*', 'false'),
-(UUID(), 'facebook_page_id', '*', '""'),
-(UUID(), 'facebook_page_access_token', '*', '""'),
-(UUID(), 'instagram_enabled', '*', 'false'),
-(UUID(), 'instagram_business_account_id', '*', '""'),
-(UUID(), 'instagram_access_token', '*', '""'),
+-- Facebook/Instagram YAYIN anahtarlari 2026-09-08'de kaldirildi. Bu repo o iki
+-- platforma yayin YAPMAZ: tek yayinci ekosistem-sosyal-medya (Tanitio). Anahtarlari
+-- hicbir kod okumuyordu; bos kimlik alanlari olarak durmak, ileride birinin doldurup
+-- ikinci bir yayinci kurmasina davetiye cikariyordu. Sitede FB/IG gonderilerinin
+-- GORUNMESI etkilenmez: o veri Tanitio'nun DB'sinden salt-okunur okunur
+-- (modules/social/repository.ts). Reklam olcumu de etkilenmez: meta_* anahtarlari
+-- (Pixel + CAPI) ayri sistemdir, admin panelde kullanilir ve DURUYOR.
 (UUID(), 'linkedin_enabled', '*', 'false'),
 (UUID(), 'linkedin_organization_urn', '*', '""'),
 (UUID(), 'linkedin_access_token', '*', '""'),
