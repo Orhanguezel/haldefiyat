@@ -1,0 +1,11 @@
+### Result
+{"ads":[{"brand":"vistaseeds","w":326,"h":400,"media":160},{"brand":"bereketfide","w":326,"h":400,"media":160}],"badCopy":0,"productAd":"SPONSORLU\nSebze fidesi için Bereket Fide\nAşılı ve aşısız sebze fidesi; sipariş üzerine üretim, zamanında teslim.\nFide Talebi Oluştur\n→","overflow":false}
+### Ran Playwright code
+```js
+await (async(page)=>{await page.setViewportSize({width:390,height:1000});await page.reload();const top=page.locator("aside[aria-label=\"Reklam alanı: prices_top\"]");await top.locator("[data-seed-sponsor]").first().waitFor();await top.screenshot({path:"output/playwright/banner-consistency/live-ads-mobile.png"});const ads=await top.locator("[data-seed-sponsor]").evaluateAll(es=>es.map(e=>({brand:e.dataset.seedSponsor,w:e.getBoundingClientRect().width,h:e.getBoundingClientRect().height,media:e.querySelector("[data-sponsor-media]").getBoundingClientRect().height})));await page.goto("https://haldefiyat.com/urun/limon");await page.locator("[data-seed-sponsor=bereketfide]").waitFor();return {ads,badCopy:await page.getByText("Bu ürünün fidesi bizde",{exact:true}).count(),productAd:await page.locator("[data-seed-sponsor=bereketfide]").innerText(),overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)};})(page);
+```
+### Page
+- Page URL: https://haldefiyat.com/urun/limon
+- Page Title: Limon Fiyatları — Hal Listesi ve Çeşitler | HaldeFiyat
+### Events
+- New console entries: .playwright-cli/console-2026-09-08T12-08-57-868Z.log#L2-L4

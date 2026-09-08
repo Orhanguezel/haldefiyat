@@ -1,0 +1,6 @@
+### Result
+{"ads":[{"brand":"vistaseeds","width":552,"height":240,"images":true},{"brand":"bereketfide","width":552,"height":240,"images":true}],"social":["https://whatsapp.com/channel/0029VbDeApA47XeAxvhDTn3G","https://www.facebook.com/1093315187207024","https://t.me/haldefiyat"],"overflow":false}
+### Ran Playwright code
+```js
+await (async(page)=>{await page.setViewportSize({width:1440,height:1100});await page.reload();await page.getByRole("button",{name:"Reddet",exact:true}).click({timeout:4000}).catch(()=>{});const top=page.locator("aside[aria-label=\"Reklam alanı: prices_top\"]");await top.locator("[data-seed-sponsor]").first().waitFor();await top.screenshot({path:"output/playwright/banner-consistency/live-ads-desktop.png"});await page.locator("[data-social-follow=footer]").screenshot({path:"output/playwright/banner-consistency/live-social-desktop.png"});return {ads:await top.locator("[data-seed-sponsor]").evaluateAll(es=>es.map(e=>({brand:e.dataset.seedSponsor,width:e.getBoundingClientRect().width,height:e.getBoundingClientRect().height,images:[...e.querySelectorAll("img")].every(i=>i.complete&&i.naturalWidth>0)}))),social:await page.locator("[data-social-follow=footer] a").evaluateAll(es=>es.map(e=>e.href)),overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)};})(page);
+```
