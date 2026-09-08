@@ -7,7 +7,7 @@ Dört kaynak belge yeniden değerlendirildi; uygulanabilir veri/SEO/monitör dü
 | İş | Doğrulanan sonuç |
 |---|---|
 | Rakip ölçümü | #6: 30/30 sorgu, 570 sonuç, tek motor Brave; 187 web alan adı |
-| Sosyal fırsatlar | 3 hesap, 17 grup, 7 gönderi; gruplar web rakibi toplamından ayrı |
+| Sosyal fırsatlar | 27 sorgu–URL eşleşmesi: 3 hesap sonucu, 17 grup sonucu (8 ayrı grup), 7 gönderi sonucu (6 ayrı URL); gruplar web rakibi toplamından ayrı |
 | Karşılaştırma | #5 ile aynı motor/derinlik/sorgu kümesi: 2 yeni, 1 kaybolan alan adı; Google değişimi değildir |
 | Seed | MySQL 8.0.46, geçici tablolarda 097+099 iki tekrar başarılı; canlı veritabanı drop/seed edilmedi |
 | Snapshot | DOM sayımları toplam ürün/hal diye sunulmuyor; JSON-LD yalnız çekilen sayfa kapsamında. Eski sezgisel kayıtlar DB’de korunup public admin çıktısında doğrulanmamış etiketleniyor |

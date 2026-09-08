@@ -468,7 +468,7 @@ uygulanabilir; tersi de geçerli.
 - **1:** MySQL **8.0.46** üzerinde bağlantıya özel geçici tablolarla 097+099 iki kez çalıştırıldı. İkinci koşu geçti; dört alan nullable. Canlı tablolar drop/seed edilmedi.
 - **2/4:** eski, kısmi, karışık/bilinmeyen motor ve farklı sorgu kümesi sahte kayıp üretmiyor. Uygun geçmiş koşu aranıyor; bulunamazsa gerekçe panelde görünüyor.
 - **3/5:** ölü yedek değişkeni kaldırıldı; takip eşleşmesi URL hostname eşitliğiyle yapılıyor.
-- **6:** yeni **#6** taraması **30/30**, **570 sonuç**, tek motor Brave. **187 web alan adı**; ayrıca **3 hesap + 17 grup + 7 gönderi** ayrı sosyal sekmede. Gruplar web rakibi toplamına katılmıyor. Google dönemi ayrıca gösteriliyor. #5 ile ölçülebilir kıyas: 2 yeni/1 kaybolan alan adı; bu Google sıralama değişimi değildir.
+- **6:** yeni **#6** taraması **30/30**, **570 sonuç**, tek motor Brave. **187 web alan adı**; ayrıca **27 sosyal sorgu–URL eşleşmesi** ayrı sekmede: 3 hesap sonucu, 17 grup sonucu (8 ayrı grup), 7 gönderi sonucu (6 ayrı URL). Gruplar web rakibi toplamına katılmıyor. Google dönemi ayrıca gösteriliyor. #5 ile ölçülebilir kıyas: 2 yeni/1 kaybolan alan adı; bu Google sıralama değişimi değildir.
 - **7:** DOM satırı/kart regex’i site toplamı diye kullanılmıyor. JSON-LD ürün varlıkları yalnız çekilen sayfa kapsamında ve yöntem sürümüyle tutuluyor; toplam ürün/hal bilinmiyorsa NULL. Geçmiş sezgisel rakamlar DB’de korunuyor fakat API’de doğrulanmış toplam olarak sunulmuyor; eski “değişiklik yok” metni doğrulanmamış ölçüm etiketi alıyor (`0fbbeaad`).
 - **8:** başarılı önceki snapshot sınırı ve GSC/SERP ayrımı korundu.
 
