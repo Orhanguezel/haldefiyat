@@ -337,7 +337,14 @@ const RAW_SOURCES: RawSource[] = [
   // Fiyat formatı "160,00 ₺". Sayfa tarih parametresi almaz.
   {
     key:               "corum_resmi",
-    // 2026-09-02: SafeLine WAF (HTTP 468) — Scrapling stealthy+dynamic 94sn bekleyerek de asamadi
+    // 2026-09-02: SafeLine WAF (HTTP 468) — Scrapling stealthy+dynamic 94sn bekleyerek de asamadi.
+    // 2026-09-08: calisan bir JSON ucu bulundu (POST /hal-fiyatlari, body "date=DD.MM.YYYY",
+    // XHR basligi ile) ve SafeLine cerezi IP'ye bagli DEGIL — ayni cerez VPS'ten de acti.
+    // Ama cerez ancak GERCEK tarayicidan aliniyor: Scrapling ve duz Playwright Chromium
+    // challenge'i gecemedi, `sl-session` 24 saatlik. Yani gunluk cron cerezi kendi alamaz;
+    // kaynak elle cerez yenilemeye bagli kalirdi. Bakim yuku kabul edilmedi (2026-09-08
+    // kullanici karari) → PASIF. Yeniden acmak icin: scraper-service SafeLine destegi
+    // kazanmali. Ayrica yanitta hic tarih alani yok; ingest edilirse icerik-hash guard'i sart.
     defaultEnabled:    false,
     defaultMarketSlug: "corum-hal",
     defaultBaseUrl:    "https://www.corum.bel.tr",
