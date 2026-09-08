@@ -1,3 +1,4 @@
+import ReportCard from '@/components/analysis/ReportCard';
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
 import { getPageMetadata } from "@/lib/seo";
@@ -171,31 +172,7 @@ export default async function AnalizPage({ params, searchParams }: Props) {
       <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
         {makaleler.map((m) => (
           <li key={m.slug}>
-            <Link
-              href={`/analiz/${m.slug}`}
-              className="group block rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-(--color-brand)/30 hover:shadow-lg"
-            >
-              <div className="mb-3 flex flex-wrap items-center gap-2">
-                {m.etiketler.slice(0, 3).map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-(--color-brand)/10 px-2.5 py-0.5 text-[11px] font-semibold text-(--color-brand)"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <h2 className="mb-2 text-[18px] font-bold text-(--color-foreground) group-hover:text-(--color-brand) transition-colors leading-snug">
-                {m.baslik}
-              </h2>
-              <p className="mb-4 text-sm text-(--color-muted) leading-relaxed line-clamp-2">
-                {m.ozet}
-              </p>
-              <div className="flex items-center justify-between text-[12px] text-(--color-muted)">
-                <span className="font-medium">{m.yazar}</span>
-                      <time dateTime={m.tarih}>{formatDateTr(m.tarih) ?? m.tarih}</time>
-              </div>
-            </Link>
+            <ReportCard report={m} heading="h2" />
           </li>
         ))}
       </ul>

@@ -1,3 +1,4 @@
+import ReportCard from '@/components/analysis/ReportCard';
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -305,7 +306,7 @@ export default async function AnalizMakalePage({ params }: Props) {
       ]} />
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <article className="min-w-0 rounded-[20px] border border-(--color-border) bg-(--color-surface) p-6 sm:p-8 lg:p-10">
+        <article className="min-w-0 overflow-hidden rounded-[20px] border border-(--color-border) bg-(--color-surface) p-5 sm:p-8 lg:p-10">
           <Image
             src={coverImagePath(makale, makale.slug)}
             alt={coverAlt}
@@ -313,7 +314,7 @@ export default async function AnalizMakalePage({ params }: Props) {
             height={630}
             priority
             sizes="(max-width: 1024px) 100vw, 760px"
-            className="mb-7 aspect-[1200/630] w-full rounded-[16px] border border-(--color-border-soft) object-cover"
+            className="mb-8 aspect-[1200/630] w-full rounded-xl border border-(--color-border-soft) bg-white object-contain"
           />
           <div className="mb-5 flex flex-wrap gap-2">
             {(isWeekly ? ["Haftalık Rapor", ...makale.etiketler] : makale.etiketler).slice(0, 6).map((tag) => (
@@ -536,20 +537,7 @@ export default async function AnalizMakalePage({ params }: Props) {
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="list">
             {related.map((m) => (
               <li key={m.slug}>
-                <Link
-                  href={`/analiz/${m.slug}`}
-                  className="group flex h-full items-start gap-3 rounded-xl border border-(--color-border-soft) bg-(--color-bg-alt) p-4 transition-colors hover:border-(--color-brand)/30"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[14px] font-semibold text-(--color-foreground) group-hover:text-(--color-brand) transition-colors leading-snug">
-                      {m.baslik}
-                    </p>
-                    <time className="mt-0.5 block text-[12px] text-(--color-muted)" dateTime={m.tarih}>
-                      {formatDateTr(m.tarih) ?? m.tarih}
-                    </time>
-                  </div>
-                  <span className="shrink-0 text-(--color-muted) group-hover:text-(--color-brand) transition-colors">→</span>
-                </Link>
+                <ReportCard report={m} />
               </li>
             ))}
           </ul>

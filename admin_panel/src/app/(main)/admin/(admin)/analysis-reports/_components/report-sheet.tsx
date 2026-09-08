@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ReportCover } from './report-cover';
 import { Archive, Edit, ExternalLink, FileText, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +19,7 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">{label}</div><div className="text-lg font-semibold tabular-nums">{value}</div></div>;
 }
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
-  return <div className="flex justify-between gap-3 border-b py-1.5 text-sm last:border-0"><span className="text-muted-foreground">{label}</span><span className="text-right">{value}</span></div>;
+  return <div className="flex justify-between gap-3 border-b py-1.5 text-sm last:border-0"><span className="text-muted-foreground">{label}</span><span className="min-w-0 break-words text-right">{value}</span></div>;
 }
 
 type Props = { row: AnalysisReportAdmin | null; onClose: () => void; t: TranslateFn; tc: TranslateFn };
@@ -45,7 +46,7 @@ export function ReportSheet({ row, onClose, t, tc }: Props) {
         {row ? (
           <>
             <SheetHeader className="border-b px-6 py-4">
-              <SheetTitle className="text-base leading-snug">{row.baslik}</SheetTitle>
+              <SheetTitle className="pr-6 text-xl leading-snug">{row.baslik}</SheetTitle>
               <SheetDescription className="flex flex-wrap items-center gap-1.5">
                 <Badge variant={STATUS_VARIANT[row.status]} className="font-normal">{t(`statuses.${row.status}`)}</Badge>
                 <span>#{row.id}</span><span aria-hidden>·</span>
@@ -54,6 +55,8 @@ export function ReportSheet({ row, onClose, t, tc }: Props) {
               </SheetDescription>
             </SheetHeader>
             <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-5">
+              <ReportCover src={row.ogImage} slug={row.slug} published={row.status === 'published'} alt={row.imageAlt || row.baslik} className="aspect-video w-full" />
+              <p className="text-base leading-7 text-muted-foreground">{row.ozet}</p>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <Stat label={t('sheet.records')} value={row.totalRecords.toLocaleString('tr-TR')} />
                 <Stat label={t('sheet.words')} value={wordCount(row.icerik)} />
@@ -71,10 +74,6 @@ export function ReportSheet({ row, onClose, t, tc }: Props) {
                 <Row label={t('sheet.ogImage')} value={row.ogImage ? tc('yes') : <span className="text-amber-600">{t('sheet.missing')}</span>} />
               </div>
               {row.etiketler.length ? <div className="flex flex-wrap gap-1">{row.etiketler.map((tag) => <Badge key={tag} variant="outline" className="font-normal">{tag}</Badge>)}</div> : null}
-              <div>
-                <div className="mb-1 text-xs text-muted-foreground">{t('sheet.summary')}</div>
-                <p className="rounded-md border bg-muted/40 p-3 text-sm leading-6">{row.ozet || '—'}</p>
-              </div>
               {row.status === 'published' ? (
                 <a href={`${SITE}/analiz/${row.slug}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm text-primary hover:underline"><ExternalLink className="size-3.5" /> {tc('openPage')}</a>
               ) : null}

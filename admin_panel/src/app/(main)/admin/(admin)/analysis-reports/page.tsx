@@ -19,7 +19,7 @@ export default function Page() {
   const t = useAdminT('admin.analysis');
   const tc = useAdminT('admin.common');
   const router = useRouter();
-  const { data, isLoading } = useListAnalysisReportsAdminQuery({ status: 'all', limit: 500 });
+  const { data, isLoading, isError, refetch } = useListAnalysisReportsAdminQuery({ status: 'all', limit: 500 });
   const [generate, { isLoading: generating }] = useGenerateAnalysisReportAdminMutation();
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [openId, setOpenId] = useState<number | null>(null);
@@ -40,10 +40,10 @@ export default function Page() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold">{t('title')}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
           <p className="text-sm text-muted-foreground">{isLoading ? tc('loading') : t('subtitle', { total: stats.total, published: stats.published, draft: stats.draft })}</p>
         </div>
         <div className="flex gap-2">
@@ -81,7 +81,7 @@ export default function Page() {
         <span className="ml-auto self-center text-sm text-muted-foreground">{t('table.summary', { count: visible.length })}</span>
       </div>
 
-      <ReportsTable rows={visible} loading={isLoading} activeId={openId ?? undefined} onSelect={(r) => setOpenId(r.id)} t={t} tc={tc} />
+      {isError ? <div role="alert" className="rounded-xl border p-6 text-center"><p>Raporlar yüklenemedi.</p><Button variant="outline" className="mt-3" onClick={() => refetch()}>Tekrar dene</Button></div> : <ReportsTable rows={visible} loading={isLoading} activeId={openId ?? undefined} onSelect={(r) => setOpenId(r.id)} t={t} tc={tc} />}
       <ReportSheet row={open} onClose={() => setOpenId(null)} t={t} tc={tc} />
     </div>
   );

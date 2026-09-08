@@ -1,4 +1,5 @@
 'use client';
+import { ReportCover } from './report-cover';
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -80,7 +81,7 @@ function isDefaultOgImage(value: string | null | undefined): boolean {
 
 function analysisCoverUrl(ogImage: string | null | undefined, slug: string): string {
   const raw = String(ogImage || '').trim();
-  if (!isDefaultOgImage(raw)) return resolveMediaUrl(raw);
+  if (!isDefaultOgImage(raw)) return raw.startsWith('/') ? `${SITE_URL}${raw}` : resolveMediaUrl(raw);
   const safeSlug = slug.trim();
   return safeSlug ? `${SITE_URL}/og/analiz/${safeSlug}` : '';
 }
@@ -216,7 +217,7 @@ export function AnalysisReportDetailClient({ id }: Props) {
   const status = report?.status ?? 'draft';
   const previewUrl = editor.slug && SITE_URL ? `${SITE_URL}/analiz/${editor.slug}` : '';
   const customOgImage = isDefaultOgImage(editor.ogImage) ? '' : editor.ogImage;
-  const effectiveCoverUrl = analysisCoverUrl(editor.ogImage, editor.slug || slugify(editor.title));
+  const effectiveCoverUrl = customOgImage ? analysisCoverUrl(customOgImage, editor.slug) : (status === 'published' && report?.slug ? analysisCoverUrl(null, report.slug) : '');
   const tags = splitTags(editor.tags);
   const authors = authorsData?.items ?? [];
 
@@ -306,8 +307,8 @@ export function AnalysisReportDetailClient({ id }: Props) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="mx-auto max-w-[1600px] space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-4">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => router.push('/admin/analysis-reports')}>
             <ArrowLeft className="mr-1.5 h-4 w-4" />
@@ -345,14 +346,15 @@ export function AnalysisReportDetailClient({ id }: Props) {
         </div>
       </div>
 
-      <Card>
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
+      <Card className="min-w-0 overflow-hidden rounded-2xl">
         <CardHeader>
           <CardTitle className="text-base">{t('cardTitle')}</CardTitle>
           {!isNew && isFetching && <p className="text-muted-foreground text-xs">{t('refreshing')}</p>}
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
               <TabsTrigger value="content">{t('tabs.content')}</TabsTrigger>
               <TabsTrigger value="preview">{t('tabs.preview')}</TabsTrigger>
               <TabsTrigger value="seo">{t('tabs.seo')}</TabsTrigger>
@@ -360,11 +362,12 @@ export function AnalysisReportDetailClient({ id }: Props) {
               <TabsTrigger value="quality">{t('tabs.quality')}</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="content" className="space-y-4 pt-4">
+            <TabsContent value="content" className="space-y-6 pt-6">
               <div className="grid gap-2">
                 <Label htmlFor="analysis-title">{t('fields.title')}</Label>
                 <Input
                   id="analysis-title"
+                  className="h-12 text-base font-semibold"
                   value={editor.title}
                   onChange={(event) => setEditor((prev) => ({ ...prev, title: event.target.value }))}
                   onBlur={() => setEditor((prev) => (prev.slug ? prev : { ...prev, slug: slugify(prev.title) }))}
@@ -564,6 +567,19 @@ export function AnalysisReportDetailClient({ id }: Props) {
           </Tabs>
         </CardContent>
       </Card>
+      <aside className="space-y-4 xl:sticky xl:top-6">
+        <Card className="overflow-hidden rounded-2xl">
+          <ReportCover src={effectiveCoverUrl} alt={editor.imageAlt || editor.title} className="aspect-video rounded-none border-0" />
+          <CardContent className="space-y-4 pt-5">
+            <Badge variant={statusVariant(status)}>{ta(`statuses.${status}`)}</Badge>
+            <h2 className="break-words text-lg font-semibold leading-snug">{editor.title || t('fields.title')}</h2>
+            <p className="line-clamp-4 text-sm leading-6 text-muted-foreground">{editor.summary || t('fields.summary')}</p>
+            <Button className="w-full" variant="outline" onClick={() => setActiveTab('image')}>{t('cover.label')}</Button>
+            <Button className="w-full" variant="outline" onClick={() => setActiveTab('quality')}>{t('tabs.quality')}</Button>
+          </CardContent>
+        </Card>
+      </aside>
+      </div>
     </div>
   );
 }
