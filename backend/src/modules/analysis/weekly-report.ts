@@ -10,6 +10,7 @@ import { resolveWeekRange } from "@/modules/prices/iso-week";
 import { weeklyPriceSummary, type WeeklySummary } from "@/modules/prices/weekly";
 import { registerAnalysisQuality } from "./quality";
 import { persistMonthlyReport } from "./monthly-report";
+import { attachViews, reportViewSummary } from "./report-views";
 import {
   buildMetaDescriptionFrom, buildMetaTitleFor, buildReportTitle, indexStatusOf,
   MONTH_LABELS, MONTH_SLUGS, trNum, trPct, trPctSigned, trPeriod, trPeriodShort, trPriceUnit,
@@ -182,7 +183,12 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
     const status = parsed.success ? parsed.data.status : undefined;
     const limit = Math.min(500, Math.max(1, parsed.success ? (parsed.data.limit ?? 100) : 100));
     const rows = await listAdminReports(status, limit);
-    return reply.send({ items: rows.map(reportRowToAdmin) });
+    // Goruntulenme TEK toplu sorgudan gelir; rapor basina alt sorgu acilmaz.
+    const views = await reportViewSummary();
+    return reply.send({
+      items: attachViews(rows.map(reportRowToAdmin), views),
+      viewsSince: views.since,
+    });
   });
 
   app.post("/analysis/reports/generate", async (req, reply) => {
@@ -245,7 +251,11 @@ export async function registerAnalysisAdmin(app: FastifyInstance) {
     if (!Number.isFinite(id)) return reply.status(400).send({ error: "Gecersiz id" });
     const [row] = await db.select().from(hfAnalysisReports).where(eq(hfAnalysisReports.id, id)).limit(1);
     if (!row) return reply.status(404).send({ error: "Rapor bulunamadi" });
-    return reply.send({ data: reportRowToAdmin(row) });
+    const views = await reportViewSummary();
+    return reply.send({
+      data: attachViews([reportRowToAdmin(row)], views)[0],
+      viewsSince: views.since,
+    });
   });
 
   app.patch<{ Params: { id: string } }>("/analysis/reports/:id", async (req, reply) => {

@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Eye, Pencil } from 'lucide-react';
+import { BarChart3, Eye, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ReportCover } from './report-cover';
 import type { TranslateFn } from '@/i18n';
@@ -25,6 +25,13 @@ export function ReportsTable({ rows, loading, activeId, onSelect, t, tc }: Props
           <button type="button" onClick={() => onSelect(r)} className="text-left text-base font-semibold leading-snug hover:text-primary focus-visible:outline-2 focus-visible:outline-primary">{r.baslik}</button>
           <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">{r.ozet}</p>
           <p className="text-xs text-muted-foreground">{r.yazar} · {r.totalRecords.toLocaleString('tr-TR')} {t('sheet.records')} · {wordCount(r.icerik)} {t('sheet.words')}</p>
+          {/* Goruntulenme: kendi beacon'imiz. Prefetch sayilmaz, bot/ic trafik dislanir. */}
+          <p className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+            <BarChart3 className="size-3.5 text-muted-foreground" />
+            {r.views > 0
+              ? <>{r.views.toLocaleString('tr-TR')} görüntülenme{r.lastViewedAt ? <span className="font-normal text-muted-foreground"> · son {formatDate(r.lastViewedAt)}</span> : null}</>
+              : <span className="font-normal text-muted-foreground">henüz görüntülenmedi</span>}
+          </p>
         </div>
         <div className="flex shrink-0 gap-2 sm:flex-col xl:flex-row">
           <Button variant="outline" size="sm" onClick={() => onSelect(r)}><Eye className="size-4" /> Önizle</Button>

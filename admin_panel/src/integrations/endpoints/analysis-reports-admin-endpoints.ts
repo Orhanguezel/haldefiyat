@@ -25,6 +25,13 @@ export interface AnalysisReportAdmin {
   publishedAt: string | null;
   createdAt: string | null;
   updatedAt: string | null;
+  /**
+   * Yazinin kac defa goruntulendigi. Kaynak: kendi pageview beacon'imiz — RSC
+   * on-yukleme (prefetch) sayilmaz, bot ve ic trafik dislanir. Olcum
+   * `viewsSince` tarihinde basladi; ondan onceki goruntulenmeler kayitli degil.
+   */
+  views: number;
+  lastViewedAt: string | null;
 }
 
 export interface AnalysisReportPatch {
@@ -96,7 +103,7 @@ export interface AnnounceResult {
 export const analysisReportsAdminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     listAnalysisReportsAdmin: builder.query<
-      { items: AnalysisReportAdmin[] },
+      { items: AnalysisReportAdmin[]; viewsSince: string | null },
       { status?: AnalysisReportStatus | 'all'; limit?: number } | undefined
     >({
       query: (params) => {
@@ -108,9 +115,10 @@ export const analysisReportsAdminApi = baseApi.injectEndpoints({
       },
       providesTags: [{ type: 'AnalysisReports' as const, id: 'LIST' }],
     }),
-    getAnalysisReportAdmin: builder.query<AnalysisReportAdmin, { id: number | string }>({
+    getAnalysisReportAdmin: builder.query<AnalysisReportAdmin & { viewsSince: string | null }, { id: number | string }>({
       query: ({ id }) => ({ url: `/admin/analysis/reports/${id}` }),
-      transformResponse: (response: { data: AnalysisReportAdmin }) => response.data,
+      transformResponse: (response: { data: AnalysisReportAdmin; viewsSince: string | null }) =>
+        ({ ...response.data, viewsSince: response.viewsSince }),
       providesTags: (_res, _err, { id }) => [{ type: 'AnalysisReports' as const, id }],
     }),
     createAnalysisReportAdmin: builder.mutation<{ data: AnalysisReportAdmin }, AnalysisReportCreate>({

@@ -30,6 +30,10 @@ export default function Page() {
   const open = useMemo(() => rows.find((r) => r.id === openId) ?? null, [rows, openId]);
   const patch = (p: Partial<Filters>) => setFilters((prev) => ({ ...prev, ...p }));
   const dirty = filters.q || filters.status !== ALL || filters.source !== ALL;
+  const viewsSince = data?.viewsSince ?? null;
+  const viewsHint = viewsSince
+    ? `${new Date(viewsSince).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })} tarihinden beri`
+    : 'ölçüm verisi yok';
 
   async function handleGenerate() {
     try {
@@ -56,6 +60,10 @@ export default function Page() {
         { key: 'total', label: t('tiles.total'), value: stats.total, hint: t('tiles.totalHint', { auto: stats.auto }), active: filters.status === ALL, onClick: () => patch({ status: ALL }) },
         { key: 'published', label: t('tiles.published'), value: stats.published, hint: t('tiles.publishedHint'), tone: 'text-emerald-600', active: filters.status === 'published', onClick: () => patch({ status: 'published' }) },
         { key: 'draft', label: t('tiles.draft'), value: stats.draft, hint: t('tiles.draftHint'), tone: stats.draft ? 'text-amber-600' : '', active: filters.status === 'draft', onClick: () => patch({ status: 'draft' }) },
+        // Goruntulenme kendi beacon'imizdan: RSC on-yukleme sayilmaz, bot ve ic
+        // trafik dislanir. Olcum viewsSince'te basladi, oncesi kayitli degil.
+        { key: 'views', label: 'Görüntülenme', value: stats.views, hint: viewsHint },
+        { key: 'unseen', label: 'Hiç görüntülenmedi', value: stats.unseen, hint: 'yayımda ama tek okuyucu almamış', tone: stats.unseen ? 'text-amber-600' : '' },
         { key: 'archived', label: t('tiles.archived'), value: stats.archived, hint: t('tiles.archivedHint'), active: filters.status === 'archived', onClick: () => patch({ status: 'archived' }) },
         { key: 'thin', label: t('tiles.thin'), value: stats.thin, hint: t('tiles.thinHint'), tone: stats.thin ? 'text-rose-600' : '' },
       ]} columns="sm:grid-cols-3 xl:grid-cols-5" />

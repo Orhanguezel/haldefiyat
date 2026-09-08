@@ -46,5 +46,7 @@ export function summarize(rows: AnalysisReportAdmin[]) {
     archived: c((r) => r.status === 'archived'),
     auto: c((r) => r.source === 'auto'),
     thin: c((r) => r.status === 'published' && wordCount(r.icerik) < 300),
+    views: rows.reduce((sum, r) => sum + (r.views ?? 0), 0),
+    unseen: c((r) => r.status === 'published' && (r.views ?? 0) === 0),
   };
 }

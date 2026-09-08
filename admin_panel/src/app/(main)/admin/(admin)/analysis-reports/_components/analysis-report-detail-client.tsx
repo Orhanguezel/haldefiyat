@@ -574,6 +574,24 @@ export function AnalysisReportDetailClient({ id }: Props) {
             <Badge variant={statusVariant(status)}>{ta(`statuses.${status}`)}</Badge>
             <h2 className="break-words text-lg font-semibold leading-snug">{editor.title || t('fields.title')}</h2>
             <p className="line-clamp-4 text-sm leading-6 text-muted-foreground">{editor.summary || t('fields.summary')}</p>
+            {/* Goruntulenme — kendi pageview beacon'imiz. RSC on-yukleme (prefetch)
+                sayilmaz, bot ve ic trafik dislanir; olcum viewsSince'te basladi. */}
+            {!isNew && report ? (
+              <div className="rounded-xl border bg-muted/40 p-3">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-xs font-medium text-muted-foreground">Görüntülenme</span>
+                  <span className="font-mono text-xl font-bold tabular-nums">{(report.views ?? 0).toLocaleString('tr-TR')}</span>
+                </div>
+                <p className="mt-1 text-[11px] leading-4 text-muted-foreground">
+                  {report.viewsSince
+                    ? `${new Date(report.viewsSince).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })} tarihinden beri`
+                    : 'ölçüm verisi yok'}
+                  {report.lastViewedAt
+                    ? ` · son okunma ${new Date(report.lastViewedAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}`
+                    : ''}
+                </p>
+              </div>
+            ) : null}
             <Button className="w-full" variant="outline" onClick={() => setActiveTab('image')}>{t('cover.label')}</Button>
             <Button className="w-full" variant="outline" onClick={() => setActiveTab('quality')}>{t('tabs.quality')}</Button>
           </CardContent>
