@@ -5,15 +5,17 @@ import { setRequestLocale } from "next-intl/server";
 import { ArrowRight, LineChart, MapPin } from "lucide-react";
 
 import Breadcrumb from "@/components/seo/Breadcrumb";
+import JsonLd from "@/components/seo/JsonLd";
 import AnswerBlock from "@/components/seo/AnswerBlock";
 import PriceChart from "@/components/sections/PriceChartLazy";
 import PageContainer from "@/components/layout/PageContainer";
 import { CityCompareTable, CityProductKeyNumbers, EditorialBlocks, MarketMovers } from "@/components/sections/CityProductSections";
 import { fetchCityProduct, fetchProductEditorial } from "@/lib/api";
-import { buildCityProductSummary } from "@/lib/city-product";
+import { buildCityProductDataset, buildCityProductFaq, buildCityProductSummary } from "@/lib/city-product";
 import { formatDateTr } from "@/lib/date-format";
 import { PIYASA_BY_PRODUCT } from "@/lib/piyasa";
-import { getPageMetadata } from "@/lib/seo";
+import { fitTitle, marketQualifier } from "@/lib/meta-title";
+import { DATA_LICENSE_URL, getPageMetadata } from "@/lib/seo";
 
 /**
  * /fiyat/<sehir>/<urun> — sehir x urun sayfasi (pilot, 2026-09).
@@ -30,7 +32,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!d) return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
   const year = String(new Date().getFullYear());
   const dateTr = d.latest ? (formatDateTr(d.latest.recordedDate) ?? "") : "";
-  const title = `${d.pair.cityName} ${d.pair.productName} Fiyatları ${year} — ${d.pair.marketName}`;
+  // Eski baslik marketName'i sonuna ekliyordu ve 60 karakteri asinca kirpiliyordu:
+  // "Adana Limon Fiyatlari 2026 — Adana Buyuksehir Belediyesi…". Hal adinin
+  // kurumsal kismi aramada karsiligi yok; yalniz ayirt edici yer adi (varsa)
+  // kuyruga giriyor, o da sigmazsa hic eklenmiyor. Yil yerine son veri tarihi
+  // tazelik sinyali verir.
+  const title = fitTitle(
+    `${d.pair.cityName} ${d.pair.productName} Fiyatları ${dateTr || year}`,
+    [marketQualifier(d.pair.marketName, d.pair.cityName)],
+  );
   const live = d.latest ? `${dateTr}: ortalama ${d.latest.avgPrice.toLocaleString("tr-TR", { maximumFractionDigits: 2 })} TL/${d.pair.unit}. ` : "";
   const description = `${d.pair.cityName} ${d.pair.productName.toLocaleLowerCase("tr-TR")} hal fiyatı. ${live}${d.pair.marketName} günlük kaydı, 90 günlük fiyat seyri, çeşit ve kaynak bilgisi.`;
   return getPageMetadata("fiyat_sehir_urun", {
@@ -49,9 +59,21 @@ export default async function CityProductPage({ params }: Props) {
   const dateTr = d.latest ? (formatDateTr(d.latest.recordedDate) ?? "") : "";
   const lower = pair.productName.toLocaleLowerCase("tr-TR");
   const piyasa = PIYASA_BY_PRODUCT[pair.productSlug];
+  const faqItems = buildCityProductFaq(d, dateTr);
 
   return (
     <PageContainer py="sm">
+      <JsonLd type="Dataset" data={buildCityProductDataset(d, DATA_LICENSE_URL)} />
+      <JsonLd
+        type="FAQPage"
+        data={{
+          mainEntity: faqItems.map((item) => ({
+            "@type": "Question",
+            name: item.question,
+            acceptedAnswer: { "@type": "Answer", text: item.answer },
+          })),
+        }}
+      />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
         { name: `${pair.productName} Fiyatları`, href: `/urun/${pair.productSlug}` },
@@ -92,6 +114,21 @@ export default async function CityProductPage({ params }: Props) {
       <CityCompareTable d={d} />
       <MarketMovers d={d} />
       <EditorialBlocks productName={pair.productName} priceFactors={editorial?.priceFactors ?? ""} season={editorial?.season ?? ""} />
+
+      {/* FAQPage semasi yalniz bu gorunur blogu isaretler — sorular ve cevaplar birebir ayni. */}
+      <section className="mt-12" aria-label="Sık sorulan sorular">
+        <h2 className="font-(family-name:--font-display) text-2xl font-black text-(--color-foreground)">
+          {pair.cityName} {lower} fiyatı — sık sorulan sorular
+        </h2>
+        <dl className="mt-4 space-y-5">
+          {faqItems.map((item) => (
+            <div key={item.question} className="rounded-2xl border border-(--color-border) bg-(--color-bg-alt) p-5">
+              <dt className="font-semibold text-(--color-foreground)">{item.question}</dt>
+              <dd className="mt-2 text-sm leading-7 text-(--color-muted)">{item.answer}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
 
       <section className="my-12" aria-label="İlgili sayfalar">
         <div className="rounded-2xl border border-(--color-border) bg-(--color-bg-alt) p-6">

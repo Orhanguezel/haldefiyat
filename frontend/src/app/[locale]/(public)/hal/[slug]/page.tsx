@@ -12,6 +12,8 @@ import FreshnessBadge from "@/components/ui/FreshnessBadge";
 import WeatherWidget from "@/components/sections/WeatherWidget";
 import { cityToWeatherSlug } from "@/lib/weather";
 import { DATA_LICENSE_URL, getPageMetadata } from "@/lib/seo";
+import { marketQualifier, pickTitle } from "@/lib/meta-title";
+import { buildMarketFaq } from "@/lib/market-faq";
 import { schemaDateRange } from "@/lib/schema-dates";
 import { getMarketEditorial } from "@/lib/market-content";
 import FirmCard from "@/components/firms/FirmCard";
@@ -116,10 +118,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // ifadesini hic tasimiyordu (6 Eyl 2026 analizi). Tarih = son veri gunu, tazelik sinyali.
   const isNationalTitle = market.cityName.toLocaleLowerCase("tr-TR") === "türkiye";
   const isFreshSummary = summary.date && Date.now() - Date.parse(`${summary.date.slice(0, 10)}T12:00:00Z`) <= 7 * 86400000;
-  const title = isNationalTitle
-    ? `Türkiye Hal Fiyatları Bugün ${dateTr || yearTr} — ${market.name}`
-    : `${market.cityName} Hal Fiyatları ${isFreshSummary ? "Bugün" : "— Son Liste"} ${dateTr || yearTr} — ${market.name}`;
-  // market.name zaten şehri içerir ("Antalya Toptancı Hali ...") → cityName tekrarı yok.
+  // market.name'in tamami basliga sigmiyordu: 60 karakter siniri "Bayrampasa"yi
+  // kesip yerine "…" koyuyordu, oysa "bayrampasa hal fiyatlari" ayda 1.936
+  // gosterim getiriyor. Artik sehri ve kurumsal kelimeleri atip yalniz ayirt
+  // edici hal adini kuyruga koyuyoruz. Adaylar tercih sirasinda: once "Bugun",
+  // sonra tarih feda edilir, kimlik en sona kadar korunur — kuyrugu once
+  // dusurmek ayni sehirdeki iki kaynagi ayni baslikta birlestiriyordu
+  // (Ankara Toptanci Hali ile Polatli Ticaret Borsasi).
+  const qualifier = marketQualifier(market.name, market.cityName);
+  const head = isNationalTitle ? "Türkiye Hal Fiyatları" : `${market.cityName} Hal Fiyatları`;
+  const dateLabel = dateTr || yearTr;
+  // Bayat bultende "— Son Liste" isareti KORUNUR: Mersin gibi kaynagi kapali
+  // haller aylarca indexli kalabiliyor (22 Haziran 2026 verisiyle "mersin hal
+  // fiyatlari" sorgusunda hala ciktik). Tarihi tek basina yazmak, arayan icin
+  // o tarihin bugunku liste oldugu izlenimi birakir.
+  const when = isNationalTitle || isFreshSummary ? `Bugün ${dateLabel}` : `— Son Liste ${dateLabel}`;
+  const tail = qualifier ? ` — ${qualifier}` : "";
+  const title = pickTitle([
+    `${head} ${when}${tail}`,
+    `${head} ${dateTr || yearTr}${tail}`,
+    `${head}${tail}`,
+    `${head} ${when}`,
+    head,
+  ]);
   const description = `${market.name} güncel meyve sebze hali fiyatları. ${liveLine}Sebze, meyve ve bakliyat için min/ort/maks toptan fiyat. Kaynağın resmi yayın takvimine göre güncellenir.`;
 
   // page key "hal_detay": DB seo_pages'teki liste-sayfası "hal" (Tüm Haller)
@@ -251,6 +272,14 @@ export default async function HalPage({ params }: Props) {
   const staleBulletin = !latestDate || Date.now() - Date.parse(`${latestDate.slice(0, 10)}T12:00:00Z`) > 7 * 86400000;
   const movers = staleBulletin ? [] : calculateProductMovers(trendHistory, 3);
   const latestDateTr = formatDateTr(latestDate);
+  const marketFaq = buildMarketFaq({
+    marketName: market.name,
+    cityName: market.cityName,
+    latestDateTr: latestDateTr ?? "",
+    productCount: latestProductCount,
+    sourceLabel,
+    staleBulletin,
+  });
   const answerBlock = (
     <AnswerBlock
       id="bugunun-hal-fiyatlari"
@@ -507,6 +536,31 @@ export default async function HalPage({ params }: Props) {
           aracını kullanabilirsiniz.
         </p>
       </div>
+      {/* FAQPage semasi yalniz bu gorunur blogu isaretler — sorular ve cevaplar birebir ayni. */}
+      <section className="mt-8" aria-label="Sık sorulan sorular">
+        <JsonLd
+          type="FAQPage"
+          data={{
+            mainEntity: marketFaq.map((item) => ({
+              "@type": "Question",
+              name: item.question,
+              acceptedAnswer: { "@type": "Answer", text: item.answer },
+            })),
+          }}
+        />
+        <div className="rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-4">
+          <h2 className="text-base font-semibold text-foreground">{market.cityName} Hal Fiyatları: Sık Sorulan Sorular</h2>
+          <dl className="space-y-4">
+            {marketFaq.map((item) => (
+              <div key={item.question}>
+                <dt className="font-semibold text-foreground">{item.question}</dt>
+                <dd className="mt-1">{item.answer}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
       <BannerSlot
         position="hal_sidebar"
         className="mt-8"
