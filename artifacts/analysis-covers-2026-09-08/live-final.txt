@@ -1,0 +1,11 @@
+### Result
+{"cards":20,"allNewCovers":true,"staticArticleCover":"https://haldefiyat.com/uploads/analysis-covers/2026-09-08/greenhouse.webp","overflow":false}
+### Ran Playwright code
+```js
+await (async page=>{await page.goto("https://haldefiyat.com/analiz");await page.setViewportSize({width:1440,height:1000});const first=page.locator("li a[href*=pamuk]").first();await first.scrollIntoViewIfNeeded();await page.waitForFunction(()=>{const x=document.querySelector("li a[href*=pamuk] img");return x&&x.complete&&x.naturalWidth>0;},{},{timeout:20000});await page.screenshot({path:"output/playwright/analysis-covers/live-list-desktop.png"});const sources=await page.locator("li a[href^=\"/analiz/\"] img").evaluateAll(xs=>xs.map(x=>x.getAttribute("src")));await page.setViewportSize({width:390,height:844});await first.scrollIntoViewIfNeeded();await page.screenshot({path:"output/playwright/analysis-covers/live-list-mobile.png"});await page.goto("https://haldefiyat.com/analiz/sera-mi-tarla-mi-mevsimsel-fiyat-farki");const og=await page.locator("meta[property=\"og:image\"]").getAttribute("content");return {cards:sources.length,allNewCovers:sources.every(x=>x.includes("analysis-covers")),staticArticleCover:og,overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)};})(page);
+```
+### Page
+- Page URL: https://haldefiyat.com/analiz/sera-mi-tarla-mi-mevsimsel-fiyat-farki
+- Page Title: Sera mı Tarla mı? Sebze Fiyatlarında Mevsimsel Fark
+### Events
+- New console entries: .playwright-cli/console-2026-09-08T14-16-53-577Z.log#L1-L3

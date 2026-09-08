@@ -1,0 +1,6 @@
+### Result
+{"cover":"/_next/image?url=%2Fuploads%2Fanalysis-covers%2F2026-09-08%2Fcotton-field.webp&w=3840&q=75","alt":"Hasat döneminde açılmış kozalarıyla pamuk tarlası — yapay zekâ ile oluşturulmuş temsili görsel","og":"https://haldefiyat.com/uploads/analysis-covers/2026-09-08/cotton-field.webp"}
+### Ran Playwright code
+```js
+await (async page=>{await page.setViewportSize({width:1440,height:1000});await page.getByRole("button",{name:"Reddet",exact:true}).click({timeout:2000}).catch(()=>{});const img=page.locator("article img").first();await img.scrollIntoViewIfNeeded();await page.waitForFunction(()=>{const x=document.querySelector("article img");return x&&x.complete&&x.naturalWidth>0;},{},{timeout:20000});await page.screenshot({path:"output/playwright/analysis-covers/live-cotton-detail.png"});return {cover:await img.getAttribute("src"),alt:await img.getAttribute("alt"),og:await page.locator("meta[property=\"og:image\"]").getAttribute("content")};})(page);
+```

@@ -1,0 +1,122 @@
+[
+  {
+    "asset": "cotton-field",
+    "bytes": 182712,
+    "sha256": "199cb5d2c6bc393a1671e7b0b41b245cd4c2b347672103bbaee2a386d9f47a77",
+    "verified": true
+  },
+  {
+    "asset": "cotton-bales",
+    "bytes": 166710,
+    "sha256": "f8577f2a19e491514e0b34aa8683bbcc2bbbcfd2159cf80a8f2dfaf09a603cb6",
+    "verified": true
+  },
+  {
+    "asset": "lemon",
+    "bytes": 200194,
+    "sha256": "71414810088048b332965611115fc62825256ef880717252c64379e367bf1b1e",
+    "verified": true
+  },
+  {
+    "asset": "pomegranate",
+    "bytes": 214378,
+    "sha256": "93d9b42549f22a7f8bf9a15f1e67d3229879c836e03240b83627e289f128a7fa",
+    "verified": true
+  },
+  {
+    "asset": "fig-tomato",
+    "bytes": 159018,
+    "sha256": "f7d82ac51d3e87f9b5243b0b1423abe9282904875ad87d3f9ad019a445e4bfa5",
+    "verified": true
+  },
+  {
+    "asset": "peppers",
+    "bytes": 185452,
+    "sha256": "56fb6c2a0e783cf6e934a0ee348ba8f4a60e98b8ffc071e9a05e0deb76aa0b18",
+    "verified": true
+  },
+  {
+    "asset": "pickle",
+    "bytes": 227042,
+    "sha256": "28dd1e92582c238e26ee17768299c60138b034bf595d83567ce58947605875ea",
+    "verified": true
+  },
+  {
+    "asset": "berries",
+    "bytes": 201564,
+    "sha256": "bccf4b27d11035e0046459151fa8fdb6394922293d4791f4b5574b128a4f43e1",
+    "verified": true
+  },
+  {
+    "asset": "onion",
+    "bytes": 206086,
+    "sha256": "a1095fa7d92096c866612592938345d7c0c85ec6dcdb446b331209b403785ea2",
+    "verified": true
+  },
+  {
+    "asset": "tomato",
+    "bytes": 189168,
+    "sha256": "5405de8e1c2607172f60566abcdb0d149d82c1340e0b027639c4f7119b2079e1",
+    "verified": true
+  },
+  {
+    "asset": "olive",
+    "bytes": 154962,
+    "sha256": "b98b8b02b8638ce325e2dc28c63633c0606680576c2355d1b58f8965dac83286",
+    "verified": true
+  },
+  {
+    "asset": "summer-market",
+    "bytes": 209098,
+    "sha256": "1b600178f9ffecc20db5521c636e28cdff69a8979c3fa2925008f6f2a29cf585",
+    "verified": true
+  },
+  {
+    "asset": "roots",
+    "bytes": 214932,
+    "sha256": "7914edc0723ad7d63e3f083be8cf47ae848ced6ed57020a94ead2c7e09b5ec5d",
+    "verified": true
+  },
+  {
+    "asset": "greens",
+    "bytes": 280660,
+    "sha256": "86f7f6654c9b45094d085f359da27ff32eddcf71dffc2ac01ebca9b586de6835",
+    "verified": true
+  },
+  {
+    "asset": "beans",
+    "bytes": 200282,
+    "sha256": "ae801b99ea75a96e1f832206621e2d5bf8a2f4723f0ebd3ffd7721b54a050248",
+    "verified": true
+  },
+  {
+    "asset": "black-fig",
+    "bytes": 255142,
+    "sha256": "73c4c65625defba0170101274c94f7ac4d219adabd201ae5390519a57f565ac7",
+    "verified": true
+  },
+  {
+    "asset": "cucumber",
+    "bytes": 200672,
+    "sha256": "d1c04e34a98408e4ff28b821e1f533325084e56ed43f75f3acf420e1d03dec57",
+    "verified": true
+  },
+  {
+    "asset": "eggplant",
+    "bytes": 192766,
+    "sha256": "849f628dfd6e4fc89b568bd4a1183349b70457a47683c6fd3c09ddf8fcf92a72",
+    "verified": true
+  },
+  {
+    "asset": "apple",
+    "bytes": 145932,
+    "sha256": "40964210295bef517745a9d396df851f9d720fd29b1e8accb3593707ec739920",
+    "verified": true
+  },
+  {
+    "asset": "greenhouse",
+    "bytes": 340162,
+    "sha256": "94f100423a6ef0184639c4fe03ae0f5bd487666691881e954260b73acfe2261a",
+    "verified": true
+  }
+]

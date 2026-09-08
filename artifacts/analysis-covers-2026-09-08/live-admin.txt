@@ -1,0 +1,12 @@
+### Result
+{"covers":27,"allNew":true,"editorCover":"https://haldefiyat.com/uploads/analysis-covers/2026-09-08/cotton-bales.webp"}
+### Ran Playwright code
+```js
+await (async page=>{await page.route("**/api/v1/**",route=>["GET","HEAD","OPTIONS"].includes(route.request().method())?route.continue():route.abort());await page.goto("https://haldefiyat.com/admin/analysis-reports");await page.getByRole("button",{name:"Önizle",exact:true}).first().waitFor();await page.setViewportSize({width:1440,height:1000});await page.waitForTimeout(1000);await page.screenshot({path:"output/playwright/analysis-covers/live-admin-list.png"});const covers=await page.locator("main li img").evaluateAll(xs=>xs.map(x=>x.src));await page.getByRole("link",{name:"Düzenle / önizle",exact:true}).first().click();await page.locator("aside img").waitFor();await page.waitForFunction(()=>{const x=document.querySelector("aside img");return x&&x.complete&&x.naturalWidth>0;},{},{timeout:15000});await page.screenshot({path:"output/playwright/analysis-covers/live-admin-editor.png"});return {covers:covers.length,allNew:covers.every(x=>x.includes("analysis-covers")),editorCover:await page.locator("aside img").getAttribute("src")};})(page);
+```
+### Page
+- Page URL: https://haldefiyat.com/admin/analysis-reports/31
+- Page Title: Hal Fiyatlari Admin Panel
+- Console: 1 errors, 0 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-09-08T14-21-21-430Z.log#L1

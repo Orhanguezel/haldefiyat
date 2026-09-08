@@ -16,4 +16,11 @@ Sabit analizler frontend/src/lib/analiz.ts içinde açıkça eşleştirilmiştir
 ## Doğrulama
 - Frontend TypeScript ve git diff --check başarılı.
 - dry-run.json, applied.json, repeat-check.json uygulama kanıtıdır.
-- Canlı tarayıcı ve dağıtım kontrolü tamamlandığında sonuç eklenecek.
+- Canlı sürüm 8e47b8cbe24b. Üretim derlemeleri başarılı; dağıtım penceresinde nginx 5xx=0; sağlık status=ok/db=ok.
+- 27 yönetim kaydında yeni kapak doğrulandı; editörde pamuk balyası görseli yüklendi.
+- Halka açık listede görünen 20 kartın tamamı yeni kapak kullanıyor; 390px görünümde taşma yok. Sabit sera analizinin OG görseli greenhouse.webp.
+- Ana sayfa widget'ındaki altı yeni kapak yüklendi. Pamuk detayının kapak ve og:image alanları aynı yeni dosyayı kullanıyor.
+- 20 canlı dosyanın SHA256 özeti yerel dosyalarla eşleşiyor; toplam 4.126.932 bayt.
+- Uygulama 27 kaydı güncelledi. İkinci ön kontrolde değişiklik sayısı 0; içerik hash'leri, yayın tarihleri ve durumlar korundu.
+- Kanıtlar: live-assets.json, live-admin.txt, live-final.txt, live-detail.txt, live-widget.txt; ekran görüntüleri output/playwright/analysis-covers/.
+- İlk dağıtım denemesi ön kontrol için sunucuya kopyalanmış iki dosya nedeniyle Git geçişinde durdu; dosyalar /tmp/hal-analysis-covers-predeploy-20260908/ altına taşınarak dağıtım başarıyla tekrarlandı.

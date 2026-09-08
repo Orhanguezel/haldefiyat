@@ -1,0 +1,11 @@
+### Result
+{"widgetImages":[{"src":"/_next/image?url=%2Fuploads%2Fanalysis-covers%2F2026-09-08%2Fcotton-field.webp&w=3840&q=75","loaded":true},{"src":"/_next/image?url=%2Fuploads%2Fanalysis-covers%2F2026-09-08%2Fcotton-bales.webp&w=3840&q=75","loaded":true},{"src":"/_next/image?url=%2Fuploads%2Fanalysis-covers%2F2026-09-08%2Ffig-tomato.webp&w=3840&q=75","loaded":true},{"src":"/_next/image?url=%2Fuploads%2Fanalysis-covers%2F2026-09-08%2Fblack-fig.webp&w=3840&q=75","loaded":true},{"src":"/_next/image?url=%2Fuploads%2Fanalysis-covers%2F2026-09-08%2Fcucumber.webp&w=3840&q=75","loaded":true},{"src":"/_next/image?url=%2Fuploads%2Fanalysis-covers%2F2026-09-08%2Fpickle.webp&w=3840&q=75","loaded":true}],"count":6}
+### Ran Playwright code
+```js
+await (async page=>{await page.setViewportSize({width:1440,height:1000});await page.goto("https://haldefiyat.com/analiz");await page.locator("li a[href*=pamuk]").first().scrollIntoViewIfNeeded();await page.waitForFunction(()=>Array.from(document.querySelectorAll("li a[href^=\"/analiz/\"] img")).slice(0,3).every(x=>x.complete&&x.naturalWidth>0),{},{timeout:30000});await page.screenshot({path:"output/playwright/analysis-covers/live-list-desktop.png"});await page.goto("https://haldefiyat.com/");const section=page.getByRole("heading",{name:"Son Analiz Raporları"}).locator("xpath=ancestor::section");await section.scrollIntoViewIfNeeded();await page.waitForTimeout(2000);return {widgetImages:await section.locator("img").evaluateAll(xs=>xs.map(x=>({src:x.getAttribute("src"),loaded:x.naturalWidth>0}))),count:await section.locator("img").count()};})(page);
+```
+### Page
+- Page URL: https://haldefiyat.com/
+- Page Title: Türkiye Hal Fiyatları — Günlük, Gerçek Zamanlı
+### Events
+- New console entries: .playwright-cli/console-2026-09-08T14-16-53-577Z.log#L4-L12
