@@ -20,6 +20,13 @@ export interface CardPayload {
 
 const SITE = "https://haldefiyat.com";
 const HASHTAGS = "#HalFiyatları #HaldeFiyat #SebzeMeyve";
+/**
+ * @haldefiyat hashtag sozlesmesi: EN FAZLA 3 etiket (2 konu + sabit marka #HaldeFiyat).
+ * Tanitio'nun yayin kapisi (content-guard) 4. etiketi gorunce gonderiyi reddeder
+ * (2026-09-09 k2 "Mutfak sepeti" bu yuzden yayinlanmadi). Seriye ozel etiket
+ * genel #SebzeMeyve'nin YERINE gecer, ustune eklenmez.
+ */
+const seriesHashtags = (seriesTag: string) => `#HalFiyatları #HaldeFiyat ${seriesTag}`;
 const fmtPrice = (v: number) => v.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtPct = (v: number) => Math.abs(v).toLocaleString("tr-TR", { maximumFractionDigits: 1 });
 /** Isaretli yuzde: eksi degerlerde de isaret gorunur ("−%12,4"). */
@@ -154,7 +161,7 @@ export async function buildCard(series: CardSeries, size: CardSize): Promise<Car
     const imageUrl = await uploadCard(png, `k3-${data.productSlug}-${data.date}-${size}`);
     return {
       series, size, imageUrl, caption: cityCaption(data),
-      hashtags: `${HASHTAGS} #ŞehirŞehirHal`, link: `${SITE}/urun/${data.productSlug}`,
+      hashtags: seriesHashtags("#ŞehirŞehirHal"), link: `${SITE}/urun/${data.productSlug}`,
       contentKey: `k3:${data.productSlug}:${data.date}`, recordedDate: data.date, itemCount: data.rows.length,
     };
   }
@@ -166,7 +173,7 @@ export async function buildCard(series: CardSeries, size: CardSize): Promise<Car
     const imageUrl = await uploadCard(png, `k4-v2-${date}-${size}`);
     return {
       series, size, imageUrl, caption: gapCaption(items, date, retailDate),
-      hashtags: `${HASHTAGS} #HaldenMarkete`, link: `${SITE}/fiyatlar`,
+      hashtags: seriesHashtags("#HaldenMarkete"), link: `${SITE}/fiyatlar`,
       contentKey: `k4:v2:${date}`, recordedDate: date, itemCount: items.length,
     };
   }
@@ -181,7 +188,7 @@ export async function buildCard(series: CardSeries, size: CardSize): Promise<Car
     const imageUrl = await uploadCard(png, `k5-${date}-${size}`);
     return {
       series, size, imageUrl, caption: listingCaption(items, wanted),
-      hashtags: `${HASHTAGS} #İlan`, link: `${SITE}/ilanlar`,
+      hashtags: seriesHashtags("#İlan"), link: `${SITE}/ilanlar`,
       contentKey: `k5:${date}:${items.length}`, recordedDate: date, itemCount: items.length,
     };
   }
@@ -192,7 +199,7 @@ export async function buildCard(series: CardSeries, size: CardSize): Promise<Car
   const imageUrl = await uploadCard(png, `k2-${date}-${size}`);
   return {
     series, size, imageUrl, caption: basketCaption(items, date),
-    hashtags: `${HASHTAGS} #Pazar`, link: `${SITE}/fiyatlar`,
+    hashtags: seriesHashtags("#Pazar"), link: `${SITE}/fiyatlar`,
     contentKey: `k2:${date}`, recordedDate: date, itemCount: items.length,
   };
 }
