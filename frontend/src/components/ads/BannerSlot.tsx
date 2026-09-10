@@ -109,7 +109,7 @@ export function BannerCreative({ banner, sidebar }: { banner: PublicBanner; side
     return (
       <a href={listingHref} target={target} rel={rel} className={`${deviceClass(banner.device)} group flex min-h-28 overflow-hidden rounded-xl border border-(--color-border) bg-(--color-surface) text-(--color-foreground) shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg`.trim()}>
         {listing.imageUrl && (
-          <ResilientAdImage src={resolveImageUrl(listing.imageUrl)} alt={listing.title} className="w-32 shrink-0 object-cover sm:w-40" />
+          <ResilientAdImage src={resolveImageUrl(listing.imageUrl)} alt={listing.title} className="w-32 shrink-0 object-cover sm:w-40" width={160} height={112} />
         )}
         <span className="flex min-w-0 flex-1 flex-col justify-center p-4">
           <span className="text-[10px] font-bold uppercase tracking-[.14em] text-(--color-brand)">Sponsorlu ilan · {listing.productName}</span>

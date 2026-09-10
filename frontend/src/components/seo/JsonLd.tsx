@@ -1,6 +1,7 @@
 type JsonLdType =
   | "Organization"
   | "WebSite"
+  | "WebPage"
   | "LocalBusiness"
   | "Article"
   | "BlogPosting"

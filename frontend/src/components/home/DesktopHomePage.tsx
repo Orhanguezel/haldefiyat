@@ -18,6 +18,7 @@ export default async function DesktopHomePage({ locale }: { locale: string }) {
   return (
     <>
       <JsonLd type="Dataset" data={data.datasetSchema} />
+      <JsonLd type="WebPage" data={data.webPageSchema} />
       <HeroSection activeCities={data.overview.activeCities} targetCoverage={data.overview.targetCoverage} freshness={data.overview.freshness} featuredPrice={data.featuredPrice} />
       <PriceDashboard excludeSlug={data.featuredPrice?.productSlug} />
       <BannerSlot position="home_mid" />

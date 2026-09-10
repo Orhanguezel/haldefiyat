@@ -49,7 +49,7 @@ export default function HeroSectionClient({
         {title} <span className="text-(--color-brand)">{subtitle}</span>
       </h1>
 
-      <p className="mx-auto mt-6 max-w-[600px] text-[19px] leading-[1.7] text-(--color-muted)">
+      <p data-speakable className="mx-auto mt-6 max-w-[600px] text-[19px] leading-[1.7] text-(--color-muted)">
         İstanbul, Ankara, İzmir ve aktif kaynaklardan yayımlanan sebze-meyve hal
         fiyatlarını kayıt tarihleriyle takip edin. Fiyat grafikleri, trend analizleri ve
         akıllı uyarılar.

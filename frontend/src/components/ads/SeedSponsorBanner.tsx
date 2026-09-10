@@ -25,16 +25,17 @@ export default function SeedSponsorBanner({ banner, href, sidebar }: {
       className={`${device} ${layout} w-full overflow-hidden rounded-xl border border-white/15 bg-[#1f4d2b] text-white shadow-sm transition-shadow hover:shadow-lg focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#FE7107]`}>
       <span data-sponsor-media className={`relative block shrink-0 overflow-hidden bg-[#123721] ${mediaLayout}`}>
         {vista ? (
-          <ResilientAdImage src="/assets/ads/vistaseeds/cankan-f1.webp" alt="CANKAN F1 — VistaSeeds biber çeşidi" className="h-full w-full bg-[#101511] object-contain" />
+          <ResilientAdImage src="/assets/ads/vistaseeds/cankan-f1.webp" alt="CANKAN F1 — VistaSeeds biber çeşidi" className="h-full w-full bg-[#101511] object-contain" width={420} height={420} />
         ) : banner.imageUrl ? (
           <ResilientAdImage src={resolveImageUrl(banner.imageUrl)} alt={banner.alt || "Bereket Fide üretim serası"}
-            className="h-full w-full object-cover" style={{ objectPosition: `${config.focalX ?? 50}% ${config.focalY ?? 50}%` }} />
+            className="h-full w-full object-cover" style={{ objectPosition: `${config.focalX ?? 50}% ${config.focalY ?? 50}%` }} width={1200} height={900} />
         ) : <span className="flex h-full items-center justify-center text-sm">Bereket Fide</span>}
       </span>
       <span className="flex min-h-0 min-w-0 flex-1 flex-col p-4">
         <span className="mb-2 flex h-8 shrink-0 items-center justify-between gap-2">
           <ResilientAdImage src={vista ? "/assets/ads/vistaseeds/logo-white.png" : resolveImageUrl(config.logoUrl || "/uploads/ads/bereketfide-amblem.png")}
-            alt={banner.advertiser || banner.title} className="h-8 max-w-32 object-contain object-left" hideOnError />
+            alt={banner.advertiser || banner.title} className="h-8 w-auto max-w-32 object-contain object-left" hideOnError
+            width={vista ? 420 : 256} height={vista ? 113 : 256} />
           <span className="text-[10px] font-bold uppercase tracking-widest text-[#efce70]">Sponsorlu</span>
         </span>
         <strong className="line-clamp-2 break-words text-lg leading-tight">{headline}</strong>

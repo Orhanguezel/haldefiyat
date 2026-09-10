@@ -46,6 +46,14 @@ const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").rep
 const API_V1 = `${API_URL}/api/v1`;
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "HalDeFiyat";
 
+const ICON_MIME: Record<string, string> = { png: "image/png", ico: "image/x-icon", svg: "image/svg+xml", webp: "image/webp", jpg: "image/jpeg", jpeg: "image/jpeg" };
+
+// Denetim araclari type'siz icon linkini eksik sayar; uzantidan turetilir, marka dosyasi DB'den gelmeye devam eder.
+function iconEntry(url: string) {
+  const ext = url.split(/[?#]/)[0].split(".").pop()?.toLowerCase() ?? "";
+  return ICON_MIME[ext] ? { url, type: ICON_MIME[ext] } : { url };
+}
+
 async function fetchGlobalSeo(locale: string) {
   try {
     const [seoRes, metaRes] = await Promise.all([
@@ -88,10 +96,12 @@ export async function generateMetadata(): Promise<Metadata> {
     keywords,
     metadataBase: new URL(SITE_URL),
     icons: {
-      icon: branding.site_favicon || "/favicon.png",
-      shortcut: branding.site_favicon || "/favicon.png",
-      apple: branding.site_apple_touch || branding.site_logo || "/apple-touch-icon.png",
+      icon: iconEntry(branding.site_favicon || "/favicon.png"),
+      shortcut: iconEntry(branding.site_favicon || "/favicon.png"),
+      apple: iconEntry(branding.site_apple_touch || branding.site_logo || "/apple-touch-icon.png"),
     },
+    authors: [{ name: siteName, url: SITE_URL }],
+    publisher: siteName,
     openGraph: {
       siteName,
       type: "website",

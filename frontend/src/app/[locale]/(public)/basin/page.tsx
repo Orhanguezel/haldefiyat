@@ -5,6 +5,8 @@ import { BarChart3, Code2, FileText, Mail, Newspaper, ShieldCheck } from "lucide
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import { getCoverage } from "@/lib/coverage";
 import { getPageMetadata } from "@/lib/seo";
+import { fetchSiteSettings } from "@/lib/site-settings";
+import ObfuscatedEmail from "@/components/ui/ObfuscatedEmail";
 import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -50,7 +52,7 @@ export default async function PressPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const cov = await getCoverage();
+  const [cov, settings] = await Promise.all([getCoverage(), fetchSiteSettings(locale)]);
   const FACTS = [
     {
       label: "Kapsam",
@@ -150,9 +152,7 @@ export default async function PressPage({ params }: Props) {
           </div>
           <div className="mt-4 space-y-3 text-muted">
             <p>Basın talepleri, veri soruları ve röportaj istekleri için:</p>
-            <a className="font-semibold text-brand hover:underline" href="mailto:info@gzlteknoloji.com">
-              info@gzlteknoloji.com
-            </a>
+            <ObfuscatedEmail email={settings.contact_email || "info@gzlteknoloji.com"} className="font-semibold text-brand hover:underline" />
             <p className="text-sm">
               Yayınlarda HaldeFiyat'a kaynak verirken ilgili ürün, şehir veya analiz sayfasına bağlantı
               eklenmesi önerilir.

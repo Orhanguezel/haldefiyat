@@ -1,12 +1,13 @@
 import { fetchFeaturedPrice, fetchListings, fetchMarkets, fetchPricesOverview, fetchProducts, fetchWidget } from "@/lib/api";
 import { fetchSiteSettings } from "@/lib/site-settings";
-import { DATA_LICENSE_URL, getPageMetadata, ORG_REF } from "@/lib/seo";
+import { DATA_LICENSE_URL, getPageMetadata, ORG_REF, WEBSITE_REF } from "@/lib/seo";
 import { schemaDateRange } from "@/lib/schema-dates";
 import type { Stat } from "@/components/sections/StatsBarClient";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
 const datasetSchemaBase = {
+  "@id": `${SITE_URL}/#dataset`,
   name: "Türkiye Hal Fiyatları",
   description: "Türkiye genelindeki hal ve pazar fiyat verileri. Günlük güncellenir.",
   url: SITE_URL,
@@ -22,6 +23,9 @@ const datasetSchemaBase = {
     contentUrl: `${SITE_URL}/api/v1/prices`,
   },
 } satisfies Record<string, unknown>;
+
+// Sesli asistanlar ve AI ozetleri icin okunacak bolumler: baslik + hero aciklamasi.
+const HOME_SPEAKABLE_SELECTORS = ["h1", "[data-speakable]"];
 
 function formatUpdatedAt(value: string | undefined): string {
   if (!value) return "Bilinmiyor";
@@ -64,6 +68,17 @@ export async function loadHomePageData(locale: string) {
       dateModified: datasetDates.latest,
     } : latestMarketUpdate ? { dateModified: latestMarketUpdate } : {}),
   };
+  const webPageSchema = {
+    "@id": `${SITE_URL}/#webpage`,
+    url: SITE_URL,
+    name: "Türkiye Hal Fiyatları — Günlük, Gerçek Zamanlı",
+    inLanguage: "tr",
+    isPartOf: WEBSITE_REF,
+    about: ORG_REF,
+    mainEntity: { "@id": `${SITE_URL}/#dataset` },
+    ...(latestMarketUpdate ? { dateModified: latestMarketUpdate } : {}),
+    speakable: { "@type": "SpeakableSpecification", cssSelector: HOME_SPEAKABLE_SELECTORS },
+  };
   const stats: Stat[] = [
     { kind: "number", value: cityCount || markets.length, label: "İl Kapsamı" },
     { kind: "number", value: overview.activeMarkets || markets.length, label: "Aktif Hal" },
@@ -82,6 +97,7 @@ export async function loadHomePageData(locale: string) {
     latestMarketUpdate,
     trackedProducts: overview.trackedProducts || products.length,
     datasetSchema,
+    webPageSchema,
     stats,
   };
 }

@@ -19,6 +19,8 @@ const SITE_SETTINGS_BRAND = (process.env.NEXT_PUBLIC_SITE_BRAND || "hal-fiyatlar
  */
 export const ORG_ID = `${SITE_URL}/#organization`;
 export const ORG_REF = { "@id": ORG_ID } as const;
+export const WEBSITE_ID = `${SITE_URL}/#website`;
+export const WEBSITE_REF = { "@id": WEBSITE_ID } as const;
 /** Üçüncü taraf kaynak kayıtlarının yeniden kullanım şartları tek lisans politikasında açıklanır. */
 export const DATA_LICENSE_URL = `${SITE_URL}/api-policy`;
 
@@ -137,6 +139,22 @@ function interpolate(template: string, vars: Record<string, string>): string {
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? "");
 }
 
+const OG_SIZE = { width: 1200, height: 630 } as const;
+
+/**
+ * Sitenin kendi OG ureteci (/og/*) ve OG yuklemeleri (/uploads/og/*) hep 1200x630 uretir;
+ * olcuyu bildirmek paylasim onizlemesini ilk istekte dogru boyutta acar.
+ * Boyutu bilinmeyen (marka logosu gibi) gorseller oldugu gibi kalir.
+ */
+type OgImage = string | { url: string; width: number; height: number };
+
+function withOgImageSize(images: unknown): OgImage[] | undefined {
+  if (!Array.isArray(images)) return undefined;
+  return images.map((img: OgImage) =>
+    typeof img === "string" && /\/(og|uploads\/og)\//.test(img) ? { url: img, ...OG_SIZE } : img,
+  );
+}
+
 /**
  * SEO verisinden Next.js Metadata objesi oluştur.
  */
@@ -185,9 +203,11 @@ export function buildMetadata(
 
   // Override images take precedence (page-specific); seo DB images are the fallback
   const overrideImages = (overrideOpenGraph as { images?: unknown })?.images;
-  const ogImages = (overrideImages && (Array.isArray(overrideImages) ? overrideImages.length > 0 : true))
-    ? overrideImages as string[]
-    : seoOgImages;
+  const ogImages = withOgImageSize(
+    (overrideImages && (Array.isArray(overrideImages) ? overrideImages.length > 0 : true))
+      ? overrideImages as string[]
+      : seoOgImages,
+  );
   const overrideTwitterData = overrideTwitter as { card?: "summary" | "summary_large_image"; site?: string; creator?: string } | undefined;
 
   const meta: Metadata = {

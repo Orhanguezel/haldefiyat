@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { fetchSiteSettings } from "@/lib/site-settings";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
@@ -29,10 +30,39 @@ async function fetchJson<T>(path: string): Promise<T | null> {
 }
 
 export async function GET() {
-  const [overview, sourceResponse] = await Promise.all([
+  const [overview, sourceResponse, settings] = await Promise.all([
     fetchJson<Overview>("/prices/overview"),
     fetchJson<{ items?: unknown[] }>("/sources/status"),
+    fetchSiteSettings(),
   ]);
+  const siteName = settings.site_name || "HalDeFiyat";
+  const socialLines = [
+    ["X (Twitter)", settings.social_twitter],
+    ["Instagram", settings.social_instagram],
+    ["Facebook", settings.social_facebook],
+    ["Telegram", settings.social_telegram],
+    ["WhatsApp kanalı", settings.social_whatsapp],
+    ["YouTube", settings.social_youtube],
+    ["LinkedIn", settings.social_linkedin],
+  ].filter(([, url]) => Boolean(url)).map(([label, url]) => `- ${label}: ${url}`);
+  const contactLines = [
+    settings.contact_email ? `- E-posta: ${settings.contact_email}` : null,
+    settings.contact_phone ? `- Telefon: ${settings.contact_phone}` : null,
+    `- İletişim sayfası: ${SITE_URL}/iletisim`,
+    `- Basın: ${SITE_URL}/basin`,
+    ...socialLines,
+  ].filter(Boolean).join("\n");
+  const aboutLines = [
+    `- Platform adı: ${siteName}`,
+    settings.legal_entity_name ? `- İşletmeci: ${settings.legal_entity_name}` : null,
+    settings.responsible_publisher_name ? `- Sorumlu yayıncı: ${settings.responsible_publisher_name}` : null,
+    "- Tür: Bağımsız açık veri platformu (hal fiyatları)",
+    "- Dil: Türkçe",
+    "- Kapsam: Türkiye geneli toptancı halleri, ticaret borsaları ve zincir market fiyatları",
+    "- Veri lisansı: CC BY 4.0 (kaynak belirtilerek serbest)",
+    `- Şeffaflık politikası: ${SITE_URL}/seffaflik`,
+    `- Metodoloji: ${SITE_URL}/metodoloji`,
+  ].filter(Boolean).join("\n");
   const productCoverage = overview?.trackedProducts
     ? `${overview.trackedProducts} izlenen ürün`
     : "İzlenen sebze, meyve, bakliyat ve diğer tarım ürünleri";
@@ -106,6 +136,14 @@ Veriler aşağıdaki resmi kaynaklardan otomatik olarak derlenmektedir:
 - İzmir Büyükşehir Belediyesi Hal Müdürlüğü
 - Ankara, Bursa, Adana, Kocaeli, Gaziantep, Mersin, Balıkesir, Kayseri belediye halleri
 - Antalya Toptancılar Kooperatifi (antkomder.com.tr)
+
+## Hakkında (Key Facts)
+
+${aboutLines}
+
+## İletişim
+
+${contactLines}
 
 ## Lisans
 
