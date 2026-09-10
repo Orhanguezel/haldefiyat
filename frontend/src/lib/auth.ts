@@ -40,7 +40,7 @@ function emitAuthChanged() {
 function persistAuth(response: AuthResponse) {
   if (typeof window === "undefined") return response;
   setStoredAccessToken(response.access_token);
-  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ user: response.user } satisfies StoredAuthPayload));
+  try { localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ user: response.user } satisfies StoredAuthPayload)); } catch { /* Cookie session remains available. */ }
   emitAuthChanged();
   return response;
 }
@@ -48,7 +48,7 @@ function persistAuth(response: AuthResponse) {
 export function clearStoredAuth() {
   if (typeof window === "undefined") return;
   setStoredAccessToken(null);
-  localStorage.removeItem(AUTH_STORAGE_KEY);
+  try { localStorage.removeItem(AUTH_STORAGE_KEY); } catch { /* Storage may be unavailable. */ }
   emitAuthChanged();
 }
 
@@ -129,16 +129,19 @@ export async function fetchCurrentUser() {
 }
 
 export async function rehydrateAuthSession() {
-  if (!getStoredAccessToken()) {
-    clearStoredAuth();
-    return null;
-  }
-
   try {
+    if (!getStoredAccessToken()) {
+      const session = await bootstrapGoogleSession();
+      return session.user;
+    }
     return await fetchCurrentUser();
-  } catch {
-    clearStoredAuth();
-    return null;
+  } catch (error) {
+    if (isApiError(error) && error.status === 401) {
+      clearStoredAuth();
+      return null;
+    }
+    // A temporary network/server failure must not erase a returning user's session.
+    return getStoredAuthUser();
   }
 }
 

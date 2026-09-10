@@ -148,13 +148,22 @@ export default function ListingsAdminPage() {
   async function uploadImages(files: FileList | null) {
     if (!files?.length) return;
     setUploading(true);
-    const room = MAX_IMAGES - images.length;
-    for (const file of Array.from(files).slice(0, Math.max(0, room))) {
-      const url = await uploadListingImage(file);
-      if (url) setImages((prev) => [...prev, url]);
-      else toast.error(t('images.uploadFailed', { name: file.name }));
+    setEditError('');
+    try {
+      const room = MAX_IMAGES - images.length;
+      for (const file of Array.from(files).slice(0, Math.max(0, room))) {
+        try {
+          const url = await uploadListingImage(file);
+          setImages((prev) => [...prev, url]);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : t('images.uploadFailed', { name: file.name });
+          setEditError(`${file.name}: ${message}`);
+          toast.error(`${file.name}: ${message}`);
+        }
+      }
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
   }
 
   async function saveEdit() {

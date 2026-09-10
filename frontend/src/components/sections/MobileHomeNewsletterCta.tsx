@@ -43,7 +43,7 @@ export default function MobileHomeNewsletterCta() {
   }
 
   return (
-    <section ref={cta.ref} className="sticky bottom-3 z-30 px-4 py-4">
+    <section ref={cta.ref} className="px-4 py-4">
       <form onSubmit={submit} className="rounded-lg border border-(--color-brand)/35 bg-(--color-surface)/95 p-3 shadow-xl backdrop-blur">
         <div className="mb-2">
           <div className="text-[13px] font-black text-(--color-foreground)">Bu hafta ne ucuzladı?</div>

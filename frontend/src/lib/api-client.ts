@@ -33,9 +33,33 @@ class ApiError extends Error {
   }
 }
 
+let refreshPromise: Promise<void> | null = null;
+
+async function refreshAccessToken(): Promise<void> {
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      const response = await fetch(`${BASE_URL}/auth/token/refresh`, {
+        method: "POST", credentials: "include", cache: "no-store",
+      });
+      if (!response.ok) throw new ApiError(response.status, "refresh_failed", "Oturum yenilenemedi.");
+      const data = await response.json();
+      if (!data.access_token) throw new ApiError(502, "invalid_refresh_response", "Oturum yenilenemedi.");
+      setStoredAccessToken(data.access_token);
+    })().finally(() => { refreshPromise = null; });
+  }
+  return refreshPromise;
+}
+
+function expireSession() {
+  setStoredAccessToken(null);
+  try { localStorage.removeItem("app-auth"); } catch { /* Storage may be unavailable. */ }
+  window.dispatchEvent(new Event("auth:changed"));
+}
+
 async function request<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  retried = false,
 ): Promise<T> {
   const url = `${BASE_URL}${path}`;
 
@@ -60,9 +84,19 @@ async function request<T>(
         details = body;
       } catch {}
 
-      if (res.status === 401 && typeof window !== "undefined") {
-        localStorage.removeItem("app-auth");
-        setStoredAccessToken(null);
+      const sessionRequest = !path.startsWith("/auth/") || path === "/auth/user" || path === "/auth/session/bootstrap";
+      if (res.status === 401 && sessionRequest && typeof window !== "undefined") {
+        if (!retried) {
+          try {
+            // Another request may already have renewed the token while this one was in flight.
+            if (!getStoredAccessToken() || getStoredAccessToken() === bearer) await refreshAccessToken();
+          } catch (error) {
+            if (error instanceof ApiError && error.status === 401) expireSession();
+            throw error;
+          }
+          return request<T>(path, options, true);
+        }
+        expireSession();
       }
 
       throw new ApiError(res.status, code, `${res.status} ${code}`, details);
