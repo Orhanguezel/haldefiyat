@@ -127,7 +127,7 @@ function whereFor(filters: ListingFilters) {
   if (filters.date === "today") clauses.push(gte(hfListings.createdAt, sql`CURRENT_DATE()`));
   if (filters.date === "7d") clauses.push(gte(hfListings.createdAt, sql`DATE_SUB(CURRENT_TIMESTAMP(3), INTERVAL 7 DAY)`));
   if (filters.date === "30d") clauses.push(gte(hfListings.createdAt, sql`DATE_SUB(CURRENT_TIMESTAMP(3), INTERVAL 30 DAY)`));
-  if (filters.userId) clauses.push(eq(hfListings.userId, filters.userId));
+  if (filters.userId) clauses.push(eq(hfListings.userId, filters.userId), sql`JSON_EXTRACT(${hfListings.raw}, '$.ownerDeletedAt') IS NULL`);
   return clauses.length ? and(...clauses) : undefined;
 }
 
@@ -208,7 +208,7 @@ export async function getListingCreative(id: number) {
 
 export async function updateOwnerListing(id: number, userId: string, input: ListingPatchInput) {
   const row = await getListingById(id);
-  if (!row || row.userId !== userId) return null;
+  if (!row || row.userId !== userId || row.raw?.ownerDeletedAt) return null;
   const values = await toListingValues(input, row);
   await db.transaction(async (tx) => {
     await tx.update(hfListings).set({ ...values, ...(input.contactPhone !== undefined && input.contactPhone !== row.contactPhone ? { phoneVerified: 0 } : {}), status: "pending" }).where(and(eq(hfListings.id, id), eq(hfListings.userId, userId)));
