@@ -9,7 +9,7 @@ const app=Fastify();await app.register(jwt,{secret:env.JWT_SECRET});await app.re
 const owner=randomUUID(),other=randomUUID();let id=0;const checks:string[]=[];
 function check(value:unknown,name:string){if(!value)throw Error(name);checks.push(name);}
 async function request(path:string,method='GET',body?:unknown,user:string|null=owner){
- const headers={'Content-Type':'application/json',...(user?{Authorization:`Bearer ${app.jwt.sign({sub:user,role:'user'},{expiresIn:'10m'})}`}:{})};
+ const headers={...(body?{'Content-Type':'application/json'}:{}),...(user?{Authorization:`Bearer ${app.jwt.sign({sub:user,role:'user'},{expiresIn:'10m'})}`}:{})};
  if(process.env.QA_BASE_URL){const r=await fetch(`${process.env.QA_BASE_URL}/api/v1${path}`,{method,headers,body:body?JSON.stringify(body):undefined});return{status:r.status,body:await r.json() as any};}
  const r=await app.inject({url:`/api/v1${path}`,method:method as any,headers,payload:body as any});return{status:r.statusCode,body:r.json()};
 }
