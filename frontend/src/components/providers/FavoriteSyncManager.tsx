@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useAuthSession } from "./AuthSessionProvider";
 import { apiPost } from "@/lib/api-client";
+import { REMOTE_FAVORITES_CHANGED } from "@/lib/hooks/useFavorites";
 import { getFavorites } from "@/lib/favorites";
 
 export function FavoriteSyncManager() {
@@ -14,7 +15,7 @@ export function FavoriteSyncManager() {
     if (userId && prevUserId.current === null) {
       const local = getFavorites();
       if (local.length > 0) {
-        apiPost("/favorites/sync", { slugs: local }).catch(() => null);
+        apiPost("/favorites/sync", { slugs: local }).then(() => { window.dispatchEvent(new Event(REMOTE_FAVORITES_CHANGED)); }).catch(() => null);
       }
     }
     prevUserId.current = userId;
