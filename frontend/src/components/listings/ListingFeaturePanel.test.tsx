@@ -27,3 +27,14 @@ it("reports payment without claiming that the listing is already featured",async
  expect(screen.queryByRole('button',{name:'Havaleyi yaptım, bildir'})).not.toBeInTheDocument();
  expect(apiPost).toHaveBeenCalledWith('/listings/feature-transfers/order-1/report',expect.objectContaining({action:'report',senderName:'Test Gönderen'}));
 });
+it("allows selecting a blocked listing's package but hides bank instructions",async()=>{
+ const blocked={...order,paymentBlockReason:'Açıklamada test/prova etiketi var.'};
+ vi.mocked(apiGet).mockResolvedValueOnce({bank,pricing:{daily:{days:1,price:350}},items:[]}).mockResolvedValue({bank,pricing:null,items:[blocked]});
+ vi.mocked(apiPost).mockResolvedValue(blocked);
+ const {container}=render(<ListingFeaturePanel item={{...item,status:'pending',visibilityReason:'test'}}/>);
+ const details=container.querySelector('details')!;details.open=true;fireEvent(details,new Event('toggle'));
+ const select=await screen.findByRole('button',{name:'Paketi seç'});expect(select).toBeEnabled();fireEvent.click(select);
+ expect(await screen.findByText(/Paketiniz seçildi/)).toBeInTheDocument();
+ expect(screen.queryByRole('button',{name:'Havaleyi yaptım, bildir'})).toBeNull();
+ expect(screen.queryByRole('button',{name:'IBAN kopyala'})).toBeNull();
+});

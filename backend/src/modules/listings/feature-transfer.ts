@@ -1,3 +1,4 @@
+import { featurePaymentBlock, type FeatureListing } from "./feature-eligibility";
 import { randomUUID } from "node:crypto";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -31,8 +32,9 @@ async function bankSettings(): Promise<Bank | null> {
   const [row] = await db.select().from(siteSettings).where(and(eq(siteSettings.key, BANK_KEY), eq(siteSettings.locale, "*"))).limit(1);
   try { const parsed = bankSchema.safeParse(JSON.parse(row?.value ?? "{}")); return parsed.success ? parsed.data : null; } catch { return null; }
 }
-export function featureEnd(listing: { status: string; validUntil: string | null; isFeatured: number; featuredUntil: Date | null }, days: number, now = new Date()) {
-  if (listing.status !== "approved") fail("İlan önce yayın onayı almalıdır.");
+export function featureEnd(listing: FeatureListing, days: number, now = new Date()) {
+  const blocked = featurePaymentBlock(listing, days, now);
+  if (blocked) fail(blocked);
   const start = listing.isFeatured && listing.featuredUntil && listing.featuredUntil > now ? listing.featuredUntil : now;
   const end = new Date(start.getTime() + days * 86400000);
   if (!listing.validUntil || end > new Date(`${listing.validUntil}T23:59:59.999Z`)) fail("İlanın son tarihi paket süresini karşılamıyor. Önce ilan süresini uzatın.");
@@ -54,9 +56,9 @@ export function registerFeatureTransferPublic(app: FastifyInstance) {
   app.get("/listings/:id/feature-transfer", { onRequest: [requireAuth] }, route(async req => {
     const listingId = id(req); const userId = getAuthUserId(req);
     const [listing] = await db.select().from(hfListings).where(and(eq(hfListings.id, listingId), eq(hfListings.userId, userId))).limit(1);
-    if (!listing) notFound();
+    if (!listing || listing.raw?.ownerDeletedAt) notFound();
     const [bank, pricing, rows] = await Promise.all([bankSettings(), readFeaturedPricing(), db.select().from(orders).where(and(kindFilter, listingFilter(listingId), eq(orders.dealer_id, userId))).orderBy(desc(orders.created_at)).limit(10)]);
-    return { bank, pricing, items: rows.map(dto) };
+    return { bank, pricing, items: rows.map(row => ({...dto(row), paymentBlockReason: featurePaymentBlock(listing, notes(row).days)})) };
   }));
   app.post("/listings/:id/feature-transfer", { onRequest: [requireAuth], config: {rateLimit:{max:20,timeWindow:"1 hour"}} }, route(async req => {
     const listingId = id(req); const userId = getAuthUserId(req);
@@ -65,10 +67,10 @@ export function registerFeatureTransferPublic(app: FastifyInstance) {
     if (!bank || !pkg || !Number.isFinite(pkg.price) || pkg.price <= 0 || !Number.isInteger(pkg.days) || pkg.days < 1 || pkg.days > 365) fail("Ödeme bilgileri henüz hazır değil.");
     return db.transaction(async tx => {
       const [listing] = await tx.select().from(hfListings).where(and(eq(hfListings.id, listingId), eq(hfListings.userId, userId))).for("update");
-      if (!listing) notFound();
+      if (!listing || listing.raw?.ownerDeletedAt) notFound();
       const [existing] = await tx.select().from(orders).where(and(kindFilter, listingFilter(listingId), eq(orders.dealer_id, userId), eq(orders.status,"pending"))).limit(1);
       if (existing) return dto(existing);
-      featureEnd(listing, pkg.days);
+      // Selecting a package reserves it; payment and activation require a public listing.
       const orderId = randomUUID();
       const n: Notes = {kind:KIND, listingId, title:listing.title, package:selected, days:pkg.days, bank};
       await tx.insert(orders).values({id:orderId,dealer_id:userId,total:pkg.price.toFixed(2),status:"pending",payment_status:"unpaid",payment_method:"bank_transfer",payment_ref:`HF${orderId.replaceAll("-","")}`,notes:JSON.stringify(n)});
@@ -79,11 +81,18 @@ export function registerFeatureTransferPublic(app: FastifyInstance) {
     const orderId = z.string().uuid().parse((req.params as any).orderId);
     const body = z.object({action:z.enum(["report","cancel"]), senderName:z.string().trim().min(2).max(255).optional(),transferDate:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),note:z.string().trim().max(500).optional()}).parse(req.body);
     if (body.action === "report" && !body.senderName) fail("Havaleyi gönderen kişinin adını yazın.");
+    const [initial] = await db.select().from(orders).where(and(eq(orders.id,orderId),eq(orders.dealer_id,getAuthUserId(req)),kindFilter));
+    if (!initial) notFound();
     return db.transaction(async tx => {
+      const [listing] = await tx.select().from(hfListings).where(and(eq(hfListings.id,notes(initial).listingId),eq(hfListings.userId,getAuthUserId(req)))).for("update");
       const [row] = await tx.select().from(orders).where(and(eq(orders.id,orderId),eq(orders.dealer_id,getAuthUserId(req)),kindFilter)).for("update");
       if (!row) notFound();
       if (row.status !== "pending" || row.payment_status !== "unpaid") return dto(row);
       const n = notes(row);
+      if (body.action === "report") {
+        if (!listing || listing.raw?.ownerDeletedAt) notFound();
+        featureEnd(listing, n.days);
+      }
       if (body.action === "report") Object.assign(n,{senderName:body.senderName,transferDate:body.transferDate,note:body.note,reportedAt:new Date().toISOString()});
       await tx.update(orders).set({status:body.action === "cancel" ? "cancelled" : "pending",payment_status:body.action === "cancel" ? "failed" : "pending",notes:JSON.stringify(n)}).where(eq(orders.id,orderId));
       const [updated] = await tx.select().from(orders).where(eq(orders.id,orderId)); return dto(updated);
