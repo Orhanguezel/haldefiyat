@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { LogOut } from "lucide-react";
+import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { useTranslations } from "next-intl";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
   { href: "hesabim",             key: "overview",      icon: GridIcon },
@@ -24,9 +27,35 @@ interface Props {
 export function DashboardMobileNav({ locale }: Props) {
   const t = useTranslations("dashboard");
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout } = useAuthSession();
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState(false);
+  async function handleLogout() {
+    setLoggingOut(true);
+    setLogoutError(false);
+    try {
+      await logout();
+      router.replace(`/${locale}/giris`);
+      router.refresh();
+    } catch {
+      setLogoutError(true);
+    } finally {
+      setLoggingOut(false);
+    }
+  }
 
   return (
-    <nav aria-label="Hesap bölümleri" className="mb-6 flex gap-2 overflow-x-auto rounded-[10px] border border-(--color-border) bg-(--color-surface) p-2 lg:hidden">
+    <div className="mb-6 lg:hidden">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <span className="text-sm font-semibold">Hesabım</span>
+        <button type="button" onClick={handleLogout} disabled={loggingOut} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-(--color-border) bg-(--color-surface) px-3 text-sm font-semibold text-(--color-danger) disabled:opacity-60">
+          <LogOut size={17} aria-hidden="true" />
+          {loggingOut ? "Çıkış yapılıyor…" : "Çıkış yap"}
+        </button>
+      </div>
+      {logoutError && <p role="alert" className="mb-2 text-sm text-(--color-danger)">Çıkış tamamlanamadı. Lütfen tekrar deneyin.</p>}
+    <nav aria-label="Hesap bölümleri" className="flex gap-2 overflow-x-auto rounded-[10px] border border-(--color-border) bg-(--color-surface) p-2 lg:hidden">
       {NAV_ITEMS.map(({ href, key, icon: Icon }) => {
         const full = `/${locale}/${href}`;
         const active = href === "hesabim" ? pathname === full : pathname === full || pathname.startsWith(`${full}/`);
@@ -47,6 +76,7 @@ export function DashboardMobileNav({ locale }: Props) {
         );
       })}
     </nav>
+    </div>
   );
 }
 
