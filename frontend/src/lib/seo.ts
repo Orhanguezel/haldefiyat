@@ -244,6 +244,26 @@ export function buildMetadata(
 /**
  * Kısayol: fetchPageSeo + buildMetadata tek satırda.
  */
+/**
+ * twitter:site / twitter:creator sayfa basina degil kurulum geneli bir degerdir
+ * (site_settings.site_seo). Next.js `twitter` nesnesini derin birlestirmez: sayfa
+ * metadata'si kendi twitter nesnesini verince root layout'taki hesap adi kaybolur,
+ * bu yuzden burada sayfa ciktisina eklenir.
+ */
+async function fetchGlobalTwitter(): Promise<{ site?: string; creator?: string }> {
+  try {
+    const res = await fetch(`${API_V1}/site_settings/site_seo?locale=*`, { next: { revalidate: 300 } });
+    if (!res.ok) return {};
+    const twitter = (await res.json())?.value?.twitter ?? {};
+    return {
+      ...(twitter.site && { site: twitter.site }),
+      ...(twitter.creator && { creator: twitter.creator }),
+    };
+  } catch {
+    return {};
+  }
+}
+
 export async function getPageMetadata(
   pageKey: string | string[],
   overrides?: MetadataOverrides,
@@ -256,10 +276,12 @@ export async function getPageMetadata(
     seo = await fetchPageSeo(key);
     if (seo) break;
   }
+  const globalTwitter = await fetchGlobalTwitter();
 
   return buildMetadata(seo, {
     ...overrides,
     locale: resolvedLocale,
+    twitter: { ...globalTwitter, ...(overrides?.twitter as object) },
   });
 }
 

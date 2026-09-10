@@ -109,7 +109,11 @@ export async function generateMetadata(): Promise<Metadata> {
       url: SITE_URL,
       ...(ogImages.length > 0 && { images: ogImages }),
     },
-    twitter: { card: "summary_large_image" },
+    twitter: {
+      card: "summary_large_image",
+      ...(seo?.twitter?.site && { site: seo.twitter.site }),
+      ...(seo?.twitter?.creator && { creator: seo.twitter.creator }),
+    },
   };
 }
 

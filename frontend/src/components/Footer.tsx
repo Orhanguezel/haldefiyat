@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import SocialFollowCards from "@/components/sections/SocialFollowCards";
-import ObfuscatedEmail from "@/components/ui/ObfuscatedEmail";
+import ObfuscatedEmail, { splitEmail } from "@/components/ui/ObfuscatedEmail";
 
 type FooterProps = {
   siteName?: string | null;
@@ -224,7 +224,7 @@ export default function Footer({
               <p className="mt-1 text-[12px]">
                 İşletmeci: {legalEntityName}
                 {responsiblePublisherName ? ` · Sorumlu: ${responsiblePublisherName}` : ""}
-                {contactEmail ? <> · <ObfuscatedEmail email={contactEmail} className="hover:text-(--color-brand)" /></> : null}
+                {contactEmail ? <> · <ObfuscatedEmail {...splitEmail(contactEmail)} className="hover:text-(--color-brand)" /></> : null}
               </p>
             ) : null}
           </div>
