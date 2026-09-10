@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/Button";
 import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState";
 import { ListingFeaturePanel } from "./ListingFeaturePanel";
 import { OwnerListingEditor } from "./OwnerListingEditor";
-import { ListingCard } from "./ListingCard";
+import { OwnerListingSummary, listingIsExpired } from "./OwnerListingSummary";
+import { OwnerListingLifecycle } from "./OwnerListingLifecycle";
 
 type Slot = "asap" | "morning" | "afternoon" | "evening";
 type CallRequest = { listingSlug: string; status: string };
@@ -27,7 +28,7 @@ const SLOTS: Array<{ value: Slot; label: string }> = [
   { value: "evening", label: "17:00–20:00" },
 ];
 
-export function MyListingsClient() {
+export function MyListingsClient({ listingId }: { listingId?: number } = {}) {
   const [items, setItems] = useState<Listing[]>([]);
   const [requests, setRequests] = useState<CallRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,17 +41,17 @@ export function MyListingsClient() {
     setError("");
     try {
       const [listingResult, requestResult] = await Promise.all([
-        apiGet<{ items: Listing[] }>("/listings/me"),
+        listingId ? apiGet<{item:Listing}>(`/listings/me/${listingId}`).then(result => ({items:[result.item]})) : apiGet<{ items: Listing[] }>("/listings/me"),
         apiGet<{ items: CallRequest[] }>("/listings/call-requests/me").catch(() => { setError("Arama talepleri yüklenemedi. İlanlarınızı düzenlemeye devam edebilirsiniz."); return { items: [] }; }),
       ]);
       setItems(listingResult.items ?? []);
       setRequests(requestResult.items ?? []);
     } catch {
-      setError("İlanlar ve talep özetleri yüklenemedi.");
+      setError(listingId ? "İlan bulunamadı veya bu ilana erişim yetkiniz yok." : "İlanlar ve talep özetleri yüklenemedi.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [listingId]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -94,14 +95,14 @@ export function MyListingsClient() {
   }
 
   if (loading) return <p className="text-sm text-(--color-muted)" role="status">İlanlar ve arama talepleri yükleniyor…</p>;
-  if (!items.length && !error) return <DashboardEmptyState title="Henüz ilanınız yok" description="Satış veya alım ilanı oluşturduğunuzda moderasyon durumu, arama talepleri ve geri dönüş saatleri burada görünür." action={{ href: "/ilan-ver", label: "İlan oluştur" }} />;
+  if (!items.length && !error) return <DashboardEmptyState title={listingId ? "İlan kaldırıldı" : "Henüz ilanınız yok"} description="Satış veya alım ilanı oluşturduğunuzda moderasyon durumu, arama talepleri ve geri dönüş saatleri burada görünür." action={{ href: "/ilan-ver", label: "İlan oluştur" }} />;
 
   return (
     <div className="space-y-4">
       <div className="min-h-5 text-sm" aria-live="polite">{error ? <p role="alert" className="text-(--color-danger)">{error}</p> : message ? <p role="status" className="text-emerald-700">{message}</p> : null}</div>
       {items.map((item) => {
         const requestCount = counts.get(item.slug) ?? { total: 0, open: 0 };
-        return <ListingManagementCard key={item.id} item={item} requestCount={requestCount} saving={savingId === item.id} onEdited={() => { setMessage("Değişiklikler kaydedildi. İlanınız yeniden onaya gönderildi."); void load(); }} onClose={() => close(item.id)} onSave={(enabled, slots) => saveSettings(item, enabled, slots)} />;
+        return <ListingManagementCard key={item.id} detail={Boolean(listingId)} onDeleted={() => { setItems(current => current.filter(listing => listing.id !== item.id)); setMessage("İlan kaldırıldı."); }} item={item} requestCount={requestCount} saving={savingId === item.id} onEdited={() => { setMessage("Değişiklikler kaydedildi. İlanınız yeniden onaya gönderildi."); void load(); }} onClose={() => close(item.id)} onSave={(enabled, slots) => saveSettings(item, enabled, slots)} />;
       })}
     </div>
   );
@@ -210,8 +211,10 @@ function ListingOffersPanel({ listingId, priceUnit }: { listingId: number; price
   );
 }
 
-function ListingManagementCard({ item, requestCount, saving, onClose, onSave, onEdited }: {
+function ListingManagementCard({ item, requestCount, saving, onClose, onSave, onEdited, onDeleted, detail }: {
   item: Listing;
+  detail: boolean;
+  onDeleted: () => void;
   requestCount: { total: number; open: number };
   saving: boolean;
   onEdited: () => void;
@@ -228,9 +231,9 @@ function ListingManagementCard({ item, requestCount, saving, onClose, onSave, on
 
   return (
     <article className="overflow-hidden rounded-[10px] border border-(--color-border) bg-(--color-surface)">
-      <div className="p-4"><ListingCard item={item} compact /></div>
+      <div className="p-4"><OwnerListingSummary item={item} detail={detail} /></div>
       <div className="grid gap-3 border-t border-(--color-border-soft) bg-(--color-bg-alt) p-4 sm:grid-cols-3">
-        <div><span className="block text-xs text-(--color-muted)">İlan durumu</span><strong className="text-sm text-(--color-foreground)">{STATUS_LABELS[item.status]}</strong></div>
+        <div><span className="block text-xs text-(--color-muted)">İlan durumu</span><strong className="text-sm text-(--color-foreground)">{listingIsExpired(item) && item.status === "approved" ? "Süresi doldu" : STATUS_LABELS[item.status]}</strong></div>
         <div><span className="block text-xs text-(--color-muted)">Arama talebi</span><strong className="text-sm text-(--color-foreground)">{requestCount.total} toplam · {requestCount.open} açık</strong></div>
         <div className="flex items-center justify-start sm:justify-end">{item.status !== "closed" ? <Button variant="secondary" size="sm" loading={saving} onClick={onClose}>İlanı kapat</Button> : null}</div>
       </div>
@@ -238,6 +241,7 @@ function ListingManagementCard({ item, requestCount, saving, onClose, onSave, on
         <Button type="button" variant="secondary" aria-expanded={editing} onClick={() => setEditing(!editing)}>İlanı düzenle / Fotoğraf ekle</Button>
       </div>
       {editing && <OwnerListingEditor item={item} onCancel={() => setEditing(false)} onSaved={() => { setEditing(false); onEdited(); }} />}
+      <OwnerListingLifecycle item={item} onRenewed={onEdited} onDeleted={onDeleted} />
       <ListingFeaturePanel item={item} />
       <ListingOffersPanel listingId={item.id} priceUnit={item.priceUnit} />
       <details className="border-t border-(--color-border-soft) p-4">
