@@ -80,7 +80,7 @@ export default function ProductPriceCard({ row }: { row: FeaturedPrice }) {
                 >
                   {row.productName}
                 </Link>
-                <div className="mt-0.5 truncate text-[11px] text-(--color-muted)">{scope}</div>
+                <div className="mt-0.5 text-[11px] leading-snug text-(--color-muted)">{scope}</div>
               </div>
               <span
                 className={
