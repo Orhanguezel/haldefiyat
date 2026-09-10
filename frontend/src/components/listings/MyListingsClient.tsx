@@ -233,7 +233,7 @@ function ListingManagementCard({ item, requestCount, saving, onClose, onSave, on
     <article className="overflow-hidden rounded-[10px] border border-(--color-border) bg-(--color-surface)">
       <div className="p-4"><OwnerListingSummary item={item} detail={detail} /></div>
       <div className="grid gap-3 border-t border-(--color-border-soft) bg-(--color-bg-alt) p-4 sm:grid-cols-3">
-        <div><span className="block text-xs text-(--color-muted)">İlan durumu</span><strong className="text-sm text-(--color-foreground)">{listingIsExpired(item) && item.status === "approved" ? "Süresi doldu" : STATUS_LABELS[item.status]}</strong></div>
+        <div><span className="block text-xs text-(--color-muted)">İlan durumu</span><strong className="text-sm text-(--color-foreground)">{item.visibilityReason === "test" ? "Test/prova ilanı" : listingIsExpired(item) && item.status === "approved" ? "Süresi doldu" : STATUS_LABELS[item.status]}</strong></div>
         <div><span className="block text-xs text-(--color-muted)">Arama talebi</span><strong className="text-sm text-(--color-foreground)">{requestCount.total} toplam · {requestCount.open} açık</strong></div>
         <div className="flex items-center justify-start sm:justify-end">{item.status !== "closed" ? <Button variant="secondary" size="sm" loading={saving} onClick={onClose}>İlanı kapat</Button> : null}</div>
       </div>

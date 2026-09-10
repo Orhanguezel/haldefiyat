@@ -1,3 +1,4 @@
+import { ownerVisibilityReason } from "./evidence-policy";
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
@@ -31,7 +32,7 @@ export function registerOwnerListingLifecycle(app:FastifyInstance) {
     const [item]=await db.select().from(hfListings).where(and(eq(hfListings.id,id),eq(hfListings.userId,getAuthUserId(req)),notDeleted));
     if(!item)return null;
     const images=await db.select({url:hfListingImages.url}).from(hfListingImages).where(eq(hfListingImages.listingId,id)).orderBy(hfListingImages.displayOrder);
-    return {item:{...item,images:images.map(image=>image.url),callAvailability:parseCallAvailability(item.callAvailability)}};
+    return {item:{...item,visibilityReason:ownerVisibilityReason(item),images:images.map(image=>image.url),callAvailability:parseCallAvailability(item.callAvailability)}};
   }));
   app.post('/listings/:id/renew',{onRequest:[requireAuth]},handler(async req=>{
     const id=listingId(req); const {validUntil}=renewalSchema.parse(req.body);

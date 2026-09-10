@@ -42,14 +42,14 @@ export function ListingFeaturePanel({item}:{item:Listing}) {
       <Button type="button" variant="secondary" size="sm" disabled={busy} onClick={() => void load()}>Ödeme durumunu yenile</Button>
       {data && !active && <>
         {!data.bank || !data.pricing ? <p className="text-sm">Havale bilgileri hazırlanıyor. Lütfen daha sonra tekrar deneyin.</p> : <>
-          {item.status !== "approved" && <p className="text-sm">Öne çıkarmak için ilanınızın yayında olması gerekir.</p>}
+          {(item.status !== "approved" || Boolean(item.visibilityReason)) && <p className="text-sm">Öne çıkarmak için ilanınızın yayında olması gerekir.</p>}
           <div className="grid gap-3 sm:grid-cols-3">
             {Object.entries(data.pricing).map(([key,pkg]) => {
               const start = item.isFeatured && item.featuredUntil ? Math.max(Date.now(),new Date(item.featuredUntil).getTime()) : Date.now();
               const fits = start + pkg.days*86400000 <= new Date(`${item.validUntil?.slice(0,10)}T23:59:59.999Z`).getTime();
               return <div key={key} className="space-y-3 rounded-lg border border-(--color-border) p-3">
                 <p className="font-semibold">{pkg.days} gün</p><p className="text-lg font-bold">{money(pkg.price)}</p>
-                <Button type="button" className="w-full" disabled={busy || item.status !== "approved" || !fits || pkg.price <= 0} onClick={() => void action(`/listings/${item.id}/feature-transfer`,{package:key})}>Paketi seç</Button>
+                <Button type="button" className="w-full" disabled={busy || (item.status !== "approved" || Boolean(item.visibilityReason)) || !fits || pkg.price <= 0} onClick={() => void action(`/listings/${item.id}/feature-transfer`,{package:key})}>Paketi seç</Button>
                 {!fits && <p className="text-xs text-(--color-muted)">Bu paket için önce ilanınızın son tarihini uzatın.</p>}
               </div>;
             })}
