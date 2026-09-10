@@ -182,6 +182,11 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
         <Search className="h-5 w-5" aria-hidden="true" />
       </button>
 
+      <Link href={localePath(locale, user ? "/hesabim" : "/giris")} prefetch={false}
+        className="inline-flex h-11 shrink-0 items-center justify-center rounded-lg border border-(--color-border) px-2 text-xs font-bold text-(--color-brand) lg:hidden">
+        {user ? "Hesabım" : "Giriş"}
+      </Link>
+
       {/* Mobile toggle */}
       <button
         type="button"
@@ -201,8 +206,13 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
 
       {/* Mobile drawer */}
       {open && (
-        <div className="lg:hidden absolute left-0 right-0 top-full border-t border-(--color-border) bg-(--color-surface)/95 backdrop-blur-lg">
-          <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3">
+        <div className="lg:hidden absolute left-0 right-0 top-full max-h-[calc(100dvh-10rem)] overflow-y-auto overscroll-contain border-t border-(--color-border) bg-(--color-surface) shadow-lg">
+          <nav aria-label="Mobil menü" className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3">
+            <div className="grid grid-cols-2 gap-2 border-b border-(--color-border) pb-3 mb-2">
+              <Link onClick={() => setOpen(false)} href={localePath(locale, user ? "/hesabim" : "/giris")} className="flex min-h-11 items-center justify-center rounded-lg border border-(--color-brand) text-sm font-bold text-(--color-brand)">{user ? "Hesabım" : "Giriş yap"}</Link>
+              <Link onClick={() => setOpen(false)} href={localePath(locale, user ? "/hesabim/ilanlarim" : "/kayit")} className="flex min-h-11 items-center justify-center rounded-lg border border-(--color-border) text-sm font-bold">{user ? "İlanlarım" : "Üye ol"}</Link>
+              <Link onClick={() => setOpen(false)} href={localePath(locale, "/ilan-ver")} className="col-span-2 flex min-h-11 items-center justify-center rounded-lg bg-(--color-brand) text-sm font-bold text-(--color-brand-fg)">+ İlan ver</Link>
+            </div>
             {entries.map((entry) =>
               isNavGroup(entry) ? (
                 <div key={entry.key} className="py-1">

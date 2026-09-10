@@ -14,7 +14,7 @@ import {
 import { localePath } from "@/lib/locale-path";
 
 const ERROR_LABELS: Record<string, string> = {
-  user_exists: "Bu e-posta ile zaten bir hesap var.",
+  user_exists: "Bu e-posta ile zaten bir hesap var. Aşağıdaki Giriş yap bağlantısını kullanın.",
   invalid_credentials: "E-posta veya parola hatalı.",
   invalid_email: "Geçerli bir e-posta adresi girin.",
   weak_password: "Parola en az 6 karakter olmalı.",
@@ -88,10 +88,11 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
   const [signupRole, setSignupRole] = useState<"customer" | "komisyoncu">("customer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const errorRef = useRef<HTMLDivElement>(null);
 
   const nextParam = searchParams.get("next");
-  const safeNext = nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/";
+  const safeNext = nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") && !nextParam.includes("\\") ? nextParam : "/hesabim";
 
   // Redirect-login sonrasi backend ?error=... ile geri dondurebilir.
   useEffect(() => {
@@ -160,25 +161,25 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
   const alternateLabel = mode === "login" ? "Hesabın yok mu? Kayıt ol" : "Zaten hesabın var mı? Giriş yap";
 
   return (
-    <div className="relative z-10 mx-auto flex min-h-[70vh] max-w-5xl items-center px-4 py-12 sm:px-6 lg:px-8">
+    <div className="relative z-10 mx-auto flex min-h-[70vh] max-w-5xl items-center px-4 py-4 sm:px-6 sm:py-12 lg:px-8">
       <div className="grid w-full overflow-hidden rounded-[12px] border border-(--color-border) bg-(--color-surface) shadow-[0_18px_54px_rgba(13,39,22,0.10)] lg:grid-cols-[0.92fr_1.08fr]">
-        <section className="relative overflow-hidden border-b border-(--color-border) bg-(--color-bg-alt) px-7 py-8 sm:px-10 lg:border-b-0 lg:border-r lg:px-12 lg:py-12">
+        <section className="relative overflow-hidden border-b border-(--color-border) bg-(--color-bg-alt) px-5 py-5 sm:px-10 sm:py-8 lg:border-b-0 lg:border-r lg:px-12 lg:py-12">
           <span className="inline-flex rounded-full border border-(--color-brand)/25 bg-(--color-brand)/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-(--color-brand)">
             HaldeFiyat Hesabı
           </span>
-          <h1 className="mt-5 max-w-md font-(family-name:--font-display) text-3xl font-bold leading-tight text-(--color-foreground) sm:text-4xl">
+          <h1 className="mt-3 max-w-md font-(family-name:--font-display) text-2xl font-bold leading-tight text-(--color-foreground) sm:text-4xl">
             {title}
           </h1>
           <p className="mt-4 max-w-md text-sm leading-7 text-(--color-muted)">
             {subtitle}
           </p>
 
-          <div className="mt-8 space-y-3 text-sm text-(--color-muted)">
+          <div className="hidden lg:block mt-8 space-y-3 text-sm text-(--color-muted)">
             <p className="flex gap-3"><span aria-hidden className="font-bold text-(--color-brand)">✓</span><span>Favori ürün, fiyat alarmı ve ilan işlemlerini tek yerde yönetin.</span></p>
             <p className="flex gap-3"><span aria-hidden className="font-bold text-(--color-brand)">✓</span><span>Telefon bilgisi açık yayın onayı olmadan public kartlara taşınmaz.</span></p>
             <p className="flex gap-3"><span aria-hidden className="font-bold text-(--color-brand)">✓</span><span>Hesap ve bildirim tercihlerinizi panelden değiştirebilirsiniz.</span></p>
           </div>
-          <p className="mt-8 border-t border-(--color-border) pt-5 text-xs leading-5 text-(--color-muted)">Parolanızı kimseyle paylaşmayın. HaldeFiyat ekibi e-posta veya telefonla parolanızı istemez.</p>
+          <p className="hidden lg:block mt-8 border-t border-(--color-border) pt-5 text-xs leading-5 text-(--color-muted)">Parolanızı kimseyle paylaşmayın. HaldeFiyat ekibi e-posta veya telefonla parolanızı istemez.</p>
         </section>
 
         <section className="px-6 py-8 sm:px-10 lg:px-12 lg:py-12">
@@ -197,16 +198,19 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
                   value={fullName}
                   onChange={(event) => setFullName(event.target.value)}
                   autoComplete="name"
+                  minLength={2}
+                  maxLength={100}
                   required
                 />
                 <Input
-                  label="Telefon"
+                  label="Telefon (isteğe bağlı)"
                   type="tel"
                   placeholder="05XX XXX XX XX"
                   value={phone}
                   onChange={(event) => setPhone(event.target.value)}
                   autoComplete="tel"
-                  required
+                  minLength={6}
+                  maxLength={50}
                 />
                 <div className="space-y-2">
                   <div className="text-[13px] font-semibold text-(--color-foreground)">Hesap tipi</div>
@@ -246,7 +250,7 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
             />
 
             <Input
-              type="password"
+              type={showPassword ? "text" : "password"}
               label="Parola"
               placeholder="En az 6 karakter"
               value={password}
@@ -256,6 +260,10 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
               minLength={6}
               hint={mode === "register" ? "En az 6 karakter kullanın; parolanızı başka hizmetlerle paylaşmayın." : undefined}
             />
+
+            <button type="button" aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)} className="min-h-11 text-sm font-semibold text-(--color-brand)">
+              {showPassword ? "Parolayı gizle" : "Parolayı göster"}
+            </button>
 
             <Button type="submit" className="w-full justify-center" loading={formLoading}>
               {submitLabel}
@@ -297,8 +305,9 @@ export function AuthPanel({ locale, mode }: AuthPanelProps) {
             </>
           ) : null}
 
+          {mode === "login" && googleEnabled ? <p className="mt-4 text-center text-xs leading-5 text-(--color-muted)">Google ile kaydolduysanız aynı Google hesabıyla devam edin.</p> : null}
           <p className="mt-6 text-center text-sm text-(--color-muted)">
-            <Link href={localePath(locale, alternateHref)} className="font-semibold text-(--color-brand)">
+            <Link href={`${localePath(locale, alternateHref)}?next=${encodeURIComponent(safeNext)}`} className="font-semibold text-(--color-brand)">
               {alternateLabel}
             </Link>
           </p>

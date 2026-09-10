@@ -56,7 +56,7 @@ export function ListingImages({ images, uploading, onUpload, onRemove, onMakeCov
             {uploading ? t('images.uploading') : t('images.add')}
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               multiple
               className="hidden"
               disabled={uploading}

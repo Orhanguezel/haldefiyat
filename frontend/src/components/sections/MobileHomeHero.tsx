@@ -49,6 +49,10 @@ export default async function MobileHomeHero({
           <div className="mt-3">
             <HeroSearchButton compact />
           </div>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <Link href={localePath(locale, "/ilan-ver")} className="inline-flex min-h-11 items-center justify-center rounded-lg bg-(--color-brand) px-3 text-[13px] font-bold text-(--color-brand-fg)">+ İlan ver</Link>
+            <Link href={localePath(locale, "/ilanlar")} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-(--color-border) px-3 text-[13px] font-bold">İlanlara bak</Link>
+          </div>
           {/* Gercek bir fiyat, sayfanin en degerli icerigi: eskiden KPI kutulari
               ve iki butonun altinda, katlama cizgisinin ALTINDA kaliyordu —
               mobil ziyaretcinin cogu hic gormeden ayriliyordu. */}

@@ -9,32 +9,55 @@ export function imageSrc(url: string) {
   return /^https?:\/\//.test(url) ? url : `${UPLOAD_ORIGIN}${url}`;
 }
 
-export async function api(path: string, init: RequestInit = {}) {
-  const token = tokenStore.get();
-  return fetch(`${BASE_URL}${path}`, {
-    ...init,
-    credentials: 'include',
-    headers: {
-      Accept: 'application/json',
-      ...(init.body ? { 'Content-Type': 'application/json' } : {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init.headers ?? {}),
-    },
-  });
+let refreshPromise: Promise<boolean> | null = null;
+
+async function renewSession(): Promise<boolean> {
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      const res = await fetch(`${BASE_URL}/auth/token/refresh`, {
+        method: 'POST', credentials: 'include', headers: { Accept: 'application/json' },
+      });
+      if (!res.ok) return false;
+      const json = await res.json() as { access_token?: string };
+      if (!json.access_token) return false;
+      tokenStore.set(json.access_token);
+      return true;
+    })().finally(() => { refreshPromise = null; });
+  }
+  return refreshPromise;
 }
 
-export async function uploadListingImage(file: File): Promise<string | null> {
-  const token = tokenStore.get();
+export async function api(path: string, init: RequestInit = {}) {
+  const originalToken = tokenStore.get();
+  const send = () => {
+    const headers = new Headers(init.headers);
+    headers.set('Accept', 'application/json');
+    if (init.body && !(init.body instanceof FormData)) headers.set('Content-Type', 'application/json');
+    const token = tokenStore.get();
+    if (token) headers.set('Authorization', `Bearer ${token}`);
+    return fetch(`${BASE_URL}${path}`, { ...init, credentials: 'include', headers });
+  };
+  let res = await send();
+  if (res.status === 401) {
+    const token = tokenStore.get();
+    if ((token && token !== originalToken) || await renewSession()) res = await send();
+  }
+  return res;
+}
+
+export async function uploadListingImage(file: File): Promise<string> {
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    throw new Error('JPG, PNG veya WebP biçiminde bir görsel seçin.');
+  }
+  if (file.size > 5 * 1024 * 1024) throw new Error('Görsel en fazla 5 MB olabilir.');
   const body = new FormData();
   body.append('file', file);
-  const res = await fetch(`${BASE_URL}/storage/listings/upload`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-    body,
-  });
+  const res = await api('/storage/listings/upload', { method: 'POST', body });
   const json = (await res.json().catch(() => ({}))) as { url?: string };
-  return res.ok && json.url ? json.url : null;
+  if (res.status === 401) throw new Error('Oturumunuz sona erdi. Yeniden giriş yapıp görseli tekrar yükleyin.');
+  if (res.status === 413) throw new Error('Görsel sunucunun boyut sınırını aşıyor. Daha küçük bir dosya seçin.');
+  if (!res.ok || !json.url) throw new Error('Görsel yüklenemedi. Lütfen tekrar deneyin.');
+  return json.url;
 }
 
 export function toEditForm(item: Listing): EditForm {
