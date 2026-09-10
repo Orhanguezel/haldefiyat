@@ -47,10 +47,12 @@ const CHANGE_CLASS: Record<Trend, string> = {
 
 export default function ProductPriceCard({ row }: { row: FeaturedPrice }) {
   const trend = trendOf(row.changePct);
-  // Gorsel buyuyunce ad sutunu daraldi; "12 hal · 12 il ortalamasi" kirpiliyordu.
+  // Gorsel buyuyunce ad sutunu daraldi. Sayi+birim ciftleri kirilmaz bosluklu:
+  // dar ekranda yalniz "ortalamasi" ikinci satira duser ("8 hal · 8 / il" olmaz).
+  const NB = "\u00a0";
   const scope = row.cityCount > 1
-    ? `Ortalama · ${row.marketCount} hal, ${row.cityCount} il`
-    : `Ortalama · ${row.marketCount} hal`;
+    ? `${row.marketCount}${NB}hal${NB}·${NB}${row.cityCount}${NB}il ortalaması`
+    : `${row.marketCount}${NB}hal ortalaması`;
 
   // Kartin tamami detaya goturur: ad baglantisi ::after ile karti kaplar (stretched
   // link). Favori dugmesi z-20 ile ustunde kalir; ic ice <a> olusmaz.
