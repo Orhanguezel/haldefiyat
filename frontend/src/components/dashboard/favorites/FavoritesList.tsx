@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
 import Link from "next/link";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -13,9 +12,9 @@ interface Props { locale: string }
 export function FavoritesList({ locale }: Props) {
   const t = useTranslations("dashboard.favorites");
   const commonT = useTranslations("dashboard.overview");
-  const { remoteItems, loadingRemote, toggle, refetch } = useFavorites();
+  const { remoteItems, loadingRemote, toggle, refetch, error } = useFavorites();
 
-  useEffect(() => { void refetch(); }, [refetch]);
+  if (error) return <div role="alert">Favorileriniz yüklenemedi. <button type="button" onClick={() => void refetch()}>Tekrar dene</button></div>;
 
   if (loadingRemote) {
     return (

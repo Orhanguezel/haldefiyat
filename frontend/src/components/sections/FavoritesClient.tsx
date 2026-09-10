@@ -1,13 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { PriceRow } from "@/lib/api";
-import {
-  getFavorites,
-  removeFavorite,
-  subscribeFavorites,
-} from "@/lib/favorites";
+import { useFavorites } from "@/lib/hooks/useFavorites";
 import ProductImage from "@/components/ui/ProductImage";
 import { productHref } from "@/lib/product-links";
 import { Star } from "lucide-react";
@@ -20,6 +16,7 @@ type LoadState = "idle" | "loading" | "ready";
 
 interface FavoriteEntry {
   slug: string;
+  name?: string;
   row: PriceRow | null;
 }
 
@@ -56,39 +53,37 @@ export default function FavoritesClient() {
   const [entries, setEntries] = useState<FavoriteEntry[]>([]);
   const [state, setState] = useState<LoadState>("idle");
 
-  const load = useCallback(async () => {
-    const slugs = getFavorites();
-    if (slugs.length === 0) {
-      setEntries([]);
-      setState("ready");
-      return;
-    }
-    setState("loading");
-    const rows = await Promise.all(slugs.map(fetchFavoriteRow));
-    setEntries(slugs.map((slug, i) => ({ slug, row: rows[i] ?? null })));
-    setState("ready");
-  }, []);
-
+  const { slugs, remoteItems, loadingRemote, error, toggle, refetch } = useFavorites();
+  const [removeError, setRemoveError] = useState(false);
   useEffect(() => {
-    void load();
-    const unsub = subscribeFavorites(() => {
-      void load();
+    let cancelled = false;
+    if (loadingRemote) return;
+    setState("loading");
+    void Promise.all(slugs.map(fetchFavoriteRow)).then(rows => {
+      if (cancelled) return;
+      setEntries(slugs.map((slug, i) => ({slug, row: rows[i] ?? null, name: remoteItems.find(p => p.slug === slug)?.displayName || remoteItems.find(p => p.slug === slug)?.nameTr})));
+      setState("ready");
     });
-    return unsub;
-  }, [load]);
+    return () => { cancelled = true; };
+  }, [slugs, remoteItems, loadingRemote]);
 
-  const onRemove = (slug: string) => {
-    removeFavorite(slug);
+  const onRemove = async (slug: string) => {
+    setRemoveError(false);
+    try { await toggle(slug); } catch { setRemoveError(true); }
   };
 
-  if (state !== "ready") return <SkeletonGrid />;
+  if (error) return <div role="alert">Favorileriniz yüklenemedi. <button type="button" className="min-h-11 underline" onClick={() => void refetch()}>Tekrar dene</button></div>;
+  if (loadingRemote || state !== "ready") return <SkeletonGrid />;
   if (entries.length === 0) return <EmptyState />;
 
   return (
+    <div>
+    {removeError && <p role="alert">Favori kaldırılamadı. Lütfen tekrar deneyin.</p>}
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {entries.map(({ slug, row }) => (
-        <FavoriteCard key={slug} slug={slug} row={row} onRemove={onRemove} />
+      {entries.map(({ slug, row, name }) => (
+        <FavoriteCard key={slug} slug={slug} row={row} name={name} onRemove={onRemove} />
       ))}
+    </div>
     </div>
   );
 }
@@ -96,13 +91,15 @@ export default function FavoritesClient() {
 function FavoriteCard({
   slug,
   row,
+  name: savedName,
   onRemove,
 }: {
   slug: string;
   row: PriceRow | null;
+  name?: string;
   onRemove: (slug: string) => void;
 }) {
-  const name = row?.productName ?? humanize(slug);
+  const name = row?.productName ?? savedName ?? humanize(slug);
   const href = productHref(row ?? { productSlug: slug });
   const canonicalSlug = row?.canonicalProduct || slug;
 

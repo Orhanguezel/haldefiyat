@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   isFavorite,
+  removeFavorite,
   toggleFavorite,
   subscribeFavorites,
 } from "@/lib/favorites";
+import { REMOTE_FAVORITES_CHANGED } from "@/lib/hooks/useFavorites";
 import { apiPost, apiDelete } from "@/lib/api-client";
 import { getStoredAccessToken } from "@/lib/auth-token";
 import { trackConversion } from "@/lib/analytics";
@@ -50,12 +52,14 @@ export default function FavoriteButton({
       setActive(!currently);
       try {
         if (currently) {
-          await apiDelete(`/favorites/${slug}`);
+          await apiDelete(`/favorites/${encodeURIComponent(slug)}`);
+          removeFavorite(slug);
         } else {
           await apiPost("/favorites", { productSlug: slug });
           trackAdConversion("favorite_add", "product", slug);
           trackConversion("urun_favorited", { event_label: slug, product_slug: slug });
         }
+        window.dispatchEvent(new Event(REMOTE_FAVORITES_CHANGED));
       } catch {
         setActive(currently); // geri al
       }

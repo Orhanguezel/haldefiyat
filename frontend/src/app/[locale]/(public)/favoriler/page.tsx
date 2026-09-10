@@ -33,8 +33,8 @@ export default async function FavorilerPage({ params }: Props) {
           Favori Ürünlerim
         </h1>
         <p className="mt-2 max-w-2xl text-[13px] text-(--color-muted)">
-          Tarayıcınızda saklanan favori ürünleriniz. Her ziyarette güncel ortalama
-          fiyatlar otomatik yüklenir.
+          Giriş yaptığınızda hesabınızdaki favoriler tüm cihazlarınızda görünür.
+          Giriş yapmadan ekledikleriniz bu tarayıcıda saklanır.
         </p>
       </div>
       <FavoritesClient />
