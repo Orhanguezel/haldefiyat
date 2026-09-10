@@ -90,7 +90,7 @@ export async function featureCallback(req: FastifyRequest<{ Querystring: { order
     if (!orderId || !token) return reply.redirect(`${resultUrl}?payment=failed`);
 
     const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
-    if (!order || order.payment_status === "paid") return reply.redirect(`${resultUrl}?payment=failed`);
+    if (!order || order.payment_method !== "iyzico" || order.payment_status === "paid") return reply.redirect(`${resultUrl}?payment=failed`);
 
     const detail = await retrieveCheckoutForm(iyzicoConfig(), token, orderId);
     if (detail.status !== "success" || detail.paymentStatus !== "SUCCESS") {
