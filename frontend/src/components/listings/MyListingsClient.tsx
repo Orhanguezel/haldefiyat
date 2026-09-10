@@ -5,6 +5,7 @@ import type { Listing } from "@/lib/api";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { Button } from "@/components/ui/Button";
 import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState";
+import { OwnerListingEditor } from "./OwnerListingEditor";
 import { ListingCard } from "./ListingCard";
 
 type Slot = "asap" | "morning" | "afternoon" | "evening";
@@ -39,7 +40,7 @@ export function MyListingsClient() {
     try {
       const [listingResult, requestResult] = await Promise.all([
         apiGet<{ items: Listing[] }>("/listings/me"),
-        apiGet<{ items: CallRequest[] }>("/listings/call-requests/me"),
+        apiGet<{ items: CallRequest[] }>("/listings/call-requests/me").catch(() => { setError("Arama talepleri yüklenemedi. İlanlarınızı düzenlemeye devam edebilirsiniz."); return { items: [] }; }),
       ]);
       setItems(listingResult.items ?? []);
       setRequests(requestResult.items ?? []);
@@ -99,7 +100,7 @@ export function MyListingsClient() {
       <div className="min-h-5 text-sm" aria-live="polite">{error ? <p role="alert" className="text-(--color-danger)">{error}</p> : message ? <p role="status" className="text-emerald-700">{message}</p> : null}</div>
       {items.map((item) => {
         const requestCount = counts.get(item.slug) ?? { total: 0, open: 0 };
-        return <ListingManagementCard key={item.id} item={item} requestCount={requestCount} saving={savingId === item.id} onClose={() => close(item.id)} onSave={(enabled, slots) => saveSettings(item, enabled, slots)} />;
+        return <ListingManagementCard key={item.id} item={item} requestCount={requestCount} saving={savingId === item.id} onEdited={() => { setMessage("Değişiklikler kaydedildi. İlanınız yeniden onaya gönderildi."); void load(); }} onClose={() => close(item.id)} onSave={(enabled, slots) => saveSettings(item, enabled, slots)} />;
       })}
     </div>
   );
@@ -139,8 +140,8 @@ function ListingOffersPanel({ listingId, priceUnit }: { listingId: number; price
   const [data, setData] = useState<OffersResponse | null>(null);
   const [state, setState] = useState<"idle" | "loading" | "error">("idle");
 
-  async function load() {
-    if (data || state === "loading") return;
+  async function load(force = false) {
+    if ((!force && data) || state === "loading") return;
     setState("loading");
     try {
       setData(await apiGet<OffersResponse>(`/listings/${listingId}/offers`));
@@ -152,10 +153,11 @@ function ListingOffersPanel({ listingId, priceUnit }: { listingId: number; price
 
   return (
     <details className="border-t border-(--color-border-soft) p-4" onToggle={(e) => { if ((e.currentTarget as HTMLDetailsElement).open) void load(); }}>
-      <summary className="cursor-pointer text-sm font-semibold text-(--color-foreground)">
+      <summary className="min-h-11 cursor-pointer rounded-lg bg-(--color-bg-alt) p-3 text-sm font-semibold text-(--color-brand)">
         Gelen teklifler{data ? ` (${data.count})` : ""}
       </summary>
       <div className="mt-4">
+        <Button type="button" size="sm" variant="secondary" disabled={state === "loading"} onClick={() => void load(true)}>Teklifleri yenile</Button>
         {state === "loading" && <p className="text-sm text-(--color-muted)">Yükleniyor…</p>}
         {state === "error" && <p role="alert" className="text-sm text-(--color-danger)">Teklifler alınamadı.</p>}
         {data && data.count === 0 && (
@@ -176,7 +178,7 @@ function ListingOffersPanel({ listingId, priceUnit }: { listingId: number; price
         {data && !data.sealed && data.offers.length > 0 && (
           <>
             <p className="mb-3 text-xs text-(--color-muted)">
-              Teklif süresi doldu, zarflar açıldı. En uygun fiyat en üstte.
+              Teklif süresi doldu, zarflar açıldı. Teklifleri aşağıdan inceleyip teklif sahiplerini arayabilirsiniz.
             </p>
             <ul className="space-y-2">
               {data.offers.map((offer) => (
@@ -207,13 +209,15 @@ function ListingOffersPanel({ listingId, priceUnit }: { listingId: number; price
   );
 }
 
-function ListingManagementCard({ item, requestCount, saving, onClose, onSave }: {
+function ListingManagementCard({ item, requestCount, saving, onClose, onSave, onEdited }: {
   item: Listing;
   requestCount: { total: number; open: number };
   saving: boolean;
+  onEdited: () => void;
   onClose: () => void;
   onSave: (enabled: boolean, slots: Slot[]) => void;
 }) {
+  const [editing, setEditing] = useState(false);
   const [enabled, setEnabled] = useState(Boolean(item.callRequestsEnabled));
   const [slots, setSlots] = useState<Slot[]>(Array.isArray(item.callAvailability) ? item.callAvailability : ["asap"]);
 
@@ -229,6 +233,10 @@ function ListingManagementCard({ item, requestCount, saving, onClose, onSave }: 
         <div><span className="block text-xs text-(--color-muted)">Arama talebi</span><strong className="text-sm text-(--color-foreground)">{requestCount.total} toplam · {requestCount.open} açık</strong></div>
         <div className="flex items-center justify-start sm:justify-end">{item.status !== "closed" ? <Button variant="secondary" size="sm" loading={saving} onClick={onClose}>İlanı kapat</Button> : null}</div>
       </div>
+      <div className="border-t border-(--color-border-soft) p-4">
+        <Button type="button" variant="secondary" aria-expanded={editing} onClick={() => setEditing(!editing)}>İlanı düzenle / Fotoğraf ekle</Button>
+      </div>
+      {editing && <OwnerListingEditor item={item} onCancel={() => setEditing(false)} onSaved={() => { setEditing(false); onEdited(); }} />}
       <ListingOffersPanel listingId={item.id} priceUnit={item.priceUnit} />
       <details className="border-t border-(--color-border-soft) p-4">
         <summary className="cursor-pointer text-sm font-semibold text-(--color-foreground)">İletişim ve geri dönüş ayarları</summary>

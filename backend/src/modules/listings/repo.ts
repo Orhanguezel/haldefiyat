@@ -209,16 +209,20 @@ export async function getListingCreative(id: number) {
 export async function updateOwnerListing(id: number, userId: string, input: ListingPatchInput) {
   const row = await getListingById(id);
   if (!row || row.userId !== userId) return null;
-  await db.update(hfListings).set({ ...(await toListingValues(input, row)), status: "pending" }).where(eq(hfListings.id, id));
+  const values = await toListingValues(input, row);
+  await db.transaction(async (tx) => {
+    await tx.update(hfListings).set({ ...values, ...(input.contactPhone !== undefined && input.contactPhone !== row.contactPhone ? { phoneVerified: 0 } : {}), status: "pending" }).where(and(eq(hfListings.id, id), eq(hfListings.userId, userId)));
+    if (input.images !== undefined) await replaceListingImages(id, input.images, tx);
+  });
   return getListingById(id);
 }
 
 // Ilanin gorsellerini verilen listeyle tamamen degistirir (patch'te images gonderilirse).
-async function replaceListingImages(id: number, urls: string[]) {
-  await db.delete(hfListingImages).where(eq(hfListingImages.listingId, id));
+async function replaceListingImages(id: number, urls: string[], executor: Pick<typeof db, "delete" | "insert"> = db) {
+  await executor.delete(hfListingImages).where(eq(hfListingImages.listingId, id));
   const clean = urls.filter((url) => typeof url === "string" && url.trim()).slice(0, 6);
   if (clean.length) {
-    await db.insert(hfListingImages).values(clean.map((url, index) => ({ listingId: id, url, displayOrder: index })));
+    await executor.insert(hfListingImages).values(clean.map((url, index) => ({ listingId: id, url, displayOrder: index })));
   }
 }
 

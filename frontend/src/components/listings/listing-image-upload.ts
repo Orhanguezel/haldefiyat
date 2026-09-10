@@ -1,3 +1,5 @@
+import { apiUpload, ApiError } from "@/lib/api-client";
+
 export const MAX_LISTING_IMAGE_BYTES = 5 * 1024 * 1024;
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -37,4 +39,19 @@ export function listingImageUploadError(
     return `${fileName}: Görsel dosyası okunamadı. Başka bir görsel deneyin.`;
   }
   return `${fileName}: Görsel yüklenemedi. Lütfen tekrar deneyin.`;
+}
+
+export async function uploadListingImage(file: File): Promise<string> {
+  const invalid = validateListingImage(file);
+  if (invalid) throw new Error(invalid);
+  const body = new FormData();
+  body.append("file", file);
+  try {
+    const result = await apiUpload<{ url?: string }>("/storage/listings/upload", body);
+    if (!result.url) throw new Error("Missing upload URL");
+    return result.url;
+  } catch (error) {
+    throw new Error(listingImageUploadError(file.name, error instanceof ApiError ? error.status : null,
+      error instanceof ApiError ? (error.details ?? {}) as UploadErrorPayload : {}));
+  }
 }
