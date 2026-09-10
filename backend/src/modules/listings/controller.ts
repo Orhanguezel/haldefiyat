@@ -1,3 +1,4 @@
+import { ownerVisibilityReason } from "./evidence-policy";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { getAuthUserId, handleRouteError, parsePage, sendNotFound } from "@agro/shared-backend/modules/_shared";
 import {
@@ -205,7 +206,7 @@ export async function listMyListings(req: FastifyRequest, reply: FastifyReply) {
   try {
     const userId = getAuthUserId(req);
     const items = await listListings({ userId, status: "all", limit: 100, offset: 0 });
-    return reply.send({ items: items.map((item) => ({ ...item, callAvailability: parseCallAvailability(item.callAvailability) })) });
+    return reply.send({ items: items.map((item) => ({ ...item, visibilityReason: ownerVisibilityReason(item), callAvailability: parseCallAvailability(item.callAvailability) })) });
   } catch (err) {
     return handleRouteError(reply, req, err, "list_my_listings");
   }

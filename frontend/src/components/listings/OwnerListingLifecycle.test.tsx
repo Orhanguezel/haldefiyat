@@ -28,3 +28,8 @@ it('submits the selected future date for moderation',async()=>{
  fireEvent.click(screen.getByRole('button',{name:'Süreyi uzat ve onaya gönder'}));
  await waitFor(()=>expect(done).toHaveBeenCalledOnce());expect(apiPost).toHaveBeenCalledWith('/listings/21/renew',{validUntil:'2099-01-01'});
 });
+it('does not link a future-dated rehearsal listing to the public page',()=>{
+ render(<OwnerListingSummary item={{...item,validUntil:'2099-01-01',visibilityReason:'test'}}/>);
+ expect(screen.queryByRole('link',{name:'Yayındaki ilanı aç'})).toBeNull();
+ expect(screen.getByText(/test\/prova ilanı olarak/)).toBeInTheDocument();
+});

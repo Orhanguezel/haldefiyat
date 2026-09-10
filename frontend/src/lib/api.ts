@@ -195,6 +195,7 @@ export interface FirmTypeAggregate {
 }
 
 export interface Listing {
+  visibilityReason?: string | null;
   id: number;
   slug: string;
   listingType: "satis" | "alim";
