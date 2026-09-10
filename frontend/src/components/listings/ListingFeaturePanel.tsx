@@ -7,14 +7,14 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
 type Bank = { bankName: string; accountHolder: string; iban: string };
-type Transfer = { id: string; reference: string; amount: number; status: string; cancelled: boolean; days: number; bank: Bank; reviewNote?: string; featuredUntil?: string };
+type Transfer = { id: string; reference: string; amount: number; status: string; cancelled: boolean; days: number; bank: Bank; reviewNote?: string; featuredUntil?: string; paymentBlockReason?: string | null };
 type Result = { bank: Bank | null; pricing: Record<string, {days:number;price:number}> | null; items: Transfer[] };
 const money = (amount: number) => `${amount.toLocaleString("tr-TR", {minimumFractionDigits:2,maximumFractionDigits:2})} TL`;
 function errorMessage(error: unknown) {
   if (error instanceof ApiError) return (error.details as {error?:{message?:string}})?.error?.message ?? "İşlem tamamlanamadı. Tekrar deneyin.";
   return "Bağlantı kurulamadı. Tekrar deneyin.";
 }
-export function ListingFeaturePanel({item}:{item:Listing}) {
+export function ListingFeaturePanel({item,onEdit}:{item:Listing;onEdit?:()=>void}) {
   const [data,setData] = useState<Result | null>(null);
   const [busy,setBusy] = useState(false);
   const [error,setError] = useState("");
@@ -42,15 +42,15 @@ export function ListingFeaturePanel({item}:{item:Listing}) {
       <Button type="button" variant="secondary" size="sm" disabled={busy} onClick={() => void load()}>Ödeme durumunu yenile</Button>
       {data && !active && <>
         {!data.bank || !data.pricing ? <p className="text-sm">Havale bilgileri hazırlanıyor. Lütfen daha sonra tekrar deneyin.</p> : <>
-          {(item.status !== "approved" || Boolean(item.visibilityReason)) && <p className="text-sm">Öne çıkarmak için ilanınızın yayında olması gerekir.</p>}
+          {(item.status !== "approved" || Boolean(item.visibilityReason)) && <p className="text-sm">Paketinizi şimdi seçebilirsiniz. Yayın ve süre koşulları tamamlanmadan ödeme istenmez.</p>}
           <div className="grid gap-3 sm:grid-cols-3">
             {Object.entries(data.pricing).map(([key,pkg]) => {
               const start = item.isFeatured && item.featuredUntil ? Math.max(Date.now(),new Date(item.featuredUntil).getTime()) : Date.now();
               const fits = start + pkg.days*86400000 <= new Date(`${item.validUntil?.slice(0,10)}T23:59:59.999Z`).getTime();
               return <div key={key} className="space-y-3 rounded-lg border border-(--color-border) p-3">
                 <p className="font-semibold">{pkg.days} gün</p><p className="text-lg font-bold">{money(pkg.price)}</p>
-                <Button type="button" className="w-full" disabled={busy || (item.status !== "approved" || Boolean(item.visibilityReason)) || !fits || pkg.price <= 0} onClick={() => void action(`/listings/${item.id}/feature-transfer`,{package:key})}>Paketi seç</Button>
-                {!fits && <p className="text-xs text-(--color-muted)">Bu paket için önce ilanınızın son tarihini uzatın.</p>}
+                <Button type="button" className="w-full" disabled={busy || pkg.price <= 0} onClick={() => void action(`/listings/${item.id}/feature-transfer`,{package:key})}>Paketi seç</Button>
+                {!fits && <p className="text-xs text-(--color-muted)">Bu paketi seçebilirsiniz; ödemeden önce ilan süresini uzatmanız gerekir.</p>}
               </div>;
             })}
           </div>
@@ -58,7 +58,11 @@ export function ListingFeaturePanel({item}:{item:Listing}) {
       </>}
       {active && <div className="space-y-4 rounded-lg border border-(--color-border) bg-(--color-bg-alt) p-4">
         <h4 className="font-semibold">{active.days} gün öne çıkarma · {money(active.amount)}</h4>
-        {active.status === "pending" ? <p role="status" className="text-sm">Ödeme bildiriminiz alındı. Banka kontrolünden sonra ilanınız öne çıkarılacak. Yeniden havale yapmayın.</p> : <>
+        {active.status === "unpaid" && active.paymentBlockReason ? <>
+          <p role="status" className="text-sm leading-6">Paketiniz seçildi. {active.paymentBlockReason}</p>
+          {onEdit ? <Button type="button" variant="secondary" onClick={onEdit}>İlanı düzenle / tarihi uzat</Button> : <a href={`/hesabim/ilanlarim/${item.id}`} className="inline-flex min-h-11 items-center text-sm underline">İlanımı düzenlemeye git</a>}
+          <Button type="button" variant="secondary" disabled={busy} onClick={() => void action(`/listings/feature-transfers/${active.id}/report`,{action:"cancel"})}>Paket seçimini iptal et</Button>
+        </> : active.status === "pending" ? <p role="status" className="text-sm">Ödeme bildiriminiz alındı. Banka kontrolünden sonra ilanınız öne çıkarılacak. Yeniden havale yapmayın.</p> : <>
           <dl className="space-y-3 text-sm">
             <div><dt className="text-(--color-muted)">Banka</dt><dd>{active.bank.bankName}</dd></div>
             <div><dt className="text-(--color-muted)">Alıcı</dt><dd className="break-words font-medium">{active.bank.accountHolder}</dd></div>

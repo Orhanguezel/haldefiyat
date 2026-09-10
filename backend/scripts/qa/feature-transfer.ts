@@ -33,14 +33,15 @@ try {
  check((await request(review,'POST',{action:'approve',reviewNote:'QA checked',paymentVerified:true})).status===403,'Member cannot approve payment');
  check((await request(review,'POST',{action:'approve',reviewNote:'QA checked',paymentVerified:true},token(adminId,'admin'))).status===409,'Unreported transfer cannot be approved');
  const report=await request(`/listings/feature-transfers/${order.id}/report`,'POST',{action:'report',senderName:'QA Sender'});
- check(report.body.status==='pending','Report waits for approval');
- const [before]=await pool.query<any[]>('SELECT is_featured FROM hf_listings WHERE id=?',[listingId]);check(before[0].is_featured===0,'Report does not activate feature');
- check((await request(review,'POST',{action:'approve',reviewNote:'QA checked'},token(adminId,'admin'))).status===409,'Bank confirmation is required');
- const approved=await request(review,'POST',{action:'approve',reviewNote:'QA checked',paymentVerified:true},token(adminId,'admin'));check(approved.body.status==='paid','Admin approval marks paid');
- const repeated=await request(review,'POST',{action:'approve',reviewNote:'QA duplicate',paymentVerified:true},token(adminId,'admin'));check(repeated.body.featuredUntil===approved.body.featuredUntil,'Repeated approval does not extend time');
- const [after]=await pool.query<any[]>('SELECT is_featured FROM hf_listings WHERE id=?',[listingId]);check(after[0].is_featured===1,'Approval activates feature');
- await pool.execute("UPDATE hf_listings SET valid_until=CURRENT_DATE(),is_featured=0,featured_until=NULL WHERE id=?",[listingId]);
- check((await request(base,'POST',{package:'monthly'})).status===409,'Too-short listing cannot buy package');
+ check(report.status===409,'Hidden rehearsal listing cannot report payment');
+ const reserved=await request(base);check(reserved.body.items[0].paymentBlockReason.includes('test/prova'),'Reserved package explains publication blocker');
+ await pool.execute("UPDATE orders SET payment_status='pending' WHERE id=?",[order.id]);
+ check((await request(review,'POST',{action:'approve',reviewNote:'QA checked',paymentVerified:true},token(adminId,'admin'))).status===409,'Admin cannot activate a hidden listing');
+ const [after]=await pool.query<any[]>('SELECT is_featured FROM hf_listings WHERE id=?',[listingId]);check(after[0].is_featured===0,'Blocked payment never activates feature');
+ await pool.execute("UPDATE orders SET payment_status='unpaid' WHERE id=?",[order.id]);
+ check((await request(`/listings/feature-transfers/${order.id}/report`,'POST',{action:'cancel'})).status===200,'Blocked package can be cancelled');
+ await pool.execute("UPDATE hf_listings SET valid_until=CURRENT_DATE(),status='pending' WHERE id=?",[listingId]);
+ check((await request(base,'POST',{package:'monthly'})).status===200,'Unpublished short-duration listing can reserve a package');
  console.log(JSON.stringify({passed:checks.length,checks}));
 } finally {
  await pool.execute('DELETE FROM orders WHERE dealer_id=?',[userId]);

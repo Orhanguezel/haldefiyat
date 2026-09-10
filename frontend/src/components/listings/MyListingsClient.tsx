@@ -240,9 +240,9 @@ function ListingManagementCard({ item, requestCount, saving, onClose, onSave, on
       <div className="border-t border-(--color-border-soft) p-4">
         <Button type="button" variant="secondary" aria-expanded={editing} onClick={() => setEditing(!editing)}>İlanı düzenle / Fotoğraf ekle</Button>
       </div>
-      {editing && <OwnerListingEditor item={item} onCancel={() => setEditing(false)} onSaved={() => { setEditing(false); onEdited(); }} />}
+      {editing && <div id={`listing-editor-${item.id}`}><OwnerListingEditor item={item} onCancel={() => setEditing(false)} onSaved={() => { setEditing(false); onEdited(); }} /></div>}
       <OwnerListingLifecycle item={item} onRenewed={onEdited} onDeleted={onDeleted} />
-      <ListingFeaturePanel item={item} />
+      <ListingFeaturePanel item={item} onEdit={() => { setEditing(true); requestAnimationFrame(() => document.getElementById(`listing-editor-${item.id}`)?.scrollIntoView({behavior:"smooth",block:"start"})); }} />
       <ListingOffersPanel listingId={item.id} priceUnit={item.priceUnit} />
       <details className="border-t border-(--color-border-soft) p-4">
         <summary className="cursor-pointer text-sm font-semibold text-(--color-foreground)">İletişim ve geri dönüş ayarları</summary>
