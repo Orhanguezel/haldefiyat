@@ -1,3 +1,4 @@
+import { registerFeatureTransferPublic, registerFeatureTransferAdmin } from "./feature-transfer";
 import type { FastifyInstance } from "fastify";
 import { requireAuth } from "@agro/shared-backend/middleware/auth";
 import {
@@ -30,6 +31,7 @@ import { listingBoard, listWantedProductsRoute, sendListingOtp, verifyListingOtp
 import { getFeaturedPricing, updateFeaturedPricing } from "./pricing";
 
 export async function registerListingsPublic(app: FastifyInstance) {
+  registerFeatureTransferPublic(app);
   app.get("/listings", listPublicListings);
   app.get("/listings/board", listingBoard);
   app.get("/listings/wanted", listWantedProductsRoute);
@@ -74,6 +76,7 @@ export async function registerListingsPublic(app: FastifyInstance) {
 }
 
 export async function registerListingsAdmin(app: FastifyInstance) {
+  registerFeatureTransferAdmin(app);
   app.get("/listings/featured-pricing", getFeaturedPricing);
   app.put("/listings/featured-pricing", updateFeaturedPricing);
   app.get("/listings", listAdminListings);

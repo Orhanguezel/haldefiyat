@@ -5,6 +5,7 @@ import type { Listing } from "@/lib/api";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { Button } from "@/components/ui/Button";
 import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState";
+import { ListingFeaturePanel } from "./ListingFeaturePanel";
 import { OwnerListingEditor } from "./OwnerListingEditor";
 import { ListingCard } from "./ListingCard";
 
@@ -237,6 +238,7 @@ function ListingManagementCard({ item, requestCount, saving, onClose, onSave, on
         <Button type="button" variant="secondary" aria-expanded={editing} onClick={() => setEditing(!editing)}>İlanı düzenle / Fotoğraf ekle</Button>
       </div>
       {editing && <OwnerListingEditor item={item} onCancel={() => setEditing(false)} onSaved={() => { setEditing(false); onEdited(); }} />}
+      <ListingFeaturePanel item={item} />
       <ListingOffersPanel listingId={item.id} priceUnit={item.priceUnit} />
       <details className="border-t border-(--color-border-soft) p-4">
         <summary className="cursor-pointer text-sm font-semibold text-(--color-foreground)">İletişim ve geri dönüş ayarları</summary>

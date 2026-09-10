@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { ListingSheet } from './_components/listing-sheet';
 import { ListingsTable } from './_components/listings-table';
+import { FeatureTransfersPanel } from './_components/feature-transfers-panel';
 import { SettingsPanel } from './_components/settings-panel';
 import { TrafficPanel } from './_components/traffic-panel';
 import { api, MAX_IMAGES, STATUSES, toEditForm, uploadListingImage } from './_lib/api';
@@ -304,9 +305,11 @@ export default function ListingsAdminPage() {
           <TabsTrigger value="listings">{t('tabs.list')}</TabsTrigger>
           <TabsTrigger value="traffic">{t('tabs.traffic')}</TabsTrigger>
           <TabsTrigger value="inquiries">{t('tabs.inquiries')} {inquiries.length ? `(${inquiries.length})` : ''}</TabsTrigger>
+          <TabsTrigger value="transfers">Havale talepleri</TabsTrigger>
           <TabsTrigger value="settings">{t('tabs.settings')}</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="transfers"><FeatureTransfersPanel /></TabsContent>
         <TabsContent value="listings" className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex flex-wrap gap-1.5">
