@@ -10,7 +10,7 @@ export default async function MyListingsPage({ params }: Props) {
   setRequestLocale(locale);
   return (
     <div className="space-y-6">
-      <div><p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--color-brand)">İlan yönetimi</p><h1 className="mt-2 font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">İlanlarım</h1><p className="mt-2 text-sm text-(--color-muted)">Yayın durumunu, talep sayısını ve ilan bazlı iletişim tercihlerini yönetin.</p></div>
+      <div><p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--color-brand)">İlan yönetimi</p><h1 className="mt-2 font-(family-name:--font-display) text-2xl font-bold text-(--color-foreground)">İlanlarım</h1><p className="mt-2 text-sm text-(--color-muted)">İlanınızı düzenleyin, fotoğraf ekleyin ve gelen teklifleri inceleyin.</p></div>
       <MyListingsClient />
     </div>
   );

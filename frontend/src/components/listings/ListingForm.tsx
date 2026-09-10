@@ -12,11 +12,9 @@ import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { trackConversion } from "@/lib/analytics";
 import { apiPost } from "@/lib/api-client";
 import { isApiError } from "@/lib/auth";
-import { getStoredAccessToken } from "@/lib/auth-token";
 import { PhoneOtpVerification } from "./PhoneOtpVerification";
-import { listingImageUploadError, validateListingImage } from "./listing-image-upload";
+import { uploadListingImage } from "./listing-image-upload";
 
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8088").replace(/\/$/, "") + "/api/v1";
 const MAX_IMAGES = 6;
 type PreferredSlot = "asap" | "morning" | "afternoon" | "evening";
 const CALL_SLOTS: Array<{ value: PreferredSlot; label: string }> = [
@@ -87,24 +85,12 @@ export function ListingForm({ products }: { products: Product[] }) {
     setImageUploadError("");
     const failures: string[] = [];
     try {
-      const token = getStoredAccessToken();
       for (const file of Array.from(files).slice(0, MAX_IMAGES - images.length)) {
-        const validationError = validateListingImage(file);
-        if (validationError) {
-          failures.push(validationError);
-          continue;
-        }
-        const fd = new FormData();
-        fd.append("file", file);
         try {
-          const res = await fetch(`${API_BASE}/storage/listings/upload`, {
-            method: "POST", headers: token ? { Authorization: `Bearer ${token}` } : {}, body: fd,
-          });
-          const json = await res.json().catch(() => ({})) as { url?: string; error?: { code?: string; message?: string } };
-          if (res.ok && json.url) setImages((prev) => [...prev, json.url as string]);
-          else failures.push(listingImageUploadError(file.name, res.status, json));
-        } catch {
-          failures.push(listingImageUploadError(file.name, null, {}));
+          const url = await uploadListingImage(file);
+          setImages((prev) => [...prev, url]);
+        } catch (error) {
+          failures.push(error instanceof Error ? error.message : "Görsel yüklenemedi.");
         }
       }
     } finally {

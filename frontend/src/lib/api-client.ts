@@ -69,7 +69,7 @@ async function request<T>(
     cache: "no-store",
     credentials: "include",
     headers: {
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.body && !(options.body instanceof FormData) ? { "Content-Type": "application/json" } : {}),
       ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}),
       ...(options.headers ?? {}),
     },
@@ -150,3 +150,6 @@ export const apiDelete = <T>(path: string, options?: RequestInit) =>
   request<T>(path, { ...options, method: "DELETE" });
 
 export { ApiError };
+
+export const apiUpload = <T>(path: string, body: FormData) =>
+  request<T>(path, { method: "POST", body });

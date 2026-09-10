@@ -22,3 +22,20 @@ describe("listing image upload feedback", () => {
       .toBe("fasulye.jpg: Görsel yüklenemedi. Lütfen tekrar deneyin.");
   });
 });
+
+it("refreshes expired authentication and retries the same multipart image", async () => {
+  const { vi } = await import("vitest");
+  const { uploadListingImage } = await import("./listing-image-upload");
+  const fetchMock = vi.fn()
+    .mockResolvedValueOnce({ ok: false, status: 401, json: async () => ({}) })
+    .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ access_token: "renewed-test-token" }) })
+    .mockResolvedValueOnce({ ok: true, status: 201, json: async () => ({ url: "/uploads/listings/test.webp" }) });
+  vi.stubGlobal("fetch", fetchMock);
+  try {
+    expect(await uploadListingImage(new File(["image"], "test.jpg", { type: "image/jpeg" }))).toBe("/uploads/listings/test.webp");
+    expect(fetchMock.mock.calls[1][0]).toContain("/auth/token/refresh");
+    expect(fetchMock.mock.calls[2][1].body).toBe(fetchMock.mock.calls[0][1].body);
+    expect(fetchMock.mock.calls[2][1].headers).not.toHaveProperty("Content-Type");
+    expect(fetchMock.mock.calls[2][1].headers.Authorization).toBe("Bearer renewed-test-token");
+  } finally { vi.unstubAllGlobals(); localStorage.clear(); }
+});
