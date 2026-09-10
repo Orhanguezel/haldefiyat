@@ -6,7 +6,8 @@ import Breadcrumb from "@/components/seo/Breadcrumb";
 import { getCoverage } from "@/lib/coverage";
 import { getPageMetadata } from "@/lib/seo";
 import { fetchSiteSettings } from "@/lib/site-settings";
-import ObfuscatedEmail, { splitEmail } from "@/components/ui/ObfuscatedEmail";
+import ObfuscatedEmail from "@/components/ui/ObfuscatedEmail";
+import { splitEmail } from "@/lib/email-parts";
 import PageContainer from "@/components/layout/PageContainer";
 
 type Props = { params: Promise<{ locale: string }> };

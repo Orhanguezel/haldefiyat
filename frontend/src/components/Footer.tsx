@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import SocialFollowCards from "@/components/sections/SocialFollowCards";
-import ObfuscatedEmail, { splitEmail } from "@/components/ui/ObfuscatedEmail";
+import ObfuscatedEmail from "@/components/ui/ObfuscatedEmail";
+import { splitEmail } from "@/lib/email-parts";
 
 type FooterProps = {
   siteName?: string | null;
