@@ -50,6 +50,7 @@ export default async function CategoryPriceLanding({
     fetchPricesPage({ category, range: "90d", latestOnly: true, limit: 200, sort: "date-desc" }),
   ]);
   const products = allProducts.filter((p) => p.categorySlug === category && !p.canonicalSlug);
+  const largeAnimalCards = category === "canli-hayvan";
   const rows = pricePage.items;
   const datasetDates = schemaDateRange(rows.map((row) => row.recordedDate));
   const latestDate = datasetDates?.latest;
@@ -114,26 +115,28 @@ export default async function CategoryPriceLanding({
       </section>
 
       {products.length > 0 && (
-        <section className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+        <section aria-label="Ürünler" className={largeAnimalCards ? "mt-10 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5" : "mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6"}>
           {products.map((product) => (
             <Link
               key={product.slug}
               href={productHref(product)}
-              className="group rounded-lg border border-border bg-surface p-4 transition-colors hover:border-brand/50"
+              className={largeAnimalCards ? "group min-w-0 overflow-hidden rounded-2xl border border-border bg-surface transition-colors hover:border-brand/50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand" : "group rounded-lg border border-border bg-surface p-4 transition-colors hover:border-brand/50"}
             >
-              <div className="mb-5 flex items-center justify-between">
+              <div className={largeAnimalCards ? "aspect-[4/3] w-full overflow-hidden bg-bg-alt" : "mb-5 flex items-center justify-between"}>
                 <ProductImage
                   slug={product.slug}
                   name={product.displayName || product.nameTr}
                   categorySlug={product.categorySlug}
                   canonicalSlug={product.canonicalSlug}
-                  size={44}
-                  className="rounded-lg"
+                  size={largeAnimalCards ? 480 : 44}
+                  className={largeAnimalCards ? "!h-full !w-full rounded-none border-0 shadow-none" : "rounded-lg"}
                 />
-                <ArrowRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-1" />
+                {!largeAnimalCards && <ArrowRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-1" />}
               </div>
-              <div className="font-semibold text-foreground">{product.displayName || product.nameTr}</div>
-              <div className="mt-1 text-xs uppercase text-muted">{product.categorySlug}</div>
+              <div className={largeAnimalCards ? "p-3 sm:p-4" : undefined}>
+                <div className="font-semibold text-foreground">{product.displayName || product.nameTr}</div>
+                {largeAnimalCards ? <div className="mt-2 flex items-center justify-between gap-2 text-xs font-medium text-brand"><span>Fiyatları incele</span><ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" /></div> : <div className="mt-1 text-xs uppercase text-muted">{product.categorySlug}</div>}
+              </div>
             </Link>
           ))}
         </section>
