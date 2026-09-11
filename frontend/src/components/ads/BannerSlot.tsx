@@ -78,7 +78,7 @@ async function BannerSlotContent({
 
   return (
     <aside className={className} aria-label={`Reklam alanı: ${position}`} data-content-type="advertisement">
-      <div className={`mx-auto my-5 ${sidebar ? "max-w-[336px]" : "max-w-6xl"} px-4`}>
+      <div className={`mx-auto my-5 ${sidebar ? "w-full lg:max-w-[336px]" : "max-w-6xl"} px-4`}>
         <SponsorLabel />
         <div className="space-y-4">
           {[...rows.entries()].sort(([a], [b]) => a - b).map(([row, rowBanners]) => (
