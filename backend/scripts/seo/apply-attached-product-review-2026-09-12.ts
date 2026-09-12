@@ -8,6 +8,7 @@
  *   bun scripts/seo/apply-attached-product-review-2026-09-12.ts --apply
  */
 import "dotenv/config";
+import { revalidateFrontendTag } from "../../src/core/revalidate";
 import { pool } from "../../src/db/client";
 import { submitToIndexNow } from "../../src/modules/indexnow";
 
@@ -165,6 +166,11 @@ async function main() {
   }
 
   const after = await readSignals();
+  // Frontend iki PM2 worker ile calisiyor. Tag gecersizlestirme worker-yerel
+  // olabildigi icin ic load balancer uzerinden birkac kez donerek ikisini de yenile.
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    await revalidateFrontendTag("prices");
+  }
   const indexNow = await submitToIndexNow(slugs.map((slug) => `/urun/${slug}`));
   console.log(JSON.stringify({ after, indexNow }, null, 2));
 }
