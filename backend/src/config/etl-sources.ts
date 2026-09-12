@@ -199,11 +199,25 @@ const RAW_SOURCES: RawSource[] = [
   },
   {
     key:               "mersin_resmi",
-    // 2026-07: mersin.bel.tr WAF/IP seviyesinde 403 blokluyor (datacenter IP).
-    // Scrapling/scraper-service Chrome-impersonation ile de 403 — TLS-fingerprint degil,
-    // hard blok. Kapatildi; residential proxy veya alternatif kaynak bulununca geri ac.
-    // 2026-07-27 dogrulama: Anthropic infra (farkli IP) da 403 aldi → GLOBAL WAF/bot
-    // blogu, bize-ozel degil. Tek cozum residential (TR consumer) proxy.
+    // mersin.bel.tr onunde **Turk Telekom WAF by Altosec** var; kok dahil her yol 403
+    // ("403 Access Denied / Source ip: <ip> / Powered by Altosec WAF").
+    //
+    // 2026-09-12 tam matris — PROXY BU ISI COZMEZ, alma:
+    //   | istemci                        | ag                    | sonuc |
+    //   | curl (Chrome UA)               | ev, TR residential    | 403   |
+    //   | curl                           | vps-vistainsaat (TR)  | 403   |
+    //   | curl                           | vps-guezel (TR)       | 403   |
+    //   | WebFetch                       | ABD bulut             | 403   |
+    //   | GERCEK Chromium (tr-TR, TR tz) | ev, TR residential    | 403   |
+    // Yani engel ne datacenter/residential ayrimi, ne bot parmak izi, ne cografya.
+    // Residential proxy ayni kategoride bir IP verir → ayni 403. Onceki "tek cozum
+    // residential proxy" notu yanlisti (yalnizca datacenter IP'den olculmustu).
+    //
+    // Elenen alternatifler: hal.gov.tr sehir kirilimi vermiyor (2026-09-08);
+    // batiakdeniztv.com/mersin-hal-fiyatlari SEO kabugu, fiyat tablosu YOK
+    // (Serik sayfasinda 3 <table>, Mersin'de 0 — 2026-09-12).
+    // Kalan yol kurumsal: Mersin BB'ye bilgi edinme/CIMER ile veri ya da IP izni
+    // basvurusu, veya Ticaret Bakanligi HKS'den kurumsal erisim.
     defaultEnabled:    false,
     defaultMarketSlug: "mersin-hal",
     defaultBaseUrl:    "https://www.mersin.bel.tr",
