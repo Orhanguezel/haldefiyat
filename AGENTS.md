@@ -1,5 +1,13 @@
 # AGENTS.md - Hal Fiyatlari
 
+## Sosyal medya sahipligi (2026-09-12)
+
+HaldeFiyat icin Facebook, Instagram, X ve diger sosyal medya icerik uretimi,
+taslak/kuyruk yonetimi ve yayinlama yalniz `ekosistem-sosyal-medya` icindeki
+`haldefiyat` tenantina aittir. Bu repoda sosyal taslak/yayin cron'u veya ikinci
+bir publisher acilmaz. Telegram operasyon bildirimleri, fiyat alarmlari ve site
+icerigi bu sinirin disindadir.
+
 ## Aktif Codex Brief'leri (2026-05-28)
 
 > **Madde 11 — Ads Optimizasyon (Claude tasarladi, Codex implement edecek):**

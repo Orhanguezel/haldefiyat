@@ -1,28 +1,34 @@
 import { registerSocialCards } from "./cards/router";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import {
-  getSocialPlatformStatus,
   cancelQueuedTweet,
   repoListTweets,
   repoListContentPlans,
   type TweetRow,
-  type SocialPlatform,
 } from "@agro/shared-backend/modules/twitter";
 import {
   listSocialPosts,
   listSocialTemplates,
-  setPlanActive,
   isSocialPlatform,
   type SocialPlatformKey,
 } from "./repository";
-import { createDraftTweet, buildTodayChartUrl, runDailyMoversJob, runStaplesJob } from "./daily-content";
-import { socialDraftIssues } from "./content-guard";
+import { buildTodayChartUrl } from "./daily-content";
 
 function resolvePlatform(raw: unknown): SocialPlatformKey {
   return isSocialPlatform(raw) ? raw : "twitter";
 }
 
 const HANDLE = "haldefiyat";
+const SOCIAL_OWNER = "ekosistem-sosyal-medya";
+
+function externalPublisherRequired(reply: FastifyReply) {
+  return reply.status(409).send({
+    success: false,
+    error: "external_publisher_required",
+    publisher: SOCIAL_OWNER,
+    action: "İçeriği Tanitio haldefiyat tenantında üretin ve yönetin.",
+  });
+}
 
 // hal tweets.status → frontend SocialPostStatus
 const STATUS_MAP: Record<string, string> = {
@@ -100,16 +106,9 @@ export async function registerSocialAdmin(adminApi: FastifyInstance) {
     }
   });
 
-  // Günlük tweetleri ŞİMDİ hazırla — movers (09:00) + popüler ürünler (13:00) planlanır.
-  adminApi.post("/social/prepare-daily", async (req, reply) => {
-    try {
-      const movers = await runDailyMoversJob();
-      const staples = await runStaplesJob();
-      return reply.send({ success: movers.ok || staples.ok, movers, staples });
-    } catch (err) {
-      return fail(reply, err, req.log, "admin_social_prepare_failed");
-    }
-  });
+  // Sosyal icerik uretimi merkezi Tanitio tenantina aittir. Bu eski endpoint
+  // yeniden acilirsa iki ayri kuyruk ayni marka icin taslak uretmeye baslar.
+  adminApi.post("/social/prepare-daily", async (_req, reply) => externalPublisherRequired(reply));
 
   // Günün grafiği önizleme (tweet atmaz) — Faz3 görsel doğrulama + manuel kullanım.
   adminApi.get("/social/chart-preview", async (req, reply) => {
@@ -121,15 +120,10 @@ export async function registerSocialAdmin(adminApi: FastifyInstance) {
     }
   });
 
-  // Hesap durumu — hal site_settings X kimlik bilgileri.
+  // Eski panelde sahiplik acik gorunsun; yerel credential durumu yayin yetkisi degildir.
   adminApi.get("/social/status", async (req, reply) => {
     const platform = resolvePlatform((req.query as { platform?: string })?.platform);
-    try {
-      const s = await getSocialPlatformStatus(platform as SocialPlatform);
-      return reply.send({ platform, enabled: s.enabled, has_credentials: s.has_credentials, account: null });
-    } catch (err) {
-      return fail(reply, err, req.log, "admin_social_status_failed");
-    }
+    return reply.send({ platform, enabled: false, has_credentials: false, account: null, publisher: SOCIAL_OWNER, legacy: true });
   });
 
   // Plan / Strateji — hal social_content_plans (haftalık strateji slotları).
@@ -168,27 +162,7 @@ export async function registerSocialAdmin(adminApi: FastifyInstance) {
     }
   });
 
-  // Taslak kaydet / ileri tarihli planla (kuyruk).
-  adminApi.post("/social/posts", async (req, reply) => {
-    const body = (req.body ?? {}) as { platform?: string; caption?: string; hashtags?: string; mediaUrls?: string[]; scheduledAt?: string };
-    const platform = resolvePlatform(body.platform);
-    const text = [body.caption?.trim(), body.hashtags?.trim()].filter(Boolean).join("\n\n");
-    if (!body.caption?.trim()) return reply.status(400).send({ success: false, error: "Metin boş olamaz" });
-    try {
-      const issues = socialDraftIssues(text);
-      if (issues.length) return reply.status(422).send({ success: false, error: "content_guard", issues });
-      const id = await createDraftTweet(text, "manual", body.mediaUrls?.[0] ?? null);
-      return reply.send({
-        success: true,
-        id,
-        status: "draft",
-        requestedSchedule: body.scheduledAt ?? null,
-        publisher: "ekosistem-sosyal-medya",
-      });
-    } catch (err) {
-      return fail(reply, err, req.log, "admin_social_save_failed");
-    }
-  });
+  adminApi.post("/social/posts", async (_req, reply) => externalPublisherRequired(reply));
 
   // HalDeFiyat gerçek yayıncı değildir. Çift-poster riskini önlemek için bu
   // eski endpoint yalnız dış yayın kapısına yönlendiren kontrollü cevap verir.
@@ -196,7 +170,7 @@ export async function registerSocialAdmin(adminApi: FastifyInstance) {
     return reply.status(409).send({
       success: false,
       error: "external_publisher_required",
-      publisher: "ekosistem-sosyal-medya",
+      publisher: SOCIAL_OWNER,
       action: "Taslağı kaydedip merkezi yayın kuyruğunda onaylayın.",
     });
   });
@@ -209,22 +183,11 @@ export async function registerSocialAdmin(adminApi: FastifyInstance) {
       success: false,
       id,
       error: "external_publisher_required",
-      publisher: "ekosistem-sosyal-medya",
+      publisher: SOCIAL_OWNER,
     });
   });
 
-  // Plan slotu aç/kapa — otomasyonu (günlük/haftalık) kontrol eder.
-  adminApi.patch("/social/plan/:id", async (req, reply) => {
-    const id = String((req.params as { id?: string })?.id ?? "");
-    const body = (req.body ?? {}) as { is_active?: boolean };
-    if (!id) return reply.status(400).send({ success: false, error: "Geçersiz id" });
-    try {
-      const ok = await setPlanActive(id, body.is_active !== false);
-      return reply.send({ success: ok });
-    } catch (err) {
-      return fail(reply, err, req.log, "admin_social_plan_update_failed");
-    }
-  });
+  adminApi.patch("/social/plan/:id", async (_req, reply) => externalPublisherRequired(reply));
 
   // Kuyruk/taslak kaydı iptal et.
   adminApi.delete("/social/posts/:id", async (req, reply) => {

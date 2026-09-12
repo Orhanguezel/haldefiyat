@@ -33,8 +33,6 @@ import { cleanupOldAuditLogs } from "@/modules/audit-consumers/retention";
 import { checkAndNotifyEarlyWarning } from "@/modules/etl/early-warning";
 import { runGscBulkRefresh } from "@/modules/seo/gsc-bulk";
 import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
-import { listEnabledQueuePlatforms } from "@agro/shared-backend/modules/twitter";
-import { runDailyMoversJob, runStaplesJob, createWeeklyAnalysisDraft } from "@/modules/social/daily-content";
 import { archiveExpiredBanners, auditBannerTargets, auditLiveBannerSources, optimizeBannerPerformance, processAdPaymentReminders, sendScheduledCampaignReports, syncBannerLifecycle } from "@/modules/banners/repository";
 
 /**
@@ -59,7 +57,6 @@ export type CronCatalogItem = {
  */
 export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] } {
   const E = env.ETL;
-  const S = env.SOCIAL;
   const tasks: CronCatalogItem[] = [
     { name: "etl-daily",          schedule: E.cronSchedule,             category: "etl",      description: "Gunluk hal fiyati ETL — tum resmi belediye + antkomder kaynaklari" },
     { name: "etl-antkomder-pm",   schedule: E.antkomderSchedule,        category: "etl",      description: "ANTKOMDER ogleden sonra ikinci cekim (fiyatlar gec yayinlaniyor)" },
@@ -90,8 +87,6 @@ export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] }
     { name: "audit-retention",    schedule: E.auditRetentionSchedule,   category: "bakim",    description: "Eski audit loglarini buda (gunluk)" },
     { name: "analytics-warm",     schedule: E.analyticsWarmSchedule,    category: "bakim",    description: "Analitik overview/retention cache isiticisi (panel cold-cache beklemesin)" },
     { name: "listing-privacy-retention", schedule: E.auditRetentionSchedule, category: "bakim", description: "Cozulmus arama talebi ve suresi gecmis OTP verisini buda" },
-    { name: "social-queue",       schedule: S.queueSchedule,            category: "sosyal",   description: "Sosyal medya yayin kuyrugunu isle" },
-    { name: "social-daily-movers", schedule: S.dailyMoversSchedule,     category: "sosyal",   description: "Gunun en cok degisen fiyatlarini tweet et" },
     { name: "banner-lifecycle",   schedule: "*/5 * * * *",              category: "reklam",   description: "Reklam kampanya durumlari + hedef denetimi + odeme hatirlatma" },
     { name: "banner-source-audit", schedule: "15 4 * * *",              category: "reklam",   description: "Bozulan reklam kaynaklarini problem durumuna al (gunluk)" },
     { name: "banner-performance", schedule: "45 4 * * *",               category: "reklam",   description: "Reklam kreatif performansi + agirlik optimizasyonu" },
@@ -152,7 +147,6 @@ export function startCron(app: FastifyInstance): void {
     { name: "gsc-index-refresh",  schedule: env.ETL.gscIndexSchedule,       handler: () => runGscIndexJob(app) },
     // search_volume'u GSC gösterimlerinden doldur — haftalık (talep yavaş değişir)
     { name: "search-volume-sync", schedule: env.ETL.searchVolumeSchedule,   handler: () => runSearchVolumeJob(app) },
-    { name: "social-daily-movers", schedule: env.SOCIAL.dailyMoversSchedule,  handler: () => runDailyMoversTweetJob(app) },
     // Zamanlanmış yayın — publish_at zamanı gelen taslakları yayınlar + IndexNow ping
     { name: "scheduled-publish",  schedule: env.ETL.scheduledPublishSchedule, handler: () => runScheduledPublishJob(app) },
     { name: "banner-lifecycle", schedule: "*/5 * * * *", handler: async () => {
@@ -235,27 +229,6 @@ async function runEtlJob(app: FastifyInstance): Promise<void> {
     await runListingReminderJob(app);
   } catch (err) {
     app.log.error({ err }, "[cron:etl] hata");
-  }
-}
-
-// Günlük sosyal kartları hazırlar: movers + popüler ürün fiyatları.
-// İkisi de taslak kalır; gerçek yayın yalnız ekosistem-sosyal-medya'dadır.
-//
-// Hazirlik, yayin kapisina bagli: hicbir platform aktif degilse tweet URETILMEZ.
-// Aksi halde dispatcher kapaliyken kuyruk her gun buyur ve platform tekrar
-// acildiginda haftalarca eski fiyat verisi topluca yayinlanir.
-async function runDailyMoversTweetJob(app: FastifyInstance): Promise<void> {
-  try {
-    const platforms = await listEnabledQueuePlatforms();
-    if (!platforms.length) {
-      app.log.info("[cron:social-daily-prepare] aktif platform yok — hazirlik atlandi");
-      return;
-    }
-    const movers = await runDailyMoversJob();
-    const staples = await runStaplesJob();
-    app.log.info({ movers, staples }, "[cron:social-daily-prepare] tamamlandi");
-  } catch (err) {
-    app.log.error({ err }, "[cron:social-daily-prepare] hata");
   }
 }
 
@@ -379,12 +352,6 @@ async function runWeeklyAnalysisJob(app: FastifyInstance): Promise<void> {
     if (!report) {
       app.log.warn({ durationMs: Date.now() - t0 }, "[cron:weekly-analysis] yeterli veri yok");
       return;
-    }
-    // Haftalık analiz yayınlanınca özet tweet'i TASLAK olarak hazırla (otomatik atılmaz).
-    try {
-      await createWeeklyAnalysisDraft(report.baslik, report.slug);
-    } catch (e) {
-      app.log.warn({ err: e }, "[cron:weekly-analysis] tweet taslagi olusturulamadi");
     }
     app.log.info(
       {
