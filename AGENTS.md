@@ -8,6 +8,14 @@ taslak/kuyruk yonetimi ve yayinlama yalniz `ekosistem-sosyal-medya` icindeki
 bir publisher acilmaz. Telegram operasyon bildirimleri, fiyat alarmlari ve site
 icerigi bu sinirin disindadir.
 
+Telegram ve WhatsApp Kanal bildirimlerinde fiyat/rapor olayini bu repo uretir;
+bot anahtari, yonetici sohbeti, Telegram kanal hedefi, kanal ac/kapa kapisi ve
+WhatsApp Kanal taslak koprusu `ekosistem-sosyal-medya` icindeki `haldefiyat`
+tenant ayarlarindan yonetilir. Gunluk Telegram kanal raporu ve WhatsApp taslagi
+`modules/tanitio-notifications/client.ts` ile Tanitio bildirim gecidine gider.
+Bu iki akis icin burada ikinci bir hedef/transport kurulmaz. HaldeFiyat'in gelen
+Telegram bot komutlari site-domain islevi olarak bu repoda kalir.
+
 ## Aktif Codex Brief'leri (2026-05-28)
 
 > **Madde 11 — Ads Optimizasyon (Claude tasarladi, Codex implement edecek):**
