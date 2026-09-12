@@ -82,7 +82,7 @@ export function OwnerListingEditor({ item, onSaved, onCancel }: {
             <button type="button" className="min-h-11 w-full text-sm text-(--color-danger)" aria-label={`Fotoğraf ${index + 1} kaldır`} onClick={() => setImages(images.filter((_, i) => i !== index))}>Kaldır</button>
           </div>)}
         </div>
-        <Input label="Fotoğraf ekle" type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={images.length >= 6 || uploading || busy} onChange={(e) => { const files = Array.from(e.target.files ?? []); e.target.value = ""; if (files.length) void upload(files); }} />
+        <Input label="Fotoğraf ekle" hint="Telefondan da yükleyebilirsiniz; fotoğraflar otomatik küçültülür." type="file" accept="image/*" multiple disabled={images.length >= 6 || uploading || busy} onChange={(e) => { const files = Array.from(e.target.files ?? []); e.target.value = ""; if (files.length) void upload(files); }} />
       </section>
       <Input label="İlan başlığı" name="title" defaultValue={item.title} required minLength={4} maxLength={255} />
       <label className="block space-y-2 text-sm">Açıklama<textarea name="description" defaultValue={item.description ?? ""} maxLength={5000} rows={4} className="block w-full rounded-lg border border-(--color-border) bg-(--color-bg) p-3" /></label>

@@ -9,8 +9,29 @@ describe("listing image upload feedback", () => {
   it("rejects oversized and unsupported files before upload", () => {
     expect(validateListingImage({ name: "buyuk.jpg", size: MAX_LISTING_IMAGE_BYTES + 1, type: "image/jpeg" }))
       .toBe("buyuk.jpg: Görsel 5 MB sınırını aşıyor.");
-    expect(validateListingImage({ name: "telefon.heic", size: 100, type: "image/heic" }))
-      .toBe("telefon.heic: Yalnızca JPG, PNG veya WebP görseller yüklenebilir.");
+    expect(validateListingImage({ name: "belge.pdf", size: 100, type: "application/pdf" }))
+      .toBe("belge.pdf: Yalnızca JPG, PNG veya WebP görseller yüklenebilir.");
+  });
+
+  it("tells HEIC users what to change instead of a dead end", () => {
+    // iPhone varsayilan olarak HEIC uretir. Tarayici cozebiliyorsa prepareListingImage
+    // JPEG'e cevirir ve buraya hic gelmez; gelmisse cozulememistir, mesaj eylem onermeli.
+    const message = validateListingImage({ name: "telefon.heic", size: 100, type: "image/heic" });
+    expect(message).toContain("HEIC");
+    expect(message).toContain("En Uyumlu");
+  });
+
+  it("passes small supported images through untouched", async () => {
+    const { prepareListingImage } = await import("./listing-image-upload");
+    const file = new File(["kucuk"], "ayva.jpg", { type: "image/jpeg" });
+    expect(await prepareListingImage(file)).toBe(file);
+  });
+
+  it("keeps the original file when the browser cannot decode it", async () => {
+    const { prepareListingImage } = await import("./listing-image-upload");
+    // 6 MB'lik HEIC: cozulemezse orijinal geri doner, karari validate verir.
+    const file = new File([new Uint8Array(6 * 1024 * 1024)], "telefon.heic", { type: "image/heic" });
+    expect(await prepareListingImage(file)).toBe(file);
   });
 
   it("turns proxy and API failures into visible Turkish messages", () => {

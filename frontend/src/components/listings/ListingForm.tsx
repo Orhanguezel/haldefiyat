@@ -61,6 +61,7 @@ export function ListingForm({ products }: { products: Product[] }) {
   const [contactPhone, setContactPhone] = useState(user?.phone ?? "");
   const [otpToken, setOtpToken] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ done: 0, total: 0 });
   const [imageUploadError, setImageUploadError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState("");
@@ -81,21 +82,27 @@ export function ListingForm({ products }: { products: Product[] }) {
   }, [user]);
   async function uploadImages(files: FileList | null) {
     if (!files?.length) return;
+    const queue = Array.from(files).slice(0, MAX_IMAGES - images.length);
     setUploading(true);
+    // Mobil baglantida tek fotograf saniyeler suruyor; sayac olmadan kullanici
+    // takildi sanip sayfayi yeniliyordu.
+    setUploadProgress({ done: 0, total: queue.length });
     setImageUploadError("");
     const failures: string[] = [];
     try {
-      for (const file of Array.from(files).slice(0, MAX_IMAGES - images.length)) {
+      for (const file of queue) {
         try {
           const url = await uploadListingImage(file);
           setImages((prev) => [...prev, url]);
         } catch (error) {
           failures.push(error instanceof Error ? error.message : "Görsel yüklenemedi.");
         }
+        setUploadProgress((prev) => ({ done: prev.done + 1, total: prev.total }));
       }
     } finally {
       setImageUploadError(failures.join(" "));
       setUploading(false);
+      setUploadProgress({ done: 0, total: 0 });
     }
   }
 
@@ -243,7 +250,15 @@ export function ListingForm({ products }: { products: Product[] }) {
       <PhoneOtpVerification phone={contactPhone} onVerified={handlePhoneVerified} />
       <div className="md:col-span-2">
         <span className="text-xs font-medium text-foreground">Görseller ({images.length}/{MAX_IMAGES})</span>
-        <p className="mt-1 text-xs text-(--color-muted)">JPG, PNG veya WebP · Görsel başına en fazla 5 MB</p>
+        <p className="mt-1 text-xs text-(--color-muted)">
+          Telefonunuzun galerisinden veya dosyalarınızdan seçebilirsiniz. Büyük fotoğraflar
+          yüklenirken otomatik küçültülür, boyutla uğraşmanıza gerek yok.
+        </p>
+        {uploading && uploadProgress.total > 0 ? (
+          <p className="mt-1 text-xs font-medium text-(--color-brand)" role="status" aria-live="polite">
+            Fotoğraflar yükleniyor… {uploadProgress.done}/{uploadProgress.total}
+          </p>
+        ) : null}
         <div className="mt-1.5 flex flex-wrap items-center gap-2">
           {images.map((url) => (
             <div key={url} className="relative h-20 w-20 overflow-hidden rounded-lg border border-(--color-border)">
@@ -258,7 +273,11 @@ export function ListingForm({ products }: { products: Product[] }) {
               {uploading ? "…" : "+ Ekle"}
               <input
                 type="file"
-                accept="image/jpeg,image/png,image/webp"
+                /* Dar MIME listesi Android'de secici'yi Google Fotograflar'a kilitliyor ve
+                   kullanici kendi klasorunden secemiyordu; iPhone'un HEIC'i de hic listelenmiyordu.
+                   "image/*" sistem secicisini acar (Galeri + Dosyalar + Kamera). Donusum
+                   prepareListingImage'te yapiliyor. `capture` EKLEME — dogrudan kamerayi acar. */
+                accept="image/*"
                 multiple
                 disabled={uploading}
                 className="hidden"
