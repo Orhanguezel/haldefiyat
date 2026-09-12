@@ -9,8 +9,7 @@ import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
 import { checkAndNotifyEtlHealth } from "@/modules/etl/health";
 import { runCompetitorCheck } from "@/modules/competitor-monitor";
 import { runCompetitorDiscovery } from "@/modules/competitor-monitor/discovery";
-import { publishDailyReport } from "@/modules/telegram-channel/publisher";
-import { publishWhatsappDraft, publishWhatsappWeeklyDraft } from "@/modules/whatsapp-channel/publisher";
+import { publishWhatsappWeeklyDraft } from "@/modules/whatsapp-channel/publisher";
 import { runAllProductionSources } from "@/modules/etl/production-fetcher";
 import { getSourceByKey } from "@/config/etl-sources";
 import { checkAndNotifyAlerts } from "@/modules/alerts";
@@ -78,7 +77,6 @@ export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] }
     { name: "monthly-analysis",   schedule: E.monthlyAnalysisSchedule,  category: "icerik",   description: "Aylik hal degerlendirmesi taslagi olustur (ayin 2. gunu)" },
     { name: "weekly-digest",      schedule: E.weeklyDigestSchedule,     category: "bildirim", description: "Haftalik ozet bildirim" },
     { name: "weekly-mail",        schedule: E.weeklyMailSchedule,       category: "bildirim", description: "Haftalik e-posta bulteni (Pazartesi)" },
-    { name: "channel-publish",    schedule: E.channelPublishSchedule,   category: "sosyal",   description: "Telegram kanal gunluk fiyat paylasimi" },
     { name: "scheduled-publish",  schedule: E.scheduledPublishSchedule, category: "icerik",   description: "Zamanlanmis taslaklari yayinla + IndexNow ping" },
     { name: "seo-maintenance",    schedule: E.seoMaintenanceSchedule,   category: "seo",      description: "SEO index auto-recovery — sezonsal urun verisi donunce index/cikis" },
     { name: "gsc-index-refresh",  schedule: E.gscIndexSchedule,         category: "seo",      description: "GSC URL Inspection gunluk batch — index durumu tazeleme" },
@@ -128,8 +126,6 @@ export function startCron(app: FastifyInstance): void {
     // Rakip izleme — haftalık
     { name: "competitor-monitor", schedule: env.ETL.competitorSchedule,  handler: () => runCompetitorJob(app) },
     { name: "competitor-discovery", schedule: env.ETL.competitorDiscoverySchedule, handler: () => runCompetitorDiscoveryJob(app) },
-    // Telegram kanal günlük paylaşımı — 08:00 UTC = 11:00 TRT
-    { name: "channel-publish",    schedule: env.ETL.channelPublishSchedule, handler: () => runChannelPublishJob(app) },
     // Migros perakende ETL — 09:00 UTC = 12:00 TRT
     { name: "migros-daily",       schedule: env.ETL.migrosSchedule,        handler: () => runMigrosJob(app) },
     // marketfiyati.org.tr çoklu zincir ETL — 09:30 UTC = 12:30 TRT
@@ -576,25 +572,6 @@ async function runAntkomderJob(app: FastifyInstance): Promise<void> {
     }
   }
   await runEtlHealthJob(app);
-}
-
-async function runChannelPublishJob(app: FastifyInstance): Promise<void> {
-  app.log.info("[cron:channel-publish] Telegram kanal paylaşımı başlatılıyor");
-  try {
-    await publishDailyReport();
-    app.log.info("[cron:channel-publish] tamamlandı");
-  } catch (err) {
-    app.log.error({ err }, "[cron:channel-publish] hata");
-  }
-  // WhatsApp kanalina resmi API yok — ayni icerigin WhatsApp-formatli taslagi
-  // admin Telegram sohbetine duser (kopyala -> kanala yapistir). Telegram
-  // paylasimi patlasa bile taslak bagimsiz denenir.
-  try {
-    const r = await publishWhatsappDraft();
-    app.log.info(r, "[cron:channel-publish] whatsapp taslagi");
-  } catch (err) {
-    app.log.error({ err }, "[cron:channel-publish] whatsapp taslagi hata");
-  }
 }
 
 async function runMigrosJob(app: FastifyInstance): Promise<void> {

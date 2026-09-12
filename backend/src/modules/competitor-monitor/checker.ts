@@ -3,7 +3,7 @@ import { hfCompetitorSites, hfCompetitorSnapshots } from "@/db/schema";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { fetchViaScraper, isScraperEnabled } from "@/modules/etl/scraper-client";
 import { parseCompetitorHtml, buildDiffSummary } from "./parser";
-import { env } from "@/core/env";
+import { sendTelegramAdminAlert } from "@/modules/alerts/telegram";
 
 const SIGNIFICANT_PRODUCT_DELTA = 10;
 
@@ -55,17 +55,7 @@ async function getLastSnapshot(siteKey: string) {
 }
 
 async function sendTelegramAlert(text: string): Promise<void> {
-  const token = env.TELEGRAM_BOT_TOKEN;
-  const chatIds = (process.env.TELEGRAM_CHAT_ID ?? "").split(",").map((s) => s.trim()).filter(Boolean);
-  if (!token || chatIds.length === 0) return;
-
-  for (const chatId of chatIds) {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
-    }).catch(() => {});
-  }
+  await sendTelegramAdminAlert(text).catch(() => {});
 }
 
 async function checkOneSite(site: { siteKey: string; name: string; url: string }): Promise<CompetitorCheckResult> {

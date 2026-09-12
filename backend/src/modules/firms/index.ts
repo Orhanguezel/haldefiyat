@@ -3,9 +3,8 @@ import { requireAuth } from "@agro/shared-backend/middleware/auth";
 import { hasAnyRole } from "@agro/shared-backend/middleware/roles";
 import { sendMailRaw, escapeMailHtml, wrapMailBody } from "@agro/shared-backend/modules/mail";
 import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
-import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
+import { sendTelegramAdminAlert } from "@/modules/alerts/telegram";
 import { z } from "zod";
-import { env } from "@/core/env";
 import { discoverFirmLinks } from "./fetcher";
 import {
   countFirms,
@@ -603,12 +602,10 @@ export async function registerFirmsPublic(app: FastifyInstance) {
         `Mesaj: ${data.message}`,
       ].filter(Boolean).join("\n"),
     });
-    if (env.TELEGRAM_ADMIN_CHAT_ID) {
-      const text =
-        `📩 Yeni firma mesajı\nFirma: ${firm.name ?? firm.slug}\nAd: ${data.name}\n` +
-        `Tel: ${data.phone ?? "-"} · E-posta: ${data.email ?? "-"}\nMesaj: ${data.message}`;
-      void telegramSendRaw({ chatId: env.TELEGRAM_ADMIN_CHAT_ID, text }).catch(() => {});
-    }
+    const text =
+      `📩 Yeni firma mesajı\nFirma: ${firm.name ?? firm.slug}\nAd: ${data.name}\n` +
+      `Tel: ${data.phone ?? "-"} · E-posta: ${data.email ?? "-"}\nMesaj: ${data.message}`;
+    void sendTelegramAdminAlert(text).catch(() => {});
     return reply.status(201).send({ ok: true, id: newId });
   });
 }

@@ -26,7 +26,8 @@ export async function getTanitioNotificationConfig(): Promise<TanitioNotificatio
 }
 
 export async function sendTanitioNotification(input: {
-  target: "admin" | "channel";
+  target: "admin" | "channel" | "recipient";
+  chatId?: string | number | null;
   text: string;
   photoUrl?: string | null;
   parseMode?: "html" | "plain";

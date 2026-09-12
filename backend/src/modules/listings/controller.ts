@@ -45,7 +45,7 @@ import { apiKeyContext, resolveActorId } from "@/modules/api-keys/require-scope"
 import { isSyntheticUser } from "@/modules/notifications/synthetic-user";
 import { lookupIdempotent, rememberIdempotent } from "@/modules/api-keys/scopes";
 import { notifyMatches, notifyAdminNewListing } from "./matching";
-import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
+import { sendTelegramAdminAlert } from "@/modules/alerts/telegram";
 import { env } from "@/core/env";
 import { parseCallAvailability, redactContactText, toPublicListing } from "./public";
 import { hasVerifiedCallRequestIdentity } from "./call-request-auth";
@@ -92,12 +92,12 @@ export async function createPublicInquiry(req: FastifyRequest<{ Params: { id: st
     const parsed = inquirySchema.parse(req.body ?? {});
     const inquiryId = await createInquiry({ listingId: id, ...parsed });
     // Test hesabinin ilanina gelen teklif de operasyon kanalina dusmez.
-    if (env.TELEGRAM_ADMIN_CHAT_ID && !(await isSyntheticUser(listing.userId))) {
+    if (!(await isSyntheticUser(listing.userId))) {
       const text =
         `💬 Yeni ilan mesajı\nİlan: ${listing.title}\nAd: ${parsed.name} · Tel: ${parsed.phone}\n` +
         (parsed.offerPrice != null ? `Teklif: ${parsed.offerPrice}\n` : "") +
         `Mesaj: ${parsed.message}`;
-      void telegramSendRaw({ chatId: env.TELEGRAM_ADMIN_CHAT_ID, text }).catch(() => {});
+      void sendTelegramAdminAlert(text).catch(() => {});
     }
     return reply.status(201).send({ ok: true, id: inquiryId });
   } catch (err) {
@@ -166,7 +166,7 @@ export async function createPublicCallRequest(req: FastifyRequest<{ Params: { id
     }
 
     let deliveryStatus: "pending" | "notified" = "pending";
-    if (env.TELEGRAM_ADMIN_CHAT_ID) {
+    {
       const slotLabels = { asap: "En kısa sürede", morning: "09:00–12:00", afternoon: "12:00–17:00", evening: "17:00–20:00" };
       const text = [
         "📞 Yeni arama talebi",
@@ -175,7 +175,7 @@ export async function createPublicCallRequest(req: FastifyRequest<{ Params: { id
         safeNote ? `Not: ${safeNote}` : null,
         `Talep no: ${result.id}`,
       ].filter(Boolean).join("\n");
-      const notified = await telegramSendRaw({ chatId: env.TELEGRAM_ADMIN_CHAT_ID, text }).then(() => true).catch(() => false);
+      const notified = await sendTelegramAdminAlert(text).then(() => true).catch(() => false);
       if (notified) {
         await markCallRequestNotified(result.id);
         deliveryStatus = "notified";

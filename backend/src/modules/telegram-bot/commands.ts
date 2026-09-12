@@ -1,4 +1,4 @@
-import { env } from "@/core/env";
+import { sendTanitioNotification } from "@/modules/tanitio-notifications/client";
 import { db } from "@/db/client";
 import { hfMarkets, hfPriceHistory, hfProducts } from "@/db/schema";
 import { and, desc, eq, gte, sql } from "drizzle-orm";
@@ -34,25 +34,8 @@ function escapeHtml(s: string): string {
 }
 
 async function sendMessage(chatId: number, text: string): Promise<void> {
-  const token = env.TELEGRAM_BOT_TOKEN;
-  if (!token) {
-    console.warn("[telegram-bot] TELEGRAM_BOT_TOKEN eksik, mesaj atılamadı");
-    return;
-  }
-  const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text,
-      parse_mode: "HTML",
-      disable_web_page_preview: true,
-    }),
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    console.warn(`[telegram-bot] sendMessage HTTP ${res.status} — ${body.slice(0, 200)}`);
-  }
+  const ok = await sendTanitioNotification({ target: "recipient", chatId, text, parseMode: "html" });
+  if (!ok) console.warn("[telegram-bot] Tanitio uzerinden yanit teslim edilemedi");
 }
 
 function helpText(): string {

@@ -48,7 +48,6 @@ import {
   runAllProductionSources,
   runSingleProductionSource,
 } from "@/modules/etl/production-fetcher";
-import { publishDailyReport } from "@/modules/telegram-channel/publisher";
 import {
   latestRecordedDate,
   listPriceCategories,
@@ -1921,13 +1920,12 @@ export async function registerHalAdmin(app: FastifyInstance) {
   });
 
   app.post("/hal/channel/publish", async (_req, reply) => {
-    try {
-      await publishDailyReport();
-      return reply.send({ ok: true });
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      return reply.status(500).send({ ok: false, error: msg });
-    }
+    return reply.status(409).send({
+      ok: false,
+      error: "external_publisher_required",
+      owner: "ekosistem-sosyal-medya",
+      tenantKey: "haldefiyat",
+    });
   });
 
   app.post("/hal/notifications/test", async (req, reply) => {

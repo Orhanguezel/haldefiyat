@@ -2,16 +2,13 @@ import { and, eq, gte, ne, sql } from "drizzle-orm";
 import { mysqlTable, varchar, tinyint, datetime } from "drizzle-orm/mysql-core";
 import { sendBereketMail } from "@agro/shared-backend/core/mail";
 import { users } from "@agro/shared-backend/modules/auth/schema";
-import { telegramSendRaw } from "@agro/shared-backend/modules/telegram/helpers/telegram.notifier";
-import { env } from "@/core/env";
+import { sendTelegramAdminAlert, sendTelegramAlert } from "@/modules/alerts/telegram";
 import { isSyntheticUser } from "@/modules/notifications/synthetic-user";
 import { db } from "@/db/client";
 import { hfListings } from "./schema";
 
 // Yeni ilan olusunca admin'e moderasyon uyarisi (env'de admin chat tanimliysa).
 export async function notifyAdminNewListing(listing: typeof hfListings.$inferSelect) {
-  const adminChat = env.TELEGRAM_ADMIN_CHAT_ID;
-  if (!adminChat) return;
   // Test hesabindan acilan ilan operasyon kanalini mesgul etmez.
   if (await isSyntheticUser(listing.userId)) return;
   const type = listing.listingType === "alim" ? "Alım talebi" : "Satış ilanı";
@@ -19,7 +16,7 @@ export async function notifyAdminNewListing(listing: typeof hfListings.$inferSel
     `🆕 Yeni ilan (moderasyon bekliyor)\n${type}: ${listing.title}\n` +
     `Ürün: ${listing.productName} · İl: ${listing.citySlug ?? "-"}\n` +
     `Tel: ${listing.contactPhone ?? "-"}`;
-  await telegramSendRaw({ chatId: adminChat, text }).catch(() => {});
+  await sendTelegramAdminAlert(text).catch(() => {});
 }
 
 const daily = new Map<string, { day: string; count: number }>();
@@ -75,7 +72,7 @@ export async function notifyMatches(listing: typeof hfListings.$inferSelect) {
     const key = match.userId ?? chatId(match.raw) ?? `listing:${match.id}`;
     if (!allow(key)) continue;
     const tg = chatId(match.raw);
-    if (tg) await telegramSendRaw({ chatId: tg, text });
+    if (tg) await sendTelegramAlert(tg, text);
     if (match.email) {
       await sendBereketMail({
         to: match.email,
