@@ -304,11 +304,17 @@ const RichContentEditor: React.FC<RichContentEditorProps> = ({
               ) : null}
             </div>
 
-            <TabsContent value="visual" className="m-0">
+            {/*
+              Radix inactive content'i varsayilan olarak unmount eder. contentEditable
+              yeniden mount oldugunda sekme efekti ref olusmadan calisabildigi icin
+              Kaynak -> Gorsel gecisinde alan bos kalabiliyordu. Iki paneli de mount
+              edilmis tut; Radix inactive olani hidden ile gizler.
+            */}
+            <TabsContent value="visual" forceMount className="m-0 data-[state=inactive]:hidden">
               <div
                 ref={editorRef}
                 className={cn(
-                  'px-3 py-2 text-sm outline-none',
+                  'report-prose max-w-none px-3 py-2 text-sm outline-none',
                   disabled ? 'cursor-not-allowed bg-muted/20' : 'bg-background',
                 )}
                 style={{
@@ -322,7 +328,7 @@ const RichContentEditor: React.FC<RichContentEditorProps> = ({
               />
             </TabsContent>
 
-            <TabsContent value="source" className="m-0">
+            <TabsContent value="source" forceMount className="m-0 data-[state=inactive]:hidden">
               <div className="p-2">
                 <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
                   <Code2 className="size-4" />
