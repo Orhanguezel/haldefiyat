@@ -1,7 +1,7 @@
-import { env } from "@/core/env";
 import { pool } from "@/db/client";
 import { trendingChanges } from "@/modules/prices/repository";
 import { buildCard } from "@/modules/social/cards";
+import { getTanitioNotificationConfig, sendTanitioNotification } from "@/modules/tanitio-notifications/client";
 
 const SITE_URL = "https://haldefiyat.com";
 
@@ -27,30 +27,18 @@ function fmtDate(d: Date): string {
 }
 
 async function postToChannel(text: string, photoUrl?: string | null): Promise<void> {
-  const token = env.TELEGRAM_BOT_TOKEN;
-  const channelId = env.TELEGRAM_CHANNEL_ID;
-  if (!token || !channelId) {
-    console.warn("[channel-publisher] TELEGRAM_BOT_TOKEN veya TELEGRAM_CHANNEL_ID eksik, atlandı");
+  const config = await getTanitioNotificationConfig().catch((error) => {
+    console.warn("[channel-publisher] Tanitio ayarlari okunamadi:", (error as Error).message);
+    return null;
+  });
+  if (!config?.telegram.channelPublishEnabled || !config.telegram.channelChatId) {
+    console.warn("[channel-publisher] Tanitio Telegram kanal gonderimi kapali veya kanal Chat ID eksik, atlandi");
     return;
   }
-
   const useCaption = Boolean(photoUrl) && text.length <= 1024;
-  const method = useCaption ? "sendPhoto" : "sendMessage";
-  const res = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: channelId,
-      ...(useCaption ? { photo: photoUrl, caption: text } : { text }),
-      parse_mode: "HTML",
-      ...(!useCaption ? { disable_web_page_preview: true } : {}),
-    }),
-  });
-
-  const body = await res.text().catch(() => "");
-  if (!res.ok) {
-    console.warn(`[channel-publisher] Telegram API hatası HTTP ${res.status} — ${body.slice(0, 200)}`);
-    if (useCaption) await postToChannel(text, null);
+  const ok = await sendTanitioNotification({ target: "channel", text, photoUrl: useCaption ? photoUrl : null, parseMode: "html" });
+  if (!ok && useCaption) {
+    await sendTanitioNotification({ target: "channel", text, parseMode: "html" });
   } else {
     console.log("[channel-publisher] Kanal paylaşımı başarılı");
   }
@@ -186,9 +174,8 @@ async function latestFreshReport(reportId?: number): Promise<AnnounceableReport 
 export async function announceWeeklyReportToChannel(
   reportId?: number,
 ): Promise<{ sent: boolean; reason?: string; slug?: string }> {
-  if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHANNEL_ID) {
-    return { sent: false, reason: "TELEGRAM_BOT_TOKEN veya TELEGRAM_CHANNEL_ID eksik" };
-  }
+  const config = await getTanitioNotificationConfig().catch(() => null);
+  if (!config?.telegram.channelPublishEnabled || !config.telegram.channelChatId) return { sent: false, reason: "Tanitio Telegram kanal ayari kapali veya eksik" };
   const report = await latestFreshReport(reportId);
   if (!report) return { sent: false, reason: `son ${FRESH_REPORT_DAYS} gunde yayinlanmis rapor yok` };
 

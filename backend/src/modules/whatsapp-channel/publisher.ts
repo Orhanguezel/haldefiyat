@@ -1,7 +1,7 @@
 import { pool } from "@/db/client";
-import { env } from "@/core/env";
 import { overviewStats, trendingChanges } from "@/modules/prices/repository";
 import { buildCard } from "@/modules/social/cards";
+import { getTanitioNotificationConfig, sendTanitioNotification } from "@/modules/tanitio-notifications/client";
 
 // WhatsApp KANALLARINA resmi API ile gonderim YOK (Meta, 2026 itibariyla kanal
 // otomasyonu sunmuyor; gayriresmi web-protokol araclari numara/kanal bani riski
@@ -31,6 +31,8 @@ function fmtDate(d: Date): string {
 }
 
 async function getWhatsappChannelUrl(): Promise<string> {
+  const central = await getTanitioNotificationConfig().catch(() => null);
+  if (central?.whatsapp.channelUrl) return central.whatsapp.channelUrl;
   try {
     const [rows] = await pool.query(
       "SELECT value FROM site_settings WHERE `key` = 'social_whatsapp' LIMIT 1",
@@ -133,38 +135,13 @@ export async function buildWhatsappDailyCaption(): Promise<string | null> {
 }
 
 async function sendTelegram(chatId: string, text: string, html: boolean): Promise<boolean> {
-  const token = env.TELEGRAM_BOT_TOKEN;
-  if (!token || !chatId) return false;
-  const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text,
-      ...(html ? { parse_mode: "HTML" } : {}),
-      disable_web_page_preview: true,
-    }),
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    console.warn(`[whatsapp-bridge] Telegram HTTP ${res.status} — ${body.slice(0, 200)}`);
-  }
-  return res.ok;
+  void chatId;
+  return sendTanitioNotification({ target: "admin", text, parseMode: html ? "html" : "plain" });
 }
 
 async function sendTelegramPhoto(chatId: string, photo: string, caption: string): Promise<boolean> {
-  const token = env.TELEGRAM_BOT_TOKEN;
-  if (!token || !chatId) return false;
-  const res = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, photo, caption }),
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    console.warn(`[whatsapp-bridge] Telegram foto HTTP ${res.status} — ${body.slice(0, 200)}`);
-  }
-  return res.ok;
+  void chatId;
+  return sendTanitioNotification({ target: "admin", text: caption, photoUrl: photo, parseMode: "plain" });
 }
 
 /**
@@ -173,8 +150,9 @@ async function sendTelegramPhoto(chatId: string, photo: string, caption: string)
  * parse_mode kapali: *yildizlar* WhatsApp'a oldugu gibi tasinir.
  */
 export async function publishWhatsappDraft(): Promise<{ sent: boolean; reason?: string }> {
-  const adminChat = env.TELEGRAM_ADMIN_CHAT_ID;
-  if (!adminChat) return { sent: false, reason: "TELEGRAM_ADMIN_CHAT_ID eksik" };
+  const central = await getTanitioNotificationConfig().catch(() => null);
+  if (!central?.whatsapp.channelBridgeEnabled || !central.telegram.adminChatId) return { sent: false, reason: "Tanitio WhatsApp kanal koprusu kapali veya yonetici Chat ID eksik" };
+  const adminChat = central.telegram.adminChatId;
 
   const [text, caption] = await Promise.all([buildWhatsappDailyText(), buildWhatsappDailyCaption()]);
   if (!text) return { sent: false, reason: "trending veri yok" };
@@ -258,8 +236,9 @@ export async function buildWhatsappWeeklyText(): Promise<string | null> {
 
 /** Haftalik raporun WhatsApp taslagini admin sohbetine duser. */
 export async function publishWhatsappWeeklyDraft(): Promise<{ sent: boolean; reason?: string }> {
-  const adminChat = env.TELEGRAM_ADMIN_CHAT_ID;
-  if (!adminChat) return { sent: false, reason: "TELEGRAM_ADMIN_CHAT_ID eksik" };
+  const central = await getTanitioNotificationConfig().catch(() => null);
+  if (!central?.whatsapp.channelBridgeEnabled || !central.telegram.adminChatId) return { sent: false, reason: "Tanitio WhatsApp kanal koprusu kapali veya yonetici Chat ID eksik" };
+  const adminChat = central.telegram.adminChatId;
 
   const text = await buildWhatsappWeeklyText();
   if (!text) return { sent: false, reason: "son 8 gunde yayinlanmis rapor yok" };
