@@ -31,7 +31,7 @@ export interface DiscoveryDomain {
   ahead_of_us: number | string; impressions: number | string; sample_title: string | null; sample_url: string | null; tracked: number; isOurs: boolean;
 }
 export interface DiscoveryQuery { google?: { position: number; impressions: number; clicks: number; page: string | null } | null; query: string; impressions: number; clicks: number; our_position: number | null; results: number; top_domains: string | null }
-export interface DiscoveryResultRow { position: number; page?: number; url: string; domain?: string; title: string | null; snippet?: string | null; is_ours?: number; query?: string; impressions?: number; our_position?: number | null }
+export interface DiscoveryResultRow { position: number; page?: number; url: string; domain?: string; title: string | null; snippet?: string | null; is_ours?: number; query?: string; impressions?: number; our_position?: number | null; our_google_position?: number | null }
 export interface DiscoveryPayload {
   google?: { startDate: string; endDate: string; status: string };
   run: DiscoveryRun | null; running: boolean; domains: DiscoveryDomain[]; queries: DiscoveryQuery[]; runs: DiscoveryRun[];
@@ -45,7 +45,7 @@ export const competitorMonitorAdminApi = baseApi.injectEndpoints({
       query: (params) => ({ url: `/admin/competitor-monitor/discovery${params?.runId ? `?runId=${params.runId}` : ''}` }),
       providesTags: [{ type: 'CompetitorSites' as const, id: 'DISCOVERY' }],
     }),
-    getCompetitorDiscoveryResultsAdmin: builder.query<{ items: DiscoveryResultRow[] }, { runId: number; domain?: string; query?: string }>({
+    getCompetitorDiscoveryResultsAdmin: builder.query<{ items: DiscoveryResultRow[]; google?: { startDate: string; endDate: string; status: string } }, { runId: number; domain?: string; query?: string }>({
       query: ({ runId, domain, query }) => ({ url: `/admin/competitor-monitor/discovery/results?runId=${runId}${domain ? `&domain=${encodeURIComponent(domain)}` : ''}${query ? `&query=${encodeURIComponent(query)}` : ''}` }),
     }),
     startCompetitorDiscoveryAdmin: builder.mutation<{ ok: boolean; started: boolean }, { queries?: string[]; limit?: number; engine?: 'brave' | 'yandex' | 'bing'; depth?: number }>({

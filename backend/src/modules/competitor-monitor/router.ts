@@ -122,7 +122,17 @@ export async function registerCompetitorMonitor(app: FastifyInstance) {
   app.get<{ Querystring: { runId: string; domain?: string; query?: string } }>("/competitor-monitor/discovery/results", async (req, reply) => {
     const runId = Number(req.query.runId);
     if (!Number.isFinite(runId)) return reply.status(400).send({ error: "runId gerekli" });
-    if (req.query.domain) return reply.send({ items: await discoveryDomainResults(runId, req.query.domain) });
+    if (req.query.domain) {
+      // Tarama pozisyonu (Brave/Yandex) rakibi KESFETMEK icindir, siralama karari icin
+      // degil: ayni sorguda Brave ile Google 3-5 basamak sapabiliyor. Bu yuzden bizim
+      // tarafimiza GSC'nin gercek ortalama pozisyonu eklenir ve "kim onde" hukmu
+      // -- panelde -- oncelikle ondan kurulur. Rakibin GSC'si yok, olamaz da.
+      const [items, google] = await Promise.all([discoveryDomainResults(runId, req.query.domain), googlePerformance()]);
+      return reply.send({
+        items: items.map((it) => ({ ...it, our_google_position: google.queries[String(it.query)]?.position ?? null })),
+        google: { startDate: google.startDate, endDate: google.endDate, status: google.status },
+      });
+    }
     if (req.query.query) return reply.send({ items: await discoveryQueryResults(runId, req.query.query) });
     return reply.status(400).send({ error: "domain veya query gerekli" });
   });

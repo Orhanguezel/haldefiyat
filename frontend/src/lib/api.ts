@@ -1170,6 +1170,19 @@ export async function fetchSocialFeed(limit = 30): Promise<SocialTweet[]> {
 export interface CityProductPair {
   citySlug: string; cityName: string; productSlug: string; productName: string; unit: string;
   marketSlug: string; marketName: string; days90: number; lastDate: string; searchVolume: number; eligible: boolean;
+  /** "own" = kendi arama hacmiyle, "family" = ailesinin hacmini miras alarak gecti. */
+  volumeSource?: "own" | "family" | null;
+}
+
+export interface MarketComparisonItem {
+  productSlug: string; productName: string; unit: string;
+  ourPrice: number; recordedDate: string; peerCount: number;
+  nationalMedian: number; diffPct: number; rank: number;
+  cheapest: { citySlug: string; cityName: string; price: number };
+  priciest: { citySlug: string; cityName: string; price: number };
+}
+export interface MarketComparison {
+  marketSlug: string; items: MarketComparisonItem[]; cheaperCount: number; pricierCount: number;
 }
 export interface CityProductDetail {
   pair: CityProductPair;
@@ -1180,6 +1193,13 @@ export interface CityProductDetail {
   nationalMedian: number | null;
   rank: number | null;
   movers: Array<{ productSlug: string; productName: string; avgPrice: number; prevPrice: number; changePct: number; citySlug: string; eligible: boolean }>;
+}
+
+export async function fetchMarketComparison(marketSlug: string): Promise<MarketComparison | null> {
+  // unwrapPayload nesne zarfinda yalniz "data"yi aciyor; bu uc "item" donuyor.
+  const path = `/prices/markets/${encodeURIComponent(marketSlug)}/comparison`;
+  const env = await safeFetch<ItemEnvelope<MarketComparison> | null>(path, 1800, null, ["prices"]);
+  return env?.item ?? null;
 }
 
 export async function fetchCityProductPairs(params: { eligible?: boolean; city?: string; product?: string } = {}): Promise<CityProductPair[]> {

@@ -97,6 +97,8 @@ export function ListingCard({ item, compact = false }: { item: Listing; compact?
             src={ownPhoto}
             alt={item.title}
             className="h-40 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+            width={380}
+            height={160}
             loading="lazy"
           />
         </Link>

@@ -61,6 +61,16 @@ export default async function PublicLayout({
       founder: { "@type": "Person", name: settings.responsible_publisher_name },
     }),
     ...(sameAs.length > 0 && { sameAs }),
+    // Uzmanlik alanlari: AI arama sistemleri varligi hangi konuyla eslestirecegini buradan okur.
+    knowsAbout: [
+      "Hal fiyatları",
+      "Toptancı hal piyasası",
+      "Sebze ve meyve fiyatları",
+      "Tarım ürünleri fiyat endeksi",
+      "Ticaret borsası fiyatları",
+      "Tarımsal piyasa analizi",
+    ],
+    areaServed: { "@type": "Country", name: "Türkiye" },
   };
 
   const webSiteSchema = {

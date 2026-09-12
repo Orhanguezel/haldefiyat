@@ -20,6 +20,17 @@ export function DomainSheet({ row, runId, onClose, t, tc }: Props) {
   const { data, isFetching } = useGetCompetitorDiscoveryResultsAdminQuery({ runId: runId ?? 0, domain: row?.domain }, { skip: !row || !runId });
   const [addSite, add] = useAddCompetitorSiteAdminMutation();
   const items = data?.items ?? [];
+  // Hukum sirasi: once GSC (Google'in gercek ortalama pozisyonu), yoksa tarama.
+  // Tarama motoru (Brave/Yandex) rakip KESFI icin guvenilir, siralama karari icin degil.
+  const verdicts = items.map((it) => {
+    const gsc = it.our_google_position ?? null;
+    const scraped = it.our_position ?? null;
+    const basis = gsc != null ? 'google' : 'scrape';
+    const ours = gsc ?? scraped;
+    return { basis, ahead: ours == null || it.position < ours };
+  });
+  const aheadGoogle = verdicts.filter((v) => v.basis === 'google' && v.ahead).length;
+  const aheadScrape = verdicts.filter((v) => v.basis === 'scrape' && v.ahead).length;
   async function track() {
     if (!row) return;
     try { await addSite({ domain: row.domain, url: row.sample_url ? `https://${row.domain}` : undefined }).unwrap(); toast.success(t('discovery.tracked', { domain: row.domain })); }
@@ -43,22 +54,30 @@ export function DomainSheet({ row, runId, onClose, t, tc }: Props) {
                 <Stat label={t('discovery.sheet.queries')} value={n(row.queries)} />
                 <Stat label={t('discovery.table.avgPosition')} value={Number(row.avg_position).toFixed(1)} />
                 <Stat label={t('discovery.table.top3')} value={n(row.top3)} />
-                <Stat label={t('discovery.table.ahead')} value={<span className={n(row.ahead_of_us) ? 'text-rose-600' : ''}>{n(row.ahead_of_us)}</span>} />
+                <Stat label={t('discovery.sheet.aheadGoogle')} value={<span className={aheadGoogle ? 'text-rose-600' : ''}>{aheadGoogle}</span>} />
               </div>
+              <p className="rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                {t('discovery.sheet.engineNote')}
+                {data?.google?.status === 'ok' ? ` · ${t('discovery.sheet.googleRange', { start: data.google.startDate, end: data.google.endDate })}` : null}
+                {aheadScrape ? ` · ${t('discovery.sheet.aheadScrape')}: ${aheadScrape}` : null}
+              </p>
               <div>
                 <div className="mb-2 text-xs text-muted-foreground">{t('discovery.sheet.perQuery')}</div>
                 {isFetching ? <p className="text-sm text-muted-foreground">{tc('loading')}</p> : (
                   <ul className="divide-y rounded-lg border text-sm">
                     {items.map((it, i) => {
-                      const ours = it.our_position ?? null;
-                      const ahead = ours == null || it.position < ours;
+                      const scraped = it.our_position ?? null;
+                      const gsc = it.our_google_position ?? null;
+                      const { basis, ahead } = verdicts[i]!;
                       return (
                         <li key={`${it.query}-${i}`} className="space-y-0.5 px-3 py-2">
                           <div className="flex items-center justify-between gap-2">
                             <span className="truncate font-medium">{it.query}</span>
                             <span className="shrink-0 text-xs tabular-nums">
                               <span className={ahead ? 'text-rose-600' : 'text-emerald-600'}>#{it.position}</span>
-                              <span className="text-muted-foreground"> · {t('discovery.sheet.us')}: {ours ?? t('discovery.sheet.notRanked')}</span>
+                              <span className="text-muted-foreground"> · {t('discovery.sheet.usGoogle')}: {gsc == null ? t('discovery.sheet.noGoogle') : gsc.toLocaleString('tr-TR', { maximumFractionDigits: 1 })}</span>
+                              <span className="text-muted-foreground"> · {t('discovery.sheet.us')}: {scraped ?? t('discovery.sheet.notRanked')}</span>
+                              <span className="text-muted-foreground"> · {basis === 'google' ? t('discovery.sheet.verdictGoogle') : t('discovery.sheet.verdictScrape')}</span>
                               {it.impressions ? <span className="text-muted-foreground"> · {t('discovery.sheet.impressions', { count: it.impressions })}</span> : null}
                             </span>
                           </div>

@@ -78,7 +78,7 @@ async function BannerSlotContent({
 
   return (
     <aside className={className} aria-label={`Reklam alanı: ${position}`} data-content-type="advertisement">
-      <div className={`mx-auto my-5 ${sidebar ? "max-w-[336px]" : "max-w-6xl"} px-4`}>
+      <div className={`mx-auto my-5 ${sidebar ? "w-full lg:max-w-[336px]" : "max-w-6xl"} px-4`}>
         <SponsorLabel />
         <div className="space-y-4">
           {[...rows.entries()].sort(([a], [b]) => a - b).map(([row, rowBanners]) => (
@@ -107,15 +107,17 @@ export function BannerCreative({ banner, sidebar }: { banner: PublicBanner; side
     const listingHref = `/api/v1/banners/${banner.id}/click`;
     const price = listing.priceMin == null ? "Fiyat için iletişime geçin" : `${Number(listing.priceMin).toLocaleString("tr-TR")} ${listing.currency}/${listing.priceUnit}`;
     return (
-      <a href={listingHref} target={target} rel={rel} className={`${deviceClass(banner.device)} group flex min-h-28 overflow-hidden rounded-xl border border-(--color-border) bg-(--color-surface) text-(--color-foreground) shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg`.trim()}>
+      <a href={listingHref} target={target} rel={rel} className={`${deviceClass(banner.device)} group flex ${sidebar ? "flex-col" : "flex-col md:flex-row"} min-h-28 overflow-hidden rounded-xl border border-(--color-border) bg-(--color-surface) text-(--color-foreground) shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg`.trim()}>
         {listing.imageUrl && (
-          <ResilientAdImage src={resolveImageUrl(listing.imageUrl)} alt={listing.title} className="w-32 shrink-0 object-cover sm:w-40" />
+          <span data-listing-media className={sidebar ? "block aspect-[4/3] w-full shrink-0 overflow-hidden" : "block aspect-[4/3] w-full shrink-0 overflow-hidden md:aspect-auto md:w-56"}>
+            <ResilientAdImage src={resolveImageUrl(listing.imageUrl)} alt={listing.title} className="h-full w-full object-cover" width={640} height={480} />
+          </span>
         )}
         <span className="flex min-w-0 flex-1 flex-col justify-center p-4">
-          <span className="text-[10px] font-bold uppercase tracking-[.14em] text-(--color-brand)">Sponsorlu ilan · {listing.productName}</span>
-          <strong className="mt-1 line-clamp-2 text-base leading-tight">{listing.title}</strong>
-          <span className="mt-2 text-sm font-semibold">{price}</span>
-          <span className="mt-1 text-xs text-(--color-muted)">{listing.citySlug || "Türkiye"} · İlanı incele →</span>
+          <span className="text-[11px] font-bold uppercase tracking-[.08em] text-(--color-brand)">Sponsorlu ilan · {listing.productName}</span>
+          <strong className="mt-2 line-clamp-2 text-lg leading-snug">{listing.title}</strong>
+          <span className="mt-2 text-base font-semibold">{price}</span>
+          <span className="mt-3 text-sm text-(--color-muted)">{listing.citySlug || "Türkiye"} · İlanı incele →</span>
         </span>
       </a>
     );
@@ -130,7 +132,7 @@ export function BannerCreative({ banner, sidebar }: { banner: PublicBanner; side
   if (!banner.imageUrl) return null;
   return (
     <a href={href ?? undefined} target={href ? target : undefined} rel={href ? rel : undefined} className={`${deviceClass(banner.device)} flex h-full flex-col items-center gap-3 rounded-xl border border-(--color-border) bg-(--color-surface) p-3 sm:flex-row`.trim()}>
-      <ResilientAdImage src={resolveImageUrl(banner.imageUrl)} alt={alt} fallbackClassName="min-h-24" className={sidebar ? "max-h-[260px] w-full rounded-md object-contain" : "max-h-28 min-w-0 flex-1 rounded-md object-contain"} />
+      <ResilientAdImage src={resolveImageUrl(banner.imageUrl)} alt={alt} fallbackClassName="min-h-24" className={sidebar ? "h-auto w-full rounded-md object-contain" : "h-auto w-full rounded-md object-contain md:max-h-60 md:min-w-0 md:flex-1"} />
       {(banner.caption || banner.ctaLabel) && <span className="p-2 text-sm font-semibold">{banner.caption}{banner.ctaLabel ? <small className="mt-2 block text-(--color-brand)">{banner.ctaLabel} →</small> : null}</span>}
     </a>
   );

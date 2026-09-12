@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
-import { fetchPrices, fetchMarkets, fetchFirms, fetchListings } from "@/lib/api";
+import { fetchPrices, fetchMarkets, fetchFirms, fetchListings, fetchMarketComparison } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceTable from "@/components/ui/PriceTable";
@@ -25,6 +25,7 @@ import BannerSlot from "@/components/ads/BannerSlot";
 import { formatDateTr } from "@/lib/date-format";
 import MarketDataNav from "@/components/sections/MarketDataNav";
 import CityProductLinks from "@/components/sections/CityProductLinks";
+import MarketNationalCompare from "@/components/sections/MarketNationalCompare";
 import { productHref } from "@/lib/product-links";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -171,7 +172,7 @@ export default async function HalPage({ params }: Props) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const [prices, trendHistory, markets] = await Promise.all([
+  const [prices, trendHistory, markets, comparison] = await Promise.all([
     fetchPrices({ market: slug, range: MARKET_PRICE_RANGE, limit: 500 }),
     fetchPrices({
       market: slug,
@@ -181,6 +182,7 @@ export default async function HalPage({ params }: Props) {
       sort: "date-desc",
     }),
     fetchMarkets(),
+    fetchMarketComparison(slug),
   ]);
 
   const market = markets.find((m) => m.slug === slug);
@@ -479,6 +481,10 @@ export default async function HalPage({ params }: Props) {
             ))}
           </div>
         </section>
+      )}
+
+      {!isNational && (
+        <MarketNationalCompare data={comparison} marketName={market.name} cityName={market.cityName} />
       )}
 
       {!isNational && <CityProductLinks city={citySlug(market.cityName)} cityName={market.cityName} />}

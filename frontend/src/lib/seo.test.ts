@@ -59,6 +59,10 @@ describe("SEO locale alternates", () => {
     expect(metadata.title).toEqual({ absolute: "İzmir Toptancı Hali Fiyatları" });
     expect(metadata.description).toBe("İzmir halinin güncel fiyat listesi");
     expect(metadata.alternates?.canonical).toMatch(/\/hal\/izmir-hal$/);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    // seo_pages bir kez okunur; legacy /page-seo/{key} cagrisi olmaz.
+    // (site_seo twitter hesabi icin ikinci, bagimsiz bir cagri yapilir.)
+    const urls = fetchMock.mock.calls.map(([url]) => String(url));
+    expect(urls.filter((url) => url.includes("/site_settings/seo_pages"))).toHaveLength(1);
+    expect(urls.some((url) => url.includes("/page-seo/"))).toBe(false);
   });
 });

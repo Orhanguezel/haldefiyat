@@ -3,6 +3,7 @@ import type { FastifyInstance, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { pool } from "@/db/client";
 import { env } from "@/core/env";
+import { readListingContent } from "./listings";
 
 const querySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(24),
@@ -45,14 +46,14 @@ export async function registerWebConnection(app: FastifyInstance) {
   });
 
   app.get("/contract", async () => ({
-    contract: "haldefiyat-tanitio-web-connection", version: "1.0",
+    contract: "haldefiyat-tanitio-web-connection", version: "1.1",
     tenant: "haldefiyat", locale: "tr-TR", timezone: "Europe/Istanbul",
     capabilities: {
-      read: ["articles", "products", "context"],
+      read: ["articles", "products", "listings", "context"],
       write: ["analysis_draft"],
       publish: false,
     },
-    endpoints: { articles: "/articles", products: "/products", context: "/context", analysisDrafts: "/analysis-drafts" },
+    endpoints: { articles: "/articles", products: "/products", listings: "/listings", context: "/context", analysisDrafts: "/analysis-drafts" },
     auth: { type: "bearer", header: "Authorization" },
   }));
 
@@ -83,6 +84,11 @@ export async function registerWebConnection(app: FastifyInstance) {
     const count = countResult[0] as any[]; const rows = rowsResult[0] as any[];
     const total = Number(count[0]?.total ?? 0);
     return { items: rows.map((r) => ({ id: String(r.id), kind: "product", slug: r.slug, title: r.name_tr, url: `https://haldefiyat.com/urun/${r.slug}`, image_url: r.image_url, category: r.category_slug, unit: r.unit, price: r.price == null ? null : Number(r.price), currency: "TRY", popularity: Number(r.search_volume || 0), dataQuality: Number(r.data_quality || 0), updated_at: dateOrNull(r.updated_at) })), total, hasMore: q.offset + q.limit < total };
+  });
+
+  app.get("/listings", async (req, reply) => {
+    try { return await readListingContent(pool, req.query); }
+    catch (error) { if (error instanceof z.ZodError) return reply.status(400).send({ error: "invalid_listing_query" }); throw error; }
   });
 
   app.get("/context", async () => {

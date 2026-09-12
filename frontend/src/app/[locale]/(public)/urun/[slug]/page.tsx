@@ -394,6 +394,25 @@ export default async function UrunPage({ params }: Props) {
   ]);
   const borsaPrices = borsaPricePage.items;
 
+  // Editoryel kurasyon (hf_product_editorial.related_slugs). Bu alan bugune kadar
+  // sayfada hic okunmuyordu; 459 kaydin 327'si ayni 8 listeyi paylasan toplu
+  // uretim copuydu ve 2026-09-12'de bosaltildi. Kalan 117 liste elle kurulmus.
+  // Aile secici ve kategori rotasyonu zaten link veriyor — burada yalniz onlarda
+  // GECMEYEN urunler cikar, yani blok kategori disi konu baglantisi ekler.
+  const alreadyLinked = new Set<string>([
+    slug,
+    ...familyMembers.map((p) => p.slug),
+    ...relatedProducts.map((p) => p.slug),
+  ]);
+  const curatedRelated = (editorial.relatedSlugs ?? [])
+    .filter((s) => !alreadyLinked.has(s))
+    .flatMap((s) => {
+      const found = products.find((p) => p.slug === s);
+      if (!found || found.canonicalSlug) return [];
+      return found.seoIndex === 1 || found.seoIndex === true ? [found] : [];
+    })
+    .slice(0, 6);
+
 
   const now = Date.now();
   const latestHistoryDate = history.reduce<string | null>((latest, row) => {
@@ -922,6 +941,24 @@ export default async function UrunPage({ params }: Props) {
               >
                 {variant.displayName}
               </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {curatedRelated.length > 0 && (
+        <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5">
+          <h2 className="text-base font-semibold text-foreground">İlgili ürünler</h2>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {curatedRelated.map((p) => (
+              <Link
+                key={p.slug}
+                href={productHref({ productSlug: p.slug, canonicalSlug: p.canonicalSlug })}
+                className="rounded-lg border border-border-soft bg-background/40 px-3 py-2 text-sm transition-colors hover:border-brand/40"
+              >
+                <span className="font-medium text-foreground">{getProductDisplayName(p)}</span>
+                <span className="mt-0.5 block text-xs text-muted">güncel hal fiyatı</span>
+              </Link>
             ))}
           </div>
         </div>

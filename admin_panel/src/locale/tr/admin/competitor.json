@@ -65,7 +65,7 @@
       "avgPosition": "Ort. tarama konumu",
       "best": "en iyi #{pos}",
       "top3": "İlk 3 / ilk 10",
-      "ahead": "Bizden önde",
+      "ahead": "Bizden önde (tarama)",
       "status": "Durum",
       "tracked": "İzleniyor",
       "untracked": "İzlenmiyor"
@@ -73,9 +73,17 @@
     "sheet": {
       "queries": "Sorgu",
       "perQuery": "Sorgu başına en iyi tarama sonucu",
-      "us": "biz",
+      "us": "biz (tarama)",
       "notRanked": "taramada görülmedi",
-      "impressions": "{count} bizim GSC gösterimimiz"
+      "impressions": "{count} bizim GSC gösterimimiz",
+      "usGoogle": "biz (Google)",
+      "noGoogle": "GSC verisi yok",
+      "verdictGoogle": "Google'a göre",
+      "verdictScrape": "yalnız tarama",
+      "aheadGoogle": "Bizden önde (Google)",
+      "aheadScrape": "Bizden önde (tarama)",
+      "googleRange": "Google Search Console {start} – {end}",
+      "engineNote": "Tarama konumu rakibi keşfetmek içindir. Sıralama kararını GSC sütunundan ver: aynı sorguda iki motor 3-5 basamak sapabiliyor."
     }
   },
   "queries": {

@@ -9,6 +9,8 @@ export default function ResilientAdImage({
   style,
   fallbackClassName = "",
   hideOnError = false,
+  width,
+  height,
 }: {
   src: string;
   alt: string;
@@ -16,6 +18,9 @@ export default function ResilientAdImage({
   style?: CSSProperties;
   fallbackClassName?: string;
   hideOnError?: boolean;
+  /** Intrinsic size hint: reserves the box before the file arrives (CLS). CSS still wins. */
+  width?: number;
+  height?: number;
 }) {
   const [failed, setFailed] = useState(false);
   if (failed && hideOnError) return null;
@@ -31,5 +36,5 @@ export default function ResilientAdImage({
     );
   }
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt={alt} className={className} style={style} loading="lazy" decoding="async" onError={() => setFailed(true)} />;
+  return <img src={src} alt={alt} className={className} style={style} width={width} height={height} loading="lazy" decoding="async" onError={() => setFailed(true)} />;
 }

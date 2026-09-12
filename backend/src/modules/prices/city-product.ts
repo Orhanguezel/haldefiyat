@@ -11,7 +11,14 @@ import { pool } from "@/db/client";
 
 type Row = RowDataPacket & Record<string, unknown>;
 
-export const GATE = { minDays90: 45, minSearchVolume: 5000, maxStaleDays: 14 } as const;
+export const GATE = {
+  minDays90: 45, minSearchVolume: 5000, maxStaleDays: 14,
+  // Cesit sayfalari kendi arama hacimleriyle kapiyi gecemez: "uzum siyah" 530, ailesi
+  // "uzum" 23.957. Hacim olcumu cesit adlarinda sistematik olarak eksik, talep ailenin
+  // basinda toplaniyor. Aile hacmini miras alan cift, kendi talebi kanitli olmadigi icin
+  // DAHA YUKSEK veri cubugu gecmek zorunda — ince icerik riski hacimle degil veriyle kapanir.
+  familyMinDays90: 60, familyMaxStaleDays: 7,
+} as const;
 const INDEX_TTL_MS = 30 * 60_000;
 
 export function citySlugTr(value: string): string {
@@ -23,10 +30,25 @@ export function citySlugTr(value: string): string {
 export interface CityProductPair {
   citySlug: string; cityName: string; productSlug: string; productName: string; unit: string;
   marketSlug: string; marketName: string; days90: number; lastDate: string; searchVolume: number; eligible: boolean;
+  /** Kapiyi hangi hacim gecirdi — olcum kohortlari ayri raporlansin diye tasinir. */
+  volumeSource: "own" | "family" | null;
+}
+
+/**
+ * Aile hacmi mirasi yalniz adi ailenin basiyla baslayan cesitler icindir.
+ * family_slug token kokleme ile kuruluyor ve bilesik adlari yanlis baglıyor:
+ * "Yer Elmasi" ve "Trabzon Hurmasi (Cennet Elmasi)" → "elmasi" → koku "elma".
+ * Bunlar elma degil; elma'nin 6.532 hacmini miras almalari yanlis olurdu.
+ * Slug oneki kontrolu bunlari eler, "uzum-siyah"/"domates-salkim" gibi gercek
+ * cesitleri elemez. ("yesil-sogan" da elenir — kuru soganin talebini devralmamali.)
+ */
+function inheritsFamilyVolume(slug: string, familySlug: string | null): boolean {
+  if (!familySlug) return false;
+  return slug === familySlug || slug.startsWith(`${familySlug}-`);
 }
 
 // Urun ailesi: master + canonical_slug ile ona bagli varyantlar (kg birimi esit).
-const FAMILY_CTE = `fam AS (
+export const FAMILY_CTE = `fam AS (
   SELECT id AS pid, id AS master_id FROM hf_products WHERE is_active = 1 AND canonical_slug IS NULL
   UNION
   SELECT v.id, m.id FROM hf_products v JOIN hf_products m ON m.slug = v.canonical_slug WHERE v.is_active = 1
@@ -35,7 +57,7 @@ const FAMILY_CTE = `fam AS (
   WHERE v.is_active = 1 AND v.family_slug = 'limon' AND v.unit = m.unit
 )`;
 // Shared quality boundary for every series, coverage gate and comparison query.
-const VALID_PRICE = `ph.avg_price > 0 AND ph.recorded_date <= CURDATE()
+export const VALID_PRICE = `ph.avg_price > 0 AND ph.recorded_date <= CURDATE()
   AND NOT EXISTS (SELECT 1 FROM hf_market_blackouts b WHERE b.market_id = ph.market_id AND ph.recorded_date BETWEEN b.from_date AND b.to_date)`;
 
 let indexCache: { at: number; items: CityProductPair[] } | null = null;
@@ -45,6 +67,10 @@ export async function listCityProductPairs(): Promise<CityProductPair[]> {
   if (indexCache && Date.now() - indexCache.at < INDEX_TTL_MS) return indexCache.items;
   const [rows] = await pool.query<Row[]>(
     `WITH ${FAMILY_CTE},
+     famvol AS (
+       SELECT family_slug, MAX(search_volume) AS family_volume FROM hf_products
+       WHERE is_active = 1 AND family_slug IS NOT NULL GROUP BY family_slug
+     ),
      agg AS (
        SELECT f.master_id, ph.market_id, COUNT(DISTINCT ph.recorded_date) AS days90, MAX(ph.recorded_date) AS last_date
        FROM hf_price_history ph JOIN fam f ON f.pid = ph.product_id
@@ -55,8 +81,10 @@ export async function listCityProductPairs(): Promise<CityProductPair[]> {
      )
      SELECT mk.city_name, mk.slug AS market_slug, mk.name AS market_name, p.slug AS product_slug,
             COALESCE(p.display_name, p.name_tr) AS product_name, p.unit, p.search_volume, p.seo_index,
+            p.family_slug, COALESCE(fv.family_volume, 0) AS family_volume,
             a.days90, a.last_date
      FROM agg a JOIN hf_markets mk ON mk.id = a.market_id JOIN hf_products p ON p.id = a.master_id
+     LEFT JOIN famvol fv ON fv.family_slug = p.family_slug
      WHERE a.days90 >= 10
      ORDER BY p.search_volume DESC, a.days90 DESC`,
   );
@@ -69,11 +97,20 @@ export async function listCityProductPairs(): Promise<CityProductPair[]> {
     seen.add(key);
     const lastDate = isoDate(r.last_date);
     const staleDays = Math.round((Date.now() - new Date(`${lastDate}T00:00:00Z`).getTime()) / 86_400_000);
-    const eligible = Number(r.seo_index) === 1 && Number(r.days90) >= GATE.minDays90
-      && Number(r.search_volume) >= GATE.minSearchVolume && staleDays <= GATE.maxStaleDays;
+    const productSlug = String(r.product_slug);
+    const days90 = Number(r.days90);
+    const indexable = Number(r.seo_index) === 1;
+    const ownPasses = Number(r.search_volume) >= GATE.minSearchVolume
+      && days90 >= GATE.minDays90 && staleDays <= GATE.maxStaleDays;
+    const familyPasses = !ownPasses
+      && Number(r.family_volume) >= GATE.minSearchVolume
+      && inheritsFamilyVolume(productSlug, r.family_slug == null ? null : String(r.family_slug))
+      && days90 >= GATE.familyMinDays90 && staleDays <= GATE.familyMaxStaleDays;
+    const volumeSource = ownPasses ? "own" : familyPasses ? "family" : null;
     items.push({
-      citySlug, cityName: String(r.city_name), productSlug: String(r.product_slug), productName: String(r.product_name), unit: String(r.unit),
-      marketSlug: String(r.market_slug), marketName: String(r.market_name), days90: Number(r.days90), lastDate, searchVolume: Number(r.search_volume), eligible,
+      citySlug, cityName: String(r.city_name), productSlug, productName: String(r.product_name), unit: String(r.unit),
+      marketSlug: String(r.market_slug), marketName: String(r.market_name), days90, lastDate, searchVolume: Number(r.search_volume),
+      eligible: indexable && volumeSource !== null, volumeSource: indexable ? volumeSource : null,
     });
   }
   indexCache = { at: Date.now(), items };
