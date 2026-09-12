@@ -22,7 +22,12 @@ const ogImage = "/uploads/analysis-covers/2026-09-12/uzum-sezon-analizi-2026.web
 const tags = ["üzüm", "üzüm fiyatları", "2026 sezon analizi", "çekirdeksiz üzüm", "kuru üzüm", "rekolte", "hal fiyatları"];
 const content = readFileSync(new URL("../../reports/uzum-fiyatlari-2026-sezon-analizi-content.html", import.meta.url), "utf8").trim();
 
-if (!content.includes("19.901") || !content.includes("44,48") || !content.includes("Kaynaklar")) {
+if (
+  !content.includes("9.247")
+  || !content.includes("47,50")
+  || !content.includes("yaklaşık %20")
+  || !content.includes("Kaynaklar")
+) {
   throw new Error("Beklenen doğrulama işaretleri HTML içeriğinde bulunamadı");
 }
 
@@ -46,7 +51,7 @@ try {
     await connection.execute(
       `INSERT INTO hf_analysis_reports
         (slug,title,summary,meta_title,meta_description,image_alt,og_image,content,author,tags,iso_week,week_start,week_end,report_date,source,status,total_records,reviewed_at,published_at)
-       VALUES (?,?,?,?,?,?,?,?,?,?,'','2024-01-01','2026-09-12','2026-09-12','manual','published',19901,NOW(3),NOW(3))
+       VALUES (?,?,?,?,?,?,?,?,?,?,'','2024-01-01','2026-09-12','2026-09-12','manual','published',9247,NOW(3),NOW(3))
        ON DUPLICATE KEY UPDATE
         title=VALUES(title), summary=VALUES(summary), meta_title=VALUES(meta_title),
         meta_description=VALUES(meta_description), image_alt=VALUES(image_alt),

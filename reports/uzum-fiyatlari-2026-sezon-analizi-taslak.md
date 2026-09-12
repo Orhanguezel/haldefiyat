@@ -1,14 +1,14 @@
 # Üzüm Fiyatları 2026: Sezon Başında Hal Verileri, Rekolte ve Dünya Piyasası
 
-> **Durum:** Taslak — 12 Eylül 2026 itibarıyla. Yayınlanmamıştır.
+> **Durum:** Taslak — 12 Eylül 2026 itibarıyla. Yayınlanmamıştır. Bağımsız doğrulama uygulandı: bkz. `uzum-fiyatlari-2026-sezon-analizi-DOGRULAMA.md`.
 >
 > **Kapsam:** Yaş/sofralık üzüm hal fiyatları ana eksendir. Çekirdeksiz kuru üzüm, aynı hammaddenin ayrı bir pazarı olduğu için ayrı bölümde incelenmiştir. Şaraplık üzüm fiyat tahmini kapsam dışıdır.
 
 ## Kısa sonuç
 
-2026 üzüm sezonuna 2025'in düşük üretim bazından güçlü bir arz toparlanmasıyla giriliyor. TÜİK'in 21 Mayıs 2026 tarihli ilk tahmini, Türkiye'nin toplam üzüm üretiminin geçen yıla göre **%53 artacağını** öngörüyor.[^1] HaldeFiyat'ın 1 Ocak 2024–12 Eylül 2026 arasındaki 19.901 geçerli yaş üzüm kaydı da hasadın piyasaya girmesiyle fiyatların hızlı gevşediğini gösteriyor: bütün yaş üzüm çeşitlerinde aylık medyan nisan 2026'da 152,50 TL/kg iken ağustosta 50 TL/kg'a, eylülün ilk 12 gününde 44,48 TL/kg'a indi.
+2026 üzüm sezonuna 2025'in düşük üretim bazından güçlü bir arz toparlanmasıyla giriliyor. TÜİK'in 21 Mayıs 2026 tarihli ilk tahmini, Türkiye'nin toplam üzüm üretiminin 2025'teki 2,52 milyon tonluk gerçekleşmeden **%53 artışla 3,85 milyon tona** çıkacağını öngörüyor.[^1] HaldeFiyat'ın 1 Ocak 2024–12 Eylül 2026 arasındaki, kalite süzgecinden geçmiş 9.247 yaş üzüm kaydı da hasadın piyasaya girmesiyle fiyatların hızlı gevşediğini gösteriyor: şehir hallerinde bütün yaş üzüm çeşitlerinin aylık medyanı nisan 2026'da 235 TL/kg iken ağustosta 52,50 TL/kg'a, eylülün ilk 12 gününde 47,50 TL/kg'a indi.
 
-Bu düşüşü “üzümün değeri çöktü” diye okumak doğru olmaz. İlkbahar serisi az bulunan, sezon dışı ve çoğu zaman ithal/özel çeşitlerin ağırlığını; ağustos-eylül serisi ise çok daha geniş yerli hasat arzını içeriyor. Asıl karşılaştırma, aynı ay ve mümkün olduğunca aynı ürün grubuyla yapılmalı. Bu ölçüyle de eylül 2026 medyanı, eylül 2025'in 65 TL/kg seviyesinden **%31,6 aşağıda**, eylül 2024'ün 45 TL/kg seviyesine ise hemen hemen eşit. Rakamlar nominaldir; enflasyondan arındırılmamıştır.
+Bu düşüşü “üzümün değeri çöktü” diye okumak doğru olmaz. İlkbahar serisi az bulunan, sezon dışı ve çoğu zaman ithal/özel çeşitlerin ağırlığını; ağustos-eylül serisi ise çok daha geniş yerli hasat arzını içeriyor. Asıl karşılaştırma, aynı ay ve mümkün olduğunca aynı ürün grubuyla yapılmalı. Bu ölçüyle, yani her iki yılda da veri veren aynı hal ve aynı çeşit çiftleri (Ankara, İzmir, Konya; 9 çift) üzerinden bakıldığında 1–12 Eylül 2026 fiyatları 2025'in aynı dönemine göre **yaklaşık %20 aşağıda**. Düşüş bölgeye göre ayrışıyor: Ankara'da çeşitlere göre %23–45, İzmir'de %11–14 düşüş varken Konya'da çekirdeksiz üzüm %12 yukarıda. Aynı yöntemle 2024 kıyası yapılamıyor; o yıl temiz veri veren hal sayısı yetersiz. Rakamlar nominaldir; enflasyondan arındırılmamıştır.
 
 2026'nın ana hikâyesi bu nedenle üç parçalıdır:
 
@@ -18,20 +18,20 @@ Bu düşüşü “üzümün değeri çöktü” diye okumak doğru olmaz. İlkba
 
 ## Hal verisi ne söylüyor?
 
-HaldeFiyat veri tabanında “üzüm” ailesine ait, kilogram birimli ve 1–1.000 TL/kg sağlık aralığındaki kayıtlar tarandı. 2024 başından 12 Eylül 2026'ya kadar **23 hal, 32 ürün/çeşit ve 19.901 fiyat gözlemi** bulunuyor. Aşağıdaki değerler günlük hal ortalamalarının aylık medyanıdır; tüketici raf fiyatı ya da üreticinin eline geçen net fiyat değildir.
+HaldeFiyat veri tabanında “üzüm” ailesine ait, kilogram birimli ve 1–1.000 TL/kg sağlık aralığındaki şehir hali kayıtları tarandı ve sitenin kendi yayın süzgeçleri uygulandı: donmuş ya da güvenilmez ilan edilen hal dönemleri ile min–maks makası üç katı aşan türetilmiş ortalamalar dışarıda bırakıldı, hal.gov.tr ulusal ortalaması ayrı tutuldu. 2024 başından 12 Eylül 2026'ya kadar **22 hal, 32 ürün/çeşit ve 9.247 fiyat gözlemi** bulunuyor. Aşağıdaki değerler günlük hal ortalamalarının aylık medyanıdır; tüketici raf fiyatı ya da üreticinin eline geçen net fiyat değildir. 2024 ve 2025 sütunlarında temiz veri veren hal sayısı 2026'ya göre çok daha azdır; o sütunlar yıllar arası kıyas için değil, sezon eğrisinin biçimi için okunmalıdır.
 
 | Ay | 2024 medyanı | 2025 medyanı | 2026 medyanı | 2026 gözlem |
 |---|---:|---:|---:|---:|
-| Nisan | 115,00 TL/kg | 116,89 TL/kg | 152,50 TL/kg | 524 |
-| Mayıs | 80,00 TL/kg | 106,00 TL/kg | 150,49 TL/kg | 922 |
-| Haziran | 80,00 TL/kg | 80,00 TL/kg | 142,50 TL/kg | 1.157 |
-| Temmuz | 60,00 TL/kg | 80,00 TL/kg | 79,05 TL/kg | 1.385 |
-| Ağustos | 60,00 TL/kg | 77,50 TL/kg | 50,00 TL/kg | 1.524 |
-| Eylül* | 45,00 TL/kg | 65,00 TL/kg | 44,48 TL/kg | 601 |
+| Nisan | 140,00 TL/kg | 150,00 TL/kg | 235,00 TL/kg | 284 |
+| Mayıs | 75,00 TL/kg | 150,00 TL/kg | 200,00 TL/kg | 479 |
+| Haziran | 45,00 TL/kg | 90,00 TL/kg | 150,00 TL/kg | 737 |
+| Temmuz | 35,00 TL/kg | 75,00 TL/kg | 85,00 TL/kg | 959 |
+| Ağustos | 37,50 TL/kg | 50,00 TL/kg | 52,50 TL/kg | 1.025 |
+| Eylül* | 35,00 TL/kg | 50,00 TL/kg | 47,50 TL/kg | 395 |
 
 \* 2026 eylül verisi 1–12 Eylül dönemidir; 2024 ve 2025 tam aydır. Bu nedenle ay sonu karşılaştırması öncü gösterge olarak okunmalıdır.
 
-Sezon eğrisi 2026'da önceki iki yıldan daha keskin: nisan medyanından eylülün ilk 12 gününe nominal düşüş **%70,8**. Bunun önemli kısmı ürün bileşimidir. İlkbaharda az sayıdaki yüksek fiyatlı üzüm, yaz sonunda beyaz, çekirdeksiz, siyah, Red Globe, Razaki ve sanayi üzümü gibi çok farklı kullanım ve kalite sınıflarıyla aynı aileye girer.
+Sezon eğrisi 2026'da önceki iki yıldan daha keskin: nisan medyanından eylülün ilk 12 gününe nominal düşüş **%79,8**. Bunun önemli kısmı ürün bileşimidir. İlkbaharda az sayıdaki yüksek fiyatlı üzüm, yaz sonunda beyaz, çekirdeksiz, siyah, Red Globe, Razaki ve sanayi üzümü gibi çok farklı kullanım ve kalite sınıflarıyla aynı aileye girer.
 
 ### Çekirdeksiz üzümde daha temiz karşılaştırma
 
@@ -39,11 +39,11 @@ Sezon eğrisi 2026'da önceki iki yıldan daha keskin: nisan medyanından eylül
 
 | Dönem | 2024 | 2025 | 2026 |
 |---|---:|---:|---:|
-| Temmuz | 60,00 | 67,50 | 90,00 |
-| Ağustos | 60,00 | 60,00 | 50,00 |
-| Eylül* | 60,00 | 52,50 | 40,00 |
+| Temmuz | 32,50 | 70,00 | 95,00 |
+| Ağustos | 32,00 | 40,00 | 50,00 |
+| Eylül* | 27,50 | 39,75 | 40,00 |
 
-2026 eylül medyanı, 2025 eylülünden **%23,8**, 2024 eylülünden **%33,3** düşük. Buna karşılık veri kapsaması 2024'te dört, 2025'te altı, 2026'da on üç hale yükseldi. Dolayısıyla düşüş yönü güçlüdür; yüzdeler ise sabit bir pazar sepeti endeksi gibi yorumlanmamalıdır.
+2026 eylül medyanı 40 TL/kg ile 2025 eylülüne (39,75 TL/kg) neredeyse eşit görünüyor; ancak veri kapsaması 2024'te iki, 2025'te dört, 2026'da on iki hal olduğu için bu eşitlik bir sepet karşılaştırması değildir. Aynı halde aynı ürüne bakıldığında yön netleşiyor: Ankara'da çekirdeksiz üzüm 1–12 Eylül'de 2025'e göre **%23 düşük**, Konya'da ise **%12 yüksek**. Düşüş bölgeye göre ayrışıyor; tek bir ulusal yüzde vermek yanıltıcı olur.
 
 ## 12 Eylül'de tek bir “üzüm fiyatı” yok
 
@@ -69,9 +69,9 @@ Sanayi üzümünü premium sofralık siyah üzümle, ulusal ürün ortalamasın�
 
 ## Geçen yıl ne olmuştu, 2026 neden farklı?
 
-2025, Türkiye meyveciliği için olağan bir karşılaştırma yılı değildi. TÜİK'in 2025 ikinci tahmininde toplam üzüm üretiminde yıllık **%24,5 azalış** öngörülmüştü.[^2] Tarım ve Orman Bakanlığı sigorta istatistikleri, hasarın büyüklüğünü başka bir kanaldan doğruluyor: 2025'te hasar ödemelerinde kurutmalık üzüm 9,78 milyar TL ile bitkisel ürün ödemelerinin %35,5'ini, sofralık üzüm 2,61 milyar TL ile %9,5'ini oluşturdu. Bitkisel hasar ödemelerinde ana neden %79,7 payla dondu.[^3]
+2025, Türkiye meyveciliği için olağan bir karşılaştırma yılı değildi. TÜİK'in 2025 ikinci tahmininde toplam üzüm üretiminde yıllık **%24,5 azalış** (3,47'den 2,62 milyon tona) öngörülmüştü;[^2] Bakanlığın TBMM'ye verdiği yanıta göre gerçekleşme daha da düşük, 2.515.152 ton oldu — 2024'e göre %27,5 kayıp.[^5] Tarım ve Orman Bakanlığı sigorta istatistikleri, hasarın büyüklüğünü başka bir kanaldan doğruluyor: 2025'te hasar ödemelerinde kurutmalık üzüm 9,78 milyar TL ile bitkisel ürün ödemelerinin %35,5'ini, sofralık üzüm 2,61 milyar TL ile %9,5'ini oluşturdu. Bitkisel hasar ödemelerinde ana neden %80,4 payla dondu.[^3]
 
-Bu nedenle 2026 için açıklanan %53'lük artış yalnızca “çok güçlü yeni büyüme” değil, aynı zamanda 2025'teki olağanüstü düşük bazın geri alınmasıdır. İlk tahmin gerçekleşirse toplam üretim 2024 seviyesine yaklaşabilir; fakat miktarın toparlanması, bütün çeşitlerde kalite ve üretici gelirinin aynı ölçüde toparlanacağı anlamına gelmez.
+Bu nedenle 2026 için açıklanan %53'lük artış yalnızca “çok güçlü yeni büyüme” değil, aynı zamanda 2025'teki olağanüstü düşük bazın geri alınmasıdır. İlk tahmin gerçekleşirse toplam üretim (3,85 milyon ton) 2024'ün 3,47 milyon tonluk düzeyini yüzde 11 aşar; fakat miktarın toparlanması, bütün çeşitlerde kalite ve üretici gelirinin aynı ölçüde toparlanacağı anlamına gelmez.
 
 Manisa'nın rolü özellikle kuru üzümde kritiktir. İl Tarım ve Orman Müdürlüğü, Manisa'nın Türkiye kuru üzüm üretiminin yaklaşık %85'ini karşıladığını belirtiyor.[^4] 2025 donunun ardından TBMM'ye verilen Bakanlık yanıtında yalnız Manisa için kurutmalık çekirdeksiz yaş üzüm üretimi 592.106 ton, kuru üzüm rekoltesi 148.027 ton tahmin edilmişti.[^5] 2026'da normalleşen hava ve verim beklentisi kuru üzüm arzını da belirgin biçimde büyütebilir.
 
@@ -81,19 +81,19 @@ Yaş üzüm hal fiyatları ile çekirdeksiz kuru üzüm alım fiyatları birbiri
 
 Kuru üzümde son iki sezonun tablosu şöyle:
 
-- EİB'e göre 2024/25 sezonunda Türkiye 153.593 ton çekirdeksiz kuru üzüm ihraç etti. Bu, 25 yılın en düşük miktarıydı; buna karşın 546,5 milyon dolarla rekor gelir elde edildi. Hesaplanan ortalama birim değer yaklaşık **3,56 dolar/kg** oldu.[^6]
+- EİB'e göre 2024/25 sezonunda Türkiye 153.593 ton çekirdeksiz kuru üzüm ihraç etti. Bu, 25 yılın en düşük miktarıydı; buna karşın 546,5 milyon dolarla rekor gelir elde edildi. Hesaplanan ortalama birim değer yaklaşık **3,56 dolar/kg** oldu. Bir önceki sezon 207 bin ton ve 489 milyon dolardı; miktar %26 düşerken dolar bazında birim fiyat %51 arttı.[^6]
 - Manisa Ticaret Borsası'nın 27 Ağustos 2026 açıklamasına göre 2025/26 sezonunda 210 bin ton ürün tescil edildi; 22 Ağustos itibarıyla 140 bin ton ihracattan 455 milyon dolar gelir sağlandı. Basit bölümle birim değer yaklaşık **3,25 dolar/kg**.[^7]
-- 10 Eylül'de TARİŞ, ortaklarından alacağı 2026 ürünü çekirdeksiz kuru üzüm için kalite farkı gözetmeksizin **80 TL/kg avans fiyat** açıkladı. Bu nihai piyasa veya TMO müdahale fiyatı değildir.[^8]
+- 10 Eylül'de TARİŞ, ortaklarından alacağı 2026 ürünü çekirdeksiz kuru üzüm için kalite farkı gözetmeksizin **80 TL/kg avans fiyat** açıkladı. Bir yıl önce aynı kurum 9 numara ürün için 120 TL/kg açıklamıştı; TMO'nun 2025 alım fiyatı da 9 numara için 120 TL/kg idi ve 5 Kasım 2025 itibarıyla Manisa'da yaklaşık 7,5 bin ton alım yapılmıştı.[^5] Avans fiyatındaki **üçte birlik düşüş**, hal verisindeki gevşemenin kuru üzüm tarafındaki karşılığıdır; nihai piyasa veya TMO müdahale fiyatı değildir.[^8]
 
 Bu veriler, 2025'te kıtlığın birim değeri yükselttiğini; 2026'da ise daha fazla ürünün satışa gelmesiyle miktar toparlanırken fiyatın arz baskısıyla karşılaşabileceğini düşündürüyor. Ancak ihracatçı açısından daha rekabetçi fiyat, önceki iki yılda kaybedilen tonajın geri alınmasını kolaylaştırabilir. Üretici açısından kritik soru, ihracat hacmindeki toparlanmanın artan maliyetleri karşılayacak bir iç piyasa fiyatıyla birleşip birleşmeyeceğidir.
 
 ## Dünyada durum
 
-Sofralık üzüm küresel olarak büyük ve büyüyen bir pazar. USDA'nın PS&D serisine göre dünya sofralık üzüm üretimi 2023/24'te 27,9 milyon tondan 2024/25'te **28,87 milyon tona** çıktı; on yıllık bileşik büyüme yaklaşık %2.[^9]
+Sofralık üzüm küresel olarak büyük ve büyüyen bir pazar. USDA'nın Aralık 2025 tarihli sirkülerine göre seçili üretici ülkelerde sofralık üzüm üretimi 2023/24'te 28,3 milyon tondan 2024/25'te **29,4 milyon tona** çıktı; 2025/26 için 30,0 milyon ton öngörülüyor ve büyüme Çin (15,0 milyon ton), Hindistan ve Peru'dan geliyor. Aynı tabloda Türkiye'nin sofralık üzüm üretimi 2024/25'teki 1,95 milyon tondan 2025/26'da 1,49 milyon tona, yani **%23** aşağı çekilmiş durumda — TÜİK'in 2025 don kaybı tespitiyle örtüşüyor.[^9]
 
 Türkiye'nin yakın ve yüksek değerli pazarı olan Avrupa'da da arz güçlü. USDA FAS, AB ticari sofralık üzüm üretiminin 2025/26 sezonunda yaklaşık **1,52 milyon ton** olacağını; İtalya'nın 850 bin tonla %16 büyümesini, İspanya'nın ise kuraklık ve sıcaklık nedeniyle %12 daralmasını bekliyor. Aynı rapor Avrupa tüketicisinde çekirdeksiz çeşitlere yönelimin sürdüğünü, buna karşılık enerji, lojistik ve işçilik maliyetlerinin üreticiler üzerinde baskı oluşturduğunu vurguluyor.[^10]
 
-Kuru üzümde EİB'in aktardığı 2025 üretici ülkeler konferansı tahminleri, dünya üretimini 1,086 milyon ton, dünya ihracatını 486.802 ton, Türkiye üretimini ise 165 bin ton seviyesinde gösteriyordu.[^11] 2026 Türkiye rekoltesindeki güçlü toparlanma, dünya kuru üzüm ticareti ölçeğine göre küçük bir değişim değildir: ihracata uygun kalite ve fiyat oluşursa Türkiye hacim geri kazanabilir; aksi durumda yüksek arz iç stok ve fiyat baskısına dönüşebilir.
+Kuru üzümde EİB'in aktardığı 2025 üretici ülkeler konferansı tahminleri, dünya üretimini bir önceki yıla göre %7 düşüşle 1,079 milyon ton, dünya ihracatını 486.802 ton, Türkiye üretimini 165 bin ton ve Türkiye ihracatını %30 payla 145 bin ton seviyesinde gösteriyordu (18–21 Kasım 2025, Güney Afrika).[^11] 2026 Türkiye rekoltesindeki güçlü toparlanma, dünya kuru üzüm ticareti ölçeğine göre küçük bir değişim değildir: ihracata uygun kalite ve fiyat oluşursa Türkiye hacim geri kazanabilir; aksi durumda yüksek arz iç stok ve fiyat baskısına dönüşebilir.
 
 ## 2026'nın geri kalanı için üç senaryo
 
@@ -111,7 +111,7 @@ TMO/TARİŞ alımları, ihracat sözleşmeleri ve kaliteli ürün talebi güçl�
 
 ## Önümüzdeki 6–8 haftada ne izlenmeli?
 
-- **TÜİK'in 23 Ekim 2026 ikinci üretim tahmini:** İlk tahmindeki %53 artış korunuyor mu?
+- **TÜİK'in 27 Ekim 2026 ikinci üretim tahmini:** İlk tahmindeki %53 artış korunuyor mu?
 - **Aynı ürün ve aynı hal sepeti:** Genel üzüm ortalaması yerine çekirdeksiz, beyaz/Sultaniye, Red Globe ve siyah üzüm ayrı izlenmeli.
 - **Eylül–ekim kayıt hacmi:** Fiyat düşüşü daha fazla ürün girişiyle birlikteyse arz etkisi güçlenir.
 - **Kuru üzüm tescil ve ihracat tonajı:** Üretim artışı ihracata mı, stoka mı gidiyor?
@@ -127,7 +127,7 @@ En makul beklenti, standart yaş üzümde hasat boyunca yumuşak fiyat; seçilmi
 
 ## Yöntem ve sınırlılıklar
 
-- HaldeFiyat hesabı 1 Ocak 2024–12 Eylül 2026 arasında, ürün adı/slug'ı üzüm ailesinde olan, Frenk üzümü hariç, kilogram birimli ve 1–1.000 TL/kg aralığındaki kayıtları kapsar.
+- HaldeFiyat hesabı 1 Ocak 2024–12 Eylül 2026 arasında, ürün adı/slug'ı üzüm ailesinde olan, Frenk üzümü hariç, kilogram birimli ve 1–1.000 TL/kg aralığındaki şehir hali kayıtlarını kapsar. Sitenin yayın süzgeçleri uygulanmıştır: donmuş ya da güvenilmez ilan edilen hal dönemleri (`hf_market_blackouts`), min–maks makası üç katı aşan türetilmiş ortalamalar ve hal.gov.tr ulusal toplamı aylık medyanlara girmez. Bu süzgeçler olmadan taban 19.901 kayıttır ve içinde üç yıl boyunca her gün aynı 152,50 TL/kg değerini yayınlayan donmuş bir seri bulunur.
 - Aylık değerler günlük pazar ortalamalarının medyanıdır. Basit ortalama yerine medyan kullanılması uç değer etkisini azaltır.
 - Veri kapsamı yıllar içinde büyümüştür. Bu nedenle seri sabit ağırlıklı resmi fiyat endeksi değildir.
 - Fiyatlar nominaldir; TÜFE veya tarımsal girdi fiyatlarıyla düzeltilmemiştir.
@@ -145,17 +145,17 @@ En makul beklenti, standart yaş üzümde hasat boyunca yumuşak fiyat; seçilmi
 
 ## Kaynaklar
 
-[^1]: TÜİK, [Bitkisel Üretim 1. Tahmini, 2026](https://veriportali.tuik.gov.tr/tr/press/58012/metadata), 21 Mayıs 2026.
+[^1]: TÜİK, [Bitkisel Üretim 1. Tahmini, 2026](https://veriportali.tuik.gov.tr/tr/press/58012/metadata), 21 Mayıs 2026; Bakanlık aynası (3 Haziran 2026 yeniden yayım): [Tarım ve Orman Bakanlığı](https://istatistik.tarimorman.gov.tr/Sayfa/Detay/2347).
 [^2]: TÜİK, [Bitkisel Üretim 2. Tahmini, 2025](https://veriportali.tuik.gov.tr/Bulten/Index?dil=1&p=53938), 24 Ekim 2025.
 [^3]: Tarım ve Orman Bakanlığı, [2025 Tarım Sigortaları İstatistik Bülteni](https://istatistik.tarimorman.gov.tr/Sayfa/Detay/2292), 2026.
 [^4]: Manisa İl Tarım ve Orman Müdürlüğü, [Manisa Sultani Çekirdeksiz Üzümü](https://manisa.tarimorman.gov.tr/Menu/32/Manisa-Uzumu).
 [^5]: Tarım ve Orman Bakanlığı/TBMM, [Manisa'da 2025 zirai donu ve üzüm rekoltesine ilişkin yazılı soru yanıtı](https://cdn.tbmm.gov.tr/KKBSPublicFile/D28/Y4/T7/WebOnergeMetni/073573f8-4571-4606-bcce-97dc934eba62.pdf), 2026.
-[^6]: Ege İhracatçı Birlikleri, [2024/25 çekirdeksiz kuru üzüm sezonu değerlendirmesi](https://eib.org.tr/Sayfa.Asp?HID=F43A83AEC66347C6BF0612975CEDF3D0&SI_Id=5A02DF31AF), 2026.
+[^6]: Ege İhracatçı Birlikleri açıklaması, 2025; aktaran [Ekonomim](https://www.ekonomim.com/sehirler/cekirdeksiz-kuru-uzum-ihracatinda-202425-sezonu-rekorlarla-kapandi-haberi-841697). EİB sayfası ([bağlantı](https://eib.org.tr/Sayfa.Asp?HID=F43A83AEC66347C6BF0612975CEDF3D0&SI_Id=5A02DF31AF)) yalnız tarayıcıda içerik gösteriyor.
 [^7]: Manisa Ticaret Borsası, [2026/27 sezon açılışı ve 2025/26 tescil-ihracat sonuçları](https://manisatb.org.tr/3038/Duyuru/manisa-sultani-cekirdeksiz-uzumu-2026-2027-sezon-acilisi-gerceklestirildi), 27 Ağustos 2026.
 [^8]: TARİŞ alım duyurusu, [2026 ürünü çekirdeksiz kuru üzümde 80 TL/kg avans fiyat](https://www.manisamansetgazetesi.com/manisa-haberleri/tariste-kuru-uzum-alimi-basladi/620931), 10 Eylül 2026. İkincil haber kaynağı; nihai fiyat olarak kullanılmamıştır.
-[^9]: USDA Foreign Agricultural Service, [Production — Table Grapes](https://www.fas.usda.gov/data/production/commodity/0575100), PS&D.
+[^9]: USDA Foreign Agricultural Service, [Fresh Apples, Grapes, and Pears: World Markets and Trade](https://apps.fas.usda.gov/psdonline/circulars/fruit.pdf), Aralık 2025, “Grapes, Fresh Table: Production, Supply and Distribution in Selected Countries” tablosu.
 [^10]: USDA FAS, [EU Fresh Deciduous Fruit Annual 2025](https://apps.fas.usda.gov/newgainapi/api/Report/DownloadReportByFileName?fileName=Fresh+Deciduous+Fruit+Annual_Berlin_European+Union_E42025-0022.pdf), tablo 10 ve ilgili değerlendirme.
-[^11]: Ege İhracatçı Birlikleri, [2025 Çekirdeksiz Kuru Üzüm Üretici Ülkeler Konferansı sonuçları](https://www.eib.org.tr/Sayfa.Asp?HID=47D8694F99BD4E85B3BD6A750B25BE0E&SI_Id=5A02DF31AF), 2025.
+[^11]: Ege İhracatçı Birlikleri, 2025 Çekirdeksiz Kuru Üzüm Üretici Ülkeler Konferansı sonuçları (18–21 Kasım 2025, Güney Afrika); aktaran [Fuar Dergisi](https://www.fuardergisi.com.tr/kuresel-uretim-duserken-turkiye-kuru-uzumde-lider/amp). EİB sayfası ([bağlantı](https://www.eib.org.tr/Sayfa.Asp?HID=47D8694F99BD4E85B3BD6A750B25BE0E&SI_Id=5A02DF31AF)) yalnız tarayıcıda içerik gösteriyor.
 
 ### HaldeFiyat veri kaynağı
 
