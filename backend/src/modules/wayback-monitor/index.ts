@@ -9,15 +9,12 @@
  * tek seferlik Telegram bildirimi gönderir. State filesystem'da tutulur
  * (PM2 restart'a dayanıklı).
  *
- * Env:
- *   TELEGRAM_BOT_TOKEN
- *   TELEGRAM_CHAT_ID (veya ETL_HEALTH_TELEGRAM_CHAT_IDS — virgüllü)
- *   WAYBACK_STATE_FILE (default: /var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/.wayback-state)
+ * Telegram teslimi Tanitio `haldefiyat` tenant ayarindan yapilir.
+ * WAYBACK_STATE_FILE varsayilani proje kokundeki `.wayback-state` dosyasidir.
  */
 
 import { readFile, writeFile } from "node:fs/promises";
-import { env } from "@/core/env";
-import { sendTelegramAlert } from "@/modules/alerts/telegram";
+import { sendTelegramAdminAlert } from "@/modules/alerts/telegram";
 
 const PROBE_URL = "https://web.archive.org/cdx/search/cdx?url=migros.com.tr&limit=1&output=json";
 const STATE_FILE =
@@ -63,12 +60,6 @@ async function writeState(state: { notifiedAt: string | null }): Promise<void> {
   await writeFile(STATE_FILE, JSON.stringify(state, null, 2), "utf8");
 }
 
-function chatIdsFromEnv(): string[] {
-  if (env.ETL.healthTelegramChatIds.length > 0) return env.ETL.healthTelegramChatIds;
-  const single = process.env.TELEGRAM_CHAT_ID;
-  return single ? [single] : [];
-}
-
 function buildMessage(): string {
   return [
     "✅ <b>Wayback Machine geri geldi</b>",
@@ -112,17 +103,8 @@ export async function checkWaybackAndNotify(): Promise<WaybackProbeResult> {
     return { online: true, statusCode: probe.statusCode, notified: false, alreadyNotified: true };
   }
 
-  const chatIds = chatIdsFromEnv();
-  if (chatIds.length === 0) {
-    console.warn("[wayback-monitor] TELEGRAM_CHAT_ID tanımlı değil, bildirim atılamadı");
-    // State'i set etme — env düzelince tekrar dener
-    return { online: true, statusCode: probe.statusCode, notified: false, alreadyNotified: false, error: "no_chat_id" };
-  }
-
   const message = buildMessage();
-  for (const chatId of chatIds) {
-    await sendTelegramAlert(chatId, message);
-  }
+  await sendTelegramAdminAlert(message);
 
   await writeState({ notifiedAt: new Date().toISOString() });
   return { online: true, statusCode: probe.statusCode, notified: true, alreadyNotified: false };

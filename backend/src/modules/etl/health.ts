@@ -4,7 +4,7 @@ import { db } from "@/db/client";
 import { hfEtlRuns } from "@/db/schema";
 import { env } from "@/core/env";
 import { sendEmailAlert } from "@/modules/alerts/email";
-import { sendTelegramAlert } from "@/modules/alerts/telegram";
+import { sendTelegramAdminAlert } from "@/modules/alerts/telegram";
 import { detectStaleSources, detectPriceJumps } from "./freshness";
 
 type EtlHealthSeverity = "critical" | "warning";
@@ -173,7 +173,7 @@ async function notifyEtlHealth(issues: EtlHealthIssue[]): Promise<void> {
   const html = `<pre style="font-family:ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap">${escapeHtml(text)}</pre>`;
 
   await Promise.all([
-    ...env.ETL.healthTelegramChatIds.map((chatId) => sendTelegramAlert(chatId, escapeTelegram(text))),
+    sendTelegramAdminAlert(escapeTelegram(text)),
     ...env.ETL.healthNotifyEmails.map((email) => sendEmailAlert(email, subject, html)),
   ]);
 }

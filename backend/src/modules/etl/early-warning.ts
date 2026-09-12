@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import type { RowDataPacket } from "mysql2";
 import { pool } from "@/db/client";
 import { env } from "@/core/env";
-import { sendTelegramAlert } from "@/modules/alerts/telegram";
+import { sendTelegramAdminAlert } from "@/modules/alerts/telegram";
 import { sendEmailAlert } from "@/modules/alerts/email";
 
 // "Soğan imzası" — önemli bir temel gıda haftalar boyunca kesintisiz tırmandığında,
@@ -125,7 +125,7 @@ export async function checkAndNotifyEarlyWarning(): Promise<{ count: number }> {
   const html = `<pre style="font-family:ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap">${text.replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]!))}</pre>`;
 
   await Promise.all([
-    ...env.ETL.healthTelegramChatIds.map((chatId) => sendTelegramAlert(chatId, text)),
+    sendTelegramAdminAlert(text),
     ...env.ETL.healthNotifyEmails.map((email) => sendEmailAlert(email, subject, html)),
   ]);
   return { count: surges.length };
