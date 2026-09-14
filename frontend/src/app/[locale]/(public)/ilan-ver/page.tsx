@@ -5,9 +5,10 @@ import PageContainer from "@/components/layout/PageContainer";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import { ListingForm } from "@/components/listings/ListingForm";
 import { fetchProducts } from "@/lib/api";
+import { provinceBySlug } from "@/data/turkey-cities";
 import { getPageMetadata } from "@/lib/seo";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ product?: string; type?: string; city?: string }> };
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
@@ -24,10 +25,15 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function CreateListingPage({ params }: Props) {
+export default async function CreateListingPage({ params, searchParams }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const products = await fetchProducts(undefined, undefined, { seoIndex: true });
+  const [products, query] = await Promise.all([fetchProducts(undefined, undefined, { seoIndex: true }), searchParams]);
+  const preset = {
+    product: products.some((p) => p.slug === query.product) ? query.product! : "",
+    type: query.type === "alim" ? "alim" as const : "satis" as const,
+    city: typeof query.city === "string" && provinceBySlug(query.city) ? query.city : "",
+  };
 
   return (
     <PageContainer wide={false}>
@@ -40,7 +46,7 @@ export default async function CreateListingPage({ params }: Props) {
       <p className="mb-6 text-xs text-(--color-muted)">
         İlan fiyatları resmi hal verisine karışmaz; site tablolarını etkilemez.
       </p>
-      <ListingForm products={products.slice(0, 500)} />
+      <ListingForm products={products} preset={preset} />
     </PageContainer>
   );
 }

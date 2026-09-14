@@ -1,3 +1,4 @@
+import ProductListings from "@/components/listings/ProductListings";
 import SpecialtyBorsaTable from '@/components/sections/SpecialtyBorsaTable';
 /**
  * ISR — force-dynamic DEGIL.
@@ -50,7 +51,7 @@ import { getExactProductImage } from "@/lib/product-images";
 import { getProductEditorial } from "@/lib/product-content";
 import AnswerBlock from "@/components/seo/AnswerBlock";
 import { calculateWindowTrend } from "@/lib/citability";
-import BannerSlot from "@/components/ads/BannerSlot";
+import { ProductTradeBanner, ProductAdvertisingBanner, ProductGuideLinks } from "@/components/sections/ProductOpportunities";
 import SellPrompt from "@/components/listings/SellPrompt";
 import { canShowPublicYoy } from "@/lib/yoy-policy";
 import PriceViewTracker from "@/components/analytics/PriceViewTracker";
@@ -720,7 +721,7 @@ export default async function UrunPage({ params }: Props) {
         </Link>
       ) : null}
 
-      <SellPrompt productName={displayName} productSlug={product.slug} className="mb-6" />
+      <ProductTradeBanner productName={displayName} productSlug={product.slug} />
 
       {familyMembers.length > 1 && (
         <nav aria-label="Çeşit ailesi" className="flex flex-wrap items-center gap-2">
@@ -779,6 +780,10 @@ export default async function UrunPage({ params }: Props) {
       {slug !== "kekik" && <div className="rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6">
         <PriceChart history={history} productName={displayName} />
       </div>}
+
+      <ProductAdvertisingBanner productSlug={product.slug} categorySlug={product.categorySlug} />
+      <ProductListings productSlug={product.slug} productName={displayName} />
+      <ProductGuideLinks productSlug={product.slug} />
 
       {/* Sezon karsilastirma */}
       {slug !== "kekik" && <SeasonCompare history={history} productName={displayName} />}
@@ -1000,11 +1005,7 @@ export default async function UrunPage({ params }: Props) {
         yoyByMarket={yoyByMarket}
         hideProductColumn
       />
-      <BannerSlot
-        position="urun_sidebar"
-        className="mt-8"
-        context={{ product: product.slug, category: product.categorySlug }}
-      />
+      <SellPrompt productName={displayName} productSlug={product.slug} className="mb-6" />
     </PageContainer>
   );
 }

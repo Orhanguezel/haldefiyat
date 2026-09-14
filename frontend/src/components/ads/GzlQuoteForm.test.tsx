@@ -1,0 +1,20 @@
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, expect, it, vi } from "vitest";
+import GzlQuoteForm from "./GzlQuoteForm";
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+it("routes the chosen GZL service through the existing contact form with explicit consent", async () => {
+  const send = vi.fn().mockResolvedValue({ ok: true, status: 201 });
+  vi.stubGlobal("fetch", send);
+  render(<GzlQuoteForm />);
+  fireEvent.change(screen.getByLabelText(/Adınız Soyadınız/), { target: { value: "Test Kullanıcı" } });
+  fireEvent.change(screen.getByLabelText(/E-posta Adresi/), { target: { value: "test@example.com" } });
+  fireEvent.change(screen.getByLabelText(/Telefon Numarası/), { target: { value: "05550000000" } });
+  fireEvent.change(screen.getByLabelText("Konu"), { target: { value: "GZL Teknoloji — Web sitesi / e-ticaret" } });
+  fireEvent.change(screen.getByLabelText(/Mesajınız/), { target: { value: "Kurumsal web sitesi talebim var." } });
+  fireEvent.click(screen.getByRole("checkbox"));
+  fireEvent.submit(screen.getByRole("button", { name: /Teklif al/ }).closest("form")!);
+  await screen.findByText("Teklif talebiniz alındı");
+  expect(send).toHaveBeenCalledTimes(1);
+  expect(send.mock.calls[0][0]).toBe("/api/v1/contacts");
+  expect(JSON.parse(send.mock.calls[0][1].body)).toMatchObject({ subject: "GZL Teknoloji — Web sitesi / e-ticaret", privacyAccepted: true });
+});

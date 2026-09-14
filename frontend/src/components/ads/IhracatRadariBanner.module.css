@@ -1,0 +1,103 @@
+.shell { container-type: inline-size; }
+
+.banner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr minmax(238px, 34%);
+  min-height: 218px;
+  overflow: hidden;
+  border: 1px solid #1d4ed8;
+  border-radius: 14px;
+  background:
+    radial-gradient(120% 140% at 88% 50%, #103a75 0%, #0a2246 45%, #071a36 100%);
+  color: #fff;
+  text-decoration: none;
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.banner:hover { transform: translateY(-2px); box-shadow: 0 14px 34px #071a3666; }
+.banner:focus-visible { outline: 3px solid #18c8d8; outline-offset: 3px; }
+
+.copy { position: relative; z-index: 1; padding: 20px 22px; }
+.logo { display: block; width: 186px; max-width: 70%; height: auto; }
+.eyebrow {
+  margin: 14px 0 0; font-size: 10px; font-weight: 700; line-height: 1.4;
+  letter-spacing: .14em; text-transform: uppercase; color: #6fd8e6;
+}
+.title {
+  margin: 6px 0 0; font-size: 24px; font-weight: 800; line-height: 1.14;
+  letter-spacing: -.03em; text-wrap: balance;
+}
+.lead { margin: 8px 0 0; max-width: 40ch; font-size: 12px; line-height: 1.6; color: #c6d6ea; }
+
+.facts { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; padding: 0; list-style: none; }
+.facts li {
+  padding: 4px 9px; border: 1px solid #ffffff2e; border-radius: 999px;
+  background: #ffffff14; font-size: 10px; font-weight: 600; line-height: 1.5; color: #e3edf9;
+}
+
+.cta {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  min-height: 42px; margin-top: 15px; padding: 9px 20px; border-radius: 9px;
+  background: #18c8d8; color: #05182f; font-size: 14px; font-weight: 800;
+}
+.banner:hover .cta { background: #4fdcea; }
+
+.label {
+  position: absolute; right: 10px; top: 9px; z-index: 2;
+  padding: 3px 7px; border-radius: 4px; background: #05152bcc;
+  font-size: 9px; font-weight: 600; letter-spacing: .06em; color: #9fd9e4;
+}
+
+/* Radar: concentric rings with a rotating sweep and located blips. */
+.radar { position: relative; overflow: hidden; }
+.scope {
+  position: absolute; top: 50%; left: 50%;
+  width: min(94%, 300px); aspect-ratio: 1; translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #18c8d81f 0%, #18c8d800 68%);
+}
+.rings { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sweep {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(from 0deg, #18c8d800 0deg, #18c8d800 292deg, #18c8d83d 342deg, #18c8d8a6 360deg);
+  animation: spin 4.5s linear infinite;
+}
+.blip {
+  position: absolute; width: 8px; height: 8px; border-radius: 50%;
+  background: #7ef2ff; box-shadow: 0 0 0 0 #18c8d899;
+  animation: ping 4.5s ease-out infinite;
+}
+@keyframes spin { to { rotate: 360deg; } }
+@keyframes ping {
+  0%, 62% { box-shadow: 0 0 0 0 #18c8d800; opacity: .45; }
+  70% { box-shadow: 0 0 0 7px #18c8d800; opacity: 1; }
+  100% { box-shadow: 0 0 0 14px #18c8d800; opacity: .45; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sweep { animation: none; opacity: .5; }
+  .blip { animation: none; opacity: .9; }
+  .banner:hover { transform: none; }
+}
+
+/* Sidebar/MPU and narrow containers: radar becomes a header band. */
+.vertical .banner, .banner.stacked { grid-template-columns: 1fr; }
+.vertical .radar, .banner.stacked .radar {
+  order: -1; height: 132px;
+  -webkit-mask-image: linear-gradient(#000 58%, #0000 100%);
+  mask-image: linear-gradient(#000 58%, #0000 100%);
+}
+.vertical .title, .banner.stacked .title { font-size: 21px; }
+.vertical .logo, .banner.stacked .logo { width: 168px; }
+
+@container (max-width: 560px) {
+  .banner { grid-template-columns: 1fr; }
+  .radar {
+    order: -1; height: 128px;
+    -webkit-mask-image: linear-gradient(#000 58%, #0000 100%);
+    mask-image: linear-gradient(#000 58%, #0000 100%);
+  }
+  .copy { padding: 18px; }
+  .title { font-size: 21px; }
+  .logo { width: 168px; }
+  .lead { font-size: 11.5px; }
+}

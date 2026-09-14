@@ -11,12 +11,6 @@ function formatPrice(value: number) {
   return value.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function formatPct(value: number | null) {
-  if (value == null || !Number.isFinite(value)) return "Veri birikiyor";
-  const sign = value > 0 ? "+" : "";
-  return `${sign}${value.toLocaleString("tr-TR", { maximumFractionDigits: 1 })}%`;
-}
-
 export default async function VariantPriceTable({
   masterSlug,
   productName,
@@ -26,6 +20,7 @@ export default async function VariantPriceTable({
   if (rows.length === 0) return null;
 
   const visibleRows = rows.slice(0, 18);
+  const hasYoy = visibleRows.some((row) => row.priorYearAvgPrice != null && Number.isFinite(row.priorYearAvgPrice));
   const lowerName = productName.toLocaleLowerCase("tr-TR");
 
   return (
@@ -51,16 +46,12 @@ export default async function VariantPriceTable({
         aria-label={`${productName} çeşit fiyat tablosu`}
         tabIndex={0}
       >
-        <p className="mb-3 rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100">
-          Yıllık değişim, geçmiş serideki veri karantinası nedeniyle Mayıs 2027&apos;ye kadar gösterilmez.
-          Güncel 7 günlük fiyatlar karantina dışındaki kayıtlardan hesaplanır.
-        </p>
         <table className="min-w-full border-separate border-spacing-0 text-sm">
           <thead>
             <tr className="text-left text-[11px] uppercase tracking-[0.08em] text-muted">
               <th className="border-b border-border-soft py-2 pr-4 font-semibold">Çeşit</th>
               <th className="border-b border-border-soft px-4 py-2 text-right font-semibold">7G Ort.</th>
-              <th className="border-b border-border-soft px-4 py-2 text-right font-semibold">Yıllık kıyas</th>
+              {hasYoy && <th className="border-b border-border-soft px-4 py-2 text-right font-semibold">Geçen yıl aynı dönem</th>}
               <th className="border-b border-border-soft py-2 pl-4 text-right font-semibold">Hal</th>
             </tr>
           </thead>
@@ -76,11 +67,10 @@ export default async function VariantPriceTable({
                 <td className="border-b border-border-soft px-4 py-2 text-right font-(family-name:--font-mono) text-foreground">
                   ₺{formatPrice(row.avgPrice)}
                 </td>
-                <td className="border-b border-border-soft px-4 py-2 text-right font-(family-name:--font-mono)">
-                  <span className={row.yoyPct != null ? (row.yoyPct > 0 ? "text-(--trend-up)" : "text-(--trend-down)") : "text-muted"}>
-                    {formatPct(row.yoyPct)}
-                  </span>
-                </td>
+                {hasYoy && <td className="border-b border-border-soft px-4 py-2 text-right font-(family-name:--font-mono)">
+                  {row.priorYearAvgPrice != null && Number.isFinite(row.priorYearAvgPrice)
+                    ? `₺${formatPrice(row.priorYearAvgPrice)}` : "—"}
+                </td>}
                 <td className="border-b border-border-soft py-2 pl-4 text-right text-muted">
                   {row.marketCount}
                 </td>
@@ -88,6 +78,7 @@ export default async function VariantPriceTable({
             ))}
           </tbody>
         </table>
+        {hasYoy && <p className="mt-3 text-xs text-muted">Geçen yıl fiyatı, aynı çeşit, hal ve birimde eşleşen günlerin ortalamasıdır.</p>}
       </div>
     </section>
   );

@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useListUsersAdminQuery } from '@/integrations/hooks';
 import {
   ADMIN_USERS_ALL_ROLES, ADMIN_USERS_DEFAULT_LIMIT, getAdminUserDisplayName, getAdminUserPrimaryRole, getAdminUserRoleLocaleKey,
-  getAdminUsersNextOffset, getAdminUsersPreviousOffset, pickAdminUsersQuery, toAdminUsersSearchParams, type AdminUsersListParams, type AdminUserView, type UserRoleName,
+  pickAdminUsersQuery, toAdminUsersSearchParams, type AdminUsersListParams, type AdminUserView, type UserRoleName,
 } from '@/integrations/shared';
 import { Pager } from '../../../_components/common/pager';
 import { SummaryTiles } from '../../../_components/common/summary-tiles';
@@ -36,7 +36,9 @@ export default function UsersListClient() {
   const usersQ = useListUsersAdminQuery(params);
   const [q, setQ] = useState(params.q ?? '');
   const [openId, setOpenId] = useState<string | null>(null);
-  const rows = usersQ.data ?? [];
+  const rows = usersQ.currentData?.items ?? [];
+  const total = usersQ.currentData?.total;
+  const stats = usersQ.currentData?.stats;
   const limit = params.limit ?? ADMIN_USERS_DEFAULT_LIMIT;
   const offset = params.offset ?? 0;
   const roleLabel = (r: UserRoleName) => t(`roles.${getAdminUserRoleLocaleKey(r)}`);
@@ -51,13 +53,6 @@ export default function UsersListClient() {
     const qs = toAdminUsersSearchParams(merged);
     router.push(qs ? `/admin/users?${qs}` : '/admin/users');
   }
-  const stats = useMemo(() => ({
-    loaded: rows.length,
-    active: rows.filter((u) => u.is_active).length,
-    admins: rows.filter((u) => u.roles.includes('admin')).length,
-    unverified: rows.filter((u) => !u.email_verified).length,
-    recent: rows.filter((u) => u.last_sign_in_at && Date.now() - new Date(u.last_sign_in_at).getTime() < 7 * 86400000).length,
-  }), [rows]);
   const activeFilter = typeof params.is_active === 'boolean' ? String(params.is_active) : ALL;
   const dirty = params.q || params.role || typeof params.is_active === 'boolean';
 
@@ -69,11 +64,11 @@ export default function UsersListClient() {
       </div>
 
       <SummaryTiles columns="sm:grid-cols-3 xl:grid-cols-5" tiles={[
-        { key: 'loaded', label: t('list.tiles.loaded'), value: stats.loaded, hint: t('list.tiles.loadedHint', { limit }), active: activeFilter === ALL && !params.role, onClick: () => apply({ is_active: undefined, role: undefined }) },
-        { key: 'active', label: t('list.tiles.active'), value: stats.active, tone: 'text-emerald-600', active: activeFilter === 'true', onClick: () => apply({ is_active: true }) },
-        { key: 'admins', label: t('list.tiles.admins'), value: stats.admins, active: params.role === 'admin', onClick: () => apply({ role: 'admin' }) },
-        { key: 'unverified', label: t('list.tiles.unverified'), value: stats.unverified, hint: t('list.tiles.unverifiedHint'), tone: stats.unverified ? 'text-amber-600' : '' },
-        { key: 'recent', label: t('list.tiles.recent'), value: stats.recent, hint: t('list.tiles.recentHint') },
+        { key: 'loaded', label: t('list.tiles.loaded'), value: stats?.total ?? '—', hint: t('list.tiles.loadedHint', {}), active: activeFilter === ALL && !params.role, onClick: () => apply({ is_active: undefined, role: undefined }) },
+        { key: 'active', label: t('list.tiles.active'), value: stats?.active ?? '—', tone: 'text-emerald-600', active: activeFilter === 'true', onClick: () => apply({ is_active: true }) },
+        { key: 'admins', label: t('list.tiles.admins'), value: stats?.admins ?? '—', active: params.role === 'admin', onClick: () => apply({ role: 'admin' }) },
+        { key: 'unverified', label: t('list.tiles.unverified'), value: stats?.unverified ?? '—', hint: t('list.tiles.unverifiedHint'), tone: stats?.unverified ? 'text-amber-600' : '' },
+        { key: 'recent', label: t('list.tiles.recent'), value: stats?.recent ?? '—', hint: t('list.tiles.recentHint') },
       ]} />
 
       <form className="flex flex-wrap items-center gap-2" onSubmit={(e) => { e.preventDefault(); apply({ q: q.trim() || undefined }); }}>
@@ -91,7 +86,7 @@ export default function UsersListClient() {
         </Select>
         <Button type="submit" size="sm" variant="outline" disabled={usersQ.isFetching}>{t('list.filters.searchButton')}</Button>
         {dirty ? <Button type="button" variant="ghost" size="sm" onClick={() => { setQ(''); router.push('/admin/users'); }}><X className="size-3.5" /> {tc('clear')}</Button> : null}
-        <span className="ml-auto self-center text-sm text-muted-foreground">{t('list.table.totalRecords', { count: rows.length })}</span>
+        <span className="ml-auto self-center text-sm text-muted-foreground">{t('list.table.totalRecords', { count: total ?? '—' })}</span>
       </form>
 
       {usersQ.isError ? <div className="rounded-md border p-4 text-sm text-destructive">{t('list.table.loadError')} <Button variant="link" className="px-1" onClick={() => usersQ.refetch()}>{t('list.table.retryButton')}</Button></div> : null}
@@ -123,7 +118,7 @@ export default function UsersListClient() {
           </Table>
         </div>
       )}
-      <Pager page={Math.floor(offset / limit)} pageCount={rows.length >= limit ? Math.floor(offset / limit) + 2 : Math.floor(offset / limit) + 1} onChange={(p) => apply({ offset: p > Math.floor(offset / limit) ? getAdminUsersNextOffset(offset, limit) : getAdminUsersPreviousOffset(offset, limit) })} summary={t('list.pagination.offset', { offset })} tc={tc} />
+      <Pager page={Math.floor(offset / limit)} pageCount={Math.max(1, Math.ceil((total ?? 0) / limit))} onChange={(p) => apply({ offset: p * limit })} summary={t('list.pagination.range', { start: rows.length ? offset + 1 : 0, end: rows.length ? offset + rows.length : 0, total: total ?? '—' })} tc={tc} />
 
       <Sheet open={Boolean(open)} onOpenChange={(next) => { if (!next) setOpenId(null); }}>
         <SheetContent side="right" className="w-full gap-0 p-0 sm:max-w-2xl">

@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { fetchBanners, type BannerContext, type PublicBanner } from "@/lib/banners";
 import { headers } from "next/headers";
 import { resolveImageUrl } from "@/lib/utils";
+import GzlTechnologyBanner from "./GzlTechnologyBanner";
+import IhracatRadariBanner, { isIhracatRadari } from "./IhracatRadariBanner";
 import SeedSponsorBanner, { isSeedSponsor } from "./SeedSponsorBanner";
 import TemplateBanner from "./TemplateBanner";
 import ResilientAdImage from "./ResilientAdImage";
@@ -39,6 +41,8 @@ type BannerSlotProps = {
   position: string;
   className?: string;
   context?: BannerContext;
+  /** Same inventory and tracking, rendered in a horizontal product-page placement. */
+  wide?: boolean;
 };
 
 /**
@@ -60,6 +64,7 @@ async function BannerSlotContent({
   position,
   className = "",
   context = {},
+  wide = false,
 }: BannerSlotProps) {
   const incoming = await headers();
   const forwarded = new Headers();
@@ -69,7 +74,7 @@ async function BannerSlotContent({
   if (userAgent) forwarded.set("user-agent", userAgent);
   const banners = await fetchBanners(position, { page_type: inferredPageType(position), ...context }, forwarded);
   if (!banners.length) return null;
-  const sidebar = SIDEBAR_POSITIONS.has(position);
+  const sidebar = !wide && SIDEBAR_POSITIONS.has(position);
   const rows = new Map<number, PublicBanner[]>();
   for (const banner of banners) {
     const row = banner.desktopRow ?? 1;
@@ -121,6 +126,14 @@ export function BannerCreative({ banner, sidebar }: { banner: PublicBanner; side
         </span>
       </a>
     );
+  }
+
+  if (banner.advertiser === "GZL Teknoloji" && banner.linkUrl === "/gzl-teknoloji#teklif") {
+    return <GzlTechnologyBanner clickHref={href} className={deviceClass(banner.device)} />;
+  }
+
+  if (isIhracatRadari(banner)) {
+    return <IhracatRadariBanner banner={banner} href={href} sidebar={sidebar} />;
   }
 
   if (isSeedSponsor(banner)) {

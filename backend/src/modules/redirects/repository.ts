@@ -1,3 +1,4 @@
+import { REVIEWED_NICHE_SLUGS, REVIEWED_NICHE_MIN_DAYS, REVIEWED_NICHE_MIN_QUALITY } from '@/config/reviewed-niche-seo';
 import { and, desc, eq, inArray, like, or, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfProducts, hfRedirects } from "@/db/schema";
@@ -505,17 +506,22 @@ export async function runSeoIndexMaintenance() {
   // gerçek seri. editoryel + dq≥70 + ≥15 gün → içerik + veri gerçek. Limon çeşidi, yer elması,
   // mangostan, karadut, taze börülce gibi yüksek-aramalı ama az-marketli kalemleri açar
   // (doorway değil: her biri özgün editöryel + aylık düzenli veriye sahip).
+  const reviewedNicheSlugs = sql.join(REVIEWED_NICHE_SLUGS.map((slug) => sql`${slug}`), sql`, `);
   const upNiche = await db.execute(sql`
     UPDATE hf_products p
     JOIN hf_product_editorial e ON e.product_slug = p.slug AND e.published_at IS NOT NULL
     JOIN ${signals} s ON s.product_id = p.id
     SET p.seo_index = 1
     WHERE p.canonical_slug IS NULL AND p.seo_index = 0
-      AND p.data_quality >= 70 AND s.hal_rows >= 1 AND s.days >= 15
+      AND s.hal_rows >= 1 AND (
+        (p.data_quality >= 70 AND s.days >= 15)
+        OR (p.slug IN (${reviewedNicheSlugs}) AND p.data_quality >= ${REVIEWED_NICHE_MIN_QUALITY} AND s.days >= ${REVIEWED_NICHE_MIN_DAYS})
+      )
   `);
 
+  // In addition, reviewed specialist products accept >=4 observed days and dq>=65.
   // DEMOTE: verisi kuruyan / thin olan indexli sayfaları noindex'e çek. Hal ürünü <3 hal
-  // ise düşür — AMA (a) retail-staple (≥3 zincir) ve (b) tutarlı-niş (≥20 gün + editoryel +
+  // ise düşür — AMA (a) retail-staple (≥3 zincir) ve (b) tutarlı-niş (≥15 gün + editoryel +
   // dq≥70) MUAF; bunların içeriği+verisi gerçek, tek/iki market olsa da korunur.
   const down = await db.execute(sql`
     UPDATE hf_products p
@@ -526,6 +532,9 @@ export async function runSeoIndexMaintenance() {
     WHERE p.seo_index = 1 AND p.canonical_slug IS NULL
       AND NOT (p.category_slug IN ${STAPLE_CATS} AND COALESCE(r.chains, 0) >= 3)
       AND NOT (COALESCE(s.days, 0) >= 15 AND ed.product_slug IS NOT NULL AND p.data_quality >= 70)
+      AND NOT (p.slug IN (${reviewedNicheSlugs}) AND ed.product_slug IS NOT NULL
+        AND p.data_quality >= ${REVIEWED_NICHE_MIN_QUALITY}
+        AND COALESCE(s.hal_rows, 0) >= 1 AND COALESCE(s.days, 0) >= ${REVIEWED_NICHE_MIN_DAYS})
       AND (
         COALESCE(s.pr, 0) = 0
         OR (COALESCE(s.hal_rows, 0) >= 1 AND s.mc < 3)

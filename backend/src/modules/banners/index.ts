@@ -57,6 +57,7 @@ import {
   campaignPerformanceReport,
   createSelfServiceRequest,
   listSelfServiceCampaigns,
+  selfServiceBannerAccess,
   listSelfServiceRequests,
   listAdminSelfServiceRequests,
   reviewSelfServiceRequest,
@@ -122,6 +123,15 @@ const selfServiceRequestSchema = z.object({
   payload: z.record(z.unknown()).default({}),
   requesterNote: z.string().trim().max(2000).nullable().optional(),
 });
+const REPORT_DATE = /^\d{4}-\d{2}-\d{2}$/;
+/** Portal raporu en fazla bir yillik pencere ister; bos deger kampanya baslangicina duser. */
+export function selfServiceReportRange(query: { from?: string; to?: string }): { from?: string; to?: string } | null {
+  const from = query.from?.trim() || undefined;
+  const to = query.to?.trim() || undefined;
+  if ((from && !REPORT_DATE.test(from)) || (to && !REPORT_DATE.test(to))) return null;
+  if (from && to && from > to) return null;
+  return { from, to };
+}
 function sanitizeAdHtml(value: string): string {
   return sanitizeHtml(value, {
     allowedTags: ["div", "span", "p", "strong", "small", "br", "a", "img"],
@@ -522,14 +532,24 @@ export async function registerBanners(app: FastifyInstance) {
     return reply.status(201).send({ id, status: "pending" });
   });
 
+  app.get<{ Params: { id: string }; Querystring: { from?: string; to?: string } }>("/banners/self-service/:id/report", { onRequest: [requireAuth] }, async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz kampanya id" });
+    const range = selfServiceReportRange(req.query);
+    if (!range) return reply.status(400).send({ error: "Tarih YYYY-MM-DD bicimindedir" });
+    const access = await selfServiceBannerAccess(getAuthUserId(req), id);
+    const report = access ? await campaignPerformanceReport(id, range.from, range.to) : null;
+    if (!access || !report) return reply.status(404).send({ error: "Kampanya bulunamadi" });
+    if (access.owner.canViewFinancials) return reply.send({ data: report });
+    const { revenue: _r, collected: _c, cpm: _m, cpc: _p, cpa: _a, ...totals } = report.totals;
+    return reply.send({ data: { ...report, totals } });
+  });
+
   app.get<{ Params: { id: string } }>("/banners/self-service/:id/report.pdf", { onRequest: [requireAuth] }, async (req, reply) => {
     const id = Number(req.params.id);
-    const access = await firmAdAccess(getAuthUserId(req));
-    const banner = await getBannerById(id);
-    const report = await campaignPerformanceReport(id);
-    if (!report || !banner || !access.some((item) => item.firm.id === banner.firmId)) {
-      return reply.status(404).send({ error: "Kampanya bulunamadi" });
-    }
+    const access = Number.isInteger(id) && id > 0 ? await selfServiceBannerAccess(getAuthUserId(req), id) : null;
+    const report = access ? await campaignPerformanceReport(id) : null;
+    if (!access || !report) return reply.status(404).send({ error: "Kampanya bulunamadi" });
     const t = report.totals;
     const pdf = asciiPdf([
       "HALDEFIYAT.COM REKLAM PERFORMANS RAPORU",

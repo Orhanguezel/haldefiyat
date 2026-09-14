@@ -1,3 +1,4 @@
+import { isReviewedNicheEligible } from '@/config/reviewed-niche-seo';
 import type { FastifyInstance } from "fastify";
 import { createHash } from "node:crypto";
 import { and, asc, desc, eq, inArray, like, or, sql } from "drizzle-orm";
@@ -1006,7 +1007,8 @@ export async function registerHalAdmin(app: FastifyInstance) {
       // maintenance ile aynı: hal UP = hal_rows>=1 AND mc>=3 AND dq>=70; borsa UP = hal=0 AND borsa>=1 AND days>=3 AND dq>=60
       const halOk = hal >= 1 && mc >= 3 && dq >= 70;
       const borsaOk = hal === 0 && borsa >= 1 && days >= 3 && dq >= 60;
-      if (halOk || borsaOk) return ed ? "maintenance_pending" : "ready_editorial";
+      const nicheOk = (hal >= 1 && days >= 15 && dq >= 70) || isReviewedNicheEligible(it.slug, dq, days, hal);
+      if (halOk || borsaOk || nicheOk) return ed ? "maintenance_pending" : "ready_editorial";
       if (days === 0) return "seasonal_dry";
       return "needs_coverage";
     };

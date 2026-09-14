@@ -1,3 +1,4 @@
+import ProductListings from "@/components/listings/ProductListings";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -8,6 +9,7 @@ import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
 import AnswerBlock from "@/components/seo/AnswerBlock";
 import PriceChart from "@/components/sections/PriceChartLazy";
+import { ProductTradeBanner, ProductAdvertisingBanner, ProductGuideLinks } from "@/components/sections/ProductOpportunities";
 import PageContainer from "@/components/layout/PageContainer";
 import { CityCompareTable, CityProductKeyNumbers, EditorialBlocks, MarketMovers } from "@/components/sections/CityProductSections";
 import { fetchCityProduct, fetchProductEditorial } from "@/lib/api";
@@ -112,6 +114,11 @@ export default async function CityProductPage({ params }: Props) {
         </h2>
         <div className="mt-4"><PriceChart history={d.history} productName={`${pair.cityName} ${pair.productName}`} /></div>
       </section>
+
+      <ProductTradeBanner productSlug={pair.productSlug} productName={pair.productName} citySlug={pair.citySlug} cityName={pair.cityName} />
+      <ProductAdvertisingBanner productSlug={pair.productSlug} citySlug={pair.citySlug} />
+      <ProductListings productSlug={pair.productSlug} productName={pair.productName} />
+      <ProductGuideLinks productSlug={pair.productSlug} />
 
       <CityCompareTable d={d} />
       <MarketMovers d={d} />

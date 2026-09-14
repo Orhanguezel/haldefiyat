@@ -44,8 +44,7 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
   const pathname = usePathname() ?? "/";
   const locale = getLocaleFromPathname(pathname);
   const [open, setOpen] = useState(false);
-  const [logoutLoading, setLogoutLoading] = useState(false);
-  const { user, logout } = useAuthSession();
+  const { user } = useAuthSession();
   const { data: profile } = useProfile();
 
   useEffect(() => {
@@ -138,21 +137,9 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
               )}
               {user.full_name?.split(" ")[0] ?? user.email ?? "Hesabım"}
             </Link>
-            <button
-              type="button"
-              disabled={logoutLoading}
-              onClick={async () => {
-                setLogoutLoading(true);
-                try {
-                  await logout();
-                } finally {
-                  setLogoutLoading(false);
-                }
-              }}
-              className="h-10 px-4 inline-flex items-center justify-center rounded-xl border border-(--color-border) text-[13px] font-medium text-(--color-foreground) hover:bg-(--color-bg-alt) hover:border-(--color-border) transition-all active:scale-95 disabled:opacity-60 whitespace-nowrap"
-            >
-              Çıkış Yap
-            </button>
+            <Link href={localePath(locale, "/ilan-ver")} prefetch={false} className="h-10 px-5 inline-flex items-center justify-center rounded-xl bg-(--color-brand) text-(--color-brand-fg) text-[13px] font-bold hover:bg-(--color-brand-dark) transition-all active:scale-95 whitespace-nowrap">
+              İlan Ver
+            </Link>
           </>
         ) : (
           <>
@@ -163,10 +150,10 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
               Giriş Yap
             </Link>
             <Link
-              href={localePath(locale, "/kayit")} prefetch={false}
+              href={localePath(locale, "/ilan-ver")} prefetch={false}
               className="h-10 px-5 inline-flex items-center justify-center rounded-xl bg-(--color-brand) text-(--color-brand-fg) text-[13px] font-bold hover:bg-(--color-brand-dark) hover:scale-[1.02] transition-all active:scale-95 shadow-lg shadow-(--color-brand)/20 whitespace-nowrap"
             >
-              Ücretsiz Başla
+              İlan Ver
             </Link>
           </>
         )}
@@ -267,21 +254,9 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
             <div className="mt-2 flex items-center gap-2 border-t border-(--color-border) pt-3">
               <ThemeToggle />
               {user ? (
-                <button
-                  type="button"
-                  disabled={logoutLoading}
-                  onClick={async () => {
-                    setLogoutLoading(true);
-                    try {
-                      await logout();
-                    } finally {
-                      setLogoutLoading(false);
-                    }
-                  }}
-                  className="flex-1 h-10 inline-flex items-center justify-center rounded-lg border border-(--color-border) text-sm font-medium disabled:opacity-60"
-                >
-                  Çıkış Yap
-                </button>
+                <Link href={localePath(locale, "/ilan-ver")} prefetch={false} className="flex-1 h-11 inline-flex items-center justify-center rounded-xl bg-(--color-brand) text-(--color-brand-fg) text-sm font-bold transition-all active:scale-95">
+                  İlan Ver
+                </Link>
               ) : (
                 <>
                   <Link
@@ -291,10 +266,10 @@ export default function HeaderNavClient({ entries }: HeaderNavClientProps) {
                     Giriş Yap
                   </Link>
                   <Link
-                    href={localePath(locale, "/kayit")} prefetch={false}
+                    href={localePath(locale, "/ilan-ver")} prefetch={false}
                     className="flex-1 h-11 inline-flex items-center justify-center rounded-xl bg-(--color-brand) text-(--color-brand-fg) text-sm font-bold shadow-md shadow-(--color-brand)/10 active:scale-95 transition-all"
                   >
-                    Ücretsiz Başla
+                    İlan Ver
                   </Link>
                 </>
               )}

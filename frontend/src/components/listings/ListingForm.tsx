@@ -40,20 +40,17 @@ function dateOffsetStr(days: number) {
   return d.toISOString().slice(0, 10);
 }
 
-export function ListingForm({ products }: { products: Product[] }) {
+export function ListingForm({ products, preset = { product: "", city: "", type: "satis" } }: { products: Product[]; preset?: { product: string; city: string; type: "alim" | "satis" } }) {
   const { user, loading: authLoading } = useAuthSession();
   const productOptions = useMemo(
     () => products.map((product) => ({ value: product.slug, label: product.displayName || product.nameTr })),
     [products],
   );
-  // Urun sayfasindaki "satiyor musunuz?" cagrisi ?product=<slug> ile geliyor —
-  // kullanici formda ayni urunu tekrar aramasin.
-  const presetProduct = typeof window !== "undefined"
-    ? new URLSearchParams(window.location.search).get("product") ?? ""
-    : "";
-  const [productSlug, setProductSlug] = useState(presetProduct);
+  const returnQuery = new URLSearchParams({ product: preset.product, city: preset.city, type: preset.type });
+  const returnTo = `/ilan-ver?${returnQuery}`;
+  const [productSlug, setProductSlug] = useState(preset.product);
   const [productName, setProductName] = useState("");
-  const [citySlug, setCitySlug] = useState<string | null>(null);
+  const [citySlug, setCitySlug] = useState<string | null>(preset.city || null);
   const [districtSlug, setDistrictSlug] = useState<string | null>(null);
   const [images, setImages] = useState<string[]>([]);
   const [callRequestsEnabled, setCallRequestsEnabled] = useState(true);
@@ -164,8 +161,8 @@ export function ListingForm({ products }: { products: Product[] }) {
         <h2 className="mb-2 text-lg font-semibold text-(--color-foreground)">İlan vermek için üye girişi gerekli</h2>
         <p className="mb-5 text-sm text-(--color-muted)">İlanların yönetimi ve iletişim için ücretsiz bir hesap yeterli. Bilgilerin formda otomatik dolar.</p>
         <div className="flex flex-wrap justify-center gap-3">
-          <Link href="/giris?next=/ilan-ver"><Button>Giriş Yap</Button></Link>
-          <Link href="/kayit?next=/ilan-ver"><Button variant="secondary">Ücretsiz Üye Ol</Button></Link>
+          <Link href={`/giris?next=${encodeURIComponent(returnTo)}`}><Button>Giriş Yap</Button></Link>
+          <Link href={`/kayit?next=${encodeURIComponent(returnTo)}`}><Button variant="secondary">Ücretsiz Üye Ol</Button></Link>
         </div>
       </div>
     );
@@ -173,11 +170,11 @@ export function ListingForm({ products }: { products: Product[] }) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="grid gap-4 rounded-[8px] border border-(--color-border) bg-(--color-surface) p-4 md:grid-cols-2">
-      <select name="listingType" className={SELECT_CLASS}>
+      <select name="listingType" aria-label="İlan türü" defaultValue={preset.type} className={SELECT_CLASS}>
         <option value="satis">Satış ilanı</option>
         <option value="alim">Alım talebi</option>
       </select>
-      <select name="partyRole" className={SELECT_CLASS}>
+      <select name="partyRole" aria-label="İlandaki rolünüz" defaultValue={preset.type === "alim" ? "alici" : "uretici"} className={SELECT_CLASS}>
         <option value="uretici">Üretici</option>
         <option value="komisyoncu">Komisyoncu</option>
         <option value="alici">Alıcı</option>

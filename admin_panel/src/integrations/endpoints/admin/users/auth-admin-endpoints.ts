@@ -18,10 +18,16 @@ import {
   unwrapAdminUsersList,
 } from '@/integrations/shared';
 
+type AdminUsersPage = {
+  items: AdminUserView[];
+  total: number;
+  stats: { total: number; active: number; admins: number; unverified: number; recent: number };
+};
+
 export const authAdminApi = baseApi.injectEndpoints({
   endpoints: (b) => ({
     /** GET /users */
-    adminList: b.query<AdminUserView[], AdminUsersListParams | undefined>({
+    adminList: b.query<AdminUsersPage, AdminUsersListParams | undefined>({
       query: (params) => {
         const queryParams: AdminUserListQueryParams | undefined = params
           ? {
@@ -32,16 +38,18 @@ export const authAdminApi = baseApi.injectEndpoints({
                   : params.sort,
             }
           : undefined;
-        const qs = buildAdminUsersListParams(queryParams).toString();
+        const search = buildAdminUsersListParams(queryParams);
+        search.set('with_meta', 'true');
+        const qs = search.toString();
         return { url: qs ? `${ADMIN_USERS_BASE}?${qs}` : ADMIN_USERS_BASE, method: 'GET' };
       },
-      transformResponse: (res: unknown): AdminUserView[] => {
-        return unwrapAdminUsersList(res).map(normalizeAdminUser);
-      },
+      transformResponse: (res: AdminUsersPage): AdminUsersPage => ({
+        ...res, items: unwrapAdminUsersList(res).map(normalizeAdminUser),
+      }),
       providesTags: (result) =>
-        result?.length
+        result?.items.length
           ? [
-              ...result.map((u) => ({ type: 'AdminUsers' as const, id: u.id })),
+              ...result.items.map((u) => ({ type: 'AdminUsers' as const, id: u.id })),
               { type: 'AdminUsers' as const, id: 'LIST' },
             ]
           : [{ type: 'AdminUsers' as const, id: 'LIST' }],

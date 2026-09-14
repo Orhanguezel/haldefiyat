@@ -158,10 +158,15 @@ export async function checkEtlHealth(): Promise<EtlHealthIssue[]> {
   return issues;
 }
 
-function consecutiveEmptyRuns(runs: Array<typeof hfEtlRuns.$inferSelect>): number {
+export function consecutiveEmptyRuns(runs: Array<typeof hfEtlRuns.$inferSelect>): number {
   let count = 0;
   for (const run of runs) {
     if (run.status !== "ok" || run.rowsInserted > 0) break;
+    // Fetcher, kaynaktaki son bultenin daha once yazildigini ayri bir "ok"
+    // sonucu olarak kaydeder. Bu durum bos/bozuk parse degildir: satirlar geldi,
+    // fakat yeni tarih olmadigi icin bilincli olarak tekrar yazilmadi. Ozellikle
+    // seyrek yayin yapan TOBB borsalarini uc gun sonra hatali uyariya cevirmeyelim.
+    if (run.rowsFetched > 0 && run.errorMsg?.startsWith("Kaynak yeni bulten yayinlamadi")) break;
     count++;
   }
   return count;

@@ -59,3 +59,11 @@ describe("ListingCard", () => {
     expect(screen.getByRole("tooltip")).toHaveTextContent("kimlik veya ticari yetki doğrulaması değildir");
   });
 });
+
+it("renders a horizontal product-page card with real units and a representative image label", () => {
+  render(<ListingCard item={listing} layout="horizontal" />);
+  expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent("10 kasa domates");
+  expect(screen.getByText("500.00 TL/kasa")).toBeInTheDocument();
+  expect(screen.getByText("Temsilî görsel")).toBeInTheDocument();
+  expect(screen.queryByText("0555 111 22 33")).not.toBeInTheDocument();
+});

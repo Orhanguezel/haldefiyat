@@ -45,6 +45,7 @@ export default function SeasonCompare({ history, productName }: SeasonComparePro
   }, [history]);
 
   const hasMultipleYears = uniqueYears.length >= 2;
+  if (!hasMultipleYears) return null;
 
   return (
     <section className="mt-8 rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6">
@@ -81,13 +82,6 @@ export default function SeasonCompare({ history, productName }: SeasonComparePro
           </div>
         )}
       </header>
-
-      <div className="mb-5 rounded-[10px] border border-amber-300/60 bg-amber-50 px-4 py-3 text-[12px] leading-relaxed text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100">
-        Aktif hal-tarih karantinalarındaki donmuş veya anomali kayıtları grafikten çıkarıldı;
-        arşivden doğrulanan seyrek günler korundu. Özellikle Bursa, Denizli ve Eskişehir&apos;in
-        2023–Nisan 2026 kapsamı eksiktir. Kapsamlar henüz eşit olmadığı için doğrudan
-        geçen-yıl yüzdesi Mayıs 2027&apos;ye kadar yayınlanmaz.
-      </div>
 
       {hasMultipleYears ? (
         <SeasonCompareChart history={history} productName={productName} />

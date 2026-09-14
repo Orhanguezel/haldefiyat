@@ -69,6 +69,10 @@ function lowercaseSlugRedirect(request: NextRequest) {
 async function fetchItems(path: string): Promise<Array<Record<string, unknown>> | null> {
   try {
     const res = await fetch(`${API_URL}${path}`, {
+      // Slug varlik kapisi her istekte canli envanteri gormeli. Varsayilan fetch
+      // cache'i iki PM2 worker'da ayri tutulunca yeni eklenen bir hal bir worker'da
+      // 200, digerinde 404 donuyordu.
+      cache: "no-store",
       headers: { Accept: "application/json" },
       signal: AbortSignal.timeout(5_000),
     });

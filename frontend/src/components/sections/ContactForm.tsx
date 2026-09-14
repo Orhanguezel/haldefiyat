@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
@@ -14,6 +14,7 @@ interface ContactFormProps {
   defaultEmail?: string;
   defaultPhone?: string;
   defaultSubject?: string;
+  subjectOptions?: Array<{ value: string; label: string }>;
   defaultMessage?: string;
   contactEmail?: string;
   contactPhone?: string;
@@ -32,6 +33,7 @@ export function ContactForm({
   defaultEmail = "",
   defaultPhone = "",
   defaultSubject = "",
+  subjectOptions,
   defaultMessage = "",
   contactEmail = "info@gzlteknoloji.com",
   contactPhone,
@@ -44,6 +46,7 @@ export function ContactForm({
   conversionEventName,
   conversionParams,
 }: ContactFormProps) {
+  const formId = useId();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const statusRef = useRef<HTMLDivElement>(null);
@@ -186,7 +189,7 @@ export function ContactForm({
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <Input
-              name="name"
+              id={`${formId}-name`} name="name"
               label="Adınız Soyadınız"
               placeholder="Örn: Ahmet Yılmaz"
               defaultValue={defaultName}
@@ -194,7 +197,7 @@ export function ContactForm({
               disabled={status === "loading"}
             />
             <Input
-              name="email"
+              id={`${formId}-email`} name="email"
               type="email"
               label="E-posta Adresi"
               placeholder="ahmet@example.com"
@@ -206,26 +209,29 @@ export function ContactForm({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <Input
-              name="phone"
+              id={`${formId}-phone`} name="phone"
               label="Telefon Numarası"
               placeholder="+90 5XX XXX XX XX"
               defaultValue={defaultPhone}
               required
               disabled={status === "loading"}
             />
-            <Input
-              name="subject"
-              label="Konu"
-              placeholder="Mesaj konusu"
-              defaultValue={defaultSubject}
-              required
-              disabled={status === "loading"}
-            />
+            {subjectOptions ? <label className="block space-y-2 text-sm font-semibold text-(--color-foreground)">
+              <span>Konu</span>
+              <select id={`${formId}-subject`} name="subject" required defaultValue="" disabled={status === "loading"} className="h-12 w-full rounded-xl border border-(--color-border) bg-(--color-surface) px-3 font-normal">
+                <option value="" disabled>İlgilendiğiniz hizmet</option>
+                {subjectOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </label> : (
+              <Input id={`${formId}-subject`} name="subject" label="Konu" placeholder="Mesaj konusu" defaultValue={defaultSubject} required disabled={status === "loading"} />
+            )}
           </div>
 
           <TextArea
-            name="message"
+            id={`${formId}-message`} name="message"
             label="Mesajınız"
+            minLength={10}
+            maxLength={5000}
             placeholder="Size nasıl yardımcı olabiliriz?"
             defaultValue={defaultMessage}
             required
@@ -234,8 +240,8 @@ export function ContactForm({
           />
 
           <div aria-hidden="true" className="hidden">
-            <label htmlFor="contact-website">Web sitesi</label>
-            <input id="contact-website" type="text" name="website" tabIndex={-1} autoComplete="off" />
+            <label htmlFor={`${formId}-website`}>Web sitesi</label>
+            <input id={`${formId}-website`} type="text" name="website" tabIndex={-1} autoComplete="off" />
           </div>
 
           <label className="flex items-start gap-3 text-sm leading-relaxed text-muted">

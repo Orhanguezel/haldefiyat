@@ -136,29 +136,104 @@ export async function firmAdAccess(userId: string) {
   return [...byId.values()];
 }
 
-export async function listSelfServiceCampaigns(userId: string) {
-  const access = await firmAdAccess(userId);
-  const firmIds = access.map((item) => item.firm.id);
-  if (!firmIds.length) return { firms: [], campaigns: [] };
-  const campaigns = await db.select().from(hfBanners)
-    .where(sql`${hfBanners.firmId} IN (${sql.join(firmIds.map((id) => sql`${id}`), sql`,`)})`)
-    .orderBy(sql`${hfBanners.createdAt} DESC`);
-  const financeByFirm = new Map(access.map((item) => [item.firm.id, item.canViewFinancials]));
+export type SelfServiceListing = { id: number; slug: string; title: string; status: string };
+export type SelfServiceOwner = {
+  ownerType: "firm" | "listing";
+  canViewFinancials: boolean;
+  listing: SelfServiceListing | null;
+};
+export type SelfServicePerformance = { uniqueImpressions: number; uniqueClicks: number; conversions: number };
+
+/** Ilan sahibi kendi reklaminin odeyenidir; firma uyesinde yetki uyelik kaydindan gelir. */
+export function resolveSelfServiceOwner(
+  banner: Pick<BannerRow, "firmId" | "listingId">,
+  firmFinance: Map<number, boolean>,
+  ownedListings: Map<number, SelfServiceListing>,
+): SelfServiceOwner | null {
+  const listing = banner.listingId ? ownedListings.get(banner.listingId) : undefined;
+  if (listing) return { ownerType: "listing", canViewFinancials: true, listing };
+  if (banner.firmId && firmFinance.has(banner.firmId)) {
+    return { ownerType: "firm", canViewFinancials: Boolean(firmFinance.get(banner.firmId)), listing: null };
+  }
+  return null;
+}
+
+export function selfServiceCampaignView(banner: BannerRow, owner: SelfServiceOwner, performance?: SelfServicePerformance) {
   return {
-    firms: access.map((item) => ({ id: item.firm.id, name: item.firm.name, slug: item.firm.slug, role: item.role, canViewFinancials: item.canViewFinancials })),
-    campaigns: campaigns.map((banner) => ({
-      id: banner.id, firmId: banner.firmId, title: banner.title, position: banner.position,
-      lifecycleStatus: banner.lifecycleStatus, imageUrl: banner.imageUrl, caption: banner.caption,
-      ctaLabel: banner.ctaLabel, linkUrl: banner.linkUrl, device: banner.device,
-      startAt: banner.startAt, endAt: banner.endAt, impressions: banner.impressions, clicks: banner.clicks,
-      performanceStatus: banner.performanceStatus,
-      ...(banner.firmId && financeByFirm.get(banner.firmId) ? {
-        paymentStatus: banner.paymentStatus, totalAmount: banner.totalAmount,
-        invoiceNumber: banner.invoiceNumber, invoiceUrl: banner.invoiceUrl,
-        contractFileUrl: banner.contractFileUrl,
-      } : {}),
-    })),
+    id: banner.id, firmId: banner.firmId, listingId: banner.listingId, title: banner.title, position: banner.position,
+    ownerType: owner.ownerType, listing: owner.listing,
+    lifecycleStatus: banner.lifecycleStatus, imageUrl: banner.imageUrl, caption: banner.caption,
+    ctaLabel: banner.ctaLabel, linkUrl: banner.linkUrl, device: banner.device,
+    startAt: banner.startAt, endAt: banner.endAt, impressions: banner.impressions, clicks: banner.clicks,
+    performanceStatus: banner.performanceStatus,
+    uniqueImpressions: performance?.uniqueImpressions ?? 0,
+    uniqueClicks: performance?.uniqueClicks ?? 0,
+    conversions: performance?.conversions ?? 0,
+    ...(owner.canViewFinancials ? {
+      paymentStatus: banner.paymentStatus, totalAmount: banner.totalAmount,
+      invoiceNumber: banner.invoiceNumber, invoiceUrl: banner.invoiceUrl,
+      contractFileUrl: banner.contractFileUrl,
+    } : {}),
   };
+}
+
+async function ownedListingsWithAds(userId: string): Promise<Map<number, SelfServiceListing>> {
+  const rows = await db.select({ id: hfListings.id, slug: hfListings.slug, title: hfListings.title, status: hfListings.status })
+    .from(hfListings).innerJoin(hfBanners, eq(hfBanners.listingId, hfListings.id))
+    .where(eq(hfListings.userId, userId));
+  return new Map(rows.map((row) => [row.id, row]));
+}
+
+export async function selfServicePerformance(bannerIds: number[]): Promise<Map<number, SelfServicePerformance>> {
+  const result = new Map<number, SelfServicePerformance>();
+  if (!bannerIds.length) return result;
+  const idList = sql.join(bannerIds.map((id) => sql`${id}`), sql`,`);
+  const [metrics, conversions] = await Promise.all([
+    db.select({
+      bannerId: hfBannerDailyMetrics.bannerId,
+      uniqueImpressions: sql<number>`SUM(${hfBannerDailyMetrics.uniqueImpressions})`,
+      uniqueClicks: sql<number>`SUM(${hfBannerDailyMetrics.uniqueClicks})`,
+    }).from(hfBannerDailyMetrics).where(sql`${hfBannerDailyMetrics.bannerId} IN (${idList})`).groupBy(hfBannerDailyMetrics.bannerId),
+    db.select({ bannerId: hfBannerConversions.bannerId, conversions: sql<number>`COUNT(*)` })
+      .from(hfBannerConversions).where(sql`${hfBannerConversions.bannerId} IN (${idList})`).groupBy(hfBannerConversions.bannerId),
+  ]);
+  for (const id of bannerIds) result.set(id, { uniqueImpressions: 0, uniqueClicks: 0, conversions: 0 });
+  for (const row of metrics) {
+    const entry = result.get(row.bannerId)!;
+    entry.uniqueImpressions = Number(row.uniqueImpressions ?? 0);
+    entry.uniqueClicks = Number(row.uniqueClicks ?? 0);
+  }
+  for (const row of conversions) result.get(row.bannerId)!.conversions = Number(row.conversions ?? 0);
+  return result;
+}
+
+export async function listSelfServiceCampaigns(userId: string) {
+  const [access, ownedListings] = await Promise.all([firmAdAccess(userId), ownedListingsWithAds(userId)]);
+  const firmIds = access.map((item) => item.firm.id);
+  const listingIds = [...ownedListings.keys()];
+  const conditions = [];
+  if (firmIds.length) conditions.push(sql`${hfBanners.firmId} IN (${sql.join(firmIds.map((id) => sql`${id}`), sql`,`)})`);
+  if (listingIds.length) conditions.push(sql`${hfBanners.listingId} IN (${sql.join(listingIds.map((id) => sql`${id}`), sql`,`)})`);
+  const firms = access.map((item) => ({ id: item.firm.id, name: item.firm.name, slug: item.firm.slug, role: item.role, canViewFinancials: item.canViewFinancials }));
+  const listings = [...ownedListings.values()];
+  if (!conditions.length) return { firms, listings, campaigns: [] };
+  const banners = await db.select().from(hfBanners).where(or(...conditions)).orderBy(sql`${hfBanners.createdAt} DESC`);
+  const firmFinance = new Map(access.map((item) => [item.firm.id, item.canViewFinancials]));
+  const performance = await selfServicePerformance(banners.map((banner) => banner.id));
+  const campaigns = [];
+  for (const banner of banners) {
+    const owner = resolveSelfServiceOwner(banner, firmFinance, ownedListings);
+    if (owner) campaigns.push(selfServiceCampaignView(banner, owner, performance.get(banner.id)));
+  }
+  return { firms, listings, campaigns };
+}
+
+export async function selfServiceBannerAccess(userId: string, bannerId: number): Promise<{ banner: BannerRow; owner: SelfServiceOwner } | null> {
+  const banner = await getBannerById(bannerId);
+  if (!banner) return null;
+  const [access, ownedListings] = await Promise.all([firmAdAccess(userId), ownedListingsWithAds(userId)]);
+  const owner = resolveSelfServiceOwner(banner, new Map(access.map((item) => [item.firm.id, item.canViewFinancials])), ownedListings);
+  return owner ? { banner, owner } : null;
 }
 
 export async function listSelfServiceRequests(userId: string) {

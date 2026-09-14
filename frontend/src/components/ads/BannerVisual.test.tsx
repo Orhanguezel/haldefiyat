@@ -5,6 +5,7 @@ import { bannerColumnsClass } from "./BannerSlot";
 import ResilientAdImage from "./ResilientAdImage";
 import TemplateBanner from "./TemplateBanner";
 import SeedSponsorBanner from "./SeedSponsorBanner";
+import IhracatRadariBanner, { isIhracatRadari } from "./IhracatRadariBanner";
 
 afterEach(cleanup);
 
@@ -82,5 +83,44 @@ describe("banner görsel dayanıklılığı", () => {
       <TemplateBanner banner={banner({ creativeConfig: { ...banner().creativeConfig, animation: true } })} href={null} sidebar={false} />,
     );
     expect(container.querySelector("a")).toHaveClass("motion-safe:animate-[pulse_5s_ease-in-out_infinite]");
+  });
+});
+
+describe("İhracat Radarı reklamı", () => {
+  const ihracat = (patch: Partial<PublicBanner> = {}) =>
+    banner({ advertiser: "İhracat Radarı", ctaLabel: null, ...patch });
+
+  test("reklamveren adını Türkçe büyük/küçük harf farkına rağmen tanır", () => {
+    expect(isIhracatRadari(ihracat())).toBe(true);
+    expect(isIhracatRadari(ihracat({ advertiser: "  İHRACAT RADARI " }))).toBe(true);
+    expect(isIhracatRadari(banner({ advertiser: "VistaSeeds" }))).toBe(false);
+  });
+
+  test("gerçek logo, tıklama uç noktası ve sponsorlu bağlantı nitelikleri", () => {
+    render(<IhracatRadariBanner banner={ihracat()} href="/api/v1/banners/20/click" sidebar={false} />);
+    const link = screen.getByRole("link");
+    expect(link).toHaveAttribute("href", "/api/v1/banners/20/click");
+    expect(link).toHaveAttribute("rel", "sponsored nofollow noopener");
+    expect(screen.getByAltText("İhracat Radarı")).toHaveAttribute("src", "/images/sponsors/ihracat-radari-logo-white.svg");
+  });
+
+  test("yalnız kaynakta doğrulanan kapsam sayıları geçer", () => {
+    render(<IhracatRadariBanner banner={ihracat()} href={null} sidebar />);
+    expect(screen.getByText("190+ ülke alıcı verisi")).toBeInTheDocument();
+    expect(screen.getByText("18,8 milyon+ dış ticaret kaydı")).toBeInTheDocument();
+    expect(screen.getByText("Ürününüzün yurt dışı alıcısını bulun")).toBeInTheDocument();
+  });
+
+  test("bağlantı yoksa href ve sponsorlu nitelikleri basılmaz", () => {
+    const { container } = render(<IhracatRadariBanner banner={ihracat()} href={null} sidebar={false} />);
+    const anchor = container.querySelector("a");
+    expect(anchor).not.toHaveAttribute("href");
+    expect(anchor).not.toHaveAttribute("rel");
+  });
+
+  test("panelden gelen metin ve çağrı sabit kopyayı ezer", () => {
+    render(<IhracatRadariBanner banner={ihracat({ caption: "Yaş meyve sebzede yurt dışı alıcı", ctaLabel: "Pazarı gör" })} href={null} sidebar={false} />);
+    expect(screen.getByText("Yaş meyve sebzede yurt dışı alıcı")).toBeInTheDocument();
+    expect(screen.getByText(/Pazarı gör/)).toBeInTheDocument();
   });
 });

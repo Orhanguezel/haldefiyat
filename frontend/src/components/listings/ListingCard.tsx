@@ -40,7 +40,7 @@ function fallbackLocationLabel(value: string | null | undefined) {
     .join(" ");
 }
 
-export function ListingCard({ item, compact = false }: { item: Listing; compact?: boolean }) {
+export function ListingCard({ item, compact = false, layout = "default" }: { item: Listing; compact?: boolean; layout?: "default" | "horizontal" }) {
   const typeLabel = item.listingType === "satis" ? "Satış ilanı" : "Alım talebi";
   const posted = relativeDate(item.createdAt);
   const city = provinceBySlug(item.citySlug)?.label ?? fallbackLocationLabel(item.citySlug) ?? "Türkiye";
@@ -54,6 +54,33 @@ export function ListingCard({ item, compact = false }: { item: Listing; compact?
   const stockPhoto = ownPhoto
     ? null
     : (item.productSlug ? getListingRepresentativeImage(item.productSlug) : null);
+
+  if (layout === "horizontal") {
+    const photo = ownPhoto || stockPhoto;
+    return (
+      <article className="flex min-w-0 gap-3 rounded-xl border border-(--color-border) bg-(--color-surface) p-3 shadow-sm">
+        {photo && <Link href={`/ilan/${item.slug}`} className="relative block min-h-28 w-24 shrink-0 overflow-hidden rounded-lg bg-(--color-bg-alt)">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={photo} alt={ownPhoto ? item.title : `${item.productName} temsilî ürün görseli`} width={96} height={128} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+          {!ownPhoto && <span className="absolute bottom-0 inset-x-0 bg-(--color-surface)/90 p-1 text-center text-[9px] text-(--color-muted)">Temsilî görsel</span>}
+        </Link>}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="mb-1 flex flex-wrap gap-1.5 text-[10px] font-semibold">
+            <span className={`rounded px-1.5 py-0.5 ${item.listingType === "satis" ? "bg-(--color-success-bg) text-(--color-success)" : "bg-(--color-info-bg) text-(--color-info)"}`}>{typeLabel}</span>
+            {item.isFeatured ? <span className="rounded bg-(--color-warning-bg) px-1.5 py-0.5 text-(--color-warning)">Reklam · Sponsorlu</span> : null}
+          </div>
+          <Link href={`/ilan/${item.slug}`} className="hover:underline"><h3 className="line-clamp-2 text-sm font-bold text-(--color-foreground)">{item.title}</h3></Link>
+          <p className="mt-1 text-sm font-bold text-(--color-brand)">{priceText(item)}</p>
+          <p className="mt-2 text-xs text-(--color-muted)">{city}{district ? ` / ${district}` : ""}</p>
+          <p className="mt-1 text-xs text-(--color-muted)">Miktar: {item.quantity ? `${item.quantity} ${item.quantityUnit}` : "Belirtilmedi"}</p>
+          <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-3">
+            {posted && <span className="text-[11px] text-(--color-muted)">{posted}</span>}
+            <Link href={`/ilan/${item.slug}`} className="inline-flex min-h-11 items-center justify-center rounded-lg bg-(--color-brand) px-3 text-xs font-bold text-(--color-brand-fg) hover:opacity-90">İlanı incele</Link>
+          </div>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <ContentCard

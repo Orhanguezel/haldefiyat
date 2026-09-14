@@ -15,7 +15,6 @@ import { assessRetailPriceQuality } from "@/modules/etl/retail-price-quality-gua
 import { canonicalUnit } from "@/modules/etl/canonical-contract";
 import { inferAvgPriceMethod, type AvgPriceMethod } from "./avg-price-method";
 import { blackoutFilter } from "./blackouts";
-import { publicYoyStatus } from "./yoy-policy";
 import { toPublicSourceHealthEvent, type PublicSourceHealthEvent } from "./source-health";
 
 export function parseRangeToDays(range?: string): number {
@@ -1098,12 +1097,42 @@ export async function variantPricesByMaster(masterSlug: string, range = "7d") {
     latestRecordedDate: string | Date;
   }>;
 
+  // Compare identical product/market/unit/source/date pairs only. Historical rows
+  // must pass the same quarantine gate as the current observations.
+  const priorSafe = await blackoutFilter(sql`prev.recorded_date`, sql`prev.market_id`, sql`prev.source_api`);
+  const pairResult = await db.execute(sql`
+    SELECT p.slug, COUNT(DISTINCT ph.recorded_date) matchedDays, AVG(prev.avg_price) priorYearAvgPrice,
+      100 * (SUM(ph.avg_price) / NULLIF(SUM(prev.avg_price), 0) - 1) yoyPct
+    FROM hf_products p
+    JOIN hf_price_history ph ON ph.product_id = p.id AND ph.unit = p.unit
+    JOIN hf_price_history prev ON prev.product_id = ph.product_id
+      AND prev.market_id = ph.market_id AND prev.unit = ph.unit
+      AND prev.recorded_date = DATE_SUB(ph.recorded_date, INTERVAL 1 YEAR)
+      AND COALESCE(prev.source_api, '') = COALESCE(ph.source_api, '')
+      AND COALESCE(prev.avg_price_method, '') = COALESCE(ph.avg_price_method, '')
+    WHERE p.is_active = 1 AND p.canonical_slug = ${masterSlug}
+      AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)
+      AND ph.recorded_date <= CURDATE()
+      AND ph.avg_price > 0 AND prev.avg_price > 0
+      ${blackoutSql}
+      ${priorSafe ? sql`AND ${priorSafe}` : sql``}
+    GROUP BY p.slug
+  `);
+  const pairRows = (Array.isArray(pairResult) ? pairResult[0] : pairResult) as unknown as Array<{
+    slug: string; matchedDays: number | string; yoyPct: number | string; priorYearAvgPrice: number | string;
+  }>;
+  const pairs = new Map(pairRows.map((row) => [row.slug, row]));
+
   return rows.map((row) => {
     const avgPrice = Number(row.avgPrice ?? 0);
     const latestRecordedDate = row.latestRecordedDate instanceof Date
       ? row.latestRecordedDate.toISOString().slice(0, 10)
       : String(row.latestRecordedDate).slice(0, 10);
-    const yoyStatus = publicYoyStatus(latestRecordedDate);
+    const pair = pairs.get(row.slug);
+    const matchedDays = Number(pair?.matchedDays ?? 0);
+    const change = Number(pair?.yoyPct);
+    const yoyPct = pair && matchedDays >= 5 && Number.isFinite(change) ? Math.round(change * 10) / 10 : null;
+    const yoyStatus = yoyPct == null ? "insufficient_pairs" as const : "available" as const;
     return {
       slug: row.slug,
       displayName: row.displayName,
@@ -1111,7 +1140,8 @@ export async function variantPricesByMaster(masterSlug: string, range = "7d") {
       categorySlug: row.categorySlug,
       unit: row.unit,
       avgPrice,
-      yoyPct: null,
+      yoyPct,
+      priorYearAvgPrice: yoyPct != null && Number.isFinite(Number(pair?.priorYearAvgPrice)) ? Number(pair!.priorYearAvgPrice) : null,
       yoyStatus,
       marketCount: Number(row.marketCount ?? 0),
       observationCount: Number(row.observationCount ?? 0),
@@ -1910,7 +1940,7 @@ export async function upsertPriceRow(input: {
   const [[previousRow], [sourcePeerRows]] = await Promise.all([
     pool.query(
       `SELECT avg_price AS price FROM hf_price_history
-       WHERE product_id=? AND market_id=? AND unit=? AND recorded_date < ?
+       WHERE product_id=? AND market_id=? AND unit=? AND recorded_date <= ?
        ORDER BY recorded_date DESC LIMIT 1`,
       [input.productId, input.marketId, unit, input.recordedDate],
     ),

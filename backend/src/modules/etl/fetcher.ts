@@ -764,7 +764,12 @@ export function parseBursaHtml(html: string): NormalizedRow[] {
       const productName = /\b(koli|kasa|sandik|cuval)\b/.test(packageLabel)
         ? `${name} (${rawUnit})`
         : name;
-      out.push({ name: productName, category: null, unit, avg, min, max });
+      if (normalizeUnit(rawUnit) === "cift") {
+        out.push({ name: `${name} (Adet)`, category: "balik", unit: "adet",
+          avg: avg / 2, min: min == null ? null : min / 2, max: max == null ? null : max / 2 });
+      } else {
+        out.push({ name: productName, category: null, unit, avg, min, max });
+      }
     }
   }
   return out;
@@ -1756,7 +1761,10 @@ export function parseCanakkaleHtml(html: string): NormalizedRow[] {
       ?? "",
   );
   let currentCategory: string | null = null;
-  for (const row of tables[0]!) {
+  for (const cells of tables[0]!) {
+    // Fish rows have an extra category column before product and unit.
+    const fish = (cells[0] ?? "").trim().toLocaleLowerCase("tr-TR") === "balık";
+    const row = fish ? cells.slice(1) : cells;
     if (row.length < 2) continue;
     const first = (row[0] ?? "").trim();
     // Kategori satırı: sadece "SEBZE" veya "MEYVE" içeren tek hücreli satır
@@ -1773,7 +1781,7 @@ export function parseCanakkaleHtml(html: string): NormalizedRow[] {
     const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
     out.push({
       name: first,
-      category: currentCategory,
+      category: fish ? "balik" : currentCategory,
       unit: normalizeUnit(row[1] ?? ""),
       avg,
       min,

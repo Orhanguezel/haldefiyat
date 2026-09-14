@@ -4,6 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import { AuthGuard } from "@/components/providers/AuthGuard";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardMobileNav } from "@/components/dashboard/DashboardMobileNav";
+import AccountAdvertising from "@/components/ads/AccountAdvertising";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,6 +24,7 @@ export default async function DashboardLayout({ children, params }: Props) {
     <AuthGuard locale={locale}>
       <div className="container mx-auto px-4 py-8 md:py-12">
         <DashboardMobileNav locale={locale} />
+        <AccountAdvertising />
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* Desktop Sidebar */}
           <aside className="hidden w-64 shrink-0 lg:block">

@@ -17,7 +17,7 @@
     "table": {
       "title": "Kullanıcı Listesi",
       "loading": "Yükleniyor…",
-      "totalRecords": "Toplam: {count} kayıt (sayfa)",
+      "totalRecords": "Sonuç: {count} kullanıcı",
       "loadError": "Liste yüklenemedi.",
       "retryButton": "Yeniden dene",
       "noRecords": "Kayıt bulunamadı.",
@@ -35,13 +35,14 @@
     },
     "pagination": {
       "offset": "Offset: {offset}",
+      "range": "{total} kullanıcıdan {start}–{end} arası",
       "limit": "Limit: {limit}",
       "previous": "Önceki",
       "next": "Sonraki"
     },
     "tiles": {
-      "loaded": "Kullanıcı",
-      "loadedHint": "bu sayfada (sayfa boyu {limit})",
+      "loaded": "Toplam kullanıcı",
+      "loadedHint": "tüm kayıtlı kullanıcılar",
       "active": "Aktif",
       "admins": "Yönetici",
       "unverified": "Doğrulanmamış",

@@ -73,3 +73,10 @@ describe("ContactForm", () => {
     expect(screen.queryByText(/database_password_leaked/)).not.toBeInTheDocument();
   });
 });
+
+it("keeps field labels unique when page and dialog forms coexist", () => {
+  const { container } = render(<><ContactForm embedded /><ContactForm embedded /></>);
+  const inputs = [...container.querySelectorAll("input[id],textarea[id]")];
+  expect(new Set(inputs.map((el) => el.id)).size).toBe(inputs.length);
+  expect(screen.getAllByLabelText(/Adınız Soyadınız/)).toHaveLength(2);
+});

@@ -89,6 +89,7 @@ export interface VariantPriceRow {
   unit: string;
   avgPrice: number;
   yoyPct: number | null;
+  priorYearAvgPrice?: number | null;
   yoyStatus?: "available" | "insufficient_history" | "insufficient_pairs";
   marketCount: number;
   observationCount: number;
