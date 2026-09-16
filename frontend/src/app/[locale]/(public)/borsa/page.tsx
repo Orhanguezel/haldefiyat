@@ -9,6 +9,7 @@ import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import ProductImage from "@/components/ui/ProductImage";
 import { getPageMetadata } from "@/lib/seo";
+import { categoryDescription, categoryTitle, fetchCategoryHeadline } from "@/lib/category-price-meta";
 import { productHref } from "@/lib/product-links";
 import PageContainer from "@/components/layout/PageContainer";
 
@@ -57,11 +58,15 @@ function withFallbackProducts(products: Product[]): Product[] {
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
+  const headline = await fetchCategoryHeadline("hububat");
   return getPageMetadata("borsa", {
     locale,
     pathname: "/borsa",
-    title: "Borsa ve Resmi Tarım Fiyatları | HaldeFiyat",
-    description: "Buğday, ekmeklik ve makarnalık buğday, arpa, mısır, çeltik, pirinç, yulaf, çavdar, ayçiçeği, pamuk, kırmızı ve yeşil mercimek, nohut ve kuru fasulye için TMO resmi alım fiyatları ile ticaret borsası fiyatları.",
+    title: categoryTitle("Borsa ve Resmi Tarım Fiyatları", headline),
+    description: categoryDescription(
+      "Buğday, arpa, mısır, çeltik, ayçiçeği, pamuk, mercimek, nohut ve kuru fasulye için TMO resmi alım ve ticaret borsası fiyatları.",
+      headline,
+    ),
   });
 }
 
