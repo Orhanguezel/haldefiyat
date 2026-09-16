@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { formatOgDate } from "@/lib/og-date";
 import { loadOgBrandAssets, OgBackground, OgBrand } from "@/lib/og-brand";
+import { getProductImage } from "@/lib/product-images";
 
 // KANONİK DİNAMİK OG REFERANSI (route handler — i18n bağımsız).
 // URL: /og/urun/[slug]. `/api/` nginx'te Fastify backend'e gittiği için OG
@@ -36,7 +37,25 @@ async function loadFont(): Promise<ArrayBuffer | null> {
   }
 }
 
-type ProductLite = { slug: string; nameTr?: string; displayName?: string; categorySlug?: string };
+type ProductLite = { slug: string; nameTr?: string; displayName?: string; categorySlug?: string; canonicalSlug?: string | null };
+
+/**
+ * Urunun kendi fotografi kapaga girer (public/images/urunler, 536 urunluk
+ * manifest). Satori uzak URL yerine data URI ile guvenilir calisir; dosya
+ * standalone build'de public/ dizinine sync ediliyor. Fotograf yoksa kapak
+ * eskisi gibi yalniz marka zeminiyle kurulur.
+ */
+async function loadProductPhoto(slug: string, canonicalSlug?: string | null): Promise<string | null> {
+  const path = getProductImage(slug, canonicalSlug ?? undefined);
+  if (!path) return null;
+  try {
+    const data = await readFile(join(process.cwd(), "public", path.replace(/^\//, "")));
+    const mime = /\.png$/i.test(path) ? "image/png" : /\.webp$/i.test(path) ? "image/webp" : "image/jpeg";
+    return `data:${mime};base64,${data.toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Urun adi ULKE KATALOGUNDAN okunur, sitemap filtresinden DEGIL.
@@ -77,10 +96,11 @@ async function fetchLatestDate(slug: string): Promise<string | undefined> {
 }
 
 /** Uzun urun adi (ornegin "Salcalik Domates") 88 punto ile kapaktan tasiyordu. */
-function titleFontSize(value: string): number {
-  if (value.length > 26) return 58;
-  if (value.length > 18) return 70;
-  return 88;
+function titleFontSize(value: string, hasPhoto: boolean): number {
+  const budget = hasPhoto ? 16 : 26;
+  if (value.length > budget + 8) return hasPhoto ? 50 : 58;
+  if (value.length > budget) return hasPhoto ? 62 : 70;
+  return hasPhoto ? 76 : 88;
 }
 
 /** Baslikta birim parantezi ("Limon (Kg)") arama diliyle uyusmaz — urun sayfasi da atiyor. */
@@ -96,6 +116,7 @@ export async function GET(_req: Request, { params }: Props) {
     loadFont(),
     loadOgBrandAssets(),
   ]);
+  const photo = await loadProductPhoto(slug, product?.canonicalSlug);
   const rawName = product?.displayName || product?.nameTr || "";
   const name: string = rawName ? cleanName(rawName) : "Hal Fiyatı";
   const category: string = product?.categorySlug ?? "sebze-meyve";
@@ -119,18 +140,39 @@ export async function GET(_req: Request, { params }: Props) {
         <OgBackground src={brandAssets.background} />
         <OgBrand logo={brandAssets.logo} />
 
+        {photo && (
+          <div
+            style={{
+              position: "absolute",
+              right: 72,
+              top: 125,
+              width: 380,
+              height: 380,
+              display: "flex",
+              borderRadius: 28,
+              overflow: "hidden",
+              border: "3px solid rgba(255,255,255,0.18)",
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={photo} alt="" width={380} height={380} style={{ width: 380, height: 380, objectFit: "cover" }} />
+          </div>
+        )}
+
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             marginTop: "auto",
             gap: 12,
+            // Fotograf sagda 380px yer kapliyor; metin sutunu altina girmesin.
+            maxWidth: photo ? 640 : undefined,
           }}
         >
           <div style={{ fontSize: 30, color: BRAND, fontWeight: 700 }}>
             Güncel Hal Fiyatı
           </div>
-          <div style={{ fontSize: titleFontSize(name), fontWeight: 800, lineHeight: 1.05 }}>
+          <div style={{ fontSize: titleFontSize(name, Boolean(photo)), fontWeight: 800, lineHeight: 1.05 }}>
             {name}
           </div>
           <div style={{ fontSize: 28, color: "#9fb0c8", display: "flex" }}>

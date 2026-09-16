@@ -28,7 +28,7 @@ export default function StandardBanner({ banner, href }: { banner: PublicBanner;
         {config.mediaKind === "radar" ? <span className={`${styles.radar} block`} aria-hidden="true" /> : <ResilientAdImage src={resolveImageUrl(media!)} alt={banner.alt || title} width={640} height={480} style={{ objectFit: config.imageFit || "cover", objectPosition: `${config.focalX ?? 50}% ${config.focalY ?? 50}%` }} />}
       </span> : null}
       <span className={styles.copy}>
-        {config.logoUrl ? <ResilientAdImage src={resolveImageUrl(config.logoUrl)} alt={banner.advertiser || ""} className={styles.logo} hideOnError /> : <span className={styles.brand}>{banner.advertiser || (listing ? "Sponsorlu ilan" : "Reklam")}</span>}
+        {config.logoUrl ? <ResilientAdImage src={resolveImageUrl(config.logoUrl)} alt={banner.advertiser || ""} className={styles.logo} width={160} height={32} hideOnError /> : <span className={styles.brand}>{banner.advertiser || (listing ? "Sponsorlu ilan" : "Reklam")}</span>}
         <strong className={styles.title}>{title}</strong>
         {description ? <span className={styles.description}>{description}</span> : null}
         <span className={styles.cta}>{banner.ctaLabel || "İncele"}<ArrowRight size={16} className="shrink-0" aria-hidden="true" /></span>

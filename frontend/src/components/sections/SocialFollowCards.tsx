@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -49,8 +50,12 @@ export default function SocialFollowCards({ whatsappUrl, facebookUrl, telegramUr
             className={`group flex min-w-0 flex-col rounded-2xl border border-black/10 p-5 shadow-sm transition-shadow hover:shadow-lg focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-[#FE7107] sm:p-6 ${surface}`}>
             <div className="mb-4 flex items-center justify-between gap-3">
               <span className="flex min-w-0 flex-col gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logohaldefiyat_light.png" alt="HaldeFiyat" width="154" height="58" className="h-auto w-[154px] max-w-full mix-blend-multiply" loading="lazy" />
+                {/* next/image ZORUNLU: ham <img> 1230x460'lik 134 KB'lik PNG'yi
+                    154px genislikte gostermek icin oldugu gibi indiriyordu
+                    (Lighthouse mobil, 16 Eyl 2026: tek basina 133 KB israf —
+                    sayfadaki en buyuk gorsel kalemi). next/image WebP'ye cevirip
+                    gosterilen olcuye gore yeniden boyutlandirir. */}
+                <Image src="/logohaldefiyat_light.png" alt="HaldeFiyat" width={154} height={58} sizes="154px" className="h-auto w-[154px] max-w-full mix-blend-multiply" loading="lazy" />
                 <span className={`text-[11px] font-bold tracking-wider ${ink}`}>{label}</span>
               </span>
               <span className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-white ${color}`}><Icon className="h-10 w-10" aria-hidden="true" /></span>

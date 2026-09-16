@@ -34,8 +34,12 @@ export default function FeaturedHomePrice({
     <Link
       href={productHref(row)}
       className="group mt-4 grid grid-cols-[auto_1fr] items-center gap-4 rounded-xl border border-(--color-border) bg-(--color-background) p-4 text-left shadow-(--shadow-card) sm:grid-cols-[auto_1fr_auto]"
-      aria-label={`${row.productName} Türkiye hal fiyatı ortalamasını incele`}
     >
+      {/* aria-label KASITLI OLARAK YOK: kartin gorunur metni ("Günün fiyatı ·
+          <ürün> · <tarih> · <n> hal ortalaması · ₺<fiyat>/<birim>") zaten
+          baglantinin ne oldugunu soyluyor. Elle yazilan etiket gorunur metni
+          icermedigi icin ekran okuyucu kullanicisi duydugu adi ekranda
+          bulamiyordu (Lighthouse label-content-name-mismatch, 16 Eyl 2026). */}
       {/* Fotograf hem tanima hizini artiriyor hem de kartin ne oldugunu tek
           bakista anlatiyor — urun gorsel kapsami %100 oldugu icin emoji'ye
           dusme riski pratikte yok. */}

@@ -1,6 +1,7 @@
 "use client";
 
 import { apiGet, apiPost, ApiError } from "@/lib/api-client";
+import { clearSessionMarker, hasSessionMarker, setSessionMarker } from "./auth-marker";
 import { getStoredAccessToken, setStoredAccessToken } from "@/lib/auth-token";
 
 const AUTH_STORAGE_KEY = "app-auth";
@@ -39,6 +40,7 @@ function emitAuthChanged() {
 
 function persistAuth(response: AuthResponse) {
   if (typeof window === "undefined") return response;
+  setSessionMarker();
   setStoredAccessToken(response.access_token);
   try { localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ user: response.user } satisfies StoredAuthPayload)); } catch { /* Cookie session remains available. */ }
   emitAuthChanged();
@@ -47,6 +49,7 @@ function persistAuth(response: AuthResponse) {
 
 export function clearStoredAuth() {
   if (typeof window === "undefined") return;
+  clearSessionMarker();
   setStoredAccessToken(null);
   try { localStorage.removeItem(AUTH_STORAGE_KEY); } catch { /* Storage may be unavailable. */ }
   emitAuthChanged();
@@ -131,6 +134,10 @@ export async function fetchCurrentUser() {
 export async function rehydrateAuthSession() {
   try {
     if (!getStoredAccessToken()) {
+      // Bu tarayicida hic oturum kurulmamissa bootstrap denenmez: cevap kesin
+      // 401 olur, api-client bunu bir de token/refresh ile tekrarlar ve her
+      // anonim ziyaret iki bosa istek + iki konsol hatasi uretir.
+      if (!hasSessionMarker()) return null;
       const session = await bootstrapGoogleSession();
       return session.user;
     }
