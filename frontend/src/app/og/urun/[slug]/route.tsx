@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { formatOgDate } from "@/lib/og-date";
 import { loadOgBrandAssets, OgBackground, OgBrand } from "@/lib/og-brand";
-import { getProductImage } from "@/lib/product-images";
+import { loadProductPhoto } from "@/lib/og-product-photo";
 
 // KANONİK DİNAMİK OG REFERANSI (route handler — i18n bağımsız).
 // URL: /og/urun/[slug]. `/api/` nginx'te Fastify backend'e gittiği için OG
@@ -38,24 +38,6 @@ async function loadFont(): Promise<ArrayBuffer | null> {
 }
 
 type ProductLite = { slug: string; nameTr?: string; displayName?: string; categorySlug?: string; canonicalSlug?: string | null };
-
-/**
- * Urunun kendi fotografi kapaga girer (public/images/urunler, 536 urunluk
- * manifest). Satori uzak URL yerine data URI ile guvenilir calisir; dosya
- * standalone build'de public/ dizinine sync ediliyor. Fotograf yoksa kapak
- * eskisi gibi yalniz marka zeminiyle kurulur.
- */
-async function loadProductPhoto(slug: string, canonicalSlug?: string | null): Promise<string | null> {
-  const path = getProductImage(slug, canonicalSlug ?? undefined);
-  if (!path) return null;
-  try {
-    const data = await readFile(join(process.cwd(), "public", path.replace(/^\//, "")));
-    const mime = /\.png$/i.test(path) ? "image/png" : /\.webp$/i.test(path) ? "image/webp" : "image/jpeg";
-    return `data:${mime};base64,${data.toString("base64")}`;
-  } catch {
-    return null;
-  }
-}
 
 /**
  * Urun adi ULKE KATALOGUNDAN okunur, sitemap filtresinden DEGIL.

@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { formatOgDate } from "@/lib/og-date";
 import { loadOgBrandAssets, OgBackground, OgBrand } from "@/lib/og-brand";
+import { loadProductPhoto } from "@/lib/og-product-photo";
 
 // DİNAMİK OG (route handler — i18n bağımsız), /og/urun/[slug] pattern'inin
 // şehir×ürün replikası. URL: /og/fiyat/[sehir]/[urun].
@@ -29,7 +30,7 @@ async function loadFont(): Promise<ArrayBuffer | null> {
 }
 
 type CityProductLite = {
-  pair?: { cityName?: string; productName?: string; unit?: string; marketName?: string };
+  pair?: { cityName?: string; productName?: string; productSlug?: string; unit?: string; marketName?: string };
   latest?: { recordedDate?: string; avgPrice?: number; minPrice?: number; maxPrice?: number } | null;
 };
 
@@ -47,10 +48,11 @@ async function fetchPair(sehir: string, urun: string): Promise<CityProductLite |
   }
 }
 
-function titleFontSize(value: string): number {
-  if (value.length > 30) return 62;
-  if (value.length > 22) return 74;
-  return 88;
+function titleFontSize(value: string, hasPhoto: boolean): number {
+  const budget = hasPhoto ? 14 : 22;
+  if (value.length > budget + 8) return hasPhoto ? 52 : 62;
+  if (value.length > budget) return hasPhoto ? 62 : 74;
+  return hasPhoto ? 74 : 88;
 }
 
 function formatTry(value: number): string {
@@ -60,6 +62,7 @@ function formatTry(value: number): string {
 export async function GET(_req: Request, { params }: Props) {
   const { sehir, urun } = await params;
   const [detail, font, brandAssets] = await Promise.all([fetchPair(sehir, urun), loadFont(), loadOgBrandAssets()]);
+  const photo = await loadProductPhoto(detail?.pair?.productSlug ?? urun);
 
   const cityName = detail?.pair?.cityName ?? "";
   const productName = detail?.pair?.productName ?? "";
@@ -90,9 +93,19 @@ export async function GET(_req: Request, { params }: Props) {
         <OgBackground src={brandAssets.background} />
         <OgBrand logo={brandAssets.logo} />
 
-        <div style={{ display: "flex", flexDirection: "column", marginTop: "auto", gap: 12 }}>
+        {photo && (
+          /* Sag yarida tam boy: Google/Twitter kare kirpimi merkezden alir,
+             merkez-sag urunle dolar; sol ustteki logo tek basina kalmaz. */
+          <div style={{ position: "absolute", right: 0, top: 0, width: 520, height: 630, display: "flex", overflow: "hidden" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={photo} alt="" width={520} height={630} style={{ width: 520, height: 630, objectFit: "cover" }} />
+            <div style={{ position: "absolute", left: 0, top: 0, width: 220, height: 630, display: "flex", background: `linear-gradient(90deg, ${INK} 0%, rgba(10,14,26,0) 100%)` }} />
+          </div>
+        )}
+
+        <div style={{ display: "flex", flexDirection: "column", marginTop: "auto", gap: 12, maxWidth: photo ? 640 : undefined }}>
           <div style={{ fontSize: 30, color: BRAND, fontWeight: 700 }}>Güncel Hal Fiyatı</div>
-          <div style={{ fontSize: titleFontSize(heading), fontWeight: 800, lineHeight: 1.05 }}>{heading}</div>
+          <div style={{ fontSize: titleFontSize(heading, Boolean(photo)), fontWeight: 800, lineHeight: 1.05 }}>{heading}</div>
           {price && (
             <div style={{ display: "flex", alignItems: "baseline", gap: 20 }}>
               <div style={{ fontSize: 64, fontWeight: 800, color: BRAND }}>{price}</div>
