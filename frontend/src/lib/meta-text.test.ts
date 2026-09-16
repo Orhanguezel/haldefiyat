@@ -21,3 +21,30 @@ describe("meta text compaction", () => {
     expect(result.endsWith("…")).toBe(true);
   });
 });
+
+describe("compactMetaTitle", () => {
+  it("kuyrugu butunuyle dusurur, kelimeyi ortasindan kesmez", () => {
+    const result = compactMetaTitle("Domates Fiyatları Bugün Kaç TL? 16 Eylül 2026 — Hal ve Toptan");
+
+    expect(result).toBe("Domates Fiyatları Bugün Kaç TL? 16 Eylül 2026");
+    expect(result).not.toContain("…");
+  });
+
+  it("birden fazla kuyruk varsa gerektigi kadarini dusurur", () => {
+    const result = compactMetaTitle("Elma Starking Fiyatları Bugün Kaç TL? 16 Eylül 2026 — Hal ve Toptan — HaldeFiyat");
+
+    expect(result).toBe("Elma Starking Fiyatları Bugün Kaç TL? 16 Eylül 2026");
+  });
+
+  it("sigan basligi oldugu gibi birakir", () => {
+    const fitting = "Soğan Fiyatları Bugün Kaç TL? 16 Eylül 2026 — Hal ve Toptan";
+    expect(compactMetaTitle(fitting)).toBe(fitting);
+  });
+
+  it("bas kismi tek basina sigmiyorsa eski kirpmaya doner", () => {
+    const result = compactMetaTitle(`${"Çok Uzun Ürün Adı ".repeat(6)}— Hal ve Toptan`);
+
+    expect(result.length).toBeLessThanOrEqual(60);
+    expect(result.endsWith("…")).toBe(true);
+  });
+});
