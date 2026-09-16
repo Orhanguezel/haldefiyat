@@ -60,7 +60,7 @@ export default async function RetailComparison({
       <p className="mb-4 text-xs leading-relaxed text-muted">
         Her zincir için son 3 gün içindeki en yeni doğrulanmış günlük raf örneği gösterilir;
         farklı günlerin fiyatları ortalanmaz. Market örnekleri tüm şubeleri veya Türkiye genelini
-        temsil etmez. Hal bazının günü, kalite ve ambalaj farklı olabilir. Perakende verisi destekleyicidir; HalDeFiyat
+        temsil etmez. Hal bazının günü, konum, kalite ve ambalaj eşleşmesi doğrulanmadığı için yüzde fark hesaplanmaz. Perakende verisi destekleyicidir; HalDeFiyat
         Endeksi&apos;ni veya hal ortalamasını sürmez. Kaynak çağrı limiti nedeniyle bazı zincir/ürünler
         bir gün eksik kalabilir. {derivedAverageCount > 0 ? (
           <>Hal bazının {derivedAverageCount}/{observationCount} kaydı min–maks orta noktasıdır; işlem hacmi ağırlıklı değildir.</>
@@ -71,7 +71,7 @@ export default async function RetailComparison({
         {rows.map((row) => {
           const chain = retailChainMeta(row.chainSlug);
           const price = row.numericPrice;
-          const markupPct = row.markupPct;
+
 
           return (
             <div
@@ -80,14 +80,13 @@ export default async function RetailComparison({
             >
               <div className="flex items-baseline justify-between gap-3">
                 <span className="text-sm font-semibold text-foreground">{chain.label}</span>
-                {markupPct != null ? <span className="font-(family-name:--font-mono) text-[11px] font-semibold text-(--color-brand)">
-                  {markupPct > 0 ? `+%${markupPct}` : `%${markupPct}`}
-                </span> : null}
+
               </div>
               <div className="mt-1 font-(family-name:--font-mono) text-lg font-bold text-foreground">
                 ₺{formatTr(price)}/{row.unit}
               </div>
               {row.productNameRaw ? <p className="mt-1 text-xs text-muted">{row.productNameRaw}</p> : null}
+              {row.productUrl?.startsWith("https://www.migros.com.tr/") ? <p className="mt-1 text-xs text-muted">E-ticaret gözlemi · Teslimat konumu belirtilmemiş</p> : null}
               {row.variant ? <p className="mt-1 text-xs text-muted">
                 {[row.variant.kind, row.variant.fat ? `Yağ: ${row.variant.fat}` : null,
                   row.variant.packageAmount ? `Paket: ${row.variant.packageAmount} ${row.variant.packageUnit}` : "Paket miktarı belirtilmemiş"].filter(Boolean).join(" · ")}
@@ -103,7 +102,7 @@ export default async function RetailComparison({
       <p className="mt-4 text-[11px] leading-relaxed text-muted">
         Hal fiyatı toptan ortalamadır; perakende zincir fiyatına ulaşırken nakliye, soğuk
         zincir, fire, paket/gramaj ve marka maliyetleri eklenir. Fark ürün ve döneme göre
-        geniş ölçüde değişebilir; bu oran kâr marjı veya fiyat tahmini değildir.
+        geniş ölçüde değişebilir; bu fiyatlar kâr marjı veya fiyat tahmini değildir.
       </p>
     </div>
   );

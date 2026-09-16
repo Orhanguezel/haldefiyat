@@ -20,6 +20,7 @@ const base = () => ({
   partyRole: "uretici",
   title: "50 ton kirmizi mercimek",
   productName: "Mercimek",
+  description: "Yeni mahsul mercimek, çuvallı teslim edilir.",
   quantityUnit: "ton",
   priceType: "sabit",
   priceUnit: "kg",
@@ -38,7 +39,7 @@ describe("listingCreateSchema — bos string toleransi", () => {
   it("doldurulmayan opsiyonel sayisal alanlar bos string olarak gelebilir", () => {
     const r = listingCreateSchema.safeParse({
       ...base(),
-      description: "", quality: "", packaging: "",
+      quality: "", packaging: "",
       quantity: "50", priceMin: "42", priceMax: "", halIndexPct: "", firmId: "",
     });
     expect(r.success).toBe(true);
@@ -92,3 +93,11 @@ describe("listingCreateSchema — gercek kurallar hala calisiyor", () => {
     if (!r.success) expect(r.error.issues.some((i) => i.message === "invalid_city")).toBe(true);
   });
 });
+
+for (const description of [undefined, null, "", "   "]) {
+  it(`rejects missing or blank description: ${String(description)}`, () => {
+    const result = listingCreateSchema.safeParse({...base(), priceMin:42, description});
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error.issues.some(i => i.path[0] === 'description')).toBe(true);
+  });
+}

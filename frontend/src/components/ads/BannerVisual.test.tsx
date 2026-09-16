@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 import type { PublicBanner } from "@/lib/banners";
+import StandardBanner from "./StandardBanner";
 import { bannerColumnsClass } from "./BannerSlot";
 import ResilientAdImage from "./ResilientAdImage";
 import TemplateBanner from "./TemplateBanner";
@@ -122,5 +123,25 @@ describe("İhracat Radarı reklamı", () => {
     render(<IhracatRadariBanner banner={ihracat({ caption: "Yaş meyve sebzede yurt dışı alıcı", ctaLabel: "Pazarı gör" })} href={null} sidebar={false} />);
     expect(screen.getByText("Yaş meyve sebzede yurt dışı alıcı")).toBeInTheDocument();
     expect(screen.getByText(/Pazarı gör/)).toBeInTheDocument();
+  });
+});
+
+
+describe("ortak reklam bileşeni", () => {
+  test("marka adı değişince tasarım dalı seçmez; içeriği ve ölçüm bağlantısını korur", () => {
+    for (const advertiser of ["Yeni Marka", "VistaSeeds", "GZL Teknoloji", "İhracat Radarı"]) {
+      const { unmount } = render(<StandardBanner banner={banner({advertiser, caption:"Ortak başlık", creativeConfig:{logoUrl:"/test-logo.svg"}})} href="/api/v1/banners/99/click" />);
+      expect(screen.getByText("Ortak başlık")).toBeInTheDocument();
+      expect(screen.getByAltText(advertiser)).toHaveAttribute("src", "/test-logo.svg");
+      expect(screen.getByRole("link")).toHaveAttribute("href", "/api/v1/banners/99/click");
+      unmount();
+    }
+  });
+  test("kırık medya ve metin uzunluğu CTA veya sponsor etiketini kaldırmaz", () => {
+    render(<StandardBanner banner={banner({imageUrl:"/broken.webp",caption:"Uzun başlık ".repeat(10),format:"tall"})} href="/api/v1/banners/99/click" />);
+    fireEvent.error(screen.getByAltText("Sponsor reklamı"));
+    expect(screen.getByText("Sponsorlu")).toBeInTheDocument();
+    expect(screen.getByText("İncele")).toBeInTheDocument();
+    expect(screen.getByRole("img",{name:"Sponsor reklamı"})).toHaveTextContent("Görsel kullanılamıyor");
   });
 });

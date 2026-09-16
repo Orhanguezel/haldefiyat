@@ -1,0 +1,10 @@
+{
+  "source": "Nginx access logs",
+  "startDate": "2026-08-18",
+  "endDate": "2026-09-13",
+  "days": 27,
+  "checkedAt": "2026-09-14T23:05:51.547996+00:00",
+  "dailyAverage": 3800,
+  "pageRequests": 101588,
+  "timezone": "UTC"
+}

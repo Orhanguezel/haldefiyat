@@ -14,20 +14,19 @@
  * UNIQUE (product_id, chain_slug, recorded_date) → ON DUPLICATE KEY UPDATE
  */
 
-import { db } from "@/db/client";
+import { db, pool } from "@/db/client";
+import { RETAIL_PILOT_SLUGS, RETAIL_PILOT_QUERIES, retailDay } from "../retail-pilot";
+import { RetailPilotStore, duePilotQueries } from "../retail-pilot-store";
 import { hfProducts } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { turkishToAscii, getAliasMap, invalidateAliasCache } from "../normalizer";
 import { MARKETFIYATI_SOURCE, retailTitleMatches, retailUnit, verifiedDepot, depotRejectionReason, type DepotEvidence } from "../retail-source-policy";
 import { upsertRetailPriceRow } from "@/modules/prices/repository";
 
-const API_BASE = "https://api.marketfiyati.org.tr/api/v2";
-const UA =
-  "HaldeFiyat/1.0 (+https://haldefiyat.com/metodoloji)";
+import { createMarketfiyatiSearch } from "./marketfiyati-search";
 const TARGET_MENU_CATEGORY = "Meyve ve Sebze";
 const PAGE_SIZE = 25;
 const MAX_PAGES_PER_KEYWORD = 4;
-const REQUEST_TIMEOUT_MS = 20000;
 
 const SUPPORTED_CHAINS = ["a101", "bim", "carrefour", "migros", "tarim_kredi", "sok"] as const;
 type ChainSlug = (typeof SUPPORTED_CHAINS)[number];
@@ -96,48 +95,35 @@ interface MfSearchResponse {
   content?: MfProduct[];
 }
 
-async function fetchSearchPage(
-  keyword: string,
-  page: number,
-): Promise<{ data: MfSearchResponse | null; throttled: boolean; error?: string }> {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
-  try {
-    const res = await fetch(`${API_BASE}/search`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "User-Agent": UA },
-      body: JSON.stringify({ keywords: keyword, pages: page, size: PAGE_SIZE }),
-      signal: ctrl.signal,
-    });
-    if (!res.ok) {
-      return { data: null, throttled: res.status === 403 || res.status === 429, error: `SEARCH_HTTP_${res.status}` };
-    }
-    return { data: (await res.json()) as MfSearchResponse, throttled: false };
-  } catch (error) {
-    const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
-    const category = ["ECONNRESET", "ETIMEDOUT", "ECONNREFUSED", "ENOTFOUND"].includes(code) ? code : "NETWORK_OR_RESPONSE";
-    return { data: null, throttled: false, error: `SEARCH_${category}_ERROR` };
-  } finally {
-    clearTimeout(timer);
-  }
-}
+const fetchSearchPage = createMarketfiyatiSearch<MfSearchResponse>();
 
-async function searchKeyword(keyword: string): Promise<{
+async function searchKeyword(keyword: string, store: RetailPilotStore): Promise<{
   products: MfProduct[];
   errors: string[];
   calls: number;
   throttled: boolean;
+  unavailable?: boolean;
 }> {
   const all: MfProduct[] = [];
   const errors: string[] = [];
   let calls = 0;
   for (let page = 0; page < MAX_PAGES_PER_KEYWORD; page++) {
-    const response = await fetchSearchPage(keyword, page);
-    calls++;
+    const response = await store.page(keyword, page, async () => {
+      const response = await fetchSearchPage(keyword, page);
+      if (response.data && !Array.isArray(response.data.content))
+        return { ...response, data: null, error: "SEARCH_INVALID_RESPONSE", unavailable: true };
+      return response;
+    });
+    calls += response.calls;
     if (response.error) errors.push(response.error);
     if (response.throttled) return { products: all, calls, errors, throttled: true };
+    if (response.unavailable) return { products: all, calls, errors, throttled: false, unavailable: true };
     const data = response.data;
-    if (!data?.content?.length) break;
+    if (!data || !Array.isArray(data.content)) {
+      if (!errors.length) errors.push("SEARCH_INVALID_RESPONSE");
+      return { products: all, calls, errors, throttled: false, unavailable: true };
+    }
+    if (!data.content.length) break;
     all.push(...data.content);
     if (data.content.length < PAGE_SIZE) break;
   }
@@ -173,7 +159,7 @@ async function resolveProductId(rawTitle: string): Promise<number | null> {
   const exactOverrides: Record<string, string> = { "sogan": "sogan-kuru", "kuru sogan": "sogan-kuru" };
   const slug = exactOverrides[turkishToAscii(cleaned)] ?? aliasMap.get(turkishToAscii(cleaned));
 
-  if (!slug || !retailTitleMatches(slug, rawTitle)) return null;
+  if (!slug || !RETAIL_PILOT_SLUGS.has(slug) || !retailTitleMatches(slug, rawTitle)) return null;
   const rows = await db
     .select({ id: hfProducts.id, unit: hfProducts.unit })
     .from(hfProducts)
@@ -183,7 +169,7 @@ async function resolveProductId(rawTitle: string): Promise<number | null> {
 }
 
 // (chain, productId) → en yeni kaynak günündeki en düşük doğrulanmış teklif
-type Bucket = { price: number; productNameRaw: string; unit: string; recordedDate: string };
+type Bucket = { price: number; productNameRaw: string; unit: string; recordedDate: string; evidence: { sourceProductId: string; depot: DepotInfo } };
 const bucketKey = (chain: ChainSlug, productId: number) => `${chain}::${productId}`;
 
 // Küratörlü perakende ürünü (süt/et) — yoksa oluştur, id döndür.
@@ -211,6 +197,8 @@ export interface MarketfiyatiEtlResult {
   keywordCount: number;
   apiCallCount: number;
   throttled: boolean;
+  sourceUnavailable?: boolean;
+  pilot?: { products: number; totalQueries: number; selectedQueries: string[]; completedQueries: number; cachedPages: number; startedAt: string; noWork: boolean };
   sourceDates: string[];
   rejectedEvidence: number;
   rejectionReasons: Record<string, number>;
@@ -222,11 +210,26 @@ export interface MarketfiyatiEtlResult {
 
 export async function runMarketfiyatiEtl(
   targetDate?: string,
-  options: { dryRun?: boolean } = {},
+  options: { dryRun?: boolean; executionKind?: "scheduled" | "manual" } = {},
 ): Promise<MarketfiyatiEtlResult> {
+  const conn = await pool.getConnection();
+  try {
+    const [rows]: any = await conn.query("SELECT GET_LOCK('hal-retail-pilot-v1',0) AS acquired");
+    if (Number(rows[0]?.acquired) !== 1) throw new Error("RETAIL_PILOT_ALREADY_RUNNING");
+    return await runPilotBatch(targetDate, options);
+  } finally {
+    try { await conn.query("SELECT RELEASE_LOCK('hal-retail-pilot-v1')"); } finally { conn.release(); }
+  }
+}
+
+async function runPilotBatch(targetDate: string | undefined,
+  options: { dryRun?: boolean; executionKind?: "scheduled" | "manual" }): Promise<MarketfiyatiEtlResult> {
   invalidateAliasCache();
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = retailDay();
+  const store = await new RetailPilotStore(undefined, !options.dryRun).open();
+  const selectedKeywords = new Set(duePilotQueries(store.state, store.now));
+  const outcomes: Array<{ keyword: string; products: number; error?: string }> = [];
   if (targetDate && targetDate !== today) throw new Error("Marketfiyati historical backfill is not supported");
   const result: MarketfiyatiEtlResult = {
     inserted: 0,
@@ -248,33 +251,21 @@ export async function runMarketfiyatiEtl(
     sample: [],
   };
 
-  // 1) Keyword listesi: hf_products'taki taze sebze + meyve (kg birimli)
-  const products = await db
-    .select({ slug: hfProducts.slug, nameTr: hfProducts.nameTr, unit: hfProducts.unit, category: hfProducts.categorySlug, canonical: hfProducts.canonicalSlug })
-    .from(hfProducts)
-    .where(eq(hfProducts.isActive, 1));
-
-  const keywords = new Set<string>();
-  for (const p of products) {
-    if (p.unit !== "kg" || p.canonical || !["sebze", "meyve", "sebze-meyve"].includes(p.category ?? "")) continue;
-    const base = p.nameTr
-      .replace(/\(.*?\)/g, "")
-      .replace(/\s+/g, " ")
-      .trim()
-      .toLocaleLowerCase("tr-TR");
-    if (base.length >= 3) keywords.add(base);
-  }
-  result.keywordCount = keywords.size;
-
-  if (keywords.size === 0) {
-    result.errors.push("hf_products içinde kg-bazli sebze/meyve bulunamadı");
+  const extras = new Set(RETAIL_EXTRA.map(x => x.keyword));
+  const keywords = [...selectedKeywords].filter(keyword => !extras.has(keyword));
+  result.keywordCount = selectedKeywords.size;
+  result.pilot = { products: 40, totalQueries: RETAIL_PILOT_QUERIES.length,
+    selectedQueries: [...selectedKeywords], completedQueries: RETAIL_PILOT_QUERIES.filter(k => store.state.keywords[k]?.completedDay === today).length, cachedPages: 0,
+    startedAt: store.state.startedAt, noWork: selectedKeywords.size === 0 };
+  if (!selectedKeywords.size) {
+    await store.save(result, options.executionKind ?? "manual");
     return result;
   }
 
   // 2) Her keyword için search → menu_category filter → bucket
   const buckets = new Map<string, Bucket>();
   // Keep one real offer, not an average labelled with the first SKU's title.
-  const collect = (chain: ChainSlug, productId: number, title: string, d: DepotInfo, unit: string) => {
+  const collect = (chain: ChainSlug, productId: number, title: string, d: DepotInfo, unit: string, sourceProductId: string) => {
     const offer = verifiedDepot(d, unit, today);
     if (!offer) {
       result.skipped++; result.rejectedEvidence++;
@@ -286,7 +277,7 @@ export async function runMarketfiyatiEtl(
     const existing = buckets.get(key);
     if (!existing || offer.date > existing.recordedDate ||
         (offer.date === existing.recordedDate && offer.price < existing.price)) {
-      buckets.set(key, { price: offer.price, productNameRaw: title, unit: offer.unit, recordedDate: offer.date });
+      buckets.set(key, { price: offer.price, productNameRaw: title, unit: offer.unit, recordedDate: offer.date, evidence: { sourceProductId, depot: d } });
     }
   };
 
@@ -294,8 +285,9 @@ export async function runMarketfiyatiEtl(
   // döngüsünden ÖNCE çalışır — marketfiyati ~750 çağrıdan sonra IP'yi throttle'layıp boş
   // döndürüyor; kürasyonlu az sayıda keyword taze rate budget ile veri alsın diye başta.
   let throttleDetected = false;
-  for (const x of RETAIL_EXTRA) {
-    const search = await searchKeyword(x.keyword);
+  for (const x of RETAIL_EXTRA.filter(x => selectedKeywords.has(x.keyword))) {
+    const search = await searchKeyword(x.keyword, store);
+    outcomes.push({ keyword: x.keyword, products: search.products.length, error: search.errors[0] });
     result.apiCallCount += search.calls;
     result.searchFailures += search.errors.length;
     if (search.errors.length) result.searchFailuresByKeyword[x.keyword] = search.errors;
@@ -304,6 +296,10 @@ export async function runMarketfiyatiEtl(
       throttleDetected = true;
       result.throttled = true;
       result.errors.push(`marketfiyati throttle: kuratorlu dikey ${x.slug} sirasinda durduruldu`);
+    }
+    if (search.unavailable) {
+      throttleDetected = true;
+      result.sourceUnavailable = true;
     }
     const found = search.products;
     const productId = await findOrCreateRetailProduct(x, options.dryRun);
@@ -316,7 +312,7 @@ export async function runMarketfiyatiEtl(
       for (const d of p.productDepotInfoList ?? []) {
         const chain = d.marketAdi as ChainSlug;
         if (!SUPPORTED_CHAINS.includes(chain)) continue;
-        collect(chain, productId, p.title, d, x.unit);
+        collect(chain, productId, p.title, d, x.unit, p.id);
       }
     }
     if (throttleDetected) break;
@@ -324,7 +320,8 @@ export async function runMarketfiyatiEtl(
 
   // 2b) Fresh produce (sebze-meyve) — çok sayıda keyword; throttle riski en son burada.
   for (const keyword of throttleDetected ? [] : keywords) {
-    const search = await searchKeyword(keyword);
+    const search = await searchKeyword(keyword, store);
+    outcomes.push({ keyword, products: search.products.length, error: search.errors[0] });
     result.apiCallCount += search.calls;
     result.searchFailures += search.errors.length;
     if (search.errors.length) result.searchFailuresByKeyword[keyword] = search.errors;
@@ -333,6 +330,7 @@ export async function runMarketfiyatiEtl(
       result.throttled = true;
       result.errors.push(`marketfiyati throttle: fresh-produce ${keyword} sirasinda durduruldu`);
     }
+    if (search.unavailable) result.sourceUnavailable = true;
     const found = search.products;
 
     for (const p of found) {
@@ -350,10 +348,10 @@ export async function runMarketfiyatiEtl(
       for (const d of depots) {
         const chain = d.marketAdi as ChainSlug;
         if (!SUPPORTED_CHAINS.includes(chain)) continue;
-        collect(chain, productId, p.title, d, "kg");
+        collect(chain, productId, p.title, d, "kg", p.id);
       }
     }
-    if (search.throttled) break;
+    if (search.throttled || search.unavailable) break;
   }
 
 
@@ -364,8 +362,9 @@ export async function runMarketfiyatiEtl(
 
     result.verifiedOffers++;
     result.offersByChain[chain!] = (result.offersByChain[chain!] ?? 0) + 1;
-    if (result.sample.length < 12) result.sample.push({ productId, chain: chain!, ...b });
+    if (result.sample.length < 12) { const { evidence, ...sample } = b; result.sample.push({ productId, chain: chain!, ...sample }); }
     if (options.dryRun) continue;
+    await store.observation({ source: "marketfiyati", productId, chain, ...b });
     try {
       await upsertRetailPriceRow({ productId, chainSlug: chain!, price: b.price, unit: b.unit,
         productNameRaw: b.productNameRaw, productUrl: MARKETFIYATI_SOURCE, recordedDate: b.recordedDate });
@@ -381,5 +380,10 @@ export async function runMarketfiyatiEtl(
 
   result.sourceDates = [...new Set([...buckets.values()].map(b => b.recordedDate))].sort();
   if (result.verifiedOffers === 0) result.errors.push("NO_VERIFIED_RETAIL_OBSERVATIONS");
+  const writeError = result.writeFailures.RETAIL_WRITE_ERROR ? "RETAIL_WRITE_ERROR" : undefined;
+  for (const outcome of outcomes) store.finish(outcome.keyword, outcome.products, outcome.error ?? writeError);
+  result.pilot!.completedQueries = RETAIL_PILOT_QUERIES.filter(k => store.state.keywords[k]?.completedDay === today).length;
+  result.pilot!.cachedPages = store.cachedPages;
+  await store.save(result, options.executionKind ?? "manual");
   return result;
 }

@@ -108,6 +108,9 @@ export default async function CityProductPage({ params }: Props) {
       {stale && <p className="my-4 rounded-xl border border-border p-4 font-semibold">Bu kayıt güncel değildir. Son kaynak tarihi {dateTr}; yeni fiyat doğrulanana kadar arşiv olarak gösterilir.</p>}
       <CityProductKeyNumbers d={d} />
 
+      <ProductAdvertisingBanner productSlug={pair.productSlug} citySlug={pair.citySlug} />
+
+
       <section className="mt-12" aria-label="Fiyat geçmişi">
         <h2 className="flex items-center gap-2 font-(family-name:--font-display) text-2xl font-black text-(--color-foreground)">
           <LineChart className="h-6 w-6 text-(--color-brand)" /> {pair.cityName}'da son 90 günün seyri
@@ -116,7 +119,6 @@ export default async function CityProductPage({ params }: Props) {
       </section>
 
       <ProductTradeBanner productSlug={pair.productSlug} productName={pair.productName} citySlug={pair.citySlug} cityName={pair.cityName} />
-      <ProductAdvertisingBanner productSlug={pair.productSlug} citySlug={pair.citySlug} />
       <ProductListings productSlug={pair.productSlug} productName={pair.productName} />
       <ProductGuideLinks productSlug={pair.productSlug} />
 

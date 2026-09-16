@@ -1,3 +1,5 @@
+import { pool } from "@/db/client";
+import { adLayoutError, adSlotProfile, adFormat } from "../../../../shared/banner-layout.mjs";
 import type { FastifyInstance } from "fastify";
 import type { FastifyRequest } from "fastify";
 import { createHash } from "node:crypto";
@@ -202,6 +204,8 @@ export const bannerUpsertSchema = z.object({
     imageWidth: z.coerce.number().int().positive().optional(),
     imageHeight: z.coerce.number().int().positive().optional(),
     imageBytes: z.coerce.number().int().nonnegative().optional(),
+    action: z.enum(["link", "quote"]).optional(),
+    mediaKind: z.enum(["image", "radar"]).optional(),
   }).nullable().optional(),
   qualityOverrideReason: z.string().trim().max(500).nullable().optional(),
   listingId: z.coerce.number().int().positive().nullable().optional(),
@@ -218,6 +222,8 @@ export const bannerUpsertSchema = z.object({
   caption: z.string().trim().max(300).nullable().optional(),
   ctaLabel: z.string().trim().max(60).nullable().optional(),
   device: deviceSchema.optional(),
+  format: z.enum(["full", "half", "third", "tall"]).optional(),
+  gridColumn: z.coerce.number().int().min(1).max(6).optional(),
   desktopRow: z.coerce.number().int().min(1).max(20).optional(),
   desktopColumns: z.coerce.number().int().min(1).max(3).optional(),
   weight: z.coerce.number().int().min(1).max(1000).optional(),
@@ -317,13 +323,14 @@ function asciiPdf(lines: string[]): Buffer {
   return Buffer.from(pdf);
 }
 
-async function slotValidationError(input: { position: string; sourceType?: string; type?: string; desktopColumns?: number }) {
+async function slotValidationError(input: { position: string; sourceType?: string; type?: string; desktopColumns?: number; format?: string; desktopRow?: number; gridColumn?: number }) {
   const slot = await getAdSlot(input.position);
   if (!slot) return "Tanimli olmayan reklam slotu";
   if (!slot.isActive) return "Secilen reklam slotu satis ve yeni yayinlara kapali";
   const sourceType = input.sourceType ?? (input.type === "code" ? "code" : "custom");
   if (!slot.sourceTypes.includes(sourceType as "custom" | "listing" | "firm" | "code")) return "Bu slot secilen reklam kaynagini desteklemiyor";
-  if ((input.desktopColumns ?? slot.desktopCapacity) > slot.desktopCapacity) return `Bu slot masaustunde en fazla ${slot.desktopCapacity} reklam destekliyor`;
+  const layoutError = adLayoutError(input);
+  if (layoutError) return layoutError;
   return null;
 }
 
@@ -346,14 +353,14 @@ async function creativeQualityReport(input: {
 }) {
   const items: QualityItem[] = [];
   const config = input.creativeConfig ?? {};
-  const slot = await getAdSlot(input.position);
-  if (input.type !== "code" && input.sourceType === "custom" && !input.imageUrl && input.creativeTemplate === "image") {
-    items.push({ code: "image_missing", message: "Standart görsel reklamda görsel zorunludur.", severity: "error" });
+  if (input.type !== "code" && !input.title?.trim() && !input.caption?.trim()) {
+    items.push({ code: "image_missing", message: "Reklam başlığı zorunludur.", severity: "error" });
   }
   if (input.type !== "code" && !input.alt?.trim()) items.push({ code: "alt_missing", message: "Alternatif metin zorunludur.", severity: "error" });
   if (input.linkUrl) {
     try {
-      const url = new URL(input.linkUrl);
+      if (input.linkUrl.startsWith("//")) throw new Error("Protocol-relative URL is not allowed");
+      const url = new URL(input.linkUrl, "https://haldefiyat.com");
       if (url.protocol !== "https:") items.push({ code: "link_https", message: "Hedef URL HTTPS kullanmalıdır.", severity: "error" });
     } catch {
       items.push({ code: "link_invalid", message: "Hedef URL geçerli değil.", severity: "error" });
@@ -367,26 +374,17 @@ async function creativeQualityReport(input: {
       }
     }
   }
-  if (input.linkUrl && input.rel !== "sponsored nofollow noopener") items.push({ code: "rel_invalid", message: "Sponsorlu link rel değeri eksik veya hatalı.", severity: "error" });
-  if ((input.caption?.length ?? 0) > 90) items.push({ code: "headline_long", message: "Ana başlık mobil görünüm için fazla uzun.", severity: "warning" });
-  if ((input.ctaLabel?.length ?? 0) > 28) items.push({ code: "cta_long", message: "CTA metni taşabilir.", severity: "warning" });
+  if (input.linkUrl && !["sponsored", "nofollow"].every(token => (input.rel ?? "").split(/\s+/).includes(token))) items.push({ code: "rel_invalid", message: "Sponsorlu link rel değeri eksik veya hatalı.", severity: "error" });
+  if (((input.caption || input.title || "").length) > 90) items.push({ code: "headline_long", message: "Ana başlık mobil görünüm için fazla uzun.", severity: "error" });
+  if ((input.ctaLabel?.length ?? 0) > 28) items.push({ code: "cta_long", message: "CTA en fazla 28 karakter olabilir.", severity: "error" });
   if (config.imageBytes && config.imageBytes > 1_500_000) items.push({ code: "image_heavy", message: "Görsel 1,5 MB sınırını aşıyor.", severity: "warning" });
-  const size = slot?.recommendedSize?.match(/(\d+)[x×](\d+)/i);
-  if (size && config.imageWidth && config.imageHeight) {
-    const recommendedWidth = Number(size[1]);
-    const recommendedHeight = Number(size[2]);
-    if (config.imageWidth < recommendedWidth || config.imageHeight < recommendedHeight) items.push({ code: "image_small", message: `Görsel önerilen ${recommendedWidth}×${recommendedHeight} ölçüsünden küçük.`, severity: "warning" });
-    const ratioDiff = Math.abs(config.imageWidth / config.imageHeight - recommendedWidth / recommendedHeight) / (recommendedWidth / recommendedHeight);
-    if (ratioDiff > 0.2) items.push({ code: "ratio_mismatch", message: "Görsel oranı slot oranıyla uyumlu değil.", severity: "warning" });
-  }
   if (config.backgroundColor && config.textColor) {
     const left = colorLuminance(config.backgroundColor);
     const right = colorLuminance(config.textColor);
     const contrast = (Math.max(left, right) + 0.05) / (Math.min(left, right) + 0.05);
     if (contrast < 4.5) items.push({ code: "low_contrast", message: "Metin ve arka plan kontrastı okunabilirlik için düşük.", severity: "warning" });
   }
-  if (input.creativeTemplate === "leaderboard" && slot?.mobileBehavior !== "hide") items.push({ code: "mobile_layout", message: "Leaderboard mobilde ayrıca kontrol edilmelidir.", severity: "warning" });
-  if (config.animation) items.push({ code: "animation_review", message: "Animasyon reduced-motion modunda kapatılır; yayın öncesi hızı gözle kontrol edin.", severity: "warning" });
+
   items.push(...await validateBannerSource(input));
   return {
     status: items.some((item) => item.severity === "error") ? "error" : items.length ? "warning" : "passed",
@@ -423,6 +421,7 @@ function publicBanner(row: NonNullable<Awaited<ReturnType<typeof pickActiveForPo
     creativeTemplate: row.creativeTemplate,
     creativeConfig: row.creativeConfig,
     device: row.device,
+    format: row.format, gridColumn: row.gridColumn,
     desktopRow: row.desktopRow,
     desktopColumns: row.desktopColumns,
   };
@@ -700,6 +699,26 @@ export async function registerBanners(app: FastifyInstance) {
 }
 
 export async function registerBannersAdmin(app: FastifyInstance) {
+  // Queue locally before taking a DB connection, so waiting editors cannot exhaust the pool.
+  let queue: Promise<void> = Promise.resolve();
+  const locks = new WeakMap<FastifyRequest, { conn: Awaited<ReturnType<typeof pool.getConnection>>; next: () => void }>();
+  app.addHook("preHandler", async (req, reply) => {
+    if (!["POST","PATCH","DELETE"].includes(req.method) || !/\/banners(?:\/(?:\d+|:id))?$/.test(req.routeOptions.url ?? "")) return;
+    const previous = queue;
+    let next!: () => void;
+    queue = new Promise<void>(resolve => { next = resolve; });
+    await previous;
+    let conn: Awaited<ReturnType<typeof pool.getConnection>> | undefined;
+    try {
+      conn = await pool.getConnection();
+      const [rows]: any = await conn.query("SELECT GET_LOCK('hal-banner-layout-v1',10) acquired");
+      if (Number(rows[0]?.acquired) !== 1) { conn.release(); next(); return reply.code(409).send({ error:"Başka bir reklam güncelleniyor; tekrar deneyin." }); }
+      locks.set(req,{conn,next});
+    } catch (error) { conn?.release(); next(); throw error; }
+  });
+  const release = async (req: FastifyRequest) => { const lock=locks.get(req); if (!lock) return; locks.delete(req); try { await lock.conn.query("SELECT RELEASE_LOCK('hal-banner-layout-v1')"); } finally { lock.conn.release(); lock.next(); } };
+  app.addHook("onResponse", async req => { await release(req); });
+  app.addHook("onError", async req => { await release(req); });
   app.get<{ Querystring: { status?: string } }>("/banners/self-service-requests", async (req, reply) => {
     return reply.send({ items: await listAdminSelfServiceRequests(req.query.status) });
   });
@@ -807,6 +826,11 @@ export async function registerBannersAdmin(app: FastifyInstance) {
       isActive: z.boolean().optional(),
     }).safeParse(req.body ?? {});
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz slot ayarlari", issues: parsed.error.issues });
+    const profile = adSlotProfile(req.params.slotKey);
+    const expectedCapacity = profile.formats.length === 1 ? 1 : profile.columns === 2 ? 1 : 3;
+    if ((parsed.data.desktopCapacity !== undefined && parsed.data.desktopCapacity !== expectedCapacity) ||
+        (parsed.data.mobileBehavior !== undefined && parsed.data.mobileBehavior !== "stack"))
+      return reply.code(400).send({ error: "Alan geometrisi ortak reklam standardı tarafından belirlenir." });
     const before = await getAdSlot(req.params.slotKey);
     if (!(await updateAdSlot(req.params.slotKey, parsed.data))) return reply.status(404).send({ error: "Slot bulunamadi" });
     const after = await getAdSlot(req.params.slotKey);
@@ -894,6 +918,7 @@ export async function registerBannersAdmin(app: FastifyInstance) {
   app.post("/banners/pricing/quote", async (req, reply) => {
     const parsed = z.object({
       slotKey: positionSchema,
+      format: z.enum(["full","half","third","tall"]).optional(),
       device: deviceSchema.default("all"),
       durationDays: z.coerce.number().int().min(1).max(3650),
       startAt: z.string().date().nullable().optional(),

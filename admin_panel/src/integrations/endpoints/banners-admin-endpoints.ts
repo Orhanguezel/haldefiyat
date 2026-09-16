@@ -1,3 +1,4 @@
+import { AD_FORMATS, adSlotProfile } from "../../../../shared/banner-layout.mjs";
 import { baseApi } from '@/integrations/base-api';
 
 export type BannerType = 'image' | 'code';
@@ -25,21 +26,21 @@ export type BannerPosition =
   | 'firm_detail_footer';
 
 export const BANNER_POSITIONS: { value: BannerPosition; label: string; size: string }[] = [
-  { value: 'global_top', label: 'TÜM SAYFALAR — üst (header altı)', size: 'Yatay 970×90' },
-  { value: 'global_footer', label: 'TÜM SAYFALAR — footer üstü', size: 'Yatay 970×90' },
-  { value: 'home_ticker_below', label: 'Anasayfa — ticker altı', size: 'Yatay 970×90 (mobil 320×100)' },
-  { value: 'home_mid', label: 'Anasayfa — orta', size: 'Yatay 970×90' },
-  { value: 'home_footer_top', label: 'Anasayfa — footer üstü', size: 'Yatay 970×90' },
-  { value: 'prices_top', label: 'Fiyatlar — üst şerit', size: 'Yatay 970×90' },
-  { value: 'prices_sidebar', label: 'Fiyatlar — yan sütun', size: 'MPU 300×250 / 300×600' },
-  { value: 'analiz_inline', label: 'Analiz — yazı içi', size: 'İçerik 728×90 / responsive' },
-  { value: 'analiz_sidebar', label: 'Analiz — yan sütun', size: 'MPU 300×250' },
-  { value: 'urun_sidebar', label: 'Ürün detay — yan sütun', size: 'MPU 300×250' },
-  { value: 'hal_sidebar', label: 'Hal detay — yan sütun', size: 'MPU 300×250' },
-  { value: 'listing_detail_sidebar', label: 'İlan detay — yan sütun', size: 'MPU 300×250' },
-  { value: 'firm_detail_sidebar', label: 'Firma detay — yan sütun', size: 'MPU 300×250' },
-  { value: 'firm_detail_footer', label: 'Firma detay — içerik altı', size: 'Yatay 970×90 / iki kart' },
-];
+  { value: 'global_top', label: 'TÜM SAYFALAR — üst (header altı)' },
+  { value: 'global_footer', label: 'TÜM SAYFALAR — footer üstü' },
+  { value: 'home_ticker_below', label: 'Anasayfa — ticker altı' },
+  { value: 'home_mid', label: 'Anasayfa — orta' },
+  { value: 'home_footer_top', label: 'Anasayfa — footer üstü' },
+  { value: 'prices_top', label: 'Fiyatlar — üst şerit' },
+  { value: 'prices_sidebar', label: 'Fiyatlar — yan sütun' },
+  { value: 'analiz_inline', label: 'Analiz — yazı içi' },
+  { value: 'analiz_sidebar', label: 'Analiz — yan sütun' },
+  { value: 'urun_sidebar', label: 'Ürün detay — yan sütun' },
+  { value: 'hal_sidebar', label: 'Hal detay — yan sütun' },
+  { value: 'listing_detail_sidebar', label: 'İlan detay — yan sütun' },
+  { value: 'firm_detail_sidebar', label: 'Firma detay — yan sütun' },
+  { value: 'firm_detail_footer', label: 'Firma detay — içerik altı' },
+].map(item => ({ ...item, value:item.value as BannerPosition, size:adSlotProfile(item.value).formats.map(format => `${AD_FORMATS[format].previewWidth}×${AD_FORMATS[format].rows === 2 ? 576 : 280}`).join(" / ") + "; mobil 120 px" }));
 
 export interface BannerInventoryItem {
   position: BannerPosition;
@@ -95,9 +96,12 @@ export interface AdCalendarBooking {
     logoUrl?: string; backgroundImageUrl?: string; description?: string;
     focalX?: number; focalY?: number; imageFit?: 'cover' | 'contain';
     imageWidth?: number; imageHeight?: number; imageBytes?: number;
+    action?: "link" | "quote"; mediaKind?: "image" | "radar"; mobileImageUrl?: string;
   } | null;
   qualityOverrideReason: string | null;
   device: BannerDevice;
+  format: "full" | "half" | "third" | "tall";
+  gridColumn: number;
   desktopRow: number;
   desktopColumns: number;
   startAt: string | null;
@@ -217,6 +221,7 @@ export interface BannerAdmin {
     logoUrl?: string; backgroundImageUrl?: string; description?: string;
     focalX?: number; focalY?: number; imageFit?: 'cover' | 'contain';
     imageWidth?: number; imageHeight?: number; imageBytes?: number;
+    action?: "link" | "quote"; mediaKind?: "image" | "radar"; mobileImageUrl?: string;
   } | null;
   qualityOverrideReason: string | null;
   listingId: number | null;
@@ -233,6 +238,8 @@ export interface BannerAdmin {
   caption: string | null;
   ctaLabel: string | null;
   device: BannerDevice;
+  format: "full" | "half" | "third" | "tall";
+  gridColumn: number;
   desktopRow: number;
   desktopColumns: number;
   weight: number;
@@ -394,6 +401,8 @@ export interface BannerUpsert {
   caption?: string | null;
   ctaLabel?: string | null;
   device?: BannerDevice;
+  format?: "full" | "half" | "third" | "tall";
+  gridColumn?: number;
   desktopRow?: number;
   desktopColumns?: number;
   weight?: number;
@@ -537,6 +546,7 @@ export const bannersAdminApi = baseApi.injectEndpoints({
     }),
     quoteAdPriceAdmin: builder.mutation<AdPriceQuote, {
       slotKey: BannerPosition;
+      format?: 'full' | 'half' | 'third' | 'tall';
       device: BannerDevice;
       durationDays: number;
       startAt?: string | null;

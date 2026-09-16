@@ -30,6 +30,7 @@ import { featureCallback, featureCheckout } from "./checkout";
 import { getListingAnalytics } from "./analytics";
 import { listingBoard, listWantedProductsRoute, sendListingOtp, verifyListingOtp } from "./phase12.controller";
 import { getFeaturedPricing, updateFeaturedPricing } from "./pricing";
+import { listingOtpCapabilities } from "./otp-capabilities";
 
 export async function registerListingsPublic(app: FastifyInstance) {
   registerOwnerListingLifecycle(app);
@@ -37,6 +38,10 @@ export async function registerListingsPublic(app: FastifyInstance) {
   app.get("/listings", listPublicListings);
   app.get("/listings/board", listingBoard);
   app.get("/listings/wanted", listWantedProductsRoute);
+  app.get("/listings/otp/capabilities", async (_req, reply) => {
+    reply.header("Cache-Control", "no-store");
+    return listingOtpCapabilities();
+  });
   app.post("/listings/otp/send", {
     onRequest: [requireAuth],
     config: { rateLimit: { max: 10, timeWindow: "1 hour" } },

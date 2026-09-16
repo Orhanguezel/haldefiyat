@@ -1,3 +1,4 @@
+import { adFormat, AD_FORMATS } from "../../../../../../../shared/banner-layout.mjs";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 
@@ -45,8 +46,11 @@ export default async function BannerPreviewPage({ params, searchParams }: Props)
   const banner = await fetchPreview(id);
   if (!banner) notFound();
 
+  const requestedFormat = typeof query?.format === "string" && Object.hasOwn(AD_FORMATS, query.format) ? query.format : adFormat(banner);
+  banner.format = requestedFormat as keyof typeof AD_FORMATS;
+  banner.device = "all"; // Preview every device regardless of the campaign targeting.
   return (
-    <div className="p-3" style={{ maxWidth: mobile ? 390 : 1100, margin: "0 auto" }}>
+    <div data-banner-preview className="p-3" style={{ width: mobile ? 390 : AD_FORMATS[banner.format].previewWidth + 24, maxWidth:"100%", margin: "0 auto" }}>
       {/* Önizlemede tıklama sayaca yazılmasın: bağlantılar devre dışı, görüntü aynı.
           Cihaz sınıfları (hidden md:block) reklamı gizlemesin diye de sarmalayıcı zorlar. */}
       <div className={`pointer-events-none select-none ${mobile ? "[&_.hidden]:!block [&_.md\\:hidden]:!block" : ""}`}>

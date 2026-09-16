@@ -1,4 +1,6 @@
 'use client';
+import { AD_FORMATS, adFormat, type AdFormat } from '../../../../../../../../shared/banner-layout.mjs';
+import AdFormatPreview from './ad-format-preview';
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
@@ -20,24 +22,11 @@ import { ctr, errorMessage, fmtCtr, LIFECYCLE_VARIANT, money, positionLabel, sho
  * (Hostinger gibi) hic gorunmuyordu. Onizleme sitedeki bilesenin kendisini
  * cizer; iframe ayni alan adindaki /reklam-onizleme yolunu acar.
  */
-function CreativePreview({ id, sidebar, t }: { id: number; sidebar: boolean; t: TranslateFn }) {
+function CreativePreview({ id, initialFormat, t }: { id: number; initialFormat: AdFormat; t: TranslateFn }) {
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop');
-  // Yukseklik icerikten gelir: sabit olcu yan sutun reklamlarini kesiyordu.
-  const [height, setHeight] = useState(280);
-  const frame = useRef<HTMLIFrameElement | null>(null);
-  const src = `/reklam-onizleme/${id}?device=${device}${sidebar ? '&sidebar=1' : ''}`;
+  const [format,setFormat] = useState<AdFormat>(initialFormat);
+  const src = `/reklam-onizleme/${id}?device=${device}&format=${format}`;
 
-  useEffect(() => {
-    function onMessage(event: MessageEvent) {
-      if (event.origin !== window.location.origin) return;
-      const data = event.data as { type?: string; height?: number } | null;
-      if (data?.type !== 'hf-ad-preview-height' || typeof data.height !== 'number') return;
-      if (event.source !== frame.current?.contentWindow) return;
-      setHeight(Math.min(900, Math.max(160, Math.ceil(data.height) + 8)));
-    }
-    window.addEventListener('message', onMessage);
-    return () => window.removeEventListener('message', onMessage);
-  }, []);
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
@@ -56,14 +45,8 @@ function CreativePreview({ id, sidebar, t }: { id: number; sidebar: boolean; t: 
         </a>
       </div>
       <div className="overflow-hidden rounded-lg border bg-muted/20">
-        <iframe
-          ref={frame}
-          key={`${id}-${device}`}
-          src={src}
-          title={t('sheet.preview')}
-          className="block w-full"
-          style={{ height, width: device === 'mobile' ? 400 : '100%', margin: device === 'mobile' ? '0 auto' : undefined }}
-        />
+        <div className="mb-2 flex flex-wrap gap-2">{(Object.keys(AD_FORMATS) as AdFormat[]).map(item=><button type="button" key={item} className={`rounded border px-2 py-1 text-xs ${format===item?'bg-primary text-primary-foreground':''}`} onClick={()=>setFormat(item)}>{AD_FORMATS[item].label}</button>)}</div>
+        <AdFormatPreview src={src} format={format} mobile={device==='mobile'} title={t('sheet.preview')} />
       </div>
     </div>
   );
@@ -117,7 +100,7 @@ export function CampaignSheet({ row, slots, onClose, t, tc }: Props) {
               </SheetDescription>
             </SheetHeader>
             <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-5">
-              <CreativePreview id={row.id} sidebar={row.position.includes('sidebar')} t={t} />
+              <CreativePreview id={row.id} initialFormat={adFormat(row)} t={t} />
               {row.code ? <pre className="max-h-32 overflow-auto rounded-lg border bg-muted/40 p-3 text-[11px]">{row.code.slice(0, 600)}</pre> : null}
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <Stat label={t('sheet.impressions')} value={row.impressions.toLocaleString('tr-TR')} />
@@ -126,7 +109,7 @@ export function CampaignSheet({ row, slots, onClose, t, tc }: Props) {
                 <Stat label={t('sheet.amount')} value={money(row.totalAmount)} />
               </div>
               <div>
-                <Row label={t('sheet.slot')} value={`${positionLabel(slots, row.position)} · ${t('table.rowCol', { row: row.desktopRow, columns: row.desktopColumns })}`} />
+                <Row label={t('sheet.slot')} value={`${positionLabel(slots, row.position)} · ${AD_FORMATS[adFormat(row)].label} · Satır ${row.desktopRow} / Başlangıç ${row.gridColumn ?? 1}`} />
                 <Row label={t('sheet.period')} value={`${shortDate(row.startAt)} – ${shortDate(row.endAt)}`} />
                 <Row label={t('sheet.device')} value={t(`devices.${row.device}`)} />
                 <Row label={t('sheet.source')} value={`${t(`sources.${row.sourceType}`)}${row.listingId ? ` · #${row.listingId}` : ''}${row.firmId ? ` · firma #${row.firmId}` : ''}`} />

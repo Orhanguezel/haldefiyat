@@ -174,7 +174,7 @@ _frontend_worker_health() {
 }
 
 mapfile -t FRONTEND_WORKER_IDS < <(
-  pm2 jlist | node -e '
+  bash scripts/frontend-pm2.sh jlist | node -e '
     let raw = "";
     process.stdin.on("data", (chunk) => { raw += chunk; });
     process.stdin.on("end", () => {
@@ -186,7 +186,7 @@ mapfile -t FRONTEND_WORKER_IDS < <(
 )
 
 if [ "${#FRONTEND_WORKER_IDS[@]}" -eq 0 ]; then
-  pm2 start ecosystem.config.cjs --only hal-frontend
+  bash scripts/frontend-pm2.sh start ecosystem.config.cjs --only hal-frontend
   _frontend_worker_health
 elif [ "${#FRONTEND_WORKER_IDS[@]}" -lt 2 ]; then
   echo "HATA: hal-frontend cluster iki worker degil; kesintili otomatik gecis reddedildi" >&2
@@ -197,13 +197,14 @@ else
   #
   # DIKKAT: ID ile reload ecosystem.config.cjs'i OKUMAZ. hal-frontend icin
   # ecosystem ayari degistirildiginde (kill_timeout, env, instances...) bir kez
-  #   pm2 reload "$REPO_ROOT/ecosystem.config.cjs" --only hal-frontend --update-env && pm2 save
+  #   bash scripts/frontend-pm2.sh reload "$REPO_ROOT/ecosystem.config.cjs" --only hal-frontend --update-env
   # calistirilmalidir; PM2 bunu kendi rolling reload'uyla yapar.
   for worker_id in "${FRONTEND_WORKER_IDS[@]}"; do
-    pm2 reload "$worker_id" --update-env
+    bash scripts/frontend-pm2.sh reload "$worker_id" --update-env
     _frontend_worker_health
   done
 fi
+bash scripts/frontend-pm2.sh save
 # Admin panel ayrı ecosystem ile yönetiliyor
 ADMIN_PANEL_APP_NAME=hal-admin \
 ADMIN_PANEL_CWD="$ADMIN" \

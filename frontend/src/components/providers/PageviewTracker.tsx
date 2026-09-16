@@ -9,6 +9,7 @@ export function PageviewTracker() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    if (/(?:^|\/)(?:ad-preview|reklam-onizleme)(?:\/|$)/.test(pathname ?? "")) return;
     const query = searchParams.toString();
     sendPageviewBeacon(`${pathname}${query ? `?${query}` : ""}`);
   }, [pathname, searchParams]);

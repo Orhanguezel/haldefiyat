@@ -11,12 +11,15 @@ import { useEffect } from "react";
 export default function ReportHeight() {
   useEffect(() => {
     const send = () => {
-      const height = Math.ceil(document.documentElement.scrollHeight);
+      const content = document.querySelector("[data-banner-preview]");
+      if (!content) return;
+      const height = Math.ceil(content.getBoundingClientRect().height);
       window.parent?.postMessage({ type: "hf-ad-preview-height", height }, window.location.origin);
     };
     send();
     const observer = new ResizeObserver(send);
-    observer.observe(document.documentElement);
+    const content = document.querySelector("[data-banner-preview]");
+    if (content) observer.observe(content);
     const timer = setTimeout(send, 600);
     return () => { observer.disconnect(); clearTimeout(timer); };
   }, []);

@@ -62,3 +62,11 @@ describe("ListingForm purchase prefill", () => {
     expect(screen.getByTestId("selected-product")).toHaveTextContent("domates");
   });
 });
+
+it("requires a description and defaults new listings to fourteen days", () => {
+  const {container} = render(<ListingForm products={[]} />);
+  expect(screen.getByLabelText("Açıklama (zorunlu)")).toBeRequired();
+  const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Europe/Istanbul'});
+  const end=new Date(`${today}T12:00:00Z`);end.setUTCDate(end.getUTCDate()+14);
+  expect(container.querySelector<HTMLInputElement>('[name="validUntil"]')?.value).toBe(end.toISOString().slice(0,10));
+});

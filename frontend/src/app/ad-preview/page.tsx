@@ -1,3 +1,4 @@
+import { AD_FORMATS, adFormat } from "../../../../shared/banner-layout.mjs";
 import { BannerCreative } from "@/components/ads/BannerSlot";
 import type { PublicBanner } from "@/lib/banners";
 
@@ -18,6 +19,7 @@ export default async function AdPreviewPage({ searchParams }: Props) {
   const banner: PublicBanner = {
     id: Number(text(query.id, "0")) || 0,
     position: text(query.position, "home_mid"),
+    format: text(query.format, "full") as PublicBanner["format"],
     type: "image",
     sourceType: "custom",
     title: text(query.title, "Kampanya başlığı"),
@@ -43,15 +45,15 @@ export default async function AdPreviewPage({ searchParams }: Props) {
       focalX: Number(text(query.focalX, "50")),
       focalY: Number(text(query.focalY, "50")),
       imageFit: text(query.imageFit, "cover") as "cover" | "contain",
+      action: text(query.action, "link") as "link" | "quote",
+      mediaKind: text(query.mediaKind, "image") as "image" | "radar",
     },
   };
-  const sidebar = ["mpu", "mobile"].includes(banner.creativeTemplate ?? "") || banner.position.includes("sidebar");
-  return (
-    <main className={`${previewThemeClass(theme)} flex min-h-screen items-center justify-center p-5`}>
-      <div className={sidebar ? "w-full max-w-[336px]" : "w-full max-w-6xl"}>
-        <div className={`mb-2 text-center text-[10px] font-semibold uppercase tracking-widest ${theme === "light" ? "text-slate-500" : "text-slate-400"}`}>Sponsorlu · Canlı bileşen önizlemesi</div>
-        <BannerCreative banner={banner} sidebar={sidebar} />
-      </div>
-    </main>
-  );
+  const mobile = text(query.device) === "mobile";
+  const width = mobile ? 390 : AD_FORMATS[adFormat(banner)].previewWidth + 24;
+  return <main className={previewThemeClass(theme)}>
+    <div className="pointer-events-none select-none p-3" style={{width,maxWidth:"100%",margin:"0 auto"}}>
+      <BannerCreative banner={banner} sidebar={false} />
+    </div>
+  </main>;
 }

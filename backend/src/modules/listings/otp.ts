@@ -4,6 +4,7 @@ import { db } from "@/db/client";
 import { env } from "@/core/env";
 import { hfPhoneVerifications } from "./schema";
 import { sendListingOtpSms } from "./sms";
+import { listingOtpCapabilities } from "./otp-capabilities";
 import { createOtpIdentityToken, readOtpIdentityToken } from "./otp-token";
 
 const TTL_MS = 5 * 60_000;
@@ -27,6 +28,7 @@ export function verifyOtpToken(token?: string | null): { phone: string; userId: 
 }
 
 export async function sendOtp(rawPhone: string, userId: string) {
+  if (!listingOtpCapabilities().enabled) return { ok: false as const, code: 409, error: "sms_disabled" };
   const phone = normalizeTrPhone(rawPhone);
   if (!phone) return { ok: false as const, code: 400, error: "invalid_phone" };
   const [recent] = await db.select().from(hfPhoneVerifications)

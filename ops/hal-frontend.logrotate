@@ -1,0 +1,11 @@
+/var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/logs/hal-frontend-error-0.log /var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/logs/hal-frontend-error-1.log /var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/logs/hal-frontend-out-0.log /var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/logs/hal-frontend-out-1.log {
+    su root root
+    daily
+    maxsize 20M
+    rotate 7
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+}

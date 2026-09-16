@@ -23,9 +23,14 @@ export type PublicBanner = {
   creativeConfig?: {
     backgroundColor?: string; textColor?: string; accentColor?: string; animation?: boolean;
     logoUrl?: string; backgroundImageUrl?: string; description?: string;
+    action?: "link" | "quote";
+    mediaKind?: "image" | "radar";
+    mobileImageUrl?: string;
     focalX?: number; focalY?: number; imageFit?: "cover" | "contain";
   } | null;
   device: "all" | "desktop" | "mobile";
+  format?: "full" | "half" | "third" | "tall";
+  gridColumn?: number;
   desktopRow?: number;
   desktopColumns?: number;
   listing?: {

@@ -32,11 +32,12 @@ const SELECT_CLASS =
   "min-h-11 rounded-lg border border-(--color-border) bg-(--color-bg) px-3 text-sm text-(--color-foreground) [&_option]:bg-(--color-surface) [&_option]:text-(--color-foreground)";
 
 // Public listing yalnizca validUntil >= bugun ise gorunur. Kullanici bugunu secerse ilan
-// ertesi gun kaybolur — bu yuzden min=yarin, default=+30 gun ile makul bir pencere veriyoruz.
-const DEFAULT_VALID_DAYS = 7;
+// ertesi gun kaybolur — bu yuzden min=yarin, default=+14 gun ile makul bir pencere veriyoruz.
+const DEFAULT_VALID_DAYS = 14;
 function dateOffsetStr(days: number) {
-  const d = new Date();
-  d.setDate(d.getDate() + days);
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Istanbul" });
+  const d = new Date(`${today}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
 }
 
@@ -106,6 +107,7 @@ export function ListingForm({ products, preset = { product: "", city: "", type: 
   function validate(fd: FormData): Record<string, string> {
     const e: Record<string, string> = {};
     if (String(fd.get("title") ?? "").trim().length < 4) e.title = "Başlık en az 4 karakter olmalı.";
+    if (!String(fd.get("description") ?? "").trim()) e.description = "Lütfen ilan açıklamasını yazın.";
     if (!productSlug) e.product = "Lütfen bir ürün seçin.";
     if (!citySlug) e.city = "Lütfen il seçin.";
     if (!String(fd.get("validUntil") ?? "")) e.validUntil = "Geçerlilik tarihi gerekli.";
@@ -116,7 +118,7 @@ export function ListingForm({ products, preset = { product: "", city: "", type: 
   }
 
   function focusFirst(form: HTMLFormElement, e: Record<string, string>) {
-    for (const name of ["title", "validUntil", "contactPhone", "priceMin"]) {
+    for (const name of ["title", "validUntil", "contactPhone", "priceMin", "description"]) {
       if (e[name]) { form.querySelector<HTMLElement>(`[name="${name}"]`)?.focus(); return; }
     }
     form.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -209,7 +211,7 @@ export function ListingForm({ products, preset = { product: "", city: "", type: 
         required
         min={dateOffsetStr(1)}
         defaultValue={dateOffsetStr(DEFAULT_VALID_DAYS)}
-        hint="İlan bu tarihe kadar yayında kalır. En az yarın olmalı."
+        hint="Varsayılan süre 14 gündür. Süre dolmadan e-postayla uzatma hatırlatması gönderilir."
         error={errors.validUntil}
       />
       <Input name="quantity" label="Miktar" type="number" step="0.01" />
@@ -331,7 +333,7 @@ export function ListingForm({ products, preset = { product: "", city: "", type: 
           </div>
         ) : null}
       </fieldset>
-      <TextArea name="description" label="Açıklama" className="md:col-span-2" />
+      <TextArea name="description" label="Açıklama (zorunlu)" required maxLength={5000} error={errors.description} hint="Ürünün durumu, kalitesi, miktarı ve teslimat koşullarını açıklayın." className="md:col-span-2" />
       <Button loading={loading} disabled={uploading} className="md:col-span-2">
         {uploading ? "Görseller yükleniyor…" : "İlanı gönder"}
       </Button>

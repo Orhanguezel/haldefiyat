@@ -1,4 +1,6 @@
 import Link from "next/link";
+import audience from "@/lib/advertising-audience.json";
+import styles from "./advertise.module.css";
 import { setRequestLocale } from "next-intl/server";
 import {
   ArrowRight,
@@ -106,6 +108,8 @@ export default async function AdvertisePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const overview = await fetchPricesOverview();
+  const showAudience = Date.now() - Date.parse(audience.endDate) < 35 * 86400000;
+  const audienceDate = (date: string) => new Date(`${date}T12:00:00Z`).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
   const marketsByType = overview.activeMarketsByType;
   const archiveYear = overview.earliestRecordedDate
     ? new Date(overview.earliestRecordedDate).getFullYear()
@@ -141,37 +145,27 @@ export default async function AdvertisePage({ params }: Props) {
         { name: "Reklam Ver", href: "/reklam-ver" },
       ]} />
 
-      <section className="relative mt-6 overflow-hidden rounded-[28px] border border-(--color-border) bg-(--color-header) px-6 py-14 shadow-[var(--card-shadow)] sm:px-10 lg:px-16 lg:py-20">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-(--color-brand)/15 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 right-0 h-64 w-[45%] bg-[linear-gradient(135deg,transparent,color-mix(in_srgb,var(--color-brand)_8%,transparent))]" />
-        <div className="relative max-w-4xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-(--color-brand)/30 bg-(--color-brand)/10 px-3 py-1.5 font-(family-name:--font-mono) text-[11px] font-bold uppercase tracking-[0.14em] text-(--color-brand)">
-            <Megaphone className="h-3.5 w-3.5" />
-            Reklam ve sponsorluk
+      <section className={styles.hero} aria-labelledby="advertise-title">
+        <div>
+          <p className={styles.eyebrow}><Megaphone size={16} aria-hidden="true" /> Reklam ve sponsorluk</p>
+          <h1 id="advertise-title" className={styles.title}>Ürününüzü <span>doğru alıcıyla</span> buluşturun.</h1>
+          <p className={styles.intro}>Fiyat araştıran, ürün arayan ve alım planlayan tarım profesyonellerine ulaşın. </p>
+          <div className={styles.actions}>
+            <Link href="/iletisim?subject=Reklam%20Talebi" className={styles.primary}>Reklam teklifi alın <ArrowRight size={17} aria-hidden="true" /></Link>
+            <a href={MEDIA_KIT_PATH} download className={styles.secondary}><FileDown size={17} aria-hidden="true" /> Medya kiti</a>
           </div>
-          <h1 className="mt-7 max-w-4xl font-(family-name:--font-display) text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Tarım piyasasının karar anlarında{" "}
-            <span className="text-(--color-brand)">görünür olun.</span>
-          </h1>
-          <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 sm:text-lg">
-            Üretici, tüccar, komisyoncu ve tarım profesyonellerine; doğru içerikte,
-            uygun zamanda ve ölçümlenebilir reklam alanlarıyla ulaşın.
-          </p>
-          <div className="mt-9 flex flex-wrap gap-3">
-            <Link href="/iletisim?subject=Reklam%20Talebi" className="inline-flex items-center gap-2 rounded-xl bg-(--color-brand) px-5 py-3 text-sm font-bold text-(--color-brand-fg) transition hover:brightness-110">
-              Kampanya teklifi alın <ArrowRight className="h-4 w-4" />
-            </Link>
-            <a href={MEDIA_KIT_PATH} download className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
-              <FileDown className="h-4 w-4" /> Medya kiti (PDF)
-            </a>
-            <Link href="/hesabim/reklamlarim" className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
-              <LayoutDashboard className="h-4 w-4" /> Reklamveren paneli
-            </Link>
-          </div>
+          <Link href="/hesabim/reklamlarim" className={styles.account}>Kampanyanız var mı? Reklamveren paneli <ArrowRight size={14} aria-hidden="true" /></Link>
         </div>
+        {showAudience ? <aside className={styles.audience} aria-label="Site trafiği">
+          <div className={styles.source}><BarChart3 /><span>Her gün tarımla ilgilenenlere ulaşın</span></div>
+          <dl className={styles.metrics}>
+            <div><dt>Günlük ortalama sayfa görüntülenmesi</dt><dd>≈ {audience.dailyAverage.toLocaleString("tr-TR")}</dd></div>
+          </dl>
+          <p className={styles.period}>{audienceDate(audience.startDate)} – {audienceDate(audience.endDate)} · Sunucu kayıtları</p>
+        </aside> : <aside className={styles.audience}><Target size={28} /><h2 className="mt-4 text-2xl font-bold">Müşterinizin aradığı yerde yer alın.</h2><p className={styles.intro}>Ürün, şehir ve hal sayfalarındaki uygun reklam alanlarını kampanyanıza göre seçelim.</p></aside>}
       </section>
 
-      <section className="grid gap-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid gap-4 py-7 sm:grid-cols-2 lg:grid-cols-4">
         {[
           [Target, "Bağlama uygun", "Reklamlar tanımlı sayfa, içerik ve kitle bağlamında konumlandırılır."],
           [Eye, "Şeffaf etiketli", "Ücretli yerleşimler kullanıcıya açık biçimde sponsorlu olarak gösterilir."],
@@ -209,8 +203,7 @@ export default async function AdvertisePage({ params }: Props) {
             ))}
           </div>
           <p className="mt-5 text-sm leading-6 text-(--color-muted)">
-            Yukarıdaki sayılar platformun canlı verisinden gelir. Aylık ziyaret hacmi, kitle profili, arama görünürlüğü ve
-            reklam alanlarının ölçülmüş tıklama performansı, tarih damgalı <a href={MEDIA_KIT_PATH} download className="font-semibold text-(--color-brand) underline underline-offset-2">medya kiti PDF&#39;inde</a> yer alır.
+            Yukarıdaki sayılar platformun güncel veri kapsamını gösterir. Reklam formatları ve çalışma seçenekleri için <a href={MEDIA_KIT_PATH} download className="font-semibold text-(--color-brand) underline underline-offset-2">medya kiti PDF&#39;ini</a> inceleyebilirsiniz.
           </p>
         </div>
       </section>
@@ -222,11 +215,11 @@ export default async function AdvertisePage({ params }: Props) {
         </div>
         <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5">
           <h2 className="font-(family-name:--font-display) text-lg font-bold text-(--color-foreground)">Talep, rezervasyon değildir</h2>
-          <p className="mt-2 text-sm leading-6 text-(--color-muted)">İlk faz tamamen manuel onaylıdır. Talep göndermek alanı ayırmaz; tarih, ödeme, kreatif ve yayın onayı tamamlanmadan kampanya açılmaz.</p>
+          <p className="mt-2 text-sm leading-6 text-(--color-muted)">Talebinizi aldıktan sonra uygun alan ve tarihleri kontrol eder, yayın planını sizinle netleştiririz. Rezervasyon ve yayın onayını yazılı olarak paylaşırız.</p>
         </div>
         <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5">
           <h2 className="font-(family-name:--font-display) text-lg font-bold text-(--color-foreground)">Ölçümün sınırı</h2>
-          <p className="mt-2 text-sm leading-6 text-(--color-muted)">Gösterim, tıklama, CTR, cihaz ve dönem raporlanabilir. Satış, erişim, tıklama veya ticari sonuç garantisi verilmez; sahte müşteri logosu ve kanıtsız başarı iddiası kullanılmaz.</p>
+          <p className="mt-2 text-sm leading-6 text-(--color-muted)">Gösterim, tıklama, CTR, cihaz ve dönem raporlanabilir. Kampanya raporu seçilen reklam alanını ve yayın dönemini kapsar. Satış ve tıklama sonucu; teklifinize, görsele, hedeflemeye ve ziyaretçi ilgisine göre değişir.</p>
         </div>
       </section>
 

@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { TranslateFn } from '@/i18n';
 import type { AdSlotAdmin, BannerConversionItem, BannerMetricItem, BannerRevenueReport } from '@/integrations/endpoints/banners-admin-endpoints';
 import { useBannerConversionsAdminQuery, useBannerMetricsAdminQuery, useBannerRevenueAdminQuery } from '@/integrations/hooks';
+import { ALL_BRANDS, brandKey, campaignIdsForScope, scopeRevenue, type CampaignIdentity } from '../_lib/report-scope';
 import { fmtCtr, money, positionLabel } from '../_lib/banner-meta';
 import { isValidReportRange, previousComparableRange, reportPeriodLabel, reportPresetRange, type ReportPreset, type ReportRange } from '../_lib/report-range';
 
@@ -58,7 +59,7 @@ function Metric({ label, value, delta }: { label: string; value: string; delta?:
   );
 }
 
-function aggregateRows(metrics: BannerMetricItem[], conversions: BannerConversionItem[], revenue?: BannerRevenueReport): CampaignRow[] {
+function aggregateRows(metrics: BannerMetricItem[], conversions: BannerConversionItem[], revenue?: Pick<BannerRevenueReport, 'campaigns'>): CampaignRow[] {
   const rows = new Map<number, CampaignRow>();
   for (const campaign of revenue?.campaigns ?? []) {
     rows.set(campaign.bannerId, {
@@ -112,13 +113,15 @@ function csvCell(value: unknown): string {
   return `"${String(value ?? '').replaceAll('"', '""')}"`;
 }
 
-function downloadCsv(range: ReportRange, rows: CampaignRow[]) {
+function downloadCsv(range: ReportRange, rows: CampaignRow[], scope: string) {
   const records: unknown[][] = [
     ['HaldeFiyat Reklam Performans Raporu'],
     ['Dönem', reportPeriodLabel(range)],
+    ['Kapsam', scope],
     [],
-    ['Kampanya', 'Reklam veren', 'Slot', 'Gösterim', 'Tekil gösterim', 'Tıklama', 'Tekil tıklama', 'CTR', 'Dönüşüm', 'Kampanya bedeli', 'Tahsilat', 'Kalan'],
+    ['Kampanya No', 'Kampanya', 'Reklam veren', 'Slot', 'Gösterim', 'Tekil gösterim', 'Tıklama', 'Tekil tıklama', 'CTR', 'Dönüşüm', 'Kampanya bedeli', 'Tahsilat', 'Kalan'],
     ...rows.map((row) => [
+      row.bannerId,
       row.title,
       row.advertiser ?? '',
       row.position ?? '',
@@ -142,16 +145,22 @@ function downloadCsv(range: ReportRange, rows: CampaignRow[]) {
   URL.revokeObjectURL(url);
 }
 
-function printReport(range: ReportRange) {
+function printReport(range: ReportRange, scope: string) {
   const previousTitle = document.title;
-  document.title = `HaldeFiyat Reklam Raporu ${range.from} ${range.to}`;
+  document.title = `HaldeFiyat Reklam Raporu ${scope} ${range.from} ${range.to}`;
   document.body.classList.add('banner-report-printing');
   window.print();
   document.body.classList.remove('banner-report-printing');
   document.title = previousTitle;
 }
 
-export function ReportsPanel({ slots, t }: { slots: AdSlotAdmin[]; t: TranslateFn }) {
+export function ReportsPanel({ slots, campaigns, campaignsLoading, campaignsFailed, t }: { slots: AdSlotAdmin[]; campaigns: CampaignIdentity[]; campaignsLoading: boolean; campaignsFailed: boolean; t: TranslateFn }) {
+  const [brand, setBrand] = useState(ALL_BRANDS);
+  const [selected, setSelected] = useState<number[] | null>(null);
+  const brands = [...new Map(campaigns.map(c => [brandKey(c.advertiser), c.advertiser?.trim() || t('reports.noAdvertiser')])).entries()].sort((a, b) => a[1].localeCompare(b[1], 'tr'));
+  const availableCampaigns = campaigns.filter(c => brand === ALL_BRANDS || brandKey(c.advertiser) === brand);
+  const ids = useMemo(() => campaignIdsForScope(campaigns, brand, selected), [campaigns, brand, selected]);
+  const scope = `${brand === ALL_BRANDS ? t('reports.allBrands') : brands.find(([key]) => key === brand)?.[1] ?? '—'} · ${selected === null ? t('reports.allCampaigns') : availableCampaigns.filter(c => ids.has(c.id)).map(c => `${c.title} (#${c.id})`).join(', ') || t('reports.noCampaignSelected')}`;
   const [preset, setPreset] = useState<ReportPreset>('current_month');
   const [range, setRange] = useState<ReportRange>({ from: '', to: '' });
   const [generatedAt, setGeneratedAt] = useState('');
@@ -166,20 +175,22 @@ export function ReportsPanel({ slots, t }: { slots: AdSlotAdmin[]; t: TranslateF
   const previousRevenue = useBannerRevenueAdminQuery(previousRange, queryOptions);
   const metrics = useBannerMetricsAdminQuery(range, queryOptions);
   const conversions = useBannerConversionsAdminQuery(range, queryOptions);
-  const loading = currentRevenue.isFetching || previousRevenue.isFetching || metrics.isFetching || conversions.isFetching;
-  const failed = currentRevenue.isError || previousRevenue.isError || metrics.isError || conversions.isError;
-  const report = currentRevenue.data?.data;
-  const previous = previousRevenue.data?.data;
-  const rows = useMemo(() => aggregateRows(metrics.data?.items ?? [], conversions.data?.items ?? [], report), [metrics.data, conversions.data, report]);
-  const uniqueImpressions = (metrics.data?.items ?? []).reduce((sum, item) => sum + item.uniqueImpressions, 0);
-  const uniqueClicks = (metrics.data?.items ?? []).reduce((sum, item) => sum + item.uniqueClicks, 0);
-  const devices = useMemo(() => Object.entries((metrics.data?.items ?? []).reduce<Record<string, { impressions: number; clicks: number }>>((result, item) => {
+  const loading = campaignsLoading || currentRevenue.isFetching || previousRevenue.isFetching || metrics.isFetching || conversions.isFetching;
+  const failed = campaignsFailed || currentRevenue.isError || previousRevenue.isError || metrics.isError || conversions.isError;
+  const report = scopeRevenue(currentRevenue.currentData?.data, ids);
+  const previous = scopeRevenue(previousRevenue.currentData?.data, ids);
+  const scopedMetrics = (metrics.currentData?.items ?? []).filter(item => ids.has(item.bannerId));
+  const scopedConversions = (conversions.currentData?.items ?? []).filter(item => ids.has(item.bannerId));
+  const rows = aggregateRows(scopedMetrics, scopedConversions, report);
+  const uniqueImpressions = scopedMetrics.reduce((sum, item) => sum + item.uniqueImpressions, 0);
+  const uniqueClicks = scopedMetrics.reduce((sum, item) => sum + item.uniqueClicks, 0);
+  const devices = Object.entries(scopedMetrics.reduce<Record<string, { impressions: number; clicks: number }>>((result, item) => {
     const current = result[item.device] ?? { impressions: 0, clicks: 0 };
     current.impressions += item.impressions;
     current.clicks += item.clicks;
     result[item.device] = current;
     return result;
-  }, {})).sort((a, b) => b[1].impressions - a[1].impressions), [metrics.data]);
+  }, {})).sort((a, b) => b[1].impressions - a[1].impressions);
   const leader = rows.find((row) => row.impressions > 0);
 
   const onPresetChange = (value: ReportPreset) => {
@@ -204,6 +215,24 @@ export function ReportsPanel({ slots, t }: { slots: AdSlotAdmin[]; t: TranslateF
         </CardHeader>
         <CardContent className="flex flex-wrap items-end gap-3">
           <label className="grid gap-1 text-xs text-muted-foreground">
+            {t('reports.brand')}
+            <Select value={brand} onValueChange={value => { setBrand(value); setSelected(null); setGeneratedAt(new Date().toLocaleString('tr-TR')); }}>
+              <SelectTrigger className="w-56" aria-label={t('reports.brand')}><SelectValue /></SelectTrigger>
+              <SelectContent><SelectItem value={ALL_BRANDS}>{t('reports.allBrands')}</SelectItem>{brands.map(([key, label]) => <SelectItem key={key} value={key}>{label}</SelectItem>)}</SelectContent>
+            </Select>
+          </label>
+          <details className="relative min-w-56 rounded-md border p-2 text-sm">
+            <summary className="cursor-pointer">{t('reports.campaignSelection', { count: ids.size })}</summary>
+            <fieldset className="mt-3 grid max-h-64 gap-2 overflow-y-auto">
+              <legend className="sr-only">{t('reports.campaignBreakdown')}</legend>
+              <label className="flex items-center gap-2 font-medium"><input type="checkbox" checked={selected === null} onChange={event => { setSelected(event.target.checked ? null : []); setGeneratedAt(new Date().toLocaleString('tr-TR')); }} />{t('reports.allCampaigns')}</label>
+              {availableCampaigns.map(campaign => <label key={campaign.id} className="flex items-start gap-2">
+                <input type="checkbox" className="mt-1" checked={ids.has(campaign.id)} onChange={event => { const next = new Set(ids); if (event.target.checked) next.add(campaign.id); else next.delete(campaign.id); setSelected([...next]); setGeneratedAt(new Date().toLocaleString('tr-TR')); }} />
+                <span>{campaign.title} <span className="text-muted-foreground">#{campaign.id} · {campaign.position ? positionLabel(slots, campaign.position) : '—'}</span></span>
+              </label>)}
+            </fieldset>
+          </details>
+          <label className="grid gap-1 text-xs text-muted-foreground">
             {t('reports.period')}
             <Select value={preset} onValueChange={(value) => onPresetChange(value as ReportPreset)}>
               <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
@@ -224,8 +253,8 @@ export function ReportsPanel({ slots, t }: { slots: AdSlotAdmin[]; t: TranslateF
             <Input type="date" className="w-40" value={range.to} onChange={(event) => setCustomDate('to', event.target.value)} />
           </label>
           <div className="ml-auto flex flex-wrap gap-2">
-            <Button variant="outline" disabled={!valid || loading || failed || !report} onClick={() => downloadCsv(range, rows)}><Download className="size-4" />{t('reports.csv')}</Button>
-            <Button disabled={!valid || loading || failed || !report} onClick={() => printReport(range)}><Printer className="size-4" />{t('reports.print')}</Button>
+            <Button variant="outline" disabled={!valid || loading || failed || !report || !ids.size} onClick={() => downloadCsv(range, rows, scope)}><Download className="size-4" />{t('reports.csv')}</Button>
+            <Button disabled={!valid || loading || failed || !report || !ids.size} onClick={() => printReport(range, scope)}><Printer className="size-4" />{t('reports.print')}</Button>
           </div>
         </CardContent>
       </Card>
@@ -243,6 +272,7 @@ export function ReportsPanel({ slots, t }: { slots: AdSlotAdmin[]; t: TranslateF
             <p className="text-sm font-bold tracking-[0.16em] text-emerald-800">HALDEFİYAT.COM</p>
             <h2 className="mt-1 text-2xl font-semibold">{t('reports.title')}</h2>
             <p className="mt-1 text-sm text-muted-foreground">{valid ? reportPeriodLabel(range) : '—'}</p>
+            <p className="mt-2 max-w-3xl break-words text-sm font-medium">{scope}</p>
           </div>
           <div className="text-right text-xs text-muted-foreground">
             <p>{t('reports.generatedAt')}</p>
@@ -251,7 +281,7 @@ export function ReportsPanel({ slots, t }: { slots: AdSlotAdmin[]; t: TranslateF
         </header>
 
         {loading && !report ? <p className="py-12 text-center text-sm text-muted-foreground">{t('reports.loading')}</p> : null}
-        {!loading && report ? (
+        {!loading && !failed && report ? (
           <div className="space-y-7 pt-5">
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
               <Metric label={t('reports.metrics.campaigns')} value={number.format(rows.length)} />
@@ -301,7 +331,7 @@ export function ReportsPanel({ slots, t }: { slots: AdSlotAdmin[]; t: TranslateF
                   <tbody>
                     {rows.map((row) => (
                       <tr key={row.bannerId} className="border-t align-top">
-                        <td className="max-w-72 px-3 py-2.5"><p className="font-medium">{row.title}</p><p className="text-xs text-muted-foreground">{row.advertiser ?? t('reports.noAdvertiser')}</p></td>
+                        <td className="max-w-72 px-3 py-2.5"><p className="font-medium">{row.title} <span className="text-xs text-muted-foreground">#{row.bannerId}</span></p><p className="text-xs text-muted-foreground">{row.advertiser ?? t('reports.noAdvertiser')}</p></td>
                         <td className="px-3 py-2.5 text-xs">{row.position ? positionLabel(slots, row.position) : '—'}</td>
                         <td className="px-3 py-2.5 text-right tabular-nums">{number.format(row.impressions)}</td>
                         <td className="px-3 py-2.5 text-right tabular-nums">{number.format(row.uniqueImpressions)}</td>

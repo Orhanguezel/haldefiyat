@@ -6,7 +6,7 @@ const { api, uploadListingImage } = await import('../src/app/(main)/admin/(admin
 const originalFetch = globalThis.fetch;
 const fetchMock = mock();
 const response = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status });
-beforeEach(() => { token = 'expired'; fetchMock.mockReset(); globalThis.fetch = fetchMock as typeof fetch; });
+beforeEach(() => { token = 'expired'; fetchMock.mockReset(); globalThis.fetch = fetchMock as unknown as typeof fetch; });
 afterEach(() => { globalThis.fetch = originalFetch; });
 
 test('retries the same multipart upload after renewing an expired session', async () => {

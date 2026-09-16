@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { captureAttribution } from "@/lib/attribution";
 
 const CONSENT_KEY = "hf_cookie_consent";
@@ -24,6 +25,7 @@ function persistConsent(value: ConsentValue) {
 }
 
 export function CookieConsentBanner({ initialVisible = true }: { initialVisible?: boolean }) {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(initialVisible);
 
   useEffect(() => {
@@ -48,7 +50,7 @@ export function CookieConsentBanner({ initialVisible = true }: { initialVisible?
     setVisible(false);
   }
 
-  if (!visible) return null;
+  if (!visible || /(?:^|\/)(?:ad-preview|reklam-onizleme)(?:\/|$)/.test(pathname ?? "")) return null;
 
   return (
     <div

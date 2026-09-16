@@ -1,3 +1,4 @@
+import { adFormat, adSlotProfile, adLayoutError, adRectanglesOverlap, adCells, AD_FORMATS } from "../../../../shared/banner-layout.mjs";
 import { and, asc, eq, isNull, like, or, sql } from "drizzle-orm";
 import { db, pool } from "@/db/client";
 import { hfAdAuditLogs, hfAdPackages, hfAdPackageSlots, hfAdPayments, hfAdPriceOverrides, hfAdSelfServiceRequests, hfAdSlots, hfAdWaitlist, hfBanners, hfBannerConversions, hfBannerDailyMetrics, hfBannerMetricUniques, hfBannerTargets, hfBannerVisitorFrequency, hfFirmDeals, hfFirmMembers, hfFirmSponsorships, hfFirms, hfMarkets, hfProducts } from "@/db/schema";
@@ -71,6 +72,8 @@ export type BannerInput = {
     logoUrl?: string; backgroundImageUrl?: string; description?: string;
     focalX?: number; focalY?: number; imageFit?: "cover" | "contain";
     imageWidth?: number; imageHeight?: number; imageBytes?: number;
+    mediaKind?: "image" | "radar";
+    action?: "link" | "quote";
   } | null;
   qualityOverrideReason?: string | null;
   listingId?: number | null;
@@ -86,6 +89,8 @@ export type BannerInput = {
   caption?: string | null;
   ctaLabel?: string | null;
   device?: BannerDevice;
+  format?: string;
+  gridColumn?: number;
   desktopRow?: number;
   desktopColumns?: number;
   weight?: number;
@@ -367,6 +372,7 @@ export type AdSlotPatch = {
 };
 
 export type AdPriceQuoteInput = {
+  format?: string;
   slotKey: string;
   device: BannerDevice;
   durationDays: number;
@@ -436,6 +442,8 @@ function mapInsert(input: BannerInput) {
     caption: input.caption ?? null,
     ctaLabel: input.ctaLabel ?? null,
     device: input.device ?? "all",
+    format: adFormat(input),
+    gridColumn: input.gridColumn ?? 1,
     desktopRow: input.desktopRow ?? 1,
     desktopColumns: input.desktopColumns ?? 1,
     weight: input.weight ?? 1,
@@ -522,6 +530,8 @@ export async function updateBanner(id: number, patch: Partial<BannerInput>): Pro
   if (patch.caption !== undefined) set.caption = patch.caption || null;
   if (patch.ctaLabel !== undefined) set.ctaLabel = patch.ctaLabel || null;
   if (patch.device !== undefined) set.device = patch.device;
+  if (patch.format !== undefined) set.format = patch.format;
+  if (patch.gridColumn !== undefined) set.gridColumn = patch.gridColumn;
   if (patch.desktopRow !== undefined) set.desktopRow = patch.desktopRow;
   if (patch.desktopColumns !== undefined) set.desktopColumns = patch.desktopColumns;
   if (patch.weight !== undefined) set.weight = patch.weight;
@@ -690,7 +700,7 @@ export async function pickTargetedActiveRows(position: string, context: BannerCo
   if (slot?.deliveryMode !== "rotation") return matched;
 
   const byRow = new Map<number, BannerRow[]>();
-  for (const row of matched) byRow.set(row.desktopRow, [...(byRow.get(row.desktopRow) ?? []), row]);
+  for (const row of matched) { const key = row.desktopRow * 10 + row.gridColumn; byRow.set(key, [...(byRow.get(key) ?? []), row]); }
   return [...byRow.entries()]
     .sort(([left], [right]) => left - right)
     .flatMap(([, candidates]) => {
@@ -946,11 +956,11 @@ export async function findLayoutConflicts(input: BannerInput, excludeId?: number
   const start = toDate(input.startAt);
   const end = toDate(input.endAt);
   const rows = await db
-    .select({ id: hfBanners.id, title: hfBanners.title, desktopColumns: hfBanners.desktopColumns })
+    .select({ id: hfBanners.id, title: hfBanners.title, format: hfBanners.format, gridColumn: hfBanners.gridColumn, desktopRow: hfBanners.desktopRow, desktopColumns: hfBanners.desktopColumns })
     .from(hfBanners)
     .where(and(
       eq(hfBanners.position, input.position),
-      eq(hfBanners.desktopRow, input.desktopRow ?? 1),
+
       sql`${hfBanners.lifecycleStatus} IN ('reserved','payment_pending','scheduled','live')`,
       sql`(${hfBanners.lifecycleStatus} <> 'reserved' OR ${hfBanners.reservationExpiresAt} IS NULL OR ${hfBanners.reservationExpiresAt} >= CURRENT_TIMESTAMP(3))`,
       sql`${hfBanners.archivedAt} IS NULL`,
@@ -964,11 +974,8 @@ export async function findLayoutConflicts(input: BannerInput, excludeId?: number
           : sql`1=1`,
   ));
   const targetsByBanner = await listBannerTargets(rows.map((row) => row.id));
-  return layoutCapacityConflicts(
-    input.desktopColumns ?? 1,
-    input.targets ?? [],
-    rows.map((row) => ({ ...row, targets: targetsByBanner.get(row.id) ?? [] })),
-  );
+  return rows.filter(row => adRectanglesOverlap(input, row) && bannerTargetsCanOverlap(input.targets ?? [], targetsByBanner.get(row.id) ?? []))
+    .map(({ id, title }) => ({ id, title }));
 }
 
 export function layoutCapacityConflicts<T extends {
@@ -1004,16 +1011,20 @@ export function bannerTargetsCanOverlap(left: BannerTarget[], right: BannerTarge
 
 export async function layoutInventory(position?: string) {
   const rows = await listBanners({ position, limit: 500 });
-  const grouped = new Map<string, { position: string; row: number; columns: number; active: number; items: BannerRow[] }>();
+  const grouped = new Map<string, { position: string; row: number; columns: number; active: number; items: BannerRow[]; cells: Set<string> }>();
   for (const banner of rows) {
-    const key = `${banner.position}:${banner.desktopRow}`;
-    const group = grouped.get(key) ?? { position: banner.position, row: banner.desktopRow, columns: banner.desktopColumns, active: 0, items: [] };
-    group.columns = banner.desktopColumns;
-    group.items.push(banner);
-    if (banner.isActive) group.active += 1;
-    grouped.set(key, group);
+    const box = AD_FORMATS[adFormat(banner)];
+    for (let r = banner.desktopRow; r < banner.desktopRow + box.rows; r++) {
+      const key = `${banner.position}:${r}`;
+      const group = grouped.get(key) ?? { position: banner.position, row:r, columns:adSlotProfile(banner.position).columns, active:0, items:[], cells:new Set<string>() };
+      group.items.push(banner);
+      if (["reserved","payment_pending","scheduled","live"].includes(banner.lifecycleStatus) && !banner.archivedAt) {
+        for (const cell of adCells(banner).filter(c => c.startsWith(`${r}:`))) group.cells.add(cell);
+      }
+      grouped.set(key, group);
+    }
   }
-  return [...grouped.values()].map((group) => ({ ...group, available: Math.max(0, group.columns - group.active) }));
+  return [...grouped.values()].map(({cells,...group}) => ({ ...group, active:cells.size, available:Math.max(0,group.columns-cells.size) }));
 }
 
 export async function listAdSlots() {
@@ -1058,8 +1069,11 @@ export async function calculateAdPrice(input: AdPriceQuoteInput) {
     : 1;
   const month = input.startAt ? new Date(input.startAt).getUTCMonth() + 1 : new Date().getUTCMonth() + 1;
   const season = month >= 6 && month <= 9 ? 1.15 : 1;
-  const capacity = input.device === "mobile" ? slot.mobileCapacity : slot.desktopCapacity;
-  const capacityFactor = 1 / Math.max(1, capacity);
+  const profile = adSlotProfile(input.slotKey);
+  const format = input.format ?? profile.formats[0]!;
+  if (!profile.formats.includes(format as keyof typeof AD_FORMATS)) return null;
+  const shape = AD_FORMATS[format as keyof typeof AD_FORMATS];
+  const capacityFactor = input.device === "mobile" ? 1 : shape.columns * shape.rows / profile.columns;
   const durationDiscount = input.durationDays >= 90 ? 0.75 : input.durationDays >= 30 ? 0.85 : input.durationDays >= 7 ? 0.95 : 1;
   const raw = baseDailyPrice * input.durationDays * traffic * visibility * device * targeting * season * capacityFactor * durationDiscount;
   const suggestedPrice = Math.round(raw * 100) / 100;
@@ -1393,6 +1407,7 @@ export async function calendarInventory(from: Date, to: Date) {
       device: banner.device,
       desktopRow: banner.desktopRow,
       desktopColumns: banner.desktopColumns,
+      format: banner.format, gridColumn: banner.gridColumn,
       startAt: banner.startAt,
       endAt: banner.endAt,
       lifecycleStatus: banner.lifecycleStatus,
@@ -1542,15 +1557,16 @@ export async function slotAvailability(at: Date, device: BannerDevice = "all", h
     return start <= dayEnd && end >= dayStart;
   };
   return slots.map((slot) => {
-    const capacity = device === "mobile" ? slot.mobileCapacity : slot.desktopCapacity;
+    const profile = adSlotProfile(slot.slotKey);
+    const capacity = profile.columns * profile.maxRows;
     let nextAvailableAt: string | null = null;
     let occupiedAt = 0;
     for (let offset = 0; offset <= horizonDays; offset += 1) {
       const day = new Date(at);
       day.setUTCDate(day.getUTCDate() + offset);
-      const occupied = bookings.filter((booking) =>
+      const occupied = new Set(bookings.filter((booking) =>
         booking.position === slot.slotKey && compatible(booking.device) && overlapsDay(booking, day)
-      ).length;
+      ).flatMap(booking => adCells(booking))).size;
       if (offset === 0) occupiedAt = occupied;
       if (occupied < capacity) {
         nextAvailableAt = day.toISOString().slice(0, 10);
@@ -1733,9 +1749,11 @@ export async function bannerRevenueReport(from: string, to: string) {
     const occupiedDays = banners.filter((banner) => banner.position === item.key).reduce((sum, banner) => {
       const start = Math.max(fromDate.getTime(), banner.startAt?.getTime() ?? fromDate.getTime());
       const end = Math.min(toDate.getTime(), banner.endAt?.getTime() ?? toDate.getTime());
-      return sum + Math.max(0, Math.ceil((end - start) / 86_400_000));
+      const shape = AD_FORMATS[adFormat(banner)];
+      return sum + Math.max(0, Math.ceil((end - start) / 86_400_000)) * shape.columns * shape.rows;
     }, 0);
-    const capacityDays = Math.max(1, (slot?.desktopCapacity ?? 1) * dayCount);
+    const profile = adSlotProfile(item.key);
+    const capacityDays = Math.max(1, profile.columns * profile.maxRows * dayCount);
     return { ...item, occupancyRate: Math.min(1, occupiedDays / capacityDays) };
   });
   const totals = campaignRows.reduce((sum, row) => ({

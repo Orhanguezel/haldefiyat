@@ -57,7 +57,7 @@ const listingFields = z.object({
   productSlug: z.string().trim().max(128).optional().nullable(),
   productName: z.string().trim().min(1).max(255),
   title: z.string().trim().min(4).max(255),
-  description: z.string().trim().max(5000).optional().nullable(),
+  description: z.string().trim().min(1, "description_required").max(5000),
   quality: z.string().trim().max(96).optional().nullable(),
   packaging: z.string().trim().max(96).optional().nullable(),
   quantity: positiveAmount,

@@ -12,7 +12,9 @@
  */
 
 import { retailTitleMatches } from "../retail-source-policy";
-import { db } from "@/db/client";
+import { db, pool } from "@/db/client";
+import { RETAIL_PILOT_SLUGS, retailDay } from "../retail-pilot";
+import { RetailPilotStore } from "../retail-pilot-store";
 import { hfProducts } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { fetchViaScraper } from "../scraper-client";
@@ -21,12 +23,13 @@ import { upsertRetailPriceRow } from "@/modules/prices/repository";
 
 const MIGROS_BASE = "https://www.migros.com.tr/sebze-meyve-c-2";
 const CHAIN_SLUG = "migros";
-const MAX_PAGES = 10; // 300 ürün üst sınır
+const MAX_PAGES = 3; // Pilot: en fazla üç kategori sayfası
 
 export interface MigrosProduct {
   nameRaw: string;
   price: number;
   url: string;
+  raw: Record<string, unknown>;
 }
 
 export function parseMigrosJsonLd(html: string): MigrosProduct[] {
@@ -40,12 +43,15 @@ export function parseMigrosJsonLd(html: string): MigrosProduct[] {
       for (const elem of data.itemListElement ?? []) {
         const product = elem.item ?? {};
         const offers = product.offers ?? {};
-        const priceRaw = offers.price ?? offers.lowPrice;
-        const price = parseFloat(String(priceRaw ?? ""));
+        if (offers["@type"] !== "Offer" || offers.priceCurrency !== "TRY" ||
+            !String(offers.availability ?? "").endsWith("/InStock")) continue;
+        const priceRaw = offers.price;
+        const price = Number(priceRaw);
         const name: string = String(product.name ?? "").trim();
         const url: string = String(product.url ?? product["@id"] ?? "").trim();
-        if (!name || !Number.isFinite(price) || price <= 0) continue;
-        results.push({ nameRaw: name, price, url });
+        if (!name || !Number.isFinite(price) || price <= 0 || !url.startsWith("https://www.migros.com.tr/")) continue;
+        if (/money|üyelere|üyelik|sepette/i.test(`${name} ${offers.description ?? ""}`)) continue;
+        results.push({ nameRaw: name, price, url, raw: product });
       }
     } catch {
       // malformed block — skip
@@ -54,8 +60,9 @@ export function parseMigrosJsonLd(html: string): MigrosProduct[] {
   return results;
 }
 
-async function scrapePageHtml(page: number): Promise<string | null> {
+async function scrapePageHtml(page: number, store: RetailPilotStore): Promise<string | null> {
   const url = page === 1 ? MIGROS_BASE : `${MIGROS_BASE}?sayfa=${page}`;
+  return store.html(url, async () => {
   const result = await fetchViaScraper(url, {
     mode: "dynamic",
     timeoutSeconds: 60,
@@ -63,6 +70,7 @@ async function scrapePageHtml(page: number): Promise<string | null> {
   });
   if (!result.ok || !result.html) return null;
   return result.html;
+  });
 }
 
 export async function resolveMigrosProductId(nameRaw: string): Promise<number | null> {
@@ -85,7 +93,7 @@ export async function resolveMigrosProductId(nameRaw: string): Promise<number | 
   }
 
   const slug = aliasMap.get(turkishToAscii(cleaned));
-  if (!slug || !retailTitleMatches(slug, nameRaw)) return null;
+  if (!slug || !RETAIL_PILOT_SLUGS.has(slug) || !retailTitleMatches(slug, nameRaw)) return null;
 
   const rows = await db
     .select({ id: hfProducts.id })
@@ -104,29 +112,49 @@ export interface MigrosEtlResult {
   errors: string[];
 }
 
-export async function runMigrosEtl(targetDate?: string): Promise<MigrosEtlResult> {
+export async function runMigrosEtl(targetDate?: string, options: { dryRun?: boolean; executionKind?: "scheduled" | "manual" } = {}): Promise<MigrosEtlResult> {
+  const conn = await pool.getConnection();
+  try {
+    const [rows]: any = await conn.query("SELECT GET_LOCK('hal-retail-pilot-v1',0) AS acquired");
+    if (Number(rows[0]?.acquired) !== 1) throw new Error("RETAIL_PILOT_ALREADY_RUNNING");
+    return await runMigrosPilot(targetDate, options);
+  } finally {
+    try { await conn.query("SELECT RELEASE_LOCK('hal-retail-pilot-v1')"); } finally { conn.release(); }
+  }
+}
+async function runMigrosPilot(targetDate: string | undefined, options: { dryRun?: boolean; executionKind?: "scheduled" | "manual" }): Promise<MigrosEtlResult> {
   // hf_products alias degisiklikleri hemen yansisin (5dk TTL cache'ini bypass et)
   invalidateAliasCache();
 
-  const recordedDate = targetDate ?? new Date().toISOString().slice(0, 10);
+  const recordedDate = retailDay();
+  if (targetDate && targetDate !== recordedDate) throw new Error("Migros historical backfill is not supported");
+  const store = await new RetailPilotStore(undefined, !options.dryRun).open();
   const result: MigrosEtlResult = { inserted: 0, skipped: 0, unmatched: 0, unmatchedNames: [], errors: [] };
 
+  const prior = store.state.keywords.migros;
+  if (prior?.completedDay === recordedDate || (prior?.nextDueAt && Date.parse(prior.nextDueAt) > Date.now())) return result;
+  const pages = new Set<string>();
   // Collect all products across pages
   const allProducts: MigrosProduct[] = [];
   for (let page = 1; page <= MAX_PAGES; page++) {
-    const html = await scrapePageHtml(page);
+    const html = await scrapePageHtml(page, store);
     if (!html) {
-      if (page === 1) result.errors.push("Sayfa 1 alınamadı — scraper yanıt vermedi");
+      result.errors.push(`Sayfa ${page} alınamadı — scraper yanıt vermedi`);
       break;
     }
     const found = parseMigrosJsonLd(html);
     if (found.length === 0) break; // boş sayfa = son sayfa
+    const signature = found.map(item => item.url).sort().join("|");
+    if (pages.has(signature)) { result.errors.push("MIGROS_REPEATED_PAGE"); break; }
+    pages.add(signature);
     allProducts.push(...found);
     if (found.length < 30) break; // son sayfa kısa geldi
   }
 
   if (allProducts.length === 0) {
     result.errors.push("Migros'tan hiç ürün çekilemedi");
+    store.finish("migros", 0, result.errors[0]);
+    await store.save({ source: "migros", ...result }, options.executionKind ?? "manual");
     return result;
   }
 
@@ -153,9 +181,15 @@ export async function runMigrosEtl(targetDate?: string): Promise<MigrosEtlResult
       continue;
     }
 
+    await store.observation({ source: "migros", productId, chain: "migros", price: p.price, unit: "kg",
+      recordedDate, dateKind: "observed_at", location: null, locationStatus: "unspecified_delivery_location",
+      priceKind: "displayed_public_offer", productUrl: p.url, productNameRaw: p.nameRaw, raw: p.raw });
+    const [existing]: any = await pool.query("SELECT id FROM hf_retail_prices WHERE product_id=? AND chain_slug='migros' AND recorded_date=? LIMIT 1", [productId, recordedDate]);
+    if (existing.length) { result.skipped++; continue; }
+    if (options.dryRun) { result.skipped++; continue; }
     try {
       await upsertRetailPriceRow({ productId, chainSlug: CHAIN_SLUG, price: p.price, unit: "kg",
-        productNameRaw: p.nameRaw, productUrl: p.url || null, recordedDate });
+        productNameRaw: p.nameRaw, productUrl: p.url || null, recordedDate, fallbackOnly: true });
       result.inserted++;
     } catch (err) {
       result.skipped++;
@@ -165,5 +199,7 @@ export async function runMigrosEtl(targetDate?: string): Promise<MigrosEtlResult
     }
   }
 
+  store.finish("migros", allProducts.length, result.errors[0]);
+  await store.save({ source: "migros", ...result }, options.executionKind ?? "manual");
   return result;
 }

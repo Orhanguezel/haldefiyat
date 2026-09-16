@@ -1,4 +1,5 @@
 'use client';
+import { AD_FORMATS, adFormat } from '../../../../../../../../shared/banner-layout.mjs';
 
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -47,7 +48,7 @@ export function CampaignsTable({ rows, slots, loading, activeId, onSelect, t, tc
                 </TableCell>
                 <TableCell className="text-sm">
                   <div className="truncate">{positionLabel(slots, b.position)}</div>
-                  <div className="text-xs text-muted-foreground">{t('table.rowCol', { row: b.desktopRow, columns: b.desktopColumns })}</div>
+                  <div className="text-xs text-muted-foreground">{AD_FORMATS[adFormat(b)].label} · Satır {b.desktopRow} / Başlangıç {b.gridColumn ?? 1}</div>
                 </TableCell>
                 <TableCell className="text-sm">
                   <div className="whitespace-nowrap">{shortDate(b.startAt)} – {shortDate(b.endAt)}</div>

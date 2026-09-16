@@ -1,3 +1,4 @@
+import { writeRetailPilotReport } from "@/modules/etl/retail-pilot-report";
 import { recordScheduledRetailRun } from "@/modules/etl/retail-run-evidence";
 import * as cron from "node-cron";
 import type { FastifyInstance } from "fastify";
@@ -57,6 +58,7 @@ export type CronCatalogItem = {
 export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] } {
   const E = env.ETL;
   const tasks: CronCatalogItem[] = [
+    { name: "listing-reminders", schedule: "0 9 * * *", category: "bildirim", description: "Ilan bitisinden 3 gun once ve son gun uzatma e-postasi" },
     { name: "etl-daily",          schedule: E.cronSchedule,             category: "etl",      description: "Gunluk hal fiyati ETL — tum resmi belediye + antkomder kaynaklari" },
     { name: "etl-antkomder-pm",   schedule: E.antkomderSchedule,        category: "etl",      description: "ANTKOMDER ogleden sonra ikinci cekim (fiyatlar gec yayinlaniyor)" },
     { name: "etl-istanbul-pm",    schedule: E.istanbulPmSchedule,       category: "etl",      description: "Istanbul IBB aksam cekimi — bugunun verisi gun icinde doluyor" },
@@ -99,6 +101,7 @@ export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] }
 
 export function startCron(app: FastifyInstance): void {
   const tasks: CronTask[] = [
+    { name: "listing-reminders", schedule: "0 9 * * *", handler: () => runListingReminderJob(app) },
     { name: "etl-daily",        schedule: env.ETL.cronSchedule,          handler: () => runEtlJob(app) },
     { name: "etl-health",       schedule: env.ETL.healthSchedule,        handler: () => runEtlHealthJob(app) },
     { name: "alerts-check",     schedule: env.ETL.alertsSchedule,        handler: () => runAlertsJob(app) },
@@ -222,7 +225,6 @@ async function runEtlJob(app: FastifyInstance): Promise<void> {
     await runAlertsJob(app);
     await runEtlHealthJob(app);
     await runListingsExpireJob(app);
-    await runListingReminderJob(app);
   } catch (err) {
     app.log.error({ err }, "[cron:etl] hata");
   }
@@ -236,7 +238,9 @@ async function runEtlJob(app: FastifyInstance): Promise<void> {
 async function runListingReminderJob(app: FastifyInstance): Promise<void> {
   const t0 = Date.now();
   try {
-    const result = await sendListingExpiryReminders();
+    const early = await sendListingExpiryReminders(3);
+    const lastDay = await sendListingExpiryReminders(0);
+    const result = { candidates: early.candidates + lastDay.candidates, sent: early.sent + lastDay.sent, failed: early.failed + lastDay.failed };
     if (result.candidates > 0) {
       app.log.info({ ...result, durationMs: Date.now() - t0 }, "[cron:listing-reminder] tamamlandi");
     }
@@ -578,7 +582,8 @@ async function runMigrosJob(app: FastifyInstance): Promise<void> {
   const t0 = Date.now();
   app.log.info("[cron:migros] perakende ETL baslatiliyor");
   try {
-    const result = await runMigrosEtl();
+    const result = await runMigrosEtl(undefined, { executionKind: "scheduled" });
+    await writeRetailPilotReport();
     app.log.info(
       { ...result, durationMs: Date.now() - t0 },
       "[cron:migros] tamamlandi",
@@ -592,7 +597,8 @@ async function runMarketfiyatiJob(app: FastifyInstance): Promise<void> {
   const t0 = Date.now();
   app.log.info("[cron:marketfiyati] coklu zincir ETL baslatiliyor");
   try {
-    const result = await runMarketfiyatiEtl();
+    const result = await runMarketfiyatiEtl(undefined, { executionKind: "scheduled" });
+    await writeRetailPilotReport();
     const warnings = await recordScheduledRetailRun(result, t0);
     app.log[warnings.length ? "warn" : "info"](
       { ...result, warnings, durationMs: Date.now() - t0 },

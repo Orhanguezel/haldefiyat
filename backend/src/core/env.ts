@@ -225,9 +225,9 @@ export const env = {
     // Telegram kanal günlük paylaşımı — her gün 08:00 UTC = 11:00 TRT (ETL bittikten sonra)
     channelPublishSchedule: process.env.CHANNEL_PUBLISH_CRON_SCHEDULE || "0 8 * * *",
     // Migros perakende fiyat ETL — her gün 09:00 UTC = 12:00 TRT (hal ETL sonrası, kanal paylaşımı sonrası)
-    migrosSchedule: process.env.MIGROS_CRON_SCHEDULE || "0 9 * * *",
+    migrosSchedule: process.env.MIGROS_CRON_SCHEDULE || "45 6,10,14 * * *",
     // marketfiyati.org.tr (TÜBİTAK BİLGEM) çoklu zincir API — 09:30 UTC = 12:30 TRT (Migros sonrası, çakışırsa avg kazanır)
-    marketfiyatiSchedule: process.env.MARKETFIYATI_CRON_SCHEDULE || "30 9 * * *",
+    marketfiyatiSchedule: process.env.MARKETFIYATI_CRON_SCHEDULE || "30 6,8,10,12,14,16 * * *",
     // Wayback Machine probe — 6 saatte bir; online olunca tek seferlik Telegram bildirimi
     waybackMonitorSchedule: process.env.WAYBACK_MONITOR_CRON_SCHEDULE || "5 */6 * * *",
     // Haftalik mail bulten — pazartesi 06:00 UTC (push 05:00 sonrasi, 09:00 TRT)

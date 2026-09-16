@@ -1790,6 +1790,7 @@ export async function retailPricesByProduct(productSlug: string) {
 export async function upsertRetailPriceRow(input: {
   productId: number; chainSlug: string; price: number; unit: string; recordedDate: string;
   productNameRaw?: string | null; productUrl?: string | null;
+  fallbackOnly?: boolean;
 }) {
   const [wholesaleRows, retailRows] = await Promise.all([
     pool.query(
@@ -1829,7 +1830,7 @@ export async function upsertRetailPriceRow(input: {
     productId: input.productId, chainSlug: input.chainSlug, price: input.price.toFixed(2), currency: "TRY",
     unit: input.unit, productNameRaw: input.productNameRaw ?? null, productUrl: input.productUrl ?? null,
     recordedDate: new Date(`${input.recordedDate}T12:00:00`),
-  }).onDuplicateKeyUpdate({ set: { price: input.price.toFixed(2), unit: input.unit, productNameRaw: input.productNameRaw ?? null, productUrl: input.productUrl ?? null } });
+  }).onDuplicateKeyUpdate({ set: input.fallbackOnly ? { id: sql`${hfRetailPrices.id}` } : { price: input.price.toFixed(2), unit: input.unit, productNameRaw: input.productNameRaw ?? null, productUrl: input.productUrl ?? null } });
 }
 
 /**

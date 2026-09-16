@@ -1,4 +1,6 @@
 'use client';
+import { AD_FORMATS, adFormat, adLayoutError, adSlotProfile, type AdFormat } from '../../../../../../../../shared/banner-layout.mjs';
+import AdFormatPreview from './ad-format-preview';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -41,7 +43,6 @@ import {
 import { resolveMediaUrl } from '@/lib/media-url';
 import { BASE_URL } from '@/integrations/api-base';
 import { tokenStore } from '@/integrations/core/token';
-import { VistaSeedsPreview } from './vistaseeds-preview';
 import { useAdminT } from '../../../_components/common/use-admin-t';
 import { errorMessage } from '../_lib/banner-meta';
 
@@ -88,6 +89,10 @@ type FormState = {
   caption: string;
   ctaLabel: string;
   device: BannerDevice;
+  format: AdFormat;
+  gridColumn: string;
+  action: "link" | "quote";
+  mediaKind: "image" | "radar";
   desktopRow: string;
   desktopColumns: string;
   weight: string;
@@ -159,6 +164,7 @@ function emptyForm(): FormState {
     caption: '',
     ctaLabel: '',
     device: 'all',
+    format: 'full', gridColumn: '1', action: 'link', mediaKind: 'image',
     desktopRow: '1',
     desktopColumns: '1',
     weight: '1',
@@ -229,6 +235,7 @@ function toForm(b: BannerAdmin): FormState {
     caption: b.caption ?? '',
     ctaLabel: b.ctaLabel ?? '',
     device: b.device,
+    format: adFormat(b), gridColumn: String(b.gridColumn ?? 1), action: b.creativeConfig?.action ?? "link", mediaKind: b.creativeConfig?.mediaKind ?? "image",
     desktopRow: String(b.desktopRow ?? 1),
     desktopColumns: String(b.desktopColumns ?? 1),
     weight: String(b.weight ?? 1),
@@ -296,7 +303,9 @@ export function BannerDetailClient({ id }: Props) {
     transactionType: 'payment', amount: '', paymentMethod: 'bank_transfer',
     paidAt: new Date().toISOString().slice(0, 16), referenceNumber: '', notes: '',
   });
-  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+  const [previewFormat, setPreviewFormat] = useState<AdFormat>('full');
+  useEffect(() => setPreviewFormat(form.format), [form.format]);
   const [previewTheme, setPreviewTheme] = useState<'dark' | 'light'>('dark');
   const [previewReducedMotion, setPreviewReducedMotion] = useState(false);
   const { data: inventory } = useBannerInventoryAdminQuery({ position: form.position });
@@ -314,6 +323,7 @@ export function BannerDetailClient({ id }: Props) {
       const next = emptyForm();
       if (BANNER_POSITIONS.some((position) => position.value === requestedPosition)) {
         next.position = requestedPosition as BannerPosition;
+        next.format = adSlotProfile(next.position).formats[0]!;
       }
       if (requestedStart && /^\d{4}-\d{2}-\d{2}$/.test(requestedStart)) next.startAt = `${requestedStart}T00:00`;
       initializedRef.current = 'new';
@@ -389,7 +399,12 @@ export function BannerDetailClient({ id }: Props) {
   }, [form.position, form.targetType]);
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((prev) => ({ ...prev, [key]: value }));
+    setForm((prev) => {
+      const next = { ...prev, [key]: value };
+      if (key === 'position') { next.format = adSlotProfile(next.position).formats[0]!; next.gridColumn='1'; next.desktopRow='1'; }
+      if (key === 'format') next.gridColumn='1';
+      return next;
+    });
   }
 
   async function handleSave() {
@@ -397,10 +412,9 @@ export function BannerDetailClient({ id }: Props) {
       toast.error(t('toasts.titleRequired'));
       return;
     }
-    if (form.type === 'image' && form.sourceType === 'custom' && !form.imageUrl.trim() && !vistaVariant) {
-      toast.error(t('toasts.imageRequired'));
-      return;
-    }
+    const layoutError = adLayoutError({ position:form.position, format:form.format, gridColumn:Number(form.gridColumn), desktopRow:Number(form.desktopRow) });
+    if (layoutError) { toast.error(layoutError); return; }
+    if ((form.caption || form.title).length > 90 || form.ctaLabel.length > 28) { toast.error('Başlık en fazla 90, buton metni en fazla 28 karakter olabilir.'); return; }
     if (form.sourceType === 'listing' && !form.listingId) {
       toast.error(t('toasts.listingRequired'));
       return;
@@ -434,6 +448,7 @@ export function BannerDetailClient({ id }: Props) {
       creativeFileUrl: form.creativeFileUrl.trim() || null,
       creativeTemplate: form.creativeTemplate,
       creativeConfig: {
+        action: form.action, mediaKind: form.mediaKind,
         backgroundColor: form.backgroundColor,
         textColor: form.textColor,
         accentColor: form.accentColor,
@@ -459,8 +474,9 @@ export function BannerDetailClient({ id }: Props) {
       caption: form.caption.trim() || null,
       ctaLabel: form.ctaLabel.trim() || null,
       device: form.device,
+      format: form.format, gridColumn:Number(form.gridColumn),
       desktopRow: Number(form.desktopRow) || 1,
-      desktopColumns: Number(form.desktopColumns) || 1,
+      desktopColumns: form.format === "full" ? 1 : form.format === "half" ? 2 : 3,
       weight: Number(form.weight) || 1,
       impressionLimit: form.impressionLimit ? Number(form.impressionLimit) : null,
       clickLimit: form.clickLimit ? Number(form.clickLimit) : null,
@@ -570,11 +586,12 @@ export function BannerDetailClient({ id }: Props) {
   }
 
   const previewImg = form.imageUrl ? resolveMediaUrl(form.imageUrl) : '';
-  const vistaVariant = !isNew && id === '3' ? 'sidebar' : !isNew && id === '5' ? 'leaderboard' : null;
+
   const selectedInventory = inventory?.items.find((item) => item.row === Number(form.desktopRow));
   const livePreviewUrl = useMemo(() => {
     const params = new URLSearchParams({
       id: isNew ? '0' : id,
+      format: previewFormat, device: previewDevice, action: form.action, mediaKind: form.mediaKind,
       position: form.position,
       title: form.title,
       advertiser: form.advertiser,
@@ -597,7 +614,7 @@ export function BannerDetailClient({ id }: Props) {
       motion: previewReducedMotion ? 'reduced' : 'normal',
     });
     return `/ad-preview?${params.toString()}`;
-  }, [form, id, isNew, previewReducedMotion, previewTheme]);
+  }, [form, id, isNew, previewReducedMotion, previewTheme, previewFormat, previewDevice]);
 
   return (
     <div className="space-y-4">
@@ -808,20 +825,8 @@ export function BannerDetailClient({ id }: Props) {
               </Select>
             </div>
             <div className="grid gap-3 rounded-lg border p-3">
-              <div><Label>{t('template.title')}</Label><p className="mt-1 text-xs text-muted-foreground">{t('template.hint')}</p></div>
-              <Select value={form.creativeTemplate} onValueChange={(value) => set('creativeTemplate', value as BannerAdmin['creativeTemplate'])}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="image">{t('template.options.image')}</SelectItem>
-                  <SelectItem value="firm">{t('template.options.firm')}</SelectItem>
-                  <SelectItem value="listing">{t('template.options.listing')}</SelectItem>
-                  <SelectItem value="sponsorship">{t('template.options.sponsorship')}</SelectItem>
-                  <SelectItem value="leaderboard">{t('template.options.leaderboard')}</SelectItem>
-                  <SelectItem value="split">{t('template.options.split')}</SelectItem>
-                  <SelectItem value="mpu">{t('template.options.mpu')}</SelectItem>
-                  <SelectItem value="mobile">{t('template.options.mobile')}</SelectItem>
-                </SelectContent>
-              </Select>
+              <div><Label>Ortak reklam tasarımı</Label><p className="mt-1 text-xs text-muted-foreground">Logo, renkler ve içerik tüm formatlarda aynı kurallarla gösterilir. Mobil yükseklik 120 px.</p></div>
+              <Select value={form.mediaKind} onValueChange={(value) => set('mediaKind', value as 'image' | 'radar')}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="image">Görsel</SelectItem><SelectItem value="radar">Radar illüstrasyonu</SelectItem></SelectContent></Select>
               <div className="grid grid-cols-3 gap-2">
                 <label className="text-xs">{t('template.bg')}<Input className="mt-1 h-9 p-1" type="color" value={form.backgroundColor} onChange={(event) => set('backgroundColor', event.target.value)} /></label>
                 <label className="text-xs">{t('template.text')}<Input className="mt-1 h-9 p-1" type="color" value={form.textColor} onChange={(event) => set('textColor', event.target.value)} /></label>
@@ -829,7 +834,6 @@ export function BannerDetailClient({ id }: Props) {
               </div>
               <div className="grid gap-2 md:grid-cols-2">
                 <Input value={form.logoUrl} onChange={(event) => set('logoUrl', event.target.value)} placeholder={t('template.logoUrl')} />
-                <Input value={form.backgroundImageUrl} onChange={(event) => set('backgroundImageUrl', event.target.value)} placeholder={t('template.bgUrl')} />
               </div>
               <Textarea className="min-h-16" maxLength={240} value={form.description} onChange={(event) => set('description', event.target.value)} placeholder={t('template.description')} />
               <div className="grid gap-3 md:grid-cols-3">
@@ -837,7 +841,7 @@ export function BannerDetailClient({ id }: Props) {
                 <label className="text-xs">{t('template.focalY', { value: form.focalY })}<input className="mt-2 w-full" type="range" min={0} max={100} value={form.focalY} onChange={(event) => set('focalY', event.target.value)} /></label>
                 <div><Label className="text-xs">{t('template.fit')}</Label><Select value={form.imageFit} onValueChange={(value) => set('imageFit', value as 'cover' | 'contain')}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="cover">{t('template.cover')}</SelectItem><SelectItem value="contain">{t('template.contain')}</SelectItem></SelectContent></Select></div>
               </div>
-              <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={form.animation} onChange={(event) => set('animation', event.target.checked)} />{t('template.animation')}</label>
+
             </div>
 
             <div className="grid gap-3 rounded-lg border p-3">
@@ -931,22 +935,14 @@ export function BannerDetailClient({ id }: Props) {
 
             {form.type === 'image' ? (
               <>
-                {vistaVariant ? (
-                  <div className="rounded-md border border-emerald-600/30 bg-emerald-500/5 p-3 text-xs">
-                    <p className="font-semibold">{t('creative.vistaTitle')}</p>
-                    <p className="mt-1 text-muted-foreground">
-                      {t('creative.vistaHint')}
-                    </p>
-                  </div>
-                ) : (
                   <AdminImageUploadField
                     label={t('creative.image')}
-                    helperText={t('info.recommended', { size: positionSize(form.position) })}
+                    helperText="Görsel isteğe bağlıdır; yazıyı görsele gömmeyin. Mobil kartta logo, başlık ve buton gösterilir."
                     value={form.imageUrl}
                     onChange={(url) => set('imageUrl', url ?? '')}
                     folder="uploads/banners"
                   />
-                )}
+
                 <div className="grid gap-2">
                   <Label>{t('creative.alt')}</Label>
                   <Input value={form.alt} placeholder={form.title} onChange={(e) => set('alt', e.target.value)} />
@@ -956,19 +952,20 @@ export function BannerDetailClient({ id }: Props) {
                   <Input value={form.linkUrl} placeholder="https://" onChange={(e) => set('linkUrl', e.target.value)} />
                 </div>
                 <div className="grid gap-2">
-                  <Label>{vistaVariant ? t('creative.headline') : t('creative.caption')}</Label>
+                  <Label>{t('creative.headline')}</Label>
                   <Input
                     value={form.caption}
+                    maxLength={90}
                     placeholder={t('creative.captionPlaceholder')}
                     onChange={(e) => set('caption', e.target.value)}
                   />
                   <p className="text-muted-foreground text-xs">
-                    {vistaVariant ? t('creative.headlineHint') : t('creative.captionHint')}
+                    En fazla 90 karakter. Dar ve mobil kartlarda başlık iki satırla sınırlıdır.
                   </p>
                 </div>
                 <div className="grid gap-2">
                   <Label>{t('creative.cta')}</Label>
-                  <Input value={form.ctaLabel} placeholder={t('creative.ctaPlaceholder')} onChange={(e) => set('ctaLabel', e.target.value)} />
+                  <Input maxLength={28} value={form.ctaLabel} placeholder={t('creative.ctaPlaceholder')} onChange={(e) => set('ctaLabel', e.target.value)} />
                 </div>
               </>
             ) : (
@@ -1107,17 +1104,23 @@ export function BannerDetailClient({ id }: Props) {
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-2">
                 <Label>{t('schedule.row')}</Label>
-                <Input type="number" min={1} max={20} value={form.desktopRow} onChange={(e) => set('desktopRow', e.target.value)} />
+                <Input type="number" min={1} max={adSlotProfile(form.position).maxRows} value={form.desktopRow} onChange={(e) => set('desktopRow', e.target.value)} />
               </div>
               <div className="grid gap-2">
-                <Label>{t('schedule.columns')}</Label>
-                <Select value={form.desktopColumns} onValueChange={(v) => set('desktopColumns', v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {['1', '2', '3'].map((k) => <SelectItem key={k} value={k}>{t('schedule.adsPerRow', { count: k })}</SelectItem>)}
-                  </SelectContent>
+                <Label>Reklam formatı</Label>
+                <Select value={form.format} onValueChange={value => set('format', value as AdFormat)}>
+                  <SelectTrigger aria-label="Reklam formatı"><SelectValue /></SelectTrigger>
+                  <SelectContent>{adSlotProfile(form.position).formats.map(format => <SelectItem key={format} value={format}>{AD_FORMATS[format].label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
+            </div>
+            <div className="grid gap-2"><Label>Yatay başlangıç</Label>
+              <Select value={form.gridColumn} onValueChange={value => set('gridColumn', value)}>
+                <SelectTrigger aria-label="Yatay başlangıç"><SelectValue /></SelectTrigger><SelectContent>
+                  {Array.from({length:adSlotProfile(form.position).columns-AD_FORMATS[form.format].columns+1},(_,i)=>i+1).map(column=><SelectItem key={column} value={String(column)}>{column === 1 ? 'Sol kenar' : `${column}. birimden başla`}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">{AD_FORMATS[form.format].rows === 2 ? 'Dikey reklam iki satırın yerini ayırır.' : 'Aynı satırdaki reklamlarla çakışmayan bir konum seçin.'}</p>
             </div>
             <div className="flex items-center justify-between gap-3 rounded-md border bg-muted/30 p-3">
               <p className="text-muted-foreground text-xs">{t('schedule.rowHint')}</p>
@@ -1143,53 +1146,14 @@ export function BannerDetailClient({ id }: Props) {
             </div>
 
             <div className="rounded-md border p-4">
-              <div className="mb-2 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                {t('preview.title')}
+              <p className="mb-3 font-semibold">Format önizlemesi</p>
+              <div className="mb-3 flex flex-wrap gap-2">{(Object.keys(AD_FORMATS) as AdFormat[]).map(format => <Button type="button" key={format} size="sm" variant={previewFormat===format?'default':'outline'} onClick={()=>setPreviewFormat(format)}>{AD_FORMATS[format].label}</Button>)}</div>
+              <div className="mb-3 flex flex-wrap gap-2">{(['desktop','mobile'] as const).map(device => <Button type="button" key={device} size="sm" variant={previewDevice===device?'default':'outline'} onClick={()=>setPreviewDevice(device)}>{t(`preview.devices.${device}`)}</Button>)}
+                <Button type="button" size="sm" variant="outline" asChild><a href={livePreviewUrl} target="_blank" rel="noopener noreferrer">Gerçek boyutta aç</a></Button>
               </div>
-              <div className="flex justify-center">
-                {form.type === 'code' ? (
-                  <div className="text-muted-foreground text-xs">{t('preview.codeNote')}</div>
-                ) : form.creativeTemplate !== 'image' ? (
-                  <div
-                    className={`flex min-h-32 w-full overflow-hidden rounded-xl border shadow-sm ${['mpu', 'mobile'].includes(form.creativeTemplate) ? 'max-w-72 flex-col' : 'items-stretch'} ${form.animation ? 'animate-pulse' : ''}`}
-                    style={{
-                      backgroundColor: form.backgroundColor,
-                      color: form.textColor,
-                      backgroundImage: form.backgroundImageUrl ? `linear-gradient(#0005,#0005),url("${resolveMediaUrl(form.backgroundImageUrl)}")` : undefined,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                    }}
-                  >
-                    {previewImg ? <img src={previewImg} alt="" className={['mpu', 'mobile'].includes(form.creativeTemplate) ? 'h-32 w-full' : 'w-36'} style={{ objectFit: form.imageFit, objectPosition: `${form.focalX}% ${form.focalY}%` }} /> : null}
-                    <div className="flex min-w-0 flex-1 flex-col justify-center p-4">
-                      {form.logoUrl ? <img src={resolveMediaUrl(form.logoUrl)} alt="" className="mb-2 max-h-8 max-w-28 object-contain object-left" /> : null}
-                      <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: form.accentColor }}>Sponsorlu · {form.creativeTemplate}</span>
-                      <strong className="mt-1 text-lg">{form.caption || form.title || t('preview.titleFallback')}</strong>
-                      {form.description ? <span className="mt-1 text-xs opacity-75">{form.description}</span> : null}
-                      {form.advertiser ? <span className="mt-1 text-xs opacity-70">{form.advertiser}</span> : null}
-                      <span className="mt-3 w-fit rounded-full px-3 py-1 text-xs font-bold text-black" style={{ backgroundColor: form.accentColor }}>{form.ctaLabel || t('creative.ctaPlaceholder')} →</span>
-                    </div>
-                  </div>
-                ) : vistaVariant ? (
-                  <VistaSeedsPreview variant={vistaVariant} headline={form.caption} ctaLabel={form.ctaLabel} />
-                ) : previewImg ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={previewImg} alt={form.alt || form.title} className="max-h-40 max-w-full rounded border object-contain" />
-                ) : (
-                  <div className="text-muted-foreground text-xs">{t('preview.noImage')}</div>
-                )}
-              </div>
-              <div className="mt-4 border-t pt-4">
-                <div className="mb-3 flex flex-wrap items-center justify-center gap-2">
-                  {(['desktop', 'tablet', 'mobile'] as const).map((device) => <Button key={device} type="button" size="sm" variant={previewDevice === device ? 'default' : 'outline'} onClick={() => setPreviewDevice(device)}>{t(`preview.devices.${device}`)}</Button>)}
-                  <Button type="button" size="sm" variant="outline" onClick={() => setPreviewTheme((value) => value === 'dark' ? 'light' : 'dark')}>{previewTheme === 'dark' ? t('preview.dark') : t('preview.light')}</Button>
-                  <Button type="button" size="sm" variant={previewReducedMotion ? 'default' : 'outline'} onClick={() => setPreviewReducedMotion((value) => !value)}>{t('preview.reducedMotion')}</Button>
-                  <Button type="button" size="sm" variant="ghost" asChild><a href={livePreviewUrl} target="_blank" rel="noopener noreferrer">{t('preview.openLive')}</a></Button>
-                </div>
-                <div className="mx-auto overflow-hidden rounded-lg border bg-muted transition-[width]" style={{ width: previewDevice === 'desktop' ? '100%' : previewDevice === 'tablet' ? '768px' : '390px', maxWidth: '100%' }}>
-                  <iframe key={livePreviewUrl} src={livePreviewUrl} title={t('preview.iframeTitle')} className="h-72 w-full border-0" />
-                </div>
-              </div>
+              <p className="mb-2 text-xs text-muted-foreground">{previewDevice==='mobile'?'Mobil: 120 px yükseklik':`${AD_FORMATS[previewFormat].previewWidth} × ${AD_FORMATS[previewFormat].rows===2?576:280} px`} · Önizleme panele sığacak şekilde ölçeklenir.</p>
+              {form.type==='code' ? <AdFormatPreview format={previewFormat} mobile={previewDevice==='mobile'} srcDoc={`<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}html,body{margin:0;overflow:hidden}main{margin:12px auto;width:${previewDevice==='mobile'?366:AD_FORMATS[previewFormat].previewWidth}px;height:${previewDevice==='mobile'?120:AD_FORMATS[previewFormat].rows===2?576:280}px;overflow:hidden}img,video{max-width:100%;max-height:100%;object-fit:contain}</style><main>${form.code}</main>`} /> : <AdFormatPreview src={livePreviewUrl} format={previewFormat} mobile={previewDevice==='mobile'} />}
+
             </div>
           </CardContent>
         </Card>

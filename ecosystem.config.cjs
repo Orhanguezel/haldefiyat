@@ -42,6 +42,7 @@ module.exports = {
     },
     {
       name: "hal-frontend",
+      // Manage through scripts/frontend-pm2.sh: cluster inherits its Node 24 daemon.
       // Next.js standalone server.js — deploy scripti doğru path'e symlink kurar
       script: "standalone-server.js",
       cwd: "./frontend",
@@ -54,7 +55,7 @@ module.exports = {
       watch: false,
       env: {
         NODE_ENV: "production",
-        PORT: 3033,
+        PORT: Number(process.env.HAL_FRONTEND_PORT || 3033),
         HOSTNAME: "0.0.0.0",
         // BACKEND_URL: server component'lar için internal backend adresi
         // NEXT_PUBLIC_ olmadığı için build'e baked olmaz — runtime'da okunur

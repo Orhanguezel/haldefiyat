@@ -1,12 +1,10 @@
+import { adRectangle, adSlotProfile, adFormat } from "../../../../shared/banner-layout.mjs";
+import StandardBanner from "./StandardBanner";
+import layoutStyles from "./BannerLayout.module.css";
+import type { CSSProperties } from "react";
 import { Suspense } from "react";
 import { fetchBanners, type BannerContext, type PublicBanner } from "@/lib/banners";
 import { headers } from "next/headers";
-import { resolveImageUrl } from "@/lib/utils";
-import GzlTechnologyBanner from "./GzlTechnologyBanner";
-import IhracatRadariBanner, { isIhracatRadari } from "./IhracatRadariBanner";
-import SeedSponsorBanner, { isSeedSponsor } from "./SeedSponsorBanner";
-import TemplateBanner from "./TemplateBanner";
-import ResilientAdImage from "./ResilientAdImage";
 
 const SIDEBAR_POSITIONS = new Set(["prices_sidebar", "analiz_sidebar", "urun_sidebar", "hal_sidebar", "listing_detail_sidebar", "firm_detail_sidebar"]);
 
@@ -75,22 +73,18 @@ async function BannerSlotContent({
   const banners = await fetchBanners(position, { page_type: inferredPageType(position), ...context }, forwarded);
   if (!banners.length) return null;
   const sidebar = !wide && SIDEBAR_POSITIONS.has(position);
-  const rows = new Map<number, PublicBanner[]>();
-  for (const banner of banners) {
-    const row = banner.desktopRow ?? 1;
-    rows.set(row, [...(rows.get(row) ?? []), banner]);
-  }
 
   return (
     <aside className={className} aria-label={`Reklam alanı: ${position}`} data-content-type="advertisement">
       <div className={`mx-auto my-5 ${sidebar ? "w-full lg:max-w-[336px]" : "max-w-6xl"} px-4`}>
         <SponsorLabel />
-        <div className="space-y-4">
-          {[...rows.entries()].sort(([a], [b]) => a - b).map(([row, rowBanners]) => (
-            <div key={row} className={`grid gap-4 ${bannerColumnsClass(rowBanners[0]?.desktopColumns ?? 1)}`}>
-              {rowBanners.map((banner) => <BannerCreative key={banner.id} banner={banner} sidebar={sidebar} />)}
-            </div>
-          ))}
+        <div className={layoutStyles.grid} style={{ "--ad-columns": adSlotProfile(position).columns } as CSSProperties}>
+          {[...banners].sort((a,b) => (a.desktopRow ?? 1)-(b.desktopRow ?? 1) || (a.gridColumn ?? 1)-(b.gridColumn ?? 1) || a.id-b.id).map(banner => {
+            const box = adRectangle(banner);
+            return <div key={banner.id} className={`${layoutStyles.cell} ${deviceClass(banner.device)}`} style={{ "--ad-column": box.column, "--ad-span": box.columns, "--ad-row": box.row, "--ad-rows": box.rows } as CSSProperties}>
+              <BannerCreative banner={banner} sidebar={sidebar} />
+            </div>;
+          })}
         </div>
       </div>
     </aside>
@@ -99,56 +93,12 @@ async function BannerSlotContent({
 
 export function BannerCreative({ banner, sidebar }: { banner: PublicBanner; sidebar: boolean }) {
   const href = clickHref(banner);
-  const target = banner.linkTarget || "_blank";
-  const rel = banner.rel || "sponsored nofollow noopener";
-  const alt = banner.alt ?? banner.title;
-
   if (banner.type === "code" && banner.code) {
-    return <div className={`${deviceClass(banner.device)} isolate overflow-hidden [contain:layout_paint]`.trim()} dangerouslySetInnerHTML={{ __html: banner.code }} />;
+    return <div className={`${layoutStyles.code} ${deviceClass(banner.device)}`} data-format={adFormat(banner)}>
+      <iframe title={banner.title} sandbox="allow-popups allow-popups-to-escape-sandbox" srcDoc={`<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;width:100%;height:100%;overflow:hidden}img,video{max-width:100%;max-height:100%;object-fit:contain}*{box-sizing:border-box}</style>${banner.code}`} />
+    </div>;
   }
-
-  if (banner.sourceType === "listing" && banner.listing) {
-    const listing = banner.listing;
-    const listingHref = `/api/v1/banners/${banner.id}/click`;
-    const price = listing.priceMin == null ? "Fiyat için iletişime geçin" : `${Number(listing.priceMin).toLocaleString("tr-TR")} ${listing.currency}/${listing.priceUnit}`;
-    return (
-      <a href={listingHref} target={target} rel={rel} className={`${deviceClass(banner.device)} group flex ${sidebar ? "flex-col" : "flex-col md:flex-row"} min-h-28 overflow-hidden rounded-xl border border-(--color-border) bg-(--color-surface) text-(--color-foreground) shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg`.trim()}>
-        {listing.imageUrl && (
-          <span data-listing-media className={sidebar ? "block aspect-[4/3] w-full shrink-0 overflow-hidden" : "block aspect-[4/3] w-full shrink-0 overflow-hidden md:aspect-auto md:w-56"}>
-            <ResilientAdImage src={resolveImageUrl(listing.imageUrl)} alt={listing.title} className="h-full w-full object-cover" width={640} height={480} />
-          </span>
-        )}
-        <span className="flex min-w-0 flex-1 flex-col justify-center p-4">
-          <span className="text-[11px] font-bold uppercase tracking-[.08em] text-(--color-brand)">Sponsorlu ilan · {listing.productName}</span>
-          <strong className="mt-2 line-clamp-2 text-lg leading-snug">{listing.title}</strong>
-          <span className="mt-2 text-base font-semibold">{price}</span>
-          <span className="mt-3 text-sm text-(--color-muted)">{listing.citySlug || "Türkiye"} · İlanı incele →</span>
-        </span>
-      </a>
-    );
-  }
-
-  if (banner.advertiser === "GZL Teknoloji" && banner.linkUrl === "/gzl-teknoloji#teklif") {
-    return <GzlTechnologyBanner clickHref={href} className={deviceClass(banner.device)} />;
-  }
-
-  if (isIhracatRadari(banner)) {
-    return <IhracatRadariBanner banner={banner} href={href} sidebar={sidebar} />;
-  }
-
-  if (isSeedSponsor(banner)) {
-    return <SeedSponsorBanner banner={banner} href={href} sidebar={sidebar} />;
-  }
-  if (banner.creativeTemplate && banner.creativeTemplate !== "image") {
-    return <TemplateBanner banner={banner} href={href} sidebar={sidebar} />;
-  }
-  if (!banner.imageUrl) return null;
-  return (
-    <a href={href ?? undefined} target={href ? target : undefined} rel={href ? rel : undefined} className={`${deviceClass(banner.device)} flex h-full flex-col items-center gap-3 rounded-xl border border-(--color-border) bg-(--color-surface) p-3 sm:flex-row`.trim()}>
-      <ResilientAdImage src={resolveImageUrl(banner.imageUrl)} alt={alt} fallbackClassName="min-h-24" className={sidebar ? "h-auto w-full rounded-md object-contain" : "h-auto w-full rounded-md object-contain md:max-h-60 md:min-w-0 md:flex-1"} />
-      {(banner.caption || banner.ctaLabel) && <span className="p-2 text-sm font-semibold">{banner.caption}{banner.ctaLabel ? <small className="mt-2 block text-(--color-brand)">{banner.ctaLabel} →</small> : null}</span>}
-    </a>
-  );
+  return <StandardBanner banner={banner} href={href} />;
 }
 
 function SponsorLabel() {

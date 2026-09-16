@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ApiError, apiPost } from "@/lib/api-client";
+import { ApiError, apiGet, apiPost } from "@/lib/api-client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
@@ -26,6 +26,15 @@ export function PhoneOtpVerification({ phone, onVerified }: Props) {
   const [error, setError] = useState("");
   const [unavailable, setUnavailable] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [capabilities, setCapabilities] = useState<{ enabled: boolean; required: boolean } | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    apiGet<{ enabled: boolean; required: boolean }>("/listings/otp/capabilities")
+      .then((value) => { if (active) setCapabilities(value); })
+      .catch(() => { /* Do not offer SMS until its availability is confirmed. */ });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     setCode("");
@@ -61,7 +70,7 @@ export function PhoneOtpVerification({ phone, onVerified }: Props) {
       // SMS saglayici yapilandirilmamis (prod'da provider=none -> 503). Dogrulama
       // zaten ZORUNLU DEGIL (LISTING_REQUIRE_PHONE_OTP=false); calismayan bir
       // butonu formda tutmak ilan verecek kisiyi tereddute dusuruyor.
-      if (caught instanceof ApiError && caught.code === "sms_unavailable") {
+      if (caught instanceof ApiError && ["sms_unavailable", "sms_disabled"].includes(caught.code)) {
         setUnavailable(true);
         return;
       }
@@ -88,7 +97,10 @@ export function PhoneOtpVerification({ phone, onVerified }: Props) {
   const busy = phase === "sending" || phase === "verifying";
 
   // Servis yoksa blogu tamamen kaldir — ilan vermeyi engellemiyor.
-  if (unavailable) return null;
+  if (!capabilities) return null;
+  if (unavailable || !capabilities.enabled) return capabilities.required
+    ? <p role="alert" className="text-sm text-(--color-danger) md:col-span-2">Telefon doğrulama şu anda kullanılamıyor. İlanınızı göndermek için daha sonra tekrar deneyin.</p>
+    : null;
 
   return (
     <fieldset className="rounded-[8px] border border-(--color-border) bg-(--color-bg-alt) p-4 md:col-span-2" aria-describedby="phone-otp-help">

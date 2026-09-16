@@ -3,13 +3,15 @@ import { join } from "node:path";
 import type { MarketfiyatiEtlResult } from "./market-scrapers/marketfiyati";
 
 export function retailRunWarnings(result: MarketfiyatiEtlResult, previousOffers?: number): string[] {
+  if (result.pilot?.noWork) return [];
   const warnings: string[] = [];
   if (!result.inserted) warnings.push("ZERO_WRITES");
-  if (Object.keys(result.offersByChain).length < 3) warnings.push("LOW_CHAIN_COVERAGE");
-  if (previousOffers && result.verifiedOffers < previousOffers * 0.7) warnings.push("COVERAGE_DROP_GT_30_PERCENT");
+  if (!result.pilot && Object.keys(result.offersByChain).length < 3) warnings.push("LOW_CHAIN_COVERAGE");
+  if (!result.pilot && previousOffers && result.verifiedOffers < previousOffers * 0.7) warnings.push("COVERAGE_DROP_GT_30_PERCENT");
   if (result.searchFailures) warnings.push("SOURCE_SEARCH_ERRORS");
   if (Object.keys(result.writeFailures).length) warnings.push("WRITE_OR_QUARANTINE_FAILURES");
   if (result.throttled) warnings.push("SOURCE_THROTTLED");
+  if (result.sourceUnavailable) warnings.push("SOURCE_UNAVAILABLE");
   return warnings;
 }
 

@@ -30,7 +30,7 @@ function esc(v: string): string {
   return v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function buildHtml(input: { name: string; title: string; slug: string; validUntil: string; daysBefore: number }): string {
+export function buildHtml(input: { id: number; name: string; title: string; slug: string; validUntil: string; daysBefore: number }): string {
   const baslik =
     input.daysBefore === 0
       ? "İlanınız bugün yayından kalkıyor"
@@ -57,8 +57,8 @@ function buildHtml(input: { name: string; title: string; slug: string; validUnti
         <strong>${esc(input.title)}</strong> başlıklı ilanınızın geçerlilik tarihi
         <strong>${date}</strong>. ${govde}
       </p>
-      <p style="margin:0 0 20px;">Ürününüz hâlâ satılıktaysa tek tıkla süresini uzatabilirsiniz.</p>
-      <a href="${SITE_URL}/hesabim/ilanlarim"
+      <p style="margin:0 0 20px;">İlanınız hâlâ güncelse hesap sayfanızdan süresini uzatıp yeniden onaya gönderebilirsiniz.</p>
+      <a href="${SITE_URL}/hesabim/ilanlarim/${input.id}"
          style="display:inline-block;background:#16a34a;color:#fff;text-decoration:none;padding:12px 22px;border-radius:6px;font-weight:600;">
         İlanımı uzat
       </a>
@@ -88,12 +88,15 @@ export async function sendListingExpiryReminders(
 ): Promise<ExpiryReminderResult> {
   const KIND = `expiry_${daysBefore}d`;
   const rows = await db.execute(sql`
-    SELECT l.id, l.slug, l.title, l.valid_until AS validUntil,
+    SELECT l.id, l.slug, l.title, DATE_FORMAT(l.valid_until, '%Y-%m-%d') AS validUntil,
            COALESCE(NULLIF(l.contact_name, ''), u.full_name, 'İlan sahibi') AS name,
            u.email AS email
     FROM hf_listings l
     JOIN users u ON u.id = l.user_id
-    LEFT JOIN hf_listing_reminders r ON r.listing_id = l.id AND r.kind = ${KIND}
+    LEFT JOIN hf_listing_reminders r ON r.listing_id = l.id AND (
+      r.kind = CONCAT(${KIND}, '_', DATE_FORMAT(l.valid_until, '%Y-%m-%d'))
+      OR (r.kind = ${KIND} AND DATE(r.sent_at) BETWEEN DATE_SUB(l.valid_until, INTERVAL ${daysBefore} DAY) AND l.valid_until)
+    )
     WHERE l.status = 'approved'
       AND l.valid_until = CURDATE() + INTERVAL ${daysBefore} DAY
       AND r.id IS NULL
@@ -115,12 +118,12 @@ export async function sendListingExpiryReminders(
           daysBefore === 0
             ? `Son gün: ilanınız bugün yayından kalkıyor — ${item.title}`
             : `İlanınızın süresi ${daysBefore} gün sonra doluyor — ${item.title}`,
-        html: buildHtml({ name: item.name, title: item.title, slug: item.slug, validUntil, daysBefore }),
+        html: buildHtml({ id: item.id, name: item.name, title: item.title, slug: item.slug, validUntil, daysBefore }),
       });
 
       // Once mail, sonra kayit: kayit atilip mail gitmemesindense, mail gidip kayit
       // atilamamasi yeglenir (ikinci mail riski, hic gitmemesinden iyi).
-      await db.insert(hfListingReminders).values({ listingId: item.id, kind: KIND });
+      await db.insert(hfListingReminders).values({ listingId: item.id, kind: `${KIND}_${validUntil}` });
       out.sent++;
     } catch (err) {
       out.failed++;

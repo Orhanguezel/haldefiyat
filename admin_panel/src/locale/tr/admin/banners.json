@@ -9,12 +9,12 @@
   "tabs": {
     "campaigns": "Kampanyalar",
     "alerts": "Müdahale",
-    "revenue": "Gelir & performans",
+    "revenue": "Gelir ve performans",
     "reports": "Raporlar",
     "calendar": "Takvim",
-    "slots": "Slotlar",
+    "slots": "Reklam alanları",
     "waitlist": "Bekleme listesi",
-    "packages": "Paketler & fiyat"
+    "packages": "Paketler ve fiyat"
   },
   "chips": {
     "all": "Tümü",
@@ -201,7 +201,7 @@
   "reports": {
     "title": "Reklam Performans Raporu",
     "controlsTitle": "Rapor dönemi ve çıktı",
-    "controlsHint": "Aylık veya özel tarih aralıklı raporu inceleyin, yazdırın ya da CSV olarak dışa aktarın.",
+    "controlsHint": "Markayı ve bir veya birden fazla kampanyayı seçin. Tarih aralığı, karşılaştırma ve dışa aktarma aynı seçime göre hazırlanır.",
     "period": "Hazır dönem",
     "from": "Başlangıç",
     "to": "Bitiş",
@@ -245,7 +245,12 @@
     "columns": {
       "campaign": "Kampanya / reklam veren",
       "slot": "Slot"
-    }
+    },
+    "brand": "Marka / reklam veren",
+    "allBrands": "Tüm markalar",
+    "allCampaigns": "Tüm kampanyalar",
+    "noCampaignSelected": "Kampanya seçilmedi",
+    "campaignSelection": "Kampanyalar ({count} seçili)"
   },
   "slots": {
     "open": "Satışa açık",

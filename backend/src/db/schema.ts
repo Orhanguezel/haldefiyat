@@ -828,6 +828,9 @@ export const hfBanners = mysqlTable(
       imageWidth?: number;
       imageHeight?: number;
       imageBytes?: number;
+    mediaKind?: "image" | "radar";
+    action?: "link" | "quote";
+      mobileImageUrl?: string;
     }>(),
     qualityOverrideReason: varchar("quality_override_reason", { length: 500 }),
     qualityCheckedAt: datetime("quality_checked_at", { fsp: 3 }),
@@ -844,6 +847,8 @@ export const hfBanners = mysqlTable(
     caption:      varchar("caption", { length: 300 }),
     ctaLabel:     varchar("cta_label", { length: 60 }),
     device:       mysqlEnum("device", ["all", "desktop", "mobile"]).notNull().default("all"),
+    format: varchar("ad_format", { length: 16 }).notNull().default("full"),
+    gridColumn: int("grid_column").notNull().default(1),
     desktopRow:   int("desktop_row").notNull().default(1),
     desktopColumns: int("desktop_columns").notNull().default(1),
     weight:       int("weight").notNull().default(1),

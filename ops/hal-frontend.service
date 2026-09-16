@@ -1,0 +1,19 @@
+[Unit]
+Description=HaldeFiyat frontend process manager (Node 24)
+After=network.target
+
+[Service]
+Type=forking
+User=root
+WorkingDirectory=/var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari
+PIDFile=/root/.pm2-hal-frontend/pm2.pid
+ExecStart=/bin/bash /var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/scripts/frontend-pm2.sh resurrect
+ExecReload=/bin/bash /var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/scripts/frontend-pm2.sh reload all
+ExecStop=/bin/bash /var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/scripts/frontend-pm2.sh kill
+Restart=on-failure
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+
+[Install]
+WantedBy=multi-user.target
