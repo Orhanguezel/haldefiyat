@@ -210,6 +210,26 @@ export default async function PiyasaPage({ params }: Props) {
         </div>
       </section>
 
+      {/* Tanitio A3: piyasa sayfalari govdeden yalniz 6 ic link veriyordu, bes
+          kardes sayfa birbirini hic gormuyordu. Hub + kardesler tek seritte. */}
+      <section className="my-10" aria-label="Diğer bölgesel piyasalar">
+        <h2 className="font-(family-name:--font-display) text-lg font-bold text-(--color-foreground)">Diğer bölgesel piyasalar</h2>
+        <ul className="mt-3 flex flex-wrap gap-2">
+          {Object.values(PIYASA_PAGES).filter((page) => page.slug !== config.slug).map((page) => (
+            <li key={page.slug}>
+              <Link href={`/piyasa/${page.slug}`} className="inline-flex rounded-[6px] border border-(--color-border-soft) px-3 py-1.5 text-[12px] font-medium text-(--color-foreground) transition hover:border-(--color-brand)/45 hover:text-(--color-brand)">
+                {page.h1}
+              </Link>
+            </li>
+          ))}
+          <li>
+            <Link href="/piyasa" className="inline-flex rounded-[6px] bg-(--color-brand)/10 px-3 py-1.5 text-[12px] font-semibold text-(--color-brand)">
+              Tüm piyasalar
+            </Link>
+          </li>
+        </ul>
+      </section>
+
       <section className="my-12" aria-label="İlgili sayfalar">
         <div className="rounded-2xl border border-(--color-border) bg-(--color-bg-alt) p-6">
           <h2 className="font-(family-name:--font-display) text-lg font-bold text-(--color-foreground)">İlgili sayfalar</h2>
