@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, like, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, like, or, sql, type SQL } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { db } from "@/db/client";
 import { hfFirmClaims, hfFirmDeals, hfFirmPrices, hfFirmProducts, hfFirms, hfFirmSponsorships, hfProducts } from "@/db/schema";
@@ -125,21 +125,16 @@ export async function upsertFirm(firm: FetchedFirm): Promise<"inserted" | "updat
 export async function listFirms(filters: FirmListFilters = {}) {
   const where = buildFirmWhere(filters);
   const includeSeoIndex = await hasFirmSeoIndexColumn();
+  const match = sponsorshipMatch(filters);
   return db
     .select({
       ...firmSelectColumns(includeSeoIndex),
-      sponsorshipTier: hfFirmSponsorships.tier,
-      sponsorshipPlacement: hfFirmSponsorships.placement,
+      sponsorshipTier: sql<string | null>`(SELECT fs.tier FROM hf_firm_sponsorships fs WHERE ${match})`.as("sponsorship_tier"),
+      sponsorshipPlacement: sql<string | null>`(SELECT fs.placement FROM hf_firm_sponsorships fs WHERE ${match})`.as("sponsorship_placement"),
     })
     .from(hfFirms)
-    .leftJoin(hfFirmSponsorships, and(
-      eq(hfFirmSponsorships.firmId, hfFirms.id),
-      eq(hfFirmSponsorships.isActive, 1),
-      sql`${hfFirmSponsorships.startsAt} <= CURRENT_TIMESTAMP(3)`,
-      sql`${hfFirmSponsorships.endsAt} >= CURRENT_TIMESTAMP(3)`,
-    ))
     .where(where)
-    .orderBy(...firmOrder(filters.sort))
+    .orderBy(...firmOrder(filters.sort, match))
     .limit(Math.min(filters.limit ?? 50, 200))
     .offset(filters.offset ?? 0);
 }
@@ -1044,6 +1039,8 @@ function buildFirmWhere(filters: FirmListFilters) {
   if (filters.hasPhone === true) clauses.push(sql`${hfFirms.phone} IS NOT NULL AND ${hfFirms.phone} <> ''`);
   if (filters.hasPhone === false) clauses.push(sql`(${hfFirms.phone} IS NULL OR ${hfFirms.phone} = '')`);
   if (filters.staleDays) clauses.push(sql`${hfFirms.lastSeenAt} < DATE_SUB(CURRENT_TIMESTAMP(3), INTERVAL ${filters.staleDays} DAY)`);
+  // Admin "sponsorlu" suzgeci: yeri neresi olursa olsun aktif sponsorlugu olanlar.
+  // (Listeleme siralamasi baglama bakar; bu suzgec envanter gorunumu icindir.)
   if (filters.sponsored === true) {
     clauses.push(sql`EXISTS (SELECT 1 FROM hf_firm_sponsorships fs WHERE fs.firm_id = ${hfFirms.id} AND fs.is_active = 1
       AND fs.starts_at <= CURRENT_TIMESTAMP(3) AND fs.ends_at >= CURRENT_TIMESTAMP(3))`);
@@ -1051,13 +1048,48 @@ function buildFirmWhere(filters: FirmListFilters) {
   return clauses.length ? and(...clauses) : undefined;
 }
 
-function firmOrder(sort: FirmListFilters["sort"]) {
+/**
+ * Bu listeleme baglamina UYGULANAN sponsorlugu secer.
+ *
+ * NEDEN: eski hali hf_firm_sponsorships'i placement'a BAKMADAN join ediyordu.
+ * Yani "il = mersin" icin satilan sponsorluk Adana sayfasinda ve genel listede
+ * de firmayi one cikariyordu — satilan sey ile teslim edilen sey ayni degildi,
+ * bu yuzden il bazli fiyatlandirma yapilamazdi. Ayrica bir firmanin birden fazla
+ * aktif sponsorlugu varsa join satiri cogaltip ayni firmayi listede iki kez
+ * gosteriyordu.
+ *
+ * Simdi: yalniz baglamla eslesen kayit sayilir (sehir sayfasinda o ilin
+ * sponsorlugu, tip sayfasinda o kategorinin, her yerde 'global'), ve korele
+ * alt sorgu tek satir dondurdugu icin cogaltma olmaz. Oncelik: daha dar hedef
+ * once (il > kategori > global).
+ */
+function sponsorshipMatch(filters: FirmListFilters) {
+  const city = filters.city ?? null;
+  const type = filters.type ?? null;
+  return sql`fs.firm_id = ${hfFirms.id}
+    AND fs.is_active = 1
+    AND fs.starts_at <= CURRENT_TIMESTAMP(3)
+    AND fs.ends_at >= CURRENT_TIMESTAMP(3)
+    AND (
+      fs.placement = 'global'
+      OR (fs.placement = 'il' AND fs.placement_slug = ${city})
+      OR (fs.placement = 'kategori' AND fs.placement_slug = ${type})
+    )
+  ORDER BY FIELD(fs.placement, 'il', 'kategori', 'global'), fs.ends_at DESC
+  LIMIT 1`;
+}
+
+function firmOrder(sort: FirmListFilters["sort"], match: SQL) {
   switch (sort) {
     case "name": return [asc(hfFirms.name)];
     case "city": return [asc(hfFirms.citySlug), asc(hfFirms.name)];
     case "lastSeen": return [asc(hfFirms.lastSeenAt)];
     case "newest": return [desc(hfFirms.createdAt)];
-    default: return [desc(hfFirmSponsorships.isActive), asc(hfFirms.citySlug), asc(hfFirms.name)];
+    default: return [
+      desc(sql`EXISTS (SELECT 1 FROM hf_firm_sponsorships fs WHERE ${match})`),
+      asc(hfFirms.citySlug),
+      asc(hfFirms.name),
+    ];
   }
 }
 
