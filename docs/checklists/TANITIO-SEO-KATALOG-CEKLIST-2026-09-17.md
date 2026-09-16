@@ -25,7 +25,7 @@ adana-mayer-limon, adana-limon, mersin-limon}`, `/fiyat/{adana,konya,kayseri}/li
 | A3 | İç linkler 72,2/100 | −1,67 | GERÇEK | `/piyasa/*` sayfaları yalnız **6** iç link veriyor (`/fiyat/*` 49). Piyasa sayfaları birbirine, ilgili `/fiyat/<şehir>/<ürün>`'e ve analize gövdeden link versin; hub'lar (A4/A5) açılınca her sayfa hub'a bağlansın | kod | 🟡 hub + kardeş şerit + köken linkleri eklendi (`951f6b84`, `cd931b05`, sonraki commit); yeniden tarama ile ölçülecek |
 | A4 | `/fiyat/` kök sayfası yok | düşük | GERÇEK — canlıda **404**, sitemap'te **454** sayfa (katalog 50 URL'lik keşif örneğinde 42 saydı) | `/fiyat` hub: 16 şehir × ürün çiftlerini şehir gruplu listeleyen giriş sayfası; `city-products?eligible=1` zaten var. Sitemap'e ekle, `/rehber` hub deseni kopyalanır | kod | ✅ `/fiyat` canlı 200, sitemap'te, breadcrumb bağlı (`951f6b84`) |
 | A5 | `/piyasa/` kök sayfası yok | düşük | GERÇEK — canlıda **404**, 5 sayfa | `/piyasa` hub: `PIYASA_PAGES` config'inden 5 kartlık giriş sayfası + kısa açıklama; sitemap'e ekle | kod | ✅ `/piyasa` canlı 200, sitemap'te, breadcrumb bağlı (`951f6b84`) |
-| A6 | 6 sayfada aynı og:image (`/og/default`) | düşük | GERÇEK ama bilinçli | 16 Eyl'de 201 eksik kapak `og/default`'a bağlandı; bu 6 sayfa o "jenerik kapak" kalıntısı. `/og/piyasa/[slug]` rotası `og/urun` deseniyle yazılır; `/canli-hal-fiyatlari` ve `/urun/kuru-uzum` elle kapak | Codex ([OG-KAPAK-EKSIKLERI-CODEX-NOTU.md](../../OG-KAPAK-EKSIKLERI-CODEX-NOTU.md)) | ⬜ |
+| A6 | 6 sayfada aynı og:image (`/og/default`) | düşük | GERÇEK ama bilinçli | 16 Eyl'de 201 eksik kapak `og/default`'a bağlandı; bu 6 sayfa o "jenerik kapak" kalıntısı. `/og/piyasa/[slug]` rotası `og/urun` deseniyle yazılır; `/canli-hal-fiyatlari` ve `/urun/kuru-uzum` elle kapak | Codex ([OG-KAPAK-EKSIKLERI-CODEX-NOTU.md](../../OG-KAPAK-EKSIKLERI-CODEX-NOTU.md)) | 🟡 `/og/piyasa` hâlâ jenerik (Codex). **`/og/fiyat` düzeltildi** — aşağıda D12 |
 
 ---
 
@@ -54,7 +54,7 @@ ayrıştırıldı:
 | C1 | `experience` — deneyim anlatımı | canli, kuru-uzum, piyasa ×4 | GERÇEK | "N yıldır / N kaynaktan / günde N kayıt" gibi süreç cümlesi şablona (B4 ile aynı satır) | kod | ✅ canlı (`cd931b05`) |
 | C2 | `reviews`, `trust` | 10/10 | UYGULANMAZ | Bkz. B5, B6 | — | ✅ karar |
 | C3 | Schema / H1 uyumu "Farklı" | canli, kuru-uzum, piyasa ×4 | GERÇEK, mekanik | Analizör ilk adlı varlığı H1 ile kıyaslıyor: canli'de Dataset adı "Canlı Türkiye Hal Fiyatları" vs H1 "Türkiye canlı hal fiyatları"; piyasa'da adlı WebPage hiç yok. Her sayfaya `WebPage{name: <H1>}` ekle (`JsonLd` bileşeni var) | kod | ✅ canlı: `WebPage{name}` canli, kuru-uzum, piyasa×5 (`cd931b05`) |
-| C4 | GEO **brand 0/100** (ağırlık %20) — "verified profiles: kayıt yok" | site geneli | GERÇEK, insan işi | Analizör doğrulanmış varlık arıyor (Wikidata / LinkedIn şirket / YouTube / Crunchbase). Bugün yalnız FB+IG+X sayılıyor (platform 60). Wikidata öğesi (HaldeFiyat, GZL Teknoloji, `sameAs` ile) + LinkedIn şirket sayfası + YouTube kanalı; sonra `Organization.sameAs`'e ekle | Orhan/Atakan | ⬜ |
+| C4 | GEO **brand 0/100** (ağırlık %20) — "verified profiles: kayıt yok" | site geneli | GERÇEK, insan işi | Analizör doğrulanmış varlık arıyor (Wikidata / LinkedIn şirket / YouTube / Crunchbase). Bugün yalnız FB+IG+X sayılıyor (platform 60). Wikidata öğesi (HaldeFiyat, GZL Teknoloji, `sameAs` ile) + LinkedIn şirket sayfası + YouTube kanalı; sonra `Organization.sameAs`'e ekle | Orhan/Atakan | 🟡 LinkedIn eklendi (`c304ad24`, canlı: sameAs + llms.txt + footer). Kalan: Wikidata öğesi + YouTube kanalı |
 | C5 | `Person` şeması var (Atakan Şahin), `author/date/about/contact` 10/10 | — | ✅ | Dokunma | — | ✅ |
 
 ---
@@ -74,6 +74,7 @@ ayrıştırıldı:
 | D9 | Kod/yazı oranı %8,55 | 300 KB HTML, 25 KB metin | bilgi → B7 | RSC yükü kırpılınca oran kendiliğinden düzelir | kod | ⬜ (B7) |
 | D10 | Twitter/OG/robots/canonical/HSTS/CSP/HTTP2/llms.txt/404/bot politikaları | Hepsi "Uygun" | ✅ | — | — | ✅ |
 | D11 | AAAA sorgusu (gözlem, katalogda yok) | Turhost NS ve 1.1.1.1 AAAA'ya doğru cevap veriyor (NOERROR boş, 80 ms); **8.8.8.8 → 4 sn sonra SERVFAIL**; yerel hotspot resolver 15 sn takıldı | doğrulanmadı | Google DNS kullanan ziyaretçide ilk bağlantı gecikebilir. Turhost'ta EDNS/DNSSEC ayarı veya boş AAAA ile ilgili; `dig @8.8.8.8 haldefiyat.com AAAA` ile takip. Kendi ölçümlerinde `curl -4` kullan | Orhan (Turhost) | ⬜ |
+| D12 | Google AI Modu küçük resmi ürün değil **logo** gösteriyordu | nginx erişim günlüğü: Google `/uploads/brand/logo.png`'i **7 Eylül**'de çekmiş, `/og/fiyat/*`'i **hiç** çekmemiş (0 istek). Sebep: o tarihte `/fiyat/*` ailesinin og:image'i **yoktu** (16 Eyl'de kapatılan 201 sayfadan biri); Google `Organization.logo`'ya düştü, kare kırpımı "aldef/defiy" verdi | GERÇEK, kapatıldı | `/og/fiyat/[sehir]/[urun]` kapağına ürün fotoğrafı sağ yarıda tam boy (`a5b36543`), nginx `/og/` önbelleği temizlendi. Google'ın kendi küçük-resim önbelleği yeniden taramada yenilenir | — | ✅ |
 
 ---
 
