@@ -1,12 +1,14 @@
 import type { FastifyBaseLogger } from "fastify";
 import { inspectSearchConsoleUrl } from "@agro/shared-backend/modules/searchConsole";
 import { pool } from "@/db/client";
-import { publicOrigin, upsertGscRow } from "./gsc-index";
+import { classifyGsc, publicOrigin, upsertGscRow } from "./gsc-index";
 
 // Tek indirici: haldefiyat URL'lerini GSC'de denetleyen TEK yer burasidir.
 // Sosyal platform (ekosistem-sosyal) bu sonuclari /api/v1/gsc/export'tan okur,
 // kendisi GSC'ye GITMEZ (kota cift harcanmaz).
 
+export type GscBulkScope = "all" | "missing_products";
+export type GscBulkOptions = { limit?: number; staleHours?: number; force?: boolean; scope?: GscBulkScope };
 let bulkRunning = false;
 
 export function isGscBulkRunning(): boolean {
@@ -32,16 +34,29 @@ async function collectHalUrls(): Promise<string[]> {
   return [...urls].filter((u) => u.startsWith(origin));
 }
 
+export async function collectMissingProductUrls(): Promise<string[]> {
+  const [rows] = await pool.query<any[]>(
+    `SELECT g.url, g.verdict, g.coverage_state FROM hf_products p
+     JOIN gsc_url_index g ON g.url = CONCAT(?, '/urun/', p.slug)
+     WHERE p.seo_index = 1 AND (p.canonical_slug IS NULL OR p.canonical_slug = '')`,
+    [publicOrigin()],
+  );
+  return rows.filter((row) => {
+    const { category } = classifyGsc(row.verdict, row.coverage_state);
+    return category === "not_indexed" || category === "issue";
+  }).map((row) => row.url);
+}
+
 type BulkResult = { total: number; pending: number; checked: number; failed: number; skipped: number };
 
 // staleHours'tan eski / hic denetlenmemis URL'leri, en eskiden basliyarak, limit kadar denetler.
 // throttle: ~5 istek/sn (GSC dakika limiti ~600 altinda).
 export async function runGscBulkRefresh(
-  opts: { limit?: number; staleHours?: number; force?: boolean } = {},
+  opts: GscBulkOptions = {},
 ): Promise<BulkResult> {
   const limit = Math.max(1, Math.min(opts.limit ?? 1000, 2000));
   const staleH = opts.staleHours ?? 24;
-  const all = await collectHalUrls();
+  const all = opts.scope === "missing_products" ? await collectMissingProductUrls() : await collectHalUrls();
 
   const [rows] = await pool.query<any[]>("SELECT url, checked_at FROM gsc_url_index");
   const checkedAt = new Map<string, number>();
@@ -79,7 +94,7 @@ export async function runGscBulkRefresh(
 // HTTP istegini bloklamadan arka planda calistir; ayni anda tek run.
 export function startGscBulkBackground(
   log: FastifyBaseLogger,
-  opts: { limit?: number; force?: boolean },
+  opts: GscBulkOptions,
 ): { started: boolean; reason?: string } {
   if (bulkRunning) return { started: false, reason: "already_running" };
   bulkRunning = true;
@@ -87,7 +102,7 @@ export function startGscBulkBackground(
     const t0 = Date.now();
     try {
       const r = await runGscBulkRefresh(opts);
-      log.info({ ...r, durationMs: Date.now() - t0 }, "[gsc:bulk] tamamlandi");
+      log.info({ ...r, scope: opts.scope ?? "all", durationMs: Date.now() - t0 }, "[gsc:bulk] tamamlandi");
     } catch (err) {
       log.error({ err }, "[gsc:bulk] hata");
     } finally {

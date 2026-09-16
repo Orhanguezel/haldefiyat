@@ -15,14 +15,15 @@
     "gsc": "Google'da yok",
     "gscHint": "indexlenebilir ama görünmüyor",
     "variants": "Varyant",
-    "variantsHint": "master'a 301"
+    "variantsHint": "master'a 301",
+    "gscRealIssue": "Gerçek Google sorunu",
+    "gscRealIssueHint": "İncelenmesi gereken ürünler",
+    "gscAwaiting": "Yeniden tarama bekliyor",
+    "gscAwaitingHint": "Google’ın taraması güncellemeden eski"
   },
   "gscLine": {
-    "cache": "Google önbelleği: {count} URL",
+    "cache": "Site geneli Google önbelleği: {count} URL",
     "indexed": "{count} indexli",
-    "realIssue": "{count} gerçek sorun",
-    "awaiting": "{count} yeniden tarama bekliyor",
-    "awaitingHint": "Google en son sayfayı biz index'e almadan önce taramış. Sayfa canlıda doğru; yeniden taranmasını bekliyor.",
     "excluded": "{count} beklenen dışlama",
     "last": "son denetim {date}"
   },
@@ -71,27 +72,33 @@
       "gscIndexed": "İndexli",
       "gscNotIndexed": "İndexsiz / sorun",
       "gscIssue": "Sadece sorun",
-      "gscUnchecked": "Denetlenmemiş"
+      "gscUnchecked": "Denetlenmemiş",
+      "gscRealIssue": "Gerçek Google sorunu",
+      "gscAwaitingRecrawl": "Yeniden tarama bekliyor"
     },
     "chips": {
       "gscActionable": "Google'da yok (indexlenebilir)",
       "gscIndexed": "Google: indexli",
       "gscNotIndexed": "Google: indexsiz / sorun",
       "gscIssue": "Google: sadece sorun",
-      "gscUnchecked": "Google: denetlenmemiş"
+      "gscUnchecked": "Google: denetlenmemiş",
+      "gscRealIssue": "Gerçek Google sorunu",
+      "gscAwaitingRecrawl": "Yeniden tarama bekliyor"
     }
   },
   "toolbar": {
     "suggestions": "Birleştirme önerileri",
     "more": "Diğer işlemler",
     "bulkTitle": "Toplu işlemler",
-    "gscRun": "Google: tümünü denetle",
+    "gscRun": "Tüm URL’leri denetle",
     "gscRunning": "Google denetimi sürüyor…",
-    "gscHint": "Tüm ürün URL'lerini Search Console'da yoklar",
+    "gscHint": "Ürün, hal, analiz ve diğer site URL’lerinin eski denetimlerini yeniler.",
     "maintenance": "SEO bakımı",
     "maintenanceHint": "Kaliteyi yeniden hesaplar, kriteri karşılayanı index'e alır",
     "reviewQueue": "Eşleme kuyruğu",
-    "newProduct": "Yeni ürün"
+    "newProduct": "Yeni ürün",
+    "gscMissingRun": "Yalnızca Google’da olmayan ürünleri denetle",
+    "gscMissingHint": "İndekslenebilir ana ürünlerin Google durumunu yeniler. Diğer liste filtrelerinden bağımsızdır."
   },
   "table": {
     "product": "Ürün",
@@ -128,7 +135,8 @@
     "gscStarted": "Toplu Google denetimi arka planda başladı. Birkaç dakika sonra liste dolar.",
     "gscFailed": "Toplu denetim başlatılamadı, zaten çalışıyor olabilir.",
     "updated": "Ürün güncellendi.",
-    "updateFailed": "Ürün kaydedilemedi."
+    "updateFailed": "Ürün kaydedilemedi.",
+    "gscMissingStarted": "Google’da görünmeyen indekslenebilir ürünlerin denetimi başladı. Bu işlem Google’a yeniden tarama isteği göndermez."
   },
   "sheet": {
     "tabs": {

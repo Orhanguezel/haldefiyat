@@ -19,6 +19,7 @@ export type HfProductItem = {
   isActive: number | boolean;
   gscCategory?: GscIndexCategory | null;
   gscLabel?: string | null;
+  gscAwaitingRecrawl?: boolean;
   hasEditorial?: boolean;
   halMarkets30d?: number;
   borsaMarkets30d?: number;
@@ -205,7 +206,7 @@ export const hfProductsAdminApi = baseApi.injectEndpoints({
       transformResponse: (response: { data: HfGscSummary }) => response.data,
       providesTags: [{ type: "HfProducts" as const, id: "GSC-SUMMARY" }],
     }),
-    bulkRefreshHfGsc: builder.mutation<{ ok: boolean; started: boolean }, { limit?: number; force?: boolean } | void>({
+    bulkRefreshHfGsc: builder.mutation<{ ok: boolean; started: boolean }, { limit?: number; force?: boolean; scope?: "all" | "missing_products" } | void>({
       query: (body) => ({ url: "/admin/hal/gsc/bulk-refresh", method: "POST", body: body ?? {} }),
       invalidatesTags: [{ type: "HfProducts" as const, id: "GSC-SUMMARY" }],
     }),

@@ -67,16 +67,16 @@ export function gscBlock(url: string, row: GscRow | null) {
 // Cache'li GSC durumunu toplu okur (canli GSC cagrisi YOK) — liste ekranlari icin.
 export async function readGscCategoriesForUrls(
   urls: string[],
-): Promise<Map<string, { category: GscCategory; label: string }>> {
-  const map = new Map<string, { category: GscCategory; label: string }>();
+): Promise<Map<string, { category: GscCategory; label: string; lastCrawl: string | null }>> {
+  const map = new Map<string, { category: GscCategory; label: string; lastCrawl: string | null }>();
   if (!urls.length) return map;
   const placeholders = urls.map(() => "?").join(",");
   const [rows] = await pool.query<any[]>(
-    `SELECT url, verdict, coverage_state FROM gsc_url_index WHERE url IN (${placeholders})`,
+    `SELECT url, verdict, coverage_state, last_crawl FROM gsc_url_index WHERE url IN (${placeholders})`,
     urls,
   );
   for (const row of rows ?? []) {
-    map.set(row.url, classifyGsc(row.verdict ?? null, row.coverage_state ?? null));
+    map.set(row.url, { ...classifyGsc(row.verdict ?? null, row.coverage_state ?? null), lastCrawl: row.last_crawl ? new Date(row.last_crawl).toISOString() : null });
   }
   return map;
 }

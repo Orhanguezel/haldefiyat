@@ -1019,6 +1019,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
       return {
         ...it,
         gscCategory: g?.category ?? null,
+        gscAwaitingRecrawl: Boolean(g?.lastCrawl && it.updatedAt && new Date(g.lastCrawl).getTime() < new Date(it.updatedAt).getTime()),
         gscLabel: g?.label ?? null,
         hasEditorial: editorialSlugs.has(it.slug),
         halMarkets30d: Number(s?.halMarkets ?? 0),

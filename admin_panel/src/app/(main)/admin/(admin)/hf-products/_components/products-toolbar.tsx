@@ -18,7 +18,7 @@ type Props = {
   filters: Filters;
   onChange: (patch: Partial<Filters>) => void;
   categories: string[];
-  onBulkGsc: () => void;
+  onBulkGsc: (scope: "all" | "missing_products") => void;
   onMaintenance: () => void;
   onSuggestions: () => void;
   gscRunning: boolean;
@@ -28,7 +28,7 @@ type Props = {
 };
 
 // Secenek etiketleri: options.<value> (gsc icin options.gsc<Value>), cip etiketleri chips.*
-const GSC_OPTIONS = ["actionable", "indexed", "not_indexed", "issue", "unchecked"];
+const GSC_OPTIONS = ["real_issue", "awaiting_recrawl", "actionable", "indexed", "not_indexed", "issue", "unchecked"];
 const gscKey = (v: string) => "gsc" + v.split("_").map((p) => p[0].toUpperCase() + p.slice(1)).join("");
 const ADVANCED: Array<{ key: keyof Filters; labelKey: string; options: string[]; optionLabel: (v: string, t: T) => string }> = [
   { key: "status", labelKey: "filters.status", options: ["active", "passive"], optionLabel: (v, t) => t(`filters.options.${v}`) },
@@ -105,7 +105,14 @@ export function ProductsToolbar({ filters, onChange, categories, onBulkGsc, onMa
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-72">
               <DropdownMenuLabel>{t("toolbar.bulkTitle")}</DropdownMenuLabel>
-              <DropdownMenuItem disabled={gscRunning} onClick={onBulkGsc}>
+              <DropdownMenuItem disabled={gscRunning} onClick={() => onBulkGsc("missing_products")}>
+                <RefreshCw className={`size-4 ${gscRunning ? "animate-spin" : ""}`} />
+                <div>
+                  <div>{t("toolbar.gscMissingRun")}</div>
+                  <div className="text-xs text-muted-foreground">{t("toolbar.gscMissingHint")}</div>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem disabled={gscRunning} onClick={() => onBulkGsc("all")}>
                 <RefreshCw className={`size-4 ${gscRunning ? "animate-spin" : ""}`} />
                 <div>
                   <div>{gscRunning ? t("toolbar.gscRunning") : t("toolbar.gscRun")}</div>

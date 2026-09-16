@@ -64,8 +64,24 @@ export const EMPTY_FILTERS: Filters = {
 };
 
 
+/**
+ * Arama karsilastirmasi icin harf katlama. Sunucu tarafi MySQL ci collation'i
+ * I / İ / ı / i harflerini esitliyordu; yerel filtre onunla ayni davransin diye
+ * dort varyant tek harfe indirgenir (aksi halde "Incir" yazan "İncir"i bulamaz).
+ */
+function foldTr(value: string) {
+  return value.replace(/[İIı]/g, "i").toLocaleLowerCase("tr-TR");
+}
+
 export function applyLocalFilters(items: HfProductItem[], f: Filters) {
+  const needle = foldTr(f.q.trim());
   return items.filter((item) => {
+    if (needle && ![item.nameTr, item.slug, item.displayName].some((value) => value && foldTr(value).includes(needle))) return false;
+    if (f.category !== ALL && item.categorySlug !== f.category) return false;
+    if (f.status !== ALL && Boolean(item.isActive) !== (f.status === "active")) return false;
+    if (f.seo !== ALL && Boolean(item.seoIndex) !== (f.seo === "index")) return false;
+    if (f.gsc === "real_issue" && !(isGscActionable(item) && !item.gscAwaitingRecrawl)) return false;
+    if (f.gsc === "awaiting_recrawl" && !(isGscActionable(item) && item.gscAwaitingRecrawl)) return false;
     if (f.variant === "variant" && !item.canonicalSlug) return false;
     if (f.variant === "master" && item.canonicalSlug) return false;
     if (f.gsc === "actionable" && !isGscActionable(item)) return false;
@@ -107,6 +123,8 @@ export function summarize(items: HfProductItem[]) {
     maintenance: count((i) => i.action === "maintenance_pending"),
     needsCoverage: count((i) => i.action === "needs_coverage"),
     gscProblem: count(isGscActionable),
+    gscRealIssue: count(i => isGscActionable(i) && !i.gscAwaitingRecrawl),
+    gscAwaiting: count(i => isGscActionable(i) && Boolean(i.gscAwaitingRecrawl)),
     withEditorial: count((i) => Boolean(i.hasEditorial)),
   };
 }

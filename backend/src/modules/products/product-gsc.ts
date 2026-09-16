@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { FastifyInstance } from "fastify";
 import { inspectSearchConsoleUrl } from "@agro/shared-backend/modules/searchConsole";
 import { pool } from "@/db/client";
@@ -32,10 +33,14 @@ async function buildProductGsc(product: ProductRow) {
 export async function registerProductGsc(app: FastifyInstance) {
   // Toplu GSC denetimi: tum hal URL'lerini (urun+hal+analiz) tek seferde tarar.
   // Arka planda calisir, HTTP istegini bloklamaz.
-  app.post<{ Body: { limit?: number; force?: boolean } }>("/hal/gsc/bulk-refresh", async (req, reply) => {
-    const body = req.body ?? {};
-    const limit = Number.isFinite(body.limit) ? Number(body.limit) : undefined;
-    const r = startGscBulkBackground(app.log, { limit, force: Boolean(body.force) });
+  app.post("/hal/gsc/bulk-refresh", async (req, reply) => {
+    const parsed = z.object({
+      limit: z.number().int().min(1).max(2000).optional(),
+      force: z.boolean().optional(),
+      scope: z.enum(["all", "missing_products"]).default("all"),
+    }).safeParse(req.body ?? {});
+    if (!parsed.success) return reply.code(400).send({ error: "Geçersiz denetim kapsamı veya limit" });
+    const r = startGscBulkBackground(app.log, parsed.data);
     if (!r.started) return reply.status(409).send({ error: "Toplu denetim zaten çalışıyor" });
     return reply.send({ ok: true, started: true });
   });

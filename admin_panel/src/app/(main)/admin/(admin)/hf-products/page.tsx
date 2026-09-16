@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useListHfProductsAdminQuery, useMergeHfProductsAdminMutation } from "@/integrations/hooks";
@@ -16,7 +16,7 @@ import { ProductSheet } from "./_components/product-sheet";
 import { ProductsOverview } from "./_components/products-overview";
 import { ProductsTable } from "./_components/products-table";
 import { ProductsToolbar } from "./_components/products-toolbar";
-import { ALL, applyLocalFilters, EMPTY_FILTERS, type Filters, sortItems, summarize } from "./_lib/product-meta";
+import { applyLocalFilters, EMPTY_FILTERS, type Filters, sortItems, summarize } from "./_lib/product-meta";
 import { useAdminT } from "../../_components/common/use-admin-t";
 
 const PAGE_SIZE = 50;
@@ -38,22 +38,22 @@ export default function Page() {
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
 
   const q = useDebounced(filters.q, 300);
-  const { data, isLoading } = useListHfProductsAdminQuery({
-    q: q.trim() || undefined,
-    category: filters.category === ALL ? undefined : filters.category,
-    isActive: filters.status === ALL ? undefined : filters.status === "active",
-    seoIndex: filters.seo === ALL ? undefined : filters.seo === "index",
-  });
+  const { data, isLoading, refetch } = useListHfProductsAdminQuery(undefined);
   const { data: gscSummary } = useGetHfGscSummaryQuery(undefined, { pollingInterval: 20000 });
   const [merge, mergeState] = useMergeHfProductsAdminMutation();
   const [bulkRefreshGsc, bulkState] = useBulkRefreshHfGscMutation();
   const [runMaintenance, maintenanceState] = useRunHfSeoMaintenanceMutation();
 
+  const wasGscRunning = useRef(false);
+  useEffect(() => {
+    if (wasGscRunning.current && gscSummary?.running === false) void refetch();
+    wasGscRunning.current = Boolean(gscSummary?.running);
+  }, [gscSummary?.running, refetch]);
   const items = data?.items ?? [];
   const categories = useMemo(() => Array.from(new Set(items.map((i) => i.categorySlug).filter(Boolean))).sort(), [items]);
   const bySlug = useMemo(() => new Map(items.map((i) => [i.slug, i])), [items]);
   const stats = useMemo(() => summarize(items), [items]);
-  const visible = useMemo(() => sortItems(applyLocalFilters(items, filters), filters.sort), [items, filters]);
+  const visible = useMemo(() => sortItems(applyLocalFilters(items, { ...filters, q }), filters.sort), [items, filters, q]);
   // Panel, liste yeniden cekildiginde guncel satiri gostersin (kayit sonrasi rozetler eskimesin).
   const open = useMemo(() => (openId == null ? null : items.find((i) => i.id === openId) ?? null), [items, openId]);
 
@@ -79,10 +79,10 @@ export default function Page() {
     } catch { toast.error(t("toasts.maintenanceFailed")); }
   }
 
-  async function handleBulkGsc() {
+  async function handleBulkGsc(scope: "all" | "missing_products" = "all") {
     try {
-      await bulkRefreshGsc({}).unwrap();
-      toast.success(t("toasts.gscStarted"));
+      await bulkRefreshGsc({ scope, force: scope === "missing_products" }).unwrap();
+      toast.success(t(scope === "missing_products" ? "toasts.gscMissingStarted" : "toasts.gscStarted"));
     } catch { toast.error(t("toasts.gscFailed")); }
   }
 

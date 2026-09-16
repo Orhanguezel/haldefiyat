@@ -3,7 +3,7 @@
 import { RefreshCw } from "lucide-react";
 import type { HfGscSummary } from "@/integrations/endpoints/hf-products-admin-endpoints";
 import type { Filters } from "../_lib/product-meta";
-import { ALL, summarize } from "../_lib/product-meta";
+import { EMPTY_FILTERS, summarize } from "../_lib/product-meta";
 type T = (key: string, params?: Record<string, string | number>, fallback?: string) => string;
 
 type Stats = ReturnType<typeof summarize>;
@@ -24,6 +24,8 @@ function tiles(stats: Stats, t: T): Tile[] {
     { key: "maintenance", value: stats.maintenance, hint: t("tiles.maintenanceHint"), tone: stats.maintenance ? "warn" : undefined, filter: { action: "maintenance_pending" } },
     { key: "coverage", value: stats.needsCoverage, hint: t("tiles.coverageHint"), filter: { action: "needs_coverage" } },
     { key: "gsc", value: stats.gscProblem, hint: t("tiles.gscHint"), tone: stats.gscProblem ? "warn" : undefined, filter: { gsc: "actionable" } },
+    { key: "gscRealIssue", value: stats.gscRealIssue, hint: t("tiles.gscRealIssueHint"), tone: "danger", filter: { gsc: "real_issue" } },
+    { key: "gscAwaiting", value: stats.gscAwaiting, hint: t("tiles.gscAwaitingHint"), tone: "warn", filter: { gsc: "awaiting_recrawl" } },
     { key: "variants", value: stats.variants, hint: t("tiles.variantsHint"), filter: { variant: "variant" } },
   ];
 }
@@ -52,15 +54,15 @@ function tileActive(tile: Tile, filters: Filters) {
 export function ProductsOverview({ stats, filters, onFilter, gsc, t }: Props) {
   return (
     <div className="space-y-2">
-      <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+      <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5">
         {tiles(stats, t).map((tile) => {
           const active = tileActive(tile, filters);
-          const isReset = tile.filter && Object.keys(tile.filter).length === 0;
           return (
             <button
               key={tile.key}
               type="button"
-              onClick={() => onFilter(isReset ? { seo: ALL, variant: ALL, action: ALL, gsc: ALL } : (tile.filter ?? {}))}
+              aria-pressed={active}
+              onClick={() => onFilter({ ...EMPTY_FILTERS, sort: filters.sort, ...tile.filter })}
               className={`rounded-lg border p-3 text-left transition hover:border-primary/40 ${active ? "border-primary bg-primary/5" : "bg-background"}`}
             >
               <div className="text-xs text-muted-foreground">{t(`tiles.${tile.key}`)}</div>
@@ -75,8 +77,6 @@ export function ProductsOverview({ stats, filters, onFilter, gsc, t }: Props) {
           {gsc.running ? <RefreshCw className="size-3 animate-spin text-primary" /> : null}
           <span>{t("gscLine.cache", { count: gsc.total })}</span>
           <span>{t("gscLine.indexed", { count: gsc.indexed })}</span>
-          <span className={gsc.realIssue > 0 ? "font-medium text-amber-600" : ""}>{t("gscLine.realIssue", { count: gsc.realIssue })}</span>
-          <span title={t("gscLine.awaitingHint")}>{t("gscLine.awaiting", { count: gsc.awaitingRecrawl ?? 0 })}</span>
           <span>{t("gscLine.excluded", { count: gsc.expectedExcluded })}</span>
           {gsc.lastChecked ? <span>{t("gscLine.last", { date: gsc.lastChecked.replace("T", " ").slice(0, 16) })}</span> : null}
         </p>
