@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
 import { LayoutGrid, Map } from "lucide-react";
-import type { CityPriceMapItem, Market } from "@/lib/api";
+import type { CityPriceMapItem, MarketSummary } from "@/lib/api";
 
 const TurkeyMapClient = dynamic(
   () => import("@/components/sections/TurkeyMapClient"),
@@ -19,7 +19,8 @@ const TurkeyMapClient = dynamic(
 );
 
 interface Props {
-  markets: Market[];
+  /** Sunucu yalniz bu alanlari gonderir; tam Market nesnesi RSC yukunu 28 KB sisiriyordu. */
+  markets: MarketSummary[];
   cityPrices?: CityPriceMapItem[];
   locale: string;
   majorCities: string[];
@@ -77,7 +78,7 @@ export default function CitySelectorClient({ markets, cityPrices, locale, majorC
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-          {markets.map((market: Market) => {
+          {markets.map((market) => {
             const isMajor = majorCities.includes(market.slug);
             return (
               <Link

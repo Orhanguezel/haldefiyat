@@ -212,6 +212,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/`, ...(priceLastModified && { lastModified: priceLastModified }), changeFrequency: "daily", priority: 1 },
     { url: `${SITE_URL}/canli-hal-fiyatlari`, ...(priceLastModified && { lastModified: priceLastModified }), changeFrequency: "daily", priority: 0.98 },
     { url: `${SITE_URL}/urun/kuru-uzum`, lastModified: new Date("2026-09-08"), changeFrequency: "weekly" as const, priority: 0.7 },
+    { url: `${SITE_URL}/piyasa`, ...(priceLastModified && { lastModified: priceLastModified }), changeFrequency: "daily" as const, priority: 0.85 },
+    { url: `${SITE_URL}/fiyat`, ...(priceLastModified && { lastModified: priceLastModified }), changeFrequency: "daily" as const, priority: 0.85 },
     ...Object.keys(PIYASA_PAGES).map((slug) => ({
       url: `${SITE_URL}/piyasa/${slug}`,
       ...(priceLastModified && { lastModified: priceLastModified }),

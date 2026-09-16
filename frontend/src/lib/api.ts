@@ -97,6 +97,13 @@ export interface VariantPriceRow {
   url: string;
 }
 
+/**
+ * Sehir secici ve harita bilesenlerinin okudugu alanlar. Tam Market nesnesini
+ * client'a gecirmek 58 hal icin RSC yukune 28 KB null agirlikli JSON yaziyordu
+ * (address, phone, founded, hours, sourceKey, updatedAt…); bilesenler 5 alan okur.
+ */
+export type MarketSummary = Pick<Market, "id" | "slug" | "name" | "cityName" | "regionSlug">;
+
 export interface Market {
   id: number;
   slug: string;

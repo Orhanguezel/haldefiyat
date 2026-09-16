@@ -93,6 +93,7 @@ export default async function CityProductPage({ params }: Props) {
       />
       <Breadcrumb visible items={[
         { name: "Anasayfa", href: "/" },
+        { name: "Şehir Fiyatları", href: "/fiyat" },
         { name: `${pair.productName} Fiyatları`, href: `/urun/${pair.productSlug}` },
         { name: pair.cityName, href: `/fiyat/${pair.citySlug}/${pair.productSlug}` },
       ]} />

@@ -69,8 +69,11 @@ export default async function CitySelector({ locale }: CitySelectorProps) {
           </Link>
         </header>
 
+        {/* Client'a yalniz kullandigi alanlar gider. Tam Market nesnesi (address,
+            phone, founded, hours, sourceKey, updatedAt…) 58 hal icin RSC yukune
+            28 KB null agirlikli JSON yaziyordu; bilesen 5 alan okuyor. */}
         <CitySelectorClient
-          markets={sortedMarkets}
+          markets={sortedMarkets.map(({ id, slug, name, cityName, regionSlug }) => ({ id, slug, name, cityName, regionSlug }))}
           cityPrices={cityPriceMap.items}
           locale={locale}
           majorCities={MAJOR_CITIES}

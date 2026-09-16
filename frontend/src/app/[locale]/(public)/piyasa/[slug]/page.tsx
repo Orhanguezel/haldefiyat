@@ -75,6 +75,7 @@ export default async function PiyasaPage({ params }: Props) {
         visible
         items={[
           { name: "Anasayfa", href: "/" },
+          { name: "Piyasalar", href: "/piyasa" },
           { name: `${config.productName} Fiyatları`, href: `/urun/${config.productSlug}` },
           { name: config.h1, href: `/piyasa/${config.slug}` },
         ]}

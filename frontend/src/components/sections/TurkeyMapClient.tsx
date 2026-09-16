@@ -2,12 +2,12 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import type { CityPriceMapItem, Market } from "@/lib/api";
+import type { CityPriceMapItem, MarketSummary } from "@/lib/api";
 import { TURKEY_PROVINCES, TURKEY_VIEWBOX } from "@/lib/turkey-geo";
 import { PUBLIC_METRICS } from "@/lib/public-metrics";
 
 interface Props {
-  markets: Market[];
+  markets: MarketSummary[];
   cityPrices?: CityPriceMapItem[];
 }
 
@@ -70,12 +70,12 @@ interface ProvinceRow {
   code: string;
   name: string;
   d: string;
-  markets: Market[];
+  markets: MarketSummary[];
   price: CityPriceMapItem | null;
 }
 
-function buildRows(markets: Market[], prices: CityPriceMapItem[]): ProvinceRow[] {
-  const marketMap = new Map<string, Market[]>();
+function buildRows(markets: MarketSummary[], prices: CityPriceMapItem[]): ProvinceRow[] {
+  const marketMap = new Map<string, MarketSummary[]>();
   for (const m of markets) {
     if (!m.cityName || m.regionSlug === "ulusal") continue;
     const k = cityKey(m.cityName);
