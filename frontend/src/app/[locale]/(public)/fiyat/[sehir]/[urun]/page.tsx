@@ -17,6 +17,7 @@ import { buildCityProductDataset, buildCityProductFaq, buildCityProductSummary }
 import { formatDateTr } from "@/lib/date-format";
 import { PIYASA_BY_PRODUCT } from "@/lib/piyasa";
 import { fitTitle, marketQualifier } from "@/lib/meta-title";
+import { fitMetaDescription } from "@/lib/meta-text";
 import { DATA_LICENSE_URL, getPageMetadata } from "@/lib/seo";
 
 /**
@@ -44,7 +45,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     [marketQualifier(d.pair.marketName, d.pair.cityName)],
   );
   const live = d.latest ? `${dateTr}: ortalama ${d.latest.avgPrice.toLocaleString("tr-TR", { maximumFractionDigits: 2 })} TL/${d.pair.unit}. ` : "";
-  const description = `${d.pair.cityName} ${d.pair.productName.toLocaleLowerCase("tr-TR")} hal fiyatı. ${live}${d.pair.marketName} günlük kaydı, 90 günlük fiyat seyri, çeşit ve kaynak bilgisi.`;
+  // Hal adi uzun olan sehirlerde (Istanbul Bayrampasa Toptanci Hali (IBB)) tek
+  // parca aciklama 160'i asip cumlenin ortasinda kesiliyordu. Fiyat cumlesi
+  // zorunlu; kalan cumleler sigdigi kadar eklenir.
+  const description = fitMetaDescription(
+    `${d.pair.cityName} ${d.pair.productName.toLocaleLowerCase("tr-TR")} hal fiyatı. ${live}`,
+    [`${d.pair.marketName} günlük kaydı.`, "90 günlük fiyat seyri, çeşit ve kaynak bilgisi."],
+  );
   return getPageMetadata("fiyat_sehir_urun", {
     locale, pathname: `/fiyat/${sehir}/${urun}`, title, description,
     robots: d.pair.eligible ? { index: true, follow: true } : { index: false, follow: true },

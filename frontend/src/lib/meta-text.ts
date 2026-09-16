@@ -43,9 +43,57 @@ export function compactMetaTitle(value: string): string {
     const candidate = parts.slice(0, count).join(TITLE_SEPARATOR).replace(/[\s,;:—-]+$/u, "");
     if (candidate.length <= 60) return candidate;
   }
+
+  const clause = longestClause(text, 60);
+  if (clause) return clause;
+
   return compactMetaText(text, 60);
+}
+
+/**
+ * " — " kuyrugu olmayan, elle yazilmis uzun basliklar icin (editoryel analiz
+ * yazilari) noktalama sinirinda kes: "HaldeFiyat Endeksi Nasil Hesaplanir?
+ * Sepet, Baz Hafta ve…" yerine "HaldeFiyat Endeksi Nasil Hesaplanir?".
+ * Butcenin yarisindan kisa kalan sinir kabul edilmez — baslik kimligini
+ * kaybetmesin.
+ */
+function longestClause(text: string, max: number): string | null {
+  const minLength = Math.floor(max / 2);
+  let sentence: string | null = null;
+  let clause: string | null = null;
+  for (let i = 0; i < text.length && i < max; i += 1) {
+    const mark = text[i]!;
+    const endsSentence = "?!.".includes(mark);
+    if (!endsSentence && !",;:".includes(mark)) continue;
+    const candidate = text.slice(0, endsSentence ? i + 1 : i).replace(/[\s,;:—-]+$/u, "");
+    if (candidate.length < minLength || candidate.length > max) continue;
+    if (endsSentence) sentence = candidate;
+    else clause = candidate;
+  }
+  // Cumle sonu her zaman zayif ayirici onunde gelir: "… Nasil Hesaplanir?"
+  // tam bir soru, "… Nasil Hesaplanir? Sepet" listenin ortasinda kesilmis olur.
+  return sentence ?? clause;
 }
 
 export function compactMetaDescription(value: string): string {
   return compactMetaText(value, 160);
+}
+
+/**
+ * Zorunlu bas kismi korur, opsiyonel cumleleri butceye sigdigi kadar ekler.
+ *
+ * compactMetaDescription 160'ta kirptigi icin uzun hal adi olan sayfalarda
+ * aciklama cumlenin ortasinda bitiyordu: /fiyat/istanbul/* sayfalarinin
+ * tamami "…90 gunluk fiyat seyri, cesit ve kaynak…" ile kapaniyordu
+ * (16 Eyl 2026 taramasi: 300 sayfada 26 ornek). Sigmayan cumle eklenmez.
+ */
+export function fitMetaDescription(head: string, optional: string[] = [], max = 160): string {
+  let text = normalized(head);
+  for (const part of optional) {
+    const piece = normalized(part ?? "");
+    if (!piece) continue;
+    const candidate = `${text} ${piece}`;
+    if (candidate.length <= max) text = candidate;
+  }
+  return text;
 }
