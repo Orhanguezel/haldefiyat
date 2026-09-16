@@ -9,10 +9,18 @@ SET time_zone = '+00:00';
 -- paylaşımlarda ve arama sonuçlarında marka kayboluyordu.
 -- /og/default aynı arka planı kullanır ama logoyu koyu-tema varyantıyla ve beyaz
 -- kontrast kutusu içinde basar (lib/og-brand.tsx -> logohaldefiyat_dark_theme.png).
--- Analiz sayfaları zaten dinamik /og/analiz/<slug> kullanıyordu ve doğru
--- görünüyordu; bu değişiklik geri kalan sayfaları o standarda getirir.
--- Statik dosyalar silinmedi (backend/uploads/og/) — geri dönüş gerekirse duruyor.
--- nginx /uploads/ -> backend/uploads/ alias ile serve edilir.
+--
+-- 2026-09-17 düzeltmesi: o karar contrast'ı çözdü ama 22 sayfayı TEK görsele
+-- indirdi; Tanitio kataloğu (17 Eyl) bunu "paylaşım görseli N sayfada aynı"
+-- bulgusu olarak yazdı — hangi sayfanın paylaşıldığı ayırt edilemiyor.
+-- Ölçülen contrast: "halde" glifleri panel zeminine karşı 1.19:1 (görünmez).
+-- 16 editoryal görselin AYNISI, yalnız logo koyu-tema varyantıyla değiştirilerek
+-- yeniden üretildi -> 12.33:1. Artık hem okunur hem sayfa başına ayrı.
+-- Dosyalar bu kez REPO'da: frontend/public/og-pages/<key>.jpg (uploads/ gitignore'lu,
+-- sunucu yeniden kurulursa kaybolurdu). Statik firmalar/* anahtarları /og/default
+-- kalır; onların editoryal görseli yok.
+-- Yeniden üretim: logohaldefiyat_dark_theme.png görünür bbox'a kırpılır,
+-- 426x139'a ölçeklenip (383,173) konumuna alpha_composite edilir.
 -- Antigravity üretimi 16 editoryal görsel (1200x630). Detay sayfaları
 -- (urun/[slug], hal/[slug]) ayrı dinamik OG alır — buradaki "urun"/"hal"
 -- LİSTE sayfası içindir.
@@ -26,55 +34,55 @@ VALUES (
     "home": {
       "title": "Türkiye Hal Fiyatları — Günlük, Gerçek Zamanlı",
       "description": "Türkiye geneli hal ve pazar fiyatları tek ekranda. Sebze, meyve ve bakliyat fiyatlarını şehir ve kategori bazında karşılaştırın.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/home.jpg",
       "no_index": false
     },
     "fiyatlar": {
       "title": "Güncel Hal Fiyatları {{year}} — Bugünkü Toptan Sebze & Meyve Fiyatları",
       "description": "Türkiye geneli güncel hal fiyatları: sebze, meyve ve bakliyat toptan/piyasa fiyatlarını şehir, kategori ve tarihe göre filtreleyin. Fiyatlar her gün sabah otomatik güncellenir.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/fiyatlar.jpg",
       "no_index": false
     },
     "hal": {
       "title": "Tüm Haller",
       "description": "Türkiye genelindeki hal ve pazarlar bölgelere göre gruplandırılmış liste. Fiyat sayfasına doğrudan erişin.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/hal.jpg",
       "no_index": false
     },
     "urun": {
       "title": "{{name}} Hal Fiyatı {{year}} — Toptan & Piyasa Fiyatları",
       "description": "{{name}} güncel hal, toptan ve piyasa fiyatları. {{priceLine}}Türkiye geneli günlük ortalama, 5 yıllık trend grafiği ve şehir bazlı karşılaştırma.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/urun.jpg",
       "no_index": false
     },
     "endeks": {
       "title": "HaldeFiyat Endeksi",
       "description": "Türkiye hal fiyatlarının haftalık sepet endeksi. Baz haftaya göre değişimi izleyin.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/endeks.jpg",
       "no_index": false
     },
     "karsilastirma": {
       "title": "Fiyat Karşılaştırma | HaldeFiyat",
       "description": "Aynı grafikte birden fazla ürünün fiyat trendini karşılaştırın.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/karsilastirma.jpg",
       "no_index": false
     },
     "uyarilar": {
       "title": "Fiyat Uyarıları | HaldeFiyat",
       "description": "Seçtiğiniz ürün ve hal için fiyat eşiği belirleyin. Hedef fiyata ulaşınca e-posta ile bildirim alın.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/uyarilar.jpg",
       "no_index": false
     },
     "hakkimizda": {
       "title": "Hakkımızda | HaldeFiyat",
       "description": "HaldeFiyatın Türkiye hal fiyatları verisini nasıl topladığını ve sunduğunu keşfedin.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/hakkimizda.jpg",
       "no_index": false
     },
     "iletisim": {
       "title": "İletişim | HaldeFiyat",
       "description": "HaldeFiyat ekibiyle iletişime geçin; soru, öneri ve destek taleplerinizi gönderin.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/iletisim.jpg",
       "no_index": false
     },
     "firmalar": {
@@ -116,43 +124,43 @@ VALUES (
     "giris": {
       "title": "Giriş Yap | HaldeFiyat",
       "description": "HaldeFiyat hesabınıza giriş yapın.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/giris.jpg",
       "no_index": true
     },
     "kayit": {
       "title": "Kayıt Ol | HaldeFiyat",
       "description": "HaldeFiyata üye olun.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/kayit.jpg",
       "no_index": true
     },
     "favoriler": {
       "title": "Favori Ürünlerim",
       "description": "Favori ürünleriniz için güncel hal fiyatlarını tek ekranda takip edin.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/favoriler.jpg",
       "no_index": true
     },
     "api_docs": {
       "title": "API Dokümantasyonu",
       "description": "HaldeFiyat açık API — fiyat verileri, hal listesi, haftalık endeks ve daha fazlası.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/api_docs.jpg",
       "no_index": true
     },
     "gizlilik_politikasi": {
       "title": "Gizlilik Politikası | HaldeFiyat",
       "description": "HaldeFiyat gizlilik politikası ve kişisel verilerin korunmasına ilişkin bilgilendirme.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/gizlilik_politikasi.jpg",
       "no_index": false
     },
     "kullanim_kosullari": {
       "title": "Kullanım Koşulları | HaldeFiyat",
       "description": "HaldeFiyat kullanım koşulları ve platform kullanımına ilişkin kurallar.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/kullanim_kosullari.jpg",
       "no_index": false
     },
     "kvkk": {
       "title": "KVKK Aydınlatma Metni | HaldeFiyat",
       "description": "HaldeFiyat KVKK aydınlatma metni ve kişisel veri işleme süreçleri.",
-      "og_image": "/og/default",
+      "og_image": "/og-pages/kvkk.jpg",
       "no_index": false
     }
   }'

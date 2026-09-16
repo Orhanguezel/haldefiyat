@@ -154,7 +154,7 @@ type OgImage = string | { url: string; width: number; height: number };
 function withOgImageSize(images: unknown): OgImage[] | undefined {
   if (!Array.isArray(images)) return undefined;
   return images.map((img: OgImage) =>
-    typeof img === "string" && /\/(og|uploads\/og)\//.test(img) ? { url: img, ...OG_SIZE } : img,
+    typeof img === "string" && /\/(og|og-pages|uploads\/og)\//.test(img) ? { url: img, ...OG_SIZE } : img,
   );
 }
 
