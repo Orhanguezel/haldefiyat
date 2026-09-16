@@ -35,7 +35,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: `${SITE_URL}/yazar/${author.slug}`,
-      ...(author.avatarUrl ? { images: [toAbsoluteUrl(author.avatarUrl)] } : {}),
+      // Bu sayfa Metadata'yi elle kuruyor; sayfa seviyesindeki openGraph nesnesi
+      // layout'takini derin birlestirmez, o yuzden avatari olmayan yazarda
+      // og:image hic yazilmiyordu (16 Eyl 2026 taramasinda kalan tek sayfa).
+      images: [
+        author.avatarUrl
+          ? { url: toAbsoluteUrl(author.avatarUrl) }
+          : { url: `${SITE_URL}/og/default`, width: 1200, height: 630 },
+      ],
     },
   };
 }
