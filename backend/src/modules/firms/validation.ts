@@ -29,3 +29,17 @@ export const claimBodySchema = z.object({
   authorityConfirmed: z.literal(true),
   privacyConsent: z.literal(true),
 });
+
+/**
+ * Kaldirma talebi — oturum GEREKTIRMEZ. KVKK basvurusunun onune giris
+ * zorunlulugu konulamaz; kimlik/yetki dogrulamasi moderasyonda yapilir.
+ */
+export const removalRequestBodySchema = z.object({
+  requesterName: z.string().trim().min(2).max(160),
+  relationship: z.enum(["sahibi", "yetkili", "calisan", "diger"]),
+  contact: z.string().trim().min(5).max(190),
+  reason: z.string().trim().max(2000).optional(),
+  // Talebi karsilayabilmek icin geri donus sarttir; ayri ve onceden isaretsiz.
+  contactConsent: z.literal(true),
+});
+

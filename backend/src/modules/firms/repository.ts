@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, like, or, sql, type SQL } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { db } from "@/db/client";
-import { hfFirmClaims, hfFirmDeals, hfFirmPrices, hfFirmProducts, hfFirms, hfFirmSponsorships, hfProducts } from "@/db/schema";
+import { hfFirmClaims, hfFirmDeals, hfFirmPrices, hfFirmProducts, hfFirmRemovalRequests, hfFirms, hfFirmSponsorships, hfProducts } from "@/db/schema";
 import { slugifyTr, TURKEY_CITIES } from "@/data/turkey-city-slugs";
 import type { FetchedFirm, FirmListFilters } from "./types";
 import { normalizeMysqlDate } from "@/modules/prices/blackout-date";
@@ -280,7 +280,32 @@ export async function getFirmBySlug(slug: string) {
   if (!firm) return null;
   const products = await listFirmProducts(firm.id);
   const latest = await getLatestFirmPrices(firm.id);
-  return { ...firm, products, ocrContacts: extractOcrContacts(firm.raw), latestPrices: latest.items, latestPriceDate: latest.date };
+  const recentLeadCount = await countRecentFirmLeads(firm.id);
+  return { ...firm, products, ocrContacts: extractOcrContacts(firm.raw), latestPrices: latest.items, latestPriceDate: latest.date, recentLeadCount };
+}
+
+/**
+ * Son 30 gunde bu firmaya gelen alici talebi SAYISI.
+ *
+ * NEDEN sayi: talep geldiginde firmaya haber vermenin tek durust yolu var —
+ * firma kendi kaydini sahiplenmis olmali. Kayitlarin 1.333'u halkatalogu'ndan
+ * derlendi, rizasi yok; onlara otomatik SMS/e-posta/arama gonderilemez
+ * (KVKK acik riza + Iileti Yonetim Sistemi kaydi yok).
+ *
+ * Bu yuzden hicbir ileti gonderilmez; sayfada YALNIZ SAYI gosterilir. Firma
+ * (veya musterisi) sayfaya geldiginde bekleyen talebi gorur ve sahiplenmek icin
+ * somut bir sebebi olur. Talebi GONDEREN kisinin hicbir bilgisi disari cikmaz.
+ */
+export async function countRecentFirmLeads(firmId: number, days = 30) {
+  const [row] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(hfFirmDeals)
+    .where(and(
+      eq(hfFirmDeals.firmId, firmId),
+      sql`${hfFirmDeals.createdAt} >= DATE_SUB(CURRENT_TIMESTAMP(3), INTERVAL ${days} DAY)`,
+      sql`${hfFirmDeals.notes} LIKE 'Public lead:%'`,
+    ));
+  return Number(row?.count ?? 0);
 }
 
 export async function getFirmById(id: number) {
@@ -1143,3 +1168,78 @@ function extractOcrContacts(raw: unknown): unknown[] {
   const contacts = (raw as { ocr_contacts?: unknown }).ocr_contacts;
   return Array.isArray(contacts) ? contacts : [];
 }
+
+/** Kaldirma talebi olusturur. Ayni firma icin bekleyen talep varsa yenisini acmaz. */
+export async function createFirmRemovalRequest(input: {
+  firmId: number; requesterName: string; relationship: "sahibi" | "yetkili" | "calisan" | "diger";
+  contact: string; reason?: string | null; createdIp?: string | null;
+}) {
+  const [pending] = await db
+    .select({ id: hfFirmRemovalRequests.id })
+    .from(hfFirmRemovalRequests)
+    .where(and(eq(hfFirmRemovalRequests.firmId, input.firmId), eq(hfFirmRemovalRequests.status, "pending")))
+    .limit(1);
+  if (pending) return { id: pending.id, duplicate: true as const };
+
+  await db.insert(hfFirmRemovalRequests).values({
+    firmId: input.firmId,
+    requesterName: input.requesterName,
+    relationship: input.relationship,
+    contact: input.contact,
+    reason: input.reason ?? null,
+    createdIp: input.createdIp ?? null,
+  });
+  const [row] = await db
+    .select({ id: hfFirmRemovalRequests.id })
+    .from(hfFirmRemovalRequests)
+    .where(eq(hfFirmRemovalRequests.firmId, input.firmId))
+    .orderBy(desc(hfFirmRemovalRequests.id))
+    .limit(1);
+  return { id: Number(row?.id ?? 0), duplicate: false as const };
+}
+
+export async function listFirmRemovalRequests(status?: "pending" | "approved" | "rejected", limit = 100) {
+  return db
+    .select({
+      id: hfFirmRemovalRequests.id,
+      firmId: hfFirmRemovalRequests.firmId,
+      firmName: hfFirms.name,
+      firmSlug: hfFirms.slug,
+      requesterName: hfFirmRemovalRequests.requesterName,
+      relationship: hfFirmRemovalRequests.relationship,
+      contact: hfFirmRemovalRequests.contact,
+      reason: hfFirmRemovalRequests.reason,
+      status: hfFirmRemovalRequests.status,
+      reviewNote: hfFirmRemovalRequests.reviewNote,
+      reviewedAt: hfFirmRemovalRequests.reviewedAt,
+      createdAt: hfFirmRemovalRequests.createdAt,
+    })
+    .from(hfFirmRemovalRequests)
+    .innerJoin(hfFirms, eq(hfFirms.id, hfFirmRemovalRequests.firmId))
+    .where(status ? eq(hfFirmRemovalRequests.status, status) : undefined)
+    .orderBy(desc(hfFirmRemovalRequests.createdAt))
+    .limit(Math.min(limit, 300));
+}
+
+/**
+ * Talebi karara baglar. ONAY firmayi SILMEZ, yayindan kaldirir (is_active = 0):
+ * geri alinabilir ve talebin ne zaman karsilandigi kayitli kalir.
+ */
+export async function moderateFirmRemovalRequest(id: number, status: "approved" | "rejected", reviewerId: string, note?: string | null) {
+  const [row] = await db
+    .select({ firmId: hfFirmRemovalRequests.firmId })
+    .from(hfFirmRemovalRequests)
+    .where(eq(hfFirmRemovalRequests.id, id))
+    .limit(1);
+  if (!row) return false;
+
+  await db.update(hfFirmRemovalRequests)
+    .set({ status, reviewedBy: reviewerId, reviewNote: note ?? null, reviewedAt: sql`CURRENT_TIMESTAMP(3)` })
+    .where(eq(hfFirmRemovalRequests.id, id));
+
+  if (status === "approved") {
+    await db.update(hfFirms).set({ isActive: 0, seoIndex: 0 }).where(eq(hfFirms.id, row.firmId));
+  }
+  return true;
+}
+

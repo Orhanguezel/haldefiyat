@@ -148,6 +148,9 @@ export interface Firm {
   ocrContacts?: FirmOcrContact[];
   isActive?: number | boolean;
   lastSeenAt?: string | null;
+  firstSeenAt?: string | null;
+  /** Son 30 gunde gelen alici talebi sayisi (yalniz sayi; talep sahibi bilgisi yok). */
+  recentLeadCount?: number;
   sponsorshipTier?: string | null;
   sponsorshipPlacement?: string | null;
 }

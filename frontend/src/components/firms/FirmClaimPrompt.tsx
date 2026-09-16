@@ -11,6 +11,8 @@ type Props = {
   firmSlug: string;
   firmName: string;
   claimStatus?: "unclaimed" | "pending" | "verified";
+  /** Son 30 gunde gelen alici talebi sayisi — sahiplenmenin somut sebebi. */
+  recentLeadCount?: number;
 };
 
 const VALUE_PROPS = [
@@ -23,7 +25,7 @@ const VALUE_PROPS = [
 
 // Sahiplenmemiş firma profilinde belirgin dönüşüm kartı: sahibini doğrulamaya
 // ve öne-çıkarma satış hunisine sokar (monetizasyon B). Doğrulanmış firmada gizli.
-export default function FirmClaimPrompt({ firmId, firmSlug, firmName, claimStatus }: Props) {
+export default function FirmClaimPrompt({ firmId, firmSlug, firmName, claimStatus, recentLeadCount = 0 }: Props) {
   const { user, loading } = useAuthSession();
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(claimStatus === "pending");
@@ -54,10 +56,20 @@ export default function FirmClaimPrompt({ firmId, firmSlug, firmName, claimStatu
     <section className="mt-8 rounded-[10px] border border-(--color-brand)/30 bg-(--color-brand)/[0.06] p-5 sm:p-6">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-2xl">
+          {/* Bekleyen talep, sahiplenmenin en somut sebebi. Firmaya ileti
+              GONDERILMEZ (kayitlarin cogu halkatalogu derlemesi, rizasi yok);
+              yalniz sayi gosterilir, talebi gonderenin bilgisi disari cikmaz. */}
+          {recentLeadCount > 0 && (
+            <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-(--color-brand) px-3 py-1.5 text-[13px] font-bold text-(--color-brand-fg)">
+              {`Son 30 günde ${recentLeadCount.toLocaleString("tr-TR")} alıcı talebi bekliyor`}
+            </p>
+          )}
           <FirmFormHeader
             eyebrow="Firma sahibi misiniz?"
-            title="Bu firma sizin mi? Profili doğrulayın."
-            description={`${firmName} profilini sahiplenme talebi göndererek işletme bilgilerini yönetebilirsiniz. Talep, yetki kontrolünden sonra onaylanır.`}
+            title={recentLeadCount > 0 ? "Bu firma sizin mi? Talepleri görmek için doğrulayın." : "Bu firma sizin mi? Profili doğrulayın."}
+            description={recentLeadCount > 0
+              ? `${firmName} adına gelen alıcı taleplerini görebilmek ve işletme bilgilerini yönetebilmek için profili sahiplenin. Talep, yetki kontrolünden sonra onaylanır.`
+              : `${firmName} profilini sahiplenme talebi göndererek işletme bilgilerini yönetebilirsiniz. Talep, yetki kontrolünden sonra onaylanır.`}
           />
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {VALUE_PROPS.map((prop) => (

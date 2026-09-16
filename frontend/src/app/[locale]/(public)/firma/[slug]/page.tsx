@@ -14,6 +14,7 @@ import JsonLd from "@/components/seo/JsonLd";
 import FirmCard from "@/components/firms/FirmCard";
 import FirmClaimPrompt from "@/components/firms/FirmClaimPrompt";
 import FirmContactPolicy from "@/components/firms/FirmContactPolicy";
+import FirmRemovalRequest from "@/components/firms/FirmRemovalRequest";
 import BannerSlot from "@/components/ads/BannerSlot";
 import FirmLeadForm from "@/components/firms/FirmLeadForm";
 import { TrackedAdLink } from "@/components/ads/AdConversionTracker";
@@ -267,6 +268,7 @@ export default async function FirmDetailPage({ params }: Props) {
             )}
           </div>
           {(firm.phone || (firm.ocrContacts ?? []).length > 0) && <FirmContactPolicy />}
+          <FirmRemovalRequest firmSlug={firm.slug} firmName={firm.name} source={firm.source} firstSeenAt={firm.firstSeenAt} />
         </div>
       </section>
 
@@ -275,6 +277,7 @@ export default async function FirmDetailPage({ params }: Props) {
         firmSlug={firm.slug}
         firmName={firm.name}
         claimStatus={firm.claimStatus}
+        recentLeadCount={firm.recentLeadCount ?? 0}
       />
 
       <section className="mt-10 grid gap-6 lg:grid-cols-[1fr_320px]">

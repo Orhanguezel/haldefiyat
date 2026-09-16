@@ -461,6 +461,34 @@ export const hfFirmPrices = mysqlTable(
   ],
 );
 
+/**
+ * Firma kaydi kaldirma talebi (KVKK m.11 silme hakki).
+ * hf_firm_claims'ten farki: claim "yonetmek istiyorum", bu "yayindan kaldirin".
+ * Oturum GEREKTIRMEZ — KVKK basvurusunun onune giris zorunlulugu konulamaz.
+ */
+export const hfFirmRemovalRequests = mysqlTable(
+  "hf_firm_removal_requests",
+  {
+    id:            int("id").autoincrement().primaryKey(),
+    firmId:        int("firm_id").notNull(),
+    requesterName: varchar("requester_name", { length: 160 }).notNull(),
+    relationship:  mysqlEnum("relationship", ["sahibi", "yetkili", "calisan", "diger"]).notNull().default("sahibi"),
+    contact:       varchar("contact", { length: 190 }).notNull(),
+    reason:        text("reason"),
+    status:        mysqlEnum("status", ["pending", "approved", "rejected"]).notNull().default("pending"),
+    reviewNote:    text("review_note"),
+    reviewedBy:    varchar("reviewed_by", { length: 36 }),
+    reviewedAt:    datetime("reviewed_at", { fsp: 3 }),
+    createdIp:     varchar("created_ip", { length: 64 }),
+    createdAt:     datetime("created_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
+    updatedAt:     datetime("updated_at", { fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`),
+  },
+  (t) => [
+    index("hf_firm_removal_requests_firm_idx").on(t.firmId),
+    index("hf_firm_removal_requests_status_idx").on(t.status, t.createdAt),
+  ],
+);
+
 export const hfFirmClaims = mysqlTable(
   "hf_firm_claims",
   {

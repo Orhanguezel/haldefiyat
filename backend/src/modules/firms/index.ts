@@ -50,6 +50,9 @@ import {
   updateFirmSponsorship,
   upsertFirmPrice,
   firmFacets,
+  createFirmRemovalRequest,
+  listFirmRemovalRequests,
+  moderateFirmRemovalRequest,
 } from "./repository";
 import { runFirmDirectoryEtl } from "./service";
 import { runFirmDailyPriceReminders } from "./reminders";
@@ -63,7 +66,7 @@ import {
   syncBannersForSponsorship,
 } from "@/modules/banners/repository";
 import type { BannerInput, BannerTarget } from "@/modules/banners/repository";
-import { claimBodySchema, publicLeadBodySchema } from "./validation";
+import { claimBodySchema, publicLeadBodySchema, removalRequestBodySchema } from "./validation";
 
 const firmTypeSchema = z.enum(["komisyoncu", "soguk_hava", "nakliye", "zirai_ilac"]);
 
@@ -570,6 +573,32 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     return reply.status(201).send({ id });
   });
 
+  /**
+   * KVKK m.11 silme hakki — OTURUM GEREKTIRMEZ.
+   * Kayitlarin 1.333'u halkatalogu.com derlemesi; ilgili kisi kendisi eklemedi.
+   * Basvurunun onune giris zorunlulugu konulamaz; yetki kontrolu moderasyonda.
+   */
+  app.post<{ Params: { slug: string } }>("/firms/:slug/removal-request", async (req, reply) => {
+    const firm = await getFirmBySlug(req.params.slug);
+    if (!firm) return reply.status(404).send({ error: "Firma bulunamadi" });
+    const parsed = removalRequestBodySchema.safeParse(req.body);
+    if (!parsed.success) return reply.status(400).send({ error: "Gecersiz talep", issues: parsed.error.issues });
+    const data = parsed.data;
+    const result = await createFirmRemovalRequest({
+      firmId: firm.id,
+      requesterName: data.requesterName,
+      relationship: data.relationship,
+      contact: data.contact,
+      reason: data.reason ?? null,
+      createdIp: req.ip ?? null,
+    });
+    void sendTelegramAdminAlert(
+      `🗑️ Firma kaldirma talebi\nFirma: ${firm.name ?? firm.slug}\nTalep eden: ${data.requesterName} (${data.relationship})\n` +
+      `Iletisim: ${data.contact}\nGerekce: ${data.reason ?? "-"}`,
+    ).catch(() => {});
+    return reply.status(201).send({ ok: true, id: result.id, duplicate: result.duplicate });
+  });
+
   app.post<{ Params: { slug: string } }>("/firms/:slug/leads", {
     config: { rateLimit: { max: 10, timeWindow: "1 hour" } },
   }, async (req, reply) => {
@@ -661,6 +690,24 @@ export async function registerFirmsAdmin(app: FastifyInstance) {
     const result = await syncFirmSeoIndex();
     return reply.send(result);
   });
+
+  app.get<{ Querystring: { status?: "pending" | "approved" | "rejected" } }>("/firms/removal-requests", async (req, reply) => {
+    return reply.send({ items: await listFirmRemovalRequests(req.query.status) });
+  });
+
+  /** Onay firmayi SILMEZ, yayindan kaldirir (is_active=0, seo_index=0) — geri alinabilir. */
+  app.post<{ Params: { id: string }; Body: { status?: "approved" | "rejected"; note?: string } }>(
+    "/firms/removal-requests/:id/moderate",
+    async (req, reply) => {
+      const id = Number(req.params.id);
+      const status = req.body?.status;
+      if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz talep id" });
+      if (status !== "approved" && status !== "rejected") return reply.status(400).send({ error: "status approved|rejected olmali" });
+      const ok = await moderateFirmRemovalRequest(id, status, getAuthUserId(req) ?? "system", req.body?.note ?? null);
+      if (!ok) return reply.status(404).send({ error: "Talep bulunamadi" });
+      return reply.send({ ok: true });
+    },
+  );
 
   app.get<{ Querystring: { status?: string; limit?: string; offset?: string } }>("/firms/leads", async (req, reply) => {
     const result = await listRecentFirmDeals({
