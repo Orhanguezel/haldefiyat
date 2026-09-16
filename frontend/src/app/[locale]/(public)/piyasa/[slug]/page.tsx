@@ -10,10 +10,12 @@ import PriceChart from "@/components/sections/PriceChartLazy";
 import VariantPriceTable from "@/components/sections/VariantPriceTable";
 import PageContainer from "@/components/layout/PageContainer";
 import { fetchCityProduct, fetchPriceHistory, fetchPrices, fetchPricesOverview, fetchVariantPrices } from "@/lib/api";
+import { fetchProductPriceSummary } from "@/lib/product-price-summary";
 import DataProvenanceNote from "@/components/seo/DataProvenanceNote";
 import { getPageMetadata } from "@/lib/seo";
 import { formatDateTr } from "@/lib/date-format";
 import { PIYASA_PAGES, buildDailySnapshot, summarizeByCity } from "@/lib/piyasa";
+import { piyasaDescription, piyasaTitle, type PiyasaLocalPrice } from "@/lib/piyasa-meta";
 
 // Gunluk yorum guncel kalsin diye 30 dk ISR; veri fetch'leri kendi cache'ini yonetir.
 export const revalidate = 1800;
@@ -28,15 +30,41 @@ export function generateStaticParams() {
 
 const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+/** Yerel kaydin tazelik esigi — sayfa govdesindeki `localCurrent` ile ayni. */
+const LOCAL_FRESH_DAYS = 14;
+
+async function piyasaLivePrice(slug: string, config: (typeof PIYASA_PAGES)[string]) {
+  const city = slug.startsWith("adana-") ? "adana" : "mersin";
+  const [detail, national] = await Promise.all([
+    fetchCityProduct(city, config.productSlug).catch(() => null),
+    fetchProductPriceSummary(config.productSlug),
+  ]);
+  const latest = detail?.latest;
+  const fresh = latest && Date.now() - Date.parse(latest.recordedDate) <= LOCAL_FRESH_DAYS * 86400000;
+  const local: PiyasaLocalPrice | null = fresh && latest && Number(latest.avgPrice) > 0
+    ? {
+        dateTr: formatDateTr(latest.recordedDate) ?? "",
+        avg: Number(latest.avgPrice),
+        min: latest.minPrice,
+        max: latest.maxPrice,
+        unit: detail?.pair.unit ?? "kg",
+        marketName: detail?.pair.marketName ?? config.region,
+      }
+    : null;
+  return { local: local?.dateTr ? local : null, national };
+}
+
 export async function generateMetadata({ params }: Props) {
   const { locale, slug } = await params;
   const config = PIYASA_PAGES[slug];
   if (!config) return {};
+  const { local, national } = await piyasaLivePrice(slug, config);
+  const input = { h1: config.h1, productName: config.productName, region: config.region, fallbackDescription: config.description };
   return getPageMetadata(`piyasa-${slug}`, {
     locale,
     pathname: `/piyasa/${slug}`,
-    title: config.title,
-    description: config.description,
+    title: piyasaTitle(input, local, national),
+    description: piyasaDescription(input, local, national),
   });
 }
 
