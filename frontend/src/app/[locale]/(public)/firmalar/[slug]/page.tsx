@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { fetchFirmCities, fetchFirms, fetchFirmTypes, fetchMarkets, fetchPrices, type Firm } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
+import { firmCityDescription, firmCityPriceLine, firmCityTitle } from "@/lib/firm-city-meta";
 import { provinceBySlug } from "@/data/turkey-cities";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
@@ -140,6 +141,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // yerine ciplak hata kabugu doner. 404'u page component'i veriyor.
   if (!ctx) return { title: "Sayfa bulunamadı", robots: { index: false, follow: false } };
   const total = ctx.aggregate?.total ?? ctx.firmPage.meta.total;
+  const priceLine = firmCityPriceLine(ctx.cityName, ctx.prices);
   return getPageMetadata(["firmalar_sehir", "firmalar"], {
     locale,
     pathname: `/firmalar/${slug}`,
@@ -147,8 +149,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       city: ctx.cityName,
       year: String(YEAR),
     },
-    title: `${ctx.cityName} Hal Komisyoncuları ${YEAR} — ${total} Firma, İletişim & Adres`,
-    description: `${ctx.cityName} halindeki ${total} komisyoncu ve firma: telefon, adres, çalıştıkları ürünler. ${ctx.cityName} hal güncel sebze meyve fiyatları.`,
+    title: firmCityTitle(ctx.cityName, total, YEAR),
+    description: firmCityDescription(ctx.cityName, total, priceLine),
     robots: total >= 5 ? { index: true, follow: true } : { index: false, follow: true },
   });
 }

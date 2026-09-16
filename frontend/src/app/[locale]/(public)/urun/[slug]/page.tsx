@@ -302,12 +302,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
     },
   });
-  // Two predeclared CTR pilots; preserve canonical/robots and other products.
-  if (slug === "limon" || slug === "mandalina") {
-    const title = `${nameClean} Fiyatları — Hal Listesi ve Çeşitler`;
-    const description = `${nameClean} hal fiyatlarını şehir, çeşit, tarih ve birimiyle inceleyin. ${cityLine}Yerel kayıtlar ve geçmiş fiyatlar; bahçe ve perakende fiyatından ayrı.`;
-    return { ...metadata, title, description, openGraph: { ...metadata.openGraph, title, description }, twitter: { ...metadata.twitter, title, description } };
-  }
+  // 8 Eylul'de limon + mandalina icin "Hal Listesi ve Cesitler" basligi CTR
+  // pilotu olarak denendi; 16 Eylul olcumu pilotu dusurdu. Ayni pozisyonda
+  // (7,14 -> 7,22) esleşen sorgu kumesinde /urun/limon CTR'i %3,00 -> %1,95
+  // (126 -> 65 tiklama, khi-kare p≈0,005); ayni pencerede pilot disi /urun/*
+  // %2,87 -> %2,78 ile duz. Tarihsiz ve fiyatsiz baslik, fiyat arayan kullaniciya
+  // tiklamadan once hicbir sey vaat etmiyor. Standart kalip geri alindi.
   return metadata;
 }
 

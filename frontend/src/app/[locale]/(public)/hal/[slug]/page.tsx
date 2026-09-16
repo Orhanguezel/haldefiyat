@@ -142,7 +142,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     `${head} ${when}`,
     head,
   ]);
-  const description = `${market.name} güncel meyve sebze hali fiyatları. ${liveLine}Sebze, meyve ve bakliyat için min/ort/maks toptan fiyat. Kaynağın resmi yayın takvimine göre güncellenir.`;
+  // Basliktaki "— Son Liste" isareti bayat halleri durustce etiketliyordu ama
+  // aciklama yine "guncel" diyordu: Mersin sayfasi 22 Haziran verisiyle "guncel
+  // meyve sebze hali fiyatlari" vaat ediyor, arayan tiklayip bos donuyor
+  // ("mersin hal fiyatlari" 710 gosterim / %1,41 CTR, 7-13 Eyl). Vaat basliktaki
+  // etiketle ayni olmali.
+  const freshnessWord = isFreshSummary || !summary.date ? "güncel" : "son yayımlanan";
+  const description = `${market.name} ${freshnessWord} meyve sebze hali fiyatları. ${liveLine}Sebze, meyve ve bakliyat için min/ort/maks toptan fiyat. Kaynağın resmi yayın takvimine göre güncellenir.`;
 
   // page key "hal_detay": DB seo_pages'teki liste-sayfası "hal" (Tüm Haller)
   // template'i detay sayfalarını ezmesin diye ayrı anahtar kullanılır.
