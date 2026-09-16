@@ -31,6 +31,7 @@ import { productHref } from "@/lib/product-links";
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
 const MARKET_PRICE_RANGE = "3650d";
+const OG_SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
 // En güncel listede kaç ayrı ürün var + verinin gerçek tarihi — meta açıklamasında
 // canlı veri için. ETL T-1 yayınlayabilir, tarih recordedDate'ten alınır.
@@ -170,6 +171,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       type: "article",
       locale: "tr_TR",
+      // Ürün OG'siyle aynı pattern (route handler, i18n bağımsız). Onsuz sayfa
+      // `summary_large_image` bildirip görsel vermiyordu.
+      images: [{ url: `${OG_SITE_URL}/og/hal/${slug}`, width: 1200, height: 630, alt: `${market.name} hal fiyatları` }],
     },
   });
 }

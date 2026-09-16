@@ -29,6 +29,8 @@ export const revalidate = 1800;
 
 type Props = { params: Promise<{ locale: string; sehir: string; urun: string }> };
 
+const OG_SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, sehir, urun } = await params;
   const d = await fetchCityProduct(sehir, urun);
@@ -55,6 +57,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return getPageMetadata("fiyat_sehir_urun", {
     locale, pathname: `/fiyat/${sehir}/${urun}`, title, description,
     robots: d.pair.eligible ? { index: true, follow: true } : { index: false, follow: true },
+    // Ürün OG'siyle aynı pattern (route handler, i18n bağımsız). Onsuz bu ailenin
+    // tamamı `summary_large_image` bildirip görsel vermiyordu.
+    openGraph: {
+      images: [{ url: `${OG_SITE_URL}/og/fiyat/${sehir}/${urun}`, width: 1200, height: 630, alt: `${d.pair.cityName} ${d.pair.productName} hal fiyatı` }],
+    },
   });
 }
 

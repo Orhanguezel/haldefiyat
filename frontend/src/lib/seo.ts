@@ -141,6 +141,9 @@ function interpolate(template: string, vars: Record<string, string>): string {
 
 const OG_SIZE = { width: 1200, height: 630 } as const;
 
+/** Sayfa veya DB gorsel vermediginde kullanilan marka kapagi (route handler, 1200x630). */
+const DEFAULT_OG_IMAGE = "/og/default";
+
 /**
  * Sitenin kendi OG ureteci (/og/*) ve OG yuklemeleri (/uploads/og/*) hep 1200x630 uretir;
  * olcuyu bildirmek paylasim onizlemesini ilk istekte dogru boyutta acar.
@@ -207,7 +210,14 @@ export function buildMetadata(
     (overrideImages && (Array.isArray(overrideImages) ? overrideImages.length > 0 : true))
       ? overrideImages as string[]
       : seoOgImages,
-  );
+  )
+    // Hicbir gorsel cozulmezse sayfa `twitter:card = summary_large_image`
+    // bildirip gorseli vermiyordu; paylasim onizlemesi bos bir kutu oluyordu.
+    // 16 Eyl 2026 taramasi: 300 sayfanin 201'inde og:image yoktu (fiyat 149,
+    // firmalar 25, hal 13 + tekil sayfalar). Marka kapagi en azindan dogru
+    // boyutta ve taninabilir bir onizleme verir; zengin kapagi olan aileler
+    // kendi gorsellerini zaten override ediyor.
+    ?? withOgImageSize([DEFAULT_OG_IMAGE]);
   const overrideTwitterData = overrideTwitter as { card?: "summary" | "summary_large_image"; site?: string; creator?: string } | undefined;
 
   const meta: Metadata = {

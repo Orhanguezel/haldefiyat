@@ -42,6 +42,9 @@ export function generateMetadata(): Metadata {
       description:
         "Türkiye genelindeki tarihli hal fiyatlarını şehir, kategori ve tarih aralığı bazında filtreleyin.",
       url: SITE_URL,
+      // getPageMetadata cagirmayan sayfalar bu katmandan miras alir; onsuz
+      // summary_large_image bildirip gorsel vermeyen sayfalar kaliyordu.
+      images: [{ url: `${SITE_URL}/og/default`, width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
