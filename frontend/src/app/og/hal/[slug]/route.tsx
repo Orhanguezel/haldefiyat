@@ -97,8 +97,11 @@ export async function GET(_req: Request, { params }: Props) {
                   }}
                 >
                   <div style={{ fontSize: 24, color: "#cdd7e6" }}>{row.productName}</div>
+                  {/* Satori: birden fazla cocuk dugumu olan div explicit display ister.
+                      Bu satir uc ayri metin dugumu uretiyordu (sayi + " TL/" + birim)
+                      ve /og/hal/* 502 donuyordu — tek dizge olarak verilir. */}
                   <div style={{ fontSize: 36, fontWeight: 800, color: BRAND }}>
-                    {formatTry(Number(row.avgPrice))} TL/{row.unit || "kg"}
+                    {`${formatTry(Number(row.avgPrice))} TL/${row.unit || "kg"}`}
                   </div>
                 </div>
               ))}
