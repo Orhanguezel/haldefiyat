@@ -9,13 +9,16 @@ import AnswerBlock from "@/components/seo/AnswerBlock";
 import PriceChart from "@/components/sections/PriceChartLazy";
 import VariantPriceTable from "@/components/sections/VariantPriceTable";
 import PageContainer from "@/components/layout/PageContainer";
-import { fetchCityProduct, fetchPriceHistory, fetchPrices, fetchVariantPrices } from "@/lib/api";
+import { fetchCityProduct, fetchPriceHistory, fetchPrices, fetchPricesOverview, fetchVariantPrices } from "@/lib/api";
+import DataProvenanceNote from "@/components/seo/DataProvenanceNote";
 import { getPageMetadata } from "@/lib/seo";
 import { formatDateTr } from "@/lib/date-format";
 import { PIYASA_PAGES, buildDailySnapshot, summarizeByCity } from "@/lib/piyasa";
 
 // Gunluk yorum guncel kalsin diye 30 dk ISR; veri fetch'leri kendi cache'ini yonetir.
 export const revalidate = 1800;
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -44,11 +47,12 @@ export default async function PiyasaPage({ params }: Props) {
   setRequestLocale(locale);
 
   const city = slug.startsWith("adana-") ? "adana" : "mersin";
-  const [latestRows, history, variants, local] = await Promise.all([
+  const [latestRows, history, variants, local, overview] = await Promise.all([
     fetchPrices({ product: config.productSlug, latestOnly: true, unit: "kg", range: "7d", limit: 200 }),
     fetchPriceHistory(config.productSlug, undefined, "90d", "daily"),
     fetchVariantPrices(config.productSlug, "7d"),
     fetchCityProduct(city, config.productSlug),
+    fetchPricesOverview(),
   ]);
   const halRows = latestRows.filter((row) => (row.marketType ?? "hal") === "hal");
   const snapshot = buildDailySnapshot(halRows, history);
@@ -61,6 +65,8 @@ export default async function PiyasaPage({ params }: Props) {
 
   return (
     <PageContainer py="sm">
+      {/* Analizor ilk adli varligi H1 ile kiyasliyor; FAQPage'in adi yok, "Schema/H1 farkli" cikiyordu. */}
+      <JsonLd type="WebPage" data={{ name: config.h1, description: config.description, url: `${SITE_URL}/piyasa/${config.slug}` }} />
       <JsonLd
         type="FAQPage"
         data={{
@@ -97,6 +103,15 @@ export default async function PiyasaPage({ params }: Props) {
         <h2 className="text-xl font-bold">{config.region} yerel kayıt durumu</h2>
         {local?.latest ? <><p className="mt-2">{local.pair.marketName}: son kayıt {formatDateTr(local.latest.recordedDate)}. {localCurrent ? 'Kaynak bültenindeki fiyat aralığı yerel sayfada gösterilir.' : 'Bu tarihli kayıt güncel fiyat değildir; yeni bülten doğrulanmadan bugünün fiyatı olarak kullanılmaz.'}</p><Link className="mt-2 inline-block underline" href={`/fiyat/${city}/${config.productSlug}`}>Tarihli yerel {config.productName.toLocaleLowerCase('tr-TR')} kaydını inceleyin</Link></> : <p className="mt-2">Bu ürün için doğrulanmış yeterli yerel seri bulunmuyor. <Link className="underline" href={`/hal/${city}-hal`}>Hal sayfasındaki kaynak ve son kayıt durumunu inceleyin.</Link> Türkiye tablosu yerel fiyatın yerine geçmez.</p>}
       </section>
+
+      <DataProvenanceNote
+        sourceLabel={local?.pair.marketName ?? `${config.region} ve Türkiye halleri`}
+        recordCount={halRows.length}
+        recordUnit="hal kaydı"
+        latestDateTr={snapshot.latestDate ? (formatDateTr(snapshot.latestDate) ?? undefined) : undefined}
+        activeMarkets={overview.activeMarkets}
+        sinceYear={overview.earliestRecordedDate?.slice(0, 4)}
+      />
 
       <div className="mt-8">
         <AnswerBlock

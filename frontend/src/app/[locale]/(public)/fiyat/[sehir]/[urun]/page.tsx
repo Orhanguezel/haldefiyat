@@ -12,7 +12,8 @@ import PriceChart from "@/components/sections/PriceChartLazy";
 import { ProductTradeBanner, ProductAdvertisingBanner, ProductGuideLinks } from "@/components/sections/ProductOpportunities";
 import PageContainer from "@/components/layout/PageContainer";
 import { CityCompareTable, CityProductKeyNumbers, EditorialBlocks, MarketMovers } from "@/components/sections/CityProductSections";
-import { fetchCityProduct, fetchProductEditorial } from "@/lib/api";
+import { fetchCityProduct, fetchPricesOverview, fetchProductEditorial } from "@/lib/api";
+import DataProvenanceNote from "@/components/seo/DataProvenanceNote";
 import { buildCityProductDataset, buildCityProductFaq, buildCityProductSummary } from "@/lib/city-product";
 import { formatDateTr } from "@/lib/date-format";
 import { PIYASA_BY_PRODUCT } from "@/lib/piyasa";
@@ -71,7 +72,7 @@ export default async function CityProductPage({ params }: Props) {
   if (!d) notFound();
   setRequestLocale(locale);
   const { pair } = d;
-  const editorial = await fetchProductEditorial(pair.productSlug);
+  const [editorial, overview] = await Promise.all([fetchProductEditorial(pair.productSlug), fetchPricesOverview()]);
   const dateTr = d.latest ? (formatDateTr(d.latest.recordedDate) ?? "") : "";
   const stale = Date.now() - Date.parse(pair.lastDate) > 14 * 86400000;
   const lower = pair.productName.toLocaleLowerCase("tr-TR");
@@ -120,6 +121,14 @@ export default async function CityProductPage({ params }: Props) {
         Bu bir toptan hal kaydıdır; bahçede alım fiyatı değildir. Kaynak alt–üst fiyat veriyorsa ortalama bu aralığın orta noktasından türetilir; işlem miktarına göre ağırlıklandırılmaz.
         {pair.productSlug === 'limon' && <> Genel limon görünümü aynı haldeki limon çeşitlerinin ağırlıksız örneklemidir. Çeşit bileşimi günlere göre değişebilir; tek bir çeşidin fiyat değişimi olarak okunmamalıdır. <Link href={`/hal/${pair.marketSlug}`} className="underline">Çeşitleri hal tablosunda ayrı inceleyin.</Link></>}
       </p>
+      <DataProvenanceNote
+        sourceLabel={pair.marketName}
+        recordCount={pair.days90}
+        recordUnit="kayıt günü"
+        latestDateTr={dateTr || undefined}
+        activeMarkets={overview.activeMarkets}
+        sinceYear={overview.earliestRecordedDate?.slice(0, 4)}
+      />
       {stale && <p className="my-4 rounded-xl border border-border p-4 font-semibold">Bu kayıt güncel değildir. Son kaynak tarihi {dateTr}; yeni fiyat doğrulanana kadar arşiv olarak gösterilir.</p>}
       <CityProductKeyNumbers d={d} />
 

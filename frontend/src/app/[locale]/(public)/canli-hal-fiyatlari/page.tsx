@@ -98,6 +98,7 @@ export default async function LiveMarketPricesPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-(--color-background)">
+      <JsonLd type="WebPage" data={{ name: "Türkiye canlı hal fiyatları", url: `${SITE_URL}/canli-hal-fiyatlari` }} />
       <JsonLd type="Dataset" data={datasetSchema} />
 
       <section className="border-b border-(--color-border) bg-(--color-surface)">
@@ -186,6 +187,39 @@ export default async function LiveMarketPricesPage({ params }: Props) {
               </Link>
             );
           })}
+        </div>
+      </section>
+
+      {/* Sayfa 229 kelimeyle "Sınırda" (Tanitio 17 Eyl); Ads'in #1 landing'i.
+          Uc soru, hepsi canli sayidan: "canli" ne demek, nasil okunur, ne zaman yenilenir. */}
+      <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8" aria-label="Canlı veri nasıl çalışır">
+        <div className="grid gap-6 md:grid-cols-3">
+          <div className="rounded-lg border border-(--color-border) bg-(--color-surface) p-5">
+            <h2 className="font-(family-name:--font-display) text-lg font-bold text-(--color-foreground)">&quot;Canlı&quot; burada ne demek?</h2>
+            <p className="mt-2 text-[14px] leading-6 text-(--color-muted)">
+              Gerçek zamanlı borsa ekranı değil, kaynağın yayımladığı en son bültendir. {activeMarketCount} aktif toptancı halinin
+              resmi listesi her sabah HaldeFiyat&apos;ın kendi ETL&apos;iyle çekilir; çoğu hal bir önceki günün (T-1) fiyatını yayımlar.
+              Bu yüzden &quot;son veri&quot; etiketi takvim gününü değil, kaynağın tarihini gösterir: {updatedAt}.
+            </p>
+          </div>
+          <div className="rounded-lg border border-(--color-border) bg-(--color-surface) p-5">
+            <h2 className="font-(family-name:--font-display) text-lg font-bold text-(--color-foreground)">Fiyatlar nasıl okunur?</h2>
+            <p className="mt-2 text-[14px] leading-6 text-(--color-muted)">
+              Her satır bir halin bir ürün için verdiği alt–üst aralıktır; ortalama bu aralığın orta noktasıdır, satılan miktara göre
+              ağırlıklandırılmaz. Birim kaynağın birimidir (kg, adet, bağ, koli) — koli fiyatı kg fiyatıyla karşılaştırılmaz.
+              Şehir bazında fark, aynı çeşit ve aynı tarih eşleşmedikçe ucuzluk anlamına gelmez.
+            </p>
+          </div>
+          <div className="rounded-lg border border-(--color-border) bg-(--color-surface) p-5">
+            <h2 className="font-(family-name:--font-display) text-lg font-bold text-(--color-foreground)">Hangi hal ne zaman güncellenir?</h2>
+            <p className="mt-2 text-[14px] leading-6 text-(--color-muted)">
+              {overview.activeSources ? `${overview.activeSources} kaynaktan ` : ""}{trackedProductCount.toLocaleString("tr-TR")} ürün izlenir.
+              Büyükşehir halleri hafta içi her gün, bazı iller haftalık liste yayımlar; yayımlanmayan güne fiyat üretilmez.
+              {overview.earliestRecordedDate ? ` Arşiv ${overview.earliestRecordedDate.slice(0, 4)} yılına kadar gider.` : ""}
+              {" "}Kaynak gecikirse o hal &quot;son liste&quot; etiketiyle gösterilir; hangi kaynağın ne zaman çekildiği{" "}
+              <Link href="/data-health" className="font-semibold text-(--color-brand) underline underline-offset-2">veri sağlığı</Link> sayfasında açıktır.
+            </p>
+          </div>
         </div>
       </section>
 
