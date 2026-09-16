@@ -24,20 +24,51 @@ export type CategoryHeadline = {
  *
  * Veri yoksa null doner ve cagiran taraf sabit metne duser; sayi uydurulmaz.
  */
+/**
+ * Kategorinin cipa urunu — basligi hangi urun temsil eder.
+ *
+ * Kaynak sirasina birakinca en yeni satir hangisiyse o cikiyordu: hububat
+ * sayfasinin basligi "Misir 12,00 TL/kg" oldu — hem o dikeyin cipa urunu degil
+ * (bugday), hem de ucu bir arada duran misir kayitlarinin EN UCUZU idi.
+ */
+const CATEGORY_ANCHOR: Record<string, string> = {
+  hububat: "bugday",
+  et: "dana-karkas",
+  "canli-hayvan": "dana",
+};
+
 export async function fetchCategoryHeadline(category: string, maxAgeDays = 30): Promise<CategoryHeadline | null> {
   try {
     const page = await fetchPricesPage({ category, range: "90d", latestOnly: true, limit: 200, sort: "date-desc" });
     const rows = page.items.filter((row) => Number(row.avgPrice) > 0 && row.productName && row.recordedDate);
     if (rows.length === 0) return null;
-    const newest = rows.reduce((max, row) => (row.recordedDate > max.recordedDate ? row : max), rows[0]!);
-    const age = Date.now() - Date.parse(`${newest.recordedDate.slice(0, 10)}T12:00:00Z`);
+
+    const newestDate = rows.reduce((max, row) => (row.recordedDate > max ? row.recordedDate : max), rows[0]!.recordedDate);
+    const age = Date.now() - Date.parse(`${newestDate.slice(0, 10)}T12:00:00Z`);
     if (!Number.isFinite(age) || age > maxAgeDays * 86400000) return null;
-    const dateTr = formatDateTr(newest.recordedDate);
+    const dateTr = formatDateTr(newestDate);
     if (!dateTr) return null;
+
+    // O gunun satirlari urun bazinda toplanir; tek bir halin fiyatini kategorinin
+    // rakami gibi sunmamak icin cipa urunun o gunku ORTALAMASI yazilir.
+    const today = rows.filter((row) => row.recordedDate === newestDate);
+    const groups = new Map<string, { name: string; unit: string; values: number[] }>();
+    for (const row of today) {
+      const key = row.canonicalProduct || row.productSlug || row.productName!;
+      const group = groups.get(key) ?? { name: row.productName!, unit: row.unit || "kg", values: [] };
+      group.values.push(Number(row.avgPrice));
+      groups.set(key, group);
+    }
+    const anchor = CATEGORY_ANCHOR[category];
+    const chosen = (anchor && groups.get(anchor))
+      ?? [...groups.values()].sort((a, b) => b.values.length - a.values.length)[0];
+    if (!chosen || chosen.values.length === 0) return null;
+    const avg = chosen.values.reduce((a, b) => a + b, 0) / chosen.values.length;
+
     return {
-      productName: newest.productName!,
-      priceTr: Number(newest.avgPrice).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-      unit: newest.unit || "kg",
+      productName: chosen.name,
+      priceTr: avg.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      unit: chosen.unit,
       dateTr,
       rowCount: rows.length,
     };
