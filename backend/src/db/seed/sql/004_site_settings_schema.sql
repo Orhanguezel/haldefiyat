@@ -43,6 +43,7 @@ INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'responsible_publisher_name', '*', '"Atakan Şahin"'),
 (UUID(), 'technical_contact_name', '*', '"Orhan Güzel"'),
 (UUID(), 'social_telegram',    '*', '"https://t.me/haldefiyat"'),
+(UUID(), 'social_linkedin',    '*', '"https://www.linkedin.com/company/146605944"'),
 -- WhatsApp KANALI (grup degil). Kanal linki whatsapp.com/channel/ ile baslar;
 -- chat.whatsapp.com/ ile baslayan link GRUPTUR ve buraya yazilmaz: grupta 1.024 uye
 -- tavani var ve her uye digerlerinin telefon numarasini gorur.
