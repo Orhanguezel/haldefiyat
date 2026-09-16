@@ -45,6 +45,7 @@ import PriceTable from "@/components/ui/PriceTable";
 import FreshnessBadge from "@/components/ui/FreshnessBadge";
 import ExportButton from "@/components/ui/ExportButton";
 import { DATA_LICENSE_URL, getPageMetadata } from "@/lib/seo";
+import { fetchProductPriceSummary, formatAveragePrice } from "@/lib/product-price-summary";
 import { schemaDateRange } from "@/lib/schema-dates";
 import ProductImage from "@/components/ui/ProductImage";
 import { getExactProductImage } from "@/lib/product-images";
@@ -174,37 +175,19 @@ async function fetchRetailPriceLine(slug: string, fallbackUnit: string): Promise
  * yukseltip kullaniciyi bos sayfaya dusurur, uzun vadede sira kaybettirir.
  */
 async function fetchTodayPriceSummary(slug: string, fallbackUnit: string): Promise<{ priceLine: string; cityLine: string; dateTr: string }> {
-  try {
-    const prices = await fetchPrices({ product: slug, range: "1d", limit: 50 });
-    if (prices.length === 0) return { priceLine: await fetchRetailPriceLine(slug, fallbackUnit), cityLine: "", dateTr: "" };
-    const latestDate = prices.reduce((max, p) => (p.recordedDate > max ? p.recordedDate : max), "");
-    const dayRows = prices.filter((p) => p.recordedDate === latestDate);
-
-    // Ulusal ortalama bir sehir degil; sehir listesinden dislanir ama hal sayisina girer.
-    const cities = [...new Set(
-      dayRows
-        .map((row) => (row.cityName ?? "").trim())
-        .filter((city) => city && city.toLocaleLowerCase("tr-TR") !== "türkiye"),
-    )];
-    const marketCount = new Set(dayRows.map((row) => row.marketSlug).filter(Boolean)).size;
-    const cityLine = cities.length >= 2 && marketCount >= 2
-      ? `${cities.slice(0, 3).join(", ")} dahil ${marketCount} halden güncel veri. `
-      : "";
-
-    if (slug === "kekik") return { priceLine: "Demet hal fiyatları ve kg borsa kayıtları ayrı gösterilir. ", cityLine, dateTr: formatDateTr(latestDate) ?? "" };
-    const avgs = dayRows
-      .map((p) => toNumberSafe(p.avgPrice))
-      .filter((n) => Number.isFinite(n) && n > 0);
-    if (avgs.length === 0) return { priceLine: "", cityLine, dateTr: formatDateTr(latestDate) ?? "" };
-    const avg = avgs.reduce((a, b) => a + b, 0) / avgs.length;
-    const avgTr = avg.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const unit = dayRows.find((p) => p.unit)?.unit ?? fallbackUnit;
-    const dateTr = formatDateTr(latestDate);
-    const dateSuffix = dateTr ? ` (${dateTr})` : "";
-    return { priceLine: `Ortalama ${avgTr} TL/${unit}${dateSuffix}. `, cityLine, dateTr: dateTr ?? "" };
-  } catch {
-    return { priceLine: "", cityLine: "", dateTr: "" };
+  const summary = await fetchProductPriceSummary(slug, fallbackUnit);
+  if (summary.dateTr === "" && summary.avg == null && summary.marketCount === 0) {
+    return { priceLine: await fetchRetailPriceLine(slug, fallbackUnit), cityLine: "", dateTr: "" };
   }
+  const cityLine = summary.cities.length >= 2 && summary.marketCount >= 2
+    ? `${summary.cities.slice(0, 3).join(", ")} dahil ${summary.marketCount} halden güncel veri. `
+    : "";
+  // Kekik hal'de demet, borsada kg satilir; tek ortalama ikisini karistirirdi.
+  if (slug === "kekik") return { priceLine: "Demet hal fiyatları ve kg borsa kayıtları ayrı gösterilir. ", cityLine, dateTr: summary.dateTr };
+  const priceTr = formatAveragePrice(summary);
+  if (!priceTr) return { priceLine: "", cityLine, dateTr: summary.dateTr };
+  const dateSuffix = summary.dateTr ? ` (${summary.dateTr})` : "";
+  return { priceLine: `Ortalama ${priceTr}${dateSuffix}. `, cityLine, dateTr: summary.dateTr };
 }
 
 function isSeoIndexed(product: { seoIndex?: number | boolean }) {

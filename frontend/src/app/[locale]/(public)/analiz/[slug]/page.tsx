@@ -25,6 +25,7 @@ import { formatDateTr } from "@/lib/date-format";
 import ReportActions from "@/components/reports/ReportActions";
 import ReportSummaryGrid from "@/components/reports/ReportSummaryGrid";
 import { findPiyasaForArticle } from "@/lib/piyasa";
+import { fetchProductPriceSummary, formatAveragePrice } from "@/lib/product-price-summary";
 
 // İçerik HTML ile başlıyorsa zengin rapor (kendi <style> + inline SVG) olarak
 // render edilir; aksi halde markdown-benzeri paragraf render'ı kullanılır.
@@ -80,7 +81,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cover = coverImageUrl(makale, slug);
   const coverAlt = makale.imageAlt || makale.baslik;
   const searchTitle = compactMetaTitle(makale.metaTitle || `${makale.baslik} | HalDeFiyat Analiz`);
-  const searchDescription = compactMetaDescription(makale.metaDescription || makale.ozet);
+
+  /**
+   * Tarihli analiz, FIYAT niyetli sorgularin buyuk kismini topluyor ve kotu
+   * cevirıyor: 3-13 Eyl'de limon analizine inen 3.784 gosterimin neredeyse
+   * tamami fiyat sorgusu ("mersin limon fiyatlari" 1.140 gosterim %0,96 CTR),
+   * ayni "limon piyasasi" sorgusunda urun sayfasi %7,98 alirken bu sayfa %2,00.
+   * Snippet Agustos analizi vaat ediyor, arayan bugunun fiyatini istiyor.
+   *
+   * Aciklama artik BUGUNUN sayisiyla basliyor — ve sayfa bunu tutuyor: govdeden
+   * once duran koprude ayni rakam yaziyor (asagida). Veri yoksa aciklama
+   * degismeden kaliyor; tutulamayacak soz verilmez.
+   */
+  const piyasaMatch = findPiyasaForArticle(makale.slug, makale.etiketler ?? []);
+  const liveSummary = piyasaMatch ? await fetchProductPriceSummary(piyasaMatch.productSlug) : null;
+  const livePrice = liveSummary ? formatAveragePrice(liveSummary) : "";
+  const liveLead = livePrice && liveSummary?.dateTr
+    ? `${piyasaMatch!.productName} bugün ortalama ${livePrice} (${liveSummary.dateTr}). `
+    : "";
+  const searchDescription = compactMetaDescription(`${liveLead}${makale.metaDescription || makale.ozet}`);
 
   return {
     title: { absolute: searchTitle },
@@ -237,6 +256,10 @@ export default async function AnalizMakalePage({ params }: Props) {
   const authorUrl = authorProfile ? `${SITE_URL}/yazar/${authorProfile.slug}` : null;
   const summary = findingSummary(makale.ozet);
   const piyasaPage = findPiyasaForArticle(makale.slug, makale.etiketler ?? []);
+  // Koprudeki sayi ile meta aciklamadaki sayi ayni kaynaktan gelir
+  // (lib/product-price-summary): snippet'te verilen soz sayfada tutulur.
+  const livePrice = piyasaPage ? await fetchProductPriceSummary(piyasaPage.productSlug) : null;
+  const livePriceTr = livePrice ? formatAveragePrice(livePrice) : "";
   const totalRecords = weeklySummary?.totalRecords
     ?? ("totalRecords" in makale && typeof makale.totalRecords === "number" ? makale.totalRecords : null);
   const coverageValue = weeklySummary
@@ -419,6 +442,16 @@ export default async function AnalizMakalePage({ params }: Props) {
                 <p className="text-[13px] font-semibold text-(--color-foreground)">
                   Bugünkü {piyasaPage.productName.toLocaleLowerCase("tr-TR")} fiyatlarını mı arıyorsunuz?
                 </p>
+                {livePriceTr && livePrice?.dateTr ? (
+                  <p className="mt-1 font-(family-name:--font-mono) text-[15px] font-bold text-(--color-foreground)">
+                    {`${piyasaPage.productName} ${livePrice.dateTr}: ortalama ${livePriceTr}`}
+                    {livePrice.marketCount > 1 ? (
+                      <span className="ml-1 font-(family-name:--font-body) text-[12px] font-medium text-(--color-muted)">
+                        {`(${livePrice.marketCount} hal)`}
+                      </span>
+                    ) : null}
+                  </p>
+                ) : null}
                 <p className="mt-1 text-[13px] leading-5 text-(--color-muted)">
                   Bu analiz {formatDateTr(makale.tarih) ?? makale.tarih} tarihli bir değerlendirmedir.
                   Güncel fiyatlar için her gün yenilenen {piyasaPage.region} sayfasına bakın.

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 
 type PopupType = "topbar" | "sidebar_top" | "sidebar_center" | "sidebar_bottom";
 type DisplayFrequency = "always" | "once" | "daily";
@@ -87,8 +86,33 @@ function sanitizeColor(value: string | null | undefined): string | undefined {
   return undefined;
 }
 
+/**
+ * sanitize-html TEMBEL YUKLENIR.
+ *
+ * Bu dosya "use client" oldugu icin statik import, sanitize-html +
+ * htmlparser2 + postcss'i HER sayfanin ilk paketine sokuyordu: 49 KB'i
+ * calistirilmayan kod (16 Eyl 2026 Lighthouse, unused-javascript'in en buyuk
+ * kendi-kodumuz kalemi). Popup'li sayfa nadir; modul yalnizca gercekten HTML
+ * icerikli bir popup gosterilecekse indirilir.
+ *
+ * Guvenlik ozelligi korunur: modul yuklenene kadar icerik BOS kalir,
+ * temizlenmemis HTML hicbir anda basilmaz.
+ */
+function useSanitizedHtml(raw: string | null | undefined): string {
+  const [clean, setClean] = useState("");
+  useEffect(() => {
+    if (!raw) { setClean(""); return; }
+    let active = true;
+    void import("@/lib/sanitize-html").then(({ sanitizeCmsHtml }) => {
+      if (active) setClean(sanitizeCmsHtml(raw));
+    });
+    return () => { active = false; };
+  }, [raw]);
+  return clean;
+}
+
 function PopupBody({ popup }: { popup: PublicPopup }) {
-  const content = popup.content ? sanitizeCmsHtml(popup.content) : "";
+  const content = useSanitizedHtml(popup.content);
   const buttonStyle = {
     backgroundColor: sanitizeColor(popup.button_color),
     color: sanitizeColor(popup.button_text_color),
