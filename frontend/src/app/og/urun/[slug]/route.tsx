@@ -36,26 +36,70 @@ async function loadFont(): Promise<ArrayBuffer | null> {
   }
 }
 
-async function fetchProduct(slug: string) {
+type ProductLite = { slug: string; nameTr?: string; displayName?: string; categorySlug?: string };
+
+/**
+ * Urun adi ULKE KATALOGUNDAN okunur, sitemap filtresinden DEGIL.
+ *
+ * Eski hali `/prices/products/seo-eligible` listesinde ariyordu; o liste
+ * `isSeoEligibleProductName` ile adinda parantez olan veya tamami BUYUK HARF
+ * olan urunleri eliyor. Katalogda limon "LİMON", domates "DOMATES" olarak
+ * kayitli — yani en cok aranan urunlerin HICBIRI listede yok ve hepsi jenerik
+ * "Hal Fiyati" kapagina dusuyordu. 16 Eyl 2026 dogrulamasi: /og/urun/limon,
+ * /og/urun/domates ve /og/urun/nar birebir ayni md5'i veriyordu.
+ */
+async function fetchProduct(slug: string): Promise<ProductLite | null> {
   try {
-    const res = await fetch(`${API}/api/v1/prices/products/seo-eligible?since=365d`, {
+    const res = await fetch(`${API}/api/v1/prices/products?q=${encodeURIComponent(slug)}`, {
       next: { revalidate: 3600 },
     });
     if (!res.ok) return null;
     const data = await res.json();
-    const items = Array.isArray(data) ? data : data.items ?? data.data ?? [];
-    return items.find((p: { slug: string }) => p.slug === slug) ?? null;
+    const items: ProductLite[] = Array.isArray(data) ? data : data.items ?? data.data ?? [];
+    return items.find((product) => product.slug === slug) ?? null;
   } catch {
     return null;
   }
 }
 
+/** Kapak tarihi: urunun gercek son fiyat kaydi. */
+async function fetchLatestDate(slug: string): Promise<string | undefined> {
+  try {
+    const res = await fetch(`${API}/api/v1/prices?product=${encodeURIComponent(slug)}&range=1d&limit=1`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return undefined;
+    const data = await res.json();
+    return (data?.items ?? [])[0]?.recordedDate;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Uzun urun adi (ornegin "Salcalik Domates") 88 punto ile kapaktan tasiyordu. */
+function titleFontSize(value: string): number {
+  if (value.length > 26) return 58;
+  if (value.length > 18) return 70;
+  return 88;
+}
+
+/** Baslikta birim parantezi ("Limon (Kg)") arama diliyle uyusmaz — urun sayfasi da atiyor. */
+function cleanName(value: string): string {
+  return value.replace(/\s*\((kg|kilogram|koli|kasa|adet|bağ|demet|sandık|çuval|paket)\)\s*$/iu, "").trim() || value;
+}
+
 export async function GET(_req: Request, { params }: Props) {
   const { slug } = await params;
-  const [product, font, brandAssets] = await Promise.all([fetchProduct(slug), loadFont(), loadOgBrandAssets()]);
-  const name: string = product?.nameTr ?? "Hal Fiyatı";
+  const [product, latestDate, font, brandAssets] = await Promise.all([
+    fetchProduct(slug),
+    fetchLatestDate(slug),
+    loadFont(),
+    loadOgBrandAssets(),
+  ]);
+  const rawName = product?.displayName || product?.nameTr || "";
+  const name: string = rawName ? cleanName(rawName) : "Hal Fiyatı";
   const category: string = product?.categorySlug ?? "sebze-meyve";
-  const dataDate = formatOgDate(product?.updatedAt);
+  const dataDate = formatOgDate(latestDate);
 
   return new ImageResponse(
     (
@@ -86,7 +130,7 @@ export async function GET(_req: Request, { params }: Props) {
           <div style={{ fontSize: 30, color: BRAND, fontWeight: 700 }}>
             Güncel Hal Fiyatı
           </div>
-          <div style={{ fontSize: 88, fontWeight: 800, lineHeight: 1.05 }}>
+          <div style={{ fontSize: titleFontSize(name), fontWeight: 800, lineHeight: 1.05 }}>
             {name}
           </div>
           <div style={{ fontSize: 28, color: "#9fb0c8", display: "flex" }}>
