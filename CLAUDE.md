@@ -26,11 +26,20 @@ Bu dosya hal-fiyatlari dizininde calisirken otomatik baglama dahil olur. Aktif H
 > yazar; elle build gerekirse:
 > `bun run build > /tmp/build.log 2>&1; echo "EXIT=$?"; tail -20 /tmp/build.log`
 >
-> **PM2 yapisi (2026-08-14):** `hal-frontend` = 2x cluster worker (rolling reload
-> destekler), `hal-backend` = fork (reload yeter), `hal-admin` = fork (release
-> symlink'ine pinli, restart). Frontend build'leri `.next` degil
+> **PM2 yapisi (2026-09-16 guncel):** `hal-frontend` = 2x cluster worker (rolling
+> reload destekler), `hal-backend` = fork (reload yeter), `hal-admin` = fork
+> (release symlink'ine pinli, restart). Frontend build'leri `.next` degil
 > `.next-release-<sha>` dizinlerinde yasar; eski release dizinleri deploy.sh
 > tarafindan temizlenir.
+>
+> **⚠️ hal-frontend ANA PM2 DAEMON'UNDA DEGIL.** Ayri daemon
+> (`PM2_HOME=/root/.pm2-hal-frontend`), Node 24
+> (`/opt/hal-runtime/node-v24.21.0-linux-x64/bin/node`), systemd birimi
+> `hal-frontend.service`. Sebep: Node 20 TransformStream iptal yarisi
+> (nodejs/node#62040) ve PM2 cluster worker'larinin **daemon'un** Node'unu miras
+> almasi. `pm2 restart hal-frontend` bu yuzden "process not found" der —
+> frontend icin daima `bash scripts/frontend-pm2.sh <pm2 komutu>` kullan.
+> Detay/geri alma: `ops/frontend-runtime.md`.
 >
 > **Neden:** rsync ile deploy edince local ve server git'ten ayrisip "anlamsiz
 > coplige" donuyor (commit edilmemis dosyalar, drift, takip edilemez degisiklik).
@@ -166,7 +175,8 @@ cd backend/scripts
 - VPS: vps-vistainsaat (root@srv1493379), path: `/var/www/tarim-dijital-ekosistem/projects/hal-fiyatlari/` (monorepo standardi, 2026-05-14)
 - node_modules: monorepo root `/var/www/tarim-dijital-ekosistem/node_modules` (bun workspace install)
 - PM2: `hal-backend` (port 8091), `hal-frontend` (port 3033), `hal-admin` (port 3036)
-  — ID'ler PM2 restart sonrasi degisir, isimle calistir (`pm2 restart hal-backend`)
+  — ID'ler PM2 restart sonrasi degisir, isimle calistir (`pm2 restart hal-backend`).
+  `hal-frontend` ayri daemon'da: `bash scripts/frontend-pm2.sh status` (bkz. yukarisi)
 - PM2 prosesleri runtime env ile baslatildi: `BACKEND_URL=http://127.0.0.1:8091`,
   `NEXT_PUBLIC_API_URL=https://haldefiyat.com` (PM2 restart sonrasi `--update-env` gerek)
 - DB: `hal_fiyatlari` MySQL, user `haldefiyat`
