@@ -6,7 +6,7 @@ export type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
 /** Backend'in urettigi "sonraki adim" kodu icin rozet rengi; etiket ve aciklama locale'den (actions.*, actionHints.*). */
 export const ACTION_VARIANT: Record<HfProductAction, BadgeVariant> = {
-  indexed: "default", recrawl_pending: "secondary", ready_editorial: "destructive",
+  indexed: "default", recrawl_pending: "secondary", crawl_pending: "destructive", ready_editorial: "destructive",
   maintenance_pending: "secondary", needs_coverage: "outline", seasonal_dry: "outline", variant: "outline",
 };
 export const ACTION_KEYS = Object.keys(ACTION_VARIANT) as HfProductAction[];
@@ -16,10 +16,11 @@ export const ACTION_RANK: Record<HfProductAction, number> = {
   ready_editorial: 0,
   maintenance_pending: 1,
   needs_coverage: 2,
-  recrawl_pending: 3,
-  seasonal_dry: 4,
-  indexed: 5,
-  variant: 6,
+  crawl_pending: 3,
+  recrawl_pending: 4,
+  seasonal_dry: 5,
+  indexed: 6,
+  variant: 7,
 };
 
 export function qualityVariant(score: number): BadgeVariant {

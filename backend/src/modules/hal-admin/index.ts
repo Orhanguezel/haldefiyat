@@ -994,7 +994,10 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const edRows = (Array.isArray(edRes) ? edRes[0] : edRes) as unknown as Array<{ product_slug: string }>;
     const editorialSlugs = new Set(edRows.map((r) => r.product_slug));
 
-    const classifyAction = (it: (typeof items)[number], gsc: string | null): string => {
+    // awaitingRecrawl: Google'in son taramasi urunun son guncellemesinden eski —
+    // yani karar bayat, sayfa duzgun. Hic taranmamis (last_crawl NULL) sayfa bu
+    // gruba GIRMEZ; onda "yeniden" tarama diye bir sey yok, ilk tarama bekleniyor.
+    const classifyAction = (it: (typeof items)[number], gsc: string | null, awaitingRecrawl: boolean): string => {
       if (it.canonicalSlug) return "variant";
       const s = sigMap.get(it.id);
       const mc = Number(s?.mcTotal ?? 0);
@@ -1003,7 +1006,10 @@ export async function registerHalAdmin(app: FastifyInstance) {
       const days = Number(s?.days30 ?? 0);
       const ed = editorialSlugs.has(it.slug);
       const dq = Number(it.dataQuality ?? 0);
-      if (it.seoIndex) return gsc === "indexed" ? "indexed" : "recrawl_pending";
+      if (it.seoIndex) {
+        if (gsc === "indexed") return "indexed";
+        return awaitingRecrawl ? "recrawl_pending" : "crawl_pending";
+      }
       // maintenance ile aynı: hal UP = hal_rows>=1 AND mc>=3 AND dq>=70; borsa UP = hal=0 AND borsa>=1 AND days>=3 AND dq>=60
       const halOk = hal >= 1 && mc >= 3 && dq >= 70;
       const borsaOk = hal === 0 && borsa >= 1 && days >= 3 && dq >= 60;
@@ -1016,15 +1022,18 @@ export async function registerHalAdmin(app: FastifyInstance) {
     const enriched = items.map((it) => {
       const g = gscMap.get(`${origin}/urun/${it.slug}`);
       const s = sigMap.get(it.id);
+      const awaitingRecrawl = Boolean(
+        g?.lastCrawl && it.updatedAt && new Date(g.lastCrawl).getTime() < new Date(it.updatedAt).getTime(),
+      );
       return {
         ...it,
         gscCategory: g?.category ?? null,
-        gscAwaitingRecrawl: Boolean(g?.lastCrawl && it.updatedAt && new Date(g.lastCrawl).getTime() < new Date(it.updatedAt).getTime()),
+        gscAwaitingRecrawl: awaitingRecrawl,
         gscLabel: g?.label ?? null,
         hasEditorial: editorialSlugs.has(it.slug),
         halMarkets30d: Number(s?.halMarkets ?? 0),
         borsaMarkets30d: Number(s?.borsaMarkets ?? 0),
-        action: classifyAction(it, g?.category ?? null),
+        action: classifyAction(it, g?.category ?? null, awaitingRecrawl),
       };
     });
 

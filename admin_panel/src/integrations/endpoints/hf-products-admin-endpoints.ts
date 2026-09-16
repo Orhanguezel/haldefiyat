@@ -30,6 +30,7 @@ export type HfProductAction =
   | "variant"
   | "indexed"
   | "recrawl_pending"
+  | "crawl_pending"
   | "ready_editorial"
   | "maintenance_pending"
   | "needs_coverage"

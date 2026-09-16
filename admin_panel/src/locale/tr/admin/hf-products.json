@@ -34,16 +34,18 @@
     "maintenance_pending": "Bakım bekliyor",
     "needs_coverage": "Veri bekliyor",
     "seasonal_dry": "Sezon dışı",
-    "variant": "Varyant"
+    "variant": "Varyant",
+    "crawl_pending": "Google henüz taramadı"
   },
   "actionHints": {
     "indexed": "Google'da indexli, aksiyon yok",
-    "recrawl_pending": "Index'e alındı; Google yeniden taramalı",
+    "recrawl_pending": "Sayfa düzgün; Google'ın kararı güncellemeden eski, yeniden taraması bekleniyor",
     "ready_editorial": "Veri yeterli; editöryel yazınca index'lenir",
     "maintenance_pending": "Kriterleri karşılıyor; SEO bakımı çalıştır",
     "needs_coverage": "Editöryel var ama hal kapsamı yetersiz",
     "seasonal_dry": "Son 30 günde fiyat yok; sezon dönünce açılır",
-    "variant": "Master'a 301 yönlenir, aksiyon yok"
+    "variant": "Master'a 301 yönlenir, aksiyon yok",
+    "crawl_pending": "Index'e açık ama Google sayfayı hiç taramamış — gerçek Google sorunu"
   },
   "sort": {
     "opportunity": "Fırsat sırası",
