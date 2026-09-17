@@ -1,6 +1,6 @@
 # Veri Kalitesi Temizliği — Durum ve Checklist
 
-**Tarih:** 17 Eylül 2026 · **Durum:** devam ediyor · **Sonraki adım:** §3.3
+**Tarih:** 17 Eylül 2026 · **Durum:** devam ediyor · **Sonraki adım:** §3.2
 
 Bu dosya, fiyat verisindeki bozuklukların temizliğini takip eder. Bir oturumda çok iş
 yapıldığı için neyin bitip neyin kaldığı buradan okunur.
@@ -95,15 +95,22 @@ Fiyatı hedefinden belirgin ayrışan bağlar. Çoğu **meşru kalite/sınıf va
 Kanonik bağlı ama hâlâ kendi satırlarını tutan kayıtlar. **Çakışma = 0 olanlar güvenle
 yutulabilir** (absorb numerik olarak nötrdür: satırlar zaten hedefin ortalamasına giriyor).
 
-- [x] Yazım/eşanlam varyantlarını yut — **34 tanesi yapıldı**, hiçbirinde satır düşmedi,
+- [x] Yazım/eşanlam varyantlarını yut — **47 tanesi yapıldı**, hiçbirinde satır düşmedi,
       her birine 301 yazıldı. Son parti: `armut-santamira`→`santamaria`,
       `papates-yeni`→`patates-taze`, `k-bahar`→`karnabahar`,
       `kokty-domates-ceri`→`domates-kokteyl`, `dongel`, `salatalik-tursu`,
       `kirmizi-marul`→`marul-lolorosso`, `fasulye-taze-cali`→`fasulye-cali`
 - [ ] `turp-siyah-kg` → `turp-siyah` **bırakıldı**: 15,67 vs 44,04 (2,8 kat) — yazım
       varyantı gibi görünüyor ama fiyatlar tutmuyor, ayrıca incelensin
-- [ ] `kabak-bal`, `kabak-taze`, `kabak-beyaz` **yutulmasın** — ayrı çeşitler
-- [ ] Torba kayıtlar (`*-muhtelif`, `*-diger`) **yutulmasın** — uç zaten reddediyor
+- [x] `kabak-bal`, `kabak-taze`, `kabak-beyaz` **yutulmadı** — ayrı çeşitler
+- [x] Torba kayıtlar (`*-muhtelif`, `*-diger`) **yutulmadı** — uç zaten reddediyor
+- [x] **Kuyruk esasen kapandı.** Kalan çiftlerin tamamı ya gerçek çeşit (patlıcan kemer,
+      elma amasya, domates sera, patates 2. kalite) ya da absorb ucunun *aynı hal/aynı gün
+      çakışması* gerekçesiyle reddettiği kayıtlar — çakışma varsa iki kayıt **farklı
+      üründür**, yutulmaz. 13 çift bu kontrolle reddedildi (`beyaz-lahana`/`lahana-beyaz`
+      29 satır, `muz-yerli` 33, `biber-dolmalik` 15, `limon-lemas` 14…)
+- [ ] **Küçük kusur:** absorb çakışma reddinde 409 yerine 500 dönüyor (hata zarfı kodu
+      yutuyor). Mesaj doğru geliyor, iş engellenmiyor; fırsat olunca düzeltilsin
 
 ### 3.4 — Görünmeyen satırlar (§4), 147.066 satır · **en büyük açık**
 
