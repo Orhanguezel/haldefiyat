@@ -1,6 +1,6 @@
 # Veri Kalitesi Temizliği — Durum ve Checklist
 
-**Tarih:** 17 Eylül 2026 · **Durum:** devam ediyor · **Sonraki adım:** §3.5
+**Tarih:** 17 Eylül 2026 · **Durum:** devam ediyor · **Sonraki adım:** §3.5 karar · §3.4 karar
 
 Bu dosya, fiyat verisindeki bozuklukların temizliğini takip eder. Bir oturumda çok iş
 yapıldığı için neyin bitip neyin kaldığı buradan okunur.
@@ -76,7 +76,8 @@ giriyordu (dut +%38,8).
       yok; ucuz bir yeşillik için geniş ama tek kümeli. `kaya-korugu` aynı gerekçe
 - [x] Üç torba kaydı **doğrulandı** — `domates-diger`, `fasulye-taze-diger`,
       `uzum-beyaz-diger` residual kuralıyla manşetten çıkıyor, işlem gerekmiyor
-- [ ] **İndexsiz 14 çift** — çoğu %5–9 bandında, düşük öncelikli
+- [ ] **İndexsiz 14 çift** — çoğu %5–9 bandında, düşük öncelikli (arama sonuçlarında
+      görünmüyorlar, manşet etkileri sınırlı)
 
 ### 3.2 — Kanonik bağ sapması (§1), 43 çift
 
@@ -137,8 +138,28 @@ Satır birimi ürün birimiyle uyuşmadığı için hiçbir yerde gösterilmiyor
 `hf_price_quarantine`'de `status='pending'` duran, ETL'in kendi kurallarıyla yakaladığı
 kayıtlar. Bunlar history'ye hiç girmemiş.
 
-- [ ] Kuyruk tasnif edilsin (donuk seri / gürültü seri / gerçek fiyat hareketi)
-- [ ] Tek tek değil sınıf sınıf karara bağlansın
+- [x] **Kuyruk tasnif edildi** (17 Eyl):
+
+| sebep | toplam | 5 kat+ sapma | makul (0,5–2x) | ölçümsüz |
+|---|---|---|---|---|
+| SOURCE_MEDIAN_DEVIATION | 419 | 319 | 6 | 10 |
+| PREVIOUS_PRICE_JUMP | 258 | 92 | 60 | 86 |
+| PEER_MEDIAN_DEVIATION | 84 | 76 | 0 | 0 |
+| PRODUCT_UNIT_MISMATCH (critical) | 22 | — | — | 22 |
+
+Yaş: 536'sı son 30 günde → kuyruk **aktif büyüyor**, günde ~18 kayıt.
+
+- [ ] **AÇIK KARAR.** İki yönlü sorun var, ikisi de veri kaybı:
+      **(a) Doğru reddedilenler (~487 kayıt, 5 kat+ sapma)** — bunlar zaten history'ye
+      girmemiş, sorun yok; toplu `reject` ile kuyruktan düşürülebilir.
+      **(b) HAKSIZ reddedilmiş olabilecekler (~66 kayıt makul aralıkta)** — örnek:
+      `frenk-uzumu/kocaeli` 49 kayıt, ort 410,70 TL/kg, kıyas değeri 19,07. Frenk üzümü
+      gerçekten pahalı bir meyve; burada **kıyas değeri yanlış** olabilir ve gerçek fiyat
+      eleniyor olabilir. `kirlangic/izmir_balik` 604 vs 469 — aynı şüphe.
+      **(c) Kıyas değeri şüpheli olanlar** — `domates-ayas/kocaeli` 83 kayıt, ort 45,37 vs
+      kıyas 8,36. Hangisinin doğru olduğu ayrıca incelenmeli.
+- [ ] Kuyruğun büyümesi durdurulmalı: aynı ürün+kaynak her gün aynı sebeple
+      reddediliyorsa bu bir kural sorunudur, tek tek inceleme konusu değil
 
 ### 3.6 — Kaynak seviyesi (kod işi)
 
