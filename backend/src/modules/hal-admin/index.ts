@@ -1220,6 +1220,92 @@ export async function registerHalAdmin(app: FastifyInstance) {
   // "Soğan (Beyaz) (kg)" = "SOĞAN (BEYAZ)"). Iki kayit birakilinca cesit tablosunda ayni
   // adla iki satir farkli fiyatla goruntuleniyor. Cozum: gecmisi hayatta kalan kayda tasi,
   // adlari alias'a kat, dubleyi pasiflestir.
+  // Yayindaki bir fiyat satirini KARANTINAYA al.
+  //
+  // ETL'in karantina kurallari her aykiri degeri yakalamiyor; yakalayamadiklari
+  // dogrudan hf_price_history'ye giriyor ve ortalamayi bozuyor. Ornek (17 Eyl):
+  // adacayi, hal_gov_tr_ulusal, 19 Tem 2026 → 850,60 TL/kg. Bir onceki gun 16,02,
+  // sonraki gun 39,45. Tek bu satir urunun 90 gunluk ortalamasini 26,6'dan
+  // 85,47'ye cikariyordu.
+  //
+  // SILMEK YOK: satir hf_price_quarantine'e 'rejected' olarak tasinir, karar
+  // hf_price_quarantine_decisions'a before/after ile yazilir. Boylece kayit
+  // durur, denetlenebilir ve mevcut inceleme akisiyla geri alinabilir.
+  app.post<{ Params: { id: string }; Body: { note?: string } }>(
+    "/hal/prices/:id/karantinaya-al",
+    async (req, reply) => {
+      const id = Number(req.params.id);
+      if (!Number.isFinite(id) || id <= 0) return reply.status(400).send({ error: "Gecersiz id" });
+
+      const row = await getPriceDetail(id);
+      if (!row) return reply.status(404).send({ error: "Fiyat satiri bulunamadi" });
+
+      // Kiyas degeri: ayni urun + ayni kaynak, +-30 gun, bu satir haric.
+      const peerRes = await db.execute(sql`
+        SELECT AVG(avg_price) AS m FROM hf_price_history
+        WHERE product_id = ${row.productId} AND source_api = ${row.sourceApi}
+          AND id <> ${id} AND avg_price > 0
+          AND recorded_date BETWEEN DATE_SUB(${row.recordedDate}, INTERVAL 30 DAY)
+                               AND DATE_ADD(${row.recordedDate}, INTERVAL 30 DAY)
+      `);
+      const peerRows = (Array.isArray(peerRes) ? peerRes[0] : peerRes) as unknown as Array<{ m: string | null }>;
+      const peer = peerRows[0]?.m != null ? Number(peerRows[0].m) : null;
+      const avg = Number(row.avgPrice);
+      const sapma = peer && peer > 0 ? avg / peer : null;
+
+      const reviewer = String((req.user as { id?: string } | undefined)?.id ?? "admin").slice(0, 36);
+      const note = (req.body?.note ?? "elle karantinaya alindi").slice(0, 500);
+
+      const conn = await pool.getConnection();
+      try {
+        await conn.beginTransaction();
+        await conn.query(
+          `INSERT INTO hf_price_quarantine
+             (product_id,market_id,recorded_date,source_api,unit,min_price,max_price,avg_price,
+              reason_code,severity,peer_median,deviation_ratio,status,review_note,reviewed_by,reviewed_at)
+           VALUES (?,?,?,?,?,?,?,?,'MANUEL_AYKIRI_DEGER','critical',?,?,'rejected',?,?,CURRENT_TIMESTAMP(3))
+           ON DUPLICATE KEY UPDATE status='rejected', review_note=VALUES(review_note),
+             reviewed_by=VALUES(reviewed_by), reviewed_at=CURRENT_TIMESTAMP(3)`,
+          [row.productId, row.marketId, row.recordedDate, row.sourceApi, row.unit,
+           row.minPrice, row.maxPrice, row.avgPrice,
+           peer != null ? peer.toFixed(2) : null, sapma != null ? sapma.toFixed(4) : null,
+           note, reviewer],
+        );
+        const [qRows] = await conn.query(
+          `SELECT id FROM hf_price_quarantine
+            WHERE product_id=? AND market_id=? AND recorded_date=? AND source_api=? AND reason_code='MANUEL_AYKIRI_DEGER'`,
+          [row.productId, row.marketId, row.recordedDate, row.sourceApi],
+        );
+        const qId = (qRows as Array<{ id: number }>)[0]?.id ?? null;
+        if (qId) {
+          await conn.query(
+            `INSERT INTO hf_price_quarantine_decisions (quarantine_id,action,before_price_json,after_price_json,note,reviewed_by)
+             VALUES (?,'reject',?,NULL,?,?)`,
+            [qId, JSON.stringify(row), note, reviewer],
+          );
+        }
+        await conn.query("DELETE FROM hf_price_history WHERE id=?", [id]);
+        await conn.commit();
+      } catch (err) {
+        await conn.rollback();
+        throw err;
+      } finally {
+        conn.release();
+      }
+
+      void revalidateFrontendTag("prices");
+      return reply.send({
+        ok: true,
+        urun: row.productSlug,
+        hal: row.marketSlug,
+        tarih: row.recordedDate,
+        alinan_fiyat: row.avgPrice,
+        kiyas_ortalamasi: peer != null ? Number(peer.toFixed(2)) : null,
+        sapma_kati: sapma != null ? Number(sapma.toFixed(2)) : null,
+      });
+    },
+  );
+
   // Birim uyusmayan satirlari DOGRU urune tasi.
   //
   // publicUnitIntegrity (h.unit = p.unit) satir birimi urun birimiyle uyusmayan
