@@ -95,7 +95,6 @@ const UNIT_CLASS: ReadonlyArray<[RegExp, string]> = [
   // fiyatlariyla ayni urune karisirdi — Yalova ithal muzu 2400 TL/koli.
   [/^(koli|kutu)\b/i, "koli"],
   [/^(paket|pk)\b/i, "paket"],
-  [/^(bag|bag)\b/i, "bag"],
   [/^(litre|lt|l)\b/i, "litre"],
 ];
 

@@ -9,10 +9,25 @@ const UNIT_LABELS: Record<string, string> = {
   lt: "Litre", litre: "Litre",
 };
 
+/**
+ * Etiketin gruplama birimi, ETL'in `unitClass` sinifiyla AYNI kararlari vermeli;
+ * yoksa veri katmani iki kaydi ayni urun sayarken gorunen katman onlari farkli
+ * birimde sanip ikisini birden etiketler.
+ *
+ * Fiilen yasanan: `roka` (demet) ile `roka-bag` (bağ) ETL icin ayni birimdir
+ * (normalizer.ts UNIT_CLASS: "bağ = demet, ikisi de bunch") ama burasi bilmiyordu
+ * ve arama hacmi olan `roka` sayfasinin H1'i "Roka (Demet)" oluyordu.
+ *
+ * unitClass'i dogrudan cagirmiyoruz: o, TANIMADIGI birimi uyarip "kg" varsayar
+ * (ETL icin dogru — bilinmeyen birim fiyati bozmasin). Etiket icin bu yanlis
+ * olur, "sandık" birimi "(Kg)" diye yazilirdi. Bu yuzden esleme burada duruyor;
+ * ortak kararlar unit-class-hizasi testiyle sabitlendi.
+ */
 function normalizedUnit(unit: string) {
   const key = unit.trim().toLocaleLowerCase("tr-TR");
   if (["kg", "kilogram", "kilo", "kg."].includes(key)) return "kg";
-  if (["adet", "tane"].includes(key)) return "adet";
+  if (["adet", "tane", "ad"].includes(key)) return "adet";
+  if (["bağ", "bag", "demet"].includes(key)) return "demet";
   return key;
 }
 
