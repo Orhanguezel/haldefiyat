@@ -318,6 +318,18 @@ if [ -r "$ACCESS_LOG" ]; then
   fi
 fi
 
+# ── AI erisim regresyon kontrolu (2026-09-17) ───────────────────────────────
+# robots.txt'teki AI bot izinleri + llms.txt, AI yanitlarinda kaynak olarak
+# gecmemizin TEK teknik sebebi (17 Eyl olcumu: dort urun sorgusunun dordunde de
+# kaynak donduk). Bir deploy'da sessizce bozulursa hicbir hata log'u dusmez.
+if [ -x "$REPO_ROOT/scripts/ai-erisim-kontrol.sh" ]; then
+  echo ""
+  echo "==> AI erisim kontrolu (robots.txt + llms.txt)"
+  "$REPO_ROOT/scripts/ai-erisim-kontrol.sh" "http://127.0.0.1:3033" || {
+    echo "    ⚠ AI erisimi BOZUK — yukaridaki satirlari duzeltmeden birakma."
+  }
+fi
+
 echo ""
 echo "✓ Deploy tamamlandı"
 pm2 list
