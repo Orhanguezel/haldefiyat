@@ -55,7 +55,7 @@ import {
   createCallRequestChallenge,
   verifyCallRequestChallenge,
 } from "./call-request-risk";
-import { sendSellerCallRequestEmail } from "./call-request-email";
+import { sendSellerCallRequestEmail, sendSellerInquiryEmail } from "./call-request-email";
 
 function idParam(req: FastifyRequest<{ Params: { id: string } }>) {
   const id = Number(req.params.id);
@@ -99,6 +99,23 @@ export async function createPublicInquiry(req: FastifyRequest<{ Params: { id: st
         (parsed.offerPrice != null ? `Teklif: ${parsed.offerPrice}\n` : "") +
         `Mesaj: ${parsed.message}`;
       void sendTelegramAdminAlert(text).catch(() => {});
+
+      // SATICIYA da haber ver. Bugune kadar teklif yalniz ops kanalina ve admin
+      // paneline dusuyordu; ilan sahibi paneline girmedigi surece kendisine gelen
+      // tekliften haberi olmuyordu. Arama talebinde bu bildirim zaten vardi.
+      // Gonderim istegi bloklamaz: alici 201'i beklemeden alir.
+      void (async () => {
+        const sellerEmail = await getVerifiedSellerEmail(listing.userId).catch(() => null);
+        if (!sellerEmail) return;
+        await sendSellerInquiryEmail({
+          to: sellerEmail,
+          listingId: id,
+          listingTitle: listing.title,
+          buyerName: parsed.name ?? null,
+          offerPrice: parsed.offerPrice ?? null,
+          message: parsed.message ?? null,
+        }).catch(() => false);
+      })();
     }
     return reply.status(201).send({ ok: true, id: inquiryId });
   } catch (err) {

@@ -33,7 +33,8 @@ export async function sendSellerCallRequestEmail(input: {
   note: string | null;
   requestId: number;
 }): Promise<boolean> {
-  const dashboardUrl = `https://haldefiyat.com/dashboard/ilanlarim`;
+  // Panel yolu /hesabim/ilanlarim; /dashboard/ilanlarim 404 veriyordu (17 Eyl 2026).
+  const dashboardUrl = `https://haldefiyat.com/hesabim/ilanlarim`;
   const safeTitle = escapeHtml(input.listingTitle);
   const safeNote = input.note ? escapeHtml(input.note) : null;
   return retryCallRequestDelivery(() => sendBereketMail({
@@ -50,6 +51,61 @@ export async function sendSellerCallRequestEmail(input: {
       <p>Talep no: ${input.requestId}</p>
       <p><a href="${dashboardUrl}">Talebi panelde inceleyin</a></p>
       <p style="color:#66736b;font-size:12px">Alıcının telefon ve e-posta bilgileri bu bildirimde paylaşılmaz.</p>
+    </div>`,
+  }), 3);
+}
+
+
+/**
+ * Ilana MESAJ/TEKLIF geldiginde saticiya bildirim.
+ *
+ * Arama talebi icin bu bildirim vardi, mesaj icin yoktu: teklif yalniz ops
+ * Telegram kanalina ve admin paneline dusuyordu. Satici paneline girmedigi
+ * surece kendisine gelen tekliften haberi olmuyordu (17 Eyl 2026).
+ *
+ * ALICININ TELEFONU BU E-POSTAYA KONMAZ. Numara panelde gorunur; boylece
+ * iletisim bilgisi e-posta kutularinda dolasmaz ve satici en azindan bir kez
+ * siteye girer. Harman App de ayni yolu izliyor.
+ */
+export async function sendSellerInquiryEmail(input: {
+  to: string;
+  listingId: number;
+  listingTitle: string;
+  buyerName: string | null;
+  offerPrice: number | null;
+  message: string | null;
+}): Promise<boolean> {
+  const url = `https://haldefiyat.com/hesabim/ilanlarim/${input.listingId}`;
+  const safeTitle = escapeHtml(input.listingTitle);
+  const safeName = input.buyerName ? escapeHtml(input.buyerName) : null;
+  const safeMessage = input.message ? escapeHtml(input.message.slice(0, 400)) : null;
+  const teklif = input.offerPrice != null && Number.isFinite(input.offerPrice)
+    ? input.offerPrice.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : null;
+
+  return retryCallRequestDelivery(() => sendBereketMail({
+    to: input.to,
+    // Gonderen adresinin posta kutusu yok; satici yaniti gercek kutuya dussun.
+    replyTo: env.CONTACT_EMAIL,
+    subject: teklif
+      ? `Yeni teklif (${teklif} TL): ${input.listingTitle.slice(0, 90)}`
+      : `Yeni mesaj: ${input.listingTitle.slice(0, 110)}`,
+    text: [
+      `"${input.listingTitle}" ilanınıza yeni bir mesaj geldi.`,
+      safeName ? `Gönderen: ${input.buyerName}` : null,
+      teklif ? `Teklif: ${teklif} TL` : null,
+      input.message ? `Mesaj: ${input.message.slice(0, 400)}` : null,
+      `İlanınızı açın: ${url}`,
+      "Gönderenin telefon numarası güvenlik gereği bu e-postada paylaşılmaz; ilan panelinizde görünür.",
+    ].filter(Boolean).join("\n"),
+    html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#17211b">
+      <h2>${teklif ? "Yeni teklif geldi" : "Yeni mesaj geldi"}</h2>
+      <p><strong>${safeTitle}</strong> ilanınıza bir alıcı ${teklif ? "teklif bıraktı" : "mesaj gönderdi"}.</p>
+      ${safeName ? `<p>Gönderen: <strong>${safeName}</strong></p>` : ""}
+      ${teklif ? `<p style="font-size:18px">Teklif: <strong>${teklif} TL</strong></p>` : ""}
+      ${safeMessage ? `<p>Mesaj: ${safeMessage}</p>` : ""}
+      <p><a href="${url}" style="display:inline-block;background:#1f8f3a;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none">İlanımı aç</a></p>
+      <p style="color:#66736b;font-size:12px">Gönderenin telefon numarası güvenlik gereği bu e-postada paylaşılmaz; ilan panelinizde görünür.</p>
     </div>`,
   }), 3);
 }
