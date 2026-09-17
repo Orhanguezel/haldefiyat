@@ -148,28 +148,50 @@ echo "           kayit yok (roka demet/kg) → yeni kayit mi, urun birimi mi yan
 echo "           karar gerekir. Korlemesine ortalamaya katma."
 
 echo
-echo "▸ 5. GURULTU SERISI (kaynak o urun icin anlamli fiyat uretmiyor)"
-echo "     Imza: ayni urun+kaynak icinde en dusuk ~10, en yuksek ~1000 TL —"
-echo "     degerler araliga uniform dagiliyor, yani fiyat gibi davranmiyorlar."
-echo "     Hepsi az islem goren nadir urunler; ulusal ortalama az islemde"
-echo "     anlamsizlasiyor. Parser dogru sutunu okuyor, sorun kaynakta."
+echo "▸ 5. KARISIK SERI (ayni urun+kaynak icinde iki ayri fiyat kumesi)"
+echo "     Olcut: medyandan 5 KAT uzak satirlarin orani >= %5."
+echo ""
+echo "     Bu esik OLCULEREK kondu (17 Eyl 2026). Karantinaya alinmis 21 bilinen"
+echo "     bozuk cift ile canlidaki 1.956 cift ayni olcutle tarandi:"
+echo "       %5  esigi → bozuklarin 19/21i (%90) yakalandi, saglamlarin %0,97si"
+echo "       %10 esigi → 15/21 (%71) yakalandi, saglamlarin %0,36si"
+echo "     %5 secildi: yakalamayi 20 puan artirirken yanlis pozitifi %1de tutuyor."
+echo ""
+echo "     Denenip ELENEN olcutler — ikisi de bozukla saglami ayirmadi:"
+echo "       p90/p10 : bozuklar 2,4-87 arasina yayiliyor, saglamlarla ortusuyor"
+echo "       max/min : 5 yillik seride enflasyon yuzunden ispanak 3.053 kat cikiyor"
+echo "       max/medyan : bozuklar 1,4-68 arasina yayiliyor"
+echo "     Ayirt eden sey araligin GENISLIGI degil, ikinci bir kumenin VARLIGI:"
+echo "     karambolada 66 satir 10-40 TL bandinda, 45 satir 100-1000 arasinda."
+echo "     Muhtemel sebep porsiyon ile kilo fiyatinin ayni seride olmasi."
+echo ""
+echo "     BU BIR KUYRUK, otomatik eleme DEGIL: mevsimlik urunler mesru sekilde"
+echo "     listeye girebiliyor (mandalina 23-210 TL). Her satir elle karara baglanir."
 mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" --table -e "
-SELECT p.slug AS urun, COALESCE(p.seo_index,0) AS indexli, h.source_api AS kaynak,
-       COUNT(*) AS satir,
-       ROUND(MIN(h.avg_price),2) AS enaz, ROUND(MAX(h.avg_price),2) AS encok,
-       ROUND(MAX(h.avg_price)/NULLIF(MIN(h.avg_price),0),0) AS kat,
+WITH r AS (
+  SELECT h.product_id, h.source_api, h.avg_price,
+         PERCENT_RANK() OVER (PARTITION BY h.product_id, h.source_api ORDER BY h.avg_price) pr
+  FROM hf_price_history h
+  JOIN hf_products p ON p.id = h.product_id AND h.unit = p.unit
+  WHERE h.avg_price > 0 AND p.is_active = 1
+    AND h.recorded_date >= CURDATE() - INTERVAL 90 DAY),
+m AS (SELECT product_id, source_api, COUNT(*) n,
+             MIN(CASE WHEN pr >= 0.50 THEN avg_price END) med
+        FROM r GROUP BY product_id, source_api HAVING n >= 20)
+SELECT p.slug AS urun, COALESCE(p.seo_index,0) AS indexli, r.source_api AS kaynak,
+       m.n AS satir, ROUND(m.med,2) AS medyan,
+       ROUND(MIN(r.avg_price),2) AS enaz, ROUND(MAX(r.avg_price),2) AS encok,
+       ROUND(100*SUM(r.avg_price > m.med*5 OR r.avg_price < m.med/5)/COUNT(*),1) AS uzak_yuzde,
        (SELECT COUNT(*) FROM hf_price_history h3
-         WHERE h3.product_id = p.id AND h3.source_api <> h.source_api
-           AND h3.recorded_date >= CURDATE() - INTERVAL 90 DAY) AS baska_kaynak_satir
-FROM hf_price_history h
-JOIN hf_products p ON p.id = h.product_id AND h.unit = p.unit
-WHERE h.avg_price > 0 AND h.recorded_date >= CURDATE() - INTERVAL 90 DAY
-GROUP BY p.id, h.source_api
-HAVING satir >= 20 AND enaz BETWEEN 9 AND 12 AND encok > 850
-ORDER BY indexli DESC, baska_kaynak_satir DESC;" 2>/dev/null | grep -v "Using a password"
-echo "     baska_kaynak_satir > 0 → o kaynagin satirlari karantinaya alinabilir,"
-echo "     urun yasamaya devam eder. = 0 → urun tamamen bu kaynaga bagli;"
-echo "     satirlari cikarmak sayfayi bosaltir, KARAR gerekir."
+         WHERE h3.product_id = p.id AND h3.source_api <> r.source_api) AS baska_kaynak
+FROM r
+JOIN m ON m.product_id = r.product_id AND m.source_api = r.source_api
+JOIN hf_products p ON p.id = r.product_id
+GROUP BY r.product_id, r.source_api, p.slug, p.seo_index, p.id, m.n, m.med
+HAVING uzak_yuzde >= 5
+ORDER BY indexli DESC, uzak_yuzde DESC;" 2>/dev/null | grep -v "Using a password"
+echo "     baska_kaynak > 0 → kaynak-karantina ucu kullanilabilir, urun yasar."
+echo "     = 0 → urun o kaynaga bagli; karantina sayfayi bosaltir, KARAR gerekir."
 
 echo
 echo "Not: 1. bolum ELLE karara baglanir (fiyat farki tek basina kanit degildir)."
