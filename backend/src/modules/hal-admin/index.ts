@@ -1220,6 +1220,55 @@ export async function registerHalAdmin(app: FastifyInstance) {
   // "Soğan (Beyaz) (kg)" = "SOĞAN (BEYAZ)"). Iki kayit birakilinca cesit tablosunda ayni
   // adla iki satir farkli fiyatla goruntuleniyor. Cozum: gecmisi hayatta kalan kayda tasi,
   // adlari alias'a kat, dubleyi pasiflestir.
+  // Kanonik bagi KALDIR (absorb'un tersi degil — "bunlar ayni urun degilmis" demek).
+  //
+  // Kanonik bag iki is birden yapar: URL'i hedefe 301'ler VE satirlari hedefin
+  // ortalamasina katar. Yanlis kurulmus bir bag bu yuzden iki kez zarar verir.
+  // Denetim (scripts/kanonik-denetim.sh, 1. bolum) fiyati hedeften belirgin
+  // ayrisan baglari kuyruga cikarir; gercekten ayri urun cikanlar burada cozulur.
+  //
+  // family_slug KORUNUR: urun aile seciciside gorunmeye devam eder ama fiyati
+  // artik ayridir. (family_slug hicbir WHERE/JOIN'de kullanilmiyor, yalniz
+  // gosterimde — yani ortalamaya karismaz.)
+  app.post<{ Body: { productIds?: number[]; note?: string } }>(
+    "/hal/products/unmerge",
+    async (req, reply) => {
+      const ids = (Array.isArray(req.body?.productIds) ? req.body.productIds : [])
+        .map(Number)
+        .filter((id) => Number.isFinite(id) && id > 0);
+      if (ids.length === 0) return reply.status(400).send({ error: "productIds gerekli" });
+
+      const rows = await db.select().from(hfProducts).where(inArray(hfProducts.id, ids));
+      const linked = rows.filter((r) => r.canonicalSlug);
+      if (linked.length === 0) {
+        return reply.status(400).send({ error: "Secilen kayitlarin kanonik bagi zaten yok" });
+      }
+
+      for (const row of linked) {
+        await db
+          .update(hfProducts)
+          .set({ canonicalSlug: null, familySlug: row.familySlug ?? row.canonicalSlug })
+          .where(eq(hfProducts.id, row.id));
+      }
+
+      // Kanonik bag kalkinca sayfa KENDI basina var olur. Yutma sirasinda yazilmis
+      // bir 301 duruyorsa sayfa kendi adresinden erisilemez kalirdi — kapat.
+      const paths = linked.map((r) => `/urun/${r.slug}`);
+      await db
+        .update(hfRedirects)
+        .set({ isActive: 0 })
+        .where(inArray(hfRedirects.sourcePath, paths));
+
+      invalidateAliasCache();
+      void revalidateFrontendTag("prices");
+      return reply.send({
+        ok: true,
+        ayrilan: linked.map((r) => ({ slug: r.slug, eskiKanonik: r.canonicalSlug, aile: r.familySlug ?? r.canonicalSlug })),
+        not: req.body?.note ?? null,
+      });
+    },
+  );
+
   app.post<{ Body: { survivorId?: number; duplicateIds?: number[]; force?: boolean } }>(
     "/hal/products/absorb",
     async (req, reply) => {

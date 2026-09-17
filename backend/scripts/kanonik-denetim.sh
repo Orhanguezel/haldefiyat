@@ -57,6 +57,9 @@ JOIN (SELECT p.id, AVG(h.avg_price) AS ort
              AND h.recorded_date >= CURDATE() - INTERVAL 90 DAY AND h.avg_price > 0
        GROUP BY p.id) ss ON ss.id = s.id
 WHERE d.is_active = 1 AND d.canonical_slug IS NOT NULL AND d.unit = s.unit
+  -- Torba kayitlar zaten mansaet ortalamadan dislaniyor (residual-products.ts);
+  -- burada listelenmeleri cozulmus sorunu tekrar raporlamak olurdu.
+  AND d.slug NOT REGEXP '(^|-)(muhtelif|diger)(-|\$)'
 GROUP BY d.slug, s.slug, d.unit, ss.ort
 HAVING satir >= ${MIN_SATIR}
    AND (AVG(hd.avg_price)/ss.ort >= ${KAT} OR AVG(hd.avg_price)/ss.ort <= 1/${KAT})
