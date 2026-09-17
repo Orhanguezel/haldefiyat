@@ -1,6 +1,6 @@
 # Veri Kalitesi Temizliği — Durum ve Checklist
 
-**Tarih:** 17 Eylül 2026 · **Durum:** devam ediyor · **Sonraki adım:** §3.2
+**Tarih:** 17 Eylül 2026 · **Durum:** devam ediyor · **Sonraki adım:** §3.5
 
 Bu dosya, fiyat verisindeki bozuklukların temizliğini takip eder. Bir oturumda çok iş
 yapıldığı için neyin bitip neyin kaldığı buradan okunur.
@@ -83,12 +83,21 @@ giriyordu (dut +%38,8).
 Fiyatı hedefinden belirgin ayrışan bağlar. Çoğu **meşru kalite/sınıf varyantı**
 (`domates-2-sinif`, `elma-sanayi`, `portakal-sanayi`) — onlara dokunulmaz.
 
-- [ ] Listeyi üç sınıfa ayır: gerçekten ayrı ürün → `unmerge` · aynı ürün → `absorb` ·
-      kalite varyantı → dokunma
-- [ ] Şüpheliler: `karadut` → `dut-kara`, `musmula` → `dongel-musmula` (ikisi de aynı
-      ürün gibi, absorb adayı) · `marul-k` / `marul-g` (hedefleri yanlış olabilir)
-- [ ] `bogrulce`/`borulce` 2,7 kat ve `polorosso`/`marul-lolorosso` 3 kat — bağ mı yanlış,
-      veri mi bozuk, ayrıştırılsın
+- [x] Liste üç sınıfa ayrıldı ve net vakalar kapatıldı:
+      **aynı ürün → absorb:** `kumkuat-kamkat`→`kamkat`, `karadut`→`dut-kara`,
+      `bogrulce`→`borulce` (üçü de yapıldı, satır düşmedi)
+      **ayrı ürün → unmerge:** `kabak-mini`, `turp-japon`, `biber-sivri-meksika`,
+      `mercan-kucuk-boy` (aile bağı korundu, fiyatları ayrıldı)
+      **çeşit/bölge → dokunulmadı:** mandalina-rize/king, domates-bursa/petemek,
+      patates-bebe, kabak-sari, beyaz-lahana-hibrit/azman, limon-dal, silor…
+- [ ] **AÇIK KARAR — sanayilik / 2. kalite grubu (17 kayıt, 4.860 satır).** Bunlar
+      kanonik bağlı olduğu için ana ürünün manşet ortalamasına giriyor. Etki ölçüldü:
+      nar −%9,6 · üzüm −%6,5 · elma −%6,4 · kayısı −%6,4 · limon −%6,2 · soğan −%6,0 ·
+      havuç −%5,1 · domates −%3,5 · patates −%2,5.
+      **Torba kayıtlardan farkı:** "diğer/muhtelif" *tanımsız bir karışım*, sanayilik ise
+      *tanımlı bir kalite sınıfı* — hal ortalaması tüm kaliteleri kapsar diye savunulabilir.
+      **Önerim: dokunulmasın.** Ama tutarlılık isteniyorsa aynı residual kuralıyla
+      manşetten çıkarılabilir; karar senin
 
 ### 3.3 — Yutulmayı bekleyen dublike (§2), 30 çift
 
