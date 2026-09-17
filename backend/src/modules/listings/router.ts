@@ -15,6 +15,7 @@ import {
   listAdminInquiries,
   listAdminListings,
   listMyListings,
+  listOwnerInquiries,
   listMyCallRequests,
   listPublicListings,
   moderateAdminListing,
@@ -51,6 +52,9 @@ export async function registerListingsPublic(app: FastifyInstance) {
     config: { rateLimit: { max: 20, timeWindow: "1 hour" } },
   }, verifyListingOtp);
   app.get("/listings/me", { onRequest: [requireAuth] }, listMyListings);
+  // Ilan sahibi kendi ilanina gelen mesajlari gorsun. Sahiplik repo katmaninda
+  // dogrulanir (listing_id + user_id birlikte), yanlis id baskasinin mesajini acmaz.
+  app.get<{ Params: { id: string } }>("/listings/me/:id/inquiries", { onRequest: [requireAuth] }, listOwnerInquiries);
   app.get("/listings/call-requests/me", { onRequest: [requireAuth] }, listMyCallRequests);
   app.get("/listings/call-requests/contact-summary", { onRequest: [requireAuth] }, getMyCallRequestContactSummary);
   app.patch<{ Params: { id: string } }>("/listings/call-requests/:id", { onRequest: [requireAuth] }, patchMyCallRequest);

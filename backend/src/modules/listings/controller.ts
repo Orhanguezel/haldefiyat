@@ -17,6 +17,7 @@ import {
   incrementListingView,
   listingSummary,
   listInquiries,
+  listInquiriesForOwner,
   listListings,
   listCallRequestsForUser,
   markCallRequestNotified,
@@ -418,6 +419,28 @@ export async function unfeatureAdminListing(req: FastifyRequest<{ Params: { id: 
     return reply.send({ item });
   } catch (err) {
     return handleRouteError(reply, req, err, "unfeature_listing");
+  }
+}
+
+/**
+ * Ilan sahibinin kendi ilanina gelen mesajlar.
+ *
+ * Bu veri bugune kadar yalniz admin panelinde ve ops Telegram kanalinda
+ * gorunuyordu; ilani veren kisi kendisine gelen teklifi hicbir yerde
+ * goremiyordu. Sahiplik dogrulamasi repo katmaninda (listing_id + user_id
+ * birlikte sorgulanir), burada yalniz kimlik alinir.
+ */
+export async function listOwnerInquiries(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+  try {
+    const actorId = getAuthUserId(req);
+    if (!actorId) return reply.status(401).send({ error: { code: "auth_required", message: "Kimlik doğrulanamadı." } });
+    const id = idParam(req);
+    if (!id) return sendNotFound(reply);
+    const items = await listInquiriesForOwner(id, actorId);
+    if (items === null) return sendNotFound(reply);
+    return reply.send({ items });
+  } catch (err) {
+    return handleRouteError(reply, req, err, "list_owner_inquiries");
   }
 }
 

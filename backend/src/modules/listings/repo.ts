@@ -270,6 +270,33 @@ export async function listInquiries() {
   return db.select().from(hfListingInquiries).orderBy(desc(hfListingInquiries.createdAt)).limit(200);
 }
 
+/**
+ * Bir ilana gelen mesajlar — ILAN SAHIBI icin.
+ *
+ * Bugune kadar bu veri yalniz admin panelinde ve ops Telegram kanalinda
+ * gorunuyordu; ilanini veren kisi kendisine gelen teklifi HICBIR yerde
+ * goremiyordu (17 Eyl 2026 tespiti). Pazaryerinin temel islevi bu.
+ *
+ * Sahiplik kontrolu CAGIRAN tarafta degil burada: listing_id ile birlikte
+ * sahibin user_id'si de sorulur, boylece yanlis id gecen bir cagri baskasinin
+ * mesajlarini donduremez.
+ */
+export async function listInquiriesForOwner(listingId: number, ownerUserId: string) {
+  const [owned] = await db
+    .select({ id: hfListings.id })
+    .from(hfListings)
+    .where(and(eq(hfListings.id, listingId), eq(hfListings.userId, ownerUserId)))
+    .limit(1);
+  if (!owned) return null;
+
+  return db
+    .select()
+    .from(hfListingInquiries)
+    .where(eq(hfListingInquiries.listingId, listingId))
+    .orderBy(desc(hfListingInquiries.createdAt))
+    .limit(100);
+}
+
 export async function createCallRequest(input: {
   listingId: number;
   buyerUserId: string;
