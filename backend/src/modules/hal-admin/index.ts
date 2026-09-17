@@ -1220,6 +1220,81 @@ export async function registerHalAdmin(app: FastifyInstance) {
   // "Soğan (Beyaz) (kg)" = "SOĞAN (BEYAZ)"). Iki kayit birakilinca cesit tablosunda ayni
   // adla iki satir farkli fiyatla goruntuleniyor. Cozum: gecmisi hayatta kalan kayda tasi,
   // adlari alias'a kat, dubleyi pasiflestir.
+  // Birim uyusmayan satirlari DOGRU urune tasi.
+  //
+  // publicUnitIntegrity (h.unit = p.unit) satir birimi urun birimiyle uyusmayan
+  // kayitlari her public sorgudan eler. Kural dogru: koli fiyatinin kg
+  // ortalamasina karismasini onler. Ama satir yanlis URUNDE oldugu icin veri
+  // toplanip hicbir yerde gorunmez — sessiz kayip, hicbir hata log'u dusmez.
+  // 17 Eyl 2026: tum zamanlarda 147.079 satir bu durumda.
+  //
+  // Bu uc yalniz HEDEFI OLAN vakayi cozer: kaynak kayitta birimi X olan satirlar,
+  // birimi X olan baska bir urune tasinir (bursa-hal muz koli fiyatlari `muz`
+  // kg kaydinda duruyordu; ailede zaten `muz-koli` var).
+  app.post<{ Body: { fromProductId?: number; unit?: string; toProductId?: number } }>(
+    "/hal/prices/birim-tasima",
+    async (req, reply) => {
+      const fromId = Number(req.body?.fromProductId);
+      const toId = Number(req.body?.toProductId);
+      const unit = String(req.body?.unit ?? "").trim();
+      if (!Number.isFinite(fromId) || !Number.isFinite(toId) || fromId === toId || !unit) {
+        return reply.status(400).send({ error: "fromProductId, toProductId (farkli) ve unit gerekli" });
+      }
+
+      const rows = await db.select().from(hfProducts).where(inArray(hfProducts.id, [fromId, toId]));
+      const from = rows.find((r) => r.id === fromId);
+      const to = rows.find((r) => r.id === toId);
+      if (!from || !to) return reply.status(404).send({ error: "Urun bulunamadi" });
+
+      // Hedefin birimi tasinan satirlarin birimiyle AYNI olmali; yoksa satirlar
+      // hedefte de gorunmez kalir ve hicbir sey cozulmez.
+      if (unitClass(to.unit) !== unitClass(unit)) {
+        return reply.status(400).send({
+          error: `Hedef urun birimi "${to.unit}", tasinan satirlarin birimi "${unit}". `
+            + `Satirlar hedefte de gorunmez kalirdi — birimi eslesen bir hedef sec.`,
+        });
+      }
+      // Kaynakta o birim zaten urun birimiyle uyusuyorsa satirlar gorunur
+      // durumdadir; tasimak veriyi bir yerden alip baska yere koymak olur.
+      if (unitClass(from.unit) === unitClass(unit)) {
+        return reply.status(400).send({
+          error: `"${from.slug}" kaydinin birimi zaten "${from.unit}" — bu satirlar gorunur durumda, tasima gerekmez.`,
+        });
+      }
+
+      const before = await db.execute(sql`
+        SELECT COUNT(*) AS n FROM hf_price_history
+        WHERE product_id = ${fromId} AND unit = ${unit}
+      `);
+      const beforeRows = (Array.isArray(before) ? before[0] : before) as unknown as Array<{ n: number }>;
+      const adet = Number(beforeRows[0]?.n ?? 0);
+      if (adet === 0) return reply.status(400).send({ error: "Tasinacak satir yok" });
+
+      // (product_id, market_id, recorded_date) benzersiz — hedefte ayni gun zaten
+      // kayit varsa o satir atlanir, ustune yazilmaz.
+      await db.execute(sql`
+        UPDATE IGNORE hf_price_history SET product_id = ${toId}
+        WHERE product_id = ${fromId} AND unit = ${unit}
+      `);
+      const after = await db.execute(sql`
+        SELECT COUNT(*) AS n FROM hf_price_history
+        WHERE product_id = ${fromId} AND unit = ${unit}
+      `);
+      const afterRows = (Array.isArray(after) ? after[0] : after) as unknown as Array<{ n: number }>;
+      const kalan = Number(afterRows[0]?.n ?? 0);
+
+      void revalidateFrontendTag("prices");
+      return reply.send({
+        ok: true,
+        kaynak: from.slug,
+        hedef: to.slug,
+        birim: unit,
+        tasinan: adet - kalan,
+        cakisma_nedeniyle_kalan: kalan,
+      });
+    },
+  );
+
   // Kanonik bagi KALDIR (absorb'un tersi degil — "bunlar ayni urun degilmis" demek).
   //
   // Kanonik bag iki is birden yapar: URL'i hedefe 301'ler VE satirlari hedefin
