@@ -51,6 +51,7 @@ import ProductImage from "@/components/ui/ProductImage";
 import { getExactProductImage } from "@/lib/product-images";
 import { getProductEditorial } from "@/lib/product-content";
 import AnswerBlock from "@/components/seo/AnswerBlock";
+import { computeWeeklyMovement, describeWeeklyMovement } from "@/lib/weekly-movement";
 import { calculateWindowTrend } from "@/lib/citability";
 import { ProductTradeBanner, ProductAdvertisingBanner, ProductGuideLinks } from "@/components/sections/ProductOpportunities";
 import SellPrompt from "@/components/listings/SellPrompt";
@@ -616,6 +617,22 @@ export default async function UrunPage({ params }: Props) {
         </div>
         <ProductActions slug={product.slug} productName={displayName} />
       </div>
+
+      {(() => {
+        // "Neden artti / ne bekleniyor" sorularinin olculebilir yarisi. 17 Eyl
+        // 2026 AI gorunurluk olcumu bu soru kalibinda yanitlarin YORUM icerigi
+        // aldigini gosterdi; bizde gunun rakami vardi, gecen haftayla kiyas yoktu.
+        // Cumle tamamen olculen sayidan turer; veri yetmezse blok hic basilmaz.
+        const movement = borsaProduct ? null : computeWeeklyMovement(history);
+        if (!movement) return null;
+        return (
+          <div className="mt-6">
+            <AnswerBlock id="haftalik-hareket" title={`${displayName} fiyatı geçen haftaya göre ne yaptı?`}>
+              {describeWeeklyMovement(displayName, movement)}
+            </AnswerBlock>
+          </div>
+        );
+      })()}
 
       <AnswerBlock
         id="ortalama-fiyat"
