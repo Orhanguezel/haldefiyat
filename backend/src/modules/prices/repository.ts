@@ -1603,6 +1603,16 @@ export interface PriceHistoryRow {
   marketSlug: string;
   marketName: string;
   cityName: string | null;
+  /**
+   * Satirin ait oldugu URUN KAYDI. Yalniz `daily` kovada doludur; kovalanmis
+   * sorgu ayni halin ayni gundeki cesitlerini bilerek tek satira toplar (grafik
+   * hal basina TEK cizgi ister), dolayisiyla orada tek bir urun adi yoktur.
+   *
+   * Haftalik hareket kiyasi bu alani zorunlu kilar: Kahramanmaras 7 Eyl'de
+   * `domates-bursa`, 14 Eyl'de `domates` yayinladi; hal eslesiyor ama urun
+   * eslesmiyor ve aradaki 13,00 → 25,00 farki "%92 artis" gibi okunuyordu.
+   */
+  productSlug?: string;
 }
 
 export async function productPriceHistory(
@@ -1674,6 +1684,7 @@ export async function productPriceHistory(
       marketSlug:   hfMarkets.slug,
       marketName:   hfMarkets.name,
       cityName:     hfMarkets.cityName,
+      productSlug:  hfProducts.slug,
     })
     .from(hfPriceHistory)
     .innerJoin(hfProducts, eq(hfProducts.id, hfPriceHistory.productId))

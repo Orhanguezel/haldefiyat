@@ -364,12 +364,18 @@ export default async function UrunPage({ params }: Props) {
   const familyHasDedicatedImages = familyMembers.length > 1
     && familyMembers.every((p) => Boolean(p.imageUrl || getExactProductImage(p.slug)));
 
-  const [history, todayPrices, editorial, borsaPricePage, resmiPrices] = await Promise.all([
+  const [history, movementRows, todayPrices, editorial, borsaPricePage, resmiPrices] = await Promise.all([
     // 5 yıl history — PriceChart kendi içinde 7G/30G/90G filtreler;
     // SeasonCompare aynı veriden yıl grupları çıkarır (en az 2 yıl lazım).
     // bucket=auto: son 90 gün günlük (grafik birebir aynı), 90-365g haftalık,
     // ötesi aylık → payload ~%74 küçülür (bezelye 388KB→102KB), sayfa hızlanır.
     fetchPriceHistory(slug, undefined, "1825d", "auto"),
+    // Haftalık hareket AYRI seri ister. `auto` kovası aynı halin aynı gündeki
+    // çeşitlerini tek satıra toplar — grafik hal başına tek çizgi istediği için
+    // doğru, ama kıyas için yıkıcı: Kahramanmaraş 7 Eyl'de `domates-bursa`,
+    // 14 Eyl'de `domates` yayınladı ve fark "%92 artış" gibi okundu. `daily`
+    // kovası satırı çeşidiyle birlikte verir, kıyas hal+ürün çiftinde eşleşir.
+    borsaProduct ? Promise.resolve([]) : fetchPriceHistory(slug, undefined, "16d", "daily"),
     fetchPrices({ product: slug, marketType: borsaProduct ? undefined : "hal", range: "1d", limit: 20 }),
     getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug }),
     borsaProduct
@@ -623,7 +629,7 @@ export default async function UrunPage({ params }: Props) {
         // 2026 AI gorunurluk olcumu bu soru kalibinda yanitlarin YORUM icerigi
         // aldigini gosterdi; bizde gunun rakami vardi, gecen haftayla kiyas yoktu.
         // Cumle tamamen olculen sayidan turer; veri yetmezse blok hic basilmaz.
-        const movement = borsaProduct ? null : computeWeeklyMovement(history);
+        const movement = borsaProduct ? null : computeWeeklyMovement(movementRows);
         if (!movement) return null;
         return (
           <div className="mt-6">

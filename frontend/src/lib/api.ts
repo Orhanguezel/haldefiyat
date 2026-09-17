@@ -314,6 +314,8 @@ export interface PriceHistoryRow {
   marketSlug: string;
   marketName: string;
   cityName: string;
+  /** Yalniz bucket=daily sorgusunda dolar; kovalanmis sorgu cesitleri birlestirir. */
+  productSlug?: string;
 }
 
 export interface PriceListMeta {

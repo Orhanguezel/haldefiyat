@@ -3,6 +3,8 @@ export type MovementRow = {
   avgPrice: string | number | null;
   cityName?: string | null;
   marketSlug?: string | null;
+  /** Aile icindeki hangi urun kaydi — cesit degisimini yakalamak icin sart. */
+  productSlug?: string | null;
   unit?: string | null;
 };
 
@@ -53,7 +55,8 @@ function isStable(values: number[]): boolean {
  * aliyor; bizde gunun rakami ve sehir kirilimi vardi ama "gecen haftaya gore ne
  * oldu" hicbir urun sayfasinda yazmiyordu.
  *
- * IKI SUZGEC — ikisi de ayni hatanin farkli katmani:
+ * UC SUZGEC — ucu de ayni hatanin farkli katmani: "iki sayiyi kiyasliyorum" sanip
+ * aslinda iki FARKLI seyi kiyaslamak.
  *
  * 1. ESLESMIS HAL: iki pencerenin ortalamasi yalnizca HER IKISINDE DE kaydi olan
  *    hallerden hesaplanir. Yoksa bir halin o hafta yayin yapmamasi, fiyat
@@ -65,6 +68,13 @@ function isStable(values: number[]): boolean {
  *    sectigi icin sistematik olarak EN BOZUK kaynagi one cikarir. Bu yuzden
  *    kararsiz hal hem sehir kiyasindan hem ortalamadan cikarilir; marketCount da
  *    gercekten kullanilan hal sayisini gosterir.
+ *
+ * 3. ESLESMIS URUN: seri anahtari hal DEGIL hal+urun kaydidir. Urun sayfasi aile
+ *    satirlarini birlestirdigi icin bir hal gecen hafta `domates-bursa`, bu hafta
+ *    `domates` yayinladiginda hal esleser ama urun eslesmezdi (Kahramanmaras,
+ *    17 Eyl: 13,00 → 25,00 = "%92,3 artis"). Bu yuzden cagiran taraf satirlari
+ *    `bucket=daily` ile almali — kovalanmis sorgu cesitleri bilerek birlestirir
+ *    ve productSlug'i bos birakir, o zaman bu suzgec calismaz.
  */
 export function computeWeeklyMovement(rows: MovementRow[], now = new Date()): WeeklyMovement | null {
   const valid = rows.filter((r) => Number(r.avgPrice) > 0 && r.recordedDate && r.marketSlug);
@@ -79,17 +89,21 @@ export function computeWeeklyMovement(rows: MovementRow[], now = new Date()): We
     return t <= endMs - fromDays * DAY && t > endMs - toDays * DAY;
   };
 
-  const byMarket = (window: MovementRow[]) => {
+  // Seri anahtari HAL DEGIL hal+urun: ayni hal iki haftada iki farkli cesit
+  // yayinlayabiliyor ve bu, fiyat degismemisken degismis gibi gorunuyor.
+  const seriesKey = (r: MovementRow) => `${r.marketSlug}\u0000${r.productSlug ?? ""}`;
+
+  const bySeries = (window: MovementRow[]) => {
     const map = new Map<string, number[]>();
     for (const r of window) {
-      const key = String(r.marketSlug);
+      const key = seriesKey(r);
       map.set(key, [...(map.get(key) ?? []), Number(r.avgPrice)]);
     }
     return map;
   };
 
-  const cur = byMarket(valid.filter((r) => inWindow(r, -1, 7)));
-  const prev = byMarket(valid.filter((r) => inWindow(r, 7, 14)));
+  const cur = bySeries(valid.filter((r) => inWindow(r, -1, 7)));
+  const prev = bySeries(valid.filter((r) => inWindow(r, 7, 14)));
   const shared = [...cur.keys()].filter(
     (k) => prev.has(k) && isStable(cur.get(k)!) && isStable(prev.get(k)!),
   );
@@ -100,11 +114,11 @@ export function computeWeeklyMovement(rows: MovementRow[], now = new Date()): We
   if (!(previous > 0) || !(current > 0)) return null;
 
   const cityOf = new Map<string, string>();
-  for (const r of valid) if (r.marketSlug && r.cityName) cityOf.set(String(r.marketSlug), r.cityName);
+  for (const r of valid) if (r.cityName) cityOf.set(seriesKey(r), r.cityName);
 
   const perCity = shared
     .map((k) => ({
-      cityName: cityOf.get(k) ?? k,
+      cityName: cityOf.get(k) ?? k.split("\u0000")[0]!,
       changePct: ((median(cur.get(k)!) - median(prev.get(k)!)) / median(prev.get(k)!)) * 100,
     }))
     .sort((a, b) => b.changePct - a.changePct);
@@ -114,7 +128,7 @@ export function computeWeeklyMovement(rows: MovementRow[], now = new Date()): We
     previous,
     changePct: ((current - previous) / previous) * 100,
     unit: valid.find((r) => r.unit)?.unit ?? "kg",
-    marketCount: shared.length,
+    marketCount: new Set(shared.map((k) => k.split("\u0000")[0])).size,
     topRise: perCity[0] && perCity[0].changePct > 0.5 ? perCity[0] : null,
     topFall: perCity.at(-1) && perCity.at(-1)!.changePct < -0.5 ? perCity.at(-1)! : null,
   };

@@ -4,8 +4,13 @@ import { computeWeeklyMovement, describeWeeklyMovement, type MovementRow } from 
 const NOW = new Date("2026-09-17T10:00:00Z");
 const day = (offset: number) => new Date(Date.parse("2026-09-16T00:00:00Z") - offset * 86400000).toISOString();
 
-const row = (marketSlug: string, cityName: string, offset: number, avgPrice: number): MovementRow =>
-  ({ recordedDate: day(offset), avgPrice, cityName, marketSlug, unit: "kg" });
+const row = (
+  marketSlug: string,
+  cityName: string,
+  offset: number,
+  avgPrice: number,
+  productSlug = "urun",
+): MovementRow => ({ recordedDate: day(offset), avgPrice, cityName, marketSlug, productSlug, unit: "kg" });
 
 describe("computeWeeklyMovement", () => {
   it("iki pencerede de kaydi olan halleri esler ve degisimi hesaplar", () => {
@@ -111,5 +116,48 @@ describe("kararsiz seri suzgeci", () => {
     // Ortalama olsaydi 22,83 → %14 artis. Ortanca 20,25 → %1,3.
     expect(m.current).toBeCloseTo(20.25, 5);
     expect(Math.abs(m.changePct)).toBeLessThan(2);
+  });
+});
+
+
+describe("cesit degisimi suzgeci", () => {
+  // Kahramanmaras domates, 17 Eyl 2026 canli verisi. Hal haftada bir yayin
+  // yapiyor ve iki pencerede FARKLI cesit yazmis: 7 Eyl `domates-bursa` 13,00 —
+  // 14 Eyl `domates` 25,00. Urun sayfasi aile satirlarini birlestirdigi icin
+  // hal esleser ama urun eslesmezdi ve blok "%92,3 artis" yaziyordu.
+  it("ayni hal iki haftada farkli cesit yayinladiysa o hali kiyasa KATMAZ", () => {
+    const rows = [
+      row("kahramanmaras-hal", "Kahramanmaraş", 2, 25.0, "domates"),
+      row("kahramanmaras-hal", "Kahramanmaraş", 9, 13.0, "domates-bursa"),
+      row("konya-hal", "Konya", 2, 30.0, "domates"),
+      row("konya-hal", "Konya", 9, 29.0, "domates"),
+    ];
+    const m = computeWeeklyMovement(rows, NOW)!;
+
+    expect(m.marketCount).toBe(1);
+    expect(describeWeeklyMovement("Domates", m)).not.toContain("Kahramanmaraş");
+  });
+
+  it("ayni hal ayni cesitte devam ediyorsa normal kiyaslanir", () => {
+    const rows = [
+      row("kahramanmaras-hal", "Kahramanmaraş", 2, 25.0, "domates"),
+      row("kahramanmaras-hal", "Kahramanmaraş", 9, 20.0, "domates"),
+    ];
+    const m = computeWeeklyMovement(rows, NOW)!;
+
+    expect(m.marketCount).toBe(1);
+    expect(m.changePct).toBeCloseTo(25, 5);
+  });
+
+  it("bir hal iki cesidi de yayinliyorsa hal bir kez sayilir", () => {
+    const rows = [
+      row("izmir-hal", "İzmir", 2, 30.0, "domates"),
+      row("izmir-hal", "İzmir", 9, 28.0, "domates"),
+      row("izmir-hal", "İzmir", 2, 40.0, "domates-salkim"),
+      row("izmir-hal", "İzmir", 9, 38.0, "domates-salkim"),
+    ];
+    const m = computeWeeklyMovement(rows, NOW)!;
+
+    expect(m.marketCount).toBe(1);
   });
 });
