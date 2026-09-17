@@ -148,25 +148,27 @@ echo "           kayit yok (roka demet/kg) → yeni kayit mi, urun birimi mi yan
 echo "           karar gerekir. Korlemesine ortalamaya katma."
 
 echo
-echo "▸ 5. KARISIK SERI (ayni urun+kaynak icinde iki ayri fiyat kumesi)"
-echo "     Olcut: medyandan 5 KAT uzak satirlarin orani >= %5."
+echo "▸ 5. SUPHELI SERI (iki kural, ikisi de olculerek kondu)"
+echo "     A) KUMELENMIS: medyandan 5 kat uzak satirlarin orani >= %5"
+echo "     B) TEK UC    : medyandan 10 kat uzak EN AZ 1 satir"
 echo ""
-echo "     Bu esik OLCULEREK kondu (17 Eyl 2026). Karantinaya alinmis 21 bilinen"
-echo "     bozuk cift ile canlidaki 1.956 cift ayni olcutle tarandi:"
-echo "       %5  esigi → bozuklarin 19/21i (%90) yakalandi, saglamlarin %0,97si"
-echo "       %10 esigi → 15/21 (%71) yakalandi, saglamlarin %0,36si"
-echo "     %5 secildi: yakalamayi 20 puan artirirken yanlis pozitifi %1de tutuyor."
+echo "     Olcum (17 Eyl): karantinadaki 21 bilinen bozuk cift + canlidaki 1.952 cift."
+echo "       5 kat + %5  → 19/21 yakalama, kuyruk 13"
+echo "       5 kat + %3  → 20/21 yakalama, kuyruk 38"
+echo "       3 kat + %3  → 21/21 yakalama, kuyruk 160  (elle incelenemez)"
+echo "       10 kat >=1  → 21/21 yakalama, kuyruk 28   ← B kurali"
+echo "       A + B       → 21/21 yakalama, kuyruk 33"
+echo "     Esigi %3e indirmek yerine IKINCI KURAL eklendi: %3 25 yeni inceleme"
+echo "     karsiliginda 1 gercek bulgu getiriyordu, B kurali ise iki bozugu da"
+echo "     (kamkat %3,2 ve sevketi-bostan %1,5) daha kisa kuyrukla yakaliyor."
 echo ""
-echo "     Denenip ELENEN olcutler — ikisi de bozukla saglami ayirmadi:"
-echo "       p90/p10 : bozuklar 2,4-87 arasina yayiliyor, saglamlarla ortusuyor"
-echo "       max/min : 5 yillik seride enflasyon yuzunden ispanak 3.053 kat cikiyor"
-echo "       max/medyan : bozuklar 1,4-68 arasina yayiliyor"
-echo "     Ayirt eden sey araligin GENISLIGI degil, ikinci bir kumenin VARLIGI:"
-echo "     karambolada 66 satir 10-40 TL bandinda, 45 satir 100-1000 arasinda."
-echo "     Muhtemel sebep porsiyon ile kilo fiyatinin ayni seride olmasi."
+echo "     Iki kural ayri sey ariyor: A dagilmis gurultuyu (porsiyon+kilo ayni"
+echo "     seride), B tek gunluk sicramayi (adacayi 19 Tem 850,60 TL)."
 echo ""
-echo "     BU BIR KUYRUK, otomatik eleme DEGIL: mevsimlik urunler mesru sekilde"
-echo "     listeye girebiliyor (mandalina 23-210 TL). Her satir elle karara baglanir."
+echo "     BU BIR KUYRUK, otomatik eleme DEGIL. Kanitlanmis yanlis pozitifler:"
+echo "     mevsimlik urun (mandalina 23-210), gercekten pahali urun (kaya korugu"
+echo "     23-372) ve sezon boyu artan seri (kuskonmaz/ulusal Haziran 100 → Eylul"
+echo "     900, tek tepeli ve duzenli — BOZUK DEGIL). Her satir elle karara baglanir."
 mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" --table -e "
 WITH r AS (
   SELECT h.product_id, h.source_api, h.avg_price,
@@ -181,15 +183,16 @@ m AS (SELECT product_id, source_api, COUNT(*) n,
 SELECT p.slug AS urun, COALESCE(p.seo_index,0) AS indexli, r.source_api AS kaynak,
        m.n AS satir, ROUND(m.med,2) AS medyan,
        ROUND(MIN(r.avg_price),2) AS enaz, ROUND(MAX(r.avg_price),2) AS encok,
-       ROUND(100*SUM(r.avg_price > m.med*5 OR r.avg_price < m.med/5)/COUNT(*),1) AS uzak_yuzde,
+       ROUND(100*SUM(r.avg_price > m.med*5 OR r.avg_price < m.med/5)/COUNT(*),1) AS kural_A_yuzde,
+       SUM(r.avg_price > m.med*10 OR r.avg_price < m.med/10) AS kural_B_satir,
        (SELECT COUNT(*) FROM hf_price_history h3
          WHERE h3.product_id = p.id AND h3.source_api <> r.source_api) AS baska_kaynak
 FROM r
 JOIN m ON m.product_id = r.product_id AND m.source_api = r.source_api
 JOIN hf_products p ON p.id = r.product_id
 GROUP BY r.product_id, r.source_api, p.slug, p.seo_index, p.id, m.n, m.med
-HAVING uzak_yuzde >= 5
-ORDER BY indexli DESC, uzak_yuzde DESC;" 2>/dev/null | grep -v "Using a password"
+HAVING kural_A_yuzde >= 5 OR kural_B_satir > 0
+ORDER BY indexli DESC, kural_B_satir DESC, kural_A_yuzde DESC;" 2>/dev/null | grep -v "Using a password"
 echo "     baska_kaynak > 0 → kaynak-karantina ucu kullanilabilir, urun yasar."
 echo "     = 0 → urun o kaynaga bagli; karantina sayfayi bosaltir, KARAR gerekir."
 
