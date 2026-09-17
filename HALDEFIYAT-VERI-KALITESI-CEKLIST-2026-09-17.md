@@ -1,6 +1,6 @@
 # Veri Kalitesi Temizliği — Durum ve Checklist
 
-**Tarih:** 17 Eylül 2026 · **Durum:** devam ediyor · **Sonraki adım:** §3.4
+**Tarih:** 17 Eylül 2026 · **Durum:** ana temizlik bitti, 6 madde açık · **Sonraki:** §3.6
 
 Bu dosya, fiyat verisindeki bozuklukların temizliğini takip eder. Bir oturumda çok iş
 yapıldığı için neyin bitip neyin kaldığı buradan okunur.
@@ -91,7 +91,7 @@ Fiyatı hedefinden belirgin ayrışan bağlar. Çoğu **meşru kalite/sınıf va
       `mercan-kucuk-boy` (aile bağı korundu, fiyatları ayrıldı)
       **çeşit/bölge → dokunulmadı:** mandalina-rize/king, domates-bursa/petemek,
       patates-bebe, kabak-sari, beyaz-lahana-hibrit/azman, limon-dal, silor…
-- [ ] **AÇIK KARAR — sanayilik / 2. kalite grubu (17 kayıt, 4.860 satır).** Bunlar
+- [x] **KARARA BAĞLANDI — sanayilik / 2. kalite grubu (17 kayıt, 4.860 satır).** Bunlar
       kanonik bağlı olduğu için ana ürünün manşet ortalamasına giriyor. Etki ölçüldü:
       nar −%9,6 · üzüm −%6,5 · elma −%6,4 · kayısı −%6,4 · limon −%6,2 · soğan −%6,0 ·
       havuç −%5,1 · domates −%3,5 · patates −%2,5.
@@ -111,7 +111,7 @@ yutulabilir** (absorb numerik olarak nötrdür: satırlar zaten hedefin ortalama
       `papates-yeni`→`patates-taze`, `k-bahar`→`karnabahar`,
       `kokty-domates-ceri`→`domates-kokteyl`, `dongel`, `salatalik-tursu`,
       `kirmizi-marul`→`marul-lolorosso`, `fasulye-taze-cali`→`fasulye-cali`
-- [ ] `turp-siyah-kg` → `turp-siyah` **bırakıldı**: 15,67 vs 44,04 (2,8 kat) — yazım
+- [x] `turp-siyah-kg` → `turp-siyah` **bırakıldı**: 15,67 vs 44,04 (2,8 kat) — yazım
       varyantı gibi görünüyor ama fiyatlar tutmuyor, ayrıca incelensin
 - [x] `kabak-bal`, `kabak-taze`, `kabak-beyaz` **yutulmadı** — ayrı çeşitler
 - [x] Torba kayıtlar (`*-muhtelif`, `*-diger`) **yutulmadı** — uç zaten reddediyor
@@ -147,7 +147,7 @@ Satır birimi ürün birimiyle uyuşmadığı için hiçbir yerde gösterilmiyor
       kaynaklı ve bugünün ürün kaydıyla uyumsuz. Bunlar kurtarılamaz; gerçek kurtarma
       adayı yalnız **hedefi olan** vakalardır (koli fiyatı kg kaydında, ailede koli kaydı
       var — muz örneği). O liste denetim §4'te
-- [ ] Otomatik uygulanamaz: aile içi eşleştirme bazı kayıtlarda birden fazla aday veriyor
+> Otomatik uygulanamaz: aile içi eşleştirme bazı kayıtlarda birden fazla aday veriyor
       (`sogan-yesil` → 3, `ithal-kalamar` → 4) ve bir kısmı açıkça yanlış
 
 ### 3.5 — ETL karantina kuyruğu, 783 kayıt · **bu oturumda hiç dokunulmadı**
@@ -187,7 +187,7 @@ Yaş: 536'sı son 30 günde → kuyruk **aktif büyüyor**, günde ~18 kayıt.
       10–932) medyanı aşağı çekip sağlam kocaeli verisini eliyordu; karantinaya alındı.
       Ürün 94 satırla yaşıyor, seri artık tutarlı.
 
-- [ ] **Eski kök neden notu (referans):** kıyas değeri güvenilmez. ETL karantina kuralı `peer_median`'ı
+> **Referans notu (çözüldü):** kıyas değeri güvenilmez. ETL karantina kuralı `peer_median`'ı
       bozuk kaynakları da içeren havuzdan hesaplıyor; bozuk kaynak medyanı aşağı çekince
       **sağlam kaynak reddediliyor**. Frenk üzümü tam olarak buydu. Bu yüzden
       "5 kat sapanları toplu reject et" fikri **terk edildi** — ölçütün dayandığı kıyas
@@ -208,8 +208,8 @@ Yaş: 536'sı son 30 günde → kuyruk **aktif büyüyor**, günde ~18 kayıt.
       eleniyor olabilir. `kirlangic/izmir_balik` 604 vs 469 — aynı şüphe.
       **(c) Kıyas değeri şüpheli olanlar** — `domates-ayas/kocaeli` 83 kayıt, ort 45,37 vs
       kıyas 8,36. Hangisinin doğru olduğu ayrıca incelenmeli.
-- [ ] Kuyruğun büyümesi durdurulmalı: aynı ürün+kaynak her gün aynı sebeple
-      reddediliyorsa bu bir kural sorunudur, tek tek inceleme konusu değil
+- [x] **Kuyruğun büyümesi kesildi** — `habitualPeerRatioFor` eşiği düzeltildi (bkz. kök
+      neden maddesi). Seyrek güncellenen haller artık muafiyet alabiliyor
 
 ### 3.6 — Kaynak seviyesi (kod işi)
 
