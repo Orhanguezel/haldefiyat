@@ -1653,6 +1653,7 @@ export async function productPriceHistory(
       INNER JOIN hf_products p ON p.id = ph.product_id
       INNER JOIN hf_markets m ON m.id = ph.market_id
       WHERE ${familyScopeExcludingResidualRaw("p", productSlug)}
+        AND p.is_active = 1
         AND ph.unit = p.unit
         AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)
         ${marketFilter}
@@ -1665,6 +1666,11 @@ export async function productPriceHistory(
 
   const conds: SQL[] = [
     familyScopeExcludingResidual(productSlug),
+    // Pasif urunun satirlari grafige de girmemeli. listPriceRows bunu zaten
+    // filtreliyordu, burasi filtrelemiyordu: pasiflestirilen bir kayit mansaet
+    // rakamdan cikiyor ama grafikte ve haftalik hareket blogunda kalmaya devam
+    // ediyordu (17 Eyl, adacayi-yas-taze calismasinda cikti).
+    eq(hfProducts.isActive, 1),
     gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)`),
     publicUnitIntegrity,
   ];
