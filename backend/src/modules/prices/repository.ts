@@ -1891,7 +1891,25 @@ async function habitualPeerRatioFor(
      productId, marketId, unit, recordedDate, recordedDate],
   );
   const row = (rows as Array<{ ratio: number | string | null; n: number; farkli: number }>)[0];
-  if (!row || Number(row.n) < 10 || Number(row.farkli) < 5) return null;
+  // `farkli` esigi 5'ten 2'ye indirildi (17 Eyl 2026).
+  //
+  // Amac TAM DONUK seriyi (kaynak guncellenmiyor, hep ayni deger) muafiyetten
+  // uzak tutmakti; ama 5 esigi FIYATI SEYREK DEGISEN saglam halleri de disariya
+  // atiyordu. Olculdu: 180 gunde en az 10 kaydi olan 2.959 urun+kaynak ciftinin
+  // 564'u 2-4 farkli deger tasiyor ve bunlar donuk degil — turp-beyaz/bursa 177
+  // satirda iki deger (13,00 ve 20,84), lime/bursa 58,00 ve 87,50. Bazi haller
+  // fiyati haftada bir gunceller.
+  //
+  // Somut zarar: frenk-uzumu/kocaeli 410 TL/kg yaziyor (urun gercekten 400-950),
+  // 4 farkli deger tasidigi icin muafiyet alamiyordu ve emsal medyani BOZUK bir
+  // seriden (mersin 10-932) hesaplandigi icin her gun yeniden karantinaya
+  // dusuyordu. 49 kayit birikmisti; kisir dongu: reddedildigi icin gecmisi
+  // olusmuyor, gecmisi olmadigi icin muafiyet alamiyor.
+  //
+  // 1 deger (tam donuk, 337 cift) HARIC kaliyor. Muafiyet zaten otomatik degil:
+  // matchesHabitualPosition ayrica halin KRONIK olarak esik disinda oturmasini ve
+  // guncel degerin alisilmis konuma ±%67 yakin olmasini sart kosuyor.
+  if (!row || Number(row.n) < 10 || Number(row.farkli) < 2) return null;
   const ratio = Number(row.ratio);
   return Number.isFinite(ratio) && ratio > 0 ? ratio : null;
 }
