@@ -1,0 +1,52 @@
+{
+  "total": 5,
+  "byProduct": {
+    "erik": 1,
+    "nohut": 1,
+    "ayva": 1,
+    "domates": 1,
+    "erik-anjelik": 1
+  },
+  "listings": [
+    {
+      "id": 36,
+      "product": "erik",
+      "title": "Mürdüm eriği",
+      "validUntil": "2026-09-17",
+      "quantity": "2.00",
+      "quantityUnit": "kg"
+    },
+    {
+      "id": 52,
+      "product": "nohut",
+      "title": "Tonajlı Azkan Göksu Hasanbey nohut alıyorum",
+      "validUntil": "2026-12-31",
+      "quantity": "300000.00",
+      "quantityUnit": "kg"
+    },
+    {
+      "id": 51,
+      "product": "ayva",
+      "title": "Ege 22 Ayva",
+      "validUntil": "2026-09-19",
+      "quantity": "3000.00",
+      "quantityUnit": "kg"
+    },
+    {
+      "id": 49,
+      "product": "domates",
+      "title": "Kendi yetiştirdiğim ürünler",
+      "validUntil": "2026-09-18",
+      "quantity": null,
+      "quantityUnit": "ton"
+    },
+    {
+      "id": 34,
+      "product": "erik-anjelik",
+      "title": "Anjelik Erik",
+      "validUntil": "2026-09-15",
+      "quantity": "2500.00",
+      "quantityUnit": "kg"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "url": "https://itb.org.tr/dosya/bulten/201301-pamuk-bulteni-5.pdf",
+    "status": 200,
+    "bytes": 193553
+  },
+  {
+    "url": "https://www.aydinticaretborsasi.org.tr/upload/2021/05/17112016174466_2.pdf",
+    "status": 200,
+    "bytes": 6205393
+  },
+  {
+    "url": "https://uye.sutb.org.tr:3333/bultenweb",
+    "status": 200,
+    "bytes": 9764
+  }
+]

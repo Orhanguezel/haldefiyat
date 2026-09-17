@@ -1,0 +1,73 @@
+[
+  {
+    "path": "/urun/limon",
+    "status": 200,
+    "title": "Limon Fiyatları Bugün Kaç TL? 8 Eylül 2026 — Hal ve Toptan",
+    "description": "<meta content=\"Limon güncel hal, toptan ve piyasa fiyatları. Ortalama 45,89 TL/kg (8 Eylül 2026). Bursa, İstanbul, Yalova dahil 13 halden güncel veri.\" name=\"description\"/>",
+    "robots": "<meta content=\"index, follow\" name=\"robots\"/>"
+  },
+  {
+    "path": "/urun/mandalina",
+    "status": 200,
+    "title": "Mandalina Fiyatları Bugün Kaç TL? 8 Eylül 2026 — Hal ve…",
+    "description": "<meta content=\"Mandalina güncel hal, toptan ve piyasa fiyatları. Ortalama 39,16 TL/kg (8 Eylül 2026). Kayseri, Bursa, İstanbul dahil 7 halden güncel veri.\" name=\"description\"/>",
+    "robots": "<meta content=\"index, follow\" name=\"robots\"/>"
+  },
+  {
+    "path": "/urun/kekik",
+    "status": 200,
+    "title": "Kekik Fiyatları Bugün Kaç TL? 8 Eylül 2026 — Hal ve Toptan",
+    "description": "<meta content=\"Kekik güncel hal, toptan ve piyasa fiyatları. Ortalama 65,63 TL/demet (8 Eylül 2026). Kayseri, Bursa, Kocaeli dahil 3 halden güncel veri.\" name=\"description\"/>",
+    "robots": "<meta content=\"index, follow\" name=\"robots\"/>"
+  },
+  {
+    "path": "/urun/uzum",
+    "status": 200,
+    "title": "Üzüm Fiyatları Bugün Kaç TL? 8 Eylül 2026 — Hal ve Toptan",
+    "description": "<meta content=\"Üzüm güncel hal, toptan ve piyasa fiyatları. Ortalama 47,14 TL/kg (8 Eylül 2026). Bursa, İstanbul, Tokat dahil 12 halden güncel veri.\" name=\"description\"/>",
+    "robots": "<meta content=\"index, follow\" name=\"robots\"/>"
+  },
+  {
+    "path": "/urun/kuru-uzum",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "path": "/fiyat/adana/limon",
+    "status": 200,
+    "title": "Adana Limon Fiyatları 8 Eylül 2026",
+    "description": "<meta content=\"Adana limon hal fiyatı. 8 Eylül 2026: ortalama 42,5 TL/kg. Adana Büyükşehir Belediyesi Toptancı Hali günlük kaydı, 90 günlük fiyat seyri, çeşit ve kaynak…\" name=\"description\"/>",
+    "robots": "<meta content=\"index, follow\" name=\"robots\"/>"
+  },
+  {
+    "path": "/fiyat/adana/mandalina",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "path": "/piyasa/adana-mayer-limon",
+    "status": 200,
+    "title": "Adana Mayer Limon Fiyatları — Günlük Mayer Limon Piyasası…",
+    "description": "<meta content=\"Adana ve Çukurova Mayer limon piyasası için günlük güncellenen sayfa: Türkiye hallerindeki güncel Mayer limon fiyatları, şehir karşılaştırması, erkenci sezon…\" name=\"description\"/>",
+    "robots": "None"
+  },
+  {
+    "path": "/piyasa/erdemli-limon",
+    "status": 200,
+    "title": "Erdemli Günlük Limon Piyasası — Mersin Limon Fiyatları |…",
+    "description": "<meta content=\"Erdemli ve Mersin limon piyasası için günlük güncellenen sayfa: Türkiye hallerindeki güncel limon fiyatları, şehir karşılaştırması, Mayer ve yatak limon…\" name=\"description\"/>",
+    "robots": "None"
+  },
+  {
+    "path": "/hal/izmir-hal",
+    "status": 200,
+    "title": "İzmir Hal Fiyatları Bugün 8 Eylül 2026",
+    "description": "<meta content=\"İzmir Toptancı Hali güncel meyve sebze hali fiyatları. 8 Eylül 2026: Soğan 20 TL/kg, Kiraz 200 TL/kg, Kayısı 65 TL/kg — toplam 98 ürün.\" name=\"description\"/>",
+    "robots": "<meta content=\"index, follow\" name=\"robots\"/>"
+  },
+  {
+    "path": "/hal/kayseri-hal",
+    "status": 200,
+    "title": "Kayseri Hal Fiyatları Bugün 8 Eylül 2026",
+    "description": "<meta content=\"Kayseri Toptancı Hali güncel meyve sebze hali fiyatları. 8 Eylül 2026: Soğan 27,5 TL/kg, Patates 27,5 TL/kg, Kiraz 130 TL/kg — toplam 115 ürün.\" name=\"description\"/>",
+    "robots": "<meta content=\"index, follow\" name=\"robots\"/>"
+  }
+]

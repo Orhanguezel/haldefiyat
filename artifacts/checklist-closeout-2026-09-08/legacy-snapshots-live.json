@@ -1,0 +1,192 @@
+{
+  "httpStatus": 200,
+  "payload": {
+    "items": [
+      {
+        "id": 5,
+        "siteKey": "a101_market",
+        "name": "A101 Market",
+        "url": "https://www.a101.com.tr/market",
+        "checkIntervalHours": 168,
+        "isActive": 1,
+        "lastCheckedAt": "2026-09-07T07:00:26.935Z",
+        "createdAt": "2026-05-12T21:59:27.452Z",
+        "lastSnapshot": {
+          "rawMetrics": {
+            "htmlLength": 28635
+          },
+          "productCount": null,
+          "marketCount": null,
+          "detectedFeatures": [
+            "arama"
+          ],
+          "diffSummary": "Eski sezgisel ölçüm; doğrulanmış ürün/hal sayısı veya değişiklik kanıtı değildir.",
+          "checkedAt": "2026-09-07T07:00:26.929Z",
+          "scrapeOk": 1
+        }
+      },
+      {
+        "id": 4,
+        "siteKey": "batiakdeniztv",
+        "name": "BatıAkdeniz TV",
+        "url": "https://www.batiakdeniztv.com",
+        "checkIntervalHours": 168,
+        "isActive": 0,
+        "lastCheckedAt": null,
+        "createdAt": "2026-05-12T21:59:27.452Z",
+        "lastSnapshot": null
+      },
+      {
+        "id": 2,
+        "siteKey": "guncelfiyatlari",
+        "name": "GüncelFiyatları",
+        "url": "https://www.guncelfiyatlari.com",
+        "checkIntervalHours": 168,
+        "isActive": 1,
+        "lastCheckedAt": "2026-09-07T07:00:19.051Z",
+        "createdAt": "2026-05-12T21:59:27.452Z",
+        "lastSnapshot": {
+          "rawMetrics": {
+            "tableRowCount": 0
+          },
+          "productCount": null,
+          "marketCount": null,
+          "detectedFeatures": [
+            "fiyat_grafigi",
+            "arama",
+            "harita",
+            "uye_sistemi",
+            "canli_fiyat",
+            "rss_feed",
+            "reklam"
+          ],
+          "diffSummary": "Eski sezgisel ölçüm; doğrulanmış ürün/hal sayısı veya değişiklik kanıtı değildir.",
+          "checkedAt": "2026-09-07T07:00:19.044Z",
+          "scrapeOk": 1
+        }
+      },
+      {
+        "id": 3,
+        "siteKey": "halfiyat_vercel",
+        "name": "HalFiyat (Vercel)",
+        "url": "https://halfiyat.vercel.app",
+        "checkIntervalHours": 168,
+        "isActive": 1,
+        "lastCheckedAt": "2026-09-07T07:00:23.189Z",
+        "createdAt": "2026-05-12T21:59:27.452Z",
+        "lastSnapshot": {
+          "rawMetrics": {
+            "hasJsonData": false
+          },
+          "productCount": null,
+          "marketCount": null,
+          "detectedFeatures": [
+            "fiyat_grafigi",
+            "uyari_sistemi",
+            "canli_fiyat",
+            "rss_feed"
+          ],
+          "diffSummary": "Eski sezgisel ölçüm; doğrulanmış ürün/hal sayısı veya değişiklik kanıtı değildir.",
+          "checkedAt": "2026-09-07T07:00:23.186Z",
+          "scrapeOk": 1
+        }
+      },
+      {
+        "id": 9,
+        "siteKey": "halfiyatlari_tr",
+        "name": "halfiyatlari.tr",
+        "url": "https://halfiyatlari.tr",
+        "checkIntervalHours": 168,
+        "isActive": 1,
+        "lastCheckedAt": null,
+        "createdAt": "2026-09-07T16:56:53.024Z",
+        "lastSnapshot": null
+      },
+      {
+        "id": 7,
+        "siteKey": "harmanapps_com",
+        "name": "harmanapps.com",
+        "url": "https://harmanapps.com",
+        "checkIntervalHours": 168,
+        "isActive": 1,
+        "lastCheckedAt": null,
+        "createdAt": "2026-09-07T16:56:30.868Z",
+        "lastSnapshot": null
+      },
+      {
+        "id": 6,
+        "siteKey": "migros_market",
+        "name": "Migros Market",
+        "url": "https://www.migros.com.tr/sebze-meyve",
+        "checkIntervalHours": 168,
+        "isActive": 1,
+        "lastCheckedAt": "2026-09-07T07:00:32.948Z",
+        "createdAt": "2026-05-12T21:59:27.452Z",
+        "lastSnapshot": {
+          "rawMetrics": {
+            "htmlLength": 77465
+          },
+          "productCount": null,
+          "marketCount": null,
+          "detectedFeatures": [
+            "uyari_sistemi",
+            "reklam"
+          ],
+          "diffSummary": "Eski sezgisel ölçüm; doğrulanmış ürün/hal sayısı veya değişiklik kanıtı değildir.",
+          "checkedAt": "2026-09-07T07:00:32.944Z",
+          "scrapeOk": 1
+        }
+      },
+      {
+        "id": 10,
+        "siteKey": "tarim_ibb_istanbul",
+        "name": "tarim.ibb.istanbul",
+        "url": "https://tarim.ibb.istanbul",
+        "checkIntervalHours": 168,
+        "isActive": 1,
+        "lastCheckedAt": null,
+        "createdAt": "2026-09-07T16:57:02.418Z",
+        "lastSnapshot": null
+      },
+      {
+        "id": 1,
+        "siteKey": "tarimpiyasa",
+        "name": "TarımPiyasa",
+        "url": "https://www.tarimpiyasa.com",
+        "checkIntervalHours": 168,
+        "isActive": 1,
+        "lastCheckedAt": "2026-09-07T07:00:15.589Z",
+        "createdAt": "2026-05-12T21:59:27.452Z",
+        "lastSnapshot": {
+          "rawMetrics": {
+            "countFromText": null,
+            "marketTextMatch": null,
+            "productCardMatches": 0
+          },
+          "productCount": null,
+          "marketCount": null,
+          "detectedFeatures": [
+            "fiyat_grafigi",
+            "arama",
+            "uyari_sistemi",
+            "reklam"
+          ],
+          "diffSummary": "Eski sezgisel ölçüm; doğrulanmış ürün/hal sayısı veya değişiklik kanıtı değildir.",
+          "checkedAt": "2026-09-07T07:00:15.575Z",
+          "scrapeOk": 1
+        }
+      },
+      {
+        "id": 8,
+        "siteKey": "tarimziraat_com",
+        "name": "tarimziraat.com",
+        "url": "https://tarimziraat.com",
+        "checkIntervalHours": 168,
+        "isActive": 1,
+        "lastCheckedAt": null,
+        "createdAt": "2026-09-07T16:56:40.813Z",
+        "lastSnapshot": null
+      }
+    ]
+  }
+}

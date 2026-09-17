@@ -1,0 +1,31 @@
+### Result
+{"desktop":"/ad-preview?id=0&format=tall&device=desktop&action=link&mediaKind=image&position=home_mid&title=&advertiser=&imageUrl=&linkUrl=&caption=&ctaLabel=&template=image&backgroundColor=%23123d2a&textColor=%23ffffff&accentColor=%238ef05b&animation=0&logoUrl=&backgroundImageUrl=&description=&focalX=50&focalY=50&imageFit=cover&theme=dark&motion=normal","mobile":"/ad-preview?id=0&format=tall&device=mobile&action=link&mediaKind=image&position=home_mid&title=&advertiser=&imageUrl=&linkUrl=&caption=&ctaLabel=&template=image&backgroundColor=%23123d2a&textColor=%23ffffff&accentColor=%238ef05b&animation=0&logoUrl=&backgroundImageUrl=&description=&focalX=50&focalY=50&imageFit=cover&theme=dark&motion=normal","blockedWrites":[],"formats":"Dikey · iki satır","body":" varyantlar CTR ile karşılaştırılır.\n\nDeney anahtarı\nVaryant\nMinimum gösterim\nKazanan kreatife ağırlığı otomatik aktar\nReklam kaynağı\nSerbest banner\nOrtak reklam tasarımı\n\nLogo, renkler ve içerik tüm formatlarda aynı kurallarla gösterilir. Mobil yükseklik 120 px.\n\nGörsel\nArka plan\nMetin\nVurgu\nYatay odak: %50\nDikey odak: %50\nGörsel yerleşimi\nAlanı doldur / kırp\nHedefleme kapsamı\n\nDar hedefler global reklamlardan önce seçilir. Aynı türde birden fazla değeri virgülle ayırabilirsiniz.\n\nGlobal — tüm uygun sayfalar\nReklam görseli\nGörsel isteğe bağlıdır; yazıyı görsele gömmeyin. Mobil kartta logo, başlık ve buton gösterilir.\nYükleme\nGörsel Yükle\nHenüz görsel seçilmedi.\nGörsel alt metni\nHedef link (URL)\nBanner ana başlığı\n\nEn fazla 90 karakter. Dar ve mobil kartlarda başlık iki satırla sınırlıdır.\n\nCTA buton metni\nYayın & zamanlama\nYayın durumu\nTaslak\n\nRezerve, ödeme bekliyor, planlandı ve yayında durumları slot kapasitesini tutar.\n\nSatış sorumlusu\nÖdeme durumu\nToplam kampanya tutarı (₺)\nSon ödeme tarihi\nödenmedi\nÖdeme tamamlanmadan yetkili istisnasıyla yayınla\n\nÖdenmemiş veya kısmi ödemeli reklam, gerekçeli istisna olmadan planlanamaz ve yayına alınamaz.\n\nBelgeler ve anlaşma özeti\n\nDosya bağlantıları yalnız admin kampanya detayında gösterilir.\n\nSponsor rapor e-postası\nHaftalık performans raporu gönder\nBaşlangıç\nBitiş\nSatır\nReklam formatı\nDikey · iki satır\nYatay başlangıç\nSol kenar\n\nDikey reklam iki satırın yerini ayırır.\n\nAynı slot ve satırdaki reklamlar yan yana dizilir. Dolu satır kaydedilemez.\n\nBoş satır\nSıra (display_order)\nAğırlık (rotasyon)\nNot\n\nFormat önizlemesi\n\nTam genişlik\nYarım genişlik\nÜçte bir / kompakt\nDikey · iki satır\nMasaüstü\nMobil\nGerçek boyutta aç\n\nMobil: 120 px yükseklik · Önizleme panele sığacak şekilde ölçeklenir.\n\nHal Fiyatlari Admin Panel\nhaldefiyat.com"}
+### Ran Playwright code
+```js
+await (async(page)=>{
+const blockedWrites=[];
+await page.route('**/api/v1/**',async route=>{
+ const req=route.request(),p=req.url().split('/api/v1')[1].split('?')[0];let data={items:[],total:0};
+ if(req.method()!=='GET'){blockedWrites.push({path:p,body:req.postDataJSON()});return route.fulfill({status:400,json:{error:'QA: kaydetme isteği yakalandı; sunucuya gönderilmedi.'}});}
+ if(p==='/auth/status')data={authenticated:true,is_admin:true,user:{id:'qa-admin',email:'qa@example.invalid',role:'admin'}};
+ else if(p==='/auth/user')data={user:{id:'qa-admin',role:'admin',full_name:'QA',email:'qa@example.invalid'}};
+ else if(p.includes('site_settings')||p.includes('languages'))data=[];
+ return route.fulfill({json:data});
+});
+await page.setViewportSize({width:1440,height:1100});await page.goto('https://haldefiyat.com/admin/banners/new?position=home_mid');
+await page.getByRole('combobox',{name:'Reklam formatı'}).waitFor();
+await page.getByRole('combobox',{name:'Reklam formatı'}).click();await page.getByRole('option',{name:'Dikey · iki satır',exact:true}).click();
+const desktop=await page.locator('iframe').last().getAttribute('src');
+await page.getByRole('button',{name:'Mobil',exact:true}).click();
+const mobile=await page.locator('iframe').last().getAttribute('src');
+await page.locator('iframe').last().scrollIntoViewIfNeeded();await page.screenshot({path:'/tmp/ad-standard-admin-mobile-preview.png'});
+return {desktop,mobile,blockedWrites,formats:await page.getByRole('combobox',{name:'Reklam formatı'}).innerText(),body:(await page.locator('body').innerText()).slice(-1800)};
+}
+)(page);
+```
+### Page
+- Page URL: https://haldefiyat.com/admin/banners/new?position=home_mid
+- Page Title: Hal Fiyatlari Admin Panel
+- Console: 1 errors, 0 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-09-16T14-03-49-516Z.log#L1

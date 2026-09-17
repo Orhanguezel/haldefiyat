@@ -1,0 +1,254 @@
+{
+  "checkedAt": "2026-09-14T19:13:50.474Z",
+  "inspections": [
+    {
+      "path": "/hal/istanbul-hal-ibb",
+      "data": {
+        "inspectionResult": {
+          "inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:haldefiyat.com&id=GEBc9m0Mh77D2xcl50o1rA&utm_medium=link&utm_source=api",
+          "indexStatusResult": {
+            "verdict": "PASS",
+            "coverageState": "Gönderildi ve dizine eklendi",
+            "robotsTxtState": "ALLOWED",
+            "indexingState": "INDEXING_ALLOWED",
+            "lastCrawlTime": "2026-09-14T17:49:14Z",
+            "pageFetchState": "SUCCESSFUL",
+            "googleCanonical": "https://haldefiyat.com/hal/istanbul-hal-ibb",
+            "userCanonical": "https://haldefiyat.com/hal/istanbul-hal-ibb",
+            "referringUrls": [
+              "https://haldefiyat.com/urun/armut-santamaria",
+              "https://www.haldefiyat.com/hal/istanbul-hal-ibb",
+              "https://haldefiyat.com/urun/kiris"
+            ],
+            "crawledAs": "MOBILE"
+          },
+          "mobileUsabilityResult": {
+            "verdict": "VERDICT_UNSPECIFIED"
+          },
+          "richResultsResult": {
+            "verdict": "PASS",
+            "detectedItems": [
+              {
+                "richResultType": "İçerik haritaları",
+                "items": [
+                  {
+                    "name": "Adsız öğe"
+                  }
+                ]
+              },
+              {
+                "richResultType": "Veri kümeleri",
+                "items": [
+                  {
+                    "name": "İstanbul Bayrampaşa Toptancı Hali (İBB) fiyat veri seti"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/hal/kahramanmaras-hal",
+      "data": {
+        "inspectionResult": {
+          "inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:haldefiyat.com&id=bgQgAIQ3evUing0xjXtfBQ&utm_medium=link&utm_source=api",
+          "indexStatusResult": {
+            "verdict": "PASS",
+            "coverageState": "Gönderildi ve dizine eklendi",
+            "robotsTxtState": "ALLOWED",
+            "indexingState": "INDEXING_ALLOWED",
+            "lastCrawlTime": "2026-09-14T15:15:48Z",
+            "pageFetchState": "SUCCESSFUL",
+            "googleCanonical": "https://haldefiyat.com/hal/kahramanmaras-hal",
+            "userCanonical": "https://haldefiyat.com/hal/kahramanmaras-hal",
+            "referringUrls": [
+              "https://haldefiyat.com/hal",
+              "https://www.haldefiyat.com/hal/kahramanmaras-hal",
+              "https://haldefiyat.com/sitemap.xml"
+            ],
+            "crawledAs": "MOBILE"
+          },
+          "mobileUsabilityResult": {
+            "verdict": "VERDICT_UNSPECIFIED"
+          },
+          "richResultsResult": {
+            "verdict": "PASS",
+            "detectedItems": [
+              {
+                "richResultType": "İçerik haritaları",
+                "items": [
+                  {
+                    "name": "Adsız öğe"
+                  }
+                ]
+              },
+              {
+                "richResultType": "Veri kümeleri",
+                "items": [
+                  {
+                    "name": "Kahramanmaraş Toptancı Hali fiyat veri seti"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/urun/sogan-kuru",
+      "data": {
+        "inspectionResult": {
+          "inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:haldefiyat.com&id=toMa9CwW0NeFHe4ZoNMVgQ&utm_medium=link&utm_source=api",
+          "indexStatusResult": {
+            "verdict": "PASS",
+            "coverageState": "Gönderildi ve dizine eklendi",
+            "robotsTxtState": "ALLOWED",
+            "indexingState": "INDEXING_ALLOWED",
+            "lastCrawlTime": "2026-09-14T16:35:14Z",
+            "pageFetchState": "SUCCESSFUL",
+            "googleCanonical": "https://haldefiyat.com/urun/sogan-kuru",
+            "userCanonical": "https://haldefiyat.com/urun/sogan-kuru",
+            "referringUrls": [
+              "https://www.haldefiyat.com/urun/sogan-kuru"
+            ],
+            "crawledAs": "MOBILE"
+          },
+          "mobileUsabilityResult": {
+            "verdict": "VERDICT_UNSPECIFIED"
+          },
+          "richResultsResult": {
+            "verdict": "PASS",
+            "detectedItems": [
+              {
+                "richResultType": "İçerik haritaları",
+                "items": [
+                  {
+                    "name": "Adsız öğe"
+                  }
+                ]
+              },
+              {
+                "richResultType": "Veri kümeleri",
+                "items": [
+                  {
+                    "name": "Soğan fiyat veri seti"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/urun/domates-salcalik",
+      "data": {
+        "inspectionResult": {
+          "inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:haldefiyat.com&id=vN7tG1a5vDdv1EQsiQ2UVQ&utm_medium=link&utm_source=api",
+          "indexStatusResult": {
+            "verdict": "PASS",
+            "coverageState": "Gönderildi ve dizine eklendi",
+            "robotsTxtState": "ALLOWED",
+            "indexingState": "INDEXING_ALLOWED",
+            "lastCrawlTime": "2026-09-14T12:12:03Z",
+            "pageFetchState": "SUCCESSFUL",
+            "googleCanonical": "https://haldefiyat.com/urun/domates-salcalik",
+            "userCanonical": "https://haldefiyat.com/urun/domates-salcalik",
+            "referringUrls": [
+              "https://haldefiyat.com/urun/domates-salcalik-rio"
+            ],
+            "crawledAs": "MOBILE"
+          },
+          "mobileUsabilityResult": {
+            "verdict": "VERDICT_UNSPECIFIED"
+          },
+          "richResultsResult": {
+            "verdict": "PASS",
+            "detectedItems": [
+              {
+                "richResultType": "İçerik haritaları",
+                "items": [
+                  {
+                    "name": "Adsız öğe"
+                  }
+                ]
+              },
+              {
+                "richResultType": "Veri kümeleri",
+                "items": [
+                  {
+                    "name": "Salçalık Domates fiyat veri seti"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "/urun/patates",
+      "data": {
+        "inspectionResult": {
+          "inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:haldefiyat.com&id=dpTbWs0qsDQK_f39XCqOGw&utm_medium=link&utm_source=api",
+          "indexStatusResult": {
+            "verdict": "PASS",
+            "coverageState": "Gönderildi ve dizine eklendi",
+            "robotsTxtState": "ALLOWED",
+            "indexingState": "INDEXING_ALLOWED",
+            "lastCrawlTime": "2026-09-14T16:45:23Z",
+            "pageFetchState": "SUCCESSFUL",
+            "googleCanonical": "https://haldefiyat.com/urun/patates",
+            "userCanonical": "https://haldefiyat.com/urun/patates",
+            "sitemap": [
+              "https://haldefiyat.com/sitemap.xml"
+            ],
+            "referringUrls": [
+              "https://haldefiyat.com/fiyatlar",
+              "https://www.haldefiyat.com/urun/patates"
+            ],
+            "crawledAs": "MOBILE"
+          },
+          "mobileUsabilityResult": {
+            "verdict": "VERDICT_UNSPECIFIED"
+          },
+          "richResultsResult": {
+            "verdict": "PASS",
+            "detectedItems": [
+              {
+                "richResultType": "İçerik haritaları",
+                "items": [
+                  {
+                    "name": "Adsız öğe"
+                  }
+                ]
+              },
+              {
+                "richResultType": "Veri kümeleri",
+                "items": [
+                  {
+                    "name": "Patates fiyat veri seti"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "gtm": {
+    "publicId": "GTM-K3WDGHX5",
+    "version": "2",
+    "tags": [
+      {
+        "name": "GA4 - Google Tag",
+        "type": "googtag"
+      }
+    ],
+    "triggers": 0
+  }
+}

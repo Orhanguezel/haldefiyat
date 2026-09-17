@@ -1,0 +1,12 @@
+### Result
+{
+  "groups": true,
+  "accounts": true,
+  "content": true,
+  "width": 1280,
+  "scrollWidth": 1280
+}
+### Ran Playwright code
+```js
+await page.evaluate('() => ({groups:document.body.innerText.includes("Kitle fırsatları: gruplar"),accounts:document.body.innerText.includes("Sosyal hesaplar"),content:document.body.innerText.includes("Gönderi ve video kanıtları"),width:innerWidth,scrollWidth:document.documentElement.scrollWidth})');
+```

@@ -50,7 +50,14 @@ llms_bytes=$(printf '%s' "$llms" | wc -c)
 [ "$llms_bytes" -gt 1000 ] || { say "    ✗ llms.txt cok kisa ($llms_bytes bayt)"; FAIL=1; }
 
 # 5) Degisiklik bildirimi (hata degil)
-now="robots=$(printf '%s' "$robots" | sha256sum | cut -c1-16) llms=$(printf '%s' "$llms" | sha256sum | cut -c1-16)"
+#
+# llms.txt govdesinde CANLI SAYILAR var ("353 izlenen urun", "31 aktif hal",
+# veri baslangic tarihi). Bunlar her ETL gunuyle ve her urun birlestirmesiyle
+# degisir; ham hash her deploy'da uyari basar ve uyari degersizlesir. Parmak izi
+# bu yuzden rakamlardan arindirilmis govdeden alinir: bolum basliklari ve URL'ler
+# korunur (asil izlemek istedigimiz sey), sayac oynamalari gorunmez.
+llms_iskelet="$(printf '%s' "$llms" | sed 's/[0-9]\{1,\}//g')"
+now="robots=$(printf '%s' "$robots" | sha256sum | cut -c1-16) llms=$(printf '%s' "$llms_iskelet" | sha256sum | cut -c1-16)"
 if [ -r "$BASELINE" ]; then
   prev="$(cat "$BASELINE")"
   if [ "$now" != "$prev" ]; then

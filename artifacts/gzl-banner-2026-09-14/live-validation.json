@@ -1,0 +1,34 @@
+{
+  "/gzl-teknoloji": {
+    "status": 200,
+    "bytes": 112386
+  },
+  "/images/sponsors/gzl-banner.png": {
+    "status": 200,
+    "bytes": 121520
+  },
+  "/images/sponsors/gzl-logo.png": {
+    "status": 200,
+    "bytes": 133619
+  },
+  "/images/sponsors/gzl-devices.webp": {
+    "status": 200,
+    "bytes": 35562
+  },
+  "banners": [
+    {
+      "id": 16,
+      "advertiser": "Bereket Fide",
+      "linkUrl": "https://www.bereketfide.com.tr",
+      "desktopRow": 1,
+      "desktopColumns": 1
+    },
+    {
+      "id": 18,
+      "advertiser": "GZL Teknoloji",
+      "linkUrl": "/gzl-teknoloji#teklif",
+      "desktopRow": 2,
+      "desktopColumns": 1
+    }
+  ]
+}

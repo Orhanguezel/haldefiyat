@@ -1,0 +1,2468 @@
+{
+  "queries": [
+    {
+      "query": "adana limon fiyatları",
+      "priority": "P0",
+      "gsc_impressions": 4403,
+      "gsc_clicks": 28,
+      "gsc_ctr_pct": 0.64,
+      "gsc_position": 7.8,
+      "previous_position": 7.53,
+      "previous_clicks": 9,
+      "sample_our_position": 6,
+      "competitors_ahead_in_sample": 2,
+      "google_top_page": "https://haldefiyat.com/urun/limon",
+      "target_path": "/urun/limon",
+      "action": "Adana resmi veri akışını doğrula/onar; genel fiyatı Adana fiyatı diye sunma; yerel sayfa veri kapısı sonrası."
+    },
+    {
+      "query": "mersin limon fiyatları",
+      "priority": "P0",
+      "gsc_impressions": 3343,
+      "gsc_clicks": 32,
+      "gsc_ctr_pct": 0.96,
+      "gsc_position": 6.54,
+      "previous_position": 6.52,
+      "previous_clicks": 22,
+      "sample_our_position": 3,
+      "competitors_ahead_in_sample": 2,
+      "google_top_page": "https://haldefiyat.com/analiz/limon-fiyatlari-2026-mersin-erdemli-piyasa-analizi",
+      "target_path": "/piyasa/erdemli-limon",
+      "action": "Yerel veri akışını onar; piyasa, analiz ve ürün sayfalarının amaçlarını ve iç bağlantılarını ayır."
+    },
+    {
+      "query": "mersin hal fiyatları",
+      "priority": "P0",
+      "gsc_impressions": 2051,
+      "gsc_clicks": 52,
+      "gsc_ctr_pct": 2.54,
+      "gsc_position": 8.46,
+      "previous_position": 8.13,
+      "previous_clicks": 24,
+      "sample_our_position": 9,
+      "competitors_ahead_in_sample": 6,
+      "google_top_page": "https://haldefiyat.com/hal/mersin-hal",
+      "target_path": "/hal/mersin-hal",
+      "action": "Son kaynak tarihi 22 Haziran; yeni yazıdan önce güncel resmi kaynak ve ETL sorununu çöz."
+    },
+    {
+      "query": "erdemli limon fiyatları",
+      "priority": "P0",
+      "gsc_impressions": 985,
+      "gsc_clicks": 22,
+      "gsc_ctr_pct": 2.23,
+      "gsc_position": 5.71,
+      "previous_position": 7.84,
+      "previous_clicks": 9,
+      "sample_our_position": 2,
+      "competitors_ahead_in_sample": 1,
+      "google_top_page": "https://haldefiyat.com/analiz/limon-fiyatlari-2026-mersin-erdemli-piyasa-analizi",
+      "target_path": "/piyasa/erdemli-limon",
+      "action": "Yerel veri akışını onar; piyasa, analiz ve ürün sayfalarının amaçlarını ve iç bağlantılarını ayır."
+    },
+    {
+      "query": "limon fiyatları",
+      "priority": "P1",
+      "gsc_impressions": 4838,
+      "gsc_clicks": 94,
+      "gsc_ctr_pct": 1.94,
+      "gsc_position": 5.85,
+      "previous_position": 5.29,
+      "previous_clicks": 270,
+      "sample_our_position": 5,
+      "competitors_ahead_in_sample": 2,
+      "google_top_page": "https://haldefiyat.com/urun/limon",
+      "target_path": "/urun/limon",
+      "action": "Çeşit, hal/bahçe ayrımı, kaynaklı tablo ve ilgili Mayer/yerel piyasa bağlantılarını güçlendir."
+    },
+    {
+      "query": "limon piyasası",
+      "priority": "P1",
+      "gsc_impressions": 4118,
+      "gsc_clicks": 145,
+      "gsc_ctr_pct": 3.52,
+      "gsc_position": 5.64,
+      "previous_position": 5.64,
+      "previous_clicks": 144,
+      "sample_our_position": 6,
+      "competitors_ahead_in_sample": 2,
+      "google_top_page": "https://haldefiyat.com/urun/limon",
+      "target_path": "/urun/limon",
+      "action": "Çeşit, hal/bahçe ayrımı, kaynaklı tablo ve ilgili Mayer/yerel piyasa bağlantılarını güçlendir."
+    },
+    {
+      "query": "hal fiyatları",
+      "priority": "P1",
+      "gsc_impressions": 3139,
+      "gsc_clicks": 102,
+      "gsc_ctr_pct": 3.25,
+      "gsc_position": 7.59,
+      "previous_position": 7.98,
+      "previous_clicks": 99,
+      "sample_our_position": 12,
+      "competitors_ahead_in_sample": 10,
+      "google_top_page": "https://haldefiyat.com/",
+      "target_path": "/fiyatlar",
+      "action": "Ana sayfa/fiyatlar sorgu sahipliğini incele; şehir bağlantıları ve son veri tarihlerini güçlendir."
+    },
+    {
+      "query": "salçalık domates fiyatları",
+      "priority": "P1",
+      "gsc_impressions": 1828,
+      "gsc_clicks": 37,
+      "gsc_ctr_pct": 2.02,
+      "gsc_position": 7.93,
+      "previous_position": 8.43,
+      "previous_clicks": 13,
+      "sample_our_position": null,
+      "competitors_ahead_in_sample": 19,
+      "google_top_page": "https://haldefiyat.com/urun/domates-salcalik",
+      "target_path": "/urun/domates-salcalik",
+      "action": "Mevcut sayfayı Rio/çeşit, hal-fabrika ayrımı ve veriye dayalı hesap örneğiyle güçlendir."
+    },
+    {
+      "query": "adana mayer limon fiyatları",
+      "priority": "P1",
+      "gsc_impressions": 1358,
+      "gsc_clicks": 82,
+      "gsc_ctr_pct": 6.04,
+      "gsc_position": 7.84,
+      "previous_position": 7.86,
+      "previous_clicks": 13,
+      "sample_our_position": null,
+      "competitors_ahead_in_sample": 13,
+      "google_top_page": "https://haldefiyat.com/urun/limon",
+      "target_path": "/urun/limon-mayer",
+      "action": "Mevcut Mayer sayfasında Adana veri kapsamını açıklayan içerik; yerel seri tamamlanınca şehir sayfası."
+    },
+    {
+      "query": "üzüm fiyatları 2026",
+      "priority": "P1",
+      "gsc_impressions": 1019,
+      "gsc_clicks": 49,
+      "gsc_ctr_pct": 4.81,
+      "gsc_position": 3.36,
+      "previous_position": 3.81,
+      "previous_clicks": 12,
+      "sample_our_position": 2,
+      "competitors_ahead_in_sample": 1,
+      "google_top_page": "https://haldefiyat.com/urun/uzum",
+      "target_path": "/urun/uzum",
+      "action": "Taze/kuru üzüm niyetini ayır; mevcut hedefi koru, çeşide ve kaynağa bağlı açıklama ekle."
+    },
+    {
+      "query": "üzüm fiyatları",
+      "priority": "P1",
+      "gsc_impressions": 898,
+      "gsc_clicks": 34,
+      "gsc_ctr_pct": 3.79,
+      "gsc_position": 6.1,
+      "previous_position": 9.85,
+      "previous_clicks": 7,
+      "sample_our_position": null,
+      "competitors_ahead_in_sample": 16,
+      "google_top_page": "https://haldefiyat.com/urun/uzum",
+      "target_path": "/urun/uzum",
+      "action": "Taze/kuru üzüm niyetini ayır; mevcut hedefi koru, çeşide ve kaynağa bağlı açıklama ekle."
+    },
+    {
+      "query": "2026 üzüm fiyatları",
+      "priority": "P1",
+      "gsc_impressions": 842,
+      "gsc_clicks": 32,
+      "gsc_ctr_pct": 3.8,
+      "gsc_position": 3.03,
+      "previous_position": 3.64,
+      "previous_clicks": 7,
+      "sample_our_position": 2,
+      "competitors_ahead_in_sample": 1,
+      "google_top_page": "https://haldefiyat.com/urun/uzum",
+      "target_path": "/urun/uzum",
+      "action": "Taze/kuru üzüm niyetini ayır; mevcut hedefi koru, çeşide ve kaynağa bağlı açıklama ekle."
+    },
+    {
+      "query": "istanbul hal fiyatları",
+      "priority": "P2",
+      "gsc_impressions": 6157,
+      "gsc_clicks": 229,
+      "gsc_ctr_pct": 3.72,
+      "gsc_position": 4.3,
+      "previous_position": 4.64,
+      "previous_clicks": 182,
+      "sample_our_position": 3,
+      "competitors_ahead_in_sample": 2,
+      "google_top_page": "https://haldefiyat.com/hal/istanbul-hal-ibb",
+      "target_path": "/hal/istanbul-hal-ibb",
+      "action": "Aynı hal sayfasında Bayrampaşa fiyat listesi başlığı ve güncel satırları önce göster; kopya URL açma."
+    },
+    {
+      "query": "ankara hal fiyatları",
+      "priority": "P2",
+      "gsc_impressions": 2981,
+      "gsc_clicks": 53,
+      "gsc_ctr_pct": 1.78,
+      "gsc_position": 4.67,
+      "previous_position": 4.41,
+      "previous_clicks": 87,
+      "sample_our_position": 10,
+      "competitors_ahead_in_sample": 9,
+      "google_top_page": "https://haldefiyat.com/hal/ankara-hal",
+      "target_path": "/hal/ankara-hal",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    },
+    {
+      "query": "patates fiyatları",
+      "priority": "P2",
+      "gsc_impressions": 2639,
+      "gsc_clicks": 161,
+      "gsc_ctr_pct": 6.1,
+      "gsc_position": 7.14,
+      "previous_position": 7.72,
+      "previous_clicks": 131,
+      "sample_our_position": 4,
+      "competitors_ahead_in_sample": 2,
+      "google_top_page": "https://haldefiyat.com/urun/patates",
+      "target_path": "/urun/patates",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "kayseri hal fiyatları",
+      "priority": "P2",
+      "gsc_impressions": 2306,
+      "gsc_clicks": 33,
+      "gsc_ctr_pct": 1.43,
+      "gsc_position": 6.22,
+      "previous_position": 6.08,
+      "previous_clicks": 6,
+      "sample_our_position": 8,
+      "competitors_ahead_in_sample": 5,
+      "google_top_page": "https://haldefiyat.com/hal/kayseri-hal",
+      "target_path": "/hal/kayseri-hal",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    },
+    {
+      "query": "konya hal fiyatları",
+      "priority": "P2",
+      "gsc_impressions": 1949,
+      "gsc_clicks": 81,
+      "gsc_ctr_pct": 4.16,
+      "gsc_position": 2.74,
+      "previous_position": 2.62,
+      "previous_clicks": 25,
+      "sample_our_position": 18,
+      "competitors_ahead_in_sample": 13,
+      "google_top_page": "https://haldefiyat.com/hal/konya-hal",
+      "target_path": "/hal/konya-hal",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    },
+    {
+      "query": "bayrampaşa hal fiyatları",
+      "priority": "P2",
+      "gsc_impressions": 1936,
+      "gsc_clicks": 112,
+      "gsc_ctr_pct": 5.79,
+      "gsc_position": 3.96,
+      "previous_position": 5.42,
+      "previous_clicks": 64,
+      "sample_our_position": 13,
+      "competitors_ahead_in_sample": 10,
+      "google_top_page": "https://haldefiyat.com/hal/istanbul-hal-ibb",
+      "target_path": "/hal/istanbul-hal-ibb",
+      "action": "Aynı hal sayfasında Bayrampaşa fiyat listesi başlığı ve güncel satırları önce göster; kopya URL açma."
+    },
+    {
+      "query": "bursa hal fiyatları",
+      "priority": "P2",
+      "gsc_impressions": 1866,
+      "gsc_clicks": 130,
+      "gsc_ctr_pct": 6.97,
+      "gsc_position": 2.85,
+      "previous_position": 3.92,
+      "previous_clicks": 66,
+      "sample_our_position": 11,
+      "competitors_ahead_in_sample": 8,
+      "google_top_page": "https://haldefiyat.com/hal/bursa-hal",
+      "target_path": "/hal/bursa-hal",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    },
+    {
+      "query": "kahramanmaraş hal fiyatları",
+      "priority": "P2",
+      "gsc_impressions": 1736,
+      "gsc_clicks": 107,
+      "gsc_ctr_pct": 6.16,
+      "gsc_position": 2.89,
+      "previous_position": 3.32,
+      "previous_clicks": 59,
+      "sample_our_position": 4,
+      "competitors_ahead_in_sample": 2,
+      "google_top_page": "https://haldefiyat.com/hal/kahramanmaras-hal",
+      "target_path": "/hal/kahramanmaras-hal",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    },
+    {
+      "query": "denizli hal fiyatları",
+      "priority": "P2",
+      "gsc_impressions": 1348,
+      "gsc_clicks": 39,
+      "gsc_ctr_pct": 2.89,
+      "gsc_position": 3.21,
+      "previous_position": 3.51,
+      "previous_clicks": 27,
+      "sample_our_position": 6,
+      "competitors_ahead_in_sample": 4,
+      "google_top_page": "https://haldefiyat.com/hal/denizli-hal",
+      "target_path": "/hal/denizli-hal",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    },
+    {
+      "query": "bayrampaşa meyve sebze hali fiyat listesi",
+      "priority": "P2",
+      "gsc_impressions": 1249,
+      "gsc_clicks": 92,
+      "gsc_ctr_pct": 7.37,
+      "gsc_position": 4.03,
+      "previous_position": 6.38,
+      "previous_clicks": 17,
+      "sample_our_position": null,
+      "competitors_ahead_in_sample": 14,
+      "google_top_page": "https://haldefiyat.com/hal/istanbul-hal-ibb",
+      "target_path": "/hal/istanbul-hal-ibb",
+      "action": "Aynı hal sayfasında Bayrampaşa fiyat listesi başlığı ve güncel satırları önce göster; kopya URL açma."
+    },
+    {
+      "query": "gaziantep hal fiyatları",
+      "priority": "P2",
+      "gsc_impressions": 1234,
+      "gsc_clicks": 87,
+      "gsc_ctr_pct": 7.05,
+      "gsc_position": 4.62,
+      "previous_position": 5.21,
+      "previous_clicks": 48,
+      "sample_our_position": 4,
+      "competitors_ahead_in_sample": 3,
+      "google_top_page": "https://haldefiyat.com/hal/gaziantep-hal",
+      "target_path": "/hal/gaziantep-hal",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    },
+    {
+      "query": "ankara hal fiyatları bugün",
+      "priority": "P2",
+      "gsc_impressions": 1226,
+      "gsc_clicks": 26,
+      "gsc_ctr_pct": 2.12,
+      "gsc_position": 5.4,
+      "previous_position": 5.5,
+      "previous_clicks": 43,
+      "sample_our_position": 3,
+      "competitors_ahead_in_sample": 2,
+      "google_top_page": "https://haldefiyat.com/hal/ankara-hal",
+      "target_path": "/hal/ankara-hal",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    },
+    {
+      "query": "soğan fiyatları",
+      "priority": "P2",
+      "gsc_impressions": 1212,
+      "gsc_clicks": 81,
+      "gsc_ctr_pct": 6.68,
+      "gsc_position": 5.73,
+      "previous_position": 7.08,
+      "previous_clicks": 96,
+      "sample_our_position": 4,
+      "competitors_ahead_in_sample": 3,
+      "google_top_page": "https://haldefiyat.com/urun/sogan-kuru",
+      "target_path": "/urun/sogan-kuru",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "nar fiyatları 2026",
+      "priority": "P2",
+      "gsc_impressions": 1119,
+      "gsc_clicks": 33,
+      "gsc_ctr_pct": 2.95,
+      "gsc_position": 4.26,
+      "previous_position": 5.81,
+      "previous_clicks": 11,
+      "sample_our_position": 2,
+      "competitors_ahead_in_sample": 1,
+      "google_top_page": "https://haldefiyat.com/urun/nar",
+      "target_path": "/urun/nar",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "kocaeli hal fiyatları",
+      "priority": "P2",
+      "gsc_impressions": 1093,
+      "gsc_clicks": 18,
+      "gsc_ctr_pct": 1.65,
+      "gsc_position": 3.87,
+      "previous_position": 4.37,
+      "previous_clicks": 16,
+      "sample_our_position": null,
+      "competitors_ahead_in_sample": 13,
+      "google_top_page": "https://haldefiyat.com/hal/kocaeli-hal-merkez",
+      "target_path": "/hal/kocaeli-hal-merkez",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    },
+    {
+      "query": "istanbul hal fiyatları bugün",
+      "priority": "P2",
+      "gsc_impressions": 1052,
+      "gsc_clicks": 72,
+      "gsc_ctr_pct": 6.84,
+      "gsc_position": 4.19,
+      "previous_position": 5.39,
+      "previous_clicks": 49,
+      "sample_our_position": 9,
+      "competitors_ahead_in_sample": 5,
+      "google_top_page": "https://haldefiyat.com/hal/istanbul-hal-ibb",
+      "target_path": "/hal/istanbul-hal-ibb",
+      "action": "Aynı hal sayfasında Bayrampaşa fiyat listesi başlığı ve güncel satırları önce göster; kopya URL açma."
+    },
+    {
+      "query": "istanbul sebze hali fiyatları",
+      "priority": "P2",
+      "gsc_impressions": 1023,
+      "gsc_clicks": 49,
+      "gsc_ctr_pct": 4.79,
+      "gsc_position": 5.24,
+      "previous_position": 5.9,
+      "previous_clicks": 53,
+      "sample_our_position": 8,
+      "competitors_ahead_in_sample": 6,
+      "google_top_page": "https://haldefiyat.com/hal/istanbul-hal-ibb",
+      "target_path": "/hal/istanbul-hal-ibb",
+      "action": "Aynı hal sayfasında Bayrampaşa fiyat listesi başlığı ve güncel satırları önce göster; kopya URL açma."
+    },
+    {
+      "query": "ankara meyve sebze hali fiyatları",
+      "priority": "P2",
+      "gsc_impressions": 775,
+      "gsc_clicks": 31,
+      "gsc_ctr_pct": 4.0,
+      "gsc_position": 6.8,
+      "previous_position": 5.5,
+      "previous_clicks": 81,
+      "sample_our_position": 4,
+      "competitors_ahead_in_sample": 3,
+      "google_top_page": "https://haldefiyat.com/hal/ankara-hal",
+      "target_path": "/hal/ankara-hal",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    }
+  ],
+  "domains": [
+    {
+      "domain": "harmanapps.com",
+      "kind": "diger",
+      "queries": 28,
+      "sample_average_position": 3.57,
+      "ahead_queries": 24,
+      "our_gsc_impressions_on_shared_queries": 58868,
+      "sample_url": "https://harmanapps.com/hal-borsa-fiyatlari/mersin"
+    },
+    {
+      "domain": "hal.gov.tr",
+      "kind": "resmi",
+      "queries": 17,
+      "sample_average_position": 6.0,
+      "ahead_queries": 12,
+      "our_gsc_impressions_on_shared_queries": 33213,
+      "sample_url": "http://www.hal.gov.tr/Sayfalar/FiyatDetaylari.aspx"
+    },
+    {
+      "domain": "tarimziraat.com",
+      "kind": "diger",
+      "queries": 15,
+      "sample_average_position": 5.67,
+      "ahead_queries": 12,
+      "our_gsc_impressions_on_shared_queries": 31893,
+      "sample_url": "https://www.tarimziraat.com/fiyat/mersin_limon_fiyatlari-b33,30.html"
+    },
+    {
+      "domain": "cimri.com",
+      "kind": "diger",
+      "queries": 11,
+      "sample_average_position": 9.45,
+      "ahead_queries": 3,
+      "our_gsc_impressions_on_shared_queries": 24277,
+      "sample_url": "https://www.cimri.com/market/meyve/en-ucuz-nar-fiyatlari,116746"
+    },
+    {
+      "domain": "halfiyatlari.tr",
+      "kind": "diger",
+      "queries": 10,
+      "sample_average_position": 4.3,
+      "ahead_queries": 8,
+      "our_gsc_impressions_on_shared_queries": 14478,
+      "sample_url": "https://halfiyatlari.tr/kocaeli/"
+    },
+    {
+      "domain": "tarim.ibb.istanbul",
+      "kind": "resmi",
+      "queries": 10,
+      "sample_average_position": 4.5,
+      "ahead_queries": 7,
+      "our_gsc_impressions_on_shared_queries": 20657,
+      "sample_url": "https://tarim.ibb.istanbul/avrupa-yakasi-hal-mudurlugu/hal-fiyatlari.html"
+    },
+    {
+      "domain": "batiakdeniztv.com",
+      "kind": "diger",
+      "queries": 10,
+      "sample_average_position": 9.1,
+      "ahead_queries": 5,
+      "our_gsc_impressions_on_shared_queries": 21701,
+      "sample_url": "https://www.batiakdeniztv.com/mersin-hal-fiyatlari"
+    },
+    {
+      "domain": "akakce.com",
+      "kind": "diger",
+      "queries": 9,
+      "sample_average_position": 6.22,
+      "ahead_queries": 5,
+      "our_gsc_impressions_on_shared_queries": 18852,
+      "sample_url": "https://www.akakce.com/sebze/patatesler.html"
+    },
+    {
+      "domain": "kayseri.bel.tr",
+      "kind": "resmi",
+      "queries": 9,
+      "sample_average_position": 12.11,
+      "ahead_queries": 4,
+      "our_gsc_impressions_on_shared_queries": 16755,
+      "sample_url": "https://www.kayseri.bel.tr/hal-fiyatlari"
+    },
+    {
+      "domain": "migros.com.tr",
+      "kind": "diger",
+      "queries": 8,
+      "sample_average_position": 10.25,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 19918,
+      "sample_url": "https://www.migros.com.tr/domates-tarla-rio-salcalik-kg-p-1ac7787"
+    },
+    {
+      "domain": "ankara.bel.tr",
+      "kind": "resmi",
+      "queries": 7,
+      "sample_average_position": 8.71,
+      "ahead_queries": 4,
+      "our_gsc_impressions_on_shared_queries": 12158,
+      "sample_url": "https://www.ankara.bel.tr/hal-fiyatlari"
+    },
+    {
+      "domain": "guncelfiyatlari.com",
+      "kind": "diger",
+      "queries": 6,
+      "sample_average_position": 14.33,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 13468,
+      "sample_url": "https://www.guncelfiyatlari.com/istanbul-hal-fiyatlari/"
+    },
+    {
+      "domain": "konya.bel.tr",
+      "kind": "resmi",
+      "queries": 5,
+      "sample_average_position": 7.4,
+      "ahead_queries": 3,
+      "our_gsc_impressions_on_shared_queries": 10710,
+      "sample_url": "https://www.konya.bel.tr/hal-fiyatlari"
+    },
+    {
+      "domain": "carrefoursa.com",
+      "kind": "diger",
+      "queries": 5,
+      "sample_average_position": 11.2,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 8156,
+      "sample_url": "https://www.carrefoursa.com/nar-kg-p-30054444"
+    },
+    {
+      "domain": "hepsiburada.com",
+      "kind": "diger",
+      "queries": 5,
+      "sample_average_position": 11.2,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 10946,
+      "sample_url": "https://www.hepsiburada.com/meyveler-c-60006235?filtreler=turu:Nar"
+    },
+    {
+      "domain": "bbc.com",
+      "kind": "diger",
+      "queries": 4,
+      "sample_average_position": 7.25,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 13657,
+      "sample_url": "https://www.bbc.com/turkce/articles/c623l9n3zr9o"
+    },
+    {
+      "domain": "emlakkulisi.com",
+      "kind": "diger",
+      "queries": 4,
+      "sample_average_position": 8.25,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 6005,
+      "sample_url": "https://emlakkulisi.com/guncel/ankara-hali-sebze-fiyat-listesi/1927437"
+    },
+    {
+      "domain": "bizdekalmasin.com",
+      "kind": "diger",
+      "queries": 4,
+      "sample_average_position": 10.0,
+      "ahead_queries": 3,
+      "our_gsc_impressions_on_shared_queries": 6243,
+      "sample_url": "https://www.bizdekalmasin.com/fiyatlari/bursa-hal-fiyatlari/"
+    },
+    {
+      "domain": "a101.com.tr",
+      "kind": "diger",
+      "queries": 4,
+      "sample_average_position": 10.25,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 12807,
+      "sample_url": "https://www.a101.com.tr/kapida/meyve-sebze/sogan-kg_p-20000796"
+    },
+    {
+      "domain": "eislem.izmir.bel.tr",
+      "kind": "resmi",
+      "queries": 4,
+      "sample_average_position": 10.5,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 7541,
+      "sample_url": "https://eislem.izmir.bel.tr/tr/HalFiyatlari/20"
+    },
+    {
+      "domain": "mersin.bel.tr",
+      "kind": "resmi",
+      "queries": 4,
+      "sample_average_position": 11.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 9308,
+      "sample_url": "https://www.mersin.bel.tr/hal-fiyatlari"
+    },
+    {
+      "domain": "denizli.bel.tr",
+      "kind": "resmi",
+      "queries": 4,
+      "sample_average_position": 11.5,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 7561,
+      "sample_url": "https://www.denizli.bel.tr/Default.aspx?k=halfiyatlari"
+    },
+    {
+      "domain": "tarimorman.gov.tr",
+      "kind": "resmi",
+      "queries": 4,
+      "sample_average_position": 16.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 5868,
+      "sample_url": "https://www.tarimorman.gov.tr/Haber/6738/Tmonun-Cekirdeksiz-Kuru-Uzum-Alim-Fiyati-120-Lira-Olarak-Belirlendi"
+    },
+    {
+      "domain": "adana.bel.tr",
+      "kind": "resmi",
+      "queries": 4,
+      "sample_average_position": 16.5,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 9554,
+      "sample_url": "https://www.adana.bel.tr/tr/hal-fiyat-listesi"
+    },
+    {
+      "domain": "adatarimurunleri.com.tr",
+      "kind": "diger",
+      "queries": 3,
+      "sample_average_position": 5.33,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 4208,
+      "sample_url": "https://www.adatarimurunleri.com.tr/istanbul-bayrampasa-hal-fiyatlari/"
+    },
+    {
+      "domain": "okatalog.com",
+      "kind": "diger",
+      "queries": 3,
+      "sample_average_position": 9.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2980,
+      "sample_url": "https://www.okatalog.com/bim-nar-aktuel"
+    },
+    {
+      "domain": "kurumsal.trabzon.bel.tr",
+      "kind": "resmi",
+      "queries": 3,
+      "sample_average_position": 11.0,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 5163,
+      "sample_url": "https://kurumsal.trabzon.bel.tr/halurunfiyatlari"
+    },
+    {
+      "domain": "dokuz8haber.net",
+      "kind": "diger",
+      "queries": 3,
+      "sample_average_position": 11.33,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 4208,
+      "sample_url": "https://dokuz8haber.net/istanbul-hal-fiyatlari"
+    },
+    {
+      "domain": "ispark.istanbul",
+      "kind": "diger",
+      "queries": 3,
+      "sample_average_position": 11.33,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 4208,
+      "sample_url": "https://ispark.istanbul/park/489CC7A9-4855-4088-A2CF-C41C3CD24B2B"
+    },
+    {
+      "domain": "t24.com.tr",
+      "kind": "diger",
+      "queries": 3,
+      "sample_average_position": 13.67,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 11864,
+      "sample_url": "https://t24.com.tr/ekonomi/ureticiden-limon-tepkisi-tarlada-1-tl-olan-urun-tarim-kredi-marketinde-5-9-lira,983603"
+    },
+    {
+      "domain": "sahibinden.com",
+      "kind": "diger",
+      "queries": 3,
+      "sample_average_position": 16.67,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 7362,
+      "sample_url": "https://www.sahibinden.com/meyve"
+    },
+    {
+      "domain": "tekirdag.bel.tr",
+      "kind": "resmi",
+      "queries": 3,
+      "sample_average_position": 16.67,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 5163,
+      "sample_url": "https://www.tekirdag.bel.tr/hal_fiyat_gunluk"
+    },
+    {
+      "domain": "itb.org.tr",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 4.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1740,
+      "sample_url": "https://itb.org.tr/UzumSalonu"
+    },
+    {
+      "domain": "sektorgazetesi.com.tr",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 4.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1861,
+      "sample_url": "https://www.sektorgazetesi.com.tr/taris-kuru-uzum-fiyatini-acikladi-iste-2026-sezonunun-avans-fiyati"
+    },
+    {
+      "domain": "tarim.com.tr",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 5.5,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 2959,
+      "sample_url": "https://www.tarim.com.tr/Hal-Fiyatlari.aspx?Ara=%7Cil%7CKocaeli-Hali%7Cilid%7C14"
+    },
+    {
+      "domain": "kayserihal.tr",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 6.0,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 4134,
+      "sample_url": "https://kayserihal.tr/fiyat-listesi"
+    },
+    {
+      "domain": "kocaeli.bel.tr",
+      "kind": "resmi",
+      "queries": 2,
+      "sample_average_position": 6.0,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 4232,
+      "sample_url": "https://www.kocaeli.bel.tr/hal-fiyatlari/"
+    },
+    {
+      "domain": "iha.com.tr",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 7.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 5761,
+      "sample_url": "https://www.iha.com.tr/adana-haberleri/limon-bahcede-8-market-ve-pazarda-25-lira-118831865"
+    },
+    {
+      "domain": "eleman.net",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 8.5,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 7180,
+      "sample_url": "https://www.eleman.net/is-rehberi/maaslar-ve-ucretler/meyve-sebze-istanbul-hal-fiyatlari-h20697"
+    },
+    {
+      "domain": "gazetevatan.com",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 8.5,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 5245,
+      "sample_url": "https://www.gazetevatan.com/sehirler/manisa/kuru-uzum-fiyati-belli-oldu-alimlar-10-eylulde-basliyor-2403375"
+    },
+    {
+      "domain": "karekod.org",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 8.5,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 3802,
+      "sample_url": "https://www.karekod.org/blog/bursa-hal-fiyatlari/"
+    },
+    {
+      "domain": "ozgurleblebi.com",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 8.5,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1740,
+      "sample_url": "https://www.ozgurleblebi.com/Kuru-uzum"
+    },
+    {
+      "domain": "parkera.org",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 8.5,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 3185,
+      "sample_url": "https://parkera.org/bayrampasa_sebze-meyve_hali?ln=tr"
+    },
+    {
+      "domain": "turkhavadis.com",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 8.5,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 3756,
+      "sample_url": "https://www.turkhavadis.com/ankara-halde-meyve-fiyatlari-aciklandi-cilek-ve-kestane-zirvede"
+    },
+    {
+      "domain": "balikesirposta.com.tr",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 9.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 5761,
+      "sample_url": "https://www.balikesirposta.com.tr/adana-da-limonun-fiyatini-dusurecek-hasat-basladi-44431.html"
+    },
+    {
+      "domain": "halfiyatlari.biz",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 9.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 3672,
+      "sample_url": "https://halfiyatlari.biz/bayrampasa-hal-fiyatlari/"
+    },
+    {
+      "domain": "ntv.com.tr",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 9.5,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 5171,
+      "sample_url": "https://www.ntv.com.tr/ntvpara/salcalik-domates-fiyatlari-artti,r0cJhWj5uEaFJIFT6MQ9wQ"
+    },
+    {
+      "domain": "bursa.bel.tr",
+      "kind": "resmi",
+      "queries": 2,
+      "sample_average_position": 10.0,
+      "ahead_queries": 2,
+      "our_gsc_impressions_on_shared_queries": 3115,
+      "sample_url": "https://www.bursa.bel.tr/hal_fiyatlari"
+    },
+    {
+      "domain": "cumhuriyet.com.tr",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 11.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 5761,
+      "sample_url": "https://www.cumhuriyet.com.tr/ekonomi/adanada-limonun-fiyatini-dusurecek-hasat-basladi-2234480"
+    },
+    {
+      "domain": "haberler.com",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 12.5,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 5476,
+      "sample_url": "https://www.haberler.com/ekonomi/adana-da-limon-fiyatlari-curume-nedeniyle-yukseldi-17475317-haberi/"
+    },
+    {
+      "domain": "halderistanbul.org",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 13.5,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 8093,
+      "sample_url": "https://halderistanbul.org/"
+    },
+    {
+      "domain": "halfiyatlari.co",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 13.5,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 2441,
+      "sample_url": "https://halfiyatlari.co/denizli-hal-fiyatlari"
+    },
+    {
+      "domain": "hurriyet.com.tr",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 13.5,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4505,
+      "sample_url": "https://www.hurriyet.com.tr/haberleri/patates-fiyatlari"
+    },
+    {
+      "domain": "sokmarket.com.tr",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 13.5,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 3851,
+      "sample_url": "https://www.sokmarket.com.tr/patates-kg-p-35919"
+    },
+    {
+      "domain": "aa.com.tr",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 16.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 5330,
+      "sample_url": "https://www.aa.com.tr/tr/ekonomi/turfanda-limon-hasadiyla-fiyatlarin-dengelenmesi-ongoruluyor/3266856"
+    },
+    {
+      "domain": "corum.bel.tr",
+      "kind": "resmi",
+      "queries": 2,
+      "sample_average_position": 16.5,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2641,
+      "sample_url": "https://www.corum.bel.tr/hal-fiyatlari"
+    },
+    {
+      "domain": "alanyapostasi.com.tr",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 18.5,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 3285,
+      "sample_url": "https://www.alanyapostasi.com.tr/fiyatlar-dusmek-bilmiyor-antalya-halinde-durum-vahim"
+    },
+    {
+      "domain": "biletinial.com",
+      "kind": "diger",
+      "queries": 2,
+      "sample_average_position": 19.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 6324,
+      "sample_url": "https://biletinial.com/tr-tr/tiyatro/sen-de-gitme-triyandafilis-dt"
+    },
+    {
+      "domain": "gaziantep.bel.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 1.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1234,
+      "sample_url": "https://www.gaziantep.bel.tr/tr/hal-rayic"
+    },
+    {
+      "domain": "kahramanmaras.bel.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 1.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1736,
+      "sample_url": "https://kahramanmaras.bel.tr/hal-sebze-ve-meyve-fiyatlari"
+    },
+    {
+      "domain": "pazarmap.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 1.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1019,
+      "sample_url": "https://pazarmap.com/uzum-fiyatlari/"
+    },
+    {
+      "domain": "acikyesil.bursa.bel.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 3.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1866,
+      "sample_url": "https://acikyesil.bursa.bel.tr/dataset/hal-fiyatlari/resource/23e05731-cddc-4d7d-a01b-c64b5c3b3f9b"
+    },
+    {
+      "domain": "biantep.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 3.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1234,
+      "sample_url": "https://biantep.com/hal-fiyatlari"
+    },
+    {
+      "domain": "kmtb.org.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 3.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1736,
+      "sample_url": "https://kmtb.org.tr/member-list.php?i=16"
+    },
+    {
+      "domain": "tarimdunyasi.net",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 3.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 842,
+      "sample_url": "https://www.tarimdunyasi.net/taris-kuru-uzume-brut-80-lira-avans-fiyat-acikladi/"
+    },
+    {
+      "domain": "bugunkocaeli.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 4.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1093,
+      "sample_url": "https://www.bugunkocaeli.com.tr/kocaeli-hal-fiyatlari-aciklandi-sebze-ve-meyvede-son-durum-19-mart-2026"
+    },
+    {
+      "domain": "egetelgraf.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 4.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1358,
+      "sample_url": "https://www.egetelgraf.com/adanada-mayer-cinsi-limon-hasadi-basladi-fiyatlar-yuksek-seviyede"
+    },
+    {
+      "domain": "gidaveri.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 4.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1019,
+      "sample_url": "https://gidaveri.com/sehir/istanbul/uzum.html"
+    },
+    {
+      "domain": "tmo.gov.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 4.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 898,
+      "sample_url": "https://www.tmo.gov.tr/Upload/Document/KUzum/Ualimfiyat2022.pdf"
+    },
+    {
+      "domain": "tr.tradingeconomics.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 5.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2639,
+      "sample_url": "https://tr.tradingeconomics.com/commodity/potatoes"
+    },
+    {
+      "domain": "yenibakishaber.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 5.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1019,
+      "sample_url": "https://www.yenibakishaber.com/ciftci-sen-uzumde-verim-artti-uretici-fiyatlardan-memnun-degil"
+    },
+    {
+      "domain": "yenikonya.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 5.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1949,
+      "sample_url": "https://www.yenikonya.com.tr/konya/konya_hal_fiyatlari_2025-1947893"
+    },
+    {
+      "domain": "acikveri.konya.bel.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 6.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1949,
+      "sample_url": "https://acikveri.konya.bel.tr/dataset/?tags=hal+fiyatlar%C4%B1"
+    },
+    {
+      "domain": "marasbugun.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 6.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1736,
+      "sample_url": "https://www.marasbugun.com.tr/kahramanmarasta-guncel-sebze-ve-meyve-hal-fiyatlari"
+    },
+    {
+      "domain": "medyayenigun.net",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 6.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1019,
+      "sample_url": "https://www.medyayenigun.net/foto/28642144/uzum-fiyatlari-2026-ne-kadar-yas-ve-kuru-uzumun-kilosu-kac-tl"
+    },
+    {
+      "domain": "mersingazetesi.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 6.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 3343,
+      "sample_url": "https://mersingazetesi.com/index.php/2026/07/06/uretim-merkezi-mersinde-limonun-kilosu-75-tl/"
+    },
+    {
+      "domain": "milletgazetesi27.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 6.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1234,
+      "sample_url": "https://www.milletgazetesi27.com/haber-gaziantepte-gunun-hal-fiyatlari-belli-oldu-4734.html"
+    },
+    {
+      "domain": "tarsusmersin.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 6.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 2051,
+      "sample_url": "https://tarsusmersin.com/hal-fiyatlari/"
+    },
+    {
+      "domain": "tazedukkan.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 6.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1828,
+      "sample_url": "https://www.tazedukkan.com.tr/organil-rio-salcalik-domates-5-kg-urun1708.html"
+    },
+    {
+      "domain": "trendyol.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 6.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1119,
+      "sample_url": "https://www.trendyol.com/nar-aksesuar-x-b143475-c27"
+    },
+    {
+      "domain": "ulasav.csb.gov.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 6.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 2306,
+      "sample_url": "https://ulasav.csb.gov.tr/dataset/38-kayseri-hal-fiyat-listesi"
+    },
+    {
+      "domain": "asemkom.org.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 7.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 2981,
+      "sample_url": "https://www.asemkom.org.tr/wp-content/uploads/2023/12/4_12_2023.pdf"
+    },
+    {
+      "domain": "edetv.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 7.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1736,
+      "sample_url": "https://www.edetv.com.tr/kahramanmaras-hal-fiyatlari-2024-gunluk-sebze-ve-meyve-fiyatlari"
+    },
+    {
+      "domain": "ensonhaber.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 7.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1358,
+      "sample_url": "https://www.ensonhaber.com/ekonomi/adanada-mayer-cinsi-limonun-hasadi-erken-basladi-fiyatlari-dusurecek-hasat"
+    },
+    {
+      "domain": "gaziantephaber.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 7.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1234,
+      "sample_url": "https://www.gaziantephaber.com/gaziantep-hal-fiyatlari/12616/"
+    },
+    {
+      "domain": "hakimiyet.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 7.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1949,
+      "sample_url": "https://www.hakimiyet.com/konya-hal-fiyatlari-belli-oldu/97407/"
+    },
+    {
+      "domain": "kayserihaber.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 7.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 2306,
+      "sample_url": "https://kayserihaber.com.tr/haber/kayseri_guncel_hal_fiyatlari_7_temmuz-81747"
+    },
+    {
+      "domain": "makbul.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 7.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 898,
+      "sample_url": "https://www.makbul.com/urun/detay/genel/cekirdeksiz-izmir-uzum-kg/129"
+    },
+    {
+      "domain": "tazemasa.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 7.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 3343,
+      "sample_url": "https://www.tazemasa.com/limon-mersin-kg-25"
+    },
+    {
+      "domain": "gtb.org.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 8.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1234,
+      "sample_url": "https://www.gtb.org.tr/gunluk-bulten"
+    },
+    {
+      "domain": "kanalmaras.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 8.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1736,
+      "sample_url": "https://www.kanalmaras.com/kahramanmarasta-hal-fiyatlari-belli-oldu-en-pahali-urun-sasirtti"
+    },
+    {
+      "domain": "salihlitb.org.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 8.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 898,
+      "sample_url": "https://www.salihlitb.org.tr/128/uzum-fiyat-verileri"
+    },
+    {
+      "domain": "tarsustb.tobb.org.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 8.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 2051,
+      "sample_url": "https://tarsustb.tobb.org.tr/B%C3%BClten/HalFiyatlar%C4%B1/tabid/17906/Default.aspx"
+    },
+    {
+      "domain": "ciftcikolik.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 9.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1019,
+      "sample_url": "https://ciftcikolik.com/fiyatlar/istanbul/uzum"
+    },
+    {
+      "domain": "gazetesehir.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 9.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1348,
+      "sample_url": "https://gazetesehir.com/haber/21443227/denizlide-hal-fiyatlari-guncellendi-zam-var-mi"
+    },
+    {
+      "domain": "halktanpazar.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 9.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 898,
+      "sample_url": "https://www.halktanpazar.com/kuru-uzum"
+    },
+    {
+      "domain": "kayserianadoluhaber.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 9.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2306,
+      "sample_url": "https://www.kayserianadoluhaber.com.tr/kayseri-hal-fiyatlari-bu-hafta-dustu-7-urunde-buyuk-indirim/160971"
+    },
+    {
+      "domain": "milligazete.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 9.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 842,
+      "sample_url": "https://www.milligazete.com.tr/ciftcinin-bekledigi-haber-geldi-taris-2026-yili-kuru-uzum-avans-fiyatlari-belli-oldu"
+    },
+    {
+      "domain": "olaymedya.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 9.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1234,
+      "sample_url": "https://www.olaymedya.com/ekonomi/17404957/gaziantep-25-nisan-2025-hal-fiyatlari-aciklandi-sebze-ve-meyvede-guncel-durum"
+    },
+    {
+      "domain": "apexhali.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 10.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1226,
+      "sample_url": "https://www.apexhali.com/"
+    },
+    {
+      "domain": "bettybluecityfarm.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 10.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2051,
+      "sample_url": "https://www.bettybluecityfarm.com.tr/raporlar/hal/mersin-yaban-mersini/"
+    },
+    {
+      "domain": "cukurovagazetesi.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 10.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 3343,
+      "sample_url": "https://cukurovagazetesi.com/mersinde-limon-fiyatlari-rekor-kiriyor"
+    },
+    {
+      "domain": "denizliyeniolay.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 10.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1348,
+      "sample_url": "https://denizliyeniolay.com/etiket/hal-fiyatlari"
+    },
+    {
+      "domain": "gazianteppostasi.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 10.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1234,
+      "sample_url": "https://www.gazianteppostasi.com/haber/gaziantep-hal-fiyatlari-05-subat-2026"
+    },
+    {
+      "domain": "habergazetesi.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 10.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1019,
+      "sample_url": "https://www.habergazetesi.com.tr/sarap-fiyatlari"
+    },
+    {
+      "domain": "haller.kocaeli.bel.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 10.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1093,
+      "sample_url": "http://haller.kocaeli.bel.tr/"
+    },
+    {
+      "domain": "konhaber.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 10.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1949,
+      "sample_url": "https://www.konhaber.com/etiket-konya%20hal%20fiyatlar%C4%B1"
+    },
+    {
+      "domain": "paradurumu.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 10.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 775,
+      "sample_url": "https://www.paradurumu.com/finans/2023-ankara-hal-fiyatlari-bugun-ankara-hal-piyasasi-17451"
+    },
+    {
+      "domain": "tkkoop.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 10.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1212,
+      "sample_url": "https://www.tkkoop.com.tr/urun/kuru-sogan-kg"
+    },
+    {
+      "domain": "antalyagundem.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 11.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2051,
+      "sample_url": "https://www.antalyagundem.com.tr/mersin-hal-fiyatlari"
+    },
+    {
+      "domain": "ertehaber.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 11.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1828,
+      "sample_url": "https://ertehaber.com/Haber/salcalik-domates-fiyatlari-2-kat-artti"
+    },
+    {
+      "domain": "eski.konya.bel.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 11.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1949,
+      "sample_url": "https://eski.konya.bel.tr/sayfadetay.php?sayfaID=722"
+    },
+    {
+      "domain": "haberankara.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 11.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2981,
+      "sample_url": "https://www.haberankara.com/ankara/ankara-buyuksehir-belediyesi-hal-fiyatlari-belli-oldu-21-ekim-ankara-hal-meyve-sebze-fiyatlari/232898"
+    },
+    {
+      "domain": "mansetiz.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 11.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1019,
+      "sample_url": "https://www.mansetiz.com/taris-2026-kuru-uzum-alim-fiyatini-acikladi"
+    },
+    {
+      "domain": "odatv.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 11.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4118,
+      "sample_url": "https://www.odatv.com/ekonomi/limon-kilosu-ne-kadar-oldu-limon-fiyatlari-neden-artti-120050508"
+    },
+    {
+      "domain": "paradergi.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 11.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 985,
+      "sample_url": "https://www.paradergi.com.tr/sektorler/2024/07/15/limon-tarlada-kalinca-fiyati-uctu"
+    },
+    {
+      "domain": "samurhalitr.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 11.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1226,
+      "sample_url": "https://www.samurhalitr.com/Ankara-Hali-Fiyatlari"
+    },
+    {
+      "domain": "telgraf.net",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 11.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1234,
+      "sample_url": "https://telgraf.net/haber/25365121/gaziantep-hal-fiyatlari-fiyatlari-belli-oldu-30062025"
+    },
+    {
+      "domain": "gaziantepolusum.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 12.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1234,
+      "sample_url": "https://www.gaziantepolusum.com/haberleri/gaziantep-hal-fiyatlari"
+    },
+    {
+      "domain": "marasmanset.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 12.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 842,
+      "sample_url": "https://www.marasmanset.com/2026-yili-kahramanmarasta-uzum-pekmezi-fiyatlari"
+    },
+    {
+      "domain": "mersinyasam.net",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 12.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 985,
+      "sample_url": "https://mersinyasam.net/tag/mersin-erdemli-limon-fiyatlari-mukerrem-tollu-erdemli-belediyesi/"
+    },
+    {
+      "domain": "n11.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 12.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1019,
+      "sample_url": "https://www.n11.com/supermarket?q=kuru+%C3%BCz%C3%BCm"
+    },
+    {
+      "domain": "paratik.net",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 12.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1936,
+      "sample_url": "https://paratik.net/istanbul-hal-fiyatlari/"
+    },
+    {
+      "domain": "tarimtv.gov.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 12.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2639,
+      "sample_url": "https://www.tarimtv.gov.tr/tr/video-detay/patates-fiyatlar-de-geti-3990"
+    },
+    {
+      "domain": "gaziantepdogus.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 13.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1234,
+      "sample_url": "https://www.gaziantepdogus.com/foto-galeri/4-temmuz-gaziantep-hal-fiyatlari-aciklandi"
+    },
+    {
+      "domain": "genccivrilgazetesi.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 13.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1348,
+      "sample_url": "https://www.genccivrilgazetesi.com/sebze-meyve-fiyatlari-artiyor-denizlide-guncel-hal-fiyatlari"
+    },
+    {
+      "domain": "marasgurme.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 13.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 898,
+      "sample_url": "https://www.marasgurme.com/kategori/cekirdekli-siyah-kuru-uzum"
+    },
+    {
+      "domain": "meyvehos.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 13.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1249,
+      "sample_url": "https://www.meyvehos.com.tr/iletisim/"
+    },
+    {
+      "domain": "oisbuis.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 13.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1866,
+      "sample_url": "https://www.oisbuis.com/fiyatlar/bursa-hal-fiyatlari-guncel-meyve-ve-sebze-fiyati.html"
+    },
+    {
+      "domain": "portakalbahcem.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 13.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1119,
+      "sample_url": "https://www.portakalbahcem.com/hicaz-nar-1-kg-nhf002"
+    },
+    {
+      "domain": "ticarihayat.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 13.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 842,
+      "sample_url": "https://www.ticarihayat.com/taris-uzum-alim-fiyatini-ve-surec-takvimini-acikladi"
+    },
+    {
+      "domain": "ankarahalfiyatlari.wordpress.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 14.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1226,
+      "sample_url": "https://ankarahalfiyatlari.wordpress.com/"
+    },
+    {
+      "domain": "bilgikonu.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 14.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1936,
+      "sample_url": "https://www.bilgikonu.com/bayrampasa-hal-fiyatlari/"
+    },
+    {
+      "domain": "haberdairesi.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 14.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1949,
+      "sample_url": "https://haberdairesi.com/konya/konya-hal-fiyatlari-guncel-sebze-ve-meyve-satis-rakamlari-aciklandi-129624h"
+    },
+    {
+      "domain": "halekstra.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 14.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1119,
+      "sample_url": "https://www.halekstra.com/urun/nar-kasa-fiyati"
+    },
+    {
+      "domain": "ilkaykoenec.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 14.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 3139,
+      "sample_url": "https://www.ilkaykoenec.com/tr/trimmobilienpreisefrankurt"
+    },
+    {
+      "domain": "kaptangazetesi.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 14.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 6157,
+      "sample_url": "https://www.kaptangazetesi.com.tr/adalar/istanbulda-guncel-hal-fiyatlari/6009/"
+    },
+    {
+      "domain": "kocaeligazetesi.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 14.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1093,
+      "sample_url": "https://www.kocaeligazetesi.com.tr/haber/1379858/halde-sebze-ve-meyve-fiyatlari"
+    },
+    {
+      "domain": "mersintb.org.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 14.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2051,
+      "sample_url": "https://mersintb.org.tr/gunlukFiyatlar/GUNLUK_FIYAT_LISTESI"
+    },
+    {
+      "domain": "nobetcigazete.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 14.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4403,
+      "sample_url": "https://www.nobetcigazete.com/adana-salgami-avrupa-birliginden-cografi-isaret-tescili-aldi"
+    },
+    {
+      "domain": "patatesborsasi.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 14.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2639,
+      "sample_url": "https://patatesborsasi.com/"
+    },
+    {
+      "domain": "royalhali.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 14.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1234,
+      "sample_url": "https://www.royalhali.com/"
+    },
+    {
+      "domain": "salcalikdomates.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 14.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1828,
+      "sample_url": "https://www.salcalikdomates.com/"
+    },
+    {
+      "domain": "yazdin.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 14.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1866,
+      "sample_url": "https://www.yazdin.com/bursa-hal-fiyatlari-hikmet-sahin-kent-hal-fiyat-listesi/"
+    },
+    {
+      "domain": "acikveri.kayseri.bel.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 15.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2306,
+      "sample_url": "https://acikveri.kayseri.bel.tr/veri-seti/kayseri-hal-fiyat-listesi/9"
+    },
+    {
+      "domain": "gida.ibb.istanbul",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 15.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1023,
+      "sample_url": "https://gida.ibb.istanbul/hal-mudurlugu/hal-fiyatlari.html"
+    },
+    {
+      "domain": "kanal46.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 15.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1736,
+      "sample_url": "https://www.kanal46.com/kahramamaras-hal-fiyatlari-sasirtti"
+    },
+    {
+      "domain": "kayisicenter.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 15.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 898,
+      "sample_url": "https://www.kayisicenter.com/kategori/kuru-uzum"
+    },
+    {
+      "domain": "manisa.bel.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 15.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1828,
+      "sample_url": "https://www.manisa.bel.tr/apps/sebzemeyvehali/GosterimAy.aspx"
+    },
+    {
+      "domain": "metro-tr.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 15.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4403,
+      "sample_url": "https://www.metro-tr.com/urunlerimiz"
+    },
+    {
+      "domain": "patronlardunyasi.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 15.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4118,
+      "sample_url": "https://www.patronlardunyasi.com/tarlada-kilosu-1-liraya-dusen-limon-iki-yil-sonra-markette-100-lirayi-asti"
+    },
+    {
+      "domain": "alibotanik.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 16.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1119,
+      "sample_url": "https://www.alibotanik.com/kategori/nar-fidani"
+    },
+    {
+      "domain": "bolgegazetesi.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 16.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1358,
+      "sample_url": "https://bolgegazetesi.com.tr/adanada-limon-fiyatlari-neden-artiyor/"
+    },
+    {
+      "domain": "boyner.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 16.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4403,
+      "sample_url": "https://www.boyner.com.tr/parfum-x-c4001"
+    },
+    {
+      "domain": "eataly.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 16.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4838,
+      "sample_url": "https://www.eataly.com.tr/media/pumpt4np/pizza-e-cucina-menu.pdf"
+    },
+    {
+      "domain": "ekonomigazetesi.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 16.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1212,
+      "sample_url": "https://www.ekonomigazetesi.com/sektor-haberleri/bayraktar-depoda-sogan-patates-kalmadi-fiyat-yuzde-45-artti-80412"
+    },
+    {
+      "domain": "halicinihat.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 16.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1226,
+      "sample_url": "https://halicinihat.com/"
+    },
+    {
+      "domain": "marastanhaber.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 16.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1736,
+      "sample_url": "https://www.marastanhaber.com.tr/kahramanmaras-hal-fiyatlari-2023-kahramanmaras-halinde-domates-fiyati-ne-kadar-iste-66923h.htm"
+    },
+    {
+      "domain": "memurlar.net",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 16.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1093,
+      "sample_url": "https://www.memurlar.net/haber/260681/kocaeli-de-sebze-ve-meyve-fiyatlari.html"
+    },
+    {
+      "domain": "vietnam.vn",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 16.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4118,
+      "sample_url": "https://www.vietnam.vn/tr/diem-bao-nganh-cong-thuong-ngay-16-4-2026"
+    },
+    {
+      "domain": "afyon.bel.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 17.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1249,
+      "sample_url": "https://afyon.bel.tr/icerikler/0/549/toptanci-hal-fiyatlari"
+    },
+    {
+      "domain": "bigpara.hurriyet.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 17.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4838,
+      "sample_url": "https://bigpara.hurriyet.com.tr/haberler/genel-haberler/limonda-fiyatlari-dusurecek-hasat_ID1616271/"
+    },
+    {
+      "domain": "bilgigazetesi.org",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 17.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1828,
+      "sample_url": "https://bilgigazetesi.org/haber/2024-yili-salcalik-domates-fiyatlari-ne-kadar-oldu"
+    },
+    {
+      "domain": "borsa.tobb.org.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 17.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 898,
+      "sample_url": "https://borsa.tobb.org.tr/fiyat_urun3.php?ana_kod=9&alt_kod=916"
+    },
+    {
+      "domain": "durumle.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 17.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2639,
+      "sample_url": "https://www.durumle.com/lezzetler"
+    },
+    {
+      "domain": "esiparis.ihe.istanbul",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 17.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 6157,
+      "sample_url": "https://esiparis.ihe.istanbul/"
+    },
+    {
+      "domain": "rudaw.net",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 17.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1212,
+      "sample_url": "https://www.rudaw.net/turkish/business/250420264"
+    },
+    {
+      "domain": "yaylahaber.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 17.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4403,
+      "sample_url": "https://www.yaylahaber.com.tr/limon-ithalatinda-gumruk-vergisi-yuzde-10a-dusuruldu"
+    },
+    {
+      "domain": "birgun.net",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 18.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1234,
+      "sample_url": "https://www.birgun.net/makale/tiyatro-sanat-oldugu-kadar-saygidir-706091"
+    },
+    {
+      "domain": "cnnturk.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 18.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4403,
+      "sample_url": "https://www.cnnturk.com/ekonomi/limon-ithalatinda-gumruk-vergisi-gecici-olarak-dusuruldu-2405528"
+    },
+    {
+      "domain": "ebelediye.kocaeli.bel.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 18.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1093,
+      "sample_url": "https://ebelediye.kocaeli.bel.tr/WebForms/Haller/HalFiyatlari.aspx"
+    },
+    {
+      "domain": "egeyonhaber.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 18.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1348,
+      "sample_url": "https://www.egeyonhaber.com/tag/hal-fiyatlari/"
+    },
+    {
+      "domain": "ilkha.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 18.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2051,
+      "sample_url": "https://ilkha.com/guncel/sanliurfa-da-pazarci-esnafi-fiyatlari-degerlendirdi-527607"
+    },
+    {
+      "domain": "kastamonu.edu.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 18.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2639,
+      "sample_url": "https://kastamonu.edu.tr/tr/yemeklistesi"
+    },
+    {
+      "domain": "sochic.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 18.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4118,
+      "sample_url": "https://www.sochic.com/"
+    },
+    {
+      "domain": "superhaber.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 18.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1052,
+      "sample_url": "https://www.superhaber.com/etiket/istanbul-hal-fiyatlari"
+    },
+    {
+      "domain": "tr.pandora.net",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 18.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 6157,
+      "sample_url": "https://tr.pandora.net/"
+    },
+    {
+      "domain": "antalya.bel.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 19.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 775,
+      "sample_url": "https://www.antalya.bel.tr/tr/halden-gunluk-fiyatlar"
+    },
+    {
+      "domain": "avokadocuayse.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 19.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4118,
+      "sample_url": "https://www.avokadocuayse.com/"
+    },
+    {
+      "domain": "eskitadinda.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 19.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1828,
+      "sample_url": "https://www.eskitadinda.com/yerli-salcalik-petemek-domates-5-kg-p"
+    },
+    {
+      "domain": "groseri.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 19.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 898,
+      "sample_url": "https://www.groseri.com.tr/"
+    },
+    {
+      "domain": "isparta.bel.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 19.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 6157,
+      "sample_url": "https://www.isparta.bel.tr/hal-meyve-ve-sebze-fiyatlari"
+    },
+    {
+      "domain": "lcw.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 19.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 3343,
+      "sample_url": "https://www.lcw.com/marka/lcw-home-b-307"
+    },
+    {
+      "domain": "manisamansetgazetesi.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 19.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 842,
+      "sample_url": "https://www.manisamansetgazetesi.com/manisa-haberleri/uzum-ureticisinde-buyuk-hayal-kirikligi-maliyet-93-lira-fiyat-80-lira/620670"
+    },
+    {
+      "domain": "nuribeyciftligi.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 19.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1358,
+      "sample_url": "https://nuribeyciftligi.com/yas-meyve"
+    },
+    {
+      "domain": "oncudoner.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 19.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 2639,
+      "sample_url": "https://www.oncudoner.com/"
+    },
+    {
+      "domain": "sebzemeyvedunyasi.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 19.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4838,
+      "sample_url": "https://www.sebzemeyvedunyasi.com/limon-yatak-kg"
+    },
+    {
+      "domain": "biga.bel.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 20.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 6157,
+      "sample_url": "https://www.biga.bel.tr/vefat-edenler"
+    },
+    {
+      "domain": "cagri.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 20.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1212,
+      "sample_url": "https://www.cagri.com/sogan-kuru-taze-kg"
+    },
+    {
+      "domain": "gurmar.com.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 20.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4403,
+      "sample_url": "https://www.gurmar.com.tr/"
+    },
+    {
+      "domain": "halkatalogu.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 20.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 1736,
+      "sample_url": "http://halkatalogu.com/il/kahramanmaras"
+    },
+    {
+      "domain": "hatay.bel.tr",
+      "kind": "resmi",
+      "queries": 1,
+      "sample_average_position": 20.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4838,
+      "sample_url": "https://hatay.bel.tr/hal-fiyatlari"
+    },
+    {
+      "domain": "tzob.org.tr",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 20.0,
+      "ahead_queries": 0,
+      "our_gsc_impressions_on_shared_queries": 4118,
+      "sample_url": "https://www.tzob.org.tr/2022-yili-ve-aralik-ayi-uretici-ile-market-fiyatlari/"
+    },
+    {
+      "domain": "urfanatik.com",
+      "kind": "diger",
+      "queries": 1,
+      "sample_average_position": 20.0,
+      "ahead_queries": 1,
+      "our_gsc_impressions_on_shared_queries": 1828,
+      "sample_url": "https://www.urfanatik.com/sanliurfada-salcalik-domatesin-fiyati-aciklandi-kilosu-kac-lira"
+    }
+  ],
+  "extras": [
+    {
+      "query": "erdemli limon piyasası",
+      "impressions": 1388,
+      "clicks": 9,
+      "position": 7.04,
+      "target_path": "/piyasa/erdemli-limon",
+      "action": "Yerel veri akışını onar; piyasa, analiz ve ürün sayfalarının amaçlarını ve iç bağlantılarını ayır."
+    },
+    {
+      "query": "kuru üzüm fiyatları 2026",
+      "impressions": 1289,
+      "clicks": 16,
+      "position": 7.6,
+      "target_path": "",
+      "action": "Taze/kuru üzüm niyetini ayır; mevcut hedefi koru, çeşide ve kaynağa bağlı açıklama ekle."
+    },
+    {
+      "query": "2026 kuru üzüm fiyatları",
+      "impressions": 1019,
+      "clicks": 6,
+      "position": 7.77,
+      "target_path": "",
+      "action": "Taze/kuru üzüm niyetini ayır; mevcut hedefi koru, çeşide ve kaynağa bağlı açıklama ekle."
+    },
+    {
+      "query": "izmir hal fiyatları",
+      "impressions": 1000,
+      "clicks": 5,
+      "position": 8.34,
+      "target_path": "/hal/izmir-hal",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "salçalık domates fiyatı",
+      "impressions": 979,
+      "clicks": 14,
+      "position": 8.44,
+      "target_path": "/urun/domates-salcalik",
+      "action": "Mevcut sayfayı Rio/çeşit, hal-fabrika ayrımı ve veriye dayalı hesap örneğiyle güçlendir."
+    },
+    {
+      "query": "adana limon piyasası",
+      "impressions": 926,
+      "clicks": 5,
+      "position": 8.53,
+      "target_path": "/urun/limon",
+      "action": "Adana resmi veri akışını doğrula/onar; genel fiyatı Adana fiyatı diye sunma; yerel sayfa veri kapısı sonrası."
+    },
+    {
+      "query": "ankara hal",
+      "impressions": 778,
+      "clicks": 10,
+      "position": 7.36,
+      "target_path": "/hal/ankara-hal",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    },
+    {
+      "query": "adana mandalina fiyatları",
+      "impressions": 766,
+      "clicks": 2,
+      "position": 8.07,
+      "target_path": "/urun/mandalina",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "limon fiyatları adana",
+      "impressions": 760,
+      "clicks": 11,
+      "position": 8.24,
+      "target_path": "/urun/limon",
+      "action": "Adana resmi veri akışını doğrula/onar; genel fiyatı Adana fiyatı diye sunma; yerel sayfa veri kapısı sonrası."
+    },
+    {
+      "query": "domates fiyatı",
+      "impressions": 757,
+      "clicks": 13,
+      "position": 9.53,
+      "target_path": "/urun/domates",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "elma fiyatları",
+      "impressions": 655,
+      "clicks": 10,
+      "position": 8.78,
+      "target_path": "/urun/elma",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "ibb hal fiyatları",
+      "impressions": 606,
+      "clicks": 7,
+      "position": 7.26,
+      "target_path": "/hal/istanbul-hal-ibb",
+      "action": "Aynı hal sayfasında Bayrampaşa fiyat listesi başlığı ve güncel satırları önce göster; kopya URL açma."
+    },
+    {
+      "query": "ankara toptancı hali",
+      "impressions": 582,
+      "clicks": 2,
+      "position": 10.75,
+      "target_path": "/hal/ankara-hal",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    },
+    {
+      "query": "kayseri hal",
+      "impressions": 579,
+      "clicks": 5,
+      "position": 10.06,
+      "target_path": "/hal/kayseri-hal",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    },
+    {
+      "query": "mersin hal",
+      "impressions": 572,
+      "clicks": 7,
+      "position": 10.14,
+      "target_path": "/hal/mersin-hal",
+      "action": "Son kaynak tarihi 22 Haziran; yeni yazıdan önce güncel resmi kaynak ve ETL sorununu çöz."
+    },
+    {
+      "query": "barbunya fiyatı",
+      "impressions": 525,
+      "clicks": 11,
+      "position": 8.93,
+      "target_path": "/urun/barbunya-taze",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "mısır fiyatı 2026",
+      "impressions": 503,
+      "clicks": 3,
+      "position": 9.49,
+      "target_path": "/urun/misir",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "limon piyasası adana",
+      "impressions": 464,
+      "clicks": 2,
+      "position": 8.82,
+      "target_path": "/urun/limon",
+      "action": "Adana resmi veri akışını doğrula/onar; genel fiyatı Adana fiyatı diye sunma; yerel sayfa veri kapısı sonrası."
+    },
+    {
+      "query": "bursa balık hali",
+      "impressions": 426,
+      "clicks": 0,
+      "position": 12.01,
+      "target_path": "/hal/bursa-hal",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    },
+    {
+      "query": "elazığ sebze hali",
+      "impressions": 422,
+      "clicks": 7,
+      "position": 7.75,
+      "target_path": "/firmalar/elazig",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "nevşehir patates fiyatları",
+      "impressions": 407,
+      "clicks": 11,
+      "position": 7.57,
+      "target_path": "/urun/patates",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "sebze hali",
+      "impressions": 404,
+      "clicks": 1,
+      "position": 10.18,
+      "target_path": "/",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "kuru soğan hal fiyatları",
+      "impressions": 402,
+      "clicks": 9,
+      "position": 9.35,
+      "target_path": "/urun/sogan-kuru",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "adana sebze hali",
+      "impressions": 383,
+      "clicks": 2,
+      "position": 7.64,
+      "target_path": "/firmalar/adana",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "patlıcan fiyatı",
+      "impressions": 363,
+      "clicks": 2,
+      "position": 7.49,
+      "target_path": "/urun/patlican",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "mersin hal fiyatları günlük meyve",
+      "impressions": 354,
+      "clicks": 11,
+      "position": 9.1,
+      "target_path": "/hal/mersin-hal",
+      "action": "Son kaynak tarihi 22 Haziran; yeni yazıdan önce güncel resmi kaynak ve ETL sorununu çöz."
+    },
+    {
+      "query": "çorum soğan fiyatları bugun",
+      "impressions": 349,
+      "clicks": 0,
+      "position": 8.77,
+      "target_path": "/urun/sogan-kuru",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "limonun kilosu ne kadar",
+      "impressions": 348,
+      "clicks": 2,
+      "position": 7.97,
+      "target_path": "/urun/limon",
+      "action": "Çeşit, hal/bahçe ayrımı, kaynaklı tablo ve ilgili Mayer/yerel piyasa bağlantılarını güçlendir."
+    },
+    {
+      "query": "gaziantep sebze hali",
+      "impressions": 341,
+      "clicks": 6,
+      "position": 9.78,
+      "target_path": "/hal/gaziantep-hal",
+      "action": "Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+    },
+    {
+      "query": "osmaniye sebze hali telefon numarası",
+      "impressions": 331,
+      "clicks": 4,
+      "position": 10.94,
+      "target_path": "/firmalar/osmaniye",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "izmir hal fiyatları bugün",
+      "impressions": 318,
+      "clicks": 5,
+      "position": 9.32,
+      "target_path": "/hal/izmir-hal",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "osmaniye sebze hali",
+      "impressions": 317,
+      "clicks": 2,
+      "position": 9.23,
+      "target_path": "/firmalar/osmaniye",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    },
+    {
+      "query": "incir kilosu ne kadar 2026",
+      "impressions": 304,
+      "clicks": 1,
+      "position": 7.24,
+      "target_path": "/urun/incir-beyaz",
+      "action": "Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi."
+    }
+  ]
+}

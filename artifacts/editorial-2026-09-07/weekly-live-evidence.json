@@ -1,0 +1,495 @@
+{
+  "summary": {
+    "week": "2026-36",
+    "weekStart": "2026-08-31",
+    "weekEnd": "2026-09-06",
+    "topRisers": [
+      {
+        "productSlug": "domates-salkim",
+        "productName": "Domates (Salkım)",
+        "marketName": "8 hal ortalaması",
+        "changePct": 45.45,
+        "latestAvg": 60,
+        "previousAvg": 41.25,
+        "marketCount": 8,
+        "categorySlug": "sebze",
+        "familySlug": "domates"
+      },
+      {
+        "productSlug": "kiraz",
+        "productName": "Kiraz",
+        "marketName": "7 hal ortalaması",
+        "changePct": 30,
+        "latestAvg": 130,
+        "previousAvg": 100,
+        "marketCount": 7,
+        "categorySlug": "meyve",
+        "familySlug": "kiraz"
+      },
+      {
+        "productSlug": "karpuz",
+        "productName": "Karpuz",
+        "marketName": "10 hal ortalaması",
+        "changePct": 20,
+        "latestAvg": 12,
+        "previousAvg": 10,
+        "marketCount": 10,
+        "categorySlug": "sebze",
+        "familySlug": "karpuz"
+      },
+      {
+        "productSlug": "domates",
+        "productName": "Domates",
+        "marketName": "10 hal ortalaması",
+        "changePct": 15.31,
+        "latestAvg": 37.5,
+        "previousAvg": 32.52083333333333,
+        "marketCount": 10,
+        "categorySlug": "sebze",
+        "familySlug": null
+      },
+      {
+        "productSlug": "nektarin",
+        "productName": "Nektarin",
+        "marketName": "7 hal ortalaması",
+        "changePct": 14.47,
+        "latestAvg": 57.235,
+        "previousAvg": 50,
+        "marketCount": 7,
+        "categorySlug": "meyve",
+        "familySlug": null
+      }
+    ],
+    "topFallers": [
+      {
+        "productSlug": "incir-beyaz",
+        "productName": "İncir Beyaz",
+        "marketName": "6 hal ortalaması",
+        "changePct": -36.06,
+        "latestAvg": 81.52000000000001,
+        "previousAvg": 127.5,
+        "marketCount": 6,
+        "categorySlug": "meyve",
+        "familySlug": "incir"
+      },
+      {
+        "productSlug": "karnabahar",
+        "productName": "Karnabahar",
+        "marketName": "7 hal ortalaması",
+        "changePct": -22.22,
+        "latestAvg": 35,
+        "previousAvg": 45,
+        "marketCount": 7,
+        "categorySlug": "sebze",
+        "familySlug": null
+      },
+      {
+        "productSlug": "erik",
+        "productName": "Erik",
+        "marketName": "9 hal ortalaması",
+        "changePct": -16.78,
+        "latestAvg": 40,
+        "previousAvg": 48.0625,
+        "marketCount": 9,
+        "categorySlug": "sebze-meyve",
+        "familySlug": null
+      },
+      {
+        "productSlug": "limon",
+        "productName": "Limon",
+        "marketName": "9 hal ortalaması",
+        "changePct": -12.73,
+        "latestAvg": 48,
+        "previousAvg": 55,
+        "marketCount": 9,
+        "categorySlug": "meyve",
+        "familySlug": null
+      },
+      {
+        "productSlug": "uzum",
+        "productName": "Üzüm",
+        "marketName": "8 hal ortalaması",
+        "changePct": -12.37,
+        "latestAvg": 42.5,
+        "previousAvg": 48.5,
+        "marketCount": 8,
+        "categorySlug": "meyve",
+        "familySlug": null
+      }
+    ],
+    "avgByCategory": {
+      "sebze": 50,
+      "ithal": 108.37,
+      "meyve": 102.95,
+      "sebze-meyve": 54.92,
+      "balik": 311.07,
+      "hububat": 15.11,
+      "yagli-tohum": 48.66,
+      "bakliyat-kuru": 38.74,
+      "sanayi-bitkisi": 90,
+      "balik-deniz": 430.02,
+      "balik-donuk": 429.7,
+      "balik-ithal": 323.75,
+      "balik-tatlisu": 332.69,
+      "canli-hayvan": 316.98,
+      "et": 689.07,
+      "balik-kultur": 600
+    },
+    "breadth": {
+      "measured": 45,
+      "up": 22,
+      "down": 21,
+      "flat": 2,
+      "medianChangePct": 0
+    },
+    "movementBySlug": {
+      "domates-salkim": {
+        "changePct": 45.45,
+        "latestAvg": 60,
+        "previousAvg": 41.25,
+        "marketCount": 8
+      },
+      "incir-beyaz": {
+        "changePct": -36.06,
+        "latestAvg": 81.52000000000001,
+        "previousAvg": 127.5,
+        "marketCount": 6
+      },
+      "kiraz": {
+        "changePct": 30,
+        "latestAvg": 130,
+        "previousAvg": 100,
+        "marketCount": 7
+      },
+      "karnabahar": {
+        "changePct": -22.22,
+        "latestAvg": 35,
+        "previousAvg": 45,
+        "marketCount": 7
+      },
+      "karpuz": {
+        "changePct": 20,
+        "latestAvg": 12,
+        "previousAvg": 10,
+        "marketCount": 10
+      },
+      "erik": {
+        "changePct": -16.78,
+        "latestAvg": 40,
+        "previousAvg": 48.0625,
+        "marketCount": 9
+      },
+      "domates": {
+        "changePct": 15.31,
+        "latestAvg": 37.5,
+        "previousAvg": 32.52083333333333,
+        "marketCount": 10
+      },
+      "nektarin": {
+        "changePct": 14.47,
+        "latestAvg": 57.235,
+        "previousAvg": 50,
+        "marketCount": 7
+      },
+      "muz-yerli": {
+        "changePct": 12.9,
+        "latestAvg": 70,
+        "previousAvg": 62,
+        "marketCount": 8
+      },
+      "limon": {
+        "changePct": -12.73,
+        "latestAvg": 48,
+        "previousAvg": 55,
+        "marketCount": 9
+      },
+      "uzum": {
+        "changePct": -12.37,
+        "latestAvg": 42.5,
+        "previousAvg": 48.5,
+        "marketCount": 8
+      },
+      "kivi": {
+        "changePct": -12.31,
+        "latestAvg": 142.5,
+        "previousAvg": 162.5,
+        "marketCount": 9
+      },
+      "havuc": {
+        "changePct": 11.11,
+        "latestAvg": 30,
+        "previousAvg": 27,
+        "marketCount": 9
+      },
+      "kavun": {
+        "changePct": 11.11,
+        "latestAvg": 25,
+        "previousAvg": 22.5,
+        "marketCount": 9
+      },
+      "elma-golden": {
+        "changePct": -10.79,
+        "latestAvg": 52.41,
+        "previousAvg": 58.75,
+        "marketCount": 8
+      },
+      "biber-carliston": {
+        "changePct": 10.24,
+        "latestAvg": 62.20833333333333,
+        "previousAvg": 56.42857142857143,
+        "marketCount": 10
+      },
+      "patlican": {
+        "changePct": 9.8,
+        "latestAvg": 35,
+        "previousAvg": 31.875,
+        "marketCount": 7
+      },
+      "domates-salcalik": {
+        "changePct": 8.93,
+        "latestAvg": 15.25,
+        "previousAvg": 14,
+        "marketCount": 8
+      },
+      "brokoli": {
+        "changePct": 8.92,
+        "latestAvg": 55.82,
+        "previousAvg": 51.25,
+        "marketCount": 7
+      },
+      "seftali": {
+        "changePct": -8.57,
+        "latestAvg": 40,
+        "previousAvg": 43.75,
+        "marketCount": 8
+      },
+      "armut-santamaria": {
+        "changePct": -6.12,
+        "latestAvg": 57.5,
+        "previousAvg": 61.25,
+        "marketCount": 6
+      },
+      "sogan-kuru": {
+        "changePct": -5.9,
+        "latestAvg": 29.327333333333332,
+        "previousAvg": 31.166666666666668,
+        "marketCount": 8
+      },
+      "biber-sivri": {
+        "changePct": 5.75,
+        "latestAvg": 48.25,
+        "previousAvg": 45.625,
+        "marketCount": 10
+      },
+      "domates-kokteyl": {
+        "changePct": -5.72,
+        "latestAvg": 54.21,
+        "previousAvg": 57.5,
+        "marketCount": 7
+      },
+      "kirmizi-lahana": {
+        "changePct": -5.3,
+        "latestAvg": 31.25,
+        "previousAvg": 33,
+        "marketCount": 6
+      },
+      "biber-dolma": {
+        "changePct": 5.26,
+        "latestAvg": 50,
+        "previousAvg": 47.5,
+        "marketCount": 9
+      },
+      "elma": {
+        "changePct": 5,
+        "latestAvg": 52.5,
+        "previousAvg": 50,
+        "marketCount": 9
+      },
+      "kabak": {
+        "changePct": -5,
+        "latestAvg": 23.75,
+        "previousAvg": 25,
+        "marketCount": 8
+      },
+      "armut": {
+        "changePct": -4.76,
+        "latestAvg": 62.5,
+        "previousAvg": 65.625,
+        "marketCount": 8
+      },
+      "erik-anjelik": {
+        "changePct": -3.8,
+        "latestAvg": 47.5,
+        "previousAvg": 49.375,
+        "marketCount": 6
+      },
+      "ispanak": {
+        "changePct": 3.73,
+        "latestAvg": 38.25,
+        "previousAvg": 36.875,
+        "marketCount": 6
+      },
+      "salatalik": {
+        "changePct": 3.63,
+        "latestAvg": 25,
+        "previousAvg": 24.125,
+        "marketCount": 8
+      },
+      "kayisi": {
+        "changePct": -3.03,
+        "latestAvg": 80,
+        "previousAvg": 82.5,
+        "marketCount": 7
+      },
+      "barbunya": {
+        "changePct": -2.9,
+        "latestAvg": 83.75,
+        "previousAvg": 86.25,
+        "marketCount": 6
+      },
+      "visne": {
+        "changePct": 2.78,
+        "latestAvg": 92.5,
+        "previousAvg": 90,
+        "marketCount": 6
+      },
+      "sarimsak-kuru": {
+        "changePct": 2.29,
+        "latestAvg": 111.875,
+        "previousAvg": 109.375,
+        "marketCount": 8
+      },
+      "bamya": {
+        "changePct": -2.08,
+        "latestAvg": 117.5,
+        "previousAvg": 120,
+        "marketCount": 6
+      },
+      "elma-starking": {
+        "changePct": 2.04,
+        "latestAvg": 62.5,
+        "previousAvg": 61.25,
+        "marketCount": 6
+      },
+      "lahana-beyaz": {
+        "changePct": -1.96,
+        "latestAvg": 25,
+        "previousAvg": 25.5,
+        "marketCount": 6
+      },
+      "fasulye": {
+        "changePct": -1.38,
+        "latestAvg": 50,
+        "previousAvg": 50.7,
+        "marketCount": 8
+      },
+      "cilek": {
+        "changePct": 1.09,
+        "latestAvg": 116.25,
+        "previousAvg": 115,
+        "marketCount": 8
+      },
+      "mantar": {
+        "changePct": 0.79,
+        "latestAvg": 142.5,
+        "previousAvg": 141.39,
+        "marketCount": 6
+      },
+      "patates": {
+        "changePct": -0.47,
+        "latestAvg": 26.5,
+        "previousAvg": 26.625,
+        "marketCount": 8
+      },
+      "kereviz": {
+        "changePct": 0,
+        "latestAvg": 52.5,
+        "previousAvg": 52.5,
+        "marketCount": 6
+      },
+      "uzum-cekirdeksiz": {
+        "changePct": 0,
+        "latestAvg": 37.5,
+        "previousAvg": 37.5,
+        "marketCount": 8
+      }
+    },
+    "totalRecords": 8762,
+    "productCount": 369,
+    "marketCount": 34
+  },
+  "index": [
+    {
+      "id": 156,
+      "indexWeek": "2026-31",
+      "indexValue": "76.6479",
+      "baseWeek": "2026-20",
+      "basketAvg": "42.6181",
+      "productsCount": 15,
+      "weekStart": "2026-07-27",
+      "weekEnd": "2026-08-02",
+      "createdAt": "2026-08-03T06:00:01.189Z",
+      "updatedAt": "2026-08-03T06:00:01.189Z"
+    },
+    {
+      "id": 157,
+      "indexWeek": "2026-32",
+      "indexValue": "74.4830",
+      "baseWeek": "2026-20",
+      "basketAvg": "41.4143",
+      "productsCount": 15,
+      "weekStart": "2026-08-03",
+      "weekEnd": "2026-08-09",
+      "createdAt": "2026-08-10T06:00:05.531Z",
+      "updatedAt": "2026-08-10T06:00:05.531Z"
+    },
+    {
+      "id": 158,
+      "indexWeek": "2026-33",
+      "indexValue": "74.3245",
+      "baseWeek": "2026-20",
+      "basketAvg": "41.3262",
+      "productsCount": 15,
+      "weekStart": "2026-08-10",
+      "weekEnd": "2026-08-16",
+      "createdAt": "2026-08-17T06:00:01.396Z",
+      "updatedAt": "2026-08-17T06:00:01.396Z"
+    },
+    {
+      "id": 159,
+      "indexWeek": "2026-34",
+      "indexValue": "70.6798",
+      "baseWeek": "2026-20",
+      "basketAvg": "39.2997",
+      "productsCount": 14,
+      "weekStart": "2026-08-17",
+      "weekEnd": "2026-08-23",
+      "createdAt": "2026-08-24T06:00:00.625Z",
+      "updatedAt": "2026-08-24T06:00:00.625Z"
+    },
+    {
+      "id": 160,
+      "indexWeek": "2026-35",
+      "indexValue": "67.3209",
+      "baseWeek": "2026-20",
+      "basketAvg": "37.4320",
+      "productsCount": 14,
+      "weekStart": "2026-08-24",
+      "weekEnd": "2026-08-30",
+      "createdAt": "2026-08-31T06:00:02.545Z",
+      "updatedAt": "2026-08-31T06:00:02.545Z"
+    },
+    {
+      "id": 161,
+      "indexWeek": "2026-36",
+      "indexValue": "70.9590",
+      "baseWeek": "2026-20",
+      "basketAvg": "39.4549",
+      "productsCount": 14,
+      "weekStart": "2026-08-31",
+      "weekEnd": "2026-09-06",
+      "createdAt": "2026-09-07T06:00:01.260Z",
+      "updatedAt": "2026-09-07T06:00:01.260Z"
+    }
+  ]
+}

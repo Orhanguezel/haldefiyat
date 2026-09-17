@@ -1,0 +1,33 @@
+[
+  {
+    "url": "https://haldefiyat.com/analiz/31-agustos-6-eylul-2026-haftalik-hal-raporu",
+    "status": 200,
+    "title": "31 Ağustos–6 Eylül 2026 Hal Raporu | Endeks %5,4 Arttı",
+    "h1": [
+      "31 Ağustos–6 Eylül Hal Raporu: Endeks %5,4 Yükseldi"
+    ],
+    "checks": {
+      "70,96": true,
+      "8.762": true,
+      "14’ü": true
+    },
+    "canonical": "https://haldefiyat.com/analiz/31-agustos-6-eylul-2026-haftalik-hal-raporu",
+    "tables": 3
+  },
+  {
+    "url": "https://haldefiyat.com/analiz/pamuk-sezonu-2026-acilis-fiyati-2025-karsilastirmasi",
+    "status": 200,
+    "title": "Pamuk Sezonu 2026: İlk Fiyatlar ve 2025 Karşılaştırması",
+    "h1": [
+      "Pamuk Sezonu Açıldı: 2026 İlk Fiyatları ve 2025 Karşılaştırması"
+    ],
+    "checks": {
+      "1.250": true,
+      "69,50": true,
+      "69,14": true,
+      "31 / 30": true
+    },
+    "canonical": "https://haldefiyat.com/analiz/pamuk-sezonu-2026-acilis-fiyati-2025-karsilastirmasi",
+    "tables": 1
+  }
+]

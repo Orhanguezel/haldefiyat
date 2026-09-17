@@ -1,0 +1,17 @@
+[
+  {
+    "position": "listing_detail_sidebar",
+    "created": 19,
+    "row": 1
+  },
+  {
+    "position": "firm_detail_sidebar",
+    "created": 20,
+    "row": 2
+  },
+  {
+    "position": "global_footer",
+    "created": 21,
+    "row": 2
+  }
+]

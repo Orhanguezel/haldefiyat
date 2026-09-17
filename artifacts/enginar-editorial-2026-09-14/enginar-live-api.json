@@ -1,0 +1,15 @@
+{
+  "item": {
+    "productSlug": "enginar",
+    "about": "Enginar alımında fiyat kadar satış biçimi de önemlidir. Bu sayfanın ana fiyat birimi kilogramdır; karşılaştırma yaparken her kaydın birimini ve tarihini okuyun. Bütün baş, ayıklanmış çanak ve işlenmiş ürünün kullanılabilir miktarı aynı değildir. Adetle bildirilen taze enginar fiyatlarını ayrı ürün sayfasından takip ederek farklı birimleri birbirine karıştırmadan değerlendirebilirsiniz.",
+    "priceFactors": "Kilogram fiyatlarını aynı tarih ve benzer ürün hazırlığı üzerinden karşılaştırın. Ayıklanmış bir ürünle bütün enginarın etiket fiyatı, mutfakta elde edilecek miktarı tek başına anlatmaz. Halde açıklanan aralık perakende satış fiyatı veya kesin satıcı teklifi değildir. Nakliye, ambalaj ve hazırlama koşullarını ayrıca sorun; adet fiyatını kilogram fiyatına çevirmek için gerçek ağırlık bilgisi gerekir.",
+    "season": "Enginarda hasat takvimi bölgeye ve çeşide göre değişir. İzmir İl Tarım ve Orman Müdürlüğünün 8 Nisan 2026 tarihli duyurusu, o yıl hasadın şubatta başladığını ve nisanda sürdüğünü bildirir. Bu nedenle tek bir ayı Türkiye genelinde sezon başlangıcı veya en ucuz dönem olarak kabul etmeyin; fiyat tablosundaki kayıt tarihini kontrol edin.",
+    "productionRegion": "Türkiye’de enginar yetiştiriciliğinde Ege ve Marmara öne çıkar. Atatürk Bahçe Kültürleri Merkez Araştırma Enstitüsünün yetiştiricilik broşüründe Sakız çeşidi Ege ve Akdeniz, Bayrampaşa çeşidi Marmara ile ilişkilendirilir. Üretim yeri ile fiyatın yayımlandığı hal aynı yer olmak zorunda değildir; hal adı tek başına ürünün menşeini göstermez.",
+    "qualityIndicators": "Hasatta başın gelişmiş, dış yaprakların henüz açılmamış olması önemlidir. Geciken hasat, yenilen tablanın liflenmesine yol açabilir. Alımda baş iriliğini, açılma durumunu ve ayıklama biçimini birlikte değerlendirin. Aynı birimdeki iki fiyat bile farklı boy veya hazırlama düzeyindeki ürünlere ait olabilir.",
+    "culinaryUses": "Enginarı yemeklik alırken tarifte istenen ürünün bütün baş mı, ayıklanmış çanak mı olduğunu belirleyin. Satın alınan kilogram ile hazırlık sonrası kullanılan miktar farklı olabilir. Bütçeyi yalnızca etiket fiyatına göre değil, hazırlanmış miktara göre kurun. Konserve veya salamura alışverişinde ambalajdaki net miktarı ve ürün tanımını taze enginar teklifinden ayrı değerlendirin.",
+    "relatedSlugs": [
+      "enginar-taze"
+    ],
+    "publishedAt": "2026-05-29T15:01:51.387Z"
+  }
+}

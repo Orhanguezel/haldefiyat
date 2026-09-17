@@ -1,0 +1,10 @@
+### Result
+Total messages: 12 (Errors: 0, Warnings: 12)
+Returning 0 messages for level "error"
+
+### Page
+- Page URL: https://haldefiyat.com/hal/kayseri-hal
+- Page Title: Kayseri Hal Fiyatları Bugün 8 Eylül 2026
+- Console: 0 errors, 12 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-09-08T10-12-39-094Z.log#L10-L21

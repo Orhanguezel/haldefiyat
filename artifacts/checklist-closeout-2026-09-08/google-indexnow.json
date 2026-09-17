@@ -1,0 +1,80 @@
+{
+  "checkedAt": "2026-09-07T23:15:25.952Z",
+  "sitemap": {
+    "site": "sc-domain:haldefiyat.com",
+    "status": 204
+  },
+  "ga4": {
+    "property": "538279658",
+    "status": 200,
+    "streams": [
+      {
+        "displayName": "hal de fiyat",
+        "webStreamData": {
+          "measurementId": "G-YHLL9WK7ML",
+          "defaultUri": "https://haldefiyat.com"
+        }
+      }
+    ]
+  },
+  "ga4Observation": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20260904"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "109"
+        },
+        {
+          "value": "93"
+        },
+        {
+          "value": "298"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260906"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "84"
+        },
+        {
+          "value": "66"
+        },
+        {
+          "value": "212"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260905"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "78"
+        },
+        {
+          "value": "65"
+        },
+        {
+          "value": "193"
+        }
+      ]
+    }
+  ],
+  "indexNow": {
+    "submitted": 7,
+    "status": 200
+  }
+}

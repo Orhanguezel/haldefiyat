@@ -1,0 +1,42 @@
+[
+  {
+    "stage": "before",
+    "score": 52,
+    "simulatedFcpMs": 3682.335,
+    "simulatedLcpMs": 6038.335,
+    "observedLcpMs": 2431,
+    "tbtMs": 606,
+    "cls": 0,
+    "ttfbMs": 166.27700000000002
+  },
+  {
+    "stage": "after",
+    "score": 71,
+    "simulatedFcpMs": 2756.9305,
+    "simulatedLcpMs": 5906.9305,
+    "observedLcpMs": 2434,
+    "tbtMs": 59,
+    "cls": 0,
+    "ttfbMs": 129.426
+  },
+  {
+    "stage": "consent-final",
+    "score": 58,
+    "simulatedFcpMs": 3573.964,
+    "simulatedLcpMs": 5949.964,
+    "observedLcpMs": 2476,
+    "tbtMs": 411,
+    "cls": 0,
+    "ttfbMs": 212.57800000000003
+  },
+  {
+    "stage": "fonts-final",
+    "score": 72,
+    "simulatedFcpMs": 2331.4494999999997,
+    "simulatedLcpMs": 4687.4495,
+    "observedLcpMs": 1014,
+    "tbtMs": 371.5,
+    "cls": 0,
+    "ttfbMs": 401.03000000000003
+  }
+]

@@ -1,0 +1,109 @@
+{
+  "desktop": [
+    {
+      "label": "Reklam alanı: global_footer",
+      "cards": [
+        {
+          "format": "half",
+          "x": 160,
+          "y": 10191.75,
+          "width": 552,
+          "height": 280
+        },
+        {
+          "format": "half",
+          "x": 728,
+          "y": 10191.75,
+          "width": 552,
+          "height": 280
+        }
+      ]
+    },
+    {
+      "label": "Reklam alanı: prices_top",
+      "cards": [
+        {
+          "format": "half",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        {
+          "format": "half",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      ]
+    }
+  ],
+  "mixed": {
+    "cards": [
+      {
+        "x": 160,
+        "y": 419.75,
+        "width": 362.65625,
+        "height": 576,
+        "right": 522.65625,
+        "bottom": 995.75
+      },
+      {
+        "x": 538.65625,
+        "y": 419.75,
+        "width": 362.671875,
+        "height": 280,
+        "right": 901.328125,
+        "bottom": 699.75
+      },
+      {
+        "x": 917.328125,
+        "y": 419.75,
+        "width": 362.65625,
+        "height": 280,
+        "right": 1279.984375,
+        "bottom": 699.75
+      },
+      {
+        "x": 538.65625,
+        "y": 715.75,
+        "width": 362.671875,
+        "height": 280,
+        "right": 901.328125,
+        "bottom": 995.75
+      },
+      {
+        "x": 917.328125,
+        "y": 715.75,
+        "width": 362.65625,
+        "height": 280,
+        "right": 1279.984375,
+        "bottom": 995.75
+      }
+    ],
+    "overlaps": false
+  },
+  "mobile": [
+    {
+      "format": "half",
+      "height": 120,
+      "width": 326
+    },
+    {
+      "format": "half",
+      "height": 120,
+      "width": 326
+    },
+    {
+      "format": "half",
+      "height": 120,
+      "width": 358
+    },
+    {
+      "format": "half",
+      "height": 120,
+      "width": 358
+    }
+  ]
+}

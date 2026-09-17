@@ -1,0 +1,309 @@
+{
+  "checkedAt": "2026-09-07T23:29:21.824Z",
+  "baseline": [
+    {
+      "approvedActive": 6,
+      "realActive": "5",
+      "rehearsalActive": "1"
+    }
+  ],
+  "publicCount": 5,
+  "rehearsalPublic": false,
+  "wanted": [
+    {
+      "slug": "biber-carliston",
+      "name": "Biber (Çarliston)",
+      "imageUrl": null,
+      "buyers": 0,
+      "watchers": 2,
+      "contactedOffers": 0,
+      "searchVolume": 3894,
+      "price": 38.214286,
+      "markets": 7,
+      "priceDate": "2026-09-07"
+    },
+    {
+      "slug": "limon",
+      "name": "Limon",
+      "imageUrl": null,
+      "buyers": 0,
+      "watchers": 1,
+      "contactedOffers": 0,
+      "searchVolume": 114967,
+      "price": 55.25,
+      "markets": 4,
+      "priceDate": "2026-09-07"
+    },
+    {
+      "slug": "domates",
+      "name": "Domates",
+      "imageUrl": null,
+      "buyers": 0,
+      "watchers": 1,
+      "contactedOffers": 0,
+      "searchVolume": 22022,
+      "price": 43.25,
+      "markets": 6,
+      "priceDate": "2026-09-07"
+    },
+    {
+      "slug": "biber-dolma",
+      "name": "Biber Dolma",
+      "imageUrl": null,
+      "buyers": 0,
+      "watchers": 1,
+      "contactedOffers": 0,
+      "searchVolume": 4927,
+      "price": 55.375,
+      "markets": 8,
+      "priceDate": "2026-09-07"
+    },
+    {
+      "slug": "pancar",
+      "name": "Pancar",
+      "imageUrl": null,
+      "buyers": 0,
+      "watchers": 1,
+      "contactedOffers": 0,
+      "searchVolume": 763,
+      "price": 36.285714,
+      "markets": 7,
+      "priceDate": "2026-09-07"
+    },
+    {
+      "slug": "sogan-kuru",
+      "name": "Soğan",
+      "imageUrl": null,
+      "buyers": 0,
+      "watchers": 0,
+      "contactedOffers": 0,
+      "searchVolume": 37627,
+      "price": 28.0625,
+      "markets": 8,
+      "priceDate": "2026-09-07"
+    },
+    {
+      "slug": "kiraz",
+      "name": "Kiraz",
+      "imageUrl": null,
+      "buyers": 0,
+      "watchers": 0,
+      "contactedOffers": 0,
+      "searchVolume": 27609,
+      "price": 117.928571,
+      "markets": 7,
+      "priceDate": "2026-09-07"
+    },
+    {
+      "slug": "uzum",
+      "name": "Üzüm",
+      "imageUrl": null,
+      "buyers": 0,
+      "watchers": 0,
+      "contactedOffers": 0,
+      "searchVolume": 23957,
+      "price": 44.333333,
+      "markets": 3,
+      "priceDate": "2026-09-07"
+    }
+  ],
+  "retail": {
+    "sut": [
+      {
+        "productSlug": "sut",
+        "productUnit": "litre",
+        "chainSlug": "a101",
+        "price": "55.00",
+        "unit": "litre",
+        "recordedDate": "2026-09-07",
+        "productNameRaw": "Sek Yağlı Süt 1 Lt",
+        "productUrl": "https://marketfiyati.org.tr/",
+        "variant": {
+          "fat": "Belirtilmemiş",
+          "kind": "Süt; işlem türü belirtilmemiş",
+          "packageAmount": 1,
+          "packageUnit": "litre"
+        }
+      },
+      {
+        "productSlug": "sut",
+        "productUnit": "litre",
+        "chainSlug": "bim",
+        "price": "32.50",
+        "unit": "litre",
+        "recordedDate": "2026-09-07",
+        "productNameRaw": "Dost %0.5 Yağlı Süt 1 Lt",
+        "productUrl": "https://marketfiyati.org.tr/",
+        "variant": {
+          "fat": "%0.5",
+          "kind": "Süt; işlem türü belirtilmemiş",
+          "packageAmount": 1,
+          "packageUnit": "litre"
+        }
+      },
+      {
+        "productSlug": "sut",
+        "productUnit": "litre",
+        "chainSlug": "carrefour",
+        "price": "52.75",
+        "unit": "litre",
+        "recordedDate": "2026-09-07",
+        "productNameRaw": "Carrefour Yağlı Süt 1 Lt",
+        "productUrl": "https://marketfiyati.org.tr/",
+        "variant": {
+          "fat": "Belirtilmemiş",
+          "kind": "Süt; işlem türü belirtilmemiş",
+          "packageAmount": 1,
+          "packageUnit": "litre"
+        }
+      },
+      {
+        "productSlug": "sut",
+        "productUnit": "litre",
+        "chainSlug": "migros",
+        "price": "64.90",
+        "unit": "litre",
+        "recordedDate": "2026-09-07",
+        "productNameRaw": "İçim Light Süt 1 Lt",
+        "productUrl": "https://marketfiyati.org.tr/",
+        "variant": {
+          "fat": "Az yağlı/yağsız",
+          "kind": "Süt; işlem türü belirtilmemiş",
+          "packageAmount": 1,
+          "packageUnit": "litre"
+        }
+      },
+      {
+        "productSlug": "sut",
+        "productUnit": "litre",
+        "chainSlug": "sok",
+        "price": "43.50",
+        "unit": "litre",
+        "recordedDate": "2026-09-07",
+        "productNameRaw": "Mis Yarım Yağlı Uht Süt 1 Lt",
+        "productUrl": "https://marketfiyati.org.tr/",
+        "variant": {
+          "fat": "Yarım yağlı",
+          "kind": "UHT süt",
+          "packageAmount": 1,
+          "packageUnit": "litre"
+        }
+      },
+      {
+        "productSlug": "sut",
+        "productUnit": "litre",
+        "chainSlug": "tarim_kredi",
+        "price": "45.90",
+        "unit": "litre",
+        "recordedDate": "2026-09-07",
+        "productNameRaw": "Tarım Kredi Yağlı Süt %3.1 1 Lt",
+        "productUrl": "https://marketfiyati.org.tr/",
+        "variant": {
+          "fat": "%3.1",
+          "kind": "Süt; işlem türü belirtilmemiş",
+          "packageAmount": 1,
+          "packageUnit": "litre"
+        }
+      }
+    ],
+    "yogurt": [
+      {
+        "productSlug": "yogurt",
+        "productUnit": "kg",
+        "chainSlug": "a101",
+        "price": "51.80",
+        "unit": "kg",
+        "recordedDate": "2026-09-07",
+        "productNameRaw": "Torku Homojenize Yoğurt 5 Kg",
+        "productUrl": "https://marketfiyati.org.tr/",
+        "variant": {
+          "fat": "Belirtilmemiş",
+          "kind": "Yoğurt; türü belirtilmemiş",
+          "packageAmount": 5,
+          "packageUnit": "kg"
+        }
+      },
+      {
+        "productSlug": "yogurt",
+        "productUnit": "kg",
+        "chainSlug": "bim",
+        "price": "43.00",
+        "unit": "kg",
+        "recordedDate": "2026-09-07",
+        "productNameRaw": "Dost %0.6 Az Yağlı Yoğurt 3 Kg",
+        "productUrl": "https://marketfiyati.org.tr/",
+        "variant": {
+          "fat": "%0.6",
+          "kind": "Yoğurt; türü belirtilmemiş",
+          "packageAmount": 3,
+          "packageUnit": "kg"
+        }
+      },
+      {
+        "productSlug": "yogurt",
+        "productUnit": "kg",
+        "chainSlug": "carrefour",
+        "price": "74.97",
+        "unit": "kg",
+        "recordedDate": "2026-09-07",
+        "productNameRaw": "Yörüksüt Bidon Yoğurt 2 Kg",
+        "productUrl": "https://marketfiyati.org.tr/",
+        "variant": {
+          "fat": "Belirtilmemiş",
+          "kind": "Yoğurt; türü belirtilmemiş",
+          "packageAmount": 2,
+          "packageUnit": "kg"
+        }
+      },
+      {
+        "productSlug": "yogurt",
+        "productUnit": "kg",
+        "chainSlug": "migros",
+        "price": "68.33",
+        "unit": "kg",
+        "recordedDate": "2026-09-07",
+        "productNameRaw": "Migros Tam Yağlı Homojenize Yoğurt 1.5 Kg",
+        "productUrl": "https://marketfiyati.org.tr/",
+        "variant": {
+          "fat": "Tam yağlı",
+          "kind": "Yoğurt; türü belirtilmemiş",
+          "packageAmount": 1.5,
+          "packageUnit": "kg"
+        }
+      },
+      {
+        "productSlug": "yogurt",
+        "productUnit": "kg",
+        "chainSlug": "sok",
+        "price": "56.00",
+        "unit": "kg",
+        "recordedDate": "2026-09-07",
+        "productNameRaw": "Mis Yarım Yağlı Homojenize Yoğurt 1.5 Kg",
+        "productUrl": "https://marketfiyati.org.tr/",
+        "variant": {
+          "fat": "Yarım yağlı",
+          "kind": "Yoğurt; türü belirtilmemiş",
+          "packageAmount": 1.5,
+          "packageUnit": "kg"
+        }
+      },
+      {
+        "productSlug": "yogurt",
+        "productUnit": "kg",
+        "chainSlug": "tarim_kredi",
+        "price": "79.90",
+        "unit": "kg",
+        "recordedDate": "2026-09-07",
+        "productNameRaw": "Sütaş Kaymaksız Yoğurt 1 Kg",
+        "productUrl": "https://marketfiyati.org.tr/",
+        "variant": {
+          "fat": "Belirtilmemiş",
+          "kind": "Kaymaksız yoğurt",
+          "packageAmount": 1,
+          "packageUnit": "kg"
+        }
+      }
+    ]
+  },
+  "septemberFirstEtlHistory": []
+}

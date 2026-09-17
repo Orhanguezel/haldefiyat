@@ -1,0 +1,6 @@
+import {pool} from './src/db/client';
+import {getGscAuthHeaders,resolveGscSite,queryGsc} from '@agro/shared-backend/modules/searchConsole/service';
+const out:any={capturedAt:new Date().toISOString()};
+for(const [key,sql] of Object.entries({runs:'SELECT * FROM hf_competitor_serp_runs ORDER BY id DESC LIMIT 10',sites:'SELECT * FROM hf_competitor_sites',results:'SELECT * FROM hf_competitor_serp_results WHERE run_id = (SELECT MAX(id) FROM hf_competitor_serp_runs WHERE status IN ("ok","partial"))',tables:'SHOW TABLES'})){const [r]=await pool.query(sql);out[key]=r;}
+try {const h=await getGscAuthHeaders();const site=(await resolveGscSite()).replace(/^"+|"+$/g,'');out.site=site;out.gsc={};for(const [label,startDate,endDate] of [['current','2026-08-10','2026-09-06'],['previous','2026-07-13','2026-08-09']]){out.gsc[label]={startDate,endDate};for(const dimensions of [['query'],['query','page']]){let rows:any[]=[];for(let startRow=0;startRow<100000;startRow+=25000){const batch=await queryGsc(site,h,{startDate,endDate,dimensions,rowLimit:25000,startRow,type:'web',dataState:'final'});rows.push(...batch);if(batch.length<25000)break;}out.gsc[label][dimensions.join('_')]=rows;}}}catch(e){out.gscError=String(e);}
+console.log(JSON.stringify(out));await pool.end();

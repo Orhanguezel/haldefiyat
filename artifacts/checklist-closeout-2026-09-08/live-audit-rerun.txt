@@ -1,0 +1,2361 @@
+diff --git a/backend/src/modules/competitor-monitor/checker.ts b/backend/src/modules/competitor-monitor/checker.ts
+index c47a0e2..73cf298 100644
+--- a/backend/src/modules/competitor-monitor/checker.ts
++++ b/backend/src/modules/competitor-monitor/checker.ts
+@@ -1,6 +1,6 @@
+ import { db } from "@/db/client";
+ import { hfCompetitorSites, hfCompetitorSnapshots } from "@/db/schema";
+-import { desc, eq, sql } from "drizzle-orm";
++import { and, desc, eq, sql } from "drizzle-orm";
+ import { fetchViaScraper, isScraperEnabled } from "@/modules/etl/scraper-client";
+ import { parseCompetitorHtml, buildDiffSummary } from "./parser";
+ import { env } from "@/core/env";
+@@ -44,7 +44,9 @@ async function getLastSnapshot(siteKey: string) {
+       detectedFeatures: hfCompetitorSnapshots.detectedFeatures,
+     })
+     .from(hfCompetitorSnapshots)
+-    .where(eq(hfCompetitorSnapshots.siteKey, siteKey))
++    // Basarisiz cekim satirinda detected_features NULL kalir; onu "onceki" saymak
++    // sonraki basarili cekimde tum ozellikleri "yeni" gosterip sahte alarm uretir.
++    .where(and(eq(hfCompetitorSnapshots.siteKey, siteKey), eq(hfCompetitorSnapshots.scrapeOk, 1)))
+     .orderBy(desc(hfCompetitorSnapshots.checkedAt))
+     .limit(1);
+ 
+{
+  "checkedAt": "2026-09-07T23:15:44.690Z",
+  "articles": [
+    {
+      "id": 1,
+      "slug": "elma-fiyat-analizi-mayis-2026",
+      "title": "Elma Fiyat Analizi — Mayıs 2026: Don Şoku, Rekor Makas ve Bölgesel Parçalanma",
+      "status": "draft",
+      "published_at": "2026-05-19T00:33:27.563Z",
+      "meta_title": "Elma Fiyat Analizi Mayıs 2026",
+      "meta_description": "Mayıs 2026 elma fiyat analizi: don şoku, üretici-market makası ve bölgesel fiyat ayrışması HaldeFiyat verileriyle incelendi."
+    },
+    {
+      "id": 3,
+      "slug": "mayis-3-hafta-2026-hal-raporu",
+      "title": "Mayıs 3. Hafta Hal Raporu: Kiraz ve Çilekte Sezon Açıldı, Fiyat Bandı Rekor Genişledi",
+      "status": "published",
+      "published_at": "2026-05-19T00:33:27.584Z",
+      "meta_title": "Mayıs 3. Hafta Hal Raporu: Kiraz ve Çilekte Sezon Açıldı",
+      "meta_description": "HaldeFiyat Endeksi'nin baz haftası 2026-20 (11–17 Mayıs) = 100,0 puan; seri bu haftadan itibaren ölçülüyor. Kiraz (₺247) ve çilekte (₺136, bant ₺58–₺418) sezon açıldı ama kalite/bölge farkı fiyat bandını rekor seviyede genişletti; domates ₺81,5 ile mevsim üstü, patates ve soğan sakin."
+    },
+    {
+      "id": 6,
+      "slug": "mayis-4-hafta-2026-hal-raporu",
+      "title": "Mayıs 4. Hafta Hal Raporu: Endeks Geriledi, Domates ve Salatalık Rahatladı",
+      "status": "published",
+      "published_at": "2026-05-26T17:14:26.476Z",
+      "meta_title": "Mayıs 4. Hafta Hal Raporu: Endeks Geriledi",
+      "meta_description": "18-24 Mayıs 2026 hal raporu: endeks geriledi; domates, salatalık ve patlıcan düşerken limon ve kuru soğan şehir bazında dirençli kaldı."
+    },
+    {
+      "id": 7,
+      "slug": "mayis-5-hafta-2026-hal-raporu",
+      "title": "Mayıs 5. Hafta Hal Raporu: Endeks 92 Puana Geriledi, Domates Sofralık Seviyeye Geriledi",
+      "status": "published",
+      "published_at": "2026-06-02T02:30:53.750Z",
+      "meta_title": "Mayıs 5. Hafta Hal Raporu: Endeks 92 Puana Geriledi",
+      "meta_description": "25-31 Mayıs 2026: HaldeFiyat Endeksi 92,9 puandan 91,8 puana indi. Domates ₺69,4 seviyesinden ₺52,9 seviyesine geriledi; kabak ve kivi düştü, ıspanak ve şeftali yükseldi. Şehir bazlı hal fiyatları."
+    },
+    {
+      "id": 8,
+      "slug": "haziran-1-hafta-2026-hal-raporu",
+      "title": "Haziran 1. Hafta Hal Raporu: Endeks 89 Puana Geriledi; Kabak ve Patlıcan Fırladı",
+      "status": "published",
+      "published_at": "2026-06-08T23:48:29.724Z",
+      "meta_title": "Haziran 1. Hafta Hal Raporu: Endeks 89 Puana Geriledi",
+      "meta_description": "1–7 Haziran 2026 haftasında HaldeFiyat Endeksi 91,8 puandan 89,0 puana geriledi (−%3,1). Biber tarafı geriledi (kapya −%33, sivri −%17), domates türevleri düştü (kokteyl −%23, çeri −%18); buna karşılık kabak (+%35), patlıcan (+%29), kereviz (+%38) ve yeşillikler yükseldi."
+    },
+    {
+      "id": 9,
+      "slug": "haziran-2-hafta-2026-hal-raporu",
+      "title": "Haziran 2. Hafta Hal Raporu: Endeks 85 Puana İndi; Patates ve Havuç Yükseldi",
+      "status": "published",
+      "published_at": "2026-06-16T21:13:04.333Z",
+      "meta_title": "Haziran 2. Hafta Hal Raporu: Endeks 85 Puana İndi",
+      "meta_description": "Haziranın ikinci haftasında HaldeFiyat Endeksi 85,2 puana indi (−%4,3) ve gerileme ikinci haftasına girdi. Çilek, domates ve taze sarımsak gerilerken; patates, havuç, pırasa ve lahana grubu yükseldi."
+    },
+    {
+      "id": 10,
+      "slug": "haziran-3-hafta-2026-hal-raporu",
+      "title": "Haziran 3. Hafta Hal Raporu: Endeks 92 Puana Çıktı; Ispanak ve Mısır Fırladı, Domates Geriledi",
+      "status": "published",
+      "published_at": "2026-06-23T06:51:32.480Z",
+      "meta_title": "Haziran 3. Hafta Hal Raporu: Endeks 92 Puana Çıktı (15-21 Haziran 2026)",
+      "meta_description": "HaldeFiyat Endeksi 92 puana çıktı (+%2,6) — üst üste 3. artış. Ispanak +%54, mısır ve maydanoz fırladı; domates türevleri ve fasulye geriledi. 15-21 Haziran 2026 hal raporu."
+    },
+    {
+      "id": 11,
+      "slug": "haziran-4-hafta-2026-hal-raporu",
+      "title": "Haziran 4. Hafta Hal Raporu: Endeks 89,7 Puana Geriledi",
+      "status": "published",
+      "published_at": "2026-06-30T08:48:27.182Z",
+      "meta_title": "Hal Raporu 22-28 Haziran: Endeks 89,7 Puana Geriledi",
+      "meta_description": "HaldeFiyat Endeksi 89,7 puana geriledi (−%0,8); üç haftalık yükseliş duraksadı. Biber ve turp fırladı, ıspanak −%33 ve kiraz −%31 çakıldı. 22-28 Haziran."
+    },
+    {
+      "id": 12,
+      "slug": "temmuz-1-hafta-2026-hal-raporu",
+      "title": "Temmuz 1. Hafta Hal Raporu: Endeks 86 Puana Geriledi; Domates Türevleri Toparlandı",
+      "status": "published",
+      "published_at": "2026-07-06T11:47:24.439Z",
+      "meta_title": "Temmuz 1. Hafta Hal Raporu: Endeks 86 Puana Geriledi",
+      "meta_description": "Temmuzun ilk haftasında HaldeFiyat Endeksi 86,4 puana geriledi (−%3,7). En çok tüketilen domates türevleri geçen haftaki gerilemeyi tersine çevirdi; biber, ıspanak ve brokoli yükseldi — ancak sepet genelindeki düşüş sürdü."
+    },
+    {
+      "id": 13,
+      "slug": "zeytinyagi-ihracati-coktu-ic-fiyat-yukseldi",
+      "title": "Zeytinyağı İhracatı %62 Çöktü, İç Fiyat %25 Yükseldi",
+      "status": "published",
+      "published_at": "2026-07-06T11:39:57.324Z",
+      "meta_title": "Zeytinyağı İhracatı %62 Çöktü, İç Fiyat %25 Yükseldi",
+      "meta_description": "Zeytinyağı ihracatı 2025/26 sezonunda %62 düştü. UZZK üretimi 475→310 bin tona geriledi; HalDeFiyat borsa kayıtları iç fiyatın %25 arttığını gösteriyor."
+    },
+    {
+      "id": 14,
+      "slug": "haziran-2026-aylik-hal-raporu",
+      "title": "Haziran 2026 Aylık Hal Raporu: Sebze Fırladı, Meyve Ucuzladı",
+      "status": "published",
+      "published_at": "2026-07-07T06:00:00.883Z",
+      "meta_title": "Haziran 2026 Aylık Hal Raporu: Sebze Fırladı, Meyve Ucuzladı",
+      "meta_description": "Haziran ayında HaldeFiyat Endeksi ortalama 88,9 puan oldu; mayıs ortalamasına göre −%6. Yaz sıcağıyla sebzeler (ıspanak, patlıcan, biber, kereviz) sert yükselirken; sezonu açılan yaz meyveleri (kiraz, karpuz, kavun) bollaşarak çakıldı."
+    },
+    {
+      "id": 16,
+      "slug": "temmuz-2-hafta-2026-hal-raporu",
+      "title": "Temmuz 2. Hafta Hal Raporu: Endeks 92,9'a Yükseldi; Biberde Topyekûn Ralli",
+      "status": "published",
+      "published_at": "2026-07-14T16:00:59.368Z",
+      "meta_title": "Hal Raporu 6-12 Tem: Endeks 92,9; Biberde Ralli",
+      "meta_description": "HaldeFiyat Endeksi Temmuz 2. haftasında 92,9 puana yükseldi (+%7,5). Biberin tüm çeşitleri topluca yükseldi; karnabahar, kiraz ve üzüm sezon geçişiyle ucuzladı."
+    },
+    {
+      "id": 17,
+      "slug": "temmuz-3-hafta-2026-hal-raporu",
+      "title": "Temmuz 3. Hafta Hal Raporu: Endeks 85,2'ye Geriledi; Biber Rallisi Durdu",
+      "status": "published",
+      "published_at": "2026-07-20T10:42:55.381Z",
+      "meta_title": "Hal Raporu 13-19 Tem: Endeks 85,2; Biber Rallisi Durdu",
+      "meta_description": "HaldeFiyat Endeksi Temmuz 3. haftasında 85,2 puana geriledi (−%8,3). Geçen haftanın biber rallisi durdu; portakal, kereviz ve kirazda sert düşüş."
+    },
+    {
+      "id": 18,
+      "slug": "kuru-sogan-fiyat-analizi-temmuz-2026",
+      "title": "Soğan Neden Pahalandı? Bolluk–Kıtlık Döngüsünün Toptan Hal Verisiyle Anatomisi",
+      "status": "published",
+      "published_at": "2026-07-26T22:39:32.059Z",
+      "meta_title": "Soğan Fiyat Analizi Temmuz 2026: Toptan Hal Verisi Ne Diyor?",
+      "meta_description": "Kuru soğan toptan hal fiyatı temmuzda 40,59 TL/kg. Şubatta %41,2 düşüş, haziranda %40 artış. Vergi indirimi sonrası ilk 10 günde fiyat %35,8 daha yükseldi. 15 halin verisiyle bolluk-kıtlık döngüsü analizi."
+    },
+    {
+      "id": 19,
+      "slug": "temmuz-4-hafta-2026-hal-raporu",
+      "title": "Temmuz 4. Hafta Hal Raporu: Endeks Seri Dibinde (82,3), Yaz Bolluğu Fiyatları Aşağı Çekti",
+      "status": "published",
+      "published_at": "2026-07-27T22:31:06.986Z",
+      "meta_title": "Temmuz 4. Hafta Hal Raporu: Endeks 82,3 ile Seri Dibinde",
+      "meta_description": "HaldeFiyat Endeksi 20–26 Temmuz'da %3,4 düşüşle 82,3 puana, serinin en düşük seviyesine indi. Kabak %52 çakıldı; domates, salatalık, karpuz ve kavun ucuzladı."
+    },
+    {
+      "id": 20,
+      "slug": "temmuz-2026-aylik-hal-raporu",
+      "title": "Temmuz 2026 Aylık Hal Raporu: Endeks Zirveden Seri Dibine, Soğan ve Çilek Fırladı",
+      "status": "published",
+      "published_at": "2026-08-03T20:32:35.634Z",
+      "meta_title": "Temmuz 2026 Aylık Hal Raporu: Endeks 82,3 ile Seri Dibinde",
+      "meta_description": "Temmuz 2026 hal fiyatları: endeks zirveden seri dibine (82,3). Kuru soğan +%47, çilek +%40 yükseldi; üzüm −%46, karpuz ve şeftali yaz bolluğuyla ucuzladı."
+    },
+    {
+      "id": 21,
+      "slug": "agustos-2-hafta-2026-hal-raporu",
+      "title": "Ağustos 2. Hafta Hal Raporu: Endeks 74,5 ile Yeni Dipte; Sivri Biber %26 Geriledi",
+      "status": "published",
+      "published_at": "2026-08-10T19:13:51.000Z",
+      "meta_title": "Ağustos 2. Hafta Hal Raporu: Endeks 74,5 ile Yeni Dipte",
+      "meta_description": "3–9 Ağustos 2026 hal raporu: Endeks 74,5 ile yeni dipte. Sivri biber %25,9 geriledi, semizotu %33,3 yükseldi. 10.854 kayıtla analiz."
+    },
+    {
+      "id": 22,
+      "slug": "limon-fiyatlari-2026-mersin-erdemli-piyasa-analizi",
+      "title": "Limon Fiyatları 2026: Mersin ve Erdemli Piyasasında Yaz Düşüşü Ne Anlatıyor?",
+      "status": "published",
+      "published_at": "2026-08-10T20:00:45.478Z",
+      "meta_title": "Limon Fiyatları 2026: Mersin ve Erdemli Piyasa Analizi",
+      "meta_description": "Limon fiyatları neden düştü? 2.465 hal kaydıyla Mersin ve Erdemli limon piyasası, Mayer ve yatak limon fiyatları ile Ağustos 2026 görünümü."
+    },
+    {
+      "id": 23,
+      "slug": "agustos-3-hafta-2026-hal-raporu",
+      "title": "Ağustos 3. Hafta Hal Raporu: Endeks 74,3 ile Yataylaştı; Fasulye %20 Geriledi",
+      "status": "published",
+      "published_at": "2026-08-18T08:36:45.180Z",
+      "meta_title": "Ağustos 3. Hafta Hal Raporu: Endeks 74,3'te Yataylaştı",
+      "meta_description": "10–16 Ağustos 2026 hal raporu: HaldeFiyat Endeksi 74,3 ile yataylaştı, fasulye %20 ucuzladı; nar, kivi ve erikte sezon geçişi yükselişi. 38 halden 8.982 gözlem."
+    },
+    {
+      "id": 24,
+      "slug": "agustos-4-hafta-2026-hal-raporu",
+      "title": "Ağustos 4. Hafta Hal Raporu: Endeks 70,7 ile Yeni Dipte; Salatalık %27,4 Yükseldi",
+      "status": "published",
+      "published_at": "2026-08-24T12:19:17.351Z",
+      "meta_title": "Ağustos 4. Hafta Hal Raporu: Endeks 70,7 ile Yeni Dipte",
+      "meta_description": "17 – 23 Ağustos 2026: HaldeFiyat Endeksi 70,68 ile serinin yeni dibinde. Salatalık %27,4 yükseldi, Biber (Çarliston) %23,0 geriledi. 36 hal ve borsa verisi."
+    },
+    {
+      "id": 25,
+      "slug": "nar-fiyatlari-2026-sezon-acilisi-analizi",
+      "title": "Nar Fiyatları 2026: Sezon Açılışında Piyasa Ne Söylüyor?",
+      "status": "published",
+      "published_at": "2026-08-20T05:00:01.084Z",
+      "meta_title": "Nar Fiyatları 2026 — Sezon Açılışı Piyasa Analizi",
+      "meta_description": "Nar sezonu açılışında hal fiyatları: erkenci nar hallerde, medyan 140 TL/kg bandında. 12 aylık seyir, şehir farkları ve eylül beklentileri — resmi kayıtlarla."
+    },
+    {
+      "id": 26,
+      "slug": "tursuluk-sezonu-2026-tursu-sepeti-hal-fiyatlari",
+      "title": "Turşuluk Sezonu 2026: Turşu Sepeti Hal Fiyatları ve Alım Planı",
+      "status": "published",
+      "published_at": "2026-08-21T05:00:00.873Z",
+      "meta_title": "Turşuluk Sezonu 2026 — Turşu Sepeti Hal Fiyatları",
+      "meta_description": "Kornişon, acur, sivri biber ve yeşil domatesin güncel hal fiyatları; kayıtlardan çıkan alım takvimi ve bugünkü medyanlarla örnek turşu sepeti maliyeti."
+    },
+    {
+      "id": 27,
+      "slug": "agustos-5-hafta-2026-hal-raporu",
+      "title": "Ağustos 5. Hafta Hal Raporu: Endeks 67,3 ile Yeni Dipte",
+      "status": "published",
+      "published_at": "2026-08-31T22:29:49.160Z",
+      "meta_title": "Ağustos 5. Hafta Hal Raporu: Endeks 67,3 ile Yeni Dipte",
+      "meta_description": "24 – 30 Ağustos 2026 haftasında İncir Siyah 6 halde %39,5 geriledi; Kırmızı Lahana %35,2 yükseldi."
+    },
+    {
+      "id": 28,
+      "slug": "agustos-2026-aylik-hal-degerlendirmesi",
+      "title": "Ağustos 2026 Hal Fiyatları: Endeks %12,2 geriledi",
+      "status": "draft",
+      "published_at": null,
+      "meta_title": "Ağustos 2026 Hal Fiyatları: Endeks %12,2 geriledi",
+      "meta_description": "Ağustos 2026 ayında İncir %54,8 geriledi; Kivi %28,6 yükseldi. HaldeFiyat Endeksi ay boyunca −%12,2 değişti. Ölçüt karşılayan 81 üründe medyan değişim −%10"
+    },
+    {
+      "id": 29,
+      "slug": "31-agustos-6-eylul-2026-haftalik-hal-raporu",
+      "title": "31 Ağustos–6 Eylül Hal Raporu: Endeks %5,4 Yükseldi",
+      "status": "published",
+      "published_at": "2026-09-07T20:22:41.386Z",
+      "meta_title": "31 Ağustos–6 Eylül 2026 Hal Raporu | Endeks %5,4 Arttı",
+      "meta_description": "31 Ağustos–6 Eylül 2026 hal analizi: endeks 70,96 puan. Salkım domateste %45,5 artış, beyaz incirde %36,1 düşüş; 34 kaynaktan 8.762 gözlem."
+    },
+    {
+      "id": 30,
+      "slug": "pamuk-sezonu-2026-acilis-fiyati-2025-karsilastirmasi",
+      "title": "Pamuk Sezonu 2026: Resmî Borsa Fiyatları ve Geçen Yıl Karşılaştırması",
+      "status": "published",
+      "published_at": "2026-09-07T20:22:41.394Z",
+      "meta_title": "Pamuk Sezonu 2026 | Borsa Fiyatları ve Yıllık Karşılaştırma",
+      "meta_description": "Resmî borsa verileriyle 2026 pamuk analizi: Ağustos preseli pamuk ortalaması 80,22 TL/kg. Kütlü fiyat kayıtları, yıllık karşılaştırma ve kaynaklı seri."
+    },
+    {
+      "id": 31,
+      "slug": "pamuk-fiyatlari-gecmisi-2013-2026-borsa-serisi",
+      "title": "Pamuk Fiyatları 2013–2026: Resmî Borsa Verileriyle Aylık Seri",
+      "status": "published",
+      "published_at": "2026-09-07T21:27:01.466Z",
+      "meta_title": "Pamuk Fiyatları 2013–2026 | Resmî Aylık Borsa Serisi",
+      "meta_description": "2013–2026 pamuk fiyat geçmişi: Şanlıurfa ve İzmir resmî borsa kayıtları, kalite ve ödeme türüne göre aylık seriler. Kaynaklı Excel ve CSV indir."
+    }
+  ],
+  "redirects": [],
+  "settings": [
+    {
+      "key": "ga4_measurement_id",
+      "value": "\"G-YHLL9WK7ML\""
+    },
+    {
+      "key": "ga4_property_id",
+      "value": "\"538279658\""
+    },
+    {
+      "key": "gsc_site_url",
+      "value": "\"sc-domain:haldefiyat.com\""
+    }
+  ],
+  "etlColumns": [
+    {
+      "Field": "id",
+      "Type": "int unsigned",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": null,
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "source_api",
+      "Type": "varchar(64)",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "run_date",
+      "Type": "date",
+      "Null": "NO",
+      "Key": "",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "rows_fetched",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "rows_inserted",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "rows_skipped",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "duration_ms",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "status",
+      "Type": "enum('ok','partial','error')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "ok",
+      "Extra": ""
+    },
+    {
+      "Field": "error_msg",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "created_at",
+      "Type": "datetime(3)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP(3)",
+      "Extra": "DEFAULT_GENERATED"
+    }
+  ],
+  "etlSummary": [
+    {
+      "period": "Aug07-18",
+      "source_api": "izmir_sebzemeyve",
+      "status": "ok",
+      "runs": 10,
+      "fetched": "972",
+      "inserted": "970",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "izmir_balik",
+      "status": "ok",
+      "runs": 5,
+      "fetched": "294",
+      "inserted": "294",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "antalya_merkez_antkomder",
+      "status": "ok",
+      "runs": 24,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-18 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "antalya_serik_antkomder",
+      "status": "ok",
+      "runs": 24,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-18 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "antalya_kumluca_antkomder",
+      "status": "ok",
+      "runs": 24,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-18 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "ankara_resmi",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "1196",
+      "inserted": "1196",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "konya_resmi",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "1334",
+      "inserted": "1330",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "kayseri_resmi",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "813",
+      "inserted": "813",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "eskisehir_resmi",
+      "status": "ok",
+      "runs": 8,
+      "fetched": "554",
+      "inserted": "554",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "denizli_resmi",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "987",
+      "inserted": "983",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "bursa_resmi",
+      "status": "partial",
+      "runs": 8,
+      "fetched": "1256",
+      "inserted": "1234",
+      "sample_error": "Rozmerin: sıhhat reddi (absürd fiyat > 1500 TL)"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "gaziantep_resmi",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "152",
+      "inserted": "152",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "balikesir_resmi",
+      "status": "partial",
+      "runs": 5,
+      "fetched": "491",
+      "inserted": "484",
+      "sample_error": "Mersin (Yaban Mersini): sıhhat reddi (avg (975) > max (900))"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "hal_gov_tr_ulusal",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "1912",
+      "inserted": "1912",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "istanbul_ibb",
+      "status": "partial",
+      "runs": 9,
+      "fetched": "877",
+      "inserted": "862",
+      "sample_error": "Kuşkonmaz: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "corum_resmi",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "356",
+      "inserted": "356",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 468, 2026-08-18 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "kutahya_resmi",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "539",
+      "inserted": "539",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "manisa_resmi",
+      "status": "ok",
+      "runs": 10,
+      "fetched": "872",
+      "inserted": "872",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-18 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "kahramanmaras_resmi",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "341",
+      "inserted": "341",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "yalova_resmi",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "472",
+      "inserted": "472",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "trabzon_resmi",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "456",
+      "inserted": "456",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "serik_batiakdeniz",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "110",
+      "inserted": "110",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "kumluca_batiakdeniz",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "198",
+      "inserted": "198",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "gazipasa_batiakdeniz",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "176",
+      "inserted": "176",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "alanya_batiakdeniz",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "55",
+      "inserted": "55",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "demre_batiakdeniz",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "147",
+      "inserted": "147",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "finike_batiakdeniz",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "198",
+      "inserted": "198",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "bolu_resmi",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "460",
+      "inserted": "457",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tokat_resmi",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "331",
+      "inserted": "331",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tekirdag_resmi",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "329",
+      "inserted": "329",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tmo_alim_resmi",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "22",
+      "inserted": "22",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "polatli_borsa",
+      "status": "ok",
+      "runs": 9,
+      "fetched": "13",
+      "inserted": "13",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-16 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_edirne",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "130",
+      "inserted": "130",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_ankara",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "99",
+      "inserted": "99",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_uzunkopru",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "44",
+      "inserted": "44",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_gaziantep",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "77",
+      "inserted": "77",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_corum",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "88",
+      "inserted": "88",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_alaca",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "88",
+      "inserted": "88",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_konya",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "66",
+      "inserted": "66",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_aksehir",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "48",
+      "inserted": "48",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "izmir_borsa_pamuk",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-18 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_edremit",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "44",
+      "inserted": "44",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_eskisehir",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "91",
+      "inserted": "91",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-18 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_bandirma",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "105",
+      "inserted": "105",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_sungurlu",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "62",
+      "inserted": "62",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_ilgin",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "56",
+      "inserted": "56",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_nazilli",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "33",
+      "inserted": "33",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_aydin",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "33",
+      "inserted": "33",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_karapinar",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "33",
+      "inserted": "33",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_biga",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "55",
+      "inserted": "55",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_eregli",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "11",
+      "inserted": "11",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_nevsehir",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "1",
+      "inserted": "1",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-18 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_adana",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-18 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_ordu",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-18 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_yozgat",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-18 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_sanliurfa",
+      "status": "ok",
+      "runs": 10,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-18 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "eskisehir_resmi",
+      "status": "error",
+      "runs": 1,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "The operation timed out."
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "polatli_borsa",
+      "status": "error",
+      "runs": 2,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "HTTP 500 @ https://bulten.polatliborsa.org.tr/BultenGunluk.ashx"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "bursa_resmi",
+      "status": "ok",
+      "runs": 4,
+      "fetched": "628",
+      "inserted": "628",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "izmir_sebzemeyve",
+      "status": "error",
+      "runs": 3,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "HTTP 500 @ https://openapi.izmir.bel.tr/api/ibb/halfiyatlari/sebzemeyve/2026-08-15"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "izmir_balik",
+      "status": "error",
+      "runs": 4,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "HTTP 500 @ https://openapi.izmir.bel.tr/api/ibb/halfiyatlari/balik/2026-08-15"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "balikesir_resmi",
+      "status": "ok",
+      "runs": 4,
+      "fetched": "255",
+      "inserted": "255",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "balikesir_resmi",
+      "status": "error",
+      "runs": 2,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "The socket connection was closed unexpectedly. For more information, pass `verbose: true` in the second argument to fetch()"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "istanbul_ibb",
+      "status": "ok",
+      "runs": 2,
+      "fetched": "190",
+      "inserted": "190",
+      "sample_error": null
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "kayseri_resmi",
+      "status": "partial",
+      "runs": 4,
+      "fetched": "464",
+      "inserted": "456",
+      "sample_error": "Domates Kasa Salkım: PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH; Muz İthal (18kg): PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "hal_gov_tr_ulusal",
+      "status": "partial",
+      "runs": 4,
+      "fetched": "1097",
+      "inserted": "1040",
+      "sample_error": "BİBER SİVRİ MEKSİKA: PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP; BİBERİYE ROZMARİN: PRICE_QUARANTINED:PEER_MEDIAN_DEVIATION; DEREOTU (YAŞ-TAZE): PRICE_QUARANTINED:PEER_MEDIAN_DEVIATION; KEKİK (YAŞ-TAZE): PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; KESTANE: PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "kutahya_resmi",
+      "status": "partial",
+      "runs": 4,
+      "fetched": "308",
+      "inserted": "304",
+      "sample_error": "KESTANE: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "yalova_resmi",
+      "status": "error",
+      "runs": 1,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "HTTP 503 @ https://ebelediye.yalova.bel.tr/BilgiEdinme/FiyatListesi/"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "trabzon_resmi",
+      "status": "partial",
+      "runs": 4,
+      "fetched": "284",
+      "inserted": "276",
+      "sample_error": "Çilek: PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP; Muz İthal (Koli): PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "demre_batiakdeniz",
+      "status": "partial",
+      "runs": 4,
+      "fetched": "84",
+      "inserted": "64",
+      "sample_error": "ÇARLİ BİBER: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; SİVRİ BİBER: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; SALKIM DOMATES: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tekirdag_resmi",
+      "status": "partial",
+      "runs": 4,
+      "fetched": "188",
+      "inserted": "180",
+      "sample_error": "FASULYE TAZE (DİĞER): PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; KEKİK (YAŞ-TAZE): PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "tobb_borsa_ilgin",
+      "status": "partial",
+      "runs": 4,
+      "fetched": "32",
+      "inserted": "28",
+      "sample_error": "İnek (Canlı): PRICE_QUARANTINED:PEER_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "izmir_balik",
+      "status": "partial",
+      "runs": 3,
+      "fetched": "165",
+      "inserted": "160",
+      "sample_error": "KIRLANGIÇ (DENİZ): PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "yalova_resmi",
+      "status": "partial",
+      "runs": 3,
+      "fetched": "205",
+      "inserted": "202",
+      "sample_error": "MUZ (İTHAL): PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "eskisehir_resmi",
+      "status": "partial",
+      "runs": 2,
+      "fetched": "171",
+      "inserted": "169",
+      "sample_error": "KARALAHANA: PRICE_QUARANTINED:PEER_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug07-18",
+      "source_api": "manisa_resmi",
+      "status": "partial",
+      "runs": 1,
+      "fetched": "127",
+      "inserted": "126",
+      "sample_error": "MUZ İTHAL KOLİ: PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "izmir_sebzemeyve",
+      "status": "ok",
+      "runs": 10,
+      "fetched": "999",
+      "inserted": "997",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "izmir_balik",
+      "status": "partial",
+      "runs": 12,
+      "fetched": "735",
+      "inserted": "713",
+      "sample_error": "KIRLANGIÇ (DENİZ): PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP; PİSİ ( DENİZ ): PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "antalya_merkez_antkomder",
+      "status": "ok",
+      "runs": 24,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-30 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "antalya_serik_antkomder",
+      "status": "ok",
+      "runs": 24,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-30 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "antalya_kumluca_antkomder",
+      "status": "ok",
+      "runs": 24,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-30 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "ankara_resmi",
+      "status": "ok",
+      "runs": 8,
+      "fetched": "802",
+      "inserted": "802",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "konya_resmi",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "1464",
+      "inserted": "1463",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "kayseri_resmi",
+      "status": "partial",
+      "runs": 13,
+      "fetched": "1529",
+      "inserted": "1485",
+      "sample_error": "Domates Kasa Salkım: PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH; Muz İthal (18kg): PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH; Nar: PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "eskisehir_resmi",
+      "status": "partial",
+      "runs": 11,
+      "fetched": "653",
+      "inserted": "637",
+      "sample_error": "MANTAR: PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP; ÜZÜM ÇEKİRDEKSİZ: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "denizli_resmi",
+      "status": "partial",
+      "runs": 6,
+      "fetched": "528",
+      "inserted": "516",
+      "sample_error": "DOMATES II: sıhhat reddi (avg (20) < min (30))"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "bursa_resmi",
+      "status": "partial",
+      "runs": 12,
+      "fetched": "1884",
+      "inserted": "1822",
+      "sample_error": "Kızılcık: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; Limon (Sandık): PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP; Bezelye: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; Soğan (Arpacık): PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "gaziantep_resmi",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "201",
+      "inserted": "201",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "balikesir_resmi",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "51",
+      "inserted": "51",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-30 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "hal_gov_tr_ulusal",
+      "status": "partial",
+      "runs": 12,
+      "fetched": "3347",
+      "inserted": "3139",
+      "sample_error": "BİBER SİVRİ CİN: PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP; BİBERİYE ROZMARİN: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; ELMA FUJİ: PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP; FASULYE TAZE DİĞER: PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP; GRANADİLLA: PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "istanbul_ibb",
+      "status": "partial",
+      "runs": 12,
+      "fetched": "1146",
+      "inserted": "1101",
+      "sample_error": "Enginar: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; Ahududu: sıhhat reddi (avg (913) > max (765)); Kuşkonmaz: PRICE_QUARANTINED:PEER_MEDIAN_DEVIATION; Yaban Mersini: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "corum_resmi",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 468, 2026-08-30 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "kutahya_resmi",
+      "status": "partial",
+      "runs": 12,
+      "fetched": "924",
+      "inserted": "912",
+      "sample_error": "KESTANE: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "manisa_resmi",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-23 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "kahramanmaras_resmi",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "319",
+      "inserted": "319",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-24 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "yalova_resmi",
+      "status": "partial",
+      "runs": 6,
+      "fetched": "410",
+      "inserted": "404",
+      "sample_error": "MUZ (İTHAL): PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "trabzon_resmi",
+      "status": "partial",
+      "runs": 12,
+      "fetched": "823",
+      "inserted": "811",
+      "sample_error": "Muz İthal (Koli): PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "serik_batiakdeniz",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "120",
+      "inserted": "120",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "kumluca_batiakdeniz",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "216",
+      "inserted": "216",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "gazipasa_batiakdeniz",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "192",
+      "inserted": "192",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "alanya_batiakdeniz",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "60",
+      "inserted": "60",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "demre_batiakdeniz",
+      "status": "partial",
+      "runs": 12,
+      "fetched": "252",
+      "inserted": "215",
+      "sample_error": "SİVRİ BİBER: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; YEŞİL DOLMA B.: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; SALKIM DOMATES: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "finike_batiakdeniz",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "216",
+      "inserted": "216",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "bolu_resmi",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "504",
+      "inserted": "503",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tokat_resmi",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "320",
+      "inserted": "320",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tekirdag_resmi",
+      "status": "partial",
+      "runs": 12,
+      "fetched": "564",
+      "inserted": "540",
+      "sample_error": "FASULYE TAZE (DİĞER): PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; KEKİK (YAŞ-TAZE): PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tmo_alim_resmi",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "24",
+      "inserted": "24",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "polatli_borsa",
+      "status": "ok",
+      "runs": 9,
+      "fetched": "14",
+      "inserted": "14",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-30 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_edirne",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "129",
+      "inserted": "129",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_ankara",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "108",
+      "inserted": "108",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_uzunkopru",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "48",
+      "inserted": "48",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_gaziantep",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "84",
+      "inserted": "84",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_sanliurfa",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-30 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_corum",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "101",
+      "inserted": "101",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_yozgat",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-30 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_alaca",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "96",
+      "inserted": "96",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_konya",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "72",
+      "inserted": "72",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_aksehir",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "80",
+      "inserted": "80",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "izmir_borsa_pamuk",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "5",
+      "inserted": "5",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-25 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_edremit",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "48",
+      "inserted": "48",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_eskisehir",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-30 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_bandirma",
+      "status": "ok",
+      "runs": 11,
+      "fetched": "122",
+      "inserted": "122",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_sungurlu",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "62",
+      "inserted": "62",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_ilgin",
+      "status": "partial",
+      "runs": 12,
+      "fetched": "97",
+      "inserted": "84",
+      "sample_error": "İnek (Canlı): PRICE_QUARANTINED:PEER_MEDIAN_DEVIATION; Yulaf: sıhhat reddi (avg (16.857) < min (16.905))"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_nazilli",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "36",
+      "inserted": "36",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_aydin",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "36",
+      "inserted": "36",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_karapinar",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "36",
+      "inserted": "36",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_biga",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "60",
+      "inserted": "60",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_eregli",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "12",
+      "inserted": "12",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_nevsehir",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-30 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_adana",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-30 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_ordu",
+      "status": "ok",
+      "runs": 12,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-08-30 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "balikesir_resmi",
+      "status": "partial",
+      "runs": 8,
+      "fetched": "800",
+      "inserted": "790",
+      "sample_error": "Muz, Diğer: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "manisa_resmi",
+      "status": "partial",
+      "runs": 9,
+      "fetched": "1152",
+      "inserted": "1143",
+      "sample_error": "MUZ İTHAL KOLİ: PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "polatli_borsa",
+      "status": "error",
+      "runs": 3,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "HTTP 500 @ https://bulten.polatliborsa.org.tr/BultenGunluk.ashx"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "balikesir_resmi",
+      "status": "error",
+      "runs": 1,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "The socket connection was closed unexpectedly. For more information, pass `verbose: true` in the second argument to fetch()"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "izmir_sebzemeyve",
+      "status": "partial",
+      "runs": 2,
+      "fetched": "200",
+      "inserted": "198",
+      "sample_error": "SOĞAN   TAZE: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "eskisehir_resmi",
+      "status": "ok",
+      "runs": 1,
+      "fetched": "81",
+      "inserted": "81",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "denizli_resmi",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "637",
+      "inserted": "631",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "yalova_resmi",
+      "status": "ok",
+      "runs": 6,
+      "fetched": "405",
+      "inserted": "405",
+      "sample_error": null
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tokat_resmi",
+      "status": "error",
+      "runs": 1,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "The operation timed out."
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "ankara_resmi",
+      "status": "partial",
+      "runs": 4,
+      "fetched": "396",
+      "inserted": "392",
+      "sample_error": "Domates (Ayaş): PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "gaziantep_resmi",
+      "status": "partial",
+      "runs": 1,
+      "fetched": "20",
+      "inserted": "19",
+      "sample_error": "BİBER SALÇALIK: PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP"
+    },
+    {
+      "period": "Aug19-30",
+      "source_api": "tobb_borsa_bandirma",
+      "status": "partial",
+      "runs": 1,
+      "fetched": "11",
+      "inserted": "10",
+      "sample_error": "Ayçiçeği: sıhhat reddi (absürd fiyat > 1500 TL)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "izmir_sebzemeyve",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "686",
+      "inserted": "686",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "izmir_balik",
+      "status": "partial",
+      "runs": 9,
+      "fetched": "589",
+      "inserted": "575",
+      "sample_error": "KIRLANGIÇ (DENİZ): PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP; SARDALYA (DENİZ): PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "antalya_merkez_antkomder",
+      "status": "ok",
+      "runs": 16,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-09-07 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "antalya_serik_antkomder",
+      "status": "ok",
+      "runs": 16,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-09-07 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "antalya_kumluca_antkomder",
+      "status": "ok",
+      "runs": 16,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-09-07 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "ankara_resmi",
+      "status": "partial",
+      "runs": 8,
+      "fetched": "1043",
+      "inserted": "1024",
+      "sample_error": "PALAMUT: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "konya_resmi",
+      "status": "ok",
+      "runs": 6,
+      "fetched": "722",
+      "inserted": "722",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "kayseri_resmi",
+      "status": "partial",
+      "runs": 12,
+      "fetched": "1395",
+      "inserted": "1377",
+      "sample_error": "Muz İthal (18kg): PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH; Avakado: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "eskisehir_resmi",
+      "status": "partial",
+      "runs": 8,
+      "fetched": "501",
+      "inserted": "478",
+      "sample_error": "PATLICAN (DİĞER): PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "denizli_resmi",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "637",
+      "inserted": "637",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "bursa_resmi",
+      "status": "partial",
+      "runs": 8,
+      "fetched": "1256",
+      "inserted": "1208",
+      "sample_error": "Erik Papaz: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; Kızılcık: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; Limon (Sandık): PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP; Bezelye: PRICE_QUARANTINED:PEER_MEDIAN_DEVIATION; Karnıbahar: PRICE_QUARANTINED:PEER_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "gaziantep_resmi",
+      "status": "ok",
+      "runs": 6,
+      "fetched": "120",
+      "inserted": "120",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "balikesir_resmi",
+      "status": "partial",
+      "runs": 5,
+      "fetched": "508",
+      "inserted": "494",
+      "sample_error": "Enginar: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; Muz, Diğer: sıhhat reddi (avg (13.64) < min (26.6))"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "hal_gov_tr_ulusal",
+      "status": "partial",
+      "runs": 9,
+      "fetched": "2235",
+      "inserted": "2129",
+      "sample_error": "DOMATES AYAŞ: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; KAYISI MUT: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; KAYISI TOKALI: PRICE_QUARANTINED:PEER_MEDIAN_DEVIATION; KUŞKONMAZ: PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP; MANDALİNA İZMİR: PRICE_QUARANTINED:PEER_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "istanbul_ibb",
+      "status": "partial",
+      "runs": 14,
+      "fetched": "1371",
+      "inserted": "1331",
+      "sample_error": "Enginar: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; Ahududu: sıhhat reddi (avg (992) > max (847)); Kuşkonmaz: PRICE_QUARANTINED:PEER_MEDIAN_DEVIATION; Yaban Mersini: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "corum_resmi",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 468, 2026-09-02 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "kutahya_resmi",
+      "status": "partial",
+      "runs": 8,
+      "fetched": "616",
+      "inserted": "608",
+      "sample_error": "SEMİZ OTU (Kg.): PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "manisa_resmi",
+      "status": "partial",
+      "runs": 3,
+      "fetched": "384",
+      "inserted": "381",
+      "sample_error": "MUZ İTHAL KOLİ: PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "kahramanmaras_resmi",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-09-07 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "yalova_resmi",
+      "status": "ok",
+      "runs": 6,
+      "fetched": "414",
+      "inserted": "414",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "trabzon_resmi",
+      "status": "partial",
+      "runs": 8,
+      "fetched": "536",
+      "inserted": "521",
+      "sample_error": "Muz İthal (Koli): PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "serik_batiakdeniz",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "30",
+      "inserted": "30",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "kumluca_batiakdeniz",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "54",
+      "inserted": "54",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "gazipasa_batiakdeniz",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "48",
+      "inserted": "48",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "alanya_batiakdeniz",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "15",
+      "inserted": "15",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "demre_batiakdeniz",
+      "status": "partial",
+      "runs": 6,
+      "fetched": "126",
+      "inserted": "107",
+      "sample_error": "SİVRİ BİBER: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; YEŞİL DOLMA B.: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION; SALKIM DOMATES: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "finike_batiakdeniz",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "54",
+      "inserted": "54",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "bolu_resmi",
+      "status": "ok",
+      "runs": 8,
+      "fetched": "304",
+      "inserted": "304",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tokat_resmi",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "234",
+      "inserted": "234",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tmo_alim_resmi",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "14",
+      "inserted": "14",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "polatli_borsa",
+      "status": "error",
+      "runs": 3,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "HTTP 500 @ https://bulten.polatliborsa.org.tr/BultenGunluk.ashx"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_edirne",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "83",
+      "inserted": "83",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_ankara",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "63",
+      "inserted": "63",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_uzunkopru",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "28",
+      "inserted": "28",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_gaziantep",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "56",
+      "inserted": "50",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_sanliurfa",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-09-02 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_corum",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "63",
+      "inserted": "63",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_yozgat",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-09-02 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_alaca",
+      "status": "ok",
+      "runs": 6,
+      "fetched": "48",
+      "inserted": "48",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_konya",
+      "status": "ok",
+      "runs": 8,
+      "fetched": "48",
+      "inserted": "36",
+      "sample_error": "Kaynak yeni bulten yayinlamadi (son: 2026-05-14, 116 gun once)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_aksehir",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "77",
+      "inserted": "77",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "izmir_borsa_pamuk",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "7",
+      "inserted": "7",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_edremit",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "25",
+      "inserted": "25",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_eskisehir",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-09-07 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_bandirma",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "81",
+      "inserted": "81",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_sungurlu",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "43",
+      "inserted": "43",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_ilgin",
+      "status": "partial",
+      "runs": 6,
+      "fetched": "49",
+      "inserted": "43",
+      "sample_error": "İnek (Canlı): PRICE_QUARANTINED:PEER_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_nazilli",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "23",
+      "inserted": "21",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_aydin",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "22",
+      "inserted": "21",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_karapinar",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "21",
+      "inserted": "18",
+      "sample_error": "Kaynak yeni bulten yayinlamadi (son: 2026-07-27, 42 gun once)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_biga",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "35",
+      "inserted": "30",
+      "sample_error": "Kaynak yeni bulten yayinlamadi (son: 2026-08-04, 34 gun once)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_eregli",
+      "status": "ok",
+      "runs": 7,
+      "fetched": "7",
+      "inserted": "6",
+      "sample_error": "Kaynak yeni bulten yayinlamadi (son: 2026-01-06, 244 gun once)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_nevsehir",
+      "status": "ok",
+      "runs": 6,
+      "fetched": "6",
+      "inserted": "4",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-09-06 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_adana",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-09-02 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_ordu",
+      "status": "ok",
+      "runs": 6,
+      "fetched": "2",
+      "inserted": "0",
+      "sample_error": "Kaynak yeni bulten yayinlamadi (son: 2026-07-09, 60 gun once)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "polatli_borsa",
+      "status": "ok",
+      "runs": 5,
+      "fetched": "11",
+      "inserted": "11",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-09-05 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "ankara_resmi",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "380",
+      "inserted": "377",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "balikesir_resmi",
+      "status": "ok",
+      "runs": 2,
+      "fetched": "101",
+      "inserted": "101",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "kahramanmaras_resmi",
+      "status": "partial",
+      "runs": 4,
+      "fetched": "112",
+      "inserted": "108",
+      "sample_error": "AVAKADO: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "manisa_resmi",
+      "status": "ok",
+      "runs": 4,
+      "fetched": "256",
+      "inserted": "256",
+      "sample_error": "Kaynak veri yayinlamadi (HTTP 200, 2026-09-05 ve 7 gun geriye kadar)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "kayseri_resmi",
+      "status": "ok",
+      "runs": 1,
+      "fetched": "116",
+      "inserted": "116",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "gaziantep_resmi",
+      "status": "partial",
+      "runs": 1,
+      "fetched": "20",
+      "inserted": "19",
+      "sample_error": "BİBER KAPYA: PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "konya_resmi",
+      "status": "partial",
+      "runs": 4,
+      "fetched": "468",
+      "inserted": "464",
+      "sample_error": "NAR (MUHTELİF): PRICE_QUARANTINED:PEER_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "manisa_resmi",
+      "status": "error",
+      "runs": 1,
+      "fetched": "0",
+      "inserted": "0",
+      "sample_error": "The socket connection was closed unexpectedly. For more information, pass `verbose: true` in the second argument to fetch()"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "yalova_resmi",
+      "status": "partial",
+      "runs": 1,
+      "fetched": "69",
+      "inserted": "68",
+      "sample_error": "BİBERİYE (ROZMARİN): PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_alaca",
+      "status": "partial",
+      "runs": 1,
+      "fetched": "8",
+      "inserted": "7",
+      "sample_error": "Buğday: sıhhat reddi (avg (16.33) > max (13.95))"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "kocaeli_merkez",
+      "status": "partial",
+      "runs": 118,
+      "fetched": "7576",
+      "inserted": "7250",
+      "sample_error": "Enginar: PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP; Frenk Üzümü: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "canakkale_resmi",
+      "status": "partial",
+      "runs": 2,
+      "fetched": "172",
+      "inserted": "154",
+      "sample_error": "MANTAR: PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH; MARUL ( KAŞIK ): PRICE_QUARANTINED:PRODUCT_UNIT_MISMATCH; ZENCEFİL: sıhhat reddi (absürd fiyat > 1500 TL); ÜZÜM ( ÇEKİRDEKSİZ ): PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP; ÜZÜM ( SİYAH ): PRICE_QUARANTINED:PREVIOUS_PRICE_JUMP"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "kocaeli_merkez",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "183",
+      "inserted": "177",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tekirdag_resmi",
+      "status": "ok",
+      "runs": 3,
+      "fetched": "108",
+      "inserted": "0",
+      "sample_error": "Kaynak yeni bulten yayinlamadi (son: 2026-08-01, 37 gun once)"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "izmir_sebzemeyve",
+      "status": "partial",
+      "runs": 1,
+      "fetched": "98",
+      "inserted": "97",
+      "sample_error": "SOĞAN   TAZE: PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "eskisehir_resmi",
+      "status": "ok",
+      "runs": 1,
+      "fetched": "57",
+      "inserted": "56",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "tobb_borsa_ilgin",
+      "status": "ok",
+      "runs": 1,
+      "fetched": "9",
+      "inserted": "9",
+      "sample_error": null
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "adana_resmi",
+      "status": "partial",
+      "runs": 24,
+      "fetched": "1678",
+      "inserted": "1362",
+      "sample_error": "PORTAKAL(SIKMALIK): PRICE_QUARANTINED:SOURCE_MEDIAN_DEVIATION"
+    },
+    {
+      "period": "Aug31-Sep08",
+      "source_api": "adana_resmi",
+      "status": "ok",
+      "runs": 67,
+      "fetched": "4464",
+      "inserted": "3740",
+      "sample_error": null
+    }
+  ],
+  "markets": [
+    {
+      "slug": "adana-hal",
+      "latest": "2026-09-07T00:00:00.000Z",
+      "days": 90,
+      "rows_n": 5044
+    },
+    {
+      "slug": "kayseri-hal",
+      "latest": "2026-09-07T00:00:00.000Z",
+      "days": 97,
+      "rows_n": 11367
+    },
+    {
+      "slug": "mersin-hal",
+      "latest": "2026-06-22T00:00:00.000Z",
+      "days": 1,
+      "rows_n": 123
+    }
+  ]
+}

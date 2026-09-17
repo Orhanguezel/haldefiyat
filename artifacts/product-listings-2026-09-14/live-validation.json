@@ -1,0 +1,53 @@
+{
+  "/urun/domates": {
+    "status": 200,
+    "sections": [
+      {
+        "label": "Domates ilanları",
+        "cards": 1,
+        "links": [
+          "/ilanlar?product=domates",
+          "/ilan/domates-bilecik-49"
+        ]
+      }
+    ]
+  },
+  "/fiyat/istanbul/domates": {
+    "status": 200,
+    "sections": [
+      {
+        "label": "Domates ilanları",
+        "cards": 1,
+        "links": [
+          "/ilanlar?product=domates",
+          "/ilan/domates-bilecik-49"
+        ]
+      }
+    ]
+  },
+  "/urun/ayva": {
+    "status": 200,
+    "sections": [
+      {
+        "label": "Ayva ilanları",
+        "cards": 1,
+        "links": [
+          "/ilanlar?product=ayva",
+          "/ilan/ayva-aydin-51"
+        ]
+      }
+    ]
+  },
+  "/urun/domates-salcalik": {
+    "status": 200,
+    "sections": [
+      {
+        "label": "Salçalık Domates ilanları",
+        "cards": 0,
+        "links": [
+          "/ilan-ver?product=domates-salcalik"
+        ]
+      }
+    ]
+  }
+}

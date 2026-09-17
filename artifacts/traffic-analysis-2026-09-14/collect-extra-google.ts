@@ -1,0 +1,8 @@
+import {google} from 'googleapis';
+import {createMarketingJwt,buildMarketingOAuthClient}from '/var/www/ekosistem-sosyal-medya/backend/src/modules/marketing/google-sa';
+const out:any={checkedAt:new Date().toISOString()};
+try{const auth=await createMarketingJwt('haldefiyat','gsc')??await buildMarketingOAuthClient('haldefiyat','gsc');const api=google.searchconsole({version:'v1',auth});out.inspections=[];
+for(const path of ['/hal/istanbul-hal-ibb','/hal/kahramanmaras-hal','/urun/sogan-kuru','/urun/domates-salcalik','/urun/patates']){try{const r=await api.urlInspection.index.inspect({requestBody:{siteUrl:'sc-domain:haldefiyat.com',inspectionUrl:'https://haldefiyat.com'+path,languageCode:'tr-TR'}});out.inspections.push({path,data:r.data});}catch(e:any){out.inspections.push({path,error:e.message});}}}catch(e:any){out.gscError=e.message;}
+try{const auth=await createMarketingJwt('haldefiyat','gtm')??await buildMarketingOAuthClient('haldefiyat','gtm');const api=google.tagmanager({version:'v2',auth});const accounts=(await api.accounts.list()).data.account??[];
+ for(const a of accounts){const cs=(await api.accounts.containers.list({parent:a.path})).data.container??[];const c=cs.find(x=>x.publicId==='GTM-K3WDGHX5');if(c){const live=(await api.accounts.containers.versions.live({parent:c.path})).data;out.gtm={publicId:c.publicId,version:live.containerVersionId,tags:live.tag?.map(t=>({name:t.name,type:t.type,paused:t.paused})),triggers:live.trigger?.length??0};break;}}}catch(e:any){out.gtmError=e.message;}
+await Bun.write('/tmp/hf-google-extra-20260914.json',JSON.stringify(out,null,2));process.exit(0);

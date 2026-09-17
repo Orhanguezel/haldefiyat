@@ -72,3 +72,44 @@ describe("describeWeeklyMovement", () => {
     expect(s).toContain("Konya");
   });
 });
+
+describe("kararsiz seri suzgeci", () => {
+  // Eskisehir patates, 17 Eyl 2026 canli verisi. Ayni hal ayni urun icin bir
+  // hafta icinde 7,00 / 29,50 / 11,26 / 36,00 TL/kg yaziyordu. Ortalamada 18
+  // halin arasinda eriyordu ama "en cok artan sehir" en UC hali sectigi icin
+  // tam da bu bozuk kaynagi %41,2 ile one cikariyordu.
+  const eskisehirGercek: MovementRow[] = [
+    ...[7.0, 29.5, 11.26, 36.0, 12.24, 28.51].map((p, i) => row("eskisehir-hal", "Eskişehir", i + 1, p)),
+    ...[29.0, 21.06, 15.47, 15.47].map((p, i) => row("eskisehir-hal", "Eskişehir", i + 9, p)),
+  ];
+  const tokatGercek: MovementRow[] = [
+    ...[23.75, 25.0, 19.5, 19.5, 19.5].map((p, i) => row("tokat-hal", "Tokat", i + 1, p)),
+    ...[27.0, 27.0, 27.0, 27.5].map((p, i) => row("tokat-hal", "Tokat", i + 9, p)),
+  ];
+
+  it("kendi icinde 5 kat oynayan hali sehir kiyasindan da ortalamadan da CIKARIR", () => {
+    const m = computeWeeklyMovement([...eskisehirGercek, ...tokatGercek], NOW)!;
+
+    expect(m.marketCount).toBe(1);
+    const cumle = describeWeeklyMovement("Patates", m);
+    expect(cumle).not.toContain("Eskişehir");
+    expect(cumle).toContain("Tokat");
+  });
+
+  it("kararli hal kalmazsa blok hic basilmaz — gurultuden cumle uretilmez", () => {
+    expect(computeWeeklyMovement(eskisehirGercek, NOW)).toBeNull();
+  });
+
+  it("tek gunluk sicrama haftalik seviyeyi belirlemez (ortanca)", () => {
+    const rows = [
+      // Son hafta: dort gun 20 civari, bir gun 31 (esik icinde ama uc deger).
+      ...[20, 20.5, 19.8, 31].map((p, i) => row("konya", "Konya", i + 1, p)),
+      ...[20, 20, 20, 20].map((p, i) => row("konya", "Konya", i + 9, p)),
+    ];
+    const m = computeWeeklyMovement(rows, NOW)!;
+
+    // Ortalama olsaydi 22,83 → %14 artis. Ortanca 20,25 → %1,3.
+    expect(m.current).toBeCloseTo(20.25, 5);
+    expect(Math.abs(m.changePct)).toBeLessThan(2);
+  });
+});

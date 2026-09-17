@@ -1,0 +1,14 @@
+{
+  "date": "2026-09-14",
+  "targets": ["malatya", "aydin-acarlar"],
+  "status": "blocked_source_unreachable",
+  "importedRows": 0,
+  "checks": {
+    "localHttpsHomeAndKnownPdf": "connection timeout",
+    "secondServerVpsGuezel": "both connection timeout",
+    "publicDns": {"aydin.bel.tr": "85.111.93.92", "malatya.bel.tr": "212.175.142.205", "matchesLocal": true},
+    "independentPublicReader": "both HTTP 422 upstream navigation timeout",
+    "currentDatedBulletinSearch": "no verifiable current municipal document found"
+  },
+  "requiredInput": "Reachable current municipal bulletin PDF or its direct download URL."
+}

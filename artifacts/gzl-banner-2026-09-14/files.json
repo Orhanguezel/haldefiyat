@@ -1,0 +1,14 @@
+[
+  "frontend/src/components/ads/GzlTechnologyBanner.tsx",
+  "frontend/src/components/ads/GzlTechnologyBanner.module.css",
+  "frontend/src/components/ads/GzlQuoteForm.tsx",
+  "frontend/src/components/ads/GzlQuoteForm.test.tsx",
+  "frontend/src/components/ads/BannerSlot.tsx",
+  "frontend/src/components/sections/ContactForm.tsx",
+  "frontend/src/app/[locale]/(public)/gzl-teknoloji/page.tsx",
+  "frontend/public/images/sponsors/gzl-logo.png",
+  "frontend/public/images/sponsors/gzl-devices.webp",
+  "frontend/public/images/sponsors/gzl-banner.png",
+  "backend/scripts/gzl-technology-banner-20260914.ts",
+  "frontend/src/components/sections/ContactForm.test.tsx"
+]

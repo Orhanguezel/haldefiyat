@@ -1,0 +1,12 @@
+/urun/limon 200 ['index, follow'] 
+/urun/limon-mayer 200 ['index, follow'] 
+/urun/domates-salcalik 200 ['index, follow'] 
+/urun/uzum 200 ['index, follow'] 
+/hal/kocaeli-hal-merkez 200 ['index, follow'] 
+/hal/istanbul-hal-ibb 200 ['index, follow'] 
+/hal/mersin-hal 200 ['index, follow'] 
+/fiyat/adana/limon 200 ['index, follow'] 
+/fiyat/adana/limon-mayer 200 ['noindex, follow'] 
+/fiyat/mersin/limon None None HTTP Error 404: Not Found
+/piyasa/erdemli-limon 200 [] 
+/analiz/limon-fiyatlari-2026-mersin-erdemli-piyasa-analizi 200 [] 

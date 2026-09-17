@@ -1,0 +1,11 @@
+[
+  "frontend/src/app/[locale]/(public)/fiyat/[sehir]/[urun]/page.tsx",
+  "frontend/src/app/[locale]/(public)/urun/[slug]/page.tsx",
+  "frontend/src/app/[locale]/(public)/ilan-ver/page.tsx",
+  "frontend/src/components/listings/ListingForm.tsx",
+  "frontend/src/components/listings/ListingForm.test.tsx",
+  "frontend/src/components/ads/BannerSlot.tsx",
+  "frontend/src/components/sections/ProductOpportunities.tsx",
+  "frontend/src/lib/product-guides.ts",
+  "frontend/src/lib/product-guides.test.ts"
+]

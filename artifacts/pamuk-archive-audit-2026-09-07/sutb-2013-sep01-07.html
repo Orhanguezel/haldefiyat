@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html >
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ORE BORSA | </title>
+
+    <link href="/Content/plugins/dataTables/dataTablesStyles?v=rT4suZPxViBv5SmC1NO6ZRsqy1TmEZl-98soLVja4Ag1" rel="stylesheet"/>
+
+
+    <link href="/Content/css?v=uJEw0UBrsgeg9SrO_WngjKm9Mch9_iCF7ZgDBnnYs-81" rel="stylesheet"/>
+
+    <link href="/font-awesome/css?v=DWzYKC0jd6clsSeB4EkEn6OEx9vHam-xVWrDW9id9NI1" rel="stylesheet"/>
+
+</head>
+<body>
+    
+
+
+
+
+<!DOCTYPE html>
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    FİLİTRELEME KRİTERLERİ
+                </div>
+                <div class="panel-body">
+
+                    <form method="get" lang="tr">
+                        
+                        <div class="row">
+                            
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="font-normal">BÜLTEN TÜRÜ : </label>
+                                    <div class="input-group">
+                                        <select id="bultenturu" name="bultenturu" onchange="setTarih()" class="form-control">
+                                            <option value="1">GÜNLÜK BÜLTEN</option>
+                                            <option value="2">HAFTALIK BÜLTEN</option>
+                                            <option value="3">AYLIK BÜLTEN</option>
+                                            <option value="4">YILLIK BÜLTEN</option>
+                                            <option value="5">İKİ TARİH ARASI BÜLTEN</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="font-normal">BAŞLAMA TARİHİ : </label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+
+                                        <input type="text" id="BASLAMATARIHI" name="BASLAMATARIHI" class="form-control" value="01.09.2013">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="font-normal">BİTİŞ TARİHİ : </label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input type="text" id="BITISTARIHI" name="BITISTARIHI" class="form-control" value="07.09.2013">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-5">
+                                <div class="col-md-2">
+
+                                    <div class="input-group">
+                                        <div class=""> . </div>
+                                        <div>
+                                            <button type="submit" class="btn btn-primary">Bülteni Getir</button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-10">
+
+                                </div>
+                            </div>
+</div>
+
+</form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="wrapper wrapper-content animated fadeInRight" style="margin-top: -70px;">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>BÜLTENLER <small>[Tarih Aralığına Göre]</small> </h5>
+                    <div class="ibox-tools">
+                        
+                    </div>
+                </div>
+                <div class="ibox-content">
+                
+                    <table class="table table-striped table-bordered table-hover dataTables-example">
+                        <thead>
+                            <tr>
+                                <th class="hidden-sm hidden-xs">Ürün Grubu</th>
+                                <th class="hidden-sm hidden-xs">Ürün Sınıfı</th>
+                                <th>Ürün</th>
+                                <th>İşlem Türü</th>
+                                <th>İşlem Adedi</th>
+                                <th class="hidden-sm hidden-xs">Min. Fiyat</th>
+                                <th class="hidden-sm hidden-xs">Maks Fiyat</th>
+                                <th>Ortalama Fiyat</th>
+                                <th>Miktar</th>
+                                <th class="hidden-sm hidden-xs">Birim</th>
+                                <th class="hidden-sm hidden-xs">Tutar</th>
+                                <th class="hidden-sm hidden-xs">Türü</th>
+                                <th class="hidden-sm hidden-xs">Ödeme Türü</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">ARPA</td>
+                                                            <td>ARPA</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,60</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,60</td>
+                                                            <td style="text-align: right">0,60</td>
+                                                            <td style="text-align: right">599.000,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">359.400,00</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">ARPA</td>
+                                                            <td>ARPA</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">4</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,50</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,65</td>
+                                                            <td style="text-align: right">0,57</td>
+                                                            <td style="text-align: right">1.703.540,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">983.711,62</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">ARPA</td>
+                                                            <td>ARPA(HASARLI)</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">2</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,44</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,48</td>
+                                                            <td style="text-align: right">0,46</td>
+                                                            <td style="text-align: right">1.132.508,25</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">501.603,96</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">ASPİR</td>
+                                                            <td>ASPİR</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">2</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,76</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,76</td>
+                                                            <td style="text-align: right">0,76</td>
+                                                            <td style="text-align: right">13.490,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">10.184,95</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">BUĞDAY</td>
+                                                            <td>BUĞDAY</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">13</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,70</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,86</td>
+                                                            <td style="text-align: right">0,82</td>
+                                                            <td style="text-align: right">638.940,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">501.968,40</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">BUĞDAY</td>
+                                                            <td>BUĞDAY</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">91</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,54</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,87</td>
+                                                            <td style="text-align: right">0,72</td>
+                                                            <td style="text-align: right">55.107.530,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">38.606.031,38</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">BUĞDAY</td>
+                                                            <td>BUĞDAY(EKMEKLİK)</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">13</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,66</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,69</td>
+                                                            <td style="text-align: right">0,68</td>
+                                                            <td style="text-align: right">2.800.000,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1.907.600,00</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">BUĞDAY</td>
+                                                            <td>BUĞDAY(SERT)</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">5</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,72</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,75</td>
+                                                            <td style="text-align: right">0,74</td>
+                                                            <td style="text-align: right">2.415.800,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1.791.381,00</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT MAMULLERİ</td>
+                                                            <td class="hidden-sm hidden-xs">BULGURLAR</td>
+                                                            <td>BULGUR</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">14</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,98</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1,20</td>
+                                                            <td style="text-align: right">1,08</td>
+                                                            <td style="text-align: right">430.960,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">434.371,80</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">YEM</td>
+                                                            <td>BUR&#199;AK</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1,30</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1,30</td>
+                                                            <td style="text-align: right">1,30</td>
+                                                            <td style="text-align: right">5.000,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">6.500,00</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">YEM</td>
+                                                            <td>BUR&#199;AK</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">2</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1,39</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1,85</td>
+                                                            <td style="text-align: right">1,62</td>
+                                                            <td style="text-align: right">56.460,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">88.362,00</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">CANLI HAYVANLAR</td>
+                                                            <td class="hidden-sm hidden-xs">CANLI HAYVAN</td>
+                                                            <td>B&#220;Y&#220;K BAŞ CANLI HAYVAN</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">11</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1.700,00</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1.750,00</td>
+                                                            <td style="text-align: right">1.704,55</td>
+                                                            <td style="text-align: right">61,00</td>
+                                                            <td class="hidden-sm hidden-xs">ADET</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">104.000,00</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">CANLI HAYVANLAR</td>
+                                                            <td class="hidden-sm hidden-xs">CANLI HAYVAN</td>
+                                                            <td>B&#220;Y&#220;K BAŞ CANLI HAYVAN</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">7.000,00</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">7.000,00</td>
+                                                            <td style="text-align: right">7.000,00</td>
+                                                            <td style="text-align: right">200,00</td>
+                                                            <td class="hidden-sm hidden-xs">ADET</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1.400.000,00</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">CANLI HAYVANLAR</td>
+                                                            <td class="hidden-sm hidden-xs">HAYVANSAL &#220;R&#220;NLER</td>
+                                                            <td>ET B&#220;Y&#220;K BAŞ</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">2</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">15,75</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">15,75</td>
+                                                            <td style="text-align: right">15,75</td>
+                                                            <td style="text-align: right">45.383,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">714.782,25</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">YAĞLAR</td>
+                                                            <td class="hidden-sm hidden-xs">NEBATİ YAĞLAR</td>
+                                                            <td>HAM AY&#199;İ&#199;EK YAĞI</td>
+                                                            <td>VADELİ HTS</td>
+                                                            <td style="text-align: right">7</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">2,38</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">2,47</td>
+                                                            <td style="text-align: right">2,42</td>
+                                                            <td style="text-align: right">1.051.120,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">2.523.638,90</td>
+                                                            <td class="hidden-sm hidden-xs">VADELİ HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;"></td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">KURU MEYVALAR</td>
+                                                            <td class="hidden-sm hidden-xs">FISTIK</td>
+                                                            <td>İ&#199; FISTIK</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">68,00</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">68,00</td>
+                                                            <td style="text-align: right">68,00</td>
+                                                            <td style="text-align: right">150,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">10.200,00</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">TEKSTİL MADDELERİ</td>
+                                                            <td class="hidden-sm hidden-xs">PRESELİ PAMUKLAR</td>
+                                                            <td>İTHAL PRESELİ PAMUK</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">4,40</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">4,40</td>
+                                                            <td style="text-align: right">4,40</td>
+                                                            <td style="text-align: right">295.075,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1.298.330,00</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;"></td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">TEKSTİL MADDELERİ</td>
+                                                            <td class="hidden-sm hidden-xs">PRESELİ PAMUKLAR</td>
+                                                            <td>İTHAL PRESELİ PAMUK</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">6</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">3,60</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">4,20</td>
+                                                            <td style="text-align: right">3,98</td>
+                                                            <td style="text-align: right">438.513,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1.787.875,58</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">TEKSTİL MADDELERİ</td>
+                                                            <td class="hidden-sm hidden-xs">PRESELİ PAMUKLAR</td>
+                                                            <td>İTHAL PRESELİ PAMUK</td>
+                                                            <td>İTH</td>
+                                                            <td style="text-align: right">2</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">3,73</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">3,79</td>
+                                                            <td style="text-align: right">3,76</td>
+                                                            <td style="text-align: right">162.130,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">613.112,66</td>
+                                                            <td class="hidden-sm hidden-xs">İTH</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">KURU MEYVALAR</td>
+                                                            <td class="hidden-sm hidden-xs">FISTIK</td>
+                                                            <td>KAVLAK  FISTIK</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">2</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">23,00</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">23,00</td>
+                                                            <td style="text-align: right">23,00</td>
+                                                            <td style="text-align: right">430,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">9.890,00</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">BAKLİYAT</td>
+                                                            <td class="hidden-sm hidden-xs">MERCİMEK</td>
+                                                            <td>KIRMIZI KABUKLU MERCİMEK</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">5</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1,30</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1,30</td>
+                                                            <td style="text-align: right">1,30</td>
+                                                            <td style="text-align: right">412.600,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">536.380,00</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">BAKLİYAT</td>
+                                                            <td class="hidden-sm hidden-xs">MERCİMEK</td>
+                                                            <td>KIRMIZI KABUKLU MERCİMEK</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">44</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,95</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1,60</td>
+                                                            <td style="text-align: right">1,42</td>
+                                                            <td style="text-align: right">9.447.840,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">13.516.145,45</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">YAĞLIK TOHUMLAR</td>
+                                                            <td>KİMYON</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">3,76</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">3,76</td>
+                                                            <td style="text-align: right">3,76</td>
+                                                            <td style="text-align: right">68.598,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">258.268,04</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">YAĞLIK TOHUMLAR</td>
+                                                            <td>KİMYON</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">3</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">3,80</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">4,00</td>
+                                                            <td style="text-align: right">3,88</td>
+                                                            <td style="text-align: right">56.760,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">220.793,50</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">SEBZELER</td>
+                                                            <td class="hidden-sm hidden-xs">YAŞ SEBZE </td>
+                                                            <td>LİMON</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,39</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,39</td>
+                                                            <td style="text-align: right">0,39</td>
+                                                            <td style="text-align: right">92.000,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">35.880,00</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">MISIR</td>
+                                                            <td>MISIR</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,56</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,56</td>
+                                                            <td style="text-align: right">0,56</td>
+                                                            <td style="text-align: right">80.420,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">45.035,20</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">MISIR</td>
+                                                            <td>MISIR</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">10</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,42</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,59</td>
+                                                            <td style="text-align: right">0,54</td>
+                                                            <td style="text-align: right">3.930.450,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1.858.642,01</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">MISIR SILAJLI</td>
+                                                            <td>MISIR (SLAJLI)</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,70</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,70</td>
+                                                            <td style="text-align: right">0,70</td>
+                                                            <td style="text-align: right">41.000,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">28.700,00</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HUBUBAT</td>
+                                                            <td class="hidden-sm hidden-xs">MISIR SILAJLI</td>
+                                                            <td>MISIR (SLAJLI)</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,73</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,73</td>
+                                                            <td style="text-align: right">0,73</td>
+                                                            <td style="text-align: right">41.000,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">29.725,00</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">SEBZELER</td>
+                                                            <td class="hidden-sm hidden-xs">YAŞ SEBZE </td>
+                                                            <td>MUHTELİF SEBZE VE MEYVE</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">9</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,19</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,29</td>
+                                                            <td style="text-align: right">0,23</td>
+                                                            <td style="text-align: right">871.190,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">201.263,10</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">BAKLİYAT</td>
+                                                            <td class="hidden-sm hidden-xs">NOHUT</td>
+                                                            <td>NOHUT</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1,15</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">1,15</td>
+                                                            <td style="text-align: right">1,15</td>
+                                                            <td style="text-align: right">17.860,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">20.539,00</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">TEKSTİL MADDELERİ</td>
+                                                            <td class="hidden-sm hidden-xs">PRESELİ PAMUKLAR</td>
+                                                            <td>PRESELİ PAMUK ST 1.HB</td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">3,80</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">3,80</td>
+                                                            <td style="text-align: right">3,80</td>
+                                                            <td style="text-align: right">49.938,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">189.764,40</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">TEKSTİL MADDELERİ</td>
+                                                            <td class="hidden-sm hidden-xs">PRESELİ PAMUKLAR</td>
+                                                            <td>PRESELİ PAMUK ST 1.HB</td>
+                                                            <td>VADELİ HTS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">3,70</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">3,70</td>
+                                                            <td style="text-align: right">3,70</td>
+                                                            <td style="text-align: right">16.900,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">62.530,00</td>
+                                                            <td class="hidden-sm hidden-xs">VADELİ HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;"></td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">TEKSTİL MADDELERİ</td>
+                                                            <td class="hidden-sm hidden-xs">PRESELİ PAMUKLAR</td>
+                                                            <td>PRESELİ PAMUK ST.1 BEYAZ </td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">2</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">4,20</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">4,20</td>
+                                                            <td style="text-align: right">4,20</td>
+                                                            <td style="text-align: right">156.808,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">658.593,60</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;"></td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">TEKSTİL MADDELERİ</td>
+                                                            <td class="hidden-sm hidden-xs">PRESELİ PAMUKLAR</td>
+                                                            <td>PRESELİ PAMUK ST.1 BEYAZ </td>
+                                                            <td>HTS</td>
+                                                            <td style="text-align: right">14</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">3,40</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">4,28</td>
+                                                            <td style="text-align: right">3,93</td>
+                                                            <td style="text-align: right">2.107.789,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">8.393.544,98</td>
+                                                            <td class="hidden-sm hidden-xs">HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">TEKSTİL MADDELERİ</td>
+                                                            <td class="hidden-sm hidden-xs">PRESELİ PAMUKLAR</td>
+                                                            <td>PRESELİ PAMUK ST.1 BEYAZ </td>
+                                                            <td>VADELİ HTS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">3,85</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">3,85</td>
+                                                            <td style="text-align: right">3,85</td>
+                                                            <td style="text-align: right">20.948,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">80.649,80</td>
+                                                            <td class="hidden-sm hidden-xs">VADELİ HTS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;"></td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">YAĞLAR</td>
+                                                            <td class="hidden-sm hidden-xs">HAYVANSAL YAĞLAR</td>
+                                                            <td>SADE YAG</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">3</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">23,71</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">31,00</td>
+                                                            <td style="text-align: right">26,90</td>
+                                                            <td style="text-align: right">8.148,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">223.725,00</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">YAĞLAR</td>
+                                                            <td class="hidden-sm hidden-xs">HAYVANSAL YAĞLAR</td>
+                                                            <td>SADE YAĞ İNEK YAĞI</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">1</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">17,00</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">17,00</td>
+                                                            <td style="text-align: right">17,00</td>
+                                                            <td style="text-align: right">2.500,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">42.500,00</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+                                                        <tr class="gradeA">
+                                                            <td class="hidden-sm hidden-xs">HAYVANSAL &#220;R&#220;NLER</td>
+                                                            <td class="hidden-sm hidden-xs">S&#220;T &#220;R&#220;NLERİ</td>
+                                                            <td>S&#220;T</td>
+                                                            <td>HMS</td>
+                                                            <td style="text-align: right">6</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,90</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">0,95</td>
+                                                            <td style="text-align: right">0,92</td>
+                                                            <td style="text-align: right">96.271,00</td>
+                                                            <td class="hidden-sm hidden-xs">KĞ</td>
+                                                            <td class="hidden-sm hidden-xs" style="text-align: right">87.544,15</td>
+                                                            <td class="hidden-sm hidden-xs">HMS</td>
+                                                                    <td class="hidden-sm hidden-xs" style="background-color:#3cb371;">PEŞİN</td>
+
+                                                        </tr>
+
+
+                        </tbody>
+                        <tfoot>
+
+                        </tfoot>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+    <script src="/bundles/jquery?v=yMmPM1TxecYcoWtCWW3jYgH0fr9kiAasOfb-W5I001A1"></script>
+
+    <script src="/bundles/jqueryui?v=3-YAgWyqi9HoFnQPnDJhIPxKFze3AySnQD182z5WUsw1"></script>
+
+    <script src="/bundles/bootstrap?v=wMFBIIZ6OsUCe1qOSlRNS_6hGBJgfCE05Vh1GzCppYo1"></script>
+
+    <script src="/plugins/metsiMenu"></script>
+
+    <script src="/plugins/pace"></script>
+
+    <script src="/plugins/slimScroll?v=Uin95EwzswHK3MjnPYJT0IIu_sfIoxGwdr5n_SnamSE1"></script>
+
+    <script src="/bundles/inspinia?v=tegA1jNN06fKNwdP2rBF-XM1oQcqIN-ExNIUeMq8o8w1"></script>
+
+    <script src="/plugins/validate?v=NkOGpmGEmlK8RkCz2TCcazmrEu-XdPg8Ak6-vRdgl181"></script>
+
+    
+    <script src="/plugins/dataTables?v=M-iNVHj5BaAOruL_ASvmmUBc1H2HM0YP4tklsUAysAQ1"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            $('.dataTables-example').DataTable({
+                dom: '<"html5buttons"B>lTfgitp',
+                buttons: [
+                    { extend: 'copy' },
+                    { extend: 'excel', title: 'StokToplam' },
+                    { extend: 'pdf', title: 'StokToplam' },
+                    {
+                        extend: 'print',
+                        customize: function(win) {
+                            $(win.document.body).addClass('white-bg');
+                            $(win.document.body).css('font-size', '10px');
+
+                            $(win.document.body).find('table')
+                                .addClass('compact')
+                                .css('font-size', 'inherit');
+                        }
+                    }
+                ]
+
+            });
+
+            $(getElementById("bultenturu").onChange({
+            
+            }));
+        });
+
+        function setTarih() {
+            d = document.getElementById("bultenturu").value;
+            baslamatarihi = document.getElementById("BASLAMATARIHI");
+            bitistarihi = document.getElementById("BITISTARIHI");
+            var options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+            var now = new Date().toLocaleString("tr-TR",options);
+           
+            switch (d) {
+                case "1":
+                {
+                    baslamatarihi.value = now;
+                    bitistarihi.value = now;
+                } break;
+                case "2":
+                    {
+                        var myDate = new Date();
+                        myDate.setDate(myDate.getDate() -7);
+
+                        baslamatarihi.value = myDate.toLocaleString("tr-TR", options);;
+                        bitistarihi.value = now;
+                    } break;
+                case "3":
+                    {
+                        var myDate = new Date();
+                        myDate.setDate(myDate.getDate() - 30);
+
+                        baslamatarihi.value = myDate.toLocaleString("tr-TR", options);;
+                        bitistarihi.value = now;
+                    } break;
+                case "4":
+                    {
+                        var myDate = new Date();
+                        myDate.setDate(myDate.getDate() - 365);
+
+                        baslamatarihi.value = myDate.toLocaleString("tr-TR", options);;
+                        bitistarihi.value = now;
+                    } break;
+                case "5":
+                    {
+                        baslamatarihi.value = now;
+                        bitistarihi.value = now;
+                    } break;
+            }
+        }
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,237 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "finalUrl": "https://haldefiyat.com/",
+    "seconds": 0.56,
+    "bytes": 333306,
+    "title": [
+      "Türkiye Hal Fiyatları — Günlük, Gerçek Zamanlı"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://haldefiyat.com\"/>"
+    ],
+    "robots": [],
+    "css": [
+      "/_next/static/chunks/03ul68gzxqvj6.css",
+      "/_next/static/chunks/066xy33xmtymo.css"
+    ]
+  },
+  {
+    "path": "/hal/istanbul-hal-ibb",
+    "status": 200,
+    "finalUrl": "https://haldefiyat.com/hal/istanbul-hal-ibb",
+    "seconds": 3.988,
+    "bytes": 1358763,
+    "title": [
+      "İstanbul Hal Fiyatları Bugün 14 Eylül 2026 — Bayrampaşa"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://haldefiyat.com/hal/istanbul-hal-ibb\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>"
+    ],
+    "css": [
+      "/_next/static/chunks/03ul68gzxqvj6.css",
+      "/_next/static/chunks/066xy33xmtymo.css"
+    ]
+  },
+  {
+    "path": "/hal/kahramanmaras-hal",
+    "status": 200,
+    "finalUrl": "https://haldefiyat.com/hal/kahramanmaras-hal",
+    "seconds": 2.022,
+    "bytes": 808951,
+    "title": [
+      "Kahramanmaraş Hal Fiyatları — Son Liste 7 Eylül 2026"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://haldefiyat.com/hal/kahramanmaras-hal\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>"
+    ],
+    "css": [
+      "/_next/static/chunks/03ul68gzxqvj6.css",
+      "/_next/static/chunks/066xy33xmtymo.css"
+    ]
+  },
+  {
+    "path": "/urun/sogan-kuru",
+    "status": 200,
+    "finalUrl": "https://haldefiyat.com/urun/sogan-kuru",
+    "seconds": 1.549,
+    "bytes": 804407,
+    "title": [
+      "Soğan Fiyatları Bugün Kaç TL? 14 Eylül 2026 — Hal ve Toptan"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://haldefiyat.com/urun/sogan-kuru\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>"
+    ],
+    "css": [
+      "/_next/static/chunks/03ul68gzxqvj6.css",
+      "/_next/static/chunks/066xy33xmtymo.css"
+    ]
+  },
+  {
+    "path": "/urun/domates-salcalik",
+    "status": 200,
+    "finalUrl": "https://haldefiyat.com/urun/domates-salcalik",
+    "seconds": 0.946,
+    "bytes": 514121,
+    "title": [
+      "Salçalık Domates Fiyatları Bugün Kaç TL?"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://haldefiyat.com/urun/domates-salcalik\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>"
+    ],
+    "css": [
+      "/_next/static/chunks/03ul68gzxqvj6.css",
+      "/_next/static/chunks/066xy33xmtymo.css"
+    ]
+  },
+  {
+    "path": "/urun/patates",
+    "status": 200,
+    "finalUrl": "https://haldefiyat.com/urun/patates",
+    "seconds": 2.274,
+    "bytes": 770432,
+    "title": [
+      "Patates Fiyatları Bugün Kaç TL? 14 Eylül 2026 — Hal ve…"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://haldefiyat.com/urun/patates\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>"
+    ],
+    "css": [
+      "/_next/static/chunks/03ul68gzxqvj6.css",
+      "/_next/static/chunks/066xy33xmtymo.css"
+    ]
+  },
+  {
+    "path": "/firma/3208-haktan-komisyon-evi-2",
+    "status": 200,
+    "finalUrl": "https://haldefiyat.com/firma/3208-haktan-komisyon-evi",
+    "seconds": 2.044,
+    "bytes": 131085,
+    "title": [
+      "Haktan komisyon evi | Mus Firma Profili"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://haldefiyat.com/firma/3208-haktan-komisyon-evi\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"noindex, follow\"/>"
+    ],
+    "css": [
+      "/_next/static/chunks/03ul68gzxqvj6.css",
+      "/_next/static/chunks/066xy33xmtymo.css"
+    ]
+  },
+  {
+    "path": "/urun/elma-2",
+    "status": 200,
+    "finalUrl": "https://haldefiyat.com/urun/elma",
+    "seconds": 3.053,
+    "bytes": 872905,
+    "title": [
+      "Elma Fiyatları Bugün Kaç TL? 14 Eylül 2026 — Hal ve Toptan"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://haldefiyat.com/urun/elma\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>"
+    ],
+    "css": [
+      "/_next/static/chunks/03ul68gzxqvj6.css",
+      "/_next/static/chunks/066xy33xmtymo.css"
+    ]
+  },
+  {
+    "path": "/analiz/elma-fiyat-analizi-mayis-2026",
+    "status": 200,
+    "finalUrl": "https://haldefiyat.com/urun/elma",
+    "seconds": 1.286,
+    "bytes": 872862,
+    "title": [
+      "Elma Fiyatları Bugün Kaç TL? 14 Eylül 2026 — Hal ve Toptan"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://haldefiyat.com/urun/elma\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>"
+    ],
+    "css": [
+      "/_next/static/chunks/03ul68gzxqvj6.css",
+      "/_next/static/chunks/066xy33xmtymo.css"
+    ]
+  },
+  {
+    "path": "/_next/static/chunks/1jvrn-slpfpj7.css",
+    "status": 404,
+    "seconds": 0.192
+  },
+  {
+    "path": "/_next/static/chunks/3tfwshwg68odk.css",
+    "status": 404,
+    "seconds": 0.358
+  },
+  {
+    "path": "/_next/static/chunks/0t9fsotkcm7ew.css",
+    "status": 404,
+    "seconds": 0.116
+  },
+  {
+    "path": "/firmalar?city=bursa&page=2",
+    "status": 200,
+    "finalUrl": "https://haldefiyat.com/firmalar?city=bursa&page=2",
+    "seconds": 0.454,
+    "bytes": 133447,
+    "title": [
+      "Hal Firmaları ve Komisyoncu Rehberi"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://haldefiyat.com/firmalar/bursa\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"noindex, follow\"/>"
+    ],
+    "css": [
+      "/_next/static/chunks/03ul68gzxqvj6.css",
+      "/_next/static/chunks/066xy33xmtymo.css"
+    ]
+  },
+  {
+    "path": "/api/v1/health",
+    "status": 200,
+    "finalUrl": "https://haldefiyat.com/api/v1/health",
+    "seconds": 0.186,
+    "bytes": 70,
+    "title": [],
+    "canonical": [],
+    "robots": [],
+    "css": []
+  },
+  {
+    "path": "/api/v1/prices?market=istanbul-hal-ibb&limit=2",
+    "status": 200,
+    "finalUrl": "https://haldefiyat.com/api/v1/prices?market=istanbul-hal-ibb&limit=2",
+    "seconds": 0.186,
+    "bytes": 1666,
+    "title": [],
+    "canonical": [],
+    "robots": [],
+    "css": []
+  }
+]

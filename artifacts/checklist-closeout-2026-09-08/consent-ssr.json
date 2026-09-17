@@ -1,0 +1,17 @@
+[
+  {
+    "consent": "absent",
+    "status": 200,
+    "ssrConsentRegion": true
+  },
+  {
+    "consent": "accepted",
+    "status": 200,
+    "ssrConsentRegion": false
+  },
+  {
+    "consent": "rejected",
+    "status": 200,
+    "ssrConsentRegion": false
+  }
+]

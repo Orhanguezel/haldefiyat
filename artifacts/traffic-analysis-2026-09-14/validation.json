@@ -1,0 +1,17 @@
+{
+  "report": "reports/analiz-31-agustos-13-eylul-2026.pdf",
+  "pages": 7,
+  "gscCutoff": "2026-09-12",
+  "comparison": "2026-09-06..12 vs 2026-08-30..2026-09-05",
+  "clicksBefore": 5017,
+  "clicksAfter": 4899,
+  "clickDelta": -118,
+  "periodClickGrowthPct": 26.84527063969382,
+  "liveInspectedUrls": 5,
+  "allInspectionsPass": true,
+  "psi": "429 daily quota; no new score",
+  "arithmeticChecks": "passed",
+  "pdfTextChecks": "passed",
+  "visualReview": "all 7 pages reviewed; final changed pages 1 and 4 rechecked",
+  "sha256": "95dac8a09036bdf07aabdc5fab04a1e4a45c1bcd4f3498305aaf1733bf47a7dc"
+}

@@ -1,0 +1,5 @@
+{"q":"limit=20&offset=20","status":200,"count":20}
+{"q":"limit=20&offset=20&with_meta=true","status":200,"count":20}
+{"q":"limit=20&offset=0&with_meta=true&role=admin","status":200,"count":0}
+{"q":"limit=20&offset=0&with_meta=true&is_active=false","status":200,"count":20}
+{"db":[{"total":63,"active":"63"}]}

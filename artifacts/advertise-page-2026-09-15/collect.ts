@@ -1,0 +1,10 @@
+import {google} from 'googleapis';
+import {createMarketingJwt,buildMarketingOAuthClient} from '/var/www/ekosistem-sosyal-medya/backend/src/modules/marketing/google-sa';
+const auth=await createMarketingJwt('haldefiyat','gsc')??await buildMarketingOAuthClient('haldefiyat','gsc');
+const gsc=google.webmasters({version:'v3',auth});
+const base={siteUrl:'sc-domain:haldefiyat.com'};
+const daily=(await gsc.searchanalytics.query({...base,requestBody:{startDate:'2026-09-01',endDate:'2026-09-14',dimensions:['date'],dataState:'final',type:'web'}})).data.rows??[];
+const end=daily.map(r=>r.keys![0]).sort().at(-1)!;
+const start=new Date(Date.parse(end+'T12:00:00Z')-27*86400000).toISOString().slice(0,10);
+const total=(await gsc.searchanalytics.query({...base,requestBody:{startDate:start,endDate:end,dataState:'final',type:'web'}})).data.rows?.[0];
+console.log(JSON.stringify({source:'Google Search Console',searchType:'Web',startDate:start,endDate:end,days:28,checkedAt:new Date().toISOString(),...total}));process.exit(0);

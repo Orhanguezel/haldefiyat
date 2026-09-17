@@ -1,0 +1,8 @@
+### Result
+{"title":"Kuru Üzüm Fiyatları 2026 — Sınıf Bazında İTB Kayıtları","rows":13,"overflow":false}
+### Ran Playwright code
+```js
+await (async (page) => { await page.setViewportSize({width:390,height:844}); await page.reload(); await page.getByRole("heading",{name:"Kuru Üzüm Fiyatları 2026",exact:true}).waitFor(); const result=await page.evaluate(()=>({title:document.title,rows:document.querySelectorAll("#borsa-kayitlari tbody tr").length,overflow:document.documentElement.scrollWidth>innerWidth})); if(result.rows!==13||result.overflow) throw new Error(JSON.stringify(result)); await page.screenshot({path:"output/playwright/seo-intent/kuru-uzum-mobile.png"}); return result; })(page);
+```
+### Events
+- New console entries: .playwright-cli/console-2026-09-08T10-12-39-094Z.log#L1-L3

@@ -1,0 +1,5 @@
+{"q":"limit=20&offset=20","status":200,"count":20}
+{"q":"limit=20&offset=20&with_meta=true","status":200,"count":20,"total":63,"stats":{"total":63,"active":63,"admins":2,"unverified":36,"recent":4},"roles":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}
+{"q":"limit=20&offset=0&with_meta=true&role=admin","status":200,"count":2,"total":2,"stats":{"total":63,"active":63,"admins":2,"unverified":36,"recent":4},"roles":[null,null]}
+{"q":"limit=20&offset=0&with_meta=true&is_active=false","status":200,"count":0,"total":0,"stats":{"total":63,"active":63,"admins":2,"unverified":36,"recent":4},"roles":[]}
+{"db":[{"total":63,"active":"63"}]}

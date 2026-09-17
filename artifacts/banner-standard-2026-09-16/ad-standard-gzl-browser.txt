@@ -1,0 +1,15 @@
+### Result
+{"dialog":true,"form":1,"closed":true}
+### Ran Playwright code
+```js
+await (async(page)=>{
+await page.route('**/api/v1/banners/18/click',r=>r.fulfill({status:204}));
+await page.setViewportSize({width:1440,height:1000});await page.goto('https://haldefiyat.com/urun/domates');
+const card=page.locator('[data-ad-format] a[href="/api/v1/banners/18/click"]');await card.waitFor();await card.click();
+await page.getByRole('dialog').waitFor();await page.getByRole('dialog').locator('form').waitFor();const result={dialog:await page.getByRole('dialog').isVisible(),form:await page.getByRole('dialog').locator('form').count()};
+await page.getByRole('button',{name:'Teklif formunu kapat'}).click();return {...result,closed:await page.getByRole('dialog').count()===0||!await page.getByRole('dialog').isVisible()};
+}
+)(page);
+```
+### Events
+- New console entries: .playwright-cli/console-2026-09-16T13-53-23-105Z.log#L431-L435

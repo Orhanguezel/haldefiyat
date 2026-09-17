@@ -1,0 +1,22 @@
+### Result
+[{"width":1440,"format":"full","cardWidth":1120,"height":280,"ctaHeight":44,"ctaInside":true,"scroll":false},{"width":1440,"format":"half","cardWidth":552,"height":280,"ctaHeight":44,"ctaInside":true,"scroll":false},{"width":1440,"format":"third","cardWidth":363,"height":280,"ctaHeight":40,"ctaInside":true,"scroll":false},{"width":1440,"format":"tall","cardWidth":363,"height":576,"ctaHeight":40,"ctaInside":true,"scroll":false},{"width":768,"format":"full","cardWidth":744,"height":280,"ctaHeight":44,"ctaInside":true,"scroll":false},{"width":768,"format":"half","cardWidth":552,"height":280,"ctaHeight":44,"ctaInside":true,"scroll":false},{"width":768,"format":"third","cardWidth":363,"height":280,"ctaHeight":40,"ctaInside":true,"scroll":false},{"width":768,"format":"tall","cardWidth":363,"height":576,"ctaHeight":40,"ctaInside":true,"scroll":false},{"width":390,"format":"full","cardWidth":366,"height":120,"ctaHeight":44.59375,"ctaInside":true,"scroll":false},{"width":390,"format":"half","cardWidth":366,"height":120,"ctaHeight":44.59375,"ctaInside":true,"scroll":false},{"width":390,"format":"third","cardWidth":366,"height":120,"ctaHeight":44.59375,"ctaInside":true,"scroll":false},{"width":390,"format":"tall","cardWidth":366,"height":120,"ctaHeight":44.59375,"ctaInside":true,"scroll":false},{"width":320,"format":"full","cardWidth":296,"height":120,"ctaHeight":44.59375,"ctaInside":true,"scroll":false},{"width":320,"format":"half","cardWidth":296,"height":120,"ctaHeight":44.59375,"ctaInside":true,"scroll":false},{"width":320,"format":"third","cardWidth":296,"height":120,"ctaHeight":44.59375,"ctaInside":true,"scroll":false},{"width":320,"format":"tall","cardWidth":296,"height":120,"ctaHeight":44.59375,"ctaInside":true,"scroll":false}]
+### Ran Playwright code
+```js
+await (async (page) => {
+const results=[];
+for (const width of [1440,768,390,320]) {
+ await page.setViewportSize({width,height:1000});
+ for (const format of ['full','half','third','tall']) {
+ const q='format='+format+'&device='+(width<768?'mobile':'desktop')+'&title='+encodeURIComponent('Ürününüzün yurt dışı alıcısını bulun')+'&description='+encodeURIComponent('GTİP/HS Code ile ithalatçı firmaları listeleyin, yetkili kişiye ulaşın.')+'&logoUrl=/assets/ads/vistaseeds/logo-white.png&imageUrl=/assets/ads/vistaseeds/cankan-f1.webp&ctaLabel='+encodeURIComponent('Alıcıları keşfet');
+ await page.goto('http://localhost:3044/ad-preview?'+q);
+ await page.locator('[data-ad-format]').waitFor();
+ results.push(await page.evaluate(({width,format})=>{const f=document.querySelector('[data-ad-format]'), a=f.querySelector('a'),cta=a.lastElementChild.lastElementChild;const r=f.getBoundingClientRect(),c=cta.getBoundingClientRect();return {width,format,cardWidth:r.width,height:r.height,ctaHeight:c.height,ctaInside:c.bottom<=r.bottom&&c.right<=r.right,scroll:document.documentElement.scrollWidth>width};},{width,format}));
+ }
+}
+await page.screenshot({path:'/tmp/ad-standard-mobile.png'});
+return results;
+}
+)(page);
+```
+### Events
+- New console entries: .playwright-cli/console-2026-09-16T13-53-23-105Z.log#L71-L139

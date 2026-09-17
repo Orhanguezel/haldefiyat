@@ -1,0 +1,38 @@
+[
+  {
+    "product_slug": "domates-salcalik",
+    "about_md": "Salçalık domates fiyatları bu sayfada kaynak hal, kayıt tarihi ve birimle birlikte gösterilir. Rio ve diğer salçalık çeşitlerin kaynakta geçen adları korunur. Bu toptan hal listesi, fabrikanın sözleşmeli alım fiyatı veya üreticinin eline geçen net tutar değildir.",
+    "price_factors_md": "Aynı gün ve birimdeki kayıtları karşılaştırın. Genel salçalık domates ile Rio kaydı aynı kaliteyi garanti etmez. Kaynak ortalama yayımlamadığında alt–üst aralığın orta noktası ayrıca işaretlenir; bu değer işlem hacmi ağırlıklı değildir. 100 kilogramın hammadde tutarı, seçilen günün TL/kg fiyatının 100 ile çarpımıdır; nakliye, fire ve işleme giderleri ayrıca hesaplanır.",
+    "season_md": "Sezonun fiyat üzerindeki etkisi, grafikte aynı hal ve ürünün tarihli kayıtları üzerinden izlenebilir. Veri bulunmayan gün sıfır fiyat değildir. Geçmiş dönemlerin kapsamı eşleşmeden yıllık değişim hesaplanmamalıdır.",
+    "production_region_md": "Bu görünüm üretim miktarı istatistiği değil, resmi hal listelerinin karşılaştırmasıdır. Ürünün satıldığı hal, yetiştirildiği il olarak yorumlanmamalıdır.",
+    "quality_indicators_md": "Karşılaştırmada kaynak ürün adı, çeşit, kalite bilgisi varsa sınıfı, birim ve tarih birlikte kontrol edilmelidir. Salça verimi için sabit bir oran varsayılmamıştır.",
+    "culinary_uses_md": "Salça veya konserve hazırlığında alım bütçesini ürün tutarı ve işleme giderleri olarak ayrı hesaplayın. Tablodaki fiyat bir satış teklifi değildir."
+  },
+  {
+    "product_slug": "limon-mayer",
+    "about_md": "Mayer limon fiyatları çeşide özel olarak izlenir. Adana Mayer limon fiyatı arıyorsanız tabloda Adana kaynağına ve kayıt tarihine bakın: Türkiye örneklem ortalaması doğrudan Adana hal fiyatı değildir. Genel limon, Mayer ve Lamas kayıtları aynı çeşit kabul edilmemelidir.",
+    "price_factors_md": "Yerel toptan alımda hal, çeşit, kayıt tarihi ve birim eşleşmelidir. Bahçede dalından alım, halde satış ve market rafı farklı fiyat aşamalarıdır; aralarındaki fark tek başına kâr marjını göstermez. Kaynak alt ve üst fiyat yayımlıyorsa hesaplanan orta nokta, işlem hacmi ağırlıklı ortalama değildir.",
+    "season_md": "Mayer serisinde fiyat yayımlanmayan günler boş kalır. Kaynaktaki sıfır alt–üst fiyat, ücretsiz ürün veya gerçekleşmiş satış olarak seriye alınmaz. Sabit bir sezon fiyat bandı yerine tarihli kayıtlar kullanılmalıdır.",
+    "production_region_md": "Şehir tablosu alım-satımın izlendiği kaynağı gösterir; üretim yeri veya üretim miktarı iddiası taşımaz. Adana yerel kaydı ile İstanbul veya ulusal kayıt ayrı değerlendirilmelidir.",
+    "quality_indicators_md": "Mayer adı, birim ve kaynakta varsa kalite/ambalaj ayrımını kontrol edin. Farklı çeşitlerin fiyat farkı aynı ürünün şehirler arası farkı değildir.",
+    "culinary_uses_md": "Limon alım bütçesi miktar ve birim fiyat üzerinden hesaplanabilir; ürünün kullanım amacına uygunluğu ve teslim koşulları satıcıyla ayrıca belirlenmelidir."
+  },
+  {
+    "product_slug": "limon",
+    "about_md": "Limon piyasası bu sayfada tarihli toptan kayıtlarla izlenir. Türkiye örneklem değeri Adana veya Mersin’de belirli bir satıcının satış fiyatı değildir. Yerel fiyat arayanlar her satırın hal adını, ürün çeşidini ve tarihini kontrol etmelidir.",
+    "price_factors_md": "Genel limon, Mayer, Lamas ve yatak limon kayıtlarında kaynak adlandırması korunur. Bahçede alım, toptan hal ve perakende fiyatı farklı aşamalardır. Nakliye, ambalaj ve teslim koşulları aynı değilse iki tutarın farkı kâr marjı olarak yorumlanamaz.",
+    "season_md": "Geçmiş fiyatları aynı ürün, hal ve birimde karşılaştırın. Eksik günleri fiyat düşüşü olarak yorumlamayın. Güncel olmayan yerel kayıt yerine başka şehrin fiyatı kullanılmaz.",
+    "production_region_md": "Mersin, Erdemli veya Adana bağlamında yerel kaynağın bulunması gerekir. Bu tablodaki hal konumu ürünün yetiştirildiği yerin kanıtı değildir.",
+    "quality_indicators_md": "Çeşit ve ambalaj bilgisi varsa fiyatla birlikte okunmalıdır. Kaynak yalnız alt–üst fiyat veriyorsa orta nokta türetilmiş olarak işaretlenir.",
+    "culinary_uses_md": "Alım karşılaştırmasını aynı birim üzerinden yapın; kilogram, adet ve paket fiyatlarını doğrudan karşılaştırmayın."
+  },
+  {
+    "product_slug": "uzum",
+    "about_md": "Üzüm fiyatları burada taze ürünün hal kayıtlarıyla izlenir. Beyaz, siyah, çekirdeksiz ve diğer çeşit adları kaynak satırında belirtilir. Taze üzüm görünümü kuru üzüm alım fiyatlarının yerine kullanılamaz.",
+    "price_factors_md": "Çeşit, kaynak hal, tarih ve birim eşleşmeden fiyat farkı hesaplamayın. Birden fazla çeşidin oluşturduğu alt–üst aralık, tek bir üzüm çeşidinin alım-satım makası değildir. Min–maks orta noktasından hesaplanan değerler işlem miktarına göre ağırlıklandırılmış ortalamalar değildir.",
+    "season_md": "2026 üzüm fiyatlarını ve geçmiş sezonları grafikte ayrı inceleyebilirsiniz. Kapsamı eşleşmeyen yıllarda doğrudan yıllık yüzde farkı yayımlanmaz. Veri bulunmayan günler sıfır fiyat kabul edilmez.",
+    "production_region_md": "Hal kaynağı fiyatın yayımlandığı piyasayı gösterir. Üretim ili, Türkiye üretim miktarı veya dünya sıralaması bu fiyat tablosundan çıkarılamaz.",
+    "quality_indicators_md": "Taze ve kuru ürün ayrımını, çeşit adını, kaynağın belirttiği kaliteyi ve birimi birlikte okuyun. Farklı ürünlerin fiyatları tek bir çeşitmiş gibi birleştirilmemelidir.",
+    "culinary_uses_md": "Taze tüketim, kurutma veya işleme için alım koşulları farklı olabilir. İşleme verimi ve giderleri bu toptan fiyat görünümüne dahil değildir."
+  }
+]

@@ -1,0 +1,9 @@
+### Result
+[{"path":"/urun/kekik","overflow":false,"stale":false,"local":false,"rows":24,"priceBeforeWeather":null},{"path":"/fiyat/adana/mandalina","overflow":false,"stale":true,"local":false,"rows":0,"priceBeforeWeather":null},{"path":"/piyasa/erdemli-limon","overflow":false,"stale":false,"local":true,"rows":0,"priceBeforeWeather":null},{"path":"/hal/izmir-hal","overflow":false,"stale":false,"local":false,"rows":0,"priceBeforeWeather":null},{"path":"/hal/kayseri-hal","overflow":false,"stale":false,"local":false,"rows":0,"priceBeforeWeather":null}]
+### Ran Playwright code
+```js
+await (async (page) => { const out=[]; for(const path of ["/urun/kekik","/fiyat/adana/mandalina","/piyasa/erdemli-limon","/hal/izmir-hal","/hal/kayseri-hal"]) { await page.goto("https://haldefiyat.com"+path); await page.locator("h1").waitFor(); const r=await page.evaluate(()=>{const t=document.body.innerText; return {path:location.pathname,overflow:document.documentElement.scrollWidth>innerWidth,stale:t.includes("Bu kayıt güncel değildir"),local:t.includes("yerel kayıt durumu"),rows:document.querySelectorAll("#borsa-kayitlari tbody tr").length,priceBeforeWeather:t.includes("Hava Durumu")?t.indexOf("tarihli fiyat listesi")<t.indexOf("Hava Durumu"):null};}); if(r.overflow) throw new Error(JSON.stringify(r));out.push(r); } await page.screenshot({path:"output/playwright/seo-intent/kayseri-mobile.png"});return out; })(page);
+```
+### Page
+- Page URL: https://haldefiyat.com/hal/kayseri-hal
+- Page Title: Kayseri Hal Fiyatları Bugün 8 Eylül 2026

@@ -1,0 +1,125 @@
+{
+  "/fiyat/istanbul/domates": {
+    "status": 200,
+    "url": "https://haldefiyat.com/fiyat/istanbul/domates",
+    "guides": true
+  },
+  "assets": [
+    {
+      "url": "/_next/static/chunks/03ul68gzxqvj6.css",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/0-5nm6dw61v_m.css",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/3r3z2wanhym0z.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/3mith5ocggfim.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/40xo0-arns08u.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/15fh0pky4-yut.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/0yjncsasc6r27.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/turbopack-2nyf2jvx93v3q.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/16argdr4qae68.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/0dk02yzakq08l.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/272t5p7nkp7yg.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/0zoa9hj20lwog.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/27tri3gnl_j-0.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/152tl3tl3vuzs.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/2aopq1e2y7cg-.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/37oz97t_mb89f.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/0jxc9_95br02o.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/3xdq436kpbj7o.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/2oq3nwj6zg17z.js",
+      "status": 200
+    },
+    {
+      "url": "/_next/static/chunks/0cz1d0mv5g_q7.js",
+      "status": 200
+    }
+  ],
+  "/urun/domates": {
+    "status": 200,
+    "url": "https://haldefiyat.com/urun/domates",
+    "guides": true
+  },
+  "/rehber/salca-konserve": {
+    "status": 200,
+    "url": "https://haldefiyat.com/rehber/salca-konserve",
+    "guides": false
+  },
+  "/rehber/tursu": {
+    "status": 200,
+    "url": "https://haldefiyat.com/rehber/tursu",
+    "guides": false
+  },
+  "/reklam-ver": {
+    "status": 200,
+    "url": "https://haldefiyat.com/reklam-ver",
+    "guides": false
+  },
+  "/ilan-ver?product=domates&type=alim&city=istanbul": {
+    "status": 200,
+    "url": "https://haldefiyat.com/ilan-ver?product=domates&type=alim&city=istanbul",
+    "guides": false
+  },
+  "browser": {
+    "desktop": 1440,
+    "mobile": 390,
+    "horizontalOverflow": false,
+    "loginReturnPreserves": [
+      "product=domates",
+      "city=istanbul",
+      "type=alim"
+    ],
+    "guidePriceAssertionsPassed": true
+  }
+}

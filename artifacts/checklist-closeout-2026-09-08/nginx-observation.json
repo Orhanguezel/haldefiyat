@@ -1,0 +1,69 @@
+{
+  "period": "2026-09-01/2026-09-07",
+  "daily": {
+    "01:requests": 104048,
+    "01:5xx": 231,
+    "02:requests": 120492,
+    "07:requests": 138617,
+    "07:5xx": 1,
+    "05:requests": 103309,
+    "05:5xx": 83,
+    "06:requests": 102123,
+    "04:requests": 111040,
+    "04:5xx": 2,
+    "06:5xx": 177,
+    "02:5xx": 103,
+    "03:requests": 107530,
+    "03:5xx": 1
+  },
+  "errorPaths": [
+    [
+      "/api/v1/site_settings/site_seo?locale=tr",
+      91
+    ],
+    [
+      "/api/v1/site_settings/site_meta_default?locale=tr",
+      90
+    ],
+    [
+      "/api/v1/track/pageview",
+      24
+    ],
+    [
+      "/manifest.json",
+      10
+    ],
+    [
+      "/assets/ads/vistaseeds/lucky-f1.webp",
+      9
+    ],
+    [
+      "/assets/ads/vistaseeds/cankan-f1.webp",
+      9
+    ],
+    [
+      "/assets/ads/vistaseeds/saray-f1.webp",
+      9
+    ],
+    [
+      "/assets/ads/vistaseeds/logo-white.png",
+      9
+    ],
+    [
+      "/_next/static/chunks/0t9fsotkcm7ew.css",
+      7
+    ],
+    [
+      "/api/v1/prices/markets",
+      7
+    ],
+    [
+      "/api/v1/admin/hal/gsc/summary",
+      6
+    ],
+    [
+      "/_next/static/chunks/0yjncsasc6r27.js",
+      5
+    ]
+  ]
+}

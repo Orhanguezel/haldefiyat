@@ -1,0 +1,15 @@
+### Ran Playwright code
+```js
+await (async (page) => { await page.setViewportSize({width:390,height:844}); if (!(await page.getByRole("region",{name:"Çerez tercihleri",exact:true}).isVisible())) throw new Error("BANNER_MISSING"); await page.getByRole("button",{name:"Reddet",exact:true}).click(); await page.reload(); if (await page.getByRole("region",{name:"Çerez tercihleri",exact:true}).count()) throw new Error("REJECT_NOT_PERSISTED"); })(page);
+```
+### Result
+{
+  "consent": "rejected",
+  "visible": false,
+  "width": 390,
+  "scrollWidth": 390
+}
+### Ran Playwright code
+```js
+await page.evaluate('() => ({consent:localStorage.getItem("hf_cookie_consent"),visible:!!document.querySelector("[aria-label=\\"Çerez tercihleri\\"]"),width:innerWidth,scrollWidth:document.documentElement.scrollWidth})');
+```

@@ -1,0 +1,37 @@
+[
+  {
+    "date": "20131021",
+    "url": "https://itb.org.tr/dosya/bulten/20131021-pamuk-bulteni-2.xls",
+    "status": 200,
+    "bytes": 124928,
+    "signature": "d0cf11e0a1b11ae1"
+  },
+  {
+    "date": "20140102",
+    "url": "https://itb.org.tr/dosya/bulten/20140102-pamuk-bulteni-2.xls",
+    "status": 200,
+    "bytes": 125952,
+    "signature": "d0cf11e0a1b11ae1"
+  },
+  {
+    "date": "20200102",
+    "url": "https://itb.org.tr/dosya/bulten/20200102-pamuk-bulteni-2.pdf",
+    "status": 200,
+    "bytes": 734417,
+    "signature": "255044462d312e35"
+  },
+  {
+    "date": "20250102",
+    "url": "https://itb.org.tr/dosya/bulten/20250102-pamuk-bulteni-2.pdf",
+    "status": 200,
+    "bytes": 414068,
+    "signature": "255044462d312e37"
+  },
+  {
+    "date": "20260907",
+    "url": "https://itb.org.tr/dosya/bulten/20260907-pamuk-bulteni-2.pdf",
+    "status": 200,
+    "bytes": 423395,
+    "signature": "255044462d312e37"
+  }
+]

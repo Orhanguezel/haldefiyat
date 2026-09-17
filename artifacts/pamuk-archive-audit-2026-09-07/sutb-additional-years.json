@@ -1,0 +1,37 @@
+[
+  {
+    "year": 2013,
+    "url": "https://uye.sutb.org.tr:3333/bultenweb?bultenturu=5&BASLAMATARIHI=01.09.2013&BITISTARIHI=07.09.2013",
+    "rows": 39,
+    "cotton": [
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | İTHAL PRESELİ PAMUK | HTS | 1 | 4,40 | 4,40 | 4,40 | 295.075,00 | KĞ | 1.298.330,00 | HTS",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | İTHAL PRESELİ PAMUK | HTS | 6 | 3,60 | 4,20 | 3,98 | 438.513,00 | KĞ | 1.787.875,58 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | İTHAL PRESELİ PAMUK | İTH | 2 | 3,73 | 3,79 | 3,76 | 162.130,00 | KĞ | 613.112,66 | İTH | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST 1.HB | HTS | 1 | 3,80 | 3,80 | 3,80 | 49.938,00 | KĞ | 189.764,40 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST 1.HB | VADELİ HTS | 1 | 3,70 | 3,70 | 3,70 | 16.900,00 | KĞ | 62.530,00 | VADELİ HTS",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST.1 BEYAZ | HTS | 2 | 4,20 | 4,20 | 4,20 | 156.808,00 | KĞ | 658.593,60 | HTS",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST.1 BEYAZ | HTS | 14 | 3,40 | 4,28 | 3,93 | 2.107.789,00 | KĞ | 8.393.544,98 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST.1 BEYAZ | VADELİ HTS | 1 | 3,85 | 3,85 | 3,85 | 20.948,00 | KĞ | 80.649,80 | VADELİ HTS"
+    ]
+  },
+  {
+    "year": 2016,
+    "url": "https://uye.sutb.org.tr:3333/bultenweb?bultenturu=5&BASLAMATARIHI=01.09.2016&BITISTARIHI=07.09.2016",
+    "rows": 28,
+    "cotton": [
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | İTHAL PRESELİ PAMUK | VADELİ HTS | 1 | 5,15 | 5,15 | 5,15 | 59.671,20 | KĞ | 307.306,68 | VADELİ HTS | VADELİ",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST.1 BEYAZ | HTS | 5 | 4,10 | 5,24 | 4,72 | 1.199.463,00 | KĞ | 5.508.975,95 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST.1 BEYAZ | VADELİ HTS | 7 | 5,00 | 5,49 | 5,19 | 809.236,90 | KĞ | 4.243.609,60 | VADELİ HTS | VADELİ"
+    ]
+  },
+  {
+    "year": 2025,
+    "url": "https://uye.sutb.org.tr:3333/bultenweb?bultenturu=5&BASLAMATARIHI=01.09.2025&BITISTARIHI=07.09.2025",
+    "rows": 35,
+    "cotton": [
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | İTHAL PRESELİ PAMUK | HTS | 4 | 70,92 | 71,13 | 71,00 | 1.075.201,00 | KĞ | 76.334.512,36 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST.1 BEYAZ | HTS | 13 | 55,00 | 70,81 | 64,65 | 2.669.888,50 | KĞ | 178.719.747,34 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST.1 BEYAZ | HTS | 1 | 76,00 | 76,00 | 76,00 | 140.740,00 | KĞ | 10.696.240,00 | HTS | VADELİ"
+    ]
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "year": 2020,
+    "url": "https://uye.sutb.org.tr:3333/bultenweb?bultenturu=5&BASLAMATARIHI=01.09.2020&BITISTARIHI=30.09.2020",
+    "rows": 63,
+    "cotton": [
+      "YAĞLAR | NEBATİ YAĞLAR | HAM PAMUK YAĞI | HTS | 6 | 2,31 | 6,25 | 3,91 | 888.390,00 | KĞ | 4.170.566,31 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | İTHAL PRESELİ PAMUK | HTS | 6 | 6,87 | 11,25 | 9,04 | 830.014,00 | KĞ | 6.880.836,52 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | İTHAL PRESELİ PAMUK | İTH | 8 | 7,67 | 10,76 | 9,50 | 543.087,00 | KĞ | 4.892.222,60 | İTH | PEŞİN",
+      "TEKSTİL MADDELERİ | KÜTLÜ PAMUKLAR | KÜTLÜ PAMUK | HMS | 1 | 4,40 | 4,40 | 4,40 | 7.120,00 | KĞ | 31.328,00 | HMS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | LİNTER PAMUK | HTS | 1 | 0,82 | 0,82 | 0,82 | 435.780,00 | KĞ | 357.946,21 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | LİNTER PAMUK (TİP DIŞI) | HTS | 1 | 0,37 | 0,37 | 0,37 | 447.900,00 | KĞ | 167.514,60 | HTS | PEŞİN",
+      "YAĞLAR | NEBATİ YAĞLAR | NÖTR PAMUK YAGI | HTS | 1 | 4,80 | 4,80 | 4,80 | 104.540,00 | KĞ | 501.792,00 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST 1.HB | HTS | 15 | 8,50 | 9,67 | 9,27 | 1.070.825,00 | KĞ | 9.899.614,45 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST 2.HB | HTS | 1 | 9,00 | 9,00 | 9,00 | 39.027,00 | KĞ | 351.243,00 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST.1 BEYAZ | HTS | 136 | 7,60 | 12,40 | 9,47 | 21.626.972,40 | KĞ | 203.682.685,99 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST.1 BEYAZ | HTS | 1 | 12,50 | 12,50 | 12,50 | 25.180,00 | KĞ | 314.750,00 | HTS | VADELİ",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST2 BEYAZ | HTS | 3 | 8,60 | 8,90 | 8,78 | 237.482,00 | KĞ | 2.084.055,95 | HTS | PEŞİN"
+    ]
+  },
+  {
+    "year": 2025,
+    "url": "https://uye.sutb.org.tr:3333/bultenweb?bultenturu=5&BASLAMATARIHI=01.09.2025&BITISTARIHI=30.09.2025",
+    "rows": 71,
+    "cotton": [
+      "YAĞLAR | NEBATİ YAĞLAR | HAM PAMUK YAĞI | HTS | 10 | 47,00 | 51,50 | 49,17 | 398.320,00 | KĞ | 19.571.130,00 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | İTHAL PRESELİ PAMUK | HTS | 4 | 70,92 | 71,13 | 71,00 | 1.075.201,00 | KĞ | 76.334.512,36 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | KÜTLÜ PAMUKLAR | KÜTLÜ PAMUK | HMS | 4 | 25,00 | 26,00 | 25,50 | 85.680,00 | KĞ | 2.177.680,00 | HMS | PEŞİN",
+      "YAĞLAR | NEBATİ YAĞLAR | NÖTR PAMUK YAGI | HTS | 1 | 64,50 | 64,50 | 64,50 | 20.640,00 | KĞ | 1.331.280,00 | HTS | PEŞİN",
+      "YAĞLAR | NEBATİ YAĞLAR | NÖTR PAMUK YAĞI | HTS | 10 | 63,00 | 67,25 | 65,12 | 453.160,00 | KĞ | 29.614.370,00 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST.1 BEYAZ | HTS | 46 | 51,25 | 73,00 | 64,49 | 5.617.207,55 | KĞ | 369.933.360,84 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST.1 BEYAZ | HTS | 2 | 75,50 | 76,00 | 75,75 | 151.240,00 | KĞ | 11.488.990,00 | HTS | VADELİ"
+    ]
+  },
+  {
+    "year": 2026,
+    "url": "https://uye.sutb.org.tr:3333/bultenweb?bultenturu=5&BASLAMATARIHI=01.09.2026&BITISTARIHI=07.09.2026",
+    "rows": 22,
+    "cotton": [
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | İTHAL PRESELİ PAMUK | HTS | 1 | 97,97 | 97,97 | 97,97 | 514.769,00 | KĞ | 50.432.144,91 | HTS | PEŞİN",
+      "TEKSTİL MADDELERİ | PRESELİ PAMUKLAR | PRESELİ PAMUK ST.1 BEYAZ | HTS | 11 | 54,75 | 97,34 | 84,49 | 2.117.336,00 | KĞ | 173.597.262,74 | HTS | PEŞİN"
+    ]
+  }
+]

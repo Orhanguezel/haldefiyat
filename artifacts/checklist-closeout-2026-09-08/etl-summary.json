@@ -1,0 +1,17 @@
+{
+  "Aug07-18": {
+    "ok": 587,
+    "partial": 59,
+    "error": 13
+  },
+  "Aug19-30": {
+    "ok": 536,
+    "partial": 169,
+    "error": 5
+  },
+  "Aug31-Sep08": {
+    "ok": 360,
+    "partial": 260,
+    "error": 4
+  }
+}

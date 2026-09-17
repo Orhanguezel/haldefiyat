@@ -1,0 +1,8 @@
+[
+  "frontend/src/app/[locale]/(public)/fiyat/[sehir]/[urun]/page.tsx",
+  "frontend/src/app/[locale]/(public)/urun/[slug]/page.tsx",
+  "frontend/src/components/listings/ProductListings.tsx",
+  "frontend/src/components/listings/ProductListings.test.tsx",
+  "frontend/src/components/listings/ListingCard.tsx",
+  "frontend/src/components/listings/ListingCard.test.tsx"
+]

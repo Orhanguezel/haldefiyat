@@ -1,0 +1,34 @@
+query,impressions,clicks,position,target_path,action
+erdemli limon piyasası,1388,9,7.04,/piyasa/erdemli-limon,"Yerel veri akışını onar; piyasa, analiz ve ürün sayfalarının amaçlarını ve iç bağlantılarını ayır."
+kuru üzüm fiyatları 2026,1289,16,7.6,,"Taze/kuru üzüm niyetini ayır; mevcut hedefi koru, çeşide ve kaynağa bağlı açıklama ekle."
+2026 kuru üzüm fiyatları,1019,6,7.77,,"Taze/kuru üzüm niyetini ayır; mevcut hedefi koru, çeşide ve kaynağa bağlı açıklama ekle."
+izmir hal fiyatları,1000,5,8.34,/hal/izmir-hal,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+salçalık domates fiyatı,979,14,8.44,/urun/domates-salcalik,"Mevcut sayfayı Rio/çeşit, hal-fabrika ayrımı ve veriye dayalı hesap örneğiyle güçlendir."
+adana limon piyasası,926,5,8.53,/urun/limon,Adana resmi veri akışını doğrula/onar; genel fiyatı Adana fiyatı diye sunma; yerel sayfa veri kapısı sonrası.
+ankara hal,778,10,7.36,/hal/ankara-hal,"Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+adana mandalina fiyatları,766,2,8.07,/urun/mandalina,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+limon fiyatları adana,760,11,8.24,/urun/limon,Adana resmi veri akışını doğrula/onar; genel fiyatı Adana fiyatı diye sunma; yerel sayfa veri kapısı sonrası.
+domates fiyatı,757,13,9.53,/urun/domates,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+elma fiyatları,655,10,8.78,/urun/elma,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+ibb hal fiyatları,606,7,7.26,/hal/istanbul-hal-ibb,Aynı hal sayfasında Bayrampaşa fiyat listesi başlığı ve güncel satırları önce göster; kopya URL açma.
+ankara toptancı hali,582,2,10.75,/hal/ankara-hal,"Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+kayseri hal,579,5,10.06,/hal/kayseri-hal,"Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+mersin hal,572,7,10.14,/hal/mersin-hal,Son kaynak tarihi 22 Haziran; yeni yazıdan önce güncel resmi kaynak ve ETL sorununu çöz.
+barbunya fiyatı,525,11,8.93,/urun/barbunya-taze,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+mısır fiyatı 2026,503,3,9.49,/urun/misir,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+limon piyasası adana,464,2,8.82,/urun/limon,Adana resmi veri akışını doğrula/onar; genel fiyatı Adana fiyatı diye sunma; yerel sayfa veri kapısı sonrası.
+bursa balık hali,426,0,12.01,/hal/bursa-hal,"Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+elazığ sebze hali,422,7,7.75,/firmalar/elazig,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+nevşehir patates fiyatları,407,11,7.57,/urun/patates,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+sebze hali,404,1,10.18,/,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+kuru soğan hal fiyatları,402,9,9.35,/urun/sogan-kuru,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+adana sebze hali,383,2,7.64,/firmalar/adana,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+patlıcan fiyatı,363,2,7.49,/urun/patlican,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+mersin hal fiyatları günlük meyve,354,11,9.1,/hal/mersin-hal,Son kaynak tarihi 22 Haziran; yeni yazıdan önce güncel resmi kaynak ve ETL sorununu çöz.
+çorum soğan fiyatları bugun,349,0,8.77,/urun/sogan-kuru,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+limonun kilosu ne kadar,348,2,7.97,/urun/limon,"Çeşit, hal/bahçe ayrımı, kaynaklı tablo ve ilgili Mayer/yerel piyasa bağlantılarını güçlendir."
+gaziantep sebze hali,341,6,9.78,/hal/gaziantep-hal,"Google mevcut hedefini kontrol et; veri tarihi, liste sırası ve sorguya uygun açıklamayı güçlendir."
+osmaniye sebze hali telefon numarası,331,4,10.94,/firmalar/osmaniye,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+izmir hal fiyatları bugün,318,5,9.32,/hal/izmir-hal,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+osmaniye sebze hali,317,2,9.23,/firmalar/osmaniye,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.
+incir kilosu ne kadar 2026,304,1,7.24,/urun/incir-beyaz,Mevcut açılış sayfasında niyet ve veri kapsamı incelemesi.

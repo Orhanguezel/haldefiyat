@@ -1,0 +1,2591 @@
+{
+  "checkedAt": "2026-09-14T19:11:30.588Z",
+  "periods": {
+    "current": {
+      "start": "2026-08-31",
+      "end": "2026-09-14",
+      "users": [
+        {
+          "n": 19
+        }
+      ],
+      "newsletter": [
+        {
+          "n": 1,
+          "verified": "1"
+        }
+      ],
+      "cta": [
+        {
+          "placement": "home_bottom",
+          "event": "focus",
+          "n": 1,
+          "visitor_days": 1
+        },
+        {
+          "placement": "home_bottom",
+          "event": "impression",
+          "n": 22,
+          "visitor_days": 19
+        },
+        {
+          "placement": "home_mobile",
+          "event": "impression",
+          "n": 47,
+          "visitor_days": 44
+        },
+        {
+          "placement": "home_mobile",
+          "event": "invalid",
+          "n": 1,
+          "visitor_days": 1
+        },
+        {
+          "placement": "live_price",
+          "event": "impression",
+          "n": 29,
+          "visitor_days": 29
+        },
+        {
+          "placement": "mobile_home_sticky",
+          "event": "impression",
+          "n": 386,
+          "visitor_days": 351
+        },
+        {
+          "placement": "mobile_home_sticky",
+          "event": "invalid",
+          "n": 2,
+          "visitor_days": 2
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "focus",
+          "n": 3,
+          "visitor_days": 3
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "impression",
+          "n": 329,
+          "visitor_days": 306
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "invalid",
+          "n": 6,
+          "visitor_days": 5
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "submit",
+          "n": 2,
+          "visitor_days": 2
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "success",
+          "n": 2,
+          "visitor_days": 2
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "whatsapp",
+          "n": 8,
+          "visitor_days": 6
+        },
+        {
+          "placement": "product_search",
+          "event": "opened",
+          "n": 189,
+          "visitor_days": 140
+        },
+        {
+          "placement": "product_search",
+          "event": "price_viewed",
+          "n": 841,
+          "visitor_days": 449
+        },
+        {
+          "placement": "product_search",
+          "event": "selected",
+          "n": 132,
+          "visitor_days": 101
+        },
+        {
+          "placement": "product_search",
+          "event": "submitted",
+          "n": 313,
+          "visitor_days": 125
+        },
+        {
+          "placement": "product_search",
+          "event": "zero_results",
+          "n": 83,
+          "visitor_days": 35
+        }
+      ],
+      "banners": [
+        {
+          "impressions": "101514",
+          "clicks": "87"
+        }
+      ],
+      "payments": [],
+      "claims": [],
+      "listings": [
+        {
+          "status": "approved",
+          "n": 5
+        },
+        {
+          "status": "expired",
+          "n": 5
+        },
+        {
+          "status": "closed",
+          "n": 1
+        }
+      ],
+      "inquiries": [
+        {
+          "n": 2
+        }
+      ],
+      "calls": [
+        {
+          "n": 0
+        }
+      ],
+      "articles": [
+        {
+          "id": 27,
+          "title": "Ağustos 5. Hafta Hal Raporu: Endeks 67,3 ile Yeni Dipte",
+          "status": "published",
+          "published_at": "2026-08-31T22:29:49.160Z"
+        },
+        {
+          "id": 29,
+          "title": "31 Ağustos–6 Eylül Hal Raporu: Endeks %5,4 Yükseldi",
+          "status": "published",
+          "published_at": "2026-09-07T20:22:41.386Z"
+        },
+        {
+          "id": 30,
+          "title": "Pamuk Sezonu 2026: Resmî Borsa Fiyatları ve Geçen Yıl Karşılaştırması",
+          "status": "published",
+          "published_at": "2026-09-07T20:22:41.394Z"
+        },
+        {
+          "id": 31,
+          "title": "Pamuk Fiyatları 2013–2026: Resmî Borsa Verileriyle Aylık Seri",
+          "status": "published",
+          "published_at": "2026-09-07T21:27:01.466Z"
+        },
+        {
+          "id": 32,
+          "title": "Üzüm Fiyatları 2026: Sezon Başında Hal Verileri, Rekolte ve Dünya Piyasası",
+          "status": "published",
+          "published_at": "2026-09-12T14:13:15.238Z"
+        }
+      ],
+      "etl": [
+        {
+          "status": "ok",
+          "n": 616,
+          "fetched": "17663",
+          "inserted": "16228",
+          "empty_fetch": "118"
+        },
+        {
+          "status": "partial",
+          "n": 316,
+          "fetched": "26752",
+          "inserted": "25425",
+          "empty_fetch": "0"
+        },
+        {
+          "status": "error",
+          "n": 11,
+          "fetched": "0",
+          "inserted": "0",
+          "empty_fetch": "11"
+        }
+      ],
+      "etlSources": [
+        {
+          "source_api": "izmir_sebzemeyve",
+          "status": "ok",
+          "n": 13,
+          "fetched": "1274",
+          "inserted": "1274"
+        },
+        {
+          "source_api": "izmir_balik",
+          "status": "partial",
+          "n": 14,
+          "fetched": "933",
+          "inserted": "913"
+        },
+        {
+          "source_api": "antalya_merkez_antkomder",
+          "status": "ok",
+          "n": 18,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "antalya_serik_antkomder",
+          "status": "ok",
+          "n": 28,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "antalya_kumluca_antkomder",
+          "status": "ok",
+          "n": 28,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "ankara_resmi",
+          "status": "partial",
+          "n": 8,
+          "fetched": "1043",
+          "inserted": "1024"
+        },
+        {
+          "source_api": "konya_resmi",
+          "status": "ok",
+          "n": 12,
+          "fetched": "1424",
+          "inserted": "1424"
+        },
+        {
+          "source_api": "kayseri_resmi",
+          "status": "partial",
+          "n": 13,
+          "fetched": "1511",
+          "inserted": "1492"
+        },
+        {
+          "source_api": "eskisehir_resmi",
+          "status": "partial",
+          "n": 10,
+          "fetched": "655",
+          "inserted": "622"
+        },
+        {
+          "source_api": "denizli_resmi",
+          "status": "ok",
+          "n": 13,
+          "fetched": "1129",
+          "inserted": "1129"
+        },
+        {
+          "source_api": "bursa_resmi",
+          "status": "partial",
+          "n": 14,
+          "fetched": "2198",
+          "inserted": "2117"
+        },
+        {
+          "source_api": "gaziantep_resmi",
+          "status": "ok",
+          "n": 12,
+          "fetched": "240",
+          "inserted": "240"
+        },
+        {
+          "source_api": "balikesir_resmi",
+          "status": "partial",
+          "n": 8,
+          "fetched": "844",
+          "inserted": "821"
+        },
+        {
+          "source_api": "hal_gov_tr_ulusal",
+          "status": "partial",
+          "n": 15,
+          "fetched": "3644",
+          "inserted": "3507"
+        },
+        {
+          "source_api": "istanbul_ibb",
+          "status": "partial",
+          "n": 26,
+          "fetched": "2539",
+          "inserted": "2477"
+        },
+        {
+          "source_api": "corum_resmi",
+          "status": "ok",
+          "n": 3,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "kutahya_resmi",
+          "status": "partial",
+          "n": 8,
+          "fetched": "616",
+          "inserted": "608"
+        },
+        {
+          "source_api": "manisa_resmi",
+          "status": "partial",
+          "n": 3,
+          "fetched": "384",
+          "inserted": "381"
+        },
+        {
+          "source_api": "kahramanmaras_resmi",
+          "status": "ok",
+          "n": 9,
+          "fetched": "180",
+          "inserted": "174"
+        },
+        {
+          "source_api": "yalova_resmi",
+          "status": "ok",
+          "n": 12,
+          "fetched": "764",
+          "inserted": "764"
+        },
+        {
+          "source_api": "trabzon_resmi",
+          "status": "partial",
+          "n": 8,
+          "fetched": "536",
+          "inserted": "521"
+        },
+        {
+          "source_api": "serik_batiakdeniz",
+          "status": "ok",
+          "n": 3,
+          "fetched": "30",
+          "inserted": "30"
+        },
+        {
+          "source_api": "kumluca_batiakdeniz",
+          "status": "ok",
+          "n": 3,
+          "fetched": "54",
+          "inserted": "54"
+        },
+        {
+          "source_api": "gazipasa_batiakdeniz",
+          "status": "ok",
+          "n": 3,
+          "fetched": "48",
+          "inserted": "48"
+        },
+        {
+          "source_api": "alanya_batiakdeniz",
+          "status": "ok",
+          "n": 3,
+          "fetched": "15",
+          "inserted": "15"
+        },
+        {
+          "source_api": "demre_batiakdeniz",
+          "status": "partial",
+          "n": 6,
+          "fetched": "126",
+          "inserted": "107"
+        },
+        {
+          "source_api": "finike_batiakdeniz",
+          "status": "ok",
+          "n": 3,
+          "fetched": "54",
+          "inserted": "54"
+        },
+        {
+          "source_api": "bolu_resmi",
+          "status": "ok",
+          "n": 14,
+          "fetched": "488",
+          "inserted": "488"
+        },
+        {
+          "source_api": "tokat_resmi",
+          "status": "ok",
+          "n": 13,
+          "fetched": "429",
+          "inserted": "429"
+        },
+        {
+          "source_api": "tmo_alim_resmi",
+          "status": "ok",
+          "n": 13,
+          "fetched": "26",
+          "inserted": "26"
+        },
+        {
+          "source_api": "polatli_borsa",
+          "status": "error",
+          "n": 6,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_edirne",
+          "status": "ok",
+          "n": 12,
+          "fetched": "144",
+          "inserted": "144"
+        },
+        {
+          "source_api": "tobb_borsa_ankara",
+          "status": "ok",
+          "n": 13,
+          "fetched": "117",
+          "inserted": "117"
+        },
+        {
+          "source_api": "tobb_borsa_uzunkopru",
+          "status": "ok",
+          "n": 13,
+          "fetched": "50",
+          "inserted": "50"
+        },
+        {
+          "source_api": "tobb_borsa_gaziantep",
+          "status": "ok",
+          "n": 12,
+          "fetched": "128",
+          "inserted": "90"
+        },
+        {
+          "source_api": "tobb_borsa_sanliurfa",
+          "status": "ok",
+          "n": 3,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_corum",
+          "status": "ok",
+          "n": 13,
+          "fetched": "117",
+          "inserted": "117"
+        },
+        {
+          "source_api": "tobb_borsa_yozgat",
+          "status": "ok",
+          "n": 3,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_alaca",
+          "status": "ok",
+          "n": 12,
+          "fetched": "96",
+          "inserted": "96"
+        },
+        {
+          "source_api": "tobb_borsa_konya",
+          "status": "ok",
+          "n": 14,
+          "fetched": "84",
+          "inserted": "36"
+        },
+        {
+          "source_api": "tobb_borsa_aksehir",
+          "status": "ok",
+          "n": 13,
+          "fetched": "148",
+          "inserted": "148"
+        },
+        {
+          "source_api": "izmir_borsa_pamuk",
+          "status": "ok",
+          "n": 13,
+          "fetched": "12",
+          "inserted": "12"
+        },
+        {
+          "source_api": "tobb_borsa_edremit",
+          "status": "ok",
+          "n": 13,
+          "fetched": "43",
+          "inserted": "43"
+        },
+        {
+          "source_api": "tobb_borsa_eskisehir",
+          "status": "ok",
+          "n": 13,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_bandirma",
+          "status": "ok",
+          "n": 13,
+          "fetched": "151",
+          "inserted": "151"
+        },
+        {
+          "source_api": "tobb_borsa_sungurlu",
+          "status": "ok",
+          "n": 13,
+          "fetched": "92",
+          "inserted": "92"
+        },
+        {
+          "source_api": "tobb_borsa_ilgin",
+          "status": "partial",
+          "n": 6,
+          "fetched": "49",
+          "inserted": "43"
+        },
+        {
+          "source_api": "tobb_borsa_nazilli",
+          "status": "ok",
+          "n": 13,
+          "fetched": "53",
+          "inserted": "39"
+        },
+        {
+          "source_api": "tobb_borsa_aydin",
+          "status": "ok",
+          "n": 13,
+          "fetched": "46",
+          "inserted": "39"
+        },
+        {
+          "source_api": "tobb_borsa_karapinar",
+          "status": "ok",
+          "n": 13,
+          "fetched": "39",
+          "inserted": "18"
+        },
+        {
+          "source_api": "tobb_borsa_biga",
+          "status": "ok",
+          "n": 13,
+          "fetched": "65",
+          "inserted": "30"
+        },
+        {
+          "source_api": "tobb_borsa_eregli",
+          "status": "ok",
+          "n": 13,
+          "fetched": "13",
+          "inserted": "6"
+        },
+        {
+          "source_api": "tobb_borsa_nevsehir",
+          "status": "ok",
+          "n": 12,
+          "fetched": "24",
+          "inserted": "16"
+        },
+        {
+          "source_api": "tobb_borsa_adana",
+          "status": "ok",
+          "n": 3,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_ordu",
+          "status": "ok",
+          "n": 12,
+          "fetched": "8",
+          "inserted": "0"
+        },
+        {
+          "source_api": "polatli_borsa",
+          "status": "ok",
+          "n": 8,
+          "fetched": "13",
+          "inserted": "13"
+        },
+        {
+          "source_api": "ankara_resmi",
+          "status": "ok",
+          "n": 9,
+          "fetched": "1231",
+          "inserted": "1216"
+        },
+        {
+          "source_api": "balikesir_resmi",
+          "status": "ok",
+          "n": 5,
+          "fetched": "322",
+          "inserted": "321"
+        },
+        {
+          "source_api": "kahramanmaras_resmi",
+          "status": "partial",
+          "n": 4,
+          "fetched": "112",
+          "inserted": "108"
+        },
+        {
+          "source_api": "manisa_resmi",
+          "status": "ok",
+          "n": 10,
+          "fetched": "1024",
+          "inserted": "1024"
+        },
+        {
+          "source_api": "kayseri_resmi",
+          "status": "ok",
+          "n": 6,
+          "fetched": "696",
+          "inserted": "696"
+        },
+        {
+          "source_api": "gaziantep_resmi",
+          "status": "partial",
+          "n": 1,
+          "fetched": "20",
+          "inserted": "19"
+        },
+        {
+          "source_api": "konya_resmi",
+          "status": "partial",
+          "n": 4,
+          "fetched": "468",
+          "inserted": "464"
+        },
+        {
+          "source_api": "manisa_resmi",
+          "status": "error",
+          "n": 1,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "yalova_resmi",
+          "status": "partial",
+          "n": 1,
+          "fetched": "69",
+          "inserted": "68"
+        },
+        {
+          "source_api": "tobb_borsa_alaca",
+          "status": "partial",
+          "n": 1,
+          "fetched": "8",
+          "inserted": "7"
+        },
+        {
+          "source_api": "kocaeli_merkez",
+          "status": "partial",
+          "n": 123,
+          "fetched": "7891",
+          "inserted": "7544"
+        },
+        {
+          "source_api": "canakkale_resmi",
+          "status": "partial",
+          "n": 8,
+          "fetched": "684",
+          "inserted": "600"
+        },
+        {
+          "source_api": "kocaeli_merkez",
+          "status": "ok",
+          "n": 4,
+          "fetched": "246",
+          "inserted": "237"
+        },
+        {
+          "source_api": "tekirdag_resmi",
+          "status": "ok",
+          "n": 9,
+          "fetched": "429",
+          "inserted": "0"
+        },
+        {
+          "source_api": "izmir_sebzemeyve",
+          "status": "partial",
+          "n": 1,
+          "fetched": "98",
+          "inserted": "97"
+        },
+        {
+          "source_api": "eskisehir_resmi",
+          "status": "ok",
+          "n": 5,
+          "fetched": "259",
+          "inserted": "254"
+        },
+        {
+          "source_api": "tobb_borsa_ilgin",
+          "status": "ok",
+          "n": 7,
+          "fetched": "62",
+          "inserted": "62"
+        },
+        {
+          "source_api": "adana_resmi",
+          "status": "partial",
+          "n": 25,
+          "fetched": "1750",
+          "inserted": "1420"
+        },
+        {
+          "source_api": "adana_resmi",
+          "status": "ok",
+          "n": 72,
+          "fetched": "4828",
+          "inserted": "4044"
+        },
+        {
+          "source_api": "kutahya_resmi",
+          "status": "ok",
+          "n": 6,
+          "fetched": "468",
+          "inserted": "468"
+        },
+        {
+          "source_api": "trabzon_resmi",
+          "status": "ok",
+          "n": 6,
+          "fetched": "431",
+          "inserted": "431"
+        },
+        {
+          "source_api": "izmir_balik",
+          "status": "ok",
+          "n": 1,
+          "fetched": "69",
+          "inserted": "69"
+        },
+        {
+          "source_api": "antalya_resmi",
+          "status": "partial",
+          "n": 5,
+          "fetched": "435",
+          "inserted": "385"
+        },
+        {
+          "source_api": "elazig_resmi",
+          "status": "error",
+          "n": 4,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_edirne",
+          "status": "partial",
+          "n": 1,
+          "fetched": "13",
+          "inserted": "12"
+        },
+        {
+          "source_api": "tobb_borsa_gaziantep",
+          "status": "partial",
+          "n": 1,
+          "fetched": "14",
+          "inserted": "8"
+        },
+        {
+          "source_api": "elazig_resmi",
+          "status": "partial",
+          "n": 2,
+          "fetched": "112",
+          "inserted": "60"
+        }
+      ],
+      "prices": [
+        {
+          "n": 20608,
+          "markets": 46,
+          "midpoint": "16177"
+        }
+      ],
+      "quarantine": [
+        {
+          "reason_code": "PRODUCT_UNIT_MISMATCH",
+          "n": 27
+        },
+        {
+          "reason_code": "SOURCE_MEDIAN_DEVIATION",
+          "n": 317
+        },
+        {
+          "reason_code": "PREVIOUS_PRICE_JUMP",
+          "n": 183
+        },
+        {
+          "reason_code": "PEER_MEDIAN_DEVIATION",
+          "n": 75
+        }
+      ]
+    },
+    "previous": {
+      "start": "2026-08-17",
+      "end": "2026-08-31",
+      "users": [
+        {
+          "n": 8
+        }
+      ],
+      "newsletter": [
+        {
+          "n": 4,
+          "verified": "4"
+        }
+      ],
+      "cta": [
+        {
+          "placement": "home_bottom",
+          "event": "impression",
+          "n": 22,
+          "visitor_days": 19
+        },
+        {
+          "placement": "home_mobile",
+          "event": "impression",
+          "n": 42,
+          "visitor_days": 42
+        },
+        {
+          "placement": "live_price",
+          "event": "focus",
+          "n": 2,
+          "visitor_days": 2
+        },
+        {
+          "placement": "live_price",
+          "event": "impression",
+          "n": 27,
+          "visitor_days": 27
+        },
+        {
+          "placement": "live_price",
+          "event": "invalid",
+          "n": 2,
+          "visitor_days": 2
+        },
+        {
+          "placement": "live_price",
+          "event": "submit",
+          "n": 1,
+          "visitor_days": 1
+        },
+        {
+          "placement": "live_price",
+          "event": "success",
+          "n": 1,
+          "visitor_days": 1
+        },
+        {
+          "placement": "mobile_home_sticky",
+          "event": "focus",
+          "n": 4,
+          "visitor_days": 4
+        },
+        {
+          "placement": "mobile_home_sticky",
+          "event": "impression",
+          "n": 361,
+          "visitor_days": 334
+        },
+        {
+          "placement": "mobile_home_sticky",
+          "event": "submit",
+          "n": 1,
+          "visitor_days": 1
+        },
+        {
+          "placement": "mobile_home_sticky",
+          "event": "success",
+          "n": 1,
+          "visitor_days": 1
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "focus",
+          "n": 5,
+          "visitor_days": 4
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "impression",
+          "n": 271,
+          "visitor_days": 251
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "invalid",
+          "n": 26,
+          "visitor_days": 5
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "submit",
+          "n": 3,
+          "visitor_days": 3
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "success",
+          "n": 3,
+          "visitor_days": 3
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "whatsapp",
+          "n": 4,
+          "visitor_days": 4
+        },
+        {
+          "placement": "product_search",
+          "event": "opened",
+          "n": 216,
+          "visitor_days": 116
+        },
+        {
+          "placement": "product_search",
+          "event": "price_viewed",
+          "n": 610,
+          "visitor_days": 337
+        },
+        {
+          "placement": "product_search",
+          "event": "selected",
+          "n": 159,
+          "visitor_days": 103
+        },
+        {
+          "placement": "product_search",
+          "event": "submitted",
+          "n": 392,
+          "visitor_days": 115
+        },
+        {
+          "placement": "product_search",
+          "event": "zero_results",
+          "n": 116,
+          "visitor_days": 36
+        }
+      ],
+      "banners": [
+        {
+          "impressions": "41876",
+          "clicks": "47"
+        }
+      ],
+      "payments": [],
+      "claims": [],
+      "listings": [],
+      "inquiries": [
+        {
+          "n": 0
+        }
+      ],
+      "calls": [
+        {
+          "n": 0
+        }
+      ],
+      "articles": [
+        {
+          "id": 23,
+          "title": "Ağustos 3. Hafta Hal Raporu: Endeks 74,3 ile Yataylaştı; Fasulye %20 Geriledi",
+          "status": "published",
+          "published_at": "2026-08-18T08:36:45.180Z"
+        },
+        {
+          "id": 24,
+          "title": "Ağustos 4. Hafta Hal Raporu: Endeks 70,7 ile Yeni Dipte; Salatalık %27,4 Yükseldi",
+          "status": "published",
+          "published_at": "2026-08-24T12:19:17.351Z"
+        },
+        {
+          "id": 25,
+          "title": "Nar Fiyatları 2026: Sezon Açılışında Piyasa Ne Söylüyor?",
+          "status": "published",
+          "published_at": "2026-08-20T05:00:01.084Z"
+        },
+        {
+          "id": 26,
+          "title": "Turşuluk Sezonu 2026: Turşu Sepeti Hal Fiyatları ve Alım Planı",
+          "status": "published",
+          "published_at": "2026-08-21T05:00:00.873Z"
+        }
+      ],
+      "etl": [
+        {
+          "status": "ok",
+          "n": 629,
+          "fetched": "9234",
+          "inserted": "9216",
+          "empty_fetch": "202"
+        },
+        {
+          "status": "partial",
+          "n": 194,
+          "fetched": "17749",
+          "inserted": "17131",
+          "empty_fetch": "0"
+        },
+        {
+          "status": "error",
+          "n": 5,
+          "fetched": "0",
+          "inserted": "0",
+          "empty_fetch": "5"
+        }
+      ],
+      "etlSources": [
+        {
+          "source_api": "izmir_sebzemeyve",
+          "status": "ok",
+          "n": 12,
+          "fetched": "1195",
+          "inserted": "1191"
+        },
+        {
+          "source_api": "izmir_balik",
+          "status": "partial",
+          "n": 14,
+          "fetched": "842",
+          "inserted": "817"
+        },
+        {
+          "source_api": "antalya_merkez_antkomder",
+          "status": "ok",
+          "n": 28,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "antalya_serik_antkomder",
+          "status": "ok",
+          "n": 28,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "antalya_kumluca_antkomder",
+          "status": "ok",
+          "n": 28,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "ankara_resmi",
+          "status": "ok",
+          "n": 10,
+          "fetched": "1004",
+          "inserted": "1004"
+        },
+        {
+          "source_api": "konya_resmi",
+          "status": "ok",
+          "n": 14,
+          "fetched": "1708",
+          "inserted": "1705"
+        },
+        {
+          "source_api": "kayseri_resmi",
+          "status": "partial",
+          "n": 15,
+          "fetched": "1761",
+          "inserted": "1713"
+        },
+        {
+          "source_api": "eskisehir_resmi",
+          "status": "partial",
+          "n": 13,
+          "fetched": "824",
+          "inserted": "806"
+        },
+        {
+          "source_api": "denizli_resmi",
+          "status": "ok",
+          "n": 9,
+          "fetched": "815",
+          "inserted": "807"
+        },
+        {
+          "source_api": "bursa_resmi",
+          "status": "partial",
+          "n": 14,
+          "fetched": "2198",
+          "inserted": "2127"
+        },
+        {
+          "source_api": "gaziantep_resmi",
+          "status": "ok",
+          "n": 13,
+          "fetched": "222",
+          "inserted": "222"
+        },
+        {
+          "source_api": "balikesir_resmi",
+          "status": "ok",
+          "n": 5,
+          "fetched": "153",
+          "inserted": "153"
+        },
+        {
+          "source_api": "hal_gov_tr_ulusal",
+          "status": "partial",
+          "n": 14,
+          "fetched": "3899",
+          "inserted": "3660"
+        },
+        {
+          "source_api": "istanbul_ibb",
+          "status": "partial",
+          "n": 14,
+          "fetched": "1335",
+          "inserted": "1286"
+        },
+        {
+          "source_api": "corum_resmi",
+          "status": "ok",
+          "n": 14,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "kutahya_resmi",
+          "status": "partial",
+          "n": 14,
+          "fetched": "1078",
+          "inserted": "1064"
+        },
+        {
+          "source_api": "manisa_resmi",
+          "status": "partial",
+          "n": 10,
+          "fetched": "1279",
+          "inserted": "1269"
+        },
+        {
+          "source_api": "kahramanmaras_resmi",
+          "status": "ok",
+          "n": 14,
+          "fetched": "377",
+          "inserted": "377"
+        },
+        {
+          "source_api": "yalova_resmi",
+          "status": "partial",
+          "n": 8,
+          "fetched": "548",
+          "inserted": "540"
+        },
+        {
+          "source_api": "trabzon_resmi",
+          "status": "partial",
+          "n": 14,
+          "fetched": "965",
+          "inserted": "949"
+        },
+        {
+          "source_api": "serik_batiakdeniz",
+          "status": "ok",
+          "n": 14,
+          "fetched": "140",
+          "inserted": "140"
+        },
+        {
+          "source_api": "kumluca_batiakdeniz",
+          "status": "ok",
+          "n": 14,
+          "fetched": "252",
+          "inserted": "252"
+        },
+        {
+          "source_api": "gazipasa_batiakdeniz",
+          "status": "ok",
+          "n": 14,
+          "fetched": "224",
+          "inserted": "224"
+        },
+        {
+          "source_api": "alanya_batiakdeniz",
+          "status": "ok",
+          "n": 14,
+          "fetched": "70",
+          "inserted": "70"
+        },
+        {
+          "source_api": "demre_batiakdeniz",
+          "status": "partial",
+          "n": 14,
+          "fetched": "294",
+          "inserted": "247"
+        },
+        {
+          "source_api": "finike_batiakdeniz",
+          "status": "ok",
+          "n": 14,
+          "fetched": "252",
+          "inserted": "252"
+        },
+        {
+          "source_api": "bolu_resmi",
+          "status": "ok",
+          "n": 14,
+          "fetched": "588",
+          "inserted": "585"
+        },
+        {
+          "source_api": "tokat_resmi",
+          "status": "ok",
+          "n": 13,
+          "fetched": "383",
+          "inserted": "383"
+        },
+        {
+          "source_api": "tekirdag_resmi",
+          "status": "partial",
+          "n": 14,
+          "fetched": "658",
+          "inserted": "630"
+        },
+        {
+          "source_api": "tmo_alim_resmi",
+          "status": "ok",
+          "n": 14,
+          "fetched": "28",
+          "inserted": "28"
+        },
+        {
+          "source_api": "polatli_borsa",
+          "status": "ok",
+          "n": 11,
+          "fetched": "19",
+          "inserted": "19"
+        },
+        {
+          "source_api": "tobb_borsa_edirne",
+          "status": "ok",
+          "n": 14,
+          "fetched": "151",
+          "inserted": "151"
+        },
+        {
+          "source_api": "tobb_borsa_ankara",
+          "status": "ok",
+          "n": 14,
+          "fetched": "126",
+          "inserted": "126"
+        },
+        {
+          "source_api": "tobb_borsa_uzunkopru",
+          "status": "ok",
+          "n": 14,
+          "fetched": "56",
+          "inserted": "56"
+        },
+        {
+          "source_api": "tobb_borsa_gaziantep",
+          "status": "ok",
+          "n": 14,
+          "fetched": "98",
+          "inserted": "98"
+        },
+        {
+          "source_api": "tobb_borsa_sanliurfa",
+          "status": "ok",
+          "n": 14,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_corum",
+          "status": "ok",
+          "n": 14,
+          "fetched": "117",
+          "inserted": "117"
+        },
+        {
+          "source_api": "tobb_borsa_yozgat",
+          "status": "ok",
+          "n": 14,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_alaca",
+          "status": "ok",
+          "n": 14,
+          "fetched": "112",
+          "inserted": "112"
+        },
+        {
+          "source_api": "tobb_borsa_konya",
+          "status": "ok",
+          "n": 14,
+          "fetched": "84",
+          "inserted": "84"
+        },
+        {
+          "source_api": "tobb_borsa_aksehir",
+          "status": "ok",
+          "n": 14,
+          "fetched": "90",
+          "inserted": "90"
+        },
+        {
+          "source_api": "izmir_borsa_pamuk",
+          "status": "ok",
+          "n": 14,
+          "fetched": "5",
+          "inserted": "5"
+        },
+        {
+          "source_api": "tobb_borsa_edremit",
+          "status": "ok",
+          "n": 14,
+          "fetched": "56",
+          "inserted": "56"
+        },
+        {
+          "source_api": "tobb_borsa_eskisehir",
+          "status": "ok",
+          "n": 14,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_bandirma",
+          "status": "ok",
+          "n": 13,
+          "fetched": "140",
+          "inserted": "140"
+        },
+        {
+          "source_api": "tobb_borsa_sungurlu",
+          "status": "ok",
+          "n": 14,
+          "fetched": "73",
+          "inserted": "73"
+        },
+        {
+          "source_api": "tobb_borsa_ilgin",
+          "status": "partial",
+          "n": 14,
+          "fetched": "113",
+          "inserted": "98"
+        },
+        {
+          "source_api": "tobb_borsa_nazilli",
+          "status": "ok",
+          "n": 14,
+          "fetched": "42",
+          "inserted": "42"
+        },
+        {
+          "source_api": "tobb_borsa_aydin",
+          "status": "ok",
+          "n": 14,
+          "fetched": "42",
+          "inserted": "42"
+        },
+        {
+          "source_api": "tobb_borsa_karapinar",
+          "status": "ok",
+          "n": 14,
+          "fetched": "42",
+          "inserted": "42"
+        },
+        {
+          "source_api": "tobb_borsa_biga",
+          "status": "ok",
+          "n": 14,
+          "fetched": "70",
+          "inserted": "70"
+        },
+        {
+          "source_api": "tobb_borsa_eregli",
+          "status": "ok",
+          "n": 14,
+          "fetched": "14",
+          "inserted": "14"
+        },
+        {
+          "source_api": "tobb_borsa_nevsehir",
+          "status": "ok",
+          "n": 14,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_adana",
+          "status": "ok",
+          "n": 14,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_ordu",
+          "status": "ok",
+          "n": 14,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "manisa_resmi",
+          "status": "ok",
+          "n": 4,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "denizli_resmi",
+          "status": "partial",
+          "n": 6,
+          "fetched": "528",
+          "inserted": "516"
+        },
+        {
+          "source_api": "balikesir_resmi",
+          "status": "partial",
+          "n": 8,
+          "fetched": "800",
+          "inserted": "790"
+        },
+        {
+          "source_api": "polatli_borsa",
+          "status": "error",
+          "n": 3,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "balikesir_resmi",
+          "status": "error",
+          "n": 1,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "izmir_sebzemeyve",
+          "status": "partial",
+          "n": 2,
+          "fetched": "200",
+          "inserted": "198"
+        },
+        {
+          "source_api": "eskisehir_resmi",
+          "status": "ok",
+          "n": 1,
+          "fetched": "81",
+          "inserted": "81"
+        },
+        {
+          "source_api": "yalova_resmi",
+          "status": "ok",
+          "n": 6,
+          "fetched": "405",
+          "inserted": "405"
+        },
+        {
+          "source_api": "tokat_resmi",
+          "status": "error",
+          "n": 1,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "ankara_resmi",
+          "status": "partial",
+          "n": 4,
+          "fetched": "396",
+          "inserted": "392"
+        },
+        {
+          "source_api": "gaziantep_resmi",
+          "status": "partial",
+          "n": 1,
+          "fetched": "20",
+          "inserted": "19"
+        },
+        {
+          "source_api": "tobb_borsa_bandirma",
+          "status": "partial",
+          "n": 1,
+          "fetched": "11",
+          "inserted": "10"
+        }
+      ],
+      "prices": [
+        {
+          "n": 21445,
+          "markets": 41,
+          "midpoint": "15491"
+        }
+      ],
+      "quarantine": [
+        {
+          "reason_code": "PRODUCT_UNIT_MISMATCH",
+          "n": 55
+        },
+        {
+          "reason_code": "PEER_MEDIAN_DEVIATION",
+          "n": 52
+        },
+        {
+          "reason_code": "SOURCE_MEDIAN_DEVIATION",
+          "n": 210
+        },
+        {
+          "reason_code": "PREVIOUS_PRICE_JUMP",
+          "n": 173
+        }
+      ]
+    },
+    "baseline": {
+      "start": "2026-08-19",
+      "end": "2026-08-31",
+      "users": [
+        {
+          "n": 6
+        }
+      ],
+      "newsletter": [
+        {
+          "n": 2,
+          "verified": "2"
+        }
+      ],
+      "cta": [
+        {
+          "placement": "home_bottom",
+          "event": "impression",
+          "n": 21,
+          "visitor_days": 18
+        },
+        {
+          "placement": "home_mobile",
+          "event": "impression",
+          "n": 42,
+          "visitor_days": 42
+        },
+        {
+          "placement": "live_price",
+          "event": "focus",
+          "n": 2,
+          "visitor_days": 2
+        },
+        {
+          "placement": "live_price",
+          "event": "impression",
+          "n": 24,
+          "visitor_days": 24
+        },
+        {
+          "placement": "live_price",
+          "event": "invalid",
+          "n": 2,
+          "visitor_days": 2
+        },
+        {
+          "placement": "live_price",
+          "event": "submit",
+          "n": 1,
+          "visitor_days": 1
+        },
+        {
+          "placement": "live_price",
+          "event": "success",
+          "n": 1,
+          "visitor_days": 1
+        },
+        {
+          "placement": "mobile_home_sticky",
+          "event": "focus",
+          "n": 3,
+          "visitor_days": 3
+        },
+        {
+          "placement": "mobile_home_sticky",
+          "event": "impression",
+          "n": 324,
+          "visitor_days": 300
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "focus",
+          "n": 3,
+          "visitor_days": 2
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "impression",
+          "n": 226,
+          "visitor_days": 210
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "invalid",
+          "n": 26,
+          "visitor_days": 5
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "submit",
+          "n": 1,
+          "visitor_days": 1
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "success",
+          "n": 1,
+          "visitor_days": 1
+        },
+        {
+          "placement": "price_list_strip",
+          "event": "whatsapp",
+          "n": 4,
+          "visitor_days": 4
+        },
+        {
+          "placement": "product_search",
+          "event": "opened",
+          "n": 202,
+          "visitor_days": 106
+        },
+        {
+          "placement": "product_search",
+          "event": "price_viewed",
+          "n": 533,
+          "visitor_days": 297
+        },
+        {
+          "placement": "product_search",
+          "event": "selected",
+          "n": 150,
+          "visitor_days": 95
+        },
+        {
+          "placement": "product_search",
+          "event": "submitted",
+          "n": 307,
+          "visitor_days": 105
+        },
+        {
+          "placement": "product_search",
+          "event": "zero_results",
+          "n": 71,
+          "visitor_days": 31
+        }
+      ],
+      "banners": [
+        {
+          "impressions": "35500",
+          "clicks": "36"
+        }
+      ],
+      "payments": [],
+      "claims": [],
+      "listings": [],
+      "inquiries": [
+        {
+          "n": 0
+        }
+      ],
+      "calls": [
+        {
+          "n": 0
+        }
+      ],
+      "articles": [
+        {
+          "id": 24,
+          "title": "Ağustos 4. Hafta Hal Raporu: Endeks 70,7 ile Yeni Dipte; Salatalık %27,4 Yükseldi",
+          "status": "published",
+          "published_at": "2026-08-24T12:19:17.351Z"
+        },
+        {
+          "id": 25,
+          "title": "Nar Fiyatları 2026: Sezon Açılışında Piyasa Ne Söylüyor?",
+          "status": "published",
+          "published_at": "2026-08-20T05:00:01.084Z"
+        },
+        {
+          "id": 26,
+          "title": "Turşuluk Sezonu 2026: Turşu Sepeti Hal Fiyatları ve Alım Planı",
+          "status": "published",
+          "published_at": "2026-08-21T05:00:00.873Z"
+        }
+      ],
+      "etl": [
+        {
+          "status": "ok",
+          "n": 536,
+          "fetched": "7760",
+          "inserted": "7750",
+          "empty_fetch": "173"
+        },
+        {
+          "status": "partial",
+          "n": 169,
+          "fetched": "15471",
+          "inserted": "14931",
+          "empty_fetch": "0"
+        },
+        {
+          "status": "error",
+          "n": 5,
+          "fetched": "0",
+          "inserted": "0",
+          "empty_fetch": "5"
+        }
+      ],
+      "etlSources": [
+        {
+          "source_api": "izmir_sebzemeyve",
+          "status": "ok",
+          "n": 10,
+          "fetched": "999",
+          "inserted": "997"
+        },
+        {
+          "source_api": "izmir_balik",
+          "status": "partial",
+          "n": 12,
+          "fetched": "735",
+          "inserted": "713"
+        },
+        {
+          "source_api": "antalya_merkez_antkomder",
+          "status": "ok",
+          "n": 24,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "antalya_serik_antkomder",
+          "status": "ok",
+          "n": 24,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "antalya_kumluca_antkomder",
+          "status": "ok",
+          "n": 24,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "ankara_resmi",
+          "status": "ok",
+          "n": 8,
+          "fetched": "802",
+          "inserted": "802"
+        },
+        {
+          "source_api": "konya_resmi",
+          "status": "ok",
+          "n": 12,
+          "fetched": "1464",
+          "inserted": "1463"
+        },
+        {
+          "source_api": "kayseri_resmi",
+          "status": "partial",
+          "n": 13,
+          "fetched": "1529",
+          "inserted": "1485"
+        },
+        {
+          "source_api": "eskisehir_resmi",
+          "status": "partial",
+          "n": 11,
+          "fetched": "653",
+          "inserted": "637"
+        },
+        {
+          "source_api": "denizli_resmi",
+          "status": "partial",
+          "n": 6,
+          "fetched": "528",
+          "inserted": "516"
+        },
+        {
+          "source_api": "bursa_resmi",
+          "status": "partial",
+          "n": 12,
+          "fetched": "1884",
+          "inserted": "1822"
+        },
+        {
+          "source_api": "gaziantep_resmi",
+          "status": "ok",
+          "n": 11,
+          "fetched": "201",
+          "inserted": "201"
+        },
+        {
+          "source_api": "balikesir_resmi",
+          "status": "ok",
+          "n": 3,
+          "fetched": "51",
+          "inserted": "51"
+        },
+        {
+          "source_api": "hal_gov_tr_ulusal",
+          "status": "partial",
+          "n": 12,
+          "fetched": "3347",
+          "inserted": "3139"
+        },
+        {
+          "source_api": "istanbul_ibb",
+          "status": "partial",
+          "n": 12,
+          "fetched": "1146",
+          "inserted": "1101"
+        },
+        {
+          "source_api": "corum_resmi",
+          "status": "ok",
+          "n": 12,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "kutahya_resmi",
+          "status": "partial",
+          "n": 12,
+          "fetched": "924",
+          "inserted": "912"
+        },
+        {
+          "source_api": "manisa_resmi",
+          "status": "ok",
+          "n": 3,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "kahramanmaras_resmi",
+          "status": "ok",
+          "n": 12,
+          "fetched": "319",
+          "inserted": "319"
+        },
+        {
+          "source_api": "yalova_resmi",
+          "status": "partial",
+          "n": 6,
+          "fetched": "410",
+          "inserted": "404"
+        },
+        {
+          "source_api": "trabzon_resmi",
+          "status": "partial",
+          "n": 12,
+          "fetched": "823",
+          "inserted": "811"
+        },
+        {
+          "source_api": "serik_batiakdeniz",
+          "status": "ok",
+          "n": 12,
+          "fetched": "120",
+          "inserted": "120"
+        },
+        {
+          "source_api": "kumluca_batiakdeniz",
+          "status": "ok",
+          "n": 12,
+          "fetched": "216",
+          "inserted": "216"
+        },
+        {
+          "source_api": "gazipasa_batiakdeniz",
+          "status": "ok",
+          "n": 12,
+          "fetched": "192",
+          "inserted": "192"
+        },
+        {
+          "source_api": "alanya_batiakdeniz",
+          "status": "ok",
+          "n": 12,
+          "fetched": "60",
+          "inserted": "60"
+        },
+        {
+          "source_api": "demre_batiakdeniz",
+          "status": "partial",
+          "n": 12,
+          "fetched": "252",
+          "inserted": "215"
+        },
+        {
+          "source_api": "finike_batiakdeniz",
+          "status": "ok",
+          "n": 12,
+          "fetched": "216",
+          "inserted": "216"
+        },
+        {
+          "source_api": "bolu_resmi",
+          "status": "ok",
+          "n": 12,
+          "fetched": "504",
+          "inserted": "503"
+        },
+        {
+          "source_api": "tokat_resmi",
+          "status": "ok",
+          "n": 11,
+          "fetched": "320",
+          "inserted": "320"
+        },
+        {
+          "source_api": "tekirdag_resmi",
+          "status": "partial",
+          "n": 12,
+          "fetched": "564",
+          "inserted": "540"
+        },
+        {
+          "source_api": "tmo_alim_resmi",
+          "status": "ok",
+          "n": 12,
+          "fetched": "24",
+          "inserted": "24"
+        },
+        {
+          "source_api": "polatli_borsa",
+          "status": "ok",
+          "n": 9,
+          "fetched": "14",
+          "inserted": "14"
+        },
+        {
+          "source_api": "tobb_borsa_edirne",
+          "status": "ok",
+          "n": 12,
+          "fetched": "129",
+          "inserted": "129"
+        },
+        {
+          "source_api": "tobb_borsa_ankara",
+          "status": "ok",
+          "n": 12,
+          "fetched": "108",
+          "inserted": "108"
+        },
+        {
+          "source_api": "tobb_borsa_uzunkopru",
+          "status": "ok",
+          "n": 12,
+          "fetched": "48",
+          "inserted": "48"
+        },
+        {
+          "source_api": "tobb_borsa_gaziantep",
+          "status": "ok",
+          "n": 12,
+          "fetched": "84",
+          "inserted": "84"
+        },
+        {
+          "source_api": "tobb_borsa_sanliurfa",
+          "status": "ok",
+          "n": 12,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_corum",
+          "status": "ok",
+          "n": 12,
+          "fetched": "101",
+          "inserted": "101"
+        },
+        {
+          "source_api": "tobb_borsa_yozgat",
+          "status": "ok",
+          "n": 12,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_alaca",
+          "status": "ok",
+          "n": 12,
+          "fetched": "96",
+          "inserted": "96"
+        },
+        {
+          "source_api": "tobb_borsa_konya",
+          "status": "ok",
+          "n": 12,
+          "fetched": "72",
+          "inserted": "72"
+        },
+        {
+          "source_api": "tobb_borsa_aksehir",
+          "status": "ok",
+          "n": 12,
+          "fetched": "80",
+          "inserted": "80"
+        },
+        {
+          "source_api": "izmir_borsa_pamuk",
+          "status": "ok",
+          "n": 12,
+          "fetched": "5",
+          "inserted": "5"
+        },
+        {
+          "source_api": "tobb_borsa_edremit",
+          "status": "ok",
+          "n": 12,
+          "fetched": "48",
+          "inserted": "48"
+        },
+        {
+          "source_api": "tobb_borsa_eskisehir",
+          "status": "ok",
+          "n": 12,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_bandirma",
+          "status": "ok",
+          "n": 11,
+          "fetched": "122",
+          "inserted": "122"
+        },
+        {
+          "source_api": "tobb_borsa_sungurlu",
+          "status": "ok",
+          "n": 12,
+          "fetched": "62",
+          "inserted": "62"
+        },
+        {
+          "source_api": "tobb_borsa_ilgin",
+          "status": "partial",
+          "n": 12,
+          "fetched": "97",
+          "inserted": "84"
+        },
+        {
+          "source_api": "tobb_borsa_nazilli",
+          "status": "ok",
+          "n": 12,
+          "fetched": "36",
+          "inserted": "36"
+        },
+        {
+          "source_api": "tobb_borsa_aydin",
+          "status": "ok",
+          "n": 12,
+          "fetched": "36",
+          "inserted": "36"
+        },
+        {
+          "source_api": "tobb_borsa_karapinar",
+          "status": "ok",
+          "n": 12,
+          "fetched": "36",
+          "inserted": "36"
+        },
+        {
+          "source_api": "tobb_borsa_biga",
+          "status": "ok",
+          "n": 12,
+          "fetched": "60",
+          "inserted": "60"
+        },
+        {
+          "source_api": "tobb_borsa_eregli",
+          "status": "ok",
+          "n": 12,
+          "fetched": "12",
+          "inserted": "12"
+        },
+        {
+          "source_api": "tobb_borsa_nevsehir",
+          "status": "ok",
+          "n": 12,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_adana",
+          "status": "ok",
+          "n": 12,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "tobb_borsa_ordu",
+          "status": "ok",
+          "n": 12,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "balikesir_resmi",
+          "status": "partial",
+          "n": 8,
+          "fetched": "800",
+          "inserted": "790"
+        },
+        {
+          "source_api": "manisa_resmi",
+          "status": "partial",
+          "n": 9,
+          "fetched": "1152",
+          "inserted": "1143"
+        },
+        {
+          "source_api": "polatli_borsa",
+          "status": "error",
+          "n": 3,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "balikesir_resmi",
+          "status": "error",
+          "n": 1,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "izmir_sebzemeyve",
+          "status": "partial",
+          "n": 2,
+          "fetched": "200",
+          "inserted": "198"
+        },
+        {
+          "source_api": "eskisehir_resmi",
+          "status": "ok",
+          "n": 1,
+          "fetched": "81",
+          "inserted": "81"
+        },
+        {
+          "source_api": "denizli_resmi",
+          "status": "ok",
+          "n": 7,
+          "fetched": "637",
+          "inserted": "631"
+        },
+        {
+          "source_api": "yalova_resmi",
+          "status": "ok",
+          "n": 6,
+          "fetched": "405",
+          "inserted": "405"
+        },
+        {
+          "source_api": "tokat_resmi",
+          "status": "error",
+          "n": 1,
+          "fetched": "0",
+          "inserted": "0"
+        },
+        {
+          "source_api": "ankara_resmi",
+          "status": "partial",
+          "n": 4,
+          "fetched": "396",
+          "inserted": "392"
+        },
+        {
+          "source_api": "gaziantep_resmi",
+          "status": "partial",
+          "n": 1,
+          "fetched": "20",
+          "inserted": "19"
+        },
+        {
+          "source_api": "tobb_borsa_bandirma",
+          "status": "partial",
+          "n": 1,
+          "fetched": "11",
+          "inserted": "10"
+        }
+      ],
+      "prices": [
+        {
+          "n": 18089,
+          "markets": 40,
+          "midpoint": "13005"
+        }
+      ],
+      "quarantine": [
+        {
+          "reason_code": "PREVIOUS_PRICE_JUMP",
+          "n": 152
+        },
+        {
+          "reason_code": "PRODUCT_UNIT_MISMATCH",
+          "n": 47
+        },
+        {
+          "reason_code": "SOURCE_MEDIAN_DEVIATION",
+          "n": 188
+        },
+        {
+          "reason_code": "PEER_MEDIAN_DEVIATION",
+          "n": 40
+        }
+      ]
+    }
+  },
+  "currentListings": [
+    {
+      "status": "approved",
+      "n": 5,
+      "unexpired": "5"
+    },
+    {
+      "status": "expired",
+      "n": 10,
+      "unexpired": "0"
+    },
+    {
+      "status": "closed",
+      "n": 1,
+      "unexpired": "1"
+    }
+  ],
+  "latestPrices": [
+    {
+      "source_api": "kayseri_resmi",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 5078
+    },
+    {
+      "source_api": "denizli_resmi",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 3820
+    },
+    {
+      "source_api": "ankara_resmi",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 2475
+    },
+    {
+      "source_api": "bursa_resmi",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 6555
+    },
+    {
+      "source_api": "kocaeli_merkez",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 2565
+    },
+    {
+      "source_api": "hal_gov_tr_ulusal",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 10209
+    },
+    {
+      "source_api": "corum_resmi",
+      "latest": "2026-08-12T00:00:00.000Z",
+      "n": 718
+    },
+    {
+      "source_api": "manisa_resmi",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 4149
+    },
+    {
+      "source_api": "tekirdag_resmi",
+      "latest": "2026-08-01T00:00:00.000Z",
+      "n": 49
+    },
+    {
+      "source_api": "adana_resmi",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 2599
+    },
+    {
+      "source_api": "konya_resmi",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 5306
+    },
+    {
+      "source_api": "kutahya_resmi",
+      "latest": "2026-09-08T00:00:00.000Z",
+      "n": 2751
+    },
+    {
+      "source_api": "trabzon_resmi",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 2908
+    },
+    {
+      "source_api": "eskisehir_resmi",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 2532
+    },
+    {
+      "source_api": "kumluca_batiakdeniz",
+      "latest": "2026-09-02T00:00:00.000Z",
+      "n": 576
+    },
+    {
+      "source_api": "finike_batiakdeniz",
+      "latest": "2026-09-02T00:00:00.000Z",
+      "n": 576
+    },
+    {
+      "source_api": "serik_batiakdeniz",
+      "latest": "2026-09-02T00:00:00.000Z",
+      "n": 320
+    },
+    {
+      "source_api": "gazipasa_batiakdeniz",
+      "latest": "2026-09-02T00:00:00.000Z",
+      "n": 448
+    },
+    {
+      "source_api": "demre_batiakdeniz",
+      "latest": "2026-09-05T00:00:00.000Z",
+      "n": 659
+    },
+    {
+      "source_api": "tokat_resmi",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 1314
+    },
+    {
+      "source_api": "yalova_resmi",
+      "latest": "2026-09-12T00:00:00.000Z",
+      "n": 1650
+    },
+    {
+      "source_api": "alanya_batiakdeniz",
+      "latest": "2026-09-02T00:00:00.000Z",
+      "n": 128
+    },
+    {
+      "source_api": "tmo_alim_resmi",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 86
+    },
+    {
+      "source_api": "tobb_borsa_corum",
+      "latest": "2026-09-12T00:00:00.000Z",
+      "n": 115
+    },
+    {
+      "source_api": "tobb_borsa_alaca",
+      "latest": "2026-09-12T00:00:00.000Z",
+      "n": 115
+    },
+    {
+      "source_api": "tobb_borsa_bandirma",
+      "latest": "2026-09-12T00:00:00.000Z",
+      "n": 68
+    },
+    {
+      "source_api": "tobb_borsa_ilgin",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 142
+    },
+    {
+      "source_api": "tobb_borsa_aksehir",
+      "latest": "2026-09-10T00:00:00.000Z",
+      "n": 53
+    },
+    {
+      "source_api": "balikesir_resmi",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 1481
+    },
+    {
+      "source_api": "istanbul_ibb",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 2656
+    },
+    {
+      "source_api": "kahramanmaras_resmi",
+      "latest": "2026-09-07T00:00:00.000Z",
+      "n": 177
+    },
+    {
+      "source_api": "gaziantep_resmi",
+      "latest": "2026-09-11T00:00:00.000Z",
+      "n": 501
+    },
+    {
+      "source_api": "tobb_borsa_edirne",
+      "latest": "2026-09-11T00:00:00.000Z",
+      "n": 70
+    },
+    {
+      "source_api": "tobb_borsa_uzunkopru",
+      "latest": "2026-09-11T00:00:00.000Z",
+      "n": 49
+    },
+    {
+      "source_api": "tobb_borsa_sungurlu",
+      "latest": "2026-09-11T00:00:00.000Z",
+      "n": 80
+    },
+    {
+      "source_api": "tobb_borsa_eskisehir",
+      "latest": "2026-08-07T00:00:00.000Z",
+      "n": 13
+    },
+    {
+      "source_api": "tobb_borsa_ankara",
+      "latest": "2026-09-11T00:00:00.000Z",
+      "n": 80
+    },
+    {
+      "source_api": "tobb_borsa_gecmis_backfill",
+      "latest": "2026-08-03T00:00:00.000Z",
+      "n": 1
+    },
+    {
+      "source_api": "izmir_sebzemeyve",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 2650
+    },
+    {
+      "source_api": "izmir_balik",
+      "latest": "2026-09-08T00:00:00.000Z",
+      "n": 1189
+    },
+    {
+      "source_api": "polatli_borsa",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 49
+    },
+    {
+      "source_api": "tobb_borsa_biga",
+      "latest": "2026-08-04T00:00:00.000Z",
+      "n": 1
+    },
+    {
+      "source_api": "tobb_borsa_gaziantep",
+      "latest": "2026-09-11T00:00:00.000Z",
+      "n": 34
+    },
+    {
+      "source_api": "bolu_resmi",
+      "latest": "2026-09-11T00:00:00.000Z",
+      "n": 152
+    },
+    {
+      "source_api": "tobb_borsa_aydin",
+      "latest": "2026-09-07T00:00:00.000Z",
+      "n": 3
+    },
+    {
+      "source_api": "tobb_borsa_nazilli",
+      "latest": "2026-09-10T00:00:00.000Z",
+      "n": 8
+    },
+    {
+      "source_api": "trabzon_resmi:reviewed",
+      "latest": "2026-09-01T00:00:00.000Z",
+      "n": 18
+    },
+    {
+      "source_api": "manisa_resmi:reviewed",
+      "latest": "2026-09-02T00:00:00.000Z",
+      "n": 13
+    },
+    {
+      "source_api": "tobb_borsa_edremit",
+      "latest": "2026-09-09T00:00:00.000Z",
+      "n": 10
+    },
+    {
+      "source_api": "izmir_borsa_pamuk",
+      "latest": "2026-09-10T00:00:00.000Z",
+      "n": 6
+    },
+    {
+      "source_api": "canakkale_resmi",
+      "latest": "2026-09-11T00:00:00.000Z",
+      "n": 183
+    },
+    {
+      "source_api": "tobb_borsa_nevsehir",
+      "latest": "2026-09-02T00:00:00.000Z",
+      "n": 1
+    },
+    {
+      "source_api": "kayseri_resmi:reviewed",
+      "latest": "2026-09-02T00:00:00.000Z",
+      "n": 1
+    },
+    {
+      "source_api": "antalya_resmi",
+      "latest": "2026-09-12T00:00:00.000Z",
+      "n": 385
+    },
+    {
+      "source_api": "elazig_resmi",
+      "latest": "2026-09-14T00:00:00.000Z",
+      "n": 89
+    }
+  ],
+  "catalog": [
+    {
+      "total": 1250,
+      "indexed": "249"
+    }
+  ],
+  "latestReports": [
+    {
+      "id": 36,
+      "title": "7–13 Eylül Hal Raporu: Endeks Yükseldi, 46 Üründe Fiyat Geriledi",
+      "status": "draft",
+      "report_date": "2026-09-13T00:00:00.000Z"
+    },
+    {
+      "id": 32,
+      "title": "Üzüm Fiyatları 2026: Sezon Başında Hal Verileri, Rekolte ve Dünya Piyasası",
+      "status": "published",
+      "report_date": "2026-09-12T00:00:00.000Z"
+    },
+    {
+      "id": 31,
+      "title": "Pamuk Fiyatları 2013–2026: Resmî Borsa Verileriyle Aylık Seri",
+      "status": "published",
+      "report_date": "2026-09-07T00:00:00.000Z"
+    },
+    {
+      "id": 30,
+      "title": "Pamuk Sezonu 2026: Resmî Borsa Fiyatları ve Geçen Yıl Karşılaştırması",
+      "status": "published",
+      "report_date": "2026-09-07T00:00:00.000Z"
+    },
+    {
+      "id": 29,
+      "title": "31 Ağustos–6 Eylül Hal Raporu: Endeks %5,4 Yükseldi",
+      "status": "published",
+      "report_date": "2026-09-06T00:00:00.000Z"
+    },
+    {
+      "id": 28,
+      "title": "Ağustos 2026 Hal Fiyatları: Endeks %12,2 geriledi",
+      "status": "draft",
+      "report_date": "2026-08-31T00:00:00.000Z"
+    }
+  ],
+  "newsletterTotal": [
+    {
+      "total": 25,
+      "subscribed": "25"
+    }
+  ]
+}

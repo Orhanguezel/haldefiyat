@@ -1,0 +1,20 @@
+{
+  "weekly": {
+    "articles": 11,
+    "impressions": 161,
+    "clicks": 0,
+    "ctr": 0.0
+  },
+  "monthly": {
+    "articles": 2,
+    "impressions": 143,
+    "clicks": 3,
+    "ctr": 0.02097902097902098
+  },
+  "analysis": {
+    "articles": 2,
+    "impressions": 3740,
+    "clicks": 44,
+    "ctr": 0.011764705882352941
+  }
+}

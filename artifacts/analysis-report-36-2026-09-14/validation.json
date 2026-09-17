@@ -1,0 +1,22 @@
+{
+  "reportId": 36,
+  "status": "draft",
+  "fieldsVerified": [
+    "title",
+    "summary",
+    "meta_title",
+    "meta_description",
+    "og_image",
+    "image_alt",
+    "tags",
+    "content"
+  ],
+  "cover": "https://haldefiyat.com/uploads/analysis-covers/2026-09-14/hal-raporu-7-13-eylul-2026.webp",
+  "http": 200,
+  "mime": "image/webp",
+  "bytes": 190736,
+  "sha256": "50669e091032a02ef089dba6afc6ef627eee5fc43ba67a3d38e23d2f42e09394",
+  "liveImageMatchesLocal": true,
+  "imageTool": "built-in imagegen",
+  "promptFile": "output/imagegen/analysis-report-36/prompt.txt"
+}

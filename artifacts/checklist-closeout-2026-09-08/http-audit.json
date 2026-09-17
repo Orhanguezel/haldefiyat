@@ -1,0 +1,69 @@
+[
+  {
+    "path": "/urun/elma-2",
+    "status": 200,
+    "final": "https://haldefiyat.com/urun/elma",
+    "title": "Elma Fiyatları Bugün Kaç TL? 7 Eylül 2026 — Hal ve Toptan",
+    "description": "Elma güncel hal, toptan ve piyasa fiyatları. Ortalama 52,65 TL/kg (7 Eylül 2026). Bursa, Manisa, Tokat dahil 13 halden güncel veri."
+  },
+  {
+    "path": "/analiz/elma-fiyat-analizi-mayis-2026",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "path": "/analiz/nar-fiyatlari-2026-sezon-acilisi-analizi",
+    "status": 200,
+    "final": "https://haldefiyat.com/analiz/nar-fiyatlari-2026-sezon-acilisi-analizi",
+    "title": "Nar Fiyatları 2026 — Sezon Açılışı Piyasa Analizi",
+    "description": "Nar sezonu açılışında hal fiyatları: erkenci nar hallerde, medyan 140 TL/kg bandında. 12 aylık seyir, şehir farkları ve eylül beklentileri — resmi kayıtlarla."
+  },
+  {
+    "path": "/analiz/tursuluk-sezonu-2026-tursu-sepeti-hal-fiyatlari",
+    "status": 200,
+    "final": "https://haldefiyat.com/analiz/tursuluk-sezonu-2026-tursu-sepeti-hal-fiyatlari",
+    "title": "Turşuluk Sezonu 2026 — Turşu Sepeti Hal Fiyatları",
+    "description": "Kornişon, acur, sivri biber ve yeşil domatesin güncel hal fiyatları; kayıtlardan çıkan alım takvimi ve bugünkü medyanlarla örnek turşu sepeti maliyeti."
+  },
+  {
+    "path": "/borsa",
+    "status": 200,
+    "final": "https://haldefiyat.com/borsa",
+    "title": "Borsa ve Resmi Tarım Fiyatları | HaldeFiyat",
+    "description": "Buğday, ekmeklik ve makarnalık buğday, arpa, mısır, çeltik, pirinç, yulaf, çavdar, ayçiçeği, pamuk, kırmızı ve yeşil mercimek, nohut ve kuru fasulye için TMO…"
+  },
+  {
+    "path": "/et-fiyatlari",
+    "status": 200,
+    "final": "https://haldefiyat.com/et-fiyatlari",
+    "title": "Et Fiyatları — Dana Karkas, Kuzu Karkas | HaldeFiyat",
+    "description": "Türkiye ticaret borsalarından güncel karkas et fiyatları: dana karkas ve kuzu karkas (TL/kg). Her satırda kaynak ve tarih etiketlidir; borsalar periyodik…"
+  },
+  {
+    "path": "/canli-hayvan-fiyatlari",
+    "status": 200,
+    "final": "https://haldefiyat.com/canli-hayvan-fiyatlari",
+    "title": "Canlı Hayvan Fiyatları — Dana, Kuzu, Koyun, Keçi |…",
+    "description": "Türkiye ticaret borsalarından güncel canlı hayvan (canlı ağırlık) fiyatları: besilik dana, kuzu, koyun, keçi, düve ve inek."
+  },
+  {
+    "path": "/fiyat/adana/limon",
+    "status": 200,
+    "final": "https://haldefiyat.com/fiyat/adana/limon",
+    "title": "Adana Limon Fiyatları 2026 — Adana Büyükşehir Belediyesi…",
+    "description": "Adana limon hal fiyatı. 7 Eylül 2026: ortalama 42,5 TL/kg. Adana Büyükşehir Belediyesi Toptancı Hali günlük kaydı, 90 günlük seyir, haftalık değişim ve diğer…"
+  },
+  {
+    "path": "/hal/kayseri-hal",
+    "status": 200,
+    "final": "https://haldefiyat.com/hal/kayseri-hal",
+    "title": "Kayseri Hal Fiyatları Bugün 7 Eylül 2026 — Kayseri…",
+    "description": "Kayseri Toptancı Hali güncel meyve sebze hali fiyatları. 7 Eylül 2026: Soğan 27,5 TL/kg, Patates 27,5 TL/kg, Kiraz 130 TL/kg — toplam 115 ürün."
+  },
+  {
+    "path": "/rehber/tursu",
+    "status": 200,
+    "final": "https://haldefiyat.com/rehber/tursu",
+    "title": "Turşu Rehberi — Sepet Fiyatları ve En Uygun Alım Zamanı |…",
+    "description": "Turşu sepetinin (kornişon, acur, sivri biber, lahana, sarımsak...) güncel hal fiyatları ve son 12 ayın fiyat eğrisi: her ürün için en ucuz ay kayıtlardan."
+  }
+]

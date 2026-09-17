@@ -1,0 +1,221 @@
+{
+  "results": [
+    {
+      "id": 2,
+      "width": 1440,
+      "format": "full",
+      "height": 280,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 2,
+      "width": 1440,
+      "format": "half",
+      "height": 280,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 2,
+      "width": 1440,
+      "format": "third",
+      "height": 280,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 2,
+      "width": 1440,
+      "format": "tall",
+      "height": 576,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 2,
+      "width": 390,
+      "format": "third",
+      "height": 120,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 2,
+      "width": 320,
+      "format": "third",
+      "height": 120,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 13,
+      "width": 1440,
+      "format": "full",
+      "height": 280,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 13,
+      "width": 1440,
+      "format": "half",
+      "height": 280,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 13,
+      "width": 1440,
+      "format": "third",
+      "height": 280,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 13,
+      "width": 1440,
+      "format": "tall",
+      "height": 576,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 13,
+      "width": 390,
+      "format": "third",
+      "height": 120,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 13,
+      "width": 320,
+      "format": "third",
+      "height": 120,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 18,
+      "width": 1440,
+      "format": "full",
+      "height": 280,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 18,
+      "width": 1440,
+      "format": "half",
+      "height": 280,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 18,
+      "width": 1440,
+      "format": "third",
+      "height": 280,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 18,
+      "width": 1440,
+      "format": "tall",
+      "height": 576,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 18,
+      "width": 390,
+      "format": "third",
+      "height": 120,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 18,
+      "width": 320,
+      "format": "third",
+      "height": 120,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 21,
+      "width": 1440,
+      "format": "full",
+      "height": 280,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 21,
+      "width": 1440,
+      "format": "half",
+      "height": 280,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 21,
+      "width": 1440,
+      "format": "third",
+      "height": 280,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 21,
+      "width": 1440,
+      "format": "tall",
+      "height": 576,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 21,
+      "width": 390,
+      "format": "third",
+      "height": 120,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    },
+    {
+      "id": 21,
+      "width": 320,
+      "format": "third",
+      "height": 120,
+      "ctaInside": true,
+      "cookie": false,
+      "broken": []
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-09-07T23:49:02.423Z",
+  "stripeConfigured": {
+    "STRIPE_SECRET_KEY": false,
+    "STRIPE_PRO_PRICE_ID": false,
+    "STRIPE_WEBHOOK_SECRET": false
+  },
+  "hf_ad_payments": [
+    {
+      "records": 0
+    }
+  ],
+  "hf_ad_self_service_requests": [
+    {
+      "records": 0
+    }
+  ],
+  "hf_ad_waitlist": [
+    {
+      "records": 0
+    }
+  ],
+  "addressSettingPresence": []
+}
