@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { and, asc, desc, eq, inArray, like, or, sql } from "drizzle-orm";
 import { computeBaseMap } from "@/modules/prices/family";
 import { rebuildProductFamilies } from "@/modules/prices/family-service";
+import { isResidualProduct } from "@/modules/prices/residual-products";
 import { runSeoIndexMaintenance } from "@/modules/redirects/repository";
 import { z } from "zod";
 
@@ -1241,6 +1242,19 @@ export async function registerHalAdmin(app: FastifyInstance) {
       if (badUnit.length > 0) {
         return reply.status(400).send({
           error: `Birim uyusmuyor: ${badUnit.map((d) => `${d.slug} (${d.unit})`).join(", ")} → hedef birim "${survivor.unit}". Farkli birim ayri urundur.`,
+        });
+      }
+
+      // TORBA kayit yutulamaz. "ELMA (DİĞER)" gibi bir kova ana urunun mansaet
+      // ortalamasindan bilerek DISLANIYOR (residual-products.ts). Yutulursa
+      // satirlar ana kaydin product_id sine gecer, torba oldugu bir daha
+      // anlasilamaz ve dislama kurali sessizce devre disi kalir.
+      const residual = duplicates.filter((d) => isResidualProduct(d));
+      if (residual.length > 0 && !req.body?.force) {
+        return reply.status(400).send({
+          error: `Torba kayit yutulamaz: ${residual.map((d) => d.slug).join(", ")}. `
+            + `"muhtelif/diger" kayitlari mansaet ortalamadan dislaniyor; yutulursa bu ayrim kaybolur. `
+            + `Gercekten ayni urunse once slug'i torba desenine uymayacak sekilde degistir.`,
         });
       }
 

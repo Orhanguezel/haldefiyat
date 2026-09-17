@@ -65,6 +65,9 @@ ORDER BY kat DESC;" 2>/dev/null | grep -v "Using a password"
 echo
 echo "▸ 2. YUTULMAYI BEKLEYEN DUBLIKELER (ayni gun/ayni hal cakismasi YOK)"
 echo "     Kanonik bag URL'i yonlendiriyor ama iki kayit da ayri duruyor."
+echo "     NOT: 'muhtelif/diger' TORBA kayitlari bilerek bu listede DEGIL —"
+echo "     onlar yutulursa satirlar ana kayda gecer ve bir daha ayirt edilemez,"
+echo "     yani mansaet ortalamadan dislama kurali sessizce devre disi kalir."
 mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" --table -e "
 SELECT d.slug AS dublike, s.slug AS hedef, d.unit AS birim,
        (SELECT COUNT(*) FROM hf_price_history h WHERE h.product_id = d.id) AS satir,
@@ -76,6 +79,7 @@ SELECT d.slug AS dublike, s.slug AS hedef, d.unit AS birim,
 FROM hf_products d
 JOIN hf_products s ON s.slug = d.canonical_slug AND s.is_active = 1
 WHERE d.is_active = 1 AND d.canonical_slug IS NOT NULL AND d.unit = s.unit
+  AND d.slug NOT REGEXP '(^|-)(muhtelif|diger)(-|\$)'
 HAVING satir >= 500 AND cakisma = 0
 ORDER BY satir DESC
 LIMIT 30;" 2>/dev/null | grep -v "Using a password"
