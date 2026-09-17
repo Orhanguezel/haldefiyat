@@ -1306,6 +1306,97 @@ export async function registerHalAdmin(app: FastifyInstance) {
     },
   );
 
+  // Bir URUN + bir KAYNAK kombinasyonunun tum satirlarini karantinaya al.
+  //
+  // Tek satirlik karantina (yukaridaki uc) tek aykiri deger icindir. Burada ise
+  // kaynak o urun icin hic anlamli fiyat uretmiyor: 17 Eyl 2026 taramasinda 16
+  // urunde ayni imza cikti — ayni urun+kaynak icinde en dusuk ~10, en yuksek
+  // ~1000 TL, degerler araliga uniform dagiliyor. Hepsi gunde bir iki kilo islem
+  // goren nadir urunler; ulusal ortalama az islemde anlamsizlasiyor.
+  //
+  // Parser sucsuz, satir da yanlis urunde degil — sorun kaynagin o urun icin
+  // uretebildigi verinin kalitesinde. Bu yuzden cozum ne duzeltme ne tasima:
+  // o kaynagin katkisi disarida birakilir, urun diger kaynaklardan yasar.
+  app.post<{ Body: { productId?: number; sourceApi?: string; note?: string } }>(
+    "/hal/prices/kaynak-karantina",
+    async (req, reply) => {
+      const productId = Number(req.body?.productId);
+      const sourceApi = String(req.body?.sourceApi ?? "").trim();
+      if (!Number.isFinite(productId) || productId <= 0 || !sourceApi) {
+        return reply.status(400).send({ error: "productId ve sourceApi gerekli" });
+      }
+      const prodRows = await db.select().from(hfProducts).where(eq(hfProducts.id, productId)).limit(1);
+      const product = prodRows[0];
+      if (!product) return reply.status(404).send({ error: "Urun bulunamadi" });
+
+      // Urunu tumden bosaltmayi engelle: bu kaynak disinda satir kalmali.
+      const restRes = await db.execute(sql`
+        SELECT COUNT(*) AS n FROM hf_price_history
+        WHERE product_id = ${productId} AND source_api <> ${sourceApi} AND avg_price > 0
+      `);
+      const restRows = (Array.isArray(restRes) ? restRes[0] : restRes) as unknown as Array<{ n: number }>;
+      const kalan = Number(restRows[0]?.n ?? 0);
+      if (kalan === 0) {
+        return reply.status(400).send({
+          error: `"${product.slug}" urununun bu kaynak disinda hic satiri yok — karantina sayfayi tamamen bosaltirdi. `
+            + `Tek kaynagi bozuksa dogru adim urunu noindex/pasif yapmaktir, satirlari karantinaya almak degil.`,
+        });
+      }
+
+      const reviewer = String((req.user as { id?: string } | undefined)?.id ?? "admin").slice(0, 36);
+      const note = (req.body?.note ?? "kaynak bu urun icin anlamli fiyat uretmiyor").slice(0, 500);
+
+      const conn = await pool.getConnection();
+      let tasinan = 0;
+      try {
+        await conn.beginTransaction();
+        // Kiyas: ayni urunun DIGER kaynaklardaki ortalamasi.
+        const [peerRows] = await conn.query(
+          `SELECT AVG(avg_price) AS m FROM hf_price_history
+            WHERE product_id=? AND source_api<>? AND avg_price>0`,
+          [productId, sourceApi],
+        );
+        const peer = (peerRows as Array<{ m: string | null }>)[0]?.m;
+        const peerNum = peer != null ? Number(peer) : null;
+
+        await conn.query(
+          `INSERT INTO hf_price_quarantine
+             (product_id,market_id,recorded_date,source_api,unit,min_price,max_price,avg_price,
+              reason_code,severity,confidence,peer_median,deviation_ratio,status,review_note,reviewed_by,reviewed_at)
+           SELECT product_id,market_id,recorded_date,source_api,unit,min_price,max_price,avg_price,
+                  'KAYNAK_URUN_GURULTUSU','critical',1.0000,?,
+                  CASE WHEN ? > 0 THEN avg_price / ? ELSE NULL END,
+                  'rejected',?,?,CURRENT_TIMESTAMP(3)
+             FROM hf_price_history
+            WHERE product_id=? AND source_api=?
+           ON DUPLICATE KEY UPDATE status='rejected', review_note=VALUES(review_note),
+             reviewed_by=VALUES(reviewed_by), reviewed_at=CURRENT_TIMESTAMP(3)`,
+          [peerNum != null ? peerNum.toFixed(2) : null, peerNum, peerNum, note, reviewer, productId, sourceApi],
+        );
+        const [delRes] = await conn.query(
+          "DELETE FROM hf_price_history WHERE product_id=? AND source_api=?",
+          [productId, sourceApi],
+        );
+        tasinan = (delRes as { affectedRows?: number }).affectedRows ?? 0;
+        await conn.commit();
+      } catch (err) {
+        await conn.rollback();
+        throw err;
+      } finally {
+        conn.release();
+      }
+
+      void revalidateFrontendTag("prices");
+      return reply.send({
+        ok: true,
+        urun: product.slug,
+        kaynak: sourceApi,
+        karantinaya_alinan: tasinan,
+        kalan_satir: kalan,
+      });
+    },
+  );
+
   // Birim uyusmayan satirlari DOGRU urune tasi.
   //
   // publicUnitIntegrity (h.unit = p.unit) satir birimi urun birimiyle uyusmayan
