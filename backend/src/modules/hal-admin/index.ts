@@ -1262,8 +1262,8 @@ export async function registerHalAdmin(app: FastifyInstance) {
         await conn.query(
           `INSERT INTO hf_price_quarantine
              (product_id,market_id,recorded_date,source_api,unit,min_price,max_price,avg_price,
-              reason_code,severity,peer_median,deviation_ratio,status,review_note,reviewed_by,reviewed_at)
-           VALUES (?,?,?,?,?,?,?,?,'MANUEL_AYKIRI_DEGER','critical',?,?,'rejected',?,?,CURRENT_TIMESTAMP(3))
+              reason_code,severity,confidence,peer_median,deviation_ratio,status,review_note,reviewed_by,reviewed_at)
+           VALUES (?,?,?,?,?,?,?,?,'MANUEL_AYKIRI_DEGER','critical',1.0000,?,?,'rejected',?,?,CURRENT_TIMESTAMP(3))
            ON DUPLICATE KEY UPDATE status='rejected', review_note=VALUES(review_note),
              reviewed_by=VALUES(reviewed_by), reviewed_at=CURRENT_TIMESTAMP(3)`,
           [row.productId, row.marketId, row.recordedDate, row.sourceApi, row.unit,
