@@ -81,5 +81,30 @@ ORDER BY satir DESC
 LIMIT 30;" 2>/dev/null | grep -v "Using a password"
 
 echo
+echo "▸ 3. YUTULMUS AMA YONLENDIRMESI OLMAYAN SLUGLAR (404 veriyorlar)"
+echo "     Kayit pasiflesince /urun/<slug> 404 olur — kanonik yonlendirmeyi ureten"
+echo "     proxy urunu AKTIF listede arar ve pasif kaydi bulamaz. Cozum hf_redirects."
+MISSING=$(mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" -N -e "
+SELECT COUNT(*) FROM hf_products d
+JOIN hf_products s ON s.slug = d.canonical_slug AND s.is_active = 1
+WHERE d.is_active = 0 AND d.canonical_slug IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM hf_redirects r
+                   WHERE r.source_path = CONCAT('/urun/', d.slug) AND r.is_active = 1);" 2>/dev/null)
+if [ "${MISSING:-0}" -eq 0 ]; then
+  echo "     ✓ yok — yutulan her slug yonlendiriliyor"
+else
+  echo "     ✗ $MISSING slug yonlendirmesiz:"
+  mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" --table -e "
+  SELECT d.slug AS olu_slug, d.canonical_slug AS gitmesi_gereken
+  FROM hf_products d
+  JOIN hf_products s ON s.slug = d.canonical_slug AND s.is_active = 1
+  WHERE d.is_active = 0 AND d.canonical_slug IS NOT NULL
+    AND NOT EXISTS (SELECT 1 FROM hf_redirects r
+                     WHERE r.source_path = CONCAT('/urun/', d.slug) AND r.is_active = 1);" 2>/dev/null | grep -v "Using a password"
+  echo "     Duzeltme: POST /api/v1/admin/redirects  {\"items\":[{\"sourcePath\":\"/urun/<olu>\",\"type\":\"301\",\"targetUrl\":\"/urun/<hedef>\"}]}"
+fi
+
+echo
 echo "Not: 1. bolum ELLE karara baglanir (fiyat farki tek basina kanit degildir)."
 echo "     2. bolumde cakisma=0 olanlar admin absorb ucuyle guvenle yutulabilir."
+echo "     3. bolum BOS OLMALI; dolduysa absorb sonrasi yonlendirme yazilmamis demektir."

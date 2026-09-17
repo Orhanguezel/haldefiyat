@@ -17,6 +17,7 @@ import {
   hfPriceHistory,
   hfProductEditorial,
   hfProducts,
+  hfRedirects,
 } from "@/db/schema";
 import { getAdminPriceDetail, listAdminPrices, listPriceSources } from "./prices-query";
 import { loadEtlSources, getSourceByKey } from "@/config/etl-sources";
@@ -1288,6 +1289,29 @@ export async function registerHalAdmin(app: FastifyInstance) {
         .set({ isActive: 0, seoIndex: 0, canonicalSlug: survivor.slug, familySlug: null, aliases: [] })
         .where(inArray(hfProducts.id, duplicates.map((d) => d.id)));
 
+      // Yutulan kayit pasiflesince /urun/<slug> 404 olur: kanonik yonlendirmeyi
+      // ureten proxy, urunu AKTIF urun listesinde arar ve pasif kaydi bulamaz.
+      // (17 Eyl 2026: yutulan 25 slug'in hepsi 404 donuyordu; kanonik bagi olup
+      // hala aktif olanlar duzgun 301'liyordu — fark tam olarak buydu.)
+      // Kalici cozum kayda degil hf_redirects'e yazmak: urun kaydindan bagimsiz.
+      const redirectRows = duplicates.map((d) => ({
+        sourcePath: `/urun/${d.slug}`,
+        type: "301" as const,
+        targetUrl: `/urun/${survivor.slug}`,
+        note: `urun yutuldu: ${d.slug} → ${survivor.slug}`,
+        isActive: 1,
+      }));
+      await db
+        .insert(hfRedirects)
+        .values(redirectRows)
+        .onDuplicateKeyUpdate({
+          set: {
+            type: sql`'301'`,
+            targetUrl: sql`VALUES(target_url)`,
+            isActive: sql`1`,
+          },
+        });
+
       invalidateAliasCache();
       void revalidateFrontendTag("prices");
       return reply.send({
@@ -1296,6 +1320,7 @@ export async function registerHalAdmin(app: FastifyInstance) {
         absorbed: duplicates.map((d) => d.slug),
         droppedRows,
         aliases: [...aliasSet],
+        redirects: redirectRows.map((r) => `${r.sourcePath} → ${r.targetUrl}`),
       });
     },
   );
