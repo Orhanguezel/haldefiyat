@@ -19,3 +19,24 @@ describe("disambiguateProductUnitLabels", () => {
     expect(rows.map((row) => row.displayName)).toEqual(["Limon (Kg)", "Limon (Kasa)"]);
   });
 });
+
+describe("gorunen adlar zaten farkliysa etiket eklenmez", () => {
+  it("paketleme varyanti ana urunun adini bozmaz", () => {
+    const rows = disambiguateProductUnitLabels([
+      { nameTr: "LİMON", displayName: "Limon", unit: "kg" },
+      { nameTr: "Limon (Sandık)", displayName: "Limon Sandık", unit: "koli" },
+    ]);
+
+    // "Limon" ile "Limon Sandık" zaten ayirt edilebiliyor; ikisi de dokunulmadan kalir.
+    expect(rows.map((row) => row.displayName)).toEqual(["Limon", "Limon Sandık"]);
+  });
+
+  it("gercek cakismada etiket yine takilir", () => {
+    const rows = disambiguateProductUnitLabels([
+      { nameTr: "NANE", displayName: "Nane", unit: "demet" },
+      { nameTr: "NANE", displayName: "Nane", unit: "kg" },
+    ]);
+
+    expect(rows.map((row) => row.displayName)).toEqual(["Nane (Demet)", "Nane (Kg)"]);
+  });
+});

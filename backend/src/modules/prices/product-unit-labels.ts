@@ -16,11 +16,23 @@ function normalizedUnit(unit: string) {
   return key;
 }
 
+/**
+ * Cakisma anahtari = KULLANICININ GORDUGU ad.
+ *
+ * Bu fonksiyon eskiden addan birim kelimelerini de siliyordu ("Limon Sandık" →
+ * "limon"), boylece paketleme varyanti ana urunle ayni temele dusuyor ve IKISI
+ * BIRDEN etiketleniyordu: aramada yilda 122 bin kez yazilan `limon` sayfasi
+ * H1'inde, SSS'sinde ve JSON-LD'sinde "Limon (Kg)" oluyordu — oysa ortada
+ * belirsizlik yoktu, "Limon" ile "Limon Sandık" zaten farkli okunuyor.
+ *
+ * Etiketin tek isi ayni gorunen iki satiri ayirmak. Gorunen adlar zaten
+ * farkliysa eklenecek bir sey yok. 17 Eyl 2026 olcumu: eski kural 39 urune
+ * etiket takiyordu, 28'i gereksizdi ve 15'i indexli ana urun sayfasiydi
+ * (limon, kiraz, ispanak, mantar, muz ithal, palamut, nane, pazi…).
+ */
 function labelBase(row: ProductLabelRow) {
   return (row.displayName || row.nameTr)
     .toLocaleLowerCase("tr-TR")
-    .replace(/\((kg|kilogram|kilo|adet|tane|bağ|bag|demet|kasa|koli|sandık|sandik|paket|çuval|cuval|litre|lt)\)/gu, "")
-    .replace(/\b(kg|kilogram|kilo|adet|tane|bağ|bag|demet|kasa|koli|sandık|sandik|paket|çuval|cuval|litre|lt)\b/gu, "")
     .replace(/[^a-z0-9çğıöşü]+/gu, " ")
     .trim();
 }
