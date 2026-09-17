@@ -4,6 +4,7 @@ import { ImageResponse } from "next/og";
 import { formatOgDate } from "@/lib/og-date";
 import { loadOgBrandAssets, OgBackground, OgBrand } from "@/lib/og-brand";
 import { loadProductPhoto } from "@/lib/og-product-photo";
+import { ogFallbackResponse } from "@/lib/og-fallback";
 
 // DİNAMİK OG (route handler — i18n bağımsız), /og/urun/[slug] pattern'inin
 // şehir×ürün replikası. URL: /og/fiyat/[sehir]/[urun].
@@ -61,6 +62,17 @@ function formatTry(value: number): string {
 
 export async function GET(_req: Request, { params }: Props) {
   const { sehir, urun } = await params;
+  try {
+    return await renderFiyatOg(sehir, urun);
+  } catch {
+    // Kapak uretilemezse 502 yerine sade kapak; gerekce og-fallback.tsx'te.
+    // Bu rotanin cokusunu 17 Eyl'de GOOGLEBOT tetiklemisti (/og/fiyat/manisa/erik).
+    const baslik = (s: string) => s.replace(/-/g, " ").replace(/\b\p{Ll}/gu, (c) => c.toLocaleUpperCase("tr-TR"));
+    return ogFallbackResponse(`${baslik(urun)} · ${baslik(sehir)}`, "Şehir bazında günlük hal fiyatı");
+  }
+}
+
+async function renderFiyatOg(sehir: string, urun: string) {
   const [detail, font, brandAssets] = await Promise.all([fetchPair(sehir, urun), loadFont(), loadOgBrandAssets()]);
   const photo = await loadProductPhoto(detail?.pair?.productSlug ?? urun);
 
