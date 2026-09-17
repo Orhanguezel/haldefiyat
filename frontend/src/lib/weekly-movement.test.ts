@@ -37,21 +37,40 @@ describe("computeWeeklyMovement", () => {
     expect(m.changePct).toBeCloseTo(10, 5);
   });
 
-  it("sehir bazinda en cok artan ve gerileyeni ayirir", () => {
+  it("hareketin yayginligini hal sayisiyla verir", () => {
     const rows = [
       row("konya", "Konya", 1, 30), row("konya", "Konya", 9, 20),
       row("bursa", "Bursa", 1, 18), row("bursa", "Bursa", 9, 20),
+      row("izmir", "İzmir", 1, 19), row("izmir", "İzmir", 9, 20),
     ];
     const m = computeWeeklyMovement(rows, NOW)!;
-    expect(m.topRise?.cityName).toBe("Konya");
-    expect(m.topFall?.cityName).toBe("Bursa");
+    expect(m.risingMarkets).toBe(1);
+    expect(m.fallingMarkets).toBe(2);
+    expect(describeWeeklyMovement("Patates", m)).toContain("2 halde geriledi, 1 halde yükseldi");
+  });
+
+  // Uc-deger secimi (en cok artan sehir) UC AYRI artefakt uretip kaldirildi;
+  // sayim tek bir bozuk seriye 18'de bir agirlik verir, basligi ele gecirmez.
+  it("tek bir uc seri cumleyi ele gecirmez", () => {
+    const rows = [
+      // Artik kategori tipi torba kayit: iki hafta arasi ikiye katlaniyor.
+      row("eskisehir", "Eskişehir", 1, 42), row("eskisehir", "Eskişehir", 9, 17.5),
+      ...["konya", "bursa", "izmir", "adana"].flatMap((k) => [row(k, k, 1, 20), row(k, k, 9, 20.4)]),
+    ];
+    const m = computeWeeklyMovement(rows, NOW)!;
+    const cumle = describeWeeklyMovement("Elma", m);
+
+    expect(m.risingMarkets).toBe(1);
+    expect(m.fallingMarkets).toBe(4);
+    expect(cumle).not.toContain("Eskişehir");
+    expect(cumle).toContain("4 halde geriledi");
   });
 
   it("kucuk oynamayi hareket saymaz", () => {
     const rows = [row("konya", "Konya", 1, 20.05), row("konya", "Konya", 9, 20)];
     const m = computeWeeklyMovement(rows, NOW)!;
-    expect(m.topRise).toBeNull();
-    expect(m.topFall).toBeNull();
+    expect(m.risingMarkets).toBe(0);
+    expect(m.fallingMarkets).toBe(0);
     expect(describeWeeklyMovement("Patates", m)).toContain("yatay");
   });
 
@@ -74,7 +93,7 @@ describe("describeWeeklyMovement", () => {
     const s = describeWeeklyMovement("Patates", m);
     expect(s).toContain("Patates son haftada");
     expect(s).toContain("2 halin her iki haftada da yayımladığı");
-    expect(s).toContain("Konya");
+    expect(s).toContain("halde");
   });
 });
 
@@ -96,9 +115,7 @@ describe("kararsiz seri suzgeci", () => {
     const m = computeWeeklyMovement([...eskisehirGercek, ...tokatGercek], NOW)!;
 
     expect(m.marketCount).toBe(1);
-    const cumle = describeWeeklyMovement("Patates", m);
-    expect(cumle).not.toContain("Eskişehir");
-    expect(cumle).toContain("Tokat");
+    expect(m.fallingMarkets).toBe(1);
   });
 
   it("kararli hal kalmazsa blok hic basilmaz — gurultuden cumle uretilmez", () => {
@@ -135,7 +152,6 @@ describe("cesit degisimi suzgeci", () => {
     const m = computeWeeklyMovement(rows, NOW)!;
 
     expect(m.marketCount).toBe(1);
-    expect(describeWeeklyMovement("Domates", m)).not.toContain("Kahramanmaraş");
   });
 
   it("ayni hal ayni cesitte devam ediyorsa normal kiyaslanir", () => {

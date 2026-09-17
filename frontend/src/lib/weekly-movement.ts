@@ -17,9 +17,19 @@ export type WeeklyMovement = {
   unit: string;
   /** Kiyasa GERCEKTEN giren hal sayisi: iki pencerede de kaydi olan ve kendi icinde kararli olanlar. */
   marketCount: number;
-  /** En cok artan ve en cok gerileyen sehir; yalnizca kiyasa giren kararli hallerden. */
-  topRise: { cityName: string; changePct: number } | null;
-  topFall: { cityName: string; changePct: number } | null;
+  /**
+   * Hareketin YAYGINLIGI: kac halde yukseldi, kac halde geriledi.
+   *
+   * Burada bilerek "en cok artan sehir" YOK. Uc-deger secimi (max/min) 18 serinin
+   * en oynagini bulmak icin tasarlanmis bir istatistiktir ve uc ayri turda uc ayri
+   * artefakt uretti: bozuk seri (Eskisehir patates 7,00/36,00), cesit degisimi
+   * (K.Maras domates-bursa → domates) ve artik kategori (elma-diger, min 13 max
+   * 120 TL). Her turda suzgec ekledim, her turda baska bir kaynaktan geri geldi —
+   * cunku sorun suzgecte degil, "en ucta olani sec" kurgusunda. Sayim ise
+   * dayaniklidir: tek bir bozuk seri 18'de bir oy kadar agirlik tasir.
+   */
+  risingMarkets: number;
+  fallingMarkets: number;
 };
 
 const DAY = 86400000;
@@ -113,24 +123,23 @@ export function computeWeeklyMovement(rows: MovementRow[], now = new Date()): We
   const previous = mean(shared.map((k) => median(prev.get(k)!)));
   if (!(previous > 0) || !(current > 0)) return null;
 
-  const cityOf = new Map<string, string>();
-  for (const r of valid) if (r.cityName) cityOf.set(seriesKey(r), r.cityName);
-
-  const perCity = shared
-    .map((k) => ({
-      cityName: cityOf.get(k) ?? k.split("\u0000")[0]!,
-      changePct: ((median(cur.get(k)!) - median(prev.get(k)!)) / median(prev.get(k)!)) * 100,
-    }))
-    .sort((a, b) => b.changePct - a.changePct);
+  // Seri degisimleri HAL bazinda toplanir: bir hal iki cesit yayinliyorsa tek oy.
+  const perMarket = new Map<string, number[]>();
+  for (const k of shared) {
+    const marketSlug = k.split("\u0000")[0]!;
+    const change = ((median(cur.get(k)!) - median(prev.get(k)!)) / median(prev.get(k)!)) * 100;
+    perMarket.set(marketSlug, [...(perMarket.get(marketSlug) ?? []), change]);
+  }
+  const marketChanges = [...perMarket.values()].map(mean);
 
   return {
     current,
     previous,
     changePct: ((current - previous) / previous) * 100,
     unit: valid.find((r) => r.unit)?.unit ?? "kg",
-    marketCount: new Set(shared.map((k) => k.split("\u0000")[0])).size,
-    topRise: perCity[0] && perCity[0].changePct > 0.5 ? perCity[0] : null,
-    topFall: perCity.at(-1) && perCity.at(-1)!.changePct < -0.5 ? perCity.at(-1)! : null,
+    marketCount: marketChanges.length,
+    risingMarkets: marketChanges.filter((c) => c > 0.5).length,
+    fallingMarkets: marketChanges.filter((c) => c < -0.5).length,
   };
 }
 
@@ -144,9 +153,10 @@ export function describeWeeklyMovement(productName: string, m: WeeklyMovement): 
     ? `${productName} son haftada ${tr(m.current)} TL/${m.unit} ile yatay seyretti`
     : `${productName} son haftada ${pct(m.changePct)} ${dir}: ${tr(m.previous)} → ${tr(m.current)} TL/${m.unit}`;
   const base = `${m.marketCount} halin her iki haftada da yayımladığı kayıtlar üzerinden`;
-  const moves = [
-    m.topRise ? `en çok artan ${m.topRise.cityName} (${pct(m.topRise.changePct)})` : null,
-    m.topFall ? `en çok gerileyen ${m.topFall.cityName} (${pct(m.topFall.changePct)})` : null,
+  // Yon tek bir halden degil, hallerin cogunlugundan okunur.
+  const yayginlik = [
+    m.fallingMarkets > 0 ? `${m.fallingMarkets} halde geriledi` : null,
+    m.risingMarkets > 0 ? `${m.risingMarkets} halde yükseldi` : null,
   ].filter(Boolean).join(", ");
-  return `${head}; ${base}${moves ? `. Şehir bazında ${moves}` : ""}.`;
+  return `${head}; ${base}${yayginlik ? `. Hallerin dağılımı: ${yayginlik}` : ""}.`;
 }
