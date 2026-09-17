@@ -128,9 +128,25 @@ yutulabilir** (absorb numerik olarak nötrdür: satırlar zaten hedefin ortalama
 Satır birimi ürün birimiyle uyuşmadığı için hiçbir yerde gösterilmiyor. Kural doğru
 (koli fiyatının kiloya karışmasını önler), sorun satırın **yanlış üründe** olması.
 
-- [ ] **Hedefi olan** vakalar → `birim-tasima` ucu (muz'da 13 satır böyle kurtarıldı)
-- [ ] **Hedefi olmayan** vakalar (`roka` demet / satır kg, 606 satır) → yeni kayıt mı
-      açılmalı yoksa ürünün birimi mi yanlış, **karar gerekir**
+- [x] **Hedefi olan** vakalar → `birim-tasima` ucu (muz'da 13 satır böyle kurtarıldı)
+
+- [x] **TEŞHİS DÜZELTİLDİ (17 Eyl): 147 binin büyük kısmı kurtarılabilir DEĞİL.**
+      Denendi ve **geri alındı**. Yanlış varsayım: "ürün birimi yanlış, çoğunluk kg diyor".
+      Tüm zamanların dağılımı öyle gösteriyordu (`roka` 7.320 kg / 259 demet, %96,6 gizli)
+      ve 7 üründe birim kg'a çevrildi — 32.814 satır görünür oldu.
+      **Ama sayfalar bozuldu.** Sebep: ETL bir noktada birimi değiştirmiş. Son 30 günde
+      **hiç kg satırı yok**; eski veri kg, güncel veri demet. Kg'a çevirmek tarihsel veriyi
+      açarken **güncel veriyi gizliyordu**. 7 ürün de eski birimine döndürüldü, sayfalar
+      normale döndü (`dere-otu` 13,21 TL/demet, `nane` 14,09, `kisnis` 37,11 TL/adet).
+
+      **Ders:** birim kararı **güncel pencereye** bakılarak verilir, tüm zamana değil.
+      Bu, bu dosyanın §5.3 kuralının ihlaliydi — ölçütü kısa pencerede uygulamayı
+      kendi yazdığım kuralda atladım.
+
+- [ ] **Kalan iş yeniden tanımlandı:** 147 binin çoğu *tarihsel birim değişikliği*
+      kaynaklı ve bugünün ürün kaydıyla uyumsuz. Bunlar kurtarılamaz; gerçek kurtarma
+      adayı yalnız **hedefi olan** vakalardır (koli fiyatı kg kaydında, ailede koli kaydı
+      var — muz örneği). O liste denetim §4'te
 - [ ] Otomatik uygulanamaz: aile içi eşleştirme bazı kayıtlarda birden fazla aday veriyor
       (`sogan-yesil` → 3, `ithal-kalamar` → 4) ve bir kısmı açıkça yanlış
 
