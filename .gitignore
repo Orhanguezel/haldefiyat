@@ -106,3 +106,10 @@ backend/.env.bak*
 backend/.env.yedek*
 data/cotton-series/
 **/__pycache__/
+
+# Dogrulama ciktilari — VPS bunlari KENDI uretiyor; git'e girerse untracked
+# kopyalar "would be overwritten by merge" ile deploy'un ilk adimini durdurur
+# (17 Eyl 2026). Gecmiste eklenmis olanlar takipte kalir, yenileri eklenmez.
+artifacts/
+output/playwright/
+output/imagegen/
