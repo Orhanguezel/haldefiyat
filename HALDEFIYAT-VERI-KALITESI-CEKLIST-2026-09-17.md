@@ -1,6 +1,6 @@
 # Veri Kalitesi Temizliği — Durum ve Checklist
 
-**Tarih:** 17 Eylül 2026 · **Durum:** devam ediyor · **Sonraki adım:** §3.5 karar · §3.4 karar
+**Tarih:** 17 Eylül 2026 · **Durum:** devam ediyor · **Sonraki adım:** §3.5 kök neden · §3.4
 
 Bu dosya, fiyat verisindeki bozuklukların temizliğini takip eder. Bir oturumda çok iş
 yapıldığı için neyin bitip neyin kaldığı buradan okunur.
@@ -97,8 +97,9 @@ Fiyatı hedefinden belirgin ayrışan bağlar. Çoğu **meşru kalite/sınıf va
       havuç −%5,1 · domates −%3,5 · patates −%2,5.
       **Torba kayıtlardan farkı:** "diğer/muhtelif" *tanımsız bir karışım*, sanayilik ise
       *tanımlı bir kalite sınıfı* — hal ortalaması tüm kaliteleri kapsar diye savunulabilir.
-      **Önerim: dokunulmasın.** Ama tutarlılık isteniyorsa aynı residual kuralıyla
-      manşetten çıkarılabilir; karar senin
+      **KARAR: dokunulmadı.** "Diğer/muhtelif" tanımsız bir karışımdır, sanayilik ise
+      tanımlı bir kalite sınıfı; hal ortalaması tüm kaliteleri kapsar. Tutarlılık
+      gerekçesiyle sonradan çıkarılmak istenirse residual kuralı aynen uygulanabilir
 
 ### 3.3 — Yutulmayı bekleyen dublike (§2), 30 çift
 
@@ -149,7 +150,24 @@ kayıtlar. Bunlar history'ye hiç girmemiş.
 
 Yaş: 536'sı son 30 günde → kuyruk **aktif büyüyor**, günde ~18 kayıt.
 
-- [ ] **AÇIK KARAR.** İki yönlü sorun var, ikisi de veri kaybı:
+- [x] **Haksız reddedilen ilk vaka geri alındı:** `frenk-uzumu/kocaeli` **49 satır**
+      `approve` edildi ve history'ye döndü. Frenk üzümü gerçekten 400–950 TL/kg
+      (history'de kocaeli 36 satır 410–950, balıkesir 840'a, tekirdağ 550) — kıyas değeri
+      19,07 **bozuk mersin serisinden** geliyordu. Kuyruk 783 → 734.
+
+- [ ] **KÖK NEDEN — kıyas değeri güvenilmez.** ETL karantina kuralı `peer_median`'ı
+      bozuk kaynakları da içeren havuzdan hesaplıyor; bozuk kaynak medyanı aşağı çekince
+      **sağlam kaynak reddediliyor**. Frenk üzümü tam olarak buydu. Bu yüzden
+      "5 kat sapanları toplu reject et" fikri **terk edildi** — ölçütün dayandığı kıyas
+      değerinin kendisi şüpheli. Kıyas, o üründe *kararlı* kaynaklardan hesaplanmalı
+      (bugün manşet için kurduğumuz mantığın aynısı).
+
+- [ ] **Tek tek incelendi, karara bağlanmadı** (hiçbiri frenk üzümü kadar net değil):
+      `enginar/kocaeli` 35 kayıt — kuyruktaki 40,80 diğer kaynaklarla uyumlu (mersin 24,
+      kütahya 29, manisa 28) ama history'deki kocaeli ortalaması 195; hangisi doğru?
+      `erik-papaz/bursa` 18 kayıt ort 35,56 · `biber-dolma/demre` 17 kayıt ort 10,00
+      (üretim bölgesi tarla fiyatı olabilir) · `domates-ayas/kocaeli` 83 kayıt — mersin
+      serisi tarihsel olarak <1 TL, ayrı bir sorun
       **(a) Doğru reddedilenler (~487 kayıt, 5 kat+ sapma)** — bunlar zaten history'ye
       girmemiş, sorun yok; toplu `reject` ile kuyruktan düşürülebilir.
       **(b) HAKSIZ reddedilmiş olabilecekler (~66 kayıt makul aralıkta)** — örnek:
