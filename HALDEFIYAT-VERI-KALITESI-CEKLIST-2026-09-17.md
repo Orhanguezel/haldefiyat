@@ -1,6 +1,6 @@
 # Veri Kalitesi Temizliği — Durum ve Checklist
 
-**Tarih:** 17 Eylül 2026 · **Durum:** devam ediyor · **Sonraki adım:** §3.5 kök neden · §3.4
+**Tarih:** 17 Eylül 2026 · **Durum:** devam ediyor · **Sonraki adım:** §3.4
 
 Bu dosya, fiyat verisindeki bozuklukların temizliğini takip eder. Bir oturumda çok iş
 yapıldığı için neyin bitip neyin kaldığı buradan okunur.
@@ -155,7 +155,23 @@ Yaş: 536'sı son 30 günde → kuyruk **aktif büyüyor**, günde ~18 kayıt.
       (history'de kocaeli 36 satır 410–950, balıkesir 840'a, tekirdağ 550) — kıyas değeri
       19,07 **bozuk mersin serisinden** geliyordu. Kuyruk 783 → 734.
 
-- [ ] **KÖK NEDEN — kıyas değeri güvenilmez.** ETL karantina kuralı `peer_median`'ı
+- [x] **KÖK NEDEN BULUNDU VE DÜZELTİLDİ (iki katman).**
+
+      **(1) Kod — kısır döngü.** `habitualPeerRatioFor` muafiyet için "en az 5 *farklı*
+      fiyat değeri" arıyordu. Amaç tam donuk seriyi dışlamaktı ama eşik, fiyatı **seyrek
+      değişen sağlam** halleri de dışarı atıyordu. Ölçüldü: 180 günde ≥10 kaydı olan
+      2.959 çiftin **564'ü** 2–4 farklı değer taşıyor ve donuk değiller
+      (`turp-beyaz/bursa` 177 satırda iki değer: 13,00 ve 20,84; `lime/bursa` 58,00 ve
+      87,50). Frenk üzümü tam buradaydı: reddedildiği için geçmişi oluşmuyor, geçmişi
+      olmadığı için muafiyet alamıyordu. **Eşik 2'ye indirildi**; 1 değer (tam donuk,
+      337 çift) hariç kaldı. Muafiyet yine otomatik değil — `matchesHabitualPosition`
+      kronik konum ve ±%67 yakınlık şartlarını ayrıca arıyor.
+
+      **(2) Veri — emsal havuzu kirli.** `mersin/frenk-uzumu` gürültü serisi (192 satır,
+      10–932) medyanı aşağı çekip sağlam kocaeli verisini eliyordu; karantinaya alındı.
+      Ürün 94 satırla yaşıyor, seri artık tutarlı.
+
+- [ ] **Eski kök neden notu (referans):** kıyas değeri güvenilmez. ETL karantina kuralı `peer_median`'ı
       bozuk kaynakları da içeren havuzdan hesaplıyor; bozuk kaynak medyanı aşağı çekince
       **sağlam kaynak reddediliyor**. Frenk üzümü tam olarak buydu. Bu yüzden
       "5 kat sapanları toplu reject et" fikri **terk edildi** — ölçütün dayandığı kıyas
