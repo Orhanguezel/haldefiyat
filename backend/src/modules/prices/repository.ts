@@ -10,6 +10,7 @@ import { activeSources } from "@/config/etl-sources";
 import { sourceInfoFor, sourceTypeFromMarketType } from "@/config/source-urls";
 import { INDEX_BASKET_SLUGS } from "@/modules/index/calculator";
 import { disambiguateProductUnitLabels } from "./product-unit-labels";
+import { familyScopeExcludingResidual, familyScopeExcludingResidualRaw } from "./residual-products";
 import { assessPriceQuality } from "@/modules/etl/price-quality-guard";
 import { assessRetailPriceQuality } from "@/modules/etl/retail-price-quality-guard";
 import { canonicalUnit } from "@/modules/etl/canonical-contract";
@@ -389,7 +390,8 @@ export async function listPriceRows(params: {
   conds.push(publicUnitIntegrity);
   // Ürün filtresi ailesiyle: master slug + canonical çocukları (varyantlar fiyatını
   // kendi ürününde tutar, master sayfası aileyi gösterimde toplar — her satır kendi adıyla).
-  if (params.product)  conds.push(or(eq(hfProducts.slug, params.product), eq(hfProducts.canonicalSlug, params.product))!);
+  // "Diğer/muhtelif" torba kayıtları HARİÇ: bkz. residual-products.ts.
+  if (params.product)  conds.push(familyScopeExcludingResidual(params.product));
   if (marketScopeIds) conds.push(inArray(hfPriceHistory.marketId, marketScopeIds));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
   if (params.unit?.trim()) conds.push(eq(hfPriceHistory.unit, params.unit.trim()));
@@ -579,7 +581,8 @@ async function priceQueryContext(params: {
   conds.push(publicUnitIntegrity);
   // Ürün filtresi ailesiyle: master slug + canonical çocukları (varyantlar fiyatını
   // kendi ürününde tutar, master sayfası aileyi gösterimde toplar — her satır kendi adıyla).
-  if (params.product)  conds.push(or(eq(hfProducts.slug, params.product), eq(hfProducts.canonicalSlug, params.product))!);
+  // "Diğer/muhtelif" torba kayıtları HARİÇ: bkz. residual-products.ts.
+  if (params.product)  conds.push(familyScopeExcludingResidual(params.product));
   if (marketScopeIds) conds.push(inArray(hfPriceHistory.marketId, marketScopeIds));
   if (params.category) conds.push(eq(hfProducts.categorySlug, params.category));
   if (params.unit?.trim()) conds.push(eq(hfPriceHistory.unit, params.unit.trim()));
@@ -1649,7 +1652,7 @@ export async function productPriceHistory(
       FROM hf_price_history ph
       INNER JOIN hf_products p ON p.id = ph.product_id
       INNER JOIN hf_markets m ON m.id = ph.market_id
-      WHERE (p.slug = ${productSlug} OR p.canonical_slug = ${productSlug})
+      WHERE ${familyScopeExcludingResidualRaw("p", productSlug)}
         AND ph.unit = p.unit
         AND ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)
         ${marketFilter}
@@ -1661,7 +1664,7 @@ export async function productPriceHistory(
   }
 
   const conds: SQL[] = [
-    or(eq(hfProducts.slug, productSlug), eq(hfProducts.canonicalSlug, productSlug))!,
+    familyScopeExcludingResidual(productSlug),
     gte(hfPriceHistory.recordedDate, sql`DATE_SUB(CURDATE(), INTERVAL ${sql.raw(String(days))} DAY)`),
     publicUnitIntegrity,
   ];
