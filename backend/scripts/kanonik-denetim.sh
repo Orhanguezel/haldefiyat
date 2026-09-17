@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# Kanonik bag denetimi — VPS'te (vps-vistainsaat) calistirilir.
+#
+# Usage:  ./scripts/kanonik-denetim.sh [SAPMA_KATI] [MIN_SATIR]
+#         (varsayilan 1.8 kat, 40 satir)
+#
+# NE SORAR: `canonical_slug` ile birbirine baglanmis iki kayit gercekten AYNI
+# urun mu? Kanonik bag iki sey birden yapar — /urun/<dublike> adresini hedefe
+# 301'ler VE dublikenin fiyat satirlarini hedefin ortalamasina katar. Yanlis
+# kurulmus bir bag bu yuzden iki kez zarar verir: okuru alakasiz bir fiyata
+# goturur ve hedefin ortalamasini kirletir.
+#
+# TESPIT: ayni birimdeki iki kaydin 90 gunluk ortalamasi birbirinden belirgin
+# ayriliyorsa bunlar muhtemelen ayni urun DEGILDIR. Gercek ornekler (17 Eyl 2026):
+#   kekik-25-gr → kekik            165,00 / 34,11  = 4,8 kat  (25 gramlik paket)
+#   biber-sili  → biber-carliston  117,70 / 48,84  = 2,4 kat  (ayri biber)
+#   kabak-bal   → kabak             64,53 / 34,27  = 1,9 kat  (bal kabagi ≠ kabak)
+#
+# BU BIR HUKUM DEGIL, KUYRUKTUR. Fiyat farki tek basina kanit sayilmaz — ayni
+# urun farkli hallerde farkli fiyatlanabilir. Cikan her satir ELLE karara baglanir:
+#   - gercekten ayri urun  → canonical_slug bosaltilir (gerekiyorsa family_slug)
+#   - ayni urun, fiyat farki hal dagiliminden → dokunma
+#   - ayni urun, iki kayit → admin absorb ucu ile yut
+set -uo pipefail
+
+KAT="${1:-1.8}"
+MIN_SATIR="${2:-40}"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="${HALDEFIYAT_ENV_FILE:-$(cd "$SCRIPT_DIR/.." && pwd)/.env}"
+if [ ! -f "$ENV_FILE" ]; then
+  echo "HATA: $ENV_FILE bulunamadi. VPS'te misin?"
+  exit 1
+fi
+DB_USER="$(grep -E '^DB_USER=' "$ENV_FILE" | cut -d= -f2)"
+DB_PASSWORD="$(grep -E '^DB_PASSWORD=' "$ENV_FILE" | cut -d= -f2)"
+DB_NAME="$(grep -E '^DB_NAME=' "$ENV_FILE" | cut -d= -f2)"
+
+echo "═══════════════════════════════════════════════════════════════════════"
+echo "  Kanonik bag denetimi — sapma esigi ${KAT}x, en az ${MIN_SATIR} satir"
+echo "═══════════════════════════════════════════════════════════════════════"
+echo
+echo "▸ 1. FIYATI HEDEFTEN AYRISAN KANONIK BAGLAR (ayri urun olabilir)"
+mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" --table -e "
+SELECT d.slug AS dublike, s.slug AS hedef, d.unit AS birim,
+       ROUND(AVG(hd.avg_price),2) AS dublike_ort,
+       ROUND(ss.ort,2)            AS hedef_ort,
+       ROUND(AVG(hd.avg_price)/ss.ort,2) AS kat,
+       COUNT(*) AS satir
+FROM hf_products d
+JOIN hf_products s ON s.slug = d.canonical_slug AND s.is_active = 1
+JOIN hf_price_history hd ON hd.product_id = d.id
+     AND hd.recorded_date >= CURDATE() - INTERVAL 90 DAY AND hd.avg_price > 0
+JOIN (SELECT p.id, AVG(h.avg_price) AS ort
+        FROM hf_products p
+        JOIN hf_price_history h ON h.product_id = p.id
+             AND h.recorded_date >= CURDATE() - INTERVAL 90 DAY AND h.avg_price > 0
+       GROUP BY p.id) ss ON ss.id = s.id
+WHERE d.is_active = 1 AND d.canonical_slug IS NOT NULL AND d.unit = s.unit
+GROUP BY d.slug, s.slug, d.unit, ss.ort
+HAVING satir >= ${MIN_SATIR}
+   AND (AVG(hd.avg_price)/ss.ort >= ${KAT} OR AVG(hd.avg_price)/ss.ort <= 1/${KAT})
+ORDER BY kat DESC;" 2>/dev/null | grep -v "Using a password"
+
+echo
+echo "▸ 2. YUTULMAYI BEKLEYEN DUBLIKELER (ayni gun/ayni hal cakismasi YOK)"
+echo "     Kanonik bag URL'i yonlendiriyor ama iki kayit da ayri duruyor."
+mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" --table -e "
+SELECT d.slug AS dublike, s.slug AS hedef, d.unit AS birim,
+       (SELECT COUNT(*) FROM hf_price_history h WHERE h.product_id = d.id) AS satir,
+       (SELECT MAX(h.recorded_date) FROM hf_price_history h WHERE h.product_id = d.id) AS son_kayit,
+       (SELECT COUNT(*) FROM hf_price_history a
+          JOIN hf_price_history b ON b.market_id = a.market_id
+           AND b.recorded_date = a.recorded_date AND b.product_id = s.id
+         WHERE a.product_id = d.id) AS cakisma
+FROM hf_products d
+JOIN hf_products s ON s.slug = d.canonical_slug AND s.is_active = 1
+WHERE d.is_active = 1 AND d.canonical_slug IS NOT NULL AND d.unit = s.unit
+HAVING satir >= 500 AND cakisma = 0
+ORDER BY satir DESC
+LIMIT 30;" 2>/dev/null | grep -v "Using a password"
+
+echo
+echo "Not: 1. bolum ELLE karara baglanir (fiyat farki tek basina kanit degildir)."
+echo "     2. bolumde cakisma=0 olanlar admin absorb ucuyle guvenle yutulabilir."
