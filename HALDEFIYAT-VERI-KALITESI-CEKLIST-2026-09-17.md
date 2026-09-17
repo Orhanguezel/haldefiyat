@@ -1,6 +1,6 @@
 # Veri Kalitesi Temizliği — Durum ve Checklist
 
-**Tarih:** 17 Eylül 2026 · **Durum:** devam ediyor · **Sonraki adım:** §3.1
+**Tarih:** 17 Eylül 2026 · **Durum:** devam ediyor · **Sonraki adım:** §3.3
 
 Bu dosya, fiyat verisindeki bozuklukların temizliğini takip eder. Bir oturumda çok iş
 yapıldığı için neyin bitip neyin kaldığı buradan okunur.
@@ -71,11 +71,12 @@ giriyordu (dut +%38,8).
 - **A** medyandan 5 kat uzak satır oranı ≥ %5 — kümelenmiş gürültü
 - **B** medyandan 10 kat uzak ≥ 1 satır — tek günlük sıçrama
 
-- [ ] **İndexli 2 çift** — `defne-yapragi-yas-taze`, `kaya-korugu`. İkisi de daha önce
-      "sınırda, dokunma" kararı aldı; tekrar bakılıp karara bağlansın (kapat ya da temizle)
-- [ ] **İndexsiz 17 çift** — çoğu %5–9 bandında, düşük öncelikli
-- [ ] Üçü zaten torba kaydı (`fasulye-taze-diger`, `domates-diger`, `uzum-beyaz-diger`) —
-      residual kuralıyla manşetten çıkıyorlar, **işlem gerekmeyebilir**, doğrulanıp kapatılsın
+- [x] **İndexli 2 çift** — ikisi de **dokunulmadı, kapatıldı**. `defne-yapragi` 27 satır
+      3,00→90,00 arasında *sürekli* dağılıyor (31,00 sekiz kez tekrar), bozuk seri imzası
+      yok; ucuz bir yeşillik için geniş ama tek kümeli. `kaya-korugu` aynı gerekçe
+- [x] Üç torba kaydı **doğrulandı** — `domates-diger`, `fasulye-taze-diger`,
+      `uzum-beyaz-diger` residual kuralıyla manşetten çıkıyor, işlem gerekmiyor
+- [ ] **İndexsiz 14 çift** — çoğu %5–9 bandında, düşük öncelikli
 
 ### 3.2 — Kanonik bağ sapması (§1), 43 çift
 
@@ -94,7 +95,13 @@ Fiyatı hedefinden belirgin ayrışan bağlar. Çoğu **meşru kalite/sınıf va
 Kanonik bağlı ama hâlâ kendi satırlarını tutan kayıtlar. **Çakışma = 0 olanlar güvenle
 yutulabilir** (absorb numerik olarak nötrdür: satırlar zaten hedefin ortalamasına giriyor).
 
-- [ ] Yazım/eşanlam varyantlarını yut (bugün 26 tanesi yapıldı, aynı desen)
+- [x] Yazım/eşanlam varyantlarını yut — **34 tanesi yapıldı**, hiçbirinde satır düşmedi,
+      her birine 301 yazıldı. Son parti: `armut-santamira`→`santamaria`,
+      `papates-yeni`→`patates-taze`, `k-bahar`→`karnabahar`,
+      `kokty-domates-ceri`→`domates-kokteyl`, `dongel`, `salatalik-tursu`,
+      `kirmizi-marul`→`marul-lolorosso`, `fasulye-taze-cali`→`fasulye-cali`
+- [ ] `turp-siyah-kg` → `turp-siyah` **bırakıldı**: 15,67 vs 44,04 (2,8 kat) — yazım
+      varyantı gibi görünüyor ama fiyatlar tutmuyor, ayrıca incelensin
 - [ ] `kabak-bal`, `kabak-taze`, `kabak-beyaz` **yutulmasın** — ayrı çeşitler
 - [ ] Torba kayıtlar (`*-muhtelif`, `*-diger`) **yutulmasın** — uç zaten reddediyor
 
