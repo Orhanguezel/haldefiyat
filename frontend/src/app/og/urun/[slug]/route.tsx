@@ -4,7 +4,7 @@ import { ImageResponse } from "next/og";
 import { formatOgDate } from "@/lib/og-date";
 import { loadOgBrandAssets, OgBackground, OgBrand } from "@/lib/og-brand";
 import { loadProductPhoto } from "@/lib/og-product-photo";
-import { ogFallbackResponse } from "@/lib/og-fallback";
+import { ogFallbackResponse, renderOrFallback } from "@/lib/og-fallback";
 
 // KANONİK DİNAMİK OG REFERANSI (route handler — i18n bağımsız).
 // URL: /og/urun/[slug]. `/api/` nginx'te Fastify backend'e gittiği için OG
@@ -93,13 +93,9 @@ function cleanName(value: string): string {
 
 export async function GET(_req: Request, { params }: Props) {
   const { slug } = await params;
-  try {
-    return await renderUrunOg(slug);
-  } catch {
-    // Kapak uretilemezse 502 yerine sade kapak; gerekce og-fallback.tsx'te.
-    const okunur = slug.replace(/-/g, " ").replace(/\b\p{Ll}/gu, (c) => c.toLocaleUpperCase("tr-TR"));
-    return ogFallbackResponse(okunur, "Türkiye genelinde günlük fiyat");
-  }
+  // Kapak uretilemezse 502 yerine sade kapak; gerekce og-fallback.tsx'te.
+  const okunur = slug.replace(/-/g, " ").replace(/\b\p{Ll}/gu, (c) => c.toLocaleUpperCase("tr-TR"));
+  return renderOrFallback(() => renderUrunOg(slug), okunur, "Türkiye genelinde günlük fiyat");
 }
 
 async function renderUrunOg(slug: string) {

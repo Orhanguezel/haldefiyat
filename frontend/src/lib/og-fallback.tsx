@@ -51,3 +51,28 @@ export function ogFallbackResponse(baslik: string, altBaslik?: string | null): I
     },
   );
 }
+
+
+/**
+ * ImageResponse TEMBEL render eder: fonksiyon donse bile hata stream asamasinda
+ * patlar ve try/catch onu goremez. nginx tarafinda gorunen sey "upstream
+ * prematurely closed connection" + 502; uygulama logunda "failed to pipe
+ * response" (17 Eyl 2026 — ilk savunma denemem tam bu yuzden ise yaramadi).
+ *
+ * Bu sarmalayici govdeyi PESIN okur; boylece hata yakalanabilir hale gelir ve
+ * cagiran taraf yedek kapaga dusebilir. Bedeli kapak basina ~1 MB gecici
+ * bellek, karsiliginda bot bos kart yerine gecerli bir gorsel alir.
+ */
+export async function renderOrFallback(
+  render: () => Promise<ImageResponse> | ImageResponse,
+  baslik: string,
+  altBaslik?: string | null,
+): Promise<Response> {
+  try {
+    const response = await render();
+    const body = await response.arrayBuffer();
+    return new Response(body, { status: 200, headers: response.headers });
+  } catch {
+    return ogFallbackResponse(baslik, altBaslik);
+  }
+}
