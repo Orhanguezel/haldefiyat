@@ -5,6 +5,7 @@ import { setRequestLocale } from "next-intl/server";
 import { fetchPrices, fetchPricesPage, fetchMarkets, fetchPricesOverview } from "@/lib/api";
 import { fetchSiteSettings } from "@/lib/site-settings";
 import { DATA_LICENSE_URL, getPageMetadata, ORG_REF } from "@/lib/seo";
+import { originVars } from "@/lib/home-page-data";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceTable from "@/components/ui/PriceTable";
@@ -27,13 +28,15 @@ export async function generateMetadata({ params }: Props) {
   const coverageLine = overview.trackedProducts > 0
     ? `${overview.trackedProducts.toLocaleString("tr-TR")} ürünün`
     : "sebze, meyve ve bakliyat ürünlerinin";
+  // Koken cumlesi once, ozellik cumlesi sonra (bkz. getHomeMetadata aciklamasi).
+  const origin = originVars(overview);
   return getPageMetadata("fiyatlar", {
     locale,
     pathname: "/fiyatlar",
-    vars: { year },
+    vars: { year, ...origin },
     title: `Güncel Hal Fiyatları ${year} — Bugünkü Toptan Sebze & Meyve Fiyatları`,
     description:
-      `Türkiye geneli güncel hal fiyatları: ${coverageLine} toptan/piyasa fiyatlarını şehir, kategori ve tarihe göre filtreleyin. Kaynakların resmi yayın takvimine göre güncellenir.`,
+      `${origin.marketCount} hal ve ${origin.sourceCount} resmi kaynaktan derlenen günlük toptan fiyat kayıtları, ${origin.sinceYear}'ten beri. ${coverageLine} fiyatlarını şehir, kategori ve tarihe göre filtreleyin.`,
   });
 }
 

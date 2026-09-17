@@ -34,13 +34,37 @@ function formatUpdatedAt(value: string | undefined): string {
   return new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "short" }).format(date);
 }
 
-export function getHomeMetadata(locale: string) {
+/**
+ * Aciklama KOKEN cumlesiyle baslar, ozellik cumlesi ikinci sirada.
+ *
+ * 17 Eyl 2026 AI gorunurluk olcumu: "hal fiyatlarini en guvenilir hangi site
+ * takip ediyor" sorusunda rakipler verinin NEREDEN geldigini anlatan cumlelerle
+ * anildi (tarimpiyasa: "Bakanliga bagli hal mudurlukleri her is gunu ilan
+ * eder"), biz /fiyatlar og:description'indaki OZELLIK cumlesiyle ucuncu sirada
+ * kaldik ("sehir, kategori ve tarihe gore filtreleyin"). Koken bilgisi zaten
+ * llms.txt ve /metodoloji'de vardi, ozet alinan yerde yoktu.
+ *
+ * Sayilar canli overview'dan gelir; DB'deki seo_pages metni {{...}} ile doldurur.
+ */
+export async function getHomeMetadata(locale: string) {
+  const overview = await fetchPricesOverview();
   return getPageMetadata("home", {
     locale,
     pathname: "/",
+    vars: originVars(overview),
     title: "Türkiye Hal Fiyatları — Günlük, Gerçek Zamanlı",
-    description: "Türkiye geneli hal ve pazar fiyatları tek ekranda. Sebze, meyve ve bakliyat fiyatlarını şehir ve kategori bazında karşılaştırın.",
+    description: `Resmi hal müdürlükleri ve ticaret borsalarından derlenen günlük toptan fiyatlar: ${originVars(overview).marketCount} hal, ${originVars(overview).sourceCount} kaynak, ${originVars(overview).sinceYear}'ten beri. Şehir ve kategori bazında karşılaştırın.`,
   });
+}
+
+/** seo_pages metnindeki {{marketCount}} {{sourceCount}} {{sinceYear}} {{productCount}} yer tutuculari. */
+export function originVars(overview: { activeMarkets?: number; activeSources?: number; trackedProducts?: number; earliestRecordedDate?: string | null }) {
+  return {
+    marketCount: String(overview.activeMarkets ?? 58),
+    sourceCount: String(overview.activeSources ?? 45),
+    productCount: (overview.trackedProducts ?? 0).toLocaleString("tr-TR"),
+    sinceYear: (overview.earliestRecordedDate ?? "2004-01-01").slice(0, 4),
+  };
 }
 
 export async function loadHomePageData(locale: string) {

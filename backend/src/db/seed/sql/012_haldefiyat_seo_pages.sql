@@ -33,13 +33,13 @@ VALUES (
   '{
     "home": {
       "title": "Türkiye Hal Fiyatları — Günlük, Gerçek Zamanlı",
-      "description": "Türkiye geneli hal ve pazar fiyatları tek ekranda. Sebze, meyve ve bakliyat fiyatlarını şehir ve kategori bazında karşılaştırın.",
+      "description": "Resmi hal müdürlükleri ve ticaret borsalarından derlenen günlük toptan fiyatlar: {{marketCount}} hal, {{sourceCount}} kaynak, {{sinceYear}}'ten beri. Şehir ve kategori bazında karşılaştırın.",
       "og_image": "/og-pages/home.jpg",
       "no_index": false
     },
     "fiyatlar": {
       "title": "Güncel Hal Fiyatları {{year}} — Bugünkü Toptan Sebze & Meyve Fiyatları",
-      "description": "Türkiye geneli güncel hal fiyatları: sebze, meyve ve bakliyat toptan/piyasa fiyatlarını şehir, kategori ve tarihe göre filtreleyin. Fiyatlar her gün sabah otomatik güncellenir.",
+      "description": "{{marketCount}} hal ve {{sourceCount}} resmi kaynaktan derlenen günlük toptan fiyat kayıtları, {{sinceYear}}'ten beri. Ürün, şehir, kategori ve tarihe göre filtreleyin.",
       "og_image": "/og-pages/fiyatlar.jpg",
       "no_index": false
     },
