@@ -13,8 +13,25 @@ function titleCaseTr(input: string): string {
     .trim();
 }
 
+/**
+ * Birim, niteleyici DEGILDIR. "(1.sınıf)" urunu ayirt eder ve elle yazilmis
+ * display_name'i ezmeyi hak eder; "(KG)" ise yalnizca olcu birimini tekrarlar.
+ *
+ * Ayrim yapilmadigi icin "LİMON (KG) YENİ" ETL adi, elle girilen "Limon Yeni"
+ * adini eziyordu ve sayfada "Limon (Kg) Yeni" gorunuyordu (15 urun, 17 Eyl 2026).
+ */
+const UNIT_WORDS = new Set([
+  "kg", "kilogram", "kilo", "adet", "tane", "bağ", "bag", "demet", "kasa",
+  "koli", "sandık", "sandik", "paket", "çuval", "cuval", "litre", "lt",
+]);
+
+function isUnitWord(word: string) {
+  return UNIT_WORDS.has(word.toLocaleLowerCase("tr-TR"));
+}
+
 function hasMeaningfulQualifier(value: string) {
-  return /\([^)]*[0-9A-Za-zÇĞİÖŞÜçğıöşü][^)]*\)/u.test(value);
+  const words = qualifierWords(value);
+  return words.length > 0 && !words.every(isUnitWord);
 }
 
 /** Parantez icindeki niteleyici kelimeler ("DOMATES (SALÇALIK)" → ["salçalık"]). */
@@ -25,9 +42,14 @@ function qualifierWords(value: string): string[] {
     .filter((w) => w.length > 1);
 }
 
+/** Niteleyici sayilan kelimeler: birim adlari harictir. */
+function meaningfulQualifierWords(value: string): string[] {
+  return qualifierWords(value).filter((w) => !isUnitWord(w));
+}
+
 /** Elle verilen ad, ETL adinin niteleyicisini parantezsiz de tasiyorsa ("Salçalık Domates") anlamlidir. */
 function keepsQualifier(configured: string, nameTr: string) {
-  const words = qualifierWords(nameTr);
+  const words = meaningfulQualifierWords(nameTr);
   const lower = configured.toLocaleLowerCase("tr-TR");
   return words.length > 0 && words.every((w) => lower.includes(w));
 }
