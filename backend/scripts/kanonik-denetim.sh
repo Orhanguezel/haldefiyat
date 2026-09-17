@@ -148,6 +148,30 @@ echo "           kayit yok (roka demet/kg) → yeni kayit mi, urun birimi mi yan
 echo "           karar gerekir. Korlemesine ortalamaya katma."
 
 echo
+echo "▸ 5. GURULTU SERISI (kaynak o urun icin anlamli fiyat uretmiyor)"
+echo "     Imza: ayni urun+kaynak icinde en dusuk ~10, en yuksek ~1000 TL —"
+echo "     degerler araliga uniform dagiliyor, yani fiyat gibi davranmiyorlar."
+echo "     Hepsi az islem goren nadir urunler; ulusal ortalama az islemde"
+echo "     anlamsizlasiyor. Parser dogru sutunu okuyor, sorun kaynakta."
+mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" --table -e "
+SELECT p.slug AS urun, COALESCE(p.seo_index,0) AS indexli, h.source_api AS kaynak,
+       COUNT(*) AS satir,
+       ROUND(MIN(h.avg_price),2) AS enaz, ROUND(MAX(h.avg_price),2) AS encok,
+       ROUND(MAX(h.avg_price)/NULLIF(MIN(h.avg_price),0),0) AS kat,
+       (SELECT COUNT(*) FROM hf_price_history h3
+         WHERE h3.product_id = p.id AND h3.source_api <> h.source_api
+           AND h3.recorded_date >= CURDATE() - INTERVAL 90 DAY) AS baska_kaynak_satir
+FROM hf_price_history h
+JOIN hf_products p ON p.id = h.product_id AND h.unit = p.unit
+WHERE h.avg_price > 0 AND h.recorded_date >= CURDATE() - INTERVAL 90 DAY
+GROUP BY p.id, h.source_api
+HAVING satir >= 20 AND enaz BETWEEN 9 AND 12 AND encok > 850
+ORDER BY indexli DESC, baska_kaynak_satir DESC;" 2>/dev/null | grep -v "Using a password"
+echo "     baska_kaynak_satir > 0 → o kaynagin satirlari karantinaya alinabilir,"
+echo "     urun yasamaya devam eder. = 0 → urun tamamen bu kaynaga bagli;"
+echo "     satirlari cikarmak sayfayi bosaltir, KARAR gerekir."
+
+echo
 echo "Not: 1. bolum ELLE karara baglanir (fiyat farki tek basina kanit degildir)."
 echo "     2. bolumde cakisma=0 olanlar admin absorb ucuyle guvenle yutulabilir."
 echo "     3. bolum BOS OLMALI; dolduysa absorb sonrasi yonlendirme yazilmamis demektir."
