@@ -9,9 +9,11 @@ export type MovementRow = {
 };
 
 export type WeeklyMovement = {
-  /** Son 7 gun: kararli hallerin hafta ortancalarinin ortalamasi. */
+  /** Kiyaslanan pencere uzunlugu (gun). 7 = son hafta, 30 = son ay. */
+  windowDays: number;
+  /** Son pencere: kararli serilerin pencere ortancalarinin ortalamasi. */
   current: number;
-  /** Onceki 7 gun: ayni hallerin ayni yontemle hesaplanmis seviyesi. */
+  /** Onceki ayni uzunluktaki pencere: AYNI serilerin ayni yontemle seviyesi. */
   previous: number;
   changePct: number;
   unit: string;
@@ -86,13 +88,20 @@ function isStable(values: number[]): boolean {
  *    `bucket=daily` ile almali — kovalanmis sorgu cesitleri bilerek birlestirir
  *    ve productSlug'i bos birakir, o zaman bu suzgec calismaz.
  */
-export function computeWeeklyMovement(rows: MovementRow[], now = new Date()): WeeklyMovement | null {
+export function computeWeeklyMovement(
+  rows: MovementRow[],
+  now = new Date(),
+  windowDays = 7,
+): WeeklyMovement | null {
+  if (!Number.isInteger(windowDays) || windowDays < 1) return null;
   const valid = rows.filter((r) => Number(r.avgPrice) > 0 && r.recordedDate && r.marketSlug);
   if (valid.length === 0) return null;
 
   const end = valid.reduce((max, r) => (r.recordedDate > max ? r.recordedDate : max), valid[0]!.recordedDate);
   const endMs = Date.parse(end);
-  if (!Number.isFinite(endMs) || now.getTime() - endMs > 14 * DAY) return null;
+  // Bayat seri kiyaslanmaz. Esik pencereyle olcekleniyor (iki pencere boyu):
+  // 7 gunluk kiyasta 14 gun — degisiklik oncesindeki sabit degerle ayni.
+  if (!Number.isFinite(endMs) || now.getTime() - endMs > windowDays * 2 * DAY) return null;
 
   const inWindow = (r: MovementRow, fromDays: number, toDays: number) => {
     const t = Date.parse(r.recordedDate);
@@ -112,8 +121,8 @@ export function computeWeeklyMovement(rows: MovementRow[], now = new Date()): We
     return map;
   };
 
-  const cur = bySeries(valid.filter((r) => inWindow(r, -1, 7)));
-  const prev = bySeries(valid.filter((r) => inWindow(r, 7, 14)));
+  const cur = bySeries(valid.filter((r) => inWindow(r, -1, windowDays)));
+  const prev = bySeries(valid.filter((r) => inWindow(r, windowDays, windowDays * 2)));
   const shared = [...cur.keys()].filter(
     (k) => prev.has(k) && isStable(cur.get(k)!) && isStable(prev.get(k)!),
   );
@@ -133,6 +142,7 @@ export function computeWeeklyMovement(rows: MovementRow[], now = new Date()): We
   const marketChanges = [...perMarket.values()].map(mean);
 
   return {
+    windowDays,
     current,
     previous,
     changePct: ((current - previous) / previous) * 100,
@@ -146,13 +156,20 @@ export function computeWeeklyMovement(rows: MovementRow[], now = new Date()): We
 const tr = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const pct = (n: number) => `%${Math.abs(n).toLocaleString("tr-TR", { maximumFractionDigits: 1 })}`;
 
+/** "son haftada" / "son 30 gunde" — pencere uzunlugundan turer, elle yazilmaz. */
+function windowLabel(windowDays: number): { donem: string; ikiDonem: string } {
+  if (windowDays === 7) return { donem: "son haftada", ikiDonem: "her iki haftada da" };
+  return { donem: `son ${windowDays} günde`, ikiDonem: `her iki ${windowDays} günlük dönemde de` };
+}
+
 /** Tek cumle: sabit iddia yok, hepsi olculen sayidan turer. */
 export function describeWeeklyMovement(productName: string, m: WeeklyMovement): string {
+  const { donem, ikiDonem } = windowLabel(m.windowDays);
   const dir = m.changePct > 0.5 ? "yükseldi" : m.changePct < -0.5 ? "geriledi" : "yatay seyretti";
   const head = Math.abs(m.changePct) <= 0.5
-    ? `${productName} son haftada ${tr(m.current)} TL/${m.unit} ile yatay seyretti`
-    : `${productName} son haftada ${pct(m.changePct)} ${dir}: ${tr(m.previous)} → ${tr(m.current)} TL/${m.unit}`;
-  const base = `${m.marketCount} halin her iki haftada da yayımladığı kayıtlar üzerinden`;
+    ? `${productName} ${donem} ${tr(m.current)} TL/${m.unit} ile yatay seyretti`
+    : `${productName} ${donem} ${pct(m.changePct)} ${dir}: ${tr(m.previous)} → ${tr(m.current)} TL/${m.unit}`;
+  const base = `${m.marketCount} halin ${ikiDonem} yayımladığı kayıtlar üzerinden`;
   // Yon tek bir halden degil, hallerin cogunlugundan okunur.
   const yayginlik = [
     m.fallingMarkets > 0 ? `${m.fallingMarkets} halde geriledi` : null,

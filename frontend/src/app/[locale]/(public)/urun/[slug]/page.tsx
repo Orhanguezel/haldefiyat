@@ -51,8 +51,7 @@ import ProductImage from "@/components/ui/ProductImage";
 import { getExactProductImage } from "@/lib/product-images";
 import { getProductEditorial } from "@/lib/product-content";
 import AnswerBlock from "@/components/seo/AnswerBlock";
-import { computeWeeklyMovement, describeWeeklyMovement } from "@/lib/weekly-movement";
-import { calculateWindowTrend } from "@/lib/citability";
+import { computeWeeklyMovement, describeWeeklyMovement, type WeeklyMovement } from "@/lib/weekly-movement";
 import { ProductTradeBanner, ProductAdvertisingBanner, ProductGuideLinks } from "@/components/sections/ProductOpportunities";
 import SellPrompt from "@/components/listings/SellPrompt";
 import { canShowPublicYoy } from "@/lib/yoy-policy";
@@ -83,18 +82,29 @@ function normalizeUnit(value: string | null | undefined): string {
   return u || "kg";
 }
 
+/** Rozet ve cumle ayni esikten konussun diye tek yerde. */
+function trendPhrase(m: WeeklyMovement, days: number): string {
+  const yon = m.changePct > 0.5 ? "yükseliş" : m.changePct < -0.5 ? "düşüş" : "yatay seyir";
+  const oran = `%${Math.abs(m.changePct).toLocaleString("tr-TR", { maximumFractionDigits: 1 })}`;
+  return yon === "yatay seyir"
+    ? `son ${days} günlük dönemde yatay seyir`
+    : `son ${days} günlük dönemde ${oran} ${yon}`;
+}
+
 function ProductTrendBadge({
   label,
   trend,
 }: {
   label: string;
-  trend: ReturnType<typeof calculateWindowTrend>;
+  trend: WeeklyMovement | null;
 }) {
   if (!trend) return null;
-  const Icon = trend.direction === "yükseliş" ? TrendingUp : trend.direction === "düşüş" ? TrendingDown : Minus;
-  const tone = trend.direction === "yükseliş"
+  // Yon esigi describeWeeklyMovement ile AYNI (%0,5): rozet ile cumle celismesin.
+  const direction = trend.changePct > 0.5 ? "yükseliş" : trend.changePct < -0.5 ? "düşüş" : "yatay";
+  const Icon = direction === "yükseliş" ? TrendingUp : direction === "düşüş" ? TrendingDown : Minus;
+  const tone = direction === "yükseliş"
     ? "text-(--trend-up)"
-    : trend.direction === "düşüş"
+    : direction === "düşüş"
       ? "text-(--trend-down)"
       : "text-(--color-muted)";
   return (
@@ -103,7 +113,7 @@ function ProductTrendBadge({
       <div>
         <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-(--color-muted)">{label}</div>
         <div className={`mt-0.5 font-(family-name:--font-mono) text-sm font-bold ${tone}`}>
-          %{Math.abs(trend.changePct).toLocaleString("tr-TR")} {trend.direction}
+          %{Math.abs(trend.changePct).toLocaleString("tr-TR", { maximumFractionDigits: 1 })} {direction}
         </div>
       </div>
     </div>
@@ -372,12 +382,17 @@ export default async function UrunPage({ params }: Props) {
     // bucket=auto: son 90 gün günlük (grafik birebir aynı), 90-365g haftalık,
     // ötesi aylık → payload ~%74 küçülür (bezelye 388KB→102KB), sayfa hızlanır.
     fetchPriceHistory(slug, undefined, "1825d", "auto"),
-    // Haftalık hareket AYRI seri ister. `auto` kovası aynı halin aynı gündeki
+    // Hareket kiyasi AYRI seri ister. `auto` kovası aynı halin aynı gündeki
     // çeşitlerini tek satıra toplar — grafik hal başına tek çizgi istediği için
     // doğru, ama kıyas için yıkıcı: Kahramanmaraş 7 Eyl'de `domates-bursa`,
     // 14 Eyl'de `domates` yayınladı ve fark "%92 artış" gibi okundu. `daily`
     // kovası satırı çeşidiyle birlikte verir, kıyas hal+ürün çiftinde eşleşir.
-    borsaProduct ? Promise.resolve([]) : fetchPriceHistory(slug, undefined, "16d", "daily"),
+    //
+    // 62 gün: hem 7 hem 30 günlük kıyas AYNI diziden hesaplanır (30+30 gün +
+    // yayın boşluğu payı). Daha önce 16 gündü ve 30 günlük rakam eşleşmemiş
+    // `calculateWindowTrend`'den geliyordu — aynı sayfada iki farklı 7 günlük
+    // sayı yayımlanıyordu (limon: %2,5 gerileme ve %7,4 düşüş, 18 Eyl 2026).
+    borsaProduct ? Promise.resolve([]) : fetchPriceHistory(slug, undefined, "62d", "daily"),
     fetchPrices({ product: slug, marketType: borsaProduct ? undefined : "hal", range: "1d", limit: 20 }),
     getProductEditorial({ slug, nameTr: displayName, categorySlug: product.categorySlug }),
     borsaProduct
@@ -527,8 +542,9 @@ export default async function UrunPage({ params }: Props) {
       }];
     }),
   ).values()];
-  const shortTrend = slug === "kekik" ? null : calculateWindowTrend(history, 7);
-  const longTrend = slug === "kekik" ? null : calculateWindowTrend(history, 30);
+  // Tek yontem: ikisi de eslesmis seri (hal+urun), kararli seri suzgeciyle.
+  const shortTrend = slug === "kekik" || borsaProduct ? null : computeWeeklyMovement(movementRows, undefined, 7);
+  const longTrend = slug === "kekik" || borsaProduct ? null : computeWeeklyMovement(movementRows, undefined, 30);
 
   const datasetDates = schemaDateRange(
     [...todayPrices, ...borsaPrices, ...resmiPrices, ...history].map((row) => row.recordedDate),
@@ -631,7 +647,8 @@ export default async function UrunPage({ params }: Props) {
         // 2026 AI gorunurluk olcumu bu soru kalibinda yanitlarin YORUM icerigi
         // aldigini gosterdi; bizde gunun rakami vardi, gecen haftayla kiyas yoktu.
         // Cumle tamamen olculen sayidan turer; veri yetmezse blok hic basilmaz.
-        const movement = borsaProduct ? null : computeWeeklyMovement(movementRows);
+        // shortTrend ile AYNI hesap: sayfada iki farkli 7 gunluk rakam olmasin.
+        const movement = shortTrend;
         if (!movement) return null;
         return (
           <div className="mt-6">
@@ -699,13 +716,10 @@ export default async function UrunPage({ params }: Props) {
             {(shortTrend || longTrend) && (
               <>
                 {displayName} piyasası{" "}
-                {shortTrend && (
-                  <>son 7 günlük dönemde %{Math.abs(shortTrend.changePct).toLocaleString("tr-TR")} {shortTrend.direction}</>
-                )}
+                {shortTrend && <>{trendPhrase(shortTrend, 7)}</>}
                 {shortTrend && longTrend && "; "}
-                {longTrend && (
-                  <>son 30 günlük dönemde %{Math.abs(longTrend.changePct).toLocaleString("tr-TR")} {longTrend.direction}</>
-                )} gösterdi.
+                {longTrend && <>{trendPhrase(longTrend, 30)}</>} —{" "}
+                her iki dönemde de kayıt yayımlayan haller üzerinden.
               </>
             )}
           </>
@@ -719,8 +733,8 @@ export default async function UrunPage({ params }: Props) {
 
       {(shortTrend || longTrend) ? (
         <section className="mb-6 grid gap-3 sm:grid-cols-2" aria-label={`${displayName} fiyat trendi özeti`}>
-          <ProductTrendBadge label="Son 7 gün / önceki 7 gün" trend={shortTrend} />
-          <ProductTrendBadge label="Son 30 gün / önceki 30 gün" trend={longTrend} />
+          <ProductTrendBadge label={`Son 7 gün / önceki 7 gün${shortTrend ? ` · ${shortTrend.marketCount} hal` : ""}`} trend={shortTrend} />
+          <ProductTrendBadge label={`Son 30 gün / önceki 30 gün${longTrend ? ` · ${longTrend.marketCount} hal` : ""}`} trend={longTrend} />
         </section>
       ) : null}
 

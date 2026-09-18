@@ -177,3 +177,68 @@ describe("cesit degisimi suzgeci", () => {
     expect(m.marketCount).toBe(1);
   });
 });
+
+// 18 Eyl 2026: urun sayfasi 30 gunluk rakami eslesmemis calculateWindowTrend'den
+// aliyordu ve ayni sayfada iki celisen 7 gunluk sayi yayimlaniyordu (limon
+// %2,5 gerileme ve %7,4 dusus). Tek yontem kaldi; pencere artik parametre.
+describe("pencere uzunlugu parametresi", () => {
+  const gun = (marketSlug: string, productSlug: string, gunOnce: number, fiyat: number): MovementRow => ({
+    recordedDate: new Date(NOW.getTime() - gunOnce * 86400000).toISOString().slice(0, 10),
+    avgPrice: fiyat,
+    marketSlug,
+    productSlug,
+    cityName: marketSlug,
+    unit: "kg",
+  });
+
+  it("30 gunluk pencere son 30 gunu onceki 30 gunle kiyaslar", () => {
+    const rows = [
+      ...[1, 10, 20, 29].map((d) => gun("konya", "limon", d, 50)),
+      ...[31, 40, 50, 59].map((d) => gun("konya", "limon", d, 100)),
+      ...[2, 11, 21, 28].map((d) => gun("izmir", "limon", d, 50)),
+      ...[32, 41, 51, 58].map((d) => gun("izmir", "limon", d, 100)),
+    ];
+    const m = computeWeeklyMovement(rows, NOW, 30)!;
+    expect(m.windowDays).toBe(30);
+    expect(Math.round(m.changePct)).toBe(-50);
+    expect(m.marketCount).toBe(2);
+  });
+
+  it("7 ve 30 gunluk pencereler ayni diziden ayri sonuc verir", () => {
+    const rows = [
+      // Son hafta 90, onceki hafta 100 → 7 gunde %-10.
+      ...[0, 3, 6].map((d) => gun("konya", "limon", d, 90)),
+      ...[8, 11, 13].map((d) => gun("konya", "limon", d, 100)),
+      // 30-60 gun arasi 180 → 30 gunde belirgin dusus.
+      ...[20, 25, 29].map((d) => gun("konya", "limon", d, 95)),
+      ...[35, 45, 55].map((d) => gun("konya", "limon", d, 180)),
+    ];
+    const kisa = computeWeeklyMovement(rows, NOW, 7)!;
+    const uzun = computeWeeklyMovement(rows, NOW, 30)!;
+    expect(Math.round(kisa.changePct)).toBe(-10);
+    expect(uzun.changePct).toBeLessThan(-30);
+  });
+
+  it("bayatlik esigi pencereyle olceklenir — 7 gunluk davranis degismedi", () => {
+    // Son kayit 20 gun once: 7 gunluk kiyas icin bayat (esik 14), 30 icin degil (esik 60).
+    const rows = [
+      ...[20, 22, 24].map((d) => gun("konya", "limon", d, 90)),
+      ...[28, 30, 32].map((d) => gun("konya", "limon", d, 100)),
+      ...[40, 50].map((d) => gun("konya", "limon", d, 100)),
+    ];
+    expect(computeWeeklyMovement(rows, NOW, 7)).toBeNull();
+    expect(computeWeeklyMovement(rows, NOW, 30)).not.toBeNull();
+  });
+
+  it("cumle pencereye gore yazilir", () => {
+    const rows = [
+      ...[1, 10, 25].map((d) => gun("konya", "limon", d, 50)),
+      ...[35, 45, 55].map((d) => gun("konya", "limon", d, 100)),
+    ];
+    const m = computeWeeklyMovement(rows, NOW, 30)!;
+    const cumle = describeWeeklyMovement("Limon", m);
+    expect(cumle).toContain("son 30 günde");
+    expect(cumle).toContain("her iki 30 günlük dönemde de");
+    expect(cumle).not.toContain("son haftada");
+  });
+});
