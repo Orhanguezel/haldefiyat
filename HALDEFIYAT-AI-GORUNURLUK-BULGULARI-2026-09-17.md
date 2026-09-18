@@ -301,7 +301,21 @@ Katalog: 9/11 güven sinyali var; eksik olanlar `reviews` (müşteri yorumu) ve
 
 - `reviews` — katalog kendi metninde uyarıyor: "Kendi işletmeniz hakkındaki yorumlara
   sırf puan almak için Review/AggregateRating eklemeyin." **Yapılmayacak.**
-- `trust` — bir şey satmadığımız için iade/garanti kavramı geçersiz. Bizim
-  karşılığımız **veri güvencesi**: düzeltme politikası, CC BY 4.0 lisansı, kaynak
-  doğrulama. `/metodoloji` ve `/veri-kaynagi-politikasi` var ama sayfa şablonunda
-  görünür bir güvence satırı yok. **Yapılabilir ve dürüst — sıradaki turda.**
+- `trust` — **kapatıldı (18 Eylül).** Bir şey satmadığımız için iade/garanti kavramı
+  geçersiz; karşılığımız **veri güvencesi**. `DataProvenanceNote`'a iki küçük paragraf
+  eklendi: hatalı kayıt bildirimi nasıl işliyor (birincil kaynak + ETL çalışma kaydıyla
+  karşılaştırma, doğrulanamayan satır yayından çıkar, silinmez) ve politika bağlantıları
+  (Metodoloji · Veri kaynağı · Gizlilik/KVKK · CC BY 4.0). Metin `/duzeltme-politikasi`
+  ile birebir tutarlı: orada "her bildirim aynı gün sonuçlanır" denmiyor, burada da
+  denmiyor.
+
+  Bileşen şimdiye kadar yalnız `/piyasa` ve `/fiyat`'taydı; en çok sayfayı tutan
+  `/urun` ve `/hal`'de yoktu — ikisine de eklendi.
+
+  **Neden gövdede, footer'da değil:** analizör `input.mainText`'e bakıyor
+  (`content-insights.ts:33`), yani `<main>` içeriğine. Footer'daki gizlilik/KVKK
+  bağlantıları hiç sayılmıyordu. Canlıda doğrulandı: `<main>` içinde `trust` ölçütü
+  artık eşleşiyor.
+
+  Yan etki — pasaj sayısı da arttı: `/urun/domates` 15 → **17** (puan 23 → 25),
+  `/hal/ankara-hal` 11 → **13** (puan 28 → 30).
