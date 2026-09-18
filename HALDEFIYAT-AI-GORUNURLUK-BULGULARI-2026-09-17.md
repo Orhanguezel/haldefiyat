@@ -287,12 +287,7 @@ Katalog artefaktları listesine eklendi.
    çözmez: eşiğin altındaki ürünlerde aynı karışım daha küçük ve daha inandırıcı
    bir yanlış sayı üretir. **Sayısız olmak, yanlış sayıdan iyidir.**
 
-2. **`calculateWindowTrend` eşleşmemiş — ürün sayfasındaki "son 7/30 gün %X" bundan
-   besleniyor.** Fonksiyon her gün için *tüm satırların* ortalamasını alıyor
-   (`lib/citability.ts:41-59`). Bir hal o hafta yayımlayıp ertesi hafta yayımlamazsa
-   sayı **fiyat değil bileşim** yüzünden oynar. Bu, anasayfa haftalık bloğunda üç kez
-   yaşanıp `weekly-movement.ts`'te eşleşmiş-seri süzgeciyle çözülen hatanın aynısı —
-   ürün sayfasında hâlâ açık. **Sıradaki iş bu.**
+2. **`calculateWindowTrend` eşleşmemişti — ✅ kapatıldı (18 Eylül).** Ayrıntı aşağıda.
 
 ### Bulgu 2'nin kalan iki sinyali
 
@@ -319,3 +314,64 @@ Katalog: 9/11 güven sinyali var; eksik olanlar `reviews` (müşteri yorumu) ve
 
   Yan etki — pasaj sayısı da arttı: `/urun/domates` 15 → **17** (puan 23 → 25),
   `/hal/ankara-hal` 11 → **13** (puan 28 → 30).
+
+
+---
+
+## 18 Eylül 2026 (ikinci tur) — Ürün sayfasındaki iki çelişen rakam
+
+Ürün sayfası **aynı anda iki ayrı 7 günlük değişim** yayımlıyordu ve tutmuyorlardı:
+
+| ürün | eşleşmiş (`computeWeeklyMovement`) | eşleşmemiş (`calculateWindowTrend`) |
+|---|---|---|
+| limon | %2,5 geriledi | %7,4 düşüş |
+| patates | %1,5 geriledi | %7,4 düşüş |
+| domates | %1,9 geriledi | %0,2 düşüş |
+
+Sebep: `calculateWindowTrend` her gün için **tüm satırların** ortalamasını alıp iki
+pencereyi kıyaslıyordu. Bir hal o hafta yayımlayıp ertesi hafta yayımlamadığında sayı
+fiyat değil **bileşim** yüzünden oynuyor. 30 günlük rozet de aynı kaynaktan besleniyordu.
+
+**Yapılan:** `computeWeeklyMovement(rows, now, windowDays)` — pencere parametre oldu,
+bayatlık eşiği de pencereyle ölçekleniyor (7 günde 14, yani eski sabit değer). Ürün
+sayfası `daily` kovasını 16d yerine **62d** çekiyor; 7 ve 30 günlük kıyas aynı diziden.
+Ek maliyet: domates 0,17s → 0,27s, sunucu tarafı, ISR önbellekli, beş fetch'le paralel.
+`calculateWindowTrend` **silindi**; yerine neden silindiğini anlatan not bırakıldı —
+fonksiyon geride dursa tekrar çağrılırdı.
+
+### Pencereyi parametre yapınca çıkan ikinci kusur
+
+`MAX_INTRA_WINDOW_RATIO = 2` eşiği **7 günlük** pencere için ayarlanmıştı. 30 günde
+mevsimi açılan ürünün **gerçek** düşüşü 2 katı aşıyor ve süzgeç tam da o serileri atıyordu.
+
+**Ölçüm** (9 ürün, canlı veri, 30 günlük pencereler — betik: oturum scratchpad'i
+`stability.mjs` + `impact.mjs`):
+
+306 serinin 37'si (%12,1) `oran>2` diye eleniyordu. Bu 37'nin **yalnız 5'i tek yönlü**
+(yön tutarlılığı ≥0,80); kalan 32'sinin yön tutarlılığı 0,54–0,71, yani yazı-tura.
+Elenen gürültünün uçları bilinen bozuk kaynak — `ulusal-hal-gov-tr` elma-gala
+8,50–98,56 TL (oran 11,6 / yön 0,54), elma-ekşi 10,00–99,95 (10,0 / 0,59).
+Kurtarılanlar tartışmasız gerçek: `konya-hal` limon-ikinci **30 noktada 20 → 60 TL,
+yön 1,00**.
+
+Manşet etkisi — A=süzgeçsiz, B=yalnız oran (eski), C=oran **veya** yön (yeni):
+
+| ürün | A | B | C |
+|---|---|---|---|
+| nar | −32,9% | **−21,3%** (7 seri) | −24,5% (8) |
+| elma | −22,9% | −19,7% (19) | −22,0% (20) |
+| limon | −23,9% | −22,5% (10) | −24,0% (11) |
+| domates | −12,0% | −9,9% (24) | −12,5% (25) |
+| patates | −13,6% | −13,6% (16) | −13,6% (16) |
+
+Yalnız-oran kuralı düşüşü **sistematik olarak küçük** gösteriyordu; nar'da 11,6 puan.
+A doğru sayı değil (bozuk ulusal seriyi içeriyor), ama B'nin sapması tek yönlü bir hata
+ve sebebi belli.
+
+**Yeni kural:** seri kıyasa girer eğer `oran ≤ 2`, **veya** en az 10 noktada yön
+tutarlılığı ≥ 0,80. Ayrım büyüklükte değil yönde — gürültü salınır, gerçek hareket gider.
+7 günlük pencerede pratikte değişiklik yok: bir hafta içinde 10 noktalı tek yönlü seri
+nadir, oran eşiği orada zaten yetiyordu.
+
+Canlı doğrulama deploy sonrası: nar −%24,5, elma −%22, limon −%24, domates −%12,5,
+patates −%13,6 — ölçümün C sütunuyla birebir. 8 yeni test; 66 dosya / 361 test geçti.
