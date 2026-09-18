@@ -507,15 +507,6 @@ export default async function UrunPage({ params }: Props) {
     : 0;
   /** Orneklem = fiyat bildiren benzersiz pazar/hal sayisi. */
   const offerCount = new Set(offerRows.map((r) => r.market).filter(Boolean)).size;
-  /**
-   * Haller arasi fiyat makasi — elimizde olan ama hicbir yerde YAZMADIGIMIZ
-   * rakam. Okuyucu icin "nerede ucuz" sorusunun tek sayilik cevabi, sayfa icin
-   * de kendi olcumumuzden turemis birimli bir bulgu (Tanitio Bulgu 1, 18 Eyl 2026).
-   * Tek hal varsa makas yoktur; uydurulmaz.
-   */
-  const priceSpreadPct = offerLow > 0 && offerHigh > offerLow && offerCount > 1
-    ? Math.round(((offerHigh - offerLow) / offerLow) * 1000) / 10
-    : null;
   const syntheticOfferCount = pick.rows.filter(
     (row) => row.isSynthetic || row.avgPriceMethod === "midpoint",
   ).length;
@@ -671,13 +662,6 @@ export default async function UrunPage({ params }: Props) {
       >
         {slug === "kekik" ? <>Hal kayıtlarında demet ve farklı ambalaj etiketleri bulunur. Bunlardan tek bir Türkiye kilogram fiyatı hesaplanmaz. <a href="#borsa-kayitlari" className="underline">Kilogram üzerinden borsa kayıtları</a> aşağıda sınıf ve satış şekliyle ayrı gösterilir.</> : offerAvg > 0 && latestDate ? (
           <>
-            {priceSpreadPct !== null && (
-              <>
-                <strong className="text-foreground">%{priceSpreadPct.toLocaleString("tr-TR")}</strong>{" "}
-                — bugün {displayName.toLocaleLowerCase("tr-TR")} fiyatının en ucuz hal ile en pahalı hal
-                arasındaki farkı bu kadar.{" "}
-              </>
-            )}
             <time dateTime={latestDate}>{formatDateTr(latestDate)}</time> tarihli verilere göre{" "}
             <strong className="text-foreground">{displayName}</strong> Türkiye ortalama toptan hal
             fiyatı <strong className="text-foreground">
@@ -695,12 +679,14 @@ export default async function UrunPage({ params }: Props) {
                 </strong>
               </>
             )}. Örneklem {offerCount} halden oluşuyor.{" "}
-            {priceSpreadPct !== null && (
+            {offerCount > 1 && offerLow > 0 && offerHigh > offerLow && (
               <>
-                Bu makas tek başına bir kârlılık göstergesi değildir: mesafeye bağlı nakliye, çeşit ve
-                kalite sınıfı, ambalaj ile kaynakların bülteni yayımladığı saat farkı aynı ürünü farklı
-                hallerde farklı fiyatlandırır. Bu nedenle tek bir halin rakamı Türkiye ortalamasının
-                yerine kullanılamaz.{" "}
+                Bu aralık haller arası bir ucuzluk sıralaması değildir: aynı hal aynı gün birden çok
+                {" "}{displayName.toLocaleLowerCase("tr-TR")} çeşidini ayrı satırlarda yayımlayabilir, üstelik
+                nakliye mesafesi, kalite sınıfı ve ambalaj da fiyata girer. Bu nedenle en düşük ile en
+                yüksek arasındaki fark tek bir orana indirgenmez; karşılaştırma aşağıdaki hal tablosunda
+                satır satır yapılır. Bu rakamlar toptan hal fiyatıdır — market raf fiyatı da, üreticiye
+                bahçede ödenen alım fiyatı da değildir.{" "}
               </>
             )}
             {syntheticOfferCount > 0 && (
