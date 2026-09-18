@@ -1,4 +1,5 @@
 import JsonLd from "@/components/seo/JsonLd";
+import FaqList from "@/components/seo/FaqList";
 
 type HomeFaqProps = {
   activeCities?: number;
@@ -90,23 +91,7 @@ export default function HomeFaq(props: HomeFaqProps) {
       <p className="mb-10 text-center text-sm text-muted">
         HalDeFiyat hakkında merak ettikleriniz
       </p>
-      <div className="space-y-3">
-        {faqItems.map((item, idx) => (
-          <details
-            key={idx}
-            className="group rounded-xl border border-border bg-surface overflow-hidden"
-          >
-            <summary
-              className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-4 text-left text-sm font-semibold text-foreground after:text-base after:text-muted after:content-['⌄'] after:transition-transform group-open:after:rotate-180 [&::-webkit-details-marker]:hidden"
-            >
-              {item.question}
-            </summary>
-            <p className="px-6 pb-5 text-sm leading-relaxed text-muted">
-              {item.answer}
-            </p>
-          </details>
-        ))}
-      </div>
+      <FaqList items={faqItems} variant="details" className="space-y-3" />
     </section>
   );
 }

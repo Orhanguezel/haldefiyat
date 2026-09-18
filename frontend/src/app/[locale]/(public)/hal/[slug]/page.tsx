@@ -20,13 +20,14 @@ import FirmCard from "@/components/firms/FirmCard";
 import { ListingCard } from "@/components/listings/ListingCard";
 import AnswerBlock from "@/components/seo/AnswerBlock";
 import PageContainer from "@/components/layout/PageContainer";
-import { calculateProductMovers } from "@/lib/citability";
+import { calculateProductMovers, summarizeMarketMovement } from "@/lib/citability";
 import BannerSlot from "@/components/ads/BannerSlot";
 import { formatDateTr } from "@/lib/date-format";
 import MarketDataNav from "@/components/sections/MarketDataNav";
 import CityProductLinks from "@/components/sections/CityProductLinks";
 import MarketNationalCompare from "@/components/sections/MarketNationalCompare";
 import { productHref } from "@/lib/product-links";
+import FaqList from "@/components/seo/FaqList";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -283,6 +284,9 @@ export default async function HalPage({ params }: Props) {
   const sourceUrl = primarySource?.sourceUrl;
   const staleBulletin = !latestDate || Date.now() - Date.parse(`${latestDate.slice(0, 10)}T12:00:00Z`) > 7 * 86400000;
   const movers = staleBulletin ? [] : calculateProductMovers(trendHistory, 3);
+  // Tek urunun uc degeri degil, listenin genelinin yonu: bir seri bozulursa
+  // sayiyi kaydirir, cumleyi ters cevirmez (18 Eyl 2026).
+  const breadth = staleBulletin ? null : summarizeMarketMovement(trendHistory);
   const latestDateTr = formatDateTr(latestDate);
   const marketFaq = buildMarketFaq({
     marketName: market.name,
@@ -312,10 +316,24 @@ export default async function HalPage({ params }: Props) {
     >
       {latestDateTr && latestProductCount > 0 ? (
         <>
+          {breadth && (
+            <>
+              Son iki yayın gününü karşılaştırabildiğimiz{" "}
+              <strong className="text-foreground">{breadth.compared} üründen %{breadth.fallingPct.toLocaleString("tr-TR")}&apos;i ucuzladı</strong>{" "}
+              ({breadth.falling} ürün); {breadth.rising} ürün pahalandı, {breadth.flat} ürün yatay kaldı.{" "}
+            </>
+          )}
           <time dateTime={latestDate ?? undefined}>{latestDateTr}</time> tarihli son
           listede <strong className="text-foreground">{latestProductCount} ürün</strong>{" "}
           kapsanıyor.
           {staleBulletin && <strong> Bu kayıt güncel değildir; bugünkü yerel fiyat olarak kullanılmamalıdır.</strong>}
+          {breadth && (
+            <>
+              {" "}Bu sayım, aynı ürünün iki ardışık yayın günündeki ortalamasını karşılaştırır;
+              kaynağın o gün yayımlamadığı ürünler paydaya girmez. Yön bir ürünün uç değerinden
+              değil, listenin çoğunluğundan okunur.
+            </>
+          )}
           {movers.length > 0 && (
             <>
               {" "}Öne çıkan değişimler:{" "}
@@ -554,26 +572,9 @@ export default async function HalPage({ params }: Props) {
       </div>
       {/* FAQPage semasi yalniz bu gorunur blogu isaretler — sorular ve cevaplar birebir ayni. */}
       <section className="mt-8" aria-label="Sık sorulan sorular">
-        <JsonLd
-          type="FAQPage"
-          data={{
-            mainEntity: marketFaq.map((item) => ({
-              "@type": "Question",
-              name: item.question,
-              acceptedAnswer: { "@type": "Answer", text: item.answer },
-            })),
-          }}
-        />
         <div className="rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-4">
           <h2 className="text-base font-semibold text-foreground">{market.cityName} Hal Fiyatları: Sık Sorulan Sorular</h2>
-          <dl className="space-y-4">
-            {marketFaq.map((item) => (
-              <div key={item.question}>
-                <dt className="font-semibold text-foreground">{item.question}</dt>
-                <dd className="mt-1">{item.answer}</dd>
-              </div>
-            ))}
-          </dl>
+          <FaqList items={marketFaq} schema className="space-y-4" />
         </div>
       </section>
 

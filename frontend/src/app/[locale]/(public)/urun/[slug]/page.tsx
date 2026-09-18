@@ -58,6 +58,7 @@ import SellPrompt from "@/components/listings/SellPrompt";
 import { canShowPublicYoy } from "@/lib/yoy-policy";
 import PriceViewTracker from "@/components/analytics/PriceViewTracker";
 import ProductActions from "@/components/sections/ProductActions";
+import FaqList from "@/components/seo/FaqList";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -506,6 +507,15 @@ export default async function UrunPage({ params }: Props) {
     : 0;
   /** Orneklem = fiyat bildiren benzersiz pazar/hal sayisi. */
   const offerCount = new Set(offerRows.map((r) => r.market).filter(Boolean)).size;
+  /**
+   * Haller arasi fiyat makasi — elimizde olan ama hicbir yerde YAZMADIGIMIZ
+   * rakam. Okuyucu icin "nerede ucuz" sorusunun tek sayilik cevabi, sayfa icin
+   * de kendi olcumumuzden turemis birimli bir bulgu (Tanitio Bulgu 1, 18 Eyl 2026).
+   * Tek hal varsa makas yoktur; uydurulmaz.
+   */
+  const priceSpreadPct = offerLow > 0 && offerHigh > offerLow && offerCount > 1
+    ? Math.round(((offerHigh - offerLow) / offerLow) * 1000) / 10
+    : null;
   const syntheticOfferCount = pick.rows.filter(
     (row) => row.isSynthetic || row.avgPriceMethod === "midpoint",
   ).length;
@@ -659,8 +669,15 @@ export default async function UrunPage({ params }: Props) {
           </>
         }
       >
-        {slug === "kekik" ? <p>Hal kayıtlarında demet ve farklı ambalaj etiketleri bulunur. Bunlardan tek bir Türkiye kilogram fiyatı hesaplanmaz. <a href="#borsa-kayitlari" className="underline">Kilogram üzerinden borsa kayıtları</a> aşağıda sınıf ve satış şekliyle ayrı gösterilir.</p> : offerAvg > 0 && latestDate ? (
+        {slug === "kekik" ? <>Hal kayıtlarında demet ve farklı ambalaj etiketleri bulunur. Bunlardan tek bir Türkiye kilogram fiyatı hesaplanmaz. <a href="#borsa-kayitlari" className="underline">Kilogram üzerinden borsa kayıtları</a> aşağıda sınıf ve satış şekliyle ayrı gösterilir.</> : offerAvg > 0 && latestDate ? (
           <>
+            {priceSpreadPct !== null && (
+              <>
+                <strong className="text-foreground">%{priceSpreadPct.toLocaleString("tr-TR")}</strong>{" "}
+                — bugün {displayName.toLocaleLowerCase("tr-TR")} fiyatının en ucuz hal ile en pahalı hal
+                arasındaki farkı bu kadar.{" "}
+              </>
+            )}
             <time dateTime={latestDate}>{formatDateTr(latestDate)}</time> tarihli verilere göre{" "}
             <strong className="text-foreground">{displayName}</strong> Türkiye ortalama toptan hal
             fiyatı <strong className="text-foreground">
@@ -678,6 +695,14 @@ export default async function UrunPage({ params }: Props) {
                 </strong>
               </>
             )}. Örneklem {offerCount} halden oluşuyor.{" "}
+            {priceSpreadPct !== null && (
+              <>
+                Bu makas tek başına bir kârlılık göstergesi değildir: mesafeye bağlı nakliye, çeşit ve
+                kalite sınıfı, ambalaj ile kaynakların bülteni yayımladığı saat farkı aynı ürünü farklı
+                hallerde farklı fiyatlandırır. Bu nedenle tek bir halin rakamı Türkiye ortalamasının
+                yerine kullanılamaz.{" "}
+              </>
+            )}
             {syntheticOfferCount > 0 && (
               <>
                 Bu örneklemde {syntheticOfferCount}/{pick.rows.length} ortalama, kaynağın min–maks
@@ -925,14 +950,7 @@ export default async function UrunPage({ params }: Props) {
             <JsonLd type="FAQPage" data={faqSchema} />
             <div className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted space-y-3">
               <h2 className="text-base font-semibold text-foreground">Sık Sorulan Sorular</h2>
-              <dl className="space-y-4">
-                {faqItems.map((item, i) => (
-                  <div key={i}>
-                    <dt className="font-semibold text-foreground">{item.question}</dt>
-                    <dd className="mt-1">{item.answer}</dd>
-                  </div>
-                ))}
-              </dl>
+              <FaqList items={faqItems} className="space-y-4" />
             </div>
           </>
         );

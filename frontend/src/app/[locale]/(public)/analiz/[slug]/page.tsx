@@ -413,6 +413,7 @@ export default async function AnalizMakalePage({ params }: Props) {
             <AnswerBlock
               id="bulgu-ozeti"
               title="Bulgu özeti"
+              bodyAs="div"
               meta={
                 <>
                   <strong className="text-foreground">Rapor tarihi:</strong>{" "}

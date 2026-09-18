@@ -16,6 +16,7 @@ import { getPageMetadata } from "@/lib/seo";
 import { formatDateTr } from "@/lib/date-format";
 import { PIYASA_PAGES, buildDailySnapshot, summarizeByCity } from "@/lib/piyasa";
 import { piyasaDescription, piyasaTitle, type PiyasaLocalPrice } from "@/lib/piyasa-meta";
+import FaqList from "@/components/seo/FaqList";
 
 // Gunluk yorum guncel kalsin diye 30 dk ISR; veri fetch'leri kendi cache'ini yonetir.
 export const revalidate = 1800;
@@ -228,14 +229,11 @@ export default async function PiyasaPage({ params }: Props) {
 
       <section className="mt-12 max-w-3xl" aria-label="Sık sorulanlar">
         <h2 className="font-(family-name:--font-display) text-2xl font-black text-(--color-foreground)">Sık sorulanlar</h2>
-        <div className="mt-4 divide-y divide-(--color-border) border-y border-(--color-border)">
-          {config.faq.map((item) => (
-            <details key={item.q} className="group py-5">
-              <summary className="cursor-pointer list-none pr-6 font-bold text-(--color-foreground)">{item.q}</summary>
-              <p className="mt-3 text-sm leading-7 text-(--color-muted)">{item.a}</p>
-            </details>
-          ))}
-        </div>
+        <FaqList
+          items={config.faq.map((item) => ({ question: item.q, answer: item.a }))}
+          variant="details"
+          className="mt-4 space-y-3"
+        />
       </section>
 
       {/* Tanitio A3: piyasa sayfalari govdeden yalniz 6 ic link veriyordu, bes

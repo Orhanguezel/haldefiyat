@@ -20,6 +20,7 @@ import { PIYASA_BY_PRODUCT } from "@/lib/piyasa";
 import { fitTitle, marketQualifier } from "@/lib/meta-title";
 import { fitMetaDescription } from "@/lib/meta-text";
 import { DATA_LICENSE_URL, getPageMetadata } from "@/lib/seo";
+import FaqList from "@/components/seo/FaqList";
 
 /**
  * /fiyat/<sehir>/<urun> — sehir x urun sayfasi (pilot, 2026-09).
@@ -155,14 +156,7 @@ export default async function CityProductPage({ params }: Props) {
         <h2 className="font-(family-name:--font-display) text-2xl font-black text-(--color-foreground)">
           {pair.cityName} {lower} fiyatı — sık sorulan sorular
         </h2>
-        <dl className="mt-4 space-y-5">
-          {faqItems.map((item) => (
-            <div key={item.question} className="rounded-2xl border border-(--color-border) bg-(--color-bg-alt) p-5">
-              <dt className="font-semibold text-(--color-foreground)">{item.question}</dt>
-              <dd className="mt-2 text-sm leading-7 text-(--color-muted)">{item.answer}</dd>
-            </div>
-          ))}
-        </dl>
+        <FaqList items={faqItems} className="mt-4 space-y-5" />
       </section>
 
       <section className="my-12" aria-label="İlgili sayfalar">

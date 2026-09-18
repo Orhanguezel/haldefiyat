@@ -15,6 +15,7 @@ import { schemaDateRange } from "@/lib/schema-dates";
 import AnswerBlock from "@/components/seo/AnswerBlock";
 import { productHref } from "@/lib/product-links";
 import PageContainer from "@/components/layout/PageContainer";
+import FaqList from "@/components/seo/FaqList";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -350,14 +351,7 @@ export default async function FiyatlarPage({ params, searchParams }: Props) {
             <JsonLd type="FAQPage" data={faqSchema} />
             <section className="mt-6 rounded-xl border border-border bg-surface/50 px-6 py-5 text-sm leading-relaxed text-muted">
               <h2 className="text-base font-semibold text-foreground">Hal Fiyatları Hakkında Sık Sorulan Sorular</h2>
-              <dl className="mt-3 space-y-4">
-                {faqItems.map((item, i) => (
-                  <div key={i}>
-                    <dt className="font-semibold text-foreground">{item.question}</dt>
-                    <dd className="mt-1">{item.answer}</dd>
-                  </div>
-                ))}
-              </dl>
+              <FaqList items={faqItems} className="mt-3 space-y-4" />
             </section>
           </>
         );

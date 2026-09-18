@@ -123,3 +123,60 @@ export function calculateProductMovers(
     .sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct))
     .slice(0, Math.max(0, limit));
 }
+
+export interface MarketMovementBreadth {
+  /** Son iki yayin gunu karsilastirilabilen urun sayisi. */
+  compared: number;
+  rising: number;
+  falling: number;
+  flat: number;
+  /** Ucuzlayan urunlerin karsilastirilabilen urunlere orani, yuzde. */
+  fallingPct: number;
+}
+
+/**
+ * Hal listesinin GENELINDEN okunan hareket.
+ *
+ * "En cok artan urun" cumlesi tek bir bozuk seriyle yanlis cikabiliyor
+ * (haftalik blok bunu uc kez yasadi, bkz. weekly-movement.ts). Genislik sayimi
+ * ayni hatayi yapmaz: bir seri bozuksa sayiyi bir birim kaydirir, cumleyi ters
+ * cevirmez.
+ *
+ * calculateProductMovers'i KULLANMAZ: o, %0,1'in altinda degisen urunleri
+ * tamamen atar; oran hesabinda bu paydayi bozar ve yatay piyasayi hareketli
+ * gosterir. Burada her karsilastirilabilir urun paydaya girer.
+ */
+export function summarizeMarketMovement(
+  rows: Parameters<typeof calculateProductMovers>[0],
+): MarketMovementBreadth | null {
+  const products = new Map<string, Map<string, number[]>>();
+  for (const row of rows) {
+    const value = numeric(row.avgPrice);
+    const date = row.recordedDate.slice(0, 10);
+    if (value == null || !/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+    const key = row.canonicalProduct || row.productSlug;
+    const days = products.get(key) ?? new Map<string, number[]>();
+    days.set(date, [...(days.get(date) ?? []), value]);
+    products.set(key, days);
+  }
+
+  const changes: number[] = [];
+  for (const days of products.values()) {
+    const sorted = [...days.entries()]
+      .map(([date, values]) => ({ date, average: mean(values) as number }))
+      .sort((a, b) => b.date.localeCompare(a.date));
+    if (sorted.length < 2 || !sorted[1].average) continue;
+    changes.push(((sorted[0].average - sorted[1].average) / sorted[1].average) * 100);
+  }
+
+  if (changes.length < 5) return null;
+  const rising = changes.filter((value) => value > 0.5).length;
+  const falling = changes.filter((value) => value < -0.5).length;
+  return {
+    compared: changes.length,
+    rising,
+    falling,
+    flat: changes.length - rising - falling,
+    fallingPct: Math.round((falling / changes.length) * 1000) / 10,
+  };
+}

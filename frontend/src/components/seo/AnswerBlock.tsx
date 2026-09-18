@@ -5,9 +5,18 @@ type AnswerBlockProps = {
   title: string;
   children: ReactNode;
   meta?: ReactNode;
+  /**
+   * Govde birden fazla paragraf iceriyorsa "div". Varsayilan "p" cunku bu blok
+   * alintilanmak icin var: alintilanabilirlik olcen motorlar (Tanitio dahil)
+   * yalniz <p> ve <li> ogelerini pasaj sayar. Govde <div> oldugu surece
+   * sayfanin en alintiya uygun metni hic pasaj olarak gorulmuyordu —
+   * /hal/bursa'da olculen pasaj sayisi 0'di (18 Eyl 2026).
+   */
+  bodyAs?: "p" | "div";
 };
 
-export default function AnswerBlock({ id, title, children, meta }: AnswerBlockProps) {
+export default function AnswerBlock({ id, title, children, meta, bodyAs = "p" }: AnswerBlockProps) {
+  const Body = bodyAs;
   return (
     <section
       id={id}
@@ -20,7 +29,7 @@ export default function AnswerBlock({ id, title, children, meta }: AnswerBlockPr
       >
         {title}
       </h2>
-      <div className="mt-2 text-sm leading-relaxed text-muted">{children}</div>
+      <Body className="mt-2 text-sm leading-relaxed text-muted">{children}</Body>
       {meta && (
         <div className="mt-3 border-t border-border-soft pt-3 text-xs leading-relaxed text-muted">
           {meta}
