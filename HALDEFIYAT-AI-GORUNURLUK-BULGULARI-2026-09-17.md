@@ -221,3 +221,87 @@ Boş bırakmak üçüncü seçenek değil. **Bu, S2'deki tazeliğin sebebi DEĞ�
 
 İki hafta sonra aynı altı sorgu yeniden gözlenecek; dönen tarih farkı ve "en
 güvenilir kaynak" sorusundaki sıra ölçülecek.
+
+---
+
+## 18 Eylül 2026 — Alıntılanabilirlik: kök neden bulundu ve ölçüldü
+
+Katalog Bulgu 1 (içerik kalitesi, **12,9 puan**) ve Bulgu 2 (otorite/güven, **6,16 puan**)
+için tek bir yapısal sebep var. Katalogun puanlayıcısını okudum:
+
+`ekosistem-sosyal-medya/backend/src/modules/seo/geo-signals.ts` → `analyzeGeoPage`
+
+```ts
+for (const match of body.matchAll(/<(h[1-4]|p|li)\b[^>]*>([\s\S]*?)<\/\1>/gi)) { ... }
+```
+
+**Yalnız `<p>` ve `<li>` pasaj sayılıyor.** Biz en alıntıya uygun metnimizi
+`<div>` (AnswerBlock) ve `<dd>` (SSS) içinde tutuyorduk. Yani sayfanın cevap
+bloğu ve tüm SSS cevapları hiç sayılmıyordu.
+
+### Ölçüm — katalogun kendi kuralı birebir kopyalanıp canlı sayfalara uygulandı
+
+Betik: oturum scratchpad'i (`citability.mjs`); `scorePassage` + `analyzeGeoPage` kopyası.
+Doğrulama: anasayfa **31** çıktı, katalogun rakamı da **31**. Ölçüm güvenilir.
+
+| sayfa | önce (puan / pasaj) | sonra |
+|---|---|---|
+| anasayfa | 31 / 10 | 33 / 10 |
+| `/hal/ankara-hal` | **0 / 0** | **28 / 11** |
+| `/urun/domates` | 18 / 9 | 23 / **15** |
+| `/fiyat/bursa/domates` | — | 31 / 10 |
+| `/piyasa/mersin-limon` | — | 22 / 9 |
+| `/fiyatlar` | — | 33 / 6 |
+
+Hal sayfalarının **tek bir** ölçülebilir paragrafı yoktu — tamamı tablo/kart. Site
+geneli citability 24,4 puanını en çok bunlar aşağı çekiyordu.
+
+### Yapılan
+
+- `AnswerBlock` gövdesi `<div>` → `<p>` (çok paragraflı iki çağrı yeri `bodyAs="div"`).
+- Altı sayfadaki altı ayrı SSS işaretlemesi tek `FaqList` bileşeninde: soru `<h3>`
+  (soru işaretiyle biten başlık = puanlayıcıda +10), cevap `<p>`. Görünüm değişmedi.
+- `summarizeMarketMovement` — hal sayfası cevap bloğu artık listenin genelinden
+  okunan bir rakamla açılıyor ("karşılaştırabildiğimiz N üründen %X'i ucuzladı").
+  Uç değer seçmez; bozuk tek seri sayıyı bir birim kaydırır, cümleyi ters çeviremez.
+
+### Kapanmayan iki kalem — ve neden kapatılmadığı
+
+**`len` = 0 (her sayfada).** Puanlayıcı 134–167 kelimelik paragrafa +20 veriyor;
+bizim en uzun paragrafımız 76 kelime. Bu 20 puan **yalnızca kelime sayısıyla**
+alınır. Metni hedefe doldurmak okuyucuya hiçbir şey katmaz; yapılmadı. Paragraf
+uzarsa gerçek bir şey söylediği için uzasın.
+
+**`lead` = 0 (her sayfada).** Kontrol: ilk 60 kelimede `\d+%` **veya** `is|are|means|refers`.
+Yani yüzde işareti **sayıdan sonra** (İngilizce "2,9%"). Türkçe "%2,9" yazar ve
+bu regex'e hiç uymaz. **Analizör artefaktı** — düzeltmesi Türkçeyi bozmak olurdu.
+Katalog artefaktları listesine eklendi.
+
+### Bu turda çıkan iki gerçek veri bulgusu
+
+1. **Ürün sayfasında "haller arası fiyat makası" oranı kurulamıyor.** Denendi ve
+   geri çekildi. Domates 17 Eylül kesiti: 26 satır ama 15 hal — Denizli 3, Kayseri 2,
+   Konya 2, Bolu 2, Gaziantep 2 satır. Satırlar hal başına tek fiyat değil, **aynı
+   halde ayrı yayımlanan çeşitler**. Adana 12,00 TL – Tokat 70,00 TL farkının ne
+   kadarı coğrafya, ne kadarı çeşit karışımı — ayrılamıyor. %300 üst sınırı da
+   çözmez: eşiğin altındaki ürünlerde aynı karışım daha küçük ve daha inandırıcı
+   bir yanlış sayı üretir. **Sayısız olmak, yanlış sayıdan iyidir.**
+
+2. **`calculateWindowTrend` eşleşmemiş — ürün sayfasındaki "son 7/30 gün %X" bundan
+   besleniyor.** Fonksiyon her gün için *tüm satırların* ortalamasını alıyor
+   (`lib/citability.ts:41-59`). Bir hal o hafta yayımlayıp ertesi hafta yayımlamazsa
+   sayı **fiyat değil bileşim** yüzünden oynar. Bu, anasayfa haftalık bloğunda üç kez
+   yaşanıp `weekly-movement.ts`'te eşleşmiş-seri süzgeciyle çözülen hatanın aynısı —
+   ürün sayfasında hâlâ açık. **Sıradaki iş bu.**
+
+### Bulgu 2'nin kalan iki sinyali
+
+Katalog: 9/11 güven sinyali var; eksik olanlar `reviews` (müşteri yorumu) ve
+`trust` (iade/garanti/güvenli ödeme/sertifika).
+
+- `reviews` — katalog kendi metninde uyarıyor: "Kendi işletmeniz hakkındaki yorumlara
+  sırf puan almak için Review/AggregateRating eklemeyin." **Yapılmayacak.**
+- `trust` — bir şey satmadığımız için iade/garanti kavramı geçersiz. Bizim
+  karşılığımız **veri güvencesi**: düzeltme politikası, CC BY 4.0 lisansı, kaynak
+  doğrulama. `/metodoloji` ve `/veri-kaynagi-politikasi` var ama sayfa şablonunda
+  görünür bir güvence satırı yok. **Yapılabilir ve dürüst — sıradaki turda.**
