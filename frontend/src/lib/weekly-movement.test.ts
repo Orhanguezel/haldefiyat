@@ -242,3 +242,50 @@ describe("pencere uzunlugu parametresi", () => {
     expect(cumle).not.toContain("son haftada");
   });
 });
+
+// 18 Eyl 2026 olcumu: oran esigi tek basina 30 gunluk pencerede mevsimsel
+// gercek hareketi eliyordu (nar manseti -%32,9 yerine -%21,3). Ayrim artik
+// buyuklukte degil yonde.
+describe("kararlilik: buyukluk degil yon", () => {
+  const seri = (marketSlug: string, gunler: Array<[number, number]>): MovementRow[] =>
+    gunler.map(([gunOnce, fiyat]) => ({
+      recordedDate: new Date(NOW.getTime() - gunOnce * 86400000).toISOString().slice(0, 10),
+      avgPrice: fiyat,
+      marketSlug,
+      productSlug: "nar",
+      cityName: marketSlug,
+      unit: "kg",
+    }));
+
+  /** 30 gunde tek yonlu 3 kat dusus: sezon acilisi, gurultu degil. */
+  const mevsimsel = (marketSlug: string, bas: number, adim: number) =>
+    seri(marketSlug, Array.from({ length: 24 }, (_, i) => [i + 1, bas - i * adim] as [number, number])
+      .concat(Array.from({ length: 24 }, (_, i) => [i + 32, bas + 40 - i * adim] as [number, number])));
+
+  it("tek yonlu mevsimsel seri 2 kati assa da kiyasa girer", () => {
+    const rows = mevsimsel("mersin", 120, 3);
+    const m = computeWeeklyMovement(rows, NOW, 30);
+    expect(m).not.toBeNull();
+    expect(m!.marketCount).toBe(1);
+  });
+
+  it("ayni genlikte ama salinan seri hala elenir", () => {
+    // Bilinen bozuk kaynak imzasi: 10 ile 100 arasi gidip gelen ulusal kayit.
+    const salinan = seri("ulusal", Array.from({ length: 48 }, (_, i) =>
+      [i + 1, i % 2 === 0 ? 10 : 100] as [number, number]));
+    expect(computeWeeklyMovement(salinan, NOW, 30)).toBeNull();
+  });
+
+  it("tek yonlu ama az noktali seri kurtarilmaz", () => {
+    // 4 nokta sansa tam tutarli cikabilir; esik 10 nokta.
+    const az = seri("bolu", [[1, 30], [5, 60], [10, 90], [14, 120], [33, 30], [38, 60], [43, 90], [48, 120]]);
+    expect(computeWeeklyMovement(az, NOW, 30)).toBeNull();
+  });
+
+  it("oran esigi altindaki normal seri eskisi gibi gecer", () => {
+    const normal = seri("konya", [[1, 50], [4, 52], [8, 48], [12, 51], [32, 60], [36, 58], [40, 62], [44, 59]]);
+    const m = computeWeeklyMovement(normal, NOW, 30)!;
+    expect(m.marketCount).toBe(1);
+    expect(m.changePct).toBeLessThan(0);
+  });
+});

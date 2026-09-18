@@ -37,11 +37,22 @@ export type WeeklyMovement = {
 const DAY = 86400000;
 
 /**
- * Bir halin KENDI icinde bir hafta boyunca en yuksek/en dusuk fiyat orani.
- * Bunun ustundeki seri fiyat seviyesi degil gurultudur ve haftalik kiyasa
- * girerse hem ortalamayi hem "en cok artan sehir" secimini bozar.
+ * Bir serinin KENDI icinde pencere boyunca en yuksek/en dusuk fiyat orani.
+ * Bunun ustundeki seri fiyat seviyesi degil gurultudur ve kiyasa girerse hem
+ * ortalamayi hem yayginlik sayimini bozar.
  */
 const MAX_INTRA_WINDOW_RATIO = 2;
+
+/**
+ * Oran esigi tek basina YETMEZ — 30 gunluk pencerede mevsimsel GERCEK hareket
+ * 2 kati asiyor ve suzgec onu da eliyordu (olcum asagida).
+ *
+ * Ayrim buyuklukte degil YONDE: gurultulu seri salinir, gercek hareket tek
+ * yonlu gider. Yon tutarliligi = ardisik gun farklarinin baskin yondeki payi.
+ */
+const MIN_DIRECTIONAL_CONSISTENCY = 0.8;
+/** Tek yonluluk az noktayla anlamsiz; 3 noktali seri sansa tam tutarli cikar. */
+const MIN_DIRECTIONAL_POINTS = 10;
 
 function mean(values: number[]): number {
   return values.reduce((a, b) => a + b, 0) / values.length;
@@ -54,10 +65,54 @@ function median(values: number[]): number {
   return sorted.length % 2 === 1 ? sorted[mid]! : (sorted[mid - 1]! + sorted[mid]!) / 2;
 }
 
-function isStable(values: number[]): boolean {
+/** Ardisik farklarin baskin yondeki payi: 0,5 = yazi-tura, 1 = tam tek yonlu. */
+function directionalConsistency(series: Array<{ t: number; v: number }>): number {
+  const sorted = [...series].sort((a, b) => a.t - b.t);
+  let up = 0;
+  let down = 0;
+  for (let i = 1; i < sorted.length; i += 1) {
+    const delta = sorted[i]!.v - sorted[i - 1]!.v;
+    if (delta > 0) up += 1;
+    else if (delta < 0) down += 1;
+  }
+  const moves = up + down;
+  return moves > 0 ? Math.max(up, down) / moves : 0;
+}
+
+/**
+ * Seri kiyasa girebilir mi?
+ *
+ * OLCUM (18 Eyl 2026, 9 urun, canli veri, 30 gunluk pencereler):
+ *
+ *   306 serinin 37'si (%12,1) oran>2 diye eleniyordu. Bu 37'nin YALNIZ 5'i
+ *   tek yonluydu (>=0,80); kalan 32'sinin yon tutarliligi 0,54-0,71 arasi,
+ *   yani yazi-tura. Elenen gurultunun en uclari bilinen bozuk kaynak:
+ *   ulusal-hal-gov-tr elma-gala 8,50-98,56 TL (oran 11,6, yon 0,54),
+ *   elma-eksi 10,00-99,95 (oran 10,0, yon 0,59).
+ *
+ *   Kurtarilanlar ise tartismasiz gercek: konya-hal limon-ikinci 30 noktada
+ *   20 -> 60 TL, yon 1,00. Sezon hareketi.
+ *
+ *   Manset etkisi (A=suzgecsiz, B=yalniz oran, C=oran VEYA yon):
+ *     nar      A -32,9%  B -21,3% (7 seri)  C -24,5% (8 seri)
+ *     elma     A -22,9%  B -19,7% (19)      C -22,0% (20)
+ *     limon    A -23,9%  B -22,5% (10)      C -24,0% (11)
+ *     domates  A -12,0%  B  -9,9% (24)      C -12,5% (25)
+ *   Yalniz-oran kurali dususu sistematik olarak KUCUK gosteriyordu; nar'da
+ *   11,6 puan. Sebebi acik: mevsimi acilan urunde gercek dusus 2 kati asar,
+ *   suzgec tam da o serileri atardi.
+ *
+ * 7 gunluk pencerede davranis pratikte degismez: bir hafta icinde 10 noktali
+ * tek yonlu seri nadirdir, oran esigi orada zaten yetiyordu.
+ */
+function isUsable(series: Array<{ t: number; v: number }>): boolean {
+  const values = series.map((point) => point.v);
   const min = Math.min(...values);
   const max = Math.max(...values);
-  return min > 0 && max / min <= MAX_INTRA_WINDOW_RATIO;
+  if (!(min > 0)) return false;
+  if (max / min <= MAX_INTRA_WINDOW_RATIO) return true;
+  return series.length >= MIN_DIRECTIONAL_POINTS
+    && directionalConsistency(series) >= MIN_DIRECTIONAL_CONSISTENCY;
 }
 
 /**
@@ -113,10 +168,10 @@ export function computeWeeklyMovement(
   const seriesKey = (r: MovementRow) => `${r.marketSlug}\u0000${r.productSlug ?? ""}`;
 
   const bySeries = (window: MovementRow[]) => {
-    const map = new Map<string, number[]>();
+    const map = new Map<string, Array<{ t: number; v: number }>>();
     for (const r of window) {
       const key = seriesKey(r);
-      map.set(key, [...(map.get(key) ?? []), Number(r.avgPrice)]);
+      map.set(key, [...(map.get(key) ?? []), { t: Date.parse(r.recordedDate), v: Number(r.avgPrice) }]);
     }
     return map;
   };
@@ -124,19 +179,20 @@ export function computeWeeklyMovement(
   const cur = bySeries(valid.filter((r) => inWindow(r, -1, windowDays)));
   const prev = bySeries(valid.filter((r) => inWindow(r, windowDays, windowDays * 2)));
   const shared = [...cur.keys()].filter(
-    (k) => prev.has(k) && isStable(cur.get(k)!) && isStable(prev.get(k)!),
+    (k) => prev.has(k) && isUsable(cur.get(k)!) && isUsable(prev.get(k)!),
   );
   if (shared.length === 0) return null;
 
-  const current = mean(shared.map((k) => median(cur.get(k)!)));
-  const previous = mean(shared.map((k) => median(prev.get(k)!)));
+  const level = (points: Array<{ t: number; v: number }>) => median(points.map((p) => p.v));
+  const current = mean(shared.map((k) => level(cur.get(k)!)));
+  const previous = mean(shared.map((k) => level(prev.get(k)!)));
   if (!(previous > 0) || !(current > 0)) return null;
 
   // Seri degisimleri HAL bazinda toplanir: bir hal iki cesit yayinliyorsa tek oy.
   const perMarket = new Map<string, number[]>();
   for (const k of shared) {
     const marketSlug = k.split("\u0000")[0]!;
-    const change = ((median(cur.get(k)!) - median(prev.get(k)!)) / median(prev.get(k)!)) * 100;
+    const change = ((level(cur.get(k)!) - level(prev.get(k)!)) / level(prev.get(k)!)) * 100;
     perMarket.set(marketSlug, [...(perMarket.get(marketSlug) ?? []), change]);
   }
   const marketChanges = [...perMarket.values()].map(mean);
