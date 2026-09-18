@@ -28,6 +28,7 @@ import CityProductLinks from "@/components/sections/CityProductLinks";
 import MarketNationalCompare from "@/components/sections/MarketNationalCompare";
 import { productHref } from "@/lib/product-links";
 import FaqList from "@/components/seo/FaqList";
+import DataProvenanceNote from "@/components/seo/DataProvenanceNote";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -577,6 +578,13 @@ export default async function HalPage({ params }: Props) {
           <FaqList items={marketFaq} schema className="space-y-4" />
         </div>
       </section>
+
+      <DataProvenanceNote
+        sourceLabel={sourceLabel}
+        recordCount={latestProductCount}
+        recordUnit="ürün kaydı"
+        latestDateTr={latestDateTr ?? undefined}
+      />
 
       <BannerSlot
         position="hal_sidebar"

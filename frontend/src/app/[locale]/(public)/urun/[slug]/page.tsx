@@ -59,6 +59,7 @@ import { canShowPublicYoy } from "@/lib/yoy-policy";
 import PriceViewTracker from "@/components/analytics/PriceViewTracker";
 import ProductActions from "@/components/sections/ProductActions";
 import FaqList from "@/components/seo/FaqList";
+import DataProvenanceNote from "@/components/seo/DataProvenanceNote";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -941,6 +942,15 @@ export default async function UrunPage({ params }: Props) {
           </>
         );
       })()}
+
+      <DataProvenanceNote
+        sourceLabel={sourceNames.length > 0
+          ? sourceNames.slice(0, 2).join(", ") + (sourceNames.length > 2 ? ` ve ${sourceNames.length - 2} resmi hal kaynağı daha` : "")
+          : "resmi belediye hal müdürlükleri ve hal.gov.tr"}
+        recordCount={pick.rows.length}
+        recordUnit="hal kaydı"
+        latestDateTr={latestDate ? (formatDateTr(latestDate) ?? undefined) : undefined}
+      />
 
       {variants.length > 0 && (
         <div id="variants" className="mt-8 rounded-xl border border-border bg-surface/50 px-6 py-5">
