@@ -64,5 +64,6 @@ ON DUPLICATE KEY UPDATE `value` = VALUES(`value`);
 INSERT INTO `site_settings` (`id`, `key`, `locale`, `value`) VALUES
 (UUID(), 'telegram_template_new_user',    '*', '"🆕 *HalDeFiyat — yeni üye*\\n\\n👤 {{user_name}}\\n✉️ {{user_email}}\\n📞 {{phone}}\\n🏷 {{role_label}}\\n🔐 {{source_label}}\\n\\nhaldefiyat.com/admin/users"'),
 (UUID(), 'telegram_template_new_contact', '*', '"📩 *HalDeFiyat — iletişim formu*\\n\\n👤 {{customer_name}}\\n✉️ {{customer_email}}\\n📞 {{customer_phone}}\\n🏢 {{company_name}}\\n🏷 {{subject}}\\n\\n💬 {{message}}\\n\\nhaldefiyat.com/admin/contacts"'),
-(UUID(), 'telegram_template_new_ticket',  '*', '"🎫 *HalDeFiyat — destek talebi*\\n\\n👤 {{customer_name}}\\n🏷 {{subject}}\\n\\n💬 {{message}}\\n\\nhaldefiyat.com/admin/support"')
+(UUID(), 'telegram_template_new_ticket',  '*', '"🎫 *HalDeFiyat — destek talebi*\\n\\n👤 {{customer_name}}\\n🏷 {{subject}}\\n\\n💬 {{message}}\\n\\nhaldefiyat.com/admin/support"'),
+(UUID(), 'telegram_template_new_newsletter_subscription', '*', '"📬 *HalDeFiyat — yeni bülten abonesi*\\n\\n✉️ {{email}}\\n📍 {{source_label}}\\n🌐 {{locale_label}}\\n👥 Toplam aktif abone: {{total_active}}\\n\\nhaldefiyat.com/admin/newsletter"')
 ON DUPLICATE KEY UPDATE `value` = VALUES(`value`);

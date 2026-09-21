@@ -58,7 +58,7 @@ export default function CtaNewsletter({
       const res = await fetch(`${API_BASE}/newsletter/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ email: trimmed }),
+        body: JSON.stringify({ email: trimmed, source: "cta_bulten" }),
       });
 
       if (!res.ok) {

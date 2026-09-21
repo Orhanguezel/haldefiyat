@@ -33,6 +33,44 @@ const subscribers = mysqlTable("newsletter_subscribers", {
 type SubscribeBody = { email?: string; source?: string; locale?: string };
 type UnsubInput = { e?: string; t?: string };
 
+// Hangi CTA getirdi — bildirimde ve funnel'da ayni anahtar kullanilir.
+const SOURCE_LABELS: Record<string, string> = {
+  "hal-local": "Site formu",
+  fiyatlar_strip: "Fiyat listesi şeridi",
+  mobil_anasayfa: "Mobil ana sayfa",
+  canli_fiyat: "Canlı fiyat sayfası",
+  cta_bulten: "Bülten CTA",
+};
+
+async function notifySubscription(input: { email: string; source?: string; locale: string }) {
+  const key = input.source || "hal-local";
+  // Turkce disi abone nadir; tr ise satir bos birakilir ve render'da atilir.
+  const localeLabel = input.locale === "tr" ? "" : input.locale.toUpperCase();
+
+  let totalActive = "";
+  try {
+    const [[row]] = await pool.query<any[]>(
+      `SELECT COUNT(*) total FROM newsletter_subscribers WHERE unsubscribed_at IS NULL`,
+    );
+    totalActive = String(row?.total ?? "");
+  } catch {
+    // Sayac bulunamazsa bildirim yine gider; satir render'da atilir.
+  }
+
+  await telegramNotify({
+    event: "new_newsletter_subscription",
+    data: {
+      email: input.email,
+      source: key,
+      source_label: SOURCE_LABELS[key] ?? key,
+      locale: input.locale,
+      locale_label: localeLabel,
+      total_active: totalActive,
+      created_at: new Date().toISOString(),
+    },
+  });
+}
+
 async function subscribe(req: FastifyRequest, reply: FastifyReply) {
   const { email, source, locale } = (req.body ?? {}) as SubscribeBody;
   const clean = normalizeEmail(email);
@@ -77,10 +115,7 @@ async function subscribe(req: FastifyRequest, reply: FastifyReply) {
     req.log.warn({ err }, "newsletter_welcome_mail_failed");
   }
 
-  telegramNotify({
-    event: "new_newsletter_subscription",
-    data: { email: clean, locale: locale || "tr", created_at: new Date().toISOString() },
-  }).catch(() => {});
+  notifySubscription({ email: clean, source, locale: locale || "tr" }).catch(() => {});
 
   return reply.code(201).send({ success: true });
 }

@@ -29,7 +29,7 @@ export default function MobileHomeNewsletterCta() {
       const res = await fetch(`${API_BASE}/newsletter/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ email: trimmed }),
+        body: JSON.stringify({ email: trimmed, source: "mobil_anasayfa" }),
       });
       if (!res.ok) throw new Error("subscribe_failed");
       trackConversion("newsletter_signup", { event_label: "mobile_home_sticky", method: "mobile_home_sticky" }, { email: trimmed });
