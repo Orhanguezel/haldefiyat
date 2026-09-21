@@ -680,6 +680,16 @@ export default async function UrunPage({ params }: Props) {
       >
         {slug === "kekik" ? <>Hal kayıtlarında demet ve farklı ambalaj etiketleri bulunur. Bunlardan tek bir Türkiye kilogram fiyatı hesaplanmaz. <a href="#borsa-kayitlari" className="underline">Kilogram üzerinden borsa kayıtları</a> aşağıda sınıf ve satış şekliyle ayrı gösterilir.</> : offerAvg > 0 && latestDate ? (
           <>
+            {slug === "uzum" && (
+              <>
+                Bu sayfa <strong className="text-foreground">yaş ve sofralık üzüm</strong> hal
+                fiyatlarını gösterir; kurutulmuş ürünün sınıf bazlı tescil fiyatları için{" "}
+                <Link href="/urun/kuru-uzum" className="font-medium text-brand hover:underline">
+                  kuru üzüm borsa kayıtlarını
+                </Link>{" "}
+                inceleyin.{" "}
+              </>
+            )}
             <time dateTime={latestDate}>{formatDateTr(latestDate)}</time> tarihli verilere göre{" "}
             <strong className="text-foreground">{displayName}</strong> Türkiye ortalama toptan hal
             fiyatı <strong className="text-foreground">

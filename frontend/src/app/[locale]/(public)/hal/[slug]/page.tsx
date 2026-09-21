@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { setRequestLocale } from "next-intl/server";
-import { fetchPrices, fetchMarkets, fetchFirms, fetchListings, fetchMarketComparison } from "@/lib/api";
+import { fetchPrices, fetchPricesPage, fetchProducts, fetchMarkets, fetchFirms, fetchListings, fetchMarketComparison } from "@/lib/api";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import PriceTable from "@/components/ui/PriceTable";
@@ -29,8 +29,12 @@ import MarketNationalCompare from "@/components/sections/MarketNationalCompare";
 import { productHref } from "@/lib/product-links";
 import FaqList from "@/components/seo/FaqList";
 import DataProvenanceNote from "@/components/seo/DataProvenanceNote";
+import { latestMarketRows, rankCurrentMarketRows } from "@/lib/market-price-view";
 
-type Props = { params: Promise<{ locale: string; slug: string }> };
+type Props = {
+  params: Promise<{ locale: string; slug: string }>;
+  searchParams?: Promise<{ arsiv?: string; tum?: string }>;
+};
 
 const MARKET_PRICE_RANGE = "3650d";
 const OG_SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
@@ -180,11 +184,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
-export default async function HalPage({ params }: Props) {
+export default async function HalPage({ params, searchParams }: Props) {
   const { locale, slug } = await params;
+  const query = await searchParams;
+  const archiveMode = query?.arsiv === "1";
+  const showAllCurrent = !archiveMode && query?.tum === "1";
   setRequestLocale(locale);
 
-  const [prices, trendHistory, markets, comparison] = await Promise.all([
+  const [prices, trendHistory, products, markets, comparison, archivePage] = await Promise.all([
     fetchPrices({ market: slug, range: MARKET_PRICE_RANGE, limit: 500 }),
     fetchPrices({
       market: slug,
@@ -193,8 +200,12 @@ export default async function HalPage({ params }: Props) {
       latestOnly: false,
       sort: "date-desc",
     }),
+    fetchProducts(undefined, undefined, { seoIndex: true }),
     fetchMarkets(),
     fetchMarketComparison(slug),
+    archiveMode
+      ? fetchPricesPage({ market: slug, range: MARKET_PRICE_RANGE, latestOnly: false, limit: 100, sort: "date-desc" })
+      : Promise.resolve(null),
   ]);
 
   const market = markets.find((m) => m.slug === slug);
@@ -276,9 +287,9 @@ export default async function HalPage({ params }: Props) {
     { name: "Haller", href: "/hal" },
     { name: market.name, href: `/hal/${slug}` },
   ];
-  const latestRows = latestDate
-    ? prices.filter((price) => price.recordedDate.slice(0, 10) === latestDate)
-    : [];
+  const latestRows = latestMarketRows(prices);
+  const highlightedRows = rankCurrentMarketRows(latestRows, products).slice(0, 15);
+  const visibleRows = showAllCurrent ? latestRows : highlightedRows;
   const latestProductCount = new Set(latestRows.map((price) => price.productSlug)).size;
   const primarySource = latestRows.find((price) => price.sourceName || price.sourceUrl) ?? prices[0];
   const sourceLabel = primarySource?.sourceName || market.name;
@@ -454,13 +465,60 @@ export default async function HalPage({ params }: Props) {
       )}
 
       <section aria-labelledby="hal-price-list-title">
-        <h2 id="hal-price-list-title" className="mb-3 text-xl font-semibold">{slug === "istanbul-hal-ibb" ? "Bayrampaşa meyve sebze hali fiyat listesi" : `${market.name} — tarihli fiyat listesi`}</h2>
-        <p className="mb-4 text-sm text-muted">En yeni kayıtlar önce gösterilir. Her satırın tarihini ve birimini kontrol edin; eski kayıtlar bugünün fiyatı değildir. Alt–üst aralığın orta noktası işlem hacmi ağırlıklı satış ortalaması değildir.</p>
+        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-3">
+          <h2 id="hal-price-list-title" className="text-xl font-semibold">
+            {archiveMode
+              ? `${market.name} — fiyat arşivi`
+              : showAllCurrent
+                ? `${market.name} — tüm güncel ürünler`
+              : slug === "istanbul-hal-ibb"
+                ? "Bayrampaşa meyve sebze hali — en çok aranan 15 güncel ürün"
+                : `${market.name} — en çok aranan 15 güncel ürün`}
+          </h2>
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
+            {archiveMode ? (
+              <Link
+                href={`/hal/${slug}`}
+                className="font-(family-name:--font-mono) text-[12px] font-semibold text-brand hover:underline"
+              >
+                Güncel listeye dön
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href={showAllCurrent ? `/hal/${slug}` : `/hal/${slug}?tum=1`}
+                  className="font-(family-name:--font-mono) text-[12px] font-semibold text-brand hover:underline"
+                >
+                  {showAllCurrent ? "Öne çıkan 15 ürüne dön" : `Tüm güncel ürünleri aç (${latestRows.length})`}
+                </Link>
+                <Link
+                  href={`/hal/${slug}?arsiv=1`}
+                  className="font-(family-name:--font-mono) text-[12px] font-semibold text-brand hover:underline"
+                >
+                  Geçmiş fiyat arşivini aç
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+        <p className="mb-4 text-sm text-muted">
+          {archiveMode
+            ? "Arşiv kayıtları tarih sırasıyla ve sayfalanarak gösterilir. Her satırın tarihini ve birimini kontrol edin."
+            : showAllCurrent
+              ? "Bu tablo kaynağın en son yayın günündeki tüm ürünleri gösterir; eski ürün satırları güncel listeye karışmaz."
+              : "İlk tabloda yalnız kaynağın en son yayın gününde bulunan ve ürün kataloğundaki arama talebi en yüksek 15 ürün gösterilir; sabit veya elle seçilmiş bir liste kullanılmaz."}
+          {" "}Alt–üst aralığın orta noktası işlem hacmi ağırlıklı satış ortalaması değildir.
+        </p>
         <PriceTable
           key={slug}
-          initialPrices={prices}
+          {...(archivePage ? { initialPricePage: archivePage } : { initialPrices: visibleRows })}
           markets={markets}
-          requestParams={{ market: slug, range: MARKET_PRICE_RANGE, sort: "date-desc" }}
+          requestParams={{
+            market: slug,
+            range: archiveMode ? MARKET_PRICE_RANGE : "7d",
+            latestOnly: archiveMode ? false : true,
+            sort: "date-desc",
+          }}
           hideMarketColumn
           hideCityColumn
         />

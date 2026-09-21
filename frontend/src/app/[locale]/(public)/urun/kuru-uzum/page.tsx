@@ -16,7 +16,7 @@ export default async function Page({params}:{params:Promise<{locale:string}>}) {
   <Breadcrumb visible items={[{name:'Anasayfa',href:'/'},{name:'Kuru üzüm fiyatları',href:'/urun/kuru-uzum'}]}/>
   <JsonLd type="WebPage" data={{name:'Kuru Üzüm Fiyatları 2026',url:'https://haldefiyat.com/urun/kuru-uzum'}}/>
   <h1 className="mt-6 text-4xl font-bold">Kuru Üzüm Fiyatları 2026</h1>
-  <p className="mt-4 leading-8">Kuru üzüm fiyatları bu sayfada İzmir Ticaret Borsası (İTB) tescil kayıtlarından, sınıf bazında ve tarihli olarak izlenir; kuru üzüm için Türkiye&apos;deki tek düzenli resmi fiyat serisi İTB&apos;dir.</p>
+  <p className="mt-4 leading-8">Kuru üzüm fiyatları bu sayfada İzmir Ticaret Borsası (İTB) tescil kayıtlarından, sınıf bazında ve tarihli olarak izlenir; kuru üzüm için Türkiye&apos;deki tek düzenli resmi fiyat serisi İTB&apos;dir. Yaş ve sofralık ürün için <Link href="/urun/uzum" className="underline">üzüm hal fiyatlarını</Link> inceleyin.</p>
   <p className="mt-4 leading-8">Kuru üzüm fiyatını değerlendirirken naturel, işlenmiş, ambalajlı, organik ve standart tip kayıtlarını ayırın. Aşağıdaki rakamlar İzmir Ticaret Borsası’nın tarihli tescil bültenlerinden alınmıştır; tüm Türkiye’nin veya üreticinin tek alım fiyatı değildir.</p>
   <SpecialtyBorsaTable product="kuru-uzum"/>
   <section className="my-8 space-y-4"><h2 className="text-2xl font-bold">Kuru üzüm ile yaş üzüm aynı fiyat serisi mi?</h2><p>Hayır. Kurutulmuş ürünün işleme, ambalaj ve standart tipi farklıdır. Yaş üzüm hal fiyatını kuru üzüm kilogram fiyatı olarak kullanmayın. Bu sayfada farklı ürün sınıfları arasında yüzde değişim veya tek ortalama hesaplanmaz.</p>
