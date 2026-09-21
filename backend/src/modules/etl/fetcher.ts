@@ -1762,9 +1762,15 @@ export function parseCanakkaleHtml(html: string): NormalizedRow[] {
   );
   let currentCategory: string | null = null;
   for (const cells of tables[0]!) {
-    // Fish rows have an extra category column before product and unit.
+    // Sayfanin alt yarisi ayri bir liste: "ÇANAKKALE BALIK HALİ FİYAT LİSTESİ".
+    // Bu satirlar toptanci hali degil PERAKENDE balik hali fiyatidir — ayni gun
+    // Barbun 2.000-3.500, Tekir 900-1.500 TL/kg, Ankara toptanda ayni turler
+    // 160-190 TL/kg. Toptan ortalamaya karistirinca urun sayfasinda "en yuksek
+    // hal" olarak bu satirlar cikiyordu (2026-09-21). Satirlar atlanir; sayfanin
+    // sebze-meyve bolumu saglamdir ve alinmaya devam eder.
     const fish = (cells[0] ?? "").trim().toLocaleLowerCase("tr-TR") === "balık";
-    const row = fish ? cells.slice(1) : cells;
+    if (fish) continue;
+    const row = cells;
     if (row.length < 2) continue;
     const first = (row[0] ?? "").trim();
     // Kategori satırı: sadece "SEBZE" veya "MEYVE" içeren tek hücreli satır
@@ -1781,7 +1787,7 @@ export function parseCanakkaleHtml(html: string): NormalizedRow[] {
     const avg = min != null && max != null ? (min + max) / 2 : (min ?? max)!;
     out.push({
       name: first,
-      category: fish ? "balik" : currentCategory,
+      category: currentCategory,
       unit: normalizeUnit(row[1] ?? ""),
       avg,
       min,
