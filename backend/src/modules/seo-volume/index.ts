@@ -38,11 +38,11 @@ export async function syncSearchVolumeFromGsc(days = 90): Promise<{ updated: num
     const row = (Array.isArray(res) ? res[0] : res) as { affectedRows?: number };
     updated += Number(row?.affectedRows ?? 0);
   }
-  // Devredilen varyant kendi degerini tutmaz: ayni gosterim iki kayitta sayilirsa
-  // siralama ve kapi esikleri iki kez beslenir.
-  for (const slug of mergedSlugs) {
-    await db.execute(sql`UPDATE hf_products SET search_volume = 0 WHERE slug = ${slug}`);
-  }
+  // 301'li varyantin kendi hacmi OLAMAZ: sayfasi yok, gorunurlugu master'in.
+  // Yalniz bu turda devredilenleri sifirlamak yetmiyordu — son 90 gunde gosterim
+  // almayan varyantlarda eski deger oldugu gibi kaliyor ve panel/kapi onu
+  // gercek saniyordu (140 kayit, 2026-09-21).
+  await db.execute(sql`UPDATE hf_products SET search_volume = 0 WHERE canonical_slug IS NOT NULL AND search_volume > 0`);
   return { updated, products: bySlug.size, merged: mergedSlugs.size };
 }
 
