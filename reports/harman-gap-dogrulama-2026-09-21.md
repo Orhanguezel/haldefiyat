@@ -132,5 +132,71 @@ Yerel doğrulama:
 - Frontend lint: değişmeyen `src/hooks/useVoiceSearch.ts:74` satırındaki
   `react-hooks/refs` hatası nedeniyle başarısız; bu parti o dosyayı değiştirmedi.
 
-Canlı kabul, deploy commit'i, son ölçümler ve 320 px görsel kontrol sonuçları
-deploy sonrasında bu rapora eklenecektir.
+## Canlı kabul
+
+**Uygulama commit'i:** `0beddb94`
+**Güncel satır bütünlüğü düzeltmesi ve son canlı commit:** `27d6511f`
+
+İki sürüm de repo standardı `bash deploy.sh` ile git üzerinden dağıtıldı. Son
+dağıtımda backend, admin ve iki Node 24 frontend worker çevrimiçi; dağıtım
+penceresinde 5xx sayısı sıfırdır. Canlı tarayıcı isteklerinde 4xx/5xx ve konsol
+hatası görülmedi.
+
+İlk canlı kabulte API'nin yedi günlük `latestOnly` sonucu 102 satır bildirirken
+sayfanın 98 göstermesi ayrıca incelendi. Dört satır önceki yayın günlerine aitti;
+API'nin bu parametresi her ürünün aralıktaki son kaydını döndürür. Sayfanın
+“güncel” sözleşmesi ise kaynağın en son takvim günündeki satırları gösterir;
+doğru sayı 21 Eylül için 98'dir. Yine de tarihsel ilk 500 kayda bağımlılığı
+kaldırmak için güncel havuz doğrudan `latestOnly=true` ile alınmakta ve ardından
+katı son yayın günü filtresi uygulanmaktadır.
+
+### İstanbul önce/sonra
+
+Beş tekrarlı canlı medyan:
+
+| Görünüm | HTML bayt | TTFB ms | Toplam ms | Satır |
+|---|---:|---:|---:|---:|
+| Değişiklik öncesi | 1.385.406 | 525 | 636 | tarihsel karma liste |
+| Kompakt güncel | 363.766 | 586 | 703 | 15 |
+| Tüm güncel | 1.072.701 | 506 | 825 | 98 |
+| Arşiv ilk sayfa | 1.091.101 | 704 | 1.189 | 100 / 76 sayfa |
+
+Kompakt görünümde sunucu HTML'i **%73,7 azaldı**; %40 operasyonel hedefi
+karşılandı. TTFB medyanı 61 ms ve toplam süre 67 ms yükseldi. Tek değişiklik
+öncesi mobil Lighthouse koşusu ile üç değişiklik sonrası koşunun medyanı:
+
+| Metrik | Önce | Sonra medyan | Yorum |
+|---|---:|---:|---|
+| Performans skoru | 94 | 91 | laboratuvar koşusu dalgalı |
+| FCP | 1.452 ms | 1.354 ms | iyileşti |
+| LCP | 2.085 ms | 3.332 ms | kötüleşti; T+3 teknik takip açık |
+| TBT | 234 ms | 97 ms | iyileşti |
+| CLS | 0 | 0 | korundu |
+| Speed Index | 2.165 ms | 1.803 ms | iyileşti |
+| Transfer | 736.516 bayt | 702.844 bayt | azaldı |
+
+LCP sonucu nedeniyle “sayfa performansı bütünüyle iyileşti” denmez. HTML hedefi
+tutmuş, ana iş parçacığı ve görsel hız metrikleri iyileşmiş olsa da LCP'nin
+T+3'te aynı profille yeniden ölçülmesi gerekir.
+
+### Görsel ve semantik kabul
+
+- 320 px gerçek Chromium: temel, tüm güncel ve arşiv görünümünde global yatay
+  taşma yok.
+- Temel fiyat tablosu 15, tüm güncel tablo 98, arşiv sayfası 100 SSR satırı
+  gösteriyor; arşivde önceki/sonraki denetimi ve `1 / 76` sayfa göstergesi var.
+- Canonical kendisi, robots `index, follow`; Place, Dataset, BreadcrumbList ve
+  görünür SSS ile eşleşen FAQPage JSON-LD korunuyor.
+- Üzüm ilk cevabı yaş/sofralık ürünü kuru üzüm borsa serisinden ayırıyor; iki
+  sayfa karşılıklı semantik bağlantı veriyor.
+- İstanbul API'si ve sayfa son veri tarihi 21 Eylül 2026 olarak eşleşiyor.
+
+## Açık işler
+
+1. Mersin kurumsal veri erişim talebinin yetkili kişi tarafından gönderilmesi;
+   yanıt/izin sonrası parser ve fixture işi.
+2. T+3'te LCP, URL Inspection, 4xx/5xx ve render kontrolü.
+3. T+14 ve T+28'de final GSC eş dönemleri; üzüm ve şehir kümesi için erken
+   sıralama iddiası yapılmayacak.
+4. Limon şehir+ürün hedef payı kanıtla güçlenmeden canonical/title deneyi yok.
+5. Faz 6 veri ürünleri bu partide başlatılmadı.

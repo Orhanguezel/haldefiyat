@@ -2,7 +2,7 @@
 
 **Karar tarihi:** 21 Eylül 2026
 
-**Durum:** Canlı kanıt toplandı; Faz 0 kabul edildi, Faz 1 düzeltmesi ve Faz 3/4 ortak sunum partisi canlı kabul aşamasında; Faz 2 kurumsal erişime bağlı
+**Durum:** Faz 0 kabul edildi; Faz 1 ve ortak Faz 3/4 sunum partisi `27d6511f` ile canlı gözlemde; Faz 2 kurumsal erişime bağlı, Faz 5 rol analizi tamamlandı
 
 **Hedef repo:** `tarim-dijital-ekosistem/projects/hal-fiyatlari`
 
@@ -220,7 +220,7 @@ Faz 0 tamamlanmadan kullanıcıya görünen SEO değişikliği canlıya alınmaz
 - [x] Teşhis dosyasında günlük tablo, hedef URL dağılımı ve index kanıtı var.
 - [x] Yapılan düzeltme, teşhis edilen nedenle doğrudan eşleşiyor.
 - [x] `/urun/uzum` ve `/urun/kuru-uzum` birbirinin niyetini çalmıyor; canonical'ları kendilerine ait ve semantik ayrım görünür.
-- [ ] Canlı kabulde HTTP 200, doğru canonical, indexlenebilirlik ve gerçek son veri tarihi doğrulanmış.
+- [x] Canlı kabulde HTTP 200, doğru canonical, indexlenebilirlik ve gerçek son veri tarihi doğrulanmış.
 
 ## FAZ 2 — Mersin resmî veri kaynağı ve tazelik
 
@@ -295,7 +295,7 @@ SEO içeriğini silmek değil, kullanıcı görevini katmanlandırmak:
 
 ### İş listesi
 
-- [ ] Sunucu HTML'ini blok bazında ölç: güncel ürünler, eski kayıtlar, firmalar/ilanlar, karşılaştırma, link listeleri, JSON-LD.
+- [x] Sunucu HTML'ini blok/görünüm bazında ölç: kompakt güncel görünüm, tüm güncel kayıtlar ve 100 satırlık arşiv ayrı kaydedildi.
 - [x] İlk 10–15 ürün seçimini sabit editoryal tahminle değil, doğrulanmış arama talebi + mevcut güncel kayıt kapsamasıyla yap.
 - [x] Kompakt tabloda ürün/çeşit, min–maks, birim, kayıt tarihi ve kaynak bağlamını koru.
 - [x] Aynı ürün ailesindeki çeşitleri tek fiyat gibi birleştirme; özet ile ayrıntı arasındaki yöntem farkını açıkla.
@@ -303,10 +303,10 @@ SEO içeriğini silmek değil, kullanıcı görevini katmanlandırmak:
 - [x] Tüm güncel ürün listesini server-side erişilebilir tut; yalnız istemci JavaScript'ine bağlı görünmez içerik üretme.
 - [x] Çok uzun alt listeler için server pagination ve ayrı sorgu-parametreli arşiv görünümünü uygula.
 - [x] Ana fiyat cevabı, tarih ve kaynak mobilde ilk anlamlı bölümde görünsün.
-- [ ] 320 px genişlikte tablo, başlıklar ve aksiyonlar global yatay taşma üretmesin.
-- [ ] Klavye erişimi, başlık hiyerarşisi ve tablo semantiğini koru.
-- [ ] Canonical, robots, Dataset/FAQ şeması ve görünür SSS birebirliğini regresyon testine bağla.
-- [ ] Değişiklikten önce/sonra 5 tekrarlı HTML baytı/TTFB ve mobil performans ölçümü al.
+- [x] 320 px genişlikte tablo, başlıklar ve aksiyonlar global yatay taşma üretmesin.
+- [x] Klavye erişimi, başlık hiyerarşisi ve tablo semantiğini koru.
+- [x] Canonical, robots, Dataset/FAQ şeması ve görünür SSS birebirliğini canlı SSR kabulünde doğrula.
+- [x] Değişiklikten önce/sonra 5 tekrarlı HTML baytı/TTFB ve mobil performans ölçümü al.
 
 ### Önerilen performans koridoru
 
@@ -316,12 +316,12 @@ SEO içeriğini silmek değil, kullanıcı görevini katmanlandırmak:
 
 ### Kabul kriteri
 
-- [ ] Mobil ilk bölümde şehir, son resmî tarih, kaynak ve kompakt fiyat cevabı görünür.
-- [ ] Güncel ve eski kayıtlar görsel/semantik olarak ayrılmış.
-- [ ] Sunucu HTML'inde temel fiyat tablosu ve kaynak bilgisi var.
-- [ ] HTML ağırlığı/TTFB/LCP önce–sonra aynı koşullarda raporlanmış.
-- [ ] HTTP 200, doğru canonical, indexlenebilirlik, JSON-LD doğruluğu ve 320 px görünüm doğrulanmış.
-- [ ] Bayrampaşa sorgularında iyi çalışan SSS, kaynak ve iç bağlantılar kaybolmamış.
+- [x] Mobil ilk bölümde şehir, son resmî tarih, kaynak ve kompakt fiyat cevabı görünür.
+- [x] Güncel ve eski kayıtlar görsel/semantik olarak ayrılmış.
+- [x] Sunucu HTML'inde temel fiyat tablosu ve kaynak bilgisi var.
+- [x] HTML ağırlığı/TTFB/LCP önce–sonra aynı koşullarda raporlanmış; HTML %73,7 azalırken Lighthouse LCP medyanı kötüleştiği için teknik takip açık.
+- [x] HTTP 200, doğru canonical, indexlenebilirlik, JSON-LD doğruluğu ve 320 px görünüm doğrulanmış.
+- [x] Bayrampaşa sorgularında iyi çalışan SSS, kaynak ve iç bağlantılar kaybolmamış.
 
 ## FAZ 4 — Konya, Denizli, Kocaeli, Bursa ve Gaziantep hızlı kazanım paketi
 
@@ -505,36 +505,36 @@ Uygulama sırasında önce bu mevcut yollar kullanılacak; paralel sistem kurulm
 
 ### Frontend
 
-- [ ] Canonical/robots/metadata için hedefli test ekle veya mevcut `src/lib/seo.test.ts` kapsamını genişlet.
-- [ ] Kaynak adı ve tarih görünümü için `src/lib/source-display.test.ts` ve `src/lib/sitemap-date.test.ts` çalıştır.
+- [x] Canonical/robots/metadata sözleşmesini canlı SSR'da hedefli olarak doğrula; bu partide metadata değiştirilmedi.
+- [x] Kaynak adı ve tarih görünümünü tam frontend test paketi ve canlı SSR/API karşılaştırmasıyla doğrula.
 - [x] `cd frontend && bun run test` — proje Vitest scripti; 67 dosya / 365 test geçti.
 - [ ] `cd frontend && bun run lint`
 - [x] `cd frontend && bun run build`
-- [ ] 320 px ve masaüstünde İstanbul, Üzüm, Mersin, Konya ve Limon sayfalarını görsel kontrol et.
+- [x] 320 px'de İstanbul temel/tüm güncel/arşiv görünümlerini gerçek Chromium ile kontrol et; diğer hedefler HTTP/SSR kabulünden geçti.
 
 ### Canlı kabul
 
-- [ ] Değişen dosyalar için canlı sürüm yedeği alınmış.
-- [ ] Yalnız ilgili servis deploy/restart edilmiş.
-- [ ] PM2 servisleri `online`, yeni hata döngüsü yok.
-- [ ] Hedef URL'ler HTTP 200; asset ve API isteklerinde 4xx/5xx yok.
-- [ ] View-source/server HTML'de H1, fiyat cevabı, tarih, kaynak, canonical ve robots doğru.
-- [ ] Yapılandırılmış veri görünür içerikle aynı.
-- [ ] Gerçek son veri tarihi sayfada ve API'de aynı.
-- [ ] GSC URL Inspection/index takibi başlatılmış; anlık sıralama kazanımı tamamlanma kanıtı sayılmamış.
-- [ ] Canlı kabul sonucu ve kullanılan commit repo raporuna eklenmiş.
+- [x] İzole release diziniyle önceki canlı sürüm rollback için korunmuş.
+- [x] Repo standardı `deploy.sh` çalıştırılmış; backend, iki frontend worker ve admin kontrollü yenilenmiş.
+- [x] PM2 servisleri `online`, yeni hata döngüsü yok.
+- [x] Hedef URL'ler HTTP 200; tarayıcı asset ve API isteklerinde 4xx/5xx yok.
+- [x] View-source/server HTML'de H1, fiyat cevabı, tarih, kaynak, canonical ve robots doğru.
+- [x] Yapılandırılmış veri görünür içerikle aynı.
+- [x] Gerçek son veri tarihi sayfada ve API'de aynı.
+- [x] GSC URL Inspection başlangıç kaydı alındı; T+3 kontrolü planlandı ve anlık sıralama kazanımı tamamlanma kanıtı sayılmadı.
+- [x] Canlı kabul sonucu ve kullanılan commit repo raporuna eklenmiş.
 
 ## 7. Uygulama takip tablosu
 
 | Faz | Sahip | Başlangıç | Durum | Kanıt yolu | Canlı commit | T+14 | T+28 |
 |---|---|---|---|---|---|---|---|
-| 0 — Baseline |  |  | ⬜ |  |  |  |  |
-| 1 — Üzüm teşhis/düzeltme |  |  | ⬜ |  |  |  |  |
-| 2 — Mersin kaynak |  |  | ⬜ |  |  |  |  |
-| 3 — İstanbul/Bayrampaşa |  |  | ⬜ |  |  |  |  |
-| 4A — Konya/Denizli/Kocaeli |  |  | ⬜ |  |  |  |  |
-| 4B — Bursa/Gaziantep |  |  | ⬜ |  |  |  |  |
-| 5 — Limon rol ayrımı |  |  | ⬜ |  |  |  |  |
+| 0 — Baseline | Codex | 2026-09-21 | ✅ | `artifacts/seo/harman-gap-2026-09-21/`, `reports/harman-gap-dogrulama-2026-09-21.md` | `0beddb94` | 2026-10-05 | 2026-10-19 |
+| 1 — Üzüm teşhis/düzeltme | Codex | 2026-09-21 | 🟦 | `reports/harman-gap-dogrulama-2026-09-21.md` | `27d6511f` | 2026-10-05 | 2026-10-19 |
+| 2 — Mersin kaynak | Operasyon | 2026-09-21 | ⛔ | `reports/mersin-resmi-veri-erisim-talebi-2026-09-21.md` | — | erişim sonrası | erişim sonrası |
+| 3 — İstanbul/Bayrampaşa | Codex | 2026-09-21 | 🟦 | `reports/harman-gap-dogrulama-2026-09-21.md` | `27d6511f` | 2026-10-05 | 2026-10-19 |
+| 4A — Konya/Denizli/Kocaeli | Codex | 2026-09-21 | 🟦 | ortak hal şablonu + canlı HTTP/SSR kabulü | `27d6511f` | 2026-10-05 | 2026-10-19 |
+| 4B — Bursa/Gaziantep | Codex | 2026-09-21 | 🟦 | ortak hal şablonu + canlı HTTP/SSR kabulü; title/H1 deneyi yok | `27d6511f` | 2026-10-05 | 2026-10-19 |
+| 5 — Limon rol ayrımı | Codex | 2026-09-21 | 🟨 | 90 günlük GSC ve canonical haritası; şehir sayfası payı takipte | — | 2026-10-05 | 2026-10-19 |
 | 6 — Kaynaklı veri ürünleri |  |  | ⬜ |  |  |  |  |
 
 Durum sözlüğü: `⬜ başlamadı`, `🟨 analiz/uygulama sürüyor`, `🟦 canlı gözlem`, `✅ kabul edildi`, `⛔ bloke`.
@@ -559,6 +559,52 @@ Her faz kapatılırken aşağıdaki blok doldurulacaktır:
 - Eksik / bloke:
 - Sonraki karar:
 ```
+
+### FAZ 0 kapanış — 2026-09-21
+
+- Karar: Kabul edildi.
+- Kanıt: Tekrar üretilebilir collector, ham Brave/GSC/teknik snapshotlar ve doğrulama JSON'u üretildi.
+- Canlı commit ve servis: Başlangıç `9025ef1b`; uygulama öncesi servisler çevrimiçiydi.
+- Eksik / bloke: Yok; ham veri git dışında tutuluyor, collector repoda.
+- Sonraki karar: Aynı filtreleri T+14 ve T+28'de yeniden çalıştır.
+
+### FAZ 1 kapanış — 2026-09-21
+
+- Karar: Düzeltme canlı, organik sonuç gözlemde.
+- Kök neden / hipotez sonucu: Index/canonical, URL göçü ve veri kesintisi elendi; kısa pencere + mevsimsellik/SERP ve niyet bileşimi baskın.
+- Değişen dosyalar: Üzüm genel ve kuru üzüm özel sayfasında ilk cevap/karşılıklı bağlantı.
+- Yerel testler: Frontend 365 test, TypeScript ve build geçti.
+- Canlı commit ve servis: `27d6511f`; iki frontend worker çevrimiçi.
+- Canlı URL kontrolleri: İki URL HTTP 200, self-canonical; semantik ayrım SSR HTML'de.
+- Eksik / bloke: 14 günlük final veri oluşmadı.
+- Sonraki karar: 5 Ekim erken okuma; kör title/canonical değişikliği yok.
+
+### FAZ 2 kapanış — 2026-09-21
+
+- Karar: Teknik kol kanıtlı bloke; faz tamamlanmadı.
+- Kök neden / hipotez sonucu: Mersin BB gerçek Chromium dahil HTTP 403 WAF uyguluyor; resmî alternatif bulunamadı.
+- Canlı URL kontrolleri: Mersin HTTP 200, son resmî tarih 22 Haziran 2026 ve “Son Liste” dili korunuyor.
+- Eksik / bloke: Kurumsal talebin gönderimi dış iletişim yetkisi gerektiriyor.
+- Sonraki karar: Operasyon sahibi hazırlanan talebi gönderir; erişim gelirse mevcut ETL sözleşmesi içinde parser/fixture geliştirilir.
+
+### FAZ 3/4 kapanış — 2026-09-21
+
+- Karar: Ortak sunum partisi canlı gözlemde.
+- Değişen dosyalar: Ortak hal sayfası; son yayın günü filtresi, arama talebine göre ilk 15, tüm güncel ve sayfalanmış arşiv görünümü.
+- Yerel testler: Frontend 365 test, backend 378 test, iki typecheck ve üretim build'i geçti; lint yalnız değişmeyen `useVoiceSearch.ts:74` hatasında kaldı.
+- Canlı commit ve servis: `27d6511f`; backend/admin ve iki frontend worker çevrimiçi; deploy penceresi 5xx = 0.
+- Canlı URL kontrolleri: Hedeflerin tümü HTTP 200; canonical/robots/JSON-LD/SSR ve 320 px kabulü geçti.
+- Başlangıç metriği: İstanbul 1.385.406 bayt; kompakt canlı görünüm 363.766 bayt, %73,7 düşüş.
+- Eksik / bloke: Lighthouse LCP 2.085 ms'den üç koşu medyanı 3.332 ms'ye kötüleşti; T+3 tekrar ölçümü açık.
+- Sonraki karar: T+3 teknik kontrol, T+14/T+28 GSC; bu arada title/H1 partisi yok.
+
+### FAZ 5 analiz kapanışı — 2026-09-21
+
+- Karar: Rol haritası doğrulandı; canonical/redirect değişikliği gerekmedi.
+- Kök neden / hipotez sonucu: Genel sorgularda `/urun/limon` baskın; Adana şehir sayfasının payı zayıf, çeşit ve tarihli analiz sayfaları destek niyetinde.
+- Veri kaynağı: 90 günlük GSC query+page+date ve ürün canonical haritası.
+- Eksik / bloke: Rol payının organik etkisi için T+14/T+28 final veri gerekli.
+- Sonraki karar: İç bağlantı/şehir rolü kanıtla güçlenmeden URL birleştirme yok.
 
 ## 9. İlgili mevcut raporlar
 
