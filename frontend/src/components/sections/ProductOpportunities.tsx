@@ -29,15 +29,16 @@ export function ProductTradeBanner({ productSlug, productName, citySlug, cityNam
 
 export function ProductAdvertisingBanner({ productSlug, citySlug, categorySlug }: Pick<Props, "productSlug" | "citySlug" | "categorySlug">) {
   return (
-    <div className="my-6 grid items-center gap-5 lg:grid-cols-2">
+    <div className="my-6">
       <BannerSlot position="urun_sidebar" wide className="min-w-0" context={{ product: productSlug, city: citySlug, category: categorySlug }} />
-      <aside aria-label="HalDeFiyat reklam seçenekleri" className="flex flex-col gap-5 rounded-2xl only:col-span-full bg-(--color-brand)/8 p-6 sm:flex-row sm:items-center sm:p-7 lg:flex-wrap">
-        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-(--color-brand)/10 text-(--color-brand)"><Megaphone size={30} aria-hidden="true" /></span>
-        <div className="flex-1">
-          <h2 className="font-(family-name:--font-display) text-xl font-bold leading-snug text-(--color-foreground)">İşinizi tarımın buluşma noktasında tanıtın</h2>
-          <p className="mt-2 text-sm leading-6 text-(--color-muted)">Ürün sayfalarında görünür olun. Reklam seçeneklerini inceleyin.</p>
-        </div>
-        <Link href="/reklam-ver" className={button}>Reklam ver <ArrowRight size={16} aria-hidden="true" /></Link>
+      {/* Kendi reklam davetimiz sponsorlu alanla ayni yuksekligi hak etmiyor:
+          yan sutunda yarim ekran bos kaliyordu. Tek satirlik serit. */}
+      <aside aria-label="HalDeFiyat reklam seçenekleri" className="mx-auto flex max-w-6xl flex-col gap-3 rounded-xl bg-(--color-brand)/8 px-4 py-3 sm:flex-row sm:items-center sm:gap-4">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--color-brand)/10 text-(--color-brand)"><Megaphone size={18} aria-hidden="true" /></span>
+        <p className="flex-1 text-sm leading-6 text-(--color-muted)">
+          <span className="font-semibold text-(--color-foreground)">İşinizi tarımın buluşma noktasında tanıtın.</span> Ürün sayfalarında görünür olun.
+        </p>
+        <Link href="/reklam-ver" className={`${button} shrink-0`}>Reklam ver <ArrowRight size={16} aria-hidden="true" /></Link>
       </aside>
     </div>
   );

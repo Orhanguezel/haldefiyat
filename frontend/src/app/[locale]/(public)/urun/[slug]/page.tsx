@@ -818,12 +818,14 @@ export default async function UrunPage({ params }: Props) {
 
       {!borsaProduct && <CityProductLinks product={slug} productName={displayName} />}
 
-      <ProductAdvertisingBanner productSlug={product.slug} categorySlug={product.categorySlug} />
-
       {/* Grafik */}
       {slug !== "kekik" && <div className="rounded-[16px] border border-(--color-border) bg-(--color-surface) p-6">
         <PriceChart history={history} productName={displayName} />
       </div>}
+
+      {/* Reklam grafigin ALTINDA: ustte dururken ziyaretci fiyat verisine
+          ulasmadan once tam ekran reklam geciyordu (2026-09-21). */}
+      <ProductAdvertisingBanner productSlug={product.slug} categorySlug={product.categorySlug} />
 
       <ProductListings productSlug={product.slug} productName={displayName} />
       <ProductGuideLinks productSlug={product.slug} />

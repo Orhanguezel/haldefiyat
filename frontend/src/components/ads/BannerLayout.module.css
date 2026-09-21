@@ -1,5 +1,8 @@
 .grid { display:grid; grid-template-columns:repeat(var(--ad-columns,6), minmax(0,1fr)); grid-auto-rows:280px; gap:16px; }
 .cell { min-width:0; grid-column:var(--ad-column) / span var(--ad-span); grid-row:var(--ad-row) / span var(--ad-rows); }
+/* Yatay yerlesim: satir/kolon atamasini akisa birak ki ayni bicimdeki reklamlar
+   yan yana dizilsin (bkz. BannerSlot `wide`). */
+.flow .cell { grid-column:auto / span var(--ad-span); grid-row:auto; }
 .code { height:280px; min-height:0; overflow:hidden; border-radius:14px; }
 .code[data-format="tall"] { height:576px; }
 .code iframe { width:100%; height:100%; border:0; }

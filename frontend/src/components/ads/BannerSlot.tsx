@@ -39,7 +39,13 @@ type BannerSlotProps = {
   position: string;
   className?: string;
   context?: BannerContext;
-  /** Same inventory and tracking, rendered in a horizontal product-page placement. */
+  /**
+   * Ayni envanter ve olcum, yatay yerlesim. Kenar cubugu profili 2 kolondur ve
+   * `third` bicimi 2 kolon kapladigi icin iki reklam ALT ALTA diziliyordu —
+   * urun sayfasinda blok ~600px yer kaplayip veriyi asagi itiyordu (2026-09-21).
+   * Yatay yerlesimde kolon sayisi ikiye katlanir ve satir/kolon atamasi akisa
+   * birakilir; ayni reklamlar yan yana gelir, blok tek satira iner.
+   */
   wide?: boolean;
 };
 
@@ -78,7 +84,10 @@ async function BannerSlotContent({
     <aside className={className} aria-label={`Reklam alanı: ${position}`} data-content-type="advertisement">
       <div className={`mx-auto my-5 ${sidebar ? "w-full lg:max-w-[336px]" : "max-w-6xl"} px-4`}>
         <SponsorLabel />
-        <div className={layoutStyles.grid} style={{ "--ad-columns": adSlotProfile(position).columns } as CSSProperties}>
+        <div
+          className={`${layoutStyles.grid} ${wide ? layoutStyles.flow : ""}`}
+          style={{ "--ad-columns": adSlotProfile(position).columns * (wide ? 2 : 1) } as CSSProperties}
+        >
           {[...banners].sort((a,b) => (a.desktopRow ?? 1)-(b.desktopRow ?? 1) || (a.gridColumn ?? 1)-(b.gridColumn ?? 1) || a.id-b.id).map(banner => {
             const box = adRectangle(banner);
             return <div key={banner.id} className={`${layoutStyles.cell} ${deviceClass(banner.device)}`} style={{ "--ad-column": box.column, "--ad-span": box.columns, "--ad-row": box.row, "--ad-rows": box.rows } as CSSProperties}>
