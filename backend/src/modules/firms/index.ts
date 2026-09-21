@@ -3,7 +3,7 @@ import { requireAuth } from "@agro/shared-backend/middleware/auth";
 import { hasAnyRole } from "@agro/shared-backend/middleware/roles";
 import { sendMailRaw, escapeMailHtml, wrapMailBody } from "@agro/shared-backend/modules/mail";
 import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
-import { sendTelegramAdminAlert } from "@/modules/alerts/telegram";
+import { sendTelegramAdminAlert, tgHtml } from "@/modules/alerts/telegram";
 import { z } from "zod";
 import { discoverFirmLinks } from "./fetcher";
 import {
@@ -570,6 +570,16 @@ export async function registerFirmsPublic(app: FastifyInstance) {
     ].filter(Boolean).join("\n");
     const id = await createFirmClaim({ firmId, userId, evidence });
     if (!id) return reply.status(404).send({ error: "Firma bulunamadi" });
+    // Basvuru moderasyon bekler; bildirim olmayinca sahiplenme talebi panele
+    // girilene kadar goruilmuyordu.
+    void (async () => {
+      const firm = await getFirmById(firmId).catch(() => null);
+      await sendTelegramAdminAlert(
+        tgHtml`🔑 <b>Firma sahiplenme başvurusu</b>\n\n🏢 ${firm?.name ?? "#" + firmId}\n` +
+        tgHtml`👤 Kullanıcı: ${userId ?? "-"}\n📝 ${parsed.data.evidence ?? "-"}\n\n` +
+        `haldefiyat.com/admin/firmalar`,
+      );
+    })().catch(() => {});
     return reply.status(201).send({ id });
   });
 
@@ -593,8 +603,10 @@ export async function registerFirmsPublic(app: FastifyInstance) {
       createdIp: req.ip ?? null,
     });
     void sendTelegramAdminAlert(
-      `🗑️ Firma kaldirma talebi\nFirma: ${firm.name ?? firm.slug}\nTalep eden: ${data.requesterName} (${data.relationship})\n` +
-      `Iletisim: ${data.contact}\nGerekce: ${data.reason ?? "-"}`,
+      tgHtml`🗑️ <b>Firma kaldırma talebi</b>\n\n🏢 ${firm.name ?? firm.slug}\n` +
+      tgHtml`👤 ${data.requesterName} (${data.relationship})\n📞 ${data.contact}\n` +
+      tgHtml`📝 ${data.reason ?? "-"}\n\n` +
+      `haldefiyat.com/admin/firmalar`,
     ).catch(() => {});
     return reply.status(201).send({ ok: true, id: result.id, duplicate: result.duplicate });
   });
@@ -632,8 +644,9 @@ export async function registerFirmsPublic(app: FastifyInstance) {
       ].filter(Boolean).join("\n"),
     });
     const text =
-      `📩 Yeni firma mesajı\nFirma: ${firm.name ?? firm.slug}\nAd: ${data.name}\n` +
-      `Tel: ${data.phone ?? "-"} · E-posta: ${data.email ?? "-"}\nMesaj: ${data.message}`;
+      tgHtml`📩 <b>Yeni firma mesajı</b>\n\n🏢 ${firm.name ?? firm.slug}\n👤 ${data.name}\n` +
+      tgHtml`📞 ${data.phone ?? "-"} · ✉️ ${data.email ?? "-"}\n\n💬 ${data.message}\n\n` +
+      `haldefiyat.com/admin/firmalar`;
     void sendTelegramAdminAlert(text).catch(() => {});
     return reply.status(201).send({ ok: true, id: newId });
   });

@@ -2,7 +2,7 @@ import { and, eq, gte, ne, sql } from "drizzle-orm";
 import { mysqlTable, varchar, tinyint, datetime } from "drizzle-orm/mysql-core";
 import { sendBereketMail } from "@agro/shared-backend/core/mail";
 import { users } from "@agro/shared-backend/modules/auth/schema";
-import { sendTelegramAdminAlert, sendTelegramAlert } from "@/modules/alerts/telegram";
+import { sendTelegramAdminAlert, sendTelegramAlert, tgHtml } from "@/modules/alerts/telegram";
 import { isSyntheticUser } from "@/modules/notifications/synthetic-user";
 import { db } from "@/db/client";
 import { hfListings } from "./schema";
@@ -13,9 +13,10 @@ export async function notifyAdminNewListing(listing: typeof hfListings.$inferSel
   if (await isSyntheticUser(listing.userId)) return;
   const type = listing.listingType === "alim" ? "Alım talebi" : "Satış ilanı";
   const text =
-    `🆕 Yeni ilan (moderasyon bekliyor)\n${type}: ${listing.title}\n` +
-    `Ürün: ${listing.productName} · İl: ${listing.citySlug ?? "-"}\n` +
-    `Tel: ${listing.contactPhone ?? "-"}`;
+    tgHtml`🆕 <b>Yeni ilan — moderasyon bekliyor</b>\n\n${type}: ${listing.title}\n` +
+    tgHtml`🧺 ${listing.productName} · 📍 ${listing.citySlug ?? "-"}\n` +
+    tgHtml`📞 ${listing.contactPhone ?? "-"}\n\n` +
+    `haldefiyat.com/admin/ilanlar`;
   await sendTelegramAdminAlert(text).catch(() => {});
 }
 
@@ -67,7 +68,7 @@ export async function notifyMatches(listing: typeof hfListings.$inferSelect) {
       eq(hfListings.status, "approved"),
       gte(hfListings.validUntil, sql`CURRENT_DATE()`),
     )).limit(50);
-  const text = `Yeni eşleşen ilan: ${listing.title} (${listing.productName})`;
+  const text = tgHtml`Yeni eşleşen ilan: ${listing.title} (${listing.productName})`;
   for (const match of matches) {
     const key = match.userId ?? chatId(match.raw) ?? `listing:${match.id}`;
     if (!allow(key)) continue;

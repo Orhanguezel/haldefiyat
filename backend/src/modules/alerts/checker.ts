@@ -1,7 +1,7 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { hfAlerts, hfMarkets, hfPriceHistory, hfProducts } from "@/db/schema";
-import { sendTelegramAlert } from "./telegram";
+import { sendTelegramAlert, tgHtml } from "./telegram";
 import { sendEmailAlert, buildAlertEmailHtml } from "./email";
 import { sendToExternalIds, isOneSignalConfigured } from "@/modules/notifications/onesignal";
 import { repoGetUserByEmail } from "@agro/shared-backend/modules/auth/repository";
@@ -136,13 +136,13 @@ async function notifyAlert(a: ActiveAlert, latest: LatestPriceRow, lp: number, t
 
   if (a.contactTelegram) {
     const dirText = direction === "above" ? "<b>ustune cikti</b>" : "<b>altina indi</b>";
-    const marketLine = latest.marketName ? `\nHal: ${latest.marketName}` : "";
+    const marketLine = latest.marketName ? tgHtml`\nHal: ${latest.marketName}` : "";
     const text =
       `<b>Fiyat Alarmi</b>\n` +
-      `${latest.productName} fiyati esigin ${dirText}.${marketLine}\n` +
+      tgHtml`${latest.productName} fiyati esigin ` + dirText + `.${marketLine}\n` +
       `Guncel: ${lp.toFixed(2)} TL/kg\n` +
       `Esik:   ${tp.toFixed(2)} TL/kg\n` +
-      `Tarih:  ${recordedDate}`;
+      tgHtml`Tarih:  ${recordedDate}`;
     await sendTelegramAlert(a.contactTelegram, text);
   }
 

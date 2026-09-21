@@ -46,7 +46,7 @@ import { apiKeyContext, resolveActorId } from "@/modules/api-keys/require-scope"
 import { isSyntheticUser } from "@/modules/notifications/synthetic-user";
 import { lookupIdempotent, rememberIdempotent } from "@/modules/api-keys/scopes";
 import { notifyMatches, notifyAdminNewListing } from "./matching";
-import { sendTelegramAdminAlert } from "@/modules/alerts/telegram";
+import { sendTelegramAdminAlert, tgHtml } from "@/modules/alerts/telegram";
 import { env } from "@/core/env";
 import { parseCallAvailability, redactContactText, toPublicListing } from "./public";
 import { hasVerifiedCallRequestIdentity } from "./call-request-auth";
@@ -95,9 +95,10 @@ export async function createPublicInquiry(req: FastifyRequest<{ Params: { id: st
     // Test hesabinin ilanina gelen teklif de operasyon kanalina dusmez.
     if (!(await isSyntheticUser(listing.userId))) {
       const text =
-        `💬 Yeni ilan mesajı\nİlan: ${listing.title}\nAd: ${parsed.name} · Tel: ${parsed.phone}\n` +
-        (parsed.offerPrice != null ? `Teklif: ${parsed.offerPrice}\n` : "") +
-        `Mesaj: ${parsed.message}`;
+        tgHtml`💬 <b>Yeni ilan mesajı</b>\n\n🏷 ${listing.title}\n👤 ${parsed.name} · 📞 ${parsed.phone}\n` +
+        (parsed.offerPrice != null ? tgHtml`💰 Teklif: ${parsed.offerPrice}\n` : "") +
+        tgHtml`\n💬 ${parsed.message}\n\n` +
+        `haldefiyat.com/admin/ilanlar`;
       void sendTelegramAdminAlert(text).catch(() => {});
 
       // SATICIYA da haber ver. Bugune kadar teklif yalniz ops kanalina ve admin
@@ -187,11 +188,14 @@ export async function createPublicCallRequest(req: FastifyRequest<{ Params: { id
     {
       const slotLabels = { asap: "En kısa sürede", morning: "09:00–12:00", afternoon: "12:00–17:00", evening: "17:00–20:00" };
       const text = [
-        "📞 Yeni arama talebi",
-        `İlan: ${listing.title}`,
-        `Uygun zaman: ${slotLabels[parsed.preferredSlot]}`,
-        safeNote ? `Not: ${safeNote}` : null,
-        `Talep no: ${result.id}`,
+        "📞 <b>Yeni arama talebi</b>",
+        "",
+        tgHtml`🏷 ${listing.title}`,
+        tgHtml`🕒 ${slotLabels[parsed.preferredSlot]}`,
+        safeNote ? tgHtml`📝 ${safeNote}` : null,
+        tgHtml`🔢 Talep no: ${result.id}`,
+        "",
+        "haldefiyat.com/admin/ilanlar",
       ].filter(Boolean).join("\n");
       const notified = await sendTelegramAdminAlert(text).then(() => true).catch(() => false);
       if (notified) {
