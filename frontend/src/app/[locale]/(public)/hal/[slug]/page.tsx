@@ -191,8 +191,15 @@ export default async function HalPage({ params, searchParams }: Props) {
   const showAllCurrent = !archiveMode && query?.tum === "1";
   setRequestLocale(locale);
 
-  const [prices, trendHistory, products, markets, comparison, archivePage] = await Promise.all([
+  const [prices, currentPrices, trendHistory, products, markets, comparison, archivePage] = await Promise.all([
     fetchPrices({ market: slug, range: MARKET_PRICE_RANGE, limit: 500 }),
+    fetchPrices({
+      market: slug,
+      range: MARKET_PRICE_RANGE,
+      limit: 500,
+      latestOnly: true,
+      sort: "date-desc",
+    }),
     fetchPrices({
       market: slug,
       range: "90d",
@@ -215,13 +222,14 @@ export default async function HalPage({ params, searchParams }: Props) {
     ? markets.find((m) => m.slug === "antalya-hal-merkez")
     : null;
   const datasetDates = schemaDateRange(prices.map((price) => price.recordedDate));
-  const latestDate = datasetDates?.latest ?? null;
 
   if (!market) {
     notFound();
   }
 
   const isNational = market.regionSlug === "ulusal";
+  const displayPrices = isNational ? prices : currentPrices;
+  const latestDate = schemaDateRange(displayPrices.map((price) => price.recordedDate))?.latest ?? null;
   const weatherSlug = isNational ? null : cityToWeatherSlug(market.cityName);
   const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
   const marketFirms = isNational
@@ -287,11 +295,11 @@ export default async function HalPage({ params, searchParams }: Props) {
     { name: "Haller", href: "/hal" },
     { name: market.name, href: `/hal/${slug}` },
   ];
-  const latestRows = latestMarketRows(prices);
+  const latestRows = latestMarketRows(displayPrices);
   const highlightedRows = rankCurrentMarketRows(latestRows, products).slice(0, 15);
   const visibleRows = showAllCurrent ? latestRows : highlightedRows;
   const latestProductCount = new Set(latestRows.map((price) => price.productSlug)).size;
-  const primarySource = latestRows.find((price) => price.sourceName || price.sourceUrl) ?? prices[0];
+  const primarySource = latestRows.find((price) => price.sourceName || price.sourceUrl) ?? displayPrices[0];
   const sourceLabel = primarySource?.sourceName || market.name;
   const sourceUrl = primarySource?.sourceUrl;
   const staleBulletin = !latestDate || Date.now() - Date.parse(`${latestDate.slice(0, 10)}T12:00:00Z`) > 7 * 86400000;
@@ -444,7 +452,7 @@ export default async function HalPage({ params, searchParams }: Props) {
 
       <div className="mb-8">{answerBlock}</div>
 
-      {prices.length === 0 && (
+      {displayPrices.length === 0 && (
         <div className="mb-6 rounded-[14px] border border-amber-400/30 bg-amber-400/8 p-5 text-sm text-amber-100">
           <p className="font-semibold text-amber-50">Bu hal için kaynak bugün fiyat yayınlamıyor.</p>
           <p className="mt-1 text-amber-100/80">
