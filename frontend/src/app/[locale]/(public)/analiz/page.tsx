@@ -8,6 +8,7 @@ import { getSonMakaleler } from "@/lib/analiz";
 import { fetchAnnualReportYears, fetchAutoWeeklyReports, fetchPricesOverview } from "@/lib/api";
 import PageContainer from "@/components/layout/PageContainer";
 import { formatDateTr } from "@/lib/date-format";
+import { sectionOgImage } from "@/lib/og-sections";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,7 @@ export async function generateMetadata({ params }: Props) {
   return getPageMetadata("analiz", {
     locale,
     pathname: "/analiz",
+    openGraph: { images: [sectionOgImage("analiz")] },
     title: "Hal Fiyatı Analizleri & Haftalık Raporlar | HalDeFiyat",
     description:
       "Türkiye toptancı hal fiyatlarının haftalık analizi, mevsimsel trendler ve HaldeFiyat Endeksi yorumları. Tarım ve gıda fiyat haberleri.",

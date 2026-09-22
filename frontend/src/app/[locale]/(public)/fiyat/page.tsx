@@ -8,6 +8,7 @@ import FreshnessBadge from "@/components/ui/FreshnessBadge";
 import { fetchCityProductPairs, type CityProductPair } from "@/lib/api";
 import { formatDateTr } from "@/lib/date-format";
 import { getPageMetadata } from "@/lib/seo";
+import { sectionOgImage } from "@/lib/og-sections";
 
 // Bolum kok sayfasi. /fiyat/<sehir>/<urun> altinda 450+ sayfa vardi ama /fiyat
 // 404 donuyordu (Tanitio katalogu 17 Eyl 2026, Bulgu 4): alt sayfalar hub'siz,
@@ -43,6 +44,7 @@ export async function generateMetadata({ params }: Props) {
   return getPageMetadata("fiyat-index", {
     locale,
     pathname: "/fiyat",
+    openGraph: { images: [sectionOgImage("fiyat")] },
     title: `Şehir Şehir Hal Fiyatları — ${groups.length} İl, ${pairs.length} Ürün Sayfası`,
     description: `${cities} dahil ${groups.length} ilin toptancı hal bülteninden ürün bazlı güncel fiyat sayfaları. Her sayfada o halin son kaydı, 90 günlük seyir ve Türkiye kıyası.`,
   });

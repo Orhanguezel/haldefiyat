@@ -12,6 +12,7 @@ import { getPageMetadata } from "@/lib/seo";
 import { categoryDescription, categoryTitle, fetchCategoryHeadline } from "@/lib/category-price-meta";
 import { productHref } from "@/lib/product-links";
 import PageContainer from "@/components/layout/PageContainer";
+import { sectionOgImage } from "@/lib/og-sections";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -67,6 +68,7 @@ export async function generateMetadata({ params }: Props) {
       "Buğday, arpa, mısır, çeltik, ayçiçeği, pamuk, mercimek, nohut ve kuru fasulye için TMO resmi alım ve ticaret borsası fiyatları.",
       headline,
     ),
+    openGraph: { images: [sectionOgImage("borsa")] },
   });
 }
 

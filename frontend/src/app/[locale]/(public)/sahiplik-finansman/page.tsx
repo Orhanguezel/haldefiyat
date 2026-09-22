@@ -1,5 +1,6 @@
 import { getPageMetadata } from "@/lib/seo";
 import TransparencyPolicyPage from "@/components/TransparencyPolicyPage";
+import { sectionOgImage } from "@/lib/og-sections";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -8,6 +9,7 @@ export async function generateMetadata({ params }: Props) {
   return getPageMetadata("sahiplik_finansman", {
     locale,
     pathname: "/sahiplik-finansman",
+    openGraph: { images: [sectionOgImage("sahiplik-finansman")] },
     title: "Sahiplik ve Finansman | HalDeFiyat",
     description: "HalDeFiyat platformunun sahiplik yapısı, finansman modeli ve editoryal bağımsızlık açıklaması.",
   });

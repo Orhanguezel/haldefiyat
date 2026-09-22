@@ -4,6 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import CategoryPriceLanding from "@/components/sections/CategoryPriceLanding";
 import { getPageMetadata } from "@/lib/seo";
 import { categoryDescription, categoryTitle, fetchCategoryHeadline } from "@/lib/category-price-meta";
+import { sectionOgImage } from "@/lib/og-sections";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -19,6 +20,7 @@ export async function generateMetadata({ params }: Props) {
       headline,
       ["Karkas fiyatı canlı ağırlık ve kasap fiyatından farklıdır."],
     ),
+    openGraph: { images: [sectionOgImage("et-fiyatlari")] },
   });
 }
 

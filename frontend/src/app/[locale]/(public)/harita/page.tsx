@@ -8,6 +8,7 @@ import TurkeyMapNoSsr from "@/components/sections/TurkeyMapNoSsr";
 import MarketDataNav from "@/components/sections/MarketDataNav";
 import { PUBLIC_METRICS, publicFreshnessLabel } from "@/lib/public-metrics";
 import PageContainer from "@/components/layout/PageContainer";
+import { sectionOgImage } from "@/lib/og-sections";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -16,6 +17,7 @@ export async function generateMetadata({ params }: Props) {
   return getPageMetadata("harita", {
     locale,
     pathname: "/harita",
+    openGraph: { images: [sectionOgImage("harita")] },
     title: "Türkiye İnteraktif Hal Fiyat Haritası",
     description:
       "Türkiye genelinde hal fiyat ortalamalarını renk skalasıyla karşılaştırın. Ucuzdan pahalıya Türkiye fiyat haritası.",

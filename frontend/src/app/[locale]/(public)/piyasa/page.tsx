@@ -7,6 +7,7 @@ import PageContainer from "@/components/layout/PageContainer";
 import { getPageMetadata } from "@/lib/seo";
 import { PIYASA_PAGES } from "@/lib/piyasa";
 import { fetchProductPriceSummary, formatAveragePrice } from "@/lib/product-price-summary";
+import { sectionOgImage } from "@/lib/og-sections";
 
 // Bolum kok sayfasi. /piyasa/<slug> sayfalari vardi ama /piyasa 404 donuyordu
 // (Tanitio katalogu 17 Eyl 2026, Bulgu 5). Kartlar PIYASA_PAGES config'inden,
@@ -23,6 +24,7 @@ export async function generateMetadata({ params }: Props) {
   return getPageMetadata("piyasa-index", {
     locale,
     pathname: "/piyasa",
+    openGraph: { images: [sectionOgImage("piyasa")] },
     title: `Bölgesel Günlük Piyasalar — ${PAGES.length} Bölge Sayfası`,
     description: `${regions} için günlük hal piyasası sayfaları: yerel kaydın durumu, Türkiye hal fiyatlarıyla kıyas, çeşit ve birim ayrımı. Bahçe fiyatı ile toptan hal fiyatı ayrı değerlendirilir.`,
   });

@@ -12,12 +12,12 @@ type Props = { params: Promise<{ locale: string }> };
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   return {
-    ...getPageMetadata("firma_ekle", {
+    ...(await getPageMetadata("firma_ekle", {
       locale,
       pathname: "/firmalar/ekle",
       title: "Firma Ekle | HalDeFiyat",
       description: "Firmanızı HalDeFiyat firma rehberine ekleyin.",
-    }),
+    })),
     robots: { index: false, follow: false },
   };
 }

@@ -26,6 +26,7 @@ import JsonLd from "@/components/seo/JsonLd";
 import { fetchPricesOverview } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
 import PageContainer from "@/components/layout/PageContainer";
+import { sectionOgImage } from "@/lib/og-sections";
 
 const MEDIA_KIT_PATH = "/files/haldefiyat-medya-kiti-2026-08.pdf";
 
@@ -98,6 +99,7 @@ export async function generateMetadata({ params }: Props) {
   return getPageMetadata("reklam-ver", {
     locale,
     pathname: "/reklam-ver",
+    openGraph: { images: [sectionOgImage("reklam-ver")] },
     title: "Reklam ve Sponsorluk Çözümleri | HalDeFiyat",
     description:
       "Tarım sektöründeki hedef kitlenize HalDeFiyat banner, sponsorlu ilan, firma sponsorluğu ve ölçümlenebilir kampanya çözümleriyle ulaşın.",

@@ -8,6 +8,7 @@ import { getPageMetadata } from "@/lib/seo";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import FirmCard from "@/components/firms/FirmCard";
 import PageContainer from "@/components/layout/PageContainer";
+import { sectionOgImage } from "@/lib/og-sections";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -93,6 +94,7 @@ export async function generateMetadata({ params, searchParams }: Props) {
   return getPageMetadata(["firmalar_liste", "firmalar"], {
     locale,
     pathname: canonicalPath,
+    openGraph: { images: [sectionOgImage("firmalar")] },
     title: "Hal Firmaları ve Komisyoncu Rehberi",
     description: "Türkiye'deki hal komisyoncuları, soğuk hava depoları, nakliyeciler ve zirai ilaç firmaları rehberi.",
     ...(paged || listView || searched ? { robots: { index: false, follow: true } } : {}),

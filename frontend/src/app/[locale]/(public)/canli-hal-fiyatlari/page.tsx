@@ -8,6 +8,7 @@ import { schemaDateRange } from "@/lib/schema-dates";
 import JsonLd from "@/components/seo/JsonLd";
 import Breadcrumb from "@/components/seo/Breadcrumb";
 import LivePriceNewsletter from "@/components/sections/LivePriceNewsletter";
+import { sectionOgImage } from "@/lib/og-sections";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -32,6 +33,7 @@ export async function generateMetadata({ params }: Props) {
   return getPageMetadata("canli_hal_fiyatlari", {
     locale,
     pathname: "/canli-hal-fiyatlari",
+    openGraph: { images: [sectionOgImage("canli-hal-fiyatlari")] },
     title: `Canlı Hal Fiyatları 2026${coverageTitle}`,
     description:
       "Türkiye geneli canlı hal fiyatları, günlük güncellenen sebze ve meyve fiyatları, şehir karşılaştırmaları ve ücretsiz haftalık fiyat bülteni.",

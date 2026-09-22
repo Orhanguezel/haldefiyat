@@ -9,6 +9,7 @@ import ProductImage from "@/components/ui/ProductImage";
 import { fetchPricesOverview } from "@/lib/api";
 import { getPageMetadata } from "@/lib/seo";
 import { REHBER_LIST } from "@/lib/rehber";
+import { sectionOgImage } from "@/lib/og-sections";
 
 export const revalidate = 3600;
 
@@ -19,6 +20,7 @@ export async function generateMetadata({ params }: Props) {
   return getPageMetadata("rehber-index", {
     locale,
     pathname: "/rehber",
+    openGraph: { images: [sectionOgImage("rehber")] },
     title: "Sezon Rehberleri — Neyi Ne Zaman Almalı? | HalDeFiyat",
     description:
       "Turşu, salça-konserve ve reçel sepetleri için veriye dayalı alım rehberleri: her ürünün son 12 aylık hal fiyat eğrisi ve kayıtlardan çıkan en ucuz ay.",

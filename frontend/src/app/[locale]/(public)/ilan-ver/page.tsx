@@ -7,18 +7,22 @@ import { ListingForm } from "@/components/listings/ListingForm";
 import { fetchProducts } from "@/lib/api";
 import { provinceBySlug } from "@/data/turkey-cities";
 import { getPageMetadata } from "@/lib/seo";
+import { sectionOgImage } from "@/lib/og-sections";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ product?: string; type?: string; city?: string }> };
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   return {
-    ...getPageMetadata("ilan_ver", {
+    // await olmadan Promise yayilinca metadata bos kaliyordu: sayfanin
+    // title/description/canonical'i hic uygulanmadi, site geneli yedegi gorundu.
+    ...(await getPageMetadata("ilan_ver", {
       locale,
       pathname: "/ilan-ver",
+      openGraph: { images: [sectionOgImage("ilan-ver")] },
       title: "Ücretsiz İlan Ver — Tarım Ürünü Alım Satım İlanı",
       description: "Ürününüzü hal fiyatlarını takip eden alıcılara ücretsiz duyurun. Komisyon yok, üyelik ücretsiz; ilan moderasyondan sonra yayınlanır.",
-    }),
+    })),
     // 31 Agustos 2026: sayfa noindex'ti — ilan kazanmanin TEK yuzeyi aramada
     // gorunmuyordu. Modul icerik uretmiyorsa sebebi talep degil gorunmezlikti.
     robots: { index: true, follow: true },

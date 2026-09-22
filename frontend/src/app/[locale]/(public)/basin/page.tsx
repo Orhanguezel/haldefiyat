@@ -9,6 +9,7 @@ import { fetchSiteSettings } from "@/lib/site-settings";
 import ObfuscatedEmail from "@/components/ui/ObfuscatedEmail";
 import { splitEmail } from "@/lib/email-parts";
 import PageContainer from "@/components/layout/PageContainer";
+import { sectionOgImage } from "@/lib/og-sections";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -44,6 +45,7 @@ export async function generateMetadata({ params }: Props) {
   return getPageMetadata("basin", {
     locale,
     pathname: "/basin",
+    openGraph: { images: [sectionOgImage("basin")] },
     title: "Basın ve Medya Kiti | HaldeFiyat",
     description: "HaldeFiyat basın kiti, kısa açıklama, medya kaynakları, iletişim ve basın bülteni metinleri.",
   });

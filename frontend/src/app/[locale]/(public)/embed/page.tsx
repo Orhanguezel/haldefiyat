@@ -6,6 +6,7 @@ import Breadcrumb from "@/components/seo/Breadcrumb";
 import JsonLd from "@/components/seo/JsonLd";
 import PageContainer from "@/components/layout/PageContainer";
 import { ContactForm } from "@/components/sections/ContactForm";
+import { sectionOgImage } from "@/lib/og-sections";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -71,6 +72,7 @@ export async function generateMetadata({ params }: Props) {
   return getPageMetadata("embed", {
     locale,
     pathname: "/embed",
+    openGraph: { images: [sectionOgImage("embed")] },
     title: "HaldeFiyat Embed Widget",
     description:
       "Güncel hal fiyatları ve HaldeFiyat Endeksi widget'larını iframe ile kendi sitenize ekleyin.",

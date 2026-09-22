@@ -12,6 +12,36 @@ nginx OG önbelleği temizlendi ve gerçek route çıktıları doğrulandı.
 | `/borsa`, `/et-fiyatlari` | Bölüm başlığı ve API'deki güncel fiyat örnekleri | ✅ Canlı |
 | `/urun/<borsa ürünü>` | Katalogda eşleşme yoksa slug'dan okunur ürün adı | ✅ Canlı |
 
+## 22 Eylül 2026 — üst seviye gezinme sayfaları da kapandı
+
+Tanitio kataloğu "Paylaşım görseli 3 sayfada aynı" bulgusunu tekrar verdi.
+Doğru bulguydu: `/fiyat`, `/piyasa`, `/canli-hal-fiyatlari` jenerik
+`/og/default` bildiriyordu. Sitemap'in tamamı (885 URL, aile bazında
+örneklenerek) tarandığında jenerik kapakla kalan **17 sayfa** çıktı — üçü
+değil.
+
+Çözüm: `frontend/src/lib/og-sections.ts` bölüm kapağı kayıt defteri.
+Metin (kicker/başlık/alt başlık/alt metni) orada, canlı rakamlar
+`/og/bolum/[slug]` route'unda. `sectionOgImage("<slug>")` sayfanın
+`generateMetadata`'sına tek satırda bağlanır ve `alt` metnini de taşır.
+
+Kapanan sayfalar: `/fiyat`, `/piyasa`, `/canli-hal-fiyatlari`, `/firmalar`,
+`/analiz`, `/rehber`, `/harita`, `/canli-hayvan-fiyatlari`, `/embed`,
+`/basin`, `/reklam-ver`, `/ilan-ver`, `/editoryal-politika`,
+`/duzeltme-politikasi`, `/veri-kaynagi-politikasi`, `/sahiplik-finansman`.
+`/borsa` ve `/et-fiyatlari` aynı kayıt defterine taşındı.
+
+Doğrulama: 18 kapağın tamamı `200 image/png`, **18 farklı md5** — önceki
+turun "görselin var olması yetmez" tuzağı burada da ölçüldü.
+
+Bu turda çıkan ikinci kusur: `/ilan-ver` ve `/firmalar/ekle`
+`{...getPageMetadata(...)}` yazıyordu — `await` olmadan Promise yayılınca
+nesne **boş** kalır. İki sayfanın title/description/canonical'ı hiç
+uygulanmamıştı; `/ilan-ver` canlıda site geneli başlığını gösteriyordu.
+
+Kalan tek jenerik kapak `/yazar/haldefiyat-veri-ekibi` (avatarı olmayan
+yazar). Tek sayfa olduğu için artık "aynı görsel" bulgusu üretmez.
+
 Canlı sitemap'in ilk 300 URL'si yeniden tarandı: **297 içerikli kapak, 3
 jenerik kapak, 0 eksik görsel, 0 istek hatası**. Jenerik kalan üç URL
 `/canli-hal-fiyatlari`, `/piyasa` ve `/fiyat`; bunlar bu notta eksik olarak
