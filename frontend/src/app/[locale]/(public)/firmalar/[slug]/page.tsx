@@ -132,6 +132,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: meta.title.replace(" — Firma", ` — ${total} Firma`),
       description: `${meta.h1}: ${total} aktif firma. Telefon, adres ve şehir bazlı firma rehberi.`,
       robots: { index: true, follow: true },
+      openGraph: { images: [{ url: `${SITE_URL}/og/firmalar/${slug}`, width: 1200, height: 630, alt: meta.h1 }] },
     });
   }
 
@@ -151,6 +152,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: firmCityTitle(ctx.cityName, total, YEAR),
     description: firmCityDescription(ctx.cityName, total, ctx.prices),
     robots: total >= 5 ? { index: true, follow: true } : { index: false, follow: true },
+    openGraph: { images: [{ url: `${SITE_URL}/og/firmalar/${slug}`, width: 1200, height: 630, alt: `${ctx.cityName} hal firmaları` }] },
   });
 }
 

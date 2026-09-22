@@ -6,9 +6,10 @@ import JsonLd from '@/components/seo/JsonLd';
 import SpecialtyBorsaTable from '@/components/sections/SpecialtyBorsaTable';
 import { getPageMetadata, DATA_LICENSE_URL, ORG_REF } from '@/lib/seo';
 import data from '@/data/itb-specialty.json';
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://haldefiyat.com').replace(/\/$/, '');
 export async function generateMetadata({params}:{params:Promise<{locale:string}>}) {
  const {locale}=await params;
- return getPageMetadata('kuru_uzum',{locale,pathname:'/urun/kuru-uzum',title:'Kuru Üzüm Fiyatları 2026 — Sınıf Bazında İTB Kayıtları',description:'Çekirdeksiz kuru üzümün İzmir Ticaret Borsası tescil fiyatları. Tarih, ürün sınıfı, satış şekli, TL/kg aralığı ve kaynak PDF; yaş üzümden ayrı.'});
+ return getPageMetadata('kuru_uzum',{locale,pathname:'/urun/kuru-uzum',title:'Kuru Üzüm Fiyatları 2026 — Sınıf Bazında İTB Kayıtları',description:'Çekirdeksiz kuru üzümün İzmir Ticaret Borsası tescil fiyatları. Tarih, ürün sınıfı, satış şekli, TL/kg aralığı ve kaynak PDF; yaş üzümden ayrı.',openGraph:{images:[{url:`${SITE_URL}/og/urun/kuru-uzum`,width:1200,height:630,alt:'Kuru üzüm borsa fiyatları'}]}});
 }
 export default async function Page({params}:{params:Promise<{locale:string}>}) {
  const {locale}=await params;setRequestLocale(locale);

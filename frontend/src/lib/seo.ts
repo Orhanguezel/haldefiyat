@@ -59,6 +59,8 @@ type MetadataOverrides = Partial<Metadata> & {
   siteName?: string;
   locale?: string;
   pathname?: string;
+  /** Sayfaya özel kayıt, genel DB şablonundan önce kullanılmalıdır. */
+  preferOverride?: boolean;
 };
 
 function buildLocaleAlternates(locale: string, pathname: string): { canonical: string; languages: Record<string, string> } {
@@ -172,8 +174,12 @@ export function buildMetadata(
   const fallbackTitle = typeof overrides?.title === "string" ? overrides.title : undefined;
   const fallbackDescription = typeof overrides?.description === "string" ? overrides.description : undefined;
 
-  const title = seo?.title ? interpolate(seo.title, vars) : fallbackTitle;
-  const description = seo?.description ? interpolate(seo.description, vars) : fallbackDescription;
+  const title = overrides?.preferOverride && fallbackTitle
+    ? fallbackTitle
+    : seo?.title ? interpolate(seo.title, vars) : fallbackTitle;
+  const description = overrides?.preferOverride && fallbackDescription
+    ? fallbackDescription
+    : seo?.description ? interpolate(seo.description, vars) : fallbackDescription;
   const searchTitle = title ? compactMetaTitle(title) : undefined;
   const searchDescription = description ? compactMetaDescription(description) : undefined;
   const keywords = seo?.keywords ? seo.keywords.split(",").map((k) => k.trim()).filter(Boolean) : undefined;
@@ -194,6 +200,7 @@ export function buildMetadata(
     siteName: _siteName,
     locale: _locale,
     pathname: _pathname,
+    preferOverride: _preferOverride,
     title: _title,
     description: _description,
     keywords: _keywords,

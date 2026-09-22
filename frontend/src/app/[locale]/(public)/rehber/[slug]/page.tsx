@@ -15,6 +15,7 @@ import { REHBER_PAGES, buildSeasonality, type RehberBasketItem, type Seasonality
 export const revalidate = 3600;
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
 export function generateStaticParams() {
   return Object.keys(REHBER_PAGES).map((slug) => ({ slug }));
@@ -31,6 +32,7 @@ export async function generateMetadata({ params }: Props) {
     pathname: `/rehber/${slug}`,
     title: `${config.title} | HalDeFiyat`,
     description: config.description,
+    openGraph: { images: [{ url: `${SITE_URL}/og/rehber/${slug}`, width: 1200, height: 630, alt: config.h1 }] },
   });
 }
 

@@ -1,4 +1,30 @@
-# OG kapakları — kalan iş (Codex)
+# OG kapakları — kapanış raporu
+
+**Tamamlandı: 21 Eylül 2026.** Aşağıdaki içerik aileleri canlıya alındı,
+nginx OG önbelleği temizlendi ve gerçek route çıktıları doğrulandı.
+
+| Aile | Uygulanan kapak | Durum |
+|---|---|---|
+| `/firmalar/<şehir>` | Şehir, aktif komisyoncu sayısı ve rehber bağlamı | ✅ Canlı |
+| `/firma/<slug>` | Firma adı, şehir/ilçe ve firma tipi | ✅ Canlı |
+| `/piyasa/<slug>` | Bölge, ürün ve piyasa kapsamı | ✅ Canlı |
+| `/rehber/<slug>` | Rehber adı, dönem ve sepet ürün sayısı | ✅ Canlı |
+| `/borsa`, `/et-fiyatlari` | Bölüm başlığı ve API'deki güncel fiyat örnekleri | ✅ Canlı |
+| `/urun/<borsa ürünü>` | Katalogda eşleşme yoksa slug'dan okunur ürün adı | ✅ Canlı |
+
+Canlı sitemap'in ilk 300 URL'si yeniden tarandı: **297 içerikli kapak, 3
+jenerik kapak, 0 eksik görsel, 0 istek hatası**. Jenerik kalan üç URL
+`/canli-hal-fiyatlari`, `/piyasa` ve `/fiyat`; bunlar bu notta eksik olarak
+tanımlanan ailelerin dışında kalan üst seviye gezinme sayfalarıdır.
+
+Canlı kabul kanıtı:
+
+- Tüm yeni uçlar `200 image/png` ve **1200×630** döndü.
+- `/og/firmalar/mersin` MD5: `6ce4e63405762772dc4587ab2188fd54`.
+- `/og/firmalar/adana` MD5: `a07c47d927cc1776a58359e03c1843fc`.
+- `/og/bolum/borsa` MD5: `fce46660f830e3ac07564c5915e6b697`.
+- `/urun/kuru-uzum` artık `/og/urun/kuru-uzum` görselini bildiriyor.
+- Sayfa metadatalarında yeni route'lar `og:image` olarak bağlıdır.
 
 **Durum 16 Eylül 2026, deploy sonrası canlı ölçüm.** Sitemap'ten rastgele 300 URL:
 
@@ -14,7 +40,7 @@ Başlangıç: 300 sayfanın **201'inde** `og:image` yoktu ve hepsi
 Eksiklik kapatıldı; kalan iş jenerik kapakla yetinen aileleri **içerikli**
 kapağa geçirmek. Aciliyeti düşük: hiçbir sayfa artık boş önizleme vermiyor.
 
-## Jenerik kapakla kalan aileler
+## Başlangıçta jenerik kapakla kalan aileler
 
 | Aile | Örneklemdeki sayı | Kapakta ne olmalı |
 |---|---|---|

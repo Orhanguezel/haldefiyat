@@ -21,6 +21,7 @@ import { TrackedAdLink } from "@/components/ads/AdConversionTracker";
 import { buildFirmDescription } from "@/lib/firm-description";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
 
 const TYPE_LABELS = {
   komisyoncu: "Hal Komisyoncusu",
@@ -99,6 +100,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     robots: hasIndexableContent(firm)
       ? { index: true, follow: true }
       : { index: false, follow: true },
+    openGraph: { images: [{ url: `${SITE_URL}/og/firma/${slug}`, width: 1200, height: 630, alt: `${firm.name} firma profili` }] },
   });
 }
 
@@ -123,7 +125,6 @@ export default async function FirmDetailPage({ params }: Props) {
   const relatedItems = related.items.filter((item) => item.slug !== firm.slug).slice(0, 3);
   const city = titleCaseSlug(firm.citySlug);
   const district = titleCaseSlug(firm.districtSlug);
-  const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://haldefiyat.com").replace(/\/$/, "");
   const isPremium = Boolean(firm.sponsorshipTier && ["premium", "gold", "featured"].includes(firm.sponsorshipTier));
   const mapQuery = buildMapQuery(firm.name, firm.address, district, city);
   const mapUrl = mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : null;

@@ -107,7 +107,8 @@ async function renderUrunOg(slug: string) {
   ]);
   const photo = await loadProductPhoto(slug, product?.canonicalSlug);
   const rawName = product?.displayName || product?.nameTr || "";
-  const name: string = rawName ? cleanName(rawName) : "Hal Fiyatı";
+  const readableSlug = slug.replace(/-/g, " ").replace(/\b\p{Ll}/gu, (c) => c.toLocaleUpperCase("tr-TR"));
+  const name: string = rawName ? cleanName(rawName) : readableSlug || "Hal Fiyatı";
   const category: string = product?.categorySlug ?? "sebze-meyve";
   const dataDate = formatOgDate(latestDate);
 

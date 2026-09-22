@@ -250,6 +250,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Yalnızca kategori-şablon fallback (thin/duplicate) noindex kalır.
   const shouldIndex = isSeoIndexed(product) && editorial.source !== "template";
   const year = String(new Date().getFullYear());
+  const automaticTitle = borsaProduct
+    ? `${nameClean} Fiyatları ${year} — Güncel TMO Alım & Borsa Fiyatı`
+    : `${nameClean} Fiyatları Bugün Kaç TL? ${dateTr || year} — Hal ve Toptan`;
+  const automaticDescription = borsaProduct
+    ? `${displayName} için TMO resmi alım fiyatı ve ticaret borsası serbest piyasa fiyatları. ${priceLine}Kaynak, fiyat tipi ve tarih ayrı gösterilir.`
+    : `${displayName} güncel hal, toptan ve piyasa fiyatları. ${priceLine}${cityLine}Günlük ortalama, min–maks aralık ve 5 yıllık trend grafiği.`;
+  const searchTitle = product.seoTitle?.trim() || automaticTitle;
+  const searchDescription = product.seoDescription?.trim() || automaticDescription;
 
   // Her ürün için i18n-bağımsız dinamik OG (ürün adı render edilir).
   // Route handler /api/og/urun/[slug] — proxy matcher'da bypass.
@@ -276,20 +284,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       nameClean,
       kind: borsaProduct ? "TMO ve Borsa" : "Hal ve Toptan",
     },
-    title: borsaProduct
-      ? `${nameClean} Fiyatları ${year} — Güncel TMO Alım & Borsa Fiyatı`
-      : `${nameClean} Fiyatları Bugün Kaç TL? ${dateTr || year} — Hal ve Toptan`,
-    description: borsaProduct
-      ? `${displayName} için TMO resmi alım fiyatı ve ticaret borsası serbest piyasa fiyatları. ${priceLine}Kaynak, fiyat tipi ve tarih ayrı gösterilir.`
-      : `${displayName} güncel hal, toptan ve piyasa fiyatları. ${priceLine}${cityLine}Günlük ortalama, min–maks aralık ve 5 yıllık trend grafiği.`,
+    title: searchTitle,
+    description: searchDescription,
+    preferOverride: Boolean(product.seoTitle?.trim() || product.seoDescription?.trim()),
     robots: shouldIndex
       ? { index: true, follow: true }
       : { index: false, follow: true },
     openGraph: {
-      title: borsaProduct ? `${displayName} Güncel TMO ve Borsa Fiyatı | HaldeFiyat` : `${displayName} Güncel Hal Fiyatı | HaldeFiyat`,
-      description: borsaProduct
-        ? `${displayName} fiyatları — TMO resmi alım ve ticaret borsası serbest piyasa verileri.`
-        : `${displayName} fiyatları — Türkiye genelinde günlük hal verileri, sezon karşılaştırması ve 5 yıllık trend grafikleri.`,
+      title: searchTitle,
+      description: searchDescription,
       type: "article",
       locale: "tr_TR",
       ...(ogImages && { images: ogImages }),

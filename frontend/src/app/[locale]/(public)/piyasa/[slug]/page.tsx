@@ -66,6 +66,7 @@ export async function generateMetadata({ params }: Props) {
     pathname: `/piyasa/${slug}`,
     title: piyasaTitle(input, local, national),
     description: piyasaDescription(input, local, national),
+    openGraph: { images: [{ url: `${SITE_URL}/og/piyasa/${slug}`, width: 1200, height: 630, alt: config.h1 }] },
   });
 }
 

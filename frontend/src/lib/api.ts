@@ -61,6 +61,8 @@ export interface Product {
   unit: string;
   displayName?: string | null;
   imageUrl?: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
   canonicalSlug?: string | null;
   familySlug?: string | null;
   seoIndex?: number | boolean;

@@ -36,6 +36,22 @@ describe("SEO locale alternates", () => {
     });
   });
 
+  it("lets a product-specific SEO record override the generic page template", () => {
+    const metadata = buildMetadata(
+      { pageKey: "urun", title: "{{name}} genel şablon", description: "Genel ürün açıklaması" },
+      {
+        title: "Limon Fiyatları ve Günlük Hal Verisi",
+        description: "Limon için ürüne özel arama sonucu açıklaması.",
+        preferOverride: true,
+        vars: { name: "Limon" },
+      },
+    );
+
+    expect(metadata.title).toEqual({ absolute: "Limon Fiyatları ve Günlük Hal Verisi" });
+    expect(metadata.description).toBe("Limon için ürüne özel arama sonucu açıklaması.");
+    expect(metadata.openGraph?.title).toBe("Limon Fiyatları ve Günlük Hal Verisi");
+  });
+
   it("keeps detail metadata isolated from the list page CMS key", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
