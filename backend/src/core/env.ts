@@ -262,6 +262,16 @@ export const env = {
     // 830 TL yazar. Bu yuzden 500'de kalindi.
     halGovTrMinVolumeKg: parseEnvInt(process.env.ETL_HAL_GOV_TR_MIN_VOLUME_KG, 500),
     healthSchedule: process.env.ETL_HEALTH_CRON_SCHEDULE || "0 8 * * *",
+    // Kacirilan gunluk kosunun telafisi — saat basi kontrol. 2026-09-22'de
+    // 07:30 tetiklemesi komple dustu (event loop bloke, o dakika kayboldu) ve
+    // gunun verisi hic gelmedi; tek tetiklemeye guvenmek yeterli degil.
+    catchupSchedule: process.env.ETL_CATCHUP_CRON_SCHEDULE || "20 * * * *",
+    // Planlanan saatin uzerinden bu kadar dakika gecmeden telafi denenmez
+    // (normal kosu 2 dakika surer; pay birakilir).
+    catchupGraceMinutes: parseEnvInt(process.env.ETL_CATCHUP_GRACE_MINUTES, 45),
+    // Bu saatten sonra telafi denenmez: aksam cekilen veri ertesi gunun
+    // kosusuyla karisir, kaynaklarin cogu da gun sonunda yeni sey yayinlamaz.
+    catchupDeadlineHour: parseEnvInt(process.env.ETL_CATCHUP_DEADLINE_HOUR, 18),
     healthStaleHours: parseEnvInt(process.env.ETL_HEALTH_STALE_HOURS, 30),
     healthEmptyRunThreshold: parseEnvInt(process.env.ETL_HEALTH_EMPTY_RUN_THRESHOLD, 3),
     healthNotifyEmails: parseEnvList(process.env.ETL_HEALTH_NOTIFY_EMAILS || process.env.ADMIN_EMAIL),

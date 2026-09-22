@@ -8,6 +8,8 @@ import { rebuildProductFamilies } from "@/modules/prices/family-service";
 import { runMigrosEtl } from "@/modules/etl/market-scrapers/migros";
 import { runMarketfiyatiEtl } from "@/modules/etl/market-scrapers/marketfiyati";
 import { checkAndNotifyEtlHealth } from "@/modules/etl/health";
+import { evaluateEtlCatchup } from "@/modules/etl/catchup";
+import { sendTelegramAdminAlert } from "@/modules/alerts/telegram";
 import { runCompetitorCheck } from "@/modules/competitor-monitor";
 import { runCompetitorDiscovery } from "@/modules/competitor-monitor/discovery";
 import { publishWhatsappWeeklyDraft } from "@/modules/whatsapp-channel/publisher";
@@ -34,6 +36,7 @@ import { checkAndNotifyEarlyWarning } from "@/modules/etl/early-warning";
 import { runGscBulkRefresh } from "@/modules/seo/gsc-bulk";
 import { syncSearchVolumeFromGsc } from "@/modules/seo-volume";
 import { archiveExpiredBanners, auditBannerTargets, auditLiveBannerSources, optimizeBannerPerformance, processAdPaymentReminders, sendScheduledCampaignReports, syncBannerLifecycle } from "@/modules/banners/repository";
+import { startPressDeliveryRunner } from "@/modules/press-pr/delivery";
 
 /**
  * Cron zamanlaması env'den gelir:
@@ -60,6 +63,7 @@ export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] }
   const tasks: CronCatalogItem[] = [
     { name: "listing-reminders", schedule: "0 9 * * *", category: "bildirim", description: "Ilan bitisinden 3 gun once ve son gun uzatma e-postasi" },
     { name: "etl-daily",          schedule: E.cronSchedule,             category: "etl",      description: "Gunluk hal fiyati ETL — tum resmi belediye + antkomder kaynaklari" },
+    { name: "etl-catchup",        schedule: E.catchupSchedule,          category: "etl",      description: "Kacirilan gunluk kosunun telafisi — saat basi kontrol, eksikse ETL'i calistirir" },
     { name: "etl-antkomder-pm",   schedule: E.antkomderSchedule,        category: "etl",      description: "ANTKOMDER ogleden sonra ikinci cekim (fiyatlar gec yayinlaniyor)" },
     { name: "etl-istanbul-pm",    schedule: E.istanbulPmSchedule,       category: "etl",      description: "Istanbul IBB aksam cekimi — bugunun verisi gun icinde doluyor" },
     { name: "subscription-expiry", schedule: E.subscriptionExpirySchedule, category: "bildirim", description: "Suresi dolan Pro abonelik/denemelerinde API anahtarlarini free'ye dusurur" },
@@ -100,9 +104,12 @@ export function getCronCatalog(): { timezone: string; tasks: CronCatalogItem[] }
 }
 
 export function startCron(app: FastifyInstance): void {
+  startPressDeliveryRunner(app);
   const tasks: CronTask[] = [
     { name: "listing-reminders", schedule: "0 9 * * *", handler: () => runListingReminderJob(app) },
     { name: "etl-daily",        schedule: env.ETL.cronSchedule,          handler: () => runEtlJob(app) },
+    // Kacan tetiklemenin telafisi — bkz. modules/etl/catchup.ts
+    { name: "etl-catchup",      schedule: env.ETL.catchupSchedule,       handler: () => runEtlCatchupJob(app) },
     { name: "etl-health",       schedule: env.ETL.healthSchedule,        handler: () => runEtlHealthJob(app) },
     { name: "alerts-check",     schedule: env.ETL.alertsSchedule,        handler: () => runAlertsJob(app) },
     { name: "production-etl",   schedule: env.ETL.productionSchedule,    handler: () => runProductionJob(app) },
@@ -201,7 +208,47 @@ export function startCron(app: FastifyInstance): void {
   }
 }
 
+/**
+ * Ayni anda iki gunluk ETL kosmasin: telafi gorevi saat basi bakar, normal kosu
+ * uzun surerse ikisi cakisabilirdi.
+ */
+let etlRunning = false;
+
+/**
+ * Kacirilan gunluk kosuyu telafi eder. Karar mantigi `modules/etl/catchup.ts`
+ * icinde ve testli; burasi yalnizca kararı uygular ve sessiz kalmaz — telafi
+ * gerektiyse bu bir anomalidir, yoneticiye bildirilir.
+ */
+async function runEtlCatchupJob(app: FastifyInstance): Promise<void> {
+  if (etlRunning) return;
+  try {
+    const decision = await evaluateEtlCatchup({
+      schedule: env.ETL.cronSchedule,
+      timeZone: env.ETL.cronTimezone,
+      graceMinutes: env.ETL.catchupGraceMinutes,
+      deadlineHour: env.ETL.catchupDeadlineHour,
+    });
+    if (!decision.run) return;
+
+    app.log.warn(decision, "[cron:etl-catchup] gunluk kosu yapilmamis, telafi baslatiliyor");
+    await runEtlJob(app);
+    await sendTelegramAdminAlert(
+      `⚠️ <b>Gunluk ETL kacmis, telafi calistirildi.</b>\n\n`
+      + `Planlanan saat: ${env.ETL.cronSchedule} (${env.ETL.cronTimezone})\n`
+      + `Telafi aninda kosmus kaynak: ${decision.ranSourceCount}/${decision.activeSourceCount}\n\n`
+      + `Veri gecikmeli geldi; gune bagli paylasimlar da gecikmis olabilir.`,
+    ).catch((err) => app.log.error({ err }, "[cron:etl-catchup] bildirim gonderilemedi"));
+  } catch (err) {
+    app.log.error({ err }, "[cron:etl-catchup] hata");
+  }
+}
+
 async function runEtlJob(app: FastifyInstance): Promise<void> {
+  if (etlRunning) {
+    app.log.warn("[cron:etl] onceki kosu surerken yeni kosu istendi, atlandi");
+    return;
+  }
+  etlRunning = true;
   const t0 = Date.now();
   app.log.info("[cron:etl] baslatiliyor");
   try {
@@ -227,6 +274,8 @@ async function runEtlJob(app: FastifyInstance): Promise<void> {
     await runListingsExpireJob(app);
   } catch (err) {
     app.log.error({ err }, "[cron:etl] hata");
+  } finally {
+    etlRunning = false;
   }
 }
 
