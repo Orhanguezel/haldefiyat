@@ -214,6 +214,8 @@ const productBody = z.object({
   seoIndex: boolish.default(false),
   displayName: z.string().max(160).optional().nullable(),
   imageUrl: z.string().max(512).optional().nullable(),
+  seoTitle: z.string().trim().max(80).optional().nullable(),
+  seoDescription: z.string().trim().max(200).optional().nullable(),
   canonicalSlug: z.string().max(128).optional().nullable(),
   familySlug: z.string().max(128).optional().nullable(),
   dataQuality: z.coerce.number().int().min(0).max(100).optional().default(0),
@@ -965,8 +967,8 @@ export async function registerHalAdmin(app: FastifyInstance) {
       WITH fam AS (
         SELECT id AS pid, id AS vid, unit FROM hf_products WHERE is_active = 1
         UNION
-        SELECT p.id, v.id, v.unit FROM hf_products p
-          JOIN hf_products v ON v.canonical_slug = p.slug AND v.is_active = 1
+        SELECT p.id, v.id, p.unit FROM hf_products p
+          JOIN hf_products v ON v.canonical_slug = p.slug AND v.is_active = 1 AND v.unit = p.unit
       )
       SELECT f.pid AS id,
         COUNT(DISTINCT ph.market_id) AS mcTotal,
@@ -1055,7 +1057,8 @@ export async function registerHalAdmin(app: FastifyInstance) {
       JOIN (
         SELECT id AS vid, unit FROM hf_products WHERE id = ${id}
         UNION
-        SELECT v.id, v.unit FROM hf_products v WHERE v.canonical_slug = ${rows[0].slug} AND v.is_active = 1
+        SELECT v.id, ${rows[0].unit} FROM hf_products v
+        WHERE v.canonical_slug = ${rows[0].slug} AND v.is_active = 1 AND v.unit = ${rows[0].unit}
       ) f ON f.vid = ph.product_id AND f.unit = ph.unit
       WHERE ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
     `);
@@ -1084,6 +1087,8 @@ export async function registerHalAdmin(app: FastifyInstance) {
       seoIndex: parsed.data.seoIndex ? 1 : 0,
       displayName: parsed.data.displayName?.trim() || null,
       imageUrl: parsed.data.imageUrl?.trim() || null,
+      seoTitle: parsed.data.seoTitle?.trim() || null,
+      seoDescription: parsed.data.seoDescription?.trim() || null,
       canonicalSlug: parsed.data.canonicalSlug?.trim() || null,
       familySlug: parsed.data.familySlug?.trim() || null,
       dataQuality: parsed.data.dataQuality,
@@ -1111,6 +1116,8 @@ export async function registerHalAdmin(app: FastifyInstance) {
           seoIndex: parsed.data.seoIndex ? 1 : 0,
           displayName: parsed.data.displayName?.trim() || null,
           imageUrl: parsed.data.imageUrl?.trim() || null,
+          seoTitle: parsed.data.seoTitle?.trim() || null,
+          seoDescription: parsed.data.seoDescription?.trim() || null,
           canonicalSlug: parsed.data.canonicalSlug?.trim() || null,
           familySlug: parsed.data.familySlug?.trim() || null,
           dataQuality: parsed.data.dataQuality,

@@ -30,11 +30,26 @@ export interface DiscoveryDomain {
   domain: string; queries: number; avg_position: number | string; best_position: number; top3: number | string; page1: number | string;
   ahead_of_us: number | string; impressions: number | string; sample_title: string | null; sample_url: string | null; tracked: number; isOurs: boolean;
 }
-export interface DiscoveryQuery { google?: { position: number; impressions: number; clicks: number; page: string | null } | null; query: string; impressions: number; clicks: number; our_position: number | null; results: number; top_domains: string | null }
+export interface GoogleLandingPageMetric { page: string; position: number; impressions: number; clicks: number; ctr: number }
+export interface GoogleQueryMetric { position: number; impressions: number; clicks: number; ctr: number; page: string | null; pages: GoogleLandingPageMetric[] }
+export interface DiscoveryQuery { google?: GoogleQueryMetric | null; googlePrevious?: GoogleQueryMetric | null; query: string; impressions: number; clicks: number; our_position: number | null; results: number; top_domains: string | null }
 export interface DiscoveryResultRow { position: number; page?: number; url: string; domain?: string; title: string | null; snippet?: string | null; is_ours?: number; query?: string; impressions?: number; our_position?: number | null; our_google_position?: number | null }
+export type SeoOpportunityPriority = 'p1' | 'p2' | 'protect' | 'monitor';
+export interface SeoOpportunity {
+  query: string; priority: SeoOpportunityPriority; score: number; current: GoogleQueryMetric; previous: GoogleQueryMetric | null;
+  scrapePosition: number | null; impressionChangePct: number | null; clickChangePct: number | null; positionChange: number | null;
+  potentialClicksAt3Ctr: number;
+  signals: Array<'low_ctr' | 'rank_gap' | 'growing' | 'declining' | 'landing_split' | 'engine_gap' | 'misaligned_page'>;
+  action: string;
+}
+export interface OpportunitySummary {
+  queries: number; impressions: number; clicks: number; ctr: number; previousImpressions: number; previousClicks: number; previousCtr: number;
+  p1: number; p2: number; protect: number; potentialClicksAt3Ctr: number;
+}
 export interface DiscoveryPayload {
-  google?: { startDate: string; endDate: string; status: string };
+  google?: { startDate: string; endDate: string; previousStartDate: string; previousEndDate: string; status: string; scope: { country: string; device: string; type: string; dataState: string } };
   run: DiscoveryRun | null; running: boolean; domains: DiscoveryDomain[]; queries: DiscoveryQuery[]; runs: DiscoveryRun[];
+  opportunities?: SeoOpportunity[]; opportunitySummary?: OpportunitySummary;
   social?: Array<{ query: string; position: number; url: string; title: string | null; platform: string; handle: string | null; kind: 'account' | 'group' | 'content' }> ;
   delta: { reason?: string | null; appeared: string[]; disappeared: string[]; previousRunId: number | null } | null;
 }

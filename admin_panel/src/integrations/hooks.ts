@@ -192,9 +192,14 @@ export {
   useUpdatePopupAdminMutation,
 } from "@/integrations/endpoints/admin/popups-admin-endpoints";
 export {
+  useApprovePressCampaignAdminMutation,
   useCreatePressCampaignAdminMutation,
   useCreatePressContactAdminMutation,
   useCreatePressLogAdminMutation,
+  useGetPressCampaignPreflightAdminQuery,
+  useGetPressContactMessageAdminQuery,
+  useGetPressLogMessageAdminQuery,
+  useGetPressEmailBrandingAdminQuery,
   useGetPressSummaryAdminQuery,
   useImportPressContactsAdminMutation,
   useLazyExportPressContactsAdminQuery,
@@ -202,7 +207,9 @@ export {
   useListPressContactsAdminQuery,
   useListPressLogsAdminQuery,
   useListPublicAnalysisReportsForPressQuery,
+  useSendPressCampaignAdminMutation,
   useUpdatePressCampaignAdminMutation,
+  useUpdatePressEmailBrandingAdminMutation,
   useUpdatePressContactAdminMutation,
 } from "@/integrations/endpoints/admin/press-admin-endpoints";
 export {

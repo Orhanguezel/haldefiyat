@@ -129,6 +129,23 @@ export default async function PiyasaPage({ params }: Props) {
         ))}
       </header>
 
+      {config.roleNote ? (
+        <aside className="mt-6 max-w-3xl rounded-xl border border-(--color-brand)/30 bg-(--color-brand)/5 p-5">
+          <h2 className="font-(family-name:--font-display) text-lg font-bold text-(--color-foreground)">
+            Bu sayfanın kapsamı
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-(--color-muted)">{config.roleNote}</p>
+          {config.primaryPricePage ? (
+            <Link
+              href={config.primaryPricePage.href}
+              className="mt-3 inline-flex items-center gap-2 font-semibold text-(--color-brand) underline underline-offset-2"
+            >
+              {config.primaryPricePage.label} <ArrowRight className="h-4 w-4" />
+            </Link>
+          ) : null}
+        </aside>
+      ) : null}
+
       <section className="mt-6 rounded-xl border border-border p-5" aria-label="Yerel veri durumu">
         <h2 className="text-xl font-bold">{config.region} yerel kayıt durumu</h2>
         {local?.latest ? <><p className="mt-2">{local.pair.marketName}: son kayıt {formatDateTr(local.latest.recordedDate)}. {localCurrent ? 'Kaynak bültenindeki fiyat aralığı yerel sayfada gösterilir.' : 'Bu tarihli kayıt güncel fiyat değildir; yeni bülten doğrulanmadan bugünün fiyatı olarak kullanılmaz.'}</p><Link className="mt-2 inline-block underline" href={`/fiyat/${city}/${config.productSlug}`}>Tarihli yerel {config.productName.toLocaleLowerCase('tr-TR')} kaydını inceleyin</Link></> : <p className="mt-2">Bu ürün için doğrulanmış yeterli yerel seri bulunmuyor. <Link className="underline" href={`/hal/${city}-hal`}>Hal sayfasındaki kaynak ve son kayıt durumunu inceleyin.</Link> Türkiye tablosu yerel fiyatın yerine geçmez.</p>}

@@ -33,7 +33,11 @@
     "replied": "Cevap",
     "published": "Yayınlandı",
     "bounced": "Döndü",
-    "rejected": "Olumsuz"
+    "rejected": "Olumsuz",
+    "processing": "Gönderiliyor",
+    "failed": "Başarısız",
+    "skipped": "Atlandı",
+    "uncertain": "Belirsiz — tekrar yok"
   },
   "tiles": {
     "contacts": "Medya kişisi",
@@ -53,6 +57,8 @@
     "tags": "Etiketler",
     "lastContact": "Son temas",
     "status": "Durum",
+    "action": "İşlem",
+    "edit": "Düzenle",
     "noName": "isim yok",
     "summary": "{count} kişi"
   },
@@ -77,10 +83,28 @@
     "call": "Ara",
     "activeCampaign": "Seçili kampanya",
     "noCampaign": "Temas kaydı için Kampanyalar sekmesinden bir kampanya seçin ya da oluşturun.",
+    "replyInbox": {
+      "title": "Yanıtları nasıl takip edeceğim?",
+      "description": "Yanıtlar {email} adresine gelir. Gelen e-postayı kontrol ettikten sonra bu kişiyi ‘Cevap’ olarak işaretleyin; yayın oluşursa bağlantıyı aşağıya kaydedin."
+    },
     "publishedUrl": "Yayın linki",
     "logNote": "{campaign} kampanyası için {status} olarak işlendi.",
     "logged": "Temas kaydedildi: {status}",
-    "saved": "Medya kişisi güncellendi."
+    "saved": "Medya kişisi güncellendi.",
+    "sentMessage": {
+      "title": "Gönderilen mesaj",
+      "description": "Bu alıcıya gönderim sırasında kaydedilen değişmez içerik.",
+      "from": "Gönderen",
+      "to": "Alıcı",
+      "sentAt": "Gönderim",
+      "messageId": "Sağlayıcı ileti kimliği",
+      "subject": "Konu",
+      "text": "Düz metin",
+      "htmlPreview": "Gönderilen HTML mesaj önizlemesi",
+      "approvalFallback": "Bu eski kayıt için gönderim kopyası yerine onaylanan kampanya önizlemesi gösteriliyor.",
+      "unavailable": "Bu eski temas kaydında gönderilen mesaj kopyası bulunmuyor.",
+      "loadFailed": "Gönderilen mesaj yüklenemedi."
+    }
   },
   "mail": {
     "defaultSubject": "{site} basın bilgilendirmesi",
@@ -113,7 +137,69 @@
     "creating": "Oluşturuluyor...",
     "required": "Kampanya adı, konu ve metin zorunlu.",
     "created": "Kampanya oluşturuldu.",
-    "weekTitleFallback": "Bu haftanın {site} endeks görünümü"
+    "weekTitleFallback": "Bu haftanın {site} endeks görünümü",
+    "detail": {
+      "open": "{name} kampanya detayını aç",
+      "tabs": {
+        "summary": "Özet",
+        "content": "İçerik ve imza",
+        "messages": "Temaslar ve mesajlar"
+      },
+      "campaignInfo": "Kampanya bilgileri",
+      "deliveryInfo": "Gönderim ayarları",
+      "approvedAt": "Onay zamanı",
+      "approvedBy": "Onaylayan",
+      "scheduledAt": "Planlanan başlangıç",
+      "sentAt": "Gönderim başlangıcı",
+      "template": "Şablon",
+      "pitch": "Kampanya metni",
+      "lastError": "Son gönderim hatası",
+      "allowed": "Gönderime uygun",
+      "brandingSignature": "Marka ve e-posta imzası",
+      "approvalAndSend": "Onay ve gönderim",
+      "preflightFailed": "Gönderim ön kontrolü yüklenemedi.",
+      "selectMessage": "Bir temas satırına tıklayarak o gönderimin değişmez mesaj kopyasını görüntüleyin.",
+      "openMessage": "{organization} gönderilen mesajını aç"
+    },
+    "branding": {
+      "title": "E-posta marka ve imza ayarları",
+      "description": "Logo, başlık ve imza tüm yeni basın e-postalarına uygulanır. Değişiklik mevcut gönderim onaylarını geçersiz kılar.",
+      "logoUrl": "Logo adresi (HTTPS)",
+      "logoAlt": "Logo alternatif metni",
+      "tagline": "Logo altı kısa açıklama",
+      "signatureName": "İmza adı",
+      "signatureTitle": "İmza açıklaması",
+      "email": "İmza e-posta adresi",
+      "website": "İmza web adresi",
+      "color": "Marka rengi",
+      "save": "Marka ve imzayı kaydet",
+      "saving": "Kaydediliyor…",
+      "saved": "E-posta marka ve imza ayarları kaydedildi."
+    },
+    "delivery": {
+      "title": "Gönderim önizlemesi ve onay",
+      "summary": "{total} alıcının {allowed} tanesi gönderime uygun",
+      "loading": "Ön kontrol hazırlanıyor…",
+      "refresh": "Önizlemeyi yenile",
+      "from": "Gönderen",
+      "rate": "Hız sınırı",
+      "blocked": "Engelli / geçersiz",
+      "subject": "Konu",
+      "htmlPreview": "HTML e-posta önizlemesi",
+      "textPreview": "Düz metin önizlemesi",
+      "recipients": "Onaya bağlanacak alıcılar",
+      "confirm": "Konu, HTML, düz metin ve {count} alıcının tamamını kontrol ettim; bu sürümü onaylıyorum.",
+      "approve": "Bu sürümü onayla",
+      "approved": "Onaylandı",
+      "approvalFailed": "Onay kaydedilemedi; ön kontrolü yenileyin.",
+      "start": "Pilot gönderimini başlat",
+      "schedule": "Gönderimi planla",
+      "scheduledStart": "Planlanan başlangıç (boşsa hemen)",
+      "starting": "Kuyruğa alınıyor…",
+      "queued": "{count} pilot e-posta hız sınırlı kuyruğa alındı.",
+      "scheduled": "{count} e-posta {date} için hız sınırlı kuyruğa alındı.",
+      "sendFailed": "Gönderim başlatılamadı; onayın ve alıcıların değişmediğini kontrol edin."
+    }
   },
   "add": {
     "title": "Medya kişisi ekle",

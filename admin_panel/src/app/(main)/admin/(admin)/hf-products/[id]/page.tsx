@@ -26,6 +26,7 @@ import { AdminImageUploadField } from "@/components/common/admin-image-upload-fi
 import { ProductGscBadge, ProductGscPanel } from "../_components/product-gsc-panel";
 import { ProductRedirectPanel } from "../_components/product-redirect-panel";
 import { ProductThumb } from "../_components/product-thumb";
+import { ProductSeoPreview } from "../_components/product-seo-preview";
 import { countWords, scoreEditorial, splitCsv } from "../_lib/product-meta";
 import {
   useCreateHfProductAdminMutation,
@@ -98,6 +99,8 @@ export default function Page() {
     seoIndex: false,
     displayName: "",
     imageUrl: "",
+    seoTitle: "",
+    seoDescription: "",
     canonicalSlug: "",
     familySlug: "",
     dataQuality: "0",
@@ -118,6 +121,8 @@ export default function Page() {
       seoIndex: Boolean(data.seoIndex),
       displayName: data.displayName || "",
       imageUrl: data.imageUrl || "",
+      seoTitle: data.seoTitle || "",
+      seoDescription: data.seoDescription || "",
       canonicalSlug: data.canonicalSlug || "",
       familySlug: data.familySlug || "",
       dataQuality: String(data.dataQuality ?? 0),
@@ -184,6 +189,8 @@ export default function Page() {
     seoIndex: form.seoIndex,
     displayName: form.displayName.trim() || null,
     imageUrl: form.imageUrl.trim() || null,
+    seoTitle: form.seoTitle.trim() || null,
+    seoDescription: form.seoDescription.trim() || null,
     canonicalSlug: form.canonicalSlug.trim() || null,
     familySlug: form.familySlug.trim() || null,
     dataQuality: Number(form.dataQuality || 0),
@@ -410,6 +417,17 @@ export default function Page() {
               <CardTitle className="text-base">SEO ve kalite</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2 md:col-span-2">
+                <div className="flex items-center justify-between gap-3"><Label>SEO başlığı</Label><span className="text-xs text-muted-foreground">{form.seoTitle.length}/80</span></div>
+                <Input maxLength={80} placeholder="Boşsa güncel fiyat ve tarih içeren otomatik başlık kullanılır" value={form.seoTitle} onChange={(e) => setForm((p) => ({ ...p, seoTitle: e.target.value }))} />
+                <p className="text-xs text-muted-foreground">Önerilen uzunluk 30–60 karakter. Boş bırakmak otomatik metni korur.</p>
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <div className="flex items-center justify-between gap-3"><Label>Meta açıklaması</Label><span className="text-xs text-muted-foreground">{form.seoDescription.length}/200</span></div>
+                <Textarea maxLength={200} rows={3} placeholder="Boşsa canlı fiyat özetinden otomatik açıklama üretilir" value={form.seoDescription} onChange={(e) => setForm((p) => ({ ...p, seoDescription: e.target.value }))} />
+                <p className="text-xs text-muted-foreground">Önerilen uzunluk 120–160 karakter.</p>
+              </div>
+              <ProductSeoPreview name={form.displayName || form.nameTr} slug={form.slug} title={form.seoTitle} description={form.seoDescription} />
               <div className="flex items-center justify-between rounded-lg border p-3">
                 <div>
                   <Label>SEO index</Label>
@@ -452,7 +470,7 @@ export default function Page() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Arama hacmi</Label>
+                <Label>GSC gösterimi (90g)</Label>
                 <Input
                   type="number"
                   min="0"

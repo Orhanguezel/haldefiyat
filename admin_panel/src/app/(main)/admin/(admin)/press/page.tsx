@@ -19,13 +19,24 @@ import { ALL, applyFilters, CONTACT_STATUSES, EMPTY_FILTERS, type Filters, PUBLI
 export default function Page() {
   const t = useAdminT('admin.press');
   const tc = useAdminT('admin.common');
-  const { data: summary } = useGetPressSummaryAdminQuery();
+  const { data: summary } = useGetPressSummaryAdminQuery(undefined, {
+    pollingInterval: 30_000,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+  });
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [openId, setOpenId] = useState<number | null>(null);
+  const [openMode, setOpenMode] = useState<'outreach' | 'edit'>('outreach');
   const [campaignId, setCampaignId] = useState<number | null>(null);
   // Durum ve yayin tipi sunucuda; arama ve telefon filtresi yuklenen kume icinde.
-  const { data, isLoading } = useListPressContactsAdminQuery({ limit: 500, status: filters.status === ALL ? undefined : (filters.status as PressContactStatus), publicationType: filters.type === ALL ? undefined : (filters.type as PressPublicationType) });
-  const { data: campaignsData, isLoading: campaignsLoading } = useListPressCampaignsAdminQuery({ limit: 40 });
+  const { data, isLoading } = useListPressContactsAdminQuery(
+    { limit: 500, status: filters.status === ALL ? undefined : (filters.status as PressContactStatus), publicationType: filters.type === ALL ? undefined : (filters.type as PressPublicationType) },
+    { pollingInterval: 30_000, refetchOnFocus: true, refetchOnReconnect: true },
+  );
+  const { data: campaignsData, isLoading: campaignsLoading } = useListPressCampaignsAdminQuery(
+    { limit: 40 },
+    { pollingInterval: 30_000, refetchOnFocus: true, refetchOnReconnect: true },
+  );
 
   const rows = data?.items ?? [];
   const campaigns = campaignsData?.items ?? [];
@@ -80,13 +91,35 @@ export default function Page() {
             {dirty ? <Button variant="ghost" size="sm" onClick={() => setFilters(EMPTY_FILTERS)}><X className="size-3.5" /> {tc('clear')}</Button> : null}
             <span className="ml-auto self-center text-sm text-muted-foreground">{t('table.summary', { count: visible.length })}</span>
           </div>
-          <ContactsTable rows={visible} loading={isLoading} activeId={openId ?? undefined} onSelect={(r) => setOpenId(r.id)} t={t} tc={tc} />
+          <ContactsTable
+            rows={visible}
+            loading={isLoading}
+            activeId={openId ?? undefined}
+            onSelect={(row) => {
+              setOpenMode('outreach');
+              setOpenId(row.id);
+            }}
+            onEdit={(row) => {
+              setOpenMode('edit');
+              setOpenId(row.id);
+            }}
+            t={t}
+            tc={tc}
+          />
         </TabsContent>
         <TabsContent value="campaigns" className="mt-4"><CampaignsPanel campaigns={campaigns} loading={campaignsLoading} selected={selectedCampaign} onSelect={setCampaignId} t={t} tc={tc} /></TabsContent>
         <TabsContent value="import" className="mt-4"><CsvPanel t={t} tc={tc} /></TabsContent>
       </Tabs>
 
-      <ContactSheet row={open} campaign={selectedCampaign} onClose={() => setOpenId(null)} t={t} tc={tc} />
+      <ContactSheet
+        key={open ? `${open.id}-${openMode}` : 'closed'}
+        row={open}
+        campaign={selectedCampaign}
+        defaultTab={openMode}
+        onClose={() => setOpenId(null)}
+        t={t}
+        tc={tc}
+      />
     </div>
   );
 }

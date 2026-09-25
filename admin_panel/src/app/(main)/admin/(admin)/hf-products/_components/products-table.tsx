@@ -86,7 +86,7 @@ export function ProductsTable({ items, loading, selected, onToggle, onToggleAll,
               </TableHead>
               <TableHead className="min-w-[280px]">{t("table.product")}</TableHead>
               <TableHead className="w-28">{t("table.quality")}</TableHead>
-              <TableHead className="w-20 text-right">{t("table.search")}</TableHead>
+              <TableHead className="w-20 text-right" title={t("table.searchHint")}>{t("table.search")}</TableHead>
               <TableHead className="w-28">{t("table.coverage")}</TableHead>
               <TableHead className="min-w-[200px]">{t("table.seoGoogle")}</TableHead>
               <TableHead className="min-w-[160px]">{t("table.nextStep")}</TableHead>

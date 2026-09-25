@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ExternalLink, MessageCircle, Save } from 'lucide-react';
+import { Building2, ExternalLink, Handshake, MessageCircle, PackageSearch, PencilLine, Save, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,9 +41,10 @@ export function FirmSheet({ firm, claims, onClose, t, tc }: Props) {
   const [update, updateState] = useUpdateFirmAdminMutation();
   const [moderateClaim, claimState] = useModerateFirmClaimAdminMutation();
   const [form, setForm] = useState(() => (firm ? toForm(firm) : null));
+  const [activeTab, setActiveTab] = useState('overview');
   const firmId = firm?.id ?? null;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { setForm(firm ? toForm(firm) : null); }, [firmId]);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: form ve sekme yalnız seçilen firma değiştiğinde sıfırlanmalı.
+  useEffect(() => { setForm(firm ? toForm(firm) : null); setActiveTab('overview'); }, [firmId]);
   const set = <K extends keyof NonNullable<typeof form>>(k: K, v: NonNullable<typeof form>[K]) => setForm((p) => (p ? { ...p, [k]: v } : p));
 
   async function save() {
@@ -74,16 +75,16 @@ export function FirmSheet({ firm, claims, onClose, t, tc }: Props) {
 
   return (
     <Sheet open={Boolean(firm)} onOpenChange={(o) => { if (!o) onClose(); }}>
-      <SheetContent side="right" className="w-full gap-0 p-0 sm:max-w-3xl">
+      <SheetContent side="right" className="w-full max-w-none gap-0 p-0 sm:w-[min(92vw,64rem)] sm:max-w-none">
         {firm && form ? (
           <>
             <SheetHeader className="border-b px-6 py-4">
-              <div className="flex items-start gap-3 pr-8">
+              <div className="flex flex-wrap items-start gap-3 pr-8">
                 {firm.photoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={firm.photoUrl} alt="" className="size-12 shrink-0 rounded-lg border object-cover" />
                 ) : null}
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <SheetTitle className="truncate text-base">{firm.name}</SheetTitle>
                   <SheetDescription className="flex flex-wrap items-center gap-1.5">
                     <span className="font-mono text-xs">{firm.slug}</span>
@@ -93,20 +94,24 @@ export function FirmSheet({ firm, claims, onClose, t, tc }: Props) {
                     {firm.sponsorshipTier ? <Badge className="font-normal">{t('table.sponsor')} · {firm.sponsorshipTier}</Badge> : null}
                   </SheetDescription>
                 </div>
-                <div className="ml-auto flex shrink-0 gap-1.5">
+                <div className="flex w-full shrink-0 justify-end gap-1.5 sm:ml-auto sm:w-auto">
                   <Button size="sm" variant="outline" disabled={status === 'approved' || updateState.isLoading} onClick={() => setStatus('approved')}>{tc('approve')}</Button>
                   <Button size="sm" variant="outline" disabled={status === 'rejected' || updateState.isLoading} onClick={() => setStatus('rejected')}>{tc('reject')}</Button>
                 </div>
               </div>
             </SheetHeader>
-            <Tabs defaultValue="overview" className="flex min-h-0 flex-1 flex-col">
-              <div className="border-b px-6 pt-3"><TabsList>
-                <TabsTrigger value="overview">{t('sheet.tabs.overview')}</TabsTrigger>
-                <TabsTrigger value="edit">{t('sheet.tabs.edit')}</TabsTrigger>
-                <TabsTrigger value="workspace">{t('sheet.tabs.workspace')}</TabsTrigger>
-                <TabsTrigger value="crm">{t('sheet.tabs.crm')}</TabsTrigger>
-                <TabsTrigger value="claims">{t('sheet.tabs.claims')} {firmClaims.length ? `(${firmClaims.length})` : ''}</TabsTrigger>
-              </TabsList></div>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex min-h-0 flex-1 flex-col gap-0">
+              <div className="border-b bg-muted/20 px-4 py-2 sm:px-6">
+                <div className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <TabsList className="h-10 min-w-max justify-start bg-transparent p-0">
+                    <TabsTrigger value="overview" className="px-3 data-[state=active]:border-border"><Building2 />{t('sheet.tabs.overview')}</TabsTrigger>
+                    <TabsTrigger value="edit" className="px-3 data-[state=active]:border-border"><PencilLine />{t('sheet.tabs.edit')}</TabsTrigger>
+                    <TabsTrigger value="workspace" className="px-3 data-[state=active]:border-border"><PackageSearch />{t('sheet.tabs.workspace')}</TabsTrigger>
+                    <TabsTrigger value="crm" className="px-3 data-[state=active]:border-border"><Handshake />{t('sheet.tabs.crm')}</TabsTrigger>
+                    <TabsTrigger value="claims" className="px-3 data-[state=active]:border-border"><ShieldCheck />{t('sheet.tabs.claims')} {firmClaims.length ? `(${firmClaims.length})` : ''}</TabsTrigger>
+                  </TabsList>
+                </div>
+              </div>
               <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
                 <TabsContent value="overview" className="mt-0 space-y-5">
                   <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
@@ -144,7 +149,7 @@ export function FirmSheet({ firm, claims, onClose, t, tc }: Props) {
                   <label className="flex items-center justify-between gap-4 rounded-lg border p-3 text-sm"><span className="font-medium">{t('sheet.fields.active')}</span><Switch checked={form.isActive} onCheckedChange={(v) => set('isActive', v)} /></label>
                 </TabsContent>
                 <TabsContent value="workspace" className="mt-0"><FirmWorkspace firm={firm} /></TabsContent>
-                <TabsContent value="crm" className="mt-0"><FirmCrmPanel firm={firm} onClose={onClose} /></TabsContent>
+                <TabsContent value="crm" className="mt-0"><FirmCrmPanel firm={firm} onClose={onClose} embedded /></TabsContent>
                 <TabsContent value="claims" className="mt-0 space-y-2">
                   {!firmClaims.length ? <p className="py-8 text-center text-sm text-muted-foreground">{t('sheet.noClaims')}</p> : firmClaims.map((c) => (
                     <div key={c.id} className="rounded-lg border p-3 text-sm">
@@ -170,7 +175,7 @@ export function FirmSheet({ firm, claims, onClose, t, tc }: Props) {
                   {site ? <Button asChild variant="outline" size="sm"><a href={site} target="_blank" rel="noreferrer"><ExternalLink className="size-4" /> {t('sheet.publicPage')}</a></Button> : null}
                   {wa ? <Button asChild variant="outline" size="sm"><a href={wa} target="_blank" rel="noreferrer"><MessageCircle className="size-4" /> {t('sheet.whatsapp')}</a></Button> : null}
                 </div>
-                <Button onClick={save} disabled={updateState.isLoading}><Save className="size-4" /> {updateState.isLoading ? tc('saving') : tc('save')}</Button>
+                {activeTab === 'edit' ? <Button onClick={save} disabled={updateState.isLoading}><Save className="size-4" /> {updateState.isLoading ? tc('saving') : tc('save')}</Button> : null}
               </div>
             </SheetFooter>
           </>

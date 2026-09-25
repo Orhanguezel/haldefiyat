@@ -112,6 +112,14 @@ describe("buildWeeklyReportHtml", () => {
     expect(html()).not.toContain("dar bir");
   });
 
+  it("hal sayısını aynı yöndeki kaynak sayısı gibi sunmaz", () => {
+    const out = html();
+    expect(out).toContain("başlangıç ve bitiş pencerelerinin her birinde en az 12 hal");
+    expect(out).toContain("aynı hallerin tamamında aynı yönün görüldüğü anlamına gelmez");
+    expect(out).not.toContain("12 ayrı halde aynı yönde gözlendi");
+    expect(out).toContain("haller arası medyan <strong>−%20,0</strong> değişti");
+  });
+
   it("ürün adını HTML olarak kaçırır", () => {
     const out = html({ topFallers: [mover({ productName: "<script>x</script>" })] });
     expect(out).not.toContain("<script>");

@@ -39,7 +39,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 
-export function FirmCrmPanel({ firm, onClose }: { firm: FirmAdminItem; onClose: () => void }) {
+export function FirmCrmPanel({ firm, onClose, embedded = false }: { firm: FirmAdminItem; onClose: () => void; embedded?: boolean }) {
   const { data: dealsData } = useListFirmDealsAdminQuery(firm.id);
   const { data: sponsorData } = useListFirmSponsorshipsAdminQuery(firm.id);
   const { data: campaignData } = useListFirmAdCampaignsAdminQuery(firm.id);
@@ -205,15 +205,15 @@ export function FirmCrmPanel({ firm, onClose }: { firm: FirmAdminItem; onClose: 
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+    <Card className={embedded ? 'border-0 shadow-none' : undefined}>
+      <CardHeader className={embedded ? 'hidden' : 'flex flex-row items-center justify-between'}>
         <div>
           <CardTitle className="text-base">{firm.name}</CardTitle>
           <p className="text-sm text-muted-foreground">{firm.citySlug || '-'}{firm.phone ? ` · ${firm.phone}` : ''}</p>
         </div>
         <Button variant="outline" size="sm" onClick={onClose}>Kapat</Button>
       </CardHeader>
-      <CardContent className="grid gap-6 xl:grid-cols-2">
+      <CardContent className={`grid gap-6 ${embedded ? 'p-0' : ''} xl:grid-cols-2`}>
         <section className="space-y-3 xl:col-span-2">
           <h3 className="text-sm font-semibold">Firma Bilgileri</h3>
           <div className="grid gap-2 md:grid-cols-2">

@@ -66,6 +66,16 @@ export function trPeriod(weekStart: string, weekEnd: string): string {
   return `${a.d} – ${b.d} ${MONTHS[a.m - 1]} ${a.y}`;
 }
 
+/** Haftalik H1 icin yil tekrarini kaldiran okunakli tarih araligi. */
+export function trTitlePeriod(weekStart: string, weekEnd: string): string {
+  const a = parts(weekStart);
+  const b = parts(weekEnd);
+  if (!a || !b) return "";
+  if (a.y !== b.y) return `${a.d} ${MONTHS[a.m - 1]} ${a.y}–${b.d} ${MONTHS[b.m - 1]} ${b.y}`;
+  if (a.m !== b.m) return `${a.d} ${MONTHS[a.m - 1]}–${b.d} ${MONTHS[b.m - 1]}`;
+  return `${a.d}–${b.d} ${MONTHS[a.m - 1]}`;
+}
+
 /** Tablo hucresi icin kisa donem: "10–16 Ağu". */
 export function trPeriodShort(weekStart: string, weekEnd: string): string {
   const a = parts(weekStart);
@@ -133,6 +143,7 @@ export function indexStatusOf(history: IndexPoint[], isoWeek: string): IndexStat
 }
 
 export type TitleMover = { productName: string; changePct: number };
+export type TitleBreadth = { measured: number; up: number; down: number; flat: number };
 
 /**
  * Baslik icin ust sinir. Iki gerekcesi var: SERP basligi ~60 karakterden sonra
@@ -156,13 +167,33 @@ const TITLE_MAX = 60;
  * olmasi dogru. Basliga girmeyen hareket kaybolmuyor: dek, ozet, etiketler ve
  * meta aciklama onu tasiyor.
  */
-export function buildReportTitle(periodLabel: string, status: IndexStatus | null, mover: TitleMover | null): string {
+export function buildReportTitle(
+  periodLabel: string,
+  status: IndexStatus | null,
+  mover: TitleMover | null,
+  breadth?: TitleBreadth | null,
+): string {
   const prefix = `${periodLabel} Hal Raporu`;
+  const indexPart = status
+    ? status.changePct != null && Math.abs(status.changePct) < FLAT_BAND_PCT
+      ? "Endeks Yatay"
+      : status.isNewLow
+        ? "Endeks Yeni Dipte"
+        : status.changePct == null
+          ? `Endeks ${trNum(status.value, 1)} Puanda`
+          : status.changePct < 0 ? "Endeks Geriledi" : "Endeks Yükseldi"
+    : null;
+  const breadthPart = breadth?.measured
+    ? breadth.down >= breadth.up
+      ? `${breadth.down} Ürün Geriledi`
+      : `${breadth.up} Ürün Yükseldi`
+    : null;
   const moverPart = mover
     ? `${mover.productName} ${trPct(mover.changePct)} ${mover.changePct < 0 ? "Geriledi" : "Yükseldi"}`
     : null;
   const candidates = [
-    status?.label ? `${prefix}: ${status.label}` : null,
+    indexPart && breadthPart ? `${prefix}: ${indexPart}, ${breadthPart}` : null,
+    indexPart ? `${prefix}: ${indexPart}` : null,
     moverPart ? `${prefix}: ${moverPart}` : null,
     prefix,
   ].filter((value): value is string => Boolean(value));

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -22,6 +23,7 @@ import { ProductEditorialTab } from "./product-editorial-tab";
 import { ProductGscPanel } from "./product-gsc-panel";
 import { ProductRedirectPanel } from "./product-redirect-panel";
 import { ProductThumb } from "./product-thumb";
+import { ProductSeoPreview } from "./product-seo-preview";
 
 const SITE = BASE_URL.replace(/\/api\/v1\/?$/, "");
 
@@ -37,6 +39,8 @@ function toForm(item: HfProductItem) {
     aliases: (item.aliases ?? []).join(", "),
     canonicalSlug: item.canonicalSlug ?? "",
     familySlug: item.familySlug ?? "",
+    seoTitle: item.seoTitle ?? "",
+    seoDescription: item.seoDescription ?? "",
     searchVolume: String(item.searchVolume ?? 0),
     displayOrder: String(item.displayOrder ?? 0),
     dataQuality: String(item.dataQuality ?? 0),
@@ -121,6 +125,8 @@ export function ProductSheet({ item, categories, onClose }: Props) {
           imageUrl: item.imageUrl ?? null,
           canonicalSlug: form.canonicalSlug.trim() || null,
           familySlug: form.familySlug.trim() || null,
+          seoTitle: form.seoTitle.trim() || null,
+          seoDescription: form.seoDescription.trim() || null,
           dataQuality: Number(form.dataQuality || 0),
           searchVolume: Number(form.searchVolume || 0),
           displayOrder: Number(form.displayOrder || 0),
@@ -227,6 +233,9 @@ export function ProductSheet({ item, categories, onClose }: Props) {
                 </TabsContent>
 
                 <TabsContent value="seo" className="mt-0 grid gap-4 sm:grid-cols-2">
+                  <div className="sm:col-span-2"><Field label={t("sheet.fields.seoTitle")} hint={`${form.seoTitle.length}/80 · ${t("sheet.fields.seoTitleHint")}`}><Input maxLength={80} value={form.seoTitle} onChange={(e) => set("seoTitle", e.target.value)} /></Field></div>
+                  <div className="sm:col-span-2"><Field label={t("sheet.fields.seoDescription")} hint={`${form.seoDescription.length}/200 · ${t("sheet.fields.seoDescriptionHint")}`}><Textarea maxLength={200} rows={3} value={form.seoDescription} onChange={(e) => set("seoDescription", e.target.value)} /></Field></div>
+                  <ProductSeoPreview name={form.displayName || form.nameTr} slug={form.slug} title={form.seoTitle} description={form.seoDescription} />
                   <label className="flex items-start justify-between gap-4 rounded-lg border p-3 text-sm sm:col-span-2">
                     <span><span className="font-medium">{t("sheet.fields.seoIndex")}</span><br /><span className="text-xs text-muted-foreground">{t("sheet.fields.seoIndexHint")}</span></span>
                     <Switch checked={form.seoIndex} onCheckedChange={(v) => set("seoIndex", v)} />

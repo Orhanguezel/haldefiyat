@@ -21,7 +21,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { ArrowRight, Minus, TrendingDown, TrendingUp } from "lucide-react";
-import { PIYASA_BY_PRODUCT } from "@/lib/piyasa";
+import { productIntentLinks } from "@/lib/piyasa";
 import {
   fetchPrices,
   fetchPricesPage,
@@ -352,7 +352,7 @@ export default async function UrunPage({ params }: Props) {
     })
     .sort((a, b) => a.displayName.localeCompare(b.displayName, "tr"));
   const isClusterMaster = variants.length >= 5;
-  const piyasaPage = PIYASA_BY_PRODUCT[slug];
+  const intentLinks = productIntentLinks(slug);
 
   // İç linkleme: aynı kategoriden indexlenebilir kardeş ürünler. Rotasyonlu pencere
   // (her ürün kendinden sonraki 12'yi linkler) → link eşit dağılır, az-linkli niş
@@ -621,7 +621,7 @@ export default async function UrunPage({ params }: Props) {
           />
           <div>
             <h1 className="font-(family-name:--font-display) text-3xl font-bold text-(--color-foreground)">
-              {displayName}
+              {slug === "limon" || slug === "limon-mayer" ? `${displayName} Fiyatları` : displayName}
             </h1>
             <span className="font-(family-name:--font-mono) text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-muted)">
               {product.categorySlug}
@@ -751,19 +751,22 @@ export default async function UrunPage({ params }: Props) {
         </section>
       ) : null}
 
-      {piyasaPage ? (
-        <Link
-          href={`/piyasa/${piyasaPage.slug}`}
-          className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-(--color-brand)/30 bg-(--color-brand)/5 px-5 py-4 transition hover:border-(--color-brand)/60"
-        >
-          <span>
-            <span className="block font-(family-name:--font-display) font-bold text-(--color-foreground)">{piyasaPage.h1}</span>
-            <span className="mt-1 block text-sm text-(--color-muted)">
-              {piyasaPage.region} bölge bağlamı, şehir karşılaştırması ve günlük piyasa yorumu
-            </span>
-          </span>
-          <ArrowRight className="h-5 w-5 shrink-0 text-(--color-brand)" />
-        </Link>
+      {intentLinks.length ? (
+        <nav className="mb-6 grid gap-3 md:grid-cols-3" aria-label={`${displayName} bölgesel fiyat sayfaları`}>
+          {intentLinks.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex items-center justify-between gap-3 rounded-2xl border border-(--color-brand)/30 bg-(--color-brand)/5 px-5 py-4 transition hover:border-(--color-brand)/60"
+            >
+              <span>
+                <span className="block font-(family-name:--font-display) font-bold text-(--color-foreground)">{item.title}</span>
+                <span className="mt-1 block text-sm text-(--color-muted)">{item.description}</span>
+              </span>
+              <ArrowRight className="h-5 w-5 shrink-0 text-(--color-brand)" />
+            </Link>
+          ))}
+        </nav>
       ) : null}
 
       <ProductTradeBanner productName={displayName} productSlug={product.slug} />

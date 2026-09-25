@@ -21,6 +21,10 @@ export interface PiyasaPageConfig {
   seasonCalendar: Array<{ period: string; note: string }>;
   faq: Array<{ q: string; a: string }>;
   related: Array<{ href: string; label: string }>;
+  /** Kullanıcıya bu URL'nin hangi fiyat niyetini üstlendiğini açıklar. */
+  roleNote?: string;
+  /** Bu sayfa destekleyiciyse fiyat sorgusunun birincil hedefini gösterir. */
+  primaryPricePage?: { href: string; label: string };
 }
 
 export const PIYASA_PAGES: Record<string, PiyasaPageConfig> = {
@@ -31,7 +35,8 @@ export const PIYASA_PAGES: Record<string, PiyasaPageConfig> = {
     "region": "Mersin / Erdemli",
     "title": "Erdemli Limon Piyasası — Kaynak ve Fiyat Kapsamı",
     "description": "Erdemli Limon Piyasası: yerel kaydın durumu, Türkiye hal fiyatları, çeşit ve birim ayrımı. Bahçe fiyatıyla toptan hal fiyatını ayrı değerlendirin.",
-    "h1": "Erdemli Limon Piyasası",
+    "h1": "Erdemli Limon Fiyatları",
+    "roleNote": "Güncel Erdemli limon fiyatı ve yerel kayıt durumu bu sayfada izlenir. Mersin geneli ayrı, tarihli 2026 değerlendirmesi ayrı sayfadır.",
     "intro": [
       "Mersin / Erdemli için limon fiyatını ararken ürün çeşidini, kaydın tarihini ve satış aşamasını birlikte kontrol edin. Bu sayfa yerel kaydın durumunu Türkiye genelindeki hal kayıtlarından ayırır.",
       "Ulusal tablodaki ürünlerin üretim yeri bu kayıtlardan doğrulanamaz. Başka bir şehirdeki fiyat, Adana veya Erdemli bahçe alım fiyatı yerine kullanılmaz."
@@ -69,6 +74,10 @@ export const PIYASA_PAGES: Record<string, PiyasaPageConfig> = {
       {
         "href": "/hal/mersin-hal",
         "label": "Mersin hali — kaynak ve son kayıt"
+      },
+      {
+        "href": "/analiz/limon-fiyatlari-2026-mersin-erdemli-piyasa-analizi",
+        "label": "Mersin ve Erdemli limon analizi — 2026 tarihli arşiv"
       }
     ]
   },
@@ -79,7 +88,8 @@ export const PIYASA_PAGES: Record<string, PiyasaPageConfig> = {
     "region": "Adana / Çukurova",
     "title": "Adana Mayer Limon Piyasası — Kaynak ve Fiyat Kapsamı",
     "description": "Adana Mayer Limon Piyasası: yerel kaydın durumu, Türkiye hal fiyatları, çeşit ve birim ayrımı. Bahçe fiyatıyla toptan hal fiyatını ayrı değerlendirin.",
-    "h1": "Adana Mayer Limon Piyasası",
+    "h1": "Adana Mayer Limon Fiyatları",
+    "roleNote": "Adana'daki Mayer limonun güncel bölgesel fiyat ve piyasa kapsamı bu sayfadadır. Türkiye geneli Mayer çeşidi ayrı ürün sayfasında izlenir.",
     "intro": [
       "Adana / Çukurova için mayer limon fiyatını ararken ürün çeşidini, kaydın tarihini ve satış aşamasını birlikte kontrol edin. Bu sayfa yerel kaydın durumunu Türkiye genelindeki hal kayıtlarından ayırır.",
       "Ulusal tablodaki ürünlerin üretim yeri bu kayıtlardan doğrulanamaz. Başka bir şehirdeki fiyat, Adana veya Erdemli bahçe alım fiyatı yerine kullanılmaz."
@@ -112,7 +122,7 @@ export const PIYASA_PAGES: Record<string, PiyasaPageConfig> = {
     "related": [
       {
         "href": "/urun/limon-mayer",
-        "label": "Mayer Limon fiyatları — Türkiye hal kayıtları"
+        "label": "Mayer limon fiyatı — Türkiye geneli çeşit sayfası"
       },
       {
         "href": "/hal/adana-hal",
@@ -128,6 +138,11 @@ export const PIYASA_PAGES: Record<string, PiyasaPageConfig> = {
     "title": "Adana Limon Piyasası — Kaynak ve Fiyat Kapsamı",
     "description": "Adana Limon Piyasası: yerel kaydın durumu, Türkiye hal fiyatları, çeşit ve birim ayrımı. Bahçe fiyatıyla toptan hal fiyatını ayrı değerlendirin.",
     "h1": "Adana Limon Piyasası",
+    "roleNote": "Bu sayfa Adana limon piyasasının çeşit ve satış aşaması rehberidir. Güncel Adana hal fiyatının birincil sayfası şehir–ürün kaydıdır.",
+    "primaryPricePage": {
+      "href": "/fiyat/adana/limon",
+      "label": "Adana limon fiyatları — güncel hal kaydı"
+    },
     "intro": [
       "Adana / Çukurova için limon fiyatını ararken ürün çeşidini, kaydın tarihini ve satış aşamasını birlikte kontrol edin. Bu sayfa yerel kaydın durumunu Türkiye genelindeki hal kayıtlarından ayırır.",
       "Ulusal tablodaki ürünlerin üretim yeri bu kayıtlardan doğrulanamaz. Başka bir şehirdeki fiyat, Adana veya Erdemli bahçe alım fiyatı yerine kullanılmaz."
@@ -159,6 +174,10 @@ export const PIYASA_PAGES: Record<string, PiyasaPageConfig> = {
     ],
     "related": [
       {
+        "href": "/fiyat/adana/limon",
+        "label": "Adana limon fiyatları — güncel hal kaydı"
+      },
+      {
         "href": "/urun/limon",
         "label": "Limon fiyatları — Türkiye hal kayıtları"
       },
@@ -175,7 +194,8 @@ export const PIYASA_PAGES: Record<string, PiyasaPageConfig> = {
     "region": "Mersin",
     "title": "Mersin Limon Piyasası — Kaynak ve Fiyat Kapsamı",
     "description": "Mersin Limon Piyasası: yerel kaydın durumu, Türkiye hal fiyatları, çeşit ve birim ayrımı. Bahçe fiyatıyla toptan hal fiyatını ayrı değerlendirin.",
-    "h1": "Mersin Limon Piyasası",
+    "h1": "Mersin Limon Fiyatları",
+    "roleNote": "Güncel Mersin limon fiyatı ve yerel kayıt durumu bu sayfada izlenir. Erdemli alt bölgesi ile tarihli 2026 analizi ayrı sayfalardır.",
     "intro": [
       "Mersin için limon fiyatını ararken ürün çeşidini, kaydın tarihini ve satış aşamasını birlikte kontrol edin. Bu sayfa yerel kaydın durumunu Türkiye genelindeki hal kayıtlarından ayırır.",
       "Ulusal tablodaki ürünlerin üretim yeri bu kayıtlardan doğrulanamaz. Başka bir şehirdeki fiyat, Adana veya Erdemli bahçe alım fiyatı yerine kullanılmaz."
@@ -213,6 +233,10 @@ export const PIYASA_PAGES: Record<string, PiyasaPageConfig> = {
       {
         "href": "/hal/mersin-hal",
         "label": "Mersin hali — kaynak ve son kayıt"
+      },
+      {
+        "href": "/analiz/limon-fiyatlari-2026-mersin-erdemli-piyasa-analizi",
+        "label": "Mersin ve Erdemli limon analizi — 2026 tarihli arşiv"
       }
     ]
   },
@@ -273,6 +297,49 @@ export const PIYASA_BY_PRODUCT: Record<string, PiyasaPageConfig> = Object.fromEn
   Object.values(PIYASA_PAGES).reverse().map((page) => [page.productSlug, page]),
 );
 
+export interface ProductIntentLink {
+  href: string;
+  title: string;
+  description: string;
+}
+
+/** Ana ürün sayfasından sorgu sahiplerine verilen, insan tarafından denetlenen bağlantılar. */
+export function productIntentLinks(productSlug: string): ProductIntentLink[] {
+  if (productSlug === "limon") {
+    return [
+      {
+        href: "/fiyat/adana/limon",
+        title: "Adana Limon Fiyatları",
+        description: "Adana halindeki tarihli limon kaydı ve 90 günlük seyir",
+      },
+      {
+        href: "/piyasa/mersin-limon",
+        title: "Mersin Limon Fiyatları",
+        description: "Mersin yerel kayıt durumu ve Türkiye tablosundan ayrılmış kapsam",
+      },
+      {
+        href: "/piyasa/erdemli-limon",
+        title: "Erdemli Limon Fiyatları",
+        description: "Erdemli yerel kayıt durumu ve bölgesel piyasa kapsamı",
+      },
+    ];
+  }
+  const page = PIYASA_BY_PRODUCT[productSlug];
+  return page
+    ? [{ href: `/piyasa/${page.slug}`, title: page.h1, description: `${page.region} bölge bağlamı ve yerel kayıt durumu` }]
+    : [];
+}
+
+/** Şehir–ürün sayfasını aynı şehrin destekleyici piyasa rehberiyle eşleştirir. */
+export function findPiyasaForCityProduct(citySlug: string, productSlug: string): PiyasaPageConfig | null {
+  const city = citySlug.toLocaleLowerCase("tr-TR");
+  const product = productSlug.toLocaleLowerCase("tr-TR");
+  return Object.values(PIYASA_PAGES).find((page) => {
+    const pageCity = page.slug.split("-")[0]?.toLocaleLowerCase("tr-TR");
+    return pageCity === city && page.productSlug.toLocaleLowerCase("tr-TR") === product;
+  }) ?? null;
+}
+
 /**
  * Bir analiz makalesini, ayni arama niyetine hizmet eden piyasa sayfasiyla eslestirir.
  *
@@ -289,6 +356,11 @@ export function findPiyasaForArticle(
   articleSlug: string,
   tags: readonly string[] = [],
 ): PiyasaPageConfig | null {
+  // Bu rapor hem Mersin hem Erdemli'yi anıyor; fiyat niyetinde daha geniş
+  // "Mersin limon fiyatları" sayfası ana güncel hedef, Erdemli sayfası alt bölgedir.
+  if (articleSlug === "limon-fiyatlari-2026-mersin-erdemli-piyasa-analizi") {
+    return PIYASA_PAGES["mersin-limon"] ?? null;
+  }
   const haystack = [articleSlug, ...tags].join(" ").toLocaleLowerCase("tr-TR");
   let best: { page: PiyasaPageConfig; score: number } | null = null;
   for (const page of Object.values(PIYASA_PAGES)) {

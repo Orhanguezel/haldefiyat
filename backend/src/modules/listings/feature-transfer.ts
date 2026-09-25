@@ -10,6 +10,7 @@ import { siteSettings } from "@agro/shared-backend/modules/siteSettings/schema";
 import { db } from "@/db/client";
 import { hfListings } from "./schema";
 import { readFeaturedPricing } from "./settings";
+import { notifyAdminFeatureTransfer } from "./feature-transfer-notification";
 
 const KIND = "listing_feature_transfer";
 const BANK_KEY = "listing_feature_bank";
@@ -25,7 +26,7 @@ const listingFilter = (id: number) => sql`JSON_EXTRACT(IF(JSON_VALID(${orders.no
 function notes(row: typeof orders.$inferSelect): Notes { return JSON.parse(row.notes ?? "{}"); }
 function dto(row: typeof orders.$inferSelect) {
   const n = notes(row);
-  return { id: row.id, reference: row.payment_ref, amount: Number(row.total), status: row.payment_status, cancelled: row.status === "cancelled", createdAt: row.created_at, ...n };
+  return { id: row.id, reference: row.payment_ref ?? "", amount: Number(row.total), status: row.payment_status, cancelled: row.status === "cancelled", createdAt: row.created_at, ...n };
 }
 function fail(message: string): never { throw Object.assign(new Error(message), { statusCode: 409 }); }
 async function bankSettings(): Promise<Bank | null> {
@@ -65,17 +66,23 @@ export function registerFeatureTransferPublic(app: FastifyInstance) {
     const selected = packageSchema.parse((req.body as any)?.package);
     const bank = await bankSettings(); const pricing = await readFeaturedPricing(); const pkg = pricing?.[selected];
     if (!bank || !pkg || !Number.isFinite(pkg.price) || pkg.price <= 0 || !Number.isInteger(pkg.days) || pkg.days < 1 || pkg.days > 365) fail("Ödeme bilgileri henüz hazır değil.");
-    return db.transaction(async tx => {
+    const outcome = await db.transaction(async tx => {
       const [listing] = await tx.select().from(hfListings).where(and(eq(hfListings.id, listingId), eq(hfListings.userId, userId))).for("update");
       if (!listing || listing.raw?.ownerDeletedAt) notFound();
       const [existing] = await tx.select().from(orders).where(and(kindFilter, listingFilter(listingId), eq(orders.dealer_id, userId), eq(orders.status,"pending"))).limit(1);
-      if (existing) return dto(existing);
+      if (existing) return { item: dto(existing), created: false };
       // Selecting a package reserves it; payment and activation require a public listing.
       const orderId = randomUUID();
       const n: Notes = {kind:KIND, listingId, title:listing.title, package:selected, days:pkg.days, bank};
       await tx.insert(orders).values({id:orderId,dealer_id:userId,total:pkg.price.toFixed(2),status:"pending",payment_status:"unpaid",payment_method:"bank_transfer",payment_ref:`HF${orderId.replaceAll("-","")}`,notes:JSON.stringify(n)});
-      const [row] = await tx.select().from(orders).where(eq(orders.id,orderId)); return dto(row);
+      const [row] = await tx.select().from(orders).where(eq(orders.id,orderId)); return { item: dto(row), created: true };
     });
+    if (outcome.created) {
+      await notifyAdminFeatureTransfer("created", outcome.item).catch(err => {
+        req.log.error({ err, orderId: outcome.item.id }, "feature transfer created notification failed");
+      });
+    }
+    return outcome.item;
   }));
   app.post("/listings/feature-transfers/:orderId/report", {onRequest:[requireAuth]}, route(async req => {
     const orderId = z.string().uuid().parse((req.params as any).orderId);
@@ -83,11 +90,11 @@ export function registerFeatureTransferPublic(app: FastifyInstance) {
     if (body.action === "report" && !body.senderName) fail("Havaleyi gönderen kişinin adını yazın.");
     const [initial] = await db.select().from(orders).where(and(eq(orders.id,orderId),eq(orders.dealer_id,getAuthUserId(req)),kindFilter));
     if (!initial) notFound();
-    return db.transaction(async tx => {
+    const outcome = await db.transaction(async tx => {
       const [listing] = await tx.select().from(hfListings).where(and(eq(hfListings.id,notes(initial).listingId),eq(hfListings.userId,getAuthUserId(req)))).for("update");
       const [row] = await tx.select().from(orders).where(and(eq(orders.id,orderId),eq(orders.dealer_id,getAuthUserId(req)),kindFilter)).for("update");
       if (!row) notFound();
-      if (row.status !== "pending" || row.payment_status !== "unpaid") return dto(row);
+      if (row.status !== "pending" || row.payment_status !== "unpaid") return { item: dto(row), reported: false };
       const n = notes(row);
       if (body.action === "report") {
         if (!listing || listing.raw?.ownerDeletedAt) notFound();
@@ -95,8 +102,14 @@ export function registerFeatureTransferPublic(app: FastifyInstance) {
       }
       if (body.action === "report") Object.assign(n,{senderName:body.senderName,transferDate:body.transferDate,note:body.note,reportedAt:new Date().toISOString()});
       await tx.update(orders).set({status:body.action === "cancel" ? "cancelled" : "pending",payment_status:body.action === "cancel" ? "failed" : "pending",notes:JSON.stringify(n)}).where(eq(orders.id,orderId));
-      const [updated] = await tx.select().from(orders).where(eq(orders.id,orderId)); return dto(updated);
+      const [updated] = await tx.select().from(orders).where(eq(orders.id,orderId)); return { item: dto(updated), reported: body.action === "report" };
     });
+    if (outcome.reported) {
+      await notifyAdminFeatureTransfer("reported", outcome.item).catch(err => {
+        req.log.error({ err, orderId: outcome.item.id }, "feature transfer reported notification failed");
+      });
+    }
+    return outcome.item;
   }));
 }
 

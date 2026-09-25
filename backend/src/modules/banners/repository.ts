@@ -143,7 +143,7 @@ export async function firmAdAccess(userId: string) {
 
 export type SelfServiceListing = { id: number; slug: string; title: string; status: string };
 export type SelfServiceOwner = {
-  ownerType: "firm" | "listing";
+  ownerType: "account" | "firm" | "listing";
   canViewFinancials: boolean;
   listing: SelfServiceListing | null;
 };
@@ -151,7 +151,8 @@ export type SelfServicePerformance = { uniqueImpressions: number; uniqueClicks: 
 
 /** Ilan sahibi kendi reklaminin odeyenidir; firma uyesinde yetki uyelik kaydindan gelir. */
 export function resolveSelfServiceOwner(
-  banner: Pick<BannerRow, "firmId" | "listingId">,
+  banner: Pick<BannerRow, "ownerUserId" | "firmId" | "listingId">,
+  userId: string,
   firmFinance: Map<number, boolean>,
   ownedListings: Map<number, SelfServiceListing>,
 ): SelfServiceOwner | null {
@@ -160,6 +161,7 @@ export function resolveSelfServiceOwner(
   if (banner.firmId && firmFinance.has(banner.firmId)) {
     return { ownerType: "firm", canViewFinancials: Boolean(firmFinance.get(banner.firmId)), listing: null };
   }
+  if (banner.ownerUserId === userId) return { ownerType: "account", canViewFinancials: true, listing: null };
   return null;
 }
 
@@ -217,17 +219,17 @@ export async function listSelfServiceCampaigns(userId: string) {
   const firmIds = access.map((item) => item.firm.id);
   const listingIds = [...ownedListings.keys()];
   const conditions = [];
+  conditions.push(eq(hfBanners.ownerUserId, userId));
   if (firmIds.length) conditions.push(sql`${hfBanners.firmId} IN (${sql.join(firmIds.map((id) => sql`${id}`), sql`,`)})`);
   if (listingIds.length) conditions.push(sql`${hfBanners.listingId} IN (${sql.join(listingIds.map((id) => sql`${id}`), sql`,`)})`);
   const firms = access.map((item) => ({ id: item.firm.id, name: item.firm.name, slug: item.firm.slug, role: item.role, canViewFinancials: item.canViewFinancials }));
   const listings = [...ownedListings.values()];
-  if (!conditions.length) return { firms, listings, campaigns: [] };
   const banners = await db.select().from(hfBanners).where(or(...conditions)).orderBy(sql`${hfBanners.createdAt} DESC`);
   const firmFinance = new Map(access.map((item) => [item.firm.id, item.canViewFinancials]));
   const performance = await selfServicePerformance(banners.map((banner) => banner.id));
   const campaigns = [];
   for (const banner of banners) {
-    const owner = resolveSelfServiceOwner(banner, firmFinance, ownedListings);
+    const owner = resolveSelfServiceOwner(banner, userId, firmFinance, ownedListings);
     if (owner) campaigns.push(selfServiceCampaignView(banner, owner, performance.get(banner.id)));
   }
   return { firms, listings, campaigns };
@@ -237,7 +239,7 @@ export async function selfServiceBannerAccess(userId: string, bannerId: number):
   const banner = await getBannerById(bannerId);
   if (!banner) return null;
   const [access, ownedListings] = await Promise.all([firmAdAccess(userId), ownedListingsWithAds(userId)]);
-  const owner = resolveSelfServiceOwner(banner, new Map(access.map((item) => [item.firm.id, item.canViewFinancials])), ownedListings);
+  const owner = resolveSelfServiceOwner(banner, userId, new Map(access.map((item) => [item.firm.id, item.canViewFinancials])), ownedListings);
   return owner ? { banner, owner } : null;
 }
 

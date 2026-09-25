@@ -37,7 +37,18 @@ export async function queriesFromGsc(limit: number): Promise<DiscoveryQuery[]> {
   // gsc_site_url ayari tirnakli saklanabiliyor.
   const site = (await resolveGscSite()).replace(/^"+|"+$/g, "");
   const { startDate, endDate } = getGscDateRange("LAST_28_DAYS");
-  const rows = await queryGsc(site, headers, { startDate, endDate, dimensions: ["query"], rowLimit: Math.min(limit * 3, 500), type: "web", dataState: "final" });
+  const rows = await queryGsc(site, headers, {
+    startDate,
+    endDate,
+    dimensions: ["query"],
+    rowLimit: Math.min(limit * 3, 500),
+    type: "web",
+    dataState: "final",
+    dimensionFilterGroups: [{ filters: [
+      { dimension: "country", operator: "equals", expression: "tur" },
+      { dimension: "device", operator: "equals", expression: "MOBILE" },
+    ] }],
+  });
   return rows
     .map((r) => ({ query: String((r.keys as string[] | undefined)?.[0] ?? "").trim(), clicks: Number(r.clicks ?? 0), impressions: Number(r.impressions ?? 0) }))
     .filter((r) => r.query && !isBrandQuery(r.query))

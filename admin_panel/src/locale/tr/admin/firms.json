@@ -78,11 +78,11 @@
   },
   "sheet": {
     "tabs": {
-      "overview": "Özet",
-      "edit": "Düzenle",
-      "workspace": "Çalışma alanı",
-      "crm": "CRM",
-      "claims": "Talepler"
+      "overview": "Genel Bakış",
+      "edit": "Firma Bilgileri",
+      "workspace": "Ürün ve Fiyatlar",
+      "crm": "Satış ve Reklam",
+      "claims": "Sahiplik"
     },
     "fields": {
       "externalId": "Katalog no",

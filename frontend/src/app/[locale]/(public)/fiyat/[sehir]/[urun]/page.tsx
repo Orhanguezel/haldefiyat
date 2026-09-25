@@ -16,7 +16,7 @@ import { fetchCityProduct, fetchPricesOverview, fetchProductEditorial } from "@/
 import DataProvenanceNote from "@/components/seo/DataProvenanceNote";
 import { buildCityProductDataset, buildCityProductFaq, buildCityProductSummary } from "@/lib/city-product";
 import { formatDateTr } from "@/lib/date-format";
-import { PIYASA_BY_PRODUCT } from "@/lib/piyasa";
+import { findPiyasaForCityProduct } from "@/lib/piyasa";
 import { fitTitle, marketQualifier } from "@/lib/meta-title";
 import { fitMetaDescription } from "@/lib/meta-text";
 import { DATA_LICENSE_URL, getPageMetadata } from "@/lib/seo";
@@ -77,7 +77,7 @@ export default async function CityProductPage({ params }: Props) {
   const dateTr = d.latest ? (formatDateTr(d.latest.recordedDate) ?? "") : "";
   const stale = Date.now() - Date.parse(pair.lastDate) > 14 * 86400000;
   const lower = pair.productName.toLocaleLowerCase("tr-TR");
-  const piyasa = PIYASA_BY_PRODUCT[pair.productSlug];
+  const piyasa = findPiyasaForCityProduct(pair.citySlug, pair.productSlug);
   const faqItems = buildCityProductFaq(d, dateTr);
 
   return (

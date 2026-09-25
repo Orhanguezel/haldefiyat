@@ -405,7 +405,8 @@ export async function runSeoIndexMaintenance() {
       JOIN (
         SELECT id AS pid, id AS vid, unit FROM hf_products WHERE is_active = 1
         UNION
-        SELECT m.id, v.id, v.unit FROM hf_products m JOIN hf_products v ON v.canonical_slug = m.slug AND v.is_active = 1
+        SELECT m.id, v.id, m.unit FROM hf_products m
+        JOIN hf_products v ON v.canonical_slug = m.slug AND v.is_active = 1 AND v.unit = m.unit
       ) f ON f.vid = ph.product_id AND f.unit = ph.unit
       WHERE ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY f.pid
     ) s ON s.product_id = p.id
@@ -445,7 +446,8 @@ export async function runSeoIndexMaintenance() {
     JOIN (
       SELECT id AS pid, id AS vid, unit FROM hf_products WHERE is_active = 1
       UNION
-      SELECT mp.id, v.id, v.unit FROM hf_products mp JOIN hf_products v ON v.canonical_slug = mp.slug AND v.is_active = 1
+      SELECT mp.id, v.id, mp.unit FROM hf_products mp
+      JOIN hf_products v ON v.canonical_slug = mp.slug AND v.is_active = 1 AND v.unit = mp.unit
     ) f ON f.vid = ph.product_id AND f.unit = ph.unit
     JOIN hf_markets m ON m.id = ph.market_id
     WHERE ph.recorded_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)

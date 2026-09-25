@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  buildMetaDescriptionFrom, buildMetaTitleFor, buildReportTitle, indexStatusOf,
+  buildMetaDescriptionFrom, buildMetaTitleFor, buildReportTitle, indexStatusOf, trTitlePeriod,
   looksLikeCasefoldArtifact, trNum, trPct, trPctSigned, trPeriod, trPeriodShort, trPrice,
   type IndexPoint,
 } from "../src/modules/analysis/report-format";
@@ -28,6 +28,11 @@ describe("tr-TR biçimlendirme", () => {
     expect(trPeriod("2026-08-10", "2026-08-16")).toBe("10 – 16 Ağustos 2026");
     expect(trPeriod("2026-07-27", "2026-08-02")).toBe("27 Temmuz – 2 Ağustos 2026");
     expect(trPeriodShort("2026-08-10", "2026-08-16")).toBe("10–16 Ağu");
+  });
+
+  it("başlık için yılı tekrarlamayan tarih aralığı üretir", () => {
+    expect(trTitlePeriod("2026-09-14", "2026-09-20")).toBe("14–20 Eylül");
+    expect(trTitlePeriod("2026-08-31", "2026-09-06")).toBe("31 Ağustos–6 Eylül");
   });
 
   it("geçersiz tarihte boş döner, Invalid Date sızdırmaz", () => {
@@ -82,7 +87,15 @@ describe("başlık ve meta", () => {
 
   it("başlığı endeks-öncelikli ve tek kancalı kurar", () => {
     const title = buildReportTitle("Ağustos 3. Hafta", status, { productName: "Fasulye", changePct: -20 });
-    expect(title).toBe("Ağustos 3. Hafta Hal Raporu: Endeks 74,3 ile Yataylaştı");
+    expect(title).toBe("Ağustos 3. Hafta Hal Raporu: Endeks Yatay");
+  });
+
+  it("haftalık başlığı tarih, endeks yönü ve piyasa genişliği standardında kurar", () => {
+    const title = buildReportTitle("14–20 Eylül", status, { productName: "Biber Sivri", changePct: 36.9 }, {
+      measured: 65, up: 26, down: 30, flat: 9,
+    });
+    expect(title).toBe("14–20 Eylül Hal Raporu: Endeks Yatay, 30 Ürün Geriledi");
+    expect(title.length).toBeLessThanOrEqual(60);
   });
 
   it("başlığı 60 karakterin altında tutar ve hareket parçasını eklemez", () => {
@@ -102,7 +115,7 @@ describe("başlık ve meta", () => {
     const meta = buildMetaTitleFor("Ağustos 3. Hafta", status, 2026, title);
     expect(meta.length).toBeLessThanOrEqual(60);
     expect(meta.endsWith("…")).toBe(false);
-    expect(meta).toBe("Ağustos 3. Hafta Hal Raporu: Endeks 74,3 ile Yataylaştı");
+    expect(meta).toBe("Ağustos 3. Hafta Hal Raporu: Endeks Yatay");
   });
 
   it("çok uzun başlıkta bile kesik değil kompozisyon fallback'i verir", () => {

@@ -16,6 +16,7 @@ import { SummaryTiles } from '../../_components/common/summary-tiles';
 import { useAdminT } from '../../_components/common/use-admin-t';
 import { DiscoveryTable } from './_components/discovery-table';
 import { DomainSheet } from './_components/domain-sheet';
+import { OpportunitiesPanel } from './_components/opportunities-panel';
 import { QueriesPanel } from './_components/queries-panel';
 import { SitesPanel } from './_components/sites-panel';
 import { ALL, type DomainFilters, EMPTY_DOMAIN_FILTERS, filterDomains, formatDateTime, summarizeDiscovery, summarizeSites } from './_lib/competitor-meta';
@@ -100,7 +101,7 @@ export default function Page() {
         { key: 'domains', label: t('tiles.domains'), value: stats.domains, hint: t('tiles.domainsHint', { official: stats.official }), active: !dirty, onClick: () => setFilters(EMPTY_DOMAIN_FILTERS) },
         { key: 'ahead', label: t('tiles.ahead'), value: domains.filter((d) => !d.isOurs && Number(d.ahead_of_us) > 0).length, hint: t('tiles.aheadHint'), tone: 'text-rose-600', active: filters.onlyAhead, onClick: () => patch({ onlyAhead: !filters.onlyAhead }) },
         { key: 'tracked', label: t('tiles.tracked'), value: stats.tracked, hint: t('tiles.trackedHint', { total: siteStats.total }) },
-        { key: 'queries', label: t('tiles.queries'), value: stats.queries, hint: t('tiles.queriesHint') },
+        { key: 'queries', label: t('tiles.queries'), value: data?.run?.queries_total ?? stats.queries, hint: t('tiles.queriesHint') },
         { key: 'weRank', label: t('tiles.weRank'), value: stats.weRank, hint: stats.avgOurPosition ? t('tiles.weRankHint', { avg: stats.avgOurPosition.toFixed(1), top3: stats.weTop3 }) : t('tiles.weRankNone'), tone: 'text-emerald-600' },
         { key: 'missing', label: t('tiles.missing'), value: stats.missing, hint: t('tiles.missingHint'), tone: stats.missing ? 'text-amber-600' : '' },
       ]} />
@@ -113,13 +114,15 @@ export default function Page() {
         </div>
       ) : null}
 
-      <Tabs defaultValue="discovery">
+      <Tabs defaultValue="opportunities">
         <TabsList className="w-full justify-start overflow-x-auto">
+          <TabsTrigger value="opportunities">{t('tabs.opportunities')}{data?.opportunitySummary?.p1 ? <span className="ml-1 rounded-full bg-rose-500 px-1.5 text-[10px] text-white">{data.opportunitySummary.p1}</span> : null}</TabsTrigger>
           <TabsTrigger value="discovery">{t('tabs.discovery')}</TabsTrigger>
           <TabsTrigger value="queries">{t('tabs.queries')}</TabsTrigger>
           <TabsTrigger value="social">Sosyal hesaplar ve kitle fırsatları ({data?.social?.length ?? 0})</TabsTrigger>
           <TabsTrigger value="sites">{t('tabs.sites')}{siteStats.failing ? <span className="ml-1 rounded-full bg-rose-500 px-1.5 text-[10px] text-white">{siteStats.failing}</span> : null}</TabsTrigger>
         </TabsList>
+        <TabsContent value="opportunities" className="mt-4"><OpportunitiesPanel rows={data?.opportunities ?? []} summary={data?.opportunitySummary} google={data?.google} loading={isLoading} /></TabsContent>
         <TabsContent value="discovery" className="mt-4 space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative min-w-[220px] flex-1">

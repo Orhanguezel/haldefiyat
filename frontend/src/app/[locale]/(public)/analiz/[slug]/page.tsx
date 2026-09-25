@@ -462,7 +462,7 @@ export default async function AnalizMakalePage({ params }: Props) {
                 href={`/piyasa/${piyasaPage.slug}`}
                 className="mt-3 inline-flex min-h-11 shrink-0 items-center rounded-[6px] bg-(--color-brand) px-5 text-[13px] font-bold text-(--color-brand-fg) transition hover:opacity-90 sm:mt-0"
               >
-                Güncel {piyasaPage.productName.toLocaleLowerCase("tr-TR")} piyasası
+                {piyasaPage.h1}
               </Link>
             </aside>
           )}

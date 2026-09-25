@@ -105,7 +105,8 @@
   "table": {
     "product": "Ürün",
     "quality": "Kalite",
-    "search": "Arama",
+    "search": "GSC (90g)",
+    "searchHint": "Ürün sayfasının son 90 gündeki Google Search Console gösterimi; anahtar kelime arama hacmi değildir.",
     "coverage": "Kapsam (30g)",
     "seoGoogle": "SEO · Google",
     "nextStep": "Sonraki adım",
@@ -183,6 +184,10 @@
       "slug": "Slug",
       "aliasHint": "Virgülle ayırın. ETL bu adları bu ürüne eşler.",
       "active": "Aktif",
+      "seoTitle": "SEO başlığı",
+      "seoTitleHint": "Önerilen 30–60 karakter; boşsa otomatik başlık kullanılır.",
+      "seoDescription": "Meta açıklaması",
+      "seoDescriptionHint": "Önerilen 120–160 karakter; boşsa otomatik açıklama kullanılır.",
       "seoIndex": "SEO index",
       "seoIndexHint": "Sitemap ve ürün sayfası index kararında kullanılır.",
       "canonical": "Canonical slug",
@@ -190,7 +195,7 @@
       "familySlug": "Çeşit ailesi",
       "familyHint": "Aynı aile çeşit seçiciyle bağlanır; her biri kendi sayfasında kalır.",
       "dataQuality": "Veri kalitesi",
-      "searchVolume": "Arama hacmi"
+      "searchVolume": "GSC gösterimi (90g)"
     }
   },
   "editorial": {

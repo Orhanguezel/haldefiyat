@@ -1,9 +1,13 @@
 import type { FastifyInstance } from "fastify";
 import { and, desc, eq, like, sql } from "drizzle-orm";
 import { z } from "zod";
+import { getAuthUserId } from "@agro/shared-backend/modules/_shared";
 
-import { db } from "@/db/client";
+import { db, pool } from "@/db/client";
 import { hfPressCampaigns, hfPressContacts, hfPressOutreachLogs } from "@/db/schema";
+import { activatePressCampaign, approvePressCampaign, preflightPressCampaign } from "./delivery";
+import { loadPressEmailBranding, savePressEmailBranding } from "./email-branding";
+import { readApprovalMessageSnapshot, renderBrowserMessageHtml } from "./message-preview";
 
 const qContacts = z.object({
   q: z.string().optional(),
@@ -14,6 +18,17 @@ const qContacts = z.object({
 
 const importContactsBody = z.object({
   csv: z.string().min(1),
+});
+
+const emailBrandingBody = z.object({
+  logoUrl: z.string().trim().url().refine((value) => value.startsWith("https://"), "Logo HTTPS olmalı"),
+  logoAlt: z.string().trim().min(1).max(120),
+  tagline: z.string().trim().min(1).max(240),
+  signatureName: z.string().trim().min(1).max(160),
+  signatureTitle: z.string().trim().min(1).max(240),
+  email: z.string().trim().email().max(255),
+  website: z.string().trim().url().refine((value) => value.startsWith("https://"), "Web adresi HTTPS olmalı"),
+  accentColor: z.string().trim().regex(/^#[0-9a-f]{6}$/i),
 });
 
 const contactBody = z.object({
@@ -42,6 +57,11 @@ const campaignBody = z.object({
   pitch: z.string().trim().min(1).max(10000),
   templateKey: z.string().trim().max(128).optional().nullable(),
   segmentTags: z.array(z.string().trim().min(1).max(80)).max(20).optional().default([]),
+  fromEmail: z.string().trim().email().max(255).default("noreply@haldefiyat.com"),
+  replyToEmail: z.string().trim().email().max(255).default("info@gzlteknoloji.com"),
+  ratePerMinute: z.coerce.number().int().min(1).max(4).default(4),
+  delayMinSeconds: z.coerce.number().int().min(15).max(300).default(15),
+  delayMaxSeconds: z.coerce.number().int().min(15).max(600).default(25),
   status: z.enum(["draft", "active", "completed", "archived"]).default("draft"),
   scheduledAt: z.string().datetime().optional().nullable(),
   sentAt: z.string().datetime().optional().nullable(),
@@ -53,7 +73,7 @@ const logBody = z.object({
   campaignId: z.coerce.number().int().positive(),
   contactId: z.coerce.number().int().positive(),
   channel: z.enum(["email", "phone", "social", "other"]).default("email"),
-  status: z.enum(["planned", "sent", "replied", "published", "bounced", "rejected"]).default("planned"),
+  status: z.enum(["planned", "processing", "sent", "replied", "published", "bounced", "rejected", "failed", "skipped", "uncertain"]).default("planned"),
   note: z.string().trim().max(5000).optional().nullable(),
   publishedUrl: z.string().trim().url().max(512).optional().nullable(),
   contactedAt: z.string().datetime().optional().nullable(),
@@ -62,6 +82,14 @@ const logBody = z.object({
 const logPatch = logBody.partial().omit({ campaignId: true, contactId: true });
 
 export async function registerPressPrAdmin(app: FastifyInstance) {
+  app.get("/press/email-branding", async (_req, reply) => reply.send({ data: await loadPressEmailBranding() }));
+
+  app.patch("/press/email-branding", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, async (req, reply) => {
+    const parsed = emailBrandingBody.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.status(422).send({ error: "Gecersiz e-posta marka ayari", details: parsed.error.flatten() });
+    return reply.send({ data: await savePressEmailBranding(parsed.data) });
+  });
+
   app.get("/press/contacts", async (req, reply) => {
     const parsed = qContacts.safeParse(req.query);
     if (!parsed.success) return reply.status(400).send({ error: "Gecersiz sorgu" });
@@ -175,10 +203,40 @@ export async function registerPressPrAdmin(app: FastifyInstance) {
     const id = Number(req.params.id);
     const parsed = campaignPatch.safeParse(req.body ?? {});
     if (!Number.isFinite(id) || !parsed.success) return reply.status(400).send({ error: "Gecersiz kampanya" });
+    if (parsed.data.status === "active") return reply.status(409).send({ error: "Kampanya yalnızca önizleme ve onay sonrasında başlatılabilir" });
     await db.update(hfPressCampaigns).set(normalizeCampaignPatch(parsed.data)).where(eq(hfPressCampaigns.id, id));
     const [row] = await db.select().from(hfPressCampaigns).where(eq(hfPressCampaigns.id, id)).limit(1);
     if (!row) return reply.status(404).send({ error: "Kampanya bulunamadi" });
     return reply.send({ data: campaignRow(row) });
+  });
+
+  app.get<{ Params: { id: string } }>("/press/campaigns/:id/preflight", async (req, reply) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return reply.status(400).send({ error: "Gecersiz kampanya" });
+    try { return reply.send({ data: await preflightPressCampaign(id) }); }
+    catch (error) { return sendDeliveryError(reply, error); }
+  });
+
+  app.post<{ Params: { id: string } }>("/press/campaigns/:id/approve", { config: { rateLimit: { max: 5, timeWindow: "1 minute" } } }, async (req, reply) => {
+    const id = Number(req.params.id);
+    const body = z.object({ preflightHash: z.string().length(64) }).safeParse(req.body ?? {});
+    if (!Number.isInteger(id) || id < 1 || !body.success) return reply.status(400).send({ error: "Gecersiz onay" });
+    try { return reply.send({ data: await approvePressCampaign(id, body.data.preflightHash, getAuthUserId(req) ?? null) }); }
+    catch (error) { return sendDeliveryError(reply, error); }
+  });
+
+  app.post<{ Params: { id: string } }>("/press/campaigns/:id/send", { config: { rateLimit: { max: 2, timeWindow: "1 minute" } } }, async (req, reply) => {
+    const id = Number(req.params.id);
+    const body = z.object({
+      preflightHash: z.string().length(64),
+      scheduledAt: z.string().datetime().optional(),
+    }).safeParse(req.body ?? {});
+    if (!Number.isInteger(id) || id < 1 || !body.success) return reply.status(400).send({ error: "Gecersiz gönderim isteği" });
+    try {
+      const scheduledAt = body.data.scheduledAt ? new Date(body.data.scheduledAt) : undefined;
+      return reply.send({ data: await activatePressCampaign(id, body.data.preflightHash, scheduledAt) });
+    }
+    catch (error) { return sendDeliveryError(reply, error); }
   });
 
   app.get<{ Params: { campaignId: string } }>("/press/campaigns/:campaignId/logs", async (req, reply) => {
@@ -204,6 +262,89 @@ export async function registerPressPrAdmin(app: FastifyInstance) {
       .orderBy(desc(hfPressOutreachLogs.contactedAt));
     return reply.send({ items: rows.map(logRow) });
   });
+
+  app.get<{ Params: { campaignId: string; contactId: string } }>(
+    "/press/campaigns/:campaignId/contacts/:contactId/message",
+    async (req, reply) => {
+      const campaignId = Number(req.params.campaignId);
+      const contactId = Number(req.params.contactId);
+      if (!Number.isInteger(campaignId) || !Number.isInteger(contactId)) return reply.status(400).send({ error: "Gecersiz temas" });
+      const [rows] = await pool.query<any[]>(
+        `SELECT l.id,l.status,l.sent_at,l.provider_message_id,l.sent_subject,l.sent_html,l.sent_text,
+                l.sent_from_email,l.sent_reply_to_email,c.email,p.name campaign_name,p.approval_snapshot
+           FROM hf_press_outreach_logs l
+           JOIN hf_press_contacts c ON c.id=l.contact_id
+           JOIN hf_press_campaigns p ON p.id=l.campaign_id
+          WHERE l.campaign_id=? AND l.contact_id=? AND l.channel='email'
+          ORDER BY COALESCE(l.sent_at,l.contacted_at,l.created_at) DESC,l.id DESC LIMIT 1`,
+        [campaignId, contactId],
+      );
+      const row = rows[0];
+      if (!row) return reply.status(404).send({ error: "Temas kaydi bulunamadi" });
+      const { preview, logoUrl } = readApprovalMessageSnapshot(row.approval_snapshot);
+      const html = row.sent_html || preview?.html || null;
+      return reply.send({
+        data: {
+          logId: Number(row.id), campaignId, contactId, campaignName: row.campaign_name,
+          recipientEmail: row.email, status: row.status,
+          subject: row.sent_subject || preview?.subject || null,
+          html,
+          previewHtml: renderBrowserMessageHtml(html, logoUrl),
+          text: row.sent_text || preview?.text || null,
+          fromEmail: row.sent_from_email || null,
+          replyToEmail: row.sent_reply_to_email || null,
+          sentAt: row.sent_at instanceof Date ? row.sent_at.toISOString() : row.sent_at || null,
+          providerMessageId: row.provider_message_id || null,
+          snapshotSource: row.sent_html ? "delivery" : preview ? "approval" : "unavailable",
+        },
+      });
+    },
+  );
+
+  app.get<{ Params: { campaignId: string; logId: string } }>(
+    "/press/campaigns/:campaignId/logs/:logId/message",
+    async (req, reply) => {
+      const campaignId = Number(req.params.campaignId);
+      const logId = Number(req.params.logId);
+      if (!Number.isInteger(campaignId) || !Number.isInteger(logId)) {
+        return reply.status(400).send({ error: "Gecersiz gönderim kaydı" });
+      }
+      const [rows] = await pool.query<any[]>(
+        `SELECT l.id,l.campaign_id,l.contact_id,l.status,l.sent_at,l.provider_message_id,
+                l.sent_subject,l.sent_html,l.sent_text,l.sent_from_email,l.sent_reply_to_email,
+                c.email,p.name campaign_name,p.approval_snapshot
+           FROM hf_press_outreach_logs l
+           JOIN hf_press_contacts c ON c.id=l.contact_id
+           JOIN hf_press_campaigns p ON p.id=l.campaign_id
+          WHERE l.id=? AND l.campaign_id=? AND l.channel='email'
+          LIMIT 1`,
+        [logId, campaignId],
+      );
+      const row = rows[0];
+      if (!row) return reply.status(404).send({ error: "Gönderim kaydı bulunamadı" });
+      const { preview, logoUrl } = readApprovalMessageSnapshot(row.approval_snapshot);
+      const html = row.sent_html || preview?.html || null;
+      return reply.send({
+        data: {
+          logId: Number(row.id),
+          campaignId: Number(row.campaign_id),
+          contactId: Number(row.contact_id),
+          campaignName: row.campaign_name,
+          recipientEmail: row.email,
+          status: row.status,
+          subject: row.sent_subject || preview?.subject || null,
+          html,
+          previewHtml: renderBrowserMessageHtml(html, logoUrl),
+          text: row.sent_text || preview?.text || null,
+          fromEmail: row.sent_from_email || null,
+          replyToEmail: row.sent_reply_to_email || null,
+          sentAt: row.sent_at instanceof Date ? row.sent_at.toISOString() : row.sent_at || null,
+          providerMessageId: row.provider_message_id || null,
+          snapshotSource: row.sent_html ? "delivery" : preview ? "approval" : "unavailable",
+        },
+      });
+    },
+  );
 
   app.post("/press/logs", async (req, reply) => {
     const parsed = logBody.safeParse(req.body);
@@ -269,6 +410,11 @@ function normalizeCampaign(input: z.infer<typeof campaignBody>) {
     pitch: input.pitch,
     templateKey: input.templateKey || null,
     segmentTags: input.segmentTags,
+    fromEmail: input.fromEmail,
+    replyToEmail: input.replyToEmail,
+    ratePerMinute: input.ratePerMinute,
+    delayMinSeconds: input.delayMinSeconds,
+    delayMaxSeconds: input.delayMaxSeconds,
     status: input.status,
     scheduledAt: input.scheduledAt ? new Date(input.scheduledAt) : null,
     sentAt: input.sentAt ? new Date(input.sentAt) : null,
@@ -283,6 +429,11 @@ function normalizeCampaignPatch(input: z.infer<typeof campaignPatch>) {
   if (input.pitch !== undefined) patch.pitch = input.pitch;
   if (input.templateKey !== undefined) patch.templateKey = input.templateKey || null;
   if (input.segmentTags !== undefined) patch.segmentTags = input.segmentTags;
+  if (input.fromEmail !== undefined) patch.fromEmail = input.fromEmail;
+  if (input.replyToEmail !== undefined) patch.replyToEmail = input.replyToEmail;
+  if (input.ratePerMinute !== undefined) patch.ratePerMinute = input.ratePerMinute;
+  if (input.delayMinSeconds !== undefined) patch.delayMinSeconds = input.delayMinSeconds;
+  if (input.delayMaxSeconds !== undefined) patch.delayMaxSeconds = input.delayMaxSeconds;
   if (input.status !== undefined) patch.status = input.status;
   if (input.scheduledAt !== undefined) patch.scheduledAt = input.scheduledAt ? new Date(input.scheduledAt) : null;
   if (input.sentAt !== undefined) patch.sentAt = input.sentAt ? new Date(input.sentAt) : null;
@@ -297,7 +448,7 @@ function normalizeLog(input: z.infer<typeof logBody>) {
     status: input.status,
     note: input.note || null,
     publishedUrl: input.publishedUrl || null,
-    contactedAt: input.contactedAt ? new Date(input.contactedAt) : new Date(),
+    contactedAt: input.contactedAt ? new Date(input.contactedAt) : input.status === "planned" ? null : new Date(),
   };
 }
 
@@ -312,6 +463,7 @@ function normalizeLogPatch(input: z.infer<typeof logPatch>) {
 }
 
 async function touchContact(contactId: number, logStatus: z.infer<typeof logBody>["status"]) {
+  if (["planned", "processing", "skipped", "failed", "uncertain"].includes(logStatus)) return;
   const status = logStatus === "published" ? "published" : logStatus === "replied" ? "replied" : "contacted";
   await db.update(hfPressContacts).set({ status, lastContactedAt: new Date() }).where(eq(hfPressContacts.id, contactId));
 }
@@ -454,4 +606,9 @@ function slugify(value: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 150) || `kampanya-${Date.now()}`;
+}
+
+function sendDeliveryError(reply: any, error: unknown) {
+  const row = error as { statusCode?: number; message?: string; counts?: unknown };
+  return reply.status(row?.statusCode || 500).send({ error: row?.message || "press_delivery_failed", ...(row?.counts ? { counts: row.counts } : {}) });
 }

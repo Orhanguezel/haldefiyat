@@ -495,7 +495,7 @@ async function runSearchVolumeJob(app: FastifyInstance): Promise<void> {
   app.log.info("[cron:search-volume] GSC gösterim → search_volume senkronu");
   try {
     const r = await syncSearchVolumeFromGsc(90);
-    app.log.info({ updated: r.updated, products: r.products, durationMs: Date.now() - t0 }, "[cron:search-volume] tamamlandi");
+    app.log.info({ updated: r.updated, zeroed: r.zeroed, products: r.products, durationMs: Date.now() - t0 }, "[cron:search-volume] tamamlandi");
   } catch (err) {
     app.log.error({ err }, "[cron:search-volume] hata");
   }

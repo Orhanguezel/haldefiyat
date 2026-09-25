@@ -130,8 +130,9 @@ function headlineSection(summary: WeeklySummary): string {
     + `<p>Haftanın en geniş tabanlı sert hareketi <strong>${esc(lead.productName)}</strong> tarafında görüldü. `
     + `${lead.marketCount} halin medyanı hafta başındaki ${trPriceUnit(lead.previousAvg)} seviyesinden hafta sonunda `
     + `${trPriceUnit(lead.latestAvg)} seviyesine ${verb}; haftalık değişim <strong>${trPctSigned(lead.changePct)}</strong>. `
-    + `Bu ${dir} ${lead.marketCount} ayrı halde aynı yönde gözlendiği için tek kaynaklı bir kayıt hatasından çok `
-    + `piyasa genelindeki bir hareketi işaret ediyor. Hal kayıtları fiyat hareketini gösterir, tek başına sebebini kanıtlamaz; `
+    + `Karşılaştırmanın başlangıç ve bitiş pencerelerinin her birinde en az ${lead.marketCount} hal bulunuyor. `
+    + `Bu sayı aynı hallerin tamamında aynı yönün görüldüğü anlamına gelmez; ${dir}, her halin ortalamasından `
+    + `türetilen haller arası medyandaki değişimi gösterir. Hal kayıtları fiyat hareketini gösterir, tek başına sebebini kanıtlamaz; `
     + `neden-sonuç yorumu üretim ve meteoroloji verisiyle ayrıca doğrulanmalıdır.</p>\n`;
 
   if (lead.marketCount <= NARROW_BASE_MARKETS) {
@@ -263,7 +264,7 @@ export function buildWeeklyReportHtml(input: WeeklyReportHtmlInput): string {
   const dekParts: string[] = [];
   if (status) dekParts.push(`${status.sentence}.`);
   if (lead) {
-    dekParts.push(`Haftanın en sert hareketi ${esc(lead.productName)} tarafında: ${lead.marketCount} halin ortalaması `
+    dekParts.push(`Haftanın en sert hareketi ${esc(lead.productName)} tarafında: haller arası medyan `
       + `<strong>${trPctSigned(lead.changePct)}</strong> değişti.`);
   }
   if (second) {

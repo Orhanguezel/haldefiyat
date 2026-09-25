@@ -7,6 +7,7 @@ import { desc, eq, sql } from "drizzle-orm";
 import { runCompetitorCheck } from "./checker";
 import { isDiscoveryRunning, startDiscoveryBackground } from "./discovery";
 import { discoverySocial, discoveryDelta, discoveryDomainResults, discoveryDomains, discoveryQueries, discoveryQueryResults, getLatestRun, listRuns } from "./discovery-read";
+import { buildSeoOpportunities, completeOpportunityInputs } from "./opportunities";
 
 export async function registerCompetitorMonitor(app: FastifyInstance) {
   /**
@@ -116,7 +117,38 @@ export async function registerCompetitorMonitor(app: FastifyInstance) {
     if (!runId) return reply.send({ run: null, running: isDiscoveryRunning(), domains: [], queries: [], runs: [], delta: null });
     const [runs, domains, queries, delta, google, social] = await Promise.all([listRuns(), discoveryDomains(runId), discoveryQueries(runId), discoveryDelta(runId), googlePerformance(), discoverySocial(runId)]);
     const run = runs.find((r) => Number(r.id) === runId) ?? latest;
-    return reply.send({ run, running: isDiscoveryRunning(), domains, queries: queries.map(q => ({ ...q, google: google.queries[String(q.query)] ?? null })), runs, delta, social, google: { startDate: google.startDate, endDate: google.endDate, status: google.status } });
+    const opportunityInputs = completeOpportunityInputs(
+      queries.map((q) => ({ query: String(q.query), our_position: q.our_position as number | string | null })),
+      google,
+      Number(run?.queries_total ?? queries.length),
+      // Kullanıcının 25 Eylül değerlendirme kapsamındaki sorgu. Son Brave
+      // koşusunda sonuç satırı oluşmadığı için run tablosunda adı korunmamıştı.
+      ["bursa hal fiyatları"],
+    );
+    const opportunityData = buildSeoOpportunities(opportunityInputs, google);
+    return reply.send({
+      run,
+      running: isDiscoveryRunning(),
+      domains,
+      queries: queries.map(q => ({
+        ...q,
+        google: google.queries[String(q.query)] ?? null,
+        googlePrevious: google.previousQueries[String(q.query)] ?? null,
+      })),
+      runs,
+      delta,
+      social,
+      opportunities: opportunityData.items,
+      opportunitySummary: opportunityData.summary,
+      google: {
+        startDate: google.startDate,
+        endDate: google.endDate,
+        previousStartDate: google.previousStartDate,
+        previousEndDate: google.previousEndDate,
+        status: google.status,
+        scope: google.scope,
+      },
+    });
   });
 
   app.get<{ Querystring: { runId: string; domain?: string; query?: string } }>("/competitor-monitor/discovery/results", async (req, reply) => {

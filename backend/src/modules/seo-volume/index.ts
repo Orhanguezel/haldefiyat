@@ -5,8 +5,9 @@ import { db } from "@/db/client";
 import { getPageImpressions } from "@agro/shared-backend/modules/searchConsole";
 
 // search_volume'u GSC gerçek gösterimlerinden doldurur: her /urun/{slug} sayfasının
-// son N gün gösterimi → o ürünün search_volume'u. Sadece gösterimi olan ürünler güncellenir
-// (manuel/0 değerlere dokunulmaz — additive).
+// son N gün gösterimi → o ürünün search_volume'u. Bu alan bir snapshot'tır;
+// yeni GSC sonucunda bulunmayan master ürünler sıfırlanır. Aksi halde eski
+// gösterimler panelde aylarca güncelmiş gibi kalır.
 //
 // 301'li varyantin gosterimi MASTER'a yazilir: varyantin sayfasi yok, arama
 // sonucundaki tiklama master'a dusuyor, ama gosterim GSC'de eski URL'e
@@ -14,7 +15,7 @@ import { getPageImpressions } from "@agro/shared-backend/modules/searchConsole";
 // — `kapya-biber` 6.225 gosterimle duruyor, master `biber-kapya` 88 goruinuyordu
 // (2026-09-21). Bu deger panel onceliklendirmesini, sehir x urun hacim kapisini
 // ve "populer" siralamasini besliyor.
-export async function syncSearchVolumeFromGsc(days = 90): Promise<{ updated: number; products: number; merged: number }> {
+export async function syncSearchVolumeFromGsc(days = 90): Promise<{ updated: number; zeroed: number; products: number; merged: number }> {
   const pages = await getPageImpressions(days);
 
   const canonRes = await db.execute(sql`SELECT slug, canonical_slug FROM hf_products`);
@@ -27,7 +28,10 @@ export async function syncSearchVolumeFromGsc(days = 90): Promise<{ updated: num
     const m = p.page.match(/\/urun\/([^/?#]+)/);
     if (!m?.[1]) continue;
     const slug = decodeURIComponent(m[1]).toLocaleLowerCase("tr");
-    const target = canonicalOf.get(slug) ?? slug;
+    // Silinmiş/eski URL'ler GSC'de kalabilir. Bunları snapshot kapısı saymak,
+    // gerçek ürün sonucu yokken tüm kataloğu sıfırlayabilir.
+    const target = canonicalOf.get(slug);
+    if (!target) continue;
     if (target !== slug) mergedSlugs.add(slug);
     bySlug.set(target, (bySlug.get(target) ?? 0) + p.impressions);
   }
@@ -38,12 +42,26 @@ export async function syncSearchVolumeFromGsc(days = 90): Promise<{ updated: num
     const row = (Array.isArray(res) ? res[0] : res) as { affectedRows?: number };
     updated += Number(row?.affectedRows ?? 0);
   }
+  let zeroed = 0;
+  // Boş/bozuk bir GSC yanıtında toplu veri kaybı yapma. En az bir bilinen
+  // ürün sonucu varsa, snapshot'ta bulunmayan master'lardaki bayat değerleri temizle.
+  if (bySlug.size > 0) {
+    const currentSlugs = [...bySlug.keys()];
+    const zeroRes = await db.execute(sql`
+      UPDATE hf_products
+      SET search_volume = 0
+      WHERE canonical_slug IS NULL AND search_volume > 0
+        AND slug NOT IN (${sql.join(currentSlugs.map((slug) => sql`${slug}`), sql`, `)})
+    `);
+    const row = (Array.isArray(zeroRes) ? zeroRes[0] : zeroRes) as { affectedRows?: number };
+    zeroed = Number(row?.affectedRows ?? 0);
+  }
   // 301'li varyantin kendi hacmi OLAMAZ: sayfasi yok, gorunurlugu master'in.
   // Yalniz bu turda devredilenleri sifirlamak yetmiyordu — son 90 gunde gosterim
   // almayan varyantlarda eski deger oldugu gibi kaliyor ve panel/kapi onu
   // gercek saniyordu (140 kayit, 2026-09-21).
   await db.execute(sql`UPDATE hf_products SET search_volume = 0 WHERE canonical_slug IS NOT NULL AND search_volume > 0`);
-  return { updated, products: bySlug.size, merged: mergedSlugs.size };
+  return { updated, zeroed, products: bySlug.size, merged: mergedSlugs.size };
 }
 
 export async function registerSeoVolumeAdmin(app: FastifyInstance) {

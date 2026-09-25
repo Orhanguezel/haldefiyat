@@ -138,6 +138,9 @@ async function unsubscribe(req: FastifyRequest, reply: FastifyReply) {
     .set({ unsubscribedAt: new Date() })
     .where(eq(subscribers.email, email));
 
+  // Basın kampanyaları dahil tüm e-posta akışları aynı suppression kapısını kullanır.
+  await suppressEmail({ email, reason: "manual", provider: "one_click", detail: "recipient_unsubscribe" });
+
   return reply.code(200).send({ success: true });
 }
 

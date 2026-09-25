@@ -33,6 +33,7 @@ const EMPTY_AD: AdForm = {
 export default function ListingsAdminPage() {
   const t = useAdminT('admin.listings');
   const tc = useAdminT('admin.common');
+  const [activeTab, setActiveTab] = useState('listings');
   const [status, setStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
   const [query, setQuery] = useState('');
   const [data, setData] = useState<ListingResponse>({ items: [] });
@@ -264,6 +265,10 @@ export default function ListingsAdminPage() {
 
   useEffect(() => { void load(); }, [status]);
   useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get('tab');
+    if (requested && ['listings', 'traffic', 'inquiries', 'transfers', 'settings'].includes(requested)) setActiveTab(requested);
+  }, []);
+  useEffect(() => {
     void (async () => {
       const res = await api(`/admin/listings/analytics?days=${analyticsDays}`);
       if (res.ok) setAnalytics((await res.json()) as ListingAnalytics);
@@ -300,7 +305,17 @@ export default function ListingsAdminPage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="listings" className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => {
+          setActiveTab(value);
+          const url = new URL(window.location.href);
+          if (value === 'listings') url.searchParams.delete('tab');
+          else url.searchParams.set('tab', value);
+          window.history.replaceState(null, '', url);
+        }}
+        className="space-y-4"
+      >
         <TabsList>
           <TabsTrigger value="listings">{t('tabs.list')}</TabsTrigger>
           <TabsTrigger value="traffic">{t('tabs.traffic')}</TabsTrigger>

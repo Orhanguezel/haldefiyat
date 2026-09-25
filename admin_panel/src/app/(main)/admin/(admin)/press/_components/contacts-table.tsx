@@ -1,14 +1,24 @@
 'use client';
 
+import { Pencil } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { TranslateFn } from '@/i18n';
 import type { PressContact } from '@/integrations/endpoints/admin/press-admin-endpoints';
 import { formatDate, STATUS_VARIANT } from '../_lib/press-meta';
 
-type Props = { rows: PressContact[]; loading: boolean; activeId?: number; onSelect: (row: PressContact) => void; t: TranslateFn; tc: TranslateFn };
+type Props = {
+  rows: PressContact[];
+  loading: boolean;
+  activeId?: number;
+  onSelect: (row: PressContact) => void;
+  onEdit: (row: PressContact) => void;
+  t: TranslateFn;
+  tc: TranslateFn;
+};
 
-export function ContactsTable({ rows, loading, activeId, onSelect, t, tc }: Props) {
+export function ContactsTable({ rows, loading, activeId, onSelect, onEdit, t, tc }: Props) {
   if (loading) return <div className="rounded-lg border border-dashed py-16 text-center text-sm text-muted-foreground">{tc('loading')}</div>;
   if (!rows.length) return <div className="rounded-lg border border-dashed py-16 text-center text-sm text-muted-foreground">{tc('emptyFilter')}</div>;
   return (
@@ -22,6 +32,7 @@ export function ContactsTable({ rows, loading, activeId, onSelect, t, tc }: Prop
             <TableHead className="min-w-[160px]">{t('table.tags')}</TableHead>
             <TableHead className="w-32">{t('table.lastContact')}</TableHead>
             <TableHead className="w-28">{t('table.status')}</TableHead>
+            <TableHead className="w-24 text-right">{t('table.action')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -39,6 +50,11 @@ export function ContactsTable({ rows, loading, activeId, onSelect, t, tc }: Prop
               <TableCell><div className="flex flex-wrap gap-1">{c.tags.slice(0, 3).map((tag) => <Badge key={tag} variant="outline" className="font-normal">{tag}</Badge>)}{c.tags.length > 3 ? <span className="text-xs text-muted-foreground">+{c.tags.length - 3}</span> : null}</div></TableCell>
               <TableCell className="text-sm text-muted-foreground">{formatDate(c.lastContactedAt)}</TableCell>
               <TableCell><Badge variant={STATUS_VARIANT[c.status]} className="font-normal">{t(`statuses.${c.status}`)}</Badge></TableCell>
+              <TableCell className="text-right" onClick={(event) => event.stopPropagation()}>
+                <Button size="sm" variant="outline" onClick={() => onEdit(c)}>
+                  <Pencil className="size-3.5" /> {t('table.edit')}
+                </Button>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

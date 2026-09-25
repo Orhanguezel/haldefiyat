@@ -13,7 +13,7 @@ import { persistMonthlyReport } from "./monthly-report";
 import { attachViews, reportViewSummary } from "./report-views";
 import {
   buildMetaDescriptionFrom, buildMetaTitleFor, buildReportTitle, indexStatusOf,
-  MONTH_LABELS, MONTH_SLUGS, trNum, trPct, trPctSigned, trPeriod, trPeriodShort, trPriceUnit,
+  MONTH_SLUGS, trNum, trPct, trPctSigned, trPeriod, trPeriodShort, trPriceUnit, trTitlePeriod,
   type IndexPoint,
 } from "./report-format";
 import {
@@ -507,12 +507,12 @@ async function generateWeeklyReport(week: string): Promise<AutoWeeklyReport | nu
   const basePoint = baseRow ? points.find((row) => row.indexWeek === baseRow.baseWeek) : null;
 
   const periodLabel = trPeriod(weekStart, weekEnd);
-  const monthWeekLabel = `${monthLabel(weekStart)} ${weekOfMonthLabel(weekStart)} Hafta`;
+  const titlePeriodLabel = trTitlePeriod(weekStart, weekEnd);
   const ranked = [...summary.topFallers, ...summary.topRisers]
     .sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct));
   const lead = ranked[0] ?? null;
 
-  const baslik = buildReportTitle(monthWeekLabel, status, lead);
+  const baslik = buildReportTitle(titlePeriodLabel, status, lead, summary.breadth);
   const previousWatchlist = await readPreviousWatchlist(weekStart);
   const watchResults = evaluateWatchlist(previousWatchlist, summary, status);
   // Tek kaynak: ayni liste hem "ne izlenmeli" bolumunu yazar hem DB'ye saklanir.
@@ -547,7 +547,7 @@ async function generateWeeklyReport(week: string): Promise<AutoWeeklyReport | nu
     totalRecords: summary.totalRecords,
     etiketler: buildTags(summary),
     watchlist,
-    metaTitle: buildMetaTitleFor(monthWeekLabel, status, new Date(`${weekStart}T12:00:00Z`).getUTCFullYear(), baslik),
+    metaTitle: buildMetaTitleFor(titlePeriodLabel, status, new Date(`${weekStart}T12:00:00Z`).getUTCFullYear(), baslik),
     metaDescription: buildMetaDescriptionFrom(ozet),
   };
 }
@@ -559,13 +559,28 @@ async function readPreviousWatchlist(weekStart: string): Promise<WatchItem[] | n
   // DATE kolonuna JS Date verilirse surucu tam datetime gonderir ve DATE ile hic eslesmez;
   // karsilastirma her zaman 'YYYY-MM-DD' metniyle yapilir.
   const previousIso = previousMonday.toISOString().slice(0, 10);
-  const [row] = await db
-    .select({ watchlist: hfAnalysisReports.watchlist })
-    .from(hfAnalysisReports)
-    .where(sql`${hfAnalysisReports.weekStart} = ${previousIso}`)
-    .limit(1);
-  const value = row?.watchlist;
-  return Array.isArray(value) ? (value as WatchItem[]) : null;
+  // DATE parametresinin Drizzle uzerinden surucuye aktarimi canlida onceki
+  // haftayi bulamadigi icin degerlendirme bolumu sessizce kayboluyordu. Bu
+  // kritik tarih eslesmesini mysql2'ye acik YYYY-MM-DD parametresiyle ver.
+  const [rows] = await pool.query<any[]>(
+    `SELECT watchlist
+       FROM hf_analysis_reports
+      WHERE week_start = ?
+      ORDER BY id DESC
+      LIMIT 1`,
+    [previousIso],
+  );
+  const raw = rows[0]?.watchlist;
+  if (Array.isArray(raw)) return raw as WatchItem[];
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed as WatchItem[] : null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
 }
 
 async function setReportStatus(idRaw: string, status: AnalysisReportStatus, reviewerId?: string | null) {
@@ -696,8 +711,8 @@ function buildAutoSummary(
   const riser = summary.topRisers[0];
   const faller = summary.topFallers[0];
   const moves: string[] = [];
-  if (faller) moves.push(`${faller.productName} ${faller.marketCount} halde ${trPct(faller.changePct)} geriledi`);
-  if (riser) moves.push(`${riser.productName} ${trPct(riser.changePct)} yükseldi`);
+  if (faller) moves.push(`${faller.productName} için haller arası medyan ${trPct(faller.changePct)} geriledi`);
+  if (riser) moves.push(`${riser.productName} için haller arası medyan ${trPct(riser.changePct)} yükseldi`);
   const movesText = moves.length ? moves.join("; ") : "belirgin bir ürün hareketi oluşmadı";
   const indexText = status
     ? `${status.sentence}.`
@@ -757,19 +772,10 @@ function slugForWeek(weekStart: string): string {
   return `${MONTH_SLUGS[d.getUTCMonth()]}-${weekOfMonth(d)}-hafta-${d.getUTCFullYear()}-hal-raporu`;
 }
 
-function weekOfMonthLabel(weekStart: string): string {
-  return `${weekOfMonth(new Date(`${weekStart}T12:00:00Z`))}.`;
-}
-
 function weekOfMonth(d: Date): number {
   const first = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1, 12));
   const firstDow = (first.getUTCDay() + 6) % 7;
   return Math.floor((d.getUTCDate() + firstDow - 1) / 7) + 1;
-}
-
-function monthLabel(weekStart: string): string {
-  const d = new Date(`${weekStart}T12:00:00Z`);
-  return MONTH_LABELS[d.getUTCMonth()]!;
 }
 
 function isoWeekFromMonday(monday: Date): string {
@@ -782,6 +788,3 @@ function isoWeekFromMonday(monday: Date): string {
   );
   return `${d.getUTCFullYear()}-${String(week).padStart(2, "0")}`;
 }
-
-
-
