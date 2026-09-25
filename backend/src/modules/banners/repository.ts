@@ -10,7 +10,7 @@ import { repoGetUserById } from "@agro/shared-backend/modules/auth/repository";
 
 export type BannerRow = typeof hfBanners.$inferSelect;
 export type BannerDevice = "all" | "desktop" | "mobile";
-export type BannerLifecycleStatus = "draft" | "proposal" | "reserved" | "payment_pending" | "scheduled" | "live" | "completed" | "cancelled" | "problem" | "archived";
+export type BannerLifecycleStatus = "draft" | "proposal" | "reserved" | "payment_pending" | "scheduled" | "live" | "paused" | "completed" | "cancelled" | "problem" | "archived";
 export type BannerScopeType = "global" | "page_type" | "city" | "district" | "product" | "category" | "market" | "firm" | "listing";
 export type BannerTarget = { scopeType: BannerScopeType; scopeValue?: string | null };
 export type BannerContext = Partial<Record<Exclude<BannerScopeType, "global">, string>>;
@@ -1425,7 +1425,7 @@ export async function syncBannerLifecycle() {
     "UPDATE hf_banners SET lifecycle_status='live', is_active=1 WHERE lifecycle_status='scheduled' AND (start_at IS NULL OR start_at <= CURRENT_TIMESTAMP(3)) AND (end_at IS NULL OR end_at >= CURRENT_TIMESTAMP(3))",
   );
   const [completed] = await pool.query<any>(
-    "UPDATE hf_banners SET lifecycle_status='completed', is_active=0 WHERE lifecycle_status IN ('scheduled','live') AND end_at IS NOT NULL AND end_at < CURRENT_TIMESTAMP(3)",
+    "UPDATE hf_banners SET lifecycle_status='completed', is_active=0 WHERE lifecycle_status IN ('scheduled','live','paused') AND end_at IS NOT NULL AND end_at < CURRENT_TIMESTAMP(3)",
   );
   return {
     cancelledReservations: Number(expiredReservations?.affectedRows ?? 0),

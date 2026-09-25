@@ -92,7 +92,7 @@ const positionSchema = z.enum(BANNER_POSITIONS);
 const deviceSchema = z.enum(["all", "desktop", "mobile"]);
 const typeSchema = z.enum(["image", "code"]);
 const sourceTypeSchema = z.enum(["custom", "listing", "firm", "code"]);
-const lifecycleSchema = z.enum(["draft", "proposal", "reserved", "payment_pending", "scheduled", "live", "completed", "cancelled", "problem", "archived"]);
+const lifecycleSchema = z.enum(["draft", "proposal", "reserved", "payment_pending", "scheduled", "live", "paused", "completed", "cancelled", "problem", "archived"]);
 const scopeTypeSchema = z.enum(["global", "page_type", "city", "district", "product", "category", "market", "firm", "listing"]);
 const targetSchema = z.object({
   scopeType: scopeTypeSchema,
@@ -255,8 +255,10 @@ const transitionMap: Record<string, string[]> = {
   proposal: ["draft", "reserved", "payment_pending", "cancelled", "archived"],
   reserved: ["draft", "proposal", "payment_pending", "scheduled", "live", "cancelled", "archived"],
   payment_pending: ["draft", "reserved", "scheduled", "live", "cancelled", "problem", "archived"],
-  scheduled: ["draft", "live", "completed", "cancelled", "problem", "archived"],
-  live: ["draft", "completed", "cancelled", "problem", "archived"],
+  scheduled: ["draft", "live", "paused", "completed", "cancelled", "problem", "archived"],
+  live: ["draft", "paused", "completed", "cancelled", "problem", "archived"],
+  // Durdurulan reklam slotu bosaltir; devam ederken cakisma kontrolu yeniden kosar.
+  paused: ["draft", "scheduled", "live", "completed", "cancelled", "archived"],
   completed: ["scheduled", "live", "archived"],
   cancelled: ["draft", "proposal", "reserved", "archived"],
   problem: ["draft", "scheduled", "live", "cancelled", "archived"],
@@ -1180,9 +1182,11 @@ export async function registerBannersAdmin(app: FastifyInstance) {
     if (normalizedPatch.lifecycleStatus && normalizedPatch.lifecycleStatus !== current.lifecycleStatus && !canTransitionBannerLifecycle(current.lifecycleStatus, normalizedPatch.lifecycleStatus)) {
       return reply.status(409).send({ error: `${current.lifecycleStatus} durumundan ${normalizedPatch.lifecycleStatus} durumuna gecilemez` });
     }
-    const slotError = await slotValidationError(merged);
+    // Yayini durdurmak, slot satisa kapatilmis ya da ilan bozulmus olsa bile engellenmemeli.
+    const pausing = normalizedPatch.lifecycleStatus === "paused";
+    const slotError = pausing ? null : await slotValidationError(merged);
     if (slotError) return reply.status(400).send({ error: slotError });
-    if (merged.sourceType === "listing") {
+    if (merged.sourceType === "listing" && !pausing) {
       const listing = merged.listingId ? await getListingCreative(merged.listingId) : null;
       if (!listing || listing.status !== "approved" || listing.isSuspicious) return reply.status(400).send({ error: "Yalnizca onayli ve guvenli ilan secilebilir" });
     }

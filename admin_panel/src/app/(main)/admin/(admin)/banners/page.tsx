@@ -38,7 +38,7 @@ import {
   summarize,
 } from "./_lib/banner-meta";
 
-const CHIPS = ["all", "live", "scheduled", "open", "endingSoon", "problem", "completed", "draft"] as const;
+const CHIPS = ["all", "live", "scheduled", "open", "endingSoon", "paused", "problem", "completed", "draft"] as const;
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState("campaigns");

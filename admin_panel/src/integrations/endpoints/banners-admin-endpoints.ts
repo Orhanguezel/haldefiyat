@@ -4,7 +4,7 @@ import { baseApi } from '@/integrations/base-api';
 export type BannerType = 'image' | 'code';
 export type BannerSourceType = 'custom' | 'listing' | 'firm' | 'code';
 export type BannerDevice = 'all' | 'desktop' | 'mobile';
-export type BannerLifecycleStatus = 'draft' | 'proposal' | 'reserved' | 'payment_pending' | 'scheduled' | 'live' | 'completed' | 'cancelled' | 'problem' | 'archived';
+export type BannerLifecycleStatus = 'draft' | 'proposal' | 'reserved' | 'payment_pending' | 'scheduled' | 'live' | 'paused' | 'completed' | 'cancelled' | 'problem' | 'archived';
 export type BannerPaymentStatus = 'unpaid' | 'partial' | 'paid' | 'waived' | 'refunded' | 'cancelled';
 export type BannerScopeType = 'global' | 'page_type' | 'city' | 'district' | 'product' | 'category' | 'market' | 'firm' | 'listing';
 export type BannerTarget = { scopeType: BannerScopeType; scopeValue?: string | null };

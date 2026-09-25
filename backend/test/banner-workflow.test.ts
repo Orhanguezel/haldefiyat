@@ -91,6 +91,20 @@ describe("banner yaşam döngüsü", () => {
     expect(canTransitionBannerLifecycle("proposal", "live")).toBeFalse();
   });
 
+  test("durdurma yayını kapatır ve yalnız yayındaki/planlı reklamda açıktır", () => {
+    expect(canTransitionBannerLifecycle("live", "paused")).toBeTrue();
+    expect(canTransitionBannerLifecycle("scheduled", "paused")).toBeTrue();
+    expect(canTransitionBannerLifecycle("draft", "paused")).toBeFalse();
+    expect(canTransitionBannerLifecycle("paused", "live")).toBeTrue();
+    expect(canTransitionBannerLifecycle("paused", "scheduled")).toBeTrue();
+    expect(normalizeBannerLifecycle({ lifecycleStatus: "paused" })).toEqual({ lifecycleStatus: "paused", isActive: false });
+  });
+
+  test("devam ettirme başlangıç tarihine göre yayın ya da plan seçer", () => {
+    expect(normalizeBannerLifecycle({ isActive: true, startAt: "2020-01-01T00:00:00Z" }).lifecycleStatus).toBe("live");
+    expect(normalizeBannerLifecycle({ isActive: true, startAt: "2999-01-01T00:00:00Z" }).lifecycleStatus).toBe("scheduled");
+  });
+
   test("rezervasyona ödeme penceresi ekler", () => {
     const before = Date.now();
     const result = applyReservationPaymentWindow({

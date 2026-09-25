@@ -44,7 +44,7 @@ import { resolveMediaUrl } from '@/lib/media-url';
 import { BASE_URL } from '@/integrations/api-base';
 import { tokenStore } from '@/integrations/core/token';
 import { useAdminT } from '../../../_components/common/use-admin-t';
-import { errorMessage } from '../_lib/banner-meta';
+import { errorMessage, LIFECYCLES } from '../_lib/banner-meta';
 
 type FormState = {
   position: BannerPosition;
@@ -993,7 +993,7 @@ export function BannerDetailClient({ id }: Props) {
               <Select value={form.lifecycleStatus} onValueChange={(value) => set('lifecycleStatus', value as BannerLifecycleStatus)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {(['draft', 'proposal', 'reserved', 'payment_pending', 'scheduled', 'live', 'completed', 'cancelled', 'problem', 'archived'] as BannerLifecycleStatus[]).map((k) => <SelectItem key={k} value={k}>{tb(`lifecycles.${k}`)}</SelectItem>)}
+                  {LIFECYCLES.map((k) => <SelectItem key={k} value={k}>{tb(`lifecycles.${k}`)}</SelectItem>)}
                 </SelectContent>
               </Select>
               <p className="text-muted-foreground text-xs">{t('schedule.statusHint')}</p>

@@ -4,7 +4,7 @@ import AdFormatPreview from './ad-format-preview';
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { Copy, Edit, ExternalLink, Monitor, Smartphone, Trash2 } from 'lucide-react';
+import { Copy, Edit, ExternalLink, Monitor, Pause, Play, Smartphone, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -14,8 +14,8 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import type { TranslateFn } from '@/i18n';
 import type { AdSlotAdmin, BannerAdmin } from '@/integrations/endpoints/banners-admin-endpoints';
-import { useDeleteBannerAdminMutation, useDuplicateBannerAdminMutation } from '@/integrations/hooks';
-import { ctr, errorMessage, fmtCtr, LIFECYCLE_VARIANT, money, positionLabel, shortDate } from '../_lib/banner-meta';
+import { useDeleteBannerAdminMutation, useDuplicateBannerAdminMutation, useUpdateBannerAdminMutation } from '@/integrations/hooks';
+import { ctr, errorMessage, fmtCtr, LIFECYCLE_VARIANT, money, PAUSABLE_STATUSES, positionLabel, shortDate } from '../_lib/banner-meta';
 
 /**
  * Reklamin YAYINDAKI hali — panelde gorsel dosyasi olmayan sablon reklamlar
@@ -64,7 +64,32 @@ type Props = { row: BannerAdmin | null; slots: AdSlotAdmin[]; onClose: () => voi
 export function CampaignSheet({ row, slots, onClose, t, tc }: Props) {
   const [remove, rm] = useDeleteBannerAdminMutation();
   const [duplicate, dup] = useDuplicateBannerAdminMutation();
+  const [update, upd] = useUpdateBannerAdminMutation();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmPause, setConfirmPause] = useState(false);
+
+  async function handlePause() {
+    if (!row) return;
+    try {
+      await update({ id: row.id, patch: { lifecycleStatus: 'paused' } }).unwrap();
+      toast.success(t('toasts.paused'));
+      setConfirmPause(false);
+      onClose();
+    } catch (err) { toast.error(errorMessage(err, tc('saveFailed'))); }
+  }
+  // Durum verilmez: backend baslangic tarihine gore live/scheduled secer ve slot cakismasini denetler.
+  async function handleResume() {
+    if (!row) return;
+    try {
+      await update({ id: row.id, patch: { isActive: true, startAt: row.startAt } }).unwrap();
+      toast.success(t('toasts.resumed'));
+      onClose();
+    } catch (err) {
+      // Hata zarfi rotanin ek alanlarini error.details altina tasir.
+      const conflicts = (err as { data?: { error?: { details?: { conflicts?: Array<{ title: string }> } } } })?.data?.error?.details?.conflicts;
+      toast.error(conflicts?.length ? t('sheet.resumeConflict', { titles: conflicts.map((c) => c.title).join(', ') }) : errorMessage(err, tc('saveFailed')));
+    }
+  }
 
   async function handleDuplicate() {
     if (!row) return;
@@ -128,6 +153,8 @@ export function CampaignSheet({ row, slots, onClose, t, tc }: Props) {
               <div className="flex w-full flex-wrap items-center gap-2">
                 <Button asChild size="sm"><Link href={`/admin/banners/${row.id}`}><Edit className="size-3.5" /> {t('sheet.edit')}</Link></Button>
                 <Button size="sm" variant="outline" onClick={handleDuplicate} disabled={dup.isLoading}><Copy className="size-3.5" /> {t('sheet.duplicate')}</Button>
+                {PAUSABLE_STATUSES.has(row.lifecycleStatus) ? <Button size="sm" variant="outline" onClick={() => setConfirmPause(true)} disabled={upd.isLoading}><Pause className="size-3.5" /> {t('sheet.pause')}</Button> : null}
+                {row.lifecycleStatus === 'paused' ? <Button size="sm" variant="outline" onClick={handleResume} disabled={upd.isLoading}><Play className="size-3.5" /> {t('sheet.resume')}</Button> : null}
                 {row.linkUrl ? <Button asChild size="sm" variant="ghost"><a href={row.linkUrl} target="_blank" rel="noreferrer"><ExternalLink className="size-3.5" /> {tc('openPage')}</a></Button> : null}
                 <span className="flex-1" />
                 <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setConfirmDelete(true)} disabled={rm.isLoading}><Trash2 className="size-3.5" /> {tc('delete')}</Button>
@@ -137,6 +164,12 @@ export function CampaignSheet({ row, slots, onClose, t, tc }: Props) {
               <AlertDialogContent>
                 <AlertDialogHeader><AlertDialogTitle>{t('sheet.deleteTitle')}</AlertDialogTitle><AlertDialogDescription>{t('sheet.deleteHint', { title: row.title })}</AlertDialogDescription></AlertDialogHeader>
                 <AlertDialogFooter><AlertDialogCancel>{tc('giveUp')}</AlertDialogCancel><AlertDialogAction onClick={handleDelete}>{tc('delete')}</AlertDialogAction></AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <AlertDialog open={confirmPause} onOpenChange={setConfirmPause}>
+              <AlertDialogContent>
+                <AlertDialogHeader><AlertDialogTitle>{t('sheet.pauseTitle')}</AlertDialogTitle><AlertDialogDescription>{t('sheet.pauseHint', { title: row.title })}</AlertDialogDescription></AlertDialogHeader>
+                <AlertDialogFooter><AlertDialogCancel>{tc('giveUp')}</AlertDialogCancel><AlertDialogAction onClick={handlePause}>{t('sheet.pause')}</AlertDialogAction></AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
           </>

@@ -22,6 +22,7 @@
     "scheduled": "Planlı",
     "open": "Satış sürecinde",
     "endingSoon": "7 günde bitecek",
+    "paused": "Durduruldu",
     "problem": "Sorunlu",
     "completed": "Tamamlandı",
     "draft": "Taslak"
@@ -55,6 +56,7 @@
     "payment_pending": "Ödeme bekliyor",
     "scheduled": "Planlandı",
     "live": "Yayında",
+    "paused": "Durduruldu",
     "completed": "Tamamlandı",
     "cancelled": "İptal",
     "problem": "Sorunlu",
@@ -131,6 +133,11 @@
     "invoice": "Fatura no",
     "edit": "Düzenle (tam sayfa)",
     "duplicate": "Taslak kopya",
+    "pause": "Durdur",
+    "resume": "Devam ettir",
+    "pauseTitle": "Reklam durdurulsun mu?",
+    "pauseHint": "\"{title}\" yayından kalkar ve slotu boşalır; bu aralığa başka bir reklam yerleştirilebilir. Devam ettirirken slot doluysa önce onu boşaltmanız gerekir.",
+    "resumeConflict": "Slot bu arada dolmuş: {titles}. Önce o reklamı durdurun ya da tarih/satırı değiştirin.",
     "deleteTitle": "Reklam silinsin mi?",
     "deleteHint": "\"{title}\" kalıcı olarak silinir; ölçüm geçmişi de gider.",
     "preview": "Önizleme",
@@ -140,7 +147,9 @@
   },
   "toasts": {
     "duplicated": "Reklam güvenli bir taslak kopya olarak oluşturuldu.",
-    "deleted": "Reklam silindi."
+    "deleted": "Reklam silindi.",
+    "paused": "Reklam durduruldu; slot başka bir reklama açıldı.",
+    "resumed": "Reklam yeniden yayına alındı."
   },
   "alerts": {
     "empty": "Müdahale bekleyen bir şey yok.",

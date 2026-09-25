@@ -1,7 +1,7 @@
 ALTER TABLE hf_banners
   ADD COLUMN lifecycle_status ENUM(
     'draft','proposal','reserved','payment_pending','scheduled',
-    'live','completed','cancelled','problem','archived'
+    'live','paused','completed','cancelled','problem','archived'
   ) NOT NULL DEFAULT 'draft' AFTER source_type,
   ADD COLUMN reservation_expires_at DATETIME(3) NULL AFTER end_at,
   ADD COLUMN sales_owner VARCHAR(160) NULL AFTER reservation_expires_at,

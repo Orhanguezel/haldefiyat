@@ -3,7 +3,7 @@ import {
 } from '@/integrations/endpoints/banners-admin-endpoints';
 
 export const ALL = 'all';
-export const LIFECYCLES: BannerLifecycleStatus[] = ['draft', 'proposal', 'reserved', 'payment_pending', 'scheduled', 'live', 'completed', 'cancelled', 'problem', 'archived'];
+export const LIFECYCLES: BannerLifecycleStatus[] = ['draft', 'proposal', 'reserved', 'payment_pending', 'scheduled', 'live', 'paused', 'completed', 'cancelled', 'problem', 'archived'];
 export const SOURCE_TYPES = ['custom', 'listing', 'firm', 'code'] as const;
 export type SortKey = 'newest' | 'endAt' | 'impressions' | 'ctr' | 'amount' | 'title';
 export const SORT_KEYS: SortKey[] = ['newest', 'endAt', 'impressions', 'ctr', 'amount', 'title'];
@@ -13,13 +13,15 @@ export const EMPTY_FILTERS: Filters = { q: '', position: ALL, lifecycle: ALL, so
 export const LIFECYCLE_VARIANT: Record<BannerLifecycleStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
   live: 'default', scheduled: 'secondary', completed: 'secondary', archived: 'secondary',
   problem: 'destructive', cancelled: 'destructive',
-  draft: 'outline', proposal: 'outline', reserved: 'outline', payment_pending: 'outline',
+  draft: 'outline', proposal: 'outline', reserved: 'outline', payment_pending: 'outline', paused: 'outline',
 };
 export const LIFECYCLE_TONE: Record<BannerLifecycleStatus, string> = {
   live: 'bg-emerald-500', scheduled: 'bg-sky-500', reserved: 'bg-amber-500', payment_pending: 'bg-amber-500', proposal: 'bg-amber-400',
-  problem: 'bg-rose-500', cancelled: 'bg-rose-400', completed: 'bg-muted-foreground/50', archived: 'bg-muted-foreground/30', draft: 'bg-muted-foreground/40',
+  problem: 'bg-rose-500', cancelled: 'bg-rose-400', completed: 'bg-muted-foreground/50', archived: 'bg-muted-foreground/30', draft: 'bg-muted-foreground/40', paused: 'bg-orange-400',
 };
 export const OPEN_STATUSES = new Set<BannerLifecycleStatus>(['proposal', 'reserved', 'payment_pending']);
+/** Durdurma slotu bosaltir; devam ettirirken backend cakisma kontrolunu yeniden yapar. */
+export const PAUSABLE_STATUSES = new Set<BannerLifecycleStatus>(['live', 'scheduled']);
 
 export function positionLabel(slots: AdSlotAdmin[], key: string) {
   return slots.find((s) => s.slotKey === key)?.label ?? BANNER_POSITIONS.find((p) => p.value === key)?.label ?? key;

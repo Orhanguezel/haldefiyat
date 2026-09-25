@@ -828,7 +828,7 @@ export const hfBanners = mysqlTable(
     sourceType:   mysqlEnum("source_type", ["custom", "listing", "firm", "code"]).notNull().default("custom"),
     lifecycleStatus: mysqlEnum("lifecycle_status", [
       "draft", "proposal", "reserved", "payment_pending", "scheduled",
-      "live", "completed", "cancelled", "problem", "archived",
+      "live", "paused", "completed", "cancelled", "problem", "archived",
     ]).notNull().default("draft"),
     paymentStatus: mysqlEnum("payment_status", ["unpaid", "partial", "paid", "waived", "refunded", "cancelled"]).notNull().default("unpaid"),
     paymentOverride: tinyint("payment_override").notNull().default(0),

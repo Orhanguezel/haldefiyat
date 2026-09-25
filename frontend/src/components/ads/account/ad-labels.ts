@@ -34,7 +34,7 @@ export const POSITION_LABELS: Record<string, string> = {
 };
 export const STATUS_LABELS: Record<string, string> = {
   draft: "Taslak", proposal: "Teklif", reserved: "Rezerve", payment_pending: "Ödeme bekliyor",
-  scheduled: "Planlandı", live: "Yayında", completed: "Tamamlandı", cancelled: "İptal",
+  scheduled: "Planlandı", live: "Yayında", paused: "Durduruldu", completed: "Tamamlandı", cancelled: "İptal",
   problem: "Kontrol gerekiyor", archived: "Arşiv",
 };
 export const PERFORMANCE_LABELS: Record<string, string> = { learning: "Veri toplanıyor", normal: "Normal", low: "Düşük", winner: "Güçlü" };
