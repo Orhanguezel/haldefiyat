@@ -41,21 +41,18 @@ module.exports = {
       max_memory_restart: "900M",
     },
     {
-      name: "hal-frontend",
-      // Manage through scripts/frontend-pm2.sh: cluster inherits its Node 24 daemon.
-      // Next.js standalone server.js — deploy scripti doğru path'e symlink kurar
+      name: "hal-frontend-blue",
+      // Blue/green slotlari scripts/frontend-blue-green.sh yonetir. Ecosystem
+      // tanimlari yalniz sifirdan bootstrap/felaket kurtarma icindir.
       script: "standalone-server.js",
       cwd: "./frontend",
       interpreter: "node",
-      // Iki worker rolling reload sirasinda en az bir process'i servis verir
-      // halde tutar. Izole release dizinleri eski worker'in chunk'larini da
-      // korudugu icin graceful geciste eski/yeni HTML-static karismaz.
-      instances: 2,
-      exec_mode: "cluster",
+      instances: 1,
+      exec_mode: "fork",
       watch: false,
       env: {
         NODE_ENV: "production",
-        PORT: Number(process.env.HAL_FRONTEND_PORT || 3033),
+        PORT: 3033,
         HOSTNAME: "0.0.0.0",
         // BACKEND_URL: server component'lar için internal backend adresi
         // NEXT_PUBLIC_ olmadığı için build'e baked olmaz — runtime'da okunur
@@ -70,12 +67,34 @@ module.exports = {
       restart_delay: 3000,
       max_restarts: 10,
       min_uptime: "10s",
-      // Rolling reload sirasinda eski worker'in acik HTTP/2 baglantilari
-      // 1,6 sn'de kesiliyordu; bir kopan baglanti o sayfanin tum alt
-      // kaynaklarini birden 500 yapiyor.
+      // Trafik diger slota aktarilmadan bu surec sonlandirilmaz.
       kill_timeout: 10000,
-      // Worker basina kacak buyume sigortasi (normal ~340 MB). PM2 cluster'da
-      // tek worker yeniden baslatilir, digeri servis vermeye devam eder.
+      // Worker icin kacak buyume sigortasi (normal ~340 MB).
+      max_memory_restart: "700M",
+    },
+    {
+      name: "hal-frontend-green",
+      script: "standalone-server.js",
+      cwd: "./frontend",
+      interpreter: "node",
+      instances: 1,
+      exec_mode: "fork",
+      watch: false,
+      env: {
+        NODE_ENV: "production",
+        PORT: 3034,
+        HOSTNAME: "0.0.0.0",
+        BACKEND_URL: "http://127.0.0.1:8091",
+        TARIMIKLIM_API_URL: "http://127.0.0.1:8088",
+      },
+      env_file: "./frontend/.env.local",
+      error_file: "../logs/hal-frontend-green-error.log",
+      out_file: "../logs/hal-frontend-green-out.log",
+      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
+      restart_delay: 3000,
+      max_restarts: 10,
+      min_uptime: "10s",
+      kill_timeout: 10000,
       max_memory_restart: "700M",
     },
   ],

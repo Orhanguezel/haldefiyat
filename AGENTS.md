@@ -33,8 +33,9 @@ Canli servis `vps-vistainsaat` sunucusundadir. SSH erisimi key ile yapilir: `ssh
 Frontend, Node 24.21.0 ile ayri PM2 home altinda yonetilir (Node 20'deki
 TransformStream cancel/write yarisi nedeniyle). Frontend durum/reload/save icin
 `bash scripts/frontend-pm2.sh` kullanilir; `pm2` komutu tek basina frontend'i
-listelemez. Backend ve admin mevcut ana PM2'dedir. Frontend portu 3033,
-systemd servisi `hal-frontend.service`; ayrintilar `ops/frontend-runtime.md`.
+listelemez. Backend ve admin mevcut ana PM2'dedir. Frontend blue/green slotlari
+3033 ve 3034 portlarindadir; Nginx yalniz aktif slota trafik verir. Systemd
+servisi `hal-frontend.service`; ayrintilar `ops/frontend-runtime.md`.
 
 ## Pamuk fiyat analizi
 

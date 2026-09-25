@@ -124,10 +124,9 @@ if [ -d "$SHARED_NM" ] && [ -d "$BUN_STORE" ]; then
   echo "    shared-backend symlink'leri kontrol edildi"
 fi
 
-# Frontend iki PM2 cluster worker ile rolling reload edilir. Eski `.next` dizinini
-# overwrite eden tarihsel akisin aksine her deploy izole release dizini kullanir ve
-# eski release'ler rollback icin korunur; bu nedenle eski worker kendi HTML/static
-# ciftini servis ederken yeni worker hazir hale gelebilir.
+# Frontend iki ayri portta blue/green fork surecleriyle yayinlanir. Yeni release
+# bos slota kalkar, dogrudan saglik kontrolu ve isinma bittikten sonra Nginx
+# atomik olarak o slota doner. Eski slot canli rollback olarak ayakta kalir.
 echo "==> [6/6] PM2 yayın geçişi"
 cd "$REPO_ROOT"
 # Ecosystem DOSYASI ile reload: "pm2 reload hal-backend" kayitli tanimi tekrar
@@ -160,51 +159,8 @@ if [ "$BACKEND_HEALTH_OK" -ne 1 ]; then
   exit 1
 fi
 
-_frontend_worker_health() {
-  local ok=0
-  for _health_attempt in 1 2 3 4 5; do
-    if curl --fail --silent --show-error --max-time 10 \
-      http://127.0.0.1:3033/.well-known/security.txt >/dev/null; then
-      ok=1
-      break
-    fi
-    sleep 2
-  done
-  [ "$ok" -eq 1 ]
-}
-
-mapfile -t FRONTEND_WORKER_IDS < <(
-  bash scripts/frontend-pm2.sh jlist | node -e '
-    let raw = "";
-    process.stdin.on("data", (chunk) => { raw += chunk; });
-    process.stdin.on("end", () => {
-      for (const proc of JSON.parse(raw)) {
-        if (proc.name === "hal-frontend") console.log(proc.pm_id);
-      }
-    });
-  '
-)
-
-if [ "${#FRONTEND_WORKER_IDS[@]}" -eq 0 ]; then
-  bash scripts/frontend-pm2.sh start ecosystem.config.cjs --only hal-frontend
-  _frontend_worker_health
-elif [ "${#FRONTEND_WORKER_IDS[@]}" -lt 2 ]; then
-  echo "HATA: hal-frontend cluster iki worker degil; kesintili otomatik gecis reddedildi" >&2
-  exit 1
-else
-  # PM2'ye iki ID'yi tek reload komutunda vermek kisa soguk pencere yaratti.
-  # Her worker'i ayri yenile ve digerine gecmeden once ortak portu dogrula.
-  #
-  # DIKKAT: ID ile reload ecosystem.config.cjs'i OKUMAZ. hal-frontend icin
-  # ecosystem ayari degistirildiginde (kill_timeout, env, instances...) bir kez
-  #   bash scripts/frontend-pm2.sh reload "$REPO_ROOT/ecosystem.config.cjs" --only hal-frontend --update-env
-  # calistirilmalidir; PM2 bunu kendi rolling reload'uyla yapar.
-  for worker_id in "${FRONTEND_WORKER_IDS[@]}"; do
-    bash scripts/frontend-pm2.sh reload "$worker_id" --update-env
-    _frontend_worker_health
-  done
-fi
-bash scripts/frontend-pm2.sh save
+bash scripts/frontend-blue-green.sh deploy "$TARGET"
+FRONTEND_ACTIVE_PORT="$(bash scripts/frontend-blue-green.sh active-port)"
 # Admin panel ayrı ecosystem ile yönetiliyor
 ADMIN_PANEL_APP_NAME=hal-admin \
 ADMIN_PANEL_CWD="$ADMIN" \
@@ -224,14 +180,15 @@ pm2 save
 
 FRONTEND_HEALTH_OK=0
 for _attempt in 1 2 3 4 5; do
-  if curl --fail --silent --show-error --max-time 10 http://127.0.0.1:3033/ >/dev/null; then
+  if curl --fail --silent --show-error --max-time 10 \
+    --resolve haldefiyat.com:443:127.0.0.1 https://haldefiyat.com/ >/dev/null; then
     FRONTEND_HEALTH_OK=1
     break
   fi
   sleep 2
 done
 if [ "$FRONTEND_HEALTH_OK" -ne 1 ]; then
-  echo "HATA: frontend rolling reload sonrasi health kapisi gecmedi" >&2
+  echo "HATA: frontend blue-green gecis sonrasi health kapisi gecmedi" >&2
   exit 1
 fi
 
@@ -248,7 +205,7 @@ echo "==> onbellek isitiliyor"
 warm_urls() {
   local ua="$1"; shift
   for u in "$@"; do
-    curl -s -o /dev/null --max-time 12 -H "Host: haldefiyat.com" -A "$ua" "http://127.0.0.1:3033$u" || true
+    curl -s -o /dev/null --max-time 12 -H "Host: haldefiyat.com" -A "$ua" "http://127.0.0.1:${FRONTEND_ACTIVE_PORT}$u" || true
   done
 }
 UA_DESKTOP="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36"
@@ -274,12 +231,9 @@ for _try in 1 2 3; do
   sleep 3
 done
 
-# Iki pm2 cluster worker var; her URL iki kez cagriliyor ki ikisi de isinsin.
-for _pass in 1 2; do
-  # shellcheck disable=SC2086
-  warm_urls "$UA_DESKTOP" $NAV_PATHS $TOP_PRODUCTS
-done
-warm_urls "$UA_MOBILE" "/"
+# Aday slot trafik gecisinden once isitildi; burada canli slotu bir kez tamamlariz.
+# shellcheck disable=SC2086
+warm_urls "$UA_DESKTOP" $NAV_PATHS $TOP_PRODUCTS
 warm_urls "$UA_MOBILE" "/"
 echo "    isitildi: $(printf '%s' "$NAV_PATHS" | wc -w) gezinti + $(printf '%s' "$TOP_PRODUCTS" | wc -w) urun sayfasi"
 
@@ -288,6 +242,17 @@ echo "    isitildi: $(printf '%s' "$NAV_PATHS" | wc -w) gezinti + $(printf '%s' 
 # Bu adim yoktu; 2026-08-24'te 146 bayat dizin ~28GB yer tutup diski %90'a
 # cikarmis ve admin build'ini OOM ile dusurmustu.
 echo "==> eski release dizinleri temizleniyor"
+ACTIVE_FRONTEND_DISTS="$(bash scripts/frontend-pm2.sh jlist | node -e '
+  let raw = "";
+  process.stdin.on("data", (chunk) => { raw += chunk; });
+  process.stdin.on("end", () => {
+    for (const proc of JSON.parse(raw)) {
+      if (!proc.name.startsWith("hal-frontend")) continue;
+      const hit = String(proc.pm2_env.pm_exec_path || "").match(/\.next-release-[a-f0-9]+/);
+      if (hit) console.log(hit[0]);
+    }
+  });
+')"
 for app_dir in "$FRONTEND" "$ADMIN"; do
   live_dist="$(readlink -f "$app_dir/standalone-server.js" 2>/dev/null | grep -o '\.next-release-[a-f0-9]*' | head -1 || true)"
   removed=0
@@ -296,6 +261,9 @@ for app_dir in "$FRONTEND" "$ADMIN"; do
     base="$(basename "$dist")"
     [ "$base" = "$RELEASE_DIST" ] && continue
     [ -n "$live_dist" ] && [ "$base" = "$live_dist" ] && continue
+    if [ "$app_dir" = "$FRONTEND" ] && printf '%s\n' "$ACTIVE_FRONTEND_DISTS" | grep -Fxq "$base"; then
+      continue
+    fi
     rm -rf "$dist"
     removed=$((removed + 1))
   done
@@ -325,7 +293,7 @@ fi
 if [ -x "$REPO_ROOT/scripts/ai-erisim-kontrol.sh" ]; then
   echo ""
   echo "==> AI erisim kontrolu (robots.txt + llms.txt)"
-  "$REPO_ROOT/scripts/ai-erisim-kontrol.sh" "http://127.0.0.1:3033" || {
+  "$REPO_ROOT/scripts/ai-erisim-kontrol.sh" "http://127.0.0.1:${FRONTEND_ACTIVE_PORT}" || {
     echo "    ⚠ AI erisimi BOZUK — yukaridaki satirlari duzeltmeden birakma."
   }
 fi
